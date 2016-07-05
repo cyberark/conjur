@@ -2,7 +2,7 @@ require 'slosilo'
 require 'slosilo/adapters/sequel_adapter'
 
 require 'sequel'
-require 'conjur/core_ext'
+require 'patches/core_ext'
 
 Sequel.extension :migration
 

@@ -27,9 +27,10 @@ Sequel.migration do
     
     create_table(:secrets) do
       column :resource_id, "text", :null=>false
+      column :counter, "integer", :default=>Sequel::LiteralString.new("nextval('secrets_seq'::regclass)"), :null=>false
       column :value, "bytea", :null=>false
       
-      primary_key [:resource_id]
+      primary_key [:resource_id, :counter]
     end
     
     create_table(:slosilo_keystore) do

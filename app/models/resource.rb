@@ -44,6 +44,10 @@ class Resource < Sequel::Model
     super(exclude: [ :secrets, :owner ]).merge('permissions' => permissions.as_json(opts), 'annotations' => annotations.as_json(opts))
   end
 
+  def role
+    Role[id] or raise "Role not found for #{id}"
+  end
+
   def permit privilege, role
     add_permission privilege: privilege, role: role
   end

@@ -38,6 +38,43 @@ class Role < Sequel::Model
     end
   end
   
+  def password= password
+    self.credentials ||= Credentials.new(role: self)
+    self.credentials.password = password
+    self.credentials.save(raise_on_save_failure: true)
+  end
+  
+  def api
+    require 'conjur/api'
+    Conjur::API.new_from_key login, api_key
+  end
+  
+  def api_key
+    unless self.credentials
+      account, kind, id = self.id.split(":", 3)
+      if %w(user host deputy).member?(kind)
+        self.credentials = Credentials.create(role: self)
+      else
+        raise "Role #{id} has no credentials" 
+      end
+    end
+    self.credentials.api_key
+  end
+  
+  def login
+    account, kind, id = self.id.split(":", 3)
+    raise "Cannot login as non-default account" unless account == default_account
+    if kind == "user"
+      id
+    else
+      [ kind, id ].join('/')
+    end
+  end
+  
+  def resource
+    Resource[id] or raise "Resource not found for #{id}"
+  end
+  
   def grant_to member, options = {}
     options[:admin_option] ||= false
     options[:member] = member

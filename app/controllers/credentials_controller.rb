@@ -93,16 +93,14 @@ class CredentialsController < ApplicationController
   # indicated by +id+ if the authenticated user has +update+ privilege on the authn service.
   def authorize_self_or_update
     return true if authentication.self?
-    raise Unauthorized, "Operation attempted against foreign user" unless current_user?
-    raise Unauthorized, "Insufficient privilege" unless user_resource.permitted?("update")
+    raise Unauthorized, "Operation attempted against foreign user" unless token_user?
+    raise Unauthorized, "Insufficient privilege" unless token_role = Role[roleid_from_username(token_user.login)]
+    raise Unauthorized, "Insufficient privilege" unless resource = @role.resource
+    raise Unauthorized, "Insufficient privilege" unless token_role.allowed_to? "update", resource
   end
   
   # Read privilege is always granted.
   def authorize_self_or_read
     true
-  end
-  
-  def user_resource
-    Resource[@credentials.role.id] or raise "No Resource for #{@credentials.role.id}"
   end
 end
