@@ -1,6 +1,6 @@
 require 'bcrypt'
 
-class AuthnUser < Sequel::Model(:"authn__users")
+class Credentials < Sequel::Model
   # Bcrypt work factor, minimum recommended work factor is 12
   BCRYPT_COST = 12
 
@@ -9,40 +9,20 @@ class AuthnUser < Sequel::Model(:"authn__users")
 
   unrestrict_primary_key
 
-  attr_encrypted :api_key, aad: :login
-  attr_encrypted :encrypted_hash, aad: :login
+  many_to_one :role, reciprocal: :credentials
+
+  attr_encrypted :api_key, aad: :role_id
+  attr_encrypted :encrypted_hash, aad: :role_id
   
   class << self
     def random_api_key
       require 'base32/crockford'
       Slosilo::Random.salt.unpack("N*").map{|i| Base32::Crockford::encode(i)}.join.downcase
     end
-    
-    def account
-      ENV['CONJUR_ACCOUNT'] or raise "No CONJUR_ACCOUNT available"
-    end
-  end
-  
-  def account; self.class.account; end
-  
-  def roleid
-    kind, id = login.split('/', 2)
-    if id.nil?
-      kind = "user"
-      id = login
-    end
-    [ account, kind, id ].join(":")
-  end
-  
-  alias resourceid roleid
-  
-  def to_param
-    require 'cgi'
-    CGI.escape(login)
   end
   
   def as_json
-    { login: login }
+    { }
   end
   
   def password= pwd
@@ -58,7 +38,7 @@ class AuthnUser < Sequel::Model(:"authn__users")
     super
 
     errors.add(:password, 'cannot contain a newline') if @plain_password && @plain_password.index("\n")
-    validates_presence [ :login, :api_key ]
+    validates_presence [ :api_key ]
   end
   
   def before_validation

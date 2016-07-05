@@ -1,5 +1,6 @@
-class AuthnUsersController < ApplicationController
+class CredentialsController < ApplicationController
   include BasicAuthenticator
+  include TokenUser
 
   # Read authentication from token, basic, or CAS.
   # Some form of authentication must be provided for all methods except +authenticate+, which
@@ -7,7 +8,7 @@ class AuthnUsersController < ApplicationController
   before_filter :authenticate_client
 
   # For other methods, the username can come from an +id+ parameter, or from the authenticated username.
-  before_filter :find_user, only: [ :update_password, :rotate_api_key, :login, :show ]
+  before_filter :find_role, only: [ :update_password, :rotate_api_key, :login, :show ]
 
   # Token authentication can only be used by regular users to show their own record.
   before_filter :restrict_token_auth, except: [ :show ]
@@ -32,57 +33,51 @@ class AuthnUsersController < ApplicationController
       return
     end
     
-    @user.password = password
-    save_user do
+    @role.credentials.password = password
+    save_credentials do
       head 204
     end
-  end
-  
-  # Show a user record, including the login and CIDR. API and password are never displayed.
-  #
-  # Password and API key are never shown.
-  def show
-    render json: @user.as_json
   end
   
   # Rotate a user API key.
   #
   # The new API key is in the request body.
   def rotate_api_key
-    @user.rotate_api_key
-    save_user do
-      render text: @user.api_key
+    @role.credentials.rotate_api_key
+    save_credentials do
+      render text: @role.credentials.api_key
     end
   end
   
   def login
-    render text: @user.api_key
+    render text: @role.credentials.api_key
   end
   
   protected
   
-  def save_user
-    if @user.save
+  def save_credentials
+    if @role.credentials.save
       yield
     else
-      render json: @user.errors, status: :unprocessable_entity
+      render json: @credentials.errors, status: :unprocessable_entity
     end
   end
   
   def authenticate_client
-    authentication.token_user = current_user if current_user?
+    authentication.token_user = token_user if token_user?
     perform_basic_authn
     raise Unauthorized, "Client not authenticated" unless authentication.authenticated?
   end
 
-  def find_user
-    authentication.user_id = params[:id]
-    raise Unauthorized, "User not found" unless @user = authentication.database_user
+  def find_role
+    authentication.role_id = params[:id]
+    raise Unauthorized, "User not found" unless @role = authentication.database_role
+    @role.credentials ||= Credentials.new(role: @role)
   end
   
   # Don't permit token auth when manipulating 'self' record.
   def restrict_token_auth
-    if authentication.user_id
+    if authentication.role_id
       true
     else
       raise Unauthorized, "Credential strength is insufficient" unless authentication.basic_user
@@ -108,6 +103,6 @@ class AuthnUsersController < ApplicationController
   end
   
   def user_resource
-    current_user.api.resource(@user.resourceid)
+    Resource[@credentials.role.id] or raise "No Resource for #{@credentials.role.id}"
   end
 end

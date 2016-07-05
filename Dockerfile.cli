@@ -1,0 +1,23 @@
+FROM phusion/baseimage:0.9.18
+
+RUN apt-get update -y
+
+RUN apt-get install -y \
+  postgresql-client \
+  libpq-dev \
+  ldap-utils \
+  update-notifier-common \
+  vim \
+  curl \
+  jq \
+  git
+
+# Install the Conjur CLI
+RUN curl -o conjur.deb -sSL https://github.com/conjurinc/cli-ruby/releases/download/v5.2.3/conjur_5.2.3-1_amd64.deb && \
+  dpkg -i conjur.deb
+
+ENV PATH /opt/conjur/embedded/bin:$PATH
+ENV TERM xterm
+
+# Start the SSH service so the container doesn't exit
+RUN rm -f /etc/service/sshd/down

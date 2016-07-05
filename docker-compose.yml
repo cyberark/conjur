@@ -1,0 +1,22 @@
+pg:
+  image: postgres:9.3
+app-dev:
+  build: .
+  dockerfile: Dockerfile.dev
+  environment:
+    DATABASE_URL: postgres://postgres@pg/postgres
+    CONJUR_ACCOUNT: dev
+  volumes:
+  - .:/src/possum
+  - ../conjur-policy-parser:/src/conjur-policy-parser
+  links:
+  - pg:pg
+cli:
+  build: .
+  dockerfile: Dockerfile.cli
+  environment:
+    CONJUR_APPLIANCE_URL: http://possum:3000
+    CONJUR_ACCOUNT: dev
+  links:
+  - app-dev:possum
+  - pg:pg

@@ -1,14 +1,14 @@
 module BasicAuthenticator
-  def self.included(base)
-    base.instance_eval do
-      include ActionController::HttpAuthentication::Basic::ControllerMethods
-    end
+  extend ActiveSupport::Concern
+  
+  included do
+    include ActionController::HttpAuthentication::Basic::ControllerMethods
   end
   
   def perform_basic_authn
     authenticate_with_http_basic do |username, password|
-      user = AuthnUser[username]
-      if user && user.authenticate(password)
+      role = Credentials[Role.roleid_from_username(username)]
+      if role && role.authenticate(password)
         authentication.basic_user = username
       end
     end if request.authorization =~ /^Basic / # we need to check the auth method.

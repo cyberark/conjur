@@ -28,6 +28,10 @@ module Possum
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
     
+    config.sequel.after_connect = proc do
+      Sequel.extension :core_extensions
+    end
+    
     config.encoding = "utf-8"
     config.active_support.escape_html_entities_in_json = true
   end

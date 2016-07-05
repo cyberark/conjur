@@ -1,0 +1,37 @@
+FROM phusion/baseimage:0.9.18
+
+RUN apt-get update -y && \
+    apt-get install -y software-properties-common && \
+    apt-add-repository -y ppa:brightbox/ruby-ng && \
+    apt-get update -y
+    
+RUN apt-get install -y \
+      build-essential \
+      ruby2.2 ruby2.2-dev \
+      postgresql-client \
+      libpq-dev \
+      unattended-upgrades \
+      ldap-utils \
+      update-notifier-common
+
+RUN apt-get install -y \
+  vim \
+  curl \
+  jq \
+  git
+
+WORKDIR /src/possum
+
+RUN mkdir -p /src/possum
+
+ADD Gemfile      .
+ADD Gemfile.lock .
+
+RUN gem install -N -v 1.11.2 bundler
+
+EXPOSE 3000
+
+ENV TERM xterm
+
+# Start the SSH service so the container doesn't exit
+RUN rm -f /etc/service/sshd/down

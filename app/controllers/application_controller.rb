@@ -1,27 +1,28 @@
 class ApplicationController < ActionController::API
+  include Authenticates
+    
   class Unauthorized < RuntimeError
   end
   
   rescue_from Unauthorized, with: :unauthorized
+  rescue_from ArgumentError, with: :unprocessable_entity
 
-  def authentication_token
-    Slosilo[:own].signed_token @user.login
+  def unprocessable_entity  e
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    head :unprocessable_entity
   end
-  
-  def authentication
-    @authentication ||= Authentication.new
-  end
-  
+
   def unauthorized e
-    logger.info(e)
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
     head :unauthorized
   end
   
-  def current_user?
-    Conjur::Rack.identity?
+  # Gets the value of the :account parameter.
+  def current_account
+    @account ||= params[:account]
   end
   
-  def current_user
-    Conjur::Rack.user
+  def roleid_from_username login
+    Role.roleid_from_username login
   end
 end
