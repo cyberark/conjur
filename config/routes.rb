@@ -42,4 +42,6 @@ Rails.application.routes.draw do
 
   # TODO
   post "/audit" => "audit#inject_audit_event"
+  
+  get "/info" => "info#show"
 end

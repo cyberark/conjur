@@ -21,3 +21,11 @@ cli:
   links:
   - app-dev:possum
   - pg:pg
+ui:
+  image: conjurinc/conjur-ui
+  environment:
+    CONJUR_APPLIANCE_URL: http://conjur:3000
+  ports:
+  - 443
+  links:
+  - app-dev:conjur

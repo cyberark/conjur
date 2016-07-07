@@ -14,6 +14,7 @@ class Resource < Sequel::Model
       response.delete("secrets")
       
       response["id"] = response.delete("resource_id")
+      response["owner"] = response.delete("owner_id")
       response["permissions"] = self.permissions.as_json
       response["annotations"] = self.annotations.as_json
     end

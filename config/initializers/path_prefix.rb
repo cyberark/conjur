@@ -1,1 +1,3 @@
-Possum::Application.config.middleware.insert_before Rails::Rack::Logger, Conjur::Rack::PathPrefix, '/api/authn'
+Possum::Application.config.middleware.insert_before Rails::Rack::Logger, Conjur::Rack::PathPrefix, '/api'
+
+
