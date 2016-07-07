@@ -19,11 +19,11 @@ Sequel.migration do
         SELECT COUNT(*) > 0 FROM (
           SELECT 1 FROM all_roles, resources 
           WHERE owner_id = role_id
-            AND resources.id = $3
+            AND resources.resource_id = $3
         UNION
           SELECT 1 FROM all_roles NATURAL JOIN permissions NATURAL JOIN resources
           WHERE privilege = $2
-            AND resources.id = $3
+            AND resources.resource_id = $3
         ) AS _
       $_$;)
     
@@ -35,7 +35,7 @@ Sequel.migration do
               WHERE privilege = $1
                 AND resource_id = $2
             UNION SELECT owner_id FROM resources
-                WHERE resources.id = $2
+                WHERE resources.resource_id = $2
             UNION SELECT member_id AS role_id FROM role_memberships ms NATURAL JOIN allowed_roles
             ) SELECT DISTINCT r.* FROM roles r NATURAL JOIN allowed_roles;
         $_$)

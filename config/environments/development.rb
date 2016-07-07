@@ -13,6 +13,10 @@ Rails.application.configure do
   config.consider_all_requests_local       = true
   config.action_controller.perform_caching = false
 
+  # Use the lowest log level to ensure availability of diagnostic information
+  # when problems arise.
+#  config.log_level = :debug
+
   # Don't care if the mailer can't send.
   # config.action_mailer.raise_delivery_errors = false
 

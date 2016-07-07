@@ -7,8 +7,8 @@ module BasicAuthenticator
   
   def perform_basic_authn
     authenticate_with_http_basic do |username, password|
-      role = Credentials[Role.roleid_from_username(username)]
-      if role && role.authenticate(password)
+      credentials = Credentials[Role.roleid_from_username(username)]
+      if credentials && credentials.authenticate(password)
         authentication.basic_user = username
       end
     end if request.authorization =~ /^Basic / # we need to check the auth method.

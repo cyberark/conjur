@@ -7,21 +7,26 @@ class CredentialsController < ApplicationController
   # expects the API key in the request body.
   before_filter :authenticate_client
 
-  # For other methods, the username can come from an +id+ parameter, or from the authenticated username.
-  before_filter :find_role, only: [ :update_password, :rotate_api_key, :login, :show ]
+  # The username can also come from an +id+ parameter, if the operation will be performed on a different
+  # user than the authenticated user.
+  before_filter :accept_id_parameter
+    
+  # Ensure that the referenced role exists.
+  before_filter :find_role
 
-  # Token authentication can only be used by regular users to show their own record.
-  before_filter :restrict_token_auth, except: [ :show ]
+  # Token authentication cannot be used to update +self+ credentials.
+  before_filter :restrict_token_auth
   
-  # Users can show their own record, and +read+ privilege on the authn service enables a superuser
-  # to show any user's record.
-  before_filter :authorize_self_or_read, only: [ :show ]
   # Users can update their own record, and +update+ privilege on the authn service enables a superuser
   # to update any user's record.
   before_filter :authorize_self_or_update, only: [ :rotate_api_key ]
-  # Users are permitted to perform any other operation on their own record.
-  before_filter :authorize_self, except: [ :show, :rotate_api_key ]
+    
+  # Users are always permitted to perform some operations on their own record.
+  before_filter :authorize_self, except: [ :rotate_api_key ]
 
+  # Ensure the credentials exist if they will be accessed or modified.
+  before_filter :ensure_credentials, only: [ :update_password, :rotate_api_key, :login ]
+    
   # Update the authenticated user's password. The implication of this is that if you can login as a user, you can change
   # that user's password.
   #
@@ -69,9 +74,23 @@ class CredentialsController < ApplicationController
     raise Unauthorized, "Client not authenticated" unless authentication.authenticated?
   end
 
+  # Accept params[:id], but ignore it if it refers to the same user as the token auth.
+  def accept_id_parameter
+    if params[:id]
+      id_roleid = roleid_from_username(params[:id])
+      unless token_user? && id_roleid == roleid_from_username(token_user.login)
+        authentication.role_id = id_roleid
+      end
+    end
+    true
+  end
+      
   def find_role
-    authentication.role_id = params[:id]
     raise Unauthorized, "User not found" unless @role = authentication.database_role
+  end
+  
+  # Ensure that the current role has credentials.
+  def ensure_credentials
     @role.credentials ||= Credentials.new(role: @role)
   end
   

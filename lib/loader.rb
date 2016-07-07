@@ -17,7 +17,7 @@ class Loader
 
       DB[:roles].delete
 
-      ::Role.create id: "#{account}:user:admin"
+      ::Role.create role_id: "#{account}:user:admin"
       
       records.map(&:create!)
     end

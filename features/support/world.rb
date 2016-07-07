@@ -1,10 +1,24 @@
 module PossumWorld
-  def params
-    @params ||= {}
+  
+  USER_NAMES = %w(auto-larry auto-mike auto-norbert auto-otto)
+  
+  def authn_params
+    raise "No selected user" unless @selected_user
+    @authn_params = {
+      id: @selected_user.login
+    }
   end
   
   def namespace
     @namespace
+  end
+  
+  def users
+    @users ||= {}
+  end
+  
+  def lookup_user login
+    users[login] or raise "No such user '#{login}'"
   end
   
   def admin_user
@@ -12,25 +26,28 @@ module PossumWorld
       # Create the admin user and grant it 'admin' role
       admin_login = user_login('admin')
               
-      admin_user = Role.create(id: "cucumber:user:#{admin_login}")
+      admin_user = Role.create(role_id: "cucumber:user:#{admin_login}")
       Credentials.new(role: admin_user).save(raise_on_save_failure: true)
-      
-      Role['cucumber:user:admin'].grant_to admin_user, admin_option: true
       
       @admin_user = admin_user
     end
     @admin_user
   end
   
-  def normal_user
-    unless @normal_user
-      # Create a regular user, owned by the admin user
-      normal_user = Role.create(id: "cucumber:user:#{user_login('alice')}")
-      Credentials.new(role: normal_user).save(raise_on_save_failure: true)
-
-      @normal_user = normal_user
+  # Create a regular user, owned by the admin user
+  def create_user login = nil
+    unless login
+      login = USER_NAMES[@user_index]
+      @user_index += 1
     end
-    @normal_user
+    
+    roleid = "cucumber:user:#{user_login(login)}"
+    Role.create(role_id: roleid).tap do |user|
+      user.grant_to admin_user, admin_option: true
+      Credentials.new(role: user).save(raise_on_save_failure: true)
+      Resource.create(resource_id: roleid, owner: admin_user)
+      users[login] = user
+    end
   end
   
   def user_login login
@@ -38,16 +55,12 @@ module PossumWorld
   end
   
   def current_user_credentials
-    @current_user ? @current_user.api.credentials : @user.api.credentials
+    @current_user.api.credentials
   end
 
   def current_user_basic_auth password = nil
-    if @current_user
-      { user: @current_user.login, password: 'password' }
-    else
-      password ||= @user.api_key
-      { user: @user.login, password: password }
-    end
+    password ||= @current_user.api_key
+    { user: @current_user.login, password: password }
   end
   
   def token_auth_request

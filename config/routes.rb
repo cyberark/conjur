@@ -9,11 +9,6 @@ class QueryParameterActionRecognizer
 end
 
 Rails.application.routes.draw do
-  # error pages
-  %w( 500 ).each do |code|
-    get code, :to => "errors#show", :code => code
-  end
-  
   scope format: false do
     get  '/authn/users/login' => 'credentials#login'
     put '/authn/users/password' => 'credentials#update_password'

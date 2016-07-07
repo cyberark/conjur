@@ -18,11 +18,11 @@ gem 'slosilo', '>=2.0.0'
 
 gem 'methadone'
 
-gem 'conjur-rack', git: 'https://github.com/conjurinc/conjur-rack', branch: 'master'
-gem 'conjur-asset-authn-local', :git => 'https://github.com/conjurinc/conjur-asset-authn-local', :branch => 'master'
+gem 'conjur-rack', github: 'conjurinc/conjur-rack', branch: 'master'
 gem 'conjur-rack-heartbeat'
-
-gem 'conjur-policy-parser', :github => 'conjurinc/conjur-policy-parser', :branch => 'master'
+gem 'conjur-asset-authn-local', github: 'conjurinc/conjur-asset-authn-local', branch: 'master'
+gem 'conjur-appliance-logging', github: 'conjurinc/appliance-logging', branch: 'master'
+gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'master'
 
 group :development, :test do
   gem 'spring'

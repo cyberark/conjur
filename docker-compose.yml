@@ -5,7 +5,7 @@ app-dev:
   dockerfile: Dockerfile.dev
   environment:
     DATABASE_URL: postgres://postgres@pg/postgres
-    CONJUR_ACCOUNT: dev
+    CONJUR_ACCOUNT: cucumber
   volumes:
   - .:/src/possum
   - ../conjur-policy-parser:/src/conjur-policy-parser
@@ -16,7 +16,7 @@ cli:
   dockerfile: Dockerfile.cli
   environment:
     CONJUR_APPLIANCE_URL: http://possum:3000
-    CONJUR_ACCOUNT: dev
+    CONJUR_ACCOUNT: cucumber
   links:
   - app-dev:possum
   - pg:pg

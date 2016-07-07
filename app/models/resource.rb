@@ -8,6 +8,8 @@ class Resource < Sequel::Model
   
   plugin :json_id_serializer   
   
+  alias id resource_id
+
   class << self
     def make_full_id id
       Role.make_full_id id

@@ -1,4 +1,19 @@
 GIT
+  remote: git://github.com/conjurinc/appliance-logging.git
+  revision: cb3e61a7dd1c031abf0beef69c9c97c07a12aae6
+  branch: master
+  specs:
+    conjur-appliance-logging (0.3.0)
+
+GIT
+  remote: git://github.com/conjurinc/conjur-asset-authn-local.git
+  revision: 167584f7e4c894098cbea31371ad5931e3c92280
+  branch: master
+  specs:
+    conjur-asset-authn-local (0.1.1)
+      conjur-api
+
+GIT
   remote: git://github.com/conjurinc/conjur-policy-parser.git
   revision: c94ad3d6d628776d136d89c2ff0461e947cce13c
   branch: master
@@ -6,6 +21,16 @@ GIT
     conjur-policy-parser (0.12.0)
       activesupport (~> 4.2)
       safe_yaml
+
+GIT
+  remote: git://github.com/conjurinc/conjur-rack.git
+  revision: 280b4e5735c620e2c75e0fe4b85b2615afd32976
+  branch: master
+  specs:
+    conjur-rack (2.2.0)
+      conjur-api (>= 4.17)
+      rack
+      slosilo
 
 GIT
   remote: git://github.com/dividedmind/sequel-rails.git
@@ -17,24 +42,6 @@ GIT
       activemodel
       railties (>= 3.2.0)
       sequel (>= 3.28, < 5.0)
-
-GIT
-  remote: https://github.com/conjurinc/conjur-asset-authn-local
-  revision: 167584f7e4c894098cbea31371ad5931e3c92280
-  branch: master
-  specs:
-    conjur-asset-authn-local (0.1.1)
-      conjur-api
-
-GIT
-  remote: https://github.com/conjurinc/conjur-rack
-  revision: 280b4e5735c620e2c75e0fe4b85b2615afd32976
-  branch: master
-  specs:
-    conjur-rack (2.2.0)
-      conjur-api (>= 4.17)
-      rack
-      slosilo
 
 GEM
   remote: https://rubygems.org/
@@ -254,6 +261,7 @@ DEPENDENCIES
   base32-crockford
   bcrypt-ruby (~> 3.0.0)
   byebug
+  conjur-appliance-logging!
   conjur-asset-authn-local!
   conjur-cli
   conjur-debify

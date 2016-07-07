@@ -11,7 +11,7 @@ require 'conjur/api'
 require 'conjur/cli'
 require 'conjur/authn'
 
-admin = Role["cucumber:user:admin"] || Role.create(id: "cucumber:user:admin")
+admin = Role["cucumber:user:admin"] || Role.create(role_id: "cucumber:user:admin")
 unless admin.credentials
   Credentials.create role: admin
   admin.reload

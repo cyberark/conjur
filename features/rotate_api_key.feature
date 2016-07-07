@@ -1,16 +1,22 @@
-Feature: Rotating the API key
+Feature: Rotating API keys
 
-  Scenario: Authenticated users can rotate their own API key
-    Given a new user
+  @logged-in
+  Scenario: Password can be used to obtain API key
+    Given I have a password
     Then I can rotate the API key
-    And I can login
 
-  Scenario: Bearer token cannot be used to rotate the API key
-    Given a new user
-    And I rotate the API key using a bearer token
+  @logged-in
+  Scenario: API key cannot be rotated by foreign login without 'update' privilege
+    Given a new user "bob"
+    And I operate on "bob"
+    When I rotate the API key using a bearer token
     Then it's not authenticated
 
-  Scenario: "Super" users can rotate user API keys
-    Given a new user
-    And I am a super-user
+  @logged-in
+  Scenario: API key can be rotated by foreign login having 'update' privilege
+    Given a new user "bob"
+    And a new user "charles"
+    And I permit user "bob" to "update" user "charles"
+    And I login as "bob"
+    And I operate on "charles"
     Then I can rotate the API key using a bearer token

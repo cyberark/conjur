@@ -12,7 +12,7 @@ class Authentication
   end
   
   def database_role
-    @role ||= Role[Role.roleid_from_username(role_id || authenticated_username)]
+    @role ||= Role[role_id || Role.roleid_from_username(authenticated_username)]
   end
   
   # Account name of the authenticated user.

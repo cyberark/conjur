@@ -9,11 +9,11 @@ Sequel.migration do
     end
     
     create_table(:roles) do
-      column :id, "text", :null=>false
+      column :role_id, "text", :null=>false
       column :uidnumber, "integer"
       column :gidnumber, "integer"
       
-      primary_key [:id]
+      primary_key [:role_id]
       
       index [:gidnumber], :unique=>true
       index [:uidnumber], :unique=>true
@@ -44,15 +44,15 @@ Sequel.migration do
     end
     
     create_table(:resources) do
-      column :id, "text", :null=>false
-      foreign_key :owner_id, :roles, :type=>"text", :null=>false, :key=>[:id], :on_delete=>:cascade
+      column :resource_id, "text", :null=>false
+      foreign_key :owner_id, :roles, :type=>"text", :null=>false, :key=>[:role_id], :on_delete=>:cascade
       
-      primary_key [:id]
+      primary_key [:resource_id]
     end
     
     create_table(:role_memberships) do
-      foreign_key :role_id, :roles, :type=>"text", :null=>false, :key=>[:id], :on_delete=>:cascade
-      foreign_key :member_id, :roles, :type=>"text", :null=>false, :key=>[:id], :on_delete=>:cascade
+      foreign_key :role_id, :roles, :type=>"text", :null=>false, :key=>[:role_id], :on_delete=>:cascade
+      foreign_key :member_id, :roles, :type=>"text", :null=>false, :key=>[:role_id], :on_delete=>:cascade
       column :admin_option, "boolean", :default=>false, :null=>false
       
       primary_key [:role_id, :member_id]
@@ -61,7 +61,7 @@ Sequel.migration do
     end
     
     create_table(:annotations) do
-      foreign_key :resource_id, :resources, :type=>"text", :null=>false, :key=>[:id], :on_delete=>:cascade
+      foreign_key :resource_id, :resources, :type=>"text", :null=>false, :key=>[:resource_id], :on_delete=>:cascade
       column :name, "text", :null=>false
       column :value, "text", :null=>false
       
@@ -73,8 +73,8 @@ Sequel.migration do
     create_table(:permissions) do
       column :privilege, "text", :null=>false
       column :grant_option, "boolean", :default=>false, :null=>false
-      foreign_key :resource_id, :resources, :type=>"text", :null=>false, :key=>[:id], :on_delete=>:cascade
-      foreign_key :role_id, :roles, :type=>"text", :null=>false, :key=>[:id], :on_delete=>:cascade
+      foreign_key :resource_id, :resources, :type=>"text", :null=>false, :key=>[:resource_id], :on_delete=>:cascade
+      foreign_key :role_id, :roles, :type=>"text", :null=>false, :key=>[:role_id], :on_delete=>:cascade
       
       primary_key [:privilege, :resource_id, :role_id]
     end

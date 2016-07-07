@@ -7,6 +7,8 @@ class Role < Sequel::Model
   
   plugin :json_id_serializer
   
+  alias id role_id
+  
   class << self
     def make_full_id id
       tokens = id.split(":") rescue []

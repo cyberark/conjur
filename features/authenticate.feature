@@ -1,22 +1,19 @@
 Feature: Obtaining a bearer token
 
+  @logged-in
   Scenario: User can authenticate as herself
-    Given a user
     Then I can authenticate
 
+  @logged-in
   Scenario: Invalid credentials result in 401 error
-    Given a user
     And I use the wrong password
     When I authenticate
     Then it's not authenticated
 
+  @logged-in-admin
   Scenario: "Super" users cannot authenticate as other users
-    Given a user
-    And I am a super-user
+    Given a new user "alice"
+    And I operate on "alice"
     And I use the wrong password
     When I authenticate
     Then it's not authenticated
-
-  Scenario: New user can authenticate
-    Given a new user
-    Then I can authenticate
