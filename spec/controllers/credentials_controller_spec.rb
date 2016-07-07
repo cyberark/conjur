@@ -1,29 +1,7 @@
 require 'spec_helper'
 
-describe AuthnUsersController, :type => :controller do
-  before(:all) do
-    AuthnUser.create(login: 'admin', password: 'password') unless AuthnUser['admin']
-  end
-
-  before do
-    AuthnUser.stub account: 'the-account'
-    allow(subject).to receive(:audit_send_api).and_return double.as_null_object
-  end
-
-  let(:password) { "password" }
+describe CredentialsController, :type => :controller do
   let(:login) { "u-#{SecureRandom.uuid}" }
-  
-  context "#show" do
-    include_context "create user"
-    it "succeeds" do
-      allow(controller).to receive(:current_user?).and_return(true)
-      allow(controller).to receive(:current_user).and_return(double(:user, account: 'the-account', login: login))
-      
-      get :show
-      expect(response).to be_ok
-      expect(JSON.parse(response.body)).to eq(the_user.as_json.stringify_keys)
-    end
-  end
   
   context "#login" do
     shared_examples_for "successful authentication" do
@@ -45,12 +23,14 @@ describe AuthnUsersController, :type => :controller do
       it_should_behave_like "authentication denied"
     end
     context "when user doesn't exist" do
+      let(:basic_password) { "the-password" }
       include_context "authenticate Basic"
       it_should_behave_like "authentication denied"
     end
     context "when user exists" do
       include_context "create user"
       context "with basic auth" do
+        let(:basic_password) { api_key }
         include_context "authenticate Basic"
         it_should_behave_like "successful authentication"
       end
@@ -80,23 +60,26 @@ describe AuthnUsersController, :type => :controller do
     context "with basic auth" do
       include_context "authenticate Basic"
       context "user not found" do
+        let(:basic_password) { "the-password" }
         it_should_behave_like "authentication denied"
       end
       context "on valid user" do
+        let(:basic_password) { api_key }
         include_context "create user"
         it "rotates the user's API key" do
           api_key = the_user.api_key
           post :rotate_api_key
-          the_user.reload
+          the_user.credentials.reload
           expect(response.code).to eq("200")
-          expect(response.body).to eq(the_user.api_key)
-          expect(the_user.api_key).to_not eq(api_key)
+          expect(response.body).to eq(the_user.credentials.api_key)
+          expect(the_user.credentials.api_key).to_not eq(basic_password)
         end
       end
     end
   end
   
   context "#update_password" do
+    let(:new_password) { "new-password" }
     context "without auth" do
       it "is unauthorized" do
         post :update_password
@@ -104,6 +87,7 @@ describe AuthnUsersController, :type => :controller do
       end
     end
     context "with basic auth" do
+      let(:basic_password) { api_key }
       include_context "create user"
       include_context "authenticate Basic"
       context "without post body" do
@@ -114,32 +98,25 @@ describe AuthnUsersController, :type => :controller do
         end
       end
       context "with post body" do
-        let(:user) { double(:user) }
-        before { request.env['RAW_POST_DATA'] = password }
-        before {
-          allow(AuthnUser).to receive(:[]).with(login).and_return user
-          expect(user).to receive(:authenticate).with(password).and_return true
-          expect(user).to receive(:password=).with(password)
-        }
+        before { request.env['RAW_POST_DATA'] = new_password }
         context "and valid password" do
-          let(:password) { "the-password" }
           it "updates the password" do
-            expect(user).to receive(:save).and_return true
             post :update_password
             expect(response.code).to eq("204")
+            the_user.credentials.reload
+            expect(the_user.credentials.authenticate(new_password)).to be(true)
           end
         end
         context "and invalid password" do
-          let(:password) { "the\npassword" }
+          let(:new_password) { "the\npassword" }
           let(:errors) {
-            { password: "is invalid" }
+            { password: ["cannot contain a newline"] }
           }
           it "reports the error" do
-            expect(user).to receive(:save).and_return false
-            expect(user).to receive(:errors).and_return errors
             post :update_password
             expect(response.code).to eq("422")
             expect(response.body).to eq(errors.to_json)
+            expect(the_user.credentials.authenticate(new_password)).to be(false)
           end
         end
       end

@@ -28,6 +28,7 @@ group :development, :test do
   gem 'spring'
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
+  gem 'json_spec'
   gem 'conjur-cli'
   gem 'conjur-debify'
   gem 'rspec'

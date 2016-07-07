@@ -6,9 +6,18 @@ class Resource < Sequel::Model
   one_to_many :secrets,     reciprocal: :resource
   many_to_one :owner, class: :Role
   
-  plugin :json_id_serializer   
-  
   alias id resource_id
+  
+  def as_json options = {}
+    super(options).tap do |response|
+      # In case
+      response.delete("secrets")
+      
+      response["id"] = response.delete("resource_id")
+      response["permissions"] = self.permissions.as_json
+      response["annotations"] = self.annotations.as_json
+    end
+  end
 
   class << self
     def make_full_id id
@@ -23,8 +32,8 @@ class Resource < Sequel::Model
     def search kind: nil, owner: nil, offset: nil, limit: nil
       scope = self
       # Filter by kind
-      scope = scope.where Sequel.function(:kind, :id) => kind if kind
-
+      scope = scope.where("(?)[2] = ?", ::Sequel.function(:regexp_split_to_array, :resource_id, ':'), kind) if kind
+      
       # Filter by owner
       if owner
         owners = Resource.from(::Sequel.function(:all_roles, owner.id)).select(:role_id)
@@ -40,10 +49,6 @@ class Resource < Sequel::Model
 
       scope
     end
-  end
-
-  def as_json opts = {}
-    super(exclude: [ :secrets, :owner ]).merge('permissions' => permissions.as_json(opts), 'annotations' => annotations.as_json(opts))
   end
 
   def role

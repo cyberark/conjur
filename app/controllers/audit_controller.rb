@@ -1,0 +1,2 @@
+class AuditController < RestController
+end

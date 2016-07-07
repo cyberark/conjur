@@ -7,6 +7,7 @@ if ENV['DEBUG']
   Sequel::Model.db.loggers << Logger.new($stdout)
 end
 
+require 'json_spec/cucumber'
 require 'conjur/api'
 require 'conjur/cli'
 require 'conjur/authn'

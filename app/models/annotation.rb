@@ -7,6 +7,12 @@ class Annotation < Sequel::Model
   
   many_to_one :resource, reciprocal: :annotations
   
+  def as_json options = {}
+    options[:except] ||= []
+    options[:except].push :resource_id
+    super options
+  end
+
   def validate
     super
     

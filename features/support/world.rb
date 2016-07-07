@@ -9,8 +9,17 @@ module PossumWorld
     }
   end
   
+  def last_json
+    raise "No result captured!" unless @result
+    strip_namespace(JSON.pretty_generate(@result))
+  end
+  
   def namespace
     @namespace
+  end
+  
+  def user_namespace
+    namespace.gsub('/', '-')
   end
   
   def users
@@ -51,7 +60,7 @@ module PossumWorld
   end
   
   def user_login login
-    [ login, namespace.gsub('/', '-') ].join("@")
+    [ login, user_namespace ].join("@")
   end
   
   def current_user_credentials
@@ -91,7 +100,7 @@ module PossumWorld
   
   def strip_namespace text
     return "" if text.nil?
-    text.gsub "#{namespace}/", ""
+    text.gsub("#{namespace}/", "").gsub("@#{user_namespace}", "")
   end  
 end
 

@@ -1,7 +1,7 @@
 shared_context "authenticate Basic" do
   let(:params) { {} }
   let(:basic_auth_header) { 
-    basic = Base64.strict_encode64([login, password].join(':'))
+    basic = Base64.strict_encode64([login, basic_password].join(':'))
     "Basic #{basic}"
   }
   before {
@@ -20,8 +20,14 @@ end
 
 shared_context "create user" do
   let(:the_user) { 
-    AuthnUser.create(login: login, password: password)
+    Role.create(role_id: "rspec:user:#{login}").tap do |role|
+      options = { role: role }
+      options[:password] = password if defined?(password) && password
+      Credentials.create(options)
+      role.reload
+    end
   }
+  let(:api_key) { the_user.credentials.api_key }
   before {
     the_user
   }

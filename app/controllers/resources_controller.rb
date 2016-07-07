@@ -1,18 +1,20 @@
 class ResourcesController < RestController
   before_filter :find_resource, only: [ :show, :permitted_roles, :check_permission ]
 
+  # ResourceItem = Struct.new(:id, :owner_id, :permissions, :annotations)
+    
   def index
-    fields = params.delete(:fields)
+    ids = params.delete(:ids)
     options = params.slice(:kind, :limit, :offset).symbolize_keys
     if params[:owner]
       options[:owner] = Role[roleid_from_username(params[:owner])] || raise(IndexError)
     end
     
     scope = Resource.search(options)
-    result = if fields
-      scope.select(:resources.id).all
+    result = if ids
+      scope.select(:resources.resource_id).all
     else
-      scope.select(:resources.*).eager(:annotations).eager(:permissions).eager(:owner).all
+      scope.select(:resources.*).eager(:annotations).eager(:permissions).all
     end
   
     render json: result

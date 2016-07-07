@@ -5,7 +5,6 @@ class Credentials < Sequel::Model
   BCRYPT_COST = 12
 
   plugin :validation_helpers
-  plugin :json_serializer
 
   unrestrict_primary_key
 

@@ -4,5 +4,10 @@ class Permission < Sequel::Model
   many_to_one :resource, reciprocal: :permissions
   many_to_one :role
 
-  plugin :json_id_serializer
+  def as_json options = {}
+    super(options).tap do |response|
+      response["resource"] = response.delete("resource_id")
+      response["role"] = response.delete("role_id")
+    end
+  end
 end

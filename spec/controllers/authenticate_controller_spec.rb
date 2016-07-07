@@ -1,10 +1,6 @@
 require 'spec_helper'
 
 describe AuthenticateController, :type => :controller do
-  before(:all) do
-    AuthnUser.create(login: 'admin', password: 'password') unless AuthnUser['admin']
-  end
-  
   let(:password) { "password" }
   let(:login) { "u-#{SecureRandom.uuid}" }
 
@@ -58,7 +54,7 @@ describe AuthenticateController, :type => :controller do
     end
     
     context "with api key" do
-      before { request.env['RAW_POST_DATA'] = AuthnUser[login].api_key }
+      before { request.env['RAW_POST_DATA'] = the_user.credentials.api_key }
       it_succeeds
 
       it "is fast", :performance do

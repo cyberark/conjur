@@ -5,9 +5,16 @@ class Role < Sequel::Model
   one_to_many :memberships_as_member, class: :RoleMembership, key: :member_id
   one_to_one  :credentials, reciprocal: :role
   
-  plugin :json_id_serializer
-  
   alias id role_id
+
+  def as_json options = {}
+    options[:exclude] ||= []
+    options[:exclude] << :credentials
+      
+    super(options).tap do |response|
+      response["id"] = response.delete("role_id")
+    end
+  end
   
   class << self
     def make_full_id id

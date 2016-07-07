@@ -64,7 +64,7 @@ class CredentialsController < ApplicationController
     if @role.credentials.save
       yield
     else
-      render json: @credentials.errors, status: :unprocessable_entity
+      render json: @role.credentials.errors, status: :unprocessable_entity
     end
   end
   
