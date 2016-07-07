@@ -19,31 +19,27 @@ Rails.application.routes.draw do
     end
   end
   
-  # Works
   get "/authz/:account/roles/allowed_to/:permission/:kind/*identifier" => "resources#permitted_roles", :format => false
   
-  get "/authz/:account/roles/:kind" => "roles#all_roles", :constraints => QueryParameterActionRecognizer.new("all"), :format => false
-  get "/authz/:account/roles/:kind/*identifier" => "roles#all_roles", :constraints => QueryParameterActionRecognizer.new("all"), :format => false
+  get "/authz/:account/roles/:kind/*identifier" => "roles#memberships", :constraints => QueryParameterActionRecognizer.new("all"), :format => false
 
-  # Works  
   get "/authz/:account/roles/:kind/*identifier" => 'roles#check_permission', :constraints => QueryParameterActionRecognizer.new("check"), :format => false
 
-  get "/authz/:account/roles" => "roles#index", :format => false
+  get "/authz/:account/roles/:kind/*identifier" => "roles#members", :constraints => QueryParameterActionRecognizer.new("members"), :format => false
 
-  get "/authz/:account/roles/:kind/*identifier" => "roles#list_members", :constraints => QueryParameterActionRecognizer.new("members"), :format => false
+  get  "/authz/:account/resources/:kind/*identifier" => 'resources#check_permission', :constraints => QueryParameterActionRecognizer.new("check"), :format => false
 
+  # TODO
   get "/authz/:account/roles/:kind/*identifier" => "roles#show", :format => false
 
-  # Works
-  get  "/authz/:account/resources/:kind/*identifier" => 'resources#check_permission', :constraints => QueryParameterActionRecognizer.new("check"), :format => false
+  # TODO
+  get "/authz/:account/roles" => "roles#index", :format => false
   
-  # Works
   get "/authz/:account/resources" => "resources#index", :format => false
-  # Works
   get "/authz/:account/resources/:kind" => "resources#index", :format => false
 
-  # Works
   get "/authz/:account/resources/:kind/*identifier" => "resources#show", :format => false
 
+  # TODO
   post "/audit" => "audit#inject_audit_event"
 end

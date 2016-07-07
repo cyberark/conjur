@@ -4,6 +4,7 @@ Sequel.migration do
       String :role_id, primary_key: true
       Integer :uidnumber
       Integer :gidnumber
+      Timestamp :created_at, null: true, default: Sequel.function(:transaction_timestamp)
       
       index [:uidnumber], unique: true
       index [:gidnumber], unique: true

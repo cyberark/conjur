@@ -6,7 +6,7 @@ describe "routing from roles" do
       expect(get: "/authz/the-account/roles/user/u#{delimiter}admin?members").to route_to(
         account: 'the-account',
         controller: 'roles',
-        action: 'list_members',
+        action: 'members',
         kind: 'user',
         identifier: "u#{delimiter}admin",
         members: nil)
@@ -17,7 +17,7 @@ describe "routing from roles" do
     expect(get: '/authz/the-account/roles/user/admin?members').to route_to(
       account: 'the-account',
       controller: 'roles',
-      action: 'list_members',
+      action: 'members',
       kind: 'user',
       identifier: 'admin',
       members: nil)
@@ -27,7 +27,7 @@ describe "routing from roles" do
     expect(get: '/authz/the-account/roles/user/admin?all').to route_to(
       account: 'the-account',
       controller: 'roles',
-      action: 'all_roles',
+      action: 'memberships',
       kind: 'user',
       identifier: 'admin',
       all: nil)

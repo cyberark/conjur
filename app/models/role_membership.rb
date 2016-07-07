@@ -1,14 +1,15 @@
 class RoleMembership < Sequel::Model
   unrestrict_primary_key
   
-  [:member, :role].each do |key|
-    many_to_one key, class: :Role
-  end
+  many_to_one :member,  class: :Role
+  many_to_one :role,    class: :Role
+  many_to_one :grantor, class: :Role
   
   def as_json options = {}
     super(options).tap do |response|
-      response["role"] = role_id
-      response["member"] = member_id
+      response["role"] = response.delete("role_id")
+      response["member"] = response.delete("member_id")
+      response["grantor"] = response.delete("grantor_id")
     end
   end
 end

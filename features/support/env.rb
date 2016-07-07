@@ -3,10 +3,6 @@ ENV['CONJUR_APPLIANCE_URL'] = 'http://localhost:3000'
   
 require ::File.expand_path('../../../config/environment', __FILE__)
 
-if ENV['DEBUG']
-  Sequel::Model.db.loggers << Logger.new($stdout)
-end
-
 require 'json_spec/cucumber'
 require 'conjur/api'
 require 'conjur/cli'

@@ -1,8 +1,19 @@
 class RolesController < RestController
-  before_filter :find_role, only: [ :show, :check_permission ]
+  before_filter :find_role, only: [ :show, :memberships, :members, :check_permission ]
 
   def show
-    render json: @role.as_json
+    render json: @role
+  end
+
+  def memberships
+    filter = params[:filter]
+    filter = Array(filter) if filter
+    
+    render json: @role.all_roles(filter).map(&:role_id)
+  end
+  
+  def members
+    render json: @role.memberships
   end
 
   def check_permission 

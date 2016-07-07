@@ -17,6 +17,10 @@ class Role < Sequel::Model
   end
   
   class << self
+    def that_can permission, resource
+      Role.from(::Sequel.function(:roles_that_can, permission.to_s, resource.pk))
+    end
+
     def make_full_id id
       tokens = id.split(":") rescue []
       account, kind, id = if tokens.size < 2
@@ -87,7 +91,8 @@ class Role < Sequel::Model
   def grant_to member, options = {}
     options[:admin_option] ||= false
     options[:member] = member
-      
+    options[:grantor] ||= self
+
     add_membership options
   end
   
@@ -95,7 +100,12 @@ class Role < Sequel::Model
     Role.from(Sequel.function(:is_role_allowed_to, id, privilege, resource.id)).first[:is_role_allowed_to]
   end
   
-  def self.that_can permission, resource
-    Role.from(::Sequel.function(:roles_that_can, permission.to_s, resource.pk))
+  def all_roles filter = nil
+    if filter.nil?
+      Role.from(Sequel.function(:all_roles, id))
+    else
+      filter_roles = Set.new(filter.map{|id| Role.make_full_id id}.map{|id| Role[id]}.compact.map(&:role_id))
+      Role.from(Sequel.function(:all_roles, id)).where(role_id: filter_roles.to_a)
+    end
   end
 end

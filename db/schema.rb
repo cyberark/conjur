@@ -12,6 +12,7 @@ Sequel.migration do
       column :role_id, "text", :null=>false
       column :uidnumber, "integer"
       column :gidnumber, "integer"
+      column :created_at, "timestamp without time zone", :default=>Sequel::LiteralString.new("transaction_timestamp()")
       
       primary_key [:role_id]
       
@@ -46,6 +47,7 @@ Sequel.migration do
     create_table(:resources) do
       column :resource_id, "text", :null=>false
       foreign_key :owner_id, :roles, :type=>"text", :null=>false, :key=>[:role_id], :on_delete=>:cascade
+      column :created_at, "timestamp without time zone", :default=>Sequel::LiteralString.new("transaction_timestamp()")
       
       primary_key [:resource_id]
     end
@@ -53,6 +55,7 @@ Sequel.migration do
     create_table(:role_memberships) do
       foreign_key :role_id, :roles, :type=>"text", :null=>false, :key=>[:role_id], :on_delete=>:cascade
       foreign_key :member_id, :roles, :type=>"text", :null=>false, :key=>[:role_id], :on_delete=>:cascade
+      foreign_key :grantor_id, :roles, :type=>"text", :null=>false, :key=>[:role_id], :on_delete=>:cascade
       column :admin_option, "boolean", :default=>false, :null=>false
       
       primary_key [:role_id, :member_id]
@@ -75,6 +78,7 @@ Sequel.migration do
       column :grant_option, "boolean", :default=>false, :null=>false
       foreign_key :resource_id, :resources, :type=>"text", :null=>false, :key=>[:resource_id], :on_delete=>:cascade
       foreign_key :role_id, :roles, :type=>"text", :null=>false, :key=>[:role_id], :on_delete=>:cascade
+      foreign_key :grantor_id, :roles, :type=>"text", :null=>false, :key=>[:role_id], :on_delete=>:cascade
       
       primary_key [:privilege, :resource_id, :role_id]
     end

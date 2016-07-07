@@ -6,6 +6,7 @@ app-dev:
   environment:
     DATABASE_URL: postgres://postgres@pg/postgres
     CONJUR_ACCOUNT: cucumber
+    CONJUR_PASSWORD_ALICE: secret
   volumes:
   - .:/src/possum
   - ../conjur-policy-parser:/src/conjur-policy-parser

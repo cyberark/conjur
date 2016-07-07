@@ -5,6 +5,7 @@ Sequel.migration do
       TrueClass :grant_option, default: false, null: false
       foreign_key :resource_id, :resources, type: String, null: false, on_delete: :cascade
       foreign_key :role_id, :roles, type: String, null: false, on_delete: :cascade
+      foreign_key :grantor_id, :roles, type: String, null: false, on_delete: :cascade
       
       primary_key [:privilege, :resource_id, :role_id]
     end

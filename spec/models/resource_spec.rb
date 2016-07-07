@@ -9,7 +9,9 @@ describe Resource, :type => :model do
   shared_examples_for "provides expected JSON" do
     specify {
       the_resource.reload
-      expect(JSON.parse(the_resource.to_json)).to eq(as_json.stringify_keys)
+      hash = JSON.parse(the_resource.to_json)
+      expect(hash.delete("created_at")).to be
+      expect(hash).to eq(as_json.stringify_keys)
     }
   end
   
@@ -26,6 +28,7 @@ describe Resource, :type => :model do
     let(:as_json) { base_hash }
     it_should_behave_like "provides expected JSON"
   end
+  
   context "with annotation" do
     before {
       Annotation.create resource: the_resource, name: "name", value: "Kevin"
@@ -40,7 +43,7 @@ describe Resource, :type => :model do
       the_resource.permit "fry", the_user
     }
     let(:as_json) { 
-      base_hash.merge permissions: [ {"privilege"=>"fry", "grant_option"=>false, "resource"=>the_resource.id, "role"=>the_user.id} ]
+      base_hash.merge permissions: [ {"privilege"=>"fry", "grant_option"=>false, "resource"=>the_resource.id, "role"=>the_user.id, "grantor"=>the_user.id} ]
     }
     it_should_behave_like "provides expected JSON"
   end

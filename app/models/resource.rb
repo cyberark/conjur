@@ -55,7 +55,10 @@ class Resource < Sequel::Model
     Role[id] or raise "Role not found for #{id}"
   end
 
-  def permit privilege, role
-    add_permission privilege: privilege, role: role
+  def permit privilege, role, options = {}
+    options[:privilege] = privilege
+    options[:role] = role
+    options[:grantor] ||= owner
+    add_permission options
   end
 end
