@@ -1,0 +1,9 @@
+FROM ubuntu:14.04
+
+RUN apt-get update -y && \
+    apt-get install -y software-properties-common && \
+    apt-add-repository -y ppa:brightbox/ruby-ng && \
+    apt-get update -y && \
+    apt-get install -y build-essential libpq5 ruby2.2
+
+RUN gem install -N bundler

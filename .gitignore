@@ -12,4 +12,5 @@ id_rsa*
 # Ignore all logfiles and tempfiles.
 log
 tmp
+*.deb
 */reports

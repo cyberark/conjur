@@ -1,0 +1,6 @@
+*.deb
+demo
+docker
+run
+tmp
+log

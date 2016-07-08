@@ -1,0 +1,46 @@
+pg:
+  image: postgres:9.3
+  
+possum:
+  image: possum
+  command: possum
+  environment:
+    DATABASE_URL: postgres://postgres@pg/postgres
+    CONJUR_ACCOUNT: cucumber
+    POSSUM_DATA_KEY:
+    POSSUM_PRIVATE_KEY:
+  links:
+  - pg:pg
+  
+watch:
+  image: possum
+  command: possum-watch
+  environment:
+    DATABASE_URL: postgres://postgres@pg/postgres
+    CONJUR_ACCOUNT: cucumber
+    CONJUR_PASSWORD_ALICE: secret
+    POSSUM_DATA_KEY:
+  volumes:
+  - ./run:/var/run/possum/policy
+  links:
+  - pg:pg
+
+cli:
+  build: ..
+  dockerfile: Dockerfile.cli
+  environment:
+    CONJUR_APPLIANCE_URL: http://possum
+    CONJUR_AUTHN_LOGIN: alice
+    CONJUR_AUTHN_API_KEY: secret
+    CONJUR_ACCOUNT: cucumber
+  links:
+  - possum:possum
+  
+ui:
+  image: conjurinc/conjur-ui
+  environment:
+    CONJUR_APPLIANCE_URL: http://possum
+  ports:
+  - 443
+  links:
+  - possum:possum

@@ -31,8 +31,8 @@ Bundle
 Create the token-signing private key:
 
 ```sh-session
-/src/possum # ssh-keygen 
-Enter file in which to save the key (/Users/kgilpin/.ssh/id_rsa): ./id_rsa
+/src/possum # ssh-keygen -f ./id_rsa
+Generating public/private rsa key pair.
 Enter passphrase (empty for no passphrase): 
 Enter same passphrase again: 
 Your identification has been saved in ./id_rsa.

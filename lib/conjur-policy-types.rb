@@ -98,6 +98,7 @@ module Conjur
           end
           
           if password = ENV["CONJUR_PASSWORD_#{id.gsub(/[^a-zA-Z0-9]/, '_').upcase}"]
+            $stderr.puts "Setting password for '#{roleid}'"
             role.password = password
           end
           

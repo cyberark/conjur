@@ -15,8 +15,7 @@ gem 'activesupport'
 gem 'bcrypt-ruby', '~> 3.0.0'
 gem 'random_password_generator', '= 1.0.0'
 gem 'slosilo', '>=2.0.0'
-
-gem 'methadone'
+gem 'listen'
 
 gem 'conjur-rack', github: 'conjurinc/conjur-rack', branch: 'master'
 gem 'conjur-rack-heartbeat'

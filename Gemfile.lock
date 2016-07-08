@@ -15,7 +15,7 @@ GIT
 
 GIT
   remote: git://github.com/conjurinc/conjur-policy-parser.git
-  revision: c94ad3d6d628776d136d89c2ff0461e947cce13c
+  revision: 2bb9b81d3b7ba63098f70ba82d5be2eb855af0eb
   branch: master
   specs:
     conjur-policy-parser (0.12.0)
@@ -153,6 +153,10 @@ GEM
     json_spec (1.1.4)
       multi_json (~> 1.0)
       rspec (>= 2.0, < 4.0)
+    listen (3.1.5)
+      rb-fsevent (~> 0.9, >= 0.9.4)
+      rb-inotify (~> 0.9, >= 0.9.7)
+      ruby_dep (~> 1.2)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     mail (2.6.4)
@@ -205,6 +209,9 @@ GEM
     rake (11.2.2)
     rake_shared_context (0.2.1)
     random_password_generator (1.0.0)
+    rb-fsevent (0.9.7)
+    rb-inotify (0.9.7)
+      ffi (>= 0.5.0)
     rest-client (1.8.0)
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 3.0)
@@ -230,6 +237,7 @@ GEM
       rspec-mocks (~> 3.4.0)
       rspec-support (~> 3.4.0)
     rspec-support (3.4.1)
+    ruby_dep (1.3.1)
     safe_yaml (1.0.4)
     semantic (1.4.1)
     sequel (4.35.0)
@@ -273,7 +281,7 @@ DEPENDENCIES
   conjur-rack-heartbeat
   cucumber
   json_spec
-  methadone
+  listen
   parallel
   pg
   puma

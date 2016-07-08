@@ -6,15 +6,19 @@ require 'patches/core_ext'
 
 Sequel.extension :migration
 
+# Token authentication is optional for authn routes, and it's not applied at all to authentication.
+Possum::Application.config.middleware.use Conjur::Rack::Authenticator, optional: [ /^\/authn\// ], except: [ /^\/info$/, /^\/authn\/users\/.*\/authenticate$/ ]
+
 if %w(test development cucumber).member?(Rails.env)
-  ENV['POSSUM_SLOSILO_KEY'] ||= '4pSuk1rAQyuHA5uUYaj0X0BsiPCFb9Nc8J03XA6V5/Y='
+  ENV['POSSUM_DATA_KEY'] ||= '4pSuk1rAQyuHA5uUYaj0X0BsiPCFb9Nc8J03XA6V5/Y='
 end
 
-Slosilo::encryption_key = ENV['POSSUM_SLOSILO_KEY'].decode64 if ENV['POSSUM_SLOSILO_KEY']
-Slosilo::adapter = Slosilo::Adapters::SequelAdapter.new
-
-# Token authentication is optional for all routes
-Possum::Application.config.middleware.use Conjur::Rack::Authenticator, optional: [ /.*/ ], except: [ /^\/users\/.*\/authenticate$/ ]
+if data_key = ENV['POSSUM_DATA_KEY']
+  Slosilo::encryption_key = data_key.decode64
+  Slosilo::adapter = Slosilo::Adapters::SequelAdapter.new
+else
+  raise "No POSSUM_DATA_KEY"
+end
 
 own = begin
   Slosilo[:own]
