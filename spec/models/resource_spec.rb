@@ -18,7 +18,7 @@ describe Resource, :type => :model do
   let(:base_hash) {
     {
       id: the_resource.resource_id,
-      owner_id: the_user.role_id,
+      owner: the_user.role_id,
       permissions: [],
       annotations: []
     }
