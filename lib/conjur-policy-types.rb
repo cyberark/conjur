@@ -24,38 +24,14 @@ module Conjur
           ::Resource[resourceid]
         end
       end
-      
-      class Role
-        include CreateRole
         
-        def create!
-          create_role!
-        end
-      end
-
-      class Resource
-        include CreateResource
-        
-        def create!
-          create_resource!
-        end
-      end
-      
-      class Variable
-        include CreateResource
-        
-        def create!
-          create_resource!
-        end
-      end
-      
       class Record
         include CreateRole
         include CreateResource
         
         def create!
-          create_role!
-          create_resource!
+          create_role! if respond_to?(:roleid)
+          create_resource! if respond_to?(:resourceid)
         end
       end
       
@@ -74,9 +50,6 @@ module Conjur
           roleid = [ account, '@', [ role_kind, id, role_name ].join('/')].join(":")
           ::Role[roleid] or raise IndexError, roleid
         end
-      end
-
-      class Host < Record
       end
 
       class Group < Record
@@ -117,11 +90,9 @@ module Conjur
         end
       end
 
-      class HostFactory
-        include CreateResource
-        
+      class HostFactory < Record
         def create!
-          create_resource!
+          super
           
           account, _, id = resourceid.split(":", 3)
           deputy = ::Role.create role_id: [ account, 'deputy', id ].join(":")

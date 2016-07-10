@@ -3,16 +3,27 @@ namespace :policy do
   task :watch, [ "file-name" ] do |t,args|
     require 'listen'
     file_name = args["file-name"] or raise "file-name argument is required"
+    dir_name = File.dirname file_name
+    raise "Directory #{dir_name} does not exist" unless File.directory?(dir_name) 
+    
+    $stderr.puts "Watching directory '#{dir_name}' for changes to file '#{file_name}'"
 
     # Use polling because the efficient way doesn't work with Docker volume-mounted directories
-    listener = Listen.to(file_name, force_polling: true) do |modified, added, removed|
+    listener = Listen.to(dir_name, force_polling: true) do |modified, added, removed|
       (Array(added) + Array(modified)).each do |fname|
-        # Don't trigger on the policy files themselves
-        next if fname =~ /.yml$/ || fname =~ /.yaml$/
+        # Only watch the designated file
+        next unless fname == file_name
         policy_file_name = File.read(fname).strip
-        File.unlink(fname)
-        $stderr.puts "Loading #{policy_file_name}"
-        system *[ "rake", %Q(policy:load[#{policy_file_name}]) ]
+        do_load = begin
+          File.unlink(fname)
+          true
+        rescue Errno::ENOENT
+          false
+        end
+        if do_load
+          $stderr.puts "Loading #{policy_file_name}"
+          system *[ "rake", %Q(policy:load[#{policy_file_name}]) ]
+        end
       end
     end
     listener.start

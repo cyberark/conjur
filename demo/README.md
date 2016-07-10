@@ -69,6 +69,7 @@ Services are up and healthy!
 Load a policy:
 
 ```
+$ mkdir run
 $ cp ../tmp/policy.yml run
 $ # Trigger the possum-watch to load the policy
 $ echo /var/run/possum/policy/policy.yml > run/load

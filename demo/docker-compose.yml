@@ -21,7 +21,7 @@ watch:
     CONJUR_PASSWORD_ALICE: secret
     POSSUM_DATA_KEY:
   volumes:
-  - ./run:/var/run/possum/policy
+  - ./run:/run/possum/policy
   links:
   - pg:pg
 

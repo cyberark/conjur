@@ -13,4 +13,5 @@ id_rsa*
 log
 tmp
 *.deb
+demo/run
 */reports
