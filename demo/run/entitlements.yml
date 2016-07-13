@@ -1,0 +1,16 @@
+# entitlements.yml
+
+- !grant
+  role: !group prod/docker-registry/pushers
+  members:
+  - !group operations
+  - !layer prod/release-bot
+  
+- !grant
+  roles:
+  - !group prod/docker-registry/pullers
+  - !group dev/docker-registry/pullers
+  - !group dev/docker-registry/pushers
+  members:
+  - !group everyone
+  - !layer prod/jenkins

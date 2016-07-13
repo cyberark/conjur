@@ -1,0 +1,28 @@
+- !policy
+  id: docker-registry
+  body:
+  - !group
+    id: pullers
+    annotations:
+      description: A role permitted to pull images.
+    
+  - !group
+    id: pushers
+    annotations:
+      description: A role permitted to push images.
+
+  - !layer
+
+  - !webservice
+    annotations:
+      description: Docker images in the organization managed by the policy.
+  
+  - !permit
+    role: !group pullers
+    privilege: [ read, execute ]
+    resource: !webservice
+
+  - !permit
+    role: !group pushers
+    privilege: [ read, update ]
+    resource: !webservice

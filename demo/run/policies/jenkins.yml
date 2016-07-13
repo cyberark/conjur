@@ -1,0 +1,4 @@
+- !policy
+  id: jenkins
+  body:
+  - !layer

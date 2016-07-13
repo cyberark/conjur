@@ -1,0 +1,4 @@
+- !policy
+  id: release-bot
+  body:
+  - !layer

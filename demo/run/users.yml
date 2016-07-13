@@ -1,0 +1,23 @@
+# users.yml
+- !user
+  id: kevin
+  public_keys:
+  - ssh-rsa AAAAB3NzaC1yc2HRjpbdyUG08c+2VR7E+10trhK5Pt kgilpin@laptop
+
+- !user
+  id: elizabeth
+
+- !user
+  id: bob
+  public_keys:
+  - ssh-rsa AAAAB3NzaC1yc2EAAAABAAABAQDP2Kr5QzRlHAa6/s bob@laptop
+
+- !grant
+  role: !group security_admin
+  member: !member
+    role: !user kevin
+    admin: true
+
+- !grant
+  role: !group operations
+  member: !user bob
