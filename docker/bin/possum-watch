@@ -1,3 +1,0 @@
-#!/bin/bash -ex
-
-bundle exec rake policy:watch[/run/possum/policy/load]

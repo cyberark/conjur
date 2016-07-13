@@ -41,4 +41,4 @@ if ENV['POSSUM_PRIVATE_KEY']
   end
 end
 
-raise "Private token-signing key is not available" unless own
+Rails.logger.warn "Private token-signing key is not available" unless own

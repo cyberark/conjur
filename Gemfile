@@ -16,10 +16,10 @@ gem 'bcrypt-ruby', '~> 3.0.0'
 gem 'random_password_generator', '= 1.0.0'
 gem 'slosilo', '>=2.0.0'
 gem 'listen'
+gem 'gli'
 
 gem 'conjur-rack', github: 'conjurinc/conjur-rack', branch: 'master'
 gem 'conjur-rack-heartbeat'
-gem 'conjur-asset-authn-local', github: 'conjurinc/conjur-asset-authn-local', branch: 'master'
 gem 'conjur-appliance-logging', github: 'conjurinc/appliance-logging', branch: 'master'
 gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'master'
 

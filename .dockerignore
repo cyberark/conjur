@@ -1,6 +1,8 @@
 *.deb
 demo
 docker
+package
+.git
 run
 tmp
 log

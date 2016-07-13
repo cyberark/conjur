@@ -2,6 +2,8 @@ namespace :policy do
   desc "Watch a file and reload the policy when it changes"
   task :watch, [ "file-name" ] do |t,args|
     require 'listen'
+    require 'pathname'
+
     file_name = args["file-name"] or raise "file-name argument is required"
     dir_name = File.dirname file_name
     raise "Directory #{dir_name} does not exist" unless File.directory?(dir_name) 

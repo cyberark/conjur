@@ -1,4 +1,4 @@
-FROM phusion/baseimage:0.9.18
+FROM ubuntu:14.04
 
 RUN apt-get update -y && \
     apt-get install -y software-properties-common && \
@@ -12,26 +12,24 @@ RUN apt-get install -y \
       libpq-dev \
       unattended-upgrades \
       ldap-utils \
+      git \
       update-notifier-common
 
-RUN apt-get install -y \
-  vim \
-  curl \
-  jq \
-  git
-
-WORKDIR /src/possum
-
-RUN mkdir -p /src/possum
+RUN gem install -N -v 1.11.2 bundler
 
 ADD Gemfile      .
 ADD Gemfile.lock .
 
-RUN gem install -N -v 1.11.2 bundler
+RUN mkdir -p /opt/possum
 
-EXPOSE 3000
+WORKDIR /opt/possum
 
-ENV TERM xterm
+RUN bundle
 
-# Start the SSH service so the container doesn't exit
-RUN rm -f /etc/service/sshd/down
+ADD . .
+
+RUN ln -sf /opt/possum/bin/possum /usr/local/bin/
+
+ENV PORT 80
+
+EXPOSE 80

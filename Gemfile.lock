@@ -6,14 +6,6 @@ GIT
     conjur-appliance-logging (0.3.0)
 
 GIT
-  remote: git://github.com/conjurinc/conjur-asset-authn-local.git
-  revision: 167584f7e4c894098cbea31371ad5931e3c92280
-  branch: master
-  specs:
-    conjur-asset-authn-local (0.1.1)
-      conjur-api
-
-GIT
   remote: git://github.com/conjurinc/conjur-policy-parser.git
   revision: 2bb9b81d3b7ba63098f70ba82d5be2eb855af0eb
   branch: master
@@ -273,13 +265,13 @@ DEPENDENCIES
   bcrypt-ruby (~> 3.0.0)
   byebug
   conjur-appliance-logging!
-  conjur-asset-authn-local!
   conjur-cli
   conjur-debify
   conjur-policy-parser!
   conjur-rack!
   conjur-rack-heartbeat
   cucumber
+  gli
   json_spec
   listen
   parallel

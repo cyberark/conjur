@@ -8,8 +8,7 @@ app-dev:
     CONJUR_ACCOUNT: cucumber
     CONJUR_PASSWORD_ALICE: secret
   volumes:
-  - .:/src/possum
-  - ../conjur-policy-parser:/src/conjur-policy-parser
+  - ..:/src/possum
   links:
   - pg:pg
 cli:

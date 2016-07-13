@@ -3,10 +3,12 @@ pg:
   
 possum:
   image: possum
-  command: possum
+  command: possum server
   environment:
     DATABASE_URL: postgres://postgres@pg/postgres
     CONJUR_ACCOUNT: cucumber
+    CONJUR_PASSWORD_KEVIN: kevin
+    CONJUR_PASSWORD_BOB: bob
     POSSUM_DATA_KEY:
     POSSUM_PRIVATE_KEY:
   links:
@@ -14,11 +16,12 @@ possum:
   
 watch:
   image: possum
-  command: possum-watch
+  command: possum watch /run/possum/policy/load
   environment:
     DATABASE_URL: postgres://postgres@pg/postgres
     CONJUR_ACCOUNT: cucumber
-    CONJUR_PASSWORD_ALICE: secret
+    CONJUR_PASSWORD_KEVIN: kevin
+    CONJUR_PASSWORD_BOB: bob
     POSSUM_DATA_KEY:
   volumes:
   - ./run:/run/possum/policy
@@ -26,7 +29,7 @@ watch:
   - pg:pg
 
 cli:
-  build: ..
+  build: .
   dockerfile: Dockerfile.cli
   environment:
     CONJUR_APPLIANCE_URL: http://possum
@@ -40,7 +43,10 @@ ui:
   image: conjurinc/conjur-ui
   environment:
     CONJUR_APPLIANCE_URL: http://possum
+    DH_PARAM_PEM:
   ports:
   - 443
+  volumes:
+  - ./dhparam.pem:/etc/ssl/certs/dhparam.pem
   links:
   - possum:possum

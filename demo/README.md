@@ -2,7 +2,7 @@
 Generate and export the data key:
 
 ```
-$ docker run --rm possum rake generate-data-key 
+$ docker run --rm possum rake generate-data-key
 POSSUM_DATA_KEY="4BzuAIRxEXq+HjXL7d5qS1mt2DDtNt9CeWV5rmTl6DA="
 $ export POSSUM_DATA_KEY="4BzuAIRxEXq+HjXL7d5qS1mt2DDtNt9CeWV5rmTl6DA="
 ```
@@ -40,52 +40,40 @@ $ docker-compose up -d pg
 demo_pg_1
 ```
 
-Build the database tables:
+Watch the database startup until it's available:
 
 ```
-$ docker-compose run --no-deps --rm possum bundle exec rake db:migrate
+$ docker-compose logs -f pg
 ```
 
-Bring up the rest of the services:
+Bring up the application and the UI:
 
 ```
-$ docker-compose up -d --no-deps --no-recreate
+$ docker-compose up -d possum ui
 Creating demo_possum_1
 Creating demo_watch_1
 Creating demo_ui_1
-Creating demo_cli_1
 $ docker-compose ps
     Name                   Command               State    Ports   
 -----------------------------------------------------------------
-demo_cli_1      /sbin/my_init                    Up
 demo_pg_1       /docker-entrypoint.sh postgres   Up      5432/tcp 
 demo_possum_1   possum                           Up      80/tcp   
 demo_watch_1    possum-watch                     Up      80/tcp
-demo_ui_1       /start.py                        Up      0.0.0.0:32771->443/tcp, 80/tcp
+demo_ui_1       /start.py                        Up      0.0.0.0:32782->443/tcp, 80/tcp
 ```
 
 Services are up and healthy!
 
-Load a policy:
+Check the logs to ensure that the application is running:
 
 ```
-$ mkdir run
-$ cp ../tmp/policy.yml run
-$ # Trigger the possum-watch to load the policy
-$ echo /var/run/possum/policy/policy.yml > run/load
-$ docker-compose logs watch
-Attaching to demo_watch_1
-watch_1   | + bundle exec rake 'policy:watch[/var/run/possum/policy]'
-watch_1   | Loading /var/run/possum/policy/policy.yml
-watch_1   | Creating 'admin' user
-watch_1   | Loading 7 records from policy /var/run/possum/policy/policy.yml
-watch_1   | Setting password for 'cucumber:user:alice'
-watch_1   | Loaded policy in 0.363426253 seconds
+$ docker-compose logs -f possum
 ```
 
 Open the UI:
 
 ```
-$ open https://172.28.128.3:32771/ui
+$ open https://172.28.128.3:32782/ui
 ```
+
 

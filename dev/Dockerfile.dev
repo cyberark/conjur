@@ -1,0 +1,10 @@
+FROM possum
+
+RUN apt-get install -y \
+  vim \
+  curl \
+  jq
+
+WORKDIR /src/possum
+
+ENV TERM xterm
