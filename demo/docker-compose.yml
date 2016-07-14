@@ -3,20 +3,21 @@ pg:
   
 possum:
   image: possum
-  command: possum server
+  command: server -f /run/possum/policy/Conjurfile
   environment:
     DATABASE_URL: postgres://postgres@pg/postgres
     CONJUR_ACCOUNT: cucumber
     CONJUR_PASSWORD_KEVIN: kevin
     CONJUR_PASSWORD_BOB: bob
     POSSUM_DATA_KEY:
-    POSSUM_PRIVATE_KEY:
+  volumes:
+  - ./run:/run/possum/policy
   links:
   - pg:pg
   
 watch:
   image: possum
-  command: possum watch /run/possum/policy/load
+  command: policy watch /run/possum/policy/load
   environment:
     DATABASE_URL: postgres://postgres@pg/postgres
     CONJUR_ACCOUNT: cucumber

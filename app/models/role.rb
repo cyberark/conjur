@@ -34,8 +34,8 @@ class Role < Sequel::Model
     end
 
     def roleid_from_username login
-      tokens = login.split('/',2)
-      tokens.unshift  'user' if tokens.length == 1
+      tokens = login.split('/', 2)
+      tokens.unshift 'user' if tokens.length == 1
       tokens.unshift default_account
       tokens.join(":")
     end

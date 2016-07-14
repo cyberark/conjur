@@ -4,6 +4,7 @@ class ApplicationController < ActionController::API
   class Unauthorized < RuntimeError
   end
   
+  rescue_from IndexError, with: :record_not_found
   rescue_from Unauthorized, with: :unauthorized
   rescue_from ArgumentError, with: :unprocessable_entity
 
@@ -20,6 +21,10 @@ class ApplicationController < ActionController::API
   # Gets the value of the :account parameter.
   def current_account
     @account ||= params[:account]
+  end
+  
+  def make_full_id roleid
+    Role.make_full_id roleid
   end
   
   def roleid_from_username login
