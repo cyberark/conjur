@@ -33,3 +33,5 @@ RUN ln -sf /opt/possum/bin/possum /usr/local/bin/
 ENV PORT 80
 
 EXPOSE 80
+
+ENTRYPOINT [ "possum" ]

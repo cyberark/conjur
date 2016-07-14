@@ -12,7 +12,7 @@ id_rsa*
 # Ignore all logfiles and tempfiles.
 log
 tmp
-demo/data_key
-demo/dhparam.pem
+data_key
+dhparam.pem
 *.deb
 */reports

@@ -33,7 +33,6 @@ namespace :policy do
       sleep 1
     end
   end
-  
 
   desc "Load policy data from a file"
   task :load, [ "file-name" ] => [ "environment" ] do |t,args|

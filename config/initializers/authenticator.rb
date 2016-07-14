@@ -14,7 +14,7 @@ if %w(test development cucumber).member?(Rails.env)
 end
 
 if data_key = ENV['POSSUM_DATA_KEY']
-  Slosilo::encryption_key = data_key.decode64
+  Slosilo::encryption_key = Base64.strict_decode64 data_key.strip
   Slosilo::adapter = Slosilo::Adapters::SequelAdapter.new
 else
   raise "No POSSUM_DATA_KEY"

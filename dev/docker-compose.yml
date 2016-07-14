@@ -7,6 +7,7 @@ app-dev:
     DATABASE_URL: postgres://postgres@pg/postgres
     CONJUR_ACCOUNT: cucumber
     CONJUR_PASSWORD_ALICE: secret
+    POSSUM_DATA_KEY:
   volumes:
   - ..:/src/possum
   links:

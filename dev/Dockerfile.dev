@@ -8,3 +8,5 @@ RUN apt-get install -y \
 WORKDIR /src/possum
 
 ENV TERM xterm
+
+ENTRYPOINT [ "bash" ]
