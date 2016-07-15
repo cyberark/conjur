@@ -1,58 +1,26 @@
 
-Generate and export the data key:
+First, you need to build the project from the project directory.
+
+Then build and run the demo with the start script:
 
 ```
-$ docker run --rm possum rake generate-data-key
-POSSUM_DATA_KEY="4BzuAIRxEXq+HjXL7d5qS1mt2DDtNt9CeWV5rmTl6DA="
-$ export POSSUM_DATA_KEY="4BzuAIRxEXq+HjXL7d5qS1mt2DDtNt9CeWV5rmTl6DA="
-```
-
-Generate and export the token signing key:
-
-```sh-session
-/src/possum # ssh-keygen -f ./id_rsa
-Generating public/private rsa key pair.
-Enter passphrase (empty for no passphrase): 
-Enter same passphrase again: 
-Your identification has been saved in ./id_rsa.
-Your public key has been saved in ./id_rsa.pub.
-The key fingerprint is:
-7c:c3:60:d3:2b:c0:0a:ff:0a:2b:9f:f0:02:31:12:11 kgilpin@spudling-2.local
-The key's randomart image is:
-+--[ RSA 2048]----+
-|Eo               |
-|.    .   .       |
-| ..   o + .      |
-|+  o . + + .     |
-|.o  o   S =      |
-|.    .   o .     |
-|o .   .          |
-|oo + .           |
-| += .            |
-+-----------------+
-/src/possum # export POSSUM_PRIVATE_KEY="$(cat id_rsa)"
-```
-
-Run the database:
-
-```
-$ docker-compose up -d pg
-demo_pg_1
-```
-
-Watch the database startup until it's available:
-
-```
-$ docker-compose logs -f pg
-```
-
-Bring up the application and the UI:
-
-```
-$ docker-compose up -d possum ui
+$ ./start.sh
 Creating demo_possum_1
 Creating demo_watch_1
 Creating demo_ui_1
+...
+possum_1  | * Listening on tcp://0.0.0.0:80
+possum_1  | Use Ctrl-C to stop
+```
+
+Once the demo is up, it's tailing the log file of the Possum server.
+
+You can Control-C the log tail, or open a new terminal.
+
+The demo consists of a postgres container, possum server, a `watch` container, and the
+Conjur UI:
+
+```sh-session
 $ docker-compose ps
     Name                   Command               State    Ports   
 -----------------------------------------------------------------
@@ -62,18 +30,29 @@ demo_watch_1    possum-watch                     Up      80/tcp
 demo_ui_1       /start.py                        Up      0.0.0.0:32782->443/tcp, 80/tcp
 ```
 
-Services are up and healthy!
+Open the UI with your docker engine IP address, and the port number of the UI:
 
-Check the logs to ensure that the application is running:
-
-```
-$ docker-compose logs -f possum
-```
-
-Open the UI:
-
-```
+```sh-session
 $ open https://172.28.128.3:32782/ui
 ```
 
+By default, the policies are loaded from the demo `run` directory. If you change the policies,
+you can trigger the `watch` container to reload them. For example, in the interactive terminal:
 
+```sh-session
+$ echo /var/run/possum/policy/Conjurfile > run/load
+```
+
+In the docker logs terminal you'll see something like this:
+
+```sh-session
+watch_1   | Loading /var/run/possum/policy/Conjurfile
+watch_1   | Creating 'admin' user
+watch_1   | Loading 23 records from policy /var/run/possum/policy/Conjurfile
+watch_1   | Setting password for 'cucumber:user:kevin'
+watch_1   | Setting password for 'cucumber:user:bob'
+watch_1   | Loaded policy in 0.834751674 seconds
+```
+
+Refresh the UI, and you'll see the policy changes. If there is an error loading the policy, then
+the whole thing will rollback to the previous policy state.
