@@ -1,8 +1,7 @@
 pg:
   image: postgres:9.3
-app-dev:
-  build: .
-  dockerfile: Dockerfile.dev
+possum:
+  image: possum-dev
   environment:
     DATABASE_URL: postgres://postgres@pg/postgres
     CONJUR_ACCOUNT: cucumber
@@ -12,20 +11,15 @@ app-dev:
   - ..:/src/possum
   links:
   - pg:pg
-cli:
-  build: .
-  dockerfile: Dockerfile.cli
+cucumber:
+  image: possum-dev
+  entrypoint: bash
   environment:
+    DATABASE_URL: postgres://postgres@pg/postgres
     CONJUR_APPLIANCE_URL: http://possum:3000
-    CONJUR_ACCOUNT: cucumber
+    POSSUM_DATA_KEY:
+  volumes:
+  - ..:/src/possum
   links:
-  - app-dev:possum
+  - possum:possum
   - pg:pg
-ui:
-  image: conjurinc/conjur-ui
-  environment:
-    CONJUR_APPLIANCE_URL: http://conjur:3000
-  ports:
-  - 443
-  links:
-  - app-dev:conjur

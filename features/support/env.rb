@@ -1,5 +1,5 @@
 ENV['CONJUR_ACCOUNT'] = 'cucumber'
-ENV['CONJUR_APPLIANCE_URL'] = 'http://localhost:3000'
+ENV['CONJUR_APPLIANCE_URL'] ||= 'http://localhost:3000'
   
 require ::File.expand_path('../../../config/environment', __FILE__)
 

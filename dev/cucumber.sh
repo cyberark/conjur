@@ -9,7 +9,4 @@ fi
 
 export POSSUM_DATA_KEY="$(cat data_key)"
 
-docker-compose up -d pg
-
-docker-compose up --no-deps --no-recreate -d possum
-docker-compose exec possum bash
+docker-compose run --no-deps cucumber
