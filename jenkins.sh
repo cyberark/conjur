@@ -18,7 +18,17 @@ for i in $(seq 10); do
 	sleep 2
 done
 
-server_cid=$(docker run --link $pg_cid:pg -e CONJUR_APPLIANCE_URL=http://localhost -e DATABASE_URL=postgres://postgres@pg/postgres -e CONJUR_ACCOUNT=cucumber -d possum server)
+mkdir -p spec/reports
+mkdir -p features/reports
+
+server_cid=$(docker run \
+	--link $pg_cid:pg \
+	-v $PWD/spec/reports:/var/jenkins/spec/reports \
+	-v $PWD/features/reports:/var/jenkins/features/reports \
+	-e CONJUR_APPLIANCE_URL=http://localhost \
+	-e DATABASE_URL=postgres://postgres@pg/postgres \
+	-e CONJUR_ACCOUNT=cucumber \
+	-d possum server)
 
 cat << "TEST" | docker exec -i $server_cid bash
 #!/bin/bash -ex
@@ -30,6 +40,12 @@ for i in $(seq 10); do
 	echo -n "."
 	sleep 2
 done
+
+ln -sf /var/jenkins/spec/reports spec/reports
+ln -sf /var/jenkins/features/reports features/reports
+
+rm -rf spec/reports/*
+rm -rf features/reports/*
 
 bundle exec rake jenkins || true
 TEST

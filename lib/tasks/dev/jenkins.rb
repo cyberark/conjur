@@ -1,5 +1,16 @@
 require 'ci/reporter/rake/rspec'
 
+Rake::Task["ci:setup:spec_report_cleanup"].clear
+
+namespace :ci do
+  namespace :setup do
+    task :spec_report_cleanup do
+      dir = ENV["CI_REPORTS"] || "spec/reports"
+      rm_rf dir unless File.symlink?(dir)
+    end
+  end
+end
+
 namespace :jenkins do
   require 'cucumber'
   require 'cucumber/rake/task'
