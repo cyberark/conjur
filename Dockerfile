@@ -13,6 +13,7 @@ RUN apt-get install -y \
       unattended-upgrades \
       ldap-utils \
       git \
+      curl \
       update-notifier-common
 
 RUN gem install -N -v 1.11.2 bundler

@@ -32,6 +32,7 @@ group :development, :test do
   gem 'conjur-debify'
   gem 'rspec'
   gem 'rspec-rails'
+  gem 'ci_reporter_rspec'
   gem 'parallel'
   gem 'cucumber'
   gem 'aruba'
