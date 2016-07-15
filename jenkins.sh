@@ -31,7 +31,5 @@ for i in $(seq 10); do
 	sleep 2
 done
 
-bundle exec rspec
-
-bundle exec cucumber
+bundle exec rake jenkins || true
 TEST
