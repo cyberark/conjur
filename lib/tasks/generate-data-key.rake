@@ -3,5 +3,5 @@ task :"generate-data-key" do
   require 'slosilo'
   require 'base64'
   key = Base64.strict_encode64(Slosilo::Symmetric.new.random_key)
-  puts key
+  print key
 end

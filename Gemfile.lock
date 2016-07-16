@@ -89,6 +89,11 @@ GEM
       rest-client (>= 1.4.2)
     childprocess (0.5.9)
       ffi (~> 1.0, >= 1.0.11)
+    ci_reporter (2.0.0)
+      builder (>= 2.1.2)
+    ci_reporter_rspec (1.0.0)
+      ci_reporter (~> 2.0)
+      rspec (>= 2.14, < 4)
     concurrent-ruby (1.0.2)
     conjur-api (4.25.1)
       activesupport
@@ -264,6 +269,7 @@ DEPENDENCIES
   base32-crockford
   bcrypt-ruby (~> 3.0.0)
   byebug
+  ci_reporter_rspec
   conjur-appliance-logging!
   conjur-cli
   conjur-debify
