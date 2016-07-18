@@ -1,0 +1,13 @@
+---
+id: Host
+super_id: Record
+description: "\nA machine or code; for example, a server, VM, job or container.\n
+  \       \nHosts defined in a policy are generally long-lasting hosts, and assigned
+  to a\nlayer through a `!grant` entitlement. Assignment to layers is the primary
+  way\nfor hosts to get privileges, and also the primary way that users obtain access
+  to hosts.\n"
+example: "\n- !host\n  id: www-01.home.cern\n  annotations:\n    description: Hypertext
+  web server\n        \n- !grant\n  role: !layer webservers\n  member: !host www-01.cern.org\n"
+privileges_description:
+  execute: SSH users should have login privileges to the host **without admin** privileges.
+  update: SSH users should have login privileges to the host **with admin** privileges.

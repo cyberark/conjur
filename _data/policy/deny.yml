@@ -1,0 +1,27 @@
+---
+id: Deny
+super_id: 
+description: |2
+
+  Deny privilege(s) on a [Resource](#reference/resource) to a role.
+  Once a privilege is denied, permission checks performed by the role
+  will return `false`.
+
+  If the role does not hold the privilege, this statement is a nop.
+
+  See also: [Revoke](#reference/revoke) for [Roles](#reference/role)
+example: |2
+
+  - !variable secret
+  - !user rando
+  - !deny
+      role: !user rando
+      privilege: read
+      resource: !variable secret
+attributes:
+- id: role
+  kind: role
+- id: privilege
+  kind: string
+- id: resource
+  kind: resource

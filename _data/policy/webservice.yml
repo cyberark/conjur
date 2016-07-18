@@ -1,0 +1,29 @@
+---
+id: Webservice
+super_id: Record
+description: |2
+
+  Represents a web service endpoint, typically an HTTP(S) service.
+
+  Permission grants are straightforward: an input
+  HTTP request path is mapped to a webservice resource id. The HTTP
+  method is mapped to an RBAC privilege. A permission check is
+  performed, according to the following transaction:
+
+  * **role** client incoming role on the HTTP request. The client can be obtained from an Authorization header (e.g. signed
+    access token), or from the subject name of an SSL client certificate.
+  * **privilege** `read`, `update`, or `delete` according to HTTP verb
+  * **resource** web service resource id
+example: |2
+
+  - !group analysts
+
+  - !webservice
+    id: xkeyscore
+    annotations:
+      description: API endpoint for surveillance apparatus
+
+  - !permit
+    role: !group analysts
+    privilege: read
+    resource: !webservice xkeyscore
