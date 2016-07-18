@@ -1,5 +1,5 @@
 ---
-title: Policy Examples
+title: Policy Guide
 layout: page
 ---
 
@@ -7,8 +7,7 @@ layout: page
 
 `security_admin` is the customary top-level group. Other common groups are `operations` and `developers`.
 
-```yaml
-# groups.yml
+{% highlight yaml %}
 - !group security_admin
 
 - !group operations
@@ -16,14 +15,13 @@ layout: page
 
 - !group developers
   owner: !group security_admin
-```
+{% endhighlight %}
 
 ## Users
 
 Here's how to create two users named `kevin` and `bob`. SSH public keys for Kevin and Bob are created here as well, and the users are assigned to groups.
 
-```yaml
-# users.yml
+{% highlight yaml %}
 - !user
   id: kevin
   public_keys:
@@ -43,7 +41,7 @@ Here's how to create two users named `kevin` and `bob`. SSH public keys for Kevi
 - !grant
   role: !group operations
   member: !user bob
-```
+{% endhighlight %}
 
 ## Applications
 
@@ -51,18 +49,16 @@ Consider a simple infrastructure is composed of two layers: the database, and th
 
 The database has a password, which can be accessed by the application.
 
-```yaml
-# policies/db.yml
+{% highlight yaml %}
 - !policy
   id: database
   body:
   - !variable password
 
   - !layer
-```
+{% endhighlight %}
 
-```yaml
-# policies/app.yml
+{% highlight yaml %}
 - !policy
   id: app
   body:
@@ -76,14 +72,13 @@ The database has a password, which can be accessed by the application.
     role: !layer
     privileges: [ read, execute ]
     resources: *variables
-```
+{% endhighlight %}
 
 ## Hosts
 
 Specific host machines are defined and placed into their corresponding layers:
 
-```
-# hosts.yml
+{% highlight yaml %}
 - !host db-01
 - !host app-01
 - !host app-02
@@ -97,7 +92,7 @@ Specific host machines are defined and placed into their corresponding layers:
   members:
   - !host app-01
   - !host app-02
-```
+{% endhighlight %}
 
 ## Entitlements
 
@@ -106,8 +101,7 @@ Add entitlements which allow the following:
 * `app` layer can fetch the database password.
 * `operations` group has SSH admin access to the database and app layers
 
-```yaml
-# entitlements.yml
+{% highlight yaml %}
 - !permit
   role: !layer prod/app
   privileges: [ read, execute ]
@@ -122,14 +116,13 @@ Add entitlements which allow the following:
     record: !layer prod/app
     role_name: admin_host
   member: !group operations
-```
+{% endhighlight %}
 
 ## Putting it together
 
 Combine the policies together into a top-level Conjurfile:
 
-```yaml
-# Conjurfile
+{% highlight yaml %}
 - include: groups.yml
 - include: users.yml
 - !policy
@@ -139,4 +132,4 @@ Combine the policies together into a top-level Conjurfile:
   - include: policies/app.yml
 - !include hosts.yml
 - !include entitlements.yml
-```
+{% endhighlight %}
