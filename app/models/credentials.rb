@@ -9,6 +9,7 @@ class Credentials < Sequel::Model
   unrestrict_primary_key
 
   many_to_one :role, reciprocal: :credentials
+  many_to_one :client, class: :Role
 
   attr_encrypted :api_key, aad: :role_id
   attr_encrypted :encrypted_hash, aad: :role_id
@@ -30,6 +31,8 @@ class Credentials < Sequel::Model
   end
   
   def authenticate pwd
+    return false if expired?
+    
     pwd && (pwd == api_key) || password_ok?(pwd)
   end
   
@@ -51,6 +54,12 @@ class Credentials < Sequel::Model
   end
   
   private
+  
+  def expired?
+    return false unless self.expiration
+    
+    self.expiration <= self.class['select transaction_timestamp()'].first.values.first
+  end
   
   def password_ok? pwd
     bc = BCrypt::Password.new(self.encrypted_hash) rescue nil

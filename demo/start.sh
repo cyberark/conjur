@@ -2,10 +2,7 @@
 
 docker-compose build
 
-docker-compose up -d pg
-
-sleep 5
-
+# This is only here to speed up the UI launch time.
 if [ ! -f dhparam.pem ]; then
 	openssl dhparam 256 -out dhparam.pem
 fi
@@ -18,9 +15,6 @@ if [ ! -f data_key ]; then
 fi
 
 export POSSUM_DATA_KEY="$(cat data_key)"
-
-docker-compose run --rm possum db migrate
-docker-compose run --rm possum token-key generate || true
 
 docker-compose up -d
 docker-compose logs -f

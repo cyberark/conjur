@@ -77,6 +77,29 @@ describe Credentials, :type => :model do
       end
     end
     
+    describe "with expiration" do
+      let(:transaction_timestamp) { Time.now }
+      let(:past) { transaction_timestamp - 1.second }
+      let(:future) { transaction_timestamp + 1.second }
+      before {
+      expect(Credentials).to receive(:[]).with("select transaction_timestamp()").and_return([{transaction_timestamp: transaction_timestamp}])
+        credentials.expiration = expiration_time
+        credentials.save
+      }
+      describe "when unexpired" do
+        let(:expiration_time) { future }
+        it "will authenticate" do
+          expect(credentials.authenticate(credentials.api_key)).to be(true)
+        end
+      end
+      describe "when expired" do
+        let(:expiration_time) { past }
+        it "won't authenticate" do
+          expect(credentials.authenticate(credentials.api_key)).to be(false)
+        end
+      end
+    end
+
     it "returns true on good api key" do
       expect(credentials.authenticate credentials.api_key).to be_truthy
     end

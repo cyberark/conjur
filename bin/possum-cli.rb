@@ -6,6 +6,30 @@ program_desc "Command and control application for Possum"
 
 version File.read(File.expand_path("../VERSION", File.dirname(__FILE__)))
 
+# Attempt to connect to the database.
+def connect
+  require 'sequel'
+  
+  def test_select
+    begin
+      db = Sequel::Model.db = Sequel.connect(ENV['DATABASE_URL'])
+      db['select 1'].first
+    rescue
+      false
+    end
+  end
+  
+  30.times do
+    break if test_select
+    $stderr.write '.'
+    sleep 1
+  end
+
+  raise "Database is still unavailable. Aborting!" unless test_select
+  
+  true
+end
+
 desc 'Run the application server'
 command :server do |c|
   c.desc 'Policy file to load into the server'
@@ -25,7 +49,10 @@ command :server do |c|
   c.action do |global_options,options,args|
     exit_now! "No command arguments are allowed" unless args.empty?
 
+    connect
+
     system "rake db:migrate" or exit $?.exitstatus
+    system "rake token-key:generate" or exit $?.exitstatus
     
     if file_name = options[:file]
       system "rake policy:load[#{file_name}]" or exit $?.exitstatus
@@ -44,6 +71,8 @@ command :policy do |cgrp|
       file_name = args.shift or exit_now! "Expecting file_name argument"
       exit_now! "No additional command arguments are allowed" unless args.empty?
   
+      connect
+
       exec "rake policy:load[#{file_name}]"
     end
   end
@@ -66,7 +95,9 @@ $ docker run -d possum watch /run/possum/policy/load)"
     c.action do |global_options,options,args|
       file_name = args.shift or exit_now! "Expecting file_name argument"
       exit_now! "No additional command arguments are allowed" unless args.empty?
-  
+
+      connect
+
       exec "rake policy:watch[#{file_name}]"
     end
   end
@@ -91,7 +122,7 @@ $ export POSSUM_DATA_KEY="$(docker run --rm possum data-key generate)"
     c.action do |global_options,options,args|
       exit_now! "No command arguments are allowed" unless args.empty?
     
-      exec "rake generate-data-key"
+      exec "rake data-key:generate"
     end
   end
 end
@@ -115,26 +146,9 @@ $ docker run --rm possum token-key generate
     c.action do |global_options,options,args|
       exit_now! "No command arguments are allowed" unless args.empty?
       
-      require 'sequel'
-      require 'slosilo'
-      require 'slosilo/adapters/sequel_adapter'
+      connect
 
-      Sequel::Model.db = Sequel.connect(ENV['DATABASE_URL'])
-      
-      if data_key = ENV['POSSUM_DATA_KEY']
-        Slosilo::encryption_key = Base64.strict_decode64 data_key.strip
-        Slosilo::adapter = Slosilo::Adapters::SequelAdapter.new
-      else
-        exit_now! "No POSSUM_DATA_KEY"
-      end
-
-      exit_now! "Token-signing key already exists" if Slosilo[:own]
-      
-      pkey = Slosilo::Key.new
-      Slosilo[:own] = pkey
-        
-      $stderr.puts "Created and saved new token-signing key. Public key is:"
-      puts pkey.to_s
+      exec "rake token-key:generate"
     end
   end
 end
@@ -145,6 +159,8 @@ command :db do |cgrp|
   cgrp.command :migrate do |c|
     c.action do |global_options,options,args|
       exit_now! "No command arguments are allowed" unless args.empty?
+      
+      connect
       
       exec "rake db:migrate"
     end

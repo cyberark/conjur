@@ -1,4 +1,5 @@
 *.deb
+dev
 demo
 docker
 package

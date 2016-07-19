@@ -1,13 +1,5 @@
 Sequel.migration do
   change do
-    create_table(:credentials) do
-      column :role_id, "text", :null=>false
-      column :api_key, "bytea"
-      column :encrypted_hash, "bytea"
-      
-      primary_key [:role_id]
-    end
-    
     create_table(:roles) do
       column :role_id, "text", :null=>false
       column :uidnumber, "integer"
@@ -42,6 +34,16 @@ Sequel.migration do
       primary_key [:id]
       
       index [:fingerprint], :name=>:slosilo_keystore_fingerprint_key, :unique=>true
+    end
+    
+    create_table(:credentials) do
+      column :role_id, "text", :null=>false
+      column :api_key, "bytea"
+      column :encrypted_hash, "bytea"
+      foreign_key :client_id, :roles, :type=>"text", :key=>[:role_id], :on_delete=>:cascade
+      column :expiration, "timestamp without time zone"
+      
+      primary_key [:role_id]
     end
     
     create_table(:resources) do
@@ -95,5 +97,7 @@ Sequel.migration do
     self << "INSERT INTO \"schema_migrations\" (\"filename\") VALUES ('20160628222441_create_credentials.rb')"
     self << "INSERT INTO \"schema_migrations\" (\"filename\") VALUES ('20160630172059_create_secrets.rb')"
     self << "INSERT INTO \"schema_migrations\" (\"filename\") VALUES ('20160705141848_authz_functions.rb')"
+    self << "INSERT INTO \"schema_migrations\" (\"filename\") VALUES ('20160715205818_add_credentials_client.rb')"
+    self << "INSERT INTO \"schema_migrations\" (\"filename\") VALUES ('20160719193957_add_credentials_expiration.rb')"
   end
 end

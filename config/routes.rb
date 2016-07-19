@@ -11,8 +11,9 @@ end
 Rails.application.routes.draw do
   scope format: false do
     get  '/authn/users/login' => 'credentials#login'
-    put '/authn/users/password' => 'credentials#update_password'
-    put '/authn/users/api_key'  => 'credentials#rotate_api_key'
+    put  '/authn/users/password' => 'credentials#update_password'
+    put  '/authn/users/api_key'  => 'credentials#rotate_api_key'
+    delete  '/authn/users/clients/:client' => 'credentials#delete_client_keys'
 
     constraints id: /[^\/\?]+/ do
       post '/authn/users/:id/authenticate' => 'authenticate#authenticate'
@@ -40,8 +41,5 @@ Rails.application.routes.draw do
 
   get "/authz/:account/resources/:kind/*identifier" => "resources#show", :format => false
 
-  # TODO
-  post "/audit" => "audit#inject_audit_event"
-  
   get "/info" => "info#show"
 end

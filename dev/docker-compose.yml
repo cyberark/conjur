@@ -11,6 +11,7 @@ possum:
   - ..:/src/possum
   links:
   - pg:pg
+
 cucumber:
   image: possum-dev
   entrypoint: bash
