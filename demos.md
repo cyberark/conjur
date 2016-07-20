@@ -1,5 +1,5 @@
 ---
-title: Demo
+title: Demos
 layout: page
 ---
 

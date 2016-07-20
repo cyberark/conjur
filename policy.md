@@ -1,6 +1,6 @@
 ---
-title: Policy Guide
-layout: page
+title: Possum - Documentation - Policy Guide
+layout: doc
 ---
 
 # What is a Possum policy?
