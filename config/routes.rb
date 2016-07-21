@@ -10,36 +10,42 @@ end
 
 Rails.application.routes.draw do
   scope format: false do
-    get  '/authn/users/login' => 'credentials#login'
-    put  '/authn/users/password' => 'credentials#update_password'
-    put  '/authn/users/api_key'  => 'credentials#rotate_api_key'
-    delete  '/authn/users/clients/:client' => 'credentials#delete_client_keys'
+    get  '/authn/login' => 'credentials#login'
+    put  '/authn/password' => 'credentials#update_password'
+    put  '/authn/api_key'  => 'credentials#rotate_api_key'
 
     constraints id: /[^\/\?]+/ do
-      post '/authn/users/:id/authenticate' => 'authenticate#authenticate'
+      post '/authn/:id/authenticate' => 'authenticate#authenticate'
     end
+    
+    # TODO: this route exists for compatibility reasons only
+    get "/roles/:account/:kind/*identifier" => "roles#members", :constraints => QueryParameterActionRecognizer.new("members"), :format => false
+
+    get "/roles/:account/:kind/*identifier" => "roles#memberships", :constraints => QueryParameterActionRecognizer.new("all")
+  
+    get "/roles/:account/:kind/*identifier" => 'roles#check_permission', :constraints => QueryParameterActionRecognizer.new("check")
+  
+    get "/roles/:account/:kind/*identifier" => "roles#show"
+  
+    # TODO
+    get "/roles/:account" => "roles#index"
+
+    get "/resources/:account/:kind/*identifier" => 'resources#check_permission', :constraints => QueryParameterActionRecognizer.new("check")
+
+    get "/resources/:account/:kind/*identifier" => 'resources#permitted_roles', :constraints => QueryParameterActionRecognizer.new("permitted_roles")
+      
+    get "/resources/:account/:kind/*identifier" => "resources#show"
+
+    get "/resources/:account/:kind" => "resources#index"
+    
+    get "/resources/:account" => "resources#index"
+  
+    get "/secrets/:account/:kind/*identifier" => 'secrets#value'
+
+    post "/secrets" => 'secrets#add_value'
+
+    get "/pubkeys/:account/:kind/*identifier" => 'public_keys#show'
+
+    get "/info" => "info#show"
   end
-  
-  get "/authz/:account/roles/allowed_to/:permission/:kind/*identifier" => "resources#permitted_roles", :format => false
-  
-  get "/authz/:account/roles/:kind/*identifier" => "roles#memberships", :constraints => QueryParameterActionRecognizer.new("all"), :format => false
-
-  get "/authz/:account/roles/:kind/*identifier" => 'roles#check_permission', :constraints => QueryParameterActionRecognizer.new("check"), :format => false
-
-  get "/authz/:account/roles/:kind/*identifier" => "roles#members", :constraints => QueryParameterActionRecognizer.new("members"), :format => false
-
-  get  "/authz/:account/resources/:kind/*identifier" => 'resources#check_permission', :constraints => QueryParameterActionRecognizer.new("check"), :format => false
-
-  # TODO
-  get "/authz/:account/roles/:kind/*identifier" => "roles#show", :format => false
-
-  # TODO
-  get "/authz/:account/roles" => "roles#index", :format => false
-  
-  get "/authz/:account/resources" => "resources#index", :format => false
-  get "/authz/:account/resources/:kind" => "resources#index", :format => false
-
-  get "/authz/:account/resources/:kind/*identifier" => "resources#show", :format => false
-
-  get "/info" => "info#show"
 end

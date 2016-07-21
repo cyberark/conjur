@@ -39,15 +39,3 @@ cli:
     CONJUR_ACCOUNT: cucumber
   links:
   - possum:possum
-  
-ui:
-  image: conjurinc/conjur-ui
-  environment:
-    CONJUR_APPLIANCE_URL: http://possum
-    DH_PARAM_PEM:
-  ports:
-  - 443
-  volumes:
-  - ./dhparam.pem:/etc/ssl/certs/dhparam.pem
-  links:
-  - possum:possum

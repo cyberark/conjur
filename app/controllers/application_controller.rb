@@ -8,6 +8,11 @@ class ApplicationController < ActionController::API
   rescue_from Unauthorized, with: :unauthorized
   rescue_from ArgumentError, with: :unprocessable_entity
 
+  def record_not_found  e
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    head :not_found
+  end
+
   def unprocessable_entity  e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
     head :unprocessable_entity

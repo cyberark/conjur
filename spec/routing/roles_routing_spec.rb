@@ -1,30 +1,28 @@
 require 'spec_helper'
 
 describe "routing from roles" do
-  it "routes GET /authz/:account/roles/:role?members to roles#list_members if :role is delimiter-containing" do
+  it "routes GET /roles/:account/:role to roles#show if :role is delimiter-containing" do
     [ '@', ';', ':', '=', '-', '_', ',' ].each do |delimiter|
-      expect(get: "/authz/the-account/roles/user/u#{delimiter}admin?members").to route_to(
+      expect(get: "/roles/the-account/user/u#{delimiter}admin").to route_to(
         account: 'the-account',
         controller: 'roles',
-        action: 'members',
+        action: 'show',
         kind: 'user',
-        identifier: "u#{delimiter}admin",
-        members: nil)
+        identifier: "u#{delimiter}admin")
     end
   end
   
-  it "routes GET /authz/:account/roles/:role?members to roles#list_members" do
-    expect(get: '/authz/the-account/roles/user/admin?members').to route_to(
+  it "routes GET /roles/:account/:role to roles#list_members" do
+    expect(get: '/roles/the-account/user/admin').to route_to(
       account: 'the-account',
       controller: 'roles',
-      action: 'members',
+      action: 'show',
       kind: 'user',
-      identifier: 'admin',
-      members: nil)
+      identifier: 'admin')
   end
   
-  it "routes GET /authz/:account/roles/:role?all to roles#all_roles" do
-    expect(get: '/authz/the-account/roles/user/admin?all').to route_to(
+  it "routes GET /roles/:account/:role?all to roles#all_roles" do
+    expect(get: '/roles/the-account/user/admin?all').to route_to(
       account: 'the-account',
       controller: 'roles',
       action: 'memberships',
@@ -33,8 +31,8 @@ describe "routing from roles" do
       all: nil)
   end
   
-  it "routes GET /authz/:account/roles/:role?check to roles#check_permission" do
-    expect(get: '/authz/the-account/roles/user/admin?check').to route_to(
+  it "routes GET /roles/:account/:role?check to roles#check_permission" do
+    expect(get: '/roles/the-account/user/admin?check').to route_to(
       account: 'the-account',
       controller: 'roles',
       action: 'check_permission',
