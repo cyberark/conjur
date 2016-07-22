@@ -1,6 +1,7 @@
 ---
-title: Possum - Documentation - Policy Guide
-layout: doc
+title: Policy Guide
+layout: page
+index: 10
 ---
 
 # What is a Possum policy?
@@ -86,9 +87,10 @@ Entitlements are role grants and privilege grants which create permissions relat
 
 {% include policy-element.md element=site.data.policy.policy %}
 
-# Putting it together
+# Nesting policies with `!include`
 
-Individual policy files can be combined together into a top-level Conjurfile using the `!include` directive. If `!include` is used from within the body of a policy, the included policy statements are owned by the policy role, and namespaced by the policy id.
+Individual policy files can be combined together into a top-level Conjurfile using the `!include` directive. If `!include` is used from within the body of a policy, the included policy statements are owned by the policy role, and namespaced by the policy id. Otherwise, they are simply evaluated
+at the global scope.
 
 {% highlight yaml %}
 - !include groups.yml

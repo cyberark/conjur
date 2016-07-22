@@ -1,6 +1,6 @@
 ---
-title: Welcome
 layout: page
+index: 00
 ---
 
 # The banner goes here
@@ -14,14 +14,14 @@ layout: page
 
 # And ends here
 
-Modern infrastructure is composed of a fluid set of interacting components such as servers, virtual machines, containers, storage volumes, secrets, job controllers, web services, databases and other code. To properly secure this infrastructure, you need an authoritative
+To properly secure a modern infrastructure, you need an authoritative
 directory service that:
 
-* Enumerates and categorizes everything.
+* Enumerates and categorizes all your servers, virtual machines, containers, storage volumes, secrets, job controllers, web services, databases and other code.
 * Assigns roles and permissions to everything.  
-* Supports the modern coded workflow.
-* Has full support for automation, ephemeral services and containers.
-* Is easy to use with other tools in the modern stack.
+* Supports a coded workflow.
+* Supports automation, microservices, and continuous integraiton.
+* Has easy-to-use integrations with other tools in the modern stack.
 
 Possum is the directory and authorization service for the new infrastructure stack, providing:
 
@@ -168,7 +168,11 @@ The Possum server that you are running contains some example policies. Here are 
 
 # Learn More
 
-* [Demos](demos.html) See how to run the Possum service and make typical REST calls.
-* [Documentation](docs.html) 
-* [REST API reference]() 
-* [Downloads]() Client library and CLI
+{% assign pages_list = site.pages | sort: 'index' %}
+{% for node in pages_list %}
+{% if node.title != null %}
+  {% if node.layout == "page" %}
+* [{{node.title }}]({{ site.baseurl}}{{ node.url }})
+  {% endif %}
+{% endif %}
+{% endfor %}

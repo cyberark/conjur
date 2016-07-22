@@ -1,0 +1,36 @@
+<div class="sidebar">
+  <div class="container">
+    <div class="sidebar-about">
+      <h1>
+        <a href="{{ site.baseurl }}/">
+          {{ site.title }}
+        </a>
+      </h1>
+      <p class="lead">{{ site.description }}</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="sidebar-nav-item{% if node.title == null %} active{% endif %}" href="{{ site.baseurl }}/">Home</a>
+
+      {% comment %}
+        The code below dynamically generates a sidebar nav of pages with
+        `layout: page` in the front-matter. See readme for usage.
+      {% endcomment %}
+
+      {% assign pages_list = site.pages | sort: 'index' %}
+      {% for node in pages_list %}
+        {% if node.title != null %}
+          {% if node.layout == "page" %}
+            <a class="sidebar-nav-item{% if page.url == node.url %} active{% endif %}" href="{{ site.baseurl }}{{ node.url }}">{{ node.title }}</a>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+
+      <a class="sidebar-nav-item" href="https://github.com/conjurinc/possum/releases" target="_blank">Downloads &raquo;</a>
+
+      <a class="sidebar-nav-item" href="https://github.com/conjurinc/possum" target="_blank">GitHub project &raquo;</a>
+    </nav>
+
+    <p>&copy; {{ site.time | date: '%Y' }}. All rights reserved.</p>
+  </div>
+</div>
