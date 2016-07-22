@@ -25,6 +25,8 @@ namespace :policy do
         if do_load
           $stderr.puts "Loading #{policy_file_name}"
           system *[ "rake", %Q(policy:load[#{policy_file_name}]) ]
+          require 'fileutils'
+          FileUtils.touch File.join(dir_name, "finished")
         end
       end
     end

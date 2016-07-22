@@ -22,8 +22,8 @@ class Loader
         admin = ::Role.create(role_id: admin_id)
         if admin_password = ENV['POSSUM_ADMIN_PASSWORD']
           $stderr.puts "Setting 'admin' password"
-          admin_credentials = Credentials.new role: admin
-          admin_credentials.password = password
+          admin_credentials = Credentials[role: admin] || Credentials.create(role: admin)
+          admin_credentials.password = admin_password
           admin_credentials.save
         end
         

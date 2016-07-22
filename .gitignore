@@ -16,3 +16,7 @@ data_key
 dhparam.pem
 *.deb
 */reports
+demo/run/finished
+demo/run/load
+run/finished
+demo/run/*.yml
