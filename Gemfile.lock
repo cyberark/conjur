@@ -1,11 +1,4 @@
 GIT
-  remote: git://github.com/conjurinc/appliance-logging.git
-  revision: cb3e61a7dd1c031abf0beef69c9c97c07a12aae6
-  branch: master
-  specs:
-    conjur-appliance-logging (0.3.0)
-
-GIT
   remote: git://github.com/conjurinc/conjur-policy-parser.git
   revision: 2bb9b81d3b7ba63098f70ba82d5be2eb855af0eb
   branch: master
@@ -174,6 +167,7 @@ GEM
     pkg-config (1.1.7)
     puma (3.4.0)
     rack (1.6.4)
+    rack-rewrite (1.5.1)
     rack-test (0.6.3)
       rack (>= 1.0)
     rails (4.2.6)
@@ -198,6 +192,7 @@ GEM
       rails-deprecated_sanitizer (>= 1.0.1)
     rails-html-sanitizer (1.0.3)
       loofah (~> 2.0)
+    rails_stdout_logging (0.0.5)
     railties (4.2.6)
       actionpack (= 4.2.6)
       activesupport (= 4.2.6)
@@ -270,7 +265,6 @@ DEPENDENCIES
   bcrypt-ruby (~> 3.0.0)
   byebug
   ci_reporter_rspec
-  conjur-appliance-logging!
   conjur-cli
   conjur-debify
   conjur-policy-parser!
@@ -283,8 +277,10 @@ DEPENDENCIES
   parallel
   pg
   puma
+  rack-rewrite
   rails (~> 4.2)
   rails-api
+  rails_stdout_logging
   rake
   rake_shared_context
   random_password_generator (= 1.0.0)

@@ -18,9 +18,10 @@ gem 'slosilo', '>=2.0.0'
 gem 'listen'
 gem 'gli'
 
+gem 'rack-rewrite'
 gem 'conjur-rack', github: 'conjurinc/conjur-rack', branch: 'master'
 gem 'conjur-rack-heartbeat'
-gem 'conjur-appliance-logging', github: 'conjurinc/appliance-logging', branch: 'master'
+gem 'rails_stdout_logging'
 gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'master'
 
 group :development, :test do

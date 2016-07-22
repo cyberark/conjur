@@ -2,7 +2,11 @@ class RolesController < RestController
   before_filter :find_role, only: [ :show, :memberships, :members, :check_permission ]
 
   def show
-    render json: @role
+    render json: @role.as_json.merge(members: @role.memberships)
+  end
+  
+  def members
+    render json: @role.memberships
   end
 
   def memberships
@@ -10,10 +14,6 @@ class RolesController < RestController
     filter = Array(filter) if filter
     
     render json: @role.all_roles(filter).map(&:role_id)
-  end
-  
-  def members
-    render json: @role.memberships
   end
 
   def check_permission 

@@ -25,8 +25,8 @@ class ResourcesController < RestController
   end
   
   def permitted_roles
-    privilege = params[:permission]
-    raise ArgumentError, "permission" unless privilege
+    privilege = params[:privilege] || params[:permission]
+    raise ArgumentError, "privilege" unless privilege
     render json: Role.that_can(privilege, @resource).map {|r| r.id}
   end
 
