@@ -6,3 +6,4 @@ gems:
   - jekyll-coffeescript
   - jekyll-paginate
 baseurl: /possum
+title: Possum
