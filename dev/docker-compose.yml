@@ -3,8 +3,10 @@ pg:
 possum:
   image: possum-dev
   environment:
+    CONJUR_APPLIANCE_URL: http://localhost:3000
     DATABASE_URL: postgres://postgres@pg/postgres
     CONJUR_ACCOUNT: cucumber
+    POSSUM_ADMIN_PASSWORD: admin
     CONJUR_PASSWORD_ALICE: secret
     POSSUM_DATA_KEY:
   volumes:
@@ -16,8 +18,10 @@ cucumber:
   image: possum-dev
   entrypoint: bash
   environment:
-    DATABASE_URL: postgres://postgres@pg/postgres
     CONJUR_APPLIANCE_URL: http://possum:3000
+    DATABASE_URL: postgres://postgres@pg/postgres
+    CONJUR_ACCOUNT: cucumber
+    POSSUM_ADMIN_PASSWORD: admin
     POSSUM_DATA_KEY:
   volumes:
   - ..:/src/possum

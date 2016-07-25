@@ -85,6 +85,14 @@ module PossumWorld
     end
   end
   
+  def load_policy policy
+    require 'tempfile'
+    file = Tempfile.new('policy')
+    file.write policy
+    file.flush
+    system *(%w(possum policy load) + [ file.path ]) or raise "Failed to load policy: #{$?.exitstatus}"
+  end
+  
   def make_full_id *tokens
     super tokens.join(":")
   end

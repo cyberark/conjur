@@ -19,12 +19,11 @@ For more information, visit [possum.io](https://possum.io).
 Possum is packaged primarily as a Docker image. To build it:
 
 ```sh-session
-$ ./build.sh
+$ ./build
 ...
 Successfully built 9a18a1396977
 $ docker images | grep possum
-possum-dev                                                     latest              c6ad19c9ba6a        17 minutes ago      666 MB
-possum                                                         latest              81c297d8d216        21 minutes ago      551.6 MB
+possum                                         latest                     9a18a1396977        21 hours ago        559.6 MB
 ```
 
 ## Development environment
@@ -107,7 +106,7 @@ Finished in 3.84 seconds (files took 3.33 seconds to load)
 Cucumber tests require the Possum server to be running. It's easiest to achieve this by starting Possum in one container, and running Cucumber from another. In the first container:
 
 ```sh-session
-root@aa8bc35ba7f4:/src/possum# rails s -o 0.0.0.0
+root@aa8bc35ba7f4:/src/possum# rails s -b 0.0.0.0
 => Booting Puma
 ...
 * Listening on tcp://localhost:3000
@@ -122,10 +121,13 @@ $ ./cucumber.sh
 root@9feae5e5e001:/src/possum# 
 ```
 
+There are two cucumber suites: API and Policy. They are located in subdirectories of `./cucumber`.
+
 Run the cukes:
 
 ```sh-session
-root@9feae5e5e001:/src/possum# cucumber
+root@9feae5e5e001:/src/possum# cd cucumber/api
+root@9feae5e5e001:/src/possum/cucumber/api# cucumber
 ...
 27 scenarios (27 passed)
 101 steps (101 passed)
