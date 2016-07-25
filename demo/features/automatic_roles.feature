@@ -7,7 +7,7 @@ Feature: Automatic roles can be used to automatically grant and revoke privilege
     
     The group `developers` is granted the `use_host` automatic role on layer `prod/bastion`, which will
     give the group `execute` privilege on the hosts in the layer. This privilege is automatically
-    add to hosts as they join the layer, and revoked as they leave. 
+    added to hosts as they join the layer, and revoked as they leave. 
 
     The group `operations` has `admin_host` privilege on the layer`s hosts. The `admin_host` 
     automatic role manages `update` privilege. 

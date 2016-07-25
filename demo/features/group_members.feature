@@ -6,7 +6,7 @@ Feature: Users and groups can be added to groups
     This effectively adds groups `developers` and `operations` to the `employees` group. They are 
     granted all privileges of the `employees` group.
   
-    Note the replace: true option. This means that if a group named `employees` already exists, 
+    Note the `replace: true` option. This means that if a group named `employees` already exists, 
     remove all members and replace with the roles in the members list. Replacing members gives you a 
     more authoritive answer to the question "who is in this group?", but may not work if you are 
     referencing global roles in your policy.
