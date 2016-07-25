@@ -3,18 +3,20 @@ FROM ubuntu:14.04
 RUN apt-get update -y
 
 RUN apt-get install -y \
-  postgresql-client \
-  libpq-dev \
-  ldap-utils \
-  update-notifier-common \
   vim \
   curl \
   jq \
+  build-essential \
   git
 
 # Install the Conjur CLI
-RUN curl -o conjur.deb -sSL https://github.com/conjurinc/cli-ruby/releases/download/v5.2.3/conjur_5.2.3-1_amd64.deb && \
-  dpkg -i conjur.deb
+RUN curl -o /dev/shm/conjur.deb -sSL https://github.com/conjurinc/cli-ruby/releases/download/v5.2.3/conjur_5.2.3-1_amd64.deb && \
+  dpkg -i /dev/shm/conjur.deb
 
 ENV PATH /opt/conjur/embedded/bin:$PATH
+
+RUN gem install -N cucumber aruba rspec-expectations
+
 ENV TERM xterm
+
+WORKDIR /mnt/src
