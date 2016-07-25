@@ -9,6 +9,11 @@ module Conjur
         def role
           ::Role[roleid]
         end
+        
+        def automatic_role role_name
+          roleid = [ account, '@', [ role_kind, id, role_name ].join('/')].join(":")
+          ::Role[roleid] or raise IndexError, roleid
+        end
       end
 
       module CreateResource
@@ -45,11 +50,6 @@ module Conjur
           observe.grant_to use
           use.grant_to admin
         end
-        
-        def automatic_role role_name
-          roleid = [ account, '@', [ role_kind, id, role_name ].join('/')].join(":")
-          ::Role[roleid] or raise IndexError, roleid
-        end
       end
 
       class Group < Record
@@ -78,13 +78,10 @@ module Conjur
           Array(public_keys).each do |public_key|
             key_name = PublicKey.key_name public_key
 
-            resourceid = [ self.account, "variable", [ "public_keys", self.id, key_name ].join('/') ].join(":")
+            resourceid = [ self.account, "public_key", [ self.id, key_name ].join('/') ].join(":")
             ::Resource.create(resource_id: resourceid, owner: (::Role[owner.roleid] or raise IndexError, owner.roleid)).tap do |resource|
-              resource.add_annotation name: "possum/variable/kind", value: "SSH public key"
-              ::Secret.create resource: resource, value: public_key
-              %w(read execute).each do |privilege|
-                resource.permit privilege, self.role
-              end
+              # TODO: find-or-replace rather than creating this
+              ::Secret.create(resource: resource, value: public_key)
             end
           end
         end
