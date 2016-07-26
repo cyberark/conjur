@@ -15,7 +15,7 @@ tmp
 data_key
 dhparam.pem
 *.deb
-*/reports
+reports
 demo/run/finished
 demo/run/load
 run/finished
