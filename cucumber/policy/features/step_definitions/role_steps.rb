@@ -1,10 +1,10 @@
-Given(/^I show the (\w+) "([^"]*)"$/) do |role_kind, role_id|
+Given(/^I show the ([\w_]+) "([^"]*)"$/) do |role_kind, role_id|
   invoke do
     possum.role_show [ role_kind, role_id ].join(":")
   end
 end
 
-Then(/^(\w+) "([^"]*)" is a role member( with admin option)?$/) do |role_kind, role_id, admin|
+Then(/^([\w_]+) "([^"]*)" is a role member( with admin option)?$/) do |role_kind, role_id, admin|
   members = @result['members']
   if admin
     members = members.select{|m| m['admin_option']}

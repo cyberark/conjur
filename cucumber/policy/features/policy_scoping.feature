@@ -37,7 +37,7 @@ Feature: Policies can be used to scope records by name and ownership.
           privilege: [ read, execute, update ]
           resource: *variables
     """
-    When I list "group" resources
+    When I list group resources
     Then the resource list includes group "jenkins/v1/users"
     And the resource list includes group "jenkins/v1/admins"
     When I list the roles permitted to execute variable "jenkins/v1/private-key"
