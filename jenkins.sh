@@ -42,6 +42,8 @@ for i in $(seq 10); do
 	sleep 2
 done
 
+cd /src/possum
+
 rm -rf spec/reports/*
 rm -rf cucumber/api/features/reports/*
 rm -rf cucumber/policy/features/reports/*
