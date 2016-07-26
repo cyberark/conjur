@@ -42,7 +42,7 @@ Rails.application.routes.draw do
   
     get "/secrets/:account/:kind/*identifier" => 'secrets#value'
 
-    post "/secrets" => 'secrets#add_value'
+    post "/secrets/:account/:kind/*identifier" => 'secrets#add_value'
 
     get "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
 

@@ -67,6 +67,11 @@ class Possum::API
     JSON::parse(RestClient::Resource.new($possum_url, credentials)["roles/#{id_path(id)}"].get)
   end
   
+  def public_keys id
+    id = make_full_id id
+    RestClient::Resource.new($possum_url)["public_keys/#{id_path(id)}"].get
+  end
+  
   protected
   
   def id_path id
