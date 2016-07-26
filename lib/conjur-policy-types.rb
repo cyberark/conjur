@@ -79,7 +79,7 @@ module Conjur
             key_name = PublicKey.key_name public_key
 
             resourceid = [ self.account, "public_key", "#{self.role_kind}/#{self.id}/#{key_name}" ].join(":")
-            ::Resource.create(resource_id: resourceid, owner: (::Role[owner.roleid] or raise IndexError, owner.roleid)).tap do |resource|
+            (::Resource[resourceid] || ::Resource.create(resource_id: resourceid, owner: (::Role[owner.roleid] or raise IndexError, owner.roleid))).tap do |resource|
               unless resource.secrets.find{|s| s.value == public_key}
                 ::Secret.create resource: resource, value: public_key
               end
