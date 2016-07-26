@@ -27,3 +27,22 @@ task :"policy-doc" do
     File.write File.join('_data/policy', "#{item.id.underscore}.yml"), document.to_yaml
   end
 end
+
+desc "Generate cucumber YARD doc"
+task :"cuke-doc" do |t,args|
+  require 'docker-api'
+
+  image = Dir.chdir('yard-cucumber') { Docker::Image.build_from_dir '.' }
+  container = Docker::Container.create('Cmd' => [], 
+    'Image' => image.id, 
+    'HostConfig' => { 'Binds' => [ "#{Dir.pwd}/yard-cucumber:/mnt/doc" ] })
+  begin
+    container.start
+    result = container.wait
+    $stderr.puts container.logs(stdout: true, stderr: true)
+    status = result['StatusCode']
+    raise "cucumber-yard failed: #{status}" unless status == 0
+  ensure
+    container.delete(:force => true)
+  end
+end
