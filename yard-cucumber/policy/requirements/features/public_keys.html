@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>
-  Feature: Users and groups can be added to groups
+  Feature: Public keys can be associated with user records.
   
     &mdash; Documentation by YARD 0.8.1
   
@@ -35,10 +35,10 @@
     <div id="header">
       <div id="menu">
   
-    <a href="../../_index.html">Index (g)</a> &raquo;
+    <a href="../../_index.html">Index (p)</a> &raquo;
     <span class='title'><span class='object_link'><a href="../../requirements.html" title="requirements (requirements)">requirements</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../features.html" title="requirements::features (featuredirectory)">features</a></span></span>
      &raquo; 
-    <span class="title">group_members</span>
+    <span class="title">public_keys</span>
   
 
   <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
@@ -90,7 +90,7 @@ $(function() {
     <a id="expand" class="control" href="#">[Collapse All]</a>
     <div style="clear: right;"></div>
     <span class="pre">Feature:</span>
-    <span class="name">Users and groups can be added to groups</span>
+    <span class="name">Public keys can be associated with user records.</span>
   </div>
 
   
@@ -100,7 +100,7 @@ $(function() {
   </div>
 
   <div class="meta">
-    <div class="file developer">features/group_members.feature</div>
+    <div class="file developer">features/public_keys.feature</div>
     <div style="clear: right;"></div>
     <div class="tags developer">
       
@@ -116,7 +116,7 @@ $(function() {
     <div style="float: left;">
       <a class="toggle"> - </a>
       <span class="pre">Scenario:</span>
-      <span class="name">Create a group of groups</span>
+      <span class="name">Public keys can be managed through policy.</span>
     </div>
     <a class="link" style="float:right; clear:right;" href="#scenario_0">link</a>
   </div>
@@ -127,7 +127,7 @@ $(function() {
 
   <div class="details">
     <div class="meta developer">
-      <div class="file">features/group_members.feature:3</div>
+      <div class="file">features/public_keys.feature:3</div>
       
       <div style="clear: both;"></div>
     </div>
@@ -159,7 +159,7 @@ $(function() {
 
   
   <div class="text">
-  #&nbsp;First&nbsp;create&nbsp;the&nbsp;groups<br/>-&nbsp;!group&nbsp;employees<br/>-&nbsp;!group&nbsp;developers<br/>-&nbsp;!group&nbsp;operations<br/><br/>#&nbsp;Now&nbsp;grant&nbsp;group&nbsp;employees&nbsp;to&nbsp;groups&nbsp;developers&nbsp;and&nbsp;developers<br/>-&nbsp;!grant<br/>&nbsp;&nbsp;replace:&nbsp;true<br/>&nbsp;&nbsp;role:&nbsp;!group&nbsp;employees<br/>&nbsp;&nbsp;members:<br/>&nbsp;&nbsp;-&nbsp;!group&nbsp;developers<br/>&nbsp;&nbsp;-&nbsp;!group&nbsp;operations
+  -&nbsp;!user<br/>&nbsp;&nbsp;id:&nbsp;alice<br/>&nbsp;&nbsp;public_keys:<br/>&nbsp;&nbsp;-&nbsp;ssh-rsa&nbsp;AAAAB3NzaC1yc2EAAAADAQABAAABAQCkP8DBDkCiPxnoXgSnrWq9QkYZ6mUmSsWQIEH81eSvllH+lTZQjgNwvwTaSSpBJ5QupyMf9/PCcP3D7weSrL3YkUSvb0GtE6Sq0mehHAPUNuT8qfXpjFVUe50LcGTUfqrD6EGdn+9t6PXeg7dFVyZt66Lg4ei3If7K+VeWDqaHFIIBevy/qLD8WEjKYBSfzf0cgxuRmfrqeu67bbL2ipHMhZQ0ZkVneQ5O++eRmbiEE3eoza6ut/jcPk5dzX+LHhJIZhI5JOyhRPxnrCrQkipoKtJgj3xxSCFfYQNvH9dAZZK6CTkY2SQT8YbAxgKagJ+JTg2LzKz3WzEe49HhIqxF&nbsp;laptop<br/>&nbsp;&nbsp;-&nbsp;ssh-rsa&nbsp;AAAAB3NzaC1yc2EAAAADAQABAAABAQDCxWrx+rPfp6YWGujtDwsY3tj8KmYsSD6nuog+2V6PgKYBAsrxOnUme2VNZ5LXxZ1KrkD4GmXxy01aEmpDFmwMWnszQFgoQI5pO2XEqtt7T63jA0htKzDqELEp/FZLQv5wQUILgQlnnPK6WrueIbhfP0o8SRBnEau6pt/rD44CAToObzLe7b7vPXDzP8SRj7iPsAfYsyr+UjOe7vIvgs5bLhKuWgPiXnbheurPgqsCcGwQ9VxVFxPsdGL5ANwQzmUlCddcTg370samqSSy9jzIKvai9yd+2KuFj3AviqhZN4fxKn8A0NTFX0wgi4U46HDTzt2NTERuWhcP36b+4ZLN&nbsp;workstation
 </div>
 
 
@@ -169,13 +169,13 @@ $(function() {
 
   
   <div class="step even">
-    <span class="predicate">When </span>
+    <span class="predicate">Then </span>
 
     
 
       
         <span class="undefined">
-          I show the group &quot;employees&quot;
+          there is a public_key resource &quot;user/alice/laptop&quot;
           <div class="definition developer">
             <a href="../step_transformers.html#undefined_steps">
               <div class="invalid">&nbsp;</div>
@@ -196,13 +196,13 @@ $(function() {
 
   
   <div class="step odd">
-    <span class="predicate">Then </span>
+    <span class="predicate">And </span>
 
     
 
       
         <span class="undefined">
-          group &quot;developers&quot; is a role member
+          there is a public_key resource &quot;user/alice/workstation&quot;
           <div class="definition developer">
             <a href="../step_transformers.html#undefined_steps">
               <div class="invalid">&nbsp;</div>
@@ -229,7 +229,7 @@ $(function() {
 
       
         <span class="undefined">
-          group &quot;operations&quot; is a role member
+          I list the public keys for user &quot;alice&quot;
           <div class="definition developer">
             <a href="../step_transformers.html#undefined_steps">
               <div class="invalid">&nbsp;</div>
@@ -243,6 +243,36 @@ $(function() {
 
   
   
+
+
+
+  
+
+  
+  <div class="step odd">
+    <span class="predicate">Then </span>
+
+    
+
+      
+        <span class="undefined">
+          the result is:
+          <div class="definition developer">
+            <a href="../step_transformers.html#undefined_steps">
+              <div class="invalid">&nbsp;</div>
+            </a>
+          </div>
+        </span>
+      
+
+    
+  </div>
+
+  
+  <div class="text">
+  ssh-rsa&nbsp;AAAAB3NzaC1yc2EAAAADAQABAAABAQCkP8DBDkCiPxnoXgSnrWq9QkYZ6mUmSsWQIEH81eSvllH+lTZQjgNwvwTaSSpBJ5QupyMf9/PCcP3D7weSrL3YkUSvb0GtE6Sq0mehHAPUNuT8qfXpjFVUe50LcGTUfqrD6EGdn+9t6PXeg7dFVyZt66Lg4ei3If7K+VeWDqaHFIIBevy/qLD8WEjKYBSfzf0cgxuRmfrqeu67bbL2ipHMhZQ0ZkVneQ5O++eRmbiEE3eoza6ut/jcPk5dzX+LHhJIZhI5JOyhRPxnrCrQkipoKtJgj3xxSCFfYQNvH9dAZZK6CTkY2SQT8YbAxgKagJ+JTg2LzKz3WzEe49HhIqxF&nbsp;laptop<br/>ssh-rsa&nbsp;AAAAB3NzaC1yc2EAAAADAQABAAABAQDCxWrx+rPfp6YWGujtDwsY3tj8KmYsSD6nuog+2V6PgKYBAsrxOnUme2VNZ5LXxZ1KrkD4GmXxy01aEmpDFmwMWnszQFgoQI5pO2XEqtt7T63jA0htKzDqELEp/FZLQv5wQUILgQlnnPK6WrueIbhfP0o8SRBnEau6pt/rD44CAToObzLe7b7vPXDzP8SRj7iPsAfYsyr+UjOe7vIvgs5bLhKuWgPiXnbheurPgqsCcGwQ9VxVFxPsdGL5ANwQzmUlCddcTg370samqSSy9jzIKvai9yd+2KuFj3AviqhZN4fxKn8A0NTFX0wgi4U46HDTzt2NTERuWhcP36b+4ZLN&nbsp;workstation
+</div>
+
 
 
 
@@ -266,7 +296,7 @@ $(function() {
     <div style="float: left;">
       <a class="toggle"> - </a>
       <span class="pre">Scenario:</span>
-      <span class="name">Add an administrator to a group</span>
+      <span class="name">The latest public key version is the one provided by the pubkeys API.</span>
     </div>
     <a class="link" style="float:right; clear:right;" href="#scenario_1">link</a>
   </div>
@@ -277,7 +307,7 @@ $(function() {
 
   <div class="details">
     <div class="meta developer">
-      <div class="file">features/group_members.feature:33</div>
+      <div class="file">features/public_keys.feature:31</div>
       
       <div style="clear: both;"></div>
     </div>
@@ -309,7 +339,7 @@ $(function() {
 
   
   <div class="text">
-  -&nbsp;!group&nbsp;ci<br/><br/>-&nbsp;!group&nbsp;&amp;admin&nbsp;ci-admin<br/><br/>-&nbsp;!grant<br/>&nbsp;&nbsp;role:&nbsp;!group&nbsp;ci<br/>&nbsp;&nbsp;member:&nbsp;!member&nbsp;<br/>&nbsp;&nbsp;&nbsp;&nbsp;role:&nbsp;*admin<br/>&nbsp;&nbsp;&nbsp;&nbsp;admin:&nbsp;true
+  -&nbsp;!user<br/>&nbsp;&nbsp;id:&nbsp;alice<br/>&nbsp;&nbsp;public_keys:<br/>&nbsp;&nbsp;-&nbsp;ssh-rsa&nbsp;AAAAB3NzaC1yc2EAAAADAQABAAABAQCkP8DBDkCiPxnoXgSnrWq9QkYZ6mUmSsWQIEH81eSvllH+lTZQjgNwvwTaSSpBJ5QupyMf9/PCcP3D7weSrL3YkUSvb0GtE6Sq0mehHAPUNuT8qfXpjFVUe50LcGTUfqrD6EGdn+9t6PXeg7dFVyZt66Lg4ei3If7K+VeWDqaHFIIBevy/qLD8WEjKYBSfzf0cgxuRmfrqeu67bbL2ipHMhZQ0ZkVneQ5O++eRmbiEE3eoza6ut/jcPk5dzX+LHhJIZhI5JOyhRPxnrCrQkipoKtJgj3xxSCFfYQNvH9dAZZK6CTkY2SQT8YbAxgKagJ+JTg2LzKz3WzEe49HhIqxF&nbsp;laptop<br/>&nbsp;&nbsp;-&nbsp;ssh-rsa&nbsp;AAAAB3NzaC1yc2EAAAADAQABAAABAQDCxWrx+rPfp6YWGujtDwsY3tj8KmYsSD6nuog+2V6PgKYBAsrxOnUme2VNZ5LXxZ1KrkD4GmXxy01aEmpDFmwMWnszQFgoQI5pO2XEqtt7T63jA0htKzDqELEp/FZLQv5wQUILgQlnnPK6WrueIbhfP0o8SRBnEau6pt/rD44CAToObzLe7b7vPXDzP8SRj7iPsAfYsyr+UjOe7vIvgs5bLhKuWgPiXnbheurPgqsCcGwQ9VxVFxPsdGL5ANwQzmUlCddcTg370samqSSy9jzIKvai9yd+2KuFj3AviqhZN4fxKn8A0NTFX0wgi4U46HDTzt2NTERuWhcP36b+4ZLN&nbsp;laptop
 </div>
 
 
@@ -319,13 +349,13 @@ $(function() {
 
   
   <div class="step even">
-    <span class="predicate">When </span>
+    <span class="predicate">Then </span>
 
     
 
       
         <span class="undefined">
-          I show the group &quot;ci&quot;
+          there is a public_key resource &quot;user/alice/laptop&quot;
           <div class="definition developer">
             <a href="../step_transformers.html#undefined_steps">
               <div class="invalid">&nbsp;</div>
@@ -346,13 +376,13 @@ $(function() {
 
   
   <div class="step odd">
-    <span class="predicate">Then </span>
+    <span class="predicate">And </span>
 
     
 
       
         <span class="undefined">
-          group &quot;ci-admin&quot; is a role member with admin option
+          I list the public keys for user &quot;alice&quot;
           <div class="definition developer">
             <a href="../step_transformers.html#undefined_steps">
               <div class="invalid">&nbsp;</div>
@@ -366,6 +396,36 @@ $(function() {
 
   
   
+
+
+
+  
+
+  
+  <div class="step even">
+    <span class="predicate">Then </span>
+
+    
+
+      
+        <span class="undefined">
+          the result is:
+          <div class="definition developer">
+            <a href="../step_transformers.html#undefined_steps">
+              <div class="invalid">&nbsp;</div>
+            </a>
+          </div>
+        </span>
+      
+
+    
+  </div>
+
+  
+  <div class="text">
+  ssh-rsa&nbsp;AAAAB3NzaC1yc2EAAAADAQABAAABAQDCxWrx+rPfp6YWGujtDwsY3tj8KmYsSD6nuog+2V6PgKYBAsrxOnUme2VNZ5LXxZ1KrkD4GmXxy01aEmpDFmwMWnszQFgoQI5pO2XEqtt7T63jA0htKzDqELEp/FZLQv5wQUILgQlnnPK6WrueIbhfP0o8SRBnEau6pt/rD44CAToObzLe7b7vPXDzP8SRj7iPsAfYsyr+UjOe7vIvgs5bLhKuWgPiXnbheurPgqsCcGwQ9VxVFxPsdGL5ANwQzmUlCddcTg370samqSSy9jzIKvai9yd+2KuFj3AviqhZN4fxKn8A0NTFX0wgi4U46HDTzt2NTERuWhcP36b+4ZLN&nbsp;laptop
+</div>
+
 
 
 

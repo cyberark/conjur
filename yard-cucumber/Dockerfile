@@ -1,14 +1,13 @@
 FROM possum
 
-RUN gem install -N rake yard-cucumber
+RUN gem install -N -v 0.8.1 yard
+RUN gem install -N rake yard-cucumber redcarpet
 
-RUN mkdir -p /opt/yard-cucumber
-
-WORKDIR /opt/yard-cucumber
+WORKDIR /root
 
 ADD . .
 
-RUN yard config load_plugins true
+RUN mkdir -p .yard && yard config load_plugins true
 
 ENV RUBYOPT "-E utf-8"
 
