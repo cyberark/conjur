@@ -23,7 +23,9 @@ $ ./build
 ...
 Successfully built 9a18a1396977
 $ docker images | grep possum
-possum                                         latest                     9a18a1396977        21 hours ago        559.6 MB
+conjurinc/possum latest a8229592474c 7 minutes ago 560.7 MB
+possum           latest a8229592474c 7 minutes ago 560.7 MB
+possum-dev       latest af98cb5b2a68 4 days ago    639.9 MB
 ```
 
 ## Development environment
@@ -39,48 +41,27 @@ dev $ ./start.sh
 root@f39015718062:/src/possum#
 ```
 
-Once the start.sh script finishes, you're in a Bash shell in the Possum container. `bundle` to install the dependencies:
-
-```sh-session
-root@f39015718062:/src/possum# bundle
-...
-Bundle complete! 31 Gemfile dependencies, 95 gems now installed.
-Use `bundle show [gemname]` to see where a bundled gem is installed.
-```
-
-Create the database schema:
-
-```sh-session
-root@f39015718062:/src/possum# possum db migrate
-```
-
-Load a token-signing private key:
-
-```sh-session
-root@cefeae7ce399:/src/possum# possum token-key generate
-Created and saved new token-signing key. Public key is:
------BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1zFSIzvP1aVdFBlTWYHn
-ESahqe4uHmDiEy0Bn8aOLOVTQ1/5YLe6h0Pv7xCyuk2w++gDD9gs5lSKhv4HZjmL
-EV+qx/kJCWJDQCDmOysOlCO9Iw5Uwxgi+x1JrV5MhlEy5uu7mxr3W/rHiNBSF3y4
-x3VRCni8Hw2TkxcXVqDcXWxFs//aoDnrUoDQXvqky76CnGdGJ7Fx90KVkfhyCecw
-E44+rnqd6bDt6UCkayA+U2+b8gFPHgEO4NGwuC58K2OL14MxZhldKGwj9rTd9S15
-h5cAJh9zqy4DQ7xymrOGe2RGlq8aaQX8A+/tf3zVQdgVKITx28ESFi2V9Fj/emYj
-aQIDAQAB
------END PUBLIC KEY-----
-```
+Once the start.sh script finishes, you're in a Bash shell in the Possum container.
 
 ### Run the server
 
-To run the Possum server in development mode, use `rails s`:
+To run the possum server:
 
-```
-root@f39015718062:/src/possum# rails s -b 0.0.0.0
-=> Booting Puma
-...
-* Listening on tcp://0.0.0.0:3000
+```sh-session
+root@f39015718062:/src/possum# possum server
+<database migration>
+<find or create the token-signing key>
+<web server startup messages>
+* Listening on tcp://localhost:3000
 Use Ctrl-C to stop
 ```
+
+The `possum server` script performs the following:
+
+* Wait for the database to be available
+* Create and/or upgrade the database schema according to the `db/migrate` directory
+* Find or create the token-signing key
+* Start the web server
 
 ### Tests
 
@@ -103,17 +84,16 @@ Finished in 3.84 seconds (files took 3.33 seconds to load)
 
 #### Cucumber
 
-Cucumber tests require the Possum server to be running. It's easiest to achieve this by starting Possum in one container, and running Cucumber from another. In the first container:
+Cucumber tests require the Possum server to be running. It's easiest to achieve this by starting Possum in one container, and running Cucumber from another. Run the service in the `possum` container:
 
 ```sh-session
-root@aa8bc35ba7f4:/src/possum# rails s -b 0.0.0.0
-=> Booting Puma
+root@aa8bc35ba7f4:/src/possum# possum server
 ...
 * Listening on tcp://localhost:3000
 Use Ctrl-C to stop
 ```
 
-Run the cucumber container:
+Then start a second container to run the cukes:
 
 ```sh-session
 $ ./cucumber.sh
@@ -121,7 +101,7 @@ $ ./cucumber.sh
 root@9feae5e5e001:/src/possum# 
 ```
 
-There are two cucumber suites: API and Policy. They are located in subdirectories of `./cucumber`.
+There are two cucumber suites: `api` and `policy`. They are located in subdirectories of `./cucumber`.
 
 Run the cukes:
 
