@@ -1,4 +1,4 @@
-Feature: Automatic roles can be used to automatically grant and revoke privileges.
+Feature: Automatic roles are used to automatically grant and revoke privileges.
 
   Scenario: Grant SSH access to hosts in a layer (with and without sudo)
 

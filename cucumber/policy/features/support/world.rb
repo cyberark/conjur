@@ -38,6 +38,11 @@ class Possum::API
     { headers: headers, username: username }
   end
 
+  def resource_show id
+    id = make_full_id id
+    JSON::parse(RestClient::Resource.new($possum_url, credentials)["resources/#{id_path(id)}"].get)
+  end
+
   def resource_list options = {}
     params = options.inject([]) do |memo, entry|
       memo.push "#{CGI.escape entry[0].to_s}=#{CGI.escape entry[1].to_s}"
@@ -60,6 +65,11 @@ class Possum::API
   def role_show id
     id = make_full_id id
     JSON::parse(RestClient::Resource.new($possum_url, credentials)["roles/#{id_path(id)}"].get)
+  end
+  
+  def public_keys id
+    id = make_full_id id
+    RestClient::Resource.new($possum_url)["public_keys/#{id_path(id)}"].get
   end
   
   protected

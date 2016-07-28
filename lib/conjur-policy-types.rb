@@ -78,12 +78,10 @@ module Conjur
           Array(public_keys).each do |public_key|
             key_name = PublicKey.key_name public_key
 
-            resourceid = [ self.account, "variable", [ "public_keys", self.id, key_name ].join('/') ].join(":")
-            ::Resource.create(resource_id: resourceid, owner: (::Role[owner.roleid] or raise IndexError, owner.roleid)).tap do |resource|
-              resource.add_annotation name: "possum/variable/kind", value: "SSH public key"
-              ::Secret.create resource: resource, value: public_key
-              %w(read execute).each do |privilege|
-                resource.permit privilege, self.role
+            resourceid = [ self.account, "public_key", "#{self.role_kind}/#{self.id}/#{key_name}" ].join(":")
+            (::Resource[resourceid] || ::Resource.create(resource_id: resourceid, owner: (::Role[owner.roleid] or raise IndexError, owner.roleid))).tap do |resource|
+              unless resource.secrets.find{|s| s.value == public_key}
+                ::Secret.create resource: resource, value: public_key
               end
             end
           end

@@ -27,6 +27,10 @@ group :test do
   gem 'simplecov', :require => false
 end
 
+group :development, :production do
+  gem 'rails_stdout_logging'
+end
+
 group :development, :test do
   gem 'spring'
   gem 'spring-commands-cucumber'
