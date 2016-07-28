@@ -13,12 +13,16 @@ class AuthenticateController < ApplicationController
   
   protected
   
+  def signing_key
+    Slosilo["authn:#{account}".to_sym] or raise Unauthorized, "No signing key is available for account '#{account}'"
+  end
+    
   def authentication_token
-    Slosilo[:own].signed_token Role.username_from_roleid(@credentials.role.id)
+    signing_key.signed_token Role.username_from_roleid(@credentials.role.id)
   end
 
   def credentials_lookup
-    roleid = roleid_from_username(params[:id])
+    roleid = Role.roleid_from_username(account, params[:id])
     @credentials = Credentials[roleid]
     unless @credentials
       logger.debug "Credentials for #{roleid} not found"

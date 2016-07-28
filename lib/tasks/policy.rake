@@ -1,9 +1,10 @@
 namespace :policy do
   desc "Watch a file and reload the policy when it changes"
-  task :watch, [ "file-name" ] do |t,args|
+  task :watch, [ "account", "file-name" ] do |t,args|
     require 'listen'
     require 'pathname'
 
+    account = args["account"] or raise "account argument is required"
     file_name = args["file-name"] or raise "file-name argument is required"
     dir_name = File.dirname file_name
     raise "Directory #{dir_name} does not exist" unless File.directory?(dir_name) 
@@ -24,7 +25,7 @@ namespace :policy do
         end
         if do_load
           $stderr.puts "Loading #{policy_file_name}"
-          system *[ "rake", %Q(policy:load[#{policy_file_name}]) ]
+          system *[ "rake", %Q(policy:load[#{account},#{policy_file_name}]) ]
           require 'fileutils'
           FileUtils.touch File.join(dir_name, "finished")
         end
@@ -37,14 +38,15 @@ namespace :policy do
   end
 
   desc "Load policy data from a file"
-  task :load, [ "file-name" ] => [ "environment" ] do |t,args|
+  task :load, [ "account", "file-name" ] => [ "environment" ] do |t,args|
     require 'loader'
     if ENV['DEBUG']
       Loader.enable_logging
     end
     
+    account = args["account"] or raise "account argument is required"
     file_name = args["file-name"] or raise "file-name argument is required"
   
-    Loader.load file_name
+    Loader.load account, file_name
   end
 end

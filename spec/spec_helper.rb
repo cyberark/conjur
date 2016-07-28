@@ -28,4 +28,6 @@ RSpec.configure do |config|
   config.infer_spec_type_from_file_location!
 end
 
-Slosilo[:own] ||= Slosilo::Key.new
+Slosilo["authn:rspec"] ||= Slosilo::Key.new
+
+require 'simplecov'

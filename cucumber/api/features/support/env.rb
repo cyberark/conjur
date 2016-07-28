@@ -4,16 +4,7 @@ ENV['CONJUR_APPLIANCE_URL'] ||= 'http://localhost:3000'
 require ::File.expand_path('../../../../../config/environment', __FILE__)
 
 require 'json_spec/cucumber'
-require 'conjur/api'
-require 'conjur/cli'
-require 'conjur/authn'
 
-admin = Role["cucumber:user:admin"] || Role.create(role_id: "cucumber:user:admin")
-unless admin.credentials
-  Credentials.create role: admin
-  admin.reload
-end
-  
-Conjur::Config.load
-Conjur::Config.apply
-$admin_api = Conjur::API.new_from_key 'admin', admin.credentials.api_key
+Slosilo["authn:cucumber"] ||= Slosilo::Key.new
+
+require 'simplecov'

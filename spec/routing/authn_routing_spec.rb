@@ -1,17 +1,19 @@
 require 'spec_helper'
 
 describe "routing for authentication", :type => :routing do
-  it "routes POST /authn/kevin.gilpin@inscitiv.com/authenticate to authenticate#authenticate" do
-    expect(post: '/authn/kevin.gilpin@inscitiv.com/authenticate').to route_to(
+  it "routes POST /authn/the-account/kevin.gilpin@inscitiv.com/authenticate to authenticate#authenticate" do
+    expect(post: '/authn/the-account/kevin.gilpin@inscitiv.com/authenticate').to route_to(
       controller: 'authenticate',
       action: 'authenticate',
+      account: 'the-account',
       id: 'kevin.gilpin@inscitiv.com'
     )
   end
   
-  it "routes PUT /authn/password to credentials#update_password" do
-    expect(put: '/authn/password').to route_to(
+  it "routes PUT /authn/the-account/password to credentials#update_password" do
+    expect(put: '/authn/the-account/password').to route_to(
       controller: 'credentials',
+      account: 'the-account',
       action: 'update_password'
     )
   end

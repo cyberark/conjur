@@ -1,19 +1,26 @@
-Feature: Obtaining a bearer token
+Feature: Obtaining an auth token
 
-  @logged-in
+  Background:
+    Given a new user "alice"
+
   Scenario: User can authenticate as herself
-    Then I can authenticate
+    Then I can POST "/authn/:account/alice@%3Auser_namespace/authenticate" with plain text body ":alice_password"
+
+  Scenario: Invalid credentials result in 401 error
+    When I POST "/authn/:account/alice@%3Auser_namespace/authenticate" with plain text body "wrong-password"
+    Then it's not authenticated
+
+  Scenario: User cannot login as a same-named user in a different account
+    Given a new user "alice" in account "second-account"
+    When I POST "/authn/second-account/alice@%3Auser_namespace/authenticate" with plain text body ":alice_password"
+    Then it's not authenticated
 
   @logged-in
-  Scenario: Invalid credentials result in 401 error
-    And I use the wrong password
-    When I authenticate
+  Scenario: Auth tokens cannot be refreshed
+    When I POST "/authn/:account/alice@%3Auser_namespace/authenticate"
     Then it's not authenticated
 
   @logged-in-admin
   Scenario: "Super" users cannot authenticate as other users
-    Given a new user "alice"
-    And I operate on "alice"
-    And I use the wrong password
-    When I authenticate
+    When I POST "/authn/:account/alice@%3Auser_namespace/authenticate" with plain text body "wrong-password"
     Then it's not authenticated

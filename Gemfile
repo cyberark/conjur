@@ -18,19 +18,20 @@ gem 'slosilo', '>=2.0.0'
 gem 'listen'
 gem 'gli'
 
-gem 'rack-rewrite'
 gem 'conjur-rack', github: 'conjurinc/conjur-rack', branch: 'master'
 gem 'conjur-rack-heartbeat'
-gem 'rails_stdout_logging'
 gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'master'
+gem 'rails_12factor'
+
+group :test do
+  gem 'simplecov', :require => false
+end
 
 group :development, :test do
   gem 'spring'
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
   gem 'json_spec'
-  gem 'conjur-cli'
-  gem 'conjur-debify'
   gem 'rspec'
   gem 'rspec-rails'
   gem 'ci_reporter_rspec'

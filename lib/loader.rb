@@ -11,10 +11,10 @@ class Loader
       DB.loggers << Logger.new($stdout)
     end
     
-    def load filename
+    def load account, filename
       start_t = Time.now
       DB.transaction do
-        admin_id = "#{default_account}:user:admin"
+        admin_id = "#{account}:user:admin"
         
         DB[:roles].delete
 
@@ -29,7 +29,7 @@ class Loader
         
         records = Conjur::Policy::YAML::Loader.load_file(filename)
         $stderr.puts "Loading #{records.count} records from policy #{filename}"
-        records = Conjur::Policy::Resolver.resolve records, default_account, "#{default_account}:user:admin"
+        records = Conjur::Policy::Resolver.resolve records, account, "#{account}:user:admin"
         records.map(&:create!)
       end
       end_t = Time.now

@@ -3,6 +3,7 @@ require 'spec_helper'
 describe AuthenticateController, :type => :controller do
   let(:password) { "password" }
   let(:login) { "u-#{SecureRandom.uuid}" }
+  let(:account) { "rspec" }
 
   describe "#authenticate" do
     include_context "create user"
@@ -18,7 +19,7 @@ describe AuthenticateController, :type => :controller do
     end
     
     def invoke
-      post :authenticate, { id: login }
+      post :authenticate, { account: account, id: login }
     end
     
     def self.it_succeeds
@@ -64,7 +65,7 @@ describe AuthenticateController, :type => :controller do
 
     context "with non-existent user" do
       def invoke
-        post :authenticate, id: 'santa-claus'
+        post :authenticate, account: account, id: 'santa-claus'
       end
 
       it_fails_with 401

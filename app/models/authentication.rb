@@ -1,27 +1,21 @@
 class Authentication
-  attr_accessor :token_user, :basic_user, :role_id
+  attr_accessor :basic_user, :authenticated_role, :selected_role
+  
+  def basic_user?
+    !!basic_user
+  end
   
   # Whether an authenticated user is available.
   def authenticated?
-    !authenticated_username.nil?
+    !!authenticated_role
   end
   
-  # Login name of the authenticated user.
-  def authenticated_username
-    basic_user || ( token_user ? token_user.login : nil )
-  end
-  
-  def database_role
-    @role ||= Role[role_id || Role.roleid_from_username(authenticated_username)]
-  end
-  
-  # Account name of the authenticated user.
-  def authenticated_account
-    token_user ? token_user.account : default_account
+  def apply_to_role
+    selected_role || authenticated_role
   end
 
   # Determines whether the authenticated user is managing itself.
   def self?
-    role_id.nil? || role_id == Role.roleid_from_username(authenticated_username)
+    selected_role.nil? || selected_role == authenticated_role
   end
 end

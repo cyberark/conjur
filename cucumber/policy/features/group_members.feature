@@ -18,7 +18,7 @@ Feature: Users and groups can be added to groups
     - !group developers
     - !group operations
     
-    # Now grant group employees to groups developers and developers
+    # Now grant group employees to groups developers and operations
     - !grant
       replace: true
       role: !group employees

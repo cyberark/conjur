@@ -1,4 +1,10 @@
 #!/usr/bin/env ruby
+
+if ENV['RAILS_ENV'] == 'test'
+  require 'simplecov'
+  puts "Required simplecov"
+end
+
 begin
   load File.expand_path('../spring', __FILE__)
 rescue LoadError => e

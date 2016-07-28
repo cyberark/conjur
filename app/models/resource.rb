@@ -8,6 +8,14 @@ class Resource < Sequel::Model
   
   alias id resource_id
   
+  def kind
+    id.split(":", 3)[1]
+  end
+  
+  def identifier
+    id.split(":", 3)[2]
+  end
+  
   def as_json options = {}
     super(options).tap do |response|
       # In case
@@ -21,8 +29,8 @@ class Resource < Sequel::Model
   end
 
   class << self
-    def make_full_id id
-      Role.make_full_id id
+    def make_full_id id, account
+      Role.make_full_id id, account
     end
   end
   
