@@ -45,7 +45,5 @@ Rails.application.routes.draw do
     post "/secrets/:account/:kind/*identifier" => 'secrets#add_value'
 
     get "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
-
-    get "/info" => "info#show"
   end
 end
