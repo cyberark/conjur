@@ -21,8 +21,11 @@ gem 'gli'
 gem 'rack-rewrite'
 gem 'conjur-rack', github: 'conjurinc/conjur-rack', branch: 'master'
 gem 'conjur-rack-heartbeat'
-gem 'rails_stdout_logging'
 gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'master'
+
+group :development, :production do
+  gem 'rails_stdout_logging'
+end
 
 group :development, :test do
   gem 'spring'
