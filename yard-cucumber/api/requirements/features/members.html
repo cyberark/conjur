@@ -112,15 +112,15 @@ $(function() {
   
 </div>
 
-<div class="scenario scenario_0">
-  <a name="scenario_0" />
+<div class="scenario background">
+  <a name="background" />
   <div class="title">
     <div style="float: left;">
       <a class="toggle"> - </a>
-      <span class="pre">Scenario:</span>
-      <span class="name">Initial roles members is just the initial role admin.</span>
+      <span class="pre">Background:</span>
+      <span class="name"></span>
     </div>
-    <a class="link" style="float:right; clear:right;" href="#scenario_0">link</a>
+    <a class="link" style="float:right; clear:right;" href="#background">link</a>
   </div>
 
   
@@ -147,7 +147,7 @@ $(function() {
 
       
         <span class="undefined">
-          a new user &quot;bob&quot;
+          a new user &quot;alice&quot;
           <div class="definition developer">
             <a href="../step_transformers.html#undefined_steps">
               <div class="invalid">&nbsp;</div>
@@ -168,13 +168,79 @@ $(function() {
 
   
   <div class="step even">
+    <span class="predicate">And </span>
+
+    
+
+      
+        <span class="undefined">
+          a new user &quot;bob&quot;
+          <div class="definition developer">
+            <a href="../step_transformers.html#undefined_steps">
+              <div class="invalid">&nbsp;</div>
+            </a>
+          </div>
+        </span>
+      
+
+    
+  </div>
+
+  
+  
+
+
+
+
+      
+    </div>
+
+
+    
+
+  </div>
+  
+  <div class="attributes" style="display:none;">
+    <input type="hidden" name="collapsed" value="false">
+  </div>
+
+</div>
+<div class="scenario scenario_0">
+  <a name="scenario_0" />
+  <div class="title">
+    <div style="float: left;">
+      <a class="toggle"> - </a>
+      <span class="pre">Scenario:</span>
+      <span class="name">Initial roles members is just the initial role admin.</span>
+    </div>
+    <a class="link" style="float:right; clear:right;" href="#scenario_0">link</a>
+  </div>
+
+  
+
+  
+
+  <div class="details">
+    <div class="meta developer">
+      <div class="file">features/members.feature:8</div>
+      
+      <div style="clear: both;"></div>
+    </div>
+
+    <div class="steps">
+      
+        
+  
+
+  
+  <div class="step odd">
     <span class="predicate">When </span>
 
     
 
       
         <span class="undefined">
-          I list the user&#39;s members
+          I successfully GET &quot;/roles/:account/user/alice@:user_namespace&quot;
           <div class="definition developer">
             <a href="../step_transformers.html#undefined_steps">
               <div class="invalid">&nbsp;</div>
@@ -194,14 +260,14 @@ $(function() {
   
 
   
-  <div class="step odd">
+  <div class="step even">
     <span class="predicate">Then </span>
 
     
 
       
         <span class="undefined">
-          the JSON should be:
+          the JSON at &quot;members&quot; should be:
           <div class="definition developer">
             <a href="../step_transformers.html#undefined_steps">
               <div class="invalid">&nbsp;</div>
@@ -215,7 +281,7 @@ $(function() {
 
   
   <div class="text">
-  [<br/>&nbsp;&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;admin_option&quot;:&nbsp;true,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;member&quot;:&nbsp;&quot;cucumber:user:admin&quot;<br/>&nbsp;&nbsp;}<br/>]
+  [<br/>&nbsp;&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;admin_option&quot;:&nbsp;true,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;grantor&quot;:&nbsp;&quot;cucumber:user:alice&quot;,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;member&quot;:&nbsp;&quot;cucumber:user:admin&quot;,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;role&quot;:&nbsp;&quot;cucumber:user:alice&quot;<br/>&nbsp;&nbsp;}<br/>]
 </div>
 
 
@@ -252,7 +318,7 @@ $(function() {
 
   <div class="details">
     <div class="meta developer">
-      <div class="file">features/members.feature:17</div>
+      <div class="file">features/members.feature:22</div>
       
       <div style="clear: both;"></div>
     </div>
@@ -265,33 +331,6 @@ $(function() {
   
   <div class="step odd">
     <span class="predicate">Given </span>
-
-    
-
-      
-        <span class="undefined">
-          a new user &quot;bob&quot;
-          <div class="definition developer">
-            <a href="../step_transformers.html#undefined_steps">
-              <div class="invalid">&nbsp;</div>
-            </a>
-          </div>
-        </span>
-      
-
-    
-  </div>
-
-  
-  
-
-
-
-  
-
-  
-  <div class="step even">
-    <span class="predicate">And </span>
 
     
 
@@ -317,14 +356,14 @@ $(function() {
   
 
   
-  <div class="step odd">
+  <div class="step even">
     <span class="predicate">When </span>
 
     
 
       
         <span class="undefined">
-          I list the user&#39;s members
+          I successfully GET &quot;/roles/:account/user/alice@:user_namespace&quot;
           <div class="definition developer">
             <a href="../step_transformers.html#undefined_steps">
               <div class="invalid">&nbsp;</div>
@@ -344,14 +383,14 @@ $(function() {
   
 
   
-  <div class="step even">
+  <div class="step odd">
     <span class="predicate">Then </span>
 
     
 
       
         <span class="undefined">
-          the JSON should be:
+          the JSON at &quot;members&quot; should be:
           <div class="definition developer">
             <a href="../step_transformers.html#undefined_steps">
               <div class="invalid">&nbsp;</div>
@@ -365,7 +404,7 @@ $(function() {
 
   
   <div class="text">
-  [<br/>&nbsp;&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;admin_option&quot;:&nbsp;true,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;member&quot;:&nbsp;&quot;cucumber:user:admin&quot;<br/>&nbsp;&nbsp;},<br/>&nbsp;&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;admin_option&quot;:&nbsp;false,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;member&quot;:&nbsp;&quot;cucumber:user:bob&quot;<br/>&nbsp;&nbsp;}<br/>]
+  [<br/>&nbsp;&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;admin_option&quot;:&nbsp;true,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;grantor&quot;:&nbsp;&quot;cucumber:user:alice&quot;,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;member&quot;:&nbsp;&quot;cucumber:user:admin&quot;,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;role&quot;:&nbsp;&quot;cucumber:user:alice&quot;<br/>&nbsp;&nbsp;},<br/>&nbsp;&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;admin_option&quot;:&nbsp;false,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;grantor&quot;:&nbsp;&quot;cucumber:user:alice&quot;,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;member&quot;:&nbsp;&quot;cucumber:user:bob&quot;,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&quot;role&quot;:&nbsp;&quot;cucumber:user:alice&quot;<br/>&nbsp;&nbsp;}<br/>]
 </div>
 
 
@@ -388,7 +427,7 @@ $(function() {
 </div>
 
     <div id="footer">
-  Generated on Tue Jul 26 21:10:16 2016 by
+  Generated on Mon Aug  1 14:34:04 2016 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.1 (ruby-2.2.5).
 </div>

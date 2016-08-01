@@ -104,23 +104,21 @@ $(function() {
     <div style="clear: right;"></div>
     <div class="tags developer">
       
-      <a href="../tags/logged-in.html">@logged-in</a>
-      
     </div>
   </div>
 
   
 </div>
 
-<div class="scenario scenario_0">
-  <a name="scenario_0" />
+<div class="scenario background">
+  <a name="background" />
   <div class="title">
     <div style="float: left;">
       <a class="toggle"> - </a>
-      <span class="pre">Scenario:</span>
-      <span class="name">I confirm that the role can perform the granted action</span>
+      <span class="pre">Background:</span>
+      <span class="name"></span>
     </div>
-    <a class="link" style="float:right; clear:right;" href="#scenario_0">link</a>
+    <a class="link" style="float:right; clear:right;" href="#background">link</a>
   </div>
 
   
@@ -129,7 +127,7 @@ $(function() {
 
   <div class="details">
     <div class="meta developer">
-      <div class="file">features/check_permission.feature:9</div>
+      <div class="file">features/check_permission.feature:3</div>
       
       <div style="clear: both;"></div>
     </div>
@@ -141,13 +139,13 @@ $(function() {
 
   
   <div class="step odd">
-    <span class="predicate">When </span>
+    <span class="predicate">Given </span>
 
     
 
       
         <span class="undefined">
-          I check if user &quot;bob&quot; can &quot;fry&quot; it
+          a resource
           <div class="definition developer">
             <a href="../step_transformers.html#undefined_steps">
               <div class="invalid">&nbsp;</div>
@@ -168,13 +166,40 @@ $(function() {
 
   
   <div class="step even">
-    <span class="predicate">Then </span>
+    <span class="predicate">And </span>
 
     
 
       
         <span class="undefined">
-          the result is true
+          a new user &quot;bob&quot;
+          <div class="definition developer">
+            <a href="../step_transformers.html#undefined_steps">
+              <div class="invalid">&nbsp;</div>
+            </a>
+          </div>
+        </span>
+      
+
+    
+  </div>
+
+  
+  
+
+
+
+  
+
+  
+  <div class="step odd">
+    <span class="predicate">And </span>
+
+    
+
+      
+        <span class="undefined">
+          I permit user &quot;bob&quot; to &quot;fry&quot; it
           <div class="definition developer">
             <a href="../step_transformers.html#undefined_steps">
               <div class="invalid">&nbsp;</div>
@@ -205,13 +230,89 @@ $(function() {
   </div>
 
 </div>
+<div class="scenario scenario_0">
+  <a name="scenario_0" />
+  <div class="title">
+    <div style="float: left;">
+      <a class="toggle"> - </a>
+      <span class="pre">Scenario:</span>
+      <span class="name">I confirm that the role can perform the granted action</span>
+    </div>
+    <a class="link" style="float:right; clear:right;" href="#scenario_0">link</a>
+  </div>
+
+  
+
+  
+
+  <div class="details">
+    <div class="meta developer">
+      <div class="file">features/check_permission.feature:9</div>
+      
+        <div style="clear:right;"></div>
+        <div class="tags">
+          
+            <a href="../tags/logged-in.html">@logged-in</a>
+          
+        </div>
+      
+      <div style="clear: both;"></div>
+    </div>
+
+    <div class="steps">
+      
+        
+  
+
+  
+  <div class="step odd">
+    <span class="predicate">Then </span>
+
+    
+
+      
+        <span class="undefined">
+          I can GET &quot;/roles/:account/user/bob@:user_namespace&quot; with parameters:
+          <div class="definition developer">
+            <a href="../step_transformers.html#undefined_steps">
+              <div class="invalid">&nbsp;</div>
+            </a>
+          </div>
+        </span>
+      
+
+    
+  </div>
+
+  
+  <div class="text">
+  check:&nbsp;true<br/>resource:&nbsp;&quot;@resource_kind@:@resource_id@&quot;<br/>privilege:&nbsp;fry
+</div>
+
+
+
+
+
+      
+    </div>
+
+
+    
+
+  </div>
+  
+  <div class="attributes" style="display:none;">
+    <input type="hidden" name="collapsed" value="false">
+  </div>
+
+</div>
 <div class="scenario scenario_1">
   <a name="scenario_1" />
   <div class="title">
     <div style="float: left;">
       <a class="toggle"> - </a>
       <span class="pre">Scenario:</span>
-      <span class="name">The new role can confirm that it may perform the granted action</span>
+      <span class="name">I confirm that the role cannot perform ungranted actions</span>
     </div>
     <a class="link" style="float:right; clear:right;" href="#scenario_1">link</a>
   </div>
@@ -222,7 +323,110 @@ $(function() {
 
   <div class="details">
     <div class="meta developer">
-      <div class="file">features/check_permission.feature:13</div>
+      <div class="file">features/check_permission.feature:18</div>
+      
+        <div style="clear:right;"></div>
+        <div class="tags">
+          
+            <a href="../tags/logged-in.html">@logged-in</a>
+          
+        </div>
+      
+      <div style="clear: both;"></div>
+    </div>
+
+    <div class="steps">
+      
+        
+  
+
+  
+  <div class="step odd">
+    <span class="predicate">When </span>
+
+    
+
+      
+        <span class="undefined">
+          I GET &quot;/roles/:account/user/bob@:user_namespace&quot; with parameters:
+          <div class="definition developer">
+            <a href="../step_transformers.html#undefined_steps">
+              <div class="invalid">&nbsp;</div>
+            </a>
+          </div>
+        </span>
+      
+
+    
+  </div>
+
+  
+  <div class="text">
+  check:&nbsp;true<br/>resource:&nbsp;&quot;@resource_kind@:@resource_id@&quot;<br/>privilege:&nbsp;freeze
+</div>
+
+
+
+
+  
+
+  
+  <div class="step even">
+    <span class="predicate">Then </span>
+
+    
+
+      
+        <span class="undefined">
+          it&#39;s not found
+          <div class="definition developer">
+            <a href="../step_transformers.html#undefined_steps">
+              <div class="invalid">&nbsp;</div>
+            </a>
+          </div>
+        </span>
+      
+
+    
+  </div>
+
+  
+  
+
+
+
+
+      
+    </div>
+
+
+    
+
+  </div>
+  
+  <div class="attributes" style="display:none;">
+    <input type="hidden" name="collapsed" value="false">
+  </div>
+
+</div>
+<div class="scenario scenario_2">
+  <a name="scenario_2" />
+  <div class="title">
+    <div style="float: left;">
+      <a class="toggle"> - </a>
+      <span class="pre">Scenario:</span>
+      <span class="name">The new role can confirm that it may perform the granted action</span>
+    </div>
+    <a class="link" style="float:right; clear:right;" href="#scenario_2">link</a>
+  </div>
+
+  
+
+  
+
+  <div class="details">
+    <div class="meta developer">
+      <div class="file">features/check_permission.feature:27</div>
       
       <div style="clear: both;"></div>
     </div>
@@ -261,40 +465,13 @@ $(function() {
 
   
   <div class="step even">
-    <span class="predicate">And </span>
-
-    
-
-      
-        <span class="undefined">
-          I check if I can &quot;fry&quot; it
-          <div class="definition developer">
-            <a href="../step_transformers.html#undefined_steps">
-              <div class="invalid">&nbsp;</div>
-            </a>
-          </div>
-        </span>
-      
-
-    
-  </div>
-
-  
-  
-
-
-
-  
-
-  
-  <div class="step odd">
     <span class="predicate">Then </span>
 
     
 
       
         <span class="undefined">
-          the result is true
+          I can GET &quot;/resources/:account/:resource_kind/:resource_id&quot; with parameters:
           <div class="definition developer">
             <a href="../step_transformers.html#undefined_steps">
               <div class="invalid">&nbsp;</div>
@@ -307,100 +484,10 @@ $(function() {
   </div>
 
   
-  
-
-
-
-
-      
-    </div>
-
-
-    
-
-  </div>
-  
-  <div class="attributes" style="display:none;">
-    <input type="hidden" name="collapsed" value="false">
-  </div>
-
+  <div class="text">
+  check:&nbsp;true<br/>privilege:&nbsp;fry
 </div>
-<div class="scenario scenario_2">
-  <a name="scenario_2" />
-  <div class="title">
-    <div style="float: left;">
-      <a class="toggle"> - </a>
-      <span class="pre">Scenario:</span>
-      <span class="name">I cannot see resources to which I am not permitted</span>
-    </div>
-    <a class="link" style="float:right; clear:right;" href="#scenario_2">link</a>
-  </div>
 
-  
-
-  
-
-  <div class="details">
-    <div class="meta developer">
-      <div class="file">features/check_permission.feature:18</div>
-      
-      <div style="clear: both;"></div>
-    </div>
-
-    <div class="steps">
-      
-        
-  
-
-  
-  <div class="step odd">
-    <span class="predicate">When </span>
-
-    
-
-      
-        <span class="undefined">
-          I check if user &quot;bob&quot; can &quot;freeze&quot; it
-          <div class="definition developer">
-            <a href="../step_transformers.html#undefined_steps">
-              <div class="invalid">&nbsp;</div>
-            </a>
-          </div>
-        </span>
-      
-
-    
-  </div>
-
-  
-  
-
-
-
-  
-
-  
-  <div class="step even">
-    <span class="predicate">Then </span>
-
-    
-
-      
-        <span class="undefined">
-          the result is false
-          <div class="definition developer">
-            <a href="../step_transformers.html#undefined_steps">
-              <div class="invalid">&nbsp;</div>
-            </a>
-          </div>
-        </span>
-      
-
-    
-  </div>
-
-  
-  
 
 
 
@@ -421,7 +508,7 @@ $(function() {
 </div>
 
     <div id="footer">
-  Generated on Tue Jul 26 21:10:16 2016 by
+  Generated on Mon Aug  1 14:34:04 2016 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.1 (ruby-2.2.5).
 </div>

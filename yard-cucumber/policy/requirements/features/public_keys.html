@@ -122,6 +122,10 @@ $(function() {
   </div>
 
   
+  <div class="description">
+    Possum&nbsp;can&nbsp;store&nbsp;public&nbsp;keys&nbsp;for&nbsp;each&nbsp;of&nbsp;your&nbsp;users.&nbsp;To&nbsp;store&nbsp;a&nbsp;public&nbsp;key,&nbsp;use&nbsp;the<br/>`public_keys`&nbsp;attribute&nbsp;on&nbsp;the&nbsp;`!user`&nbsp;record.&nbsp;When&nbsp;you&nbsp;load&nbsp;a&nbsp;user&nbsp;policy&nbsp;containing<br/>public&nbsp;keys,&nbsp;any&nbsp;existing&nbsp;public&nbsp;keys&nbsp;that&nbsp;aren&#39;t&nbsp;in&nbsp;the&nbsp;new&nbsp;policy&nbsp;will&nbsp;be&nbsp;removed.<br/><br/>Public&nbsp;keys&nbsp;that&nbsp;you&nbsp;load&nbsp;in&nbsp;policies&nbsp;should&nbsp;use&nbsp;the&nbsp;form:<br/><br/>&lt;algorithm&gt;&nbsp;&lt;public-key&gt;&nbsp;&lt;comment&gt;<br/><br/>The&nbsp;comment&nbsp;is&nbsp;required,&nbsp;so&nbsp;that&nbsp;multiple&nbsp;public&nbsp;keys&nbsp;can&nbsp;be&nbsp;distinguished&nbsp;from&nbsp;each&nbsp;other.
+  </div>
+  
 
   
 
@@ -302,6 +306,10 @@ $(function() {
   </div>
 
   
+  <div class="description">
+    Public&nbsp;keys&nbsp;that&nbsp;you&nbsp;load&nbsp;in&nbsp;policies&nbsp;use&nbsp;the&nbsp;form:<br/><br/>&lt;algorithm&gt;&nbsp;&lt;public-key&gt;&nbsp;&lt;comment&gt;<br/><br/>In&nbsp;the&nbsp;case&nbsp;that&nbsp;a&nbsp;key&nbsp;is&nbsp;loaded&nbsp;multiple&nbsp;times&nbsp;with&nbsp;the&nbsp;same&nbsp;comment,&nbsp;the&nbsp;last&nbsp;public&nbsp;key&nbsp;loaded&nbsp;is&nbsp;the&nbsp;one&nbsp;returned&nbsp;by&nbsp;the&nbsp;pubkeys&nbsp;API.
+  </div>
+  
 
   
 
@@ -446,7 +454,7 @@ $(function() {
 </div>
 
     <div id="footer">
-  Generated on Tue Jul 26 21:10:17 2016 by
+  Generated on Mon Aug  1 14:34:05 2016 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.1 (ruby-2.2.5).
 </div>

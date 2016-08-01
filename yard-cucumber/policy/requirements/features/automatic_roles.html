@@ -122,6 +122,10 @@ $(function() {
   </div>
 
   
+  <div class="description">
+    <br/>This&nbsp;example&nbsp;shows&nbsp;how&nbsp;to&nbsp;grant&nbsp;access&nbsp;to&nbsp;hosts&nbsp;in&nbsp;a&nbsp;layer,&nbsp;without&nbsp;having&nbsp;to&nbsp;directly<br/>grant&nbsp;the&nbsp;privileges&nbsp;on&nbsp;the&nbsp;hosts.<br/><br/>The&nbsp;group&nbsp;`developers`&nbsp;is&nbsp;granted&nbsp;the&nbsp;`use_host`&nbsp;automatic&nbsp;role&nbsp;on&nbsp;layer&nbsp;`prod/bastion`,&nbsp;which&nbsp;will<br/>give&nbsp;the&nbsp;group&nbsp;`execute`&nbsp;privilege&nbsp;on&nbsp;the&nbsp;hosts&nbsp;in&nbsp;the&nbsp;layer.&nbsp;This&nbsp;privilege&nbsp;is&nbsp;automatically<br/>added&nbsp;to&nbsp;hosts&nbsp;as&nbsp;they&nbsp;join&nbsp;the&nbsp;layer,&nbsp;and&nbsp;revoked&nbsp;as&nbsp;they&nbsp;leave.&nbsp;<br/><br/>The&nbsp;group&nbsp;`operations`&nbsp;has&nbsp;`admin_host`&nbsp;privilege&nbsp;on&nbsp;the&nbsp;layer`s&nbsp;hosts.&nbsp;The&nbsp;`admin_host`&nbsp;<br/>automatic&nbsp;role&nbsp;manages&nbsp;`update`&nbsp;privilege.&nbsp;<br/><br/>Note&nbsp;that&nbsp;we&nbsp;did&nbsp;not&nbsp;simply&nbsp;grant&nbsp;`execute`&nbsp;privilege&nbsp;on&nbsp;the&nbsp;layer&nbsp;itself.<br/>That&nbsp;operation&nbsp;would&nbsp;only&nbsp;manage&nbsp;access&nbsp;to&nbsp;the&nbsp;layer&nbsp;itself;&nbsp;we&nbsp;want&nbsp;to&nbsp;manage&nbsp;access&nbsp;to&nbsp;the&nbsp;hosts&nbsp;<br/>IN&nbsp;the&nbsp;layer.&nbsp;To&nbsp;do&nbsp;that,&nbsp;we&nbsp;grant&nbsp;the&nbsp;layer&#39;s&nbsp;automatic&nbsp;roles.
+  </div>
+  
 
   
 
@@ -263,7 +267,7 @@ $(function() {
 </div>
 
     <div id="footer">
-  Generated on Tue Jul 26 21:10:17 2016 by
+  Generated on Mon Aug  1 14:34:05 2016 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.1 (ruby-2.2.5).
 </div>

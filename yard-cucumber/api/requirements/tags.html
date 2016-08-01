@@ -183,15 +183,13 @@
         
           <ul style="padding-left: 20px;">
           	
-          	<li class="scenario even  @logged-in">
+          	<li class="scenario even  ">
           	  <span class='object_link'>
              		<a href="features/login.html#scenario0">
              		  Password can be used to obtain API key
              		</a>
              	</span>
              	
-              
-                - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
               
           	</li>
             
@@ -239,7 +237,7 @@
           	<li class="scenario even @logged-in ">
           	  <span class='object_link'>
              		<a href="features/all_roles.html#scenario0">
-             		  Initial roles is just the owner.
+             		  The initial memberships of a role is just the role itself.
              		</a>
              	</span>
              	
@@ -250,7 +248,7 @@
           	<li class="scenario odd @logged-in ">
           	  <span class='object_link'>
              		<a href="features/all_roles.html#scenario1">
-             		  Granted roles appear in the role list.
+             		  Granted roles appear in a role&#39;s memberships.
              		</a>
              	</span>
              	
@@ -414,7 +412,7 @@
         
       
         <li class="feature odd ">
-        <span class='object_link'><a href="features/authenticate.html" title="requirements::features::authenticate (feature)">Obtaining a bearer token</a></span>
+        <span class='object_link'><a href="features/authenticate.html" title="requirements::features::authenticate (feature)">Obtaining an auth token</a></span>
           
           
         </li>
@@ -422,7 +420,7 @@
         
           <ul style="padding-left: 20px;">
           	
-          	<li class="scenario even  @logged-in">
+          	<li class="scenario even  ">
           	  <span class='object_link'>
              		<a href="features/authenticate.html#scenario0">
              		  User can authenticate as herself
@@ -430,15 +428,35 @@
              	</span>
              	
               
-                - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
+          	</li>
+            
+          	
+          	<li class="scenario odd  ">
+          	  <span class='object_link'>
+             		<a href="features/authenticate.html#scenario1">
+             		  Invalid credentials result in 401 error
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          	<li class="scenario even  ">
+          	  <span class='object_link'>
+             		<a href="features/authenticate.html#scenario2">
+             		  User cannot login as a same-named user in a different account
+             		</a>
+             	</span>
+             	
               
           	</li>
             
           	
           	<li class="scenario odd  @logged-in">
           	  <span class='object_link'>
-             		<a href="features/authenticate.html#scenario1">
-             		  Invalid credentials result in 401 error
+             		<a href="features/authenticate.html#scenario3">
+             		  Auth tokens cannot be refreshed
              		</a>
              	</span>
              	
@@ -450,7 +468,7 @@
           	
           	<li class="scenario even  @logged-in-admin">
           	  <span class='object_link'>
-             		<a href="features/authenticate.html#scenario2">
+             		<a href="features/authenticate.html#scenario4">
              		  &quot;Super&quot; users cannot authenticate as other users
              		</a>
              	</span>
@@ -473,15 +491,13 @@
         
           <ul style="padding-left: 20px;">
           	
-          	<li class="scenario even  @logged-in">
+          	<li class="scenario even  ">
           	  <span class='object_link'>
              		<a href="features/rotate_api_key.html#scenario0">
-             		  Password can be used to obtain API key
+             		  Password can be used to rotate API key
              		</a>
              	</span>
              	
-              
-                - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
               
           	</li>
             
@@ -524,15 +540,13 @@
         
           <ul style="padding-left: 20px;">
           	
-          	<li class="scenario even  @logged-in">
+          	<li class="scenario even  ">
           	  <span class='object_link'>
              		<a href="features/change_password.html#scenario0">
-             		  Authenticated users can update their own password
+             		  With basic authentication, users can update their own password
              		</a>
              	</span>
              	
-              
-                - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
               
           	</li>
             
@@ -566,18 +580,16 @@
           </ul>
         
       
-        <li class="feature odd @logged-in">
+        <li class="feature odd ">
         <span class='object_link'><a href="features/check_permission.html" title="requirements::features::check_permission (feature)">Validating specific privileges</a></span>
           
-          
-          - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
           
         </li>
         
         
           <ul style="padding-left: 20px;">
           	
-          	<li class="scenario even @logged-in ">
+          	<li class="scenario even  @logged-in">
           	  <span class='object_link'>
              		<a href="features/check_permission.html#scenario0">
              		  I confirm that the role can perform the granted action
@@ -585,24 +597,28 @@
              	</span>
              	
               
-          	</li>
-            
-          	
-          	<li class="scenario odd @logged-in ">
-          	  <span class='object_link'>
-             		<a href="features/check_permission.html#scenario1">
-             		  The new role can confirm that it may perform the granted action
-             		</a>
-             	</span>
-             	
+                - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
               
           	</li>
             
           	
-          	<li class="scenario even @logged-in ">
+          	<li class="scenario odd  @logged-in">
+          	  <span class='object_link'>
+             		<a href="features/check_permission.html#scenario1">
+             		  I confirm that the role cannot perform ungranted actions
+             		</a>
+             	</span>
+             	
+              
+                - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
+              
+          	</li>
+            
+          	
+          	<li class="scenario even  ">
           	  <span class='object_link'>
              		<a href="features/check_permission.html#scenario2">
-             		  I cannot see resources to which I am not permitted
+             		  The new role can confirm that it may perform the granted action
              		</a>
              	</span>
              	
@@ -624,7 +640,7 @@
 </div>
 
     <div id="footer">
-  Generated on Tue Jul 26 21:10:16 2016 by
+  Generated on Mon Aug  1 14:34:04 2016 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.1 (ruby-2.2.5).
 </div>

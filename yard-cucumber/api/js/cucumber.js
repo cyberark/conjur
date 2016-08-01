@@ -81,28 +81,9 @@ $(function() {
                 $('div.' + eventObject.currentTarget.id + ' > div.details:hidden').each(function() {
                     $(this).show(200);
                 });
-                $('div.' + eventObject.currentTarget.id + ' a.stepdef').text("[Collapse]")
             } else {
                 eventObject.currentTarget.innerHTML = '[Expand All]';
                 $('div.' + eventObject.currentTarget.id + ' > div.details:visible').each(function() {
-                    $(this).hide(200);
-                });
-                console.log(eventObject.currentTarget.id);
-                $('div.' + eventObject.currentTarget.id + ' a.stepdef').text('[Expand]');
-            }
-        }
-    });
-
-    $('.stepdef').click(function(eventObject) {
-        if (typeof eventObject.currentTarget !== "undefined") {
-            if (eventObject.currentTarget.innerHTML === '[Expand]') {
-                eventObject.currentTarget.innerHTML = '[Collapse]';
-                $(eventObject.target).parent().parent().parent().find("div.details:hidden").each(function() {
-                    $(this).show(200);
-                });
-            } else {
-                eventObject.currentTarget.innerHTML = '[Expand]';
-                $(eventObject.target).parent().parent().parent().find("div.details:visible").each(function() {
                     $(this).hide(200);
                 });
             }

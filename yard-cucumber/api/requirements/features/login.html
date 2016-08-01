@@ -110,15 +110,15 @@ $(function() {
   
 </div>
 
-<div class="scenario scenario_0">
-  <a name="scenario_0" />
+<div class="scenario background">
+  <a name="background" />
   <div class="title">
     <div style="float: left;">
       <a class="toggle"> - </a>
-      <span class="pre">Scenario:</span>
-      <span class="name">Password can be used to obtain API key</span>
+      <span class="pre">Background:</span>
+      <span class="name"></span>
     </div>
-    <a class="link" style="float:right; clear:right;" href="#scenario_0">link</a>
+    <a class="link" style="float:right; clear:right;" href="#background">link</a>
   </div>
 
   
@@ -127,14 +127,7 @@ $(function() {
 
   <div class="details">
     <div class="meta developer">
-      <div class="file">features/login.feature:4</div>
-      
-        <div style="clear:right;"></div>
-        <div class="tags">
-          
-            <a href="../tags/logged-in.html">@logged-in</a>
-          
-        </div>
+      <div class="file">features/login.feature:3</div>
       
       <div style="clear: both;"></div>
     </div>
@@ -152,7 +145,73 @@ $(function() {
 
       
         <span class="undefined">
-          I have a password
+          a new user &quot;alice&quot;
+          <div class="definition developer">
+            <a href="../step_transformers.html#undefined_steps">
+              <div class="invalid">&nbsp;</div>
+            </a>
+          </div>
+        </span>
+      
+
+    
+  </div>
+
+  
+  
+
+
+
+
+      
+    </div>
+
+
+    
+
+  </div>
+  
+  <div class="attributes" style="display:none;">
+    <input type="hidden" name="collapsed" value="false">
+  </div>
+
+</div>
+<div class="scenario scenario_0">
+  <a name="scenario_0" />
+  <div class="title">
+    <div style="float: left;">
+      <a class="toggle"> - </a>
+      <span class="pre">Scenario:</span>
+      <span class="name">Password can be used to obtain API key</span>
+    </div>
+    <a class="link" style="float:right; clear:right;" href="#scenario_0">link</a>
+  </div>
+
+  
+
+  
+
+  <div class="details">
+    <div class="meta developer">
+      <div class="file">features/login.feature:6</div>
+      
+      <div style="clear: both;"></div>
+    </div>
+
+    <div class="steps">
+      
+        
+  
+
+  
+  <div class="step odd">
+    <span class="predicate">Given </span>
+
+    
+
+      
+        <span class="undefined">
+          I set the password for &quot;alice&quot; to &quot;my-password&quot;
           <div class="definition developer">
             <a href="../step_transformers.html#undefined_steps">
               <div class="invalid">&nbsp;</div>
@@ -179,7 +238,34 @@ $(function() {
 
       
         <span class="undefined">
-          I can login
+          I can GET &quot;/authn/:account/login&quot; with username &quot;alice@:user_namespace&quot; and password &quot;my-password&quot;
+          <div class="definition developer">
+            <a href="../step_transformers.html#undefined_steps">
+              <div class="invalid">&nbsp;</div>
+            </a>
+          </div>
+        </span>
+      
+
+    
+  </div>
+
+  
+  
+
+
+
+  
+
+  
+  <div class="step odd">
+    <span class="predicate">Then </span>
+
+    
+
+      
+        <span class="undefined">
+          the result is the API key for user &quot;alice&quot;
           <div class="definition developer">
             <a href="../step_transformers.html#undefined_steps">
               <div class="invalid">&nbsp;</div>
@@ -227,7 +313,7 @@ $(function() {
 
   <div class="details">
     <div class="meta developer">
-      <div class="file">features/login.feature:9</div>
+      <div class="file">features/login.feature:12</div>
       
         <div style="clear:right;"></div>
         <div class="tags">
@@ -252,7 +338,7 @@ $(function() {
 
       
         <span class="undefined">
-          I login using a bearer token
+          I GET &quot;/authn/:account/login&quot;
           <div class="definition developer">
             <a href="../step_transformers.html#undefined_steps">
               <div class="invalid">&nbsp;</div>
@@ -327,7 +413,7 @@ $(function() {
 
   <div class="details">
     <div class="meta developer">
-      <div class="file">features/login.feature:14</div>
+      <div class="file">features/login.feature:17</div>
       
         <div style="clear:right;"></div>
         <div class="tags">
@@ -346,67 +432,13 @@ $(function() {
 
   
   <div class="step odd">
-    <span class="predicate">Given </span>
-
-    
-
-      
-        <span class="undefined">
-          a new user &quot;alice&quot;
-          <div class="definition developer">
-            <a href="../step_transformers.html#undefined_steps">
-              <div class="invalid">&nbsp;</div>
-            </a>
-          </div>
-        </span>
-      
-
-    
-  </div>
-
-  
-  
-
-
-
-  
-
-  
-  <div class="step even">
-    <span class="predicate">And </span>
-
-    
-
-      
-        <span class="undefined">
-          I operate on &quot;alice&quot;
-          <div class="definition developer">
-            <a href="../step_transformers.html#undefined_steps">
-              <div class="invalid">&nbsp;</div>
-            </a>
-          </div>
-        </span>
-      
-
-    
-  </div>
-
-  
-  
-
-
-
-  
-
-  
-  <div class="step odd">
     <span class="predicate">When </span>
 
     
 
       
         <span class="undefined">
-          I login using a bearer token
+          I GET &quot;/authn/:account/login?role=user:alice@@user_namespace@&quot;
           <div class="definition developer">
             <a href="../step_transformers.html#undefined_steps">
               <div class="invalid">&nbsp;</div>
@@ -467,7 +499,7 @@ $(function() {
 </div>
 
     <div id="footer">
-  Generated on Tue Jul 26 21:10:16 2016 by
+  Generated on Mon Aug  1 14:34:04 2016 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.1 (ruby-2.2.5).
 </div>

@@ -1,7 +1,8 @@
 FROM possum
 
 RUN gem install -N -v 0.8.1 yard
-RUN gem install -N rake yard-cucumber redcarpet
+RUN gem install -N -v 2.3.2 yard-cucumber 
+RUN gem install -N rake redcarpet
 
 WORKDIR /root
 

@@ -122,6 +122,10 @@ $(function() {
   </div>
 
   
+  <div class="description">
+    <br/>In&nbsp;this&nbsp;example&nbsp;we&nbsp;are&nbsp;giving&nbsp;the&nbsp;`group:employees`&nbsp;role&nbsp;to&nbsp;groups&nbsp;`developers`&nbsp;and&nbsp;`operations`.&nbsp;<br/>This&nbsp;effectively&nbsp;adds&nbsp;groups&nbsp;`developers`&nbsp;and&nbsp;`operations`&nbsp;to&nbsp;the&nbsp;`employees`&nbsp;group.&nbsp;They&nbsp;are&nbsp;<br/>granted&nbsp;all&nbsp;privileges&nbsp;of&nbsp;the&nbsp;`employees`&nbsp;group.<br/><br/>Note&nbsp;the&nbsp;`replace:&nbsp;true`&nbsp;option.&nbsp;This&nbsp;means&nbsp;that&nbsp;if&nbsp;a&nbsp;group&nbsp;named&nbsp;`employees`&nbsp;already&nbsp;exists,&nbsp;<br/>remove&nbsp;all&nbsp;members&nbsp;and&nbsp;replace&nbsp;with&nbsp;the&nbsp;roles&nbsp;in&nbsp;the&nbsp;members&nbsp;list.&nbsp;Replacing&nbsp;members&nbsp;gives&nbsp;you&nbsp;a&nbsp;<br/>more&nbsp;authoritive&nbsp;answer&nbsp;to&nbsp;the&nbsp;question&nbsp;&quot;who&nbsp;is&nbsp;in&nbsp;this&nbsp;group?&quot;,&nbsp;but&nbsp;may&nbsp;not&nbsp;work&nbsp;if&nbsp;you&nbsp;are&nbsp;<br/>referencing&nbsp;global&nbsp;roles&nbsp;in&nbsp;your&nbsp;policy.
+  </div>
+  
 
   
 
@@ -159,7 +163,7 @@ $(function() {
 
   
   <div class="text">
-  #&nbsp;First&nbsp;create&nbsp;the&nbsp;groups<br/>-&nbsp;!group&nbsp;employees<br/>-&nbsp;!group&nbsp;developers<br/>-&nbsp;!group&nbsp;operations<br/><br/>#&nbsp;Now&nbsp;grant&nbsp;group&nbsp;employees&nbsp;to&nbsp;groups&nbsp;developers&nbsp;and&nbsp;developers<br/>-&nbsp;!grant<br/>&nbsp;&nbsp;replace:&nbsp;true<br/>&nbsp;&nbsp;role:&nbsp;!group&nbsp;employees<br/>&nbsp;&nbsp;members:<br/>&nbsp;&nbsp;-&nbsp;!group&nbsp;developers<br/>&nbsp;&nbsp;-&nbsp;!group&nbsp;operations
+  #&nbsp;First&nbsp;create&nbsp;the&nbsp;groups<br/>-&nbsp;!group&nbsp;employees<br/>-&nbsp;!group&nbsp;developers<br/>-&nbsp;!group&nbsp;operations<br/><br/>#&nbsp;Now&nbsp;grant&nbsp;group&nbsp;employees&nbsp;to&nbsp;groups&nbsp;developers&nbsp;and&nbsp;operations<br/>-&nbsp;!grant<br/>&nbsp;&nbsp;replace:&nbsp;true<br/>&nbsp;&nbsp;role:&nbsp;!group&nbsp;employees<br/>&nbsp;&nbsp;members:<br/>&nbsp;&nbsp;-&nbsp;!group&nbsp;developers<br/>&nbsp;&nbsp;-&nbsp;!group&nbsp;operations
 </div>
 
 
@@ -271,6 +275,10 @@ $(function() {
     <a class="link" style="float:right; clear:right;" href="#scenario_1">link</a>
   </div>
 
+  
+  <div class="description">
+    In&nbsp;this&nbsp;example,&nbsp;a&nbsp;group&nbsp;`ci-admin`&nbsp;gets&nbsp;an&nbsp;admin&nbsp;grant&nbsp;on&nbsp;the&nbsp;group&nbsp;`ci`.&nbsp;This&nbsp;means&nbsp;that&nbsp;<br/>members&nbsp;of&nbsp;the&nbsp;group&nbsp;`ci-admin`&nbsp;can&nbsp;add&nbsp;and&nbsp;remove&nbsp;members&nbsp;from&nbsp;the&nbsp;group&nbsp;`ci`.&nbsp;In&nbsp;real-world&nbsp;<br/>terms,&nbsp;everyone&nbsp;who&nbsp;uses&nbsp;your&nbsp;Jenkins&nbsp;system&nbsp;may&nbsp;be&nbsp;in&nbsp;the&nbsp;`ci`&nbsp;group.&nbsp;A&nbsp;smaller&nbsp;group&nbsp;of&nbsp;<br/>Jenkins&nbsp;admins&nbsp;are&nbsp;in&nbsp;the&nbsp;`ci-admin`&nbsp;group,&nbsp;and&nbsp;can&nbsp;manage&nbsp;who&nbsp;is&nbsp;in&nbsp;the&nbsp;`ci`&nbsp;group.<br/><br/>Note&nbsp;how&nbsp;group&nbsp;`ci-admin`&nbsp;is&nbsp;aliased&nbsp;with&nbsp;the&nbsp;name&nbsp;&quot;admin&quot;&nbsp;in&nbsp;the&nbsp;policy.&nbsp;This&nbsp;is&nbsp;effectively&nbsp;<br/>creating&nbsp;a&nbsp;reference&nbsp;to&nbsp;that&nbsp;group&nbsp;we&nbsp;can&nbsp;use&nbsp;later&nbsp;in&nbsp;the&nbsp;policy.&nbsp;Aliasing&nbsp;policy&nbsp;records&nbsp;makes&nbsp;<br/>policies&nbsp;DRYer&nbsp;and&nbsp;easier&nbsp;to&nbsp;maintain.&nbsp;By&nbsp;using&nbsp;a&nbsp;reference,&nbsp;`!group&nbsp;ci-admin`&nbsp;is&nbsp;defined&nbsp;once&nbsp;in&nbsp;the&nbsp;policy<br/>and&nbsp;then&nbsp;later&nbsp;used&nbsp;by&nbsp;reference.&nbsp;Create&nbsp;an&nbsp;alias&nbsp;by&nbsp;declaring&nbsp;a&nbsp;<br/>name&nbsp;prepended&nbsp;with&nbsp;`&amp;`.&nbsp;Dereference&nbsp;that&nbsp;record&nbsp;later&nbsp;on&nbsp;in&nbsp;your&nbsp;policy&nbsp;by&nbsp;using&nbsp;the&nbsp;same&nbsp;name&nbsp;prepended&nbsp;<br/>with&nbsp;a&nbsp;`*`.&nbsp;Aliasing&nbsp;also&nbsp;allows&nbsp;you&nbsp;to&nbsp;group&nbsp;records&nbsp;together&nbsp;under&nbsp;a&nbsp;single&nbsp;symbolic&nbsp;name.
+  </div>
   
 
   
@@ -386,7 +394,7 @@ $(function() {
 </div>
 
     <div id="footer">
-  Generated on Tue Jul 26 21:10:17 2016 by
+  Generated on Mon Aug  1 14:34:05 2016 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.1 (ruby-2.2.5).
 </div>

@@ -74,7 +74,7 @@
          Password can be used to obtain API key
        </a>
      </span>
-     <small>features/login.feature:4</small>
+     <small>features/login.feature:6</small>
   </li>
         
   
@@ -85,7 +85,7 @@
          Bearer token cannot be used to login
        </a>
      </span>
-     <small>features/login.feature:9</small>
+     <small>features/login.feature:12</small>
   </li>
         
   
@@ -96,7 +96,7 @@
          &quot;Super&quot; users cannot login as other users
        </a>
      </span>
-     <small>features/login.feature:14</small>
+     <small>features/login.feature:17</small>
   </li>
         
   
@@ -115,8 +115,8 @@
   <li class="r1">
     <span class='object_link'>
        <a href="requirements/features/all_roles.html#scenario_0"
-           title="Initial roles is just the owner.">
-         Initial roles is just the owner.
+           title="The initial memberships of a role is just the role itself.">
+         The initial memberships of a role is just the role itself.
        </a>
      </span>
      <small>features/all_roles.feature:4</small>
@@ -126,8 +126,8 @@
   <li class="r2">
     <span class='object_link'>
        <a href="requirements/features/all_roles.html#scenario_1"
-           title="Granted roles appear in the role list.">
-         Granted roles appear in the role list.
+           title="Granted roles appear in a role&#39;s memberships.">
+         Granted roles appear in a role&#39;s memberships.
        </a>
      </span>
      <small>features/all_roles.feature:14</small>
@@ -175,7 +175,7 @@
          An additional user with the specified privilege is included in the list
        </a>
      </span>
-     <small>features/permitted_roles.feature:17</small>
+     <small>features/permitted_roles.feature:21</small>
   </li>
         
   
@@ -186,7 +186,7 @@
          An additional user with an unrelated privilege is not included in the list
        </a>
      </span>
-     <small>features/permitted_roles.feature:30</small>
+     <small>features/permitted_roles.feature:38</small>
   </li>
         
   
@@ -197,7 +197,7 @@
          An additional owner role is included in the list
        </a>
      </span>
-     <small>features/permitted_roles.feature:42</small>
+     <small>features/permitted_roles.feature:54</small>
   </li>
         
   
@@ -265,7 +265,7 @@
          Initial roles members is just the initial role admin.
        </a>
      </span>
-     <small>features/members.feature:4</small>
+     <small>features/members.feature:8</small>
   </li>
         
   
@@ -276,7 +276,7 @@
          New member roles appear in the role list.
        </a>
      </span>
-     <small>features/members.feature:17</small>
+     <small>features/members.feature:22</small>
   </li>
         
   
@@ -285,7 +285,7 @@
 
 <li class="r2">
   <a class='toggle'></a>
-  <span class='object_link'><a href="requirements/features/authenticate.html" title="requirements::features::authenticate (feature)">Obtaining a bearer token</a></span>
+  <span class='object_link'><a href="requirements/features/authenticate.html" title="requirements::features::authenticate (feature)">Obtaining an auth token</a></span>
   <small>features/authenticate.feature:1</small>
 </li>
 
@@ -299,7 +299,7 @@
          User can authenticate as herself
        </a>
      </span>
-     <small>features/authenticate.feature:4</small>
+     <small>features/authenticate.feature:6</small>
   </li>
         
   
@@ -310,18 +310,40 @@
          Invalid credentials result in 401 error
        </a>
      </span>
-     <small>features/authenticate.feature:8</small>
+     <small>features/authenticate.feature:9</small>
   </li>
         
   
   <li class="r1">
     <span class='object_link'>
        <a href="requirements/features/authenticate.html#scenario_2"
+           title="User cannot login as a same-named user in a different account">
+         User cannot login as a same-named user in a different account
+       </a>
+     </span>
+     <small>features/authenticate.feature:13</small>
+  </li>
+        
+  
+  <li class="r2">
+    <span class='object_link'>
+       <a href="requirements/features/authenticate.html#scenario_3"
+           title="Auth tokens cannot be refreshed">
+         Auth tokens cannot be refreshed
+       </a>
+     </span>
+     <small>features/authenticate.feature:19</small>
+  </li>
+        
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/authenticate.html#scenario_4"
            title="&quot;Super&quot; users cannot authenticate as other users">
          &quot;Super&quot; users cannot authenticate as other users
        </a>
      </span>
-     <small>features/authenticate.feature:14</small>
+     <small>features/authenticate.feature:24</small>
   </li>
         
   
@@ -340,11 +362,11 @@
   <li class="r1">
     <span class='object_link'>
        <a href="requirements/features/rotate_api_key.html#scenario_0"
-           title="Password can be used to obtain API key">
-         Password can be used to obtain API key
+           title="Password can be used to rotate API key">
+         Password can be used to rotate API key
        </a>
      </span>
-     <small>features/rotate_api_key.feature:4</small>
+     <small>features/rotate_api_key.feature:6</small>
   </li>
         
   
@@ -355,7 +377,7 @@
          API key cannot be rotated by foreign login without &#39;update&#39; privilege
        </a>
      </span>
-     <small>features/rotate_api_key.feature:9</small>
+     <small>features/rotate_api_key.feature:12</small>
   </li>
         
   
@@ -366,7 +388,7 @@
          API key can be rotated by foreign login having &#39;update&#39; privilege
        </a>
      </span>
-     <small>features/rotate_api_key.feature:16</small>
+     <small>features/rotate_api_key.feature:18</small>
   </li>
         
   
@@ -385,11 +407,11 @@
   <li class="r1">
     <span class='object_link'>
        <a href="requirements/features/change_password.html#scenario_0"
-           title="Authenticated users can update their own password">
-         Authenticated users can update their own password
+           title="With basic authentication, users can update their own password">
+         With basic authentication, users can update their own password
        </a>
      </span>
-     <small>features/change_password.feature:4</small>
+     <small>features/change_password.feature:6</small>
   </li>
         
   
@@ -400,7 +422,7 @@
          Bearer token cannot be used to change the password
        </a>
      </span>
-     <small>features/change_password.feature:9</small>
+     <small>features/change_password.feature:11</small>
   </li>
         
   
@@ -411,7 +433,7 @@
          &quot;Super&quot; users cannot update user passwords
        </a>
      </span>
-     <small>features/change_password.feature:14</small>
+     <small>features/change_password.feature:16</small>
   </li>
         
   
@@ -421,7 +443,7 @@
 <li class="r2">
   <a class='toggle'></a>
   <span class='object_link'><a href="requirements/features/check_permission.html" title="requirements::features::check_permission (feature)">Validating specific privileges</a></span>
-  <small>features/check_permission.feature:2</small>
+  <small>features/check_permission.feature:1</small>
 </li>
 
 
@@ -441,22 +463,22 @@
   <li class="r2">
     <span class='object_link'>
        <a href="requirements/features/check_permission.html#scenario_1"
-           title="The new role can confirm that it may perform the granted action">
-         The new role can confirm that it may perform the granted action
+           title="I confirm that the role cannot perform ungranted actions">
+         I confirm that the role cannot perform ungranted actions
        </a>
      </span>
-     <small>features/check_permission.feature:13</small>
+     <small>features/check_permission.feature:18</small>
   </li>
         
   
   <li class="r1">
     <span class='object_link'>
        <a href="requirements/features/check_permission.html#scenario_2"
-           title="I cannot see resources to which I am not permitted">
-         I cannot see resources to which I am not permitted
+           title="The new role can confirm that it may perform the granted action">
+         The new role can confirm that it may perform the granted action
        </a>
      </span>
-     <small>features/check_permission.feature:18</small>
+     <small>features/check_permission.feature:27</small>
   </li>
         
   

@@ -122,6 +122,10 @@ $(function() {
   </div>
 
   
+  <div class="description">
+    <br/>This&nbsp;example&nbsp;shows&nbsp;how&nbsp;to&nbsp;use&nbsp;a&nbsp;scoped&nbsp;policy&nbsp;to&nbsp;represent&nbsp;who&nbsp;can&nbsp;access&nbsp;credentials&nbsp;for&nbsp;a&nbsp;Jenkins&nbsp;master.&nbsp;<br/>The&nbsp;policy&nbsp;includes&nbsp;an&nbsp;SSH&nbsp;private&nbsp;key&nbsp;and&nbsp;API&nbsp;token;&nbsp;the&nbsp;`users`&nbsp;group&nbsp;can&nbsp;fetch&nbsp;them&nbsp;and&nbsp;the&nbsp;`admins`&nbsp;can&nbsp;update&nbsp;them.<br/><br/>One&nbsp;or&nbsp;more&nbsp;`!policy`&nbsp;blocks&nbsp;can&nbsp;be&nbsp;declared&nbsp;in&nbsp;a&nbsp;policy&nbsp;file.&nbsp;Each&nbsp;policy&nbsp;creates&nbsp;a&nbsp;scoped&nbsp;set&nbsp;of&nbsp;roles&nbsp;<br/>and&nbsp;resources.&nbsp;The&nbsp;policy&nbsp;is&nbsp;a&nbsp;role&nbsp;which&nbsp;owns&nbsp;everything&nbsp;defined&nbsp;in&nbsp;its&nbsp;body,&nbsp;and&nbsp;the&nbsp;IDs&nbsp;of&nbsp;all&nbsp;roles&nbsp;and&nbsp;resources&nbsp;<br/>defined&nbsp;in&nbsp;the&nbsp;policy&nbsp;body&nbsp;are&nbsp;prefixed&nbsp;with&nbsp;the&nbsp;policy&#39;s&nbsp;`id`.&nbsp;For&nbsp;example,&nbsp;if&nbsp;a&nbsp;policy&nbsp;called&nbsp;<br/>`jenkins/v1`&nbsp;defines&nbsp;a&nbsp;variable&nbsp;whose&nbsp;`id`&nbsp;is&nbsp;`private-key`,&nbsp;then:<br/><br/>-&nbsp;The&nbsp;full&nbsp;name&nbsp;of&nbsp;the&nbsp;created&nbsp;variable&nbsp;will&nbsp;be&nbsp;`jenkins/v1/private-key`.<br/>-&nbsp;The&nbsp;owner&nbsp;of&nbsp;the&nbsp;variable&nbsp;will&nbsp;be&nbsp;be&nbsp;the&nbsp;role&nbsp;`&lt;account&gt;:policy:jenkins/v1`.
+  </div>
+  
 
   
 
@@ -344,7 +348,7 @@ $(function() {
 </div>
 
     <div id="footer">
-  Generated on Tue Jul 26 21:10:17 2016 by
+  Generated on Mon Aug  1 14:34:05 2016 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.1 (ruby-2.2.5).
 </div>
