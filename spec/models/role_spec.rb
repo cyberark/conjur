@@ -16,8 +16,6 @@ describe Role, :type => :model do
 
   let(:base_hash) {
     {
-      uidnumber: nil,
-      gidnumber: nil,
       id: the_user.role_id
     }
   }
