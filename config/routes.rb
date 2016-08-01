@@ -18,9 +18,6 @@ Rails.application.routes.draw do
       post '/authn/:account/:id/authenticate' => 'authenticate#authenticate'
     end
     
-    # TODO: this route exists for compatibility reasons only
-    get "/roles/:account/:kind/*identifier" => "roles#members", :constraints => QueryParameterActionRecognizer.new("members"), :format => false
-
     get "/roles/:account/:kind/*identifier" => "roles#memberships", :constraints => QueryParameterActionRecognizer.new("all")
   
     get "/roles/:account/:kind/*identifier" => 'roles#check_permission', :constraints => QueryParameterActionRecognizer.new("check")

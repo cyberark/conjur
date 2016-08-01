@@ -9,9 +9,6 @@
     annotations:
       description: My application layer
   
-  - !host-factory
-    layers: [ !layer ]
-    
   - !permit
     resource: *variables
     privileges: [ read, execute ]

@@ -5,10 +5,6 @@ class RolesController < RestController
     render json: @role.as_json.merge(members: @role.memberships)
   end
   
-  def members
-    render json: @role.memberships
-  end
-
   def memberships
     filter = params[:filter]
     if filter
