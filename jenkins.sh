@@ -19,7 +19,7 @@ mkdir -p cucumber/policy/features/reports
 server_cid=$(docker run \
 	--link $pg_cid:pg \
 	-e DATABASE_URL=postgres://postgres@pg/postgres \
-	-e CONJUR_ACCOUNT=cucumber \
+	-e RAILS_ENV=test \
 	-d possum server)
 
 cat << "TEST" | docker run \
@@ -29,8 +29,8 @@ cat << "TEST" | docker run \
 	--link $server_cid:possum \
 	-v $PWD:/src/possum \
 	-e DATABASE_URL=postgres://postgres@pg/postgres \
+	-e RAILS_ENV=test \
 	-e CONJUR_APPLIANCE_URL=http://possum \
-	-e CONJUR_ACCOUNT=cucumber \
     -e POSSUM_ADMIN_PASSWORD=admin \
 	--entrypoint bash \
 	possum
@@ -44,6 +44,7 @@ done
 
 cd /src/possum
 
+rm -rf coverage
 rm -rf spec/reports/*
 rm -rf cucumber/api/features/reports/*
 rm -rf cucumber/policy/features/reports/*

@@ -79,7 +79,7 @@ class Possum::API
   end
   
   def token
-    JSON::parse(RestClient::Resource.new($possum_url)["authn/#{CGI.escape username}/authenticate"].post password, content_type: 'text/plain')
+    JSON::parse(RestClient::Resource.new($possum_url)["authn/cucumber/#{CGI.escape username}/authenticate"].post password, content_type: 'text/plain')
   end
 end
 
@@ -100,7 +100,7 @@ module PossumWorld
     file = Tempfile.new('policy')
     file.write policy
     file.flush
-    system *(%w(possum policy load) + [ file.path ]) or raise "Failed to load policy: #{$?.exitstatus}"
+    system *(%w(possum policy load cucumber) + [ file.path ]) or raise "Failed to load policy: #{$?.exitstatus}"
   end
   
   def make_full_id *tokens

@@ -8,3 +8,6 @@ $policy_dir = if File.exists?("/run")
 else
   File.expand_path('../../../../../run', __FILE__)
 end
+
+require 'simplecov'
+SimpleCov.start

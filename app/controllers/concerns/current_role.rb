@@ -19,7 +19,7 @@ module CurrentRole
   
   def current_role 
     @current_role ||= if (role_name = params[:acting_as])
-      Role[roleid_from_username(role_name)] or raise Forbidden
+      Role[Role.make_full_id(role_name, account)] or raise Forbidden
     else
       current_user
     end
@@ -36,6 +36,6 @@ module CurrentRole
   private
   
   def find_current_user
-    Role[roleid_from_username(token_user.login)] or raise Forbidden
+    Role[token_user.roleid] or raise Forbidden
   end
 end

@@ -1,5 +1,5 @@
 Given(/^a resource$/) do
-  @current_resource = Resource.create(resource_id: "cucumber:test-resource:#{SecureRandom.uuid}", owner: @current_user)
+  @current_resource = Resource.create(resource_id: "cucumber:test-resource:#{SecureRandom.uuid}", owner: @current_user || admin_user)
 end
 
 Given(/^I permit user "([^"]*)" to "([^"]*)" it$/) do |grantee, privilege|

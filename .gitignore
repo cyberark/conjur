@@ -19,4 +19,5 @@ reports
 demo/run/finished
 demo/run/load
 run/finished
+coverage
 demo/run/*.yml

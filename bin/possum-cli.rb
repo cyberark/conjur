@@ -32,6 +32,10 @@ end
 
 desc 'Run the application server'
 command :server do |c|
+  c.desc 'Account to initialize'
+  c.arg_name 'account'
+  c.flag [ :a, :account ]
+    
   c.desc 'Policy file to load into the server'
   c.arg_name 'file_name'
   c.flag [ :f, :file ]
@@ -49,31 +53,37 @@ command :server do |c|
   c.action do |global_options,options,args|
     exit_now! "No command arguments are allowed" unless args.empty?
 
+    account = options[:account]
+
     connect
 
     system "rake db:migrate" or exit $?.exitstatus
-    system "rake token-key:generate" or exit $?.exitstatus
-    
-    if file_name = options[:file]
-      system "rake policy:load[#{file_name}]" or exit $?.exitstatus
+    if account
+      system "rake token-key:generate[#{account}]" or exit $?.exitstatus
     end
     
-    exec "rackup -p #{options[:port]} -o #{options[:'bind-address']}"
+    if file_name = options[:file]
+      raise "account option is required with file option" unless account
+      system "rake policy:load[#{account},#{file_name}]" or exit $?.exitstatus
+    end
+    
+    exec "rails server -p #{options[:port]} -b #{options[:'bind-address']}"
   end
 end
 
 desc "Manage the policy"
 command :policy do |cgrp|
   cgrp.desc "Load the policy from a file"
-  cgrp.arg_name "file_name"
+  cgrp.arg_name "account file_name"
   cgrp.command :load do |c|
     c.action do |global_options,options,args|
+      account = args.shift or exit_now! "Expecting account argument"
       file_name = args.shift or exit_now! "Expecting file_name argument"
       exit_now! "No additional command arguments are allowed" unless args.empty?
   
       connect
 
-      exec "rake policy:load[#{file_name}]"
+      exec "rake policy:load[#{account},#{file_name}]"
     end
   end
   
@@ -90,15 +100,16 @@ Example:
 
 $ docker run -d possum watch /run/possum/policy/load)"
   DESC
-  cgrp.arg_name 'file_name'
+  cgrp.arg_name 'account file_name'
   cgrp.command :watch do |c|
     c.action do |global_options,options,args|
+      account = args.shift or exit_now! "Expecting account argument"
       file_name = args.shift or exit_now! "Expecting file_name argument"
       exit_now! "No additional command arguments are allowed" unless args.empty?
 
       connect
 
-      exec "rake policy:watch[#{file_name}]"
+      exec "rake policy:watch[#{account},#{file_name}]"
     end
   end
 end
@@ -142,13 +153,15 @@ Example:
 
 $ docker run --rm possum token-key generate
   DESC
+  cgrp.arg_name 'account'
   cgrp.command :generate do |c|
     c.action do |global_options,options,args|
-      exit_now! "No command arguments are allowed" unless args.empty?
+      account = args.shift or exit_now! "Expecting account argument"
+      exit_now! "No additional command arguments are allowed" unless args.empty?
       
       connect
 
-      exec "rake token-key:generate"
+      exec "rake token-key:generate[#{account}]"
     end
   end
 end

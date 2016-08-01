@@ -2,7 +2,8 @@ require 'spec_helper'
 
 describe CredentialsController, :type => :controller do
   let(:login) { "u-#{SecureRandom.uuid}" }
-  
+  let(:account) { "rspec" }
+
   context "#login" do
     shared_examples_for "successful authentication" do
       it "succeeds" do
@@ -14,7 +15,7 @@ describe CredentialsController, :type => :controller do
     
     shared_examples_for "authentication denied" do
       it "is unauthorized" do
-        post :login
+        post :login, account: account
         expect(response.code).to eq("401")
       end
     end
@@ -44,7 +45,7 @@ describe CredentialsController, :type => :controller do
   context "#rotate_api_key" do
     shared_examples_for "authentication denied" do
       it "is unauthorized" do
-        post :rotate_api_key
+        post :rotate_api_key, account: account
         expect(response.code).to eq("401")
       end
     end
@@ -68,7 +69,7 @@ describe CredentialsController, :type => :controller do
         include_context "create user"
         it "rotates the user's API key" do
           api_key = the_user.api_key
-          post :rotate_api_key
+          post :rotate_api_key, account: account
           the_user.credentials.reload
           expect(response.code).to eq("200")
           expect(response.body).to eq(the_user.credentials.api_key)
@@ -82,7 +83,7 @@ describe CredentialsController, :type => :controller do
     let(:new_password) { "new-password" }
     context "without auth" do
       it "is unauthorized" do
-        post :update_password
+        post :update_password, account: account
         expect(response.code).to eq("401")
       end
     end
@@ -92,7 +93,7 @@ describe CredentialsController, :type => :controller do
       include_context "authenticate Basic"
       context "without post body" do
         it "is is malformed" do
-          post :update_password
+          post :update_password, account: account
           expect(response.code).to eq("422")
           expect(response.body).to eq({"password" => "must not be blank"}.to_json)
         end
@@ -101,7 +102,7 @@ describe CredentialsController, :type => :controller do
         before { request.env['RAW_POST_DATA'] = new_password }
         context "and valid password" do
           it "updates the password" do
-            post :update_password
+            post :update_password, account: account
             expect(response.code).to eq("204")
             the_user.credentials.reload
             expect(the_user.credentials.authenticate(new_password)).to be(true)
@@ -113,7 +114,7 @@ describe CredentialsController, :type => :controller do
             { password: ["cannot contain a newline"] }
           }
           it "reports the error" do
-            post :update_password
+            post :update_password, account: account
             expect(response.code).to eq("422")
             expect(response.body).to eq(errors.to_json)
             expect(the_user.credentials.authenticate(new_password)).to be(false)

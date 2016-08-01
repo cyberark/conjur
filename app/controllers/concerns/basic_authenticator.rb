@@ -7,9 +7,10 @@ module BasicAuthenticator
   
   def perform_basic_authn
     authenticate_with_http_basic do |username, password|
-      credentials = Credentials[Role.roleid_from_username(username)]
+      credentials = Credentials[Role.roleid_from_username(account, username)]
       if credentials && credentials.authenticate(password)
-        authentication.basic_user = username
+        authentication.authenticated_role = credentials.role
+        authentication.basic_user = true
       end
     end if request.authorization =~ /^Basic / # we need to check the auth method.
     # authenticate_with_http_basic doesn't do that and freaks out randomly.

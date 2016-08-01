@@ -10,6 +10,11 @@ Given(/^a new user "([^"]*)"$/) do |login|
   create_user login
 end
 
+Given(/^a new user "([^"]*)" in account "([^"]*)"$/) do |login, account|
+  roleid = "#{account}:user:#{user_login(login)}"
+  Role.create(role_id: roleid)
+end
+
 When(/^I operate on "([^"]*)"$/) do |login|
   @selected_user = lookup_user(login)
 end
@@ -20,6 +25,13 @@ end
   
 When(/^I have a password$/) do
   @current_user.password = "password"
+  @current_user.save
+end
+
+Given(/^I set the password for "([^"]*)" to "([^"]*)"$/) do |login, password|
+  user = lookup_user(login)
+  user.password = password
+  user.save
 end
 
 When(/^I use the wrong password$/) do

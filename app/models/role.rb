@@ -21,28 +21,27 @@ class Role < Sequel::Model
       Role.from(::Sequel.function(:roles_that_can, permission.to_s, resource.pk))
     end
 
-    def make_full_id id
+    def make_full_id id, account
       tokens = id.split(":") rescue []
       account, kind, id = if tokens.size < 2
         raise ArgumentError, "Expected at least 2 tokens in #{id}"
       elsif tokens.size == 2
-        [ Conjur::Rack.user.account ] + tokens
+        [ account ] + tokens
       elsif tokens.size >= 3
         [ tokens[0], tokens[1], tokens[2..-1].join(':') ]
       end
       [ account, kind, id ].join(":")
     end
 
-    def roleid_from_username login
+    def roleid_from_username account, login
       tokens = login.split('/', 2)
       tokens.unshift 'user' if tokens.length == 1
-      tokens.unshift default_account
+      tokens.unshift account
       tokens.join(":")
     end
     
     def username_from_roleid roleid
       account, kind, id = roleid.split(":", 3)
-      raise "Expected account #{account} to be #{default_account}" unless account == default_account
       if kind == 'user'
         id
       else
@@ -55,11 +54,6 @@ class Role < Sequel::Model
     self.credentials ||= Credentials.new(role: self)
     self.credentials.password = password
     self.credentials.save(raise_on_save_failure: true)
-  end
-  
-  def api
-    require 'conjur/api'
-    Conjur::API.new_from_key login, api_key
   end
   
   def api_key
@@ -76,14 +70,13 @@ class Role < Sequel::Model
   
   def login
     account, kind, id = self.id.split(":", 3)
-    raise "Cannot login as non-default account" unless account == default_account
     if kind == "user"
       id
     else
       [ kind, id ].join('/')
     end
   end
-  
+
   def resource
     Resource[id] or raise "Resource not found for #{id}"
   end
@@ -104,7 +97,7 @@ class Role < Sequel::Model
     if filter.nil?
       Role.from(Sequel.function(:all_roles, id))
     else
-      filter_roles = Set.new(filter.map{|id| Role.make_full_id id}.map{|id| Role[id]}.compact.map(&:role_id))
+      filter_roles = Set.new(filter.map{|id| Role[id]}.compact.map(&:role_id))
       Role.from(Sequel.function(:all_roles, id)).where(role_id: filter_roles.to_a)
     end
   end

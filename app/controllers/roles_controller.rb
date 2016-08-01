@@ -11,7 +11,9 @@ class RolesController < RestController
 
   def memberships
     filter = params[:filter]
-    filter = Array(filter) if filter
+    if filter
+      filter = Array(filter).map{|id| Role.make_full_id id, account}
+    end
     
     render json: @role.all_roles(filter).map(&:role_id)
   end
@@ -38,8 +40,8 @@ class RolesController < RestController
     raise(IndexError) unless @role
   end
   
-  # By default the resource is found in the same account as the logged-in user.
+  # By default the resource is found in the same account as the account parameter.
   def resource_id
-    Resource.make_full_id params[:resource_id]
+    Resource.make_full_id params[:resource], account
   end
 end

@@ -1,4 +1,3 @@
-@logged-in
 Feature: Validating specific privileges
 
   Background:
@@ -6,15 +5,29 @@ Feature: Validating specific privileges
     And a new user "bob"
     And I permit user "bob" to "fry" it
 
+  @logged-in
   Scenario: I confirm that the role can perform the granted action
-    When I check if user "bob" can "fry" it
-    Then the result is true
-    
+    Then I can GET "/roles/:account/user/bob@:user_namespace" with parameters:
+    """
+    check: true
+    resource: "@resource_kind@:@resource_id@"
+    privilege: fry
+    """
+
+  @logged-in
+  Scenario: I confirm that the role cannot perform ungranted actions
+    When I GET "/roles/:account/user/bob@:user_namespace" with parameters:
+    """
+    check: true
+    resource: "@resource_kind@:@resource_id@"
+    privilege: freeze
+    """
+    Then it's not found
+
   Scenario: The new role can confirm that it may perform the granted action
     When I login as "bob"
-    And I check if I can "fry" it
-    Then the result is true
-      
-  Scenario: I cannot see resources to which I am not permitted
-    When I check if user "bob" can "freeze" it
-    Then the result is false
+    Then I can GET "/resources/:account/:resource_kind/:resource_id" with parameters:
+    """
+    check: true
+    privilege: fry
+    """

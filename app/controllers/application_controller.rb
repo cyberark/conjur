@@ -24,15 +24,7 @@ class ApplicationController < ActionController::API
   end
   
   # Gets the value of the :account parameter.
-  def current_account
+  def account
     @account ||= params[:account]
-  end
-  
-  def make_full_id roleid
-    Role.make_full_id roleid
-  end
-  
-  def roleid_from_username login
-    Role.roleid_from_username login
   end
 end

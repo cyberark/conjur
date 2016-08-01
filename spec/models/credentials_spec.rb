@@ -27,11 +27,6 @@ describe Credentials, :type => :model do
       end
     end
     
-    describe '#login' do
-      subject { the_user.login }
-      it { is_expected.to eq(login) }
-    end
-    
     it "should store encrypted password hash" do
       expect(Slosilo::EncryptedAttributes.decrypt(credentials.values[:encrypted_hash], aad: the_user.role_id)).to eq(credentials.encrypted_hash)
     end

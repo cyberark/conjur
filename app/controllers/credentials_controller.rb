@@ -69,24 +69,19 @@ class CredentialsController < ApplicationController
   end
   
   def authenticate_client
-    authentication.token_user = token_user if token_user?
+    authentication.authenticated_role = Role[token_user.roleid] if token_user?
     perform_basic_authn
     raise Unauthorized, "Client not authenticated" unless authentication.authenticated?
   end
 
-  # Accept params[:id], but ignore it if it refers to the same user as the token auth.
+  # Accept params[:role]. Later it will be ignored if it refers to the same user as the token auth.
   def accept_id_parameter
-    if params[:id]
-      id_roleid = roleid_from_username(params[:id])
-      unless token_user? && id_roleid == roleid_from_username(token_user.login)
-        authentication.role_id = id_roleid
-      end
-    end
+    authentication.selected_role = Role[Role.make_full_id(params[:role], account)] if params[:role]
     true
   end
       
   def find_role
-    raise Unauthorized, "User not found" unless @role = authentication.database_role
+    raise Unauthorized, "Role not found" unless @role = authentication.apply_to_role
   end
   
   # Ensure that the current role has credentials.
@@ -96,10 +91,10 @@ class CredentialsController < ApplicationController
   
   # Don't permit token auth when manipulating 'self' record.
   def restrict_token_auth
-    if authentication.role_id
+    if authentication.selected_role
       true
     else
-      raise Unauthorized, "Credential strength is insufficient" unless authentication.basic_user
+      raise Unauthorized, "Credential strength is insufficient" unless authentication.basic_user?
     end
   end
 
@@ -113,9 +108,9 @@ class CredentialsController < ApplicationController
   def authorize_self_or_update
     return true if authentication.self?
     raise Unauthorized, "Operation attempted against foreign user" unless token_user?
-    raise Unauthorized, "Insufficient privilege" unless token_role = Role[roleid_from_username(token_user.login)]
+    raise Unauthorized, "Insufficient privilege" unless authentication.authenticated_role
     raise Unauthorized, "Insufficient privilege" unless resource = @role.resource
-    raise Unauthorized, "Insufficient privilege" unless token_role.allowed_to? "update", resource
+    raise Unauthorized, "Insufficient privilege" unless authentication.authenticated_role.allowed_to? "update", resource
   end
   
   # Read privilege is always granted.

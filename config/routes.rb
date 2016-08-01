@@ -10,12 +10,12 @@ end
 
 Rails.application.routes.draw do
   scope format: false do
-    get  '/authn/login' => 'credentials#login'
-    put  '/authn/password' => 'credentials#update_password'
-    put  '/authn/api_key'  => 'credentials#rotate_api_key'
+    get  '/authn/:account/login' => 'credentials#login'
+    put  '/authn/:account/password' => 'credentials#update_password'
+    put  '/authn/:account/api_key'  => 'credentials#rotate_api_key'
 
     constraints id: /[^\/\?]+/ do
-      post '/authn/:id/authenticate' => 'authenticate#authenticate'
+      post '/authn/:account/:id/authenticate' => 'authenticate#authenticate'
     end
     
     # TODO: this route exists for compatibility reasons only
@@ -45,7 +45,5 @@ Rails.application.routes.draw do
     post "/secrets/:account/:kind/*identifier" => 'secrets#add_value'
 
     get "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
-
-    get "/info" => "info#show"
   end
 end
