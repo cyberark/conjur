@@ -146,11 +146,13 @@ The Possum server that you are running contains some example policies. Here are 
 
 # Learn More
 
-{% assign pages_list = site.pages | sort: 'index' %}
-{% for node in pages_list %}
-{% if node.title != null %}
-  {% if node.layout == "page" %}
-* [{{node.title }}]({{ site.baseurl}}{{ node.url }})
-  {% endif %}
-{% endif %}
-{% endfor %}
+<ul>
+  {% assign pages_list = site.pages | sort: 'index' %}
+  {% for node in pages_list %}
+      {% if node.title != null %}
+          {% if node.layout == "page" %}
+              <a class="sidebar-nav-item{% if page.url == node.url %} active{% endif %}" href="{{ site.baseurl }}{% if node.external_url != null %}{{ node.external_url }}{% else %}{{ node.url }}{% endif %}">{{ node.title }}</a>
+          {% endif %}
+      {% endif %}
+  {% endfor %}
+</ul>
