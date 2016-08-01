@@ -6,6 +6,6 @@ source 'https://rubygems.org'
 gem 'github-pages', group: :jekyll_plugins
 gem 'rake'
 gem 'activesupport'
-gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'feature/update-docs'
+gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'master'
 gem 'docker-api'
 

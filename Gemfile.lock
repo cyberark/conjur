@@ -1,9 +1,9 @@
 GIT
   remote: git://github.com/conjurinc/conjur-policy-parser.git
-  revision: 0888d8aafb474790c6c1cb6d80ac7d23c696509b
-  branch: feature/update-docs
+  revision: ea7a3e22ff128095ed895b87feb74b9fee80bead
+  branch: master
   specs:
-    conjur-policy-parser (0.12.0)
+    conjur-policy-parser (0.13.0)
       activesupport (~> 4.2)
       safe_yaml
 
@@ -22,7 +22,7 @@ GEM
       execjs
     coffee-script-source (1.10.0)
     colorator (0.1)
-    docker-api (1.29.1)
+    docker-api (1.29.2)
       excon (>= 0.38.0)
       json
     ethon (0.9.0)

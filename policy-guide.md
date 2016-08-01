@@ -41,11 +41,65 @@ Possum records share the following attributes:
 
 ### Group
 
-{% include policy-element.md element=site.data.policy.group %}
+A group of users and other groups.
+
+When a user becomes a member of a group they are granted the group role, and inherit the group’s privileges. Group members can be added with or without “admin option”. With admin option, the member can add and remove members to/from the group.
+
+Groups can also be members of groups; in this way, groups can be organized and nested in a hierarchy.
+
+`security_admin` is the customary top-level group.
+
+### Example
+
+{% highlight yaml %}
+- !user alice
+- !user bob
+
+- !group
+  id: ops
+
+- !grant
+    role: !group ops
+    members:
+    - !user alice
+    - !member
+        role: !user bob
+        admin: true
+{% endhighlight %}
 
 ### User
 
-{% include policy-element.md element=site.data.policy.user %}
+A human user.
+
+Note For servers, VMs, scripts, PaaS applications, and other code actors, create Hosts instead of Users.
+
+#### Attributes
+
+* **public_keys** Stores public keys for the user, which can be retrieved through the public keys API.
+
+### Example
+
+{% highlight yaml %}
+- !user
+  id: kevin
+  public_keys:
+  - ssh-rsa AAAAB3NzaC1yc2EAAAAD...+10trhK5Pt kgilpin@laptop
+
+- !user
+  id: bob
+  public_keys:
+  - ssh-rsa AAAAB3NzaC1yc2EAAAAD...DP2Kr5QzRl bob@laptop
+
+- !grant
+  role: !group security_admin
+  member: !member
+    role: !user kevin
+    admin: true
+
+- !grant
+  role: !group operations
+  member: !user bob
+{% endhighlight %}
 
 # Servers, Apps, Containers and Code
 
@@ -59,7 +113,37 @@ The database has a password, which can be accessed by the application.
 
 ## Layer
 
-{% include policy-element.md element=site.data.policy.layer %}
+Host are organized into sets called "layers" (sometimes known in some other systems as "host groups"). Layers map 
+logically to the groups of machines and code in your infrastructure. For example, a group of servers or VMs can be a layer; 
+a cluster of containers which are performing the same function (e.g. running the same image) can also be modeled as a layer. 
+A script which is deployed to a server can be a layer. And an application which is deployed to a PaaS can also be a layer.
+
+Using layers to model the privileges of code helps to separate the permissions from the physical implementation of the 
+application. For example, if an application is migrated from a PaaS to a container cluster, the logical layers that compose the application (web servers, app servers, database tier, cache, message queue) can remain the same.
+
+### Example
+
+{% highlight yaml %}
+- !layer prod/database
+
+- !layer prod/app
+
+- !group operations
+
+- !host db-01
+- !host app-01
+- !host app-02
+
+- !grant
+  role: !layer prod/database
+  member: !host db-01
+
+- !grant
+  role: !layer prod/app
+  members:
+  - !host app-01
+  - !host app-02
+{% endhighlight %}
 
 # Other records
 
@@ -77,7 +161,50 @@ Entitlements are role grants and privilege grants which create permissions relat
 
 ## Grant
 
-{% include policy-element.md element=site.data.policy.grant %}
+Grant one role to another. When role A is granted to role B, then role B is said to “have” role A. The 
+set of all memberships of role B will include A. The set of direct members of role A will include role B.
+
+If the role is granted with `admin` option, then the grantee (role B), in addition to having the role, can 
+also grant and revoke the role to other roles.
+
+The only limitation on role grants is that there cannot be any cycles in the role graph. For example, if role 
+A is granted to role B, then role B cannot be granted to role A.
+
+Users, groups, hosts, and layers can all behave as roles, which means they can be granted to and revoked 
+from each other. For example, when a Group is granted to a User, the User gains all the privileges of the 
+Group. (Note: “Adding” a User to a Group is just another way to say that the Group role is granted to the User).
+
+### Example
+
+{% highlight yaml %}
+- !user alice
+  owner: !group security_admin
+
+- !group operations
+  owner: !group security_admin
+    
+- !group development
+  owner: !group security_admin
+  
+- !group everyone
+  owner: !group security_admin
+
+- !grant
+  role: !group operations
+  member: !member
+    role: !user alice
+    admin: true
+
+- !grant
+  role: !group ops
+  member: !group development
+
+- !grant
+  role: !group everyone
+  member: !group development
+  member: !group operations
+{% endhighlight %}
+
 
 ## Permit
 
