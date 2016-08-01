@@ -3,59 +3,38 @@ layout: page
 index: 00
 ---
 
-# The banner goes here
-
-* Source Code on Github
-* Downloads
-
-* Why use Possum?
-* Demo
-* Learn More
-
-# And ends here
-
-To properly secure a modern infrastructure, you need an authoritative
-directory service that:
-
-* Enumerates and categorizes all your servers, virtual machines, containers, storage volumes, secrets, job controllers, web services, databases and other code.
-* Assigns roles and permissions to everything.  
-* Supports a coded workflow.
-* Supports automation, microservices, and continuous integraiton.
-* Has easy-to-use integrations with other tools in the modern stack.
-
 Possum is the directory and authorization service for the new infrastructure stack, providing:
 
-* **A role-based access policy language** which is used to define system components, their roles, privileges and metadata.
-* **A REST web service** to:
-  * Enroll and revoke identities.
-  * List roles and perform permission checks.
-  * Store and serve secrets.
-  * Receive and store audit records.
-* **Integrations** with other popular software in the cloud toolchain such as IaaS, configuration management, continuous integration (CI), container management and cloud orchestration.
+* Role-based access control for people, machines, and code.
+* A REST API.
+* Secrets vault.
+* Pre-built integrations with popular programming languages and open source infrastructure automation tools.
+
+To use Possum, you create YAML policy files that enumerate and categorize all your servers, virtual machines, containers, storage volumes, secrets, job controllers, web services, images, databases and other code. Then, you use the policy files assign roles and permissions to everything. The Possum server runs on top of the policies and provides HTTP services for identity management, authorization, and secrets.
+
+Open-source libraries built on Possum provide pre-built integrations with other popular software in your toolchain such as IaaS, configuration management, continuous integration (CI), microservices, and container systems.
 
 # Why use Possum?
 
 ## Proven
 
-Possum has been running in production for more than two years, solving real-world problems at companies like Netflix, Cisco, Box, Puppet Labs, Discovery Communications, Rally Software, Ability Networks, Lookout, and SSH Communications Security. 
+Possum has been running in production for more than two years, solving real-world problems at companies like Netflix, Cisco, Box, Puppet Labs, Discovery Communications, Rally Software, Ability Networks, Lookout, and SSH.com. 
 
 In addition, Possum's cryptography has been professionally audited and verified.
 
 ## Simple to Use
 
-Each Possum policy is a declarative document which descibes directory elements such as users, groups, hosts, layers (groups of hosts), secrets, and web services. 
+A Possum policy describes a directory of users, groups, hosts, layers (groups of hosts), secrets, and web services. Role grants and permissions grants then apply role-based access control to the elements of the directory. An entire infrastructure can be modeled using only 9 elements: policy, user, group, host, layer, variable, web service, role grant, and permission grant. 
 
-Policies then combine these base elements with statements of role-based access control: role grants and permissions. An entire infrastructure can be modeled using only 9 elements: policy, user, group, host, layer, variable, web service, role grant, and permission grant. 
+Once a policy is created, just 8 REST functions are necessary to fully explore and utilize it from the runtime infrastructure: authenticate, list roles, list resources, show a resource, check a privilege, add a secret, fetch a secret, and list public keys.
 
-Once a policy is loaded, just 6 REST functions are necessary to fully explore and utilize it from the runtime infrastructure: list roles, list resoures, show resource annotations, check a privilege, fetch a secret, and insert an audit record.
-
-For completeness, some additional functions are available, for example login, authentication, and API key rotation.
+For completeness, some additional functions such as API key rotation are also provided.
 
 Policies are defined in YAML files which are easy for both people and machines to read and understand. It's easy to write code to generate policies, and to read and interpret them in any programming language.
 
 ## Powerful
 
-Possum uses Role-based access control, which is a proven model for infrastructure security. Unlike attribute-based access control, role-based access control is fully prescriptive, does not introduce unexpected side-effects from "conveniences" like glob-style attribute patterns, and scales to very large teams through the use of role delegation. 
+Possum uses role-based access control, which is a proven model for infrastructure security. Unlike attribute-based access control, role-based access control is fully prescriptive, does not introduce unexpected side-effects from glob-style attribute patterns, and scales to very large teams through the use of role delegation. 
 
 ## Easy to deploy and operate
 
@@ -69,7 +48,6 @@ Possum provides a authoritative answers to essential authorization questions suc
 * Can code in application X make an HTTP POST request to service Y?
 * What is the SSH public key of user X?
 * Can application X access the password for database Y?
-* Is user X allowed to SSH to machine Y? If so, what is the privilege level (Unix group) of the user on the machine?
 * Can machine X attach volume Y?
 * Can user or job X launch a container or VM from image Y?
 
@@ -83,7 +61,7 @@ On the client side, Possum is easily programmable by interacting with the REST A
 
 ## Start Possum
 
-In the `demo` directory there's a `start.sh` script which uses docker-compose to run a Possum container and a Postgresql database. First, enter the demo directory:
+First, enter the demo directory:
 
 {% highlight shell %}
 possum $ cd demo
