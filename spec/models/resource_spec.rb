@@ -23,6 +23,13 @@ describe Resource, :type => :model do
       annotations: []
     }
   }
+  
+  it "account is required" do
+    expect{ Resource.create(resource_id: "", owner: the_user) }.to raise_error(Sequel::CheckConstraintViolation, /(has_kind|has_account)/)
+  end
+  it "kind is required" do
+    expect{ Resource.create(resource_id: "the-account", owner: the_user) }.to raise_error(Sequel::CheckConstraintViolation, /has_kind/)
+  end
     
   context "basic object" do
     let(:as_json) { base_hash }
