@@ -28,11 +28,5 @@
   member: !user alice
 
 - !grant
-  role: !automatic-role
-    record: !layer myapp
-    role_name: use_host
-  member: !group developers
-
-- !grant
   role: !layer myapp
   member: !host myapp-01

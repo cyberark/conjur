@@ -1,0 +1,3 @@
+#!/bin/bash -ex
+
+exec ./bin/cucumber -r cucumber/policy/features/support/ -r cucumber/policy/features/step_definitions/ cucumber/policy/features/

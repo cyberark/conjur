@@ -14,11 +14,10 @@ class Loader
     def load account, filename
       start_t = Time.now
       DB.transaction do
-        admin_id = "#{account}:user:admin"
-        
-        DB[:roles].delete
+        DB[:roles].where(Sequel.function(:account, :roles) => account).delete
 
         $stderr.puts "Creating 'admin' user"
+        admin_id = "#{account}:user:admin"
         admin = ::Role.create(role_id: admin_id)
         if admin_password = ENV['POSSUM_ADMIN_PASSWORD']
           $stderr.puts "Setting 'admin' password"

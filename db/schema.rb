@@ -91,6 +91,7 @@ Sequel.migration do
     self << "INSERT INTO \"schema_migrations\" (\"filename\") VALUES ('20160628212433_create_annotations.rb')"
     self << "INSERT INTO \"schema_migrations\" (\"filename\") VALUES ('20160628222441_create_credentials.rb')"
     self << "INSERT INTO \"schema_migrations\" (\"filename\") VALUES ('20160630172059_create_secrets.rb')"
-    self << "INSERT INTO \"schema_migrations\" (\"filename\") VALUES ('20160705141848_authz_functions.rb')"
+    self << "INSERT INTO \"schema_migrations\" (\"filename\") VALUES ('20160705141848_create_authz_functions.rb')"
+    self << "INSERT INTO \"schema_migrations\" (\"filename\") VALUES ('20160801210433_create_id_functions.rb')"
   end
 end

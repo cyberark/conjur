@@ -20,6 +20,13 @@ describe Role, :type => :model do
     }
   }
 
+  it "account is required" do
+    expect{ Role.create(role_id: "") }.to raise_error(Sequel::CheckConstraintViolation, /(has_kind|has_account)/)
+  end
+  it "kind is required" do
+    expect{ Role.create(role_id: "the-account") }.to raise_error(Sequel::CheckConstraintViolation, /has_kind/)
+  end
+
   context "basic object" do
     let(:as_json) { base_hash }
     it_should_behave_like "provides expected JSON"
