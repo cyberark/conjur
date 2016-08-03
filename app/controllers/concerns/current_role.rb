@@ -19,7 +19,17 @@ module CurrentRole
   
   def current_role 
     @current_role ||= if (role_name = params[:acting_as])
-      Role[Role.make_full_id(role_name, account)] or raise Forbidden
+      role_id = Role.make_full_id(role_name, account)
+      Role[role_id].tap do |role|
+        unless role
+          logger.info "Role '#{role_id}' not found"
+          raise Forbidden
+        end
+        unless current_user.all_role([ role_id ]) == [ role ]
+          logger.info "Authenticated user '#{current_user.role_id}' does not have role '#{role_id}'"
+          raise Forbidden
+        end
+      end
     else
       current_user
     end

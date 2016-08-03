@@ -63,6 +63,22 @@ module Conjur
         end
       end
       
+      class Variable
+        include CreateResource
+        
+        def create!
+          self.annotations ||= {}
+          self.annotations["conjur/kind"] ||= self.kind if self.kind
+          self.annotations["conjur/mime_type"] ||= self.mime_type if self.mime_type
+          
+          super
+        end
+      end
+      
+      class Webservice
+        include CreateResource
+      end
+      
       class Grant
         def create!
           Array(roles).each do |r|

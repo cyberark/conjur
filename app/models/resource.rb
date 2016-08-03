@@ -3,7 +3,7 @@ class Resource < Sequel::Model
   
   one_to_many :permissions, reciprocal: :resource
   one_to_many :annotations, reciprocal: :resource
-  one_to_many :secrets,     reciprocal: :resource
+  one_to_many :secrets,     reciprocal: :resource, order: :counter
   many_to_one :owner, class: :Role
   
   alias id resource_id
@@ -69,5 +69,16 @@ class Resource < Sequel::Model
     options[:role] = role
     options[:grantor] ||= owner
     add_permission options
+  end
+  
+  # Truncate secrets beyond the configured limit.
+  def enforce_secrets_version_limit
+    if ( version_count = Sequel::Model(:resources).
+      select{ Sequel.function(:count, :resource_id) }.
+        join(:secrets, [ :resource_id ]).
+        where(resource_id: self.resource_id).
+        first[:count] ) > secrets_version_limit
+      secrets[0...version_count - secrets_version_limit].map(&:destroy)
+    end
   end
 end
