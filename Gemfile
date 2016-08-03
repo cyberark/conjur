@@ -18,6 +18,11 @@ gem 'slosilo', '>=2.0.0'
 gem 'listen'
 gem 'gli'
 
+# Installing ruby_dep 1.4.0
+# Gem::InstallError: ruby_dep requires Ruby version >= 2.2.5, ~> 2.2.
+gem 'ruby_dep', '= 1.3.1'
+
+gem 'possum-api', github: 'conjurinc/api-ruby', branch: 'work/ng'
 gem 'conjur-rack', github: 'conjurinc/conjur-rack', branch: 'master'
 gem 'conjur-rack-heartbeat'
 gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'master'
