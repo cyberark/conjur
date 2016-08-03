@@ -19,6 +19,13 @@ class Secret < Sequel::Model
           map(&:value)
     end
   end
+
+  def as_json options = {}
+    super(options.merge(except: :value)).tap do |response|
+      response["resource"] = response.delete("resource_id")
+    end
+  end
+
   
   def before_update
     raise Sequel::ValidationFailed, "Secret cannot be updated once created"

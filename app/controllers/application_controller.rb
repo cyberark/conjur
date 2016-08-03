@@ -4,8 +4,12 @@ class ApplicationController < ActionController::API
   class Unauthorized < RuntimeError
   end
   
+  class Forbidden < RuntimeError
+  end
+  
   rescue_from IndexError, with: :record_not_found
   rescue_from Unauthorized, with: :unauthorized
+  rescue_from Forbidden, with: :forbidden
   rescue_from ArgumentError, with: :unprocessable_entity
 
   def record_not_found  e
@@ -16,6 +20,11 @@ class ApplicationController < ActionController::API
   def unprocessable_entity  e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
     head :unprocessable_entity
+  end
+
+  def forbidden e
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    head :forbidden
   end
 
   def unauthorized e

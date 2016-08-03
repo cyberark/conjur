@@ -18,13 +18,11 @@ class Resource < Sequel::Model
   
   def as_json options = {}
     super(options).tap do |response|
-      # In case
-      response.delete("secrets")
-      
       response["id"] = response.delete("resource_id")
       response["owner"] = response.delete("owner_id")
-      response["permissions"] = self.permissions.as_json
-      response["annotations"] = self.annotations.as_json
+      response["permissions"] = self.permissions.as_json.tap{|l| l.map{|h| h.delete("resource")}}
+      response["annotations"] = self.annotations.as_json.tap{|l| l.map{|h| h.delete("resource")}}
+      response["secrets"] = self.secrets.as_json.tap{|l| l.map{|h| h.delete("resource")}}
     end
   end
 
@@ -41,7 +39,7 @@ class Resource < Sequel::Model
     def search kind: nil, owner: nil, offset: nil, limit: nil
       scope = self
       # Filter by kind
-      scope = scope.where("(?)[2] = ?", ::Sequel.function(:regexp_split_to_array, :resource_id, ':'), kind) if kind
+      scope = scope.where("kind(resource_id) = ?", kind) if kind
       
       # Filter by owner
       if owner
@@ -72,13 +70,14 @@ class Resource < Sequel::Model
   end
   
   # Truncate secrets beyond the configured limit.
-  def enforce_secrets_version_limit
-    if ( version_count = Sequel::Model(:resources).
+  def enforce_secrets_version_limit limit = secrets_version_limit
+    version_count = Sequel::Model(:resources).
       select{ Sequel.function(:count, :resource_id) }.
         join(:secrets, [ :resource_id ]).
         where(resource_id: self.resource_id).
-        first[:count] ) > secrets_version_limit
-      secrets[0...version_count - secrets_version_limit].map(&:destroy)
+        first[:count]
+    if version_count > limit
+      secrets[0...version_count - limit].map(&:destroy)
     end
   end
 end

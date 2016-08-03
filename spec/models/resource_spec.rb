@@ -20,7 +20,8 @@ describe Resource, :type => :model do
       id: the_resource.resource_id,
       owner: the_user.role_id,
       permissions: [],
-      annotations: []
+      annotations: [],
+      secrets: []
     }
   }
   
@@ -50,8 +51,36 @@ describe Resource, :type => :model do
       the_resource.permit "fry", the_user
     }
     let(:as_json) { 
-      base_hash.merge permissions: [ {"privilege"=>"fry", "grant_option"=>false, "resource"=>the_resource.id, "role"=>the_user.id, "grantor"=>the_user.id} ]
+      base_hash.merge permissions: [ {"privilege"=>"fry", "grant_option"=>false, "role"=>the_user.id, "grantor"=>the_user.id} ]
     }
     it_should_behave_like "provides expected JSON"
+  end
+  context "with secret" do
+    before {
+      the_resource.add_secret value: "the-value"
+    }
+    let(:as_json) { 
+      base_hash.merge secrets: [ {"counter" => 1} ]
+    }
+    it_should_behave_like "provides expected JSON"
+  end
+
+  describe "#enforce_secrets_version_limit" do
+    it "deletes extra secrets" do
+      the_resource.add_secret value: "v-1"
+      the_resource.add_secret value: "v-2"
+      the_resource.add_secret value: "v-3"
+      expect(the_resource.as_json['secrets']).to eq([ 1, 2, 3 ].map{|i| { "counter" => i }})
+
+      the_resource.enforce_secrets_version_limit 2
+      the_resource.reload
+
+      expect(the_resource.as_json['secrets']).to eq([ 2, 3 ].map{|i| { "counter" => i }})
+
+      the_resource.enforce_secrets_version_limit 1
+      the_resource.reload
+
+      expect(the_resource.as_json['secrets']).to eq([ 3 ].map{|i| { "counter" => i }})
+    end
   end
 end
