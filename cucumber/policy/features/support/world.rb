@@ -38,6 +38,15 @@ class Possum::API
     { headers: headers, username: username }
   end
 
+  def rotate_api_key id = nil
+    if id
+      id = make_full_id id
+      RestClient::Resource.new($possum_url, credentials)["authn/cucumber/api_key"].put(role: id)
+    else
+      RestClient::Resource.new($possum_url, user: username, password: password)["authn/cucumber/api_key"].put
+    end
+  end
+
   def resource_show id
     id = make_full_id id
     JSON::parse(RestClient::Resource.new($possum_url, credentials)["resources/#{id_path(id)}"].get)
@@ -67,6 +76,16 @@ class Possum::API
     JSON::parse(RestClient::Resource.new($possum_url, credentials)["roles/#{id_path(id)}"].get)
   end
   
+  def secret_add id, value
+    id = make_full_id id
+    RestClient::Resource.new($possum_url, credentials)["secrets/#{id_path(id)}"].post(value: value)
+  end
+
+  def secret_fetch id
+    id = make_full_id id
+    RestClient::Resource.new($possum_url, credentials)["secrets/#{id_path(id)}"].get
+  end
+
   def public_keys id
     id = make_full_id id
     RestClient::Resource.new($possum_url)["public_keys/#{id_path(id)}"].get
@@ -88,11 +107,17 @@ module PossumWorld
   
   attr_reader :result
   
-  def invoke &block
-    @result = yield
-    @result.tap do |result|
-      puts result if @echo
+  def invoke status = :ok, &block
+    begin
+      @result = yield
+      raise "Expected invocation to be denied" unless status == :ok
+      @result.tap do |result|
+        puts result if @echo
+      end
+    rescue RestClient::Forbidden
+      raise $! unless status == :forbidden
     end
+
   end
   
   def load_policy policy
@@ -108,13 +133,21 @@ module PossumWorld
   end
   
   def possum
-    login_as_user 'admin' unless @possum
+    login_as_role 'admin', 'admin' unless @possum
     @possum
   end
 
   # For users, the password is the username
-  def login_as_user login
-    @possum = Possum::API.new login, login
+  def login_as_role login, api_key = nil
+    unless api_key
+      role = if login.index('/')
+        login.split('/').join(":")
+      else
+        [ "user", login ].join(":")
+      end
+      api_key = Possum::API.new('admin', 'admin').rotate_api_key role
+    end
+    @possum = Possum::API.new login, api_key
   end
 end
 
