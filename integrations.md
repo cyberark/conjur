@@ -1,5 +1,5 @@
 ---
-title: Integration Examples
+title: Integrations
 layout: page
 index: 30
 ---

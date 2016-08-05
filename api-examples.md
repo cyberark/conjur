@@ -1,6 +1,6 @@
 ---
 title: API Examples
 layout: page
-external_url: /yard-cucumber/api/requirements/features.html
+external_url: https://www.relishapp.com/conjur/possum-api/docs
 index: 21
 ---

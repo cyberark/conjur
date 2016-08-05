@@ -143,16 +143,3 @@ The Possum server that you are running contains some example policies. Here are 
 #### List the roles of a user
 
 #### List the roles of an app
-
-# Learn More
-
-<ul>
-  {% assign pages_list = site.pages | sort: 'index' %}
-  {% for node in pages_list %}
-      {% if node.title != null %}
-          {% if node.layout == "page" %}
-              <a class="sidebar-nav-item{% if page.url == node.url %} active{% endif %}" href="{{ site.baseurl }}{% if node.external_url != null %}{{ node.external_url }}{% else %}{{ node.url }}{% endif %}">{{ node.title }}</a>
-          {% endif %}
-      {% endif %}
-  {% endfor %}
-</ul>
