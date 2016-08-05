@@ -36,6 +36,12 @@ When(/^I( (?:can|successfully))? POST "([^"]*)"(?: with plain text body "([^"]*)
   end
 end
 
+When(/^I( (?:can|successfully))? POST "([^"]*)" with body:$/) do |can, path, body|
+  try_request can do
+    post_json path, body
+  end
+end
+
 When(/^I( (?:can|successfully))? POST "([^"]*)" with parameters:$/) do |can, path, parameters|
   params = YAML.load(parameters)
   try_request can do

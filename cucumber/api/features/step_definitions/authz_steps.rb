@@ -12,6 +12,11 @@ Given(/^I create (\d+) secret values?$/) do |n|
   end
 end
 
+Given(/^I create a binary secret value?$/) do
+  @value = Random.new.bytes(16)
+  Secret.create resource_id: @current_resource.id, value: @value
+end
+
 Given(/^I permit user "([^"]*)" to "([^"]*)" it$/) do |grantee, privilege|
   grantee = lookup_user(grantee)
   target = @current_resource

@@ -9,12 +9,11 @@ class SecretsController < RestController
   def create
     authorize :update
     
-    params.slice!(:value)
-    
-    raise ArgumentError, "'value' parameter is missing" if params.empty?
-    raise ArgumentError, "'value' may not be empty" if params[:value].empty?
+    value = request.raw_post
 
-    Secret.create resource_id: @resource.id, value: params[:value]
+    raise ArgumentError, "'value' may not be empty" if value.blank?
+
+    Secret.create resource_id: @resource.id, value: value
     @resource.enforce_secrets_version_limit
           
     head :created
@@ -37,7 +36,7 @@ class SecretsController < RestController
     mime_type = if ( a = @resource.annotations_dataset.select(:value).where(name: 'conjur/mime_type').first )
       a[:value]
     end
-    mime_type ||= 'text/plain'
+    mime_type ||= 'application/octet-stream'
 
     render text: value, content_type: mime_type
   end

@@ -20,9 +20,9 @@ class Resource < Sequel::Model
     super(options).tap do |response|
       response["id"] = response.delete("resource_id")
       response["owner"] = response.delete("owner_id")
-      response["permissions"] = self.permissions.as_json.tap{|l| l.map{|h| h.delete("resource")}}
-      response["annotations"] = self.annotations.as_json.tap{|l| l.map{|h| h.delete("resource")}}
-      response["secrets"] = self.secrets.as_json.tap{|l| l.map{|h| h.delete("resource")}}
+      response["permissions"] = permissions.as_json.map {|h| h.except 'resource'}
+      response["annotations"] = self.annotations.as_json.map {|h| h.except 'resource'}
+      response["secrets"] = self.secrets.as_json.map {|h| h.except 'resource'}
     end
   end
 
@@ -71,13 +71,20 @@ class Resource < Sequel::Model
   
   # Truncate secrets beyond the configured limit.
   def enforce_secrets_version_limit limit = secrets_version_limit
-    version_count = Sequel::Model(:resources).
-      select{ Sequel.function(:count, :resource_id) }.
-        join(:secrets, [ :resource_id ]).
-        where(resource_id: self.resource_id).
-        first[:count]
-    if version_count > limit
-      secrets[0...version_count - limit].map(&:destroy)
-    end
+    secrets = Secret.where(resource_id: resource_id)
+    secrets.where { counter <= (secrets.select{max(counter)} - limit) }.delete
+
+    # The Sequel-foo for this escapes me.
+    Sequel::Model.db[<<-SQL, resource_id, resource_id].delete
+    WITH 
+      "ordered_secrets" AS 
+        (SELECT * FROM "secrets" WHERE ("resource_id" = ?) ORDER BY "counter" DESC LIMIT 20), 
+      "delete_secrets" AS 
+        (SELECT * FROM "secrets" LEFT JOIN "ordered_secrets" USING ("resource_id", "counter") WHERE (("ordered_secrets"."resource_id" IS NULL) AND ("resource_id" = ?))) 
+    DELETE FROM "secrets"
+    USING "delete_secrets"
+    WHERE "secrets"."resource_id" = "delete_secrets"."resource_id" AND
+      "secrets"."counter" = "delete_secrets"."counter"
+    SQL
   end
 end
