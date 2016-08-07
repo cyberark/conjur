@@ -1,6 +1,0 @@
-#!/usr/bin/env ruby
-require 'pathname'
-
-Dir.chdir File.expand_path('..', File.dirname(Pathname.new(__FILE__).realpath))
-
-load './bin/possum-cli.rb'
