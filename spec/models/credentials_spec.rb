@@ -56,9 +56,9 @@ describe Credentials, :type => :model do
       end
       it 'disallows passwords with newlines' do
         credentials.password = "foo\nbar"
-        credentials.save.should be_falsey
-        credentials.errors.keys.should include(:password)
-        credentials.errors[:password].should == [ "cannot contain a newline" ]
+        expect { credentials.save }.to raise_error(Sequel::ValidationFailed) do |e|
+          expect(e.errors.to_h).to eq({ password: [ "cannot contain a newline" ]})
+        end
       end
     end
   end

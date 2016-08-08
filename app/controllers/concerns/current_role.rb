@@ -19,7 +19,17 @@ module CurrentRole
   
   def current_role 
     @current_role ||= if (role_name = params[:acting_as])
-      Role[Role.make_full_id(role_name, account)] or raise Forbidden
+      role_id = Role.make_full_id(role_name, account)
+      Role[role_id].tap do |role|
+        unless role
+          logger.info "Role '#{role_id}' not found"
+          raise ApplicationController::Forbidden
+        end
+        unless current_user.all_roles([ role_id ]).any?
+          logger.info "Authenticated user '#{current_user.role_id}' does not have role '#{role_id}'"
+          raise ApplicationController::Forbidden
+        end
+      end
     else
       current_user
     end
@@ -28,7 +38,7 @@ module CurrentRole
   def current_role?(*a)
     begin
       current_role(*a)
-    rescue Forbidden => e
+    rescue ApplicationController::Forbidden => e
       nil
     end
   end
@@ -36,6 +46,6 @@ module CurrentRole
   private
   
   def find_current_user
-    Role[token_user.roleid] or raise Forbidden
+    Role[token_user.roleid] or raise ApplicationController::Forbidden
   end
 end

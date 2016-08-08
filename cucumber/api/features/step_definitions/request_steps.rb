@@ -36,6 +36,19 @@ When(/^I( (?:can|successfully))? POST "([^"]*)"(?: with plain text body "([^"]*)
   end
 end
 
+When(/^I( (?:can|successfully))? POST "([^"]*)" with body:$/) do |can, path, body|
+  try_request can do
+    post_json path, body
+  end
+end
+
+When(/^I( (?:can|successfully))? POST "([^"]*)" with parameters:$/) do |can, path, parameters|
+  params = YAML.load(parameters)
+  try_request can do
+    post_json path, params
+  end
+end
+
 Then(/^the result is an API key$/) do
   expect(@result).to be
   expect(@result.length).to be > 40
@@ -63,6 +76,10 @@ end
 
 Then(/^it's not found$/) do
   expect(@status).to eq(404)
+end
+
+Then(/^it's unprocessable$/) do
+  expect(@status).to eq(422)
 end
 
 Then(/^the result is true$/) do

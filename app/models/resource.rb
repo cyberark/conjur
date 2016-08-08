@@ -3,7 +3,7 @@ class Resource < Sequel::Model
   
   one_to_many :permissions, reciprocal: :resource
   one_to_many :annotations, reciprocal: :resource
-  one_to_many :secrets,     reciprocal: :resource
+  one_to_many :secrets,     reciprocal: :resource, order: :counter
   many_to_one :owner, class: :Role
   
   alias id resource_id
@@ -18,13 +18,11 @@ class Resource < Sequel::Model
   
   def as_json options = {}
     super(options).tap do |response|
-      # In case
-      response.delete("secrets")
-      
       response["id"] = response.delete("resource_id")
       response["owner"] = response.delete("owner_id")
-      response["permissions"] = self.permissions.as_json
-      response["annotations"] = self.annotations.as_json
+      response["permissions"] = permissions.as_json.map {|h| h.except 'resource'}
+      response["annotations"] = self.annotations.as_json.map {|h| h.except 'resource'}
+      response["secrets"] = self.secrets.as_json.map {|h| h.except 'resource'}
     end
   end
 
@@ -41,7 +39,7 @@ class Resource < Sequel::Model
     def search kind: nil, owner: nil, offset: nil, limit: nil
       scope = self
       # Filter by kind
-      scope = scope.where("(?)[2] = ?", ::Sequel.function(:regexp_split_to_array, :resource_id, ':'), kind) if kind
+      scope = scope.where("kind(resource_id) = ?", kind) if kind
       
       # Filter by owner
       if owner
@@ -69,5 +67,21 @@ class Resource < Sequel::Model
     options[:role] = role
     options[:grantor] ||= owner
     add_permission options
+  end
+  
+  # Truncate secrets beyond the configured limit.
+  def enforce_secrets_version_limit limit = secrets_version_limit
+    # The Sequel-foo for this escapes me.
+    Sequel::Model.db[<<-SQL, resource_id, limit, resource_id].delete
+    WITH 
+      "ordered_secrets" AS 
+        (SELECT * FROM "secrets" WHERE ("resource_id" = ?) ORDER BY "counter" DESC LIMIT ?), 
+      "delete_secrets" AS 
+        (SELECT * FROM "secrets" LEFT JOIN "ordered_secrets" USING ("resource_id", "counter") WHERE (("ordered_secrets"."resource_id" IS NULL) AND ("resource_id" = ?))) 
+    DELETE FROM "secrets"
+    USING "delete_secrets"
+    WHERE "secrets"."resource_id" = "delete_secrets"."resource_id" AND
+      "secrets"."counter" = "delete_secrets"."counter"
+    SQL
   end
 end

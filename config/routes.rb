@@ -37,9 +37,9 @@ Rails.application.routes.draw do
     
     get "/resources/:account" => "resources#index"
   
-    get "/secrets/:account/:kind/*identifier" => 'secrets#value'
+    get "/secrets/:account/:kind/*identifier" => 'secrets#show'
 
-    post "/secrets/:account/:kind/*identifier" => 'secrets#add_value'
+    post "/secrets/:account/:kind/*identifier" => 'secrets#create'
 
     get "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
   end

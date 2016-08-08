@@ -1,4 +1,6 @@
 class ResourcesController < RestController
+  include FindResource
+  
   before_filter :find_resource, only: [ :show, :permitted_roles, :check_permission ]
 
   # ResourceItem = Struct.new(:id, :owner_id, :permissions, :annotations)
@@ -30,7 +32,6 @@ class ResourcesController < RestController
     render json: Role.that_can(privilege, @resource).map {|r| r.id}
   end
 
-    
   # Implements the use case "check MY permission on some resource", where "me" is defined as the +current_role+.
   def check_permission
     privilege = params[:privilege]
@@ -40,16 +41,5 @@ class ResourcesController < RestController
     else
       head :not_found
     end
-  end
-  
-  protected
-  
-  def resource_id
-    [ params[:account], params[:kind], params[:identifier] ].compact.join(":")
-  end
-
-  def find_resource
-    @resource = Resource[resource_id]
-    raise IndexError unless @resource
   end
 end

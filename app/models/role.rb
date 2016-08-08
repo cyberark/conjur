@@ -90,7 +90,7 @@ class Role < Sequel::Model
   end
   
   def allowed_to? privilege, resource
-    Role.from(Sequel.function(:is_role_allowed_to, id, privilege, resource.id)).first[:is_role_allowed_to]
+    Role.from(Sequel.function(:is_role_allowed_to, id, privilege.to_s, resource.id)).first[:is_role_allowed_to]
   end
   
   def all_roles filter = nil

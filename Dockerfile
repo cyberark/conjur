@@ -35,4 +35,6 @@ ENV PORT 80
 
 EXPOSE 80
 
+ENV RAILS_ENV production
+
 ENTRYPOINT [ "possum" ]

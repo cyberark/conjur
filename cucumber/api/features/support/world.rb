@@ -168,7 +168,8 @@ module PossumWorld
   end
   
   def denormalize! path
-    return if path.nil?
+    return unless path
+    return if path.is_a?(Hash)
     patterns = {
       "account" => account,
       "user_namespace" => user_namespace,

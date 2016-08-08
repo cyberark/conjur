@@ -21,15 +21,24 @@ class PossumClient
   
   require 'possum'
   
-  attr_reader :username, :password
+  attr_reader :username, :api_key
   
-  def initialize username, password
+  def initialize username, api_key
     @username = username
-    @password = password
+    @api_key = api_key
     @client = new_client
-    @client.login $possum_account, username, password
+    @client.login $possum_account, username, api_key
   end
   
+  def rotate_api_key id = nil
+    if id
+      id = make_full_id id
+      @client.put("authn/cucumber/api_key?role=#{id}")
+    else
+      @client.put("authn/cucumber/api_key")
+    end
+  end
+
   def resource_show id
     id = make_full_id id
     @client.get "resources/#{id_path(id)}"
@@ -58,11 +67,21 @@ class PossumClient
     @client.get "roles/#{id_path(id)}"
   end
   
+  def secret_add id, value
+    id = make_full_id id
+    @client.post "secrets/#{id_path(id)}", value
+  end
+
+  def secret_fetch id
+    id = make_full_id id
+    @client.get "secrets/#{id_path(id)}"
+  end
+
   def public_keys id
     # This one uses raw RestClient::Resource because it doesn't require authentication
     require 'rest-client'
     id = make_full_id id
-    RestClient::Resource.new($possum_url)["public_keys/#{id_path(id)}"].get
+    new_client.get "public_keys/#{id_path(id)}"
   end
   
   protected
@@ -81,11 +100,18 @@ module PossumWorld
   
   attr_reader :result
   
-  def invoke &block
-    @result = yield
-    @result.tap do |result|
-      puts result if @echo
+  def invoke status = :ok, &block
+    begin
+      @result = yield
+      raise "Expected invocation to be denied" unless status == :ok
+      @result.tap do |result|
+        puts result if @echo
+      end
+    rescue Possum::UnexpectedResponseError => e
+      status = status.to_i if status.is_a?(String)
+      raise e unless status == e.response.status
     end
+
   end
   
   def load_policy policy
@@ -101,13 +127,24 @@ module PossumWorld
   end
   
   def possum
-    login_as_user 'admin' unless @possum
+    login_as_role 'admin', admin_api_key unless @possum
     @possum
   end
 
-  # For users, the password is the username
-  def login_as_user login
-    @possum = PossumClient.new login, login
+  def admin_api_key
+    @admin_api_key ||= Possum::Client.new(url: $possum_url).login $possum_account, 'admin', 'admin'
+  end
+
+  def login_as_role login, api_key = nil
+    unless api_key
+      role = if login.index('/')
+        login.split('/').join(":")
+      else
+        [ "user", login ].join(":")
+      end
+      api_key = PossumClient.new('admin', 'admin').rotate_api_key role
+    end
+    @possum = PossumClient.new login, api_key
   end
 end
 

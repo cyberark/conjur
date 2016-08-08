@@ -55,12 +55,28 @@ module Conjur
 
             resourceid = [ self.account, "public_key", "#{self.role_kind}/#{self.id}/#{key_name}" ].join(":")
             (::Resource[resourceid] || ::Resource.create(resource_id: resourceid, owner: (::Role[owner.roleid] or raise IndexError, owner.roleid))).tap do |resource|
-              unless resource.secrets.first && resource.secrets.first.value == public_key
+              unless resource.secrets.last && resource.secrets.last.value == public_key
                 ::Secret.create resource: resource, value: public_key
               end
             end
           end
         end
+      end
+      
+      class Variable
+        include CreateResource
+        
+        def create!
+          self.annotations ||= {}
+          self.annotations["conjur/kind"] ||= self.kind if self.kind
+          self.annotations["conjur/mime_type"] ||= self.mime_type if self.mime_type
+          
+          super
+        end
+      end
+      
+      class Webservice
+        include CreateResource
       end
       
       class Grant

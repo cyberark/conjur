@@ -111,7 +111,12 @@ describe CredentialsController, :type => :controller do
         context "and invalid password" do
           let(:new_password) { "the\npassword" }
           let(:errors) {
-            { password: ["cannot contain a newline"] }
+            {
+              code: "validation_failed",
+              message: "password cannot contain a newline",
+              innererror: {
+                password: ["cannot contain a newline"] }
+              }
           }
           it "reports the error" do
             post :update_password, account: account

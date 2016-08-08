@@ -39,9 +39,8 @@ class CredentialsController < ApplicationController
     end
     
     @role.credentials.password = password
-    save_credentials do
-      head 204
-    end
+    @role.credentials.save
+    head 204
   end
   
   # Rotate a user API key.
@@ -49,9 +48,8 @@ class CredentialsController < ApplicationController
   # The new API key is in the request body.
   def rotate_api_key
     @role.credentials.rotate_api_key
-    save_credentials do
-      render text: @role.credentials.api_key
-    end
+    @role.credentials.save
+    render text: @role.credentials.api_key
   end
   
   def login
@@ -59,14 +57,6 @@ class CredentialsController < ApplicationController
   end
   
   protected
-  
-  def save_credentials
-    if @role.credentials.save
-      yield
-    else
-      render json: @role.credentials.errors, status: :unprocessable_entity
-    end
-  end
   
   def authenticate_client
     authentication.authenticated_role = Role[token_user.roleid] if token_user?
