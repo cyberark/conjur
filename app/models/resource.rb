@@ -72,10 +72,10 @@ class Resource < Sequel::Model
   # Truncate secrets beyond the configured limit.
   def enforce_secrets_version_limit limit = secrets_version_limit
     # The Sequel-foo for this escapes me.
-    Sequel::Model.db[<<-SQL, resource_id, resource_id].delete
+    Sequel::Model.db[<<-SQL, resource_id, limit, resource_id].delete
     WITH 
       "ordered_secrets" AS 
-        (SELECT * FROM "secrets" WHERE ("resource_id" = ?) ORDER BY "counter" DESC LIMIT 20), 
+        (SELECT * FROM "secrets" WHERE ("resource_id" = ?) ORDER BY "counter" DESC LIMIT ?), 
       "delete_secrets" AS 
         (SELECT * FROM "secrets" LEFT JOIN "ordered_secrets" USING ("resource_id", "counter") WHERE (("ordered_secrets"."resource_id" IS NULL) AND ("resource_id" = ?))) 
     DELETE FROM "secrets"

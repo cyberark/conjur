@@ -16,40 +16,32 @@ module FullId
   end
 end
 
-class Possum::API
+class PossumClient
   include FullId
   
-  require 'cgi'
-  require 'json'
-  require 'rest-client'
-  require 'base64'
+  require 'possum'
   
-  attr_reader :username, :password
+  attr_reader :username, :api_key
   
-  def initialize username, password
+  def initialize username, api_key
     @username = username
-    @password = password
+    @api_key = api_key
+    @client = new_client
+    @client.login $possum_account, username, api_key
   end
   
-  def credentials
-    headers = {}.tap do |h|
-      h[:authorization] = "Token token=\"#{Base64.strict_encode64 token.to_json}\""
-    end
-    { headers: headers, username: username }
-  end
-
   def rotate_api_key id = nil
     if id
       id = make_full_id id
-      RestClient::Resource.new($possum_url, credentials)["authn/cucumber/api_key"].put(role: id)
+      @client.put("authn/cucumber/api_key?role=#{id}")
     else
-      RestClient::Resource.new($possum_url, user: username, password: password)["authn/cucumber/api_key"].put
+      @client.put("authn/cucumber/api_key")
     end
   end
 
   def resource_show id
     id = make_full_id id
-    JSON::parse(RestClient::Resource.new($possum_url, credentials)["resources/#{id_path(id)}"].get)
+    @client.get "resources/#{id_path(id)}"
   end
 
   def resource_list options = {}
@@ -57,48 +49,49 @@ class Possum::API
       memo.push "#{CGI.escape entry[0].to_s}=#{CGI.escape entry[1].to_s}"
       memo
     end
-    
-    JSON::parse(RestClient::Resource.new($possum_url, credentials)["resources/#{$possum_account}?#{params.join('&')}"].get)
+    @client.get "resources/#{$possum_account}?#{params.join('&')}"
   end
   
   def resource_check id, privilege
     id = make_full_id id
-    JSON::parse(RestClient::Resource.new($possum_url, credentials)["resources/#{id_path(id)}?check&privilege=#{privilege}"].get)
+    @client.get "resources/#{id_path(id)}?check&privilege=#{privilege}"
   end
 
   def resource_permitted_roles id, privilege
     id = make_full_id id
-    JSON::parse(RestClient::Resource.new($possum_url, credentials)["resources/#{id_path(id)}?permitted_roles&privilege=#{privilege}"].get)
+    @client.get "resources/#{id_path(id)}?permitted_roles&privilege=#{privilege}"
   end
 
   def role_show id
     id = make_full_id id
-    JSON::parse(RestClient::Resource.new($possum_url, credentials)["roles/#{id_path(id)}"].get)
+    @client.get "roles/#{id_path(id)}"
   end
   
   def secret_add id, value
     id = make_full_id id
-    RestClient::Resource.new($possum_url, credentials)["secrets/#{id_path(id)}"].post(value: value)
+    @client.post "secrets/#{id_path(id)}", value
   end
 
   def secret_fetch id
     id = make_full_id id
-    RestClient::Resource.new($possum_url, credentials)["secrets/#{id_path(id)}"].get
+    @client.get "secrets/#{id_path(id)}"
   end
 
   def public_keys id
+    # This one uses raw RestClient::Resource because it doesn't require authentication
+    require 'rest-client'
     id = make_full_id id
-    RestClient::Resource.new($possum_url)["public_keys/#{id_path(id)}"].get
+    new_client.get "public_keys/#{id_path(id)}"
   end
   
   protected
+
+  def new_client
+    Possum::Client.new url: $possum_url
+  end
   
   def id_path id
     id.gsub(':', '/')
-  end
-  
-  def token
-    JSON::parse(RestClient::Resource.new($possum_url)["authn/cucumber/#{CGI.escape username}/authenticate"].post password, content_type: 'text/plain')
   end
 end
 
@@ -114,8 +107,9 @@ module PossumWorld
       @result.tap do |result|
         puts result if @echo
       end
-    rescue RestClient::Forbidden
-      raise $! unless status == :forbidden
+    rescue Possum::UnexpectedResponseError => e
+      status = status.to_i if status.is_a?(String)
+      raise e unless status == e.response.status
     end
 
   end
@@ -133,11 +127,14 @@ module PossumWorld
   end
   
   def possum
-    login_as_role 'admin', 'admin' unless @possum
+    login_as_role 'admin', admin_api_key unless @possum
     @possum
   end
 
-  # For users, the password is the username
+  def admin_api_key
+    @admin_api_key ||= Possum::Client.new(url: $possum_url).login $possum_account, 'admin', 'admin'
+  end
+
   def login_as_role login, api_key = nil
     unless api_key
       role = if login.index('/')
@@ -145,9 +142,9 @@ module PossumWorld
       else
         [ "user", login ].join(":")
       end
-      api_key = Possum::API.new('admin', 'admin').rotate_api_key role
+      api_key = PossumClient.new('admin', 'admin').rotate_api_key role
     end
-    @possum = Possum::API.new login, api_key
+    @possum = PossumClient.new login, api_key
   end
 end
 

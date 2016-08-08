@@ -55,7 +55,7 @@ module Conjur
 
             resourceid = [ self.account, "public_key", "#{self.role_kind}/#{self.id}/#{key_name}" ].join(":")
             (::Resource[resourceid] || ::Resource.create(resource_id: resourceid, owner: (::Role[owner.roleid] or raise IndexError, owner.roleid))).tap do |resource|
-              unless resource.secrets.first && resource.secrets.first.value == public_key
+              unless resource.secrets.last && resource.secrets.last.value == public_key
                 ::Secret.create resource: resource, value: public_key
               end
             end
