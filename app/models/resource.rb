@@ -71,9 +71,6 @@ class Resource < Sequel::Model
   
   # Truncate secrets beyond the configured limit.
   def enforce_secrets_version_limit limit = secrets_version_limit
-    secrets = Secret.where(resource_id: resource_id)
-    secrets.where { counter <= (secrets.select{max(counter)} - limit) }.delete
-
     # The Sequel-foo for this escapes me.
     Sequel::Model.db[<<-SQL, resource_id, resource_id].delete
     WITH 
