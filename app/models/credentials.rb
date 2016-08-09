@@ -29,11 +29,18 @@ class Credentials < Sequel::Model
     @plain_password = pwd
     self.encrypted_hash = pwd && BCrypt::Password.create(pwd, cost: BCRYPT_COST)
   end
-  
+
   def authenticate pwd
+    valid_api_key?(pwd) || valid_password?(pwd)
+  end
+
+  def valid_password? pwd
+    password_ok?(pwd)
+  end
+
+  def valid_api_key? key
     return false if expired?
-    
-    pwd && (pwd == api_key) || password_ok?(pwd)
+    key && (key == api_key) 
   end
   
   def validate
@@ -58,7 +65,7 @@ class Credentials < Sequel::Model
   def expired?
     return false unless self.expiration
     
-    self.expiration <= self.class['select transaction_timestamp()'].first.values.first
+    self.expiration <= Time.now
   end
   
   def password_ok? pwd

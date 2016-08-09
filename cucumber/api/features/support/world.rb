@@ -85,7 +85,7 @@ module PossumWorld
     
     roleid = "cucumber:user:#{user_login(login)}"
     Role.create(role_id: roleid).tap do |user|
-      user.grant_to admin_user, admin_option: true
+      user.grant_to admin_user, grantor: admin_user, admin_option: true
       Credentials.new(role: user).save(raise_on_save_failure: true)
       Resource.create(resource_id: roleid, owner: admin_user)
       users[login] = user
@@ -99,8 +99,8 @@ module PossumWorld
   def current_user?
     !!@current_user
   end
-  
-  def current_user_password
+
+  def current_user_api_key
     @current_user.api_key
   end
   
@@ -147,20 +147,7 @@ module PossumWorld
     return "" if text.nil?
     text.gsub("#{namespace}/", "").gsub("@#{user_namespace}", "")
   end  
-  
-  protected
-  
-  def rest_resource options
-    args = [ Conjur.configuration.appliance_url ]
-    args << current_user_credentials if current_user?
-    RestClient::Resource.new(*args).tap do |request|
-      if options[:user] && options[:password]
-        request.options[:user] = denormalize(options[:user])
-        request.options[:password] = denormalize(options[:password])
-      end
-    end
-  end
-  
+    
   def denormalize str
     str.dup.tap do |str|
       denormalize! str
@@ -175,19 +162,32 @@ module PossumWorld
       "user_namespace" => user_namespace,
       "namespace" => namespace
     }
-    patterns["password"] = current_user_password if current_user?
+    patterns["api_key"] = current_user_api_key if current_user?
     if @current_resource
       patterns["resource_id"] = @current_resource.identifier
       patterns["resource_kind"] = @current_resource.kind
     end
     users.each do |k,v|
-      patterns["#{k}_password"] = v.credentials.api_key
+      patterns["#{k}_api_key"] = v.credentials.api_key
     end
     patterns.each do |k,v|
       path.gsub! ":#{k}", v
       path.gsub! "@#{k}@", v
       path.gsub! CGI.escape(":#{k}"), CGI.escape(v)
       path.gsub! CGI.escape("@#{k}@"), CGI.escape(v)
+    end
+  end
+  
+  protected
+  
+  def rest_resource options
+    args = [ Conjur.configuration.appliance_url ]
+    args << current_user_credentials if current_user?
+    RestClient::Resource.new(*args).tap do |request|
+      if options[:user] && options[:password]
+        request.options[:user] = denormalize(options[:user])
+        request.options[:password] = denormalize(options[:password])
+      end
     end
   end
 end

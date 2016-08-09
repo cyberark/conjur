@@ -19,7 +19,8 @@ shared_context "authenticate Token" do
 end
 
 shared_context "create user" do
-  let(:the_user) { 
+  # 'let!' always runs before the example; 'let' is lazily evaluated.
+  let!(:the_user) { 
     Role.create(role_id: "rspec:user:#{login}").tap do |role|
       options = { role: role }
       options[:password] = password if defined?(password) && password
@@ -28,7 +29,4 @@ shared_context "create user" do
     end
   }
   let(:api_key) { the_user.credentials.api_key }
-  before {
-    the_user
-  }
 end

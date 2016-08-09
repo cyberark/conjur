@@ -22,6 +22,10 @@ end
 Given(/^I login as "([^"]*)"$/) do |login|
   @current_user = lookup_user(login)
 end
+
+Given(/^I log out$/) do
+  @current_user=  nil
+end
   
 When(/^I have a password$/) do
   @current_user.password = "password"

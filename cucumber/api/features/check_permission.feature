@@ -1,7 +1,7 @@
 Feature: Validating specific privileges
 
   Background:
-    Given a resource
+    Given I create a new resource
     And a new user "bob"
     And I permit user "bob" to "fry" it
 

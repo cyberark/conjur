@@ -3,10 +3,10 @@ require 'spec_helper'
 describe Secret, :type => :model do
   include_context "create user"
   
-  let(:login) { "u-#{SecureRandom.uuid}" }
+  let(:login) { "u-#{random_hex}" }
     
   describe "#counter" do
-    let(:resource) { Resource.create(resource_id: "rspec:test-resource:#{SecureRandom.uuid}", owner: the_user) }
+    let(:resource) { Resource.create(resource_id: "rspec:test-resource:#{random_hex}", owner: the_user) }
     it "auto-increments" do
       secret_0 = Secret.create resource: resource, value: "value-0"
       secret_0.reload
@@ -27,7 +27,7 @@ describe Secret, :type => :model do
   end
     
   describe "#latest_public_keys" do
-    let(:login) { SecureRandom.uuid }
+    let(:login) { random_hex }
     let(:resource) { Resource.create(resource_id: "rspec:public_key:user/#{login}/my-key", owner: the_user) }
     
     it "finds only the latest public key of a user" do

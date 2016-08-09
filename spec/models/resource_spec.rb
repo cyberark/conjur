@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Resource, :type => :model do
   include_context "create user"
   
-  let(:login) { "u-#{SecureRandom.uuid}" }
+  let(:login) { "u-#{random_hex}" }
   let(:the_resource) { Resource.create(resource_id: the_user.role_id, owner: the_user) }
 
   shared_examples_for "provides expected JSON" do

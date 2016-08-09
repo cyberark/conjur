@@ -31,7 +31,7 @@ Feature: Secrets can be managed through policies.
       id: db-password
       owner: !group secrets-managers
     """
-    And I login as user "alice"
+    And I log in as user "alice"
     Then there is a variable resource "db-password"
     And I can add a secret to variable resource "db-password"
     And I can fetch a secret from variable resource "db-password"
@@ -75,10 +75,10 @@ Feature: Secrets can be managed through policies.
       privileges: [ read, update ]
       role: !group secrets-updaters
     """
-    And I login as user "alice"
+    And I log in as user "alice"
     Then I can not add a secret to variable resource "db-password"
     And I can fetch a secret from variable resource "db-password"
-    And I login as user "bob"
+    And I log in as user "bob"
     And I can add a secret to variable resource "db-password"
     And I can not fetch a secret from variable resource "db-password"
 
@@ -127,10 +127,10 @@ Feature: Secrets can be managed through policies.
       role: !group myapp/secrets-managers
       member: !user alice
     """
-    And I login as user "alice"
+    And I log in as user "alice"
     Then I can add a secret to variable resource "myapp/db-password"
     And I can fetch a secret from variable resource "myapp/db-password"
-    And I login as host "myapp-01"
+    And I log in as host "myapp-01"
     And I can not add a secret to variable resource "myapp/db-password"
     And I can fetch a secret from variable resource "myapp/db-password"
 

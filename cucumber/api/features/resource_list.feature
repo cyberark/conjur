@@ -2,7 +2,7 @@
 Feature: Listing resources
 
   Background:
-    Given a resource
+    Given I create a new resource
 
   Scenario: Resource list includes a new resource
     When I successfully GET "/resources/:account"

@@ -2,9 +2,9 @@
 Feature: Adding and fetching secrets
 
   Background:
-    Given a resource
+    Given I create a new resource
 
-  Scenario: When a resource has no secrets, fetching the secret results in a 404 error.
+  Scenario: When I create a new resource has no secrets, fetching the secret results in a 404 error.
     When I GET "/secrets/:account/:resource_kind/:resource_id"
     Then it's not found
 

@@ -3,7 +3,10 @@ class PublicKeysController < ApplicationController
     account, kind, id = [ params[:account], params[:kind], params[:identifier] ]
 
     values = Secret.latest_public_keys account, kind, id
-          
-    render text: ( values + [ ]).join("\n")
+    # For test stability.
+    values.sort! if %w(test development).member?(Rails.env)
+    result = values.map(&:strip).join("\n").strip + "\n"
+
+    render text: result, content_type: "text/plain"
   end
 end

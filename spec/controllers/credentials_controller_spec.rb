@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe CredentialsController, :type => :controller do
-  let(:login) { "u-#{SecureRandom.uuid}" }
+  let(:login) { "u-#{random_hex}" }
   let(:account) { "rspec" }
 
   context "#login" do

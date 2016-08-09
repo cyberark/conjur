@@ -12,7 +12,7 @@ Feature: Listing role members
     [
       {
         "admin_option": true,
-        "grantor": "cucumber:user:alice",
+        "grantor": "cucumber:user:admin",
         "member": "cucumber:user:admin",
         "role": "cucumber:user:alice"
       }
@@ -27,7 +27,7 @@ Feature: Listing role members
     [
       {
         "admin_option": true,
-        "grantor": "cucumber:user:alice",
+        "grantor": "cucumber:user:admin",
         "member": "cucumber:user:admin",
         "role": "cucumber:user:alice"
       },

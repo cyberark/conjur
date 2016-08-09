@@ -22,13 +22,13 @@ class Role < Sequel::Model
     end
 
     def make_full_id id, account
-      tokens = id.split(":") rescue []
+      tokens = id.split(":", 3) rescue []
       account, kind, id = if tokens.size < 2
         raise ArgumentError, "Expected at least 2 tokens in #{id}"
       elsif tokens.size == 2
         [ account ] + tokens
-      elsif tokens.size >= 3
-        [ tokens[0], tokens[1], tokens[2..-1].join(':') ]
+      else
+        [ tokens[0], tokens[1], tokens[2] ]
       end
       [ account, kind, id ].join(":")
     end
@@ -69,18 +69,14 @@ class Role < Sequel::Model
   end
   
   def login
-    account, kind, id = self.id.split(":", 3)
-    if kind == "user"
-      id
-    else
-      [ kind, id ].join('/')
-    end
+    self.class.username_from_roleid(role_id)
   end
 
   def resource
     Resource[id] or raise "Resource not found for #{id}"
   end
-  
+
+  # Role grants are performed by the policy loader, but not exposed through the API.
   def grant_to member, options = {}
     options[:admin_option] ||= false
     options[:member] = member

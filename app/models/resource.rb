@@ -62,6 +62,7 @@ class Resource < Sequel::Model
     Role[id] or raise "Role not found for #{id}"
   end
 
+  # Permission grants are performed by the policy loader, but not exposed through the API.
   def permit privilege, role, options = {}
     options[:privilege] = privilege
     options[:role] = role

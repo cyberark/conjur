@@ -1,5 +1,8 @@
-Given(/^a resource$/) do
-  @current_resource = Resource.create(resource_id: "cucumber:test-resource:#{SecureRandom.uuid}", owner: @current_user || admin_user)
+Given(/^I create a new(?: "([^"]*)")? resource(?: called "([^"]*)")?$/) do |kind, identifier|
+  kind ||= "test-resource"
+  identifier ||= SecureRandom.uuid
+  identifier = denormalize identifier
+  @current_resource = Resource.create(resource_id: "cucumber:#{kind}:#{identifier}", owner: @current_user || admin_user)
 end
 
 Given(/^I set annotation "([^"]*)" to "([^"]*)"$/) do |name, value|
@@ -31,5 +34,5 @@ end
 Given(/^I grant user "([^"]*)" to user "([^"]*)"$/) do |grantor, grantee|
   grantor = lookup_user(grantor)
   grantee = lookup_user(grantee)
-  grantor.grant_to grantee
+  grantor.grant_to grantee, grantor: @current_user
 end

@@ -1,7 +1,7 @@
 Feature: Fetching secrets
 
   Background:
-    Given a resource
+    Given I create a new resource
     And a new user "bob"
     And I create 1 secret values
 
