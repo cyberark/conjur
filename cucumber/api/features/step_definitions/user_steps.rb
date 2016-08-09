@@ -24,7 +24,7 @@ Given(/^I login as "([^"]*)"$/) do |login|
 end
 
 Given(/^I log out$/) do
-  @current_user=  nil
+  @current_user =  nil
 end
   
 When(/^I have a password$/) do
