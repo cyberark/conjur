@@ -19,7 +19,7 @@ Feature: Fetching public keys.
     When I GET "/public_keys/:account/user/alice@:user_namespace"
     Then the text result is:
     """
-    ssh-rsa AAAAB3NzagKagJ+JTg2LzKz3WzEe49HhIqxF workstation
     ssh-rsa AAAAB3NzagKagJ+JTg2LzKz3WzEe49HhIqxF laptop
+    ssh-rsa AAAAB3NzagKagJ+JTg2LzKz3WzEe49HhIqxF workstation
     
     """
