@@ -2,7 +2,7 @@
 Feature: List a role's public keys
 
   Background:
-    Given a new user "alice"
+    Given I create a new user "alice"
     And I create a new "public_key" resource called "user/alice@:user_namespace/workstation"
     And I create a new "public_key" resource called "user/alice@:user_namespace/laptop"
 

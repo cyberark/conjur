@@ -6,7 +6,7 @@ Feature: Change the password of a role
   the credential.
 
   Background:
-    Given a new user "alice"
+    Given I create a new user "alice"
 
   Scenario: With basic authentication, users can update their own password using the current password.
 

@@ -7,8 +7,8 @@ Feature: List direct members of a role
   Unlike role memberships, role members are not expanded recursively.
 
   Background:
-    Given a new user "alice"
-    And a new user "bob"
+    Given I create a new user "alice"
+    And I create a new user "bob"
 
   Scenario: Initial roles members is just the initial role admin.
 

@@ -4,7 +4,7 @@ Feature: Exchange a role's password for its API key
   The API key is then used to authenticate and receive an auth token.
 
   Background:
-    Given a new user "alice"
+    Given I create a new user "alice"
 
   Scenario: Password can be used to obtain API key
     Given I set the password for "alice" to "my-password"

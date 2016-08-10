@@ -11,7 +11,7 @@ Feature: Obtain the recursive expansion of a role
   to the `GET /roles/:role` route.
 
   Scenario: The initial memberships of a role is just the role itself.
-    Given a new user "bob"
+    Given I create a new user "bob"
     When I successfully GET "/roles/:account/user/alice@:user_namespace?all"
     Then the JSON should be:
     """
@@ -21,7 +21,7 @@ Feature: Obtain the recursive expansion of a role
     """
 
   Scenario: A newly granted role is listed in the grantee's memberships.
-    Given a new user "bob"
+    Given I create a new user "bob"
     And I grant user "bob" to user "alice"
     When I successfully GET "/roles/:account/user/alice@:user_namespace?all"
     Then the JSON should be:
@@ -38,11 +38,11 @@ Feature: Obtain the recursive expansion of a role
     role memberships. This is useful for efficiently determining if a role
     has a specific other roles (or roles).
 
-    Given a new user "bob"
+    Given I create a new user "bob"
     And I grant user "bob" to user "alice"
-    Given a new user "charles"
+    Given I create a new user "charles"
     And I grant user "charles" to user "alice"
-    Given a new user "dave"
+    Given I create a new user "dave"
     When I successfully GET "/roles/:account/user/alice@:user_namespace" with parameters:
     """
     all: true

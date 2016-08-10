@@ -22,7 +22,7 @@ Feature: List roles which have a specific permission on a resource
     """
 
   Scenario: An additional user with the specified privilege is included in the list
-    Given a new user "bob"
+    Given I create a new user "bob"
     And I permit user "bob" to "fry" it
     When I successfully GET "/resources/:account/:resource_kind/:resource_id" with parameters:
     """
@@ -39,7 +39,7 @@ Feature: List roles which have a specific permission on a resource
     """
 
   Scenario: An additional user with an unrelated privilege is not included in the list
-    Given a new user "bob"
+    Given I create a new user "bob"
     And I permit user "bob" to "freeze" it
     When I successfully GET "/resources/:account/:resource_kind/:resource_id" with parameters:
     """
@@ -55,7 +55,7 @@ Feature: List roles which have a specific permission on a resource
     """
 
   Scenario: An additional owner role is included in the list
-    Given a new user "bob"
+    Given I create a new user "bob"
     And I grant my role to user "bob"
     When I successfully GET "/resources/:account/:resource_kind/:resource_id" with parameters:
     """

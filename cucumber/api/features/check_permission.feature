@@ -5,7 +5,7 @@ Feature: Check whether a role has a privilege on a resource
 
   Background:
     Given I create a new resource
-    And a new user "bob"
+    And I create a new user "bob"
     And I permit user "bob" to "fry" it
 
   @logged-in

@@ -7,7 +7,7 @@ Feature: Exchange a role's API key for a signed authentication token
   functions as proof of authentication.
 
   Background:
-    Given a new user "alice"
+    Given I create a new user "alice"
 
   Scenario: A role's API can be used to authenticate
     Then I can POST "/authn/:account/alice@%3Auser_namespace/authenticate" with plain text body ":alice_api_key"
@@ -21,7 +21,7 @@ Feature: Exchange a role's API key for a signed authentication token
     User logins are scoped per account. Possum cannot be tricked into authenticating a user
     with a foreign account.
 
-    Given a new user "alice" in account "second-account"
+    Given I create a new user "alice" in account "second-account"
     When I POST "/authn/second-account/alice@%3Auser_namespace/authenticate" with plain text body ":alice_api_key"
     Then it's not authenticated
 
