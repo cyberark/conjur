@@ -60,6 +60,11 @@ module PossumWorld
   def lookup_user login
     users[login] or raise "No such user '#{login}'"
   end
+
+  def foreign_admin_user account
+    role_id = "#{account}:user:admin"
+    Role[role_id] || Role.create(role_id: role_id)
+  end
   
   def admin_user
     unless @admin_user
@@ -178,6 +183,11 @@ module PossumWorld
     end
   end
   
+  def random_hex nbytes = 12
+    @random ||= Random.new
+    @random.bytes(nbytes).unpack('h*').first
+  end
+
   protected
   
   def rest_resource options

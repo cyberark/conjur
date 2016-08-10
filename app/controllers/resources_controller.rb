@@ -12,11 +12,11 @@ class ResourcesController < RestController
       options[:owner] = Role[Role.make_full_id(params[:owner], account)] || raise(IndexError)
     end
     
-    scope = Resource.search(options)
+    scope = Resource.search(params[:account], options)
     result = if ids
       scope.select(:resources.resource_id).all
     else
-      scope.select(:resources.*).eager(:annotations).eager(:permissions).all
+      scope.select(:resources.*).eager(:annotations).eager(:permissions).eager(:secrets).all
     end
   
     render json: result

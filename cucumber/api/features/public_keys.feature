@@ -6,7 +6,12 @@ Feature: Fetching public keys.
     And I create a new "public_key" resource called "user/alice@:user_namespace/workstation"
     And I create a new "public_key" resource called "user/alice@:user_namespace/laptop"
 
-  Scenario: When I create a new resource has no secrets, fetching the secret results in a 404 error.
+  Scenario: Public keys can be added and queried through the REST API.
+
+    Adding a public key for a role requires `update` privilege on the `public_key` resource.
+
+    Listing the public keys of a role doensn't require authentication.
+
     Given I POST "/secrets/:account/public_key/user/alice@:user_namespace/workstation" with body:
     """
     ssh-rsa AAAAB3NzagKagJ+JTg2LzKz3WzEe49HhIqxF workstation

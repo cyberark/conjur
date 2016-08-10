@@ -28,7 +28,7 @@ class Role < Sequel::Model
       elsif tokens.size == 2
         [ account ] + tokens
       else
-        [ tokens[0], tokens[1], tokens[2] ]
+        tokens
       end
       [ account, kind, id ].join(":")
     end

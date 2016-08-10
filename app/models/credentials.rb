@@ -35,7 +35,13 @@ class Credentials < Sequel::Model
   end
 
   def valid_password? pwd
-    password_ok?(pwd)
+    bc = BCrypt::Password.new(self.encrypted_hash) rescue nil
+    if bc && !bc.blank? && bc == pwd
+      self.update password: pwd if bc.cost != BCRYPT_COST
+      return true
+    else
+      return false
+    end
   end
 
   def valid_api_key? key
@@ -66,15 +72,5 @@ class Credentials < Sequel::Model
     return false unless self.expiration
     
     self.expiration <= Time.now
-  end
-  
-  def password_ok? pwd
-    bc = BCrypt::Password.new(self.encrypted_hash) rescue nil
-    if bc && !bc.blank? && bc == pwd
-      self.update password: pwd if bc.cost != BCRYPT_COST
-      return true
-    else
-      return false
-    end
   end
 end

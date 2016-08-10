@@ -36,9 +36,12 @@ class Resource < Sequel::Model
     # Filter out records based on:
     # @param kind [String] - chooses just resources of this kind
     # @param owner [Role] - owned by this role or one of its ancestors
-    def search kind: nil, owner: nil, offset: nil, limit: nil
+    def search account, kind: nil, owner: nil, offset: nil, limit: nil
       scope = self
-      # Filter by kind
+      # Search only the user's account.
+      # This can be removed once resource visibility rules are added.
+      scope = scope.where("account(resource_id) = ?", account)
+      # Filter by kind.
       scope = scope.where("kind(resource_id) = ?", kind) if kind
       
       # Filter by owner

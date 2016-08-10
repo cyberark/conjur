@@ -1,8 +1,15 @@
 Given(/^I create a new(?: "([^"]*)")? resource(?: called "([^"]*)")?$/) do |kind, identifier|
   kind ||= "test-resource"
-  identifier ||= SecureRandom.uuid
+  identifier ||= random_hex
   identifier = denormalize identifier
   @current_resource = Resource.create(resource_id: "cucumber:#{kind}:#{identifier}", owner: @current_user || admin_user)
+end
+
+Given(/^I create a new resource in a foreign account$/) do
+  account = random_hex
+  kind = "test-resource"
+  identifier = random_hex
+  @current_resource = Resource.create(resource_id: "#{account}:#{kind}:#{identifier}", owner: foreign_admin_user(account))
 end
 
 Given(/^I set annotation "([^"]*)" to "([^"]*)"$/) do |name, value|

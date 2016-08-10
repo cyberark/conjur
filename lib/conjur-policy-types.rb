@@ -1,9 +1,18 @@
 module Conjur
   module Policy
     module Types
+      module CreateBase
+        def owner_role
+          ::Role[owner.roleid] or raise IndexError, owner.roleid
+        end
+      end
+
       module CreateRole
+        include CreateBase
+
         def create_role!
-          ::Role.create role_id: roleid
+          role = ::Role.create role_id: roleid
+          role.grant_to owner_role, admin_option: true
         end
         
         def role
@@ -12,8 +21,10 @@ module Conjur
       end
 
       module CreateResource
+        include CreateBase
+
         def create_resource!
-          ::Resource.create(resource_id: resourceid, owner: (::Role[owner.roleid] or raise IndexError, owner.roleid)).tap do |resource|
+          ::Resource.create(resource_id: resourceid, owner: owner_role).tap do |resource|
             Hash(annotations).each do |name, value|
               resource.add_annotation name: name, value: value
             end
