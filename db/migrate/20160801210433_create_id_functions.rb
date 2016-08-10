@@ -70,7 +70,7 @@ Sequel.migration do
   end
 
   down do
-    execute "DROP FUNCTION IF EXISTS secrets_account_kind_identifier_idx"
+    execute "DROP INDEX IF EXISTS secrets_account_kind_identifier_idx"
 
     %w(roles resources).each do |t|
       execute "DROP FUNCTION IF EXISTS identifier(#{t})"
