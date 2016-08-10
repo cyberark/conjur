@@ -1,4 +1,4 @@
-Given(/^I login as ([\w_]+) "([^"]*)"$/) do |role_kind, id|
+Given(/^I log in as ([\w_]+) "([^"]*)"$/) do |role_kind, id|
   login = if role_kind == "user"
     id
   else

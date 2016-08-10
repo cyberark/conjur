@@ -6,11 +6,11 @@ When(/^I am a user named "([^"]*)"$/) do |login|
   @selected_user = @current_user = create_user(login)
 end
 
-Given(/^a new user "([^"]*)"$/) do |login|
+Given(/^I create a new user "([^"]*)"$/) do |login|
   create_user login
 end
 
-Given(/^a new user "([^"]*)" in account "([^"]*)"$/) do |login, account|
+Given(/^I create a new user "([^"]*)" in account "([^"]*)"$/) do |login, account|
   roleid = "#{account}:user:#{user_login(login)}"
   Role.create(role_id: roleid)
 end
@@ -21,6 +21,10 @@ end
 
 Given(/^I login as "([^"]*)"$/) do |login|
   @current_user = lookup_user(login)
+end
+
+Given(/^I log out$/) do
+  @current_user =  nil
 end
   
 When(/^I have a password$/) do

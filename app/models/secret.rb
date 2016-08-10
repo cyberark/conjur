@@ -11,10 +11,11 @@ class Secret < Sequel::Model
       # Select the most recent value of each secret
       Secret.with(:max_values, 
         Secret.select(:resource_id){ max(:counter).as(:counter) }.
-          natural_join(:resources).
           group_by(:resource_id).
-          where("resource_id LIKE ?", "#{account}:public_key:#{kind}/#{id}/%")).
-        natural_join(:max_values).
+          where("account(resource_id) = ?", account).
+          where("kind(resource_id) = 'public_key'").
+          where("identifier(resource_id) LIKE ?", "#{kind}/#{id}/%")).
+        join(:max_values, [ :resource_id, :counter ]).
           all.
           map(&:value)
     end

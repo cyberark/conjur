@@ -18,7 +18,7 @@ Sequel.migration do
       next_counter integer;
     BEGIN
       SELECT coalesce(max(counter), 0) + 1 INTO next_counter
-        FROM resources JOIN secrets USING ( resource_id ) 
+        FROM secrets 
         WHERE resource_id = NEW.resource_id;
 
       NEW.counter = next_counter;

@@ -1,5 +1,6 @@
 pg:
   image: postgres:9.3
+  
 possum:
   image: possum-dev
   environment:

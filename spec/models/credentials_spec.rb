@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Credentials, :type => :model do
   include_context "create user"
 
-  let(:login) { "u-#{SecureRandom.uuid}" }
+  let(:login) { "u-#{random_hex}" }
   let(:credentials) { the_user.credentials }
   
   context "a user" do
@@ -51,7 +51,8 @@ describe Credentials, :type => :model do
           credentials.password = nil
           credentials.save
           expect(credentials.authenticate password).to be_falsey
-          expect(credentials.authenticate nil).to be_falsey
+          expect(credentials.valid_password? password).to be_falsey
+          expect(credentials.valid_password? nil).to be_falsey
         end
       end
       it 'disallows passwords with newlines' do
@@ -63,34 +64,49 @@ describe Credentials, :type => :model do
     end
   end
   
-  describe "#authenticate" do
+  describe "authenticate" do
     before { credentials.save }
     context "with password" do
       let(:password) { "the-password" }
       it "returns true on good password" do
         expect(credentials.authenticate password).to be_truthy
+        expect(credentials.valid_password? password).to be_truthy
       end
     end
     
     describe "with expiration" do
-      let(:transaction_timestamp) { Time.now }
-      let(:past) { transaction_timestamp - 1.second }
-      let(:future) { transaction_timestamp + 1.second }
-      before {
-      expect(Credentials).to receive(:[]).with("select transaction_timestamp()").and_return([{transaction_timestamp: transaction_timestamp}])
-        credentials.expiration = expiration_time
-        credentials.save
-      }
-      describe "when unexpired" do
-        let(:expiration_time) { future }
-        it "will authenticate" do
-          expect(credentials.authenticate(credentials.api_key)).to be(true)
+      let(:now) { Time.now }
+      let(:past) { now - 1.second }
+      let(:future) { now + 1.second }
+      describe "with API key" do
+        before {
+          expect(Time).to receive(:now).at_least(1).and_return(now)
+          credentials.expiration = expiration_time
+          credentials.save
+        }
+        describe "when unexpired" do
+          let(:expiration_time) { future }
+          it "has a valid API key" do
+            expect(credentials.valid_api_key?(credentials.api_key)).to be(true)
+          end
+        end
+        describe "when expired" do
+          let(:expiration_time) { past }
+          it "has an invalid API key" do
+            expect(credentials.valid_api_key?(credentials.api_key)).to be(false)
+          end
         end
       end
-      describe "when expired" do
-        let(:expiration_time) { past }
-        it "won't authenticate" do
-          expect(credentials.authenticate(credentials.api_key)).to be(false)
+      context "with password" do
+        let(:password) { "the-password" }
+        describe "when expired" do
+          let(:expiration_time) { past }
+          it "has a valid password" do
+            expect(credentials.valid_password? password).to be_truthy
+          end
+          it "authenticates" do
+            expect(credentials.authenticate password).to be_truthy
+          end
         end
       end
     end

@@ -1,3 +1,3 @@
 class RestController < ApplicationController
-  include CurrentRole
+  include CurrentUser
 end

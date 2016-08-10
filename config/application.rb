@@ -34,5 +34,9 @@ module Possum
     
     config.encoding = "utf-8"
     config.active_support.escape_html_entities_in_json = true
+
+    # Whether to dump the schema after successful migrations.
+    # Defaults to false in production and test, true otherwise.
+    config.sequel.schema_dump = false
   end
 end

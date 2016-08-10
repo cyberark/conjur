@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe AuthenticateController, :type => :controller do
   let(:password) { "password" }
-  let(:login) { "u-#{SecureRandom.uuid}" }
+  let(:login) { "u-#{random_hex}" }
   let(:account) { "rspec" }
 
   describe "#authenticate" do
@@ -47,11 +47,7 @@ describe AuthenticateController, :type => :controller do
     
     context "with password" do
       before { request.env['RAW_POST_DATA'] = password }
-      it_succeeds
-
-      it "is slow", :performance do
-        expect{ invoke }.to_not handle(40).requests_per_second
-      end
+      it_fails_with 401
     end
     
     context "with api key" do

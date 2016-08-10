@@ -1,18 +1,28 @@
 @logged-in
-Feature: Listing role members
+Feature: List direct members of a role
+
+  If a role A is granted to a role B, then role A is said to have role B as a 
+  member.
+
+  Unlike role memberships, role members are not expanded recursively.
 
   Background:
-    Given a new user "alice"
-    And a new user "bob"
+    Given I create a new user "alice"
+    And I create a new user "bob"
 
   Scenario: Initial roles members is just the initial role admin.
+
+    At the time a new role ("alice") is created, the role is granted
+    with admin option to the "creating" role ("admin"). Thus the initial
+    members of role "alice" is the set containing only role "admin".  
+
     When I successfully GET "/roles/:account/user/alice@:user_namespace"
     Then the JSON at "members" should be:
     """
     [
       {
         "admin_option": true,
-        "grantor": "cucumber:user:alice",
+        "grantor": "cucumber:user:admin",
         "member": "cucumber:user:admin",
         "role": "cucumber:user:alice"
       }
@@ -20,6 +30,10 @@ Feature: Listing role members
     """
 
   Scenario: New member roles appear in the role list.
+
+    Granting a role ("alice") to a new role ("bob") results in 
+    "bob" appearing in the set of members of "alice".
+
     Given I grant user "alice" to user "bob"
     When I successfully GET "/roles/:account/user/alice@:user_namespace"
     Then the JSON at "members" should be:
@@ -27,7 +41,7 @@ Feature: Listing role members
     [
       {
         "admin_option": true,
-        "grantor": "cucumber:user:alice",
+        "grantor": "cucumber:user:admin",
         "member": "cucumber:user:admin",
         "role": "cucumber:user:alice"
       },

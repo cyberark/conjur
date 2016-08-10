@@ -1,5 +1,5 @@
 class RolesController < RestController
-  before_filter :find_role, only: [ :show, :memberships, :members, :check_permission ]
+  before_filter :find_role, only: [ :show, :memberships, :check_permission ]
 
   def show
     render json: @role.as_json.merge(members: @role.memberships)
@@ -28,7 +28,7 @@ class RolesController < RestController
   protected
 
   def role_id
-    [ params[:account], params[:kind], params[:identifier] ].compact.join(":")
+    [ params[:account], params[:kind], params[:identifier] ].join(":")
   end
   
   def find_role

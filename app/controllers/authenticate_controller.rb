@@ -3,8 +3,8 @@ class AuthenticateController < ApplicationController
   before_filter :credentials_lookup
 
   def authenticate
-    password = request.body.read
-    if @credentials.authenticate password
+    api_key = request.body.read
+    if @credentials.valid_api_key? api_key
       render json: authentication_token
     else
       head :unauthorized

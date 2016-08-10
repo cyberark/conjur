@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Role, :type => :model do
   include_context "create user"
 
-  let(:login) { "u-#{SecureRandom.uuid}" }
+  let(:login) { "u-#{random_hex}" }
 
   shared_examples_for "provides expected JSON" do
     specify {

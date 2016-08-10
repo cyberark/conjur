@@ -1,14 +1,30 @@
 @logged-in
 Feature: Adding and fetching secrets
 
-  Background:
-    Given a resource
+  Each resource in Possum has an associated list of "secrets", each of which is an arbitrary
+  piece of encrypted data. Access to secrets is govered by privileges:
 
-  Scenario: When a resource has no secrets, fetching the secret results in a 404 error.
+  - **execute** permission to fetch the value of a secret
+  - **update** permission to change the value of a secret
+
+  The list of secrets on a resource is appended when a new secret value is added. The list
+  is capped to the last 20 secret values in order to limit the size of the backend database.
+
+  Secrets are encrypted using AES-25C-GCM.
+
+  Background:
+    Given I create a new resource
+
+  Scenario: When a new resource has no secret values, fetching the secret results in a 404 error.
+
     When I GET "/secrets/:account/:resource_kind/:resource_id"
     Then it's not found
 
   Scenario: The 'conjur/mime_type' annotation is used in the value response.
+
+    If the annotation `conjur/mime_type` exists on a resource, then when a secret value is fetched
+    from the resource, that mime type is used as the `Content-Type` header in the response. 
+
     Given I set annotation "conjur/mime_type" to "application/json"
     And I successfully POST "/secrets/:account/:resource_kind/:resource_id" with body:
     """
@@ -21,11 +37,16 @@ Feature: Adding and fetching secrets
     """
 
   Scenario: Secrets can contain any binary data.
+
     Given I create a binary secret value
     When I successfully GET "/secrets/:account/:resource_kind/:resource_id"
     Then the binary result is preserved
 
   Scenario: When fetching a secret, the last secret in the secrets list is the default.
+
+    Adding a new secret appends to a list of values on the resource. When retrieving secrets,
+    the last value in the list is returned by default.
+
     Given I successfully POST "/secrets/:account/:resource_kind/:resource_id" with body:
     """
     v-1
@@ -38,6 +59,9 @@ Feature: Adding and fetching secrets
     Then the binary result is "v-2"
 
   Scenario: When fetching a secret, a specific secret index can be specified.
+
+    The `version` parameter can be used to select a specific secret value from the list.
+
     Given I successfully POST "/secrets/:account/:resource_kind/:resource_id" with body:
     """
     v-1
@@ -49,7 +73,8 @@ Feature: Adding and fetching secrets
     When I successfully GET "/secrets/:account/:resource_kind/:resource_id?version=1"
     Then the binary result is "v-1"
 
-  Scenario: When fetching a secret, a non-existant secret version is not accepted.
+  Scenario: Fetching a secret with a non-existant secret version results in a 404 error.
+
     Given I successfully POST "/secrets/:account/:resource_kind/:resource_id" with body:
     """
     v-1
@@ -58,12 +83,14 @@ Feature: Adding and fetching secrets
     Then it's not found
 
   Scenario: When creating a secret, the value parameter is required.
+
     When I POST "/secrets/:account/:resource_kind/:resource_id" with body:
     """
     """
     Then it's unprocessable
 
-  Scenario: Only the last 20 versions of a secret are stored
+  Scenario: Only the last 20 versions of a secret are stored.
+  
     Given I create 20 secret values
     And I successfully POST "/secrets/:account/:resource_kind/:resource_id" with body:
     """

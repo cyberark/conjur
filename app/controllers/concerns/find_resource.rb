@@ -4,7 +4,7 @@ module FindResource
   protected
   
   def resource_id
-    [ params[:account], params[:kind], params[:identifier] ].compact.join(":")
+    [ params[:account], params[:kind], params[:identifier] ].join(":")
   end
 
   def find_resource
