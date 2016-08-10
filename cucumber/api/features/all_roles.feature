@@ -1,5 +1,5 @@
 @logged-in
-Feature: Retrieve the recursive expansion of role grants
+Feature: Obtain the recursive expansion of a role
 
   If a role A is granted to a role B, then role B is said to "have" role A.
   These role grants are recursive; so that if role B is granted to role C, then

@@ -1,5 +1,5 @@
 @logged-in
-Feature: Listing role members
+Feature: List direct members of a role
 
   If a role A is granted to a role B, then role A is said to have role B as a 
   member.

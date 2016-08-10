@@ -3,7 +3,6 @@ class SecretsController < RestController
   include AuthorizeResource
   
   before_filter :current_user
-  before_filter :current_role
   before_filter :find_resource
     
   def create

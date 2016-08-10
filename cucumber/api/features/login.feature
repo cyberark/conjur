@@ -1,4 +1,4 @@
-Feature: Using a password to obtain the API key
+Feature: Exchange a role's password for its API key
 
   Roles which have passwords can use the `login` method to obtain their API key.
   The API key is then used to authenticate and receive an auth token.

@@ -1,4 +1,4 @@
-Feature: Authenticate and receive a signed authentication token
+Feature: Exchange a role's API key for a signed authentication token
 
   A role's API key can be used to obtain a signed authentication token.
 

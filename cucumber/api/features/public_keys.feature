@@ -1,5 +1,5 @@
 @logged-in
-Feature: Fetching public keys.
+Feature: List a role's public keys
 
   Background:
     Given a new user "alice"
@@ -10,7 +10,7 @@ Feature: Fetching public keys.
 
     Adding a public key for a role requires `update` privilege on the `public_key` resource.
 
-    Listing the public keys of a role doensn't require authentication.
+    Listing the public keys of a role doesn't require authentication.
 
     Given I POST "/secrets/:account/public_key/user/alice@:user_namespace/workstation" with body:
     """

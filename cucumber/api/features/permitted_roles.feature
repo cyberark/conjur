@@ -1,5 +1,5 @@
 @logged-in
-Feature: Listing permitted roles on resources
+Feature: List roles which have a specific permission on a resource
 
   The `permitted_roles` query parameter can be used to list all the roles which have
   a specified privilege on some resource.

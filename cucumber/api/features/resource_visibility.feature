@@ -1,5 +1,5 @@
 @logged-in
-Feature: Resource visibility rules
+Feature: Rules which govern the visibility of resources to roles.
 
   Scenario: Resources from a foreign account are not visible
     Given I create a new resource in a foreign account

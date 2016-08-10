@@ -32,11 +32,11 @@ class ResourcesController < RestController
     render json: Role.that_can(privilege, @resource).map {|r| r.id}
   end
 
-  # Implements the use case "check MY permission on some resource", where "me" is defined as the +current_role+.
+  # Implements the use case "check MY permission on some resource", where "me" is defined as the +current_user+.
   def check_permission
     privilege = params[:privilege]
     raise ArgumentError, "privilege" unless privilege
-    if current_role.allowed_to?(privilege, @resource)
+    if current_user.allowed_to?(privilege, @resource)
       head :no_content
     else
       head :not_found

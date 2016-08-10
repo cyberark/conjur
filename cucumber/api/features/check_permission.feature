@@ -1,4 +1,4 @@
-Feature: Checking whether a role has a privilege on a resource.
+Feature: Check whether a role has a privilege on a resource
 
   An RBAC transaction involves a role, a privilege, and a resource. A permission
   check determines whether a transaction is allowed or not.
