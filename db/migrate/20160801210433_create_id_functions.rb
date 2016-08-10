@@ -57,15 +57,21 @@ Sequel.migration do
         ADD CONSTRAINT has_#{func} CHECK (#{func}(#{primary_key}) IS NOT NULL)
         SQL
       end
+ 
+       execute <<-SQL
+       CREATE INDEX #{table}_account_kind_idx 
+       ON #{table}(account(#{primary_key}), kind(#{primary_key}))
+       SQL
+    end
 
     execute <<-SQL
-    CREATE INDEX #{table}_account_kind_idx 
-    ON #{table}(account(#{primary_key}), kind(#{primary_key}))
+    CREATE INDEX secrets_account_kind_identifier_idx ON secrets(account(resource_id), kind(resource_id), identifier(resource_id) text_pattern_ops);
     SQL
-    end
   end
 
   down do
+    execute "DROP FUNCTION IF EXISTS secrets_account_kind_identifier_idx"
+
     %w(roles resources).each do |t|
       execute "DROP FUNCTION IF EXISTS identifier(#{t})"
       %w(account kind).each do |f|
