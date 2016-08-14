@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+export COMPOSE_PROJECT_NAME=possumdemo
+
 docker-compose build
 
 # This is only here to speed up the UI launch time.
