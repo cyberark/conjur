@@ -80,7 +80,6 @@ class Role < Sequel::Model
   def grant_to member, options = {}
     options[:admin_option] ||= false
     options[:member] = member
-    options[:grantor] ||= self
 
     add_membership options
   end

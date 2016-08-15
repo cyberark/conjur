@@ -41,5 +41,5 @@ end
 Given(/^I grant user "([^"]*)" to user "([^"]*)"$/) do |grantor, grantee|
   grantor = lookup_user(grantor)
   grantee = lookup_user(grantee)
-  grantor.grant_to grantee, grantor: @current_user
+  grantor.grant_to grantee
 end

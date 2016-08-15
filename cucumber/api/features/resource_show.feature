@@ -28,8 +28,6 @@ Feature: Fetch resource details.
       "owner": "cucumber:user:alice",
       "permissions": [
       {
-        "grant_option": false,
-        "grantor": "cucumber:user:alice",
         "privilege": "execute",
         "role": "cucumber:user:bob"
       }

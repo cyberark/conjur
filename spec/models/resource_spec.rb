@@ -51,7 +51,7 @@ describe Resource, :type => :model do
       the_resource.permit "fry", the_user
     }
     let(:as_json) { 
-      base_hash.merge permissions: [ {"privilege"=>"fry", "grant_option"=>false, "role"=>the_user.id, "grantor"=>the_user.id} ]
+      base_hash.merge permissions: [ {"privilege"=>"fry", "role"=>the_user.id} ]
     }
     it_should_behave_like "provides expected JSON"
   end

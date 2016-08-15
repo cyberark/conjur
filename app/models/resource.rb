@@ -69,7 +69,6 @@ class Resource < Sequel::Model
   def permit privilege, role, options = {}
     options[:privilege] = privilege
     options[:role] = role
-    options[:grantor] ||= owner
     add_permission options
   end
   

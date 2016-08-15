@@ -90,7 +90,7 @@ module PossumWorld
     
     roleid = "cucumber:user:#{user_login(login)}"
     Role.create(role_id: roleid).tap do |user|
-      user.grant_to admin_user, grantor: admin_user, admin_option: true
+      user.grant_to admin_user, admin_option: true
       Credentials.new(role: user).save(raise_on_save_failure: true)
       Resource.create(resource_id: roleid, owner: admin_user)
       users[login] = user

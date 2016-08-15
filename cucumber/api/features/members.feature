@@ -22,7 +22,6 @@ Feature: List direct members of a role
     [
       {
         "admin_option": true,
-        "grantor": "cucumber:user:admin",
         "member": "cucumber:user:admin",
         "role": "cucumber:user:alice"
       }
@@ -41,13 +40,11 @@ Feature: List direct members of a role
     [
       {
         "admin_option": true,
-        "grantor": "cucumber:user:admin",
         "member": "cucumber:user:admin",
         "role": "cucumber:user:alice"
       },
       {
         "admin_option": false,
-        "grantor": "cucumber:user:alice",
         "member": "cucumber:user:bob",
         "role": "cucumber:user:alice"
       }
