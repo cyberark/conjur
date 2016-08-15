@@ -5,16 +5,16 @@ describe Secret, :type => :model do
   
   let(:login) { "u-#{random_hex}" }
     
-  describe "#counter" do
+  describe "#version" do
     let(:resource) { Resource.create(resource_id: "rspec:test-resource:#{random_hex}", owner: the_user) }
     it "auto-increments" do
       secret_0 = Secret.create resource: resource, value: "value-0"
       secret_0.reload
-      expect(secret_0.counter).to eq(1)
+      expect(secret_0.version).to eq(1)
       
       secret_1 = Secret.create resource: resource, value: "value-1"
       secret_1.reload
-      expect(secret_1.counter).to eq(2)
+      expect(secret_1.version).to eq(2)
       
       secret_0.destroy
       
@@ -22,7 +22,7 @@ describe Secret, :type => :model do
       
       secret_2 = Secret.create resource: resource, value: "value-2"
       secret_2.reload
-      expect(secret_2.counter).to eq(3)
+      expect(secret_2.version).to eq(3)
     end
   end
     

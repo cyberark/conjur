@@ -60,7 +60,7 @@ describe Resource, :type => :model do
       the_resource.add_secret value: "the-value"
     }
     let(:as_json) { 
-      base_hash.merge secrets: [ {"counter" => 1} ]
+      base_hash.merge secrets: [ {"version" => 1} ]
     }
     it_should_behave_like "provides expected JSON"
   end
@@ -70,17 +70,17 @@ describe Resource, :type => :model do
       the_resource.add_secret value: "v-1"
       the_resource.add_secret value: "v-2"
       the_resource.add_secret value: "v-3"
-      expect(the_resource.as_json['secrets']).to eq([ 1, 2, 3 ].map{|i| { "counter" => i }})
+      expect(the_resource.as_json['secrets']).to eq([ 1, 2, 3 ].map{|i| { "version" => i }})
 
       the_resource.enforce_secrets_version_limit 2
       the_resource.reload
 
-      expect(the_resource.as_json['secrets']).to eq([ 2, 3 ].map{|i| { "counter" => i }})
+      expect(the_resource.as_json['secrets']).to eq([ 2, 3 ].map{|i| { "version" => i }})
 
       the_resource.enforce_secrets_version_limit 1
       the_resource.reload
 
-      expect(the_resource.as_json['secrets']).to eq([ 3 ].map{|i| { "counter" => i }})
+      expect(the_resource.as_json['secrets']).to eq([ 3 ].map{|i| { "version" => i }})
     end
   end
 end

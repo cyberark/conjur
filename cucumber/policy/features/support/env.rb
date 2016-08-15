@@ -9,5 +9,7 @@ else
   File.expand_path('../../../../../run', __FILE__)
 end
 
+Slosilo["authn:cucumber"] ||= Slosilo::Key.new
+
 require 'simplecov'
 SimpleCov.start

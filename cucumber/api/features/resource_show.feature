@@ -36,7 +36,7 @@ Feature: Fetch resource details.
       ],
       "secrets": [
         {
-          "counter": 1
+          "version": 1
         }
       ]
     }

@@ -23,7 +23,7 @@ class SecretsController < RestController
     
     version = params[:version]
     secret = if version.is_a?(String) && version.to_i.to_s == version
-      @resource.secrets.find{|s| s.counter == version.to_i}
+      @resource.secrets.find{|s| s.version == version.to_i}
     elsif version.nil?
       @resource.secrets.last
     else

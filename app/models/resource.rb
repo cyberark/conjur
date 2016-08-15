@@ -3,7 +3,7 @@ class Resource < Sequel::Model
   
   one_to_many :permissions, reciprocal: :resource
   one_to_many :annotations, reciprocal: :resource
-  one_to_many :secrets,     reciprocal: :resource, order: :counter
+  one_to_many :secrets,     reciprocal: :resource, order: :version
   many_to_one :owner, class: :Role
   
   alias id resource_id
@@ -79,13 +79,13 @@ class Resource < Sequel::Model
     Sequel::Model.db[<<-SQL, resource_id, limit, resource_id].delete
     WITH 
       "ordered_secrets" AS 
-        (SELECT * FROM "secrets" WHERE ("resource_id" = ?) ORDER BY "counter" DESC LIMIT ?), 
+        (SELECT * FROM "secrets" WHERE ("resource_id" = ?) ORDER BY "version" DESC LIMIT ?), 
       "delete_secrets" AS 
-        (SELECT * FROM "secrets" LEFT JOIN "ordered_secrets" USING ("resource_id", "counter") WHERE (("ordered_secrets"."resource_id" IS NULL) AND ("resource_id" = ?))) 
+        (SELECT * FROM "secrets" LEFT JOIN "ordered_secrets" USING ("resource_id", "version") WHERE (("ordered_secrets"."resource_id" IS NULL) AND ("resource_id" = ?))) 
     DELETE FROM "secrets"
     USING "delete_secrets"
     WHERE "secrets"."resource_id" = "delete_secrets"."resource_id" AND
-      "secrets"."counter" = "delete_secrets"."counter"
+      "secrets"."version" = "delete_secrets"."version"
     SQL
   end
 end
