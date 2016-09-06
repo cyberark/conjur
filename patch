@@ -1,0 +1,1076 @@
+diff --git a/.gitignore b/.gitignore
+index f88eff4..98564d0 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -20,4 +20,5 @@ demo/run/finished
+ demo/run/load
+ run/finished
+ coverage
++.DS_Store
+ demo/run/*.yml
+diff --git a/Gemfile b/Gemfile
+index 6efb208..2c1f6c5 100644
+--- a/Gemfile
++++ b/Gemfile
+@@ -42,6 +42,7 @@ group :development, :test do
+   gem 'spring-commands-rspec'
+   gem 'json_spec'
+   gem 'rspec'
++  gem 'table_print'
+   gem 'rspec-rails'
+   gem 'ci_reporter_rspec'
+   gem 'parallel'
+diff --git a/Gemfile.lock b/Gemfile.lock
+index 6c2d2d7..c91c94e 100644
+--- a/Gemfile.lock
++++ b/Gemfile.lock
+@@ -245,6 +245,7 @@ GEM
+       actionpack (>= 4.0)
+       activesupport (>= 4.0)
+       sprockets (>= 3.0.0)
++    table_print (1.5.6)
+     thor (0.19.1)
+     thread_safe (0.3.5)
+     tzinfo (1.2.2)
+@@ -291,6 +292,7 @@ DEPENDENCIES
+   spring
+   spring-commands-cucumber
+   spring-commands-rspec
++  table_print
+ 
+ BUNDLED WITH
+    1.11.2
+diff --git a/app/controllers/application_controller.rb b/app/controllers/application_controller.rb
+index bf880c3..f7210c9 100644
+--- a/app/controllers/application_controller.rb
++++ b/app/controllers/application_controller.rb
+@@ -13,6 +13,17 @@ class ApplicationController < ActionController::API
+   rescue_from Sequel::ValidationFailed, with: :validation_failed
+   rescue_from ArgumentError, with: :argument_error
+ 
++  around_action :run_with_transaction
++ 
++  private
++ 
++  # Wrap the request in a transaction.
++  def run_with_transaction
++    Sequel::Model.db.transaction do
++      yield
++    end
++  end
++
+   def record_not_found  e
+     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+     head :not_found
+diff --git a/app/models/annotation.rb b/app/models/annotation.rb
+index 1b9f3b3..9182d18 100644
+--- a/app/models/annotation.rb
++++ b/app/models/annotation.rb
+@@ -10,7 +10,9 @@ class Annotation < Sequel::Model
+   def as_json options = {}
+     options[:except] ||= []
+     options[:except].push :resource_id
+-    super options
++    super(options).tap do |response|
++      write_id_to_json response, "policy"
++    end
+   end
+ 
+   def validate
+diff --git a/app/models/has_id.rb b/app/models/has_id.rb
+new file mode 100644
+index 0000000..3176572
+--- /dev/null
++++ b/app/models/has_id.rb
+@@ -0,0 +1,13 @@
++module HasId
++  def account
++    self.id.split(':')[0]
++  end
++
++  def kind
++    self.id.split(':')[1]
++  end
++
++  def identifier
++    self.id.split(':', 3)[2]
++  end
++end
+\ No newline at end of file
+diff --git a/app/models/permission.rb b/app/models/permission.rb
+index 97f13aa..9bb2277 100644
+--- a/app/models/permission.rb
++++ b/app/models/permission.rb
+@@ -6,8 +6,9 @@ class Permission < Sequel::Model
+ 
+   def as_json options = {}
+     super(options).tap do |response|
+-      response["resource"] = response.delete("resource_id")
+-      response["role"] = response.delete("role_id")
++      %w(resource role policy).each do |field|
++        write_id_to_json response, field
++      end
+     end
+   end
+ end
+diff --git a/app/models/policy_loader.rb b/app/models/policy_loader.rb
+new file mode 100644
+index 0000000..7ff7c3c
+--- /dev/null
++++ b/app/models/policy_loader.rb
+@@ -0,0 +1,205 @@
++# Loads a policy into the database.
++#
++# PolicyLoader operates on a PolicyVersion which has already been created with the policy id, 
++# policy text, the authenticated user, and the policy owner. The PolicyVersion also parses the policy
++# and checks it for syntatic errors, before PolicyLoader is invoked.
++#
++# PolicyLoader works by loading the policy into a new, temporary schema (schemas are lightweight namespaces
++# in Postgres). The this "new" policy (in the temporary schema) is diff-ed against the "old" policy (in the 
++# primary, public schema). The diff proceeds in distinct phases:
++#
++# 1) Records which exist in the "old" policy but not in the "new" policy are deleted from the "old" policy.
++# The comparison is performed by primary key, including the +policy_id+.
++#
++# 2) Records which are defined in some other policy in the public schema, are removed from the "new" policy.
++# This prevents the "new" policy from attempting to create or update records which are already owned by another policy.
++#
++# 3) Records which are identical in the "old" and "new" policy are deleted from the "new" policy, so they will not be
++# considered for further processing.
++#
++# 4) Each record in the "old" policy which exists (by primary key comparison) in the "new" policy is updated with
++# any non-primary fields which are defined in the "new" policy.
++#
++# 5) Step (3) is repeated, removing any exact duplicates between the "old" and "new" policies.
++#
++# 6) All records which remain in the "new" policy are inserted into the "old" policy.
++#
++# Finally, the temporary schema is dropped, thus cleaning up any artifacts left over from the diff process.
++#
++# All steps occur within a transaction, so that if any errors occur (e.g. a role or permission grant which references
++# a non-existant role or resource), the entire operation is rolled back.
++#
++# Note that it is also possible to skip step (1) (deletion of records from the "old" policy which are not defined in the 
++# "new"). This "safe" mode can be operationally important, because the presence of cascading foreign key constraints in the schema
++# means that many records can potentially be deleted as a consequence of deleting an important "root"-ish record. For
++# example, deleting the "admin" role will most likely cascade to delete all records in the database.
++
++class PolicyLoader
++  extend Forwardable
++
++  def_delegators :@policy_version, :resource_id, :owner
++
++  attr_reader :policy_version
++
++  TABLES = %w(roles resources role_memberships permissions annotations)
++
++  # Columns to compare across schemata to find exact duplicates.
++  TABLE_EQUIVALENCE_COLUMNS = {
++    roles: [ :role_id ],
++    resources: [ :resource_id, :owner_id ],
++    role_memberships: [ :role_id, :member_id, :admin_option ],
++    permissions: [ :resource_id, :privilege, :role_id ],
++    annotations: [ :resource_id, :name, :value ]
++  }
++
++  def initialize policy_version
++    @policy_version = policy_version
++  end
++
++  def load
++    db.transaction do
++      create_schema
++
++      load_records
++
++      delete_removed
++
++      eliminate_shadowed
++
++      eliminate_duplicates
++
++      update_changed
++
++      eliminate_duplicates
++
++      insert_new
++
++      drop_schema
++    end
++  end
++
++  protected
++
++  # Delete rows in the existing policy which do not exist in the new policy.
++  # Matching rows are selected by primary keys only, using a LEFT JOIN between the
++  # existing policy and the new policy.
++  def delete_removed
++    TABLES.each do |table|
++      columns = Array(Sequel::Model("public__#{table}".to_sym).primary_key) + [ :policy_id ]
++
++      def comparisons table, columns, existing_alias, new_alias
++        columns.map do |column|
++          "#{existing_alias}#{table}.#{column} = #{new_alias}#{table}.#{column}"
++        end.join(' AND ')
++      end
++
++      db.execute <<-DELETE
++        DELETE FROM public.#{table}
++        USING public.#{table} AS existing_#{table}
++          LEFT OUTER JOIN #{table} AS new_#{table}
++          ON #{comparisons(table, columns, 'existing_', 'new_')}
++        WHERE #{comparisons(table, columns, 'public.', 'existing_')} AND
++          new_#{table}.#{columns[0]} IS NULL
++      DELETE
++    end
++  end
++
++  # Delete rows from the new policy which are already present in another policy.
++  def eliminate_shadowed
++    TABLES.each do |table|
++      pk_columns = Array(Sequel::Model("public__#{table}".to_sym).primary_key)
++      comparisons = pk_columns.map do |column|
++        "new_#{table}.#{column} = old_#{table}.#{column}"
++      end.join(' AND ')
++      db.execute <<-DELETE
++        DELETE FROM #{table} new_#{table}
++        USING public.#{table} old_#{table}
++        WHERE #{comparisons} AND
++          ( old_#{table}.policy_id IS NULL OR old_#{table}.policy_id != new_#{table}.policy_id )
++      DELETE
++    end
++  end
++
++  # Delete rows from the new policy which are identical to existing rows.
++  def eliminate_duplicates
++    TABLE_EQUIVALENCE_COLUMNS.each do |table, columns|
++      comparisons = (columns + [ :policy_id ]).map do |column|
++        "new_#{table}.#{column} = old_#{table}.#{column}"
++      end.join(' AND ')
++      db.execute <<-DELETE
++        DELETE FROM #{table} new_#{table}
++        USING public.#{table} old_#{table}
++        WHERE #{comparisons}
++      DELETE
++    end
++  end
++
++  def update_changed
++    TABLES.each do |table|
++      pk_columns = Array(Sequel::Model("public__#{table}".to_sym).primary_key)
++      update_columns = TABLE_EQUIVALENCE_COLUMNS[table.to_sym] - pk_columns
++      next if update_columns.empty?
++
++      update_statements = update_columns.map do |c|
++        "#{c} = new_#{table}.#{c}"
++      end.join(", ")
++
++      join_columns = (pk_columns + [ :policy_id ]).map do |c|
++        "public.#{table}.#{c} = new_#{table}.#{c}"
++      end.join(" AND ")
++
++      db.execute <<-UPDATE
++        UPDATE public.#{table}
++        SET #{update_statements}
++        FROM #{table} new_#{table}
++        WHERE #{join_columns}
++      UPDATE
++    end
++  end
++
++  def insert_new
++    TABLES.each do |table|
++      columns = (TABLE_EQUIVALENCE_COLUMNS[table.to_sym] + [ :policy_id ]).join(", ")
++      db.execute "INSERT INTO public.#{table} ( #{columns} ) SELECT #{columns} FROM #{table}"
++    end
++  end
++
++  def schema_name
++    @schema_name ||= "policy_loader_#{SecureRandom.hex}"
++  end
++
++  def load_records
++    raise "Policy version must be saved before loading" unless resource_id
++
++    policy_owner = ::Role.create(role_id: owner.role_id)
++
++    policy_version.records.map(&:create!)
++
++    policy_owner.destroy
++
++    TABLES.each do |table|
++      db[table.to_sym].update(policy_id: resource_id)
++    end
++  end
++
++  def create_schema
++    db.execute "CREATE SCHEMA #{schema_name}"
++    db.execute "SET LOCAL search_path = #{schema_name}"
++    TABLES.each do |table|
++      db.execute "CREATE TABLE #{table} AS SELECT * FROM public.#{table} WHERE 0 = 1"
++    end
++
++    db.execute "ALTER TABLE resources ADD PRIMARY KEY ( resource_id )"
++    db.execute "ALTER TABLE roles ADD PRIMARY KEY ( role_id )"
++
++    db.execute "ALTER TABLE role_memberships ALTER COLUMN admin_option SET DEFAULT 'f'"
++  end
++
++  def drop_schema
++    db.execute "DROP SCHEMA #{schema_name} CASCADE"
++  end
++
++  def db
++    Sequel::Model.db
++  end
++end
+\ No newline at end of file
+diff --git a/app/models/policy_version.rb b/app/models/policy_version.rb
+new file mode 100644
+index 0000000..4c12e10
+--- /dev/null
++++ b/app/models/policy_version.rb
+@@ -0,0 +1,85 @@
++# Stores a specific policy text and metadata which has been applied to the database.
++# 
++# A PolicyVersion is constructed on an existing 'policy' resource. PolicyVersion records are automatically
++# assigned an incrementing +version+ number, just like Secrets.
++#
++# In addition to the 'policy' resource and the version, each record stores the following metadata:
++#
++# * +role+ the authenticated role who performed the policy load.
++# * +owner+ the role which is designated as the owner of the policy records.
++# * +created_at+ a timestamp.
++# * +policy_text+ the text of the policy itself.
++# * +policy_sha256+ the SHA-256 of the policy in hex digest form.
++#
++# The policy text is parsed when the PolicyVersion is validated. Parse errors are placed onto the 
++# +#errors+ field, along with any other validation errors. The parsed policy is available through the
++# +#recorsd+ field.
++class PolicyVersion < Sequel::Model(:policy_versions)
++  include HasId
++
++  many_to_one :resource
++  # The authenticated user who performs the policy load.
++  many_to_one :role
++  # The specified owner of the new records.
++  many_to_one :owner, class: :Role
++
++  attr_accessor :parse_error
++
++  alias id resource_id
++  alias current_user role
++  alias policy resource
++  alias policy= resource=
++
++  def as_json options = {}
++    super(options).tap do |response|
++      response["id"] = response.delete("resource_id")
++      %w(role owner).each do |field|
++        write_id_to_json response, field
++      end
++    end
++  end
++
++  def validate
++    super
++
++    validates_presence [ :current_user, :owner, :policy_text ]
++
++    if current_user && owner
++      errors.add(:owner, "is not allowed as the owner role") unless current_user.all_roles([ owner.role_id ]).any?
++    end
++
++    try_load_records 
++
++    if parse_error
++      errors.add(:policy_text, parse_error.to_s)
++    end
++  end
++
++  def before_save
++    require 'digest'
++    self.policy_sha256 = Digest::SHA256.hexdigest(policy_text)
++  end
++
++
++  def before_update
++    raise Sequel::ValidationFailed, "Policy version cannot be updated once created"
++  end
++
++  def records
++    try_load_records
++    raise @parse_error if @parse_error
++    @records
++  end
++
++  def try_load_records
++    return if @records || @parse_error
++    return unless policy_text && owner
++
++    begin
++      records = Conjur::Policy::YAML::Loader.load(policy_text)
++      @records = Conjur::Policy::Resolver.resolve records, account, owner.role_id
++    rescue
++      @parse_error = $!
++    end
++  end
++end
+diff --git a/app/models/resource.rb b/app/models/resource.rb
+index 5cfd213..2796f50 100644
+--- a/app/models/resource.rb
++++ b/app/models/resource.rb
+@@ -19,7 +19,9 @@ class Resource < Sequel::Model
+   def as_json options = {}
+     super(options).tap do |response|
+       response["id"] = response.delete("resource_id")
+-      response["owner"] = response.delete("owner_id")
++      %w(owner policy).each do |field|
++        write_id_to_json response, field
++      end
+       response["permissions"] = permissions.as_json.map {|h| h.except 'resource'}
+       response["annotations"] = self.annotations.as_json.map {|h| h.except 'resource'}
+       response["secrets"] = self.secrets.as_json.map {|h| h.except 'resource'}
+diff --git a/app/models/role.rb b/app/models/role.rb
+index ae9f591..438d8b2 100644
+--- a/app/models/role.rb
++++ b/app/models/role.rb
+@@ -13,6 +13,7 @@ class Role < Sequel::Model
+       
+     super(options).tap do |response|
+       response["id"] = response.delete("role_id")
++      write_id_to_json response, "policy"
+     end
+   end
+   
+diff --git a/app/models/role_membership.rb b/app/models/role_membership.rb
+index ec32446..2952381 100644
+--- a/app/models/role_membership.rb
++++ b/app/models/role_membership.rb
+@@ -6,8 +6,9 @@ class RoleMembership < Sequel::Model
+   
+   def as_json options = {}
+     super(options).tap do |response|
+-      response["role"] = response.delete("role_id")
+-      response["member"] = response.delete("member_id")
++      %w(role member policy).each do |field|
++        write_id_to_json response, field
++      end
+     end
+   end
+ end
+diff --git a/app/models/secret.rb b/app/models/secret.rb
+index 8a1aed7..4142b36 100644
+--- a/app/models/secret.rb
++++ b/app/models/secret.rb
+@@ -26,7 +26,6 @@ class Secret < Sequel::Model
+       response["resource"] = response.delete("resource_id")
+     end
+   end
+-
+   
+   def before_update
+     raise Sequel::ValidationFailed, "Secret cannot be updated once created"
+diff --git a/config/initializers/sequel.rb b/config/initializers/sequel.rb
+index 63835c9..76bf240 100644
+--- a/config/initializers/sequel.rb
++++ b/config/initializers/sequel.rb
+@@ -1,5 +1,9 @@
+ Sequel.extension :core_extensions
+ Sequel::Model.plugin :validation_helpers
+ 
+-Sequel::Model.db.sql_log_level = :debug
+-Sequel::Model.db.loggers << Rails.logger
++class Sequel::Model
++  def write_id_to_json response, field
++    value = response.delete("#{field}_id")
++    response[field] = value if value
++  end
++end
+diff --git a/config/routes.rb b/config/routes.rb
+index 928d4c0..fca1712 100644
+--- a/config/routes.rb
++++ b/config/routes.rb
+@@ -41,6 +41,10 @@ Rails.application.routes.draw do
+ 
+     post "/secrets/:account/:kind/*identifier" => 'secrets#create'
+ 
++    get  "/policies/:account/:kind/*identifier" => 'policies#show'
++
++    post "/policies/:account/:kind/*identifier" => 'policies#load'
++
+     get "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
+   end
+ end
+diff --git a/db/migrate/20160628212347_create_roles.rb b/db/migrate/20160628212347_create_roles.rb
+index 172183b..c2fe300 100644
+--- a/db/migrate/20160628212347_create_roles.rb
++++ b/db/migrate/20160628212347_create_roles.rb
+@@ -2,7 +2,7 @@ Sequel.migration do
+   change do
+     create_table :roles do
+       String :role_id, primary_key: true
+-      Timestamp :created_at, null: true, default: Sequel.function(:transaction_timestamp)
++      Timestamp :created_at, null: false, default: Sequel.function(:transaction_timestamp)
+     end
+   end
+ end
+diff --git a/db/migrate/20160628212349_create_resources.rb b/db/migrate/20160628212349_create_resources.rb
+index 53f5afb..81a85b2 100644
+--- a/db/migrate/20160628212349_create_resources.rb
++++ b/db/migrate/20160628212349_create_resources.rb
+@@ -3,7 +3,7 @@ Sequel.migration do
+     create_table :resources do
+       String :resource_id, primary_key: true
+       foreign_key :owner_id, :roles, type: String, null: false, on_delete: :cascade
+-      Timestamp :created_at, null: true, default: Sequel.function(:transaction_timestamp)
++      Timestamp :created_at, null: false, default: Sequel.function(:transaction_timestamp)
+     end
+   end
+ end
+diff --git a/db/migrate/20160815131453_create_policy_version.rb b/db/migrate/20160815131453_create_policy_version.rb
+new file mode 100644
+index 0000000..0803855
+--- /dev/null
++++ b/db/migrate/20160815131453_create_policy_version.rb
+@@ -0,0 +1,23 @@
++Sequel.migration do
++  up do
++    create_table :policy_versions do
++      foreign_key :resource_id, :resources, type: String, null: false, on_delete: :cascade
++      foreign_key :role_id, :roles, type: String, null: false, on_delete: :cascade
++      foreign_key :owner_id, :roles, type: String, null: false, on_delete: :cascade
++      Integer :version, null: false
++      Timestamp :created_at, null: false, default: Sequel.function(:transaction_timestamp)
++      String :policy_text, null: false
++      String :policy_sha256, null: false
++
++      primary_key [:resource_id, :version]
++    end
++
++    execute Functions.create_version_trigger_sql(:policy_versions)
++  end
++
++  down do
++    execute Functions.drop_version_trigger_sql(:policy_versions)
++    
++    drop_table :policy_versions
++  end
++end
+diff --git a/db/migrate/20160815131521_add_policy_column.rb b/db/migrate/20160815131521_add_policy_column.rb
+new file mode 100644
+index 0000000..8aa418a
+--- /dev/null
++++ b/db/migrate/20160815131521_add_policy_column.rb
+@@ -0,0 +1,25 @@
++Sequel.migration do
++  TABLES = %w(roles resources role_memberships permissions annotations)
++
++  up do
++    TABLES.each do |table|
++      alter_table table.to_sym do
++        add_foreign_key :policy_id, :resources, type: String, on_delete: :cascade
++      end
++
++      execute <<-SQL
++      ALTER TABLE #{table}
++      ADD CONSTRAINT verify_policy_kind CHECK (kind(policy_id) = 'policy')
++      SQL
++    end
++  end
++
++  down do
++    TABLES.each do |table|
++      execute %Q(ALTER TABLE #{table} DROP CONSTRAINT verify_policy_kind)
++      alter_table table.to_sym do
++        drop_column :policy_id
++      end
++    end
++  end
++end
+diff --git a/lib/conjur-policy-types.rb b/lib/conjur-policy-types.rb
+index f512e07..a8ccf74 100644
+--- a/lib/conjur-policy-types.rb
++++ b/lib/conjur-policy-types.rb
+@@ -26,7 +26,7 @@ module Conjur
+         def create_resource!
+           ::Resource.create(resource_id: resourceid, owner: owner_role).tap do |resource|
+             Hash(annotations).each do |name, value|
+-              resource.add_annotation name: name, value: value
++              resource.add_annotation name: name, value: value.to_s
+             end
+           end
+         end
+@@ -121,9 +121,6 @@ module Conjur
+           self.role.create!
+           self.resource.create!
+ 
+-#          self.annotations ||= {}
+-#          self.annotations["conjur/policy/global"] = "true" if self.global
+-
+           Array(body).map(&:create!)
+         end
+       end
+diff --git a/spec/models/loader_expectations/base/empty.txt b/spec/models/loader_expectations/base/empty.txt
+new file mode 100644
+index 0000000..c8657a0
+--- /dev/null
++++ b/spec/models/loader_expectations/base/empty.txt
+@@ -0,0 +1,22 @@
++roles
++ROLE_ID                 | POLICY_ID
++------------------------|----------
++rspec:user:admin        |          
++rspec:policy:the-policy |          
++
++resources
++RESOURCE_ID             | OWNER_ID                | POLICY_ID
++------------------------|-------------------------|----------
++rspec:policy:the-policy | rspec:policy:the-policy |          
++
++role_memberships
++ROLE_ID                 | MEMBER_ID        | ADMIN_OPTION | POLICY_ID
++------------------------|------------------|--------------|----------
++rspec:policy:the-policy | rspec:user:admin | true         |          
++
++permissions
++No data.
++
++annotations
++No data.
++
+diff --git a/spec/models/loader_expectations/updated/extended_1.txt b/spec/models/loader_expectations/updated/extended_1.txt
+new file mode 100644
+index 0000000..e295167
+--- /dev/null
++++ b/spec/models/loader_expectations/updated/extended_1.txt
+@@ -0,0 +1,53 @@
++roles
++ROLE_ID                        | POLICY_ID              
++-------------------------------|------------------------
++rspec:user:admin               |                        
++rspec:policy:the-policy        |                        
++rspec:group:the-policy/group-a |                        
++rspec:group:the-policy/group-c |                        
++rspec:group:the-policy/group-x |                        
++rspec:group:the-policy/group-b | rspec:policy:the-policy
++rspec:layer:the-policy/the-app | rspec:policy:the-policy
++
++resources
++RESOURCE_ID                          | OWNER_ID                | POLICY_ID              
++-------------------------------------|-------------------------|------------------------
++rspec:policy:the-policy              | rspec:policy:the-policy |                        
++rspec:group:the-policy/group-a       | rspec:policy:the-policy |                        
++rspec:group:the-policy/group-c       | rspec:policy:the-policy |                        
++rspec:group:the-policy/group-x       | rspec:policy:the-policy |                        
++rspec:variable:the-policy/the-secret | rspec:policy:the-policy |                        
++rspec:group:the-policy/group-b       | rspec:policy:the-policy | rspec:policy:the-policy
++rspec:layer:the-policy/the-app       | rspec:policy:the-policy | rspec:policy:the-policy
++
++role_memberships
++ROLE_ID                        | MEMBER_ID                      | ADMIN_OPTION | POLICY_ID              
++-------------------------------|--------------------------------|--------------|------------------------
++rspec:policy:the-policy        | rspec:user:admin               | true         |                        
++rspec:group:the-policy/group-a | rspec:policy:the-policy        | true         |                        
++rspec:group:the-policy/group-c | rspec:policy:the-policy        | true         |                        
++rspec:group:the-policy/group-x | rspec:policy:the-policy        | true         |                        
++rspec:group:the-policy/group-x | rspec:group:the-policy/group-a | false        |                        
++rspec:group:the-policy/group-c | rspec:group:the-policy/group-a | false        |                        
++rspec:group:the-policy/group-b | rspec:policy:the-policy        | true         | rspec:policy:the-policy
++rspec:layer:the-policy/the-app | rspec:policy:the-policy        | true         | rspec:policy:the-policy
++rspec:group:the-policy/group-x | rspec:group:the-policy/group-b | false        | rspec:policy:the-policy
++
++permissions
++RESOURCE_ID                          | PRIVILEGE | ROLE_ID                        | POLICY_ID              
++-------------------------------------|-----------|--------------------------------|------------------------
++rspec:variable:the-policy/the-secret | read      | rspec:group:the-policy/group-a |                        
++rspec:variable:the-policy/the-secret | execute   | rspec:group:the-policy/group-a |                        
++rspec:variable:the-policy/the-secret | read      | rspec:layer:the-policy/the-app | rspec:policy:the-policy
++rspec:variable:the-policy/the-secret | execute   | rspec:layer:the-policy/the-app | rspec:policy:the-policy
++rspec:variable:the-policy/the-secret | read      | rspec:group:the-policy/group-b | rspec:policy:the-policy
++rspec:variable:the-policy/the-secret | execute   | rspec:group:the-policy/group-b | rspec:policy:the-policy
++rspec:variable:the-policy/the-secret | update    | rspec:group:the-policy/group-b | rspec:policy:the-policy
++
++annotations
++RESOURCE_ID                          | NAME        | VALUE      | POLICY_ID              
++-------------------------------------|-------------|------------|------------------------
++rspec:variable:the-policy/the-secret | description | the-secret |                        
++rspec:variable:the-policy/the-secret | kind        | plain text |                        
++rspec:variable:the-policy/the-secret | length      | 20         | rspec:policy:the-policy
++
+diff --git a/spec/models/loader_expectations/updated/extended_2.txt b/spec/models/loader_expectations/updated/extended_2.txt
+new file mode 100644
+index 0000000..47a0369
+--- /dev/null
++++ b/spec/models/loader_expectations/updated/extended_2.txt
+@@ -0,0 +1,47 @@
++roles
++ROLE_ID                        | POLICY_ID              
++-------------------------------|------------------------
++rspec:user:admin               |                        
++rspec:policy:the-policy        |                        
++rspec:group:the-policy/group-a | rspec:policy:the-policy
++rspec:group:the-policy/group-x | rspec:policy:the-policy
++rspec:group:the-policy/group-b | rspec:policy:the-policy
++rspec:layer:the-policy/the-app | rspec:policy:the-policy
++
++resources
++RESOURCE_ID                          | OWNER_ID                | POLICY_ID              
++-------------------------------------|-------------------------|------------------------
++rspec:policy:the-policy              | rspec:policy:the-policy |                        
++rspec:group:the-policy/group-a       | rspec:policy:the-policy | rspec:policy:the-policy
++rspec:group:the-policy/group-x       | rspec:policy:the-policy | rspec:policy:the-policy
++rspec:variable:the-policy/the-secret | rspec:policy:the-policy | rspec:policy:the-policy
++rspec:group:the-policy/group-b       | rspec:policy:the-policy | rspec:policy:the-policy
++rspec:layer:the-policy/the-app       | rspec:policy:the-policy | rspec:policy:the-policy
++
++role_memberships
++ROLE_ID                        | MEMBER_ID                      | ADMIN_OPTION | POLICY_ID              
++-------------------------------|--------------------------------|--------------|------------------------
++rspec:policy:the-policy        | rspec:user:admin               | true         |                        
++rspec:group:the-policy/group-a | rspec:policy:the-policy        | true         | rspec:policy:the-policy
++rspec:group:the-policy/group-x | rspec:policy:the-policy        | true         | rspec:policy:the-policy
++rspec:group:the-policy/group-x | rspec:group:the-policy/group-a | true         | rspec:policy:the-policy
++rspec:group:the-policy/group-b | rspec:policy:the-policy        | true         | rspec:policy:the-policy
++rspec:layer:the-policy/the-app | rspec:policy:the-policy        | true         | rspec:policy:the-policy
++rspec:group:the-policy/group-x | rspec:group:the-policy/group-b | false        | rspec:policy:the-policy
++
++permissions
++RESOURCE_ID                          | PRIVILEGE | ROLE_ID                        | POLICY_ID              
++-------------------------------------|-----------|--------------------------------|------------------------
++rspec:variable:the-policy/the-secret | read      | rspec:group:the-policy/group-a | rspec:policy:the-policy
++rspec:variable:the-policy/the-secret | read      | rspec:layer:the-policy/the-app | rspec:policy:the-policy
++rspec:variable:the-policy/the-secret | execute   | rspec:layer:the-policy/the-app | rspec:policy:the-policy
++rspec:variable:the-policy/the-secret | read      | rspec:group:the-policy/group-b | rspec:policy:the-policy
++rspec:variable:the-policy/the-secret | execute   | rspec:group:the-policy/group-b | rspec:policy:the-policy
++rspec:variable:the-policy/the-secret | update    | rspec:group:the-policy/group-b | rspec:policy:the-policy
++
++annotations
++RESOURCE_ID                          | NAME        | VALUE         | POLICY_ID              
++-------------------------------------|-------------|---------------|------------------------
++rspec:variable:the-policy/the-secret | description | it's a secret | rspec:policy:the-policy
++rspec:variable:the-policy/the-secret | length      | 20            | rspec:policy:the-policy
++
+diff --git a/spec/models/loader_expectations/updated/simple.txt b/spec/models/loader_expectations/updated/simple.txt
+new file mode 100644
+index 0000000..84e306b
+--- /dev/null
++++ b/spec/models/loader_expectations/updated/simple.txt
+@@ -0,0 +1,40 @@
++roles
++ROLE_ID                        | POLICY_ID              
++-------------------------------|------------------------
++rspec:user:admin               |                        
++rspec:policy:the-policy        |                        
++rspec:group:the-policy/group-a | rspec:policy:the-policy
++rspec:group:the-policy/group-c | rspec:policy:the-policy
++rspec:group:the-policy/group-x | rspec:policy:the-policy
++
++resources
++RESOURCE_ID                          | OWNER_ID                | POLICY_ID              
++-------------------------------------|-------------------------|------------------------
++rspec:policy:the-policy              | rspec:policy:the-policy |                        
++rspec:group:the-policy/group-a       | rspec:policy:the-policy | rspec:policy:the-policy
++rspec:group:the-policy/group-c       | rspec:policy:the-policy | rspec:policy:the-policy
++rspec:group:the-policy/group-x       | rspec:policy:the-policy | rspec:policy:the-policy
++rspec:variable:the-policy/the-secret | rspec:policy:the-policy | rspec:policy:the-policy
++
++role_memberships
++ROLE_ID                        | MEMBER_ID                      | ADMIN_OPTION | POLICY_ID              
++-------------------------------|--------------------------------|--------------|------------------------
++rspec:policy:the-policy        | rspec:user:admin               | true         |                        
++rspec:group:the-policy/group-a | rspec:policy:the-policy        | true         | rspec:policy:the-policy
++rspec:group:the-policy/group-c | rspec:policy:the-policy        | true         | rspec:policy:the-policy
++rspec:group:the-policy/group-x | rspec:policy:the-policy        | true         | rspec:policy:the-policy
++rspec:group:the-policy/group-x | rspec:group:the-policy/group-a | false        | rspec:policy:the-policy
++rspec:group:the-policy/group-c | rspec:group:the-policy/group-a | false        | rspec:policy:the-policy
++
++permissions
++RESOURCE_ID                          | PRIVILEGE | ROLE_ID                        | POLICY_ID              
++-------------------------------------|-----------|--------------------------------|------------------------
++rspec:variable:the-policy/the-secret | read      | rspec:group:the-policy/group-a | rspec:policy:the-policy
++rspec:variable:the-policy/the-secret | execute   | rspec:group:the-policy/group-a | rspec:policy:the-policy
++
++annotations
++RESOURCE_ID                          | NAME        | VALUE      | POLICY_ID              
++-------------------------------------|-------------|------------|------------------------
++rspec:variable:the-policy/the-secret | description | the-secret | rspec:policy:the-policy
++rspec:variable:the-policy/the-secret | kind        | plain text | rspec:policy:the-policy
++
+diff --git a/spec/models/loader_expectations/updated/simple_with_foreign_role.txt b/spec/models/loader_expectations/updated/simple_with_foreign_role.txt
+new file mode 100644
+index 0000000..380bfab
+--- /dev/null
++++ b/spec/models/loader_expectations/updated/simple_with_foreign_role.txt
+@@ -0,0 +1,41 @@
++roles
++ROLE_ID                        | POLICY_ID              
++-------------------------------|------------------------
++rspec:user:admin               |                        
++rspec:policy:the-policy        |                        
++acct1:group:the-policy/group-a |                        
++rspec:group:the-policy/group-a | rspec:policy:the-policy
++rspec:group:the-policy/group-c | rspec:policy:the-policy
++rspec:group:the-policy/group-x | rspec:policy:the-policy
++
++resources
++RESOURCE_ID                          | OWNER_ID                | POLICY_ID              
++-------------------------------------|-------------------------|------------------------
++rspec:policy:the-policy              | rspec:policy:the-policy |                        
++rspec:group:the-policy/group-a       | rspec:policy:the-policy | rspec:policy:the-policy
++rspec:group:the-policy/group-c       | rspec:policy:the-policy | rspec:policy:the-policy
++rspec:group:the-policy/group-x       | rspec:policy:the-policy | rspec:policy:the-policy
++rspec:variable:the-policy/the-secret | rspec:policy:the-policy | rspec:policy:the-policy
++
++role_memberships
++ROLE_ID                        | MEMBER_ID                      | ADMIN_OPTION | POLICY_ID              
++-------------------------------|--------------------------------|--------------|------------------------
++rspec:policy:the-policy        | rspec:user:admin               | true         |                        
++rspec:group:the-policy/group-a | rspec:policy:the-policy        | true         | rspec:policy:the-policy
++rspec:group:the-policy/group-c | rspec:policy:the-policy        | true         | rspec:policy:the-policy
++rspec:group:the-policy/group-x | rspec:policy:the-policy        | true         | rspec:policy:the-policy
++rspec:group:the-policy/group-x | rspec:group:the-policy/group-a | false        | rspec:policy:the-policy
++rspec:group:the-policy/group-c | rspec:group:the-policy/group-a | false        | rspec:policy:the-policy
++
++permissions
++RESOURCE_ID                          | PRIVILEGE | ROLE_ID                        | POLICY_ID              
++-------------------------------------|-----------|--------------------------------|------------------------
++rspec:variable:the-policy/the-secret | read      | rspec:group:the-policy/group-a | rspec:policy:the-policy
++rspec:variable:the-policy/the-secret | execute   | rspec:group:the-policy/group-a | rspec:policy:the-policy
++
++annotations
++RESOURCE_ID                          | NAME        | VALUE      | POLICY_ID              
++-------------------------------------|-------------|------------|------------------------
++rspec:variable:the-policy/the-secret | description | the-secret | rspec:policy:the-policy
++rspec:variable:the-policy/the-secret | kind        | plain text | rspec:policy:the-policy
++
+diff --git a/spec/models/loader_fixtures/empty.yml b/spec/models/loader_fixtures/empty.yml
+new file mode 100644
+index 0000000..88d7a5e
+--- /dev/null
++++ b/spec/models/loader_fixtures/empty.yml
+@@ -0,0 +1,3 @@
++- !policy
++  id: the-policy
++  body: []
+diff --git a/spec/models/loader_fixtures/extended.yml b/spec/models/loader_fixtures/extended.yml
+new file mode 100644
+index 0000000..0ba4183
+--- /dev/null
++++ b/spec/models/loader_fixtures/extended.yml
+@@ -0,0 +1,42 @@
++- !policy
++  id: the-policy
++  body:
++  - !group group-a
++
++  - !group group-b
++
++  - !group group-x
++
++  - !variable
++    id: the-secret
++    annotations:
++      description: it's a secret
++      length: "20"
++
++  - !layer
++    id: the-app
++
++  - !permit
++    role: !group group-a
++    privilege: [ read ]
++    resource: !variable the-secret
++
++  - !permit
++    role: !layer the-app
++    privilege: [ read, execute ]
++    resource: !variable the-secret
++
++  - !permit
++    role: !group group-b
++    privilege: [ read, execute, update ]
++    resource: !variable the-secret
++
++  - !grant
++    role: !group group-x
++    member: !member
++      role: !group group-a
++      admin: true
++
++  - !grant
++    role: !group group-x
++    member: !group group-b
+diff --git a/spec/models/loader_fixtures/simple.yml b/spec/models/loader_fixtures/simple.yml
+new file mode 100644
+index 0000000..ef247a2
+--- /dev/null
++++ b/spec/models/loader_fixtures/simple.yml
+@@ -0,0 +1,27 @@
++- !policy
++  id: the-policy
++  body:
++  - !group group-a
++
++  - !group group-c
++
++  - !group group-x
++
++  - !variable
++    id: the-secret
++    annotations:
++      description: the-secret
++      kind: plain text
++
++  - !permit
++    role: !group group-a
++    privilege: [ read, execute ]
++    resource: !variable the-secret
++
++  - !grant
++    role: !group group-x
++    member: !group group-a
++
++  - !grant
++    role: !group group-c
++    member: !group group-a
+diff --git a/spec/models/policy_loader_spec.rb b/spec/models/policy_loader_spec.rb
+new file mode 100644
+index 0000000..6eca6d8
+--- /dev/null
++++ b/spec/models/policy_loader_spec.rb
+@@ -0,0 +1,119 @@
++require 'spec_helper'
++require 'loader'
++
++describe PolicyLoader do
++  def policy_path path
++    File.expand_path("loader_fixtures/#{path}", File.dirname(__FILE__))
++  end
++  def expectation_path path
++    File.expand_path("loader_expectations/#{path}", File.dirname(__FILE__))
++  end
++
++  def load_base_policy path
++    Loader.load 'rspec', policy_path(path)
++  end
++
++  def load_policy_update path
++    version = PolicyVersion.new.tap do |version|
++      version.policy = resource_policy
++      version.role = role_user_admin
++      version.owner = role_user_admin
++      version.policy_text = File.read(policy_path(path))
++      version.validate
++      expect(version.errors.to_a).to eq([])
++      expect(version.valid?).to be_truthy
++      version.save
++    end
++    PolicyLoader.new(version).tap do |loader|
++      loader.load
++    end
++  end
++
++  def verify_data path
++    if ENV['DUMP_DATA']
++      File.write expectation_path(path), print_public
++    end
++    expect(print_public).to eq(File.read(expectation_path(path)))
++  end
++
++  before do
++    DB[:roles].delete
++    load_base_policy base_policy_path
++  end
++
++  let(:resource_policy) { Resource['rspec:policy:the-policy'] }
++  let(:role_user_admin) { Role['rspec:user:admin'] }
++  let(:print_public) {
++    require 'table_print'
++    io = StringIO.new
++    tp.set :io, io
++    tp.set :max_width, 100
++    begin
++      PolicyLoader::TABLES.each do |table|
++        model = Sequel::Model("public__#{table}".to_sym)
++        io.write "#{table}\n"
++        tp *([ model.all ] + PolicyLoader::TABLE_EQUIVALENCE_COLUMNS[table.to_sym] + [ :policy_id ])
++        io.write "\n"
++      end
++    ensure
++      tp.clear :io
++    end
++    io.rewind
++    io.read
++  }
++
++  context "with a minimal base policy" do
++    let(:base_policy_path) { 'empty.yml' }
++    it "loads the minimal policy" do
++      expect(resource_policy).to be
++      verify_data 'base/empty.txt'
++    end
++
++    context "and policy update" do
++      it "applies the policy update" do
++        load_policy_update 'simple.yml'
++        verify_data 'updated/simple.txt'
++      end
++      it "doesn't affect a record in a different account" do
++        Role.create(role_id: 'acct1:group:the-policy/group-a')
++        load_policy_update 'simple.yml'
++        verify_data 'updated/simple_with_foreign_role.txt'
++      end
++      it "removes a record in a different account which is managed by the same policy" do
++        Role.create(role_id: 'acct1:group:simple/group-a', policy_id: 'rspec:policy:the-policy')
++        load_policy_update 'simple.yml'
++        verify_data 'updated/simple.txt'
++      end
++    end
++  end
++
++  context "with a non-empty base policy" do
++    let(:base_policy_path) { 'simple.yml' }
++    context "and policy update" do
++      it "applies the policy update" do
++        load_policy_update 'extended.yml'
++        verify_data 'updated/extended_1.txt'
++      end
++    end
++  end
++
++  context "with a minimal base policy" do
++    let(:base_policy_path) { 'empty.yml' }
++    context "and policy update" do
++      before do
++        load_policy_update 'simple.yml'
++      end
++      context "a subsequent policy update" do
++        before do
++          load_policy_update 'extended.yml'
++        end
++        it "applies the policy update" do
++          verify_data 'updated/extended_2.txt'
++        end
++        context "when deletion is disabled" do
++          it "doesn't delete removed records"
++        end
++      end
++    end
++  end
++end
+diff --git a/spec/spec_helper.rb b/spec/spec_helper.rb
+index 5aeb211..38e3698 100644
+--- a/spec/spec_helper.rb
++++ b/spec/spec_helper.rb
+@@ -9,7 +9,9 @@ require 'rspec/autorun'
+ Dir[Rails.root.join("spec/support/**/*.rb")].each {|f| require f}
+ 
+ ENV['CONJUR_ACCOUNT'] = 'rspec'
+-  
++ENV.delete('CONJUR_ADMIN_PASSWORD')
++ENV.delete('POSSUM_ADMIN_PASSWORD')
++
+ RSpec.configure do |config|
+   config.use_transactional_fixtures = true
+   config.order = "random"

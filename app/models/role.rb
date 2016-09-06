@@ -13,6 +13,7 @@ class Role < Sequel::Model
       
     super(options).tap do |response|
       response["id"] = response.delete("role_id")
+      write_id_to_json response, "policy"
     end
   end
   

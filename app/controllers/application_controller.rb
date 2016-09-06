@@ -13,6 +13,17 @@ class ApplicationController < ActionController::API
   rescue_from Sequel::ValidationFailed, with: :validation_failed
   rescue_from ArgumentError, with: :argument_error
 
+  around_action :run_with_transaction
+ 
+  private
+ 
+  # Wrap the request in a transaction.
+  def run_with_transaction
+    Sequel::Model.db.transaction do
+      yield
+    end
+  end
+
   def record_not_found  e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
     head :not_found

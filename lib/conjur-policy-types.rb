@@ -26,7 +26,7 @@ module Conjur
         def create_resource!
           ::Resource.create(resource_id: resourceid, owner: owner_role).tap do |resource|
             Hash(annotations).each do |name, value|
-              resource.add_annotation name: name, value: value
+              resource.add_annotation name: name, value: value.to_s
             end
           end
         end

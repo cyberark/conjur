@@ -20,4 +20,5 @@ demo/run/finished
 demo/run/load
 run/finished
 coverage
+.DS_Store
 demo/run/*.yml

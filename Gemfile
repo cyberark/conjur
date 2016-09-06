@@ -42,6 +42,7 @@ group :development, :test do
   gem 'spring-commands-rspec'
   gem 'json_spec'
   gem 'rspec'
+  gem 'table_print'
   gem 'rspec-rails'
   gem 'ci_reporter_rspec'
   gem 'parallel'

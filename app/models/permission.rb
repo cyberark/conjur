@@ -6,8 +6,9 @@ class Permission < Sequel::Model
 
   def as_json options = {}
     super(options).tap do |response|
-      response["resource"] = response.delete("resource_id")
-      response["role"] = response.delete("role_id")
+      %w(resource role policy).each do |field|
+        write_id_to_json response, field
+      end
     end
   end
 end
