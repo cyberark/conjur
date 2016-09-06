@@ -4,7 +4,8 @@ describe Resource, :type => :model do
   include_context "create user"
   
   let(:login) { "u-#{random_hex}" }
-  let(:the_resource) { Resource.create(resource_id: the_user.role_id, owner: the_user) }
+  let(:resource_id) { "rspec:the-kind:r-#{random_hex}"}
+  let(:the_resource) { Resource.create(resource_id: resource_id, owner: the_user) }
 
   shared_examples_for "provides expected JSON" do
     specify {
@@ -63,6 +64,51 @@ describe Resource, :type => :model do
       base_hash.merge secrets: [ {"version" => 1} ]
     }
     it_should_behave_like "provides expected JSON"
+  end
+  context "with corresponding role" do
+    let(:the_role) { Role.create(role_id: resource_id) }
+    let(:the_membership) { RoleMembership[role: the_role, member: the_user, admin_option: true, ownership: true] }
+    before {
+      the_role
+      the_resource
+    }
+    it "the rolsource is granted to the owner with admin option" do
+      expect(the_membership).to be
+    end
+    it "the role cannot be explicitly granted with the ownership flag" do
+      expect { RoleMembership.create(role: the_role, member: the_user, admin_option: true, ownership: true) }.to raise_error(Sequel::UniqueConstraintViolation)
+    end
+    context "when the user is also explicitly granted the role" do
+      let(:the_membership_again) { RoleMembership.create(role: the_role, member: the_user, admin_option: false) }
+      it "the role can still be explicitly granted" do
+        the_membership_again
+      end
+      it "the corresponding role is listed exactly once in the owner's list of roles" do
+        the_membership_again
+        expect(the_user.all_roles.reverse_order(:role_id).all.map(&:role_id)).to eq([ the_user, the_role ].map(&:role_id))
+      end
+    end
+    it "the role can still be explicitly granted" do
+      RoleMembership.create(role: the_role, member: the_user, admin_option: true)
+    end
+    it "the corresponding role is in the owner's list of roles" do
+      expect(the_user.all_roles.all).to include(the_role)
+    end
+    context "changing the owner" do
+      it "updates the role grants" do
+        the_new_role = Role.create(role_id: "rspec:the-role:#{random_hex}")
+        the_resource.owner = the_new_role
+        the_resource.save
+        expect(the_membership).to_not be
+        expect(RoleMembership[role: the_role, member: the_new_role, admin_option: true, ownership: true]).to be
+      end
+    end
+    context "deleting the resource" do
+      it "revokes the role grant" do
+        the_resource.delete
+        expect(the_membership).to_not be
+      end
+    end
   end
 
   describe "#enforce_secrets_version_limit" do

@@ -11,8 +11,7 @@ module Conjur
         include CreateBase
 
         def create_role!
-          role = ::Role.create role_id: roleid
-          role.grant_to owner_role, admin_option: true
+          ::Role.create role_id: roleid
         end
         
         def role
