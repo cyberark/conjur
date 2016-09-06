@@ -23,6 +23,7 @@ Feature: List direct members of a role
       {
         "admin_option": true,
         "member": "cucumber:user:admin",
+        "ownership": true,
         "role": "cucumber:user:alice"
       }
     ]
@@ -41,11 +42,13 @@ Feature: List direct members of a role
       {
         "admin_option": true,
         "member": "cucumber:user:admin",
+        "ownership": true,
         "role": "cucumber:user:alice"
       },
       {
         "admin_option": false,
         "member": "cucumber:user:bob",
+        "ownership": false,
         "role": "cucumber:user:alice"
       }
     ]
