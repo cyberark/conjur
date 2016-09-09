@@ -3,7 +3,6 @@ Sequel.migration do
     create_table :policy_versions do
       foreign_key :resource_id, :resources, type: String, null: false, on_delete: :cascade
       foreign_key :role_id, :roles, type: String, null: false, on_delete: :cascade
-      foreign_key :owner_id, :roles, type: String, null: false, on_delete: :cascade
       Integer :version, null: false
       Timestamp :created_at, null: false, default: Sequel.function(:transaction_timestamp)
       String :policy_text, null: false

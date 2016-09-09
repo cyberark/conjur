@@ -6,22 +6,19 @@
 # In addition to the 'policy' resource and the version, each record stores the following metadata:
 #
 # * +role+ the authenticated role who performed the policy load.
-# * +owner+ the role which is designated as the owner of the policy records.
 # * +created_at+ a timestamp.
 # * +policy_text+ the text of the policy itself.
 # * +policy_sha256+ the SHA-256 of the policy in hex digest form.
 #
 # The policy text is parsed when the PolicyVersion is validated. Parse errors are placed onto the 
 # +#errors+ field, along with any other validation errors. The parsed policy is available through the
-# +#recorsd+ field.
+# +#records+ field.
 class PolicyVersion < Sequel::Model(:policy_versions)
   include HasId
 
   many_to_one :resource
   # The authenticated user who performs the policy load.
   many_to_one :role
-  # The specified owner of the new records.
-  many_to_one :owner, class: :Role
 
   attr_accessor :parse_error
 
@@ -33,20 +30,20 @@ class PolicyVersion < Sequel::Model(:policy_versions)
   def as_json options = {}
     super(options).tap do |response|
       response["id"] = response.delete("resource_id")
-      %w(role owner).each do |field|
+      %w(role).each do |field|
         write_id_to_json response, field
       end
     end
   end
 
+  def bootstrap_policy?
+    policy.kind == "policy" && policy.identifier == "bootstrap"
+  end
+
   def validate
     super
 
-    validates_presence [ :current_user, :owner, :policy_text ]
-
-    if current_user && owner
-      errors.add(:owner, "is not allowed as the owner role") unless current_user.all_roles([ owner.role_id ]).any?
-    end
+    validates_presence [ :policy, :current_user, :policy_text ]
 
     try_load_records 
 
@@ -71,13 +68,26 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     @records
   end
 
+  def policy_admin
+    @policy_admin ||= RoleMembership.where(role_id: policy.id, admin_option: true).limit(1).first.tap do |membership|
+      raise "No admin member of #{policy.id} found" unless membership
+    end.member
+  end
+
   def try_load_records
     return if @records || @parse_error
-    return unless policy_text && owner
+    return unless policy_text
 
     begin
       records = Conjur::Policy::YAML::Loader.load(policy_text)
-      @records = Conjur::Policy::Resolver.resolve records, account, owner.role_id
+      unless bootstrap_policy?
+        policy_record = Conjur::Policy::Types::Policy.new policy.identifier
+        policy_record.owner = Conjur::Policy::Types::Role.new(policy_admin.id)
+        policy_record.account = policy.account
+        policy_record.body = records
+        records = [ policy_record ]
+      end
+      @records = Conjur::Policy::Resolver.resolve records, account, policy_admin.id
     rescue
       @parse_error = $!
     end

@@ -58,7 +58,16 @@ module PossumWorld
   end
   
   def lookup_user login
-    users[login] or raise "No such user '#{login}'"
+    existing = Role["cucumber:user:#{login}"] rescue nil
+    if existing
+      Credentials.new(role: existing).save unless existing.credentials
+      users[existing.identifier] = existing
+      existing
+    else
+      users[login]
+    end.tap do |user|
+      raise "No such user '#{login}'" unless user
+    end
   end
 
   def foreign_admin_user account
@@ -72,6 +81,7 @@ module PossumWorld
       admin_login = user_login('admin')
               
       admin_user = Role.create(role_id: "cucumber:user:#{admin_login}")
+      Role['cucumber:user:admin'].grant_to admin_user
       Credentials.new(role: admin_user).save(raise_on_save_failure: true)
       
       @admin_user = admin_user
@@ -85,9 +95,9 @@ module PossumWorld
       login = USER_NAMES[@user_index]
       @user_index += 1
     end
-    
+
     return if users[login]
-    
+
     roleid = "cucumber:user:#{user_login(login)}"
     Role.create(role_id: roleid).tap do |user|
       user.grant_to admin_user, admin_option: true

@@ -37,7 +37,7 @@
 class PolicyLoader
   extend Forwardable
 
-  def_delegators :@policy_version, :resource_id, :owner
+  def_delegators :@policy_version, :resource_id, :policy_admin
 
   attr_reader :policy_version
 
@@ -78,6 +78,31 @@ class PolicyLoader
     end
   end
 
+  def table_data schema = ""
+    self.class table_data schema
+  end
+
+  class << self
+    def table_data schema = ""
+      require 'table_print'
+      io = StringIO.new
+      tp.set :io, io
+      tp.set :max_width, 100
+      begin
+        TABLES.each do |table|
+          model = Sequel::Model("#{schema}#{table}".to_sym)
+          io.write "#{table}\n"
+          tp *([ model.all ] + TABLE_EQUIVALENCE_COLUMNS[table.to_sym] + [ :policy_id ])
+          io.write "\n"
+        end
+      ensure
+        tp.clear :io
+      end
+      io.rewind
+      io.read
+    end
+  end
+
   protected
 
   # Delete rows in the existing policy which do not exist in the new policy.
@@ -93,13 +118,17 @@ class PolicyLoader
         end.join(' AND ')
       end
 
-      db.execute <<-DELETE
-        DELETE FROM public.#{table}
-        USING public.#{table} AS existing_#{table}
+      db[<<-DELETE, resource_id].delete
+        WITH deleted_records AS (
+          SELECT existing_#{table}.*
+          FROM public.#{table} AS existing_#{table}
           LEFT OUTER JOIN #{table} AS new_#{table}
-          ON #{comparisons(table, columns, 'existing_', 'new_')}
-        WHERE #{comparisons(table, columns, 'public.', 'existing_')} AND
-          new_#{table}.#{columns[0]} IS NULL
+            ON #{comparisons(table, columns, 'existing_', 'new_')}
+          WHERE existing_#{table}.policy_id = ? AND new_#{table}.#{columns[0]} IS NULL
+        )
+        DELETE FROM public.#{table}
+        USING deleted_records AS deleted_from_#{table}
+        WHERE #{comparisons(table, columns, 'public.', 'deleted_from_')}
       DELETE
     end
   end
@@ -171,7 +200,7 @@ class PolicyLoader
   def load_records
     raise "Policy version must be saved before loading" unless resource_id
 
-    policy_owner = ::Role.create(role_id: owner.role_id)
+    policy_owner = ::Role.create(role_id: policy_admin.id)
 
     policy_version.records.map(&:create!)
 

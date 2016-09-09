@@ -1,4 +1,6 @@
 class Role < Sequel::Model
+  include HasId
+  
   unrestrict_primary_key
 
   one_to_many :memberships, class: :RoleMembership

@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'loader'
 
 describe PolicyLoader do
   def policy_path path
@@ -10,14 +9,14 @@ describe PolicyLoader do
   end
 
   def load_base_policy path
-    Loader.load 'rspec', policy_path(path)
+    require 'bootstrap_loader'
+    BootstrapLoader.load 'rspec', policy_path(path)
   end
 
   def load_policy_update path
     version = PolicyVersion.new.tap do |version|
       version.policy = resource_policy
       version.role = role_user_admin
-      version.owner = role_user_admin
       version.policy_text = File.read(policy_path(path))
       version.validate
       expect(version.errors.to_a).to eq([])
@@ -37,29 +36,13 @@ describe PolicyLoader do
   end
 
   before do
-    DB[:roles].delete
     load_base_policy base_policy_path
   end
 
   let(:resource_policy) { Resource['rspec:policy:the-policy'] }
   let(:role_user_admin) { Role['rspec:user:admin'] }
   let(:print_public) {
-    require 'table_print'
-    io = StringIO.new
-    tp.set :io, io
-    tp.set :max_width, 100
-    begin
-      PolicyLoader::TABLES.each do |table|
-        model = Sequel::Model("public__#{table}".to_sym)
-        io.write "#{table}\n"
-        tp *([ model.all ] + PolicyLoader::TABLE_EQUIVALENCE_COLUMNS[table.to_sym] + [ :policy_id ])
-        io.write "\n"
-      end
-    ensure
-      tp.clear :io
-    end
-    io.rewind
-    io.read
+    PolicyLoader.table_data "public__"
   }
 
   context "with a minimal base policy" do
@@ -69,7 +52,7 @@ describe PolicyLoader do
       verify_data 'base/empty.txt'
     end
 
-    context "and policy update" do
+    context "and attempted policy update" do
       it "applies the policy update" do
         load_policy_update 'simple.yml'
         verify_data 'updated/simple.txt'
@@ -85,20 +68,7 @@ describe PolicyLoader do
         verify_data 'updated/simple.txt'
       end
     end
-  end
 
-  context "with a non-empty base policy" do
-    let(:base_policy_path) { 'simple.yml' }
-    context "and policy update" do
-      it "applies the policy update" do
-        load_policy_update 'extended.yml'
-        verify_data 'updated/extended_1.txt'
-      end
-    end
-  end
-
-  context "with a minimal base policy" do
-    let(:base_policy_path) { 'empty.yml' }
     context "and policy update" do
       before do
         load_policy_update 'simple.yml'
@@ -113,6 +83,16 @@ describe PolicyLoader do
         context "when deletion is disabled" do
           it "doesn't delete removed records"
         end
+      end
+    end
+  end
+
+  context "with a non-empty base policy" do
+    let(:base_policy_path) { 'simple_base.yml' }
+    context "and policy update" do
+      it "applies the policy update" do
+        load_policy_update 'extended.yml'
+        verify_data 'updated/extended_1.txt'
       end
     end
   end

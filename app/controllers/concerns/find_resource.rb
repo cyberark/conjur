@@ -8,7 +8,7 @@ module FindResource
   end
 
   def find_resource
-    @resource = Resource[resource_id]
+    @resource ||= Resource[resource_id]
     raise IndexError unless @resource
   end  
 end

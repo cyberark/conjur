@@ -1,1 +1,0 @@
-require 'conjur-policy-types'
