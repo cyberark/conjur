@@ -62,11 +62,15 @@ describe Loader::Orchestrate do
         Role.where(Sequel.function("account", :role_id) => 'acct1').delete
         Role.create(role_id: 'acct1:group:the-policy/group-a')
         load_policy_update 'simple.yml'
+
+        expect(Role['acct1:group:the-policy/group-a']).to be
         verify_data 'updated/simple_with_foreign_role.txt'
       end
       it "removes a record in a different account which is managed by the same policy" do
         Role.create(role_id: 'acct1:group:simple/group-a', policy_id: 'rspec:policy:the-policy')
         load_policy_update 'simple.yml'
+
+        expect(Role['acct1:group:simple/group-a']).to_not be
         verify_data 'updated/simple.txt'
       end
     end

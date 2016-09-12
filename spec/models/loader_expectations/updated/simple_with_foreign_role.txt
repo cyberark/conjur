@@ -4,7 +4,6 @@ ROLE_ID                        | POLICY_ID
 rspec:user:admin               |                        
 rspec:policy:bootstrap         |                        
 rspec:policy:the-policy        | rspec:policy:bootstrap 
-acct1:group:the-policy/group-a |                        
 rspec:group:the-policy/group-a | rspec:policy:the-policy
 rspec:group:the-policy/group-c | rspec:policy:the-policy
 rspec:group:the-policy/group-x | rspec:policy:the-policy

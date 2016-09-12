@@ -150,6 +150,9 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
+    pry-byebug (3.4.0)
+      byebug (~> 9.0)
+      pry (~> 0.10)
     puma (3.6.0)
     rack (1.6.4)
     rack-test (0.6.3)
@@ -262,7 +265,6 @@ DEPENDENCIES
   aruba
   base32-crockford
   bcrypt-ruby (~> 3.0.0)
-  byebug
   ci_reporter_rspec
   conjur-policy-parser!
   conjur-rack!
@@ -274,7 +276,7 @@ DEPENDENCIES
   parallel
   pg
   possum-api!
-  pry
+  pry-byebug
   puma
   rails (~> 4.2)
   rails-api

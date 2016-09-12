@@ -36,7 +36,7 @@ group :test do
 end
 
 group :development, :test do
-  gem 'pry'
+  gem 'pry-byebug'
   gem 'spring'
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
@@ -48,6 +48,5 @@ group :development, :test do
   gem 'parallel'
   gem 'cucumber'
   gem 'aruba'
-  gem 'byebug'
   gem 'rake_shared_context'
 end
