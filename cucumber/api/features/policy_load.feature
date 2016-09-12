@@ -9,35 +9,38 @@ Feature: Updating policies
     Given I am the super-user
     And I successfully POST "/policies/:account/policy/bootstrap" with body:
     """
-    - !user alice
-    - !user bob
-    - !user charles
-
     - !policy
-      id: dev
-      owner: !user alice
+      id: @namespace@
       body:
-      - !policy
-        id: db
-        body: []
+      - !user alice
+      - !user bob
+      - !user charles
 
-    - !permit
-      resource: !policy dev/db
-      privilege: [ execute ]
-      role: !user bob
+      - !policy
+        id: dev
+        owner: !user alice
+        body:
+        - !policy
+          id: db
+          body: []
+
+      - !permit
+        resource: !policy dev/db
+        privilege: [ execute ]
+        role: !user bob
     """
 
   Scenario: A role with "execute" privilege can update a policy.
     When I login as "bob"
-    Then I successfully POST "/policies/:account/policy/dev/db" with body:
+    Then I successfully POST "/policies/:account/policy/:namespace/dev/db" with body:
     """
     - !layer
     """
-    And I successfully GET "/resources/:account/layer/dev/db"
+    And I successfully GET "/resources/:account/layer/:namespace/dev/db"
 
   Scenario: A role without "execute" privilege cannot update a policy.
     When I login as "charles"
-    When I POST "/policies/:account/policy/dev/db" with body:
+    When I POST "/policies/:account/policy/:namespace/dev/db" with body:
     """
     - !layer
     """

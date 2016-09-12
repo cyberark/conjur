@@ -29,7 +29,7 @@ module Loader
       extend Forwardable
 
       def_delegators :@orchestrator, :handle_password, :handle_public_key
-      def_delegators :@policy_object, :owner
+      def_delegators :@policy_object, :owner, :id
 
       attr_reader :orchestrator, :policy_object
 
@@ -63,7 +63,7 @@ module Loader
     module CreateResource
       def self.included base
         base.module_eval do
-          def_delegators :@policy_object, :resourceid, :annotations
+          def_delegators :@policy_object, :resourceid, :annotations, :annotations=
         end
       end
 
