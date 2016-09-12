@@ -2,7 +2,8 @@ roles
 ROLE_ID                        | POLICY_ID              
 -------------------------------|------------------------
 rspec:user:admin               |                        
-rspec:policy:the-policy        |                        
+rspec:policy:bootstrap         |                        
+rspec:policy:the-policy        | rspec:policy:bootstrap 
 rspec:group:the-policy/group-a | rspec:policy:the-policy
 rspec:group:the-policy/group-x | rspec:policy:the-policy
 rspec:group:the-policy/group-b | rspec:policy:the-policy
@@ -11,7 +12,8 @@ rspec:layer:the-policy/the-app | rspec:policy:the-policy
 resources
 RESOURCE_ID                          | OWNER_ID                | POLICY_ID              
 -------------------------------------|-------------------------|------------------------
-rspec:policy:the-policy              | rspec:policy:the-policy |                        
+rspec:policy:bootstrap               | rspec:user:admin        |                        
+rspec:policy:the-policy              | rspec:policy:the-policy | rspec:policy:bootstrap 
 rspec:group:the-policy/group-a       | rspec:policy:the-policy | rspec:policy:the-policy
 rspec:group:the-policy/group-x       | rspec:policy:the-policy | rspec:policy:the-policy
 rspec:variable:the-policy/the-secret | rspec:policy:the-policy | rspec:policy:the-policy
@@ -21,7 +23,8 @@ rspec:layer:the-policy/the-app       | rspec:policy:the-policy | rspec:policy:th
 role_memberships
 ROLE_ID                        | MEMBER_ID                      | ADMIN_OPTION | POLICY_ID              
 -------------------------------|--------------------------------|--------------|------------------------
-rspec:policy:the-policy        | rspec:user:admin               | true         |                        
+rspec:policy:bootstrap         | rspec:user:admin               | true         |                        
+rspec:policy:the-policy        | rspec:user:admin               | true         | rspec:policy:bootstrap 
 rspec:group:the-policy/group-a | rspec:policy:the-policy        | true         | rspec:policy:the-policy
 rspec:group:the-policy/group-x | rspec:policy:the-policy        | true         | rspec:policy:the-policy
 rspec:group:the-policy/group-x | rspec:group:the-policy/group-a | true         | rspec:policy:the-policy

@@ -1,9 +1,10 @@
-# Stores a specific policy text and metadata which has been applied to the database.
+# Stores a policy which has been applied to the database, along with metadata such as the role
+# which submitted the policy.
 # 
 # A PolicyVersion is constructed on an existing 'policy' resource. PolicyVersion records are automatically
 # assigned an incrementing +version+ number, just like Secrets.
 #
-# In addition to the 'policy' resource and the version, each record stores the following metadata:
+# In addition to the 'policy' resource and the version, each PolicyVersion stores the following metadata:
 #
 # * +role+ the authenticated role who performed the policy load.
 # * +created_at+ a timestamp.
@@ -13,6 +14,11 @@
 # The policy text is parsed when the PolicyVersion is validated. Parse errors are placed onto the 
 # +#errors+ field, along with any other validation errors. The parsed policy is available through the
 # +#records+ field.
+#
+# Except when loading the bootstrap policy, the policy statements that are submitted by the authenticated role
+# are enclosed within a +!policy+ statement, so that all the statements in the policy are scoped by the enclosing id. 
+# For example, suppose a PolicyVersion is being loaded for the policy +prod/myapp+. If policy being loaded
+# contains a statement like +!layer+, then the layer id as loaded will be +prod/myapp+.
 class PolicyVersion < Sequel::Model(:policy_versions)
   include HasId
 
@@ -69,6 +75,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
   end
 
   def policy_admin
+    # TODO This should be changed to the policy resource owner once unified ownership is merged.
     @policy_admin ||= RoleMembership.where(role_id: policy.id, admin_option: true).limit(1).first.tap do |membership|
       raise "No admin member of #{policy.id} found" unless membership
     end.member
@@ -80,16 +87,20 @@ class PolicyVersion < Sequel::Model(:policy_versions)
 
     begin
       records = Conjur::Policy::YAML::Loader.load(policy_text)
-      unless bootstrap_policy?
-        policy_record = Conjur::Policy::Types::Policy.new policy.identifier
-        policy_record.owner = Conjur::Policy::Types::Role.new(policy_admin.id)
-        policy_record.account = policy.account
-        policy_record.body = records
-        records = [ policy_record ]
-      end
+      records = wrap_in_policy records unless bootstrap_policy?
       @records = Conjur::Policy::Resolver.resolve records, account, policy_admin.id
     rescue
       @parse_error = $!
     end
+  end
+
+  # Wraps the input records in a policy whose id is the +policy+ id, and whose owner is the
+  # +policy_admin+.
+  def wrap_in_policy records
+    policy_record = Conjur::Policy::Types::Policy.new policy.identifier
+    policy_record.owner = Conjur::Policy::Types::Role.new(policy_admin.id)
+    policy_record.account = policy.account
+    policy_record.body = records
+    [ policy_record ]
   end
 end

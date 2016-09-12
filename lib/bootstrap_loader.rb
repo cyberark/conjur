@@ -1,19 +1,16 @@
-require 'sequel'
-require 'logger'
-
-DB = Sequel::Model.db = Sequel.connect(ENV['DATABASE_URL'])
-
-Sequel::Model.raise_on_save_failure = true
-
+# BootstrapLoader is used to load an initial "bootstrap" policy when the database is completely empty.
 class BootstrapLoader
   class << self
-    def enable_logging
-      DB.loggers << Logger.new($stdout)
-    end
-    
+    # Load a policy into the specified account.
+    # 
+    # The policy will be owned by the 'user:admin' role. If the environment variable POSSUM_ADMIN_PASSWORD
+    # exists, it will be used as the admin password (potentially resetting the existing password).
+    #
+    # The policy id is "bootstrap". The role and resource records for the policy will be created automatically
+    # if they don't already exist. 
     def load account, filename
       start_t = Time.now
-      DB.transaction do
+      Sequel::Model.db.transaction do
         admin_id = "#{account}:user:admin"
         admin = ::Role[admin_id] || ::Role.create(role_id: admin_id)
         if admin_password = ENV['POSSUM_ADMIN_PASSWORD']
@@ -27,6 +24,7 @@ class BootstrapLoader
 
         policy_version = PolicyVersion.new role: admin, policy: bootstrap_policy_resource, policy_text: File.read(filename)
         policy_version.save
+
         loader = Loader::Orchestrate.new policy_version
         loader.load
       end

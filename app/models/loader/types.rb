@@ -19,7 +19,7 @@ module Loader
         ::Role["#{account}:user:admin"] or raise IndexError, "#{account}:user:admin"
       end
 
-      def create orchestrator, obj
+      def wrap orchestrator, obj
         cls = Types.const_get obj.class.name.split("::")[-1]
         cls.new orchestrator, obj
       end
@@ -29,6 +29,7 @@ module Loader
       extend Forwardable
 
       def_delegators :@orchestrator, :handle_password, :handle_public_key
+      def_delegators :@policy_object, :owner
 
       attr_reader :orchestrator, :policy_object
 
@@ -37,26 +38,18 @@ module Loader
         @policy_object = policy_object
       end
 
-      def respond_to? sym
-        super || @policy_object.respond_to?(sym)
-      end
-
-      def method_missing sym, *args, &block
-        if @policy_object.respond_to?(sym)
-          return @policy_object.send sym, *args, &block
-        end
-
-        super
-      end
-    end
-
-    module CreateBase
       def owner_role
-        ::Role[owner.roleid] or raise IndexError, owner.roleid
+        ::Role[owner.roleid] || ::Role.create(role_id: owner.roleid)
       end
     end
 
     module CreateRole
+      def self.included base
+        base.module_eval do
+          def_delegators :@policy_object, :roleid
+        end
+      end
+
       def create_role!
         role = ::Role.create role_id: roleid
         role.grant_to owner_role, admin_option: true
@@ -68,7 +61,11 @@ module Loader
     end
 
     module CreateResource
-      include CreateBase
+      def self.included base
+        base.module_eval do
+          def_delegators :@policy_object, :resourceid, :annotations
+        end
+      end
 
       def create_resource!
         ::Resource.create(resource_id: resourceid, owner: owner_role).tap do |resource|
@@ -109,6 +106,8 @@ module Loader
     end
     
     class User < Record
+      def_delegators :@policy_object, :public_keys, :account, :role_kind
+
       def create!
         super
         
@@ -129,6 +128,8 @@ module Loader
     
     class Variable < Record
       include CreateResource
+
+      def_delegators :@policy_object, :kind, :mime_type
       
       def create!
         self.annotations ||= {}
@@ -144,6 +145,8 @@ module Loader
     end
     
     class Grant < Types::Base
+      def_delegators :@policy_object, :roles, :members
+
       def create!
         Array(roles).each do |r|
           Array(members).each do |m|
@@ -156,6 +159,8 @@ module Loader
     end
 
     class Permit < Types::Base
+      def_delegators :@policy_object, :resources, :privileges, :roles
+
       def create!
         Array(resources).each do |r|
           Array(privileges).each do |p|
@@ -170,9 +175,11 @@ module Loader
     end
     
     class Policy < Types::Base
+      def_delegators :@policy_object, :role, :resource, :body
+
       def create!
-        Types.create(orchestrator, self.role).create!
-        Types.create(orchestrator, self.resource).create!
+        Types.wrap(orchestrator, self.role).create!
+        Types.wrap(orchestrator, self.resource).create!
         
         Array(body).map(&:create!)
       end

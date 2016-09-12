@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe PolicyLoader do
+describe Loader::Orchestrate do
   def policy_path path
     File.expand_path("loader_fixtures/#{path}", File.dirname(__FILE__))
   end
@@ -23,7 +23,7 @@ describe PolicyLoader do
       expect(version.valid?).to be_truthy
       version.save
     end
-    PolicyLoader.new(version).tap do |loader|
+    Loader::Orchestrate.new(version).tap do |loader|
       loader.load
     end
   end
@@ -36,13 +36,14 @@ describe PolicyLoader do
   end
 
   before do
+    Role.where(Sequel.function("account", :role_id) => 'rspec').delete
     load_base_policy base_policy_path
   end
 
   let(:resource_policy) { Resource['rspec:policy:the-policy'] }
   let(:role_user_admin) { Role['rspec:user:admin'] }
   let(:print_public) {
-    PolicyLoader.table_data "public__"
+    Loader::Orchestrate.table_data 'rspec', "public__"
   }
 
   context "with a minimal base policy" do
@@ -58,6 +59,7 @@ describe PolicyLoader do
         verify_data 'updated/simple.txt'
       end
       it "doesn't affect a record in a different account" do
+        Role.where(Sequel.function("account", :role_id) => 'acct1').delete
         Role.create(role_id: 'acct1:group:the-policy/group-a')
         load_policy_update 'simple.yml'
         verify_data 'updated/simple_with_foreign_role.txt'
