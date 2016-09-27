@@ -1,61 +1,26 @@
 pg:
   image: postgres:9.3
-  
+
 possum:
-  image: possum
-  command: server -f /run/possum/policy/Conjurfile
+  image: conjurinc/possum
+  command: server -a example -f /var/lib/policy/bootstrap.yml
   environment:
     DATABASE_URL: postgres://postgres@pg/postgres
-    CONJUR_ACCOUNT: cucumber
-    POSSUM_ADMIN_PASSWORD: admin
-    CONJUR_PASSWORD_KEVIN: kevin
-    CONJUR_PASSWORD_DAVE: dave
-    CONJUR_PASSWORD_OTTO: otto
+    POSSUM_ADMIN_PASSWORD: secret
     POSSUM_DATA_KEY:
   volumes:
-  - ./run:/run/possum/policy
-  links:
-  - pg:pg
-  
-watch:
-  image: possum
-  command: policy watch /run/possum/policy/load
-  environment:
-    DATABASE_URL: postgres://postgres@pg/postgres
-    CONJUR_ACCOUNT: cucumber
-    POSSUM_ADMIN_PASSWORD: admin
-    CONJUR_PASSWORD_KEVIN: kevin
-    CONJUR_PASSWORD_DAVE: dave
-    CONJUR_PASSWORD_OTTO: otto
-    POSSUM_DATA_KEY:
-  volumes:
-  - ./run:/run/possum/policy
+  - ./policy:/var/lib/policy
   links:
   - pg:pg
 
-cli:
+client:
   build: .
-  dockerfile: Dockerfile.cli
+  entrypoint: bash
   environment:
-    CONJUR_APPLIANCE_URL: http://possum
-    CONJUR_AUTHN_LOGIN: admin
-    CONJUR_AUTHN_API_KEY: admin
-    CONJUR_ACCOUNT: cucumber
-  volumes:
-  - .:/mnt/src
-  - ./run:/run/possum/policy
+    POSSUM_URL: http://possum
+    POSSUM_ADMIN_PASSWORD: secret
+    POSSUM_ACCOUNT: example
+    POSSUM_LOGIN: admin
+    POSSUM_PASSWORD: secret
   links:
   - possum:possum
-
-ui:
-  image: conjurinc/conjur-ui
-  environment:
-    CONJUR_APPLIANCE_URL: http://possum
-    DH_PARAM_PEM:
-  ports:
-  - 443
-  volumes:
-  - ./dhparam.pem:/etc/ssl/certs/dhparam.pem
-  links:
-  - possum:possum
-
