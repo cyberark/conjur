@@ -18,12 +18,12 @@ RUN apt-get install -y \
 
 RUN gem install -N -v 1.11.2 bundler
 
-ADD Gemfile      .
-ADD Gemfile.lock .
-
 RUN mkdir -p /opt/possum
 
 WORKDIR /opt/possum
+
+ADD Gemfile      .
+ADD Gemfile.lock .
 
 RUN bundle --without test development
 
