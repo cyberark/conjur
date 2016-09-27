@@ -13,7 +13,7 @@ class PoliciesController < RestController
     policy_version = if version.is_a?(String) && version.to_i.to_s == version
       PolicyVersion[resource: @resource, version: version]
     elsif version.nil?
-      PolicyVersion.where(resource: @resource).reverse_order.limit(1).first
+      PolicyVersion.where(resource: @resource).reverse_order(:version).limit(1).first
     else
       raise ArgumentError, "invalid type for parameter 'version'"
     end
