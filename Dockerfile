@@ -25,7 +25,7 @@ RUN mkdir -p /opt/possum
 
 WORKDIR /opt/possum
 
-RUN bundle
+RUN bundle --without test development
 
 ADD . .
 
