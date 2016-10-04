@@ -26,7 +26,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
   # The authenticated user who performs the policy load.
   many_to_one :role
 
-  attr_accessor :parse_error
+  attr_accessor :parse_error, :policy_filename
 
   alias id resource_id
   alias current_user role
@@ -86,7 +86,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     return unless policy_text
 
     begin
-      records = Conjur::Policy::YAML::Loader.load(policy_text)
+      records = Conjur::Policy::YAML::Loader.load(policy_text, policy_filename)
       records = wrap_in_policy records unless bootstrap_policy?
       @records = Conjur::Policy::Resolver.resolve records, account, policy_admin.id
     rescue

@@ -23,6 +23,7 @@ class BootstrapLoader
         bootstrap_policy_resource = Loader::Types.find_or_create_bootstrap_policy(account)
 
         policy_version = PolicyVersion.new role: admin, policy: bootstrap_policy_resource, policy_text: File.read(filename)
+        policy_version.policy_filename = filename
         policy_version.save
 
         loader = Loader::Orchestrate.new policy_version
