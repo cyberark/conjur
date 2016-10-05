@@ -1,0 +1,50 @@
+roles
+ROLE_ID                        | POLICY_ID              
+-------------------------------|------------------------
+rspec:user:admin               |                        
+rspec:policy:bootstrap         |                        
+rspec:policy:the-policy        | rspec:policy:bootstrap 
+rspec:group:the-policy/group-a | rspec:policy:the-policy
+rspec:group:the-policy/group-x | rspec:policy:the-policy
+rspec:group:the-policy/group-b | rspec:policy:the-policy
+rspec:layer:the-policy/the-app | rspec:policy:the-policy
+
+resources
+RESOURCE_ID                          | OWNER_ID                | POLICY_ID              
+-------------------------------------|-------------------------|------------------------
+rspec:policy:bootstrap               | rspec:user:admin        |                        
+rspec:policy:the-policy              | rspec:policy:the-policy | rspec:policy:bootstrap 
+rspec:group:the-policy/group-a       | rspec:policy:the-policy | rspec:policy:the-policy
+rspec:group:the-policy/group-x       | rspec:policy:the-policy | rspec:policy:the-policy
+rspec:variable:the-policy/the-secret | rspec:policy:the-policy | rspec:policy:the-policy
+rspec:group:the-policy/group-b       | rspec:policy:the-policy | rspec:policy:the-policy
+rspec:layer:the-policy/the-app       | rspec:policy:the-policy | rspec:policy:the-policy
+
+role_memberships
+ROLE_ID                        | MEMBER_ID                      | ADMIN_OPTION | POLICY_ID              
+-------------------------------|--------------------------------|--------------|------------------------
+rspec:policy:bootstrap         | rspec:user:admin               | true         |                        
+rspec:policy:the-policy        | rspec:user:admin               | true         | rspec:policy:bootstrap 
+rspec:group:the-policy/group-a | rspec:policy:the-policy        | true         | rspec:policy:the-policy
+rspec:group:the-policy/group-x | rspec:policy:the-policy        | true         | rspec:policy:the-policy
+rspec:group:the-policy/group-x | rspec:group:the-policy/group-a | true         | rspec:policy:the-policy
+rspec:group:the-policy/group-b | rspec:policy:the-policy        | true         | rspec:policy:the-policy
+rspec:layer:the-policy/the-app | rspec:policy:the-policy        | true         | rspec:policy:the-policy
+rspec:group:the-policy/group-x | rspec:group:the-policy/group-b | false        | rspec:policy:the-policy
+
+permissions
+RESOURCE_ID                          | PRIVILEGE | ROLE_ID                        | POLICY_ID              
+-------------------------------------|-----------|--------------------------------|------------------------
+rspec:variable:the-policy/the-secret | read      | rspec:group:the-policy/group-a | rspec:policy:the-policy
+rspec:variable:the-policy/the-secret | read      | rspec:layer:the-policy/the-app | rspec:policy:the-policy
+rspec:variable:the-policy/the-secret | execute   | rspec:layer:the-policy/the-app | rspec:policy:the-policy
+rspec:variable:the-policy/the-secret | read      | rspec:group:the-policy/group-b | rspec:policy:the-policy
+rspec:variable:the-policy/the-secret | execute   | rspec:group:the-policy/group-b | rspec:policy:the-policy
+rspec:variable:the-policy/the-secret | update    | rspec:group:the-policy/group-b | rspec:policy:the-policy
+
+annotations
+RESOURCE_ID                          | NAME        | VALUE         | POLICY_ID              
+-------------------------------------|-------------|---------------|------------------------
+rspec:variable:the-policy/the-secret | description | it's a secret | rspec:policy:the-policy
+rspec:variable:the-policy/the-secret | length      | 20            | rspec:policy:the-policy
+

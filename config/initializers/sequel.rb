@@ -1,4 +1,9 @@
 Sequel.extension :core_extensions
+Sequel::Model.plugin :validation_helpers
 
-Sequel::Model.db.sql_log_level = :debug
-Sequel::Model.db.loggers << Rails.logger
+class Sequel::Model
+  def write_id_to_json response, field
+    value = response.delete("#{field}_id")
+    response[field] = value if value
+  end
+end

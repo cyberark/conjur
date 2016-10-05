@@ -22,12 +22,15 @@ RUN gem install -N -v 1.11.2 bundler
 
 RUN mkdir -p /src/possum
 
+ADD .irbrc /root
+
 WORKDIR /src/possum
 
 ADD Gemfile      .
 ADD Gemfile.lock .
 
 RUN bundle
+
 RUN rm /etc/service/sshd/down
 RUN ln -sf /src/possum/bin/possum /usr/local/bin/
 

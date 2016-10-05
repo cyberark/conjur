@@ -25,28 +25,25 @@ gem 'ruby_dep', '= 1.3.1'
 gem 'possum-api', github: 'conjurinc/api-ruby', branch: 'work/ng'
 gem 'conjur-rack', github: 'conjurinc/conjur-rack', branch: 'master'
 gem 'conjur-rack-heartbeat'
-gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'master'
+gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'possum'
+gem 'simplecov', :require => false
 
 group :production do
   gem 'rails_12factor'
 end
 
-group :test do
-  gem 'simplecov', :require => false
-end
-
 group :development, :test do
-  gem 'pry'
+  gem 'pry-byebug'
   gem 'spring'
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
   gem 'json_spec'
   gem 'rspec'
+  gem 'table_print'
   gem 'rspec-rails'
   gem 'ci_reporter_rspec'
   gem 'parallel'
   gem 'cucumber'
   gem 'aruba'
-  gem 'byebug'
   gem 'rake_shared_context'
 end

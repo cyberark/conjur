@@ -1,0 +1,39 @@
+- !group group-a
+
+- !group group-b
+
+- !group group-x
+
+- !variable
+  id: the-secret
+  annotations:
+    description: it's a secret
+    length: "20"
+
+- !layer
+  id: the-app
+
+- !permit
+  role: !group group-a
+  privilege: [ read ]
+  resource: !variable the-secret
+
+- !permit
+  role: !layer the-app
+  privilege: [ read, execute ]
+  resource: !variable the-secret
+
+- !permit
+  role: !group group-b
+  privilege: [ read, execute, update ]
+  resource: !variable the-secret
+
+- !grant
+  role: !group group-x
+  member: !member
+    role: !group group-a
+    admin: true
+
+- !grant
+  role: !group group-x
+  member: !group group-b

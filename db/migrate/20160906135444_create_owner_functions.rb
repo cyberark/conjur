@@ -37,7 +37,7 @@ Sequel.migration do
     END
     $$;
 
-    CREATE OR REPLACE FUNCTION resources_insert_trigger() RETURNS trigger
+    CREATE OR REPLACE FUNCTION grant_role_membership_to_owner_trigger() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
     BEGIN
@@ -46,7 +46,7 @@ Sequel.migration do
     END
     $$;
 
-    CREATE OR REPLACE FUNCTION resources_update_trigger() RETURNS trigger
+    CREATE OR REPLACE FUNCTION update_role_membership_of_owner_trigger() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
     BEGIN
@@ -58,7 +58,7 @@ Sequel.migration do
     END
     $$;
 
-    CREATE OR REPLACE FUNCTION resources_delete_trigger() RETURNS trigger
+    CREATE OR REPLACE FUNCTION delete_role_membership_of_owner_trigger() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
     BEGIN
@@ -68,23 +68,23 @@ Sequel.migration do
     END
     $$;
 
-    CREATE TRIGGER resources_insert_trigger
+    CREATE TRIGGER grant_role_membership_to_owner
     BEFORE INSERT
     ON resources
     FOR EACH ROW
-    EXECUTE PROCEDURE resources_insert_trigger();
+    EXECUTE PROCEDURE grant_role_membership_to_owner_trigger();
 
-    CREATE TRIGGER resources_update_trigger
+    CREATE TRIGGER update_role_membership_of_owner
     BEFORE UPDATE
     ON resources
     FOR EACH ROW
-    EXECUTE PROCEDURE resources_update_trigger();
+    EXECUTE PROCEDURE update_role_membership_of_owner_trigger();
 
-    CREATE TRIGGER resources_delete_trigger
+    CREATE TRIGGER delete_role_membership_of_owner
     BEFORE DELETE
     ON resources
     FOR EACH ROW
-    EXECUTE PROCEDURE resources_delete_trigger();
+    EXECUTE PROCEDURE delete_role_membership_of_owner_trigger();
 
     SQL_CODE
   end
@@ -92,9 +92,9 @@ Sequel.migration do
   down do
     execute <<-SQL_CODE
 
-    DROP FUNCTION resources_delete_trigger() CASCADE;
-    DROP FUNCTION resources_update_trigger() CASCADE;
-    DROP FUNCTION resources_insert_trigger() CASCADE;
+    DROP FUNCTION delete_role_membership_of_owner_trigger() CASCADE;
+    DROP FUNCTION update_role_membership_of_owner_trigger() CASCADE;
+    DROP FUNCTION grant_role_membership_to_owner_trigger() CASCADE;
     DROP FUNCTION grant_role_membership_to_owner(text, text);
     DROP FUNCTION delete_role_membership_of_owner(text, text);
 

@@ -1,0 +1,24 @@
+- !group group-a
+
+- !group group-c
+
+- !group group-x
+
+- !variable
+  id: the-secret
+  annotations:
+    description: the-secret
+    kind: plain text
+
+- !permit
+  role: !group group-a
+  privilege: [ read, execute ]
+  resource: !variable the-secret
+
+- !grant
+  role: !group group-x
+  member: !group group-a
+
+- !grant
+  role: !group group-c
+  member: !group group-a

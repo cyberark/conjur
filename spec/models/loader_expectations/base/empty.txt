@@ -1,0 +1,25 @@
+roles
+ROLE_ID                 | POLICY_ID             
+------------------------|-----------------------
+rspec:user:admin        |                       
+rspec:policy:bootstrap  |                       
+rspec:policy:the-policy | rspec:policy:bootstrap
+
+resources
+RESOURCE_ID             | OWNER_ID                | POLICY_ID             
+------------------------|-------------------------|-----------------------
+rspec:policy:bootstrap  | rspec:user:admin        |                       
+rspec:policy:the-policy | rspec:policy:the-policy | rspec:policy:bootstrap
+
+role_memberships
+ROLE_ID                 | MEMBER_ID        | ADMIN_OPTION | POLICY_ID             
+------------------------|------------------|--------------|-----------------------
+rspec:policy:bootstrap  | rspec:user:admin | true         |                       
+rspec:policy:the-policy | rspec:user:admin | true         | rspec:policy:bootstrap
+
+permissions
+No data.
+
+annotations
+No data.
+

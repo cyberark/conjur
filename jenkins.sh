@@ -16,11 +16,11 @@ mkdir -p spec/reports
 mkdir -p cucumber/api/features/reports
 mkdir -p cucumber/policy/features/reports
 
-server_cid=$(docker run \
+server_cid=$(docker run -d \
 	--link $pg_cid:pg \
 	-e DATABASE_URL=postgres://postgres@pg/postgres \
 	-e RAILS_ENV=test \
-	-d possum server)
+	possum server)
 
 cat << "TEST" | docker run \
 	-i \
@@ -33,11 +33,11 @@ cat << "TEST" | docker run \
 	-e CONJUR_APPLIANCE_URL=http://possum \
 	-e POSSUM_ADMIN_PASSWORD=admin \
 	--entrypoint bash \
-	possum
+	possum-test
 #!/bin/bash -ex
 
 for i in $(seq 10); do
-	curl -o /dev/null -fsk http://possum/info > /dev/null && break
+	curl -o /dev/null -fs -X OPTIONS http://possum > /dev/null && break
 	echo -n "."
 	sleep 2
 done

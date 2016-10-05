@@ -6,6 +6,7 @@ Dir[Rails.root.join("lib/tasks/dev/**/*.rb")].each do |f|
   begin
     require f
   rescue LoadError
-    $stderr.puts "LoadError requiring rake task file #{f}: #{$!}"
+    # "docker run" mixes stderr with stdout, polluting command output.
+    # $stderr.puts "LoadError requiring rake task file #{f}: #{$!}"
   end
 end
