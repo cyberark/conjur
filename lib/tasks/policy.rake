@@ -39,7 +39,7 @@ namespace :policy do
 
   desc "Load policy data from a file"
   task :load, [ "account", "file-name" ] => [ "environment" ] do |t,args|
-    require 'loader'
+    require 'bootstrap_loader'
     if ENV['DEBUG']
       Loader.enable_logging
     end
@@ -47,6 +47,6 @@ namespace :policy do
     account = args["account"] or raise "account argument is required"
     file_name = args["file-name"] or raise "file-name argument is required"
   
-    Loader.load account, file_name
+    BootstrapLoader.load account, file_name
   end
 end

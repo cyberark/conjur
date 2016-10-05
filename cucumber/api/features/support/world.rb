@@ -3,21 +3,21 @@ module PossumWorld
   USER_NAMES = %w(auto-larry auto-mike auto-norbert auto-otto)
   
   def post_json path, body, options = {}
-    denormalize!(path)
-    denormalize!(body)
+    path = denormalize(path)
+    body = denormalize(body)
     result = rest_resource(options)[path].post(body)
     set_result result
   end
   
   def put_json path, body = nil, options = {}
-    denormalize!(path)
-    denormalize!(body)
+    path = denormalize(path)
+    body = denormalize(body)
     result = rest_resource(options)[path].put(body)
     set_result result
   end
 
   def get_json path, options = {}
-    denormalize!(path)
+    path = denormalize(path)
     result = rest_resource(options)[path].get
     set_result result
   end
@@ -58,7 +58,17 @@ module PossumWorld
   end
   
   def lookup_user login
-    users[login] or raise "No such user '#{login}'"
+    roleid = "cucumber:user:#{user_login(login)}"
+    existing = Role[roleid] rescue nil
+    if existing
+      Credentials.new(role: existing).save unless existing.credentials
+      users[login] = existing
+      existing
+    else
+      users[login]
+    end.tap do |user|
+      raise "No such user '#{login}'" unless user
+    end
   end
 
   def foreign_admin_user account
@@ -72,6 +82,7 @@ module PossumWorld
       admin_login = user_login('admin')
               
       admin_user = Role.create(role_id: "cucumber:user:#{admin_login}")
+      Role['cucumber:user:admin'].grant_to admin_user
       Credentials.new(role: admin_user).save(raise_on_save_failure: true)
       
       @admin_user = admin_user
@@ -85,9 +96,9 @@ module PossumWorld
       login = USER_NAMES[@user_index]
       @user_index += 1
     end
-    
+
     return if users[login]
-    
+
     roleid = "cucumber:user:#{user_login(login)}"
     Role.create(role_id: roleid).tap do |user|
       user.grant_to admin_user, admin_option: true
@@ -154,14 +165,9 @@ module PossumWorld
   end  
     
   def denormalize str
-    str.dup.tap do |str|
-      denormalize! str
-    end
-  end
-  
-  def denormalize! path
-    return unless path
-    return if path.is_a?(Hash)
+    return unless str
+    return if str.is_a?(Hash)
+    str = str.dup
     patterns = {
       "account" => account,
       "user_namespace" => user_namespace,
@@ -176,11 +182,12 @@ module PossumWorld
       patterns["#{k}_api_key"] = v.credentials.api_key
     end
     patterns.each do |k,v|
-      path.gsub! ":#{k}", v
-      path.gsub! "@#{k}@", v
-      path.gsub! CGI.escape(":#{k}"), CGI.escape(v)
-      path.gsub! CGI.escape("@#{k}@"), CGI.escape(v)
+      str.gsub! ":#{k}", v
+      str.gsub! "@#{k}@", v
+      str.gsub! CGI.escape(":#{k}"), CGI.escape(v)
+      str.gsub! CGI.escape("@#{k}@"), CGI.escape(v)
     end
+    str
   end
   
   def random_hex nbytes = 12

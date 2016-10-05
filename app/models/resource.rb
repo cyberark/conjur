@@ -1,4 +1,6 @@
 class Resource < Sequel::Model
+  include HasId
+  
   unrestrict_primary_key
   
   one_to_many :permissions, reciprocal: :resource
@@ -19,7 +21,9 @@ class Resource < Sequel::Model
   def as_json options = {}
     super(options).tap do |response|
       response["id"] = response.delete("resource_id")
-      response["owner"] = response.delete("owner_id")
+      %w(owner policy).each do |field|
+        write_id_to_json response, field
+      end
       response["permissions"] = permissions.as_json.map {|h| h.except 'resource'}
       response["annotations"] = self.annotations.as_json.map {|h| h.except 'resource'}
       response["secrets"] = self.secrets.as_json.map {|h| h.except 'resource'}

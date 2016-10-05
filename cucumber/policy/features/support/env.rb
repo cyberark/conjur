@@ -11,3 +11,5 @@ end
 
 require 'simplecov'
 SimpleCov.start
+
+system *(%w(possum policy load cucumber ./run/empty.yml)) or raise "Failed to load policy: #{$?.exitstatus}"

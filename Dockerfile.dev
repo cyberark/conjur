@@ -30,6 +30,7 @@ ADD Gemfile      .
 ADD Gemfile.lock .
 
 RUN bundle
+
 RUN rm /etc/service/sshd/down
 RUN ln -sf /src/possum/bin/possum /usr/local/bin/
 

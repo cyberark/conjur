@@ -6,8 +6,9 @@ class RoleMembership < Sequel::Model
   
   def as_json options = {}
     super(options).tap do |response|
-      response["role"] = response.delete("role_id")
-      response["member"] = response.delete("member_id")
+      %w(role member policy).each do |field|
+        write_id_to_json response, field
+      end
     end
   end
 end

@@ -21,7 +21,7 @@ Sequel.migration do
           WHERE owner_id = role_id
             AND resources.resource_id = $3
         UNION
-          SELECT 1 FROM all_roles NATURAL JOIN permissions NATURAL JOIN resources
+          SELECT 1 FROM ( all_roles JOIN permissions USING ( role_id ) ) JOIN resources USING ( resource_id )
           WHERE privilege = $2
             AND resources.resource_id = $3
         ) AS _

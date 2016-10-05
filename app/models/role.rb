@@ -1,4 +1,6 @@
 class Role < Sequel::Model
+  include HasId
+  
   unrestrict_primary_key
 
   one_to_many :memberships, class: :RoleMembership
@@ -13,6 +15,7 @@ class Role < Sequel::Model
       
     super(options).tap do |response|
       response["id"] = response.delete("role_id")
+      write_id_to_json response, "policy"
     end
   end
   

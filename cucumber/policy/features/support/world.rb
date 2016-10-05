@@ -66,6 +66,19 @@ class PossumClient
     id = make_full_id id
     @client.get "roles/#{id_path(id)}"
   end
+
+  def policy_show id, version=nil
+    params = if version
+      "?version=#{version}"
+    else
+      ""
+    end
+    @client.get "policies/#{id_path(id)}#{params}"
+  end
+
+  def policy_load id, body
+    @client.post "policies/#{id_path(id)}", body
+  end
   
   def secret_add id, value
     id = make_full_id id
@@ -111,15 +124,14 @@ module PossumWorld
       status = status.to_i if status.is_a?(String)
       raise e unless status == e.response.status
     end
+  end
 
+  def load_bootstrap_policy policy
+    load_policy "bootstrap", policy
   end
   
-  def load_policy policy
-    require 'tempfile'
-    file = Tempfile.new('policy')
-    file.write policy
-    file.flush
-    system *(%w(possum policy load cucumber) + [ file.path ]) or raise "Failed to load policy: #{$?.exitstatus}"
+  def load_policy id, policy
+    possum.policy_load "cucumber/policy/#{id}", policy
   end
   
   def make_full_id *tokens
@@ -138,7 +150,7 @@ module PossumWorld
   def login_as_role login, api_key = nil
     unless api_key
       role = if login.index('/')
-        login.split('/').join(":")
+        login.split('/', 2).join(":")
       else
         [ "user", login ].join(":")
       end

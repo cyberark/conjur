@@ -1,3 +1,10 @@
 #!/bin/bash -ex
 
-exec ./bin/cucumber -r cucumber/policy/features/support/ -r cucumber/policy/features/step_definitions/ cucumber/policy/features/
+path=$1
+if [ "$path" == "" ]; then
+  path=cucumber/policy/features/
+else
+  path=cucumber/policy/features/"$path"
+fi
+
+exec ./bin/cucumber -r cucumber/policy/features/support/ -r cucumber/policy/features/step_definitions/ $path
