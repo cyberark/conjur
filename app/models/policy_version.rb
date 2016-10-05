@@ -75,10 +75,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
   end
 
   def policy_admin
-    # TODO This should be changed to the policy resource owner once unified ownership is merged.
-    @policy_admin ||= RoleMembership.where(role_id: policy.id, admin_option: true).limit(1).first.tap do |membership|
-      raise "No admin member of #{policy.id} found" unless membership
-    end.member
+    policy.owner
   end
 
   def try_load_records

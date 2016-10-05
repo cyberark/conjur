@@ -1,39 +1,39 @@
 roles
 ROLE_ID                        | POLICY_ID              
 -------------------------------|------------------------
-rspec:user:admin               |                        
-rspec:policy:bootstrap         |                        
-rspec:policy:the-policy        | rspec:policy:bootstrap 
 rspec:group:the-policy/group-a | rspec:policy:the-policy
 rspec:group:the-policy/group-c | rspec:policy:the-policy
 rspec:group:the-policy/group-x | rspec:policy:the-policy
+rspec:policy:bootstrap         |                        
+rspec:policy:the-policy        | rspec:policy:bootstrap 
+rspec:user:admin               |                        
+
+role_memberships
+ROLE_ID                        | MEMBER_ID                      | ADMIN_OPTION | OWNERSHIP | POLICY_ID              
+-------------------------------|--------------------------------|--------------|-----------|------------------------
+rspec:group:the-policy/group-a | rspec:policy:the-policy        | true         | true      | rspec:policy:the-policy
+rspec:group:the-policy/group-c | rspec:group:the-policy/group-a | false        | false     | rspec:policy:the-policy
+rspec:group:the-policy/group-c | rspec:policy:the-policy        | true         | true      | rspec:policy:the-policy
+rspec:group:the-policy/group-x | rspec:group:the-policy/group-a | false        | false     | rspec:policy:the-policy
+rspec:group:the-policy/group-x | rspec:policy:the-policy        | true         | true      | rspec:policy:the-policy
+rspec:policy:bootstrap         | rspec:user:admin               | true         | true      |                        
+rspec:policy:the-policy        | rspec:user:admin               | true         | true      | rspec:policy:bootstrap 
 
 resources
 RESOURCE_ID                          | OWNER_ID                | POLICY_ID              
 -------------------------------------|-------------------------|------------------------
-rspec:policy:bootstrap               | rspec:user:admin        |                        
-rspec:policy:the-policy              | rspec:policy:the-policy | rspec:policy:bootstrap 
 rspec:group:the-policy/group-a       | rspec:policy:the-policy | rspec:policy:the-policy
 rspec:group:the-policy/group-c       | rspec:policy:the-policy | rspec:policy:the-policy
 rspec:group:the-policy/group-x       | rspec:policy:the-policy | rspec:policy:the-policy
+rspec:policy:bootstrap               | rspec:user:admin        |                        
+rspec:policy:the-policy              | rspec:user:admin        | rspec:policy:bootstrap 
 rspec:variable:the-policy/the-secret | rspec:policy:the-policy | rspec:policy:the-policy
-
-role_memberships
-ROLE_ID                        | MEMBER_ID                      | ADMIN_OPTION | POLICY_ID              
--------------------------------|--------------------------------|--------------|------------------------
-rspec:policy:bootstrap         | rspec:user:admin               | true         |                        
-rspec:policy:the-policy        | rspec:user:admin               | true         | rspec:policy:bootstrap 
-rspec:group:the-policy/group-a | rspec:policy:the-policy        | true         | rspec:policy:the-policy
-rspec:group:the-policy/group-c | rspec:policy:the-policy        | true         | rspec:policy:the-policy
-rspec:group:the-policy/group-x | rspec:policy:the-policy        | true         | rspec:policy:the-policy
-rspec:group:the-policy/group-x | rspec:group:the-policy/group-a | false        | rspec:policy:the-policy
-rspec:group:the-policy/group-c | rspec:group:the-policy/group-a | false        | rspec:policy:the-policy
 
 permissions
 RESOURCE_ID                          | PRIVILEGE | ROLE_ID                        | POLICY_ID              
 -------------------------------------|-----------|--------------------------------|------------------------
-rspec:variable:the-policy/the-secret | read      | rspec:group:the-policy/group-a | rspec:policy:the-policy
 rspec:variable:the-policy/the-secret | execute   | rspec:group:the-policy/group-a | rspec:policy:the-policy
+rspec:variable:the-policy/the-secret | read      | rspec:group:the-policy/group-a | rspec:policy:the-policy
 
 annotations
 RESOURCE_ID                          | NAME        | VALUE      | POLICY_ID              
