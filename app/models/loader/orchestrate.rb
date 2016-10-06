@@ -44,14 +44,13 @@ module Loader
 
     attr_reader :policy_version, :records, :policy_passwords, :policy_public_keys
 
-    TABLES = %w(roles resources role_memberships permissions annotations)
+    TABLES = %w(roles role_memberships resources permissions annotations)
 
     # Columns to compare across schemata to find exact duplicates.
     TABLE_EQUIVALENCE_COLUMNS = {
       roles: [ :role_id ],
       resources: [ :resource_id, :owner_id ],
-      # TODO: add +ownership+ column
-      role_memberships: [ :role_id, :member_id, :admin_option ],
+      role_memberships: [ :role_id, :member_id, :admin_option, :ownership ],
       permissions: [ :resource_id, :privilege, :role_id ],
       annotations: [ :resource_id, :name, :value ]
     }
@@ -114,7 +113,8 @@ module Loader
             model = Sequel::Model("#{schema}#{table}".to_sym)
             account_column = TABLE_EQUIVALENCE_COLUMNS[table.to_sym].include?(:resource_id) ? :resource_id : :role_id
             io.write "#{table}\n"
-            tp *([ model.where("account(#{account_column}) = ?", account).all ] + TABLE_EQUIVALENCE_COLUMNS[table.to_sym] + [ :policy_id ])
+            sort_columns = TABLE_EQUIVALENCE_COLUMNS[table.to_sym] + [ :policy_id ]
+            tp *([ model.where("account(#{account_column}) = ?", account).order(sort_columns).all ] + TABLE_EQUIVALENCE_COLUMNS[table.to_sym] + [ :policy_id ])
             io.write "\n"
           end
         ensure
@@ -226,33 +226,37 @@ module Loader
     end
 
     def update_changed
-      TABLES.each do |table|
-        pk_columns = Array(Sequel::Model("public__#{table}".to_sym).primary_key)
-        update_columns = TABLE_EQUIVALENCE_COLUMNS[table.to_sym] - pk_columns
-        next if update_columns.empty?
+      in_primary_schema do
+        TABLES.each do |table|
+          pk_columns = Array(Sequel::Model(table.to_sym).primary_key)
+          update_columns = TABLE_EQUIVALENCE_COLUMNS[table.to_sym] - pk_columns
+          next if update_columns.empty?
 
-        update_statements = update_columns.map do |c|
-          "#{c} = new_#{table}.#{c}"
-        end.join(", ")
+          update_statements = update_columns.map do |c|
+            "#{c} = new_#{table}.#{c}"
+          end.join(", ")
 
-        join_columns = (pk_columns + [ :policy_id ]).map do |c|
-          "public.#{table}.#{c} = new_#{table}.#{c}"
-        end.join(" AND ")
+          join_columns = (pk_columns + [ :policy_id ]).map do |c|
+            "#{table}.#{c} = new_#{table}.#{c}"
+          end.join(" AND ")
 
-        db.execute <<-UPDATE
-          UPDATE public.#{table}
-          SET #{update_statements}
-          FROM #{table} new_#{table}
-          WHERE #{join_columns}
-        UPDATE
+          db.execute <<-UPDATE
+            UPDATE #{table}
+            SET #{update_statements}
+            FROM #{schema_name}.#{table} new_#{table}
+            WHERE #{join_columns}
+          UPDATE
+        end
       end
     end
 
     # Copy all remaining records in the new schema into the master schema.
     def insert_new
-      TABLES.each do |table|
-        columns = (TABLE_EQUIVALENCE_COLUMNS[table.to_sym] + [ :policy_id ]).join(", ")
-        db.execute "INSERT INTO public.#{table} ( #{columns} ) SELECT #{columns} FROM #{table}"
+      in_primary_schema do
+        TABLES.each do |table|
+          columns = (TABLE_EQUIVALENCE_COLUMNS[table.to_sym] + [ :policy_id ]).join(", ")
+          db.execute "INSERT INTO #{table} ( #{columns} ) SELECT #{columns} FROM #{schema_name}.#{table}"
+        end
       end
     end
 
@@ -269,8 +273,19 @@ module Loader
 
       records.map(&:create!)
 
+      db[:role_memberships].where(admin_option: nil).update(admin_option: false)
+      db[:role_memberships].where(ownership: nil).update(ownership: false)
       TABLES.each do |table|
         db[table.to_sym].update(policy_id: policy_version.resource_id)
+      end
+    end
+
+    def in_primary_schema &block
+      db.execute "SET search_path = public"
+      begin
+        yield
+      ensure
+        db.execute "SET search_path = #{schema_name}"
       end
     end
 
@@ -285,6 +300,8 @@ module Loader
       TABLES.each do |table|
         db.execute "CREATE TABLE #{table} AS SELECT * FROM public.#{table} WHERE 0 = 1"
       end
+
+      db.execute Functions.ownership_trigger_sql
 
       db.execute <<-SQL_STATEMENT
       CREATE OR REPLACE FUNCTION account(id text) RETURNS text

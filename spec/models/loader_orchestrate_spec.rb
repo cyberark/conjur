@@ -53,7 +53,7 @@ describe Loader::Orchestrate do
       verify_data 'base/empty.txt'
     end
 
-    context "and attempted policy update" do
+    context "with attempted policy update" do
       it "applies the policy update" do
         load_policy_update 'simple.yml'
         verify_data 'updated/simple.txt'

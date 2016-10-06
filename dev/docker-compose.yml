@@ -12,6 +12,7 @@ possum:
     RAILS_ENV:
   volumes:
   - ..:/src/possum
+  - ../../conjur-policy-parser:/src/conjur-policy-parser
   links:
   - pg:pg
 

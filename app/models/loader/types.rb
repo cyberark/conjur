@@ -11,7 +11,6 @@ module Loader
 
       def create_bootstrap_policy account
         role = ::Role.create role_id: bootstrap_policy_id(account)
-        role.grant_to admin_role(account), admin_option: true
         ::Resource.create resource_id: bootstrap_policy_id(account), owner: admin_role(account)
       end
 
@@ -51,8 +50,7 @@ module Loader
       end
 
       def create_role!
-        role = ::Role.create role_id: roleid
-        role.grant_to owner_role, admin_option: true
+        ::Role.create role_id: roleid
       end
       
       def role
