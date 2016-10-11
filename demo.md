@@ -55,12 +55,12 @@ You can use the `possum` command line tool to list all the objects in the system
 
 {% highlight shell %}
 $ possum list
-owner                  id
----------------------  -----------------------------------
-example:user:admin     example:policy:bootstrap
-example:policy:people  example:policy:people
-example:policy:prod    example:policy:prod
-example:policy:people  example:group:people/security_admin
+Id                            Owner
+----------------------------  ----------------------------
+example:policy:bootstrap      example:user:admin
+example:group:security_admin  example:user:admin
+example:policy:people         example:group:security_admin
+example:policy:prod           example:group:security_admin
 {% endhighlight %}
 
 ## Add some users and groups
@@ -96,7 +96,7 @@ The `group` and `user` statements are self-explanatory - they create new objects
 Once you've defined the policy, you can use the `possum` command line to load it. The API keys of the new users are printed in the response; these can be used to authenticate as the corresponding user. 
 
 {% highlight shell %}
-$ cat people.yml | possum load people -
+$ cat people.yml | possum policy:load people -
 {
     "owen": "xyz",
     "frank": "pdq"
@@ -108,18 +108,18 @@ If you lose the API key of a user, you can reset (rotate) it using the `admin` a
 Now you can use the `possum` tool to list the new groups and users:
 
 {% highlight shell %}
-$ possum list group
-owner                  id
----------------------  -----------------------------------
-example:policy:people  example:group:people/frontend
-example:policy:people  example:group:people/operations
-example:policy:people  example:group:people/security_admin
+$ possum list -k group
+Id                               Owner                  Policy
+-------------------------------  ---------------------  ------------------------
+example:group:security_admin     example:user:admin     example:policy:bootstrap
+example:group:people/operations  example:policy:people  example:policy:people
+example:group:people/frontend    example:policy:people  example:policy:people
 
-$ possum list user
-owner                  id
----------------------  -------------------------
-example:policy:people  example:user:frank@people
-example:policy:people  example:user:owen@people
+$ possum list -k user
+Id                         Owner                  Policy
+-------------------------  ---------------------  ---------------------
+example:user:people/owen   example:policy:people  example:policy:people
+example:user:people/frank  example:policy:people  example:policy:people
 {% endhighlight %}
 
 ## Create the application policies
@@ -138,6 +138,12 @@ Before we can add the frontend and the database, we need to update the bootstrap
 - !policy
   id: people
   owner: !group security_admin
+  body:
+  - !group
+    id: frontend
+
+  - !group
+    id: operations
 
 - !policy
   id: prod
@@ -161,7 +167,7 @@ Before we can add the frontend and the database, we need to update the bootstrap
 {% endhighlight %}
 
 {% highlight shell %}
-$ cat prod.yml | possum load prod
+$ cat bootstrap.yml | possum policy:load bootstrap -
 {
 }
 {% endhighlight %}
@@ -191,10 +197,11 @@ Write the `frontend.yml`:
 
 As with users, the API keys of any new hosts are printed out when the policy is loaded. API keys of hosts can be reset the same as users, if one should happen to be lost or compromised.
 
-To demonstrate how delegation works, we will login as `frank`, who belongs to the frontend group. Enter Frank's API key at the login prompt.
+To demonstrate how delegation works, we will login as frank, who belongs to the frontend group. Enter Frank’s API key at the login prompt.
 
 {% highlight shell %}
-$ possum login frank
+$ possum login
+Enter your username to log into Possum: frank@people
 Enter the password: ******
 $ possum whoami
 demo:user:frank@people
@@ -203,7 +210,7 @@ demo:user:frank@people
 Then Frank can load `prod/frontend` policy:
 
 {% highlight shell %}
-$ cat frontend.yml | possum load prod/frontend
+$ cat frontend.yml | possum policy:load prod/frontend -
 {
     "demo:host:prod/frontend/frontend-01": "abc",
     "demo:host:prod/frontend/frontend-02": "xyz"
@@ -227,7 +234,7 @@ Let's continue by writing the policy `database.yml`. This policy will define the
 Load the database policy:
 
 {% highlight shell %}
-$ cat database.yml | possum load prod/database
+$ cat database.yml | possum policy:load prod/database -
 Error 403: Forbidden
 {% endhighlight %}
 
@@ -236,14 +243,15 @@ Whoops! We are still logged in as Frank, and Frank doesn't have permission to ma
 To fix the problem, login as `owen`, who belongs to the operations group. Enter Owen's API key at the login prompt.
 
 {% highlight shell %}
-$ possum login owen
+$ possum login
+Enter your username to log into Possum: owen@people
 Enter the password: ******
 {% endhighlight %}
 
 Then Owen can load `prod/database` policy:
 
 {% highlight shell %}
-$ cat database.yml | possum load prod/database
+$ cat database.yml | possum policy:load prod/database -
 {
 }
 {% endhighlight %}
@@ -281,7 +289,7 @@ example:host:prod/frontend/frontend-01
 Logged in as `frontend-01`, fetch and print the password:
 
 {% highlight shell %}
-$ possum variable value prod/database/password
+$ possum fetch prod/database/password
 5b19270e46ccfa4c1f68e9a192d4728d
 {% endhighlight %}
 
