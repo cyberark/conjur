@@ -76,10 +76,10 @@ You can use the `possum` command line tool to list all the objects in the system
 $ possum list
 Id                            Owner
 ----------------------------  ----------------------------
-example:policy:bootstrap      example:user:admin
-example:group:security_admin  example:user:admin
-example:policy:people         example:group:security_admin
-example:policy:prod           example:group:security_admin
+demo:policy:bootstrap      demo:user:admin
+demo:group:security_admin  demo:user:admin
+demo:policy:people         demo:group:security_admin
+demo:policy:prod           demo:group:security_admin
 {% endhighlight %}
 
 ## Add some users and groups
@@ -130,15 +130,15 @@ Now you can use the `possum` tool to list the new groups and users:
 $ possum list -k group
 Id                               Owner                  Policy
 -------------------------------  ---------------------  ------------------------
-example:group:security_admin     example:user:admin     example:policy:bootstrap
-example:group:people/operations  example:policy:people  example:policy:people
-example:group:people/frontend    example:policy:people  example:policy:people
+demo:group:security_admin     demo:user:admin     demo:policy:bootstrap
+demo:group:people/operations  demo:policy:people  demo:policy:people
+demo:group:people/frontend    demo:policy:people  demo:policy:people
 
 $ possum list -k user
 Id                         Owner                  Policy
 -------------------------  ---------------------  ---------------------
-example:user:people/owen   example:policy:people  example:policy:people
-example:user:people/frank  example:policy:people  example:policy:people
+demo:user:people/owen   demo:policy:people  demo:policy:people
+demo:user:people/frank  demo:policy:people  demo:policy:people
 {% endhighlight %}
 
 ## Create the application policies
@@ -302,7 +302,7 @@ We can simulate this by logging is as one of the frontend hosts. The login id of
 $ possum login -r host:prod/frontend/frontend-01
 Enter the password: ******
 $ possum whoami
-example:host:prod/frontend/frontend-01
+demo:host:prod/frontend/frontend-01
 {% endhighlight %}
 
 Logged in as `frontend-01`, fetch and print the password:
