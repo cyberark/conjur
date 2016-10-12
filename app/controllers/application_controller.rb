@@ -11,6 +11,7 @@ class ApplicationController < ActionController::API
   rescue_from Unauthorized, with: :unauthorized
   rescue_from Forbidden, with: :forbidden
   rescue_from Sequel::ValidationFailed, with: :validation_failed
+  rescue_from Conjur::Policy::Invalid, with: :policy_invalid
   rescue_from ArgumentError, with: :argument_error
 
   around_action :run_with_transaction
@@ -44,10 +45,29 @@ class ApplicationController < ActionController::API
     render json: {
       error: {
         code: error_code_of_exception_class(e.class),
-        message: e.errors.full_messages.join(". "),
+        message: e.errors.values.first.first,
+        details: e.errors.map do |field, message|
+          {
+            code: error_code_of_exception_class(e.class),
+            target: field,
+            message: message.first
+          }
+        end
+      }
+    }, status: :unprocessable_entity
+  end
+
+  def policy_invalid e
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    render json: {
+      error: {
+        code: "policy_invalid",
+        message: e.message,
         innererror: {
-          code: error_code_of_exception_class(e.class),
-          messages: e.errors.to_h
+          code: "policy_invalid",
+          filename: e.filename,
+          line: e.mark.line,
+          column: e.mark.column
         }
       }
     }, status: :unprocessable_entity

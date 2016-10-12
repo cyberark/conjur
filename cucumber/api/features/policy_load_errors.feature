@@ -7,15 +7,12 @@ Feature: Policy loading error messages
 
     When I POST "/policies/:account/policy/bootstrap" with body:
     """
-    - !policy
-      id: @namespace@
-      body:
-      - !variable password
+    - !variable password
 
-      - !permit
-        role: !user bob
-        privilege: [ execute ]
-        resource: !variable password
+    - !permit
+      role: !user bob
+      privilege: [ execute ]
+      resource: !variable password
     """
     Then it's not found
     And the JSON response should be:
@@ -27,8 +24,39 @@ Feature: Policy loading error messages
         "target": "id",
         "innererror": {
           "code": "not_found",
-          "id": "cucumber:user:bob@@namespace@"
+          "id": "cucumber:user:bob"
         }
+      }
+    }
+    """
+
+
+  @logged-in-admin
+  Scenario: A policy with a blank resource id reports the error.
+
+    When I POST "/policies/:account/policy/bootstrap" with body:
+    """
+    - !user bob
+
+    - !permit
+      role: !user bob
+      privilege: [ execute ]
+      resource:
+    """
+    Then it's unprocessable
+    And the JSON response should be:
+    """
+    {
+      "error": {
+        "code": "validation_failed",
+        "message": "Resource has a blank id",
+        "details": [
+          {
+            "code": "validation_failed",
+            "target": "policy_text",
+            "message": "Resource has a blank id"
+          }
+        ]
       }
     }
     """
