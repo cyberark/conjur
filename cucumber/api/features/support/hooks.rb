@@ -10,6 +10,11 @@ Before("@logged-in") do
   step %Q(I am a user named "alice")
 end
 
+Before("@clean-policies") do
+  admin_role = Role["cucumber:user:admin"]
+  Role.exclude(role_id: admin_role.id).delete
+end
+
 Before("@logged-in-admin") do
   step %Q(I am the super-user)
 end

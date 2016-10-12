@@ -45,3 +45,4 @@ Feature: Updating policies
     - !layer
     """
     Then it's forbidden
+

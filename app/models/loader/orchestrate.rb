@@ -42,7 +42,7 @@ module Loader
   class Orchestrate
     extend Forwardable
 
-    attr_reader :policy_version, :records, :policy_passwords, :policy_public_keys
+    attr_reader :policy_version, :records, :policy_passwords, :policy_public_keys, :new_roles
 
     TABLES = %w(roles role_memberships resources permissions annotations)
 
@@ -252,6 +252,8 @@ module Loader
 
     # Copy all remaining records in the new schema into the master schema.
     def insert_new
+      @new_roles = ::Role.all
+
       in_primary_schema do
         TABLES.each do |table|
           columns = (TABLE_EQUIVALENCE_COLUMNS[table.to_sym] + [ :policy_id ]).join(", ")

@@ -1,6 +1,7 @@
 class PoliciesController < RestController
   include FindResource
   include AuthorizeResource
+  include TokenGenerator
   
   before_filter :current_user
   before_filter :find_or_create_bootstrap_policy
@@ -39,7 +40,18 @@ class PoliciesController < RestController
     loader = Loader::Orchestrate.new policy_version
     loader.load
 
-    render json: policy_version, status: :created
+    created_roles = loader.new_roles.select do |role|
+      %w(user host).member?(role.kind)
+    end.inject({}) do |memo, role|
+      credentials = Credentials[role: role] || Credentials.create(role: role)
+      memo[role.id] = { id: role.id, api_key: credentials.api_key }
+      memo
+    end
+
+    render json: {
+        created_roles: created_roles,
+        version: policy_version.version
+      }, status: :created
   end
 
   protected

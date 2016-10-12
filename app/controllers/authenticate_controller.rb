@@ -1,4 +1,6 @@
 class AuthenticateController < ApplicationController
+  include TokenGenerator
+
   # Request path indicates the username for +authenticate+.
   before_filter :credentials_lookup
 
@@ -13,12 +15,8 @@ class AuthenticateController < ApplicationController
   
   protected
   
-  def signing_key
-    Slosilo["authn:#{account}".to_sym] or raise Unauthorized, "No signing key is available for account '#{account}'"
-  end
-    
   def authentication_token
-    signing_key.signed_token Role.username_from_roleid(@credentials.role.id)
+    sign_token @credentials.role
   end
 
   def credentials_lookup
