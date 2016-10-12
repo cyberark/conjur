@@ -11,8 +11,9 @@ Visit [https://docs.docker.com/engine/installation/](https://docs.docker.com/eng
 ## Clone the example repository
 
 {% highlight shell %}
-$ git clone https://github.com/conjurinc/possum.git
-$ cd possum/demo
+$ git clone https://github.com/conjurinc/api-python.git
+$ cd api-python/demo
+$ ./start.sh
 {% endhighlight %}
 
 ## Launch Possum
@@ -31,6 +32,24 @@ It also creates the data key, which is used to encrypt all sensitive information
 $ ./start.sh
 ...
 root@6309c4141aac:/app# 
+{% endhighlight %}
+
+## Log in
+
+To start working with Possum, log in as the `admin` user. The password is "secret":
+
+{% highlight shell %}
+$ possum login
+Enter your username to log into Possum: admin
+Enter password for user admin (it will not be echoed):
+Logged in
+{% endhighlight %}
+
+You can show your current logged-in user with `possum whoami`:
+
+{% highlight shell %}
+$ possum whoami
+demo:user:admin
 {% endhighlight %}
 
 ## Understand the bootstrap policy
