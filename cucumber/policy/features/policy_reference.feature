@@ -39,3 +39,25 @@ Feature: Policies can refer to each other by relative path.
     And I can add a secret to variable resource "prod/database/password"
     When I log in as host "host-01"
     Then I can fetch a secret from variable resource "prod/database/password"
+
+  Scenario: Policy references can be used across policy loader invocations.
+    Given a policy:
+    """
+    - !policy
+      id: prod
+      body:
+      - !policy database
+      - !policy frontend
+    """
+    And I load policy "prod/frontend":
+    """
+    - !layer
+    """
+    Then I load policy "prod/database":
+    """
+    - !variable password
+    - !permit
+      role: !layer ../frontend
+      privilege: [ read, execute ]
+      resource: !variable password
+    """

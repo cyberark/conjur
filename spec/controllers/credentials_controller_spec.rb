@@ -117,9 +117,10 @@ describe CredentialsController, :type => :controller do
                 message: "password cannot contain a newline",
                 innererror: {
                   code: "validation_failed",
-                  messages: { "password" => "cannot contain a newline" }
+                  messages: { "password" => [ "cannot contain a newline" ] }
                 }
               }
+            }
           }
           it "reports the error" do
             post :update_password, account: account

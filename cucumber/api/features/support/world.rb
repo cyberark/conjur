@@ -149,8 +149,6 @@ module PossumWorld
       if can
         raise
       else
-        p @exception
-        p @exception.response
         set_result @exception.response
       end
     end

@@ -40,6 +40,17 @@ module Loader
       def owner_role
         ::Role[owner.roleid] || ::Role.create(role_id: owner.roleid)
       end
+
+      def find_role id, allow_foreign = false
+        def foreign_role_exists? id
+          !!Sequel::Model(:public__roles)[id]
+        end
+        def create_foreign_role id, allow_foreign
+          ::Role.create(role_id: id) if allow_foreign && foreign_role_exists?(id)
+        end
+
+        ::Role[id] || create_foreign_role(id, allow_foreign) or raise Exceptions::RecordNotFound, id
+      end
     end
 
     module CreateRole
@@ -148,9 +159,7 @@ module Loader
       def create!
         Array(roles).each do |r|
           Array(members).each do |m|
-            role = ::Role[r.roleid] or raise Exceptions::RecordNotFound, r.roleid
-            member = ::Role[m.role.roleid] or raise Exceptions::RecordNotFound, m.role.roleid
-            role.grant_to member, admin_option: m.admin
+            find_role(r.roleid).grant_to find_role(m.role.roleid, allow_foreign = true), admin_option: m.admin
           end
         end
       end
@@ -164,8 +173,7 @@ module Loader
           Array(privileges).each do |p|
             Array(roles).each do |m|
               resource = ::Resource[r.resourceid] or raise Exceptions::RecordNotFound, r.resourceid
-              member = ::Role[m.roleid] or raise Exceptions::RecordNotFound, m.roleid
-              resource.permit p, member
+              resource.permit p, find_role(m.roleid, allow_foreign = true)
             end
           end
         end

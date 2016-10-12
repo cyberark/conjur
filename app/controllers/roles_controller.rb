@@ -15,7 +15,7 @@ class RolesController < RestController
   end
 
   def check_permission 
-    resource = Resource[resource_id] || Exceptions::RecordNotFound, resource_Id
+    resource = Resource[resource_id] or raise Exceptions::RecordNotFound, resource_id
     privilege = params[:privilege]
     raise ArgumentError, "privilege" unless privilege
     if @role.allowed_to?(privilege, resource)
