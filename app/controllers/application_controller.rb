@@ -7,7 +7,7 @@ class ApplicationController < ActionController::API
   class Forbidden < RuntimeError
   end
   
-  rescue_from IndexError, with: :record_not_found
+  rescue_from Exceptions::RecordNotFound, with: :record_not_found
   rescue_from Unauthorized, with: :unauthorized
   rescue_from Forbidden, with: :forbidden
   rescue_from Sequel::ValidationFailed, with: :validation_failed
@@ -24,26 +24,43 @@ class ApplicationController < ActionController::API
     end
   end
 
-  def record_not_found  e
+  def record_not_found e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
-    head :not_found
+    render json: {
+      error: {
+        code: "not_found",
+        message: e.message,
+        target: "id",
+        innererror: {
+          code: "not_found",
+          id: e.id
+        }
+      }
+    }, status: :not_found
   end
 
   def validation_failed e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
     render json: {
+      error: {
         code: error_code_of_exception_class(e.class),
         message: e.errors.full_messages.join(". "),
-        innererror: e.errors.to_h
-      }, status: :unprocessable_entity
+        innererror: {
+          code: error_code_of_exception_class(e.class),
+          messages: e.errors.to_h
+        }
+      }
+    }, status: :unprocessable_entity
   end
 
   def argument_error  e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
     render json: {
+      error: {
         code: error_code_of_exception_class(e.class),
         message: e.message
-      }, status: :unprocessable_entity
+      }
+    }, status: :unprocessable_entity
   end
 
   def forbidden e

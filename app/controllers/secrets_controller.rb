@@ -29,7 +29,7 @@ class SecretsController < RestController
     else
       raise ArgumentError, "invalid type for parameter 'version'"
     end
-    raise IndexError if secret.nil?
+    raise Exceptions::RecordNotFound, @resource.id, "Requested version does not exist" if secret.nil?
     value = secret.value
     
     mime_type = if ( a = @resource.annotations_dataset.select(:value).where(name: 'conjur/mime_type').first )

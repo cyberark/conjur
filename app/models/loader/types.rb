@@ -15,7 +15,7 @@ module Loader
       end
 
       def admin_role account
-        ::Role["#{account}:user:admin"] or raise IndexError, "#{account}:user:admin"
+        ::Role["#{account}:user:admin"] or raise Exceptions::RecordNotFound, "#{account}:user:admin"
       end
 
       def wrap orchestrator, obj
@@ -117,7 +117,7 @@ module Loader
           key_name = PublicKey.key_name public_key
 
           resourceid = [ account, "public_key", "#{self.role_kind}/#{self.id}/#{key_name}" ].join(":")
-          (::Resource[resourceid] || ::Resource.create(resource_id: resourceid, owner: (::Role[owner.roleid] or raise IndexError, owner.roleid))).tap do |resource|
+          (::Resource[resourceid] || ::Resource.create(resource_id: resourceid, owner: (::Role[owner.roleid] or raise Exceptions::RecordNotFound, owner.roleid))).tap do |resource|
             handle_public_key resource.id, public_key
           end
         end
@@ -148,8 +148,8 @@ module Loader
       def create!
         Array(roles).each do |r|
           Array(members).each do |m|
-            role = ::Role[r.roleid] or raise IndexError, r.roleid
-            member = ::Role[m.role.roleid] or raise IndexError, m.role.roleid
+            role = ::Role[r.roleid] or raise Exceptions::RecordNotFound, r.roleid
+            member = ::Role[m.role.roleid] or raise Exceptions::RecordNotFound, m.role.roleid
             role.grant_to member, admin_option: m.admin
           end
         end
@@ -163,8 +163,8 @@ module Loader
         Array(resources).each do |r|
           Array(privileges).each do |p|
             Array(roles).each do |m|
-              resource = ::Resource[r.resourceid] or raise IndexError, r.resourceid
-              member = ::Role[m.roleid] or raise IndexError, m.roleid
+              resource = ::Resource[r.resourceid] or raise Exceptions::RecordNotFound, r.resourceid
+              member = ::Role[m.roleid] or raise Exceptions::RecordNotFound, m.roleid
               resource.permit p, member
             end
           end

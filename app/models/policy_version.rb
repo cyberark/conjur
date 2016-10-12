@@ -87,6 +87,8 @@ class PolicyVersion < Sequel::Model(:policy_versions)
       records = wrap_in_policy records unless bootstrap_policy?
       @records = Conjur::Policy::Resolver.resolve records, account, policy_admin.id
     rescue
+      $stderr.puts $!.message
+      $stderr.puts $!.backtrace.join("  \n")
       @parse_error = $!
     end
   end

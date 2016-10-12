@@ -15,7 +15,7 @@ class RolesController < RestController
   end
 
   def check_permission 
-    resource = Resource[resource_id] || raise(IndexError)
+    resource = Resource[resource_id] || Exceptions::RecordNotFound, resource_Id
     privilege = params[:privilege]
     raise ArgumentError, "privilege" unless privilege
     if @role.allowed_to?(privilege, resource)
@@ -33,7 +33,7 @@ class RolesController < RestController
   
   def find_role
     @role = Role[role_id]
-    raise(IndexError) unless @role
+    raise Exceptions::RecordNotFound, role_id unless @role
   end
   
   # By default the resource is found in the same account as the account parameter.

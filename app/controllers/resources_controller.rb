@@ -9,7 +9,8 @@ class ResourcesController < RestController
     ids = params.delete(:ids)
     options = params.slice(:kind, :limit, :offset).symbolize_keys
     if params[:owner]
-      options[:owner] = Role[Role.make_full_id(params[:owner], account)] || raise(IndexError)
+      ownerid = Role.make_full_id(params[:owner], account)
+      options[:owner] = Role[ownerid] or raise Exceptions::RecordNotFound, ownerid
     end
     
     scope = Resource.search(params[:account], options)

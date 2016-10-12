@@ -17,7 +17,7 @@ class PoliciesController < RestController
     else
       raise ArgumentError, "invalid type for parameter 'version'"
     end
-    raise IndexError if policy_version.nil?
+    raise Exceptions::RecordNotFound, @resource.id, "Requested version does not exist" if policy_version.nil?
 
     render text: policy_version.policy_text
   end

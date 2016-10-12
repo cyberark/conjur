@@ -146,7 +146,13 @@ module PossumWorld
     rescue RestClient::Exception
       @exception = $!
       @status = $!.http_code
-      raise if can
+      if can
+        raise
+      else
+        p @exception
+        p @exception.response
+        set_result @exception.response
+      end
     end
   end
   
