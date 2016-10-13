@@ -116,10 +116,13 @@ Once you've defined the policy, you can use the `possum` command line to load it
 
 {% highlight shell %}
 $ cat people.yml | possum policy:load people -
-{
-    "owen": "xyz",
-    "frank": "pdq"
-}
+Loaded policy version 1
+Created 2 roles
+
+Id                      API Key
+----------------------  ------------------------------------------------------
+demo:user:frank@people  3wetc8236tw70vchjjqtqh60y1k38762y898ge2j15nappp52r
+demo:user:owen@people   1mebxfvz6c3jy30q44bp32g0dbc2gf3crrekhwe720sa8vg22ccg5y
 {% endhighlight %}
 
 If you lose the API key of a user, you can reset (rotate) it using the `admin` account. But for this demo, just leave the API keys in the console so that you can use them later.
@@ -187,8 +190,7 @@ Before we can add the frontend and the database, we need to update the bootstrap
 
 {% highlight shell %}
 $ cat bootstrap.yml | possum policy:load bootstrap -
-{
-}
+Loaded policy version 2
 {% endhighlight %}
 
 ## Define the `prod/frontend`
@@ -230,10 +232,13 @@ Then Frank can load `prod/frontend` policy:
 
 {% highlight shell %}
 $ cat frontend.yml | possum policy:load prod/frontend -
-{
-    "demo:host:prod/frontend/frontend-01": "abc",
-    "demo:host:prod/frontend/frontend-02": "xyz"
-}
+Loaded policy version 1
+Created 2 roles
+
+Id                                   API Key
+-----------------------------------  -----------------------------------------------------
+demo:host:prod/frontend/frontend-01  b57k1j2vb5pnx2rkpjvt5jkbbc1j13t38236c38esn6pak1f0yb28
+demo:host:prod/frontend/frontend-02  3p2aryd3rdk2m816jysdk3n2se3wmpy1s23954hvckmfsgcbkpsjw
 {% endhighlight %}
 
 ## Define the `prod/database`
@@ -271,8 +276,7 @@ Then Owen can load `prod/database` policy:
 
 {% highlight shell %}
 $ cat database.yml | possum policy:load prod/database -
-{
-}
+Loaded policy version 1
 {% endhighlight %}
 
 Because Owen owns the `prod/database` policy, he has full management over the objects in it. This means that he can also load a new value into the `password` variable. Use `openssl` to generate a new random string, and store it in the password:
