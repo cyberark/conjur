@@ -1,6 +1,13 @@
 #!/bin/bash -ex
 
+debify clean
+
 ./build.sh
+
+debify package \
+  possum \
+  -- \
+  --depends "conjur-appliance (>= 5.0)"
 
 function finish {
 	docker rm -f $pg_cid

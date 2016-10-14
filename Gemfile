@@ -33,6 +33,7 @@ group :production do
 end
 
 group :development, :test do
+  gem 'conjur-debify'
   gem 'pry-byebug'
   gem 'spring'
   gem 'spring-commands-cucumber'

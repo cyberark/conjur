@@ -1,32 +1,8 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
-VERSION=latest
+export DEBUG=true
+export GLI_DEBUG=true
 
-usage() {
-    cat <<EOF
-usage: $(basename $0) [-h] [-v <version>]
-    -h              Show help
-    -v <version>    Version to publish [default: latest]
-EOF
-}
+COMPONENT=${1:-possum}
 
-while getopts "hv:" opt; do
-    case "$opt" in
-        h) usage
-           exit 0
-           ;;
-
-        v) VERSION=$OPTARG
-           ;;
-
-        \?) usage >&2
-            exit 1
-            ;;
-    esac
-done
-
-./build.sh
-
-docker tag -f possum registry.tld/conjurinc/possum:${VERSION}
-
-docker push registry.tld/conjurinc/possum:${VERSION}
+debify publish --component $COMPONENT $(cat VERSION_APPLIANCE) possum
