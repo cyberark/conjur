@@ -1,7 +1,6 @@
 class PoliciesController < RestController
   include FindResource
   include AuthorizeResource
-  include TokenGenerator
   
   before_filter :current_user
   before_filter :find_or_create_bootstrap_policy
