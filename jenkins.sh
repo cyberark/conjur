@@ -6,8 +6,7 @@ debify clean
 
 debify package \
   possum \
-  -- \
-  --depends "conjur-appliance (>= $(cat VERSION_APPLIANCE))"
+  --
 
 function finish {
 	docker rm -f $pg_cid
