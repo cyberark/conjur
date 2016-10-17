@@ -114,11 +114,14 @@ describe CredentialsController, :type => :controller do
             {
               error: {
                 code: "validation_failed",
-                message: "password cannot contain a newline",
-                innererror: {
-                  code: "validation_failed",
-                  messages: { "password" => [ "cannot contain a newline" ] }
-                }
+                message: "cannot contain a newline",
+                details: [
+                  {
+                    code: "validation_failed",
+                    target: "password",
+                    message:"cannot contain a newline"
+                  }
+                ]
               }
             }
           }
