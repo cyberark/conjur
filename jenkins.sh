@@ -1,6 +1,12 @@
 #!/bin/bash -ex
 
+debify clean
+
 ./build.sh
+
+debify package \
+  possum \
+  --
 
 function finish {
 	docker rm -f $pg_cid
