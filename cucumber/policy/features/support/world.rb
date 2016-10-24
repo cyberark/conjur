@@ -77,7 +77,7 @@ class PossumClient
   end
 
   def policy_load id, body
-    @client.post "policies/#{id_path(id)}", body
+    @client.put "policies/#{id_path(id)}", body
   end
   
   def secret_add id, value

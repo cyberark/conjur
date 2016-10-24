@@ -42,7 +42,7 @@ module Loader
   class Orchestrate
     extend Forwardable
 
-    attr_reader :policy_version, :records, :policy_passwords, :policy_public_keys, :new_roles
+    attr_reader :policy_version, :create_records, :delete_records, :policy_passwords, :policy_public_keys, :new_roles
 
     TABLES = %w(roles role_memberships resources permissions annotations)
 
@@ -57,28 +57,38 @@ module Loader
 
     def initialize policy_version
       @policy_version = policy_version
-      # Transform each statement into a Loader type
-      @records = policy_version.records.map do |policy_object|
-        Loader::Types.wrap self, policy_object
-      end
       @policy_public_keys = []
       @policy_passwords = []
+
+      # Transform each statement into a Loader type
+      @create_records = policy_version.create_records.map do |policy_object|
+        Loader::Types.wrap self, policy_object
+      end
+      @delete_records = policy_version.delete_records.map do |policy_object|
+        Loader::Types.wrap self, policy_object
+      end
     end
 
     def load
+      perform_deletion
+
       create_schema
 
       load_records
 
-      delete_removed
+      if policy_version.perform_automatic_deletion?
+        delete_removed
+      end
 
       eliminate_shadowed
 
-      eliminate_duplicates
+      eliminate_duplicates_exact
 
-      update_changed
+      if policy_version.update_permitted?
+        update_changed
+      end
 
-      eliminate_duplicates
+      eliminate_duplicates_pk
 
       insert_new
 
@@ -212,17 +222,29 @@ module Loader
     end
 
     # Delete rows from the new policy which are identical to existing rows.
-    def eliminate_duplicates
+    def eliminate_duplicates_exact
       TABLE_EQUIVALENCE_COLUMNS.each do |table, columns|
-        comparisons = (columns + [ :policy_id ]).map do |column|
-          "new_#{table}.#{column} = old_#{table}.#{column}"
-        end.join(' AND ')
-        db.execute <<-DELETE
-          DELETE FROM #{table} new_#{table}
-          USING public.#{table} old_#{table}
-          WHERE #{comparisons}
-        DELETE
+        eliminate_duplicates table, columns + [ :policy_id ]
       end
+    end
+
+    # Delete rows from the new policy which have the same primary keys as existing rows.
+    def eliminate_duplicates_pk
+      TABLES.each do |table|
+        eliminate_duplicates table, Array(Sequel::Model("public__#{table}".to_sym).primary_key) + [ :policy_id ]
+      end
+    end
+
+    # Eliminate duplicates from a table, using the specified comparison columns.
+    def eliminate_duplicates table, columns
+      comparisons = columns.map do |column|
+        "new_#{table}.#{column} = old_#{table}.#{column}"
+      end.join(' AND ')
+      db.execute <<-DELETE
+        DELETE FROM #{table} new_#{table}
+        USING public.#{table} old_#{table}
+        WHERE #{comparisons}
+      DELETE
     end
 
     def update_changed
@@ -267,13 +289,18 @@ module Loader
       @schema_name ||= "policy_loader_#{SecureRandom.hex}"
     end
 
+    # Perform explicitly requested deletions
+    def perform_deletion
+      delete_records.map(&:delete!)
+    end
+
     # Loads the records into the temporary schema (since the schema search path contains only the temporary schema).
     #
     #  
     def load_records
       raise "Policy version must be saved before loading" unless policy_version.resource_id
 
-      records.map(&:create!)
+      create_records.map(&:create!)
 
       db[:role_memberships].where(admin_option: nil).update(admin_option: false)
       db[:role_memberships].where(ownership: nil).update(ownership: false)

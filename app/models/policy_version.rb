@@ -26,7 +26,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
   # The authenticated user who performs the policy load.
   many_to_one :role
 
-  attr_accessor :parse_error, :policy_filename
+  attr_accessor :parse_error, :policy_filename, :perform_automatic_deletion, :delete_permitted, :update_permitted
 
   alias id resource_id
   alias current_user role
@@ -46,15 +46,36 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     policy.kind == "policy" && policy.identifier == "bootstrap"
   end
 
+  # Indicates whether records that exist in the database but not in the policy 
+  # update should be deleted.
+  def perform_automatic_deletion?
+    !!@perform_automatic_deletion
+  end
+
+  # Indicates whether explicit deletion is permitted.
+  def delete_permitted?
+    !!@delete_permitted
+  end
+
+  # Indicates whether updates to existing data fields are permitted.
+  def update_permitted?
+    !!@update_permitted
+  end
+
   def validate
     super
 
     validates_presence [ :policy, :current_user, :policy_text ]
 
-    try_load_records 
+    try_load_records
 
+    # If a parse error has occurred, don't attempt other validations.
     if parse_error
       errors.add(:policy_text, parse_error.to_s)
+    else
+      unless delete_records.empty? || delete_permitted?
+        errors.add(:policy_text, "may not contain deletion statements")
+      end
     end
   end
 
@@ -68,14 +89,28 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     raise Sequel::ValidationFailed, "Policy version cannot be updated once created"
   end
 
+  def policy_admin
+    policy.owner
+  end
+
+  def create_records
+    records.select do |r|
+      !r.delete_statement?
+    end
+  end
+
+  def delete_records
+    records.select do |r|
+      r.delete_statement?
+    end
+  end
+
+  protected
+
   def records
     try_load_records
     raise @parse_error if @parse_error
     @records
-  end
-
-  def policy_admin
-    policy.owner
   end
 
   def try_load_records

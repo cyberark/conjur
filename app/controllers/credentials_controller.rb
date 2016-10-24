@@ -33,11 +33,8 @@ class CredentialsController < ApplicationController
   # This method requires a PUT request. The new password is in the request body.
   def update_password
     password = request.body.read
-    if password.blank?
-      render json: { password: "must not be blank" }, status: :unprocessable_entity
-      return
-    end
     
+    @role.credentials.password_required = true
     @role.credentials.password = password
     @role.credentials.save
     head 204

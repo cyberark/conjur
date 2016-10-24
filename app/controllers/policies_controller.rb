@@ -6,35 +6,33 @@ class PoliciesController < RestController
   before_filter :find_or_create_bootstrap_policy
   before_filter :find_resource
 
-  def show
-    authorize :read
+  def put
+    authorize :update
 
-    version = params[:version]
-    policy_version = if version.is_a?(String) && version.to_i.to_s == version
-      PolicyVersion[resource: @resource, version: version]
-    elsif version.nil?
-      PolicyVersion.where(resource: @resource).reverse_order(:version).limit(1).first
-    else
-      raise ArgumentError, "invalid type for parameter 'version'"
-    end
-    raise Exceptions::RecordNotFound, @resource.id, "Requested version does not exist" if policy_version.nil?
-
-    render text: policy_version.policy_text
+    load_policy perform_automatic_deletion = true, delete_permitted = true, update_permitted = true
   end
-  
-  def load
-    force = params[:force]
 
-    if force
-      authorize :update
-    else
-      authorize :execute
-    end
+  def patch
+    authorize :update
 
+    load_policy perform_automatic_deletion = false, delete_permitted = true, update_permitted = true
+  end
+
+  def post
+    authorize :create
+
+    load_policy perform_automatic_deletion = false, delete_permitted = false, update_permitted = false
+  end
+
+  protected
+
+  def load_policy perform_automatic_deletion, delete_permitted, update_permitted
     policy_text = request.raw_post
-    raise ArgumentError, "policy text may not be empty" if policy_text.blank?
 
     policy_version = PolicyVersion.new role: current_user, policy: @resource, policy_text: policy_text
+    policy_version.perform_automatic_deletion = perform_automatic_deletion
+    policy_version.delete_permitted = delete_permitted
+    policy_version.update_permitted = update_permitted
     policy_version.save
     loader = Loader::Orchestrate.new policy_version
     loader.load
@@ -48,12 +46,10 @@ class PoliciesController < RestController
     end
 
     render json: {
-        created_roles: created_roles,
-        version: policy_version.version
-      }, status: :created
+      created_roles: created_roles,
+      version: policy_version.version
+    }, status: :created
   end
-
-  protected
 
   def find_or_create_bootstrap_policy
     Loader::Types.find_or_create_bootstrap_policy account

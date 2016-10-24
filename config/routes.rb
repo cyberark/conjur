@@ -41,9 +41,11 @@ Rails.application.routes.draw do
 
     post "/secrets/:account/:kind/*identifier" => 'secrets#create'
 
-    get  "/policies/:account/:kind/*identifier" => 'policies#show'
+    put "/policies/:account/:kind/*identifier" => 'policies#put'
 
-    post "/policies/:account/:kind/*identifier" => 'policies#load'
+    patch "/policies/:account/:kind/*identifier" => 'policies#patch'
+
+    post "/policies/:account/:kind/*identifier" => 'policies#post'
 
     get "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
   end

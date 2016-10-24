@@ -190,5 +190,36 @@ module Loader
         Array(body).map(&:create!)
       end
     end
+
+    # Deletions
+
+    class Deletion < Types::Base
+      def policy_id
+        orchestrator.policy_version.policy.id
+      end
+    end
+
+    class Deny < Deletion
+      def delete!
+        permission = ::Permission[role_id: policy_object.role.id, privilege: policy_object.privilege, resource_id: policy_object.resource.id, policy_id: policy_id]
+        permission.destroy if permission
+      end
+    end
+
+    class Revoke < Deletion
+      def delete!
+        membership = ::RoleMembership[role_id: policy_object.role.id, member_id: policy_object.member.id, policy_id: policy_id]
+        membership.destroy if membership
+      end
+    end
+
+    class Delete < Deletion
+      def delete!
+        resource = ::Resource[policy_object.record.id]
+        resource.destroy if resource
+        role = ::Role[policy_object.record.id]
+        role.destroy if role
+      end
+    end
   end
 end

@@ -31,10 +31,11 @@ class ApplicationController < ActionController::API
       error: {
         code: "not_found",
         message: e.message,
-        target: "id",
-        innererror: {
+        target: e.kind,
+        details: {
           code: "not_found",
-          id: e.id
+          target: "id",
+          message: e.id
         }
       }
     }, status: :not_found
@@ -42,17 +43,27 @@ class ApplicationController < ActionController::API
 
   def validation_failed e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    message = e.errors.map do |field, messages|
+      messages.map do |message|
+        [ field, message ].join(' ')
+      end
+    end.flatten.join(',')
+
+    details = e.errors.map do |field, messages|
+      messages.map do |message|
+        {
+          code: error_code_of_exception_class(e.class),
+          target: field,
+          message: message
+        }
+      end
+    end.flatten
+
     render json: {
       error: {
         code: error_code_of_exception_class(e.class),
-        message: e.errors.values.first.first,
-        details: e.errors.map do |field, message|
-          {
-            code: error_code_of_exception_class(e.class),
-            target: field,
-            message: message.first
-          }
-        end
+        message: message,
+        details: details
       }
     }, status: :unprocessable_entity
   end

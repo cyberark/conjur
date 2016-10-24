@@ -92,10 +92,25 @@ describe CredentialsController, :type => :controller do
       include_context "create user"
       include_context "authenticate Basic"
       context "without post body" do
+        let(:errors) {
+          {
+            error: {
+              code: "validation_failed",
+              message: "password must not be blank",
+              details: [
+                {
+                  code: "validation_failed",
+                  target: "password",
+                  message: "must not be blank"
+                }
+              ]
+            }
+          }
+        }
         it "is is malformed" do
           post :update_password, account: account
           expect(response.code).to eq("422")
-          expect(response.body).to eq({"password" => "must not be blank"}.to_json)
+          expect(response.body).to eq(errors.to_json)
         end
       end
       context "with post body" do
@@ -115,10 +130,13 @@ describe CredentialsController, :type => :controller do
               error: {
                 code: "validation_failed",
                 message: "password cannot contain a newline",
-                innererror: {
-                  code: "validation_failed",
-                  messages: { "password" => [ "cannot contain a newline" ] }
-                }
+                details: [
+                  {
+                    code: "validation_failed",
+                    target: "password",
+                    message: "cannot contain a newline"
+                  }
+                ]
               }
             }
           }

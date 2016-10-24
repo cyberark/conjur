@@ -6,6 +6,7 @@ class Resource < Sequel::Model
   one_to_many :permissions, reciprocal: :resource
   one_to_many :annotations, reciprocal: :resource
   one_to_many :secrets,     reciprocal: :resource, order: :version
+  one_to_many :policy_versions, reciprocal: :resource, order: :version
   many_to_one :owner, class: :Role
   
   alias id resource_id
@@ -26,13 +27,26 @@ class Resource < Sequel::Model
       end
       response["permissions"] = permissions.as_json.map {|h| h.except 'resource'}
       response["annotations"] = self.annotations.as_json.map {|h| h.except 'resource'}
-      response["secrets"] = self.secrets.as_json.map {|h| h.except 'resource'}
+
+      if kind == "variable"
+        response["secrets"] = self.secrets.as_json.map {|h| h.except 'resource'}
+      end
+      if kind == "policy"
+        response["policy_versions"] = self.policy_versions.as_json.map {|h| h.except 'resource'}
+      end
     end
   end
 
   class << self
     def make_full_id id, account
       Role.make_full_id id, account
+    end
+  end
+
+  def extended_associations
+    [].tap do |result|
+      result << "secrets" if kind == "variable"
+      result << "policy_versions" if kind == "policy"
     end
   end
   

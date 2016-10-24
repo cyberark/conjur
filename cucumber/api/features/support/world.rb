@@ -16,6 +16,13 @@ module PossumWorld
     set_result result
   end
 
+  def patch_json path, body = nil, options = {}
+    path = denormalize(path)
+    body = denormalize(body)
+    result = rest_resource(options)[path].patch(body)
+    set_result result
+  end
+
   def get_json path, options = {}
     path = denormalize(path)
     result = rest_resource(options)[path].get
