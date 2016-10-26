@@ -5,7 +5,7 @@ Feature: Policy loading error messages
 
     The error message provides the id of the record that was not found.
 
-    When I POST "/policies/:account/policy/bootstrap" with body:
+    When I POST "/policies/cucumber/policy/bootstrap" with body:
     """
     - !variable password
 
@@ -35,7 +35,7 @@ Feature: Policy loading error messages
   @logged-in-admin
   Scenario: A policy with a blank resource id reports the error.
 
-    When I POST "/policies/:account/policy/bootstrap" with body:
+    When I POST "/policies/cucumber/policy/bootstrap" with body:
     """
     - !user bob
 

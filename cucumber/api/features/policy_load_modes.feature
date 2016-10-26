@@ -11,23 +11,25 @@ Feature: Updating policies
 
   Background:
     Given I am the super-user
-    And I successfully PUT "/policies/:account/policy/bootstrap" with body:
+    And I successfully PUT "/policies/cucumber/policy/bootstrap" with body:
     """
-    - !policy
-      id: @namespace@
-      body:
-      - !user alice
+    - !user alice
 
+    - !group everyone
+
+    - !policy
+      id: dev
+      owner: !user alice
+      body:
       - !policy
-        id: dev
-        owner: !user alice
-        body:
-        - !policy
-          id: db
+        id: db
     """
     And I login as "alice"
-    And I successfully POST "/policies/:account/policy/:namespace/dev/db" with body:
+    And I successfully POST "/policies/cucumber/policy/dev/db" with body:
     """
+    - !group secrets-users
+    - !group secrets-managers
+
     - !variable a
     - !variable
       id: b
@@ -35,42 +37,79 @@ Feature: Updating policies
     """
 
   Scenario: PUT replaces the policy completely.
-    When I successfully PUT "/policies/:account/policy/:namespace/dev/db" with body:
+    When I successfully PUT "/policies/cucumber/policy/dev/db" with body:
     """
     - !variable c
     """
-    And I successfully GET "/resources/:account/variable"
+    And I successfully GET "/resources/cucumber/variable"
     Then the resource list should not contain "variable" "dev/db/a"
     Then the resource list should contain "variable" "dev/db/c"
 
   Scenario: PATCH does not remove existing records
-    When I successfully PATCH "/policies/:account/policy/:namespace/dev/db" with body:
+    When I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
     """
     - !variable c
     """
-    And I successfully GET "/resources/:account/variable"
+    And I successfully GET "/resources/cucumber/variable"
     Then the resource list should contain "variable" "dev/db/a"
     Then the resource list should contain "variable" "dev/db/c"
 
   Scenario: PATCH can explicitly delete records
-    When I successfully PUT "/policies/:account/policy/:namespace/dev/db" with body:
+    When I successfully PUT "/policies/cucumber/policy/dev/db" with body:
     """
     - !delete
       record: !variable a
     - !variable c
     """
-    And I successfully GET "/resources/:account/variable"
+    And I successfully GET "/resources/cucumber/variable"
     Then the resource list should not contain "variable" "dev/db/a"
     Then the resource list should contain "variable" "dev/db/c"
 
+  Scenario: PATCH can perform a permission grant on existing roles and resources.
+    When I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
+    """
+    - !permit
+      role: !group /everyone
+      privilege: read
+      resource: !variable a
+    """
+    When I successfully GET "/resources/cucumber/variable/dev/db/a"
+    Then the JSON at "permissions" should include:
+    """
+    {
+      "privilege": "read",
+      "role": "cucumber:group:everyone",
+      "policy": "cucumber:policy:dev/db"
+    }
+    """
+
+  Scenario: PATCH can perform a role grant on existing roles.
+    When I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
+    """
+    - !grant
+      role: !group secrets-users
+      member: !group secrets-managers
+    """
+    When I successfully GET "/roles/cucumber/group/dev/db/secrets-users"
+    Then the JSON at "members" should include:
+    """
+    {
+      "admin_option": false,
+      "ownership": false,
+      "role": "cucumber:group:dev/db/secrets-users",
+      "member": "cucumber:group:dev/db/secrets-managers",
+      "policy": "cucumber:policy:dev/db"
+    }
+    """
+
   Scenario: POST cannot update existing policy records
-    When I successfully POST "/policies/:account/policy/:namespace/dev/db" with body:
+    When I successfully POST "/policies/cucumber/policy/dev/db" with body:
     """
     - !variable
       id: b
       kind: private key
     """
-    When I successfully GET "/resources/:account/variable/:namespace/dev/db/b"
+    When I successfully GET "/resources/cucumber/variable/dev/db/b"
     Then the JSON at "annotations" should be:
     """
     [
@@ -83,7 +122,7 @@ Feature: Updating policies
     """
 
   Scenario: POST cannot remove existing records
-    When I POST "/policies/:account/policy/:namespace/dev/db" with body:
+    When I POST "/policies/cucumber/policy/dev/db" with body:
     """
     - !delete
       record: !variable a

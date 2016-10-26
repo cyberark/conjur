@@ -1,5 +1,8 @@
 module Loader
   module Types
+    PublicRoles = Sequel::Model(:public__roles)
+    PublicResources = Sequel::Model(:public__resources)
+
     class << self
       def find_or_create_bootstrap_policy account
         ::Resource[bootstrap_policy_id(account)] or create_bootstrap_policy account
@@ -37,19 +40,16 @@ module Loader
         @policy_object = policy_object
       end
 
-      def owner_role
-        ::Role[owner.roleid] || ::Role.create(role_id: owner.roleid)
+      def find_ownerid
+        find_roleid owner.roleid
       end
 
-      def find_role id, allow_foreign = false
-        def foreign_role_exists? id
-          !!Sequel::Model(:public__roles)[id]
-        end
-        def create_foreign_role id, allow_foreign
-          ::Role.create(role_id: id) if allow_foreign && foreign_role_exists?(id)
-        end
+      def find_roleid id
+        (::Role[id] || PublicRoles[id]).try(:role_id) or raise Exceptions::RecordNotFound, id
+      end
 
-        ::Role[id] || create_foreign_role(id, allow_foreign) or raise Exceptions::RecordNotFound, id
+      def find_resourceid id
+        (::Resource[id] || PublicResources[id]).try(:resource_id) or raise Exceptions::RecordNotFound, id
       end
     end
 
@@ -77,7 +77,7 @@ module Loader
       end
 
       def create_resource!
-        ::Resource.create(resource_id: resourceid, owner: owner_role).tap do |resource|
+        ::Resource.create(resource_id: resourceid, owner_id: find_ownerid).tap do |resource|
           Hash(annotations).each do |name, value|
             resource.add_annotation name: name, value: value.to_s
           end
@@ -128,7 +128,7 @@ module Loader
           key_name = PublicKey.key_name public_key
 
           resourceid = [ account, "public_key", "#{self.role_kind}/#{self.id}/#{key_name}" ].join(":")
-          (::Resource[resourceid] || ::Resource.create(resource_id: resourceid, owner: (::Role[owner.roleid] or raise Exceptions::RecordNotFound, owner.roleid))).tap do |resource|
+          (::Resource[resourceid] || ::Resource.create(resource_id: resourceid, owner_id: find_ownerid)).tap do |resource|
             handle_public_key resource.id, public_key
           end
         end
@@ -159,7 +159,11 @@ module Loader
       def create!
         Array(roles).each do |r|
           Array(members).each do |m|
-            find_role(r.roleid).grant_to find_role(m.role.roleid, allow_foreign = true), admin_option: m.admin
+            ::RoleMembership.create \
+              role_id: find_roleid(r.roleid),
+              member_id: find_roleid(m.role.roleid),
+              admin_option: m.admin,
+              ownership: false
           end
         end
       end
@@ -172,8 +176,10 @@ module Loader
         Array(resources).each do |r|
           Array(privileges).each do |p|
             Array(roles).each do |m|
-              resource = ::Resource[r.resourceid] or raise Exceptions::RecordNotFound, r.resourceid
-              resource.permit p, find_role(m.roleid, allow_foreign = true)
+              ::Permission.create \
+                resource_id: find_resourceid(r.resourceid),
+                privilege: p,
+                role_id: find_roleid(m.roleid)
             end
           end
         end

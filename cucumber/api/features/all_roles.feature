@@ -12,7 +12,7 @@ Feature: Obtain the recursive expansion of a role
 
   Scenario: The initial memberships of a role is just the role itself.
     Given I create a new user "bob"
-    When I successfully GET "/roles/:account/user/alice@:user_namespace?all"
+    When I successfully GET "/roles/cucumber/user/alice?all"
     Then the JSON should be:
     """
     [
@@ -23,7 +23,7 @@ Feature: Obtain the recursive expansion of a role
   Scenario: A newly granted role is listed in the grantee's memberships.
     Given I create a new user "bob"
     And I grant user "bob" to user "alice"
-    When I successfully GET "/roles/:account/user/alice@:user_namespace?all"
+    When I successfully GET "/roles/cucumber/user/alice?all"
     Then the JSON should be:
     """
     [
@@ -43,13 +43,13 @@ Feature: Obtain the recursive expansion of a role
     Given I create a new user "charles"
     And I grant user "charles" to user "alice"
     Given I create a new user "dave"
-    When I successfully GET "/roles/:account/user/alice@:user_namespace" with parameters:
+    When I successfully GET "/roles/cucumber/user/alice" with parameters:
     """
     all: true
     filter:
-    - :account:user:bob@:user_namespace
-    - :account:user:charles@:user_namespace
-    - :account:user:dave@:user_namespace
+    - cucumber:user:bob
+    - cucumber:user:charles
+    - cucumber:user:dave
     """
     Then the JSON should be:
     """

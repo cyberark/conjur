@@ -311,11 +311,12 @@ module Loader
 
     def in_primary_schema &block
       db.execute "SET search_path = public"
-      begin
-        yield
-      ensure
-        db.execute "SET search_path = #{schema_name}"
-      end
+
+      yield
+
+      # If a SQL exception occurs above, the transaction will be aborted and all database
+      # calls will fail. So this statement is not performed in an `ensure` block.
+      db.execute "SET search_path = #{schema_name}"
     end
 
     # Creates the new schema.

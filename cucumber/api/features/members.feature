@@ -16,7 +16,7 @@ Feature: List direct members of a role
     with admin option to the "creating" role ("admin"). Thus the initial
     members of role "alice" is the set containing only role "admin".  
 
-    When I successfully GET "/roles/:account/user/alice@:user_namespace"
+    When I successfully GET "/roles/cucumber/user/alice"
     Then the JSON at "members" should be:
     """
     [
@@ -35,7 +35,7 @@ Feature: List direct members of a role
     "bob" appearing in the set of members of "alice".
 
     Given I grant user "alice" to user "bob"
-    When I successfully GET "/roles/:account/user/alice@:user_namespace"
+    When I successfully GET "/roles/cucumber/user/alice"
     Then the JSON at "members" should be:
     """
     [

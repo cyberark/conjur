@@ -13,7 +13,7 @@ Feature: Check whether a role has a privilege on a resource
 
     If a role is granted a privilege on a resource, then a permission check will pass.
 
-    Then I can GET "/roles/:account/user/bob@:user_namespace" with parameters:
+    Then I can GET "/roles/cucumber/user/bob" with parameters:
     """
     check: true
     resource: "@resource_kind@:@resource_id@"
@@ -25,7 +25,7 @@ Feature: Check whether a role has a privilege on a resource
 
     If a role is not granted a privilege, then a permission check will fail.
 
-    When I GET "/roles/:account/user/bob@:user_namespace" with parameters:
+    When I GET "/roles/cucumber/user/bob" with parameters:
     """
     check: true
     resource: "@resource_kind@:@resource_id@"
@@ -39,7 +39,7 @@ Feature: Check whether a role has a privilege on a resource
     has a privilege on some resource.
 
     When I login as "bob"
-    Then I can GET "/resources/:account/:resource_kind/:resource_id" with parameters:
+    Then I can GET "/resources/cucumber/:resource_kind/:resource_id" with parameters:
     """
     check: true
     privilege: fry

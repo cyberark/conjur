@@ -17,7 +17,7 @@ Feature: Adding and fetching secrets
 
   Scenario: When a new resource has no secret values, fetching the secret results in a 404 error.
 
-    When I GET "/secrets/:account/:resource_kind/:resource_id"
+    When I GET "/secrets/cucumber/:resource_kind/:resource_id"
     Then it's not found
 
   Scenario: The 'conjur/mime_type' annotation is used in the value response.
@@ -26,11 +26,11 @@ Feature: Adding and fetching secrets
     from the resource, that mime type is used as the `Content-Type` header in the response. 
 
     Given I set annotation "conjur/mime_type" to "application/json"
-    And I successfully POST "/secrets/:account/:resource_kind/:resource_id" with body:
+    And I successfully POST "/secrets/cucumber/:resource_kind/:resource_id" with body:
     """
     [ "v-1" ]
     """
-    When I successfully GET "/secrets/:account/:resource_kind/:resource_id"
+    When I successfully GET "/secrets/cucumber/:resource_kind/:resource_id"
     Then the JSON should be:
     """
     [ "v-1" ]
@@ -39,7 +39,7 @@ Feature: Adding and fetching secrets
   Scenario: Secrets can contain any binary data.
 
     Given I create a binary secret value
-    When I successfully GET "/secrets/:account/:resource_kind/:resource_id"
+    When I successfully GET "/secrets/cucumber/:resource_kind/:resource_id"
     Then the binary result is preserved
 
   Scenario: When fetching a secret, the last secret in the secrets list is the default.
@@ -47,44 +47,44 @@ Feature: Adding and fetching secrets
     Adding a new secret appends to a list of values on the resource. When retrieving secrets,
     the last value in the list is returned by default.
 
-    Given I successfully POST "/secrets/:account/:resource_kind/:resource_id" with body:
+    Given I successfully POST "/secrets/cucumber/:resource_kind/:resource_id" with body:
     """
     v-1
     """
-    And I successfully POST "/secrets/:account/:resource_kind/:resource_id" with body:
+    And I successfully POST "/secrets/cucumber/:resource_kind/:resource_id" with body:
     """
     v-2
     """
-    When I successfully GET "/secrets/:account/:resource_kind/:resource_id"
+    When I successfully GET "/secrets/cucumber/:resource_kind/:resource_id"
     Then the binary result is "v-2"
 
   Scenario: When fetching a secret, a specific secret index can be specified.
 
     The `version` parameter can be used to select a specific secret value from the list.
 
-    Given I successfully POST "/secrets/:account/:resource_kind/:resource_id" with body:
+    Given I successfully POST "/secrets/cucumber/:resource_kind/:resource_id" with body:
     """
     v-1
     """
-    And I successfully POST "/secrets/:account/:resource_kind/:resource_id" with body:
+    And I successfully POST "/secrets/cucumber/:resource_kind/:resource_id" with body:
     """
     v-2
     """
-    When I successfully GET "/secrets/:account/:resource_kind/:resource_id?version=1"
+    When I successfully GET "/secrets/cucumber/:resource_kind/:resource_id?version=1"
     Then the binary result is "v-1"
 
   Scenario: Fetching a secret with a non-existant secret version results in a 404 error.
 
-    Given I successfully POST "/secrets/:account/:resource_kind/:resource_id" with body:
+    Given I successfully POST "/secrets/cucumber/:resource_kind/:resource_id" with body:
     """
     v-1
     """
-    When I GET "/secrets/:account/:resource_kind/:resource_id?version=2"
+    When I GET "/secrets/cucumber/:resource_kind/:resource_id?version=2"
     Then it's not found
 
   Scenario: When creating a secret, the value parameter is required.
 
-    When I POST "/secrets/:account/:resource_kind/:resource_id" with body:
+    When I POST "/secrets/cucumber/:resource_kind/:resource_id" with body:
     """
     """
     Then it's unprocessable
@@ -92,9 +92,9 @@ Feature: Adding and fetching secrets
   Scenario: Only the last 20 versions of a secret are stored.
   
     Given I create 20 secret values
-    And I successfully POST "/secrets/:account/:resource_kind/:resource_id" with body:
+    And I successfully POST "/secrets/cucumber/:resource_kind/:resource_id" with body:
     """
     v-21
     """
-    When I GET "/secrets/:account/:resource_kind/:resource_id?version=1"
+    When I GET "/secrets/cucumber/:resource_kind/:resource_id?version=1"
     Then it's not found

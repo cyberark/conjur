@@ -49,15 +49,7 @@ module PossumWorld
   
   def last_json
     raise "No result captured!" unless @result
-    strip_namespace(JSON.pretty_generate(@result))
-  end
-  
-  def namespace
-    @namespace
-  end
-  
-  def user_namespace
-    namespace.gsub('/', '-')
+    JSON.pretty_generate(@result)
   end
   
   def users
@@ -65,7 +57,7 @@ module PossumWorld
   end
   
   def lookup_user login
-    roleid = "cucumber:user:#{user_login(login)}"
+    roleid = "cucumber:user:#{login}"
     existing = Role[roleid] rescue nil
     if existing
       Credentials.new(role: existing).save unless existing.credentials
@@ -84,17 +76,7 @@ module PossumWorld
   end
   
   def admin_user
-    unless @admin_user
-      # Create the admin user and grant it 'admin' role
-      admin_login = user_login('admin')
-              
-      admin_user = Role.create(role_id: "cucumber:user:#{admin_login}")
-      Role['cucumber:user:admin'].grant_to admin_user
-      Credentials.new(role: admin_user).save(raise_on_save_failure: true)
-      
-      @admin_user = admin_user
-    end
-    @admin_user
+    Role["cucumber:user:admin"]
   end
   
   # Create a regular user, owned by the admin user
@@ -106,16 +88,12 @@ module PossumWorld
 
     return if users[login]
 
-    roleid = "cucumber:user:#{user_login(login)}"
+    roleid = "cucumber:user:#{login}"
     Role.create(role_id: roleid).tap do |user|
-      Credentials.new(role: user).save(raise_on_save_failure: true)
+      Credentials[role: user] or Credentials.new(role: user).save(raise_on_save_failure: true)
       Resource.create(resource_id: roleid, owner: admin_user)
       users[login] = user
     end
-  end
-  
-  def user_login login
-    [ login, user_namespace ].join("@")
   end
   
   def current_user?
@@ -164,25 +142,19 @@ module PossumWorld
   def account
     "cucumber"
   end
-  
-  def inject_namespace text
-    text.gsub "@namespace@", namespace
+
+  def random_hex nbytes = 12
+    @random ||= Random.new
+    @random.bytes(nbytes).unpack('h*').first
   end
   
-  def strip_namespace text
-    return "" if text.nil?
-    text.gsub("#{namespace}/", "").gsub("@#{user_namespace}", "")
-  end  
-    
+  protected
+
   def denormalize str
     return unless str
     return if str.is_a?(Hash)
     str = str.dup
-    patterns = {
-      "account" => account,
-      "user_namespace" => user_namespace,
-      "namespace" => namespace
-    }
+    patterns = {}
     patterns["api_key"] = current_user_api_key if current_user?
     if @current_resource
       patterns["resource_id"] = @current_resource.identifier
@@ -199,14 +171,7 @@ module PossumWorld
     end
     str
   end
-  
-  def random_hex nbytes = 12
-    @random ||= Random.new
-    @random.bytes(nbytes).unpack('h*').first
-  end
 
-  protected
-  
   def rest_resource options
     args = [ Conjur.configuration.appliance_url ]
     args << current_user_credentials if current_user?

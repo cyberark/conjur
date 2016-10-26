@@ -1,39 +1,37 @@
 Feature: Updating policies
 
-  `create` privilege is sufficient to add records to a policy via POST.
-
   Policy updates can be performed in any of three modes: PUT, PATCH, and POST.
+  The permission required depends on the mode.
 
   Background:
     Given I am the super-user
-    And I successfully PUT "/policies/:account/policy/bootstrap" with body:
+    And I successfully PUT "/policies/cucumber/policy/bootstrap" with body:
     """
+    - !user alice
+    - !user bob
+    - !user carol
+
     - !policy
-      id: @namespace@
+      id: dev
+      owner: !user alice
       body:
-      - !user alice
-      - !user bob
-      - !user carol
-
       - !policy
-        id: dev
-        owner: !user alice
-        body:
-        - !policy
-          id: db
+        id: db
 
-      - !permit
-        resource: !policy dev/db
-        privilege: [ create, update ]
-        role: !user bob
+    - !permit
+      resource: !policy dev/db
+      privilege: [ create, update ]
+      role: !user bob
 
-      - !permit
-        resource: !policy dev/db
-        privilege: [ create ]
-        role: !user carol
+    - !permit
+      resource: !policy dev/db
+      privilege: [ create ]
+      role: !user carol
     """
-    And I login as "alice"
-    And I successfully POST "/policies/:account/policy/:namespace/dev/db" with body:
+
+  Scenario: `create` privilege is sufficient to add records to a policy via POST.
+    When I login as "alice"
+    Then I successfully POST "/policies/cucumber/policy/dev/db" with body:
     """
     - !variable a
     """

@@ -8,7 +8,7 @@ end
 
 Then(/^the resource list should( not)? contain "([^"]*)" "([^"]*)"$/) do |invert, kind, id|
   mode = invert ? :to_not : :to
-  id = [ account, kind, [ namespace, id ].join('/') ].join(":")
+  id = [ account, kind, id ].join(":")
 
   expect(@result.map{|r| r['id']}).send(mode, include(id))
 end
