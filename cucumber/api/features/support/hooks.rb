@@ -1,9 +1,9 @@
 Before do
   @user_index = 0
 
-  Role.dataset.delete
-  Secret.dataset.delete
-  Credentials.dataset.delete
+  Role.truncate(cascade: true)
+  Secret.truncate
+  Credentials.truncate
   
   admin_role = Role.create(role_id: "cucumber:user:admin")
   Credentials.new(role: admin_role).save(raise_on_save_failure: true)

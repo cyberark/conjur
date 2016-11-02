@@ -9,24 +9,24 @@ class PoliciesController < RestController
   def put
     authorize :update
 
-    load_policy perform_automatic_deletion = true, delete_permitted = true, update_permitted = true
+    load_policy perform_automatic_deletion: true, delete_permitted: true, update_permitted: true
   end
 
   def patch
     authorize :update
 
-    load_policy perform_automatic_deletion = false, delete_permitted = true, update_permitted = true
+    load_policy perform_automatic_deletion: false, delete_permitted: true, update_permitted: true
   end
 
   def post
     authorize :create
 
-    load_policy perform_automatic_deletion = false, delete_permitted = false, update_permitted = false
+    load_policy perform_automatic_deletion: false, delete_permitted: false, update_permitted: false
   end
 
   protected
 
-  def load_policy perform_automatic_deletion, delete_permitted, update_permitted
+  def load_policy perform_automatic_deletion:, delete_permitted:, update_permitted:
     policy_text = request.raw_post
 
     policy_version = PolicyVersion.new role: current_user, policy: @resource, policy_text: policy_text

@@ -44,7 +44,7 @@ module Loader
 
     attr_reader :policy_version, :create_records, :delete_records, :policy_passwords, :policy_public_keys, :new_roles
 
-    TABLES = %w(roles role_memberships resources permissions annotations)
+    TABLES = %i(roles role_memberships resources permissions annotations)
 
     # Columns to compare across schemata to find exact duplicates.
     TABLE_EQUIVALENCE_COLUMNS = {
@@ -121,10 +121,10 @@ module Loader
         begin
           TABLES.each do |table|
             model = Sequel::Model("#{schema}#{table}".to_sym)
-            account_column = TABLE_EQUIVALENCE_COLUMNS[table.to_sym].include?(:resource_id) ? :resource_id : :role_id
+            account_column = TABLE_EQUIVALENCE_COLUMNS[table].include?(:resource_id) ? :resource_id : :role_id
             io.write "#{table}\n"
-            sort_columns = TABLE_EQUIVALENCE_COLUMNS[table.to_sym] + [ :policy_id ]
-            tp *([ model.where("account(#{account_column}) = ?", account).order(sort_columns).all ] + TABLE_EQUIVALENCE_COLUMNS[table.to_sym] + [ :policy_id ])
+            sort_columns = TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ]
+            tp *([ model.where("account(#{account_column}) = ?", account).order(sort_columns).all ] + TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ])
             io.write "\n"
           end
         ensure
@@ -250,8 +250,8 @@ module Loader
     def update_changed
       in_primary_schema do
         TABLES.each do |table|
-          pk_columns = Array(Sequel::Model(table.to_sym).primary_key)
-          update_columns = TABLE_EQUIVALENCE_COLUMNS[table.to_sym] - pk_columns
+          pk_columns = Array(Sequel::Model(table).primary_key)
+          update_columns = TABLE_EQUIVALENCE_COLUMNS[table] - pk_columns
           next if update_columns.empty?
 
           update_statements = update_columns.map do |c|
@@ -278,15 +278,17 @@ module Loader
 
       in_primary_schema do
         TABLES.each do |table|
-          columns = (TABLE_EQUIVALENCE_COLUMNS[table.to_sym] + [ :policy_id ]).join(", ")
+          columns = (TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ]).join(", ")
           db.execute "INSERT INTO #{table} ( #{columns} ) SELECT #{columns} FROM #{schema_name}.#{table}"
         end
       end
     end
 
-    # A securely random id.
+    # A random schema name.
     def schema_name
-      @schema_name ||= "policy_loader_#{SecureRandom.hex}"
+      @random ||= Random.new
+      rnd = @random.bytes(8).unpack('h*').first
+      @schema_name ||= "policy_loader_#{rnd}"
     end
 
     # Perform explicitly requested deletions
@@ -305,7 +307,7 @@ module Loader
       db[:role_memberships].where(admin_option: nil).update(admin_option: false)
       db[:role_memberships].where(ownership: nil).update(ownership: false)
       TABLES.each do |table|
-        db[table.to_sym].update(policy_id: policy_version.resource_id)
+        db[table].update(policy_id: policy_version.resource_id)
       end
     end
 
