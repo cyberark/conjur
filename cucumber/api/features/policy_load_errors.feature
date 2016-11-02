@@ -5,7 +5,7 @@ Feature: Policy loading error messages
 
     The error message provides the id of the record that was not found.
 
-    When I POST "/policies/:account/policy/bootstrap" with body:
+    When I POST "/policies/cucumber/policy/bootstrap" with body:
     """
     - !variable password
 
@@ -21,10 +21,11 @@ Feature: Policy loading error messages
       "error": {
         "code": "not_found",
         "message": "User 'bob' not found in account 'cucumber'",
-        "target": "id",
-        "innererror": {
+        "target": "user",
+        "details": {
           "code": "not_found",
-          "id": "cucumber:user:bob"
+          "target": "id",
+          "message": "cucumber:user:bob"
         }
       }
     }
@@ -34,7 +35,7 @@ Feature: Policy loading error messages
   @logged-in-admin
   Scenario: A policy with a blank resource id reports the error.
 
-    When I POST "/policies/:account/policy/bootstrap" with body:
+    When I POST "/policies/cucumber/policy/bootstrap" with body:
     """
     - !user bob
 
@@ -49,12 +50,12 @@ Feature: Policy loading error messages
     {
       "error": {
         "code": "validation_failed",
-        "message": "Resource has a blank id",
+        "message": "policy_text resource has a blank id",
         "details": [
           {
             "code": "validation_failed",
             "target": "policy_text",
-            "message": "Resource has a blank id"
+            "message": "resource has a blank id"
           }
         ]
       }

@@ -18,6 +18,9 @@ describe Loader::Orchestrate do
       version.policy = resource_policy
       version.role = role_user_admin
       version.policy_text = File.read(policy_path(path))
+      version.perform_automatic_deletion = perform_automatic_deletion
+      version.delete_permitted = delete_permitted
+      version.update_permitted = update_permitted
       version.validate
       expect(version.errors.to_a).to eq([])
       expect(version.valid?).to be_truthy
@@ -45,8 +48,12 @@ describe Loader::Orchestrate do
   let(:print_public) {
     Loader::Orchestrate.table_data 'rspec', "public__"
   }
+  let(:delete_permitted) { true }
+  let(:update_permitted) { true }
+  let(:perform_automatic_deletion) { true }
 
   context "with a minimal base policy" do
+
     let(:base_policy_path) { 'empty.yml' }
     it "loads the minimal policy" do
       expect(resource_policy).to be
@@ -84,10 +91,14 @@ describe Loader::Orchestrate do
           load_policy_update 'extended.yml'
         end
         it "applies the policy update" do
-          verify_data 'updated/extended_2.txt'
+          verify_data 'updated/extended.txt'
         end
         context "when deletion is disabled" do
-          it "doesn't delete removed records"
+          let(:perform_automatic_deletion) { false }
+
+          it "doesn't delete removed records" do
+            verify_data 'updated/extended_without_deletion.txt'
+          end
         end
       end
     end
@@ -98,7 +109,7 @@ describe Loader::Orchestrate do
     context "and policy update" do
       it "applies the policy update" do
         load_policy_update 'extended.yml'
-        verify_data 'updated/extended_1.txt'
+        verify_data 'updated/extended_simple_base.txt'
       end
     end
   end

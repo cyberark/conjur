@@ -1,18 +1,16 @@
 Before do
-  timestamp = Time.now.utc.strftime('%Y-%m-%dT%H%M%S.%LZ')
-  @namespace = [ 'cucumber', timestamp, 4.times.map{rand(255).to_s(16)}.join ].join('/')
   @user_index = 0
+
+  Role.truncate(cascade: true)
+  Secret.truncate
+  Credentials.truncate
   
-  Role["cucumber:user:admin"] || Role.create(role_id: "cucumber:user:admin")
+  admin_role = Role.create(role_id: "cucumber:user:admin")
+  Credentials.new(role: admin_role).save(raise_on_save_failure: true)
 end
 
 Before("@logged-in") do
   step %Q(I am a user named "alice")
-end
-
-Before("@clean-policies") do
-  admin_role = Role["cucumber:user:admin"]
-  Role.exclude(role_id: admin_role.id).delete
 end
 
 Before("@logged-in-admin") do

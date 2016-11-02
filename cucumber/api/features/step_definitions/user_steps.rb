@@ -11,7 +11,7 @@ Given(/^I create a new user "([^"]*)"$/) do |login|
 end
 
 Given(/^I create a new user "([^"]*)" in account "([^"]*)"$/) do |login, account|
-  roleid = "#{account}:user:#{user_login(login)}"
+  roleid = "#{account}:user:#{login}"
   Role.create(role_id: roleid)
 end
 

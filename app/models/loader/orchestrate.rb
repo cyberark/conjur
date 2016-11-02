@@ -42,9 +42,9 @@ module Loader
   class Orchestrate
     extend Forwardable
 
-    attr_reader :policy_version, :records, :policy_passwords, :policy_public_keys, :new_roles
+    attr_reader :policy_version, :create_records, :delete_records, :policy_passwords, :policy_public_keys, :new_roles
 
-    TABLES = %w(roles role_memberships resources permissions annotations)
+    TABLES = %i(roles role_memberships resources permissions annotations)
 
     # Columns to compare across schemata to find exact duplicates.
     TABLE_EQUIVALENCE_COLUMNS = {
@@ -57,28 +57,38 @@ module Loader
 
     def initialize policy_version
       @policy_version = policy_version
-      # Transform each statement into a Loader type
-      @records = policy_version.records.map do |policy_object|
-        Loader::Types.wrap self, policy_object
-      end
       @policy_public_keys = []
       @policy_passwords = []
+
+      # Transform each statement into a Loader type
+      @create_records = policy_version.create_records.map do |policy_object|
+        Loader::Types.wrap self, policy_object
+      end
+      @delete_records = policy_version.delete_records.map do |policy_object|
+        Loader::Types.wrap self, policy_object
+      end
     end
 
     def load
+      perform_deletion
+
       create_schema
 
       load_records
 
-      delete_removed
+      if policy_version.perform_automatic_deletion?
+        delete_removed
+      end
 
       eliminate_shadowed
 
-      eliminate_duplicates
+      eliminate_duplicates_exact
 
-      update_changed
+      if policy_version.update_permitted?
+        update_changed
+      end
 
-      eliminate_duplicates
+      eliminate_duplicates_pk
 
       insert_new
 
@@ -111,10 +121,10 @@ module Loader
         begin
           TABLES.each do |table|
             model = Sequel::Model("#{schema}#{table}".to_sym)
-            account_column = TABLE_EQUIVALENCE_COLUMNS[table.to_sym].include?(:resource_id) ? :resource_id : :role_id
+            account_column = TABLE_EQUIVALENCE_COLUMNS[table].include?(:resource_id) ? :resource_id : :role_id
             io.write "#{table}\n"
-            sort_columns = TABLE_EQUIVALENCE_COLUMNS[table.to_sym] + [ :policy_id ]
-            tp *([ model.where("account(#{account_column}) = ?", account).order(sort_columns).all ] + TABLE_EQUIVALENCE_COLUMNS[table.to_sym] + [ :policy_id ])
+            sort_columns = TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ]
+            tp *([ model.where("account(#{account_column}) = ?", account).order(sort_columns).all ] + TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ])
             io.write "\n"
           end
         ensure
@@ -212,24 +222,36 @@ module Loader
     end
 
     # Delete rows from the new policy which are identical to existing rows.
-    def eliminate_duplicates
+    def eliminate_duplicates_exact
       TABLE_EQUIVALENCE_COLUMNS.each do |table, columns|
-        comparisons = (columns + [ :policy_id ]).map do |column|
-          "new_#{table}.#{column} = old_#{table}.#{column}"
-        end.join(' AND ')
-        db.execute <<-DELETE
-          DELETE FROM #{table} new_#{table}
-          USING public.#{table} old_#{table}
-          WHERE #{comparisons}
-        DELETE
+        eliminate_duplicates table, columns + [ :policy_id ]
       end
+    end
+
+    # Delete rows from the new policy which have the same primary keys as existing rows.
+    def eliminate_duplicates_pk
+      TABLES.each do |table|
+        eliminate_duplicates table, Array(Sequel::Model("public__#{table}".to_sym).primary_key) + [ :policy_id ]
+      end
+    end
+
+    # Eliminate duplicates from a table, using the specified comparison columns.
+    def eliminate_duplicates table, columns
+      comparisons = columns.map do |column|
+        "new_#{table}.#{column} = old_#{table}.#{column}"
+      end.join(' AND ')
+      db.execute <<-DELETE
+        DELETE FROM #{table} new_#{table}
+        USING public.#{table} old_#{table}
+        WHERE #{comparisons}
+      DELETE
     end
 
     def update_changed
       in_primary_schema do
         TABLES.each do |table|
-          pk_columns = Array(Sequel::Model(table.to_sym).primary_key)
-          update_columns = TABLE_EQUIVALENCE_COLUMNS[table.to_sym] - pk_columns
+          pk_columns = Array(Sequel::Model(table).primary_key)
+          update_columns = TABLE_EQUIVALENCE_COLUMNS[table] - pk_columns
           next if update_columns.empty?
 
           update_statements = update_columns.map do |c|
@@ -256,15 +278,22 @@ module Loader
 
       in_primary_schema do
         TABLES.each do |table|
-          columns = (TABLE_EQUIVALENCE_COLUMNS[table.to_sym] + [ :policy_id ]).join(", ")
+          columns = (TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ]).join(", ")
           db.execute "INSERT INTO #{table} ( #{columns} ) SELECT #{columns} FROM #{schema_name}.#{table}"
         end
       end
     end
 
-    # A securely random id.
+    # A random schema name.
     def schema_name
-      @schema_name ||= "policy_loader_#{SecureRandom.hex}"
+      @random ||= Random.new
+      rnd = @random.bytes(8).unpack('h*').first
+      @schema_name ||= "policy_loader_#{rnd}"
+    end
+
+    # Perform explicitly requested deletions
+    def perform_deletion
+      delete_records.map(&:delete!)
     end
 
     # Loads the records into the temporary schema (since the schema search path contains only the temporary schema).
@@ -273,22 +302,23 @@ module Loader
     def load_records
       raise "Policy version must be saved before loading" unless policy_version.resource_id
 
-      records.map(&:create!)
+      create_records.map(&:create!)
 
       db[:role_memberships].where(admin_option: nil).update(admin_option: false)
       db[:role_memberships].where(ownership: nil).update(ownership: false)
       TABLES.each do |table|
-        db[table.to_sym].update(policy_id: policy_version.resource_id)
+        db[table].update(policy_id: policy_version.resource_id)
       end
     end
 
     def in_primary_schema &block
       db.execute "SET search_path = public"
-      begin
-        yield
-      ensure
-        db.execute "SET search_path = #{schema_name}"
-      end
+
+      yield
+
+      # If a SQL exception occurs above, the transaction will be aborted and all database
+      # calls will fail. So this statement is not performed in an `ensure` block.
+      db.execute "SET search_path = #{schema_name}"
     end
 
     # Creates the new schema.

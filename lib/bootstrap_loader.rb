@@ -24,6 +24,9 @@ class BootstrapLoader
 
         policy_version = PolicyVersion.new role: admin, policy: bootstrap_policy_resource, policy_text: File.read(filename)
         policy_version.policy_filename = filename
+        policy_version.perform_automatic_deletion = true
+        policy_version.delete_permitted = true
+        policy_version.update_permitted = true
         policy_version.save
 
         loader = Loader::Orchestrate.new policy_version

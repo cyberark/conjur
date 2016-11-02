@@ -6,7 +6,7 @@ Feature: Fetch resource details.
 
   Scenario: Showing a resource provides information about privileges, annotations and secrets on the resource
 
-    Given I successfully POST "/secrets/:account/:resource_kind/:resource_id" with body:
+    Given I successfully POST "/secrets/cucumber/:resource_kind/:resource_id" with body:
     """
     the-value
     """
@@ -14,7 +14,7 @@ Feature: Fetch resource details.
     And I permit user "bob" to "execute" it
     And I set annotation "description" to "Front end server"
 
-    When I successfully GET "/resources/:account/:resource_kind/:resource_id"
+    When I successfully GET "/resources/cucumber/:resource_kind/:resource_id"
     Then the JSON should be:
     """
     {

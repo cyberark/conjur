@@ -11,20 +11,20 @@ Feature: Change the password of a role
   Scenario: With basic authentication, users can update their own password using the current password.
 
     Given I set the password for "alice" to "my-password"
-    When I successfully PUT "/authn/:account/password" with username "alice@:user_namespace" and password "my-password" and plain text body "new-password"
-    Then I can GET "/authn/:account/login" with username "alice@:user_namespace" and password "new-password"
+    When I successfully PUT "/authn/cucumber/password" with username "alice" and password "my-password" and plain text body "new-password"
+    Then I can GET "/authn/cucumber/login" with username "alice" and password "new-password"
 
   Scenario: With basic authentication, users can update their own password using the current API key.
 
-    When I successfully PUT "/authn/:account/password" with username "alice@:user_namespace" and password ":alice_api_key" and plain text body "new-password"
-    Then I can GET "/authn/:account/login" with username "alice@:user_namespace" and password "new-password"
+    When I successfully PUT "/authn/cucumber/password" with username "alice" and password ":alice_api_key" and plain text body "new-password"
+    Then I can GET "/authn/cucumber/login" with username "alice" and password "new-password"
 
   @logged-in
   Scenario: Bearer token cannot be used to change the password
 
     An authentication token is insufficient to change a role's password.
 
-    When I PUT "/authn/:account/password" with plain text body "new-password"
+    When I PUT "/authn/cucumber/password" with plain text body "new-password"
     Then it's not authenticated
 
   @logged-in-admin
@@ -32,5 +32,5 @@ Feature: Change the password of a role
     Users cannot change the passwords of other users. However, if a role has `update` privilege
     on another role, it can rotate the other role's API key.
 
-    When I PUT "/authn/:account/password?role=user:alice@:user_namespace" with plain text body "new-password"
+    When I PUT "/authn/cucumber/password?role=user:alice" with plain text body "new-password"
     Then it's not authenticated

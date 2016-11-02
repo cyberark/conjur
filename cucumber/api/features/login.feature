@@ -8,7 +8,7 @@ Feature: Exchange a role's password for its API key
 
   Scenario: Password can be used to obtain API key
     Given I set the password for "alice" to "my-password"
-    Then I can GET "/authn/:account/login" with username "alice@:user_namespace" and password "my-password"
+    Then I can GET "/authn/cucumber/login" with username "alice" and password "my-password"
     Then the result is the API key for user "alice"
 
   @logged-in
@@ -17,7 +17,7 @@ Feature: Exchange a role's password for its API key
     The login method requires the password; login cannot be performed using the auth token
     as a credential.
 
-    When I GET "/authn/:account/login"
+    When I GET "/authn/cucumber/login"
     Then it's not authenticated
 
   @logged-in-admin
@@ -25,5 +25,5 @@ Feature: Exchange a role's password for its API key
 
     Users can never login as other users.
 
-    When I GET "/authn/:account/login?role=user:alice@@user_namespace@"
+    When I GET "/authn/cucumber/login?role=user:alice"
     Then it's not authenticated

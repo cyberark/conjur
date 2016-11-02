@@ -24,7 +24,7 @@ Feature: Policies can be organized into hierarchies with specific update permiss
 
     - !permit
       resource: !policy prod/frontend
-      privilege: [ read, execute ]
+      privilege: [ read, update ]
       role: !group teams/frontend
     """
     And I log in as user "bob"

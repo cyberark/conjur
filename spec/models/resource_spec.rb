@@ -4,7 +4,8 @@ describe Resource, :type => :model do
   include_context "create user"
   
   let(:login) { "u-#{random_hex}" }
-  let(:resource_id) { "rspec:the-kind:r-#{random_hex}"}
+  let(:kind) { "the-kind" }
+  let(:resource_id) { "rspec:#{kind}:r-#{random_hex}"}
   let(:the_resource) { Resource.create(resource_id: resource_id, owner: the_user) }
 
   shared_examples_for "provides expected JSON" do
@@ -21,8 +22,7 @@ describe Resource, :type => :model do
       id: the_resource.resource_id,
       owner: the_user.role_id,
       permissions: [],
-      annotations: [],
-      secrets: []
+      annotations: []
     }
   }
   
@@ -57,6 +57,7 @@ describe Resource, :type => :model do
     it_should_behave_like "provides expected JSON"
   end
   context "with secret" do
+    let(:kind) { "variable" }
     before {
       the_resource.add_secret value: "the-value"
     }
@@ -112,6 +113,7 @@ describe Resource, :type => :model do
   end
 
   describe "#enforce_secrets_version_limit" do
+    let(:kind) { "variable" }
     it "deletes extra secrets" do
       the_resource.add_secret value: "v-1"
       the_resource.add_secret value: "v-2"
