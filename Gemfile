@@ -26,7 +26,7 @@ gem 'possum-api', github: 'conjurinc/api-ruby', branch: 'work/ng'
 gem 'conjur-rack', github: 'conjurinc/conjur-rack', branch: 'master'
 gem 'conjur-rack-heartbeat'
 gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'possum'
-gem 'simplecov', :require => false
+gem 'rack-rewrite'
 
 group :production do
   gem 'rails_12factor'
@@ -47,4 +47,5 @@ group :development, :test do
   gem 'cucumber'
   gem 'aruba'
   gem 'rake_shared_context'
+  gem 'simplecov', :require => false
 end
