@@ -144,7 +144,8 @@ module PossumWorld
   end
 
   def admin_api_key
-    @admin_api_key ||= Possum::Client.new(url: $possum_url).login $possum_account, 'admin', 'admin'
+    password = ENV['CONJUR_AUTHN_PASSWORD'] || 'admin'
+    @admin_api_key ||= Possum::Client.new(url: $possum_url).login $possum_account, 'admin', password
   end
 
   def login_as_role login, api_key = nil

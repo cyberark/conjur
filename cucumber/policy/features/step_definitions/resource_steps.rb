@@ -29,3 +29,7 @@ end
 Then(/^the resource list includes ([\w_]+) "([^"]*)"$/) do |kind, id|
   expect(result.map{|r| r['id']}).to include(make_full_id(kind, id))
 end
+
+Then(/^the owner of ([\w_]+) "([^"]*)" is ([\w_]+) "([^"]*)"$/) do |object_kind, object_id, owner_kind, owner_id|
+  expect(possum.resource_show([ object_kind, object_id ].join(":"))['owner']).to eq(make_full_id(owner_kind, owner_id))
+end

@@ -340,7 +340,7 @@ module Loader
       LANGUAGE sql IMMUTABLE
       AS $$
       SELECT CASE 
-         WHEN split_part($1, ':', 1) = '' THEN NULL 
+        WHEN split_part($1, ':', 1) = '' THEN NULL 
         ELSE split_part($1, ':', 1)
       END
       $$;

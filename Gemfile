@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-#ruby=ruby-2.2.4
+#ruby=ruby-2.2.6
 #ruby-gemset=possum
 
 gem 'rake'
@@ -16,7 +16,7 @@ gem 'bcrypt-ruby', '~> 3.0.0'
 gem 'random_password_generator', '= 1.0.0'
 gem 'slosilo', '>=2.0.0'
 gem 'listen'
-gem 'gli'
+gem 'gli', require: false
 
 # Installing ruby_dep 1.4.0
 # Gem::InstallError: ruby_dep requires Ruby version >= 2.2.5, ~> 2.2.
@@ -33,8 +33,8 @@ group :production do
 end
 
 group :development, :test do
-  gem 'conjur-debify', require: false
   gem 'pry-byebug'
+  gem 'conjur-debify', require: false
   gem 'spring'
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
