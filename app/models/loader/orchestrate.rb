@@ -44,12 +44,13 @@ module Loader
 
     attr_reader :policy_version, :create_records, :delete_records, :policy_passwords, :policy_public_keys, :new_roles
 
-    TABLES = %i(roles role_memberships resources permissions annotations)
+    TABLES = %i(roles role_memberships resources host_factory_layers permissions annotations)
 
     # Columns to compare across schemata to find exact duplicates.
     TABLE_EQUIVALENCE_COLUMNS = {
       roles: [ :role_id ],
       resources: [ :resource_id, :owner_id ],
+      host_factory_layers: [ :resource_id, :role_id ],
       role_memberships: [ :role_id, :member_id, :admin_option, :ownership ],
       permissions: [ :resource_id, :privilege, :role_id ],
       annotations: [ :resource_id, :name, :value ]
@@ -67,6 +68,25 @@ module Loader
       @delete_records = policy_version.delete_records.map do |policy_object|
         Loader::Types.wrap self, policy_object
       end
+    end
+    
+    # Gets the id of the policy being loaded.
+    def policy_id
+      policy_version.policy.id
+    end
+
+    # When a public key is encountered in a policy, it is saved here. It can't be written directly into
+    # the temporary schema, because that schema doesn't have a secrets table. The merge algorithm only operates
+    # on the RBAC tables.
+    def handle_password id, password
+      policy_passwords << [ id, password ]
+    end
+
+    # When a public key is encountered in a policy, it is saved here. It can't be written directly into
+    # the temporary schema, because that schema doesn't have a credentials table. The merge algorithm only operates
+    # on the RBAC tables.
+    def handle_public_key id, public_key
+      policy_public_keys << [ id, public_key ]
     end
 
     def load
@@ -161,20 +181,6 @@ module Loader
         role.password = password
         role.save
       end
-    end
-
-    # When a public key is encountered in a policy, it is saved here. It can't be written directly into
-    # the temporary schema, because that schema doesn't have a secrets table. The merge algorithm only operates
-    # on the RBAC tables.
-    def handle_password id, password
-      policy_passwords << [ id, password ]
-    end
-
-    # When a public key is encountered in a policy, it is saved here. It can't be written directly into
-    # the temporary schema, because that schema doesn't have a credentials table. The merge algorithm only operates
-    # on the RBAC tables.
-    def handle_public_key id, public_key
-      policy_public_keys << [ id, public_key ]
     end
 
     # Delete rows in the existing policy which do not exist in the new policy.

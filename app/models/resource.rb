@@ -7,9 +7,12 @@ class Resource < Sequel::Model
   one_to_many :annotations, reciprocal: :resource
   one_to_many :secrets,     reciprocal: :resource, order: :version
   one_to_many :policy_versions, reciprocal: :resource, order: :version
+  one_to_many :host_factory_tokens, reciprocal: :resource
+  many_to_many :host_factory_layers, left_key: :resource_id, right_key: :role_id, class: :Role, join_table: :host_factory_layers
   many_to_one :owner, class: :Role
   
   alias id resource_id
+  alias layers host_factory_layers
   
   def kind
     id.split(":", 3)[1]
@@ -33,6 +36,10 @@ class Resource < Sequel::Model
       end
       if kind == "policy"
         response["policy_versions"] = self.policy_versions.as_json.map {|h| h.except 'resource'}
+      end
+      if kind == "host_factory"
+        response["host_factory_tokens"] = self.host_factory_tokens.as_json.map {|h| h.except 'resource'}
+        response["host_factory_layers"] = self.host_factory_layers.map(&:role_id)
       end
     end
   end

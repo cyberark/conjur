@@ -133,6 +133,3 @@ Feature: Secrets can be managed through policies.
     And I log in as host "myapp-01"
     And I can not add a secret to variable resource "myapp/db-password"
     And I can fetch a secret from variable resource "myapp/db-password"
-
-
-

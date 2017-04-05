@@ -1,4 +1,5 @@
 Sequel.extension :core_extensions
+Sequel::Model.db.extension :pg_array, :pg_inet
 Sequel::Model.plugin :validation_helpers
 
 class Sequel::Model

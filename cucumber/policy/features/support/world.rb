@@ -21,7 +21,7 @@ class PossumClient
   
   require 'possum'
   
-  attr_reader :username, :api_key
+  attr_reader :username, :api_key, :client
   
   def initialize username, api_key
     @username = username
@@ -144,8 +144,11 @@ module PossumWorld
   end
 
   def admin_api_key
-    password = ENV['CONJUR_AUTHN_PASSWORD'] || 'admin'
-    @admin_api_key ||= Possum::Client.new(url: $possum_url).login $possum_account, 'admin', password
+    @admin_api_key ||= Possum::Client.new(url: $possum_url).login $possum_account, 'admin', admin_password
+  end
+  
+  def admin_password
+    ENV['CONJUR_AUTHN_PASSWORD'] || 'admin'
   end
 
   def login_as_role login, api_key = nil
@@ -155,7 +158,7 @@ module PossumWorld
       else
         [ "user", login ].join(":")
       end
-      api_key = PossumClient.new('admin', 'admin').rotate_api_key role
+      api_key = PossumClient.new('admin', admin_password).rotate_api_key role
     end
     @possum = PossumClient.new login, api_key
   end
