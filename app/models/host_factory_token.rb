@@ -19,6 +19,7 @@ class HostFactoryToken < Sequel::Model
     super(options.merge(except: [ :token, :token_sha256, :cidr, :expiration, :resource_id ])).tap do |response|
       response[:expiration] = expiration.iso8601
       response[:cidr] = format_cidr
+      response[:token] = token
     end
   end
   

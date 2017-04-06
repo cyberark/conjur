@@ -17,5 +17,5 @@ end
 
 Given(/^a host factory token$/) do
   expect(@host_factory).to be
-  @host_factory_token = HostFactoryToken.create(resource: @host_factory, expiration: Time.now + 10.minutes).token
+  @host_factory_token = HostFactoryToken.create(resource: @host_factory, expiration: Time.now + 10.minutes)
 end
