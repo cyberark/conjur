@@ -9,8 +9,8 @@ GIT
 
 GIT
   remote: git://github.com/conjurinc/conjur-policy-parser.git
-  revision: 1d72226037b7d9ae8cfffe05cb85e1051477cd34
-  branch: feature/host-factory-role
+  revision: 4ff9c558e8f5ff44be6a7dc2328604a2a84299b3
+  branch: possum
   specs:
     conjur-policy-parser (2.2.0)
       activesupport (~> 4.2)
