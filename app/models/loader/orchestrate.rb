@@ -63,10 +63,10 @@ module Loader
 
       # Transform each statement into a Loader type
       @create_records = policy_version.create_records.map do |policy_object|
-        Loader::Types.wrap self, policy_object
+        Loader::Types.wrap policy_object, self
       end
       @delete_records = policy_version.delete_records.map do |policy_object|
-        Loader::Types.wrap self, policy_object
+        Loader::Types.wrap policy_object, self
       end
     end
     

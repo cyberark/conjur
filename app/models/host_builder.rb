@@ -5,13 +5,17 @@ HostBuilder = Struct.new(:account, :id, :owner, :layers, :options) do
   # the host factory.
   def create_host
     host_id = [ account, "host", id ].join(":")
-    host = Resource[host_id]
-    if host.exists?
+    if host = Role[host_id]
+      raise Exceptions::Forbidden unless host.resource.owner == owner
+      
+      # Find-or-create Credentials
+      host.api_key
       host.credentials.rotate_api_key
       host.credentials.save
-      return [ host, host.api_key ]
+      
+      return [ host.resource, host.api_key ]
     end
-
+    
     host_p = Conjur::Policy::Types::Host.new
     host_p.id = id
     host_p.account = account
@@ -24,12 +28,15 @@ HostBuilder = Struct.new(:account, :id, :owner, :layers, :options) do
       Conjur::Policy::Types::Grant.new.tap do |grant_p|
         grant_p.role = Conjur::Policy::Types::Role.new(layer.id)
         grant_p.member = host_p
+        grant_p.member.admin = false
       end
     end
     
     policy_objects = [ host_p ] + role_grants
-    policy_objects.each do |obj|
+    host = policy_objects.map do |obj|
       Loader::Types.wrap(obj).create!
-    end
+    end.first
+    
+    [ host, host.role.api_key ]    
   end
 end

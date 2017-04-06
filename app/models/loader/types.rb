@@ -38,7 +38,7 @@ module Loader
       def_delegators :@external_handler, :policy_id, :handle_password, :handle_public_key
       def_delegators :@policy_object, :owner, :id
 
-      attr_reader :policy_object
+      attr_reader :policy_object, :external_handler
 
       def initialize policy_object, external_handler = nil
         @policy_object = policy_object

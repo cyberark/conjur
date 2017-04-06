@@ -2,6 +2,10 @@ module PossumWorld
   
   USER_NAMES = %w(auto-larry auto-mike auto-norbert auto-otto)
   
+  def headers
+    @headers ||= {}
+  end
+  
   def post_json path, body, options = {}
     path = denormalize(path)
     body = denormalize(body)
@@ -30,8 +34,10 @@ module PossumWorld
   end
   
   def set_result result
+    @response_api_key = nil
     if result.headers[:content_type] =~ /^application\/json/
       @result = JSON.parse(result)
+      @response_api_key = @result['api_key'] if @result.is_a?(Hash)
       if @result.respond_to?(:sort!)
         @result.sort! unless @result.first.is_a?(Hash)
       end
@@ -175,7 +181,13 @@ module PossumWorld
   def rest_resource options
     args = [ Conjur.configuration.appliance_url ]
     args << current_user_credentials if current_user?
+    args << Hash.new if args.length == 1
+    args.last[:headers] ||= {}
+    args.last[:headers].merge(headers) if headers
     RestClient::Resource.new(*args).tap do |request|
+      headers.each do |k,v|
+        request.headers[k] = v
+      end
       if options[:user] && options[:password]
         request.options[:user] = denormalize(options[:user])
         request.options[:password] = denormalize(options[:password])

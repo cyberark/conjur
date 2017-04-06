@@ -16,3 +16,7 @@ end
 Before("@logged-in-admin") do
   step %Q(I am the super-user)
 end
+
+Transform "@response_api_key@" do |item|
+  item.gsub "@response_api_key@", @response_api_key
+end

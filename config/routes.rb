@@ -48,5 +48,7 @@ Rails.application.routes.draw do
     post "/policies/:account/:kind/*identifier" => 'policies#post'
 
     get "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
+    
+    post "/host_factories/hosts" => 'host_factories#create_host'
   end
 end
