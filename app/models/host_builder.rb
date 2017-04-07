@@ -20,6 +20,7 @@ HostBuilder = Struct.new(:account, :id, :owner, :layers, :options) do
     host_p.id = id
     host_p.account = account
     host_p.owner = Conjur::Policy::Types::Role.new(owner.id)
+    host_p.annotations = Hash.new
     (options[:annotations] || {}).each do |k,v|
       host_p.annotations[k] = v.to_s
     end
