@@ -20,6 +20,12 @@ module PossumWorld
     set_result result
   end
 
+  def delete_json path, options = {}
+    path = denormalize(path)
+    result = rest_resource(options)[path].delete
+    set_result result
+  end
+
   def patch_json path, body = nil, options = {}
     path = denormalize(path)
     body = denormalize(body)

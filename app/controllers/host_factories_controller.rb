@@ -25,10 +25,7 @@ class HostFactoriesController < ApplicationController
       raise Unauthorized
     end
     
-    require 'digest'
-    @token = HostFactoryToken.where(token_sha256: Digest::SHA256.hexdigest(token)).all.find do |hft|
-      hft.token == token
-    end
+    @token = HostFactoryToken.from_token token
     raise Unauthenticated unless @token && @token.valid? && @token.valid_origin?(request.ip)
     @host_factory = @token.host_factory
   end

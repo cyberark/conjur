@@ -12,7 +12,7 @@ Given(/^a host factory for layer "([^"]*)"$/) do |layer_id|
   [ layer_p, hf_p ].map do |obj|
     Loader::Types.wrap(obj).create!
   end
-  @host_factory = Resource[hf_p.resourceid]
+  @current_resource = @host_factory = Resource[hf_p.resourceid]
 end
 
 Given(/^a host factory token$/) do

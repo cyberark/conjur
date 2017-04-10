@@ -15,6 +15,12 @@ When(/^I( (?:can|successfully))? PUT "([^"]*)"$/) do |can, path|
   end
 end
 
+When(/^I( (?:can|successfully))? DELETE "([^"]*)"$/) do |can, path|
+  try_request can do
+    delete_json path
+  end
+end
+
 When(/^I( (?:can|successfully))? GET "([^"]*)" with parameters:$/) do |can, path, parameters|
   params = YAML.load(parameters)
   path = [ path, params.to_query ].join("?")

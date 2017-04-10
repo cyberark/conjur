@@ -9,9 +9,22 @@ class HostFactoryToken < Sequel::Model
   alias host_factory resource
   
   class << self
+    # Generates a random token.
+    #
+    # @return [String]
     def random_token
       require 'base32/crockford'
       Slosilo::Random.salt.unpack("N*").map{|i| Base32::Crockford::encode(i)}.join.downcase
+    end
+
+    # Finds the HostFactoryToken whose token is +token+.
+    #
+    # @return [HostFactoryToken]
+    def from_token token
+      require 'digest'
+      where(token_sha256: Digest::SHA256.hexdigest(token)).all.find do |hft|
+        hft.token == token
+      end
     end
   end
 
