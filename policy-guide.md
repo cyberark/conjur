@@ -58,11 +58,6 @@ Some key features of this policy:
 * A `secrets-managers` group can be granted to people who need full access to the frontend secrets.
 * Annotations help to explain the purpose of each statement in the policy.
 
-### Learn more
-
-* The [possum-example repository](https://github.com/conjurinc/possum-example) on Github contains additional sample policies. 
-* [Policy examples in Cucumber format](https://www.relishapp.com/conjur/possum-policy/docs) show how to address specific uses cases.
-
 ## Role-based access control
 
 Possum implements role-based access control (RBAC) to provide permission checks. In RBAC, a permission check is called a "transaction". Each transaction has three parts:
@@ -79,18 +74,13 @@ In the example above, the `permit` statements at the bottom of the policy instru
 
 * role: `group:frontend/secrets-managers`
 * privilege: `read`, `execute`, and `update`
-* resource: any variable in the policy
+* resource: all variables in the policy
 
 **Second example**
 
 * role: `layer`
 * privilege: `read` and `execute`
-* resource: any variable in the policy
-
-### Learn more
-
-* For a detailed description of Possum RBAC, see the [Overview of RBAC in Conjur](https://developer.conjur.net/key_concepts/rbac.html).
-* The 1992 academic paper [Role-Based Access Controls](http://csrc.nist.gov/groups/SNS/rbac/documents/ferraiolo-kuhn-92.pdf) by David F. Ferraiolo and D. Richard Kuhn is quite readable and lays a strong theoretical foundation for RBAC.
+* resource: all variables in the policy
 
 # Loading a policy
 
@@ -133,6 +123,19 @@ Once you have loaded a bootstrap policy, you can submit changes through the Poss
 The role `group:frontend` has `execute` privilege on the `prod/frontend` policy, which gives members of this group permission to change the policy.
 
 Policy updates are submitting by POST-ing the new policy to the URL `/policies/:id`, where `id` is the fully qualified id of the policy (e.g. `the-account:policy:prod/frontend`). Policy updates submitted in this way can only modify data under the id path `prod/frontend`. In this way, management of the Possum policy can be delegated to various teams, giving each one responsibility for their own projects and applications. 
+
+## Loading policies through the CLI
+
+Use `possum policy load <policy-id> <policy-file>` to load a policy through the CLI.
+
+Use a single dash `-` as the `policy-file` argument to read the policy from STDIN.
+
+Here's an example:
+
+{% highlight shell %}
+$ possum policy load frontend frontend.yml
+Policy loaded
+{% endhighlight %}
 
 # Policy reference
 
@@ -206,8 +209,7 @@ Users can also be assigned a password. A user can use her password to `login` an
 
 A group of users and other groups.
 
-When a user becomes a member of a group they are granted the group role, and inherit the group’s privileges. Group members can be added with or without “admin option”. With admin option, the member can add and remove members to/from the group.
-
+When a user becomes a member of a group they are granted the group role, and inherit the group’s privileges.
 Groups can also be members of groups; in this way, groups can be organized and nested in a hierarchy.
 
 #### Attributes
@@ -222,13 +224,24 @@ Groups can also be members of groups; in this way, groups can be organized and n
 - !user bob
 
 - !group
+  id: everyone
+  annotations:
+    description: All users belong to this group.
+
+- !group
   id: ops
+  annotations:
+    description: This group is for production operational personnel.
 
 - !grant
     role: !group ops
     members:
     - !user alice
     - !user bob
+    
+- !grant
+    role: !group everyone
+    member: !group ops
 {% endhighlight %}
 
 # Servers, Apps, Containers and Code

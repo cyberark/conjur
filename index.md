@@ -14,6 +14,16 @@ To use Possum, you write policy files to enumerate and categorize the things in 
 
 # Why use Possum?
 
+## Complete
+
+Possum provides a complete solution to secrets management for DevOps. What do we mean by this?
+It's not just a tool that you have to figure out how to deploy and operationalize.
+Possum comes with everything you need from basic setup instructions, pre-built
+and officially maintained integrations with the other DevOps software in your toolchain, 
+to HA instructions and strategies that are easy to operationalize.
+
+With Possum, you CAN solve your secrets management problem quickly and easily.
+
 ## Proven
 
 Possum has been running in production for more than two years, solving real-world problems at companies like Cisco, Box, Puppet Labs, Discovery Communications, Ability Networks, Lookout, and Machine Zone. 
