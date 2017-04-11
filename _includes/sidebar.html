@@ -10,34 +10,23 @@
     </div>
 
     <nav class="sidebar-nav">
-      <a class="sidebar-nav-item{% if page.title == null %} active{% endif %}" href="{{ site.baseurl }}/">Home</a>
-
-      {% comment %}
-        The code below dynamically generates a sidebar nav of pages with
-        `layout: page` in the front-matter. See readme for usage.
-      {% endcomment %}
-
-      {% assign pages_list = site.pages | sort: 'index' %}
-      {% for node in pages_list %}
-        {% if node.title != null %}
-          {% if node.layout == "page" %}
-            {% if node.external_url != null %}
-              <a class="sidebar-nav-item" href="{{ node.external_url }}" target="_blank">
-                {{ node.title }} &raquo;
-              </a>
-            {% else %}
-              <a class="sidebar-nav-item{% if page.url == node.url %} active{% endif %}" href="{{ site.baseurl }}{{ node.url }}">
-                {{ node.title }}
-              </a>
-            {% endif %}
-          {% endif %}
+      {% for item in site.data.sidebar.main %}
+        {% if item.url != null %}
+          <a class="sidebar-nav-item" href="{{ item.url }}" target="_blank">
+            {{ item.title }} &raquo;
+          </a>
+        {% elsif item.path != null %}
+          <a class="sidebar-nav-item{% if page.url == item.path %} activ
+e{% endif %}" href="{{ site.baseurl }}{{ item.path }}">
+            {{ item.title }}
+          </a>
+          {% include subitems.html items=item.items %}
+        {% else %}
+          {{ item.title }}<br/>
+          {% include subitems.html items=item.items %}
         {% endif %}
       {% endfor %}
 
-      <a class="sidebar-nav-item" href="https://github.com/conjurinc/possum/releases" target="_blank">Downloads &raquo;</a>
-
-      <a class="sidebar-nav-item" href="https://github.com/conjurinc/possum" target="_blank">GitHub project &raquo;</a>
-      
       <hr/>
       
       <div>Cucumber</div>

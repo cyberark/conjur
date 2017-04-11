@@ -1,6 +1,5 @@
 ---
 layout: page
-index: 00
 ---
 
 Possum is the directory and authorization service for the new infrastructure stack, providing:
@@ -43,18 +42,6 @@ Possum provides full role-based access control, which is a proven model for infr
 ## Easy to deploy and operate
 
 Running Possum is as simple as `docker-compose up`. The default backing data store for Possum is Postgresql. You can run the database alongside Possum as a Docker container, or you can use a hosted database service such as AWS RDS.
-
-## Flexible
-
-You can use Possum to solve many different problems. For example:
-
-* Providing SSL certificates to internal and external servers.
-* Securely enrolling new machines into an environment.
-* Authorizing web service traffic between services.
-* Listing all the machines and containers in an environment, along with their roles.
-* Managing and distributing public keys.
-* Distributing database passwords (and other types of credentials) to applications and services.
-* Providing authorization logic for configuration management and container orchestration.
 
 ## Programmable
 

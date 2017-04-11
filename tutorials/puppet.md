@@ -1,8 +1,6 @@
 ---
-title: Integration - Puppet
+title: Tutorial - Puppet Secrets
 layout: page
-sidebar_class: item-sub
-index: 31
 ---
 
 In conjunction with the [conjur Puppet module](https://forge.puppet.com/conjur/conjur),
@@ -21,37 +19,10 @@ of a backup of the master reveals no secrets at all.
 
 ## Demonstration
 
-1) Get Puppet
+This demo assumes that you have a Puppet-managed environment available to you,
+and that you have a working Possum server and client.
 
-This demo assumes that you have a Puppet-managed environment available to you.
-If you don't, you can quickly build a Puppet master using [Puppet-in-Docker](https://github.com/puppetlabs/puppet-in-docker),
- or by [downloading open-source Puppet](https://puppet.com/download-open-source-puppet).
-
-2) Get Possum
-
-**Via Docker**
-
-docker-compose is a quick and easy way to get Possum running in a local
-environment. 
-
-{% highlight shell %}
-$ git clone git@github.com/conjurinc/possum.git
-$ cd possum/demo
-$ docker-compose up -d
-$ docker-compose exec client bash
-{% endhighlight %}
-
-**Via AWS**
-
-* Search AWS Marketplace for "Possum".
-* Launch an ec2 instance from the AMI.
-* SSH to the instance.
-* Download the Conjur CLI.
-* Connect to Possum:
-
-    `$ conjur init -h ec2-yourhostname.amazonaws.com`
-
-3) Load the policies into Possum.
+1) Load the policies into Possum.
 
 [possum-example](https://github.com/conjurinc/possum-example/) is a simple way to get a good set of policies into Possum.
 
@@ -63,7 +34,7 @@ $ cd possum-example
 $ possum policy load bootstrap policies/conjur.yml
 {% endhighlight %}
 
-4) Load the secret data into Possum.
+2) Load the secret data into Possum.
 
 Again, from your Possum client environment (`client` container or your local machine),
 use the CLI to generate a secret value and load it into Possum:
@@ -74,7 +45,7 @@ $ echo password | possum variable values add inventory-db/password
 Value added
 {% endhighlight %}
 
-5) Generate a host factory token to enroll the Puppet-ized node
+3) Generate a host factory token to enroll the Puppet-ized node
 
 Again, from your Possum client environment (`client` container or your local machine),
 use the CLI to generate a host factory token for the `inventory` layer:
@@ -88,7 +59,7 @@ $ conjur hostfactory tokens create inventory
 }    
 {% endhighlight %}
 
-6) Run a Puppet-ized node
+4) Run a Puppet-ized node
 
 Create a Puppet manifest which connects to Possum and fetches the data.
 For demo purposes, provide the host factory token directly in the `conjur`

@@ -1,7 +1,6 @@
 ---
-title: Policy Guide
+title: Policy YAML
 layout: page
-index: 10
 ---
 
 # What is a policy?

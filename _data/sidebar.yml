@@ -1,0 +1,34 @@
+main:
+  - title: Home
+    path: /
+
+  - title: Installation
+    items:
+      - title: Server
+        path: /installation/server.html
+      
+      - title: Client
+        path: /installation/client.html
+
+  - title: Reference
+    items:
+      - title: API
+        path: /reference/api.html
+      
+      - title: Policy YAML
+        path: /reference/policy.html
+
+  - title: Tutorials
+    items:
+      - title: Database Password
+        path: /tutorials/db-password.html
+        
+      - title: Secrets via Puppet
+        path: /tutorials/puppet.html
+
+  - title: Downloads
+    url: https://github.com/conjurinc/possum/releases
+    
+  - title: Github Project
+    url: https://github.com/conjurinc/possum
+

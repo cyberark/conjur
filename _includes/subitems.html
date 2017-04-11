@@ -1,0 +1,10 @@
+
+{% if include.items %}
+  <ul>
+    {% for item in include.items %}
+      <a class="sidebar-nav-item{% if page.url == item.path %} active{% endif %}" href="{{ site.baseurl }}{{ item.path }}">
+        {{ item.title }}
+      </a>
+    {% endfor %}
+  </ul>
+{% endif %}

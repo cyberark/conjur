@@ -1,56 +1,7 @@
 ---
-title: Demo
+title: Tutorial - Manage a Database Password
 layout: page
-index: 10
 ---
-
-## Install Docker
-
-Visit [https://docs.docker.com/engine/installation/](https://docs.docker.com/engine/installation/) for instructions.
-
-## Clone the example repository
-
-{% highlight shell %}
-$ git clone https://github.com/conjurinc/api-python.git
-$ cd api-python/demo
-$ ./start.sh
-{% endhighlight %}
-
-## Launch Possum
-
-The `start.sh` script launches three containers:
-
-  1) `pg` A Postgres database to store the data.
-
-  2) `possum` The Possum service.
-
-  3) `client` A container with the client tools pre-installed and configured.
-
-It also creates the data key, which is used to encrypt all sensitive information including API keys and secrets. After creating the containers, the startup script will drop you into a shell session on the `client` container:
-
-{% highlight shell %}
-$ ./start.sh
-...
-root@6309c4141aac:/app# 
-{% endhighlight %}
-
-## Log in
-
-To start working with Possum, log in as the `admin` user. The password is "secret":
-
-{% highlight shell %}
-$ possum login
-Enter your username to log into Possum: admin
-Enter password for user admin (it will not be echoed):
-Logged in
-{% endhighlight %}
-
-You can show your current logged-in user with `possum whoami`:
-
-{% highlight shell %}
-$ possum whoami
-demo:user:admin
-{% endhighlight %}
 
 ## Understand the bootstrap policy
 
