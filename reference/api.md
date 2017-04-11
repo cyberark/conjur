@@ -1,4 +1,4 @@
 ---
-title: API Reference
+title: Reference - API
 layout: page
 ---

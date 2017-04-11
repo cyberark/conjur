@@ -11,20 +11,7 @@
 
     <nav class="sidebar-nav">
       {% for item in site.data.sidebar.main %}
-        {% if item.url != null %}
-          <a class="sidebar-nav-item" href="{{ item.url }}" target="_blank">
-            {{ item.title }} &raquo;
-          </a>
-        {% elsif item.path != null %}
-          <a class="sidebar-nav-item{% if page.url == item.path %} activ
-e{% endif %}" href="{{ site.baseurl }}{{ item.path }}">
-            {{ item.title }}
-          </a>
-          {% include subitems.html items=item.items %}
-        {% else %}
-          {{ item.title }}<br/>
-          {% include subitems.html items=item.items %}
-        {% endif %}
+        {% include menu-item.html item=item %}
       {% endfor %}
 
       <hr/>

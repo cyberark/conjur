@@ -47,7 +47,8 @@ $ docker-compose up -d
 Run the server using Docker, and bring your own Postgresql.
 
 {% highlight shell %}
-$ export POSSUM_DATA_KEY=$(docker run --rm possum data-key generate)
+$ export POSSUM_DATA_KEY=$(docker run --rm \
+  possum data-key generate)
 $ docker run -d \
   -e POSSUM_DATA_KEY \
   -e DATABASE_URL=postgresql:/// <- Provide pg URL here

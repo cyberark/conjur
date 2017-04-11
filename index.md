@@ -2,12 +2,15 @@
 layout: page
 ---
 
-Possum is the directory and authorization service for the new infrastructure stack, providing:
+Possum is the security service for modern infrastructure, providing:
 
-* Role-based access control for people, machines, and code.
-* A REST API.
+* Machine identity.
 * Secrets vault.
-* Pre-built integrations with popular programming languages and open source infrastructure automation tools.
+* Officially supported integrations with popular DevOps and cloud tools.
+
+# How does Possum work?
+
+< diagram here >
 
 To use Possum, you write policy files to enumerate and categorize the things in your infrastructure : hosts, images, containers, web services, databases, secrets, users, groups, etc. You also use the policy files to define role relationships, such as the members of each group, and permissions rules, such as which groups and machines can fetch each secret. The Possum server runs on top of the policies and provides HTTP services such as authentication, permission checks, secrets, and public keys. You can also perform dynamic updates to the infrastructure, such as change secret values and enroll new hosts.
 
