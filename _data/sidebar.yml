@@ -2,30 +2,66 @@ main:
   - title: Installation
     path: /installation/
     items:
-      - title: Server
-        path: /installation/server.html
-      
       - title: Client
         path: /installation/client.html
+
+      - title: Server
+        path: /installation/server.html
 
   - title: Tutorials
     path: /tutorials/
     items:
-      - title: App Secrets
-        path: /tutorials/db-password.html
+      - title: Policy
+        path: /tutorials/policy/
+        items:
+          - title: Working with Policies
+            path: /tutorials/policy/overview.html
 
-      - title: Puppet Secrets
-        path: /tutorials/puppet.html
+          - title: Users and Groups
+            path: /tutorials/policy/users.html
+
+          - title: Hosts and Layers
+            path: /tutorials/policy/hosts.html
+            
+          - title: Application Secrets
+            path: /tutorials/policy/db-password.html
+
+      - title: Runtime Solutions
+        path: /tutorials/integrations/
+        items:
+          - title: Summon
+            path: /tutorials/integrations/summon.html
+            
+          - title: Puppet
+            path: /tutorials/integrations/puppet.html
 
   - title: Reference
     path: /reference/
     items:
-      - title: API
-        path: /reference/api.html
-      
-      - title: Policy YAML
+      - title: Policy Language
         path: /reference/policy.html
 
+      - title: Authentication
+        path: /reference/authentication.html
+
+      - title: Authorization
+        path: /reference/authorization.html
+
+      - title: Secrets
+        path: /reference/secrets.html
+
+      - title: Host Factory
+        path: /reference/host_factory.html
+
+      - title: Machine Identity Runtime
+        path: /reference/machine_identity.html
+
+      - title: API
+        path: /reference/api.html
+        
+      - title: Cryptography
+        path: /reference/cryptography.html
+      
   - title: Downloads
     url: https://github.com/conjurinc/possum/releases
     

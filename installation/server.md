@@ -56,15 +56,24 @@ $ docker run -d \
   possum server
 {% endhighlight %}
 
-### AMI + RDS
+### AWS
 
-The Conjur server is available on an AMI. Launch a load-balanced pair of API servers
-from the AMI, and connect them to an RDS-powered Postgresql backend. This
-whole stack can be launched using CloudFormation.
+The Conjur server is available as an AMI. A CloudFormation template is available
+which will:
+
+* Launch an RDS-powered Postgresql database.
+* Launch a load-balanced pair of API servers.
+* Grant the API servers permission to use the database.
+* Run a load balancer in front of the API servers.
+
+For production operation, you should perform the additional steps:
+
+* Monitor the API servers.
+* Configure the load balancer for SSL / HTTPS.
 
 ### Build from source
 
 You can "bring your own" deployment architecture by building and running the
 Conjur server from source, aganist a Postgresql database of your choosing.
 
-To continue, visit [Possum on GitHub](https://github.com/conjurinc/possum).
+To proceed with this option, visit [Possum on GitHub](https://github.com/conjurinc/possum).

@@ -1,5 +1,5 @@
 ---
-title: Tutorial - Puppet Secrets
+title: Tutorial - Puppet
 layout: page
 ---
 

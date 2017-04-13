@@ -3,29 +3,37 @@ title: Installation - Client
 layout: page
 ---
 
-## Get the Client
+### Download and Install
 
-There are two options for getting the client.
+Your first option for getting the client is to download the package installer
+for your platform. 
 
-### Download
+Head over to [https://github.com/conjurinc/cli-ruby/releases](https://github.com/conjurinc/cli-ruby/releases), 
+and follow the appropriate installation procedure for your platform.
 
-https://github.com/conjurinc/cli-ruby/releases
+### Run in Docker
 
-Follow the appropriate installation procedure for your platform.
+You can also run the client in Docker. The following command will automatically
+download and start the Possum CLI from Docker Hub. 
 
-### Docker
+It relies on the following environment variables:
 
-You can also run the client in Docker:
+* `CONJUR_APPLIANCE_URL` the URL to the Possum server. 
+* `CONJUR_ACCOUNT` the organization account name to use.
 
 {% highlight shell %}
 $ docker run --rm \
   -e CONJUR_APPLIANCE_URL=http://conjur <- Provide the URL to your server
-  possum-client
+  -e CONJUR_ACCOUNT=myorg <- Provide your organization account name
+  possum-cli
 {% endhighlight %}
 
 ## Log in
 
-To start working with Possum, log in as the `admin` user. The password is "secret":
+Once you've downloaded the client, you'll login to Possum. If you started
+the server yourself, you'll need the `admin` API key or password. If 
+someone else is managing the Possum server, they will provide you with
+your login information.
 
 {% highlight shell %}
 $ possum login
