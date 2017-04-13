@@ -19,7 +19,7 @@ config/database.yml
 reports
 demo/run/finished
 demo/run/load
-run/finished
+run
 coverage
 .DS_Store
 demo/run/*.yml
