@@ -121,15 +121,14 @@ module Loader
 
       def create!
         super
-        
-        host_factory = ::Resource[resourceid]
+
         layer_roleids.each do |layerid|
-          host_factory.add_host_factory_layer ::Role[layerid]
+          Sequel::Model.db[:host_factory_layers].insert(resource_id: resourceid, role_id: find_roleid(layerid))
         end
       end
-      
+
       protected
-      
+
       def layer_roleids
         self.layers.map do |layer|
           find_roleid layer.roleid

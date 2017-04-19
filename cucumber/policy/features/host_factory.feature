@@ -43,3 +43,26 @@ Feature: Host Factories can be managed through policies.
     """
     Then the error code is "not_found"
     And the error message is "Layer 'myapp/../default' not found in account 'cucumber'"
+
+    Scenario: The host factory can be defined in a separate policy load event from the creation
+      of the layer.
+      
+      Given a policy:
+      """
+      - !layer
+        id: myapp
+      """
+      And I extend the policy with:
+      """
+      - !host-factory
+        id: myapp
+        layers: [ !layer myapp ]
+      """
+      Then there is a host_factory resource "myapp"
+      And I show the host_factory "myapp"
+      Then the "host_factory_layers" should be:
+      """
+      [
+        "cucumber:layer:myapp"
+      ]
+      """

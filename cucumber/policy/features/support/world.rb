@@ -79,7 +79,11 @@ class PossumClient
   def policy_load id, body
     @client.put "policies/#{id_path(id)}", body
   end
-  
+
+  def policy_extend id, body
+    @client.post "policies/#{id_path(id)}", body
+  end
+    
   def secret_add id, value
     id = make_full_id id
     @client.post "secrets/#{id_path(id)}", value
@@ -129,9 +133,17 @@ module PossumWorld
   def load_bootstrap_policy policy
     load_policy "bootstrap", policy
   end
+
+  def extend_bootstrap_policy policy
+    extend_policy "bootstrap", policy
+  end
   
   def load_policy id, policy
     possum.policy_load "cucumber/policy/#{id}", policy
+  end
+
+  def extend_policy id, policy
+    possum.policy_extend "cucumber/policy/#{id}", policy
   end
   
   def make_full_id *tokens
