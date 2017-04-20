@@ -65,6 +65,20 @@ describe Loader::Orchestrate do
         load_policy_update 'simple.yml'
         verify_data 'updated/simple.txt'
       end
+      it "creates a host factory" do
+        load_policy_update 'host_factory.yml'
+        verify_data 'updated/host_factory.txt'
+      end
+      it "adds a layer to a host factory" do
+        load_policy_update 'host_factory.yml'
+        load_policy_update 'host_factory_new_layer.yml'
+        verify_data 'updated/host_factory_new_layer.txt'
+      end
+      it "removes a layer from a host factory" do
+        load_policy_update 'host_factory_new_layer.yml'
+        load_policy_update 'host_factory.yml'
+        verify_data 'updated/host_factory.txt'
+      end
       it "doesn't affect a record in a different account" do
         Role.where(Sequel.function("account", :role_id) => 'acct1').delete
         Role.create(role_id: 'acct1:group:the-policy/group-a')

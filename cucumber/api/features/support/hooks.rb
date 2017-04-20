@@ -16,3 +16,17 @@ end
 Before("@logged-in-admin") do
   step %Q(I am the super-user)
 end
+
+Transform /@[\w_]+@/ do |item|
+  item = item.gsub "@response_api_key@", @response_api_key if @response_api_key
+
+  DummyToken = Struct.new(:token, :expiration)
+  
+  @host_factory_token ||= DummyToken.new(@result[0]['token'], Time.parse(@result[0]['expiration'])) rescue nil
+  
+  if @host_factory_token
+    item = item.gsub "@host_factory_token_expiration@", @host_factory_token.expiration.iso8601
+    item = item.gsub "@host_factory_token_token@", @host_factory_token.token
+  end
+  item
+end

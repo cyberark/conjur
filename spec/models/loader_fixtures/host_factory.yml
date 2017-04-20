@@ -1,0 +1,4 @@
+- !layer the-layer
+
+- !host-factory
+  layers: [ !layer the-layer ]

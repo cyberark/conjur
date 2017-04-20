@@ -1,0 +1,90 @@
+require 'spec_helper'
+
+describe "HostFactory" do
+  include_context "create user"
+
+  let(:login) { "the-user" }
+
+  # idk why I need this... ???
+  # Otherwise the records are being committed as they are created.
+  # I thought use_transactional_fixtures took care of this.
+  around(:each) do |example|
+    Sequel::Model.db.transaction do
+      example.run
+      raise Sequel::Rollback
+    end
+  end
+  
+  before {
+    layer_p = Conjur::Policy::Types::Layer.new("the-layer")
+    layer_p.owner = Conjur::Policy::Types::Role.new(the_user.id)
+    layer_p.account = "rspec"
+    
+    hf_p = Conjur::Policy::Types::HostFactory.new("the-factory")
+    hf_p.account = "rspec"
+    hf_p.owner = Conjur::Policy::Types::Role.new(the_user.id)
+    hf_p.layers = []
+    hf_p.layers << layer_p
+    
+    [ layer_p, hf_p ].each do |obj|
+      Loader::Types.wrap(obj).create!
+    end
+  }
+  
+  let(:host_factory) { Resource["rspec:host_factory:the-factory"] }
+  
+  it "has expected JSON" do
+    expect(host_factory.as_json).to match({
+      "created_at" => an_instance_of(String),
+      "id" => "rspec:host_factory:the-factory", 
+      "owner" => "rspec:user:the-user",
+      "annotations" => [], 
+      "host_factory_tokens" => [], 
+      "host_factory_layers" => ["rspec:layer:the-layer"],
+      "permissions" => []
+    })
+  end
+  
+  it "has an associated role" do
+    expect(host_factory.role).to be
+    expect(host_factory.id).to eq(host_factory.role.id)
+    expect(host_factory.role.resource).to eq(host_factory)
+  end
+  
+  describe HostBuilder do
+    let(:host_builder) { 
+      HostBuilder.new "rspec", 
+        "host-01", 
+        host_factory.role,
+        host_factory.layers,
+        {}
+    }
+    let(:create_host) { host_builder.create_host }
+    let(:host) { create_host[0] }
+    let(:api_key) { create_host[1] }
+    context "existing host" do
+      it "must be owned by the host factory" do
+        create_host
+        host.owner = the_user
+        host.save
+        
+        expect { host_builder.create_host }.to raise_error(Exceptions::Forbidden)
+      end
+      it "rotates the API key" do
+        create_host
+        host, rotated_api_key = host_builder.create_host
+        
+        expect(host).to eq(host)
+        expect(rotated_api_key).to_not eq(api_key)
+      end
+    end
+    context "created host" do
+      it "is owned by the host factory role" do
+        expect(host.owner).to eq(host_factory.role)
+      end
+      it "has the host factory layers" do
+        expect(host.role.memberships_as_member.map(&:role)).to eq(host_factory.layers)
+      end
+    end
+  end
+end

@@ -24,9 +24,6 @@ Rails.application.routes.draw do
   
     get "/roles/:account/:kind/*identifier" => "roles#show"
   
-    # TODO
-    get "/roles/:account" => "roles#index"
-
     get "/resources/:account/:kind/*identifier" => 'resources#check_permission', :constraints => QueryParameterActionRecognizer.new("check")
 
     get "/resources/:account/:kind/*identifier" => 'resources#permitted_roles', :constraints => QueryParameterActionRecognizer.new("permitted_roles")
@@ -48,5 +45,11 @@ Rails.application.routes.draw do
     post "/policies/:account/:kind/*identifier" => 'policies#post'
 
     get "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
+    
+    post "/host_factories/hosts" => 'host_factories#create_host'
+    
+    post "/host_factory_tokens" => 'host_factory_tokens#create'
+    
+    delete "/host_factory_tokens/:id" => 'host_factory_tokens#destroy'
   end
 end

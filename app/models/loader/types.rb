@@ -21,23 +21,28 @@ module Loader
         ::Role["#{account}:user:admin"] or raise Exceptions::RecordNotFound, "#{account}:user:admin"
       end
 
-      def wrap orchestrator, obj
+      # Wraps a policy object with a corresponding +Loader::Types+ object.
+      #
+      # +external_handler+ should provide the methods +policy_id+, +handle_password+,
+      # +handle_public_key+. This argument is optional if the policy will not use 
+      # that functionality.
+      def wrap obj, external_handler = nil
         cls = Types.const_get obj.class.name.split("::")[-1]
-        cls.new orchestrator, obj
+        cls.new obj, external_handler
       end
     end
-
+    
     class Base
       extend Forwardable
 
-      def_delegators :@orchestrator, :handle_password, :handle_public_key
+      def_delegators :@external_handler, :policy_id, :handle_password, :handle_public_key
       def_delegators :@policy_object, :owner, :id
 
-      attr_reader :orchestrator, :policy_object
+      attr_reader :policy_object, :external_handler
 
-      def initialize orchestrator, policy_object
-        @orchestrator = orchestrator
+      def initialize policy_object, external_handler = nil
         @policy_object = policy_object
+        @external_handler = external_handler
       end
 
       def find_ownerid
@@ -109,6 +114,26 @@ module Loader
     end
 
     class Host < Record
+    end
+
+    class HostFactory < Record
+      def_delegators :@policy_object, :layers
+
+      def create!
+        super
+
+        layer_roleids.each do |layerid|
+          Sequel::Model.db[:host_factory_layers].insert(resource_id: resourceid, role_id: find_roleid(layerid))
+        end
+      end
+
+      protected
+
+      def layer_roleids
+        self.layers.map do |layer|
+          find_roleid layer.roleid
+        end
+      end
     end
 
     class Group < Record
@@ -190,8 +215,8 @@ module Loader
       def_delegators :@policy_object, :role, :resource, :body
 
       def create!
-        Types.wrap(orchestrator, self.role).create!
-        Types.wrap(orchestrator, self.resource).create!
+        Types.wrap(self.role, external_handler).create!
+        Types.wrap(self.resource, external_handler).create!
         
         Array(body).map(&:create!)
       end
@@ -200,9 +225,6 @@ module Loader
     # Deletions
 
     class Deletion < Types::Base
-      def policy_id
-        orchestrator.policy_version.policy.id
-      end
     end
 
     class Deny < Deletion

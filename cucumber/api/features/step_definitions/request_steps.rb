@@ -1,3 +1,8 @@
+Given(/^I authorize the request with the host factory token$/) do
+  expect(@host_factory_token).to be
+  headers[:authorization] = %Q(Token token="#{@host_factory_token.token}")
+end
+
 When(/^I( (?:can|successfully))? GET "([^"]*)"$/) do |can, path|
   try_request can do
     get_json path
@@ -7,6 +12,12 @@ end
 When(/^I( (?:can|successfully))? PUT "([^"]*)"$/) do |can, path|
   try_request can do
     put_json path
+  end
+end
+
+When(/^I( (?:can|successfully))? DELETE "([^"]*)"$/) do |can, path|
+  try_request can do
+    delete_json path
   end
 end
 

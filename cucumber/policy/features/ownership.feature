@@ -19,13 +19,13 @@ Feature: Custom ownership can be assigned to a policy object.
     """
     Then the owner of variable "db/password" is policy "db"
 
-    Scenario: The owner of a policy-scoped object can be changed.
-      Given a policy:
-      """
-      - !group secrets-managers
+  Scenario: The owner of a policy-scoped object can be changed.
+    Given a policy:
+    """
+    - !group secrets-managers
 
-      - !variable
-        id: password
-        owner: !group secrets-managers
-      """
-      Then the owner of variable "password" is group "secrets-managers"
+    - !variable
+      id: password
+      owner: !group secrets-managers
+    """
+    Then the owner of variable "password" is group "secrets-managers"

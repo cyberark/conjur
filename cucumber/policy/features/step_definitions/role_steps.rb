@@ -1,9 +1,3 @@
-Given(/^I show the ([\w_]+) "([^"]*)"$/) do |role_kind, role_id|
-  invoke do
-    possum.role_show [ role_kind, role_id ].join(":")
-  end
-end
-
 Then(/^([\w_]+) "([^"]*)" is a role member( with admin option)?$/) do |role_kind, role_id, admin|
   members = @result['members']
   if admin
@@ -11,4 +5,3 @@ Then(/^([\w_]+) "([^"]*)" is a role member( with admin option)?$/) do |role_kind
   end
   expect(members.map{|m| m['member']}).to include(make_full_id(role_kind, role_id))
 end
-

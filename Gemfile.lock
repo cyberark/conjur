@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: git://github.com/conjurinc/conjur-policy-parser.git
-  revision: 2c61b121f27fe821b7d91ecbd0fcab87721254fc
+  revision: f1dace961771a41fa8981733c81f78939d450a21
   branch: possum
   specs:
     conjur-policy-parser (2.2.0)
@@ -142,8 +142,8 @@ GEM
     highline (1.7.8)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
-    i18n (0.7.0)
-    json (1.8.3)
+    i18n (0.8.1)
+    json (1.8.6)
     json_spec (1.1.4)
       multi_json (~> 1.0)
       rspec (>= 2.0, < 4.0)
@@ -160,7 +160,7 @@ GEM
     method_source (0.8.2)
     mime-types (2.99.3)
     mini_portile2 (2.1.0)
-    minitest (5.9.1)
+    minitest (5.10.1)
     multi_json (1.12.1)
     multi_test (0.1.2)
     multipart-post (2.0.0)
@@ -275,8 +275,8 @@ GEM
       sprockets (>= 3.0.0)
     table_print (1.5.6)
     thor (0.19.1)
-    thread_safe (0.3.5)
-    tzinfo (1.2.2)
+    thread_safe (0.3.6)
+    tzinfo (1.2.3)
       thread_safe (~> 0.1)
     unf (0.1.4)
       unf_ext
