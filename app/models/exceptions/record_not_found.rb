@@ -16,6 +16,8 @@ module Exceptions
 
       def build_message id
         account, kind, id = parse_id(id)
+        kind ||= 'unknown kind'
+        account ||= 'unknown account'
         "#{kind.capitalize} '#{id}' not found in account '#{account}'"
       end
     end
