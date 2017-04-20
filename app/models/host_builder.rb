@@ -4,18 +4,29 @@ HostBuilder = Struct.new(:account, :id, :owner, :layers, :options) do
   # Otherwise the host is created. In either case, the host is added to the layers of 
   # the host factory.
   def create_host
-    host_id = [ account, "host", id ].join(":")
-    if host = Role[host_id]
-      raise Exceptions::Forbidden unless host.resource.owner == owner
-      
-      # Find-or-create Credentials
-      host.api_key
-      host.credentials.rotate_api_key
-      host.credentials.save
-      
-      return [ host.resource, host.api_key ]
-    end
+    find_and_rotate || create
+  end
+  
+  def host_id
+    [ account, "host", id ].join(":")
+  end
+  
+  protected
+  
+  def find_and_rotate
+    host = Role[host_id]
+    return nil unless host
+
+    raise Exceptions::Forbidden unless host.resource.owner == owner
     
+    # Find-or-create Credentials
+    host.api_key
+    host.credentials.rotate_api_key
+    host.credentials.save
+    [ host.resource, host.api_key ]
+  end
+  
+  def create    
     host_p = Conjur::Policy::Types::Host.new
     host_p.id = id
     host_p.account = account
