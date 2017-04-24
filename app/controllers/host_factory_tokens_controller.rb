@@ -17,9 +17,10 @@ class HostFactoryTokensController < RestController
       expiration: DateTime.iso8601(expiration)
     }
     options[:cidr] = cidr if cidr
-    
-    tokens = [0..count].map do
-      HostFactoryToken.create options
+
+    tokens = []
+    count.times do
+      tokens << HostFactoryToken.create(options)
     end
     
     render json: tokens
