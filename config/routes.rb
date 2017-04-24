@@ -20,8 +20,6 @@ Rails.application.routes.draw do
     
     get "/roles/:account/:kind/*identifier" => "roles#memberships", :constraints => QueryParameterActionRecognizer.new("all")
   
-    get "/roles/:account/:kind/*identifier" => 'roles#check_permission', :constraints => QueryParameterActionRecognizer.new("check")
-  
     get "/roles/:account/:kind/*identifier" => "roles#show"
   
     get "/resources/:account/:kind/*identifier" => 'resources#check_permission', :constraints => QueryParameterActionRecognizer.new("check")

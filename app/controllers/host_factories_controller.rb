@@ -26,7 +26,7 @@ class HostFactoriesController < ApplicationController
     end
     
     @token = HostFactoryToken.from_token token
-    raise Unauthenticated unless @token && @token.valid? && @token.valid_origin?(request.ip)
+    raise Unauthorized unless @token && @token.valid? && @token.valid_origin?(request.ip)
     @host_factory = @token.host_factory
   end
 end

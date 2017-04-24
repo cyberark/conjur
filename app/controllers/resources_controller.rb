@@ -30,7 +30,14 @@ class ResourcesController < RestController
   def check_permission
     privilege = params[:privilege]
     raise ArgumentError, "privilege" unless privilege
-    if current_user.allowed_to?(privilege, @resource)
+
+    role = if role_id = params[:role]
+      Role[role_id] or raise Exceptions::RecordNotFound, role_id
+    else
+      current_user
+    end
+
+    if role.allowed_to?(privilege, @resource)
       head :no_content
     else
       head :not_found

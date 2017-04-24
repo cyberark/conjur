@@ -14,3 +14,10 @@ Background:
 
     Given I permit user "alice" to "update" it
     Then I can DELETE "/host_factory_tokens/@host_factory_token_token@"
+
+  Scenario: Once the token has been deleted, subsequent attempts return 404 Not Found.
+
+    Given I permit user "alice" to "update" it
+    Then I can DELETE "/host_factory_tokens/@host_factory_token_token@"
+    And I DELETE "/host_factory_tokens/@host_factory_token_token@"
+    Then it's not found

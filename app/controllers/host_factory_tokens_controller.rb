@@ -40,7 +40,8 @@ class HostFactoryTokensController < RestController
   def host_factory; @resource; end
   
   def find_token
-    @token = HostFactoryToken.from_token(params[:id]) or raise RecordNotFound
+    id = params[:id]
+    @token = HostFactoryToken.from_token(id) or raise RecordNotFound, "*:host_factory_token:#{id}"
   end
   
   def resource_id

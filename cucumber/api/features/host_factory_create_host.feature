@@ -19,3 +19,12 @@ Feature: Create a host using the host factory.
       "permissions": []
     }
     """
+
+  @logged-in-admin
+  Scenario: Invalid tokens are rejected.
+
+    Given I successfully DELETE "/host_factory_tokens/@host_factory_token_token@"
+    And I log out
+    And I authorize the request with the host factory token
+    When I POST "/host_factories/hosts?id=host-01"
+    Then it's not authenticated

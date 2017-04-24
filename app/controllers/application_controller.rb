@@ -7,6 +7,9 @@ class ApplicationController < ActionController::API
   class Forbidden < RuntimeError
   end
   
+  class RecordNotFound < Exceptions::RecordNotFound
+  end
+  
   rescue_from Exceptions::RecordNotFound, with: :record_not_found
   rescue_from Unauthorized, with: :unauthorized
   rescue_from Forbidden, with: :forbidden

@@ -9,14 +9,25 @@ Feature: Check whether a role has a privilege on a resource
     And I permit user "bob" to "fry" it
 
   @logged-in
+  Scenario: I confirm that I can perform the granted action
+
+    If a role is granted a privilege on a resource, then a permission check will pass.
+
+    Then I can GET "/resources/cucumber/:resource_kind/:resource_id" with parameters:
+    """
+    check: true
+    privilege: fry
+    """
+
+  @logged-in
   Scenario: I confirm that the role can perform the granted action
 
     If a role is granted a privilege on a resource, then a permission check will pass.
 
-    Then I can GET "/roles/cucumber/user/bob" with parameters:
+    Then I can GET "/resources/cucumber/:resource_kind/:resource_id" with parameters:
     """
     check: true
-    resource: "@resource_kind@:@resource_id@"
+    role: cucumber:user:bob
     privilege: fry
     """
 
@@ -25,10 +36,10 @@ Feature: Check whether a role has a privilege on a resource
 
     If a role is not granted a privilege, then a permission check will fail.
 
-    When I GET "/roles/cucumber/user/bob" with parameters:
+    When I GET "/resources/cucumber/:resource_kind/:resource_id" with parameters:
     """
     check: true
-    resource: "@resource_kind@:@resource_id@"
+    role: cucumber:user:bob
     privilege: freeze
     """
     Then it's not found
