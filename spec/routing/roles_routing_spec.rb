@@ -30,14 +30,4 @@ describe "routing from roles" do
       identifier: 'admin',
       all: nil)
   end
-  
-  it "routes GET /roles/:account/:role?check to roles#check_permission" do
-    expect(get: '/roles/the-account/user/admin?check').to route_to(
-      account: 'the-account',
-      controller: 'roles',
-      action: 'check_permission',
-      kind: 'user',
-      identifier: 'admin',
-      check: nil)
-  end
 end
