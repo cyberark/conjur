@@ -2,8 +2,8 @@ Feature: Host Factories can be managed through policies.
 
   Scenario: Create a host factory on a layer.
     
-    The layer is added to the "host_factory_layers" field.
-    The "host_factory_tokens" field is empty.
+    The layer is added to the "layers" field.
+    The "tokens" field is empty.
 
     Given a policy:
     """
@@ -16,13 +16,13 @@ Feature: Host Factories can be managed through policies.
     """
     Then there is a host_factory resource "myapp"
     And I show the host_factory "myapp"
-    Then the "host_factory_layers" should be:
+    Then the "layers" should be:
     """
     [
       "cucumber:layer:myapp"
     ]
     """
-    And the "host_factory_tokens" should be:
+    And the "tokens" should be:
     """
     [
     ]
@@ -31,7 +31,7 @@ Feature: Host Factories can be managed through policies.
   Scenario: Layers which are not under the management of the policy cannot
     be added to the host factory.
     
-    Given I try to load the policy:
+    Given I try to load a policy with an unresolvable reference:
     """
     - !layer default
     
@@ -60,7 +60,7 @@ Feature: Host Factories can be managed through policies.
       """
       Then there is a host_factory resource "myapp"
       And I show the host_factory "myapp"
-      Then the "host_factory_layers" should be:
+      Then the "layers" should be:
       """
       [
         "cucumber:layer:myapp"

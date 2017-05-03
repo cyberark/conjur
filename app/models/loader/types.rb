@@ -123,7 +123,11 @@ module Loader
         super
 
         layer_roleids.each do |layerid|
-          Sequel::Model.db[:host_factory_layers].insert(resource_id: resourceid, role_id: find_roleid(layerid))
+          ::RoleMembership.create \
+            role_id: layerid,
+            member_id: self.roleid,
+            admin_option: false,
+            ownership: false
         end
       end
 
@@ -137,14 +141,25 @@ module Loader
     end
 
     class Group < Record
+      def_delegators :@policy_object, :gidnumber
+
+      def create!
+        self.annotations ||= {}
+        self.annotations["conjur/gidnumber"] ||= self.gidnumber if self.gidnumber
+
+        super
+      end
     end
     
     class User < Record
-      def_delegators :@policy_object, :public_keys, :account, :role_kind
+      def_delegators :@policy_object, :public_keys, :account, :role_kind, :uidnumber
 
       def create!
+        self.annotations ||= {}
+        self.annotations["conjur/uidnumber"] ||= self.uidnumber if self.uidnumber
+
         super
-        
+
         if password = ENV["CONJUR_PASSWORD_#{id.gsub(/[^a-zA-Z0-9]/, '_').upcase}"]
           handle_password role.id, password
         end

@@ -16,13 +16,13 @@ describe "HostFactory" do
   end
   
   before {
-    layer_p = Conjur::Policy::Types::Layer.new("the-layer")
-    layer_p.owner = Conjur::Policy::Types::Role.new(the_user.id)
+    layer_p = Conjur::PolicyParser::Types::Layer.new("the-layer")
+    layer_p.owner = Conjur::PolicyParser::Types::Role.new(the_user.id)
     layer_p.account = "rspec"
     
-    hf_p = Conjur::Policy::Types::HostFactory.new("the-factory")
+    hf_p = Conjur::PolicyParser::Types::HostFactory.new("the-factory")
     hf_p.account = "rspec"
-    hf_p.owner = Conjur::Policy::Types::Role.new(the_user.id)
+    hf_p.owner = Conjur::PolicyParser::Types::Role.new(the_user.id)
     hf_p.layers = []
     hf_p.layers << layer_p
     
@@ -39,8 +39,8 @@ describe "HostFactory" do
       "id" => "rspec:host_factory:the-factory", 
       "owner" => "rspec:user:the-user",
       "annotations" => [], 
-      "host_factory_tokens" => [], 
-      "host_factory_layers" => ["rspec:layer:the-layer"],
+      "tokens" => [], 
+      "layers" => ["rspec:layer:the-layer"],
       "permissions" => []
     })
   end
@@ -56,7 +56,7 @@ describe "HostFactory" do
       HostBuilder.new "rspec", 
         "host-01", 
         host_factory.role,
-        host_factory.layers,
+        host_factory.role.layers,
         {}
     }
     let(:create_host) { host_builder.create_host }
@@ -83,7 +83,7 @@ describe "HostFactory" do
         expect(host.owner).to eq(host_factory.role)
       end
       it "has the host factory layers" do
-        expect(host.role.memberships_as_member.map(&:role)).to eq(host_factory.layers)
+        expect(host.role.memberships_as_member.map(&:role)).to eq(host_factory.role.layers)
       end
     end
   end

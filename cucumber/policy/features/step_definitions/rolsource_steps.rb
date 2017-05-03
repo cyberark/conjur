@@ -1,11 +1,11 @@
 Given(/^I show the ([\w_]+) "([^"]*)"$/) do |kind, id|
   invoke do
-    resource_data = possum.resource_show [ kind, id ].join(":")
-    role_data = begin
-      possum.role_show [ kind, id ].join(":")
-    rescue Possum::UnexpectedResponseError
-      {}
+    data = conjur_api.resource(make_full_id(kind, id)).attributes
+    data['members'] = begin
+      conjur_api.role(make_full_id(kind, id)).members
+    rescue RestClient::NotFound
+      []
     end
-    resource_data.merge role_data
+    data
   end
 end

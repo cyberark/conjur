@@ -118,9 +118,9 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     return unless policy_text
 
     begin
-      records = Conjur::Policy::YAML::Loader.load(policy_text, policy_filename)
+      records = Conjur::PolicyParser::YAML::Loader.load(policy_text, policy_filename)
       records = wrap_in_policy records unless bootstrap_policy?
-      @records = Conjur::Policy::Resolver.resolve records, account, policy_admin.id
+      @records = Conjur::PolicyParser::Resolver.resolve records, account, policy_admin.id
     rescue
       $stderr.puts $!.message
       $stderr.puts $!.backtrace.join("  \n")
@@ -131,8 +131,8 @@ class PolicyVersion < Sequel::Model(:policy_versions)
   # Wraps the input records in a policy whose id is the +policy+ id, and whose owner is the
   # +policy_admin+.
   def wrap_in_policy records
-    policy_record = Conjur::Policy::Types::Policy.new policy.identifier
-    policy_record.owner = Conjur::Policy::Types::Role.new(policy_admin.id)
+    policy_record = Conjur::PolicyParser::Types::Policy.new policy.identifier
+    policy_record.owner = Conjur::PolicyParser::Types::Role.new(policy_admin.id)
     policy_record.account = policy.account
     policy_record.body = records
     [ policy_record ]

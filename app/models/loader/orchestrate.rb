@@ -44,13 +44,12 @@ module Loader
 
     attr_reader :policy_version, :create_records, :delete_records, :policy_passwords, :policy_public_keys, :new_roles
 
-    TABLES = %i(roles role_memberships resources host_factory_layers permissions annotations)
+    TABLES = %i(roles role_memberships resources permissions annotations)
 
     # Columns to compare across schemata to find exact duplicates.
     TABLE_EQUIVALENCE_COLUMNS = {
       roles: [ :role_id ],
       resources: [ :resource_id, :owner_id ],
-      host_factory_layers: [ :resource_id, :role_id ],
       role_memberships: [ :role_id, :member_id, :admin_option, :ownership ],
       permissions: [ :resource_id, :privilege, :role_id ],
       annotations: [ :resource_id, :name, :value ]
@@ -144,7 +143,7 @@ module Loader
             account_column = TABLE_EQUIVALENCE_COLUMNS[table].include?(:resource_id) ? :resource_id : :role_id
             io.write "#{table}\n"
             sort_columns = TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ]
-            tp *([ model.where("account(#{account_column}) = ?", account).order(sort_columns).all ] + TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ])
+            tp *([ model.where("account(#{account_column})".lit => account).order(sort_columns).all ] + TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ])
             io.write "\n"
           end
         ensure

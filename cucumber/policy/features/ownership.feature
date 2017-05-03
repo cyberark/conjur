@@ -17,7 +17,8 @@ Feature: Custom ownership can be assigned to a policy object.
       body:
       - !variable password
     """
-    Then the owner of variable "db/password" is policy "db"
+    Then the owner of user "bob" is user "admin"
+    And  the owner of variable "db/password" is policy "db"
 
   Scenario: The owner of a policy-scoped object can be changed.
     Given a policy:

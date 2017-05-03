@@ -1,5 +1,5 @@
-Then(/^I list the public keys for ([\w_]+) "([^"]*)"$/) do |kind, id|
+Then(/^I list the public keys for "([^"]*)"$/) do |username|
   invoke do
-    possum.public_keys [ kind, id ].join(":")
+    Conjur::API.public_keys username
   end
 end

@@ -10,11 +10,11 @@ Given(/^I extend the policy with:$/) do |policy|
   extend_bootstrap_policy policy
 end
 
-Given(/^I try to load the policy:$/) do |policy|
-  response = possum.client.client.put "policies/cucumber/policy/bootstrap", policy
-  expect(response.status).to be >= 400
-  @error = response.body
-  expect(@error).to be_instance_of(Hash)
-  expect(@error).to have_key('error')
-  @error = @error['error']
+Given(/^I try to load a policy with an unresolvable reference:$/) do |policy|
+  invoke status: 404 do
+    load_bootstrap_policy policy
+  end
+  result = JSON.parse(@exception.response.body)
+  expect(result).to have_key('error')
+  @error = result['error']
 end

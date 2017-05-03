@@ -27,18 +27,18 @@ HostBuilder = Struct.new(:account, :id, :owner, :layers, :options) do
   end
   
   def create    
-    host_p = Conjur::Policy::Types::Host.new
+    host_p = Conjur::PolicyParser::Types::Host.new
     host_p.id = id
     host_p.account = account
-    host_p.owner = Conjur::Policy::Types::Role.new(owner.id)
+    host_p.owner = Conjur::PolicyParser::Types::Role.new(owner.id)
     host_p.annotations = Hash.new
     (options[:annotations] || {}).each do |k,v|
       host_p.annotations[k] = v.to_s
     end
     
     role_grants = layers.map do |layer|
-      Conjur::Policy::Types::Grant.new.tap do |grant_p|
-        grant_p.role = Conjur::Policy::Types::Role.new(layer.id)
+      Conjur::PolicyParser::Types::Grant.new.tap do |grant_p|
+        grant_p.role = Conjur::PolicyParser::Types::Role.new(layer.id)
         grant_p.member = host_p
         grant_p.member.admin = false
       end

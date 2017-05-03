@@ -79,6 +79,13 @@ class Role < Sequel::Model
     Resource[id] or raise "Resource not found for #{id}"
   end
 
+  # All Roles of kind "layer" which this role is a direct member of.
+  def layers
+    memberships_as_member.select do |membership|
+      membership.role.kind == "layer"
+    end.map(&:role)
+  end
+
   # Role grants are performed by the policy loader, but not exposed through the API.
   def grant_to member, options = {}
     options[:admin_option] ||= false

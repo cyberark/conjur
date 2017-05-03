@@ -36,9 +36,6 @@ rspec:policy:bootstrap               | rspec:user:admin        |
 rspec:policy:the-policy              | rspec:user:admin        | rspec:policy:bootstrap 
 rspec:variable:the-policy/the-secret | rspec:policy:the-policy | rspec:policy:the-policy
 
-host_factory_layers
-No data.
-
 permissions
 RESOURCE_ID                          | PRIVILEGE | ROLE_ID                        | POLICY_ID              
 -------------------------------------|-----------|--------------------------------|------------------------

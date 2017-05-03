@@ -14,7 +14,7 @@ class ApplicationController < ActionController::API
   rescue_from Unauthorized, with: :unauthorized
   rescue_from Forbidden, with: :forbidden
   rescue_from Sequel::ValidationFailed, with: :validation_failed
-  rescue_from Conjur::Policy::Invalid, with: :policy_invalid
+  rescue_from Conjur::PolicyParser::Invalid, with: :policy_invalid
   rescue_from ArgumentError, with: :argument_error
 
   around_action :run_with_transaction

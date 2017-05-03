@@ -1,11 +1,11 @@
 Given(/^a host factory for layer "([^"]*)"$/) do |layer_id|
-  layer_p = Conjur::Policy::Types::Layer.new(layer_id)
-  layer_p.owner = Conjur::Policy::Types::Role.new(admin_user.id)
+  layer_p = Conjur::PolicyParser::Types::Layer.new(layer_id)
+  layer_p.owner = Conjur::PolicyParser::Types::Role.new(admin_user.id)
   layer_p.account = "cucumber"
 
-  hf_p = Conjur::Policy::Types::HostFactory.new("#{layer_id}-factory")
+  hf_p = Conjur::PolicyParser::Types::HostFactory.new("#{layer_id}-factory")
   hf_p.account = "cucumber"
-  hf_p.owner = Conjur::Policy::Types::Role.new(admin_user.id)
+  hf_p.owner = Conjur::PolicyParser::Types::Role.new(admin_user.id)
   hf_p.layers = []
   hf_p.layers << layer_p
 

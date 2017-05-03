@@ -12,10 +12,11 @@ class Secret < Sequel::Model
       Secret.with(:max_values, 
         Secret.select(:resource_id){ max(:version).as(:version) }.
           group_by(:resource_id).
-          where("account(resource_id) = ?", account).
-          where("kind(resource_id) = 'public_key'").
-          where("identifier(resource_id) LIKE ?", "#{kind}/#{id}/%")).
+          where("account(resource_id)".lit => account).
+          where("kind(resource_id)".lit => 'public_key').
+          where(Sequel.like("identifier(resource_id)".lit, "#{kind}/#{id}/%"))).
         join(:max_values, [ :resource_id, :version ]).
+          order(:resource_id).
           all.
           map(&:value)
     end

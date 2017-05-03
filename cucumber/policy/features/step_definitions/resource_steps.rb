@@ -1,18 +1,12 @@
 Then(/^there is a ([\w_]+) resource "([^"]*)"$/) do |kind, id|
   invoke do
-    possum.resource_show [ kind, id ].join(":")
-  end
-end
-
-Given(/^I check if I can "([^"]*)" on "([^"]*)"$/) do |privilege, resource|
-  invoke do
-    possum.resource_check resource, privilege
+    conjur_api.resource make_full_id(kind, id)
   end
 end
 
 When(/^I list the roles permitted to (\w+) ([\w_]+) "([^"]*)"$/) do |privilege, kind, id|
   invoke do
-    possum.resource_permitted_roles [ kind, id ].join(":"), privilege
+    conjur_api.resource(make_full_id(kind, id)).permitted_roles privilege
   end
 end
 
@@ -22,14 +16,14 @@ end
 
 When(/^I list ([\w_]+) resources$/) do |kind|
   invoke do
-    possum.resource_list kind: kind
+    conjur_api.resources kind: kind
   end
 end
 
 Then(/^the resource list includes ([\w_]+) "([^"]*)"$/) do |kind, id|
-  expect(result.map{|r| r['id']}).to include(make_full_id(kind, id))
+  expect(result.map(&:id)).to include(make_full_id(kind, id))
 end
 
 Then(/^the owner of ([\w_]+) "([^"]*)" is ([\w_]+) "([^"]*)"$/) do |object_kind, object_id, owner_kind, owner_id|
-  expect(possum.resource_show([ object_kind, object_id ].join(":"))['owner']).to eq(make_full_id(owner_kind, owner_id))
+  expect(conjur_api.resource(make_full_id(object_kind, object_id)).owner.id).to eq(make_full_id(owner_kind, owner_id))
 end

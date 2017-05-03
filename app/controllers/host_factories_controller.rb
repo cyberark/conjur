@@ -7,7 +7,7 @@ class HostFactoriesController < ApplicationController
     id = params.delete(:id)
     raise ArgumentError, "id" if id.blank?
 
-    @host_builder = HostBuilder.new(@host_factory.account, id, @host_factory.role, @host_factory.layers, params)
+    @host_builder = HostBuilder.new(@host_factory.account, id, @host_factory.role, @host_factory.role.layers, params)
     host, api_key = @host_builder.create_host
     response = host.as_json
     response['api_key'] = api_key

@@ -16,10 +16,10 @@ Feature: Display information about a host factory.
       "id": "cucumber:host_factory:the-layer-factory",
       "owner": "cucumber:user:admin",
       "permissions": [ ],
-      "host_factory_layers": [
+      "layers": [
         "cucumber:layer:the-layer"
       ],
-      "host_factory_tokens": [
+      "tokens": [
         {
           "cidr": [],
           "expiration": "@host_factory_token_expiration@",
