@@ -1,2 +1,4 @@
 #!/bin/bash -e
-possum db migrate
+
+heroku run possum db migrate
+
