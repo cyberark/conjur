@@ -29,7 +29,7 @@ module Possum
     # config.i18n.default_locale = :de
     
     config.sequel.after_connect = proc do
-      Sequel.extension :core_extensions
+      Sequel.extension :core_extensions, :postgres_schemata
     end
     
     config.encoding = "utf-8"

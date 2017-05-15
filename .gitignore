@@ -15,6 +15,7 @@ tmp
 data_key
 dhparam.pem
 *.deb
+.byebug_history
 config/database.yml
 reports
 demo/run/finished

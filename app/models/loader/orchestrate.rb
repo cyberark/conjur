@@ -4,12 +4,12 @@
 #
 # The algorithm works by loading the policy into a new, temporary schema (schemas are lightweight namespaces
 # in Postgres). Then this "new" policy (in the temporary schema) is merged into the "old" policy (in the 
-# primary, public schema). The merge algorithm proceeds in distinct phases:
+# primary schema). The merge algorithm proceeds in distinct phases:
 #
 # 1) Records which exist in the "old" policy but not in the "new" policy are deleted from the "old" policy.
 # The comparison is performed by primary key, including the +policy_id+.
 #
-# 2) Records which are defined in some other policy in the public schema, are removed from the "new" policy.
+# 2) Records which are defined in some other policy in the primary schema, are removed from the "new" policy.
 # This prevents the "new" policy from attempting to create or update records which are already owned by another policy.
 # In the future, this might be reported as an error or warning.
 #
@@ -24,7 +24,7 @@
 # 6) All records which remain in the "new" policy are inserted into the "old" policy.
 #
 # 7) The temporary schema is dropped, thus cleaning up any artifacts left over from the diff process. The schema search
-# path is reset to the 'public' schema.
+# path is restored.
 #
 # 8) Perform any password updates.
 #
@@ -41,6 +41,7 @@
 module Loader
   class Orchestrate
     extend Forwardable
+    include Schemata::Helper
 
     attr_reader :policy_version, :create_records, :delete_records, :policy_passwords, :policy_public_keys, :new_roles
 
@@ -127,7 +128,7 @@ module Loader
       puts table_data
       puts
       puts "Master schema:"
-      puts table_data "public__"
+      puts table_data "#{primary_schema}__"
     end
 
     class << self
@@ -187,7 +188,7 @@ module Loader
     # existing policy and the new policy.
     def delete_removed
       TABLES.each do |table|
-        columns = Array(Sequel::Model("public__#{table}".to_sym).primary_key) + [ :policy_id ]
+        columns = Array(model_for_table(table).primary_key) + [ :policy_id ]
 
         def comparisons table, columns, existing_alias, new_alias
           columns.map do |column|
@@ -198,14 +199,14 @@ module Loader
         db[<<-DELETE, policy_version.resource_id].delete
           WITH deleted_records AS (
             SELECT existing_#{table}.*
-            FROM public.#{table} AS existing_#{table}
+            FROM #{qualify_table table} AS existing_#{table}
             LEFT OUTER JOIN #{table} AS new_#{table}
               ON #{comparisons(table, columns, 'existing_', 'new_')}
             WHERE existing_#{table}.policy_id = ? AND new_#{table}.#{columns[0]} IS NULL
           )
-          DELETE FROM public.#{table}
+          DELETE FROM #{qualify_table table}
           USING deleted_records AS deleted_from_#{table}
-          WHERE #{comparisons(table, columns, 'public.', 'deleted_from_')}
+          WHERE #{comparisons(table, columns, "#{primary_schema}.", 'deleted_from_')}
         DELETE
       end
     end
@@ -213,13 +214,13 @@ module Loader
     # Delete rows from the new policy which are already present in another policy.
     def eliminate_shadowed
       TABLES.each do |table|
-        pk_columns = Array(Sequel::Model("public__#{table}".to_sym).primary_key)
+        pk_columns = Array(model_for_table(table).primary_key)
         comparisons = pk_columns.map do |column|
           "new_#{table}.#{column} = old_#{table}.#{column}"
         end.join(' AND ')
         db.execute <<-DELETE
           DELETE FROM #{table} new_#{table}
-          USING public.#{table} old_#{table}
+          USING #{qualify_table table} old_#{table}
           WHERE #{comparisons} AND
             ( old_#{table}.policy_id IS NULL OR old_#{table}.policy_id != new_#{table}.policy_id )
         DELETE
@@ -236,7 +237,7 @@ module Loader
     # Delete rows from the new policy which have the same primary keys as existing rows.
     def eliminate_duplicates_pk
       TABLES.each do |table|
-        eliminate_duplicates table, Array(Sequel::Model("public__#{table}".to_sym).primary_key) + [ :policy_id ]
+        eliminate_duplicates table, Array(model_for_table(table).primary_key) + [ :policy_id ]
       end
     end
 
@@ -247,7 +248,7 @@ module Loader
       end.join(' AND ')
       db.execute <<-DELETE
         DELETE FROM #{table} new_#{table}
-        USING public.#{table} old_#{table}
+        USING #{qualify_table table} old_#{table}
         WHERE #{comparisons}
       DELETE
     end
@@ -317,7 +318,7 @@ module Loader
     end
 
     def in_primary_schema &block
-      db.execute "SET search_path = public"
+      restore_search_path
 
       yield
 
@@ -326,16 +327,17 @@ module Loader
       db.execute "SET search_path = #{schema_name}"
     end
 
+
     # Creates the new schema.
     #
-    # Creates a set of tables in the new schema to mirror the tables in the master (public) schema.
+    # Creates a set of tables in the new schema to mirror the tables in the primary schema.
     # The new tables are not created with constraints, aside from primary keys.
     def create_schema
       db.execute "CREATE SCHEMA #{schema_name}"
-      db.execute "SET search_path = #{schema_name}"
+      db.search_path = schema_name
 
       TABLES.each do |table|
-        db.execute "CREATE TABLE #{table} AS SELECT * FROM public.#{table} WHERE 0 = 1"
+        db.execute "CREATE TABLE #{table} AS SELECT * FROM #{qualify_table table} WHERE 0 = 1"
       end
 
       db.execute Functions.ownership_trigger_sql
@@ -357,10 +359,9 @@ module Loader
       db.execute "ALTER TABLE role_memberships ALTER COLUMN admin_option SET DEFAULT 'f'"
     end
 
-    # Drops the temporary schema and everything remaining in it. Also reset the schema search path back to the
-    # master (public) schema.
+    # Drops the temporary schema and everything remaining in it. Also reset the schema search path.
     def drop_schema
-      db.execute "SET search_path = public"
+      restore_search_path
       db.execute "DROP SCHEMA #{schema_name} CASCADE"
     end
 

@@ -7,9 +7,11 @@ gem 'rake'
 gem 'rails-api'
 gem 'rails', '~> 4.2'
 gem 'puma'
-gem 'sequel'
-gem 'pg'
+
 gem 'sequel-rails'
+gem 'pg'
+gem 'sequel-postgres-schemata', require: false
+
 gem 'base32-crockford'
 gem 'activesupport'
 gem 'bcrypt-ruby', '~> 3.0.0'

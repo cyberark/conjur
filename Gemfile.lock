@@ -237,6 +237,8 @@ GEM
     ruby_dep (1.3.1)
     safe_yaml (1.0.4)
     sequel (4.46.0)
+    sequel-postgres-schemata (0.1.1)
+      sequel (~> 4.3)
     sequel-rails (0.9.15)
       actionpack (>= 3.2.0)
       activemodel
@@ -304,7 +306,7 @@ DEPENDENCIES
   rspec
   rspec-rails
   ruby_dep (= 1.3.1)
-  sequel
+  sequel-postgres-schemata
   sequel-rails
   simplecov
   slosilo (>= 2.0.0)

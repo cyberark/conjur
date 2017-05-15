@@ -1,8 +1,5 @@
 module Loader
   module Types
-    PublicRoles = Sequel::Model(:public__roles)
-    PublicResources = Sequel::Model(:public__resources)
-
     class << self
       def find_or_create_bootstrap_policy account
         ::Resource[bootstrap_policy_id(account)] or create_bootstrap_policy account
@@ -34,6 +31,7 @@ module Loader
     
     class Base
       extend Forwardable
+      include Schemata::Helper
 
       def_delegators :@external_handler, :policy_id, :handle_password, :handle_public_key
       def_delegators :@policy_object, :owner, :id
@@ -50,11 +48,21 @@ module Loader
       end
 
       def find_roleid id
-        (::Role[id] || PublicRoles[id]).try(:role_id) or raise Exceptions::RecordNotFound, id
+        (::Role[id] || public_roles_model[id]).try(:role_id) or raise Exceptions::RecordNotFound, id
       end
 
       def find_resourceid id
-        (::Resource[id] || PublicResources[id]).try(:resource_id) or raise Exceptions::RecordNotFound, id
+        (::Resource[id] || public_resources_model[id]).try(:resource_id) or raise Exceptions::RecordNotFound, id
+      end
+
+      protected
+
+      def public_roles_model
+        model_for_table :roles
+      end
+
+      def public_resources_model
+        model_for_table :resources
       end
     end
 

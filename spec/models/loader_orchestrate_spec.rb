@@ -46,7 +46,7 @@ describe Loader::Orchestrate do
   let(:resource_policy) { Resource['rspec:policy:the-policy'] }
   let(:role_user_admin) { Role['rspec:user:admin'] }
   let(:print_public) {
-    Loader::Orchestrate.table_data 'rspec', "public__"
+    Loader::Orchestrate.table_data 'rspec', "#{Schemata.primary_schema}__"
   }
   let(:delete_permitted) { true }
   let(:update_permitted) { true }
