@@ -25,7 +25,7 @@
   hosted: Hosted Dev Account
   compose: Docker Compose
   docker: Standalone Docker
-  build: Build from Source
+  build: Source Code
   next-steps: Next Steps
 
 "/reference/policy.html":

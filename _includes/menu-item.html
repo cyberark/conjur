@@ -20,5 +20,7 @@
     {% include subitems.html items=subitems %}
   {% endif %}
 {% else %}
-  {{ item.title }}
+  <div class="sidebar-nav-item">
+    {{ item.title }}
+  </div>
 {% endif %}

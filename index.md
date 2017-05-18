@@ -6,6 +6,7 @@ Conjur is the security service for modern infrastructure, providing:
 
 * Machine identity.
 * Secrets vault.
+* Authentication and authorization APIs.
 * Integrations with popular DevOps and cloud tools.
 
 # How does Conjur work?
@@ -53,7 +54,7 @@ Conjur is easily programmable by interacting with the REST API. This capability 
 
 # Next step
 
-* Sign up for a [Hosted evaluation endpoint](./installation/server.html#hosted).
+* [Get the Conjur Server](./installation/server.html) (use a hosted dev account, or download the code).
 * [Install the CLI](./installation/client.html).
 * Take a [Quick Tour](./tour.html).
 
