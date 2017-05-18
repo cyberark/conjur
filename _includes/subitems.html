@@ -1,6 +1,7 @@
 {% if include.items %}
   <ul>
-    {% for item in include.items %}
+    {% for item_hash in include.items %}
+      {% assign item = item_hash[1] %}
       {% include menu-item.html item=item %}
     {% endfor %}
   </ul>

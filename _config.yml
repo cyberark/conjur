@@ -5,5 +5,5 @@ kramdown:
 gems:
   - jekyll-coffeescript
   - jekyll-paginate
-baseurl: /possum
-title: Possum
+baseurl: /conjur
+title: Conjur

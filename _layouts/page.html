@@ -4,5 +4,34 @@ layout: default
 
 <div class="page">
   <h1 class="page-title">{{ page.title }}</h1>
+
+  {% assign toc = site.data.toc[page.url] %}
+  {% if toc %}
+    <ul class="toc">
+      {% for item in toc %}
+        {% assign value = item[1] %}
+        {% if value.title %}
+          {% assign title = value.title %}
+        {% else %}
+          {% assign title = value %}
+        {% endif %}
+        {% assign name = title | downcase | replace: ' ', '-' | replace: ':', '' | replace: '?', '' | replace: '!', '' %}
+        <li class="toc-item">
+          <a href="#{{ name }}">{{ title }}</a>
+        </li>
+        {% if value.sections %}
+          <ul class="toc-sections">
+          {% for section in value.sections %}
+            <li class="toc-section-item">
+              {% assign name = section[1] | downcase | replace: ' ', '-' | replace: ':', '' | replace: '?', '' | replace: '!', '' %}
+              <a href="#{{ name }}">{{ section[1] }}</a>
+            </li>
+          {% endfor %}
+          </ul>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  {% endif %}
+
   {{ content }}
 </div>

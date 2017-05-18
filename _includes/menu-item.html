@@ -1,4 +1,5 @@
 {% assign item = include.item %}
+
 {% assign open = false %}
 {% if item.path %}
   {% assign page_path_prefix = page.url | slice: 0, item.path.size %}
@@ -15,6 +16,9 @@
     {{ item.title }}
   </a>
   {% if open %}
-    {% include subitems.html items=item.items %}
+    {% assign subitems = item.items %}
+    {% include subitems.html items=subitems %}
   {% endif %}
+{% else %}
+  {{ item.title }}
 {% endif %}

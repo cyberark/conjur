@@ -4,8 +4,8 @@ layout: page
 ---
 
 In conjunction with the [conjur Puppet module](https://forge.puppet.com/conjur/conjur),
-Possum provides a comprehensive secrets management solution for securely
-distributing secrets through Puppet. Possum + Puppet has clear advantages
+Conjur provides a comprehensive secrets management solution for securely
+distributing secrets through Puppet. Conjur + Puppet has clear advantages
 over other approaches to secrets management such as hiera-eyaml and hiera-vault:
 
 * Access to secrets is controlled separately for each node. 
@@ -20,34 +20,34 @@ of a backup of the master reveals no secrets at all.
 ## Demonstration
 
 This demo assumes that you have a Puppet-managed environment available to you,
-and that you have a working Possum server and client.
+and that you have a working Conjur server and client.
 
-1) Load the policies into Possum.
+1) Load the policies into Conjur.
 
-[possum-example](https://github.com/conjurinc/possum-example/) is a simple way to get a good set of policies into Possum.
+[conjur-example](https://github.com/conjurinc/conjur-example/) is a simple way to get a good set of policies into Conjur.
 
-From the Possum client environment (`client` container or your local machine):
+From the Conjur client environment (`client` container or your local machine):
 
 {% highlight shell %}
-$ git clone git@github.com:conjurinc/possum-example.git
-$ cd possum-example
-$ possum policy load bootstrap policies/conjur.yml
+$ git clone git@github.com:conjurinc/conjur-example.git
+$ cd conjur-example
+$ conjur policy load bootstrap policies/conjur.yml
 {% endhighlight %}
 
-2) Load the secret data into Possum.
+2) Load the secret data into Conjur.
 
-Again, from your Possum client environment (`client` container or your local machine),
-use the CLI to generate a secret value and load it into Possum:
+Again, from your Conjur client environment (`client` container or your local machine),
+use the CLI to generate a secret value and load it into Conjur:
 
 {% highlight shell %}
 $ password=$(openssl rand -hex 12)
-$ echo password | possum variable values add inventory-db/password
+$ echo password | conjur variable values add inventory-db/password
 Value added
 {% endhighlight %}
 
 3) Generate a host factory token to enroll the Puppet-ized node
 
-Again, from your Possum client environment (`client` container or your local machine),
+Again, from your Conjur client environment (`client` container or your local machine),
 use the CLI to generate a host factory token for the `inventory` layer:
 
 {% highlight shell %}
@@ -61,14 +61,14 @@ $ conjur hostfactory tokens create inventory
 
 4) Run a Puppet-ized node
 
-Create a Puppet manifest which connects to Possum and fetches the data.
+Create a Puppet manifest which connects to Conjur and fetches the data.
 For demo purposes, provide the host factory token directly in the `conjur`
 class. 
 
 {% highlight puppet %}
 class { conjur:
   account         => 'mycompany',
-  appliance_url   => 'http://possum',
+  appliance_url   => 'http://conjur',
   authn_login     => 'host/inventory-01',
   host_factory_token => Sensitive('3zt94bb200p69nanj64v9sdn1e15rjqqt12kf68x1d6gb7z33vfskx')
 }    
@@ -76,7 +76,7 @@ class { conjur:
 
 ## Next steps
 
-You've now been through the essential Possum-Puppet workflow. 
+You've now been through the essential Conjur-Puppet workflow. 
 
 As next steps, may we suggest:
 

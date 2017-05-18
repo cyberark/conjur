@@ -1,4 +1,4 @@
-FROM possum
+FROM conjur
 
 RUN gem install -N -v 0.8.1 yard
 RUN gem install -N -v 2.3.2 yard-cucumber 

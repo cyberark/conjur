@@ -1,70 +1,101 @@
 main:
-  - title: Installation
+  installation:
+    title: Installation
     path: /installation/
     items:
-      - title: Client
+      client:
+        title: Client
         path: /installation/client.html
 
-      - title: Server
+      server:
+        title: Server
         path: /installation/server.html
 
-  - title: Tutorials
+  tour:
+    title: Quick Tour
+    path: /tour.html
+
+  tutorials:
+    title: Tutorials
     path: /tutorials/
     items:
-      - title: Policy
+      policy:
+        title: Policy
         path: /tutorials/policy/
         items:
-          - title: Working with Policies
-            path: /tutorials/policy/overview.html
-
-          - title: Users and Groups
+          users:
+            title: Users and Groups
             path: /tutorials/policy/users.html
 
-          - title: Hosts and Layers
-            path: /tutorials/policy/hosts.html
+          hosts:
+            title: Hosts and Layers
             
-          - title: Application Secrets
+          secrets:
+            title: Application Secrets
             path: /tutorials/policy/db-password.html
 
-      - title: Runtime Solutions
+      runtime:
+        title: Runtime Solutions
         path: /tutorials/integrations/
         items:
-          - title: Summon
-            path: /tutorials/integrations/summon.html
+          summon:
+            title: Summon
             
-          - title: Puppet
+          puppet:
+            title: Puppet
             path: /tutorials/integrations/puppet.html
 
-  - title: Reference
+          chef:
+            title: Chef
+
+          ansible:
+            title: Ansible
+
+          kubernetes:
+            title: Kubernetes / OpenShift
+
+          python:
+            title: Authorizing with Python
+
+          ruby:
+            title: Authorizing with Ruby
+
+  reference:
+    title: Reference
     path: /reference/
     items:
-      - title: Policy Language
+      policies:
+        title: Policies
         path: /reference/policy.html
 
-      - title: Authentication
+      authentication:
+        title: Authentication
         path: /reference/authentication.html
 
-      - title: Authorization
-        path: /reference/authorization.html
+      authorization:
+        title: Authorization
 
-      - title: Secrets
-        path: /reference/secrets.html
+      secrets: 
+        title: Secrets
 
-      - title: Host Factory
-        path: /reference/host_factory.html
+      host-factory: 
+        title: Host Factory
 
-      - title: Machine Identity Runtime
-        path: /reference/machine_identity.html
+      machine-identity: 
+        title: Machine Identity Runtime
 
-      - title: API
-        path: /reference/api.html
+      api: 
+        title: API
         
-      - title: Cryptography
+      cryptography:
+        title: Cryptography
         path: /reference/cryptography.html
       
-  - title: Downloads
-    url: https://github.com/conjurinc/possum/releases
+  downloads:
+    title: Downloads
+    url: https://github.com/conjurinc/conjur/releases
     
-  - title: Github Project
-    url: https://github.com/conjurinc/possum
+  github:
+    title: Github Project
+    url: https://github.com/conjurinc/conjur
 

@@ -10,17 +10,18 @@
     </div>
 
     <nav class="sidebar-nav">
-      {% for item in site.data.sidebar.main %}
-        {% include menu-item.html item=item %}
+      {% for item_hash in site.data.sidebar.main %}
+        {% assign value = item_hash[1] %}
+        {% include menu-item.html item=value %}
       {% endfor %}
 
       <hr/>
       
       <div>Cucumber</div>
       
-      <a class="sidebar-nav-item" href="https://www.relishapp.com/conjur/possum-api/docs" target="_blank">API Features &raquo;</a>
+      <a class="sidebar-nav-item" href="https://www.relishapp.com/conjur/conjur-api/docs" target="_blank">API Features &raquo;</a>
 
-      <a class="sidebar-nav-item" href="https://www.relishapp.com/conjur/possum-policy/docs" target="_blank">Policy Features &raquo;</a>
+      <a class="sidebar-nav-item" href="https://www.relishapp.com/conjur/conjur-policy/docs" target="_blank">Policy Features &raquo;</a>
     </nav>
 
     <p>&copy; {{ site.time | date: '%Y' }}. All rights reserved.</p>

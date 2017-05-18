@@ -1,6 +1,6 @@
 ## Understand the bootstrap policy
 
-The Possum server starts up with a *bootstrap policy*, which defines a few basic objects that the rest of the system will be built on top of. The bootstrap policy used in this demo is simple. First it defines a group called `security_admin`, which is a group that will be able to administer the rest of the system. Then it defines a policy called `people`, which will define the human users and groups. And it defines a policy called `prod`, which will be populated with the production applications and services.
+The Conjur server starts up with a *bootstrap policy*, which defines a few basic objects that the rest of the system will be built on top of. The bootstrap policy used in this demo is simple. First it defines a group called `security_admin`, which is a group that will be able to administer the rest of the system. Then it defines a policy called `people`, which will define the human users and groups. And it defines a policy called `prod`, which will be populated with the production applications and services.
 
 {% highlight yaml %}
 # bootstrap.yml
@@ -16,10 +16,10 @@ The Possum server starts up with a *bootstrap policy*, which defines a few basic
   owner: !group security_admin
 {% endhighlight %}
 
-You can use the `possum` command line tool to list all the objects in the system:
+You can use the `conjur` command line tool to list all the objects in the system:
 
 {% highlight shell %}
-$ possum list
+$ conjur list
 Id                            Owner
 ----------------------------  ----------------------------
 demo:policy:bootstrap      demo:user:admin

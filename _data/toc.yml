@@ -1,0 +1,52 @@
+"/tour.html":
+  prerequisites: Prerequisites
+  login: Login
+  introduction: "Introducing: Policies!"
+  loading: Loading the Bootstrap Policy
+  exploring: Exploring Policy Objects
+  adding-secret: Adding a Secret
+  fetching-secret: Fetching a Secret
+  machine-login: Logging in as a Machine
+  fetching-as-machine: Fetching a Secret as a Machine
+  permission-denied: When Permission is Denied
+  permission-check-api: Checking Permissions Using the API
+  next-steps: Next Steps
+
+"/installation/client.html":
+  get:
+    title: Get the Client
+    sections:
+      download: Download
+      docker: Run in Docker
+  configure: Configure
+  login: Log In
+
+"/installation/server.html":
+  hosted: Hosted Dev Account
+  compose: Docker Compose
+  docker: Standalone Docker
+  build: Build from Source
+  next-steps: Next Steps
+
+"/reference/policy.html":
+  prerequisites: Prerequisites
+  introduction: What is a Policy?
+  rbac: Role-Based Access Control
+  loading: Loading a Policy
+  versions: Policy Versions
+  loading-modes: Policy Loading Modes
+  delegation: Delegation
+  statement-reference:
+    title: Policy Statement Reference
+    sections:
+      policy: Policy
+      user: User
+      group: Group
+      host: Host
+      layer: Layer
+      variable: Variable
+      webservice: Webservice
+      entitlements: Entitlements
+      grant: Grant
+      permit: Permit
+      include: Include

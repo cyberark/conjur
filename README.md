@@ -1,4 +1,4 @@
-# Possum Web Site
+# Conjur Web Site
 
 ## Development
 
@@ -14,30 +14,30 @@ Step 1 : FROM ruby:2.2.5
 Step 7 : RUN bundle
 ...
 Successfully built f22a9461a6c4
-+ docker run --rm -it -v /Users/kgilpin/source/conjur/possum-pages:/opt/possum possum-pages-dev bash
-root@58401c4fcc1c:/opt/possum#
++ docker run --rm -it -v /Users/kgilpin/source/conjur/conjur-pages:/opt/conjur conjur-pages-dev bash
+root@58401c4fcc1c:/opt/conjur#
 ```
 
-You're now in the `/opt/possum` directory in the container. Run `jekyll` to start the webserver. Be sure and use the `-H` option to override the default bind address from `localhost` to `0.0.0.0`:
+You're now in the `/opt/conjur` directory in the container. Run `jekyll` to start the webserver. Be sure and use the `-H` option to override the default bind address from `localhost` to `0.0.0.0`:
 
 ```sh-session
-root@d21ed1776173:/opt/possum# jekyll serve -H 0.0.0.0
-Configuration file: /opt/possum/_config.yml
-            Source: /opt/possum
-       Destination: /opt/possum/_site
+root@d21ed1776173:/opt/conjur# jekyll serve -H 0.0.0.0
+Configuration file: /opt/conjur/_config.yml
+            Source: /opt/conjur
+       Destination: /opt/conjur/_site
  Incremental build: disabled. Enable with --incremental
       Generating... 
                     done in 5.144 seconds.
- Auto-regeneration: enabled for '/opt/possum'
-Configuration file: /opt/possum/_config.yml
-    Server address: http://127.0.0.1:4000/possum/
+ Auto-regeneration: enabled for '/opt/conjur'
+Configuration file: /opt/conjur/_config.yml
+    Server address: http://127.0.0.1:4000/conjur/
   Server running... press ctrl-c to stop.
 ```
 
 The container port 4000 is mapped to your host port 4000. You can open it like this from your host machine (not from the container):
 
 ```sh-session
-$ open http://$DOCKER_IP:4000/possum/
+$ open http://$DOCKER_IP:4000/conjur/
 ```
 
 `DOCKER_IP` is the address of your Docker VM, or it's simply `localhost` if you`re running a native Docker.
