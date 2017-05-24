@@ -50,3 +50,16 @@
       grant: Grant
       permit: Permit
       include: Include
+
+"/tutorials/integrations/puppet.html":
+  introduction: Introduction
+  prerequisites: Prerequisites
+  overview: Overview
+  policy: Load the Policy
+  load-secret: Load the Database Password
+  host-factory-token: Create the Host Factory Token
+  manifest: Create the Manifest
+  conjur-module: Install the conjur Module
+  run-puppet: Run Puppet
+
+

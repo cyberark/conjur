@@ -29,10 +29,10 @@ The access token implementation was included in the cryptographic audit.
 
 Secrets and API keys are encrypted with AES-256-GCM and stored securely in the following manner:
 
-* The Conjur services has a unique 256-bit master key (don't lose this!).
+* The Conjur service has a unique 256-bit master key (don't lose this!).
 * Each value is encrypted with a unique encryption key.
 * The unique key is encrypted with the master key.
-* The encrypted unique key and the encrypted value are stored in a database.
+* The encrypted unique key and the encrypted value are stored in the database.
 
 Encryption and decryption of secret values was included in the cryptographic audit.
 

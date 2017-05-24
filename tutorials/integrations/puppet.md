@@ -3,86 +3,153 @@ title: Tutorial - Puppet
 layout: page
 ---
 
-In conjunction with the [conjur Puppet module](https://forge.puppet.com/conjur/conjur),
-Conjur provides a comprehensive secrets management solution for securely
-distributing secrets through Puppet. Conjur + Puppet has clear advantages
-over other approaches to secrets management such as hiera-eyaml and hiera-vault:
+{% include toc.md key='introduction' %}
+
+The [conjur Puppet module](https://forge.puppet.com/conjur/conjur) provides a comprehensive solution for managing machine identity and distributing secrets through Puppet. Conjur + Puppet has clear advantages over other approaches to secrets management such as hiera-eyaml and hiera-vault:
 
 * Access to secrets is controlled separately for each node. 
 * No "master key" is installed on the Puppet master; in fact, the Puppet master
 does not hold any long-lived key to the secrets vault at all.
 * Access to secrets is managed via machine identity and role-based access control policies, which are kept in source control.
 
-As a result, the "blast radius" of a compromised node or Puppet master is minimized.
-Only those secrets available to a node are revealed to an attacker. A compromise
-of a backup of the master reveals no secrets at all.
+As a result, the "blast radius" of a compromised node or Puppet master is minimized. Only those secrets available to a node are revealed to an attacker. A stolen backup of the Puppet master reveals no secrets at all.
 
-## Demonstration
+{% include toc.md key='prerequisites' %}
 
-This demo assumes that you have a Puppet-managed environment available to you,
-and that you have a working Conjur server and client.
+* A [Conjur server](/conjur/installation/server.html) endpoint.
+* The [Conjur CLI](/conjur/installation/client.html).
+* A client machine with the Puppet agent installed.
 
-1) Load the policies into Conjur.
+{% include toc.md key='overview' %}
 
-[conjur-example](https://github.com/conjurinc/conjur-example/) is a simple way to get a good set of policies into Conjur.
+When we run Puppet, the manifest will perform the following steps:
 
-From the Conjur client environment (`client` container or your local machine):
+* Configure the client node's connection to Conjur.
+* Assign an identity to the client node.
+* Authenticate the node with Conjur.
+* Fetch the database password from Conjur and merge this into a template file.
+* Store the file on the client node.
+
+The `conjur-conjur` module provides supporting functions for these operations.
+
+{% include toc.md key='policy' %}
+
+As with all Conjur workflows, we begin by defining the policies.
+
+Save this file as "conjur.yml":
+
+{% include policy-file.md policy='puppet' %}
+
+It defines:
+
+* `variable:db/password` Contains the database password.
+* `layer:myapp` A layer (group of hosts) with access to the password.
+* `host_factory:myapp` Used to create individual hosts and enroll them into `layer:myapp`.
+
+Load the policy using the following command:
 
 {% highlight shell %}
-$ git clone git@github.com:conjurinc/conjur-example.git
-$ cd conjur-example
-$ conjur policy load bootstrap policies/conjur.yml
+$ conjur policy load --replace bootstrap conjur.yml
+Loaded policy 'bootstrap'
+{
+  "created_roles": {
+  },
+  "version": 1
+}
 {% endhighlight %}
 
-2) Load the secret data into Conjur.
+{% include toc.md key='load-secret' %}
 
-Again, from your Conjur client environment (`client` container or your local machine),
-use the CLI to generate a secret value and load it into Conjur:
+Next, we need to populate the database password with a secret value. Use the CLI to verify that the variable exists in Conjur:
+
+{% highlight shell %}
+$ conjur list -i -k variable
+[
+  "dev:variable:db/password"
+]
+{% endhighlight %}
+
+Now, use OpenSSL to generate a random secret, and load it into the variable:
 
 {% highlight shell %}
 $ password=$(openssl rand -hex 12)
-$ echo password | conjur variable values add inventory-db/password
+$ echo $password
+ac8932bccf835a5a13586100
+$ conjur variable values add db/password $password
 Value added
+$ conjur variable value db/password
+ac8932bccf835a5a13586100
 {% endhighlight %}
 
-3) Generate a host factory token to enroll the Puppet-ized node
+{% include toc.md key='host-factory-token' %}
 
-Again, from your Conjur client environment (`client` container or your local machine),
-use the CLI to generate a host factory token for the `inventory` layer:
+In the introduction, we mentioned that the Puppet manifest assigns a Conjur identity to the client node. For this purpose, we use the Conjur Host Factory. 
+
+Create a host factory token for use by Puppet:
 
 {% highlight shell %}
-$ conjur hostfactory tokens create inventory
-{
-  "expiration": "a-timestamp",
-  "cidr": [],
-  "token": "3zt94bb200p69nanj64v9sdn1e15rjqqt12kf68x1d6gb7z33vfskx"
-}    
+$ conjur hostfactory tokens create myapp
+[
+  {
+    "token": "1axrq3g2cybym19qkhrc2z5kd5j3btcmwy3fyxngh22rvxrw1jh7d32",
+    "expiration": "2017-05-24T14:13:20+00:00",
+    "cidr": [
+
+    ]
+  }
+]
 {% endhighlight %}
 
-4) Run a Puppet-ized node
+The `token` that you see above can be used to enroll machines into the "myapp" layer. 
 
-Create a Puppet manifest which connects to Conjur and fetches the data.
-For demo purposes, provide the host factory token directly in the `conjur`
-class. 
+{% include toc.md key='manifest' %}
+
+Now it's time to build the Puppet manifest. The manifest needs to do two things:
+
+1. Configure the connection to Conjur.
+2. Assign the machine identity.
+
+For the first task, we supply the appropriate values for `account` and `appliance_url`. For the second, we use the host factory token. The manifest uses the host factory token to create a Conjur host called "myapp-01" which belongs to the `myapp` layer. Then it uses the privileges granted to the host by layer membership to fetch the database password.
+
+Create the following Puppet manifest:
 
 {% highlight puppet %}
 class { conjur:
-  account         => 'mycompany',
+  account         => 'dev',
   appliance_url   => 'http://conjur',
-  authn_login     => 'host/inventory-01',
-  host_factory_token => Sensitive('3zt94bb200p69nanj64v9sdn1e15rjqqt12kf68x1d6gb7z33vfskx')
+  authn_login     => 'host/myapp-01',
+  host_factory_token => Sensitive('1axrq3g2cybym19qkhrc2z5kd5j3btcmwy3fyxngh22rvxrw1jh7d32')
 }    
+
+file { '/tmp/dbpass':
+  ensure    => file,
+  content   => conjur::secret('db/password'),
+  show_diff => false,  # don't log file content!
+}
 {% endhighlight %}
 
-## Next steps
+{% include toc.md key='conjur-module' %}
 
-You've now been through the essential Conjur-Puppet workflow. 
+For the manifest to work, you need to install the `conjur-conjur` Puppet module:
 
-As next steps, may we suggest:
+{% highlight shell %}
+$ puppet module install conjur-conjur
+Notice: Preparing to install into /etc/puppetlabs/code/environments/production/modules ...
+Notice: Downloading from https://forgeapi.puppet.com ...
+Notice: Installing -- do not interrupt ...
+/etc/puppetlabs/code/environments/production/modules
+└── conjur-conjur (v2.0.0)
+{% endhighlight %}
 
-* Review the [conjur Puppet module](https://forge.puppet.com/conjur/conjur) documentation
-on Puppet Forge.
-* Operationalize the host factory token by distributing it through a more 
-secure means, such as AWS S3 + AWS IAM Instance Role.
+{% include toc.md key='run-puppet' %}
 
- 
+Now, run Puppet:
+
+{% highlight shell %}
+$ puppet apply manifest.pp
+...
+TODO: show output
+{% endhighlight %}
+
+TODO: success message
+

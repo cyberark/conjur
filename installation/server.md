@@ -21,7 +21,7 @@ In just a few seconds, you can obtain a hosted Conjur account for demo and evalu
 
 * Visit the [CLI Installers](https://github.com/conjurinc/cli-ruby/releases) page, 
 and follow the appropriate installation procedure for your platform.
-* Visit the [Hosted Conjur Control Panel](http://conjur-cpanel-ci-conjur.herokuapp.com/) and click "New account".
+* Visit the [Hosted Conjur Control Panel](http://possum-cpanel-ci-conjur.herokuapp.com/) and click "New account".
 * Login via a supported identity provider such as GitHub.
 * Choose an organization account name (e.g. "yourname" or "yourcorp").
 
@@ -43,7 +43,7 @@ conjur:
   command: server
   environment:
     DATABASE_URL: postgres://postgres@pg/postgres
-    POSSUM_DATA_KEY:
+    CONJUR_DATA_KEY:
   links:
   - pg:pg
 {% endhighlight %}
@@ -53,7 +53,7 @@ conjur:
 {% include data-key-warning.md %}
 
 {% highlight shell %}
-$ export POSSUM_DATA_KEY=$(docker-compose run --no-deps --rm \
+$ export CONJUR_DATA_KEY=$(docker-compose run --no-deps --rm \
   conjur data-key generate)
 {% endhighlight %}
 
@@ -78,7 +78,7 @@ $ docker-compose exec conjur token-key generate <account-id>
 {% include data-key-warning.md %}
 
 {% highlight shell %}
-$ export POSSUM_DATA_KEY=$(docker run --rm \
+$ export CONJUR_DATA_KEY=$(docker run --rm \
   conjur data-key generate)
 {% endhighlight %}
 
@@ -89,7 +89,7 @@ Run the server using Docker, and bring your own Postgresql.
 {% highlight shell %}
 $ docker run -d \
   --name conjur \
-  -e POSSUM_DATA_KEY \
+  -e CONJUR_DATA_KEY \
   -e DATABASE_URL=postgresql:/// <- Provide pg URL here
   -p 80:80 \ <- Provide a port mapping here
   conjur server
