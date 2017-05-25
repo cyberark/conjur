@@ -115,7 +115,7 @@ error: 403 Forbidden
 
 Is the "error: 403 Forbidden" a mistake? No, it's demonstrating that the host is able to authenticate, but it's not permitted to fetch the secret.
 
-What's needed is an **entitlement** which grants `group:db/secrets-users` to `layer:frontend`. You can verify that this role grant does not yet exist:
+What's needed is an **entitlement** to grant `group:db/secrets-users` to `layer:frontend`. You can verify that this role grant does not yet exist:
 
 {% highlight shell %}
 $ conjur role members group:db/secrets-users
@@ -166,7 +166,7 @@ $ conjur resource permitted_roles variable:db/password execute
 
 The important line here is **dev:host:frontend/frontend-01**. 
 
-So, let's finish the example by fetching the password while authenticated as the host:
+Now we can finish the tutorial by fetching the password while authenticated as the host:
 
 {% highlight shell %}
 $ CONJUR_AUTHN_LOGIN=host/frontend/frontend-01 \
@@ -183,10 +183,5 @@ This pattern can be extended in the following ways:
 * Add more hosts to the `frontend` policy
 * Automatically enroll hosts into the `frontend` layer by adding a Host Factory.
 * Add more applications that need access to the database password, and grant them access by adding entitlements to the `db` policy.
-
-
-
-
-
-
+* Create user groups such as `database-administrators` and `frontend-developers`, and give them management rights on their respective policies. In this way, policy management can be federated and scaled.
 
