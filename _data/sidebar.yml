@@ -24,15 +24,14 @@ main:
         path: /tutorials/policy/
         items:
           users:
-            title: Users and Groups
-            path: /tutorials/policy/users.html
+            title: User Management
 
           hosts:
-            title: Hosts and Layers
+            title: Machine Identity with Host Factory
             
           secrets:
-            title: Application Secrets
-            path: /tutorials/policy/db-password.html
+            title: Enrolling an Application
+            path: /tutorials/policy/applications.html
 
       runtime:
         title: Runtime Solutions

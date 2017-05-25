@@ -63,3 +63,9 @@
   run-puppet: Run Puppet
 
 
+"/tutorials/policy/applications.html":  
+  introduction: Introduction
+  setup: Setup
+  define-resources: Define Protected Resources
+  define-application: Define an Application
+  entitlement: Entitlement
