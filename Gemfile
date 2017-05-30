@@ -45,6 +45,7 @@ group :development, :test do
   gem 'table_print'
   gem 'rspec-rails'
   gem 'ci_reporter_rspec'
+  gem 'database_cleaner'
   gem 'parallel'
   gem 'cucumber'
   gem 'aruba'
