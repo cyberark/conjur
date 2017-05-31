@@ -1,5 +1,4 @@
 Account = Struct.new(:id) do
-
   class << self
     def find_or_create_accounts_resource
       unless Slosilo["authn:!"]
@@ -7,14 +6,14 @@ Account = Struct.new(:id) do
         Slosilo["authn:!"] = pkey
       end
   
-      role_id     = "!:!:accounts"
-      resource_id = "!:!:accounts"
+      role_id     = "!:!:root"
+      resource_id = "!:webservice:accounts"
       role = Role[role_id] or Role.create role_id: role_id
       Resource[resource_id] or Resource.create resource_id: resource_id, owner_id: role_id
     end
 
     def create id
-      raise "Account #{id.inspect} already exists" if Slosilo["authn:#{id}"]
+      raise Exceptions::RecordExists.new("account", id) if Slosilo["authn:#{id}"]
 
       pkey = Slosilo::Key.new
       Slosilo["authn:#{id}"] = pkey
@@ -37,12 +36,20 @@ Account = Struct.new(:id) do
   end
 
   def delete
-    raise Exceptions::RecordNotFound, "!:signing-key:#{id}" unless Slosilo["authn:#{id}"]
+    # Ensure the signing key exists
+    slosilo_keystore.adapter.model.with_pk!("authn:#{id}")
 
     Role["#{id}:user:admin"].destroy
     Credentials.where(Sequel.lit("account(role_id)") => id).delete
     Secret.where(Sequel.lit("account(resource_id)") => id).delete
-    Slosilo.send(:keystore).adapter.model["authn:#{id}"].destroy
+    slosilo_keystore.adapter.model["authn:#{id}"].destroy
+
     true
+  end
+
+  protected
+
+  def slosilo_keystore
+    Slosilo.send(:keystore)
   end
 end

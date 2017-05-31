@@ -101,6 +101,10 @@ Then(/^it's not found$/) do
   expect(@status).to eq(404)
 end
 
+Then(/^it's a conflict$/) do
+  expect(@status).to eq(409)
+end
+
 Then(/^it's unprocessable$/) do
   expect(@status).to eq(422)
 end

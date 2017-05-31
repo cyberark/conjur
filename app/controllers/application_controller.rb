@@ -4,20 +4,21 @@ class ApplicationController < ActionController::API
   class Unauthorized < RuntimeError
   end
   
-  class Forbidden < RuntimeError
+  class Forbidden < Exceptions::Forbidden
   end
   
   class RecordNotFound < Exceptions::RecordNotFound
   end
 
-  class RecordExists < RuntimeError
+  class RecordExists < Exceptions::RecordExists
   end
   
   rescue_from Exceptions::RecordNotFound, with: :record_not_found
+  rescue_from Exceptions::RecordExists, with: :record_exists
+  rescue_from Exceptions::Forbidden, with: :forbidden
   rescue_from Unauthorized, with: :unauthorized
-  rescue_from Forbidden, with: :forbidden
-  rescue_from RecordExists, with: :conflict
   rescue_from Sequel::ValidationFailed, with: :validation_failed
+  rescue_from Sequel::NoMatchingRow, with: :no_matching_row
   rescue_from Conjur::PolicyParser::Invalid, with: :policy_invalid
   rescue_from ArgumentError, with: :argument_error
 
@@ -45,6 +46,18 @@ class ApplicationController < ActionController::API
           message: e.id
         }
       }
+    }, status: :not_found
+  end
+
+  def no_matching_row e
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    target = e.dataset.model.table_name.to_s.underscore rescue nil
+    render json: {
+      error: {
+        code: "not_found",
+        target: target,
+        message: e.message,
+      }.compact
     }, status: :not_found
   end
 
@@ -101,12 +114,18 @@ class ApplicationController < ActionController::API
     }, status: :unprocessable_entity
   end
 
-  def conflict e
+  def record_exists e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
     render json: {
       error: {
         code: "conflict",
-        message: "Record #{e.message.inspect} already exists"
+        message: e.message,
+        target: e.kind,
+        details: {
+          code: "conflict",
+          target: "id",
+          message: e.id
+        }
       }
     }, status: :conflict
   end

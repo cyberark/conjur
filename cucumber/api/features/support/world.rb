@@ -118,7 +118,7 @@ module PossumWorld
   
   def current_user_credentials
     headers = {}.tap do |h|
-      token = Slosilo["authn:cucumber"].signed_token @current_user.login
+      token = Slosilo["authn:#{@current_user.account}"].signed_token @current_user.login
       h[:authorization] = "Token token=\"#{Base64.strict_encode64 token.to_json}\""
     end
     { headers: headers, username: @current_user.login }

@@ -20,7 +20,14 @@ When(/^I operate on "([^"]*)"$/) do |login|
 end
 
 Given(/^I login as "([^"]*)"$/) do |login|
-  @current_user = lookup_user(login)
+  roleid = if login.include?(":")
+    login
+  else
+    "cucumber:user:#{login}"
+  end
+
+  @current_user = Role.with_pk!(roleid)
+  Credentials.new(role: @current_user).save unless @current_user.credentials
 end
 
 Given(/^I log out$/) do
@@ -40,12 +47,6 @@ end
 
 When(/^I use the wrong password$/) do
   @password = "foobar"
-end
-
-Given(/^I permit user "([^"]*)" to "([^"]*)" user "([^"]*)"$/) do |grantee, privilege, target|
-  grantee = lookup_user(grantee)
-  target = lookup_user(target)
-  target.resource.permit privilege, grantee
 end
 
 When(/^I( can)? authenticate$/) do |can|

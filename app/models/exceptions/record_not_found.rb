@@ -2,7 +2,7 @@ module Exceptions
   class RecordNotFound < RuntimeError
     attr_reader :id, :account, :kind, :identifier
 
-    def initialize id, message = nil
+    def initialize id, message: nil
       super message || self.class.build_message(id)
 
       @id = id

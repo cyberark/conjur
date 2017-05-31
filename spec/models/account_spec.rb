@@ -20,10 +20,20 @@ describe Account, :type => :model do
     end
 
     describe "when the account exists" do
+      before { create_account }
       it "refuses" do
-        create_account
-
-        expect { Account.create account_name }.to raise_error(%Q(Account "account-crud-rspec" already exists))
+        expect { Account.create account_name }.to raise_error(Exceptions::RecordExists)
+      end
+      describe "and it refuses" do
+        let!(:exception) do
+          begin
+            Account.create account_name
+          rescue
+            $!
+          end
+        end
+        describe("its kind") { specify { expect(exception.kind).to eq("account") } }
+        describe("its id")   { specify { expect(exception.id).to eq(account_name) } }
       end
     end
   end
@@ -44,7 +54,17 @@ describe Account, :type => :model do
   describe "account deletion" do
     describe "when the account does not exist" do
       it "is not found" do
-        expect { Account.new(account_name).delete }.to raise_error(Exceptions::RecordNotFound)
+        expect { Account.new(account_name).delete }.to raise_error(Sequel::NoMatchingRow)
+      end
+      describe "and it refuses" do
+        let!(:exception) do
+          begin
+            Account.new(account_name).delete
+          rescue
+            $!
+          end
+        end
+        describe("its kind") { specify { expect(exception.dataset.model.table_name).to eq(:slosilo_keystore) } }
       end
     end
 

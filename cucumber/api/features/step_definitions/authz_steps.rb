@@ -12,6 +12,18 @@ Given(/^I create a new resource in a foreign account$/) do
   @current_resource = Resource.create(resource_id: "#{account}:#{kind}:#{identifier}", owner: foreign_admin_user(account))
 end
 
+Given(/^I permit role "([^"]*)" to "([^"]*)" resource "([^"]*)"$/) do |grantee, privilege, target|
+  grantee = Role.with_pk!(grantee)
+  target = Resource.with_pk!(target)
+  target.permit privilege, grantee
+end
+
+Given(/^I permit user "([^"]*)" to "([^"]*)" user "([^"]*)"$/) do |grantee, privilege, target|
+  grantee = lookup_user(grantee)
+  target = lookup_user(target)
+  target.resource.permit privilege, grantee
+end
+
 Given(/^I set annotation "([^"]*)" to "([^"]*)"$/) do |name, value|
   @current_resource.add_annotation name: name, value: value
 end
