@@ -51,6 +51,15 @@
       permit: Permit
       include: Include
 
+"/tutorials/integrations/ruby.html":
+  introduction: Introduction
+  setup: Setup
+  prerequisites: Prerequisites
+  configuration: Configuration
+  authentication: Authentication
+  secrets_fetching: Secrets Fetching
+  permission_checking: Permission Checking
+
 "/tutorials/integrations/puppet.html":
   introduction: Introduction
   prerequisites: Prerequisites

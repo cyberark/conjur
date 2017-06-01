@@ -37,12 +37,18 @@ main:
         title: Runtime Solutions
         path: /tutorials/integrations/
         items:
+          ruby:
+            title: Ruby API
+            path: /tutorials/integrations/ruby.html
+
+          python:
+            title: Python API
+
           summon:
             title: Summon
             
           puppet:
             title: Puppet
-            path: /tutorials/integrations/puppet.html
 
           chef:
             title: Chef
@@ -52,12 +58,6 @@ main:
 
           kubernetes:
             title: Kubernetes / OpenShift
-
-          python:
-            title: Authorizing with Python
-
-          ruby:
-            title: Authorizing with Ruby
 
   reference:
     title: Reference

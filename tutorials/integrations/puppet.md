@@ -53,6 +53,10 @@ $ conjur policy load --replace bootstrap conjur.yml
 Loaded policy 'bootstrap'
 {
   "created_roles": {
+    "dev:host:myapp-01": {
+      "id": "dev:host:myapp-01",
+      "api_key": "1wgv7h2pw1vta2a7dnzk370ger03nnakkq33sex2a1jmbbnz3h8cye9"
+    }
   },
   "version": 1
 }

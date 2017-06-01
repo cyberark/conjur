@@ -118,3 +118,42 @@ application_entitlement: |
   - !grant
     role: !group secrets-users
     member: !layer /frontend
+
+api_integration: |
+  - !policy
+    id: db
+    body:
+    - &variables
+      - !variable password
+
+    - !group secrets-users
+
+    - !permit
+      resource: *variables
+      privileges: [ read, execute ]
+      roles: !group secrets-users
+
+  - !policy
+    id: backend
+    body:
+    - !webservice
+
+    - !group clients
+
+    - !permit
+      resource: !webservice
+      privilege: execute
+      roles: !group clients
+
+  - !policy
+    id: myapp
+    body:
+    - !layer
+      annotations:
+        description: My application layer
+
+  - !host myapp-01
+
+  - !grant
+    role: !layer myapp
+    member: !host myapp-01
