@@ -153,3 +153,10 @@ $ docker run --rm possum data-key generate
 
 Do NOT lose the data key, or all the encrypted data will be unrecoverable.
 
+## Account management
+
+Possum supports the simultaneous operation of multiple separate accounts within the same database. In other words, it's multi-tenant. 
+
+Each account (also called "organization account") has its own token-signing private key. When a role is authenticated, the HMAC of the access token is computed using the signing key of the role's account. 
+
+Accounts can be listed, created, and deleted via the `/accounts` service. Permission to use this service is controlled by the built-in resource `!:webservice:accounts`. Note that `!` is itself an organization account, and therefore privileges on the `!:webservice:accounts` can be managed via policies.
