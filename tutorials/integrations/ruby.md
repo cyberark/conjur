@@ -82,7 +82,7 @@ irb(main)> puts conjur.token
 <tt>CONJUR_AUTHN_API_KEY</tt> for the API key.
 </div>
 
-{% include toc.md key='secrets_fetching' %}
+{% include toc.md key='secrets-fetching' %}
 
 Once authenticated, the API client can be used to fetch the database password:
 
@@ -92,7 +92,7 @@ irb(main)> puts variable.value
 ef0a4822539369659fbfb267
 {% endhighlight %}
 
-{% include toc.md key='permission_checking' %}
+{% include toc.md key='permission-checking' %}
 
 To check a permission, load the Conjur resource (typically a Webservice) on which the permission is defined.
 
@@ -107,4 +107,47 @@ true
 irb(main)> puts webservice.permitted? 'update'
 false
 {% endhighlight %}
+
+{% include toc.md key='webservice-authz' %}
+
+Conjur can provide a declarative system for authenticating and authorizing access to web services. As we have seen above, the first step is to create a `!webservice` object in a policy. Then, privileges on the web service can be managed using `!permit` and `!grant`. 
+
+In the runtime environment, a bit of code will intercept the inbound request and check for authentication and authorization. Here's how to simulate that in an interactive Ruby session.
+
+First, the web service client will authenticate with Conjur to obtain an access token. Then this token is formed into an HTTP Authorization header:
+
+{% highlight ruby %}
+irb(main)> token = conjur.token
+irb(main)> require 'base64'
+irb(main)> token_header = %Q(Token token="#{Base64.strict_encode64 token.to_json}")
+=> "Authorization: Token token=\"eyJkYXRh...k4YjQifQ==\""
+{% endhighlight %}
+
+Of course, the client does not have to be Ruby, it can be any language or even a tool like cURL.
+
+On the server side, the HTTP request is intercepted and the access token is parsed out of the header. 
+
+{% highlight ruby %}
+irb(main)> token_header[/^Token token="(.*)"/]
+irb(main)> token = JSON.parse(Base64.decode64($1))
+{% endhighlight %}
+
+Once the token is obtained, it can be used to construct a `Conjur::API` object. Then the `webservice` resource is obtained from the Conjur API, and the permission check is performed:
+
+{% highlight ruby %}
+irb(main)> conjur = Conjur::API.new_from_token token
+irb(main)> webservice = conjur.resource("#{Conjur.configuration.account}:webservice:backend")
+irb(main)> puts webservice.permitted? 'execute'
+true
+{% endhighlight %}
+
+If the token is expired or invalid, then the Conjur API will raise an authentication error. If the token is valid, but the client does not have the requested privilege, then `permitted?` will return `false`. In either case, the authorization interceptor should deny access to the web service function.
+
+Note that different web service functions may have different required privileges. For example, a `GET` method may require `read`, and a `DELETE` method may require `update`. The semantic mapping between the web service methods and the Conjur privileges is up to you.
+
+{% include toc.md key='next-steps' %}
+
+* Read the [Ruby API code on GitHub](https://github.com/conjurinc/api-ruby).
+* Visit the [Ruby API code on RubyGems](https://rubygems.org/gems/conjur-api).
+
 

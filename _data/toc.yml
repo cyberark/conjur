@@ -57,8 +57,10 @@
   prerequisites: Prerequisites
   configuration: Configuration
   authentication: Authentication
-  secrets_fetching: Secrets Fetching
-  permission_checking: Permission Checking
+  secrets-fetching: Secrets Fetching
+  permission-checking: Permission Checking
+  webservice-authz: Webservice Authorization
+  next-steps: Next Steps
 
 "/tutorials/integrations/puppet.html":
   introduction: Introduction
@@ -70,7 +72,6 @@
   manifest: Create the Manifest
   conjur-module: Install the conjur Module
   run-puppet: Run Puppet
-
 
 "/tutorials/policy/applications.html":  
   introduction: Introduction
