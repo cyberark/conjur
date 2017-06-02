@@ -26,5 +26,5 @@ Feature: Delete an account
     Without "update" privilege the request is forbidden.
 
     When I DELETE "/accounts/new-account"
-    Then it's forbidden
+    Then the HTTP response status code is 403
     And the result is empty

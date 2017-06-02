@@ -6,7 +6,7 @@ Feature: Create a host factory token.
 
   Scenario: Unauthorized users cannot create host factory tokens.
     When I POST "/host_factory_tokens?host_factory=cucumber:host_factory:the-layer-factory&expiration=2050-12-31"
-    Then it's forbidden
+    Then the HTTP response status code is 403
 
   Scenario: A host factory token can be created by specifying an expiration time.
     Given I permit user "alice" to "execute" it

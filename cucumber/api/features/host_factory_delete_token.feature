@@ -7,7 +7,7 @@ Background:
 
   Scenario: Unauthorized users cannot delete host factory tokens.
     When I DELETE "/host_factory_tokens/@host_factory_token_token@"
-    Then it's forbidden
+    Then the HTTP response status code is 403
 
   Scenario: "delete" privilege on the host factory allows a user to delete 
     tokens.
@@ -20,4 +20,4 @@ Background:
     Given I permit user "alice" to "update" it
     Then I can DELETE "/host_factory_tokens/@host_factory_token_token@"
     And I DELETE "/host_factory_tokens/@host_factory_token_token@"
-    Then it's not found
+    Then the HTTP response status code is 404

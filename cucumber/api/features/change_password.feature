@@ -25,7 +25,7 @@ Feature: Change the password of a role
     An authentication token is insufficient to change a role's password.
 
     When I PUT "/authn/cucumber/password" with plain text body "new-password"
-    Then it's not authenticated
+    Then the HTTP response status code is 401
 
   @logged-in-admin
   Scenario: "Super" users cannot update user passwords
@@ -33,4 +33,4 @@ Feature: Change the password of a role
     on another role, it can rotate the other role's API key.
 
     When I PUT "/authn/cucumber/password?role=user:alice" with plain text body "new-password"
-    Then it's not authenticated
+    Then the HTTP response status code is 401

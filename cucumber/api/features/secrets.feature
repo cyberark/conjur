@@ -18,7 +18,7 @@ Feature: Adding and fetching secrets
   Scenario: When a new resource has no secret values, fetching the secret results in a 404 error.
 
     When I GET "/secrets/cucumber/:resource_kind/:resource_id"
-    Then it's not found
+    Then the HTTP response status code is 404
 
   Scenario: The 'conjur/mime_type' annotation is used in the value response.
 
@@ -80,14 +80,14 @@ Feature: Adding and fetching secrets
     v-1
     """
     When I GET "/secrets/cucumber/:resource_kind/:resource_id?version=2"
-    Then it's not found
+    Then the HTTP response status code is 404
 
   Scenario: When creating a secret, the value parameter is required.
 
     When I POST "/secrets/cucumber/:resource_kind/:resource_id" with body:
     """
     """
-    Then it's unprocessable
+    Then the HTTP response status code is 422
 
   Scenario: Only the last 20 versions of a secret are stored.
   
@@ -97,4 +97,4 @@ Feature: Adding and fetching secrets
     v-21
     """
     When I GET "/secrets/cucumber/:resource_kind/:resource_id?version=1"
-    Then it's not found
+    Then the HTTP response status code is 404

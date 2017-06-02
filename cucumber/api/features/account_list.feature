@@ -30,5 +30,5 @@ Feature: List accounts
     Without "read" privilege the request is forbidden.
 
     When I GET "/accounts"
-    Then it's forbidden
+    Then the HTTP response status code is 403
     And the result is empty

@@ -127,7 +127,7 @@ Feature: Updating policies
     - !delete
       record: !variable a
     """
-    Then it's unprocessable
+    Then the HTTP response status code is 422
     And the JSON response should be:
     """
     {
