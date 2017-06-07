@@ -41,6 +41,38 @@ tour: |
     role: !layer myapp
     member: !host myapp-01
 
+
+policy-reference-root-example: |
+  - !policy
+    id: db
+
+  - !policy
+    id: frontend
+
+policy-reference-root-example-ownership: |
+  - !group database-administrators
+
+  - !group frontend-developers
+
+  - !policy
+    id: db
+    owner: !group database-administrators
+
+  - !policy
+    id: frontend
+    owner: !group frontend-developers
+
+policy-reference-root-example-permissions: |
+  - !group frontend-developers
+
+  - !policy
+    id: frontend
+
+  - !permit
+    role: !group frontend-developers
+    resource: !policy frontend
+    privileges: [ read, create ]
+
 puppet: |
   - !policy
     id: db

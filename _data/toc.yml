@@ -29,11 +29,10 @@
   next-steps: Next Steps
 
 "/reference/policy.html":
-  prerequisites: Prerequisites
   introduction: What is a Policy?
   rbac: Role-Based Access Control
   loading: Loading a Policy
-  versions: Policy Versions
+  history: Policy History
   loading-modes: Policy Loading Modes
   delegation: Delegation
   statement-reference:

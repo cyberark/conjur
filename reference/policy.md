@@ -3,71 +3,47 @@ title: Reference - Policies
 layout: page
 ---
 
-{% include toc.md key='prerequisites' %}
-
-TODO
-
 {% include toc.md key='introduction' %}
 
-Conjur is managed primarily through policies. A policy is a [YAML](http://yaml.org) document which describes users, groups, hosts, layers, web services, and variables, plus role-based access control grants and privileges. Once you've loaded a policy into Conjur, you can use the Conjur API to authenticate as a role, list and search the entities in the policy, and perform permission checks (more on all this later). 
+Conjur is managed primarily through policies. A policy is a [YAML](http://yaml.org) document which describes users, groups, hosts, layers, web services, and variables, plus role-based access control grants and privileges. Once you've loaded a policy into Conjur, you can use the Conjur API to authenticate as a role, list and search the entities in the policy, perform permission checks, store and fetch secrets, etc.
 
 Conjur's YAML syntax is easy for both humans and computers to read and write. Here's a typical policy which defines users, groups, and a policy for the application "myapp". 
 
-Save this policy as "conjur.yml":
-
-{% highlight yaml %}
-# conjur.yml
-- !policy
-  id: myapp
-  body:
-  - &variables
-    - !variable ssl-cert
-    - !variable ssl-key
-  
-  - !layer
-    annotations:
-      description: My application layer
-
-  - !permit
-    resource: *variables
-    privileges: [ read, execute ]
-    roles: !layer
-
-- !host myapp-01
-
-- !grant
-  role: !layer myapp
-  member: !host myapp-01
-{% endhighlight %}
+{% include policy-file.md policy='tour' %}
 
 Some key features of this policy:
 
-* There are 2 variables (secrets) which the application can use.
+* There are 1 variables (secret) which is a database password.
 * The hosts (containers, servers, or VMs) will have the `layer` role.
-* The `layer` role can read and execute (fetch), but not update the secrets.
+* The `layer` role can read and execute (fetch), but not update the database secrets.
+* A `host-factory` can be used to dynamically create new hosts in the application layer.
 * Annotations help to explain the purpose of each statement in the policy.
 
 {% include toc.md key='rbac' %}
 
-Conjur implements role-based access control (RBAC) to provide permission checks. In RBAC, a permission check is called a "transaction". Each transaction has three parts:
+Conjur implements role-based access control (RBAC) to provide role management and permission checking. In RBAC, a permission check is called a "transaction". Each transaction has three parts:
 
 1. **the role** who, or what, is acting. In Conjur, individual entities such as users and hosts are roles, and groups-of-entities such as groups and layers are roles too.
 2. **the privilege** the name of an action which the role is attempting to perform. In Conjur, privileges generally follow the Unix pattern of `read`, `execute` and `update`. 
 3. **the resource** the protected thing, such as a secret or a webservice.
 
-RBAC determines whether a transaction is allowed or denied by traversing the roles and permissions in the policies. (Transactions are always denied by default).
+RBAC determines whether a transaction is allowed or denied by traversing the roles and permissions in the policies. Transactions are always denied by default, and only allowed if the privilege is granted to some role (e.g. a Layer) of the current authenticated role (e.g. a Host).
 
-In the example above, the `permit` statements at the bottom of the policy instruct Conjur RBAC to allow some transactions:
+In the example above, the `permit` statement in the "db" policy instructs Conjur RBAC to allow some transactions:
 
-* role: `layer`
+* role: `group:db/secrets-users`
 * privilege: `read` and `execute`
-* resource: all variables in the policy
+* resource: all variables in the "db" policy
+
+Permissions are also available via ownership. Each object in Conjur has an owner, and the owner always have full privileges on the object. 
+
+By default, when a policy is created, the policy is owned by the current authenticated user who is creating the policy. Objects inside a policy are owned by the policy (which is a kind of role), so the current authenticated user's ownership of the policy is transitive to all the objects in the policy.
 
 {% include toc.md key='loading' %}
 
 Conjur policies are loaded through the CLI using the command `conjur policy load`. This command requires two arguments:
 
-* `policy-id` An identifier for the policy. The first time you load a policy, use the policy id "bootstrap". This is a special policy name that is used to define root-level data. The "bootstrap" policy may define sub-policies, initially empty, which you can later populate with their own data. Until a policy id has been created by the bootstrap policy, it's not valid.
+* `policy-id` An identifier for the policy. The first time you load a policy, use the policy id "bootstrap". This is a special policy name that is used to define root-level data. The "bootstrap" policy may define sub-policies, initially empty, which you can later populate with their own data. Aside from the "bootstrap" policy, policy ids are not valid until the corresponding policy has been created.
 * `policy-file` Policy file containing statements in YAML format. Use a single dash `-` to read the policy from STDIN.
 
 Here's how to load the policy "conjur.yml":
@@ -78,72 +54,83 @@ Policy loaded
 TODO: Show additional command output
 {% endhighlight %}
 
-The server supports various behaviors for loading a policy. 
+{% include toc.md key='history' %}
 
-Note that when you loaded the policy, the server indicated the number of versions of this policy. 
+When you load a policy, the policy YAML is stored in the Conjur Server. As you make updates to the policy, the subsequent versions of policy YAML are stored as well. This policy history is available by fetching the `policy` resource. For example, using the CLI:
 
-{% include toc.md key='versions' %}
+TODO: verify this
 
-TODO: Describe policy versions
+{% highlight shell %}
+$ conjur show policy:frontend
+{
+TODO: fill out this example
+... bunch of JSON including embedded YAML
+}
+{% endhighlight %}
 
 {% include toc.md key='loading-modes' %}
 
-The server supports various behaviors for loading a policy. 
+The server supports three different modes for loading a policy : **POST**, **PATCH**, and **PUT**.
+
+### POST Mode
+
+In **POST** mode, the server will only create new data. If the policy contains deletion statements, such as `!delete`, `!revoke`, or `!deny`, it's an error.
+
+If there are objects that already exist in the server but are not specified in the policy, those objects are left alone.
+
+#### Permission Required
+
+The client must have `create` privilege on the policy.
+
+### PATCH Mode
+
+In **PATCH** mode, the server will both create and delete data. 
+
+Objects and grants that already exist in the server but are not specified in the policy will be left alone.
+
+#### Permission Required
+
+The client must have `update` privilege on the policy.
+
+### PUT Mode
+
+In **PUT** mode, the data in the server will be replaced with the data specified in the policy. 
+
+Objects and grants that exist in the server but aren't specified in the policy will be deleted. 
+
+#### Permission Required
+
+The client must have `update` privilege on the policy.
 
 {% include toc.md key='delegation' %}
 
-TODO: The content below was copy-pasted from another section, but needs to be rewritten.
+An API call which attempts to modify a policy requires `create` (for **POST**) or `update` (for **PUT** and **PATCH**) privilege on the affected policy.
 
-To demonstrate how delegation works, we will login as frank, who belongs to the frontend group. Enter Frank’s API key at the login prompt.
+These permission rules can be leveraged to delegate management of the Conjur policy system across many team members.
 
-{% highlight shell %}
-$ conjur login
-Enter your username to log into Conjur: frank@people
-Enter the password: ******
-$ conjur whoami
-demo:user:frank@people
-{% endhighlight %}
+When a Conjur account is created, an empty "bootstrap" policy is created by default. This policy is owned by the `admin` user of the account. As the owner, the `admin` user has full permissions on the "bootstrap" policy. 
 
-Then Frank can load `prod/frontend` policy:
+A policy document can define policies within it. For example, if the "bootstrap" policy is:
 
-{% highlight shell %}
-$ cat frontend.yml | conjur policy:load prod/frontend -
-Loaded policy version 1
-Created 2 roles
+{% include policy-file.md policy='policy-reference-root-example' %}
 
-Id                                   API Key
------------------------------------  -----------------------------------------------------
-demo:host:prod/frontend/frontend-01  b57k1j2vb5pnx2rkpjvt5jkbbc1j13t38236c38esn6pak1f0yb28
-demo:host:prod/frontend/frontend-02  3p2aryd3rdk2m816jysdk3n2se3wmpy1s23954hvckmfsgcbkpsjw
-{% endhighlight %}
+Then two new policies will be created: "db" and "frontend". The account "admin" user will own these policies as well, since no explicit owner was specified.
 
+To delegate ownership of policies, create user groups and assign those groups as policy owners:
 
-Load the database policy:
+{% include policy-file.md policy='policy-reference-root-example-ownership' %}
 
-{% highlight shell %}
-$ cat database.yml | conjur policy:load prod/database -
-Error 403: Forbidden
-{% endhighlight %}
+Now the user groups you defined will have ownership (and full management privileges) over the corresponding policies. For example, a member of "frontend-developers" will be able to make any change to the "frontend" policy, but will be forbidden from modifying the "bootstrap" and "db" policies.
 
-Whoops! We are still logged in as Frank, and Frank doesn't have permission to manage the prod/database policy. This is Conjur's RBAC in action. 
+`!permit` statements can also be used to manage policy permissions in a more granular way. Here's how to allow a user group to `read` and `create`, but not `update`, a policy:
 
-To fix the problem, login as `owen`, who belongs to the operations group. Enter Owen's API key at the login prompt.
+{% include policy-file.md policy='policy-reference-root-example-permissions' %}
 
-{% highlight shell %}
-$ conjur login
-Enter your username to log into Conjur: owen@people
-Enter the password: ******
-{% endhighlight %}
-
-Then Owen can load `prod/database` policy:
-
-Because Owen owns the `prod/database` policy, he has full management over the objects in it. This means that he can also load a new value into the `password` variable. Use `openssl` to generate a new random string, and store it in the password:
-
-{% include toc.md key='delegation' %}
+With this policy, the "frontend-developers" group will be allowed to **GET** and **POST** the policy, but not to **PUT** or **PATCH** it.
 
 {% include toc.md key='statement-reference' %}
 
-This section will describe in detail the syntax of the policy YAML.
+This section describes in detail the syntax of the policy YAML.
 
 ### Common attributes
 
@@ -383,6 +370,8 @@ A limitation on role grants is that there cannot be any cycles in the role graph
 
 Users, groups, hosts, and layers are roles, which means they can be granted to and revoked from each other.
 
+The `role` must be defined in the same policy as the `!grant`. The `member` can be defined in any policy.
+
 #### Example
 
 {% highlight yaml %}
@@ -415,6 +404,8 @@ Give privileges on a resource to a role.
 Once a privilege is given, permission checks performed by the role will return `true`.
 
 Note that permissions are not "inherited" by resource ids. For example, if a role has `read` privilege on a variable called `db`, that role does not automatically get `read` privilege on `variable:db/password`. In RBAC, inheritance of privileges only happens through role grants. RBAC is explicit in this way to avoid unintendend side-effects from the way that resources are named.
+
+The `resource` must be defined in the same policy as the `!permit`. The `role` can be defined in any policy.
 
 #### Example
 
