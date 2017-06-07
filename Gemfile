@@ -30,6 +30,8 @@ gem 'conjur-rack-heartbeat'
 gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'possum'
 gem 'rack-rewrite'
 
+gem 'simplecov', require: false
+
 group :production do
   gem 'rails_12factor'
 end
@@ -49,5 +51,4 @@ group :development, :test do
   gem 'cucumber'
   gem 'aruba'
   gem 'rake_shared_context'
-  gem 'simplecov', :require => false
 end
