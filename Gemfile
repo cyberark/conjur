@@ -51,4 +51,5 @@ group :development, :test do
   gem 'cucumber'
   gem 'aruba'
   gem 'rake_shared_context'
+  gem 'conjur-cli', github: 'conjurinc/cli-ruby', branch: 'possum'
 end
