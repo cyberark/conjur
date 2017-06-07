@@ -19,7 +19,7 @@ For more information, visit [possum.io](https://possum.io).
 Possum is packaged primarily as a Docker image. To build it:
 
 ```sh-session
-$ ./build
+$ ./build.sh
 ...
 Successfully built 9a18a1396977
 $ docker images | grep possum
