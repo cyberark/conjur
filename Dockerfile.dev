@@ -1,4 +1,4 @@
-FROM phusion/baseimage
+FROM phusion/baseimage:0.9.22
 
 RUN apt-get update -y && \
     apt-get install -y software-properties-common && \
@@ -16,7 +16,8 @@ RUN apt-get install -y \
     update-notifier-common \
     vim \
     curl \
-    jq
+    jq \
+    tzdata
       
 RUN gem install -N -v 1.11.2 bundler
 
