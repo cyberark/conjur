@@ -9,11 +9,15 @@ A very common question is: how do I add new secrets and apps to my infrastructur
 
 At Conjur, we refer to this process of adding new stuff as "enrollment". The basic flow works in three steps:
 
-1. Define protected resources, such as Webservices and Variables, using a policy.
-2. Define an application, generally consisting of a Layer (group of hosts).
-3. Grant the application layer access to the protected resources.
+1. Define protected resources, such as Webservices and Variables, using a policy. Call this "Policy A".
+2. In "Policy A", create a group which has access to the protected resources.
+3. Define an application, generally consisting of a Layer (group of hosts), in another policy. Call this "Policy B".
+4. In "Policy A", add the Layer from "Policy B" to a group which has access to the protected resources.
 
-Step (3) has a special name, "entitlement", because in this step existing objects are linked together, and no new objects are created.
+Step (4) has a special name, "entitlement", because in this step existing objects are linked together, and no new objects are created. An entitlement is always one of the following:
+
+* Grant a policy Group to a Layer.
+* Grant a policy Group to a different Group (usually a group of Users).
 
 Organizing policy management into three categories - protected resources, applications, and entitlements - helps to keep the workflow organized and clear. It also satisfies the essential security requirements of separation of duties and least privilege. 
 
@@ -22,7 +26,7 @@ Organizing policy management into three categories - protected resources, applic
 
 {% include toc.md key='setup' %}
 
-We will model a simple application in which a `frontend` service connects to a `db` server. The `db` policy defines a `password`, which the `frontend` application is permitted to fetch.
+We will model a simple application in which a `frontend` service connects to a `db` server. The `db` policy defines a `password`, which the `frontend` application uses to log in to the database.
 
 Here is a skeleton policy for this scenario, which simply defines two empty policies: `db` and `frontend`. Save this policy as "conjur.yml":
 
@@ -31,13 +35,24 @@ Here is a skeleton policy for this scenario, which simply defines two empty poli
 Then load it using the following command:
 
 {% highlight shell %}
-$ conjur policy load bootstrap conjur.yml
+$ conjur policy load --replace bootstrap conjur.yml
 Loaded policy 'bootstrap'
 {
   "created_roles": {
   },
   "version": 2
 }
+{% endhighlight %}
+
+Use the `conjur list` command to view all the objects in the system:
+
+{% highlight shell %}
+$ conjur list -i
+[
+  "myorg:policy:bootstrap",
+  "myorg:policy:db",
+  "myorg:policy:frontend"
+]
 {% endhighlight %}
 
 {% include toc.md key='define-resources' %}
@@ -60,7 +75,7 @@ Loaded policy 'db'
 }
 {% endhighlight %}
 
-With the variable created, the next step is to load the password value so that we can demonstrate its retrieval later in the tutorial:
+The variable `db/password` has been created, but it doesn't contain any data. So the next step is to load the password value:
 
 {% include db-password.md %}
 
@@ -115,12 +130,22 @@ error: 403 Forbidden
 
 Is the "error: 403 Forbidden" a mistake? No, it's demonstrating that the host is able to authenticate, but it's not permitted to fetch the secret.
 
-What's needed is an **entitlement** to grant `group:db/secrets-users` to `layer:frontend`. You can verify that this role grant does not yet exist:
+What's needed is an **entitlement** to grant `group:db/secrets-users` to `layer:frontend`. You can verify that this role grant does not yet exist by listing the members of the role `group:db/secrets-users`:
 
 {% highlight shell %}
 $ conjur role members group:db/secrets-users
 [
   "dev:policy:db"
+]
+{% endhighlight %}
+
+And by listing the role memberships of the host:
+
+{% highlight shell %}
+$ conjur role memberships host:frontend/frontend-01
+[
+  "keg:host:frontend/frontend-01",
+  "keg:layer:frontend"
 ]
 {% endhighlight %}
 
@@ -150,7 +175,7 @@ $ conjur role members group:db/secrets-users
 ]
 {% endhighlight %}
 
-Next, you can see that the `host:frontend/frontend-01` has `execute` privilege on `variable:db/password`:
+And, you can see that the `host:frontend/frontend-01` has `execute` privilege on `variable:db/password`:
 
 {% highlight shell %}
 $ conjur resource permitted_roles variable:db/password execute
@@ -176,6 +201,8 @@ $ CONJUR_AUTHN_LOGIN=host/frontend/frontend-01 \
 {% endhighlight %}
 
 Success! The host has the necessary (and minimal) set of privileges it needs to fetch the database password.
+
+{% include toc.md key='next-steps' %}
 
 This pattern can be extended in the following ways:
 
