@@ -52,7 +52,7 @@ Running Conjur is as simple as `docker-compose up`. The default backing data sto
 Conjur is easily programmable by interacting with the REST API. This capability can be used to provide custom authentication and authorization for popular DevOps tools.
 
 
-# Next step
+# Next steps
 
 * [Get the Conjur Server](./installation/server.html) (use a hosted dev account, or download the code).
 * [Install the CLI](./installation/client.html).
