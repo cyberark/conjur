@@ -42,7 +42,7 @@ Feature: Check whether a role has a privilege on a resource
     role: cucumber:user:bob
     privilege: freeze
     """
-    Then it's not found
+    Then the HTTP response status code is 404
 
   Scenario: The new role can confirm that it may perform the granted action
 

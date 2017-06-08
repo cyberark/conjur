@@ -13,7 +13,16 @@ ENV.delete('CONJUR_ADMIN_PASSWORD')
 ENV.delete('POSSUM_ADMIN_PASSWORD')
 
 RSpec.configure do |config|
-  config.use_transactional_fixtures = true
+  config.before(:suite) do
+    DatabaseCleaner.strategy = :transaction
+  end
+
+  config.around(:each) do |example|
+    DatabaseCleaner.cleaning do
+      example.run
+    end
+  end
+
   config.order = "random"
   config.filter_run_excluding performance: true
   config.infer_spec_type_from_file_location!

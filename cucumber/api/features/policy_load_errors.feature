@@ -14,7 +14,7 @@ Feature: Policy loading error messages
       privilege: [ execute ]
       resource: !variable password
     """
-    Then it's not found
+    Then the HTTP response status code is 404
     And the JSON response should be:
     """
     {
@@ -44,7 +44,7 @@ Feature: Policy loading error messages
       privilege: [ execute ]
       resource:
     """
-    Then it's unprocessable
+    Then the HTTP response status code is 422
     And the JSON response should be:
     """
     {

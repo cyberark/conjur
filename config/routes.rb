@@ -10,6 +10,8 @@ end
 
 Rails.application.routes.draw do
   scope format: false do
+    resources :accounts, only: [ :create, :index, :destroy ]
+
     get  '/authn/:account/login' => 'credentials#login'
     put  '/authn/:account/password' => 'credentials#update_password'
     put  '/authn/:account/api_key'  => 'credentials#rotate_api_key'

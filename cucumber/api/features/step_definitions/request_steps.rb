@@ -89,20 +89,8 @@ Then(/^it's confirmed$/) do
   expect(@status).to be_blank
 end
 
-Then(/^it's not authenticated$/) do
-  expect(@status).to eq(401)
-end
-
-Then(/^it's forbidden$/) do
-  expect(@status).to eq(403)
-end
-
-Then(/^it's not found$/) do
-  expect(@status).to eq(404)
-end
-
-Then(/^it's unprocessable$/) do
-  expect(@status).to eq(422)
+Then(/^the HTTP response status code is (\d+)$/) do |code|
+  expect(@status).to eq(code.to_i)
 end
 
 Then(/^the result is true$/) do

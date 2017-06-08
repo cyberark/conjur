@@ -18,7 +18,7 @@ Feature: Exchange a role's password for its API key
     as a credential.
 
     When I GET "/authn/cucumber/login"
-    Then it's not authenticated
+    Then the HTTP response status code is 401
 
   @logged-in-admin
   Scenario: "Super" users cannot login as other users
@@ -26,4 +26,4 @@ Feature: Exchange a role's password for its API key
     Users can never login as other users.
 
     When I GET "/authn/cucumber/login?role=user:alice"
-    Then it's not authenticated
+    Then the HTTP response status code is 401

@@ -40,5 +40,5 @@ Feature: Updating policies
     """
     - !layer
     """
-    Then it's forbidden
+    Then the HTTP response status code is 403
 

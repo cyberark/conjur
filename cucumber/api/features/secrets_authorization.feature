@@ -9,7 +9,7 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
 
     Given I login as "bob"
     When I GET "/secrets/cucumber/:resource_kind/:resource_id"
-    Then it's forbidden
+    Then the HTTP response status code is 403
 
   Scenario: Updating a secret as an unauthorized user results in a 403 error.
 
@@ -18,7 +18,7 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
     """
     v-1
     """
-    Then it's forbidden
+    Then the HTTP response status code is 403
 
   Scenario: A foreign role can be granted permission to fetch a secret.
 

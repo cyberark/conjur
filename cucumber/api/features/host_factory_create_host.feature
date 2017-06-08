@@ -27,4 +27,4 @@ Feature: Create a host using the host factory.
     And I log out
     And I authorize the request with the host factory token
     When I POST "/host_factories/hosts?id=host-01"
-    Then it's not authenticated
+    Then the HTTP response status code is 401
