@@ -1,5 +1,5 @@
 ---
-title: Tutorial - Ruby
+title: Tutorial - Ruby API
 layout: page
 ---
 

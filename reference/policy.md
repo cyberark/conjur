@@ -13,10 +13,11 @@ Conjur's YAML syntax is easy for both humans and computers to read and write. He
 
 Some key features of this policy:
 
-* There are 1 variables (secret) which is a database password.
-* The hosts (containers, servers, or VMs) will have the `layer` role.
-* The `layer` role can read and execute (fetch), but not update the database secrets.
-* A `host-factory` can be used to dynamically create new hosts in the application layer.
+* There is 1 Variable (secret) which is a database password.
+* There is one Host (a host is a job, container, server, or VM).
+* The host belongs to a Layer.
+* The Layer can read and execute (fetch), but not update the database secrets.
+* A Host Factory can be used to dynamically create new hosts in the layer.
 * Annotations help to explain the purpose of each statement in the policy.
 
 {% include toc.md key='rbac' %}
