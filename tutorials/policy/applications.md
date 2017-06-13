@@ -1,5 +1,5 @@
 ---
-title: Tutorial - Application Secrets
+title: Tutorial - Enrolling an Application
 layout: page
 ---
 
@@ -23,6 +23,11 @@ Organizing policy management into three categories - protected resources, applic
 
 * **Separation of duties** Management of protected resources is separated from management of client applications. Different teams can be responsible for each of these tasks. In addition, policy management can also be delegated to machine roles if desired.
 * **Least privilege** The client applications are granted exactly the privileges that they need to perform their work. And policy managers (whether humans or machines) have management privileges only on the objects that rightfully belong under their control.
+
+{% include toc.md key='prerequisites' %}
+
+* A [Conjur server](/conjur/installation/server.html) endpoint.
+* The [Conjur CLI](/conjur/installation/client.html).
 
 {% include toc.md key='setup' %}
 

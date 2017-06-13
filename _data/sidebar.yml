@@ -29,9 +29,13 @@ main:
           hosts:
             title: Machine Identity with Host Factory
             
-          secrets:
+          enrollment:
             title: Enrolling an Application
             path: /tutorials/policy/applications.html
+
+          delegation:
+            title: Delegating Policy Management
+            path: /tutorials/policy/delegation.html
 
       runtime:
         title: Runtime Solutions

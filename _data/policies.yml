@@ -189,3 +189,56 @@ api_integration: |
   - !grant
     role: !layer myapp
     member: !host myapp-01
+
+delegation_frontend: |
+  - !layer
+
+
+delegation-bootstrap-2: |
+  - !user frank
+
+  - !user donna
+
+  - !group dba
+
+  - !group frontend-developers
+
+  - !grant
+    role: !group dba
+    member: !user donna
+
+  - !grant
+    role: !group frontend-developers
+    member: !user frank
+
+  - !policy
+    id: db
+
+  - !policy
+    id: frontend
+
+delegation-bootstrap-3: |
+  - !user frank
+
+  - !user donna
+
+  - !group dba
+
+  - !group frontend-developers
+
+  - !grant
+    role: !group dba
+    member: !user donna
+
+  - !grant
+    role: !group frontend-developers
+    member: !user frank
+
+  - !policy
+    id: db
+    owner: !group dba
+
+  - !policy
+    id: frontend
+    owner: !group frontend-developers
+

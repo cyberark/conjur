@@ -76,8 +76,21 @@
 
 "/tutorials/policy/applications.html":  
   introduction: Introduction
+  prerequisites: Prerequisites
   setup: Setup
   define-resources: Define Protected Resources
   define-application: Define an Application
   entitlement: Entitlement
   next-steps: Next Steps
+
+"/tutorials/policy/delegation.html":  
+  introduction: Introduction
+  prerequisites: Prerequisites
+  setup: Setup
+  multi-user-concepts: Delegation Concepts
+  delegate: Delegation Demonstration
+  summary: Summary
+
+
+
+
