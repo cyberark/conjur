@@ -54,3 +54,10 @@ group :development, :test do
   gem 'rake_shared_context'
   gem 'conjur-cli', github: 'conjurinc/cli-ruby', branch: 'possum'
 end
+
+group :website do
+  gem 'therubyracer'
+  gem 'github-pages', group: :jekyll_plugins
+  gem 'rack-jekyll'
+end
+  

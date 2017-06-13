@@ -25,7 +25,7 @@ WORKDIR /opt/possum
 ADD Gemfile      .
 ADD Gemfile.lock .
 
-RUN bundle --without test development
+RUN bundle --without test development website
 
 ADD . .
 
