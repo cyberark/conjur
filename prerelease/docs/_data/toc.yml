@@ -74,6 +74,16 @@
   conjur-module: Install the conjur Module
   run-puppet: Run Puppet
 
+"/tutorials/integrations/authenticators.html":
+  introduction: Introduction
+  prerequisites: Prerequisites
+  access-token: Access Tokens
+  signing-keys: Signing Keys
+  route: URL Request
+  example: Example
+  client: Client Configuration
+  summary: Summary
+
 "/tutorials/policy/applications.html":  
   introduction: Introduction
   prerequisites: Prerequisites
