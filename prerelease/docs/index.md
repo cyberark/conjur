@@ -2,7 +2,7 @@
 layout: page
 ---
 
-Conjur is the security service for modern infrastructure, providing:
+Conjur is _the_ security service for modern infrastructure, providing:
 
 * Machine identity.
 * Secrets vault.
