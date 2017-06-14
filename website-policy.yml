@@ -6,6 +6,11 @@
   resource: !variable possum/ci/web/password
 
 - !permit
+  role: !layer jenkins/v1/executors
+  privileges: [ read, execute ]
+  resource: !variable possum/ci/web/password
+
+- !permit
   role: !group v4/ops
   privileges: [ update ]
   resource: !variable possum/ci/web/password
