@@ -5,30 +5,43 @@ layout: page
 
 {% include toc.md key='get' %}
 
-{% include toc.md key='get' section='download' %}
-
-Your first option for getting the client is to download the package installer
-for your platform. 
-
-Head over to [https://github.com/conjurinc/cli-ruby/releases](https://github.com/conjurinc/cli-ruby/releases), 
-and follow the appropriate installation procedure for your platform.
-
 {% include toc.md key='get' section='docker' %}
 
-You can also run the client in Docker. The following command will automatically
-download and start the Conjur CLI from Docker Hub. 
+You can easily download and run the Conjur CLI using the official pre-built images hosted by Docker Hub. 
 
-It relies on the following environment variables:
+If you run the container with interactive mode (`-it`), then you will get an interactive `bash` shell. Otherwise, you will run a single `conjur` command.
 
-* `CONJUR_APPLIANCE_URL` the URL to the Conjur server. 
-* `CONJUR_ACCOUNT` the organization account name to use.
+Here's how to run interactively:
 
 {% highlight shell %}
 $ docker run --rm \
-  -e CONJUR_APPLIANCE_URL=http://conjur <- Provide the URL to your server
-  -e CONJUR_ACCOUNT=myorg <- Provide your organization account name
-  conjur-cli
+    -it \
+    conjurinc/cli5
+root@5628127eac77:/# which conjur
+/usr/local/bundle/bin/conjur
 {% endhighlight %}
+
+And here's how to run a single Conjur command (with arguments, it prints the help string):
+
+{% highlight shell %}
+$ docker run --rm \
+    -e CONJUR_APPLIANCE_URL=http://conjur \
+    -e CONJUR_ACCOUNT=myorg \
+    -e CONJUR_AUTHN_LOGIN=admin \
+    -e CONJUR_AUTHN_API_KEY=the-secret-api-key \   
+    conjurinc/cli5
+NAME
+    conjur - Command-line toolkit for managing roles, resources and privileges
+...
+{% endhighlight %}
+
+{% include toc.md key='get' section='source' %}
+
+You can also build and run the CLI from source.
+
+Start by cloning the `possum` branch of [https://github.com/conjurinc/cli-ruby](https://github.com/conjurinc/cli-ruby).
+
+Then run `bundle`, and `bundle exec ./bin/conjur`.
 
 {% include toc.md key='configure' %}
 

@@ -18,8 +18,8 @@
   get:
     title: Get the Client
     sections:
-      download: Download
       docker: Run in Docker
+      source: Run from Source
   configure: Configure
   login: Log In
 
