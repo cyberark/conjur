@@ -37,7 +37,7 @@ pipeline {
 
     stage('Publish website') {
       steps {
-        sh './website.sh'
+        sh 'summon ./website.sh'
       }
     }
   }

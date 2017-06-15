@@ -1,16 +1,16 @@
 - !variable possum/ci/web/password
 
 - !permit
-  role: !group v4/developers
+  role: !group developers
   privileges: [ read, execute ]
   resource: !variable possum/ci/web/password
 
 - !permit
-  role: !layer jenkins/v1/executors
+  role: !layer ci/jenkins/executors
   privileges: [ read, execute ]
   resource: !variable possum/ci/web/password
 
 - !permit
-  role: !group v4/ops
+  role: !group operations
   privileges: [ update ]
   resource: !variable possum/ci/web/password
