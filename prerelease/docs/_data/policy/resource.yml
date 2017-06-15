@@ -1,0 +1,37 @@
+---
+id: Resource
+super_id: Record
+description: |2
+
+  Create a custom Resource.
+
+  Resources are the entities on which permissions are defined. A
+  resource id is an arbitrary, unique string which identifies the
+  protected asset.
+
+  Examples: database password, virtual machine or
+  server (for SSH access management), web service endpoint
+
+  Any Conjur resource can be annotated with a key-value pair. This
+  makes organization and discovery easier since annotations can be
+  searched on and are shown in the Conjur UI. Automation workflows
+  like rotation and expiration are based on annotations.
+
+  Typically, resources are not defined directly.
+  Rather, records that behave as resources, such as Users, Groups,
+  Hosts, Layers, Variables and Webservices are used instead.
+
+  See also: [role-based access control guide](/key_concepts/rbac.html)
+example: |2
+
+  - !user nobody
+
+  - !resource unicorn
+      kind: magical_beast
+      annotations:
+        has_deadly_horn: true
+        has_mercy: false
+      owner: !user nobody
+attributes:
+- id: kind
+  kind: :string

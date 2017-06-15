@@ -1,0 +1,649 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Tags
+  
+    &mdash; Documentation by YARD 0.8.1
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" media="screen" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/cucumber.css" type="text/css" media="screen" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!" + escape(window.location.href);
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/cucumber.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (t)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../requirements.html" title="requirements (requirements)">requirements</a></span></span>
+     &raquo; 
+    <span class="title">tags</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="feature_list_link"
+        href="../feature_list.html">
+      Features
+    </a>
+  
+    <a class="full_list_link" id="tag_list_link"
+        href="../tag_list.html">
+      Tags
+    </a>
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content">
+  <div id="tags" class="requirements">
+    <script type="text/javascript" charset="utf-8">
+      var tag_list = [ '@logged-in','@logged-in-admin' ];
+
+      $(function() {
+
+        // On focus, remove all the shortcut keys
+        $("#tag_search").focus(function() {
+          $(document).unbind('keypress');
+        });
+        
+        // On blur, return all the shortcut keys
+        $("#tag_search").blur(function() {
+          $(document).bind('keypress',keyboardShortcuts);
+          $(document).bind('keypress',cucumberKeyboardShortcuts);
+        });
+
+        $("#tag_search").keyup(function(evt) {
+          updateTagFiltering($("#tag_search")[0].value);
+        });
+
+        
+        $("#tag_search").keyup(function(evt) {
+          updateTagFiltering($("#tag_search")[0].value);
+        });
+        
+         $(".tag").click(function(evt) {
+            if (typeof evt !== "undefined") {
+
+              if (evt.shiftKey === true)  {
+                window.location = $(this).attr("href");
+                return true;
+              }
+              
+              var tagSearchElement = $("#tag_search")[0];
+              
+              var tagToAdd = this.innerHTML;
+              var tagModifer = "";
+              
+              if (evt.altKey === true ) {
+                tagToAdd = "~" + tagToAdd;
+              }
+              
+              if (evt.ctrlKey === true ) {
+                tagModifier = ",";
+              } else {
+                tagModifier = " ";
+              }
+              
+              tagSearchElement.value = (tagSearchElement.value != "" ? tagSearchElement.value + tagModifier : "") + tagToAdd;
+              updateTagFiltering(tagSearchElement.value);
+              
+            }
+        });
+      });
+    </script>
+
+    <div class="title">
+      <span class="name">Tags</span>
+    </div>
+
+    <div id="tag_filtering" >
+        <span style="font-size: 18px;">Tag Filtering <a href="https://github.com/cucumber/cucumber/wiki/Tags" target="_blank">?</a></span>
+        
+        <div style="clear: both"></div>
+        
+        <div style="float: left; margin-top: 10px; padding-left: 5px; line-height: 1.5; font-size: 10px; font-style: italic;">
+          Type in tags with spaces between to 'AND' and commas between to 'OR'<br/> 
+          LEFT CLICK to AND tags; CTRL+LEFT CLICK to OR tags; hold ALT for inverse (~) tags
+        </div>
+        
+        <div style="clear: both;"></div>
+          
+        <div style="float: right;">
+          <a href="#" onclick="clearTagFiltering(); $('#tag_search')[0].value = ''; return true;">clear</a>
+        </div>
+        
+        <div style="clear: both"></div>
+        
+        <input id="tag_search" type="text" />
+        <span>Example command line execution:</span>
+        <div id="command_example">cucumber</div>
+    </div>
+
+    <div class="tags" style="margin-top: 20px;"><span class="name">Tags:</span>
+      <span class="tag" href="tags/logged-in.html">@logged-in</span>,
+<span class="tag" href="tags/logged-in-admin.html">@logged-in-admin</span>
+    </div>
+
+    <div id="features">
+      <div class="title">
+        <span class="name">Features</span>
+      </div>
+      
+      <ul style="padding-left: 0px;">
+      
+        <li class="feature odd ">
+        <span class='object_link'><a href="features/login.html" title="requirements::features::login (feature)">Exchanging base credentials for API key</a></span>
+          
+          
+        </li>
+        
+        
+          <ul style="padding-left: 20px;">
+          	
+          	<li class="scenario even  ">
+          	  <span class='object_link'>
+             		<a href="features/login.html#scenario0">
+             		  Password can be used to obtain API key
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          	<li class="scenario odd  @logged-in">
+          	  <span class='object_link'>
+             		<a href="features/login.html#scenario1">
+             		  Bearer token cannot be used to login
+             		</a>
+             	</span>
+             	
+              
+                - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
+              
+          	</li>
+            
+          	
+          	<li class="scenario even  @logged-in-admin">
+          	  <span class='object_link'>
+             		<a href="features/login.html#scenario2">
+             		  &quot;Super&quot; users cannot login as other users
+             		</a>
+             	</span>
+             	
+              
+                - <small><span class="tag" href="tags/logged-in-admin.html">@logged-in-admin</span></small>
+              
+          	</li>
+            
+          	
+          </ul>
+        
+      
+        <li class="feature odd @logged-in">
+        <span class='object_link'><a href="features/all_roles.html" title="requirements::features::all_roles (feature)">Listing all roles of a role</a></span>
+          
+          
+          - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
+          
+        </li>
+        
+        
+          <ul style="padding-left: 20px;">
+          	
+          	<li class="scenario even @logged-in ">
+          	  <span class='object_link'>
+             		<a href="features/all_roles.html#scenario0">
+             		  The initial memberships of a role is just the role itself.
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          	<li class="scenario odd @logged-in ">
+          	  <span class='object_link'>
+             		<a href="features/all_roles.html#scenario1">
+             		  Granted roles appear in a role&#39;s memberships.
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          	<li class="scenario even @logged-in ">
+          	  <span class='object_link'>
+             		<a href="features/all_roles.html#scenario2">
+             		  The role list can be filtered.
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          </ul>
+        
+      
+        <li class="feature odd @logged-in">
+        <span class='object_link'><a href="features/permitted_roles.html" title="requirements::features::permitted_roles (feature)">Listing permitted roles on resources</a></span>
+          
+          
+          - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
+          
+        </li>
+        
+        
+          <ul style="padding-left: 20px;">
+          	
+          	<li class="scenario even @logged-in ">
+          	  <span class='object_link'>
+             		<a href="features/permitted_roles.html#scenario0">
+             		  Initial permitted roles is just the owner, and the roles which have the owner.
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          	<li class="scenario odd @logged-in ">
+          	  <span class='object_link'>
+             		<a href="features/permitted_roles.html#scenario1">
+             		  An additional user with the specified privilege is included in the list
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          	<li class="scenario even @logged-in ">
+          	  <span class='object_link'>
+             		<a href="features/permitted_roles.html#scenario2">
+             		  An additional user with an unrelated privilege is not included in the list
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          	<li class="scenario odd @logged-in ">
+          	  <span class='object_link'>
+             		<a href="features/permitted_roles.html#scenario3">
+             		  An additional owner role is included in the list
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          </ul>
+        
+      
+        <li class="feature even @logged-in">
+        <span class='object_link'><a href="features/resource_list.html" title="requirements::features::resource_list (feature)">Listing resources</a></span>
+          
+          
+          - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
+          
+        </li>
+        
+        
+          <ul style="padding-left: 20px;">
+          	
+          	<li class="scenario odd @logged-in ">
+          	  <span class='object_link'>
+             		<a href="features/resource_list.html#scenario0">
+             		  Resource list includes a new resource
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          	<li class="scenario even @logged-in ">
+          	  <span class='object_link'>
+             		<a href="features/resource_list.html#scenario1">
+             		  Resource list, filtered by kind, includes a new resource
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          	<li class="scenario odd @logged-in ">
+          	  <span class='object_link'>
+             		<a href="features/resource_list.html#scenario2">
+             		  Resource list, filtered by a different kind, does not include the new resource
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          </ul>
+        
+      
+        <li class="feature even @logged-in">
+        <span class='object_link'><a href="features/members.html" title="requirements::features::members (feature)">Listing role members</a></span>
+          
+          
+          - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
+          
+        </li>
+        
+        
+          <ul style="padding-left: 20px;">
+          	
+          	<li class="scenario odd @logged-in ">
+          	  <span class='object_link'>
+             		<a href="features/members.html#scenario0">
+             		  Initial roles members is just the initial role admin.
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          	<li class="scenario even @logged-in ">
+          	  <span class='object_link'>
+             		<a href="features/members.html#scenario1">
+             		  New member roles appear in the role list.
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          </ul>
+        
+      
+        <li class="feature odd ">
+        <span class='object_link'><a href="features/authenticate.html" title="requirements::features::authenticate (feature)">Obtaining an auth token</a></span>
+          
+          
+        </li>
+        
+        
+          <ul style="padding-left: 20px;">
+          	
+          	<li class="scenario even  ">
+          	  <span class='object_link'>
+             		<a href="features/authenticate.html#scenario0">
+             		  User can authenticate as herself
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          	<li class="scenario odd  ">
+          	  <span class='object_link'>
+             		<a href="features/authenticate.html#scenario1">
+             		  Invalid credentials result in 401 error
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          	<li class="scenario even  ">
+          	  <span class='object_link'>
+             		<a href="features/authenticate.html#scenario2">
+             		  User cannot login as a same-named user in a different account
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          	<li class="scenario odd  @logged-in">
+          	  <span class='object_link'>
+             		<a href="features/authenticate.html#scenario3">
+             		  Auth tokens cannot be refreshed
+             		</a>
+             	</span>
+             	
+              
+                - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
+              
+          	</li>
+            
+          	
+          	<li class="scenario even  @logged-in-admin">
+          	  <span class='object_link'>
+             		<a href="features/authenticate.html#scenario4">
+             		  &quot;Super&quot; users cannot authenticate as other users
+             		</a>
+             	</span>
+             	
+              
+                - <small><span class="tag" href="tags/logged-in-admin.html">@logged-in-admin</span></small>
+              
+          	</li>
+            
+          	
+          </ul>
+        
+      
+        <li class="feature odd ">
+        <span class='object_link'><a href="features/rotate_api_key.html" title="requirements::features::rotate_api_key (feature)">Rotating API keys</a></span>
+          
+          
+        </li>
+        
+        
+          <ul style="padding-left: 20px;">
+          	
+          	<li class="scenario even  ">
+          	  <span class='object_link'>
+             		<a href="features/rotate_api_key.html#scenario0">
+             		  Password can be used to rotate API key
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          	<li class="scenario odd  @logged-in">
+          	  <span class='object_link'>
+             		<a href="features/rotate_api_key.html#scenario1">
+             		  API key cannot be rotated by foreign login without &#39;update&#39; privilege
+             		</a>
+             	</span>
+             	
+              
+                - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
+              
+          	</li>
+            
+          	
+          	<li class="scenario even  @logged-in">
+          	  <span class='object_link'>
+             		<a href="features/rotate_api_key.html#scenario2">
+             		  API key can be rotated by foreign login having &#39;update&#39; privilege
+             		</a>
+             	</span>
+             	
+              
+                - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
+              
+          	</li>
+            
+          	
+          </ul>
+        
+      
+        <li class="feature odd ">
+        <span class='object_link'><a href="features/change_password.html" title="requirements::features::change_password (feature)">Updating the password</a></span>
+          
+          
+        </li>
+        
+        
+          <ul style="padding-left: 20px;">
+          	
+          	<li class="scenario even  ">
+          	  <span class='object_link'>
+             		<a href="features/change_password.html#scenario0">
+             		  With basic authentication, users can update their own password
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          	<li class="scenario odd  @logged-in">
+          	  <span class='object_link'>
+             		<a href="features/change_password.html#scenario1">
+             		  Bearer token cannot be used to change the password
+             		</a>
+             	</span>
+             	
+              
+                - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
+              
+          	</li>
+            
+          	
+          	<li class="scenario even  @logged-in-admin">
+          	  <span class='object_link'>
+             		<a href="features/change_password.html#scenario2">
+             		  &quot;Super&quot; users cannot update user passwords
+             		</a>
+             	</span>
+             	
+              
+                - <small><span class="tag" href="tags/logged-in-admin.html">@logged-in-admin</span></small>
+              
+          	</li>
+            
+          	
+          </ul>
+        
+      
+        <li class="feature odd ">
+        <span class='object_link'><a href="features/check_permission.html" title="requirements::features::check_permission (feature)">Validating specific privileges</a></span>
+          
+          
+        </li>
+        
+        
+          <ul style="padding-left: 20px;">
+          	
+          	<li class="scenario even  @logged-in">
+          	  <span class='object_link'>
+             		<a href="features/check_permission.html#scenario0">
+             		  I confirm that the role can perform the granted action
+             		</a>
+             	</span>
+             	
+              
+                - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
+              
+          	</li>
+            
+          	
+          	<li class="scenario odd  @logged-in">
+          	  <span class='object_link'>
+             		<a href="features/check_permission.html#scenario1">
+             		  I confirm that the role cannot perform ungranted actions
+             		</a>
+             	</span>
+             	
+              
+                - <small><span class="tag" href="tags/logged-in.html">@logged-in</span></small>
+              
+          	</li>
+            
+          	
+          	<li class="scenario even  ">
+          	  <span class='object_link'>
+             		<a href="features/check_permission.html#scenario2">
+             		  The new role can confirm that it may perform the granted action
+             		</a>
+             	</span>
+             	
+              
+          	</li>
+            
+          	
+          </ul>
+        
+      
+      </ul>
+      <div class="undefined" style="display:none;">No Features or Scenarios match the Tag Expression</div>
+    </div>
+
+  </div>
+
+
+
+</div>
+
+    <div id="footer">
+  Generated on Mon Aug  1 14:34:04 2016 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.1 (ruby-2.2.5).
+</div>
+
+  </body>
+</html>

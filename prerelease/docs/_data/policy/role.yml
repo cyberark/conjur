@@ -1,0 +1,22 @@
+---
+id: Role
+super_id: Record
+description: "\nCreate a custom role. \n\nThe purpose of a role is to have privileges
+  and to initiate\ntransactions.\n\nA role may represent a person, a group, a non-human
+  user (“robot”)\nsuch as a virtual machine or process, or a group of other roles.\n\nIn
+  addition to having privileges, a role can be granted to another\nrole.\n\nWhen a
+  role is granted, the receiving role gains all the privileges\nof the granted role.
+  In addition, it gains all the roles which are\nheld by the granted role; role grants
+  are fully inherited.\n        \nTypically, roles are not defined directly.\nRather,
+  records that behave as roles, such as Users, Groups,\nHosts and Layers are used
+  instead.\n\nSee also: [role-based access control guide](/key_concepts/rbac.html)\n"
+example: |2
+
+  - !user Beowulf
+
+  - !role tragic_end
+      kind: destiny
+      owner: !user Beowulf
+attributes:
+- id: kind
+  kind: :string

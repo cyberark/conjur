@@ -1,0 +1,491 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+      <link rel="stylesheet" href="css/full_list.css" type="text/css" media="screen" charset="utf-8" />
+    
+      <link rel="stylesheet" href="css/common.css" type="text/css" media="screen" charset="utf-8" />
+    
+
+    
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    
+      <script type="text/javascript" charset="utf-8" src="js/full_list.js"></script>
+    
+
+    <base id="base_target" target="_parent" />
+  </head>
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) {
+        document.getElementById('base_target').target = 'main';
+        document.body.className = 'frames';
+      }
+    </script>
+    <div id="content">
+      <h1 id="full_list_header">Features List</h1>
+      <div id="nav">
+        
+          <span><a target="_self" href="feature_list.html">
+            Features
+          </a></span>
+        
+          <span><a target="_self" href="tag_list.html">
+            Tags
+          </a></span>
+        
+          <span><a target="_self" href="class_list.html">
+            Classes
+          </a></span>
+        
+          <span><a target="_self" href="method_list.html">
+            Methods
+          </a></span>
+        
+          <span><a target="_self" href="file_list.html">
+            Files
+          </a></span>
+        
+      </div>
+      <div id="search">Search: <input type="text" /></div>
+
+      <ul id="full_list" class="class">
+        
+<li class="r1">
+  <span class='object_link'><a href="requirements/features.html" title="requirements::features (featuredirectory)">All Features</a></span>
+</li>
+
+
+<li class="r2">
+  <a class='toggle'></a>
+  <span class='object_link'><a href="requirements/features/login.html" title="requirements::features::login (feature)">Exchanging base credentials for API key</a></span>
+  <small>features/login.feature:1</small>
+</li>
+
+
+<ul>
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/login.html#scenario_0"
+           title="Password can be used to obtain API key">
+         Password can be used to obtain API key
+       </a>
+     </span>
+     <small>features/login.feature:6</small>
+  </li>
+        
+  
+  <li class="r2">
+    <span class='object_link'>
+       <a href="requirements/features/login.html#scenario_1"
+           title="Bearer token cannot be used to login">
+         Bearer token cannot be used to login
+       </a>
+     </span>
+     <small>features/login.feature:12</small>
+  </li>
+        
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/login.html#scenario_2"
+           title="&quot;Super&quot; users cannot login as other users">
+         &quot;Super&quot; users cannot login as other users
+       </a>
+     </span>
+     <small>features/login.feature:17</small>
+  </li>
+        
+  
+</ul>
+
+
+<li class="r2">
+  <a class='toggle'></a>
+  <span class='object_link'><a href="requirements/features/all_roles.html" title="requirements::features::all_roles (feature)">Listing all roles of a role</a></span>
+  <small>features/all_roles.feature:2</small>
+</li>
+
+
+<ul>
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/all_roles.html#scenario_0"
+           title="The initial memberships of a role is just the role itself.">
+         The initial memberships of a role is just the role itself.
+       </a>
+     </span>
+     <small>features/all_roles.feature:4</small>
+  </li>
+        
+  
+  <li class="r2">
+    <span class='object_link'>
+       <a href="requirements/features/all_roles.html#scenario_1"
+           title="Granted roles appear in a role&#39;s memberships.">
+         Granted roles appear in a role&#39;s memberships.
+       </a>
+     </span>
+     <small>features/all_roles.feature:14</small>
+  </li>
+        
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/all_roles.html#scenario_2"
+           title="The role list can be filtered.">
+         The role list can be filtered.
+       </a>
+     </span>
+     <small>features/all_roles.feature:26</small>
+  </li>
+        
+  
+</ul>
+
+
+<li class="r2">
+  <a class='toggle'></a>
+  <span class='object_link'><a href="requirements/features/permitted_roles.html" title="requirements::features::permitted_roles (feature)">Listing permitted roles on resources</a></span>
+  <small>features/permitted_roles.feature:2</small>
+</li>
+
+
+<ul>
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/permitted_roles.html#scenario_0"
+           title="Initial permitted roles is just the owner, and the roles which have the owner.">
+         Initial permitted roles is just the owner, and the roles which have the owner.
+       </a>
+     </span>
+     <small>features/permitted_roles.feature:7</small>
+  </li>
+        
+  
+  <li class="r2">
+    <span class='object_link'>
+       <a href="requirements/features/permitted_roles.html#scenario_1"
+           title="An additional user with the specified privilege is included in the list">
+         An additional user with the specified privilege is included in the list
+       </a>
+     </span>
+     <small>features/permitted_roles.feature:21</small>
+  </li>
+        
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/permitted_roles.html#scenario_2"
+           title="An additional user with an unrelated privilege is not included in the list">
+         An additional user with an unrelated privilege is not included in the list
+       </a>
+     </span>
+     <small>features/permitted_roles.feature:38</small>
+  </li>
+        
+  
+  <li class="r2">
+    <span class='object_link'>
+       <a href="requirements/features/permitted_roles.html#scenario_3"
+           title="An additional owner role is included in the list">
+         An additional owner role is included in the list
+       </a>
+     </span>
+     <small>features/permitted_roles.feature:54</small>
+  </li>
+        
+  
+</ul>
+
+
+<li class="r1">
+  <a class='toggle'></a>
+  <span class='object_link'><a href="requirements/features/resource_list.html" title="requirements::features::resource_list (feature)">Listing resources</a></span>
+  <small>features/resource_list.feature:2</small>
+</li>
+
+
+<ul>
+  
+  <li class="r2">
+    <span class='object_link'>
+       <a href="requirements/features/resource_list.html#scenario_0"
+           title="Resource list includes a new resource">
+         Resource list includes a new resource
+       </a>
+     </span>
+     <small>features/resource_list.feature:7</small>
+  </li>
+        
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/resource_list.html#scenario_1"
+           title="Resource list, filtered by kind, includes a new resource">
+         Resource list, filtered by kind, includes a new resource
+       </a>
+     </span>
+     <small>features/resource_list.feature:11</small>
+  </li>
+        
+  
+  <li class="r2">
+    <span class='object_link'>
+       <a href="requirements/features/resource_list.html#scenario_2"
+           title="Resource list, filtered by a different kind, does not include the new resource">
+         Resource list, filtered by a different kind, does not include the new resource
+       </a>
+     </span>
+     <small>features/resource_list.feature:15</small>
+  </li>
+        
+  
+</ul>
+
+
+<li class="r1">
+  <a class='toggle'></a>
+  <span class='object_link'><a href="requirements/features/members.html" title="requirements::features::members (feature)">Listing role members</a></span>
+  <small>features/members.feature:2</small>
+</li>
+
+
+<ul>
+  
+  <li class="r2">
+    <span class='object_link'>
+       <a href="requirements/features/members.html#scenario_0"
+           title="Initial roles members is just the initial role admin.">
+         Initial roles members is just the initial role admin.
+       </a>
+     </span>
+     <small>features/members.feature:8</small>
+  </li>
+        
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/members.html#scenario_1"
+           title="New member roles appear in the role list.">
+         New member roles appear in the role list.
+       </a>
+     </span>
+     <small>features/members.feature:22</small>
+  </li>
+        
+  
+</ul>
+
+
+<li class="r2">
+  <a class='toggle'></a>
+  <span class='object_link'><a href="requirements/features/authenticate.html" title="requirements::features::authenticate (feature)">Obtaining an auth token</a></span>
+  <small>features/authenticate.feature:1</small>
+</li>
+
+
+<ul>
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/authenticate.html#scenario_0"
+           title="User can authenticate as herself">
+         User can authenticate as herself
+       </a>
+     </span>
+     <small>features/authenticate.feature:6</small>
+  </li>
+        
+  
+  <li class="r2">
+    <span class='object_link'>
+       <a href="requirements/features/authenticate.html#scenario_1"
+           title="Invalid credentials result in 401 error">
+         Invalid credentials result in 401 error
+       </a>
+     </span>
+     <small>features/authenticate.feature:9</small>
+  </li>
+        
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/authenticate.html#scenario_2"
+           title="User cannot login as a same-named user in a different account">
+         User cannot login as a same-named user in a different account
+       </a>
+     </span>
+     <small>features/authenticate.feature:13</small>
+  </li>
+        
+  
+  <li class="r2">
+    <span class='object_link'>
+       <a href="requirements/features/authenticate.html#scenario_3"
+           title="Auth tokens cannot be refreshed">
+         Auth tokens cannot be refreshed
+       </a>
+     </span>
+     <small>features/authenticate.feature:19</small>
+  </li>
+        
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/authenticate.html#scenario_4"
+           title="&quot;Super&quot; users cannot authenticate as other users">
+         &quot;Super&quot; users cannot authenticate as other users
+       </a>
+     </span>
+     <small>features/authenticate.feature:24</small>
+  </li>
+        
+  
+</ul>
+
+
+<li class="r2">
+  <a class='toggle'></a>
+  <span class='object_link'><a href="requirements/features/rotate_api_key.html" title="requirements::features::rotate_api_key (feature)">Rotating API keys</a></span>
+  <small>features/rotate_api_key.feature:1</small>
+</li>
+
+
+<ul>
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/rotate_api_key.html#scenario_0"
+           title="Password can be used to rotate API key">
+         Password can be used to rotate API key
+       </a>
+     </span>
+     <small>features/rotate_api_key.feature:6</small>
+  </li>
+        
+  
+  <li class="r2">
+    <span class='object_link'>
+       <a href="requirements/features/rotate_api_key.html#scenario_1"
+           title="API key cannot be rotated by foreign login without &#39;update&#39; privilege">
+         API key cannot be rotated by foreign login without &#39;update&#39; privilege
+       </a>
+     </span>
+     <small>features/rotate_api_key.feature:12</small>
+  </li>
+        
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/rotate_api_key.html#scenario_2"
+           title="API key can be rotated by foreign login having &#39;update&#39; privilege">
+         API key can be rotated by foreign login having &#39;update&#39; privilege
+       </a>
+     </span>
+     <small>features/rotate_api_key.feature:18</small>
+  </li>
+        
+  
+</ul>
+
+
+<li class="r2">
+  <a class='toggle'></a>
+  <span class='object_link'><a href="requirements/features/change_password.html" title="requirements::features::change_password (feature)">Updating the password</a></span>
+  <small>features/change_password.feature:1</small>
+</li>
+
+
+<ul>
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/change_password.html#scenario_0"
+           title="With basic authentication, users can update their own password">
+         With basic authentication, users can update their own password
+       </a>
+     </span>
+     <small>features/change_password.feature:6</small>
+  </li>
+        
+  
+  <li class="r2">
+    <span class='object_link'>
+       <a href="requirements/features/change_password.html#scenario_1"
+           title="Bearer token cannot be used to change the password">
+         Bearer token cannot be used to change the password
+       </a>
+     </span>
+     <small>features/change_password.feature:11</small>
+  </li>
+        
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/change_password.html#scenario_2"
+           title="&quot;Super&quot; users cannot update user passwords">
+         &quot;Super&quot; users cannot update user passwords
+       </a>
+     </span>
+     <small>features/change_password.feature:16</small>
+  </li>
+        
+  
+</ul>
+
+
+<li class="r2">
+  <a class='toggle'></a>
+  <span class='object_link'><a href="requirements/features/check_permission.html" title="requirements::features::check_permission (feature)">Validating specific privileges</a></span>
+  <small>features/check_permission.feature:1</small>
+</li>
+
+
+<ul>
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/check_permission.html#scenario_0"
+           title="I confirm that the role can perform the granted action">
+         I confirm that the role can perform the granted action
+       </a>
+     </span>
+     <small>features/check_permission.feature:9</small>
+  </li>
+        
+  
+  <li class="r2">
+    <span class='object_link'>
+       <a href="requirements/features/check_permission.html#scenario_1"
+           title="I confirm that the role cannot perform ungranted actions">
+         I confirm that the role cannot perform ungranted actions
+       </a>
+     </span>
+     <small>features/check_permission.feature:18</small>
+  </li>
+        
+  
+  <li class="r1">
+    <span class='object_link'>
+       <a href="requirements/features/check_permission.html#scenario_2"
+           title="The new role can confirm that it may perform the granted action">
+         The new role can confirm that it may perform the granted action
+       </a>
+     </span>
+     <small>features/check_permission.feature:27</small>
+  </li>
+        
+  
+</ul>
+
+
+      </ul>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,18 @@
+---
+id: HostFactory
+super_id: Record
+description: "\nCreate a host-factory service for automatically creating [Hosts](#reference/host)
+  \nand enrolling them into one or more [Layer](#reference/layer)s.\n"
+example: |2
+
+  - !layer nest
+
+  - !host-factory
+      annotations:
+        description: Factory to create new bird hosts
+      layers: [ !layer nest ]
+attributes:
+- id: role
+  kind: :role
+- id: layer
+  kind: layer
