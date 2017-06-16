@@ -39,7 +39,7 @@ pipeline {
 
     stage('Publish website') {
       when {
-        branch 'website_170615' // XXX: change to master before merging
+        branch 'master'
       }
       steps {
         sh 'summon ./website.sh'
