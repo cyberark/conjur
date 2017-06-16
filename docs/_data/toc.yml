@@ -20,7 +20,11 @@
     sections:
       docker: Run in Docker
       source: Run from Source
-  configure: Configure
+  configure:
+    title: Configure
+    sections:
+      environment: Using the Environment
+      conjur-init: Using Files
   login: Log In
 
 "/installation/server.html":
