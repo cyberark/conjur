@@ -76,6 +76,6 @@ with the command `conjur authn whoami`.
 
 {% highlight shell %}
 $ conjur authn whoami
-{"account":"yourorg","username":"joe-tester"}
+{"account":"mycorp","username":"joe-tester"}
 {% endhighlight %}
 
