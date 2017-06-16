@@ -5,5 +5,4 @@ kramdown:
 gems:
   - jekyll-coffeescript
   - jekyll-paginate
-exclude: ['config.ru', 'Gemfile', 'Gemfile.lock', 'vendor']
 title: Conjur
