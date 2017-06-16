@@ -63,9 +63,9 @@ Enter password for user admin (it will not be echoed):
 Logged in
 {% endhighlight %}
 
-You can show your current logged-in user with `conjur whoami`:
+You can show your current logged-in user with `conjur authn whoami`:
 
 {% highlight shell %}
-$ conjur whoami
-demo:user:admin
+$ conjur authn whoami
+{"account":"mycorp","username":"admin"}
 {% endhighlight %}
