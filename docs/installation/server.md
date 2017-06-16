@@ -112,6 +112,5 @@ To proceed with this option, visit [Conjur on GitHub](https://github.com/conjuri
 
 {% include toc.md key='next-steps' %}
 
-Once you have a server endpoint, you should download and configure the [Conjur CLI](/conjur/installation/client.html).
-
+Once you have a server endpoint, you should download and configure the [Conjur CLI](/installation/client.html).
 
