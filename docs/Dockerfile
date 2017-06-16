@@ -10,5 +10,5 @@ ADD Gemfile Gemfile.lock ./
 
 RUN bundle --with website
 
-WORKDIR /opt/possum
+WORKDIR /opt/conjur
 

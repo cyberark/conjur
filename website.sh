@@ -1,8 +1,8 @@
 #!/bin/bash -ex
 
-docker build -t possum-web -f Dockerfile.web .
+docker build -t possum-web -f docs/Dockerfile .
 
-docker run -i -v $PWD:/opt/possum --rm  \
+docker run -i -v $PWD:/opt/conjur --rm  \
   -e AWS_ACCESS_KEY_ID \
   -e AWS_SECRET_ACCESS_KEY \
   -e POSSUM_WEB_BUCKET -e POSSUM_WEB_CFG_BUCKET \
