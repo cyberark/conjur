@@ -277,5 +277,5 @@ The client API libraries make use of these techniques under the covers, and you 
 
 {% include toc.md key='next-steps' %}
 
-* Check out the [Conjur Tutorials](./tutorials).
+* Check out the [Conjur Tutorials](./tutorials/).
 
