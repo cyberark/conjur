@@ -1,0 +1,21 @@
+---
+id: Update
+super_id: 
+description: "\nMake explicit changes to an existing record's attributes and/or annotations.\n\nFor
+  example, you can change annotations on a [Resource](#reference/resource), or the
+  `uidnumber` of a [User](#reference/user).\n    \nGenerally, Update is not used explicitly.
+  Instead, an update is performed by the create-or-replace behavior of\nstatements
+  such as User, Group, Host, Layer, etc.\n"
+example: |2
+
+  - !user wizard
+      annotations:
+        color: gray
+
+  - !update
+      record: !user wizard
+        annotations:
+          color: white
+attributes:
+- id: record
+  kind: record

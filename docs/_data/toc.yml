@@ -1,0 +1,106 @@
+"/tour.html":
+  prerequisites: Prerequisites
+  login: Login
+  introduction: Introduction
+  policies: "Introducing: Policies"
+  loading: Loading the Bootstrap Policy
+  exploring: Exploring Policy Objects
+  adding-secret: Adding a Secret
+  fetching-secret: Fetching a Secret
+  machine-login: Logging in as a Machine
+  fetching-as-machine: Fetching a Secret as a Machine
+  permission-denied: When Permission is Denied
+  permission-check-api: Checking Permissions
+  programming: Programming Conjur
+  next-steps: Next Steps
+
+"/installation/client.html":
+  get:
+    title: Get the Client
+    sections:
+      docker: Run in Docker
+      source: Run from Source
+  configure: Configure
+  login: Log In
+
+"/installation/server.html":
+  hosted: Hosted Dev Account
+  compose: Docker Compose
+  docker: Standalone Docker
+  build: Source Code
+  next-steps: Next Steps
+
+"/reference/policy.html":
+  introduction: What is a Policy?
+  rbac: Role-Based Access Control
+  loading: Loading a Policy
+  history: Policy History
+  loading-modes: Policy Loading Modes
+  delegation: Delegation
+  statement-reference:
+    title: Policy Statement Reference
+    sections:
+      policy: Policy
+      user: User
+      group: Group
+      host: Host
+      layer: Layer
+      variable: Variable
+      webservice: Webservice
+      entitlements: Entitlements
+      grant: Grant
+      permit: Permit
+      include: Include
+
+"/tutorials/integrations/ruby.html":
+  introduction: Introduction
+  setup: Setup
+  prerequisites: Prerequisites
+  configuration: Configuration
+  authentication: Authentication
+  secrets-fetching: Secrets Fetching
+  permission-checking: Permission Checking
+  webservice-authz: Webservice Authorization
+  next-steps: Next Steps
+
+"/tutorials/integrations/puppet.html":
+  introduction: Introduction
+  prerequisites: Prerequisites
+  overview: Overview
+  policy: Load the Policy
+  load-secret: Load the Database Password
+  host-factory-token: Create the Host Factory Token
+  manifest: Create the Manifest
+  conjur-module: Install the conjur Module
+  run-puppet: Run Puppet
+
+"/tutorials/integrations/authenticators.html":
+  introduction: Introduction
+  prerequisites: Prerequisites
+  access-token: Access Tokens
+  signing-keys: Signing Keys
+  route: URL Request
+  example: Example
+  client: Client Configuration
+  summary: Summary
+
+"/tutorials/policy/applications.html":  
+  introduction: Introduction
+  prerequisites: Prerequisites
+  setup: Setup
+  define-resources: Define Protected Resources
+  define-application: Define an Application
+  entitlement: Entitlement
+  next-steps: Next Steps
+
+"/tutorials/policy/delegation.html":  
+  introduction: Introduction
+  prerequisites: Prerequisites
+  setup: Setup
+  multi-user-concepts: Delegation Concepts
+  delegate: Delegation Demonstration
+  summary: Summary
+
+
+
+

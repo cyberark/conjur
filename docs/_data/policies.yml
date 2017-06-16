@@ -1,0 +1,244 @@
+tour: |
+  - !policy
+    id: db
+    body:
+    - &variables
+      - !variable password
+
+    - !group secrets-users
+
+    - !permit
+      resource: *variables
+      privileges: [ read, execute ]
+      roles: !group secrets-users
+
+  - !policy
+    id: myapp
+    body:
+    - !layer
+      annotations:
+        description: My application layer
+
+    - !host-factory
+      layers: [ !layer ]
+    
+  - !group developers
+
+  - !user
+    id: alice
+
+  - !host myapp-01
+
+  - !grant
+    role: !group developers
+    member: !user alice
+
+  - !grant
+    role: !group db/secrets-users
+    member: !layer myapp
+
+  - !grant
+    role: !layer myapp
+    member: !host myapp-01
+
+
+policy-reference-root-example: |
+  - !policy
+    id: db
+
+  - !policy
+    id: frontend
+
+policy-reference-root-example-ownership: |
+  - !group database-administrators
+
+  - !group frontend-developers
+
+  - !policy
+    id: db
+    owner: !group database-administrators
+
+  - !policy
+    id: frontend
+    owner: !group frontend-developers
+
+policy-reference-root-example-permissions: |
+  - !group frontend-developers
+
+  - !policy
+    id: frontend
+
+  - !permit
+    role: !group frontend-developers
+    resource: !policy frontend
+    privileges: [ read, create ]
+
+puppet: |
+  - !policy
+    id: db
+    body:
+    - &variables
+      - !variable password
+
+    - !group secrets-users
+
+    - !permit
+      resource: *variables
+      privileges: [ read, execute ]
+      roles: !group secrets-users
+
+  - !policy
+    id: myapp
+    body:
+    - !layer
+      annotations:
+        description: My application layer
+
+    - !host-factory
+      layers: [ !layer ]
+    
+  - !grant
+    role: !group db/secrets-users
+    member: !layer myapp
+
+application_bootstrap: |
+  - !policy
+    id: db
+
+  - !policy
+    id: frontend
+
+application_frontend: |
+  - !layer
+
+  - !host frontend-01
+
+  - !grant
+    role: !layer
+    member: !host frontend-01
+
+application_db: |
+  # Declare the secrets which are used to access the database
+  - &variables
+    - !variable password
+
+  # Define a group which will be able to fetch the secrets
+  - !group secrets-users
+
+  - !permit
+    resource: *variables
+    # "read" privilege allows the client to read metadata.
+    # "execute" privilege allows the client to read the secret data.
+    # These are normally granted together, but they are distinct
+    #   just like read and execute bits on a filesystem.
+    privileges: [ read, execute ]
+    roles: !group secrets-users
+
+application_entitlement: |
+  - &variables
+    - !variable password
+
+  - !group secrets-users
+
+  - !permit
+    resource: *variables
+    privileges: [ read, execute ]
+    roles: !group secrets-users
+
+  # Entitlements
+
+  - !grant
+    role: !group secrets-users
+    member: !layer /frontend
+
+api_integration: |
+  - !policy
+    id: db
+    body:
+    - &variables
+      - !variable password
+
+    - !group secrets-users
+
+    - !permit
+      resource: *variables
+      privileges: [ read, execute ]
+      roles: !group secrets-users
+
+  - !policy
+    id: backend
+    body:
+    - !webservice
+
+    - !group clients
+
+    - !permit
+      resource: !webservice
+      privilege: execute
+      roles: !group clients
+
+  - !policy
+    id: myapp
+    body:
+    - !layer
+      annotations:
+        description: My application layer
+
+  - !host myapp-01
+
+  - !grant
+    role: !layer myapp
+    member: !host myapp-01
+
+delegation_frontend: |
+  - !layer
+
+
+delegation-bootstrap-2: |
+  - !user frank
+
+  - !user donna
+
+  - !group dba
+
+  - !group frontend-developers
+
+  - !grant
+    role: !group dba
+    member: !user donna
+
+  - !grant
+    role: !group frontend-developers
+    member: !user frank
+
+  - !policy
+    id: db
+
+  - !policy
+    id: frontend
+
+delegation-bootstrap-3: |
+  - !user frank
+
+  - !user donna
+
+  - !group dba
+
+  - !group frontend-developers
+
+  - !grant
+    role: !group dba
+    member: !user donna
+
+  - !grant
+    role: !group frontend-developers
+    member: !user frank
+
+  - !policy
+    id: db
+    owner: !group dba
+
+  - !policy
+    id: frontend
+    owner: !group frontend-developers
+

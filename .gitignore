@@ -20,6 +20,7 @@ config/database.yml
 reports
 demo/run/finished
 demo/run/load
+_site
 /run
 coverage
 .DS_Store

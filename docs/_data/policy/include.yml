@@ -1,0 +1,19 @@
+---
+id: Include
+super_id: 
+description: "\nIncludes the contents of another policy file.\n\nBy using this feature,
+  policies for an entire organization can be\ndefined in one source repository, and
+  then unified by a top-level\n\"Conjurfile\".\n\nAttributes:\n\n* **file** path to
+  the included policy file, relative to the including policy file.\n    This is the
+  default attribute, so it can be specified in shorthand form as:\n    `- !include
+  the-policy.yml`\n\nIncluded policies inherit the namespace and owner of the enclosing\ncontext.
+  To include a policy with a different namespace and owner,\nfirst define an enclosing
+  policy record with the following attributes:\n    \n* **id** the name which is appended
+  to the current namespace\n* **owner** the desired owner\n    \nThen, within the
+  body of that policy, include the additional \npolicy files.\n"
+example: "\n- !include groups.yml\n    \n- !policy\n  id: ops\n  owner: !group operations\n
+  \ body:\n  - !include jenkins-master.yml\n  - !include ansible.yml\n  - !include
+  openvpn.yml\n"
+attributes:
+- id: file
+  kind: :string

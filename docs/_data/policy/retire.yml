@@ -1,0 +1,19 @@
+---
+id: Retire
+super_id: 
+description: "\nMove a Role or Resource to the attic.\n\nWhen you no longer need a
+  role or resource in Conjur, you `retire` it.\nThis is different than deleting it.
+  When you retire an item, all of\nits memberships and privileges are revoked and
+  its ownership is\ntransferred to the `attic` user. This is a special user in Conjur
+  that\nis created when you first bootstrap your Conjur endpoint. By\nretiring rather
+  than deleting items, the integrity of the immutable\naudit log is preserved.\n\nYou
+  can unretire items by logging in as the\n'attic' user and transferring their ownership
+  to another role. The\n'attic' user's API key is stored as a variable in Conjur at\n`conjur/users/attic/api-key`.
+  It is owned by the 'security_admin'\ngroup. "
+example: |2
+
+  - !retire
+      record: !user DoubleOhSeven
+attributes:
+- id: record
+  kind: resource

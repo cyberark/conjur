@@ -1,0 +1,37 @@
+---
+id: User
+super_id: Record
+description: "\nA human user. \n\n**Note** For servers, VMs, scripts, PaaS applications,
+  and other code actors, create Hosts instead of Users.\n"
+example: |2
+
+  - !user
+    id: kevin
+    uidnumber: 1208
+    public_keys:
+    - ssh-rsa AAAAB3NzaC1yc2EAAAAD...+10trhK5Pt kgilpin@laptop
+
+  - !user
+    id: bob
+    uidnumber: 1209
+    public_keys:
+    - ssh-rsa AAAAB3NzaC1yc2EAAAAD...DP2Kr5QzRl bob@laptop
+
+  - !grant
+    role: !group security_admin
+    member: !member
+      role: !user kevin
+      admin: true
+
+  - !grant
+    role: !group operations
+    member: !user bob
+attributes:
+- id: uidnumber
+  kind: :integer
+- id: public_key
+  kind: string
+attributes_description:
+  uidnumber: An integer which is the user's uid number for Unix/Linux systems.
+  public_keys: 'Stores public keys for the user, which can be retrieved through the
+    public keys API. '

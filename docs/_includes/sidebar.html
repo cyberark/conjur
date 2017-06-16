@@ -1,0 +1,29 @@
+<div class="sidebar">
+  <div class="container">
+    <div class="sidebar-about">
+      <h1>
+        <a href="{{ site.baseurl }}/">
+          {{ site.title }}
+        </a>
+      </h1>
+      <p class="lead">{{ site.description }}</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      {% for item_hash in site.data.sidebar.main %}
+        {% assign value = item_hash[1] %}
+        {% include menu-item.html item=value %}
+      {% endfor %}
+
+      <hr/>
+      
+      <div>Cucumber</div>
+      
+      <a class="sidebar-nav-item" href="https://www.relishapp.com/conjur/conjur-api/docs" target="_blank">API Features &raquo;</a>
+
+      <a class="sidebar-nav-item" href="https://www.relishapp.com/conjur/conjur-policy/docs" target="_blank">Policy Features &raquo;</a>
+    </nav>
+
+    <p>&copy; {{ site.time | date: '%Y' }}. All rights reserved.</p>
+  </div>
+</div>

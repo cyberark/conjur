@@ -1,0 +1,109 @@
+main:
+  installation:
+    title: Installation
+    path: /installation/
+    items:
+      client:
+        title: Client
+        path: /installation/client.html
+
+      server:
+        title: Server
+        path: /installation/server.html
+
+  tour:
+    title: Quick Tour
+    path: /tour.html
+
+  tutorials:
+    title: Tutorials
+    path: /tutorials/
+    items:
+      policy:
+        title: Policy
+        path: /tutorials/policy/
+        items:
+          users:
+            title: User Management
+
+          hosts:
+            title: Machine Identity with Host Factory
+            
+          enrollment:
+            title: Enrolling an Application
+            path: /tutorials/policy/applications.html
+
+          delegation:
+            title: Delegating Policy Management
+            path: /tutorials/policy/delegation.html
+
+      runtime:
+        title: Runtime Solutions
+        path: /tutorials/integrations/
+        items:
+          ruby:
+            title: Ruby API
+            path: /tutorials/integrations/ruby.html
+
+          python:
+            title: Python API
+
+          summon:
+            title: Summon
+            
+          puppet:
+            title: Puppet
+
+          chef:
+            title: Chef
+
+          ansible:
+            title: Ansible
+
+          kubernetes:
+            title: Kubernetes / OpenShift
+
+          authenticators:
+            title: Custom Authentication
+            path: /tutorials/integrations/authenticators.html
+
+
+  reference:
+    title: Reference
+    path: /reference/
+    items:
+      policies:
+        title: Policies
+        path: /reference/policy.html
+
+      authentication:
+        title: Authentication
+        path: /reference/authentication.html
+
+      authorization:
+        title: Authorization
+
+      secrets: 
+        title: Secrets
+
+      host-factory: 
+        title: Host Factory
+
+      machine-identity: 
+        title: Machine Identity Runtime
+
+      api: 
+        title: API
+        
+      cryptography:
+        title: Cryptography
+        path: /reference/cryptography.html
+      
+  downloads:
+    title: Downloads
+    url: https://github.com/conjurinc/conjur/releases
+    
+  github:
+    title: Github Project
+    url: https://github.com/conjurinc/conjur
+
