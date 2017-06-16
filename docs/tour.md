@@ -62,7 +62,7 @@ Loaded policy 'bootstrap'
 }
 {% endhighlight %}
 
-You created a user and a group, and add the user to the group. You also created a host, and added the host to a layer. And you also created some variables, which can be used to store and distribute secret data, then you granted some permissions on the variables. Other tutorials provide more explanation about these different objects, how they are created how permissions are managed.
+You created a user and a group, and added the user to the group. You also created a host, and added the host to a layer. And you also created some variables, which can be used to store and distribute secret data, then you granted some permissions on the variables. Other tutorials provide more explanation about these different objects, how they are created how permissions are managed.
 
 The command response includes the following data:
 
@@ -100,7 +100,7 @@ $ conjur list -i -k group
 ]
 {% endhighlight %}
 
-Or to show details about a variable:
+Conjur makes it easy to store and retrieve encrypted data in variables. Initially, a variable is like an empty bucket, but it has important metadata and security rules. To show details about a variable (or any other object), use `conjur show`:
 
 {% highlight shell %}
 $ conjur show variable:db/password
@@ -130,7 +130,7 @@ $ conjur show variable:db/password
 }
 {% endhighlight %}
 
-Or to show the memberships of a role:
+Objects like users, groups, hosts and layers are roles, which mean they can belong to other roles. A well-known example of this is when a user belongs to a group. To show the memberships of a role use `conjur role memberships`:
 
 {% highlight shell %}
 $ conjur role memberships host:myapp-01
@@ -143,7 +143,7 @@ $ conjur role memberships host:myapp-01
 
 {% include toc.md key='adding-secret' %}
 
-The policy defines a variable called "db/password". Conjur variables store encrypted, access-controlled data. To load a secret value into the "db/password", use the following commands:
+The policy defines a variable called "db/password". As we mentioned earlier, Conjur variables store encrypted, access-controlled data. To load a secret value into the "db/password", use the following commands:
 
 {% highlight shell %}
 $ password=$(openssl rand -hex 12)
@@ -180,6 +180,11 @@ Logged in
 $ conjur authn whoami
 { "account": "mycorp", "user": "host/myapp-01" }
 {% endhighlight %}
+
+<div class="note">
+<strong>Note</strong> If you've lost the API key of a host, you can reset it using the command <tt>conjur host rotate_api_key -h &lt;host-id&gt;</tt>.
+</div>
+<p/>
 
 {% include toc.md key='fetching-as-machine' %}
 
@@ -237,6 +242,7 @@ $ token=$(curl -X POST \
 <div class="note">
 <strong>Note</strong> The option <tt>-k</tt> is used to disable certificate validation for HTTPS. This option is not used if you are running Conjur in a local sandbox and accessing via HTTP. If you are running Conjur with a self-signed certificate, use the <tt>--cacert</tt> option instead.
 </div>
+</p>
 
 If you examine the token, it's a JSON object:
 
