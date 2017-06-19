@@ -242,7 +242,7 @@ $ token=$(curl -X POST \
 <div class="note">
 <strong>Note</strong> The option <tt>-k</tt> is used to disable certificate validation for HTTPS. This option is not used if you are running Conjur in a local sandbox and accessing via HTTP. If you are running Conjur with a self-signed certificate, use the <tt>--cacert</tt> option instead.
 </div>
-</p>
+<p/>
 
 If you examine the token, it's a JSON object:
 
@@ -264,6 +264,7 @@ MTAxZjQwZDQyOWNmNTc0YjM2In0=
 <div class="note">
 <strong>Note</strong> The option <tt>-w0</tt> prevents line breaks from being added to the Base64 encoded string.
 </div>
+<p/>
 
 With the token in this form, you can now call other Conjur REST API methods. For example, here's how to fetch a secret:
 
