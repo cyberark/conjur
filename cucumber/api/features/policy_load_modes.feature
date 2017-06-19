@@ -55,15 +55,13 @@ Feature: Updating policies
     Then the resource list should contain "variable" "dev/db/c"
 
   Scenario: PATCH can explicitly delete records
-    When I successfully PUT "/policies/cucumber/policy/dev/db" with body:
+    When I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
     """
     - !delete
       record: !variable a
-    - !variable c
     """
     And I successfully GET "/resources/cucumber/variable"
     Then the resource list should not contain "variable" "dev/db/a"
-    Then the resource list should contain "variable" "dev/db/c"
 
   Scenario: PATCH can perform a permission grant on existing roles and resources.
     When I successfully PATCH "/policies/cucumber/policy/dev/db" with body:

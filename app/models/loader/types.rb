@@ -31,7 +31,6 @@ module Loader
     
     class Base
       extend Forwardable
-      include Schemata::Helper
 
       def_delegators :@external_handler, :policy_id, :handle_password, :handle_public_key
       def_delegators :@policy_object, :owner, :id
@@ -58,11 +57,11 @@ module Loader
       protected
 
       def public_roles_model
-        model_for_table :roles
+        external_handler.model_for_table :roles
       end
 
       def public_resources_model
-        model_for_table :resources
+        external_handler.model_for_table :resources
       end
     end
 
@@ -252,24 +251,28 @@ module Loader
 
     class Deny < Deletion
       def delete!
-        permission = ::Permission[role_id: policy_object.role.id, privilege: policy_object.privilege, resource_id: policy_object.resource.id, policy_id: policy_id]
+        permission = ::Permission[role_id: policy_object.role.roleid, privilege: policy_object.privilege, resource_id: policy_object.resource.resourceid, policy_id: policy_id]
         permission.destroy if permission
       end
     end
 
     class Revoke < Deletion
       def delete!
-        membership = ::RoleMembership[role_id: policy_object.role.id, member_id: policy_object.member.id, policy_id: policy_id]
+        membership = ::RoleMembership[role_id: policy_object.role.roleid, member_id: policy_object.member.roleid, policy_id: policy_id]
         membership.destroy if membership
       end
     end
 
     class Delete < Deletion
       def delete!
-        resource = ::Resource[policy_object.record.id]
-        resource.destroy if resource
-        role = ::Role[policy_object.record.id]
-        role.destroy if role
+        if policy_object.record.respond_to?(:resourceid)
+          resource = ::Resource[policy_object.record.resourceid]
+          resource.destroy if resource
+        end
+        if policy_object.record.respond_to?(:roleid)
+          role = ::Role[policy_object.record.roleid]
+          role.destroy if role
+        end
       end
     end
   end

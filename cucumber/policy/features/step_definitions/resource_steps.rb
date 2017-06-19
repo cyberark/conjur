@@ -1,3 +1,11 @@
+Then(/^([\w_]+) "([^"]*)" exists$/) do |kind, id|
+  expect(conjur_api.resource make_full_id(kind, id)).to exist
+end
+
+Then(/^([\w_]+) "([^"]*)" does not exist$/) do |kind, id|
+  expect(conjur_api.resource make_full_id(kind, id)).to_not exist
+end
+
 Then(/^there is a ([\w_]+) resource "([^"]*)"$/) do |kind, id|
   invoke do
     conjur_api.resource make_full_id(kind, id)
@@ -12,6 +20,10 @@ end
 
 Then(/^the role list includes ([\w_]+) "([^"]*)"$/) do |kind, id|
   expect(result).to include(make_full_id(kind, id))
+end
+
+Then(/^the role list does not include ([\w_]+) "([^"]*)"$/) do |kind, id|
+  expect(result).to_not include(make_full_id(kind, id))
 end
 
 When(/^I list ([\w_]+) resources$/) do |kind|

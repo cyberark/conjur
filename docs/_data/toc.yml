@@ -54,7 +54,9 @@
       entitlements: Entitlements
       grant: Grant
       permit: Permit
-      include: Include
+      delete: Delete
+      revoke: Revoke
+      deny: Deny
 
 "/tutorials/integrations/ruby.html":
   introduction: Introduction

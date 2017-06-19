@@ -12,8 +12,6 @@
 # If Possum is run with an alternative primary schema, it's the responsibility of the
 # operator to create that schema and grant the necessary privileges to the database user.
 class Schemata
-  @@schemata = nil
-
   attr_reader :search_path, :primary_schema
 
   def initialize
@@ -33,31 +31,9 @@ class Schemata
     @primary_schema = primary_schema.to_sym
   end
 
-  class << self
-    # This function must be called before schema-dependent SQL/DDL operations
-    # are performed. The reason is that Possum sometimes needs to switch to a different
-    # schema, and it needs to know how to switch back to the default primary schema
-    # and search path once these alternative-schema operations are completed.
-    def initialize_schemata
-      @@schemata = Schemata.new
-    end
-
-    def primary_schema
-      schemata.primary_schema
-    end
-
-    def search_path
-      schemata.search_path
-    end
-
-    def schemata
-      @@schemata or raise "Schemata have not been configured"
-    end
-  end
-
   module Helper
     def primary_schema
-      Schemata.primary_schema
+      schemata.primary_schema
     end
 
     def model_for_table table
@@ -69,8 +45,20 @@ class Schemata
     end
 
     def restore_search_path
-      db.search_path = Schemata.search_path
+      db.search_path = schemata.search_path
     end
+
+    def model_for_table table
+      Sequel::Model [ primary_schema, table ].join("__").to_sym
+    end
+  end
+
+  def qualify_table table, separator: "."
+    [ primary_schema, table].join(separator)
+  end
+
+  def restore_search_path
+    db.search_path = self.search_path
   end
 
   protected

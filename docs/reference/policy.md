@@ -421,19 +421,111 @@ The `resource` must be defined in the same policy as the `!permit`. The `role` c
   resource: !variable prod/database/password
 {% endhighlight %}
 
-{% include toc.md key='statement-reference' section='include' %}
+{% include toc.md key='statement-reference' section='delete' %}
 
-Individual policy files can be combined together into a top-level Conjurfile using the `!include` directive. If `!include` is used from within the body of a policy, the included policy statements are owned by the policy role, and namespaced by the policy id. Otherwise, they are simply evaluated
-at the global scope.
+Explicitly deletes an object. This statement should only be used in `PATCH` mode. 
+
+Note that if an object exists in the database when a policy `PUT` update is made which does not include that object, then the object is deleted.
+
+This operation is a nop if the object does not exist.
+
+#### Attributes
+
+* **record** The object to be deleted.
+
+#### Permission Required
+
+`update` on the policy.
+
+#### Example
+
+Given the policy:
 
 {% highlight yaml %}
-- !include groups.yml
-- !include users.yml
-- !policy
-  id: prod
-  body:
-  - !include policies/db.yml
-  - !include policies/app.yml
-- !include hosts.yml
-- !include entitlements.yml
+- !group developers
 {% endhighlight %}
+
+The following policy update deletes the group:
+
+{% highlight yaml %}
+- !delete
+  record: !group developers
+{% endhighlight %}
+
+{% include toc.md key='statement-reference' section='revoke' %}
+
+Explicitly revokes a role grant. This statement should only be used in `PATCH` mode. 
+
+Note that if a role grant exists in the database when a policy `PUT` update is made which does not include that role grant, then the grant is revoked.
+
+This operation is a nop if the role grant does not exist.
+
+#### Attributes
+
+* **member** The role from which the `role` will be revoked.
+* **role** The role which has been granted.
+
+#### Permission Required
+
+`update` on the policy.
+
+#### Example
+
+Given the policy:
+
+{% highlight yaml %}
+- !group developers
+- !group employees
+- !grant
+  role: !group employees
+  member: !group developers
+{% endhighlight %}
+
+The following policy update revokes the grant:
+
+{% highlight yaml %}
+- !revoke
+  role: !group employees
+  member: !group developers
+{% endhighlight %}
+
+{% include toc.md key='statement-reference' section='deny' %}
+
+Explicitly revokes a permission grant. This statement should only be used in `PATCH` mode. 
+
+Note that if a permission grant exists in the database when a policy `PUT` update is made which does not include that permission grant grant, then the grant is revoked.
+
+This operation is a nop if the permission grant does not exist.
+
+#### Attributes
+
+* **resource** The resource on which the privilege is granted.
+* **privilege** The privilege which will be revoked.
+* **role** The role from which the `privilege` (or privileges) will be revoked.
+
+#### Permission Required
+
+`update` on the policy.
+
+#### Example
+
+Given the policy:
+
+{% highlight yaml %}
+  - !variable db/password
+  - !host host-01
+  - !permit
+    resource: !variable db/password
+    privileges: [ read, execute, update ]
+    role: !host host-01
+{% endhighlight %}
+
+The following policy update revokes the `update` privilege:
+
+{% highlight yaml %}
+- !deny
+  resource: !variable db/password
+  privilege: update
+  role: !host host-01
+{% endhighlight %}
+

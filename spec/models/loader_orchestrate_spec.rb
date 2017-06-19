@@ -43,10 +43,11 @@ describe Loader::Orchestrate do
     load_base_policy base_policy_path
   end
 
+  let!(:schemata) { Schemata.new }
   let(:resource_policy) { Resource['rspec:policy:the-policy'] }
   let(:role_user_admin) { Role['rspec:user:admin'] }
   let(:print_public) {
-    Loader::Orchestrate.table_data 'rspec', "#{Schemata.primary_schema}__"
+    Loader::Orchestrate.table_data 'rspec', "#{schemata.primary_schema}__"
   }
   let(:delete_permitted) { true }
   let(:update_permitted) { true }
