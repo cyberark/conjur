@@ -12,4 +12,6 @@ fi
 export POSSUM_DATA_KEY="$(cat data_key)"
 
 docker-compose up -d
+docker-compose exec possum possum db migrate
+docker-compose exec possum possum account create cucumber || true
 docker-compose exec possum bash
