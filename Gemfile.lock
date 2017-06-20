@@ -1,18 +1,18 @@
 GIT
-  remote: git://github.com/conjurinc/api-ruby.git
-  revision: 3b96a592e0df6508bee665038281da682cd08a2b
+  remote: https://github.com/conjurinc/api-ruby.git
+  revision: 5692f8cbc69f4be094bfa4244550bba1bb7915ca
   branch: possum
   specs:
-    conjur-api (5.0.0)
+    conjur-api (5.0.0beta.1)
       activesupport
       rest-client (~> 1.7, >= 1.7.3)
 
 GIT
-  remote: git://github.com/conjurinc/cli-ruby.git
-  revision: a3d45a57aaef836dafa632164c8eb1306657ad8d
+  remote: https://github.com/conjurinc/cli-ruby.git
+  revision: a30d685c1ec255beffd3f42a48e66c1c31cd2b53
   branch: possum
   specs:
-    conjur-cli (6.0.0.pre.beta.1)
+    conjur-cli (6.0.0beta.1)
       activesupport
       conjur-api (~> 5.0.0.beta)
       deep_merge (~> 1.0)
@@ -23,7 +23,7 @@ GIT
       xdg (~> 2.2)
 
 GIT
-  remote: git://github.com/conjurinc/conjur-policy-parser.git
+  remote: https://github.com/conjurinc/conjur-policy-parser.git
   revision: ca11f5302cf22c847f1482706268d4bd248653a3
   branch: possum
   specs:
@@ -32,7 +32,7 @@ GIT
       safe_yaml
 
 GIT
-  remote: git://github.com/conjurinc/conjur-rack.git
+  remote: https://github.com/conjurinc/conjur-rack.git
   revision: f412d0267accbe54b47621a07ca7b0bc9871276c
   branch: possum
   specs:
