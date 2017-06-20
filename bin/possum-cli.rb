@@ -59,7 +59,7 @@ command :server do |c|
 
     system "rake db:migrate" or exit $?.exitstatus
     if account
-      system "rake token-key:generate[#{account}]" or exit $?.exitstatus
+      system "rake account:create[#{account}]" or exit $?.exitstatus
     end
     
     if file_name = options[:file]
@@ -98,7 +98,7 @@ policy watcher should share the same backing database.
 Example:
 
 
-$ docker run -d possum watch /run/possum/policy/load)"
+$ possum watch /run/possum/policy/load)"
   DESC
   cgrp.arg_name 'account file_name'
   cgrp.command :watch do |c|
@@ -127,7 +127,7 @@ database, including the token-signing private key.
 Example:
 
 
-$ export POSSUM_DATA_KEY="$(docker run --rm possum data-key generate)"
+$ export POSSUM_DATA_KEY="$(possum data-key generate)"
   DESC
   cgrp.command :generate do |c|
     c.action do |global_options,options,args|
@@ -138,30 +138,42 @@ $ export POSSUM_DATA_KEY="$(docker run --rm possum data-key generate)"
   end
 end
 
-desc "Manage the token-signing key"
-command :"token-key" do |cgrp|
-  cgrp.desc "Generate and save the token signing key"
+desc "Manage accounts"
+command :"account" do |cgrp|
+  cgrp.desc "Create an organization account"
   cgrp.long_desc <<-DESC
-Use this command to generate and store a new 2048-bit RSA private key, used to 
-sign auth tokens. The POSSUM_DATA_KEY must be available in the environment
+Use this command to generate and store a new account, along with its 2048-bit RSA private key, 
+used to sign auth tokens, as well as the "admin" user API key. 
+The POSSUM_DATA_KEY must be available in the environment
 when this command is called, since it's used to encrypt the token-signing key
 in the database.
 
-
 Example:
 
-
-$ docker run --rm possum token-key generate
+$ possum account create myorg
   DESC
   cgrp.arg_name 'account'
-  cgrp.command :generate do |c|
+  cgrp.command :create do |c|
     c.action do |global_options,options,args|
       account = args.shift or exit_now! "Expecting account argument"
       exit_now! "No additional command arguments are allowed" unless args.empty?
       
       connect
 
-      exec "rake token-key:generate[#{account}]"
+      exec "rake account:create[#{account}]"
+    end
+  end
+
+  cgrp.desc "Delete an organization account"
+  cgrp.arg_name 'account'
+  cgrp.command :delete do |c|
+    c.action do |global_options,options,args|
+      account = args.shift or exit_now! "Expecting account argument"
+      exit_now! "No additional command arguments are allowed" unless args.empty?
+      
+      connect
+
+      exec "rake account:delete[#{account}]"
     end
   end
 end

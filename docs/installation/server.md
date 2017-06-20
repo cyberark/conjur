@@ -68,7 +68,7 @@ $ docker-compose up -d
 {% include create-organization-account.md %}
 
 {% highlight shell %}
-$ docker-compose exec conjur token-key generate <account-id>
+$ docker-compose exec conjur account create <account-id>
 {% endhighlight %}
 
 {% include toc.md key='docker' %}
@@ -100,7 +100,7 @@ $ docker run -d \
 {% include create-organization-account.md %}
 
 {% highlight shell %}
-$ docker exec conjur token-key generate <account-id>
+$ docker exec conjur account create <account-id>
 {% endhighlight %}
 
 {% include toc.md key='build' %}

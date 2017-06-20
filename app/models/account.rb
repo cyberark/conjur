@@ -35,6 +35,10 @@ Account = Struct.new(:id) do
     end
   end
 
+  def token_key
+    Slosilo["authn:#{id}"]
+  end
+
   def delete
     # Ensure the signing key exists
     slosilo_keystore.adapter.model.with_pk!("authn:#{id}")
