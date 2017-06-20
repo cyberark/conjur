@@ -27,7 +27,7 @@ pipeline {
       steps {
         sh './test.sh'
         
-        junit 'spec/reports/*.xml, cucumber/api/features/reports/**/*.xml, cucumber/policy/features/reports/**/*.xml, scaling_features/reports/**/*.xml, reports/*.xml'
+        junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,scaling_features/reports/**/*.xml,reports/*.xml'
       }
     }
 
