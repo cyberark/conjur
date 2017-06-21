@@ -1,0 +1,47 @@
+<html>
+      <head>
+        <meta charset="UTF-8">
+        <title>index.md</title>
+      </head>
+      <body>
+        <hr>
+<h2 id="layout-page">layout: page</h2>
+<h1 id="conjur-is-the-security-service-for-modern-infrastructure-providing-">Conjur is the security service for modern infrastructure, providing:</h1>
+<ul>
+<li>Machine identity.</li>
+<li>Secrets vault.</li>
+<li>Authentication and authorization APIs.</li>
+<li>Integrations with popular DevOps and cloud tools.</li>
+</ul>
+<p><img src="/public/img/conjur_docs_graphic.svg" alt="Conjur Machine Identity">{:class=&quot;landing-img&quot;}</p>
+<h1 id="how-does-conjur-work-">How does Conjur work?</h1>
+<p>To use Conjur, you write policy files to enumerate and categorize the things in your infrastructure : hosts, images, containers, web services, databases, secrets, users, groups, etc. You also use the policy files to define role relationships, such as the members of each group, and permissions rules, such as which groups and machines can fetch each secret. The Conjur server runs on top of the policies and provides HTTP services such as authentication, permission checks, secrets, and public keys. You can also perform dynamic updates to the infrastructure, such as change secret values and enroll new hosts.</p>
+<h1 id="why-use-conjur-">Why use Conjur?</h1>
+<h2 id="complete">Complete</h2>
+<p>Conjur provides a complete solution to secrets management for DevOps. What do we mean by this?
+It&#39;s not just a tool that you have to figure out how to deploy and operationalize.
+Conjur comes with everything you need from basic setup instructions, pre-built
+and officially maintained integrations with the other DevOps software in your toolchain, 
+to HA instructions and strategies that are easy to operationalize.</p>
+<p>With Conjur, you CAN solve your secrets management problem quickly and easily.</p>
+<h2 id="proven">Proven</h2>
+<p>Conjur has been running in production for more than two years, solving real-world problems at companies like Cisco, Box, Puppet Labs, Discovery Communications, Ability Networks, Lookout, and Machine Zone. </p>
+<p>In addition, Conjur&#39;s cryptography has been professionally audited and verified, and the Conjur server is regularly and automatically penetration-tested.</p>
+<h2 id="simple-to-use">Simple to Use</h2>
+<p>You can define your entire infrastructure using only 9 elements: policy, user, group, host, layer, variable, web service, role grant, and permission grant. And with just 5 REST functions you can authenticate, search, fetch secrets, perform permission checks, and fetch public keys.</p>
+<p>Policies are defined using YAML, which is easy for both people and machines to read and understand. </p>
+<h2 id="powerful">Powerful</h2>
+<p>Conjur provides full role-based access control, which is a proven model for infrastructure security. Unlike attribute-based access control, role-based access control is not susceptible to unexpected side-effects, and it scales very well to large systems through the use of role delegation. </p>
+<h2 id="easy-to-deploy-and-operate">Easy to deploy and operate</h2>
+<p>Running Conjur is as simple as <code>docker-compose up</code>. The default backing data store for Conjur is Postgresql. You can run the database alongside Conjur as a Docker container, or you can use a hosted database service such as AWS RDS.</p>
+<h2 id="programmable">Programmable</h2>
+<p>Conjur is easily programmable by interacting with the REST API. This capability can be used to provide custom authentication and authorization for popular DevOps tools.</p>
+<h1 id="next-steps">Next steps</h1>
+<ul>
+<li><a href="./installation/server.html">Get the Conjur Server</a> (use a hosted dev account, or download the code).</li>
+<li><a href="./installation/client.html">Install the CLI</a>.</li>
+<li>Take a <a href="./tour.html">Quick Tour</a>.</li>
+</ul>
+
+      </body>
+    </html>

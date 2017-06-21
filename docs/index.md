@@ -2,18 +2,18 @@
 layout: page
 ---
 
-Conjur is the security service for modern infrastructure, providing:
+# Conjur is the security service for modern infrastructure, providing:
 
 * Machine identity.
 * Secrets vault.
 * Authentication and authorization APIs.
 * Integrations with popular DevOps and cloud tools.
 
+![Conjur Machine Identity](/public/img/conjur_docs_graphic.svg){:class="landing-img"}
+
 # How does Conjur work?
 
-< diagram here >
-
-To use Conjur, you write policy files to enumerate and categorize the things in your infrastructure: hosts, images, containers, web services, databases, secrets, users, groups, etc. You also use the policy files to define role relationships, such as the members of each group, and permissions rules, such as which groups and machines can fetch each secret. The Conjur server runs on top of the policies and provides HTTP services such as authentication, permission checks, secrets, and public keys. You can also perform dynamic updates to the infrastructure, such as change secret values and enroll new hosts.
+To use Conjur, you write policy files to enumerate and categorize the things in your infrastructure : hosts, images, containers, web services, databases, secrets, users, groups, etc. You also use the policy files to define role relationships, such as the members of each group, and permissions rules, such as which groups and machines can fetch each secret. The Conjur server runs on top of the policies and provides HTTP services such as authentication, permission checks, secrets, and public keys. You can also perform dynamic updates to the infrastructure, such as change secret values and enroll new hosts.
 
 # Why use Conjur?
 
