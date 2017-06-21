@@ -1,3 +1,6 @@
+---
+---
+
 /*
 *         ______              _           
 *        / ____/___  ____    (_)_  _______
@@ -73,11 +76,6 @@ a {
 	color: $conjur-ltblue;
 }
 
-h1, h2, h3, h4, h5 {
-	//font-weight: 300;
-	//color: $conjur-ltblue;
-}
-
 .page-title {
 	color: $conjur-teal;
 	font-size: 3.5rem;
@@ -102,7 +100,7 @@ h1, h2, h3, h4, h5 {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0071c7', endColorstr='#11b5e4',GradientType=0 ); /* IE6-9 */
 }
 
-.conjur-logo {
+.sidebar-about img {
 	width: 200px;
 }
 
