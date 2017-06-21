@@ -1,4 +1,5 @@
 ---
+title: Conjur - Community Edition
 layout: page
 ---
 
