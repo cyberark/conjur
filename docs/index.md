@@ -1,8 +1,9 @@
 ---
+title: Conjur - Community Edition
 layout: page
 ---
 
-# Conjur is the security service for modern infrastructure, providing:
+Conjur is the security service for modern infrastructure, providing:
 
 * Machine identity.
 * Secrets vault.
