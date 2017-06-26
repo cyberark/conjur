@@ -1,6 +1,5 @@
 #!/bin/bash -ex
-env
 
-tag=registry.tld/possum:${VERSION}-${BRANCH_NAME}
+tag=registry.tld/possum:${BRANCH_NAME}_$(< VERSION)
 docker tag possum ${tag}
 docker push ${tag}
