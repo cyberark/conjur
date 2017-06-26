@@ -10,6 +10,10 @@ Given(/^I extend the policy with:$/) do |policy|
   extend_bootstrap_policy policy
 end
 
+Given(/^I update the policy with:$/) do |policy|
+  update_bootstrap_policy policy
+end
+
 Given(/^I try to load a policy with an unresolvable reference:$/) do |policy|
   invoke status: 404 do
     load_bootstrap_policy policy

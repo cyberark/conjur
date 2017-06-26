@@ -35,12 +35,20 @@ module PossumWorld
     conjur_api.load_policy "bootstrap", policy, method: Conjur::API::POLICY_METHOD_PUT
   end
 
+  def update_bootstrap_policy policy
+    conjur_api.load_policy "bootstrap", policy, method: Conjur::API::POLICY_METHOD_PATCH
+  end
+
   def extend_bootstrap_policy policy
     conjur_api.load_policy "bootstrap", policy, method: Conjur::API::POLICY_METHOD_POST
   end
   
   def load_policy id, policy
     conjur_api.load_policy id, policy, method: Conjur::API::POLICY_METHOD_PUT
+  end
+
+  def update_policy id, policy
+    conjur_api.load_policy id, policy, method: Conjur::API::POLICY_METHOD_PATCH
   end
 
   def extend_policy id, policy

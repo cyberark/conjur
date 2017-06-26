@@ -43,7 +43,7 @@ module Loader
     extend Forwardable
     include Schemata::Helper
 
-    attr_reader :policy_version, :create_records, :delete_records, :policy_passwords, :policy_public_keys, :new_roles
+    attr_reader :policy_version, :create_records, :delete_records, :policy_passwords, :policy_public_keys, :new_roles, :schemata
 
     TABLES = %i(roles role_memberships resources permissions annotations)
 
@@ -60,6 +60,7 @@ module Loader
       @policy_version = policy_version
       @policy_public_keys = []
       @policy_passwords = []
+      @schemata = Schemata.new
 
       # Transform each statement into a Loader type
       @create_records = policy_version.create_records.map do |policy_object|
