@@ -44,19 +44,19 @@
   statement-reference:
     title: Policy Statement Reference
     sections:
-      policy: Policy
-      user: User
+      delete: Delete
+      deny: Deny
+      entitlements: Entitlements
+      grant: Grant
       group: Group
       host: Host
       layer: Layer
+      permit: Permit
+      policy: Policy
+      revoke: Revoke
+      user: User
       variable: Variable
       webservice: Webservice
-      entitlements: Entitlements
-      grant: Grant
-      permit: Permit
-      delete: Delete
-      revoke: Revoke
-      deny: Deny
 
 "/tutorials/integrations/ruby.html":
   introduction: Introduction
