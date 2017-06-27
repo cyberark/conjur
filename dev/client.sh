@@ -2,4 +2,5 @@
 
 export COMPOSE_PROJECT_NAME=possumdev
 
-docker-compose exec client bash
+docker exec -it --detach-keys 'ctrl-\' $(docker-compose ps -q client) bash
+#docker-compose exec client bash
