@@ -40,3 +40,5 @@ client:
     DATABASE_URL: postgres://postgres@pg/postgres
   links:
   - possum:possum
+  volumes:
+  - ..:/src/possum

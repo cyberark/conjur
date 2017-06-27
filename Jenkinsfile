@@ -37,6 +37,12 @@ pipeline {
       }
     }
 
+    stage('Push image') {
+      steps {
+        sh './push-image.sh'
+      }
+    }
+
     stage('Publish website') {
       when {
         branch 'master'
