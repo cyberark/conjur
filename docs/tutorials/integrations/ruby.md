@@ -29,8 +29,8 @@ It defines:
 Load the policy using the following command:
 
 {% highlight shell %}
-$ conjur policy load --replace bootstrap conjur.yml
-Loaded policy 'bootstrap'
+$ conjur policy load --replace root conjur.yml
+Loaded policy 'root'
 {
   "created_roles": {
     "dev:host:myapp-01": {

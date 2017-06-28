@@ -44,13 +44,13 @@ By default, when a policy is created, the policy is owned by the current authent
 
 Conjur policies are loaded through the CLI using the command `conjur policy load`. This command requires two arguments:
 
-* `policy-id` An identifier for the policy. The first time you load a policy, use the policy id "bootstrap". This is a special policy name that is used to define root-level data. The "bootstrap" policy may define sub-policies, initially empty, which you can later populate with their own data. Aside from the "bootstrap" policy, policy ids are not valid until the corresponding policy has been created.
+* `policy-id` An identifier for the policy. The first time you load a policy, use the policy id "root". This is a special policy name that is used to define root-level data. The "root" policy may define sub-policies, initially empty, which you can later populate with their own data. Aside from the "root" policy, policy ids are not valid until the corresponding policy has been created.
 * `policy-file` Policy file containing statements in YAML format. Use a single dash `-` to read the policy from STDIN.
 
 Here's how to load the policy "conjur.yml":
 
 {% highlight shell %}
-$ conjur policy load bootstrap conjur.yml
+$ conjur policy load root conjur.yml
 Policy loaded
 TODO: Show additional command output
 {% endhighlight %}
@@ -109,9 +109,9 @@ An API call which attempts to modify a policy requires `create` (for **POST**) o
 
 These permission rules can be leveraged to delegate management of the Conjur policy system across many team members.
 
-When a Conjur account is created, an empty "bootstrap" policy is created by default. This policy is owned by the `admin` user of the account. As the owner, the `admin` user has full permissions on the "bootstrap" policy. 
+When a Conjur account is created, an empty "root" policy is created by default. This policy is owned by the `admin` user of the account. As the owner, the `admin` user has full permissions on the "root" policy. 
 
-A policy document can define policies within it. For example, if the "bootstrap" policy is:
+A policy document can define policies within it. For example, if the "root" policy is:
 
 {% include policy-file.md policy='policy-reference-root-example' %}
 
@@ -121,7 +121,7 @@ To delegate ownership of policies, create user groups and assign those groups as
 
 {% include policy-file.md policy='policy-reference-root-example-ownership' %}
 
-Now the user groups you defined will have ownership (and full management privileges) over the corresponding policies. For example, a member of "frontend-developers" will be able to make any change to the "frontend" policy, but will be forbidden from modifying the "bootstrap" and "db" policies.
+Now the user groups you defined will have ownership (and full management privileges) over the corresponding policies. For example, a member of "frontend-developers" will be able to make any change to the "frontend" policy, but will be forbidden from modifying the "root" and "db" policies.
 
 `!permit` statements can also be used to manage policy permissions in a more granular way. Here's how to allow a user group to `read` and `create`, but not `update`, a policy:
 
@@ -138,7 +138,7 @@ This section describes in detail the syntax of the policy YAML.
 Some attributes are common across multiple entities:
 
 * **id** An identifier which is unique to the kind of entity (`user`, `host`, `variable`, etc). By convention, Conjur ids are path-based. For example: `prod/webservers`. Each record in Conjur is uniquely identified by `account:kind:id`.
-* **owner** A role having all privileges on the thing it's applied to. For example, if a role `group:frontend` is the owner of a secret, then the group and all of its members can perform any action on the secret. Normally, the `owner` attribute is only needed in the bootstrap policy.
+* **owner** A role having all privileges on the thing it's applied to. For example, if a role `group:frontend` is the owner of a secret, then the group and all of its members can perform any action on the secret. Normally, the `owner` attribute is only needed in the root policy.
 
 {% include_relative _delete.md %}
 {% include_relative _deny.md %}
