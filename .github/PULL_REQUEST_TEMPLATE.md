@@ -2,7 +2,7 @@
 #### Where should the reviewer start?
 #### How should this be manually tested?
 #### What background context can you provide?
-#### What are the relevant tickets?
+#### What are the relevant GitHub issues?
 #### Screenshots (if appropriate)
 #### Link to build in Jenkins (if appropriate)
 #### Reviewers
