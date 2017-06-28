@@ -6,7 +6,7 @@ rspec:group:the-policy/group-b | rspec:policy:the-policy
 rspec:group:the-policy/group-c | rspec:policy:the-policy
 rspec:group:the-policy/group-x | rspec:policy:the-policy
 rspec:layer:the-policy/the-app | rspec:policy:the-policy
-rspec:policy:root         |                        
+rspec:policy:root              |                        
 rspec:policy:the-policy        | rspec:policy:root 
 rspec:user:admin               |                        
 
@@ -21,7 +21,7 @@ rspec:group:the-policy/group-x | rspec:group:the-policy/group-a | true         |
 rspec:group:the-policy/group-x | rspec:group:the-policy/group-b | false        | false     | rspec:policy:the-policy
 rspec:group:the-policy/group-x | rspec:policy:the-policy        | true         | true      | rspec:policy:the-policy
 rspec:layer:the-policy/the-app | rspec:policy:the-policy        | true         | true      | rspec:policy:the-policy
-rspec:policy:root         | rspec:user:admin               | true         | true      |                        
+rspec:policy:root              | rspec:user:admin               | true         | true      |                        
 rspec:policy:the-policy        | rspec:user:admin               | true         | true      | rspec:policy:root 
 
 resources
@@ -32,7 +32,7 @@ rspec:group:the-policy/group-b       | rspec:policy:the-policy | rspec:policy:th
 rspec:group:the-policy/group-c       | rspec:policy:the-policy | rspec:policy:the-policy
 rspec:group:the-policy/group-x       | rspec:policy:the-policy | rspec:policy:the-policy
 rspec:layer:the-policy/the-app       | rspec:policy:the-policy | rspec:policy:the-policy
-rspec:policy:root               | rspec:user:admin        |                        
+rspec:policy:root                    | rspec:user:admin        |                        
 rspec:policy:the-policy              | rspec:user:admin        | rspec:policy:root 
 rspec:variable:the-policy/the-secret | rspec:policy:the-policy | rspec:policy:the-policy
 

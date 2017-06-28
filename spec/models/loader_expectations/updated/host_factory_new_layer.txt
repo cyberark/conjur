@@ -4,7 +4,7 @@ ROLE_ID                          | POLICY_ID
 rspec:host_factory:the-policy    | rspec:policy:the-policy
 rspec:layer:the-policy/layer-2   | rspec:policy:the-policy
 rspec:layer:the-policy/the-layer | rspec:policy:the-policy
-rspec:policy:root           |                        
+rspec:policy:root                |                        
 rspec:policy:the-policy          | rspec:policy:root 
 rspec:user:admin                 |                        
 
@@ -16,7 +16,7 @@ rspec:layer:the-policy/layer-2   | rspec:host_factory:the-policy | false        
 rspec:layer:the-policy/layer-2   | rspec:policy:the-policy       | true         | true      | rspec:policy:the-policy
 rspec:layer:the-policy/the-layer | rspec:host_factory:the-policy | false        | false     | rspec:policy:the-policy
 rspec:layer:the-policy/the-layer | rspec:policy:the-policy       | true         | true      | rspec:policy:the-policy
-rspec:policy:root           | rspec:user:admin              | true         | true      |                        
+rspec:policy:root                | rspec:user:admin              | true         | true      |                        
 rspec:policy:the-policy          | rspec:user:admin              | true         | true      | rspec:policy:root 
 
 resources
@@ -25,7 +25,7 @@ RESOURCE_ID                      | OWNER_ID                | POLICY_ID
 rspec:host_factory:the-policy    | rspec:policy:the-policy | rspec:policy:the-policy
 rspec:layer:the-policy/layer-2   | rspec:policy:the-policy | rspec:policy:the-policy
 rspec:layer:the-policy/the-layer | rspec:policy:the-policy | rspec:policy:the-policy
-rspec:policy:root           | rspec:user:admin        |                        
+rspec:policy:root                | rspec:user:admin        |                        
 rspec:policy:the-policy          | rspec:user:admin        | rspec:policy:root 
 
 permissions
