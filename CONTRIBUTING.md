@@ -10,5 +10,5 @@ code) then you are welcome. All roles are vital! :pray:
 3. Tag issue "in progress" as you work on it
 4. Submit a pull request
 5. Check the build status in Jenkins to ensure that the build succeeds & tests pass
-6. Tag the issue "review", ask for a colleague to review and merge your code
+6. Tag the issue "review", ask for another contributor to review and merge your code
 7. Close the issue
