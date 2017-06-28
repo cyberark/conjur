@@ -1,6 +1,6 @@
 Feature: Policies can be organized into hierarchies with specific update permissions.
 
-  Scenario: Define a bootstrap policy with sub-policies
+  Scenario: Define a root policy with sub-policies
   
     Given a policy:
     """
