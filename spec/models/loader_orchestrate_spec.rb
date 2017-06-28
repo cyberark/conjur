@@ -35,7 +35,6 @@ describe Loader::Orchestrate do
     if ENV['DUMP_DATA']
       File.write expectation_path(path), print_public
     end
-    binding.pry
     expect(print_public).to eq(File.read(expectation_path(path)))
   end
 
