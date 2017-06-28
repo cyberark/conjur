@@ -25,3 +25,4 @@ _site
 coverage
 .DS_Store
 demo/run/*.yml
+*~
