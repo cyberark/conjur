@@ -1,17 +1,19 @@
 module Loader
   module Types
     class << self
-      def find_or_create_bootstrap_policy account
-        ::Resource[bootstrap_policy_id(account)] or create_bootstrap_policy account
+      def find_or_create_root_policy account
+        binding.pry
+
+        ::Resource[root_policy_id(account)] or create_root_policy account
       end
 
-      def bootstrap_policy_id account
-        "#{account}:policy:bootstrap"
+      def root_policy_id account
+        "#{account}:policy:root"
       end
 
-      def create_bootstrap_policy account
-        role = ::Role.create role_id: bootstrap_policy_id(account)
-        ::Resource.create resource_id: bootstrap_policy_id(account), owner: admin_role(account)
+      def create_root_policy account
+        role = ::Role.create role_id: root_policy_id(account)
+        ::Resource.create resource_id: root_policy_id(account), owner: admin_role(account)
       end
 
       def admin_role account

@@ -15,7 +15,7 @@
 # +#errors+ field, along with any other validation errors. The parsed policy is available through the
 # +#records+ field.
 #
-# Except when loading the bootstrap policy, the policy statements that are submitted by the authenticated role
+# Except when loading the root policy, the policy statements that are submitted by the authenticated role
 # are enclosed within a +!policy+ statement, so that all the statements in the policy are scoped by the enclosing id. 
 # For example, suppose a PolicyVersion is being loaded for the policy +prod/myapp+. If policy being loaded
 # contains a statement like +!layer+, then the layer id as loaded will be +prod/myapp+.
@@ -42,8 +42,8 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     end
   end
 
-  def bootstrap_policy?
-    policy.kind == "policy" && policy.identifier == "bootstrap"
+  def root_policy?
+    policy.kind == "policy" && policy.identifier == "root"
   end
 
   # Indicates whether records that exist in the database but not in the policy 
@@ -119,7 +119,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
 
     begin
       records = Conjur::PolicyParser::YAML::Loader.load(policy_text, policy_filename)
-      records = wrap_in_policy records unless bootstrap_policy?
+      records = wrap_in_policy records unless root_policy?
       @records = Conjur::PolicyParser::Resolver.resolve records, account, policy_admin.id
     rescue
       $stderr.puts $!.message
