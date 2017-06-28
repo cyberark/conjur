@@ -2,8 +2,6 @@ module Loader
   module Types
     class << self
       def find_or_create_root_policy account
-        binding.pry
-
         ::Resource[root_policy_id(account)] or create_root_policy account
       end
 
