@@ -2,7 +2,7 @@ Feature: Policy load response
 
   @logged-in-admin
   Scenario: API keys of users and hosts created by a new policy are returned in the JSON response.
-    When I successfully POST "/policies/cucumber/policy/bootstrap" with body:
+    When I successfully POST "/policies/cucumber/policy/root" with body:
     """
     - !policy
       id: frontend

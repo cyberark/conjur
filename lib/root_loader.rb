@@ -1,12 +1,12 @@
-# BootstrapLoader is used to load an initial "bootstrap" policy when the database is completely empty.
-class BootstrapLoader
+# BootstrapLoader is used to load an initial "root" policy when the database is completely empty.
+class RootLoader
   class << self
     # Load a policy into the specified account.
     # 
     # The policy will be owned by the 'user:admin' role. If the environment variable POSSUM_ADMIN_PASSWORD
     # exists, it will be used as the admin password (potentially resetting the existing password).
     #
-    # The policy id is "bootstrap". The role and resource records for the policy will be created automatically
+    # The policy id is "root". The role and resource records for the policy will be created automatically
     # if they don't already exist. 
     def load account, filename
       start_t = Time.now
@@ -20,9 +20,9 @@ class BootstrapLoader
           admin_credentials.save
         end
 
-        bootstrap_policy_resource = Loader::Types.find_or_create_bootstrap_policy(account)
+        root_policy_resource = Loader::Types.find_or_create_root_policy(account)
 
-        policy_version = PolicyVersion.new role: admin, policy: bootstrap_policy_resource, policy_text: File.read(filename)
+        policy_version = PolicyVersion.new role: admin, policy: root_policy_resource, policy_text: File.read(filename)
         policy_version.policy_filename = filename
         policy_version.perform_automatic_deletion = true
         policy_version.delete_permitted = true

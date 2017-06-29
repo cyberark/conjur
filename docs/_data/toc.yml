@@ -3,7 +3,7 @@
   login: Login
   introduction: Introduction
   policies: "Introducing: Policies"
-  loading: Loading the Bootstrap Policy
+  loading: Loading the Root Policy
   exploring: Exploring Policy Objects
   adding-secret: Adding a Secret
   fetching-secret: Fetching a Secret

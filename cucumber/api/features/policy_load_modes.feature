@@ -11,7 +11,7 @@ Feature: Updating policies
 
   Background:
     Given I am the super-user
-    And I successfully PUT "/policies/cucumber/policy/bootstrap" with body:
+    And I successfully PUT "/policies/cucumber/policy/root" with body:
     """
     - !user alice
 

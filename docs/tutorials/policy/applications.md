@@ -35,13 +35,13 @@ We will model a simple application in which a `frontend` service connects to a `
 
 Here is a skeleton policy for this scenario, which simply defines two empty policies: `db` and `frontend`. Save this policy as "conjur.yml":
 
-{% include policy-file.md policy='application_bootstrap' %}
+{% include policy-file.md policy='application_root' %}
 
 Then load it using the following command:
 
 {% highlight shell %}
-$ conjur policy load --replace bootstrap conjur.yml
-Loaded policy 'bootstrap'
+$ conjur policy load --replace root conjur.yml
+Loaded policy 'root'
 {
   "created_roles": {
   },
@@ -54,7 +54,7 @@ Use the `conjur list` command to view all the objects in the system:
 {% highlight shell %}
 $ conjur list -i
 [
-  "myorg:policy:bootstrap",
+  "myorg:policy:root",
   "myorg:policy:db",
   "myorg:policy:frontend"
 ]

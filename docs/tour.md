@@ -41,12 +41,12 @@ Policies are the medium of security model collaboration. Since they are human re
 
 To load the policy, use the CLI command `conjur policy load <policy-id> <policy-file>`. This command requires two arguments:
 
-* `policy-id` The first time you load a policy, use the policy id "bootstrap". This is a special policy name that is used to define root-level data. 
+* `policy-id` The first time you load a policy, use the policy id "root". This is a special policy name that is used to define root-level data. 
 * `policy-file` Policy file containing statements in YAML format. 
 
 {% highlight shell %}
-$ conjur policy load bootstrap conjur.yml
-Loaded policy 'bootstrap'
+$ conjur policy load root conjur.yml
+Loaded policy 'root'
 {
   "created_roles": {
     "myorg:user:alice": {
@@ -68,7 +68,7 @@ The command response includes the following data:
 
 * **created_roles** *Hash<role_id, api_key>* Conjur issues an API key to each new role which is created by the policy. These API keys are printed in the response. If you want to login as one of these roles, you can use the corresponding API key.
 
-* **version** *integer* The server reported `"version": 1`, because this is the first version of the "bootstrap" policy that you have loaded. As you update the policy, the version number will be incremented. You can use the CLI to view the current and historical policy YAML.
+* **version** *integer* The server reported `"version": 1`, because this is the first version of the "root" policy that you have loaded. As you update the policy, the version number will be incremented. You can use the CLI to view the current and historical policy YAML.
 
 {% include toc.md key='exploring' %}
 
@@ -77,7 +77,7 @@ Once the data is loaded into the server, you can use the command line to list al
 {% highlight shell %}
 $ conjur list -i
 [
-  "myorg:policy:bootstrap",
+  "myorg:policy:root",
   "myorg:policy:db",
   "myorg:variable:db/password",
   "myorg:group:db/secrets-users",
@@ -108,17 +108,17 @@ $ conjur show variable:db/password
   "created_at": "2017-06-07T19:58:36.118+00:00",
   "id": "myorg:variable:db/password",
   "owner": "myorg:policy:db",
-  "policy": "myorg:policy:bootstrap",
+  "policy": "myorg:policy:root",
   "permissions": [
     {
       "privilege": "read",
       "role": "myorg:group:db/secrets-users",
-      "policy": "myorg:policy:bootstrap"
+      "policy": "myorg:policy:root"
     },
     {
       "privilege": "execute",
       "role": "myorg:group:db/secrets-users",
-      "policy": "myorg:policy:bootstrap"
+      "policy": "myorg:policy:root"
     }
   ],
   "annotations": [

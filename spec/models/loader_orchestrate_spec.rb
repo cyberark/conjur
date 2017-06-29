@@ -9,8 +9,8 @@ describe Loader::Orchestrate do
   end
 
   def load_base_policy path
-    require 'bootstrap_loader'
-    BootstrapLoader.load 'rspec', policy_path(path)
+    require 'root_loader'
+    RootLoader.load 'rspec', policy_path(path)
   end
 
   def load_policy_update path
