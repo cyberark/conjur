@@ -1,10 +1,12 @@
 <script src="../clipboard.min.js"></script>
 
-<button id="clipboard-copy-btn-{{ include.target }}" class="copy-btn" data-clipboard-target="#{{ include.target }}">
+{% capture button_id %}clipboard-copy-btn-{{include.target}}{% endcapture %}
+
+<button id="{{ button_id }}" class="copy-btn" data-clipboard-target="#{{ include.target }}">
   Copy to clipboard
 </button>
 
 <script language="javascript">
-  var copyBtn = document.getElementById("clipboard-copy-btn-{{ include.target }}");
+  var copyBtn = document.getElementById("{{ button_id }}");
   var clipboard = new Clipboard(copyBtn);
 </script>
