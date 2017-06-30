@@ -1,0 +1,8 @@
+<button id="{{ include.button_id }}" class="copy-btn" data-clipboard-text="{{ include.text }}">
+  Copy to clipboard
+</button>
+
+<script language="javascript">
+  var copyBtn = document.getElementById("{{ include.button_id }}");
+  var clipboard = new Clipboard(copyBtn);
+</script>

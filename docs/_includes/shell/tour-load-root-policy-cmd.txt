@@ -1,0 +1,1 @@
+conjur policy load root conjur.yml

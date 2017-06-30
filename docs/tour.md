@@ -16,10 +16,7 @@ This document will use the Conjur command-line interface (CLI) to show you how t
 
 Once you have setup your server and CLI, make sure you are logged in as the `admin` user:
 
-{% highlight shell %}
-$ conjur authn whoami
-{ "account": "mycorp", "user": "admin" }
-{% endhighlight %}
+{% include shell-command.md command='tour-login-whoami' %}
 
 With this accomplished, you're ready to walk through the following tour of Conjur features.
 
@@ -44,23 +41,7 @@ To load the policy, use the CLI command `conjur policy load <policy-id> <policy-
 * `policy-id` The first time you load a policy, use the policy id "root". This is a special policy name that is used to define root-level data. 
 * `policy-file` Policy file containing statements in YAML format. 
 
-{% highlight shell %}
-$ conjur policy load root conjur.yml
-Loaded policy 'root'
-{
-  "created_roles": {
-    "myorg:user:alice": {
-      "id": "myorg:user:alice",
-      "api_key": "kme9412wxd05w32ask613anjk46yj11dq25ewed32hfqbzhkjec4w"
-    },
-    "myorg:host:myapp-01": {
-      "id": "myorg:host:myapp-01",
-      "api_key": "r9exkb2485qz62ka9jvz1c0f9w1q4re5h2g7m2wq2y9n5rc3m7hnzz"
-    }
-  },
-  "version": 1
-}
-{% endhighlight %}
+{% include shell-command.md command='tour-load-root-policy' %}
 
 You created a user and a group, and added the user to the group. You also created a host, and added the host to a layer. And you also created some variables, which can be used to store and distribute secret data, then you granted some permissions on the variables. Other tutorials provide more explanation about these different objects, how they are created how permissions are managed.
 

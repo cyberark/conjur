@@ -1,0 +1,1 @@
+{ "account": "mycorp", "user": "admin" }

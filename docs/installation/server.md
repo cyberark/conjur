@@ -1,8 +1,6 @@
 ---
 title: Installation - Server
 layout: page
-custom_js:
-- clipboard.min
 ---
 
 The Server utilizes a 2-tier architecture, consisting of a stateless API server
@@ -36,9 +34,6 @@ This is the fastest way to get started, if you have Docker running.
 
 1) Create the file `docker-compose.yml`
 
-{% include clipboard-copy-btn.html target='server-docker-compose-file' %}
-
-<div id='server-docker-compose-file'>
 {% highlight yaml %}
 pg:
   image: postgres:9.3
@@ -52,7 +47,6 @@ conjur:
   links:
   - pg:pg
 {% endhighlight %}
-</div>
 
 2) Create the data key
 
