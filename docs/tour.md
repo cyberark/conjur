@@ -1,8 +1,6 @@
 ---
 title: Quick Tour
 layout: page
-custom_js:
-- clipboard.min
 ---
 
 {% include toc.md key='prerequisites' %}
@@ -35,11 +33,7 @@ Documents in Policy Markup format are easy to generate and manipulate using any 
 
 Here is a typical policy file. Save this file as "conjur.yml":
 
-{% include clipboard-copy-btn.html target='tour-policy-file' %}
-
-<div id="tour-policy-file">
 {% include policy-file.md policy='tour' %}
-</div>
 
 Policies are the medium of security model collaboration. Since they are human readable, they can be shared with all stakeholders to gain consensus before commiting changes to your security infrastructure.
 

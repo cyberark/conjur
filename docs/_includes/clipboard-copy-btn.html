@@ -1,6 +1,6 @@
-{% capture button_id %}clipboard-copy-btn-{{include.target}}{% endcapture %}
+{% capture button_id %}clipboard-copy-btn-{{ include.target_id }}{% endcapture %}
 
-<button id="{{ button_id }}" class="copy-btn" data-clipboard-target="#{{ include.target }}">
+<button id="{{ button_id }}" class="copy-btn" data-clipboard-target="#{{ include.target_id }}">
   Copy to clipboard
 </button>
 
