@@ -42,3 +42,4 @@ client:
   - possum:possum
   volumes:
   - ..:/src/possum
+  - ../../cli-ruby:/usr/src/cli-ruby
