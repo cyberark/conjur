@@ -36,4 +36,10 @@
 
   <!-- RSS -->
   <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+
+  {% if page.custom_js %}
+    {% for js_file in page.custom_js %}
+    <script src='/javascript/{{ js_file }}.js' type="text/javascript"></script>
+    {% endfor %}
+  {% endif %}
 </head>

@@ -1,6 +1,8 @@
 ---
 title: Quick Tour
 layout: page
+custom_js:
+- clipboard.min
 ---
 
 {% include toc.md key='prerequisites' %}
