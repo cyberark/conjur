@@ -16,7 +16,10 @@ This document will use the Conjur command-line interface (CLI) to show you how t
 
 Once you have setup your server and CLI, make sure you are logged in as the `admin` user:
 
-{% include shell-command.md command='tour-login-whoami' %}
+{% highlight shell %}
+$ conjur authn whoami
+{ "account": "mycorp", "user": "admin" }
+{% endhighlight %}
 
 With this accomplished, you're ready to walk through the following tour of Conjur features.
 
@@ -41,7 +44,23 @@ To load the policy, use the CLI command `conjur policy load <policy-id> <policy-
 * `policy-id` The first time you load a policy, use the policy id "root". This is a special policy name that is used to define root-level data. 
 * `policy-file` Policy file containing statements in YAML format. 
 
-{% include shell-command.md command='tour-load-root-policy' %}
+{% highlight shell %}
+$ conjur policy load root conjur.yml
+Loaded policy 'root'
+{
+  "created_roles": {
+    "myorg:user:alice": {
+      "id": "myorg:user:alice",
+      "api_key": "kme9412wxd05w32ask613anjk46yj11dq25ewed32hfqbzhkjec4w"
+    },
+    "myorg:host:myapp-01": {
+      "id": "myorg:host:myapp-01",
+      "api_key": "r9exkb2485qz62ka9jvz1c0f9w1q4re5h2g7m2wq2y9n5rc3m7hnzz"
+    }
+  },
+  "version": 1
+}
+{% endhighlight %}
 
 You created a user and a group, and added the user to the group. You also created a host, and added the host to a layer. And you also created some variables, which can be used to store and distribute secret data, then you granted some permissions on the variables. Other tutorials provide more explanation about these different objects, how they are created how permissions are managed.
 
@@ -260,41 +279,3 @@ The client API libraries make use of these techniques under the covers, and you 
 {% include toc.md key='next-steps' %}
 
 * Check out the [Conjur Tutorials](./tutorials/).
-
-<script type="text/javascript">
-  function extractShellCommand(shellBlock) {
-    var blockLines = block.innerText.split("\n");
-    var command = "";
-
-    for(var j = 0; j < blockLines.length; j++) {
-      var line = blockLines[j].trim();
-      
-      if(line.slice(-1) == "\\") {
-        command += line.substring((j == 0 ? 2 : 0), line.length - 1);
-      } else {
-        command += line.substring((j == 0 ? 2 : 0), line.length);
-        break;
-      }
-    }
-
-    return command;
-  }
-
-  function createClipboardHoverButton(block, text) {
-    var btn = document.createElement("button")
-    block.parentNode.insertBefore(btn, block);
-
-    btn.setAttribute("class", "hover-button");
-    btn.setAttribute("data-clipboard-text", text);
-    var clipboard = new Clipboard(btn);
-  }
-
-  var shellBlocks = document.getElementsByClassName("language-shell");
-
-  for(var i = 0; i < shellBlocks.length; i++) {
-    var block = shellBlocks[i];
-    var command = extractShellCommand(block.innerText);
-
-    createClipboardHoverButton(block, command);
-  }
-</script>

@@ -1,2 +1,0 @@
-conjur authn whoami
-{ "account": "mycorp", "user": "admin" }
