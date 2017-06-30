@@ -1,14 +1,18 @@
-{% capture command_name %}{{ include.command }}{% endcapture %}
+{% capture command_id %}{{ include.command }}{% endcapture %}
 
-{% capture command_file %}shell/{{ command_name }}-cmd.txt{% endcapture %}
-{% capture output_file %}shell/{{ command_name }}-out.txt{% endcapture %}
+{% capture shell_content %}{% include shell/{{ command_id }}.txt %}{% endcapture %}
+{% capture command %}{{ shell_content | newline_to_br | strip_newlines | split: '<br />' | first }}{% endcapture %}
 
-{% capture shell_cmd_raw %}{% include {{ command_file }} %}{% endcapture %}
-{% capture shell_cmd %}{{ shell_cmd_raw | rstrip }}{% endcapture %}
+<button id="{{ command_id }}" class="copy-btn">
+  Copy to clipboard
+</button>
 
-{% include clipboard-copy-text-btn.html button_id=command_name text=shell_cmd %}
+<script language="javascript">
+  var copyBtn = document.getElementById("{{ command_id }}");
+  copyBtn.setAttribute("data-clipboard-text", "{{ command }}");
+  var clipboard = new Clipboard(copyBtn);
+</script>
 
 {% highlight shell %}
-$ {{ shell_cmd }}
-{% include {{ output_file }} %}
+$ {{ shell_content }}
 {% endhighlight %}

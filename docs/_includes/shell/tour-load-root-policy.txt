@@ -1,3 +1,4 @@
+conjur policy load root conjur.yml
 Loaded policy 'root'
 {
   "created_roles": {
