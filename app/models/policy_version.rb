@@ -67,6 +67,8 @@ class PolicyVersion < Sequel::Model(:policy_versions)
 
     validates_presence [ :policy, :current_user, :policy_text ]
 
+    return if errors.any?
+
     try_load_records
 
     # If a parse error has occurred, don't attempt other validations.
