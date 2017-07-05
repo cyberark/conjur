@@ -1,5 +1,4 @@
-{% capture policy_name %}{{ include.policy }}{% endcapture %}
-{% assign yaml_file = site.data.policies[policy_name] %}
+{% assign yaml_file = site.data.policies[include.policy] %}
 
 {% highlight yaml %}
 {{ yaml_file }}
