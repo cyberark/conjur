@@ -1,18 +1,27 @@
-// TODO: support multi-command blocks by &&-ing them together?
 function extractShellCommand(shellBlock) {
   var blockLines = shellBlock.innerText.split("\n");
   var command = "";
 
+  var includeNextLine = true;
+
   for(var j = 0; j < blockLines.length; j++) {
     var line = blockLines[j].trim();
-    var lineStart = (j == 0 ? 2 : 0);
-    var lineEnd = (line.slice(-1) == "\\" ? line.length - 1 : line.length);
-      
-    command += line.substring(lineStart, lineEnd);
 
-    if(line.slice(-1) != "\\") {
-      break;
+    var cmdStart = line.startsWith("$ ");
+    var lineBegin = (cmdStart ? 2 : 0);
+
+    var lineBroken = (line.slice(-1) == "\\");
+    var lineEnd = (lineBroken ? line.length - 1 : line.length);
+
+    if(cmdStart && command != "") {
+      command += " && ";
     }
+    
+    if(cmdStart || includeNextLine) {
+      command += line.substring(lineBegin, lineEnd);
+    }
+    
+    includeNextLine = lineBroken;
   }
 
   return command;
