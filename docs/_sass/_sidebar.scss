@@ -1,0 +1,48 @@
+// ***********************
+// Sidebar
+// ***********************
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 18rem;
+  text-align: left;
+  padding: 2.5rem 1rem;
+  color: rgba(255,255,255,.5);
+  background: #0071c7; /* Old browsers */
+  background: -moz-linear-gradient(top, #0071c7 0%, #11b5e4 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, #0071c7 0%,#11b5e4 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, #0071c7 0%,#11b5e4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0071c7', endColorstr='#11b5e4',GradientType=0 ); /* IE6-9 */
+}
+
+.sidebar-about img {
+  width: 200px;
+}
+
+
+// ***********************
+// Secondary Sidebar
+// ***********************
+
+.sidebar-secondary {
+  padding: 2rem 2rem 2rem 0;
+  .toc {
+    list-style-type: none;
+    padding: 0;
+  }
+  .toc-item {
+    //border-bottom: 1px solid lighten(gray,20);
+    padding: .5rem 0;
+  }
+}
+@media (min-width: 48em) {
+  .sidebar-secondary {
+    //float: right;
+    //margin-left: 1rem;
+    //width: 18rem;
+    text-align: left;
+  }
+}

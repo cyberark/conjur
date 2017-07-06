@@ -1,0 +1,24 @@
+// Eval 
+
+.container.eval {
+	display:flex;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	height: 100vh;
+	width: 100vw;  
+	z-index: 1;
+	text-align:center;
+}
+
+h1#conjur-ce--eval {
+	color: green;
+}
+
+.submitted-message {
+	color: green;
+}
+
+.lorem {
+	color: gray;
+}
