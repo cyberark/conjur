@@ -2,23 +2,90 @@
 
 .container.eval {
 	display:flex;
+	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	position: absolute;
 	height: 100vh;
 	width: 100vw;  
+	max-width: 100%;
 	z-index: 1;
 	text-align:center;
+	color: rgba(255,255,255,.5);
+  background: #0071c7; /* Old browsers */
+  background: -moz-linear-gradient(top, #0071c7 0%, #11b5e4 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, #0071c7 0%,#11b5e4 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, #0071c7 0%,#11b5e4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0071c7', endColorstr='#11b5e4',GradientType=0 ); /* IE6-9 */
 }
 
-h1#conjur-ce--eval {
-	color: green;
+h1#community-edition {
+	color: #fff;
 }
 
 .submitted-message {
-	color: green;
+	color: #fff;
 }
 
-.lorem {
-	color: gray;
+img {
+	margin: 0 0 3rem 0;
 }
+
+/*  Hubspot Form  */
+// input field
+input#email-795e5607-3251-4827-9e88-94db1ef9fa7a {
+	width: 90%;
+	max-width: 90%;
+	box-sizing: border-box;
+	height: 33px;  //LarryBirdFTW!
+}
+
+.hbspt-form {
+	label {
+  	span {
+  		display: none;
+  		font-family: 'Open Sans', sans-serif;
+  		font-weight: 300;
+  		color: #fff;
+  	}
+  }
+  // input field
+	input#email-795e5607-3251-4827-9e88-94db1ef9fa7a {
+		width: 80%;
+		max-width: 80%;
+		height: 50px; 
+		text-align: center;
+	}
+	// required asterik
+	.hs-form-795e5607-3251-4827-9e88-94db1ef9fa7a_01227b5a-5893-46e8-9943-c69832fb0d45.hs-form-required {
+		color: #fff;
+	}
+	input.hs-button {
+    color: #fff;
+    background-color: $conjur-blue;
+    background-image: none;
+    border: none;
+    text-shadow: none;
+    box-shadow: none;
+    font-family: 'Open Sans', sans-serif;
+  	font-weight: 300;
+  	font-size: 1.2em;
+    padding: 1em 2em;
+    &.hs-button:hover:not(.inactive) {
+    	color: #fff;
+	    background-color: darken($conjur-blue,05);
+	    background-image: none;
+	    border: none;
+	    text-shadow: none;
+	    box-shadow: none;
+	    font-family: 'Open Sans', sans-serif;
+	  	font-weight: 300;
+	  	font-size: 1.2em;
+	    padding: 1em 2em;
+    }
+	}
+
+
+
+} // end .hbspt-form
+

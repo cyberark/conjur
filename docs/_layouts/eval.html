@@ -4,21 +4,21 @@
   {% include head.html %}
 
   <body>
-    <p class="lorem">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Debitis cumque illum ad eos ex quaerat labore veritatis sapiente amet enim! Atque, odit! Esse sint voluptate, inventore asperiores unde praesentium possimus.</p>
     <div class="container eval">
+      <img src="{{ site.baseurl }}/public/img/conjur-logo-all-white.svg" alt="Conjur Logo">
     	<div class="row">
         {{ content }}
     		<!-- Hubspot form -->
-        <!--[if lte IE 8]>
-        <script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/v2-legacy.js"></script>
-        <![endif]-->
-        <script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/v2.js"></script>
-        <script>
-          hbspt.forms.create({
-            portalId: '402893',
-            formId: '795e5607-3251-4827-9e88-94db1ef9fa7a'
-          });
-        </script>
+          <!--[if lte IE 8]>
+          <script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/v2-legacy.js"></script>
+          <![endif]-->
+          <script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/v2.js"></script>
+          <script>
+            hbspt.forms.create({
+              portalId: '402893',
+              formId: '795e5607-3251-4827-9e88-94db1ef9fa7a'
+            });
+          </script>
         <!-- /Hubspot form -->
     	</div>
     </div>

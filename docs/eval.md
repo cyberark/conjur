@@ -3,7 +3,7 @@ title: Eval
 layout: eval
 ---
 
-# Conjur Community Edition
+# Community Edition
 
-Doo eet.
+Enter your email address for early-access evaluation account
 
