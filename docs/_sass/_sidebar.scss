@@ -21,28 +21,3 @@
 .sidebar-about img {
   width: 200px;
 }
-
-
-// ***********************
-// Secondary Sidebar
-// ***********************
-
-.sidebar-secondary {
-  padding: 2rem 2rem 2rem 0;
-  .toc {
-    list-style-type: none;
-    padding: 0;
-  }
-  .toc-item {
-    //border-bottom: 1px solid lighten(gray,20);
-    padding: .5rem 0;
-  }
-}
-@media (min-width: 48em) {
-  .sidebar-secondary {
-    //float: right;
-    //margin-left: 1rem;
-    //width: 18rem;
-    text-align: left;
-  }
-}
