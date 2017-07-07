@@ -1,4 +1,6 @@
-// Eval 
+// ***********************
+// Eval Signup Page
+// ***********************
 
 .container.eval {
 	display:flex;
@@ -61,27 +63,24 @@ img {
   		color: #fff;
   	}
   }
+
   // input field
 	input#email-795e5607-3251-4827-9e88-94db1ef9fa7a {
 		width: 85%;
-		//max-width: 80%;
 		height: 44px; 
 		text-align: center;
 		box-sizing: border-box;
 		font-size: 16px;
 		font-family: 'Open Sans', sans-serif;
-
 	}
+
 	//error message
 	ul.hs-error-msgs.inputs-list li label {
 		text-align: center;
 		color: #c30;
 		font-size: .8rem;
 	}
-	// required asterik
-	.hs-form-795e5607-3251-4827-9e88-94db1ef9fa7a_01227b5a-5893-46e8-9943-c69832fb0d45.hs-form-required {
-		color: #fff;
-	}
+
 	input.hs-button {
     color: #fff;
     background-color: $conjur-blue;
@@ -112,16 +111,10 @@ img {
     	padding: 0;
     }
 	}
-	// div#hbspt-form-1499439186061 .actions {
- //  	margin: 0;
- //  	padding: 0;
-	// }
 
 	form .actions {
 		margin: 0;
   	padding: 0;
 	}
-
-
-} // end .hbspt-form
+}
 

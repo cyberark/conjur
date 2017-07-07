@@ -10,7 +10,7 @@ Conjur is the security service for modern infrastructure, providing:
 * Authentication and authorization APIs.
 * Integrations with popular DevOps and cloud tools.
 
-![Conjur Machine Identity](/public/img/conjur_docs_graphic.svg){:class="landing-img"}
+![Conjur Machine Identity](/img/conjur_docs_graphic.svg){:class="landing-img"}
 
 # How does Conjur work?
 
