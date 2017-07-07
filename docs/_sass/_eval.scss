@@ -17,9 +17,13 @@
   background: -webkit-linear-gradient(top, #0071c7 0%,#11b5e4 100%); /* Chrome10-25,Safari5.1-6 */
   background: linear-gradient(to bottom, #0071c7 0%,#11b5e4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0071c7', endColorstr='#11b5e4',GradientType=0 ); /* IE6-9 */
+	.row {
+		width: 900px;
+		max-width: 90%;
+	}
 }
 
-h1#community-edition {
+h1#conjur-community-edition {
 	color: #fff;
 }
 
@@ -31,15 +35,22 @@ img {
 	margin: 0 0 3rem 0;
 }
 
-/*  Hubspot Form  */
-// input field
-input#email-795e5607-3251-4827-9e88-94db1ef9fa7a {
-	width: 90%;
-	max-width: 90%;
-	box-sizing: border-box;
-	height: 33px;  //LarryBirdFTW!
+.logos {
+	width: 100%;
+	max-width: 500px;
+	&.cyberark-logo {
+		width: 100%;
+		max-width: 150px;
+		margin-top: 3.5rem;
+		margin-bottom: 0;
+	}
+	&.conjur-logo {
+		width: 300px;
+		max-width: 80%;
+	}
 }
 
+/*  Hubspot Form  */
 .hbspt-form {
 	label {
   	span {
@@ -51,10 +62,17 @@ input#email-795e5607-3251-4827-9e88-94db1ef9fa7a {
   }
   // input field
 	input#email-795e5607-3251-4827-9e88-94db1ef9fa7a {
-		width: 80%;
-		max-width: 80%;
-		height: 50px; 
+		width: 85%;
+		//max-width: 80%;
+		height: 44px; 
 		text-align: center;
+		box-sizing: border-box;
+	}
+	//error message
+	ul.hs-error-msgs.inputs-list li label {
+		text-align: center;
+		color: #c30;
+		font-size: .8rem;
 	}
 	// required asterik
 	.hs-form-795e5607-3251-4827-9e88-94db1ef9fa7a_01227b5a-5893-46e8-9943-c69832fb0d45.hs-form-required {
@@ -69,8 +87,9 @@ input#email-795e5607-3251-4827-9e88-94db1ef9fa7a {
     box-shadow: none;
     font-family: 'Open Sans', sans-serif;
   	font-weight: 300;
-  	font-size: 1.2em;
+  	font-size: 1rem;
     padding: 1em 2em;
+    max-width: 90%;
     &.hs-button:hover:not(.inactive) {
     	color: #fff;
 	    background-color: darken($conjur-blue,05);
@@ -80,11 +99,24 @@ input#email-795e5607-3251-4827-9e88-94db1ef9fa7a {
 	    box-shadow: none;
 	    font-family: 'Open Sans', sans-serif;
 	  	font-weight: 300;
-	  	font-size: 1.2em;
+	  	font-size: 1rem;
 	    padding: 1em 2em;
+	    max-width: 90%;
+    }
+    .hs_submit .actions {
+    	margin: 0;
+    	padding: 0;
     }
 	}
+	// div#hbspt-form-1499439186061 .actions {
+ //  	margin: 0;
+ //  	padding: 0;
+	// }
 
+	form .actions {
+		margin: 0;
+  	padding: 0;
+	}
 
 
 } // end .hbspt-form
