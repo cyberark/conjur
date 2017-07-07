@@ -1,0 +1,77 @@
+// ***********************
+// Navigation
+// ***********************
+
+.navbar {
+	margin-bottom: 0;
+	border: none;
+	border-radius: 0;
+	background: #0071c7; /* Old browsers */
+	background: -moz-linear-gradient(left, #0071c7 0%, #11b5e4 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(left, #0071c7 0%,#11b5e4 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to right, #0071c7 0%,#11b5e4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0071c7', endColorstr='#11b5e4',GradientType=1 ); /* IE6-9 */
+}
+
+.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+	color: #fff;
+}
+
+.navbar-default .navbar-nav > li > a:hover {
+	text-decoration: underline;
+}
+
+
+.navbar-default {
+	.navbar-brand {
+		padding-top: 6px;
+	}
+	.navbar-nav > li > a {
+    color: #fff;
+	}
+}
+
+.nav-logo img{
+	width: 100px;
+}
+
+/* Search bar */
+
+.conjur-search {
+	margin-left: 1rem;
+}
+
+.navbar-form {
+	padding: 0;
+}
+.doc-search {
+	height: 25px;
+	font-size: 12px;
+	box-shadow: none;
+	border: none;
+}
+
+.btn-nav {
+	background-color: #fff;
+	color: $conjur-ltblue;
+	height: 25px;
+	font-size: 12px;
+	margin-top: 3px;
+	border-radius: 4px;
+	span {
+		top: -3px;
+	}
+}
+
+/* Sidebar nav */
+.nav-item {
+	display: block;
+	line-height: 1.75;
+}
+a.nav-item:hover,
+a.nav-item:focus {
+	text-decoration: underline;
+}
+.nav-item.active {
+	font-weight: bold;
+}
