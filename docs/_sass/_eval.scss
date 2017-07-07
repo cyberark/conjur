@@ -14,11 +14,11 @@
 	z-index: 1;
 	text-align:center;
 	color: rgba(255,255,255,.5);
-  background: #0071c7; /* Old browsers */
-  background: -moz-linear-gradient(top, #0071c7 0%, #11b5e4 100%); /* FF3.6-15 */
-  background: -webkit-linear-gradient(top, #0071c7 0%,#11b5e4 100%); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(to bottom, #0071c7 0%,#11b5e4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0071c7', endColorstr='#11b5e4',GradientType=0 ); /* IE6-9 */
+	background: #0071c7; /* Old browsers */
+	background: -moz-linear-gradient(top, #0071c7 0%, #11b5e4 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(top, #0071c7 0%,#11b5e4 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to bottom, #0071c7 0%,#11b5e4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0071c7', endColorstr='#11b5e4',GradientType=0 ); /* IE6-9 */
 	.row {
 		width: 900px;
 		max-width: 90%;
@@ -56,15 +56,15 @@ img {
 /*  Hubspot Form  */
 .hbspt-form {
 	label {
-  	span {
-  		display: none;
-  		font-family: 'Open Sans', sans-serif;
-  		font-weight: 300;
-  		color: #fff;
-  	}
-  }
+		span {
+			display: none;
+			font-family: 'Open Sans', sans-serif;
+			font-weight: 300;
+			color: #fff;
+		}
+	}
 
-  // input field
+	// input field
 	input#email-795e5607-3251-4827-9e88-94db1ef9fa7a {
 		width: 85%;
 		height: 44px; 
@@ -82,39 +82,38 @@ img {
 	}
 
 	input.hs-button {
-    color: #fff;
-    background-color: $conjur-blue;
-    background-image: none;
-    border: none;
-    text-shadow: none;
-    box-shadow: none;
-    font-family: 'Open Sans', sans-serif;
-  	font-weight: 300;
-  	font-size: 1rem;
-    padding: 1em 2em;
-    max-width: 90%;
-    &.hs-button:hover:not(.inactive) {
-    	color: #fff;
-	    background-color: darken($conjur-blue,05);
-	    background-image: none;
-	    border: none;
-	    text-shadow: none;
-	    box-shadow: none;
-	    font-family: 'Open Sans', sans-serif;
-	  	font-weight: 300;
-	  	font-size: 1rem;
-	    padding: 1em 2em;
-	    max-width: 90%;
-    }
-    .hs_submit .actions {
-    	margin: 0;
-    	padding: 0;
-    }
+		color: #fff;
+		background-color: $conjur-blue;
+		background-image: none;
+		border: none;
+		text-shadow: none;
+		box-shadow: none;
+		font-family: 'Open Sans', sans-serif;
+		font-weight: 300;
+		font-size: 1rem;
+		padding: 1em 2em;
+		max-width: 90%;
+		&.hs-button:hover:not(.inactive) {
+			color: #fff;
+			background-color: darken($conjur-blue,05);
+			background-image: none;
+			border: none;
+			text-shadow: none;
+			box-shadow: none;
+			font-family: 'Open Sans', sans-serif;
+			font-weight: 300;
+			font-size: 1rem;
+			padding: 1em 2em;
+			max-width: 90%;
+		}
+		.hs_submit .actions {
+			margin: 0;
+			padding: 0;
+		}
 	}
 
 	form .actions {
 		margin: 0;
-  	padding: 0;
+		padding: 0;
 	}
 }
-

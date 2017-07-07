@@ -3,36 +3,36 @@
 // ***********************
 
 body {
-  background-color: $conjur-bg;
-  font-family: 'Open Sans', sans-serif;
-  line-height: 1.8rem;
+	background-color: $conjur-bg;
+	font-family: 'Open Sans', sans-serif;
+	line-height: 1.8rem;
 }
 
 html {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 16px;
-  line-height: 1.8rem;
-  color: $conjur-text;
-  font-weight: 300;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 16px;
+	line-height: 1.8rem;
+	color: $conjur-text;
+	font-weight: 300;
 }
 
 pre {
-  background-color: #f7f7f7;
-  padding: 1.5rem;
-  border: none;
-  margin: 1rem 0;
+	background-color: #f7f7f7;
+	padding: 1.5rem;
+	border: none;
+	margin: 1rem 0;
 }
 
 code {
-    padding: .25em .5em;
-    font-size: 85%;
-    color: $conjur-teal;
-    background-color: #f9f9f9;
-    border-radius: 3px;
+	padding: .25em .5em;
+	font-size: 85%;
+	color: $conjur-teal;
+	background-color: #f9f9f9;
+	border-radius: 3px;
 }
 
 .landing-img {
-  margin: 50px 0;
+	margin: 50px 0;
 }
 
 // ***********************
@@ -40,16 +40,16 @@ code {
 // ***********************
 
 .btn {
-  padding: .5rem 1rem;
-  border-radius: 25px;
-  font-weight: 300;
+	padding: .5rem 1rem;
+	border-radius: 25px;
+	font-weight: 300;
 }
 
 .btn-primary {
-  background-color: $conjur-blue;
-  &:hover {
-    background-color: darken($conjur-blue,10);
-  }
+	background-color: $conjur-blue;
+	&:hover {
+		background-color: darken($conjur-blue,10);
+	}
 }
 
 // ***********************
@@ -57,29 +57,29 @@ code {
 // ***********************
 
 .content {
-  padding-top:    2rem;
-  padding-bottom: 4rem;
+	padding-top:    2rem;
+	padding-bottom: 4rem;
 }
 
 @media (min-width: 48em) {
-  .content {
-    max-width: 55rem;
-    margin-left: 20rem;
-    margin-right: 2rem;
-  }
+	.content {
+		max-width: 55rem;
+		margin-left: 20rem;
+		margin-right: 2rem;
+	}
 }
 
 @media (min-width: 64em) {
-  .content {
-    margin-left: 22rem;
-    margin-right: 4rem;
-  }
+	.content {
+		margin-left: 22rem;
+		margin-right: 4rem;
+	}
 }
 
 .page {
-  h2 {
-    margin: 3rem 0 1rem 0;
-  }
+	h2 {
+		margin: 3rem 0 1rem 0;
+	}
 }
 
 // ***********************
@@ -87,22 +87,20 @@ code {
 // ***********************
 
 .hover-button {
-    visibility: hidden;
-    float: right;
-    width: 40px;
-    height: 40px;
-    background: url("../../img/clipboard.svg");
-    background-size: 80% 80%;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-color: white;
-    border: 1px solid #d5d5d5;
-    border-radius: 4px;
-    cursor: pointer;
+	visibility: hidden;
+	float: right;
+	width: 40px;
+	height: 40px;
+	background: url("../../img/clipboard.svg");
+	background-size: 80% 80%;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-color: white;
+	border: 1px solid #d5d5d5;
+	border-radius: 4px;
+	cursor: pointer;
 }
 
 .highlight:hover pre button {
-    visibility: visible;
+	visibility: visible;
 }
-
-

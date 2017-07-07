@@ -4,10 +4,10 @@
 
 h1, h2, h3, h4, h5 {
 	color: $conjur-text;
-    margin-bottom: .5rem;
-    font-weight: 300;
-    line-height: 1.25;
-    text-rendering: optimizeLegibility;
+	margin-bottom: .5rem;
+	font-weight: 300;
+	line-height: 1.25;
+	text-rendering: optimizeLegibility;
 }
 
 h1, h2 {
@@ -16,13 +16,12 @@ h1, h2 {
 }
 
 a {
-  color: $conjur-ltblue;
+	color: $conjur-ltblue;
 }
 
 .page-title {
-  color: $conjur-teal;
-  font-size: 3.5rem;
-  margin-bottom: 2rem;
-  font-weight: 300;
-
+	color: $conjur-teal;
+	font-size: 3.5rem;
+	margin-bottom: 2rem;
+	font-weight: 300;
 }
