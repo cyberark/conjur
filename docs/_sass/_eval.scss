@@ -41,12 +41,13 @@ img {
 	&.cyberark-logo {
 		width: 100%;
 		max-width: 150px;
-		margin-top: 3.5rem;
+		margin-top: 3rem;
 		margin-bottom: 0;
 	}
 	&.conjur-logo {
 		width: 300px;
 		max-width: 80%;
+		margin-bottom: 4rem;
 	}
 }
 
@@ -67,6 +68,9 @@ img {
 		height: 44px; 
 		text-align: center;
 		box-sizing: border-box;
+		font-size: 16px;
+		font-family: 'Open Sans', sans-serif;
+
 	}
 	//error message
 	ul.hs-error-msgs.inputs-list li label {
