@@ -52,17 +52,9 @@ Use your account information to configure the connection to the Conjur server:
 Login by entering your API key at the `login` prompt:
 
 {% highlight shell %}
-<<<<<<< HEAD
   $ conjur authn login -u admin
   Please enter admin's password (it will not be echoed):
   Logged in
-=======
-$ conjur authn login -u admin
-Please enter admin's password (it will not be echoed):
-Logged in
-$ conjur authn whoami
-{ "account": "mycorp", "user": "admin" }
->>>>>>> origin/evaluation-quickstart
 {% endhighlight %}
 
 With this accomplished, you're ready to walk through the following tour of Conjur features.
