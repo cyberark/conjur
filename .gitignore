@@ -27,3 +27,5 @@ coverage
 demo/run/*.yml
 
 *.config
+
+docs/_layouts/page-toc.html

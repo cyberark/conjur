@@ -1,6 +1,6 @@
 ---
 title: Quick Tour
-layout: page-no-toc
+layout: page
 ---
 
 
@@ -9,6 +9,7 @@ This document will use the Conjur command-line interface (CLI) to show you how t
 
 
 {% include toc.md key='docker' %}
+If you don't have Docker installed, you can download it here:
 * [Docker for Mac – v17.03](https://download.docker.com/mac/stable/16048/Docker.dmg) 
 * [Docker for Windows](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows)
 
