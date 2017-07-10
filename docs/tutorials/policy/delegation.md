@@ -76,7 +76,7 @@ myorg:user:admin
 {% endhighlight %}
 
 <div class="note">
-<strong>Note</strong> <tt>jq</tt> is a command-line tool to select data from JSON objects. Here we are selecting the <tt>owner</tt> field from the full JSON response from <tt>conjur show</tt>. The option <tt>-r</tt> requests "raw" (unquoted) output.
+<strong>Note</strong> <a href="https://stedolan.github.io/jq/">jq</a> is a command-line tool to select data from JSON objects. Here we are selecting the <tt>owner</tt> field from the full JSON response from <tt>conjur show</tt>. The option <tt>-r</tt> requests "raw" (unquoted) output.
 </div>
 <p/>
 
