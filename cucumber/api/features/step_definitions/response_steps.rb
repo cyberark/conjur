@@ -15,7 +15,7 @@ Then(/^the resource list should only include the searched resource$/) do
 end
 
 Then(/^the resource list should only include the searched resources$/) do
-  expect(@result.map{|r| r['id']}).to eq(@searchable_resources.map{|r| r.id})
+  @result.map{|r| r['id']}.should =~ @searchable_resources.map{|r| r.id}
 end
 
 Then(/^I receive (\d+) resources$/) do |count|
