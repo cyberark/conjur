@@ -1,14 +1,12 @@
 ---
 title: Quick Tour
-layout: page-no-toc
+layout: page
 ---
 
-<!-- {% include toc.md key='prerequisites' %}
+{% include toc.md key='prerequisites' %}
 
 * A [Conjur server](/conjur/installation/server.html) endpoint.
 * The [Conjur CLI](/conjur/installation/client.html).
-
- -->
 
 {% include toc.md key='introduction' %}
 
@@ -40,11 +38,6 @@ Here is a typical policy file. Save this file as "conjur.yml":
 Policies are the medium of security model collaboration. Since they are human readable, they can be shared with all stakeholders to gain consensus before commiting changes to your security infrastructure.
 
 {% include toc.md key='loading' %}
-
-Now map the policy document to your Docker container using: 
-{% highlight shell %}
-  $ docker run -v /host/directory:/container/directory
-{% endhighlight %}
 
 To load the policy, use the CLI command `conjur policy load <policy-id> <policy-file>`. This command requires two arguments:
 
