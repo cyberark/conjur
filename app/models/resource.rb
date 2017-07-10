@@ -59,11 +59,16 @@ class Resource < Sequel::Model
     # Filter out records based on:
     # @param kind [String] - chooses just resources of this kind
     # @param owner [Role] - owned by this role or one of its ancestors
-    def search account, kind: nil, owner: nil, offset: nil, limit: nil
+    # @param offset [Numeric] - an offset into the list of returned results
+    # @param limit [Numeric] - a maximum number of results to return
+    # @param search [String] - a search term in the resource id
+    def search account, kind: nil, owner: nil, offset: nil, limit: nil, search: nil
       scope = self
+      
       # Search only the user's account.
       # This can be removed once resource visibility rules are added.
       scope = scope.where("account(resource_id) = ?", account)
+      
       # Filter by kind.
       scope = scope.where("kind(resource_id) = ?", kind) if kind
       
@@ -72,6 +77,9 @@ class Resource < Sequel::Model
         owners = Resource.from(::Sequel.function(:all_roles, owner.id)).select(:role_id)
         scope = scope.where owner_id: owners
       end
+
+      # Filter by string search
+      scope = scope.where("resource_id like '%#{search}%'") if search
 
       if offset || limit
         scope = scope.order(:resource_id).limit(

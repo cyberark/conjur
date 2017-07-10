@@ -1,17 +1,21 @@
-Then(/^the resource list should have the new resources$/) do
-  expect(@result.map{|r| r['id']}).to include(*@current_resources.map{|r| r.id})
-end
-
-Then(/^the resource list should have the new resource$/) do
+Then(/^the resource list should include the new resource$/) do
   expect(@result.map{|r| r['id']}).to include(@current_resource.id)
 end
 
-Then(/^the resource list should not have the new resource$/) do
+Then(/^the resource list should not include the new resource$/) do
   expect(@result.map{|r| r['id']}).to_not include(@current_resource.id)
+end
+
+Then(/^the resource list should include the new resources$/) do
+  expect(@result.map{|r| r['id']}).to include(*@current_resources.map{|r| r.id})
 end
 
 Then(/^the resource list should only include the searched resource$/) do
   expect(@result.map{|r| r['id']}).to eq([@current_resource.id])
+end
+
+Then(/^the resource list should only include the searched resources$/) do
+  expect(@result.map{|r| r['id']}).to eq(@searchable_resources.map{|r| r.id})
 end
 
 Then(/^I receive (\d+) resources$/) do |count|
