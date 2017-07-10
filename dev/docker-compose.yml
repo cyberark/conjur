@@ -13,8 +13,6 @@ possum:
   volumes:
   - ..:/src/possum
   - ../../conjur-policy-parser:/src/conjur-policy-parser
-  - ../../cli-ruby:/usr/src/cli-ruby
-  - ../../api-ruby:/usr/src/api-ruby
   links:
   - pg:pg
 
@@ -40,7 +38,7 @@ client:
   environment:
     CONJUR_APPLIANCE_URL: http://possum:3000
     DATABASE_URL: postgres://postgres@pg/postgres
-  volumes:
-  - ..:/src/possum
   links:
   - possum:possum
+  volumes:
+  - ..:/src/possum
