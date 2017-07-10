@@ -28,15 +28,7 @@ Then change into the `/work` directory:
 
 {% highlight shell %}
 $ cd work
-$ docker run -it -v $PWD:/work conjurinc/cli5
 {% endhighlight %}
-
-Then change into the `/work` directory:
-
-{% highlight shell %}
-$ cd work
-{% endhighlight %}
-
 
 {% include toc.md key='environment' %}
 
