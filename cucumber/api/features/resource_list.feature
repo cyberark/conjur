@@ -66,6 +66,3 @@ Feature: List resources with various types of filtering
     Given I create 3 new resources
     When I successfully GET "/resources/cucumber/test-resource?count=true"
     Then I receive a count of 3
-
-
-
