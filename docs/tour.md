@@ -5,7 +5,7 @@ layout: page-no-toc
 
 
 {% include toc.md key='introduction' %}
-This document will use the Conjur command-line interface (CLI) to show you how to use Conjur to perform some common tasks, such as load policy data and secrets into Conjur, fetch secrets, login as a machine, fetch a secret while logged in as a machine, perform a permission check, and send Conjur commands using the raw HTTP (REST) API.
+This document will use the Conjur command-line interface (CLI) to show you how to use Conjur to perform some common tasks, such as load policy data and secrets into Conjur, fetch secrets, login as a machine, and fetching a secret while logged in as a machine.
 
 
 {% include toc.md key='docker' %}
@@ -91,77 +91,6 @@ The command response includes the following data:
 * **created_roles** *Hash<role_id, api_key>* Conjur issues an API key to each new role which is created by the policy. These API keys are printed in the response. If you want to login as one of these roles, you can use the corresponding API key.
 
 * **version** *integer* The server reported `"version": 1`, because this is the first version of the "root" policy that you have loaded. As you update the policy, the version number will be incremented. You can use the CLI to view the current and historical policy YAML.
-
-{% include toc.md key='exploring' %}
-
-Once the data is loaded into the server, you can use the command line to list all the objects:
-
-{% highlight shell %}
-$ conjur list -i
-[
-  "myorg:policy:root",
-  "myorg:policy:db",
-  "myorg:variable:db/password",
-  "myorg:group:db/secrets-users",
-  "myorg:policy:myapp",
-  "myorg:layer:myapp",
-  "myorg:host_factory:myapp",
-  "myorg:group:developers",
-  "myorg:user:alice",
-  "myorg:host:myapp-01"
-]
-{% endhighlight %}
-
-Or just the groups:
-
-{% highlight shell %}
-$ conjur list -i -k group
-[
-  "myorg:group:db/secrets-users",
-  "myorg:group:developers"
-]
-{% endhighlight %}
-
-Conjur makes it easy to store and retrieve encrypted data in variables. Initially, a variable is like an empty bucket, but it has important metadata and security rules. To show details about a variable (or any other object), use `conjur show`:
-
-{% highlight shell %}
-$ conjur show variable:db/password
-{
-  "created_at": "2017-06-07T19:58:36.118+00:00",
-  "id": "myorg:variable:db/password",
-  "owner": "myorg:policy:db",
-  "policy": "myorg:policy:root",
-  "permissions": [
-    {
-      "privilege": "read",
-      "role": "myorg:group:db/secrets-users",
-      "policy": "myorg:policy:root"
-    },
-    {
-      "privilege": "execute",
-      "role": "myorg:group:db/secrets-users",
-      "policy": "myorg:policy:root"
-    }
-  ],
-  "annotations": [
-
-  ],
-  "secrets": [
-
-  ]
-}
-{% endhighlight %}
-
-Objects like users, groups, hosts and layers are roles, which mean they can belong to other roles. A well-known example of this is when a user belongs to a group. To show the memberships of a role use `conjur role memberships`:
-
-{% highlight shell %}
-$ conjur role memberships host:myapp-01
-[
-  "myorg:host:myapp-01",
-  "myorg:layer:myapp",
-  "myorg:group:db/secrets-users"
-]
-{% endhighlight %}
 
 {% include toc.md key='adding-secret' %}
 
