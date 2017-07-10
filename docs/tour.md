@@ -18,24 +18,32 @@ If you don't have Docker installed, you can download it here:
 You can easily download and run the Conjur CLI using the official pre-built images hosted by Docker Hub. 
 
 {% highlight shell %}
-  $ docker run -it conjurinc/cli5
+$ docker run -it -v $PWD:/work conjurinc/cli5
 {% endhighlight %}
 
+Then change into the `/work` directory:
+
+{% highlight shell %}
+$ cd work
+{% endhighlight %}
 
 {% include toc.md key='environment' %}
-Use your Conjur account information to export your environment variables:
+
+Use your account information to configure the connection to the Conjur server:
 
 {% highlight shell %}
-  $ export CONJUR_APPLIANCE_URL=http://conjur 
-  $ export CONJUR_ACCOUNT=myorg 
-  $ conjur authn login -u admin -p your-admin-api-key 
+$ export CONJUR_APPLIANCE_URL=http://conjur 
+$ export CONJUR_ACCOUNT=myorg 
 {% endhighlight %}
 
-
 {% include toc.md key='login' %}
-Once you have setup your server and CLI, make sure you are logged in as the `admin` user:
+
+Login by entering your API key at the `login` prompt:
 
 {% highlight shell %}
+$ conjur authn login -u admin
+Please enter admin's password (it will not be echoed):
+Logged in
 $ conjur authn whoami
 { "account": "mycorp", "user": "admin" }
 {% endhighlight %}
@@ -53,12 +61,6 @@ Documents in Policy Markup format are easy to generate and manipulate using any 
 Here is a typical policy file. Save this file as "conjur.yml":
 
 {% include policy-file.md policy='tour' %}
-
-Now map the policy document to your Docker container: 
-{% highlight shell %}
-  $ docker run -v /host/directory:/container/directory
-{% endhighlight %}
-
 
 {% include toc.md key='loading' %}
 
