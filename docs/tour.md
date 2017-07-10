@@ -28,8 +28,14 @@ Then change into the `/work` directory:
 
 {% highlight shell %}
 $ cd work
+$ docker run -it -v $PWD:/work conjurinc/cli5
 {% endhighlight %}
 
+Then change into the `/work` directory:
+
+{% highlight shell %}
+$ cd work
+{% endhighlight %}
 
 
 {% include toc.md key='environment' %}
@@ -39,18 +45,24 @@ Use your account information to configure the connection to the Conjur server:
 {% highlight shell %}
   $ export CONJUR_APPLIANCE_URL=http://conjur 
   $ export CONJUR_ACCOUNT=myorg 
-
 {% endhighlight %}
-
 
 {% include toc.md key='login' %}
 
 Login by entering your API key at the `login` prompt:
 
 {% highlight shell %}
+<<<<<<< HEAD
   $ conjur authn login -u admin
   Please enter admin's password (it will not be echoed):
   Logged in
+=======
+$ conjur authn login -u admin
+Please enter admin's password (it will not be echoed):
+Logged in
+$ conjur authn whoami
+{ "account": "mycorp", "user": "admin" }
+>>>>>>> origin/evaluation-quickstart
 {% endhighlight %}
 
 With this accomplished, you're ready to walk through the following tour of Conjur features.
