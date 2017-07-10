@@ -1,16 +1,3 @@
-"/quick-start.html":
-  policies: "Introducing: Policies"
-  loading: Loading the Root Policy
-  exploring: Exploring Policy Objects
-  adding-secret: Adding a Secret
-  fetching-secret: Fetching a Secret
-  machine-login: Logging in as a Machine
-  fetching-as-machine: Fetching a Secret as a Machine
-  permission-denied: When Permission is Denied
-  permission-check-api: Checking Permissions
-  programming: Programming Conjur
-  next-steps: Next Steps
-
 "/tour.html":
   prerequisites: Prerequisites
   login: Login
