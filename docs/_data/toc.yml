@@ -1,4 +1,7 @@
 "/tour.html":
+  docker: Install Docker
+  cli: Download & Run Conjur CLI
+  environment: Export Environment Variables
   prerequisites: Prerequisites
   login: Login
   introduction: Introduction
