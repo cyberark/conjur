@@ -1,3 +1,17 @@
+Given(/^I create (\d+) new resources$/) do |count|
+  kind = "test-resource"
+
+  @current_resources = []
+  
+  count.to_i.times do
+    identifier ||= random_hex
+    identifier = denormalize identifier
+    @current_resources <<
+      Resource.create(resource_id: "cucumber:#{kind}:#{identifier}",
+                      owner: @current_user || admin_user)
+  end
+end
+
 Given(/^I create a new(?: "([^"]*)")? resource(?: called "([^"]*)")?$/) do |kind, identifier|
   kind ||= "test-resource"
   identifier ||= random_hex

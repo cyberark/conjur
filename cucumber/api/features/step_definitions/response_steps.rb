@@ -1,9 +1,26 @@
+Then(/^the resource list should have the new resources$/) do
+  expect(@result.map{|r| r['id']}).to include(*@current_resources.map{|r| r.id})
+end
+
 Then(/^the resource list should have the new resource$/) do
   expect(@result.map{|r| r['id']}).to include(@current_resource.id)
 end
 
 Then(/^the resource list should not have the new resource$/) do
   expect(@result.map{|r| r['id']}).to_not include(@current_resource.id)
+end
+
+Then(/^the resource list should only include the searched resource$/) do
+  expect(@result.map{|r| r['id']}).to eq([@current_resource.id])
+end
+
+Then(/^I receive (\d+) resources$/) do |count|
+  expect(@result.count).to eq(count.to_i)
+end
+
+Then(/^I receive a count of (\d+)$/) do |count|
+  expect(@result).to have_key('count')
+  expect(@result['count']).to eq(count.to_i)
 end
 
 Then(/^the resource list should( not)? contain "([^"]*)" "([^"]*)"$/) do |invert, kind, id|
