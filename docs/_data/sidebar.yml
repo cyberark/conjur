@@ -98,5 +98,9 @@ main:
       cryptography:
         title: Cryptography
         path: /reference/cryptography.html
+
+  support:
+    title: Support
+    path: /support.html
       
 
