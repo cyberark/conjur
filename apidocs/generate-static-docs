@@ -1,5 +1,5 @@
 #!/bin/bash
 
-outfile="${1:-output.html}"
+outfile="${1:--}"
 
 ./node_modules/.bin/aglio -i src/api.md -o "$outfile"

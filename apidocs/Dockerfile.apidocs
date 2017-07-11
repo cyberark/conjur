@@ -1,0 +1,6 @@
+FROM node
+
+WORKDIR /home/node
+ADD package.json generate-static-docs ./
+ADD src ./src/
+RUN npm install
