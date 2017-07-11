@@ -34,13 +34,12 @@ $ cd /work
 
 {% include toc.md key='environment' %}
 
-Use your account information to configure the connection to the Conjur server. The URL listed below is
-for the hosted solution, but if you have your own Conjur server then replace it with your server's URL.
-The `CONJUR_ACCOUNT` value should be replaced with your own Conjur account ID, which is usually the same as your email address.
+Use your account information to configure the connection to the Conjur server. The information below is
+for the hosted solution, but if you have your own Conjur server then update it appropriately.
 
 {% highlight shell %}
 $ export CONJUR_APPLIANCE_URL=https://possum-conjur.herokuapp.com
-$ export CONJUR_ACCOUNT=your-conjur-account-id
+$ export CONJUR_ACCOUNT="your-conjur-account-id"
 {% endhighlight %}
 
 {% include toc.md key='login' %}
