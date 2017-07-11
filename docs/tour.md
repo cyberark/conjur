@@ -21,7 +21,7 @@ If you don't have Docker installed, you can download it here:
 You can easily download and run the Conjur CLI using the official pre-built images hosted by Docker Hub. 
 
 {% highlight shell %}
-$ docker run -it -v $PWD:/work conjurinc/cli5
+$ docker run --rm -it -v $PWD:/work conjurinc/cli5
 {% endhighlight %}
 
 Then change into the `/work` directory:
