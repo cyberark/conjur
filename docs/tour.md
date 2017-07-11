@@ -10,10 +10,6 @@ This document will use the Conjur command-line interface (CLI) to show you how t
 
 For this tour, we will use a Conjur server that is running in the cloud, where an account has already been created for you. Please note that this cloud-based Conjur server is for evaluation purposes only, and therefore you should make sure **not** to store any sensitive information in it. For production scenarios, the Conjur server would be deployed within your own private environment.
 
-Here's an screencast of the first part of this tour, showing how to start the container, setup the environment, and create a file in the container using `nano`:
-
-<script type="text/javascript" src="https://asciinema.org/a/128502.js" id="asciicast-128502" async></script>
-
 {% include toc.md key='docker' %}
 
 If you don't have Docker installed, you can download it here:
@@ -62,6 +58,10 @@ Documents in Policy Markup format are easy to generate and manipulate using any 
 Here is a typical policy file. Save this file as `conjur.yml`:
 
 {% include policy-file.md policy='tour' %}
+
+Here's an screencast of the first part of this tour, showing how to start the container, setup the environment, and create a file in the container using `nano`:
+
+<script type="text/javascript" src="https://asciinema.org/a/128514.js" id="asciicast-128514" async></script>
 
 {% include toc.md key='loading' %}
 
@@ -130,7 +130,7 @@ To login as another role, use the CLI command `conjur authn login`. When prompte
 
 {% highlight shell %}
 $ conjur authn login host/myapp-01
-Please enter host/myapp-01's password (it will not be echoed):
+Please enter host/myapp-01s password (it will not be echoed):
 Logged in
 $ conjur authn whoami
 { "account": "mycorp", "user": "host/myapp-01" }
