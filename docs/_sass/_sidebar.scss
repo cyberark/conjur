@@ -25,9 +25,22 @@
 	}
 }
 
-img.cyberark-sidebar-logo {
-  width: 140px;
-  margin: 3em 0 .5em 0;
+.sidebar-disclaimer {
+  margin-top: 2em;
+  img.cyberark-sidebar-logo {
+  	width: 140px;
+  	margin: 0 auto;
+	}
+}
+
+// Try Conjur Enterprise
+.try-conjur {
+	a {
+    font-weight: bold;
+    color: #fff;
+    font-size: 16px;
+    text-decoration: none;
+	}
 }
 
 .disclaimer {
