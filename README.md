@@ -14,7 +14,7 @@ For more information, visit [possum.io](https://possum.io).
 
 # Development
 
-## Build the Docker image
+## Build the Docker images
 
 Possum is packaged primarily as a Docker image. To build it:
 
@@ -26,6 +26,13 @@ $ docker images | grep possum
 conjurinc/possum latest a8229592474c 7 minutes ago 560.7 MB
 possum           latest a8229592474c 7 minutes ago 560.7 MB
 possum-dev       latest af98cb5b2a68 4 days ago    639.9 MB
+```
+
+The API documentation is generated using a separate image. To build that image and generate the docs:
+
+```sh-session
+$ apidocs/build.sh
+$ docker run --rm conjurinc/possum-apidocs ./generate-static-docs >api.html
 ```
 
 ## Development environment
