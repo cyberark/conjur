@@ -157,7 +157,8 @@ fde5c4a45ce573f9768987cd
 
 {% include toc.md key='next-steps' %}
 
-Conjur Enterprise builds on the features of Conjur Community Edition, adding more features such as LDAP synchronization,
-web UI for administration, high availability, and more.
-Email <support@conjur.net> to request access to Conjur Enterprise to continue your explorations on premise.
+* Go through the [Conjur Tutorials](./tutorials/index.html).
+* Talk to the Conjur team on our [Slack channel](./support.html)
+* Experience even more features with [Conjur Enterprise](./try-conjur-enterprise.html)
+
 
