@@ -67,7 +67,7 @@ Loaded policy 'root'
 Next, we need to populate the database password with a secret value. Use the CLI to verify that the variable exists in Conjur:
 
 {% highlight shell %}
-$ conjur list -i -k variable
+$ conjur list -k variable
 [
   "dev:variable:db/password"
 ]

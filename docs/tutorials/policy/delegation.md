@@ -46,7 +46,7 @@ $ conjur policy load --replace frontend frontend.yml
 Then as a sanity check, list all the objects in the system:
 
 {% highlight shell %}
-$ conjur list -i
+$ conjur list
 [
   "myorg:policy:root",
   "myorg:policy:db",
