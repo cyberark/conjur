@@ -6,19 +6,21 @@ layout: page
 
 {% include toc.md key='introduction' %}
 
-This document will use the Conjur command-line interface (CLI) to show you how to use Conjur to perform some common tasks, such as load policy data and secrets into Conjur, fetch secrets, login as a machine, and fetching a secret while logged in as a machine.
+This document will use the Conjur command-line interface (CLI) to show you how to use Conjur to perform some common tasks such as loading and retrievng secrets from Conjur, creating security policies, logging in as a machine, and fetching a secret while logged in as a machine.
+
+For this tour, we will use a Conjur server that is running in the cloud, where an account has already been created for you. Please note that this cloud-based Conjur server is for evaluation purposes only, and therefore you should make sure **not** to store any sensitive information in it. For production scenarios, the Conjur server would be deployed within your own private environment.
 
 
 {% include toc.md key='docker' %}
 
 If you don't have Docker installed, you can download it here:
-* [Docker for Mac – v17.03](https://download.docker.com/mac/stable/16048/Docker.dmg) 
+* [Docker for Mac](https://download.docker.com/mac/stable/16048/Docker.dmg) 
 * [Docker for Windows](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows)
 
 
 {% include toc.md key='cli' %}
 
-You can easily download and run the Conjur CLI using the official pre-built images hosted by Docker Hub. 
+You can easily download and run the Conjur CLI using the official pre-built images hosted by Docker Hub.
 
 {% highlight shell %}
 $ docker run --rm -it -v $PWD:/work conjurinc/cli5
@@ -34,11 +36,11 @@ $ cd /work
 
 Use your account information to configure the connection to the Conjur server. The URL listed below is
 for the hosted solution, but if you have your own Conjur server then replace it with your server's URL.
-The `CONJUR_ACCOUNT` value should be replaced with your own Conjur account ID.
+The `CONJUR_ACCOUNT` value should be replaced with your own Conjur account ID, which is usually the same as your email address.
 
 {% highlight shell %}
-  $ export CONJUR_APPLIANCE_URL=https://possum-conjur.herokuapp.com
-  $ export CONJUR_ACCOUNT=my-conjur-account
+$ export CONJUR_APPLIANCE_URL=https://possum-conjur.herokuapp.com
+$ export CONJUR_ACCOUNT=your-conjur-account-id
 {% endhighlight %}
 
 {% include toc.md key='login' %}
@@ -153,9 +155,10 @@ fde5c4a45ce573f9768987cd
 {% endhighlight %}
 
 
-{% include toc.md key='enterprise' %}
+{% include toc.md key='next-steps' %}
 
-Conjur Enterprise builds on the features of Conjur Community Edition, adding more features such as LDAP synchronization,
-web UI for administration, high availability, and more.
-Email <support@conjur.net> to request access to Conjur Enterprise to continue your explorations on premise.
+* Go through the [Conjur Tutorials](./tutorials/index.html)
+* Talk to the Conjur team on our [Slack channel](./support.html)
+* Experience even more features with [Conjur Enterprise](./try-conjur-enterprise.html)
+
 

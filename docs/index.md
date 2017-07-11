@@ -20,17 +20,16 @@ To use Conjur, you write policy files to enumerate and categorize the things in 
 
 ## Complete
 
-Conjur provides a complete solution to secrets management for DevOps. What do we mean by this?
-It's not just a tool that you have to figure out how to deploy and operationalize.
+Conjur provides a complete solution to secrets management for DevOps. It's not just a tool that you have to figure out how to deploy and operationalize.
 Conjur comes with everything you need from basic setup instructions, pre-built
 and officially maintained integrations with the other DevOps software in your toolchain, 
 to HA instructions and strategies that are easy to operationalize.
 
-With Conjur, you CAN solve your secrets management problem quickly and easily.
+With Conjur, you can solve your secrets management problem quickly and easily.
 
 ## Proven
 
-Conjur has been running in production for more than two years, solving real-world problems at companies like Cisco, Box, Puppet Labs, Discovery Communications, Ability Networks, Lookout, and Machine Zone. 
+Conjur has been running in production in high-traffic customer environments for a number of years, solving real-world problems at companies like Cisco, Box, Puppet Labs, Discovery Communications, Ability Networks, Lookout, and Machine Zone.
 
 In addition, Conjur's cryptography has been professionally audited and verified, and the Conjur server is regularly and automatically penetration-tested.
 
@@ -44,18 +43,12 @@ Policies are defined using YAML, which is easy for both people and machines to r
 
 Conjur provides full role-based access control, which is a proven model for infrastructure security. Unlike attribute-based access control, role-based access control is not susceptible to unexpected side-effects, and it scales very well to large systems through the use of role delegation. 
 
-## Easy to deploy and operate
-
-Running Conjur is as simple as `docker-compose up`. The default backing data store for Conjur is Postgresql. You can run the database alongside Conjur as a Docker container, or you can use a hosted database service such as AWS RDS.
 
 ## Programmable
 
-Conjur is easily programmable by interacting with the REST API. This capability can be used to provide custom authentication and authorization for popular DevOps tools.
+Conjur is easily programmable by interacting with the REST API (documentation coming very soon). This capability can be used to provide custom authentication and authorization for popular DevOps tools.
 
 
 # Next steps
 
-* [Get the Conjur Server](./installation/server.html) (use a hosted dev account, or download the code).
-* [Install the CLI](./installation/client.html).
-* Take a [Quick Tour](./tour.html).
-
+* Take the [Quick Tour](./tour.html), and try out Conjur right now!

@@ -1,6 +1,9 @@
+"/try-conjur-enterprise.html":
+  enterprise: Try Conjur Enterprise
+
 "/tour.html":
   docker: Install Docker
-  cli: Download & Run Conjur CLI
+  cli: Download & Run the Conjur CLI
   environment: Export Environment Variables
   prerequisites: Prerequisites
   login: Login
