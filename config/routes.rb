@@ -10,8 +10,10 @@ end
 
 Rails.application.routes.draw do
   scope format: false do
-    resources :accounts, only: [ :create, :index, :destroy ]
-
+    constraints id: /[^\/\?]+/ do
+      resources :accounts, only: [ :create, :index, :destroy ]
+    end
+    
     constraints account: /[^\/\?]+/ do
       get  '/authn/:account/login' => 'credentials#login'
       put  '/authn/:account/password' => 'credentials#update_password'
@@ -52,7 +54,9 @@ Rails.application.routes.draw do
     
     post "/host_factory_tokens" => 'host_factory_tokens#create'
     
-    delete "/host_factory_tokens/:id" => 'host_factory_tokens#destroy'
+    constraints id: /[^\/\?]+/ do
+      delete "/host_factory_tokens/:id" => 'host_factory_tokens#destroy'
+    end
   end
 
 end
