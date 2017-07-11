@@ -110,7 +110,7 @@ false
 
 {% include toc.md key='webservice-authz' %}
 
-Conjur can provide a declarative system for authenticating and authorizing access to web services. As we have seen above, the first step is to create a `!webservice` object in a policy. Then, privileges on the web service can be managed using `!permit` and `!grant`. 
+Conjur can provide a declarative system for authenticating and authorizing access to web services. As we have seen above, the first step is to create a `!webservice` object in a policy. Then, privileges on the web service can be managed using `!permit` and `!grant`.
 
 In the runtime environment, a bit of code will intercept the inbound request and check for authentication and authorization. Here's how to simulate that in an interactive Ruby session.
 
@@ -125,7 +125,7 @@ irb(main)> token_header = %Q(Token token="#{Base64.strict_encode64 token.to_json
 
 Of course, the client does not have to be Ruby, it can be any language or even a tool like cURL.
 
-On the server side, the HTTP request is intercepted and the access token is parsed out of the header. 
+On the server side, the HTTP request is intercepted and the access token is parsed out of the header.
 
 {% highlight ruby %}
 irb(main)> token_header[/^Token token="(.*)"/]
@@ -145,9 +145,94 @@ If the token is expired or invalid, then the Conjur API will raise an authentica
 
 Note that different web service functions may have different required privileges. For example, a `GET` method may require `read`, and a `DELETE` method may require `update`. The semantic mapping between the web service methods and the Conjur privileges is up to you.
 
+
+{% include toc.md key='sinatra-example' %}
+Now let's run through an example of implementing the above using Sinatra.
+
+First, let's setup our `Gemfile`:
+
+{% highlight ruby %}
+# Gemfile
+
+source "https://rubygems.org"
+
+gem 'conjur-api', git: 'https://github.com/conjurinc/api-ruby.git', branch: 'possum'
+gem 'sinatra', '~> 2.0'
+{% endhighlight %}
+
+Note that we're building the Conjur API gem from source rather than downloading it from Ruby Gems. The Conjur CE release marks a major overhaul of the API. This version will be published to Ruby Gems prior to our public release.
+
+Now let's setup our Rackup file:
+
+{% highlight ruby %}
+# config.ru
+
+require 'rubygems'
+require 'bundler'
+
+Bundler.require
+
+# Setup our Conjur configuration
+Conjur.configuration.account = ENV['CONJUR_ACCOUNT']
+Conjur.configuration.appliance_url = ENV['CONJUR_URL']
+
+require './demo_app'
+
+run Sinatra::Application
+{% endhighlight %}
+
+The above will let us pass our Conjur Account name and URL when we start the app.
+
+Now let's write a simple page that displays the secret stored in Conjur using the Host API token above:
+
+{% highlight ruby %}
+# my_app.rb
+
+class MyApp < Sinatra::Base
+  get "/" do
+    <<-CONTENT
+      <html>
+        <head></head>
+        <body>
+          <h1>Welcome to the Demo App</h1>
+          <p><strong>DB Password:</strong> #{retrieve_secret('db/password')}</p>
+        </body>
+      </html>
+    CONTENT
+  end
+
+  protected
+
+  # Helper method for managing a connection to the Conjur API
+  def conjur_api
+    @conjur_api ||= begin
+      Conjur::API.new_from_key(ENV['CONJUR_USER'], ENV['CONJUR_API_KEY'])
+    end
+  end
+
+  # Helper method to access the variable by its resource id (`account:resource_type:name`)
+  # The `resource` method will fail with:
+  #   RestClient::Unauthorized if the entity does not have execute permission.
+  #   RestClient::ResourceNotFound if the resource does not exist.
+  def retrieve_secret(variable)
+    conjur_api.resource("#{Conjur.configuration.account}:variable:#{variable}").value
+  end
+end
+{% endhighlight %}
+
+The above application can be run with:
+
+{% highlight bash %}
+$ CONJUR_USER=host/myapp-01 \
+  CONJUR_API_KEY=host/myapp-01 API as used prior # <- REPLACE ME! \
+  CONJUR_ACCOUNT=dev # <- REPLACE ME! \
+  CONJUR_URL=https://possum-conjur.herokuapp.com \
+  rackup
+{% endhighlight %}
+
+and displays the value of the secret stored in Conjur.
+
 {% include toc.md key='next-steps' %}
 
 * Read the [Ruby API code on GitHub](https://github.com/conjurinc/api-ruby).
 * Visit the [Ruby API code on RubyGems](https://rubygems.org/gems/conjur-api).
-
-

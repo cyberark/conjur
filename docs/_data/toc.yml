@@ -74,6 +74,7 @@
   secrets-fetching: Secrets Fetching
   permission-checking: Permission Checking
   webservice-authz: Webservice Authorization
+  sinatra-example: Sinatra Example
   next-steps: Next Steps
 
 "/tutorials/integrations/puppet.html":
@@ -97,7 +98,7 @@
   client: Client Configuration
   summary: Summary
 
-"/tutorials/policy/applications.html":  
+"/tutorials/policy/applications.html":
   introduction: Introduction
   prerequisites: Prerequisites
   setup: Setup
@@ -106,14 +107,10 @@
   entitlement: Entitlement
   next-steps: Next Steps
 
-"/tutorials/policy/delegation.html":  
+"/tutorials/policy/delegation.html":
   introduction: Introduction
   prerequisites: Prerequisites
   setup: Setup
   multi-user-concepts: Delegation Concepts
   delegate: Delegation Demonstration
   summary: Summary
-
-
-
-
