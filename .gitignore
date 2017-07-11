@@ -26,3 +26,5 @@ coverage
 .DS_Store
 demo/run/*.yml
 apidocs/node_modules
+*.config
+docs/_layouts/page-toc.html
