@@ -14,7 +14,7 @@ For this tour, we will use a Conjur server that is running in the cloud, where a
 {% include toc.md key='docker' %}
 
 If you don't have Docker installed, you can download it here:
-* [Docker for Mac](https://download.docker.com/mac/stable/16048/Docker.dmg) 
+* [Docker for Mac](https://download.docker.com/mac/stable/16048/Docker.dmg)
 * [Docker for Windows](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows)
 
 
@@ -70,8 +70,8 @@ Here is a typical policy file. Save this file as `conjur.yml`:
 
 To load the policy, use the CLI command `conjur policy load <policy-id> <policy-file>`. This command requires two arguments:
 
-* `policy-id` The first time you load a policy, use the policy id `root`. This is a special policy name that is used to define root-level data. 
-* `policy-file` Policy file containing statements in YAML format. 
+* `policy-id` The first time you load a policy, use the policy id `root`. This is a special policy name that is used to define root-level data.
+* `policy-file` Policy file containing statements in YAML format.
 
 {% highlight shell %}
 $ conjur policy load root conjur.yml
@@ -127,9 +127,9 @@ fde5c4a45ce573f9768987cd
 
 {% include toc.md key='machine-login' %}
 
-So far, we have performed all the commands while logged in as the "admin" user. But, we showed how the server issued a new API key for the host "myapp-01". 
+So far, we have performed all the commands while logged in as the "admin" user. But, we showed how the server issued a new API key for the host "myapp-01".
 
-To login as another role, use the CLI command `conjur authn login`. When prompted for the password, enter the API key which was printed when you loaded the policy.
+To login as another role, use the CLI command `conjur authn login`. When prompted for the password, enter the API key which was printed when you loaded the policy above.
 
 {% highlight shell %}
 $ conjur authn login host/myapp-01
@@ -159,5 +159,3 @@ fde5c4a45ce573f9768987cd
 * Go through the [Conjur Tutorials](./tutorials/index.html)
 * Talk to the Conjur team on our [Slack channel](./support.html)
 * Experience even more features with [Conjur Enterprise](./try-conjur-enterprise.html)
-
-
