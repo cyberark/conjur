@@ -61,7 +61,7 @@ Here is a typical policy file. Save this file as `conjur.yml`:
 
 Here's an screencast of the first part of this tour, showing how to start the container, setup the environment, and create a file in the container using `nano`:
 
-<script type="text/javascript" src="https://asciinema.org/a/128502.js" id="asciicast-128502" async></script>
+<script type="text/javascript" src="https://asciinema.org/a/128514.js" id="asciicast-128514" async></script>
 
 {% include toc.md key='loading' %}
 
@@ -130,7 +130,7 @@ To login as another role, use the CLI command `conjur authn login`. When prompte
 
 {% highlight shell %}
 $ conjur authn login host/myapp-01
-Please enter host/myapp-01's password (it will not be echoed):
+Please enter host/myapp-01s password (it will not be echoed):
 Logged in
 $ conjur authn whoami
 { "account": "mycorp", "user": "host/myapp-01" }
