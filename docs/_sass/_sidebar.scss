@@ -27,6 +27,8 @@
 
 .sidebar-disclaimer {
   margin-top: 2em;
+  bottom: 25px;
+  position: absolute;
   img.cyberark-sidebar-logo {
   	width: 140px;
   	margin: 0 auto;
@@ -48,6 +50,7 @@
 
 .disclaimer {
 	font-size: 13px;
+	text-align: center;
 }
 
 .sidebar-about img {
