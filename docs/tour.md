@@ -6,7 +6,7 @@ layout: page
 
 {% include toc.md key='introduction' %}
 
-This document will use the Conjur command-line interface (CLI) to show you how to use Conjur to perform some common tasks such as loading and retrievng secrets from Conjur, creating security policies, logging in as a machine, and fetching a secret while logged in as a machine.
+This document will use the Conjur command-line interface (CLI) to show you how to use Conjur to perform some common tasks such as loading and retrieving secrets from Conjur, creating security policies, logging in as a machine, and fetching a secret while logged in as a machine.
 
 For this tour, we will use a Conjur server that is running in the cloud, where an account has already been created for you. Please note that this cloud-based Conjur server is for evaluation purposes only, and therefore you should make sure **not** to store any sensitive information in it. For production scenarios, the Conjur server would be deployed within your own private environment.
 
@@ -55,7 +55,7 @@ With this accomplished, you're ready to walk through the following tour of Conju
 
 In order to manage control of infrastructure, you use Conjur policies to create access rules between users, machines, services and secrets. Policies are the medium of security model collaboration. Since they are human readable, they can be shared with all stakeholders to gain consensus before commiting changes to your security infrastructure.
 
-A policy is a declarative document (data, not code), so loading a policy cannot have any effect other than to create and update the role-based access control model inside the Conjur service. It is written using Policy Markup, a subset of YAML which is human-readable and thus homoiconic: it does what it looks like it does.
+A policy is a declarative document (data, not code), so loading a policy cannot have any effect other than to create and update the role-based access control model inside the Conjur service. It is written using Policy Markup, a subset of YAML which is human-readable.
 
 Documents in Policy Markup format are easy to generate and manipulate using any programming language, and they are idempotent so you can safely re-apply a policy any number of times. These properties make them automation-friendly.
 
