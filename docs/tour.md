@@ -27,16 +27,18 @@ You can easily download and run the Conjur CLI using the official pre-built imag
 Then change into the `/work` directory:
 
 {% highlight shell %}
-$ cd work
+$ cd /work
 {% endhighlight %}
 
 {% include toc.md key='environment' %}
 
-Use your account information to configure the connection to the Conjur server:
+Use your account information to configure the connection to the Conjur server. The URL listed below is
+for the hosted solution, but if you have your own Conjur server then replace it with your server's URL.
+The `CONJUR_ACCOUNT` value should be replaced with your own Conjur account ID.
 
 {% highlight shell %}
-  $ export CONJUR_APPLIANCE_URL=http://conjur 
-  $ export CONJUR_ACCOUNT=myorg 
+  $ export CONJUR_APPLIANCE_URL=https://possum-conjur.herokuapp.com
+  $ export CONJUR_ACCOUNT=my-conjur-account
 {% endhighlight %}
 
 {% include toc.md key='login' %}
@@ -45,7 +47,7 @@ Login by entering your API key at the `login` prompt:
 
 {% highlight shell %}
   $ conjur authn login -u admin
-  Please enter admin's password (it will not be echoed):
+  Please enter admin password (it will not be echoed):
   Logged in
 {% endhighlight %}
 
@@ -59,7 +61,7 @@ A policy is a declarative document (data, not code), so loading a policy cannot 
 
 Documents in Policy Markup format are easy to generate and manipulate using any programming language, and they are idempotent so you can safely re-apply a policy any number of times. These properties make them automation-friendly.
 
-Here is a typical policy file. Save this file as "conjur.yml":
+Here is a typical policy file. Save this file as `conjur.yml`:
 
 {% include policy-file.md policy='tour' %}
 
@@ -67,7 +69,7 @@ Here is a typical policy file. Save this file as "conjur.yml":
 
 To load the policy, use the CLI command `conjur policy load <policy-id> <policy-file>`. This command requires two arguments:
 
-* `policy-id` The first time you load a policy, use the policy id "root". This is a special policy name that is used to define root-level data. 
+* `policy-id` The first time you load a policy, use the policy id `root`. This is a special policy name that is used to define root-level data. 
 * `policy-file` Policy file containing statements in YAML format. 
 
 {% highlight shell %}
@@ -98,7 +100,7 @@ The command response includes the following data:
 
 {% include toc.md key='adding-secret' %}
 
-The policy defines a variable called "db/password". As we mentioned earlier, Conjur variables store encrypted, access-controlled data. To load a secret value into the "db/password", use the following commands:
+The policy defines a variable called `db/password`. As we mentioned earlier, Conjur variables store encrypted, access-controlled data. To load a secret value into the `db/password`, use the following commands:
 
 {% highlight shell %}
 $ password=$(openssl rand -hex 12)
@@ -137,13 +139,13 @@ $ conjur authn whoami
 {% endhighlight %}
 
 <div class="note">
-<strong>Note</strong> If you've lost the API key of a host, you can reset it using the command <tt>conjur host rotate_api_key -h &lt;host-id&gt;</tt>.
+<strong>Note</strong> If you lose the API key of a host, you can reset it using the command <tt>conjur host rotate_api_key -h &lt;host-id&gt;</tt>.
 </div>
 <p/>
 
 {% include toc.md key='fetching-as-machine' %}
 
-Beacuse the policy permits the layer "myapp" to `execute` the variable "db/password", and because the host "myapp-01" is a member of this layer, we can now fetch the secret value while authenticated as the host:
+Beacuse the policy permits the layer `myapp` to `execute` the variable `db/password`, and because the host `myapp-01` is a member of this layer, we can now fetch the secret value while authenticated as the host:
 
 {% highlight shell %}
 $ conjur variable value db/password
@@ -151,7 +153,9 @@ fde5c4a45ce573f9768987cd
 {% endhighlight %}
 
 
+{% include toc.md key='enterprise' %}
 
-{% include toc.md key='next-steps' %}
+Conjur Enterprise builds on the features of Conjur Community Edition, adding more features such as LDAP synchronization,
+web UI for administration, high availability, and more.
+Email <support@conjur.net> to request access to Conjur Enterprise to continue your explorations on premise.
 
-Email <support@conjur.net> for access to Conjur Enterprise v4.9 to continue your explorations on prem.

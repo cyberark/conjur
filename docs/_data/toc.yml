@@ -5,7 +5,7 @@
   prerequisites: Prerequisites
   login: Login
   introduction: Introduction
-  policies: "Introducing: Policies"
+  policies: Introducing Policies
   loading: Loading the Root Policy
   exploring: Exploring Policy Objects
   adding-secret: Adding a Secret
@@ -16,6 +16,7 @@
   permission-check-api: Checking Permissions
   programming: Programming Conjur
   next-steps: Next Steps
+  enterprise: Try Conjur Enterprise
 
 "/installation/client.html":
   get:
