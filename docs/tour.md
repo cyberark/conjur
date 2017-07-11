@@ -6,7 +6,7 @@ layout: page
 
 {% include toc.md key='introduction' %}
 
-This document will use the Conjur command-line interface (CLI) to show you how to use Conjur to perform some common tasks such as loading and retrievng secrets from Conjur, creating security policies, logging in as a machine, and fetching a secret while logged in as a machine.
+This document will use the Conjur command-line interface (CLI) to show you how to use Conjur to perform some common tasks such as loading and retrieving secrets from Conjur, creating security policies, logging in as a machine, and fetching a secret while logged in as a machine.
 
 For this tour, we will use a Conjur server that is running in the cloud, where an account has already been created for you. Please note that this cloud-based Conjur server is for evaluation purposes only, and therefore you should make sure **not** to store any sensitive information in it. For production scenarios, the Conjur server would be deployed within your own private environment.
 
