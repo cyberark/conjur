@@ -72,3 +72,13 @@ Feature: Create a new account
       }
     }
     """
+
+  Scenario: An account can be created with a with an email address as its name
+    Given I create a new user "admin" in account "!"
+    And I permit role "!:user:admin" to "execute" resource "!:webservice:accounts"
+    And I login as "!:user:admin"
+    Then I successfully POST "/accounts" with body:
+    """
+    id=new_account@example.com
+    """
+    And I can authenticate with the admin API key for the account "new_account@example.com"

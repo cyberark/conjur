@@ -10,46 +10,48 @@ end
 
 Rails.application.routes.draw do
   scope format: false do
-    resources :accounts, only: [ :create, :index, :destroy ]
+    constraints account: /[^\/\?]+/ do
+      resources :accounts, only: [ :create, :index, :destroy ]
 
-    get  '/authn/:account/login' => 'credentials#login'
-    put  '/authn/:account/password' => 'credentials#update_password'
-    put  '/authn/:account/api_key'  => 'credentials#rotate_api_key'
+      get  '/authn/:account/login' => 'credentials#login'
+      put  '/authn/:account/password' => 'credentials#update_password'
+      put  '/authn/:account/api_key'  => 'credentials#rotate_api_key'
 
-    constraints id: /[^\/\?]+/ do
-      post '/authn/:account/:id/authenticate' => 'authenticate#authenticate'
-    end
-    
-    get "/roles/:account/:kind/*identifier" => "roles#memberships", :constraints => QueryParameterActionRecognizer.new("all")
-  
-    get "/roles/:account/:kind/*identifier" => "roles#show"
-  
-    get "/resources/:account/:kind/*identifier" => 'resources#check_permission', :constraints => QueryParameterActionRecognizer.new("check")
-
-    get "/resources/:account/:kind/*identifier" => 'resources#permitted_roles', :constraints => QueryParameterActionRecognizer.new("permitted_roles")
+      constraints id: /[^\/\?]+/ do
+        post '/authn/:account/:id/authenticate' => 'authenticate#authenticate'
+      end
       
-    get "/resources/:account/:kind/*identifier" => "resources#show"
+      get "/roles/:account/:kind/*identifier" => "roles#memberships", :constraints => QueryParameterActionRecognizer.new("all")
+      
+      get "/roles/:account/:kind/*identifier" => "roles#show"
+      
+      get "/resources/:account/:kind/*identifier" => 'resources#check_permission', :constraints => QueryParameterActionRecognizer.new("check")
 
-    get "/resources/:account/:kind" => "resources#index"
-    
-    get "/resources/:account" => "resources#index"
-  
-    get "/secrets/:account/:kind/*identifier" => 'secrets#show'
+      get "/resources/:account/:kind/*identifier" => 'resources#permitted_roles', :constraints => QueryParameterActionRecognizer.new("permitted_roles")
+      
+      get "/resources/:account/:kind/*identifier" => "resources#show"
 
-    post "/secrets/:account/:kind/*identifier" => 'secrets#create'
+      get "/resources/:account/:kind" => "resources#index"
+      
+      get "/resources/:account" => "resources#index"
+      
+      get "/secrets/:account/:kind/*identifier" => 'secrets#show'
 
-    put "/policies/:account/:kind/*identifier" => 'policies#put'
+      post "/secrets/:account/:kind/*identifier" => 'secrets#create'
 
-    patch "/policies/:account/:kind/*identifier" => 'policies#patch'
+      put "/policies/:account/:kind/*identifier" => 'policies#put'
 
-    post "/policies/:account/:kind/*identifier" => 'policies#post'
+      patch "/policies/:account/:kind/*identifier" => 'policies#patch'
 
-    get "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
-    
-    post "/host_factories/hosts" => 'host_factories#create_host'
-    
-    post "/host_factory_tokens" => 'host_factory_tokens#create'
-    
-    delete "/host_factory_tokens/:id" => 'host_factory_tokens#destroy'
+      post "/policies/:account/:kind/*identifier" => 'policies#post'
+
+      get "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
+      
+      post "/host_factories/hosts" => 'host_factories#create_host'
+      
+      post "/host_factory_tokens" => 'host_factory_tokens#create'
+      
+      delete "/host_factory_tokens/:id" => 'host_factory_tokens#destroy'
+    end
   end
 end
