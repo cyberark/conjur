@@ -61,3 +61,24 @@ Feature: Policy loading error messages
       }
     }
     """
+
+  @logged-in-admin
+  Scenario: Posting a policy without a body
+    When I POST "/policies/cucumber/policy/root"
+    Then the HTTP response status code is 422
+    And the JSON response should be:
+    """
+    {
+      "error": {
+        "code": "validation_failed",
+        "message": "policy_text is not present",
+        "details": [
+          {
+            "code": "validation_failed",
+            "target": "policy_text",
+            "message": "is not present"
+          }
+        ]
+      }
+    }
+    """
