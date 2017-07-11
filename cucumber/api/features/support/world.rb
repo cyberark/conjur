@@ -68,8 +68,8 @@ module PossumWorld
     @users ||= {}
   end
   
-  def lookup_user login
-    roleid = "cucumber:user:#{login}"
+  def lookup_user login, account = "cucumber"
+    roleid = "#{account}:user:#{login}"
     existing = Role[roleid] rescue nil
     if existing
       Credentials.new(role: existing).save unless existing.credentials
