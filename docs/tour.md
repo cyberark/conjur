@@ -8,6 +8,9 @@ layout: page
 
 This document will use the Conjur command-line interface (CLI) to show you how to use Conjur to perform some common tasks, such as load policy data and secrets into Conjur, fetch secrets, login as a machine, and fetching a secret while logged in as a machine.
 
+Here's an screencast of the first part of this tour, showing how to start the container, setup the environment, and create a file in the container using `nano`:
+
+<script type="text/javascript" src="https://asciinema.org/a/128502.js" id="asciicast-128502" async></script>
 
 {% include toc.md key='docker' %}
 
