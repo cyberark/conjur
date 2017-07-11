@@ -16,6 +16,22 @@
 	background: -webkit-linear-gradient(top, #0071c7 0%,#11b5e4 100%); /* Chrome10-25,Safari5.1-6 */
 	background: linear-gradient(to bottom, #0071c7 0%,#11b5e4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0071c7', endColorstr='#11b5e4',GradientType=0 ); /* IE6-9 */
+	hr {
+		position: relative;
+    margin: 1.5rem 0;
+    border: 0;
+    //border-top: 1px solid #eee;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);;
+	}
+}
+
+img.cyberark-sidebar-logo {
+  width: 140px;
+  margin: 3em 0 .5em 0;
+}
+
+.disclaimer {
+	font-size: 13px;
 }
 
 .sidebar-about img {

@@ -1,4 +1,8 @@
 main:
+  tour:
+    title: Quick Tour
+    path: /tour.html
+
   installation:
     title: Installation
     path: /installation/
@@ -10,10 +14,6 @@ main:
       server:
         title: Server
         path: /installation/server.html
-
-  tour:
-    title: Quick Tour
-    path: /tour.html
 
   tutorials:
     title: Tutorials
