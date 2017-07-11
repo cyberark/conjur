@@ -10,10 +10,6 @@ This document will use the Conjur command-line interface (CLI) to show you how t
 
 For this tour, we will use a Conjur server that is running in the cloud, where an account has already been created for you. Please note that this cloud-based Conjur server is for evaluation purposes only, and therefore you should make sure **not** to store any sensitive information in it. For production scenarios, the Conjur server would be deployed within your own private environment.
 
-Here's an screencast of the first part of this tour, showing how to start the container, setup the environment, and create a file in the container using `nano`:
-
-<script type="text/javascript" src="https://asciinema.org/a/128502.js" id="asciicast-128502" async></script>
-
 {% include toc.md key='docker' %}
 
 If you don't have Docker installed, you can download it here:
@@ -62,6 +58,10 @@ Documents in Policy Markup format are easy to generate and manipulate using any 
 Here is a typical policy file. Save this file as `conjur.yml`:
 
 {% include policy-file.md policy='tour' %}
+
+Here's an screencast of the first part of this tour, showing how to start the container, setup the environment, and create a file in the container using `nano`:
+
+<script type="text/javascript" src="https://asciinema.org/a/128502.js" id="asciicast-128502" async></script>
 
 {% include toc.md key='loading' %}
 
