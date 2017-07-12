@@ -28,3 +28,4 @@ demo/run/*.yml
 apidocs/node_modules
 *.config
 docs/_layouts/page-toc.html
+api.html
