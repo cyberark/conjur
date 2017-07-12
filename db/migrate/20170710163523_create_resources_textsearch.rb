@@ -58,7 +58,7 @@ Sequel.migration do
         $resource_update_textsearch$;"
 
     run "CREATE TRIGGER resource_update_textsearch
-         AFTER INSERT OR UPDATE OR DELETE ON resources
+         AFTER INSERT OR UPDATE ON resources
          FOR EACH ROW EXECUTE PROCEDURE resource_update_textsearch();"
 
     run "CREATE FUNCTION annotation_update_textsearch() RETURNS trigger
@@ -88,6 +88,10 @@ Sequel.migration do
     run "CREATE TRIGGER annotation_update_textsearch
          AFTER INSERT OR UPDATE OR DELETE ON annotations
          FOR EACH ROW EXECUTE PROCEDURE annotation_update_textsearch();"
+
+    run "INSERT INTO resources_textsearch
+        SELECT resource_id, resources.tsvector
+        FROM resources;"
   end
 
   down do
