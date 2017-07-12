@@ -25,7 +25,7 @@ Sequel.migration do
         -- slashes are not considered word separators by parser, translate them
         -- note: although ids are not english, use english
         -- dict so that searching is simpler, if less strict
-        setweight(to_tsvector('pg_catalog.english', translate(identifier(resource.resource_id), '/-', '  ')), 'A') ||
+        setweight(to_tsvector('pg_catalog.english', translate(identifier(resource.resource_id), './-', '   ')), 'A') ||
 
         setweight(to_tsvector('pg_catalog.english',
           coalesce((SELECT value FROM annotations WHERE name = 'name'), '')
