@@ -1,5 +1,5 @@
 ---
-title: Quick Tour
+title: Try Conjur
 layout: page
 ---
 
@@ -59,7 +59,7 @@ Here is a typical policy file. Save this file as `conjur.yml`:
 
 {% include policy-file.md policy='tour' %}
 
-Here's an screencast of the first part of this tour, showing how to start the container, setup the environment, and create a file in the container using `nano`:
+Here's a screencast of the first part of this tour, showing how to start the container, setup the environment, and create a file in the container using `nano`:
 
 <script type="text/javascript" src="https://asciinema.org/a/128514.js" id="asciicast-128514" async></script>
 
