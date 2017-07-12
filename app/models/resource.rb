@@ -79,7 +79,7 @@ class Resource < Sequel::Model
       end
 
       # Filter by string search
-      scope = scope.where("resource_id like '%#{search}%'") if search
+      scope = scope.textsearch(search) if search
 
       if offset || limit
         scope = scope.order(:resource_id).limit(
@@ -89,6 +89,20 @@ class Resource < Sequel::Model
       end
 
       scope
+    end
+
+    def textsearch input
+      # If I use 3 literal spaces, it gets send to PG as one space.
+      query = Sequel.function(:plainto_tsquery, 'english',
+                              Sequel.function(:translate, input.to_s, './-', '   '))
+
+      # Default weights for ts_rank_cd are {0.1, 0.2, 0.4, 1.0} for DCBA resp.
+      # Sounds just about right. A are name and id, B is rest of annotations, C is kind.
+      rank = Sequel.function(:ts_rank_cd, :textsearch, query)
+
+      natural_join(:resources_textsearch)
+        .where('? @@ textsearch', query)
+        .order(Sequel.desc(rank))
     end
   end
 

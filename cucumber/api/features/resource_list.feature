@@ -21,31 +21,38 @@ Feature: List resources with various types of filtering
     When I successfully GET "/resources/cucumber"
     Then the resource list should include the new resources
 
-  Scenario: The resource list is searched by literal id.
+  Scenario: The resource list is searched and contains a resource with a matching resource id.
     Given I create 3 new resources
     And I create a new resource called "target"
     When I successfully GET "/resources/cucumber/test-resource?search=target"
     Then the resource list should only include the searched resource
 
-  Scenario: The resource list is searched and the target id contains a period.
+  Scenario: The resource list is searched and contains a resource with a matching annotation.
+    Given I create 3 new resources
+    And I create a new resource
+    And I add an annotation value of "target" to the resource
+    When I successfully GET "/resources/cucumber/test-resource?search=target"
+    Then the resource list should only include the searched resource
+
+  Scenario: The resource list is searched and the matched resource id contains a period.
     Given I create 3 new resources
     And I create a new resource called "target.resource"
     When I successfully GET "/resources/cucumber/test-resource?search=target"
     Then the resource list should only include the searched resource
 
-  Scenario: The resource list is searched and the target id contains a slash separator.
+  Scenario: The resource list is searched and the matched resource id contains a slash separator.
     Given I create 3 new resources
     And I create a new resource called "target/resource"
     When I successfully GET "/resources/cucumber/test-resource?search=target"
     Then the resource list should only include the searched resource
 
-  Scenario: The resource list is searched and the target id contains a dash separator.
+  Scenario: The resource list is searched and the matched resource id contains a dash separator.
     Given I create 3 new resources
     And I create a new resource called "target-resource"
     When I successfully GET "/resources/cucumber/test-resource?search=target"
     Then the resource list should only include the searched resource
 
-  Scenario: The resource list is filtered by literal id.
+  Scenario: The resource list is searched and contains multiple resources with matching resource ids.
     Given I create 3 new resources
     And I create a new searchable resource called "target_1"
     And I create a new searchable resource called "target_2"

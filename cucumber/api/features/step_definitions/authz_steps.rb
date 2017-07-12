@@ -8,6 +8,13 @@ Given(/^I create a new(?: "([^"]*)")? resource(?: called "([^"]*)")?$/) do |kind
                     owner: @current_user || admin_user)
 end
 
+Given(/^I add an annotation value of(?: "([^"]*)")? to the resource$/) do |annotation_value|
+  @current_resource.annotations <<
+    Annotation.create(resource: @current_resource,
+                      name: "key",
+                      value: annotation_value)
+end
+
 Given(/^I create a new searchable resource(?: called "([^"]*)")?$/) do |identifier|
   kind ||= "test-resource"
   identifier ||= random_hex
