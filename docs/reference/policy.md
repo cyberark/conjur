@@ -52,21 +52,14 @@ Here's how to load the policy "conjur.yml":
 {% highlight shell %}
 $ conjur policy load root conjur.yml
 Policy loaded
-TODO: Show additional command output
 {% endhighlight %}
 
 {% include toc.md key='history' %}
 
 When you load a policy, the policy YAML is stored in the Conjur Server. As you make updates to the policy, the subsequent versions of policy YAML are stored as well. This policy history is available by fetching the `policy` resource. For example, using the CLI:
 
-TODO: verify this
-
 {% highlight shell %}
 $ conjur show policy:frontend
-{
-TODO: fill out this example
-... bunch of JSON including embedded YAML
-}
 {% endhighlight %}
 
 {% include toc.md key='loading-modes' %}
