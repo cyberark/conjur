@@ -33,6 +33,7 @@ The API documentation is generated using a separate image. To build that image a
 ```sh-session
 $ apidocs/build.sh
 $ docker run --rm conjurinc/possum-apidocs > api.html
+$ open api.html  # To see the docs in your browser
 ```
 
 ## Development environment
