@@ -7,7 +7,7 @@ pipeline {
     timestamps()
     buildDiscarder(logRotator(numToKeepStr: '30'))
     skipDefaultCheckout()  // see 'Checkout SCM' below, once perms are fixed this is no longer needed
-  } 
+  }
 
   stages {
     stage('Checkout SCM') {
@@ -35,7 +35,7 @@ pipeline {
     stage('Test') {
       steps {
         sh './test.sh'
-        
+
         junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,scaling_features/reports/**/*.xml,reports/*.xml'
       }
     }
@@ -49,6 +49,14 @@ pipeline {
     stage('Push image') {
       steps {
         sh './push-image.sh'
+      }
+    }
+
+    stage ('Generate API docs') {
+      steps {
+        sh 'apidocs/build.sh'
+        sh 'docker run --rm conjurinc/possum-apidocs > api.html'
+        archiveArtifacts artifacts: 'api.html', fingerprint: true
       }
     }
 
@@ -71,4 +79,3 @@ pipeline {
     }
   }
 }
-
