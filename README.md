@@ -1,6 +1,8 @@
 # Possum
 
-![Conjur on Slack](https://slackin-conjur.herokuapp.com/badge.svg)
+<a href="https://slackin-conjur.herokuapp.com">
+  <img src="https://slackin-conjur.herokuapp.com/badge.svg"/>
+</a>
 
 Possum is an identity and authorization service for infrastructure. It provides:
 
