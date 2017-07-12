@@ -51,4 +51,4 @@ Conjur is easily programmable by interacting with the REST API (documentation co
 
 # Next steps
 
-* Take the [Quick Tour](./tour.html), and try out Conjur right now!
+* Take the tour, and [Try Conjur](./try-conjur.html) out right now!
