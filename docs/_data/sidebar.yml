@@ -1,7 +1,7 @@
 main:
   tour:
-    title: Quick Tour
-    path: /tour.html
+    title: Try Conjur
+    path: /try-conjur.html
 
   installation:
     title: Installation
