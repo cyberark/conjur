@@ -41,6 +41,7 @@ Sequel.migration do
         $$;"
     
     run "CREATE FUNCTION resource_update_textsearch() RETURNS trigger
+        SET search_path FROM CURRENT
         LANGUAGE plpgsql
         AS $resource_update_textsearch$
         BEGIN
@@ -62,6 +63,7 @@ Sequel.migration do
          FOR EACH ROW EXECUTE PROCEDURE resource_update_textsearch();"
 
     run "CREATE FUNCTION annotation_update_textsearch() RETURNS trigger
+        SET search_path FROM CURRENT
         LANGUAGE plpgsql
         AS $annotation_update_textsearch$
         BEGIN
