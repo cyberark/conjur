@@ -101,7 +101,7 @@ Then(/^the result is false$/) do
   expect(@result).to be false
 end
 
-Then(/^I can authenticate with the admin API key for the account "(.*?)"/) do |account|
+Then(/^I (?:can )*authenticate with the admin API key for the account "(.*?)"/) do |account|
   user = lookup_user('admin', account)
   user.reload
   steps %Q{
