@@ -149,7 +149,14 @@ Note that different web service functions may have different required privileges
 {% include toc.md key='sinatra-example' %}
 Now let's run through an example of implementing the above using Sinatra.
 
-First, let's setup our `Gemfile`:
+First, let's create a new folder for our demo project `MyApp`:
+
+{% highlight bash %}
+$ mkdir my_app
+$ cd my_app
+{% endhighlight %}
+
+Next, let's create `Gemfile` to manage our dependencies:
 
 {% highlight ruby %}
 # Gemfile
@@ -161,6 +168,12 @@ gem 'sinatra', '~> 2.0'
 {% endhighlight %}
 
 Note that we're building the Conjur API gem from source rather than downloading it from Ruby Gems. The Conjur CE release marks a major overhaul of the API. This version will be published to Ruby Gems prior to our public release.
+
+Now we can install all our required gems with:
+
+{% highlight bash %}
+$ bundle install
+{% endhighlight %}
 
 Now let's setup our Rackup file:
 
@@ -176,7 +189,7 @@ Bundler.require
 Conjur.configuration.account = ENV['CONJUR_ACCOUNT']
 Conjur.configuration.appliance_url = ENV['CONJUR_URL']
 
-require './demo_app'
+require './my_app'
 
 run Sinatra::Application
 {% endhighlight %}
