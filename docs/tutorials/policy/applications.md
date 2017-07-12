@@ -52,7 +52,7 @@ Loaded policy 'root'
 Use the `conjur list` command to view all the objects in the system:
 
 {% highlight shell %}
-$ conjur list -i
+$ conjur list
 [
   "myorg:policy:root",
   "myorg:policy:db",

@@ -16,8 +16,49 @@
 	background: -webkit-linear-gradient(top, #0071c7 0%,#11b5e4 100%); /* Chrome10-25,Safari5.1-6 */
 	background: linear-gradient(to bottom, #0071c7 0%,#11b5e4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0071c7', endColorstr='#11b5e4',GradientType=0 ); /* IE6-9 */
+	hr {
+		position: relative;
+    margin: 1.5rem 0;
+    border: 0;
+    //border-top: 1px solid #eee;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);;
+	}
+}
+
+.sidebar-nav ul {
+  padding-left: 1rem;
+}
+
+.sidebar-disclaimer {
+  margin-top: 2em;
+  bottom: 25px;
+  position: absolute;
+  img.cyberark-sidebar-logo {
+  	width: 100px;
+  	margin: 0 auto;
+	}
+}
+
+.slack-signup {
+  margin-top: 1.5em;
+}
+
+// Try Conjur Enterprise
+.try-conjur {
+	a {
+    font-weight: bold;
+    color: #fff;
+    font-size: 16px;
+	}
+}
+
+.disclaimer {
+	font-size: 13px;
+	text-align: center;
+	margin-bottom: 0;
 }
 
 .sidebar-about img {
 	width: 200px;
+	margin: 0 0 1.5rem 0;
 }

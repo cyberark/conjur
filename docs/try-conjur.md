@@ -1,42 +1,38 @@
 ---
-title: Quick Tour
+title: Try Conjur
 layout: page
 ---
 
 
 {% include toc.md key='introduction' %}
 
-This document will use the Conjur command-line interface (CLI) to show you how to use Conjur to perform some common tasks, such as load policy data and secrets into Conjur, fetch secrets, login as a machine, and fetching a secret while logged in as a machine.
+This document will use the Conjur command-line interface (CLI) to show you how to use Conjur to perform some common tasks such as loading and retrieving secrets from Conjur, creating security policies, logging in as a machine, and fetching a secret while logged in as a machine.
 
+For this tour, we will use a Conjur server that is running in the cloud, where an account has already been created for you. Please note that this cloud-based Conjur server is for evaluation purposes only, and therefore you should make sure **not** to store any sensitive information in it. For production scenarios, the Conjur server would be deployed within your own private environment.
 
 {% include toc.md key='docker' %}
 
 If you don't have Docker installed, you can download it here:
-* [Docker for Mac – v17.03](https://download.docker.com/mac/stable/16048/Docker.dmg) 
+* [Docker for Mac](https://download.docker.com/mac/stable/16048/Docker.dmg)
 * [Docker for Windows](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows)
 
 
 {% include toc.md key='cli' %}
 
-You can easily download and run the Conjur CLI using the official pre-built images hosted by Docker Hub. 
+You can easily download and run the Conjur CLI using the official pre-built images hosted by Docker Hub.
 
 {% highlight shell %}
-  $ docker run -it -v $PWD:/work conjurinc/cli5
-{% endhighlight %}
-
-Then change into the `/work` directory:
-
-{% highlight shell %}
-$ cd work
+$ docker run --rm -it -v $PWD:/work -w /work conjurinc/cli5
 {% endhighlight %}
 
 {% include toc.md key='environment' %}
 
-Use your account information to configure the connection to the Conjur server:
+Use your account information to configure the connection to the Conjur server. The information below is
+for the hosted solution, but if you have your own Conjur server then update it appropriately.
 
 {% highlight shell %}
-  $ export CONJUR_APPLIANCE_URL=http://conjur 
-  $ export CONJUR_ACCOUNT=myorg 
+$ export CONJUR_APPLIANCE_URL=https://possum-conjur.herokuapp.com
+$ export CONJUR_ACCOUNT="your-conjur-account-id"
 {% endhighlight %}
 
 {% include toc.md key='login' %}
@@ -45,7 +41,7 @@ Login by entering your API key at the `login` prompt:
 
 {% highlight shell %}
   $ conjur authn login -u admin
-  Please enter admin's password (it will not be echoed):
+  Please enter admin password (it will not be echoed):
   Logged in
 {% endhighlight %}
 
@@ -55,20 +51,24 @@ With this accomplished, you're ready to walk through the following tour of Conju
 
 In order to manage control of infrastructure, you use Conjur policies to create access rules between users, machines, services and secrets. Policies are the medium of security model collaboration. Since they are human readable, they can be shared with all stakeholders to gain consensus before commiting changes to your security infrastructure.
 
-A policy is a declarative document (data, not code), so loading a policy cannot have any effect other than to create and update the role-based access control model inside the Conjur service. It is written using Policy Markup, a subset of YAML which is human-readable and thus homoiconic: it does what it looks like it does.
+A policy is a declarative document (data, not code), so loading a policy cannot have any effect other than to create and update the role-based access control model inside the Conjur service. It is written using Policy Markup, a subset of YAML which is human-readable.
 
 Documents in Policy Markup format are easy to generate and manipulate using any programming language, and they are idempotent so you can safely re-apply a policy any number of times. These properties make them automation-friendly.
 
-Here is a typical policy file. Save this file as "conjur.yml":
+Here is a typical policy file. Save this file as `conjur.yml`:
 
 {% include policy-file.md policy='tour' %}
+
+Here's a screencast of the first part of this tour, showing how to start the container, setup the environment, and create a file in the container using `nano`:
+
+<script type="text/javascript" src="https://asciinema.org/a/128514.js" id="asciicast-128514" async></script>
 
 {% include toc.md key='loading' %}
 
 To load the policy, use the CLI command `conjur policy load <policy-id> <policy-file>`. This command requires two arguments:
 
-* `policy-id` The first time you load a policy, use the policy id "root". This is a special policy name that is used to define root-level data. 
-* `policy-file` Policy file containing statements in YAML format. 
+* `policy-id` The first time you load a policy, use the policy id `root`. This is a special policy name that is used to define root-level data.
+* `policy-file` Policy file containing statements in YAML format.
 
 {% highlight shell %}
 $ conjur policy load root conjur.yml
@@ -98,7 +98,7 @@ The command response includes the following data:
 
 {% include toc.md key='adding-secret' %}
 
-The policy defines a variable called "db/password". As we mentioned earlier, Conjur variables store encrypted, access-controlled data. To load a secret value into the "db/password", use the following commands:
+The policy defines a variable called `db/password`. As we mentioned earlier, Conjur variables store encrypted, access-controlled data. To load a secret value into the `db/password`, use the following commands:
 
 {% highlight shell %}
 $ password=$(openssl rand -hex 12)
@@ -124,26 +124,26 @@ fde5c4a45ce573f9768987cd
 
 {% include toc.md key='machine-login' %}
 
-So far, we have performed all the commands while logged in as the "admin" user. But, we showed how the server issued a new API key for the host "myapp-01". 
+So far, we have performed all the commands while logged in as the "admin" user. But, we showed how the server issued a new API key for the host "myapp-01".
 
-To login as another role, use the CLI command `conjur authn login`. When prompted for the password, enter the API key which was printed when you loaded the policy.
+To login as another role, use the CLI command `conjur authn login`. When prompted for the password, enter the API key which was printed when you loaded the policy above.
 
 {% highlight shell %}
 $ conjur authn login host/myapp-01
-Please enter host/myapp-01's password (it will not be echoed):
+Please enter host/myapp-01s password (it will not be echoed):
 Logged in
 $ conjur authn whoami
 { "account": "mycorp", "user": "host/myapp-01" }
 {% endhighlight %}
 
 <div class="note">
-<strong>Note</strong> If you've lost the API key of a host, you can reset it using the command <tt>conjur host rotate_api_key -h &lt;host-id&gt;</tt>.
+<strong>Note</strong> If you lose the API key of a host, you can reset it using the command <tt>conjur host rotate_api_key -h &lt;host-id&gt;</tt>.
 </div>
 <p/>
 
 {% include toc.md key='fetching-as-machine' %}
 
-Beacuse the policy permits the layer "myapp" to `execute` the variable "db/password", and because the host "myapp-01" is a member of this layer, we can now fetch the secret value while authenticated as the host:
+Beacuse the policy permits the layer `myapp` to `execute` the variable `db/password`, and because the host `myapp-01` is a member of this layer, we can now fetch the secret value while authenticated as the host:
 
 {% highlight shell %}
 $ conjur variable value db/password
@@ -151,7 +151,8 @@ fde5c4a45ce573f9768987cd
 {% endhighlight %}
 
 
-
 {% include toc.md key='next-steps' %}
 
-Email <support@conjur.net> for access to Conjur Enterprise v4.9 to continue your explorations on prem.
+* Go through the [Conjur Tutorials](./tutorials/index.html)
+* Talk to the Conjur team on our [Slack channel](./support.html)
+* Experience even more features with [Conjur Enterprise](./try-conjur-enterprise.html)

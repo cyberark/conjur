@@ -68,6 +68,15 @@ pipeline {
         sh 'summon ./website.sh'
       }
     }
+
+    stage('Push to Heroku') {
+      when {
+        branch 'master'
+      }
+      steps {
+        build job: 'release-heroku', parameters: [string(name: 'APP_NAME', value: 'possum-conjur')]
+      }
+    }
   }
 
   post {

@@ -1,11 +1,14 @@
-"/tour.html":
+"/try-conjur-enterprise.html":
+  enterprise: Try Conjur Enterprise
+
+"/try-conjur.html":
   docker: Install Docker
-  cli: Download & Run Conjur CLI
+  cli: Download & Run the Conjur CLI
   environment: Export Environment Variables
   prerequisites: Prerequisites
   login: Login
   introduction: Introduction
-  policies: "Introducing: Policies"
+  policies: Introducing Policies
   loading: Loading the Root Policy
   exploring: Exploring Policy Objects
   adding-secret: Adding a Secret
@@ -16,6 +19,7 @@
   permission-check-api: Checking Permissions
   programming: Programming Conjur
   next-steps: Next Steps
+  enterprise: Try Conjur Enterprise
 
 "/installation/client.html":
   get:
@@ -70,6 +74,7 @@
   secrets-fetching: Secrets Fetching
   permission-checking: Permission Checking
   webservice-authz: Webservice Authorization
+  sinatra-example: Sinatra Example
   next-steps: Next Steps
 
 "/tutorials/integrations/puppet.html":
@@ -93,7 +98,7 @@
   client: Client Configuration
   summary: Summary
 
-"/tutorials/policy/applications.html":  
+"/tutorials/policy/applications.html":
   introduction: Introduction
   prerequisites: Prerequisites
   setup: Setup
@@ -102,14 +107,10 @@
   entitlement: Entitlement
   next-steps: Next Steps
 
-"/tutorials/policy/delegation.html":  
+"/tutorials/policy/delegation.html":
   introduction: Introduction
   prerequisites: Prerequisites
   setup: Setup
   multi-user-concepts: Delegation Concepts
   delegate: Delegation Demonstration
   summary: Summary
-
-
-
-
