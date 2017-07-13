@@ -114,6 +114,25 @@
 // Mobile Nav
 // ***********************
 
+@media (min-width: 768px) and (max-width: 991px) {
+	#content {
+		//margin-left: 33.33333%;
+	}
+
+	.navbar-nav > li > .dropdown-menu {
+		text-align: left;
+		color: rgba(255,255,255,.5);
+		background-color: $conjur-hover-blue;
+		border-color: $conjur-hover-blue;
+		border-top-right-radius: 4px;
+	}
+
+	ul.nav.navbar-nav {
+		margin-top: .5%;
+	}
+
+}
+
 #mobile-navigation {
 	text-align: left;
 	color: rgba(255,255,255,.5);
