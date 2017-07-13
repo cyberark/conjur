@@ -78,8 +78,20 @@ ul {
 #content {
 }
 
+p {
+	font-family: 'Open Sans', sans-serif;
+	font-size: 16px;
+	line-height: 1.8rem;
+	color: $conjur-text;
+}
+
 .page {
 	padding: 1rem 4rem 2rem 4rem;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 16px;
+	line-height: 1.8rem;
+	color: $conjur-text;
+	font-weight: 300;
 
 	h2 {
 		margin: 3rem 0 1rem 0;
