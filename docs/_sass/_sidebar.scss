@@ -179,3 +179,12 @@
 		background-color: $conjur-hover-white;
 	}
 }
+
+@media (max-width: 767px) {
+	.navbar-nav .open .dropdown-menu > li > a {
+		padding-left: 50px;
+	}
+	.navbar-nav .open .dropdown-menu > li > a.nav-item-parent {
+		padding-left: 25px;
+	}
+}
