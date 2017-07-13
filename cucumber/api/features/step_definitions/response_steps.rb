@@ -1,12 +1,12 @@
-Then(/^the resource list should include the new resource$/) do
+Then(/^the resource list should include the newest resource$/) do
   expect(@result.map{|r| r['id']}).to include(@current_resource.id)
 end
 
-Then(/^the resource list should not include the new resource$/) do
+Then(/^the resource list should not include the newest resource$/) do
   expect(@result.map{|r| r['id']}).to_not include(@current_resource.id)
 end
 
-Then(/^the resource list should include the new resources$/) do
+Then(/^the resource list should include the newest resources$/) do
   expect(@result.map{|r| r['id']}).to include(*@current_resources.map{|r| r.id})
 end
 

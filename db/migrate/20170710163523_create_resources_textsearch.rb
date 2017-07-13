@@ -22,9 +22,9 @@ Sequel.migration do
         SELECT
         -- id and name are A
 
-        -- slashes are not considered word separators by parser, translate them
-        -- note: although ids are not english, use english
-        -- dict so that searching is simpler, if less strict
+        -- Translate chars that are not considered word separators by parser. Note that Conjur v3's /authz
+        -- did not include a period here. It has been added for possum.
+        -- Note: although ids are not english, use english dict so that searching is simpler, if less strict
         setweight(to_tsvector('pg_catalog.english', translate(identifier(resource.resource_id), './-', '   ')), 'A') ||
 
         setweight(to_tsvector('pg_catalog.english',
@@ -41,6 +41,9 @@ Sequel.migration do
         $$;"
     
     run "CREATE FUNCTION resource_update_textsearch() RETURNS trigger
+        -- The loader orchestration logic changes the search path temporarily, which causes
+        -- these triggers to be unable to find the tables and functions they need. Fix this
+        -- by setting the search path from the current schema each time.
         SET search_path FROM CURRENT
         LANGUAGE plpgsql
         AS $resource_update_textsearch$
@@ -63,6 +66,9 @@ Sequel.migration do
          FOR EACH ROW EXECUTE PROCEDURE resource_update_textsearch();"
 
     run "CREATE FUNCTION annotation_update_textsearch() RETURNS trigger
+        -- The loader orchestration logic changes the search path temporarily, which causes
+        -- these triggers to be unable to find the tables and functions they need. Fix this
+        -- by setting the search path from the current schema each time.
         SET search_path FROM CURRENT
         LANGUAGE plpgsql
         AS $annotation_update_textsearch$

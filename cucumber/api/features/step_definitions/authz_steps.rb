@@ -2,10 +2,14 @@ Given(/^I create a new(?: "([^"]*)")? resource(?: called "([^"]*)")?$/) do |kind
   kind ||= "test-resource"
   identifier ||= random_hex
   identifier = denormalize identifier
+
+  @current_resources ||= []
   
   @current_resource =
     Resource.create(resource_id: "cucumber:#{kind}:#{identifier}",
                     owner: @current_user || admin_user)
+
+  @current_resources << @current_resource
 end
 
 Given(/^I add an annotation value of(?: "([^"]*)")? to the resource$/) do |annotation_value|
@@ -16,7 +20,7 @@ Given(/^I add an annotation value of(?: "([^"]*)")? to the resource$/) do |annot
 end
 
 Given(/^I create a new searchable resource(?: called "([^"]*)")?$/) do |identifier|
-  kind ||= "test-resource"
+  kind = "test-resource"
   identifier ||= random_hex
   identifier = denormalize identifier
 
@@ -39,14 +43,16 @@ end
 Given(/^I create (\d+) new resources$/) do |count|
   kind = "test-resource"
 
-  @current_resources = []
+  @current_resources ||= []
   
   count.to_i.times do
     identifier ||= random_hex
     identifier = denormalize identifier
-    @current_resources <<
+    @current_resource =
       Resource.create(resource_id: "cucumber:#{kind}:#{identifier}",
                       owner: @current_user || admin_user)
+    
+    @current_resources << @current_resource
   end
 end
 
