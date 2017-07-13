@@ -1,35 +1,28 @@
-<div class="sidebar">
-  <div class="container">
-    <div class="sidebar-about">
-      <h1>
-        <a href="{{ site.baseurl }}/">
-          <img src="{{ site.baseurl }}/img/conjur-logo-all-white.svg" alt="Conjur Logo">
-        </a>
-      </h1>
+<div id="sidebar" class="col-12 col-sm-4 col-md-3 col-lg-2" data-spy="affix">
+  <div class="sidebar-about">
+    <a href="{{ site.baseurl }}/">
+      <img src="{{ site.baseurl }}/img/conjur-logo-all-white.svg" alt="Conjur Logo">
+    </a>
+  </div>
 
-      <p class="lead">{{ site.description }}</p>
+  <nav class="sidebar-nav">
+    {% for item_hash in site.data.sidebar.main %}
+      {% assign value = item_hash[1] %}
+      {% include menu-item.html item=value %}
+    {% endfor %}
+    <a href="/try-conjur-enterprise.html">Conjur Enterprise</a>
+
+    <hr/>
+
+    <div class="slack-signup">
+      <script async defer src="https://slackin-conjur.herokuapp.com/slackin.js"></script>
+      <!-- append "?" to the URL for the large version -->
     </div>
 
-    <nav class="sidebar-nav">
-      {% for item_hash in site.data.sidebar.main %}
-        {% assign value = item_hash[1] %}
-        {% include menu-item.html item=value %}
-      {% endfor %}
-      <a href="/try-conjur-enterprise.html">Conjur Enterprise</a>
-      
-      <hr/> 
+  </nav>
 
-      <div class="slack-signup">
-        <script async defer src="https://slackin-conjur.herokuapp.com/slackin.js"></script>
-        <!-- append "?" to the URL for the large version -->
-      </div>  
-
-    </nav>
-
-    <div class="sidebar-disclaimer">
-      <a href="https://www.cyberark.com/"><img class="cyberark-sidebar-logo" src="{{ site.baseurl }}/img/cyberark-white.png" alt="CyberArk Logo"></a>
-      <p class="disclaimer">&copy; {{ site.time | date: '%Y' }} CyberArk. All rights reserved.</p>
-    </div>
-    
+  <div class="sidebar-disclaimer hidden-sm-down">
+    <a href="https://www.cyberark.com/"><img class="cyberark-sidebar-logo" src="{{ site.baseurl }}/img/cyberark-white.png" alt="CyberArk Logo"></a>
+    <p class="disclaimer">&copy; {{ site.time | date: '%Y' }} CyberArk. All rights reserved.</p>
   </div>
 </div>

@@ -6,6 +6,8 @@ body {
 	background-color: $conjur-bg;
 	font-family: 'Open Sans', sans-serif;
 	line-height: 1.8rem;
+	position: relative;
+	height: 100%;
 }
 
 html {
@@ -14,6 +16,8 @@ html {
 	line-height: 1.8rem;
 	color: $conjur-text;
 	font-weight: 300;
+	position: relative;
+	height: 100%;
 }
 
 pre {
@@ -32,6 +36,13 @@ code {
 }
 
 .landing-img {
+	margin: 50px 0;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+	display: block;
 	margin: 50px 0;
 }
 
@@ -56,29 +67,41 @@ code {
 // Container
 // ***********************
 
-.content {
-	padding-top:    2rem;
-	padding-bottom: 4rem;
-}
-
-@media (min-width: 48em) {
-	.content {
-		max-width: 55rem;
-		margin-left: 20rem;
-		margin-right: 2rem;
-	}
-}
-
-@media (min-width: 64em) {
-	.content {
-		margin-left: 22rem;
-		margin-right: 4rem;
-	}
+#content {
 }
 
 .page {
+	padding: 1rem 2rem 2rem 2rem;
+
 	h2 {
 		margin: 3rem 0 1rem 0;
+	}
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+	#content {
+		margin-left: 33.33333%;
+	}
+}
+
+@media (min-width: 992px) and (max-width: 1200px) {
+	#content {
+		margin-left: 25%;
+	}
+}
+
+@media (min-width: 1201px) {
+	#content {
+		margin-left: 16.67%;
+	}
+}
+
+@media (max-width: 767px) {
+	#content {
+		margin-left: auto;
+	}
+	#sidebar.affix {
+		position: static !important;
 	}
 }
 
