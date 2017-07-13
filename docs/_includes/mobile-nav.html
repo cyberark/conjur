@@ -1,0 +1,37 @@
+{% assign item = include.item %}
+
+{% assign open = false %}
+{% if item.path %}
+  {% assign page_path_prefix = page.url | slice: 0, item.path.size %}
+  {% if page_path_prefix == item.path %}
+    {% assign open = true %}
+  {% endif %}
+{% endif %}
+{% if item.url != null %}
+  <li><a class="sidebar-nav-item" href="{{ item.url }}" target="_blank">
+    {{ item.title }} &raquo;
+  </a></li>
+{% elsif item.path != null %}
+  <li class="{% if page.url == item.path %}active{% endif %} {% if item.items %} dropdown{% endif %} {% if open %} open{% endif %}">
+    <a class="sidebar-nav-item {% if item.items %} dropdown-toggle{% endif %}" href="{{ site.baseurl }}{{ item.path }}" {% if item.items %}data-toggle="dropdown"{% endif %}>
+    {{ item.title }}
+    {% if item.items %}<span class="caret"></span>{% endif %}
+    </a>
+
+    {% if item.items %}
+      {% assign subitems = item.items %}
+      {% if subitems %}
+        <ul class="dropdown-menu">
+          {% for item_hash in subitems %}
+            {% assign item = item_hash[1] %}
+            <li><a class="sidebar-nav-item" href="{{ item.url }}">{{ item.title }}</a></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endif %}
+  </li>
+{% else %}
+  <li><div class="sidebar-nav-item">
+    {{ item.title }}
+  </div></li>
+{% endif %}
