@@ -59,11 +59,16 @@ class Resource < Sequel::Model
     # Filter out records based on:
     # @param kind [String] - chooses just resources of this kind
     # @param owner [Role] - owned by this role or one of its ancestors
-    def search account, kind: nil, owner: nil, offset: nil, limit: nil
+    # @param offset [Numeric] - an offset into the list of returned results
+    # @param limit [Numeric] - a maximum number of results to return
+    # @param search [String] - a search term in the resource id
+    def search account, kind: nil, owner: nil, offset: nil, limit: nil, search: nil
       scope = self
+      
       # Search only the user's account.
       # This can be removed once resource visibility rules are added.
       scope = scope.where("account(resource_id) = ?", account)
+      
       # Filter by kind.
       scope = scope.where("kind(resource_id) = ?", kind) if kind
       
@@ -73,6 +78,9 @@ class Resource < Sequel::Model
         scope = scope.where owner_id: owners
       end
 
+      # Filter by string search
+      scope = scope.textsearch(search) if search
+
       if offset || limit
         scope = scope.order(:resource_id).limit(
           (limit || 10).to_i,
@@ -81,6 +89,20 @@ class Resource < Sequel::Model
       end
 
       scope
+    end
+
+    def textsearch input
+      # If I use 3 literal spaces, it gets send to PG as one space.
+      query = Sequel.function(:plainto_tsquery, 'english',
+                              Sequel.function(:translate, input.to_s, './-', '   '))
+
+      # Default weights for ts_rank_cd are {0.1, 0.2, 0.4, 1.0} for DCBA resp.
+      # Sounds just about right. A are name and id, B is rest of annotations, C is kind.
+      rank = Sequel.function(:ts_rank_cd, :textsearch, query)
+
+      natural_join(:resources_textsearch).
+        where("? @@ textsearch", query).
+        order(Sequel.desc(rank))
     end
   end
 
