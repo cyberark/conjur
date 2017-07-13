@@ -2,12 +2,7 @@
 // Sidebar
 // ***********************
 
-.sidebar {
-	position: fixed;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	width: 18rem;
+#sidebar {
 	text-align: left;
 	padding: 2.5rem 1rem;
 	color: rgba(255,255,255,.5);
@@ -16,12 +11,18 @@
 	background: -webkit-linear-gradient(top, #0071c7 0%,#11b5e4 100%); /* Chrome10-25,Safari5.1-6 */
 	background: linear-gradient(to bottom, #0071c7 0%,#11b5e4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0071c7', endColorstr='#11b5e4',GradientType=0 ); /* IE6-9 */
+	height: 100%;
+
 	hr {
 		position: relative;
     margin: 1.5rem 0;
     border: 0;
-    //border-top: 1px solid #eee;
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);;
+	}
+
+	a {
+		color: #ffffff;
+		display: block;
 	}
 }
 
@@ -33,6 +34,7 @@
   margin-top: 2em;
   bottom: 25px;
   position: absolute;
+
   img.cyberark-sidebar-logo {
   	width: 100px;
   	margin: 0 auto;
@@ -41,6 +43,44 @@
 
 .slack-signup {
   margin-top: 1.5em;
+}
+
+@media (max-width: 767px) {
+	#sidebar {
+		height: auto;
+		padding: 10px;
+		text-align: center;
+
+		a {
+			display: inline-block;
+		}
+
+		hr {
+			display: none;
+		}
+
+		.sidebar-about {
+			max-width: 25%;
+			padding: 5px 15px;
+			margin: 0;
+			float: left;
+
+			img {
+				margin: 0;
+			}
+		}
+		.sidebar-nav a,
+		.slack-signup {
+			display: inline-block;
+			padding: 2px 10px;
+			margin: 0px;
+		}
+
+		.slack-signup {
+			position: relative;
+			top: 5px;
+		}
+	}
 }
 
 // Try Conjur Enterprise
@@ -59,6 +99,5 @@
 }
 
 .sidebar-about img {
-	width: 200px;
 	margin: 0 0 1.5rem 0;
 }
