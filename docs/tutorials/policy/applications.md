@@ -7,7 +7,7 @@ layout: page
 
 A very common question is: how do I add new secrets and apps to my infrastructure?
 
-At Conjur, we refer to this process of adding new stuff as "enrollment". The basic flow works in three steps:
+At Conjur, we refer to this process of adding new stuff as "enrollment". The basic flow works in four steps:
 
 1. Define protected resources, such as Webservices and Variables, using a policy. Call this "Policy A".
 2. In "Policy A", create a group which has access to the protected resources.
