@@ -1,5 +1,5 @@
 @logged-in
-Feature: List resources and filter by the kind parameter
+Feature: List resources with various types of filtering
 
   Background:
     Given I create 3 new resources
