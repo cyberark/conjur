@@ -67,10 +67,10 @@ class Resource < Sequel::Model
       
       # Search only the user's account.
       # This can be removed once resource visibility rules are added.
-      scope = scope.where(Sequel.lit("account(resource_id) = ?", account))
+      scope = scope.where("account(resource_id) = ?", account)
       
       # Filter by kind.
-      scope = scope.where(Sequel.lit("kind(resource_id) = ?", kind)) if kind
+      scope = scope.where("kind(resource_id) = ?", kind) if kind
       
       # Filter by owner
       if owner
@@ -101,7 +101,7 @@ class Resource < Sequel::Model
       rank = Sequel.function(:ts_rank_cd, :textsearch, query)
 
       natural_join(:resources_textsearch).
-        where(Sequel.lit("? @@ textsearch", query)).
+        where("? @@ textsearch", query).
         order(Sequel.desc(rank))
     end
   end
