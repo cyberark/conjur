@@ -46,6 +46,14 @@ img {
 	margin: 50px 0;
 }
 
+ul {
+	padding: 0;
+
+	li {
+		list-style: none;
+	}
+}
+
 // ***********************
 // Buttons
 // ***********************
@@ -71,7 +79,7 @@ img {
 }
 
 .page {
-	padding: 1rem 2rem 2rem 2rem;
+	padding: 1rem 4rem 2rem 4rem;
 
 	h2 {
 		margin: 3rem 0 1rem 0;
