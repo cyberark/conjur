@@ -1,3 +1,5 @@
+# This migration has been ported over from Conjur v3's /authz project. I had to 
+# make a few changes for possum that have been documented with comments.
 Sequel.migration do
   up do
     create_table :resources_textsearch do
@@ -43,7 +45,7 @@ Sequel.migration do
     run "CREATE FUNCTION resource_update_textsearch() RETURNS trigger
         -- The loader orchestration logic changes the search path temporarily, which causes
         -- these triggers to be unable to find the tables and functions they need. Fix this
-        -- by setting the search path from the current schema each time.
+        -- by setting the search path from the current schema each time. Added for possum.
         SET search_path FROM CURRENT
         LANGUAGE plpgsql
         AS $resource_update_textsearch$
@@ -68,7 +70,7 @@ Sequel.migration do
     run "CREATE FUNCTION annotation_update_textsearch() RETURNS trigger
         -- The loader orchestration logic changes the search path temporarily, which causes
         -- these triggers to be unable to find the tables and functions they need. Fix this
-        -- by setting the search path from the current schema each time.
+        -- by setting the search path from the current schema each time. Added for possum.
         SET search_path FROM CURRENT
         LANGUAGE plpgsql
         AS $annotation_update_textsearch$
