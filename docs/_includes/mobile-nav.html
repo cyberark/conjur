@@ -22,7 +22,6 @@
       {% assign subitems = item.items %}
       {% if subitems %}
         <ul class="dropdown-menu">
-          <li><a class="sidebar-nav-item nav-item-parent" href="{{ site.baseurl }}{{ item.path }}">{{ item.title }}</a></li>
           {% for item_hash in subitems %}
             {% assign item = item_hash[1] %}
             <li><a class="sidebar-nav-item" href="{{ item.url }}">{{ item.title }}</a></li>
