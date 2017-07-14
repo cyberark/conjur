@@ -24,7 +24,7 @@
         <ul class="dropdown-menu">
           {% for item_hash in subitems %}
             {% assign item = item_hash[1] %}
-            <li><a class="sidebar-nav-item" href="{{ item.url }}">{{ item.title }}</a></li>
+            <li><a class="sidebar-nav-item" href="{{ item.path }}">{{ item.title }}</a></li>
           {% endfor %}
         </ul>
       {% endif %}
