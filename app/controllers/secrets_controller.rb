@@ -52,12 +52,10 @@ class SecretsController < RestController
     end
 
     result = {}
+
+    authorize_many resources, :execute
     
     resources.each do |resource|
-      @resource = resource
-      
-      authorize :execute
-
       if resource.secrets.last.nil?
         raise Exceptions::RecordNotFound, resource.resource_id
       end
