@@ -2,12 +2,7 @@
 // Sidebar
 // ***********************
 
-.sidebar {
-	position: fixed;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	width: 18rem;
+#sidebar {
 	text-align: left;
 	padding: 2.5rem 1rem;
 	color: rgba(255,255,255,.5);
@@ -16,23 +11,47 @@
 	background: -webkit-linear-gradient(top, #0071c7 0%,#11b5e4 100%); /* Chrome10-25,Safari5.1-6 */
 	background: linear-gradient(to bottom, #0071c7 0%,#11b5e4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0071c7', endColorstr='#11b5e4',GradientType=0 ); /* IE6-9 */
+	height: 100%;
+	width: 300px;
+
 	hr {
 		position: relative;
     margin: 1.5rem 0;
     border: 0;
-    //border-top: 1px solid #eee;
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);;
 	}
+
+	a {
+		color: #ffffff;
+		display: block;
+		font-size: 16px;
+    padding: .2em 0;
+	}
+
+	.sidebar-nav {
+		padding-left: 10px;
+		ul {
+	  	padding-left: 1rem;
+		}
+	}
+
 }
 
-.sidebar-nav ul {
-  padding-left: 1rem;
-}
+
 
 .sidebar-disclaimer {
   margin-top: 2em;
   bottom: 25px;
   position: absolute;
+	text-align: center;
+	width: 90%;
+
+	> div,
+	> a {
+		text-align: center;
+		display: inline-block;
+	}
+
   img.cyberark-sidebar-logo {
   	width: 100px;
   	margin: 0 auto;
@@ -41,6 +60,44 @@
 
 .slack-signup {
   margin-top: 1.5em;
+}
+
+@media (max-width: 767px) {
+	#sidebar {
+		height: auto;
+		padding: 10px;
+		text-align: center;
+
+		a {
+			display: inline-block;
+		}
+
+		hr {
+			display: none;
+		}
+
+		.sidebar-about {
+			max-width: 25%;
+			padding: 5px 15px;
+			margin: 0;
+			float: left;
+
+			img {
+				margin: 0;
+			}
+		}
+		.sidebar-nav a,
+		.slack-signup {
+			display: inline-block;
+			padding: 2px 10px;
+			margin: 0px;
+		}
+
+		.slack-signup {
+			position: relative;
+			top: 5px;
+		}
+	}
 }
 
 // Try Conjur Enterprise
@@ -59,6 +116,98 @@
 }
 
 .sidebar-about img {
-	width: 200px;
 	margin: 0 0 1.5rem 0;
+}
+
+// ***********************
+// Mobile Nav
+// ***********************
+
+@media (min-width: 768px) and (max-width: 991px) {
+	#content {
+		//margin-left: 33.33333%;
+	}
+
+	.navbar-nav > li > .dropdown-menu {
+		text-align: left;
+		color: rgba(255,255,255,.5);
+		background-color: $conjur-hover-blue;
+		border-color: $conjur-hover-blue;
+		border-top-right-radius: 4px;
+	}
+
+	ul.nav.navbar-nav {
+		//margin-top: 1em;
+	}
+
+}
+
+#mobile-navigation {
+	text-align: left;
+	color: rgba(255,255,255,.5);
+	background: #0071c7; /* Old browsers */
+	background: -moz-linear-gradient(top, #0071c7 0%, #11b5e4 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(top, #0071c7 0%,#11b5e4 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to bottom, #0071c7 0%,#11b5e4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	border: none;
+	border-radius: 0;
+	a {
+		display: block;
+		font-family: 'Open Sans', sans-serif;
+		font-size: 16px;
+		line-height: 1.8rem;
+		font-weight: 300;
+		color: #ffffff;
+	}
+
+	ul,
+	ul li,
+	ul li a {
+		font-family: 'Open Sans', sans-serif;
+		font-size: 16px;
+		line-height: 1.8rem;
+		font-weight: 300;
+	}
+
+	.navbar-toggle {
+		background-color: #ffffff;
+
+		span {
+			background-color: $conjur-blue;
+		}
+	}
+
+	img {
+		margin-top: 8px;
+		margin-bottom: 0px;
+		margin-right: 20px;
+		width: 120px;
+	}
+
+	.dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus,
+	.nav .open > a, .nav .open > a:hover, .nav .open > a:focus,
+	.nav > li > a:hover, .nav > li > a:focus {
+		background-color: $conjur-hover-white;
+	}
+}
+
+@media (max-width: 767px) {
+	#mobile-navigation {
+		img {
+	    width: 100px;
+    	margin: 6px 0 0 20px;
+		}
+	}
+	.navbar-nav .open .dropdown-menu > li > a {
+		padding-left: 50px;
+	}
+	.navbar-nav .open .dropdown-menu > li > a.nav-item-parent {
+		padding-left: 25px;
+	}
+	.footer-disclaimer {
+		padding: 2em 0 1em 0;
+		p {
+			text-align: center;
+		}
+	}
 }
