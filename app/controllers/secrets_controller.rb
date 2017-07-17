@@ -42,7 +42,7 @@ class SecretsController < RestController
 
   def batch
     variable_ids = params[:variable_ids].split(',')
-    variables = Resource.where(resource_id: variable_ids).all
+    variables = Resource.where(resource_id: variable_ids).eager(:secrets).all
 
     missing_variables =
       variable_ids - variables.map(&:resource_id)
