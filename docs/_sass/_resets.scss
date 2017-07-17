@@ -126,8 +126,8 @@ p {
 .hover-button {
 	visibility: hidden;
 	float: right;
-	width: 40px;
-	height: 40px;
+	width: 30px;
+	height: 30px;
 	background: url("../../img/copy-to-clipboard.svg");
 	background-repeat: no-repeat;
 	background-position: center;
@@ -135,6 +135,6 @@ p {
 	cursor: pointer;
 }
 
-.highlight:hover pre button {
+.highlight pre button {
 	visibility: visible;
 }
