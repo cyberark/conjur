@@ -32,6 +32,20 @@ cucumber:
   - pg:pg
 
 client:
+#  image: conjurinc/cli5
+  build: ../../api-ruby
+  entrypoint: sleep
+  command: infinity
+  environment:
+    CONJUR_APPLIANCE_URL: http://possum:3000
+    DATABASE_URL: postgres://postgres@pg/postgres
+  links:
+  - possum:possum
+  volumes:
+  - ..:/src/possum
+  - ../../api-ruby:/src/conjur-api
+
+cli:
   image: conjurinc/cli5
   entrypoint: sleep
   command: infinity

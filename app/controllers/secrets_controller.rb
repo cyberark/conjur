@@ -3,8 +3,8 @@ class SecretsController < RestController
   include AuthorizeResource
   
   before_filter :current_user
-  before_filter :find_resource
-    
+  before_filter :find_resource, except: [:batch]
+  
   def create
     authorize :update
     
@@ -38,5 +38,33 @@ class SecretsController < RestController
     mime_type ||= 'application/octet-stream'
 
     render text: value, content_type: mime_type
+  end
+
+  def batch
+    resource_ids = params[:resource_ids].split(',')
+    resources = Resource.where(resource_id: resource_ids).all
+
+    missing_resources =
+      resource_ids - resources.map(&:resource_id)
+
+    unless missing_resources.empty?
+      raise Exceptions::RecordNotFound, missing_resources[0]
+    end
+
+    result = {}
+    
+    resources.each do |resource|
+      @resource = resource
+      
+      authorize :execute
+
+      if resource.secrets.last.nil?
+        raise Exceptions::RecordNotFound, resource.resource_id
+      end
+      
+      result[resource.resource_id] = resource.secrets.last.value
+    end
+
+    render json: result
   end
 end
