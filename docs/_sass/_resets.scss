@@ -75,10 +75,6 @@ ul {
 // Container
 // ***********************
 
-#content {
-	//margin-left: 300px;
-}
-
 p {
 	font-family: 'Open Sans', sans-serif;
 	font-size: 16px;
@@ -101,13 +97,13 @@ p {
 
 @media (min-width: 992px) and (max-width: 1200px) {
 	#content {
-		margin-left: 300px; //margin-left: 25%;
+		margin-left: 300px; 
 	}
 }
 
 @media (min-width: 1201px) {
 	#content {
-		margin-left: 300px; ////margin-left: 16.67%;
+		margin-left: 300px; 
 	}
 }
 
