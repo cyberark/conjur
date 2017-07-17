@@ -41,26 +41,26 @@ class SecretsController < RestController
   end
 
   def batch
-    resource_ids = params[:resource_ids].split(',')
-    resources = Resource.where(resource_id: resource_ids).all
+    variable_ids = params[:variable_ids].split(',')
+    variables = Resource.where(resource_id: variable_ids).all
 
-    missing_resources =
-      resource_ids - resources.map(&:resource_id)
+    missing_variables =
+      variable_ids - variables.map(&:resource_id)
 
-    unless missing_resources.empty?
-      raise Exceptions::RecordNotFound, missing_resources[0]
+    unless missing_variables.empty?
+      raise Exceptions::RecordNotFound, missing_variables[0]
     end
 
     result = {}
 
-    authorize_many resources, :execute
+    authorize_many variables, :execute
     
-    resources.each do |resource|
-      if resource.secrets.last.nil?
-        raise Exceptions::RecordNotFound, resource.resource_id
+    variables.each do |variable|
+      if variable.secrets.last.nil?
+        raise Exceptions::RecordNotFound, variable.resource_id
       end
       
-      result[resource.resource_id] = resource.secrets.last.value
+      result[variable.resource_id] = variable.secrets.last.value
     end
 
     render json: result
