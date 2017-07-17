@@ -44,13 +44,11 @@ class SecretsController < RestController
     variable_ids = params[:variable_ids].split(',')
     variables = Resource.where(resource_id: variable_ids).eager(:secrets).all
 
-    missing_variables =
-      variable_ids - variables.map(&:resource_id)
-
-    unless missing_variables.empty?
-      raise Exceptions::RecordNotFound, missing_variables[0]
+    unless variable_ids.count == variables.count
+      raise Exceptions::RecordNotFound,
+            resources.first { |r| !resource_ids.include?(r) }
     end
-
+    
     result = {}
 
     authorize_many variables, :execute
