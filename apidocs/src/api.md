@@ -116,12 +116,17 @@ Conjur API key|yes|`String`|"14m9cf91wfsesv1kkhevg12cdywm2wvqy6s8sk53z1ngtazp1t9
 
 ### Batch Secret Retrieval [GET]
 
-Fetch the values of a list of variables.  This operation is more efficient than
+Fetch the values of a list of variables. This operation is more efficient than
 fetching the values one by one.
 
-This method will fail unless:
-  * All of the variables exist
-  * You have permission to `'execute'` all of the variables
+**Response**
+
+|Code|Description|
+|----|-----------|
+|200|All secret values were retrieved successfully|
+|401|The user is not logged in|
+|403|The user did not have 'execute' privilege on one or more variable resources|
+|404|One or more variables did not exist or did not have a stored value|
 
 + Parameters
     + variable_id: cucumber:variable:secret1,cucumber:variable:secret2 (array) - Resource IDs of the secrets you wish to retrieve.
