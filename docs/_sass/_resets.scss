@@ -137,14 +137,17 @@ p {
 .tooltip-text {
 	visibility: hidden;
 	width: 120px;
-	background-color: black;
+	background-color: $conjur-dark;
+	font-family: 'Open Sans';
+	font-size: 12px;
 	color: #fff;
 	text-align: center;
 	padding: 5px 0;
 	border-radius: 6px;
 	position: absolute;
-        right: 60px;
+        right: 43px;
 	z-index: 1;
+	margin-top: 30px;
 }
 
 .hover-button:hover .tooltip-text {
@@ -153,4 +156,19 @@ p {
 
 .highlight pre button {
 	visibility: visible;
+}
+
+.arrow_box:after {
+	bottom: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+	border-color: rgba(0, 0, 0, 0);
+	border-bottom-color: $conjur-dark;
+	border-width: 10px;
+	margin-left: -10px;
 }

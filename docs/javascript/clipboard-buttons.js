@@ -52,7 +52,7 @@ function createClipboardButton(block, clipboardText) {
   block.parentNode.insertBefore(btn, block);
 
   var tooltip = document.createElement("span");
-  tooltip.setAttribute("class", "tooltip-text");
+  tooltip.setAttribute("class", "tooltip-text arrow_box");
   tooltip.innerHTML = "Copy to clipboard";
   btn.appendChild(tooltip);
   
