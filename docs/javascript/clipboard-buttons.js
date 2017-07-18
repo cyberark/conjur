@@ -46,15 +46,20 @@ function extractIrbCommands(irbBlock) {
 }
 
 function createClipboardButton(block, clipboardText) {
-  var btn = document.createElement("button")
+  var btn = document.createElement("button");
   btn.setAttribute("class", "hover-button");
   btn.setAttribute("data-clipboard-text", clipboardText);
   block.parentNode.insertBefore(btn, block);
 
+  var tooltip = document.createElement("span");
+  tooltip.setAttribute("class", "tooltip-text");
+  tooltip.innerHTML = "Copy to clipboard";
+  btn.appendChild(tooltip);
+  
   new Clipboard(btn);
 }
 
-var codeBlocks = document.getElementsByTagName("code");
+var codeBlocks = document.querySelectorAll("pre code");
 
 for(var i = 0; i < codeBlocks.length; i++) {
   var block = codeBlocks[i];
@@ -71,6 +76,6 @@ for(var i = 0; i < codeBlocks.length; i++) {
   } else {
     var text = block.innerText;
   }
-
+  
   createClipboardButton(block, text);
 }
