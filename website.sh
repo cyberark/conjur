@@ -10,6 +10,7 @@ docker run -i -v $PWD:/opt/conjur --rm  \
   possum-web bash -ec '
 mkdir /output
 jekyll build --source docs --destination /output/_site
+cp api.html /output/_site/api.html
 
 echo "${POSSUM_WEB_USER}:$(openssl passwd -apr1 ${POSSUM_WEB_PASSWORD})" | aws s3 cp - s3://${POSSUM_WEB_CFG_BUCKET}/htpasswd
 
