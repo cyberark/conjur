@@ -6,9 +6,15 @@ RUN apt-get update && \
     unzip awscli-bundle.zip && \
     ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
 
+RUN apt-get install -y curl python-software-properties && \
+    curl -sL https://deb.nodesource.com/setup_7.x | bash - && \
+    apt-get install -y nodejs
+
 ADD Gemfile Gemfile.lock ./
 
 RUN bundle --with website
 
-WORKDIR /opt/conjur
+ADD apidocs/package.json ./
+RUN npm install
 
+WORKDIR /opt/conjur

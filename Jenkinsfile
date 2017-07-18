@@ -52,14 +52,6 @@ pipeline {
       }
     }
 
-    stage ('Generate API docs') {
-      steps {
-        sh 'apidocs/build.sh'
-        sh 'docker run --rm conjurinc/possum-apidocs > api.html'
-        archiveArtifacts artifacts: 'api.html', fingerprint: true
-      }
-    }
-
     stage('Publish website') {
       when {
         branch 'master'
