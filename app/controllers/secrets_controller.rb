@@ -46,7 +46,7 @@ class SecretsController < RestController
 
     unless variable_ids.count == variables.count
       raise Exceptions::RecordNotFound,
-            resources.first { |r| !resource_ids.include?(r) }
+            variables.first { |r| !variable_ids.include?(r) }.id
     end
     
     result = {}
