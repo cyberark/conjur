@@ -57,12 +57,12 @@ Create a new Ruby program, require the `conjur-api` library, and set these two p
 
 {% highlight ruby %}
 irb(main)> require 'conjur-api'
-irb(main)> Conjur.configuration.appliance_url = "https://possum-ci-conjur.herokuapp.com"
+irb(main)> Conjur.configuration.appliance_url = "https://eval.conjur.org"
 irb(main)> Conjur.configuration.account = "dev" # <- REPLACE ME!
 {% endhighlight %}
 
 <div class="note">
-<strong>Note</strong> Configuration can also be provided via environment variables. The environment variable pattern is <tt>CONJUR_&lt;setting></tt>. For example, <tt>CONJUR_APPLIANCE_URL=https://possum-ci-conjur.herokuapp.com</tt>
+<strong>Note</strong> Configuration can also be provided via environment variables. The environment variable pattern is <tt>CONJUR_&lt;setting></tt>. For example, <tt>CONJUR_APPLIANCE_URL=https://eval.conjur.org</tt>
 </div>
 
 {% include toc.md key='authentication' %}
@@ -239,7 +239,7 @@ The above application can be run with:
 $ CONJUR_USER=host/myapp-01 \
   CONJUR_API_KEY=host/myapp-01 API as used prior # <- REPLACE ME! \
   CONJUR_ACCOUNT=dev # <- REPLACE ME! \
-  CONJUR_URL=https://possum-conjur.herokuapp.com \
+  CONJUR_URL=https://eval.conjur.org \
   rackup
 {% endhighlight %}
 
