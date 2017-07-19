@@ -1,30 +1,49 @@
-<div class="sidebar">
-  <div class="container">
-    <div class="sidebar-about">
-      <h1>
-        <a href="{{ site.baseurl }}/">
-          <img src="{{ site.baseurl }}/public/img/conjur-logo-all-white.svg" alt="Conjur Logo">
-        </a>
-      </h1>
-
-      <p class="lead">{{ site.description }}</p>
-    </div>
-
-    <nav class="sidebar-nav">
-      {% for item_hash in site.data.sidebar.main %}
-        {% assign value = item_hash[1] %}
-        {% include menu-item.html item=value %}
-      {% endfor %}
-
-      <hr/>
-      
-      <div>Cucumber</div>
-      
-      <a class="sidebar-nav-item" href="https://www.relishapp.com/conjur/possum-api/docs" target="_blank">API Features &raquo;</a>
-
-      <a class="sidebar-nav-item" href="https://www.relishapp.com/conjur/possum-policy/docs" target="_blank">Policy Features &raquo;</a>
-    </nav>
-
-    <p>&copy; {{ site.time | date: '%Y' }}. All rights reserved.</p>
-  </div>
+<div id="sidebar" class="affix hidden-sm hidden-xs" data-spy="affix">
+	<div class="sidebar-about">
+		<a href="{{ site.baseurl }}/">
+			<img src="{{ site.baseurl }}/img/conjur-logo-all-white.svg" alt="Conjur Logo">
+		</a>
+	</div>
+	<nav class="sidebar-nav">
+		{% for item_hash in site.data.sidebar.main %}
+			{% assign value = item_hash[1] %}
+			{% include menu-item.html item=value %}
+		{% endfor %}
+		<a href="/try-conjur-enterprise.html">Conjur Enterprise</a>
+		<hr/>
+		<!-- Slack Signup -->
+		<div class="slack-signup">
+			<script async defer src="https://slackin-conjur.herokuapp.com/slackin.js"></script>
+			<!-- append "?" to the URL for the large version -->
+		</div>
+		<!-- /Slack signup -->
+	</nav>
+	<div class="sidebar-disclaimer hidden-sm hidden-xs">
+		<a href="https://www.cyberark.com/"><img class="cyberark-sidebar-logo" src="{{ site.baseurl }}/img/cyberark-white.png" alt="CyberArk Logo"></a>
+		<div class="disclaimer">&copy; {{ site.time | date: '%Y' }} CyberArk. All rights reserved.</div>
+	</div>
 </div>
+
+<!-- For Mobile -->
+<nav id="mobile-navigation" class="navbar visible-sm visible-xs">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#mobileNav">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a href="{{ site.baseurl }}/">
+				<img src="{{ site.baseurl }}/img/conjur-logo-all-white.svg" alt="Conjur Logo">
+			</a>
+		</div>
+		<div class="collapse navbar-collapse" id="mobileNav">
+			<ul class="nav navbar-nav">
+				{% for item_hash in site.data.sidebar.main %}
+					{% assign value = item_hash[1] %}
+					{% include mobile-nav.html item=value %}
+				{% endfor %}
+			</ul>
+		</div>
+	</div>		
+</nav>

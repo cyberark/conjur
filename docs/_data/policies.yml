@@ -101,7 +101,7 @@ puppet: |
     role: !group db/secrets-users
     member: !layer myapp
 
-application_bootstrap: |
+application_root: |
   - !policy
     id: db
 
@@ -194,7 +194,7 @@ delegation_frontend: |
   - !layer
 
 
-delegation-bootstrap-2: |
+delegation-root-2: |
   - !user frank
 
   - !user donna
@@ -217,7 +217,7 @@ delegation-bootstrap-2: |
   - !policy
     id: frontend
 
-delegation-bootstrap-3: |
+delegation-root-3: |
   - !user frank
 
   - !user donna

@@ -5,7 +5,7 @@ Feature: Policy loading error messages
 
     The error message provides the id of the record that was not found.
 
-    When I POST "/policies/cucumber/policy/bootstrap" with body:
+    When I POST "/policies/cucumber/policy/root" with body:
     """
     - !variable password
 
@@ -35,7 +35,7 @@ Feature: Policy loading error messages
   @logged-in-admin
   Scenario: A policy with a blank resource id reports the error.
 
-    When I POST "/policies/cucumber/policy/bootstrap" with body:
+    When I POST "/policies/cucumber/policy/root" with body:
     """
     - !user bob
 
@@ -56,6 +56,27 @@ Feature: Policy loading error messages
             "code": "validation_failed",
             "target": "policy_text",
             "message": "resource has a blank id"
+          }
+        ]
+      }
+    }
+    """
+
+  @logged-in-admin
+  Scenario: Posting a policy without a body
+    When I POST "/policies/cucumber/policy/root"
+    Then the HTTP response status code is 422
+    And the JSON response should be:
+    """
+    {
+      "error": {
+        "code": "validation_failed",
+        "message": "policy_text is not present",
+        "details": [
+          {
+            "code": "validation_failed",
+            "target": "policy_text",
+            "message": "is not present"
           }
         ]
       }

@@ -5,10 +5,15 @@
 
   <body>
 
-    {% include sidebar.html %}
+    <div class="container-fluid">
+      <div class="row">
+        {% include sidebar.html %}
+        <div id="content" class="">
+          {{ content }}
 
-    <div class="content container">
-      {{ content }}
+          {% include footer.html %}
+        </div>
+      </div>
     </div>
 
   </body>

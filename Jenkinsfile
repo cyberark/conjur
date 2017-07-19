@@ -6,9 +6,18 @@ pipeline {
   options {
     timestamps()
     buildDiscarder(logRotator(numToKeepStr: '30'))
-  } 
+    skipDefaultCheckout()  // see 'Checkout SCM' below, once perms are fixed this is no longer needed
+  }
 
   stages {
+    stage('Checkout SCM') {
+      steps {
+        sh 'sudo chown -R jenkins:jenkins .'  // bad docker mount creates unreadable files TODO fix this
+        deleteDir()  // delete current workspace, for a clean build
+
+        checkout scm
+      }
+    }
     stage('Build Image') {
       steps {
         sh './build.sh'
@@ -26,7 +35,7 @@ pipeline {
     stage('Test') {
       steps {
         sh './test.sh'
-        
+
         junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,scaling_features/reports/**/*.xml,reports/*.xml'
       }
     }
@@ -51,6 +60,15 @@ pipeline {
         sh 'summon ./website.sh'
       }
     }
+
+    stage('Push to Heroku') {
+      when {
+        branch 'master'
+      }
+      steps {
+        build job: 'release-heroku', parameters: [string(name: 'APP_NAME', value: 'possum-conjur')]
+      }
+    }
   }
 
   post {
@@ -62,4 +80,3 @@ pipeline {
     }
   }
 }
-

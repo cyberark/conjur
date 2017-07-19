@@ -49,8 +49,8 @@ It defines:
 Load the policy using the following command:
 
 {% highlight shell %}
-$ conjur policy load --replace bootstrap conjur.yml
-Loaded policy 'bootstrap'
+$ conjur policy load --replace root conjur.yml
+Loaded policy 'root'
 {
   "created_roles": {
     "dev:host:myapp-01": {
@@ -67,7 +67,7 @@ Loaded policy 'bootstrap'
 Next, we need to populate the database password with a secret value. Use the CLI to verify that the variable exists in Conjur:
 
 {% highlight shell %}
-$ conjur list -i -k variable
+$ conjur list -k variable
 [
   "dev:variable:db/password"
 ]

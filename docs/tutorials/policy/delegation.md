@@ -22,7 +22,7 @@ Most Conjur deployments will begin with a small number of users working as admin
 
 First, a top-level policy defines two empty policies: `db` and `frontend`. Save this policy as "conjur.yml":
 
-{% include policy-file.md policy='application_bootstrap' %}
+{% include policy-file.md policy='application_root' %}
 
 Then create the following file as "db.yml":
 
@@ -35,7 +35,7 @@ And "frontend.yml":
 Finally, load all the policies using the CLI:
 
 {% highlight shell %}
-$ conjur policy load --replace bootstrap conjur.yml
+$ conjur policy load --replace root conjur.yml
 ...
 $ conjur policy load --replace db db.yml
 ...
@@ -46,9 +46,9 @@ $ conjur policy load --replace frontend frontend.yml
 Then as a sanity check, list all the objects in the system:
 
 {% highlight shell %}
-$ conjur list -i
+$ conjur list
 [
-  "myorg:policy:bootstrap",
+  "myorg:policy:root",
   "myorg:policy:db",
   "myorg:policy:frontend",
   "myorg:variable:db/password",
@@ -76,7 +76,7 @@ myorg:user:admin
 {% endhighlight %}
 
 <div class="note">
-<strong>Note</strong> <tt>jq</tt> is a command-line tool to select data from JSON objects. Here we are selecting the <tt>owner</tt> field from the full JSON response from <tt>conjur show</tt>. The option <tt>-r</tt> requests "raw" (unquoted) output.
+<strong>Note</strong> <a href="https://stedolan.github.io/jq/">jq</a> is a command-line tool to select data from JSON objects. Here we are selecting the <tt>owner</tt> field from the full JSON response from <tt>conjur show</tt>. The option <tt>-r</tt> requests "raw" (unquoted) output.
 </div>
 <p/>
 
@@ -103,11 +103,11 @@ So what does it mean to be "in the policy"? Each object and annotation has a `po
 </div>
 <p/>
 
-You can use the CLI to find out which policy an object is in. For example, the object "policy:db" is in the "bootstrap" policy, whereas the object "variable:db/password" is in the "db" policy:
+You can use the CLI to find out which policy an object is in. For example, the object "policy:db" is in the "root" policy, whereas the object "variable:db/password" is in the "db" policy:
 
 {% highlight shell %}
 $ conjur show policy:db | jq -r .policy
-myorg:policy:bootstrap
+myorg:policy:root
 $ conjur show variable:db/password | jq -r .policy
 myorg:policy:db
 {% endhighlight %}
@@ -118,13 +118,13 @@ If you try and modify or delete an object from the wrong policy, the object is n
 
 To see this in action, let's add some users and groups to the policy "conjur.yml":
 
-{% include policy-file.md policy='delegation-bootstrap-2' %}
+{% include policy-file.md policy='delegation-root-2' %}
 
-Update the bootstrap policy:
+Update the root policy:
 
 {% highlight shell %}
-$ conjur policy load --replace bootstrap conjur.yml
-Loaded policy 'bootstrap'
+$ conjur policy load --replace root conjur.yml
+Loaded policy 'root'
 {
   "created_roles": {
     ...
@@ -155,13 +155,13 @@ This is not a bug! We've created the users and groups, but we haven't changed th
 
 Update the `owner` fields in "conjur.yml":
 
-{% include policy-file.md policy='delegation-bootstrap-3' %}
+{% include policy-file.md policy='delegation-root-3' %}
 
-Then update the bootstrap policy again:
+Then update the root policy again:
 
 {% highlight shell %}
-$ conjur policy load --replace bootstrap conjur.yml
-Loaded policy 'bootstrap'
+$ conjur policy load --replace root conjur.yml
+Loaded policy 'root'
 {
   "created_roles": {
     ...

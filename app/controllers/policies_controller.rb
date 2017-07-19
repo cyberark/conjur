@@ -3,7 +3,7 @@ class PoliciesController < RestController
   include AuthorizeResource
   
   before_filter :current_user
-  before_filter :find_or_create_bootstrap_policy
+  before_filter :find_or_create_root_policy
   before_filter :find_resource
 
   def put
@@ -51,7 +51,7 @@ class PoliciesController < RestController
     }, status: :created
   end
 
-  def find_or_create_bootstrap_policy
-    Loader::Types.find_or_create_bootstrap_policy account
+  def find_or_create_root_policy
+    Loader::Types.find_or_create_root_policy account
   end
 end

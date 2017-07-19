@@ -10,6 +10,10 @@ Feature: Delete an account
     """
     id=new-account
     """
+    And I successfully POST "/accounts" with body:
+    """
+    id=new.account
+    """
 
   Scenario: DELETE /accounts/:id to delete an account.
 
@@ -28,3 +32,8 @@ Feature: Delete an account
     When I DELETE "/accounts/new-account"
     Then the HTTP response status code is 403
     And the result is empty
+
+  Scenario: DELETE handles an account id with a '.'
+    When I permit role "!:user:admin" to "read" resource "!:webservice:accounts"
+    And I permit role "!:user:admin" to "update" resource "!:webservice:accounts"
+    Then I successfully DELETE "/accounts/new.account"

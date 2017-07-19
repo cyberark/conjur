@@ -24,7 +24,7 @@ GIT
 
 GIT
   remote: https://github.com/conjurinc/conjur-policy-parser.git
-  revision: ca11f5302cf22c847f1482706268d4bd248653a3
+  revision: b92854c1a0db5afb6a2294b77d96fcd9831cc59e
   branch: possum
   specs:
     conjur-policy-parser (3.0.0)
@@ -201,7 +201,7 @@ GEM
       nokogiri (>= 1.4)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
-    i18n (0.8.4)
+    i18n (0.8.6)
     jekyll (3.4.3)
       addressable (~> 2.4)
       colorator (~> 1.0)

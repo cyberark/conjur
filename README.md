@@ -1,5 +1,9 @@
 # Possum
 
+<a href="https://slackin-conjur.herokuapp.com">
+  <img src="https://slackin-conjur.herokuapp.com/badge.svg"/>
+</a>
+
 Possum is an identity and authorization service for infrastructure. It provides:
 
 * **A role-based access policy language** which is used to define system components, their roles, privileges and metadata.
@@ -14,7 +18,9 @@ For more information, visit [possum.io](https://possum.io).
 
 # Development
 
-## Build the Docker image
+CI job: https://jenkins.conjur.net/job/possum/
+
+## Build the Docker images
 
 Possum is packaged primarily as a Docker image. To build it:
 
@@ -26,6 +32,14 @@ $ docker images | grep possum
 conjurinc/possum latest a8229592474c 7 minutes ago 560.7 MB
 possum           latest a8229592474c 7 minutes ago 560.7 MB
 possum-dev       latest af98cb5b2a68 4 days ago    639.9 MB
+```
+
+The API documentation is generated using a separate image. To build that image and generate the docs:
+
+```sh-session
+$ apidocs/build.sh
+$ docker run --rm conjurinc/possum-apidocs > api.html
+$ open api.html  # To see the docs in your browser
 ```
 
 ## Development environment
@@ -65,7 +79,7 @@ The `possum server` script performs the following:
 
 ### Tests
 
-Possum has `rspec` and `cucumber` tests. 
+Possum has `rspec` and `cucumber` tests.
 
 #### RSpec
 
@@ -98,7 +112,7 @@ Then start a second container to run the cukes:
 ```sh-session
 $ ./cucumber.sh
 ...
-root@9feae5e5e001:/src/possum# 
+root@9feae5e5e001:/src/possum#
 ```
 
 There are two cucumber suites: `api` and `policy`. They are located in subdirectories of `./cucumber`.
@@ -131,7 +145,7 @@ Possum creates and/or updates the database schema automatically when it starts u
 
 ## Secrets and keys
 
-Possum performs some operations which require storage and management of encrypted data. For example: 
+Possum performs some operations which require storage and management of encrypted data. For example:
 
 * Users and Hosts can have associated API keys, which are stored encrypted in the database.
 * The `authenticate` function issues a signed JSON token. The signing key is a 2048 bit RSA key which is stored encrypted in the database.
@@ -155,8 +169,8 @@ Do NOT lose the data key, or all the encrypted data will be unrecoverable.
 
 ## Account management
 
-Possum supports the simultaneous operation of multiple separate accounts within the same database. In other words, it's multi-tenant. 
+Possum supports the simultaneous operation of multiple separate accounts within the same database. In other words, it's multi-tenant.
 
-Each account (also called "organization account") has its own token-signing private key. When a role is authenticated, the HMAC of the access token is computed using the signing key of the role's account. 
+Each account (also called "organization account") has its own token-signing private key. When a role is authenticated, the HMAC of the access token is computed using the signing key of the role's account.
 
 Accounts can be listed, created, and deleted via the `/accounts` service. Permission to use this service is controlled by the built-in resource `!:webservice:accounts`. Note that `!` is itself an organization account, and therefore privileges on the `!:webservice:accounts` can be managed via policies.

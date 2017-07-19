@@ -100,3 +100,12 @@ end
 Then(/^the result is false$/) do
   expect(@result).to be false
 end
+
+Then(/^I can authenticate with the admin API key for the account "(.*?)"/) do |account|
+  user = lookup_user('admin', account)
+  user.reload
+  steps %Q{
+    Then I can POST "/authn/#{account}/admin/authenticate" with plain text body "#{user.api_key}"
+    And I can GET "/authn/#{account}/login" with username "admin" and password "#{user.api_key}"
+  }
+end

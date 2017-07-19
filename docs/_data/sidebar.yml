@@ -1,4 +1,8 @@
 main:
+  tour:
+    title: Try Conjur
+    path: /try-conjur.html
+
   installation:
     title: Installation
     path: /installation/
@@ -11,10 +15,6 @@ main:
         title: Server
         path: /installation/server.html
 
-  tour:
-    title: Quick Tour
-    path: /tour.html
-
   tutorials:
     title: Tutorials
     path: /tutorials/
@@ -23,11 +23,11 @@ main:
         title: Policy
         path: /tutorials/policy/
         items:
-          users:
-            title: User Management
+          # users:
+          #   title: User Management
 
-          hosts:
-            title: Machine Identity with Host Factory
+          # hosts:
+          #   title: Machine Identity with Host Factory
             
           enrollment:
             title: Enrolling an Application
@@ -45,23 +45,23 @@ main:
             title: Ruby API
             path: /tutorials/integrations/ruby.html
 
-          python:
-            title: Python API
+          # python:
+          #   title: Python API
 
-          summon:
-            title: Summon
+          # summon:
+          #   title: Summon
             
-          puppet:
-            title: Puppet
+          # puppet:
+          #   title: Puppet
 
-          chef:
-            title: Chef
+          # chef:
+          #   title: Chef
 
-          ansible:
-            title: Ansible
+          # ansible:
+          #   title: Ansible
 
-          kubernetes:
-            title: Kubernetes / OpenShift
+          # kubernetes:
+          #   title: Kubernetes / OpenShift
 
           authenticators:
             title: Custom Authentication
@@ -80,30 +80,27 @@ main:
         title: Authentication
         path: /reference/authentication.html
 
-      authorization:
-        title: Authorization
+      # authorization:
+      #   title: Authorization
 
-      secrets: 
-        title: Secrets
+      # secrets: 
+      #   title: Secrets
 
-      host-factory: 
-        title: Host Factory
+      # host-factory: 
+      #   title: Host Factory
 
-      machine-identity: 
-        title: Machine Identity Runtime
+      # machine-identity: 
+      #   title: Machine Identity Runtime
 
-      api: 
-        title: API
+      # api: 
+      #   title: API
         
       cryptography:
         title: Cryptography
         path: /reference/cryptography.html
+
+  support:
+    title: Support
+    path: /support.html
       
-  downloads:
-    title: Downloads
-    url: https://github.com/conjurinc/conjur/releases
-    
-  github:
-    title: Github Project
-    url: https://github.com/conjurinc/conjur
 

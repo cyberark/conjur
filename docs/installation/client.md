@@ -11,13 +11,15 @@ You can easily download and run the Conjur CLI using the official pre-built imag
 
 If you run the container with interactive mode (`-it`), then you will get an interactive `bash` shell. Otherwise, you will run a single `conjur` command.
 
-Here's how to run interactively:
+Here's how to run the CLI interactively:
 
 {% highlight shell %}
 $ docker run --rm \
     -it \
+    -v $PWD:/work
     conjurinc/cli5
-root@5628127eac77:/# which conjur
+root@5628127eac77:/# cd work
+root@5628127eac77:/work# which conjur
 /usr/local/bundle/bin/conjur
 {% endhighlight %}
 

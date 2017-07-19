@@ -7,7 +7,7 @@ layout: page
 
 A very common question is: how do I add new secrets and apps to my infrastructure?
 
-At Conjur, we refer to this process of adding new stuff as "enrollment". The basic flow works in three steps:
+At Conjur, we refer to this process of adding new stuff as "enrollment". The basic flow works in four steps:
 
 1. Define protected resources, such as Webservices and Variables, using a policy. Call this "Policy A".
 2. In "Policy A", create a group which has access to the protected resources.
@@ -35,13 +35,13 @@ We will model a simple application in which a `frontend` service connects to a `
 
 Here is a skeleton policy for this scenario, which simply defines two empty policies: `db` and `frontend`. Save this policy as "conjur.yml":
 
-{% include policy-file.md policy='application_bootstrap' %}
+{% include policy-file.md policy='application_root' %}
 
 Then load it using the following command:
 
 {% highlight shell %}
-$ conjur policy load --replace bootstrap conjur.yml
-Loaded policy 'bootstrap'
+$ conjur policy load --replace root conjur.yml
+Loaded policy 'root'
 {
   "created_roles": {
   },
@@ -52,9 +52,9 @@ Loaded policy 'bootstrap'
 Use the `conjur list` command to view all the objects in the system:
 
 {% highlight shell %}
-$ conjur list -i
+$ conjur list
 [
-  "myorg:policy:bootstrap",
+  "myorg:policy:root",
   "myorg:policy:db",
   "myorg:policy:frontend"
 ]

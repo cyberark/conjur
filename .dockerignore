@@ -7,3 +7,11 @@ package
 run
 tmp
 log
+
+# Ignore the scripts that are used by the Jenkinsfile
+build.sh
+package.sh
+test.sh
+publish.sh
+push-image.sh
+website.sh
