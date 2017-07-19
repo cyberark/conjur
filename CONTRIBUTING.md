@@ -8,7 +8,7 @@ code) then you are welcome. All roles are vital! :pray:
 1. Search open issues to find out what has already been addressed or planned
 2. Open an issue in this repository to propose changes or fixes
 3. Tag issue "in progress" as you work on it
-4. Submit a pull request
-5. Check the build status in Jenkins to ensure that the build succeeds & tests pass
-6. Tag the issue "review", ask for another contributor to review and merge your code
+4. Run RSpec and Cucumber tests as described [here](README.md#tests), ensuring they pass
+5. Submit a pull request
+6. Tag the issue "review", ask another contributor to review and merge your code
 7. Close the issue
