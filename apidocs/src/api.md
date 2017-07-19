@@ -31,3 +31,5 @@ $ curl --cacert <certfile> ...
 <!-- include(authenticate.md) -->
 
 <!-- include(login.md) -->
+
+<!-- include(update_password.md) -->
