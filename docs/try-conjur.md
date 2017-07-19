@@ -31,7 +31,7 @@ Use your account information to configure the connection to the Conjur server. T
 for the hosted solution, but if you have your own Conjur server then update it appropriately.
 
 {% highlight shell %}
-$ export CONJUR_APPLIANCE_URL=https://possum-conjur.herokuapp.com
+$ export CONJUR_APPLIANCE_URL=https://eval.conjur.org
 $ export CONJUR_ACCOUNT="your-conjur-account-id"
 {% endhighlight %}
 
