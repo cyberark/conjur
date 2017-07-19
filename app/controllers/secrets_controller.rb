@@ -3,8 +3,8 @@ class SecretsController < RestController
   include AuthorizeResource
   
   before_filter :current_user
-  before_filter :find_resource
-    
+  before_filter :find_resource, except: [:batch]
+  
   def create
     authorize :update
     
@@ -38,5 +38,29 @@ class SecretsController < RestController
     mime_type ||= 'application/octet-stream'
 
     render text: value, content_type: mime_type
+  end
+
+  def batch
+    variable_ids = params[:variable_ids].split(',')
+    variables = Resource.where(resource_id: variable_ids).eager(:secrets).all
+
+    unless variable_ids.count == variables.count
+      raise Exceptions::RecordNotFound,
+            variables.first { |r| !variable_ids.include?(r) }.id
+    end
+    
+    result = {}
+
+    authorize_many variables, :execute
+    
+    variables.each do |variable|
+      if variable.secrets.last.nil?
+        raise Exceptions::RecordNotFound, variable.resource_id
+      end
+      
+      result[variable.resource_id] = variable.secrets.last.value
+    end
+
+    render json: result
   end
 end

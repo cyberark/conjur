@@ -41,6 +41,8 @@ Rails.application.routes.draw do
 
       post "/secrets/:account/:kind/*identifier" => 'secrets#create'
 
+      get "/secrets" => 'secrets#batch'
+      
       put "/policies/:account/:kind/*identifier" => 'policies#put'
 
       patch "/policies/:account/:kind/*identifier" => 'policies#patch'
