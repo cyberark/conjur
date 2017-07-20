@@ -1,3 +1,3 @@
 #!/bin/bash -ex
 
-docker build -t conjurinc/possum-apidocs -f apidocs/Dockerfile.apidocs apidocs
+docker build -t conjurinc/possum-apidocs -f Dockerfile.apidocs .
