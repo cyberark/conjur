@@ -38,6 +38,7 @@
 			</a>
 		</div>
 		<div class="collapse navbar-collapse" id="mobileNav">
+			<div class="dropdown clearfix">
 			<ul class="nav navbar-nav">
 				{% for item_hash in site.data.sidebar.main %}
 					{% assign value = item_hash[1] %}
@@ -45,5 +46,6 @@
 				{% endfor %}
 			</ul>
 		</div>
-	</div>		
+		</div>
+	</div>
 </nav>

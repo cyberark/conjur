@@ -7,7 +7,7 @@ Then(/^the resource list should not include the newest resource$/) do
 end
 
 Then(/^the resource list should include the newest resources$/) do
-  expect(@result.map{|r| r['id']}).to include(*@current_resources.map{|r| r.id})
+  expect(@result.map{|r| r['id']}).to include(*@resources.values.map{|r| r.id})
 end
 
 Then(/^the resource list should only include the searched resource$/) do
