@@ -23,7 +23,7 @@ generated random value. You can fetch the new API key using the `login` method.
 
 ---
 
-:[conjur_auth_header_table](partials/conjur_auth_header_table.md)
+<!-- include(partials/auth_header_table.md) -->
 
 **Request Body**
 

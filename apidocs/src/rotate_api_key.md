@@ -14,16 +14,16 @@ Basic authorization (username plus password or API key) must be provided.
 
 **Headers**
 
-|Field|Description|Example|
-|----|------------|-------|
+|Field        |Description    |Example                       |
+|-------------|---------------|------------------------------|
 |Authorization|HTTP Basic Auth|Basic ZGFuaWVsOjlwOG5mc2RhZmJw|
 
 **Response**
 
-|Code|Description|
-|----|-----------|
-|200|The response body is the API key|
-|401|The Basic auth credentials were not accepted|
+|Code|Description                                 |
+|----|--------------------------------------------|
+|200 |The response body is the API key            |
+|401 |The Basic auth credentials were not accepted|
 
 + Request
     + Headers

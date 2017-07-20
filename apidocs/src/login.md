@@ -6,7 +6,7 @@ Sending your Conjur username and password via HTTP Basic Auth to this route retu
 an API key.
 
 Once this API key is obtained, it may be used to rapidly obtain authentication tokens by calling the
-[Authenticate](http://docs.conjur.apiary.io/#reference/authentication/authenticate) route.
+[Authenticate](#user-authentication-authenticate) route.
 An authentication token is required to use most other parts of the Conjur API.
 
 The value for the `Authorization` Basic Auth header can be obtained with:

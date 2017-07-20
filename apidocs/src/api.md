@@ -10,8 +10,8 @@ Conjur software.
 
 Most API calls require an authentication access token. To obtain an access token as a user:
 
-1. Use a username and password to obtain an API key (refresh token) with the [Authentication > Login](/#TODO) route.
-2. Use the API key to obtain an access token with the [Authentication > Authenticate](/#TODO) route.
+1. Use a username and password to obtain an API key (refresh token) with the [Authentication > Login](#user-authentication-login) route.
+2. Use the API key to obtain an access token with the [Authentication > Authenticate](#user-authentication-authenticate) route.
 
 Access tokens expire after 8 minutes. You need to obtain a new token after it expires.
 Token expiration and renewal is handled automatically by the
