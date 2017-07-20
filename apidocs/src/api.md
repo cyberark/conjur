@@ -6,7 +6,7 @@ This is official documentation of the Conjur Community Edition API. It
 allows you tremendous flexibility to control and manipulate your
 Conjur software.
 
-# Group User Authentication
+# Group User authentication
 
 Most API calls require an authentication access token. To obtain an access token as a user:
 
@@ -35,3 +35,7 @@ $ curl --cacert <certfile> ...
 <!-- include(update_password.md) -->
 
 <!-- include(rotate_api_key.md) -->
+
+# Group Role-based access control
+
+<!-- include(show_role.md) -->
