@@ -39,3 +39,5 @@ $ curl --cacert <certfile> ...
 # Group Role-based access control
 
 <!-- include(show_role.md) -->
+
+<!-- include(view_resources.md) -->
