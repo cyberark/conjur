@@ -15,7 +15,7 @@ Rails.application.routes.draw do
     end
     
     constraints account: /[^\/\?]+/ do
-      get  '/authn/:account/login' => 'credentials#login'
+      get  '/authn/:account/login' => 'login#login'
       put  '/authn/:account/password' => 'credentials#update_password'
       put  '/authn/:account/api_key'  => 'credentials#rotate_api_key'
 

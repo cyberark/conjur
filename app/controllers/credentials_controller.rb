@@ -25,7 +25,7 @@ class CredentialsController < ApplicationController
   before_filter :authorize_self, except: [ :rotate_api_key ]
 
   # Ensure the credentials exist if they will be accessed or modified.
-  before_filter :ensure_credentials, only: [ :update_password, :rotate_api_key, :login ]
+  before_filter :ensure_credentials, only: [ :update_password, :rotate_api_key ]
     
   # Update the authenticated user's password. The implication of this is that if you can login as a user, you can change
   # that user's password.
@@ -46,10 +46,6 @@ class CredentialsController < ApplicationController
   def rotate_api_key
     @role.credentials.rotate_api_key
     @role.credentials.save
-    render text: @role.credentials.api_key
-  end
-  
-  def login
     render text: @role.credentials.api_key
   end
   
