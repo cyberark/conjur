@@ -1,4 +1,4 @@
-## Update Password [/api/authn/users/password]
+## Update Password [/authn/{account}/password]
 
 ### Change your password [PUT]
 
@@ -31,12 +31,15 @@ The new password, in the example "supersecret".
 
 **Response**
 
-|Code|Description|
-|----|-----------|
-|204|The password/UID has been updated|
-|401|Invalid or missing Authorization header|
-|404|User not found|
-|422|New password not present in request body|
+|Code|Description                             |
+|----|----------------------------------------|
+|204 |The password/UID has been updated       |
+|401 |Invalid or missing Authorization header |
+|404 |User not found                          |
+|422 |New password not present in request body|
+
++ Parameters
+  + account: CyberArk (string) - name of the account to use
 
 + Request (text/plain)
     + Headers

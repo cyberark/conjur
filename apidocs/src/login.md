@@ -1,4 +1,4 @@
-## Login [/api/authn/users/login]
+## Login [/authn/{account}/login]
 
 ### Exchange a user login and password for an API key [GET]
 
@@ -26,16 +26,19 @@ Therefore, login is a fairly expensive operation.
 
 **Headers**
 
-|Field|Description|Example|
-|----|------------|-------|
+|Field        |Description    |Example               |
+|-------------|-------------- |----------------------|
 |Authorization|HTTP Basic Auth|Basic YWxpY2U6c2VjcmV0|
 
 **Response**
 
-|Code|Description|
-|----|-----------|
-|200|The response body is the API key|
-|401|The credentials were not accepted|
+|Code|Description                      |
+|----|---------------------------------|
+|200 |The response body is the API key |
+|401 |The credentials were not accepted|
+
++ Parameters
+  + account: CyberArk (string) - name of the account to use
 
 + Request
     + Headers

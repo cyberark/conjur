@@ -1,9 +1,9 @@
-## Rotate API Key [/api/authn/users/api_key]
+## Rotate API Key [/authn/{account}/api_key]
 
 Replaces the API key of an user or host with a new, securely random 
 API key. The new API key is returned as the response body.
 
-### Rotate your own API key [PUT /api/authn/users/api_key]
+### Rotate your own API key [PUT /authn/{account}/api_key]
 
 **Permissions required**:
 
@@ -25,6 +25,9 @@ Basic authorization (username plus password or API key) must be provided.
 |200 |The response body is the API key            |
 |401 |The Basic auth credentials were not accepted|
 
++ Parameters
+  + account: CyberArk (string) - name of the account to use
+
 + Request
     + Headers
     
@@ -38,7 +41,7 @@ Basic authorization (username plus password or API key) must be provided.
     14m9cf91wfsesv1kkhevg12cdywm2wvqy6s8sk53z1ngtazp1t9tykc
     ```
 
-### Rotate another user's API key [PUT /api/authn/users/api_key{?id}]
+### Rotate another user's API key [PUT /authn/{account}/api_key{?id}]
 
 **Permissions required**: `update` privilege on the user.
 
@@ -48,16 +51,17 @@ Basic authorization (username plus password or API key) must be provided.
 
 **Response**
 
-|Code|Description|
-|----|-----------|
-|200|The response body is the API key|
-|401|Not authenticated|
-|403|Permission denied|
+|Code|Description                     |
+|----|--------------------------------|
+|200 |The response body is the API key|
+|401 |Not authenticated               |
+|403 |Permission denied               |
 
 ---
 
 + Parameters
-    + id: bob (string, optional) - Id of the user to rotate.
+  + account: CyberArk (string) - name of the account to use
+  + id: bob (string, optional) - Id of the user to rotate.
 
 + Request
     <!-- include(partials/auth_header_code.md) -->
