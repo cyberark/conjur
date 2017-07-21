@@ -5,6 +5,8 @@
 The response for this method is similar to what you get when creating
 the role, but it **does not include the role's API key**.
 
+If a role A is granted to a role B, then role A is said to have role B as a member. These relationships are described in the "members" portion of the returned JSON.
+
 The `identifier` parameter must be URL-encoded.
 
 **Permission Required**: `read` permission on resource corresponding to the role.
@@ -37,6 +39,14 @@ Supposing the requested role is a user named Chanda at an organization called Cy
   ```json
   {
       "login":"chanda",
-      "ownerid":"ci:group:developers"
+      "ownerid":"ci:group:developers",
+      "members": [
+        {
+          "admin_option": false,
+          "member": "cucumber:group:ops",
+          "ownership": false,
+          "role": "cucumber:user:chanda"
+        }
+      ]
   }
   ```
