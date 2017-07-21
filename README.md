@@ -1,10 +1,13 @@
 # Possum
 
-<a href="https://slackin-conjur.herokuapp.com">
-  <img src="https://slackin-conjur.herokuapp.com/badge.svg"/>
-</a>
+Possum is an identity and authorization service for infrastructure. 
 
-Possum is an identity and authorization service for infrastructure. It provides:
+[![Join Conjur Slack](https://slackin-conjur.herokuapp.com/badge.svg)](https://slackin-conjur.herokuapp.com)
+[![Stories in Ready](https://badge.waffle.io/conjurinc/jenkins-seed.png?label=ready&title=Ready)](http://waffle.io/conjurinc/jenkins-seed)
+
+---
+
+Possum provides:
 
 * **A role-based access policy language** which is used to define system components, their roles, privileges and metadata.
 * **A REST web service** to:
