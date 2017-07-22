@@ -42,7 +42,7 @@ class SecretsController < RestController
 
   def batch
     raise ArgumentError, 'variable_ids' if params[:variable_ids].blank?
-    
+
     variable_ids = params[:variable_ids].split(',').compact
 
     raise ArgumentError, 'variable_ids' if variable_ids.blank?
@@ -51,7 +51,7 @@ class SecretsController < RestController
 
     unless variable_ids.count == variables.count
       raise Exceptions::RecordNotFound,
-            variable_ids.first { |r| !variables.map(&:id).include?(r) }
+            variable_ids.find { |r| !variables.map(&:id).include?(r) }
     end
     
     result = {}

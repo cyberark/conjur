@@ -23,7 +23,7 @@ Feature: Batch retrieval of secrets
     When I GET "/secrets?variable_ids="
     Then the HTTP response status code is 422
 
-  Scenario: Fails with 422 if variable_ids param has blank items
+  Scenario: Fails with 422 if variable_ids param has only blank items
     When I GET "/secrets?variable_ids=,,,"
     Then the HTTP response status code is 422
 
@@ -31,6 +31,10 @@ Feature: Batch retrieval of secrets
     When I am a user named "someone-else"
     And I GET "/secrets?variable_ids=cucumber:variable:secret1"
     Then the HTTP response status code is 403
+
+  Scenario: Fails with 404 if variable_ids param has some blank items
+    When I GET "/secrets?variable_ids=cucumber:variable:secret1,,,cucumber:variable:secret2"
+    Then the HTTP response status code is 404
 
   Scenario: Fails with 404 if a variable_id param is of an incorrect format
     When I GET "/secrets?variable_ids=1,2,3"
