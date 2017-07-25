@@ -5,11 +5,12 @@
 Sending your Conjur username and password via HTTP Basic Auth to this route returns
 an API key.
 
-Once this API key is obtained, it may be used to rapidly obtain authentication tokens by calling the
-[Authenticate](#user-authentication-authenticate) route.
+Once this API key is obtained, it may be used to rapidly obtain authentication
+tokens by calling the [Authenticate](#user-authentication-authenticate) route.
 An authentication token is required to use most other parts of the Conjur API.
 
-The value for the `Authorization` Basic Auth header can be obtained with:
+Supposing your username is "alice" and your password is "secret", the value for
+the `Authorization` Basic Auth header can be obtained with:
 
 ```
 $ echo -n alice:secret  | base64
@@ -26,19 +27,19 @@ Therefore, login is a fairly expensive operation.
 
 **Headers**
 
-|Field        |Description    |Example               |
-|-------------|-------------- |----------------------|
-|Authorization|HTTP Basic Auth|Basic YWxpY2U6c2VjcmV0|
+| Field         | Description     | Example                |
+|---------------|-----------------|------------------------|
+| Authorization | HTTP Basic Auth | Basic YWxpY2U6c2VjcmV0 |
 
 **Response**
 
-|Code|Description                      |
-|----|---------------------------------|
-|200 |The response body is the API key |
-|401 |The credentials were not accepted|
+| Code | Description                       |
+|------|-----------------------------------|
+|  200 | The response body is the API key  |
+|  401 | The credentials were not accepted |
 
 + Parameters
-  + account: CyberArk (string) - name of the account to use
+  + account: cyberark (string) - name of the account to use
 
 + Request
     + Headers

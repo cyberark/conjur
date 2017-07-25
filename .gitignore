@@ -30,3 +30,4 @@ docs/apidocs.html
 *.config
 docs/_layouts/page-toc.html
 api.html
+*~

@@ -1,15 +1,13 @@
-## Authenticate [/api/authn/users/{login}/authenticate]
+## Authenticate [/authn/users/{login}/authenticate]
 
 ### Exchange a user login and API key for an access token [POST]
 
 Conjur authentication is based on auto-expiring access tokens, which are issued by Conjur when presented with both:
 
 * A login name
-* A corresponding password or API key (aka 'refresh token')
+* A corresponding API key obtained from (Login)[#user-authentication-login-get]
 
-The Conjur Access Token provides authentication for API calls.
-
-For API usage, it is ordinarily passed as an HTTP Authorization "Token" header.
+The Conjur Access Token provides authentication for API calls. It is passed as an HTTP Authorization "Token" header like so:
 
 ```
 Authorization: Token token="eyJkYX...Rhb="
@@ -22,12 +20,12 @@ Take the response from the this call and base64-encode it, stripping out newline
 token=$(echo -n $response | base64 | tr -d '\r\n')
 ```
 
-The access token can now be used for Conjur API access.
+The access token can now be used for Conjur API access like this:
 
 ```
 curl --cacert <certfile> \
--H "Authorization: Token token=\"$token\"" \
-<route>
+     -H "Authorization: Token token=\"$token\"" \
+     <route>
 ```
 
 NOTE: If you have the Conjur CLI installed you can get a pre-formatted access token with:
@@ -38,26 +36,26 @@ conjur authn authenticate -H
 
 Properties of the access token include:
 
-* It is JSON.
-* It carries the login name and other data in a payload.
-* It is signed by a private authentication key, and verified by a corresponding public key.
-* It carries the signature of the public key for easy lookup in a public key database.
-* It has a fixed life span of several minutes, after which it is no longer valid.
+* It is JSON
+* It carries the login name and other data in a payload
+* It is signed by a private authentication key, and verified by a corresponding public key
+* It carries the signature of the public key for easy lookup in a public key database
+* It has a fixed life span of several minutes, after which it is no longer valid
 
 ---
 
 **Request Body**
 
-Description|Required|Type|Example|
------------|----|--------|-------|
-Conjur API key|yes|`String`|"14m9cf91wfsesv1kkhevg12cdywm2wvqy6s8sk53z1ngtazp1t9tykc"|
+| Description    | Required | Type     | Example                        |
+|----------------|----------|----------|--------------------------------|
+| Conjur API key | yes      | `String` | "14m9cf91wfsesv1kkhevg12cdywm" |
 
 **Response**
 
-|Code|Description|
-|----|-----------|
-|200|The response body is the raw data needed to create an access token|
-|401|The credentials were not accepted|
+| Code | Description                                                        |
+|------|--------------------------------------------------------------------|
+|  200 | The response body is the raw data needed to create an access token |
+|  401 | The credentials were not accepted                                  |
 
 + Parameters
     + login: latoya (string) - login name for the user/host. For hosts this is `host/<hostid>`
