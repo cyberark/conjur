@@ -9,7 +9,7 @@ The [Conjur API for Ruby](https://github.com/conjurinc/api-ruby) provides a robu
 
 {% include toc.md key='prerequisites' %}
 
-* A [Conjur server](/conjur/installation/server.html) endpoint.
+* A [Conjur server](/installation/server.html) endpoint.
 * The [Conjur API for Ruby](https://github.com/conjurinc/api-ruby), version 5.0 or later.
 
 {% include toc.md key='setup' %}

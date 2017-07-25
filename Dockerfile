@@ -1,10 +1,10 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
 RUN apt-get update -y && \
     apt-get install -y software-properties-common && \
     apt-add-repository -y ppa:brightbox/ruby-ng && \
     apt-get update -y
-    
+
 RUN apt-get install -y \
       build-essential \
       ruby2.2 ruby2.2-dev \
@@ -14,7 +14,8 @@ RUN apt-get install -y \
       ldap-utils \
       git \
       curl \
-      update-notifier-common
+      update-notifier-common \
+      tzdata
 
 RUN gem install -N -v 1.11.2 bundler
 

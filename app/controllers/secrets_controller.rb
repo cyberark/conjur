@@ -41,12 +41,17 @@ class SecretsController < RestController
   end
 
   def batch
-    variable_ids = params[:variable_ids].split(',')
+    raise ArgumentError, 'variable_ids' if params[:variable_ids].blank?
+
+    variable_ids = params[:variable_ids].split(',').compact
+
+    raise ArgumentError, 'variable_ids' if variable_ids.blank?
+    
     variables = Resource.where(resource_id: variable_ids).eager(:secrets).all
 
     unless variable_ids.count == variables.count
       raise Exceptions::RecordNotFound,
-            variables.first { |r| !variable_ids.include?(r) }.id
+            variable_ids.find { |r| !variables.map(&:id).include?(r) }
     end
     
     result = {}

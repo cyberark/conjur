@@ -52,7 +52,7 @@ Configuration file: /opt/conjur/_config.yml
             Source: /opt/conjur
        Destination: /opt/conjur/_site
  Incremental build: disabled. Enable with --incremental
-      Generating... 
+      Generating...
                     done in 5.144 seconds.
  Auto-regeneration: enabled for '/opt/conjur'
 Configuration file: /opt/conjur/_config.yml
@@ -68,3 +68,29 @@ $ open http://$DOCKER_IP:4000/conjur/
 
 `DOCKER_IP` is the address of your Docker VM, or it's simply `localhost` if you`re running a native Docker.
 
+
+#### API Blueprint Docs
+
+We're using [API Blueprint](https://apiblueprint.org/documentation/) to document the Possum API. There is no Ruby specific implementation, so we're using the [Aglio](https://github.com/danielgtaylor/aglio) package. The final generated docs can be viewed in two ways:
+
+##### Live Preview
+```bash
+$ cd docs
+$ ./dev.sh /node_modules/.bin/aglio -i apidocs/src/api.md -s -h 0.0.0.0 -p 4000
+```
+
+The above will make the rendered API docs available on `http://localhost:4000/`.
+
+Please note that the Docs Dockerfile contains the configuration to build both Jekyll and Aglio. This is why we execute commands from the `/docs` folder not the `/apidocs` folder. The API Blueprint reference path (`apidocs/src/api.md`) is from the project root.
+
+##### Generated (Visible from Jekyll)
+
+To compile API docs into the Jekyll project, first, start the Jekyll server:
+```bash
+$ cd docs && ./dev.sh
+```
+Now in a new shell, compile API docs into the running project:
+```bash
+$ docker exec possum-web /node_modules/.bin/aglio -i apidocs/src/api.md -o /opt/conjur/_site/apidocs.html
+```
+The above should be run from the root `possum` folder. 

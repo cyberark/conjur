@@ -2,5 +2,5 @@
 
 debify package \
   possum \
-  --
-
+  -- \
+  --depends tzdata
