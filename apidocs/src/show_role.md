@@ -1,9 +1,8 @@
 ## Show Role [/roles/{account}/{kind}/{identifier}]
 
-### Retrieve a record pertaining to a role [GET]
+### Show one role [GET]
 
-The response for this method is similar to what you get when creating
-the role, but it **does not include the role's API key**.
+The response for this method is a JSON document describing a single role.
 
 If a role A is granted to a role B, then role A is said to have role B
 as a member. These relationships are described in the "members"
@@ -15,6 +14,13 @@ The `identifier` parameter must be URL-encoded.
 to the role.
 
 <!-- include(partials/role_kinds.md) -->
+
+#### Example using `curl` and `jq`
+
+```
+curl -H "$(conjur authn authenticate -H)" \
+     https://eval.conjur.org/resources/cyberark/user/ | jq .
+```
 
 ---
 
@@ -28,8 +34,8 @@ to the role.
 |403 |You don't have permission to view the record       |
 |404 |No record exists with the given kind and identifier|
 
-Supposing the requested role is a user named Chanda at an organization
-called CyberArk:
+Supposing the requested role is a user named Chanda, defined as part of a policy
+called "ops" at an organization called CyberArk:
 
 + Parameters
   + account: cyberark (string) - the organization name
@@ -41,16 +47,14 @@ called CyberArk:
   
 + Response 200 (application/json)
   ```json
-  {
-      "login":"chanda",
-      "ownerid":"cyberark:group:developers",
-      "members": [
-        {
-          "admin_option": false,
-          "member": "cyberark:group:ops",
-          "ownership": false,
-          "role": "cyberark:user:chanda"
-        }
-      ]
-  }
+  [
+    {
+      "created_at": "2017-07-25T22:32:26.006+00:00",
+      "id": "cyberark:user:chanda@ops",
+      "owner": "cyberark:policy:ops",
+      "policy": "cyberark:policy:root",
+      "permissions": [],
+      "annotations": []
+    }
+  ]
   ```
