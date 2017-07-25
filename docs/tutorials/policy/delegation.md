@@ -11,14 +11,14 @@ But when Conjur is used in a large organization, it's important that the securit
 
 {% include toc.md key='prerequisites' %}
 
-* A [Conjur server](/conjur/installation/server.html) endpoint.
-* The [Conjur CLI](/conjur/installation/client.html).
+* A [Conjur server](/installation/server.html) endpoint.
+* The [Conjur CLI](/installation/client.html).
 
 It's advisable, but not required, to step through the [Enrolling an Application](./applications.html) tutorial before this one.
 
 {% include toc.md key='setup' %}
 
-Most Conjur deployments will begin with a small number of users working as administrators, loading all the policy data. All the policies can be kept in a single source control repository. Let's set up a simple example of this. 
+Most Conjur deployments will begin with a small number of users working as administrators, loading all the policy data. All the policies can be kept in a single source control repository. Let's set up a simple example of this.
 
 First, a top-level policy defines two empty policies: `db` and `frontend`. Save this policy as "conjur.yml":
 
@@ -88,7 +88,7 @@ Ownership of any object can be changed by using the `owner` field in policy YAML
   owner: !group dba
 {% endhighlight %}
 
-Ownership of the "db" policy is assigned to the role "group:dba". 
+Ownership of the "db" policy is assigned to the role "group:dba".
 
 Now any role which has the role "group:dba" can fully manage the "db" policy. Policy owners can do all of the following:
 
@@ -96,7 +96,7 @@ Now any role which has the role "group:dba" can fully manage the "db" policy. Po
 * Fully manage all objects in the policy, including variables and host factories.
 * Grant privileges on policy objects to other roles (e.g. application layers).
 
-So what does it mean to be "in the policy"? Each object and annotation has a `policy` attribute which indicates which policy that data belongs to. When you create an object, the `policy` attribute is set to the policy that created the data. 
+So what does it mean to be "in the policy"? Each object and annotation has a `policy` attribute which indicates which policy that data belongs to. When you create an object, the `policy` attribute is set to the policy that created the data.
 
 <div class="note">
 <strong>Note</strong> The <tt>policy</tt> attribute is a little different than resource ownership. The <tt>policy</tt> attribute is used when a policy is being loaded to determine which data the policy update is allowed to effect.
@@ -151,7 +151,7 @@ $ CONJUR_AUTHN_LOGIN=donna CONJUR_AUTHN_API_KEY=$api_key_donna conjur policy loa
 error: 403 Forbidden
 {% endhighlight %}
 
-This is not a bug! We've created the users and groups, but we haven't changed the ownership of the policies. 
+This is not a bug! We've created the users and groups, but we haven't changed the ownership of the policies.
 
 Update the `owner` fields in "conjur.yml":
 
@@ -189,5 +189,3 @@ In this tutorial, we showed how to assign the `owner` attribute of a policy to a
 In this way, users can be empowered to manage their own machines, variables, and web services without weakening the security of the overall system.
 
 This type of delegated / federated workflow can allow for superior velocity in a development organization, without compromising on security and compliance controls.
-
-
