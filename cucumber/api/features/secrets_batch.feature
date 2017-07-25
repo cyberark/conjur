@@ -15,10 +15,30 @@ Feature: Batch retrieval of secrets
     { "cucumber:variable:secret1": "s1", "cucumber:variable:secret2": "s2" }
     """
 
+  Scenario: Fails with 422 if variable_ids param is missing
+    When I GET "/secrets"
+    Then the HTTP response status code is 422
+
+  Scenario: Fails with 422 if variable_ids param is empty
+    When I GET "/secrets?variable_ids="
+    Then the HTTP response status code is 422
+
+  Scenario: Fails with 422 if variable_ids param has only blank items
+    When I GET "/secrets?variable_ids=,,,"
+    Then the HTTP response status code is 422
+
   Scenario: Fails with 403 if execute privilege is not held
     When I am a user named "someone-else"
     And I GET "/secrets?variable_ids=cucumber:variable:secret1"
     Then the HTTP response status code is 403
+
+  Scenario: Fails with 404 if variable_ids param has some blank items
+    When I GET "/secrets?variable_ids=cucumber:variable:secret1,,,cucumber:variable:secret2"
+    Then the HTTP response status code is 404
+
+  Scenario: Fails with 404 if a variable_id param is of an incorrect format
+    When I GET "/secrets?variable_ids=1,2,3"
+    Then the HTTP response status code is 404
 
   Scenario: Fails with 404 if a resource doesn't exist
     When I GET "/secrets?variable_ids=cucumber:variable:secret1,cucumber:variable:not-a-secret"

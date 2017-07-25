@@ -109,31 +109,3 @@ Conjur API key|yes|`String`|"14m9cf91wfsesv1kkhevg12cdywm2wvqy6s8sk53z1ngtazp1t9
         "key": "15ab2712d65e6983cf7107a5350aaac0"
     }
     ```
-
-# Group Secrets
-
-## Batch Secret Retrieval [/secrets{?variable_id}]
-
-### Batch Secret Retrieval [GET]
-
-Fetch the values of a list of variables. This operation is more efficient than
-fetching the values one by one.
-
-**Response**
-
-|Code|Description|
-|----|-----------|
-|200|All secret values were retrieved successfully|
-|401|The user is not logged in|
-|403|The user did not have 'execute' privilege on one or more variable resources|
-|404|One or more variables did not exist or did not have a stored value|
-
-+ Parameters
-    + variable_id: cucumber:variable:secret1,cucumber:variable:secret2 (array) - Resource IDs of the secrets you wish to retrieve.
-
-+ Response 200 (application/json)
-
-        {
-            "cucumber:variable:secret1": "secret_data",
-            "cucumber:variable:secret2": "more_secret_data"
-        }
