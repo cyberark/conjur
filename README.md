@@ -53,7 +53,7 @@ To use it, first build Possum from the project directory. Then:
 
 ```sh-session
 $ cd dev
-dev $ ./start.sh
+$ ./start.sh
 ...
 root@f39015718062:/src/possum#
 ```
