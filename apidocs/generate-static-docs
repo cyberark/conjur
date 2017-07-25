@@ -1,7 +1,6 @@
 #!/bin/bash
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PATH="$PATH:$DIR/node_modules/.bin"
+export PATH="/home/node/node_modules/.bin:$PATH"
 
 aglio_options=""
 
@@ -26,4 +25,4 @@ shift $((OPTIND-1))
 
 file="${1:--}"
 
-aglio $aglio_options -i src/api.md -o "$file"
+aglio $aglio_options -i src/api.md -o "$file" --verbose

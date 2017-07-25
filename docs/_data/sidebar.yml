@@ -28,7 +28,7 @@ main:
 
           # hosts:
           #   title: Machine Identity with Host Factory
-            
+
           enrollment:
             title: Enrolling an Application
             path: /tutorials/policy/applications.html
@@ -50,7 +50,7 @@ main:
 
           # summon:
           #   title: Summon
-            
+
           # puppet:
           #   title: Puppet
 
@@ -75,7 +75,28 @@ main:
       policies:
         title: Policies
         path: /reference/policy.html
-
+        items:
+          Introduction:
+            title: Introduction
+            path: /reference/policy.html#what-is-a-policy
+          Role-Based Access Control :
+            title: Role-Based Access Control
+            path: /reference/policy.html#role-based-access-control
+          Loading a Policy :
+            title: Loading a Policy
+            path: /reference/policy.html#loading-a-policy
+          Policy History :
+            title: Policy History
+            path: /reference/policy.html#policy-history
+          Policy Loading Modes :
+            title: Policy Loading Modes
+            path: /reference/policy.html#policy-loading-modes
+          Delegation :
+            title: Delegation
+            path: /reference/policy.html#delegation
+          Policy Statement Reference :
+            title: Policy Statement Reference
+            path:  /reference/policy.html#policy-statement-reference
       authentication:
         title: Authentication
         path: /reference/authentication.html
@@ -83,18 +104,18 @@ main:
       # authorization:
       #   title: Authorization
 
-      # secrets: 
+      # secrets:
       #   title: Secrets
 
-      # host-factory: 
+      # host-factory:
       #   title: Host Factory
 
-      # machine-identity: 
+      # machine-identity:
       #   title: Machine Identity Runtime
 
-      # api: 
+      # api:
       #   title: API
-        
+
       cryptography:
         title: Cryptography
         path: /reference/cryptography.html
@@ -102,5 +123,3 @@ main:
   support:
     title: Support
     path: /support.html
-      
-
