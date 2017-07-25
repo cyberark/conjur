@@ -12,7 +12,7 @@ class SecretsController < RestController
 
     raise ArgumentError, "'value' may not be empty" if value.blank?
 
-    Secret.create(resource_id: @resource.id, value: value)
+    Secret.create resource_id: @resource.id, value: value
     @resource.enforce_secrets_version_limit
           
     head :created
@@ -22,54 +22,43 @@ class SecretsController < RestController
     authorize :execute
     
     version = params[:version]
-    
-    secret =
-      if version.is_a?(String) && version.to_i.to_s == version
-        @resource.secrets.find{|s| s.version == version.to_i}
-      elsif version.nil?
-        @resource.secrets.last
-      else
-        raise ArgumentError, "invalid type for parameter 'version'"
-      end
-
-    if secret.nil?
-      raise Exceptions::RecordNotFound.
-              new(@resource.id, message: "Requested version does not exist")
+    secret = if version.is_a?(String) && version.to_i.to_s == version
+      @resource.secrets.find{|s| s.version == version.to_i}
+    elsif version.nil?
+      @resource.secrets.last
+    else
+      raise ArgumentError, "invalid type for parameter 'version'"
     end
-    
+    raise Exceptions::RecordNotFound.new(@resource.id, message: "Requested version does not exist") if secret.nil?
     value = secret.value
     
-    mime_type =
-      if a = @resource.annotations_dataset.select(:value).where(name: 'conjur/mime_type').first
-        a[:value]
-      end
-    
+    mime_type = if ( a = @resource.annotations_dataset.select(:value).where(name: 'conjur/mime_type').first )
+      a[:value]
+    end
     mime_type ||= 'application/octet-stream'
 
     render text: value, content_type: mime_type
   end
 
   def batch
+    variable_ids = params[:variable_ids].split(',')
+    variables = Resource.where(resource_id: variable_ids).eager(:secrets).all
+
+    unless variable_ids.count == variables.count
+      raise Exceptions::RecordNotFound,
+            variables.first { |r| !variable_ids.include?(r) }.id
+    end
+    
     result = {}
 
-    if !params[:variable_ids].nil?
-      variable_ids = params[:variable_ids].split(',')
-      variables = Resource.where(resource_id: variable_ids).eager(:secrets).all
-
-      unless variable_ids.count == variables.count
-        raise Exceptions::RecordNotFound,
-              variables.first { |r| !variable_ids.include?(r) }.id
+    authorize_many variables, :execute
+    
+    variables.each do |variable|
+      if variable.secrets.last.nil?
+        raise Exceptions::RecordNotFound, variable.resource_id
       end
-
-      authorize_many variables, :execute
       
-      variables.each do |variable|
-        if variable.secrets.last.nil?
-          raise Exceptions::RecordNotFound, variable.resource_id
-        end
-        
-        result[variable.resource_id] = variable.secrets.last.value
-      end
+      result[variable.resource_id] = variable.secrets.last.value
     end
 
     render json: result

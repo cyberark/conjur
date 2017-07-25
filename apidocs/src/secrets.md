@@ -1,6 +1,4 @@
-# Group Secrets
-
-## Create Secret [/secrets/:account/:kind/:identifier]
+## Create Secret [/secrets/{account}/{kind}/{identifier}]
 
 ### Create Secret [POST]
 
@@ -22,7 +20,7 @@ Creates a secret value within the specified variable. If a secret already exists
 
 + Response 201 (application/json)
 
-## Show Secret [/secrets/:account/:kind/:identifier{?version}]
+## Show Secret [/secrets/{account}/{kind}/{identifier}{?version}]
 
 ### Show Secret [GET]
 
