@@ -35,3 +35,7 @@ $ curl --cacert <certfile> ...
 <!-- include(update_password.md) -->
 
 <!-- include(rotate_api_key.md) -->
+
+# Group Secrets
+
+<!-- include(secrets.md) -->
