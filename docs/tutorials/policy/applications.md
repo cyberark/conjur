@@ -19,15 +19,15 @@ Step (4) has a special name, "entitlement", because in this step existing object
 * Grant a policy Group to a Layer.
 * Grant a policy Group to a different Group (usually a group of Users).
 
-Organizing policy management into three categories - protected resources, applications, and entitlements - helps to keep the workflow organized and clear. It also satisfies the essential security requirements of separation of duties and least privilege. 
+Organizing policy management into three categories - protected resources, applications, and entitlements - helps to keep the workflow organized and clear. It also satisfies the essential security requirements of separation of duties and least privilege.
 
 * **Separation of duties** Management of protected resources is separated from management of client applications. Different teams can be responsible for each of these tasks. In addition, policy management can also be delegated to machine roles if desired.
 * **Least privilege** The client applications are granted exactly the privileges that they need to perform their work. And policy managers (whether humans or machines) have management privileges only on the objects that rightfully belong under their control.
 
 {% include toc.md key='prerequisites' %}
 
-* A [Conjur server](/conjur/installation/server.html) endpoint.
-* The [Conjur CLI](/conjur/installation/client.html).
+* A [Conjur server](/installation/server.html) endpoint.
+* The [Conjur CLI](/installation/client.html).
 
 {% include toc.md key='setup' %}
 
@@ -91,7 +91,7 @@ For this example, the "frontend" policy will simply define a Layer and a Host. C
 {% include policy-file.md policy='application_frontend' %}
 
 <div class="note">
-<strong>Note</strong> Statically defining the hosts in a policy is appropriate for fairly static infrastructure. More dynamic systems such as auto-scaling groups and containerized deployments can be managed with Conjur as well. The details of these topics are covered elsewhere. 
+<strong>Note</strong> Statically defining the hosts in a policy is appropriate for fairly static infrastructure. More dynamic systems such as auto-scaling groups and containerized deployments can be managed with Conjur as well. The details of these topics are covered elsewhere.
 </div>
 <p/>
 
@@ -194,7 +194,7 @@ $ conjur resource permitted_roles variable:db/password execute
 ]
 {% endhighlight %}
 
-The important line here is **dev:host:frontend/frontend-01**. 
+The important line here is **dev:host:frontend/frontend-01**.
 
 Now we can finish the tutorial by fetching the password while authenticated as the host:
 
@@ -216,4 +216,3 @@ This pattern can be extended in the following ways:
 * Automatically enroll hosts into the `frontend` layer by adding a Host Factory.
 * Add more applications that need access to the database password, and grant them access by adding entitlements to the `db` policy.
 * Create user groups such as `database-administrators` and `frontend-developers`, and give them management rights on their respective policies. In this way, policy management can be federated and scaled.
-
