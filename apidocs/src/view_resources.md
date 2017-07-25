@@ -1,6 +1,6 @@
 ## View Resources [/resources/{account}]
 
-### List all resources [GET /resources/{account}]
+### Show all resources [GET /resources/{account}]
 
 Given an account, the output is a JSON document describing all visible resources.
 
@@ -21,38 +21,47 @@ Given an account, the output is a JSON document describing all visible resources
   <!-- include(partials/auth_header_code.md) -->
 
 + Response 200 (application/json)
-  ```
-  [
-    {
-      "created_at": "2017-07-25T06:30:38.768+00:00",
-      "id": "cyberark:variable:app-prod/db-password",
-      "owner": "cyberark:policy:app-prod",
-      "policy": "cyberark:policy:root",
-      "permissions": [],
-      "annotations": [],
-      "secrets": [
-        {
-          "version": 1
-        }
-      ]
-    },
-    {
-      "created_at": "2017-07-25T06:30:38.768+00:00",
-      "id": "cyberark:policy:app-prod",
-      "owner": "cyberark:user:admin",
-      "policy": "cyberark:policy:root",
-      "permissions": [],
-      "annotations": [],
-      "policy_versions": []
-    }
-  ]
-  ```
 
-### List one kind of resources [GET /resources/{account}/{kind}]
+    ```
+    [
+      {
+        "created_at": "2017-07-25T06:30:38.768+00:00",
+        "id": "cyberark:variable:app-prod/db-password",
+        "owner": "cyberark:policy:app-prod",
+        "policy": "cyberark:policy:root",
+        "permissions": [],
+        "annotations": [],
+        "secrets": [
+          {
+            "version": 1
+          }
+        ]
+      },
+      {
+        "created_at": "2017-07-25T06:30:38.768+00:00",
+        "id": "cyberark:policy:app-prod",
+        "owner": "cyberark:user:admin",
+        "policy": "cyberark:policy:root",
+        "permissions": [],
+        "annotations": [],
+        "policy_versions": []
+      }
+    ]
+    ```
+
+### Show one kind of resource [GET /resources/{account}/{kind}]
 
 The response to this method is a JSON document describes all resources of only one kind.
 
 <!-- include(partials/resource_kinds.md) -->
+
+#### Example using `curl` and `jq`
+
+```
+curl -H "$(conjur authn authenticate -H)" \
+    https://eval.conjur.org/resources/cyberark/variable/ \
+    | jq .
+```
 
 ---
 
@@ -60,9 +69,9 @@ The response to this method is a JSON document describes all resources of only o
 
 **Response**
 
-|Code|Description                      |
-|----|---------------------------------|
-|200 |Resources returned as a JSON list|
+| Code | Description                       |
+|------|-----------------------------------|
+|  200 | Resources returned as a JSON list |
 
 + Parameters
   + account: cyberark (string) - the organization name
@@ -72,34 +81,26 @@ The response to this method is a JSON document describes all resources of only o
   <!-- include(partials/auth_header_code.md) -->
 
 + Response 200 (application/json)
+
     ```
-  [
-    {
-      "created_at": "2017-07-25T06:30:38.768+00:00",
-      "id": "cyberark:variable:app-prod/db-password",
-      "owner": "cyberark:policy:app-prod",
-      "policy": "cyberark:policy:root",
-      "permissions": [],
-      "annotations": [],
-      "secrets": [
-        {
-          "version": 1
-        }
-      ]
-    }
-  ]
-  ```
+    [
+      {
+        "created_at": "2017-07-25T06:30:38.768+00:00",
+        "id": "cyberark:variable:app-prod/db-password",
+        "owner": "cyberark:policy:app-prod",
+        "policy": "cyberark:policy:root",
+        "permissions": [],
+        "annotations": [],
+        "secrets": [
+          {
+            "version": 1
+          }
+        ]
+      }
+    ]
+    ```
 
-#### Example using `curl` and `jq`
-
-```
-curl -H "$(conjur authn authenticate -H)" \
-     https://eval.conjur.org/resources/cyberark/variable/ \
-     | jq .
-```
-
-
-### Retrieve a record for a resource [GET /resources/{account}/{kind}/{identifier}]
+### Show one resource [GET /resources/{account}/{kind}/{identifier}]
 
 The response to this method is a JSON document describing a single resource.
 
@@ -107,17 +108,25 @@ The response to this method is a JSON document describing a single resource.
 
 <!-- include(partials/resource_kinds.md) -->
 
+#### Example using `curl` and `jq`
+
+```
+curl -H "$(conjur authn authenticate -H)" \
+    https://eval.conjur.org/resources/cyberark/policy/app-prod \
+    | jq .
+```
+
 ---
 
 <!-- include(partials/auth_header_table.md) -->
 
 **Response**
 
-|Code|Description                                        |
-|----|---------------------------------------------------|
-|200 |Role memberships returned as a JSON list           |
-|403 |You don't have permission to view the record       |
-|404 |No record exists with the given kind and identifier|
+| Code | Description                                         |
+|------|-----------------------------------------------------|
+|  200 | Role memberships returned as a JSON list            |
+|  403 | You don't have permission to view the record        |
+|  404 | No record exists with the given kind and identifier |
 
 Supposing the requested resource is a layer called "db" at an organization called CyberArk:
 
@@ -130,23 +139,16 @@ Supposing the requested resource is a layer called "db" at an organization calle
   <!-- include(partials/auth_header_code.md) -->
 
 + Response 200 (application/json)
-  ```
-  {
-      "created_at": "2017-07-25T06:30:38.768+00:00",
-      "id": "cyberark:policy:app-prod",
-      "owner": "cyberark:user:admin",
-      "policy": "cyberark:policy:root",
-      "permissions": [],
-      "annotations": [],
-      "policy_versions": []
-    }
-  ]
-  ```
 
-#### Example using `curl` and `jq`
-
-```
-curl -H "$(conjur authn authenticate -H)" \
-     https://eval.conjur.org/resources/cyberark/policy/app-prod \
-     | jq .
-```
+    ```
+    {
+        "created_at": "2017-07-25T06:30:38.768+00:00",
+        "id": "cyberark:policy:app-prod",
+        "owner": "cyberark:user:admin",
+        "policy": "cyberark:policy:root",
+        "permissions": [],
+        "annotations": [],
+        "policy_versions": []
+      }
+    ]
+    ```
