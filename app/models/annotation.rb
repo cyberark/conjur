@@ -1,6 +1,6 @@
 # Stores a text annotation on a resource.
 class Annotation < Sequel::Model
-  plugin :timestamps,         :update_on_create=>true
+  plugin :timestamps, update_on_create: true
   plugin :validation_helpers
   
   unrestrict_primary_key

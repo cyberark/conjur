@@ -1,0 +1,18 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: cli5
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cli5
+    spec:
+      containers:
+      - image: conjurinc/cli5
+        name: cli5
+        imagePullPolicy: IfNotPresent
+        command: [ sleep ]
+        args: [ infinity ]

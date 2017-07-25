@@ -35,6 +35,8 @@ gem 'rack-rewrite'
 
 gem 'simplecov', require: false
 
+gem 'kubeclient'
+
 group :production do
   gem 'rails_12factor'
 end

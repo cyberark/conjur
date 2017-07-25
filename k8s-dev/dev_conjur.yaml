@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: conjur
+spec:
+  ports:
+  - port: 80
+    name: http
+  selector:
+    app: conjur
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: conjur
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: conjur
+    spec:
+      containers:
+      - image: conjurinc/possum
+        imagePullPolicy: IfNotPresent
+        name: conjur
+        command: [ sleep ]
+        args: [ infinity ]
+        env:
+        - name: DATABASE_URL
+          value: postgres://postgres@pg/postgres
+        - name: RAILS_ENV
+          value: development
+        - name: POSSUM_DATA_KEY
+          valueFrom:
+            secretKeyRef:
+              name: conjur-data-key
+              key: data-key
+        volumeMounts:
+        - mountPath: /src/conjur
+          name: local-dev
+          
+      - image: lachlanevenson/k8s-kubectl
+        imagePullPolicy: IfNotPresent
+        name: kubectl
+        command: [ kubectl, proxy, "-p", "8080" ]
+
+      volumes:
+        - name: local-dev
+          hostPath:
+            path: /Users/kgilpin/source/conjur/possum

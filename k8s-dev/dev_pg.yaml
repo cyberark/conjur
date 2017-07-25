@@ -1,0 +1,26 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pg
+spec:
+  ports:
+  - port: 5432
+  selector:
+    app: pg
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: pg
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pg
+    spec:
+      containers:
+      - image: postgres:9.4
+        name: pg
+        imagePullPolicy: IfNotPresent

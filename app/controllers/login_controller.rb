@@ -1,24 +1,36 @@
 class LoginController < ApplicationController
   include BasicAuthenticator
 
-  # Perform the authentication strategy.
-  before_filter :authenticate_client
+  # Perform the login strategy.
+  before_filter :perform_login
 
   # Ensure that the referenced role exists.
   before_filter :find_role
 
   # Ensure the credentials exist if they will be accessed or modified.
   before_filter :ensure_credentials
-    
-  def login
-    render text: @role.credentials.api_key
+
+  def login_basic
+    render_api_key
+  end
+
+  def login_kubernetes
+    render_api_key
   end
   
   protected
+
+  def render_api_key
+    render text: @role.credentials.api_key
+  end
+
+  def provider
+    _, provider_name = action_name.split('_', 2)
+    Login::Provider.const_get(provider_name.underscore.camelize).new account, authentication, request
+  end
   
-  def authenticate_client
-    perform_basic_authn
-    raise Unauthorized, "Client not authenticated" unless authentication.authenticated?
+  def perform_login
+    provider.perform_login
   end
 
   def find_role
