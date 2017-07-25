@@ -28,11 +28,11 @@ curl -H "$(conjur authn authenticate -H)" \
 
 **Response**
 
-|Code|Description                                        |
-|----|---------------------------------------------------|
-|200 |The response body contains the requested record    |
-|403 |You don't have permission to view the record       |
-|404 |No record exists with the given kind and identifier|
+| Code | Description                                       |
+|------|---------------------------------------------------|
+|  200 | The response body contains the requested role     |
+|  403 | You don't have permission to view the role        |
+|  404 | No role exists with the given kind and identifier |
 
 Supposing the requested role is a user named Chanda, defined as part of a policy
 called "ops" at an organization called CyberArk:
