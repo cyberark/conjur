@@ -2,7 +2,7 @@
 
 ### List all resources [GET /resources/{account}]
 
-Given an account, the output is a list of all visible resources.
+Given an account, the output is a JSON document describing all visible resources.
 
 ---
 
@@ -10,9 +10,9 @@ Given an account, the output is a list of all visible resources.
 
 **Response**
 
-|Code|Description                      |
-|----|---------------------------------|
-|200 |Resources returned as a JSON list|
+| Code | Description                       |
+|------|-----------------------------------|
+|  200 | Resources returned as a JSON list |
 
 + Parameters
   + account: cyberark (string) - the organization name
@@ -23,14 +23,34 @@ Given an account, the output is a list of all visible resources.
 + Response 200 (application/json)
   ```
   [
-      "cyberark:user:chanda",
-      "cyberark:layer:db"
+    {
+      "created_at": "2017-07-25T06:30:38.768+00:00",
+      "id": "cyberark:variable:app-prod/db-password",
+      "owner": "cyberark:policy:app-prod",
+      "policy": "cyberark:policy:root",
+      "permissions": [],
+      "annotations": [],
+      "secrets": [
+        {
+          "version": 1
+        }
+      ]
+    },
+    {
+      "created_at": "2017-07-25T06:30:38.768+00:00",
+      "id": "cyberark:policy:app-prod",
+      "owner": "cyberark:user:admin",
+      "policy": "cyberark:policy:root",
+      "permissions": [],
+      "annotations": [],
+      "policy_versions": []
+    }
   ]
   ```
 
 ### List one kind of resources [GET /resources/{account}/{kind}]
 
-As above, but shows only one kind of resource.
+The response to this method is a JSON document describes all resources of only one kind.
 
 <!-- include(partials/resource_kinds.md) -->
 
@@ -46,22 +66,42 @@ As above, but shows only one kind of resource.
 
 + Parameters
   + account: cyberark (string) - the organization name
-  + kind: user (string) - the kind of resource to list
+  + kind: variable (string) - the kind of resource to list
 
 + Request
   <!-- include(partials/auth_header_code.md) -->
 
 + Response 200 (application/json)
-  ```
+    ```
   [
-      "cyberark:user:chanda"
+    {
+      "created_at": "2017-07-25T06:30:38.768+00:00",
+      "id": "cyberark:variable:app-prod/db-password",
+      "owner": "cyberark:policy:app-prod",
+      "policy": "cyberark:policy:root",
+      "permissions": [],
+      "annotations": [],
+      "secrets": [
+        {
+          "version": 1
+        }
+      ]
+    }
   ]
   ```
 
+#### Example using `curl` and `jq`
+
+```
+curl -H "$(conjur authn authenticate -H)" \
+     https://eval.conjur.org/resources/cyberark/variable/ \
+     | jq .
+```
+
+
 ### Retrieve a record for a resource [GET /resources/{account}/{kind}/{identifier}]
 
-The response to this method is similar to what you get when creating a
-resource.
+The response to this method is a JSON document describing a single resource.
 
 **Permissions Required**: `read` permission on the resource.
 
@@ -83,8 +123,8 @@ Supposing the requested resource is a layer called "db" at an organization calle
 
 + Parameters
   + account: cyberark (string) - the organization name
-  + kind: layer (string) - the type of record requested (see table above)
-  + identifier: db (string)  - the identifier of the resource
+  + kind: policy (string) - the type of record requested (see table above)
+  + identifier: app-prod (string)  - the identifier of the resource
 
 + Request
   <!-- include(partials/auth_header_code.md) -->
@@ -92,6 +132,21 @@ Supposing the requested resource is a layer called "db" at an organization calle
 + Response 200 (application/json)
   ```
   {
-      "todo": "try this"
-  }
+      "created_at": "2017-07-25T06:30:38.768+00:00",
+      "id": "cyberark:policy:app-prod",
+      "owner": "cyberark:user:admin",
+      "policy": "cyberark:policy:root",
+      "permissions": [],
+      "annotations": [],
+      "policy_versions": []
+    }
+  ]
   ```
+
+#### Example using `curl` and `jq`
+
+```
+curl -H "$(conjur authn authenticate -H)" \
+     https://eval.conjur.org/resources/cyberark/policy/app-prod \
+     | jq .
+```
