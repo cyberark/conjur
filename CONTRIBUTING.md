@@ -5,7 +5,7 @@ code) then you are welcome. All roles are vital! :pray:
 
 ## Pull Request Workflow
 
-1. Search open issues to find out what has already been addressed or planned
+1. Search [open issues](https://github.com/conjurinc/possum/issues) to find out what has already been addressed or planned
 2. Open an issue in this repository to propose changes or fixes
 3. Tag issue "in progress" as you work on it
 4. Run RSpec and Cucumber tests as described [here](README.md#tests), ensuring they pass
