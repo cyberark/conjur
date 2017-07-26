@@ -1,18 +1,18 @@
 module PossumWorld
-  
+
   USER_NAMES = %w(auto-larry auto-mike auto-norbert auto-otto)
-  
+
   def headers
     @headers ||= {}
   end
-  
+
   def post_json path, body, options = {}
     path = denormalize(path)
     body = denormalize(body)
     result = rest_resource(options)[path].post(body)
     set_result result
   end
-  
+
   def put_json path, body = nil, options = {}
     path = denormalize(path)
     body = denormalize(body)
@@ -38,7 +38,7 @@ module PossumWorld
     result = rest_resource(options)[path].get
     set_result result
   end
-  
+
   def set_result result
     @response_api_key = nil
     if result.headers[:content_type] =~ /^application\/json/
@@ -51,23 +51,23 @@ module PossumWorld
       @result = result
     end
   end
-  
+
   def authn_params
     raise "No selected user" unless @selected_user
     @authn_params = {
       id: @selected_user.login
     }
   end
-  
+
   def last_json
     raise "No result captured!" unless @result
     JSON.pretty_generate(@result)
   end
-  
+
   def users
     @users ||= {}
   end
-  
+
   def lookup_user login, account = "cucumber"
     roleid = "#{account}:user:#{login}"
     existing = Role[roleid] rescue nil
@@ -86,11 +86,11 @@ module PossumWorld
     role_id = "#{account}:user:admin"
     Role[role_id] || Role.create(role_id: role_id)
   end
-  
+
   def admin_user
     Role["cucumber:user:admin"]
   end
-  
+
   # Create a regular user, owned by the admin user
   def create_user login = nil
     unless login
@@ -107,7 +107,7 @@ module PossumWorld
       users[login] = user
     end
   end
-  
+
   def current_user?
     !!@current_user
   end
@@ -115,7 +115,7 @@ module PossumWorld
   def current_user_api_key
     @current_user.api_key
   end
-  
+
   def current_user_credentials
     headers = {}.tap do |h|
       token = Slosilo["authn:#{@current_user.account}"].signed_token @current_user.login
@@ -128,15 +128,15 @@ module PossumWorld
     password ||= @current_user.api_key
     { user: @current_user.login, password: password }
   end
-  
+
   def token_auth_request
     RestClient::Resource.new(Conjur::Authn::API.host, current_user_credentials)
   end
-  
+
   def basic_auth_request password = nil
     RestClient::Resource.new(Conjur::Authn::API.host, current_user_basic_auth(password))
   end
-  
+
   def try_request can
     begin
       yield
@@ -150,7 +150,7 @@ module PossumWorld
       end
     end
   end
-  
+
   def account
     "cucumber"
   end
@@ -159,7 +159,7 @@ module PossumWorld
     @random ||= Random.new
     @random.bytes(nbytes).unpack('h*').first
   end
-  
+
   protected
 
   def denormalize str
