@@ -1,0 +1,23 @@
+FROM ruby:2.2
+
+RUN apt-get update && \
+    apt-get install -y python-dev unzip
+
+RUN curl -s "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip" && \
+    unzip awscli-bundle.zip && \
+    ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+
+RUN mkdir -p /usr/src/docs
+WORKDIR /usr/src/docs
+
+ADD Gemfile Gemfile.lock ./
+RUN bundle --with website
+
+COPY ./docs /usr/src/docs
+
+EXPOSE 4000
+
+HEALTHCHECK CMD curl -f http://localhost:4000/ || exit 1
+
+ENTRYPOINT ["/usr/local/bin/bundle", "exec", "jekyll"]
+CMD ["serve", "--watch", "--host", "0.0.0.0"]

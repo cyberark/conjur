@@ -1,0 +1,11 @@
+version: '3'
+services:
+  docs:
+    build:
+      context: .
+      dockerfile: Dockerfile.docs
+    image: possum-docs
+    ports:
+      - 4000:4000
+    volumes:
+      - .:/usr/src
