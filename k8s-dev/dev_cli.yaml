@@ -16,3 +16,8 @@ spec:
         imagePullPolicy: IfNotPresent
         command: [ sleep ]
         args: [ infinity ]
+        env:
+        - name: CONJUR_APPLIANCE_URL
+          value: http://conjur
+        - name: CONJUR_ACCOUNT
+          value: mycorp

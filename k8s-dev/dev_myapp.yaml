@@ -1,0 +1,63 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      initContainers:
+      - image: authenticator
+        imagePullPolicy: IfNotPresent
+        name: authenticator-init
+        command: [ authenticate-once ]
+        env:
+        - name: CONJUR_APPLIANCE_URL
+          value: http://conjur
+        - name: CONJUR_ACCOUNT
+          value: mycorp
+        - name: K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - mountPath: /run/conjur
+          name: conjur-access-token
+
+      containers:
+      - image: authenticator
+        imagePullPolicy: IfNotPresent
+        name: authenticator
+        env:
+        - name: CONJUR_APPLIANCE_URL
+          value: http://conjur
+        - name: CONJUR_ACCOUNT
+          value: mycorp
+        - name: K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - mountPath: /run/conjur
+          name: conjur-access-token
+
+      - image: myapp
+        imagePullPolicy: IfNotPresent
+        name: myapp
+        env:
+        - name: CONJUR_APPLIANCE_URL
+          value: http://conjur
+        - name: CONJUR_ACCOUNT
+          value: mycorp
+        volumeMounts:
+        - mountPath: /run/conjur/
+          name: conjur-access-token
+
+      volumes:
+        - name: conjur-access-token
+          emptyDir:
+            medium: Memory

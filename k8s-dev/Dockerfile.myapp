@@ -1,0 +1,5 @@
+FROM conjurinc/cli5
+
+COPY ./myapp.rb .
+
+ENTRYPOINT [ "ruby", "./myapp.rb" ]
