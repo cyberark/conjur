@@ -4,10 +4,8 @@ export PATH="/home/node/node_modules/.bin:$PATH"
 
 aglio_options=""
 
-while getopts 'wh' opt; do
-    case $opt in
-        h)
-            cat <<EOF
+function showhelp() {
+    cat <<EOF
 Usage: generate-static-docs [OPTION]... [FILE]
 Uses Aglio to generate static API documentation for Conjur CE.
 
@@ -16,13 +14,23 @@ Uses Aglio to generate static API documentation for Conjur CE.
 
 The FILE argument specifies where to write output (default stdout).
 EOF
-            exit;;
+    exit
+}
+
+while getopts 'whv' opt; do
+    case $opt in
+        h)
+            showhelp;;
         w)
             aglio_options="$aglio_options -s";;
+        v)
+            aglio_options="$aglio_options --verbose";;
+        *)
+            showhelp;;
     esac
 done
 shift $((OPTIND-1))
 
 file="${1:--}"
 
-aglio $aglio_options -i src/api.md -o "$file" --verbose
+aglio $aglio_options -i src/api.md -o "$file"
