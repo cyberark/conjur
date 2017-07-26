@@ -94,8 +94,8 @@ module Login
         pods = kube_client.get_pods.select do |pod|
           pod.status.podIP == request_ip
         end
-        raise Exceptions::Unauthorized, "No pod matches request IP #{request_id}" if pods.empty?
-        raise Exceptions::Unauthorized, "Multiple pods match request IP #{request_id}" if pods.size > 1
+        raise Exceptions::Unauthorized, "No pod matches request IP #{request_ip}" if pods.empty?
+        raise Exceptions::Unauthorized, "Multiple pods match request IP #{request_ip}" if pods.size > 1
         pods.first
       end
 
