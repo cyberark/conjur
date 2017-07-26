@@ -10,7 +10,7 @@ RUN curl -s "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bund
 RUN mkdir -p /usr/src/docs
 WORKDIR /usr/src/docs
 
-ADD Gemfile Gemfile.lock ./
+COPY Gemfile Gemfile.lock ./
 RUN bundle --with website
 
 COPY ./docs /usr/src/docs
