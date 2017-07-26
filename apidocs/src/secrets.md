@@ -27,6 +27,11 @@ curl -H "$(conjur authn authenticate -H)" \
 |  201 | The secret value was added successfully |
 |      |                                         |
 
++ Parameters
+  + account: cyberark (string) - organization name
+  + kind: variable (string) - kind of resource (usually "variable")
+  + identifier: db-password (string) - id of the resource as defined in the policy
+
 + Response 201 (application/xml)
 
 ## Retrieve Secret Value [/secrets/{account}/{kind}/{identifier}{?version}]
@@ -57,7 +62,10 @@ curl -H "$(conjur authn authenticate -H)" \
 Supposing the secret's value is "don't tell":
 
 + Parameters
-    + version: 1 (integer) - Specify a version if you want to retrieve a previous secret value that has been replaced.
+  + account: cyberark (string) - organization name
+  + kind: variable (string) - kind of resource (usually "variable")
+  + identifier: db-password (string) - id of the resource as defined in the policy
+  + version: 1 (integer) - the version you want to retrieve (Conjur keeps the last 20 versions of a secret)
 
 + Response 200 (application/json)
 

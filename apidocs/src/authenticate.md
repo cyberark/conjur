@@ -59,6 +59,7 @@ Properties of the access token include:
 |  401 | The credentials were not accepted                                  |
 
 + Parameters
+    + account: cyberark (string) - organization name
     + login: latoya (string) - login name for the user/host. For hosts this is `host/<hostid>`
 
 + Request (text/plain)
