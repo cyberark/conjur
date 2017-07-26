@@ -1,0 +1,24 @@
+@import 'variables';
+
+#footer {
+  background-color: $conjur-ltgray;
+  text-align: center;
+
+  .footer-disclaimer {
+    padding: 2em 0 1em 0;
+    color: $conjur-dark;
+    font-size: 13px;
+
+    img.cyberark-sidebar-logo {
+    	max-width: 100px;
+      height: auto;
+    	margin: 0 auto;
+      display: inline-block;
+  	}
+
+    p {
+      text-align: center;
+      font-size: 13px;
+    }
+  }
+}
