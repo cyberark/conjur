@@ -167,6 +167,7 @@
 
 		.nav-menu {
 			display: none;
+			list-style: none;
 		}
 
 		img {
@@ -177,7 +178,6 @@
 		}
 
 		.nav.navbar-nav > li {
-			//border-bottom: 1px solid rgba(255,255,255,.1);
 			position: relative;
 		}
 
@@ -230,9 +230,11 @@
 				}
 			}
 		}
-
 	}
 
+	.nav.navbar-nav {
+		list-syle: none;
+	}
 }
 
 @media (max-width: 767px) {
@@ -257,6 +259,8 @@
 
 	.nav-menu {
 		display: none;
+		list-style: none;
+		padding: 0;
 	}
 
 	.has-menu.open .nav-menu {
@@ -277,5 +281,9 @@
 		p {
 			text-align: center;
 		}
+	}
+
+	.nav.navbar-nav {
+		list-syle: none;
 	}
 }

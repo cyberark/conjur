@@ -28,7 +28,6 @@ pre {
 }
 
 code {
-	padding: .25em .5em;
 	font-size: 85%;
 	color: $conjur-teal;
 	background-color: #f9f9f9;
@@ -46,13 +45,6 @@ img {
 	margin: 50px 0;
 }
 
-ul {
-	padding: 0;
-
-	li {
-		list-style: none;
-	}
-}
 
 // ***********************
 // Buttons
@@ -97,13 +89,13 @@ p {
 
 @media (min-width: 992px) and (max-width: 1200px) {
 	#content {
-		margin-left: 300px; 
+		margin-left: 300px;
 	}
 }
 
 @media (min-width: 1201px) {
 	#content {
-		margin-left: 300px; 
+		margin-left: 300px;
 	}
 }
 
