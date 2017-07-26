@@ -35,6 +35,12 @@ gem 'rack-rewrite'
 
 gem 'simplecov', require: false
 
+gem 'sass-rails'
+gem 'uglifier'
+gem 'coffee-rails'
+gem 'bootstrap-sass', '~> 3.2.0'
+gem 'autoprefixer-rails'
+
 group :production do
   gem 'rails_12factor'
 end
@@ -56,6 +62,7 @@ group :development, :test do
   gem 'aruba'
   gem 'rake_shared_context'
   gem 'conjur-cli', github: 'conjurinc/cli-ruby', branch: 'possum'
+  gem 'rails_layout'
 end
 
 group :website do

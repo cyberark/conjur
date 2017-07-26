@@ -59,4 +59,8 @@ Rails.application.configure do
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
+
+  #Add support for asset compression in production
+  config.assets.css_compressor = :yui
+  config.assets.js_compressor = :uglifier
 end

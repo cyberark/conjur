@@ -1,7 +1,6 @@
-class StatusController < ActionController::API
-
+class StatusController < ApplicationController
   def index
-    render "index.html.erb"
+    render 'index'
   end
 
 end
