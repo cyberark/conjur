@@ -9,4 +9,4 @@ docker run \
   -v $PWD/..:/opt/conjur \
   -p 4000:4000 \
   --name possum-web \
-  possum-web "${@-jekyll serve -H 0.0.0.0 --source docs}"
+  possum-web ${@-jekyll serve -H 0.0.0.0 --source docs}
