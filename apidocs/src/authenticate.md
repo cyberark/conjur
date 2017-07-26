@@ -1,10 +1,10 @@
-## Authenticate [/authn/users/{login}/authenticate]
+## Authenticate [/authn/{account}/{login}/authenticate]
 
 ### Exchange a user login and API key for an access token [POST]
 
 Conjur authentication is based on auto-expiring access tokens, which are issued by Conjur when presented with both:
 
-* A login name
+* A login name (eg. latoya)
 * A corresponding API key obtained from (Login)[#user-authentication-login-get]
 
 The Conjur Access Token provides authentication for API calls. It is passed as an HTTP Authorization "Token" header like so:
@@ -49,6 +49,7 @@ Properties of the access token include:
 | Description    | Required | Type     | Example                        |
 |----------------|----------|----------|--------------------------------|
 | Conjur API key | yes      | `String` | "14m9cf91wfsesv1kkhevg12cdywm" |
+| Account        | yes      | `String` | "cyberark"                      |
 
 **Response**
 
