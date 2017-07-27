@@ -9,7 +9,7 @@
 	align-items: center;
 	position: absolute;
 	height: 100vh;
-	width: 100vw;  
+	width: 100vw;
 	max-width: 100%;
 	z-index: 1;
 	text-align:center;
@@ -67,11 +67,20 @@ img {
 	// input field
 	input#email-795e5607-3251-4827-9e88-94db1ef9fa7a {
 		width: 85%;
-		height: 44px; 
+		height: 44px;
 		text-align: center;
 		box-sizing: border-box;
 		font-size: 16px;
 		font-family: 'Open Sans', sans-serif;
+	}
+
+	input#company-795e5607-3251-4827-9e88-94db1ef9fa7a {
+    width: 85%;
+    height: 44px;
+    text-align: center;
+    box-sizing: border-box;
+    font-size: 16px;
+    font-family: 'Open Sans', sans-serif;
 	}
 
 	//error message
