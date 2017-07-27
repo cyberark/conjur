@@ -52,6 +52,12 @@ pipeline {
       }
     }
 
+    stage('Check website for broken links') {
+      steps {
+        sh './checklinks.sh'
+      }
+    }
+
     stage('Publish website') {
       when {
         branch 'master'

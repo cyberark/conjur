@@ -7,7 +7,7 @@ layout: page
 
 The [conjur Puppet module](https://forge.puppet.com/conjur/conjur) provides a comprehensive solution for managing machine identity and distributing secrets through Puppet. Conjur + Puppet has clear advantages over other approaches to secrets management such as hiera-eyaml and hiera-vault:
 
-* Access to secrets is controlled separately for each node. 
+* Access to secrets is controlled separately for each node.
 * No "master key" is installed on the Puppet master; in fact, the Puppet master
 does not hold any long-lived key to the secrets vault at all.
 * Access to secrets is managed via machine identity and role-based access control policies, which are kept in source control.
@@ -16,8 +16,8 @@ As a result, the "blast radius" of a compromised node or Puppet master is minimi
 
 {% include toc.md key='prerequisites' %}
 
-* A [Conjur server](/conjur/installation/server.html) endpoint.
-* The [Conjur CLI](/conjur/installation/client.html).
+* A [Conjur server](/installation/server.html) endpoint.
+* The [Conjur CLI](/installation/client.html).
 * A client machine with the Puppet agent installed.
 
 {% include toc.md key='overview' %}
@@ -79,7 +79,7 @@ Now, use OpenSSL to generate a random secret, and load it into the variable:
 
 {% include toc.md key='host-factory-token' %}
 
-In the introduction, we mentioned that the Puppet manifest assigns a Conjur identity to the client node. For this purpose, we use the Conjur Host Factory. 
+In the introduction, we mentioned that the Puppet manifest assigns a Conjur identity to the client node. For this purpose, we use the Conjur Host Factory.
 
 Create a host factory token for use by Puppet:
 
@@ -96,7 +96,7 @@ $ conjur hostfactory tokens create myapp
 ]
 {% endhighlight %}
 
-The `token` that you see above can be used to enroll machines into the "myapp" layer. 
+The `token` that you see above can be used to enroll machines into the "myapp" layer.
 
 {% include toc.md key='manifest' %}
 
@@ -148,4 +148,3 @@ TODO: show output
 {% endhighlight %}
 
 TODO: success message
-
