@@ -95,6 +95,7 @@
   policies: Policy Configuration
   add-secret: Add the Secret
   app: Run the Application
+  next-steps: Next Steps
 
 "/tutorials/integrations/authenticators.html":
   introduction: Introduction

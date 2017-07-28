@@ -31,7 +31,7 @@ $ eval $(minikube docker-env)
 * Clone the Conjur server source code:
 
 {% highlight shell %}
-$ git clone git@github.com:conjurinc/possum.git
+$ git clone -b feature/login-provider git@github.com:conjurinc/possum.git
 Cloning into 'possum'...
 remote: Counting objects: 445, done.
 remote: Compressing objects: 100% (413/413), done.
@@ -410,5 +410,147 @@ Value added
 {% endhighlight %}
 
 {% include toc.md key='app' %}
+
+With the policies and secret data loaded, it's time to run "myapp" in Kubernetes.
+
+For this section, you will need the code located in the directory `k8s-dev`. First, make sure that you are on the branch "feature/login-provider", then change to this directory.
+
+Now build two Docker images:
+
+* **authenticator** A sidecar container which logs in to Conjur and shares an access token with the application container through a Memory volume.
+* **myapp** The application code, which uses the Conjur access token to fetch and print the database password.
+
+{% highlight shell %}
+$ docker build -t authenticator -f Dockerfile.authenticator .
+...
+$ docker build -t myapp -f Dockerfile.myapp .
+...
+{% endhighlight %}
+
+Then create the Kubernetes YAML file "k8s_myapp.yaml":
+
+{% highlight yaml %}
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      initContainers:
+      - image: authenticator
+        imagePullPolicy: IfNotPresent
+        name: authenticator-init
+        command: [ authenticate-once ]
+        env:
+        - name: CONJUR_APPLIANCE_URL
+          value: http://conjur
+        - name: CONJUR_ACCOUNT
+          value: mycorp
+        - name: K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - mountPath: /run/conjur
+          name: conjur-access-token
+
+      containers:
+      - image: authenticator
+        imagePullPolicy: IfNotPresent
+        name: authenticator
+        env:
+        - name: CONJUR_APPLIANCE_URL
+          value: http://conjur
+        - name: CONJUR_ACCOUNT
+          value: mycorp
+        - name: K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - mountPath: /run/conjur
+          name: conjur-access-token
+
+      - image: myapp
+        imagePullPolicy: IfNotPresent
+        name: myapp
+        env:
+        - name: CONJUR_APPLIANCE_URL
+          value: http://conjur
+        - name: CONJUR_ACCOUNT
+          value: mycorp
+        volumeMounts:
+        - mountPath: /run/conjur/
+          name: conjur-access-token
+
+      volumes:
+        - name: conjur-access-token
+          emptyDir:
+            medium: Memory
+{% endhighlight %}
+
+In this file you can see the configuration that shares the access token between the "authenticator" sidecar container and the "myapp" container. There is also an init container which keeps the application from starting until the pod is logged in to Conjur.
+
+The access token is shared between the containers using a Memory volume. First, the Memory volume is declared:
+
+{% highlight yaml %}
+volumes:
+- name: conjur-refresh-token
+  emptyDir:
+    medium: Memory
+{% endhighlight %}
+
+And then it's mounted into each container:
+
+{% highlight yaml %}
+volumeMounts:
+- mountPath: /run/conjur/
+  name: conjur-access-token
+{% endhighlight %}
+
+Load the application into Kubernetes:
+
+{% highlight shell %}
+$ kubectl create -f k8s_myapp.yaml
+{% endhighlight %}
+
+... and open the Kubernetes dashboard:
+
+{% highlight shell %}
+$ minikube dashboard
+{% endhighlight %}
+
+You can naviagate to the Pod which was created for "myapp". In the logs for the "authenticator" container, you'll see log messages as it connects to Conjur and authenticates to obtain access tokens.
+
+In the logs for "myapp", you'll see the database password printed.
+
+{% include toc.md key='next-steps' %}
+
+### Securing the Data Key
+
+In the basic walkthrough, the POSSUM_DATA_KEY is provided insecurely to the Conjur server.
+
+Better options for providing the data key include:
+
+* **KMS** Store the data key in Amazon KMS, associated to the EC2 machine on which the Possum server is running.
+* **HSM** Store the data key in an HSM or Cloud HSM, associated to the machine on which the Possum server is running.
+
+### Separating Authentication Authorities
+
+The security of the solution can be strengthened by creating all the Kubernetes hosts in their own Conjur account. Each Conjur account has a unique namespace prefixed by the account id, and uses a unique token-signing key. 
+
+Using a separate account for Kubernetes ensures that:
+
+* Kubernetes hosts are declared in their own namespace.
+* Authentication tokens used in Kubernetes are signed using a private key that is only used in that environment.
+
+
+
 
 
