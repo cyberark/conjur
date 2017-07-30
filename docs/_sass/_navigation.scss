@@ -16,30 +16,30 @@
 
 	hr {
 		position: relative;
-    margin: 1.5rem 0;
-    border: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.5);;
+		margin: 1.5rem 0;
+		border: 0;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 	}
 
 	a {
 		color: #ffffff;
 		display: block;
 		font-size: 16px;
-    padding: .2em 0;
+		padding: .1em 0;
 	}
 
 	.sidebar-nav {
 		padding-left: 10px;
 		ul {
-	  	padding-left: 1rem;
+	  		padding-left: 1rem;
+			margin: .1em 0;
 		}
 	}
 }
 
 .sidebar-disclaimer {
-  margin-top: 2em;
-  bottom: 25px;
-  position: absolute;
+	margin-top: 2em;
+	bottom: 25px;
 	text-align: center;
 	width: 90%;
 
@@ -49,14 +49,14 @@
 		display: inline-block;
 	}
 
-  img.cyberark-sidebar-logo {
-  	width: 100px;
-  	margin: 0 auto;
+	img.cyberark-sidebar-logo {
+		width: 100px;
+		margin: 0 auto;
 	}
 }
 
 .slack-signup {
-  margin-top: 1.5em;
+	margin-top: 1.5em;
 }
 
 .disclaimer {
