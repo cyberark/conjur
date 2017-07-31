@@ -1,5 +1,7 @@
 FROM ruby:2.2
 
+ENV LANG C.UTF-8
+
 RUN apt-get update && \
     apt-get install -y python-dev unzip
 
@@ -14,10 +16,11 @@ COPY Gemfile Gemfile.lock ./
 RUN bundle --with website
 
 COPY ./docs /usr/src/docs
+RUN jekyll build --source /usr/src/docs --destination /usr/src/docs/_site
 
 EXPOSE 4000
 
 HEALTHCHECK CMD curl -f http://localhost:4000/ || exit 1
 
-ENTRYPOINT ["/usr/local/bin/bundle", "exec", "jekyll"]
-CMD ["serve", "--watch", "--host", "0.0.0.0"]
+ENTRYPOINT ["/usr/local/bin/bundle", "exec"]
+CMD ["jekyll", "serve", "--watch", "--host", "0.0.0.0"]

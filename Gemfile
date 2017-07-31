@@ -62,5 +62,5 @@ group :website do
   gem 'therubyracer'
   gem 'github-pages', group: :jekyll_plugins
   gem 'rack-jekyll'
+  gem 'html-proofer'
 end
-  

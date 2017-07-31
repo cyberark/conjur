@@ -5,9 +5,9 @@ layout: page
 
 {% include toc.md key='introduction' %}
 
-Conjur is managed primarily through policies. A policy is a [YAML](http://yaml.org) document which describes users, groups, hosts, layers, web services, and variables, plus role-based access control grants and privileges. Once you've loaded a policy into Conjur, you can use the Conjur API to authenticate as a role, list and search the entities in the policy, perform permission checks, store and fetch secrets, etc.
+Conjur is managed primarily through policies. A policy is a [YAML](https://en.wikipedia.org/wiki/YAML) document which describes users, groups, hosts, layers, web services, and variables, plus role-based access control grants and privileges. Once you've loaded a policy into Conjur, you can use the Conjur API to authenticate as a role, list and search the entities in the policy, perform permission checks, store and fetch secrets, etc.
 
-Conjur's YAML syntax is easy for both humans and computers to read and write. Here's a typical policy which defines users, groups, and a policy for the application "myapp". 
+Conjur's YAML syntax is easy for both humans and computers to read and write. Here's a typical policy which defines users, groups, and a policy for the application "myapp".
 
 {% include policy-file.md policy='tour' %}
 
@@ -25,7 +25,7 @@ Some key features of this policy:
 Conjur implements role-based access control (RBAC) to provide role management and permission checking. In RBAC, a permission check is called a "transaction". Each transaction has three parts:
 
 1. **the role** who, or what, is acting. In Conjur, individual entities such as users and hosts are roles, and groups-of-entities such as groups and layers are roles too.
-2. **the privilege** the name of an action which the role is attempting to perform. In Conjur, privileges generally follow the Unix pattern of `read`, `execute` and `update`. 
+2. **the privilege** the name of an action which the role is attempting to perform. In Conjur, privileges generally follow the Unix pattern of `read`, `execute` and `update`.
 3. **the resource** the protected thing, such as a secret or a webservice.
 
 RBAC determines whether a transaction is allowed or denied by traversing the roles and permissions in the policies. Transactions are always denied by default, and only allowed if the privilege is granted to some role (e.g. a Layer) of the current authenticated role (e.g. a Host).
@@ -36,7 +36,7 @@ In the example above, the `permit` statement in the "db" policy instructs Conjur
 * privilege: `read` and `execute`
 * resource: all variables in the "db" policy
 
-Permissions are also available via ownership. Each object in Conjur has an owner, and the owner always have full privileges on the object. 
+Permissions are also available via ownership. Each object in Conjur has an owner, and the owner always have full privileges on the object.
 
 By default, when a policy is created, the policy is owned by the current authenticated user who is creating the policy. Objects inside a policy are owned by the policy (which is a kind of role), so the current authenticated user's ownership of the policy is transitive to all the objects in the policy.
 
@@ -78,7 +78,7 @@ The client must have `create` privilege on the policy.
 
 ### PATCH Mode
 
-In **PATCH** mode, the server will both create and delete data. 
+In **PATCH** mode, the server will both create and delete data.
 
 Objects and grants that already exist in the server but are not specified in the policy will be left alone.
 
@@ -88,9 +88,9 @@ The client must have `update` privilege on the policy.
 
 ### PUT Mode
 
-In **PUT** mode, the data in the server will be replaced with the data specified in the policy. 
+In **PUT** mode, the data in the server will be replaced with the data specified in the policy.
 
-Objects and grants that exist in the server but aren't specified in the policy will be deleted. 
+Objects and grants that exist in the server but aren't specified in the policy will be deleted.
 
 #### Permission Required
 
@@ -102,7 +102,7 @@ An API call which attempts to modify a policy requires `create` (for **POST**) o
 
 These permission rules can be leveraged to delegate management of the Conjur policy system across many team members.
 
-When a Conjur account is created, an empty "root" policy is created by default. This policy is owned by the `admin` user of the account. As the owner, the `admin` user has full permissions on the "root" policy. 
+When a Conjur account is created, an empty "root" policy is created by default. This policy is owned by the `admin` user of the account. As the owner, the `admin` user has full permissions on the "root" policy.
 
 A policy document can define policies within it. For example, if the "root" policy is:
 
@@ -146,4 +146,3 @@ Some attributes are common across multiple entities:
 {% include_relative _user.md %}
 {% include_relative _variable.md %}
 {% include_relative _webservice.md %}
-

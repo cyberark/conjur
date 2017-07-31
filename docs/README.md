@@ -21,6 +21,16 @@ $ open http://$DOCKER_IP:4000/conjur/
 The website will be rebuilt automatically on changes.
 Refresh your browser tab to see updates.
 
+### Check for broken links
+
+```sh-session
+$ cd ..  # project root
+$ ./checklinks.sh
+```
+
+This script builds the `possum-docs` Docker image and then runs
+[html-proofer](https://github.com/gjtorikian/html-proofer) against the rendered HTML.
+
 ---
 
 ### API Blueprint Docs

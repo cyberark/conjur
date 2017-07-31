@@ -5,7 +5,7 @@ layout: page
 
 Conjur uses industry-standard cryptography to protect your data.
 
-There are several ways in which Conjur uses cryptography, each of which are described below. Much of Conjur's cryptography is implemented in the open-source project [slosilo](https://github.com/conjurinc/slosilo). Slosilo is basically a wrapper around OpenSSL. 
+There are several ways in which Conjur uses cryptography, each of which are described below. Much of Conjur's cryptography is implemented in the open-source project [slosilo](https://github.com/conjurinc/slosilo). Slosilo is basically a wrapper around OpenSSL.
 
 ## Cryptographic audit
 
@@ -38,6 +38,6 @@ Encryption and decryption of secret values was included in the cryptographic aud
 
 ## Passwords
 
-Passwords are stored in the Conjur database using [bcrypt](http://en.wikipedia.org/wiki/Bcrypt), with a work factor of 12. 
+Passwords are stored in the Conjur database using [bcrypt](https://en.wikipedia.org/wiki/Bcrypt), with a work factor of 12. 
 
 Storage and verification of passwords was included in the cryptographic audit.
