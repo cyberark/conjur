@@ -242,3 +242,51 @@ delegation-root-3: |
     id: frontend
     owner: !group frontend-developers
 
+kubernetes-root: |
+  # Applications and databases
+  - !policy
+    id: prod
+    body:
+    # Database “mydb”
+    - !policy mydb
+    # Application “myapp”
+    - !policy myapp
+
+  # Kubernetes cluster
+  - !policy
+    id: kubernetes
+    body:
+    # “default” namespace within Kubernetes
+    - !policy default
+
+
+kubernetes-k8s-default: |
+  - !host deployment/myapp
+
+kubernetes-myapp: |
+  - &variables
+    - !variable ssl-cert
+    - !variable ssl-key
+
+  - !layer
+
+  - !permit
+    role: !layer
+    privileges: [ read, execute ]
+    resources: *variables
+
+  - !grant
+    role: !layer
+    member: !host /kubernetes/default/deployment/myapp
+
+kubernetes-database: |
+  - &variables
+    - !variable password
+
+  - !group secrets-users
+
+  - !permit
+    role: !group secrets-users
+    privileges: [ read, execute ]
+    resources: *variables
+

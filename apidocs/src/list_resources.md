@@ -1,0 +1,53 @@
+## List resources [/resources]
+
+### List resources [GET /resources]
+
+Gets resources within an organization account.
+
+---
+
+<!-- include(partials/auth_header_table.md) -->
+
+**Response**
+
+| Code | Description                       |
+|------|-----------------------------------|
+|  200 | Resources returned as a JSON list |
+|  401 |Not authenticated                  |
+
++ Parameters
+  + account: mycorp (string) - the organization account.
+  + kind: variable (string, optional) - the kind of resource to list
+
++ Request
+  <!-- include(partials/auth_header_code.md) -->
+
++ Response 200 (application/json)
+
+    ```
+    [
+      {
+        "created_at": "2017-07-25T06:30:38.768+00:00",
+        "id": "mycorp:variable:app-prod/db-password",
+        "owner": "mycorp:policy:app-prod",
+        "policy": "mycorp:policy:root",
+        "permissions": [],
+        "annotations": [],
+        "secrets": [
+          {
+            "version": 1
+          }
+        ]
+      },
+      {
+        "created_at": "2017-07-25T06:30:38.768+00:00",
+        "id": "mycorp:policy:app-prod",
+        "owner": "mycorp:user:admin",
+        "policy": "mycorp:policy:root",
+        "permissions": [],
+        "annotations": [],
+        "policy_versions": []
+      }
+    ]
+    ```
+

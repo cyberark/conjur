@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::API
   include Authenticates
     
-  class Unauthorized < RuntimeError
+  class Unauthorized < Exceptions::Unauthorized
   end
   
   class Forbidden < Exceptions::Forbidden
@@ -16,7 +16,7 @@ class ApplicationController < ActionController::API
   rescue_from Exceptions::RecordNotFound, with: :record_not_found
   rescue_from Exceptions::RecordExists, with: :record_exists
   rescue_from Exceptions::Forbidden, with: :forbidden
-  rescue_from Unauthorized, with: :unauthorized
+  rescue_from Exceptions::Unauthorized, with: :unauthorized
   rescue_from Sequel::ValidationFailed, with: :validation_failed
   rescue_from Sequel::NoMatchingRow, with: :no_matching_row
   rescue_from Conjur::PolicyParser::Invalid, with: :policy_invalid

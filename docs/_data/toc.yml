@@ -88,6 +88,15 @@
   conjur-module: Install the conjur Module
   run-puppet: Run Puppet
 
+"/tutorials/integrations/kubernetes.html":
+  introduction: Introduction
+  prerequisites: Prerequisites
+  setup: Setup
+  policies: Policy Configuration
+  add-secret: Add the Secret
+  app: Run the Application
+  next-steps: Next Steps
+
 "/tutorials/integrations/authenticators.html":
   introduction: Introduction
   prerequisites: Prerequisites

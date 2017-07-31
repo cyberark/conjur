@@ -1,0 +1,6 @@
+FROM conjurinc/cli5
+
+COPY ./authenticator.rb .
+COPY ./authenticate-once /usr/local/bin/
+
+ENTRYPOINT [ "ruby", "./authenticator.rb" ]

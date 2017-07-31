@@ -60,8 +60,9 @@ main:
           # ansible:
           #   title: Ansible
 
-          # kubernetes:
-          #   title: Kubernetes / OpenShift
+          kubernetes:
+            title: Kubernetes
+            path: /tutorials/integrations/kubernetes.html
 
           authenticators:
             title: Custom Authentication

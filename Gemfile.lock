@@ -199,8 +199,15 @@ GEM
     html-pipeline (2.6.0)
       activesupport (>= 2)
       nokogiri (>= 1.4)
+    http (0.9.8)
+      addressable (~> 2.3)
+      http-cookie (~> 1.0)
+      http-form_data (~> 1.0.1)
+      http_parser.rb (~> 0.6.0)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
+    http-form_data (1.0.3)
+    http_parser.rb (0.6.0)
     i18n (0.8.6)
     jekyll (3.4.3)
       addressable (~> 2.4)
@@ -286,6 +293,10 @@ GEM
       multi_json (~> 1.0)
       rspec (>= 2.0, < 4.0)
     kramdown (1.13.2)
+    kubeclient (2.4.0)
+      http (= 0.9.8)
+      recursive-open-struct (= 1.0.0)
+      rest-client
     libv8 (3.16.14.19)
     liquid (3.0.6)
     listen (3.0.6)
@@ -370,6 +381,7 @@ GEM
     rb-fsevent (0.9.8)
     rb-inotify (0.9.8)
       ffi (>= 0.5.0)
+    recursive-open-struct (1.0.0)
     ref (2.0.0)
     rest-client (1.8.0)
       http-cookie (>= 1.0.2, < 2.0)
@@ -469,6 +481,7 @@ DEPENDENCIES
   github-pages
   gli
   json_spec
+  kubeclient
   listen
   parallel
   pg

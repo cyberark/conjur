@@ -30,6 +30,9 @@ RUN bundle --without test development website
 
 ADD . .
 
+RUN mkdir -p .bundle
+RUN echo "BUNDLE_WITHOUT: test:development:website" > .bundle/config
+
 RUN ln -sf /opt/possum/bin/possum /usr/local/bin/
 
 ENV PORT 80

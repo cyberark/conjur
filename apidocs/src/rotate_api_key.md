@@ -1,14 +1,13 @@
-## Rotate API Key [/authn/{account}/api_key]
+## Rotate an API key [/authn/{account}/api_key]
 
-Replaces the API key of an user or host with a new, securely random 
+Replaces the API key of a role with a new, securely random 
 API key. The new API key is returned as the response body.
 
 ### Rotate your own API key [PUT /authn/{account}/api_key]
 
 **Permissions required**:
 
-Any authenticated identity can rotate its own API key, providing it's coming from a valid IP address.
-Basic authorization (username plus password or API key) must be provided.
+Any authenticated role can rotate its own API key. Basic authorization (username plus password or API key) must be provided.
 
 ---
 
@@ -26,7 +25,7 @@ Basic authorization (username plus password or API key) must be provided.
 |401 |The Basic auth credentials were not accepted|
 
 + Parameters
-  + account: CyberArk (string) - name of the account to use
+  + account: mycorp (string) - name of the account to use
 
 + Request
     + Headers
@@ -41,9 +40,11 @@ Basic authorization (username plus password or API key) must be provided.
     14m9cf91wfsesv1kkhevg12cdywm2wvqy6s8sk53z1ngtazp1t9tykc
     ```
 
-### Rotate another user's API key [PUT /authn/{account}/api_key{?id}]
+### Rotate another role's API key [PUT /authn/{account}/api_key{?id}]
 
-**Permissions required**: `update` privilege on the user.
+Rotates the API key of a role which is not the current authenticated client.
+
+**Permissions required**: `update` privilege on the role whose API key is being rotated.
 
 ---
 
@@ -60,7 +61,7 @@ Basic authorization (username plus password or API key) must be provided.
 ---
 
 + Parameters
-  + account: CyberArk (string) - name of the account to use
+  + account: mycorp (string) - name of the account to use
   + id: bob (string, optional) - Id of the user to rotate.
 
 + Request
