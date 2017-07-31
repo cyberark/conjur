@@ -2,7 +2,7 @@
 
 ### Add a secret [POST]
 
-Creates a secret value within the specified variable. If a secret already exists, the value will be replaced with a new version. The twenty most recent secret versions are retained.
+Creates a secret value within the specified Variable. If a secret already exists, the value will be replaced with a new version. The twenty most recent secret versions are retained.
 
 #### Example with `curl`
 
@@ -40,7 +40,7 @@ curl -H "$(conjur authn authenticate -H)" \
 
 ### Retrieve a secret [GET]
 
-Fetches the value of a secret from the specified variable. The latest version will be retrieved unless the version parameter is specified. The twenty most recent secret versions are retained.
+Fetches the value of a secret from the specified Variable. The latest version will be retrieved unless the version parameter is specified. The twenty most recent secret versions are retained.
 
 The secret data is returned in the response body.
 
