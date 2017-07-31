@@ -6,4 +6,5 @@ RUN npm install
 COPY generate-static-docs ./
 
 COPY src ./src/
-ENTRYPOINT /bin/sh /home/node/generate-static-docs
+ENTRYPOINT [ "/bin/sh", "/home/node/generate-static-docs" ]
+EXPOSE 3000

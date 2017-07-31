@@ -22,7 +22,7 @@ while getopts 'whv' opt; do
         h)
             showhelp;;
         w)
-            aglio_options="$aglio_options -s";;
+            aglio_options="$aglio_options -s -h 0.0.0.0 -p 3000";;
         v)
             aglio_options="$aglio_options --verbose";;
         *)
