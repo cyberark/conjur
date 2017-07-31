@@ -4,8 +4,6 @@
 # or operating system, you probably want to add a global ignore instead:
 #   git config --global core.excludesfile '~/.gitignore_global'
 
-docs/.sass-cache/
-
 # Ignore bundler config.
 .bundle
 
@@ -29,6 +27,8 @@ coverage
 demo/run/*.yml
 *~
 apidocs/node_modules
+docs/apidocs.html
 *.config
 docs/_layouts/page-toc.html
 api.html
+*~
