@@ -25,7 +25,9 @@ curl -H "$(conjur authn authenticate -H)" \
 | Code | Description                             |
 |------|-----------------------------------------|
 |  201 | The secret value was added successfully |
-|      |                                         |
+<!-- include(partials/http_401.md) -->
+<!-- include(partials/http_403.md) -->
+<!-- include(partials/http_422.md) -->
 
 + Parameters
   + account: mycorp (string) - organization account name.
@@ -56,10 +58,10 @@ curl -H "$(conjur authn authenticate -H)" \
 | Code | Description                                                  |
 |------|--------------------------------------------------------------|
 |  200 | The secret values was retrieved successfully                 |
-|  401 | The user is not logged in                                    |
-|  403 | The user did not have `execute` privilege on the secret      |
+<!-- include(partials/http_401.md) -->
+<!-- include(partials/http_403.md) -->
 |  404 | The variable does not exist, or it does not have any secret values |
-|  422 | The version parameter was invalid                            |
+<!-- include(partials/http_422.md) -->
 
 + Parameters
   + account: mycorp (string) - organization account name.
@@ -73,7 +75,7 @@ curl -H "$(conjur authn authenticate -H)" \
   don't tell
   ```
 
-## Batch retrieval [/secrets{?variable_id}]
+## Batch retrieval [/secrets{?variable_ids}]
 
 ### Batch retrieval [GET]
 
@@ -84,13 +86,13 @@ Fetches multiple secret values in one invocation. It's faster to fetch secrets i
 | Code | Description                                                      |
 |------|------------------------------------------------------------------|
 |  200 | All secret values were retrieved successfully                    |
-|  401 | The user is not logged in                                        |
-|  403 | The user did not have `execute` privilege on one or more secrets |
+<!-- include(partials/http_401.md) -->
+<!-- include(partials/http_403.md) -->
 |  404 | At least one variable does not exist, or at least one variable does not have any secret values   |
-|  422 | `variable_id` parameter is missing or invalid                    |
+<!-- include(partials/http_422.md) -->
 
 + Parameters
-  + variable_id: cucumber:variable:secret1,cucumber:variable:secret2 (array) - Comma-delimited resource IDs of the variables.
+  + variable_ids: cucumber:variable:secret1,cucumber:variable:secret2 (array) - Comma-delimited resource IDs of the variables.
 
 + Response 200 (application/json)
 

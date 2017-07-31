@@ -43,12 +43,11 @@ The request body is the API key. For example: `14m9cf91wfsesv1kkhevg12cdywm`.
 | Code | Description                           |
 |------|---------------------------------------|
 |  200 | The response body is the access token |
-|  401 | The credentials were not accepted     |
+<!-- include(partials/http_401.md) -->
 
 + Parameters
     + account: mycorp (string) - organization name
     + login: alice (string) - Login name of the client. For users, it's the user id. For hosts, the login name is `host/<host-id>`
-`host/<hostid>`
 
 + Request (text/plain)
     + Body

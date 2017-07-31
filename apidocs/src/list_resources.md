@@ -1,8 +1,8 @@
 ## List resources [/resources]
 
-### List resources [GET /resources]
+### List resources [GET /resources/{account}{?kind}]
 
-Gets resources within an organization account.
+Lists resources within an organization account.
 
 ---
 
@@ -13,7 +13,7 @@ Gets resources within an organization account.
 | Code | Description                       |
 |------|-----------------------------------|
 |  200 | Resources returned as a JSON list |
-|  401 |Not authenticated                  |
+<!-- include(partials/http_401.md) -->
 
 + Parameters
   + account: mycorp (string) - the organization account.

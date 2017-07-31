@@ -26,7 +26,9 @@ curl -H "$(conjur authn authenticate -H)" \
 | Code | Description                                       |
 |------|---------------------------------------------------|
 |  200 | The response body contains the requested role     |
-|  401 | Not authenticated                                 |
+<!-- include(partials/http_401.md) -->
+<!-- include(partials/http_403.md) -->
+|  404 | The requested role does not exist |
 
 Supposing the requested role is a user named "otto" at an organization called "mycorp":
 

@@ -25,11 +25,11 @@ curl -H "$(conjur authn authenticate -H)" \
 | Code | Description                                         |
 |------|-----------------------------------------------------|
 |  200 | Role memberships returned as a JSON list            |
-|  401 | Not authenticated                                   |
-|  403 | You don't have permission to view the object        |
-|  404 | No record exists with the given kind and identifier |
+<!-- include(partials/http_401.md) -->
+<!-- include(partials/http_403.md) -->
+|  404 | The requested resource does not exist |
 
-Supposing the requested resource is a layer called "db" at an organization called mycorp:
+For example, to show the variable "db/password":
 
 + Parameters
   + account: mycorp (string) - the organization name
@@ -44,7 +44,7 @@ Supposing the requested resource is a layer called "db" at an organization calle
     ```
     {
         "created_at": "2017-07-25T06:30:38.768+00:00",
-        "id": "mycorp:policy:app-prod",
+        "id": "mycorp:variable:db/password",
         "owner": "mycorp:user:admin",
         "policy": "mycorp:policy:root",
         "permissions": [],

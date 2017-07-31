@@ -19,7 +19,7 @@ Ym9iOjlwOG5mc2RhZmJw
 This operation will also replace the user's API key with a securely
 generated random value. You can fetch the new API key using the `login` method.
 
-Note that machine roles such as Hosts do not have passwords. Passwords are only use by human users.
+Note that machine roles such as Hosts do not have passwords. Passwords are only used by human users.
 
 ---
 
@@ -34,9 +34,9 @@ The new password, in the example "supersecret".
 |Code|Description                             |
 |----|----------------------------------------|
 |204 |The password has been changed           |
-|401 |Invalid or missing Authorization header |
+<!-- include(partials/http_401.md) -->
 |404 |User not found                          |
-|422 |New password not present in request body|
+<!-- include(partials/http_422.md) -->
 
 + Parameters
   + account: mycorp (string) - name of the account to use

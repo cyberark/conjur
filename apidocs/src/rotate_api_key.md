@@ -22,7 +22,7 @@ Any authenticated role can rotate its own API key. Basic authorization (username
 |Code|Description                                 |
 |----|--------------------------------------------|
 |200 |The response body is the API key            |
-|401 |The Basic auth credentials were not accepted|
+|401 | The credentials were not accepted          |
 
 + Parameters
   + account: mycorp (string) - name of the account to use
@@ -55,8 +55,8 @@ Rotates the API key of a role which is not the current authenticated client.
 |Code|Description                     |
 |----|--------------------------------|
 |200 |The response body is the API key|
-|401 |Not authenticated               |
-|403 |Permission denied               |
+<!-- include(partials/http_401.md) -->
+<!-- include(partials/http_403.md) -->
 
 ---
 
