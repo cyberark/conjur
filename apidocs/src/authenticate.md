@@ -43,7 +43,7 @@ The request body is the API key. For example: `14m9cf91wfsesv1kkhevg12cdywm`.
 | Code | Description                           |
 |------|---------------------------------------|
 |  200 | The response body is the access token |
-<!-- include(partials/http_401.md) -->
+|<!-- include(partials/http_401.md) -->|
 
 + Parameters
     + account: mycorp (string) - organization name

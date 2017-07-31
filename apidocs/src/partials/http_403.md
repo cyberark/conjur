@@ -1,1 +1,1 @@
-|  403 | The authenticated user lacks the necessary privilege |
+403 | The authenticated user lacks the necessary privilege

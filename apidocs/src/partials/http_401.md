@@ -1,1 +1,1 @@
-|  401 | The request lacks valid authentication credentials |
+401 | The request lacks valid authentication credentials

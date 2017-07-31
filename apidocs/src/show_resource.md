@@ -25,8 +25,8 @@ curl -H "$(conjur authn authenticate -H)" \
 | Code | Description                                         |
 |------|-----------------------------------------------------|
 |  200 | Role memberships returned as a JSON list            |
-<!-- include(partials/http_401.md) -->
-<!-- include(partials/http_403.md) -->
+|<!-- include(partials/http_401.md) -->|
+|<!-- include(partials/http_403.md) -->|
 |  404 | The requested resource does not exist |
 
 For example, to show the variable "db/password":

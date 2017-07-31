@@ -13,7 +13,7 @@ Lists resources within an organization account.
 | Code | Description                       |
 |------|-----------------------------------|
 |  200 | Resources returned as a JSON list |
-<!-- include(partials/http_401.md) -->
+|<!-- include(partials/http_401.md) -->|
 
 + Parameters
   + account: mycorp (string) - the organization account.

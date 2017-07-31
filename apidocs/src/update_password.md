@@ -34,9 +34,9 @@ The new password, in the example "supersecret".
 |Code|Description                             |
 |----|----------------------------------------|
 |204 |The password has been changed           |
-<!-- include(partials/http_401.md) -->
+|<!-- include(partials/http_401.md) -->|
 |404 |User not found                          |
-<!-- include(partials/http_422.md) -->
+|<!-- include(partials/http_422.md) -->|
 
 + Parameters
   + account: mycorp (string) - name of the account to use

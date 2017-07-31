@@ -55,8 +55,8 @@ Rotates the API key of a role which is not the current authenticated client.
 |Code|Description                     |
 |----|--------------------------------|
 |200 |The response body is the API key|
-<!-- include(partials/http_401.md) -->
-<!-- include(partials/http_403.md) -->
+|<!-- include(partials/http_401.md) -->|
+|<!-- include(partials/http_403.md) -->|
 
 ---
 
