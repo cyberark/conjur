@@ -3,42 +3,9 @@ title: Reference - Authentication
 layout: page
 ---
 
-Conjur authentication is based on auto-expiring tokens, which are issued by Conjur when presented with both:
+## API Routes
 
-* A login name
-* An API key
-
-The Conjur Token provides authentication for API calls. 
-
-For API usage, it is ordinarily passed as an 
-HTTP Authorization "Token" header.
-    
-```
-Authorization: Token token="eyJkYX...Rhb="
-```
-
-Properties of the token include:
-
-* It is JSON.
-* It carries the login name and other data in a payload.
-* It is signed by a private authentication key, and verified by a corresponding public key.
-* It carries the signature of the public key for easy lookup in a public key database.
-* It has a fixed life span of several minutes, after which it is no longer valid.
-
-Before the token can be used to make subsequent calls to the API, it must be formatted. Take
-the response from the `authenticate` call and base64-encode it and strip out newlines.
-
-```
-$ token=$(echo -n $response | base64 | tr -d '\r\n')
-```
-
-The token can now be used for Conjur API access.
-
-```
-$ curl --cacert <certfile> \
--H "Authorization: Token token=\"$token\"" \
-<route>
-```
+For a full reference to authentication routes and methods, see the [Authentication](/api.html#authentication) section of the API reference.
 
 ## CLI Commands
 
@@ -48,7 +15,7 @@ Users can obtain their API key by logging in with their `username` and `password
 
 {% highlight shell %}
 $ conjur authn login joe-tester
-Please enter your password (it will not be echoed): *********
+Please enter your password (it will not be echoed): ******
 Logged in
 {% endhighlight %}
 

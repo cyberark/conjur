@@ -1,6 +1,6 @@
-## Add Secret Value To Variable [/secrets/{account}/{kind}/{identifier}]
+## Add a secret [/secrets/{account}/{kind}/{identifier}]
 
-### Add Secret Value [POST]
+### Add a secret [POST]
 
 Creates a secret value within the specified variable. If a secret already exists, the value will be replaced with a new version. The twenty most recent secret versions are retained.
 
@@ -9,16 +9,16 @@ Creates a secret value within the specified variable. If a secret already exists
 ```
 curl -H "$(conjur authn authenticate -H)" \
      --data "don't tell" \
-     https://eval.conjur.org/secrets/cyberark/variable/prod-app/db-pass
+     https://eval.conjur.org/secrets/mycorp/variable/prod-app/db-pass
 ```
 
 ---
 
 **Request Body**
 
-| Description  | Required | Type     | Example                    |
-|--------------|----------|----------|----------------------------|
-| Secret Value | yes      | `Binary` | "3ab2fabadea7e7b68acc893e" |
+| Description  | Required | Type     | Example                  |
+|--------------|----------|----------|--------------------------|
+| Secret data  | yes      | `Binary` | 3ab2fabadea7e7b68acc893e |
 
 **Response**
 
@@ -28,44 +28,44 @@ curl -H "$(conjur authn authenticate -H)" \
 |      |                                         |
 
 + Parameters
-  + account: cyberark (string) - organization name
-  + kind: variable (string) - kind of resource (usually "variable")
-  + identifier: db-password (string) - id of the resource as defined in the policy
+  + account: mycorp (string) - organization account name.
+  + kind: variable (string) - should be "variable".
+  + identifier: db-password (string) - id of the variable.
 
 + Response 201 (application/xml)
 
-## Retrieve Secret Value [/secrets/{account}/{kind}/{identifier}{?version}]
+## Retrieve a secret [/secrets/{account}/{kind}/{identifier}{?version}]
 
-### Retrieve Secret Value [GET]
+### Retrieve a secret [GET]
 
-Fetch the value of a secret in the specified variable. The latest version will be retrieved unless the version parameter is specified. The twenty most recent secret versions are retained.
+Fetches the value of a secret from the specified variable. The latest version will be retrieved unless the version parameter is specified. The twenty most recent secret versions are retained.
+
+The secret data is returned in the response body.
 
 #### Example with `curl`
 
 ```
 curl -H "$(conjur authn authenticate -H)" \
-    https://eval.conjur.org/secrets/cyberark/variable/prod-app/db-pass
+    https://eval.conjur.org/secrets/mycorp/variable/prod-app/db-pass
 ```
 
 ---
 
 **Response**
 
-| Code | Description                                               |
-|------|-----------------------------------------------------------|
-|  200 | The secret values was retrieved successfully              |
-|  401 | The user is not logged in                                 |
-|  403 | The user did not have 'execute' privilege on the secret   |
-|  404 | The secret does not exist or does not have a stored value |
-|  422 | The version parameter was invalid                         |
-
-Supposing the secret's value is "don't tell":
+| Code | Description                                                  |
+|------|--------------------------------------------------------------|
+|  200 | The secret values was retrieved successfully                 |
+|  401 | The user is not logged in                                    |
+|  403 | The user did not have `execute` privilege on the secret      |
+|  404 | The variable does not exist, or it does not have any secret values |
+|  422 | The version parameter was invalid                            |
 
 + Parameters
-  + account: cyberark (string) - organization name
-  + kind: variable (string) - kind of resource (usually "variable")
-  + identifier: db-password (string) - id of the resource as defined in the policy
-  + version: 1 (integer) - the version you want to retrieve (Conjur keeps the last 20 versions of a secret)
+  + account: mycorp (string) - organization account name.
+  + kind: variable (string) - should be "variable".
+  + identifier: db-password (string) - id of the variable.
+  + version: 1 (integer) - the version you want to retrieve (Conjur keeps the last 20 versions of a secret).
 
 + Response 200 (application/json)
 
@@ -73,12 +73,11 @@ Supposing the secret's value is "don't tell":
   don't tell
   ```
 
-## Batch Retrieval [/secrets{?variable_id}]
+## Batch retrieval [/secrets{?variable_id}]
 
-### Batch Secret Retrieval [GET]
+### Batch retrieval [GET]
 
-Fetch the values of a list of variables. This operation is more efficient than
-fetching the values one by one.
+Fetches multiple secret values in one invocation. It's faster to fetch secrets in batches than to fetch them one at a time.
 
 **Response**
 
@@ -86,12 +85,12 @@ fetching the values one by one.
 |------|------------------------------------------------------------------|
 |  200 | All secret values were retrieved successfully                    |
 |  401 | The user is not logged in                                        |
-|  403 | The user did not have 'execute' privilege on one or more secrets |
-|  404 | One or more secrets do not exist or do not have a stored value   |
-|  422 | variable_id parameter is missing or invalid                      |
+|  403 | The user did not have `execute` privilege on one or more secrets |
+|  404 | At least one variable does not exist, or at least one variable does not have any secret values   |
+|  422 | `variable_id` parameter is missing or invalid                    |
 
 + Parameters
-  + variable_id: cucumber:variable:secret1,cucumber:variable:secret2 (array) - Resource IDs of the variables containing the secrets you wish to retrieve.
+  + variable_id: cucumber:variable:secret1,cucumber:variable:secret2 (array) - Comma-delimited resource IDs of the variables.
 
 + Response 200 (application/json)
 
