@@ -40,7 +40,9 @@ $ curl --cacert <certfile> ...
 
 # Group Secrets
 
-Each Variable stores a list of versioned, encrypted values which are colloquially known as "secrets".
+A Variable is an access-controlled list of encrypted data values. The values in a Variable are colloquially known as "secrets".
+
+Only the twenty most recent values in a Variable are retained; this prevents the database from growing without bounds.
 
 <!-- include(secrets.md) -->
 

@@ -46,7 +46,7 @@ The request body is the API key. For example: `14m9cf91wfsesv1kkhevg12cdywm`.
 |<!-- include(partials/http_401.md) -->|
 
 + Parameters
-    + account: mycorp (string) - organization name
+    + <!-- include(partials/account_param.md) -->
     + login: alice (string) - Login name of the client. For users, it's the user id. For hosts, the login name is `host/<host-id>`
 
 + Request (text/plain)

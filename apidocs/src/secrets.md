@@ -2,7 +2,7 @@
 
 ### Add a secret [POST]
 
-Creates a secret value within the specified Variable. If a secret already exists, the value will be replaced with a new version. The twenty most recent secret versions are retained.
+Creates a secret value within the specified Variable. 
 
 #### Example with `curl`
 
@@ -30,9 +30,9 @@ curl -H "$(conjur authn authenticate -H)" \
 |<!-- include(partials/http_422.md) -->|
 
 + Parameters
-  + account: mycorp (string) - organization account name.
-  + kind: variable (string) - should be "variable".
-  + identifier: db-password (string) - id of the variable.
+  + <!-- include(partials/account_param.md) -->
+  + kind: (string) - should be "variable"
+  + identifier: (string) - id of the variable
 
 + Response 201 (application/xml)
 
@@ -64,10 +64,10 @@ curl -H "$(conjur authn authenticate -H)" \
 |<!-- include(partials/http_422.md) -->|
 
 + Parameters
-  + account: mycorp (string) - organization account name.
-  + kind: variable (string) - should be "variable".
-  + identifier: db-password (string) - id of the variable.
-  + version: 1 (integer) - the version you want to retrieve (Conjur keeps the last 20 versions of a secret).
+  + <!-- include(partials/account_param.md) -->
+  + kind: (string) - should be "variable"
+  + identifier: (string) - id of the variable
+  + version: 1 (integer) - version you want to retrieve (Conjur keeps the last 20 versions of a secret)
 
 + Response 200 (application/json)
 

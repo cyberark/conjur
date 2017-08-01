@@ -4,6 +4,8 @@
 
 Lists resources within an organization account.
 
+<!-- include(partials/resource_kinds.md) -->
+
 ---
 
 <!-- include(partials/auth_header_table.md) -->
@@ -16,8 +18,9 @@ Lists resources within an organization account.
 |<!-- include(partials/http_401.md) -->|
 
 + Parameters
-  + account: mycorp (string) - the organization account.
-  + kind: variable (string, optional) - the kind of resource to list
+  + account: <!-- include(partials/account_param.md) -->
+  + <!-- include(partials/kind_param.md) -->
+
 
 + Request
   <!-- include(partials/auth_header_code.md) -->

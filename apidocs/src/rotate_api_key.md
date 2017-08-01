@@ -25,7 +25,7 @@ Any authenticated role can rotate its own API key. Basic authorization (username
 |401 | The credentials were not accepted          |
 
 + Parameters
-  + account: mycorp (string) - name of the account to use
+  + account: <!-- include(partials/account_param.md) -->
 
 + Request
     + Headers
@@ -61,7 +61,7 @@ Rotates the API key of a role which is not the current authenticated client.
 ---
 
 + Parameters
-  + account: mycorp (string) - name of the account to use
+  + <!-- include(partials/account_param.md) -->
   + id: bob (string, optional) - Id of the user to rotate.
 
 + Request

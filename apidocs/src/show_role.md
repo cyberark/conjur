@@ -33,9 +33,9 @@ curl -H "$(conjur authn authenticate -H)" \
 Supposing the requested role is a user named "otto" at an organization called "mycorp":
 
 + Parameters
-  + account: mycorp (string) - the organization name
-  + kind: user (string) - the type of record requested (see table above)
-  + identifier: otto (string) - the identifier of the role
+  + <!-- include(partials/account_param.md) -->
+  + <!-- include(partials/kind_param.md) -->
+  + identifier: otto (string) - identifier of the role
 
 + Request
   <!-- include(partials/auth_header_code.md) -->

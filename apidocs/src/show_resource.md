@@ -32,9 +32,9 @@ curl -H "$(conjur authn authenticate -H)" \
 For example, to show the variable "db/password":
 
 + Parameters
-  + account: mycorp (string) - the organization name
-  + kind: policy (string) - the type of record requested (see table above)
-  + identifier: app-prod (string)  - the identifier of the resource
+  + <!-- include(partials/account_param.md) -->
+  + <!-- include(partials/kind_param.md) -->
+  + identifier: db/password (string)  - the identifier of the resource
 
 + Request
   <!-- include(partials/auth_header_code.md) -->

@@ -39,7 +39,7 @@ The new password, in the example "supersecret".
 |<!-- include(partials/http_422.md) -->|
 
 + Parameters
-  + account: mycorp (string) - name of the account to use
+  + <!-- include(partials/account_param.md) -->
 
 + Request (text/plain)
     + Headers
