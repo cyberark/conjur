@@ -21,6 +21,24 @@ generated random value. You can fetch the new API key using the `login` method.
 
 Note that machine roles such as Hosts do not have passwords. Passwords are only used by human users.
 
+#### Example with `curl`
+
+Suppose you have a user called `rowbot` in a policy called `machines`. `rowbot`'s current password is "beep-boop" and you want to change it to "EXTERMINATE".
+
+```
+curl -v -X PUT --data EXTERMINATE \
+     -u rowbot@machines:beep-boop \
+     https://eval.conjur.org/authn/mycorp/password
+```
+
+Now you can verify it worked by running the same command again, which should fail, because the password has changed. If you feel like a round-trip you can swap the passwords to change it back:
+
+```
+curl -v -X PUT --data beep-boop \
+     -u rowbot@machines:EXTERMINATE \
+     https://eval.conjur.org/authn/mycorp/password
+```
+
 ---
 
 <!-- include(partials/auth_header_table.md) -->
