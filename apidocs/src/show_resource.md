@@ -33,7 +33,7 @@ For example, to show the variable "db/password":
 
 + Parameters
   + <!-- include(partials/account_param.md) -->
-  + <!-- include(partials/kind_param.md) -->
+  + kind: variable (string) - kind of resource requested
   + identifier: db/password (string)  - the identifier of the resource
 
 + Request

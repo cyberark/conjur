@@ -37,7 +37,7 @@ Passwords are stored in the Conjur database using bcrypt with a work factor of 1
 |  401 | The credentials were not accepted |
 
 + Parameters
-  + account: <!-- include(partials/account_param.md) -->
+  + <!-- include(partials/account_param.md) -->
 
 + Request
     + Headers

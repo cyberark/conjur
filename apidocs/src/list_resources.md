@@ -18,9 +18,8 @@ Lists resources within an organization account.
 |<!-- include(partials/http_401.md) -->|
 
 + Parameters
-  + account: <!-- include(partials/account_param.md) -->
-  + <!-- include(partials/kind_param.md) -->
-
+  + <!-- include(partials/account_param.md) -->
+  + kind: variable (string, optional) - kind of object to list
 
 + Request
   <!-- include(partials/auth_header_code.md) -->

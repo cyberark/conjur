@@ -8,8 +8,8 @@ Creates a secret value within the specified Variable.
 
 ```
 curl -H "$(conjur authn authenticate -H)" \
-     --data "don't tell" \
-     https://eval.conjur.org/secrets/mycorp/variable/prod-app/db-pass
+     --data "c3c60d3f266074" \
+     https://eval.conjur.org/secrets/mycorp/variable/prod/db/password
 ```
 
 ---
@@ -18,7 +18,7 @@ curl -H "$(conjur authn authenticate -H)" \
 
 | Description  | Required | Type     | Example                  |
 |--------------|----------|----------|--------------------------|
-| Secret data  | yes      | `Binary` | 3ab2fabadea7e7b68acc893e |
+| Secret data  | yes      | `Binary` | c3c60d3f266074 |
 
 **Response**
 
@@ -31,8 +31,8 @@ curl -H "$(conjur authn authenticate -H)" \
 
 + Parameters
   + <!-- include(partials/account_param.md) -->
-  + kind: (string) - should be "variable"
-  + identifier: (string) - id of the variable
+  + kind: variable (string) - should be "variable"
+  + identifier: db/password (string) - id of the variable
 
 + Response 201 (application/xml)
 
@@ -48,7 +48,7 @@ The secret data is returned in the response body.
 
 ```
 curl -H "$(conjur authn authenticate -H)" \
-    https://eval.conjur.org/secrets/mycorp/variable/prod-app/db-pass
+    https://eval.conjur.org/secrets/mycorp/variable/prod/db/password
 ```
 
 ---
@@ -65,14 +65,14 @@ curl -H "$(conjur authn authenticate -H)" \
 
 + Parameters
   + <!-- include(partials/account_param.md) -->
-  + kind: (string) - should be "variable"
-  + identifier: (string) - id of the variable
-  + version: 1 (integer) - version you want to retrieve (Conjur keeps the last 20 versions of a secret)
+  + kind: variable (string) - should be "variable"
+  + identifier: db/password (string) - id of the variable
+  + version: 1 (integer, optional) - version you want to retrieve (Conjur keeps the last 20 versions of a secret)
 
 + Response 200 (application/json)
 
   ```
-  don't tell
+  c3c60d3f266074
   ```
 
 ## Batch retrieval [/secrets{?variable_ids}]
@@ -92,13 +92,13 @@ Fetches multiple secret values in one invocation. It's faster to fetch secrets i
 |<!-- include(partials/http_422.md) -->|
 
 + Parameters
-  + variable_ids: cucumber:variable:secret1,cucumber:variable:secret2 (array) - Comma-delimited resource IDs of the variables.
+  + variable_ids: mycorp:variable:secret1,mycorp:variable:secret1 (array) - Comma-delimited resource IDs of the variables.
 
 + Response 200 (application/json)
 
     ```
     {
-        "cucumber:variable:secret1": "secret_data",
-        "cucumber:variable:secret2": "more_secret_data"
+        "mycorp:variable:secret1": "c3c60d3f266074",
+        "mycorp:variable:secret2": "d8dc3565123941"
     }
     ```

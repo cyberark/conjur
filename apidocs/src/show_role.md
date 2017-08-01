@@ -34,7 +34,7 @@ Supposing the requested role is a user named "otto" at an organization called "m
 
 + Parameters
   + <!-- include(partials/account_param.md) -->
-  + <!-- include(partials/kind_param.md) -->
+  + kind: user (string) - kind of role requested
   + identifier: otto (string) - identifier of the role
 
 + Request
