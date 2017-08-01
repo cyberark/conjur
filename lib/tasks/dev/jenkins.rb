@@ -30,4 +30,4 @@ namespace :jenkins do
   task :rspec => ['ci:setup:rspec', :spec]
 end
 
-task :jenkins => ['db:migrate', 'jenkins:rspec', 'jenkins:cucumber-api', 'jenkins:cucumber-policy']
+task :jenkins => ['db:migrate', 'jenkins:rspec', 'jenkins:cucumber-api', 'jenkins:cucumber-policy', 'jenkins:cucumber-ui']

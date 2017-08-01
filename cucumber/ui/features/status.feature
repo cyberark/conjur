@@ -3,4 +3,4 @@ Feature: Get status of the Conjur CE instance
 
   Scenario: The status page loads successfully
     When I GET "/"
-    Then the html result contains "<title>Conjur CE</title>"
+    Then the html result contains "<title>Conjur CE Status</title>"
