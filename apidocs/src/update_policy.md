@@ -1,7 +1,7 @@
 ### Update a policy [PATCH]
 
-Adds or deletes policy data in the named policy. Deletions can be
-performed with explicit `!delete` statements.
+Modifies an existing [Conjur Policy](https://try.conjur.org/reference/policy.html).
+Deletions can be performed with explicit `!delete` statements.
 
 **Request Body**
 

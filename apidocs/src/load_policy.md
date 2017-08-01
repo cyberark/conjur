@@ -21,7 +21,6 @@ curl -H "$(conjur authn authenticate -H)" \
 The request body is a policy file. For example:
 
 ```
----
 - !policy
   id: database
   body:
