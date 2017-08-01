@@ -1,0 +1,1 @@
+403 | The authenticated user lacks the necessary privilege

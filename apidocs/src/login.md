@@ -1,13 +1,12 @@
 ## Login [/authn/{account}/login]
 
-### Exchange a user login and password for an API key [GET]
+### Login [GET]
 
-Sending your Conjur username and password via HTTP Basic Auth to this route returns
-an API key.
+Gets the API key of a user when presented with the username and password via HTTP Basic Authentication.
 
-Once this API key is obtained, it may be used to rapidly obtain authentication
-tokens by calling the [Authenticate](#user-authentication-authenticate) route.
-An authentication token is required to use most other parts of the Conjur API.
+Once the API key is obtained, it may be used to rapidly obtain access
+tokens by calling the [Authenticate](#authentication-authenticate-post) method.
+An access token is required to use most other parts of the Conjur API.
 
 Supposing your username is "alice" and your password is "secret", the value for
 the `Authorization` Basic Auth header can be obtained with:
@@ -20,8 +19,7 @@ YWxpY2U6c2VjcmV0
 If you log in through the command-line interface, you can print your current
 logged-in identity with the `conjur authn whoami` CLI command.
 
-Passwords are stored in the Conjur database using bcrypt with a work factor of 12.
-Therefore, login is a fairly expensive operation.
+Passwords are stored in the Conjur database using bcrypt with a work factor of 12. Therefore, login is a fairly expensive operation.
 
 ---
 
@@ -39,7 +37,7 @@ Therefore, login is a fairly expensive operation.
 |  401 | The credentials were not accepted |
 
 + Parameters
-  + account: cyberark (string) - name of the account to use
+  + <!-- include(partials/account_param.md) -->
 
 + Request
     + Headers
