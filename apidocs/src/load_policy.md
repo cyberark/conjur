@@ -33,13 +33,13 @@ The request body is a policy file. For example:
 
 **Response**
 
-| Code | Description                             |
-|------|-----------------------------------------|
-|  201 | The policy was replaced successfully |
-|<!-- include(partials/http_401.md) -->|
-|<!-- include(partials/http_403.md) -->|
-|  404 | The policy referred to an role or resource that does not exist in the specified account |
-|  422 | The request body was empty or the policy was not valid YAML                             |
+| Code | Description                                                                            |
+|------|----------------------------------------------------------------------------------------|
+|  201 | The policy was loaded or replaced successfully                                         |
+| <!-- include(partials/http_401.md) -->                                                        |
+| <!-- include(partials/http_403.md) -->                                                        |
+|  404 | The policy referred to a role or resource that does not exist in the specified account |
+|  422 | The request body was empty or the policy was not valid YAML                            |
 
 + Parameters
   + <!-- include(partials/account_param.md) -->
