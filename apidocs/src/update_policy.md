@@ -48,7 +48,6 @@ The request body should be a Policy file. For example:
 + Response 201 (application/xml)
 
     ```
-    Loaded policy 'root'
     {
       "created_roles": {
         "cucumber:host:database/another-host": {
