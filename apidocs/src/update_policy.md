@@ -1,12 +1,15 @@
 ### Update a Policy [PATCH]
 
-Modifies an existing [Conjur Policy](https://try.conjur.org/reference/policy.html).
-Policy objects may be deleted with the `!delete`, `!revoke`, and `!deny` flags. The
-caller must have `update` privilege on the Policy.
+Modifies an existing [Conjur Policy](/reference/policy.html).
+Data may be explicitly deleted using the `!delete`, `!revoke`, and `!deny` statements. Unlike "replace" mode, no data is ever implicitly deleted.
+
+**Permissions required**
+
+`update` privilege on the Policy.
 
 #### Example with `curl` and `jq`
 
-Supposing you have a Policy to load in `/tmp/policy.yml` (such as the sample one provided below)
+Suppose you have a Policy to load in `/tmp/policy.yml` (such as the sample one provided below). The following command will create and delete data in the "root" policy:
 
 ```
 curl -H "$(conjur authn authenticate -H)" \

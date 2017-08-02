@@ -1,13 +1,17 @@
-### Load a Policy [PUT]
+### Replace a Policy [PUT]
 
-Loads or replaces a [Conjur Policy](https://try.conjur.org/reference/policy.html)
-document. Policy objects that already exist on the server but are not explicitly
-specified in the new Policy file are deleted. The caller must have `update`
-privilege on the Policy.
+Loads or replaces a [Conjur Policy](/reference/policy.html)
+document. 
+
+Any policy data which already exists on the server but is **not** explicitly specified in the new Policy file **will be deleted**. 
+
+**Permissions required**
+
+`update` privilege on the Policy.
 
 #### Example with `curl` and `jq`
 
-Supposing you have a Policy to load in `/tmp/policy.yml` (such as the sample one provided below)
+Suppose you have a Policy to load in `/tmp/policy.yml` (such as the sample one provided below). The following command will load this as the "root" policy, replacing any other data that may already be in this policy:
 
 ```
 curl -H "$(conjur authn authenticate -H)" \

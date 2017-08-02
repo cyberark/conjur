@@ -50,9 +50,9 @@ Only the twenty most recent values in a Variable are retained; this prevents the
 
 ## Policies [/policies/{account}/policy/{identifier}]
 
-<!-- include(load_policy.md) -->
+<!-- include(replace_policy.md) -->
 
-<!-- include(extend_policy.md) -->
+<!-- include(append_policy.md) -->
 
 <!-- include(update_policy.md) -->
 

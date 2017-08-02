@@ -5,7 +5,7 @@ API key. The new API key is returned as the response body.
 
 ### Rotate your own API key [PUT /authn/{account}/api_key]
 
-**Permissions required**:
+**Permissions required**
 
 Any authenticated role can rotate its own API key. Basic authorization (username plus password or API key) must be provided.
 
@@ -44,7 +44,9 @@ Any authenticated role can rotate its own API key. Basic authorization (username
 
 Rotates the API key of a role which is not the current authenticated client.
 
-**Permissions required**: `update` privilege on the role whose API key is being rotated.
+**Permissions required**
+
+`update` privilege on the role whose API key is being rotated.
 
 ---
 

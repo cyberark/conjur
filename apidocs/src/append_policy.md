@@ -1,15 +1,17 @@
-### Extend a Policy [POST]
+### Append to a Policy [POST]
 
-Adds data to the existing [Conjur Policy](https://try.conjur.org/reference/policy.html).
-Deletions are not allowed, that is any Policy objects that exist on the server but
+Adds data to the existing [Conjur Policy](/reference/policy.html).
+Deletions are not allowed. Any Policy objects that exist on the server but
 are omitted from the Policy file will not be deleted and any explicit deletions in
 the Policy file will result in an error.
 
-The caller must have `create` privilege on the Policy.
+**Permissions required**
+
+`create` privilege on the Policy.
 
 #### Example with `curl` and `jq`
 
-Supposing you have a Policy to load in `/tmp/policy.yml` (such as the sample one provided below)
+Suppose you have a Policy to load in `/tmp/policy.yml` (such as the sample one provided below). The following command will add data to the "root" policy:
 
 ```
 curl -H "$(conjur authn authenticate -H)" \
