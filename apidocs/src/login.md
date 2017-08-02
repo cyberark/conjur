@@ -5,16 +5,13 @@
 Gets the API key of a user given the username and password
 via [HTTP Basic Authentication][auth].
 
-[auth]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication#Basic_authentication_scheme
-
 Passwords are stored in the Conjur database using bcrypt with a work factor
 of 12. Therefore, `login` is a fairly expensive operation. However, once the API
 key is obtained, it may be used to inexpensively obtain access tokens by calling
 the [Authenticate](#authentication-authenticate-post) method. An access token is
 required to use most other parts of the Conjur API.
 
-Your HTTP/REST client probably provides HTTP basic authentication support. For
-example, `curl` and all of the Conjur client libraries provide this.
+<!-- include(partials/basic_auth.md) -->
 
 Note that machine roles (Hosts) do not have passwords and do not need to login.
 

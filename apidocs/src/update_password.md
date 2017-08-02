@@ -8,10 +8,7 @@ an [HTTP Basic Authentication][auth] header. Also replaces the user's API key
 with a new securely generated random value. You can fetch the new API key by
 using [Login](#authentication-login-get).
 
-[auth]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication#Basic_authentication_scheme
-
-Your HTTP/REST client probably provides HTTP basic authentication support. For
-example, `curl` and all of the Conjur client libraries provide this.
+<!-- include(partials/basic_auth.md) -->
 
 Note that machine roles (Hosts) do not have passwords. They authenticate using
 their API keys, while passwords are only used by human users.
