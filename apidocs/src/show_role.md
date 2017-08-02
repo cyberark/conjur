@@ -12,9 +12,11 @@ portion of the returned JSON.
 
 #### Example using `curl` and `jq`
 
+Suppose your account is "mycorp" and you want to get information about the user "alice":
+
 ```
 curl -H "$(conjur authn authenticate -H)" \
-     https://eval.conjur.org/resources/mycorp/user/ | jq .
+     https://eval.conjur.org/resources/mycorp/user/alice | jq .
 ```
 
 ---
