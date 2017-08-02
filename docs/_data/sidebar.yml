@@ -72,6 +72,9 @@ main:
     title: Reference
     path: /reference/
     items:
+      apidocs:
+        title: API Documentation
+        path: /apidocs.html
       policies:
         title: Policies
         path: /reference/policy.html
