@@ -4,7 +4,9 @@
 
 The response to this method is a JSON document describing a single resource.
 
-**Permissions Required**: `read` permission on the resource.
+**Permissions Required**
+
+`read` privilege on the resource.
 
 <!-- include(partials/resource_kinds.md) -->
 

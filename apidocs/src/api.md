@@ -46,6 +46,16 @@ Only the twenty most recent values in a Variable are retained; this prevents the
 
 <!-- include(secrets.md) -->
 
+# Group Policies
+
+## Policies [/policies/{account}/policy/{identifier}]
+
+<!-- include(replace_policy.md) -->
+
+<!-- include(append_policy.md) -->
+
+<!-- include(update_policy.md) -->
+
 # Group Role-based access control
 
 <!-- include(show_role.md) -->
