@@ -18,7 +18,15 @@ h1, h2 {
 }
 
 a {
-	color: $conjur-ltblue;
+	color: $conjur-gray;
+}
+
+p {
+	color: $conjur-medgray;
+}
+
+.note {
+	color: $conjur-gray;
 }
 
 .page-title {
@@ -26,4 +34,8 @@ a {
 	font-size: 3.5rem;
 	margin: 1.2rem 0;
 	font-weight: 300;
+}
+
+.font-large {
+	font-size: 22px;
 }

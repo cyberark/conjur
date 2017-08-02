@@ -1,24 +1,35 @@
 @import 'variables';
 
 #footer {
-  background-color: $conjur-ltgray;
+  background-color: $conjur-dark;
   text-align: center;
+  width: 100%;
 
   .footer-disclaimer {
-    padding: 2em 0 1em 0;
-    color: $conjur-dark;
-    font-size: 13px;
+    padding: 15px 0;
+    color: #ffffff;
+    line-height: 65px;
 
     img.cyberark-sidebar-logo {
-    	max-width: 100px;
+    	max-height: 65px;
       height: auto;
-    	margin: 0 auto;
-      display: inline-block;
+      margin: 0px;
   	}
-
-    p {
-      text-align: center;
-      font-size: 13px;
-    }
   }
+}
+
+// ***********************
+// Sticky Footer
+// ***********************
+
+#wrapper {
+	min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  margin-bottom: -95px;
+}
+
+#push,
+#footer {
+  height: 95px;
 }

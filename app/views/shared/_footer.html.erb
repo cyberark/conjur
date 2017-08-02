@@ -1,10 +1,12 @@
-<div id="footer" class="container-fluid">
-  <div class="footer-disclaimer">
-    <a href="https://www.cyberark.com/" target="_blank"><%= image_tag "cyberark-white.png", alt: "CyberArk Logo", class: "cyberark-sidebar-logo" %></a>
-    <p class="disclaimer">&copy; <%= Time.current.year %> CyberArk. All rights reserved.</p>
-    <p>
-      <script async defer src="https://slackin-conjur.herokuapp.com/slackin.js"></script>
-      <!-- append "?" to the URL for the large version -->
-    </p>
+<div id="footer">
+  <div class="footer-disclaimer container">
+    <div class="flex-row">
+      <div class="col-md-6">
+        <a href="https://www.cyberark.com/" target="_blank"><%= image_tag "cyberark-white.png", alt: "CyberArk Logo", class: "cyberark-sidebar-logo" %></a>
+      </div>
+      <div class="col-md-6">
+        <span class="text-right">Conjur Community Edition copyright &copy; <%= Time.current.year %> CyberArk. All rights reserved.</span>
+      </div>
+    </div>
   </div>
 </div>
