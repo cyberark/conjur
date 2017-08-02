@@ -23,11 +23,11 @@ Note that machine roles such as Hosts do not have passwords. Passwords are only 
 
 #### Example with `curl`
 
-Suppose you have a user called `rowbot` in a policy called `machines`. `rowbot`'s current password is "beep-boop" and you want to change it to "EXTERMINATE".
+Change the password of user `alice` from "beep-boop" to "EXTERMINATE":
 
 ```
 curl -v -X PUT --data EXTERMINATE \
-     -u rowbot@machines:beep-boop \
+     -u alice:beep-boop \
      https://eval.conjur.org/authn/mycorp/password
 ```
 
@@ -35,7 +35,7 @@ Now you can verify it worked by running the same command again, which should fai
 
 ```
 curl -v -X PUT --data beep-boop \
-     -u rowbot@machines:EXTERMINATE \
+     -u alice:EXTERMINATE \
      https://eval.conjur.org/authn/mycorp/password
 ```
 
