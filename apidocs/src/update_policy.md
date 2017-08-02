@@ -45,7 +45,7 @@ The request body should be a Policy file. For example:
   + <!-- include(partials/account_param.md) -->
   + identifier: root (string) - id of the Policy to update
 
-+ Response 201 (application/xml)
++ Response 201 (application/json)
 
     ```
     {

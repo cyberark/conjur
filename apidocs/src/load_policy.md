@@ -47,7 +47,7 @@ The request body is a Policy file. For example:
   + <!-- include(partials/account_param.md) -->
   + identifier: root (string) - id of the Policy to load (`root` if no root Policy has been loaded yet)
 
-+ Response 201 (application/xml)
++ Response 201 (application/json)
 
     ```
     {
