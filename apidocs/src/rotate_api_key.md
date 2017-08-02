@@ -1,30 +1,13 @@
-## Rotate an API key [/authn/{account}/api_key?role={account}:{kind}:{identifier}]
+## Rotate an API key [/authn/{account}/api_key]
 
-### Rotate an API key [PUT]
+Replaces the API key of a role with a new, securely random 
+API key. The new API key is returned as the response body.
 
-Replaces the API key of a role with a new, securely random API key. The new API
-key is returned as the response body.
+### Rotate your own API key [PUT /authn/{account}/api_key]
 
-Any authenticated role can rotate its own API key, and a role can rotate the API
-keys of other roles it owns. The username and password or current API key of the
-current user must be provided via [HTTP Basic Authorization][auth].
+**Permissions required**
 
-<!-- include(partials/basic_auth.md) -->
-
-Note that the body of the request must be the empty string.
-
-<!-- include(partials/role_kinds.md) -->
-
-#### Example with `curl`
-
-Suppose your account is "mycorp" and you want to rotate the API key for user
-"alice" whose current password is "beep-boop":
-
-```bash
-curl --request PUT --data "" \
-     --user alice:beep-boop \
-     https://eval.conjur.org/authn/mycorp/api_key?role=mycorp:user:alice
-```
+Any authenticated role can rotate its own API key. HTTP Basic Authentication (username plus password or API key) must be provided.
 
 ---
 
@@ -43,9 +26,6 @@ curl --request PUT --data "" \
 
 + Parameters
   + <!-- include(partials/account_param.md) -->
-  + kind: user (string) - the kind of the role whose API key we will rotate,
-    usually "user" or "host"
-  + identifier: alice - the id of the role
 
 + Request
     + Headers
@@ -54,6 +34,41 @@ curl --request PUT --data "" \
         Authorization: Basic ZGFuaWVsOjlwOG5mc2RhZmJw
         ```
         
++ Response 200 (text/html; charset=utf-8)
+
+    ```
+    14m9cf91wfsesv1kkhevg12cdywm2wvqy6s8sk53z1ngtazp1t9tykc
+    ```
+
+### Rotate another role's API key [PUT /authn/{account}/api_key{?role}]
+
+Rotates the API key of a role which is not the current authenticated client.
+
+**Permissions required**
+
+`update` privilege on the role whose API key is being rotated.
+
+---
+
+<!-- include(partials/auth_header_table.md) -->
+
+**Response**
+
+|Code|Description                     |
+|----|--------------------------------|
+|200 |The response body is the API key|
+|<!-- include(partials/http_401.md) -->|
+|<!-- include(partials/http_403.md) -->|
+
+---
+
++ Parameters
+  + <!-- include(partials/account_param.md) -->
+  + role: mycorp:user:bob (string, optional) - id of the role to rotate
+
++ Request
+    <!-- include(partials/auth_header_code.md) -->
+
 + Response 200 (text/html; charset=utf-8)
 
     ```
