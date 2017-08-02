@@ -2,40 +2,37 @@
 
 ### Change your password [PUT]
 
-Changes your password. In order to change your password, you must provide
-your username and current password or API key in a HTTP Basic Authentication header. 
-Note that the user whose password is to be updated is determined by
-the value of the `Authorization` header.
+Changes a user's password. You must provide the login name and current password
+or API key of the user whose password is to be updated in
+an [HTTP Basic Authentication][auth] header. Also replaces the user's API key
+with a new securely generated random value. You can fetch the new API key by
+using [Login](#authentication-login-get).
 
-In this example, we are updating the password of the user `bob`.
-We set his password as '9p8nfsdafbp' when we created him, so to generate
-the HTTP Basic Auth token on the command-line:
+[auth]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication#Basic_authentication_scheme
 
-```
-$ echo -n bob:9p8nfsdafbp | base64
-Ym9iOjlwOG5mc2RhZmJw
-```
+Your HTTP/REST client probably provides HTTP basic authentication support. For
+example, `curl` and all of the Conjur client libraries provide this.
 
-This operation will also replace the user's API key with a securely
-generated random value. You can fetch the new API key using the `login` method.
-
-Note that machine roles such as Hosts do not have passwords. Passwords are only used by human users.
+Note that machine roles (Hosts) do not have passwords. They authenticate using
+their API keys, while passwords are only used by human users.
 
 #### Example with `curl`
 
 Change the password of user `alice` from "beep-boop" to "EXTERMINATE":
 
-```
-curl -v -X PUT --data EXTERMINATE \
-     -u alice:beep-boop \
+```bash
+curl --verbose \
+     --request PUT --data EXTERMINATE \
+     --user alice:beep-boop \
      https://eval.conjur.org/authn/mycorp/password
 ```
 
 Now you can verify it worked by running the same command again, which should fail, because the password has changed. If you feel like a round-trip you can swap the passwords to change it back:
 
-```
-curl -v -X PUT --data beep-boop \
-     -u alice:EXTERMINATE \
+```bash
+curl --verbose \
+     --request PUT --data beep-boop \
+     --user alice:EXTERMINATE \
      https://eval.conjur.org/authn/mycorp/password
 ```
 
