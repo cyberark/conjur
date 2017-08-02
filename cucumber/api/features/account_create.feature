@@ -82,3 +82,37 @@ Feature: Create a new account
     id=new_account@example.com
     """
     And I can authenticate with the admin API key for the account "new_account@example.com"
+
+  Scenario: Creating account with : or space in the name fails
+    Given I create a new user "admin" in account "!"
+    And I permit role "!:user:admin" to "execute" resource "!:webservice:accounts"
+    And I login as "!:user:admin"
+    Then I POST "/accounts" with body:
+    """
+    id=test:bad
+    """
+    Then the HTTP response status code is 422
+    And the JSON should be:
+    """
+    {
+      "error": {
+        "code": "argument_error",
+        "message": "account name \"test:bad\" contains invalid characters (:)"
+      }
+    }
+    """
+
+    When I POST "/accounts" with body:
+    """
+    id=test+bad
+    """
+    Then the HTTP response status code is 422
+    And the JSON should be:
+    """
+    {
+      "error": {
+        "code": "argument_error",
+        "message": "account name \"test bad\" contains invalid characters ( )"
+      }
+    }
+    """

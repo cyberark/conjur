@@ -12,13 +12,20 @@ Account = Struct.new(:id) do
       Resource[resource_id] or Resource.create resource_id: resource_id, owner_id: role_id
     end
 
+    INVALID_ID_CHARS = /[ :]/.freeze
+
     def create id
       raise Exceptions::RecordExists.new("account", id) if Slosilo["authn:#{id}"]
 
-      pkey = Slosilo::Key.new
-      Slosilo["authn:#{id}"] = pkey
-      admin_user = Role.create role_id: "#{id}:user:admin"
-      admin_user.api_key
+      if (invalid = INVALID_ID_CHARS.match id)
+        raise ArgumentError, 'account name "%s" contains invalid characters (%s)' % [id, invalid]
+      end
+
+      Role.db.transaction do
+        Slosilo["authn:#{id}"] = Slosilo::Key.new
+        admin_user = Role.create role_id: "#{id}:user:admin"
+        admin_user.api_key
+      end
     end
 
     def list
