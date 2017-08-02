@@ -12,9 +12,6 @@ pipeline {
   stages {
     stage('Checkout SCM') {
       steps {
-        sh 'sudo chown -R jenkins:jenkins .'  // bad docker mount creates unreadable files TODO fix this
-        deleteDir()  // delete current workspace, for a clean build
-
         checkout scm
       }
     }
@@ -78,6 +75,10 @@ pipeline {
   }
 
   post {
+    always {
+      sh 'sudo chown -R jenkins:jenkins .'  // bad docker mount creates unreadable files TODO fix this
+      deleteDir()  // delete current workspace, for a clean build
+    }
     failure {
       slackSend(color: 'danger', message: "${env.JOB_NAME} #${env.BUILD_NUMBER} FAILURE (<${env.BUILD_URL}|Open>)")
     }
