@@ -1,25 +1,37 @@
-## Update Password [/authn/{account}/password]
+## Change your password [/authn/{account}/password]
 
 ### Change your password [PUT]
 
-Change your password with this route.
+Changes a user's password. You must provide the login name and current password
+or API key of the user whose password is to be updated in
+an [HTTP Basic Authentication][auth] header. Also replaces the user's API key
+with a new securely generated random value. You can fetch the new API key by
+using [Login](#authentication-login-get).
 
-In order to change your password, you must provide an `Authorization` header with
-HTTP Basic Auth containing your login and current password or API key.
-Note that the user whose password is to be updated is determined by
-the value of the `Authorization` header.
+<!-- include(partials/basic_auth.md) -->
 
-In this example, we are updating the password of the user `bob`.
-We set his password as '9p8nfsdafbp' when we created him, so to generate
-the HTTP Basic Auth token on the command-line:
+Note that machine roles (Hosts) do not have passwords. They authenticate using
+their API keys, while passwords are only used by human users.
 
+#### Example with `curl`
+
+Change the password of user `alice` from "beep-boop" to "EXTERMINATE":
+
+```bash
+curl --verbose \
+     --request PUT --data EXTERMINATE \
+     --user alice:beep-boop \
+     https://eval.conjur.org/authn/mycorp/password
 ```
-$ echo -n bob:9p8nfsdafbp | base64
-Ym9iOjlwOG5mc2RhZmJw
-```
 
-This operation will also replace the user's API key with a securely
-generated random value. You can fetch the new API key using the `login` method.
+Now you can verify it worked by running the same command again, which should fail, because the password has changed. If you feel like a round-trip you can swap the passwords to change it back:
+
+```bash
+curl --verbose \
+     --request PUT --data beep-boop \
+     --user alice:EXTERMINATE \
+     https://eval.conjur.org/authn/mycorp/password
+```
 
 ---
 
@@ -33,13 +45,13 @@ The new password, in the example "supersecret".
 
 |Code|Description                             |
 |----|----------------------------------------|
-|204 |The password/UID has been updated       |
-|401 |Invalid or missing Authorization header |
+|204 |The password has been changed           |
+|<!-- include(partials/http_401.md) -->|
 |404 |User not found                          |
-|422 |New password not present in request body|
+|<!-- include(partials/http_422.md) -->|
 
 + Parameters
-  + account: CyberArk (string) - name of the account to use
+  + <!-- include(partials/account_param.md) -->
 
 + Request (text/plain)
     + Headers
@@ -55,3 +67,4 @@ The new password, in the example "supersecret".
         ```
 
 + Response 204
+

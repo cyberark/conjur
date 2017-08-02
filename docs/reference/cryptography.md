@@ -16,14 +16,14 @@ with the release of Slosilo 2.0 in November of 2014.
 
 Most requests to Conjur require an authentication token. An authentication token is a JSON object which contains the following fields:
 
-* **data** The client username.
+* **data** The client's login name.
 * **timestamp** The date and time at which the token was issued.
 * **signature** HMAC of the token using SHA-256.
 * **key** Signature of the token-signing key (used to accelerate token-signing key lookup).
 
 Conjur access tokens are valid for 8 minutes. The lifespan is not configurable.
 
-The access token implementation was included in the cryptographic audit.
+The access token implementation was included in the [slosilo](https://github.com/conjurinc/slosilo) cryptographic audit.
 
 ## Secret values
 

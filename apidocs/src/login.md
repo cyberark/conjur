@@ -1,44 +1,47 @@
 ## Login [/authn/{account}/login]
 
-### Exchange a user login and password for an API key [GET]
+### Login [GET]
 
-Sending your Conjur username and password via HTTP Basic Auth to this route returns
-an API key.
+Gets the API key of a user given the username and password
+via [HTTP Basic Authentication][auth].
 
-Once this API key is obtained, it may be used to rapidly obtain authentication tokens by calling the
-[Authenticate](#user-authentication-authenticate) route.
-An authentication token is required to use most other parts of the Conjur API.
+Passwords are stored in the Conjur database using bcrypt with a work factor
+of 12. Therefore, `login` is a fairly expensive operation. However, once the API
+key is obtained, it may be used to inexpensively obtain access tokens by calling
+the [Authenticate](#authentication-authenticate-post) method. An access token is
+required to use most other parts of the Conjur API.
 
-The value for the `Authorization` Basic Auth header can be obtained with:
+<!-- include(partials/basic_auth.md) -->
 
+Note that machine roles (Hosts) do not have passwords and do not need to login.
+
+#### Example with `curl`
+
+Suppose your account is "mycorp" and you want to get the API key for user
+"alice" whose password is "beep-boop":
+
+```bash
+curl --user alice:beep-boop \
+     https://eval.conjur.org/authn/mycorp/login
 ```
-$ echo -n alice:secret  | base64
-YWxpY2U6c2VjcmV0
-```
-
-If you log in through the command-line interface, you can print your current
-logged-in identity with the `conjur authn whoami` CLI command.
-
-Passwords are stored in the Conjur database using bcrypt with a work factor of 12.
-Therefore, login is a fairly expensive operation.
 
 ---
 
 **Headers**
 
-|Field        |Description    |Example               |
-|-------------|-------------- |----------------------|
-|Authorization|HTTP Basic Auth|Basic YWxpY2U6c2VjcmV0|
+| Field         | Description     | Example                |
+|---------------|-----------------|------------------------|
+| Authorization | HTTP Basic Auth | Basic YWxpY2U6c2VjcmV0 |
 
 **Response**
 
-|Code|Description                      |
-|----|---------------------------------|
-|200 |The response body is the API key |
-|401 |The credentials were not accepted|
+| Code | Description                       |
+|------|-----------------------------------|
+|  200 | The response body is the API key  |
+|  401 | The credentials were not accepted |
 
 + Parameters
-  + account: CyberArk (string) - name of the account to use
+  + <!-- include(partials/account_param.md) -->
 
 + Request
     + Headers

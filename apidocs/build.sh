@@ -1,3 +1,5 @@
 #!/bin/bash -ex
 
-docker build -t conjurinc/possum-apidocs -f Dockerfile.apidocs .
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+docker build -t conjurinc/possum-apidocs -f $DIR/Dockerfile.apidocs $DIR

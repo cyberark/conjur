@@ -1,14 +1,27 @@
-## Rotate API Key [/authn/{account}/api_key]
+## Rotate an API key
 
-Replaces the API key of an user or host with a new, securely random 
-API key. The new API key is returned as the response body.
+Replaces the API key of a role with a new, securely random API key. The new API
+key is returned as the response body.
 
 ### Rotate your own API key [PUT /authn/{account}/api_key]
 
-**Permissions required**:
+Any role can rotate its own API key. The name and password or current API
+key of the role must be provided via [HTTP Basic Authorization][auth].
 
-Any authenticated identity can rotate its own API key, providing it's coming from a valid IP address.
-Basic authorization (username plus password or API key) must be provided.
+<!-- include(partials/basic_auth.md) -->
+
+Note that the body of the request must be the empty string.
+
+#### Example with `curl`
+
+Suppose your account is "mycorp", you are the user "alice", your password is
+"beep-boop", and you want to rotate your API key.
+
+```bash
+curl --request PUT --data "" \
+     --user alice:beep-boop \
+     https://eval.conjur.org/authn/mycorp/api_key
+```
 
 ---
 
@@ -23,48 +36,74 @@ Basic authorization (username plus password or API key) must be provided.
 |Code|Description                                 |
 |----|--------------------------------------------|
 |200 |The response body is the API key            |
-|401 |The Basic auth credentials were not accepted|
+|<!-- include(partials/http_401.md) -->|
 
 + Parameters
-  + account: CyberArk (string) - name of the account to use
+  + <!-- include(partials/account_param.md) -->
 
 + Request
     + Headers
-    
+
         ```
         Authorization: Basic ZGFuaWVsOjlwOG5mc2RhZmJw
         ```
-        
+
 + Response 200 (text/html; charset=utf-8)
 
     ```
     14m9cf91wfsesv1kkhevg12cdywm2wvqy6s8sk53z1ngtazp1t9tykc
     ```
 
-### Rotate another user's API key [PUT /authn/{account}/api_key{?id}]
+### Rotate another role's API key [PUT /authn/{account}/api_key?role={kind}:{identifier}]
 
-**Permissions required**: `update` privilege on the user.
+Rotates the API key of another role you can update.
+
+Note that the body of the request must be the empty string.
+
+<!-- include(partials/role_kinds.md) -->
+
+**Permissions required**
+
+`update` privilege on the role whose API key is being rotated.
+
+#### Example with `curl`
+
+Suppose your account is "mycorp" and you want to rotate the API key for user
+"alice" whose current password is "beep-boop":
+
+```bash
+curl --request PUT --data "" \
+     -H "$(conjur authn authenticate -H)" \
+     https://eval.conjur.org/authn/mycorp/api_key?role=user:alice
+```
 
 ---
 
-<!-- include(partials/auth_header_table.md) -->
+**Headers**
+
+|Field        |Description    |Example                       |
+|-------------|---------------|------------------------------|
+|Authorization|HTTP Basic Auth|Basic ZGFuaWVsOjlwOG5mc2RhZmJw|
 
 **Response**
 
-|Code|Description                     |
-|----|--------------------------------|
-|200 |The response body is the API key|
-|401 |Not authenticated               |
-|403 |Permission denied               |
-
----
+|Code|Description                                 |
+|----|--------------------------------------------|
+|200 |The response body is the API key            |
+|401 | The credentials were not accepted          |
 
 + Parameters
-  + account: CyberArk (string) - name of the account to use
-  + id: bob (string, optional) - Id of the user to rotate.
+  + <!-- include(partials/account_param.md) -->
+  + kind: user (string) - the kind of the role whose API key we will rotate,
+    usually "user" or "host"
+  + identifier: alice - the id of the role
 
 + Request
-    <!-- include(partials/auth_header_code.md) -->
+    + Headers
+
+        ```
+        Authorization: Basic ZGFuaWVsOjlwOG5mc2RhZmJw
+        ```
 
 + Response 200 (text/html; charset=utf-8)
 
