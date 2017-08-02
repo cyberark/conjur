@@ -52,9 +52,9 @@ Only the twenty most recent values in a Variable are retained; this prevents the
 
 <!-- include(load_policy.md) -->
 
-<!-- include(update_policy.md) -->
-
 <!-- include(extend_policy.md) -->
+
+<!-- include(update_policy.md) -->
 
 # Group Role-based access control
 
