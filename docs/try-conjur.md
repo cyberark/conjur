@@ -61,7 +61,7 @@ Here is a typical policy file. Save this file as `conjur.yml`:
 
 Here's a screencast of the first part of this tour, showing how to start the container, setup the environment, and create a file in the container using `nano`:
 
-<script type="text/javascript" src="https://asciinema.org/a/128514.js" id="asciicast-128514" async></script>
+[![asciicast](https://asciinema.org/a/128514.png)](https://asciinema.org/a/128514)
 
 {% include toc.md key='loading' %}
 
