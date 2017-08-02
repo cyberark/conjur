@@ -7,7 +7,7 @@ API key. The new API key is returned as the response body.
 
 **Permissions required**
 
-Any authenticated role can rotate its own API key. Basic authorization (username plus password or API key) must be provided.
+Any authenticated role can rotate its own API key. HTTP Basic Authentication (username plus password or API key) must be provided.
 
 ---
 
@@ -40,7 +40,7 @@ Any authenticated role can rotate its own API key. Basic authorization (username
     14m9cf91wfsesv1kkhevg12cdywm2wvqy6s8sk53z1ngtazp1t9tykc
     ```
 
-### Rotate another role's API key [PUT /authn/{account}/api_key{?id}]
+### Rotate another role's API key [PUT /authn/{account}/api_key{?role}]
 
 Rotates the API key of a role which is not the current authenticated client.
 
@@ -64,7 +64,7 @@ Rotates the API key of a role which is not the current authenticated client.
 
 + Parameters
   + <!-- include(partials/account_param.md) -->
-  + id: bob (string, optional) - id of the user to rotate
+  + role: mycorp:user:bob (string, optional) - id of the role to rotate
 
 + Request
     <!-- include(partials/auth_header_code.md) -->
