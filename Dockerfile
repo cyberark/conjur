@@ -30,7 +30,7 @@ RUN bundle --without test development website
 
 ADD . .
 
-RUN ln -sf /opt/possum/bin/possum /usr/local/bin/
+RUN ln -sf /opt/possum/bin/conjurctl /usr/local/bin/
 
 ENV PORT 80
 
@@ -38,4 +38,4 @@ EXPOSE 80
 
 ENV RAILS_ENV production
 
-ENTRYPOINT [ "possum" ]
+ENTRYPOINT [ "conjurctl" ]

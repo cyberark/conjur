@@ -20,10 +20,10 @@ RUN apk --update add --virtual build-dependencies $BUILD_DEPENDENCIES && \
 
 ADD . /opt/possum
 
-RUN ln -sf /opt/possum/bin/possum /usr/local/bin/
+RUN ln -sf /opt/possum/bin/conjurctl /usr/local/bin/
 
 WORKDIR /opt/possum
 ENV PORT 80
 EXPOSE 80
 
-ENTRYPOINT [ "possum" ]
+ENTRYPOINT [ "conjurctl" ]
