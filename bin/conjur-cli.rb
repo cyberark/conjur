@@ -90,7 +90,7 @@ command :policy do |cgrp|
   cgrp.desc "Watch a file and reload the policy if it's modified"
   cgrp.long_desc <<-DESC
 To trigger a reload of the policy, replace the contents of the watched file with the path to 
-the policy. Of course, the path must be visible to the container which is running "conjurd watch".
+the policy. Of course, the path must be visible to the container which is running "conjurctl watch".
 This can be a separate container from the application server. Both the application server and the
 policy watcher should share the same backing database.
 
@@ -98,7 +98,7 @@ policy watcher should share the same backing database.
 Example:
 
 
-$ conjurd watch /run/conjur/policy/load)"
+$ conjurctl watch /run/conjur/policy/load)"
   DESC
   cgrp.arg_name 'account file_name'
   cgrp.command :watch do |c|
@@ -127,7 +127,7 @@ database, including the token-signing private key.
 Example:
 
 
-$ export POSSUM_DATA_KEY="$(conjurd data-key generate)"
+$ export POSSUM_DATA_KEY="$(conjurctl data-key generate)"
   DESC
   cgrp.command :generate do |c|
     c.action do |global_options,options,args|
@@ -150,7 +150,7 @@ in the database.
 
 Example:
 
-$ conjurd account create myorg
+$ conjurctl account create myorg
   DESC
   cgrp.arg_name 'account'
   cgrp.command :create do |c|

@@ -65,7 +65,7 @@ Once the start.sh script finishes, you're in a Bash shell in the Possum containe
 To run the Conjur server:
 
 ```sh-session
-root@f39015718062:/src/possum# conjurd server
+root@f39015718062:/src/possum# conjurctl server
 <database migration>
 <find or create the token-signing key>
 <web server startup messages>
@@ -73,7 +73,7 @@ root@f39015718062:/src/possum# conjurd server
 Use Ctrl-C to stop
 ```
 
-The `conjurd server` script performs the following:
+The `conjurctl server` script performs the following:
 
 * Wait for the database to be available
 * Create and/or upgrade the database schema according to the `db/migrate` directory
@@ -104,7 +104,7 @@ Finished in 3.84 seconds (files took 3.33 seconds to load)
 Cucumber tests require the Conjur server to be running. It's easiest to achieve this by starting Possum in one container, and running Cucumber from another. Run the service in the `possum` container:
 
 ```sh-session
-root@aa8bc35ba7f4:/src/possum# conjurd server
+root@aa8bc35ba7f4:/src/possum# conjurctl server
 ...
 * Listening on tcp://localhost:3000
 Use Ctrl-C to stop
