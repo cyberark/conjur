@@ -60,8 +60,6 @@ group :development, :test do
   gem 'database_cleaner'
   gem 'parallel'
   gem 'cucumber'
-  gem 'cucumber-rails', require: false
-  gem 'capybara'
   gem 'aruba'
   gem 'rake_shared_context'
   gem 'conjur-cli', github: 'conjurinc/cli-ruby', branch: 'possum'
