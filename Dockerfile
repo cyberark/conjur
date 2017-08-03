@@ -38,4 +38,4 @@ EXPOSE 80
 
 ENV RAILS_ENV production
 
-ENTRYPOINT [ "possum" ]
+ENTRYPOINT [ "conjurd" ]
