@@ -30,7 +30,7 @@ RUN bundle --without test development website
 
 ADD . .
 
-RUN ln -sf /opt/possum/bin/possum /usr/local/bin/
+RUN ln -sf /opt/possum/bin/conjurd /usr/local/bin/
 
 ENV PORT 80
 

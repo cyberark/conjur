@@ -33,7 +33,7 @@ ADD Gemfile.lock .
 RUN bundle
 
 RUN rm /etc/service/sshd/down
-RUN ln -sf /src/possum/bin/possum /usr/local/bin/
+RUN ln -sf /src/possum/bin/conjurd /usr/local/bin/
 
 ENV PORT 3000
 ENV TERM xterm

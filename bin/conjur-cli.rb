@@ -2,7 +2,7 @@ require 'gli'
 
 include GLI::App
 
-program_desc "Command and control application for Possum"
+program_desc "Command and control application for Conjur"
 
 version File.read(File.expand_path("../VERSION", File.dirname(__FILE__)))
 
@@ -90,7 +90,7 @@ command :policy do |cgrp|
   cgrp.desc "Watch a file and reload the policy if it's modified"
   cgrp.long_desc <<-DESC
 To trigger a reload of the policy, replace the contents of the watched file with the path to 
-the policy. Of course, the path must be visible to the container which is running "possum watch".
+the policy. Of course, the path must be visible to the container which is running "conjurd watch".
 This can be a separate container from the application server. Both the application server and the
 policy watcher should share the same backing database.
 
@@ -98,7 +98,7 @@ policy watcher should share the same backing database.
 Example:
 
 
-$ possum watch /run/possum/policy/load)"
+$ conjurd watch /run/conjur/policy/load)"
   DESC
   cgrp.arg_name 'account file_name'
   cgrp.command :watch do |c|
@@ -119,7 +119,7 @@ command :"data-key" do |cgrp|
   cgrp.desc "Generate a data encryption key"
   cgrp.long_desc <<-DESC
 Use this command to generate a new Base64-encoded 256 bit data encrytion key.
-Once generated, this key should be placed into the environment of the Possum 
+Once generated, this key should be placed into the environment of the Conjur 
 server. It will be used to encrypt all sensitive data which is stored in the 
 database, including the token-signing private key.
 
@@ -127,7 +127,7 @@ database, including the token-signing private key.
 Example:
 
 
-$ export POSSUM_DATA_KEY="$(possum data-key generate)"
+$ export POSSUM_DATA_KEY="$(conjurd data-key generate)"
   DESC
   cgrp.command :generate do |c|
     c.action do |global_options,options,args|
@@ -150,7 +150,7 @@ in the database.
 
 Example:
 
-$ possum account create myorg
+$ conjurd account create myorg
   DESC
   cgrp.arg_name 'account'
   cgrp.command :create do |c|
