@@ -26,4 +26,4 @@ WORKDIR /opt/possum
 ENV PORT 80
 EXPOSE 80
 
-ENTRYPOINT [ "possum" ]
+ENTRYPOINT [ "conjurd" ]
