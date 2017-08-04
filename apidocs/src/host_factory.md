@@ -1,6 +1,6 @@
-## Host Factory
+## Create Host Factory Tokens [/host_factory_tokens]
 
-### Create Host Factory tokens [POST /host_factory_tokens]
+### Create Host Factory tokens [POST]
 
 Creates one or more tokens which can be used to bootstrap host
 identity. Responds with a JSON document containing the tokens and
@@ -13,7 +13,7 @@ and you want to create two tokens which are only usable by local
 addresses `127.0.0.1` and `127.0.0.2`, expiring at
 "2017-08-04T22:27:20+00:00".
 
-```
+```bash
 curl --request POST \
      --data-urlencode "expiration=2017-08-04T22:27:20+00:00" \
      --data-urlencode "host_factory=mycorp:host_factory:hf-db" \
