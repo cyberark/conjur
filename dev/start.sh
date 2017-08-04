@@ -9,7 +9,7 @@ if [ ! -f data_key ]; then
 	docker-compose run --no-deps --rm --entrypoint conjurctl possum data-key generate > data_key
 fi
 
-export POSSUM_DATA_KEY="$(cat data_key)"
+export CONJUR_DATA_KEY="$(cat data_key)"
 
 docker-compose up -d
 docker-compose exec possum conjurctl db migrate

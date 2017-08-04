@@ -6,7 +6,7 @@ function finish {
 }
 trap finish EXIT
 
-export POSSUM_DATA_KEY="$(docker run --rm possum data-key generate)"
+export CONJUR_DATA_KEY="$(docker run --rm possum data-key generate)"
 
 pg_cid=$(docker run -d postgres:9.3)
 
