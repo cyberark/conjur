@@ -47,7 +47,7 @@ $ open api.html  # To see the docs in your browser
 
 ## Development environment
 
-The `dev` directory contains a `docker-compose` file which brings up a development environment consisting of a database container (`pg`), and `possum` container with the source code mounted into the directory `/src/possum`.
+The `dev` directory contains a `docker-compose` file which brings up a development environment consisting of a database container (`pg`), and `conjur` container with the source code mounted into the directory `/src/conjur`.
 
 To use it, first build Possum from the project directory. Then:
 
@@ -55,17 +55,17 @@ To use it, first build Possum from the project directory. Then:
 $ cd dev
 $ ./start.sh
 ...
-root@f39015718062:/src/possum#
+root@f39015718062:/src/conjur#
 ```
 
-Once the start.sh script finishes, you're in a Bash shell in the Possum container.
+Once the start.sh script finishes, you're in a Bash shell in the Conjur container.
 
 ### Run the server
 
 To run the Conjur server:
 
 ```sh-session
-root@f39015718062:/src/possum# conjurctl server
+root@f39015718062:/src/conjur# conjurctl server
 <database migration>
 <find or create the token-signing key>
 <web server startup messages>
@@ -86,10 +86,10 @@ Possum has `rspec` and `cucumber` tests.
 
 #### RSpec
 
-RSpec tests are easy to run from within the `possum` container:
+RSpec tests are easy to run from within the `conjur` container:
 
 ```sh-session
-root@aa8bc35ba7f4:/src/possum# rspec
+root@aa8bc35ba7f4:/src/conjur# rspec
 Run options: exclude {:performance=>true}
 
 Randomized with seed 62317
@@ -101,10 +101,10 @@ Finished in 3.84 seconds (files took 3.33 seconds to load)
 
 #### Cucumber
 
-Cucumber tests require the Conjur server to be running. It's easiest to achieve this by starting Possum in one container, and running Cucumber from another. Run the service in the `possum` container:
+Cucumber tests require the Conjur server to be running. It's easiest to achieve this by starting Possum in one container, and running Cucumber from another. Run the service in the `conjur` container:
 
 ```sh-session
-root@aa8bc35ba7f4:/src/possum# conjurctl server
+root@aa8bc35ba7f4:/src/conjur# conjurctl server
 ...
 * Listening on tcp://localhost:3000
 Use Ctrl-C to stop
@@ -115,7 +115,7 @@ Then start a second container to run the cukes:
 ```sh-session
 $ ./cucumber.sh
 ...
-root@9feae5e5e001:/src/possum#
+root@9feae5e5e001:/src/conjur#
 ```
 
 There are two cucumber suites: `api` and `policy`. They are located in subdirectories of `./cucumber`.
@@ -123,8 +123,8 @@ There are two cucumber suites: `api` and `policy`. They are located in subdirect
 Run the cukes:
 
 ```sh-session
-root@9feae5e5e001:/src/possum# cd cucumber/api
-root@9feae5e5e001:/src/possum/cucumber/api# cucumber
+root@9feae5e5e001:/src/conjur# cd cucumber/api
+root@9feae5e5e001:/src/conjur/cucumber/api# cucumber
 ...
 27 scenarios (27 passed)
 101 steps (101 passed)
