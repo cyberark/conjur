@@ -1,4 +1,4 @@
-## Rotate an API key
+## Rotate an API key [/authn/{account}/api_key]
 
 Replaces the API key of a role with a new, securely random API key. The new API
 key is returned as the response body.
