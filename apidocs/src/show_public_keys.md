@@ -10,11 +10,10 @@ If the given resource does not exist, an empty string will be returned. This is 
 
 <!-- include(partials/resource_kinds.md) -->
 
-#### Example using `curl` and `jq`
+#### Example using `curl`
 
 ```
-curl -H "$(conjur authn authenticate -H)" \
-    https://eval.conjur.org/public_keys/mycorp/user/alice
+curl https://eval.conjur.org/public_keys/mycorp/user/alice
 ```
 
 ---
