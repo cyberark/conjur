@@ -29,7 +29,7 @@ cat << "TEST" | docker run \
 	-e DATABASE_URL=postgres://postgres@pg/postgres \
 	-e RAILS_ENV=test \
 	-e CONJUR_APPLIANCE_URL=http://possum \
-	-e POSSUM_ADMIN_PASSWORD=admin \
+	-e CONJUR_ADMIN_PASSWORD=admin \
 	--entrypoint bash \
 	possum-test
 #!/bin/bash -ex
