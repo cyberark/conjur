@@ -10,4 +10,4 @@ docker run \
         -w /apidocs \
         --name possum-apidocs \
         conjurinc/possum-apidocs \
-        /home/node/node_modules/.bin/aglio -i src/api.md -s -h 0.0.0.0 -p 4000
+        sh -c "/home/node/node_modules/.bin/aglio -i src/api.md -s -h 0.0.0.0 -p 4000"
