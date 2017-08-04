@@ -6,7 +6,7 @@ possum:
   environment:
     CONJUR_APPLIANCE_URL: http://localhost:3000
     DATABASE_URL: postgres://postgres@pg/postgres
-    POSSUM_ADMIN_PASSWORD: admin
+    CONJUR_ADMIN_PASSWORD: admin
     CONJUR_PASSWORD_ALICE: secret
     POSSUM_DATA_KEY:
     RAILS_ENV:
@@ -22,7 +22,7 @@ cucumber:
   environment:
     CONJUR_APPLIANCE_URL: http://possum:3000
     DATABASE_URL: postgres://postgres@pg/postgres
-    POSSUM_ADMIN_PASSWORD: admin
+    CONJUR_ADMIN_PASSWORD: admin
     POSSUM_DATA_KEY:
     RAILS_ENV:
   volumes:
