@@ -12,12 +12,12 @@ Possum::Application.config.middleware.use Conjur::Rack::Authenticator,
   except: [ /^\/authn\/.*\/authenticate$/, /^\/host_factories\/hosts$/ ]
 
 if %w(test development cucumber).member?(Rails.env)
-  ENV['POSSUM_DATA_KEY'] ||= '4pSuk1rAQyuHA5uUYaj0X0BsiPCFb9Nc8J03XA6V5/Y='
+  ENV['CONJUR_DATA_KEY'] ||= '4pSuk1rAQyuHA5uUYaj0X0BsiPCFb9Nc8J03XA6V5/Y='
 end
 
-if data_key = ENV['POSSUM_DATA_KEY']
+if data_key = ENV['CONJUR_DATA_KEY']
   Slosilo::encryption_key = Base64.strict_decode64 data_key.strip
   Slosilo::adapter = Slosilo::Adapters::SequelAdapter.new
 else
-  raise "No POSSUM_DATA_KEY"
+  raise "No CONJUR_DATA_KEY"
 end

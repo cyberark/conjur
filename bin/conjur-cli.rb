@@ -127,7 +127,7 @@ database, including the token-signing private key.
 Example:
 
 
-$ export POSSUM_DATA_KEY="$(conjurctl data-key generate)"
+$ export CONJUR_DATA_KEY="$(conjurctl data-key generate)"
   DESC
   cgrp.command :generate do |c|
     c.action do |global_options,options,args|
@@ -144,7 +144,7 @@ command :"account" do |cgrp|
   cgrp.long_desc <<-DESC
 Use this command to generate and store a new account, along with its 2048-bit RSA private key, 
 used to sign auth tokens, as well as the "admin" user API key. 
-The POSSUM_DATA_KEY must be available in the environment
+The CONJUR_DATA_KEY must be available in the environment
 when this command is called, since it's used to encrypt the token-signing key
 in the database.
 

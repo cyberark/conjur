@@ -71,7 +71,7 @@ What you need to do is use the signing key for the organization account for whic
 
 The Possum server stores the signing keys encrypted in the database. If your custom authenticator is configured with a database connection, you can fetch the signing key using SQL (or the Ruby object-relational helper code).
 
-Since the signing keys are encrypted, connecting to the database is not sufficient to read one. You also need to have the encryption key, which you provide to the Conjur server using the environment variable `POSSUM_DATA_KEY`.
+Since the signing keys are encrypted, connecting to the database is not sufficient to read one. You also need to have the encryption key, which you provide to the Conjur server using the environment variable `CONJUR_DATA_KEY`.
 
 In Ruby code, it looks like this:
 
@@ -82,7 +82,7 @@ require 'slosilo'
 require 'slosilo/adapters/sequel_adapter'
 
 # Establish the encryption key
-data_key = ENV['POSSUM_DATA_KEY']
+data_key = ENV['CONJUR_DATA_KEY']
 Slosilo::encryption_key = Base64.strict_decode64 data_key.strip
 
 # Configure the database connection
@@ -141,7 +141,7 @@ require 'slosilo'
 require 'slosilo/adapters/sequel_adapter'
 
 # Establish the encryption key
-data_key = ENV['POSSUM_DATA_KEY']
+data_key = ENV['CONJUR_DATA_KEY']
 Slosilo::encryption_key = Base64.strict_decode64 data_key.strip
 
 # Configure the database connection

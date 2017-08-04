@@ -162,7 +162,7 @@ Data is encrypted in and out of the database using [Slosilo](https://github.com/
 
 The Slosilo project has been verified by a professional cryptographic audit. Contact Conjur Inc for more details.
 
-When you start Possum, you must provide a Base64-encoded master data key in the environment variable `POSSUM_DATA_KEY`. You can generate a data key using the following command:
+When you start Possum, you must provide a Base64-encoded master data key in the environment variable `CONJUR_DATA_KEY`. You can generate a data key using the following command:
 
 ```
 $ docker run --rm possum data-key generate
