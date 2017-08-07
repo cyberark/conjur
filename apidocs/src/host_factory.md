@@ -5,6 +5,9 @@
 Creates one or more tokens which can be used to bootstrap host
 identity. Responds with a JSON document containing the tokens and
 their restrictions.
+**Required permissions:**
+
+Must have *execute* permission on the specified Host Factory.
 
 #### Example with `curl` and `jq`
 
