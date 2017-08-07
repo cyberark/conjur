@@ -19,7 +19,11 @@
         {% include sidebar.html %}
         <div id="content" class="">
           <div class="page">
-            {% include api.html %}
+
+            {% iffileexists api.html %}
+              {% include api.html %}
+            {% endiffileexists %}
+
           </div>
 
           {% include footer.html %}
