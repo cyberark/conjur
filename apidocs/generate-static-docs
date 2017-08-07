@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export PATH="/home/node/node_modules/.bin:$PATH"
-
 aglio_options=""
 
 function showhelp() {
@@ -33,4 +31,5 @@ shift $((OPTIND-1))
 
 file="${1:--}"
 
-aglio $aglio_options -i src/api.md -o "$file"
+env PATH="/home/node/node_modules/.bin:$PATH" \
+    sh -c "aglio $aglio_options -i src/api.md -o \"$file\""
