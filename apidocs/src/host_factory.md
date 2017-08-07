@@ -52,9 +52,9 @@ Parameters specifying:
 
 [cidr]: https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing
 
-These must be URL-encoded and delimited with `&` characters. Using the same scenario as the `curl` example above, the request body would be:
+These must be URL-encoded and formatted [like form data][form-data].
 
-`expiration=2017-08-04T22%3A27%3A20%2B00%3A00&host_factory=mycorp%3Ahost_factory%3Ahf-db&count=2&cidr[]=127.0.0.1&cidr[]=127.0.0.2`
+[form-data]: https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms/Sending_and_retrieving_form_data#The_POST_method
 
 **Response**
 
