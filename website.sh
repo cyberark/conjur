@@ -10,7 +10,7 @@ docker run -i -v $PWD:/opt/conjur --rm  \
   possum-web bash -ec '
 mkdir /output
 
-/node_modules/.bin/aglio -theme-template apidocs/templates/index.jade --theme-style apidocs/templates/css/layout-conjur.less -i apidocs/src/api.md -o docs/_includes/api.html
+/node_modules/.bin/aglio --theme-template apidocs/templates/index.jade --theme-style apidocs/templates/css/layout-conjur.less -i apidocs/src/api.md -o docs/_includes/api.html
 
 jekyll build --source docs --destination /output/_site
 
