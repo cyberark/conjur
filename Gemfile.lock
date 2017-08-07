@@ -104,9 +104,6 @@ GEM
       ci_reporter (~> 2.0)
       rspec (>= 2.14, < 4)
     coderay (1.1.1)
-    coffee-rails (4.2.2)
-      coffee-script (>= 2.2.0)
-      railties (>= 4.0.0)
     coffee-script (2.4.1)
       coffee-script-source
       execjs
@@ -470,8 +467,6 @@ GEM
       ethon (>= 0.8.0)
     tzinfo (1.2.3)
       thread_safe (~> 0.1)
-    uglifier (3.2.0)
-      execjs (>= 0.3.0, < 3)
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.4)
@@ -490,7 +485,6 @@ DEPENDENCIES
   bcrypt-ruby (~> 3.0.0)
   bootstrap-sass (~> 3.2.0)
   ci_reporter_rspec
-  coffee-rails
   conjur-api!
   conjur-cli!
   conjur-debify
@@ -531,7 +525,6 @@ DEPENDENCIES
   spring-commands-rspec
   table_print
   therubyracer
-  uglifier
 
 BUNDLED WITH
    1.15.3
