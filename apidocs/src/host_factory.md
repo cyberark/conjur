@@ -8,9 +8,9 @@ Responds with a JSON document containing the tokens and their restrictions.
 If the tokens are created with a CIDR restriction, Conjur will only accept them
 from the whitelisted IP ranges.
 
-**Required permissions:**
+**Permissions required**
 
-Must have *execute* permission on the specified Host Factory.
+`execute` privilege on the Host Factory.
 
 #### Example with `curl` and `jq`
 
