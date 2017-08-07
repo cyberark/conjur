@@ -14,9 +14,13 @@ function main() {
 function push_to_registries() {
   local version="$1"
 
-  local internal_tag="registry.tld/possum:$version"
+  local internal_tag="registry.tld/conjur:$version"
   docker tag conjur $internal_tag
   docker push $internal_tag
+  
+  local legacy_tag="registry.tld/possum:$version"
+  docker tag conjur $legacy_tag
+  docker push $legacy_tag
 
   local dockerhub_tag="conjurinc/possum:$version"
   docker tag conjur $dockerhub_tag
