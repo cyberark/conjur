@@ -2,19 +2,21 @@
 
 ### Create Host Factory tokens [POST]
 
-Creates one or more tokens which can be used to bootstrap host
-identity. Responds with a JSON document containing the tokens and
-their restrictions.
+Creates one or more tokens which can be used to bootstrap host identity.
+Responds with a JSON document containing the tokens and their restrictions.
+
+If the tokens are created with a CIDR restriction, Conjur will only accept them
+from the whitelisted IP ranges.
+
 **Required permissions:**
 
 Must have *execute* permission on the specified Host Factory.
 
 #### Example with `curl` and `jq`
 
-Suppose your account is `mycorp`, your host factory is called `hf-db`
-and you want to create two tokens which are only usable by local
-addresses `127.0.0.1` and `127.0.0.2`, expiring at
-"2017-08-04T22:27:20+00:00".
+Suppose your account is `mycorp`, your host factory is called `hf-db` and you
+want to create two tokens, each of which which are usable only by local
+addresses `127.0.0.1` and `127.0.0.2`, expiring at "2017-08-04T22:27:20+00:00".
 
 ```bash
 curl --request POST \
@@ -28,9 +30,13 @@ curl --request POST \
      | jq .
 ```
 
-Note: `curl` will automatically encode your `POST` body if you
-use the `--data-urlencode` option. If your HTTP/REST client doesn't
-support this feature, you can [do it yourself][mdn-urlencode].
+Note 1: `curl` will automatically encode your `POST` body if you use the
+`--data-urlencode` option. If your HTTP/REST client doesn't support this
+feature, you can [do it yourself][mdn-urlencode].
+
+Note 2: in this example, the two provided addresses are logical OR-ed together
+and apply to both tokens. If you wanted each token to have a *different* CIDR
+restriction, you would make two API calls each with `count=1`.
 
 [mdn-urlencode]: https://developer.mozilla.org/en-US/docs/Glossary/percent-encoding
 
