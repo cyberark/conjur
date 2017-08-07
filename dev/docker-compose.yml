@@ -1,34 +1,34 @@
 pg:
   image: postgres:9.3
   
-possum:
-  image: possum-dev
+conjur:
+  image: conjur-dev
   environment:
     CONJUR_APPLIANCE_URL: http://localhost:3000
     DATABASE_URL: postgres://postgres@pg/postgres
-    POSSUM_ADMIN_PASSWORD: admin
+    CONJUR_ADMIN_PASSWORD: admin
     CONJUR_PASSWORD_ALICE: secret
-    POSSUM_DATA_KEY:
+    CONJUR_DATA_KEY:
     RAILS_ENV:
   volumes:
-  - ..:/src/possum
+  - ..:/src/conjur
   - ../../conjur-policy-parser:/src/conjur-policy-parser
   links:
   - pg:pg
 
 cucumber:
-  image: possum-dev
+  image: conjur-dev
   entrypoint: bash
   environment:
-    CONJUR_APPLIANCE_URL: http://possum:3000
+    CONJUR_APPLIANCE_URL: http://conjur:3000
     DATABASE_URL: postgres://postgres@pg/postgres
-    POSSUM_ADMIN_PASSWORD: admin
-    POSSUM_DATA_KEY:
+    CONJUR_ADMIN_PASSWORD: admin
+    CONJUR_DATA_KEY:
     RAILS_ENV:
   volumes:
-  - ..:/src/possum
+  - ..:/src/conjur
   links:
-  - possum:possum
+  - conjur:conjur
   - pg:pg
 
 client:
@@ -36,9 +36,9 @@ client:
   entrypoint: sleep
   command: infinity
   environment:
-    CONJUR_APPLIANCE_URL: http://possum:3000
+    CONJUR_APPLIANCE_URL: http://conjur:3000
     DATABASE_URL: postgres://postgres@pg/postgres
   links:
-  - possum:possum
+  - conjur:conjur
   volumes:
-  - ..:/src/possum
+  - ..:/src/conjur

@@ -10,7 +10,6 @@ Dir[Rails.root.join("spec/support/**/*.rb")].each {|f| require f}
 
 ENV['CONJUR_ACCOUNT'] = 'rspec'
 ENV.delete('CONJUR_ADMIN_PASSWORD')
-ENV.delete('POSSUM_ADMIN_PASSWORD')
 
 RSpec.configure do |config|
   config.before(:suite) do
