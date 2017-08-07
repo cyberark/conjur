@@ -35,6 +35,14 @@ gem 'rack-rewrite'
 
 gem 'simplecov', require: false
 
+gem 'sass-rails'
+#gem 'uglifier'
+gem 'therubyracer'
+#gem 'coffee-rails'
+gem 'bootstrap-sass', '~> 3.2.0'
+gem 'autoprefixer-rails'
+gem 'font-awesome-sass', '~> 4.7.0'
+
 group :production do
   gem 'rails_12factor'
 end
@@ -56,10 +64,10 @@ group :development, :test do
   gem 'aruba'
   gem 'rake_shared_context'
   gem 'conjur-cli', github: 'conjurinc/cli-ruby', branch: 'possum'
+  gem 'rails_layout'
 end
 
 group :website do
-  gem 'therubyracer'
   gem 'github-pages', group: :jekyll_plugins
   gem 'rack-jekyll'
   gem 'html-proofer'
