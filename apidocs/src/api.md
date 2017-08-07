@@ -67,3 +67,7 @@ Only the twenty most recent values in a Variable are retained; this prevents the
 # Group Host Factory
 
 <!-- include(host_factory.md) -->
+
+# Group Public Keys
+
+<!-- include(show_public_keys.md) -->

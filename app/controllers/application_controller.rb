@@ -1,18 +1,19 @@
 class ApplicationController < ActionController::API
   include Authenticates
-    
+  include ::ActionView::Layouts
+
   class Unauthorized < RuntimeError
   end
-  
+
   class Forbidden < Exceptions::Forbidden
   end
-  
+
   class RecordNotFound < Exceptions::RecordNotFound
   end
 
   class RecordExists < Exceptions::RecordExists
   end
-  
+
   rescue_from Exceptions::RecordNotFound, with: :record_not_found
   rescue_from Exceptions::RecordExists, with: :record_exists
   rescue_from Exceptions::Forbidden, with: :forbidden
@@ -23,9 +24,9 @@ class ApplicationController < ActionController::API
   rescue_from ArgumentError, with: :argument_error
 
   around_action :run_with_transaction
- 
+
   private
- 
+
   # Wrap the request in a transaction.
   def run_with_transaction
     Sequel::Model.db.transaction do
@@ -139,7 +140,7 @@ class ApplicationController < ActionController::API
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
     head :unauthorized
   end
-  
+
   # Gets the value of the :account parameter.
   def account
     @account ||= params[:account]
