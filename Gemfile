@@ -69,6 +69,8 @@ end
 
 group :website do
   gem 'jekyll', group: :jekyll_plugins
+  gem 'jekyll-coffeescript'
+  gem 'jekyll-paginate'
   gem 'rack-jekyll'
   gem 'html-proofer'
 end
