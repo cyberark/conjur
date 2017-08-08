@@ -42,16 +42,42 @@ restriction, you would make two API calls each with `count=1`.
 
 ---
 
+#### Request
+
 **Body Parameters**
 
-* **expiration** expiration date of the token (required).
-* **host_factory** fully qualified Host Factory id (required).
-* **count** number of tokens to create (optional) (default=1).
-* **cidr** [CIDR][cidr] restriction(s) on token usage (optional). 
+<dl>
+<dt>expiration</dt>
+<dd>
+  <code>ISO 8601 datetime string</code>
+  (required)
+  <span class="text-muted"><p><strong>Example:</strong> 2017-08-04T22:27:20+00:00</p></span>
+  <p>Expiration date of the token</p>
+</dd>
+<dt>host_factory</dt>
+<dd>
+  <code>string</code>
+  (required)
+  <span class="text-muted"><strong>Example:</strong> mycorp:host_factory:hf-db</span>
+  <p>Fully qualified Host Factory id</p>
+</dd>
+<dt>count</dt>
+<dd>
+  <code>integer</code>
+  (optional, default=1)
+  <span class="text-muted"><strong>Example:</strong> 2</span>
+  <p>Number of tokens to create</p>
+</dd>
+<dt>cidr</dt>
+<dd>
+  <code>array</code>
+  (optional)
+  <span class="text-muted"><strong>Example:</strong> ["127.0.0.1","127.0.0.2"]</span>
+  <p><a href="https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing">CIDR</a> restriction(s) on token usage</p>
+</dd>
+</dl>
 
-[cidr]: https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing
-
-**Response**
+#### Response
 
 | Code | Description                                                         |
 |------|---------------------------------------------------------------------|
@@ -116,6 +142,8 @@ curl --request POST --data-urlencode id=brand-new-host \
 
 ---
 
+#### Request
+
 **Headers**
 
 A Host Factory Token must be provided as part of an HTTP
@@ -125,16 +153,30 @@ A Host Factory Token must be provided as part of an HTTP
 
 **Body Parameters**
 
-* **id** identifier of the Host to be created. It will be created within the account of the Host Factory.
-* **annotations** annotations to apply to the new Host.
+<dl>
+<dt>id</dt>
+<dd>
+  <code>string</code>
+  (required)
+  <span class="text-muted"><strong>Example:</strong> brand-new-host</span>
+  <p>Identifier of the Host to be created. It will be created within the account of the Host Factory.</p>
+</dd>
+<dt>annotations</dt>
+<dd>
+  <code>object</code>
+  (optional)
+  <span class="text-muted"><strong>Example:</strong> {"puppet": "true", "description": "new db host"}</span>
+  <p>Annotations to apply to the new Host</p>
+</dd>
+</dl>
 
-**Response**
+#### Response
 
 | Code | Description                                                                           |
 |------|---------------------------------------------------------------------------------------|
 |  201 | A host was created, its definition is returned as a JSON document in the reponse body |
-|  401 | The token was invalid, expired, or the CIDR restriction was not satisfied   |
-|  422 | The request body was empty or a parameter was not formatted correctly                              |
+|  401 | The token was invalid, expired, or the CIDR restriction was not satisfied             |
+|  422 | The request body was empty or a parameter was not formatted correctly                 |
 
 + Response 201 (application/json)
 
