@@ -89,9 +89,10 @@ restriction, you would make two API calls each with `count=1`.
 
 Creates a Host using the Host Factory and returns a JSON description of it.
 
-Requires a Host Factory Token, which can be created using the
-[create tokens][hf-tokens] API. In practice, this token is usually
-provided automatically as part of Conjur integration with your host provisioning infrastrcture.
+Requires a Host Factory Token, which can be created using
+the [create tokens][hf-tokens] API. In practice, this token is usually
+provided automatically as part of Conjur integration with your host
+provisioning infrastructure.
 
 Note: if the token was created with a CIDR restriction, you must make this API
 request from a whitelisted address.
