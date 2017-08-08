@@ -1,6 +1,6 @@
-## Create Host Factory Tokens [/host_factory_tokens]
+## Create tokens [/host_factory_tokens]
 
-### Create Host Factory tokens [POST]
+### Create tokens [POST]
 
 Creates one or more tokens which can be used to bootstrap host identity.
 Responds with a JSON document containing the tokens and their restrictions.
@@ -42,19 +42,14 @@ restriction, you would make two API calls each with `count=1`.
 
 ---
 
-**Request Body**
+**Body Parameters**
 
-Parameters specifying:
-1. the expiration date
-2. the full ID of the Host Factory to use
-3. the number of tokens to create
-4. [CIDR][cidr] restrictions, if any
+* **expiration** expiration date of the token (required).
+* **host_factory** fully qualified Host Factory id (required).
+* **count** number of tokens to create (optional) (default=1).
+* **cidr** [CIDR][cidr] restriction(s) on token usage (optional). 
 
 [cidr]: https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing
-
-These must be URL-encoded and formatted [like form data][form-data].
-
-[form-data]: https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms/Sending_and_retrieving_form_data#The_POST_method
 
 **Response**
 
@@ -88,32 +83,31 @@ These must be URL-encoded and formatted [like form data][form-data].
     ]
     ```
 
-## Use Token to Create a Host [/host_factories/hosts?id={identifier}]
+## Create a host [/host_factories/hosts]
 
-### Use Token to Create a Host [POST]
+### Create a host [POST]
 
-Creates a Host using the Host Factory, returns a JSON description of it.
+Creates a Host using the Host Factory and returns a JSON description of it.
 
-Requires a Host Factory token, which can be created using the
-API: [Create Host Factory tokens][hf-tokens]. In practice, this token is usually
-provided automatically as part of Conjur integration with your host provisioning
-infrastrcture. (For example, see the [Puppet integration][puppet-integration].)
+Requires a Host Factory Token, which can be created using the
+[create tokens][hf-tokens] API. In practice, this token is usually
+provided automatically as part of Conjur integration with your host provisioning infrastrcture.
 
 Note: if the token was created with a CIDR restriction, you must make this API
-request from a whitelisted address. [See above][hf-tokens] for more.
+request from a whitelisted address.
 
-[hf-tokens]: #host-factory-create-host-factory-tokens-post
+[hf-tokens]: #host-factory-create-tokens-post
 [puppet-integration]: https://forge.puppet.com/conjur/conjur
 
 #### Example with `curl` and `jq`
 
-Supposing that you have a Host Factory token and want to create a new host
+Supposing that you have a Host Factory Token and want to create a new Host
 called "brand-new-host":
 
 ```bash
 token="1bcarsc2bqvsxt6cnd74xem8yf15gtma71vp23y315n0z201c1jza7"
 
-curl --request POST --data id=brand-new-host \
+curl --request POST --data-urlencode id=brand-new-host \
      --header "Authorization: Token token=\"$token\"" \
      https://eval.conjur.org/host_factories/hosts \
      | jq .
@@ -123,24 +117,23 @@ curl --request POST --data id=brand-new-host \
 
 **Headers**
 
-A token from the Host Factory must be provided as part of an HTTP
+A Host Factory Token must be provided as part of an HTTP
 `Authorization` header. For example:
 
 `Authorization: Token token=2c0vfj61pmah3efbgpcz2x9vzcy1ycskfkyqy0kgk1fv014880f4`
 
-**Request Body**
+**Body Parameters**
 
-The id of the host to be created, formatted like `id=brand-new-host`.
-
-Note: the request body is *not* URL-encoded.
+* **id** identifier of the Host to be created. It will be created within the account of the Host Factory.
+* **annotations** annotations to apply to the new Host.
 
 **Response**
 
 | Code | Description                                                                           |
 |------|---------------------------------------------------------------------------------------|
 |  201 | A host was created, its definition is returned as a JSON document in the reponse body |
-|  401 | Request using a CIDR-restricted token was made from an address not on the whitelist   |
-|  422 | The request body was empty or is not formatted correctly                              |
+|  401 | The token was invalid, expired, or the CIDR restriction was not satisfied   |
+|  422 | The request body was empty or a parameter was not formatted correctly                              |
 
 + Response 201 (application/json)
 
