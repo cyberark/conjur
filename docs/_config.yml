@@ -6,3 +6,4 @@ gems:
   - jekyll-coffeescript
   - jekyll-paginate
 title: Conjur
+plugins_dir: ./_plugins
