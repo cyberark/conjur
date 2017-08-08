@@ -1,13 +1,13 @@
 #!/bin/bash -ex
 
-docker build -t possum-web -f docs/Dockerfile .
+docker build -t conjur-web -f docs/Dockerfile .
 
 docker run -i -v $PWD:/opt/conjur --rm  \
   -e AWS_ACCESS_KEY_ID \
   -e AWS_SECRET_ACCESS_KEY \
   -e POSSUM_WEB_BUCKET -e POSSUM_WEB_CFG_BUCKET \
   -e POSSUM_WEB_USER -e POSSUM_WEB_PASSWORD \
-  possum-web bash -ec '
+  conjur-web bash -ec '
 mkdir /output
 jekyll build --source docs --destination /output/_site
 
