@@ -10,5 +10,5 @@ docker run \
         -v $DIR/src:/home/node/src \
         -p 3000:3000 \
         --name conjur-apidocs \
-        conjurinc/conjur-apidocs \
+        conjur-apidocs \
         -w
