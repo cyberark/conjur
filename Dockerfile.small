@@ -10,19 +10,19 @@ RUN apk update && apk --update add ruby ruby-irb ruby-json ruby-rdoc \
 ENV BUILD_DEPENDENCIES \
     build-base ruby-dev openssl-dev postgresql-dev libc-dev linux-headers git libffi-dev
 
-ADD Gemfile /opt/possum/
-ADD Gemfile.lock /opt/possum/
+ADD Gemfile /opt/possum/server
+ADD Gemfile.lock /opt/possum/server
 
 RUN apk --update add --virtual build-dependencies $BUILD_DEPENDENCIES && \
     gem install bundler && \
-    cd /opt/possum; bundle install --without development test && \
+    cd /opt/possum/server; bundle install --without development test && \
     apk del build-dependencies
 
-ADD . /opt/possum
+ADD . /opt/possum/server
 
-RUN ln -sf /opt/possum/bin/conjurctl /usr/local/bin/
+RUN ln -sf /opt/possum/server/bin/conjurctl /usr/local/bin/
 
-WORKDIR /opt/possum
+WORKDIR /opt/possum/server
 ENV PORT 80
 EXPOSE 80
 
