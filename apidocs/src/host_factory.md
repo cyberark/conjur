@@ -51,28 +51,35 @@ restriction, you would make two API calls each with `count=1`.
 <dd>
   <code>ISO 8601 datetime string</code>
   (required)
-  <span class="text-muted"><p><strong>Example:</strong> 2017-08-04T22:27:20+00:00</p></span>
+  <span class="text-muted">
+    <strong>Example:</strong> 2017-08-04T22:27:20+00:00
+  </span>
   <p>Expiration date of the token</p>
 </dd>
 <dt>host_factory</dt>
 <dd>
   <code>string</code>
   (required)
-  <span class="text-muted"><strong>Example:</strong> mycorp:host_factory:hf-db</span>
+  <span class="text-muted">
+    <strong>Example:</strong> mycorp:host_factory:hf-db
+  </span>
   <p>Fully qualified Host Factory id</p>
 </dd>
 <dt>count</dt>
 <dd>
   <code>integer</code>
   (optional, default=1)
-  <span class="text-muted"><strong>Example:</strong> 2</span>
+  <span class="text-muted">
+    <strong>Example:</strong> 2
+  </span>
   <p>Number of tokens to create</p>
 </dd>
 <dt>cidr</dt>
 <dd>
   <code>array</code>
   (optional)
-  <span class="text-muted"><strong>Example:</strong> ["127.0.0.1","127.0.0.2"]</span>
+  <span class="text-muted">
+    <strong>Example:</strong> ["127.0.0.1","127.0.0.2"]</span>
   <p><a href="https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing">CIDR</a> restriction(s) on token usage</p>
 </dd>
 </dl>
@@ -158,14 +165,18 @@ A Host Factory Token must be provided as part of an HTTP
 <dd>
   <code>string</code>
   (required)
-  <span class="text-muted"><strong>Example:</strong> brand-new-host</span>
+  <span class="text-muted">
+    <strong>Example:</strong> brand-new-host
+  </span>
   <p>Identifier of the Host to be created. It will be created within the account of the Host Factory.</p>
 </dd>
 <dt>annotations</dt>
 <dd>
   <code>object</code>
   (optional)
-  <span class="text-muted"><strong>Example:</strong> {"puppet": "true", "description": "new db host"}</span>
+  <span class="text-muted">
+    <strong>Example:</strong> {"puppet": "true", "description": "new db host"}
+  </span>
   <p>Annotations to apply to the new Host</p>
 </dd>
 </dl>
