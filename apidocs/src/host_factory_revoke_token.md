@@ -6,11 +6,11 @@ Revokes a token, immediately disabling it.
 
 **Permissions required**
 
-`execute` privilege on the Host Factory.
+`update` privilege on the Host Factory.
 
 #### Example with `curl`
 
-Suppose you have a Host Factory Token and want to reovke it:
+Suppose you have a Host Factory Token and want to revoke it:
 
 ```bash
 token="1bcarsc2bqvsxt6cnd74xem8yf15gtma71vp23y315n0z201c1jza7"
