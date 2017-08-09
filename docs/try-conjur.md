@@ -10,6 +10,23 @@ This document will use the Conjur command-line interface (CLI) to show you how t
 
 For this tour, we will use a Conjur server that is running in the cloud, where an account has already been created for you. Please note that this cloud-based Conjur server is for evaluation purposes only, and therefore you should make sure **not** to store any sensitive information in it. For production scenarios, the Conjur server would be deployed within your own private environment.
 
+{% include toc.md key='eval' %}
+
+To get your cloud-based Conjur server set up and ready, please fill out the following form and we will email you with your API key and further instructions:
+
+<!-- Hubspot form -->
+  <!--[if lte IE 8]>
+  <script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/v2-legacy.js"></script>
+  <![endif]-->
+  <script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/v2.js"></script>
+  <script>
+    hbspt.forms.create({
+      portalId: '402893',
+      formId: '795e5607-3251-4827-9e88-94db1ef9fa7a'
+    });
+  </script>
+<!-- /Hubspot form -->
+
 {% include toc.md key='docker' %}
 
 If you don't have Docker installed, you can download it here:
