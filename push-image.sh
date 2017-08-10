@@ -22,11 +22,11 @@ function push_to_registries() {
   docker tag conjur $legacy_tag
   docker push $legacy_tag
 
-  local dockerhub_tag="conjurinc/possum:$version"
+  local dockerhub_tag="conjurinc/conjur:$version"
   docker tag conjur $dockerhub_tag
   docker push $dockerhub_tag
 
-  local quay_tag="quay.io/conjur/possum:$version"
+  local quay_tag="quay.io/conjur/conjur:$version"
   docker tag conjur $quay_tag
   docker push $quay_tag
 }
