@@ -15,7 +15,7 @@ conjur:
   expose:
     - "3000"
   volumes:
-  - ..:/src/conjur/server
+  - ..:/src/conjur-server
   - ../../conjur-policy-parser:/src/conjur-policy-parser
   links:
   - pg:pg
@@ -30,7 +30,7 @@ cucumber:
     CONJUR_DATA_KEY:
     RAILS_ENV:
   volumes:
-  - ..:/src/conjur/server
+  - ..:/src/conjur-server
   links:
   - conjur:conjur
   - pg:pg
@@ -45,4 +45,4 @@ client:
   links:
   - conjur:conjur
   volumes:
-  - ..:/src/conjur/server
+  - ..:/src/conjur-server

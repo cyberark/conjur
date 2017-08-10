@@ -21,11 +21,11 @@ RUN apt-get install -y \
       
 RUN gem install -N -v 1.11.2 bundler
 
-RUN mkdir -p /src/conjur/server
+RUN mkdir -p /src/conjur-server
 
 ADD .irbrc /root
 
-WORKDIR /src/conjur/server
+WORKDIR /src/conjur-server
 
 ADD Gemfile      .
 ADD Gemfile.lock .
@@ -33,7 +33,7 @@ ADD Gemfile.lock .
 RUN bundle
 
 RUN rm /etc/service/sshd/down
-RUN ln -sf /src/conjur/server/bin/conjurctl /usr/local/bin/
+RUN ln -sf /src/conjur-server/bin/conjurctl /usr/local/bin/
 
 ENV PORT 3000
 ENV TERM xterm

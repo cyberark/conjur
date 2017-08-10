@@ -19,9 +19,9 @@ RUN apt-get install -y \
 
 RUN gem install -N -v 1.11.2 bundler
 
-RUN mkdir -p /opt/conjur/server
+RUN mkdir -p /opt/conjur-server
 
-WORKDIR /opt/conjur/server
+WORKDIR /opt/conjur-server
 
 ADD Gemfile      .
 ADD Gemfile.lock .
@@ -30,7 +30,7 @@ RUN bundle --without test development website
 
 ADD . .
 
-RUN ln -sf /opt/conjur/server/bin/conjurctl /usr/local/bin/
+RUN ln -sf /opt/conjur-server/bin/conjurctl /usr/local/bin/
 
 ENV PORT 80
 
