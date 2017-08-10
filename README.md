@@ -25,16 +25,16 @@ CI job: https://jenkins.conjur.net/job/possum/
 
 ## Build the Docker images
 
-Possum is packaged primarily as a Docker image. To build it:
+Conjur is packaged primarily as a Docker image. To build it:
 
 ```sh-session
 $ ./build.sh
 ...
 Successfully built 9a18a1396977
-$ docker images | grep possum
-conjurinc/possum latest a8229592474c 7 minutes ago 560.7 MB
-possum           latest a8229592474c 7 minutes ago 560.7 MB
-possum-dev       latest af98cb5b2a68 4 days ago    639.9 MB
+$ docker images | grep conjur
+conjurinc/conjur latest a8229592474c 7 minutes ago 560.7 MB
+conjur           latest a8229592474c 7 minutes ago 560.7 MB
+conjur-dev       latest af98cb5b2a68 4 days ago    639.9 MB
 ```
 
 The API documentation is generated using a separate image. To build that image and generate the docs:

@@ -6,7 +6,7 @@ function finish {
 }
 trap finish EXIT
 
-export CONJUR_DATA_KEY="$(docker run --rm possum data-key generate)"
+export CONJUR_DATA_KEY="$(docker run --rm conjur data-key generate)"
 
 pg_cid=$(docker run -d postgres:9.3)
 
@@ -18,29 +18,29 @@ server_cid=$(docker run -d \
 	--link $pg_cid:pg \
 	-e DATABASE_URL=postgres://postgres@pg/postgres \
 	-e RAILS_ENV=test \
-	possum server)
+	conjur server)
 
 cat << "TEST" | docker run \
 	-i \
 	--rm \
 	--link $pg_cid:pg \
-	--link $server_cid:possum \
-	-v $PWD:/src/possum \
+	--link $server_cid:conjur \
+	-v $PWD:/src/conjur \
 	-e DATABASE_URL=postgres://postgres@pg/postgres \
 	-e RAILS_ENV=test \
-	-e CONJUR_APPLIANCE_URL=http://possum \
+	-e CONJUR_APPLIANCE_URL=http://conjur \
 	-e CONJUR_ADMIN_PASSWORD=admin \
 	--entrypoint bash \
-	possum-test
+	conjur-test
 #!/bin/bash -ex
 
 for i in $(seq 10); do
-	curl -o /dev/null -fs -X OPTIONS http://possum > /dev/null && break
+	curl -o /dev/null -fs -X OPTIONS http://conjur > /dev/null && break
 	echo -n "."
 	sleep 2
 done
 
-cd /src/possum
+cd /src/conjur
 
 rm -rf coverage
 rm -rf spec/reports/*

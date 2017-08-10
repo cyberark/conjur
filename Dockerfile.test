@@ -1,4 +1,4 @@
-FROM possum
+FROM conjur
 
 RUN bundle --no-deployment --without ''
-RUN ln -sf /src/possum/bin/conjurctl /usr/local/bin/conjurctl
+RUN ln -sf /src/conjur-server/bin/conjurctl /usr/local/bin/conjurctl
