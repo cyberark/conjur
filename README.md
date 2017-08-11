@@ -166,7 +166,7 @@ root@9feae5e5e001:/src/conjur#
 There are two cucumber suites: `api` and `policy`. They are located in
 subdirectories of `./cucumber`.
 
-Run the cukes:
+#### Run all the cukes:
 
 ```sh-session
 root@9feae5e5e001:/src/conjur# cd cucumber/api
@@ -175,6 +175,12 @@ root@9feae5e5e001:/src/conjur/cucumber/api# cucumber
 27 scenarios (27 passed)
 101 steps (101 passed)
 0m4.404s
+```
+
+#### Run just one feature:
+
+```sh-session
+root@9feae5e5e001:/src/conjur/cucumber/api# cucumber -r cucumber/api/features/support -r cucumber/api/features/step_definitions cucumber/api/features/resource_list.feature
 ```
 
 # Architecture
