@@ -1,0 +1,24 @@
+<nav id="top-navigation" class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#mobileNav">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="{{ site.baseurl }}/"><img src="{{ site.baseurl }}/img/machine_identity_icon.svg" alt="Conjur Logo"> <span>Conjur</span> </a>
+    </div>
+    <div class="collapse navbar-collapse" id="mobileNav">
+      <ul class="nav navbar-nav">
+        {% for item_hash in site.data.sidebar.main %}
+    			{% assign value = item_hash[1] %}
+    			{% include top_nav_menu.html item=value %}
+    		{% endfor %}
+      </ul>
+
+      <form id="top-search" class="form-inline pull-right">
+        <input class="form-control" type="text" placeholder="Search Documentation...">
+      </form>
+    </div>
+  </div>
+</nav>

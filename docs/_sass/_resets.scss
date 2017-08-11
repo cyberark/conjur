@@ -88,26 +88,16 @@ p {
 }
 
 @media (min-width: 992px) and (max-width: 1200px) {
-	#content {
-		margin-left: 300px;
-	}
 }
 
 @media (min-width: 1201px) {
-	#content {
-		margin-left: 300px;
-	}
 }
 
 @media (max-width: 767px) {
 	#content {
-		margin-left: auto;
 		.page-title {
 			margin-top: 0;
 		}
-	}
-	#sidebar.affix {
-		position: static !important;
 	}
 }
 
