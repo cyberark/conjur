@@ -2,6 +2,7 @@
   enterprise: Try Conjur Enterprise
 
 "/try-conjur.html":
+  eval: Sign Up to Evaluate Conjur
   docker: Install Docker
   cli: Download & Run the Conjur CLI
   environment: Export Environment Variables
