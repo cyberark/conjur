@@ -179,7 +179,7 @@ root@9feae5e5e001:/src/conjur/cucumber/api# cucumber
 #### Run just one feature:
 
 ```sh-session
-root@9feae5e5e001:/src/conjur/cucumber/api# cucumber -r cucumber/api/features/support -r cucumber/api/features/step_definitions cucumber/api/features/resource_list.feature
+root@9feae5e5e001:/src/conjur# cucumber -r cucumber/api/features/support -r cucumber/api/features/step_definitions cucumber/api/features/resource_list.feature
 ```
 
 # Architecture
