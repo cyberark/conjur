@@ -212,10 +212,10 @@ Conjur uses industry-standard cryptography to protect your data.
 
 Some operations require storage and management of encrypted data. For example:
 
-* Users and Hosts can have associated API keys, which are stored encrypted in
-  the database.
-* The `authenticate` function issues a signed JSON token. The signing key is a
-  2048 bit RSA key which is stored encrypted in the database.
+* users and Hosts can have associated API keys, which are stored encrypted in
+  the database
+* the `authenticate` function issues a signed JSON token; the signing key is a
+  2048 bit RSA key which is stored encrypted in the database
 
 Data is encrypted in and out of the database
 using [Slosilo](https://github.com/conjurinc/slosilo), a library which provides:
