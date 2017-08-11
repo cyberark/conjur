@@ -108,9 +108,7 @@ To use it:
 
    ```sh-session
    root@f39015718062:/src/conjur# conjurctl server
-   <database migration>
-   <find or create the token-signing key>
-   <web server startup messages>
+   <various startup messages, then finally:>
    * Listening on tcp://localhost:3000
    Use Ctrl-C to stop
    ```
