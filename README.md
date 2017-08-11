@@ -11,21 +11,21 @@ Conjur is a trust platform: an identity and authorization service that works wit
 
 Conjur provides:
 
-* **A role-based access policy language** which is used to define system
-  components, their roles, privileges and metadata.
-* **A REST web service** to:
-  * Enroll and revoke identities.
-  * List roles and perform permission checks.
-  * Store and serve secrets.
-  * Receive and store audit records.
-* **Integrations** with other popular software in the cloud toolchain such as
+* **a role-based access policy language** which is used to define system
+  components, their roles, privileges and metadata
+* **a REST web service** to:
+  * enroll and revoke identities
+  * list roles and perform permission checks
+  * store and serve secrets
+  * receive and store audit records
+* **integrations** with other popular software in the cloud toolchain such as
   IaaS, configuration management, continuous integration (CI), container
-  management and cloud orchestration.
+  management and cloud orchestration
 
 ## Links
 
-* Try Conjur: [Start Here](https://try.conjur.org)
-* [Support](https://try.conjur.org/support.html)
+* try Conjur: [Start Here](https://try.conjur.org)
+* [support](https://try.conjur.org/support.html)
 * [API Documentation][api-doc]
 
 [api-doc]: https://try.conjur.org/apidocs.html
@@ -107,11 +107,11 @@ To use it:
 
    The `conjurctl server` script performs the following:
 
-   * Wait for the database to be available
-   * Create and/or upgrade the database schema according to the `db/migrate`
+   * wait for the database to be available
+   * create and/or upgrade the database schema according to the `db/migrate`
      directory
-   * Find or create the token-signing key
-   * Start the web server
+   * find or create the token-signing key
+   * start the web server
 
 ## Testing
 
@@ -204,10 +204,10 @@ Some operations require storage and management of encrypted data. For example:
 Data is encrypted in and out of the database
 using [Slosilo](https://github.com/conjurinc/slosilo), a library which provides:
 
-* Symmetric encryption using AES-256-GCM
-* A mixin for easy encryption of object attributes into the database
-* Asymmetric encryption and signing
-* A keystore in a Postgresqsl, for easy storage and retrieval of keys
+* symmetric encryption using AES-256-GCM
+* a Ruby class mixin for easy encryption of object attributes into the database
+* asymmetric encryption and signing
+* a keystore in a Postgresql database for easy storage and retrieval of keys
 
 Slosilo has been verified by a professional cryptographic audit. Ask in our
 Slack community for more details. (You can join [here][join-slack].)
