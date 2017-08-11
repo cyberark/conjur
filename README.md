@@ -39,16 +39,26 @@ https://jenkins.conjur.net/job/possum/
 To get access to Jenkins, ask in our Slack community. (You can
 join [here][join-slack].)
 
+### Development Dependencies
+
+Before getting started, you should install some developer tools. These are not
+required to deploy Conjur, but they will help you quickly get started.
+
+1. [git][get-git] to manage source code
+2. [Docker][get-docker] to manage dependencies and runtime environments
+3. [docker-compose][get-docker-compose] to orchestrate Docker environments
+
 ## Build Conjur as a Docker image
 
 It's easy to get started with Conjur and Docker:
 
-1. [install Docker][get-docker]
-2. [install git][get-git] and clone this repository
+1. install dependencies (as above)
+2. clone this repository
 3. run the build script in your terminal:
 
 [get-docker]: https://docs.docker.com/engine/installation/
 [get-git]: https://git-scm.com/downloads
+[get-docker-compose]: https://docs.docker.com/compose/install/
 
    ```sh-session
    $ ./build.sh
@@ -75,14 +85,13 @@ environment with a database container (`pg`, short for *postgres*), and a
 
 To use it:
 
-1. [install Docker][get-docker] and [Docker Compose][get-docker-compose]
-2. [install git][get-git] and clone this repository
-3. build the Conjur image:
+1. install dependencies (as above)
+2. build the Conjur image:
 
    ```sh-session
    $ ./build.sh
    ```
-4. start the container:
+3. start the container:
 
    ```sh-session
    $ cd dev
@@ -94,7 +103,7 @@ To use it:
    Once the start.sh script finishes, you're in a Bash shell in the Conjur
    container.
 
-5. run the server
+4. run the server
 
    ```sh-session
    root@f39015718062:/src/conjur# conjurctl server
