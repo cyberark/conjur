@@ -52,14 +52,43 @@ img {
 
 .btn {
 	padding: .5rem 1rem;
-	border-radius: 25px;
+	border-radius: 4px;
 	font-weight: 300;
+	border: none;
+	color: #ffffff;
 }
 
 .btn-primary {
 	background-color: $conjur-blue;
 	&:hover {
 		background-color: darken($conjur-blue,10);
+	}
+}
+
+// ***********************
+// Form Stuff
+// ***********************
+
+form {
+	.form-group.required,
+	.form-check.required {
+		label {
+			&:after {
+				content: " *";
+	   		color: red;
+			}
+		}
+	}
+
+	&.hosted-account-signup {
+		background-color: $conjur-softgray;
+		padding: 1.5em 2em;
+		border-radius: 4px;
+		border: 1px solid $conjur-ltgray;
+
+		label {
+			font-weight: 400;
+		}
 	}
 }
 
@@ -92,12 +121,6 @@ p {
 	header h1 {
 		margin-top: 0px;
 	}
-}
-
-@media (min-width: 992px) and (max-width: 1200px) {
-}
-
-@media (min-width: 1201px) {
 }
 
 @media (max-width: 767px) {
