@@ -11,8 +11,8 @@ Conjur is a trust platform: an identity and authorization service that works wit
 
 Conjur provides:
 
-* **a role-based access policy language** which is used to define system
-  components, their roles, privileges and metadata
+* **a role-based access policy language** to define system components, their
+  roles, privileges and metadata
 * **a REST web service** to:
   * enroll and revoke identities
   * list roles and perform permission checks
