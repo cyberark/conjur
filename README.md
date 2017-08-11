@@ -32,10 +32,6 @@ Conjur provides:
 
 # Development
 
-We use Jenkins as our Continuous Integration server. CyberArk employees and
-approved developers can view the current status here:
-https://jenkins.conjur.net/job/possum/
-
 To get access to Jenkins, ask in our Slack community. (You can
 join [here][join-slack].)
 
