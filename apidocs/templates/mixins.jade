@@ -22,7 +22,7 @@ mixin Badge(method)
 mixin Nav()
     //- Draw a navigation bar, which includes links to individual
     //- resources and actions.
-    nav.sidebar-nav
+    nav.sidebar-nav.col-md-3
         if self.api.navItems && self.api.navItems.length
             .resource-group
                 .heading
@@ -148,57 +148,59 @@ mixin Examples(resourceGroup, resource, action)
             +RequestResponse('Response', response, true)
 
 mixin Content()
-    //- Page header and API description
-    header
-        h1#top!= self.api.name || 'API Documentation'
+    div.content.col-md-9    
+    
+      //- Page header and API description
+      header
+          h1#top!= self.api.name || 'API Documentation'
 
-    if self.api.descriptionHtml
-        != self.api.descriptionHtml
+      if self.api.descriptionHtml
+          != self.api.descriptionHtml
 
-    //- Loop through and display information about all the resource
-    //- groups, resources, and actions.
-    each resourceGroup in self.api.resourceGroups || []
-        section.resource-group(id=resourceGroup.elementId)
-            h2.group-heading
-                != resourceGroup.name || 'Resource Group'
-                = " "
-                a.permalink(href=resourceGroup.elementLink) &para;
-            if resourceGroup.descriptionHtml
-                != resourceGroup.descriptionHtml
+      //- Loop through and display information about all the resource
+      //- groups, resources, and actions.
+      each resourceGroup in self.api.resourceGroups || []
+          section.resource-group(id=resourceGroup.elementId)
+              h2.group-heading
+                  != resourceGroup.name || 'Resource Group'
+                  = " "
+                  a.permalink(href=resourceGroup.elementLink) &para;
+              if resourceGroup.descriptionHtml
+                  != resourceGroup.descriptionHtml
 
-            each resource in resourceGroup.resources || []
-                .resource(id=resource.elementId)
-                    h3.resource-heading
-                        != resource.name || ((resource.actions[0] != null) && resource.actions[0].name) || 'Resource'
-                        = " "
-                        a.permalink(href=resource.elementLink) &nbsp;&para;
-                    if resource.description
-                        != self.markdown(resource.description)
+              each resource in resourceGroup.resources || []
+                  .resource(id=resource.elementId)
+                      h3.resource-heading
+                          != resource.name || ((resource.actions[0] != null) && resource.actions[0].name) || 'Resource'
+                          = " "
+                          a.permalink(href=resource.elementLink) &nbsp;&para;
+                      if resource.description
+                          != self.markdown(resource.description)
 
-                    each action in resource.actions || []
-                        .action(class=action.methodLower, id=action.elementId)
-                            h4.action-heading
-                                .name!= action.name
-                                a.method(class=action.methodLower, href=action.elementLink)
-                                    = action.method
-                                code.uri= self.urldec(action.uriTemplate)
-                            if action.description
-                                != self.markdown(action.description)
+                      each action in resource.actions || []
+                          .action(class=action.methodLower, id=action.elementId)
+                              h4.action-heading
+                                  .name!= action.name
+                                  a.method(class=action.methodLower, href=action.elementLink)
+                                      = action.method
+                                  code.uri= self.urldec(action.uriTemplate)
+                              if action.description
+                                  != self.markdown(action.description)
 
-                            h4 Example URI
-                            .definition
-                                span.method(class=action.methodLower)= action.method
-                                | &nbsp;
-                                span.uri
-                                  span.hostname= self.api.host
-                                  != action.colorizedUriTemplate
+                              h4 Example URI
+                              .definition
+                                  span.method(class=action.methodLower)= action.method
+                                  | &nbsp;
+                                  span.uri
+                                    span.hostname= self.api.host
+                                    != action.colorizedUriTemplate
 
-                            //- A list of sub-sections for parameters, requests
-                            //- and responses.
-                            if action.parameters.length
-                                +Parameters(action.parameters)
-                            if action.examples
-                                +Examples(resourceGroup, resource, action)
+                              //- A list of sub-sections for parameters, requests
+                              //- and responses.
+                              if action.parameters.length
+                                  +Parameters(action.parameters)
+                              if action.examples
+                                  +Examples(resourceGroup, resource, action)
 
 mixin ContentTriple()
     .middle

@@ -166,9 +166,6 @@ header {
 }
 
 #content nav {
-    position: fixed;
-    top: @padding * 2;
-    bottom: 0;
     overflow-y: auto;
 
     .resource-group {
@@ -353,20 +350,10 @@ header {
     transition: max-height 0.3s ease-in-out;
 }
 
-/* Layout classes */
-#content nav {
-    width: @nav-width;
-}
-
 .container {
-    max-width: 940px;
-    margin-left: auto;
-    margin-right: auto;
 
     .row {
         .content {
-            margin-left: @nav-width + (@padding * 2);
-            width: 720px - (@padding * 2);
         }
 
         &:after {
@@ -379,14 +366,6 @@ header {
 
 .container-fluid {
     #content {
-
-        nav {
-            width: 16%;
-        }
-
-        .content {
-            margin-left: 24%;
-        }
 
         &.triple {
             nav {
@@ -548,67 +527,6 @@ header {
     width: @right-panel-background-width;
     background-color: @right-background-color;
     z-index: -1;
-}
-
-@media (max-width: 1200px) {
-    #content nav {
-        width: @nav-width * 0.9;
-    }
-
-    .container {
-        max-width: 840px;
-
-        .row {
-            .content {
-                margin-left: 200px + (@padding * 2);
-                width: 630px - (@padding * 2);
-            }
-        }
-    }
-}
-
-@media (max-width: 992px) {
-    #content nav {
-        width: @nav-width * 0.77;
-    }
-
-    .container {
-        max-width: 720px;
-
-        .row {
-            .content {
-                margin-left: 170px + (@padding * 2);
-                width: 550px - (@padding * 2);
-            }
-        }
-    }
-}
-
-@media (max-width: 768px) {
-    #content nav {
-        display: none;
-    }
-
-    .container {
-        width: 95%;
-        max-width: none;
-    }
-
-    .container .row, .container-fluid .row, .container-fluid.triple .row {
-        .content {
-            margin-left: auto;
-            margin-right: auto;
-            width: 95%;
-        }
-    }
-
-    #nav-background {
-      display: none;
-    }
-
-    #right-panel-background {
-      width: @right-panel-background-width;
-    }
 }
 
 /* Context-specific and API color classes */

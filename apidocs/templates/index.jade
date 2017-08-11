@@ -2,10 +2,10 @@ include mixins.jade
 
 style!= self.css
 
-block nav
-  +Nav(false)
-  
-.content
+div.row
+  block nav
+    +Nav(false)
+    
   block content
     +Content('primary', false)
 
