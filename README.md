@@ -81,7 +81,8 @@ $ open localhost:3000  # To see the docs in your browser
 
 The `dev` directory contains a `docker-compose` file which creates a development
 environment with a database container (`pg`, short for *postgres*), and a
-`conjur` container with source code mounted into the directory `/src/conjur`.
+`conjur` server container with source code mounted into the directory
+`/src/conjur`.
 
 To use it:
 
@@ -101,7 +102,7 @@ To use it:
    ```
 
    Once the start.sh script finishes, you're in a Bash shell in the Conjur
-   container.
+   server container.
 
 4. run the server
 
@@ -128,7 +129,7 @@ Conjur has `rspec` and `cucumber` tests.
 
 ### RSpec
 
-RSpec tests are easy to run from within the `conjur` container:
+RSpec tests are easy to run from within the `conjur` server container:
 
 ```sh-session
 root@aa8bc35ba7f4:/src/conjur# rspec
@@ -145,7 +146,7 @@ Finished in 3.84 seconds (files took 3.33 seconds to load)
 
 Cucumber tests require the Conjur server to be running. It's easiest to achieve
 this by starting Conjur in one container and running Cucumber from another. Run
-the service in the `conjur` container:
+the service in the `conjur` server container:
 
 ```sh-session
 root@aa8bc35ba7f4:/src/conjur# conjurctl server
