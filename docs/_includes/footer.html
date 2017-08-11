@@ -1,10 +1,27 @@
-<div id="footer" class="hidden-md hidden-lg hidden-xl">
-  <div class="footer-disclaimer">
-    <a href="https://www.cyberark.com/"><img class="cyberark-sidebar-logo" src="{{ site.baseurl }}/img/cyberark-white.png" alt="CyberArk Logo"></a>
-    <p class="disclaimer">&copy; {{ site.time | date: '%Y' }} CyberArk. All rights reserved.</p>
-    <p>
-    	<script async defer src="https://slackin-conjur.herokuapp.com/slackin.js"></script>
-			<!-- append "?" to the URL for the large version -->
-    </p>
+
+
+<div id="footer">
+  <div class="slack-bar">
+    <div class="container">
+      <div class="row">
+        <!-- Slack Signup -->
+    		<div class="slack-signup">
+    			<a href="https://slackin-conjur.herokuapp.com/" target="_blank"><i class="fa fa-slack"></i> Join our Slack Community</a>
+    		</div>
+    		<!-- /Slack signup -->
+      </div>
+    </div>
+  </div>
+  <div class="copyright">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-2 pull-left">
+          <a href="https://www.cyberark.com/"><img class="cyberark-sidebar-logo" src="{{ site.baseurl }}/img/cyberark-white.png" alt="CyberArk Logo"></a>
+        </div>
+        <div class="col-md-6 pull-right">
+          <p class="disclaimer text-right">&copy; {{ site.time | date: '%Y' }} CyberArk. All rights reserved.</p>
+        </div>
+    </div>
+    </div>
   </div>
 </div>

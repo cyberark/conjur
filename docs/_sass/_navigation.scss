@@ -15,8 +15,8 @@
       float: left;
       margin-right: 1em;
     }
-    
-    span {
+
+    .navbar-brand span {
       color: #ffffff;
     	font-size: 2rem;
     	font-weight: bold;
@@ -60,22 +60,79 @@
   // end #top-navigation
 }
 
-/* Bootstrap Overrides */
-.navbar-default .navbar-nav > .active > a,
-.navbar-default .navbar-nav > .active > a:hover,
-.navbar-default .navbar-nav > .active > a:focus {
-  background-color: rgba(0,0,0,0.15);
-  color: $conjur-ltblue;
+@media (min-width: 768px) {
+  /* Bootstrap Overrides */
+  .navbar-default .navbar-nav > .active > a,
+  .navbar-default .navbar-nav > .active > a:hover,
+  .navbar-default .navbar-nav > .active > a:focus {
+    background-color: rgba(0,0,0,0.15);
+    color: $conjur-ltblue;
+  }
+
+  .navbar-default .navbar-nav > li > a,
+  .navbar-default .navbar-nav > li > a:hover,
+  .navbar-default .navbar-nav > li > a:focus {
+  	color: #ffffff;
+  }
+
+  .navbar-default .navbar-nav > li:hover > a,
+  .navbar-default .navbar-nav > li > a:hover,
+  .navbar-default .navbar-nav > li > a:focus {
+  	background-color: rgba(0,0,0,0.15);
+  }
 }
 
-.navbar-default .navbar-nav > li > a,
-.navbar-default .navbar-nav > li > a:hover,
-.navbar-default .navbar-nav > li > a:focus {
-	color: #ffffff;
-}
+@media (max-width: 767px) {
+  #top-navigation {
+    .navbar-brand {
+      box-sizing: content-box;
+    }
 
-.navbar-default .navbar-nav > li:hover > a,
-.navbar-default .navbar-nav > li > a:hover,
-.navbar-default .navbar-nav > li > a:focus {
-	background-color: rgba(0,0,0,0.15);
+    .navbar-toggle {
+      margin-top: 1.5em;
+      margin-bottom: 1.5em;
+    }
+
+    .navbar-nav {
+      > li {
+        margin-bottom: 5px;
+        > a {
+          background-color: rgba(0,0,0,0.15);
+          color: #ffffff;
+        }
+      }
+    }
+
+    .nav-item.dropdown:hover > ul.dropdown-menu li.active a,
+    .nav-item.dropdown:hover > ul.dropdown-menu li a.active {
+      color: $conjur-ltblue;
+    }
+
+    .dropdown-menu {
+      display: block;
+      position: static;
+      float: none;
+      background-color: transparent;
+      border-radius: none;
+      box-shadow: none;
+      font-weight: 300;
+
+      li {
+        &.active a,
+        &.active a:hover {
+          color: $conjur-ltblue;
+        }
+        a {
+          background-color: transparent;
+          color: #ffffff;
+          font-weight: 300;
+
+          &.active,
+          &.active:hover {
+            color: $conjur-ltblue;
+          }
+        }
+      }
+    }
+  }
 }

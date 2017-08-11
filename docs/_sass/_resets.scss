@@ -75,7 +75,7 @@ p {
 }
 
 .page {
-	padding: 1rem 4rem 2rem 4rem;
+	padding: 2rem 1rem;
 	font-family: 'Open Sans', sans-serif;
 	font-size: 16px;
 	line-height: 1.8rem;
@@ -84,6 +84,13 @@ p {
 
 	h2 {
 		margin: 3rem 0 1rem 0;
+	}
+}
+
+#content.api-docs {
+	header,
+	header h1 {
+		margin-top: 0px;
 	}
 }
 

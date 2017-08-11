@@ -14,22 +14,21 @@
 
   <body>
 
-    <div class="container-fluid">
-      <div class="row">
-        {% include sidebar.html %}
-        <div id="content" class="">
-          <div class="page">
+    {% include top_nav.html %}
 
+    <div class="container">
+      <div class="row">
+        <div id="content" class="api-docs">
+          <div class="page">
             {% iffileexists api.html %}
               {% include api.html %}
             {% endiffileexists %}
-
           </div>
-
-          {% include footer.html %}
         </div>
       </div>
     </div>
 
+    {% include footer.html %}
+
   </body>
-</html>
+  </html>
