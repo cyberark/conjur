@@ -254,3 +254,17 @@ Permission to use this service is controlled by the built-in resource
 `!:webservice:accounts`. Note that `!` is itself an organization account, and
 therefore privileges on the `!:webservice:accounts` can be managed
 via Conjur [policies](https://developer.conjur.net/policy).
+
+# Licensing
+
+The Conjur server (as in, the code within this repository) is licensed under the
+Free Software Foundation's [GNU AGPL v3.0][agpl]. This license was chosen to
+ensure that all contributions to the Conjur server are made available to the
+community. Commercial licenses are also available
+from [CyberArk](https://www.cyberark.com).
+
+The Conjur API clients and other extensions are licensed under
+the [Apache Software License v2.0][apache]
+
+[apache]: http://www.apache.org/licenses/LICENSE-2.0
+[agpl]: https://www.gnu.org/licenses/agpl-3.0.html
