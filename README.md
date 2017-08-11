@@ -1,13 +1,13 @@
-# Possum
+# Conjur
 
-Possum is an identity and authorization service for infrastructure. 
+Conjur is an identity and authorization service for infrastructure.
 
 [![Join Conjur Slack](https://slackin-conjur.herokuapp.com/badge.svg)](https://slackin-conjur.herokuapp.com)
 [![Stories in Ready](https://badge.waffle.io/conjurinc/jenkins-seed.png?label=ready&title=Ready)](http://waffle.io/conjurinc/jenkins-seed)
 
 ---
 
-Possum provides:
+Conjur provides:
 
 * **A role-based access policy language** which is used to define system components, their roles, privileges and metadata.
 * **A REST web service** to:
@@ -17,11 +17,7 @@ Possum provides:
   * Receive and store audit records.
 * **Integrations** with other popular software in the cloud toolchain such as IaaS, configuration management, continuous integration (CI), container management and cloud orchestration.
 
-For more information, visit [possum.io](https://possum.io).
-
-# Development
-
-CI job: https://jenkins.conjur.net/job/possum/
+For more information, visit [try.conjur.org](https://try.conjur.org).
 
 ## Build the Docker images
 
@@ -49,7 +45,7 @@ $ open api.html  # To see the docs in your browser
 
 The `dev` directory contains a `docker-compose` file which brings up a development environment consisting of a database container (`pg`), and `conjur` container with the source code mounted into the directory `/src/conjur`.
 
-To use it, first build Possum from the project directory. Then:
+To use it, first build Conjur from the project directory. Then:
 
 ```sh-session
 $ cd dev
@@ -82,7 +78,7 @@ The `conjurctl server` script performs the following:
 
 ### Tests
 
-Possum has `rspec` and `cucumber` tests.
+Conjur has `rspec` and `cucumber` tests.
 
 #### RSpec
 
@@ -101,7 +97,7 @@ Finished in 3.84 seconds (files took 3.33 seconds to load)
 
 #### Cucumber
 
-Cucumber tests require the Conjur server to be running. It's easiest to achieve this by starting Possum in one container, and running Cucumber from another. Run the service in the `conjur` container:
+Cucumber tests require the Conjur server to be running. It's easiest to achieve this by starting Conjur in one container, and running Cucumber from another. Run the service in the `conjur` container:
 
 ```sh-session
 root@aa8bc35ba7f4:/src/conjur# conjurctl server
@@ -133,22 +129,22 @@ root@9feae5e5e001:/src/conjur/cucumber/api# cucumber
 
 # Architecture
 
-Possum is designed to run in a Docker container(s), using Postgresql as the backing data store. It's easy to run both Possum and Postgresql in Docker; see the `demo` directory for an example.
+Conjur is designed to run in a Docker container(s), using Postgresql as the backing data store. It's easy to run both Conjur and Postgresql in Docker; see the `demo` directory for an example.
 
 ## DATABASE_URL
 
-Possum uses the `DATABASE_URL` environment variable to connect to the database. Typical options for this URL are:
+Conjur uses the `DATABASE_URL` environment variable to connect to the database. Typical options for this URL are:
 
 * Local linked `pg` container
 * External managed database such as AWS RDS.
 
 ## Database initialization
 
-Possum creates and/or updates the database schema automatically when it starts up. Migration scripts are located in the `db/migrate` directory.
+Conjur creates and/or updates the database schema automatically when it starts up. Migration scripts are located in the `db/migrate` directory.
 
 ## Secrets and keys
 
-Possum performs some operations which require storage and management of encrypted data. For example:
+Conjur performs some operations which require storage and management of encrypted data. For example:
 
 * Users and Hosts can have associated API keys, which are stored encrypted in the database.
 * The `authenticate` function issues a signed JSON token. The signing key is a 2048 bit RSA key which is stored encrypted in the database.
@@ -162,7 +158,7 @@ Data is encrypted in and out of the database using [Slosilo](https://github.com/
 
 The Slosilo project has been verified by a professional cryptographic audit. Contact Conjur Inc for more details.
 
-When you start Possum, you must provide a Base64-encoded master data key in the environment variable `CONJUR_DATA_KEY`. You can generate a data key using the following command:
+When you start Conjur, you must provide a Base64-encoded master data key in the environment variable `CONJUR_DATA_KEY`. You can generate a data key using the following command:
 
 ```
 $ docker run --rm possum data-key generate
@@ -172,8 +168,14 @@ Do NOT lose the data key, or all the encrypted data will be unrecoverable.
 
 ## Account management
 
-Possum supports the simultaneous operation of multiple separate accounts within the same database. In other words, it's multi-tenant.
+Conjur supports the simultaneous operation of multiple separate accounts within the same database. In other words, it's multi-tenant.
 
 Each account (also called "organization account") has its own token-signing private key. When a role is authenticated, the HMAC of the access token is computed using the signing key of the role's account.
 
 Accounts can be listed, created, and deleted via the `/accounts` service. Permission to use this service is controlled by the built-in resource `!:webservice:accounts`. Note that `!` is itself an organization account, and therefore privileges on the `!:webservice:accounts` can be managed via policies.
+
+# Licensing
+
+The Conjur server (as in, the code within this repository) is licensed under the Free Software Foundation's [GNU AGPL v3.0](https://www.gnu.org/licenses/agpl-3.0.html). This license was chosen to ensure that all contributions to the Conjur server are made available to the community. Commercial licenses are also available from [CyberArk](https://www.cyberark.com).
+
+The Conjur API clients and other extensions are licensed under the [Apache Software License v2.0](http://www.apache.org/licenses/LICENSE-2.0).
