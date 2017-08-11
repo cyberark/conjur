@@ -46,7 +46,12 @@ required to deploy Conjur, but they will help you quickly get started.
 
 1. [git][get-git] to manage source code
 2. [Docker][get-docker] to manage dependencies and runtime environments
-3. [docker-compose][get-docker-compose] to orchestrate Docker environments
+3. [Docker Compose][get-docker-compose] to orchestrate Docker environments
+
+[get-docker]: https://docs.docker.com/engine/installation
+[get-git]: https://git-scm.com/downloads
+[get-docker-compose]: https://docs.docker.com/compose/install
+
 
 ## Build Conjur as a Docker image
 
@@ -55,10 +60,6 @@ It's easy to get started with Conjur and Docker:
 1. install dependencies (as above)
 2. clone this repository
 3. run the build script in your terminal:
-
-[get-docker]: https://docs.docker.com/engine/installation/
-[get-git]: https://git-scm.com/downloads
-[get-docker-compose]: https://docs.docker.com/compose/install/
 
    ```sh-session
    $ ./build.sh
