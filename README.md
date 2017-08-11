@@ -212,6 +212,8 @@ using [Slosilo](https://github.com/conjurinc/slosilo), a library which provides:
 Slosilo has been verified by a professional cryptographic audit. Ask in our
 Slack community for more details. (You can join [here][join-slack].)
 
+### Important: avoid data loss
+
 When you start Conjur, you must provide a Base64-encoded master data key in the
 environment variable `CONJUR_DATA_KEY`. You can generate a data key using the
 following command:
