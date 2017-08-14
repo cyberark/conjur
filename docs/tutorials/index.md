@@ -3,8 +3,6 @@ title: Tutorials
 layout: page
 ---
 
-{% include sign-up-form.html %}
-
 Tutorials are organized into the following general categories:
 
 * [Policy](./policy) How to use the Conjur policy language to describe and control your infrastructure.

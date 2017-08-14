@@ -1,3 +1,6 @@
+---
+---
+//
 
 var cookies = document.cookie.split('; ');
 var account = null;
@@ -19,3 +22,14 @@ if (account) {
     }
   });
 }
+
+$(document).ready(function() {
+
+  $("form.hosted-account-signup").on("submit", function(event){
+    event.preventDefault();
+    $(this).fadeOut("normal", function(){
+      $(this).next(".hosted-confirmation").slideDown("normal");
+    });
+  });
+
+});
