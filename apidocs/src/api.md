@@ -66,7 +66,11 @@ Only the twenty most recent values in a Variable are retained; this prevents the
 
 # Group Host Factory
 
-<!-- include(host_factory.md) -->
+<!-- include(host_factory_create_tokens.md) -->
+
+<!-- include(host_factory_revoke_token.md) -->
+
+<!-- include(host_factory_create_host.md) -->
 
 # Group Public Keys
 
