@@ -3,11 +3,11 @@ security:
   links:
     overview:
       title: Conjur Overview
-      path:
+      content: <script src="https://fast.wistia.com/embed/medias/gz2yt6b7de.jsonp" async></script><script src="https://fast.wistia.com/assets/external/E-v1.js" async></script><span class="wistia_embed wistia_async_gz2yt6b7de popover=true popoverContent=link" style="display:inline"><a href="#">Conjur Overview</a></span>
       icon: <i class="fa fa-youtube-play"></i>
     get-started:
       title: Get Started with Conjur
-      path: /get-started.html
+      path: /get-started/
       icon: <i class="fa fa-arrow-right"></i>
 
 operations:
