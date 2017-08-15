@@ -2,6 +2,20 @@
 ---
 //
 
+function getAccountCookie() {
+  var cookies = document.cookie.split('; ');
+
+  for(var i = 0; i < cookies.length; i++) {
+    var name, value;
+    [name, value] = cookies[i].split('=');
+
+    if(name == "account") {
+      return JSON.parse(value);
+    }
+  }
+  return null;
+}
+
 function displayAccountCredentials(email, account, api_key) {
   $("#credentials-email").text(email);
   $("#credentials-account").text(account);
@@ -10,20 +24,24 @@ function displayAccountCredentials(email, account, api_key) {
   $('.hosted-account-signup').fadeOut("normal", function(){
     $('.hosted-account-signup').next(".hosted-confirmation").slideDown("normal");
   });
+
+  var spans = document.querySelectorAll('span');
+
+  spans.forEach(function(s) {
+    if(s.innerText == '"your-conjur-account-id"') {
+      s.innerText = '"' + account + '"';
+    }
+  });
 }
 
 $(document).ready(function() {
-  document.cookie.split('; ').forEach(function(c) {
-    var name, value;
-    [name,value] = c.split('=');
+  var accountCookie = getAccountCookie();
 
-    if(name == "account") {
-      account_data = JSON.parse(value);
-      displayAccountCredentials(account_data.account,
-                                account_data.account,
-                                account_data.api_key);
-    }
-  });
+  if(accountCookie !== null) {
+    displayAccountCredentials(accountCookie.account,
+                              accountCookie.account,
+                              accountCookie.api_key);
+  }
 
   $('.hosted-account-signup').validator().on('submit', function(e) {
     if(!e.isDefaultPrevented()) {
