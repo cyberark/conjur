@@ -155,6 +155,5 @@ fde5c4a45ce573f9768987cd
 
 {% include toc.md key='next-steps' %}
 
-* Go through the [Conjur Tutorials](./tutorials/index.html)
-* Talk to the Conjur team on our [Slack channel](./support.html)
-* Experience even more features with [Conjur Enterprise](./try-conjur-enterprise.html)
+* Go through the [Conjur Tutorials](/tutorials/)
+* Talk to the Conjur team on our [Slack channel](https://slackin-conjur.herokuapp.com/)
