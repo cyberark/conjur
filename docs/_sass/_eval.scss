@@ -8,7 +8,7 @@ form {
 		label {
 			&:after {
 				content: " *";
-	   		color: red;
+	   		        color: red;
 			}
 		}
 	}
@@ -25,14 +25,6 @@ form {
 	}
 
   .help-block.with-errors {
-		ul {
-			margin: 5px 0;
-			font-size: 14px;
-		}
-	}
-}
-
-	.help-block.with-errors {
 		ul {
 			margin: 5px 0;
 			font-size: 14px;
