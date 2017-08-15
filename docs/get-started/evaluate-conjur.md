@@ -1,14 +1,16 @@
 ---
-title: Try Conjur
+title: Evaluate Conjur
 layout: page
+section: get-started
 ---
-
 
 {% include toc.md key='introduction' %}
 
 This document will use the Conjur command-line interface (CLI) to show you how to use Conjur to perform some common tasks such as loading and retrieving secrets from Conjur, creating security policies, logging in as a machine, and fetching a secret while logged in as a machine.
 
 For this tour, we will use a Conjur server that is running in the cloud, where an account has already been created for you. Please note that this cloud-based Conjur server is for evaluation purposes only, and therefore you should make sure **not** to store any sensitive information in it. For production scenarios, the Conjur server would be deployed within your own private environment.
+
+{% include sign-up/sign-up-form.html %}
 
 {% include toc.md key='docker' %}
 
@@ -153,6 +155,5 @@ fde5c4a45ce573f9768987cd
 
 {% include toc.md key='next-steps' %}
 
-* Go through the [Conjur Tutorials](./tutorials/index.html)
-* Talk to the Conjur team on our [Slack channel](./support.html)
-* Experience even more features with [Conjur Enterprise](./try-conjur-enterprise.html)
+* Go through the [Conjur Tutorials](/tutorials/)
+* Talk to the Conjur team on our [Slack channel](https://slackin-conjur.herokuapp.com/)

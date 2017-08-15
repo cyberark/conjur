@@ -10,19 +10,21 @@
 
   .navbar-header {
     img {
-      width: 50px;
+      height: 47px;
       margin: 0;
       float: left;
-      margin-right: 1em;
+      margin-right: 0.5em;
     }
 
-    .navbar-brand span {
+    .navbar-brand {
       color: #ffffff;
-    	font-size: 2rem;
-    	font-weight: bold;
-      float: left;
-      line-height: 50px;
+      font-size: 2rem;
+      line-height: 47px;
       margin-right: 1em;
+
+      span {
+      	font-weight: bold;
+      }
     }
   }
 
@@ -44,6 +46,7 @@
 
         li {
           display: block;
+          margin: 3px 0;
 
           a {
             color: #ffffff;
@@ -134,5 +137,29 @@
         }
       }
     }
+  }
+}
+
+// ***********************
+// Contextual Sidebars
+// ***********************
+
+ul.sidebar-nav {
+  li {
+    margin-bottom: 4px;
+
+    &.section a {
+      font-weight: bold;
+      color: $conjur-text;
+    }
+
+    a {
+      color: $conjur-medgray;
+    }
+  }
+
+  &:last-of-type li a {
+    color: $conjur-text;
+    font-weight: 400;
   }
 }

@@ -1,6 +1,7 @@
 ---
 title: Tutorial - Enrolling an Application
 layout: page
+section: tutorials
 ---
 
 {% include toc.md key='introduction' %}
@@ -26,8 +27,8 @@ Organizing policy management into three categories - protected resources, applic
 
 {% include toc.md key='prerequisites' %}
 
-* A [Conjur server](/installation/server.html) endpoint.
-* The [Conjur CLI](/installation/client.html).
+* A [Conjur server](/get-started/install-conjur-server.html) endpoint.
+* The [Conjur CLI](/get-started/install-conjur-cli.html).
 
 {% include toc.md key='setup' %}
 
