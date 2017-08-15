@@ -24,35 +24,37 @@ if (account) {
 }
 
 $(document).ready(function() {
+  $("hosted-account-signup").validator().on("submit", function(e) {
+    if (e.isDefaultPrevented()) {
+      // handle the invalid form...
+    } else {
+      e.preventDefault();
 
-  $("form.hosted-account-signup").on("submit", function(e){
-    e.preventDefault();
+      $.ajax({
+        context: this,
+        type: "POST",
+        data: "email=" + $("#email-address").val(),
+        {% if site.env == 'production' %}
+        url: "https://possum-cpanel-conjur.herokuapp.com/api/accounts"
+        {% else %}
+        url: "http://localhost:3000/api/accounts",
+        {% endif %}
+        success: function(response) {
+          $("#credentials-email").text(response.account);
+          $("#credentials-account").text(response.account);
+          $("#credentials-api-key").text(response.api_key);
+          
+          $(this).fadeOut("normal", function(){
+            $(this).next(".hosted-confirmation").slideDown("normal");
+          });
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+          console.log(xhr.status);
+          console.log(thrownError)
 
-    $.ajax({
-      context: this,
-      type: "POST",
-      data: "email=" + $("#email-address").val(),
-      {% if site.env == 'production' %}
-      url: "https://possum-cpanel-conjur.herokuapp.com/api/accounts"
-      {% else %}
-      url: "http://localhost:3000/api/accounts",
-      {% endif %}
-      success: function(response) {
-        $("#credentials-email").text(response.account);
-        $("#credentials-account").text(response.account);
-        $("#credentials-api-key").text(response.api_key);
-        
-        $(this).fadeOut("normal", function(){
-          $(this).next(".hosted-confirmation").slideDown("normal");
-        });
-      },
-      error: function(xhr, ajaxOptions, thrownError) {
-        console.log(xhr.status);
-        console.log(thrownError)
-
-        // TODO: use bootstrap-validator to display error
-      }
-    });
+          // TODO: use bootstrap-validator to display error
+        }
+      });
+    }
   });
-
 });
