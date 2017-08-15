@@ -16,6 +16,14 @@ function getAccountCookie() {
   return null;
 }
 
+function setAccountCookie(value) {
+  var date = new Date();
+  date.setTime(date.getTime()+(120*24*60*60*1000));
+  var expires = "; expires="+date.toGMTString();
+  
+  document.cookie = 'account=' + value + '; expires=' + expires + '; path=/';
+}
+
 function displayAccountCredentials(email, account, api_key) {
   $("#credentials-email").text(email);
   $("#credentials-account").text(account);
@@ -57,7 +65,7 @@ $(document).ready(function() {
         url: "http://localhost:3000/api/accounts",
         {% endif %}
         success: function(response) {
-          document.cookie = "account="+JSON.stringify(response);
+          setAccountCookie(JSON.stringify(response));
           displayAccountCredentials(response.account,
                                     response.account,
                                     response.api_key);
