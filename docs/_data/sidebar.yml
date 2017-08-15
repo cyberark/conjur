@@ -1,11 +1,11 @@
 main:
   welcome:
     title: Welcome
-    path: /welcome/
+    path: /
     items:
       features:
         title: Conjur Features
-        path: /welcome/
+        path: /
       why-conjur:
         title: Why Conjur
         path: /welcome/why-conjur.html
