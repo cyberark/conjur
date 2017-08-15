@@ -25,7 +25,7 @@ if (account) {
 
 $(document).ready(function() {
   $('.hosted-account-signup').validator().on('submit', function(e) {
-    if (e.isDefaultPrevented()) {
+    if(e.isDefaultPrevented()) {
       // handle the invalid form...
     } else {
       e.preventDefault();
@@ -53,9 +53,6 @@ $(document).ready(function() {
           console.log(thrownError)
 
           // TODO: use bootstrap-validator to display error
-
-          $(this).setCustomValidity("boopdeboop");
-          $(this).validator('validate');
         }
       });
     }
