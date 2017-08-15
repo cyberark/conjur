@@ -50,7 +50,7 @@ $(document).ready(function() {
         console.log(xhr.status);
         console.log(thrownError)
 
-        
+        // TODO: use bootstrap-validator to display error
       }
     });
   });
