@@ -25,9 +25,7 @@ if (account) {
 
 $(document).ready(function() {
   $('.hosted-account-signup').validator().on('submit', function(e) {
-    if(e.isDefaultPrevented()) {
-      // handle the invalid form...
-    } else {
+    if(!e.isDefaultPrevented()) {
       e.preventDefault();
 
       $.ajax({
