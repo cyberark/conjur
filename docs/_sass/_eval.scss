@@ -3,46 +3,46 @@
 // ***********************
 
 form {
-	.form-group.required,
-	.form-check.required {
-		label {
-			&:after {
-				content: " *";
-	   		        color: red;
-			}
-		}
-	}
+  .form-group.required,
+  .form-check.required {
+    label {
+      &:after {
+        content: " *";
+        color: red;
+      }
+    }
+  }
 
-	&.hosted-account-signup {
-		background-color: $conjur-softgray;
-		padding: 1.5em 2em;
-		border-radius: 4px;
-		border: 1px solid $conjur-ltgray;
+  &.hosted-account-signup {
+    background-color: $conjur-softgray;
+    padding: 1.5em 2em;
+    border-radius: 4px;
+    border: 1px solid $conjur-ltgray;
 
-		label {
-			font-weight: 400;
-		}
-	}
+    label {
+      font-weight: 400;
+    }
+  }
 
   .help-block.with-errors {
-		ul {
-			margin: 5px 0;
-			font-size: 14px;
-		}
-	}
+    ul {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+  }
 }
 
 .hosted-confirmation {
-	display: none;
+  display: none;
 
-	.hosted-account-credentials {
-		background-color: $conjur-softgray;
-		padding: 1.5em 2em;
-		border-radius: 4px;
-		border: 1px solid $conjur-ltgray;
+  .hosted-account-credentials {
+    background-color: $conjur-softgray;
+    padding: 1.5em 2em;
+    border-radius: 4px;
+    border: 1px solid $conjur-ltgray;
 
-		strong {
-			font-weight: bold;
-		}
-	}
+    strong {
+      font-weight: bold;
+    }
+  }
 }
