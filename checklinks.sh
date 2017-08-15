@@ -5,7 +5,8 @@
 docker-compose build --pull docs
 
 docker run --rm possum-docs htmlproofer \
-  --disable_external \
+  --check-external-hash \
+  --disable-external \
   --enforce-https \
   --url-ignore '/public/favicon.ico,/apidocs.html,/api.html#authentication,#' \
   ./_site
