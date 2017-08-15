@@ -16,7 +16,8 @@ Suppose your account is "mycorp" and you want to get information about the user 
 
 ```
 curl -H "$(conjur authn authenticate -H)" \
-     https://eval.conjur.org/resources/mycorp/user/alice | jq .
+     https://eval.conjur.org/roles/mycorp/user/alice \
+     | jq .
 ```
 
 ---
@@ -43,3 +44,20 @@ Supposing the requested role is a user named "otto" at an organization called "m
   <!-- include(partials/auth_header_code.md) -->
   
 + Response 200 (application/json)
+
+    ```json
+    {
+      "created_at": "2017-08-02T18:18:42.346+00:00",
+      "id": "mycorp:user:alice",
+      "policy": "mycorp:policy:root",
+      "members": [
+        {
+          "admin_option": true,
+          "ownership": true,
+          "role": "mycorp:user:alice",
+          "member": "mycorp:policy:root",
+          "policy": "mycorp:policy:root"
+        }
+      ]
+    }
+    ```
