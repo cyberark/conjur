@@ -49,10 +49,10 @@ $(document).ready(function() {
           });
         },
         error: function(xhr, ajaxOptions, thrownError) {
-          console.log(xhr.status);
-          console.log(thrownError)
-
-          // TODO: use bootstrap-validator to display error
+          // Manually inserting the error here because there doesn't seem to
+          // be a way to make bootstrap-validator display an error on-demand.
+          var error = '<ul class="list-unstyled"><li>'+xhr.responseJSON.message+'</li></ul>'
+          $(".help-block.with-errors").first().html(error);
         }
       });
     }
