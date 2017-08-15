@@ -25,11 +25,15 @@ if (account) {
 
 $(document).ready(function() {
 
-  $("form.hosted-account-signup").on("submit", function(event){
-    event.preventDefault();
-    $(this).fadeOut("normal", function(){
-      $(this).next(".hosted-confirmation").slideDown("normal");
-    });
-  });
+  $('.hosted-account-signup').validator().on('submit', function (e) {
+    if (e.isDefaultPrevented()) {
+      // handle the invalid form...
+    } else {
+      e.preventDefault(); // TODO - remove when form is actually able to be submitted.
+      $(this).fadeOut("normal", function(){
+        $(this).next(".hosted-confirmation").slideDown("normal");
+      });
+    }
+  })
 
 });
