@@ -20,7 +20,7 @@ function setAccountCookie(value) {
   var date = new Date();
   date.setTime(date.getTime()+(120*24*60*60*1000));
   var expires = "; expires="+date.toGMTString();
-  
+
   document.cookie = 'account=' + value + '; expires=' + expires + '; path=/';
 }
 
@@ -29,8 +29,8 @@ function displayAccountCredentials(email, account, api_key) {
   $("#credentials-account").text(account);
   $("#credentials-api-key").text(api_key);
 
-  $('.hosted-account-signup').fadeOut("normal", function(){
-    $('.hosted-account-signup').next(".hosted-confirmation").slideDown("normal");
+  $('.hosted-conjur-signup').fadeOut("normal", function() {
+    $('.hosted-conjur-signup').next(".hosted-confirmation").slideDown("normal");
   });
 
   var spans = document.querySelectorAll('span');
