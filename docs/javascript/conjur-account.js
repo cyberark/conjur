@@ -41,8 +41,8 @@ $(document).ready(function() {
           $("#credentials-email").text(response.account);
           $("#credentials-account").text(response.account);
           $("#credentials-api-key").text(response.api_key);
-          
-          $(this).fadeOut("normal", function(){
+
+          $('.hosted-conjur-signup').fadeOut("normal", function(){
             $(this).next(".hosted-confirmation").slideDown("normal");
           });
         },
@@ -55,7 +55,7 @@ $(document).ready(function() {
                    xhr.responseJSON.message +
                 '</li> \
               </ul>'
-          
+
           $(".help-block.with-errors").first().html(errorElement);
         }
       });
