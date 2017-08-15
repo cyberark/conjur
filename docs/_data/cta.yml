@@ -1,0 +1,28 @@
+security:
+  title: For Security Teams
+  links:
+    overview:
+      title: Conjur Overview
+      path:
+      icon: <i class="fa fa-youtube-play"></i>
+    get-started:
+      title: Get Started with Conjur
+      path: /get-started.html
+      icon: <i class="fa fa-arrow-right"></i>
+
+operations:
+  title: For Operations Teams
+  links:
+    hosted:
+      title: Conjur's Hosted Evaluation Server
+      path: /get-started/evaluate-conjur.html
+      icon: <i class="fa fa-server"></i>
+    download:
+      title: Download Conjur
+      path: https://github.com/cyberark/conjur
+      target: _blank
+      icon: <i class="fa fa-arrow-down"></i>
+    api:
+      title: API Documentation
+      path: /api.html
+      icon: <i class="fa fa-code"></i>

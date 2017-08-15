@@ -1,6 +1,7 @@
 ---
 title: Tutorial - Enrolling an Application
 layout: page
+section: tutorials
 ---
 
 {% include toc.md key='introduction' %}

@@ -2,6 +2,7 @@
 title: Community Edition
 layout: page
 id: index
+section: welcome
 ---
 
 Conjur is the security service for modern infrastructure, providing:

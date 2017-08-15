@@ -1,7 +1,24 @@
+"/welcome/":
+  machine-identity: Machine Identity
+  authorization: Authorization Model
+  vaulting: Vaulting
+  audit: Audit
+  scalability: Scalability
+  integrations: Integrations
+  ssh-access-management: SSH Access Management
+  ui: User Interface
+
+"/welcome/why-conjur.html":
+  complete: Complete
+  proven: Proven
+  simple: Simple to Use
+  powerful: Powerful
+  programmable: Programmable
+
 "/try-conjur-enterprise.html":
   enterprise: Try Conjur Enterprise
 
-"/try-conjur.html":
+"/get-started/evaluate-conjur.html":
   docker: Install Docker
   cli: Download & Run the Conjur CLI
   environment: Export Environment Variables
@@ -21,7 +38,7 @@
   next-steps: Next Steps
   enterprise: Try Conjur Enterprise
 
-"/installation/client.html":
+"/get-started/install-conjur-cli.html":
   get:
     title: Get the Client
     sections:

@@ -1,13 +1,14 @@
 ---
-title: Installation - Client
+title: Install Conjur CLI
 layout: page
+section: get-started
 ---
 
 {% include toc.md key='get' %}
 
 {% include toc.md key='get' section='docker' %}
 
-You can easily download and run the Conjur CLI using the official pre-built images hosted by Docker Hub. 
+You can easily download and run the Conjur CLI using the official pre-built images hosted by Docker Hub.
 
 If you run the container with interactive mode (`-it`), then you will get an interactive `bash` shell. Otherwise, you will run a single `conjur` command.
 
@@ -109,7 +110,7 @@ appliance_url: https://conjur
 cert_file: "/root/conjur-mycorp.pem"
 {% endhighlight %}
 
-You can create these files yourself without assistance from `conjur init` once you have obtained them once. 
+You can create these files yourself without assistance from `conjur init` once you have obtained them once.
 
 You can also change the location where the CLI looks for the `.conjurrc` file by setting the environment variable `$CONJURRC`. For example, to configure the CLI to find the config file in `/etc/`:
 
@@ -121,12 +122,12 @@ This is the recommended location when the Conjur configuration is installed syst
 
 * Committed to source control.
 * Distributed through configuration management.
-* Baked into VM and container images. 
+* Baked into VM and container images.
 
 {% include toc.md key='login' %}
 
 Once you've downloaded the client, you'll login to Conjur. If you started
-the server yourself, you'll need the `admin` API key or password. If 
+the server yourself, you'll need the `admin` API key or password. If
 someone else is managing the Conjur server, they will provide you with
 your login information.
 

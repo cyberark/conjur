@@ -1,6 +1,7 @@
 ---
 title: Tutorials
 layout: page
+section: tutorials
 ---
 
 Tutorials are organized into the following general categories:

@@ -1,20 +1,30 @@
 main:
-  tour:
-    title: Try Conjur
-    path: /try-conjur.html
-
-  installation:
-    title: Installation
-    path: /installation/
+  welcome:
+    title: Welcome
+    path: /welcome/
     items:
-      client:
-        title: Client
-        path: /installation/client.html
-
-      server:
-        title: Server
-        path: /installation/server.html
-
+      features:
+        title: Conjur Features
+        path: /welcome/
+      why-conjur:
+        title: Why Conjur
+        path: /welcome/why-conjur.html
+      how-conjur-works:
+        title: How Conjur Works
+        path: /welcome/how-conjur-works.html
+  get-started:
+    title: Get Started
+    path: /get-started/
+    items:
+      evaluate-conjur:
+        title: Evaluate Conjur
+        path: /get-started/evaluate-conjur.html
+      install-conjur-cli:
+        title: Install Conjur CLI
+        path: /get-started/install-conjur-cli.html
+      install-conjur-server:
+        title: Install Conjur Server
+        path: /get-started/install-conjur-server.html
   tutorials:
     title: Tutorials
     path: /tutorials/
@@ -66,10 +76,6 @@ main:
           authenticators:
             title: Custom Authentication
             path: /tutorials/integrations/authenticators.html
-
-  apidocs:
-    title: API Documentation
-    path: /apidocs.html
   reference:
     title: Reference
     path: /reference/
@@ -122,6 +128,12 @@ main:
         title: Cryptography
         path: /reference/cryptography.html
 
-  support:
-    title: Support
-    path: /support.html
+  api:
+    title: API
+    path: /api.html
+  github:
+    title: <i class="fa fa-github-alt"></i>
+    url: https://github.com/cyberark/conjur
+  slack:
+    title: <i class="fa fa-slack"></i>
+    url: https://slackin-conjur.herokuapp.com/

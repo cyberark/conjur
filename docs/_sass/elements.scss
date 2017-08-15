@@ -1,0 +1,57 @@
+// ***********************
+// Utilities
+// ***********************
+.mt-2 {
+  margin-top: 2em;
+}
+
+.row.equal {
+    display: flex;
+    flex-wrap: wrap;
+}
+.row.equal > [class*='col-'] {
+    display: flex;
+    flex-direction: column;
+}
+
+// ***********************
+// CTA Boxes
+// ***********************
+
+.cta-box {
+  background-color: $conjur-softgray;
+  border-radius: 4px;
+  color: $conjur-text;
+  height: 100%;
+
+  .cta-box-header {
+    font-weight: 400;
+    border-bottom: 1px solid $conjur-medgray;
+    padding: 1em 2em;
+    font-size: 120%;
+  }
+
+  p {
+    padding: 1em 2em 0 2em;
+  }
+
+  ul.cta-links {
+    padding: 1em 2em;
+    margin: 0 1em;
+
+    li {
+      margin-bottom: 4px;
+    }
+
+    a {
+      color: $conjur-text;
+    }
+
+    i {
+      color: $conjur-medgray;
+      font-size: 120%;
+      margin-right: 5px;
+    }
+  }
+
+}

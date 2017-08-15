@@ -29,3 +29,8 @@ a {
 .text-right {
 	text-align: right;
 }
+
+h1.underline {
+	border-bottom: 1px $conjur-medgray solid;
+	padding-bottom: 6px;
+}

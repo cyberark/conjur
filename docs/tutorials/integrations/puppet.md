@@ -1,6 +1,7 @@
 ---
 title: Tutorial - Puppet
 layout: page
+section: tutorials
 ---
 
 {% include toc.md key='introduction' %}

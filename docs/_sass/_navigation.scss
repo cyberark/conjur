@@ -136,3 +136,27 @@
     }
   }
 }
+
+// ***********************
+// Contextual Sidebars
+// ***********************
+
+ul.sidebar-nav {
+  li {
+    margin-bottom: 4px;
+
+    &.section a {
+      font-weight: bold;
+      color: $conjur-text;
+    }
+
+    a {
+      color: $conjur-medgray;
+    }
+  }
+
+  &:last-of-type li a {
+    color: $conjur-text;
+    font-weight: 400;
+  }
+}
