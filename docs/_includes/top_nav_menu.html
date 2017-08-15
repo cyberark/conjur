@@ -1,0 +1,22 @@
+{% assign item = include.item %}
+
+{% assign active = false %}
+{% if item.path %}
+  {% assign page_path_prefix = page.url | slice: 0, item.path.size %}
+  {% if page_path_prefix == item.path %}
+    {% assign active = true %}
+  {% endif %}
+{% endif %}
+
+{% assign subitems = item.items %}
+
+<li class="{% if active %}active{% endif %} nav-item {% if subitems %}dropdown{% endif %}">
+  {% if item.url != null %}
+    <a class="sidebar-nav-item" href="{{ item.url }}" target="_blank">{{ item.title }} &raquo;</a>
+  {% elsif item.path != null %}
+    <a class="nav-link {% if page.url == item.path %}active{% endif %}" href="{{ site.baseurl }}{{ item.path }}">
+      {{ item.title }}
+    </a>
+    {% include subitems.html items=subitems item=item %}
+  {% endif %}
+</li>

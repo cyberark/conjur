@@ -1,14 +1,27 @@
 #footer {
-  background-color: $conjur-ltgray;
-}
+  .slack-bar {
+    background-color: $conjur-ltgray;
+    text-align: center;
+    padding: 15px 0;
 
-.footer-disclaimer {
-  margin-top: 1em;
-  margin-bottom: 1em;
-  color: $conjur-dark;
+    a {
+      color: $conjur-text;
+      font-size: 18px;
+    }
+  }
 
-  img.cyberark-sidebar-logo {
-  	width: 100px;
-  	margin: 0 auto;
-	}
+  .copyright {
+    padding: 15px 0;
+    background-color: $conjur-dark;
+
+    .disclaimer {
+      color: #ffffff;
+      font-size: 14px;
+    }
+
+    img.cyberark-sidebar-logo {
+    	width: 100px;
+      margin: 0px;
+  	}
+  }
 }

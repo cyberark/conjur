@@ -1,0 +1,20 @@
+#hero {
+  background: url("/img/conjur-grid-bg-blog.png") no-repeat top center;
+  background-size: cover;
+  color: #ffffff;
+  padding: 5em 0;
+
+  .page-title {
+    color: #ffffff;
+  }
+
+  p {
+    color: #ffffff;
+  }
+}
+
+@media (max-width: 767px) {
+  #hero {
+    padding: 1.5em;
+  }
+}
