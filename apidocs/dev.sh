@@ -2,7 +2,7 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-source build.sh
+$DIR/build.sh
 
 docker run \
         -it \

@@ -1,6 +1,6 @@
-## Create Host Factory Tokens [/host_factory_tokens]
+## Create tokens [/host_factory_tokens]
 
-### Create Host Factory tokens [POST]
+### Create tokens [POST]
 
 Creates one or more tokens which can be used to bootstrap host identity.
 Responds with a JSON document containing the tokens and their restrictions.
@@ -42,21 +42,49 @@ restriction, you would make two API calls each with `count=1`.
 
 ---
 
-**Request Body**
+#### Request
 
-Parameters specifying:
-1. the expiration date
-2. the full ID of the Host Factory to use
-3. the number of tokens to create
-4. [CIDR][cidr] restrictions, if any
+**Body Parameters**
 
-[cidr]: https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing
+<dl>
+<dt>expiration</dt>
+<dd>
+  <code>ISO 8601 datetime string</code>
+  (required)
+  <span class="text-muted">
+    <strong>Example:</strong> 2017-08-04T22:27:20+00:00
+  </span>
+  <p>Expiration date of the token</p>
+</dd>
+<dt>host_factory</dt>
+<dd>
+  <code>string</code>
+  (required)
+  <span class="text-muted">
+    <strong>Example:</strong> mycorp:host_factory:hf-db
+  </span>
+  <p>Fully qualified Host Factory id</p>
+</dd>
+<dt>count</dt>
+<dd>
+  <code>integer</code>
+  (optional, default=1)
+  <span class="text-muted">
+    <strong>Example:</strong> 2
+  </span>
+  <p>Number of tokens to create</p>
+</dd>
+<dt>cidr</dt>
+<dd>
+  <code>array</code>
+  (optional)
+  <span class="text-muted">
+    <strong>Example:</strong> ["127.0.0.1","127.0.0.2"]</span>
+  <p><a href="https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing">CIDR</a> restriction(s) on token usage</p>
+</dd>
+</dl>
 
-These must be URL-encoded and formatted [like form data][form-data].
-
-[form-data]: https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms/Sending_and_retrieving_form_data#The_POST_method
-
-**Response**
+#### Response
 
 | Code | Description                                                         |
 |------|---------------------------------------------------------------------|

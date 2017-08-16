@@ -15,14 +15,12 @@ esac
 shift # past argument or value
 done
 
-docker build -t possum .
+docker build -t conjur .
 
-docker build -t possum-test -f Dockerfile.test .
-
-docker build -t conjur-dev -f Dockerfile.dev .
+docker build -t conjur-test -f Dockerfile.test .
 
 if [[ $run_dev = true ]]; then
   docker build -t conjur-dev -f Dockerfile.dev .
 fi
 
-docker tag possum conjurinc/possum || docker tag -f possum conjurinc/possum
+docker tag conjur conjurinc/conjur || docker tag -f conjur conjurinc/conjur
