@@ -48,7 +48,6 @@ required to deploy Conjur, but they will help you quickly get started.
 [get-git]: https://git-scm.com/downloads
 [get-docker-compose]: https://docs.docker.com/compose/install
 
-
 ## Build Conjur as a Docker image
 
 It's easy to get started with Conjur and Docker:

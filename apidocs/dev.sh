@@ -9,6 +9,6 @@ docker run \
         --rm \
         -v $DIR/src:/home/node/src \
         -p 3000:3000 \
-        --name possum-apidocs \
-        conjurinc/possum-apidocs \
+        --name conjur-apidocs \
+        conjur-apidocs \
         -w

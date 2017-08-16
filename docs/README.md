@@ -28,7 +28,7 @@ $ cd ..  # project root
 $ ./checklinks.sh
 ```
 
-This script builds the `possum-docs` Docker image and then runs
+This script builds the `conjur-docs` Docker image and then runs
 [html-proofer](https://github.com/gjtorikian/html-proofer) against the rendered HTML.
 
 ---
@@ -37,7 +37,7 @@ This script builds the `possum-docs` Docker image and then runs
 
 TODO: move this section out of `docs/` and into project root or `apidocs/`.
 
-We're using [API Blueprint](https://apiblueprint.org/documentation/) to document the Possum API. There is no Ruby specific implementation, so we're using the [Aglio](https://github.com/danielgtaylor/aglio) package. The final generated docs can be viewed in two ways:
+We're using [API Blueprint](https://apiblueprint.org/documentation/) to document the Conjur API. There is no Ruby specific implementation, so we're using the [Aglio](https://github.com/danielgtaylor/aglio) package. The final generated docs can be viewed in two ways:
 
 ##### Live Preview
 ```sh-session
@@ -59,6 +59,6 @@ $ cd docs && ./dev.sh
 
 Now in a new shell, compile API docs into the running project:
 ```sh-session
-$ docker exec possum-web /node_modules/.bin/aglio -i apidocs/src/api.md -o /opt/conjur/_site/apidocs.html
+$ docker exec conjur-web /node_modules/.bin/aglio -i apidocs/src/api.md -o /opt/conjur/_site/apidocs.html
 ```
-The above should be run from the root `possum` folder.
+The above should be run from the root `conjur` folder.
