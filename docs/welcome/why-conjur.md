@@ -27,7 +27,7 @@ Conjur provides full role-based access control, which is a proven model for infr
 
 {% include toc.md key='programmable' %}
 
-Conjur is easily programmable by interacting with the REST API (documentation coming soon). This capability can be used to provide custom authentication and authorization for popular DevOps tools.
+Conjur is easily programmable by interacting with the [REST API](/api.html). This capability can be used to provide custom authentication and authorization for popular DevOps tools.
 
 <h1 class="underline">Next Steps</h1>
 
