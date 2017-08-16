@@ -73,9 +73,13 @@ main:
           # kubernetes:
           #   title: Kubernetes / OpenShift
 
-          authenticators:
-            title: Custom Authentication
-            path: /tutorials/integrations/authenticators.html
+          # authenticators:
+          #   title: Custom Authentication
+          #   path: /tutorials/integrations/authenticators.html
+
+  apidocs:
+    title: API Documentation
+    path: /apidocs.html
   reference:
     title: Reference
     path: /reference/
