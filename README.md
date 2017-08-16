@@ -15,9 +15,9 @@ Conjur provides:
   roles, privileges and metadata
 * **a REST web service** to:
   * enroll and revoke identities
-  * list roles and perform permission checks
+  * list and search roles and data
+  * perform permission checks
   * store and serve secrets
-  * receive and store audit records
 * **integrations** with other popular software in the cloud toolchain such as
   IaaS, configuration management, continuous integration (CI), container
   management and cloud orchestration
@@ -206,7 +206,7 @@ Conjur uses industry-standard cryptography to protect your data.
 
 Some operations require storage and management of encrypted data. For example:
 
-* users and Hosts can have associated API keys, which are stored encrypted in
+* Roles can have associated API keys, which are stored encrypted in
   the database
 * the `authenticate` function issues a signed JSON token; the signing key is a
   2048 bit RSA key which is stored encrypted in the database
