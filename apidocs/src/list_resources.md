@@ -4,17 +4,24 @@
 
 Lists resources within an organization account.
 
-If a `kind` query parameter is given, the results will be narrowed to only
-resources of that kind. Likewise, if `search` is given, it will be narrowed to
-only resources with names or annotations containing the search term.
+If a `kind` query parameter is given, narrows results to only resources of that
+kind.
 
-If a `limit` is given, no more than that number of results will be returned.
-Providing an `offset` will skip a number of resources before returning the rest.
-In addition, providing an `offset` will give `limit` a default value of 10 if
-none other is provided. These two parameters can be combined to page through
-results.
+If a `limit` is given, returns no more than that number of results. Providing an
+`offset` skips a number of resources before returning the rest. In addition,
+providing an `offset` will give `limit` a default value of 10 if none other is
+provided. These two parameters can be combined to page through results.
 
-If the parameter `count` is `true`, returns only the number of items in the list.
+If the parameter `count` is `true`, returns only the number of items in the
+list.
+
+#### Text search
+
+If the `search` parameter is provided, narrows results to those pertaining to
+the search query. Search works across resource IDs and annotations. Weights
+results so that those with matching `id` or a matching annotation called `name`
+are first, then those with another matching annotation, and finally those with a
+matching `kind`.
 
 #### Example with `curl` and `jq`
 
