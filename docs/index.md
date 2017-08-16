@@ -3,6 +3,7 @@ title: Conjur Features
 layout: page
 section: welcome
 id: index
+redirect_from: "/start"
 ---
 
 <div class="row equal">
