@@ -12,7 +12,9 @@ mkdir /output
 
 /node_modules/.bin/aglio --theme-template apidocs/templates/index.jade --theme-style apidocs/templates/css/layout-conjur.less -i apidocs/src/api.md -o docs/_includes/api.html
 
-jekyll build --source docs --destination /output/_site
+cd docs
+
+jekyll build --destination /output/_site
 
 echo "${POSSUM_WEB_USER}:$(openssl passwd -apr1 ${POSSUM_WEB_PASSWORD})" | aws s3 cp - s3://${POSSUM_WEB_CFG_BUCKET}/htpasswd
 
