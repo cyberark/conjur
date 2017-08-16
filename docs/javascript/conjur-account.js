@@ -72,7 +72,7 @@ $(document).ready(function() {
           var errorElement =
               '<ul class="list-unstyled"> \
                  <li style="color:#a94442">' +
-                   xhr.responseJSON.message +
+                   xhr.responseJSON.error.message +
                 '</li> \
               </ul>'
 
