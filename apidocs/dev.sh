@@ -8,6 +8,7 @@ docker run \
         -it \
         --rm \
         -v $DIR/src:/home/node/src \
+        -v $DIR/templates:/home/node/templates \
         -p 3000:3000 \
         --name conjur-apidocs \
         conjur-apidocs \

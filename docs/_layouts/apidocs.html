@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <!--
+  *********
+
+  What is this page for?
+  This page consumes a partial spit out from automatic API doc creation to serve it with the correct styles.
+
+  ********
+  -->
+
+  {% include head.html %}
+
+  <body>
+
+    {% include top_nav.html %}
+
+    <div class="container">
+      <div class="row">
+        <div id="content" class="api-docs">
+          <div class="page">
+            {% iffileexists api.html %}
+              {% include api.html %}
+            {% endiffileexists %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% include footer.html %}
+
+  </body>
+  </html>

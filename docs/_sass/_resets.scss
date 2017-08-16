@@ -45,6 +45,12 @@ img {
 	margin: 50px 0;
 }
 
+.list-unstyled {
+	list-style: none;
+	padding-left: 0px;
+	margin-left: 0px;
+}
+
 
 // ***********************
 // Buttons
@@ -52,8 +58,10 @@ img {
 
 .btn {
 	padding: .5rem 1rem;
-	border-radius: 25px;
+	border-radius: 4px;
 	font-weight: 300;
+	border: none;
+	color: #ffffff;
 }
 
 .btn-primary {
@@ -75,7 +83,7 @@ p {
 }
 
 .page {
-	padding: 1rem 4rem 2rem 4rem;
+	padding: 2rem 1rem;
 	font-family: 'Open Sans', sans-serif;
 	font-size: 16px;
 	line-height: 1.8rem;
@@ -87,27 +95,18 @@ p {
 	}
 }
 
-@media (min-width: 992px) and (max-width: 1200px) {
-	#content {
-		margin-left: 300px;
-	}
-}
-
-@media (min-width: 1201px) {
-	#content {
-		margin-left: 300px;
+#content.api-docs {
+	header,
+	header h1 {
+		margin-top: 0px;
 	}
 }
 
 @media (max-width: 767px) {
 	#content {
-		margin-left: auto;
 		.page-title {
 			margin-top: 0;
 		}
-	}
-	#sidebar.affix {
-		position: static !important;
 	}
 }
 

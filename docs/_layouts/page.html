@@ -1,8 +1,11 @@
 ---
 layout: default
 ---
+<div class="sidebar page col-md-3">
+  {% include sidebar.md section=page.section %}
+</div>
 
-<div class="page">
+<div class="page col-md-9">
   <h1 class="page-title">{{ page.title }}</h1>
 
   {{ content }}

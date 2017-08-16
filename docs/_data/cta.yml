@@ -1,0 +1,28 @@
+security:
+  title: For Security Teams
+  links:
+    overview:
+      title: Conjur Overview
+      content: <script src="https://fast.wistia.com/embed/medias/gz2yt6b7de.jsonp" async></script><script src="https://fast.wistia.com/assets/external/E-v1.js" async></script><span class="wistia_embed wistia_async_gz2yt6b7de popover=true popoverContent=link" style="display:inline"><a href="#">Conjur Overview</a></span>
+      icon: <i class="fa fa-youtube-play"></i>
+    get-started:
+      title: Get Started with Conjur
+      path: /get-started/
+      icon: <i class="fa fa-arrow-right"></i>
+
+operations:
+  title: For Operations Teams
+  links:
+    api:
+      title: API Documentation
+      path: /api.html
+      icon: <i class="fa fa-code"></i>
+    hosted:
+      title: Hosted Demo Environment
+      path: /get-started/evaluate-conjur.html
+      icon: <i class="fa fa-server"></i>
+    download:
+      title: Run Conjur on your Laptop using Docker
+      path: /get-started/install-conjur-cli.html
+      target: _blank
+      icon: <i class="fa fa-arrow-down"></i>

@@ -1,289 +1,165 @@
 // ***********************
-// Sidebar
+// Top Nav
 // ***********************
 
-#sidebar {
-  text-align: left;
-  padding: 2.5rem 1rem;
-  color: rgba(255,255,255,.5);
-  background: #0071c7; /* Old browsers */
-  background: -moz-linear-gradient(top, #0071c7 0%, #11b5e4 100%); /* FF3.6-15 */
-  background: -webkit-linear-gradient(top, #0071c7 0%,#11b5e4 100%); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(to bottom, #0071c7 0%,#11b5e4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0071c7', endColorstr='#11b5e4',GradientType=0 ); /* IE6-9 */
-  height: 100%;
-  width: 300px;
+#top-navigation {
+  background-color: $conjur-dark;
+  margin-bottom: 0px;
+  border-radius: 0px;
+  border: 0px;
 
-  hr {
-    position: relative;
-    margin: 1.5rem 0;
-    border: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-  }
-
-  a {
-    color: #ffffff;
-    display: block;
-    font-size: 16px;
-    padding: .1em 0;
-  }
-  
-  .sidebar-nav {
-    padding-left: 10px;
-    ul {
-      padding-left: 1rem;
-      margin: .1em 0;
-    }
-  }
-}
-
-.sidebar-disclaimer {
-  margin-top: 2em;
-  bottom: 25px;
-  text-align: center;
-  width: 90%;
-
-  > div,
-  > a {
-    text-align: center;
-    display: inline-block;
-  }
-
-  img.cyberark-sidebar-logo {
-    width: 100px;
-    margin: 0 auto;
-  }
-}
-
-.slack-signup {
-  margin-top: 1.5em;
-}
-
-.disclaimer {
-  font-size: 13px;
-  text-align: center;
-  margin-bottom: 0;
-}
-
-.sidebar-about img {
-  margin: 0 0 1.5rem 0;
-  width: 175px;
-}
-
-@media (max-width: 767px) {
-  #sidebar {
-    height: auto;
-    padding: 10px;
-    text-align: center;
-
-    a {
-      display: inline-block;
-    }
-
-    hr {
-      display: none;
-    }
-
-    .sidebar-about {
-      max-width: 25%;
-      padding: 5px 15px;
+  .navbar-header {
+    img {
+      height: 47px;
       margin: 0;
       float: left;
-
-      img {
-        margin: 0;
-      }
-    }
-    .sidebar-nav a,
-    .slack-signup {
-      display: inline-block;
-      padding: 2px 10px;
-      margin: 0px;
+      margin-right: 0.5em;
     }
 
-    .slack-signup {
-      position: relative;
-      top: 5px;
-    }
-  }
-}
-
-// ***********************
-// Mobile Nav
-// ***********************
-
-#mobile-navigation {
-  text-align: left;
-  background: #0071c7; /* Old browsers */
-  background: -moz-linear-gradient(top, #0071c7 0%, #11b5e4 100%); /* FF3.6-15 */
-  background: -webkit-linear-gradient(top, #0071c7 0%,#11b5e4 100%); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(to bottom, #0071c7 0%,#11b5e4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  border: none;
-  border-radius: 0;
-
-  a {
-    font-family: 'Open Sans', sans-serif;
-    font-size: 16px;
-    line-height: 1.8rem;
-    font-weight: 300;
-    color: #ffffff;
-  }
-
-  .nav-menu > li > a:hover,
-  .dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus,
-  .nav .open > a, .nav .open > a:hover, .nav .open > a:focus,
-  .nav > li > a:hover, .nav > li > a:focus {
-    background-color: $conjur-hover-white;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-
-  #mobile-navigation {
-    a {
-      display: block;
-      font-family: 'Open Sans', sans-serif;
-      font-size: 16px;
-      line-height: 1.8rem;
-      font-weight: 300;
+    .navbar-brand {
       color: #ffffff;
-    }
+      font-size: 2rem;
+      line-height: 47px;
+      margin-right: 1em;
 
-    ul,
-    ul li,
-    ul li a {
-      font-family: 'Open Sans', sans-serif;
-      font-size: 16px;
-      line-height: 1.8rem;
-      font-weight: 300;
-
-      &:hover,
-      &:link,
-      &:active,
-      &:visited {
-        text-decoration: none;
+      span {
+      	font-weight: bold;
       }
     }
+  }
 
-    .nav-menu {
-      display: none;
-      list-style: none;
-    }
+  .nav.navbar-nav {
+    margin: 1em 0;
+  }
 
-    img {
-      margin-top: 8px;
-      margin-bottom: 0px;
-      margin-right: 20px;
-      width: 120px;
-    }
+  #top-search {
+    margin: 1em 0;
+    padding: 8px 0;
+  }
 
-    .nav.navbar-nav > li {
-      position: relative;
-    }
-
-    .nav.navbar-nav .nav-menu {
-      padding: 5px 0;
-      margin: 0px;
-    }
-
-    .nav.navbar-nav li.has-menu {
-      position: relative;
-    }
-
-    .nav.navbar-nav > li.has-menu {
-      .nav-menu li a {
-        padding: 8px 10px;
-        font-size: 16px;
-        line-height: 1.3;
-      }
-
-      &:hover > .nav-menu {
+  .nav-item.dropdown {
+    &:hover {
+      > ul.dropdown-menu {
         display: block;
-        position: absolute;
-        background-color: $conjur-ltblue;
-        border-radius: 0 0 4px 4px;
-        border-top-left-radius: 0px;
-        min-width: 200px;
-        width: auto;
-      }
-    }
+        background-color: $conjur-dark;
+        color: #ffffff;
 
-    .nav.navbar-nav > li.has-menu .nav-menu > li.has-menu {
-      .nav-menu li a {
-        padding: 8px 10px;
-      }
+        li {
+          display: block;
+          margin: 3px 0;
 
-      &:hover > .nav-menu {
-        display: block;
-        position: absolute;
-        background-color: $conjur-ltblue;
-        border-radius: 4px;
-        border-top-left-radius: 0px;
-        min-width: 200px;
-        width: auto;
-        top: 0px;
-        left: 100%;
+          a {
+            color: #ffffff;
+            font-weight: 300;
 
-        a {
-          font-size: 16px;
-          line-height: 1.3;
+            &:hover {
+              background-color: rgba(0,0,0,0.15);
+            }
+          }
         }
       }
     }
   }
+  // end #top-navigation
+}
 
-  .nav.navbar-nav {
-    list-syle: none;
+@media (min-width: 768px) {
+  /* Bootstrap Overrides */
+  .navbar-default .navbar-nav > .active > a,
+  .navbar-default .navbar-nav > .active > a:hover,
+  .navbar-default .navbar-nav > .active > a:focus {
+    background-color: rgba(0,0,0,0.15);
+    color: $conjur-ltblue;
+  }
+
+  .navbar-default .navbar-nav > li > a,
+  .navbar-default .navbar-nav > li > a:hover,
+  .navbar-default .navbar-nav > li > a:focus {
+  	color: #ffffff;
+  }
+
+  .navbar-default .navbar-nav > li:hover > a,
+  .navbar-default .navbar-nav > li > a:hover,
+  .navbar-default .navbar-nav > li > a:focus {
+  	background-color: rgba(0,0,0,0.15);
   }
 }
 
 @media (max-width: 767px) {
-  #mobile-navigation {
-    a {
-      display: block;
-      text-decoration: none;
-      padding-top: .25em;
-      padding-bottom: .25em;
-    }
-    img {
-      width: 100px;
-      margin: 6px 0 0 20px;
+  #top-navigation {
+    .navbar-brand {
+      box-sizing: content-box;
     }
 
     .navbar-toggle {
-      span {
-        background-color: #fff;
+      margin-top: 1.5em;
+      margin-bottom: 1.5em;
+    }
+
+    .navbar-nav {
+      > li {
+        margin-bottom: 5px;
+        > a {
+          background-color: rgba(0,0,0,0.15);
+          color: #ffffff;
+        }
+      }
+    }
+
+    .nav-item.dropdown:hover > ul.dropdown-menu li.active a,
+    .nav-item.dropdown:hover > ul.dropdown-menu li a.active {
+      color: $conjur-ltblue;
+    }
+
+    .dropdown-menu {
+      display: block;
+      position: static;
+      float: none;
+      background-color: transparent;
+      border-radius: none;
+      box-shadow: none;
+      font-weight: 300;
+
+      li {
+        &.active a,
+        &.active a:hover {
+          color: $conjur-ltblue;
+        }
+        a {
+          background-color: transparent;
+          color: #ffffff;
+          font-weight: 300;
+
+          &.active,
+          &.active:hover {
+            color: $conjur-ltblue;
+          }
+        }
       }
     }
   }
+}
 
-  .nav-menu {
-    display: none;
-    list-style: none;
-    padding: 0;
-  }
+// ***********************
+// Contextual Sidebars
+// ***********************
 
-  .has-menu.open .nav-menu {
-    display: block;
-  }
-  .nav-menu li a {
-    padding-left: 45px;
-  }
+ul.sidebar-nav {
+  li {
+    margin-bottom: 4px;
 
-  .nav-menu li .nav-menu li a {
-    padding-left: 75px;
-    padding-top: .25em;
-    padding-bottom: .25em;
-  }
+    &.section a {
+      font-weight: bold;
+      color: $conjur-text;
+    }
 
-  .footer-disclaimer {
-    padding: 2em 0 1em 0;
-    p {
-      text-align: center;
+    a {
+      color: $conjur-medgray;
     }
   }
 
-  .nav.navbar-nav {
-    list-syle: none;
+  &:last-of-type li a {
+    color: $conjur-text;
+    font-weight: 400;
   }
 }

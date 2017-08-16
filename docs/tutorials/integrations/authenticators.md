@@ -1,6 +1,7 @@
 ---
 title: Tutorial - Custom Authentication
 layout: page
+section: tutorials
 ---
 
 {% include toc.md key='introduction' %}
@@ -22,13 +23,13 @@ Taken together, the API key and IP/CIDR restriction can serve as reasonably stro
 For these situations, Conjur enables you to implement your own authentication provider. Custom authenticators should accept some domain-specific credentials, verify them, and issue an access token. This is the proper way to authenticate when BOTH of the following conditions are satisfied:
 
 * Clients are highly ephemeral.
-* An external authority is available to help verify client identity. 
+* An external authority is available to help verify client identity.
 
 Some examples of environments where custom authentication is useful include Kubernetes, OpenShift, Mesos, Docker Swarm, Pivotal CloudFoundry, Jenkins, and IaaS e.g. AWS (in some cases).
 
 {% include toc.md key='prerequisites' %}
 
-Custom authenticators can be written in any language. However, this tutorial uses Ruby examples. So, you'll need a working Ruby environment. 
+Custom authenticators can be written in any language. However, this tutorial uses Ruby examples. So, you'll need a working Ruby environment.
 
 It's also helpful to have a local Conjur server (e.g. in your laptop's Docker engine) so that you can directly access the database and inspect the token-signing keys.
 
@@ -60,7 +61,7 @@ irb(main):003:0> puts JSON.pretty_generate(key.signed_token('alice'))
 
 {% include toc.md key='signing-keys' %}
 
-In the example above, we generated a new RSA key to sign the token. You can't use this approach to make a custom authenticator, because your Conjur server won't recognize the signing key that you used. 
+In the example above, we generated a new RSA key to sign the token. You can't use this approach to make a custom authenticator, because your Conjur server won't recognize the signing key that you used.
 
 What you need to do is use the signing key for the organization account for which you'll be issuing tokens. There are two ways that you can obtain this signing key:
 
@@ -187,9 +188,9 @@ HTTP/1.1 401 Unauthorized
 
 {% include toc.md key='client' %}
 
-In the example above, we used cURL to interact with the custom authenticator. How about the Conjur API clients and CLI? 
+In the example above, we used cURL to interact with the custom authenticator. How about the Conjur API clients and CLI?
 
-These can be configured to use a custom authenticator by setting the environment variable `CONJUR_AUTHN_URL` or by setting the configuration setting `Conjur.configuration.authn_url`. 
+These can be configured to use a custom authenticator by setting the environment variable `CONJUR_AUTHN_URL` or by setting the configuration setting `Conjur.configuration.authn_url`.
 
 Here's how it works with the Conjur API for Ruby:
 

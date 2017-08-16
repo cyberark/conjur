@@ -1,6 +1,7 @@
 ---
-title: Installation - Server
+title: Install Conjur Server
 layout: page
+section: get-started
 ---
 
 A Conjur Community Edition server is running in the cloud for you, so you do not need to install a server to evaluate its features.
