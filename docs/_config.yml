@@ -5,5 +5,6 @@ kramdown:
 gems:
   - jekyll-coffeescript
   - jekyll-paginate
+  - jekyll-redirect-from
 title: Conjur
 plugins_dir: ./_plugins
