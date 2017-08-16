@@ -1,6 +1,6 @@
 # CyberArk Conjur
 
-Conjur is a trust platform: an identity and authorization service that works with humans and machines.
+Conjur provides secrets management and machine identity for modern infrastructure.
 
 [![Join Conjur Slack](https://slackin-conjur.herokuapp.com/badge.svg)][join-slack]
 [![Stories tagged "Ready"](https://badge.waffle.io/conjurinc/jenkins-seed.png?label=ready&title=Ready)](http://waffle.io/conjurinc/jenkins-seed)
