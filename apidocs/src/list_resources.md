@@ -1,6 +1,6 @@
 ## List resources [/resources]
 
-### List resources [GET /resources/{account}{?kind}{?search}{?limit}{?offset}]
+### List resources [GET /resources/{account}{?kind}{?search}{?limit}{?offset}{?count}]
 
 Lists resources within an organization account.
 
@@ -10,7 +10,11 @@ only resources with names or annotations containing the search term.
 
 If a `limit` is given, no more than that number of results will be returned.
 Providing an `offset` will skip a number of resources before returning the rest.
-These two parameters can be combined to page through results.
+In addition, providing an `offset` will give `limit` a default value of 10 if
+none other is provided. These two parameters can be combined to page through
+results.
+
+If the parameter `count` is `true`, returns only the number of items in the list.
 
 #### Example with `curl` and `jq`
 
@@ -44,6 +48,7 @@ curl -H "$(conjur authn authenticate -H)" \
   + search: password (string, optional) - search term used to narrow results
   + limit: 2 (number, optional) - maximum number of results to return
   + offset: 6 (number, optional) - number of results to skip
+  + count: false (boolean, optional) - if true, return only the number of items in the list
 
 + Request
   <!-- include(partials/auth_header_code.md) -->
