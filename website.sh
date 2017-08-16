@@ -19,5 +19,5 @@ jekyll build --destination /output/_site
 
 echo "${POSSUM_WEB_USER}:$(openssl passwd -apr1 ${POSSUM_WEB_PASSWORD})" | aws s3 cp - s3://${POSSUM_WEB_CFG_BUCKET}/htpasswd
 
-aws s3 sync /output/_site s3://${POSSUM_WEB_BUCKET}
+aws s3 sync --delete-removed /output/_site s3://${POSSUM_WEB_BUCKET}
 '
