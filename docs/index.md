@@ -21,7 +21,7 @@ Both CyberArk EPV and Conjur implement full role-based access control (RBAC), th
 
 {% include toc.md key='vaulting' %}
 
-CyberArk is the leader in enterprise vaulting, whose Enterprise Password Vault (EPV) is adopted by N% of the Fortune 100. EPV is the most advanced vault available on the market today, protected by 7 layers of security and providing more than automated 100 password rotators. The CyberArk EPV is extended to the cloud by the Conjur replication architecture and machine identity capabilities, which brings vaulted secrets into the cloud in a scalable and secure way. Both CyberArk EPV and Conjur, implement role-based access control, the standard for enterprise security, and both layers of the CyberArk product provide built-in audit collection and reporting.
+CyberArk is the leader in enterprise vaulting, whose Enterprise Password Vault (EPV) is adopted by 50% of the Fortune 100. EPV is the most advanced vault available on the market today, protected by 7 layers of security and providing more than 100 automated password rotators. The CyberArk EPV is extended to the cloud by the Conjur replication architecture and machine identity capabilities, which brings vaulted secrets into the cloud in a scalable and secure way. Both CyberArk EPV and Conjur, implement role-based access control, the standard for enterprise security, and both layers of the CyberArk product provide built-in audit collection and reporting.
 
 {% include toc.md key='audit' %}
 
@@ -45,4 +45,4 @@ Conjur provides easy standards-based SSH access to cloud servers and virtual Mac
 
 {% include toc.md key='ui' %}
 
-The Conjur UI allows users to log in through their browser and view Conjur activity and reports in a web interface, as well as handling some of the workflows typically done in the CLI.
+The Conjur UI allows users to log in through their browser to view Conjur activity and reports in a web interface, as well as handling some of the workflows typically done in the CLI.

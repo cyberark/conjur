@@ -24,7 +24,7 @@ root@5628127eac77:/work# which conjur
 /usr/local/bundle/bin/conjur
 {% endhighlight %}
 
-And here's how to run a single Conjur command (with arguments, it prints the help string):
+And here's how to run a single Conjur command (without arguments, it prints the help string):
 
 {% highlight shell %}
 $ docker run --rm \

@@ -145,7 +145,7 @@ $ conjur authn whoami
 
 {% include toc.md key='fetching-as-machine' %}
 
-Beacuse the policy permits the layer `myapp` to `execute` the variable `db/password`, and because the host `myapp-01` is a member of this layer, we can now fetch the secret value while authenticated as the host:
+Because the policy permits the layer `myapp` to `execute` the variable `db/password`, and because the host `myapp-01` is a member of this layer, we can now fetch the secret value while authenticated as the host:
 
 {% highlight shell %}
 $ conjur variable value db/password
