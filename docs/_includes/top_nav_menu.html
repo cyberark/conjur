@@ -1,9 +1,13 @@
 {% assign item = include.item %}
+{% assign section = include.section %}
 
 {% assign active = false %}
 {% if item.path %}
-  {% assign page_path_prefix = page.url | slice: 0, item.path.size %}
-  {% if page_path_prefix == item.path %}
+  {% if page.url contains section %}
+    {% assign active = true %}
+  {% endif %}
+
+  {% if section == "welcome" and item.path == "/" and page.url == "/" %}
     {% assign active = true %}
   {% endif %}
 {% endif %}
