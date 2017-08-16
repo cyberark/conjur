@@ -59,11 +59,7 @@ $(document).ready(function() {
         context: this,
         type: "POST",
         data: "email=" + $("#email-address").val(),
-        {% if site.env == 'production' %}
-        url: "https://possum-cpanel-conjur.herokuapp.com/api/accounts"
-        {% else %}
-        url: "http://localhost:3000/api/accounts",
-        {% endif %}
+        url: "{{site.cpanel_url}}/api/accounts",
         success: function(response) {
           setAccountCookie(JSON.stringify(response));
           displayAccountCredentials(response.account,
