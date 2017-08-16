@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 git_source(:github) { |name| "https://github.com/#{name}.git" }
 
 #ruby=ruby-2.2.6
-#ruby-gemset=possum
+#ruby-gemset=conjur
 
 gem 'rake'
 gem 'rails-api'
