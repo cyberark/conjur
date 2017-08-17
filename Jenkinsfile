@@ -57,7 +57,10 @@ pipeline {
 
     stage('Publish website') {
       when {
-        branch 'master'
+        anyOf {
+          branch 'master'
+          branch 'stage_170817'
+        }
       }
       steps {
         sh 'summon ./website.sh'
