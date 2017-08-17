@@ -64,6 +64,8 @@ Only the twenty most recent values in a Variable are retained; this prevents the
 
 <!-- include(show_resource.md) -->
 
+<!-- include(show_permitted_roles.md) -->
+
 # Group Host Factory
 
 <!-- include(host_factory_create_tokens.md) -->
