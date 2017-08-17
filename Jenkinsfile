@@ -59,7 +59,7 @@ pipeline {
       when {
         anyOf {
           branch 'master'
-          branch 'stage_170817'
+          branch 'pre-revert-master'
         }
       }
       steps {
