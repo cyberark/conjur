@@ -35,4 +35,15 @@ This script builds the `possum-docs` Docker image and then runs
 
 ### API Blueprint Docs
 
-See [Build the API documentation from source](../README.md#build-the-api-documentation-from-source).
+Currently, the docker-compose setup described above assumes that the API docs have been rendered to `docs/_includes/api.html`. Without that file, the local server will fail to serve the API docs.
+
+To perform this step, run the following:
+```sh-session
+$ cd "$(git rev-parse --show-toplevel)" # cd to project root
+$ docker-compose build --pull docs
+$ docker-compose up -d docs
+$ apidocs/build.sh
+$ docker run --rm conjurinc/possum-apidocs > docs/_includes/api.html
+```
+
+If you're just working on the API docs and want a live-updating dev server for them, see [Build the API documentation from source](../README.md#build-the-api-documentation-from-source).
