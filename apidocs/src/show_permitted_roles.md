@@ -12,7 +12,9 @@ Lists the roles which have the named permission on a resource.
 
 #### Example with `curl` and `jq`
 
-Suppose your organization name is "mycorp" and you want to find out which roles have `execute` privileges on the Variable `db-password`, and can thus fetch the secret:
+Suppose your organization name is "mycorp" and you want to find out which roles
+have `execute` privileges on the Variable `db-password`, and can thus fetch the
+secret:
 
 ```bash
 curl -H "$(conjur authn authenticate -H)" \
@@ -39,8 +41,9 @@ curl -H "$(conjur authn authenticate -H)" \
 + Parameters
   + <!-- include(partials/account_param.md) -->
   + kind: variable (string) - kind of resource requested
-  + id: db-password (string)  - the identifier of the resource
-  + privilege: execute (string) - roles permitted to exercise this privilege are shown
+  + id: db-password (string) - the identifier of the resource
+  + privilege: execute (string) - roles permitted to exercise this privilege are
+    shown
 
 + Request
   <!-- include(partials/auth_header_code.md) -->

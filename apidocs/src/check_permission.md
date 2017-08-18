@@ -2,14 +2,15 @@
 
 ### Check permission [GET]
 
-Checks whether a role has a privilege on a resource. For example: is this Host
+Checks whether a role has a privilege on a resource. For example, is this Host
 authorized to `execute` (fetch the value of) this Secret?
 
 <!-- include(partials/resource_kinds.md) -->
 
 #### Example with `curl`
 
-Suppose your account name is "mycorp" and you want to check whether Host "application" can `execute` (fetch the value of) Variable "db-password":
+Suppose your account name is "mycorp" and you want to check whether Host
+"application" can `execute` (fetch the value of) Variable "db-password":
 
 This request has a long URL, so I break it up for you with some variables.
 
@@ -41,7 +42,8 @@ curl -i -H "$(conjur authn authenticate -H)" \
   + <!-- include(partials/account_param.md) -->
   + kind: variable (string) - kind of resource to test
   + identifier: db-password (string) - the identifier of the resource to test
-  + role: mycorp:host:application (string) - the fully qualified identifier of the role to test
+  + role: mycorp:host:application (string) - the fully qualified identifier of
+    the role to test
   + privilege: execute (string) - the privilege to test on the resource
 
 + Request
