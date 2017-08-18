@@ -33,8 +33,8 @@ curl -H "$(conjur authn authenticate -H)" \
 |  200 | Permitted roles returned as a JSON list |
 |<!-- include(partials/http_401.md) -->|
 |<!-- include(partials/http_403.md) -->|
+|  404 | The specified resource does not exist   |
 |<!-- include(partials/http_422.md) -->|
-|  400 | The requested resource does not exist   |
 
 For example, to get roles permitted to `execute` the Variable "db-password":
 
