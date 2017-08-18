@@ -4,10 +4,6 @@
 
 Lists the roles which have the named permission on a resource.
 
-**Permissions Required**
-
-`read` privilege on the resource.
-
 <!-- include(partials/resource_kinds.md) -->
 
 #### Example with `curl` and `jq`
