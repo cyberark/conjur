@@ -1,13 +1,4 @@
 GIT
-  remote: https://github.com/conjurinc/api-ruby.git
-  revision: 5692f8cbc69f4be094bfa4244550bba1bb7915ca
-  branch: possum
-  specs:
-    conjur-api (5.0.0beta.1)
-      activesupport
-      rest-client (~> 1.7, >= 1.7.3)
-
-GIT
   remote: https://github.com/conjurinc/cli-ruby.git
   revision: a30d685c1ec255beffd3f42a48e66c1c31cd2b53
   branch: possum
@@ -33,13 +24,22 @@ GIT
 
 GIT
   remote: https://github.com/conjurinc/conjur-rack.git
-  revision: f412d0267accbe54b47621a07ca7b0bc9871276c
-  branch: possum
+  revision: c82a886e4e6e90df4c7de347b007cc8fe0b5c1b6
+  branch: master
   specs:
-    conjur-rack (2.2.0)
-      conjur-api (>= 4.17)
-      rack
+    conjur-rack (3.0.0.pre)
+      conjur-api (< 6)
+      rack (~> 1)
       slosilo
+
+GIT
+  remote: https://github.com/cyberark/api-ruby.git
+  revision: 6606bbdb845024918ff8560b5aad3fd978c347b5
+  branch: master
+  specs:
+    conjur-api (5.0.0.pre)
+      activesupport
+      rest-client
 
 GEM
   remote: https://rubygems.org/
@@ -269,10 +269,10 @@ GEM
     rb-inotify (0.9.8)
       ffi (>= 0.5.0)
     ref (2.0.0)
-    rest-client (1.8.0)
+    rest-client (2.0.2)
       http-cookie (>= 1.0.2, < 2.0)
-      mime-types (>= 1.16, < 3.0)
-      netrc (~> 0.7)
+      mime-types (>= 1.16, < 4.0)
+      netrc (~> 0.8)
     rouge (1.11.1)
     rspec (3.5.0)
       rspec-core (~> 3.5.0)

@@ -3,9 +3,6 @@ main:
     title: Welcome
     path: /
     items:
-      features:
-        title: Conjur Features
-        path: /
       why-conjur:
         title: Why Conjur
         path: /welcome/why-conjur.html
