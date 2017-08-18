@@ -17,7 +17,7 @@ Machine Identity is the heart of CyberArk Conjur. It was designed from the groun
 
 {% include toc.md key='authorization' %}
 
-Both CyberArk EPV and Conjur implement full role-based access control (RBAC), the proven standard in enterprise security. Conjur’s machine identity capabilities are built on the foundation of RBAC, ensuring that the automated workloads managed by Conjur are running with proven and scalable security properties. Conjur’s machine identity rules are managed using declarative documents called policies. Policy management can be federated across an organization in a strictly managed way, ensuring that management of Conjur security rules at scale is both tightly managed and scalable from the standpoint of organizational size.
+Conjur’s machine identity capabilities are built on the foundation of RBAC, ensuring that the automated workloads managed by Conjur are running with proven and scalable security properties. Conjur’s machine identity rules are managed using declarative documents called policies. Policy management can be federated across an organization in a strictly managed way, ensuring that management of Conjur security rules at scale is both tightly managed and scalable from the standpoint of organizational size.
 
 {% include toc.md key='secrets' %}
 
