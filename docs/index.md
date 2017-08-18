@@ -19,9 +19,11 @@ Machine Identity is the heart of CyberArk Conjur. It was designed from the groun
 
 Both CyberArk EPV and Conjur implement full role-based access control (RBAC), the proven standard in enterprise security. Conjur’s machine identity capabilities are built on the foundation of RBAC, ensuring that the automated workloads managed by Conjur are running with proven and scalable security properties. Conjur’s machine identity rules are managed using declarative documents called policies. Policy management can be federated across an organization in a strictly managed way, ensuring that management of Conjur security rules at scale is both tightly managed and scalable from the standpoint of organizational size.
 
-{% include toc.md key='vaulting' %}
+{% include toc.md key='secrets' %}
 
-CyberArk is the leader in enterprise vaulting, whose Enterprise Password Vault (EPV) is adopted by 50% of the Fortune 100. EPV is the most advanced vault available on the market today, protected by 7 layers of security and providing more than 100 automated password rotators. The CyberArk EPV is extended to the cloud by the Conjur replication architecture and machine identity capabilities, which brings vaulted secrets into the cloud in a scalable and secure way. Both CyberArk EPV and Conjur, implement role-based access control, the standard for enterprise security, and both layers of the CyberArk product provide built-in audit collection and reporting.
+Conjur provides a policy framework to manage access to secrets. The policy definitions contain no secret themselves, making them safe and easy to share, review, and edit among a group of people without exposing confidential information.
+
+With secrets abstraction, even the users of secrets need not know their values. By separating development, test, and production rules, policies can be tested in each environment with different secrets and rolled to production with confidence that the application is protected by a least privilege model.
 
 {% include toc.md key='scalability' %}
 
