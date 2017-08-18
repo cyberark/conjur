@@ -15,6 +15,7 @@
 {% endif %}
 
 <ul class="sidebar-nav list-unstyled">
+  <li class="item"><a href="/conjur-enterprise.html">Conjur Enterprise</a>
   <li class="item"><a href="/contributing.html">Contributing</a>
   <li class="item"><a href="/support.html">Support</a>
 </ul>
