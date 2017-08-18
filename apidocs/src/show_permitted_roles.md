@@ -32,12 +32,10 @@ curl -H "$(conjur authn authenticate -H)" \
 |  404 | The specified resource does not exist   |
 |<!-- include(partials/http_422.md) -->|
 
-For example, to get roles permitted to `execute` the Variable "db-password":
-
 + Parameters
   + <!-- include(partials/account_param.md) -->
   + kind: variable (string) - kind of resource requested
-  + id: db/password (string)  - the identifier of the resource
+  + id: db-password (string)  - the identifier of the resource
   + privilege: execute (string) - roles permitted to exercise this privilege are shown
 
 + Request
