@@ -1,4 +1,15 @@
 // ***********************
+// Icons
+// ***********************
+
+.icon-docker-hub {
+  background: url("/img/docker_icon.svg") no-repeat center center;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+
+// ***********************
 // Utilities
 // ***********************
 .mt-2 {
@@ -26,13 +37,18 @@
 
   .cta-box-header {
     font-weight: 400;
-    border-bottom: 1px solid $conjur-medgray;
     padding: 1em 1.5em;
-    font-size: 120%;
+    font-size: 140%;
+  }
+
+  hr {
+    border-bottom: 1px solid $conjur-medgray;
   }
 
   p {
-    padding: 1em 1.5em 0 1.5em;
+    font-weight: 300;
+    padding: 0 2em;
+    margin-top: 0px;
   }
 
   ul.cta-links {

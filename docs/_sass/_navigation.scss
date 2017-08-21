@@ -9,31 +9,26 @@
   border: 0px;
 
   .navbar-header {
-    img {
-      height: 47px;
-      margin: 0;
-      float: left;
-      margin-right: 0.5em;
-    }
-
-    .navbar-brand {
+    a.navbar-brand {
       color: #ffffff;
       font-size: 2rem;
-      line-height: 47px;
-      margin-right: 1em;
-
-      span {
-      	font-weight: bold;
-      }
+      margin: 15px 0;
+      margin-right: 35px;
+      display: inline-block;
+      height: 47px;
+      width: 470px;
+      background: url("/img/cyberark_open_source_logo_ko.svg") no-repeat top left;
+      background-size: cover;
+      padding: 0px;
     }
   }
 
   .nav.navbar-nav {
-    margin: 1em 0;
+    margin: 15px 0;
   }
 
   #top-search {
-    margin: 1em 0;
+    margin: 15px 0;
     padding: 8px 0;
   }
 
@@ -85,12 +80,20 @@
   }
 }
 
+@media (max-width: 1200px) {
+  #top-navigation {
+    .navbar-header {
+      a.navbar-brand {
+        box-sizing: content-box;
+        width: 256px;
+        margin: 15px 35px 15px 15px;
+      }
+    }
+  }
+}
+
 @media (max-width: 767px) {
   #top-navigation {
-    .navbar-brand {
-      box-sizing: content-box;
-    }
-
     .navbar-toggle {
       margin-top: 1.5em;
       margin-bottom: 1.5em;

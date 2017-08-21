@@ -22,6 +22,18 @@
     img.cyberark-sidebar-logo {
     	width: 50px;
       margin: 0px;
+      margin-right: 1em;
   	}
+  }
+
+  .footer-links {
+    li {
+      display: inline-block;
+      margin: 0 0.5em;
+    }
+
+    a:hover {
+      color: #000000;
+    }
   }
 }

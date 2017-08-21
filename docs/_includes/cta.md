@@ -2,7 +2,13 @@
 
 <div class="col-md-6">
   <div class="cta-box">
-    <div class="cta-box-header">{{ section.title }}</div>
+    <div class="cta-box-header">
+      {{ section.title }}      
+    </div>
+
+    {% if section.text %}
+      <p>{{ section.text }}</p>
+    {% endif %}
 
     <ul class="cta-links list-unstyled">
       {% for link in section.links %}

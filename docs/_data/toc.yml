@@ -1,7 +1,7 @@
 "/":
   machine-identity: Machine Identity
   authorization: Authorization Model
-  vaulting: Vaulting
+  secrets: Secrets Management
   audit: Audit
   scalability: Scalability
   integrations: Integrations
