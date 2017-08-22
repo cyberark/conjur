@@ -64,12 +64,12 @@ In the example above, we generated a new RSA key to sign the token. You can't us
 
 What you need to do is use the signing key for the organization account for which you'll be issuing tokens. There are two ways that you can obtain this signing key:
 
-1. Run your custom authenticator with a connection to the Possum database.
+1. Run your custom authenticator with a connection to the Conjur database.
 1. Extract the signing key from the database and provide it to your custom authenticator.
 
 ### Using the Database-Stored Signing Key
 
-The Possum server stores the signing keys encrypted in the database. If your custom authenticator is configured with a database connection, you can fetch the signing key using SQL (or the Ruby object-relational helper code).
+The Conjur server stores the signing keys encrypted in the database. If your custom authenticator is configured with a database connection, you can fetch the signing key using SQL (or the Ruby object-relational helper code).
 
 Since the signing keys are encrypted, connecting to the database is not sufficient to read one. You also need to have the encryption key, which you provide to the Conjur server using the environment variable `CONJUR_DATA_KEY`.
 
@@ -95,7 +95,7 @@ puts Slosilo["authn:#{account}"].signed_token 'alice'
 
 ### Extracting the Signing Key
 
-Keep in mind that a signing key is a very sensitive piece of data. Someone with the signing key can issue access tokens for any role in the organization account (including "admin"). So, if you extract the key from the Possum database, be sure and keep it tighly secured. Use of an HSM or key store such as Amazon KMS is recommended.
+Keep in mind that a signing key is a very sensitive piece of data. Someone with the signing key can issue access tokens for any role in the organization account (including "admin"). So, if you extract the key from the Conjur database, be sure and keep it tighly secured. Use of an HSM or key store such as Amazon KMS is recommended.
 
 To extract a signing key, you can run the following Ruby command:
 

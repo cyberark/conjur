@@ -28,7 +28,7 @@ $ cd ..  # project root
 $ ./checklinks.sh
 ```
 
-This script builds the `possum-docs` Docker image and then runs
+This script builds the `conjur-docs` Docker image and then runs
 [html-proofer](https://github.com/gjtorikian/html-proofer) against the rendered HTML.
 
 ---

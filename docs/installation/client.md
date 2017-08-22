@@ -84,7 +84,7 @@ Here's an example:
 
 {% highlight shell %}
 $ conjur init
-Enter the URL of your Conjur service: https://possum
+Enter the URL of your Conjur service: https://conjur
 
 SHA1 Fingerprint=08:3B:71:72:02:43:6E:CA:ED:42:86:93:BA:7E:DF:81:C4:BC:62:30
 

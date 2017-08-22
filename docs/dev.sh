@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-(cd ..; docker build -t possum-web -f docs/Dockerfile .)
+(cd ..; docker build -t conjur-web -f docs/Dockerfile .)
 
 # /node_modules/.bin/aglio -i apidocs/src/api.md -o docs/apidocs/doc.html
 docker run \
@@ -8,5 +8,5 @@ docker run \
   -it \
   -v $PWD/..:/opt/conjur \
   -p 4000:4000 \
-  --name possum-web \
-  possum-web ${@-jekyll serve -H 0.0.0.0 --source docs}
+  --name conjur-web \
+  conjur-web ${@-jekyll serve -H 0.0.0.0 --source docs}
