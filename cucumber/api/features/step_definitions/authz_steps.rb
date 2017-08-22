@@ -82,7 +82,7 @@ Given(/^I create (\d+) secret values?$/) do |n|
 end
 
 Given(/^I create a binary secret value?$/) do
-  @value = Random.new.bytes(16).force_encoding(Encoding::UTF_8)
+  @value = Random.new.bytes(16)
   Secret.create resource_id: @current_resource.id, value: @value
 end
 
