@@ -154,7 +154,7 @@ setting the environment variable `$CONJURRC`. For example, to configure the CLI
 to find the config file in `/etc/`:
 
 ```shell
-$ export CONJURRC=/etc/conjur.conf
+export CONJURRC=/etc/conjur.conf
 ```
 
 This is the recommended location when the Conjur configuration is installed
