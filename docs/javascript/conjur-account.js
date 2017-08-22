@@ -55,10 +55,14 @@ $(document).ready(function() {
     if(!e.isDefaultPrevented()) {
       e.preventDefault();
 
+      var payload =
+          "email=" + $("#email-address").val() +
+          "&recaptcha_token=" + grecaptcha.getResponse()
+      
       $.ajax({
         context: this,
         type: "POST",
-        data: "email=" + $("#email-address").val(),
+        data: payload,
         url: "{{site.cpanel_url}}/api/accounts",
         success: function(response) {
           setAccountCookie(JSON.stringify(response));
