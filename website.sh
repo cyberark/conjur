@@ -8,7 +8,7 @@ docker run -i -v $PWD:/opt/conjur --rm  \
   -e POSSUM_WEB_BUCKET -e POSSUM_WEB_CFG_BUCKET \
   -e POSSUM_WEB_USER -e POSSUM_WEB_PASSWORD \
   -e CPANEL_URL \
-  possum-web bash -ec '
+  conjur-web bash -ec '
 mkdir /output
 
 /node_modules/.bin/aglio --theme-template apidocs/templates/index.jade --theme-style apidocs/templates/css/layout-conjur.less -i apidocs/src/api.md -o docs/_includes/api.html
