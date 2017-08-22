@@ -15,13 +15,13 @@ pipeline {
         checkout scm
       }
     }
-    stage('Build Image') {
+    stage('Build Docker image') {
       steps {
         sh './build.sh -j'
       }
     }
 
-    stage('Test') {
+    stage('Test Docker image') {
       steps {
         sh './test.sh'
 
@@ -29,7 +29,13 @@ pipeline {
       }
     }
 
-    stage('Build deb') {
+    stage('Push Docker image') {
+      steps {
+        sh './push-image.sh'
+      }
+    }
+
+    stage('Build Debian package') {
       steps {
         sh './package.sh'
 
@@ -37,15 +43,9 @@ pipeline {
       }
     }
 
-    stage('Publish deb'){
+    stage('Publish Debian package'){
       steps {
         sh './publish.sh'
-      }
-    }
-
-    stage('Push image') {
-      steps {
-        sh './push-image.sh'
       }
     }
 
@@ -64,7 +64,7 @@ pipeline {
       }
     }
 
-    stage('Push to Heroku') {
+    stage('Publish Conjur to Heroku') {
       when {
         branch 'master'
       }

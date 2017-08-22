@@ -18,16 +18,20 @@ function main() {
   tag_and_push $INTERNAL_IMAGE $TAG
 
   if [ "$BRANCH_NAME" = "master" ]; then
+    local latest_tag='latest'
     local stable_tag="$(< VERSION)-stable"
 
     echo "TAG = $stable_tag, stable image"
 
+    tag_and_push $INTERNAL_IMAGE $latest_tag
     tag_and_push $INTERNAL_IMAGE $stable_tag
 
     tag_and_push $DOCKERHUB_IMAGE $TAG
+    tag_and_push $DOCKERHUB_IMAGE $latest_tag
     tag_and_push $DOCKERHUB_IMAGE $stable_tag
 
     tag_and_push $QUAY_IMAGE $TAG
+    tag_and_push $QUAY_IMAGE $latest_tag
     tag_and_push $QUAY_IMAGE $stable_tag
   fi
 }
