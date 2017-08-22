@@ -53,5 +53,5 @@ end
 Then(/^the binary result is preserved$/) do
   expect(@result).to be
   expect(@result.headers[:content_type]).to include("application/octet-stream")
-  expect(@result.bytes).to eq(@value.bytes)
+  expect(@result).to eq(@value)
 end
