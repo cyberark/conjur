@@ -1,56 +1,55 @@
 ---
-title: Installing self-hosted Conjur
+title: Using Your Own Conjur Server
 layout: page
+section: get-started
 ---
 
-You can easily download and run the Conjur software using the official
-containers on Docker Hub.
+You can easily download and run the Conjur software using the [official containers on DockerHub](https://hub.docker.com/r/cyberark/conjur/).
 
-## Pre-requisites
+{% include toc.md key='prereq' %}
 
-The easiest way to install and configure Conjur quickly is using Docker and
-Docker Compose.
+The easiest way to install and configure Conjur quickly is using Docker and Docker Compose.
 
-1. [install Docker][get-docker]
-1. [install Docker Compose][get-docker-compose]
+1. [Install Docker][get-docker]
+1. [Install Docker Compose][get-docker-compose]
 
-## Prepare to launch
+{% include toc.md key='launch' %}
 
-1. download the Conjur quick-start configuration:
+1. Download the Conjur quick-start configuration:
 
    ```sh-session
    $ curl -o docker-compose.yml https://try.conjur.org/get-started/quick-start.yml
    ```
 
-1. generate your master data key and load it into the environment
+1. Generate your master data key and load it into the environment
 
    ```shell
    docker-compose run --no-deps --rm conjur data-key generate > data_key
    export CONJUR_DATA_KEY="$(< data_key)"
    ```
 
-### Important: prevent data loss
+### Important: Prevent data loss
 The `conjurctl conjur data-key generate` command gives you a master data key.
 Back it up in a safe location.
 
-## Install and configure
+{% include toc.md key='install' %}
 
-1. run `docker-compose up -d` to run the Conjur server, database and client
-1. create a default account (eg. `quick-start`):
+1. Run `docker-compose up -d` to run the Conjur server, database and client
+1. Create a default account (eg. `quick-start`):
 
    ```shell
    docker-compose exec conjur conjurctl account create quick-start
    ```
 
-### Important: prevent data loss
+### Important: Prevent data loss
 The `conjurctl account create` command gives you the public key and admin API
 key for the account you created. Back them up in a safe location.
 
-## Connect
+{% include toc.md key='connect' %}
 
-1. run `docker-compose exec client bash` to get a bash shell with the Conjur
+1. Run `docker-compose exec client bash` to get a bash shell with the Conjur
    client software
-1. initialize the Conjur client using the account name and admin API key you
+1. Initialize the Conjur client using the account name and admin API key you
    created:
 
    ```sh-session
@@ -59,7 +58,7 @@ key for the account you created. Back them up in a safe location.
    Please enter admin's password (it will not be echoed):
    ```
 
-## Explore
+{% include toc.md key='explore' %}
 
 Conjur is installed and ready for use. Some suggestions:
 

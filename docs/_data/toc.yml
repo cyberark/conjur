@@ -38,6 +38,13 @@
   next-steps: Next Steps
   enterprise: Try Conjur Enterprise
 
+"/get-started/install-conjur.html":
+  prereq: Prerequitites
+  launch: Prepare to launch
+  install: Install and Configure
+  connect: Connect
+  explore: Explore
+
 "/reference/policy.html":
   introduction: What is a Policy?
   rbac: Role-Based Access Control
