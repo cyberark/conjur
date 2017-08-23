@@ -16,12 +16,9 @@ main:
       evaluate-conjur:
         title: Evaluate Conjur
         path: /get-started/evaluate-conjur.html
-      install-conjur-cli:
-        title: Install Conjur CLI
-        path: /get-started/install-conjur-cli.html
-      install-conjur-server:
-        title: Install Conjur Server
-        path: /get-started/install-conjur-server.html
+      self-host:
+        title: Install self-hosted Conjur
+        path: /get-started/self-host.html
   tutorials:
     title: Tutorials
     path: /tutorials/

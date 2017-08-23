@@ -23,29 +23,25 @@ operations:
       icon: <i class="fa fa-server"></i>
     download:
       title: Run Conjur on your Laptop using Docker
-      path: /get-started/install-conjur-cli.html
+      path: /get-started/self-host.html
       target: _blank
       icon: <i class="fa fa-arrow-down"></i>
 
 local:
-  title: Run Conjur Locally
-  text: "Start using Conjur in your own environments by installing the CLI and Server:"
+  title: Run self-hosted Conjur
+  text: "Start using Conjur in your own environments by installing the server, database and client:"
   links:
-    cli:
-      title: Install Conjur CLI
-      path: /get-started/install-conjur-cli.html
-      icon: <i class="fa fa-terminal"></i>
-    download:
-      title: Install Conjur Server
-      path: /get-started/install-conjur-server.html
+    self-host:
+      title: Install self-hosted Conjur
+      path: /get-started/self-host.html
       target: _blank
       icon: <i class="fa fa-server"></i>
 
 hosted:
-  title: Demo Conjur
-  text: Quickly try Conjur's features using a hosted evaluation server that we have already running in the cloud.
+  title: Evaluate Conjur
+  text: "Quickly try Conjur's features using a hosted evaluation server that we have already running in the cloud."
   links:
     hosted:
-      title: Create a Hosted Demo Account
+      title: Create a Hosted Evaluation Account
       path: /get-started/evaluate-conjur.html
       icon: <i class="fa fa-server"></i>

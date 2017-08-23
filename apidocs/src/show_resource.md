@@ -1,6 +1,6 @@
 ## Show a resource [/resources/{account}/{kind}/{identifier}]
 
-### Show a resource [GET /resources/{account}/{kind}/{identifier}]
+### Show a resource [GET]
 
 The response to this method is a JSON document describing a single resource.
 
