@@ -38,26 +38,6 @@
   next-steps: Next Steps
   enterprise: Try Conjur Enterprise
 
-"/get-started/install-conjur-cli.html":
-  get:
-    title: Get the Client
-    sections:
-      docker: Run in Docker
-      source: Run from Source
-  configure:
-    title: Configure
-    sections:
-      environment: Using the Environment
-      conjur-init: Using Files
-  login: Log In
-
-"/installation/server.html":
-  hosted: Hosted Dev Account
-  compose: Docker Compose
-  docker: Standalone Docker
-  build: Source Code
-  next-steps: Next Steps
-
 "/reference/policy.html":
   introduction: What is a Policy?
   rbac: Role-Based Access Control
