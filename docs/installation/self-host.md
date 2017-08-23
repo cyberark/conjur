@@ -33,6 +33,8 @@ Docker Compose.
    export CONJUR_DATA_KEY="$(< data_key)"
    ```
 
+## Install
+
 1. run `docker-compose up -d` to run the Conjur server, database and client
 1. initialize the database:
 
@@ -40,15 +42,19 @@ Docker Compose.
    docker-compose exec conjur conjurctl db migrate
    ```
 
-1. create a default account (eg. `quick-start`)
+## Configure
 
-   ```shell
-   docker-compose exec conjur conjurctl account create quick-start
-   ```
-   
-   **Important: prevent data loss**  
-   This command gives you the public key and admin API key for the account you
-   just created. Back them up in a safe location.
+Create a default account (eg. `quick-start`):
+
+```shell
+docker-compose exec conjur conjurctl account create quick-start
+```
+
+**Important: prevent data loss**  
+This command gives you the public key and admin API key for the account you
+just created. Back them up in a safe location.
+
+## Connect
 
 1. run `docker-compose exec client bash` to get a bash shell with the Conjur
    client software
@@ -61,13 +67,15 @@ Docker Compose.
    Please enter admin's password (it will not be echoed):
    ```
 
-1. Conjur is installed and you're ready to start exploring. Some suggestions:
+## Explore
 
-   ```shell
-   conjur authn whoami
-   conjur help
-   conjur help policy load
-   ```
+Conjur is installed and ready for use. Some suggestions:
+
+```shell
+conjur authn whoami
+conjur help
+conjur help policy load
+```
 
 [get-docker]: https://docs.docker.com/engine/installation
 [get-docker-compose]: https://docs.docker.com/compose/install
