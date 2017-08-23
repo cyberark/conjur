@@ -46,12 +46,12 @@ end
 
 Then(/^the binary result is "([^"]*)"$/) do |value|
   expect(@result).to be
-  expect(@result.headers[:content_type]).to include("application/octet-stream")
+  expect(@result.headers[:content_type]).to eq("application/octet-stream")
   expect(@result).to eq(value)
 end
 
 Then(/^the binary result is preserved$/) do
   expect(@result).to be
-  expect(@result.headers[:content_type]).to include("application/octet-stream")
-  expect(@result.bytes).to eq(@value.bytes)
+  expect(@result.headers[:content_type]).to eq("application/octet-stream")
+  expect(@result).to eq(@value)
 end

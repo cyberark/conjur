@@ -26,6 +26,7 @@ gem 'gli', require: false
 # Installing ruby_dep 1.4.0
 # Gem::InstallError: ruby_dep requires Ruby version >= 2.2.5, ~> 2.2.
 gem 'ruby_dep', '= 1.3.1'
+
 gem 'conjur-api', github: 'cyberark/api-ruby'
 gem 'conjur-rack', github: 'conjurinc/conjur-rack'
 gem 'conjur-rack-heartbeat'
