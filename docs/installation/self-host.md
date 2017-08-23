@@ -24,33 +24,26 @@ Docker Compose.
    $ curl -o docker-compose.yml https://try.conjur.org/installation/quick-start.yml
    ```
 
-1. generate your master data key and load it into the environment  
-   **Important: prevent data loss**  
-   Back up this key in a safe location.
+1. generate your master data key and load it into the environment
 
    ```shell
    docker-compose run --no-deps --rm --entrypoint conjurctl conjur data-key generate > data_key
    export CONJUR_DATA_KEY="$(< data_key)"
    ```
 
-## Install
+### Important: prevent data loss
+Back up this key in a safe location.
+
+## Install and configure
 
 1. run `docker-compose up -d` to run the Conjur server, database and client
-1. initialize the database:
+1. create a default account (eg. `quick-start`):
 
    ```shell
-   docker-compose exec conjur conjurctl db migrate
+   docker-compose exec conjur conjurctl account create quick-start
    ```
 
-## Configure
-
-Create a default account (eg. `quick-start`):
-
-```shell
-docker-compose exec conjur conjurctl account create quick-start
-```
-
-**Important: prevent data loss**  
+### Important: prevent data loss
 This command gives you the public key and admin API key for the account you
 just created. Back them up in a safe location.
 
