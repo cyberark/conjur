@@ -28,20 +28,20 @@ operations:
       icon: <i class="fa fa-arrow-down"></i>
 
 local:
-  title: Run self-hosted Conjur
-  text: "Start using Conjur in your own environments by installing the server, database and client:"
+  title: Using Your Own Conjur Server
+  text: "Running your own Conjur server gives you total control over the software and doesn't require you to connect to the Internet. Start using Conjur in your own environments by installing the CLI and Server."
   links:
     self-host:
-      title: Install self-hosted Conjur
+      title: Install Conjur
       path: /get-started/self-host.html
       target: _blank
       icon: <i class="fa fa-server"></i>
 
 hosted:
-  title: Evaluate Conjur
-  text: "Quickly try Conjur's features using a hosted evaluation server that we have already running in the cloud."
+  title: Demo Conjur
+  text: "Our evaluation server is the quickest way to get started using Conjur, giving you immediate access to a running server in the cloud. However, the evaluation service is for developers only and should never store production secrets."
   links:
     hosted:
-      title: Create a Hosted Evaluation Account
+      title: Start your evaluation
       path: /get-started/evaluate-conjur.html
       icon: <i class="fa fa-server"></i>

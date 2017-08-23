@@ -34,6 +34,8 @@
   border-radius: 4px;
   color: $conjur-text;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 
   .cta-box-header {
     font-weight: 400;
@@ -49,6 +51,7 @@
     font-weight: 300;
     padding: 0 2em;
     margin-top: 0px;
+    flex: 1;
   }
 
   ul.cta-links {
