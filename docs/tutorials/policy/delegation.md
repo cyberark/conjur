@@ -12,7 +12,7 @@ But when Conjur is used in a large organization, it's important that the securit
 
 {% include toc.md key='prerequisites' %}
 
-Install the [self-hosted Conjur software](/get-started/self-host.html).
+Install the [self-hosted Conjur software](/get-started/conjur-install.html).
 
 It's advisable, but not required, to step through the [Enrolling an Application](./applications.html) tutorial before this one.
 

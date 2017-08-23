@@ -23,7 +23,7 @@ operations:
       icon: <i class="fa fa-server"></i>
     download:
       title: Run Conjur on your Laptop using Docker
-      path: /get-started/self-host.html
+      path: /get-started/install-conjur.html
       target: _blank
       icon: <i class="fa fa-arrow-down"></i>
 
@@ -33,7 +33,7 @@ local:
   links:
     self-host:
       title: Install Conjur
-      path: /get-started/self-host.html
+      path: /get-started/install-conjur.html
       target: _blank
       icon: <i class="fa fa-server"></i>
 
