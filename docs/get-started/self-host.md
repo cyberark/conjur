@@ -1,9 +1,7 @@
 ---
-title: Installation - Self-Host
+title: Installing self-hosted Conjur
 layout: page
 ---
-
-# Installing self-hosted Conjur
 
 You can easily download and run the Conjur software using the official
 containers on Docker Hub.
@@ -21,7 +19,7 @@ Docker Compose.
 1. download the Conjur quick-start configuration:
 
    ```sh-session
-   $ curl -o docker-compose.yml https://try.conjur.org/installation/quick-start.yml
+   $ curl -o docker-compose.yml https://try.conjur.org/get-started/quick-start.yml
    ```
 
 1. generate your master data key and load it into the environment
