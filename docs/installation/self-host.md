@@ -27,7 +27,7 @@ Docker Compose.
 1. generate your master data key and load it into the environment
 
    ```shell
-   docker-compose run --no-deps --rm --entrypoint conjurctl conjur data-key generate > data_key
+   docker-compose run --no-deps --rm conjur data-key generate > data_key
    export CONJUR_DATA_KEY="$(< data_key)"
    ```
 
