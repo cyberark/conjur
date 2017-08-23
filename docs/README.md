@@ -35,30 +35,15 @@ This script builds the `conjur-docs` Docker image and then runs
 
 ### API Blueprint Docs
 
-TODO: move this section out of `docs/` and into project root or `apidocs/`.
+Currently, the docker-compose setup described above assumes that the API docs have been rendered to `docs/_includes/api.html`. Without that file, the local server will fail to serve the API docs.
 
-We're using [API Blueprint](https://apiblueprint.org/documentation/) to document the Conjur API. There is no Ruby specific implementation, so we're using the [Aglio](https://github.com/danielgtaylor/aglio) package. The final generated docs can be viewed in two ways:
-
-##### Live Preview
+To perform this step, run the following:
 ```sh-session
-$ cd docs
-$ ./dev.sh /node_modules/.bin/aglio -i apidocs/src/api.md -s -h 0.0.0.0 -p 4000
+$ cd "$(git rev-parse --show-toplevel)" # cd to project root
+$ docker-compose build --pull docs
+$ docker-compose up -d docs
+$ apidocs/build.sh
+$ docker run --rm conjurinc/possum-apidocs > docs/_includes/api.html
 ```
 
-The above will make the rendered API docs available on `http://localhost:4000/`.
-
-Please note that the Docs Dockerfile contains the configuration to build both Jekyll and Aglio. This is why we execute commands from the `/docs` folder not the `/apidocs` folder. The API Blueprint reference path (`apidocs/src/api.md`) is from the project root.
-
-##### Generated (Visible from Jekyll)
-
-To compile API docs into the Jekyll project, first, start the Jekyll server:
-
-```sh-session
-$ cd docs && ./dev.sh
-```
-
-Now in a new shell, compile API docs into the running project:
-```sh-session
-$ docker exec conjur-web /node_modules/.bin/aglio -i apidocs/src/api.md -o /opt/conjur/_site/apidocs.html
-```
-The above should be run from the root `conjur` folder.
+If you're just working on the API docs and want a live-updating dev server for them, see [Build the API documentation from source](../README.md#build-the-api-documentation-from-source).
