@@ -8,7 +8,7 @@ layout: page
 You can easily download and run the Conjur software using the official
 containers on Docker Hub.
 
-## Dependencies
+## Pre-requisites
 
 The easiest way to install and configure Conjur quickly is using Docker and
 Docker Compose.
@@ -32,7 +32,8 @@ Docker Compose.
    ```
 
 ### Important: prevent data loss
-Back up this key in a safe location.
+The `conjurctl conjur data-key generate` command gives you a master data key.
+Back it up in a safe location.
 
 ## Install and configure
 
@@ -44,8 +45,8 @@ Back up this key in a safe location.
    ```
 
 ### Important: prevent data loss
-This command gives you the public key and admin API key for the account you
-just created. Back them up in a safe location.
+The `conjurctl account create` command gives you the public key and admin API
+key for the account you created. Back them up in a safe location.
 
 ## Connect
 
