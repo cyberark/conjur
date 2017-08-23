@@ -1,12 +1,18 @@
 #footer {
   .slack-bar {
-    background-color: $conjur-ltgray;
+    background-color: $conjur-ltblue;
+    background: -moz-linear-gradient(left, #11b5e4 0%, #1cb9a2 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(left, #11b5e4 0%,#1cb9a2 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right, #11b5e4 0%,#1cb9a2 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     text-align: center;
     padding: 15px 0;
+    height: 110px;
+    display: flex;
+    align-items: center;
 
     a {
-      color: $conjur-text;
-      font-size: 18px;
+      color: #fff;
+      font-size: 24px;
     }
   }
 
