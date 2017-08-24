@@ -31,13 +31,13 @@ class SecretsController < RestController
     end
     raise Exceptions::RecordNotFound.new(@resource.id, message: "Requested version does not exist") if secret.nil?
     value = secret.value
-    
+
     mime_type = if ( a = @resource.annotations_dataset.select(:value).where(name: 'conjur/mime_type').first )
       a[:value]
     end
     mime_type ||= 'application/octet-stream'
 
-    render text: value, content_type: mime_type
+    send_data value, type: mime_type
   end
 
   def batch

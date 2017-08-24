@@ -7,7 +7,9 @@ body {
 	font-family: 'Open Sans', sans-serif;
 	line-height: 1.8rem;
 	position: relative;
-	height: 100%;
+	display: flex;
+  min-height: 100vh;
+  flex-direction: column;
 }
 
 html {
@@ -74,6 +76,10 @@ img {
 // ***********************
 // Container
 // ***********************
+
+.container {
+	flex: 1;
+}
 
 p {
 	font-family: 'Open Sans', sans-serif;

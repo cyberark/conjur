@@ -23,29 +23,22 @@ operations:
       icon: <i class="fa fa-server"></i>
     download:
       title: Run Conjur on your Laptop using Docker
-      path: /get-started/install-conjur-cli.html
+      path: /get-started/install-conjur.html
       target: _blank
       icon: <i class="fa fa-arrow-down"></i>
 
 local:
-  title: Run Conjur Locally
-  text: "Start using Conjur in your own environments by installing the CLI and Server:"
+  title: Run Conjur
+  text: "Running your own Conjur server gives you total control over the software and doesn't require you to connect to the Internet. Start using Conjur in your own environments by installing the CLI and Server."
   links:
-    cli:
-      title: Install Conjur CLI
-      path: /get-started/install-conjur-cli.html
-      icon: <i class="fa fa-terminal"></i>
-    download:
-      title: Install Conjur Server
-      path: /get-started/install-conjur-server.html
-      target: _blank
-      icon: <i class="fa fa-server"></i>
+    self-host:
+      title: Install Conjur
+      content: <a href="/get-started/install-conjur.html" class="conjur-cta-primary">Get Started</a>
 
 hosted:
   title: Demo Conjur
-  text: Quickly try Conjur's features using a hosted evaluation server that we have already running in the cloud.
+  text: "Our evaluation server is the quickest way to get started using Conjur, giving you immediate access to a running server in the cloud. However, the evaluation service is for developers only and should never store production secrets."
   links:
     hosted:
-      title: Create a Hosted Demo Account
-      path: /get-started/evaluate-conjur.html
-      icon: <i class="fa fa-server"></i>
+      title: Start your evaluation
+      content: <a href="/get-started/evaluate-conjur.html" class="conjur-cta-secondary">Start Evaluation</a>

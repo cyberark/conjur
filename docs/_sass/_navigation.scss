@@ -12,13 +12,11 @@
     a.navbar-brand {
       color: #ffffff;
       font-size: 2rem;
-      margin: 15px 0;
+      margin: 22px 0 0 0;
       margin-right: 35px;
       display: inline-block;
-      height: 47px;
-      width: 470px;
+      width: 350px;
       background: url("/img/cyberark_open_source_logo_ko.svg") no-repeat top left;
-      background-size: cover;
       padding: 0px;
     }
   }
@@ -86,7 +84,7 @@
       a.navbar-brand {
         box-sizing: content-box;
         width: 256px;
-        margin: 15px 35px 15px 15px;
+        margin: 27px 0 0 0;
       }
     }
   }
@@ -164,5 +162,13 @@ ul.sidebar-nav {
   &:last-of-type li a {
     color: $conjur-text;
     font-weight: 400;
+  }
+
+  .coming-soon {
+    font-weight: 400;
+    span {
+      font-weight: 300;
+      font-style:italic;
+    }
   }
 }

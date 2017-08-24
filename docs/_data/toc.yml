@@ -4,6 +4,7 @@
   secrets: Secrets Management
   audit: Audit
   scalability: Scalability
+  containers: Built for Containers
   integrations: Integrations
   ssh-access-management: SSH Access Management
   ui: User Interface
@@ -38,25 +39,12 @@
   next-steps: Next Steps
   enterprise: Try Conjur Enterprise
 
-"/get-started/install-conjur-cli.html":
-  get:
-    title: Get the Client
-    sections:
-      docker: Run in Docker
-      source: Run from Source
-  configure:
-    title: Configure
-    sections:
-      environment: Using the Environment
-      conjur-init: Using Files
-  login: Log In
-
-"/installation/server.html":
-  hosted: Hosted Dev Account
-  compose: Docker Compose
-  docker: Standalone Docker
-  build: Source Code
-  next-steps: Next Steps
+"/get-started/install-conjur.html":
+  prereq: Prerequitites
+  launch: Prepare to launch
+  install: Install and Configure
+  connect: Connect
+  explore: Explore
 
 "/reference/policy.html":
   introduction: What is a Policy?

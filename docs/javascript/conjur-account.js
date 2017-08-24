@@ -24,9 +24,9 @@ function setAccountCookie(value) {
   document.cookie = 'account=' + value + '; expires=' + expires + '; path=/';
 }
 
-function displayAccountCredentials(email, account, api_key) {
+function displayAccountCredentials(email, account_id, api_key) {
   $("#credentials-email").text(email);
-  $("#credentials-account").text(account);
+  $("#credentials-account").text(account_id);
   $("#credentials-api-key").text(api_key);
 
   $('.hosted-conjur-signup').fadeOut("normal", function() {
@@ -37,7 +37,7 @@ function displayAccountCredentials(email, account, api_key) {
 
   spans.forEach(function(s) {
     if(s.innerText == '"your-conjur-account-id"') {
-      s.innerText = '"' + account + '"';
+      s.innerText = '"' + account_id + '"';
     }
   });
 }
@@ -57,6 +57,7 @@ $(document).ready(function() {
 
       var payload =
           "email=" + $("#email-address").val() +
+          "&organization=" + $("#organization").val() +
           "&recaptcha_token=" + grecaptcha.getResponse()
       
       $.ajax({
@@ -66,21 +67,33 @@ $(document).ready(function() {
         url: "{{site.cpanel_url}}/api/accounts",
         success: function(response) {
           setAccountCookie(JSON.stringify(response));
-          displayAccountCredentials(response.account,
-                                    response.account,
+          displayAccountCredentials(response.email,
+                                    response.account_id,
                                     response.api_key);
         },
         error: function(xhr, ajaxOptions, thrownError) {
+          var error = xhr.responseJSON.error;
+          
           // Manually inserting the error here because there doesn't seem to
           // be a way to make bootstrap-validator display an error on-demand.
           var errorElement =
               '<ul class="list-unstyled"> \
                  <li style="color:#a94442">' +
-                   xhr.responseJSON.error.message +
+                   error.message +
                 '</li> \
               </ul>'
 
-          $(".help-block.with-errors").first().html(errorElement);
+          var inputField;
+          
+          if(error.target == "email") {
+            inputField = $("#email-address").first();
+          } else if(error.target == "organization") {
+            inputField = $("#organization").first();
+          }
+
+          if(inputField !== undefined) {
+            inputField.siblings(".help-block.with-errors").first().html(errorElement);
+          }
         }
       });
     }

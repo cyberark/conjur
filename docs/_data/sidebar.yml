@@ -13,15 +13,12 @@ main:
     title: Get Started
     path: /get-started/
     items:
+      install-conjur:
+        title: Install Conjur
+        path: /get-started/install-conjur.html
       evaluate-conjur:
         title: Evaluate Conjur
         path: /get-started/evaluate-conjur.html
-      install-conjur-cli:
-        title: Install Conjur CLI
-        path: /get-started/install-conjur-cli.html
-      install-conjur-server:
-        title: Install Conjur Server
-        path: /get-started/install-conjur-server.html
   tutorials:
     title: Tutorials
     path: /tutorials/
