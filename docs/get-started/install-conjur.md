@@ -21,16 +21,17 @@ The easiest way to install and configure Conjur quickly is using Docker and Dock
    $ curl -o docker-compose.yml https://try.conjur.org/get-started/quick-start.yml
    ```
 
-1. Generate your master data key and load it into the environment
+1. Generate your master data key and load it into the environment:
 
    ```shell
    docker-compose run --no-deps --rm conjur data-key generate > data_key
    export CONJUR_DATA_KEY="$(< data_key)"
    ```
 
-### Important: Prevent data loss
-The `conjurctl conjur data-key generate` command gives you a master data key.
-Back it up in a safe location.
+<div class="alert alert-info" role="alert"> <strong>Important: Prevent data loss!</strong><br>
+  The <code>conjurctl conjur data-key generate</code> command gives you a master data key.
+  Back it up in a safe location.
+</div>
 
 {% include toc.md key='install' %}
 
@@ -41,9 +42,10 @@ Back it up in a safe location.
    docker-compose exec conjur conjurctl account create quick-start
    ```
 
-### Important: Prevent data loss
-The `conjurctl account create` command gives you the public key and admin API
-key for the account you created. Back them up in a safe location.
+ <div class="alert alert-info" role="alert"> <strong>Important: Prevent data loss!</strong><br>
+  The <code>conjurctl account create</code> command gives you the public key and admin API
+  key for the account you created. Back them up in a safe location.
+ </div>
 
 {% include toc.md key='connect' %}
 
@@ -60,7 +62,7 @@ key for the account you created. Back them up in a safe location.
 
 {% include toc.md key='explore' %}
 
-Conjur is installed and ready for use. Some suggestions:
+Conjur is installed and ready for use! Ready to do more?  Here are some suggestions:
 
 ```shell
 conjur authn whoami
