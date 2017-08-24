@@ -16,7 +16,7 @@
 
 <ul class="sidebar-nav list-unstyled">
   <li class="item"><a href="https://www.cyberark.com/" target="_blank">Conjur Enterprise</a></li>
-  <li class="item"><a href="/contributing.html">Contributing</a></li>
+  <li class="item"><a href="https://github.com/cyberark/conjur/blob/master/CONTRIBUTING.md">Contributing</a></li>
   <li class="item"><a href="/support.html">Support</a></li>
 </ul>
 
@@ -25,6 +25,6 @@
 <ul class="sidebar-nav list-unstyled">
   <li class="item"><a href="https://github.com/cyberark/conjur" target="_blank"><i class="fa fa-github-alt"></i> GitHub</a></li>
   <li class="item"><a href="https://hub.docker.com/r/cyberark/conjur/" target="_blank"><div class="icon-docker-hub"></div> DockerHub</a></li>
-  <li class="item coming-soon"><i class="fa fa-cloud"></i> Cloud Formation (Coming Soon)</li>
+  <li class="item coming-soon"><i class="fa fa-cloud"></i> Cloud Formation <span>(Coming Soon)</span></li>
   <li class="item"><a href="https://slackin-conjur.herokuapp.com/" target="_blank"><i class="fa fa-slack"></i> Slack</a></li>
 </ul>

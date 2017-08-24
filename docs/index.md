@@ -29,6 +29,10 @@ With secrets abstraction, even the users of secrets need not know their values. 
 
 Conjur serves client traffic from “followers” which are read-mostly replicas of the authorization rules and vaulted secrets. Conjur followers use a shared nothing architecture, which means that they scale out in a nearly ideal way. Conjur has collected extensive benchmarks of the scale-out performance of Conjur, and can demonstrate linear scaling from clusters of 1 machine to 10 or more. Conjur can demonstrate the fully authenticated, authorized, and audited retrieval of up to 4 million secrets per minute.
 
+{% include toc.md key='containers' %}
+
+Containers come with their own security challenges and Conjur is specifically built with those in mind.  Conjur uniquely identifies and audits containers and each container has its own unique permissions (RBAC) managed by a Conjur root policy. Applications and services running on those containers are also uniquely authenticated and authorized, making sure secrets are shared securely only with their intended recipients.
+
 {% include toc.md key='integrations' %}
 
 CyberArk officially provides and supports integration libraries between Conjur and external tools such as Active Directory, Puppet, Ansible, Chef, Jenkins, Salt Stack, Docker, Kubernetes, OpenShift, and CloudFoundry. CyberArk has officially partnered with Puppet to provide joint support for the Conjur Puppet Module. CyberArk is extending this partnering relationship to other major tool vendors in the DevOps space.

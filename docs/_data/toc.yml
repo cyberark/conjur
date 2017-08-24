@@ -4,6 +4,7 @@
   secrets: Secrets Management
   audit: Audit
   scalability: Scalability
+  containers: Built for Containers
   integrations: Integrations
   ssh-access-management: SSH Access Management
   ui: User Interface
@@ -37,6 +38,13 @@
   programming: Programming Conjur
   next-steps: Next Steps
   enterprise: Try Conjur Enterprise
+
+"/get-started/install-conjur.html":
+  prereq: Prerequitites
+  launch: Prepare to launch
+  install: Install and Configure
+  connect: Connect
+  explore: Explore
 
 "/reference/policy.html":
   introduction: What is a Policy?

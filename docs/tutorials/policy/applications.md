@@ -27,7 +27,7 @@ Organizing policy management into three categories - protected resources, applic
 
 {% include toc.md key='prerequisites' %}
 
-Install the [self-hosted Conjur software](/get-started/self-host.html).
+Install the [self-hosted Conjur software](/get-started/install-conjur.html).
 
 {% include toc.md key='setup' %}
 

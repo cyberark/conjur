@@ -17,7 +17,7 @@ As a result, the "blast radius" of a compromised node or Puppet master is minimi
 
 {% include toc.md key='prerequisites' %}
 
-* A [Conjur installation](/get-started/self-host.html)
+* A [Conjur installation](/get-started/install-conjur.html)
 * A client machine with the Puppet agent installed
 
 {% include toc.md key='overview' %}
