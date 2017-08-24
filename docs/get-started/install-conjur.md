@@ -1,5 +1,5 @@
 ---
-title: Run your own Conjur server
+title: Run a Conjur server
 layout: page
 section: get-started
 ---
