@@ -64,6 +64,33 @@
 
     a {
       color: $conjur-text;
+
+      &.conjur-cta-primary {
+        transition: all 0.4s;
+        color: #fff;
+        background-color: $conjur-ltblue;
+        padding: .5em 1em;
+        border-radius: 25px;
+        &:hover {
+          text-decoration: none;
+          background-color: darken($conjur-ltblue,05);
+          box-shadow: 0px 0px 5px rgba(165,165,165,0.8);
+        }
+      }
+
+      &.conjur-cta-secondary {
+        transition: all 0.4s;
+        color: #fff;
+        background-color: darken($conjur-ltgray,10);
+        padding: .5em 1em;
+        border-radius: 25px;
+        &:hover {
+          text-decoration: none;
+          background-color: darken($conjur-ltgray,15);
+          box-shadow: 0px 0px 5px rgba(165,165,165,0.8);
+        }
+      }
+
     }
 
     i {

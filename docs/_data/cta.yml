@@ -28,14 +28,12 @@ operations:
       icon: <i class="fa fa-arrow-down"></i>
 
 local:
-  title: Using Your Own Conjur Server
+  title: Run Conjur
   text: "Running your own Conjur server gives you total control over the software and doesn't require you to connect to the Internet. Start using Conjur in your own environments by installing the CLI and Server."
   links:
     self-host:
       title: Install Conjur
-      path: /get-started/install-conjur.html
-      target: _blank
-      icon: <i class="fa fa-server"></i>
+      content: <a href="/get-started/install-conjur.html" class="conjur-cta-primary">Get Started</a>
 
 hosted:
   title: Demo Conjur
@@ -43,5 +41,4 @@ hosted:
   links:
     hosted:
       title: Start your evaluation
-      path: /get-started/evaluate-conjur.html
-      icon: <i class="fa fa-server"></i>
+      content: <a href="/get-started/evaluate-conjur.html" class="conjur-cta-secondary">Start Evaluation</a>
