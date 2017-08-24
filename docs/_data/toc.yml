@@ -4,6 +4,7 @@
   secrets: Secrets Management
   audit: Audit
   scalability: Scalability
+  containers: Built for Containers
   integrations: Integrations
   ssh-access-management: SSH Access Management
   ui: User Interface
