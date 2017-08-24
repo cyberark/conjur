@@ -163,4 +163,12 @@ ul.sidebar-nav {
     color: $conjur-text;
     font-weight: 400;
   }
+
+  .coming-soon {
+    font-weight: 400;
+    span {
+      font-weight: 300;
+      font-style:italic;
+    }
+  }
 }
