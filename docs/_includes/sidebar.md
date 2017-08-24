@@ -16,7 +16,7 @@
 
 <ul class="sidebar-nav list-unstyled">
   <li class="item"><a href="https://www.cyberark.com/" target="_blank">Conjur Enterprise</a></li>
-  <li class="item"><a href="/contributing.html">Contributing</a></li>
+  <li class="item"><a href="https://github.com/cyberark/conjur/blob/master/CONTRIBUTING.md">Contributing</a></li>
   <li class="item"><a href="/support.html">Support</a></li>
 </ul>
 
