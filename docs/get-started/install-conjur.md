@@ -28,7 +28,7 @@ The easiest way to install and configure Conjur quickly is using Docker and Dock
    export CONJUR_DATA_KEY="$(< data_key)"
    ```
 
-<div class="alert alert-info" role="alert"> <strong>Important: Prevent data loss!</strong><br>
+<div class="alert alert-info" role="alert"> <strong>Prevent data loss:</strong><br>
   The <code>conjurctl conjur data-key generate</code> command gives you a master data key.
   Back it up in a safe location.
 </div>
@@ -42,7 +42,7 @@ The easiest way to install and configure Conjur quickly is using Docker and Dock
    docker-compose exec conjur conjurctl account create quick-start
    ```
 
- <div class="alert alert-info" role="alert"> <strong>Important: Prevent data loss!</strong><br>
+ <div class="alert alert-info" role="alert"> <strong>Prevent data loss:</strong><br>
   The <code>conjurctl account create</code> command gives you the public key and admin API
   key for the account you created. Back them up in a safe location.
  </div>
