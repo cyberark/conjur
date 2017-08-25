@@ -59,8 +59,8 @@ $(document).ready(function() {
   var accountCookie = getAccountCookie();
 
   if(accountCookie !== null) {
-    displayAccountCredentials(accountCookie.account,
-                              accountCookie.account,
+    displayAccountCredentials(accountCookie.account_id,
+                              accountCookie.account_id,
                               accountCookie.api_key);
   }
 
