@@ -24,7 +24,6 @@ Parameters:
   ImageId:
     Type: AWS::EC2::Image::Id
     Description: Conjur CE AMI
-    Default: ami-4e576735
 
   KeyName:
     Type: AWS::EC2::KeyPair::KeyName
@@ -68,8 +67,11 @@ Resources:
       SubnetId: !Select [0, !Ref VpcSubnetIds]
       UserData:
         Fn::Base64: !Sub |
-          #!/bin/bash -ex
+          #!/bin/bash -e
 
+          exec >>/var/log/conjur-init.log 2>&1
+
+          set -x
           # Only initialize once
           if grep -q CONJUR_DATA_KEY /etc/default/conjur; then 
             exit 0;
@@ -83,6 +85,8 @@ Resources:
           EOF
 
           admin_api_key="$(/opt/conjur/bin/server create | awk '/API key for admin/ {print $NF}')"
+          /opt/conjur/bin/server wait_for_server
+
           /opt/conjur/bin/set_admin_password "$admin_api_key" "${ConjurAdminPassword}"
 
 
@@ -131,3 +135,7 @@ Resources:
       DBSubnetGroupDescription: "Postgres subnet"
       SubnetIds: !Ref VpcSubnetIds
 
+Outputs:
+  ConjurAddress: 
+    Description: public IP address of Conjur CE instance
+    Value: !GetAtt ConjurInstance.PublicIp
