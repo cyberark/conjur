@@ -80,6 +80,8 @@
 
 }
 
+
+
 @media (max-width: 1200px) {
   #top-navigation {
     .navbar-header {
@@ -91,6 +93,23 @@
     }
   }
 }
+
+@media (max-width: 991px) {
+  #top-navigation .navbar-header {
+    a.navbar-brand {
+      color: #ffffff;
+      font-size: 2rem;
+      margin: 18px 0 0px 33px;
+      margin-right: 35px;
+      display: inline-block;
+      width: 35px;
+      background: url("/img/cyberark_icon_ko.svg") no-repeat top left;
+      padding: 0px;
+    }
+  }
+}
+
+
 
 @media (max-width: 767px) {
   #top-navigation {
@@ -127,10 +146,10 @@
       a.navbar-brand {
         color: #ffffff;
         font-size: 2rem;
-        margin: 15px 0 0px 33px;
+        margin: 18px 0 0px 33px;
         margin-right: 35px;
         display: inline-block;
-        width: 40px;
+        width: 35px;
         background: url("/img/cyberark_icon_ko.svg") no-repeat top left;
         padding: 0px;
       }
