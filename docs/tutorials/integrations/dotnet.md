@@ -10,6 +10,8 @@ The [Conjur API for .NET](https://github.com/cyberark/conjur-api-dotnet) provide
 
 {% include toc.md key='prerequisites' %}
 
+* A [Conjur server](/get-started/) endpoint.
+* The [Conjur API for .NET](https://github.com/cyberark/conjur-api-dotnet)
 * Visual Studio
 
 {% include toc.md key='building' %}
