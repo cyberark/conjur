@@ -48,6 +48,9 @@ main:
           ruby:
             title: Ruby API
             path: /tutorials/integrations/ruby.html
+          java:
+            title: Java API
+            path: /tutorials/integrations/java.html
 
           # python:
           #   title: Python API

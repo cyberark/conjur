@@ -6,12 +6,12 @@ section: tutorials
 
 {% include toc.md key='introduction' %}
 
-The [Conjur API for Ruby](https://github.com/conjurinc/api-ruby) provides a robust programmatic interface to Conjur. You can use the Ruby API to authenticate with Conjur, load policies, fetch secrets, perform permission checks, and more.
+The [Conjur API for Ruby](https://github.com/cyberark/conjur-api-ruby) provides a robust programmatic interface to Conjur. You can use the Ruby API to authenticate with Conjur, load policies, fetch secrets, perform permission checks, and more.
 
 {% include toc.md key='prerequisites' %}
 
 * A [Conjur server](/get-started/) endpoint.
-* The [Conjur API for Ruby](https://github.com/conjurinc/api-ruby), version 5.0 or later.
+* The [Conjur API for Ruby](https://github.com/cyberark/conjur-api-ruby), version 5.0 or later.
 
 {% include toc.md key='setup' %}
 
@@ -248,5 +248,5 @@ and displays the value of the secret stored in Conjur.
 
 {% include toc.md key='next-steps' %}
 
-* Read the [Ruby API code on GitHub](https://github.com/conjurinc/api-ruby).
+* Read the [Ruby API code on GitHub](https://github.com/cyberark/conjur-api-ruby).
 * Visit the [Ruby API code on RubyGems](https://rubygems.org/gems/conjur-api).

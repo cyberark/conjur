@@ -72,8 +72,8 @@
 
 "/tutorials/integrations/ruby.html":
   introduction: Introduction
-  setup: Setup
   prerequisites: Prerequisites
+  setup: Setup
   configuration: Configuration
   authentication: Authentication
   secrets-fetching: Secrets Fetching
@@ -82,6 +82,13 @@
   sinatra-example: Sinatra Example
   next-steps: Next Steps
 
+"/tutorials/integrations/java.html":
+  introduction: Introduction
+  prerequisites: Prerequisites
+  setup: Setup
+  creating-instance: Creating a Conjur Instance
+  secrets-fetching: Secrets Fetching
+  
 "/tutorials/integrations/puppet.html":
   introduction: Introduction
   prerequisites: Prerequisites
