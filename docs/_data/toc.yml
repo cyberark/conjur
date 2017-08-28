@@ -76,12 +76,20 @@
   prerequisites: Prerequisites
   configuration: Configuration
   authentication: Authentication
-  secrets-fetching: Secrets Fetching
+  secret-retrieval: Secret Retrieval
   permission-checking: Permission Checking
   webservice-authz: Webservice Authorization
   sinatra-example: Sinatra Example
   next-steps: Next Steps
 
+"/tutorials/integrations/go.html":
+  introduction: Introduction
+  prerequisites: Prerequisites
+  setup: Setup
+  configuration: Configuration
+  secret-retrieval: Secret Retrieval
+  next-steps: Next Steps
+  
 "/tutorials/integrations/puppet.html":
   introduction: Introduction
   prerequisites: Prerequisites

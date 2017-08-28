@@ -48,6 +48,9 @@ main:
           ruby:
             title: Ruby API
             path: /tutorials/integrations/ruby.html
+          go:
+            title: Go API
+            path: /tutorials/integrations/go.html
 
           # python:
           #   title: Python API
