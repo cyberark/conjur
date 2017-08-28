@@ -48,6 +48,9 @@ main:
           ruby:
             title: Ruby API
             path: /tutorials/integrations/ruby.html
+          dotnet:
+            title: .NET API
+            path: /tutorials/integrations/dotnet.html
 
           # python:
           #   title: Python API
