@@ -37,6 +37,10 @@
   display: flex;
   flex-direction: column;
 
+  .cta-content-wrap {
+    flex: 1;
+  }
+
   .cta-box-header {
     font-weight: 400;
     padding: 1em 1.5em;
