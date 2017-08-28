@@ -14,9 +14,7 @@ The [Conjur API for Java](https://github.com/cyberark/conjur-api-java) provides 
 * The [Conjur API for Ruby](https://github.com/cyberark/conjur-api-ruby), version 5.0 or later.
 * Maven
 
-{% include toc.md key='setup' %}
-
-**Integrating the API**
+{% include toc.md key='installation' %}
 
 First, build the API from source with Maven by running the following commands:
 
@@ -38,15 +36,25 @@ If you are using Maven to manage your project's dependencies, you can run `mvn i
 
 If you aren't using Maven, you can add the `jar` in the normal way. This `jar` can be found in the `target` directory created when you ran `mvn package`.
 
-**Running Tests**
+Note that we ran `mvn package` without running the integration tests, since these require access to a Conjur instance. You can run the integration tests with mvn package once you finished with the configuration.
 
-Note that this will not run the integration tests, since these require access to a Conjur instance. To run the integration tests, you will need to define the following environment variables for the `mvn package` command (and remove the `skipTests` property):
+{% include toc.md key='configuration' %}
+
+The simplest way to configure the Conjur API is by using environment variables. The following environment variables are mandatory for running the API:
+
+- `CONJUR_ACCOUNT`: The account specified during Conjur setup.
+- `CONJUR_APPLIANCE_URL`: The Conjur HTTPS endpoint.
+- `CONJUR_CREDENTIALS`: The name and API key for a Conjur User or Host (written together as `name:api_key`)
+
+For example, specify the environment variables like this:
 
 ```
-CONJUR_ACCOUNT=accountName
-CONJUR_CREDENTIALS=username:apiKey
-CONJUR_APPLIANCE_URL=http://conjur
+CONJUR_ACCOUNT=myorg
+CONJUR_APPLIANCE_URL=https://conjur.myorg.com/api
+CONJUR_CREDENTIALS=host/myhost.example.com:sb0ncv1yj9c4w2e9pb1a2s
 ```
+
+Note that if you are connecting as a Host, the login should be prefixed with `host/`. For example: `host/myhost.example.com`, not just `myhost.example.com`.
 
 In addition, you will need to load a Conjur policy. Save this file as `root.yml`:
 
@@ -81,6 +89,10 @@ Conjur conjur = new Conjur();
 conjur.variables().addSecret(VARIABLE_KEY, VARIABLE_VALUE);
 String retrievedSecret = conjur.variables().retrieveSecret(VARIABLE_KEY);
 ```
+
+
+
+
 
 **SSL Certificates**
 

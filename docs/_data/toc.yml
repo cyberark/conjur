@@ -85,7 +85,8 @@
 "/tutorials/integrations/java.html":
   introduction: Introduction
   prerequisites: Prerequisites
-  setup: Setup
+  installation: Installation
+  configuration: Configuration
   creating-instance: Creating a Conjur Instance
   secrets-fetching: Secrets Fetching
   
