@@ -78,7 +78,7 @@ Conjur conjur = new Conjur();
 
 where the Conjur object is logged in to the account and ready for use.
 
-{% include toc.md key='secrets-fetching' %}
+{% include toc.md key='secret-retrieval' %}
 
 Conjur variables store encrypted, access-controlled data. The most common thing a variable stores is a secret. A variable can have one or more (up to 20) secrets associated with it, and ordered in reverse chronological order.
 
@@ -90,11 +90,7 @@ conjur.variables().addSecret(VARIABLE_KEY, VARIABLE_VALUE);
 String retrievedSecret = conjur.variables().retrieveSecret(VARIABLE_KEY);
 ```
 
-
-
-
-
-**SSL Certificates**
+{% include toc.md key='ssl-certificates' %}
 
 By default, the Conjur appliance generates and uses self-signed SSL certificates. You'll need to configure Java to trust them. You can accomplish this by loading the Conjur certificate into the Java keystore. First, you'll need a copy of this certificate, which you can get using the [Conjur CLI](https://github.com/cyberark/conjur-cli). Once you've installed the command line tools, you can run
 
@@ -116,7 +112,7 @@ keytool -import -alias conjur-youraccount \
         -file ./conjur-youraccount.der
 ```
 
-**JAXRS Implementations**
+{% include toc.md key='jax-rs-implementations' %}
 
 The Conjur API client uses the JAXRS standard to make requests to the Conjur web services. In the future we plan to remove this dependency, but for the time being you may need to change the JAXRS implementation to conform to your environment and application dependencies. For example, in a JBoss server environment, you should use the RESTlet implementation. The Conjur API uses Apache CFX by default. You can replace that dependency in pom.xml to use an alternative implementation.
 

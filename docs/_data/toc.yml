@@ -88,7 +88,10 @@
   installation: Installation
   configuration: Configuration
   creating-instance: Creating a Conjur Instance
-  secrets-fetching: Secrets Fetching
+  secret-retrieval: Secret Retrieval
+  ssl-certificates: SSL Certificates
+  jax-rs-implementations: JAX RS Implementation
+  next-steps: Next Steps
   
 "/tutorials/integrations/puppet.html":
   introduction: Introduction
