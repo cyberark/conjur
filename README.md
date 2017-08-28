@@ -24,16 +24,37 @@ Conjur provides:
 
 ## Links
 
-* [Try Conjur:](https://www.conjur.org/get-started/try-conjur.html)
-* [Support](https://www.conjur.org/support.html)
-* [API Documentation][api-doc]
+* try Conjur: [Start Here](https://try.conjur.org)
+* [support](https://try.conjur.org/support.html)
+* [API Documentation][api]
 
-[api-doc]: https://www.conjur.org/api.html
+[![Join Conjur Slack](https://img.shields.io/badge/slack-open-e01563.svg)][slack]
+[![Conjur API Ruby Gem](https://img.shields.io/gem/dt/conjur-api.svg?label=ruby%20gem%20downloads)][gem]
+[![Docker Pulls](https://img.shields.io/docker/pulls/cyberark/conjur.svg)][docker]
+[![Issues ready for work](https://img.shields.io/waffle/label/cyberark/conjur/ready.svg?label=issues%20ready%20for%20work)][waffle]
+[![Issues in progress](https://img.shields.io/waffle/label/cyberark/conjur/in%20progress.svg)][waffle]
+[![Follow Conjur on Twitter](https://img.shields.io/twitter/follow/conjurinc.svg?style=social&label=Follow%20%40ConjurInc)][twitter]
+
+
+#### Conjur module on PuppetForge
+[![Conjur on Puppet Forge](https://img.shields.io/puppetforge/dt/conjur/conjur.svg)][puppet]
+[![Score on Puppet Forge](https://img.shields.io/puppetforge/f/conjur/conjur.svg)][puppet]
+[![We're a Puppet Partner](https://img.shields.io/puppetforge/e/conjur/conjur.svg)][puppet]
+
+_Note: our badges and social media buttons never track you._
+
+[slack]: https://slackin-conjur.herokuapp.com "Join our Slack community"
+[waffle]: https://waffle.io/cyberark/conjur "Conjur issues on Waffle.io"
+[gem]: https://rubygems.org/gems/conjur-api "Conjur API Ruby Gem"
+[puppet]: https://forge.puppet.com/conjur/conjur "Official Conjur module on PuppetForge"
+[twitter]: https://twitter.com/intent/user?screen_name=ConjurInc "Follow Conjur on Twitter"
+[docker]: https://hub.docker.com/r/cyberark/conjur/ "Conjur on Docker Hub"
+[api]: https://try.conjur.org/apidocs.html
 
 # Development
 
 To get access to Jenkins, ask in our Slack community. (You can
-join [here][join-slack].)
+join [here][slack].)
 
 ### Development Dependencies
 
@@ -230,7 +251,7 @@ using [Slosilo](https://github.com/conjurinc/slosilo), a library which provides:
 * a keystore in a Postgresql database for easy storage and retrieval of keys
 
 Slosilo has been verified by a professional cryptographic audit. Ask in our
-Slack community for more details. (You can join [here][join-slack].)
+Slack community for more details. (You can join [here][slack].)
 
 ### Important: avoid data loss
 
