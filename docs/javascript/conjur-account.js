@@ -47,7 +47,7 @@ function displayError(formField, message) {
   // be a way to make bootstrap-validator display an error on-demand.
   var errorElement =
     '<ul class="list-unstyled"> \
-      <li style="color:#a94442">' +
+      <li class="form-error">' +
         message +
      '</li> \
      </ul>'
