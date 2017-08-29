@@ -35,4 +35,4 @@ Containers come with their own security challenges and Conjur is specifically bu
 
 {% include toc.md key='integrations' %}
 
-CyberArk officially provides and supports integration libraries between Conjur and external tools such as Active Directory, Puppet, Ansible, Chef, Jenkins, Salt Stack, Docker, Kubernetes, OpenShift, and CloudFoundry. CyberArk has officially partnered with Puppet to provide joint support for the Conjur Puppet Module. CyberArk is extending this partnering relationship to other major tool vendors in the DevOps space.
+CyberArk officially provides and supports integration libraries between Conjur and external tools such as Puppet, Ansible, Chef, Jenkins, Salt Stack, Docker, Kubernetes, OpenShift, and CloudFoundry. CyberArk has officially partnered with Puppet to provide joint support for the Conjur Puppet Module. CyberArk is extending this partnering relationship to other major tool vendors in the DevOps space.

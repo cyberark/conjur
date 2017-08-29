@@ -157,5 +157,5 @@ fde5c4a45ce573f9768987cd
 
 {% include toc.md key='next-steps' %}
 
+* Run your own [Conjur Server](/get-started/install-conjur.html)
 * Go through the [Conjur Tutorials](/tutorials/)
-* Talk to the Conjur team on our [Slack channel](https://slackin-conjur.herokuapp.com/)

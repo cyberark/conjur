@@ -21,7 +21,7 @@ main:
         path: /get-started/evaluate-conjur.html
   integrations:
     title: Integrations
-    path: /integrations/
+    path: https://github.com/cyberark
     items:
       ansible:
         title: Ansible
