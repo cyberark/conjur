@@ -2,6 +2,8 @@
 title: Evaluate Conjur
 layout: page
 section: get-started
+custom_js:
+- https://www.google.com/recaptcha/api.js
 ---
 
 {% include toc.md key='introduction' %}

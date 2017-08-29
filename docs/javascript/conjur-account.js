@@ -42,12 +42,25 @@ function displayAccountCredentials(email, account_id, api_key) {
   });
 }
 
+function displayError(formField, message) {
+  // Manually inserting the error here because there doesn't seem to
+  // be a way to make bootstrap-validator display an error on-demand.
+  var errorElement =
+    '<ul class="list-unstyled"> \
+      <li class="form-error">' +
+        message +
+     '</li> \
+     </ul>'
+
+  formField.siblings(".help-block.with-errors").first().html(errorElement);
+}
+
 $(document).ready(function() {
   var accountCookie = getAccountCookie();
 
   if(accountCookie !== null) {
-    displayAccountCredentials(accountCookie.account,
-                              accountCookie.account,
+    displayAccountCredentials(accountCookie.account_id,
+                              accountCookie.account_id,
                               accountCookie.api_key);
   }
 
@@ -55,10 +68,22 @@ $(document).ready(function() {
     if(!e.isDefaultPrevented()) {
       e.preventDefault();
 
+      var recaptchaToken = grecaptcha.getResponse();
+      
+      if(recaptchaToken === "") {
+        displayError($("#recaptcha").first(), "Please complete reCAPTCHA.");
+        return;
+      }
+      
+      var payload =
+          "email=" + $("#email-address").val() +
+          "&organization=" + $("#organization").val() +
+          "&recaptcha_token=" + recaptchaToken;
+      
       $.ajax({
         context: this,
         type: "POST",
-        data: "email=" + $("#email-address").val() + "&organization=" + $("#organization").val(),
+        data: payload,
         url: "{{site.cpanel_url}}/api/accounts",
         success: function(response) {
           setAccountCookie(JSON.stringify(response));
@@ -67,27 +92,19 @@ $(document).ready(function() {
                                     response.api_key);
         },
         error: function(xhr, ajaxOptions, thrownError) {
-          var error = xhr.responseJSON.error;
+          if(xhr.responseJSON === undefined) { return; }
           
-          // Manually inserting the error here because there doesn't seem to
-          // be a way to make bootstrap-validator display an error on-demand.
-          var errorElement =
-              '<ul class="list-unstyled"> \
-                 <li style="color:#a94442">' +
-                   error.message +
-                '</li> \
-              </ul>'
-
-          var inputField;
+          var error = xhr.responseJSON.error;
+          var formField;
           
           if(error.target == "email") {
-            inputField = $("#email-address").first();
+            formField = $("#email-address").first();
           } else if(error.target == "organization") {
-            inputField = $("#organization").first();
+            formField = $("#organization").first();
           }
 
-          if(inputField !== undefined) {
-            inputField.siblings(".help-block.with-errors").first().html(errorElement);
+          if(formField !== undefined && error !== undefined) {
+            displayError(formField, error.message);
           }
         }
       });

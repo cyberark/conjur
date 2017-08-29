@@ -12,6 +12,7 @@
 // ***********************
 // Utilities
 // ***********************
+
 .mt-2 {
   margin-top: 2em;
 }
@@ -105,7 +106,14 @@
       margin-right: 5px;
     }
   }
+}
 
+// ***********************
+// Form Validation
+// ***********************
+
+.form-error {
+  color: #a94442;
 }
 
 @media (max-width: 992px) {
