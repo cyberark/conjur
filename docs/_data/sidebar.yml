@@ -19,6 +19,31 @@ main:
       evaluate-conjur:
         title: Evaluate Conjur
         path: /get-started/evaluate-conjur.html
+  integrations:
+    title: Integrations
+    path: /integrations/
+    items:
+      ruby:
+        title: Ruby
+        path: https://github.com/cyberark/conjur-api-ruby
+      go:
+        title: Go
+        path: https://github.com/cyberark/conjur-api-go
+      ansible:
+        title: Ansible
+        path: https://github.com/cyberark/ansible-role-conjur
+      puppet:
+        title: Puppet
+        path: https://github.com/cyberark/conjur-puppet
+      summon:
+        title: Summon
+        path: https://github.com/cyberark/summon
+      java:
+        title: Java
+        path: https://github.com/cyberark/conjur-api-java
+      dotnet:
+        title: .NET
+        path: https://github.com/cyberark/conjur-api-dotnet
   tutorials:
     title: Tutorials
     path: /tutorials/
