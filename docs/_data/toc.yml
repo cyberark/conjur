@@ -45,6 +45,7 @@
   install: Install and Configure
   connect: Connect
   explore: Explore
+  next-steps: Next Steps
 
 "/reference/policy.html":
   introduction: What is a Policy?

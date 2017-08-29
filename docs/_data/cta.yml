@@ -28,17 +28,17 @@ operations:
       icon: <i class="fa fa-arrow-down"></i>
 
 local:
-  title: Run Conjur
+  title: Run Your Own Conjur Server
   text: "Running your own Conjur server gives you total control over the software and doesn't require you to connect to the Internet."
   links:
     self-host:
       title: Install Conjur
-      content: <a href="/get-started/install-conjur.html" class="conjur-cta-primary">Get Started</a>
+      content: <a href="/get-started/install-conjur.html" class="conjur-cta-primary">Install Conjur</a>
 
 hosted:
-  title: Demo Conjur
+  title: Evaluate Conjur in the Cloud
   text: "The quickest way to get started using Conjur. Get immediate access to a running server in the cloud. Not for production secrets."
   links:
     hosted:
       title: Start your evaluation
-      content: <a href="/get-started/evaluate-conjur.html" class="conjur-cta-secondary">Start Evaluation</a>
+      content: <a href="/get-started/evaluate-conjur.html" class="conjur-cta-secondary">Request Access</a>
