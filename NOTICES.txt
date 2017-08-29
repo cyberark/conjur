@@ -27,6 +27,7 @@ within this repository:
 * concurrent-ruby - https://rubygems.org/gems/concurrent-ruby
 * conjur-debify - https://rubygems.org/gems/conjur-debify
 * conjur-rack-heartbeat - https://rubygems.org/gems/conjur-rack-heartbeat 
+* cookiejar - https://www.npmjs.com/package/cookiejar
 * cucumber - https://rubygems.org/gems/cucumber 
 * cucumber-core - https://rubygems.org/gems/cucumber-core 
 * cucumber-wire - https://rubygems.org/gems/cucumber-wire
@@ -91,6 +92,7 @@ within this repository:
 * octokit - https://rubygems.org/gems/octokit 
 * parallel - https://rubygems.org/gems/parallel 
 * pathutil - https://rubygems.org/gems/pathutil 
+* precond - https://www.npmjs.com/package/precond
 * pry - https://rubygems.org/gems/pry 
 * pry-byebug - https://rubygems.org/gems/pry-byebug
 * public_suffix - https://rubygems.org/gems/public_suffix 
@@ -149,6 +151,7 @@ within this repository:
 * tzinfo - https://rubygems.org/gems/tzinfo 
 * unf_ext - https://rubygems.org/gems/unf_ext 
 * unicode-display_width - https://rubygems.org/gems/unicode-display_width 
+* xpath - https://github.com/teamcapybara/xpath
 * yell - https://rubygems.org/gems/yell
 
 MIT License - https://opensource.org/licenses/MIT
