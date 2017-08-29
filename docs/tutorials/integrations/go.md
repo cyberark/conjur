@@ -15,7 +15,11 @@ The [Conjur API for Go](https://github.com/cyberark/conjur-api-go) provides a pr
 
 {% include toc.md key='setup' %}
 
-Clone the GitHub repository or use your Golang dependency manager of choice.
+Clone the Conjur API GitHub repository or use your Golang dependency manager of choice.
+
+```
+go get -u cyberark/conjur-api-go
+```
 
 {% include toc.md key='configuration' %}
 
