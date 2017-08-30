@@ -23,7 +23,7 @@ function main() {
     echo "$TAG" > TAG  # for Jenkins archiving/stashing
 
     docker tag "$SOURCE_IMAGE:$TAG" "$INTERNAL_IMAGE:$TAG"
-    docker push"$INTERNAL_IMAGE:$TAG"
+    docker push "$INTERNAL_IMAGE:$TAG"
   fi
 
   if [ "$BRANCH_NAME" == "master" ]; then
