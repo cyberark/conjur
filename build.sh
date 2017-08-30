@@ -1,15 +1,14 @@
 #!/bin/bash -ex
 
-TAG="${1:-$(< VERSION)-$(git rev-parse --short HEAD)}"
-
-run_dev=true
+TAG="$(< VERSION)-$(git rev-parse --short HEAD)"
+RUN_DEV=true
 
 while [[ $# -gt 0 ]]
 do
 key="$1"
 case $key in
     -j|--jenkins)
-    run_dev=false
+    RUN_DEV=false
     ;;
     *)
     ;;
@@ -22,6 +21,6 @@ docker tag conjur "conjur:$TAG"
 
 docker build -t conjur-test -f Dockerfile.test .
 
-if [[ $run_dev = true ]]; then
+if [[ $RUN_DEV = true ]]; then
   docker build -t conjur-dev -f Dockerfile.dev .
 fi
