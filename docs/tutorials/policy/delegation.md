@@ -12,8 +12,7 @@ But when Conjur is used in a large organization, it's important that the securit
 
 {% include toc.md key='prerequisites' %}
 
-* A [Conjur server](/get-started/install-conjur-server.html) endpoint.
-* The [Conjur CLI](/get-started/install-conjur-cli.html).
+Install the [self-hosted Conjur software](/get-started/install-conjur.html).
 
 It's advisable, but not required, to step through the [Enrolling an Application](./applications.html) tutorial before this one.
 
