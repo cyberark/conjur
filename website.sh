@@ -1,5 +1,8 @@
 #!/bin/bash -ex
 
+docker-compose build apidocs # make sure we build first so that the
+                             # build output doesn't make it into
+                             # `docs/_includes/api.html`
 docker-compose run --rm apidocs > docs/_includes/api.html
 
 docker-compose run --rm  \
