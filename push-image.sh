@@ -3,13 +3,14 @@
 # Push the 'conjur' image to various Docker registries
 # Push stable images on master branch
 # Release images can be created by passing the desired tag to this script
-# Ex: ./push-image 4.9.5.1
+# Ex: ./push-image external, ./push-image internal 4.9.5.1
 
-TAG="${1:-$(< VERSION)-$(git rev-parse --short HEAD)}"
-DESTINATION="${2:-'internal'}"  # internal or external, defaults to internal
+DESTINATION="${1:-'internal'}"  # internal or external, defaults to internal
+TAG="${2:-$(< VERSION)-$(git rev-parse --short HEAD)}"
 
 SOURCE_IMAGE="conjur:$TAG"
-INTERNAL_IMAGE='registry.tld/conjur'
+INTERNAL_IMAGE="registry.tld/conjur:$TAG"
+
 LATEST_TAG='latest'
 STABLE_TAG="$(< VERSION)-stable"
 
@@ -18,13 +19,16 @@ QUAY_IMAGE='quay.io/cyberark/conjur'
 
 function main() {
   echo "TAG = $TAG"
-  tag_and_push $INTERNAL_IMAGE $TAG
+  docker tag $SOURCE_IMAGE $INTERNAL_IMAGE
+  docker push $INTERNAL_IMAGE
 
   if [ "$BRANCH_NAME" = "master" ]; then
     push_stable_to_internal_registries
     if [ "$DESTINATION" = 'external' ]; then
       push_stable_to_external_registries
     fi
+  else
+    echo "Skipping stable push, BRANCH_NAME '$BRANCH_NAME' != 'master'"
   fi
 }
 
@@ -53,7 +57,8 @@ function tag_and_push() {
   local image="$1"
   local tag="$2"
 
-  docker tag $SOURCE_IMAGE "$image:$tag"
+  docker pull $INTERNAL_IMAGE
+  docker tag $INTERNAL_IMAGE "$image:$tag"
   docker push "$image:$tag"
 }
 
