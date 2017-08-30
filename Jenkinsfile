@@ -28,7 +28,6 @@ pipeline {
       steps {
         sh './push-image.sh'
         archiveArtifacts artifacts: 'TAG', fingerprint: true
-        stash includes: 'TAG', name: 'docker-tag'
 
         milestone(2) // Docker image pushed to internal registries
       }
@@ -36,8 +35,10 @@ pipeline {
 
     stage('Push Docker image - external') {
       agent { label 'releaser-v2' }
+      when {
+        branch 'master'
+      }
       steps {
-        unstash 'docker-tag'
         sh './push-image.sh external'  // script checks $BRANCH_NAME
 
         milestone(3) // Docker image pushed to external registries
