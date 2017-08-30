@@ -5,7 +5,7 @@
 # Release images can be created by passing the desired tag to this script
 # Ex: ./push-image external, ./push-image internal 4.9.5.1
 
-DESTINATION="${1:-'internal'}"  # internal or external, defaults to internal
+DESTINATION="${1:-internal}"  # internal or external, defaults to internal
 TAG="${2:-$(< VERSION)-$(git rev-parse --short HEAD)}"
 
 SOURCE_IMAGE="conjur:$TAG"
@@ -24,10 +24,10 @@ function main() {
     docker push $INTERNAL_IMAGE
   fi
 
-  if [ "$BRANCH_NAME" = "master" ]; then
+  if [ "$BRANCH_NAME" == "master" ]; then
     push_stable_to_internal_registries
 
-    if [ "$DESTINATION" = 'external' ]; then
+    if [ "$DESTINATION" == "external" ]; then
       push_to_external_registries
     else
       echo "Skipping external push, DESTINATION '$DESTINATION' != 'internal'"
