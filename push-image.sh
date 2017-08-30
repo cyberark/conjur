@@ -20,6 +20,8 @@ QUAY_IMAGE='quay.io/cyberark/conjur'
 function main() {
   if [ "$DESTINATION" = "internal" ]; then
     echo "TAG = $TAG"
+    echo "$TAG" > TAG  # for Jenkins archiving/stashing
+    
     docker tag $SOURCE_IMAGE $INTERNAL_IMAGE
     docker push $INTERNAL_IMAGE
   fi

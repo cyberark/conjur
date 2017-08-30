@@ -12,6 +12,8 @@ pipeline {
     stage('Build Docker image') {
       steps {
         sh './build.sh -j'
+        archiveArtifacts artifacts: 'TAG', fingerprint: true
+        stash includes: 'TAG', name: 'docker-tag'
 
         milestone(1)  // Local Docker image is built and tagged
       }
@@ -27,14 +29,18 @@ pipeline {
     stage('Push Docker image - internal') {
       steps {
         sh './push-image.sh'
+
+        milestone(2) // Docker image pushed to internal registries
       }
     }
 
     stage('Push Docker image - external') {
+      agent { label 'releaser-v2' }
       steps {
+        unstash 'docker-tag'
         sh './push-image.sh external'  // script checks $BRANCH_NAME
 
-        milestone(2) // Docker image pushed to registries
+        milestone(3) // Docker image pushed to external registries
       }
     }
 
@@ -49,7 +55,7 @@ pipeline {
       steps {
         sh './publish.sh'
 
-        milestone(3) // Debian package is pushed to Artifactory
+        milestone(4) // Debian package is pushed to Artifactory
       }
     }
 
@@ -66,7 +72,7 @@ pipeline {
       steps {
         sh 'summon ./website.sh'
 
-        milestone(4)  // conjur.org website is published
+        milestone(5)  // conjur.org website is published
       }
     }
 
