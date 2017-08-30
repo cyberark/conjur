@@ -8,8 +8,8 @@
 DESTINATION="${1:-internal}"  # internal or external, defaults to internal
 TAG="${2:-$(< VERSION)-$(git rev-parse --short HEAD)}"
 
-SOURCE_IMAGE="conjur:$TAG"
-INTERNAL_IMAGE="registry.tld/conjur:$TAG"
+SOURCE_IMAGE="conjur"
+INTERNAL_IMAGE="registry.tld/conjur"
 
 LATEST_TAG='latest'
 STABLE_TAG="$(< VERSION)-stable"
@@ -21,9 +21,9 @@ function main() {
   if [ "$DESTINATION" = "internal" ]; then
     echo "TAG = $TAG"
     echo "$TAG" > TAG  # for Jenkins archiving/stashing
-    
-    docker tag $SOURCE_IMAGE $INTERNAL_IMAGE
-    docker push $INTERNAL_IMAGE
+
+    docker tag "$SOURCE_IMAGE:$TAG" "$INTERNAL_IMAGE:$TAG"
+    docker push"$INTERNAL_IMAGE:$TAG"
   fi
 
   if [ "$BRANCH_NAME" == "master" ]; then
@@ -43,8 +43,13 @@ function main() {
 function push_stable_to_internal_registries() {
   echo "STABLE_TAG = $STABLE_TAG, internal"
 
-  tag_and_push $INTERNAL_IMAGE $LATEST_TAG
-  tag_and_push $INTERNAL_IMAGE $STABLE_TAG
+  docker pull "$INTERNAL_IMAGE:$TAG"
+
+  docker tag "$INTERNAL_IMAGE:$TAG" "$INTERNAL_IMAGE:$LATEST_TAG"
+  docker tag "$INTERNAL_IMAGE:$TAG" "$INTERNAL_IMAGE:$STABLE_TAG"
+
+  docker push "$INTERNAL_IMAGE:$LATEST_TAG"
+  docker push "$INTERNAL_IMAGE:$STABLE_TAG"
 }
 
 function push_to_external_registries() {
@@ -65,8 +70,8 @@ function tag_and_push() {
   local image="$1"
   local tag="$2"
 
-  docker pull $INTERNAL_IMAGE
-  docker tag $INTERNAL_IMAGE "$image:$tag"
+  docker pull "$INTERNAL_IMAGE:$TAG"
+  docker tag "$INTERNAL_IMAGE:$TAG" "$image:$tag"
   docker push "$image:$tag"
 }
 
