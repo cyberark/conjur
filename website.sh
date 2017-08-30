@@ -1,9 +1,7 @@
 #!/bin/bash -ex
 
-docker-compose build apidocs # make sure we build first so that the
-                             # build output doesn't make it into
-                             # `docs/_includes/api.html`
-docker-compose run --rm apidocs > docs/_includes/api.html
+docker-compose build apidocs # builds conjur-apidocs image
+docker run --rm conjur-apidocs > docs/_includes/api.html
 
 docker-compose run --rm  \
   -e AWS_ACCESS_KEY_ID \
