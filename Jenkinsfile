@@ -9,26 +9,36 @@ pipeline {
   }
 
   stages {
-    stage('Build Docker image') {
+    stage('Build and test Docker image') {
       steps {
         sh './build.sh -j'
 
-        milestone(1)  // Local Docker image is built and tagged
-      }
-    }
-
-    stage('Test Docker image') {
-      steps {
         sh './test.sh'
         junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,scaling_features/reports/**/*.xml,reports/*.xml'
+
+
+        milestone(1)  // Local Docker image is built, tested and tagged
       }
     }
 
-    stage('Push Docker image') {
+    stage('Push Docker image (internal)') {
       steps {
         sh './push-image.sh'
+        archiveArtifacts artifacts: 'TAG', fingerprint: true
 
-        milestone(2) // Docker image pushed to internal registry
+        milestone(2) // Docker image pushed to internal registries
+      }
+    }
+
+    stage('Push Docker image (external)') {
+      agent { label 'releaser-v2' }
+      when {
+        branch 'master'
+      }
+      steps {
+        sh './push-image.sh external'  // script checks $BRANCH_NAME
+
+        milestone(3) // Docker image pushed to external registries
       }
     }
 
@@ -43,7 +53,7 @@ pipeline {
       steps {
         sh './publish.sh'
 
-        milestone(3) // Debian package is pushed to Artifactory
+        milestone(4) // Debian package is pushed to Artifactory
       }
     }
 
@@ -60,7 +70,7 @@ pipeline {
       steps {
         sh 'summon ./website.sh'
 
-        milestone(4)  // conjur.org website is published
+        milestone(5)  // conjur.org website is published
       }
     }
 
