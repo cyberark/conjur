@@ -46,3 +46,18 @@ form {
     }
   }
 }
+
+// ***********************
+// Form Validation
+// ***********************
+
+.form-error {
+  color: #a94442;
+}
+
+@media (max-width: 992px) {
+  .cta-box {
+    margin: 0 0 1em 0;
+    border: 4px solid #fff;
+  }
+}
