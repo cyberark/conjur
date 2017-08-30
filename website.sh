@@ -2,7 +2,7 @@
 
 docker-compose run --rm apidocs > docs/_includes/api.html
 
-docker-compose run -i --rm  \
+docker-compose run --rm  \
   -e AWS_ACCESS_KEY_ID \
   -e AWS_SECRET_ACCESS_KEY \
   -e POSSUM_WEB_BUCKET -e POSSUM_WEB_CFG_BUCKET \
