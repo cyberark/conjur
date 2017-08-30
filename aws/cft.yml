@@ -25,6 +25,11 @@ Parameters:
     Type: AWS::EC2::Image::Id
     Description: Conjur CE AMI
 
+  InstanceType:
+    Type: String
+    Description: Type of Conjur CE EC2 instance
+    Default: t2.medium
+
   KeyName:
     Type: AWS::EC2::KeyPair::KeyName
     Description: AWS keypair to use
@@ -57,11 +62,37 @@ Metadata:
           - VpcSubnetIds
 
 Resources:
+  ConjurSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Security group for Conjur server"
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp  # SSH
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp  # Conjur
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  PostgresSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref VpcId
+      GroupDescription: "Enable access from Conjur"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref ConjurSecurityGroup
+
   ConjurInstance:
     Type: "AWS::EC2::Instance"
     Properties: 
       ImageId: !Ref ImageId
-      InstanceType: t2.medium
+      InstanceType: !Ref InstanceType
       KeyName: !Ref KeyName
       SecurityGroupIds: [!Ref ConjurSecurityGroup]
       SubnetId: !Select [0, !Ref VpcSubnetIds]
@@ -102,32 +133,6 @@ Resources:
       DBSubnetGroupName: !Ref DBSubnetGroup
       VPCSecurityGroups:
         - !Ref PostgresSecurityGroup
-
-  ConjurSecurityGroup:
-    Type: "AWS::EC2::SecurityGroup"
-    Properties:
-      GroupDescription: "Security group for Conjur server"
-      VpcId: !Ref VpcId
-      SecurityGroupIngress:
-        - IpProtocol: tcp  # SSH
-          FromPort: 22
-          ToPort: 22
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp  # Conjur
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-
-  PostgresSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      VpcId: !Ref VpcId
-      GroupDescription: "Enable access from Conjur"
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 5432
-          ToPort: 5432
-          SourceSecurityGroupId: !Ref ConjurSecurityGroup
 
   DBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
