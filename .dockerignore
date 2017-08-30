@@ -8,6 +8,8 @@ run
 tmp
 log
 
+docs/site
+
 # Ignore the scripts that are used by the Jenkinsfile
 build.sh
 package.sh
