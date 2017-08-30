@@ -5,26 +5,21 @@ pipeline {
 
   options {
     timestamps()
-    buildDiscarder(logRotator(numToKeepStr: '30'))
-    skipDefaultCheckout()  // see 'Checkout SCM' below, once perms are fixed this is no longer needed
+    buildDiscarder(logRotator(daysToKeepStr: '14'))
   }
 
   stages {
-    stage('Checkout SCM') {
-      steps {
-        checkout scm
-      }
-    }
     stage('Build Docker image') {
       steps {
         sh './build.sh -j'
+
+        milestone(1)  // Local Docker image is built and tagged
       }
     }
 
     stage('Test Docker image') {
       steps {
         sh './test.sh'
-
         junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,scaling_features/reports/**/*.xml,reports/*.xml'
       }
     }
@@ -32,13 +27,14 @@ pipeline {
     stage('Push Docker image') {
       steps {
         sh './push-image.sh'
+
+        milestone(2) // Docker image pushed to internal registry
       }
     }
 
     stage('Build Debian package') {
       steps {
         sh './package.sh'
-
         archiveArtifacts artifacts: '*.deb', fingerprint: true
       }
     }
@@ -46,6 +42,8 @@ pipeline {
     stage('Publish Debian package'){
       steps {
         sh './publish.sh'
+
+        milestone(3) // Debian package is pushed to Artifactory
       }
     }
 
@@ -61,6 +59,8 @@ pipeline {
       }
       steps {
         sh 'summon ./website.sh'
+
+        milestone(4)  // conjur.org website is published
       }
     }
 
@@ -76,7 +76,7 @@ pipeline {
 
   post {
     always {
-      sh 'sudo chown -R jenkins:jenkins .'  // bad docker mount creates unreadable files TODO fix this
+      sh 'docker run -i --rm -v $PWD:/src -w /src alpine/git clean -fxd'  // bad docker mount creates unreadable files TODO fix this
       deleteDir()  // delete current workspace, for a clean build
     }
     failure {
