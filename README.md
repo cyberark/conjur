@@ -66,13 +66,6 @@ It's easy to get started with Conjur and Docker:
    conjur-dev       latest af98cb5b2a68 4 days ago    639.9 MB
    ```
 
-## Build the API documentation from source
-
-```sh-session
-$ apidocs/dev.sh
-$ open localhost:3000  # To see the docs in your browser
-```
-
 ## Set up a development environment
 
 The `dev` directory contains a `docker-compose` file which creates a development
@@ -176,6 +169,23 @@ root@9feae5e5e001:/src/conjur/cucumber/api# cucumber
 ```sh-session
 root@9feae5e5e001:/src/conjur# cucumber -r cucumber/api/features/support -r cucumber/api/features/step_definitions cucumber/api/features/resource_list.feature
 ```
+
+## Documentation site
+
+This repository also contains the entire source code for the [Conjur
+documentation website][docs]. For instructions on how to work on the
+site locally, visit the [docs README][docs-readme].
+
+Or in brief:
+
+```sh-session
+$ docker-compose run --rm apidocs > docs/_includes/api.html
+$ docker-compose up -d docs
+$ open localhost:4000
+```
+
+[docs]: https://try.conjur.org "Conjur website"
+[docs-readme]: docs/README.md "Conjur docs README"
 
 # Architecture
 
