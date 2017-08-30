@@ -12,8 +12,6 @@ pipeline {
     stage('Build Docker image') {
       steps {
         sh './build.sh -j'
-        archiveArtifacts artifacts: 'TAG', fingerprint: true
-        stash includes: 'TAG', name: 'docker-tag'
 
         milestone(1)  // Local Docker image is built and tagged
       }
@@ -29,6 +27,8 @@ pipeline {
     stage('Push Docker image - internal') {
       steps {
         sh './push-image.sh'
+        archiveArtifacts artifacts: 'TAG', fingerprint: true
+        stash includes: 'TAG', name: 'docker-tag'
 
         milestone(2) // Docker image pushed to internal registries
       }
