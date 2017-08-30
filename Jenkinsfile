@@ -9,22 +9,19 @@ pipeline {
   }
 
   stages {
-    stage('Build Docker image') {
+    stage('Build and test Docker image') {
       steps {
         sh './build.sh -j'
 
-        milestone(1)  // Local Docker image is built and tagged
-      }
-    }
-
-    stage('Test Docker image') {
-      steps {
         sh './test.sh'
         junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,scaling_features/reports/**/*.xml,reports/*.xml'
+
+
+        milestone(1)  // Local Docker image is built, tested and tagged
       }
     }
 
-    stage('Push Docker image - internal') {
+    stage('Push Docker image (internal)') {
       steps {
         sh './push-image.sh'
         archiveArtifacts artifacts: 'TAG', fingerprint: true
@@ -33,7 +30,7 @@ pipeline {
       }
     }
 
-    stage('Push Docker image - external') {
+    stage('Push Docker image (external)') {
       agent { label 'releaser-v2' }
       when {
         branch 'master'
