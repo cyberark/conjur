@@ -18,15 +18,21 @@ DOCKERHUB_IMAGE='cyberark/conjur'
 QUAY_IMAGE='quay.io/cyberark/conjur'
 
 function main() {
-  echo "TAG = $TAG"
-  docker tag $SOURCE_IMAGE $INTERNAL_IMAGE
-  docker push $INTERNAL_IMAGE
+  if [ "$DESTINATION" = "internal" ]; then
+    echo "TAG = $TAG"
+    docker tag $SOURCE_IMAGE $INTERNAL_IMAGE
+    docker push $INTERNAL_IMAGE
+  fi
 
   if [ "$BRANCH_NAME" = "master" ]; then
     push_stable_to_internal_registries
+
     if [ "$DESTINATION" = 'external' ]; then
-      push_stable_to_external_registries
+      push_to_external_registries
+    else
+      echo "Skipping external push, DESTINATION '$DESTINATION' != 'internal'"
     fi
+
   else
     echo "Skipping stable push, BRANCH_NAME '$BRANCH_NAME' != 'master'"
   fi
@@ -39,7 +45,7 @@ function push_stable_to_internal_registries() {
   tag_and_push $INTERNAL_IMAGE $STABLE_TAG
 }
 
-function push_stable_to_external_registries() {
+function push_to_external_registries() {
   echo "STABLE_TAG = $STABLE_TAG, external"
 
   echo "Pushing to DockerHub"
