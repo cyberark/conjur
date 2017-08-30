@@ -27,14 +27,14 @@ pipeline {
     stage('Push Docker image - internal') {
       steps {
         sh './push-image.sh'
-
-        milestone(2) // Docker image pushed to internal registry
       }
     }
 
     stage('Push Docker image - external') {
       steps {
-        sh './push-image.sh external'
+        sh './push-image.sh external'  // script checks $BRANCH_NAME
+
+        milestone(2) // Docker image pushed to registries
       }
     }
 
