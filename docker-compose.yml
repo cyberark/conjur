@@ -4,8 +4,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.docs
-    image: possum-docs
+    image: conjur-docs
     ports:
       - 4000:4000
     volumes:
       - .:/usr/src
+  apidocs:
+    build:
+      context: ./apidocs
+      dockerfile: Dockerfile.apidocs
+    image: conjur-apidocs
+    ports:
+      - 3000:3000
+    volumes:
+      - ./apidocs/src:/home/node/src
