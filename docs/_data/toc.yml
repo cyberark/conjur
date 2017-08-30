@@ -71,6 +71,16 @@
       variable: Variable
       webservice: Webservice
 
+"/integrations/":
+  demos: Demos
+  platforms: Platforms
+  tools: Tools
+  api-clients: API Clients
+      
+"/integrations/kubernetes.html":
+  integration: Integration
+  tutorials: Tutorials
+      
 "/tutorials/integrations/ruby.html":
   introduction: Introduction
   setup: Setup

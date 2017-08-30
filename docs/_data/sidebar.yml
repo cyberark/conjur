@@ -21,38 +21,39 @@ main:
         path: /get-started/evaluate-conjur.html
   integrations:
     title: Integrations
-    path: https://github.com/cyberark
+    path: /integrations/
     items:
       kubernetes:
         title: Kubernetes
-        path: https://github.com/conjurdemos/scalability-k8s
-      ansible:
-        title: Ansible
-        path: https://github.com/cyberark/ansible-role-conjur
-      puppet:
-        title: Puppet
-        path: https://github.com/cyberark/conjur-puppet
+        path: /integrations/kubernetes.html
       jenkins:
         title: Jenkins
-        path: https://github.com/conjur/jenkins-e2e-example
+        path: /integrations/jenkins.html
       chef:
         title: Chef
         path: https://github.com/conjur/chef-demo
+        path: /integrations/chef.html
+      ansible:
+        title: Ansible
+        path: /integrations/ansible.html
+      puppet:
+        title: Puppet
+        path: /integrations/puppet.html
       summon:
         title: Summon
-        path: https://github.com/cyberark/summon
+        path: /integrations/summon.html
       go:
         title: Go
-        path: https://github.com/cyberark/conjur-api-go
+        path: /integrations/conjur-api-go.html
       ruby:
         title: Ruby
-        path: https://github.com/cyberark/conjur-api-ruby
+        path: /integrations/conjur-api-ruby.html
       dotnet:
         title: .NET
-        path: https://github.com/cyberark/conjur-api-dotnet
+        path: /integrations/conjur-api-dotnet.html
       java:
         title: Java
-        path: https://github.com/cyberark/conjur-api-java
+        path: /integrations/conjur-api-java.html
   tutorials:
     title: Tutorials
     path: /tutorials/
