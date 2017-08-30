@@ -179,6 +179,7 @@ site locally, visit the [docs README][docs-readme].
 Or in brief:
 
 ```sh-session
+$ docker-compose run --rm apidocs > docs/_includes/api.html
 $ docker-compose up -d docs
 $ open localhost:4000
 ```
