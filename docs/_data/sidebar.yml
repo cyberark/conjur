@@ -17,8 +17,8 @@ main:
         title: Install Conjur
         path: /get-started/install-conjur.html
       evaluate-conjur:
-        title: Evaluate Conjur
-        path: /get-started/evaluate-conjur.html
+        title: Try Conjur
+        path: /get-started/try-conjur.html
   integrations:
     title: Integrations
     path: https://github.com/cyberark
@@ -31,7 +31,7 @@ main:
         path: https://github.com/cyberark/ansible-role-conjur
       puppet:
         title: Puppet
-        path: https://github.com/cyberark/conjur-puppet
+        path: https://forge.puppet.com/conjur/conjur
       jenkins:
         title: Jenkins
         path: https://github.com/conjur/jenkins-e2e-example

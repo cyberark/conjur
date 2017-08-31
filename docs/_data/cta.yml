@@ -29,14 +29,14 @@ operations:
 
 local:
   title: Run Your Own Conjur Server
-  text: "Running your own Conjur server gives you total control over the software and doesn't require you to connect to the Internet."
+  text: "Running your own Conjur server gives you total control over the software."
   links:
     self-host:
       title: Install Conjur
       content: <a href="/get-started/install-conjur.html" class="conjur-cta-primary">Install Conjur</a>
 
 hosted:
-  title: Evaluate Conjur in the Cloud
+  title: Try Conjur in the Cloud
   text: "The quickest way to get started using Conjur. Get immediate access to a running server in the cloud. Not for production secrets."
   links:
     hosted:

@@ -19,7 +19,7 @@
 "/try-conjur-enterprise.html":
   enterprise: Try Conjur Enterprise
 
-"/get-started/evaluate-conjur.html":
+"/get-started/try-conjur.html":
   docker: Install Docker
   cli: Download & Run the Conjur CLI
   environment: Export Environment Variables
@@ -40,7 +40,7 @@
   enterprise: Try Conjur Enterprise
 
 "/get-started/install-conjur.html":
-  prereq: Prerequitites
+  prereq: Prerequisites
   launch: Prepare to launch
   install: Install and Configure
   connect: Connect
