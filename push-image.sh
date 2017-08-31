@@ -32,7 +32,7 @@ function main() {
     if [ "$DESTINATION" == "external" ]; then
       push_to_external_registries
     else
-      echo "Skipping external push, DESTINATION '$DESTINATION' != 'internal'"
+      echo "Skipping external push, DESTINATION '$DESTINATION' != 'external'"
     fi
 
   else
