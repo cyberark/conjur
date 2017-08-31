@@ -1,9 +1,9 @@
 #footer {
   .slack-bar {
-    background-color: $conjur-ltblue;
-    background: -moz-linear-gradient(left, #11b5e4 0%, #1cb9a2 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(left, #11b5e4 0%,#1cb9a2 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to right, #11b5e4 0%,#1cb9a2 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    background: #275e91; /* Old browsers */
+    background: -moz-linear-gradient(left, #275e91 0%, #6ba3d7 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(left, #275e91 0%,#6ba3d7 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right, #275e91 0%,#6ba3d7 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     text-align: center;
     padding: 15px 0;
     height: 110px;
@@ -18,7 +18,7 @@
 
   .copyright {
     padding: 15px 0;
-    background-color: $conjur-dark;
+    background-color: $cybr-dkblue;
 
     .disclaimer {
       color: #ffffff;
@@ -26,7 +26,7 @@
     }
 
     img.cyberark-sidebar-logo {
-    	width: 35px;
+    	width: 140px;
       margin: 0px;
       margin-right: 1em;
   	}

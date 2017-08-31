@@ -10,17 +10,18 @@ h1, h2, h3, h4, h5 {
 	text-rendering: optimizeLegibility;
 }
 
-h1, h2 {
-	color: $conjur-teal;
+h1 {
+	color: $cybr-blue;
 	margin-top: 2rem;
+	font-size: 3em;
 }
 
 a {
-	color: $conjur-ltblue;
+	color: $cybr-ltblue;
 }
 
 .page-title {
-	color: $conjur-teal;
+	color: $cybr-blue;
 	font-size: 3.5rem;
 	margin: 1.2rem 0;
 	font-weight: 300;
