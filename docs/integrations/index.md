@@ -4,37 +4,39 @@ layout: page
 section: integrations
 ---
 
-This section covers the tools available to integrate with Conjur from a variety
-of different platforms and languages.
+Conjur makes tools, demos, and integrations available on a variety of platforms
+and languages so you can make security a part of the way you work without
+sacrificing velocity.
 
 {% include toc.md key='demos' %}
 
-Interactive demonstrations of Conjur integrating with a variety of services.
+We have prepared demos using Conjur with a variety of tools and services to help
+you understand how to best use Conjur with your own tools.
 
-* [Kubernetes](./kubernetes)
-* [Jenkins](./jenkins)
-* [Chef](./chef)
+* [Kubernetes](kubernetes)
+* [Jenkins](jenkins)
+* [Chef](chef)
 
 {% include toc.md key='platforms' %}
 
-Platform-specific tools that can be used to integrate Conjur into your workflow.
+Platform integrations provide a convenient way to use Conjur with your workflows
+by bootstraping machine identities, fetching secrets, and providing
+authorization.
 
-* [Ansible](./ansible)
-* [Puppet](./puppet)
+* [Ansible](ansible)
+* [Puppet](puppet)
 
 {% include toc.md key='tools' %}
 
-Additional security tools that can be used in conjunction with Conjur to enhance
-secure secret retrieval.
-
-* [Summon](./summon)
+[Summon](summon) makes it easy to use Conjur with any software that can be
+configured using environment variables.
 
 {% include toc.md key='api-clients' %}
 
-APIs for a variety of languages that allow you to talk to a Conjur server from
-within your project and gain all the advantages that Conjur integration confers.
+We provide APIs for a variety of languages so you deeply integrate Conjur into
+your software and leverage all its capabilities.
 
-* [Ruby](./conjur-api-ruby)
-* [Java](./conjur-api-java)
-* [.NET](./conjur-api-dotnet)
-* [Go](./conjur-api-go)
+* [Ruby](conjur-api-ruby)
+* [Java](conjur-api-java)
+* [.NET](conjur-api-dotnet)
+* [Go](conjur-api-go)
