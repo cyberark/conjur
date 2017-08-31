@@ -11,6 +11,9 @@ with Conjur, load policies, fetch secrets, and more.
 {% include toc.md key='integration' %}
 
 See the [Conjur Ruby API GitHub repo](https://github.com/cyberark/conjur-api-ruby)
-for integration instructions, then head over to the
-[Ruby API tutorial](../tutorials/integrations/ruby.html) for a walkthrough of
-basic functionality.
+for integration instructions.
+
+{% include toc.md key='tutorials' %}
+
+Check out the  [Ruby API tutorial](../tutorials/integrations/ruby.html) for a
+walkthrough of basic functionality.

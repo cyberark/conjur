@@ -11,4 +11,4 @@ Conjur, load policies, fetch secrets, and more.
 {% include toc.md key='integration' %}
 
 See the [Conjur Go API GitHub repo](https://github.com/cyberark/conjur-api-go)
-for integration instructions.
+for integration instructions and an example of basic functionality.

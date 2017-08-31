@@ -11,4 +11,4 @@ with Conjur, load policies, fetch secrets, and more.
 {% include toc.md key='integration' %}
 
 See the [Conjur Java API GitHub repo](https://github.com/cyberark/conjur-api-java)
-for integration instructions.
+for integration instructions and an example of basic functionality.

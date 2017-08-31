@@ -11,4 +11,4 @@ with Conjur, load policies, fetch secrets, and more.
 {% include toc.md key='integration' %}
 
 See the [Conjur .NET API GitHub repo](https://github.com/cyberark/conjur-api-dotnet)
-for integration instructions.
+for integration instructions and an example of basic functionality.
