@@ -5,8 +5,10 @@ section: integrations
 ---
 
 The [Conjur Go API](https://github.com/cyberark/conjur-api-go) provides a robust
-programmatic interface to Conjur. You can use the Go API to authenticate with
-Conjur, load policies, fetch secrets, and more.
+programmatic interface to Conjur for your Go project. You can use the Go API to
+authenticate with Conjur, load policies, fetch secrets, and more. Integration
+with Conjur provides a variety of additional benefits including being able to
+store security policy as code, automated secret rotation, and audit logs.
 
 {% include toc.md key='integration' %}
 

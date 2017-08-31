@@ -5,10 +5,13 @@ section: integrations
 ---
 
 The [Conjur Ansible Role](https://github.com/cyberark/ansible-role-conjur)
-configures a host with a Conjur machine identity, making it possible to provide
-the host with the minimal privileges needed to retrieve secrets. There are a
-few different levels of integration that come with their own security
-considerations.
+can be used to configure a host with a Conjur machine identity. Through
+integration with Conjur, the machine can then be granted least-privilege
+access to retrieve the secrets it needs in a secure manner. This approach
+reduces the administrative power of the Ansible host and prevents it from
+becoming a high value target. Conjur integration also provides additional
+benefits, including storing security policy as code, an audit trail, and
+simplified secret rotation.
 
 {% include toc.md key='integration' %}
 

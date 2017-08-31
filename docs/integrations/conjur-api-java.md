@@ -5,8 +5,11 @@ section: integrations
 ---
 
 The [Conjur Java API](https://github.com/cyberark/conjur-api-java) provides a
-robust programmatic interface to Conjur. You can use the Java API to authenticate
-with Conjur, load policies, fetch secrets, and more.
+robust programmatic interface for talking to a Conjur server from within your
+Java project. You can use the Java API to authenticate with Conjur and fetch
+secrets in a secure manner. Integration with Conjur provides a variety of
+additional benefits including being able to store security policy as code,
+automated secret rotation, and audit logs.
 
 {% include toc.md key='integration' %}
 

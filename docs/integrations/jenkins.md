@@ -14,4 +14,5 @@ them to source control.
 
 {% include toc.md key='try-it-out' %}
 
-See the [Jenkins Demo GitHub repo](https://github.com/conjur/jenkins-e2e-example) for instructions on how to set up and run the demo.
+See the [Jenkins Demo GitHub repo](https://github.com/conjur/jenkins-e2e-example)
+for instructions on how to set up and run the demo.

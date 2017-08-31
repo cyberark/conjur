@@ -13,4 +13,5 @@ values, access denial, and machine failovers.
 
 {% include toc.md key='try-it-out' %}
 
-See the [Kubernetes Demo GitHub repo](https://github.com/conjurdemos/scalability-k8s) for instructions on how to set up and run the demo.
+See the [Kubernetes Demo GitHub repo](https://github.com/conjurdemos/scalability-k8s)
+for instructions on how to set up and run the demo.
