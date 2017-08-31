@@ -31,7 +31,6 @@ main:
         path: /integrations/jenkins.html
       chef:
         title: Chef
-        path: https://github.com/conjur/chef-demo
         path: /integrations/chef.html
       ansible:
         title: Ansible
