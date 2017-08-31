@@ -3,7 +3,7 @@
 // ***********************
 
 #top-navigation {
-  background-color: $conjur-dark;
+  background-color: $cybr-dkblue;
   margin-bottom: 0px;
   border-radius: 0px;
   border: 0px;
@@ -12,11 +12,11 @@
     a.navbar-brand {
       color: #ffffff;
       font-size: 2rem;
-      margin: 22px 0 0 0;
+      margin: 15px 0 0 0;
       margin-right: 35px;
       display: inline-block;
       width: 350px;
-      background: url("/img/cyberark_open_source_logo_ko.svg") no-repeat top left;
+      background: url("/img/cybr_conjur_logo_ko.svg") no-repeat top left;
       padding: 0px;
     }
   }

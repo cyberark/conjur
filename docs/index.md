@@ -1,5 +1,5 @@
 ---
-title: CyberArk Conjur
+title: CyberArk Conjur Community Edition
 layout: page
 section: welcome
 id: index
@@ -10,6 +10,8 @@ redirect_from: "/start"
     {% include cta.md id='local' %}
     {% include cta.md id='hosted' %}
 </div>
+
+# Conjur Features
 
 {% include toc.md key='machine-identity' %}
 
