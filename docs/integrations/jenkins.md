@@ -1,5 +1,5 @@
 ---
-title: Jenkins Demo
+title: Jenkins Integration Demo
 layout: page
 section: integrations
 ---
@@ -12,4 +12,6 @@ master assumes Conjur machine identity through Conjur's Host Factory
 auto-enrollment system in order to retrieve secrets without having to commit
 them to source control.
 
-See the [Jenkins Demo GitHub repo](https://github.com/conjur/jenkins-e2e-example) for instructions on how to run the demo.
+{% include toc.md key='try-it-out' %}
+
+See the [Jenkins Demo GitHub repo](https://github.com/conjur/jenkins-e2e-example) for instructions on how to set up and run the demo.

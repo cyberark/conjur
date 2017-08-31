@@ -78,8 +78,34 @@
   api-clients: API Clients
       
 "/integrations/kubernetes.html":
+  try-it-out: Try It Out
+  
+"/integrations/jenkins.html":
+  try-it-out: Try It Out
+
+"/integrations/chef.html":
+  try-it-out: Try It Out
+
+"/integrations/ansible.html":
   integration: Integration
-  tutorials: Tutorials
+
+"/integrations/puppet.html":
+  integration: Integration
+
+"/integrations/summon.html":
+  installation: Installation
+
+"/integrations/conjur-api-go.html":
+  integration: Integration
+
+"/integrations/conjur-api-ruby.html":
+  integration: Integration
+
+"/integrations/conjur-api-dotnet.html":
+  integration: Integration
+
+"/integrations/conjur-api-java.html":
+  integration: Integration
       
 "/tutorials/integrations/ruby.html":
   introduction: Introduction

@@ -4,6 +4,9 @@ layout: page
 section: integrations
 ---
 
+This section covers the tools available to integrate with Conjur from a variety
+of different platforms and languages.
+
 {% include toc.md key='demos' %}
 
 * [Kubernetes](./kubernetes)
