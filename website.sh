@@ -11,7 +11,7 @@ docker-compose run --rm  \
   -e CPANEL_URL \
   docs bash -ec '
 mkdir -p /output
-jekyll build --destination /output/_site
+jekyll build --plugins docs/_plugins --source docs --destination /output/_site
 
 echo "${POSSUM_WEB_USER}:$(openssl passwd -apr1 ${POSSUM_WEB_PASSWORD})" | aws s3 cp - s3://${POSSUM_WEB_CFG_BUCKET}/htpasswd
 

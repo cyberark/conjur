@@ -10,18 +10,17 @@ RUN curl -s "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bund
     ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
 
 RUN mkdir -p /usr/src/docs
-WORKDIR /usr/src/docs
+WORKDIR /usr/src
 
 COPY Gemfile Gemfile.lock ./
 RUN bundle --with website
 
 COPY ./docs /usr/src/docs
-WORKDIR /usr/src/docs
-RUN jekyll build --source /usr/src/docs --destination /usr/src/docs/_site
+RUN jekyll build --plugins docs/_plugins --source docs --destination docs/_site
 
 EXPOSE 4000
-
+EXPOSE 4001
 HEALTHCHECK CMD curl -f http://localhost:4000/ || exit 1
 
 ENTRYPOINT ["/usr/local/bin/bundle", "exec"]
-CMD ["jekyll", "serve", "--watch", "--host", "0.0.0.0"]
+CMD ["jekyll", "serve", "--source", "docs", "--plugins", "docs/_plugins", "--livereload", "--host", "0.0.0.0", "--port", "4000", "--reload_port", "4001"]

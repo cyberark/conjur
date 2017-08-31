@@ -136,9 +136,13 @@ GEM
       json
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
+    em-websocket (0.5.1)
+      eventmachine (>= 0.12.9)
+      http_parser.rb (~> 0.6.0)
     erubis (2.7.0)
     ethon (0.10.1)
       ffi (>= 1.3.0)
+    eventmachine (1.2.5)
     excon (0.55.0)
     execjs (2.7.0)
     ffi (1.9.18)
@@ -161,6 +165,7 @@ GEM
       yell (~> 2.0)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
+    http_parser.rb (0.6.0)
     i18n (0.8.6)
     jekyll (3.4.3)
       addressable (~> 2.4)
@@ -175,6 +180,9 @@ GEM
       safe_yaml (~> 1.0)
     jekyll-coffeescript (1.0.1)
       coffee-script (~> 2.2)
+    jekyll-livereload (0.2.2)
+      em-websocket (~> 0.5)
+      jekyll (~> 3.0)
     jekyll-paginate (1.1.0)
     jekyll-redirect-from (0.12.1)
       jekyll (~> 3.3)
@@ -373,6 +381,7 @@ DEPENDENCIES
   html-proofer
   jekyll
   jekyll-coffeescript
+  jekyll-livereload
   jekyll-paginate
   jekyll-redirect-from
   json_spec
@@ -405,4 +414,4 @@ DEPENDENCIES
   therubyracer
 
 BUNDLED WITH
-   1.15.3
+   1.15.4
