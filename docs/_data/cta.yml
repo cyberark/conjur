@@ -19,7 +19,7 @@ operations:
       icon: <i class="fa fa-code"></i>
     hosted:
       title: Hosted Demo Environment
-      path: /get-started/evaluate-conjur.html
+      path: /get-started/try-conjur.html
       icon: <i class="fa fa-server"></i>
     download:
       title: Run Conjur on your Laptop using Docker
@@ -41,4 +41,4 @@ hosted:
   links:
     hosted:
       title: Start your evaluation
-      content: <a href="/get-started/evaluate-conjur.html" class="conjur-cta-secondary">Try Conjur Now</a>
+      content: <a href="/get-started/try-conjur.html" class="conjur-cta-secondary">Try Conjur Now</a>
