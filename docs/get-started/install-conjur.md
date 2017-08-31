@@ -18,7 +18,7 @@ The easiest way to install and configure Conjur quickly is using Docker and Dock
 1. Download the Conjur quick-start configuration:
 
    ```sh-session
-   $ curl -o docker-compose.yml https://try.conjur.org/get-started/quick-start.yml
+   $ curl -o docker-compose.yml https://conjur.org/get-started/quick-start.yml
    ```
 
 1. Generate your master data key and load it into the environment:
