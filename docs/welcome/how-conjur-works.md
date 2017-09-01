@@ -8,7 +8,12 @@ To use Conjur, you write policy files to enumerate and categorize the things in 
 
 {% include toc.md key='next-steps' %}
 
-<div class="row equal">
+<div class="row mt-2 equal">
+  {% include cta.md id='security' %}
+  {% include cta.md id='operations' %}
+</div>
+
+<!-- <div class="row equal">
     {% include cta.md id='local' %}
     {% include cta.md id='hosted' %}
-</div>
+</div> -->

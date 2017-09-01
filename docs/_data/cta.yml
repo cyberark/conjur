@@ -3,8 +3,12 @@ security:
   links:
     overview:
       title: Conjur Overview
-      content: <script src="https://fast.wistia.com/embed/medias/gz2yt6b7de.jsonp" async></script><script src="https://fast.wistia.com/assets/external/E-v1.js" async></script><span class="wistia_embed wistia_async_gz2yt6b7de popover=true popoverContent=link" style="display:inline"><a href="#">Conjur Overview</a></span>
+      content: <script src="https://fast.wistia.com/embed/medias/gz2yt6b7de.jsonp" async></script><script src="https://fast.wistia.com/assets/external/E-v1.js" async></script><span class="wistia_embed wistia_async_gz2yt6b7de popover=true popoverContent=link" style="display:inline"><a href="#">Intro to CyberArk Conjur</a></span>
       icon: <i class="fa fa-youtube-play"></i>
+    datasheet:
+      title: CyberArk Conjur Data Sheet
+      content: <a href="https://www.cyberark.com/resource/cyberark-conjur-data-sheet/">CyberArk Conjur Data Sheet</a>
+      icon: <i class="fa fa-file-text-o"></i>
     get-started:
       title: Get Started with Conjur
       path: /get-started/
