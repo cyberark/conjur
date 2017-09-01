@@ -75,31 +75,31 @@
     a {
       color: $conjur-text;
 
-      &.conjur-cta-primary {
+      &.conjur-btn {
         transition: all 0.4s;
         color: #fff;
-        background-color: $cybr-blue;
-        padding: .5em 1em;
+        padding: .5em 1.3em;
         position: absolute;
         bottom: 30px;
+        text-transform: uppercase;
+        font-weight: 500;
         &:hover {
           text-decoration: none;
-          background-color: darken($cybr-blue,08);
           box-shadow: 0px 0px 5px rgba(165,165,165,0.8);
         }
       }
 
-      &.conjur-cta-secondary {
-        transition: all 0.4s;
-        color: #fff;
-        background-color: $conjur-teal;
-        padding: .5em 1em;
-        position: absolute;
-        bottom: 30px;
+      &.conjur-cta-primary {
+        background-color: $cybr-blue;
         &:hover {
-          text-decoration: none;
+          background-color: darken($cybr-blue,08);
+        }
+      }
+
+      &.conjur-cta-secondary {
+        background-color: $conjur-teal;
+        &:hover {
           background-color: darken($conjur-teal,08);
-          box-shadow: 0px 0px 5px rgba(165,165,165,0.8);
         }
       }
 
@@ -196,6 +196,7 @@
     background-color: #e6f0f8;
     border: none;
     color: $cybr-blue;
+    margin-top: 2em;
 }
 
 

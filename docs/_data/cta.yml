@@ -33,7 +33,7 @@ local:
   links:
     self-host:
       title: Install Conjur
-      content: <a href="/get-started/install-conjur.html" class="conjur-cta-primary">Install Conjur</a>
+      content: <a href="/get-started/install-conjur.html" class="conjur-btn conjur-cta-primary">Install Conjur</a>
 
 hosted:
   title: Try Conjur in the Cloud
@@ -41,4 +41,4 @@ hosted:
   links:
     hosted:
       title: Start your evaluation
-      content: <a href="/get-started/try-conjur.html" class="conjur-cta-secondary">Try Conjur Now</a>
+      content: <a href="/get-started/try-conjur.html" class="conjur-btn conjur-cta-secondary">Try Conjur Now</a>
