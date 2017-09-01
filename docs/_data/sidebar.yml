@@ -18,29 +18,29 @@ main:
         path: /get-started/try-conjur.html
   integrations:
     title: Integrations
-    path: https://github.com/cyberark
+    path: /integrations/
     items:
       ansible:
         title: Ansible
-        path: https://github.com/cyberark/ansible-role-conjur
+        path: /integrations/ansible.html
       puppet:
         title: Puppet
-        path: https://forge.puppet.com/conjur/conjur
+        path: /integrations/puppet.html
       summon:
         title: Summon
-        path: https://github.com/cyberark/summon
+        path: /integrations/summon.html
       go:
         title: Go
-        path: https://github.com/cyberark/conjur-api-go
+        path: /integrations/conjur-api-go.html
       ruby:
         title: Ruby
-        path: https://github.com/cyberark/conjur-api-ruby
+        path: /integrations/conjur-api-ruby.html
       dotnet:
         title: .NET
-        path: https://github.com/cyberark/conjur-api-dotnet
+        path: /integrations/conjur-api-dotnet.html
       java:
         title: Java
-        path: https://github.com/cyberark/conjur-api-java
+        path: /integrations/conjur-api-java.html
   tutorials:
     title: Tutorials
     path: /tutorials/
