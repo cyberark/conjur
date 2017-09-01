@@ -42,7 +42,7 @@ redirect_from: "/start"
     <div class="col-md-6 feature">
       <img src="/img/feature-icons/scalability-icon.svg" alt="Scalability icon">
       <h2>Scalability</h2>
-      Conjur serves client traffic from “followers” which are read-mostly replicas of the authorization rules and vaulted secrets. Conjur followers use a shared nothing architecture, which means that they scale out in a nearly ideal way. Conjur has collected extensive benchmarks of the scale-out performance of Conjur, and can demonstrate linear scaling from clusters of 1 machine to 10 or more. Conjur can demonstrate the fully authenticated, authorized, and audited retrieval of up to 4 million secrets per minute.
+      Conjur has collected extensive benchmarks of the scale-out performance of Conjur, and can demonstrate linear scaling from clusters of 1 machine to 10 or more. Conjur can demonstrate the fully authenticated, authorized, and audited retrieval of up to 4 million secrets per minute.
     </div>
   </div> <!-- /.row -->
 
