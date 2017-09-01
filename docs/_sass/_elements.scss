@@ -197,3 +197,30 @@
     border: none;
     color: $cybr-blue;
 }
+
+
+// ***********************
+// Hero
+// ***********************
+
+#hero {
+  background: url("/img/cybr-conjur-grid-bg.png") no-repeat top center;
+  background-size: cover;
+  color: #ffffff;
+  padding: 5em 0;
+
+  .page-title {
+    color: #ffffff;
+  }
+
+  p {
+    color: #ffffff;
+    font-size: 150%;
+  }
+}
+
+@media (max-width: 767px) {
+  #hero {
+    padding: 1.5em;
+  }
+}
