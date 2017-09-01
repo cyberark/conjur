@@ -17,19 +17,19 @@ security:
 operations:
   title: For Operations Teams
   links:
+    hosted:
+      title: Try Conjur in the Cloud
+      path: /get-started/try-conjur.html
+      icon: <i class="fa fa-cloud"></i>
+    download:
+      title: Run Your Own Conjur Server
+      path: /get-started/install-conjur.html
+      target: _blank
+      icon: <i class="fa fa-server"></i>
     api:
       title: API Documentation
       path: /api.html
       icon: <i class="fa fa-code"></i>
-    hosted:
-      title: Hosted Demo Environment
-      path: /get-started/try-conjur.html
-      icon: <i class="fa fa-server"></i>
-    download:
-      title: Run Conjur on your Laptop using Docker
-      path: /get-started/install-conjur.html
-      target: _blank
-      icon: <i class="fa fa-arrow-down"></i>
 
 local:
   title: Run Your Own Conjur Server
