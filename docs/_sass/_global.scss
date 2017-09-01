@@ -115,3 +115,14 @@ p {
 		}
 	}
 }
+
+@media (max-width: 992px) {
+	#content {
+	    display: flex;
+	    flex-direction: column;
+	}
+
+	.sidebar {
+		order: 4;
+	}
+}

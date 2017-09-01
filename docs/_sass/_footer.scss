@@ -39,17 +39,28 @@
     }
 
     a {
-      color: #fff;
+      color: $cybr-ltblue;
     }
 
     a:hover {
-      color: $conjur-ltblue;
+      color: lighten($cybr-ltblue,05);
     }
   }
 
   .footer-branding {
     display: flex;
     align-items: center;
+  }
+
+}
+
+@media (max-width: 992px) {
+  .footer-branding {
+    justify-content: center;
+  }
+
+  .list-unstyled {
+    text-align: center;
   }
 
 }
