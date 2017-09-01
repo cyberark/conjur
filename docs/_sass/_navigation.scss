@@ -65,9 +65,8 @@
   .navbar-default .navbar-nav > .active > a,
   .navbar-default .navbar-nav > .active > a:hover,
   .navbar-default .navbar-nav > .active > a:focus {
-    //background-color: rgba(0,0,0,0.15);
     background-color: darken($cybr-dkblue,04);
-    color: $conjur-ltblue;
+    color: $cybr-ltblue;
   }
 
   .navbar-default .navbar-nav > li > a,
@@ -79,7 +78,6 @@
   .navbar-default .navbar-nav > li:hover > a,
   .navbar-default .navbar-nav > li > a:hover,
   .navbar-default .navbar-nav > li > a:focus {
-  	//background-color: rgba(0,0,0,0.15);
     background-color: darken($cybr-dkblue,04);
   }
 
@@ -105,7 +103,6 @@
       color: #ffffff;
       font-size: 2rem;
       margin: 18px 0 0px 33px;
-      //margin-right: 35px;
       display: inline-block;
       width: 35px;
       background: url("/img/cyberark_icon_ko.svg") no-repeat top left;
@@ -162,7 +159,7 @@
 
     .nav-item.dropdown:hover > ul.dropdown-menu li.active a,
     .nav-item.dropdown:hover > ul.dropdown-menu li a.active {
-      color: $conjur-ltblue;
+      color: $cybr-ltblue;
     }
 
     .dropdown-menu {
@@ -177,7 +174,7 @@
       li {
         &.active a,
         &.active a:hover {
-          color: $conjur-ltblue;
+          color: $cybr-ltblue;
         }
         a {
           background-color: transparent;
@@ -186,7 +183,7 @@
 
           &.active,
           &.active:hover {
-            color: $conjur-ltblue;
+            color: $cybr-ltblue;
           }
         }
       }
