@@ -101,6 +101,8 @@ $(document).ready(function() {
             formField = $("#email-address").first();
           } else if(error.target == "organization") {
             formField = $("#organization").first();
+          } else if(error.target == "recaptcha") {
+            formField = $("#recaptcha").first();
           }
 
           if(formField !== undefined && error !== undefined) {

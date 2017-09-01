@@ -1,64 +1,66 @@
-# Conjur Web Site
+# Conjur Website
 
-## Development
+The web development environment uses Docker and Docker Compose to
+provide an expertly configured local Ruby environment. Instructions on
+how to install those are linked in the [top level
+README][dependencies].
 
-You can develop the website in a Docker container, which removes the need for a local Ruby environment. We use docker-compose for this.
+To build and serve the site on your computer, first run:
 
 ```sh-session
-$ cd ..  # project root
-$ docker-compose build --pull docs
+$ cd $(git rev-parse --show-cdup) # start in the project root
 $ docker-compose up -d docs
 ```
 
-The container port 4000 is mapped to your host port 4000. You can open it like this from your host machine (not from the container):
+Then `open localhost:4000` to view it in your browser.
 
-```sh-session
-$ open http://$DOCKER_IP:4000/conjur/
-```
+The site is rebuilt automatically every time you save a file. Just
+refresh your browser tab (<kbd>&#8984;-R</kbd> on Mac, <kbd>Ctrl-R</kbd>
+elsewhere) to see updates.
 
-`DOCKER_IP` is the address of your Docker VM, or it's simply `localhost` if you're running a native Docker. http://localhost:4000.
-
-The website will be rebuilt automatically on changes.
-Refresh your browser tab to see updates.
+To stop the container, `docker-compose kill docs`.
 
 ### Check for broken links
 
 ```sh-session
-$ cd ..  # project root
+$ cd $(git rev-parse --show-cdup) # start in the project root
 $ ./checklinks.sh
 ```
 
-This script builds the `conjur-docs` Docker image and then runs
-[html-proofer](https://github.com/gjtorikian/html-proofer) against the rendered HTML.
+This script uses Docker to run [html-proofer][proofer] on the rendered
+site and will report broken links as errors. It's automatically run as
+part of our continuous integration pipeline, but it's a good idea to
+run it yourself whenever you add or remove links.
+
+[dependencies]: ../README.md#Development_Dependencies "Development Dependencies"
+[proofer]: https://github.com/gjtorikian/html-proofer "HTML Proofer"
 
 ---
 
-### API Blueprint Docs
+### API Documentation
 
-TODO: move this section out of `docs/` and into project root or `apidocs/`.
+Currently, the docker-compose setup described above assumes that the
+API docs have been rendered to `docs/_includes/api.html`. Without that
+file, the local server can't show the API docs.
 
-We're using [API Blueprint](https://apiblueprint.org/documentation/) to document the Conjur API. There is no Ruby specific implementation, so we're using the [Aglio](https://github.com/danielgtaylor/aglio) package. The final generated docs can be viewed in two ways:
-
-##### Live Preview
-```sh-session
-$ cd docs
-$ ./dev.sh /node_modules/.bin/aglio -i apidocs/src/api.md -s -h 0.0.0.0 -p 4000
-```
-
-The above will make the rendered API docs available on `http://localhost:4000/`.
-
-Please note that the Docs Dockerfile contains the configuration to build both Jekyll and Aglio. This is why we execute commands from the `/docs` folder not the `/apidocs` folder. The API Blueprint reference path (`apidocs/src/api.md`) is from the project root.
-
-##### Generated (Visible from Jekyll)
-
-To compile API docs into the Jekyll project, first, start the Jekyll server:
+If you want to view the API docs in your local site, perform this step:
 
 ```sh-session
-$ cd docs && ./dev.sh
+$ cd "$(git rev-parse --show-toplevel)" # cd to project root
+$ docker-compose run --rm apidocs > docs/_includes/api.html
 ```
 
-Now in a new shell, compile API docs into the running project:
+#### Working on the API docs
+
+Unlike the rest of the site, the API docs do not live-update as you
+edit their source files. If you're just working on them, you can get a
+live-updating dev server:
+
 ```sh-session
-$ docker exec conjur-web /node_modules/.bin/aglio -i apidocs/src/api.md -o /opt/conjur/_site/apidocs.html
+$ cd $(git rev-parse --show-cdup) # start in the project root
+$ docker-compose run --rm --service-ports apidocs -w
 ```
-The above should be run from the root `conjur` folder.
+
+Then `open localhost:3000` to see the API docs in your browser.
+
+To stop the container, hit <kbd>Ctrl-c</kbd>.
