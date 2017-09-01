@@ -16,6 +16,9 @@
   powerful: Powerful
   programmable: Programmable
 
+"/welcome/how-conjur-works.html":
+  next-steps: Next Steps
+
 "/try-conjur-enterprise.html":
   enterprise: Try Conjur Enterprise
 
