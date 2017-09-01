@@ -20,15 +20,15 @@ main:
     title: Integrations
     path: /integrations/
     items:
-      kubernetes:
-        title: Kubernetes
-        path: /integrations/kubernetes.html
-      jenkins:
-        title: Jenkins
-        path: /integrations/jenkins.html
-      chef:
-        title: Chef
-        path: /integrations/chef.html
+#      kubernetes:
+#        title: Kubernetes
+#        path: /integrations/kubernetes.html
+#      jenkins:
+#        title: Jenkins
+#        path: /integrations/jenkins.html
+#      chef:
+#        title: Chef
+#        path: /integrations/chef.html
       ansible:
         title: Ansible
         path: /integrations/ansible.html

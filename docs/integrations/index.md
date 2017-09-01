@@ -4,18 +4,9 @@ layout: page
 section: integrations
 ---
 
-Conjur makes tools, demos, and integrations available on a variety of platforms
+Conjur makes tools and integrations available on a variety of platforms
 and languages so you can make security a part of the way you work without
 sacrificing velocity.
-
-{% include toc.md key='demos' %}
-
-We have prepared demos using Conjur with a variety of tools and services to help
-you understand how to best use Conjur with your own tools.
-
-* [Kubernetes](kubernetes.html)
-* [Jenkins](jenkins.html)
-* [Chef](chef.html)
 
 {% include toc.md key='platforms' %}
 

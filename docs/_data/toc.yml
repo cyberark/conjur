@@ -76,15 +76,6 @@
   platforms: Platforms
   tools: Tools
   api-clients: API Clients
-      
-"/integrations/kubernetes.html":
-  try-it-out: Try It Out
-  
-"/integrations/jenkins.html":
-  try-it-out: Try It Out
-
-"/integrations/chef.html":
-  try-it-out: Try It Out
 
 "/integrations/ansible.html":
   integration: Integration
