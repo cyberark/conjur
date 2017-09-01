@@ -160,11 +160,3 @@ main:
   api:
     title: API
     path: /api.html
-  github:
-    content: <a id="top-nav-button-slack" class="event-click" href="https://github.com/cyberark/conjur"><i class="fa fa-github-alt"></i></a></span>
-    title: <i class="fa fa-github-alt"></i>
-    url: https://github.com/cyberark/conjur
-  slack:
-    content: <a id="top-nav-button-github" class="event-click" href="https://slackin-conjur.herokuapp.com/"><i class="fa fa-slack"></i></a></span>
-    title: <i class="fa fa-slack"></i>
-    url: https://slackin-conjur.herokuapp.com/
