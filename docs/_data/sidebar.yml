@@ -20,15 +20,6 @@ main:
     title: Integrations
     path: /integrations/
     items:
-#      kubernetes:
-#        title: Kubernetes
-#        path: /integrations/kubernetes.html
-#      jenkins:
-#        title: Jenkins
-#        path: /integrations/jenkins.html
-#      chef:
-#        title: Chef
-#        path: /integrations/chef.html
       ansible:
         title: Ansible
         path: /integrations/ansible.html
@@ -58,12 +49,6 @@ main:
         title: Policy
         path: /tutorials/policy/
         items:
-          # users:
-          #   title: User Management
-
-          # hosts:
-          #   title: Machine Identity with Host Factory
-
           enrollment:
             title: Enrolling an Application
             path: /tutorials/policy/applications.html
@@ -79,28 +64,6 @@ main:
           ruby:
             title: Ruby API
             path: /tutorials/integrations/ruby.html
-
-          # python:
-          #   title: Python API
-
-          # summon:
-          #   title: Summon
-
-          # puppet:
-          #   title: Puppet
-
-          # chef:
-          #   title: Chef
-
-          # ansible:
-          #   title: Ansible
-
-          # kubernetes:
-          #   title: Kubernetes / OpenShift
-
-          # authenticators:
-          #   title: Custom Authentication
-          #   path: /tutorials/integrations/authenticators.html
 
   reference:
     title: Reference
@@ -131,25 +94,11 @@ main:
           Policy Statement Reference :
             title: Policy Statement Reference
             path:  /reference/policy.html#policy-statement-reference
+
       authentication:
         title: Authentication
         path: /reference/authentication.html
-
-      # authorization:
-      #   title: Authorization
-
-      # secrets:
-      #   title: Secrets
-
-      # host-factory:
-      #   title: Host Factory
-
-      # machine-identity:
-      #   title: Machine Identity Runtime
-
-      # api:
-      #   title: API
-
+        
       cryptography:
         title: Cryptography
         path: /reference/cryptography.html
