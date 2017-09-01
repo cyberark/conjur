@@ -1,5 +1,5 @@
 ---
-title: Evaluate Conjur
+title: Try Conjur
 layout: page
 section: get-started
 custom_js:

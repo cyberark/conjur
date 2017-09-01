@@ -19,7 +19,7 @@ operations:
       icon: <i class="fa fa-code"></i>
     hosted:
       title: Hosted Demo Environment
-      path: /get-started/evaluate-conjur.html
+      path: /get-started/try-conjur.html
       icon: <i class="fa fa-server"></i>
     download:
       title: Run Conjur on your Laptop using Docker
@@ -29,16 +29,16 @@ operations:
 
 local:
   title: Run Your Own Conjur Server
-  text: "Running your own Conjur server gives you total control over the software and doesn't require you to connect to the Internet."
+  text: "Running your own Conjur server gives you total control over the software."
   links:
     self-host:
       title: Install Conjur
-      content: <a href="/get-started/install-conjur.html" class="conjur-cta-primary">Install Conjur</a>
+      content: <a href="/get-started/install-conjur.html" class="conjur-btn conjur-cta-primary">Install Conjur</a>
 
 hosted:
-  title: Evaluate Conjur in the Cloud
+  title: Try Conjur in the Cloud
   text: "The quickest way to get started using Conjur. Get immediate access to a running server in the cloud. Not for production secrets."
   links:
     hosted:
       title: Start your evaluation
-      content: <a href="/get-started/evaluate-conjur.html" class="conjur-cta-secondary">Request Access</a>
+      content: <a href="/get-started/try-conjur.html" class="conjur-btn conjur-cta-secondary">Try Conjur Now</a>

@@ -3,7 +3,7 @@
 // ***********************
 
 #top-navigation {
-  background-color: $conjur-dark;
+  background-color: $cybr-dkblue;
   margin-bottom: 0px;
   border-radius: 0px;
   border: 0px;
@@ -12,11 +12,11 @@
     a.navbar-brand {
       color: #ffffff;
       font-size: 2rem;
-      margin: 22px 0 0 0;
+      margin: 15px 0 0 0;
       margin-right: 35px;
       display: inline-block;
       width: 350px;
-      background: url("/img/cyberark_open_source_logo_ko.svg") no-repeat top left;
+      background: url("/img/cybr_conjur_logo_dark.svg") no-repeat top left;
       padding: 0px;
     }
   }
@@ -35,19 +35,22 @@
     &:hover {
       > ul.dropdown-menu {
         display: block;
-        background-color: $conjur-dark;
+        //background-color: $conjur-dark;
+        background-color: darken($cybr-dkblue,04);
         color: #ffffff;
 
         li {
           display: block;
           margin: 3px 0;
+          transition: all 0.4s;
 
           a {
             color: #ffffff;
             font-weight: 300;
 
             &:hover {
-              background-color: rgba(0,0,0,0.15);
+              //background-color: rgba(0,0,0,0.15);
+              background-color: darken($cybr-dkblue,04);
             }
           }
         }
@@ -62,7 +65,8 @@
   .navbar-default .navbar-nav > .active > a,
   .navbar-default .navbar-nav > .active > a:hover,
   .navbar-default .navbar-nav > .active > a:focus {
-    background-color: rgba(0,0,0,0.15);
+    //background-color: rgba(0,0,0,0.15);
+    background-color: darken($cybr-dkblue,04);
     color: $conjur-ltblue;
   }
 
@@ -75,7 +79,8 @@
   .navbar-default .navbar-nav > li:hover > a,
   .navbar-default .navbar-nav > li > a:hover,
   .navbar-default .navbar-nav > li > a:focus {
-  	background-color: rgba(0,0,0,0.15);
+  	//background-color: rgba(0,0,0,0.15);
+    background-color: darken($cybr-dkblue,04);
   }
 
 }
@@ -88,7 +93,7 @@
       a.navbar-brand {
         box-sizing: content-box;
         width: 256px;
-        margin: 27px 0 0 0;
+        margin: 13px 0 0 0;
       }
     }
   }
@@ -100,7 +105,7 @@
       color: #ffffff;
       font-size: 2rem;
       margin: 18px 0 0px 33px;
-      margin-right: 35px;
+      //margin-right: 35px;
       display: inline-block;
       width: 35px;
       background: url("/img/cyberark_icon_ko.svg") no-repeat top left;
@@ -124,7 +129,7 @@
         background-color: transparent;
       }
       .icon-bar {
-        background-color: $conjur-teal;
+        background-color: lighten($cybr-blue,08);
       }
     }
 
@@ -146,11 +151,11 @@
       a.navbar-brand {
         color: #ffffff;
         font-size: 2rem;
-        margin: 18px 0 0px 33px;
+        margin: 12px 0 0px 33px;
         margin-right: 35px;
         display: inline-block;
-        width: 35px;
-        background: url("/img/cyberark_icon_ko.svg") no-repeat top left;
+        width: 200px;
+        background: url("/img/cybr_conjur_logo_dark.svg") no-repeat top left;
         padding: 0px;
       }
     }

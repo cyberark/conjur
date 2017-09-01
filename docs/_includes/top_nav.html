@@ -15,6 +15,13 @@
     			{% assign value = item_hash[1] %}
     			{% include top_nav_menu.html item=value section=key %}
     		{% endfor %}
+        <li class="{% if active %}active{% endif %} nav-item">
+          <a id="top-nav-button-github" class="event-click" href="https://slackin-conjur.herokuapp.com/"><i class="fa fa-slack"></i></a>
+        </li>
+
+        <li class="{% if active %}active{% endif %} nav-item">
+          <a id="top-nav-button-slack" class="event-click" href="https://github.com/cyberark/conjur"><i class="fa fa-github-alt"></i></a>
+        </li>
       </ul>
 
       <form id="top-search" class="form-inline pull-right hidden">
