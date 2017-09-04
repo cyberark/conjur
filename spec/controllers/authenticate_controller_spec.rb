@@ -11,10 +11,10 @@ describe AuthenticateController, :type => :controller do
     RSpec::Matchers.define :have_valid_token_for do |login|
       match do |response|
         expect(response).to be_ok
-        token = JSON.parse response.body
-        expect(token['data']).to eq(login)
-        expect(token).to have_key('signature')
-        expect(token).to have_key('timestamp')
+        token = Slosilo::JWT.parse_json response.body
+        expect(token.claims['sub']).to eq(login)
+        expect(token.signature).to be
+        expect(token.claims).to have_key('iat')
       end
     end
     

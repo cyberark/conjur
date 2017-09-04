@@ -59,10 +59,5 @@ The request body is the API key. For example: `14m9cf91wfsesv1kkhevg12cdywm`.
 + Response 200
 
     ```
-    {
-        "data": "alice",
-        "timestamp": "2017-04-24 20:31:50 UTC",
-        "signature": "BpR0FEbQL8TpvpIjJ1awYr8uklvPecmXt-EpIIPcHpdAKBjoyrBQDZv8he1z7vKtF54H3webS0imvL0-UrHOE5yp_KB0fQdeF_z-oPYmaTywTcbwgsHNGzTkomcEUO49zeCmPdJN_zy_umiLqFJMBWfyFGMGj8lcJxcKTDMaXqJq5jK4e2-u1P0pG_AVnat9xtabL2_S7eySE1_2eK0SC7FHQ-7gY2b0YN7L5pjtHrfBMatg3ofCAgAbFmngTKCrtH389g2mmYXfAMillK1ZrndJ-vTIeDg5K8AGAQ7pz8xM0Cb0rqESWpYMc8ZuaipE5UMbmOym57m0uMuMftIJ_akBQZjb4zB-3IBQE25Sb4nrbFCgH_OyaqOt90Cw4397",
-        "key": "15ab2712d65e6983cf7107a5350aaac0"
-    }
+    {"protected":"eyJhbGciOiJjb25qdXIub3JnL3Nsb3NpbG8vdjIiLCJraWQiOiI0NGIwMjBmNjY0MDBmNzFhZDQ3Y2I0N2IzYTFiNmU5MSJ9","payload":"eyJzdWIiOiJhbGljZSIsImlhdCI6MTUwNTgzMDY1MX0=","signature":"iRLTwNomb_b6TS4e539IIC-isPsc0kIn-F_ajlvnGdrN6brEEHnVha2vm0oDwOjpnmpFrMYLzn8aPo4_7DP3edssfQbpMG6OZI2Ea9DRfkhQGtSQ2fQvhDos_f16EX_jWQkYlsY6T_RurAxf_7VC4hEhjZA8nLkXOohA1DheyoJiT2-7vdpLmf42G7r1gPWHd_JuFkee28Ax2vCi35l4yQXkAHFaLkb3cAD2iwYuavv3qcFnYsT5WhLQqndPoNzgNa4dMvWRkVNUoVmvL30oE6lAlWPO4rFbPpmLwJRJFudDF8IVV9cVRKnV3z79_3RfEsHJ6YTHVX4Cv--cXmkT17QSFp87DK94DAOX3jKvJNo49DdqkzXqAPUIj3CD3IWI"}
     ```

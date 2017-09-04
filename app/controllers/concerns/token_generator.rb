@@ -6,7 +6,7 @@ module TokenGenerator
   end
     
   def sign_token role
-    signing_key.signed_token Role.username_from_roleid(role.id)
+    signing_key.issue_jwt sub: Role.username_from_roleid(role.id)
   end
 
 end
