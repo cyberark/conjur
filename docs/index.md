@@ -1,5 +1,5 @@
 ---
-title: CyberArk Conjur
+title: Conjur
 layout: page
 section: welcome
 id: index
