@@ -5,16 +5,26 @@
 
   <body>
 
-    <div class="container-fluid">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PGRNZ3V"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    {% include top_nav.html %}
+
+    {% if page.id == "index" %}
+      {% include hero.html %}
+    {% endif %}
+
+    <div class="container">
       <div class="row">
-        {% include sidebar.html %}
         <div id="content" class="">
           {{ content }}
-
-          {% include footer.html %}
         </div>
       </div>
     </div>
+
+    {% include footer.html %}
 
   </body>
 </html>

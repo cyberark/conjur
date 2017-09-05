@@ -32,4 +32,4 @@ shift $((OPTIND-1))
 file="${1:--}"
 
 env PATH="/home/node/node_modules/.bin:$PATH" \
-    sh -c "aglio $aglio_options -i src/api.md -o \"$file\""
+    sh -c "aglio $aglio_options --theme-template templates/index.jade --theme-style templates/css/layout-conjur.less -i src/api.md -o \"$file\""

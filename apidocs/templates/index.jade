@@ -1,0 +1,12 @@
+include mixins.jade
+
+style!= self.css
+
+div.row
+  block nav
+    +Nav(false)
+    
+  block content
+    +Content('primary', false)
+
+script: include scripts.js

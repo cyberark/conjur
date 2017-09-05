@@ -1,7 +1,28 @@
+"/":
+  machine-identity: Machine Identity
+  authorization: Authorization Model
+  secrets: Secrets Management
+  audit: Audit
+  scalability: Scalability
+  containers: Built for Containers
+  integrations: Integrations
+  ssh-access-management: SSH Access Management
+  ui: User Interface
+
+"/welcome/why-conjur.html":
+  complete: Complete
+  proven: Proven
+  simple: Simple to Use
+  powerful: Powerful
+  programmable: Programmable
+
+"/welcome/how-conjur-works.html":
+  next-steps: Next Steps
+
 "/try-conjur-enterprise.html":
   enterprise: Try Conjur Enterprise
 
-"/try-conjur.html":
+"/get-started/try-conjur.html":
   docker: Install Docker
   cli: Download & Run the Conjur CLI
   environment: Export Environment Variables
@@ -21,24 +42,12 @@
   next-steps: Next Steps
   enterprise: Try Conjur Enterprise
 
-"/installation/client.html":
-  get:
-    title: Get the Client
-    sections:
-      docker: Run in Docker
-      source: Run from Source
-  configure:
-    title: Configure
-    sections:
-      environment: Using the Environment
-      conjur-init: Using Files
-  login: Log In
-
-"/installation/server.html":
-  hosted: Hosted Dev Account
-  compose: Docker Compose
-  docker: Standalone Docker
-  build: Source Code
+"/get-started/install-conjur.html":
+  prereq: Prerequisites
+  launch: Prepare to launch
+  install: Install and Configure
+  connect: Connect
+  explore: Explore
   next-steps: Next Steps
 
 "/reference/policy.html":
@@ -65,6 +74,34 @@
       variable: Variable
       webservice: Webservice
 
+"/integrations/":
+  demos: Demos
+  platforms: Platforms
+  tools: Tools
+  api-clients: API Clients
+
+"/integrations/ansible.html":
+  integration: Integration
+
+"/integrations/puppet.html":
+  integration: Integration
+
+"/integrations/summon.html":
+  installation: Installation
+
+"/integrations/conjur-api-go.html":
+  integration: Integration
+
+"/integrations/conjur-api-ruby.html":
+  integration: Integration
+  tutorials: Tutorials
+
+"/integrations/conjur-api-dotnet.html":
+  integration: Integration
+
+"/integrations/conjur-api-java.html":
+  integration: Integration
+      
 "/tutorials/integrations/ruby.html":
   introduction: Introduction
   setup: Setup

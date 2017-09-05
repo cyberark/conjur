@@ -5,46 +5,40 @@ pipeline {
 
   options {
     timestamps()
-    buildDiscarder(logRotator(daysToKeepStr: '14'))
+    buildDiscarder(logRotator(numToKeepStr: '30'))
+    skipDefaultCheckout()  // see 'Checkout SCM' below, once perms are fixed this is no longer needed
   }
 
   stages {
-    stage('Build and test Docker image') {
+    stage('Checkout SCM') {
+      steps {
+        checkout scm
+      }
+    }
+    stage('Build Docker image') {
       steps {
         sh './build.sh -j'
-
-        sh './test.sh'
-        junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,scaling_features/reports/**/*.xml,reports/*.xml'
-
-
-        milestone(1)  // Local Docker image is built, tested and tagged
       }
     }
 
-    stage('Push Docker image (internal)') {
+    stage('Test Docker image') {
+      steps {
+        sh './test.sh'
+
+        junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,scaling_features/reports/**/*.xml,reports/*.xml'
+      }
+    }
+
+    stage('Push Docker image') {
       steps {
         sh './push-image.sh'
-        archiveArtifacts artifacts: 'TAG', fingerprint: true
-
-        milestone(2) // Docker image pushed to internal registries
-      }
-    }
-
-    stage('Push Docker image (external)') {
-      agent { label 'releaser-v2' }
-      when {
-        branch 'master'
-      }
-      steps {
-        sh './push-image.sh external'  // script checks $BRANCH_NAME
-
-        milestone(3) // Docker image pushed to external registries
       }
     }
 
     stage('Build Debian package') {
       steps {
         sh './package.sh'
+
         archiveArtifacts artifacts: '*.deb', fingerprint: true
       }
     }
@@ -52,8 +46,6 @@ pipeline {
     stage('Publish Debian package'){
       steps {
         sh './publish.sh'
-
-        milestone(4) // Debian package is pushed to Artifactory
       }
     }
 
@@ -65,12 +57,13 @@ pipeline {
 
     stage('Publish website') {
       when {
-        branch 'master'
+        anyOf {
+          branch 'master'
+          branch 'pre-revert-master'
+        }
       }
       steps {
         sh 'summon ./website.sh'
-
-        milestone(5)  // conjur.org website is published
       }
     }
 
@@ -86,7 +79,7 @@ pipeline {
 
   post {
     always {
-      sh 'docker run -i --rm -v $PWD:/src -w /src alpine/git clean -fxd'  // bad docker mount creates unreadable files TODO fix this
+      sh 'sudo chown -R jenkins:jenkins .'  // bad docker mount creates unreadable files TODO fix this
       deleteDir()  // delete current workspace, for a clean build
     }
     failure {

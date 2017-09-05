@@ -1,14 +1,66 @@
 #footer {
-  background-color: $conjur-ltgray;
+  .slack-bar {
+    background: #275e91; /* Old browsers */
+    background: -moz-linear-gradient(left, #275e91 0%, #6ba3d7 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(left, #275e91 0%,#6ba3d7 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right, #275e91 0%,#6ba3d7 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    text-align: center;
+    padding: 15px 0;
+    height: 110px;
+    display: flex;
+    align-items: center;
+
+    a {
+      color: #fff;
+      font-size: 24px;
+    }
+  }
+
+  .copyright {
+    padding: 15px 0;
+    background-color: $cybr-dkblue;
+
+    .disclaimer {
+      color: #ffffff;
+      font-size: 14px;
+    }
+
+    img.cyberark-sidebar-logo {
+    	width: 140px;
+      margin: 0px;
+      margin-right: 1em;
+  	}
+  }
+
+  .footer-links {
+    li {
+      display: inline-block;
+      margin: 0 0.5em;
+    }
+
+    a {
+      color: $cybr-ltblue;
+    }
+
+    a:hover {
+      color: lighten($cybr-ltblue,05);
+    }
+  }
+
+  .footer-branding {
+    display: flex;
+    align-items: center;
+  }
+
 }
 
-.footer-disclaimer {
-  margin-top: 1em;
-  margin-bottom: 1em;
-  color: $conjur-dark;
+@media (max-width: 992px) {
+  .footer-branding {
+    justify-content: center;
+  }
 
-  img.cyberark-sidebar-logo {
-  	width: 100px;
-  	margin: 0 auto;
-	}
+  .list-unstyled {
+    text-align: center;
+  }
+
 }

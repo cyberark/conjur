@@ -1,8 +1,8 @@
 {% if include.items %}
-  <ul class="subnav">
+  <ul class="dropdown-menu">
     {% for item_hash in include.items %}
       {% assign item = item_hash[1] %}
-      {% include menu-item.html item=item %}
+      <li>{% include menu-item.html item=item %}</li>
     {% endfor %}
   </ul>
 {% endif %}

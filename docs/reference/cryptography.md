@@ -5,7 +5,7 @@ layout: page
 
 Conjur uses industry-standard cryptography to protect your data.
 
-There are several ways in which Conjur uses cryptography, each of which are described below. Much of Conjur's cryptography is implemented in the open-source project [slosilo](https://github.com/conjurinc/slosilo). Slosilo is basically a wrapper around OpenSSL.
+There are several ways in which Conjur uses cryptography, each of which are described below. Much of Conjur's cryptography is implemented in the open-source project [slosilo](https://github.com/cyberark/slosilo). Slosilo is basically a wrapper around OpenSSL.
 
 ## Cryptographic audit
 
@@ -23,7 +23,7 @@ Most requests to Conjur require an authentication token. An authentication token
 
 Conjur access tokens are valid for 8 minutes. The lifespan is not configurable.
 
-The access token implementation was included in the [slosilo](https://github.com/conjurinc/slosilo) cryptographic audit.
+The access token implementation was included in the [slosilo](https://github.com/cyberark/slosilo) cryptographic audit.
 
 ## Secret values
 
@@ -38,6 +38,6 @@ Encryption and decryption of secret values was included in the cryptographic aud
 
 ## Passwords
 
-Passwords are stored in the Conjur database using [bcrypt](https://en.wikipedia.org/wiki/Bcrypt), with a work factor of 12. 
+Passwords are stored in the Conjur database using [bcrypt](https://en.wikipedia.org/wiki/Bcrypt), with a work factor of 12.
 
 Storage and verification of passwords was included in the cryptographic audit.

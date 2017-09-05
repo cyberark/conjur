@@ -1,5 +1,5 @@
 // ***********************
-// Global Resets
+// Global
 // ***********************
 
 body {
@@ -7,7 +7,9 @@ body {
 	font-family: 'Open Sans', sans-serif;
 	line-height: 1.8rem;
 	position: relative;
-	height: 100%;
+	display: flex;
+  min-height: 100vh;
+  flex-direction: column;
 }
 
 html {
@@ -45,6 +47,12 @@ img {
 	margin: 50px 0;
 }
 
+.list-unstyled {
+	list-style: none;
+	padding-left: 0px;
+	margin-left: 0px;
+}
+
 
 // ***********************
 // Buttons
@@ -52,8 +60,10 @@ img {
 
 .btn {
 	padding: .5rem 1rem;
-	border-radius: 25px;
+	border-radius: 4px;
 	font-weight: 300;
+	border: none;
+	color: #ffffff;
 }
 
 .btn-primary {
@@ -67,6 +77,10 @@ img {
 // Container
 // ***********************
 
+.container {
+	flex: 1;
+}
+
 p {
 	font-family: 'Open Sans', sans-serif;
 	font-size: 16px;
@@ -75,7 +89,7 @@ p {
 }
 
 .page {
-	padding: 1rem 4rem 2rem 4rem;
+	padding: 2rem 1rem;
 	font-family: 'Open Sans', sans-serif;
 	font-size: 16px;
 	line-height: 1.8rem;
@@ -87,80 +101,28 @@ p {
 	}
 }
 
-@media (min-width: 992px) and (max-width: 1200px) {
-	#content {
-		margin-left: 300px;
-	}
-}
-
-@media (min-width: 1201px) {
-	#content {
-		margin-left: 300px;
+#content.api-docs {
+	header,
+	header h1 {
+		margin-top: 0px;
 	}
 }
 
 @media (max-width: 767px) {
 	#content {
-		margin-left: auto;
 		.page-title {
 			margin-top: 0;
 		}
 	}
-	#sidebar.affix {
-		position: static !important;
+}
+
+@media (max-width: 992px) {
+	#content {
+	    display: flex;
+	    flex-direction: column;
 	}
-}
 
-// ***********************
-// Copy to Clipboard
-// ***********************
-
-.hover-button {
-	float: right;
-	width: 30px;
-	height: 30px;
-	background: url("../../img/copy-to-clipboard.svg");
-	background-repeat: no-repeat;
-	background-position: center;
-	border: none;
-	cursor: pointer;
-}
-
-.tooltip-text {
-	visibility: hidden;
-	width: 120px;
-	background-color: $conjur-dark;
-	font-family: 'Open Sans';
-	font-size: 12px;
-	color: #fff;
-	text-align: center;
-	padding: 5px 0;
-	border-radius: 6px;
-	position: absolute;
-        right: 43px;
-	z-index: 1;
-	margin-top: 30px;
-}
-
-.hover-button:hover .tooltip-text {
-	visibility: visible;
-}
-
-.highlight pre button {
-	visibility: visible;
-}
-
-.arrow_box:after {
-	bottom: 100%;
-	left: 50%;
-	border: solid transparent;
-	content: " ";
-	height: 0;
-	width: 0;
-	position: absolute;
-	pointer-events: none;
-	border-color: rgba(0, 0, 0, 0);
-	border-bottom-color: $conjur-dark;
-	border-width: 10px;
-	margin-left: -10px;
+	.sidebar {
+		order: 4;
+	}
 }

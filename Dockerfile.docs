@@ -16,6 +16,7 @@ COPY Gemfile Gemfile.lock ./
 RUN bundle --with website
 
 COPY ./docs /usr/src/docs
+WORKDIR /usr/src/docs
 RUN jekyll build --source /usr/src/docs --destination /usr/src/docs/_site
 
 EXPOSE 4000

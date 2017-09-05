@@ -1,20 +1,43 @@
 main:
-  tour:
-    title: Try Conjur
-    path: /try-conjur.html
-
-  installation:
-    title: Installation
-    path: /installation/
+  welcome:
+    title: Welcome
+    path: /
     items:
-      client:
-        title: Client
-        path: /installation/client.html
-
-      server:
-        title: Server
-        path: /installation/server.html
-
+      how-conjur-works:
+        title: How Conjur Works
+        path: /welcome/how-conjur-works.html
+  get-started:
+    title: Get Started
+    path: /get-started/
+    items:
+      install-conjur:
+        title: Install Conjur
+        path: /get-started/install-conjur.html
+      evaluate-conjur:
+        title: Try Conjur
+        path: /get-started/try-conjur.html
+  integrations:
+    title: Integrations
+    path: /integrations/
+    items:
+      ansible:
+        title: Ansible
+        path: /integrations/ansible.html
+      summon:
+        title: Summon
+        path: /integrations/summon.html
+      go:
+        title: Go
+        path: /integrations/conjur-api-go.html
+      ruby:
+        title: Ruby
+        path: /integrations/conjur-api-ruby.html
+      dotnet:
+        title: .NET
+        path: /integrations/conjur-api-dotnet.html
+      java:
+        title: Java
+        path: /integrations/conjur-api-java.html
   tutorials:
     title: Tutorials
     path: /tutorials/
@@ -23,12 +46,6 @@ main:
         title: Policy
         path: /tutorials/policy/
         items:
-          # users:
-          #   title: User Management
-
-          # hosts:
-          #   title: Machine Identity with Host Factory
-
           enrollment:
             title: Enrolling an Application
             path: /tutorials/policy/applications.html
@@ -45,31 +62,6 @@ main:
             title: Ruby API
             path: /tutorials/integrations/ruby.html
 
-          # python:
-          #   title: Python API
-
-          # summon:
-          #   title: Summon
-
-          # puppet:
-          #   title: Puppet
-
-          # chef:
-          #   title: Chef
-
-          # ansible:
-          #   title: Ansible
-
-          # kubernetes:
-          #   title: Kubernetes / OpenShift
-
-          authenticators:
-            title: Custom Authentication
-            path: /tutorials/integrations/authenticators.html
-
-  apidocs:
-    title: API Documentation
-    path: /apidocs.html
   reference:
     title: Reference
     path: /reference/
@@ -99,29 +91,15 @@ main:
           Policy Statement Reference :
             title: Policy Statement Reference
             path:  /reference/policy.html#policy-statement-reference
+
       authentication:
         title: Authentication
         path: /reference/authentication.html
-
-      # authorization:
-      #   title: Authorization
-
-      # secrets:
-      #   title: Secrets
-
-      # host-factory:
-      #   title: Host Factory
-
-      # machine-identity:
-      #   title: Machine Identity Runtime
-
-      # api:
-      #   title: API
 
       cryptography:
         title: Cryptography
         path: /reference/cryptography.html
 
-  support:
-    title: Support
-    path: /support.html
+  api:
+    title: API
+    path: /api.html

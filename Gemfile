@@ -68,7 +68,10 @@ group :development, :test do
 end
 
 group :website do
-  gem 'github-pages', group: :jekyll_plugins
+  gem 'jekyll', group: :jekyll_plugins
+  gem 'jekyll-coffeescript'
+  gem 'jekyll-paginate'
+  gem 'jekyll-redirect-from'
   gem 'rack-jekyll'
   gem 'html-proofer'
 end
