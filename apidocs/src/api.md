@@ -1,8 +1,8 @@
 FORMAT: 1A
 
-# Conjur Community Edition API
+# CyberArk Conjur API
 
-This is official documentation of the Conjur Community Edition API. It
+This is official documentation of the Conjur API. It
 allows you tremendous flexibility to control and manipulate your
 Conjur software.
 
@@ -15,7 +15,7 @@ Most API calls require an authentication access token in the header. Here's how 
 
 If you're a machine, your API key will be provided by your operator.
 
-Access tokens expire after 8 minutes. You need to obtain a new token after it expires. 
+Access tokens expire after 8 minutes. You need to obtain a new token after it expires.
 Token expiration and renewal is handled automatically by the
 Conjur client libraries.
 
