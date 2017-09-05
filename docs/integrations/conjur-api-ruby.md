@@ -9,7 +9,7 @@ robust programmatic interface for talking to a Conjur server from within your
 Ruby project. You can use the Ruby API to authenticate with Conjur, load
 policies, fetch secrets, and more. Integration with Conjur provides a variety
 of additional benefits including being able to store security policy as code,
-automated secret rotation, and audit logs.
+and automated secret rotation.
 
 {% include toc.md key='integration' %}
 

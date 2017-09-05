@@ -1,5 +1,5 @@
 ---
-title: CyberArk Conjur Community Edition
+title: CyberArk Conjur
 layout: page
 section: welcome
 id: index
@@ -19,7 +19,7 @@ redirect_from: "/start"
     <div class="col-md-6 feature">
       <img src="/img/feature-icons/machine-identity.svg" alt="Machine Identity icon">
       <h2>Machine Identity</h2>
-      Machine Identity is the heart of CyberArk Conjur. Conjur was designed from the ground up to support security automation workflows of all kinds - secrets management, SSH, traffic authorization, container environments, configuration management, and custom access control scenarios.
+      Machine Identity is the heart of Conjur. Conjur was designed from the ground up to support security automation workflows of all kinds - secrets management, SSH, traffic authorization, container environments, configuration management, and custom access control scenarios.
     </div>
 
     <div class="col-md-6 feature">
