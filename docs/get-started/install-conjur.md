@@ -4,18 +4,21 @@ layout: page
 section: get-started
 ---
 
-You can easily download and run the Conjur software using the [official containers on DockerHub](https://hub.docker.com/r/cyberark/conjur/).
+You can easily download and run the Conjur software using Docker and the
+official Conjur containers on DockerHub.
 
 {% include toc.md key='prereq' %}
 
-The easiest way to install and configure Conjur quickly is using Docker and Docker Compose.
+1. [Install Docker Toolbox][get-docker], available for Windows and macOS.
 
-1. [Install Docker][get-docker]
-1. [Install Docker Compose][get-docker-compose]
+   If you're using GNU/Linux, [follow instructions here][get-docker-gnu].
+
+1. Install a terminal application if you don't have one already.
+   [Hyper](https://hyper.is) is nice.
 
 {% include toc.md key='launch' %}
 
-1. Download the Conjur quick-start configuration:
+1. In your terminal, download the Conjur quick-start configuration:
 
    ```sh-session
    $ curl -o docker-compose.yml https://www.conjur.org/get-started/docker-compose.quickstart.yml
@@ -76,5 +79,5 @@ conjur help policy load
 * Go through the [Conjur Tutorials](/tutorials/)
 * View Conjur's [API Documentation](/api.html)
 
-[get-docker]: https://docs.docker.com/engine/installation
-[get-docker-compose]: https://docs.docker.com/compose/install
+[get-docker]: https://www.docker.com/products/docker-toolbox
+[get-docker-gnu]: install-docker-on-gnu-linux.html
