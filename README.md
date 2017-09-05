@@ -24,11 +24,11 @@ Conjur provides:
 
 ## Links
 
-* try Conjur: [Start Here](https://try.conjur.org)
-* [support](https://try.conjur.org/support.html)
+* [Try Conjur:](https://www.conjur.org/get-started/try-conjur.html)
+* [Support](https://www.conjur.org/support.html)
 * [API Documentation][api-doc]
 
-[api-doc]: https://try.conjur.org/apidocs.html
+[api-doc]: https://www.conjur.org/api.html
 
 # Development
 
