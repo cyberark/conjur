@@ -24,6 +24,14 @@ official Conjur containers on DockerHub.
    $ curl -o docker-compose.yml https://www.conjur.org/get-started/docker-compose.quickstart.yml
    ```
 
+1. pull all the required Docker images from DockerHub
+
+   `docker-compose` can do this for you automatically:
+
+   ```sh-session
+   $ docker-compose pull
+   ```
+
 1. Generate your master data key and load it into the environment:
 
    ```shell
