@@ -1,5 +1,5 @@
 ---
-title: CyberArk Conjur Community Edition
+title: CyberArk Conjur
 layout: page
 section: welcome
 id: index
