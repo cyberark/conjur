@@ -10,8 +10,7 @@ integration with Conjur, the machine can then be granted least-privilege
 access to retrieve the secrets it needs in a secure manner. This approach
 reduces the administrative power of the Ansible host and prevents it from
 becoming a high value target. Conjur integration also provides additional
-benefits, including storing security policy as code, an audit trail, and
-simplified secret rotation.
+benefits, including storing security policy as code, and simplified secret rotation.
 
 {% include toc.md key='integration' %}
 
