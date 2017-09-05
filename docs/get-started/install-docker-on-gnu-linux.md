@@ -4,8 +4,6 @@ layout: page
 section: get-started
 ---
 
-# Installing Docker on GNU/Linux
-
 To get started with Conjur, you need to install Docker and Docker Compose using
 your distro's package system.
 
