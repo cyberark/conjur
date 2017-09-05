@@ -1,4 +1,4 @@
 ---
-title: Conjur CE API Docs
+title: CyberArk Conjur API Docs
 layout: apidocs
 ---
