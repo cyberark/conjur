@@ -3,8 +3,12 @@ security:
   links:
     overview:
       title: Conjur Overview
-      content: <script src="https://fast.wistia.com/embed/medias/gz2yt6b7de.jsonp" async></script><script src="https://fast.wistia.com/assets/external/E-v1.js" async></script><span class="wistia_embed wistia_async_gz2yt6b7de popover=true popoverContent=link" style="display:inline"><a href="#">Conjur Overview</a></span>
+      content: <script src="https://fast.wistia.com/embed/medias/gz2yt6b7de.jsonp" async></script><script src="https://fast.wistia.com/assets/external/E-v1.js" async></script><span class="wistia_embed wistia_async_gz2yt6b7de popover=true popoverContent=link" style="display:inline"><a href="#">Intro to CyberArk Conjur</a></span>
       icon: <i class="fa fa-youtube-play"></i>
+    datasheet:
+      title: CyberArk Conjur Data Sheet
+      content: <a href="https://www.cyberark.com/resource/cyberark-conjur-data-sheet/">CyberArk Conjur Data Sheet</a>
+      icon: <i class="fa fa-file-text-o"></i>
     get-started:
       title: Get Started with Conjur
       path: /get-started/
@@ -13,19 +17,19 @@ security:
 operations:
   title: For Operations Teams
   links:
+    download:
+      title: Run Your Own Conjur Server
+      path: /get-started/install-conjur.html
+      target: _blank
+      icon: <i class="fa fa-server"></i>
+    hosted:
+      title: Try Conjur in the Cloud
+      path: /get-started/try-conjur.html
+      icon: <i class="fa fa-cloud"></i>
     api:
       title: API Documentation
       path: /api.html
       icon: <i class="fa fa-code"></i>
-    hosted:
-      title: Hosted Demo Environment
-      path: /get-started/try-conjur.html
-      icon: <i class="fa fa-server"></i>
-    download:
-      title: Run Conjur on your Laptop using Docker
-      path: /get-started/install-conjur.html
-      target: _blank
-      icon: <i class="fa fa-arrow-down"></i>
 
 local:
   title: Run Your Own Conjur Server
