@@ -25,9 +25,7 @@ redirect_from: "/start"
     <div class="col-md-6 feature">
       <img src="/img/feature-icons/secrets-key.svg" alt="Secrets Management icon">
       <h2>Secrets Management</h2>
-      Conjur provides a policy framework to manage access to secrets. The policy definitions contain no secret themselves, making them safe and easy to share, review, and edit among a group of people without exposing confidential information.
-
-      With secrets abstraction, even the users of secrets need not know their values. By separating development, test, and production rules, policies can be tested in each environment with different secrets and rolled to production with confidence that the application is protected by a least privilege model.
+      Conjur provides a policy framework to manage access to secrets. The policy definitions contain no secret themselves, making them safe and easy to share, review, and edit among a group of people without exposing confidential information. With secrets abstraction, even the users of secrets need not know their values.
     </div>
 
   </div> <!-- /.row -->
@@ -36,7 +34,7 @@ redirect_from: "/start"
     <div class="col-md-6 feature">
       <img src="/img/feature-icons/authorization-icon.svg" alt="Authorization icon">
       <h2>Authorization Model</h2>
-      Conjur’s machine identity capabilities are built on the foundation of RBAC, ensuring that the automated workloads managed by Conjur are running with proven and scalable security properties. Conjur’s machine identity rules are managed using declarative documents called policies. Policy management can be federated across an organization in a strictly managed way, ensuring that management of Conjur security rules at scale is both tightly managed and scalable from the standpoint of organizational size.
+      Conjur’s machine identity capabilities are built on the foundation of RBAC, ensuring that the automated workloads managed by Conjur are running with proven and scalable security properties. Conjur's policy management can be managed strictly, ensuring that security rules at scale is both tightly managed and scalable.
     </div>
 
     <div class="col-md-6 feature">

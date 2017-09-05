@@ -23,9 +23,6 @@ main:
       ansible:
         title: Ansible
         path: /integrations/ansible.html
-      puppet:
-        title: Puppet
-        path: /integrations/puppet.html
       summon:
         title: Summon
         path: /integrations/summon.html
@@ -98,7 +95,7 @@ main:
       authentication:
         title: Authentication
         path: /reference/authentication.html
-        
+
       cryptography:
         title: Cryptography
         path: /reference/cryptography.html
