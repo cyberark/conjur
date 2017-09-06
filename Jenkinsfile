@@ -55,15 +55,21 @@ pipeline {
       }
     }
 
-    stage('Publish website') {
+    stage('Publish website - Prod') {
       when {
-        anyOf {
-          branch 'master'
-          branch 'pre-revert-master'
-        }
+        branch 'master'
       }
       steps {
         sh 'summon ./website.sh'
+      }
+    }
+    
+    stage('Publish website - Staging') {
+      when {
+        branch 'pre-revert-master'
+      }
+      steps {
+        sh 'summon ./website-stg.sh'
       }
     }
 
