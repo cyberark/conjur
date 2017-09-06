@@ -56,12 +56,6 @@ function displayError(formField, message) {
 }
 
 $(document).ready(function() {
-  var ipAddress = null;
-
-  $.getJSON("http://ipv4.jsonip.com/", function (data) {
-    ipAddress = data.ip;
-  });
-  
   var accountCookie = getCookieValue("account");
 
   if(accountCookie !== null) {
@@ -87,7 +81,6 @@ $(document).ready(function() {
           "email=" + $("#email-address").val() +
           "&organization=" + $("#organization").val() +
           "&recaptcha_token=" + recaptchaToken +
-          "&ip_address=" + ipAddress +
           "&hutk=" + hutk;
       
       $.ajax({
