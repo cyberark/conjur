@@ -63,15 +63,6 @@ pipeline {
         sh 'summon ./website.sh'
       }
     }
-    
-    stage('Publish website - Staging') {
-      when {
-        branch 'pre-revert-master'
-      }
-      steps {
-        sh 'summon ./website-stg.sh'
-      }
-    }
 
     stage('Publish Conjur to Heroku') {
       when {
