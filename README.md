@@ -1,13 +1,18 @@
 # CyberArk Conjur
 
+[![Join Conjur Slack](https://img.shields.io/badge/slack-open-e01563.svg)][slack]
+[![Issues ready for work](https://img.shields.io/waffle/label/cyberark/conjur/ready.svg?label=issues%20ready%20for%20work)][waffle]
+[![Issues in progress](https://img.shields.io/waffle/label/cyberark/conjur/in%20progress.svg)][waffle]
+[![Conjur on Quay.io](https://img.shields.io/badge/quay%20build-automated-0db7ed.svg)][quay]
+[![Follow Conjur on Twitter](https://img.shields.io/twitter/follow/conjurinc.svg?style=social&label=Follow%20%40ConjurInc)][twitter]
+_Note: our badges and social media buttons never track you._
+
 Conjur provides secrets management and machine identity for modern infrastructure.
 
-[![Join Conjur Slack](https://slackin-conjur.herokuapp.com/badge.svg)][join-slack]
-[![Stories tagged "Ready"](https://badge.waffle.io/conjurinc/jenkins-seed.png?label=ready&title=Ready)](http://waffle.io/conjurinc/jenkins-seed)
-
-[join-slack]: https://slackin-conjur.herokuapp.com
-
----
+[slack]: https://slackin-conjur.herokuapp.com "Join our Slack community"
+[waffle]: https://waffle.io/cyberark/conjur "Conjur issues on Waffle.io"
+[quay]: https://quay.io/repository/cyberark/conjur "Conjur container image on Quay.io"
+[twitter]: https://twitter.com/intent/user?screen_name=ConjurInc "Follow Conjur on Twitter"
 
 Conjur provides:
 
@@ -24,31 +29,9 @@ Conjur provides:
 
 ## Links
 
-* try Conjur: [Start Here](https://try.conjur.org)
-* [support](https://try.conjur.org/support.html)
+* [support](https://www.conjur.org/support.html)
 * [API Documentation][api]
 
-[![Join Conjur Slack](https://img.shields.io/badge/slack-open-e01563.svg)][slack]
-[![Conjur API Ruby Gem](https://img.shields.io/gem/dt/conjur-api.svg?label=ruby%20gem%20downloads)][gem]
-[![Docker Pulls](https://img.shields.io/docker/pulls/cyberark/conjur.svg)][docker]
-[![Issues ready for work](https://img.shields.io/waffle/label/cyberark/conjur/ready.svg?label=issues%20ready%20for%20work)][waffle]
-[![Issues in progress](https://img.shields.io/waffle/label/cyberark/conjur/in%20progress.svg)][waffle]
-[![Follow Conjur on Twitter](https://img.shields.io/twitter/follow/conjurinc.svg?style=social&label=Follow%20%40ConjurInc)][twitter]
-
-
-#### Conjur module on PuppetForge
-[![Conjur on Puppet Forge](https://img.shields.io/puppetforge/dt/conjur/conjur.svg)][puppet]
-[![Score on Puppet Forge](https://img.shields.io/puppetforge/f/conjur/conjur.svg)][puppet]
-[![We're a Puppet Partner](https://img.shields.io/puppetforge/e/conjur/conjur.svg)][puppet]
-
-_Note: our badges and social media buttons never track you._
-
-[slack]: https://slackin-conjur.herokuapp.com "Join our Slack community"
-[waffle]: https://waffle.io/cyberark/conjur "Conjur issues on Waffle.io"
-[gem]: https://rubygems.org/gems/conjur-api "Conjur API Ruby Gem"
-[puppet]: https://forge.puppet.com/conjur/conjur "Official Conjur module on PuppetForge"
-[twitter]: https://twitter.com/intent/user?screen_name=ConjurInc "Follow Conjur on Twitter"
-[docker]: https://hub.docker.com/r/cyberark/conjur/ "Conjur on Docker Hub"
 [api]: https://try.conjur.org/apidocs.html
 
 # Development
