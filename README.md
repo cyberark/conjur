@@ -1,13 +1,17 @@
 # CyberArk Conjur
 
+[![Join Conjur Slack](https://img.shields.io/badge/slack-open-e01563.svg)][slack]
+[![Issues ready for work](https://img.shields.io/waffle/label/cyberark/conjur/ready.svg?label=issues%20ready%20for%20work)][waffle]
+[![Issues in progress](https://img.shields.io/waffle/label/cyberark/conjur/in%20progress.svg)][waffle]
+[![Conjur on Quay.io](https://img.shields.io/badge/quay%20build-automated-0db7ed.svg)][quay]
+[![Follow Conjur on Twitter](https://img.shields.io/twitter/follow/conjurinc.svg?style=social&label=Follow%20%40ConjurInc)][twitter]
+
 Conjur provides secrets management and machine identity for modern infrastructure.
 
-[![Join Conjur Slack](https://slackin-conjur.herokuapp.com/badge.svg)][join-slack]
-[![Stories tagged "Ready"](https://badge.waffle.io/conjurinc/jenkins-seed.png?label=ready&title=Ready)](http://waffle.io/conjurinc/jenkins-seed)
-
-[join-slack]: https://slackin-conjur.herokuapp.com
-
----
+[slack]: https://slackin-conjur.herokuapp.com "Join our Slack community"
+[waffle]: https://waffle.io/cyberark/conjur "Conjur issues on Waffle.io"
+[quay]: https://quay.io/repository/cyberark/conjur "Conjur container image on Quay.io"
+[twitter]: https://twitter.com/intent/user?screen_name=ConjurInc "Follow Conjur on Twitter"
 
 Conjur provides:
 
@@ -22,23 +26,27 @@ Conjur provides:
   IaaS, configuration management, continuous integration (CI), container
   management and cloud orchestration
 
+_Note: our badges and social media buttons never track you._
+
 ## Links
 
-* [Try Conjur:](https://www.conjur.org/get-started/try-conjur.html)
-* [Support](https://www.conjur.org/support.html)
-* [API Documentation][api-doc]
+* [support](https://www.conjur.org/support.html)
+* [API Documentation][api]
 
-[api-doc]: https://www.conjur.org/api.html
+[api]: https://www.conjur.org/apidocs.html
 
 # Development
 
-To get access to Jenkins, ask in our Slack community. (You can
-join [here][join-slack].)
+We welcome contributions of all kinds to Conjur. See our [contributing
+guide][contrib].
 
-### Development Dependencies
+[contrib]: https://github.com/cyberark/conjur/blob/master/CONTRIBUTING.md
+
+## Prerequisites
 
 Before getting started, you should install some developer tools. These are not
-required to deploy Conjur, but they will help you quickly get started.
+required to deploy Conjur but they will let you develop using a standardized,
+expertly configured environment.
 
 1. [git][get-git] to manage source code
 2. [Docker][get-docker] to manage dependencies and runtime environments
@@ -184,7 +192,7 @@ $ docker-compose up -d docs
 $ open localhost:4000
 ```
 
-[docs]: https://try.conjur.org "Conjur website"
+[docs]: https://www.conjur.org "Conjur website"
 [docs-readme]: docs/README.md "Conjur docs README"
 
 # Architecture
@@ -210,7 +218,7 @@ up. Migration scripts are located in the `db/migrate` directory.
 
 ## Secrets and keys
 
-Main article: [Conjur Cryptography](https://try.conjur.org/reference/cryptography.html)
+Main article: [Conjur Cryptography](https://www.conjur.org/reference/cryptography.html)
 
 Conjur uses industry-standard cryptography to protect your data.
 
@@ -230,7 +238,7 @@ using [Slosilo](https://github.com/conjurinc/slosilo), a library which provides:
 * a keystore in a Postgresql database for easy storage and retrieval of keys
 
 Slosilo has been verified by a professional cryptographic audit. Ask in our
-Slack community for more details. (You can join [here][join-slack].)
+Slack community for more details. (You can join [here][slack].)
 
 ### Important: avoid data loss
 
