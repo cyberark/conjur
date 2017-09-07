@@ -5,7 +5,6 @@
 [![Issues in progress](https://img.shields.io/waffle/label/cyberark/conjur/in%20progress.svg)][waffle]
 [![Conjur on Quay.io](https://img.shields.io/badge/quay%20build-automated-0db7ed.svg)][quay]
 [![Follow Conjur on Twitter](https://img.shields.io/twitter/follow/conjurinc.svg?style=social&label=Follow%20%40ConjurInc)][twitter]
-_Note: our badges and social media buttons never track you._
 
 Conjur provides secrets management and machine identity for modern infrastructure.
 
@@ -26,6 +25,8 @@ Conjur provides:
 * **integrations** with other popular software in the cloud toolchain such as
   IaaS, configuration management, continuous integration (CI), container
   management and cloud orchestration
+
+_Note: our badges and social media buttons never track you._
 
 ## Links
 
