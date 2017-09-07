@@ -32,17 +32,20 @@ Conjur provides:
 * [support](https://www.conjur.org/support.html)
 * [API Documentation][api]
 
-[api]: https://try.conjur.org/apidocs.html
+[api]: https://www.conjur.org/apidocs.html
 
 # Development
 
-To get access to Jenkins, ask in our Slack community. (You can
-join [here][slack].)
+We welcome contributions of all kinds to Conjur. See our [contributing
+guide][contrib].
 
-### Development Dependencies
+[contrib]: https://github.com/cyberark/conjur/blob/master/CONTRIBUTING.md
+
+## Prerequisites
 
 Before getting started, you should install some developer tools. These are not
-required to deploy Conjur, but they will help you quickly get started.
+required to deploy Conjur but they will let you develop using a standardized,
+expertly configured environment.
 
 1. [git][get-git] to manage source code
 2. [Docker][get-docker] to manage dependencies and runtime environments
@@ -188,7 +191,7 @@ $ docker-compose up -d docs
 $ open localhost:4000
 ```
 
-[docs]: https://try.conjur.org "Conjur website"
+[docs]: https://www.conjur.org "Conjur website"
 [docs-readme]: docs/README.md "Conjur docs README"
 
 # Architecture
@@ -214,7 +217,7 @@ up. Migration scripts are located in the `db/migrate` directory.
 
 ## Secrets and keys
 
-Main article: [Conjur Cryptography](https://try.conjur.org/reference/cryptography.html)
+Main article: [Conjur Cryptography](https://www.conjur.org/reference/cryptography.html)
 
 Conjur uses industry-standard cryptography to protect your data.
 
