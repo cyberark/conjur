@@ -13,15 +13,15 @@ First, you'll need an Amazon Web Services account. If you already have
 one, skip ahead. If not, you can [create a free account
 here][aws-signup].
 
-Then you need to [download the Conjur CloudFormation
-template][cf-template]. It's a plain text file that instructs AWS how
-to create the Conjur stack. You'll need this for the next step.
+Then you need to [download the Conjur CloudFormation template][cf-template].
+It's a YAML text file that instructs AWS how to create the Conjur stack. You'll
+need this for the next step.
 
 ## Prepare to launch
 
 1. Sign-in to your Amazon Web Services dashboard and notice the search
    bar directly under the "AWS Services" heaer. Search for
-   "CloudFormation" and hit <kdb>Enter</kbd> to navigate.
+   "CloudFormation" and hit <kbd>Enter</kbd> to navigate.
 1. Choose the blue button labeled "Create new stack".
 1. Under "Select Template" and "Choose a template", choose "Upload a
    template to Amazon S3" and select the Conjur CloudFormation
@@ -42,26 +42,37 @@ Now use your browser to customize your Conjur stack in CloudFormation.
 1. Choose an admin password for the Conjur account and for the database.
 
    <div class="alert alert-info" role="alert"><strong>Prevent data loss:</strong><br>
-     When you launch the stack, you must supply an admin password for
-     the Conjur account and a database. Back them up in a safe location.
+     When you launch the stack, you must supply an admin password for the Conjur
+     account and database. Back these passwords up in a safe location.
    </div>
 1. Specify the location of the Amazon Machine Image to use for Conjur.
    TODO: what should we suggest for this?
-1. Specify the name of the AWS key pair to use.
-   TODO: what is this and what should we suggest?
+1. Generate a public-private SSH key pair according to [this guide from
+   Amazon][key-pair] and enter it in the key pair box. This allows you to get a
+   secure shell in the Conjur cloud stack after it's created.
+
+   <div class="alert alert-info" role="alert"><strong>Prevent data loss & leaks:</strong><br>
+     During this step you create a pair of keys, one public and one private.
+     Back up the private key in a secure location and take care that access to
+     it is carefully controlled. This private key allows admin access to your
+     Conjur server.
+   </div>
+   
 1. Choose a VPC ID in which to launch your stack.
    TODO: what is this and what should we suggest?
 1. Specify two VPC subnets to use for your stack.
    TODO: what is this and what should we suggest?
-1. Choose the Amazon machine type to use for your instance.
-   > "`t2.medium` ought to be enough for anybody."
-   > -Ryan Prior
+1. Choose the Amazon machine type to use for your instance. `t2.medium` is
+   relatively inexpensive and suitable for workloads that have low-to-moderate
+   network usage, which includes most Conjur use cases.
 1. Press the blue "Next" button in the lower-right corner.
+
+[key-pair]: http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
 
 ## Connect
 
 First, check to see that your server is running. Visit
-`https://your-server-ip/` in your browser, substituting the IP address
+`http://your-server-ip/` in your browser, substituting the IP address
 of your server. This tells you the server is running but doesn't let
 you log in or access any data.
 
@@ -82,7 +93,7 @@ container.
    ```
 
 1. Initialize the Conjur client using your server IP address with the
-   account name and admin password you created:
+   account name and Conjur admin password you created:
    
    ```sh-session
    $ conjur init -u https://your-server-ip -a your-account-name
