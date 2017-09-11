@@ -2,6 +2,7 @@
 title: Tutorial - Ruby API
 layout: page
 section: tutorials
+description: Conjur Tutorial - Ruby API
 ---
 
 {% include toc.md key='introduction' %}

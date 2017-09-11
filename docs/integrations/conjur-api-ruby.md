@@ -2,6 +2,7 @@
 title: Conjur Ruby API
 layout: page
 section: integrations
+description: Conjur Integrations - Ruby API
 ---
 
 The [Conjur Ruby API](https://github.com/cyberark/conjur-api-ruby) provides a

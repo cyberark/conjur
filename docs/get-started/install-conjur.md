@@ -2,6 +2,7 @@
 title: Install Conjur
 layout: page
 section: get-started
+description: Install Conjur locally yourself using Docker and the official Conjur containers on DockerHub
 ---
 
 You can easily download and run the Conjur software using Docker and the

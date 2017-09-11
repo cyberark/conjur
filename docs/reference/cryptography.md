@@ -1,6 +1,7 @@
 ---
 title: Reference - Cryptography
 layout: page
+description: Conjur Reference - Cryptography
 ---
 
 Conjur uses industry-standard cryptography to protect your data.

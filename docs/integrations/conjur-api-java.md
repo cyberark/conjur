@@ -2,6 +2,7 @@
 title: Conjur Java API
 layout: page
 section: integrations
+description: Conjur Integrations - Java API
 ---
 
 The [Conjur Java API](https://github.com/cyberark/conjur-api-java) provides a
