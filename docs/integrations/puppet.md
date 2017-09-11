@@ -2,6 +2,7 @@
 title: Conjur Puppet Module
 layout: page
 section: integrations
+description: Conjur Integrations - Puppet Module
 ---
 
 The [Conjur Puppet Module](https://forge.puppet.com/conjur/conjur) simplifies

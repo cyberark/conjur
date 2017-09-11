@@ -2,6 +2,7 @@
 title: Conjur Ansible Role
 layout: page
 section: integrations
+description: Conjur Integrations - Ansible Role
 ---
 
 The [Conjur Ansible Role](https://github.com/cyberark/ansible-role-conjur)

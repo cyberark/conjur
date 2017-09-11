@@ -2,6 +2,7 @@
 title: Tutorial - Custom Authentication
 layout: page
 section: tutorials
+description: Conjur Tutorial - Custom Authentication
 ---
 
 {% include toc.md key='introduction' %}

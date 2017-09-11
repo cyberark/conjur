@@ -2,6 +2,7 @@
 title: Tutorial - Delegating Policy Management
 layout: page
 section: tutorials
+description: Conjur Tutorial - Delegating Policy Management
 ---
 
 {% include toc.md key='introduction' %}

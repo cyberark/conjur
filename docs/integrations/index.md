@@ -2,6 +2,7 @@
 title: Integrations
 layout: page
 section: integrations
+description: Conjur Integrations - Working with various tools, platforms, and languages
 ---
 
 Conjur makes tools and integrations available on a variety of platforms
