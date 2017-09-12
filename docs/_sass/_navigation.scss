@@ -26,10 +26,6 @@
     float: right;
   }
 
-  // .nav > li > a {
-  //   padding: 0px 10px;
-  // }
-
   #top-search {
     margin: 15px 0;
     padding: 8px 0;
@@ -195,8 +191,12 @@
 }
 
 // ***********************
-// Contextual Sidebars
+// Sidebar
 // ***********************
+
+.sidebar.page {
+    padding-right: 35px;
+}
 
 ul.sidebar-nav {
   li {
@@ -208,7 +208,7 @@ ul.sidebar-nav {
     }
 
     a {
-      color: $conjur-medgray;
+      color: darken($conjur-medgray,10);
     }
   }
 
