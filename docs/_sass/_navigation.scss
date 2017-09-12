@@ -26,6 +26,10 @@
     float: right;
   }
 
+  // .nav > li > a {
+  //   padding: 0px 10px;
+  // }
+
   #top-search {
     margin: 15px 0;
     padding: 8px 0;
@@ -35,7 +39,6 @@
     &:hover {
       > ul.dropdown-menu {
         display: block;
-        //background-color: $conjur-dark;
         background-color: darken($cybr-dkblue,04);
         color: #ffffff;
 
@@ -49,7 +52,6 @@
             font-weight: 300;
 
             &:hover {
-              //background-color: rgba(0,0,0,0.15);
               background-color: darken($cybr-dkblue,04);
             }
           }
@@ -83,15 +85,13 @@
 
 }
 
-
-
 @media (max-width: 1200px) {
   #top-navigation {
     .navbar-header {
       a.navbar-brand {
         box-sizing: content-box;
-        width: 256px;
-        margin: 13px 0 0 0;
+        width: 150px;
+        margin: 25px 0 0 0;
       }
     }
   }
@@ -102,16 +102,19 @@
     a.navbar-brand {
       color: #ffffff;
       font-size: 2rem;
-      margin: 18px 0 0px 33px;
+      margin: 18px 0 0px 0px;
       display: inline-block;
-      width: 35px;
+      width: 30px;
       background: url("/img/cybr_icon_sq.svg") no-repeat top left;
       padding: 0px;
     }
   }
+
+  .nav > li > a {
+    padding: 10px;
+  }
+
 }
-
-
 
 @media (max-width: 767px) {
   #top-navigation {
