@@ -1,9 +1,9 @@
 ---
-title: Open Source Secrets Management & Machine Identity
+title: Conjur by CyberArk
 layout: page
 section: welcome
 id: index
-description: CyberArk Conjur is a scalable, flexible, open source security service that stores secrets, provides machine identity based authorization, and more.
+description: Conjur is a scalable, flexible, open source security service that stores secrets, provides machine identity based authorization, and more.
 ---
 
 <div class="row equal">
