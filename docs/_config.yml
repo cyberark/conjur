@@ -9,3 +9,4 @@ gems:
   - jekyll-sitemap
 title: CyberArk Conjur
 plugins_dir: ./_plugins
+url: https://www.conjur.org
