@@ -2,6 +2,7 @@
 title: Install Conjur
 layout: page
 section: get-started
+description: Install Conjur locally yourself using Docker and the official Conjur containers on DockerHub
 ---
 
 You can easily download and run the Conjur software using Docker and the
@@ -24,11 +25,19 @@ official Conjur containers on DockerHub.
    $ curl -o docker-compose.yml https://www.conjur.org/get-started/docker-compose.quickstart.yml
    ```
 
+1. pull all the required Docker images from DockerHub
+
+   `docker-compose` can do this for you automatically:
+
+   ```sh-session
+   $ docker-compose pull
+   ```
+
 1. Generate your master data key and load it into the environment:
 
-   ```shell
-   docker-compose run --no-deps --rm conjur data-key generate > data_key
-   export CONJUR_DATA_KEY="$(< data_key)"
+   ```sh-session
+   $ docker-compose run --no-deps --rm conjur data-key generate > data_key
+   $ export CONJUR_DATA_KEY="$(< data_key)"
    ```
 
 <div class="alert alert-info" role="alert"> <strong>Prevent data loss:</strong><br>
@@ -41,8 +50,8 @@ official Conjur containers on DockerHub.
 1. Run `docker-compose up -d` to run the Conjur server, database and client
 1. Create a default account (eg. `quick-start`):
 
-   ```shell
-   docker-compose exec conjur conjurctl account create quick-start
+   ```sh-session
+   $ docker-compose exec conjur conjurctl account create quick-start
    ```
 
  <div class="alert alert-info" role="alert"> <strong>Prevent data loss:</strong><br>
@@ -67,10 +76,10 @@ official Conjur containers on DockerHub.
 
 Conjur is installed and ready for use! Ready to do more?  Here are some suggestions:
 
-```shell
-conjur authn whoami
-conjur help
-conjur help policy load
+```sh-session
+$ conjur authn whoami
+$ conjur help
+$ conjur help policy load
 ```
 
 

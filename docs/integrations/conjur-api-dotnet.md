@@ -2,6 +2,7 @@
 title: Conjur .NET API
 layout: page
 section: integrations
+description: Conjur Integrations - .NET API
 ---
 
 The [Conjur .NET API](https://github.com/cyberark/conjur-api-dotnet) provides a

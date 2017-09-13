@@ -1,9 +1,9 @@
 ---
-title: Conjur
+title: Conjur by CyberArk
 layout: page
 section: welcome
 id: index
-redirect_from: "/start"
+description: Conjur is a scalable, flexible, open source security service that stores secrets, provides machine identity based authorization, and more.
 ---
 
 <div class="row equal">

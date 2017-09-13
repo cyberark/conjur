@@ -2,6 +2,7 @@
 title: Try Conjur
 layout: page
 section: get-started
+description: Try Conjur out quickly with instant access to a hosted Conjur server in the cloud 
 custom_js:
 - https://www.google.com/recaptcha/api.js
 ---

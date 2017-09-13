@@ -2,6 +2,7 @@
 title: Install Docker on GNU/Linux
 layout: page
 section: get-started
+description: Getting started with Conjur - install Docker and Docker Compose
 ---
 
 To get started with Conjur, you need to install Docker and Docker Compose using

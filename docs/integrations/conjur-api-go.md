@@ -2,6 +2,7 @@
 title: Conjur Go API
 layout: page
 section: integrations
+description: Conjur Integrations - Go API
 ---
 
 The [Conjur Go API](https://github.com/cyberark/conjur-api-go) provides a robust

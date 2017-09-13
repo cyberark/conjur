@@ -72,6 +72,7 @@ group :website do
   gem 'jekyll-coffeescript'
   gem 'jekyll-paginate'
   gem 'jekyll-redirect-from'
+  gem 'jekyll-sitemap'
   gem 'rack-jekyll'
   gem 'html-proofer'
 end

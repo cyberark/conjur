@@ -2,6 +2,7 @@
 title: Summon CLI Tool
 layout: page
 section: integrations
+description: Conjur Integrations - Summon CLI Tool
 ---
 
 The [Summon CLI tool](https://github.com/cyberark/summon) provides an interface

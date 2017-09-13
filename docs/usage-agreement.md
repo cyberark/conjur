@@ -2,6 +2,7 @@
 title: Usage Agreement
 layout: page
 section: get-started
+description: Conjur Usage Agreement
 ---
 
 

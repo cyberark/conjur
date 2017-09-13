@@ -1,4 +1,5 @@
 ---
-title: CyberArk Conjur API Docs
+title: Conjur API Documentation
 layout: apidocs
+description: API documentation for CyberArk Conjur
 ---
