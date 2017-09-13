@@ -82,7 +82,6 @@ function createClipboardButtons() {
 
   for(var i = 0; i < codeBlocks.length; i++) {
     var block = codeBlocks[i];
-    
     createClipboardButton(block, getClipboardText(block));
   }
 }
