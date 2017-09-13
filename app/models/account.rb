@@ -14,7 +14,7 @@ Account = Struct.new(:id) do
 
     INVALID_ID_CHARS = /[ :]/.freeze
 
-    def create id
+    def create id, owner_id = nil
       raise Exceptions::RecordExists.new("account", id) if Slosilo["authn:#{id}"]
 
       if (invalid = INVALID_ID_CHARS.match id)
@@ -23,7 +23,11 @@ Account = Struct.new(:id) do
 
       Role.db.transaction do
         Slosilo["authn:#{id}"] = Slosilo::Key.new
-        admin_user = Role.create role_id: "#{id}:user:admin"
+        
+        role_id = "#{id}:user:admin"
+        admin_user = Role.create role_id: role_id
+#        Resource.create resource_id: role_id, owner: Role[owner_id] if !owner_id.nil?
+        
         admin_user.api_key
       end
     end
