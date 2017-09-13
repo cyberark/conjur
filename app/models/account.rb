@@ -56,6 +56,7 @@ Account = Struct.new(:id) do
 
     Role["#{id}:user:admin"].destroy
     Role["#{id}:policy:root"].try(:destroy)
+    Resource["#{id}:user:admin"].try(:destroy)
     Credentials.where(Sequel.lit("account(role_id)") => id).delete
     Secret.where(Sequel.lit("account(resource_id)") => id).delete
     slosilo_keystore.adapter.model["authn:#{id}"].destroy
