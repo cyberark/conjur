@@ -26,7 +26,7 @@ Account = Struct.new(:id) do
         
         role_id = "#{id}:user:admin"
         admin_user = Role.create role_id: role_id
-#        Resource.create resource_id: role_id, owner: Role[owner_id] if !owner_id.nil?
+        Resource.create resource_id: role_id, owner: Role[owner_id] if !owner_id.nil?
         
         admin_user.api_key
       end
