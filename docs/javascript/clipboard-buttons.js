@@ -1,3 +1,7 @@
+---
+---
+//
+
 function extractShellCommand(shellBlock) {
   var blockLines = shellBlock.innerText.split("\n");
   var command = "";
@@ -16,11 +20,11 @@ function extractShellCommand(shellBlock) {
     if(cmdStart && command != "") {
       command += " && ";
     }
-    
+
     if(cmdStart || includeNextLine) {
       command += line.substring(lineBegin, lineEnd);
     }
-    
+
     includeNextLine = lineBroken;
   }
 
@@ -33,7 +37,7 @@ function extractIrbCommands(irbBlock) {
 
   for(var j = 0; j < blockLines.length; j++) {
     var line = blockLines[j];
-    
+
     if(line.startsWith("irb")) {
       if(command != "") {
         command += "; ";
@@ -47,7 +51,7 @@ function extractIrbCommands(irbBlock) {
 
 function createClipboardButton(block, clipboardText) {
   var btn = document.createElement("button");
-  btn.setAttribute("class", "hover-button");
+  btn.setAttribute("class", "clipboard-button hover-button");
   btn.setAttribute("data-clipboard-text", clipboardText);
   block.parentNode.insertBefore(btn, block);
 
@@ -55,27 +59,44 @@ function createClipboardButton(block, clipboardText) {
   tooltip.setAttribute("class", "tooltip-text arrow_box");
   tooltip.innerHTML = "Copy to clipboard";
   btn.appendChild(tooltip);
-  
+
   new Clipboard(btn);
 }
 
-var codeBlocks = document.querySelectorAll("pre code");
-
-for(var i = 0; i < codeBlocks.length; i++) {
-  var block = codeBlocks[i];
+function getClipboardText(block) {
   var codeType = block.getAttribute("data-lang");
 
   if(codeType == "shell") {
-    var text = extractShellCommand(block);
+    return extractShellCommand(block);
   } else if(codeType == "ruby") {
     if(block.innerText.startsWith("irb")) {
-      var text = extractIrbCommands(block);
+      return extractIrbCommands(block);
     } else {
-      var text = block.innerText;
+      return block.innerText;
     }
   } else {
-    var text = block.innerText;
+    return block.innerText;
   }
-  
-  createClipboardButton(block, text);
+
+  return null;
 }
+
+function createClipboardButtons() {
+  var codeBlocks = document.querySelectorAll("pre code");
+
+  for(var i = 0; i < codeBlocks.length; i++) {
+    var block = codeBlocks[i];
+    createClipboardButton(block, getClipboardText(block));
+  }
+}
+
+function updateClipboardButtons() {
+  var buttons = document.getElementsByClassName("clipboard-button");
+
+  [].forEach.call(buttons, function(btn) {
+    var clipboardText = getClipboardText(btn.nextSibling);
+    btn.setAttribute("data-clipboard-text", clipboardText);
+  });
+}
+
+createClipboardButtons();

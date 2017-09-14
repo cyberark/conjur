@@ -40,6 +40,8 @@ function displayAccountCredentials(email, account_id, api_key) {
       s.innerText = '"' + account_id + '"';
     }
   });
+
+  updateClipboardButtons();
 }
 
 function displayError(formField, message) {
