@@ -1,3 +1,7 @@
+---
+---
+//
+
 function extractShellCommand(shellBlock) {
   var blockLines = shellBlock.innerText.split("\n");
   var command = "";
@@ -16,11 +20,11 @@ function extractShellCommand(shellBlock) {
     if(cmdStart && command != "") {
       command += " && ";
     }
-    
+
     if(cmdStart || includeNextLine) {
       command += line.substring(lineBegin, lineEnd);
     }
-    
+
     includeNextLine = lineBroken;
   }
 
@@ -33,7 +37,7 @@ function extractIrbCommands(irbBlock) {
 
   for(var j = 0; j < blockLines.length; j++) {
     var line = blockLines[j];
-    
+
     if(line.startsWith("irb")) {
       if(command != "") {
         command += "; ";
@@ -55,7 +59,7 @@ function createClipboardButton(block, clipboardText) {
   tooltip.setAttribute("class", "tooltip-text arrow_box");
   tooltip.innerHTML = "Copy to clipboard";
   btn.appendChild(tooltip);
-  
+
   new Clipboard(btn);
 }
 
