@@ -45,8 +45,16 @@ Now use your browser to customize your Conjur stack in CloudFormation.
      When you launch the stack, you must supply an admin password for the Conjur
      account and database. Back these passwords up in a safe location.
    </div>
-1. Specify the location of the Amazon Machine Image to use for Conjur.
-   TODO: what should we suggest for this?
+1. Specify the location of the Amazon Machine Image to use for Conjur. It
+   defaults to the latest stable version.
+
+   <div class="alert alert-info" role="alert"><strong>Prevent un-reproducible deploys:</strong><br>
+     Whenever you download the CloudFormation template file, this field is
+     pre-filled with the latest image from CyberArk. In order to maintain your
+     ability to reproduce the deploy with the exact same image, you should back
+     up each version of the template you download in a safe location with the
+     time and date.
+   </div>
 1. Generate a public-private SSH key pair according to [this guide from
    Amazon][key-pair] and enter it in the key pair box. This allows you to get a
    secure shell in the Conjur cloud stack after it's created.
@@ -119,7 +127,6 @@ $ conjur help policy load
 * View Conjur's [API Documentation](/api.html)
 
 [aws-signup]: https://aws.amazon.com/what-is-aws/
-[cf-template]: https://raw.githubusercontent.com/cyberark/conjur/master/aws/cloudformation/conjur.yml
+[cf-template]: https://s3.amazonaws.com/conjur-ci-public/conjur-latest.yml
 [get-docker]: https://www.docker.com/products/docker-toolbox
 [get-docker-gnu]: install-docker-on-gnu-linux.html
-
