@@ -1,4 +1,4 @@
-# CyberArk Conjur
+# Conjur
 
 [![Join Conjur Slack](https://img.shields.io/badge/slack-open-e01563.svg)][slack]
 [![Issues ready for work](https://img.shields.io/waffle/label/cyberark/conjur/ready.svg?label=issues%20ready%20for%20work)][waffle]
