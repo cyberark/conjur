@@ -164,4 +164,12 @@ $(document).ready(function() {
       submitApiKeyReset($("#email-address").val());
     }
   });
+
+  $('#hosted-api-key-reset-cancel-btn').on('click', function(e) {
+    if(!e.isDefaultPrevented()) {
+      e.preventDefault();
+      $(".hosted-api-key-reset").hide();
+      $('.hosted-conjur-signup').show();        
+    }
+  });
 });
