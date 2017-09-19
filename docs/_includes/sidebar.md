@@ -28,5 +28,3 @@
   <li class="item coming-soon"><a id="side-nav-button-cloud-formation" class="event-click" href="#"><i class="fa fa-cloud"></i> AWS CloudFormation <span>(Coming Soon)</span></a></li>
   <li class="item"><a id="side-nav-button-slack" class="event-click" href="https://slackin-conjur.herokuapp.com/" target="_blank"><i class="fa fa-slack"></i> Slack</a></li>
 </ul>
-
-<a href="https://www.cyberark.com/devops-webinar/"><img src="/img/cta/cybr_webinar_cta.svg" alt="Open Source Webinar CTA"></a>
