@@ -12,7 +12,7 @@ class AccountsController < ApplicationController
   def create
     authorize :execute
 
-    api_key = Account.create account_name, params[:owner_id]
+    api_key = Account.create(account_name, current_user.role_id)
 
     render json: { id: account_name, api_key: api_key }, status: :created
   end

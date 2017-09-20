@@ -14,7 +14,7 @@ Account = Struct.new(:id) do
 
     INVALID_ID_CHARS = /[ :]/.freeze
 
-    def create id, owner_id = nil
+    def create id, owner_id
       raise Exceptions::RecordExists.new("account", id) if Slosilo["authn:#{id}"]
 
       if (invalid = INVALID_ID_CHARS.match id)
@@ -31,7 +31,7 @@ Account = Struct.new(:id) do
         # account's API key. This is used by the CPanel to enable the accounts
         # admin credentials to be used for API key rotation.
         unless owner_id.nil?
-          Resource.create resource_id: role_id, owner: Role[owner_id]
+          Resource.create resource_id: role_id, owner_id: owner_id
         end
         
         admin_user.api_key
