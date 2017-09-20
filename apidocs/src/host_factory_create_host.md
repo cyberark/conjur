@@ -65,11 +65,11 @@ A Host Factory Token must be provided as part of an HTTP
 
 #### Response
 
-| Code | Description                                                                           |
-|------|---------------------------------------------------------------------------------------|
-|  201 | A host was created, its definition is returned as a JSON document in the reponse body |
-|  401 | The token was invalid, expired, or the CIDR restriction was not satisfied             |
-|  422 | The request body was empty or a parameter was not formatted correctly                 |
+| Code | Description                                                                            |
+|------|----------------------------------------------------------------------------------------|
+|  201 | A host was created, its definition is returned as a JSON document in the response body |
+|  401 | The token was invalid, expired, or the CIDR restriction was not satisfied              |
+|  422 | The request body was empty or a parameter was not formatted correctly                  |
 
 + Response 201 (application/json)
 
