@@ -2,14 +2,14 @@
 ---
 //
 
-function getAccountCookie() {
+function getCookieValue(cookieName) {
   var cookies = document.cookie.split('; ');
 
   for(var i = 0; i < cookies.length; i++) {
     var name, value;
     [name, value] = cookies[i].split('=');
 
-    if(name == "account") {
+    if(name == cookieName) {
       return JSON.parse(value);
     }
   }
@@ -40,6 +40,8 @@ function displayAccountCredentials(email, account_id, api_key) {
       s.innerText = '"' + account_id + '"';
     }
   });
+
+  updateClipboardButtons();
 }
 
 function displayError(formField, message) {
@@ -56,7 +58,7 @@ function displayError(formField, message) {
 }
 
 $(document).ready(function() {
-  var accountCookie = getAccountCookie();
+  var accountCookie = getCookieValue("account");
 
   if(accountCookie !== null) {
     displayAccountCredentials(accountCookie.account_id,
@@ -74,11 +76,14 @@ $(document).ready(function() {
         displayError($("#recaptcha").first(), "Please complete reCAPTCHA.");
         return;
       }
+
+      var hutk = getCookieValue("hubspotutk");
       
       var payload =
           "email=" + $("#email-address").val() +
           "&organization=" + $("#organization").val() +
-          "&recaptcha_token=" + recaptchaToken;
+          "&recaptcha_token=" + recaptchaToken +
+          "&hutk=" + hutk;
       
       $.ajax({
         context: this,

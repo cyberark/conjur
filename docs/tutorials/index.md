@@ -2,6 +2,7 @@
 title: Tutorials
 layout: page
 section: tutorials
+description: Tutorials to get you started quickly with writing Conjur policy files and integrating Conjur with your runtime environment.
 ---
 
 Tutorials are organized into the following general categories:

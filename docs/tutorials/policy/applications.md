@@ -2,6 +2,7 @@
 title: Tutorial - Enrolling an Application
 layout: page
 section: tutorials
+description: Conjur Tutorial - Enrolling an Application
 ---
 
 {% include toc.md key='introduction' %}

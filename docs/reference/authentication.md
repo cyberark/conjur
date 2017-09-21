@@ -1,6 +1,7 @@
 ---
 title: Reference - Authentication
 layout: page
+description: Conjur Reference - Authentication
 ---
 
 ## API Routes
@@ -38,11 +39,10 @@ If you omit the `-H` option, you get the token as JSON.
 
 ## Whoami
 
-Once you are logged in, you can print your current logged-in identity 
+Once you are logged in, you can print your current logged-in identity
 with the command `conjur authn whoami`.
 
 {% highlight shell %}
 $ conjur authn whoami
 {"account":"mycorp","username":"joe-tester"}
 {% endhighlight %}
-

@@ -16,10 +16,13 @@
   powerful: Powerful
   programmable: Programmable
 
+"/welcome/how-conjur-works.html":
+  next-steps: Next Steps
+
 "/try-conjur-enterprise.html":
   enterprise: Try Conjur Enterprise
 
-"/get-started/evaluate-conjur.html":
+"/get-started/try-conjur.html":
   docker: Install Docker
   cli: Download & Run the Conjur CLI
   environment: Export Environment Variables
@@ -40,7 +43,7 @@
   enterprise: Try Conjur Enterprise
 
 "/get-started/install-conjur.html":
-  prereq: Prerequitites
+  prereq: Prerequisites
   launch: Prepare to launch
   install: Install and Configure
   connect: Connect
@@ -71,6 +74,34 @@
       variable: Variable
       webservice: Webservice
 
+"/integrations/":
+  demos: Demos
+  platforms: Platforms
+  tools: Tools
+  api-clients: API Clients
+
+"/integrations/ansible.html":
+  integration: Integration
+
+"/integrations/puppet.html":
+  integration: Integration
+
+"/integrations/summon.html":
+  installation: Installation
+
+"/integrations/conjur-api-go.html":
+  integration: Integration
+
+"/integrations/conjur-api-ruby.html":
+  integration: Integration
+  tutorials: Tutorials
+
+"/integrations/conjur-api-dotnet.html":
+  integration: Integration
+
+"/integrations/conjur-api-java.html":
+  integration: Integration
+      
 "/tutorials/integrations/ruby.html":
   introduction: Introduction
   setup: Setup

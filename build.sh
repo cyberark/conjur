@@ -1,13 +1,14 @@
 #!/bin/bash -ex
 
-run_dev=true
+TAG="$(< VERSION)-$(git rev-parse --short HEAD)"
+RUN_DEV=true
 
 while [[ $# -gt 0 ]]
 do
 key="$1"
 case $key in
     -j|--jenkins)
-    run_dev=false
+    RUN_DEV=false
     ;;
     *)
     ;;
@@ -15,12 +16,16 @@ esac
 shift # past argument or value
 done
 
+echo "Building conjur Docker image"
 docker build -t conjur .
 
+echo "Tagging conjur:$TAG"
+docker tag conjur "conjur:$TAG"
+
+echo "Building test container"
 docker build -t conjur-test -f Dockerfile.test .
 
-if [[ $run_dev = true ]]; then
+if [[ $RUN_DEV = true ]]; then
+  echo "Building dev container"
   docker build -t conjur-dev -f Dockerfile.dev .
 fi
-
-docker tag conjur conjurinc/conjur || docker tag -f conjur conjurinc/conjur

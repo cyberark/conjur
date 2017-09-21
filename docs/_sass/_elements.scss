@@ -1,0 +1,267 @@
+// ***********************
+// Icons
+// ***********************
+
+.icon-docker-hub {
+  background: url("/img/docker_icon.svg") no-repeat center center;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+
+// ***********************
+// Utilities
+// ***********************
+
+.mt-2 {
+  margin-top: 2em;
+}
+
+.row.equal {
+    //display: flex;
+    //flex-wrap: wrap;
+}
+.row.equal > [class*='col-'] {
+  //  display: flex;
+    //flex-direction: column;
+}
+
+// ***********************
+// CTA Boxes
+// ***********************
+
+.cta-box {
+  //background-color: $conjur-softgray;
+  border-radius: 4px;
+  color: $conjur-text;
+  height: 100%;
+  width: 100%;
+  flex: 0 0 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 265px;
+  border: 4px solid $conjur-softgray;
+
+  .cta-content-wrap {
+    flex: 1;
+  }
+
+  .cta-box-header {
+    font-weight: 400;
+    padding: 1em 1.5em;
+    font-size: 140%;
+  }
+
+  hr {
+    border-bottom: 1px solid $conjur-medgray;
+  }
+
+  p {
+    font-weight: 300;
+    padding: 0 2em;
+    margin-top: 0px;
+    flex: 1;
+  }
+
+  ul.cta-links {
+    padding: 1em;
+    margin: 3em 0 0 1em;
+    text-align: left;
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    a {
+      color: $conjur-text;
+
+      &.conjur-btn {
+        transition: all 0.4s;
+        color: #fff;
+        padding: .5em 1.3em;
+        position: absolute;
+        bottom: 30px;
+        text-transform: uppercase;
+        font-weight: 500;
+        &:hover {
+          text-decoration: none;
+          box-shadow: 0px 0px 5px rgba(165,165,165,0.8);
+        }
+      }
+
+      &.conjur-cta-primary {
+        background-color: $cybr-blue;
+        &:hover {
+          background-color: darken($cybr-blue,08);
+        }
+      }
+
+      &.conjur-cta-secondary {
+        background-color: $conjur-teal;
+        &:hover {
+          background-color: darken($conjur-teal,08);
+        }
+      }
+
+    }
+
+    i {
+      color: $conjur-medgray;
+      font-size: 120%;
+      margin-right: 5px;
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  .cta-box {
+    margin: 0 0 1em 0;
+    min-height: auto;
+
+    ul.cta-links {
+      margin: 0 0 1em 1em;
+    }
+
+  }
+
+  .cta-box ul.cta-links a.conjur-cta-primary, .cta-box ul.cta-links a.conjur-cta-secondary {
+    position: relative;
+    bottom: initial;
+  }
+
+}
+
+// ***********************
+// Next Steps
+// ***********************
+
+.nextsteps {
+
+  .cta-box {
+    min-height: auto;
+  }
+  
+  .cta-box ul.cta-links {
+    margin: 0 0 0 1em;
+  }
+}
+
+
+// ***********************
+// Copy to Clipboard
+// ***********************
+
+.hover-button {
+	float: right;
+	width: 30px;
+	height: 30px;
+	background: url("../../img/copy-to-clipboard.svg");
+	background-repeat: no-repeat;
+	background-position: center;
+	border: none;
+	cursor: pointer;
+}
+
+.tooltip-text {
+	visibility: hidden;
+	width: 120px;
+	background-color: $conjur-dark;
+	font-family: 'Open Sans';
+	font-size: 12px;
+	color: #fff;
+	text-align: center;
+	padding: 5px 0;
+	border-radius: 6px;
+	position: absolute;
+        right: -5px;
+	z-index: 1;
+	margin-top: 30px;
+}
+
+.hover-button:hover .tooltip-text {
+	visibility: visible;
+}
+
+.highlight pre button {
+	visibility: visible;
+}
+
+.arrow_box:after {
+	bottom: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+	border-color: rgba(0, 0, 0, 0);
+	border-bottom-color: $conjur-dark;
+	border-width: 10px;
+	margin-left: -10px;
+}
+
+
+// ***********************
+// Alert Info
+// ***********************
+
+.alert-info {
+    background-color: #e6f0f8;
+    border: none;
+    color: $cybr-blue;
+    margin-top: 2em;
+}
+
+
+// ***********************
+// Hero
+// ***********************
+
+#hero {
+  background: url("/img/cybr-conjur-grid-bg.png") no-repeat top center;
+  background-size: cover;
+  color: #ffffff;
+  padding: 5em 0;
+
+  .page-title {
+    color: #ffffff;
+  }
+
+  p {
+    color: #ffffff;
+    font-size: 150%;
+  }
+}
+
+@media (max-width: 767px) {
+  #hero {
+    padding: 1.5em;
+  }
+}
+
+
+// ***********************
+// Features
+// ***********************
+
+.feature-wrap {
+  padding-top: 3em;
+
+  img {
+      margin: 0;
+      width: 50px;
+      height: 50px;
+  }
+
+  h2 {
+    margin-top: .5em;
+    margin-bottom: .5em;
+    color: $conjur-teal;
+  }
+
+  .feature {
+    margin-bottom: 4em;
+  }
+
+} // END .feature-wrap

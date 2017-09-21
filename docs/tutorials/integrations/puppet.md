@@ -2,6 +2,7 @@
 title: Tutorial - Puppet
 layout: page
 section: tutorials
+description: Conjur Tutorial - Puppet
 ---
 
 {% include toc.md key='introduction' %}

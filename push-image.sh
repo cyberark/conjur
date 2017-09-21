@@ -9,6 +9,7 @@ TAG="${1:-$(< VERSION)-$(git rev-parse --short HEAD)}"
 
 SOURCE_IMAGE='conjur'
 INTERNAL_IMAGE='registry.tld/conjur'
+INTERNAL_IMAGE_NEW='registry.tld/cyberark/conjur'  # We'll transition to this
 DOCKERHUB_IMAGE='cyberark/conjur'
 QUAY_IMAGE='quay.io/cyberark/conjur'
 
@@ -16,6 +17,7 @@ function main() {
   echo "TAG = $TAG"
 
   tag_and_push $INTERNAL_IMAGE $TAG
+  tag_and_push $INTERNAL_IMAGE_NEW $TAG
 
   if [ "$BRANCH_NAME" = "master" ]; then
     local latest_tag='latest'
@@ -25,6 +27,9 @@ function main() {
 
     tag_and_push $INTERNAL_IMAGE $latest_tag
     tag_and_push $INTERNAL_IMAGE $stable_tag
+
+    tag_and_push $INTERNAL_IMAGE_NEW $latest_tag
+    tag_and_push $INTERNAL_IMAGE_NEW $stable_tag
 
     tag_and_push $DOCKERHUB_IMAGE $TAG
     tag_and_push $DOCKERHUB_IMAGE $latest_tag

@@ -2,7 +2,7 @@ FROM ruby:2.2
 
 ENV LANG C.UTF-8
 
-RUN apt-get update && \
+mRUN apt-get update && \
     apt-get install -y python-dev python-software-properties unzip
 
 RUN curl -s "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip" && \

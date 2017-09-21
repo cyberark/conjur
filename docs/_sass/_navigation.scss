@@ -3,7 +3,7 @@
 // ***********************
 
 #top-navigation {
-  background-color: $conjur-dark;
+  background-color: $cybr-dkblue;
   margin-bottom: 0px;
   border-radius: 0px;
   border: 0px;
@@ -12,11 +12,11 @@
     a.navbar-brand {
       color: #ffffff;
       font-size: 2rem;
-      margin: 22px 0 0 0;
+      margin: 16px 0 0 0;
       margin-right: 35px;
       display: inline-block;
-      width: 350px;
-      background: url("/img/cyberark_open_source_logo_ko.svg") no-repeat top left;
+      width: 230px;
+      background: url("/img/cybr_logo_horiz.svg") no-repeat top left;
       padding: 0px;
     }
   }
@@ -35,19 +35,20 @@
     &:hover {
       > ul.dropdown-menu {
         display: block;
-        background-color: $conjur-dark;
+        background-color: darken($cybr-dkblue,04);
         color: #ffffff;
 
         li {
           display: block;
           margin: 3px 0;
+          transition: all 0.4s;
 
           a {
             color: #ffffff;
             font-weight: 300;
 
             &:hover {
-              background-color: rgba(0,0,0,0.15);
+              background-color: darken($cybr-dkblue,04);
             }
           }
         }
@@ -62,8 +63,8 @@
   .navbar-default .navbar-nav > .active > a,
   .navbar-default .navbar-nav > .active > a:hover,
   .navbar-default .navbar-nav > .active > a:focus {
-    background-color: rgba(0,0,0,0.15);
-    color: $conjur-ltblue;
+    background-color: darken($cybr-dkblue,04);
+    color: $cybr-ltblue;
   }
 
   .navbar-default .navbar-nav > li > a,
@@ -75,20 +76,18 @@
   .navbar-default .navbar-nav > li:hover > a,
   .navbar-default .navbar-nav > li > a:hover,
   .navbar-default .navbar-nav > li > a:focus {
-  	background-color: rgba(0,0,0,0.15);
+    background-color: darken($cybr-dkblue,04);
   }
 
 }
-
-
 
 @media (max-width: 1200px) {
   #top-navigation {
     .navbar-header {
       a.navbar-brand {
         box-sizing: content-box;
-        width: 256px;
-        margin: 27px 0 0 0;
+        width: 150px;
+        margin: 25px 0 0 0;
       }
     }
   }
@@ -99,17 +98,19 @@
     a.navbar-brand {
       color: #ffffff;
       font-size: 2rem;
-      margin: 18px 0 0px 33px;
-      margin-right: 35px;
+      margin: 18px 0 0px 0px;
       display: inline-block;
-      width: 35px;
-      background: url("/img/cyberark_icon_ko.svg") no-repeat top left;
+      width: 30px;
+      background: url("/img/cybr_icon_sq.svg") no-repeat top left;
       padding: 0px;
     }
   }
+
+  .nav > li > a {
+    padding: 10px;
+  }
+
 }
-
-
 
 @media (max-width: 767px) {
   #top-navigation {
@@ -124,7 +125,7 @@
         background-color: transparent;
       }
       .icon-bar {
-        background-color: $conjur-teal;
+        background-color: lighten($cybr-blue,08);
       }
     }
 
@@ -146,18 +147,18 @@
       a.navbar-brand {
         color: #ffffff;
         font-size: 2rem;
-        margin: 18px 0 0px 33px;
+        margin: 16px 0 0px 33px;
         margin-right: 35px;
         display: inline-block;
-        width: 35px;
-        background: url("/img/cyberark_icon_ko.svg") no-repeat top left;
+        width: 200px;
+        background: url("/img/cybr_logo_horiz.svg") no-repeat top left;
         padding: 0px;
       }
     }
 
     .nav-item.dropdown:hover > ul.dropdown-menu li.active a,
     .nav-item.dropdown:hover > ul.dropdown-menu li a.active {
-      color: $conjur-ltblue;
+      color: $cybr-ltblue;
     }
 
     .dropdown-menu {
@@ -172,7 +173,7 @@
       li {
         &.active a,
         &.active a:hover {
-          color: $conjur-ltblue;
+          color: $cybr-ltblue;
         }
         a {
           background-color: transparent;
@@ -181,7 +182,7 @@
 
           &.active,
           &.active:hover {
-            color: $conjur-ltblue;
+            color: $cybr-ltblue;
           }
         }
       }
@@ -190,8 +191,12 @@
 }
 
 // ***********************
-// Contextual Sidebars
+// Sidebar
 // ***********************
+
+.sidebar.page {
+    padding-right: 35px;
+}
 
 ul.sidebar-nav {
   li {
@@ -203,7 +208,7 @@ ul.sidebar-nav {
     }
 
     a {
-      color: $conjur-medgray;
+      color: darken($conjur-medgray,10);
     }
   }
 

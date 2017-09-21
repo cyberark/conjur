@@ -3,9 +3,6 @@ main:
     title: Welcome
     path: /
     items:
-      why-conjur:
-        title: Why Conjur
-        path: /welcome/why-conjur.html
       how-conjur-works:
         title: How Conjur Works
         path: /welcome/how-conjur-works.html
@@ -17,42 +14,30 @@ main:
         title: Install Conjur
         path: /get-started/install-conjur.html
       evaluate-conjur:
-        title: Evaluate Conjur
-        path: /get-started/evaluate-conjur.html
+        title: Try Conjur
+        path: /get-started/try-conjur.html
   integrations:
     title: Integrations
-    path: https://github.com/cyberark
+    path: /integrations/
     items:
-      kubernetes:
-        title: Kubernetes
-        path: https://github.com/conjurdemos/scalability-k8s
       ansible:
         title: Ansible
-        path: https://github.com/cyberark/ansible-role-conjur
-      puppet:
-        title: Puppet
-        path: https://github.com/cyberark/conjur-puppet
-      jenkins:
-        title: Jenkins
-        path: https://github.com/conjur/jenkins-e2e-example
-      chef:
-        title: Chef
-        path: https://github.com/conjur/chef-demo
+        path: /integrations/ansible.html
       summon:
         title: Summon
-        path: https://github.com/cyberark/summon
+        path: /integrations/summon.html
       go:
         title: Go
-        path: https://github.com/cyberark/conjur-api-go
+        path: /integrations/conjur-api-go.html
       ruby:
         title: Ruby
-        path: https://github.com/cyberark/conjur-api-ruby
+        path: /integrations/conjur-api-ruby.html
       dotnet:
         title: .NET
-        path: https://github.com/cyberark/conjur-api-dotnet
+        path: /integrations/conjur-api-dotnet.html
       java:
         title: Java
-        path: https://github.com/cyberark/conjur-api-java
+        path: /integrations/conjur-api-java.html
   tutorials:
     title: Tutorials
     path: /tutorials/
@@ -61,12 +46,6 @@ main:
         title: Policy
         path: /tutorials/policy/
         items:
-          # users:
-          #   title: User Management
-
-          # hosts:
-          #   title: Machine Identity with Host Factory
-
           enrollment:
             title: Enrolling an Application
             path: /tutorials/policy/applications.html
@@ -82,28 +61,6 @@ main:
           ruby:
             title: Ruby API
             path: /tutorials/integrations/ruby.html
-
-          # python:
-          #   title: Python API
-
-          # summon:
-          #   title: Summon
-
-          # puppet:
-          #   title: Puppet
-
-          # chef:
-          #   title: Chef
-
-          # ansible:
-          #   title: Ansible
-
-          # kubernetes:
-          #   title: Kubernetes / OpenShift
-
-          # authenticators:
-          #   title: Custom Authentication
-          #   path: /tutorials/integrations/authenticators.html
 
   reference:
     title: Reference
@@ -134,24 +91,10 @@ main:
           Policy Statement Reference :
             title: Policy Statement Reference
             path:  /reference/policy.html#policy-statement-reference
+
       authentication:
         title: Authentication
         path: /reference/authentication.html
-
-      # authorization:
-      #   title: Authorization
-
-      # secrets:
-      #   title: Secrets
-
-      # host-factory:
-      #   title: Host Factory
-
-      # machine-identity:
-      #   title: Machine Identity Runtime
-
-      # api:
-      #   title: API
 
       cryptography:
         title: Cryptography
@@ -160,9 +103,7 @@ main:
   api:
     title: API
     path: /api.html
-  github:
-    title: <i class="fa fa-github-alt"></i>
-    url: https://github.com/cyberark/conjur
-  slack:
-    title: <i class="fa fa-slack"></i>
-    url: https://slackin-conjur.herokuapp.com/
+
+  enterprise:
+    title: Conjur Enterprise
+    path: https://www.cyberark.com/products/privileged-account-security-solution/cyberark-conjur/
