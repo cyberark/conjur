@@ -14,7 +14,7 @@ Account = Struct.new(:id) do
 
     INVALID_ID_CHARS = /[ :]/.freeze
 
-    def create id, owner_id
+    def create(id, owner_id = nil)
       raise Exceptions::RecordExists.new("account", id) if Slosilo["authn:#{id}"]
 
       if (invalid = INVALID_ID_CHARS.match id)
