@@ -90,17 +90,17 @@
 "/integrations/puppet.html":
   integration: Integration
 
-"/integrations/conjur-api-go.html":
+"/api/conjur-api-go.html":
   integration: Integration
 
-"/integrations/conjur-api-ruby.html":
+"/api/conjur-api-ruby.html":
   integration: Integration
   tutorials: Tutorials
 
-"/integrations/conjur-api-dotnet.html":
+"/api/conjur-api-dotnet.html":
   integration: Integration
 
-"/integrations/conjur-api-java.html":
+"/api/conjur-api-java.html":
   integration: Integration
 
 "/tutorials/integrations/ruby.html":
