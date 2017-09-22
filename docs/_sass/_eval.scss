@@ -13,7 +13,7 @@ form {
     }
   }
 
-  &.hosted-account-signup {
+  &.hosted-account-form {
     background-color: $conjur-softgray;
     padding: 1.5em 2em;
     border-radius: 4px;
@@ -45,6 +45,10 @@ form {
       font-weight: bold;
     }
   }
+}
+
+.hosted-api-key-reset {
+  display: none;
 }
 
 // ***********************
