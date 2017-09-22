@@ -74,20 +74,21 @@
       variable: Variable
       webservice: Webservice
 
+"/tools/":
+  summon: Summon CLI
+
+"/tools/summon.html":
+  installation: Installation
+
 "/integrations/":
   demos: Demos
   platforms: Platforms
-  tools: Tools
-  api-clients: API Clients
 
 "/integrations/ansible.html":
   integration: Integration
 
 "/integrations/puppet.html":
   integration: Integration
-
-"/integrations/summon.html":
-  installation: Installation
 
 "/integrations/conjur-api-go.html":
   integration: Integration
@@ -101,7 +102,7 @@
 
 "/integrations/conjur-api-java.html":
   integration: Integration
-      
+
 "/tutorials/integrations/ruby.html":
   introduction: Introduction
   setup: Setup
