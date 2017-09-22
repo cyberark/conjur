@@ -9,4 +9,9 @@ $(document).ready(function() {
     $(this).siblings("ul.nav-menu").slideToggle("fast");
   });
 
+  $("#top-navigation a[href='#']").on("click", function(event){
+    event.stopPropagation();
+    event.preventDefault();
+  });
+
 });
