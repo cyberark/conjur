@@ -1,4 +1,4 @@
-{% assign section = site.data.sidebar.main[include.section] %}
+{% assign section = site.data.navigation.main[include.section] %}
 
 <ul class="sidebar-nav list-unstyled">
   <li class="section">
@@ -6,7 +6,10 @@
   <li>
 
   {% for item in section.items %}
-    <li class="item"><a href="{{ item[1].path }}">{{ item[1].title }}</a></li>
+    <li class="item{% if item[1].items %} parent-item{% endif %}"><a href="{{ item[1].path }}">{{ item[1].title }}</a></li>
+    {% for item in item[1].items %}
+      <li class="item sub-item"><a href="{{ item[1].path }}">{{ item[1].title }}</a></li>
+    {% endfor %}
   {% endfor %}
 </ul>
 
