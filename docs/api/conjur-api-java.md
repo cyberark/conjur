@@ -1,7 +1,7 @@
 ---
 title: Conjur Java API
 layout: page
-section: integrations
+section: api
 description: Conjur Integrations - Java API
 ---
 

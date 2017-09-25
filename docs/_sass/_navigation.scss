@@ -31,7 +31,8 @@
     padding: 8px 0;
   }
 
-  .nav-item.dropdown {
+  .nav-item.dropdown,
+  .nav-item.dropdown li.submenu {
     &:hover {
       > ul.dropdown-menu {
         display: block;
@@ -49,10 +50,37 @@
 
             &:hover {
               background-color: darken($cybr-dkblue,04);
+              color: $cybr-ltblue;
             }
           }
         }
       }
+    }
+  }
+
+  .nav-item.dropdown li.submenu {
+    position: relative;
+
+    &:after {
+      content: "\f0da";
+      font-family: FontAwesome;
+      position: absolute;
+      right: 10px;
+      top: -1px;
+    }
+
+    &:hover > a  {
+      color: $cybr-ltblue !important;
+    }
+
+    > ul.dropdown-menu {
+      position: absolute;
+      left: 99%;
+      top: -11px;
+    }
+
+    > a {
+      padding-right: 30px;
     }
   }
   // end #top-navigation
@@ -77,6 +105,18 @@
   .navbar-default .navbar-nav > li > a:hover,
   .navbar-default .navbar-nav > li > a:focus {
     background-color: darken($cybr-dkblue,04);
+  }
+
+  .container > .navbar-header,
+  .container > .navbar-collapse,
+  .container-fluid > .navbar-header,
+  .container-fluid > .navbar-collapse {
+    margin-right: -15px;
+  }
+
+  .container {
+    padding-left: 0px;
+    padding-right: 0px;
   }
 
 }
@@ -166,27 +206,59 @@
       position: static;
       float: none;
       background-color: transparent;
-      border-radius: none;
+      border-radius: 0px;
       box-shadow: none;
       font-weight: 300;
+      line-height: 20px;
 
       li {
         &.active a,
         &.active a:hover {
           color: $cybr-ltblue;
+          line-height: 20px;
         }
         a {
           background-color: transparent;
           color: #ffffff;
           font-weight: 300;
+          line-height: 20px;
+
+          &.dropdown-header {
+            font-size: inherit;
+            &::after {
+              border-bottom: #5a5a5a;
+            }
+          }
 
           &.active,
           &.active:hover {
             color: $cybr-ltblue;
+            line-height: 20px;
           }
         }
       }
     }
+
+    .nav-item.dropdown li.submenu {
+      > ul.dropdown-menu {
+        display: block;
+        position: static;
+        float: none;
+        background-color: transparent;
+        border-radius: 0px;
+        box-shadow: none;
+        font-weight: 300;
+        border: none;
+        margin-left: 25px;
+      }
+
+      &:after {
+        content: "";
+        position: static;
+      }
+
+    }
+
   }
 }
 
@@ -209,6 +281,19 @@ ul.sidebar-nav {
 
     a {
       color: darken($conjur-medgray,10);
+    }
+
+    &.sub-item {
+      margin-left: 10px;
+      font-size: 95%;
+
+      &:before {
+        content: "\f105";
+        font-family: FontAwesome;
+        margin-right: 5px;
+        font-size: 95%;
+        color: $bs-ltgray;
+      }
     }
   }
 

@@ -17,7 +17,7 @@ RUN bundle --with website
 
 COPY ./docs /usr/src/docs
 WORKDIR /usr/src/docs
-RUN jekyll build --source /usr/src/docs --destination /usr/src/docs/_site
+RUN jekyll build --source /usr/src/docs --destination /usr/src/docs/_site --plugins /usr/src/docs/_plugins
 
 EXPOSE 4000
 

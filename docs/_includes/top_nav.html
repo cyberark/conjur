@@ -10,7 +10,7 @@
     </div>
     <div class="collapse navbar-collapse" id="mobileNav">
       <ul class="nav navbar-nav">
-        {% for item_hash in site.data.sidebar.main %}
+        {% for item_hash in site.data.navigation.main %}
           {% assign key = item_hash[0] %}
     			{% assign value = item_hash[1] %}
     			{% include top_nav_menu.html item=value section=key %}

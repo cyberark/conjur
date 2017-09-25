@@ -73,7 +73,20 @@ Feature: Create a new account
     }
     """
 
+  Scenario: An account can be created with an owner
+
+    Given I create a new user "admin" in account "!"
+    And I permit role "!:user:admin" to "execute" resource "!:webservice:accounts"
+    And I login as "!:user:admin"
+    Then I successfully POST "/accounts" with body:
+    """
+    id=new-account&owner_id=!:user:admin
+    """
+    And the JSON should have "id"
+    And the JSON should have "api_key"
+
   Scenario: An account can be created with a '.' in its name
+
     Given I create a new user "admin" in account "!"
     And I permit role "!:user:admin" to "execute" resource "!:webservice:accounts"
     And I login as "!:user:admin"
@@ -84,6 +97,7 @@ Feature: Create a new account
     And I can authenticate with the admin API key for the account "new_account@example.com"
 
   Scenario: Creating account with : or space in the name fails
+
     Given I create a new user "admin" in account "!"
     And I permit role "!:user:admin" to "execute" resource "!:webservice:accounts"
     And I login as "!:user:admin"

@@ -1,6 +1,6 @@
 FORMAT: 1A
 
-# CyberArk Conjur API
+# Conjur API
 
 This is official documentation of the Conjur API. It
 allows you tremendous flexibility to control and manipulate your

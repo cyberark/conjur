@@ -1,7 +1,7 @@
 ---
 title: Conjur Go API
 layout: page
-section: integrations
+section: api
 description: Conjur Integrations - Go API
 ---
 

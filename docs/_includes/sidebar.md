@@ -1,4 +1,4 @@
-{% assign section = site.data.sidebar.main[include.section] %}
+{% assign section = site.data.navigation.main[include.section] %}
 
 <ul class="sidebar-nav list-unstyled">
   <li class="section">
@@ -6,7 +6,10 @@
   <li>
 
   {% for item in section.items %}
-    <li class="item"><a href="{{ item[1].path }}">{{ item[1].title }}</a></li>
+    <li class="item{% if item[1].items %} parent-item{% endif %}"><a href="{{ item[1].path }}">{{ item[1].title }}</a></li>
+    {% for item in item[1].items %}
+      <li class="item sub-item"><a href="{{ item[1].path }}">{{ item[1].title }}</a></li>
+    {% endfor %}
   {% endfor %}
 </ul>
 
@@ -28,5 +31,3 @@
   <li class="item coming-soon"><a id="side-nav-button-cloud-formation" class="event-click" href="#"><i class="fa fa-cloud"></i> AWS CloudFormation <span>(Coming Soon)</span></a></li>
   <li class="item"><a id="side-nav-button-slack" class="event-click" href="https://slackin-conjur.herokuapp.com/" target="_blank"><i class="fa fa-slack"></i> Slack</a></li>
 </ul>
-
-<a href="https://www.cyberark.com/devops-webinar/"><img src="/img/cta/cybr_webinar_cta.svg" alt="Open Source Webinar CTA"></a>

@@ -1,6 +1,7 @@
 ---
 title: Reference - Policies
 layout: page
+section: reference
 description: Conjur Reference - Policies
 ---
 
