@@ -13,7 +13,7 @@ Ansible is an automation language and automation engine that lets you describe e
 
 The [Conjur Ansible integration](https://github.com/cyberark/ansible-role-conjur)
 can be used to configure a host with a Conjur machine identity. Through
-integration with Conjur, the machine can then be granted least-privilege
+integration with Conjur, the machine can be granted least-privilege
 access to retrieve the secrets it needs in a secure manner. This approach
 reduces the administrative power of the Ansible host and prevents it from
 becoming a high value target. Conjur integration also provides additional
