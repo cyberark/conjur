@@ -3,8 +3,8 @@
 [![Issues ready for work](https://img.shields.io/waffle/label/cyberark/conjur/ready.svg?label=issues%20ready%20for%20work)][waffle]
 [![Issues in progress](https://img.shields.io/waffle/label/cyberark/conjur/in%20progress.svg)][waffle]
 
-[![Conjur on DockerHub](https://img.shields.io/docker/pulls/cyberark/conjur.svg)]()
-[![Conjur on Quay.io](https://img.shields.io/badge/quay%20build-automated-0db7ed.svg)]()
+[![Conjur on DockerHub](https://img.shields.io/docker/pulls/cyberark/conjur.svg)](https://hub.docker.com/r/cyberark/conjur/)
+[![Conjur on Quay.io](https://img.shields.io/badge/quay%20build-automated-0db7ed.svg)](https://quay.io/repository/cyberark/conjur)
 [![Anchore Image Overview](https://anchore.io/service/badges/image/9845720073cdb8472274be47a98d4b7381f44f31e944fdb712f67946b644adc8)](https://anchore.io/image/dockerhub/9845720073cdb8472274be47a98d4b7381f44f31e944fdb712f67946b644adc8?repo=cyberark%2Fconjur&tag=latest)
 
 [![Join Conjur Slack](https://img.shields.io/badge/slack-open-e01563.svg)][slack]
