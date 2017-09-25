@@ -1,7 +1,7 @@
 ---
 title: Tools
 layout: page
-section: integrations
+section: tools
 description: Conjur Tools for integrating our service with your platforms and servers.
 ---
 

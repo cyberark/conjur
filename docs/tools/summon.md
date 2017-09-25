@@ -1,7 +1,7 @@
 ---
 title: Summon CLI Tool
 layout: page
-section: integrations
+section: tools
 description: Conjur Integrations - Summon CLI Tool
 ---
 

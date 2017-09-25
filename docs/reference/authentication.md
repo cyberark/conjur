@@ -1,6 +1,7 @@
 ---
 title: Reference - Authentication
 layout: page
+section: reference
 description: Conjur Reference - Authentication
 ---
 
