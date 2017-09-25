@@ -24,7 +24,7 @@ The Conjur role provides a method to “Conjurize” or configure a host with a 
 
 
 ### "retrieve_conjur_variable" lookup plugin
-Conjur's retrieve_conjur_variable lookup plugin provides a means for retrieving secrets from Conjur for use in playbooks. Note that as lookup plugins run in the Ansible host machine, the identity that will be used for retrieving secrets are those of the Ansible host. Thus, the Ansible host requires god like privilege, essentially execute access to every secret that a remote node may need.
+Conjur's retrieve_conjur_variable lookup plugin provides a means for retrieving secrets from Conjur for use in playbooks. Note that as lookup plugins run in the Ansible host machine, the identity that will be used for retrieving secrets are those of the Ansible host. The credentials are available for the lifetime of the playbook, thus, the Ansible host requires god like privilege, essentially execute access to every secret that a remote node may need.
 
 The lookup plugin can be invoked in the playbook's scope as well as in a task's scope.
 
