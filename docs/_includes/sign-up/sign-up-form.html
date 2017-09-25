@@ -1,7 +1,7 @@
 <div class='hosted-conjur-signup'>
   <h2 id='hosted-signup'>Sign Up to Evaluate Conjur</h2>
   <p>Complete this form to get your free hosted Conjur server account.</p>
-  <form class="hosted-account-signup" data-toggle="validator" role="form">
+  <form class="hosted-account-signup hosted-account-form" data-toggle="validator" role="form">
     <div class="form-group required">
       <label for="email-address">Email:</label>
       <input type="email" class="form-control" id="email-address" name="email-address" placeholder="your@emailaddress.com" data-error="Please enter a valid email address." data-remote="" data-remote-error="There was a problem with this email address - please enter a unique email." required>
@@ -34,3 +34,5 @@
 </div>
 
 {% include sign-up/credentials.html %}
+
+{% include sign-up/reset-api-key.html %}

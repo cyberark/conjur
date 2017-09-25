@@ -14,7 +14,7 @@ Account = Struct.new(:id) do
 
     INVALID_ID_CHARS = /[ :]/.freeze
 
-    def create id
+    def create(id, owner_id = nil)
       raise Exceptions::RecordExists.new("account", id) if Slosilo["authn:#{id}"]
 
       if (invalid = INVALID_ID_CHARS.match id)
@@ -23,7 +23,17 @@ Account = Struct.new(:id) do
 
       Role.db.transaction do
         Slosilo["authn:#{id}"] = Slosilo::Key.new
-        admin_user = Role.create role_id: "#{id}:user:admin"
+        
+        role_id = "#{id}:user:admin"
+        admin_user = Role.create role_id: role_id
+
+        # Create an owner resource that will allow another user to rotate this
+        # account's API key. This is used by the CPanel to enable the accounts
+        # admin credentials to be used for API key rotation.
+        unless owner_id.nil?
+          Resource.create resource_id: role_id, owner_id: owner_id
+        end
+        
         admin_user.api_key
       end
     end
@@ -52,6 +62,7 @@ Account = Struct.new(:id) do
 
     Role["#{id}:user:admin"].destroy
     Role["#{id}:policy:root"].try(:destroy)
+    Resource["#{id}:user:admin"].try(:destroy)
     Credentials.where(Sequel.lit("account(role_id)") => id).delete
     Secret.where(Sequel.lit("account(resource_id)") => id).delete
     slosilo_keystore.adapter.model["authn:#{id}"].destroy
