@@ -20,7 +20,7 @@ becoming a high value target. Conjur integration also provides additional
 benefits, including storing security policy as code, and simplified secret rotation.
 
 ### "configure-conjur-identity" Role
-The Conjur role provides a method to “Conjurize” or establish the identity of a remote node with Ansible.
+The Conjur role provides a method to “Conjurize” or configure a host with a Conjur Machine Identity using Ansible.
 
 
 ### "retrieve_conjur_variable" lookup plugin
