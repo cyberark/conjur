@@ -40,7 +40,7 @@ description: Conjur is a scalable, flexible, open source security service that s
     <div class="col-md-6 feature">
       <img src="/img/feature-icons/scalability-icon.svg" alt="Scalability icon">
       <h2>Scalability</h2>
-      Conjur has collected extensive benchmarks of the scale-out performance of Conjur, and can demonstrate linear scaling from clusters of 1 machine to 10 or more. Conjur can demonstrate the fully authenticated, authorized, and audited retrieval of up to 4 million secrets per minute.
+      Conjur has collected extensive benchmarks of the scale-out performance of Conjur, and can demonstrate linear scaling from clusters of 1 machine to 10 or more. Conjur can demonstrate the fully authenticated, authorized, retrieval of up to 4 million secrets per minute.
     </div>
   </div> <!-- /.row -->
 
@@ -48,7 +48,7 @@ description: Conjur is a scalable, flexible, open source security service that s
     <div class="col-md-6 feature">
       <img src="/img/feature-icons/containers-icon.svg" alt="Containers icon">
       <h2>Built for Containers</h2>
-      Containers come with their own security challenges and Conjur is specifically built with those in mind.  Conjur uniquely identifies and audits containers and each container has its own unique permissions (RBAC) managed by a Conjur root policy. Applications and services running on those containers are also uniquely authenticated and authorized, making sure secrets are shared securely only with their intended recipients.
+      Containers come with their own security challenges and Conjur is specifically built with those in mind. Conjur uniquely identifies containers where each container has its own unique permissions (RBAC) managed by a Conjur root policy. Applications and services running on those containers are also uniquely authenticated and authorized, making sure secrets are shared securely only with their intended recipients.
     </div>
 
     <div class="col-md-6 feature">

@@ -10,4 +10,3 @@ by bootstraping machine identities, fetching secrets, and providing
 authorization.
 
 * [Ansible](ansible.html)
-* [Puppet](puppet.html)
