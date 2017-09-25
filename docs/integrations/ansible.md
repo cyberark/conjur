@@ -6,7 +6,7 @@ description: Conjur Integrations - Ansible Role
 ---
 
 ## What is Ansible?
-Ansible is an automation language and automation engine that lets you describe end-to-end IT application environments w/ a “playbook.” Ansible’s simple, human-readable language allows orchestration of your application lifecycle no matter where it’s deployed.
+Ansible is an automation language and automation engine that lets you describe end-to-end IT application environments with a “playbook.” Ansible’s simple, human-readable language allows orchestration of your application lifecycle no matter where it’s deployed.
 
 
 {% include toc.md key='integration' %}
