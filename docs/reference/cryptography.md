@@ -1,6 +1,7 @@
 ---
 title: Reference - Cryptography
 layout: page
+section: reference
 description: Conjur Reference - Cryptography
 ---
 

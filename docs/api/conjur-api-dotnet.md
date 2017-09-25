@@ -1,7 +1,7 @@
 ---
 title: Conjur .NET API
 layout: page
-section: integrations
+section: api
 description: Conjur Integrations - .NET API
 ---
 

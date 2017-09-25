@@ -282,6 +282,19 @@ ul.sidebar-nav {
     a {
       color: darken($conjur-medgray,10);
     }
+
+    &.sub-item {
+      margin-left: 10px;
+      font-size: 95%;
+
+      &:before {
+        content: "\f105";
+        font-family: FontAwesome;
+        margin-right: 5px;
+        font-size: 95%;
+        color: $bs-ltgray;
+      }
+    }
   }
 
   &:last-of-type li a {
