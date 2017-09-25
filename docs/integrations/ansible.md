@@ -48,7 +48,7 @@ Establishing identities for machines allows you to build a chain of trust, grant
 
 {% include toc.md key='workflow' %}
 
-- [Install Ansible](http://docs.ansible.com/ansible/latest/intro_installation.html)
+- [Install Ansible](https://www.ansible.com/get-started)
 - Define access with a Conjur policy using declarative format (YAML)
 - Leverage the scaling power of RBAC (Role Based Access Control)
 - Collaborate and peer review your policies (just like code)
