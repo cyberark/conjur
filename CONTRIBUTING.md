@@ -15,7 +15,7 @@ If you want to help create Conjur (design, produce, QA, document, code) then you
 Our [Waffle.io][waffle] is synchronized with GitHub and helps you navigate this workflow more easily.
 
 ## Contribution Agreement
-To contribute to CyberArk Conjur, please sign and email us a signed copy of the [Conjur Contributing Agreement](https://github.com/cyberark/conjur/Contributing_OSS/CyberArk_Open_Source_Contributor_Agreement.rtf) to <a href="oss@cyberark.com">oss@cyberark.com</a>
+To contribute to CyberArk Conjur, please email us a signed copy of the [Conjur Contributing Agreement](https://github.com/cyberark/conjur/Contributing_OSS/CyberArk_Open_Source_Contributor_Agreement.rtf) to <a href="oss@cyberark.com">oss@cyberark.com</a>
 
 ## Style guide
 
