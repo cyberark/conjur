@@ -4,6 +4,7 @@ class Permission < Sequel::Model
   many_to_one :resource, reciprocal: :permissions
   many_to_one :role
 
+  # Converts to JSON with given `options`
   def as_json options = {}
     super(options).tap do |response|
       %w(resource role policy).each do |field|
