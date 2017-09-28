@@ -16,9 +16,7 @@ Our [Waffle.io][waffle] is synchronized with GitHub and helps you navigate this 
 
 ## Contribution Agreement
 
-We welcome your contributions to Conjur. In order to clarify the intellectual property license granted with contributions from any person or entity, Conjur must have a Contributor License Agreement (CLA) on file that has been signed by each contributor, indicating agreement to the license terms. This license is for your protection as a contributor as well as the protection of Conjur and its users; it does not change your rights to use your own contributions for any other purpose.
-
-To contribute to CyberArk Conjur, please email us a signed copy of the <a href="https://www.conjur.org/documents/CyberArk_Open_Source_Contributor_Agreement.pdf" download="conjur_contributor_agreement">Conjur Contributor Agreement</a> to <a href="oss@cyberark.com">oss@cyberark.com</a>
+Thanks for your interest in Conjur. Before contributing, please take a moment to read and sign our <a href="https://www.conjur.org/documents/CyberArk_Open_Source_Contributor_Agreement.pdf" download="conjur_contributor_agreement">Contributor Agreement</a>. This provides patent protection for all Conjur users and allows CyberArk to enforce its license terms. Please email a signed copy to <a href="oss@cyberark.com">oss@cyberark.com</a>.
 
 ## Style guide
 
