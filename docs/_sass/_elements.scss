@@ -140,7 +140,7 @@
   .cta-box {
     min-height: auto;
   }
-  
+
   .cta-box ul.cta-links {
     margin: 0 0 0 1em;
   }
@@ -219,10 +219,11 @@
 // ***********************
 
 #hero {
-  background: url("/img/cybr-conjur-grid-bg.png") no-repeat top center;
+  background: url("/img/cybr_conjur_grid_alt.png") no-repeat top center;
   background-size: cover;
   color: #ffffff;
-  padding: 5em 0;
+  padding: 3.5em 0;
+  margin-top: -1px;
 
   .page-title {
     color: #ffffff;

@@ -12,10 +12,10 @@
     a.navbar-brand {
       color: #ffffff;
       font-size: 2rem;
-      margin: 16px 0 0 0;
+      margin: 19px 0 0 0;
       margin-right: 35px;
       display: inline-block;
-      width: 230px;
+      width: 200px;
       background: url("/img/cybr_logo_horiz.svg") no-repeat top left;
       padding: 0px;
     }
@@ -273,6 +273,13 @@
 ul.sidebar-nav {
   li {
     margin-bottom: 4px;
+    padding: 2px 4px;
+    border-radius: 3px;
+    transition: all 0.4s;
+
+    &:hover {
+      background-color: $conjur-softgray;
+    }
 
     &.section a {
       font-weight: bold;
@@ -281,18 +288,29 @@ ul.sidebar-nav {
 
     a {
       color: darken($conjur-medgray,10);
+
+      &:hover {
+        text-decoration: none;
+      }
     }
 
     &.sub-item {
       margin-left: 10px;
       font-size: 95%;
+      padding: 2px 4px;
+      border-radius: 3px;
+
+      &:hover {
+        background-color: $conjur-softgray;
+        //padding: 2px 4px 2px 6px;
+      }
 
       &:before {
         content: "\f105";
         font-family: FontAwesome;
         margin-right: 5px;
         font-size: 95%;
-        color: $bs-ltgray;
+        color: lighten($conjur-medgray,20); //$bs-ltgray;
       }
     }
   }
