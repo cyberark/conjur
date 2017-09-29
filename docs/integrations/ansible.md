@@ -8,6 +8,11 @@ description: Conjur Integrations - Ansible Role
 ## What is Ansible?
 Ansible is an automation language and automation engine that lets you describe end-to-end IT application environments with a “playbook.” Ansible’s simple, human-readable language allows orchestration of your application lifecycle no matter where it’s deployed.
 
+{% include toc.md key='howitworks' %}
+
+<img class="integration-diagram" src="/img/conjur_ansible_map.svg" alt="Conjur Ansible integration diagram">
+Instead of all secrets moving through the Ansible Controller, each Ansible managed remote node is responsible using its own identity to retrieving its own secrets from the secret store.
+
 {% include toc.md key='integration' %}
 
 The [Conjur Ansible integration](https://github.com/cyberark/ansible-role-conjur) can be used to configure a host with a Conjur machine identity. Through integration with Conjur, the machine can be granted least-privilege
@@ -32,11 +37,6 @@ Moving secret retrieval to the node provides a maximum level of security. This a
 The module receives variables and a command as arguments and, similar to [Conjur's Summon CLI](https://conjur.org/tools/summon.html), provides an interface for fetching secrets from a provider and exporting them to a sub-process environment.
 
 Note that you can provide both Conjur variables and non-Conjur variables, where in Conjur variables a `!var` prefix is required.
-
-{% include toc.md key='howitworks' %}
-
-<img src="/img/conjur_ansible_map.svg" alt="Conjur Ansible integration diagram">
-Instead of all secrets moving through the Ansible Controller, each Ansible managed remote node is responsible using its own identity to retrieving its own secrets from the secret store.
 
 {% include toc.md key='machineidentity' %}
 
