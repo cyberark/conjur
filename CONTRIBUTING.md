@@ -1,6 +1,6 @@
 # Contributing to Conjur
 
-Thanks for your interest in Conjur. Before contributing, please take a moment to read and sign our <a href="https://www.conjur.org/documents/CyberArk_Open_Source_Contributor_Agreement.pdf" download="conjur_contributor_agreement">Contributor Agreement</a>. This provides patent protection for all Conjur users and allows CyberArk to enforce its license terms. Please email a signed copy to <a href="oss@cyberark.com">oss@cyberark.com</a>.
+Thanks for your interest in Conjur. Before contributing, please take a moment to read and sign our <a href="https://github.com/cyberark/conjur/Contributing_OSS/CyberArk_Open_Source_Contributor_Agreement.pdf" download="conjur_contributor_agreement">Contributor Agreement</a>. This provides patent protection for all Conjur users and allows CyberArk to enforce its license terms. Please email a signed copy to <a href="oss@cyberark.com">oss@cyberark.com</a>.
 
 ## Pull Request Workflow
 
