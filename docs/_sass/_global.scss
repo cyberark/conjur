@@ -48,6 +48,10 @@ img {
 	&.no-margin {
 		margin: 0;
 	}
+	&.integration-diagram {
+		margin-top: 0;
+		margin-bottom: 1em;
+	}
 }
 
 figure {
