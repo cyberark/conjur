@@ -30,9 +30,9 @@ main:
       ansible:
         title: Ansible
         path: /integrations/ansible.html
-      # puppet:
-      #   title: Puppet
-      #   path: /integrations/puppet.html
+      puppet:
+        title: Puppet
+        path: /integrations/puppet.html
   api:
     title: API
     path: /api/

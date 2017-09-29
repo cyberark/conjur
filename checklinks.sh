@@ -8,5 +8,5 @@ docker run --rm conjur-docs htmlproofer \
   --check-external-hash \
   --disable-external \
   --enforce-https \
-  --url-ignore '/public/favicon.ico,/apidocs.html,/api.html#authentication,#' \
+  --url-ignore '/public/favicon.ico,/apidocs.html,/api.html#authentication,/api.html#host-factory,#' \
   ./_site
