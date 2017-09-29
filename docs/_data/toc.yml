@@ -87,6 +87,7 @@
 "/integrations/ansible.html":
   overview: Overview
   integration: How Conjur Integrates with Ansible
+  howitworks: How Ansible works with Conjur
   machineidentity: Machine Identity
   workflow: Integration Workflow
 
