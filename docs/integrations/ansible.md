@@ -33,16 +33,6 @@ The module receives variables and a command as arguments and, similar to [Conjur
 
 Note that you can provide both Conjur variables and non-Conjur variables, where in Conjur variables a `!var` prefix is required.
 
-{% include toc.md key='howitworks' %}
-
-<img src="/img/conjur_ansible_map.svg" alt="Conjur Ansible integration diagram">
-Instead of all secrets moving through the Ansible Controller, each Ansible managed remote node is responsible using its own identity to retrieving its own secrets from the secret store.
-
-<!-- <figure>
-    <img class="no-margin" src="/img/conjur_ansible_map.svg" alt="Conjur Ansible integration diagram">
-    <figcaption>Instead of all secrets moving through the Ansible Controller, each Ansible managed remote node is responsible using its own identity to retrieving its own secrets from the secret store.</figcaption>
-</figure> -->
-
 {% include toc.md key='machineidentity' %}
 
 As humans we are used to identity being applied to us, and also to static objects around us, but applying identity to dynamic, short-lived computing resources like containers is difficult, and therefore not as common, but without a machine identity system, applying security becomes human-bound and therefore almost impossible to automate.
