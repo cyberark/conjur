@@ -14,13 +14,13 @@ application.
 
 {% include toc.md key='integration' %}
 
-The [Conjur Puppet Module](https://forge.puppet.com/conjur/conjur) simplifies
+The [Conjur Puppet Module](https://forge.puppet.com/cyberark/conjur) simplifies
 the operations of establishing [Conjur](https://www.conjur.org) host identity
 and allows authorized Puppet nodes to fetch secrets from Conjur.
 Integration with Conjur provides a number of additional benefits,
 including security policy as code and automatic secret rotation.
 
-- Puppet Forge: [forge.puppet.com/conjur/conjur](https://forge.puppet.com/conjur/conjur)
+- Puppet Forge: [forge.puppet.com/cyberark/conjur](https://forge.puppet.com/cyberark/conjur)
 - GitHub: [github.com/cyberark/conjur-puppet](https://github.com/cyberark/conjur-puppet)
 
 See the module page on Puppet Forge or README.md on GitHub for complete documentation.
