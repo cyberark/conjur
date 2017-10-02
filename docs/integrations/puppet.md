@@ -18,7 +18,7 @@ The [Conjur Puppet Module](https://forge.puppet.com/conjur/conjur) simplifies
 the operations of establishing [Conjur](https://www.conjur.org) host identity
 and allows authorized Puppet nodes to fetch secrets from Conjur.
 Integration with Conjur provides a number of additional benefits,
-including security policy as code andautomatic secret rotation.
+including security policy as code and automatic secret rotation.
 
 - Puppet Forge: [forge.puppet.com/conjur/conjur](https://forge.puppet.com/conjur/conjur)
 - GitHub: [github.com/cyberark/conjur-puppet](https://github.com/cyberark/conjur-puppet)
@@ -27,9 +27,9 @@ See the module page on Puppet Forge or README.md on GitHub for complete document
 
 ### Establishing machine identity
 
-In most cases we recommend bootstrapping Conjur machine identities with
+For managing servers and VMs (but not containers) we recommend bootstrapping Conjur machine identities with
 [Host Factory tokens](/api.html#host-factory).
-Nodes inherit the permissions of the layer for which the Host Factory token was generated.
+Machines inherit the permissions of the Conjur Layer for which the Host Factory token was generated.
 Machine identity can also be bootstrapped before Puppet runs, when a machine is created.
 
 To apply machine identity with this module, set variables `authn_login` and
