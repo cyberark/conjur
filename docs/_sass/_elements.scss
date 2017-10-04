@@ -29,7 +29,58 @@
 // ***********************
 // CTA Boxes
 // ***********************
+.cta-box-webinar{
+  border-radius: 4px;
+  color: $conjur-text;
+  height: 100%;
+  width: 102%;
+  flex: 0 0 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 228px;
+  padding: 16px;
+  border: 4px solid $conjur-softgray;
+}
 
+.cta-box-webinar-header{
+  margin: 0px;
+  font-size: 14px;
+  font-family:"Open Sans";
+  color: $conjur-dark;
+  font-weight: bold;
+}
+.cta-box-webinar-date{
+  font-size: 14px;
+  color: $conjur-text;
+  margin: 0px;
+  font-weight: regular;
+}
+.cta-box-webinar-wrapper{
+  padding-bottom:10px;
+}
+.cta-webinar-link a:hover{
+  text-decoration:none;
+  color:white;
+  transition: all 0.4s;
+  background-color: darken($conjur-teal,08);
+}
+.conjur-webinar-btn{
+    text-decoration: none;
+    display: block;
+    transition: all 0.4s;
+    color: #fff;
+    background: $conjur-teal;
+    padding: 0.4em;
+    text-transform: uppercase;
+    font-weight: regular;
+    text-align: center;
+}
+.cta-box-webinar-description {
+  color: $conjur-teal;
+  margin: 0px;
+  font-size: 18px;
+  font-weight: regular;
+}
 .cta-box {
   //background-color: $conjur-softgray;
   border-radius: 4px;
@@ -45,12 +96,12 @@
   .cta-content-wrap {
     flex: 1;
   }
-
   .cta-box-header {
     font-weight: 400;
     padding: 1em 1.5em;
     font-size: 140%;
   }
+
 
   hr {
     border-bottom: 1px solid $conjur-medgray;
@@ -123,6 +174,7 @@
     }
 
   }
+
 
   .cta-box ul.cta-links a.conjur-cta-primary, .cta-box ul.cta-links a.conjur-cta-secondary {
     position: relative;
