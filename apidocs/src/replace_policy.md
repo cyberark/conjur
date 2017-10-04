@@ -1,3 +1,5 @@
+## Replace a policy [/policies/{account}/policy/{identifier}]
+
 ### Replace a policy [PUT]
 
 Loads or replaces a [Conjur policy](/reference/policy.html)

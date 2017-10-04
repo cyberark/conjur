@@ -1,3 +1,5 @@
+## Append to a policy [/policies/{account}/policy/{identifier}]
+
 ### Append to a policy [POST]
 
 Adds data to the existing [Conjur policy](/reference/policy.html).

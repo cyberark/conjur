@@ -52,8 +52,6 @@ Only the twenty most recent values in a Variable are retained; this prevents the
 
 # Group Policies
 
-## Manage policies [/policies/{account}/policy/{identifier}]
-
 <!-- include(replace_policy.md) -->
 
 <!-- include(append_policy.md) -->

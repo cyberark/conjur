@@ -1,3 +1,5 @@
+## Update a policy [/policies/{account}/policy/{identifier}]
+
 ### Update a policy [PATCH]
 
 Modifies an existing [Conjur policy](/reference/policy.html).
