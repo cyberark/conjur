@@ -1,17 +1,17 @@
-### Replace a Policy [PUT]
+### Replace a policy [PUT]
 
 Loads or replaces a [Conjur Policy](/reference/policy.html)
 document. 
 
-Any policy data which already exists on the server but is **not** explicitly specified in the new Policy file **will be deleted**. 
+Any policy data which already exists on the server but is **not** explicitly specified in the new policy file **will be deleted**. 
 
 **Permissions required**
 
-`update` privilege on the Policy.
+`update` privilege on the policy.
 
 #### Example with `curl` and `jq`
 
-Suppose you have a Policy to load in `/tmp/policy.yml` (such as the sample one provided below). The following command will load this as the "root" policy, replacing any other data that may already be in this policy:
+Suppose you have a policy to load in `/tmp/policy.yml` (such as the sample one provided below). The following command will load this as the "root" policy, replacing any other data that may already be in this policy:
 
 ```
 curl -H "$(conjur authn authenticate -H)" \
@@ -24,7 +24,7 @@ curl -H "$(conjur authn authenticate -H)" \
 
 **Request Body**
 
-The request body is a Policy file. For example:
+The request body is a policy file. For example:
 
 ```
 - !policy
@@ -41,15 +41,15 @@ The request body is a Policy file. For example:
 
 | Code | Description                                                                            |
 |------|----------------------------------------------------------------------------------------|
-|  201 | The Policy was loaded or replaced successfully                                         |
+|  201 | The policy was loaded or replaced successfully                                         |
 | <!-- include(partials/http_401.md) -->                                                        |
 | <!-- include(partials/http_403.md) -->                                                        |
-|  404 | The Policy referred to a role or resource that does not exist in the specified account |
-|  422 | The request body was empty or the Policy was not valid YAML                            |
+|  404 | The policy referred to a role or resource that does not exist in the specified account |
+|  422 | The request body was empty or the policy was not valid YAML                            |
 
 + Parameters
   + <!-- include(partials/account_param.md) -->
-  + identifier: root (string) - id of the Policy to load (`root` if no root Policy has been loaded yet)
+  + identifier: root (string) - id of the policy to load (`root` if no root policy has been loaded yet)
 
 + Response 201 (application/json)
 

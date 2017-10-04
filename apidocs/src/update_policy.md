@@ -1,15 +1,15 @@
-### Update a Policy [PATCH]
+### Update a policy [PATCH]
 
 Modifies an existing [Conjur Policy](/reference/policy.html).
 Data may be explicitly deleted using the `!delete`, `!revoke`, and `!deny` statements. Unlike "replace" mode, no data is ever implicitly deleted.
 
 **Permissions required**
 
-`update` privilege on the Policy.
+`update` privilege on the policy.
 
 #### Example with `curl` and `jq`
 
-Suppose you have a Policy to load in `/tmp/policy.yml` (such as the sample one provided below). The following command will create and delete data in the "root" policy:
+Suppose you have a policy to load in `/tmp/policy.yml` (such as the sample one provided below). The following command will create and delete data in the "root" policy:
 
 ```
 curl -H "$(conjur authn authenticate -H)" \
@@ -22,7 +22,7 @@ curl -H "$(conjur authn authenticate -H)" \
 
 **Request Body**
 
-The request body should be a Policy file. For example:
+The request body should be a policy file. For example:
 
 ```
 - !policy
@@ -38,15 +38,15 @@ The request body should be a Policy file. For example:
 
 | Code | Description                                                                            |
 |------|----------------------------------------------------------------------------------------|
-|  201 | The Policy was updated successfully                                                    |
+|  201 | The policy was updated successfully                                                    |
 | <!-- include(partials/http_401.md) -->                                                        |
 | <!-- include(partials/http_403.md) -->                                                        |
-|  404 | The Policy referred to a role or resource that does not exist in the specified account |
-|  422 | The request body was empty or the Policy was not valid YAML                            |
+|  404 | The policy referred to a role or resource that does not exist in the specified account |
+|  422 | The request body was empty or the policy was not valid YAML                            |
 
 + Parameters
   + <!-- include(partials/account_param.md) -->
-  + identifier: root (string) - id of the Policy to update
+  + identifier: root (string) - id of the policy to update
 
 + Response 201 (application/json)
 

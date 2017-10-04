@@ -44,11 +44,15 @@ A Variable is an access-controlled list of encrypted data values. The values in 
 
 Only the twenty most recent values in a Variable are retained; this prevents the database from growing without bounds.
 
-<!-- include(secrets.md) -->
+<!-- include(add_secret.md) -->
+
+<!-- include(retrieve_secret.md) -->
+
+<!-- include(batch_retrieval.md) -->
 
 # Group Policies
 
-## Policies [/policies/{account}/policy/{identifier}]
+## Manage policies [/policies/{account}/policy/{identifier}]
 
 <!-- include(replace_policy.md) -->
 
