@@ -1,6 +1,6 @@
 ### Update a policy [PATCH]
 
-Modifies an existing [Conjur Policy](/reference/policy.html).
+Modifies an existing [Conjur policy](/reference/policy.html).
 Data may be explicitly deleted using the `!delete`, `!revoke`, and `!deny` statements. Unlike "replace" mode, no data is ever implicitly deleted.
 
 **Permissions required**

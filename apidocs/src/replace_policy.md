@@ -1,6 +1,6 @@
 ### Replace a policy [PUT]
 
-Loads or replaces a [Conjur Policy](/reference/policy.html)
+Loads or replaces a [Conjur policy](/reference/policy.html)
 document. 
 
 Any policy data which already exists on the server but is **not** explicitly specified in the new policy file **will be deleted**. 
