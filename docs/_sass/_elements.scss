@@ -41,6 +41,7 @@
   padding: 16px;
   border: 4px solid $conjur-softgray;
 }
+
 .cta-box-webinar-header{
   margin: 0px;
   font-size: 14px;
@@ -57,19 +58,17 @@
 .cta-box-webinar-wrapper{
   padding-bottom:10px;
 }
-.conjur-webinar-btn a:hover{
-  text-decoration:none;
-}
 .cta-webinar-link a:hover{
   text-decoration:none;
   color:white;
 }
 .conjur-webinar-btn{
     text-decoration: none;
+    display: block;
     transition: all 0.4s;
     color: #fff;
     background: $conjur-teal;
-    padding: 0.5em 4.4em;
+    padding: 0.4em;
     text-transform: uppercase;
     font-weight: bold;
     text-align: center;
@@ -173,6 +172,7 @@
     }
 
   }
+
 
   .cta-box ul.cta-links a.conjur-cta-primary, .cta-box ul.cta-links a.conjur-cta-secondary {
     position: relative;
