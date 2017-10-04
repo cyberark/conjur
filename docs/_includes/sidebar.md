@@ -43,6 +43,6 @@
     <p class= "cta-box-webinar-date">October 17 / 2PM EST</p>
   </div>
   <div class = "cta-webinar-link">
-    <a href= "http://lp.cyberark.com/On-The-Front-Lines.html" class="conjur-webinar-btn">Register</a> 
+    <a href= "https://www.cyberark.com/resource/explore-cyberarks-weekly-technical-webcast-series/" class="conjur-webinar-btn">Register</a>
   </div>
 </div>
