@@ -23,7 +23,25 @@
   <li class="item"><a href="/support.html">Support</a></li>
 </ul>
 
-<hr/>
+<div>
+  <div>
+    <p></p>
+    <p></p>
+
+  </div>
+</div>
+<div class="cta-box-webinar">
+  <div class="cta-box-webinar-wrapper">
+    <p class= "cta-box-webinar-header">WEBINAR</p>
+    <p class= "cta-box-webinar-description">CyberArk Conjur - A library of validated integrations with CI/CD tools</p>
+    <p class= "cta-box-webinar-date">October 17 / 2PM EST</p>
+  </div>
+  <div class = "cta-webinar-link">
+    <a href= "http://lp.cyberark.com/On-The-Front-Lines.html" class="conjur-webinar-btn">Register</a> 
+  </div>
+</div>
+
+ 
 
 <ul class="sidebar-nav list-unstyled">
   <li class="item"><a id="side-nav-button-github" class="event-click" href="https://github.com/cyberark/conjur" target="_blank"><i class="fa fa-github-alt"></i> GitHub</a></li>
