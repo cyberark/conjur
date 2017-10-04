@@ -61,6 +61,8 @@
 .cta-webinar-link a:hover{
   text-decoration:none;
   color:white;
+  transition: all 0.4s;
+  background-color: darken($conjur-teal,08);
 }
 .conjur-webinar-btn{
     text-decoration: none;
@@ -70,7 +72,7 @@
     background: $conjur-teal;
     padding: 0.4em;
     text-transform: uppercase;
-    font-weight: bold;
+    font-weight: regular;
     text-align: center;
 }
 .cta-box-webinar-description {

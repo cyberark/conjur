@@ -30,6 +30,12 @@
 
   </div>
 </div>
+<ul class="sidebar-nav list-unstyled">
+  <li class="item"><a id="side-nav-button-github" class="event-click" href="https://github.com/cyberark/conjur" target="_blank"><i class="fa fa-github-alt"></i> GitHub</a></li>
+  <li class="item"><a id="side-nav-button-dockerhub" class="event-click" href="https://hub.docker.com/r/cyberark/conjur/" target="_blank"><div class="icon-docker-hub"></div> DockerHub</a></li>
+  <li class="item coming-soon"><a id="side-nav-button-cloud-formation" class="event-click" href="#"><i class="fa fa-cloud"></i> AWS CloudFormation <span>(Coming Soon)</span></a></li>
+  <li class="item"><a id="side-nav-button-slack" class="event-click" href="https://slackin-conjur.herokuapp.com/" target="_blank"><i class="fa fa-slack"></i> Slack</a></li>
+</ul>
 <div class="cta-box-webinar">
   <div class="cta-box-webinar-wrapper">
     <p class= "cta-box-webinar-header">WEBINAR</p>
@@ -40,12 +46,3 @@
     <a href= "http://lp.cyberark.com/On-The-Front-Lines.html" class="conjur-webinar-btn">Register</a> 
   </div>
 </div>
-
- 
-
-<ul class="sidebar-nav list-unstyled">
-  <li class="item"><a id="side-nav-button-github" class="event-click" href="https://github.com/cyberark/conjur" target="_blank"><i class="fa fa-github-alt"></i> GitHub</a></li>
-  <li class="item"><a id="side-nav-button-dockerhub" class="event-click" href="https://hub.docker.com/r/cyberark/conjur/" target="_blank"><div class="icon-docker-hub"></div> DockerHub</a></li>
-  <li class="item coming-soon"><a id="side-nav-button-cloud-formation" class="event-click" href="#"><i class="fa fa-cloud"></i> AWS CloudFormation <span>(Coming Soon)</span></a></li>
-  <li class="item"><a id="side-nav-button-slack" class="event-click" href="https://slackin-conjur.herokuapp.com/" target="_blank"><i class="fa fa-slack"></i> Slack</a></li>
-</ul>
