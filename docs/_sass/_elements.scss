@@ -152,7 +152,7 @@
 // ***********************
 
 .hover-button {
-	float: right;
+	position: absolute;
 	width: 30px;
 	height: 30px;
 	background: url("../../img/copy-to-clipboard.svg");
@@ -160,6 +160,7 @@
 	background-position: center;
 	border: none;
 	cursor: pointer;
+  right: 24px;
 }
 
 .tooltip-text {
@@ -173,7 +174,7 @@
 	padding: 5px 0;
 	border-radius: 6px;
 	position: absolute;
-        right: -5px;
+  right: -5px;
 	z-index: 1;
 	margin-top: 30px;
 }
@@ -201,6 +202,15 @@
 	margin-left: -10px;
 }
 
+// ***********************
+// Copy to Clipboard Code Boxes
+// ***********************
+
+pre > code {
+  width: 90%;
+  overflow: auto;
+  display: block;
+}
 
 // ***********************
 // Alert Info
