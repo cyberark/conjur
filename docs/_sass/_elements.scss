@@ -18,12 +18,12 @@
 }
 
 .row.equal {
-    //display: flex;
-    //flex-wrap: wrap;
+  //display: flex;
+  //flex-wrap: wrap;
 }
 .row.equal > [class*='col-'] {
-  //  display: flex;
-    //flex-direction: column;
+  //display: flex;
+  //flex-direction: column;
 }
 
 // ***********************
@@ -134,6 +134,7 @@
         bottom: 30px;
         text-transform: uppercase;
         font-weight: 500;
+
         &:hover {
           text-decoration: none;
           box-shadow: 0px 0px 5px rgba(165,165,165,0.8);
@@ -142,6 +143,7 @@
 
       &.conjur-cta-primary {
         background-color: $cybr-blue;
+
         &:hover {
           background-color: darken($cybr-blue,08);
         }
@@ -149,11 +151,11 @@
 
       &.conjur-cta-secondary {
         background-color: $conjur-teal;
+
         &:hover {
           background-color: darken($conjur-teal,08);
         }
       }
-
     }
 
     i {
@@ -172,7 +174,6 @@
     ul.cta-links {
       margin: 0 0 1em 1em;
     }
-
   }
 
 
@@ -180,7 +181,6 @@
     position: relative;
     bottom: initial;
   }
-
 }
 
 // ***********************
@@ -204,65 +204,75 @@
 // ***********************
 
 .hover-button {
-	float: right;
-	width: 30px;
-	height: 30px;
-	background: url("../../img/copy-to-clipboard.svg");
-	background-repeat: no-repeat;
-	background-position: center;
-	border: none;
-	cursor: pointer;
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: url("../../img/copy-to-clipboard.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  cursor: pointer;
+  right: 24px;
 }
 
 .tooltip-text {
-	visibility: hidden;
-	width: 120px;
-	background-color: $conjur-dark;
-	font-family: 'Open Sans';
-	font-size: 12px;
-	color: #fff;
-	text-align: center;
-	padding: 5px 0;
-	border-radius: 6px;
-	position: absolute;
-        right: -5px;
-	z-index: 1;
-	margin-top: 30px;
+  visibility: hidden;
+  width: 120px;
+  background-color: $conjur-dark;
+  font-family: 'Open Sans';
+  font-size: 12px;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+  position: absolute;
+  right: -5px;
+  z-index: 1;
+  margin-top: 30px;
 }
 
 .hover-button:hover .tooltip-text {
-	visibility: visible;
+  visibility: visible;
 }
 
 .highlight pre button {
-	visibility: visible;
+  visibility: visible;
 }
 
 .arrow_box:after {
-	bottom: 100%;
-	left: 50%;
-	border: solid transparent;
-	content: " ";
-	height: 0;
-	width: 0;
-	position: absolute;
-	pointer-events: none;
-	border-color: rgba(0, 0, 0, 0);
-	border-bottom-color: $conjur-dark;
-	border-width: 10px;
-	margin-left: -10px;
+  bottom: 100%;
+  left: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-color: rgba(0, 0, 0, 0);
+  border-bottom-color: $conjur-dark;
+  border-width: 10px;
+  margin-left: -10px;
 }
 
+// ***********************
+// Copy to Clipboard Code Boxes
+// ***********************
+
+pre > code {
+  width: 90%;
+  overflow: auto;
+  display: block;
+}
 
 // ***********************
 // Alert Info
 // ***********************
 
 .alert-info {
-    background-color: #e6f0f8;
-    border: none;
-    color: $cybr-blue;
-    margin-top: 2em;
+  background-color: #e6f0f8;
+  border: none;
+  color: $cybr-blue;
+  margin-top: 2em;
 }
 
 
@@ -302,9 +312,9 @@
   padding-top: 3em;
 
   img {
-      margin: 0;
-      width: 50px;
-      height: 50px;
+    margin: 0;
+    width: 50px;
+    height: 50px;
   }
 
   h2 {
