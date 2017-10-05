@@ -45,6 +45,28 @@ img {
   height: auto;
   display: block;
   margin: 50px 0;
+  
+	&.no-margin {
+		margin: 0;
+	}
+  
+	&.integration-diagram {
+		margin-top: 0;
+		margin-bottom: 1em;
+	}
+}
+
+figure {
+	margin: 2em 0;
+}
+
+figcaption {
+	font-style: italic;
+	margin-top: .5em;
+	color: $conjur-medgray;
+	padding: 1em;
+	font-size: 14px;
+	line-height: 20px;
 }
 
 .list-unstyled {

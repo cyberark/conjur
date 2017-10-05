@@ -87,11 +87,14 @@
 "/integrations/ansible.html":
   overview: Overview
   integration: How Conjur Integrates with Ansible
+  howitworks: How Ansible works with Conjur
   machineidentity: Machine Identity
   workflow: Integration Workflow
 
 "/integrations/puppet.html":
-  integration: Integration
+  overview: Overview
+  integration: How Conjur Integrates with Puppet
+  workflow: Workflow
 
 "/api/conjur-api-go.html":
   integration: Integration

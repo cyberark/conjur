@@ -65,6 +65,7 @@ group :development, :test do
   gem 'rake_shared_context'
   gem 'conjur-cli', github: 'conjurinc/cli-ruby', branch: 'possum'
   gem 'rails_layout'
+  gem 'rspec-core', '~> 3.0'
 end
 
 group :website do

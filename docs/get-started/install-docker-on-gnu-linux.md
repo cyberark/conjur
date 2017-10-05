@@ -10,9 +10,9 @@ your distro's package system.
 
 ## On Ubuntu 16.04+
 
-```sh-session
+{% highlight shell %}
 $ sudo apt update
 $ sudo apt install docker.io docker-compose
 # suggested: install the documentation
 $ sudo apt install docker-doc
-```
+{% endhighlight %}

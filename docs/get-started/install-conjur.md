@@ -21,24 +21,24 @@ official Conjur containers on DockerHub.
 
 1. In your terminal, download the Conjur quick-start configuration:
 
-   ```sh-session
-   $ curl -o docker-compose.yml https://www.conjur.org/get-started/docker-compose.quickstart.yml
-   ```
+{% highlight shell %}
+$ curl -o docker-compose.yml https://www.conjur.org/get-started/docker-compose.quickstart.yml
+{% endhighlight %}
 
 1. pull all the required Docker images from DockerHub
 
    `docker-compose` can do this for you automatically:
 
-   ```sh-session
-   $ docker-compose pull
-   ```
+{% highlight shell %}
+$ docker-compose pull
+{% endhighlight %}
 
 1. Generate your master data key and load it into the environment:
 
-   ```sh-session
-   $ docker-compose run --no-deps --rm conjur data-key generate > data_key
-   $ export CONJUR_DATA_KEY="$(< data_key)"
-   ```
+{% highlight shell %}
+$ docker-compose run --no-deps --rm conjur data-key generate > data_key
+$ export CONJUR_DATA_KEY="$(< data_key)"
+{% endhighlight %}
 
 <div class="alert alert-info" role="alert"> <strong>Prevent data loss:</strong><br>
   The <code>conjurctl conjur data-key generate</code> command gives you a master data key.
@@ -50,9 +50,9 @@ official Conjur containers on DockerHub.
 1. Run `docker-compose up -d` to run the Conjur server, database and client
 1. Create a default account (eg. `quick-start`):
 
-   ```sh-session
-   $ docker-compose exec conjur conjurctl account create quick-start
-   ```
+{% highlight shell %}
+$ docker-compose exec conjur conjurctl account create quick-start
+{% endhighlight %}
 
  <div class="alert alert-info" role="alert"> <strong>Prevent data loss:</strong><br>
   The <code>conjurctl account create</code> command gives you the public key and admin API
@@ -66,22 +66,21 @@ official Conjur containers on DockerHub.
 1. Initialize the Conjur client using the account name and admin API key you
    created:
 
-   ```sh-session
-   $ conjur init -u conjur -a quick-start # or whatever account you created
-   $ conjur authn login -u admin
-   Please enter admin's password (it will not be echoed):
-   ```
+{% highlight shell %}
+$ conjur init -u conjur -a quick-start # or whatever account you created
+$ conjur authn login -u admin
+Please enter admin's password (it will not be echoed):
+{% endhighlight %}
 
 {% include toc.md key='explore' %}
 
 Conjur is installed and ready for use! Ready to do more?  Here are some suggestions:
 
-```sh-session
+{% highlight shell %}
 $ conjur authn whoami
 $ conjur help
 $ conjur help policy load
-```
-
+{% endhighlight %}
 
 {% include toc.md key='next-steps' %}
 
