@@ -14,13 +14,13 @@ Note that the body of the request must be the empty string.
 
 #### Example with `curl`
 
-Suppose your account is "mycorp", you are the user "alice", your password is
+Suppose your account is "myorg", you are the user "alice", your password is
 "beep-boop", and you want to rotate your API key.
 
 ```bash
 curl --request PUT --data "" \
      --user alice:beep-boop \
-     https://eval.conjur.org/authn/mycorp/api_key
+     https://eval.conjur.org/authn/myorg/api_key
 ```
 
 ---
@@ -68,13 +68,13 @@ Note that the body of the request must be the empty string.
 
 #### Example with `curl`
 
-Suppose your account is "mycorp" and you want to rotate the API key for user
+Suppose your account is "myorg" and you want to rotate the API key for user
 "alice" whose current password is "beep-boop":
 
 ```bash
 curl --request PUT --data "" \
      -H "$(conjur authn authenticate -H)" \
-     https://eval.conjur.org/authn/mycorp/api_key?role=user:alice
+     https://eval.conjur.org/authn/myorg/api_key?role=user:alice
 ```
 
 ---

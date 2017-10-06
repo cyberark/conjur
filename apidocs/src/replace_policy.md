@@ -18,7 +18,7 @@ Suppose you have a policy to load in `/tmp/policy.yml` (such as the sample one p
 ```
 curl -H "$(conjur authn authenticate -H)" \
      -X PUT -d "$(< /tmp/policy.yml)" \
-     https://eval.conjur.org/policies/mycorp/policy/root \
+     https://eval.conjur.org/policies/myorg/policy/root \
      | jq .
 ```
 
@@ -58,8 +58,8 @@ The request body is a policy file. For example:
     ```
     {
       "created_roles": {
-        "mycorp:host:database/db-host": {
-          "id": "mycorp:host:database/db-host",
+        "myorg:host:database/db-host": {
+          "id": "myorg:host:database/db-host",
           "api_key": "309yzpa1n5kp932waxw6d37x4hew2x8ve8w11m8xn92acfy672m929en"
         }
       },

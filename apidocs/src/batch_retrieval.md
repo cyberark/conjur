@@ -15,13 +15,13 @@ Fetches multiple secret values in one invocation. It's faster to fetch secrets i
 |<!-- include(partials/http_422.md) -->|
 
 + Parameters
-  + variable_ids: mycorp:variable:secret1,mycorp:variable:secret1 (array) - Comma-delimited resource IDs of the variables.
+  + variable_ids: myorg:variable:secret1,myorg:variable:secret1 (array) - Comma-delimited resource IDs of the variables.
 
 + Response 200 (application/json)
 
     ```
     {
-        "mycorp:variable:secret1": "c3c60d3f266074",
-        "mycorp:variable:secret2": "d8dc3565123941"
+        "myorg:variable:secret1": "c3c60d3f266074",
+        "myorg:variable:secret2": "d8dc3565123941"
     }
     ```

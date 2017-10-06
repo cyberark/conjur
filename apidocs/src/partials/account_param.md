@@ -1,1 +1,1 @@
-account: mycorp (string) - organization account name
+account: myorg (string) - organization account name

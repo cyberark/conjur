@@ -46,7 +46,7 @@ Loaded policy 'root'
 {
   "created_roles": {
   },
-  "version": 2
+  "version": 1
 }
 {% endhighlight %}
 
@@ -103,8 +103,8 @@ $ conjur policy load frontend frontend.yml
 Loaded policy 'frontend'
 {
   "created_roles": {
-    "dev:host:frontend/frontend-01": {
-      "id": "dev:host:frontend/frontend-01",
+    "myorg:host:frontend/frontend-01": {
+      "id": "myorg:host:frontend/frontend-01",
       "api_key": "1wgv7h2pw1vta2a7dnzk370ger03nnakkq33sex2a1jmbbnz3h8cye9"
     }
   },
@@ -141,7 +141,7 @@ What's needed is an **entitlement** to grant `group:db/secrets-users` to `layer:
 {% highlight shell %}
 $ conjur role members group:db/secrets-users
 [
-  "dev:policy:db"
+  "myorg:policy:db"
 ]
 {% endhighlight %}
 
@@ -150,8 +150,8 @@ And by listing the role memberships of the host:
 {% highlight shell %}
 $ conjur role memberships host:frontend/frontend-01
 [
-  "keg:host:frontend/frontend-01",
-  "keg:layer:frontend"
+  "myorg:host:frontend/frontend-01",
+  "myorg:layer:frontend"
 ]
 {% endhighlight %}
 
@@ -176,8 +176,8 @@ Now you can verify that the policy has taken effect. We will look at this in sev
 {% highlight shell %}
 $ conjur role members group:db/secrets-users
 [
-  "dev:policy:db",
-  "dev:layer:frontend"
+  "myorg:policy:db",
+  "myorg:layer:frontend"
 ]
 {% endhighlight %}
 
@@ -186,16 +186,16 @@ And, you can see that the `host:frontend/frontend-01` has `execute` privilege on
 {% highlight shell %}
 $ conjur resource permitted_roles variable:db/password execute
 [
-  "dev:host:frontend/frontend-01",
-  "dev:group:db/secrets-users",
-  "dev:policy:frontend",
-  "dev:policy:db",
-  "dev:layer:frontend",
-  "dev:user:admin"
+  "myorg:host:frontend/frontend-01",
+  "myorg:group:db/secrets-users",
+  "myorg:policy:frontend",
+  "myorg:policy:db",
+  "myorg:layer:frontend",
+  "myorg:user:admin"
 ]
 {% endhighlight %}
 
-The important line here is **dev:host:frontend/frontend-01**.
+The important line here is **myorg:host:frontend/frontend-01**.
 
 Now we can finish the tutorial by fetching the password while authenticated as the host:
 

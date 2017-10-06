@@ -45,5 +45,5 @@ with the command `conjur authn whoami`.
 
 {% highlight shell %}
 $ conjur authn whoami
-{"account":"mycorp","username":"joe-tester"}
+{"account":"myorg","username":"joe-tester"}
 {% endhighlight %}

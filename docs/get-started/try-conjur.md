@@ -138,7 +138,7 @@ $ conjur authn login host/myapp-01
 Please enter host/myapp-01s password (it will not be echoed):
 Logged in
 $ conjur authn whoami
-{ "account": "mycorp", "user": "host/myapp-01" }
+{ "account": "myorg", "user": "host/myapp-01" }
 {% endhighlight %}
 
 <div class="note">

@@ -21,7 +21,7 @@ Change the password of user `alice` from "beep-boop" to "EXTERMINATE":
 curl --verbose \
      --request PUT --data EXTERMINATE \
      --user alice:beep-boop \
-     https://eval.conjur.org/authn/mycorp/password
+     https://eval.conjur.org/authn/myorg/password
 ```
 
 Now you can verify it worked by running the same command again, which should fail, because the password has changed. If you feel like a round-trip you can swap the passwords to change it back:
@@ -30,7 +30,7 @@ Now you can verify it worked by running the same command again, which should fai
 curl --verbose \
      --request PUT --data beep-boop \
      --user alice:EXTERMINATE \
-     https://eval.conjur.org/authn/mycorp/password
+     https://eval.conjur.org/authn/myorg/password
 ```
 
 ---

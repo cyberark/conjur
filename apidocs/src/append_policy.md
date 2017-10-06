@@ -18,7 +18,7 @@ Suppose you have a policy to load in `/tmp/policy.yml` (such as the sample one p
 ```
 curl -H "$(conjur authn authenticate -H)" \
      -X POST -d "$(< /tmp/policy.yml)" \
-     https://eval.conjur.org/policies/mycorp/policy/root \
+     https://eval.conjur.org/policies/myorg/policy/root \
      | jq .
 ```
 

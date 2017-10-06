@@ -35,8 +35,8 @@ $ conjur policy load --replace root conjur.yml
 Loaded policy 'root'
 {
   "created_roles": {
-    "dev:host:myapp-01": {
-      "id": "dev:host:myapp-01",
+    "myorg:host:myapp-01": {
+      "id": "myorg:host:myapp-01",
       "api_key": "1wgv7h2pw1vta2a7dnzk370ger03nnakkq33sex2a1jmbbnz3h8cye9"
     }
   },
@@ -60,7 +60,7 @@ Create a new Ruby program, require the `conjur-api` library, and set these two p
 {% highlight ruby %}
 irb(main)> require 'conjur-api'
 irb(main)> Conjur.configuration.appliance_url = "https://eval.conjur.org"
-irb(main)> Conjur.configuration.account = "dev" # <- REPLACE ME!
+irb(main)> Conjur.configuration.account = "myorg" # <- REPLACE ME!
 {% endhighlight %}
 
 <div class="note">
@@ -240,7 +240,7 @@ The above application can be run with:
 {% highlight bash %}
 $ CONJUR_USER=host/myapp-01 \
   CONJUR_API_KEY=host/myapp-01 API as used prior # <- REPLACE ME! \
-  CONJUR_ACCOUNT=dev # <- REPLACE ME! \
+  CONJUR_ACCOUNT=myorg # <- REPLACE ME! \
   CONJUR_URL=https://eval.conjur.org \
   rackup
 {% endhighlight %}

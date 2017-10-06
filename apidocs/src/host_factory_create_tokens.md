@@ -14,14 +14,14 @@ from the whitelisted IP ranges.
 
 #### Example with `curl` and `jq`
 
-Suppose your account is `mycorp`, your host factory is called `hf-db` and you
+Suppose your account is `myorg`, your host factory is called `hf-db` and you
 want to create two tokens, each of which which are usable only by local
 addresses `127.0.0.1` and `127.0.0.2`, expiring at "2017-08-04T22:27:20+00:00".
 
 ```bash
 curl --request POST \
      --data-urlencode "expiration=2017-08-04T22:27:20+00:00" \
-     --data-urlencode "host_factory=mycorp:host_factory:hf-db" \
+     --data-urlencode "host_factory=myorg:host_factory:hf-db" \
      --data-urlencode "count=2" \
      --data-urlencode "cidr[]=127.0.0.1" \
      --data-urlencode "cidr[]=127.0.0.2" \
@@ -61,7 +61,7 @@ restriction, you would make two API calls each with `count=1`.
   <code>string</code>
   (required)
   <span class="text-muted">
-    <strong>Example:</strong> mycorp:host_factory:hf-db
+    <strong>Example:</strong> myorg:host_factory:hf-db
   </span>
   <p>Fully qualified Host Factory id</p>
 </dd>
