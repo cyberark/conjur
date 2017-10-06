@@ -380,6 +380,7 @@ DEPENDENCIES
   jekyll-sitemap
   json_spec
   listen
+  nokogiri (>= 1.8.1)
   parallel
   pg
   pry-byebug
