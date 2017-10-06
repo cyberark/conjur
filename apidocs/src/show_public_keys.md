@@ -11,7 +11,7 @@ Returns an empty string if the resource does not exist, to prevent attackers fro
 #### Example using `curl`
 
 ```
-curl https://eval.conjur.org/public_keys/mycorp/user/alice
+curl https://eval.conjur.org/public_keys/myorg/user/alice
 ```
 
 ---

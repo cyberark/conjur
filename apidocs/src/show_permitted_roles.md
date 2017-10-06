@@ -8,13 +8,13 @@ Lists the roles which have the named permission on a resource.
 
 #### Example with `curl` and `jq`
 
-Suppose your organization name is "mycorp" and you want to find out which roles
+Suppose your organization name is "myorg" and you want to find out which roles
 have `execute` privileges on the Variable `db-password`, and can thus fetch the
 secret:
 
 ```bash
 curl -H "$(conjur authn authenticate -H)" \
-     'https://eval.conjur.org/resources/mycorp/variable/db-password?permitted_roles=true&privilege=execute' \
+     'https://eval.conjur.org/resources/myorg/variable/db-password?permitted_roles=true&privilege=execute' \
      | jq .
 ```
 
@@ -48,8 +48,8 @@ curl -H "$(conjur authn authenticate -H)" \
 
     ```json
     [
-      "mycorp:policy:database",
-      "mycorp:user:db-admin",
-      "mycorp:host:database/db-host"
+      "myorg:policy:database",
+      "myorg:user:db-admin",
+      "myorg:host:database/db-host"
     ]
     ```

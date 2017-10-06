@@ -17,12 +17,12 @@ Note that machine roles (Hosts) do not have passwords and do not need to login.
 
 #### Example with `curl`
 
-Suppose your account is "mycorp" and you want to get the API key for user
+Suppose your account is "myorg" and you want to get the API key for user
 "alice" whose password is "beep-boop":
 
 ```bash
 curl --user alice:beep-boop \
-     https://eval.conjur.org/authn/mycorp/login
+     https://eval.conjur.org/authn/myorg/login
 ```
 
 ---

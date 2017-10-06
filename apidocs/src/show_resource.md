@@ -14,7 +14,7 @@ The response to this method is a JSON document describing a single resource.
 
 ```
 curl -H "$(conjur authn authenticate -H)" \
-    https://eval.conjur.org/resources/mycorp/policy/app-prod \
+    https://eval.conjur.org/resources/myorg/policy/app-prod \
     | jq .
 ```
 
@@ -46,9 +46,9 @@ For example, to show the variable "db/password":
     ```
     {
         "created_at": "2017-07-25T06:30:38.768+00:00",
-        "id": "mycorp:variable:db/password",
-        "owner": "mycorp:user:admin",
-        "policy": "mycorp:policy:root",
+        "id": "myorg:variable:db/password",
+        "owner": "myorg:user:admin",
+        "policy": "myorg:policy:root",
         "permissions": [],
         "annotations": [],
         "policy_versions": []

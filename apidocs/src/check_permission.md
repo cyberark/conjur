@@ -9,14 +9,14 @@ authorized to `execute` (fetch the value of) this Secret?
 
 #### Example with `curl`
 
-Suppose your account name is "mycorp" and you want to check whether Host
+Suppose your account name is "myorg" and you want to check whether Host
 "application" can `execute` (fetch the value of) Variable "db-password":
 
 This request has a long URL, so I break it up for you with some variables.
 
 ```bash
 endpoint='https://eval.conjur.org/resources'
-account='mycorp'
+account='myorg'
 var_id='db-password'
 host_id='application'
 
@@ -42,7 +42,7 @@ curl -i -H "$(conjur authn authenticate -H)" \
   + <!-- include(partials/account_param.md) -->
   + kind: variable (string) - kind of resource to test
   + identifier: db-password (string) - the identifier of the resource to test
-  + role: mycorp:host:application (string) - the fully qualified identifier of
+  + role: myorg:host:application (string) - the fully qualified identifier of
     the role to test
   + privilege: execute (string) - the privilege to test on the resource
 

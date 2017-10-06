@@ -76,8 +76,8 @@ A Host Factory Token must be provided as part of an HTTP
     ```json
     {
       "created_at": "2017-08-07T22:30:00.145+00:00",
-      "id": "mycorp:host:brand-new-host",
-      "owner": "mycorp:host_factory:hf-db",
+      "id": "myorg:host:brand-new-host",
+      "owner": "myorg:host_factory:hf-db",
       "permissions": [],
       "annotations": [],
       "api_key": "rq5bk73nwjnm52zdj87993ezmvx3m75k3whwxszekvmnwdqek0r"

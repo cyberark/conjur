@@ -12,11 +12,11 @@ portion of the returned JSON.
 
 #### Example using `curl` and `jq`
 
-Suppose your account is "mycorp" and you want to get information about the user "alice":
+Suppose your account is "myorg" and you want to get information about the user "alice":
 
 ```
 curl -H "$(conjur authn authenticate -H)" \
-     https://eval.conjur.org/roles/mycorp/user/alice \
+     https://eval.conjur.org/roles/myorg/user/alice \
      | jq .
 ```
 
@@ -33,7 +33,7 @@ curl -H "$(conjur authn authenticate -H)" \
 |<!-- include(partials/http_403.md) -->|
 |  404 | The requested role does not exist |
 
-Supposing the requested role is a user named "otto" at an organization called "mycorp":
+Supposing the requested role is a user named "otto" at an organization called "myorg":
 
 + Parameters
   + <!-- include(partials/account_param.md) -->
@@ -48,15 +48,15 @@ Supposing the requested role is a user named "otto" at an organization called "m
     ```json
     {
       "created_at": "2017-08-02T18:18:42.346+00:00",
-      "id": "mycorp:user:alice",
-      "policy": "mycorp:policy:root",
+      "id": "myorg:user:alice",
+      "policy": "myorg:policy:root",
       "members": [
         {
           "admin_option": true,
           "ownership": true,
-          "role": "mycorp:user:alice",
-          "member": "mycorp:policy:root",
-          "policy": "mycorp:policy:root"
+          "role": "myorg:user:alice",
+          "member": "myorg:policy:root",
+          "policy": "myorg:policy:root"
         }
       ]
     }

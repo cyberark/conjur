@@ -25,12 +25,12 @@ matching annotation value, and finally those with a matching `kind`.
 
 #### Example with `curl` and `jq`
 
-Suppose your organization name is "mycorp" and you want to search for the first
+Suppose your organization name is "myorg" and you want to search for the first
 two resources matching the word "db":
 
 ```bash
 curl -H "$(conjur authn authenticate -H)" \
-     'https://eval.conjur.org/resources/mycorp?search=db&limit=2' \
+     'https://eval.conjur.org/resources/myorg?search=db&limit=2' \
      | jq .
 ```
 
@@ -66,9 +66,9 @@ curl -H "$(conjur authn authenticate -H)" \
     [
       {
         "created_at": "2017-07-25T06:30:38.768+00:00",
-        "id": "mycorp:variable:app-prod/db-password",
-        "owner": "mycorp:policy:app-prod",
-        "policy": "mycorp:policy:root",
+        "id": "myorg:variable:app-prod/db-password",
+        "owner": "myorg:policy:app-prod",
+        "policy": "myorg:policy:root",
         "permissions": [],
         "annotations": [],
         "secrets": [
@@ -79,9 +79,9 @@ curl -H "$(conjur authn authenticate -H)" \
       },
       {
         "created_at": "2017-07-25T06:30:38.768+00:00",
-        "id": "mycorp:policy:app-prod",
-        "owner": "mycorp:user:admin",
-        "policy": "mycorp:policy:root",
+        "id": "myorg:policy:app-prod",
+        "owner": "myorg:user:admin",
+        "policy": "myorg:policy:root",
         "permissions": [],
         "annotations": [],
         "policy_versions": []

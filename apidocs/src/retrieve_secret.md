@@ -12,7 +12,7 @@ Note: Conjur will allow you to add a secret to any resource, but the best practi
 
 ```
 curl -H "$(conjur authn authenticate -H)" \
-    https://eval.conjur.org/secrets/mycorp/variable/prod/db/password
+    https://eval.conjur.org/secrets/myorg/variable/prod/db/password
 ```
 
 ---
