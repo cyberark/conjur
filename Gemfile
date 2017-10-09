@@ -37,7 +37,7 @@ gem 'rack-rewrite'
 gem 'simplecov', require: false
 
 gem 'sass-rails'
-#gem 'uglifier'
+gem 'uglifier'
 gem 'therubyracer'
 #gem 'coffee-rails'
 gem 'bootstrap-sass', '~> 3.2.0'
