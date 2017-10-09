@@ -44,12 +44,6 @@ Then(/^the text result is:$/) do |value|
   expect(@result).to eq(value)
 end
 
-Then(/^the html result contains "([^"]*)"$/) do |value|
-  expect(@result).to be
-  expect(@result.headers[:content_type]).to include("text/html")
-  expect(@result).to include(value)
-end
-
 Then(/^the binary result is "([^"]*)"$/) do |value|
   expect(@result).to be
   expect(@result.headers[:content_type]).to eq("application/octet-stream")
