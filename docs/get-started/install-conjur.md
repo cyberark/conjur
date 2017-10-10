@@ -14,6 +14,7 @@ official Conjur containers on DockerHub.
 
    If you're using GNU/Linux, [follow instructions here][get-docker-gnu].
 
+{:start="2"}
 2. Install a terminal application if you don't have one already.
    [Hyper](https://hyper.is) is nice.
 
@@ -25,7 +26,8 @@ official Conjur containers on DockerHub.
 $ curl -o docker-compose.yml https://www.conjur.org/get-started/docker-compose.quickstart.yml
 {% endhighlight %}
 
-2. pull all the required Docker images from DockerHub
+{:start="2"}
+2. Pull all the required Docker images from DockerHub
 
    `docker-compose` can do this for you automatically:
 
@@ -33,6 +35,7 @@ $ curl -o docker-compose.yml https://www.conjur.org/get-started/docker-compose.q
 $ docker-compose pull
 {% endhighlight %}
 
+{:start="3"}
 3. Generate your master data key and load it into the environment:
 
 {% highlight shell %}
