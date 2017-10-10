@@ -14,7 +14,7 @@ official Conjur containers on DockerHub.
 
    If you're using GNU/Linux, [follow instructions here][get-docker-gnu].
 
-1. Install a terminal application if you don't have one already.
+2. Install a terminal application if you don't have one already.
    [Hyper](https://hyper.is) is nice.
 
 {% include toc.md key='launch' %}
@@ -25,7 +25,7 @@ official Conjur containers on DockerHub.
 $ curl -o docker-compose.yml https://www.conjur.org/get-started/docker-compose.quickstart.yml
 {% endhighlight %}
 
-1. pull all the required Docker images from DockerHub
+2. pull all the required Docker images from DockerHub
 
    `docker-compose` can do this for you automatically:
 
@@ -33,7 +33,7 @@ $ curl -o docker-compose.yml https://www.conjur.org/get-started/docker-compose.q
 $ docker-compose pull
 {% endhighlight %}
 
-1. Generate your master data key and load it into the environment:
+3. Generate your master data key and load it into the environment:
 
 {% highlight shell %}
 $ docker-compose run --no-deps --rm conjur data-key generate > data_key
@@ -48,7 +48,7 @@ $ export CONJUR_DATA_KEY="$(< data_key)"
 {% include toc.md key='install' %}
 
 1. Run `docker-compose up -d` to run the Conjur server, database and client
-1. Create a default account (eg. `quick-start`):
+2. Create a default account (eg. `quick-start`):
 
 {% highlight shell %}
 $ docker-compose exec conjur conjurctl account create quick-start
@@ -63,7 +63,7 @@ $ docker-compose exec conjur conjurctl account create quick-start
 
 1. Run `docker-compose exec client bash` to get a bash shell with the Conjur
    client software
-1. Initialize the Conjur client using the account name and admin API key you
+2. Initialize the Conjur client using the account name and admin API key you
    created:
 
 {% highlight shell %}
