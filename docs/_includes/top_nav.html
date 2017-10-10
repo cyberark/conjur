@@ -10,11 +10,17 @@
     </div>
     <div class="collapse navbar-collapse" id="mobileNav">
       <ul class="nav navbar-nav">
+
         {% for item_hash in site.data.navigation.main %}
           {% assign key = item_hash[0] %}
     			{% assign value = item_hash[1] %}
     			{% include top_nav_menu.html item=value section=key %}
     		{% endfor %}
+
+        <li class="nav-item">
+          <a id="top-nav-button-enterprise" class="event-click" href="https://www.cyberark.com/products/privileged-account-security-solution/cyberark-conjur/" target="_blank">Conjur Enterprise</a>
+        </li>
+
         <li class="nav-item">
           <a id="top-nav-button-slack" class="event-click" href="https://slackin-conjur.herokuapp.com/" target="_blank"><i class="fa fa-slack"></i></a>
         </li>
