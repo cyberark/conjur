@@ -61,6 +61,6 @@ Rails.application.configure do
   config.log_formatter = ::Logger::Formatter.new
 
   #Add support for asset compression in production
-  config.assets.css_compressor = :yui
+  config.assets.css_compressor = :sass
   config.assets.js_compressor = :uglifier
 end
