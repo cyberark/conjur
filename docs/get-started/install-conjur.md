@@ -72,7 +72,7 @@ $ docker-compose exec conjur conjurctl account create quick-start
 {% highlight shell %}
 $ conjur init -u conjur -a quick-start # or whatever account you created
 $ conjur authn login -u admin
-Please enter admin's password (it will not be echoed):
+Please enter admin\'s password (it will not be echoed):
 {% endhighlight %}
 
 {% include toc.md key='explore' %}

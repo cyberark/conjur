@@ -258,6 +258,11 @@
 // Copy to Clipboard Code Boxes
 // ***********************
 
+.highlight pre {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
 pre > code {
   width: 90%;
   overflow: auto;
