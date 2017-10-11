@@ -18,8 +18,8 @@
 {% endif %}
 
 <ul class="sidebar-nav list-unstyled">
-  <li class="item"><a class=“event-click”
-  id=”side-nav-button-enterprise” href="https://www.cyberark.com/products/privileged-account-security-solution/cyberark-conjur/" target="_blank">CyberArk Conjur Enterprise</a></li>
+  <li class="item"><a class="event-click"
+  id="side-nav-button-enterprise" href="https://www.cyberark.com/products/privileged-account-security-solution/cyberark-conjur/" target="_blank">CyberArk Conjur Enterprise</a></li>
   <li class="item"><a href="https://github.com/cyberark/conjur/blob/master/CONTRIBUTING.md">Contributing</a></li>
   <li class="item"><a href="/support.html">Support</a></li>
 </ul>
