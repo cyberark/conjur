@@ -1,7 +1,3 @@
----
----
-//
-
 $(document).ready(function() {
   anchors.options.placement = 'right';
 
