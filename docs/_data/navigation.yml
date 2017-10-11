@@ -113,7 +113,3 @@ main:
       cryptography:
         title: Cryptography
         path: /reference/cryptography.html
-
-  enterprise:
-    title: Conjur Enterprise
-    path: https://www.cyberark.com/products/privileged-account-security-solution/cyberark-conjur/
