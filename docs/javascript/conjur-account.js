@@ -78,13 +78,13 @@ function submitAccountSignup() {
   }
 
   var hutk = getCookieValue("hubspotutk");
-  
+
   var payload =
       "email=" + $("#email-address").val() +
       "&organization=" + $("#organization").val() +
       "&recaptcha_token=" + recaptchaToken +
-      "&hutk=" + hutk;
-  
+      "&hutk=" + (hutk === null ? '' : hutk);
+
   $.ajax({
     context: this,
     type: "POST",
