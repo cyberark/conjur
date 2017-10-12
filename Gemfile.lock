@@ -1,19 +1,4 @@
 GIT
-  remote: https://github.com/conjurinc/cli-ruby.git
-  revision: a30d685c1ec255beffd3f42a48e66c1c31cd2b53
-  branch: possum
-  specs:
-    conjur-cli (6.0.0beta.1)
-      activesupport
-      conjur-api (~> 5.0.0.beta)
-      deep_merge (~> 1.0)
-      gli (>= 2.8.0)
-      highline (~> 1.7)
-      netrc (~> 0.10)
-      table_print (~> 1.5)
-      xdg (~> 2.2)
-
-GIT
   remote: https://github.com/conjurinc/conjur-policy-parser.git
   revision: b92854c1a0db5afb6a2294b77d96fcd9831cc59e
   branch: possum
@@ -109,6 +94,15 @@ GEM
     colorator (1.1.0)
     colored (1.2)
     concurrent-ruby (1.0.5)
+    conjur-cli (6.0.0.rc1)
+      activesupport
+      conjur-api (~> 5.0.0.beta)
+      deep_merge (~> 1.0)
+      gli (>= 2.8.0)
+      highline (~> 1.7)
+      netrc (~> 0.10)
+      table_print (~> 1.5)
+      xdg (~> 2.2)
     conjur-debify (1.5.3)
       conjur-cli
       docker-api (~> 1.33)
@@ -365,7 +359,7 @@ DEPENDENCIES
   bootstrap-sass (~> 3.2.0)
   ci_reporter_rspec
   conjur-api!
-  conjur-cli!
+  conjur-cli (= 6.0.0.rc1)
   conjur-debify
   conjur-policy-parser!
   conjur-rack!
