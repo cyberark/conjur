@@ -78,7 +78,6 @@
 }
 
 .cta-box {
-  //background-color: $conjur-softgray;
   border-radius: 4px;
   color: $conjur-text;
   height: 100%;
@@ -171,7 +170,6 @@
       margin: 0 0 1em 1em;
     }
   }
-
 
   .cta-box ul.cta-links a.conjur-cta-primary, .cta-box ul.cta-links a.conjur-cta-secondary {
     position: relative;
@@ -319,6 +317,7 @@ pre > code {
 
   .page-title {
     color: #ffffff;
+    font-weight: 800;
   }
 
   p {
@@ -345,6 +344,41 @@ pre > code {
 
     p {
       font-size: 16px;
+    }
+
+    a {
+
+      &.conjur-btn {
+        transition: all 0.4s;
+        color: #fff;
+        padding: .5em 1.3em;
+        position: absolute;
+        bottom: 30px;
+        text-transform: uppercase;
+        font-weight: 500;
+
+        &:hover {
+          text-decoration: none;
+          box-shadow: 0px 0px 5px rgba(23,54,83,0.4);
+        }
+      }
+
+      &.conjur-cta-primary {
+        background-color: $cybr-blue;
+
+        &:hover {
+          background-color: darken($cybr-blue,08);
+        }
+      }
+
+      &.conjur-cta-secondary {
+        background-color: transparent;
+        border: 2px solid #fff;
+
+        &:hover {
+          background-color: rgba(255,255,255,0.25);
+        }
+      }
     }
 
   } // /.cta-box
