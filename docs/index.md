@@ -52,5 +52,8 @@ description: Conjur is a scalable, flexible, open source security service that s
       CyberArk officially provides and supports integration libraries between Conjur and external tools such as Puppet, Ansible, and Summon, as well as API libraries for Ruby, Go, Java, and .NET. CyberArk has officially partnered with Puppet to provide joint support for the Conjur Puppet Module. CyberArk is extending this partnering relationship to other major tool vendors in the DevOps space.
     </div>
   </div> <!-- /.row -->
-
 </div> <!-- /.feature-wrap -->
+
+# How Conjur Works
+
+To use Conjur, you write policy files to enumerate and categorize the things in your infrastructure: hosts, images, containers, web services, databases, secrets, users, groups, etc. You also use the policy files to define role relationships, such as the members of each group, and permissions rules, such as which groups and machines can fetch each secret. The Conjur server runs on top of the policies and provides HTTP services such as authentication, permission checks, secrets, and public keys. You can also perform dynamic updates, such as change secret values and enroll new hosts.
