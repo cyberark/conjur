@@ -74,7 +74,7 @@
       }
     }
   }
-  
+
 }
 
 .cta-box {
@@ -325,6 +325,30 @@ pre > code {
     color: #ffffff;
     font-size: 150%;
   }
+
+  .cta {
+    margin-top: 2em;
+  }
+
+  .cta-box {
+    background-color: rgba(35, 94, 145, 0.22);
+    color: $conjur-text;
+    border: 0;
+    min-height: 220px;
+
+    .cta-box-header {
+      color: #fff;
+      font-size: 24px;
+      font-weight: 800;
+      padding-bottom: .5em;
+    }
+
+    p {
+      font-size: 16px;
+    }
+
+  } // /.cta-box
+
 }
 
 @media (max-width: 767px) {

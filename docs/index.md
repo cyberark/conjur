@@ -6,11 +6,6 @@ id: index
 description: Conjur is a scalable, flexible, open source security service that stores secrets, provides machine identity based authorization, and more.
 ---
 
-<div class="row equal">
-    {% include cta.md id='local' %}
-    {% include cta.md id='hosted' %}
-</div>
-
 # Conjur Features
 
 <div class="feature-wrap">
