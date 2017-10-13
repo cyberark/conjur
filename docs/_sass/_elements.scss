@@ -368,9 +368,11 @@ pre > code {
 
       &.conjur-cta-primary {
         background-color: $cybr-blue;
+        border: 2px solid $cybr-blue;
 
         &:hover {
           background-color: darken($cybr-blue,08);
+          border-color: darken($cybr-blue,08);
         }
       }
 
@@ -416,6 +418,7 @@ pre > code {
 
   .feature {
     margin-bottom: 4em;
+    padding-right: 2em;
   }
 
 } // END .feature-wrap
