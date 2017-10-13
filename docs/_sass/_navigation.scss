@@ -12,10 +12,10 @@
     a.navbar-brand {
       color: #ffffff;
       font-size: 2rem;
-      margin: 19px 0 0 0;
+      margin: 26px 0 0 0;
       margin-right: 35px;
       display: inline-block;
-      width: 200px;
+      width: 140px;
       background: url("/img/cybr_logo_horiz.svg") no-repeat top left;
       padding: 0px;
     }
@@ -45,8 +45,9 @@
           transition: all 0.4s;
 
           a {
-            color: #ffffff;
-            font-weight: 300;
+            color: rgba(255, 255, 255, 0.90);
+            font-weight: 400;
+            padding: 10px 35px 10px 20px;
 
             &:hover {
               background-color: darken($cybr-dkblue,04);
@@ -66,7 +67,7 @@
       font-family: FontAwesome;
       position: absolute;
       right: 10px;
-      top: -1px;
+      top: 7px;
     }
 
     &:hover > a  {
@@ -98,7 +99,9 @@
   .navbar-default .navbar-nav > li > a,
   .navbar-default .navbar-nav > li > a:hover,
   .navbar-default .navbar-nav > li > a:focus {
-  	color: #ffffff;
+  	color: rgba(255, 255, 255, 0.90);
+    letter-spacing: .3px;
+    font-weight: 400;
   }
 
   .navbar-default .navbar-nav > li:hover > a,
@@ -187,10 +190,10 @@
       a.navbar-brand {
         color: #ffffff;
         font-size: 2rem;
-        margin: 16px 0 0px 33px;
+        margin: 24px 0 0px 33px;
         margin-right: 35px;
         display: inline-block;
-        width: 200px;
+        width: 140px;
         background: url("/img/cybr_logo_horiz.svg") no-repeat top left;
         padding: 0px;
       }
@@ -208,7 +211,7 @@
       background-color: transparent;
       border-radius: 0px;
       box-shadow: none;
-      font-weight: 300;
+      font-weight: 400;
       line-height: 20px;
 
       li {

@@ -318,15 +318,18 @@ pre > code {
   .page-title {
     color: #ffffff;
     font-weight: 800;
+    margin-top: 0;
   }
 
   p {
     color: #ffffff;
     font-size: 150%;
+    line-height: 1.7em;
   }
 
   .cta {
-    margin-top: 2em;
+    margin-top: 4em;
+    margin-bottom: 2em;
   }
 
   .cta-box {
@@ -407,7 +410,8 @@ pre > code {
   h2 {
     margin-top: .5em;
     margin-bottom: .5em;
-    color: $conjur-teal;
+    color: $conjur-dark;
+    font-weight: 800;
   }
 
   .feature {
