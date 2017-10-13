@@ -64,7 +64,7 @@ group :development, :test do
   gem 'cucumber'
   gem 'aruba'
   gem 'rake_shared_context'
-  gem 'conjur-cli', '= 6.0.0.rc1'
+  gem 'conjur-cli', '~> 6.0'
   gem 'rails_layout'
   gem 'rspec-core', '~> 3.0'
 end

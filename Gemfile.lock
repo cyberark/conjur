@@ -18,9 +18,9 @@ GIT
 
 GIT
   remote: https://github.com/cyberark/api-ruby.git
-  revision: 6606bbdb845024918ff8560b5aad3fd978c347b5
+  revision: 957b2063c37c6c94b789dca1004d57ce25f6becf
   specs:
-    conjur-api (5.0.0.pre)
+    conjur-api (5.0.0)
       activesupport
       rest-client
 
@@ -94,7 +94,7 @@ GEM
     colorator (1.1.0)
     colored (1.2)
     concurrent-ruby (1.0.5)
-    conjur-cli (6.0.0.rc1)
+    conjur-cli (6.0.0)
       activesupport
       conjur-api (~> 5.0.0.beta)
       deep_merge (~> 1.0)
@@ -140,7 +140,7 @@ GEM
       sass (>= 3.2)
     forwardable-extended (2.6.0)
     gherkin (4.1.1)
-    gli (2.16.0)
+    gli (2.16.1)
     globalid (0.4.0)
       activesupport (>= 4.2.0)
     highline (1.7.8)
@@ -359,7 +359,7 @@ DEPENDENCIES
   bootstrap-sass (~> 3.2.0)
   ci_reporter_rspec
   conjur-api!
-  conjur-cli (= 6.0.0.rc1)
+  conjur-cli (~> 6.0)
   conjur-debify
   conjur-policy-parser!
   conjur-rack!
