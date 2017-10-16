@@ -73,7 +73,7 @@ description: Conjur is a scalable, flexible, open source security service that s
         <p class="description">CyberArk Conjur - A library of validated integrations with CI/CD tools</p>
         <p class="date">October 17 / 2PM EST</p>
         <div class="link">
-          <a href="https://www.cyberark.com/resource/explore-cyberarks-weekly-technical-webcast-series/" class="conjur-webinar-btn">Register</a>
+          <a href="https://www.cyberark.com/resource/explore-cyberarks-weekly-technical-webcast-series/" class="conjur-webinar-btn" target="_blank">Register</a>
         </div>
       </div>
     </div>
@@ -83,7 +83,7 @@ description: Conjur is a scalable, flexible, open source security service that s
         <p class="description">Orchestrating Trust in Your DevOps Pipeline</p>
         <p class="date">October 26 / 11AM EST</p>
         <div class="link">
-          <a href="https://pages.cloudbees.com/orchestratingtrust-devops-pipeline-webinar-registration" class="conjur-webinar-btn">Register</a>
+          <a href="https://pages.cloudbees.com/orchestratingtrust-devops-pipeline-webinar-registration" class="conjur-webinar-btn" target="_blank">Register</a>
         </div>
       </div>
     </div>
