@@ -359,7 +359,7 @@ DEPENDENCIES
   bootstrap-sass (~> 3.2.0)
   ci_reporter_rspec
   conjur-api!
-  conjur-cli (~> 6.0)
+  conjur-cli (~> 6)
   conjur-debify
   conjur-policy-parser!
   conjur-rack!
