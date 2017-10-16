@@ -500,9 +500,28 @@ pre > code {
     font-size: 35px;
   }
 
+  h2 {
+    margin: .5em 0;
+  }
+
   ul {
     text-align: left;
+    list-style-type: none;
+    li {
+      &:before {
+        content: "\f058";
+        font-family: FontAwesome;
+        margin-right: 10px;
+        font-size: 95%;
+        color: $conjur-teal;
+      }
+    }
   }
+
+  .row.cta {
+    margin: 1em 0 .5em 0;
+  }
+
 }
 
 
