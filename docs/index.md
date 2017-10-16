@@ -64,4 +64,30 @@ description: Conjur is a scalable, flexible, open source security service that s
   <h1>How Conjur Works</h1>
   <p>To use Conjur, you write policy files to enumerate and categorize the things in your infrastructure: hosts, images, containers, web services, databases, secrets, users, groups, etc. You also use the policy files to define role relationships, such as the members of each group, and permissions rules, such as which groups and machines can fetch each secret. The Conjur server runs on top of the policies and provides HTTP services such as authentication, permission checks, secrets, and public keys. You can also perform dynamic updates, such as change secret values and enroll new hosts.</p>
 
+  <h1>Whats New?</h1>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="cta-box-webinar">
+        <p class="header">WEBINAR</p>
+        <p class="description">CyberArk Conjur - A library of validated integrations with CI/CD tools</p>
+        <p class="date">October 17 / 2PM EST</p>
+        <div class="link">
+          <a href="https://www.cyberark.com/resource/explore-cyberarks-weekly-technical-webcast-series/" class="conjur-webinar-btn">Register</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="cta-box-webinar">
+        <p class="header">WEBINAR</p>
+        <p class="description">Orchestrating Trust in Your DevOps Pipeline</p>
+        <p class="date">October 26 / 11AM EST</p>
+        <div class="link">
+          <a href="https://pages.cloudbees.com/orchestratingtrust-devops-pipeline-webinar-registration" class="conjur-webinar-btn">Register</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
 </div>
