@@ -162,7 +162,7 @@
 
   ul.cta-links {
     padding: 1em;
-    margin: 3em 0 0 1em;
+    margin: 2em 0 0 1em;
     text-align: left;
 
     li {
@@ -176,8 +176,6 @@
         transition: all 0.4s;
         color: #fff;
         padding: .5em 1.3em;
-        position: absolute;
-        bottom: 30px;
         text-transform: uppercase;
         font-weight: 500;
 
@@ -387,7 +385,7 @@ pre > code {
     background-color: rgba(35, 94, 145, 0.22);
     color: $conjur-text;
     border: 0;
-    min-height: 220px;
+    min-height: 235px;
 
     .cta-box-header {
       color: #fff;
@@ -406,8 +404,6 @@ pre > code {
         transition: all 0.4s;
         color: #fff;
         padding: .5em 1.3em;
-        position: absolute;
-        bottom: 30px;
         text-transform: uppercase;
         font-weight: 500;
 
@@ -479,7 +475,6 @@ pre > code {
 
   .feature {
     margin-bottom: 4em;
-    //padding-right: 2em;
   }
 
 } // END .feature-wrap
@@ -512,6 +507,7 @@ pre > code {
         content: "\f058";
         font-family: FontAwesome;
         margin-right: 10px;
+        margin-left: -24px;
         font-size: 95%;
         color: $conjur-teal;
       }
