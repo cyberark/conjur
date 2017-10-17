@@ -7,19 +7,25 @@
 h1, h2, h3, h4, h5 {
 	color: $conjur-text;
 	margin-bottom: .5rem;
-	font-weight: 300;
+	//font-weight: 300;
 	line-height: 1.25;
 	text-rendering: optimizeLegibility;
 }
 
 h1, h2 {
-	color: $conjur-teal;
-	margin-top: 2rem;
+	font-weight: 800;
 }
 
-a {
-	color: $conjur-gray;
-}
+
+
+// h1, h2 {
+// 	color: $conjur-teal;
+// 	margin-top: 2rem;
+// }
+//
+// a {
+// 	color: $conjur-gray;
+// }
 
 p {
 	color: $conjur-medgray;
@@ -33,7 +39,7 @@ p {
 	color: $conjur-teal;
 	font-size: 3.5rem;
 	margin: 1.2rem 0;
-	font-weight: 300;
+	font-weight: 800;
 }
 
 .font-large {

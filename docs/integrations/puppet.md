@@ -12,6 +12,8 @@ Systems can be configured with Puppet either in a client/server architecture, us
 agent and Puppet master applications, or in a stand-alone architecture, using the Puppet apply
 application.
 
+<img class="integration-diagram" src="/img/conjur_puppet_diagram_final.svg" alt="Conjur Puppet integration diagram">
+
 {% include toc.md key='integration' %}
 
 The [Conjur Puppet Module](https://forge.puppet.com/cyberark/conjur) simplifies

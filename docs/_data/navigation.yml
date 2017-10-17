@@ -1,11 +1,4 @@
 main:
-  welcome:
-    title: Welcome
-    path: /
-    items:
-      how-conjur-works:
-        title: How Conjur Works
-        path: /welcome/how-conjur-works.html
   get-started:
     title: Get Started
     path: /get-started/

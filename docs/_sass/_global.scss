@@ -45,11 +45,11 @@ img {
   height: auto;
   display: block;
   margin: 50px 0;
-  
+
 	&.no-margin {
 		margin: 0;
 	}
-  
+
 	&.integration-diagram {
 		margin-top: 0;
 		margin-bottom: 1em;
@@ -104,6 +104,12 @@ figcaption {
   flex: 1;
 }
 
+@media (min-width: 1200px) {
+  .container {
+    //width: 1070px;
+  }
+}
+
 @media (max-width: 767px) {
   .container {
     margin-right: 1.5em;
@@ -124,7 +130,7 @@ p {
   font-size: 16px;
   line-height: 1.8rem;
   color: $conjur-text;
-  font-weight: 300;
+  //font-weight: 300;
 
   h2 {
     margin: 3rem 0 1rem 0;
