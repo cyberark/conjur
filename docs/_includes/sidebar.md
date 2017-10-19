@@ -23,24 +23,28 @@
   <li class="item"><a href="/support.html">Support</a></li>
 </ul>
 
-<div>
-  <div>
-    <p></p>
-    <p></p>
-
-  </div>
-</div>
 <ul class="sidebar-nav list-unstyled">
   <li class="item"><a id="side-nav-button-github" class="event-click" href="https://github.com/cyberark/conjur" target="_blank"><i class="fa fa-github-alt"></i> GitHub</a></li>
   <li class="item"><a id="side-nav-button-dockerhub" class="event-click" href="https://hub.docker.com/r/cyberark/conjur/" target="_blank"><div class="icon-docker-hub"></div> DockerHub</a></li>
   <li class="item"><a id="side-nav-button-cloud-formation" class="event-click" href="https://s3.amazonaws.com/conjur-ci-public/cloudformation/conjur-latest.yml"><i class="fa fa-cloud"></i> AWS CloudFormation</a></li>
   <li class="item"><a id="side-nav-button-slack" class="event-click" href="https://slackin-conjur.herokuapp.com/" target="_blank"><i class="fa fa-slack"></i> Slack</a></li>
 </ul>
+
+<!-- Webinar CTAs -->
 <div class="cta-box-webinar">
   <p class="header">WEBINAR</p>
-  <p class="description">CyberArk Conjur - A library of validated integrations with CI/CD tools</p>
-  <p class="date">October 17 / 2PM EST</p>
+  <p class="description">Orchestrating Trust in Your DevOps Pipeline</p>
+  <p class="date">October 26 / 11AM EST</p>
   <div class="link">
-    <a href="https://www.cyberark.com/resource/explore-cyberarks-weekly-technical-webcast-series/" class="conjur-webinar-btn">Register</a>
+    <a href="https://pages.cloudbees.com/orchestratingtrust-devops-pipeline-webinar-registration" class="conjur-webinar-btn" target="_blank">Register</a>
+  </div>
+</div>
+
+<div class="cta-box-webinar">
+  <p class="header">WEBINAR</p>
+  <p class="description">Delivering Infrastructure and Security Policy as Code with Puppet and CyberArk Conjur</p>
+  <p class="date">November 8 / 11AM EST</p>
+  <div class="link">
+    <a href="http://info.puppet.com/Technical-Partner-Series-CyberArk_Register.html?ls=Outbound&lsd=Email&cid=7010f0000017M8Q&utm_medium=email&utm_campaign=Q3FY18_WW_All_CHANNEL_EM_BLST_CyberArk-Partner-Webinar-Series-Registrations-2017&utm_source=email-2017-11&utm_content=cyberark-partner-webinar-series-registrations" class="conjur-webinar-btn" target="_blank">Register</a>
   </div>
 </div>
