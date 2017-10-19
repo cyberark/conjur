@@ -10,34 +10,33 @@
 [![Join Conjur Slack](https://img.shields.io/badge/slack-open-e01563.svg)][slack]
 [![Follow Conjur on Twitter](https://img.shields.io/twitter/follow/conjurinc.svg?style=social&label=Follow%20%40ConjurInc)][twitter]
 
-Conjur provides secrets management and machine identity for modern infrastructure.
-
 [slack]: https://slackin-conjur.herokuapp.com "Join our Slack community"
 [waffle]: https://waffle.io/cyberark/conjur "Conjur issues on Waffle.io"
 [quay]: https://quay.io/repository/cyberark/conjur "Conjur container image on Quay.io"
 [twitter]: https://twitter.com/intent/user?screen_name=ConjurInc "Follow Conjur on Twitter"
 
-Conjur provides:
+Conjur provides secrets management and machine identity for modern infrastructure:
 
-* **a role-based access policy language** to define system components, their
-  roles, privileges and metadata
-* **a REST web service** to:
-  * enroll and revoke identities
-  * list and search roles and data
-  * perform permission checks
-  * store and serve secrets
-* **integrations** with other popular software in the cloud toolchain such as
-  IaaS, configuration management, continuous integration (CI), container
-  management and cloud orchestration
+* **Machine Authorization Markup Language ("MAML")**, a role-based
+  access policy language to define system components & their roles,
+  privileges and metadata
+* **A REST web service** to:
+  * manage identity life cycles for humans and machines
+  * organize and search roles and data in your secrets infrastructure
+  * authorize access to resources using a sophisticated permission model
+  * store secrets and make them available securely
+* **Integrations** throughout the cloud toolchain:
+  * infrastructure as a service (IaaS)
+  * configuration management
+  * continuous integration and deployment (CI/CD)
+  * container management and cloud orchestration
 
 _Note: our badges and social media buttons never track you._
 
-## Links
+## Community Support
 
-* [support](https://www.conjur.org/support.html)
-* [API Documentation][api]
-
-[api]: https://www.conjur.org/apidocs.html
+Our primary channel for support is through our Slack community. More
+here: [community support](https://www.conjur.org/support.html)
 
 # Development
 
