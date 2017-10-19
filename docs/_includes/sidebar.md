@@ -45,6 +45,6 @@
   <p class="description">Delivering Infrastructure and Security Policy as Code with Puppet and CyberArk Conjur</p>
   <p class="date">November 8 / 11AM EST</p>
   <div class="link">
-    <a href="http://info.puppet.com/Technical-Partner-Series-CyberArk_Register.html?ls=Outbound&lsd=Email&cid=7010f0000017M8Q&utm_medium=email&utm_campaign=Q3FY18_WW_All_CHANNEL_EM_BLST_CyberArk-Partner-Webinar-Series-Registrations-2017&utm_source=email-2017-11&utm_content=cyberark-partner-webinar-series-registrations" class="conjur-webinar-btn" target="_blank">Register</a>
+    <a href="https://www.cyberark.com/puppet-technical-partner-series/" class="conjur-webinar-btn" target="_blank">Register</a>
   </div>
 </div>
