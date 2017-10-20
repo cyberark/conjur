@@ -11,74 +11,20 @@
 
   .page-title {
     color: #ffffff;
-    font-weight: 800;
     margin-top: 0;
   }
 
-  // p {
-  //   color: #ffffff;
-  //   font-size: 150%;
-  //   line-height: 1.7em;
-  // }
-
-  .cta {
-    margin-top: 4em;
-    margin-bottom: 2em;
+  p.hero-sub {
+    font-size: 22px;
+    line-height: 33px;
+    margin: 0;
+    width: 85%;
   }
 
-  .cta-box {
-    background-color: rgba(35, 94, 145, 0.22);
-    color: $conjur-text;
-    border: 0;
-    min-height: 235px;
-
-    .cta-box-header {
-      color: #fff;
-      font-size: 24px;
-      font-weight: 800;
-      padding-bottom: .5em;
-    }
-
-    // p {
-    //   font-size: 16px;
-    // }
-
-    a {
-
-      &.conjur-btn {
-        transition: all 0.4s;
-        color: #fff;
-        padding: .5em 1.3em;
-        text-transform: uppercase;
-        font-weight: 500;
-
-        &:hover {
-          text-decoration: none;
-          box-shadow: 0px 0px 5px rgba(23,54,83,0.4);
-        }
-      }
-
-      &.conjur-cta-primary {
-        background-color: $cybr-blue;
-        border: 2px solid $cybr-blue;
-
-        &:hover {
-          background-color: darken($cybr-blue,08);
-          border-color: darken($cybr-blue,08);
-        }
-      }
-
-      &.conjur-cta-secondary {
-        background-color: transparent;
-        border: 2px solid #fff;
-
-        &:hover {
-          background-color: rgba(255,255,255,0.25);
-        }
-      }
-    }
-
-  } // /.cta-box
+  .cta {
+    margin-top: 3em;
+    margin-bottom: 2em;
+  }
 
 }
 
