@@ -36,11 +36,8 @@
   <li class="item"><a id="side-nav-button-cloud-formation" class="event-click" href="https://s3.amazonaws.com/conjur-ci-public/cloudformation/conjur-latest.yml"><i class="fa fa-cloud"></i> AWS CloudFormation</a></li>
   <li class="item"><a id="side-nav-button-slack" class="event-click" href="https://slackin-conjur.herokuapp.com/" target="_blank"><i class="fa fa-slack"></i> Slack</a></li>
 </ul>
-<div class="cta-box-webinar">
-  <p class="header">WEBINAR</p>
-  <p class="description">CyberArk Conjur - A library of validated integrations with CI/CD tools</p>
-  <p class="date">October 17 / 2PM EST</p>
-  <div class="link">
-    <a href="https://www.cyberark.com/resource/explore-cyberarks-weekly-technical-webcast-series/" class="conjur-webinar-btn">Register</a>
-  </div>
+
+<div class="card-row sidebar">
+  {% include cta-basic.md id='webinar1' %}
+  {% include cta-basic.md id='webinar2' %}
 </div>
