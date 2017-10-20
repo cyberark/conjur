@@ -46,7 +46,7 @@ hosted:
   text: "The quickest way to get started using Conjur. Get immediate access to a running server in the cloud. Not for production secrets."
   links:
     hosted:
-      title: Start your evaluation
+      title: Try Conjur Now
       content: <a href="/get-started/try-conjur.html" class="conjur-btn conjur-cta-secondary">Try Conjur Now</a>
       class: secondary
       path: /get-started/try-conjur.html
