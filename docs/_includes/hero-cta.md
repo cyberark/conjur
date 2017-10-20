@@ -1,7 +1,6 @@
 {% assign section = site.data.cta[include.id] %}
 
   <div class="card hero">
-    <div class="card-wrap">
 
       <h2 class="card-heading">
         {{ section.title }}      
@@ -17,5 +16,4 @@
         {% endfor %}
       </div>
 
-    </div><!-- /.card-wrap -->    
   </div><!-- /.card .hero -->

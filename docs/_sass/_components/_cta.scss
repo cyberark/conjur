@@ -202,17 +202,14 @@
 .card {
   border-radius: 4px;
   font-size: 16px;
-  padding: 16px;
+  padding: 32px;
   border: 4px solid $conjur-softgray;
+  display: flex;
+  flex-direction: column;
 
-  .card-wrap {
-    flex: 1;
+  .btn-wrap {
     display: flex;
-    flex-direction: column;
-
-    .btn-wrap {
-      display: flex;
-    }
+    margin-top: .5em;
   }
 
   h2 {
