@@ -14,7 +14,7 @@
     margin-top: 0;
   }
 
-  p.hero-sub {
+  .hero-sub {
     font-size: 22px;
     line-height: 33px;
     margin: 0;
@@ -26,10 +26,35 @@
     margin-bottom: 2em;
   }
 
+  .card.hero {
+    background-color: rgba(35, 94, 145, 0.22);
+    border: 0;
+    width: 48%;
+    color: #fff;
+  }
+
 }
 
 @media (max-width: 767px) {
+
   #hero {
     padding: 1.5em;
   }
+
+}
+
+@media (max-width: 800px) {
+
+  #hero {
+
+    .card.hero {
+      width: 100%;
+      margin-bottom: 1em;
+    }
+
+    .hero-sub {
+      width: 100%;
+    }
+  }
+
 }

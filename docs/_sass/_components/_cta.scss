@@ -196,6 +196,7 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  margin-top: 3em;
 }
 
 .card {
@@ -223,28 +224,14 @@
     margin: 0;
   }
 
-  &.hero {
-    background-color: rgba(35, 94, 145, 0.22);
-    border: 0;
-    width: 48%;
-    color: #fff;
-
-    .card-content {
-      //color: red;
-    }
-  }
-
 } // END .card
 
 @media (max-width: 800px) {
+
   .card-row {
     flex-direction: column;
   }
 
-  .card.hero {
-    width: 100%;
-    margin-bottom: 1em;
-  }
 }
 
 
