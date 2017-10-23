@@ -80,10 +80,22 @@
 // ***********************
 // CTA Boxes
 // ***********************
+.full-width-cta {
+  display: flex;
+  justify-content: space-between;
+
+  .cta-box-webinar {
+    width: 48%;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
 .cta-box-webinar {
   border-radius: 4px;
   padding: 16px;
   border: 4px solid $conjur-softgray;
+  margin-bottom: 1em;
 
   .header {
     margin: 0px;
@@ -98,6 +110,7 @@
     color: $conjur-text;
     margin: 0px;
     padding-bottom: 10px;
+    flex-grow: 1;
   }
 
   .description {
@@ -206,6 +219,22 @@
       color: $conjur-medgray;
       font-size: 120%;
       margin-right: 5px;
+    }
+  }
+}
+
+.cta-video {
+  margin: .5em 0;
+}
+
+@media (max-width: 770px) {
+  .full-width-cta {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+
+    .cta-box-webinar {
+      width: 100%;
     }
   }
 }

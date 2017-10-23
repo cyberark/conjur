@@ -90,6 +90,7 @@
   howitworks: How Ansible works with Conjur
   machineidentity: Machine Identity
   workflow: Integration Workflow
+  learnmore: Learn More
 
 "/integrations/puppet.html":
   overview: Overview
