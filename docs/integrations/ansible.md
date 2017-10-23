@@ -58,6 +58,7 @@ See the [Conjur Ansible Role GitHub repo](https://github.com/cyberark/ansible-ro
 for integration instructions and a discussion of the security tradeoffs involved
 in the potential integration approaches.
 
+{% include toc.md key='learnmore' %}
+<a href="https://www.ansible.com/videos-ansiblefest-sanfran-2017?wvideo=w6f4imkxfn"><strong>AnsibleFest 2017: </strong>Why DevOps Requires Privilege and How to Secure it with Shared Secrets and Ansible</a>
 
-
-[ansible integration]: /img/conjur_ansible_map.svg  "Ansible Conjur Integration diagram"
+<a href="https://www.ansible.com/videos-ansiblefest-sanfran-2017?wvideo=w6f4imkxfn"><img class="cta-video" src="https://embedwistia-a.akamaihd.net/deliveries/0282894dd8964f197fc8c75ff290f9fce1c23c24.jpg?image_play_button_size=2x&amp;image_crop_resized=960x539&amp;image_play_button=1&amp;image_play_button_color=54bbffe0" width="600" style="width: 600px;" alt="AnsibleFest 2017"></a>
