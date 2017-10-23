@@ -18,49 +18,6 @@
 
 
 // ***********************
-// Buttons
-// ***********************
-
-.conjur-btn {
-  transition: all 0.4s;
-  color: #fff;
-  padding: .5em 1.3em;
-  text-transform: uppercase;
-  font-weight: 500;
-
-  &:hover {
-    text-decoration: none;
-    color: #fff;
-    box-shadow: 0px 0px 5px rgba(165,165,165,0.8);
-  }
-
-  &.primary {
-    background-color: $cybr-blue;
-    border: 2px solid $cybr-blue;
-    &:hover {
-      background-color: darken($cybr-blue,08);
-      border-color: darken($cybr-blue,08);
-    }
-  }
-
-  &.secondary {
-    background-color: transparent;
-    border: 2px solid 3fff;
-    &:hover {
-      background-color: rgba(255,255,255,0.25);
-    }
-  }
-
-  &.outline {
-    background-color: transparent;
-    border: 2px solid #fff;
-    &:hover {
-      background-color: darken($conjur-teal,08);
-    }
-  }
-}
-
-// ***********************
 // Utilities
 // ***********************
 
@@ -77,183 +34,6 @@
   //flex-direction: column;
 }
 
-// ***********************
-// CTA Boxes
-// ***********************
-.full-width-cta {
-  display: flex;
-  justify-content: space-between;
-
-  .cta-box-webinar {
-    width: 48%;
-    display: flex;
-    flex-direction: column;
-  }
-}
-
-.cta-box-webinar {
-  border-radius: 4px;
-  padding: 16px;
-  border: 4px solid $conjur-softgray;
-  margin-bottom: 1em;
-
-  .header {
-    margin: 0px;
-    font-size: 14px;
-    font-family: "Open Sans";
-    color: $conjur-dark;
-    font-weight: bold;
-  }
-
-  .date {
-    font-size: 14px;
-    color: $conjur-text;
-    margin: 0px;
-    padding-bottom: 10px;
-    flex-grow: 1;
-  }
-
-  .description {
-    color: $conjur-teal;
-    margin: 0px;
-    font-size: 17px;
-  }
-
-  .link {
-    a {
-      text-decoration: none;
-      display: block;
-      transition: all 0.4s;
-      color: #ffffff;
-      background: $conjur-teal;
-      padding: 0.4em;
-      text-transform: uppercase;
-      text-align: center;
-
-      &:hover {
-        text-decoration: none;
-        color: white;
-        transition: all 0.4s;
-        background-color: darken($conjur-teal,08);
-      }
-    }
-  }
-
-}
-
-.cta-box {
-  border-radius: 4px;
-  color: $conjur-text;
-  height: 100%;
-  width: 100%;
-  flex: 0 0 100%;
-  display: flex;
-  flex-direction: column;
-  min-height: 265px;
-  border: 4px solid $conjur-softgray;
-
-  .cta-content-wrap {
-    flex: 1;
-  }
-  .cta-box-header {
-    font-weight: 400;
-    padding: 1em 1.5em;
-    font-size: 140%;
-  }
-
-
-  hr {
-    border-bottom: 1px solid $conjur-medgray;
-  }
-
-  p {
-    font-weight: 300;
-    padding: 0 2em;
-    margin-top: 0px;
-    flex: 1;
-  }
-
-  ul.cta-links {
-    padding: 1em;
-    margin: 1em 0 0 1em;
-    text-align: left;
-
-    li {
-      margin-bottom: 6px;
-    }
-
-    a {
-      color: $conjur-text;
-
-      &.conjur-btn {
-        transition: all 0.4s;
-        color: #fff;
-        padding: .5em 1.3em;
-        text-transform: uppercase;
-        font-weight: 500;
-
-        &:hover {
-          text-decoration: none;
-          box-shadow: 0px 0px 5px rgba(165,165,165,0.8);
-        }
-      }
-
-      &.conjur-cta-primary {
-        background-color: $cybr-blue;
-
-        &:hover {
-          background-color: darken($cybr-blue,08);
-        }
-      }
-
-      &.conjur-cta-secondary {
-        background-color: $conjur-teal;
-
-        &:hover {
-          background-color: darken($conjur-teal,08);
-        }
-      }
-    }
-
-    i {
-      color: $conjur-medgray;
-      font-size: 120%;
-      margin-right: 5px;
-    }
-  }
-}
-
-.cta-video {
-  margin: .5em 0;
-}
-
-@media (max-width: 770px) {
-  .full-width-cta {
-    display: flex;
-    justify-content: space-between;
-    flex-direction: column;
-
-    .cta-box-webinar {
-      width: 100%;
-    }
-  }
-}
-
-@media (max-width: 992px) {
-  .cta-box {
-    margin: 0 0 1em 0;
-    min-height: auto;
-
-    ul.cta-links {
-      margin: 0 0 1em 1em;
-    }
-  }
-
-  .cta-box ul.cta-links a.conjur-cta-primary, .cta-box ul.cta-links a.conjur-cta-secondary {
-    position: relative;
-    bottom: initial;
-  }
-}
 
 // ***********************
 // Next Steps
@@ -326,6 +106,23 @@
   margin-left: -10px;
 }
 
+
+// ***********************
+// Copy to Clipboard Code Boxes
+// ***********************
+
+.highlight pre {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+pre > code {
+  width: 90%;
+  overflow: auto;
+  display: block;
+}
+
+
 // ***********************
 // AnchorJS Link placement and hover behavior
 // ***********************
@@ -355,20 +152,6 @@
   opacity: 1;
 }
 
-// ***********************
-// Copy to Clipboard Code Boxes
-// ***********************
-
-.highlight pre {
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-
-pre > code {
-  width: 90%;
-  overflow: auto;
-  display: block;
-}
 
 // ***********************
 // Alert Info
@@ -379,97 +162,6 @@ pre > code {
   border: none;
   color: $cybr-blue;
   margin-top: 2em;
-}
-
-
-// ***********************
-// Hero
-// ***********************
-
-#hero {
-  background: url("/img/conjur-hero-bg2.svg") no-repeat top center;
-  background-size: cover;
-  color: #ffffff;
-  padding: 3.5em 0;
-  margin-top: -1px;
-
-  .page-title {
-    color: #ffffff;
-    font-weight: 800;
-    margin-top: 0;
-  }
-
-  p {
-    color: #ffffff;
-    font-size: 150%;
-    line-height: 1.7em;
-  }
-
-  .cta {
-    margin-top: 4em;
-    margin-bottom: 2em;
-  }
-
-  .cta-box {
-    background-color: rgba(35, 94, 145, 0.22);
-    color: $conjur-text;
-    border: 0;
-    min-height: 235px;
-
-    .cta-box-header {
-      color: #fff;
-      font-size: 24px;
-      font-weight: 800;
-      padding-bottom: .5em;
-    }
-
-    p {
-      font-size: 16px;
-    }
-
-    a {
-
-      &.conjur-btn {
-        transition: all 0.4s;
-        color: #fff;
-        padding: .5em 1.3em;
-        text-transform: uppercase;
-        font-weight: 500;
-
-        &:hover {
-          text-decoration: none;
-          box-shadow: 0px 0px 5px rgba(23,54,83,0.4);
-        }
-      }
-
-      &.conjur-cta-primary {
-        background-color: $cybr-blue;
-        border: 2px solid $cybr-blue;
-
-        &:hover {
-          background-color: darken($cybr-blue,08);
-          border-color: darken($cybr-blue,08);
-        }
-      }
-
-      &.conjur-cta-secondary {
-        background-color: transparent;
-        border: 2px solid #fff;
-
-        &:hover {
-          background-color: rgba(255,255,255,0.25);
-        }
-      }
-    }
-
-  } // /.cta-box
-
-}
-
-@media (max-width: 767px) {
-  #hero {
-    padding: 1.5em;
-  }
 }
 
 
@@ -510,44 +202,6 @@ pre > code {
 
 
 
-// ***********************
-// Enterprise CTA
-// ***********************
-
-.enterprise-cta {
-  background-color: $conjur-softgray;
-  text-align: center;
-  padding: 1em 0 2.5em 0;
-  margin: 1em -15px;
-
-  h1 {
-    font-size: 35px;
-  }
-
-  h2 {
-    margin: .5em 0;
-  }
-
-  ul {
-    text-align: left;
-    list-style-type: none;
-    li {
-      &:before {
-        content: "\f058";
-        font-family: FontAwesome;
-        margin-right: 10px;
-        margin-left: -24px;
-        font-size: 95%;
-        color: $conjur-teal;
-      }
-    }
-  }
-
-  .row.cta {
-    margin: 1em 0 .5em 0;
-  }
-
-}
 
 
 // ***********************

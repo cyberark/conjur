@@ -1,0 +1,60 @@
+// ***********************
+// Hero
+// ***********************
+
+#hero {
+  background: url("/img/conjur-hero-bg4.svg") no-repeat center center;
+  background-size: cover;
+  color: #ffffff;
+  padding: 3.5em 0;
+  margin-top: -1px;
+
+  .page-title {
+    color: #ffffff;
+    margin-top: 0;
+  }
+
+  .hero-sub {
+    font-size: 22px;
+    line-height: 33px;
+    margin: 0;
+    width: 85%;
+  }
+
+  .cta {
+    margin-top: 3em;
+    margin-bottom: 2em;
+  }
+
+  .card.hero {
+    background-color: rgba(35, 94, 145, 0.22);
+    border: 0;
+    width: 48%;
+    color: #fff;
+  }
+
+}
+
+@media (max-width: 767px) {
+
+  #hero {
+    padding: 1.5em;
+  }
+
+}
+
+@media (max-width: 800px) {
+
+  #hero {
+
+    .card.hero {
+      width: 100%;
+      margin-bottom: 1em;
+    }
+
+    .hero-sub {
+      width: 100%;
+    }
+  }
+
+}
