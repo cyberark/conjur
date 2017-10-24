@@ -176,20 +176,6 @@ $ conjurctl account create myorg
       exec "rake account:delete[#{account}]"
     end
   end
-
-  cgrp.desc "Retrieve an account's API key"
-    cgrp.arg_name 'account'
-    cgrp.command :"retrieve-key" do |c|
-    c.action do |global_options,options,args|
-      exit_now! "Must specify account name" unless args.count == 1
-
-      account = args.shift
-
-      connect
-
-      exec "rake account:retrieve-key[[#{account}]"
-    end
-  end
 end
 
 desc "Manage the database"
