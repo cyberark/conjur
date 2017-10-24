@@ -176,6 +176,20 @@ $ conjurctl account create myorg
       exec "rake account:delete[#{account}]"
     end
   end
+
+  cgrp.desc "Retrieve an account's API key"
+    cgrp.arg_name 'account'
+    cgrp.command :"retrieve-key" do |c|
+    c.action do |global_options,options,args|
+      exit_now! "Must specify account name" unless args.count == 1
+
+      account = args.shift
+
+      connect
+
+      exec "rake account:retrieve-key[[#{account}]"
+    end
+  end
 end
 
 desc "Manage the database"
@@ -188,6 +202,22 @@ command :db do |cgrp|
       connect
       
       exec "rake db:migrate"
+    end
+  end
+end
+
+desc "Manage roles"
+command :role do |cgrp|
+  cgrp.desc "Retrieve a role's API key"
+  cgrp.command :"retrieve-key" do |c|
+    c.action do |global_options,options,args|
+      exit_now! "Must specify role ID" unless args.count == 1
+      
+      role_id = args.shift
+      
+      connect
+      
+      exec "rake role:retrieve-key[#{role_id}]"
     end
   end
 end
