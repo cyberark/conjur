@@ -192,4 +192,20 @@ command :db do |cgrp|
   end
 end
 
+desc "Manage roles"
+command :role do |cgrp|
+  cgrp.desc "Retrieve a role's API key"
+  cgrp.command :"retrieve-key" do |c|
+    c.action do |global_options,options,args|
+      exit_now! "Must specify role ID" unless args.count == 1
+      
+      role_id = args.shift
+      
+      connect
+      
+      exec "rake role:retrieve-key[#{role_id}]"
+    end
+  end
+end
+
 exit run(ARGV)
