@@ -9,7 +9,7 @@ version File.read(File.expand_path("../VERSION", File.dirname(__FILE__)))
 # Attempt to connect to the database.
 def connect
   require 'sequel'
-  
+
   def test_select
     begin
       db = Sequel::Model.db = Sequel.connect(ENV['DATABASE_URL'])
@@ -18,7 +18,7 @@ def connect
       false
     end
   end
-  
+
   30.times do
     break if test_select
     $stderr.write '.'
@@ -26,7 +26,7 @@ def connect
   end
 
   raise "Database is still unavailable. Aborting!" unless test_select
-  
+
   true
 end
 
@@ -35,7 +35,7 @@ command :server do |c|
   c.desc 'Account to initialize'
   c.arg_name 'account'
   c.flag [ :a, :account ]
-    
+
   c.desc 'Policy file to load into the server'
   c.arg_name 'file_name'
   c.flag [ :f, :file ]
@@ -49,9 +49,9 @@ command :server do |c|
   c.default_value ENV['BIND_ADDRESS'] || '0.0.0.0'
   c.arg_name 'address'
   c.flag [ :b, :'bind-address' ]
-  
+
   c.action do |global_options,options,args|
-    exit_now! "No command arguments are allowed" unless args.empty?
+    help_now! unless args.empty?
 
     account = options[:account]
 
@@ -61,12 +61,12 @@ command :server do |c|
     if account
       system "rake account:create[#{account}]" or exit $?.exitstatus
     end
-    
+
     if file_name = options[:file]
       raise "account option is required with file option" unless account
       system "rake policy:load[#{account},#{file_name}]" or exit $?.exitstatus
     end
-    
+
     exec "rails server -p #{options[:port]} -b #{options[:'bind-address']}"
   end
 end
@@ -77,19 +77,19 @@ command :policy do |cgrp|
   cgrp.arg_name "account file_name"
   cgrp.command :load do |c|
     c.action do |global_options,options,args|
-      account = args.shift or exit_now! "Expecting account argument"
-      file_name = args.shift or exit_now! "Expecting file_name argument"
-      exit_now! "No additional command arguments are allowed" unless args.empty?
-  
+      account = args.shift or help_now! "Expecting account argument"
+      file_name = args.shift or help_now! "Expecting file_name argument"
+      help_now! unless args.empty?
+
       connect
 
       exec "rake policy:load[#{account},#{file_name}]"
     end
   end
-  
+
   cgrp.desc "Watch a file and reload the policy if it's modified"
   cgrp.long_desc <<-DESC
-To trigger a reload of the policy, replace the contents of the watched file with the path to 
+To trigger a reload of the policy, replace the contents of the watched file with the path to
 the policy. Of course, the path must be visible to the container which is running "conjurctl watch".
 This can be a separate container from the application server. Both the application server and the
 policy watcher should share the same backing database.
@@ -103,9 +103,9 @@ $ conjurctl watch /run/conjur/policy/load)"
   cgrp.arg_name 'account file_name'
   cgrp.command :watch do |c|
     c.action do |global_options,options,args|
-      account = args.shift or exit_now! "Expecting account argument"
-      file_name = args.shift or exit_now! "Expecting file_name argument"
-      exit_now! "No additional command arguments are allowed" unless args.empty?
+      account = args.shift or help_now! "Expecting account argument"
+      file_name = args.shift or help_now! "Expecting file_name argument"
+      help_now! unless args.empty?
 
       connect
 
@@ -119,8 +119,8 @@ command :"data-key" do |cgrp|
   cgrp.desc "Generate a data encryption key"
   cgrp.long_desc <<-DESC
 Use this command to generate a new Base64-encoded 256 bit data encrytion key.
-Once generated, this key should be placed into the environment of the Conjur 
-server. It will be used to encrypt all sensitive data which is stored in the 
+Once generated, this key should be placed into the environment of the Conjur
+server. It will be used to encrypt all sensitive data which is stored in the
 database, including the token-signing private key.
 
 
@@ -131,8 +131,8 @@ $ export CONJUR_DATA_KEY="$(conjurctl data-key generate)"
   DESC
   cgrp.command :generate do |c|
     c.action do |global_options,options,args|
-      exit_now! "No command arguments are allowed" unless args.empty?
-    
+      help_now! unless args.empty?
+
       exec "rake data-key:generate"
     end
   end
@@ -142,8 +142,8 @@ desc "Manage accounts"
 command :"account" do |cgrp|
   cgrp.desc "Create an organization account"
   cgrp.long_desc <<-DESC
-Use this command to generate and store a new account, along with its 2048-bit RSA private key, 
-used to sign auth tokens, as well as the "admin" user API key. 
+Use this command to generate and store a new account, along with its 2048-bit RSA private key,
+used to sign auth tokens, as well as the "admin" user API key.
 The CONJUR_DATA_KEY must be available in the environment
 when this command is called, since it's used to encrypt the token-signing key
 in the database.
@@ -155,9 +155,9 @@ $ conjurctl account create myorg
   cgrp.arg_name 'account'
   cgrp.command :create do |c|
     c.action do |global_options,options,args|
-      account = args.shift or exit_now! "Expecting account argument"
-      exit_now! "No additional command arguments are allowed" unless args.empty?
-      
+      account = args.shift or help_now! "Expecting account argument"
+      help_now! unless args.empty?
+
       connect
 
       exec "rake account:create[#{account}]"
@@ -168,9 +168,9 @@ $ conjurctl account create myorg
   cgrp.arg_name 'account'
   cgrp.command :delete do |c|
     c.action do |global_options,options,args|
-      account = args.shift or exit_now! "Expecting account argument"
-      exit_now! "No additional command arguments are allowed" unless args.empty?
-      
+      account = args.shift or help_now! "Expecting account argument"
+      help_now! unless args.empty?
+
       connect
 
       exec "rake account:delete[#{account}]"
@@ -183,10 +183,10 @@ command :db do |cgrp|
   cgrp.desc "Create and/or upgrade the database schema"
   cgrp.command :migrate do |c|
     c.action do |global_options,options,args|
-      exit_now! "No command arguments are allowed" unless args.empty?
-      
+      help_now! unless args.empty?
+
       connect
-      
+
       exec "rake db:migrate"
     end
   end
@@ -197,13 +197,13 @@ command :role do |cgrp|
   cgrp.desc "Retrieve a role's API key"
   cgrp.command :"retrieve-key" do |c|
     c.action do |global_options,options,args|
-      exit_now! "Must specify role ID" unless args.count == 1
-      
-      role_id = args.shift
-      
+      help_now! "specify at least one role id" unless args.count > 0
+
       connect
-      
-      exec "rake role:retrieve-key[#{role_id}]"
+
+      args.each do |role_id|
+        print `rake role:retrieve-key[#{role_id}]`
+      end
     end
   end
 end
