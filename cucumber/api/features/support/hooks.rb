@@ -11,7 +11,6 @@ Before do
     end
   end
   
-  Account.find_or_create_accounts_resource
   admin_role = Role.create(role_id: "cucumber:user:admin")
   Credentials.new(role: admin_role).save(raise_on_save_failure: true)
 end

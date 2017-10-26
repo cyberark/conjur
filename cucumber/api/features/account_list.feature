@@ -1,10 +1,11 @@
 Feature: List accounts
 
   The list of accounts, excluding the "!" special account, is available through the
-  API. 
+  API.
 
   Background:
-    Given I create a new user "admin" in account "!"
+    Given the accounts resource exists
+    And I create a new user "admin" in account "!"
     And I permit role "!:user:admin" to "execute" resource "!:webservice:accounts"
     And I login as "!:user:admin"
     Then I successfully POST "/accounts" with body:
@@ -17,7 +18,9 @@ Feature: List accounts
     "read" privilege on "!:webservice:accounts" is required.
 
     The response is a JSON array of account names.
-    Given I create a new user "auditor" in account "!"
+
+    Given the accounts resource exists
+    And I create a new user "auditor" in account "!"
     And I permit role "!:user:auditor" to "read" resource "!:webservice:accounts"
     And I login as "!:user:auditor"
     Then I successfully GET "/accounts"
@@ -29,6 +32,7 @@ Feature: List accounts
 
     Without "read" privilege the request is forbidden.
 
+    Given the accounts resource exists
     When I GET "/accounts"
     Then the HTTP response status code is 403
     And the result is empty
