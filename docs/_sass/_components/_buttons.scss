@@ -32,6 +32,15 @@
     }
   }
 
+  &.tertiary {
+    background-color: $conjur-teal;
+    border: 2px solid $conjur-teal;
+    &:hover {
+      background-color: darken($conjur-teal,08);
+      border-color: darken($conjur-teal,08);
+    }
+  }
+
   &.outline {
     background-color: transparent;
     border: 2px solid #fff;
@@ -39,4 +48,5 @@
       background-color: darken($conjur-teal,08);
     }
   }
+  
 }
