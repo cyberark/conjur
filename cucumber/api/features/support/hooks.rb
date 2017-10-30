@@ -32,7 +32,7 @@ Transform /@[\w_]+@/ do |item|
   @host_factory_token ||= DummyToken.new(@result[0]['token'], Time.parse(@result[0]['expiration'])) rescue nil
   
   if @host_factory_token
-    item = item.gsub "@host_factory_token_expiration@", @host_factory_token.expiration.iso8601
+    item = item.gsub "@host_factory_token_expiration@", @host_factory_token.expiration.utc.iso8601
     item = item.gsub "@host_factory_token_token@", @host_factory_token.token
   end
   item

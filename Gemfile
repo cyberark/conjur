@@ -20,7 +20,7 @@ gem 'base32-crockford'
 gem 'activesupport'
 gem 'bcrypt-ruby', '~> 3.0.0'
 gem 'random_password_generator', '= 1.0.0'
-gem 'slosilo', '>=2.0.0'
+gem 'slosilo', '~> 2.1'
 gem 'listen'
 gem 'gli', require: false
 
@@ -29,7 +29,7 @@ gem 'gli', require: false
 gem 'ruby_dep', '= 1.3.1'
 
 gem 'conjur-api', github: 'cyberark/api-ruby'
-gem 'conjur-rack', github: 'conjurinc/conjur-rack'
+gem 'conjur-rack', '~> 3.1'
 gem 'conjur-rack-heartbeat'
 gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'possum'
 gem 'rack-rewrite'

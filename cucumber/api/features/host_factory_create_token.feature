@@ -16,7 +16,7 @@ Feature: Create a host factory token.
     [
       {
         "cidr": [],
-        "expiration": "2050-12-31T00:00:00+00:00",
+        "expiration": "2050-12-31T00:00:00Z",
         "token": "@host_factory_token_token@"
       }
     ]
