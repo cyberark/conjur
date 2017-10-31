@@ -71,6 +71,7 @@ end
 
 group :website do
   gem 'jekyll', group: :jekyll_plugins
+  gem 'jekyll-livereload', group: :jekyll_plugins
   gem 'jekyll-coffeescript'
   gem 'jekyll-paginate'
   gem 'jekyll-redirect-from'
