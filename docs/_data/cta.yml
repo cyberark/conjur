@@ -53,18 +53,6 @@ hosted:
 
 cta1:
   type: Webinar
-  title: Orchestrating Trust in Your DevOps Pipeline
-  text: ""
-  text-secondary: October 26 / 11AM EST
-  link:
-    button:
-      button-text: Register
-      class: tertiary
-      target: _blank
-      url: https://pages.cloudbees.com/orchestratingtrust-devops-pipeline-webinar-registration
-
-cta2:
-  type: Webinar
   title: Delivering Infrastructure and Security Policy as Code with Puppet and CyberArk Conjur
   text: ""
   text-secondary: November 8 / 11AM EST
@@ -74,3 +62,15 @@ cta2:
       class: tertiary
       target: _blank
       url: https://www.cyberark.com/puppet-technical-partner-series/
+
+cta2:
+  type: Webinar
+  title: Best Practices for Securing Containerised Applications
+  text: ""
+  text-secondary: November 30
+  link:
+    button:
+      button-text: Register
+      class: tertiary
+      target: _blank
+      url: https://www.isc2.org/News-and-Events/Webinars/EMEA-Webinars/Focused-Webinars?commid=287129&cyberark
