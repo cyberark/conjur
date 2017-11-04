@@ -2,10 +2,12 @@ namespace :role do
   desc "Retrieve the API key for the given role"
   task :"retrieve-key", [:role_id] => [:environment] do |t, args|
     begin
-      creds = Credentials.first!(role_id: args[:role_id])
-      puts creds.api_key
+      role = Role.first!(role_id: args[:role_id])
+      puts role.api_key
     rescue Sequel::NoMatchingRow
-      $stderr.puts "error: #{args[:role_id]} is not a role"
+      # If no such role exists, print an error to stderr and a blank line to
+      # stdout so that you always get one line of output per role.
+      $stderr.puts "error: role does not exist: #{args[:role_id]}"
       puts
       exit 1
     end
