@@ -3,8 +3,9 @@ require 'gli'
 include GLI::App
 
 program_desc "Command and control application for Conjur"
-
 version File.read(File.expand_path("../VERSION", File.dirname(__FILE__)))
+arguments :strict
+subcommand_option_handling :normal
 
 # Attempt to connect to the database.
 def connect
@@ -33,25 +34,24 @@ end
 desc 'Run the application server'
 command :server do |c|
   c.desc 'Account to initialize'
-  c.arg_name 'account'
+  c.arg :account
   c.flag [ :a, :account ]
 
   c.desc 'Policy file to load into the server'
-  c.arg_name 'file_name'
+  c.arg :file_name
   c.flag [ :f, :file ]
 
   c.desc 'Server listen port'
-  c.arg_name 'port'
+  c.arg :port
   c.default_value ENV['PORT'] || '80'
   c.flag [ :p, :port ]
 
   c.desc 'Server bind address'
   c.default_value ENV['BIND_ADDRESS'] || '0.0.0.0'
-  c.arg_name 'address'
+  c.arg :address
   c.flag [ :b, :'bind-address' ]
 
   c.action do |global_options,options,args|
-    help_now! unless args.empty?
 
     account = options[:account]
 
@@ -73,17 +73,18 @@ end
 
 desc "Manage the policy"
 command :policy do |cgrp|
-  cgrp.desc "Load the policy from a file"
-  cgrp.arg_name "account file_name"
+  cgrp.desc "Load MAML policy from file(s)"
+  cgrp.arg :account
+  cgrp.arg_name "filename"
+  cgrp.arg :file_name, :multiple
   cgrp.command :load do |c|
     c.action do |global_options,options,args|
-      account = args.shift or help_now! "Expecting account argument"
-      file_name = args.shift or help_now! "Expecting file_name argument"
-      help_now! unless args.empty?
-
+      account, *file_names = args
       connect
 
-      exec "rake policy:load[#{account},#{file_name}]"
+      file_names.each do |file_name|
+        exec "rake policy:load[#{account},#{file_name}]"
+      end
     end
   end
 
@@ -100,13 +101,13 @@ Example:
 
 $ conjurctl watch /run/conjur/policy/load)"
   DESC
-  cgrp.arg_name 'account file_name'
+
+  cgrp.arg :account
+  cgrp.arg_name "filename"
+  cgrp.arg :file_name
   cgrp.command :watch do |c|
     c.action do |global_options,options,args|
-      account = args.shift or help_now! "Expecting account argument"
-      file_name = args.shift or help_now! "Expecting file_name argument"
-      help_now! unless args.empty?
-
+      account, file_name = args
       connect
 
       exec "rake policy:watch[#{account},#{file_name}]"
@@ -131,15 +132,13 @@ $ export CONJUR_DATA_KEY="$(conjurctl data-key generate)"
   DESC
   cgrp.command :generate do |c|
     c.action do |global_options,options,args|
-      help_now! unless args.empty?
-
       exec "rake data-key:generate"
     end
   end
 end
 
 desc "Manage accounts"
-command :"account" do |cgrp|
+command :account do |cgrp|
   cgrp.desc "Create an organization account"
   cgrp.long_desc <<-DESC
 Use this command to generate and store a new account, along with its 2048-bit RSA private key,
@@ -152,12 +151,10 @@ Example:
 
 $ conjurctl account create myorg
   DESC
-  cgrp.arg_name 'account'
+  cgrp.arg :account
   cgrp.command :create do |c|
     c.action do |global_options,options,args|
-      account = args.shift or help_now! "Expecting account argument"
-      help_now! unless args.empty?
-
+      account = args.first
       connect
 
       exec "rake account:create[#{account}]"
@@ -165,12 +162,10 @@ $ conjurctl account create myorg
   end
 
   cgrp.desc "Delete an organization account"
-  cgrp.arg_name 'account'
+  cgrp.arg :account
   cgrp.command :delete do |c|
     c.action do |global_options,options,args|
-      account = args.shift or help_now! "Expecting account argument"
-      help_now! unless args.empty?
-
+      account=args.first
       connect
 
       exec "rake account:delete[#{account}]"
@@ -183,7 +178,6 @@ command :db do |cgrp|
   cgrp.desc "Create and/or upgrade the database schema"
   cgrp.command :migrate do |c|
     c.action do |global_options,options,args|
-      help_now! unless args.empty?
 
       connect
 
@@ -195,14 +189,14 @@ end
 desc "Manage roles"
 command :role do |cgrp|
   cgrp.desc "Retrieve a role's API key"
+  cgrp.arg :role_id, :multiple
   cgrp.command :"retrieve-key" do |c|
     c.action do |global_options,options,args|
-      help_now! "specify at least one role id" unless args.count > 0
 
       connect
 
-      args.each do |role_id|
-        print `rake role:retrieve-key[#{role_id}]`
+      args.each do |id|
+        print `rake role:retrieve-key[#{id}]`
       end
     end
   end
