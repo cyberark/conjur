@@ -53,18 +53,6 @@ hosted:
 
 cta1:
   type: Webinar
-  title: Delivering Infrastructure and Security Policy as Code with Puppet and CyberArk Conjur
-  text: ""
-  text-secondary: November 8 / 11AM EST
-  link:
-    button:
-      button-text: Register
-      class: tertiary
-      target: _blank
-      url: https://www.cyberark.com/puppet-technical-partner-series/
-
-cta2:
-  type: Webinar
   title: Best Practices for Securing Containerised Applications
   text: ""
   text-secondary: November 30
@@ -74,3 +62,15 @@ cta2:
       class: tertiary
       target: _blank
       url: https://www.isc2.org/News-and-Events/Webinars/EMEA-Webinars/Focused-Webinars?commid=287129&cyberark
+
+cta2:
+  type: Survey
+  title: CyberArk Global Threat Landscape Survey – FOCUS ON DEVOPS
+  text: ""
+  text-secondary: Only 25% of security professionals report that their organization has a secrets management strategy for DevOps
+  link:
+    button:
+      button-text: Download
+      class: tertiary
+      target: _blank
+      url: https://www.cyberark.com/THREAT-LANDSCAPE-SURVEY-2018-FOCUS-ON-DEVOPS/ 
