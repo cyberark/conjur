@@ -34,21 +34,21 @@ end
 desc 'Run the application server'
 command :server do |c|
   c.desc 'Account to initialize'
-  c.arg :account
+  c.arg_name :name
   c.flag [ :a, :account ]
 
   c.desc 'Policy file to load into the server'
-  c.arg :file_name
+  c.arg_name :path
   c.flag [ :f, :file ]
 
   c.desc 'Server listen port'
-  c.arg :port
+  c.arg_name :port
   c.default_value ENV['PORT'] || '80'
   c.flag [ :p, :port ]
 
   c.desc 'Server bind address'
   c.default_value ENV['BIND_ADDRESS'] || '0.0.0.0'
-  c.arg :address
+  c.arg_name :ip
   c.flag [ :b, :'bind-address' ]
 
   c.action do |global_options,options,args|
@@ -75,16 +75,15 @@ desc "Manage the policy"
 command :policy do |cgrp|
   cgrp.desc "Load MAML policy from file(s)"
   cgrp.arg :account
-  cgrp.arg_name "filename"
-  cgrp.arg :file_name, :multiple
+  cgrp.arg :filename, :multiple
   cgrp.command :load do |c|
     c.action do |global_options,options,args|
       account, *file_names = args
       connect
 
-      file_names.each do |file_name|
-        exec "rake policy:load[#{account},#{file_name}]"
-      end
+      file_names.map { |file_name|
+        system "rake policy:load[#{account},#{file_name}]"
+      }.all?
     end
   end
 
@@ -103,8 +102,7 @@ $ conjurctl watch /run/conjur/policy/load)"
   DESC
 
   cgrp.arg :account
-  cgrp.arg_name "filename"
-  cgrp.arg :file_name
+  cgrp.arg :filename
   cgrp.command :watch do |c|
     c.action do |global_options,options,args|
       account, file_name = args
@@ -195,9 +193,9 @@ command :role do |cgrp|
 
       connect
 
-      args.each do |id|
+      args.map { |id|
         print `rake role:retrieve-key[#{id}]`
-      end
+      }.all?
     end
   end
 end
