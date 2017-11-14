@@ -81,7 +81,7 @@ command :policy do |cgrp|
       account, *file_names = args
       connect
 
-      file_names.map { |file_name|
+      fail unless file_names.map { |file_name|
         system "rake policy:load[#{account},#{file_name}]"
       }.all?
     end
@@ -193,8 +193,8 @@ command :role do |cgrp|
 
       connect
 
-      args.map { |id|
-        print `rake role:retrieve-key[#{id}]`
+      fail unless args.map { |id|
+        system "rake role:retrieve-key[#{id}]"
       }.all?
     end
   end
