@@ -9,7 +9,7 @@
   text-transform: uppercase;
   font-weight: 500;
 
-  &:hover {
+  &:hover, &:focus {
     text-decoration: none;
     color: #fff;
     box-shadow: 0px 0px 5px rgba(165,165,165,0.8);
@@ -48,5 +48,5 @@
       background-color: darken($conjur-teal,08);
     }
   }
-  
+
 }
