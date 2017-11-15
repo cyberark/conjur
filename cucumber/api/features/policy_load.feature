@@ -1,7 +1,7 @@
 Feature: Updating policies
 
-  The initial policy is loaded using the `possum` command line tool, typically running as a one-off container
-  command inside the container itself.
+  The initial policy is loaded using the `conjurctl` command line tool,
+  typically running as a one-off container command inside the container itself.
 
   The initial policy create sub-policies which can be modified by privileged users.
 

@@ -41,6 +41,15 @@ When(/^I( (?:can|successfully))? GET "([^"]*)" with username "([^"]*)" and passw
   end
 end
 
+When(/^I( (?:can|successfully))? PUT "([^"]*)" with body from file "([^"]*)"/) do |can, path, filename|
+  absolute_path = "#{File.dirname __FILE__}/../support/#{filename}"
+  File.open(absolute_path) do |file|
+    try_request can do
+      post_json path, file.read
+    end
+  end
+end
+
 When(/^I( (?:can|successfully))? POST "([^"]*)"(?: with plain text body "([^"]*)")?$/) do |can, path, body|
   try_request can do
     post_json path, body

@@ -7,6 +7,8 @@ Deletions are not allowed. Any policy objects that exist on the server but
 are omitted from the policy file will not be deleted and any explicit deletions in
 the policy file will result in an error.
 
+<!-- include(partials/policy_size_restriction) -->
+
 **Permissions required**
 
 `create` privilege on the policy.
