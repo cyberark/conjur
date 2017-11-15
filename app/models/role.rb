@@ -44,7 +44,7 @@ class Role < Sequel::Model
     end
     
     def username_from_roleid roleid
-      account, kind, id = roleid.split(":", 3)
+      _, kind, id = roleid.split(":", 3)
       if kind == 'user'
         id
       else
@@ -61,7 +61,7 @@ class Role < Sequel::Model
   
   def api_key
     unless self.credentials
-      account, kind, id = self.id.split(":", 3)
+      _, kind, id = self.id.split(":", 3)
       if %w(user host deputy).member?(kind)
         self.credentials = Credentials.create(role: self)
       else
