@@ -81,7 +81,7 @@ command :policy do |cgrp|
       account, *file_names = args
       connect
 
-      fail unless file_names.map { |file_name|
+      fail 'policy load failed' unless file_names.map { |file_name|
         system "rake policy:load[#{account},#{file_name}]"
       }.all?
     end
@@ -163,7 +163,7 @@ $ conjurctl account create myorg
   cgrp.arg :account
   cgrp.command :delete do |c|
     c.action do |global_options,options,args|
-      account=args.first
+      account = args.first
       connect
 
       exec "rake account:delete[#{account}]"
@@ -193,7 +193,7 @@ command :role do |cgrp|
 
       connect
 
-      fail unless args.map { |id|
+      fail 'key retrieval failed' unless args.map { |id|
         system "rake role:retrieve-key[#{id}]"
       }.all?
     end
