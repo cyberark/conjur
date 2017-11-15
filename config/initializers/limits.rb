@@ -6,3 +6,7 @@ end
 # Max size of policies that can be loaded (or data sent to POST endpoints in
 # general)
 Rack::Utils.key_space_limit = 1048576 * 10 # 10 MiB
+
+# This sets the default size of a Rack::Utils::KeySpaceConstrainedParam, which
+# is the type of the body of a policy load API request.
+# http://www.rubydoc.info/gems/rack/1.6.2/Rack/Utils/KeySpaceConstrainedParams
