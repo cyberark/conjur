@@ -41,3 +41,4 @@ api.html
 /public/stylesheets/*
 /public/assets/*
 *~
+/docs/tutorials/integrations/nginx/test.out
