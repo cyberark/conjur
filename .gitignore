@@ -32,6 +32,8 @@ apidocs/node_modules
 docs/apidocs.html
 *.config
 docs/_layouts/page-toc.html
+/docs/tutorials/integrations/nginx/tls/nginx.crt
+/docs/tutorials/integrations/nginx/tls/nginx.key
 api.html
 
 # Generated js bundles
