@@ -1,8 +1,8 @@
 ---
-title: Tutorial - Nginx Proxy
+title: Tutorial - NGINX Proxy
 layout: page
 section: tutorials
-description: Conjur Tutorial - Nginx
+description: Conjur Tutorial - NGINX
 ---
 
 If you're deploying Conjur in production, you need to set up Transport Layer
@@ -32,7 +32,7 @@ is called a **man in the middle attack**.
 
 Even if I'm not able to impersonate the Conjur server, I could still learn your
 secrets by joining your network and listening for traffic coming and going from
-the Conjur server. This is called **passive survillance**.
+the Conjur server. This is called **passive surveillance**.
 
 ### TLS defeats passive and active attacks
 
@@ -56,17 +56,17 @@ Do not leave this to chance: even a small flaw can totally compromise your
 secrets. Setting up Conjur and TLS without the appropriate expertise is like
 packing your own parachute and jumping out of a plane.
 
-That doesn't mean you shoud close the tab and walk away. It means you should get
+That doesn't mean you should close the tab and walk away. It means you should get
 in touch with us and your own security team so we can ensure that you can employ
 Conjur successfully.
 
 [authn]: https://www.conjur.org/api.html#authentication-authenticate-post
 [secret-get]: https://www.conjur.org/api.html#secrets-retrieve-a-secret-get
 
-## Using Nginx To Proxy Traffic With TLS To Conjur
+## Using NGINX To Proxy Traffic With TLS To Conjur
 
-[Nginx][nginx] is a web proxy that's Free Software and easy to configure. This
-tutorial will show you how to use Docker to install Conjur and Nginx and
+[NGINX][NGINX] is a web proxy that's Free Software and easy to configure. This
+tutorial will show you how to use Docker to install Conjur and NGINX and
 configure them to provide Conjur with TLS.
 
 ### Prerequisites
@@ -80,7 +80,7 @@ repository. Here's how you get them:
 1. Install Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 1. Clone the Conjur repository
    
-   In your terminal applicaton, run:
+   In your terminal application, run:
    ```sh-session
    $ git clone git@github.com:cyberark/conjur.git
    ```
@@ -88,18 +88,18 @@ repository. Here's how you get them:
 
 ### The Good Part
 
-The tutorial script will install Conjur and Nginx, configure them to work
+The tutorial script will install Conjur and NGINX, configure them to work
 together, and connect a Conjur client to the running server. This is a full
 end-to-end working installation to allow you to see how the pieces connect
 together.
 
 ```sh-session
-$ # start the Conjur+nginx tutorial servers
+$ # start the Conjur+NGINX tutorial servers
 $ cd conjur/docs/tutorials/integrations/nginx
 $ ./start.sh
 ```
 
-Take a look at the logs for the Conjur or nginx servers:
+Take a look at the logs for the Conjur or NGINX servers:
 
 ```sh-session
 $ docker-compose logs conjur
@@ -117,7 +117,7 @@ $ docker-compose exec client bash
 These files show how the proxy setup works:
 
 * `docker-compose.yml` declares services and the connections between them
-* `default.conf` configures nginx to use a self-signed certificate for TLS and
+* `default.conf` configures NGINX to use a self-signed certificate for TLS and
   sets up a proxy to Conjur
 * `tls/tls.conf` sets the parameters of the self-signed certificate
 * `start.sh` shows the installation flow
@@ -128,8 +128,8 @@ In production, don't use a self-signed certificate. It's better than nothing,
 but it's not a sustainable security practice because you're going to have to
 manually verify that you're not talking to a man in the middle.
 
-Instead, ask your secuirty team to provide a certificate signed by a trusted
+Instead, ask your security team to provide a certificate signed by a trusted
 root and modify `default.conf` to use that certificate instead.
 
-[nginx]: https://www.nginx.com
+[NGINX]: https://www.nginx.com
 [prerequisites]: /get-started/install-conjur.html#prerequisites
