@@ -88,10 +88,12 @@ repository. Here's how you get them:
 
 ### The Good Part
 
+To start out our experience on a high note, let's get the full Conjur+TLS stack
+up and running so we can inspect it.
+
 The tutorial script will install Conjur and NGINX, configure them to work
 together, and connect a Conjur client to the running server. This is a full
-end-to-end working installation to allow you to see how the pieces connect
-together.
+end-to-end working installation to allow you to see how the pieces fit.
 
 ```sh-session
 $ # start the Conjur+NGINX tutorial servers
@@ -102,6 +104,7 @@ $ ./start.sh
 Take a look at the logs for the Conjur or NGINX servers:
 
 ```sh-session
+$ # in the 'nginx' directory we navigated to previously:
 $ docker-compose logs conjur
 $ docker-compose logs proxy
 ```
@@ -109,14 +112,94 @@ $ docker-compose logs proxy
 Run some commands in the Conjur client:
 
 ```sh-session
+$ # in the 'nginx' directory we navigated to previously:
 $ docker-compose exec client bash
 # conjur authn whoami
 # conjur list
 ```
 
+## Breaking Down the Tutorial
+
 These files show how the proxy setup works:
 
-* `docker-compose.yml` declares services and the connections between them
+### docker-compose.yml
+
+This file declares services to be used in the tutorial. Let's break down each declaration:
+
+```yaml
+database:
+  image: postgres:9.3
+```
+
+Conjur requires a Postgres database to store encrypted secrets and other data.
+This service uses the [official Postgres image][postgres-image] from DockerHub.
+
+```yaml
+conjur:
+  image: cyberark/conjur
+  command: server
+  environment:
+    DATABASE_URL: postgres://postgres@database/postgres
+    CONJUR_DATA_KEY:
+  depends_on: [ database ]
+```
+
+The Conjur service uses the image provided by CyberArk, connected to the
+database service we just defined. The empty `CONJUR_DATA_KEY` field means that
+Docker will pull that value in from the local environment. (Note later on that
+in the tutorial script we export this value.)
+
+Note also what's **not** present in these first two service definitions: exposed
+ports. These services are only accessible on the local private Docker network,
+not to the Internet or to the Local Area Network (LAN).
+
+```yaml
+proxy:
+  image: nginx:1.13.6-alpine
+  ports:
+    - "443:443"
+  volumes:
+    - ./default.conf:/etc/nginx/conf.d/default.conf:ro
+    - ./tls/nginx.key:/etc/nginx/nginx.key:ro
+    - ./tls/nginx.crt:/etc/nginx/nginx.crt:ro
+  depends_on: [ conjur ]
+```
+
+The proxy service uses the [official NGINX image][nginx-image] from DockerHub.
+It depends on the Conjur service, connecting using the local private Docker
+network. Unlike the Conjur or database services, it exposes a port (443, the
+standard port for HTTPS connections) to the Internet. This will serve as the TLS
+gateway for Conjur.
+
+This service defines three volumes: the NGINX config file, a self-signed
+certificate, and a private key related to the certificate. Explanation of those
+files follows below. The files are made accessible from the local filesystem for
+read-only access by the container.
+
+```yaml
+client:
+  image: conjurinc/cli5
+  depends_on: [ proxy ]
+  entrypoint: sleep
+  command: infinity
+```
+
+This service uses the `cli5` image with Conjur CLI pre-installed for convenient
+tinkering. It is connected to the proxy service, allowing it to access Conjur
+via TLS.
+
+The "sleep" and "infinity" bits ensure that this container stays up for the
+duration of the demo. Without these options, the `conjurinc/cli5` images gives
+you an ephemeral stateless Conjur container that performs a single command and
+exits, a desirable behavior for common ops use cases.
+
+[postgres-image]: https://hub.docker.com/_/postgres/
+[nginx-image]: https://hub.docker.com/_/nginx/
+
+### default.conf
+
+TODO describe more
+
 * `default.conf` configures NGINX to use a self-signed certificate for TLS and
   sets up a proxy to Conjur
 * `tls/tls.conf` sets the parameters of the self-signed certificate

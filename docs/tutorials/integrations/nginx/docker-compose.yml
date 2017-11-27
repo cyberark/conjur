@@ -17,8 +17,8 @@ services:
       - "443:443"
     volumes:
       - ./default.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./tls/nginx.key:/etc/nginx/nginx.key
-      - ./tls/nginx.crt:/etc/nginx/nginx.crt
+      - ./tls/nginx.key:/etc/nginx/nginx.key:ro
+      - ./tls/nginx.crt:/etc/nginx/nginx.crt:ro
     depends_on: [ conjur ]
 
   client:
