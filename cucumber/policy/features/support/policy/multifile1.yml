@@ -1,0 +1,11 @@
+- !group
+  id: security-admin
+  owner: !user admin
+
+- !group
+  id: developers-admin
+  owner: !group security-admin
+
+- !group
+  id: developers
+  owner: !group developers-admin

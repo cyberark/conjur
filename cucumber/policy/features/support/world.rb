@@ -15,7 +15,7 @@ end
 
 module PossumWorld
   include FullId
-  
+
   attr_reader :result
 
   def invoke status: :ok, &block
@@ -42,7 +42,7 @@ module PossumWorld
   def extend_root_policy policy
     conjur_api.load_policy "root", policy, method: Conjur::API::POLICY_METHOD_POST
   end
-  
+
   def load_policy id, policy
     conjur_api.load_policy id, policy, method: Conjur::API::POLICY_METHOD_PUT
   end
@@ -54,11 +54,18 @@ module PossumWorld
   def extend_policy id, policy
     conjur_api.load_policy id, policy, method: Conjur::API::POLICY_METHOD_POST
   end
-  
+
+  def load_policy_from_file policy_file
+    dir = File.expand_path('policy', File.dirname(__FILE__))
+    Dir.chdir dir do
+      open(policy_file).read
+    end
+  end
+
   def make_full_id *tokens
     super tokens.join(":")
   end
-  
+
   def conjur_api
     login_as_role 'admin', admin_api_key unless @conjur_api
     @conjur_api
@@ -67,7 +74,7 @@ module PossumWorld
   def admin_api_key
     @admin_api_key ||= Conjur::API.login 'admin', admin_password
   end
-  
+
   def admin_password
     ENV['CONJUR_AUTHN_PASSWORD'] || 'admin'
   end
