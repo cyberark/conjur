@@ -26,6 +26,7 @@ module PossumWorld
         puts result if @echo
       end
     rescue RestClient::Exception => e
+      expect(e.http_code).to eq(status) if status.is_a? Integer
       @result = e.response.body
     end
   end

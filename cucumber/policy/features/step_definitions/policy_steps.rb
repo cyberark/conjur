@@ -43,6 +43,4 @@ Given(/^I try to load a policy with an unresolvable reference:$/) do |policy|
   invoke status: 404 do
     load_root_policy policy
   end
-  expect(json_result).to have_key('error')
-  @error = @result['error']
 end
