@@ -69,10 +69,14 @@ Conjur successfully.
 tutorial will show you how to use Docker to install Conjur and NGINX and
 configure them to provide Conjur with TLS.
 
+[NGINX]: https://www.nginx.com
+
 ### Prerequisites
 
 This tutorial requires Docker and a terminal application. Prepare by following
 the prerequisite instructions found on [Install Conjur][prerequisites].
+
+[prerequisites]: /get-started/install-conjur.html#prerequisites
 
 Additionally, you will need the tutorial files from the Conjur source code
 repository. Here's how you get them:
@@ -120,7 +124,14 @@ $ docker-compose exec client bash
 
 ## Breaking Down the Tutorial
 
-These files show how the proxy setup works:
+These files show how the proxy setup works. Note that, while this tutorial uses
+Docker and NGINX, there's nothing technically important about using those
+particular technologies or even about using containers at all. You can replicate
+the same strategy using a different endpoint such as [HAProxy][haproxy-tls] and
+services that are run in VMs or on bare metal. For the purpose of a tutorial
+that can conveniently run on a laptop, we provide this setup:
+
+[haproxy-tls]: https://www.haproxy.com/documentation/aloha/7-0/haproxy/tls/
 
 ### docker-compose.yml
 
@@ -198,14 +209,49 @@ exits, a desirable behavior for common ops use cases.
 
 ### default.conf
 
-TODO describe more
+This configuration file tells NGINX how to use TLS and behave as a proxy for
+Conjur.
 
-* `default.conf` configures NGINX to use a self-signed certificate for TLS and
-  sets up a proxy to Conjur
-* `tls/tls.conf` sets the parameters of the self-signed certificate
-* `start.sh` shows the installation flow
+```nginx
+listen              443 ssl;
+server_name         proxy;
+access_log          /var/log/nginx/access.log;
+```
 
-### About that self-signed certificate
+This block sets up a few basic properties of the NGINX server. Its hostname is
+`proxy`, it listens on the standard port for HTTPS (port 443) and it has a
+location for its access logs, useful for monitoring traffic.
+
+```nginx
+ssl_certificate     /etc/nginx/nginx.crt;
+ssl_certificate_key /etc/nginx/nginx.key;
+```
+
+This block gives NGINX its directions on how to perform TLS. ("ssl" is a name
+for an older standard for TLS and is still often used synomymously.)
+
+The `certificate` is a public key, and the `certificate_key` is the
+corresponding private key. NGINX maintains [documentation][nginx-https] about
+how to configure the server for HTTPS, including production optmization
+guidelines and the values of many default settings, so that is worth reading.
+
+[nginx-https]: https://nginx.org/en/docs/http/configuring_https_servers.html
+
+```nginx
+location / {
+  proxy_pass http://conjur;
+}
+```
+
+This part instructs NGINX to proxy incoming traffic (secured by TLS) through to
+the Conjur server.
+
+### tls/tls.conf
+
+This file describes to `openssl` what options to use when generating a
+self-signed certificate. This allows you to use TLS in testing and staging, but
+it does not allow clients to automatically authenticate the identity of the
+Conjur server.
 
 In production, don't use a self-signed certificate. It's better than nothing,
 but it's not a sustainable security practice because you're going to have to
@@ -214,5 +260,46 @@ manually verify that you're not talking to a man in the middle.
 Instead, ask your security team to provide a certificate signed by a trusted
 root and modify `default.conf` to use that certificate instead.
 
-[NGINX]: https://www.nginx.com
-[prerequisites]: /get-started/install-conjur.html#prerequisites
+Let's look at what parts you might modify:
+
+```ini
+[ dn ]
+C=US
+ST=Wisconsin
+L=Madison
+O=CyberArk
+OU=Onyx
+CN=proxy
+```
+
+This block describes the distinguished name of the certificate using the
+(C)ountry, (ST)ate, (L)ocation, (O)rganization, (O)rganizational (U)nit, and
+(C)ommon (N)ame. You'll want to change all these to suit your own organization.
+
+```ini
+[ alt_names ]
+DNS.1 = localhost
+DNS.2 = proxy
+IP.1 = 127.0.0.1
+```
+
+This block describes the names by which the server will be known, including its
+hostnames and IP addresses. You'll want to modify it to match the hostnames and
+IP addresses you use.
+
+### start.sh
+
+Here's the outline of the tutorial flow. Read through the file to see what it
+does to accomplish each step.
+
+* Pull required containers from Docker Hub
+* Remove containers, certs and keys created in earlier tutorial runs (if any)
+* Create a self-signed certificate and key for TLS
+* Generate a data key for Conjur encryption of data at rest
+  - Move this key to a safe place before deploying in production!
+* Start services and wait a little while for them to become responsive
+* Create a new account in Conjur and fetch its API key
+  - [Rotate the admin's API key][rotate-api-key] regularly!
+* Configure the Conjur client and log in as admin
+
+[rotate-api-key]: https://www.conjur.org/api.html#authentication-rotate-an-api-key
