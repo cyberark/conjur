@@ -4,6 +4,26 @@
   <div class="col-md-8">
     <h1 class="page-title">Status</h1>
     <p class="font-large">Your Conjur CE server is running!</p>
+    <h2>Security Check:</h2>
+    <p>
+      Does your browser show a green lock icon on the left side of the address bar?
+      <ul>
+        <li>Green lock: good, Conjur is secured and authenticated.</li>
+        <li>
+          Yellow lock: ok, Conjur is secured but not authenticated. Send your
+          Conjur admin to the
+          <a href="https://conjur.org/tutorials/integrations/nginx.html">Conjur+TLS guide</a>
+          to learn how to get the green lock.
+        </li>
+        <li>
+          Red broken lock or no lock: Conjur is insecure. Don't put any secrets
+          in there yet! Visit the
+          <a href="https://conjur.org/tutorials/integrations/nginx.html">Conjur+TLS guide</a>
+          to learn how to deploy Conjur securely &
+          <a href="https://conjur.org/support.html">contact CyberArk</a>
+          with any questions.
+        </li>
+    </p>
   </div>
   <div class="col-md-4">
     <strong>Details:</strong>
