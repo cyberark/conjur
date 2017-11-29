@@ -208,8 +208,8 @@ gateway for Conjur.
 
 This service defines three volumes: the NGINX config file, a self-signed
 certificate, and a private key related to the certificate. Explanation of those
-files follows below. The files are made accessible from the local filesystem for
-read-only access by the container.
+files follows below. The files are made accessible from the local file system
+for read-only access by the container.
 
 #### Production tip
 
@@ -221,7 +221,7 @@ deployments.
 You can use your own certificate here by providing it to the container as a
 volume. This allows your clients to verify that they are talking to the
 authentic Conjur server. Your security team can provide certificates for your
-organization, or you can create a certificate for any domain or subdomain you
+organization, or you can create a certificate for any domain or sub-domain you
 control with [certbot][certbot], which uses [Let's Encrypt][lets-encrypt] to
 provide certificates for no cost.
 
@@ -273,11 +273,11 @@ ssl_certificate_key /etc/nginx/nginx.key;
 ```
 
 This block gives NGINX its directions on how to perform TLS. ("ssl" is a name
-for an older standard for TLS and is still often used synomymously.)
+for an older standard for TLS and is still often used interchangeably.)
 
 The `certificate` is a public key, and the `certificate_key` is the
 corresponding private key. NGINX maintains [documentation][nginx-https] about
-how to configure the server for HTTPS, including production optmization
+how to configure the server for HTTPS, including production optimization
 guidelines and the values of many default settings, so that is worth reading.
 
 [nginx-https]: https://nginx.org/en/docs/http/configuring_https_servers.html
