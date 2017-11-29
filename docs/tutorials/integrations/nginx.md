@@ -135,11 +135,11 @@ network and proxying the traffic through to Conjur.
 ## Breaking Down the Tutorial
 
 These files show how the proxy setup works. Note that, while this tutorial uses
-Docker and NGINX, there's nothing technically important about using those
-particular technologies or even about using containers at all. You can replicate
-the same strategy using a different endpoint such as [HAProxy][haproxy-tls] and
-services that are run in VMs or on bare metal. For the purpose of a tutorial
-that can conveniently run on a laptop, we provide this setup:
+Docker containers and NGINX, there's nothing magic about those technologies. You
+can replicate the same strategy using a different endpoint such as
+[HAProxy][haproxy-tls] and services that run in virtual machines or on bare
+metal. To create a tutorial that can run as conveniently on a laptop as in the
+cloud, we provide this setup.
 
 [haproxy-tls]: https://www.haproxy.com/documentation/aloha/7-0/haproxy/tls/
 
@@ -192,7 +192,7 @@ not to the Internet or to the Local Area Network (LAN).
 proxy:
   image: nginx:1.13.6-alpine
   ports:
-    - "443:443"
+    - "8443:443"
   volumes:
     - ./default.conf:/etc/nginx/conf.d/default.conf:ro
     - ./tls/nginx.key:/etc/nginx/nginx.key:ro
@@ -211,7 +211,7 @@ certificate, and a private key related to the certificate. Explanation of those
 files follows below. The files are made accessible from the local file system
 for read-only access by the container.
 
-#### Production tip
+#### Production tips
 
 For the convenience of a tutorial, we automatically generate a self-signed
 certificate and provide it to the proxy service. For reasons that are described
@@ -224,6 +224,11 @@ authentic Conjur server. Your security team can provide certificates for your
 organization, or you can create a certificate for any domain or sub-domain you
 control with [certbot][certbot], which uses [Let's Encrypt][lets-encrypt] to
 provide certificates for no cost.
+
+To avoid conflicting with other services that might be running on the tutorial
+user's port 443, we remap the port to 8443. On the production machine, the port
+mapping should be changed to "443:443" instead of "8443:443".
+
 
 [certbot]: https://certbot.eff.org/
 [lets-encrypt]: https://letsencrypt.org/
@@ -243,8 +248,8 @@ tinkering. It is connected to the proxy service, allowing it to access Conjur
 via TLS.
 
 The "sleep" and "infinity" bits ensure that this container stays up for the
-duration of the demo. Without these options, the `conjurinc/cli5` images gives
-you an ephemeral stateless Conjur container that performs a single command and
+duration of the demo. Without these options, the `conjurinc/cli5` image gives
+you an ephemeral stateless client container that performs a single command and
 exits, a desirable behavior for common ops use cases.
 
 [postgres-image]: https://hub.docker.com/_/postgres/
@@ -272,7 +277,7 @@ ssl_certificate     /etc/nginx/nginx.crt;
 ssl_certificate_key /etc/nginx/nginx.key;
 ```
 
-This block gives NGINX its directions on how to perform TLS. ("ssl" is a name
+This block gives NGINX its directions on how to perform TLS ("ssl" is a name
 for an older standard for TLS and is still often used interchangeably.)
 
 The `certificate` is a public key, and the `certificate_key` is the
@@ -300,14 +305,18 @@ self-signed certificate. This allows you to use TLS in testing and staging, but
 it does not allow clients to automatically authenticate the identity of the
 Conjur server.
 
-In production, don't use a self-signed certificate. It's better than nothing,
-but it's not a sustainable security practice because you're going to have to
+#### Production tip
+
+Don't use a self-signed certificate in production. It's better than nothing, but
+it's not a sustainable security practice because you're going to have to
 manually verify that you're not talking to a man in the middle.
 
 Instead, ask your security team to provide a certificate signed by a trusted
-root and modify `default.conf` to use that certificate instead.
+root and use that instead.
 
-Let's look at what parts you might modify:
+#### Modifying tls.conf for development use
+
+These are blocks that you might want to change:
 
 ```ini
 [ dn ]
@@ -352,3 +361,14 @@ does to accomplish each step.
 * Configure the Conjur client and log in as admin
 
 [rotate-api-key]: https://www.conjur.org/api.html#authentication-rotate-an-api-key
+
+## Up and running
+
+Now that we've got a TLS endpoint for our Conjur server, you can check it with
+your web browser.
+
+The status page is available at https://localhost:8443 but your browser will
+warn you about the self-signed certificate. To override the warning and see the
+page, you'll have to instruct your browser to trust the certificate. Once you
+switch to using your own certificate, the browser warning will go away
+automatically.
