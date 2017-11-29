@@ -86,7 +86,7 @@ repository. Here's how you get them:
    
    In your terminal application, run:
    ```sh-session
-   $ git clone git@github.com:cyberark/conjur.git
+   $ git clone https://github.com/cyberark/conjur.git
    ```
    This will create a folder called `conjur` in the current directory.
 
@@ -122,6 +122,16 @@ $ docker-compose exec client bash
 # conjur list
 ```
 
+#### What's happening here?
+
+When you read the Conjur access logs, you'll note that the Conjur server is
+listening on port 80 (*insecure http*) inside its container. However, that port
+is not exposed except on the local Docker network, so requests from the Internet
+and LAN are unable to reach it.
+
+Meanwhile, the NGINX container is exposing its port 443 (*https*) to the outside
+network and proxying the traffic through to Conjur.
+
 ## Breaking Down the Tutorial
 
 These files show how the proxy setup works. Note that, while this tutorial uses
@@ -145,6 +155,18 @@ database:
 Conjur requires a Postgres database to store encrypted secrets and other data.
 This service uses the [official Postgres image][postgres-image] from DockerHub.
 
+#### Production tip
+
+Just as we use a proxy in this tutorial to encrypt & authenticate traffic to the
+Conjur server using TLS, you will also want to use TLS for your production
+Postgres database. If you're using [Amazon RDS][rds], it already has TLS support
+built-in. If you're hosting your own database, you'll want to use a technique
+similar to the one described here in order to secure its traffic.
+
+[rds]: https://aws.amazon.com/rds/
+
+---
+
 ```yaml
 conjur:
   image: cyberark/conjur
@@ -163,6 +185,8 @@ in the tutorial script we export this value.)
 Note also what's **not** present in these first two service definitions: exposed
 ports. These services are only accessible on the local private Docker network,
 not to the Internet or to the Local Area Network (LAN).
+
+---
 
 ```yaml
 proxy:
@@ -186,6 +210,25 @@ This service defines three volumes: the NGINX config file, a self-signed
 certificate, and a private key related to the certificate. Explanation of those
 files follows below. The files are made accessible from the local filesystem for
 read-only access by the container.
+
+#### Production tip
+
+For the convenience of a tutorial, we automatically generate a self-signed
+certificate and provide it to the proxy service. For reasons that are described
+in more detail [below](#tlstlsconf), this is unsuitable for production Conjur
+deployments.
+
+You can use your own certificate here by providing it to the container as a
+volume. This allows your clients to verify that they are talking to the
+authentic Conjur server. Your security team can provide certificates for your
+organization, or you can create a certificate for any domain or subdomain you
+control with [certbot][certbot], which uses [Let's Encrypt][lets-encrypt] to
+provide certificates for no cost.
+
+[certbot]: https://certbot.eff.org/
+[lets-encrypt]: https://letsencrypt.org/
+
+---
 
 ```yaml
 client:
@@ -222,6 +265,8 @@ This block sets up a few basic properties of the NGINX server. Its hostname is
 `proxy`, it listens on the standard port for HTTPS (port 443) and it has a
 location for its access logs, useful for monitoring traffic.
 
+---
+
 ```nginx
 ssl_certificate     /etc/nginx/nginx.crt;
 ssl_certificate_key /etc/nginx/nginx.key;
@@ -236,6 +281,8 @@ how to configure the server for HTTPS, including production optmization
 guidelines and the values of many default settings, so that is worth reading.
 
 [nginx-https]: https://nginx.org/en/docs/http/configuring_https_servers.html
+
+---
 
 ```nginx
 location / {
@@ -275,6 +322,8 @@ CN=proxy
 This block describes the distinguished name of the certificate using the
 (C)ountry, (ST)ate, (L)ocation, (O)rganization, (O)rganizational (U)nit, and
 (C)ommon (N)ame. You'll want to change all these to suit your own organization.
+
+---
 
 ```ini
 [ alt_names ]
