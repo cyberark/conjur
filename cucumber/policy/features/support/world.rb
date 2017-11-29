@@ -26,8 +26,7 @@ module PossumWorld
         puts result if @echo
       end
     rescue RestClient::Exception => e
-      @exception = e
-      raise e unless status == e.http_code
+      @result = e.response.body
     end
   end
 
@@ -69,6 +68,15 @@ module PossumWorld
   def conjur_api
     login_as_role 'admin', admin_api_key unless @conjur_api
     @conjur_api
+  end
+
+  def json_result
+    case @result
+    when String
+      JSON.parse(@result)
+    when Conjur::PolicyLoadResult
+      JSON.parse(@result.to_json)
+    end
   end
 
   def admin_api_key
