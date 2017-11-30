@@ -7,7 +7,7 @@
 
 TAG="${1:-$(< VERSION)-$(git rev-parse --short HEAD)}"
 
-SOURCE_IMAGE='conjur'
+SOURCE_IMAGE="conjur:$TAG"
 INTERNAL_IMAGE='registry.tld/conjur'
 INTERNAL_IMAGE_NEW='registry.tld/cyberark/conjur'  # We'll transition to this
 DOCKERHUB_IMAGE='cyberark/conjur'
