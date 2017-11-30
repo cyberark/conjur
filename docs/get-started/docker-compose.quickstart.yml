@@ -10,6 +10,8 @@ services:
       DATABASE_URL: postgres://postgres@database/postgres
       CONJUR_DATA_KEY:
     depends_on: [ database ]
+    ports:
+      - "8080:80"
 
   client:
     image: conjurinc/cli5

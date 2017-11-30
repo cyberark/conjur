@@ -77,7 +77,7 @@ Please enter admin\'s password (it will not be echoed):
 
 {% include toc.md key='explore' %}
 
-Conjur is installed and ready for use! If you want to confirm that Conjur was installed properly, you can open a browser and go to _localhost:3000_ and view the included status UI page.
+Conjur is installed and ready for use! If you want to confirm that Conjur was installed properly, you can open a browser and go to _localhost:8080_ and view the included status UI page.
 
 Ready to do more?  Here are some suggestions:
 
