@@ -53,6 +53,9 @@ main:
     title: Tutorials
     path: /tutorials/
     items:
+      nginx:
+        title: NGINX Proxy
+        path: /tutorials/integrations/nginx.html
       policy:
         title: Policy
         path: /tutorials/policy/
