@@ -91,7 +91,7 @@ $ conjur help policy load
 
 * Go through the [Conjur Tutorials](/tutorials/)
 * View Conjur's [API Documentation](/api.html)
-* Secure the server with an [NGINX Proxy](/tutorials/integrations/nginx.html)
+* Secure the server with an [NGINX Proxy](/tutorials/nginx.html)
 
 [get-docker]: https://www.docker.com/products/docker-toolbox
 [get-docker-gnu]: install-docker-on-gnu-linux.html

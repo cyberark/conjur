@@ -105,7 +105,7 @@ end-to-end working installation to allow you to see how the pieces fit.
 
 ```sh-session
 $ # start the Conjur+NGINX tutorial servers
-$ cd conjur/docs/tutorials/integrations/nginx
+$ cd conjur/docs/tutorials/nginx
 $ ./start.sh
 ```
 
