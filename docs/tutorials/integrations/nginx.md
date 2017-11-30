@@ -9,7 +9,7 @@ If you're deploying Conjur in production, you need to set up Transport Layer
 Security so that requests made to the server are encrypted in transit.
 
 *Note: if you use Conjur Enterprise, we handle this for you using an audited
-implementation that works similar to the technique described here.*
+implementation that is similar to the technique described here.*
 
 ## First: A Brief Primer On Transport Layer Security (TLS)
 
@@ -30,7 +30,11 @@ the API key you send and impersonate you to the real Conjur server. Now I
 control your identity and can learn your secrets without you finding out. This
 is called a **man in the middle attack**.
 
-Even if I'm not able to impersonate the Conjur server, I could still learn your
+*Note: you can use access logs or Conjur Enterprise's audit records to discover
+unexplained accesses after the fact, but to maintain proactive security there is
+no substitute for TLS.*
+
+Even if I'm not able to impersonate the Conjur server, I could still learn
 secrets by joining your network and listening for traffic coming and going from
 the Conjur server. This is called **passive surveillance**.
 
@@ -40,9 +44,9 @@ Transport Layer Security allows your client to verify that it's talking to the
 real Conjur server, and it uses standard secure technology to encrypt your
 secrets in transit. This means:
 
-* Your Conjur server will be `https:` instead of `http:`, just like a secure
-  website
-* Because the client knows it's talking to the real server, the "man in the
+* Your Conjur server URL will begin with `https:` instead of `http:`, just like
+  a secure website
+* Because the client can verify it's talking to the real server, the "man in the
   middle" will be exposed and the client won't leak any secret information
 * Since the traffic to and from Conjur is scrambled using secure encryption,
   passive listeners on your network can't learn anything about the contents of
@@ -57,7 +61,7 @@ secrets. Setting up Conjur and TLS without the appropriate expertise is like
 packing your own parachute and jumping out of a plane.
 
 That doesn't mean you should close the tab and walk away. It means you should get
-in touch with us and your own security team so we can ensure that you can employ
+in touch with us and your own security team so we can ensure that you can deploy
 Conjur successfully.
 
 [authn]: https://www.conjur.org/api.html#authentication-authenticate-post
@@ -65,9 +69,9 @@ Conjur successfully.
 
 ## Using NGINX To Proxy Traffic With TLS To Conjur
 
-[NGINX][NGINX] is a web proxy that's Free Software and easy to configure. This
+[NGINX][NGINX] is a high performance free open source web server. This
 tutorial will show you how to use Docker to install Conjur and NGINX and
-configure them to provide Conjur with TLS.
+configure them to use TLS.
 
 [NGINX]: https://www.nginx.com
 
@@ -81,14 +85,14 @@ the prerequisite instructions found on [Install Conjur][prerequisites].
 Additionally, you will need the tutorial files from the Conjur source code
 repository. Here's how you get them:
 
-1. Install Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+1. [Install Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 1. Clone the Conjur repository
    
    In your terminal application, run:
    ```sh-session
    $ git clone https://github.com/cyberark/conjur.git
    ```
-   This will create a folder called `conjur` in the current directory.
+   This will create a folder called `conjur` in your working directory.
 
 ### The Good Part
 
@@ -96,7 +100,7 @@ To start out our experience on a high note, let's get the full Conjur+TLS stack
 up and running so we can inspect it.
 
 The tutorial script will install Conjur and NGINX, configure them to work
-together, and connect a Conjur client to the running server. This is a full
+together, and connect a client to Conjur via the NGINX proxy. This is a full
 end-to-end working installation to allow you to see how the pieces fit.
 
 ```sh-session
@@ -108,7 +112,6 @@ $ ./start.sh
 Take a look at the logs for the Conjur or NGINX servers:
 
 ```sh-session
-$ # in the 'nginx' directory we navigated to previously:
 $ docker-compose logs conjur
 $ docker-compose logs proxy
 ```
@@ -116,7 +119,6 @@ $ docker-compose logs proxy
 Run some commands in the Conjur client:
 
 ```sh-session
-$ # in the 'nginx' directory we navigated to previously:
 $ docker-compose exec client bash
 # conjur authn whoami
 # conjur list
@@ -147,6 +149,8 @@ cloud, we provide this setup.
 
 This file declares services to be used in the tutorial. Let's break down each declaration:
 
+---
+
 ```yaml
 database:
   image: postgres:9.3
@@ -157,12 +161,12 @@ This service uses the [official Postgres image][postgres-image] from DockerHub.
 
 #### Production tip
 
-Just as we use a proxy in this tutorial to encrypt & authenticate traffic to the
-Conjur server using TLS, you will also want to use TLS for your production
-Postgres database. If you're using [Amazon RDS][rds], it already has TLS support
-built-in. If you're hosting your own database, you'll want to use a technique
-similar to the one described here in order to secure its traffic.
+In production, you should also secure your Postgres database with TLS. If you're
+using [Amazon RDS][rds], it already has TLS support built-in. If you're hosting
+your own database, you'll want to follow the [Postgres
+recommendations][postgres-tls].
 
+[postgres-tls]: https://www.postgresql.org/docs/9.6/static/ssl-tcp.html
 [rds]: https://aws.amazon.com/rds/
 
 ---
@@ -281,9 +285,9 @@ This block gives NGINX its directions on how to perform TLS ("ssl" is a name
 for an older standard for TLS and is still often used interchangeably.)
 
 The `certificate` is a public key, and the `certificate_key` is the
-corresponding private key. NGINX maintains [documentation][nginx-https] about
-how to configure the server for HTTPS, including production optimization
-guidelines and the values of many default settings, so that is worth reading.
+corresponding private key. NGINX maintains useful [documentation][nginx-https]
+about how to configure the server for HTTPS, including production optimization
+guidelines and the values of many default settings.
 
 [nginx-https]: https://nginx.org/en/docs/http/configuring_https_servers.html
 
@@ -350,7 +354,7 @@ IP addresses you use.
 Here's the outline of the tutorial flow. Read through the file to see what it
 does to accomplish each step.
 
-* Pull required containers from Docker Hub
+* Pull required container images from Docker Hub
 * Remove containers, certs and keys created in earlier tutorial runs (if any)
 * Create a self-signed certificate and key for TLS
 * Generate a data key for Conjur encryption of data at rest

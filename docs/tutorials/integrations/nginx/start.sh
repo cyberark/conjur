@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Pull required containers from Docker Hub
+# Pull required container images from Docker Hub
 docker-compose pull
 docker pull svagi/openssl
 
