@@ -121,6 +121,11 @@ To use it:
    * find or create the token-signing key
    * start the web server
 
+   If you are going to be debugging Conjur using `pry.byebug`, you may choose to
+   start the web server by calling `rails server -b 0.0.0.0 webrick` instead of
+   `conjurctl server`. This will allow you to work in the debugger without the
+   server timing out.
+
 ## Testing
 
 Conjur has `rspec` and `cucumber` tests.
