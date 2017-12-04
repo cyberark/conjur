@@ -20,6 +20,7 @@ class ApplicationController < ActionController::API
   rescue_from Unauthorized, with: :unauthorized
   rescue_from Sequel::ValidationFailed, with: :validation_failed
   rescue_from Sequel::NoMatchingRow, with: :no_matching_row
+  rescue_from Sequel::ForeignKeyConstraintViolation, with: :foreign_key_constraint_violation
   rescue_from Conjur::PolicyParser::Invalid, with: :policy_invalid
   rescue_from ArgumentError, with: :argument_error
 
@@ -35,7 +36,7 @@ class ApplicationController < ActionController::API
   end
 
   def record_not_found e
-    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}" if e.backtrace
     render json: {
       error: {
         code: "not_found",
@@ -57,9 +58,40 @@ class ApplicationController < ActionController::API
       error: {
         code: "not_found",
         target: target,
-        message: e.message,
+        message: e.message
       }.compact
     }, status: :not_found
+  end
+
+  def foreign_key_constraint_violation e
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+
+    # check if this is a violation of role_memberships_member_id_fkey
+    if e.message.index(/role_memberships_member_id_fkey/) ||
+      e.message.index(/role_memberships_role_id_fkey/)
+
+      key_string = ''
+      e.message.split(" ").map do |text|
+        if text["(member_id)"] || text["(role_id)"]
+          key_string = text 
+          break 
+        end 
+      end
+
+      # the member ID is inside the second set of parentheses of the key_string
+      key_index = key_string.index(/\(/, 1) + 1
+      key = key_string[ key_index, key_string.length - key_index - 1 ]
+
+      exc = Exceptions::RecordNotFound.new key, message: "ID #{key} is not a valid role"
+      record_not_found exc
+    else
+      render json: {
+        error: {
+          code: error_code_of_exception_class(e.class),
+          message: e.message
+        }
+      }, status: :unprocessable_entity
+    end
   end
 
   def validation_failed e

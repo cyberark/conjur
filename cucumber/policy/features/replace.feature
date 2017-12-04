@@ -8,8 +8,16 @@ A policy can be reloaded using the --replace flag
     And I load a "root" policy file "multifile2.yml"
     When I replace the policy by loading the policy file "multifile2_with_deletes.yml"
     Then there is an error
-    And the error code is "policy_invalid"
-    And the error message is "you have made an error"
+    And the error code is "not_found"
+    And the error message is "ID cucumber:group:developers is not a valid role"
+
+  Scenario: Policy reload fails when group isn't defined in new policy
+
+    Given I replace the policy by loading the policy file "multifile1.yml"
+    And I replace the policy by loading the policy file "multifile2.yml"
+    Then there is an error
+    And the error code is "not_found"
+    And the error message is "ID cucumber:group:security-admin is not a valid role"
 
   Scenario: A multifile policy successfully reloads when files are concatenated
 
