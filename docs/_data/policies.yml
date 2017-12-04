@@ -41,6 +41,50 @@ tour: |
     role: !layer myapp
     member: !host myapp-01
 
+tour-db: |
+  - !policy
+    id: db
+    body:
+    - &variables
+      - !variable password
+
+    - !group secrets-users
+
+    - !permit
+      resource: *variables
+      privileges: [ read, execute ]
+      roles: !group secrets-users
+
+tour-myapp: |
+  - !policy
+    id: myapp
+    body:
+    - !layer
+      annotations:
+        description: My application layer
+
+    - !host-factory
+      layers: [ !layer ]
+
+tour-entitlements: |
+  - !group developers
+
+  - !user
+    id: alice
+
+  - !host myapp-01
+
+  - !grant
+    role: !group developers
+    member: !user alice
+
+  - !grant
+    role: !group db/secrets-users
+    member: !layer myapp
+
+  - !grant
+    role: !layer myapp
+    member: !host myapp-01
 
 policy-reference-root-example: |
   - !policy
