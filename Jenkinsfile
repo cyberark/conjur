@@ -27,7 +27,7 @@ pipeline {
       }
       post { always {
         junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml'
-        publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report'])
+        publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: ''])
       }}
     }
 
