@@ -6,8 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.1.1] - 2017-12-04
+### Changed
+- Build scripts now look at git tags to determine version and tags to use.
+
 ## 0.1.0 - 2017-12-04
 
 The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/cyberark/conjur/compare/v0.1.0...v0.1.1
