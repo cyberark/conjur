@@ -1,12 +1,14 @@
 #!/bin/bash -ex
 
+TAG="$(< VERSION)-$(git rev-parse --short HEAD)"
+
 function finish {
 	docker rm -f $pg_cid
 	docker rm -f $server_cid
 }
 trap finish EXIT
 
-export CONJUR_DATA_KEY="$(docker run --rm conjur data-key generate)"
+export CONJUR_DATA_KEY="$(docker run --rm conjur:$TAG data-key generate)"
 
 pg_cid=$(docker run -d postgres:9.3)
 
@@ -18,7 +20,7 @@ server_cid=$(docker run -d \
 	--link $pg_cid:pg \
 	-e DATABASE_URL=postgres://postgres@pg/postgres \
 	-e RAILS_ENV=test \
-	conjur server)
+	conjur:$TAG server)
 
 cat << "TEST" | docker run \
 	-i \
@@ -31,7 +33,7 @@ cat << "TEST" | docker run \
 	-e CONJUR_APPLIANCE_URL=http://conjur \
 	-e CONJUR_ADMIN_PASSWORD=admin \
 	--entrypoint bash \
-	conjur-test
+	conjur-test:$TAG
 #!/bin/bash -ex
 
 for i in $(seq 10); do
@@ -47,5 +49,5 @@ rm -rf spec/reports/*
 rm -rf cucumber/api/features/reports/*
 rm -rf cucumber/policy/features/reports/*
 
-bundle exec rake jenkins || true
+bundle exec rake jenkins
 TEST
