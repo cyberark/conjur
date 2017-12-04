@@ -85,12 +85,8 @@ class ApplicationController < ActionController::API
       exc = Exceptions::RecordNotFound.new key, message: "ID #{key} is not a valid role"
       record_not_found exc
     else
-      render json: {
-        error: {
-          code: error_code_of_exception_class(e.class),
-          message: e.message
-        }
-      }, status: :unprocessable_entity
+      # if this isn't a case we're handling yet, let the exception proceed
+      raise e
     end
   end
 
@@ -177,8 +173,6 @@ class ApplicationController < ActionController::API
   def account
     @account ||= params[:account]
   end
-
-  private
 
   def error_code_of_exception_class cls
     cls.to_s.underscore.split('/')[-1]
