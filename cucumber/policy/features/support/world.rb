@@ -18,15 +18,17 @@ module PossumWorld
 
   attr_reader :result
 
-  def invoke status: :ok, &block
+  # invoke accepts an optional HTTP status code as input
+  # and checks that the result matches that code
+  def invoke status: nil, &block
     begin
       @result = yield
-      raise "Expected invocation to be denied" unless status == :ok
+      raise "Expected invocation to be denied" if status && status != 200
       @result.tap do |result|
         puts result if @echo
       end
     rescue RestClient::Exception => e
-      expect(e.http_code).to eq(status) if status.is_a? Integer
+      expect(e.http_code).to eq(status) if status
       @result = e.response.body
     end
   end

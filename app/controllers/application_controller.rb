@@ -36,19 +36,8 @@ class ApplicationController < ActionController::API
   end
 
   def record_not_found e
-    logger.debug "#{e}\n#{e.backtrace.join "\n"}" if e.backtrace
-    render json: {
-      error: {
-        code: "not_found",
-        message: e.message,
-        target: e.kind,
-        details: {
-          code: "not_found",
-          target: "id",
-          message: e.id
-        }
-      }
-    }, status: :not_found
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    render_record_not_found e
   end
 
   def no_matching_row e
@@ -90,7 +79,7 @@ class ApplicationController < ActionController::API
       key = key_string[ key_index, key_string.length - key_index - 1 ]
 
       exc = Exceptions::RecordNotFound.new key, message: "Role #{key} does not exist"
-      record_not_found exc
+      render_record_not_found exc
     else
       # if this isn't a case we're handling yet, let the exception proceed
       raise e
@@ -179,6 +168,21 @@ class ApplicationController < ActionController::API
   # Gets the value of the :account parameter.
   def account
     @account ||= params[:account]
+  end
+
+  def render_record_not_found e
+    render json: {
+      error: {
+        code: "not_found",
+        message: e.message,
+        target: e.kind,
+        details: {
+          code: "not_found",
+          target: "id",
+          message: e.id
+        }
+      }
+    }, status: :not_found
   end
 
   def error_code_of_exception_class cls
