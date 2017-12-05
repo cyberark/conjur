@@ -73,7 +73,7 @@ main:
 
   reference:
     title: Reference
-    path: 
+    path:
     items:
       policies:
         title: Policies
@@ -106,3 +106,14 @@ main:
       cryptography:
         title: Cryptography
         path: /reference/cryptography.html
+
+  enterprise:
+    title: Enterprise
+    path:
+    items:
+      enterprise-edition:
+        title: Conjur Enterprise
+        path: https://www.cyberark.com/get-conjur-enterprise/
+      documentation:
+        title: Documentation
+        path: https://developer.conjur.net

@@ -24,6 +24,10 @@
   .nav.navbar-nav {
     margin: 15px 0;
     float: right;
+
+    a.nav-link {
+      cursor: default;
+    }
   }
 
   #top-search {
