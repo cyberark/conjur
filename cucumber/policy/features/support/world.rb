@@ -57,13 +57,6 @@ module PossumWorld
     conjur_api.load_policy id, policy, method: Conjur::API::POLICY_METHOD_POST
   end
 
-  def load_policy_from_file policy_file
-    dir = File.expand_path('policy', File.dirname(__FILE__))
-    Dir.chdir dir do
-      open(policy_file).read
-    end
-  end
-
   def make_full_id *tokens
     super tokens.join(":")
   end

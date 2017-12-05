@@ -49,11 +49,11 @@ Feature: Policies can refer to each other by relative path.
       - !policy database
       - !policy frontend
     """
-    And I load policy "prod/frontend":
+    And I replace the "prod/frontend" policy with:
     """
     - !layer
     """
-    Then I load policy "prod/database":
+    Then I replace the "prod/database" policy with:
     """
     - !variable password
     - !permit
