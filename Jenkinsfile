@@ -13,6 +13,7 @@ pipeline {
     stage('Checkout SCM') {
       steps {
         checkout scm
+        sh 'git fetch' // to pull the tags
       }
     }
     stage('Build Docker image') {
