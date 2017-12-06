@@ -1,6 +1,8 @@
 #!/bin/bash -ex
 
-TAG="$(< VERSION)-$(git rev-parse --short HEAD)"
+. git_tag.sh
+
+TAG="$(git_tag)"
 
 function finish {
 	docker rm -f $pg_cid
