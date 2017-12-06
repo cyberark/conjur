@@ -56,6 +56,42 @@ $ conjur policy load root conjur.yml
 Policy loaded
 {% endhighlight %}
 
+#### Multi-file Policies
+It is natural to split up your policy into multiple files. For example, consider
+the policy given in the [What is a Policy?](/reference/policy.html#what-is-a-policy)
+section.
+
+We could break this policy up into three files:
+
+"db.yml":
+
+{% include policy-file.md policy='tour-db' %}
+
+"myapp.yml":
+
+{% include policy-file.md policy='tour-myapp' %}
+
+"entitlements.yml":
+
+{% include policy-file.md policy='tour-entitlements' %}
+
+Initially, we could load this set of files into the policy by calling
+{% highlight shell %}
+$ conjur policy load --replace root db.yml
+Policy loaded
+$ conjur policy load root myapp.yml
+Policy loaded
+$ conjur policy load root entitlements.yml
+Policy loaded
+{% endhighlight %}
+
+Over time you may want to make changes to these files - for example, to update the entitlements to add or revoke privileges. When updates are made, we'll still need to reload all files associated with a given policy, even if only some have been modified. The easiest way to do this is to concatenate the associated files before reloading.  For example, if working in a Linux environment you would run:
+
+{% highlight shell %}
+$ cat db.yml myapp.yml entitlements.yml | conjur policy load --replace root -
+Policy loaded
+{% endhighlight %}
+
 {% include toc.md key='history' %}
 
 When you load a policy, the policy YAML is stored in the Conjur Server. As you make updates to the policy, the subsequent versions of policy YAML are stored as well. This policy history is available by fetching the `policy` resource. For example, using the CLI:

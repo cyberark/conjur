@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Build scripts now look at git tags to determine version and tags to use.
 
+### Fixed
+- When a policy is loaded which references a non-existant object, that error is now reported as a JSON-formatted 404 error rather than an ugly 500 error.
+
 ## 0.1.0 - 2017-12-04
 
 The first tagged version.

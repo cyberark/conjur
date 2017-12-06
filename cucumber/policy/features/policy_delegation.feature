@@ -28,7 +28,7 @@ Feature: Policies can be organized into hierarchies with specific update permiss
       role: !group teams/frontend
     """
     And I log in as user "bob"
-    And I load policy "prod/frontend":
+    And I replace the "prod/frontend" policy with:
     """
     - &variables
       - !variable ssl/cert

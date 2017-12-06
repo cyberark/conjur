@@ -1,24 +1,29 @@
 Given(/^a policy:$/) do |policy|
-  load_root_policy policy
+  invoke do
+    load_root_policy policy
+  end
 end
 
-Given(/^I load policy "([^"]*)":$/) do |policy_id, policy|
-  load_policy policy_id, policy
+Given(/^I replace the "([^"]*)" policy with:$/) do |policy_id, policy|
+  invoke do
+    load_policy policy_id, policy
+  end
 end
 
 Given(/^I extend the policy with:$/) do |policy|
-  extend_root_policy policy
+  invoke do
+    extend_root_policy policy
+  end
 end
 
 Given(/^I update the policy with:$/) do |policy|
-  update_root_policy policy
+  invoke do
+    update_root_policy policy
+  end
 end
 
 Given(/^I try to load a policy with an unresolvable reference:$/) do |policy|
   invoke status: 404 do
     load_root_policy policy
   end
-  result = JSON.parse(@exception.response.body)
-  expect(result).to have_key('error')
-  @error = result['error']
 end

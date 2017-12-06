@@ -20,6 +20,7 @@ class ApplicationController < ActionController::API
   rescue_from Unauthorized, with: :unauthorized
   rescue_from Sequel::ValidationFailed, with: :validation_failed
   rescue_from Sequel::NoMatchingRow, with: :no_matching_row
+  rescue_from Sequel::ForeignKeyConstraintViolation, with: :foreign_key_constraint_violation
   rescue_from Conjur::PolicyParser::Invalid, with: :policy_invalid
   rescue_from ArgumentError, with: :argument_error
 
@@ -36,18 +37,7 @@ class ApplicationController < ActionController::API
 
   def record_not_found e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
-    render json: {
-      error: {
-        code: "not_found",
-        message: e.message,
-        target: e.kind,
-        details: {
-          code: "not_found",
-          target: "id",
-          message: e.id
-        }
-      }
-    }, status: :not_found
+    render_record_not_found e
   end
 
   def no_matching_row e
@@ -57,9 +47,43 @@ class ApplicationController < ActionController::API
       error: {
         code: "not_found",
         target: target,
-        message: e.message,
+        message: e.message
       }.compact
     }, status: :not_found
+  end
+
+  def foreign_key_constraint_violation e
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+
+    # check if this is a violation of role_memberships_member_id_fkey
+    # or role_memberships_role_id_fkey
+    # sample exceptions:
+    # PG::ForeignKeyViolation: ERROR:  insert or update on table "role_memberships" violates foreign key constraint "role_memberships_member_id_fkey"
+    # DETAIL:  Key (member_id)=(cucumber:group:security-admin) is not present in table "roles".
+    # or
+    # PG::ForeignKeyViolation: ERROR:  insert or update on table "role_memberships" violates foreign key constraint "role_memberships_role_id_fkey"
+    # DETAIL:  Key (role_id)=(cucumber:group:developers) is not present in table "roles".
+    if e.message.index(/role_memberships_member_id_fkey/) ||
+      e.message.index(/role_memberships_role_id_fkey/)
+
+      key_string = ''
+      e.message.split(" ").map do |text|
+        if text["(member_id)"] || text["(role_id)"]
+          key_string = text 
+          break 
+        end 
+      end
+
+      # the member ID is inside the second set of parentheses of the key_string
+      key_index = key_string.index(/\(/, 1) + 1
+      key = key_string[ key_index, key_string.length - key_index - 1 ]
+
+      exc = Exceptions::RecordNotFound.new key, message: "Role #{key} does not exist"
+      render_record_not_found exc
+    else
+      # if this isn't a case we're handling yet, let the exception proceed
+      raise e
+    end
   end
 
   def validation_failed e
@@ -146,7 +170,20 @@ class ApplicationController < ActionController::API
     @account ||= params[:account]
   end
 
-  private
+  def render_record_not_found e
+    render json: {
+      error: {
+        code: "not_found",
+        message: e.message,
+        target: e.kind,
+        details: {
+          code: "not_found",
+          target: "id",
+          message: e.id
+        }
+      }
+    }, status: :not_found
+  end
 
   def error_code_of_exception_class cls
     cls.to_s.underscore.split('/')[-1]
