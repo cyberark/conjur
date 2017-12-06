@@ -1,7 +1,7 @@
 main:
   get-started:
     title: Get Started
-    path: /get-started/
+    path:
     items:
       install-conjur:
         title: Install Conjur
@@ -11,14 +11,14 @@ main:
         path: /get-started/try-conjur.html
   tools:
     title: Tools
-    path: /tools/
+    path:
     items:
       summon:
         title: Summon
         path: /tools/summon.html
   integrations:
     title: Integrations
-    path: /integrations/
+    path:
     items:
       ansible:
         title: Ansible
@@ -28,7 +28,7 @@ main:
         path: /integrations/puppet.html
   api:
     title: API
-    path: /api/
+    path:
     items:
       Documentation:
         title: Documentation
@@ -51,7 +51,7 @@ main:
             path: /api/conjur-api-java.html
   tutorials:
     title: Tutorials
-    path: /tutorials/
+    path:
     items:
       nginx:
         title: NGINX Proxy
@@ -76,7 +76,7 @@ main:
 
   reference:
     title: Reference
-    path: /reference/
+    path:
     items:
       policies:
         title: Policies
@@ -109,3 +109,14 @@ main:
       cryptography:
         title: Cryptography
         path: /reference/cryptography.html
+
+  enterprise:
+    title: Enterprise
+    path:
+    items:
+      enterprise-edition:
+        title: Conjur Enterprise
+        path: https://www.cyberark.com/get-conjur-enterprise/
+      documentation:
+        title: Documentation
+        path: https://developer.conjur.net
