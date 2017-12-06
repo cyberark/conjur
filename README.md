@@ -301,21 +301,21 @@ version.
 - Add a new, empty _Unreleased_ section to the changelog.
   - Remember to update the references at the bottom of the document.
 - Change VERSION file to reflect the change. This file is used by some scripts.
-- Commit these changes. `Bump version to x.y.z' is an acceptable commit message.
+- Commit these changes. `Bump version to x.y.z` is an acceptable commit message.
 - Tag the version using eg. `git tag -s v0.1.1`. Note this requires you to be
-able to sign releases. Consult the
-[github documentation on signing commits](https://help.github.com/articles/signing-commits-with-gpg/)
-on how to set this up.
+  able to sign releases. Consult the
+  [github documentation on signing commits](https://help.github.com/articles/signing-commits-with-gpg/)
+  on how to set this up.
   - git will ask you to enter the tag message. These will become the release notes.
   Format should be like this (note the subject line and message):
 
-    Version x.y.z
+        Version x.y.z
 
-    This is a human-readable overview of the changes in x.y.z. It should be a
-    consise, at-a-glance summary. It certainly isn't a direct copy-and-paste
-    from the changelog.
+        This is a human-readable overview of the changes in x.y.z. It should be a
+        consise, at-a-glance summary. It certainly isn't a direct copy-and-paste
+        from the changelog.
 
-- Push the tag - `git push vx.y.z`.
+- Push the tag: `git push vx.y.z`.
 - Create a pull request to have the release acked and merged.
   - https://github.com/cyberark/conjur/pull/new/vx.y.z
 
