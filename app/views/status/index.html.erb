@@ -1,9 +1,33 @@
-<% content_for :title do %>Conjur CE Status<% end %>
+<% content_for :title do %>Conjur Status<% end %>
 
 <div class="row">
   <div class="col-md-8">
     <h1 class="page-title">Status</h1>
-    <p class="font-large">Your Conjur CE server is running!</p>
+    <p class="font-large">Your Conjur server is running!</p>
+    <h2>Security Check:</h2>
+    <p>
+      Does your browser show a green lock icon on the left side of the address bar?
+      <dl>
+        <dt>Green lock:</dt>
+        <dd>Good, Conjur is secured and authenticated.</dd>
+        <dt>Yellow lock or green with warning sign:</dt>
+        <dd>
+          OK, Conjur is secured but not authenticated. Send your
+          Conjur admin to the
+          <a href="https://conjur.org/tutorials/integrations/nginx.html">Conjur+TLS guide</a>
+          to learn how to use your own certificate &amp; upgrade to green lock.
+        </dd>
+        <dt>Red broken lock or no lock:</dt>
+        <dd>
+          Conjur is running in insecure development mode. Don't put any
+          production secrets in there! Visit the
+          <a href="https://conjur.org/tutorials/integrations/nginx.html">Conjur+TLS guide</a>
+          to learn how to deploy Conjur securely &amp;
+          <a href="https://conjur.org/support.html">contact CyberArk</a>
+          with any questions.
+        </dd>
+      </dl>
+    </p>
   </div>
   <div class="col-md-4">
     <strong>Details:</strong>

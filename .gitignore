@@ -32,10 +32,19 @@ apidocs/node_modules
 docs/apidocs.html
 *.config
 docs/_layouts/page-toc.html
+
+# NGINX tutorial temp files
+/docs/tutorials/nginx/tls/nginx.crt
+/docs/tutorials/nginx/tls/nginx.key
+/docs/tutorials/nginx/test.out
+
+# Generated API docs
 api.html
 
 # Generated js bundles
 /public/javascripts/*
 /public/stylesheets/*
 /public/assets/*
+
+# Emacs backup files
 *~

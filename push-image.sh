@@ -5,9 +5,11 @@
 # Release images can be created by passing the desired tag to this script
 # Ex: ./push-image 4.9.5.1
 
-TAG="${1:-$(< VERSION)-$(git rev-parse --short HEAD)}"
+. git_tag.sh
 
-SOURCE_IMAGE='conjur'
+TAG="${1:-$(git_tag)}"
+
+SOURCE_IMAGE="conjur:$TAG"
 INTERNAL_IMAGE='registry.tld/conjur'
 INTERNAL_IMAGE_NEW='registry.tld/cyberark/conjur'  # We'll transition to this
 DOCKERHUB_IMAGE='cyberark/conjur'

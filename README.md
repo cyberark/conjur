@@ -121,6 +121,11 @@ To use it:
    * find or create the token-signing key
    * start the web server
 
+   If you are going to be debugging Conjur using `pry.byebug`, you may choose to
+   start the web server by calling `rails server -b 0.0.0.0 webrick` instead of
+   `conjurctl server`. This will allow you to work in the debugger without the
+   server timing out.
+
 ## Testing
 
 Conjur has `rspec` and `cucumber` tests.
@@ -269,6 +274,60 @@ Permission to use this service is controlled by the built-in resource
 `!:webservice:accounts`. Note that `!` is itself an organization account, and
 therefore privileges on the `!:webservice:accounts` can be managed
 via Conjur [policies](https://developer.conjur.net/policy).
+
+# Versioning
+
+Starting from version 0.1.0, this project follows
+[Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+
+## Changelog maintainance
+
+The [changelog file](CHANGELOG.md) is maintained based on
+[Keep a Changelog](http://keepachangelog.com/en/1.0.0/) guidelines.
+
+Each accepted change to the Conjur code (documentation and website updates
+excepted) requires adding a changelog entry to the corresponding `Added`,
+`Changed`, `Deprecated`, `Removed`, `Fixed` and/or `Security` sub-section (add
+one as necessary) of the _Unreleased_ section in the changelog.
+
+Bumping the version number after each and every change is not required,
+advised nor expected. Valid reasons to bump the version are for example:
+
+- enough changes have accumulated,
+- an important feature has been implemented,
+- an external project depends on one of the recent changes.
+
+## Cutting a release
+
+- Examine the changelog and decide on the version bump rank (major, minor, patch).
+- Change the title of _Unreleased_ section of the changelog to the target
+version.
+  - Be sure to add the date (ISO 8601 format) to the section header.
+- Add a new, empty _Unreleased_ section to the changelog.
+  - Remember to update the references at the bottom of the document.
+- Change VERSION file to reflect the change. This file is used by some scripts.
+- Commit these changes. `Bump version to x.y.z` is an acceptable commit message.
+- Tag the version using eg. `git tag -s v0.1.1`. Note this requires you to be
+  able to sign releases. Consult the
+  [github documentation on signing commits](https://help.github.com/articles/signing-commits-with-gpg/)
+  on how to set this up.
+  - git will ask you to enter the tag message. These will become the release notes.
+  Format should be like this (note the subject line and message):
+
+        Version x.y.z
+
+        This is a human-readable overview of the changes in x.y.z. It should be a
+        consise, at-a-glance summary. It certainly isn't a direct copy-and-paste
+        from the changelog.
+
+- Push the tag: `git push vx.y.z`.
+- Create a pull request to have the release acked and merged.
+  - https://github.com/cyberark/conjur/pull/new/vx.y.z
+
+Deleting and changing tags should be avoided. If in any doubt if the release will
+be accepted, before creating a tag push the (VERSION and CHANGELOG) changes in
+a branch and ask for approval. Then create and push a tag on `master` once it's
+been merged.
 
 # Licensing
 

@@ -10,16 +10,19 @@ services:
       DATABASE_URL: postgres://postgres@database/postgres
       CONJUR_DATA_KEY:
     depends_on: [ database ]
+
+  proxy:
+    image: nginx:1.13.6-alpine
     ports:
-      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./tls/nginx.key:/etc/nginx/nginx.key:ro
+      - ./tls/nginx.crt:/etc/nginx/nginx.crt:ro
+    depends_on: [ conjur ]
 
   client:
     image: conjurinc/cli5
-    depends_on: [ conjur ]
+    depends_on: [ proxy ]
     entrypoint: sleep
     command: infinity
-    environment:
-      CONJUR_APPLIANCE_URL: http://conjur
-      CONJUR_ACCOUNT:
-      CONJUR_AUTHN_API_KEY:
-      CONJUR_AUTHN_LOGIN: admin
