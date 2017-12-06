@@ -52,16 +52,16 @@ hosted:
       path: /get-started/try-conjur.html
 
 cta1:
-  type: Webinar
-  title: Best Practices for Securing Containerised Applications
+  type: Article
+  title: Painful lessons breaches teach us about DevOps and security
   text: ""
-  text-secondary: November 30
+  text-secondary: Cloud and DevOps are critical technology engines helping to power transformational advances across many businesses...
   link:
     button:
-      button-text: Register
+      button-text: Read Now
       class: tertiary
       target: _blank
-      url: https://www.isc2.org/News-and-Events/Webinars/EMEA-Webinars/Focused-Webinars?commid=287129&cyberark
+      url: https://www.cyberark.com/blog/painful-lessons-breaches-teach-us-devops-security/
 
 cta2:
   type: Survey
@@ -73,4 +73,4 @@ cta2:
       button-text: Download
       class: tertiary
       target: _blank
-      url: https://www.cyberark.com/THREAT-LANDSCAPE-SURVEY-2018-FOCUS-ON-DEVOPS/ 
+      url: https://www.cyberark.com/THREAT-LANDSCAPE-SURVEY-2018-FOCUS-ON-DEVOPS/
