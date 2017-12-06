@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Build scripts now look at git tags to determine version and tags to use.
 
+### Fixed
+- Foreign key constraint violation is handled for violations of `role_memberships_role_id_fkey` or `role_memberships_member_id_fkey`
+
 ## 0.1.0 - 2017-12-04
 
 The first tagged version.
