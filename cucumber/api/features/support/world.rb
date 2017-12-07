@@ -51,6 +51,39 @@ module PossumWorld
       @result = result
     end
   end
+
+  def set_token_result result
+    unless result.blank?
+      @result = JSON.parse(result)
+    else
+      @result = result
+    end
+  end
+
+  def token_payload
+    unless (payload = @result['payload'])
+      raise "No 'payload' for token #{@result.inspect}"
+    end
+    JSON.parse Base64.decode64(payload)
+  end
+
+  def token_protected
+    unless (prot = @result['protected'])
+      raise "No 'protected' for token #{@result.inspect}"
+    end
+    JSON.parse Base64.decode64(prot)
+  end
+
+  # Write a command to the authn-local Unix socket.
+  def authn_local_request command
+    require 'socket'
+    socket_file = "/run/authn-local/.socket"
+    raise "Socket #{socket_file} does not exist" unless File.exists?(socket_file)
+    UNIXSocket.open socket_file do |s|
+      s.puts command
+      s.read
+    end
+  end
   
   def authn_params
     raise "No selected user" unless @selected_user

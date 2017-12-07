@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.2.0] - 2017-12-07
+
+- Add `authn-local` service which issues access tokens over a Unix domain socket.
+
 ## [0.1.1] - 2017-12-04
 ### Changed
 - Build scripts now look at git tags to determine version and tags to use.
