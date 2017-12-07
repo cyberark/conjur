@@ -17,6 +17,7 @@ conjur:
   volumes:
   - ..:/src/conjur-server
   - ../../conjur-policy-parser:/src/conjur-policy-parser
+  - ./run/authn-local:/run/authn-local
   links:
   - pg:pg
 
@@ -31,6 +32,7 @@ cucumber:
     RAILS_ENV:
   volumes:
   - ..:/src/conjur-server
+  - ./run/authn-local:/run/authn-local
   links:
   - conjur:conjur
   - pg:pg
