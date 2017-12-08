@@ -65,6 +65,11 @@ AuthnLocal = Struct.new(:socket, :queue_length, :timeout) do
     claims = claims.slice("account", "sub", "exp", "cidr")
     account = claims.delete("account") or raise "'account' is required"
     raise "'sub' is required" unless claims['sub']
-    Slosilo["authn:#{account}"].issue_jwt(claims).to_json
+    key = Slosilo["authn:#{account}"]
+    if key 
+      key.issue_jwt(claims).to_json
+    else
+      raise "No signing key found for account #{account.inspect}"
+    end
   end
 end
