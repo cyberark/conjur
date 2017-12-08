@@ -69,15 +69,14 @@ command :server do |c|
     end
 
 
-    webserver_pid = Process.fork do
+    Process.fork do
       exec "rails server -p #{options[:port]} -b #{options[:'bind-address']}"
     end
-    authn_local_pid = Process.fork do
+    Process.fork do
       exec "rake authn_local:run"
     end
 
-    Process.wait webserver_pid
-    Process.wait authn_local_pid
+    Process.waitall
   end
 end
 

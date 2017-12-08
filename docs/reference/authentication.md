@@ -48,31 +48,30 @@ $ conjur authn whoami
 {"account":"myorg","username":"joe-tester"}
 {% endhighlight %}
 
-## `authn-local`
+## authn-local Service
 
-If you provide your Conjur server with a directory `/run/authn-local`, Conjur will run a service called `authn-local` which listens on a Unix socket in this directory.
-
-You can send JSON requests to this socket. Each request must be formatted on a single line (no "pretty-printed" JSON). The JSON is a map which contains:
-
-* **account** The account for which the token should be issued (required).
-* **sub** The token subject (required).
-* **exp** The expiration time of the token (optional).
-* **cidr** A CIDR restriction on token validity (optional).
-
-The response will be a Conjur access token. For more details about access tokens, see [Cryptography / Authentication tokens](/reference/cryptography.html#authentication-tokens).
-
-`authn-local` is designed to be used by web services which provides custom authentication. Authenticators are responsible for implementing custom authentication logic, such as:
+authn-local is designed to be used by web services which provide custom authentication. Custom authenticators can extend the Conjur authentication capabilities by providing new types of authentication logic, such as:
 
 * Verifying a password with an external LDAP.
 * Verifying a token with GitHub.
 
-Once an Authenticator has verified the credentials provided to it, it can use `authn-local` to get an access token which can be returned to the client.
+Once an Authenticator has verified the credentials provided to it, it can use the authn-local service to get an access token which can be returned to the client. This way, the Authenticator offloads responsibility to authn-local for the token-signing algorithm and for securing the token-signing key.
 
 ### Security Considerations
 
-`authn-local` should be disabled if you are not using it. You can do this by simply not creating the directory `/run/authn-local`.
+authn-local should be disabled if you are not using it. You can do this by simply not creating the directory `/run/authn-local`.
 
-If you do use `authn-local`, be careful about which processes have access to the Unix domain socket, because anyone with access to this socket can issue themselves a token for any role. 
+If you do use authn-local, be careful about which processes have access to the Unix domain socket, because anyone with access to this socket can issue themselves a token for any role.
 
+### How it Works
 
+If you provide your Conjur server with a directory `/run/authn-local`, the authn-local service will listen on the Unix socket `.socket` in this directory.
 
+To use authn-local, send a single line of JSON to the socket. The JSON should be a map which contains:
+
+* **account** The account for which the token should be issued (example: "mycorp") (required).
+* **sub** The username for which the token will be issued (example: "alice", "host/myapp-01") (required).
+* **exp** The expiration time of the token (example: 1512664254) (optional).
+* **cidr** A IP or CIDR restriction on the network addresses from which the token can be used (example: 172.16.0.1) (optional). **Note** Implementation of IP / CIDR verification is still a work in progress.
+
+authn-local will respond with a Conjur access token formatted on a single line of input. For more details about access tokens, see [Cryptography / Authentication tokens](/reference/cryptography.html#authentication-tokens).

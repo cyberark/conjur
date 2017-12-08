@@ -1,50 +1,55 @@
-pg:
-  image: postgres:9.3
+version: "3"
+services:
+  pg:
+    image: postgres:9.3
 
-conjur:
-  image: conjur-dev
-  environment:
-    CONJUR_APPLIANCE_URL: http://localhost:3000
-    DATABASE_URL: postgres://postgres@pg/postgres
-    CONJUR_ADMIN_PASSWORD: admin
-    CONJUR_PASSWORD_ALICE: secret
-    CONJUR_DATA_KEY:
-    RAILS_ENV:
-  ports:
-    - "3000:3000"
-  expose:
-    - "3000"
-  volumes:
-  - ..:/src/conjur-server
-  - ../../conjur-policy-parser:/src/conjur-policy-parser
-  - ./run/authn-local:/run/authn-local
-  links:
-  - pg:pg
+  conjur:
+    image: conjur-dev
+    environment:
+      CONJUR_APPLIANCE_URL: http://localhost:3000
+      DATABASE_URL: postgres://postgres@pg/postgres
+      CONJUR_ADMIN_PASSWORD: admin
+      CONJUR_PASSWORD_ALICE: secret
+      CONJUR_DATA_KEY:
+      RAILS_ENV:
+    ports:
+      - "3000:3000"
+    expose:
+      - "3000"
+    volumes:
+    - ..:/src/conjur-server
+    - ../../conjur-policy-parser:/src/conjur-policy-parser
+    - authn-local:/run/authn-local
+    links:
+    - pg:pg
 
-cucumber:
-  image: conjur-dev
-  entrypoint: bash
-  environment:
-    CONJUR_APPLIANCE_URL: http://conjur:3000
-    DATABASE_URL: postgres://postgres@pg/postgres
-    CONJUR_ADMIN_PASSWORD: admin
-    CONJUR_DATA_KEY:
-    RAILS_ENV:
-  volumes:
-  - ..:/src/conjur-server
-  - ./run/authn-local:/run/authn-local
-  links:
-  - conjur:conjur
-  - pg:pg
+  cucumber:
+    image: conjur-dev
+    entrypoint: bash
+    environment:
+      CONJUR_APPLIANCE_URL: http://conjur:3000
+      DATABASE_URL: postgres://postgres@pg/postgres
+      CONJUR_ADMIN_PASSWORD: admin
+      CONJUR_DATA_KEY:
+      RAILS_ENV:
+    volumes:
+    - ..:/src/conjur-server
+    - authn-local:/run/authn-local
+    links:
+    - conjur:conjur
+    - pg:pg
 
-client:
-  image: conjurinc/cli5
-  entrypoint: sleep
-  command: infinity
-  environment:
-    CONJUR_APPLIANCE_URL: http://conjur:3000
-    DATABASE_URL: postgres://postgres@pg/postgres
-  links:
-  - conjur:conjur
-  volumes:
-  - ..:/src/conjur-server
+  client:
+    image: conjurinc/cli5
+    entrypoint: sleep
+    command: infinity
+    environment:
+      CONJUR_APPLIANCE_URL: http://conjur:3000
+      DATABASE_URL: postgres://postgres@pg/postgres
+    links:
+    - conjur:conjur
+    volumes:
+    - ..:/src/conjur-server
+
+volumes:
+  authn-local:
