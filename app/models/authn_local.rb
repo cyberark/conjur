@@ -27,8 +27,6 @@ AuthnLocal = Struct.new(:socket, :queue_length, :timeout) do
   def run
     FileUtils.rm_rf socket
 
-    p self
-
     server = UNIXServer.new socket
 
     trap(0) do
@@ -49,7 +47,7 @@ AuthnLocal = Struct.new(:socket, :queue_length, :timeout) do
         begin
           conn.puts issue_token(claims)
         rescue
-          $stderr.puts $!.to_s
+          $stderr.puts "Error in authn-local: #{$!.to_s}"
           conn.puts
         ensure
           conn.close

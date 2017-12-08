@@ -20,6 +20,7 @@ mkdir -p cucumber/policy/features/reports
 
 server_cid=$(docker run -d \
 	--link $pg_cid:pg \
+	-v $PWD/run/authn-local:/run/authn-local \
 	-e DATABASE_URL=postgres://postgres@pg/postgres \
 	-e RAILS_ENV=test \
 	conjur:$TAG server)
@@ -30,6 +31,7 @@ cat << "TEST" | docker run \
 	--link $pg_cid:pg \
 	--link $server_cid:conjur \
 	-v $PWD:/src/conjur \
+	-v $PWD/run/authn-local:/run/authn-local \
 	-e DATABASE_URL=postgres://postgres@pg/postgres \
 	-e RAILS_ENV=test \
 	-e CONJUR_APPLIANCE_URL=http://conjur \
