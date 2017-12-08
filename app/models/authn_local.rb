@@ -42,16 +42,20 @@ AuthnLocal = Struct.new(:socket, :queue_length, :timeout) do
     puts "authn-local is listening at #{socket}"
 
     while conn = server.accept
-      Timeout.timeout timeout do
-        claims = conn.gets.strip
-        begin
-          conn.puts issue_token(claims)
-        rescue
-          $stderr.puts "Error in authn-local: #{$!.to_s}"
-          conn.puts
-        ensure
-          conn.close
+      begin
+        Timeout.timeout timeout do
+          claims = conn.gets.strip
+          begin
+            conn.puts issue_token(claims)
+          rescue
+            $stderr.puts "Error in authn-local: #{$!.to_s}"
+            conn.puts
+          ensure
+            conn.close
+          end
         end
+      rescue Timeout::Error
+        $stderr.puts "Timeout::Error in authn-local"
       end
     end
   end
