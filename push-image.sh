@@ -5,9 +5,10 @@
 # Release images can be created by passing the desired tag to this script
 # Ex: ./push-image 4.9.5.1
 
-. git_tag.sh
+# shellcheck disable=SC1091
+. version_utils.sh
 
-TAG="${1:-$(git_tag)}"
+TAG="${1:-$(version_tag)}"
 
 SOURCE_IMAGE="conjur:$TAG"
 INTERNAL_IMAGE='registry.tld/conjur'

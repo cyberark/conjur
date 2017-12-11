@@ -1,8 +1,9 @@
 #!/bin/bash -ex
 
-. git_tag.sh
+# shellcheck disable=SC1091
+. version_utils.sh
 
-TAG="$(git_tag)"
+TAG="$(version_tag)"
 
 function finish {
 	docker rm -f $pg_cid
