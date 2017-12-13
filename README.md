@@ -186,23 +186,6 @@ root@9feae5e5e001:/src/conjur/cucumber/api# cucumber
 root@9feae5e5e001:/src/conjur# cucumber -r cucumber/api/features/support -r cucumber/api/features/step_definitions cucumber/api/features/resource_list.feature
 ```
 
-## Documentation site
-
-This repository also contains the entire source code for the [Conjur
-documentation website][docs]. For instructions on how to work on the
-site locally, visit the [docs README][docs-readme].
-
-Or in brief:
-
-```sh-session
-$ docker-compose run --rm apidocs > docs/_includes/api.html
-$ docker-compose up -d docs
-$ open localhost:4000
-```
-
-[docs]: https://www.conjur.org "Conjur website"
-[docs-readme]: docs/README.md "Conjur docs README"
-
 # Architecture
 
 Conjur is designed to run in a Docker container(s), using Postgresql as the
