@@ -68,13 +68,3 @@ group :development, :test do
   gem 'rails_layout'
   gem 'rspec-core', '~> 3.0'
 end
-
-group :website do
-  gem 'jekyll', group: :jekyll_plugins
-  gem 'jekyll-coffeescript'
-  gem 'jekyll-paginate'
-  gem 'jekyll-redirect-from'
-  gem 'jekyll-sitemap'
-  gem 'rack-jekyll'
-  gem 'html-proofer'
-end

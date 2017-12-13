@@ -1,14 +1,5 @@
 version: '2'
 services:
-  docs:
-    build:
-      context: .
-      dockerfile: Dockerfile.docs
-    image: conjur-docs
-    ports:
-      - 4000:4000
-    volumes:
-      - .:/usr/src
   apidocs:
     build:
       context: ./apidocs

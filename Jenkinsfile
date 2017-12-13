@@ -52,21 +52,6 @@ pipeline {
       }
     }
 
-    stage('Check website for broken links') {
-      steps {
-        sh './checklinks.sh'
-      }
-    }
-
-    stage('Publish website - Prod') {
-      when {
-        branch 'master'
-      }
-      steps {
-        sh 'summon ./website.sh'
-      }
-    }
-
     stage('Publish Conjur to Heroku') {
       when {
         branch 'master'
