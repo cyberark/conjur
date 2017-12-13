@@ -7,10 +7,9 @@ file generated for this, perform this step:
 ```sh-session
 $ cd "$(git rev-parse --show-toplevel)" # cd to project root
 $ docker-compose run --rm apidocs > api.html
-
-This will generate the file into the project root.
-
 ```
+
+This will generate the HTML partial into the project root.
 
 ## Working on the API docs
 
