@@ -21,6 +21,6 @@ $ cd $(git rev-parse --show-cdup) # start in the project root
 $ docker-compose run --rm --service-ports apidocs -w
 ```
 
-Then `open localhost:3000` to see the API docs in your browser.
+Then navigate to `localhost:3000` to see the API docs in your browser.
 
 To stop the container, hit <kbd>Ctrl-c</kbd>.
