@@ -209,4 +209,16 @@ command :role do |cgrp|
   end
 end
 
+desc "Wait for the Conjur server to be ready"
+command :wait_for_conjur do |c|
+  c.action do |global_options,options,args|
+    puts "Waiting for Conjur to be ready..."
+    while `curl -o /dev/null -s -w '%{http_code}' $CONJUR_APPLIANCE_URL` != "200"
+      puts "."
+      sleep 1
+    end
+    puts "Done."
+  end
+end
+
 exit run(ARGV)
