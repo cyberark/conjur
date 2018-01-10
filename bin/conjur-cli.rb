@@ -225,25 +225,31 @@ command :wait do |c|
 
   c.action do |global_options,options,args|
     puts "Waiting for Conjur to be ready..."
-    retry_num = 0
+
     retries = options[:retries].to_i
-    Struct.new('WaitError', :code)
-    while retry_num < retries
-      uri = URI.parse("http://localhost:#{options[:port]}")
+    port = options[:port]
+
+    conjur_ready = lambda do
+      uri = URI.parse("http://localhost:#{port}")
       begin
         response = Net::HTTP.get_response(uri)
-      rescue StandardError
-        response = Struct::WaitError.new('000')
+        response.code.to_i < 300
+      rescue
+        false
       end
-
-      break if response.code == "200"
-      puts "."
-      sleep 1
-      retry_num += 1
     end
 
-    exit_now! "No response" unless retry_num < retries
-    puts "Done."
+    retries.times do
+      break if conjur_ready.call
+      STDOUT.print "."
+      sleep 1
+    end
+
+    if conjur_ready.call
+      puts " Conjur is ready!"
+    else
+      exit_now! " Conjur is not ready after #{retries} seconds" 
+    end
   end
 end
 
