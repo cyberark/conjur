@@ -1,4 +1,6 @@
 require 'gli'
+require 'net/http'
+require 'uri'
 
 include GLI::App
 
@@ -224,12 +226,23 @@ command :wait do |c|
   c.action do |global_options,options,args|
     puts "Waiting for Conjur to be ready..."
     retry_num = 0
-    while `curl -o /dev/null -s -w '%{http_code}' http://localhost:#{options[:port]}` != "200"
-      retry_num += 1
-      break unless retry_num < options[:retries].to_i
+    retries = options[:retries].to_i
+    Struct.new('WaitError', :code)
+    while retry_num < retries
+      uri = URI.parse("http://localhost:#{options[:port]}")
+      begin
+        response = Net::HTTP.get_response(uri)
+      rescue StandardError
+        response = Struct::WaitError.new('000')
+      end
+
+      break if response.code == "200"
       puts "."
       sleep 1
+      retry_num += 1
     end
+
+    exit_now! "No response" unless retry_num < retries
     puts "Done."
   end
 end
