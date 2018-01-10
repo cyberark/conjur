@@ -1,4 +1,6 @@
 require 'gli'
+require 'net/http'
+require 'uri'
 
 include GLI::App
 
@@ -205,6 +207,48 @@ command :role do |cgrp|
       fail 'key retrieval failed' unless args.map { |id|
         system "rake role:retrieve-key[#{id}]"
       }.all?
+    end
+  end
+end
+
+desc "Wait for the Conjur server to be ready"
+command :wait do |c|
+  c.desc 'Port'
+  c.arg_name :port
+  c.default_value ENV['PORT'] || '80'
+  c.flag [ :p, :port ], :must_match => /\d+/
+
+  c.desc 'Number of retries'
+  c.arg_name :retries
+  c.default_value 90
+  c.flag [ :r, :retries ], :must_match => /\d+/
+
+  c.action do |global_options,options,args|
+    puts "Waiting for Conjur to be ready..."
+
+    retries = options[:retries].to_i
+    port = options[:port]
+
+    conjur_ready = lambda do
+      uri = URI.parse("http://localhost:#{port}")
+      begin
+        response = Net::HTTP.get_response(uri)
+        response.code.to_i < 300
+      rescue
+        false
+      end
+    end
+
+    retries.times do
+      break if conjur_ready.call
+      STDOUT.print "."
+      sleep 1
+    end
+
+    if conjur_ready.call
+      puts " Conjur is ready!"
+    else
+      exit_now! " Conjur is not ready after #{retries} seconds" 
     end
   end
 end
