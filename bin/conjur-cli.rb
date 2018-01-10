@@ -210,10 +210,23 @@ command :role do |cgrp|
 end
 
 desc "Wait for the Conjur server to be ready"
-command :wait_for_conjur do |c|
+command :wait do |c|
+  c.desc 'Port'
+  c.arg_name :port
+  c.default_value ENV['PORT'] || '80'
+  c.flag [ :p, :port ], :must_match => /\d+/
+
+  c.desc 'Number of retries'
+  c.arg_name :retries
+  c.default_value 90
+  c.flag [ :r, :retries ], :must_match => /\d+/
+
   c.action do |global_options,options,args|
     puts "Waiting for Conjur to be ready..."
-    while `curl -o /dev/null -s -w '%{http_code}' $CONJUR_APPLIANCE_URL` != "200"
+    retry_num = 0
+    while `curl -o /dev/null -s -w '%{http_code}' http://localhost:#{options[:port]}` != "200"
+      retry_num += 1
+      break unless retry_num < options[:retries].to_i
       puts "."
       sleep 1
     end
