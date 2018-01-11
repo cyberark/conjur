@@ -6,9 +6,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [0.2.0] - 2017-12-07
+## [0.3.0] - 2018-01-11
+### Added
+- `conjurctl wait` command is added that can be used to check if the Conjur server is ready
 
+### Removed
+- Moved Conjur docs to a [separate repo](https://github.com/cyberark/conjur-org)
+
+## [0.2.0] - 2017-12-07
+### Added
 - Add `authn-local` service which issues access tokens over a Unix domain socket.
+
+### Fixed
+- Resolved bug: Policy replace can fail when user is deleted and removed from group
+
+### Changed
+- CTA was updated
 
 ## [0.1.1] - 2017-12-04
 ### Changed
@@ -23,3 +36,5 @@ The first tagged version.
 
 [Unreleased]: https://github.com/cyberark/conjur/compare/v0.1.1...HEAD
 [0.1.1]: https://github.com/cyberark/conjur/compare/v0.1.0...v0.1.1
+[0.2.0]: https://github.com/cyberark/conjur/compare/v0.1.1...v0.2.0
+[0.3.0]: https://github.com/cyberark/conjur/compare/v0.2.0...v0.3.0
