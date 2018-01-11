@@ -303,7 +303,7 @@ version.
         consise, at-a-glance summary. It certainly isn't a direct copy-and-paste
         from the changelog.
 
-- Push the tag: `git push vx.y.z`.
+- Push the tag: `git push vx.y.z` (or `git push origin vx.y.z` if you are working from your local machine).
 - Create a pull request to have the release acked and merged.
   - https://github.com/cyberark/conjur/pull/new/vx.y.z
 
