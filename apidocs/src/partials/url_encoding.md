@@ -1,10 +1,10 @@
-#### Note: entity IDs must be url-encoded
+#### Note: entity IDs must be URL-encoded
 
-Any identifier included in the URL must be [percent encoded][percent-encoding]
-to be recognized by the Conjur API.
+Any identifier included in the URL must be [URL-encoded][percent-encoding] to be
+recognized by the Conjur API.
 
 Examples:
-| Identifier             | Encoded                    |
+| Identifier             | URL-Encoded                |
 |------------------------|----------------------------|
 | `myapp-01`             | `myapp-01` _(no change)_   |
 | `alice@devops`         | `alice%40devops`           |
