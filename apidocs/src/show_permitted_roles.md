@@ -1,10 +1,12 @@
-## Show permitted roles [/resources/{account}/{kind}/{id}?permitted_roles=true&privilege={privilege}]
+## Show permitted roles [/resources/{account}/{kind}/{identifier}?permitted_roles=true&privilege={privilege}]
 
 ### Show permitted roles [GET]
 
 Lists the roles which have the named permission on a resource.
 
 <!-- include(partials/resource_kinds.md) -->
+
+<!-- include(partials/url_encoding.md) -->
 
 #### Example with `curl` and `jq`
 
@@ -37,7 +39,7 @@ curl -H "$(conjur authn authenticate -H)" \
 + Parameters
   + <!-- include(partials/account_param.md) -->
   + kind: variable (string) - kind of resource requested
-  + id: db-password (string) - the identifier of the resource
+  + identifier: db-password (string) - the identifier of the resource
   + privilege: execute (string) - roles permitted to exercise this privilege are
     shown
 

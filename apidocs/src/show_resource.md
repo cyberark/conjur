@@ -10,6 +10,8 @@ The response to this method is a JSON document describing a single resource.
 
 <!-- include(partials/resource_kinds.md) -->
 
+<!-- include(partials/url_encoding.md) -->
+
 #### Example using `curl` and `jq`
 
 ```

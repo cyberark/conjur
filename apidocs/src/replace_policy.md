@@ -9,6 +9,8 @@ Any policy data which already exists on the server but is **not** explicitly spe
 
 <!-- include(partials/policy_size_restriction.md) -->
 
+<!-- include(partials/url_encoding.md) -->
+
 **Permissions required**
 
 `update` privilege on the policy.

@@ -8,6 +8,8 @@ The secret data is returned in the response body.
 
 Note: Conjur will allow you to add a secret to any resource, but the best practice is to store and retrieve secret data only using Variable resources.
 
+<!-- include(partials/url_encoding.md) -->
+
 #### Example with `curl`
 
 ```

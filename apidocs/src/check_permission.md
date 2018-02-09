@@ -7,6 +7,8 @@ authorized to `execute` (fetch the value of) this Secret?
 
 <!-- include(partials/resource_kinds.md) -->
 
+<!-- include(partials/url_encoding.md) -->
+
 #### Example with `curl`
 
 Suppose your account name is "myorg" and you want to check whether Host
