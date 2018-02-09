@@ -8,6 +8,8 @@ Returns an empty string if the resource does not exist, to prevent attackers fro
 
 <!-- include(partials/resource_kinds.md) -->
 
+<!-- include(partials/url_encoding.md) -->
+
 #### Example using `curl`
 
 ```

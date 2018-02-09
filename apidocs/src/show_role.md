@@ -10,6 +10,8 @@ portion of the returned JSON.
 
 <!-- include(partials/role_kinds.md) -->
 
+<!-- include(partials/url_encoding.md) -->
+
 #### Example using `curl` and `jq`
 
 Suppose your account is "myorg" and you want to get information about the user "alice":

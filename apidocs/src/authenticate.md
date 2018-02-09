@@ -4,6 +4,11 @@
 
 Gets a [short-lived access token](/reference/cryptography.html#authentication-tokens), which can be used to authenticate requests to (most of) the rest of the Conjur API. A client can obtain an access token by presenting a valid login name and API key.
 
+The login must be [URL encoded][percent-encoding]. For example, `alice@devops`
+must be encoded as `alice%40devops`.
+
+[percent-encoding]: https://developer.mozilla.org/en-US/docs/Glossary/percent-encoding
+
 For API usage, the access token is ordinarily passed as an HTTP Authorization "Token" header.
 
 ```

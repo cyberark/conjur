@@ -6,6 +6,8 @@ Creates a secret value within the specified Variable.
 
 Note: Conjur will allow you to add a secret to any resource, but the best practice is to store and retrieve secret data only using Variable resources.
 
+<!-- include(partials/url_encoding.md) -->
+
 #### Example with `curl`
 
 ```

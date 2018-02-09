@@ -60,6 +60,8 @@ Rotates the API key of another role you can update.
 
 Note that the body of the request must be the empty string.
 
+<!-- include(partials/url_encoding.md) -->
+
 <!-- include(partials/role_kinds.md) -->
 
 **Permissions required**

@@ -4,6 +4,8 @@
 
 Fetches multiple secret values in one invocation. It's faster to fetch secrets in batches than to fetch them one at a time.
 
+<!-- include(partials/url_encoding.md) -->
+
 **Response**
 
 | Code | Description                                                      |

@@ -9,6 +9,8 @@ the policy file will result in an error.
 
 <!-- include(partials/policy_size_restriction.md) -->
 
+<!-- include(partials/url_encoding.md) -->
+
 **Permissions required**
 
 `create` privilege on the policy.

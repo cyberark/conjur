@@ -7,6 +7,8 @@ Data may be explicitly deleted using the `!delete`, `!revoke`, and `!deny` state
 
 <!-- include(partials/policy_size_restriction.md) -->
 
+<!-- include(partials/url_encoding.md) -->
+
 **Permissions required**
 
 `update` privilege on the policy.
