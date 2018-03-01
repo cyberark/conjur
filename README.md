@@ -263,7 +263,7 @@ via Conjur [policies](https://developer.conjur.net/policy).
 Starting from version 0.1.0, this project follows
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Changelog maintainance
+## Changelog maintenance
 
 The [changelog file](CHANGELOG.md) is maintained based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) guidelines.
