@@ -17,7 +17,7 @@ shift # past argument or value
 done
 
 if [[ $RUN_BRAKEMAN = true ]]; then
-  docker run -v "$(pwd):/tmp/" -w /tmp/  codeclimate/codeclimate-brakeman brakeman -A
+  docker run -v "$(pwd):/tmp/" -w /tmp/  codeclimate/codeclimate-brakeman brakeman
 fi
 
 if [[ $RUN_GEM_AUDIT = true ]]; then
