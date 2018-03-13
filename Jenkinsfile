@@ -16,6 +16,27 @@ pipeline {
         sh 'git fetch' // to pull the tags
       }
     }
+
+    stage('Security Scans') {
+      parallel {
+        stage('Static Analysis') {
+          steps {
+            sh ./security-scan.sh -b
+          }
+          post {
+            always {
+              junit 'brakeman-output.tabs'
+            }
+          }
+        }
+        stage('Vulnerability Scan') {
+          steps {
+            sh ./security-scan.sh -a
+          }
+        }
+      }
+    }
+
     stage('Build Docker image') {
       steps {
         sh './build.sh -j'
