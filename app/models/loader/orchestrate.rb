@@ -118,6 +118,67 @@ module Loader
       store_passwords
 
       store_public_keys
+
+      emit_audit
+    end
+
+    SDID = Audit::SDID
+
+    OPS_MAP = {
+      "INSERT" => "add",
+      "DELETE" => "remove",
+      "UPDATE" => "change"
+    }
+
+    SUBJECT_MAP = {
+      :resource_id => 'resource'.freeze,
+      :role_id => 'role'.freeze,
+      :member_id => 'member'.freeze,
+      :name => 'annotation'.freeze,
+      :privilege => 'privilege'.freeze
+    }
+
+    def emit_audit
+      auth = policy_version.role.id
+      data = {
+        SDID::POLICY => { id: policy_id, version: policy_version.version },
+        SDID::AUTH => { user: auth }
+      }
+      format = "#{auth} %sed %s".freeze
+
+      def humanize_subject table, pk
+        case table
+        when 'annotations'
+          "annotation #{pk[:name]} on #{pk[:resource_id]}"
+        when 'roles'
+          "role #{pk[:role_id]}"
+        when 'resources'
+          "resource #{pk[:resource_id]}"
+        when 'permissions'
+          "permission of #{pk[:role_id]} to #{pk[:privilege]} on #{pk[:resource_id]}"
+        when 'role_memberships'
+          "#{pk[:ownership] == 't' ? 'owner' : 'member'}ship of #{pk[:member_id]} in #{pk[:role_id]}"
+        end
+      end
+
+      def sd_subject pk
+        Hash[pk.map do |k, v|
+          [case k
+          when :name
+            'annotation'
+          when :member_id
+            pk[:ownership] == 't' ? 'owner' : 'member'
+          else
+            k.to_s.chomp "_id"
+          end, v]
+        end.compact]
+      end
+
+      db[:policy_log].where(policy_id: policy_id, version: policy_version.version).each do |log|
+        op = OPS_MAP[log[:operation]]
+        msg = format % [op.chomp('e'), humanize_subject(log[:kind], log[:subject])]
+        Audit.notice msg, 'policy', data.merge(SDID::ACTION => {operation: op}, SDID::SUBJECT => sd_subject(log[:subject]))
+      end
     end
 
     def table_data schema = ""

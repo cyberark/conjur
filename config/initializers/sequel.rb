@@ -1,6 +1,6 @@
 Sequel.split_symbols = true
 Sequel.extension :core_extensions, :postgres_schemata
-Sequel::Model.db.extension :pg_array, :pg_inet
+Sequel::Model.db.extension :pg_array, :pg_inet, :pg_hstore
 Sequel::Model.plugin :validation_helpers
 
 class Sequel::Model
