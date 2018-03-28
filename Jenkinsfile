@@ -23,11 +23,6 @@ pipeline {
           steps {
             sh './security-scan.sh -b'
           }
-          post {
-            always {
-              junit 'brakeman-output.tabs'
-            }
-          }
         }
         stage('Vulnerability Scan') {
           steps {
