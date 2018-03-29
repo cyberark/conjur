@@ -20,20 +20,13 @@ pipeline {
     stage('Security Scans') {
       parallel {
         stage('Static Analysis') {
-          agent {
-              docker {
-                image 'codeclimate/codeclimate-brakeman'
-                args '-v $HOME/:/tmp/ -w /tmp/'
-              }
-            }
           steps {
-            // sh './security-scan.sh -b'
-            sh 'brakeman -o brakeman-output.html'
+            sh './security-scan.sh -b'
           }
           post {
             always {
               // junit 'brakeman-output.json'
-              publishHTML([reportDir: '', reportFiles: 'brakeman-output.html', reportName: 'Brakeman Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false])
+              publishHTML([reportDir: 'brakeman/reports', reportFiles: 'brakeman-output.html', reportName: 'Brakeman Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false])
             }
           }
         }
