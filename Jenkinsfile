@@ -23,6 +23,12 @@ pipeline {
           steps {
             sh './security-scan.sh -b'
           }
+          post {
+            always {
+              // junit 'brakeman-output.json'
+              publishHTML([reportDir: '', reportFiles: 'brakeman-output.html', reportName: 'Brakeman Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false])
+            }
+          }
         }
         stage('Vulnerability Scan') {
           steps {

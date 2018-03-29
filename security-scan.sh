@@ -16,7 +16,7 @@ shift # past argument or value
 done
 
 if [[ $RUN_BRAKEMAN = true ]]; then
-  docker run -v "$(pwd):/tmp/" --rm -w /tmp/ codeclimate/codeclimate-brakeman brakeman
+  docker run -v "$(pwd):/tmp/" --rm -w /tmp/ codeclimate/codeclimate-brakeman brakeman -o brakeman-output.html
 fi
 
 
