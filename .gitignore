@@ -36,3 +36,5 @@ api.html
 
 # Emacs backup files
 *~
+
+brakeman-output.*

@@ -16,6 +16,28 @@ pipeline {
         sh 'git fetch' // to pull the tags
       }
     }
+
+    stage('Security Scans') {
+      parallel {
+        stage('Static Analysis') {
+          steps {
+            sh './security-scan.sh -b'
+          }
+          post {
+            always {
+              // junit 'brakeman-output.json'
+              publishHTML([reportDir: 'brakeman/reports', reportFiles: 'brakeman-output.html', reportName: 'Brakeman Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false])
+            }
+          }
+        }
+        stage('Vulnerability Scan') {
+          steps {
+            sh './security-scan.sh -a'
+          }
+        }
+      }
+    }
+
     stage('Build Docker image') {
       steps {
         sh './build.sh -j'
