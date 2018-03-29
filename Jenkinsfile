@@ -20,8 +20,15 @@ pipeline {
     stage('Security Scans') {
       parallel {
         stage('Static Analysis') {
+          agent {
+              docker {
+                image 'codeclimate/codeclimate-brakeman'
+                args '-v $HOME/:/tmp/ -w /tmp/'
+              }
+            }
           steps {
-            sh './security-scan.sh -b'
+            // sh './security-scan.sh -b'
+            sh 'brakeman -o brakeman-output.html'
           }
           post {
             always {
