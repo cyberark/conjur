@@ -97,7 +97,6 @@ GEM
     conjur-rack-heartbeat (2.0.0)
       rack
     contracts (0.16.0)
-    crass (1.0.3)
     cucumber (2.4.0)
       builder (>= 2.1.2)
       cucumber-core (~> 1.5.0)
@@ -140,8 +139,7 @@ GEM
     listen (3.0.6)
       rb-fsevent (>= 0.9.3)
       rb-inotify (>= 0.9.7)
-    loofah (2.2.2)
-      crass (~> 1.0.2)
+    loofah (2.0.3)
       nokogiri (>= 1.5.9)
     mail (2.6.5)
       mime-types (>= 1.16, < 4)
@@ -154,7 +152,7 @@ GEM
     multi_json (1.12.1)
     multi_test (0.1.2)
     netrc (0.11.0)
-    nokogiri (1.8.2)
+    nokogiri (1.8.1)
       mini_portile2 (~> 2.3.0)
     parallel (1.11.1)
     pg (0.20.0)
@@ -190,8 +188,8 @@ GEM
       activesupport (>= 4.2.0.beta, < 5.0)
       nokogiri (~> 1.6)
       rails-deprecated_sanitizer (>= 1.0.1)
-    rails-html-sanitizer (1.0.4)
-      loofah (~> 2.2, >= 2.2.2)
+    rails-html-sanitizer (1.0.3)
+      loofah (~> 2.0)
     rails_12factor (0.0.3)
       rails_serve_static_assets
       rails_stdout_logging
