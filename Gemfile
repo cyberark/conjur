@@ -44,7 +44,9 @@ gem 'bootstrap-sass', '~> 3.2.0'
 gem 'autoprefixer-rails'
 gem 'font-awesome-sass', '~> 4.7.0'
 
-gem 'authn_ldap', path: 'lib/authenticators/authn_ldap'
+group :local do
+  gem 'authn_ldap', path: 'lib/authenticators/authn_ldap'
+end
 
 group :production do
   gem 'rails_12factor'

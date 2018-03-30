@@ -17,7 +17,7 @@ RUN apt-get install -y \
       update-notifier-common \
       tzdata
 
-RUN gem install -N -v 1.11.2 bundler
+RUN gem install -N -v 1.16.1 bundler
 
 RUN mkdir -p /opt/conjur-server
 
@@ -26,9 +26,12 @@ WORKDIR /opt/conjur-server
 ADD Gemfile      .
 ADD Gemfile.lock .
 
-RUN bundle --without test development website
+RUN bundle --without test development local
 
 ADD . .
+
+# Now include the local gems
+RUN bundle --without test development
 
 RUN ln -sf /opt/conjur-server/bin/conjurctl /usr/local/bin/
 

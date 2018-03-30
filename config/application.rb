@@ -13,6 +13,7 @@ require "action_controller/railtie"
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
+Bundler.require(:local)
 
 module Possum
   class Application < Rails::Application
@@ -27,11 +28,11 @@ module Possum
     # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
-    
+
     config.sequel.after_connect = proc do
       Sequel.extension :core_extensions, :postgres_schemata
     end
-    
+
     config.encoding = "utf-8"
     config.active_support.escape_html_entities_in_json = true
 
