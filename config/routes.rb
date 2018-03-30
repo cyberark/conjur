@@ -10,6 +10,7 @@ end
 
 Rails.application.routes.draw do
   scope format: false do
+    mount AuthnLdap::Engine => "/authn-ldap"
 
     get '/' => 'status#index'
 

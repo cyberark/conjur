@@ -15,6 +15,12 @@ GIT
       activesupport
       rest-client
 
+PATH
+  remote: lib/authenticators/authn_ldap
+  specs:
+    authn_ldap (0.0.1)
+      rails-api
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -294,6 +300,7 @@ PLATFORMS
 DEPENDENCIES
   activesupport
   aruba
+  authn_ldap!
   autoprefixer-rails
   base32-crockford
   bcrypt-ruby (~> 3.0.0)
