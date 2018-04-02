@@ -318,7 +318,7 @@ DEPENDENCIES
   gli
   json_spec
   listen
-  nokogiri (>= 1.8.1)
+  nokogiri (>= 1.8.2)
   parallel
   pg
   pry-byebug
@@ -348,4 +348,4 @@ DEPENDENCIES
   uglifier
 
 BUNDLED WITH
-   1.15.4
+   1.16.1
