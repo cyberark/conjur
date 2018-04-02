@@ -19,7 +19,7 @@ class AuthnCore
       @service_id = service_id
       @user_id = user_id
 
-      raise BadRequestError, "Invalid authn configuration" if @authn_type.nil? || @service_id.nil? || @user_id.nil?
+      raise BadRequestError, "Invalid authn configuration" if @authn_type.empty? || @service_id.empty? || @user_id.empty?
 
       enabled? && service_exists? && user_exists? && user_authorized?    
     end
@@ -29,31 +29,43 @@ class AuthnCore
       unless authenticators.include?("authn-#{@authn_type}/#{@service_id}")
         raise NotFoundError, "authn-#{@authn_type}/#{@service_id} not whitelisted in CONJUR_AUTHENTICATORS"
       end
+      return true
     end
 
     def service_exists?
-      @service ||= user_api_client.resource("webservice:conjur/authn-#{@authn_type}/#{@service_id}")
-    raise NotFoundError, "Service #{@service_id} not found" unless @service.exists?
+      @service = conjur_api.resource("#{account}:webservice:conjur/authn-#{@authn_type}/#{@service_id}")
+
+      unless @service.exists?
+        raise NotFoundError, "Service #{@service_id} not found"
+      end
+      return true
     end
 
     def user_exists?
-      raise NotFoundError, "Role #{user.id} not found" unless user.exists?
+      unless user.exists?
+        raise NotFoundError, "Role #{@user_id} not found"
+      end
+      return true
     end
 
     def user_authorized?
-      raise AuthenticationError, "#{user.roleid} does not have 'authenticate' privilege on #{@service.resourceid}" unless @service.permitted?("authenticate")
+      unless @service.permitted?("authenticate")
+        raise AuthenticationError, "#{@user_id} does not have 'authenticate' privilege on the conjur/authn-#{@authn_type}/#{@service_id} webservice"
+      end
+      return true
     end
 
     def user
-      @user ||= user_api_client.user(@user_id)
+      Conjur::API.role_from_username(conjur_api, @user_id, account)
     end
 
-    def user_api_client
-      @user_api_client ||= Conjur::API.new_from_token user_token
+    def conjur_api
+      @token = Conjur::API.authenticate_local "#{@user_id}"
+      Conjur::API.new_from_token @token
     end
 
-    def user_token
-      @user_token ||= Conjur::API.authenticate_local "#{@user_id}"
+    def account
+      ENV['CONJUR_ACCOUNT']
     end
   end
 end
