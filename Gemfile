@@ -44,6 +44,10 @@ gem 'bootstrap-sass', '~> 3.2.0'
 gem 'autoprefixer-rails'
 gem 'font-awesome-sass', '~> 4.7.0'
 
+group :local do
+  gem 'authn_local', path: 'lib/gems/authn_local'
+end
+
 group :production do
   gem 'rails_12factor'
 end

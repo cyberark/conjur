@@ -1,7 +1,6 @@
-require 'conjur-api'
+require "authn_core/version"
 
-class AuthnCore
-
+module AuthnCore
   class BadRequestError < RuntimeError
   end
 
@@ -21,7 +20,7 @@ class AuthnCore
 
       raise BadRequestError, "Invalid authn configuration" if @authn_type.empty? || @service_id.empty? || @user_id.empty?
 
-      enabled? && service_exists? && user_exists? && user_authorized?    
+      enabled? && service_exists? && user_exists? && user_authorized?
     end
 
     def enabled?
