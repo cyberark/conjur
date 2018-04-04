@@ -19,7 +19,7 @@ RUN apt-get install -y \
     jq \
     tzdata
       
-RUN gem install -N -v 1.11.2 bundler
+RUN gem install -N -v 1.16.1 bundler
 
 RUN mkdir -p /src/conjur-server
 
@@ -31,7 +31,7 @@ WORKDIR /src/conjur-server
 ADD Gemfile      .
 ADD Gemfile.lock .
 
-RUN bundle
+RUN bundle --without local
 
 RUN rm /etc/service/sshd/down
 RUN ln -sf /src/conjur-server/bin/conjurctl /usr/local/bin/

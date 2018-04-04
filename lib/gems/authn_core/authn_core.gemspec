@@ -9,7 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Jason Vanderhoof", "Geri Jennings", "Jonah Goldstein"]
   spec.email         = ["jvanderhoof@gmail.com", "geri.jennings@cyberark.com", "jonah.goldstein@cyberark.com"]
 
-  spec.summary       = %q{Conjur custom authenticator security requirements}
+  spec.summary       = %q{Conjur custom authenticator core requirements}
+  spec.description   = "An implementation of the minimal security requirements for Conjur custom authenticators. All Conjur custom authenticators should make use of this core functionality."
   spec.homepage      = "https://github.com/cyberark/conjur/lib/gems/authn_core/README.md"
   spec.license       = "MIT"
 
@@ -29,7 +30,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency 'conjur-api'
+  spec.add_runtime_dependency 'conjur-api', '~> 5'
 
   spec.add_development_dependency "bundler", "~> 1.15"
   spec.add_development_dependency "rake", "~> 10.0"

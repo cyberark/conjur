@@ -9,7 +9,7 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 gem 'rake'
 gem 'rails-api'
 gem 'rails', '~> 4.2'
-gem 'nokogiri', '>= 1.8.1'
+gem 'nokogiri', '>= 1.8.2'
 gem 'puma'
 
 gem 'sequel-rails'
@@ -44,7 +44,7 @@ gem 'bootstrap-sass', '~> 3.2.0'
 gem 'autoprefixer-rails'
 gem 'font-awesome-sass', '~> 4.7.0'
 
-group :core do
+group :local do
   gem 'authn_core', path: 'lib/gems/authn_core'
 end
 

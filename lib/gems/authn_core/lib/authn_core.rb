@@ -1,3 +1,4 @@
+require 'conjur-api'
 require "authn_core/version"
 
 # Outstanding questions:
