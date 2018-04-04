@@ -15,6 +15,12 @@ GIT
       activesupport
       rest-client
 
+PATH
+  remote: lib/gems/authn_core
+  specs:
+    authn_core (0.1.0)
+      conjur-api (~> 5)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -294,6 +300,7 @@ PLATFORMS
 DEPENDENCIES
   activesupport
   aruba
+  authn_core!
   autoprefixer-rails
   base32-crockford
   bcrypt-ruby (~> 3.0.0)
@@ -311,7 +318,7 @@ DEPENDENCIES
   gli
   json_spec
   listen
-  nokogiri (>= 1.8.1)
+  nokogiri (>= 1.8.2)
   parallel
   pg
   pry-byebug
@@ -341,4 +348,4 @@ DEPENDENCIES
   uglifier
 
 BUNDLED WITH
-   1.15.4
+   1.16.1

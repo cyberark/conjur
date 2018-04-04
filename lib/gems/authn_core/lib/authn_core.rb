@@ -1,3 +1,6 @@
+require 'conjur-api'
+require "authn_core/version"
+
 # Outstanding questions:
 # 
 #     1. Best way to enforce mapping to status codes
@@ -19,8 +22,6 @@
 #     # same
 #   end
 # end
-
-require 'conjur-api'
 
 class AuthenticatorNotEnabled < RuntimeError
   def initialize(authenticator_name)
