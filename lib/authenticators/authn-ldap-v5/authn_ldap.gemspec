@@ -16,11 +16,11 @@ Gem::Specification.new do |s|
  
   s.required_rubygems_version = ">= 1.3.6"
  
-  s.add_dependency('sinatra', '2.0.1')
-  s.add_dependency('conjur-api', '5.1.0')
-  s.add_dependency('net-ldap', '0.16.1')
-  s.add_dependency('conjur-rack-heartbeat', '2.0.0')
-  s.add_dependency('conjur-appliance-logging', '0.3.1')
+  s.add_dependency('sinatra', '~>2.0')
+  s.add_dependency('conjur-api', '>=5.0.0')
+  s.add_dependency('net-ldap', '~>0.16.1')
+  s.add_dependency('conjur-rack-heartbeat', '~>2.0')
+  s.add_dependency('conjur-appliance-logging', '~>0.3.1')
 
   s.add_development_dependency('puma')
   s.add_development_dependency('pry')
