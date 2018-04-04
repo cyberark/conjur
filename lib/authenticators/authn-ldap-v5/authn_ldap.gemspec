@@ -5,12 +5,12 @@ $:.unshift lib unless $:.include?(lib)
 require 'bundler/version'
  
 Gem::Specification.new do |s|
-  s.name        = "authn-ldap"
+  s.name        = "authn-ldap-v5"
   s.version     = "0.0.1"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Jonah Goldstein"]
   s.email       = ["jonah.goldstein@cyberark.com"]
-  s.homepage    = "None"
+  s.homepage    = "http://www.example.com"
   s.summary     = "Login to Conjur using LDAP"
   s.description = "Login to Conjur using LDAP"
  
@@ -20,15 +20,31 @@ Gem::Specification.new do |s|
   s.add_dependency('conjur-api', '5.1.0')
   s.add_dependency('net-ldap', '0.16.1')
   s.add_dependency('conjur-rack-heartbeat', '2.0.0')
+  s.add_dependency('conjur-appliance-logging', '0.3.1')
 
   s.add_development_dependency('puma')
+  s.add_development_dependency('pry')
+  s.add_development_dependency('cucumber')
+  s.add_development_dependency('rspec')
+  s.add_development_dependency('rspec-mocks')
+  s.add_development_dependency('rspec-expectations')
+  s.add_development_dependency('ladle')
+  s.add_development_dependency('simplecov')
+  s.add_development_dependency('ci_reporter_rspec')
+  s.add_development_dependency('rest-client')
+  s.add_development_dependency('rerun')
  
   # s.files        = Dir.glob("{bin,lib}/**/*") + %w(LICENSE README.md ROADMAP.md CHANGELOG.md)
 
-  # s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
-  # s.test_files = Dir["test/**/*"]
-  s.executables  = ['bundle']
-  s.require_path = 'lib'
+  s.files = Dir[
+    "{bin,ci,spec,features,lib}/**/*",
+    "Dockerfile.test",
+    "docker-compose.yml",
+    "README.md",
+    "VERSION_APPLIANCE"
+  ]
+  # test_files is not longer a thing after ruby 2.2...
+  # s.test_files = Dir["{bin,ci,spec,features}/**/*", "Dockerfile.test", "docker-compose.yml"]
 end
 
 __END__

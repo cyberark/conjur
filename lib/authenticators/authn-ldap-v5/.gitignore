@@ -3,3 +3,8 @@ features/reports
 tmp
 service.pem
 .DS_Store
+
+# gems shouldn't include Gemfile.lock
+# see bottom of page here:
+# http://yehudakatz.com/2010/12/16/clarifying-the-roles-of-the-gemspec-and-gemfile/
+Gemfile.lock
