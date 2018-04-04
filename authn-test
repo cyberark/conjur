@@ -1,0 +1,32 @@
+#!/bin/bash -ex
+
+# build the image
+./build.sh
+
+pushd dev
+  # start Conjur with the CONJUR_AUTHENTICATORS env var set
+  export CONJUR_AUTHENTICATORS=authn-iam/sample/id,authn-k8s/gke/prod,authn-cf/pcf/prod
+  ./start.sh
+
+  docker exec conjurdev_conjur_1 conjurctl wait -r 30 -p 3000
+
+  # load the sample policy
+  api_key=$(docker exec conjurdev_conjur_1 bash -c 'rails r "puts Role[%Q{cucumber:user:admin}].api_key" 2>/dev/null')
+  docker exec \
+    -e CONJUR_AUTHN_API_KEY=$api_key \
+    conjurdev_client_1 \
+    bash -c 'conjur policy load root /src/conjur-server/authn-policy.yml'
+popd
+
+# build the gem and hop into an irb session
+docker exec -it conjurdev_conjur_1 bash -c '
+  gem build authn_core.gemspec
+  gem install authn_core-0.0.0.gem
+  gem install conjur-api -v 5.1.0
+  '
+
+docker exec -it conjurdev_conjur_1 bash
+
+# require 'authn_core'
+# auth_sec = AuthenticatorSecurityRequirements.new(authn_type: "k8s")
+# auth_sec.validate("gke/prod", "host/sample-host")

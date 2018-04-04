@@ -43,12 +43,11 @@ end
 class AuthenticatorSecurityRequirements
   def initialize(authn_type:,
                  whitelisted_authenticators: ENV['CONJUR_AUTHENTICATORS'],
-                 conjur_account: ENV['CONJUR_ACCOUNT'],
-                 conjur_api: Conjur::API)
+                 conjur_account: ENV['CONJUR_ACCOUNT'])
     @authn_type = authn_type
     @authenticators = authenticators_array(whitelisted_authenticators)
     @conjur_account = conjur_account
-    @conjur_api = conjur_api
+
     validate_constructor_arguments
   end
 
@@ -57,15 +56,16 @@ class AuthenticatorSecurityRequirements
     validate_nonempty('user_id', user_id)
 
     service_name = webservice_name(service_id)
-    validate_service_whitlisted(service_name)
-    validate_user_requirements(service_name)
+
+    validate_service_whitelisted(service_name)
+    validate_user_requirements(service_name, user_id)
   end
 
   private
 
   def validate_constructor_arguments
     validate_nonempty('authn_type', @authn_type)
-    validate_nonempty('whitelisted_authenticators', @whitelisted_authenticators)
+    validate_nonempty('whitelisted_authenticators', @authenticators)
     validate_nonempty('conjur_account', @conjur_account)
   end
 
@@ -77,16 +77,15 @@ class AuthenticatorSecurityRequirements
     "authn-#{@authn_type}/#{service_id}"
   end
 
-  def validate_service_whitlisted(service_name)
-    raise AuthenticatorNotEnabled, name unless @authenticators.include?(name)
+  def validate_service_whitelisted(service_name)
+    raise AuthenticatorNotEnabled, service_name unless @authenticators.include?(service_name)
   end
 
-  def validate_user_requirements(service_name)
+  def validate_user_requirements(service_name, user_id)
     UserSecurityRequirements.new(
-       user_id: @user_id, 
+       user_id: user_id, 
        webservice_name: service_name,
-       conjur_account: @conjur_account,
-       conjur_api: @conjur_api
+       conjur_account: @conjur_account
     ).validate
   end
 
@@ -97,13 +96,12 @@ class AuthenticatorSecurityRequirements
   class UserSecurityRequirements
     def initialize(user_id:,
                    webservice_name:,
-                   conjur_account:,
-                   conjur_api: Conjur::API)
+                   conjur_account:)
 
       @user_id         = user_id
       @webservice_name = webservice_name
       @conjur_account  = conjur_account
-      @conjur_api      = conjur_api
+      @conjur_api      = Conjur::API
     end
 
     def validate
@@ -115,17 +113,17 @@ class AuthenticatorSecurityRequirements
     private
 
     def user_role
-      @user_role ||= @conjur_api.role_from_username(
-        users_api_instance, user_id, @conjur_account)
+      @conjur_api.role_from_username(
+        users_api_instance, @user_id, @conjur_account)
     end
 
-    def users_api
-      @users_api ||= @conjur_api.new_from_token(
+    def users_api_instance
+      @conjur_api.new_from_token(
         @conjur_api.authenticate_local(@user_id.to_s))  # do we need to_s?
     end
 
     def webservice
-      users_api.resource("#{@conjur_account}:webservice:conjur/#{@webservice_name}")
+      users_api_instance.resource("#{@conjur_account}:webservice:conjur/#{@webservice_name}")
     end
   end
 end
