@@ -1,39 +1,27 @@
 # AuthnCore
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/authn_core`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'authn_core'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install authn_core
+This gem provides a standard set of methods to implement the core security
+requirements of a Conjur custom authenticator.
 
 ## Usage
 
-TODO: Write usage instructions here
+Using this core functionality within `cyberark/conjur` is supported by default, as the `authn-core` gem is included in the project Gemfile.
 
-## Development
+This gem assumes your custom authenticator accepts POST requests to `/[service-id]/users/[user-id]/authenticate`
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+To use `authn-core`, include the following commands in your custom authenticator to validate the authenticate request before performing any checks specific to your authenticator.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+The example code below assumes your authenticator has received a request where the `service-id` is `sample/id` and the `user-id` is `host/sample-host`. It also assumes your custom authenticator is called `authn-example`
 
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/authn_core.
-
-## License
-
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+```
+require 'authn_core'
+auth_sec = AuthenticatorSecurityRequirements.new(authn_type: "example")
+auth_sec.validate("sample/id", "host/sample-host")
+```
+an exception will be raised if:
+- `authn-example/sample/id` is not whitelisted in the `CONJUR_AUTHENTICATORS
+` environment variable on the Conjur node
+- there is no `conjur/authn-example/sample/id` webservice in Conjur policy
+- there is no role with id `host/sample-host`
+- the `host/sample-host` role is not authorized with `authenticate` privileges o
+n the `conjur/authn-example/sample/id` webservice
