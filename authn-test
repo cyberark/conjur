@@ -23,8 +23,9 @@ docker exec -it conjurdev_conjur_1 bash -c '
   gem build authn_core.gemspec
   gem install authn_core-0.0.0.gem
   gem install conjur-api -v 5.1.0
-  irb
   '
+
+docker exec -it conjurdev_conjur_1 bash
 
 # require 'authn_core'
 # auth_sec = AuthenticatorSecurityRequirements.new(authn_type: "k8s")
