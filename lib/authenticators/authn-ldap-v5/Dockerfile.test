@@ -1,0 +1,19 @@
+FROM ruby:2.3
+
+# RUN apt-get update && apt-get install -y curl
+
+RUN mkdir -p /opt/authn-ldap
+WORKDIR /opt/authn-ldap
+
+ADD Gemfile .
+ADD Gemfile.lock .
+
+# COPY Gemfile conjur-api.gemspec ./
+# COPY lib/conjur-api/version.rb ./lib/conjur-api/
+
+RUN bundle
+
+Add . .
+
+# ENTRYPOINT ["/usr/local/bin/bundle", "exec"]
+# CMD ["rspec"]

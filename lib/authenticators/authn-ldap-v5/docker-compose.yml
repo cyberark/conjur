@@ -1,0 +1,85 @@
+version: '3'
+
+volumes:
+  authn-local:
+  conjur-certs:
+
+services:
+  pg:
+    image: postgres:9.3
+
+  conjur-master:
+    # image: registry2.itci.conjur.net/conjur-appliance-cuke-master:5.0-stable
+    image: cyberark/conjur
+    security_opt:
+      - 'seccomp=unconfined'
+    volumes:
+      - ./40_authn-local.conf:/etc/conjur/nginx.d/40_authn-local.conf
+      - authn-local:/run/authn-local
+      - conjur-certs:/opt/conjur/etc/ssl/
+    # expose:
+    #   - "80"
+    environment:
+      DATABASE_URL: postgres://postgres@pg/postgres
+      CONJUR_DATA_KEY: 'WMfApcDBtocRWV+ZSUP3Tjr5XNU+Z2FdBb6BEezejIs='
+    command: server -a cucumber
+    # ports:
+    #   - 443:443
+    depends_on:
+      - pg
+
+  authn-ldap:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cyberark/authn-ldap
+    # entrypoint: sleep infinity
+    entrypoint: bundle exec
+    command: rerun 'rackup -p 80 -o 0.0.0.0'
+    environment:
+      LDAP_URI: ldap://ldap-server:389
+      LDAP_BASE: dc=conjur,dc=net
+      LDAP_FILTER: '(uid=%s)'
+      CONJUR_APPLIANCE_URL: http://conjur-master
+      CONJUR_ACCOUNT: cucumber # This should be set as part of the incoming `authn-ldap` request.
+      RACK_ENV: development
+    volumes:
+      - authn-local:/run/authn-local
+      - .:/opt/authn-ldap # the source code
+      - ./ci/authn-ldap.conf:/opt/conjur/etc/authn-ldap.conf
+
+  test-container:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      LDAP_URI: http://ldap-server:389
+      CONJUR_APPLIANCE_URL: http://conjur-master
+      CONJUR_ACCOUNT: cucumber
+    image: ldap-test-container
+    volumes:
+      - .:/opt/authn-ldap # the source code
+
+  ldap-server:
+    build:
+      context: ./ci
+      dockerfile: Dockerfile.ldap
+    expose:
+      - "389"
+    image: test-ldap-server
+
+  conjur-cli:
+    image: conjurinc/cli5
+    entrypoint: sleep
+    command: infinity
+    depends_on: [ conjur-master ]
+    # links:
+    #   - conjur-master:cuke-master
+    environment:
+      CONJUR_APPLIANCE_URL: http://conjur-master
+      CONJUR_ACCOUNT: cucumber
+      CONJUR_AUTHN_LOGIN: admin
+      # CONJUR_AUTHN_API_KEY: secret
+    volumes:
+      - ./ci/policy.yml:/var/policy.yml
+      - conjur-certs:/opt/conjur/etc/ssl/
