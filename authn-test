@@ -18,14 +18,14 @@ pushd dev
     bash -c 'conjur policy load root /src/conjur-server/authn-policy.yml'
 popd
 
-# build the gem
-gem build authn_core.gemspec
-gem install authn_core-0.0.0.gem
-gem install conjur-api -v 5.1.0
-
-# hop into an irb session
-irb
+# build the gem and hop into an irb session
+docker exec -it conjurdev_conjur_1 bash -c '
+  gem build authn_core.gemspec
+  gem install authn_core-0.0.0.gem
+  gem install conjur-api -v 5.1.0
+  irb
+  '
 
 # require 'authn_core'
-# auth_sec = AuthenticatorSecurityRequirements.new(authn_type: "k8s", whitelisted_authenticators: "authn-iam/sample/id,authn-k8s/gke/prod,authn-cf/pcf/prod", conjur_account: "cucumber")
+# auth_sec = AuthenticatorSecurityRequirements.new(authn_type: "k8s")
 # auth_sec.validate("gke/prod", "host/sample-host")
