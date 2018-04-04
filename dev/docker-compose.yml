@@ -9,6 +9,8 @@ services:
       CONJUR_APPLIANCE_URL: http://localhost:3000
       DATABASE_URL: postgres://postgres@pg/postgres
       CONJUR_ADMIN_PASSWORD: admin
+      CONJUR_AUTHENTICATORS:
+      CONJUR_ACCOUNT: cucumber
       CONJUR_PASSWORD_ALICE: secret
       CONJUR_DATA_KEY:
       RAILS_ENV:
@@ -46,6 +48,8 @@ services:
     environment:
       CONJUR_APPLIANCE_URL: http://conjur:3000
       DATABASE_URL: postgres://postgres@pg/postgres
+      CONJUR_ACCOUNT: cucumber
+      CONJUR_AUTHN_LOGIN: admin
     links:
     - conjur:conjur
     volumes:
