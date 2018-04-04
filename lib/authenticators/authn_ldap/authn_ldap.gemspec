@@ -19,6 +19,8 @@ Gem::Specification.new do |s|
 
   # s.add_dependency "rails", "~> 4.2.8"
   s.add_dependency 'rails-api'
+  s.add_dependency 'net-ldap'
+  s.add_dependency 'activesupport'
 
   # s.add_development_dependency "sqlite3"
 end

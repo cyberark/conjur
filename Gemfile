@@ -46,10 +46,10 @@ gem 'font-awesome-sass', '~> 4.7.0'
 
 group :local do
   gem 'authn_ldap', path: 'lib/authenticators/authn_ldap'
-  gem 'authn-ldap-v5', path: 'lib/authenticators/authn-ldap-v5'
-  gem 'conjur-appliance-logging',
-    git: "https://github.com/conjurinc/appliance-logging.git",
-    branch: "master"
+  # gem 'authn-ldap-v5', path: 'lib/authenticators/authn-ldap-v5'
+  # gem 'conjur-appliance-logging',
+  #   git: "https://github.com/conjurinc/appliance-logging.git",
+  #   branch: "master"
 end
 
 group :production do

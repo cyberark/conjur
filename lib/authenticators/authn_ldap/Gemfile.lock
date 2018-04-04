@@ -2,6 +2,8 @@ PATH
   remote: .
   specs:
     authn_ldap (0.0.1)
+      activesupport
+      net-ldap
       rails-api
 
 GEM
@@ -34,6 +36,7 @@ GEM
       nokogiri (>= 1.5.9)
     mini_portile2 (2.3.0)
     minitest (5.10.3)
+    net-ldap (0.16.1)
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
     rack (1.6.8)
@@ -68,4 +71,4 @@ DEPENDENCIES
   authn_ldap!
 
 BUNDLED WITH
-   1.11.2
+   1.16.1

@@ -19,6 +19,8 @@ PATH
   remote: lib/authenticators/authn_ldap
   specs:
     authn_ldap (0.0.1)
+      activesupport
+      net-ldap
       rails-api
 
 GEM
@@ -159,6 +161,7 @@ GEM
     minitest (5.10.3)
     multi_json (1.12.1)
     multi_test (0.1.2)
+    net-ldap (0.16.1)
     netrc (0.11.0)
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
