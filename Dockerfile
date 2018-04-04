@@ -26,9 +26,9 @@ WORKDIR /opt/conjur-server
 ADD Gemfile      .
 ADD Gemfile.lock .
 
-RUN bundle --without test development website
-
 ADD . .
+
+RUN bundle --without test development website
 
 RUN ln -sf /opt/conjur-server/bin/conjurctl /usr/local/bin/
 

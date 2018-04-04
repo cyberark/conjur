@@ -44,8 +44,8 @@ gem 'bootstrap-sass', '~> 3.2.0'
 gem 'autoprefixer-rails'
 gem 'font-awesome-sass', '~> 4.7.0'
 
-group :local do
-  gem 'authn_local', path: 'lib/gems/authn_local'
+group :core do
+  gem 'authn_core', path: 'lib/gems/authn_core'
 end
 
 group :production do

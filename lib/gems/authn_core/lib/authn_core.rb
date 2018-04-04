@@ -1,70 +1,131 @@
 require "authn_core/version"
 
-module AuthnCore
-  class BadRequestError < RuntimeError
+# Outstanding questions:
+# 
+#     1. Best way to enforce mapping to status codes
+#     2. Should we do the enabled/defined checks when object is created?
+#        Seems redundant that we retest it on every validation
+# 
+# Example use:
+# 
+# post '/authenticate/:user' do
+#   begin
+#     @security_requirements.validate          #initialized by web service
+#     #specific auth code here
+#   rescue AuthenticatorNotEnabled => e
+#     # 1. map it to a status code  (TODO: answer Geri's question on this)
+#     # 2. put the error message in whatever format we want (eg, json)
+#   rescue ServiceNotDefined => e
+#     # same
+#   rescue NotAuthorizedInConjur => e
+#     # same
+#   end
+# end
+
+class AuthenticatorNotEnabled < RuntimeError
+  def initialize(authenticator_name)
+    super("'#{authenticator_name}' not whitelisted in CONJUR_AUTHENTICATORS")
+  end
+end
+
+class ServiceNotDefined < RuntimeError
+  def initialize(service_name)
+    super("Webservice '#{service_name}' is not defined in the Conjur policy")
+  end
+end
+
+class NotAuthorizedInConjur < RuntimeError
+  def initialize(user_id)
+    super("User '#{user_id}' is not authorized in the Conjur policy")
+  end
+end
+
+class AuthenticatorSecurityRequirements
+  def initialize(authn_type:,
+                 whitelisted_authenticators: ENV['CONJUR_AUTHENTICATORS'],
+                 conjur_account: ENV['CONJUR_ACCOUNT'],
+                 conjur_api: Conjur::API)
+    @authn_type = authn_type
+    @authenticators = authenticators_array(whitelisted_authenticators)
+    @conjur_account = conjur_account
+    @conjur_api = conjur_api
+    validate_constructor_arguments
   end
 
-  class NotFoundError < RuntimeError
+  def validate(service_id, user_id)
+    validate_nonempty('service_id', service_id)
+    validate_nonempty('user_id', user_id)
+
+    service_name = webservice_name(service_id)
+    validate_service_whitlisted(service_name)
+    validate_user_requirements(service_name)
   end
 
-  class AuthenticationError < RuntimeError
+  private
+
+  def validate_constructor_arguments
+    validate_nonempty('authn_type', @authn_type)
+    validate_nonempty('whitelisted_authenticators', @whitelisted_authenticators)
+    validate_nonempty('conjur_account', @conjur_account)
   end
 
-  # required info:
-  # service_id, authn_type, user_id (which might be host/host_id)
-  class << self
-    def authorized? authn_type, service_id, user_id
-      @authn_type = authn_type
-      @service_id = service_id
-      @user_id = user_id
+  def authenticators_array(comma_delimited_authenticators)
+    (comma_delimited_authenticators || '').split(',').map(&:strip)
+  end
 
-      raise BadRequestError, "Invalid authn configuration" if @authn_type.empty? || @service_id.empty? || @user_id.empty?
+  def webservice_name(service_id)
+    "authn-#{@authn_type}/#{service_id}"
+  end
 
-      enabled? && service_exists? && user_exists? && user_authorized?
+  def validate_service_whitlisted(service_name)
+    raise AuthenticatorNotEnabled, name unless @authenticators.include?(name)
+  end
+
+  def validate_user_requirements(service_name)
+    UserSecurityRequirements.new(
+       user_id: @user_id, 
+       webservice_name: service_name,
+       conjur_account: @conjur_account,
+       conjur_api: @conjur_api
+    ).validate
+  end
+
+  def validate_nonempty(name, value)
+    raise ArgumentError, "'#{name}' must not be empty" if value.empty?
+  end
+
+  class UserSecurityRequirements
+    def initialize(user_id:,
+                   webservice_name:,
+                   conjur_account:,
+                   conjur_api: Conjur::API)
+
+      @user_id         = user_id
+      @webservice_name = webservice_name
+      @conjur_account  = conjur_account
+      @conjur_api      = conjur_api
     end
 
-    def enabled?
-      authenticators = (ENV['CONJUR_AUTHENTICATORS'] || '').split(',').map(&:strip)
-      unless authenticators.include?("authn-#{@authn_type}/#{@service_id}")
-        raise NotFoundError, "authn-#{@authn_type}/#{@service_id} not whitelisted in CONJUR_AUTHENTICATORS"
-      end
-      return true
+    def validate
+      raise ServiceNotDefined, @webservice_name unless webservice.exists?
+      raise NotAuthorizedInConjur, @user_id unless user_role.exists? 
+      raise NotAuthorizedInConjur, @user_id unless webservice.permitted?("authenticate")
     end
 
-    def service_exists?
-      @service = conjur_api.resource("#{account}:webservice:conjur/authn-#{@authn_type}/#{@service_id}")
+    private
 
-      unless @service.exists?
-        raise NotFoundError, "Service #{@service_id} not found"
-      end
-      return true
+    def user_role
+      @user_role ||= @conjur_api.role_from_username(
+        users_api_instance, user_id, @conjur_account)
     end
 
-    def user_exists?
-      unless user.exists?
-        raise NotFoundError, "Role #{@user_id} not found"
-      end
-      return true
+    def users_api
+      @users_api ||= @conjur_api.new_from_token(
+        @conjur_api.authenticate_local(@user_id.to_s))  # do we need to_s?
     end
 
-    def user_authorized?
-      unless @service.permitted?("authenticate")
-        raise AuthenticationError, "#{@user_id} does not have 'authenticate' privilege on the conjur/authn-#{@authn_type}/#{@service_id} webservice"
-      end
-      return true
-    end
-
-    def user
-      Conjur::API.role_from_username(conjur_api, @user_id, account)
-    end
-
-    def conjur_api
-      @token = Conjur::API.authenticate_local "#{@user_id}"
-      Conjur::API.new_from_token @token
-    end
-
-    def account
-      ENV['CONJUR_ACCOUNT']
+    def webservice
+      users_api.resource("#{@conjur_account}:webservice:conjur/#{@webservice_name}")
     end
   end
 end

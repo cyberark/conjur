@@ -6,12 +6,11 @@ require "authn_core/version"
 Gem::Specification.new do |spec|
   spec.name          = "authn_core"
   spec.version       = AuthnCore::VERSION
-  spec.authors       = ["Jason Vanderhoof"]
-  spec.email         = ["jvanderhoof@gmail.com"]
+  spec.authors       = ["Jason Vanderhoof", "Geri Jennings", "Jonah Goldstein"]
+  spec.email         = ["jvanderhoof@gmail.com", "geri.jennings@cyberark.com", "jonah.goldstein@cyberark.com"]
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = %q{Conjur custom authenticator security requirements}
+  spec.homepage      = "https://github.com/cyberark/conjur/lib/gems/authn_core/README.md"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
