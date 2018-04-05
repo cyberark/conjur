@@ -12,7 +12,9 @@ fi
 export CONJUR_DATA_KEY="$(cat data_key)"
 
 docker-compose up -d
+docker-compose exec conjur bundle
 docker-compose exec conjur conjurctl db migrate
 docker-compose exec conjur conjurctl account create cucumber || true
+docker-compose exec -d conjur conjurctl server
 # docker-compose exec conjur bash
-docker exec -it --detach-keys 'ctrl-\' $(docker-compose ps -q conjur) bash
+# docker exec -it --detach-keys 'ctrl-\' $(docker-compose ps -q conjur) bash
