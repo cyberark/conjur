@@ -1,0 +1,3 @@
+- !grant
+  role: !group conjur/authn-ldap/test/clients
+  member: !user alice

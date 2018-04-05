@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+
+  ldap-server:
+    build:
+      context: ./ci
+      dockerfile: Dockerfile.ldap
+    expose:
+      - "389"
+    image: test-ldap-server

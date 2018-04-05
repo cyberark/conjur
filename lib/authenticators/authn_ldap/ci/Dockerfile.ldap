@@ -1,0 +1,18 @@
+FROM ubuntu:14.04
+
+MAINTAINER Conjur Inc
+
+RUN apt-get update -y \
+  && apt-get install -y software-properties-common \
+  && apt-add-repository ppa:brightbox/ruby-ng \
+  && apt-get update -y \
+  && apt-get install -y ruby2.2 vim openjdk-7-jre ldap-utils
+
+RUN gem install -N ladle
+
+EXPOSE 389
+
+ADD ldap.ldif /etc/ldap.ldif
+ADD ladle.rb /ladle.rb
+
+CMD [ "/ladle.rb" ]
