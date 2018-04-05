@@ -1,4 +1,6 @@
 require_dependency 'authn_ldap/application_controller'
+require 'authn_core'
+
 
 module AuthnLdap
   class AuthenticateController < ApplicationController
@@ -8,9 +10,10 @@ module AuthnLdap
       password = request.body.read
       token    = authenticator.auth(login, password)
 
+      validate_security_requirements(login)
+
       if token
         render json: token.to_json
-
       else
         render json: { status: 401 }
       end
@@ -28,6 +31,22 @@ module AuthnLdap
           bind_pw: ENV['LDAP_BINDPW']
         ),
         ldap_filter: ENV['LDAP_FILTER']
+      )
+    end
+
+    def validate_security_requirements(login)
+      # service id is test
+      # TODO: how should this be passed? ENV variable?
+      security_requirements.validate('test', login)
+    # rescue => e
+    #   puts e
+    end
+
+    def security_requirements
+      AuthenticatorSecurityRequirements.new(
+        authn_type: 'ldap',
+        whitelisted_authenticators: ENV['CONJUR_AUTHENTICATORS'],
+        conjur_account: ENV['CONJUR_ACCOUNT']
       )
     end
 

@@ -14,6 +14,7 @@ gemspec
 # gem 'activesupport'
 # gem 'conjur-rack-heartbeat'
 gem 'conjur-appliance-logging', git: "https://github.com/conjurinc/appliance-logging.git", branch: "master"
+gem 'conjur-api', github: 'cyberark/api-ruby'
 
 # group :development do 
 # #  gem 'conjur-debify', '~> 1.0'

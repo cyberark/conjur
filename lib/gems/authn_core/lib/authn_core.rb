@@ -1,4 +1,4 @@
-require 'conjur-api'
+require 'conjur/api'
 require "authn_core/version"
 
 # Outstanding questions:
@@ -44,9 +44,11 @@ end
 class AuthenticatorSecurityRequirements
   def initialize(authn_type:,
                  whitelisted_authenticators: ENV['CONJUR_AUTHENTICATORS'],
-                 conjur_account: ENV['CONJUR_ACCOUNT'])
+                 conjur_account: ENV['CONJUR_ACCOUNT'],
+                 conjur_api: Conjur::API)
     @authn_type = authn_type
     @authenticators = authenticators_array(whitelisted_authenticators)
+    @conjur_api     = conjur_api
     @conjur_account = conjur_account
 
     validate_constructor_arguments
@@ -85,7 +87,8 @@ class AuthenticatorSecurityRequirements
     UserSecurityRequirements.new(
        user_id: user_id, 
        webservice_name: service_name,
-       conjur_account: @conjur_account
+       conjur_account: @conjur_account,
+       conjur_api: @conjur_api
     ).validate
   end
 
@@ -96,12 +99,13 @@ class AuthenticatorSecurityRequirements
   class UserSecurityRequirements
     def initialize(user_id:,
                    webservice_name:,
-                   conjur_account:)
+                   conjur_account:,
+                   conjur_api: )
 
       @user_id         = user_id
       @webservice_name = webservice_name
       @conjur_account  = conjur_account
-      @conjur_api      = Conjur::API
+      @conjur_api      = conjur_api
     end
 
     def validate
@@ -118,8 +122,9 @@ class AuthenticatorSecurityRequirements
     end
 
     def users_api_instance
-      @conjur_api.new_from_token(
-        @conjur_api.authenticate_local(@user_id.to_s))  # do we need to_s?
+      @users_api_instance ||= @conjur_api.new_from_token(
+        @conjur_api.authenticate_local(@user_id.to_s, account: @conjur_account)
+      )
     end
 
     def webservice
