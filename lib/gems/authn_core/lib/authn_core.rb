@@ -66,7 +66,6 @@ class AuthenticatorSecurityRequirements
 
   def validate_constructor_arguments
     validate_nonempty('authn_type', @authn_type)
-    validate_nonempty('whitelisted_authenticators', @authenticators)
     validate_nonempty('conjur_account', @conjur_account)
   end
 
@@ -91,7 +90,7 @@ class AuthenticatorSecurityRequirements
   end
 
   def validate_nonempty(name, value)
-    raise ArgumentError, "'#{name}' must not be empty" if value.empty?
+    raise ArgumentError, "'#{name}' must not be empty" if value.to_s.empty?
   end
 
   class UserSecurityRequirements
