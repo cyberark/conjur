@@ -10,6 +10,12 @@ module AuthnLdap
       password = request.body.read
       token    = authenticator.auth(login, password)
 
+      puts "**************************************************"
+      puts ENV['LDAP_URI']
+      puts ENV['LDAP_BASE']
+      puts ENV['LDAP_BINDDN']
+      puts ENV['LDAP_BINDPW']
+
       validate_security_requirements(login)
 
       if token

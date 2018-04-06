@@ -20,13 +20,21 @@ module AuthnLdap
     # @param [String] password Conjur API key OR LDAP password
     # @return [String] A JSON formatted authentication token.
     def auth(username, password)
+      puts "**************************************************"
+      puts "auth"
       return false if username.blank? || password.blank?
 
       # Login via LDAP
+      puts "**************************************************"
+      puts "valid_ldap_credentials"
+      valid_ldap_credentials?(username, password)
+
       valid_ldap_credentials?(username, password) ?
         @conjur_api.authenticate_local(username, account: 'cucumber') :
         false
-    rescue
+    rescue => e
+      puts "ERROR"
+      puts e
       false
     end
 
@@ -38,10 +46,13 @@ module AuthnLdap
 
       return false if blacklisted_ldap_user?(safe_username)
 
+      puts "Before binding"
+
       bind_results = @ldap_server.bind_as(
         filter: @filter % safe_username,
         password: password
       )
+      puts bind_results
       bind_results ? true : false
     end
 

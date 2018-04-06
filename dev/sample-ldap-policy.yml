@@ -1,3 +1,5 @@
+- !user alice
+
 - !policy
   id: conjur/authn-ldap/test
   body:

@@ -29,6 +29,8 @@ services:
     image: conjur-dev
     entrypoint: bash
     environment:
+      LDAP_URI: ldap://ldap-server:389
+      LDAP_BASE: dc=conjur,dc=net
       CONJUR_APPLIANCE_URL: http://conjur:3000
       DATABASE_URL: postgres://postgres@pg/postgres
       CONJUR_ADMIN_PASSWORD: admin
