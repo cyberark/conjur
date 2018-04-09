@@ -2,13 +2,13 @@ require 'conjur/api'
 require "authn_core/version"
 
 # Outstanding questions:
-# 
+#
 #     1. Best way to enforce mapping to status codes
 #     2. Should we do the enabled/defined checks when object is created?
 #        Seems redundant that we retest it on every validation
-# 
+#
 # Example use:
-# 
+#
 # post '/authenticate/:user' do
 #   begin
 #     @security_requirements.validate          #initialized by web service
@@ -85,7 +85,7 @@ class AuthenticatorSecurityRequirements
 
   def validate_user_requirements(service_name, user_id)
     UserSecurityRequirements.new(
-       user_id: user_id, 
+       user_id: user_id,
        webservice_name: service_name,
        conjur_account: @conjur_account,
        conjur_api: @conjur_api
@@ -102,15 +102,15 @@ class AuthenticatorSecurityRequirements
                    conjur_account:,
                    conjur_api: )
 
-      @user_id         = user_id
-      @webservice_name = webservice_name
-      @conjur_account  = conjur_account
+      @user_id         = URI::encode(user_id)
+      @webservice_name = URI::encode(webservice_name)
+      @conjur_account  = URI::encode(conjur_account)
       @conjur_api      = conjur_api
     end
 
     def validate
       raise ServiceNotDefined, @webservice_name unless webservice.exists?
-      raise NotAuthorizedInConjur, @user_id unless user_role.exists? 
+      raise NotAuthorizedInConjur, @user_id unless user_role.exists?
       raise NotAuthorizedInConjur, @user_id unless webservice.permitted?("authenticate")
     end
 

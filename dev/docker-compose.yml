@@ -17,7 +17,8 @@ services:
       LDAP_URI: ldap://ldap-server:389
       LDAP_BASE: dc=conjur,dc=net
       LDAP_FILTER: '(uid=%s)'
-
+      LDAP_BINDDN: cn=admin,dc=conjur,dc=net
+      LDAP_BINDPW: ldapsecret
     ports:
       - "3000:3000"
     expose:
@@ -63,12 +64,12 @@ services:
 
   ldap-server:
     image: osixia/openldap
-    command: --copy-service
+    command: --copy-service --loglevel debug
     environment:
-      - LDAP_ORGANISATION="ACME Software"
-      - LDAP_DOMAIN="softdept.acme.int"
-      - LDAP_BASE_DN="dc=conjur,dc=net"
-      - LDAP_ADMIN_PASSWORD="password"
+      LDAP_ORGANISATION: CyberArk
+      LDAP_DOMAIN: conjur.net
+      LDAP_ADMIN_PASSWORD: ldapsecret
+
     volumes:
       - ../lib/authenticators/authn_ldap/ci/ldap:/container/service/slapd/assets/config/bootstrap/ldif/custom
 
