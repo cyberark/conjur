@@ -1,8 +1,8 @@
-# Authn-LDAP Authenticator
+= Authn-LDAP Authenticator
 
 The LDAP Authenticator provides authentication via a remote LDAP source for users in Conjur.
 
-## Development
+== Development
 
 An OpenLDAP server is part of the developer `docker-compose.yml` file in this project. Using the `authn-ldap` endpoint requires running and additional file beyond what is currently documented in to the development notes.
 
@@ -30,5 +30,5 @@ $ curl -X POST -d "alice" http://localhost:3000/authn-ldap/authn/cucumber/alice/
 ```
 Where `"alice"` is the password loaded into OpenLDAP from `lib/authenticators/authn_ldap/ci/ldap/ldap.ldif`.
 
-## Running Tests
+== Running Tests
 TODO
