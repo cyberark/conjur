@@ -24,6 +24,7 @@ services:
     - authn-local:/run/authn-local
     links:
     - pg:pg
+    - ldap-server
 
   cucumber:
     image: conjur-dev
@@ -56,6 +57,18 @@ services:
     - conjur:conjur
     volumes:
     - ..:/src/conjur-server
+
+  ldap-server:
+    image: osixia/openldap
+    command: --copy-service
+    environment:
+      - LDAP_ORGANISATION="ACME Software"
+      - LDAP_DOMAIN="softdept.acme.int"
+      - LDAP_BASE_DN="dc=softdept,dc=acme,dc=int"
+      - LDAP_ADMIN_PASSWORD="password"
+    volumes:
+      - ../lib/authenticators/authn_ldap/ci/ldap:/container/service/slapd/assets/config/bootstrap/ldif/custom
+
 
 volumes:
   authn-local:
