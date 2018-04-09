@@ -11,10 +11,10 @@ module AuthnLdap
       token    = authenticator.auth(login, password)
 
       puts "**************************************************"
-      puts ENV['LDAP_URI']
-      puts ENV['LDAP_BASE']
-      puts ENV['LDAP_BINDDN']
-      puts ENV['LDAP_BINDPW']
+      puts "LDAP_URI: #{ENV['LDAP_URI']}"
+      puts "LDAP_BASE: #{ENV['LDAP_BASE']}"
+      puts "LDAP_BINDDN: #{ENV['LDAP_BINDDN']}"
+      puts "LDAP_BINDPW: #{ENV['LDAP_BINDPW']}"
 
       validate_security_requirements(login)
 

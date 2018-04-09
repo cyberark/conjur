@@ -9,12 +9,15 @@ services:
       CONJUR_APPLIANCE_URL: http://localhost:3000
       DATABASE_URL: postgres://postgres@pg/postgres
       CONJUR_ADMIN_PASSWORD: admin
-      CONJUR_AUTHENTICATORS:
       CONJUR_ACCOUNT: cucumber
       CONJUR_PASSWORD_ALICE: secret
       CONJUR_DATA_KEY:
       RAILS_ENV:
       CONJUR_AUTHENTICATORS: authn-ldap/test
+      LDAP_URI: ldap://ldap-server:389
+      LDAP_BASE: dc=conjur,dc=net
+      LDAP_FILTER: '(uid=%s)'
+
     ports:
       - "3000:3000"
     expose:
@@ -47,11 +50,10 @@ services:
 
   client:
     image: conjurinc/cli5
-    entrypoint: sleep
-    command: infinity
+    # entrypoint: sleep
+    # command: infinity
     environment:
       CONJUR_APPLIANCE_URL: http://conjur:3000
-      DATABASE_URL: postgres://postgres@pg/postgres
       CONJUR_ACCOUNT: cucumber
       CONJUR_AUTHN_LOGIN: admin
     links:
