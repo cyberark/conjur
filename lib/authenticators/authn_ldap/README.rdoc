@@ -23,7 +23,7 @@ Next, in a new terminal, load the required policies with the following:
 To validate LDAP authentication is working as expected:
   $ curl -X POST -d "alice" http://localhost:3000/authn-ldap/authn/cucumber/alice/authenticate
 
-Where `"alice"` is the password loaded into OpenLDAP from
+Where "alice" is the password loaded into OpenLDAP from
 
   lib/authenticators/authn_ldap/ci/ldap/ldap.ldif
 
