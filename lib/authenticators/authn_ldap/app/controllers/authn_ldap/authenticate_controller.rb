@@ -10,6 +10,10 @@ module AuthnLdap
       password = request.body.read
       token    = authenticator.auth(login, password)
 
+      puts "login: #{login}"
+      puts "password: #{password}"
+      puts "token: #{token}"
+
       puts "**************************************************"
       puts "LDAP_URI: #{ENV['LDAP_URI']}"
       puts "LDAP_BASE: #{ENV['LDAP_BASE']}"
