@@ -17,7 +17,8 @@ services:
       LDAP_URI: ldap://ldap-server:389
       LDAP_BASE: dc=conjur,dc=net
       LDAP_FILTER: '(uid=%s)'
-
+      LDAP_BINDDN: cn=admin,dc=conjur,dc=net
+      LDAP_BINDPW: ldapsecret
     ports:
       - "3000:3000"
     expose:

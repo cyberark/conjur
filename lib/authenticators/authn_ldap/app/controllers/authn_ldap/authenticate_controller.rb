@@ -7,20 +7,19 @@ module AuthnLdap
     def authenticate
 
       login    = params[:login]
-      password = request.body.read
-      token    = authenticator.auth(login, password)
 
-      puts "login: #{login}"
-      puts "password: #{password}"
-      puts "token: #{token}"
+      # TODO: This line causes the request to hang until it times out.
+      # return false unless validate_security_requirements(login)
+
+      password = request.body.read
+      account  = params[:account]
+      token    = authenticator.auth(login, password, account)
 
       puts "**************************************************"
       puts "LDAP_URI: #{ENV['LDAP_URI']}"
       puts "LDAP_BASE: #{ENV['LDAP_BASE']}"
       puts "LDAP_BINDDN: #{ENV['LDAP_BINDDN']}"
       puts "LDAP_BINDPW: #{ENV['LDAP_BINDPW']}"
-
-      validate_security_requirements(login)
 
       if token
         render json: token.to_json
