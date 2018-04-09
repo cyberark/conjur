@@ -14,6 +14,7 @@ services:
       CONJUR_PASSWORD_ALICE: secret
       CONJUR_DATA_KEY:
       RAILS_ENV:
+      CONJUR_AUTHENTICATORS: authn-ldap/test
     ports:
       - "3000:3000"
     expose:
@@ -38,11 +39,11 @@ services:
       CONJUR_DATA_KEY:
       RAILS_ENV:
     volumes:
-    - ..:/src/conjur-server
-    - authn-local:/run/authn-local
+      - ..:/src/conjur-server
+      - authn-local:/run/authn-local
     links:
-    - conjur:conjur
-    - pg:pg
+      - conjur:conjur
+      - pg:pg
 
   client:
     image: conjurinc/cli5
@@ -64,7 +65,7 @@ services:
     environment:
       - LDAP_ORGANISATION="ACME Software"
       - LDAP_DOMAIN="softdept.acme.int"
-      - LDAP_BASE_DN="dc=softdept,dc=acme,dc=int"
+      - LDAP_BASE_DN="dc=conjur,dc=net"
       - LDAP_ADMIN_PASSWORD="password"
     volumes:
       - ../lib/authenticators/authn_ldap/ci/ldap:/container/service/slapd/assets/config/bootstrap/ldif/custom
