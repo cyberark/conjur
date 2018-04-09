@@ -8,27 +8,24 @@ An OpenLDAP server is part of the developer `docker-compose.yml` file in this pr
 
 To perform and end-to-end example:
 
-<tt>
-$ ./build.sh
-$ cd dev
-$ ./start.sh
-<tt>
+  $ ./build.sh
+  $ cd dev
+  $ ./start.sh
+
 The above will drop you into a shell in inside the Conjur server.  To start the server, run:
-<tt>
-# conjurctl server
-<tt>
+
+  # conjurctl server
 
 Next, in a new terminal, load the required policies with the following:
-<tt>
-$ cd dev
-$ ./ldap-setup.sh
-<tt>
+  $ cd dev
+  $ ./ldap-setup.sh
 
 To validate LDAP authentication is working as expected:
-<tt>
-$ curl -X POST -d "alice" http://localhost:3000/authn-ldap/authn/cucumber/alice/authenticate
-<tt>
-Where `"alice"` is the password loaded into OpenLDAP from `lib/authenticators/authn_ldap/ci/ldap/ldap.ldif`.
+  $ curl -X POST -d "alice" http://localhost:3000/authn-ldap/authn/cucumber/alice/authenticate
+
+Where `"alice"` is the password loaded into OpenLDAP from
+
+  lib/authenticators/authn_ldap/ci/ldap/ldap.ldif
 
 == Running Tests
 TODO
