@@ -113,13 +113,15 @@ class AuthenticatorSecurityRequirements
     private
 
     def user_role
-      @conjur_api.role_from_username(
+      @user_role ||= @conjur_api.role_from_username(
         users_api_instance, @user_id, @conjur_account)
     end
 
     def users_api_instance
+      x = @conjur_api.authenticate_local(@user_id, account: @conjur_account)
+      puts 'x x x', x
       @users_api_instance ||= @conjur_api.new_from_token(
-        @conjur_api.authenticate_local(@user_id, account: @conjur_account).payload
+        x['payload']
       )
     end
 

@@ -12,7 +12,9 @@ module AuthnLdap
       begin
         validate_security_requirements(login)
       rescue => e
-        STDERR.puts "core error: #{e.message}, #{e.inspect}"
+        puts "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
+        raise e
+        # STDERR.puts "core error: #{e.message}, #{e.inspect}"
       end
 
       password = request.body.read
