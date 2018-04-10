@@ -12,7 +12,6 @@ module AuthnLdap
         validate_security_requirements(login)
       rescue => e
         STDERR.puts "core error: #{e.message}, #{e.inspect}"
-        render json: { status: 400 }
       end
 
       password = request.body.read
