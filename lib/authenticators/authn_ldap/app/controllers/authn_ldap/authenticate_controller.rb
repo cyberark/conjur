@@ -9,10 +9,12 @@ module AuthnLdap
 
       # TODO: actually handle the core errors as expected
       # TODO: uncomment when functioning as expected
+      # TODO: handle RestClient exceptions (like RestClient::Exceptions::ReadTimeout)
       begin
         validate_security_requirements(login)
       rescue => e
         STDERR.puts "core error: #{e.message}, #{e.inspect}"
+        raise
       end
 
       password = request.body.read
