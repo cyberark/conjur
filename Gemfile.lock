@@ -29,7 +29,7 @@ PATH
   remote: lib/gems/authn_core
   specs:
     authn_core (0.1.0)
-      conjur-api (>= 5.0.0)
+      conjur-api (~> 5)
 
 GEM
   remote: https://rubygems.org/

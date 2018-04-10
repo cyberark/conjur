@@ -1,15 +1,19 @@
 require_dependency 'authn_ldap/application_controller'
 require 'authn_core'
 
-
 module AuthnLdap
   class AuthenticateController < ApplicationController
     def authenticate
 
       login    = params[:login]
 
-      # TODO: This line causes the request to hang until it times out.
-      # return false unless validate_security_requirements(login)
+      # TODO: actually handle the core errors as expected
+      begin
+        validate_security_requirements(login)
+      rescue => e
+        STDERR.puts "core error: #{e.message}, #{e.inspect}"
+        render json: { status: 400 }
+      end
 
       password = request.body.read
       account  = params[:account]
@@ -45,7 +49,8 @@ module AuthnLdap
 
     def validate_security_requirements(login)
       # service id is test
-      # TODO: how should this be passed? ENV variable?
+      # TODO: the service_id should be part of the request path
+      # POST to authn-ldap/[service-id]/[account]/[user-id]/authenticate
       security_requirements.validate('test', login)
     # rescue => e
     #   puts e

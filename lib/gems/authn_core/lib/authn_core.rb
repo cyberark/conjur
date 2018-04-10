@@ -2,13 +2,13 @@ require 'conjur/api'
 require "authn_core/version"
 
 # Outstanding questions:
-#
+# 
 #     1. Best way to enforce mapping to status codes
 #     2. Should we do the enabled/defined checks when object is created?
 #        Seems redundant that we retest it on every validation
-#
+# 
 # Example use:
-#
+# 
 # post '/authenticate/:user' do
 #   begin
 #     @security_requirements.validate          #initialized by web service
@@ -44,11 +44,9 @@ end
 class AuthenticatorSecurityRequirements
   def initialize(authn_type:,
                  whitelisted_authenticators: ENV['CONJUR_AUTHENTICATORS'],
-                 conjur_account: ENV['CONJUR_ACCOUNT'],
-                 conjur_api: Conjur::API)
+                 conjur_account: ENV['CONJUR_ACCOUNT'])
     @authn_type = authn_type
     @authenticators = authenticators_array(whitelisted_authenticators)
-    @conjur_api     = conjur_api
     @conjur_account = conjur_account
 
     validate_constructor_arguments
@@ -85,10 +83,9 @@ class AuthenticatorSecurityRequirements
 
   def validate_user_requirements(service_name, user_id)
     UserSecurityRequirements.new(
-       user_id: user_id,
+       user_id: user_id, 
        webservice_name: service_name,
-       conjur_account: @conjur_account,
-       conjur_api: @conjur_api
+       conjur_account: @conjur_account
     ).validate
   end
 
@@ -99,13 +96,12 @@ class AuthenticatorSecurityRequirements
   class UserSecurityRequirements
     def initialize(user_id:,
                    webservice_name:,
-                   conjur_account:,
-                   conjur_api: )
+                   conjur_account:)
 
       @user_id         = URI::encode(user_id)
-      @webservice_name = URI::encode(webservice_name)
+      @webservice_name = webservice_name
       @conjur_account  = URI::encode(conjur_account)
-      @conjur_api      = conjur_api
+      @conjur_api      = Conjur::API
     end
 
     def validate
@@ -122,13 +118,17 @@ class AuthenticatorSecurityRequirements
     end
 
     def users_api_instance
-      @users_api_instance ||= @conjur_api.new_from_token(
-        @conjur_api.authenticate_local(@user_id.to_s, account: @conjur_account)
+      @conjur_api.new_from_token(
+        @conjur_api.authenticate_local(@user_id, account: @conjur_account)
       )
     end
 
+    def webservice_id
+      "#{@conjur_account}:webservice:conjur/#{@webservice_name}"
+    end
+
     def webservice
-      users_api_instance.resource("#{@conjur_account}:webservice:conjur/#{@webservice_name}")
+      users_api_instance.resource(URI::encode(webservice_id, "/"))
     end
   end
 end
