@@ -10,12 +10,13 @@ module AuthnLdap
       # TODO: actually handle the core errors as expected
       # TODO: uncomment when functioning as expected
       begin
-#        validate_security_requirements(login)
+        validate_security_requirements(login)
       rescue => e
         STDERR.puts "core error: #{e.message}, #{e.inspect}"
       end
 
       password = request.body.read
+      puts 'password', password
       account  = params[:account]
       token    = authenticator.auth(login, password, account)
 

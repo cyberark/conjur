@@ -118,8 +118,8 @@ class AuthenticatorSecurityRequirements
     end
 
     def users_api_instance
-      @conjur_api.new_from_token(
-        @conjur_api.authenticate_local(@user_id, account: @conjur_account)
+      @users_api_instance ||= @conjur_api.new_from_token(
+        @conjur_api.authenticate_local(@user_id, account: @conjur_account).payload
       )
     end
 
@@ -128,7 +128,7 @@ class AuthenticatorSecurityRequirements
     end
 
     def webservice
-      users_api_instance.resource(URI::encode(webservice_id, "/"))
+      @webservice ||= users_api_instance.resource(URI::encode(webservice_id, "/"))
     end
   end
 end

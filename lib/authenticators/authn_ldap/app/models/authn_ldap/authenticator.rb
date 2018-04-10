@@ -13,11 +13,10 @@ module AuthnLdap
       @conjur_api = conjur_api
     end
 
-    # Takes a Conjur username / API key OR an LDAP username / password
-    # and returns an access token
+    # Takes an LDAP username / password and returns an access token
     #
-    # @param [String] username Conjur username OR LDAP username
-    # @param [String] password Conjur API key OR LDAP password
+    # @param [String] LDAP username
+    # @param [String] LDAP password
     # @param [String] account Conjur account
     # @return [String] A JSON formatted authentication token.
     def auth(username, password, account)
