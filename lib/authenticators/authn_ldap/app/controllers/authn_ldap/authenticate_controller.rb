@@ -1,5 +1,4 @@
 require_dependency 'authn_ldap/application_controller'
-require 'authn_core'
 
 module AuthnLdap
   class AuthenticateController < ApplicationController
