@@ -13,23 +13,13 @@ module AuthnLdap
       @conjur_api = conjur_api
     end
 
-    # Takes an LDAP username / password and returns an access token
-    #
-    # @param [String] LDAP username
-    # @param [String] LDAP password
-    # @param [String] account Conjur account
-    # @return [String] A JSON formatted authentication token.
-    def auth(username, password, account)
-      puts "**************************************************"
-      puts "auth"
+    def auth(username, password, account, service_id)
       return false if username.blank? || password.blank?
 
-      # Login via LDAP
-      puts "**************************************************"
-      puts "valid_ldap_credentials"
-
       if valid_ldap_credentials?(username, password)
-        @conjur_api.authenticate_local(username, account: account)
+        @conjur_api.authenticate_local(
+          username,
+          account: account, authn_type: 'ldap', service_id: service_id)
       else
         false
       end
