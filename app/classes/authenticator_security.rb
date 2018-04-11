@@ -38,7 +38,7 @@ class NotAuthorizedInConjur < RuntimeError
   end
 end
 
-class AuthenticatorSecurityRequirements
+class AuthenticatorSecurity
   def initialize(authn_type:,
                  account:,
                  whitelisted_authenticators: ENV['CONJUR_AUTHENTICATORS'])

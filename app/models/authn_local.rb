@@ -83,7 +83,7 @@ AuthnLocal = Struct.new(:socket, :queue_length, :timeout) do
   end
 
   def security_requirements
-    AuthenticatorSecurityRequirements.new(
+    AuthenticatorSecurity.new(
       authn_type: @authn_type,
       account: @account,
       whitelisted_authenticators: ENV['CONJUR_AUTHENTICATORS']
