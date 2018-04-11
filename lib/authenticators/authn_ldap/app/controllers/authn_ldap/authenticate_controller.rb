@@ -8,7 +8,7 @@ module AuthnLdap
       token    = authenticator.auth(
         login: params[:login],
         password: request.body.read,
-        account: params[:account],
+        account: params[:account] || ENV['CONJUR_ACCOUNT'],
         service_id: params[:service_id]
       )
 
