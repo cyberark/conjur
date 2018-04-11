@@ -1,5 +1,3 @@
-require "authn_core/version"
-
 # Outstanding questions:
 # 
 #     1. Best way to enforce mapping to status codes

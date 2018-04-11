@@ -26,7 +26,7 @@ WORKDIR /opt/conjur-server
 ADD Gemfile      .
 ADD Gemfile.lock .
 
-RUN bundle --without test development local
+#RUN bundle --without test development local
 
 ADD . .
 

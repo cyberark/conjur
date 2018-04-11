@@ -21,7 +21,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'rails-api'
   s.add_dependency 'net-ldap'
   s.add_dependency 'activesupport'
-  s.add_dependency 'authn_core'
   s.add_dependency 'conjur-api', '>= 5.0.0'
 
   # s.add_development_dependency "sqlite3"

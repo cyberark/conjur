@@ -29,7 +29,7 @@ gem 'gli', require: false
 gem 'ruby_dep', '= 1.3.1'
 
 #gem 'conjur-api', github: 'cyberark/conjur-api-ruby'
-gem 'conjur-rack', '~> 3.1'
+#gem 'conjur-rack', '~> 3.1' TODO uncomment and remove from :local
 gem 'conjur-rack-heartbeat'
 gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'possum'
 gem 'rack-rewrite'
@@ -46,9 +46,10 @@ gem 'font-awesome-sass', '~> 4.7.0'
 
 group :local do
   gem 'authn_ldap', path: 'lib/authenticators/authn_ldap'
-#  gem 'authn_core', path: 'lib/gems/authn_core'
   gem 'conjur-api', path: 'lib/gems/conjur-api-ruby'
-  # gem 'authn-ldap-v5', path: 'lib/authenticators/authn-ldap-v5'
+  gem 'conjur-rack', '~> 3.1'
+  gem 'conjur-cli', '~> 6.1.0'
+  gem 'conjur-debify', require: false
   # gem 'conjur-appliance-logging',
   #   git: "https://github.com/conjurinc/appliance-logging.git",
   #   branch: "master"
@@ -60,7 +61,7 @@ end
 
 group :development, :test do
   gem 'pry-byebug'
-  gem 'conjur-debify', require: false
+#  gem 'conjur-debify', require: false TODO uncomment and remove from :local
   gem 'spring'
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
@@ -74,7 +75,7 @@ group :development, :test do
   gem 'cucumber'
   gem 'aruba'
   gem 'rake_shared_context'
-  gem 'conjur-cli', '~> 6.1.0'
+#  gem 'conjur-cli', '~> 6.1.0' TODO uncomment and remove from :local
   gem 'rails_layout'
   gem 'rspec-core', '~> 3.0'
 end
