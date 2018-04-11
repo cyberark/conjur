@@ -23,10 +23,6 @@ module AuthnLdap
       else
         false
       end
-    rescue => e
-      puts "ERROR"
-      puts e
-      false
     end
 
     protected
@@ -37,13 +33,10 @@ module AuthnLdap
 
       return false if blacklisted_ldap_user?(safe_login)
 
-      puts "Before binding"
-
       bind_results = @ldap_server.bind_as(
         filter: @filter % safe_login,
         password: password
       )
-      puts "bind results: #{bind_results}"
       bind_results ? true : false
     end
 

@@ -75,7 +75,8 @@ class AuthenticatorSecurity
   end
 
   def validate_service_whitelisted(service_name)
-    raise AuthenticatorNotEnabled, service_name unless @authenticators.include?(service_name)
+    is_whitelisted = @authenticators.include?(service_name)
+    raise AuthenticatorNotEnabled, service_name unless is_whitelisted
   end
 
   def validate_user_requirements(service_name, user_id)
