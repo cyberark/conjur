@@ -5,11 +5,12 @@ module AuthnLdap
   class AuthenticateController < ApplicationController
     def authenticate
 
-      login    = params[:login]
-      password = request.body.read
-      puts 'password', password
-      account  = params[:account]
-      token    = authenticator.auth(login, password, account)
+      token    = authenticator.auth(
+        login: params[:login],
+        password: request.body.read,
+        account: params[:account],
+        service_id: params[:service_id]
+      )
 
       if token
         render json: token.to_json
