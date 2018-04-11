@@ -1,0 +1,62 @@
+version: '2.1'
+services:
+  pg:
+    image: postgres:9.3
+
+  conjur_5:
+    image: cyberark/conjur
+    command: server -a cucumber
+    environment:
+      DATABASE_URL: postgres://postgres@pg/postgres
+      CONJUR_DATA_KEY: 'WMfApcDBtocRWV+ZSUP3Tjr5XNU+Z2FdBb6BEezejIs='
+    volumes:
+      - authn_local_5:/run/authn-local
+    depends_on:
+      - pg
+
+  conjur_4:
+    image: registry2.itci.conjur.net/conjur-appliance-cuke-master:4.9-stable
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - ./features_v4/support/policy.yml:/etc/policy.yml
+      - authn_local_4:/run/authn-local
+
+  tester_5:
+    build: .
+    volumes:
+      - ./spec/reports:/src/conjur-api/spec/reports
+      - ./features/reports:/src/conjur-api/features/reports
+      - authn_local_5:/run/authn-local-5
+    environment:
+      CONJUR_APPLIANCE_URL: http://conjur_5
+      CONJUR_VERSION: 5
+      CONJUR_ACCOUNT: cucumber
+
+  tester_4:
+    build: .
+    volumes:
+      - ./features_v4/reports:/src/conjur-api/features_v4/reports
+      - ./tmp/conjur.pem:/src/conjur-api/tmp/conjur.pem
+      - authn_local_4:/run/authn-local-4
+    environment:
+      CONJUR_APPLIANCE_URL: https://conjur_4/api
+      CONJUR_VERSION: 4
+      CONJUR_ACCOUNT: cucumber
+
+  dev:
+    build: .
+    entrypoint: bash
+    volumes:
+      - .:/src/conjur-api
+      - authn_local_4:/run/authn-local-4
+      - authn_local_5:/run/authn-local-5
+    environment:
+      CONJUR_ACCOUNT: cucumber
+    depends_on:
+      - conjur_4
+      - conjur_5
+
+volumes:
+  authn_local_4:
+  authn_local_5:
