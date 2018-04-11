@@ -13,7 +13,7 @@ module AuthnLdap
       @conjur_api = conjur_api
     end
 
-    def auth(login:, password:, account:, service_id:)
+    def auth(service_id:, account:, login:, password:)
       return false if login.blank? || password.blank?
 
       if valid_ldap_credentials?(login, password)
