@@ -9,12 +9,12 @@ Sequel.extension :migration
 # Token authentication is optional for authn routes, and it's not applied at all to authentication.
 Possum::Application.config.middleware.use Conjur::Rack::Authenticator,
   optional: [
-    /^\/authn-ldap\/authn\//, 
+    /^\/authn-[^\/]+\//,
     /^\/authn\//,
     /^\/public_keys\//
   ],
   except: [
-    /^\/authn-ldap\/authn\/.*\/authenticate$/,
+    /^\/authn-[^\/]+\/.*\/authenticate$/,
     /^\/authn\/.*\/authenticate$/,
     /^\/host_factories\/hosts$/,
     /^\/assets\/.*/,

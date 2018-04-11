@@ -13,12 +13,12 @@ module AuthnLdap
       @conjur_api = conjur_api
     end
 
-    def auth(username:, password:, account:, service_id:)
-      return false if username.blank? || password.blank?
+    def auth(login:, password:, account:, service_id:)
+      return false if login.blank? || password.blank?
 
-      if valid_ldap_credentials?(username, password)
+      if valid_ldap_credentials?(login, password)
         @conjur_api.authenticate_local(
-          username,
+          login,
           account: account, authn_type: 'ldap', service_id: service_id)
       else
         false
@@ -31,16 +31,16 @@ module AuthnLdap
 
     protected
 
-    def valid_ldap_credentials?(username, password)
+    def valid_ldap_credentials?(login, password)
       # Prevent LDAP injection attack
-      safe_username = Net::LDAP::Filter.escape(username)
+      safe_login = Net::LDAP::Filter.escape(login)
 
-      return false if blacklisted_ldap_user?(safe_username)
+      return false if blacklisted_ldap_user?(safe_login)
 
       puts "Before binding"
 
       bind_results = @ldap_server.bind_as(
-        filter: @filter % safe_username,
+        filter: @filter % safe_login,
         password: password
       )
       puts "bind results: #{bind_results}"
@@ -48,8 +48,8 @@ module AuthnLdap
     end
 
     # admin should only be able to login through plain Conjur authn
-    def blacklisted_ldap_user?(username)
-      username == 'admin'
+    def blacklisted_ldap_user?(login)
+      login == 'admin'
     end
   end
 end
