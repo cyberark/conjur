@@ -118,10 +118,10 @@ class AuthenticatorSecurityRequirements
     end
 
     def users_api_instance
-      x = @conjur_api.authenticate_local(@user_id, account: @conjur_account)
-      puts 'x x x', x
+      @token ||= @conjur_api.authenticate_local(@user_id, account: @conjur_account)
+      puts "token: #{@token.inspect}"
       @users_api_instance ||= @conjur_api.new_from_token(
-        x['payload']
+        @token["payload"]
       )
     end
 
