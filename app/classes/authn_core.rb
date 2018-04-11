@@ -1,4 +1,3 @@
-require 'conjur/api'
 require "authn_core/version"
 
 # Outstanding questions:
@@ -43,11 +42,11 @@ end
 
 class AuthenticatorSecurityRequirements
   def initialize(authn_type:,
-                 whitelisted_authenticators: ENV['CONJUR_AUTHENTICATORS'],
-                 conjur_account: ENV['CONJUR_ACCOUNT'])
+                 account:,
+                 whitelisted_authenticators: ENV['CONJUR_AUTHENTICATORS'])
     @authn_type = authn_type
+    @account = account
     @authenticators = authenticators_array(whitelisted_authenticators)
-    @conjur_account = conjur_account
 
     validate_constructor_arguments
   end
@@ -66,7 +65,7 @@ class AuthenticatorSecurityRequirements
 
   def validate_constructor_arguments
     validate_nonempty('authn_type', @authn_type)
-    validate_nonempty('conjur_account', @conjur_account)
+    validate_nonempty('account', @account)
   end
 
   def authenticators_array(comma_delimited_authenticators)
@@ -85,7 +84,7 @@ class AuthenticatorSecurityRequirements
     UserSecurityRequirements.new(
        user_id: user_id, 
        webservice_name: service_name,
-       conjur_account: @conjur_account
+       account: @account
     ).validate
   end
 
@@ -96,41 +95,39 @@ class AuthenticatorSecurityRequirements
   class UserSecurityRequirements
     def initialize(user_id:,
                    webservice_name:,
-                   conjur_account:)
+                   account:)
 
-      @user_id         = URI::encode(user_id)
+      @user_id         = user_id
       @webservice_name = webservice_name
-      @conjur_account  = URI::encode(conjur_account)
-      @conjur_api      = Conjur::API
+      @account  = account
     end
 
     def validate
-      raise ServiceNotDefined, @webservice_name unless webservice.exists?
-      raise NotAuthorizedInConjur, @user_id unless user_role.exists?
-      raise NotAuthorizedInConjur, @user_id unless webservice.permitted?("authenticate")
+      raise ServiceNotDefined, @webservice_name unless webservice
+      raise NotAuthorizedInConjur, @user_id unless user_role
+      raise NotAuthorizedInConjur, @user_id unless user_can_authenticate_to_webservice
     end
 
     private
 
-    def user_role
-      @user_role ||= @conjur_api.role_from_username(
-        users_api_instance, @user_id, @conjur_account)
+    def user_role_id
+      @user_role_id ||= Role.roleid_from_username(@account, @user_id)
     end
 
-    def users_api_instance
-      @token ||= @conjur_api.authenticate_local(@user_id, account: @conjur_account)
-      puts "token: #{@token.inspect}"
-      @users_api_instance ||= @conjur_api.new_from_token(
-        @token["payload"]
-      )
+    def user_role
+      @user_role ||= Role[user_role_id]
     end
 
     def webservice_id
-      "#{@conjur_account}:webservice:conjur/#{@webservice_name}"
+      "#{@account}:webservice:conjur/#{@webservice_name}"
     end
 
     def webservice
-      @webservice ||= users_api_instance.resource(URI::encode(webservice_id, "/"))
+      @webservice ||= Resource[webservice_id]
+    end
+
+    def user_can_authenticate_to_webservice
+      user_role.allowed_to?("authenticate", webservice)
     end
   end
 end
