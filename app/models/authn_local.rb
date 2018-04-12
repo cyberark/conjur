@@ -49,7 +49,7 @@ AuthnLocal = Struct.new(:socket, :queue_length, :timeout) do
             conn.puts issue_token(claims)
           rescue
             $stderr.puts "Error in authn-local: #{$!.to_s}"
-            conn.puts
+            conn.puts "{}"
           ensure
             conn.close
           end

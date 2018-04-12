@@ -17,9 +17,15 @@ module AuthnLdap
       return false if login.blank? || password.blank?
 
       if valid_ldap_credentials?(login, password)
-        @conjur_api.authenticate_local(
+        token = @conjur_api.authenticate_local(
           login,
           account: account, authn_type: 'ldap', service_id: service_id)
+
+        if token.empty?
+          false
+        else
+          token
+        end
       else
         false
       end
