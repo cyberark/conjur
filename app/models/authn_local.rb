@@ -62,14 +62,31 @@ AuthnLocal = Struct.new(:socket, :queue_length, :timeout) do
 
   def issue_token claims
     claims = JSON.parse(claims)
-    claims = claims.slice("account", "sub", "exp", "cidr")
-    account = claims.delete("account") or raise "'account' is required"
+    claims = claims.slice("account", "sub", "exp", "cidr", "service_id", "authn_type")
+    @account = claims.delete("account") or raise "'account' is required"
+    @authn_type = claims['authn_type']
+    service_id = claims['service_id']
     raise "'sub' is required" unless claims['sub']
-    key = Slosilo["authn:#{account}"]
+
+    validate_security_requirements service_id, claims['sub'] if service_id && @authn_type
+
+    key = Slosilo["authn:#{@account}"]
     if key 
       key.issue_jwt(claims).to_json
     else
-      raise "No signing key found for account #{account.inspect}"
+      raise "No signing key found for account #{@account.inspect}"
     end
+  end
+
+  def validate_security_requirements service_id, user_id
+    security_requirements.validate(service_id, user_id)
+  end
+
+  def security_requirements
+    AuthenticatorSecurity.new(
+      authn_type: @authn_type,
+      account: @account,
+      whitelisted_authenticators: ENV['CONJUR_AUTHENTICATORS']
+    )
   end
 end
