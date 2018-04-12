@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- New `AuthenticatorSecurity` class that implements the minimum requirements for a custom authenticator
+
+### Changed
+- `authn-local` is updated to use the `AuthenticatorSecurity` class to validate request if `authn_type` and `service_id` are sent
+
 ## [0.3.0] - 2018-01-11
 ### Added
 - `conjurctl wait` command is added that can be used to check if the Conjur server is ready
