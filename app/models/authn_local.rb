@@ -68,7 +68,6 @@ AuthnLocal = Struct.new(:socket, :queue_length, :timeout) do
     service_id = claims['service_id']
     raise "'sub' is required" unless claims['sub']
 
-    puts "Checking sec req: #{service_id}, #{@account}, #{@authn_type}, #{claims['sub']}"
     validate_security_requirements service_id, claims['sub'] if service_id && @authn_type
 
     key = Slosilo["authn:#{@account}"]
