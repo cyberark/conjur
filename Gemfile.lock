@@ -149,6 +149,7 @@ GEM
     minitest (5.11.3)
     multi_json (1.12.1)
     multi_test (0.1.2)
+    net-ldap (0.16.1)
     netrc (0.11.0)
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
@@ -307,7 +308,7 @@ DEPENDENCIES
   gli
   json_spec
   listen
-  net-ldap
+  net-ldap (~> 0.16.1)
   nokogiri (>= 1.8.2)
   parallel
   pg

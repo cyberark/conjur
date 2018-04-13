@@ -2,27 +2,37 @@ class AuthenticateController < ApplicationController
   include TokenGenerator
 
   def authenticate
-
-    authenticator = params[:authenticator]
-    service_id    = params[:service_id]
+    # authenticator = params[:authenticator]
+    # service_id    = params[:service_id]
     account       = params[:account]
     username      = params[:id]
     password      = request.body.read
     role_id       = Role.roleid_from_username(account, username)
 
     validate_role_exists!(role_id)
-    
-    case authenticator
-    when 'authn-ldap'
+
+    if ENV['CONJUR_AUTHENTICATORS'].match(/authn-ldap/)
+      authenticator, service_id = ENV['CONJUR_AUTHENTICATORS'].split(',').find{|i| i.match(/authn-ldap/)}.split('/')
       validate_security!(authenticator, account, service_id, username)
-      raise Unauthorized unless ldap_authenticator.valid?(username, password)
-      role = Role[role_id]
-    # default conjur: authn
+      role = Role[role_id] if ldap_authenticator.valid?(username, password)
     else
       credentials = Credentials[role_id]
       validate_credentials!(credentials, password)
       role = credentials.role
     end
+
+    #
+    # case authenticator
+    # when 'authn-ldap'
+    #   validate_security!(authenticator, account, service_id, username)
+    #   raise Unauthorized unless ldap_authenticator.valid?(username, password)
+    #   role = Role[role_id]
+    # # default conjur: authn
+    # else
+    #   credentials = Credentials[role_id]
+    #   validate_credentials!(credentials, password)
+    #   role = credentials.role
+    # end
 
     # If we arrive here, the user is authenticated and `role` is set
     # Otherwise Unauthorized would have already been raised
@@ -30,7 +40,7 @@ class AuthenticateController < ApplicationController
     authentication_token = sign_token(role)
     render json: authentication_token
   end
-  
+
   protected
 
   def validate_security!(authenticator, account, service_id, user_id)
@@ -48,18 +58,18 @@ class AuthenticateController < ApplicationController
   def validate_role_exists!(role_id)
     unless role_id
       logger.debug "Role #{role_id} not found"
-      raise Unauthorized 
+      raise Unauthorized
     end
   end
 
   def validate_credentials!(credentials, password)
     unless credentials
       logger.debug "Credentials not found"
-      raise Unauthorized 
+      raise Unauthorized
     end
     unless credentials.valid_api_key?(password)
       logger.debug "Invalid api_key"
-      raise Unauthorized 
+      raise Unauthorized
     end
   end
 
