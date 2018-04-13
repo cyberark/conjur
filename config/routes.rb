@@ -22,8 +22,9 @@ Rails.application.routes.draw do
       put  '/authn/:account/api_key'  => 'credentials#rotate_api_key'
 
       constraints id: /[^\/\?]+/ do
-        post '/:authenticator(/:service_id)/:account/:id/authenticate' =>
-          'authenticate#authenticate'
+        post '/authn/:account/:id/authenticate' => 'authenticate#authenticate'
+        # post '/:authenticator(/:service_id)/:account/:id/authenticate' =>
+        #   'authenticate#authenticate'
       end
 
       get "/roles/:account/:kind/*identifier" => "roles#memberships", :constraints => QueryParameterActionRecognizer.new("all")

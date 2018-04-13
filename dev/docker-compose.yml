@@ -71,7 +71,7 @@ services:
       LDAP_ADMIN_PASSWORD: ldapsecret
 
     volumes:
-      - ../lib/authenticators/authn_ldap/ci/ldap:/container/service/slapd/assets/config/bootstrap/ldif/custom
+      - ./files/ldap:/container/service/slapd/assets/config/bootstrap/ldif/custom
 
 
 volumes:
