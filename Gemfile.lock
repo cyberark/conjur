@@ -307,6 +307,7 @@ DEPENDENCIES
   gli
   json_spec
   listen
+  net-ldap
   nokogiri (>= 1.8.2)
   parallel
   pg

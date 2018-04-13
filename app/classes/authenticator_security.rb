@@ -49,7 +49,7 @@ class AuthenticatorSecurity
   end
 
   def webservice_name(service_id)
-    "authn-#{@authn_type}/#{service_id}"
+    "#{@authn_type}/#{service_id}"
   end
 
   def validate_service_whitelisted(service_name)

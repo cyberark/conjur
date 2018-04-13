@@ -1,8 +1,0 @@
-#!/bin/bash
-set -ex
-
-echo "Starting test containers"
-echo "---"
-
-docker-compose build ldap-server
-docker-compose up -d ldap-server

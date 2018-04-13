@@ -43,6 +43,7 @@ gem 'therubyracer'
 gem 'bootstrap-sass', '~> 3.2.0'
 gem 'autoprefixer-rails'
 gem 'font-awesome-sass', '~> 4.7.0'
+gem 'net-ldap'
 
 group :production do
   gem 'rails_12factor'

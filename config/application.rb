@@ -29,6 +29,8 @@ module Possum
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
+    config.autoload_paths << Rails.root.join('lib')
+
     config.sequel.after_connect = proc do
       Sequel.extension :core_extensions, :postgres_schemata
     end
