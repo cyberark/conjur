@@ -1,25 +1,3 @@
-# Outstanding questions:
-# 
-#     1. Best way to enforce mapping to status codes
-#     2. Should we do the enabled/defined checks when object is created?
-#        Seems redundant that we retest it on every validation
-# 
-# Example use:
-# 
-# post '/authenticate/:user' do
-#   begin
-#     @security_requirements.validate          #initialized by web service
-#     #specific auth code here
-#   rescue AuthenticatorNotEnabled => e
-#     # 1. map it to a status code  (TODO: answer Geri's question on this)
-#     # 2. put the error message in whatever format we want (eg, json)
-#   rescue ServiceNotDefined => e
-#     # same
-#   rescue NotAuthorizedInConjur => e
-#     # same
-#   end
-# end
-
 class AuthenticatorNotEnabled < RuntimeError
   def initialize(authenticator_name)
     super("'#{authenticator_name}' not whitelisted in CONJUR_AUTHENTICATORS")

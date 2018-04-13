@@ -28,7 +28,7 @@ gem 'gli', require: false
 # Gem::InstallError: ruby_dep requires Ruby version >= 2.2.5, ~> 2.2.
 gem 'ruby_dep', '= 1.3.1'
 
-gem 'conjur-api', github: 'cyberark/conjur-api-ruby'
+gem 'conjur-api', '~> 5.1'
 gem 'conjur-rack', '~> 3.1'
 gem 'conjur-rack-heartbeat'
 gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'possum'
@@ -43,12 +43,6 @@ gem 'therubyracer'
 gem 'bootstrap-sass', '~> 3.2.0'
 gem 'autoprefixer-rails'
 gem 'font-awesome-sass', '~> 4.7.0'
-
-group :local do
-  # gem 'conjur-appliance-logging',
-  #   git: "https://github.com/conjurinc/appliance-logging.git",
-  #   branch: "master"
-end
 
 group :production do
   gem 'rails_12factor'
