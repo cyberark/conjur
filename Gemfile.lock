@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/conjurinc/conjur-policy-parser.git
-  revision: b92854c1a0db5afb6a2294b77d96fcd9831cc59e
-  branch: possum
+  revision: ed62bd0d1c60edfb5162be0ee4e3b7eb5f0c0c68
+  branch: feature/credential-factory
   specs:
     conjur-policy-parser (3.0.0)
       activesupport (~> 4.2)
@@ -62,6 +62,12 @@ GEM
       thor (~> 0.19)
     autoprefixer-rails (7.1.2.3)
       execjs
+    aws-partitions (1.80.0)
+    aws-sdk-core (3.19.0)
+      aws-partitions (~> 1.0)
+      aws-sigv4 (~> 1.0)
+      jmespath (~> 1.0)
+    aws-sigv4 (1.0.2)
     base32-crockford (0.1.0)
     bcrypt-ruby (3.0.1)
     bootstrap-sass (3.2.0.2)
@@ -132,6 +138,7 @@ GEM
     http-cookie (1.0.3)
       domain_name (~> 0.5)
     i18n (0.8.6)
+    jmespath (1.4.0)
     json (2.1.0)
     json_spec (1.1.5)
       multi_json (~> 1.0)
@@ -295,6 +302,7 @@ DEPENDENCIES
   activesupport
   aruba
   autoprefixer-rails
+  aws-sdk-core
   base32-crockford
   bcrypt-ruby (~> 3.0.0)
   bootstrap-sass (~> 3.2.0)

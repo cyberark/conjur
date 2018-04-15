@@ -16,6 +16,8 @@ gem 'sequel-rails'
 gem 'pg'
 gem 'sequel-postgres-schemata', require: false
 
+gem 'aws-sdk-core'
+
 gem 'base32-crockford'
 gem 'activesupport'
 gem 'bcrypt-ruby', '~> 3.0.0'
@@ -31,7 +33,7 @@ gem 'ruby_dep', '= 1.3.1'
 gem 'conjur-api', github: 'cyberark/api-ruby'
 gem 'conjur-rack', '~> 3.1'
 gem 'conjur-rack-heartbeat'
-gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'possum'
+gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'feature/credential-factory'
 gem 'rack-rewrite'
 
 gem 'simplecov', require: false

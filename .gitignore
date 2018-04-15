@@ -25,6 +25,7 @@ demo/run/load
 /run
 coverage
 .DS_Store
+.history
 demo/run/*.yml
 
 apidocs/node_modules

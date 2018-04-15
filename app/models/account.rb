@@ -34,7 +34,7 @@ Account = Struct.new(:id) do
           Resource.create resource_id: role_id, owner_id: owner_id
         end
         
-        admin_user.api_key
+        admin_api_key
       end
     end
 
@@ -54,6 +54,14 @@ Account = Struct.new(:id) do
 
   def token_key
     Slosilo["authn:#{id}"]
+  end
+
+  def admin_role_id
+    "#{id}:user:admin"
+  end
+
+  def admin_role_api_key
+    Role[admin_role_id].api_key
   end
 
   def delete

@@ -120,6 +120,9 @@ module Loader
     class Layer < Record
     end
 
+    class CredentialFactory < Record
+    end
+
     class Host < Record
     end
 

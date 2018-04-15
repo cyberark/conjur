@@ -70,7 +70,6 @@ command :server do |c|
       system "rake policy:load[#{account},#{file_name}]" or exit $?.exitstatus
     end
 
-
     Process.fork do
       exec "rails server -p #{options[:port]} -b #{options[:'bind-address']}"
     end
