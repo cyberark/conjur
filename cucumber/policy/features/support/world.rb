@@ -1,15 +1,8 @@
 module FullId
   def make_full_id id, account: Conjur.configuration.account
-    tokens = id.split(":", 3)
-    case tokens.length
-    when 2
-      tokens.unshift account
-    when 3
-      # pass
-    else
-      raise "Expected at least two tokens in #{id}"
-    end
-    tokens.join(":")
+    tokens  = id.split(":", 3)
+    prepend = tokens.size == 2 ? [account] : []
+    (prepend + tokens).join(':')
   end
 end
 
