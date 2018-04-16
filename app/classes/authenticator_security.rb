@@ -19,9 +19,13 @@ end
 class AuthenticatorSecurity
   def initialize(authn_type:,
                  account:,
+                 role_class: Role,
+                 resource_class: Resource,
                  whitelisted_authenticators: ENV['CONJUR_AUTHENTICATORS'])
     @authn_type = authn_type
     @account = account
+    @role_class = role_class
+    @resource_class = resource_class
     @authenticators = authenticators_array(whitelisted_authenticators)
 
     validate_constructor_arguments
@@ -61,7 +65,9 @@ class AuthenticatorSecurity
     UserSecurityRequirements.new(
        user_id: user_id, 
        webservice_name: service_name,
-       account: @account
+       account: @account,
+       role_class: @role_class,
+       resource_class: @resource_class
     ).validate
   end
 
@@ -72,11 +78,15 @@ class AuthenticatorSecurity
   class UserSecurityRequirements
     def initialize(user_id:,
                    webservice_name:,
-                   account:)
+                   account:,
+                   role_class:,
+                   resource_class: )
 
       @user_id         = user_id
       @webservice_name = webservice_name
-      @account  = account
+      @account         = account
+      @role_class      = role_class
+      @resource_class  = resource_class
     end
 
     def validate
@@ -88,11 +98,11 @@ class AuthenticatorSecurity
     private
 
     def user_role_id
-      @user_role_id ||= Role.roleid_from_username(@account, @user_id)
+      @user_role_id ||= @role_class.roleid_from_username(@account, @user_id)
     end
 
     def user_role
-      @user_role ||= Role[user_role_id]
+      @user_role ||= @role_class[user_role_id]
     end
 
     def webservice_id
@@ -100,7 +110,7 @@ class AuthenticatorSecurity
     end
 
     def webservice
-      @webservice ||= Resource[webservice_id]
+      @webservice ||= @resource_class[webservice_id]
     end
 
     def user_can_authenticate_to_webservice

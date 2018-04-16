@@ -1,14 +1,25 @@
 class AuthenticateController < ApplicationController
   include TokenGenerator
 
+  class MemoizedRole
+    def self.[](role_id)
+      @user_roles ||= Hash.new { |h, id| h[id] = Role[id] }
+      @user_roles[role_id]
+    end
+
+    def self.roleid_from_username(account, username)
+      Role.roleid_from_username(account, username)
+    end
+  end
+
   def authenticate
 
-    authenticator = params[:authenticator]
-    service_id    = params[:service_id]
-    account       = params[:account]
-    username      = params[:id]
-    password      = request.body.read
-    role_id       = Role.roleid_from_username(account, username)
+    authenticator  = params[:authenticator]
+    service_id     = params[:service_id]
+    account        = params[:account]
+    username       = params[:id]
+    password       = request.body.read
+    role_id        = MemoizedRole.roleid_from_username(account, username)
 
     validate_role_exists!(role_id)
     
@@ -16,7 +27,7 @@ class AuthenticateController < ApplicationController
     when 'authn-ldap'
       validate_security!(authenticator, account, service_id, username)
       raise Unauthorized unless ldap_authenticator.valid?(username, password)
-      role = Role[role_id]
+      role = MemoizedRole[role_id]
     # default conjur: authn
     else
       credentials = Credentials[role_id]
@@ -34,8 +45,8 @@ class AuthenticateController < ApplicationController
   protected
 
   def validate_security!(authenticator, account, service_id, user_id)
-    security = AuthenticatorSecurity.new(
-      authn_type: authenticator, account: account) # TODO injuect Role, Resource
+    security = AuthenticatorSecurity.new(authn_type: authenticator,
+      account: account, role_class: MemoizedRole)
     security.validate(service_id, user_id)
   rescue AuthenticatorNotEnabled, ServiceNotDefined, NotAuthorizedInConjur => e
     logger.debug(e.message)
