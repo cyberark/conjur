@@ -19,7 +19,7 @@ describe AuthenticateController, :type => :controller do
     end
     
     def invoke
-      post :authenticate, { account: account, id: login }
+      post :authenticate, { authenticator: 'authn', account: account, id: login }
     end
     
     def self.it_succeeds
@@ -61,7 +61,7 @@ describe AuthenticateController, :type => :controller do
 
     context "with non-existent user" do
       def invoke
-        post :authenticate, account: account, id: 'santa-claus'
+        post :authenticate, authenticator: 'authn', account: account, id: 'santa-claus'
       end
 
       it_fails_with 401

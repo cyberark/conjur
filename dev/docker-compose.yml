@@ -9,9 +9,16 @@ services:
       CONJUR_APPLIANCE_URL: http://localhost:3000
       DATABASE_URL: postgres://postgres@pg/postgres
       CONJUR_ADMIN_PASSWORD: admin
+      CONJUR_ACCOUNT: cucumber
       CONJUR_PASSWORD_ALICE: secret
       CONJUR_DATA_KEY:
       RAILS_ENV:
+      CONJUR_AUTHENTICATORS: authn-ldap/test
+      LDAP_URI: ldap://ldap-server:389
+      LDAP_BASE: dc=conjur,dc=net
+      LDAP_FILTER: '(uid=%s)'
+      LDAP_BINDDN: cn=admin,dc=conjur,dc=net
+      LDAP_BINDPW: ldapsecret
     ports:
       - "3000:3000"
     expose:
@@ -22,34 +29,50 @@ services:
     - authn-local:/run/authn-local
     links:
     - pg:pg
+    - ldap-server
 
   cucumber:
     image: conjur-dev
     entrypoint: bash
     environment:
+      LDAP_URI: ldap://ldap-server:389
+      LDAP_BASE: dc=conjur,dc=net
       CONJUR_APPLIANCE_URL: http://conjur:3000
       DATABASE_URL: postgres://postgres@pg/postgres
       CONJUR_ADMIN_PASSWORD: admin
       CONJUR_DATA_KEY:
       RAILS_ENV:
     volumes:
-    - ..:/src/conjur-server
-    - authn-local:/run/authn-local
+      - ..:/src/conjur-server
+      - authn-local:/run/authn-local
     links:
-    - conjur:conjur
-    - pg:pg
+      - conjur:conjur
+      - pg:pg
 
   client:
     image: conjurinc/cli5
-    entrypoint: sleep
-    command: infinity
+    # entrypoint: sleep
+    # command: infinity
     environment:
       CONJUR_APPLIANCE_URL: http://conjur:3000
-      DATABASE_URL: postgres://postgres@pg/postgres
+      CONJUR_ACCOUNT: cucumber
+      CONJUR_AUTHN_LOGIN: admin
     links:
     - conjur:conjur
     volumes:
     - ..:/src/conjur-server
+
+  ldap-server:
+    image: osixia/openldap
+    command: --copy-service --loglevel debug
+    environment:
+      LDAP_ORGANISATION: CyberArk
+      LDAP_DOMAIN: conjur.net
+      LDAP_ADMIN_PASSWORD: ldapsecret
+
+    volumes:
+      - ./files/ldap:/container/service/slapd/assets/config/bootstrap/ldif/custom
+
 
 volumes:
   authn-local:
