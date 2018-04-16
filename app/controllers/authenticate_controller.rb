@@ -21,18 +21,19 @@ class AuthenticateController < ApplicationController
     password       = request.body.read
     role_id        = MemoizedRole.roleid_from_username(account, username)
 
-    validate_role_exists!(role_id)
+    validate_roleid_is_nonempty!(role_id)
     
     case authenticator
     when 'authn-ldap'
       validate_security!(authenticator, account, service_id, username)
       raise Unauthorized unless ldap_authenticator.valid?(username, password)
       role = MemoizedRole[role_id]
-    # default conjur: authn
-    else
+    when 'authn' # default conjur auth
       credentials = Credentials[role_id]
       validate_credentials!(credentials, password)
       role = credentials.role
+    else
+      raise Unauthorized
     end
 
     # If we arrive here, the user is authenticated and `role` is set
@@ -56,7 +57,7 @@ class AuthenticateController < ApplicationController
     raise Unauthorized
   end
 
-  def validate_role_exists!(role_id)
+  def validate_roleid_is_nonempty!(role_id)
     unless role_id
       logger.debug "Role #{role_id} not found"
       raise Unauthorized 
