@@ -11,3 +11,7 @@
     role: !group clients
     privilege: [ read, authenticate ]
     resource: !webservice
+
+- !grant
+  role: !group conjur/authn-ldap/test/clients
+  member: !user alice
