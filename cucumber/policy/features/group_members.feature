@@ -2,9 +2,10 @@ Feature: Users and groups can be added to groups
 
   Scenario: Create a group of groups
   
-    In this example we are giving the `group:employees` role to groups `developers` and `operations`. 
-    This effectively adds groups `developers` and `operations` to the `employees` group. They are 
-    granted all privileges of the `employees` group.
+    In this example we are giving the `group:employees` role to groups
+    `developers` and `operations`.  This effectively adds groups `developers`
+    and `operations` to the `employees` group. They are granted all privileges
+    of the `employees` group.
     
     Given a policy:
     """
@@ -25,17 +26,21 @@ Feature: Users and groups can be added to groups
     And group "operations" is a role member
 
   Scenario: Add an administrator to a group
-    In this example, a group `ci-admin` gets an admin grant on the group `ci`. This means that 
-    members of the group `ci-admin` can add and remove members from the group `ci`. In real-world 
-    terms, everyone who uses your Jenkins system may be in the `ci` group. A smaller group of 
-    Jenkins admins are in the `ci-admin` group, and can manage who is in the `ci` group.
 
-    Note how group `ci-admin` is aliased with the name "admin" in the policy. This is effectively 
-    creating a reference to that group we can use later in the policy. Aliasing policy records makes 
-    policies DRYer and easier to maintain. By using a reference, `!group ci-admin` is defined once in the policy
-    and then later used by reference. Create an alias by declaring a 
-    name prepended with `&`. Dereference that record later on in your policy by using the same name prepended 
-    with a `*`. Aliasing also allows you to group records together under a single symbolic name.
+    In this example, a group `ci-admin` gets an admin grant on the group `ci`.
+    This means that members of the group `ci-admin` can add and remove members
+    from the group `ci`. In real-world terms, everyone who uses your Jenkins
+    system may be in the `ci` group. A smaller group of Jenkins admins are in
+    the `ci-admin` group, and can manage who is in the `ci` group.
+
+    Note how group `ci-admin` is aliased with the name "admin" in the policy.
+    This is effectively creating a reference to that group we can use later in
+    the policy. Aliasing policy records makes policies DRYer and easier to
+    maintain. By using a reference, `!group ci-admin` is defined once in the
+    policy and then later used by reference. Create an alias by declaring a
+    name prepended with `&`. Dereference that record later on in your policy by
+    using the same name prepended with a `*`. Aliasing also allows you to group
+    records together under a single symbolic name.
     
     Given a policy:
     """

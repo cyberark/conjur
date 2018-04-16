@@ -6,6 +6,7 @@ describe "routing for authentication", :type => :routing do
       controller: 'authenticate',
       action: 'authenticate',
       account: 'the-account',
+      authenticator: 'authn',
       id: 'kevin.gilpin@inscitiv.com'
     )
   end
