@@ -1,7 +1,7 @@
 Feature: Create a new account
 
   Conjur supports multiple accounts in a single database. Each account is a separate
-  "tenant" with its own set of data. 
+  "tenant" with its own set of data.
 
   Importantly, each account also uses its own token-signing key, so that tokens
   created by one account won't be accepted by a different account.
@@ -17,9 +17,10 @@ Feature: Create a new account
     The response is JSON which contains:
 
     1. **id** The account id.
-    2. **api_key** The API key of the account "admin" user. 
+    2. **api_key** The API key of the account "admin" user.
 
-    Given I create a new user "admin" in account "!"
+    Given the accounts resource exists
+    And I create a new user "admin" in account "!"
     And I permit role "!:user:admin" to "execute" resource "!:webservice:accounts"
     And I login as "!:user:admin"
     Then I successfully POST "/accounts" with body:
@@ -34,6 +35,7 @@ Feature: Create a new account
 
     Without "execute" privilege the request is forbidden.
 
+    Given the accounts resource exists
     When I POST "/accounts" with body:
     """
     {
@@ -45,7 +47,8 @@ Feature: Create a new account
 
   Scenario: An account cannot be created if it already exists.
 
-    Given I create a new user "admin" in account "!"
+    Given the accounts resource exists
+    And I create a new user "admin" in account "!"
     And I permit role "!:user:admin" to "execute" resource "!:webservice:accounts"
     And I login as "!:user:admin"
     Then I successfully POST "/accounts" with body:
@@ -75,7 +78,8 @@ Feature: Create a new account
 
   Scenario: An account can be created with an owner
 
-    Given I create a new user "admin" in account "!"
+    Given the accounts resource exists
+    And I create a new user "admin" in account "!"
     And I permit role "!:user:admin" to "execute" resource "!:webservice:accounts"
     And I login as "!:user:admin"
     Then I successfully POST "/accounts" with body:
@@ -87,7 +91,8 @@ Feature: Create a new account
 
   Scenario: An account can be created with a '.' in its name
 
-    Given I create a new user "admin" in account "!"
+    Given the accounts resource exists
+    And I create a new user "admin" in account "!"
     And I permit role "!:user:admin" to "execute" resource "!:webservice:accounts"
     And I login as "!:user:admin"
     Then I successfully POST "/accounts" with body:
@@ -98,7 +103,8 @@ Feature: Create a new account
 
   Scenario: Creating account with : or space in the name fails
 
-    Given I create a new user "admin" in account "!"
+    Given the accounts resource exists
+    And I create a new user "admin" in account "!"
     And I permit role "!:user:admin" to "execute" resource "!:webservice:accounts"
     And I login as "!:user:admin"
     Then I POST "/accounts" with body:

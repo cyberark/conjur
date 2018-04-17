@@ -10,7 +10,6 @@ namespace :"account" do
 
   desc "Create an account"
   task :create, [ "account" ] => [ "environment" ] do |t,args|
-    Account.find_or_create_accounts_resource
     begin
       api_key = Account.create args[:account]
       account = Account.new args[:account]

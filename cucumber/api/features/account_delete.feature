@@ -3,7 +3,8 @@ Feature: Delete an account
   Accounts can be deleted through the API.
 
   Background:
-    Given I create a new user "privileged" in account "!"
+    Given the accounts resource exists
+    And I create a new user "privileged" in account "!"
     And I permit role "!:user:privileged" to "execute" resource "!:webservice:accounts"
     And I permit role "!:user:privileged" to "read" resource "!:webservice:accounts"
     And I permit role "!:user:privileged" to "update" resource "!:webservice:accounts"
@@ -21,8 +22,9 @@ Feature: Delete an account
   Scenario: DELETE /accounts/:id to delete an account.
 
     "update" privilege on "!:webservice:accounts" is required.
-    
-    Given I login as "!:user:privileged"
+
+    Given the accounts resource exists
+    And I login as "!:user:privileged"
     Then I successfully DELETE "/accounts/new.account"
     And I successfully GET "/accounts"
     And the JSON should not include "new.account"
@@ -31,14 +33,16 @@ Feature: Delete an account
 
     Without "update" privilege the request is forbidden.
 
-    Given I login as "!:user:unprivileged"
+    Given the accounts resource exists
+    And I login as "!:user:unprivileged"
     When I DELETE "/accounts/new.account"
     Then the HTTP response status code is 403
     And the result is empty
 
   Scenario: Root policy can be reloaded after DELETE
 
-    Given I login as "new.account:user:admin"
+    Given the accounts resource exists
+    And I login as "new.account:user:admin"
     And I successfully PUT "/policies/new.account/policy/root" with body:
     """
     - !variable var

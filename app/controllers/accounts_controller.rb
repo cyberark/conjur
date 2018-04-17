@@ -1,7 +1,7 @@
 class AccountsController < ApplicationController
   include AuthorizeResource
 
-  before_action :find_or_create_accounts_resource
+  before_action :find_accounts_resource
 
   def index
     authorize :read
@@ -27,8 +27,8 @@ class AccountsController < ApplicationController
 
   protected
 
-  def find_or_create_accounts_resource
-    @resource = Account.find_or_create_accounts_resource
+  def find_accounts_resource
+    @resource = Resource["!:webservice:accounts"]
   end
 
   def account_name
