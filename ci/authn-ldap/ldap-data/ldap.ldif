@@ -1,0 +1,8 @@
+dn: uid=alice,dc=conjur,dc=net
+cn: Alice
+sn: Smith
+uid: alice
+objectClass: person
+objectClass: uidObject
+objectClass: top
+userPassword: alice
