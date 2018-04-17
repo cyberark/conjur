@@ -130,14 +130,6 @@ module Loader
       "UPDATE" => "change"
     }
 
-    SUBJECT_MAP = {
-      :resource_id => 'resource'.freeze,
-      :role_id => 'role'.freeze,
-      :member_id => 'member'.freeze,
-      :name => 'annotation'.freeze,
-      :privilege => 'privilege'.freeze
-    }
-
     def emit_audit
       auth = policy_version.role.id
       data = {
