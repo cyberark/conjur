@@ -47,9 +47,10 @@ pipeline {
     stage('Test Docker image') {
       steps {
         sh './test.sh'
+        sh 'cd ci && ./test-ldap.sh'
       }
       post { always {
-        junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml'
+        junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,cucumber/authenticators/features/reports/**/*.xml'
         publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false])
       }}
     }
