@@ -7,6 +7,9 @@ function finish {
   docker-compose down --rmi 'local' --volumes
 }
 # trap finish EXIT
+cd ..
+./build.sh
+cd ci
 
 # Setup to allow compose to run in an isolated namespace
 export COMPOSE_PROJECT_NAME="$(openssl rand -hex 3)"
