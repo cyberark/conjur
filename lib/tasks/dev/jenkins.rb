@@ -36,12 +36,12 @@ namespace :jenkins do
   namespace :authn_ldap do
     Cucumber::Rake::Task.new(:"cucumber") do |t|
       t.cucumber_opts = '--tags ~@wip '\
-                        '-r cucumber/authn-ldap/features/support '\
-                        '-r cucumber/authn-ldap/features/step_definitions '\
+                        '-r cucumber/authenticators/features/support '\
+                        '-r cucumber/authenticators/features/step_definitions '\
                         '--format pretty '\
                         '--format junit '\
-                        '--out cucumber/authn-ldap/features/reports '\
-                        'cucumber/authn-ldap/features'
+                        '--out cucumber/authenticators/features/reports '\
+                        'cucumber/authenticators/features'
     end
   end
 
