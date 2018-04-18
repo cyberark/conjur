@@ -29,5 +29,8 @@ docker-compose exec conjur conjurctl account create cucumber
 
 mkdir -p cucumber/authn-ldap/features/reports
 
-api_key=$(docker-compose exec conjur conjurctl role retrieve-key cucumber:user:admin | tr -d '\r')
-docker-compose run --rm -e CONJUR_AUTHN_API_KEY=$api_key --entrypoint /bin/bash cucumber -c 'bundle exec rake jenkins:core:cucumber-api'
+api_key=$(docker-compose exec conjur conjurctl \
+  role retrieve-key cucumber:user:admin | tr -d '\r')
+
+docker-compose run --rm -e CONJUR_AUTHN_API_KEY=$api_key cucumber -c \
+  'bundle exec rake jenkins:core:cucumber-api'
