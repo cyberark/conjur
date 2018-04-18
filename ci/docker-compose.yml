@@ -8,7 +8,7 @@ services:
     env_file:
       - ./authn-ldap/conjur.env
     environment:
-      CONJUR_APPLIANCE_URL: http://localhost:3000
+      # CONJUR_APPLIANCE_URL: http://localhost
       DATABASE_URL: postgres://postgres@pg/postgres
       CONJUR_ADMIN_PASSWORD: admin
       CONJUR_ACCOUNT: cucumber
@@ -16,7 +16,7 @@ services:
       RAILS_ENV:
     command: server
     expose:
-      - "3000"
+      - "80"
     links:
       - pg
       - ldap-server
@@ -27,7 +27,7 @@ services:
     environment:
       # LDAP_URI: ldap://ldap-server:389
       # LDAP_BASE: dc=conjur,dc=net
-      CONJUR_APPLIANCE_URL: http://conjur:3000
+      CONJUR_APPLIANCE_URL: http://conjur:80
       CONJUR_ACCOUNT: cucumber
       DATABASE_URL: postgres://postgres@pg/postgres
       # CONJUR_ADMIN_PASSWORD: admin
