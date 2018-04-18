@@ -1,23 +1,10 @@
 module AuthenticatorWorld
 
-  # mostly to document the mutable variables that are in play
+  # Mostly to document the mutable variables that are in play.
+  # To at least mitigate the poor design encouraged by the way cucumber
+  # shares state
+  #
   attr_reader :response_body, :http_status, :rest_client_error 
-
-  class ConjurToken
-    def initialize(raw_token)
-      @token = JSON.parse(raw_token)
-    end
-
-    def username
-      payload['sub']
-    end
-
-    private
-
-    def payload
-      @payload ||= JSON.parse(Base64.decode64(@token['payload']))
-    end
-  end
 
   def authenticate_with_ldap(service_id:, account:, username:, password:)
     # TODO fix this the right way
@@ -25,12 +12,23 @@ module AuthenticatorWorld
     post(path, password)
   end
 
-  def valid_token_for?(username, token_string)
-    return false unless http_status == 200
+  def token_for(username, token_string)
+    return nil unless http_status == 200
     ConjurToken.new(token_string).username == username
   rescue
-    false
+    nil
   end
+
+  def authorized?
+    @http_status == 401
+  end
+
+  def load_root_policy(policy)
+    conjur_api.load_policy('root', policy,
+                           method: Conjur::API::POLICY_METHOD_PUT)
+  end
+
+  private
 
   def post(path, payload, options = {})
     result             = RestClient.post(path, payload, options)
@@ -41,13 +39,6 @@ module AuthenticatorWorld
     @http_status       = e.http_code
     @response_body     = e.response
   end
-
-  def load_root_policy(policy)
-    conjur_api.load_policy('root', policy,
-                           method: Conjur::API::POLICY_METHOD_PUT)
-  end
-
-  private
 
   def admin_password
     ENV['CONJUR_AUTHN_PASSWORD'] || 'admin'

@@ -23,23 +23,39 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
       member: !user alice
     """
 
-  Scenario: An LDAP user authorized in Conjur can login
-    When I send an LDAP login for authorized Conjur user "alice"
-    Then I get back a valid login token for "alice"
+  Scenario: An LDAP user authorized in Conjur can login with a good password
+    When I login via LDAP as authorized Conjur user "alice"
+    Then "alice" is authorized
 
-#   @logged-in
-#   Scenario: Bearer token cannot be used to login
+  Scenario: An LDAP user authorized in Conjur can't login with a bad password
+    When my LDAP password is wrong for authorized user "alice"
+    Then it is denied
 
-#     The login method requires the password; login cannot be performed using the auth token
-#     as a credential.
+  Scenario: An valid LDAP user who's not in Conjur can't login
+    When I login via LDAP as non-existent Conjur user "bob"
+    Then it is denied
 
-#     When I GET "/authn/cucumber/login"
-#     Then the HTTP response status code is 401
+  Scenario: An empty password may never be used to authenticate
+    When my LDAP password for authorized Conjur user "alice" is empty
+    Then it is denied
 
-#   @logged-in-admin
-#   Scenario: "Super" users cannot login as other users
+    #TODO Add an "is denied" for alice added to conjur but not entitled
+  Scenario: An LDAP user in Conjur but without authorization can't login
+    Given a policy:
+    """
+    - !user alice
 
-#     Users can never login as other users.
+    - !policy
+      id: conjur/authn-ldap/test
+      body:
+      - !webservice
 
-#     When I GET "/authn/cucumber/login?role=user:alice"
-#     Then the HTTP response status code is 401
+      - !group clients
+
+      - !permit
+        role: !group clients
+        privilege: [ read, authenticate ]
+        resource: !webservice
+    """
+    When I login via LDAP as authorized Conjur user "alice"
+    Then it is denied
