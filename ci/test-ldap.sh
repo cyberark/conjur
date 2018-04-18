@@ -8,7 +8,7 @@ function finish {
 }
 # trap finish EXIT
 cd ..
-./build.sh
+./build.sh -j
 cd ci
 
 # Setup to allow compose to run in an isolated namespace
