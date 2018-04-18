@@ -4,11 +4,11 @@ module AuthenticatorWorld
   # To at least mitigate the poor design encouraged by the way cucumber
   # shares state
   #
-  attr_reader :response_body, :http_status, :rest_client_error 
+  attr_reader :response_body, :http_status, :rest_client_error
 
   def authenticate_with_ldap(service_id:, account:, username:, password:)
     # TODO fix this the right way
-    path = "http://localhost:3000/authn-ldap/#{service_id}/#{account}/#{username}/authenticate"
+    path = "#{conjur_hostname}/authn-ldap/#{service_id}/#{account}/#{username}/authenticate"
     post(path, password)
   end
 
@@ -40,8 +40,12 @@ module AuthenticatorWorld
     @response_body     = e.response
   end
 
+  def conjur_hostname
+    ENV.fetch('CONJUR_APPLIANCE_URL', 'http://conjur')
+  end
+
   def admin_password
-    ENV['CONJUR_AUTHN_PASSWORD'] || 'admin'
+    ENV['CONJUR_AUTHN_API_KEY'] || 'admin'
   end
 
   def admin_api_key
