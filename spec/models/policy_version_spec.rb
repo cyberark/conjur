@@ -29,7 +29,7 @@ describe PolicyVersion do
     end
   end
 
-  it "commits previously active policy version" do
+  it "finalizes previously active policy version" do
     one = PolicyVersion.create \
       policy: policy('one'),
       role: owner,

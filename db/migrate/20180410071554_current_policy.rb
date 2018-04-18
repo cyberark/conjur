@@ -1,4 +1,7 @@
 Sequel.migration do
+  # Record time when policy loading is finished. This is mainly so that policy
+  # log triggers can store a reference to the current policy version when it's
+  # being loaded.
   up do
     alter_table :policy_versions do
       set_column_type :created_at, :timestamptz
@@ -23,7 +26,10 @@ Sequel.migration do
         END;
       $$;
 
-      -- deferred constraint trigger will run on transaction commit
+      -- Deferred constraint trigger will run on transaction commit.
+      -- This enforces that loading policy version has to happen inside the 
+      -- same transaction that created it, and that finished_at is never NULL
+      -- once the transaction is committed.
       CREATE CONSTRAINT TRIGGER finish_current
         AFTER INSERT ON policy_versions
         INITIALLY DEFERRED
@@ -31,7 +37,11 @@ Sequel.migration do
         WHEN (NEW.finished_at IS NULL)
         EXECUTE PROCEDURE policy_versions_finish();
 
-      -- if any version is current while creating new one, finalize it
+      -- If any version is current while creating new one, finalize it, so only
+      -- a single policy is current at any given time.
+      -- This shouldn't happen in normal policy loading, but is done in tests
+      -- a bit. Alternatively we could raise an exception here and restructure
+      -- tests to do it explicitly where needed.
       CREATE TRIGGER only_one_current
         BEFORE INSERT ON policy_versions
         FOR EACH ROW

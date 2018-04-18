@@ -15,8 +15,11 @@ module Audit
     attr_writer :logger
   end
 
+  # RFC5424 structured data IDs
   module SDID
-    CONJUR_PEN = 43838
+    # Conjur's Private Enterprise Number
+    # cf. https://pen.iana.org
+    CONJUR_PEN = 43868
     def self.conjur_sdid label
       [label, CONJUR_PEN].join('@').freeze
     end

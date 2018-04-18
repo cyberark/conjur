@@ -124,20 +124,23 @@ module Loader
 
     SDID = Audit::SDID
 
+    # map SQL operations to names for messages and structured data
     OPS_MAP = {
       "INSERT" => "add",
       "DELETE" => "remove",
       "UPDATE" => "change"
-    }
+    }.freeze
 
     def emit_audit
       auth = policy_version.role.id
-      data = {
+
+      # common structured data for this policy version
+      structured_data = {
         SDID::POLICY => { id: policy_id, version: policy_version.version },
         SDID::AUTH => { user: auth }
       }
-      format = "#{auth} %sed %s".freeze
 
+      # take table name and PK hash and render it as a human-readable description
       def humanize_subject table, pk
         case table
         when 'annotations'
@@ -153,6 +156,8 @@ module Loader
         end
       end
 
+      # massage primary key hash to conform to the definition
+      # of subject@43868 structured-data element
       def sd_subject pk
         Hash[pk.map do |k, v|
           [case k
@@ -168,8 +173,9 @@ module Loader
 
       db[:policy_log].where(policy_id: policy_id, version: policy_version.version).each do |log|
         op = OPS_MAP[log[:operation]]
-        msg = format % [op.chomp('e'), humanize_subject(log[:kind], log[:subject])]
-        Audit.notice msg, 'policy', data.merge(SDID::ACTION => {operation: op}, SDID::SUBJECT => sd_subject(log[:subject]))
+        # format message to eg. "acct:user:bar added resource acct:host:bar"
+        msg = "%s %sed %s" % [auth, op.chomp('e'), humanize_subject(log[:kind], log[:subject])]
+        Audit.notice msg, 'policy', structured_data.merge(SDID::ACTION => {operation: op}, SDID::SUBJECT => sd_subject(log[:subject]))
       end
     end
 
