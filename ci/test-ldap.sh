@@ -21,11 +21,11 @@ export COMPOSE_PROJECT_NAME="$(openssl rand -hex 3)"
 
 # Generate a data key
 export CONJUR_DATA_KEY="$(openssl rand -base64 32)"
-export COMPOSE_INTERACTIVE_NO_CLI=1
+# export COMPOSE_INTERACTIVE_NO_CLI=1
 # Start Conjur and supporting services
 docker-compose up --no-deps -d conjur pg ldap-server
-docker-compose exec conjur conjurctl wait
-docker-compose exec conjur conjurctl account create cucumber
+docker-compose exec -T conjur conjurctl wait
+docker-compose exec -T conjur conjurctl account create cucumber
 
 mkdir -p cucumber/authenticators/features/reports
 rm -rf cucumber/authenticators/features/reports/*
