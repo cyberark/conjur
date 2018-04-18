@@ -1,11 +1,12 @@
 Feature: YAML anchors can be used for bulk actions
 
   Scenario: Group records for bulk actions
-    Sometimes you will want to grant privileges or perform actions on a group of roles or resources. 
-    In this policy, two AWS-related variables (secrets) are grouped into an alias using a YAML anchor.
-    The policy grants execute (fetch) access on them to the layer `rundeck`. Use of the anchor keeps the
-    policy shorter and easier to update. If the 'rundeck' layer needs fetch access to another 
-    variable, it can simply be added to the variables list.
+    Sometimes you will want to grant privileges or perform actions on a group
+    of roles or resources.  In this policy, two AWS-related variables (secrets)
+    are grouped into an alias using a YAML anchor.  The policy grants execute
+    (fetch) access on them to the layer `rundeck`. Use of the anchor keeps the
+    policy shorter and easier to update. If the 'rundeck' layer needs fetch
+    access to another variable, it can simply be added to the variables list.
 
     Given a policy:
     """
