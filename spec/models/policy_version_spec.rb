@@ -38,8 +38,8 @@ describe PolicyVersion do
       policy: policy('two'),
       role: owner,
       policy_text: '[]'
-    expect(one.refresh.commited_at).to be
-    expect(two.refresh.commited_at).to_not be
+    expect(one.refresh.finished_at).to be
+    expect(two.refresh.finished_at).to_not be
   end
 
   let(:owner) { Role.create role_id: 'spec:user:spec' }
