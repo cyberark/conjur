@@ -1,7 +1,9 @@
-# Conjur Code of Conduct
+# Conjur Community Code of Conduct
 
-Conjur exists to make DevOps easier, by making it easy for teams to communicate
-about and follow their security plans.
+We are setting a new standard for how development, security, and operations
+teams work together. We strive to give application developers protection from
+breaches and confidence that they can code safely and deliver reliable software
+fast without getting hacked.
 
 Conjur is a piece of technology, but more importantly, it is a community.
 
@@ -25,20 +27,21 @@ administrators, users, and customers of CyberArk, to abide by this Code of
 Conduct at all times in all Conjur community venues, online and in person, and
 in one-on-one communications pertaining to Conjur affairs.
 
-This policy covers the usage of the Conjur hosted eval server, as well as the
-Conjur website, Conjur related events, and any other services offered by or on
-behalf of CyberArk. (collectively, the "Service"). It also applies to behavior
-in the context of the Conjur Open Source project communities, including but not
-limited to public GitHub repositories, Slack and IRC channels, social media,
-mailing lists, and public events.
+This policy covers the usage of Conjur hosted services, as well as the Conjur
+website, Conjur related events, and any other services offered by or on behalf
+of CyberArk. (collectively, the "Service"). It also applies to behavior in the
+context of the Conjur Open Source project communities, including but not limited
+to public GitHub repositories, chat channels, social media, mailing lists, and
+public events.
 
 This Code of Conduct is in addition to, and does not in any way nullify or
 invalidate, any other terms or conditions related to use of the Service.
 
-The definitions of various subjective terms such as "discriminatory", "hateful",
-or "confusing" will be decided at the sole discretion of the Conjur abuse team.
+The definitions of various subjective terms such as "offensive", "harrassing",
+or "unacceptable behavior" will be decided at the sole discretion of the Conjur
+abuse team.
 
-## Friendly Harassment-Free Space
+## Maintaining a Friendly, Harassment-Free Space
 
 We are committed to providing a friendly, safe and welcoming environment for
 all, regardless of gender identity, sexual orientation, ability, ethnicity,
@@ -83,8 +86,6 @@ the form of violation:
 * If you have concerns about a potential copyright violation, contact
   <legal@cyberark.com>.
 
-For any other issues, or if in doubt, contact <support@conjur.org>.
-
 
 ## Consequences
 
@@ -99,7 +100,7 @@ Anyone asked to stop unacceptable behavior is expected to comply immediately.
 If a community member engages in unacceptable behavior, the Conjur
 administrators may take any action they deem appropriate, up to and including a
 temporary ban or permanent expulsion from the community without warning (and
-without refund in the case of a paid event or service).
+without refund in the case of a paid event or service.)
 
 ## Addressing Grievances
 
@@ -117,7 +118,10 @@ grievance related to an abuse report.
 
 You are also encouraged to contact us if you are curious about something that
 might be "on the line" between appropriate and inappropriate content. We are
-happy to provide guidance to help you be a successful part of our community.
+happy to provide guidance to help you be a successful part of our community. Our
+[community chat][chat] is open.
+
+[chat]: https://slackin-conjur.herokuapp.com
 
 ## Credit and License
 
