@@ -40,6 +40,8 @@ Rails.application.routes.draw do
 
       get "/resources/:account" => "resources#index"
 
+      get "/resources" => "resources#index"
+
       get "/secrets/:account/:kind/*identifier" => 'secrets#show'
 
       post "/secrets/:account/:kind/*identifier" => 'secrets#create'
