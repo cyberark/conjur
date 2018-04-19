@@ -1,5 +1,4 @@
-require 'ldap/http_status_error'
-require 'ldap/unexpected_server_response'
+require 'authenticators/security'
 
 RSpec.describe Authenticators::Security do
 

@@ -49,7 +49,8 @@ class AuthenticateController < ApplicationController
     security = Authenticators::Security.new(authn_type: authenticator,
       account: account, role_class: MemoizedRole)
     security.validate(service_id, user_id)
-  rescue AuthenticatorNotEnabled, ServiceNotDefined, NotAuthorizedInConjur => e
+  rescue Authenticators::NotEnabled, Authenticators::ServiceNotDefined,
+         Authenticators::NotAuthorizedInConjur => e
     logger.debug(e.message)
     raise Unauthorized
   rescue => e
