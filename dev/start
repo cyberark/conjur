@@ -1,6 +1,20 @@
 #!/bin/bash -ex
 
-export COMPOSE_PROJECT_NAME=conjurdev
+# Determine which extra services should be loaded when working with authenticators
+ENABLE_AUTHN_LDAP=false
+while [[ $# -gt 0 ]]
+do
+key="$1"
+case $key in
+    --authn-ldap)
+    ENABLE_AUTHN_LDAP=true
+    ;;
+    *)
+    ;;
+esac
+shift # past argument or value
+done
+
 docker-compose build
 
 if [ ! -f data_key ]; then
@@ -10,9 +24,16 @@ fi
 
 export CONJUR_DATA_KEY="$(cat data_key)"
 
-docker-compose up -d
+services="pg conjur"
+docker-compose up -d --no-deps $services
 docker-compose exec conjur bundle
 docker-compose exec conjur conjurctl db migrate
-docker-compose exec conjur conjurctl account create cucumber
+docker-compose exec conjur conjurctl account create cucumber || true
 
+if [[ $ENABLE_AUTHN_LDAP = true ]]; then
+  services="$services ldap-server"
+  docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-ldap/policy.yml
+fi
+
+docker-compose up -d --no-deps $services
 docker exec -it --detach-keys 'ctrl-\' $(docker-compose ps -q conjur) bash

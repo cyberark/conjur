@@ -4,6 +4,9 @@ services:
     image: postgres:9.3
 
   conjur:
+    build:
+      context: ../
+      dockerfile: dev/Dockerfile.dev
     image: conjur-dev
     environment:
       CONJUR_APPLIANCE_URL: http://localhost:3000
@@ -51,8 +54,6 @@ services:
 
   client:
     image: conjurinc/cli5
-    # entrypoint: sleep
-    # command: infinity
     environment:
       CONJUR_APPLIANCE_URL: http://conjur:3000
       CONJUR_ACCOUNT: cucumber
@@ -71,7 +72,7 @@ services:
       LDAP_ADMIN_PASSWORD: ldapsecret
 
     volumes:
-      - ./files/ldap:/container/service/slapd/assets/config/bootstrap/ldif/custom
+      - ./files/authn-ldap/ldap:/container/service/slapd/assets/config/bootstrap/ldif/custom
 
 
 volumes:
