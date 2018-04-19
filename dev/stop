@@ -1,5 +1,0 @@
-#!/bin/bash -ex
-
-docker-compose down -v
-
-rm -f data_key
