@@ -1,6 +1,8 @@
 class AuthenticateController < ApplicationController
   include TokenGenerator
 
+  # prevents needless db queries
+  #
   class MemoizedRole
     def self.[](role_id)
       @user_roles ||= Hash.new { |h, id| h[id] = Role[id] }
@@ -46,8 +48,9 @@ class AuthenticateController < ApplicationController
   protected
 
   def validate_security!(authenticator, account, service_id, user_id)
-    security = Authenticators::Security.new(authn_type: authenticator,
-      account: account, role_class: MemoizedRole)
+    security = Authenticators::Security.new(
+      authn_type: authenticator, account: account, role_class: MemoizedRole
+    )
     security.validate(service_id, user_id)
   rescue Authenticators::NotEnabled, Authenticators::ServiceNotDefined,
          Authenticators::NotAuthorizedInConjur => e
