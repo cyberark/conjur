@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- Code of Conduct
+
 ## [0.3.0] - 2018-01-11
 ### Added
 - `conjurctl wait` command is added that can be used to check if the Conjur server is ready
