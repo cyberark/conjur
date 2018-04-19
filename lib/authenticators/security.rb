@@ -1,3 +1,6 @@
+require 'dry-struct'
+require 'types'
+
 module Authenticators
 
   class NotEnabled < RuntimeError
@@ -15,6 +18,15 @@ module Authenticators
   class NotAuthorizedInConjur < RuntimeError
     def initialize(user_id)
       super("User '#{user_id}' is not authorized in the Conjur policy")
+    end
+  end
+
+  class Webservice < ::Dry::Struct
+    attribute :authn_type, ::Types::Strict::String
+    attribute :service_id, ::Types::Strict::String
+
+    def name
+      "#{authn_type}/#{service_id}"
     end
   end
 
@@ -55,12 +67,14 @@ module Authenticators
     end
 
     def webservice_name(service_id)
-      "#{@authn_type}/#{service_id}"
+      Authenticators::Webservice.new(
+        authn_type: @authn_type, service_id: service_id
+      ).name
     end
 
     def validate_service_whitelisted(service_name)
       is_whitelisted = @authenticators.include?(service_name)
-      raise AuthenticatorNotEnabled, service_name unless is_whitelisted
+      raise NotEnabled, service_name unless is_whitelisted
     end
 
     def validate_user_requirements(service_name, user_id)
