@@ -1,0 +1,38 @@
+#!/bin/bash -ex
+
+function print_help() {
+  cat << EOF
+NAME
+    conjur - Developement tool to simplify working with a Conjur container.
+
+SYNOPSIS
+    conjur [global options] command [command options] [arguments...]
+
+GLOBAL OPTIONS
+    --help                                    - Show this message
+
+COMMANDS
+
+    exec                                      - Steps into the running Conjur container, into a bash shell.
+
+    policy load <account> <policy/path.yml>   - Loads a conjur policy into the provided account.
+EOF
+exit
+}
+
+while true ; do
+  case "$1" in
+    -h | --help ) print_help ; shift ;;
+    exec ) docker exec -it --detach-keys 'ctrl-\' $(docker-compose ps -q conjur) bash ; shift ;;
+    policy )
+      case "$2" in
+        load )
+          account="$3"
+          policy_file=$4
+          docker-compose exec conjur conjurctl policy load "$account" "/src/conjur-server/$policy_file"
+          shift 4 ;;
+        * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
+      esac ;;
+     * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
+  esac
+done
