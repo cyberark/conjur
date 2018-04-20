@@ -96,7 +96,7 @@ To use it:
    root@f39015718062:/src/conjur#
    ```
 
-   Once the start.sh script finishes, you're in a Bash shell in the Conjur
+   Once the `start` script finishes, you're in a Bash shell in the Conjur
    server container.
 
    **LDAP Authentication**
