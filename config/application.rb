@@ -40,5 +40,20 @@ module Possum
     # Whether to dump the schema after successful migrations.
     # Defaults to false in production and test, true otherwise.
     config.sequel.schema_dump = false
+
+    # Token authentication is optional for authn routes, and it's not applied at all to authentication.
+    config.middleware.use Conjur::Rack::Authenticator,
+      optional: [
+        /^\/authn-[^\/]+\//,
+        /^\/authn\//,
+        /^\/public_keys\//
+      ],
+      except: [
+        /^\/authn-[^\/]+\/.*\/authenticate$/,
+        /^\/authn\/.*\/authenticate$/,
+        /^\/host_factories\/hosts$/,
+        /^\/assets\/.*/,
+        /^\/$/
+      ]
   end
 end

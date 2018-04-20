@@ -33,6 +33,12 @@ class PolicyVersion < Sequel::Model(:policy_versions)
   alias policy resource
   alias policy= resource=
 
+  dataset_module do
+    def current
+      from(Sequel.function :current_policy_version).first
+    end
+  end
+
   def as_json options = {}
     super(options).tap do |response|
       response["id"] = response.delete("resource_id")
