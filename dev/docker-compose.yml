@@ -54,6 +54,8 @@ services:
 
   client:
     image: conjurinc/cli5
+    entrypoint: sleep
+    command: infinity
     environment:
       CONJUR_APPLIANCE_URL: http://conjur:3000
       CONJUR_ACCOUNT: cucumber
