@@ -86,8 +86,8 @@ environment with a database container (`pg`, short for *postgres*), and a
 
 To use it:
 
-1. install dependencies (as above)
-2. start the container (and optional extensions):
+1. Install dependencies (as above)
+2. Start the container (and optional extensions):
 
    ```sh-session
    $ cd dev
@@ -110,13 +110,12 @@ To use it:
    root@f39015718062:/src/conjur#
    ```
 
-   This will:
+   The `--authn-ldap` flag will:
   * Start an OpenLDAP container.
   * Load a user `alice` with the password `alice` into the LDAP server.
   * Load a policy `authn-ldap/test`, that grants `alice` the ability to authenticate via `http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate` with the password `alice`.
 
-
-3. run the server
+3. Run the server
 
    ```sh-session
    root@f39015718062:/src/conjur# conjurctl server
@@ -137,6 +136,13 @@ To use it:
    start the web server by calling `rails server -b 0.0.0.0 webrick` instead of
    `conjurctl server`. This will allow you to work in the debugger without the
    server timing out.
+
+4. Cleanup
+
+    ```sh-session
+    $ ./stop
+    ```
+    Running `stop` removes the running Docker Compose containers and the data key.
 
 ## Testing
 
