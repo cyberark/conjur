@@ -28,26 +28,28 @@ RSpec.describe Authenticators::Security do
   context "A webservice that is not enabled in Conjur" do
 
     service_id = 'my-service-id'
-    service_name = Authenticators::Webservice.new(
-      authn_type: authn_type, service_id: service_id
-    ).name
+    good_service = Authenticators::Webservice.new(
+      account: account, authn_type: authn_type, service_id: service_id
+    )
+    avail_services = Authenticators::Webservices.new([good_service])
     let(:role_class) { double }
     let(:resource_class) { double }
 
-    # we don't pass service name in directly because reading from the
-    # ENV variable is a spec requirement
-    #
-    ENV['CONJUR_AUTHENTICATORS'] = service_name
-
     it "raises a NotEnabled error" do
+      bad_service = Authenticators::Webservice.new(
+        account: account, authn_type: authn_type, service_id: 'blah'
+      )
       subject = Authenticators::Security.new(
-        authn_type: authn_type,
-        account: account,
         role_class: role_class,
         resource_class: resource_class
       )
-      expect { subject.validate('WRONG_SERVICE_ID', 'some-user') }.to(
-        raise_error(Authenticators::NotEnabled)
+      access_request = Authenticators::RequestForAccess.new(
+        webservice: bad_service,
+        whitelisted_webservices: avail_services,
+        user_id: 'some-user'
+      )
+      expect { subject.validate(access_request) }.to(
+        raise_error(Authenticators::NotWhitelisted)
       )
     end
   end

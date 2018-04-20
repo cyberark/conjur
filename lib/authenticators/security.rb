@@ -1,9 +1,9 @@
-require 'dry-struct'
+require 'forwardable'
 require 'types'
 
 module Authenticators
 
-  class NotEnabled < RuntimeError
+  class NotWhitelisted < RuntimeError
     def initialize(authenticator_name)
       super("'#{authenticator_name}' not whitelisted in CONJUR_AUTHENTICATORS")
     end
@@ -22,116 +22,86 @@ module Authenticators
   end
 
   class Webservice < ::Dry::Struct
-    attribute :authn_type, ::Types::Strict::String
-    attribute :service_id, ::Types::Strict::String
+    attribute :account,    ::Types::NonEmptyString
+    attribute :authn_type, ::Types::NonEmptyString
+    attribute :service_id, ::Types::NonEmptyString
+
+    def self.from_string(account, str)
+      type, id = *str.split('/')
+      Webservice.new(account: account, authn_type: type, service_id: id)
+    end
 
     def name
       "#{authn_type}/#{service_id}"
     end
+
+    def resource_id
+      "#{account}:webservice:conjur/#{name}"
+    end
   end
 
-  class Security
-    def initialize(authn_type:,
-                   account:,
-                   role_class: Role,
-                   resource_class: Resource,
-                   whitelisted_authenticators: ENV['CONJUR_AUTHENTICATORS'])
-      @authn_type = authn_type
-      @account = account
-      @role_class = role_class
-      @resource_class = resource_class
-      @authenticators = authenticators_array(whitelisted_authenticators)
+  class Webservices
+    include Enumerable
+    extend Forwardable
 
-      validate_constructor_arguments
+    TYPE = Types.Array(Types.Instance(Webservice))
+    def_delegators :@arr, :each
+
+    def initialize(arr)
+      @arr = TYPE[arr]
     end
 
-    def validate(service_id, user_id)
-      validate_nonempty('service_id', service_id)
-      validate_nonempty('user_id', user_id)
+    def self.from_string(account, csv_string)
+      csv_string
+        .split(',')
+        .map(&:strip)
+        .map { |ws| Webservice.from_string(account, ws) }
+    end
+  end
 
-      service_name = webservice_name(service_id)
+  class RequestForAccess < ::Dry::Struct
+    attribute :webservice             , ::Types.Instance(Webservice)
+    attribute :whitelisted_webservices, ::Types.Instance(Webservices)
+    attribute :user_id                , ::Types::NonEmptyString
+  end
 
-      validate_service_whitelisted(service_name)
-      validate_user_requirements(service_name, user_id)
+  class Security < ::Dry::Struct
+    # TODO figure out how to make test doubles of type class
+    # attribute :role_class    , ::Types::Strict::Class
+    # attribute :resource_class, ::Types::Strict::Class
+    attribute :role_class    , ::Types::Any
+    attribute :resource_class, ::Types::Any
+
+    def validate(access_request)
+      validate_service_is_whitelisted(access_request)
+      validate_user_has_access(access_request)
     end
 
     private
 
-    def validate_constructor_arguments
-      validate_nonempty('authn_type', @authn_type)
-      validate_nonempty('account', @account)
+    def validate_service_is_whitelisted(req)
+      is_whitelisted = req.whitelisted_webservices.include?(req.webservice)
+      raise NotWhitelisted, req.webservice.name unless is_whitelisted
     end
 
-    def authenticators_array(comma_delimited_authenticators)
-      (comma_delimited_authenticators || '').split(',').map(&:strip)
-    end
+    # TODO ideally, we'd break this up, and wrap resource_class and role_class
+    #      in memoizing decorators.  the method is clear enough, though
+    #
+    def validate_user_has_access(req)
+      # Ensure webservice is defined in Conjur
+      webservice_resource = resource_class[req.webservice.resource_id]
+      raise ServiceNotDefined, req.webservice.name unless webservice_resource
 
-    def webservice_name(service_id)
-      Authenticators::Webservice.new(
-        authn_type: @authn_type, service_id: service_id
-      ).name
-    end
+      # Ensure user is defined in Conjur
+      account      = req.webservice.account
+      user_role_id = role_class.roleid_from_username(account, req.user_id)
+      user_role    = role_class[user_role_id]
+      raise NotAuthorizedInConjur, req.user_id unless user_role
 
-    def validate_service_whitelisted(service_name)
-      is_whitelisted = @authenticators.include?(service_name)
-      raise NotEnabled, service_name unless is_whitelisted
-    end
-
-    def validate_user_requirements(service_name, user_id)
-      UserSecurityRequirements.new(
-         user_id: user_id, 
-         webservice_name: service_name,
-         account: @account,
-         role_class: @role_class,
-         resource_class: @resource_class
-      ).validate
-    end
-
-    def validate_nonempty(name, value)
-      raise ArgumentError, "'#{name}' must not be empty" if value.to_s.empty?
-    end
-
-    class UserSecurityRequirements
-      def initialize(user_id:,
-                     webservice_name:,
-                     account:,
-                     role_class:,
-                     resource_class: )
-
-        @user_id         = user_id
-        @webservice_name = webservice_name
-        @account         = account
-        @role_class      = role_class
-        @resource_class  = resource_class
-      end
-
-      def validate
-        raise ServiceNotDefined, @webservice_name unless webservice
-        raise NotAuthorizedInConjur, @user_id unless user_role
-        raise NotAuthorizedInConjur, @user_id unless user_can_authenticate_to_webservice
-      end
-
-      private
-
-      def user_role_id
-        @user_role_id ||= @role_class.roleid_from_username(@account, @user_id)
-      end
-
-      def user_role
-        @user_role ||= @role_class[user_role_id]
-      end
-
-      def webservice_id
-        "#{@account}:webservice:conjur/#{@webservice_name}"
-      end
-
-      def webservice
-        @webservice ||= @resource_class[webservice_id]
-      end
-
-      def user_can_authenticate_to_webservice
-        user_role.allowed_to?("authenticate", webservice)
-      end
+      # Ensure user has access to the service
+      has_access = user_role.allowed_to?('authenticate', webservice_resource)
+      raise NotAuthorizedInConjur, req.user_id unless has_access
     end
   end
+
 end

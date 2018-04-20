@@ -3,6 +3,7 @@ class AuthenticateController < ApplicationController
 
   # prevents needless db queries
   #
+  # TODO move into Security
   class MemoizedRole
     def self.[](role_id)
       @user_roles ||= Hash.new { |h, id| h[id] = Role[id] }
@@ -16,6 +17,7 @@ class AuthenticateController < ApplicationController
 
   def authenticate
 
+    # TODO: change that param to params[:authn_type]
     authenticator  = params[:authenticator]
     service_id     = params[:service_id]
     account        = params[:account]
