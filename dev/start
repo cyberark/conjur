@@ -1,15 +1,33 @@
 #!/bin/bash -ex
 
+function print_help() {
+  cat << EOF
+Starts Conjur for development. Once setup is complete, the user is dropped into the Conjur container.
+To start the application server, run:
+
+    # conjurctl server
+
+
+Usage: start [options]
+
+
+    --authn-ldap    Starts OpenLDAP server and loads a demo policy to enable authentication via:
+                    'curl -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate'
+
+    -h, --help      Shows this help message.
+EOF
+exit
+}
+
 # Determine which extra services should be loaded when working with authenticators
 ENABLE_AUTHN_LDAP=false
-
 while true ; do
   case "$1" in
     --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
+    -h | --help ) print_help ; shift ;;
      * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
   esac
 done
-
 
 docker-compose build
 
