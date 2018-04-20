@@ -228,9 +228,9 @@ root@9feae5e5e001:/src/conjur#
 There are two cucumber suites: `api` and `policy`. They are located in
 subdirectories of `./cucumber`.
 
-#### Run all the cukes:
+#### Run all the Cucumber features:
 
-```sh-session
+```sh-sessionM
 root@9feae5e5e001:/src/conjur# cd cucumber/api
 root@9feae5e5e001:/src/conjur/cucumber/api# cucumber
 ...
@@ -243,6 +243,14 @@ root@9feae5e5e001:/src/conjur/cucumber/api# cucumber
 
 ```sh-session
 root@9feae5e5e001:/src/conjur# cucumber -r cucumber/api/features/support -r cucumber/api/features/step_definitions cucumber/api/features/resource_list.feature
+```
+
+### Run full test suite (RSpec & Cucumber)
+
+Follow instructions for running Cucumber tests.  From the second terminal, run the Jenkins Rake task:
+
+```sh-session
+# bundle exec rake jenkins
 ```
 
 # Architecture
