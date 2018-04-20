@@ -2,18 +2,14 @@
 
 # Determine which extra services should be loaded when working with authenticators
 ENABLE_AUTHN_LDAP=false
-while [[ $# -gt 0 ]]
-do
-key="$1"
-case $key in
-    --authn-ldap)
-    ENABLE_AUTHN_LDAP=true
-    ;;
-    *)
-    ;;
-esac
-shift # past argument or value
+
+while true ; do
+  case "$1" in
+    --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
+     * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
+  esac
 done
+
 
 docker-compose build
 
