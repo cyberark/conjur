@@ -191,7 +191,8 @@ Conjur has `rspec` and `cucumber` tests.
 
 ### RSpec
 
-RSpec tests are easy to run from within the `conjur` server container:
+RSpec tests are easy to run from within the `conjur` server container. RSpec tests can
+be run after starting the development environment with `start`:
 
 ```sh-session
 root@aa8bc35ba7f4:/src/conjur# rspec
@@ -206,33 +207,33 @@ Finished in 3.84 seconds (files took 3.33 seconds to load)
 
 ### Cucumber
 
-Cucumber tests require the Conjur server to be running. It's easiest to achieve
-this by starting Conjur in one container and running Cucumber from another. Run
-the service in the `conjur` server container:
+Cucumber tests require the Conjur server to be running. Use the development `start`
+script in the `dev` folder to build your environment:
 
 ```sh-session
+$ ./start
 root@aa8bc35ba7f4:/src/conjur# conjurctl server
 ...
 * Listening on tcp://localhost:3000
 Use Ctrl-C to stop
 ```
 
-Then start a second container to run the cukes:
+Then, in a new shell, step into the running Conjur container using the `conjur-dev` script
+in the `dev` folder, then run the command `cucumber` to run all the cucumber features:
 
 ```sh-session
-$ ./cucumber.sh
-...
-root@9feae5e5e001:/src/conjur#
+$ ./conjur-dev exec
+# cucumber
 ```
 
-There are two cucumber suites: `api` and `policy`. They are located in
-subdirectories of `./cucumber`.
+Cucumber features are loaded from the subdirectories:
+* `cucumber/api`
+* `cucumber/policy`
 
 #### Run all the cukes:
 
 ```sh-session
-root@9feae5e5e001:/src/conjur# cd cucumber/api
-root@9feae5e5e001:/src/conjur/cucumber/api# cucumber
+root@9feae5e5e001:/src/conjur# cucumber
 ...
 27 scenarios (27 passed)
 101 steps (101 passed)
@@ -242,7 +243,7 @@ root@9feae5e5e001:/src/conjur/cucumber/api# cucumber
 #### Run just one feature:
 
 ```sh-session
-root@9feae5e5e001:/src/conjur# cucumber -r cucumber/api/features/support -r cucumber/api/features/step_definitions cucumber/api/features/resource_list.feature
+root@9feae5e5e001:/src/conjur# cucumber cucumber/api/features/resource_list.feature
 ```
 
 # Architecture
