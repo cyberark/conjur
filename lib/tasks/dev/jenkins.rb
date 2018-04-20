@@ -15,11 +15,11 @@ namespace :jenkins do
   require 'cucumber'
   require 'cucumber/rake/task'
   Cucumber::Rake::Task.new(:"cucumber-api") do |t|
-    t.cucumber_opts = "--tags ~@wip -r cucumber/api/features/support -r cucumber/api/features/step_definitions " +
+    t.cucumber_opts = "--tags ~@wip " +
       "--format pretty --format junit --out cucumber/api/features/reports cucumber/api/features"
   end
   Cucumber::Rake::Task.new(:"cucumber-policy") do |t|
-    t.cucumber_opts = "--tags ~@wip -r cucumber/policy/features/support -r cucumber/policy/features/step_definitions " +
+    t.cucumber_opts = "--tags ~@wip " +
       "--format pretty --format junit --out cucumber/policy/features/reports cucumber/policy/features"
   end
 
