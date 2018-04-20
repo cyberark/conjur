@@ -1,0 +1,6 @@
+default: >
+  --format pretty
+  -r cucumber/api/features/support
+  -r cucumber/policy/features/support
+  -r cucumber/api/features/step_definitions
+  -r cucumber/policy/features/step_definitions cucumber/api
