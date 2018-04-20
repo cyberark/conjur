@@ -87,16 +87,11 @@ environment with a database container (`pg`, short for *postgres*), and a
 To use it:
 
 1. install dependencies (as above)
-2. build the Conjur image:
-
-   ```sh-session
-   $ ./build.sh
-   ```
-3. start the container:
+2. start the container (and optional extensions):
 
    ```sh-session
    $ cd dev
-   $ ./start.sh
+   $ ./start
    ...
    root@f39015718062:/src/conjur#
    ```
@@ -104,7 +99,24 @@ To use it:
    Once the start.sh script finishes, you're in a Bash shell in the Conjur
    server container.
 
-4. run the server
+   **LDAP Authentication**
+
+   To use LDAP to authentication, run `start` with the `--authn-ldap` flag:
+
+   ```sh-session
+   $ cd dev
+   $ ./start --authn-ldap
+   ...
+   root@f39015718062:/src/conjur#
+   ```
+
+   This will:
+  * Start an OpenLDAP container.
+  * Load a user `alice` with the password `alice` into the LDAP server.
+  * Load a policy `authn-ldap/test`, that grants `alice` the ability to authenticate via `http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate` with the password `alice`.
+
+
+3. run the server
 
    ```sh-session
    root@f39015718062:/src/conjur# conjurctl server
