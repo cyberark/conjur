@@ -27,5 +27,5 @@ docker build --build-arg "VERSION=$TAG" -t "conjur-test:$TAG" -f Dockerfile.test
 
 if [[ $RUN_DEV = true ]]; then
   echo "Building image conjur-dev"
-  docker build -t conjur-dev -f Dockerfile.dev .
+  docker build -t conjur-dev -f dev/Dockerfile.dev .
 fi
