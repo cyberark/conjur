@@ -8,7 +8,7 @@ module FindResource
   end
 
   def find_resource
-    @resource ||= Resource[resource_id]
+    @resource ||= Resource.visible_to(current_user).first resource_id: resource_id
     raise Exceptions::RecordNotFound, resource_id unless @resource
   end  
 end

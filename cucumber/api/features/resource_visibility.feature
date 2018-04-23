@@ -80,3 +80,15 @@ Feature: Rules which govern the visibility of resources to roles.
     And I successfully GET "/resources/cucumber"
 
     Then the resource list should include the newest resource
+
+  Scenario: Showing a resource without permissions
+    If the user doesn't have a permission or ownership of a resource, showing
+    that resource should return 404.
+
+    Given I create a new resource called "probe"
+    And I create a new user "alice"
+
+    When I login as "alice"
+    And I GET "/resources/cucumber/test-resource/probe"
+
+    Then the HTTP response status code is 404
