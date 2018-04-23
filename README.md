@@ -217,32 +217,29 @@ root@aa8bc35ba7f4:/src/conjur# conjurctl server
 Use Ctrl-C to stop
 ```
 
-Then start a second container to run the cukes:
+Then, using the `dev/conjur-dev` script, step into the Conjur container to run the cukes:
 
 ```sh-session
-$ ./cucumber.sh
+$ ./conjur-dev
 ...
 root@9feae5e5e001:/src/conjur#
 ```
 
-There are two cucumber suites: `api` and `policy`. They are located in
-subdirectories of `./cucumber`.
-
 #### Run all the cukes:
 
+There are three different cucumber suites: `api`, `policy`, and `authenticators`. Each of these can be run using a profile of the same name:
+
 ```sh-session
-root@9feae5e5e001:/src/conjur# cd cucumber/api
-root@9feae5e5e001:/src/conjur/cucumber/api# cucumber
-...
-27 scenarios (27 passed)
-101 steps (101 passed)
-0m4.404s
+root@9feae5e5e001:/src/conjur# cucumber -p api               # runs api cukes
+root@9feae5e5e001:/src/conjur# cucumber -p policy            # runs policy cukes
+root@9feae5e5e001:/src/conjur# cucumber -p authenticators    # runs authenticators cukes
 ```
+
 
 #### Run just one feature:
 
 ```sh-session
-root@9feae5e5e001:/src/conjur# cucumber -r cucumber/api/features/support -r cucumber/api/features/step_definitions cucumber/api/features/resource_list.feature
+root@9feae5e5e001:/src/conjur# cucumber -p api cucumber/api/features/resource_list.feature
 ```
 
 # Architecture
