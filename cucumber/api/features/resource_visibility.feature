@@ -92,3 +92,18 @@ Feature: Rules which govern the visibility of resources to roles.
     And I GET "/resources/cucumber/test-resource/probe"
 
     Then the HTTP response status code is 404
+
+  Scenario: Fetching a secret without any permission on it
+    If the user doesn't have any permission or ownership of a secret, fetching
+    it should return 404 (not 403) even if it exists.
+
+    Given I create a new resource called "probe"
+    And I successfully POST "/secrets/cucumber/test-resource/probe" with body:
+    """
+    v-1
+    """
+    And I create a new user "alice"
+
+    When I login as "alice"
+    And I GET "/secrets/cucumber/test-resource/probe"
+    Then the HTTP response status code is 404
