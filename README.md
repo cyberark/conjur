@@ -144,6 +144,47 @@ To use it:
     ```
     Running `stop` removes the running Docker Compose containers and the data key.
 
+### `conjur-dev` CLI
+
+As a developer, there are a number of common scenarios when actively working on Conjur.
+The `./conjur-dev` script, located in the `dev` folder is intended to streamline these tasks.
+
+```sh-session
+$ ./conjur-dev --help
+
+NAME
+    conjur - Developement tool to simplify working with a Conjur container.
+
+SYNOPSIS
+    conjur [global options] command [command options] [arguments...]
+
+GLOBAL OPTIONS
+    --help                                    - Show this message
+
+COMMANDS
+
+    exec                                      - Steps into the running Conjur container, into a bash shell.
+
+    policy load <account> <policy/path.yml>   - Loads a conjur policy into the provided account.
+```
+
+#### Step into the running Conjur container
+
+```sh-session
+$ ./conjur-dev exec
+
+root@88d43f7b3dfa:/src/conjur-server#
+```
+
+
+#### Load a policy
+
+```sh-session
+$ ./conjur-dev policy load <account> <policy/path/from/project/root.yml>
+```
+
+For most development work, the account will be `cucumber`, which is created when the developement environment starts. The policy path must be inside the `cyberark/conjur` project folder, and referenced from the project root.
+
 ## Testing
 
 Conjur has `rspec` and `cucumber` tests.
