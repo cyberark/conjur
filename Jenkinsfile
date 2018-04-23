@@ -47,7 +47,7 @@ pipeline {
     stage('Test Docker image') {
       steps {
         sh './test.sh'
-        sh 'cd ci && ./test-ldap.sh'
+        sh 'cd ci && ./test-ldap'
       }
       post { always {
         junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,cucumber/authenticators/features/reports/**/*.xml'
