@@ -1,0 +1,86 @@
+#!/bin/bash -ex
+
+# shellcheck disable=SC1091
+
+function finish {
+  # rm -rf cucumber/authn-ldap/features/reports
+  docker-compose down --rmi 'local' --volumes
+}
+trap finish EXIT
+
+function run_cucumber_tests() {
+  profile="$1"
+
+  # Generate a data key
+  export CONJUR_DATA_KEY="$(openssl rand -base64 32)"
+
+  # Create reports folders
+  mkdir -p cucumber/$profile/features/reports
+  rm -rf cucumber/$profile/features/reports/*
+
+  # Start Conjur and supporting services
+  docker-compose up --no-deps -d $services
+  docker-compose exec -T conjur conjurctl wait
+  docker-compose exec -T conjur conjurctl account create cucumber
+
+  api_key=$(docker-compose exec -T conjur conjurctl \
+    role retrieve-key cucumber:user:admin | tr -d '\r')
+
+  docker-compose run --no-deps -T --rm -e CONJUR_AUTHN_API_KEY=$api_key cucumber -c \
+    "bundle exec cucumber -p $profile --format junit --out cucumber/policy/features/reports"
+}
+
+# Setup to allow compose to run in an isolated namespace
+export COMPOSE_PROJECT_NAME="$(openssl rand -hex 3)"
+
+services="pg conjur"
+RUN_ALL=true
+RUN_AUTHENTICATORS=false
+RUN_API=false
+RUN_POLICY=false
+RUN_RSPEC=false
+while true ; do
+  case "$1" in
+    --cucumber-authenticators ) RUN_ALL=false ; RUN_AUTHENTICATORS=true ; shift ;;
+    --cucumber-api ) RUN_ALL=false ; RUN_API=true ; shift ;;
+    --cucumber-policy ) RUN_ALL=false ; RUN_POLICY=true ; shift ;;
+    --rspec ) RUN_ALL=false ; RUN_RSPEC=true ; shift ;;
+    -h | --help ) print_help ; shift ;;
+     * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
+  esac
+done
+
+# Set release tag for building this version of Conjur
+cd ..
+# Create Conjur Image
+./build.sh -j
+# Grab the build tag so we launch the correct version of Conjur
+. version_utils.sh
+export TAG="$(version_tag)"
+cd ci
+
+# Run tests based on what flags were passed
+if [[ $RUN_AUTHENTICATORS = true || $RUN_ALL = true ]]; then
+  echo 'run authenticators'
+  services="$services ldap-server"
+  run_cucumber_tests 'authenticators'
+fi
+
+if [[ $RUN_API = true || $RUN_ALL = true ]]; then
+  run_cucumber_tests 'api'
+fi
+
+if [[ $RUN_POLICY = true || $RUN_ALL = true ]]; then
+  run_cucumber_tests 'policy'
+fi
+
+if [[ $RUN_RSPEC = true || $RUN_ALL = true ]]; then
+  echo 'run rspec'
+  mkdir -p spec/reports
+  rm -rf spec/reports/*
+  docker-compose up --no-deps -d pg cucumber
+  docker-compose run -T --rm --no-deps cucumber -c '
+    bundle exec rake db:migrate
+    bundle exec rspec
+  '
+fi
