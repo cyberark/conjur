@@ -46,14 +46,14 @@ class AuthenticateController < ApplicationController
   protected
 
   def validate_security!(authenticator, account, service_id, user_id)
-    security = AuthenticatorSecurity.new(authn_type: authenticator,
+    security = Authenticators::Security.new(authn_type: authenticator,
       account: account, role_class: MemoizedRole)
     security.validate(service_id, user_id)
   rescue AuthenticatorNotEnabled, ServiceNotDefined, NotAuthorizedInConjur => e
     logger.debug(e.message)
     raise Unauthorized
   rescue => e
-    logger.debug("Unexpected AuthenticatorSecurity Error: #{e.message}")
+    logger.debug("Unexpected Authenticators::Security Error: #{e.message}")
     raise Unauthorized
   end
 

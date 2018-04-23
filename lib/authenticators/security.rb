@@ -16,7 +16,7 @@ class NotAuthorizedInConjur < RuntimeError
   end
 end
 
-class AuthenticatorSecurity
+class Authenticators::Security
   def initialize(authn_type:,
                  account:,
                  role_class: Role,
