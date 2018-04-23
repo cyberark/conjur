@@ -47,16 +47,16 @@ pipeline {
     stage('Run Tests') {
       parallel {
         stage('RSpec') {
-          steps { 'cd ci && ./test --rspec' }
+          steps { sh 'cd ci && ./test --rspec' }
         }
         stage('Authenticators') {
-          steps { 'cd ci && ./test --cucumber-authenticators' }
+          steps { sh 'cd ci && ./test --cucumber-authenticators' }
         }
         stage('Policy') {
-          steps { 'cd ci && ./test --cucumber-policy' }
+          steps { sh 'cd ci && ./test --cucumber-policy' }
         }
         stage('API') {
-          steps { './test.sh' }
+          steps { sh './test.sh' }
         }
       }
       post {
