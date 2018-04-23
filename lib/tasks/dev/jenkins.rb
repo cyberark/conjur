@@ -49,7 +49,5 @@ end
 
 task jenkins: [
   'db:migrate',
-  'jenkins:core:rspec',
   'jenkins:core:cucumber-api',
-  'jenkins:core:cucumber-policy'
 ]

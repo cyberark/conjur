@@ -44,16 +44,39 @@ pipeline {
       }
     }
 
-    stage('Test Docker image') {
-      steps {
-        sh './test.sh'
-        sh 'cd ci && ./test-ldap'
+    stage('Run Tests') {
+      parallel {
+        stage('RSpec') {
+          steps { 'cd ci && ./test --rspec' }
+        }
+        stage('Authenticators') {
+          steps { 'cd ci && ./test --cucumber-authenticators' }
+        }
+        stage('Policy') {
+          steps { 'cd ci && ./test --cucumber-policy' }
+        }
+        stage('API') {
+          steps { './test.sh' }
+        }
       }
-      post { always {
-        junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,cucumber/authenticators/features/reports/**/*.xml'
-        publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false])
-      }}
+      post {
+        always {
+          junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,cucumber/authenticators/features/reports/**/*.xml'
+          publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false])
+        }
+      }
     }
+
+    // stage('Test Docker image') {
+    //   steps {
+    //     sh './test.sh'
+    //     sh 'cd ci && ./test-ldap'
+    //   }
+    //   post { always {
+    //     junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,cucumber/authenticators/features/reports/**/*.xml'
+    //     publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false])
+    //   }}
+    // }
 
     stage('Push Docker image') {
       steps {
