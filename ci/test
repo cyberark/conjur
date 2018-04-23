@@ -3,7 +3,6 @@
 # shellcheck disable=SC1091
 
 function finish {
-  # rm -rf cucumber/authn-ldap/features/reports
   docker-compose down --rmi 'local' --volumes
 }
 trap finish EXIT
@@ -61,7 +60,6 @@ cd ci
 
 # Run tests based on what flags were passed
 if [[ $RUN_AUTHENTICATORS = true || $RUN_ALL = true ]]; then
-  echo 'run authenticators'
   services="$services ldap-server"
   run_cucumber_tests 'authenticators'
 fi
@@ -75,7 +73,6 @@ if [[ $RUN_POLICY = true || $RUN_ALL = true ]]; then
 fi
 
 if [[ $RUN_RSPEC = true || $RUN_ALL = true ]]; then
-  echo 'run rspec'
   mkdir -p spec/reports
   rm -rf spec/reports/*
   docker-compose up --no-deps -d pg cucumber
