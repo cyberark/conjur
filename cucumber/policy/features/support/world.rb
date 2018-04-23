@@ -73,7 +73,7 @@ module PossumWorld
   end
 
   def admin_password
-    ENV['CONJUR_AUTHN_PASSWORD'] || 'admin'
+    ENV['CONJUR_AUTHN_API_KEY'] || 'admin'
   end
 
   def login_as_role login, api_key = nil
