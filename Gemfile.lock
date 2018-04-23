@@ -123,6 +123,7 @@ GEM
     gli (2.17.1)
     globalid (0.4.0)
       activesupport (>= 4.2.0)
+    haikunator (1.1.0)
     highline (1.7.10)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
@@ -306,6 +307,7 @@ DEPENDENCIES
   database_cleaner
   font-awesome-sass (~> 4.7.0)
   gli
+  haikunator (~> 1)
   json_spec
   listen
   net-ldap

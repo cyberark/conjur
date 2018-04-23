@@ -2,7 +2,8 @@
 Feature: Create a host factory token.
 
   Background:
-    Given a host factory for layer "the-layer"
+    Given I create a new user "alice"
+    And a host factory for layer "the-layer"
 
   Scenario: Unauthorized users cannot create host factory tokens.
     When I POST "/host_factory_tokens?host_factory=cucumber:host_factory:the-layer-factory&expiration=2050-12-31"
@@ -10,6 +11,7 @@ Feature: Create a host factory token.
 
   Scenario: A host factory token can be created by specifying an expiration time.
     Given I permit user "alice" to "execute" it
+    And I login as "alice"
     When I successfully POST "/host_factory_tokens?host_factory=cucumber:host_factory:the-layer-factory&expiration=2050-12-31"
     Then the JSON should be:
     """

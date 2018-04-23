@@ -19,9 +19,9 @@ Feature: Rotate the API key of a role
     When I PUT "/authn/cucumber/api_key?role=user:bob"
     Then the HTTP response status code is 401
 
-  @logged-in
   Scenario: The API key can be rotated by foreign role when it has 'update' privilege
     Given I create a new user "bob"
     And I permit user "alice" to "update" user "bob"
+    And I login as "alice"
     When I PUT "/authn/cucumber/api_key?role=user:bob"
     Then the result is the API key for user "bob"

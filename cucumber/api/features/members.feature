@@ -1,4 +1,3 @@
-@logged-in
 Feature: List direct members of a role
 
   If a role A is granted to a role B, then role A is said to have role B as a 
@@ -7,8 +6,8 @@ Feature: List direct members of a role
   Unlike role memberships, role members are not expanded recursively.
 
   Background:
-    Given I create a new user "alice"
-    And I create a new user "bob"
+    Given I create a new user "bob"
+    And I am a user named "alice"
 
   Scenario: Initial roles members is just the initial role admin.
 

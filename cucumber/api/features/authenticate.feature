@@ -25,12 +25,12 @@ Feature: Exchange a role's API key for a signed authentication token
     When I POST "/authn/second-account/alice/authenticate" with plain text body ":alice_api_key"
     Then the HTTP response status code is 401
 
-  @logged-in
   Scenario: Auth tokens cannot be refreshed
 
     The API key is required to authenticate. An authentication token is not a sufficient
     credential to re-authenticate. 
 
+    Given I login as "alice"
     When I POST "/authn/cucumber/alice/authenticate"
     Then the HTTP response status code is 401
 

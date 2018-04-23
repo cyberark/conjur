@@ -1,11 +1,11 @@
-@logged-in
 Feature: List roles which have a specific permission on a resource
 
   The `permitted_roles` query parameter can be used to list all the roles which have
   a specified privilege on some resource.
 
   Background:
-    Given I create a new resource
+    Given I am a user named "alice"
+    And I create a new resource
 
   Scenario: Initial permitted roles is just the owner, and the roles which have the owner.
     When I successfully GET "/resources/cucumber/:resource_kind/:resource_id" with parameters:

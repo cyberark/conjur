@@ -2,7 +2,8 @@
 Feature: Delete (revoke) a host factory token.
 
 Background:
-  Given a host factory for layer "the-layer"
+  Given I create a new user "alice"
+  And a host factory for layer "the-layer"
   And a host factory token
 
   Scenario: Unauthorized users cannot delete host factory tokens.
@@ -13,11 +14,13 @@ Background:
     tokens.
 
     Given I permit user "alice" to "update" it
+    When I login as "alice"
     Then I can DELETE "/host_factory_tokens/@host_factory_token_token@"
 
   Scenario: Once the token has been deleted, subsequent attempts return 404 Not Found.
 
     Given I permit user "alice" to "update" it
-    Then I can DELETE "/host_factory_tokens/@host_factory_token_token@"
+    When I login as "alice"
+    And I can DELETE "/host_factory_tokens/@host_factory_token_token@"
     And I DELETE "/host_factory_tokens/@host_factory_token_token@"
     Then the HTTP response status code is 404
