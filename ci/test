@@ -2,6 +2,12 @@
 
 # shellcheck disable=SC1091
 
+# TODO: Currently, the API Cucumber tests have a hard dependency to run on the
+# Conjur container as they perform a number of setup tasks that require code level
+# access. This setup should be done with policy files. Until we refactor, we'll
+# need to use the existing `./test.sh` file to run API tests.
+
+# Display CLI usage information
 function print_help {
   cat << EOF
 NAME
@@ -22,14 +28,17 @@ GLOBAL OPTIONS
 
 EOF
 exit
-
 }
 
+# Cleanup started containers
 function finish {
   docker-compose down --rmi 'local' --volumes
 }
 trap finish EXIT
 
+# Setup and run Cucumber tests.
+# args: profile name
+# example: run_cucumber_tests 'policy'
 function run_cucumber_tests() {
   profile="$1"
 
@@ -45,9 +54,11 @@ function run_cucumber_tests() {
   docker-compose exec -T conjur conjurctl wait
   docker-compose exec -T conjur conjurctl account create cucumber
 
+  # Grab the admin user API key
   api_key=$(docker-compose exec -T conjur conjurctl \
     role retrieve-key cucumber:user:admin | tr -d '\r')
 
+  # Run the tests
   docker-compose run --no-deps -T --rm -e CONJUR_AUTHN_API_KEY=$api_key cucumber -c \
     "bundle exec cucumber -p $profile --format junit --out cucumber/policy/features/reports"
 }
@@ -58,13 +69,13 @@ export COMPOSE_PROJECT_NAME="$(openssl rand -hex 3)"
 services="pg conjur"
 RUN_ALL=true
 RUN_AUTHENTICATORS=false
-# RUN_API=false # Need to refactor API tests for this to work
+# RUN_API=false # TODO: Enable when API tests have been refactored
 RUN_POLICY=false
 RUN_RSPEC=false
 while true ; do
   case "$1" in
     --cucumber-authenticators ) RUN_ALL=false ; RUN_AUTHENTICATORS=true ; shift ;;
-    # --cucumber-api ) RUN_ALL=false ; RUN_API=true ; shift ;; # Need to refactor API tests for this to work
+    # --cucumber-api ) RUN_ALL=false ; RUN_API=true ; shift ;; # TODO: Enable when API tests have been refactored
     --cucumber-policy ) RUN_ALL=false ; RUN_POLICY=true ; shift ;;
     --rspec ) RUN_ALL=false ; RUN_RSPEC=true ; shift ;;
     -h | --help ) print_help ; shift ;;
@@ -87,7 +98,7 @@ if [[ $RUN_AUTHENTICATORS = true || $RUN_ALL = true ]]; then
   run_cucumber_tests 'authenticators'
 fi
 
-# Need to refactor API tests for this to work
+# TODO: Enable when API tests have been refactored
 # if [[ $RUN_API = true || $RUN_ALL = true ]]; then
 #   run_cucumber_tests 'api'
 # fi
