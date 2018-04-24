@@ -2,6 +2,29 @@
 
 # shellcheck disable=SC1091
 
+function print_help {
+  cat << EOF
+NAME
+    test - CLI to simplify testing
+
+SYNOPSIS
+    test [global options]
+
+GLOBAL OPTIONS
+
+    --cucumber-authenticators                 - Runs Cucumber Authenticator features
+
+    --cucumber-policy                         - Runs Cucumber Policy features
+
+    -h | --help                               - Show this message
+
+    --rspec                                   - Runs RSpec specs
+
+EOF
+exit
+
+}
+
 function finish {
   docker-compose down --rmi 'local' --volumes
 }
