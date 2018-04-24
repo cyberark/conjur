@@ -55,6 +55,7 @@ pipeline {
         stage('Policy') {
           steps { sh 'cd ci && ./test --cucumber-policy' }
         }
+        // API tests can't be run outside Conjur. Until we complete this refactor, we'll use the existing test
         stage('API') {
           steps { sh './test.sh' }
         }
