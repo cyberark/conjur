@@ -73,7 +73,9 @@ module PossumWorld
   end
 
   def admin_password
-    ENV['CONJUR_AUTHN_API_KEY'] || 'admin'
+    ENV['CONJUR_AUTHN_API_KEY'] || begin
+      raise StandardError.new('Environment variable `CONJUR_AUTHN_API_KEY` must be set.')
+    end
   end
 
   def login_as_role login, api_key = nil
