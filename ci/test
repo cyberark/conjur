@@ -110,9 +110,11 @@ fi
 if [[ $RUN_RSPEC = true || $RUN_ALL = true ]]; then
   mkdir -p spec/reports
   rm -rf spec/reports/*
-  docker-compose up --no-deps -d pg cucumber
+  docker-compose up --no-deps -d pg
+
+  until docker-compose run -T --rm pg psql -U postgres -h pg -c "select 1" -d postgres; do sleep 1; done
+
   docker-compose run -T --rm --no-deps cucumber -c '
-    sleep 5 # dirty fix to insure Postgres container is available
     bundle exec rake db:migrate
     bundle exec rspec
   '
