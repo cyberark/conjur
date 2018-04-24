@@ -4,26 +4,30 @@ class AuthenticateController < ApplicationController
   # prevents needless db queries
   #
   # TODO move into Security
-  class MemoizedRole
-    def self.[](role_id)
-      @user_roles ||= Hash.new { |h, id| h[id] = Role[id] }
-      @user_roles[role_id]
-    end
-
-    def self.roleid_from_username(account, username)
-      Role.roleid_from_username(account, username)
-    end
-  end
 
   def authenticate
 
+    # TODO move the Strategy into an initializer
+    Authentication::Strategy.new.conjur_token(
+      Authentication::Strategy::Input.new(
+        authenticator_name: params[:authenticator],
+        service_id:         params[:service_id],
+        account:            params[:account],
+        username:           params[:username],
+        password:           request.body.read
+      )
+    )
+  rescue
+    # TODO placeholder for adding json error messages
+    raise Unauthorized
+
     # TODO: change that param to params[:authn_type]
-    authenticator  = params[:authenticator]
-    service_id     = params[:service_id]
-    account        = params[:account]
-    username       = params[:id]
-    password       = request.body.read
-    role_id        = MemoizedRole.roleid_from_username(account, username)
+    authenticator = params[:authenticator]
+    service_id    = params[:service_id]
+    account       = params[:account]
+    username      = params[:id]
+    password      = request.body.read
+    role_id       = MemoizedRole.roleid_from_username(account, username)
 
     validate_roleid_is_nonempty!(role_id)
     
@@ -50,16 +54,16 @@ class AuthenticateController < ApplicationController
   protected
 
   def validate_security!(authenticator, account, service_id, user_id)
-    security = Authenticators::Security.new(
+    security = Authentication::Security.new(
       authn_type: authenticator, account: account, role_class: MemoizedRole
     )
     security.validate(service_id, user_id)
-  rescue Authenticators::NotEnabled, Authenticators::ServiceNotDefined,
-         Authenticators::NotAuthorizedInConjur => e
+  rescue Authentication::NotEnabled, Authentication::ServiceNotDefined,
+         Authentication::NotAuthorizedInConjur => e
     logger.debug(e.message)
     raise Unauthorized
   rescue => e
-    logger.debug("Unexpected Authenticators::Security Error: #{e.message}")
+    logger.debug("Unexpected Authentication::Security Error: #{e.message}")
     raise Unauthorized
   end
 
@@ -82,8 +86,8 @@ class AuthenticateController < ApplicationController
   end
 
   def ldap_authenticator
-    @ldap_authenticator ||= Authenticators::Ldap::Authn.new(
-      ldap_server: Authenticators::Ldap::Server.new(
+    @ldap_authenticator ||= Authentication::Ldap::Authn.new(
+      ldap_server: Authentication::Ldap::Server.new(
         uri:     ENV['LDAP_URI'],
         base:    ENV['LDAP_BASE'],
         bind_dn: ENV['LDAP_BINDDN'],

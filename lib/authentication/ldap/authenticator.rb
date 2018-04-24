@@ -5,13 +5,14 @@ require 'net/ldap'
 module Authenticators
   module Ldap
 
-    class Authn
+    class Authenticator
 
       def initialize(ldap_server:, ldap_filter: nil)
         @ldap_server = ldap_server
         @filter = ldap_filter || '(&(objectClass=posixAccount)(uid=%s))'
       end
 
+      # TODO add env
       def valid?(login, password)
         return false if login.blank? || password.blank?
         valid_ldap_credentials?(login, password)

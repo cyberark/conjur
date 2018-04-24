@@ -6,3 +6,4 @@ module Types
 
   NonEmptyString = Types::Strict::String.constrained(format: /\S+/)
 end
+

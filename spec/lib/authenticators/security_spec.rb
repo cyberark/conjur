@@ -1,6 +1,6 @@
 require 'authenticators/security'
 
-RSpec.describe Authenticators::Security do
+RSpec.describe Authentication::Security do
 
   # generates authorized or unauthorized user roles
   user_role = ->(can_authenticate) do
@@ -28,28 +28,28 @@ RSpec.describe Authenticators::Security do
   context "A webservice that is not enabled in Conjur" do
 
     service_id = 'my-service-id'
-    good_service = Authenticators::Webservice.new(
+    good_service = Authentication::Webservice.new(
       account: account, authn_type: authn_type, service_id: service_id
     )
-    avail_services = Authenticators::Webservices.new([good_service])
+    avail_services = Authentication::Webservices.new([good_service])
     let(:role_class) { double }
     let(:resource_class) { double }
 
     it "raises a NotEnabled error" do
-      bad_service = Authenticators::Webservice.new(
+      bad_service = Authentication::Webservice.new(
         account: account, authn_type: authn_type, service_id: 'blah'
       )
-      subject = Authenticators::Security.new(
+      subject = Authentication::Security.new(
         role_class: role_class,
         resource_class: resource_class
       )
-      access_request = Authenticators::RequestForAccess.new(
+      access_request = Authentication::RequestForAccess.new(
         webservice: bad_service,
         whitelisted_webservices: avail_services,
         user_id: 'some-user'
       )
       expect { subject.validate(access_request) }.to(
-        raise_error(Authenticators::NotWhitelisted)
+        raise_error(Authentication::NotWhitelisted)
       )
     end
   end
