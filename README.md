@@ -230,16 +230,16 @@ root@9feae5e5e001:/src/conjur#
 There are three different cucumber suites: `api`, `policy`, and `authenticators`. Each of these can be run using a profile of the same name:
 
 ```sh-session
-root@9feae5e5e001:/src/conjur# cucumber -p api               # runs api cukes
-root@9feae5e5e001:/src/conjur# cucumber -p policy            # runs policy cukes
-root@9feae5e5e001:/src/conjur# cucumber -p authenticators    # runs authenticators cukes
+root@9feae5e5e001:/src/conjur# cucumber --profile api               # runs api cukes
+root@9feae5e5e001:/src/conjur# cucumber --profile policy            # runs policy cukes
+root@9feae5e5e001:/src/conjur# cucumber --profile authenticators    # runs authenticators cukes
 ```
 
 
 #### Run just one feature:
 
 ```sh-session
-root@9feae5e5e001:/src/conjur# cucumber -p api cucumber/api/features/resource_list.feature
+root@9feae5e5e001:/src/conjur# cucumber --profile api cucumber/api/features/resource_list.feature
 ```
 
 # Architecture
