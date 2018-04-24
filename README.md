@@ -153,10 +153,10 @@ The `./cli` script, located in the `dev` folder is intended to streamline these 
 $ ./cli --help
 
 NAME
-    conjur - Developement tool to simplify working with a Conjur container.
+    cli - Developement tool to simplify working with a Conjur container.
 
 SYNOPSIS
-    conjur [global options] command [command options] [arguments...]
+    cli [global options] command [command options] [arguments...]
 
 GLOBAL OPTIONS
     --help                                    - Show this message
