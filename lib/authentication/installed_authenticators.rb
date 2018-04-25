@@ -5,6 +5,8 @@ module Authentication
   class InstalledAuthenticators
 
     def self.new(env, root_module: ::Authentication)
+      p 'SUBMODULES'
+      p ::Util::Submodules.of(root_module)
       ::Util::Submodules.of(root_module)
         .flat_map { |mod| ::Util::Submodules.of(mod) }
         .select { |cls| ::Authentication::AuthenticatorClass.valid?(cls) }

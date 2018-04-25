@@ -6,7 +6,7 @@ require 'util/name_aware_module'
 module Authentication
   class AuthenticatorClass
 
-    InvalidAuthenticator = ErrorClass.new(
+    InvalidAuthenticator = ::Util::ErrorClass.new(
       "'{0}' is not a valid authenticator class.  It must be named " +
       "'Authenticator', implement either a 'valid?(username:, password:)' " +
       "or a 'valid?(username:, password:, service_id:)' method, and have a " +

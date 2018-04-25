@@ -1,13 +1,15 @@
 require 'types'
+require 'authentication/webservice'
+require 'authentication/webservices'
 
 module Authentication
   class Security < ::Dry::Struct
 
-    NotWhitelisted = ErrorClass.new(
+    NotWhitelisted = ::Util::ErrorClass.new(
       "'{0}' not whitelisted in CONJUR_AUTHENTICATORS")
-    ServiceNotDefined = ErrorClass.new(
+    ServiceNotDefined = ::Util::ErrorClass.new(
       "Webservice '{0}' is not defined in the Conjur policy")
-    NotAuthorizedInConjur = ErrorClass.new(
+    NotAuthorizedInConjur = ::Util::ErrorClass.new(
       "User '{0}' is not authorized in the Conjur policy")
 
     class AccessRequest < ::Dry::Struct
@@ -22,7 +24,7 @@ module Authentication
     # attribute :resource_class, ::Types::Strict::Class
     
     attribute :role_class, ::Types::Any.default(::Authentication::MemoizedRole)
-    attribute :resource_class, ::Types::Any.default(Resource)
+    attribute :resource_class, ::Types::Any.default(::Resource)
 
     def validate(access_request)
       validate_service_is_whitelisted(access_request)

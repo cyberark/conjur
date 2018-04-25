@@ -14,7 +14,7 @@ module Authentication
 
     class Input < ::Dry::Struct
       attribute :authenticator_name, Types::NonEmptyString
-      attribute :service_id,         Types::NonEmptyString
+      attribute :service_id,         Types::Coercible::String
       attribute :account,            Types::NonEmptyString
       attribute :username,           Types::NonEmptyString
       attribute :password,           Types::NonEmptyString
@@ -32,7 +32,12 @@ module Authentication
     attribute :token_factory, ::Types::Any.default(TokenFactory.new)
 
     def conjur_token(input)
+      p 'hi'
+      p authenticators
+      puts input.authenticator_name
       authenticator = authenticators[input.authenticator_name]
+      puts "HEllo"
+      p authenticator
 
       validate_authenticator_exists(input, authenticator)
       validate_security(input)

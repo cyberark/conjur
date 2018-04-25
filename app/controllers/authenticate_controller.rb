@@ -18,12 +18,15 @@ class AuthenticateController < ApplicationController
         authenticator_name: params[:authenticator],
         service_id:         params[:service_id],
         account:            params[:account],
-        username:           params[:username],
+        username:           params[:id],
         password:           request.body.read
       )
     )
     render json: authentication_token
   rescue => e
+    puts '*******************************'
+    puts e.message
+    raise e
     logger.debug(e.message)
     raise Unauthorized
   end
