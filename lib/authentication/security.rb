@@ -3,23 +3,12 @@ require 'types'
 module Authentication
   class Security < ::Dry::Struct
 
-    class NotWhitelisted < RuntimeError
-      def initialize(authenticator_name)
-        super("'#{authenticator_name}' not whitelisted in CONJUR_AUTHENTICATORS")
-      end
-    end
-
-    class ServiceNotDefined < RuntimeError
-      def initialize(service_name)
-        super("Webservice '#{service_name}' is not defined in the Conjur policy")
-      end
-    end
-
-    class NotAuthorizedInConjur < RuntimeError
-      def initialize(user_id)
-        super("User '#{user_id}' is not authorized in the Conjur policy")
-      end
-    end
+    NotWhitelisted = ErrorClass.new(
+      "'{0}' not whitelisted in CONJUR_AUTHENTICATORS")
+    ServiceNotDefined = ErrorClass.new(
+      "Webservice '{0}' is not defined in the Conjur policy")
+    NotAuthorizedInConjur = ErrorClass.new(
+      "User '{0}' is not authorized in the Conjur policy")
 
     class AccessRequest < ::Dry::Struct
       attribute :webservice, ::Types.Instance(::Authentication::Webservice)

@@ -2,17 +2,17 @@ require 'types'
 
 module Authentication
   class Webservice < ::Dry::Struct
-    attribute :account,    ::Types::NonEmptyString
-    attribute :authn_type, ::Types::NonEmptyString
-    attribute :service_id, ::Types::NonEmptyString
+    attribute :account,            ::Types::NonEmptyString
+    attribute :authenticator_name, ::Types::NonEmptyString
+    attribute :service_id,         ::Types::NonEmptyString
 
     def self.from_string(account, str)
       type, id = *str.split('/')
-      Webservice.new(account: account, authn_type: type, service_id: id)
+      Webservice.new(account: account, authenticator_name: type, service_id: id)
     end
 
     def name
-      "#{authn_type}/#{service_id}"
+      "#{authenticator_name}/#{service_id}"
     end
 
     def resource_id

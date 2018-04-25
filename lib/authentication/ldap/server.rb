@@ -2,7 +2,7 @@ require 'active_support'
 require 'active_support/core_ext'
 require 'net/ldap'
 
-module Authenticators
+module Authentication
   module Ldap
 
     class Server
