@@ -1,5 +1,5 @@
-require 'types'
-require 'util/error_class'
+# require 'types'
+# require 'util/error_class'
 
 module Authentication
 
@@ -23,8 +23,8 @@ module Authentication
     # required
     #
     attribute :authenticators, ::Types.Array(::Types::Any)
-  
-    # optional 
+
+    # optional
     #
     attribute :security, ::Types::Any.default(::Authentication::Security.new)
     attribute :env, ::Types::Any.default(ENV)
@@ -45,7 +45,7 @@ module Authentication
 
       new_token(input)
     end
-    
+
     private
 
     def validate_authenticator_exists(input, authenticator)
