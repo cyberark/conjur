@@ -29,9 +29,10 @@ module Possum
     # config.i18n.default_locale = :de
 
     config.autoload_paths << Rails.root.join('lib')
-    Dir["lib/util/*.rb"].each {|file| load file}
-    Dir["lib/authentication/*.rb"].each {|file| load file}
-    Dir["lib/authentication/**/*.rb"].each {|file| load file}
+    config.autoload_paths << Rails.root.join('app/models')
+    # Dir["lib/util/*.rb"].each {|file| load file}
+    # Dir["lib/authentication/*.rb"].each {|file| load file}
+    # Dir["lib/authentication/**/*.rb"].each {|file| load file}
     
 
     config.sequel.after_connect = proc do

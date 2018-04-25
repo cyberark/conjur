@@ -9,7 +9,7 @@ module Authentication
   # - Returns a new token
   class Strategy < ::Dry::Struct
 
-    AuthenticatorNotFound = ErrorClass.new(
+    AuthenticatorNotFound = ::Util::ErrorClass.new(
       "'{0}' wasn't in the available authenticators")
 
     class Input < ::Dry::Struct

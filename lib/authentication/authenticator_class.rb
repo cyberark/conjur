@@ -1,4 +1,5 @@
 require 'active_support/core_ext/string'
+require 'util/error_class'
 require 'util/name_aware_module'
 
 # Represents a class that implements an authenticator.
