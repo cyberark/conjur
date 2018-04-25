@@ -33,10 +33,11 @@ module Authentication
 
     def conjur_token(input)
       p 'hi'
+      puts "input: #{input.inspect}"
       p authenticators
       puts input.authenticator_name
       authenticator = authenticators[input.authenticator_name]
-      puts "HEllo"
+      puts "Hello"
       p authenticator
 
       validate_authenticator_exists(input, authenticator)

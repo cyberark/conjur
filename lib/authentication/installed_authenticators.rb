@@ -5,8 +5,22 @@ module Authentication
   class InstalledAuthenticators
 
     def self.new(env, root_module: ::Authentication)
+      puts "ENV: #{env.inspect}"
       p 'SUBMODULES'
       p ::Util::Submodules.of(root_module)
+      p '-------'
+      p ::Util::Submodules.of(root_module).flat_map { |mod| ::Util::Submodules.of(mod) }
+      p '-------'
+      p ::Util::Submodules.of(root_module)
+        .flat_map { |mod| ::Util::Submodules.of(mod) }
+        .select { |cls| ::Authentication::AuthenticatorClass.valid?(cls) }
+      p '-------'
+      p ::Util::Submodules.of(root_module)
+        .flat_map { |mod| ::Util::Submodules.of(mod) }
+        .select { |cls| ::Authentication::AuthenticatorClass.valid?(cls) }
+        .map { |cls| [url_for(cls), authenticator_instance(cls, env)] }
+      p '-------'
+
       ::Util::Submodules.of(root_module)
         .flat_map { |mod| ::Util::Submodules.of(mod) }
         .select { |cls| ::Authentication::AuthenticatorClass.valid?(cls) }
