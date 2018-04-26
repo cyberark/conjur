@@ -34,9 +34,8 @@ Sequel.migration do
             UNION
           SELECT role_id FROM permissions WHERE resource_id = $1
             UNION
-          SELECT m.role_id
-            FROM role_memberships m, search s
-            WHERE member_id = s.role_id
+          SELECT m.member_id
+            FROM role_memberships m NATURAL JOIN search s
         )
         SELECT COUNT(*) > 0 FROM (
           SELECT true FROM search

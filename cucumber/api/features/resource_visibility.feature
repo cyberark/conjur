@@ -77,9 +77,9 @@ Feature: Rules which govern the visibility of resources to roles.
     And I create a new resource called "probe"
 
     When I login as "bob"
-    And I successfully GET "/resources/cucumber"
-
-    Then the resource list should include the newest resource
+    Then I can GET "/resources/cucumber/test-resource/probe"
+    And I can GET "/resources/cucumber"
+    And the resource list should include the newest resource
 
   Scenario: Showing a resource without permissions
     If the user doesn't have a permission or ownership of a resource, showing
