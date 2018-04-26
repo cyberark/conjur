@@ -28,14 +28,17 @@ module Authentication
 
     def validate(access_request)
       # No checks required for default conjur auth
-      conjur_auth = access_request.webservice.authenticator_name == 'authn'
-      return if conjur_auth
+      return if default_conjur_authn?(access_request)
 
       validate_service_is_whitelisted(access_request)
       validate_user_has_access(access_request)
     end
 
     private
+
+    def default_conjur_authn?(req)
+      req.webservice.authenticator_name == 'authn'
+    end
 
     def validate_service_is_whitelisted(req)
       is_whitelisted = req.whitelisted_webservices.include?(req.webservice)

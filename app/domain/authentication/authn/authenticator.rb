@@ -17,7 +17,8 @@ module Authentication
 
       def valid?(input)
         role_id = role_cls.roleid_from_username(input.account, input.username)
-        credentials_cls[role_id]
+        credentials = credentials_cls[role_id]
+        credentials.valid_api_key?(input.password)
       end
 
     end
