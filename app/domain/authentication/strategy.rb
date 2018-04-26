@@ -70,17 +70,17 @@ module Authentication
         ),
         whitelisted_webservices: Webservices.from_string(
           # TODO We don't need to to check when it's conjur default
-          input.account, conjur_authenticators
+          input.account, env['CONJUR_AUTHENTICATORS']
         ),
         user_id: input.username
       )
     end
 
-    def conjur_authenticators
-      # the default conjur authenticator is always available
-      # TODO change this
-      [env['CONJUR_AUTHENTICATORS'], 'authn'].compact.join(',')
-    end
+    # def conjur_authenticators
+    #   # the default conjur authenticator is always available
+    #   # TODO change this
+    #   [env['CONJUR_AUTHENTICATORS'], 'authn'].compact.join(',')
+    # end
   end
 
 end

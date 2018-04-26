@@ -23,10 +23,14 @@ module Authentication
     # attribute :role_class    , ::Types::Strict::Class
     # attribute :resource_class, ::Types::Strict::Class
     
-    attribute :role_class, ::Types::Any.default(::Authentication::MemoizedRole)
-    attribute :resource_class, ::Types::Any.default(::Resource)
+    attribute :role_class, ::Types::Any.default { ::Authentication::MemoizedRole }
+    attribute :resource_class, ::Types::Any.default { Resource }
 
     def validate(access_request)
+      # No checks required for default conjur auth
+      conjur_auth = access_request.webservice.authenticator_name == 'authn'
+      return if conjur_auth
+
       validate_service_is_whitelisted(access_request)
       validate_user_has_access(access_request)
     end
@@ -43,10 +47,7 @@ module Authentication
     #
     def validate_user_has_access(req)
       # Ensure webservice is defined in Conjur
-      p 'resource_class', resource_class
-      p 'req.webservice.resource_id', req.webservice.resource_id
       webservice_resource = resource_class[req.webservice.resource_id]
-      p 'webservice_resource', webservice_resource.class
       raise ServiceNotDefined, req.webservice.name unless webservice_resource
 
       # Ensure user is defined in Conjur
