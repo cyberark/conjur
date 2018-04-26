@@ -1,5 +1,4 @@
 require 'forwardable'
-require 'types'
 
 module Authentication
   class Webservices
@@ -14,10 +13,12 @@ module Authentication
     end
 
     def self.from_string(account, csv_string)
-      csv_string
+      Webservices.new(
+        csv_string
         .split(',')
         .map(&:strip)
         .map { |ws| Webservice.from_string(account, ws) }
+      )
     end
   end
 end

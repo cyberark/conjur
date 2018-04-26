@@ -1,6 +1,3 @@
-# require 'types'
-# require 'util/error_class'
-
 module Authentication
 
   # - Runs security checks
@@ -14,7 +11,7 @@ module Authentication
 
     class Input < ::Dry::Struct
       attribute :authenticator_name, Types::NonEmptyString
-      attribute :service_id,         Types::Coercible::String
+      attribute :service_id,         Types::NonEmptyString.optional
       attribute :account,            Types::NonEmptyString
       attribute :username,           Types::NonEmptyString
       attribute :password,           Types::NonEmptyString
@@ -22,7 +19,7 @@ module Authentication
 
     # required
     #
-    attribute :authenticators, ::Types.Array(::Types::Any)
+    attribute :authenticators, ::Types::Hash
 
     # optional
     #
@@ -32,13 +29,7 @@ module Authentication
     attribute :token_factory, ::Types::Any.default(TokenFactory.new)
 
     def conjur_token(input)
-      p 'hi'
-      puts "input: #{input.inspect}"
-      p authenticators
-      puts input.authenticator_name
       authenticator = authenticators[input.authenticator_name]
-      puts "Hello"
-      p authenticator
 
       validate_authenticator_exists(input, authenticator)
       validate_security(input)
@@ -73,15 +64,22 @@ module Authentication
     def security_access_request(input)
       ::Authentication::Security::AccessRequest.new(
         webservice: Webservice.new(
-          account:    input.account,
-          auth_type:  input.auth_type,
-          service_id: input.service_id
+          account:            input.account,
+          authenticator_name: input.authenticator_name,
+          service_id:         input.service_id
         ),
         whitelisted_webservices: Webservices.from_string(
-          env['CONJUR_AUTHENTICATORS']
+          # TODO We don't need to to check when it's conjur default
+          input.account, conjur_authenticators
         ),
         user_id: input.username
       )
+    end
+
+    def conjur_authenticators
+      # the default conjur authenticator is always available
+      # TODO change this
+      [env['CONJUR_AUTHENTICATORS'], 'authn'].compact.join(',')
     end
   end
 

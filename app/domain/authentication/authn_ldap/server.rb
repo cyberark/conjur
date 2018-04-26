@@ -3,7 +3,7 @@ require 'active_support/core_ext'
 require 'net/ldap'
 
 module Authentication
-  module Ldap
+  module AuthnLdap
 
     class Server
 

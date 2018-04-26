@@ -3,11 +3,12 @@ require 'active_support/core_ext'
 require 'net/ldap'
 
 module Authentication
-  module Ldap
+  module AuthnLdap
 
     class Authenticator
 
-      def initialize(env:, ldap_server_factory: ::Authentication::Ldap::Server)
+      def initialize(env:,
+                     ldap_server_factory: ::Authentication::AuthnLdap::Server)
         @env = env
         @filter = env['LDAP_FILTER'] || '(&(objectClass=posixAccount)(uid=%s))'
         @ldap_server = ldap_server_factory.new(

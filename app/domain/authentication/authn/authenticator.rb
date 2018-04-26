@@ -1,12 +1,13 @@
-require 'types'
-require 'authentication/memoized_role'
-
 # default conjur authenticator
 #
 module Authentication
   module Authn
 
     class Authenticator < ::Dry::Struct
+
+      def self.requires_env_arg?
+        false
+      end
 
       # optional
       #

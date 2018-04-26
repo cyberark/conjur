@@ -1,6 +1,6 @@
-require 'types'
-require 'authentication/webservice'
-require 'authentication/webservices'
+# require 'types'
+# require 'authentication/webservice'
+# require 'authentication/webservices'
 
 module Authentication
   class Security < ::Dry::Struct
@@ -43,7 +43,10 @@ module Authentication
     #
     def validate_user_has_access(req)
       # Ensure webservice is defined in Conjur
+      p 'resource_class', resource_class
+      p 'req.webservice.resource_id', req.webservice.resource_id
       webservice_resource = resource_class[req.webservice.resource_id]
+      p 'webservice_resource', webservice_resource.class
       raise ServiceNotDefined, req.webservice.name unless webservice_resource
 
       # Ensure user is defined in Conjur
