@@ -24,8 +24,6 @@ class AuthenticateController < ApplicationController
   rescue => e
     puts '*******************************'
     puts e.message
-    raise e
-    logger.debug(e.message)
     raise Unauthorized
   end
 

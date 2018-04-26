@@ -8,6 +8,8 @@ module Authentication
 
     AuthenticatorNotFound = ::Util::ErrorClass.new(
       "'{0}' wasn't in the available authenticators")
+    ValidationFailed = ::Util::ErrorClass.new(
+      "Invalid credentials")
 
     class Input < ::Dry::Struct
       attribute :authenticator_name, Types::NonEmptyString
@@ -49,7 +51,7 @@ module Authentication
     end
 
     def validate_credentials(input, authenticator)
-      raise Unauthorized unless authenticator.valid?(input)
+      raise ValidationFailed unless authenticator.valid?(input)
     end
 
     def new_token(input)
