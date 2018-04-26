@@ -44,15 +44,28 @@ pipeline {
       }
     }
 
-    stage('Test Docker image') {
-      steps {
-        sh './test.sh'
-        sh 'cd ci && ./test-ldap'
+    stage('Run Tests') {
+      parallel {
+        stage('RSpec') {
+          steps { sh 'cd ci && ./test --rspec' }
+        }
+        stage('Authenticators') {
+          steps { sh 'cd ci && ./test --cucumber-authenticators' }
+        }
+        stage('Policy') {
+          steps { sh 'cd ci && ./test --cucumber-policy' }
+        }
+        // API tests can't be run outside Conjur. Until we complete this refactor, we'll use the existing test
+        stage('API') {
+          steps { sh './test.sh' }
+        }
       }
-      post { always {
-        junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,cucumber/authenticators/features/reports/**/*.xml'
-        publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false])
-      }}
+      post {
+        always {
+          junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,cucumber/authenticators/features/reports/**/*.xml'
+          publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false])
+        }
+      }
     }
 
     stage('Push Docker image') {

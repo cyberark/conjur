@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.0] - 2018-04-10
+### Added
+- Policy changes now generate audit log messages. These can optionally be generated in RFC5424
+format and pushed to a UNIX socket for further processing.
+- Code of Conduct
+
 ## [0.3.0] - 2018-01-11
 ### Added
 - `conjurctl wait` command is added that can be used to check if the Conjur server is ready
@@ -38,3 +44,4 @@ The first tagged version.
 [0.1.1]: https://github.com/cyberark/conjur/compare/v0.1.0...v0.1.1
 [0.2.0]: https://github.com/cyberark/conjur/compare/v0.1.1...v0.2.0
 [0.3.0]: https://github.com/cyberark/conjur/compare/v0.2.0...v0.3.0
+[0.4.0]: https://github.com/cyberark/conjur/compare/v0.3.0...v0.4.0

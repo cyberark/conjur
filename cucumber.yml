@@ -1,0 +1,14 @@
+policy: >
+  --format pretty
+  -r cucumber/policy/features/support
+  -r cucumber/policy/features/step_definitions cucumber/policy
+
+api: >
+  --format pretty
+  -r cucumber/api/features/support
+  -r cucumber/api/features/step_definitions cucumber/api
+
+authenticators: >
+  --format pretty
+  -r cucumber/authenticators/features/support
+  -r cucumber/authenticators/features/step_definitions cucumber/authenticators

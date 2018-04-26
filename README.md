@@ -86,25 +86,36 @@ environment with a database container (`pg`, short for *postgres*), and a
 
 To use it:
 
-1. install dependencies (as above)
-2. build the Conjur image:
-
-   ```sh-session
-   $ ./build.sh
-   ```
-3. start the container:
+1. Install dependencies (as above)
+2. Start the container (and optional extensions):
 
    ```sh-session
    $ cd dev
-   $ ./start.sh
+   $ ./start
    ...
    root@f39015718062:/src/conjur#
    ```
 
-   Once the start.sh script finishes, you're in a Bash shell in the Conjur
+   Once the `start` script finishes, you're in a Bash shell in the Conjur
    server container.
 
-4. run the server
+   **LDAP Authentication**
+
+   To use LDAP to authentication, run `start` with the `--authn-ldap` flag:
+
+   ```sh-session
+   $ cd dev
+   $ ./start --authn-ldap
+   ...
+   root@f39015718062:/src/conjur#
+   ```
+
+   The `--authn-ldap` flag will:
+  * Start an OpenLDAP container.
+  * Load a user `alice` with the password `alice` into the LDAP server.
+  * Load a policy `authn-ldap/test`, that grants `alice` the ability to authenticate via `http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate` with the password `alice`.
+
+3. Run the server
 
    ```sh-session
    root@f39015718062:/src/conjur# conjurctl server
@@ -125,6 +136,54 @@ To use it:
    start the web server by calling `rails server -b 0.0.0.0 webrick` instead of
    `conjurctl server`. This will allow you to work in the debugger without the
    server timing out.
+
+4. Cleanup
+
+    ```sh-session
+    $ ./stop
+    ```
+    Running `stop` removes the running Docker Compose containers and the data key.
+
+### Development CLI
+
+As a developer, there are a number of common scenarios when actively working on Conjur.
+The `./cli` script, located in the `dev` folder is intended to streamline these tasks.
+
+```sh-session
+$ ./cli --help
+
+NAME
+    cli - Developement tool to simplify working with a Conjur container.
+
+SYNOPSIS
+    cli [global options] command [command options] [arguments...]
+
+GLOBAL OPTIONS
+    --help                                    - Show this message
+
+COMMANDS
+
+    exec                                      - Steps into the running Conjur container, into a bash shell.
+
+    policy load <account> <policy/path.yml>   - Loads a conjur policy into the provided account.
+```
+
+#### Step into the running Conjur container
+
+```sh-session
+$ ./cli exec
+
+root@88d43f7b3dfa:/src/conjur-server#
+```
+
+
+#### Load a policy
+
+```sh-session
+$ ./cli policy load <account> <policy/path/from/project/root.yml>
+```
+
+For most development work, the account will be `cucumber`, which is created when the developement environment starts. The policy path must be inside the `cyberark/conjur` project folder, and referenced from the project root.
 
 ## Testing
 
@@ -158,32 +217,29 @@ root@aa8bc35ba7f4:/src/conjur# conjurctl server
 Use Ctrl-C to stop
 ```
 
-Then start a second container to run the cukes:
+Then, using the `dev/cli` script, step into the Conjur container to run the cukes:
 
 ```sh-session
-$ ./cucumber.sh
+$ ./cli exec
 ...
 root@9feae5e5e001:/src/conjur#
 ```
 
-There are two cucumber suites: `api` and `policy`. They are located in
-subdirectories of `./cucumber`.
-
 #### Run all the cukes:
 
+There are three different cucumber suites: `api`, `policy`, and `authenticators`. Each of these can be run using a profile of the same name:
+
 ```sh-session
-root@9feae5e5e001:/src/conjur# cd cucumber/api
-root@9feae5e5e001:/src/conjur/cucumber/api# cucumber
-...
-27 scenarios (27 passed)
-101 steps (101 passed)
-0m4.404s
+root@9feae5e5e001:/src/conjur# cucumber --profile api               # runs api cukes
+root@9feae5e5e001:/src/conjur# cucumber --profile policy            # runs policy cukes
+root@9feae5e5e001:/src/conjur# cucumber --profile authenticators    # runs authenticators cukes
 ```
+
 
 #### Run just one feature:
 
 ```sh-session
-root@9feae5e5e001:/src/conjur# cucumber -r cucumber/api/features/support -r cucumber/api/features/step_definitions cucumber/api/features/resource_list.feature
+root@9feae5e5e001:/src/conjur# cucumber --profile api cucumber/api/features/resource_list.feature
 ```
 
 # Architecture
