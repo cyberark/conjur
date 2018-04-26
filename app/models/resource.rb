@@ -46,6 +46,11 @@ class Resource < Sequel::Model
     def make_full_id id, account
       Role.make_full_id id, account
     end
+
+    def find_if_visible role, *a
+      res = find *a
+      res if res.try :visible_to?, role
+    end
   end
 
   def extended_associations
@@ -104,12 +109,16 @@ class Resource < Sequel::Model
     end
 
     def visible_to role
-      where resource_id: select(:resource_id).from(:visible_resources).where(role_id: role.id)
+      from Sequel.function(:visible_resources, role.id).as(:resources)
     end
   end
 
   def role
     Role[id] or raise "Role not found for #{id}"
+  end
+
+  def visible_to? role
+    db.select(Sequel.function(:is_resource_visible, id, role.id)).single_value
   end
 
   # Permission grants are performed by the policy loader, but not exposed through the API.
