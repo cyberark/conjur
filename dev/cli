@@ -4,21 +4,18 @@ function print_help() {
   cat << EOF
 NAME
     cli - Developement tool to simplify working with a Conjur container.
-
 SYNOPSIS
     cli [global options] command [command options] [arguments...]
-
 GLOBAL OPTIONS
     --help                                    - Show this message
-
 COMMANDS
-
     exec                                      - Steps into the running Conjur container, into a bash shell.
-
     policy load <account> <policy/path.yml>   - Loads a conjur policy into the provided account.
 EOF
 exit
 }
+
+unset COMPOSE_PROJECT_NAME
 
 while true ; do
   case "$1" in
