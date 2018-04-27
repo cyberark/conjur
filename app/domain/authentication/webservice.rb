@@ -10,9 +10,6 @@ module Authentication
     end
 
     def name
-      #{authenticator_name}/#{service_id}"
-      # need the following since service_id is currently optional
-      # TODO service_id should probably be required
       [authenticator_name, service_id].compact.join('/')
     end
 

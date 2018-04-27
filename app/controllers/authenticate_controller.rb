@@ -2,10 +2,7 @@ class AuthenticateController < ApplicationController
 
   def authenticate
 
-    # TODO move the Strategy into an initializer
-    #
     authentication_token = ::Authentication::Strategy.new(
-      # TODO: remove these (defaults work)
       authenticators: ::Authentication::InstalledAuthenticators.new(ENV),
       security: nil,
       env: ENV,
