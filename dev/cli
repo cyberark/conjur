@@ -3,7 +3,7 @@
 function print_help() {
   cat << EOF
 NAME
-    cli - Developement tool to simplify working with a Conjur container.
+    cli - Development tool to simplify working with a Conjur container.
 
 SYNOPSIS
     cli [global options] command [command options] [arguments...]

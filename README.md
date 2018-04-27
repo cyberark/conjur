@@ -101,7 +101,7 @@ To use it:
 
    **LDAP Authentication**
 
-   To use LDAP to authentication, run `start` with the `--authn-ldap` flag:
+   To enable a user to log into Conjur using LDAP credentials, run `start` with the `--authn-ldap` flag:
 
    ```sh-session
    $ cd dev
@@ -153,7 +153,7 @@ The `./cli` script, located in the `dev` folder is intended to streamline these 
 $ ./cli --help
 
 NAME
-    cli - Developement tool to simplify working with a Conjur container.
+    cli - Development tool to simplify working with a Conjur container.
 
 SYNOPSIS
     cli [global options] command [command options] [arguments...]
@@ -183,7 +183,7 @@ root@88d43f7b3dfa:/src/conjur-server#
 $ ./cli policy load <account> <policy/path/from/project/root.yml>
 ```
 
-For most development work, the account will be `cucumber`, which is created when the developement environment starts. The policy path must be inside the `cyberark/conjur` project folder, and referenced from the project root.
+For most development work, the account will be `cucumber`, which is created when the development environment starts. The policy path must be inside the `cyberark/conjur` project folder, and referenced from the project root.
 
 ## Testing
 
