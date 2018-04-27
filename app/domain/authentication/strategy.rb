@@ -27,7 +27,7 @@ module Authentication
     #
     attribute :security, ::Types::Any.default(::Authentication::Security.new)
     attribute :env, ::Types::Any.default(ENV)
-    attribute :role_class, ::Types::Any.default(::Authentication::MemoizedRole)
+    attribute :role_class, ::Types::Any.default{ ::Authentication::MemoizedRole }
     attribute :token_factory, ::Types::Any.default(TokenFactory.new)
 
     def conjur_token(input)
@@ -71,7 +71,6 @@ module Authentication
           service_id:         input.service_id
         ),
         whitelisted_webservices: Webservices.from_string(
-          # TODO We don't need to to check when it's conjur default
           input.account, env['CONJUR_AUTHENTICATORS']
         ),
         user_id: input.username

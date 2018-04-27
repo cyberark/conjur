@@ -1,5 +1,3 @@
-require 'types'
-
 class TokenFactory < Dry::Struct
 
   attribute :slosilo, Types::Any.default(Slosilo)

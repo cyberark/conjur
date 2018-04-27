@@ -22,8 +22,7 @@ class AuthenticateController < ApplicationController
     )
     render json: authentication_token
   rescue => e
-    puts '*******************************'
-    puts e.message
+    logger.debug("Authentication Error: #{e.message}")
     raise Unauthorized
   end
 

@@ -1,6 +1,3 @@
-#TODO can we remove these now?
-require 'active_support/core_ext/string'
-
 # Represents a class that implements an authenticator.
 #
 module Authentication
