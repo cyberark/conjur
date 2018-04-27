@@ -3,60 +3,85 @@
 module Authentication
   class AuthenticatorClass
 
-    InvalidAuthenticator = ::Util::ErrorClass.new(
-      "'{0}' is not a valid authenticator class.  It must be named " +
-      "'Authenticator', implement a 'valid?(input)' method, and have an " +
-      "initializer which requires either no args, or a single keyword arg " +
-      "named 'env', which will be passed the ENV.  Optional arguments are " +
-      "also okay."
-    )
+    # Represents the rules any authenticator class must conform to
+    #
+    class Validation
+
+      DoesntStartWithAuthn = ::Util::ErrorClass.new(
+        "'{0}' is not a valid authenticator parent module, because it does " +
+        "not begin with 'Authn'"
+      )
+
+      NotNamedAuthenticator = ::Util::ErrorClass.new(
+        "'{0}' is not a valid authenticator name.  The actual class " +
+        "implementing the authenticator must be named 'Authenticator'"
+      )
+
+      MissingValidMethod = ::Util::ErrorClass.new(
+        "'{0}' is not a valid authenticator, because it does not have " +
+        "a `:valid?(input)` method."
+      )
+
+      def initialize(cls)
+        @cls = cls
+      end
+
+      def valid?
+        valid_name? && valid_parent_name? && valid_interface?
+      end
+
+      def validate!
+        raise DoesntStartWithAuthn, own_name unless valid_name?
+        raise NotNamedAuthenticator, parent_name unless valid_parent_name?
+        raise MissingValidMethod, own_name unless valid_interface?
+      end
+
+      private
+
+      def valid_name?
+        own_name == 'Authenticator'
+      end
+
+      def valid_parent_name?
+        parent_name =~ /^Authn/
+      end
+
+      def valid_interface?
+        @cls.method_defined?(:valid?)
+      end
+
+      def own_name
+        name_aware.own_name
+      end
+
+      def parent_name
+        name_aware.parent_name
+      end
+
+      def name_aware
+        @name_aware ||= ::Util::NameAwareModule.new(@cls)
+      end
+
+    end
 
     attr_reader :authenticator
 
-    def self.valid?(cls)
-      valid_name?(cls) && valid_interface?(cls)
+    def initialize(cls)
+      Validation.new(cls).validate!
+      @cls = cls
     end
 
-    def self.requires_env_arg?(cls)
-       # cls.instance_method(:initialize).parameters.include?([:keyreq, :env])
-      !cls.respond_to?(:requires_env_arg?) || cls.requires_env_arg?
-    end
-
-    def initialize(authn)
-      raise InvalidAuthenticator, authn unless self.class.valid?(authn)
-      @authenticator = authn
+    def requires_env_arg?
+      !@cls.respond_to?(:requires_env_arg?) || @cls.requires_env_arg?
     end
 
     def url_name
       name_aware.parent_name.underscore.dasherize
     end
 
-    private
-
-    # TODO factor this validation to a subclass
-    def self.valid_name?(cls)
-      name_aware = ::Util::NameAwareModule.new(cls)
-      name_aware.own_name == 'Authenticator' &&
-        name_aware.parent_name =~ /^Authn/
-    end
-
-    def self.valid_interface?(cls)
-      cls.method_defined?(:valid?)
-      # return false unless cls.method_defined?(:valid?)
-      # valid_initializer?(cls)
-      # TODO add check for valid? params
-    end
-
-    # def self.valid_initializer?(cls)
-    #   params = cls.instance_method(:initialize).parameters
-    #   p 'params', params
-    #   required = params.select { |x| [:req, :keyreq].include?(x.first) }
-    #   only_env_is_required = requires_env_arg?(cls) && required.size == 1
-    #   required.empty? || only_env_is_required
-    # end
-
     def name_aware
-      @name_aware ||= ::Util::NameAwareModule.new(@authenticator)
+      @name_aware ||= ::Util::NameAwareModule.new(@cls)
     end
+
   end
 end

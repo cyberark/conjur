@@ -19,11 +19,11 @@ module Authentication
       attribute :password,           Types::NonEmptyString
     end
 
-    # required
+    # required constructor parameters
     #
     attribute :authenticators, ::Types::Hash
 
-    # optional
+    # optional constructor parameters
     #
     attribute :security, ::Types::Any.default(::Authentication::Security.new)
     attribute :env, ::Types::Any.default(ENV)
@@ -77,11 +77,6 @@ module Authentication
       )
     end
 
-    # def conjur_authenticators
-    #   # the default conjur authenticator is always available
-    #   # TODO change this
-    #   [env['CONJUR_AUTHENTICATORS'], 'authn'].compact.join(',')
-    # end
   end
 
 end
