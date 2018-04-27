@@ -20,7 +20,11 @@ unset COMPOSE_PROJECT_NAME
 while true ; do
   case "$1" in
     -h | --help ) print_help ; shift ;;
-    exec ) docker exec -it --detach-keys 'ctrl-\' $(docker-compose ps -q conjur) bash ; shift ;;
+    exec )
+      api_key=$(docker-compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin | tr -d '\r')
+      docker exec -e CONJUR_AUTHN_API_KEY=$api_key -it --detach-keys 'ctrl-\' $(docker-compose ps -q conjur) bash
+     # docker exec -it --detach-keys 'ctrl-\' $(docker-compose ps -q conjur) bash ;
+     shift ;;
     policy )
       case "$2" in
         load )
