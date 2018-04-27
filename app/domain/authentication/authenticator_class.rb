@@ -35,7 +35,9 @@ module Authentication
 
     # TODO factor this validation to a subclass
     def self.valid_name?(cls)
-      ::Util::NameAwareModule.new(cls).own_name == 'Authenticator'
+      name_aware = ::Util::NameAwareModule.new(cls)
+      name_aware.own_name == 'Authenticator' &&
+        name_aware.parent_name =~ /^Authn/
     end
 
     def self.valid_interface?(cls)
