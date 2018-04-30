@@ -19,10 +19,6 @@ module Authentication
       attribute :user_id, ::Types::NonEmptyString
     end
 
-    # TODO figure out how to make test doubles of type class
-    # attribute :role_class    , ::Types::Strict::Class
-    # attribute :resource_class, ::Types::Strict::Class
-    
     attribute :role_class, ::Types::Any.default { ::Authentication::MemoizedRole }
     attribute :resource_class, ::Types::Any.default { Resource }
 
