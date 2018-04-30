@@ -20,24 +20,15 @@ class SecretsController < RestController
   
   def show
     authorize :execute
-    
-    version = params[:version]
-    secret = if version.is_a?(String) && version.to_i.to_s == version
-      @resource.secrets.find{|s| s.version == version.to_i}
-    elsif version.nil?
-      @resource.secrets.last
+
+    case @resource.kind
+    when "variable"
+      secret_from_variable
+    when "credential-factory"
+      secret_from_factory
     else
-      raise ArgumentError, "invalid type for parameter 'version'"
+      raise Exceptions::RecordNotFound
     end
-    raise Exceptions::RecordNotFound.new(@resource.id, message: "Requested version does not exist") if secret.nil?
-    value = secret.value
-
-    mime_type = if ( a = @resource.annotations_dataset.select(:value).where(name: 'conjur/mime_type').first )
-      a[:value]
-    end
-    mime_type ||= 'application/octet-stream'
-
-    send_data value, type: mime_type
   end
 
   def batch
@@ -67,5 +58,33 @@ class SecretsController < RestController
     end
 
     render json: result
+  end
+
+  protected
+
+  def secret_from_variable
+    version = params[:version]
+    secret = if version.is_a?(String) && version.to_i.to_s == version
+      @resource.secrets.find{|s| s.version == version.to_i}
+    elsif version.nil?
+      @resource.secrets.last
+    else
+      raise ArgumentError, "invalid type for parameter 'version'"
+    end
+    raise Exceptions::RecordNotFound.new(@resource.id, message: "Requested version does not exist") if secret.nil?
+    value = secret.value
+
+    mime_type = if ( a = @resource.annotations_dataset.select(:value).where(name: 'conjur/mime_type').first )
+      a[:value]
+    end
+    mime_type ||= 'application/octet-stream'
+    send_data value, type: mime_type
+  end
+
+  def secret_from_factory
+    raise ArgumentError, "version" if params[:version]
+
+    values = CredentialFactory.values @resource
+    render json: values, mime_type: "application/json"
   end
 end
