@@ -41,9 +41,6 @@ module Authentication
       raise NotWhitelisted, req.webservice.name unless is_whitelisted
     end
 
-    # TODO ideally, we'd break this up, and wrap resource_class and role_class
-    #      in memoizing decorators.  the method is clear enough, though
-    #
     def validate_user_has_access(req)
       # Ensure webservice is defined in Conjur
       webservice_resource = resource_class[req.webservice.resource_id]
