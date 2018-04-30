@@ -56,7 +56,7 @@ pipeline {
           steps { sh 'cd ci && ./test --cucumber-policy' }
         }
         stage('API') {
-          ssteps { sh 'cd ci && ./test --cucumber-api' }
+          steps { sh 'cd ci && ./test --cucumber-api' }
         }
       }
       post {
