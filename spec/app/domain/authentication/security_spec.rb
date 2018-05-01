@@ -1,7 +1,4 @@
-require 'rspec'
-$: << '../../../../app/domain'
-require 'authentication/security'
-
+require 'spec_helper'
 
 RSpec.describe Authentication::Security do
 

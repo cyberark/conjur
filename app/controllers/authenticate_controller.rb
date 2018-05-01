@@ -1,3 +1,7 @@
+Dir[File.join("./app/domain/authentication/**/", "*.rb")].each do |f|
+  require f
+end
+
 class AuthenticateController < ApplicationController
 
   def authenticate

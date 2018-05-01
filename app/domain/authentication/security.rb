@@ -26,7 +26,7 @@ module Authentication
     end
 
     attribute :role_class, ::Types::Any.default { ::Authentication::MemoizedRole }
-    attribute :resource_class, ::Types::Any.default { Resource }
+    attribute :resource_class, ::Types::Any.default { ::Resource }
 
     def validate(access_request)
       # No checks required for default conjur auth
