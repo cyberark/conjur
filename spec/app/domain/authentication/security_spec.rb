@@ -2,34 +2,17 @@ require 'rspec'
 $: << '../../../../app/domain'
 require 'authentication/security'
 
-#TODO this is really fake webservices
-class SecurityDoubles
-  def initialize
-    @authenticator_name = 'my-authenticator'
-    @account = 'my-account'
-  end
 
-  def webservice(service_id)
+RSpec.describe Authentication::Security do
+
+  # create an example webservice
+  def webservice(service_id, account: 'my-acct', authenticator_name: 'authn-x')
     ::Authentication::Webservice.new(
-      account: @account,
-      authenticator_name: @authenticator_name,
+      account: account,
+      authenticator_name: authenticator_name,
       service_id: service_id
     )
   end
-
-  def service1
-    webservice('service1')
-  end
-
-  def whitelisted_services
-    ::Authentication::Webservices.new(
-      [webservice('service1'), webservice('service2')]
-    )
-  end
-
-end
-
-RSpec.describe Authentication::Security do
 
   # generates user_role authorized for all or no services
   def user_role(is_authorized)
@@ -63,8 +46,12 @@ RSpec.describe Authentication::Security do
     end
   end
 
-  #TODO fix don't use class
   let (:doubles) { SecurityDoubles.new }
+  let (:whitelisted_webservices) do
+    ::Authentication::Webservices.new(
+      [webservice('service1'), webservice('service2')]
+    )
+  end
 
   let (:full_access_resource_class) { resource_class('some random resource') }
   let (:no_access_resource_class) { resource_class(nil) }
@@ -73,13 +60,13 @@ RSpec.describe Authentication::Security do
   let (:full_access_role_class) { role_class(user_role(true)) }
   let (:no_access_role_class) { role_class(user_role(false)) }
 
-  let (:always_valid_security_double) do
+  let (:full_access_security_double) do
     Authentication::Security.new(
       role_class: full_access_role_class,
       resource_class: full_access_resource_class
     )
   end
-  let (:never_valid_security_double) do
+  let (:zero_access_security_double) do
     Authentication::Security.new(
       role_class: no_access_role_class,
       resource_class: no_access_resource_class
@@ -87,21 +74,21 @@ RSpec.describe Authentication::Security do
   end
   let (:valid_access_request) do
     Authentication::Security::AccessRequest.new(
-      webservice: doubles.service1,
-      whitelisted_webservices: doubles.whitelisted_services,
+      webservice: webservice('service1'),
+      whitelisted_webservices: whitelisted_webservices,
       user_id: 'some-user'
     )
   end
 
   context "A request with nothing whitelisted and no permissions" do
-    let (:conjur_access) do
+    let (:conjur_access_request) do
       Authentication::Security::AccessRequest.new(
         webservice: Authentication::Webservice.from_string('acct', 'authn'),
         whitelisted_webservices: Authentication::Webservices.new([]),
         user_id: 'some-user'
       )
     end
-    let (:non_conjur_access) do
+    let (:non_conjur_access_request) do
       Authentication::Security::AccessRequest.new(
         webservice: Authentication::Webservice.from_string('acct', 'authn-blah'),
         whitelisted_webservices: Authentication::Webservices.new([]),
@@ -109,12 +96,12 @@ RSpec.describe Authentication::Security do
       )
     end
     it "still allows access to the Conjur authenticator" do
-      subject = never_valid_security_double
-      expect { subject.validate(conjur_access) }.to_not raise_error
+      subject = zero_access_security_double
+      expect { subject.validate(conjur_access_request) }.to_not raise_error
     end
     it "blocks access to non-Conjur authenticators" do
-      subject = never_valid_security_double
-      expect { subject.validate(non_conjur_access) }.to(
+      subject = zero_access_security_double
+      expect { subject.validate(non_conjur_access_request) }.to(
         raise_error(Authentication::Security::NotWhitelisted)
       )
     end
@@ -123,7 +110,7 @@ RSpec.describe Authentication::Security do
   context "A whitelisted, authorized webservice and authorized user" do
 
     it "validates without error" do
-      subject = always_valid_security_double
+      subject = full_access_security_double
       expect { subject.validate(valid_access_request) }.to_not raise_error
     end
   end
@@ -131,10 +118,10 @@ RSpec.describe Authentication::Security do
   context "A un-whitelisted, authorized webservice and authorized user" do
 
     it "raises a NotWhitelisted error" do
-      subject = always_valid_security_double
+      subject = full_access_security_double
       access_request = Authentication::Security::AccessRequest.new(
-        webservice: doubles.webservice('DOESNT_EXIST'),
-        whitelisted_webservices: doubles.whitelisted_services,
+        webservice: webservice('DOESNT_EXIST'),
+        whitelisted_webservices: whitelisted_webservices,
         user_id: 'some-user'
       )
       expect { subject.validate(access_request) }.to(
