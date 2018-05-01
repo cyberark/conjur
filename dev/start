@@ -46,4 +46,7 @@ if [[ $ENABLE_AUTHN_LDAP = true ]]; then
 fi
 
 docker-compose up -d --no-deps $services
-docker exec -it --detach-keys 'ctrl-\' $(docker-compose ps -q conjur) bash
+
+api_key=$(docker-compose exec -T conjur conjurctl \
+	role retrieve-key cucumber:user:admin | tr -d '\r')
+docker exec -e CONJUR_AUTHN_API_KEY=$api_key -it --detach-keys 'ctrl-\' $(docker-compose ps -q conjur) bash
