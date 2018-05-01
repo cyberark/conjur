@@ -1,6 +1,7 @@
-# require 'types'
-# require 'authentication/webservice'
-# require 'authentication/webservices'
+require 'types'
+require 'util/error_class'
+require 'authentication/webservice'
+require 'authentication/webservices'
 
 module Authentication
   class Security < ::Dry::Struct
@@ -17,6 +18,11 @@ module Authentication
       attribute :whitelisted_webservices, 
         ::Types.Instance(::Authentication::Webservices)
       attribute :user_id, ::Types::NonEmptyString
+
+      def validate
+        is_whitelisted = whitelisted_webservices.include?(webservice)
+        raise NotWhitelisted, webservice.name unless is_whitelisted
+      end
     end
 
     attribute :role_class, ::Types::Any.default { ::Authentication::MemoizedRole }
@@ -26,7 +32,7 @@ module Authentication
       # No checks required for default conjur auth
       return if default_conjur_authn?(access_request)
 
-      validate_service_is_whitelisted(access_request)
+      access_request.validate
       validate_user_has_access(access_request)
     end
 
@@ -34,11 +40,6 @@ module Authentication
 
     def default_conjur_authn?(req)
       req.webservice.authenticator_name == 'authn'
-    end
-
-    def validate_service_is_whitelisted(req)
-      is_whitelisted = req.whitelisted_webservices.include?(req.webservice)
-      raise NotWhitelisted, req.webservice.name unless is_whitelisted
     end
 
     def validate_user_has_access(req)

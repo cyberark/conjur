@@ -27,7 +27,6 @@ module Authentication
     #
     attribute :security, ::Types::Any.default(::Authentication::Security.new)
     attribute :env, ::Types::Any.default(ENV)
-    attribute :role_class, ::Types::Any.default{ ::Authentication::MemoizedRole }
     attribute :token_factory, ::Types::Any.default(TokenFactory.new)
 
     def conjur_token(input)
@@ -63,6 +62,8 @@ module Authentication
 
     private
 
+    # TODO move this to a method #to_access_request
+    #      on Strategy::Input, so it can be unit tested
     def security_access_request(input)
       ::Authentication::Security::AccessRequest.new(
         webservice: Webservice.new(

@@ -1,74 +1,218 @@
-require 'authenticators/security'
+require 'rspec'
+$: << '../../../../app/domain'
+require 'authentication/security'
 
-RSpec.describe Authentication::Security do
-
-  # generates authorized or unauthorized user roles
-  user_role = ->(can_authenticate) do
-    double('user_role').tap do |role|
-      allow(role).to receive(:allowed_to?).and_return(can_authenticate)
-    end
+#TODO this is really fake webservices
+class SecurityDoubles
+  def initialize
+    @authenticator_name = 'my-authenticator'
+    @account = 'my-account'
   end
 
-  # generates authorized or unauthorized role classes, ie, 
-  # role_class = ->(can_authenticate) do
-  #   double('user_role').tap do |role|
-  #     allow(role).to receive(:allowed_to?).and_return(can_authenticate)
-  #   end
-  # end
-  authn_type             = 'my-authn-type'
-  account                = 'my-account'
-  # authorized_user_role   = user_role.(true)
-  # unauthorized_user_role = user_role.(false)
-  let(:role_class) do
-    double('Role',
-           :roleid_from_username => 'some-role-id',
-           :[] => user_role)
-  end
-
-  context "A webservice that is not enabled in Conjur" do
-
-    service_id = 'my-service-id'
-    good_service = Authentication::Webservice.new(
-      account: account, authn_type: authn_type, service_id: service_id
+  def webservice(service_id)
+    ::Authentication::Webservice.new(
+      account: @account,
+      authenticator_name: @authenticator_name,
+      service_id: service_id
     )
-    avail_services = Authentication::Webservices.new([good_service])
-    let(:role_class) { double }
-    let(:resource_class) { double }
-
-    it "raises a NotEnabled error" do
-      bad_service = Authentication::Webservice.new(
-        account: account, authn_type: authn_type, service_id: 'blah'
-      )
-      subject = Authentication::Security.new(
-        role_class: role_class,
-        resource_class: resource_class
-      )
-      access_request = Authentication::RequestForAccess.new(
-        webservice: bad_service,
-        whitelisted_webservices: avail_services,
-        user_id: 'some-user'
-      )
-      expect { subject.validate(access_request) }.to(
-        raise_error(Authentication::NotWhitelisted)
-      )
-    end
   end
 
-  # context "Incorrect server response format" do
-  #   it "reraises an UnexpectedServerResponse" do
-  #     expect { Ldap::HttpStatusError.new(unexpected_error) }.to(
-  #       raise_error(Ldap::UnexpectedServerResponse)
-  #     )
-  #   end
-  # end
+  def service1
+    webservice('service1')
+  end
+
+  def whitelisted_services
+    ::Authentication::Webservices.new(
+      [webservice('service1'), webservice('service2')]
+    )
+  end
 
 end
 
-__END__
+RSpec.describe Authentication::Security do
 
-user1:
-  can authenticate with ws1
-  cannot authenticate with ws2
-user2:
-  can authenticate with ws2
-  cannot authenticate with ws1
+  # generates user_role authorized for all or no services
+  def user_role(is_authorized)
+    double('user_role').tap do |role|
+      allow(role).to receive(:allowed_to?).and_return(is_authorized)
+    end
+  end
+
+  # generates user_role authorized for specific service
+  def user_role_for_service(authorized_service)
+    double('user_role').tap do |role|
+      allow(role).to(receive(:allowed_to?)) do |_, resource|
+        resource == authorized_service
+      end
+    end
+  end
+
+  # generates a Role class which returns the provided user_role
+  def role_class(returned_role)
+    double(
+      'Role',
+       :roleid_from_username => 'some-role-id',
+       :[] => returned_role
+    )
+  end
+
+  # generates a Resource class which returns the provided object
+  def resource_class(returned_resource)
+    double('Resource').tap do |resource|
+      allow(resource).to receive(:[]).and_return(returned_resource)
+    end
+  end
+
+  #TODO fix don't use class
+  let (:doubles) { SecurityDoubles.new }
+
+  let (:full_access_resource_class) { resource_class('some random resource') }
+  let (:no_access_resource_class) { resource_class(nil) }
+
+  let (:nil_user_role_class) { role_class(nil) }
+  let (:full_access_role_class) { role_class(user_role(true)) }
+  let (:no_access_role_class) { role_class(user_role(false)) }
+
+  let (:always_valid_security_double) do
+    Authentication::Security.new(
+      role_class: full_access_role_class,
+      resource_class: full_access_resource_class
+    )
+  end
+  let (:never_valid_security_double) do
+    Authentication::Security.new(
+      role_class: no_access_role_class,
+      resource_class: no_access_resource_class
+    )
+  end
+  let (:valid_access_request) do
+    Authentication::Security::AccessRequest.new(
+      webservice: doubles.service1,
+      whitelisted_webservices: doubles.whitelisted_services,
+      user_id: 'some-user'
+    )
+  end
+
+  context "A request with nothing whitelisted and no permissions" do
+    let (:conjur_access) do
+      Authentication::Security::AccessRequest.new(
+        webservice: Authentication::Webservice.from_string('acct', 'authn'),
+        whitelisted_webservices: Authentication::Webservices.new([]),
+        user_id: 'some-user'
+      )
+    end
+    let (:non_conjur_access) do
+      Authentication::Security::AccessRequest.new(
+        webservice: Authentication::Webservice.from_string('acct', 'authn-blah'),
+        whitelisted_webservices: Authentication::Webservices.new([]),
+        user_id: 'some-user'
+      )
+    end
+    it "still allows access to the Conjur authenticator" do
+      subject = never_valid_security_double
+      expect { subject.validate(conjur_access) }.to_not raise_error
+    end
+    it "blocks access to non-Conjur authenticators" do
+      subject = never_valid_security_double
+      expect { subject.validate(non_conjur_access) }.to(
+        raise_error(Authentication::Security::NotWhitelisted)
+      )
+    end
+  end
+ 
+  context "A whitelisted, authorized webservice and authorized user" do
+
+    it "validates without error" do
+      subject = always_valid_security_double
+      expect { subject.validate(valid_access_request) }.to_not raise_error
+    end
+  end
+
+  context "A un-whitelisted, authorized webservice and authorized user" do
+
+    it "raises a NotWhitelisted error" do
+      subject = always_valid_security_double
+      access_request = Authentication::Security::AccessRequest.new(
+        webservice: doubles.webservice('DOESNT_EXIST'),
+        whitelisted_webservices: doubles.whitelisted_services,
+        user_id: 'some-user'
+      )
+      expect { subject.validate(access_request) }.to(
+        raise_error(Authentication::Security::NotWhitelisted)
+      )
+    end
+  end
+
+  context "A whitelisted, unauthorized webservice and authorized user" do
+
+    it "raises a ServiceNotDefined error" do
+      subject = Authentication::Security.new(
+        role_class: full_access_role_class,
+        resource_class: no_access_resource_class
+      )
+      expect { subject.validate(valid_access_request) }.to(
+        raise_error(Authentication::Security::ServiceNotDefined)
+      )
+    end
+  end
+
+  context "A whitelisted, authorized webservice and non-existent user" do
+
+    it "raises a NotAuthorizedInConjur error" do
+      subject = Authentication::Security.new(
+        role_class: nil_user_role_class,
+        resource_class: full_access_resource_class
+      )
+      expect { subject.validate(valid_access_request) }.to(
+        raise_error(Authentication::Security::NotAuthorizedInConjur)
+      )
+    end
+  end
+
+  context "A whitelisted, authorized webservice and unauthorized user" do
+
+    it "raises a NotAuthorizedInConjur error" do
+      subject = Authentication::Security.new(
+        role_class: no_access_role_class,
+        resource_class: full_access_resource_class
+      )
+      expect { subject.validate(valid_access_request) }.to(
+        raise_error(Authentication::Security::NotAuthorizedInConjur)
+      )
+    end
+  end
+
+  context "Two whitelisted, authorized webservices" do
+
+    context "and a user authorized for only one on them" do
+
+      let (:webservice_resource) { 'CAN ACCESS ME' }
+      let (:partial_access_role_class) do
+        role_class(user_role_for_service(webservice_resource))
+      end
+      let (:accessible_resource_class) { resource_class(webservice_resource) }
+      let (:inaccessible_resource_class) { resource_class('CANNOT ACCESS ME') }
+
+      it "can access the authorized one" do
+        subject = Authentication::Security.new(
+          role_class: partial_access_role_class,
+          resource_class: accessible_resource_class
+        )
+        expect { subject.validate(valid_access_request) }.to_not raise_error
+      end
+
+      it "cannot access the blocked one" do
+        subject = Authentication::Security.new(
+          role_class: partial_access_role_class,
+          resource_class: inaccessible_resource_class
+        )
+        expect { subject.validate(valid_access_request) }.to(
+          raise_error(Authentication::Security::NotAuthorizedInConjur)
+        )
+      end
+    end
+
+  end
+
+
+end
