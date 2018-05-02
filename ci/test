@@ -104,14 +104,13 @@ if [[ $RUN_POLICY = true || $RUN_ALL = true ]]; then
 fi
 
 if [[ $RUN_RSPEC = true || $RUN_ALL = true ]]; then
-  mkdir -p spec/reports
-  rm -rf spec/reports/*
   docker-compose up --no-deps -d pg
 
   until docker-compose run -T --rm pg psql -U postgres -h pg -c "select 1" -d postgres; do sleep 1; done
 
   docker-compose run -T --rm --no-deps cucumber -c '
     bundle exec rake db:migrate
-    bundle exec rake ci:rspec
+    rm -rf /src/conjur-server/spec/reports
+    bundle exec env CI_REPORTS=/src/conjur-server/spec/reports rspec --format progress --require ci/reporter/rspec --format CI::Reporter::RSpecFormatter
   '
 fi
