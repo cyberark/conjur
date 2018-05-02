@@ -39,7 +39,8 @@ module Authentication
     private
 
     def default_conjur_authn?(req)
-      req.webservice.authenticator_name == 'authn'
+      req.webservice.authenticator_name ==
+        ::Authentication::Strategy.default_authenticator_name
     end
 
     def validate_user_has_access(req)

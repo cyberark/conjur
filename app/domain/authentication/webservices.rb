@@ -15,7 +15,8 @@ module Authentication
     def self.from_string(account, csv_string)
       # NOTE: This is needed, eg, in the case the CONJUR_AUTHENTICATORS
       #       is not defined
-      return Webservices.new([]) unless csv_string
+      # return Webservices.new([]) unless csv_string
+      raise 'csv_string cannot be empty' unless csv_string && !csv_string.empty?
 
       Webservices.new(
         csv_string
