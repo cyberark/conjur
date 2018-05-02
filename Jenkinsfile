@@ -49,15 +49,15 @@ pipeline {
         stage('RSpec') {
           steps { sh 'cd ci && ./test --rspec' }
         }
-        stage('Authenticators') {
-          steps { sh 'cd ci && ./test --cucumber-authenticators' }
-        }
-        stage('Policy') {
-          steps { sh 'cd ci && ./test --cucumber-policy' }
-        }
-        stage('API') {
-          steps { sh 'cd ci && ./test --cucumber-api' }
-        }
+        // stage('Authenticators') {
+        //   steps { sh 'cd ci && ./test --cucumber-authenticators' }
+        // }
+        // stage('Policy') {
+        //   steps { sh 'cd ci && ./test --cucumber-policy' }
+        // }
+        // stage('API') {
+        //   steps { sh 'cd ci && ./test --cucumber-api' }
+        // }
       }
       post {
         always {
