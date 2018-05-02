@@ -13,6 +13,10 @@ module Authentication
     end
 
     def self.from_string(account, csv_string)
+      # NOTE: This is needed, eg, in the case the CONJUR_AUTHENTICATORS
+      #       is not defined
+      return Webservices.new([]) unless csv_string
+
       Webservices.new(
         csv_string
         .split(',')

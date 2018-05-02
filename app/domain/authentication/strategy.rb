@@ -72,7 +72,7 @@ module Authentication
           service_id:         input.service_id
         ),
         whitelisted_webservices: Webservices.from_string(
-          input.account, env['CONJUR_AUTHENTICATORS'] || []
+          input.account, env['CONJUR_AUTHENTICATORS']
         ),
         user_id: input.username
       )
