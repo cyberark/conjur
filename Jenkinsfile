@@ -45,21 +45,18 @@ pipeline {
     }
 
     stage('Run Tests') {
-      steps { sh 'cd ci && ./test' }
-      // parallel {
-      //   stage('RSpec') {
-      //     steps { sh 'cd ci && ./test --rspec' }
-      //   }
-      //   stage('Authenticators') {
-      //     steps { sh 'cd ci && ./test --cucumber-authenticators' }
-      //   }
-      //   stage('Policy') {
-      //     steps { sh 'cd ci && ./test --cucumber-policy' }
-      //   }
-      //   stage('API') {
-      //     steps { sh 'cd ci && ./test --cucumber-api' }
-      //   }
-      // }
+      stage('RSpec') {
+        steps { sh 'cd ci && ./test --rspec' }
+      }
+      stage('Authenticators') {
+        steps { sh 'cd ci && ./test --cucumber-authenticators' }
+      }
+      stage('Policy') {
+        steps { sh 'cd ci && ./test --cucumber-policy' }
+      }
+      stage('API') {
+        steps { sh 'cd ci && ./test --cucumber-api' }
+      }
       post {
         always {
           junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,cucumber/authenticators/features/reports/**/*.xml'
