@@ -33,6 +33,8 @@ function finish {
 }
 trap finish EXIT
 
+export REPORT_ROOT=/src/conjur-server
+
 # Setup and run Cucumber tests.
 # args: profile name
 # example: run_cucumber_tests 'policy'
@@ -108,9 +110,9 @@ if [[ $RUN_RSPEC = true || $RUN_ALL = true ]]; then
 
   until docker-compose run -T --rm pg psql -U postgres -h pg -c "select 1" -d postgres; do sleep 1; done
 
-  docker-compose run -T --rm --no-deps cucumber -c '
+  docker-compose run -T --rm --no-deps cucumber -c "
     bundle exec rake db:migrate
-    rm -rf /src/conjur-server/spec/reports
-    bundle exec env CI_REPORTS=/src/conjur-server/spec/reports rspec --format progress --require ci/reporter/rspec --format CI::Reporter::RSpecFormatter
-  '
+    rm -rf $REPORT_ROOT/spec/reports
+    bundle exec env CI_REPORTS=$REPORT_ROOT/spec/reports rspec --format progress --require ci/reporter/rspec --format CI::Reporter::RSpecFormatter
+  "
 fi
