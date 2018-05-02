@@ -112,6 +112,6 @@ if [[ $RUN_RSPEC = true || $RUN_ALL = true ]]; then
 
   docker-compose run -T --rm --no-deps cucumber -c '
     bundle exec rake db:migrate
-    bundle exec rake spec
+    bundle exec rake ci:rspec
   '
 fi
