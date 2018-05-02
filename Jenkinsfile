@@ -45,17 +45,11 @@ pipeline {
     }
 
     stage('Run Tests') {
-      stage('RSpec') {
-        steps { sh 'cd ci && ./test --rspec' }
-      }
-      stage('Authenticators') {
-        steps { sh 'cd ci && ./test --cucumber-authenticators' }
-      }
-      stage('Policy') {
-        steps { sh 'cd ci && ./test --cucumber-policy' }
-      }
-      stage('API') {
-        steps { sh 'cd ci && ./test --cucumber-api' }
+      steps {
+        sh 'cd ci && ./test --rspec'
+        sh 'cd ci && ./test --cucumber-authenticators'
+        sh 'cd ci && ./test --cucumber-policy'
+        sh 'cd ci && ./test --cucumber-api'
       }
       post {
         always {
