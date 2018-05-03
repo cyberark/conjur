@@ -96,12 +96,17 @@ To use it:
    root@f39015718062:/src/conjur#
    ```
 
-   Once the `start` script finishes, you're in a Bash shell in the Conjur
+   Once the `start` script finishes, you're in a Bash shell inside the Conjur
    server container.
 
-   **LDAP Authentication**
+   After staring Conjur, your instance will be configured with the following:
+   * Account: `cucumber`
+   * User: `admin`
+   * Password: Run `conjurctl role retrieve-key cucumber:user:admin` inside the container shell to retrieve the admin user API key (which is also the password)
 
-   To use LDAP to authentication, run `start` with the `--authn-ldap` flag:
+  #### LDAP Authentication
+
+   To enable a user to log into Conjur using LDAP credentials, run `start` with the `--authn-ldap` flag:
 
    ```sh-session
    $ cd dev
@@ -153,7 +158,7 @@ The `./cli` script, located in the `dev` folder is intended to streamline these 
 $ ./cli --help
 
 NAME
-    cli - Developement tool to simplify working with a Conjur container.
+    cli - Development tool to simplify working with a Conjur container.
 
 SYNOPSIS
     cli [global options] command [command options] [arguments...]
@@ -164,6 +169,8 @@ GLOBAL OPTIONS
 COMMANDS
 
     exec                                      - Steps into the running Conjur container, into a bash shell.
+
+    key                                       - Displays the admin user API key
 
     policy load <account> <policy/path.yml>   - Loads a conjur policy into the provided account.
 ```
@@ -176,6 +183,13 @@ $ ./cli exec
 root@88d43f7b3dfa:/src/conjur-server#
 ```
 
+#### View the admin user's API key
+
+```sh-session
+$ ./cli key
+
+3xmx4tn353q4m02f8e0xc1spj8zt6qpmwv178f5z83g6b101eepwn1
+```
 
 #### Load a policy
 
@@ -183,7 +197,7 @@ root@88d43f7b3dfa:/src/conjur-server#
 $ ./cli policy load <account> <policy/path/from/project/root.yml>
 ```
 
-For most development work, the account will be `cucumber`, which is created when the developement environment starts. The policy path must be inside the `cyberark/conjur` project folder, and referenced from the project root.
+For most development work, the account will be `cucumber`, which is created when the development environment starts. The policy path must be inside the `cyberark/conjur` project folder, and referenced from the project root.
 
 ## Testing
 
