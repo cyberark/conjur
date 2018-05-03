@@ -1,8 +1,9 @@
 Feature: RBAC privileges control whether a role can update and/or fetch a secret.
 
   Background:
-    Given I create a new resource
-    And I create a new user "bob"
+    Given I create a new user "bob"
+    And I create a new resource
+    And I permit user "bob" to "read" it
     And I create 1 secret values
 
   Scenario: Fetching a secret as an unauthorized user results in a 403 error.
