@@ -10,6 +10,7 @@ Feature: Updating policies
     - !user alice
     - !user bob
     - !user carol
+    - !user sam
 
     - !policy
       id: dev
@@ -28,6 +29,14 @@ Feature: Updating policies
       privilege: [ create ]
       role: !user carol
     """
+
+  Scenario: a policy is invisible without some permission on it
+    When I login as "sam"
+    And I POST "/policies/cucumber/policy/dev/db" with body:
+    """
+    - !variable a
+    """
+    Then the HTTP response status code is 404
 
   Scenario: `create` privilege is sufficient to add records to a policy via POST.
     When I login as "alice"
