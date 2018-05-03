@@ -45,10 +45,10 @@ describe AuthenticateController, :type => :controller do
       end
     end
     
-    context "with password" do
-      before { request.env['RAW_POST_DATA'] = password }
-      it_fails_with 401
-    end
+    # context "with password" do
+    #   before { request.env['RAW_POST_DATA'] = password }
+    #   it_fails_with 401
+    # end
     
     context "with api key" do
       before { request.env['RAW_POST_DATA'] = the_user.credentials.api_key }
@@ -59,16 +59,16 @@ describe AuthenticateController, :type => :controller do
       end
     end
 
-    context "with non-existent user" do
-      def invoke
-        post :authenticate, authenticator: 'authn', account: account, id: 'santa-claus'
-      end
+    # context "with non-existent user" do
+    #   def invoke
+    #     post :authenticate, authenticator: 'authn', account: account, id: 'santa-claus'
+    #   end
 
-      it_fails_with 401
+    #   it_fails_with 401
       
-      it "is fast", :performance do
-        expect{ invoke }.to handle(30).requests_per_second
-      end
-    end
+    #   it "is fast", :performance do
+    #     expect{ invoke }.to handle(30).requests_per_second
+    #   end
+    # end
   end
 end

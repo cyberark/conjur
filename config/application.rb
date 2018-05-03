@@ -30,6 +30,7 @@ module Possum
 
     config.autoload_paths << Rails.root.join('lib')
 
+
     config.sequel.after_connect = proc do
       Sequel.extension :core_extensions, :postgres_schemata
     end

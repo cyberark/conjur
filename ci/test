@@ -2,11 +2,6 @@
 
 # shellcheck disable=SC1091
 
-# TODO: Currently, the API Cucumber tests have a hard dependency to run on the
-# Conjur container as they perform a number of setup tasks that require code level
-# access. This setup should be done with policy files. Until we refactor, we'll
-# need to use the existing `./test.sh` file to run API tests.
-
 # Display CLI usage information
 function print_help {
   cat << EOF
@@ -17,6 +12,8 @@ SYNOPSIS
     test [global options]
 
 GLOBAL OPTIONS
+
+    --cucumber-api                            - Runs Cucumber API features
 
     --cucumber-authenticators                 - Runs Cucumber Authenticator features
 
@@ -35,6 +32,8 @@ function finish {
   docker-compose down --rmi 'local' --volumes
 }
 trap finish EXIT
+
+export REPORT_ROOT=/src/conjur-server
 
 # Setup and run Cucumber tests.
 # args: profile name
@@ -60,7 +59,7 @@ function run_cucumber_tests() {
 
   # Run the tests
   docker-compose run --no-deps -T --rm -e CONJUR_AUTHN_API_KEY=$api_key cucumber -c \
-    "bundle exec cucumber -p $profile --format junit --out cucumber/policy/features/reports"
+    "bundle exec cucumber -p $profile --format junit --out cucumber/$profile/features/reports"
 }
 
 # Setup to allow compose to run in an isolated namespace
@@ -69,13 +68,13 @@ export COMPOSE_PROJECT_NAME="$(openssl rand -hex 3)"
 services="pg conjur"
 RUN_ALL=true
 RUN_AUTHENTICATORS=false
-# RUN_API=false # TODO: Enable when API tests have been refactored
+RUN_API=false
 RUN_POLICY=false
 RUN_RSPEC=false
 while true ; do
   case "$1" in
     --cucumber-authenticators ) RUN_ALL=false ; RUN_AUTHENTICATORS=true ; shift ;;
-    # --cucumber-api ) RUN_ALL=false ; RUN_API=true ; shift ;; # TODO: Enable when API tests have been refactored
+    --cucumber-api ) RUN_ALL=false ; RUN_API=true ; shift ;;
     --cucumber-policy ) RUN_ALL=false ; RUN_POLICY=true ; shift ;;
     --rspec ) RUN_ALL=false ; RUN_RSPEC=true ; shift ;;
     -h | --help ) print_help ; shift ;;
@@ -98,24 +97,22 @@ if [[ $RUN_AUTHENTICATORS = true || $RUN_ALL = true ]]; then
   run_cucumber_tests 'authenticators'
 fi
 
-# TODO: Enable when API tests have been refactored
-# if [[ $RUN_API = true || $RUN_ALL = true ]]; then
-#   run_cucumber_tests 'api'
-# fi
+if [[ $RUN_API = true || $RUN_ALL = true ]]; then
+  run_cucumber_tests 'api'
+fi
 
 if [[ $RUN_POLICY = true || $RUN_ALL = true ]]; then
   run_cucumber_tests 'policy'
 fi
 
 if [[ $RUN_RSPEC = true || $RUN_ALL = true ]]; then
-  mkdir -p spec/reports
-  rm -rf spec/reports/*
   docker-compose up --no-deps -d pg
 
   until docker-compose run -T --rm pg psql -U postgres -h pg -c "select 1" -d postgres; do sleep 1; done
 
-  docker-compose run -T --rm --no-deps cucumber -c '
+  docker-compose run -T --rm --no-deps cucumber -c "
     bundle exec rake db:migrate
-    bundle exec rspec
-  '
+    rm -rf $REPORT_ROOT/spec/reports
+    bundle exec env CI_REPORTS=$REPORT_ROOT/spec/reports rspec --format progress --require ci/reporter/rspec --format CI::Reporter::RSpecFormatter
+  "
 fi

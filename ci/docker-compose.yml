@@ -18,6 +18,8 @@ services:
       LDAP_BINDDN: cn=admin,dc=conjur,dc=net
       LDAP_BINDPW: ldapsecret
     command: server
+    volumes:
+      - authn-local:/run/authn-local
     expose:
       - "80"
     links:
@@ -32,8 +34,11 @@ services:
       CONJUR_ACCOUNT: cucumber
       DATABASE_URL: postgres://postgres@pg/postgres
       RAILS_ENV: test
+      CONJUR_DATA_KEY:
+      REPORT_ROOT:
     volumes:
       - ..:/src/conjur-server
+      - authn-local:/run/authn-local
     links:
       - conjur
       - pg
@@ -48,3 +53,6 @@ services:
 
     volumes:
       - ./authn-ldap/ldap-data:/container/service/slapd/assets/config/bootstrap/ldif/custom
+
+volumes:
+  authn-local:

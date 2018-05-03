@@ -10,6 +10,8 @@ Dir[Rails.root.join("spec/support/**/*.rb")].each {|f| require f}
 ENV['CONJUR_ACCOUNT'] = 'rspec'
 ENV.delete('CONJUR_ADMIN_PASSWORD')
 
+$LOAD_PATH << '../app/domain'
+
 RSpec.configure do |config|
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction

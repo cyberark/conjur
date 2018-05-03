@@ -1,5 +1,7 @@
 #!/bin/bash -ex
 
+unset COMPOSE_PROJECT_NAME
+
 docker-compose down -v
 
 rm -f data_key

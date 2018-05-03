@@ -21,7 +21,7 @@ Rails.application.routes.draw do
       put  '/authn/:account/password' => 'credentials#update_password'
       put  '/authn/:account/api_key'  => 'credentials#rotate_api_key'
 
-      constraints id: /[^\/\?]+/ do
+      constraints authenticator: /authn-?[^\/]*/, id: /[^\/\?]+/ do
         post '/:authenticator(/:service_id)/:account/:id/authenticate' =>
           'authenticate#authenticate'
       end
