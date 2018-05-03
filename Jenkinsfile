@@ -59,13 +59,6 @@ pipeline {
           steps { sh 'cd ci && ./test --cucumber-api' }
         }
       }
-      // stage('API') {
-      //   steps { sh 'cd ci && ./test --cucumber-api' }
-      //   sh 'cd ci && ./test --rspec'
-      //   sh 'cd ci && ./test --cucumber-authenticators'
-      //   sh 'cd ci && ./test --cucumber-policy'
-      //   sh 'cd ci && ./test --cucumber-api'
-      // }
       post {
         always {
           junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,cucumber/authenticators/features/reports/**/*.xml'
