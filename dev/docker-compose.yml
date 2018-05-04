@@ -16,7 +16,7 @@ services:
       CONJUR_PASSWORD_ALICE: secret
       CONJUR_DATA_KEY:
       RAILS_ENV:
-      CONJUR_AUTHENTICATORS: authn-ldap/test
+      CONJUR_AUTHENTICATORS: authn-ldap/test,authn-iam/aws
       LDAP_URI: ldap://ldap-server:389
       LDAP_BASE: dc=conjur,dc=net
       LDAP_FILTER: '(uid=%s)'

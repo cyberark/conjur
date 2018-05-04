@@ -46,6 +46,11 @@ gem 'font-awesome-sass', '~> 4.7.0'
 gem 'net-ldap'
 gem 'dry-struct'
 
+# AWS SDK for authn-iam
+gem 'aws-sdk-iam', '~> 1.3.0'
+gem 'aws-sdk-core', '~> 3.15.0'
+
+
 group :production do
   gem 'rails_12factor'
 end
