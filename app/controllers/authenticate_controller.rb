@@ -2,6 +2,9 @@
 #       work.  It cannot be placed in an initializer instead.  There may be a 
 #       better place for it, but this works.
 #
+#       It's purpose it to load all the pluggable authenticator files into 
+#       memory, so that determine which authenticators are available
+#
 Dir[File.join("./app/domain/authentication/**/", "*.rb")].each do |f|
   require f
 end
