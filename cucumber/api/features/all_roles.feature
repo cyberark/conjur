@@ -1,4 +1,3 @@
-@logged-in
 Feature: Obtain the recursive expansion of a role
 
   If a role A is granted to a role B, then role B is said to "have" role A.
@@ -9,6 +8,9 @@ Feature: Obtain the recursive expansion of a role
 
   Memberships are retrieved through the REST API using the `all` query parameter
   to the `GET /roles/:role` route.
+
+  Background:
+    Given I am a user named "alice"
 
   Scenario: The initial memberships of a role is just the role itself.
     Given I create a new user "bob"

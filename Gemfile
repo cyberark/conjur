@@ -70,3 +70,7 @@ group :development, :test do
   gem 'rails_layout'
   gem 'rspec-core', '~> 3.0'
 end
+
+group :test do
+  gem 'haikunator', '~> 1' # for generating random names in tests
+end

@@ -1,3 +1,5 @@
+require 'haikunator'
+
 Before do
   @user_index = 0
 
@@ -17,7 +19,7 @@ Before do
 end
 
 Before("@logged-in") do
-  step %Q(I am a user named "alice")
+  step %Q(I am a user named "#{Haikunator.haikunate}")
 end
 
 Before("@logged-in-admin") do

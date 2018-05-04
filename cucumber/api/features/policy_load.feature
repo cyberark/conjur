@@ -20,10 +20,19 @@ Feature: Updating policies
       - !policy
         id: db
 
+    - !grant
+      role: !policy dev/db
+      member: !user bob
+
     - !permit
       resource: !policy dev/db
       privilege: [ update ]
       role: !user bob
+
+    - !permit
+      resource: !policy dev/db
+      privilege: [ read ]
+      role: !user eve
     """
 
   Scenario: A role with "update" privilege can update a policy.

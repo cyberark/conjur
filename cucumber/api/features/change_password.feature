@@ -19,11 +19,11 @@ Feature: Change the password of a role
     When I successfully PUT "/authn/cucumber/password" with username "alice" and password ":alice_api_key" and plain text body "new-password"
     Then I can GET "/authn/cucumber/login" with username "alice" and password "new-password"
 
-  @logged-in
   Scenario: Bearer token cannot be used to change the password
 
     An authentication token is insufficient to change a role's password.
 
+    Given I login as "alice"
     When I PUT "/authn/cucumber/password" with plain text body "new-password"
     Then the HTTP response status code is 401
 

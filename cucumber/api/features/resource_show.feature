@@ -1,8 +1,8 @@
-@logged-in
 Feature: Fetch resource details.
 
   Background:
-    Given I create a new "variable" resource called "@namespace@/app-01.mycorp.com"
+    Given I am a user named "alice"
+    And I create a new "variable" resource called "@namespace@/app-01.mycorp.com"
 
   Scenario: Showing a resource provides information about privileges, annotations and secrets on the resource
 

@@ -1,8 +1,9 @@
 Feature: RBAC privileges control whether a role can update and/or fetch a secret.
 
   Background:
-    Given I create a new resource
-    And I create a new user "bob"
+    Given I create a new user "bob"
+    And I create a new resource
+    And I permit user "bob" to "read" it
     And I create 1 secret values
 
   Scenario: Fetching a secret as an unauthorized user results in a 403 error.
@@ -38,3 +39,13 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
     """
     v-1
     """
+
+  Scenario: Fetching a secret without any permission on it
+    If the user doesn't have any permission or ownership of a secret, fetching
+    it should return 404 (not 403) even if it exists.
+
+    Given I create a new user "alice"
+    And I login as "alice"
+
+    When I GET "/secrets/cucumber/:resource_kind/:resource_id"
+    Then the HTTP response status code is 404

@@ -46,6 +46,11 @@ class Resource < Sequel::Model
     def make_full_id id, account
       Role.make_full_id id, account
     end
+
+    def find_if_visible role, *a
+      res = find *a
+      res if res.try :visible_to?, role
+    end
   end
 
   def extended_associations
@@ -57,19 +62,17 @@ class Resource < Sequel::Model
   
   dataset_module do
     # Filter out records based on:
+    # @param account [String] - chooses just resources of this account
     # @param kind [String] - chooses just resources of this kind
     # @param owner [Role] - owned by this role or one of its ancestors
     # @param offset [Numeric] - an offset into the list of returned results
     # @param limit [Numeric] - a maximum number of results to return
     # @param search [String] - a search term in the resource id
-    def search account, kind: nil, owner: nil, offset: nil, limit: nil, search: nil
+    def search account: nil, kind: nil, owner: nil, offset: nil, limit: nil, search: nil
       scope = self
       
-      # Search only the user's account.
-      # This can be removed once resource visibility rules are added.
-      scope = scope.where("account(resource_id) = ?", account)
-      
-      # Filter by kind.
+      # Filter by kind and account.
+      scope = scope.where("account(resource_id) = ?", account) if account
       scope = scope.where("kind(resource_id) = ?", kind) if kind
       
       # Filter by owner
@@ -104,10 +107,18 @@ class Resource < Sequel::Model
         where("? @@ textsearch", query).
         order(Sequel.desc(rank))
     end
+
+    def visible_to role
+      from Sequel.function(:visible_resources, role.id).as(:resources)
+    end
   end
 
   def role
     Role[id] or raise "Role not found for #{id}"
+  end
+
+  def visible_to? role
+    db.select(Sequel.function(:is_resource_visible, id, role.id)).single_value
   end
 
   # Permission grants are performed by the policy loader, but not exposed through the API.
