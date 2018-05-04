@@ -1,4 +1,4 @@
 #!/bin/bash -e
 
-heroku run conjurctl db migrate
+heroku run possum db migrate
 

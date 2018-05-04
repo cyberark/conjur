@@ -8,7 +8,7 @@ module Authentication
 
     AuthenticatorNotFound = ::Util::ErrorClass.new(
       "'{0}' wasn't in the available authenticators")
-    ValidationFailed = ::Util::ErrorClass.new(
+    InvalidCredentials = ::Util::ErrorClass.new(
       "Invalid credentials")
 
     class Input < ::Dry::Struct
@@ -29,9 +29,9 @@ module Authentication
 
     # optional constructor parameters
     #
-    attribute :security, ::Types::Any.default(::Authentication::Security.new)
+    attribute :security, ::Types::Any.default{ ::Authentication::Security.new }
     attribute :env, ::Types::Any.default(ENV)
-    attribute :token_factory, ::Types::Any.default(TokenFactory.new)
+    attribute :token_factory, ::Types::Any.default{ TokenFactory.new }
 
     def conjur_token(input)
       authenticator = authenticators[input.authenticator_name]
@@ -54,7 +54,7 @@ module Authentication
     end
 
     def validate_credentials(input, authenticator)
-      raise ValidationFailed unless authenticator.valid?(input)
+      raise InvalidCredentials unless authenticator.valid?(input)
     end
 
     def new_token(input)
