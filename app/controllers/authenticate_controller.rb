@@ -3,7 +3,7 @@
 #       better place for it, but this works.
 #
 #       It's purpose it to load all the pluggable authenticator files into 
-#       memory, so that determine which authenticators are available
+#       memory, so we can determine which authenticators are available
 #
 Dir[File.join("./app/domain/authentication/**/", "*.rb")].each do |f|
   require f
