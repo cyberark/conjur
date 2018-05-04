@@ -1,9 +1,7 @@
-require 'types'
 require 'active_support'
 require 'active_support/core_ext'
 require 'net/ldap'
 require 'json'
-require 'conjur-api'
 require 'aws-sdk-iam'
 require 'aws-sdk-core'
 
