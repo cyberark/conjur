@@ -11,12 +11,28 @@ module Authentication
     InvalidCredentials = ::Util::ErrorClass.new(
       "Invalid credentials")
 
+
     class Input < ::Dry::Struct
       attribute :authenticator_name, Types::NonEmptyString
       attribute :service_id,         Types::NonEmptyString.optional
       attribute :account,            Types::NonEmptyString
       attribute :username,           Types::NonEmptyString
       attribute :password,           Types::NonEmptyString
+
+      def to_access_request(env)
+        ::Authentication::Security::AccessRequest.new(
+          webservice: Webservice.new(
+            account:            account,
+            authenticator_name: authenticator_name,
+            service_id:         service_id
+          ),
+          whitelisted_webservices: Webservices.from_string(
+            account, env['CONJUR_AUTHENTICATORS'] ||
+                       Authentication::Strategy.default_authenticator_name
+          ),
+          user_id: username
+        )
+      end
     end
 
     def self.default_authenticator_name
@@ -50,7 +66,7 @@ module Authentication
     end
 
     def validate_security(input)
-      security.validate(security_access_request(input))
+      security.validate(input.to_access_request(env))
     end
 
     def validate_credentials(input, authenticator)
@@ -63,26 +79,6 @@ module Authentication
         username: input.username
       )
     end
-
-    private
-
-    # TODO move this to a method #to_access_request
-    #      on Strategy::Input, so it can be unit tested
-    def security_access_request(input)
-      ::Authentication::Security::AccessRequest.new(
-        webservice: Webservice.new(
-          account:            input.account,
-          authenticator_name: input.authenticator_name,
-          service_id:         input.service_id
-        ),
-        whitelisted_webservices: Webservices.from_string(
-          input.account, env['CONJUR_AUTHENTICATORS'] ||
-                           self.class.default_authenticator_name
-        ),
-        user_id: input.username
-      )
-    end
-
   end
 
 end

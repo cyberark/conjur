@@ -13,16 +13,13 @@ module Authentication
     end
 
     def self.from_string(account, csv_string)
-      # NOTE: This is needed, eg, in the case the CONJUR_AUTHENTICATORS
-      #       is not defined
-      # return Webservices.new([]) unless csv_string
-      raise 'csv_string cannot be empty' unless csv_string && !csv_string.empty?
+      Types::NonEmptyString[csv_string] # validate non-empty
 
       Webservices.new(
         csv_string
-        .split(',')
-        .map(&:strip)
-        .map { |ws| Webservice.from_string(account, ws) }
+          .split(',')
+          .map(&:strip)
+          .map { |ws| Webservice.from_string(account, ws) }
       )
     end
   end
