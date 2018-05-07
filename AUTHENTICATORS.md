@@ -15,7 +15,7 @@ text in the request body.
 Let's break down the required pieces of this request:
 
 - **authenticator-type:** The default Conjur authenticator type is `authn`, and
-  all other authenticator types begin with the prefix `authn-` -- eg,
+  all other authenticator types begin with the prefix `authn-`. For example,
   `authn-ldap` or `authn-my-awesome-authenticator`.
 - **optional-service-id:** This is useful when you have two different
   "instances" of the same authenticator type.  For example, your company might
@@ -25,17 +25,17 @@ Let's break down the required pieces of this request:
 - **conjur-account:** The Conjur account you'll be issued a token for.
 - **username:** The username (from the point of view of the authenticator) of
   the person (or machine) requesting authentication.  In the case of default
-  Cojur authentication, this would be your Conjur username.  In the case of
+  Conjur authentication, this would be your Conjur username.  In the case of
   LDAP authentication, this would be your LDAP username.
 - **request body:** The plain text password or other credential relevant to
-  your authenticator.  This could be an ordinary password, and API key, an
+  your authenticator.  This could be an ordinary password, an API key, an
   OAuth token, etc -- depending on the type of authenticator.
 
 ## Security requirements
 
 ### Must whitelist before using
 
-With the exception of the default Conjur authenticator `authn`, all
+With the exception of the default Conjur authenticator named `authn`, all
 authenticators must be explicitly whitelisted via the environment variable
 `CONJUR_AUTHENTICATORS`.
 
@@ -53,11 +53,13 @@ authenticator as well as the default Conjur authenticator:
 CONJUR_AUTHENTICATORS=authn-ldap/sysadmins,authn
 ```
 
+Note that this is a comma-separated list.
+
 ### Create webservice and authorize users 
 
 Except for the default Conjur authenticator, authenticators must be listed as
-webservices in your Conjur policy, and users must have be authorized to use
-them.  This requires two steps:
+webservices in your Conjur policy, and users must be authorized to use them.
+This requires two steps:
 
 1. Add the authenticator as a webservice in your conjur policy:
 ```yaml
@@ -101,8 +103,6 @@ module Authentication
   end
 end
 ```
-
-That's it.  However, before using the authenticator...  
 
 ### Other Notes
 
