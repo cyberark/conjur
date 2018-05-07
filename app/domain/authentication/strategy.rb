@@ -19,6 +19,8 @@ module Authentication
       attribute :username,           Types::NonEmptyString
       attribute :password,           Types::NonEmptyString
 
+      # Convert this Input to an Security::AccessRequest
+      #
       def to_access_request(env)
         ::Authentication::Security::AccessRequest.new(
           webservice: Webservice.new(

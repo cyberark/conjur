@@ -41,9 +41,6 @@ export REPORT_ROOT=/src/conjur-server
 function run_cucumber_tests() {
   profile="$1"
 
-  # Generate a data key
-  CONJUR_DATA_KEY="$(openssl rand -base64 32)"
-
   # Create reports folders
   mkdir -p cucumber/$profile/features/reports
   rm -rf cucumber/$profile/features/reports/*
