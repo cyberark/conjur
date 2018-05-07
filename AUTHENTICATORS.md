@@ -108,7 +108,7 @@ end
 
 1. Your authenticator directory can contain other supporting files used by your
    authenticator.
-2. Conjur will instantiate your autheticator at bootup.  By default, when your
+2. Conjur will instantiate your authenticator at bootup.  By default, when your
    authenticator is instantiated by conjur, it will be passed the `ENV` through
    the kwarg `env`.  If you don't need any configuration from the environment,
    you can opt out like so:
