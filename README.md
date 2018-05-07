@@ -277,6 +277,16 @@ Typical options for this URL are:
 Conjur creates and/or updates the database schema automatically when it starts
 up. Migration scripts are located in the `db/migrate` directory.
 
+## Authenticators
+
+Conjur makes it easy to:
+
+- Enable and disable built-in authenticators
+- Secure access to authenticators using policy files
+- Create custom authenticators
+
+[Detailed authenticator documenation](AUTHENTICATORS.md)
+
 ## Secrets and keys
 
 Main article: [Conjur Cryptography](https://www.conjur.org/reference/cryptography.html)
