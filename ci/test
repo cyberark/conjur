@@ -41,9 +41,6 @@ export REPORT_ROOT=/src/conjur-server
 function run_cucumber_tests() {
   profile="$1"
 
-  # Generate a data key
-  export CONJUR_DATA_KEY="$(openssl rand -base64 32)"
-
   # Create reports folders
   mkdir -p cucumber/$profile/features/reports
   rm -rf cucumber/$profile/features/reports/*
@@ -60,6 +57,8 @@ function run_cucumber_tests() {
   # Run the tests
   docker-compose run --no-deps -T --rm -e CONJUR_AUTHN_API_KEY=$api_key cucumber -c \
     "bundle exec cucumber -p $profile --format junit --out cucumber/$profile/features/reports"
+
+  docker-compose down --rmi 'local' --volumes
 }
 
 # Setup to allow compose to run in an isolated namespace
