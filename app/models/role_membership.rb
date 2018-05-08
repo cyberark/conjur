@@ -11,4 +11,11 @@ class RoleMembership < Sequel::Model
       end
     end
   end
+
+  dataset_module do
+    def member_of role_ids
+      subset_roles = Set.new(role_ids.map{|id| Role[id]}.compact.map(&:role_id))
+      where(member_id: subset_roles.to_a)
+    end
+  end
 end

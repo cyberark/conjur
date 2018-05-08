@@ -8,6 +8,16 @@ class QueryParameterActionRecognizer
   end
 end
 
+class QueryParameterActionsRecognizer
+  def initialize(*actions)
+    @actions = actions
+  end
+
+  def matches?(request)
+    !request.params.slice(*@actions).empty?
+  end
+end
+
 Rails.application.routes.draw do
   scope format: false do
     get '/' => 'status#index'
@@ -26,7 +36,7 @@ Rails.application.routes.draw do
           'authenticate#authenticate'
       end
 
-      get "/roles/:account/:kind/*identifier" => "roles#memberships", :constraints => QueryParameterActionRecognizer.new("all")
+      get "/roles/:account/:kind/*identifier" => "roles#memberships", :constraints => QueryParameterActionsRecognizer.new("all", "memberships")
 
       get "/roles/:account/:kind/*identifier" => "roles#show"
 

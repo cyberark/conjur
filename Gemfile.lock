@@ -190,6 +190,8 @@ GEM
     pry-byebug (3.4.2)
       byebug (~> 9.0)
       pry (~> 0.10)
+    pry-rails (0.3.6)
+      pry (>= 0.10.4)
     puma (3.8.2)
     rack (1.6.8)
     rack-rewrite (1.5.1)
@@ -343,6 +345,7 @@ DEPENDENCIES
   parallel
   pg
   pry-byebug
+  pry-rails
   puma
   rack-rewrite
   rails (~> 4.2)

@@ -1,13 +1,19 @@
-Feature: Obtain the recursive expansion of a role
+Feature: Obtain the memberships of a role
 
   If a role A is granted to a role B, then role B is said to "have" role A.
   These role grants are recursive; so that if role B is granted to role C, then
   role C has roles A, B, and C (a role always "has" its own role).
 
-  This recursive expansion of roles is called the role "memberships".
+  This recursive expansion of roles is called the role
+  "memberships". The roles that are granted directly to a role
+  (i.e. not through another role) are the role's "direct memberships".
 
   Memberships are retrieved through the REST API using the `all` query parameter
   to the `GET /roles/:role` route.
+
+  If `all` is provided, all memberships are returned. If `all` is not
+  provided, only the direct memberships are returned.
+
 
   Background:
     Given I am a user named "alice"
@@ -32,6 +38,48 @@ Feature: Obtain the recursive expansion of a role
       "cucumber:user:alice",
       "cucumber:user:bob"
     ]
+    """
+
+  Scenario: Memberships can be counted
+    Given I create a new user "bob"
+    And I grant user "bob" to user "alice"
+    When I successfully GET "/roles/cucumber/user/alice?all&count"
+    Then the JSON should be:
+    """
+    {
+      "count": 2
+    }
+    """
+
+  Scenario: Direct memberships can be listed
+    Given I create a new user "bob"
+    And I create a new user "carol"
+    And I grant user "carol" to user "bob"
+    And I grant user "bob" to user "alice"
+    When I successfully GET "/roles/cucumber/user/alice?memberships"
+    Then the JSON should be:
+    """
+    [
+      {
+        "admin_option": false,
+        "member": "cucumber:user:alice",
+        "ownership": false,
+        "role": "cucumber:user:bob"
+      }
+    ]
+    """
+
+  Scenario: Direct memberships can be counted
+    Given I create a new user "bob"
+    And I create a new user "carol"
+    And I grant user "carol" to user "bob"
+    And I grant user "bob" to user "alice"
+    When I successfully GET "/roles/cucumber/user/alice?memberships&count"
+    Then the JSON should be:
+    """
+    {
+      "count": 1
+    }
     """
 
   Scenario: The role memberships list can be filtered.
