@@ -21,13 +21,23 @@ describe "routing from roles" do
       identifier: 'admin')
   end
   
-  it "routes GET /roles/:account/:role?all to roles#all_roles" do
+  it "routes GET /roles/:account/:role?all to roles#all_memberships" do
     expect(get: '/roles/the-account/user/admin?all').to route_to(
       account: 'the-account',
       controller: 'roles',
-      action: 'memberships',
+      action: 'all_memberships',
       kind: 'user',
       identifier: 'admin',
       all: nil)
+  end
+
+  it "routes GET /roles/:account/:role?memberships to roles#direct_memberships" do
+    expect(get: '/roles/the-account/user/admin?memberships').to route_to(
+      account: 'the-account',
+      controller: 'roles',
+      action: 'direct_memberships',
+      kind: 'user',
+      identifier: 'admin',
+      memberships: nil)
   end
 end
