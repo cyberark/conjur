@@ -27,9 +27,9 @@ EOF
 exit
 }
 
-# Cleanup started containers
+# Cleanup started containers, ok they're already gone.
 function finish {
-  docker-compose down --rmi 'local' --volumes
+  docker-compose down --rmi 'local' --volumes || true
 }
 trap finish EXIT
 
