@@ -51,6 +51,7 @@ group :production do
 end
 
 group :development, :test do
+  gem 'pry-rails'
   gem 'pry-byebug'
   gem 'conjur-debify', require: false
   gem 'spring'

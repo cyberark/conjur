@@ -52,6 +52,13 @@ class Role < Sequel::Model
       end
     end
   end
+
+  dataset_module do
+    def member_of role_ids
+      filter_memberships = Set.new(role_ids.map{|id| Role[id]}.compact.map(&:role_id))
+      where(role_id: filter_memberships.to_a)
+    end
+  end
   
   def password= password
     self.credentials ||= Credentials.new(role: self)
@@ -98,12 +105,7 @@ class Role < Sequel::Model
     Role.from(Sequel.function(:is_role_allowed_to, id, privilege.to_s, resource.id)).first[:is_role_allowed_to]
   end
   
-  def all_roles filter = nil
-    if filter.nil?
-      Role.from(Sequel.function(:all_roles, id))
-    else
-      filter_roles = Set.new(filter.map{|id| Role[id]}.compact.map(&:role_id))
-      Role.from(Sequel.function(:all_roles, id)).where(role_id: filter_roles.to_a)
-    end
+  def all_roles
+    Role.from(Sequel.function(:all_roles, id))
   end
 end

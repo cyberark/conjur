@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Resources are now only visible if the user is a member of a role that owns them or has some
 permission on them.
 
+- RolesController now implements #direct_memberships to return the
+  direct members of a role, without recursive expansion.
+
 ## [0.4.0] - 2018-04-10
 ### Added
 - Policy changes now generate audit log messages. These can optionally be generated in RFC5424
