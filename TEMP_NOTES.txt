@@ -1,0 +1,35 @@
+✓ Add the `expiration` field. 
+- Write a little service (or even test class) that will set the field to the
+  current timestamp. 
+- Then write a “watcher” which selects out the expired variables and invokes a
+  dummy “rotator”
+
+Then you’ll have the basic pieces working in a test system.
+
+Notes:
+
+- We can visit later whether we still need the “expiration” audit event, but
+  for now we don’t; and my guess is, we won’t bring these back.
+- The “expire” REST method will just set the expiration field in the DB, and
+  the “rotator” will pick up the expired variables.
+
+
+
+Where the processes start.  We want a new rake process for our "watcher":
+Invoked by conjurctl when the server starts
+
+https://github.com/cyberark/conjur/blob/3a9fa52c844b638e4dc41341c6eb54477fd57f2c/bin/conjur-cli.rb#L74
+
+Notes on PathBased:
+https://github.com/cyberark/conjur-api-ruby/blob/v4.31.0/lib/conjur/path_based.rb
+
+Where resourceid is defined:
+https://github.com/cyberark/conjur-api-ruby/blob/4.6/lib/conjur/resource.rb#L32
+
+Sample Dummy Rotator:
+https://github.com/conjurinc/rotation/blob/master/lib/rotation/rotators/new_value.rb#L12
+
+Using annotations to determine the correct rotator:
+Also: how rotation actually gets done:
+
+https://github.com/conjurinc/rotation/blob/master/lib/rotation/service.rb#L106

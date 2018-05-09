@@ -77,6 +77,9 @@ command :server do |c|
     Process.fork do
       exec "rake authn_local:run"
     end
+    Process.fork do
+      exec "rake expiration:watch"
+    end
 
     Process.waitall
   end
