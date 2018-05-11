@@ -101,7 +101,7 @@ class ISO8601Duration # :nodoc:
 
     # Parses number which can be a float with either comma or period.
     def number
-      PERIOD_OR_COMMA.match?(scanner[1]) ? scanner[1].tr(COMMA, PERIOD).to_f : scanner[1].to_i
+      PERIOD_OR_COMMA =~ scanner[1] ? scanner[1].tr(COMMA, PERIOD).to_f : scanner[1].to_i
     end
 
     def scan(pattern)
@@ -134,5 +134,3 @@ class ISO8601Duration # :nodoc:
       true
     end
 end
-
-p ISO8601Duration.new('P2DT10S').from_now
