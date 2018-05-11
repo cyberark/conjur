@@ -1,3 +1,23 @@
+As an alternative, how about we punt the actual rotation altogether? The code
+that's doing the expiration does a "puts" when it's time to rotate. So, it just
+loops, looking for Secrets that need to be rotated, then updates their
+expiration based on the ttl annotation.
+
+✓ Add the `expiration` field. 
+- Write a little service (or even test class) that will set the field to the
+  current timestamp. 
+- Then write a “watcher” which selects out the expired variables and invokes a
+  dummy “rotator”
+
+Then you’ll have the basic pieces working in a test system.
+
+Notes:
+
+- We can visit later whether we still need the “expiration” audit event, but
+  for now we don’t; and my guess is, we won’t bring these back.
+- The “expire” REST method will just set the expiration field in the DB, and
+  the “rotator” will pick up the expired variables.
+
 ✓ Add the `expiration` field. 
 - Write a little service (or even test class) that will set the field to the
   current timestamp. 

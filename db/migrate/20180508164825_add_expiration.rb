@@ -1,7 +1,7 @@
 Sequel.migration do
   change do
-    add_column :resources do
-      Timestamp :expires_at
+    alter_table :secrets do
+      add_column :expires_at, DateTime
     end
   end
 end
