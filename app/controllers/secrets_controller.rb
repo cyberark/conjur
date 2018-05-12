@@ -21,13 +21,10 @@ class SecretsController < RestController
   def show
     authorize :execute
 
-    case @resource.kind
-    when "variable"
-      secret_from_variable
-    when "webservice"
-      secret_from_webservice
+    if @resource.credential_factory_provider
+      create_secret
     else
-      raise Exceptions::RecordNotFound
+      lookup_secret
     end
   end
 
@@ -62,7 +59,7 @@ class SecretsController < RestController
 
   protected
 
-  def secret_from_variable
+  def lookup_secret
     version = params[:version]
     secret = if version.is_a?(String) && version.to_i.to_s == version
       @resource.secrets.find{|s| s.version == version.to_i}
@@ -81,7 +78,7 @@ class SecretsController < RestController
     send_data value, type: mime_type
   end
 
-  def secret_from_webservice
+  def create_secret
     raise ArgumentError, "version" if params[:version]
 
     values = CredentialFactory.values @resource

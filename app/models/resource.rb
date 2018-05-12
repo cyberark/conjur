@@ -132,4 +132,8 @@ class Resource < Sequel::Model
       "secrets"."version" = "delete_secrets"."version"
     SQL
   end
+
+  def credential_factory_provider
+    @credential_factory_provider ||= annotations_dataset.where(name: 'credential-factory/provider').first
+  end
 end

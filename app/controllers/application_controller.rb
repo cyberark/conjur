@@ -157,7 +157,7 @@ class ApplicationController < ActionController::API
 
   def forbidden e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
-    if e.message
+    if e.message != "ApplicationController::Forbidden"
       render json: {
         error: {
           code: "forbidden",

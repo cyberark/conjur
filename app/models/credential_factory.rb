@@ -1,7 +1,7 @@
 module CredentialFactory
   class << self
     def values factory_resource
-      provider_annotation = factory_resource.annotations_dataset.where(name: 'credential-factory/provider').first
+      provider_annotation = factory_resource.credential_factory_provider
       raise ArgumentError, %Q(Annotation "credential-factory/provider" not found on #{factory_resource.id.inspect}) unless provider_annotation
       require "credential_factory/#{provider_annotation.value.underscore}"
       factory_class = self.const_get(provider_annotation.value.downcase.camelize)
