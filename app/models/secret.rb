@@ -20,8 +20,6 @@ class Secret < Sequel::Model
           all.
           map(&:value)
     end
-
-    
   end
 
   def as_json options = {}

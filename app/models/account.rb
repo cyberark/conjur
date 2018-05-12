@@ -34,7 +34,7 @@ Account = Struct.new(:id) do
           Resource.create resource_id: role_id, owner_id: owner_id
         end
         
-        admin_api_key
+        admin_user.api_key
       end
     end
 

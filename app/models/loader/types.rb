@@ -120,9 +120,6 @@ module Loader
     class Layer < Record
     end
 
-    class CredentialFactory < Record
-    end
-
     class Host < Record
     end
 
@@ -186,8 +183,6 @@ module Loader
     end
     
     class Variable < Record
-      include CreateResource
-
       def_delegators :@policy_object, :kind, :mime_type
       
       def create!
@@ -200,7 +195,6 @@ module Loader
     end
     
     class Webservice < Record
-      include CreateResource
     end
     
     class Grant < Types::Base

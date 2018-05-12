@@ -18,7 +18,7 @@ module CredentialFactory
     module ClassMethods
       # Require annotation +name+ to be in the hash +annotations+, or a configuration error is raised.
       def require_annotation annotations, name
-        annotations[name] or raise Exceptions::ConfigurationError, "Annotation #{name.inspect} is required"
+        annotations[name] or raise ArgumentError, "Annotation #{name.inspect} is required"
       end
 
       # From an example annotation name, build a set of annotation names which are related by 

@@ -24,8 +24,8 @@ class SecretsController < RestController
     case @resource.kind
     when "variable"
       secret_from_variable
-    when "credential-factory"
-      secret_from_factory
+    when "webservice"
+      secret_from_webservice
     else
       raise Exceptions::RecordNotFound
     end
@@ -81,10 +81,10 @@ class SecretsController < RestController
     send_data value, type: mime_type
   end
 
-  def secret_from_factory
+  def secret_from_webservice
     raise ArgumentError, "version" if params[:version]
 
     values = CredentialFactory.values @resource
-    render json: values, mime_type: "application/json"
+    render json: values
   end
 end

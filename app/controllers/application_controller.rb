@@ -157,7 +157,16 @@ class ApplicationController < ActionController::API
 
   def forbidden e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
-    head :forbidden
+    if e.message
+      render json: {
+        error: {
+          code: "forbidden",
+          message: e.message
+        }
+      }, status: :forbidden
+    else
+      head :forbidden
+    end
   end
 
   def unauthorized e

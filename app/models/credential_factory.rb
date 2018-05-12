@@ -31,8 +31,9 @@ module CredentialFactory
       dependent_secrets = dependent_variables.inject({}) do |memo, variable|
         # Don't reveal that a variable exists if the credential factory doesn't have permission to execute it.
         unless factory_resource.role.allowed_to?('execute', variable)
-          Rails.logger.info "#{factory_resource.resource_id.inspect} does not have 'execute' privilege on #{variable.resource_id.inspect}"
-          raise Exceptions::Forbidden
+          msg = "#{factory_resource.resource_id.inspect} does not have 'execute' privilege on #{variable.resource_id.inspect}"
+          Rails.logger.info msg
+          raise Exceptions::Forbidden, "#{factory_resource.resource_id.inspect} does not have 'execute' privilege on #{variable.resource_id.inspect}"
         end
         secret = variable.secrets.last
         unless secret

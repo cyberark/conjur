@@ -18,7 +18,7 @@ Then(/^the resource list should only include the searched resources$/) do
   @result.map{|r| r['id']}.should =~ @searchable_resources.map{|r| r.id}
 end
 
-Then(/^I receive (\d+) resources$/) do |count|
+Then(/^I receive (\d+) (?:resources?|responses?)$/) do |count|
   expect(@result.count).to eq(count.to_i)
 end
 
@@ -54,4 +54,8 @@ Then(/^the binary result is preserved$/) do
   expect(@result).to be
   expect(@result.headers[:content_type]).to eq("application/octet-stream")
   expect(@result).to eq(@value)
+end
+
+Then(/^the first text response looks like a UUID$/) do
+  expect(@result[0]).to match(/^[a-f0-9\-]+$/)
 end
