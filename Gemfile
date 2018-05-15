@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 # make sure to use tls for github
 git_source(:github) { |name| "https://github.com/#{name}.git" }
 
-#ruby=ruby-2.2.6
+#ruby=ruby-2.5.1
 #ruby-gemset=conjur
 
 gem 'rake'
