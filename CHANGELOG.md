@@ -13,6 +13,8 @@ permission on them.
 - RolesController now implements #direct_memberships to return the
   direct members of a role, without recursive expansion.
 
+- Updated Ruby version from 2.2, which is no longer supported, to version 2.5. 
+
 ## [0.4.0] - 2018-04-10
 ### Added
 - Policy changes now generate audit log messages. These can optionally be generated in RFC5424
