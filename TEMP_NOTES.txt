@@ -1,3 +1,10 @@
+- v5 supports rotation
+- v5 has cukes for rotation
+- v5 has unit tests for rotation
+- rotation query is indexed and optimized (Rafal )
+
+
+
 As an alternative, how about we punt the actual rotation altogether? The code
 that's doing the expiration does a "puts" when it's time to rotate. So, it just
 loops, looking for Secrets that need to be rotated, then updates their

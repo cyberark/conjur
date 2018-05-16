@@ -77,9 +77,13 @@ command :server do |c|
     Process.fork do
       exec "rake authn_local:run"
     end
-    Process.fork do
+
+    # Start the rotation "watcher" in a separate thread
+    rotations_thread = Thread.new do
       exec "rake expiration:watch"
     end
+    # Kill all of Conjur if rotations stop working
+    rotations_thread.abort_on_exception = true
 
     Process.waitall
   end

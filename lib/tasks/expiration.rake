@@ -6,13 +6,16 @@ namespace :expiration do
 
     #TODO: perhaps use clockwork / similar rather than a sleep loop
     while true
-      Secret.freshly_expired.each do |secret|
+
+      Secret.required_rotations.each do |secret|
         puts "Secret #{secret[:resource_id]} expired!  Resetting it..."
-        Secret.create({
-          resource_id: secret[:resource_id],
-          expires_at: ISO8601Duration.new(secret[:ttl]).from_now,
-          value: SecureRandom.hex(5),
-        })
+        Sequel::Model.transaction do
+          Secret.create({
+            resource_id: secret[:resource_id],
+            expires_at: ISO8601Duration.new(secret[:ttl]).from_now,
+            value: SecureRandom.hex(5),
+          })
+        end
       end
       sleep(1)
 

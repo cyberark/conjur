@@ -21,26 +21,31 @@ class Secret < Sequel::Model
           map(&:value)
     end
 
-
    # WITH expired_secrets AS (SELECT resource_id FROM secrets GROUP BY resource_id HAVING max(expires_at) < NOW()) SELECT resource_id, value AS ttl FROM annotations NATURAL JOIN expired_secrets WHERE name = 'ttl'
 
 # Album.group_and_count(:artist_id).having{count.function.* >= 10}
 # # SELECT artist_id, count(*) AS count FROM albums
 # # GROUP BY artist_id HAVING (count(*) >= 10)
 
-    def freshly_expired
+    def required_rotations
       Sequel::Model.db[<<-EOS
-        SELECT resource_id, expires_at, value AS ttl
-        FROM annotations
-        NATURAL JOIN (
-          SELECT max(expires_at) AS expires_at, resource_id 
+        SELECT ttl.resource_id, ttl.value AS ttl, rotators.value AS rotator
+        FROM annotations ttl
+        -- This ensures we get only entries with both
+        -- a ttl and a rotator specified
+        JOIN annotations rotators ON (
+          rotators.resource_id = ttl.resource_id
+          AND rotators.name = 'rotator'
+        )
+        LEFT JOIN (
+          SELECT resource_id, MAX(expires_at) AS expires_at
           FROM secrets
           GROUP BY resource_id
-          HAVING (
-            max(expires_at) IS NULL OR max(expires_at) < NOW()
-          )
-        ) expired_secrets
-        WHERE name = 'ttl'
+        ) e ON ttl.resource_id = e.resource_id
+        WHERE ttl.name = 'ttl' 
+        AND (
+          e.expires_at < NOW() OR e.expires_at IS NULL
+        )
       EOS
       ].all
     end
