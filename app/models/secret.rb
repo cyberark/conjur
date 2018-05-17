@@ -49,13 +49,40 @@ class Secret < Sequel::Model
       EOS
       ].all
     end
+
+    # TODO optimize
+    #
+    def latest_resource_values(resource_ids)
+      # Equivalent query in pure SQL
+      #
+      # query = <<-EOS
+      #   SELECT t.resource_id, t.version, t.value
+      #   FROM secrets t
+      #   JOIN (
+      #     SELECT resource_id, MAX(version) AS version
+      #     FROM secrets
+      #     GROUP BY resource_id
+      #   ) max_versions ON (
+      #     max_versions.resource_id = t.resource_id
+      #     AND max_versions.version = t.version
+      #   )
+      #   WHERE t.resource_id IN ?
+      # EOS
+      # Sequel::Model.db[query, resource_ids]
+
+      max_versions = Secret
+        .select_group(:resource_id)
+        .select_append{ max(:version).as(:version) }
+
+      Secret
+        .join(max_versions.as(:max_versions),
+              :resource_id => :resource_id,
+              :version => :version)
+        .where(Sequel[:secrets][:resource_id] => resource_ids)
+        .select(Sequel[:secrets][:resource_id],
+                Sequel[:secrets][:value])
+    end
   end
-      # Secret
-      #   .join(:annotations, resource_id: :resource_id)
-      #   .where{ expires_at < Sequel.function(:NOW) }
-      #   .where( is_expired: false)
-      #   .where( annotations__name: 'ttl')
-      #   .select( :annotations__value )
 
   def as_json options = {}
     super(options.merge(except: :value)).tap do |response|

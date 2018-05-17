@@ -11,9 +11,9 @@ module Rotation
         "'{0}' is not a valid rotator, because it doesn't end in 'Rotator'"
       )
 
-      MissingRotateMethod = ::Util::ErrorClass.new(
+      FreshValuesMethodNotPresent = ::Util::ErrorClass.new(
         "'{0}' is not a valid rotator, because it does not have " +
-        "a `:rotate` method."
+        "a `:fresh_values` method."
       )
 
       def initialize(cls)
@@ -26,7 +26,7 @@ module Rotation
 
       def validate!
         raise DoesntEndWithRotator, own_name unless valid_name?
-        raise MissingRotateMethod, own_name unless valid_interface?
+        raise FreshValuesMethodNotPresent, own_name unless valid_interface?
       end
 
       private
@@ -36,7 +36,7 @@ module Rotation
       end
 
       def valid_interface?
-        @cls.method_defined?(:rotate)
+        @cls.method_defined?(:fresh_values)
       end
 
       def own_name
