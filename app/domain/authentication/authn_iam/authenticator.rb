@@ -22,7 +22,7 @@ module Authentication
         # JSON holding the AWS signed headers 
         @signed_aws_headers = JSON.parse input.password
 
-        is_trusted_by_aws? && (is_role_allowed_for_resource? host_role)
+        is_trusted_by_aws? && (iam_role_matches? host_role)
 
       end
 
@@ -53,17 +53,24 @@ module Authentication
 
       end
     
-      def is_role_allowed_for_resource? resource
+      def iam_role_matches? resource
     
         return false if resource.nil?
 
         is_allowed_role = false
     
-        resource_annotations = resource_annotations resource
-        split_assumed_role = @aws_response_hash["GetCallerIdentityResponse"]["GetCallerIdentityResult"]["Arn"].split("/")
-        caller_role_arn = (split_assumed_role.first split_assumed_role.size - 1).join("/") # ARN (to match) by removing the last item 
+        split_assumed_role = @aws_response_hash["GetCallerIdentityResponse"]["GetCallerIdentityResult"]["Arn"].split(":")
 
-        JSON.parse(resource_annotations["iam_allowed_roles"]).include? caller_role_arn
+        # removes the last 2 parts of login to be substituted by the info from getCallerIdentity
+        host_prefix = (@login.split("/")[0..-3]).join("/")
+        aws_account_id = split_assumed_role[4]
+        aws_role_name = split_assumed_role[5].split("/")[1]
+
+        host_to_match = "#{host_prefix}/#{aws_account_id}/#{aws_role_name}"
+
+        Rails.logger.info("host to match = #{host_to_match}")
+
+        @login.eql? host_to_match
         
       end      
 
