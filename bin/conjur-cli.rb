@@ -80,7 +80,7 @@ command :server do |c|
 
     # Start the rotation "watcher" in a separate thread
     rotations_thread = Thread.new do
-      exec "rake expiration:watch"
+      exec "rake expiration:watch[#{account}]"
     end
     # Kill all of Conjur if rotations stop working
     rotations_thread.abort_on_exception = true
