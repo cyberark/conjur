@@ -1,24 +1,13 @@
 require 'iso_8601_duration'
+require 'master_rotator'
+require 'installed_rotators'
 
 namespace :expiration do
   desc "Watch for expired variables and rotate"
   task :watch => :environment do
 
-    #TODO: perhaps use clockwork / similar rather than a sleep loop
-    while true
-
-      Secret.required_rotations.each do |secret|
-        puts "Secret #{secret[:resource_id]} expired!  Resetting it..."
-        Sequel::Model.transaction do
-          Secret.create({
-            resource_id: secret[:resource_id],
-            expires_at: ISO8601Duration.new(secret[:ttl]).from_now,
-            value: SecureRandom.hex(5),
-          })
-        end
-      end
-      sleep(1)
-
-    end
+    #TODO how to do rake args
+    MasterRotator.new(rotators: InstalledRotators.new, account: account)
+      .rotate_every(1)
   end
 end

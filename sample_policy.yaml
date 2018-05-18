@@ -2,15 +2,15 @@
 - !variable
   id: rotate-10s
   annotations:
-    rotator: whatever
+    rotator: example/example-rotator
     ttl: PT10S
 - !variable
   id: rotate-15s
   annotations:
-    rotator: whatever
+    rotator: example/example-rotator
     ttl: PT15S
 - !variable
   id: rotate-60s
   annotations:
-    rotator: whatever
+    rotator: example/example-rotator
     ttl: PT60S

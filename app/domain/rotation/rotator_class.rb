@@ -11,9 +11,9 @@ module Rotation
         "'{0}' is not a valid rotator, because it doesn't end in 'Rotator'"
       )
 
-      FreshValuesMethodNotPresent = ::Util::ErrorClass.new(
+      NewValuesMethodNotPresent = ::Util::ErrorClass.new(
         "'{0}' is not a valid rotator, because it does not have " +
-        "a `:fresh_values` method."
+        "a `:new_values` method."
       )
 
       def initialize(cls)
@@ -26,7 +26,7 @@ module Rotation
 
       def validate!
         raise DoesntEndWithRotator, own_name unless valid_name?
-        raise FreshValuesMethodNotPresent, own_name unless valid_interface?
+        raise NewValuesMethodNotPresent, own_name unless valid_interface?
       end
 
       private
@@ -36,7 +36,7 @@ module Rotation
       end
 
       def valid_interface?
-        @cls.method_defined?(:fresh_values)
+        @cls.method_defined?(:new_values)
       end
 
       def own_name
@@ -58,8 +58,12 @@ module Rotation
       @cls.respond_to?(:required_variables)
     end
 
+    # For example: "aws/some-variable"
+    #
     def annotation_name
-      name_aware.parent_name.underscore.dasherize
+      qualifier = name_aware.parent_name.underscore.dasherize
+      name      = name_aware.own_name.underscore.dasherize
+      "#{qualifier}/#{name}"
     end
 
     def name_aware

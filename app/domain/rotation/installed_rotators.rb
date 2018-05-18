@@ -8,7 +8,7 @@
 module Rotation
   class InstalledRotators
 
-    def self.new(env, rotators_module: ::Rotation::Rotators)
+    def self.new(rotators_module: ::Rotation::Rotators)
       ::Util::Submodules.of(rotators_module)
         .flat_map { |mod| ::Util::Submodules.of(mod) }
         .select { |cls| valid?(cls) }
@@ -18,6 +18,9 @@ module Rotation
 
     private
 
+    # The "annotation_name" is how the name of the rotator used in policy.yml,
+    # as a variable annotation.
+    #
     def self.annotation_name(rotator)
       ::Rotation::RotatorClass.new(rotator).annotation_name
     end
