@@ -78,18 +78,6 @@ module Authentication
         host_role ||= ::Resource[::Authentication::MemoizedRole.roleid_from_username(@account, @login)]
       end
 
-      def service
-        @service ||= ::Resource["#{@account}:webservice:conjur/#{@authn_name}/#{@service_id}"]
-      end
-
-      def resource_annotations resource
-        Hash[resource.annotations.collect { |item| [item.name, item.value] } ]
-      end
-          
-      def service_annotations
-        @service_annotations ||= resource_annotations service
-      end
-
     end
 
   end
