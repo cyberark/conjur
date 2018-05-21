@@ -8,6 +8,7 @@ To start the application server, run:
 Usage: start [options]
     --authn-ldap    Starts OpenLDAP server and loads a demo policy to enable authentication via:
                     'curl -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate'
+    --authn-iam     Starts with authn-iam/prod as authenticator
     -h, --help      Shows this help message.
 EOF
 exit
@@ -17,9 +18,11 @@ unset COMPOSE_PROJECT_NAME
 
 # Determine which extra services should be loaded when working with authenticators
 ENABLE_AUTHN_LDAP=false
+ENABLE_AUTHN_IAM=false
 while true ; do
   case "$1" in
     --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
+    --authn-iam ) ENABLE_AUTHN_IAM=true ; shift ;;
     -h | --help ) print_help ; shift ;;
      * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
   esac
@@ -50,6 +53,11 @@ if [[ $ENABLE_AUTHN_LDAP = true ]]; then
   env_args="$env_args -e LDAP_BINDDN=cn=admin,dc=conjur,dc=net"
   env_args="$env_args -e LDAP_BINDPW=ldapsecret"
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-ldap/policy.yml
+fi
+
+if [[ $ENABLE_AUTHN_IAM = true ]]; then
+  env_args="$env_args -e CONJUR_AUTHENTICATORS=authn-iam/prod"
+  docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-iam/policy.yml
 fi
 
 docker-compose up -d --no-deps $services

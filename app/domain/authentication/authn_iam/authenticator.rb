@@ -1,96 +1,80 @@
-require 'active_support'
-require 'active_support/core_ext'
-require 'net/ldap'
+require 'net/http'
+require 'net/https'
 require 'json'
-require 'aws-sdk-iam'
-require 'aws-sdk-core'
-
 
 module Authentication
   module AuthnIam
-
     class Authenticator
-      
-      
+
+      InvalidAWSHeaders = ::Util::ErrorClass.new(
+        "'Invalid or Expired AWS Headers: {0}")
+
       def initialize(env:)
         @env = env
       end
 
       def valid?(input)
-        @authn_name, @account, @login, password, @service_id = input.authenticator_name, input.account, input.username, input.password, input.service_id
 
-        # JSON holding the AWS signed headers 
-        @signed_aws_headers = JSON.parse input.password
+        signed_aws_headers = JSON.parse input.password # input.password is JSON holding the AWS signed headers
 
-        is_trusted_by_aws? && (iam_role_matches? host_role)
+        response_hash = identity_hash(response_from_signed_request(signed_aws_headers))
+        trusted = response_hash != false
+
+        trusted && iam_role_matches?(input.username, response_hash)
 
       end
 
-      def is_trusted_by_aws?
+      def identity_hash(response)
 
-        url = 'https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15'
+        Rails.logger.debug("AWS IAM get_caller_identity body\n#{response.body} ")
 
-        # Executes the AWS Signed Request
-        uri = URI.parse(url)
-        https = Net::HTTP.new(uri.host,uri.port)
-        https.use_ssl = true
-        https.set_debug_output($stdout)
-        request = Net::HTTP::Get.new(url)
-
-        @signed_aws_headers.each do |key, value|
-          request.add_field(key, value)
+        if response.code < 300
+          Hash.from_xml(response.body)
+        else
+          Rails.logger.error("Verification of IAM identity failed with HTTP code: #{response.code}")
+          false
         end
 
-        res = https.request(request)
-
-        Rails.logger.info("request => #{request}")
-        Rails.logger.info("****> #{res.code} #{res.message}")
-        Rails.logger.info("**** Body -> #{res.body} ")
-
-        @aws_response_hash = Hash.from_xml(res.body) if res.code.eql? "200"
-
-        res.code.eql? "200"
-
       end
-    
-      def iam_role_matches? resource
-    
-        return false if resource.nil?
+
+      def iam_role_matches?(login, response_hash)
 
         is_allowed_role = false
-    
-        split_assumed_role = @aws_response_hash["GetCallerIdentityResponse"]["GetCallerIdentityResult"]["Arn"].split(":")
+
+        split_assumed_role = response_hash["GetCallerIdentityResponse"]["GetCallerIdentityResult"]["Arn"].split(":")
 
         # removes the last 2 parts of login to be substituted by the info from getCallerIdentity
-        host_prefix = (@login.split("/")[0..-3]).join("/")
-        aws_account_id = split_assumed_role[4]
+        host_prefix = (login.split("/")[0..-3]).join("/")
         aws_role_name = split_assumed_role[5].split("/")[1]
-
+        aws_account_id = response_hash["GetCallerIdentityResponse"]["GetCallerIdentityResult"]["Account"]
+        aws_user_id = response_hash["GetCallerIdentityResponse"]["GetCallerIdentityResult"]["UserId"]
         host_to_match = "#{host_prefix}/#{aws_account_id}/#{aws_role_name}"
 
-        Rails.logger.info("host to match = #{host_to_match}")
+        Rails.logger.debug("IAM Role authentication attempt by AWS user #{aws_user_id} with host to match = #{host_to_match}")
 
-        @login.eql? host_to_match
-        
-      end      
+        login.eql? host_to_match
 
-      def host_role
-        host_role ||= ::Resource[::Authentication::MemoizedRole.roleid_from_username(@account, @login)]
       end
 
-      def service
-        @service ||= ::Resource["#{@account}:webservice:conjur/#{@authn_name}/#{@service_id}"]
+      def aws_signed_url
+        return 'https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15'
       end
 
-      def resource_annotations resource
-        Hash[resource.annotations.collect { |item| [item.name, item.value] } ]
-      end
-          
-      def service_annotations
-        @service_annotations ||= resource_annotations service
+      def response_from_signed_request(aws_headers)
+
+        Rails.logger.debug("Retrieving IAM identity")
+        RestClient.log = Rails.logger
+        begin
+          RestClient.get(aws_signed_url, headers = aws_headers)
+        rescue RestClient::ExceptionWithResponse => e
+          Rails.logger.error("Verification of IAM identity Exception #{e.to_s}")
+          raise InvalidAWSHeaders, e.to_s
+        end
+
       end
 
     end
 
   end
+
 end
