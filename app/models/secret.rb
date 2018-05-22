@@ -53,34 +53,37 @@ class Secret < Sequel::Model
     # TODO optimize
     #
     def latest_resource_values(resource_ids)
-      # Equivalent query in pure SQL
-      #
-      # query = <<-EOS
-      #   SELECT t.resource_id, t.version, t.value
-      #   FROM secrets t
-      #   JOIN (
-      #     SELECT resource_id, MAX(version) AS version
-      #     FROM secrets
-      #     GROUP BY resource_id
-      #   ) max_versions ON (
-      #     max_versions.resource_id = t.resource_id
-      #     AND max_versions.version = t.version
-      #   )
-      #   WHERE t.resource_id IN ?
-      # EOS
-      # Sequel::Model.db[query, resource_ids]
-
       max_versions = Secret
         .select_group(:resource_id)
         .select_append{ max(:version).as(:version) }
 
-      Secret
-        .join(max_versions.as(:max_versions),
-              :resource_id => :resource_id,
-              :version => :version)
-        .where(Sequel[:secrets][:resource_id] => resource_ids)
+      latest_secrets = Secret
+        .left_join(max_versions.as(:max_versions),
+                   :resource_id => :resource_id,
+                   :version => :version)
         .select(Sequel[:secrets][:resource_id],
                 Sequel[:secrets][:value])
+
+      x = Resource
+        .left_join(latest_secrets.as(:latest_secrets),
+                   :resource_id => :resource_id)
+        .where(
+          Sequel[Sequel[:latest_secrets][:resource_id] => resource_ids] |
+          Sequel[Sequel[:latest_secrets][:resource_id] => nil]
+        )
+        .select(Sequel[:resources][:resource_id],
+                Sequel[:latest_secrets][:value].as(:value))
+        .all
+
+        # p latest_secrets.first.value
+
+        # p x.first.values
+        # p x.first.resource_id
+        # p x.first.latest_secrets.value, 'hey'
+        # p x.first.value
+        # .map(&:values)
+        #   .map {|x| [ x[:resource_id], x[:value].value ] }
+        # .to_h
     end
   end
 

@@ -21,7 +21,7 @@ module Rotation
       end
 
       def renamed(name)
-        new("#{account}:#{kind}:#{name}")
+        self.class.new("#{account}:#{kind}:#{name}")
       end
     end
 
@@ -35,7 +35,7 @@ module Rotation
 
       def initialize(resource_id:, ttl:, rotator_name:,
                      avail_rotators:, secret_model:)
-        @resource = Resource.new(resource_id)
+        @resource = ::Rotation::MasterRotator::Resource.new(resource_id)
         @ttl = ttl
         @rotator_name = rotator_name
         @avail_rotators = avail_rotators
@@ -43,8 +43,12 @@ module Rotation
         validate!
       end
 
+      # Really this is a pipeline, but it's hard to express it as such in ruby:
+      #
+      # current_values | name_keys | new_values | resource_id_keys
+      #
       def new_values
-        rotator.new_values(current_values)
+        resource_id_keys(rotator.new_values(name_keys(current_values)))
       end
 
       private
@@ -58,11 +62,22 @@ module Rotation
       end
 
       def required_resources
-        rotator.required_variables.map { |var| resource.renamed(var) }
+        rotator.required_variables.map { |var| resource.renamed(var).id }
       end
 
       def validate!
         raise RotatorNotFound, rotator_name unless rotator
+      end
+
+      def name_keys(vals_by_resource_id)
+        p vals_by_resource_id
+        vals_by_resource_id.map do |resource_id, val|
+          [::Rotation::MasterRotator::Resource.new(resource_id).name, val]
+        end.to_h
+      end
+
+      def resource_id_keys(vals_by_name)
+        vals_by_name.map { |name, val| [resource.renamed(name).id, val] }.to_h
       end
     end
 
@@ -112,6 +127,7 @@ module Rotation
     def update_all_secrets(new_values, ttl)
       Sequel::Model.db.transaction do
         new_values.each do |resource_id, value|
+          puts "updating #{resource_id}, #{value}"
           update_secret(resource_id, value, ttl)
         end
       end
@@ -126,5 +142,3 @@ module Rotation
     end
   end
 end
-__END__
-Recall each rotator has a `required_variables` method by which it can specify the hash of `{variable_id => value }` that will be passed to its `rotate` method.  the variable ids are resource ids of the form `<acct>:<kind>:<id>`.  but where does `<acct>` come from?  clearly we don't want to hard code it into the rotator.  but since the rotator is just run when the server boots up, there isn't (i don't think?) a logged in acct to asssociate with.  so i'm confused how this work.
