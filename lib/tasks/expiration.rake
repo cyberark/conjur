@@ -1,13 +1,12 @@
 require 'iso_8601_duration'
-require 'master_rotator'
-require 'installed_rotators'
+# require_relative '../../app/domain/rotation/master_rotator'
+# require_relative '../../app/domain/rotation/installed_rotators'
 
 namespace :expiration do
   desc "Watch for expired variables and rotate"
-  task :watch, [:account] => [:environment] do |t, args|
-
-    #TODO how to do rake args
-    MasterRotator.new(rotators: InstalledRotators.new, account: args.account)
-      .rotate_every(1)
+  task :watch => :environment do
+    Rotation::MasterRotator.new(
+      rotators: Rotation::InstalledRotators.new
+    ).rotate_every(1)
   end
 end

@@ -8,7 +8,7 @@ module Rotation
           @cnt = 0
         end
 
-        def required_variables(annotated_variable)
+        def required_variables
           # you could do a case statment and return different requirements
           # depending on the annotated variable...
           # 
@@ -17,6 +17,7 @@ module Rotation
         end
 
         def new_values(variable_values)
+          p 'variable_values', variable_values
           # calc some new values however you want...
           # return them as a {variable_name: new_value} Hash
           #

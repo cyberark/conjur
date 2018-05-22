@@ -27,9 +27,9 @@ class Secret < Sequel::Model
 # # SELECT artist_id, count(*) AS count FROM albums
 # # GROUP BY artist_id HAVING (count(*) >= 10)
 
-    def required_rotations
+    def scheduled_rotations
       Sequel::Model.db[<<-EOS
-        SELECT ttl.resource_id, ttl.value AS ttl, rotators.value AS rotator
+        SELECT ttl.resource_id, ttl.value AS ttl, rotators.value AS rotator_name
         FROM annotations ttl
         -- This ensures we get only entries with both
         -- a ttl and a rotator specified

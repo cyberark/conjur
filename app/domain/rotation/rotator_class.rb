@@ -54,16 +54,24 @@ module Rotation
       @cls = cls
     end
 
-    def needs_additional_variables?
-      @cls.respond_to?(:required_variables)
-    end
-
-    # For example: "aws/some-variable"
+    # The "annotation_name" is how the name of the rotator used in policy.yml,
+    # as a variable annotation.  For example: "aws/some-variable"
     #
     def annotation_name
       qualifier = name_aware.parent_name.underscore.dasherize
       name      = name_aware.own_name.underscore.dasherize
       "#{qualifier}/#{name}"
+    end
+
+    # Creates a new instance of the rotator class, and adds a "null"
+    # implementation of :required_variables method, if none exists
+    #
+    def instance
+      @cls.new.tap do |inst|
+        unless inst.respond_to?(:required_variables)
+          def inst.required_variables; [] end
+        end
+      end
     end
 
     def name_aware

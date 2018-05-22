@@ -1,21 +1,80 @@
 module Rotation
   class MasterRotator
 
-    RotatorNotFound = ::Util::ErrorClass.new(
-      "'{0}' is not an installed rotator"
-    )
+    class Resource
+      attr_reader :id
+
+      def initialize(resource_id)
+        @id = resource_id
+      end
+
+      def account
+        @id.split(':')[0]
+      end
+
+      def kind
+        @id.split(':')[1]
+      end
+
+      def name
+        @id.split(':', 3)[2]
+      end
+
+      def renamed(name)
+        new("#{account}:#{kind}:#{name}")
+      end
+    end
+
+    class ScheduledRotation
+
+      RotatorNotFound = ::Util::ErrorClass.new(
+        "'{0}' is not an installed rotator"
+      )
+
+      attr_reader :resource, :ttl, :rotator_name
+
+      def initialize(resource_id:, ttl:, rotator_name:,
+                     avail_rotators:, secret_model:)
+        @resource = Resource.new(resource_id)
+        @ttl = ttl
+        @rotator_name = rotator_name
+        @avail_rotators = avail_rotators
+        @secret_model = secret_model
+        validate!
+      end
+
+      def new_values
+        rotator.new_values(current_values)
+      end
+
+      private
+
+      def current_values
+        @secret_model.latest_resource_values(required_resources)
+      end
+
+      def rotator
+        @avail_rotators[rotator_name]
+      end
+
+      def required_resources
+        rotator.required_variables.map { |var| resource.renamed(var) }
+      end
+
+      def validate!
+        raise RotatorNotFound, rotator_name unless rotator
+      end
+    end
 
     # We inject both the rotation_model and the secret_model to ease unit
     # testing, and also because, even though the rotation query code was thrown
     # into Secret, it should probably be refactored out into its own model
     # class.  When that's done, it will require only a one word change here.
     #
-    def initialize(rotators:,
-                   account:,
+    def initialize(avail_rotators:,
                    rotation_model: Secret,
                    secret_model: Secret)
-      @rotators = rotators
-      @account = account
+      @avail_rotators = avail_rotators
       @rotation_model = rotation_model
       @secret_model = secret_model
     end
@@ -27,26 +86,22 @@ module Rotation
       end
     end
 
+    # We query the rotation model for that annotated_resource
     def rotate_all
-      rotations = rotation_model.required_rotations
-      Parallel.each(rotations, in_threads: 10) do |secret|
-
-        rotator = @rotators[secret['rotator']]
-        raise RotatorNotFound unless rotator
-
-        new_values = rotator.new_values(new_values_input(rotator))
-        update_all_secrets(new_values, secret['ttl'])
+      Parallel.each(scheduled_rotations, in_threads: 10) do |rotation|
+        update_all_secrets(rotation.new_values, rotation.ttl)
       end
     end
 
     private
 
-    def new_values_input(rotator)
-      resource_ids = resource_ids(rotator.required_variables)
-      secret_model
-        .latest_resource_values(resource_ids)
-        .map { |x| [variable_name(x.resource_id), x.value] }
-        .to_h
+    def scheduled_rotations
+      @rotation_model.scheduled_rotations.map do |rotation|
+        ScheduledRotation.new(rotation.merge({
+          avail_rotators: @avail_rotators,
+          secret_model: @secret_model
+        }))
+      end
     end
 
     # The rotator returns us a Hash of {resource_id: new_value} pairs
@@ -55,7 +110,7 @@ module Rotation
     # update inside a transaction.
     #
     def update_all_secrets(new_values, ttl)
-      Sequel::Model.transaction do
+      Sequel::Model.db.transaction do
         new_values.each do |resource_id, value|
           update_secret(resource_id, value, ttl)
         end
@@ -63,30 +118,12 @@ module Rotation
     end
 
     def update_secret(resource_id, value, ttl)
-      secret_model.create(
+      @secret_model.create(
         resource_id: resource_id,
         expires_at: ISO8601Duration.new(ttl).from_now,
         value: value
       )
     end
-
-    def required_variables(rotator)
-      rotator.respond_to?(:required_variables) ?
-        rotator.required_variables : []
-    end
-
-    def variable_name(resource_id)
-      resource_id.split(':', 3).last
-    end
-
-    def resource_ids(variable_names)
-      variable_names.map { |name| resource_id(name) }
-    end
-
-    def resource_id(variable_name)
-      "#{@account}:variable:#{variable_name}"
-    end
-
   end
 end
 __END__
