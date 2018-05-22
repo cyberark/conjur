@@ -55,6 +55,7 @@ module Rotation
 
       def current_values
         @secret_model.latest_resource_values(required_resources)
+        p 'current_values', current_values
       end
 
       def rotator
@@ -70,7 +71,6 @@ module Rotation
       end
 
       def name_keys(vals_by_resource_id)
-        p vals_by_resource_id
         vals_by_resource_id.map do |resource_id, val|
           [::Rotation::MasterRotator::Resource.new(resource_id).name, val]
         end.to_h

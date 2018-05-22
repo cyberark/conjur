@@ -57,23 +57,17 @@ class Secret < Sequel::Model
         .select_group(:resource_id)
         .select_append{ max(:version).as(:version) }
 
-      latest_secrets = Secret
+      Secret
         .left_join(max_versions.as(:max_versions),
                    :resource_id => :resource_id,
                    :version => :version)
+        .right_join(:resources, :resource_id => :resource_id)
+        .where(Sequel[:resources][:resource_id] => resource_ids)
         .select(Sequel[:secrets][:resource_id],
                 Sequel[:secrets][:value])
-
-      x = Resource
-        .left_join(latest_secrets.as(:latest_secrets),
-                   :resource_id => :resource_id)
-        .where(
-          Sequel[Sequel[:latest_secrets][:resource_id] => resource_ids] |
-          Sequel[Sequel[:latest_secrets][:resource_id] => nil]
-        )
-        .select(Sequel[:resources][:resource_id],
-                Sequel[:latest_secrets][:value].as(:value))
         .all
+        .map { |x| [x.resource_id, x.value] }
+        .to_h
 
         # p latest_secrets.first.value
 
