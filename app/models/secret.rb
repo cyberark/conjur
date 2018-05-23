@@ -53,31 +53,22 @@ class Secret < Sequel::Model
     # TODO optimize
     #
     def latest_resource_values(resource_ids)
+
       max_versions = Secret
         .select_group(:resource_id)
         .select_append{ max(:version).as(:version) }
 
-      Secret
-        .left_join(max_versions.as(:max_versions),
-                   :resource_id => :resource_id,
-                   :version => :version)
-        .right_join(:resources, :resource_id => :resource_id)
-        .where(Sequel[:resources][:resource_id] => resource_ids)
-        .select(Sequel[:secrets][:resource_id],
-                Sequel[:secrets][:value])
+      vals = Secret
+        .join(max_versions.as(:max_versions),
+              :resource_id => :resource_id,
+              :version => :version)
+        .where(Sequel[:secrets][:resource_id] => resource_ids)
+        .select(Sequel[:secrets][:resource_id], Sequel[:secrets][:value])
         .all
         .map { |x| [x.resource_id, x.value] }
         .to_h
 
-        # p latest_secrets.first.value
-
-        # p x.first.values
-        # p x.first.resource_id
-        # p x.first.latest_secrets.value, 'hey'
-        # p x.first.value
-        # .map(&:values)
-        #   .map {|x| [ x[:resource_id], x[:value].value ] }
-        # .to_h
+      resource_ids.map { |id| [id, nil] }.to_h.merge(vals)
     end
   end
 

@@ -43,8 +43,8 @@ module Rotation
         validate!
       end
 
-      # Really this is a pipeline, but it's hard to express it as such in ruby:
-      #
+      # This is a transformation pipeline, which we must express backwards in
+      # ruby:
       # current_values | name_keys | new_values | resource_id_keys
       #
       def new_values
@@ -55,7 +55,7 @@ module Rotation
 
       def current_values
         @secret_model.latest_resource_values(required_resources)
-        p 'current_values', current_values
+        # p 'current_values', current_values
       end
 
       def rotator
@@ -106,6 +106,9 @@ module Rotation
       Parallel.each(scheduled_rotations, in_threads: 10) do |rotation|
         update_all_secrets(rotation.new_values, rotation.ttl)
       end
+      # scheduled_rotations.each do |rotation|
+      #   update_all_secrets(rotation.new_values, rotation.ttl)
+      # end
     end
 
     private
@@ -127,7 +130,7 @@ module Rotation
     def update_all_secrets(new_values, ttl)
       Sequel::Model.db.transaction do
         new_values.each do |resource_id, value|
-          puts "updating #{resource_id}, #{value}"
+          puts "Updating #{resource_id} to #{value}.  ttl = #{ttl}"
           update_secret(resource_id, value, ttl)
         end
       end
