@@ -23,6 +23,10 @@ module Rotation
       def renamed(name)
         self.class.new("#{account}:#{kind}:#{name}")
       end
+
+      #TODO add this
+      #
+      # prefix = variable_id.match(%r{(.*)/.*})[1]
     end
 
     class ScheduledRotation
@@ -103,18 +107,19 @@ module Rotation
 
     # We query the rotation model for that annotated_resource
     def rotate_all
-      Parallel.each(scheduled_rotations, in_threads: 10) do |rotation|
-        update_all_secrets(rotation.new_values, rotation.ttl)
-      end
-      # scheduled_rotations.each do |rotation|
+      # Parallel.each(scheduled_rotations, in_threads: 10) do |rotation|
       #   update_all_secrets(rotation.new_values, rotation.ttl)
       # end
+      scheduled_rotations.each do |rotation|
+        update_all_secrets(rotation.new_values, rotation.ttl)
+      end
     end
 
     private
 
     def scheduled_rotations
       @rotation_model.scheduled_rotations.map do |rotation|
+        p 'scheduled_rotations', rotation
         ScheduledRotation.new(rotation.merge({
           avail_rotators: @avail_rotators,
           secret_model: @secret_model

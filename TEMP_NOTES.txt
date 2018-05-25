@@ -1,3 +1,83 @@
+Many rotators -- SSH keypair, SSH pubkey, for example -- won't fit into the "current variables in, variable updates out" pure function framework I've been developing for rotators.  Other kinds of mutations such as uploading a public key, logging into an ssh server and updating a private key, etc, need to be dealt with.
+
+So at the very least the rotator API consisting of an optional `required_variables` method and a required `new_values` method won't be sufficient.
+
+And even if we want to treat variable updates as a pure function, the rotators themselves will not be pure, in general, because of needs like the SSH rotators mentioned above.
+
+Alan suggested a design more similar to the existing rotators, where we'd pass rotators a facade object with a thin API exposing conjur operations such as `current_value(some_var)` and `update_value(some_var, new val)`, as well as any others that make sense.
+
+The rotator API would then revert to a single `rotate` method, and that method would be responsibly for gathering any current variable values needed, updating conjur variables, and for any other side effects such as uploading an SSH key.
+
+Thinking more about rotators like the SSH ones had brought home the importance of getting the parallel execution of the rotators to work.  Long IO blocking operations such as logging into servers and uploading certs make this paramount.
+
+In addition, we need clarity on requirements around retry strategies and error handling.
+
+While retry logic probably (?) belongs in the rotators themselves, how should error handling work?
+
+Should a rotator error always cause conjur itself to fail?
+
+Does it depend on the particular rotator?
+
+Should admins be notified?  If so, how?  Does _that_ depend on the rotator?
+
+It seems like this should be a first class concern.
+
+
+
+
+
+
+@kgilpin, so for the AWS rotator, this:
+```
+- !policy
+   id: aws
+   body:
+     - !variable region
+     - !variable access_key_id
+     - !variable secret_key_proxy
+     - !variable
+       id: secret_access_key
+       annotations:
+         rotation/rotator: aws/secret_key
+         rotation/ttl: P1D # 1 day
+```
+would become (slight change from my suggestion above, after writing it out I think we should created a list of the required_variables as an annotation):
+```
+- !policy
+   id: aws
+   body:
+     - !variable region
+     - !variable access_key_id
+     - !variable secret_key_proxy
+     - !variable
+       id: secret_access_key
+       annotations:
+         rotation/rotator: aws/secret_key
+         rotation/ttl: P1D # 1 day
+         rotation/required_variables: region,access_key_id,secret_access_key
+         rotation/foo: bar
+```
+which would result in the rotator receiving a runtime call like this:
+
+```
+rotator_instance.new_values({
+  region: <value of variable region>,
+  access_key_id: <value of variable access_key_id>,
+  secret_access_key: <value of variable secret_access_key>,
+  foo: bar
+})
+```
+
+@kgilpin
+
+To summarize my conversations with Alan from yesterday, I'll need to make the following changes to the current design:
+
+1. Remove the (currently optional) `required_variables` method from the rotator interface entirely.
+2. Replace it by instead passing to the rotator a hash of all the other annotations associated with any variable that has a `rotator` annotation.
+3. Such annotations may optionally be prefixed with `variable` (eg, in the case of the s3 rotator described here https://developer.conjur.net/reference/services/rotation#host_factory__s3, we would change `rotation/target/s3/access-key-id` to `rotation/variable/target/s3/access-key-id `).  This indicates that rather than passing the `value` of the annotation directly to the rotator at runtime, we instead consider `value` to be a reference to another conjur variable, and we look up the value of that variable, and pass that to the rotator at runtime.
+4. Question: Do we want to enforce the `rotation/` prefix used in the s3 rotator annotations for all rotators in general?  Or should we instead use the naked `rotator` and `ttl` annotations?  In cases where those exists, we could either send *all* other annotations to the rotator according to the rules described above, or send *only* those other annotations prefixed with `rotation/`.  I'd personally lean toward forcing the `rotation/` prefix for everything rotator related, or for not using it at all
+
+Thoughts?
 
 
 - v5 supports rotation
