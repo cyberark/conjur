@@ -55,8 +55,13 @@ module Rotation
           raise PrefixNotPresent, resource.id unless resource.prefix
         end
 
+        # TODO:
+        #
+        # Or maybe it could be done as (1) @pg.connect (2) start transaction (3)
+        # set new password (4) update password in conjur (5) commit transaction
+        # (6) close connection
         def update_password_in_conjur(new_pw)
-          @conjur.current_values({@password.id => new_pw})
+          @conjur.update_variables({@password.id => new_pw})
         end
 
         def update_password_in_db(new_pw)
@@ -69,7 +74,7 @@ module Rotation
         # TODO: wrap in domain specific error
         #
         def db_connection
-          connection = PG.connect(db_uri)
+          connection = @pg.connect(db_uri)
           connection.exec('SELECT 1')
           connection
         end
