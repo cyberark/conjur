@@ -64,3 +64,21 @@ Feature: List resources with various types of filtering
   Scenario: The resource list is counted.
     When I successfully GET "/resources/cucumber/test-resource?count=true"
     Then I receive a count of 3
+
+  Scenario: The resource list can be retrieved for a different role.
+
+    In this scenario, bob retrieves alice's resource list. Because he
+    has no privilege on it, if he retrieved it as himself, he wouldn't
+    see the new resource.
+
+    Given I create a new resource
+    And I create a new user "alice"
+    And I permit user "alice" to "fry" it
+    And I create a new user "bob"
+
+    When I login as "bob"
+    And I successfully GET "/resources?role=cucumber:user:alice"
+    Then the resource list should include the newest resource
+
+
+    
