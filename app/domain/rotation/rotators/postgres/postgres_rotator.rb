@@ -1,19 +1,5 @@
 require 'pg'
 
-# TODO: move into its own file under rotation
-#
-class ConjurFacadeForRotators
-  def current_values(variables)
-    # variables is an array of resource_ids
-    #
-    # Returns a Hash like {variable: value}
-  end
-
-  def update_variables(updates)
-    # updates is a Hash like {variable: new_value}
-  end
-end
-
 module Rotation
   module Rotators
     module Postgres
@@ -32,7 +18,7 @@ module Rotation
         #
         def initialize(
           password:,
-          conjur_facade: ConjurFacadeForRotators,
+          conjur_facade: ::Rotation::ConjurFacadeForRotators,
           password_factory: Base58Password,
           pg: PG
         )
@@ -43,6 +29,11 @@ module Rotation
           validate!
         end
 
+        # TODO:
+        #
+        # Or maybe it could be done as (1) @pg.connect (2) start transaction (3)
+        # set new password (4) update password in conjur (5) commit transaction
+        # (6) close connection
         def rotate
           new_pw = new_password
           update_password_in_db(new_pw)
@@ -55,11 +46,6 @@ module Rotation
           raise PrefixNotPresent, resource.id unless resource.prefix
         end
 
-        # TODO:
-        #
-        # Or maybe it could be done as (1) @pg.connect (2) start transaction (3)
-        # set new password (4) update password in conjur (5) commit transaction
-        # (6) close connection
         def update_password_in_conjur(new_pw)
           @conjur.update_variables({@password.id => new_pw})
         end

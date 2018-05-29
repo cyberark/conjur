@@ -1,26 +1,47 @@
-Many rotators -- SSH keypair, SSH pubkey, for example -- won't fit into the "current variables in, variable updates out" pure function framework I've been developing for rotators.  Other kinds of mutations such as uploading a public key, logging into an ssh server and updating a private key, etc, need to be dealt with.
+one    
+two \
+three
+four \
+five \ 
+six
+seven
 
-So at the very least the rotator API consisting of an optional `required_variables` method and a required `new_values` method won't be sufficient.
+append = false
+arr.reduce([]) do |m, x|
+  (append ? arr.last : m) << x
+  m
+end
 
-And even if we want to treat variable updates as a pure function, the rotators themselves will not be pure, in general, because of needs like the SSH rotators mentioned above.
 
-Alan suggested a design more similar to the existing rotators, where we'd pass rotators a facade object with a thin API exposing conjur operations such as `current_value(some_var)` and `update_value(some_var, new val)`, as well as any others that make sense.
 
-The rotator API would then revert to a single `rotate` method, and that method would be responsibly for gathering any current variable values needed, updating conjur variables, and for any other side effects such as uploading an SSH key.
 
-Thinking more about rotators like the SSH ones had brought home the importance of getting the parallel execution of the rotators to work.  Long IO blocking operations such as logging into servers and uploading certs make this paramount.
 
-In addition, we need clarity on requirements around retry strategies and error handling.
+All of these would be separate JIRA tasks.  This is a proposed priority order.  All open to debate /change:
 
-While retry logic probably (?) belongs in the rotators themselves, how should error handling work?
+- Write SSH keypair rotator (no tests yet, to verify design) 
+    - Thoughts: this is a safety measure and kevin suggested it, but we could probably skip this.  i'm fairly confident the facade design will work already. ofc, it needs to be done anyway at, so... This is a decision where you're balancing velocity with risk.  It will probably take 1-2 days fwiw.  I guess closer to one without tests)
+- Create `ConjurFacadeForRotators` (without tests)
+    - This is a pre-requisite for finishing new framework code
+- Update rotator framework code with new facade design (completes CONJ-5051)
+- Verify postgres rotator against framework
+    - Ie, the rotator I made today.  This would be manual verification only most likely, for now.
+- Cukes for rotation (completes CONJ-5052)
+    - These would be against the postgres rotator most likely.
+- Unit tests for rotation (completes CONJ-5053)
+- Cucumber tests for `ConjurFacadeForRotators`
+- Unit tests for `ConjurFacadeForRotators`
 
-Should a rotator error always cause conjur itself to fail?
+Once we get here, the base "v5 rotators" should be considered done.  Everything that comes after is either rotator implementation, or performance or feature enhancements.
 
-Does it depend on the particular rotator?
+- Parallel execution (completes 5067)
+    - Must solve the db (resource_id, version) conflict issue, either by updating the trigger code somehow, or doing locking.  Discussion with Alan / Kevin /Rafal important on this point.  Rafal in particular seems good with low-level db stuff and might have the best solution, he hasn't been involved yet in this discussion.
+- Porting of existing rotators (one task for each)
+- Locking and Rollback
+    - Kevin's points: first 2 items on Kevin's post here: https://conjurhq.slack.com/archives/CA8AT283D/p1527276364000369
+- Cron scheduling, and combo cron/ttl logic
+    - Point 3 of Kevin's same post linked above, and also the followup disucssion with Ryan and Kevin.
 
-Should admins be notified?  If so, how?  Does _that_ depend on the rotator?
 
-It seems like this should be a first class concern.
 
 
 

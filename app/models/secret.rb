@@ -52,7 +52,7 @@ class Secret < Sequel::Model
 
     # TODO optimize
     #
-    def latest_resource_values(resource_ids)
+    def current_values(resource_ids)
 
       max_versions = Secret
         .select_group(:resource_id)
