@@ -3,7 +3,7 @@ class Role < Sequel::Model
   
   unrestrict_primary_key
 
-  one_to_many :memberships, class: :RoleMembership
+  one_to_many :memberships, class: :RoleMembership, extend: MembershipSearch
   one_to_many :memberships_as_member, class: :RoleMembership, key: :member_id
   one_to_one  :credentials, reciprocal: :role
   

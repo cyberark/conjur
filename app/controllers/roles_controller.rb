@@ -1,5 +1,5 @@
 class RolesController < RestController
-  before_filter :find_role, only: [ :show, :all_memberships, :direct_memberships ]
+  before_filter :find_role, only: [ :show, :all_memberships, :direct_memberships, :members ]
 
   def show
     render json: @role.as_json.merge(members: @role.memberships)
@@ -46,7 +46,32 @@ class RolesController < RestController
     render json: json
   end
   
+  # Find all members of this role.
+  #
+  # For each member, return the full details of the grant as a
+  # JSON object
+  #
+  # +params[:count] returns only the number of members
+  # +params[:limit] and [:offset] control the paging
+  # +params[:search] returns only the members that match the search string
+  def members
+    filter_options, render_options = members_options
+
+    render_options[:order_by] ||= :member_id
+
+    members = @role.memberships_dataset
+                   .search(filter_options)
+                   .select(:role_memberships.*)
+
+    json = render_count_or_results(members, render_options)
+    render json: json
+  end
+
   protected
+
+  def render_count_or_results(dataset, render_options)
+    render_count(dataset, render_options) || render_results(dataset, render_options)
+  end
 
   def role_id
     [ params[:account], params[:kind], params[:identifier] ].join(":")
@@ -60,6 +85,13 @@ class RolesController < RestController
   def membership_options
     @membership_options ||= params.slice(:count, :filter).symbolize_keys
   end
+
+  def members_options
+    [
+      params.slice(:search).symbolize_keys,
+      params.slice(:count, :limit, :offset).symbolize_keys
+    ]
+  end
   
   def with_filter(options, &block)
     filter = options[:filter]
@@ -72,8 +104,18 @@ class RolesController < RestController
     filter ? roles.member_of(filter) : roles
   end
     
-  def render_count(roles, options)
-    { count: roles.count } if options.has_key?(:count)
+  def render_count(dataset, options)
+    { count: dataset.count } if options.has_key?(:count)
   end
   
+  def render_results(dataset, order_by: nil, offset: nil, limit: nil)
+    if offset || limit
+      dataset = dataset.order(order_by).limit(
+        (limit || 10).to_i,
+        (offset || 0).to_i
+      )
+    end
+
+    dataset.all
+  end
 end
