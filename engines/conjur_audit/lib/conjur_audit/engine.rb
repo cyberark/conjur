@@ -1,0 +1,25 @@
+module ConjurAudit
+  class Engine < ::Rails::Engine
+    isolate_namespace ConjurAudit
+    config.audit_database = ENV['AUDIT_DATABASE_URL']
+
+    initializer :connect_audit_database do
+      if (db = config.audit_database)
+        Message.set_dataset Sequel.connect(db)[:messages]
+      end
+    end
+
+    config.generators do |gen|
+      gen.test_framework :rspec
+      gen.assets false
+      gen.helper false
+      gen.template_engine false
+      gen.orm :sequel
+    end
+    
+    initializer :load_sequel_extensions do
+      Sequel::Model.db.extension :pg_json
+      Sequel.extension :pg_json_ops
+    end
+  end
+end

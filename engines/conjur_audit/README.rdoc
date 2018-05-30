@@ -1,0 +1,3 @@
+= ConjurAudit
+
+Rails engine to query the audit database. It's isolated and can be used standalone.

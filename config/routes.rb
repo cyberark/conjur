@@ -52,6 +52,6 @@ Rails.application.routes.draw do
     post "/host_factory_tokens" => 'host_factory_tokens#create'
     delete "/host_factory_tokens/:id" => 'host_factory_tokens#destroy'
 
-    mount Conjur::Audit::Railtie.app, at: '/audit' if Conjur::Audit::Railtie.app
+    mount ConjurAudit::Engine, at: '/audit'
   end
 end
