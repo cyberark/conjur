@@ -1,0 +1,5 @@
+.bundle/
+log/*.log
+pkg/
+/Gemfile.lock
+/spec/examples.txt

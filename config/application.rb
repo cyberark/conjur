@@ -14,7 +14,9 @@ require "action_controller/railtie"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-require "conjur/audit/railtie"
+# Workaround for debify not being able to use embedded gems.
+$LOAD_PATH.push File.expand_path "../../engines/conjur_audit/lib", __FILE__
+require 'conjur_audit'
 
 module Possum
   class Application < Rails::Application

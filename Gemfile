@@ -34,6 +34,9 @@ gem 'conjur-rack-heartbeat'
 gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'possum'
 gem 'rack-rewrite'
 
+# Putting this here currently confuses debify, so instead load it in application.rb
+# gem 'conjur_audit', path: 'engines/conjur_audit'
+
 gem 'simplecov', require: false
 
 gem 'sass-rails'
