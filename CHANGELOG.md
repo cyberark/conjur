@@ -15,6 +15,10 @@ permission on them.
 
 - Updated Ruby version from 2.2, which is no longer supported, to version 2.5. 
 
+### Added
+- Experimental audit querying engine mounted at /audit. It can be configured to work with
+an external audit database by using config.audit_database configuration entry.
+
 ## [0.4.0] - 2018-04-10
 ### Added
 - Policy changes now generate audit log messages. These can optionally be generated in RFC5424
