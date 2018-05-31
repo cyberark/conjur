@@ -1,0 +1,404 @@
+---
+DuplicateMethodCall:
+  exclude:
+  - Conjur::Audit::Webservice#to_path_hash
+  - RootLoader#load
+  - PossumWorld#current_user_credentials
+  - PossumWorld#denormalize
+  - PossumWorld#rest_resource
+  - verify_data
+  - ApplicationController#foreign_key_constraint_violation
+  - ApplicationController#policy_invalid
+  - ApplicationController#validation_failed
+  - CredentialsController#accept_id_parameter
+  - CredentialsController#authorize_self_or_update
+  - CredentialsController#rotate_api_key
+  - CredentialsController#update_password
+  - HostFactoriesController#create_host
+  - HostFactoriesController#verify_token
+  - PoliciesController#load_policy
+  - ResourcesController#index
+  - SecretsController#batch
+  - SecretsController#show
+  - Authentication::Security#validate_user_has_access
+  - Account#delete
+  - Annotation#as_json
+  - Credentials#expired?
+  - Exceptions::RecordNotFound#initialize
+  - HostBuilder#find_and_rotate
+  - HostFactoryToken#format_cidr
+  - Loader::Orchestrate#delete_removed
+  - Loader::Orchestrate#emit_audit
+  - Loader::Orchestrate#emit_audit#humanize_subject
+  - Loader::Orchestrate#initialize
+  - Loader::Orchestrate#load_records
+  - Loader::Orchestrate#table_data
+  - Loader::Types#create_root_policy
+  - Loader::Types::Delete#delete!
+  - Loader::Types::Group#create!
+  - Loader::Types::User#create!
+  - Loader::Types::Variable#create!
+  - Resource#as_json
+  - Role#api_key
+  - Role#as_json
+  - Role#make_full_id
+  - Role#password=
+  - Schemata#initialize
+  - connect
+  - connect#test_select
+FeatureEnvy:
+  exclude:
+  - Conjur::Audit::Webservice#filter
+  - Conjur::Audit::Webservice#to_path_hash
+  - ApplicationController#foreign_key_constraint_violation
+  - ApplicationController#no_matching_row
+  - ApplicationController#policy_invalid
+  - ApplicationController#record_exists
+  - ApplicationController#render_record_not_found
+  - ApplicationController#validation_failed
+  - PoliciesController#load_policy
+  - Authentication::Authn::Authenticator#valid?
+  - Authentication::AuthnLdap::Authenticator#initialize
+  - Authentication::Strategy#new_token
+  - Audit::RFC5424Formatter#call
+  - HostBuilder#find_and_rotate
+  - HostFactoryToken#cidr_mask
+  - HostFactoryToken#format_cidr
+  - Loader::Orchestrate#store_passwords
+  - PublicKey#key_name
+  - Resource#permit
+  - Resource#search
+  - Role#grant_to
+  - Role#make_full_id
+  - Secret#as_json
+IrresponsibleModule:
+  exclude:
+  - Conjur::Audit::Webservice
+  - CallSql
+  - CallSql::Sequel::Model
+  - String
+  - DummyToken
+  - PossumWorld
+  - ConjurToken
+  - AuthenticatorWorld
+  - FullId
+  - Entity
+  - Grant
+  - Group
+  - Permit
+  - PolEncoder
+  - Policy
+  - User
+  - Variable
+  - AccountsController
+  - ApplicationController
+  - ApplicationController::Forbidden
+  - ApplicationController::RecordExists
+  - ApplicationController::RecordNotFound
+  - ApplicationController::Unauthorized
+  - AuthenticateController
+  - Authenticates
+  - AuthorizeResource
+  - BasicAuthenticator
+  - CurrentUser
+  - FindResource
+  - TokenUser
+  - CredentialsController
+  - HostFactoriesController
+  - HostFactoryTokensController
+  - PoliciesController
+  - PublicKeysController
+  - ResourcesController
+  - RestController
+  - RolesController
+  - SecretsController
+  - StatusController
+  - Authentication::AuthenticatorClass
+  - Authentication::Authn::Authenticator
+  - Authentication::AuthnLdap::Authenticator
+  - Authentication::AuthnLdap::Server
+  - Authentication::InstalledAuthenticators
+  - Authentication::MemoizedRole
+  - Authentication::Security
+  - Authentication::Security::AccessRequest
+  - Authentication::Strategy::Input
+  - Authentication::Webservice
+  - Authentication::Webservices
+  - TokenFactory
+  - Types
+  - Util::ErrorClass
+  - Util::NameAwareModule
+  - Util::Submodules
+  - Account
+  - Audit
+  - Audit::LogMessage
+  - Audit::RFC5424Formatter
+  - Authenticate
+  - AuthnLocal
+  - Credentials
+  - Exceptions::Forbidden
+  - Exceptions::RecordExists
+  - Exceptions::RecordNotFound
+  - Functions
+  - HasId
+  - HostBuilder
+  - HostFactoryToken
+  - Loader::Orchestrate
+  - Loader::Types
+  - Loader::Types::Base
+  - Loader::Types::CreateResource
+  - Loader::Types::CreateRole
+  - Loader::Types::Delete
+  - Loader::Types::Deletion
+  - Loader::Types::Deny
+  - Loader::Types::Grant
+  - Loader::Types::Group
+  - Loader::Types::Host
+  - Loader::Types::HostFactory
+  - Loader::Types::Layer
+  - Loader::Types::Permit
+  - Loader::Types::Policy
+  - Loader::Types::Record
+  - Loader::Types::Resource
+  - Loader::Types::Revoke
+  - Loader::Types::Role
+  - Loader::Types::User
+  - Loader::Types::Variable
+  - Loader::Types::Webservice
+  - Permission
+  - Resource
+  - Role
+  - RoleMembership
+  - Schemata::Helper
+  - Possum::Application
+  - FalseClass
+  - TrueClass
+  - Sequel::Model
+  - QueryParameterActionRecognizer
+UncommunicativeParameterName:
+  exclude:
+  - CallSql::Sequel::Model#call_sql
+  - CallSql::Sequel::Model#select_from_function
+  - PolEncoder#encode_with
+  - Policy#initialize
+  - ApplicationController#argument_error
+  - ApplicationController#forbidden
+  - ApplicationController#foreign_key_constraint_violation
+  - ApplicationController#no_matching_row
+  - ApplicationController#policy_invalid
+  - ApplicationController#record_exists
+  - ApplicationController#record_not_found
+  - ApplicationController#render_record_not_found
+  - ApplicationController#unauthorized
+  - ApplicationController#validation_failed
+  - Resource#find_if_visible
+UncommunicativeMethodName:
+  exclude:
+  - String#decode64
+  - String#encode64
+UncommunicativeVariableName:
+  exclude:
+  - Delegator#init_with
+  - PossumWorld#authn_local_request
+  - PossumWorld#current_user_credentials
+  - PossumWorld#denormalize
+  - PossumWorld#rest_resource
+  - AuthenticatorWorld#post
+  - PossumWorld#invoke
+  - authenticator
+  - AuthenticateController#authenticate
+  - CurrentUser#current_user?
+  - ResourcesController#permitted_roles
+  - SecretsController#batch
+  - SecretsController#show
+  - Authentication::MemoizedRole#self.[]
+  - Util::ErrorClass#self.new
+  - Util::Submodules#self.of
+  - Account#list
+  - Audit::RFC5424Formatter#call
+  - Audit::RFC5424Formatter#format_sd
+  - Credentials#random_api_key
+  - HostBuilder#create
+  - HostFactoryToken#format_cidr
+  - HostFactoryToken#random_token
+  - HostFactoryToken#valid_origin?
+  - Loader::Orchestrate#emit_audit#sd_subject
+  - Loader::Orchestrate#update_changed
+  - Loader::Types::Grant#create!
+  - Loader::Types::Permit#create!
+  - PolicyVersion#create_records
+  - PolicyVersion#delete_records
+  - Resource#as_json
+TooManyStatements:
+  exclude:
+  - initialize
+  - RootLoader#load
+  - PossumWorld#authn_local_request
+  - PossumWorld#create_user
+  - PossumWorld#denormalize
+  - PossumWorld#lookup_user
+  - PossumWorld#rest_resource
+  - AuthenticatorWorld#post
+  - PossumWorld#invoke
+  - app_policy
+  - load_policy_update
+  - ApplicationController#foreign_key_constraint_violation
+  - ApplicationController#validation_failed
+  - HostFactoriesController#create_host
+  - HostFactoriesController#verify_token
+  - HostFactoryTokensController#create
+  - PoliciesController#load_policy
+  - ResourcesController#check_permission
+  - ResourcesController#index
+  - RolesController#with_filter
+  - SecretsController#batch
+  - SecretsController#create
+  - SecretsController#show
+  - Authentication::AuthnLdap::Authenticator#valid?
+  - Authentication::AuthnLdap::Server#self.new
+  - Authentication::Security#validate_user_has_access
+  - Account#create
+  - Account#delete
+  - Account#find_or_create_accounts_resource
+  - Account#list
+  - Audit::RFC5424Formatter#call
+  - AuthnLocal#issue_token
+  - AuthnLocal#run
+  - HostBuilder#create
+  - HostBuilder#find_and_rotate
+  - Loader::Orchestrate#create_schema
+  - Loader::Orchestrate#emit_audit
+  - Loader::Orchestrate#emit_audit#humanize_subject
+  - Loader::Orchestrate#load
+  - Loader::Orchestrate#load_records
+  - Loader::Orchestrate#store_passwords
+  - Loader::Orchestrate#table_data
+  - Loader::Orchestrate#update_changed
+  - Loader::Types::User#create!
+  - PolicyVersion#try_load_records
+  - PolicyVersion#validate
+  - Resource#as_json
+  - Resource#search
+  - Role#make_full_id
+  - connect
+ControlParameter:
+  exclude:
+  - PossumWorld#try_request
+  - Authentication::Strategy#validate_authenticator_exists
+  - Exceptions::RecordNotFound#initialize
+  - Loader::Orchestrate#emit_audit#humanize_subject
+  - Resource#search
+DataClump:
+  exclude:
+  - PossumWorld
+ManualDispatch:
+  exclude:
+  - PossumWorld#set_result
+  - Authentication::AuthenticatorClass#requires_env_arg?
+  - Audit::RFC5424Formatter#call
+  - Loader::Types::Delete#delete!
+  - Loader::Types::Record#create!
+UtilityFunction:
+  exclude:
+  - PossumWorld#admin_user
+  - PossumWorld#foreign_admin_user
+  - AuthenticatorWorld#admin_password
+  - AuthenticatorWorld#conjur_hostname
+  - AuthenticatorWorld#full_username
+  - FullId#make_full_id
+  - app_policy
+  - tag
+  - webservice
+  - input
+  - expectation_path
+  - policy_path
+  - db
+  - ApplicationController#error_code_of_exception_class
+  - ApplicationController#run_with_transaction
+  - TokenUser#token_user
+  - TokenUser#token_user?
+  - RolesController#render_count
+  - Authentication::AuthnLdap::Authenticator#blacklisted_ldap_user?
+  - Authentication::Security#default_conjur_authn?
+  - Account#slosilo_keystore
+  - Audit::RFC5424Formatter#format_sd
+  - Loader::Orchestrate#db
+  - Loader::Orchestrate#delete_removed#comparisons
+  - Loader::Orchestrate#emit_audit#humanize_subject
+  - Loader::Orchestrate#emit_audit#sd_subject
+  - Schemata#db
+  - secrets_version_limit
+  - Sequel::Model#write_id_to_json
+LongParameterList:
+  exclude:
+  - AuthenticatorWorld#authenticate_with_ldap
+  - input
+  - Authentication::AuthnLdap::Server#self.new
+  - Audit::RFC5424Formatter#call
+  - Loader::Orchestrate#delete_removed#comparisons
+  - Resource#search
+NestedIterators:
+  exclude:
+  - ApplicationController#validation_failed
+  - Audit::RFC5424Formatter#format_sd
+  - Loader::Orchestrate#delete_removed
+  - Loader::Orchestrate#eliminate_shadowed
+  - Loader::Orchestrate#update_changed
+  - Loader::Types::Grant#create!
+  - Loader::Types::Permit#create!
+InstanceVariableAssumption:
+  exclude:
+  - CredentialsController
+  - HostFactoriesController
+  - HostFactoryTokensController
+  - PoliciesController
+  - ResourcesController
+  - RolesController
+  - SecretsController
+  - Credentials
+  - Loader::Orchestrate
+  - PolicyVersion
+  - Secret
+NilCheck:
+  exclude:
+  - SecretsController#batch
+  - SecretsController#show
+  - Account#create
+  - Authenticate#self?
+  - HostFactoryToken#cidr_mask
+  - Schemata#initialize
+PrimaDonnaMethod:
+  exclude:
+  - Authentication::AuthenticatorClass::Validation
+  - Loader::Types::Delete
+  - Loader::Types::Deny
+  - Loader::Types::Grant
+  - Loader::Types::Group
+  - Loader::Types::HostFactory
+  - Loader::Types::Permit
+  - Loader::Types::Policy
+  - Loader::Types::Record
+  - Loader::Types::Revoke
+  - Loader::Types::User
+  - Loader::Types::Variable
+Attribute:
+  exclude:
+  - Audit#logger
+  - Authenticate#authenticated_role
+  - Authenticate#basic_user
+  - Authenticate#selected_role
+  - Credentials#password_required
+  - PolicyVersion#delete_permitted
+  - PolicyVersion#parse_error
+  - PolicyVersion#perform_automatic_deletion
+  - PolicyVersion#policy_filename
+  - PolicyVersion#update_permitted
+SubclassedFromCoreClass:
+  exclude:
+  - Audit::LogMessage
+TooManyInstanceVariables:
+  exclude:
+  - Loader::Orchestrate
+TooManyMethods:
+  exclude:
+  - Loader::Orchestrate

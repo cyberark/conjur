@@ -1,0 +1,10 @@
+PreCommit:
+  ALL:
+    problem_on_unmodified_line: warn
+
+  RuboCop:
+    enabled: true
+
+  Reek:
+    enabled: true
+
