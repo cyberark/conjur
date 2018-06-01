@@ -7,6 +7,15 @@ GIT
       activesupport (~> 4.2)
       safe_yaml
 
+GIT
+  remote: https://github.com/cyberark/conjur-api-ruby.git
+  revision: 099d6c8e11864f2561d0985c6325f4621edc3e27
+  branch: search_role_members
+  specs:
+    conjur-api (5.2.0)
+      activesupport
+      rest-client
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -70,9 +79,6 @@ GEM
       rspec (>= 2.14, < 4)
     coderay (1.1.1)
     concurrent-ruby (1.0.5)
-    conjur-api (5.1.0)
-      activesupport
-      rest-client
     conjur-cli (6.1.0)
       activesupport (>= 4.2, < 6)
       conjur-api (~> 5.1)
@@ -112,7 +118,7 @@ GEM
     docker-api (1.34.2)
       excon (>= 0.47.0)
       multi_json
-    domain_name (0.5.20170404)
+    domain_name (0.5.20180417)
       unf (>= 0.0.5, < 1.0.0)
     dry-configurable (0.7.0)
       concurrent-ruby (~> 1.0)
@@ -329,7 +335,7 @@ DEPENDENCIES
   bcrypt-ruby (~> 3.0.0)
   bootstrap-sass (~> 3.2.0)
   ci_reporter_rspec
-  conjur-api (~> 5.1)
+  conjur-api!
   conjur-cli (~> 6.1)
   conjur-debify
   conjur-policy-parser!
