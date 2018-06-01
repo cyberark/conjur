@@ -87,8 +87,11 @@ class RolesController < RestController
   end
 
   def members_options
+    # There is already a :kind parameter in the path so we need to specify
+    # that the role member params come from the query string.
+    params = request.query_parameters
     [
-      params.slice(:search).symbolize_keys,
+      params.slice(:search, :kind).symbolize_keys,
       params.slice(:count, :limit, :offset).symbolize_keys
     ]
   end

@@ -3,8 +3,10 @@
 # and paging of Role members
 module MembershipSearch
   # @param search [String] - a search term in the resource id
-  def search(search: nil)
+  def search(search: nil, kind: nil)
     scope = self
+
+    scope = scope.where(Sequel.lit("kind(member_id) in ?", Array(kind))) if kind
 
     # Filter by string search
     scope = scope.textsearch(search) if search
