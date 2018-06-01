@@ -49,6 +49,13 @@ The members of a role can be listed, searched, and paged.
         },
         {
             "admin_option": false,
+            "member": "cucumber:user:alicia",
+            "ownership": false,
+            "policy": "cucumber:policy:root",
+            "role": "cucumber:group:dev"
+        },
+        {
+            "admin_option": false,
             "member": "cucumber:user:bob",
             "ownership": false,
             "policy": "cucumber:policy:root",
@@ -57,13 +64,6 @@ The members of a role can be listed, searched, and paged.
         {
             "admin_option": false,
             "member": "cucumber:user:charlotte",
-            "ownership": false,
-            "policy": "cucumber:policy:root",
-            "role": "cucumber:group:dev"
-        },
-        {
-            "admin_option": false,
-            "member": "cucumber:user:alicia",
             "ownership": false,
             "policy": "cucumber:policy:root",
             "role": "cucumber:group:dev"
@@ -166,18 +166,18 @@ The members of a role can be listed, searched, and paged.
     """
     [
         {
-          "admin_option": true,
-          "member": "cucumber:user:admin",
-          "ownership": true,
-          "policy": "cucumber:policy:root",
-          "role": "cucumber:group:employees"
-        },
-        {
             "admin_option": false,
             "member": "cucumber:group:dev",
             "ownership": false,
             "policy": "cucumber:policy:root",
             "role": "cucumber:group:employees"
+        },
+        {
+          "admin_option": true,
+          "member": "cucumber:user:admin",
+          "ownership": true,
+          "policy": "cucumber:policy:root",
+          "role": "cucumber:group:employees"
         },
         {
             "admin_option": false,
@@ -190,6 +190,20 @@ The members of a role can be listed, searched, and paged.
     """
 
     When I successfully GET "/roles/cucumber/group/employees?members&kind[]=group"
+    Then the JSON should be:
+    """
+    [
+        {
+            "admin_option": false,
+            "member": "cucumber:group:dev",
+            "ownership": false,
+            "policy": "cucumber:policy:root",
+            "role": "cucumber:group:employees"
+        }
+    ]
+    """
+
+    When I successfully GET "/roles/cucumber/group/employees?members&kind=group"
     Then the JSON should be:
     """
     [

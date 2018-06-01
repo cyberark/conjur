@@ -93,6 +93,11 @@ class Role < Sequel::Model
     end.map(&:role)
   end
 
+  def members_dataset(search_options = {})
+    memberships_dataset.search(search_options)
+                       .select(:role_memberships.*)
+  end
+
   # Role grants are performed by the policy loader, but not exposed through the API.
   def grant_to member, options = {}
     options[:admin_option] ||= false
