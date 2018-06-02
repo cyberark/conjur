@@ -4,12 +4,9 @@ module Rotation
   #
   # Any updates to the Conjur database occur through here.
   #
-  # An instance of this facade is injected into the rotators when they are
-  # created.
-  #
-  # A new instance is created each time was pass it to `some_rotator.rotate`,
-  # because we have to allow for the possibility that the ttl of the
-  # `RotatedVariable` has changed.
+  # A new instance is created each time a rotator is run and passed to its
+  # `rotate` method, because we have to allow for the possibility that the ttl
+  # of the `RotatedVariable` has changed.
   #
   class ConjurFacade
 
@@ -31,11 +28,20 @@ module Rotation
     # group of related variables which all require rotation.  Since we want
     # to treat them as a unit, we do the update inside a transaction.
     #
-    def update_values(new_values)
+    # Additionally, the rotator may pass a block of code that it wants executed
+    # inside the same transaction.  If that code errors, everything will
+    # rollback.
+    #
+    # Eg, a database password rotator needs to both update conjur with its new
+    # value, and update the database itself.  These two updates must succeed or
+    # fail as a unit.
+    #
+    def update_values(new_values, &rotator_code)
       @db.transaction do
         new_values.each do |resource_id, value|
           update_secret(resource_id, value)
         end
+        rotator_code.call if rotator_code
       end
     end
 

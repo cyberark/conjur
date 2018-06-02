@@ -1,14 +1,11 @@
 remove old iso8601 hacked rails code
 
-@alan so how bout i send it the facade, which automatically takes care of adding ttl to variable updates, and also we have a method `facade.ttl` for rotators like the one you linked to?
-
-When rotation fails, though, it needs to be set to by some fraction of the ttl.
-
-I don't think there's really any need to have `expires_at` set on any variable other than the one being rotated. And, having the framework be able to update it is a really good thing.
-
-gotcha… so if ALTER fails, we want to roll it back, but if anything fails _after_ alter succeeds, we MUST swallow it
+gotcha… so if ALTER fails, we want to roll it back, but if anything fails
+_after_ alter succeeds, we MUST swallow it
 
 also don't forget the follower check, the query kevin gave me.
+
+
 
 # Testing
 - add test for dynamic ttl change

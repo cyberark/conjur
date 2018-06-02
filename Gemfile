@@ -12,6 +12,7 @@ gem 'rails', '~> 4.2'
 gem 'nokogiri', '>= 1.8.2'
 gem 'puma'
 gem 'iso8601'
+gem 'base58'
 
 gem 'sequel-rails'
 gem 'pg'
