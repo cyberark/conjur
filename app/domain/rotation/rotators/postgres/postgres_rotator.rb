@@ -17,8 +17,9 @@ module Rotation
         # of resource_id) 
         #
         def initialize(
+          # Add TTL here??
           password:,
-          conjur_facade: ::Rotation::ConjurFacadeForRotators,
+          conjur_facade: ::Rotation::ConjurFacade,
           password_factory: Base58Password,
           pg: PG
         )
@@ -47,6 +48,7 @@ module Rotation
         end
 
         def update_password_in_conjur(new_pw)
+          #TODO add ttl here
           @conjur.update_variables({@password.id => new_pw})
         end
 

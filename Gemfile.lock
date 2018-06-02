@@ -156,6 +156,7 @@ GEM
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     inflecto (0.0.2)
+    iso8601 (0.10.1)
     json (2.1.0)
     json_spec (1.1.5)
       multi_json (~> 1.0)
@@ -338,6 +339,7 @@ DEPENDENCIES
   font-awesome-sass (~> 4.7.0)
   gli
   haikunator (~> 1)
+  iso8601
   json_spec
   listen
   net-ldap

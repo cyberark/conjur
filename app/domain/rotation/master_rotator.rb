@@ -1,6 +1,58 @@
+require 'iso8601'
+
 module Rotation
   class MasterRotator
 
+    class ScheduledRotation
+      RotatorNotFound = ::Util::ErrorClass.new(
+        "'{0}' is not an installed rotator"
+      )
+
+      def initialize(avail_rotators:, facade:, secret_model:)
+        @avail_rotators = avail_rotators
+        @facade = facade
+        @secret_model = secret_model
+        validate!
+      end
+
+      def run
+        rotator_instance.rotate(@facade)
+      rescue => e
+        set_retry_expiration
+        log_error(e)
+      end
+
+      private
+
+      def validate!
+        raise RotatorNotFound, rotator_name unless rotator_cls
+      end
+
+      def set_retry_expiration
+        @secret_model.update_expiration(resource_id, retry_expiration)
+      end
+
+      def retry_expiration
+        next_exp = ::Rotation::NextExpiration.new(@facade.rotated_variable)
+        next_exp.after_error
+      end
+
+      def log_error(e)
+        # TODO: add to audit log (separate story)
+      end
+
+      def resource_id
+        @facade.rotated_variable.resource_id
+      end
+
+      def rotator_cls
+        @avail_rotators[rotator_name]
+      end
+
+      def rotator_instance
+        rotator_cls.new(@facade)
+      end
+    end
 
     # We inject both the rotation_model and the secret_model to ease unit
     # testing, and also because, even though the rotation query code was thrown
@@ -8,11 +60,13 @@ module Rotation
     # class.  When that's done, it will require only a one word change here.
     #
     def initialize(avail_rotators:,
-                   rotation_model: Secret,
-                   secret_model: Secret)
+                   rotation_model: ::Secret,
+                   secret_model: ::Secret,
+                   facade_cls: ::Rotation::ConjurFacade)
       @avail_rotators = avail_rotators
       @rotation_model = rotation_model
       @secret_model = secret_model
+      @facade_cls = facade_cls
     end
 
     def rotate_every(seconds)
@@ -22,48 +76,27 @@ module Rotation
       end
     end
 
-    # We query the rotation model for that annotated_resource
     def rotate_all
-      # Parallel.each(scheduled_rotations, in_threads: 10) do |rotation|
-      #   update_all_secrets(rotation.new_values, rotation.ttl)
-      # end
-      scheduled_rotations.each do |rotation|
-        update_all_secrets(rotation.new_values, rotation.ttl)
-      end
+      scheduled_rotations.each(&:run)
     end
 
     private
 
+    # SELECT ttl.resource_id, ttl.value AS ttl, rotators.value AS rotator_name
+    #
     def scheduled_rotations
       @rotation_model.scheduled_rotations.map do |rotation|
-        p 'scheduled_rotations', rotation
-        ScheduledRotation.new(rotation.merge({
+
+        rotated_var = ::Rotation::RotatedVariable.new(rotation)
+        facade = @facade_cls.new(rotated_var)
+
+        ScheduledRotation.new(
+          facade: facade,
           avail_rotators: @avail_rotators,
-          secret_model: @secret_model
-        }))
+          secret_model:  @secret_model
+        )
       end
     end
 
-    # The rotator returns us a Hash of {resource_id: new_value} pairs
-    # (new_values) that represent a group of related variables which all
-    # require rotation.  Since we want to treat them as a unit, we do the
-    # update inside a transaction.
-    #
-    def update_all_secrets(new_values, ttl)
-      Sequel::Model.db.transaction do
-        new_values.each do |resource_id, value|
-          puts "Updating #{resource_id} to #{value}.  ttl = #{ttl}"
-          update_secret(resource_id, value, ttl)
-        end
-      end
-    end
-
-    def update_secret(resource_id, value, ttl)
-      @secret_model.create(
-        resource_id: resource_id,
-        expires_at: ISO8601Duration.new(ttl).from_now,
-        value: value
-      )
-    end
   end
 end
