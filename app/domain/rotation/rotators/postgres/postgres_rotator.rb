@@ -15,9 +15,7 @@ module Rotation
           "The following variables are required: '{0}'"
         )
 
-        # TODO write Base58Password
-        #
-        def initialize(password_factory: Base58Password, pg: PG)
+        def initialize(password_factory: ::Rotation::Base58Password, pg: ::PG)
           @password_factory = password_factory
           @pg = pg
         end
