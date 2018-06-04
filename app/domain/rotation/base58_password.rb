@@ -13,7 +13,7 @@ module Rotation
     #
     ZERO_PAD_CHAR = Base58::ALPHABETS[:flickr][0]
 
-    def self.new(length)
+    def self.new(length:)
 
       valid = length > 0 && length.is_a?(Integer)
       raise ArgumentError, "length must be a positive integer" unless valid
@@ -29,8 +29,8 @@ module Rotation
       # that generating random numbers generates numbers less than 58^(length
       # - K)
 
-      rand_int = SecureRandom.random_number(58 ** length, :flickr)
-      Base58.int_to_base58(rand_int).rjust(length, ZERO_PAD_CHAR)
+      rand_int = SecureRandom.random_number(58 ** length)
+      Base58.int_to_base58(rand_int, :flickr).rjust(length, ZERO_PAD_CHAR)
     end
   end
 end

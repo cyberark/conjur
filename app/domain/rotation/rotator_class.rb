@@ -11,9 +11,9 @@ module Rotation
         "'{0}' is not a valid rotator, because it doesn't end in 'Rotator'"
       )
 
-      NewValuesMethodNotPresent = ::Util::ErrorClass.new(
+      RotateNotPresent = ::Util::ErrorClass.new(
         "'{0}' is not a valid rotator, because it does not have " +
-        "a `:new_values` method."
+        "a `:rotate` method."
       )
 
       def initialize(cls)
@@ -26,7 +26,7 @@ module Rotation
 
       def validate!
         raise DoesntEndWithRotator, own_name unless valid_name?
-        raise NewValuesMethodNotPresent, own_name unless valid_interface?
+        raise RotateNotPresent, own_name unless valid_interface?
       end
 
       private
@@ -36,7 +36,7 @@ module Rotation
       end
 
       def valid_interface?
-        @cls.method_defined?(:new_values)
+        @cls.method_defined?(:rotate)
       end
 
       def own_name
@@ -63,15 +63,10 @@ module Rotation
       "#{qualifier}/#{name}"
     end
 
-    # Creates a new instance of the rotator class, and adds a "null"
-    # implementation of :required_variables method, if none exists
+    # Creates a new instance of the rotator class
     #
     def instance
-      @cls.new.tap do |inst|
-        unless inst.respond_to?(:required_variables)
-          def inst.required_variables; [] end
-        end
-      end
+      @cls.new
     end
 
     def name_aware

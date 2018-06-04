@@ -16,16 +16,17 @@ module Rotation
       end
 
       def run
-        rotator_instance.rotate(@facade)
-      rescue => e
-        set_retry_expiration
-        log_error(e)
+        rotator.rotate(@facade)
+      # rescue => e
+      #   p "Catching error", e
+      #   set_retry_expiration
+      #   log_error(e)
       end
 
       private
 
       def validate!
-        raise RotatorNotFound, rotator_name unless rotator_cls
+        raise RotatorNotFound, rotator_name unless rotator
       end
 
       def set_retry_expiration
@@ -45,12 +46,12 @@ module Rotation
         @facade.rotated_variable.resource_id
       end
 
-      def rotator_cls
-        @avail_rotators[rotator_name]
+      def rotator_name
+        @facade.rotated_variable.rotator_name
       end
 
-      def rotator_instance
-        rotator_cls.new(@facade)
+      def rotator
+        @avail_rotators[rotator_name]
       end
     end
 
@@ -88,7 +89,8 @@ module Rotation
       @rotation_model.scheduled_rotations.map do |rotation|
 
         rotated_var = ::Rotation::RotatedVariable.new(rotation)
-        facade = @facade_cls.new(rotated_var)
+        facade = @facade_cls.new(rotated_variable: rotated_var)
+        p 'facade', facade
 
         ScheduledRotation.new(
           facade: facade,

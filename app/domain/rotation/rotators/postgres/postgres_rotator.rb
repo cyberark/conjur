@@ -28,8 +28,11 @@ module Rotation
         #       both updates happen, or neither do.
         #
         def rotate(facade)
+          resource_id = facade.rotated_variable.resource_id
+          puts "calling rotate"
           new_pw = new_password
-          pw_update = [resource_id, new_pw].to_h
+          puts "updating to #{new_pw}"
+          pw_update = [[resource_id, new_pw]].to_h
 
           facade.update_variables(pw_update) do
             update_password_in_db(new_pw)
@@ -37,15 +40,6 @@ module Rotation
         end
 
         private
-
-        # TODO: move to RotatedVariable?
-        #
-        # def validate!(resource)
-        #   raise PrefixNotPresent, resource.id unless resource.prefix
-        # end
-        def resource_id
-          @facade.rotated_variable.resource_id
-        end
 
         def update_password_in_db(new_pw)
           conn = db_connection

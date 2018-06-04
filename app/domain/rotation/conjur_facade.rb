@@ -36,7 +36,7 @@ module Rotation
     # value, and update the database itself.  These two updates must succeed or
     # fail as a unit.
     #
-    def update_values(new_values, &rotator_code)
+    def update_variables(new_values, &rotator_code)
       @db.transaction do
         new_values.each do |resource_id, value|
           update_secret(resource_id, value)
