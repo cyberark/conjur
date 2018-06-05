@@ -16,10 +16,10 @@ Feature: Obtain the memberships of a role
 
 
   Background:
-    Given I am a user named "alice"
+    Given I am the super-user
+    And I create a new user "alice"
 
   Scenario: The initial memberships of a role is just the role itself.
-    Given I create a new user "bob"
     When I successfully GET "/roles/cucumber/user/alice?all"
     Then the JSON should be:
     """

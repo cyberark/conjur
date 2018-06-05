@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Changed
+- RolesController#index now accepts `role` as a query parameter. If
+  present, resources visible to that role are listed.
+
 - Resources are now only visible if the user is a member of a role that owns them or has some
 permission on them.
 

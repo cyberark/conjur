@@ -3,11 +3,15 @@ When(/^I am the super\-user$/) do
 end
 
 When(/^I am a user named "([^"]*)"$/) do |login|
-  @selected_user = @current_user = create_user(login)
+  @selected_user = @current_user = create_user(login, admin_user)
 end
 
 Given(/^I create a new user "([^"]*)"$/) do |login|
-  create_user login
+  create_user login, @current_user || admin_user
+end
+
+Given(/^I create a new admin-owned user "(.*?)"$/) do |login|
+  create_user login, admin_user
 end
 
 Given(/^I create a new user "([^"]*)" in account "([^"]*)"$/) do |login, account|

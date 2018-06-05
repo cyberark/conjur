@@ -1,8 +1,9 @@
 class ResourcesController < RestController
   include FindResource
+  include AssumedRole
   
   before_filter :find_resource, only: [ :show, :permitted_roles, :check_permission ]
-    
+  
   def index
     options = params.slice(:account, :kind, :limit, :offset, :search).symbolize_keys
     
@@ -11,7 +12,7 @@ class ResourcesController < RestController
       options[:owner] = Role[ownerid] or raise Exceptions::RecordNotFound, ownerid
     end
     
-    scope = Resource.visible_to(current_user).search options
+    scope = Resource.visible_to(assumed_role).search options
 
     result =
       if params[:count] == 'true'
@@ -38,18 +39,14 @@ class ResourcesController < RestController
     render json: Role.that_can(privilege, @resource).map {|r| r.id}
   end
 
-  # Implements the use case "check MY permission on some resource", where "me" is defined as the +current_user+.
+  # Implements the use case "check permission on some resource",
+  # either for the role specified by the query string, or for the
+  # +current_user+.
   def check_permission
     privilege = params[:privilege]
     raise ArgumentError, "privilege" unless privilege
 
-    role = if role_id = params[:role]
-      Role[role_id] or raise Exceptions::RecordNotFound, role_id
-    else
-      current_user
-    end
-
-    if role.allowed_to?(privilege, @resource)
+    if assumed_role.allowed_to?(privilege, @resource)
       head :no_content
     else
       head :not_found

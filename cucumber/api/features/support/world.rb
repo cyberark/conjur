@@ -125,7 +125,7 @@ module PossumWorld
   end
   
   # Create a regular user, owned by the admin user
-  def create_user login = nil
+  def create_user login, owner
     unless login
       login = USER_NAMES[@user_index]
       @user_index += 1
@@ -136,7 +136,7 @@ module PossumWorld
     roleid = "cucumber:user:#{login}"
     Role.create(role_id: roleid).tap do |user|
       Credentials[role: user] or Credentials.new(role: user).save(raise_on_save_failure: true)
-      Resource.create(resource_id: roleid, owner: admin_user)
+      Resource.create(resource_id: roleid, owner: owner)
       users[login] = user
     end
   end
