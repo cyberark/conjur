@@ -5,7 +5,9 @@ module ConjurAudit
 
     initializer :connect_audit_database do
       if (db = config.audit_database)
-        Message.set_dataset Sequel.connect(db)[:messages]
+        db = Sequel.connect db
+        db.extension :pg_json
+        Message.set_dataset db[:messages]
       end
     end
 

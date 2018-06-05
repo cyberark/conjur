@@ -18,23 +18,42 @@ module ConjurAudit
       query.slice(*DIRECT_FIELDS)
     end
     
+    def sdata_query
+      query.except(*DIRECT_FIELDS, :resource, :role, :entity)
+    end
+
     # filter on RFC 5424 structured data
     # eg. subject@43868/role=foo looks for [subject@43868 role="foo"]
     def data_filter
-      query.except(*DIRECT_FIELDS).each_with_object({}) do |kv, filter|
+      sdata_query.each_with_object({}) do |kv, filter|
         key, value = kv
         id, param = key.to_s.split '/'
         (filter[id] ||= {})[param] = value
       end
     end
     
+    def messages_with_entity_filter
+      msgs = Message
+      if (id = params[:entity])
+        msgs = msgs.matching_entity id
+      end
+      if (res = params[:resource])
+        msgs = msgs.matching_resource res
+      end
+      if (rol = params[:role])
+        msgs = msgs.matching_role rol
+      end
+      msgs
+    end
+
     def messages_with_data_filter
       filter = data_filter
-      filter.empty? ? Message : Message.matching_sdata(filter)
+      msgs = messages_with_entity_filter
+      filter.empty? ? msgs : msgs.matching_sdata(filter)
     end
     
     def messages
-      @messages ||= messages_with_data_filter.where_all(direct_filter)
+      @messages ||= messages_with_data_filter.where(direct_filter).order(Sequel.desc(:timestamp)).all
     end
   end
 end

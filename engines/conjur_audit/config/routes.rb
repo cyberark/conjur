@@ -1,3 +1,8 @@
 ConjurAudit::Engine.routes.draw do
-  root 'messages#index'
+  scope format: false do
+    root 'messages#index'
+    get '/resources/:resource' => 'messages#index'
+    get '/roles/:role' => 'messages#index'
+    get '/entities/:entity' => 'messages#index'
+  end
 end
