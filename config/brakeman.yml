@@ -1,0 +1,2 @@
+skip_checks:
+- CheckForgerySetting # this doesn't make any sense for an API service
