@@ -1,8 +1,9 @@
 class ResourcesController < RestController
   include FindResource
-
+  include AssumedRole
+  
   before_filter :find_resource, only: [ :show, :permitted_roles, :check_permission ]
-
+  
   def index
     options = params.slice(:account, :kind, :limit, :offset, :search).symbolize_keys
     
@@ -11,7 +12,7 @@ class ResourcesController < RestController
       options[:owner] = Role[ownerid] or raise Exceptions::RecordNotFound, ownerid
     end
     
-    scope = Resource.visible_to(query_role).search options
+    scope = Resource.visible_to(assumed_role).search options
 
     result =
       if params[:count] == 'true'
@@ -45,26 +46,10 @@ class ResourcesController < RestController
     privilege = params[:privilege]
     raise ArgumentError, "privilege" unless privilege
 
-    if query_role.allowed_to?(privilege, @resource)
+    if assumed_role.allowed_to?(privilege, @resource)
       head :no_content
     else
       head :not_found
     end
   end
-
-  # Return the role to use when finding resources: either the role
-  # specified by the request, or the currently authenticated user.
-  def query_role
-    @query_role ||= if role_param
-                      Role[role_param] or raise RecordNotFound
-                    else
-                      current_user
-                    end
-  end
-
-  def role_param
-    # support :acting_as for backwards compatibility
-    params[:role].presence || params[:acting_as].presence
-  end
-  
 end
