@@ -51,6 +51,30 @@ class RolesController < RestController
     render_dataset(members) { |dataset| dataset.result_set(render_opts) }
   end
 
+  # update_member will add or modify an existing role membership
+  #
+  # This API endpoint exists to manage group entitlements through
+  # the UI or other integrations outside of loading a policy.
+  def update_member
+    member_id = params[:member]
+
+    member = Role[member_id]
+
+    @role.grant_to member
+  end
+
+  # delete_member will delete a role membership
+  #
+  # This API endpoint exists to manage group entitlements through
+  # the UI or other integrations outside of loading a policy.
+  def delete_member
+    member_id = params[:member]
+
+    membership = @role.memberships_dataset.where(member_id: member_id).first
+
+    membership.destroy
+  end
+
   protected
 
   def filter_params
