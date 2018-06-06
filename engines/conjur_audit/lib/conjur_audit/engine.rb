@@ -20,7 +20,7 @@ module ConjurAudit
     end
     
     initializer :load_sequel_extensions do
-      Sequel::Model.db.extension :pg_json
+      Message.db.extension :pg_json
       Sequel.extension :pg_json_ops
     end
   end
