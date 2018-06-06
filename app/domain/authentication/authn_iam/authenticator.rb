@@ -1,65 +1,51 @@
-require 'active_support'
-require 'active_support/core_ext'
-require 'net/ldap'
+require 'net/http'
+require 'net/https'
 require 'json'
-require 'aws-sdk-iam'
-require 'aws-sdk-core'
-
 
 module Authentication
   module AuthnIam
-
     class Authenticator
-      
       
       def initialize(env:)
         @env = env
       end
 
       def valid?(input)
-        @authn_name, @account, @login, password, @service_id = input.authenticator_name, input.account, input.username, input.password, input.service_id
+        @account, @login, password = input.account, input.username, input.password
 
         # JSON holding the AWS signed headers 
-        @signed_aws_headers = JSON.parse input.password
+        signed_aws_headers = JSON.parse password
 
-        is_trusted_by_aws? && (iam_role_matches? host_role)
+        response_hash = identity_response_hash(signed_aws_headers)
+        trusted = response_hash != false
+
+        (trusted) && (iam_role_matches? host_role, response_hash)
 
       end
 
-      def is_trusted_by_aws?
+      def identity_response_hash(signed_aws_headers)
 
-        url = 'https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15'
+        res = retrieve_iam_identity(signed_aws_headers)
 
-        # Executes the AWS Signed Request
-        uri = URI.parse(url)
-        https = Net::HTTP.new(uri.host,uri.port)
-        https.use_ssl = true
-        https.set_debug_output($stdout)
-        request = Net::HTTP::Get.new(url)
-
-        @signed_aws_headers.each do |key, value|
-          request.add_field(key, value)
-        end
-
-        res = https.request(request)
-
-        Rails.logger.info("request => #{request}")
         Rails.logger.info("****> #{res.code} #{res.message}")
         Rails.logger.info("**** Body -> #{res.body} ")
 
-        @aws_response_hash = Hash.from_xml(res.body) if res.code.eql? "200"
-
-        res.code.eql? "200"
+        if res.code.eql?("200")
+          Hash.from_xml(res.body)
+        else
+          Rails.logger.error("****> #{res.code} #{res.message}")
+          false
+        end      
 
       end
     
-      def iam_role_matches? resource
+      def iam_role_matches? resource, response_hash
     
         return false if resource.nil?
 
         is_allowed_role = false
     
-        split_assumed_role = @aws_response_hash["GetCallerIdentityResponse"]["GetCallerIdentityResult"]["Arn"].split(":")
+        split_assumed_role = response_hash["GetCallerIdentityResponse"]["GetCallerIdentityResult"]["Arn"].split(":")
 
         # removes the last 2 parts of login to be substituted by the info from getCallerIdentity
         host_prefix = (@login.split("/")[0..-3]).join("/")
@@ -76,6 +62,31 @@ module Authentication
 
       def host_role
         host_role ||= ::Resource[::Authentication::MemoizedRole.roleid_from_username(@account, @login)]
+      end
+
+      def base_aws_request
+        url = 'https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15'
+      
+        # Executes the AWS Signed Request
+        uri = URI.parse(url)
+        https = Net::HTTP.new(uri.host,uri.port)
+        https.use_ssl = true
+        https.set_debug_output($stdout)
+        return https, Net::HTTP::Get.new(url)
+      end
+
+      def retrieve_iam_identity(aws_headers)
+
+        Rails.logger.info("Retrieving IAM identity")
+        
+        https, aws_request = base_aws_request
+        aws_headers.each do |key, value|
+          aws_request.add_field(key, value)
+        end
+      
+        Rails.logger.info("aws_request: #{aws_request}")
+
+        https.request(aws_request)
       end
 
     end
