@@ -76,6 +76,11 @@ command :server do |c|
     Process.fork do
       exec "rake authn_local:run"
     end
+
+    # TODO add check to ensure this only runs on master
+    #
+    # SELECT pg_is_in_recovery() etc
+    #
     Process.fork do
       exec "rake expiration:watch"
     end

@@ -12,6 +12,12 @@ module Rotation
       @rotator_name = rotator_name
     end
 
+    # resource_ids have form such as:
+    #
+    #     my_account:variable:some/resource/name
+    #
+    # Below are convenience methods for parsing those parts
+    #
     def account
       @resource_id.split(':')[0]
     end
@@ -24,8 +30,20 @@ module Rotation
       @resource_id.split(':', 3)[2]
     end
 
-    def related_resource_id(name)
-      prefix = @resource_id.match(%r{(.*)/.*})[1]
+    # This assumes a single qualifying "prefix", eg:
+    #
+    #     my_account:variable:postgres/url
+    #     my_account:variable:postgres/username
+    #     my_account:variable:postgres/password
+    #
+    # and returns everything up to th first slash
+    #
+    def prefix
+      puts '@resource_id', @resource_id
+      @resource_id.match(%r{(.*)/.*})[1]
+    end
+
+    def sibling_id(name)
       "#{prefix}/#{name}"
     end
   end

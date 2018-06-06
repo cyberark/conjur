@@ -1,11 +1,21 @@
-remove old iso8601 hacked rails code
-
-gotcha… so if ALTER fails, we want to roll it back, but if anything fails
-_after_ alter succeeds, we MUST swallow it
+change nameing so its back compatible:
+   rotation/rotator: postgresql/password
 
 also don't forget the follower check, the query kevin gave me.
 
+ADD JIRA task for fixing docs in CLI (Access is misleading):
 
+      root@c4db5f4cb9b1:/src/conjur-server# conjur help variable
+      NAME
+          variable - Manage variables
+
+      SYNOPSIS
+          conjur [global options] variable value [-v arg|--version arg] VARIABLE
+          conjur [global options] variable values
+
+      COMMANDS
+          value  - Get a value
+          values - Access variable values
 
 # Testing
 - add test for dynamic ttl change
@@ -42,6 +52,8 @@ All of these would be separate JIRA tasks.  This is a proposed priority order.  
 
 Once we get here, the base "v5 rotators" should be considered done.  Everything that comes after is either rotator implementation, or performance or feature enhancements.
 
+
+
 - Parallel execution (completes 5067)
     - Must solve the db (resource_id, version) conflict issue, either by updating the trigger code somehow, or doing locking.  Discussion with Alan / Kevin /Rafal important on this point.  Rafal in particular seems good with low-level db stuff and might have the best solution, he hasn't been involved yet in this discussion.
 - Porting of existing rotators (one task for each)
@@ -51,106 +63,6 @@ Once we get here, the base "v5 rotators" should be considered done.  Everything 
     - Point 3 of Kevin's same post linked above, and also the followup disucssion with Ryan and Kevin.
 
 
-
-
-
-
-
-
-@kgilpin, so for the AWS rotator, this:
-```
-- !policy
-   id: aws
-   body:
-     - !variable region
-     - !variable access_key_id
-     - !variable secret_key_proxy
-     - !variable
-       id: secret_access_key
-       annotations:
-         rotation/rotator: aws/secret_key
-         rotation/ttl: P1D # 1 day
-```
-would become (slight change from my suggestion above, after writing it out I think we should created a list of the required_variables as an annotation):
-```
-- !policy
-   id: aws
-   body:
-     - !variable region
-     - !variable access_key_id
-     - !variable secret_key_proxy
-     - !variable
-       id: secret_access_key
-       annotations:
-         rotation/rotator: aws/secret_key
-         rotation/ttl: P1D # 1 day
-         rotation/required_variables: region,access_key_id,secret_access_key
-         rotation/foo: bar
-```
-which would result in the rotator receiving a runtime call like this:
-
-```
-rotator_instance.new_values({
-  region: <value of variable region>,
-  access_key_id: <value of variable access_key_id>,
-  secret_access_key: <value of variable secret_access_key>,
-  foo: bar
-})
-```
-
-@kgilpin
-
-To summarize my conversations with Alan from yesterday, I'll need to make the following changes to the current design:
-
-1. Remove the (currently optional) `required_variables` method from the rotator interface entirely.
-2. Replace it by instead passing to the rotator a hash of all the other annotations associated with any variable that has a `rotator` annotation.
-3. Such annotations may optionally be prefixed with `variable` (eg, in the case of the s3 rotator described here https://developer.conjur.net/reference/services/rotation#host_factory__s3, we would change `rotation/target/s3/access-key-id` to `rotation/variable/target/s3/access-key-id `).  This indicates that rather than passing the `value` of the annotation directly to the rotator at runtime, we instead consider `value` to be a reference to another conjur variable, and we look up the value of that variable, and pass that to the rotator at runtime.
-4. Question: Do we want to enforce the `rotation/` prefix used in the s3 rotator annotations for all rotators in general?  Or should we instead use the naked `rotator` and `ttl` annotations?  In cases where those exists, we could either send *all* other annotations to the rotator according to the rules described above, or send *only* those other annotations prefixed with `rotation/`.  I'd personally lean toward forcing the `rotation/` prefix for everything rotator related, or for not using it at all
-
-Thoughts?
-
-
-- v5 supports rotation
-- v5 has cukes for rotation
-- v5 has unit tests for rotation
-- rotation query is indexed and optimized (Rafal )
-
-
-
-As an alternative, how about we punt the actual rotation altogether? The code
-that's doing the expiration does a "puts" when it's time to rotate. So, it just
-loops, looking for Secrets that need to be rotated, then updates their
-expiration based on the ttl annotation.
-
-✓ Add the `expiration` field. 
-- Write a little service (or even test class) that will set the field to the
-  current timestamp. 
-- Then write a “watcher” which selects out the expired variables and invokes a
-  dummy “rotator”
-
-Then you’ll have the basic pieces working in a test system.
-
-Notes:
-
-- We can visit later whether we still need the “expiration” audit event, but
-  for now we don’t; and my guess is, we won’t bring these back.
-- The “expire” REST method will just set the expiration field in the DB, and
-  the “rotator” will pick up the expired variables.
-
-✓ Add the `expiration` field. 
-- Write a little service (or even test class) that will set the field to the
-  current timestamp. 
-- Then write a “watcher” which selects out the expired variables and invokes a
-  dummy “rotator”
-
-Then you’ll have the basic pieces working in a test system.
-
-Notes:
-
-- We can visit later whether we still need the “expiration” audit event, but
-  for now we don’t; and my guess is, we won’t bring these back.
-- The “expire” REST method will just set the expiration field in the DB, and
-  the “rotator” will pick up the expired variables.
 
 
 

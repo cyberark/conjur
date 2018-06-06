@@ -3,6 +3,48 @@ require 'iso8601'
 module Rotation
   class MasterRotator
 
+    # We inject both the rotation_model and the secret_model to ease unit
+    # testing, and also because, even though the rotation query code was thrown
+    # into Secret, it should probably be refactored out into its own model
+    # class.  When that's done, it will require only a one word change here.
+    #
+    def initialize(avail_rotators:,
+                   rotation_model: ::Secret,
+                   secret_model: ::Secret,
+                   facade_cls: ::Rotation::ConjurFacade)
+      @avail_rotators = avail_rotators
+      @rotation_model = rotation_model
+      @secret_model = secret_model
+      @facade_cls = facade_cls
+    end
+
+    def rotate_every(seconds)
+      loop do
+        rotate_all
+        sleep(seconds)
+      end
+    end
+
+    def rotate_all
+      scheduled_rotations.each(&:run)
+    end
+
+    private
+
+    def scheduled_rotations
+      @rotation_model.scheduled_rotations.map do |rotation|
+
+        rotated_var = ::Rotation::RotatedVariable.new(rotation)
+        facade = @facade_cls.new(rotated_variable: rotated_var)
+
+        ScheduledRotation.new(
+          facade: facade,
+          avail_rotators: @avail_rotators,
+          secret_model:  @secret_model
+        )
+      end
+    end
+
     class ScheduledRotation
       RotatorNotFound = ::Util::ErrorClass.new(
         "'{0}' is not an installed rotator"
@@ -17,6 +59,8 @@ module Rotation
 
       def run
         rotator.rotate(@facade)
+      # TODO: uncomment after done manual testing
+      #
       # rescue => e
       #   p "Catching error", e
       #   set_retry_expiration
@@ -52,51 +96,6 @@ module Rotation
 
       def rotator
         @avail_rotators[rotator_name]
-      end
-    end
-
-    # We inject both the rotation_model and the secret_model to ease unit
-    # testing, and also because, even though the rotation query code was thrown
-    # into Secret, it should probably be refactored out into its own model
-    # class.  When that's done, it will require only a one word change here.
-    #
-    def initialize(avail_rotators:,
-                   rotation_model: ::Secret,
-                   secret_model: ::Secret,
-                   facade_cls: ::Rotation::ConjurFacade)
-      @avail_rotators = avail_rotators
-      @rotation_model = rotation_model
-      @secret_model = secret_model
-      @facade_cls = facade_cls
-    end
-
-    def rotate_every(seconds)
-      loop do
-        rotate_all
-        sleep(seconds)
-      end
-    end
-
-    def rotate_all
-      scheduled_rotations.each(&:run)
-    end
-
-    private
-
-    # SELECT ttl.resource_id, ttl.value AS ttl, rotators.value AS rotator_name
-    #
-    def scheduled_rotations
-      @rotation_model.scheduled_rotations.map do |rotation|
-
-        rotated_var = ::Rotation::RotatedVariable.new(rotation)
-        facade = @facade_cls.new(rotated_variable: rotated_var)
-        p 'facade', facade
-
-        ScheduledRotation.new(
-          facade: facade,
-          avail_rotators: @avail_rotators,
-          secret_model:  @secret_model
-        )
       end
     end
 

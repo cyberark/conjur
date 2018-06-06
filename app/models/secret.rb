@@ -35,14 +35,14 @@ class Secret < Sequel::Model
         -- a ttl and a rotator specified
         JOIN annotations rotators ON (
           rotators.resource_id = ttl.resource_id
-          AND rotators.name = 'rotator'
+          AND rotators.name = 'rotation/rotator'
         )
         LEFT JOIN (
           SELECT resource_id, MAX(expires_at) AS expires_at
           FROM secrets
           GROUP BY resource_id
         ) e ON ttl.resource_id = e.resource_id
-        WHERE ttl.name = 'ttl' 
+        WHERE ttl.name = 'rotation/ttl' 
         AND (
           e.expires_at < NOW() OR e.expires_at IS NULL
         )

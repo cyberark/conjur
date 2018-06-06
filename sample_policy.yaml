@@ -1,16 +1,12 @@
----
-- !variable
-  id: rotate-10s
-  annotations:
-    rotator: postgres/password-rotator
-    ttl: PT10S
-- !variable
-  id: rotate-15s
-  annotations:
-    rotator: postgres/password-rotator
-    ttl: PT15S
-- !variable
-  id: rotate-60s
-  annotations:
-    rotator: postgres/password-rotator
-    ttl: PT60S
+- !policy
+   id: db-reports
+   body:
+     - &variables
+       - !variable url
+       - !variable username
+       - !variable
+         id: password
+         annotations:
+           rotation/rotator: postgres/password-rotator
+           rotation/ttl: PT10S
+           rotation/postgresql/password/length: 32
