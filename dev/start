@@ -55,8 +55,9 @@ if [[ $ENABLE_AUTHN_LDAP = true ]]; then
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-ldap/policy.yml
 fi
 
-if [[ $ENABLE_AUTHN_LDAP = true ]]; then
+if [[ $ENABLE_AUTHN_IAM = true ]]; then
   env_args="$env_args -e CONJUR_AUTHENTICATORS=authn-iam/prod"
+  docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-iam/policy.yml
 fi
 
 docker-compose up -d --no-deps $services
