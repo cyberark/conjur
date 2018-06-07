@@ -77,13 +77,15 @@ command :server do |c|
       exec "rake authn_local:run"
     end
 
-    # TODO add check to ensure this only runs on master
+    # Start the rotation watcher on master
     #
-    # SELECT pg_is_in_recovery() etc
-    #
-    Process.fork do
-      exec "rake expiration:watch"
+    is_master = !Sequel::Model.db['SELECT pg_is_in_recovery()'].first.values[0]
+    if is_master
+      Process.fork do
+        exec "rake expiration:watch"
+      end
     end
+
     Process.waitall
 
     # # Start the rotation "watcher" in a separate thread

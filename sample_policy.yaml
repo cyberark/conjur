@@ -7,6 +7,6 @@
        - !variable
          id: password
          annotations:
-           rotation/rotator: postgres/password-rotator
+           rotation/rotator: postgresql/password
            rotation/ttl: PT10S
            rotation/postgresql/password/length: 32

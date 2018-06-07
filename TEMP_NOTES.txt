@@ -1,3 +1,27 @@
+- password length annotation works
+- rotation works
+- rotation timing works
+- updated in both places (conjur and rotated_db)
+- fails in one then fails in both
+    - rotated_db fails.  how to test this?  disconnect the db?  give it a bad
+      user name via policy
+    - conjur fails -- how to test this?
+- changing ttl dynamically works
+
+
+I'd say make a new class in lib. You can even make it a sequel database extension (these are trivial to structure, there are plenty included in the base sequel gem, just sort by file size and look into the smallest) and load it in the sequel initializer.
+BTW, I think you can do `db.single_value Sequel.function :pg_is_in_recovery` or somesuch
+If you make it into an extension you'll be able to say `db.in_recovery?` which is nea
+
+
+Kevin's Tests:
+    https://github.com/conjurinc/secretless/tree/master/test/pg_handler
+
+Use API from tests:
+  https://github.com/conjurinc/conjur-ui/blob/master/features/support/test_policies.rb#L55
+
+
+
 change nameing so its back compatible:
    rotation/rotator: postgresql/password
 

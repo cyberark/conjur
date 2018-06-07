@@ -2,9 +2,9 @@ require 'pg'
 
 module Rotation
   module Rotators
-    module Postgres
+    module Postgresql
 
-      class PasswordRotator
+      class Password
 
         # TODO: add these back in
         #
