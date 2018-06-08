@@ -72,8 +72,8 @@ class Resource < Sequel::Model
       scope = self
       
       # Filter by kind and account.
-      scope = scope.where("account(resource_id) = ?", account) if account
-      scope = scope.where("kind(resource_id) = ?", kind) if kind
+      scope = scope.where(Sequel.lit("account(resource_id) = ?", account)) if account
+      scope = scope.where(Sequel.lit("kind(resource_id) = ?", kind)) if kind
       
       # Filter by owner
       if owner
