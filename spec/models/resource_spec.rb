@@ -13,7 +13,8 @@ describe Resource, :type => :model do
       the_resource.reload
       hash = JSON.parse(the_resource.to_json)
       expect(hash.delete("created_at")).to be
-      expect(hash).to eq(as_json.stringify_keys)
+      expect(as_json.stringify_keys).to include(hash)
+      # expect(hash).to eq(as_json.stringify_keys)
     }
   end
   
