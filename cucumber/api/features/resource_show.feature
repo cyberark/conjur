@@ -34,7 +34,8 @@ Feature: Fetch resource details.
       ],
       "secrets": [
         {
-          "version": 1
+          "version": 1,
+          "expires_at": null
         }
       ]
     }

@@ -70,7 +70,6 @@ command :server do |c|
       system "rake policy:load[#{account},#{file_name}]" or exit $?.exitstatus
     end
 
-
     Process.fork do
       exec "rails server -p #{options[:port]} -b #{options[:'bind-address']}"
     end
@@ -78,7 +77,29 @@ command :server do |c|
       exec "rake authn_local:run"
     end
 
+    # Start the rotation watcher on master
+    #
+    is_master = !Sequel::Model.db['SELECT pg_is_in_recovery()'].first.values[0]
+    if is_master
+      Process.fork do
+        exec "rake expiration:watch"
+      end
+    end
+
     Process.waitall
+
+    # # Start the rotation "watcher" in a separate thread
+    # rotations_thread = Thread.new do
+    #   # exec "rake expiration:watch[#{account}]"
+    #   # exec "rake expiration:watch"
+    #   Rotation::MasterRotator.new(
+    #     avail_rotators: Rotation::InstalledRotators.new
+    #   ).rotate_every(1)
+    #   end
+    # # Kill all of Conjur if rotations stop working
+    # rotations_thread.abort_on_exception = true
+    # rotations_thread.join
+
   end
 end
 

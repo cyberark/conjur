@@ -55,6 +55,7 @@ GEM
     autoprefixer-rails (7.1.2.3)
       execjs
     base32-crockford (0.1.0)
+    base58 (0.2.3)
     bcrypt-ruby (3.0.1)
     bootstrap-sass (3.2.0.2)
       sass (~> 3.2)
@@ -156,6 +157,7 @@ GEM
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     inflecto (0.0.2)
+    iso8601 (0.10.1)
     json (2.1.0)
     json_spec (1.1.5)
       multi_json (~> 1.0)
@@ -323,6 +325,7 @@ DEPENDENCIES
   aruba
   autoprefixer-rails
   base32-crockford
+  base58
   bcrypt-ruby (~> 3.0.0)
   bootstrap-sass (~> 3.2.0)
   ci_reporter_rspec
@@ -338,6 +341,7 @@ DEPENDENCIES
   font-awesome-sass (~> 4.7.0)
   gli
   haikunator (~> 1)
+  iso8601
   json_spec
   listen
   net-ldap
