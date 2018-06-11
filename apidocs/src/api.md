@@ -64,6 +64,8 @@ Only the twenty most recent values in a Variable are retained; this prevents the
 
 <!-- include(show_role.md) -->
 
+<!-- include(list_role_members.md) -->
+
 <!-- include(list_resources.md) -->
 
 <!-- include(show_resource.md) -->

@@ -30,7 +30,9 @@ gem 'gli', require: false
 # Gem::InstallError: ruby_dep requires Ruby version >= 2.2.5, ~> 2.2.
 gem 'ruby_dep', '= 1.3.1'
 
-gem 'conjur-api', '~> 5.1'
+ # Pinned to update for role member search, using ref so merging and removing the branch doesn't
+ # immediately break this link
+gem 'conjur-api', github: 'cyberark/conjur-api-ruby', branch: 'search_role_members'
 gem 'conjur-rack', '~> 3.1'
 gem 'conjur-rack-heartbeat'
 gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'possum'

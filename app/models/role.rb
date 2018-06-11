@@ -3,7 +3,7 @@ class Role < Sequel::Model
   
   unrestrict_primary_key
 
-  one_to_many :memberships, class: :RoleMembership
+  one_to_many :memberships, class: :RoleMembership, extend: MembershipSearch
   one_to_many :memberships_as_member, class: :RoleMembership, key: :member_id
   one_to_one  :credentials, reciprocal: :role
   
@@ -91,6 +91,11 @@ class Role < Sequel::Model
     memberships_as_member.select do |membership|
       membership.role.kind == "layer"
     end.map(&:role)
+  end
+
+  def members_dataset(search_options = {})
+    memberships_dataset.search(search_options)
+                       .select(:role_memberships.*)
   end
 
   # Role grants are performed by the policy loader, but not exposed through the API.

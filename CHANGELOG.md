@@ -16,7 +16,10 @@ permission on them.
 - RolesController now implements #direct_memberships to return the
   direct members of a role, without recursive expansion.
 
-- Updated Ruby version from 2.2, which is no longer supported, to version 2.5. 
+- Updated Ruby version from 2.2, which is no longer supported, to version 2.5.
+
+- RolesController now implements #members to return a searchable, pageable collection
+  of members of a Role.
 
 ### Added
 - Experimental audit querying engine mounted at /audit. It can be configured to work with

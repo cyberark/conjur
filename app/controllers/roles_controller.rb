@@ -1,8 +1,7 @@
 class RolesController < RestController
-  before_filter :find_role, only: [ :show, :all_memberships, :direct_memberships ]
 
   def show
-    render json: @role.as_json.merge(members: @role.memberships)
+    render json: role.as_json.merge(members: role.memberships)
   end
 
   # Find all role memberships, expanded recursively. If no parameters
@@ -10,20 +9,13 @@ class RolesController < RestController
   #
   # If +params[:filter]+ is given, return (as role ids), the subset of
   # memberships that matches the filter
-  
+  #
   # If +params[:count]+ is given, return the count of memberships,
   # rather than the memberships themselves
   #
   def all_memberships
-    options = membership_options
-    
-    memberships = with_filter(options) do
-      @role.all_roles
-    end
-
-    json = render_count(memberships, options) || memberships.map(&:role_id)
-    
-    render json: json
+    memberships = filtered_roles(role.all_roles, membership_filter)
+    render_dataset(memberships) { |dataset| dataset.map(&:role_id) }
   end
 
   # Find all direct memberships, i.e don't recursively expand member
@@ -36,44 +28,71 @@ class RolesController < RestController
   # +params[:filter]+ and +params[:count]+ are handled as for +#all_memberships+
   #
   def direct_memberships
-    options = membership_options
-    
-    memberships = with_filter(options) do
-      @role.memberships_as_member_dataset
-    end
-
-    json = render_count(memberships, options) || memberships
-    render json: json
+    memberships = filtered_roles(role.memberships_as_member_dataset, membership_filter)
+    render_dataset(memberships)
   end
   
+  # Find all members of this role.
+  #
+  # For each member, return the full details of the grant as a
+  # JSON object
+  #
+  # +params[:count] returns only the number of members
+  # +params[:limit] and [:offset] control the paging
+  # +params[:search] returns only the members that match the search string
+  # +params[:kind] (array) returns only the members that match the specified kinds
+  def members
+    # There is already a :kind parameter in the path so we need to specify
+    # that the role member params come from the query string.
+    filter_opts = filter_params
+    render_opts = render_params
+
+    members = role.members_dataset(filter_opts)
+    render_dataset(members) { |dataset| dataset.result_set(render_opts) }
+  end
+
   protected
+
+  def filter_params
+    request.query_parameters.slice(:search, :kind).symbolize_keys
+  end
+
+  def render_params
+    params.slice(:limit, :offset).symbolize_keys
+  end
+
+  def membership_filter        
+    filter = params[:filter]
+    filter = Array(filter).map{ |id| Role.make_full_id id, account } if filter
+    return filter
+  end
+
+  def filtered_roles(roles, filter)
+    filter ? roles.member_of(filter) : roles
+  end
+
+  def render_dataset(dataset, &block)
+    resp = count_only?  ? count_payload(dataset) :
+           block_given? ? yield(dataset)         : dataset.all
+
+    render json: resp    
+  end
+
+  def count_only?
+    params.key?(:count)
+  end
+
+  def count_payload(dataset)
+    { count: dataset.count }
+  end
+
+  def role
+    @role ||= Role[role_id]
+    raise Exceptions::RecordNotFound, role_id unless @role
+    return @role
+  end
 
   def role_id
     [ params[:account], params[:kind], params[:identifier] ].join(":")
   end
-  
-  def find_role
-    @role = Role[role_id]
-    raise Exceptions::RecordNotFound, role_id unless @role
-  end
-
-  def membership_options
-    @membership_options ||= params.slice(:count, :filter).symbolize_keys
-  end
-  
-  def with_filter(options, &block)
-    filter = options[:filter]
-    if filter
-      filter = Array(filter).map{|id| Role.make_full_id id, account}
-    end
-
-    roles = yield
-
-    filter ? roles.member_of(filter) : roles
-  end
-    
-  def render_count(roles, options)
-    { count: roles.count } if options.has_key?(:count)
-  end
-  
 end
