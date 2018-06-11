@@ -6,13 +6,6 @@ module Rotation
 
       class Password
 
-        # TODO: add these back in
-        #
-        # PrefixNotPresent = ::Util::ErrorClass.new("'{0}' has no prefix")
-        # MissingVariables = ::Util::ErrorClass.new(
-        #   "The following variables are required: '{0}'"
-        # )
-
         def initialize(password_factory: ::Rotation::Base58Password, pg: ::PG)
           @password_factory = password_factory
           @pg = pg
@@ -32,11 +25,7 @@ module Rotation
           pw_update   = Hash[resource_id, new_pw]
 
           facade.update_variables(pw_update) do
-            p "Connect to db and update: #{pw_update}"
-            p db.db_uri
-            #
-            # TODO uncomment for real action
-            # db.update_password(new_pw)
+            db.update_password(new_pw)
           end
         end
 
@@ -66,9 +55,6 @@ module Rotation
             conn.close
           end
 
-          # will raise an error on bad connection
-          # TODO: wrap in domain specific error
-          #
           def connection
             connection = @pg.connect(db_uri)
             connection.exec('SELECT 1')
@@ -91,7 +77,6 @@ module Rotation
           end
 
           # Variables containing database connection info are expected to exist
-          # TODO: Throw proper error if they don't
           #
           def credential_ids
             @credential_ids ||= [url_id, username_id, password_id]

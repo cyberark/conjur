@@ -59,12 +59,10 @@ module Rotation
 
       def run
         rotator.rotate(@facade)
-      # TODO: uncomment after done manual testing
-      #
-      # rescue => e
-      #   p "Catching error", e
-      #   set_retry_expiration
-      #   log_error(e)
+      rescue => e
+        p "Catching error", e
+        set_retry_expiration
+        log_error(e)
       end
 
       private

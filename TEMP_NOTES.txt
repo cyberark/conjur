@@ -1,3 +1,30 @@
+# Removed TODOs from password.rb:
+
+          # will raise an error on bad connection
+          # TODO: wrap in domain specific error
+          #
+          def connection
+            connection = @pg.connect(db_uri)
+            connection.exec('SELECT 1')
+            connection
+          end
+
+          # Variables containing database connection info are expected to exist
+          # TODO: Throw proper error if they don't
+          #
+          def credential_ids
+            @credential_ids ||= [url_id, username_id, password_id]
+          end
+
+        # TODO: add these back in
+        # at th top of Password
+        #
+        # PrefixNotPresent = ::Util::ErrorClass.new("'{0}' has no prefix")
+        # MissingVariables = ::Util::ErrorClass.new(
+        #   "The following variables are required: '{0}'"
+        # )
+
+
 - password length annotation works
 - rotation works
 - rotation timing works
