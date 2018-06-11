@@ -41,6 +41,7 @@ module PossumWorld
   
   def set_result result
     @response_api_key = nil
+    @status = result.code
     if result.headers[:content_type] =~ /^application\/json/
       @result = JSON.parse(result)
       @response_api_key = @result['api_key'] if @result.is_a?(Hash)
@@ -174,6 +175,7 @@ module PossumWorld
     begin
       yield
     rescue RestClient::Exception
+      puts $!
       @exception = $!
       @status = $!.http_code
       if can

@@ -1,4 +1,7 @@
 class RolesController < RestController
+  include AuthorizeResource
+
+  before_filter :current_user
 
   def show
     render json: role.as_json.merge(members: role.memberships)
@@ -56,11 +59,18 @@ class RolesController < RestController
   # This API endpoint exists to manage group entitlements through
   # the UI or other integrations outside of loading a policy.
   def update_member
-    member_id = params[:member]
+    resource = Resource[role_id]
+    authorize(:create, resource.policy)
 
+    member_id = params[:member]
     member = Role[member_id]
+    raise Exceptions::RecordNotFound, member_id unless member
 
     @role.grant_to member
+
+    #TODO: Record audit event
+    
+    head :no_content
   end
 
   # delete_member will delete a role membership
@@ -68,17 +78,39 @@ class RolesController < RestController
   # This API endpoint exists to manage group entitlements through
   # the UI or other integrations outside of loading a policy.
   def delete_member
-    member_id = params[:member]
+    resource = Resource[role_id]
+    authorize(:update, resource.policy)
 
+    member_id = params[:member]
     membership = @role.memberships_dataset.where(member_id: member_id).first
+    raise Exceptions::RecordNotFound, member_id unless membership
 
     membership.destroy
+
+    #TODO: Record audit event
+
+    head :no_content
   end
 
   protected
 
   def filter_params
     request.query_parameters.slice(:search, :kind).symbolize_keys
+  end
+  
+  def membership_grant_permitted
+    # If admin
+    
+    # Has create privilige on owning policy
+  end
+
+  def role_id
+    [ params[:account], params[:kind], params[:identifier] ].join(":")
+  end
+  
+  def find_role
+    @role = Role[role_id]
+    raise Exceptions::RecordNotFound, role_id unless @role
   end
 
   def render_params
