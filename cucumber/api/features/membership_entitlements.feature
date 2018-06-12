@@ -21,13 +21,13 @@ Feature: Manage the role entitlements through the API
 
     - !permit
       resource: !policy root
-      privileges: [ create ]
+      privileges: [ create, update ]
       roles: !user alice
     """
 
   Scenario: Add a group membership through the API
 
-    When I successfully PUT "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:bob"
+    When I successfully POST "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:bob"
     And I successfully GET "/roles/cucumber/group/dev%2Fdevelopers"
     Then the JSON at "members" should be:
     """
@@ -55,7 +55,7 @@ Feature: Manage the role entitlements through the API
     ]
     """
 
-    Scenario: Revoke a group membership through the API
+  Scenario: Revoke a group membership through the API
     
     Given I login as "alice"
     When I successfully DELETE "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:alice"
@@ -73,18 +73,39 @@ Feature: Manage the role entitlements through the API
     ]
     """
 
-    Scenario: Add a membership without permissions
+  Scenario: Add a membership without permissions
 
     Given I login as "bob"
-    When I PUT "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:bob"
+    When I POST "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:bob"
     Then the HTTP response status code is 403
 
-    Scenario: Add or revoke a member that doesn't exist
+  Scenario: Attempt to add a member twice
 
-    When I PUT "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:eve"
-    Then the HTTP response status code is 404
-
-    When I DELETE "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:bob"
-    Then the HTTP response status code is 404
-
-
+    When I successfully POST "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:bob"
+    And I successfully POST "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:bob"
+    And I successfully GET "/roles/cucumber/group/dev%2Fdevelopers"
+    Then the JSON at "members" should be:
+    """
+    [
+      {
+        "admin_option": true,
+        "member": "cucumber:policy:dev",
+        "ownership": true,
+        "policy": "cucumber:policy:root",
+        "role": "cucumber:group:dev/developers"
+      },
+      {
+        "admin_option": false,
+        "member": "cucumber:user:alice",
+        "ownership": false,
+        "policy": "cucumber:policy:root",
+        "role": "cucumber:group:dev/developers"
+      },
+      {
+        "admin_option": false,
+        "member": "cucumber:user:bob",
+        "ownership": false,
+        "role": "cucumber:group:dev/developers"
+      }
+    ]
+    """
