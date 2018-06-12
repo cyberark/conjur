@@ -58,6 +58,10 @@ class Role < Sequel::Model
       filter_memberships = Set.new(role_ids.map{|id| Role[id]}.compact.map(&:role_id))
       where(role_id: filter_memberships.to_a)
     end
+
+    def by_login login, account:
+      self[role_id: Role.roleid_from_username(account, login)]
+    end
   end
   
   def password= password

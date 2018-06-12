@@ -31,4 +31,8 @@ describe Role, :type => :model do
     let(:as_json) { base_hash }
     it_should_behave_like "provides expected JSON"
   end
+
+  it "can find by login" do
+    expect(Role.by_login(login, account: 'rspec')).to eq the_user
+  end
 end
