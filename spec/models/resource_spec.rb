@@ -5,8 +5,16 @@ describe Resource, :type => :model do
   
   let(:login) { "u-#{random_hex}" }
   let(:kind) { "the-kind" }
-  let(:resource_id) { "rspec:#{kind}:r-#{random_hex}"}
+  let(:resource_id_id) { "r-#{random_hex}" }
+  let(:resource_id) { "rspec:#{kind}:#{resource_id_id}"}
   let(:the_resource) { Resource.create(resource_id: resource_id, owner: the_user) }
+
+  describe '.[]' do
+    it "allows looking up by composite ids" do
+      the_resource or raise # vivify
+      expect(Resource['rspec', kind, resource_id_id]).to eq the_resource
+    end
+  end
 
   # Hideous hack to make tests pass temporarily with rotator change
   #
