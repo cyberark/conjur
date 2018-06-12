@@ -52,6 +52,12 @@ class Resource < Sequel::Model
       res = find *a
       res if res.try :visible_to?, role
     end
+
+    # Specialization to allow lookup by composite ids,
+    # eg. Resource[account, kind, id]
+    def [] *args
+      args.length == 3 ? super(args.join ':') : super
+    end
   end
 
   def extended_associations
