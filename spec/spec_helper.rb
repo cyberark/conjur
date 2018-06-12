@@ -26,6 +26,7 @@ RSpec.configure do |config|
   config.order = "random"
   config.filter_run_excluding performance: true
   config.infer_spec_type_from_file_location!
+  config.filter_run_when_matching :focus
 end
 
 Slosilo["authn:rspec"] ||= Slosilo::Key.new
