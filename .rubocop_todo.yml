@@ -436,7 +436,7 @@ Lint/DuplicateMethods:
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyleAlignWith, AutoCorrect.
 # SupportedStylesAlignWith: keyword, variable, start_of_line
-Lint/EndAlignment:
+Layout/EndAlignment:
   Exclude:
     - 'app/controllers/resources_controller.rb'
     - 'app/controllers/secrets_controller.rb'
@@ -529,7 +529,6 @@ Lint/UnusedBlockArgument:
 # Configuration parameters: AllowUnusedKeywordArguments, IgnoreEmptyMethods.
 Lint/UnusedMethodArgument:
   Exclude:
-    - 'app/controllers/roles_controller.rb'
     - 'app/models/loader/orchestrate.rb'
     - 'cucumber/policy/features/support/world.rb'
 
@@ -608,14 +607,6 @@ Naming/FileName:
 Naming/VariableNumber:
   Exclude:
     - 'spec/models/secret_spec.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: AutoCorrect.
-Performance/HashEachMethods:
-  Exclude:
-    - 'app/models/account.rb'
-    - 'cucumber/api/features/support/hooks.rb'
 
 # Offense count: 6
 # Cop supports --auto-correct.
@@ -820,7 +811,6 @@ Style/HashSyntax:
 # Cop supports --auto-correct.
 Style/IfUnlessModifier:
   Exclude:
-    - 'app/controllers/roles_controller.rb'
     - 'app/controllers/secrets_controller.rb'
     - 'app/models/account.rb'
     - 'app/models/loader/orchestrate.rb'
@@ -948,7 +938,6 @@ Style/PerlBackrefs:
 # SupportedStyles: short, verbose
 Style/PreferredHashMethods:
   Exclude:
-    - 'app/controllers/roles_controller.rb'
     - 'config/routes.rb'
 
 # Offense count: 1

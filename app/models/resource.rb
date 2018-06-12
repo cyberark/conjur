@@ -9,6 +9,7 @@ class Resource < Sequel::Model
   one_to_many :policy_versions, reciprocal: :resource, order: :version
   one_to_many :host_factory_tokens, reciprocal: :resource
   many_to_one :owner, class: :Role
+  many_to_one :policy, class: :Resource
   
   alias id resource_id
   

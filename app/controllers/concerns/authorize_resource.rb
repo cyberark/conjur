@@ -5,11 +5,12 @@ module AuthorizeResource
     include CurrentUser
   end
   
-  def authorize privilege
-    auth(current_user, privilege, @resource)
+  def authorize(privilege, resource=nil)
+    resource ||= @resource 
+    auth(current_user, privilege, resource)
   end
 
-  def authorize_many resources, privilege
+  def authorize_many(resources, privilege)
     resources.each do |resource|
       auth(current_user, privilege, resource)
     end

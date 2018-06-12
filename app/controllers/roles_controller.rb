@@ -1,4 +1,7 @@
 class RolesController < RestController
+  include AuthorizeResource
+
+  before_filter :current_user
 
   def show
     render json: role.as_json.merge(members: role.memberships)
@@ -42,21 +45,70 @@ class RolesController < RestController
   # +params[:search] returns only the members that match the search string
   # +params[:kind] (array) returns only the members that match the specified kinds
   def members
-    # There is already a :kind parameter in the path so we need to specify
-    # that the role member params come from the query string.
-    filter_opts = filter_params
-    render_opts = render_params
+    members = role.members_dataset(filter_params)
+    render_dataset(members) { |dataset| dataset.result_set(render_params) }
+  end
 
-    members = role.members_dataset(filter_opts)
-    render_dataset(members) { |dataset| dataset.result_set(render_opts) }
+  # update_member will add or modify an existing role membership
+  #
+  # This API endpoint exists to manage group entitlements through
+  # the UI or other integrations outside of loading a policy.
+  def add_member
+    authorize(:create, policy)
+
+    member_id = params[:member]
+    member = Role[member_id]
+    raise Exceptions::RecordNotFound, member_id unless member
+
+    role.grant_to member
+
+    # TODO: Record audit event
+    
+    head :no_content
+  end
+
+  # delete_member will delete a role membership
+  #
+  # This API endpoint exists to manage group entitlements through
+  # the UI or other integrations outside of loading a policy.
+  def delete_member
+    authorize(:update, policy)
+
+    member_id = params[:member]
+    membership = role.memberships_dataset.where(member_id: member_id).first
+    raise Exceptions::RecordNotFound, member_id unless membership
+
+    membership.destroy
+
+    # TODO: Record audit event
+
+    head :no_content
   end
 
   protected
 
+  def policy
+    resource.policy
+  end
+
+  def resource
+    Resource[role_id]
+  end
+
+  def role
+    @role ||= Role[role_id]
+    raise Exceptions::RecordNotFound, role_id unless @role
+    return @role
+  end
+
+  def role_id
+    [ params[:account], params[:kind], params[:identifier] ].join(":")
+  end
+
   def filter_params
     request.query_parameters.slice(:search, :kind).symbolize_keys
   end
-
+  
   def render_params
     params.slice(:limit, :offset).symbolize_keys
   end
@@ -86,13 +138,5 @@ class RolesController < RestController
     { count: dataset.count }
   end
 
-  def role
-    @role ||= Role[role_id]
-    raise Exceptions::RecordNotFound, role_id unless @role
-    return @role
-  end
 
-  def role_id
-    [ params[:account], params[:kind], params[:identifier] ].join(":")
-  end
 end

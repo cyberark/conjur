@@ -104,6 +104,8 @@ class Role < Sequel::Model
     options[:member] = member
 
     add_membership options
+  rescue Sequel::UniqueConstraintViolation
+    # Membership grant already exists
   end
   
   def allowed_to? privilege, resource
