@@ -11,8 +11,11 @@ class ResourcesController < RestController
       ownerid = Role.make_full_id(params[:owner], account)
       options[:owner] = Role[ownerid] or raise Exceptions::RecordNotFound, ownerid
     end
-    
-    scope = Resource.visible_to(assumed_role).search options
+
+    # The v5 API currently sends +acting_as+ when listing resources
+    # for a role other than the current user.
+    query_role = params[:role].presence || params[:acting_as].presence
+    scope = Resource.visible_to(assumed_role(query_role)).search options
 
     result =
       if params[:count] == 'true'
