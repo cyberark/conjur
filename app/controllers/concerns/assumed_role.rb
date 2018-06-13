@@ -17,17 +17,16 @@ module AssumedRole
     end
   end
 
-  def assumed_role(param_name = :role)
-    @assumed_role ||= find_assumed_role(param_name)
+  def assumed_role(role_id = params[:role].presence)
+    @assumed_role ||= find_assumed_role(role_id)
   end
 
   private
 
-  def find_assumed_role(param_name)
-    acting_as = params[param_name].presence
-    return current_user unless acting_as
+  def find_assumed_role(role_id)
+    return current_user unless role_id
 
-    role = Role[acting_as]
+    role = Role[role_id]
     raise ApplicationController::Forbidden unless role && role.ancestor_of?(current_user)
 
     role
