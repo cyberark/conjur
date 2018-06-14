@@ -8,7 +8,7 @@ end
 
 Then(/^I can(not)? login with user "(.+)" and password "(.*)"$/) do |deny, user, pw|
   expected_result = deny ? false : true
-  result = system("PPASSWORD=#{pw} psql -c \"\\q\" -h #{pg_host} -U #{user}")
+  result = system("PGPASSWORD=#{pw} psql -c \"\\q\" -h #{pg_host} -U #{user}")
   expect(result).to be expected_result
 end
 
