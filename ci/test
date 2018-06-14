@@ -17,6 +17,8 @@ GLOBAL OPTIONS
 
     --cucumber-authenticators                 - Runs Cucumber Authenticator features
 
+    --cucumber-rotators                       - Runs Cucumber Rotator features
+
     --cucumber-policy                         - Runs Cucumber Policy features
 
     -h | --help                               - Show this message
@@ -27,11 +29,12 @@ EOF
 exit
 }
 
+# TODO turn back on
 # Cleanup started containers, ok they're already gone.
-function finish {
-  docker-compose down --rmi 'local' --volumes || true
-}
-trap finish EXIT
+# function finish {
+#   docker-compose down --rmi 'local' --volumes || true
+# }
+# trap finish EXIT
 
 export REPORT_ROOT=/src/conjur-server
 
@@ -55,10 +58,13 @@ function run_cucumber_tests() {
     role retrieve-key cucumber:user:admin | tr -d '\r')
 
   # Run the tests
-  docker-compose run --no-deps -T --rm -e CONJUR_AUTHN_API_KEY=$api_key cucumber -c \
-    "bundle exec cucumber -p $profile --format junit --out cucumber/$profile/features/reports"
+  # TODO put back --rm
+  # docker-compose run --no-deps -T --rm -e CONJUR_AUTHN_API_KEY=$api_key cucumber -c \
+  docker-compose up cucumber
+    # "bundle exec cucumber -p $profile --format junit --out cucumber/$profile/features/reports"
 
-  docker-compose down --rmi 'local' --volumes
+  # # TODO turn back on
+  # docker-compose down --rmi 'local' --volumes
 }
 
 # Setup to allow compose to run in an isolated namespace
@@ -67,11 +73,13 @@ export COMPOSE_PROJECT_NAME="$(openssl rand -hex 3)"
 services="pg conjur"
 RUN_ALL=true
 RUN_AUTHENTICATORS=false
+RUN_ROTATORS=false
 RUN_API=false
 RUN_POLICY=false
 RUN_RSPEC=false
 while true ; do
   case "$1" in
+    --cucumber-rotators ) RUN_ALL=false ; RUN_ROTATORS=true ; shift ;;
     --cucumber-authenticators ) RUN_ALL=false ; RUN_AUTHENTICATORS=true ; shift ;;
     --cucumber-api ) RUN_ALL=false ; RUN_API=true ; shift ;;
     --cucumber-policy ) RUN_ALL=false ; RUN_POLICY=true ; shift ;;
@@ -91,9 +99,15 @@ export TAG="$(version_tag)"
 cd ci
 
 # Run tests based on what flags were passed
+if [[ $RUN_ROTATORS = true || $RUN_ALL = true ]]; then
+  services="$services testdb"
+  run_cucumber_tests 'rotators'
+fi
+
 if [[ $RUN_AUTHENTICATORS = true || $RUN_ALL = true ]]; then
   services="$services ldap-server"
   run_cucumber_tests 'authenticators'
+  O
 fi
 
 if [[ $RUN_API = true || $RUN_ALL = true ]]; then
