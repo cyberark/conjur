@@ -33,7 +33,8 @@ services:
 
   cucumber:
     image: conjur-dev
-    entrypoint: bash
+    entrypoint: sleep
+    command: infinity
     environment:
       LDAP_URI: ldap://ldap-server:389
       LDAP_BASE: dc=conjur,dc=net

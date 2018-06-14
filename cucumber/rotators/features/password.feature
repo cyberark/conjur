@@ -5,4 +5,4 @@ Feature: Postgres password rotation
 
   Scenario: check
     Then I can login with user "test" and password "secret"
-    And I cannot login with user "test" and password "WRONG PASSWORD"
+    And I cannot login with user "test" and password "WRONG_PASSWORD"

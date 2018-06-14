@@ -1,11 +1,14 @@
 Then(/^I create a postgres user "(.*?)" with password "(.*?)"$/) do |user, pw|
+  # drop them first, in case we're re-running during dev
+  run_sql_in_testdb("DROP DATABASE #{user};")
+  run_sql_in_testdb("DROP USER #{user};")
   run_sql_in_testdb("CREATE USER #{user} WITH PASSWORD '#{pw}';")
   run_sql_in_testdb("CREATE DATABASE #{user};")
 end
 
 Then(/^I can(not)? login with user "(.+)" and password "(.*)"$/) do |deny, user, pw|
   expected_result = deny ? false : true
-  result = system("PGPASSWORD=#{pw} psql -h #{pg_host} -U #{user}")
+  result = system("PPASSWORD=#{pw} psql -c \"\\q\" -h #{pg_host} -U #{user}")
   expect(result).to be expected_result
 end
 
