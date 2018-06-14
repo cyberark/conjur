@@ -29,12 +29,11 @@ EOF
 exit
 }
 
-# TODO turn back on
 # Cleanup started containers, ok they're already gone.
-# function finish {
-#   docker-compose down --rmi 'local' --volumes || true
-# }
-# trap finish EXIT
+function finish {
+  docker-compose down --rmi 'local' --volumes || true
+}
+trap finish EXIT
 
 export REPORT_ROOT=/src/conjur-server
 
@@ -58,13 +57,10 @@ function run_cucumber_tests() {
     role retrieve-key cucumber:user:admin | tr -d '\r')
 
   # Run the tests
-  # TODO put back --rm
-  # docker-compose run --no-deps -T --rm -e CONJUR_AUTHN_API_KEY=$api_key cucumber -c \
-  docker-compose up cucumber
-    # "bundle exec cucumber -p $profile --format junit --out cucumber/$profile/features/reports"
+  docker-compose run --no-deps -T --rm -e CONJUR_AUTHN_API_KEY=$api_key cucumber -c \
+    "bundle exec cucumber -p $profile --format junit --out cucumber/$profile/features/reports"
 
-  # # TODO turn back on
-  # docker-compose down --rmi 'local' --volumes
+  docker-compose down --rmi 'local' --volumes
 }
 
 # Setup to allow compose to run in an isolated namespace
