@@ -5,6 +5,8 @@ services:
 
   testdb:
     image: postgres:9.3
+    environment:
+      POSTGRES_PASSWORD: postgres_secret
 
   conjur:
     build:
@@ -19,7 +21,6 @@ services:
       CONJUR_PASSWORD_ALICE: secret
       CONJUR_DATA_KEY:
       RAILS_ENV:
-      POSTGRES_PASSWORD: postgres_secret
     ports:
       - "3000:3000"
     expose:
