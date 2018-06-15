@@ -1,18 +1,11 @@
-require 'aruba'
-require 'aruba/cucumber'
+# TODO: find better way to share common World
+# Bring in the policy's World
+#
+require_relative './world.rb'
+require_relative '../../../policy/features/support/world.rb'
 
-# Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || 'http://possum'
-# Conjur.configuration.account = ENV['CONJUR_ACCOUNT'] || 'cucumber'
+Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || 'http://possum'
+Conjur.configuration.account = ENV['CONJUR_ACCOUNT'] || 'cucumber'
 
-module RotatorWorld
-
-  def pg_host
-    'testdb'
-  end
-
-  def run_sql_in_testdb(sql, user='postgres', pw='postgres_secret')
-    system("PGPASSWORD=#{pw} psql -h #{pg_host} -U #{user} -c \"#{sql}\"")
-  end
-end
-
+World(PossumWorld)
 World(RotatorWorld)
