@@ -7,13 +7,13 @@ class Audit::Event::Authn < OpenStruct
 
   def emit_success
     self.success = true
-    Audit.info message, 'authn', structured_data
+    Audit.info message, 'authn', facility: 10, **structured_data
   end
 
   def emit_failure error_message
     self.error_message = error_message
     self.success = false
-    Audit.warn message, 'authn', structured_data
+    Audit.warn message, 'authn', facility: 10, **structured_data
   end
 
   def message
