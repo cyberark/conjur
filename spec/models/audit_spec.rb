@@ -5,6 +5,7 @@ describe Audit::Event::Authn do
     expect(Audit).to receive(:info).with \
       matching(/successfully authenticated/),
       'authn',
+      facility: 10,
       'subject@43868': { role: "rspec:user:alice" },
       'auth@43868': {
         authenticator: 'authn-test',
@@ -21,6 +22,7 @@ describe Audit::Event::Authn do
       expect(Audit).to receive(:warn).with \
         matching(/failed to authenticate.*: test error/),
         'authn',
+        facility: 10,
         'subject@43868': { role: "rspec:user:alice" },
         'auth@43868': {
           authenticator: 'authn-test',
@@ -76,4 +78,13 @@ describe Audit do
 
   let(:logger) { double Logger }
   before { allow(Audit).to receive_messages logger: logger }
+end
+
+describe Audit::RFC5424Formatter do
+  it "can be given facility by object attribute" do
+    msg = double "message", facility: 5
+    expect(formatter.call(3, Time.now, nil, msg)).to start_with '<43>'
+  end
+
+  subject(:formatter) { Audit::RFC5424Formatter.new }
 end

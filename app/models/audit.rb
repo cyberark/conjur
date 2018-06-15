@@ -4,16 +4,15 @@ require 'time'
 
 module Audit
   class << self
-    def notice msg, msgid, data
-      logger.info LogMessage.new msg, msgid, data, Syslog::LOG_NOTICE
-    end
-
-    def info msg, msgid, data
-      logger.info LogMessage.new msg, msgid, data, Syslog::LOG_INFO
-    end
-
-    def warn msg, msgid, data
-      logger.warn LogMessage.new msg, msgid, data, Syslog::LOG_WARNING
+    {
+      notice: [:info, Syslog::LOG_NOTICE],
+      info: [:info, Syslog::LOG_INFO],
+      warn: [:warn, Syslog::LOG_WARNING]
+    }.each do |meth, details|
+      logger_method, syslog_severity = details
+      define_method meth do |msg, msgid, facility: nil, **data|
+        logger.send logger_method, LogMessage.new(msg, msgid, data, syslog_severity, facility)
+      end
     end
 
     def logger
@@ -39,14 +38,15 @@ module Audit
   end
 
   class LogMessage < String
-    def initialize msg, msgid, structured_data = nil, severity = nil
+    def initialize msg, msgid, structured_data = nil, severity = nil, facility = nil
       super msg
       @msgid = msgid
       @structured_data = structured_data
       @severity = severity
+      @facility = facility
     end
 
-    attr_reader :msgid, :structured_data, :severity
+    attr_reader :msgid, :structured_data, :severity, :facility
   end
 
   # Middleware to store request ID in a thread variable
@@ -65,9 +65,6 @@ module Audit
       Logger::Severity::INFO => Syslog::LOG_INFO,
       Logger::Severity::WARN => Syslog::LOG_WARNING
     }
-
-    # TODO
-    FACILITY = 32
 
     def call severity, time, progname, msg
       severity = if msg.respond_to? :severity
@@ -90,8 +87,10 @@ module Audit
       msgid = msg.msgid if msg.respond_to? :msgid
       sd = format_sd sd
 
+      facility = msg.try(:facility) || 4
+
       fields = [timestamp, hostname, progname, pid, msgid, sd, msg]
-      ["<#{severity + FACILITY}>1", *fields.map {|x| x || '-'}].join(" ") + "\n"
+      ["<#{severity + (facility << 3)}>1", *fields.map {|x| x || '-'}].join(" ") + "\n"
     end
 
   private
