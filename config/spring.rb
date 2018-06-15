@@ -1,8 +1,6 @@
 if ENV['RAILS_ENV'] == 'test'
   require 'simplecov'
-  SimpleCov.start do
-    coverage_dir File.join(ENV['REPORT_ROOT'], 'coverage')
-  end
+  load File.expand_path '../.simplecov', __dir__
 end
 
 Spring.after_fork do
