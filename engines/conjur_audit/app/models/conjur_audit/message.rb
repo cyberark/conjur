@@ -28,7 +28,8 @@ module ConjurAudit
           # all the places where a resource id can be
           [
             { 'subject@43868': { resource: id } },
-            { 'policy@43868': { policy: id } }
+            { 'policy@43868': { policy: id } },
+            { 'auth@43868': { service: id } }
           ].map(&method(:sdata)).inject:|
         end
 

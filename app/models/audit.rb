@@ -8,6 +8,14 @@ module Audit
       logger.info LogMessage.new msg, msgid, data, Syslog::LOG_NOTICE
     end
 
+    def info msg, msgid, data
+      logger.info LogMessage.new msg, msgid, data, Syslog::LOG_INFO
+    end
+
+    def warn msg, msgid, data
+      logger.warn LogMessage.new msg, msgid, data, Syslog::LOG_WARNING
+    end
+
     def logger
       @logger ||= Rails.logger
     end
@@ -21,7 +29,7 @@ module Audit
     # cf. https://pen.iana.org
     CONJUR_PEN = 43868
     def self.conjur_sdid label
-      [label, CONJUR_PEN].join('@').freeze
+      [label, CONJUR_PEN].join('@').intern
     end
 
     POLICY = conjur_sdid 'policy'

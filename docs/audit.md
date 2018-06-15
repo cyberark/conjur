@@ -37,6 +37,7 @@ For messages generated in response to web request, this is a web request GUID. F
 ### Message ID
 
 This field is the type of event. Allowed values:
+- `authn` for authentication events,
 - `policy` for policy changes.
 
 ### Structured data
@@ -67,15 +68,32 @@ All identifiers are fully-qualified.
 
 This SD-ID specifies the action performed and/or its result. 
 
-- `operation`: optional, one of: `add`, `remove`, `change`.
+- `operation`: optional, one of: `add`, `authenticate`, `remove`, `change`,
+- `result`: on authentication or permission check, one of: `success`, `failure`.
 
 #### auth@43868
 
-This SD-ID is used on every event log caused by an authenticated user.
+This SD-ID is used on every event log caused by an authenticated user or on
+attempted authentication.
 
-- `user`: fully-qualified id of the authenticated user.
+- `user`: fully-qualified id of the authenticated user. Note this parameter is
+  only present when the user had been successfully authenticated. Events
+  related to authentication attempts (whether failed or successful) will instead
+  have a `role` parameter on `subject` SD-ID.
+- `authenticator`: when authenticating, the name of the authenticator being used.
+- `service`: when authenticating, the fully qualified id of the service requested.
 
 ### Message
 
 The body of the message should provide English-language summary of the event.
 
+## Message types
+
+### `authn` messages
+
+These messages always have subject@43868/role parameter set to the role on which
+authentication is attempted. The facility number is 10.
+
+### Examples
+
+        <46>1 - - conjur - authn [subject@43868 role="example:user:alice"][auth@43868 authenticator="authn-ldap" service="example:webservice:bacon"][action@43868 operation="authenticate" result="success"] example:user:alice successfully authenticated with authenticator authn-ldap service example:webservice:bacon
