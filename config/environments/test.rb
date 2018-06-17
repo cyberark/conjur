@@ -43,4 +43,7 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  # TODO: figure out how to make it work in a spring environment
+  config.audit_socket = Test::AuditSink.instance.address
 end
