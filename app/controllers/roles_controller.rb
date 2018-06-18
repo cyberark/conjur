@@ -49,6 +49,11 @@ class RolesController < RestController
     render_dataset(members) { |dataset| dataset.result_set(render_params) }
   end
 
+  # Returns a graph of the roles anchored on the current Role
+  def graph
+    render json: role.graph
+  end
+
   # update_member will add or modify an existing role membership
   #
   # This API endpoint exists to manage group entitlements through

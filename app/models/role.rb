@@ -119,4 +119,8 @@ class Role < Sequel::Model
   def ancestor_of? role
     Role.from(Sequel.function(:is_role_ancestor_of, id, role.id)).first[:is_role_ancestor_of]
   end
+
+  def graph
+    Role.from(Sequel.function(:role_graph, id)).order(:parent, :child)
+  end
 end
