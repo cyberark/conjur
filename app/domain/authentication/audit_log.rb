@@ -8,11 +8,14 @@ module Authentication
         authenticator_name: authenticator_name,
         service: Resource[webservice_id]
       )
+
       if success
-        event.emit_success
+        event = event.success
       else
-        event.emit_failure message
+        event = event.failure message
       end
+
+      event.log_to Audit.logger
     end
   end
 end
