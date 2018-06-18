@@ -1,66 +1,76 @@
-require 'ostruct'
+module Audit
+  class Event
+    class Authn < Event
+      field :role, :authenticator_name, service: nil
+      facility Syslog::LOG_AUTHPRIV
+      message_id 'authn'
 
-class Audit::Event::Authn < OpenStruct
-  def initialize role:, service:, authenticator_name:
-    super
-  end
+      def structured_data
+        {
+          SDID::SUBJECT => { role: role_id },
+          SDID::AUTH => auth_sd,
+          SDID::ACTION => { operation: 'authenticate' }
+        }
+      end
 
-  def emit_success
-    self.success = true
-    Audit.info message, 'authn', facility: 10, **structured_data
-  end
+      def success
+        Success.new to_h
+      end
 
-  def emit_failure error_message
-    self.error_message = error_message
-    self.success = false
-    Audit.warn message, 'authn', facility: 10, **structured_data
-  end
+      def failure error_message
+        Failure.new to_h.merge error_message: error_message
+      end
 
-  def message
-    if success?
-      format SUCCESS_TEMPLATE, role_id, authenticator_name, service_message_part
-    else
-      format FAILURE_TEMPLATE, role_id, authenticator_name, service_message_part, error_message
-    end
-  end
+      protected
 
-  SUCCESS_TEMPLATE = "%s successfully authenticated with authenticator %s%s".freeze
-  FAILURE_TEMPLATE = "%s failed to authenticate with authenticator %s%s: %s".freeze
+      def service_message_part
+        " service #{service_id}" if service_id
+      end
 
-  def service_message_part
-    " service #{service_id}" if service_id
-  end
+      def role_id
+        role.id
+      end
 
-  def success?
-    !!success
-  end
+      def service_id
+        service && service.id
+      end
 
-  SDID = ::Audit::SDID
+      def auth_sd
+        { authenticator: authenticator_name }.tap do |result|
+          result[:service] = service_id if service_id
+        end
+      end
 
-  def structured_data
-    {
-      SDID::SUBJECT => { role: role_id },
-      SDID::AUTH => auth_sd,
-      SDID::ACTION => {
-        operation: 'authenticate',
-        result: success?? 'success' : 'failure'
-      }
-    }
-  end
+      class Success < Authn
+        severity Syslog::LOG_INFO
 
-  private
+        def message
+          format "%s successfully authenticated with authenticator %s%s",
+            role_id, authenticator_name, service_message_part
+        end
 
-  def role_id
-    role.id
-  end
+        def structured_data
+          super.tap do |sd|
+            sd[SDID::ACTION][:result] = 'success'
+          end
+        end
+      end
 
-  def service_id
-    service && service.id
-  end
+      class Failure < Authn
+        field :error_message
+        severity Syslog::LOG_WARNING
 
-  def auth_sd
-    { authenticator: authenticator_name }.tap do |result|
-      result[:service] = service_id if service_id
+        def message
+          format "%s failed to authenticate with authenticator %s%s: %s",
+            role_id, authenticator_name, service_message_part, error_message
+        end
+
+        def structured_data
+          super.tap do |sd|
+            sd[SDID::ACTION][:result] = 'failure'
+          end
+        end
+      end
     end
   end
 end

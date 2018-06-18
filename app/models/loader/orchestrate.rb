@@ -122,61 +122,8 @@ module Loader
       emit_audit
     end
 
-    SDID = Audit::SDID
-
-    # map SQL operations to names for messages and structured data
-    OPS_MAP = {
-      "INSERT" => "add",
-      "DELETE" => "remove",
-      "UPDATE" => "change"
-    }.freeze
-
     def emit_audit
-      auth = policy_version.role.id
-
-      # common structured data for this policy version
-      structured_data = {
-        SDID::POLICY => { id: policy_id, version: policy_version.version },
-        SDID::AUTH => { user: auth }
-      }
-
-      # take table name and PK hash and render it as a human-readable description
-      def humanize_subject table, pk
-        case table
-        when 'annotations'
-          "annotation #{pk[:name]} on #{pk[:resource_id]}"
-        when 'roles'
-          "role #{pk[:role_id]}"
-        when 'resources'
-          "resource #{pk[:resource_id]}"
-        when 'permissions'
-          "permission of #{pk[:role_id]} to #{pk[:privilege]} on #{pk[:resource_id]}"
-        when 'role_memberships'
-          "#{pk[:ownership] == 't' ? 'owner' : 'member'}ship of #{pk[:member_id]} in #{pk[:role_id]}"
-        end
-      end
-
-      # massage primary key hash to conform to the definition
-      # of subject@43868 structured-data element
-      def sd_subject pk
-        Hash[pk.map do |k, v|
-          [case k
-          when :name
-            'annotation'
-          when :member_id
-            pk[:ownership] == 't' ? 'owner' : 'member'
-          else
-            k.to_s.chomp "_id"
-          end, v]
-        end.compact]
-      end
-
-      db[:policy_log].where(policy_id: policy_id, version: policy_version.version).each do |log|
-        op = OPS_MAP[log[:operation]]
-        # format message to eg. "acct:user:bar added resource acct:host:bar"
-        msg = "%s %sed %s" % [auth, op.chomp('e'), humanize_subject(log[:kind], log[:subject])]
-        Audit.notice msg, 'policy', structured_data.merge(SDID::ACTION => {operation: op}, SDID::SUBJECT => sd_subject(log[:subject]))
-      end
+      policy_version.policy_log.lazy.map(&:to_audit_event).each { |event| event.log_to Audit.logger }
     end
 
     def table_data schema = ""
