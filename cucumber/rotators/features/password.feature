@@ -14,7 +14,7 @@ Feature: Postgres password rotation
              id: password
              annotations:
                rotation/rotator: postgresql/password
-               rotation/ttl: PT1S
+               rotation/ttl: PT1000S
                rotation/postgresql/password/length: 32
     """
     And I add the value "testdb" to variable "db-reports/url"
@@ -25,7 +25,22 @@ Feature: Postgres password rotation
     Then the db password for "test" is "secret"
     And the "db-reports/password" variable is "secret"
 
-  Scenario: Initial values are correctly set
-    Given I wait for 1 second
+  Scenario: Values are rotated
+    Given I have the root policy:
+    """
+    - !policy
+       id: db-reports
+       body:
+         - &variables
+           - !variable url
+           - !variable username
+           - !variable
+             id: password
+             annotations:
+               rotation/rotator: postgresql/password
+               rotation/ttl: PT1S
+               rotation/postgresql/password/length: 32
+    """
+    Given I wait for 2 seconds
     Then the "db-reports/password" variable is not "secret"
     # Then the db password for "test" is "secret"

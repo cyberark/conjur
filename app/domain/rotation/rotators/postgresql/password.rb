@@ -50,8 +50,7 @@ module Rotation
 
           def update_password(new_pw)
             conn = connection
-            conn.prepare('update_pw', "ALTER ROLE $1 WITH PASSWORD '$2'")
-            conn.exec_prepared('update_pw', [username, new_pw])
+            conn.exec("ALTER ROLE #{username} WITH PASSWORD '#{new_pw}'")
             conn.close
           end
 
