@@ -54,6 +54,10 @@ class Secret < Sequel::Model
       Secret.where(resource_id: resource_id).update(expires_at: expires_at)
     end
 
+    def current_values_for_update(resource_ids)
+      Secret.for_update.select(resource_id: resource_ids).all
+    end
+
     # TODO optimize
     #
     def current_values(resource_ids)

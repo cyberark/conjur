@@ -51,7 +51,7 @@ module Rotation
           def update_password(new_pw)
             conn = connection
             conn.prepare('update_pw', "ALTER ROLE $1 WITH PASSWORD '$2'")
-            conn.exec_prepared('update_pw', [current.username, new_pw])
+            conn.exec_prepared('update_pw', [username, new_pw])
             conn.close
           end
 
@@ -67,6 +67,10 @@ module Rotation
           end
 
           private
+
+          def username
+            policy_vals[credential_ids[1]]
+          end
 
           # Values of the postgres rotator related variables in policy.yml
           #
