@@ -25,6 +25,16 @@ Given(/^I have the root policy:$/) do |policy|
   end
 end
 
+Given(/^I reset my root policy$/) do
+  invoke do
+    load_root_policy <<~EOS
+      - !policy
+         id: db-reports
+         body:
+    EOS
+  end
+end
+
 Given(/^I add the value "(.*)" to variable "(.+)"$/) do |val, var|
   variable = variable_resource(var)
   variable.add_value(val)
