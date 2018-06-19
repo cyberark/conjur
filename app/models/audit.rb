@@ -37,6 +37,9 @@ module Audit
     ACTION = conjur_sdid 'action'
   end
 
+  # This inherits from String in order to preserve compatibility with Ruby's
+  # built-in formatters, which check the class of the parameter (probably as
+  # an optimization).
   class LogMessage < String
     def initialize msg, msgid, structured_data = nil, severity = nil, facility = nil
       super msg
@@ -90,7 +93,8 @@ module Audit
       facility = msg.try(:facility) || 4
 
       fields = [timestamp, hostname, progname, pid, msgid, sd, msg]
-      ["<#{severity + (facility << 3)}>1", *fields.map {|x| x || '-'}].join(" ") + "\n"
+      # per RFC5424 priority = severity + facility * 8
+      ["<#{severity + facility * 8}>1", *fields.map {|x| x || '-'}].join(" ") + "\n"
     end
 
   private
