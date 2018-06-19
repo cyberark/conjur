@@ -9,6 +9,8 @@ module ConjurAudit
     private
 
     DIRECT_FIELDS = %i(facility severity hostname appname procid msgid).freeze
+
+    PAGING_FIELDS = %i(limit offset).freeze
     
     def query
       @query ||= request.query_parameters
@@ -19,7 +21,7 @@ module ConjurAudit
     end
     
     def sdata_query
-      query.except(*DIRECT_FIELDS, :resource, :role, :entity)
+      query.except(*DIRECT_FIELDS, *PAGING_FIELDS, :resource, :role, :entity)
     end
 
     # filter on RFC 5424 structured data
@@ -53,7 +55,17 @@ module ConjurAudit
     end
     
     def messages
-      @messages ||= messages_with_data_filter.where(direct_filter).order(Sequel.desc(:timestamp)).all
+      dataset = messages_with_data_filter.where(direct_filter).order(Sequel.desc(:timestamp))
+
+      if (offset = params[:offset])
+        dataset = dataset.offset(offset)
+      end
+
+      if (limit = params[:limit])
+        dataset = dataset.limit(limit)
+      end
+
+      @messages ||= dataset.all
     end
   end
 end

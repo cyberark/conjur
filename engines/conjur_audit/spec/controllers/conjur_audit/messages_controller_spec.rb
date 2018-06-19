@@ -22,6 +22,22 @@ module ConjurAudit
         expect(messages).to match [include('message' => 'foo')]
       end
 
+      it "supports paging" do
+        10.times do |val|
+          add_message "#{val} foo"
+        end
+
+        get :index, limit: 4, offset: 2
+
+        expect(response).to have_http_status(:success)
+        expect(messages.length).to eq(4)
+
+        # The messages will be in reverse chronological order so
+        # we expect the result to contain [ 7, 6, 5, 4 ]
+        expect(messages[0]).to match include('message' => '7 foo')
+        expect(messages[3]).to match include('message' => '4 foo')
+      end
+
       it "returns 404 if no matching entries are found" do
         add_message "bar", severity: 5
         get :index, severity: 4
