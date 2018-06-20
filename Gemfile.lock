@@ -164,7 +164,6 @@ GEM
     ice_nine (0.11.2)
     inflecto (0.0.2)
     iso8601 (0.10.1)
-    jmespath (1.4.0)
     json (2.1.0)
     json_spec (1.1.5)
       multi_json (~> 1.0)
