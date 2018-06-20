@@ -18,7 +18,8 @@ done
 if [[ $RUN_BRAKEMAN = true ]]; then
   mkdir -p brakeman/reports
   chmod -R 0777 brakeman/reports
-  docker run -v "$(pwd):/tmp/" --rm -w /tmp/ codeclimate/codeclimate-brakeman brakeman -o brakeman/reports/brakeman-output.html
+  # TODO Un-pin to stable when stable image runs
+  docker run -v "$(pwd):/tmp/" --rm -w /tmp/ codeclimate/codeclimate-brakeman:b804 brakeman -o brakeman/reports/brakeman-output.html
 fi
 
 
