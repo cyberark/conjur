@@ -50,8 +50,6 @@ module Authentication
 
         Rails.logger.debug("IAM Role authentication attempt by AWS user #{aws_user_id} with host to match = #{host_to_match}")
 
-        Rails.logger.debug("IAM Role authentication attempt by AWS user #{aws_user_id} with host to match = #{host_to_match}")
-
         login.eql? host_to_match
 
       end
