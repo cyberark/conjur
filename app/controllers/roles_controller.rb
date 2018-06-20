@@ -65,10 +65,16 @@ class RolesController < RestController
     member = Role[member_id]
     raise Exceptions::RecordNotFound, member_id unless member
 
-    role.grant_to member
+    # If membership is already granted, grant_to will return nil.
+    # In this case, don't emit an audit record.
+    if (membership = role.grant_to member)
+      Audit::Event::Policy.new(
+        operation: :add,
+        subject: Audit::Subject::RoleMembership.new(membership.pk_hash),
+        user: current_user
+      ).log_to Audit.logger
+    end
 
-    # TODO: Record audit event
-    
     head :no_content
   end
 
@@ -85,7 +91,11 @@ class RolesController < RestController
 
     membership.destroy
 
-    # TODO: Record audit event
+    Audit::Event::Policy.new(
+      operation: :remove,
+      subject: Audit::Subject::RoleMembership.new(membership.pk_hash),
+      user: current_user
+    ).log_to Audit.logger
 
     head :no_content
   end
