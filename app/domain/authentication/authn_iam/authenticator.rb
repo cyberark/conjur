@@ -1,5 +1,3 @@
-require 'net/http'
-require 'net/https'
 require 'json'
 
 module Authentication
@@ -7,7 +5,7 @@ module Authentication
     class Authenticator
 
       InvalidAWSHeaders = ::Util::ErrorClass.new(
-        "'Invalid or Expired AWS Headers: {0}")
+        "Invalid or Expired AWS Headers: {0}")
 
       def initialize(env:)
         @env = env
@@ -49,6 +47,8 @@ module Authentication
         aws_account_id = response_hash["GetCallerIdentityResponse"]["GetCallerIdentityResult"]["Account"]
         aws_user_id = response_hash["GetCallerIdentityResponse"]["GetCallerIdentityResult"]["UserId"]
         host_to_match = "#{host_prefix}/#{aws_account_id}/#{aws_role_name}"
+
+        Rails.logger.debug("IAM Role authentication attempt by AWS user #{aws_user_id} with host to match = #{host_to_match}")
 
         Rails.logger.debug("IAM Role authentication attempt by AWS user #{aws_user_id} with host to match = #{host_to_match}")
 
