@@ -57,10 +57,6 @@ group :production do
   gem 'rails_12factor'
 end
 
-# AWS SDK for authn-iam
-gem 'aws-sdk-iam', '~> 1.3.0'
-gem 'aws-sdk-core', '~> 3.15.0'
-
 group :development, :test do
   gem 'pry-rails'
   gem 'pry-byebug'
