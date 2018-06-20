@@ -3,7 +3,7 @@ require 'audit/event'
 module Audit
   class Event
     class Policy < Event
-      field :policy_version, :operation, :subject
+      field :operation, :subject, policy_version: nil, user: nil
       severity Syslog::LOG_NOTICE
       facility Syslog::LOG_AUTH
       message_id 'policy'
@@ -13,16 +13,26 @@ module Audit
       def structured_data
         {
           SDID::AUTH => { user: user_id },
-          SDID::POLICY => { id: policy_version.id, version: policy_version.version },
           SDID::SUBJECT => subject.to_h,
           SDID::ACTION => { operation: operation }
-        }
+        }.tap do |sd|
+          if policy_version
+            sd[SDID::POLICY] = { 
+              id: policy_version.id, 
+              version: policy_version.version
+            }
+          end
+        end
       end
 
       private
-
+      
       def user_id
-        @user_id ||= policy_version.role.id
+        @user_id ||= user.id
+      end
+
+      def user
+        @user ||= super || policy_version.role
       end
     end
   end

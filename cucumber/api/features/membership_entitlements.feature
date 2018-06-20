@@ -54,6 +54,13 @@ Feature: Manage the role entitlements through the API
       }
     ]
     """
+    And there is an audit record matching:
+    """
+      <37>1 * * conjur * policy [auth@43868 user="cucumber:user:admin"]
+      [subject@43868 role="cucumber:group:dev/developers" member="cucumber:user:bob"]
+      [action@43868 operation="add"]
+      cucumber:user:admin added membership of cucumber:user:bob in cucumber:group:dev/developers
+    """
 
   Scenario: Revoke a group membership through the API
     
@@ -71,6 +78,13 @@ Feature: Manage the role entitlements through the API
         "role": "cucumber:group:dev/developers"
       }
     ]
+    """
+    And there is an audit record matching:
+    """
+      <37>1 * * conjur * policy [auth@43868 user="cucumber:user:alice"]
+      [subject@43868 role="cucumber:group:dev/developers" member="cucumber:user:alice"]
+      [action@43868 operation="remove"]
+      cucumber:user:alice removed membership of cucumber:user:alice in cucumber:group:dev/developers
     """
 
   Scenario: Add a membership without permissions
