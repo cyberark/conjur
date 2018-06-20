@@ -7,6 +7,7 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 #ruby-gemset=conjur
 
 gem 'rake'
+gem 'sprockets', '~> 3.7.0', '>= 3.7.2'
 gem 'rails-api'
 gem 'rails', '~> 4.2'
 gem 'nokogiri', '>= 1.8.2'
