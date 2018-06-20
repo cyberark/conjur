@@ -63,7 +63,7 @@ GEM
       thor (~> 0.19)
     autoprefixer-rails (7.1.2.3)
       execjs
-    aws-partitions (1.87.0)
+    aws-partitions (1.91.0)
     aws-sdk-core (3.15.0)
       aws-partitions (~> 1.0)
       aws-sigv4 (~> 1.0)
