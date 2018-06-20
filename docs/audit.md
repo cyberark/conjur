@@ -96,4 +96,4 @@ authentication is attempted. The facility number is 10.
 
 ### Examples
 
-        <46>1 - - conjur - authn [subject@43868 role="example:user:alice"][auth@43868 authenticator="authn-ldap" service="example:webservice:bacon"][action@43868 operation="authenticate" result="success"] example:user:alice successfully authenticated with authenticator authn-ldap service example:webservice:bacon
+        <86>1 - - conjur - authn [subject@43868 role="example:user:alice"][auth@43868 authenticator="authn-ldap" service="example:webservice:bacon"][action@43868 operation="authenticate" result="success"] example:user:alice successfully authenticated with authenticator authn-ldap service example:webservice:bacon
