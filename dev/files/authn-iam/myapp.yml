@@ -1,6 +1,6 @@
 
 ---
-- !policy 
+- !policy
   id: myapp
   body:
   - &variables
@@ -15,18 +15,24 @@
     role: !group secrets-users
     privilege: [ read, execute ]
     resource: *variables
-  
+
   # Create a layer to hold this application's hosts
   - !layer
 
   # Create a host using the namespace `aws` to identify this as an AWS resource.
   # The host ID needs to match the AWS ARN of the role we wish to to authenticate.
-  - !host 011915987442/MyApp 
+  - !host 011915987442/MyApp
+  - !host 011915987442/lambda-function-role
 
   # Add our host into our layer
   - !grant
     role: !layer
     member: !host 011915987442/MyApp
+
+  # Add our host into our layer
+  - !grant
+    role: !layer
+    member: !host 011915987442/lambda-function-role
 
   # Give the host in our layer permission to retrieve variables
   - !grant
