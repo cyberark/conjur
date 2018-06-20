@@ -1,18 +1,20 @@
+require 'net/http'
+require 'net/https'
 require 'json'
 
 module Authentication
   module AuthnIam
     class Authenticator
-      
+
       InvalidAWSHeaders = ::Util::ErrorClass.new(
         "'Invalid or Expired AWS Headers: {0}")
-  
+
       def initialize(env:)
         @env = env
       end
 
       def valid?(input)
- 
+
         signed_aws_headers = JSON.parse input.password # input.password is JSON holding the AWS signed headers
 
         response_hash = identity_hash(response_from_signed_request(signed_aws_headers))
@@ -31,14 +33,14 @@ module Authentication
         else
           Rails.logger.error("Verification of IAM identity failed with HTTP code: #{response.code}")
           false
-        end      
+        end
 
       end
-    
+
       def iam_role_matches?(login, response_hash)
-    
+
         is_allowed_role = false
-    
+
         split_assumed_role = response_hash["GetCallerIdentityResponse"]["GetCallerIdentityResult"]["Arn"].split(":")
 
         # removes the last 2 parts of login to be substituted by the info from getCallerIdentity
@@ -47,15 +49,15 @@ module Authentication
         aws_account_id = response_hash["GetCallerIdentityResponse"]["GetCallerIdentityResult"]["Account"]
         aws_user_id = response_hash["GetCallerIdentityResponse"]["GetCallerIdentityResult"]["UserId"]
         host_to_match = "#{host_prefix}/#{aws_account_id}/#{aws_role_name}"
-        
+
         Rails.logger.debug("IAM Role authentication attempt by AWS user #{aws_user_id} with host to match = #{host_to_match}")
 
         login.eql? host_to_match
-        
-      end      
+
+      end
 
       def aws_signed_url
-        return 'https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15'      
+        return 'https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15'
       end
 
       def response_from_signed_request(aws_headers)
@@ -74,5 +76,5 @@ module Authentication
     end
 
   end
+  
 end
-
