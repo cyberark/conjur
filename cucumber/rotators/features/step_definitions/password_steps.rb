@@ -19,11 +19,31 @@ Then(/^the db password for "(.*)" is "(.*)"$/) do |user, pw|
   expect(bad_pw_result).to be false
 end
 
+Then(/^I watch for changes in "(.+)" and db user "(.+)"$/) do |var_id, user|
+  start_polling_for_changes(var_id, user)
+end
+
+Then(/^I stop watching for changes$/) do
+  stop_polling_for_changes
+end
+
+Then(/^the first (\d+) db and conjur passwords match$/) do |num_str|
+  num        = num_str.to_i
+  db_pws     = db_passwords.first(num)
+  conjur_pws = conjur_passwords.first(num)
+  puts 'db_pws', db_pws
+  expect(db_pws).to match_array(conjur_pws)
+end
+
 Given(/^I have the root policy:$/) do |policy|
   invoke do
     load_root_policy policy
   end
 end
+
+# versions = (1..var.version_count).map do |version|
+#   var.value version
+# end
 
 Given(/^I reset my root policy$/) do
   invoke do
