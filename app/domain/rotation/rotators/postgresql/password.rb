@@ -21,11 +21,18 @@ module Rotation
         def rotate(facade)
           resource_id = facade.rotated_variable.resource_id
           db          = rotated_db(facade)
+          return if db.missing_values?
           new_pw      = db.new_password
           pw_update   = Hash[resource_id, new_pw]
 
+          p "******************************************************"
+          p "******************************************************"
+          p "Rotating #{new_pw}"
           facade.update_variables(pw_update) do
+            p "#######################################"
+            p "executing..."
             db.update_password(new_pw)
+            p "done"
           end
         end
 
@@ -41,11 +48,16 @@ module Rotation
             @facade = facade
             @pg = pg
             @password_factory = password_factory
+            # cache existing creditials
+            db_uri
+          end
+
+          def missing_values?
+            credentials.values.compact.size < 3
           end
 
           def new_password
-            len = policy_vals[pw_length_id] || 20
-            @password_factory.new(length: len)
+            @password_factory.new(length: pw_length)
           end
 
           def update_password(new_pw)
@@ -55,42 +67,39 @@ module Rotation
           end
 
           def connection
+            puts "db_uri", db_uri
             connection = @pg.connect(db_uri)
             connection.exec('SELECT 1')
             connection
           end
 
           def db_uri
-            url, username, password = credential_ids.map { |x| policy_vals[x] }
-            "postgresql://#{username}:#{password}@#{url}"
+            return @db_uri if @db_uri
+            puts "credentials", credentials
+            url, uname, password = credential_resource_ids.map(&credentials)
+            @db_uri = "postgresql://#{uname}:#{password}@#{url}"
           end
 
           private
 
           def username
-            policy_vals[credential_ids[1]]
+            credentials[username_id]
           end
 
-          # Values of the postgres rotator related variables in policy.yml
-          #
-          def policy_vals
-            @policy_vals ||= @facade.current_values(
-              credential_ids << pw_length_id
-            )
+          def credentials
+            @credentials ||= @facade.current_values(credential_resource_ids)
           end
 
-          # Variables containing database connection info are expected to exist
-          #
-          def credential_ids
-            @credential_ids ||= [url_id, username_id, password_id]
+          def credential_resource_ids
+            [url_id, username_id, password_id]
           end
 
           def rotated_variable
             @facade.rotated_variable
           end
 
-          def pw_length_id
-            rotated_variable.sibling_id('password/length')
+          def pw_length
+            @facade.annotations['rotation/postgresql/password/length'].to_i || 20
           end
 
           def password_id

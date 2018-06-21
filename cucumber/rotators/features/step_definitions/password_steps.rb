@@ -12,13 +12,6 @@ end
 #   expect(result).to be expected_result
 # end
 
-Then(/^the db password for "(.*)" is "(.*)"$/) do |user, pw|
-  good_pw_result = pg_login_result(user, pw)
-  bad_pw_result  = pg_login_result(user, 'WRONG_PASSWORD')
-  expect(good_pw_result).to be true
-  expect(bad_pw_result).to be false
-end
-
 Then(/^I watch for changes in "(.+)" and db user "(.+)"$/) do |var_id, user|
   start_polling_for_changes(var_id, user)
 end
@@ -31,8 +24,22 @@ Then(/^the first (\d+) db and conjur passwords match$/) do |num_str|
   num        = num_str.to_i
   db_pws     = db_passwords.first(num)
   conjur_pws = conjur_passwords.first(num)
-  puts 'db_pws', db_pws
+  p 'db_pws', db_pws
+  p 'conjur_pws', conjur_pws
   expect(db_pws).to match_array(conjur_pws)
+end
+
+Then(/^the first (\d+) conjur passwords are distinct$/) do |num_str|
+  num        = num_str.to_i
+  conjur_pws = conjur_passwords.first(num)
+  expect(conjur_pws.size).to eq(num)
+  expect(conjur_pws.uniq.size).to eq(num)
+end
+
+Then(/^the generated passwords have length (\d+)$/) do |len_str|
+  length    = len_str.to_i
+  conjur_pw = conjur_passwords.last
+  expect(conjur_pw.length).to eq(length)
 end
 
 Given(/^I have the root policy:$/) do |policy|
@@ -40,10 +47,6 @@ Given(/^I have the root policy:$/) do |policy|
     load_root_policy policy
   end
 end
-
-# versions = (1..var.version_count).map do |version|
-#   var.value version
-# end
 
 Given(/^I reset my root policy$/) do
   invoke do
@@ -60,15 +63,6 @@ Given(/^I add the value "(.*)" to variable "(.+)"$/) do |val, var|
   variable.add_value(val)
 end
 
-Then(/^the "(.*)" variable is "(.*)"$/) do |var, val|
-  variable = variable_resource(var)
-  expect(variable.value).to eq val
-end
-
-Then(/^the "(.*)" variable is not "(.*)"$/) do |var, val|
-  variable = variable_resource(var)
-  expect(variable.value).not_to eq val
-end
 
 Then(/^I wait for (\d+) seconds?$/) do |num_seconds|
   puts "Sleeping #{num_seconds}...."

@@ -17,13 +17,15 @@ Feature: Postgres password rotation
                rotation/ttl: PT1S
                rotation/postgresql/password/length: 32
     """
-    And I watch for changes in "db-reports/password" and db user "test"
     And I create a db user "test" with password "secret"
+    And I watch for changes in "db-reports/password" and db user "test"
     And I add the value "testdb" to variable "db-reports/url"
     And I add the value "test" to variable "db-reports/username"
     And I add the value "secret" to variable "db-reports/password"
 
-  Scenario: Values are rotated
+  Scenario: Values are rotated according to the policy
     Given I wait for 3 seconds
     And I stop watching for changes
     Then the first 3 db and conjur passwords match
+    And the first 3 conjur passwords are distinct
+    And the generated passwords have length 32

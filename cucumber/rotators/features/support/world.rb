@@ -30,9 +30,11 @@ module RotatorWorld
 
     Thread.new do
       while @keep_polling do
-        pw = variable_resource(var_id)&.value
-        pw_works_in_db = pg_login_result(db_user, pw)
-        # we only record it if they're synced -- race conditions
+        pw = variable_resource(var_id)&.value rescue nil
+        if pw
+          pw_works_in_db = pg_login_result(db_user, pw) rescue nil
+        end
+        # we only record it if they're synced -- avoids race conditions
         if pw_works_in_db
           add_conjur_password(pw) if new_conjur_pw?(pw)
           add_db_password(pw) if new_db_pw?(pw)

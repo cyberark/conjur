@@ -39,7 +39,6 @@ module Rotation
     # and returns everything up to th first slash
     #
     def prefix
-      puts '@resource_id', @resource_id
       @resource_id.match(%r{(.*)/.*})[1]
     end
 

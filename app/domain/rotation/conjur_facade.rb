@@ -14,14 +14,20 @@ module Rotation
 
     def initialize(rotated_variable:,
                    secret_model: Secret,
+                   resource_model: Resource,
                    db: Sequel::Model.db)
       @rotated_variable = rotated_variable
       @secret_model = secret_model
+      @resource_model = resource_model
       @db = db
     end
 
-    def current_values(variables)
-      @secret_model.current_values(variables)
+    def current_values(variable_ids)
+      @secret_model.current_values(variable_ids)
+    end
+
+    def annotations
+      @resource_model.annotations(@rotated_variable.resource_id)
     end
 
     # new_values is a Hash of {resource_id: new_value} pairs that represent a
@@ -39,13 +45,15 @@ module Rotation
     def update_variables(new_values, &rotator_code)
       @db.transaction do
 
-        lock_secrets_for_resource_ids(new_values.keys)
+        # lock_secrets_for_resource_ids(new_values.keys)
 
         new_values.each do |resource_id, value|
           update_secret(resource_id, value)
         end
         rotator_code.call if rotator_code
       end
+    rescue => e
+      puts "Rotator update failed: #{e}"
     end
 
     private
