@@ -6,100 +6,81 @@ module Rotation
 
       class Password
 
-        def initialize(password_factory: ::Rotation::Base58Password, pg: ::PG)
+        PASSWORD_ANNOTATION = 'rotation/postgresql/password/length'
+
+        def initialize(password_factory: ::Rotation::Password, pg: ::PG)
           @password_factory = password_factory
           @pg = pg
         end
 
         # 1. Generate new pw
-        # 2. Update of variable in Conjur.
+        # 2. Update variable in Conjur.
         # 3. Update variable in the DB itself.
         #
         # NOTE: Both 2 and 3 are executed inside a single transaction, so either
         #       both updates happen, or neither do.
+        #  
+        # NOTE: The order matters:
+        #       1. Capture the *current* credentials
+        #       2. The RotatedDb object `db` then uses those to perform the
+        #          update to the new credentials.
         #
         def rotate(facade)
+
           resource_id = facade.rotated_variable.resource_id
-          db          = rotated_db(facade)
-          return if db.missing_values?
-          new_pw      = db.new_password
+          credentials = DbCredentials.new(facade)
+          new_pw      = new_password(facade)
+          db          = RotatedDb.new(credentials, @pg)
           pw_update   = Hash[resource_id, new_pw]
 
-          p "******************************************************"
-          p "******************************************************"
-          p "Rotating #{new_pw}"
           facade.update_variables(pw_update) do
-            p "#######################################"
-            p "executing..."
             db.update_password(new_pw)
-            p "done"
           end
         end
 
         private
 
-        def rotated_db(facade)
-          RotatedDb.new(facade, @pg, @password_factory)
+        def new_password(facade)
+          @password_factory.base58(length: pw_length(facade))
         end
 
-        class RotatedDb
+        def pw_length(facade)
+          @pw_length ||= facade.annotations[PASSWORD_ANNOTATION].to_i || 20
+        end
 
-          def initialize(facade, pg, password_factory)
+        class DbCredentials
+
+          # NOTE: It's important that @credentials is initialized on
+          #       intialization, because we need to capture the *current*
+          #       credentials so that we can access the db to *update* to
+          #       the new password.
+          #
+          def initialize(facade)
             @facade = facade
-            @pg = pg
-            @password_factory = password_factory
-            # cache existing creditials
-            db_uri
-          end
-
-          def missing_values?
-            credentials.values.compact.size < 3
-          end
-
-          def new_password
-            @password_factory.new(length: pw_length)
-          end
-
-          def update_password(new_pw)
-            conn = connection
-            conn.exec("ALTER ROLE #{username} WITH PASSWORD '#{new_pw}'")
-            conn.close
-          end
-
-          def connection
-            puts "db_uri", db_uri
-            connection = @pg.connect(db_uri)
-            connection.exec('SELECT 1')
-            connection
+            @credentials = current_credentials
           end
 
           def db_uri
-            return @db_uri if @db_uri
-            puts "credentials", credentials
-            url, uname, password = credential_resource_ids.map(&credentials)
-            @db_uri = "postgresql://#{uname}:#{password}@#{url}"
+            url, uname, password = credential_resource_ids.map(&@credentials)
+            "postgresql://#{uname}:#{password}@#{url}"
+          end
+
+          def username
+            @credentials[username_id]
           end
 
           private
 
-          def username
-            credentials[username_id]
-          end
-
-          def credentials
-            @credentials ||= @facade.current_values(credential_resource_ids)
-          end
-
-          def credential_resource_ids
-            [url_id, username_id, password_id]
+          def current_credentials
+            @facade.current_values(credential_resource_ids)
           end
 
           def rotated_variable
             @facade.rotated_variable
           end
 
-          def pw_length
-            @facade.annotations['rotation/postgresql/password/length'].to_i || 20
+          def credential_resource_ids
+            [url_id, username_id, password_id]
           end
 
           def password_id
@@ -112,6 +93,29 @@ module Rotation
 
           def username_id
             rotated_variable.sibling_id('username')
+          end
+        end
+
+        class RotatedDb
+
+          def initialize(credentials, pg)
+            @credentials = credentials
+            @pg = pg
+          end
+
+          def update_password(new_pw)
+            username = @credentials.username
+            conn = connection
+            conn.exec("ALTER ROLE #{username} WITH PASSWORD '#{new_pw}'")
+            conn.close
+          end
+
+          private
+
+          def connection
+            connection = @pg.connect(@credentials.db_uri)
+            connection.exec('SELECT 1')
+            connection
           end
         end
 

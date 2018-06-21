@@ -76,9 +76,7 @@ class Secret < Sequel::Model
         .map { |x| [x.resource_id, x.value] }
         .to_h
 
-      x = resource_ids.map { |id| [id, nil] }.to_h.merge(vals)
-      p 'x', x
-      x
+      resource_ids.map { |id| [id, nil] }.to_h.merge(vals)
     end
   end
 
