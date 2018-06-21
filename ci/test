@@ -104,7 +104,6 @@ fi
 if [[ $RUN_AUTHENTICATORS = true || $RUN_ALL = true ]]; then
   services="$services ldap-server"
   run_cucumber_tests 'authenticators'
-  O
 fi
 
 if [[ $RUN_API = true || $RUN_ALL = true ]]; then
