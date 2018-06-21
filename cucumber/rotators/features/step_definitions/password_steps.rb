@@ -6,12 +6,6 @@ Then(/^I create a db user "(.*?)" with password "(.*?)"$/) do |user, pw|
   run_sql_in_testdb("CREATE DATABASE #{user};")
 end
 
-# Then(/^I can(not)? login with user "(.+)" and password "(.*)"$/) do |deny, user, pw|
-#   expected_result = deny ? false : true
-#   result = system("PGPASSWORD=#{pw} psql -c \"\\q\" -h #{pg_host} -U #{user}")
-#   expect(result).to be expected_result
-# end
-
 Then(/^I watch for changes in "(.+)" and db user "(.+)"$/) do |var_id, user|
   start_polling_for_changes(var_id, user)
 end

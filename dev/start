@@ -8,6 +8,10 @@ To start the application server, run:
 Usage: start [options]
     --authn-ldap    Starts OpenLDAP server and loads a demo policy to enable authentication via:
                     'curl -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate'
+    --rotators      Starts a cucumber and test postgres container.
+                    Drops you into the cucumber container.
+                    You then manually start `conjurctl server` in another tab.
+
     -h, --help      Shows this help message.
 EOF
 exit
@@ -17,9 +21,11 @@ unset COMPOSE_PROJECT_NAME
 
 # Determine which extra services should be loaded when working with authenticators
 ENABLE_AUTHN_LDAP=false
+ENABLE_ROTATORS=false
 while true ; do
   case "$1" in
     --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
+    --rotators ) ENABLE_ROTATORS=true ; shift ;;
     -h | --help ) print_help ; shift ;;
      * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
   esac
@@ -34,7 +40,7 @@ fi
 
 export CONJUR_DATA_KEY="$(cat data_key)"
 
-services="pg conjur testdb cucumber"
+services="pg conjur"
 docker-compose up -d --no-deps $services
 docker-compose exec conjur bundle
 docker-compose exec conjur conjurctl db migrate
@@ -52,11 +58,19 @@ if [[ $ENABLE_AUTHN_LDAP = true ]]; then
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-ldap/policy.yml
 fi
 
+if [[ $ENABLE_ROTATORS = true ]]; then
+  services="$services testdb cucumber"
+fi
+
 docker-compose up -d --no-deps $services
 
 api_key=$(docker-compose exec -T conjur conjurctl \
 	role retrieve-key cucumber:user:admin | tr -d '\r')
 
-      
-docker exec -e CONJUR_AUTHN_API_KEY=$api_key $env_args \
-  -it --detach-keys 'ctrl-\' "$(docker-compose ps -q cucumber)" bash
+if [[ $ENABLE_ROTATORS = true ]]; then
+  docker exec -e CONJUR_AUTHN_API_KEY=$api_key $env_args \
+    -it --detach-keys 'ctrl-\' "$(docker-compose ps -q cucumber)" bash
+else
+  docker exec -e CONJUR_AUTHN_API_KEY=$api_key $env_args \
+    -it --detach-keys 'ctrl-\' $(docker-compose ps -q conjur) bash
+fi

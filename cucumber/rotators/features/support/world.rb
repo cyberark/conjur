@@ -20,8 +20,9 @@ module RotatorWorld
     conjur_api.resource("cucumber:variable:#{var}")
   end
 
-
-
+  #
+  # Polling / Watching for changes
+  #
 
   def start_polling_for_changes(var_id, db_user)
     @conjur_passwords = []
@@ -30,10 +31,14 @@ module RotatorWorld
 
     Thread.new do
       while @keep_polling do
+
+        # NOTE: We rescue here because we don't want errors in these lines
+        #       to kill the entire threads.  It's perfectly valid to attempt
+        #       to read the variables or access the db when we cannot.
+        #
         pw = variable_resource(var_id)&.value rescue nil
-        if pw
-          pw_works_in_db = pg_login_result(db_user, pw) rescue nil
-        end
+        pw_works_in_db = pg_login_result(db_user, pw) if pw rescue nil
+
         # we only record it if they're synced -- avoids race conditions
         if pw_works_in_db
           add_conjur_password(pw) if new_conjur_pw?(pw)
