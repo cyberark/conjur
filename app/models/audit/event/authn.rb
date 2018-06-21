@@ -1,7 +1,7 @@
 require 'ostruct'
 
 class Audit::Event::Authn < OpenStruct
-  def initialize role:, service: nil, authenticator_name:
+  def initialize role:, service:, authenticator_name:
     super
   end
 
@@ -31,14 +31,6 @@ class Audit::Event::Authn < OpenStruct
     " service #{service_id}" if service_id
   end
 
-  def role_id
-    role.id
-  end
-
-  def service_id
-    service.try :id
-  end
-
   def success?
     !!success
   end
@@ -57,6 +49,14 @@ class Audit::Event::Authn < OpenStruct
   end
 
   private
+
+  def role_id
+    role.id
+  end
+
+  def service_id
+    service && service.id
+  end
 
   def auth_sd
     { authenticator: authenticator_name }.tap do |result|

@@ -11,10 +11,26 @@ Feature: Exchange a role's API key for a signed authentication token
 
   Scenario: A role's API can be used to authenticate
     Then I can POST "/authn/cucumber/alice/authenticate" with plain text body ":alice_api_key"
+    And there is an audit record matching:
+    """
+      <86>1 * * conjur * authn
+      [auth@43868 authenticator="authn"]
+      [subject@43868 role="cucumber:user:alice"]
+      [action@43868 operation="authenticate" result="success"]
+      cucumber:user:alice successfully authenticated with authenticator authn
+    """
 
   Scenario: Attempting to use an invalid API key to authenticate result in 401 error
     When I POST "/authn/cucumber/alice/authenticate" with plain text body "wrong-api-key"
     Then the HTTP response status code is 401
+    And there is an audit record matching:
+    """
+      <84>1 * * conjur * authn
+      [auth@43868 authenticator="authn"]
+      [subject@43868 role="cucumber:user:alice"]
+      [action@43868 operation="authenticate" result="failure"]
+      cucumber:user:alice failed to authenticate with authenticator authn
+    """
 
   Scenario: User cannot login as a same-named user in a different account
 

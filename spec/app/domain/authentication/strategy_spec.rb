@@ -170,7 +170,9 @@ RSpec.describe 'Authentication::Strategy' do
         authenticators: authenticators,
         security: passing_security,
         env: two_authenticator_env,
-        token_factory: token_factory
+        token_factory: token_factory,
+        audit_log: nil,
+        role_cls: nil
       )
     end
 
@@ -190,7 +192,9 @@ RSpec.describe 'Authentication::Strategy' do
           authenticators: authenticators,
           security: passing_security,
           env: two_authenticator_env,
-          token_factory: token_factory
+          token_factory: token_factory,
+          audit_log: nil,
+          role_cls: nil
         )
       end
 
@@ -220,7 +224,9 @@ RSpec.describe 'Authentication::Strategy' do
           authenticators: authenticators,
           security: failing_security,
           env: two_authenticator_env,
-          token_factory: token_factory
+          token_factory: token_factory,
+          audit_log: nil,
+          role_cls: nil
         )
       end
 
