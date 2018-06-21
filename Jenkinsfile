@@ -58,6 +58,9 @@ pipeline {
         stage('API') {
           steps { sh 'cd ci && ./test --cucumber-api' }
         }
+        stage('Rotators') {
+          steps { sh 'cd ci && ./test --cucumber-rotators' }
+        }
       }
       post {
         always {
