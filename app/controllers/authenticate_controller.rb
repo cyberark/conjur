@@ -15,9 +15,10 @@ class AuthenticateController < ApplicationController
 
     authentication_token = ::Authentication::Strategy.new(
       authenticators: ::Authentication::InstalledAuthenticators.new(ENV),
+      audit_log: ::Authentication::AuditLog,
       security: nil,
       env: ENV,
-      role_class: ::Authentication::MemoizedRole,
+      role_cls: ::Role,
       token_factory: TokenFactory.new
     ).conjur_token(
       ::Authentication::Strategy::Input.new(
