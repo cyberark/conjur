@@ -6,7 +6,7 @@ module Rotation
 
       class Password
 
-        PASSWORD_ANNOTATION = 'rotation/postgresql/password/length'
+        PASSWORD_LENGTH_ANNOTATION = 'rotation/postgresql/password/length'
 
         def initialize(password_factory: ::Rotation::Password, pg: ::PG)
           @password_factory = password_factory
@@ -22,7 +22,7 @@ module Rotation
         #  
         # NOTE: The order matters:
         #       1. Capture the *current* credentials
-        #       2. The RotatedDb object `db` then uses those to perform the
+        #       2. The Database object `db` then uses those to perform the
         #          update to the new credentials.
         #
         def rotate(facade)
@@ -30,7 +30,7 @@ module Rotation
           resource_id = facade.rotated_variable.resource_id
           credentials = DbCredentials.new(facade)
           new_pw      = new_password(facade)
-          db          = RotatedDb.new(credentials, @pg)
+          db          = Database.new(credentials, @pg)
           pw_update   = Hash[resource_id, new_pw]
 
           facade.update_variables(pw_update) do
@@ -45,7 +45,7 @@ module Rotation
         end
 
         def pw_length(facade)
-          @pw_length ||= facade.annotations[PASSWORD_ANNOTATION].to_i || 20
+          @pw_length ||= facade.annotations[PASSWORD_LENGTH_ANNOTATION].to_i || 20
         end
 
         class DbCredentials
@@ -96,7 +96,7 @@ module Rotation
           end
         end
 
-        class RotatedDb
+        class Database
 
           def initialize(credentials, pg)
             @credentials = credentials

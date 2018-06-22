@@ -1,4 +1,3 @@
-# TODO: find better way to share common World
 # Bring in the policy's World
 #
 require_relative './world.rb'

@@ -60,7 +60,6 @@ module Rotation
       def run
         rotator.rotate(@facade)
       rescue => e
-        raise e
         p "Catching error", e
         set_retry_expiration
         log_error(e)

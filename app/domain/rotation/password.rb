@@ -1,4 +1,5 @@
 require 'base58'
+require 'securerandom'
 
 module Rotation
 

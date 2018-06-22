@@ -68,9 +68,12 @@ api_key=$(docker-compose exec -T conjur conjurctl \
 	role retrieve-key cucumber:user:admin | tr -d '\r')
 
 if [[ $ENABLE_ROTATORS = true ]]; then
-  docker exec -e CONJUR_AUTHN_API_KEY=$api_key $env_args \
-    -it --detach-keys 'ctrl-\' "$(docker-compose ps -q cucumber)" bash
+  container_name=cucumber
 else
-  docker exec -e CONJUR_AUTHN_API_KEY=$api_key $env_args \
-    -it --detach-keys 'ctrl-\' $(docker-compose ps -q conjur) bash
+  container_name=conjur
 fi
+
+echo container_name $container_name
+
+docker exec -e CONJUR_AUTHN_API_KEY=$api_key $env_args \
+  -it --detach-keys 'ctrl-\' "$(docker-compose ps -q "$container_name")" bash

@@ -45,8 +45,6 @@ module Rotation
     def update_variables(new_values, &rotator_code)
       @db.transaction do
 
-        # lock_secrets_for_resource_ids(new_values.keys)
-
         new_values.each do |resource_id, value|
           update_secret(resource_id, value)
         end
@@ -57,10 +55,6 @@ module Rotation
     end
 
     private
-
-    def lock_secrets_for_resource_ids(resource_ids)
-      @secret_model.current_values_for_update(resource_ids)
-    end
 
     def update_secret(resource_id, value)
       @secret_model.create(
