@@ -50,8 +50,6 @@ module Rotation
         end
         rotator_code.call if rotator_code
       end
-    rescue => e
-      puts "Rotator update failed: #{e}"
     end
 
     private
