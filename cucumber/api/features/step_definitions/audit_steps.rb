@@ -31,13 +31,17 @@ module CucumberAuditHelper
       .split(' ', 7)
     *sdata, msg = tail.split(/(?<=\])/).map(&:strip)
     sdata, msg = msg.split ' ', 2 if sdata.empty?
-    [*fields, sdata, msg]
+    [*fields, sdata_split(sdata), msg]
   end
   
+  def sdata_split sdata
+    Array(sdata).map! { |element| element[/\[(.*)\]/, 1].split(' ') }
+  end
+
   def matcher val
     case val
     when '*' then be
-    when Array then match_array val
+    when Array then match_array val.map(&method(:match_array))
     else match val
     end
   end

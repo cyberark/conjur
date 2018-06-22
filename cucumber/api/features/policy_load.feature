@@ -42,6 +42,33 @@ Feature: Updating policies
     - !layer
     """
     And I successfully GET "/resources/cucumber/layer/dev/db"
+    Then there is an audit record matching:
+    """
+      <37>1 * * conjur * policy
+      [auth@43868 user="cucumber:user:bob"]
+      [policy@43868 id="cucumber:policy:dev/db" version="1"]
+      [action@43868 operation="add"]
+      [subject@43868 resource="cucumber:layer:dev/db"]
+      cucumber:user:bob added resource cucumber:layer:dev/db
+    """
+    And there is an audit record matching:
+    """
+      <37>1 * * conjur * policy
+      [auth@43868 user="cucumber:user:bob"]
+      [policy@43868 id="cucumber:policy:dev/db" version="1"]
+      [action@43868 operation="add"]
+      [subject@43868 role="cucumber:layer:dev/db"]
+      cucumber:user:bob added role cucumber:layer:dev/db
+    """
+    And there is an audit record matching:
+    """
+      <37>1 * * conjur * policy
+      [auth@43868 user="cucumber:user:bob"]
+      [policy@43868 id="cucumber:policy:dev/db" version="1"]
+      [action@43868 operation="add"]
+      [subject@43868 role="cucumber:layer:dev/db" owner="cucumber:policy:dev/db"]
+      cucumber:user:bob added ownership of cucumber:policy:dev/db in cucumber:layer:dev/db
+    """
 
   Scenario: A role without any privilege cannot update a policy.
     When I login as "eve"
