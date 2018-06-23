@@ -18,14 +18,17 @@ Feature: Postgres password rotation
                rotation/postgresql/password/length: 32
     """
     And I create a db user "test" with password "secret"
-    And I watch for changes in "db-reports/password" and db user "test"
     And I add the value "testdb" to variable "db-reports/url"
     And I add the value "test" to variable "db-reports/username"
     And I add the value "secret" to variable "db-reports/password"
 
+  # NOTE: To make these tests robust on unreliable Jenkins servers that may
+  #       not be able to respect `sleep` times exactly, we give ourselves 
+  #       some leeway, waiting for 3 rotations but allowing for more than
+  #       3 seconds of time.
+  #
   Scenario: Values are rotated according to the policy
-    Given I wait for 3 seconds
-    And I stop watching for changes
+    Given I poll "db-reports/password" and db user "test" for 3 rotations in 20 seconds
     Then the first 3 db and conjur passwords match
-    And the first 3 conjur passwords are distinct
+    Then the first 3 conjur passwords are distinct
     And the generated passwords have length 32

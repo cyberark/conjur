@@ -24,36 +24,52 @@ module RotatorWorld
   # Polling / Watching for changes
   #
 
-  def start_polling_for_changes(var_id, db_user)
+  def poll_for_N_rotations(var_id:, db_user:, num_rots:, timeout:)
     @conjur_passwords = []
     @db_passwords = []
-    @keep_polling = true
+    timer = Timer.new
+    error_msg = "Failed to detect #{num_rots} rotations in #{timeout} seconds"
 
-    Thread.new do
-      while @keep_polling do
+    loop do
 
-        # NOTE: We rescue here because we don't want errors in these lines
-        #       to kill the entire threads.  It's perfectly valid to attempt
-        #       to read the variables or access the db when we cannot.
-        #
-        pw = variable_resource(var_id)&.value rescue nil
-        pw_works_in_db = pg_login_result(db_user, pw) if pw rescue nil
+      # NOTE: We rescue here because we don't want errors in these lines
+      #       to kill the entire threads.  It's perfectly valid to attempt
+      #       to read the variables or access the db when we cannot.
+      #
+      pw = variable_resource(var_id)&.value rescue nil
+      pw_works_in_db = pg_login_result(db_user, pw) if pw rescue nil
 
-        # we only record it if they're synced -- avoids race conditions
-        if pw_works_in_db
-          add_conjur_password(pw) if new_conjur_pw?(pw)
-          add_db_password(pw) if new_db_pw?(pw)
-        end
-        sleep(0.3)
+      # we only record it if they're synced -- avoids race conditions
+      if pw_works_in_db
+        add_conjur_password(pw) if new_conjur_pw?(pw)
+        add_db_password(pw) if new_db_pw?(pw)
       end
+
+      return if total_rots >= num_rots
+      raise error_msg if timer.has_exceeded?(timeout)
+      sleep(0.3)
     end
   end
 
-  def stop_polling_for_changes
-    @keep_polling = false
+  class Timer
+    def initialize
+      @started_at = Time.new
+    end
+
+    def time_elapsed
+      Time.new - @started_at
+    end
+
+    def has_exceeded?(seconds)
+      time_elapsed > seconds
+    end
   end
 
   private
+
+  def total_rots
+    [@db_passwords, @conjur_passwords].map(&:size).min
+  end
 
   def add_db_password(pw)
     @db_passwords = (@db_passwords || []) << pw

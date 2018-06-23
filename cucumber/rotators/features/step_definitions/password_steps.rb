@@ -6,20 +6,20 @@ Then(/^I create a db user "(.*?)" with password "(.*?)"$/) do |user, pw|
   run_sql_in_testdb("CREATE DATABASE #{user};")
 end
 
-Then(/^I watch for changes in "(.+)" and db user "(.+)"$/) do |var_id, user|
-  start_polling_for_changes(var_id, user)
-end
-
-Then(/^I stop watching for changes$/) do
-  stop_polling_for_changes
+re = /^I poll "(.+)" and db user "(.+)" for (\d+) rotations in (\d+) seconds$/
+Then(re) do |var, user, num_rots_str, timeout_str|
+  poll_for_N_rotations(
+    var_id: var,
+    db_user: user,
+    num_rots: num_rots_str.to_i,
+    timeout: timeout_str.to_i
+  )
 end
 
 Then(/^the first (\d+) db and conjur passwords match$/) do |num_str|
   num        = num_str.to_i
   db_pws     = db_passwords.first(num)
   conjur_pws = conjur_passwords.first(num)
-  p 'db_pws', db_pws
-  p 'conjur_pws', conjur_pws
   expect(db_pws).to match_array(conjur_pws)
 end
 
