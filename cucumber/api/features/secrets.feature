@@ -10,7 +10,7 @@ Feature: Adding and fetching secrets
   The list of secrets on a resource is appended when a new secret value is added. The list
   is capped to the last 20 secret values in order to limit the size of the backend database.
 
-  Secrets are encrypted using AES-25C-GCM.
+  Secrets are encrypted using AES-256-GCM.
 
   Background:
     Given I create a new resource
