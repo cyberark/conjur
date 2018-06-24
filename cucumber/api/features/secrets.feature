@@ -1,4 +1,3 @@
-@logged-in
 Feature: Adding and fetching secrets
 
   Each resource in Possum has an associated list of "secrets", each of which is an arbitrary

@@ -1,6 +1,6 @@
-@logged-in
 Feature: Batch retrieval of secrets
   Background:
+    Given I am a user named "bob"
     Given I create a new "variable" resource called "secret1"
     And I add the secret value "s1" to the resource "cucumber:variable:secret1"
     And I create a new "variable" resource called "secret2"
