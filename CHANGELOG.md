@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+
+- Audit events for entitlements, variable updates and authentication.
+
 ## [0.7.0] - 2018-06-25
 
 ### Added

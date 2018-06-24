@@ -31,6 +31,14 @@ Feature: Adding and fetching secrets
     """
     [ "v-1" ]
     """
+    Then there is an audit record matching:
+    """
+      <37>1 * * conjur * update
+      [auth@43868 user="cucumber:user:eve"]
+      [subject@43868 resource="cucumber:variable:probe"]
+      [action@43868 operation="update"]
+      cucumber:user:eve updated cucumber:variable:probe
+    """
     When I successfully GET "/secrets/cucumber/variable/probe"
     Then the JSON should be:
     """
