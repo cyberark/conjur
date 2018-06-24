@@ -14,6 +14,11 @@ class SecretsController < RestController
 
     Secret.create resource_id: @resource.id, value: value
     @resource.enforce_secrets_version_limit
+
+    Audit::Event::Update.new(
+      resource: @resource,
+      user: @current_user
+    ).log_to Audit.logger
           
     head :created
   end

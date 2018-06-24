@@ -38,6 +38,7 @@ For messages generated in response to web request, this is a web request GUID. F
 
 This field is the type of event. Allowed values:
 - `authn` for authentication events,
+- `update` for value changes,
 - `policy` for policy changes.
 
 ### Structured data
@@ -68,7 +69,7 @@ All identifiers are fully-qualified.
 
 This SD-ID specifies the action performed and/or its result. 
 
-- `operation`: optional, one of: `add`, `authenticate`, `remove`, `change`,
+- `operation`: optional, one of: `add`, `authenticate`, `remove`, `change`, `update`;
 - `result`: on authentication or permission check, one of: `success`, `failure`.
 
 #### auth@43868
@@ -97,3 +98,11 @@ authentication is attempted. The facility number is 10.
 ### Examples
 
         <86>1 - - conjur - authn [subject@43868 role="example:user:alice"][auth@43868 authenticator="authn-ldap" service="example:webservice:bacon"][action@43868 operation="authenticate" result="success"] example:user:alice successfully authenticated with authenticator authn-ldap service example:webservice:bacon
+
+
+### `update` messages
+
+These messages are generated when a secret value is changed. They have
+_subject@43868/resource_ pointing to the resource that was modified.
+
+        <37>1 - - conjur - update [subject@43868 resource="example:variable:dbpass"][auth@43868 user="example:user:alice"][action@43868 operation="update"] example:user:alice updated example:variable:dbpass
