@@ -1,0 +1,7 @@
+- !grant
+  role: !group conjur/authn-iam/prod/clients
+  member: !host /myapp/011915987442/MyApp
+
+- !grant
+  role: !group conjur/authn-iam/prod/clients
+  member: !host /myapp/011915987442/lambda-function-role
