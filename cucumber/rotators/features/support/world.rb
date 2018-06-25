@@ -1,53 +1,136 @@
+# TODO: Explanation of design and how to add a new rotator
+#
+
+require 'aws-sdk'
+
 module RotatorWorld
 
-  # stores history of all rotated passwords
+  # Utility for the postgres rotator
   #
-  attr_reader :db_passwords, :conjur_passwords
-
-  def pg_host
-    'testdb'
-  end
-
-  def pg_login_result(user, pw)
-    system("PGPASSWORD=#{pw} psql -c \"\\q\" -h #{pg_host} -U #{user}")
-  end
-
   def run_sql_in_testdb(sql, user='postgres', pw='postgres_secret')
-    system("PGPASSWORD=#{pw} psql -h #{pg_host} -U #{user} -c \"#{sql}\"")
+    system("PGPASSWORD=#{pw} psql -h testdb -U #{user} -c \"#{sql}\"")
   end
 
-  def variable_resource(var)
-    conjur_api.resource("cucumber:variable:#{var}")
+  def variable(var_name)
+    conjur_api.resource("cucumber:variable:#{var_name}")
   end
 
+  # This wires up and kicks off of the postgres polling process, and then
+  # returns the results of that process: a history of distinct passwords seen
+  # by the polling.
   #
-  # Polling / Watching for changes
+  def postgres_password_history(var_id:, db_user:, values_needed:, timeout:)
+    variable_meth = method(:variable)
+    polled_value = PgRotatingPassword.new(var_id, db_user, variable_meth)
+    polling = PollingSession.new(polled_value, values_needed, timeout)
+    polling.captured_values
+  end
+
+  def aws_credentials_history(policy_id:, values_needed:, timeout:)
+    variable_meth = method(:variable)
+    polled_value = AwsRotatingCredentials.new(policy_id, variable_meth)
+    polling = PollingSession.new(polled_value, values_needed, timeout)
+    polling.captured_values
+  end
+
+  # This represents a rotating postgres password across time -- a changing
+  # entity with a current_value.
+  # 
+  # The "value" of this entity only exists when the actual db password matches
+  # the password in Conjur.  During the ephemeral moments when they're out of
+  # sync, or when either one of the passwords is not available, the
+  # `PgRotatingPassword` is considered to be `nil`.
   #
+  # This avoids possible race conditions with the actual rotation thread --
+  # it's possible we could "reading" here at the same time the rotation process
+  # has only "written" one of the two passwords that need to be kept in sync.
+  #
+  PgRotatingPassword ||= Struct.new(:var_name, :db_user, :variable_meth) do
 
-  def poll_for_N_rotations(var_id:, db_user:, num_rots:, timeout:)
-    @conjur_passwords = []
-    @db_passwords = []
-    timer = Timer.new
-    error_msg = "Failed to detect #{num_rots} rotations in #{timeout} seconds"
+    def current_value
+      pw = variable_meth.(var_name)&.value
+      pw_works_in_db = pg_login_result(db_user, pw) if pw
+      pw_works_in_db ? pw : nil
+    rescue
+      nil
+    end
 
-    loop do
+    private
 
-      # NOTE: We rescue here because we don't want errors in these lines
-      #       to kill the entire threads.  It's perfectly valid to attempt
-      #       to read the variables or access the db when we cannot.
-      #
-      pw = variable_resource(var_id)&.value rescue nil
-      pw_works_in_db = pg_login_result(db_user, pw) if pw rescue nil
+    # The host -- the container name of the testdb created by docker-compose --
+    # is hardcoded here.  This shouldn't be problematic as there's likely no
+    # need to make it dynamic.
+    def pg_login_result(user, pw)
+      system("PGPASSWORD=#{pw} psql -c \"\\q\" -h testdb -U #{user}")
+    end
+  end
 
-      # we only record it if they're synced -- avoids race conditions
-      if pw_works_in_db
-        add_conjur_password(pw) if new_conjur_pw?(pw)
-        add_db_password(pw) if new_db_pw?(pw)
+  # Assumes the test account has the `describe-regions` privilege.
+  #
+  AwsRotatingCredentials ||= Struct.new(:policy_id, :variable_meth) do
+
+    def current_value
+      id = variable_meth.("#{policy_id}/access_key_id")&.value
+      key = variable_meth.("#{policy_id}/secret_access_key")&.value
+      return nil unless id && key
+      return nil unless valid_credentials?(id, key)
+      { access_key_id: id, secret_access_key: key}
+    rescue
+      nil
+    end
+
+    private
+
+    def valid_credentials?(id, key)
+      options = { region: 'us-east-1', access_key_id: id, secret_access_key: key }
+      Aws::EC2::Client.new(options).describe_regions
+      true
+    rescue
+      false
+    end
+
+  end
+
+  # TODO remove duplication with above
+  def valid_aws_credentials?(credentials)
+    options = credentials.merge({ region: 'us-east-1'})
+    Aws::EC2::Client.new(options).describe_regions
+    true
+  rescue
+    false
+  end
+
+  # A "session" of polling that lasts until we've captured the number of values
+  # specified by "values_needed" or we exceed the timeout limit, in which case
+  # it raises an error.
+  # 
+  class PollingSession
+
+    def initialize(polled_value, values_needed, timeout)
+      @polled_value = polled_value
+      @values_needed = values_needed
+      @timeout       = timeout
+    end
+
+    def captured_values
+      timer = Timer.new
+      history = []
+      loop do
+        history = updated_history(history)
+        return history if history.size >= @values_needed
+        raise error_msg if timer.has_exceeded?(@timeout)
+        sleep(0.3)
       end
+    end
 
-      return if total_rots >= num_rots
-      raise error_msg if timer.has_exceeded?(timeout)
-      sleep(0.3)
+    def updated_history(history)
+      cur = @polled_value.current_value
+      did_value_change = cur && cur != history.last
+      did_value_change ? history + [cur] : history
+    end
+
+    def error_msg
+      "Failed to detect #{@values_needed} rotations in #{@timeout} seconds"
     end
   end
 
@@ -64,28 +147,4 @@ module RotatorWorld
       time_elapsed > seconds
     end
   end
-
-  private
-
-  def total_rots
-    [@db_passwords, @conjur_passwords].map(&:size).min
-  end
-
-  def add_db_password(pw)
-    @db_passwords = (@db_passwords || []) << pw
-  end
-
-  def add_conjur_password(pw)
-    @conjur_passwords = (@conjur_passwords || []) << pw
-  end
-
-  def new_conjur_pw?(pw)
-    pw != @conjur_passwords.last
-  end
-
-  def new_db_pw?(pw)
-    pw != @db_passwords.last
-  end
-
-
 end
