@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.6.0] - 2018-06-25
+
 ### Changed
 - RolesController#index now accepts `role` as a query parameter. If
   present, resources visible to that role are listed.
@@ -22,6 +24,10 @@ permission on them.
   of members of a Role.
 
 ### Added
+- AWS Hosts can authenticate using their assigned AWS IAM role.
+
+- Added variable rotation for Postgres databases
+
 - Experimental audit querying engine mounted at /audit. It can be configured to work with
 an external audit database by using config.audit_database configuration entry.
 
