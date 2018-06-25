@@ -4,39 +4,37 @@ Feature: Check whether a role has a privilege on a resource
   check determines whether a transaction is allowed or not.
 
   Background:
-    Given I create a new resource
+    Given I am a user named "charlie"
+    Given I create a new "chunky" resource called "bacon"
     And I create a new user "bob"
     And I permit user "bob" to "fry" it
 
-  @logged-in
   Scenario: I confirm that I can perform the granted action
 
     If a role is granted a privilege on a resource, then a permission check will pass.
 
-    Then I can GET "/resources/cucumber/:resource_kind/:resource_id" with parameters:
+    Then I can GET "/resources/cucumber/chunky/bacon" with parameters:
     """
     check: true
     privilege: fry
     """
 
-  @logged-in
   Scenario: I confirm that the role can perform the granted action
 
     If a role is granted a privilege on a resource, then a permission check will pass.
 
-    Then I can GET "/resources/cucumber/:resource_kind/:resource_id" with parameters:
+    Then I can GET "/resources/cucumber/chunky/bacon" with parameters:
     """
     check: true
     role: cucumber:user:bob
     privilege: fry
     """
 
-  @logged-in
   Scenario: I confirm that the role cannot perform ungranted actions
 
     If a role is not granted a privilege, then a permission check will fail.
 
-    When I GET "/resources/cucumber/:resource_kind/:resource_id" with parameters:
+    When I GET "/resources/cucumber/chunky/bacon" with parameters:
     """
     check: true
     role: cucumber:user:bob
@@ -50,7 +48,7 @@ Feature: Check whether a role has a privilege on a resource
     has a privilege on some resource.
 
     When I login as "bob"
-    Then I can GET "/resources/cucumber/:resource_kind/:resource_id" with parameters:
+    Then I can GET "/resources/cucumber/chunky/bacon" with parameters:
     """
     check: true
     privilege: fry
