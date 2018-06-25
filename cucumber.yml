@@ -15,5 +15,12 @@ authenticators: >
 
 rotators: >
   --format pretty
+  --tags ~@manual
+  -r cucumber/rotators/features/support
+  -r cucumber/rotators/features/step_definitions cucumber/rotators
+
+manual-rotators: >
+  --format pretty
+  --tags @manual
   -r cucumber/rotators/features/support
   -r cucumber/rotators/features/step_definitions cucumber/rotators

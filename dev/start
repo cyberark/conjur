@@ -13,6 +13,7 @@ Usage: start [options]
                     You then manually start `conjurctl server` in another tab.
 
     --authn-iam     Starts with authn-iam/prod as authenticator
+
     -h, --help      Shows this help message.
 EOF
 exit
@@ -64,6 +65,7 @@ fi
 if [[ $ENABLE_ROTATORS = true ]]; then
   services="$services testdb cucumber"
 fi
+
 if [[ $ENABLE_AUTHN_LDAP = true ]]; then
   env_args="$env_args -e CONJUR_AUTHENTICATORS=authn-iam/prod"
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-iam/policy.yml

@@ -14,6 +14,7 @@ gem 'nokogiri', '>= 1.8.2'
 gem 'puma'
 gem 'iso8601'
 gem 'base58'
+gem 'aws-sdk'
 
 gem 'sequel-rails'
 gem 'pg'
