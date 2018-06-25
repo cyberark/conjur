@@ -58,6 +58,15 @@ class Resource < Sequel::Model
     def [] *args
       args.length == 3 ? super(args.join ':') : super
     end
+
+    def annotations(resource_id)
+      natural_join(:annotations)
+        .where(resource_id: resource_id)
+        .all
+        .map(&:values)
+        .reduce([]) { |m,x| m << [x[:name], x[:value]] }
+        .to_h 
+    end
   end
 
   def extended_associations

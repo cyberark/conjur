@@ -1,3 +1,8 @@
+require 'conjur-api'
+
+Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || 'http://conjur'
+Conjur.configuration.account = ENV['CONJUR_ACCOUNT'] || 'cucumber'
+
 module FullId
   def make_full_id id, account: Conjur.configuration.account
     tokens  = id.split(":", 3)
@@ -91,5 +96,3 @@ module PossumWorld
     @conjur_api = Conjur::API.new_from_key login, api_key
   end
 end
-
-World(PossumWorld)

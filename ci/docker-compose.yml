@@ -3,6 +3,9 @@ services:
   pg:
     image: postgres:9.3
 
+  testdb:
+    image: postgres:9.3
+
   conjur:
     image: "conjur:${TAG}"
     environment:
@@ -42,6 +45,7 @@ services:
     links:
       - conjur
       - pg
+      - testdb
 
   ldap-server:
     image: osixia/openldap

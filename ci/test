@@ -2,6 +2,7 @@
 
 # shellcheck disable=SC1091
 
+
 # Display CLI usage information
 function print_help {
   cat << EOF
@@ -16,6 +17,8 @@ GLOBAL OPTIONS
     --cucumber-api                            - Runs Cucumber API features
 
     --cucumber-authenticators                 - Runs Cucumber Authenticator features
+
+    --cucumber-rotators                       - Runs Cucumber Rotator features
 
     --cucumber-policy                         - Runs Cucumber Policy features
 
@@ -67,11 +70,13 @@ export COMPOSE_PROJECT_NAME="$(openssl rand -hex 3)"
 services="pg conjur"
 RUN_ALL=true
 RUN_AUTHENTICATORS=false
+RUN_ROTATORS=false
 RUN_API=false
 RUN_POLICY=false
 RUN_RSPEC=false
 while true ; do
   case "$1" in
+    --cucumber-rotators ) RUN_ALL=false ; RUN_ROTATORS=true ; shift ;;
     --cucumber-authenticators ) RUN_ALL=false ; RUN_AUTHENTICATORS=true ; shift ;;
     --cucumber-api ) RUN_ALL=false ; RUN_API=true ; shift ;;
     --cucumber-policy ) RUN_ALL=false ; RUN_POLICY=true ; shift ;;
@@ -91,6 +96,11 @@ export TAG="$(version_tag)"
 cd ci
 
 # Run tests based on what flags were passed
+if [[ $RUN_ROTATORS = true || $RUN_ALL = true ]]; then
+  services="$services testdb"
+  run_cucumber_tests 'rotators'
+fi
+
 if [[ $RUN_AUTHENTICATORS = true || $RUN_ALL = true ]]; then
   services="$services ldap-server"
   run_cucumber_tests 'authenticators'

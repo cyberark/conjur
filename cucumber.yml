@@ -12,3 +12,8 @@ authenticators: >
   --format pretty
   -r cucumber/authenticators/features/support
   -r cucumber/authenticators/features/step_definitions cucumber/authenticators
+
+rotators: >
+  --format pretty
+  -r cucumber/rotators/features/support
+  -r cucumber/rotators/features/step_definitions cucumber/rotators

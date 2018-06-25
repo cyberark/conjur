@@ -1,4 +1,5 @@
 require 'base58'
+require 'securerandom'
 
 module Rotation
 
@@ -7,13 +8,13 @@ module Rotation
   #
   # This means that your password will have a space of 58 ^ length.  Passwords
   # are generated using the ruby `SecureRandom` library.
-  class Base58Password
+  class Password
 
     # Use the first char of the default alphabet to pad zeros
     #
     ZERO_PAD_CHAR = Base58::ALPHABETS[:flickr][0]
 
-    def self.new(length:)
+    def self.base58(length:)
 
       valid = length > 0 && length.is_a?(Integer)
       raise ArgumentError, "length must be a positive integer" unless valid
