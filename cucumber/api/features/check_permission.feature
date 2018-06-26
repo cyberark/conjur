@@ -29,6 +29,15 @@ Feature: Check whether a role has a privilege on a resource
     role: cucumber:user:bob
     privilege: fry
     """
+    And there is an audit record matching:
+    """
+      <38>1 * * conjur * check
+      [auth@43868 user="cucumber:user:charlie"]
+      [subject@43868 role="cucumber:user:bob" resource="cucumber:chunky:bacon"
+        privilege="fry"]
+      [action@43868 operation="check" result="success"]
+      cucumber:user:charlie checked if cucumber:user:bob can fry cucumber:chunky:bacon (success)
+    """
 
   Scenario: I confirm that the role cannot perform ungranted actions
 
