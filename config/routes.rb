@@ -24,6 +24,8 @@ Rails.application.routes.draw do
       constraints authenticator: /authn-?[^\/]*/, id: /[^\/\?]+/ do
         post '/:authenticator(/:service_id)/:account/:id/authenticate' =>
           'authenticate#authenticate'
+        
+        post '/authn-k8s/:service_id/inject_client_cert' => 'authenticate#k8s_inject_client_cert'
       end
 
       get     "/roles/:account/:kind/*identifier" => "roles#graph", :constraints => QueryParameterActionRecognizer.new("graph")

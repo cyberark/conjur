@@ -35,4 +35,11 @@ class AuthenticateController < ApplicationController
     raise Unauthorized
   end
 
+  def k8s_inject_client_cert
+    ::Authentication::AuthnK8s.inject_client_cert(params, request)
+    head :ok
+  rescue => e
+    logger.debug("Authentication Error: #{e.message}")
+    raise Unauthorized
+  end
 end
