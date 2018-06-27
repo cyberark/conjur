@@ -135,7 +135,6 @@ module RotatorWorld
       history = []
       loop do
         history = updated_history(history)
-        p history
         return history if stop?(history)
         raise error_msg if timer.has_exceeded?(@timeout)
         sleep(0.3)

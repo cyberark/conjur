@@ -13,11 +13,17 @@ authenticators: >
   -r cucumber/authenticators/features/support
   -r cucumber/authenticators/features/step_definitions cucumber/authenticators
 
+# NOTE: We have to require the needed files from "api" individually, because
+#       if you mass require the folder it includes "api"s env.rb, which screws
+#       things up because (I think) it sets ENV['CONJUR_ACCOUNT'].  Cucumber
+#       profiles need to be thought through better and refactored most likely.
+#       
 rotators: >
   --format pretty
   --tags ~@manual
   -r cucumber/api/features/support/world.rb
   -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
   -r cucumber/policy
   -r cucumber/rotators
   cucumber/rotators

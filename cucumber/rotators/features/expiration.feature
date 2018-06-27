@@ -34,8 +34,9 @@ Feature: Manually expiring a rotating variable
     # works.
     #
     Given I wait until the initial password has rotated away
-    And I successfully GET "/resources/cucumber/variable/db-reports/password"
+    And I login as "admin"
+    And I successfully GET "/secrets/cucumber/variable/db-reports/password"
     And I save the response as "password_before_expiration"
-    And I POST "/resources/cucumber/variable/db-reports/password/expirations"
+    And I POST "/secrets/cucumber/variable/db-reports/password/expirations"
     Then the HTTP response status code is 201
     And the password will change from "password_before_expiration"

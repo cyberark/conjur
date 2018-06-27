@@ -84,4 +84,10 @@ class SecretsController < RestController
       user: current_user
     ).log_to Audit.logger
   end
+
+  def expire
+    raise 'WE MADE IT'
+    Secret.update_expiration(@resource.id, nil)
+    head :created
+  end
 end
