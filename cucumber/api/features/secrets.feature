@@ -1,6 +1,6 @@
 Feature: Adding and fetching secrets
 
-  Each resource in Possum has an associated list of "secrets", each of which is
+  Each resource in Conjur has an associated list of "secrets", each of which is
   an arbitrary piece of encrypted data. Access to secrets is governed by
   privileges:
 
