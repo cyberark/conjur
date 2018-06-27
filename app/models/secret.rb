@@ -31,20 +31,26 @@ class Secret < Sequel::Model
       Sequel::Model.db[<<-EOS
         SELECT ttl.resource_id, ttl.value AS ttl, rotators.value AS rotator_name
         FROM annotations ttl
+
         -- This ensures we get only entries with both
         -- a ttl and a rotator specified
         JOIN annotations rotators ON (
           rotators.resource_id = ttl.resource_id
           AND rotators.name = 'rotation/rotator'
         )
+
+        LEFT JOIN secrets ON ttl.resource_id = secrets.resource_id
+
         LEFT JOIN (
-          SELECT resource_id, MAX(expires_at) AS expires_at
+          SELECT resource_id, MAX(version) AS version
           FROM secrets
           GROUP BY resource_id
-        ) e ON ttl.resource_id = e.resource_id
+        ) max_version ON max_version.resource_id = ttl.resource_id
+
         WHERE ttl.name = 'rotation/ttl' 
+        AND secrets.version = max_version.version
         AND (
-          e.expires_at < NOW() OR e.expires_at IS NULL
+          secrets.expires_at < NOW() OR secrets.expires_at IS NULL
         )
       EOS
       ].all

@@ -7,9 +7,9 @@ Then(/^I create a db user "(.*?)" with password "(.*?)"$/) do |user, pw|
 end
 
 regex = /^I moniter "(.+)" and db user "(.+)" for (\d+) values in (\d+) seconds$/
-Then(regex) do |var_id, db_user, vals_needed_str, timeout_str|
+Then(regex) do |var_name, db_user, vals_needed_str, timeout_str|
   @pg_pw_history = postgres_password_history(
-    var_id: var_id,
+    var_name: var_name,
     db_user: db_user,
     values_needed: vals_needed_str.to_i,
     timeout: timeout_str.to_i

@@ -16,8 +16,11 @@ authenticators: >
 rotators: >
   --format pretty
   --tags ~@manual
-  -r cucumber/rotators/features/support
-  -r cucumber/rotators/features/step_definitions cucumber/rotators
+  -r cucumber/api/features/support/world.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/policy
+  -r cucumber/rotators
+  cucumber/rotators
 
 manual-rotators: >
   --format pretty

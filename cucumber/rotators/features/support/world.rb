@@ -19,9 +19,9 @@ module RotatorWorld
   # returns the results of that process: a history of distinct passwords seen
   # by the polling.
   #
-  def postgres_password_history(var_id:, db_user:, values_needed:, timeout:)
+  def postgres_password_history(var_name:, db_user:, values_needed:, timeout:)
     variable_meth = method(:variable)
-    polled_value = PgRotatingPassword.new(var_id, db_user, variable_meth)
+    polled_value = PgRotatingPassword.new(var_name, db_user, variable_meth)
     polling = PollingSession.new(polled_value, values_needed, timeout)
     polling.captured_values
   end
@@ -30,6 +30,18 @@ module RotatorWorld
     variable_meth = method(:variable)
     polled_value = AwsRotatingCredentials.new(policy_id, variable_meth)
     polling = PollingSession.new(polled_value, values_needed, timeout)
+    polling.captured_values
+  end
+
+  # We wait until the `orig_pw` is rotated away, and the return the captured
+  # history
+  #
+  def pg_history_after_rotation(var_name:, db_user:, orig_pw:)
+    variable_meth = method(:variable)
+    polled_value = PgRotatingPassword.new(var_name, db_user, variable_meth)
+    polling = PollingSession.new(polled_value, 2, 15) do |history|
+      history.last != orig_pw
+    end
     polling.captured_values
   end
 
@@ -104,12 +116,18 @@ module RotatorWorld
   # specified by "values_needed" or we exceed the timeout limit, in which case
   # it raises an error.
   # 
+  # Optionally, you can pass it a block to specify an arbitrary stopping
+  # condition.  The block is passed the full history, and if the block return
+  # true, the history will be returned immediately, rather than waiting for the
+  # full number of values_needed
+  #
   class PollingSession
 
-    def initialize(polled_value, values_needed, timeout)
+    def initialize(polled_value, values_needed, timeout, &stop_early)
       @polled_value = polled_value
       @values_needed = values_needed
       @timeout       = timeout
+      @stop_early    = stop_early
     end
 
     def captured_values
@@ -117,10 +135,17 @@ module RotatorWorld
       history = []
       loop do
         history = updated_history(history)
-        return history if history.size >= @values_needed
+        p history
+        return history if stop?(history)
         raise error_msg if timer.has_exceeded?(@timeout)
         sleep(0.3)
       end
+    end
+
+    def stop?(history)
+      has_enough_values = history.size >= @values_needed
+      should_stop_early = @stop_early&.call(history) 
+      has_enough_values || should_stop_early
     end
 
     def updated_history(history)
