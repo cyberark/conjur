@@ -86,7 +86,7 @@ class SecretsController < RestController
   end
 
   def expire
-    raise 'WE MADE IT'
+    authorize :update
     Secret.update_expiration(@resource.id, nil)
     head :created
   end

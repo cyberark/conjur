@@ -42,10 +42,14 @@ Rails.application.routes.draw do
       get     "/resources/:account"                   => "resources#index"
       get     "/resources"                            => "resources#index"
 
+      # NOTE: the order of these routes matters: we need the expire 
+      #       route to come first.
+      constraints account: /[^\/]*/, kind: /[^\/]+/, identifier: /.+/ do
+        post    "/secrets/:account/:kind/:identifier/expirations" => "secrets#expire"
+      end
       get     "/secrets/:account/:kind/*identifier" => 'secrets#show'
       post    "/secrets/:account/:kind/*identifier" => 'secrets#create'
       get     "/secrets"                            => 'secrets#batch'
-      post    "/secrets/:account/:kind/*identifier/expirations" => "secrets#expire"
 
       put     "/policies/:account/:kind/*identifier" => 'policies#put'
       patch   "/policies/:account/:kind/*identifier" => 'policies#patch'
