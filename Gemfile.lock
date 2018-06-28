@@ -53,6 +53,8 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
+    addressable (2.5.2)
+      public_suffix (>= 2.0.2, < 4.0)
     arel (6.0.4)
     aruba (0.14.2)
       childprocess (~> 0.5.6)
@@ -731,6 +733,7 @@ GEM
       dry-logic (~> 0.4, >= 0.4.2)
       inflecto (~> 0.0.0, >= 0.0.2)
     erubis (2.7.0)
+    event_emitter (0.2.6)
     excon (0.62.0)
     execjs (2.7.0)
     ffi (1.9.18)
@@ -742,8 +745,15 @@ GEM
       activesupport (>= 4.2.0)
     haikunator (1.1.0)
     highline (1.7.10)
+    http (2.2.2)
+      addressable (~> 2.3)
+      http-cookie (~> 1.0)
+      http-form_data (~> 1.0.1)
+      http_parser.rb (~> 0.6.0)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
+    http-form_data (1.0.3)
+    http_parser.rb (0.6.0)
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
@@ -754,6 +764,10 @@ GEM
     json_spec (1.1.5)
       multi_json (~> 1.0)
       rspec (>= 2.0, < 4.0)
+    kubeclient (3.1.2)
+      http (~> 2.2.2)
+      recursive-open-struct (~> 1.0, >= 1.0.4)
+      rest-client (~> 2.0)
     libv8 (3.16.14.19)
     libv8 (3.16.14.19-x86_64-darwin-16)
     listen (3.0.6)
@@ -787,6 +801,7 @@ GEM
       pry (~> 0.10)
     pry-rails (0.3.6)
       pry (>= 0.10.4)
+    public_suffix (3.0.2)
     puma (3.8.2)
     rack (1.6.10)
     rack-rewrite (1.5.1)
@@ -831,6 +846,7 @@ GEM
     rb-fsevent (0.9.8)
     rb-inotify (0.9.8)
       ffi (>= 0.5.0)
+    recursive-open-struct (1.1.0)
     ref (2.0.0)
     rest-client (2.0.2)
       http-cookie (>= 1.0.2, < 2.0)
@@ -908,6 +924,10 @@ GEM
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.5)
+    websocket (1.2.8)
+    websocket-client-simple (0.3.0)
+      event_emitter
+      websocket
     xdg (2.2.3)
 
 PLATFORMS
@@ -938,6 +958,7 @@ DEPENDENCIES
   haikunator (~> 1)
   iso8601
   json_spec
+  kubeclient
   listen
   net-ldap
   nokogiri (>= 1.8.2)
@@ -970,6 +991,7 @@ DEPENDENCIES
   table_print
   therubyracer
   uglifier
+  websocket-client-simple
 
 BUNDLED WITH
    1.16.2

@@ -1,5 +1,4 @@
 require 'websocket'
-require 'kubectl_client'
 require 'rubygems/package'
 
 module Authentication

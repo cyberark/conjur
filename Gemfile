@@ -59,6 +59,10 @@ group :production do
   gem 'rails_12factor'
 end
 
+# authn-k8s
+gem 'kubeclient'
+gem 'websocket-client-simple'
+
 group :development, :test do
   gem 'pry-rails'
   gem 'pry-byebug'
