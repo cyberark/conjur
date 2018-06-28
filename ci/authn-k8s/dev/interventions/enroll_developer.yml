@@ -1,0 +1,3 @@
+- !grant
+  role: !group developers
+  member: !user dan

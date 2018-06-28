@@ -1,0 +1,4 @@
+- !revoke
+  role: !group conjur/authn-k8s/minikube/authn-k8s/clients
+  member: !layer conjur/authn-k8s/minikube/authn-k8s/apps
+

@@ -1,0 +1,3 @@
+- !include users.{{TEMPLATE_TAG}}yml
+- !include apps.{{TEMPLATE_TAG}}yml
+- !include authn-k8s.{{TEMPLATE_TAG}}yml

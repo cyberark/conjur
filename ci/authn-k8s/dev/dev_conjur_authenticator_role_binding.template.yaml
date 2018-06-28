@@ -1,0 +1,14 @@
+---
+kind: RoleBinding
+apiVersion: {{API_VERSION}}
+metadata:
+  name: test-conjur-authenticator-role-binding
+  namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+roleRef:
+  kind: ClusterRole
+  name: conjur-authenticator
+  apiGroup: rbac.authorization.k8s.io

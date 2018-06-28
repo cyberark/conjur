@@ -1,0 +1,102 @@
+- !policy
+  id: conjur/authn-k8s/minikube
+  body:
+  - !webservice
+    annotations:
+      description: Authentication service for the "minikube" cluster.
+
+  - !policy
+    id: ca
+    body:
+    - !variable
+      id: cert
+      annotations:
+        description: CA cert for Kubernetes Pods.
+
+    - !variable
+      id: key
+      annotations:
+        description: CA key for Kubernetes Pods.
+
+  - !group
+    id: clients
+    annotations:
+      description: > 
+        Members of this group can use the minikube/default authentication service.
+        This group typically has one member, which is a layer containing the enrolled 
+        applications. 
+
+  - !permit
+    resource: !webservice
+    privilege: [ read, authenticate ]
+    role: !group clients
+
+  - !policy
+    id: apps
+    annotations:
+      description: Apps and services in the "minikube" Kubernetes cluster.
+    body:
+    - !layer
+
+    - &hosts
+      - !host
+        id: authn-k8s/*/*
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+
+      - !host
+        id: authn-k8s/service_account/inventory-pod-only
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+
+      - !host
+        id: authn-k8s/deployment/inventory-deployment
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+
+      - !host
+        id: authn-k8s/deployment_config/inventory-deployment-config
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+
+      - !host
+        id: authn-k8s/pod/inventory-pod
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+
+      - !host
+        id: authn-k8s/stateful_set/inventory-stateful
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+
+      - !host
+        id: authn-k8s/node/inventory-node
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+          
+      - !host
+        id: authn-k8s/pod/different-service-host
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+
+    - !host
+      id: authn-k8s/pod/inventory-unauthorized
+      annotations:
+        description: This host does not have "authenticate" privilege on the webservice.
+
+    - !grant
+      role: !layer /inventory
+      members:
+      - !host authn-k8s/*/*
+      - !host authn-k8s/pod/inventory-pod
+      - !host authn-k8s/deployment/inventory-deployment
+      - !host authn-k8s/deployment_config/inventory-deployment-config
+      - !host authn-k8s/stateful_set/inventory-stateful
+
+    - !grant
+      role: !layer      
+      members: *hosts
+
+  - !grant
+    role: !group clients
+    member: !layer apps

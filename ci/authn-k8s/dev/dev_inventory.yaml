@@ -1,0 +1,30 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory
+spec:
+  ports:
+  - port: 80
+    name: http
+  selector:
+    app: inventory-deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: inventory-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: inventory-deployment
+    spec:
+      containers:
+      - image: us.gcr.io/conjur-gke-dev/inventory:authn-k8s
+        name: inventory
+        command: ["sleep", "infinity"]
+      - image: us.gcr.io/conjur-gke-dev/inventory:authn-k8s
+        name: authenticator
+        command: ["sleep", "infinity"]

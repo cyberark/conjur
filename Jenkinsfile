@@ -61,6 +61,15 @@ pipeline {
         stage('Rotators') {
           steps { sh 'cd ci && ./test --cucumber-rotators' }
         }
+        stage('Kubernetes 1.7 in GKE') {
+          steps { sh 'cd ci/authn-k8s && summon ./test.sh gke' }
+        }
+        stage('OpenShift 3.3 in AWS') {
+          steps { sh 'cd ci/authn-k8s && summon -e openshift33 ./test.sh openshift33' }
+        }
+        stage('OpenShift 3.7 in AWS') {
+          steps { sh 'cd ci/authn-k8s && summon -e openshift37 ./test.sh openshift37' }
+        }
       }
       post {
         always {

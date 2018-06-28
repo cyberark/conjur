@@ -1,0 +1,17 @@
+- !policy
+  id: inventory
+  owner: !group developers
+  body:
+  - !layer
+
+- !policy
+  id: inventory-db
+  owner: !group operations
+  body:
+  - &variables
+    - !variable password
+
+  - !permit
+    resources: *variables
+    privilege: [ read, execute ]
+    role: !layer /inventory

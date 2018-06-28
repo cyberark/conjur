@@ -1,0 +1,1 @@
+./interventions/rotate_database_password.sh

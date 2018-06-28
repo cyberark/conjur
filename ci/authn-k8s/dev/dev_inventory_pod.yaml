@@ -1,0 +1,23 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: inventory-pod-only
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: inventory-pod
+  labels:
+    app: inventory-pod
+spec:
+  serviceAccountName: inventory-pod-only
+  containers:
+  - image: us.gcr.io/conjur-gke-dev/inventory:authn-k8s
+    imagePullPolicy: IfNotPresent
+    name: inventory
+    command: ["sleep", "infinity"]
+  - image: us.gcr.io/conjur-gke-dev/inventory:authn-k8s
+    imagePullPolicy: IfNotPresent
+    name: authenticator
+    command: ["sleep", "infinity"]
