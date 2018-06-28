@@ -118,3 +118,8 @@ Then(/^I (?:can )*authenticate with the admin API key for the account "(.*?)"/) 
     And I can GET "/authn/#{account}/login" with username "admin" and password "#{user.api_key}"
   }
 end
+
+Then(/^I save the response as "(.+)"$/) do |name|
+  @saved_results = @saved_results || {}
+  @saved_results[name] = @result
+end

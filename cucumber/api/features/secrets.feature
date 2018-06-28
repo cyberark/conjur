@@ -1,13 +1,15 @@
 Feature: Adding and fetching secrets
 
-  Each resource in Possum has an associated list of "secrets", each of which is an arbitrary
-  piece of encrypted data. Access to secrets is governed by privileges:
+  Each resource in Conjur has an associated list of "secrets", each of which is
+  an arbitrary piece of encrypted data. Access to secrets is governed by
+  privileges:
 
   - **execute** permission to fetch the value of a secret
   - **update** permission to change the value of a secret
 
-  The list of secrets on a resource is appended when a new secret value is added. The list
-  is capped to the last 20 secret values in order to limit the size of the backend database.
+  The list of secrets on a resource is appended when a new secret value is
+  added. The list is capped to the last 20 secret values in order to limit the
+  size of the backend database.
 
   Secrets are encrypted using AES-256-GCM.
 
@@ -15,15 +17,16 @@ Feature: Adding and fetching secrets
     Given I am a user named "eve"
     Given I create a new "variable" resource called "probe"
 
-  Scenario: When a new resource has no secret values, fetching the secret results in a 404 error.
+  Scenario: Fetching a resource with no secret values returna a 404 error.
 
     When I GET "/secrets/cucumber/variable/probe"
     Then the HTTP response status code is 404
 
   Scenario: The 'conjur/mime_type' annotation is used in the value response.
 
-    If the annotation `conjur/mime_type` exists on a resource, then when a secret value is fetched
-    from the resource, that mime type is used as the `Content-Type` header in the response. 
+    If the annotation `conjur/mime_type` exists on a resource, then when a
+    secret value is fetched from the resource, that mime type is used as the
+    `Content-Type` header in the response. 
 
     Given I set annotation "conjur/mime_type" to "application/json"
     And I successfully POST "/secrets/cucumber/variable/probe" with body:
@@ -50,10 +53,10 @@ Feature: Adding and fetching secrets
     When I successfully GET "/secrets/cucumber/variable/probe"
     Then the binary result is preserved
 
-  Scenario: When fetching a secret, the last secret in the secrets list is the default.
+  Scenario: The last secret is the default one returned.
 
-    Adding a new secret appends to a list of values on the resource. When retrieving secrets,
-    the last value in the list is returned by default.
+    Adding a new secret appends to a list of values on the resource. When
+    retrieving secrets, the last value in the list is returned by default.
 
     Given I successfully POST "/secrets/cucumber/variable/probe" with body:
     """
@@ -76,7 +79,8 @@ Feature: Adding and fetching secrets
 
   Scenario: When fetching a secret, a specific secret index can be specified.
 
-    The `version` parameter can be used to select a specific secret value from the list.
+    The `version` parameter can be used to select a specific secret value from
+    the list.
 
     Given I successfully POST "/secrets/cucumber/variable/probe" with body:
     """
@@ -97,7 +101,7 @@ Feature: Adding and fetching secrets
       cucumber:user:eve fetched version 1 of cucumber:variable:probe
     """
 
-  Scenario: Fetching a secret with a non-existant secret version results in a 404 error.
+  Scenario: Fetching with a non-existant secret version returns a 404 error.
 
     Given I successfully POST "/secrets/cucumber/variable/probe" with body:
     """
