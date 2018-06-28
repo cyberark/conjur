@@ -49,10 +49,16 @@ class ResourcesController < RestController
     privilege = params[:privilege]
     raise ArgumentError, "privilege" unless privilege
 
-    if assumed_role.allowed_to?(privilege, @resource)
-      head :no_content
-    else
-      head :not_found
-    end
+    result = assumed_role.allowed_to?(privilege, @resource)
+
+    Audit::Event::Check.new(
+      user: current_user,
+      resource: @resource,
+      privilege: privilege,
+      role: assumed_role,
+      success: result
+    ).log_to Audit.logger
+
+    head(result ? :no_content : :not_found)
   end
 end

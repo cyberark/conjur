@@ -1,6 +1,6 @@
-@logged-in
 Feature: Batch retrieval of secrets
   Background:
+    Given I am a user named "bob"
     Given I create a new "variable" resource called "secret1"
     And I add the secret value "s1" to the resource "cucumber:variable:secret1"
     And I create a new "variable" resource called "secret2"
@@ -13,6 +13,22 @@ Feature: Batch retrieval of secrets
     Then the JSON should be:
     """
     { "cucumber:variable:secret1": "s1", "cucumber:variable:secret2": "s2" }
+    """
+    And there is an audit record matching:
+    """
+      <38>1 * * conjur * fetch
+      [auth@43868 user="cucumber:user:bob"]
+      [subject@43868 resource="cucumber:variable:secret1"]
+      [action@43868 operation="fetch"]
+      cucumber:user:bob fetched cucumber:variable:secret1
+    """
+    And there is an audit record matching:
+    """
+      <38>1 * * conjur * fetch
+      [auth@43868 user="cucumber:user:bob"]
+      [subject@43868 resource="cucumber:variable:secret2"]
+      [action@43868 operation="fetch"]
+      cucumber:user:bob fetched cucumber:variable:secret2
     """
 
   Scenario: Fails with 422 if variable_ids param is missing

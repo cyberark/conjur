@@ -12,7 +12,7 @@ Conjur messages use facility 4 (traditionally called 'auth'); messages related t
 Severity depends on the kind of event:
 - failed permission checks -- severity 4 ('warn'),
 - model and value changes -- severity 5 ('notice'),
-- successful permission checks -- severity 6 ('info').
+- successful permission checks, value fetches -- severity 6 ('info').
 
 ### Version
 
@@ -39,6 +39,7 @@ For messages generated in response to web request, this is a web request GUID. F
 This field is the type of event. Allowed values:
 - `authn` for authentication events,
 - `update` for value changes,
+- `check` for permission checks,
 - `policy` for policy changes.
 
 ### Structured data
@@ -63,13 +64,14 @@ All identifiers are fully-qualified.
 - `owner`: member role id (for ownership),
 - `privilege`: subject privilege,
 - `resource`: subject resource id,
-- `role`: subject role id.
+- `role`: subject role id,
+- `version`: when fetching a secret given explicit version, that version.
 
 #### action@43868
 
 This SD-ID specifies the action performed and/or its result. 
 
-- `operation`: optional, one of: `add`, `authenticate`, `remove`, `change`, `update`;
+- `operation`: optional, one of: `add`, `authenticate`, `remove`, `change`, `update`, `check`, `fetch`,
 - `result`: on authentication or permission check, one of: `success`, `failure`.
 
 #### auth@43868
@@ -95,10 +97,26 @@ The body of the message should provide English-language summary of the event.
 These messages always have subject@43868/role parameter set to the role on which
 authentication is attempted. The facility number is 10.
 
-### Examples
+#### Examples
 
         <86>1 - - conjur - authn [subject@43868 role="example:user:alice"][auth@43868 authenticator="authn-ldap" service="example:webservice:bacon"][action@43868 operation="authenticate" result="success"] example:user:alice successfully authenticated with authenticator authn-ldap service example:webservice:bacon
 
+### `check` messages
+
+Permission checks (whether failed or successful) emit these messages. Failed
+checks carry _warning_ (4) severity, successful _info_ (6).
+
+#### Examples
+
+        <38>1 - - conjur - check [auth@43868 user="cucumber:user:charlie"][subject@43868 role="cucumber:user:bob" resource="cucumber:chunky:bacon" privilege="fry"][action@43868 operation="check" result="success"] cucumber:user:charlie checked if cucumber:user:bob can fry cucumber:chunky:bacon (success)
+
+### `fetch` messages
+
+If a specific version of a secret was requested, `version` parameter will be present in the `subject@43868` field.
+
+#### Examples
+
+        <38>1 - - conjur - fetch [subject@43868 resource="example:variable:dbpass"][auth@43868 user="example:user:alice"][action@43868 operation="fetch"] example:user:alice fetched example:variable:dbpass
 
 ### `update` messages
 
