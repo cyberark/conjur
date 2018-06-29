@@ -2,6 +2,17 @@
 apiVersion: v1
 kind: Service
 metadata:
+  name: postgres
+spec:
+  ports:
+  - port: 5432
+    name: pg-main
+  selector:
+    app: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: conjur-authn-k8s
 spec:
   ports:
@@ -10,7 +21,26 @@ spec:
   - port: 636
     name: ldaps
   selector:
-    app: conjur-authn-k8s
+    app: conjur-authn-k8ss
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - image: postgres:9.4
+#      - image: launcher.gcr.io/google/postgresql9
+        name: postgres
+#        env:
+#        - name: POSTGRES_PASSWORD
+#          value: postgres_secret
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -24,25 +54,23 @@ spec:
         app: conjur-authn-k8s
     spec:
       containers:
-      - image: {{CONJUR_AUTHN_K8S_TAG}}
+      - image: us.gcr.io/conjur-gke-dev/conjur:authn-k8s
         name: conjur-authn-k8s
+        command: ["conjurctl", "server"]
         env:
-          - name: CONJUR_AUTHN_LOGIN
-            value: admin
-          - name: CONJUR_AUTHN_API_KEY
-            value: secret
           - name: CONJUR_APPLIANCE_URL
-            value: https://localhost/api
+            value: http://localhost:3000
+          - name: DATABASE_URL
+            value: postgres://postgres@postgres:5432/postgres
+          - name: CONJUR_ADMIN_PASSWORD
+            value: admin
           - name: CONJUR_ACCOUNT
             value: cucumber
-          - name: CONJUR_AUTHN_K8S_TEST_NAMESPACE
-            value: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+          - name: CONJUR_DATA_KEY
+            value: "{{ DATA_KEY }}"
+          - name: RAILS_ENV
+            value: test
+#          - name: CONJUR_AUTHN_K8S_TEST_NAMESPACE
+#            value: authn-k8s
           - name: CONJUR_AUTHENTICATORS
             value: authn-k8s/minikube
-        volumeMounts:
-          - mountPath: /src/authn-k8s
-            name: local-dev
-      volumes:
-        - name: local-dev
-          {{LOCAL_DEV_VOLUME}}
-

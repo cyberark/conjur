@@ -22,7 +22,7 @@ function finish {
       echo "Grabbing output from $pod_name"
       echo '-----'
       mkdir -p output
-      kubectl cp $pod_name:/src/authn-k8s/output output
+      kubectl cp $pod_name:/opt/conjur-server/output output
 
       echo "Logs from Conjur Pod $pod_name:"
       kubectl logs $pod_name > output/gke-authn-k8s-logs.txt
@@ -53,7 +53,7 @@ function main() {
   pushDockerImages
 
   launchConjurMaster
-  createSSLCertConfigMap
+#  createSSLCertConfigMap
   loadConjurPolicies
   launchInventoryServices
 
@@ -102,46 +102,52 @@ function pushDockerImages() {
 function launchConjurMaster() {
   echo 'Launching Conjur master service'
 
-  kubectl create -f dev/dev_conjur.${TEMPLATE_TAG}yaml
+  sed -e "s#{{ DATA_KEY }}#$(openssl rand -base64 32)#g" dev/dev_conjur.${TEMPLATE_TAG}yaml |
+    kubectl create -f -
+
   wait_for_it 300 "kubectl describe po conjur-authn-k8s | grep Status: | grep -q Running"
 
-  echo 'Disabling unused services'
-  for service in authn-tv ldap ldap-sync pubkeys rotation; do
-    conjurcmd touch /etc/service/conjur/$service/down
-  done
+#  echo 'Disabling unused services'
+#  for service in authn-tv ldap ldap-sync pubkeys rotation; do
+#    conjurcmd touch /etc/service/conjur/$service/down
+#  done
 
-  echo 'Enabling authn-k8s'
+#  echo 'Enabling authn-k8s'
 
-  conjurcmd sv stop conjur nginx pg && sleep 3
-  conjurcmd evoke ca regenerate conjur-authn-k8s
-  conjurcmd rm -f /etc/service/conjur/authn-k8s/down
+#  conjurcmd sv stop conjur nginx pg && sleep 3
+#  conjurcmd evoke ca regenerate conjur-authn-k8s
+#  conjurcmd rm -f /etc/service/conjur/authn-k8s/down
 
-  conjurcmd mkdir -p /src/authn-k8s
+#  conjurcmd mkdir -p /src/authn-k8s
 
-  WORKSPACE_PARENT_DIR=$(dirname $PWD)
-  tar --exclude="./*.deb" --exclude="./*.git" -zcvf $WORKSPACE_PARENT_DIR/src.tgz .
-  kubectl cp $WORKSPACE_PARENT_DIR/src.tgz $pod_name:/src/
-  rm -rf $WORKSPACE_PARENT_DIR/src.tgz
-  conjurcmd tar -zxvf /src/src.tgz -C /src/authn-k8s
+#  WORKSPACE_PARENT_DIR=$(dirname $PWD)
+#  tar --exclude="./*.deb" --exclude="./*.git" -zcvf $WORKSPACE_PARENT_DIR/src.tgz .
+#  kubectl cp $WORKSPACE_PARENT_DIR/src.tgz $pod_name:/src/
+#  rm -rf $WORKSPACE_PARENT_DIR/src.tgz
+#  conjurcmd tar -zxvf /src/src.tgz -C /src/authn-k8s
 
-  conjurcmd /opt/conjur/evoke/bin/dev-install authn-k8s
+#  conjurcmd /opt/conjur/evoke/bin/dev-install authn-k8s
 
   # authn-k8s must be in "development" mode to allow request IP spoofing, which is used by the 
   # test cases.
   pod_name=$(kubectl get pods -l app=conjur-authn-k8s -o=jsonpath='{.items[].metadata.name}')
 
-  echo "Conjur pod name is : $pod_name"
+  echo "Conjur pod name is: $pod_name"
 
-  kubectl cp $pod_name:/opt/conjur/etc/authn-k8s.conf ./dev/tmp/authn-k8s.conf
-  cat << CONFIG >> ./dev/tmp/authn-k8s.conf
-  RAILS_ENV=development
-  RAILS_LOG_TO_STDOUT=true
-CONFIG
+#  kubectl exec $pod_name -- bundle
+#  kubectl exec $pod_name -- conjurctl db migrate
+#  kubectl exec $pod_name -- conjurctl account create cucumber || true
+  
+#  kubectl cp $pod_name:/opt/conjur/etc/authn-k8s.conf ./dev/tmp/authn-k8s.conf
+#  cat << CONFIG >> ./dev/tmp/authn-k8s.conf
+#  RAILS_ENV=development
+#  RAILS_LOG_TO_STDOUT=true
+#CONFIG
 
-  kubectl cp ./dev/tmp/authn-k8s.conf $pod_name:/opt/conjur/etc/authn-k8s.conf
+#  kubectl cp ./dev/tmp/authn-k8s.conf $pod_name:/opt/conjur/etc/authn-k8s.conf
 
-  conjurcmd sv start nginx pg conjur
-  conjurcmd /opt/conjur/evoke/bin/wait_for_conjur
+#  conjurcmd sv start nginx pg conjur
+#  conjurcmd /opt/conjur/evoke/bin/wait_for_conjur
 }
 
 function createSSLCertConfigMap() {
@@ -158,8 +164,8 @@ function createSSLCertConfigMap() {
 function loadConjurPolicies() {
   echo 'Loading the policies and data'
 
-  conjurcmd conjur policy load --as-group security_admin /src/authn-k8s/dev/policies/conjur.${TEMPLATE_TAG}yml
-  conjurcmd conjur-dev-service authn-k8s rake ca:initialize["conjur/authn-k8s/minikube"]
+  conjurcmd conjur policy load --as-group security_admin /opt/conjur-server/ci/authn-k8s/dev/conjur.${TEMPLATE_TAG}yml
+#  conjurcmd conjur-dev-service authn-k8s rake ca:initialize["conjur/authn-k8s/minikube"]
 
   password=$(openssl rand -hex 12)
 
@@ -169,10 +175,10 @@ function loadConjurPolicies() {
 function launchInventoryServices() {
   echo 'Launching inventory services'
 
-  kubectl create -f dev/dev_inventory.${TEMPLATE_TAG}yaml
-  kubectl create -f dev/dev_inventory_stateful.${TEMPLATE_TAG}yaml
-  kubectl create -f dev/dev_inventory_pod.${TEMPLATE_TAG}yaml
-  kubectl create -f dev/dev_inventory_unauthorized.${TEMPLATE_TAG}yaml
+  kubectl create -f /opt/conjur-server/ci/authn-k8s/dev/dev_inventory.${TEMPLATE_TAG}yaml
+  kubectl create -f /opt/conjur-server/ci/authn-k8s/dev/dev_inventory_stateful.${TEMPLATE_TAG}yaml
+  kubectl create -f /opt/conjur-server/ci/authn-k8s/dev/dev_inventory_pod.${TEMPLATE_TAG}yaml
+  kubectl create -f /opt/conjur-server/ci/authn-k8s/dev/dev_inventory_unauthorized.${TEMPLATE_TAG}yaml
 
   wait_for_it 300 "kubectl describe po inventory | grep Status: | grep -c Running | grep -q 4"
 }
@@ -180,8 +186,8 @@ function launchInventoryServices() {
 function runTests() {
   echo 'Running tests'
 
-  conjurcmd mkdir -p /src/conjur-server/output
-  echo "cd /src/conjur-server && ./bin/cucumber K8S_VERSION=1.7 PLATFORM=kubernetes --no-color --format pretty --format junit --out /src/authn-k8s/output ./features/cucumber/kubernetes" | conjurcmd -i bash
+  conjurcmd mkdir -p /opt/conjur-server/output
+  echo "cd /opt/conjur-server && ./bin/cucumber K8S_VERSION=1.7 PLATFORM=kubernetes --no-color --format pretty --format junit --out /opt/conjur-server/output ./cucumber/kubernetes" | conjurcmd -i bash
 }
 
 main
