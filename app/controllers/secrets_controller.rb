@@ -15,12 +15,12 @@ class SecretsController < RestController
     Secret.create resource_id: @resource.id, value: value
     @resource.enforce_secrets_version_limit
 
-    Audit::Event::Update.new(
+    head :created
+  ensure
+    Audit::Event::Update.new_with_exception(
       resource: @resource,
       user: @current_user
     ).log_to Audit.logger
-          
-    head :created
   end
   
   def show
@@ -42,9 +42,9 @@ class SecretsController < RestController
     end
     mime_type ||= 'application/octet-stream'
 
-    audit_fetch @resource, version: version
-
     send_data value, type: mime_type
+  ensure
+    audit_fetch @resource, version: version
   end
 
   def batch
@@ -78,7 +78,7 @@ class SecretsController < RestController
   end
 
   def audit_fetch resource, version: nil
-    Audit::Event::Fetch.new(
+    Audit::Event::Fetch.new_with_exception(
       resource: resource,
       version: version,
       user: current_user
