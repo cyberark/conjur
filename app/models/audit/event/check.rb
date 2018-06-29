@@ -1,17 +1,16 @@
 module Audit
   class Event
     class Check < Event
-      field :resource, :user, :privilege, :role, :success
+      field :resource, :user, :privilege, :role
       facility Syslog::LOG_AUTH
-      severity { success ? Syslog::LOG_INFO : Syslog::LOG_WARNING }
       message_id 'check'
+      can_fail
 
       def structured_data
-        {
+        super.deep_merge \
           SDID::AUTH => { user: user.id },
           SDID::SUBJECT => { resource: resource.id, role: role.id, privilege: privilege },
-          SDID::ACTION => { operation: 'check', result: success_text }
-        }
+          SDID::ACTION => { operation: 'check' }
       end
 
       def message
@@ -20,10 +19,6 @@ module Audit
       end
 
       protected
-
-      def success_text
-        success ? 'success' : 'failure'
-      end
 
       def role_text
         user == role ? 'they' : role.id

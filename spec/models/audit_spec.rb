@@ -8,7 +8,7 @@ describe Audit::Event::Authn do
       service: service
   end
 
-  describe '#success' do
+  context 'when successful' do
     it 'sends an info message' do
       expect(logger).to receive(:log).with \
         Logger::Severity::INFO,
@@ -28,11 +28,20 @@ describe Audit::Event::Authn do
             }
           }
         ), 'conjur'
-      event.success.log_to logger
+      event.log_to logger
     end
   end
 
-  describe 'failure' do
+  describe 'on failure' do
+    subject(:event) do
+      Audit::Event::Authn.new \
+        role: the_user,
+        authenticator_name: 'authn-test',
+        service: service,
+        success: false,
+        error_message: 'test error'
+    end
+
     it 'sends a warning message' do
       expect(logger).to receive(:log).with \
         Logger::Severity::WARN,
@@ -52,7 +61,7 @@ describe Audit::Event::Authn do
             }
           }
         ), 'conjur'
-      event.failure('test error').log_to logger
+      event.log_to logger
     end
   end
 
@@ -60,7 +69,7 @@ describe Audit::Event::Authn do
     let(:service) { nil }
 
     it 'does not include service in metadata nor message' do
-      expect(event.success.message).not_to include 'service'
+      expect(event.message).not_to include 'service'
       expect(event.structured_data[:'auth@43868']).not_to have_key :service
     end
   end
