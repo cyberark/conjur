@@ -11,10 +11,27 @@ end
 
 class AuthenticateController < ApplicationController
 
+  AUTHN_RESOURCE_PREFIX = "conjur/authn-".freeze
+
+  def index 
+    authenticators = {
+      # Installed authenticator plugins
+      installed: installed_authenticators.keys.sort,
+    
+      # Authenticator webservices created in policy
+      configured: configured_authenticators.sort,
+
+      # Authenticators white-listed in CONJUR_AUTHENTICATORS
+      enabled: enabled_authenticators.sort
+    }
+
+    render json: authenticators
+  end
+
   def authenticate
 
     authentication_token = ::Authentication::Strategy.new(
-      authenticators: ::Authentication::InstalledAuthenticators.new(ENV),
+      authenticators: installed_authenticators,
       audit_log: ::Authentication::AuditLog,
       security: nil,
       env: ENV,
@@ -33,6 +50,30 @@ class AuthenticateController < ApplicationController
   rescue => e
     logger.debug("Authentication Error: #{e.message}")
     raise Unauthorized
+  end
+
+  private
+
+  def installed_authenticators
+    @installed_authenticators ||= ::Authentication::InstalledAuthenticators.new(ENV)
+  end
+
+  def configured_authenticators
+    identifier = Sequel.function(:identifier, :resource_id)
+    kind = Sequel.function(:kind, :resource_id)
+
+    Resource
+      .where(
+        identifier.like("#{AUTHN_RESOURCE_PREFIX}%"), 
+        kind => "webservice"
+      )
+      .select_map(identifier)
+      .map { |id| id.sub /^conjur\//, "" }
+      .push(Authentication::Strategy.default_authenticator_name)
+  end
+
+  def enabled_authenticators
+    (ENV["CONJUR_AUTHENTICATORS"] || Authentication::Strategy.default_authenticator_name).split(",")
   end
 
 end
