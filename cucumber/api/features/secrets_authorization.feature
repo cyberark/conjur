@@ -2,7 +2,7 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
 
   Background:
     Given I create a new user "bob"
-    And I create a new resource
+    And I create a new "variable" resource called "probe"
     And I permit user "bob" to "read" it
     And I create 1 secret values
 
@@ -11,6 +11,14 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
     Given I login as "bob"
     When I GET "/secrets/cucumber/:resource_kind/:resource_id"
     Then the HTTP response status code is 403
+    And there is an audit record matching:
+    """
+      <36>1 * * conjur * fetch
+      [auth@43868 user="cucumber:user:bob"]
+      [subject@43868 resource="cucumber:variable:probe"]
+      [action@43868 operation="fetch" result="failure"]
+      cucumber:user:bob tried to fetch cucumber:variable:probe: Forbidden
+    """
 
   Scenario: Updating a secret as an unauthorized user results in a 403 error.
 
@@ -20,6 +28,14 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
     v-1
     """
     Then the HTTP response status code is 403
+    And there is an audit record matching:
+    """
+      <36>1 * * conjur * update
+      [auth@43868 user="cucumber:user:bob"]
+      [subject@43868 resource="cucumber:variable:probe"]
+      [action@43868 operation="update" result="failure"]
+      cucumber:user:bob tried to update cucumber:variable:probe: Forbidden
+    """
 
   Scenario: A foreign role can be granted permission to fetch a secret.
 

@@ -6,6 +6,9 @@ class ApplicationController < ActionController::API
   end
 
   class Forbidden < Exceptions::Forbidden
+    def message
+      'Forbidden'
+    end
   end
 
   class RecordNotFound < Exceptions::RecordNotFound
