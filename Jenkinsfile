@@ -21,7 +21,7 @@ pipeline {
       parallel {
         stage('Static Analysis') {
           steps {
-            sh './security-scan.sh -b'
+            sh 'ci/security-scan -b'
           }
           post {
             always {
@@ -32,7 +32,7 @@ pipeline {
         }
         stage('Vulnerability Scan') {
           steps {
-            sh './security-scan.sh -a'
+            sh 'ci/security-scan -a'
           }
         }
       }
