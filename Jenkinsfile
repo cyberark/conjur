@@ -41,6 +41,12 @@ pipeline {
             checkstyle pattern: 'reports/xml/checkstyle-result.xml', canComputeNew: false, unstableTotalAll: '0', healthy: '0', failedTotalAll: '20',  unHealthy: '10'
           }
         }
+        stage('reek') {
+          steps {
+            sh 'ci/docker-reek'
+            checkstyle pattern: 'reports/reek.xml', canComputeNew: false, unstableTotalAll: '0', healthy: '0', failedTotalAll: '20',  unHealthy: '10'
+          }
+        }
       }
     }
 

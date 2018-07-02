@@ -649,6 +649,10 @@ GEM
       aws-sigv4 (~> 1.0)
     aws-sigv2 (1.0.1)
     aws-sigv4 (1.0.2)
+    axiom-types (0.1.1)
+      descendants_tracker (~> 0.0.4)
+      ice_nine (~> 0.11.0)
+      thread_safe (~> 0.3, >= 0.3.1)
     base32-crockford (0.1.0)
     base58 (0.2.3)
     bcrypt-ruby (3.0.1)
@@ -663,7 +667,11 @@ GEM
     ci_reporter_rspec (1.0.0)
       ci_reporter (~> 2.0)
       rspec (>= 2.14, < 4)
+    codeclimate-engine-rb (0.4.1)
+      virtus (~> 1.0)
     coderay (1.1.1)
+    coercible (1.0.0)
+      descendants_tracker (~> 0.0.1)
     concurrent-ruby (1.0.5)
     conjur-cli (6.1.0)
       activesupport (>= 4.2, < 6)
@@ -699,6 +707,8 @@ GEM
     cucumber-wire (0.0.1)
     database_cleaner (1.6.1)
     deep_merge (1.2.1)
+    descendants_tracker (0.0.4)
+      thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.3)
     docile (1.1.5)
     docker-api (1.34.2)
@@ -731,6 +741,7 @@ GEM
       dry-equalizer (~> 0.2)
       dry-logic (~> 0.4, >= 0.4.2)
       inflecto (~> 0.0.0, >= 0.0.2)
+    equalizer (0.0.11)
     erubis (2.7.0)
     excon (0.62.0)
     execjs (2.7.0)
@@ -756,6 +767,7 @@ GEM
     json_spec (1.1.5)
       multi_json (~> 1.0)
       rspec (>= 2.0, < 4.0)
+    kwalify (0.7.2)
     libv8 (3.16.14.19)
     libv8 (3.16.14.19-x86_64-darwin-16)
     listen (3.0.6)
@@ -837,6 +849,11 @@ GEM
     rb-fsevent (0.9.8)
     rb-inotify (0.9.8)
       ffi (>= 0.5.0)
+    reek (5.0.0)
+      codeclimate-engine-rb (~> 0.4.0)
+      kwalify (~> 0.7.0)
+      parser (>= 2.5.0.0, < 2.6)
+      rainbow (>= 2.0, < 4.0)
     ref (2.0.0)
     rest-client (2.0.2)
       http-cookie (>= 1.0.2, < 2.0)
@@ -926,6 +943,11 @@ GEM
       unf_ext
     unf_ext (0.0.7.5)
     unicode-display_width (1.4.0)
+    virtus (1.0.5)
+      axiom-types (~> 0.1)
+      coercible (~> 1.0)
+      descendants_tracker (~> 0.0, >= 0.0.3)
+      equalizer (~> 0.0, >= 0.0.9)
     xdg (2.2.3)
 
 PLATFORMS
@@ -972,6 +994,7 @@ DEPENDENCIES
   rake
   rake_shared_context
   random_password_generator (= 1.0.0)
+  reek
   rspec
   rspec-core (~> 3.0)
   rspec-rails
