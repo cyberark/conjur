@@ -79,6 +79,9 @@ group :development, :test do
   gem 'conjur-cli', '~> 6.1'
   gem 'rails_layout'
   gem 'rspec-core', '~> 3.0'
+
+  gem 'rubocop', require: false
+  gem 'rubocop-checkstyle_formatter', require: false # for Jenkins
 end
 
 group :test do
