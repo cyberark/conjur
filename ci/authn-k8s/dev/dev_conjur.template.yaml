@@ -20,6 +20,8 @@ spec:
     name: https
   - port: 636
     name: ldaps
+  - port: 80
+    name: http
   selector:
     app: conjur
 ---
@@ -36,6 +38,7 @@ spec:
     spec:
       containers:
       - image: postgres:9.4
+        imagePullPolicy: Always
         name: postgres
 ---
 apiVersion: extensions/v1beta1
@@ -51,23 +54,24 @@ spec:
     spec:
       containers:
       - image: us.gcr.io/conjur-gke-dev/conjur:authn-k8s
+        imagePullPolicy: Always
         name: conjur
         command: ["conjurctl", "server"]
         env:
-          - name: CONJUR_APPLIANCE_URL
-            value: http://localhost:3000
-          - name: DATABASE_URL
-            value: postgres://postgres@postgres:5432/postgres
-          - name: CONJUR_ADMIN_PASSWORD
-            value: admin
-          - name: CONJUR_ACCOUNT
-            value: cucumber
-          - name: CONJUR_DATA_KEY
-            value: "{{ DATA_KEY }}"
-          - name: RAILS_ENV
-            value: test
-          - name: CONJUR_AUTHENTICATORS
-            value: authn-k8s/minikube
+        - name: CONJUR_APPLIANCE_URL
+          value: http://localhost:80
+        - name: DATABASE_URL
+          value: postgres://postgres@postgres:5432/postgres
+        - name: CONJUR_ADMIN_PASSWORD
+          value: admin
+        - name: CONJUR_ACCOUNT
+          value: cucumber
+        - name: CONJUR_DATA_KEY
+          value: "{{ DATA_KEY }}"
+        - name: RAILS_ENV
+          value: test
+        - name: CONJUR_AUTHENTICATORS
+          value: authn-k8s/minikube
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -90,5 +94,11 @@ spec:
       - name: conjur-cli
         image: cyberark/conjur-cli:5
         imagePullPolicy: Always
-        command: ["sleep"]
-        args: ["infinity"]
+        command: ["sleep", "infinity"]
+        env:
+        - name: CONJUR_APPLIANCE_URL
+          value: http://conjur:80
+        - name: CONJUR_ACCOUNT
+          value: cucumber
+        - name: CONJUR_AUTHN_LOGIN
+          value: admin
