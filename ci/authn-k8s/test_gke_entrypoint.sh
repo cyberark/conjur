@@ -106,7 +106,7 @@ function launchConjurMaster() {
   sed -e "s#{{ DATA_KEY }}#$(openssl rand -base64 32)#g" dev/dev_conjur.${TEMPLATE_TAG}yaml |
     kubectl create -f -
 
-  wait_for_it 300 "kubectl describe pod conjur | grep Status: | grep -q Running"
+  wait_for_it 300 "kubectl describe po conjur | grep Status: | grep -q Running"
 
 #  echo 'Disabling unused services'
 #  for service in authn-tv ldap ldap-sync pubkeys rotation; do
@@ -176,7 +176,7 @@ function loadConjurPolicies() {
   cli_pod=$(kubectl get pod -l app=conjur-cli --no-headers | grep Running | awk '{ print $1 }')
   
   kubectl exec $cli_pod -- conjur init -u conjur -a cucumber
-  kubectl exec $cli_pod -- conjur authn login -u admin -p $api_key
+  kubectl exec $cli_pod -- conjur authn login -u admin -p $API_KEY
 
   # load policies
   kubectl exec $cli_pod -- conjur policy load root /policies/users.yml
