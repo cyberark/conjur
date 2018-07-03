@@ -58,7 +58,6 @@ module RotatorWorld
   # has only "written" one of the two passwords that need to be kept in sync.
   #
   PgRotatingPassword ||= Struct.new(:var_name, :db_user, :variable_meth) do
-
     def current_value
       pw = variable_meth.(var_name)&.value
       pw_works_in_db = pg_login_result(db_user, pw) if pw
@@ -80,7 +79,6 @@ module RotatorWorld
   # Assumes the test account has the `describe-regions` privilege.
   #
   AwsRotatingCredentials ||= Struct.new(:policy_id, :variable_meth) do
-
     def current_value
       id = variable_meth.("#{policy_id}/access_key_id")&.value
       key = variable_meth.("#{policy_id}/secret_access_key")&.value
@@ -100,7 +98,6 @@ module RotatorWorld
     rescue
       false
     end
-
   end
 
   # TODO remove duplication with above

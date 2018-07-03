@@ -55,7 +55,6 @@ command :server do |c|
   c.flag [ :b, :'bind-address' ]
 
   c.action do |global_options,options,args|
-
     account = options[:account]
 
     connect
@@ -99,7 +98,6 @@ command :server do |c|
     # # Kill all of Conjur if rotations stop working
     # rotations_thread.abort_on_exception = true
     # rotations_thread.join
-
   end
 end
 
@@ -208,7 +206,6 @@ command :db do |cgrp|
   cgrp.desc "Create and/or upgrade the database schema"
   cgrp.command :migrate do |c|
     c.action do |global_options,options,args|
-
       connect
 
       exec "rake db:migrate"
@@ -222,7 +219,6 @@ command :role do |cgrp|
   cgrp.arg :role_id, :multiple
   cgrp.command :"retrieve-key" do |c|
     c.action do |global_options,options,args|
-
       connect
 
       fail 'key retrieval failed' unless args.map { |id|

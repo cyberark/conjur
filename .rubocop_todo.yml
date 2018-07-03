@@ -109,23 +109,6 @@ Layout/EmptyLinesAroundBeginBody:
   Exclude:
     - 'cucumber/rotators/features/aws_show_credentials'
 
-# Offense count: 46
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, no_empty_lines
-Layout/EmptyLinesAroundBlockBody:
-  Exclude:
-    - 'app/domain/rotation/conjur_facade.rb'
-    - 'app/domain/rotation/master_rotator.rb'
-    - 'bin/conjur-cli.rb'
-    - 'cucumber/rotators/features/support/world.rb'
-    - 'spec/app/domain/authentication/authn_iam/authenticator_spec.rb'
-    - 'spec/app/domain/authentication/security_spec.rb'
-    - 'spec/app/domain/authentication/strategy_spec.rb'
-    - 'spec/app/domain/authentication/webservice_spec.rb'
-    - 'spec/controllers/status_controller_spec.rb'
-    - 'spec/models/loader_orchestrate_spec.rb'
-
 # Offense count: 38
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
