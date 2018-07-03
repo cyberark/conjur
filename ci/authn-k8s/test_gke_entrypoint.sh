@@ -167,7 +167,7 @@ function copyConjurPolicies() {
 
   mkdir -p ./policies
   kubectl cp $conjur_pod:/opt/conjur-server/ci/authn-k8s/dev/policies/ ./policies/
-  kubectl cp ./policies $cli_pod:/
+  kubectl cp ./policies $cli_pod:/policies
 }
 
 function loadConjurPolicies() {
