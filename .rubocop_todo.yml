@@ -995,7 +995,6 @@ Style/RegexpLiteral:
 Style/RescueModifier:
   Exclude:
     - 'app/controllers/application_controller.rb'
-    - 'app/models/credentials.rb'
     - 'app/models/role.rb'
     - 'cucumber/api/features/support/hooks.rb'
     - 'cucumber/api/features/support/world.rb'
