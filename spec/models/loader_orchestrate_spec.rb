@@ -4,6 +4,7 @@ describe Loader::Orchestrate do
   def policy_path path
     File.expand_path("loader_fixtures/#{path}", File.dirname(__FILE__))
   end
+
   def expectation_path path
     File.expand_path("loader_expectations/#{path}", File.dirname(__FILE__))
   end

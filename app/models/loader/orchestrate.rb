@@ -334,7 +334,6 @@ module Loader
       db.execute "SET search_path = #{schema_name}"
     end
 
-
     # Creates the new schema.
     #
     # Creates a set of tables in the new schema to mirror the tables in the primary schema.

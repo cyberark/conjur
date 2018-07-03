@@ -94,7 +94,6 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     self.policy_sha256 = Digest::SHA256.hexdigest(policy_text)
   end
 
-
   def before_update
     raise Sequel::ValidationFailed, "Policy version cannot be updated once created"
   end
