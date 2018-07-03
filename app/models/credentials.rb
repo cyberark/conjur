@@ -14,10 +14,6 @@ class Credentials < Sequel::Model
   attr_encrypted :api_key, aad: :role_id
   attr_encrypted :encrypted_hash, aad: :role_id
 
-  attr_accessor :password_required
-  
-  alias password_required? password_required
-
   class << self
     def random_api_key
       require 'base32/crockford'
@@ -58,7 +54,7 @@ class Credentials < Sequel::Model
 
     validates_presence [ :api_key ]
 
-    errors.add(:password, 'must not be blank') if password_required? && @plain_password.blank?
+    errors.add(:password, 'must not be blank') if @plain_password && @plain_password.empty?
     errors.add(:password, 'cannot contain a newline') if @plain_password && @plain_password.index("\n")
   end
   
