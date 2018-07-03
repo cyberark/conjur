@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 RSpec.describe 'Authentication::Strategy::Input#to_access_request' do
-
   let (:two_authenticator_env) do
     {'CONJUR_AUTHENTICATORS' => 'authn-one, authn-two'}
   end
@@ -19,7 +18,6 @@ RSpec.describe 'Authentication::Strategy::Input#to_access_request' do
   end
 
   context "An ENV lacking CONJUR_AUTHENTICATORS" do
-
     it "whitelists only the default Conjur authenticator" do
       services = subject.to_access_request(blank_env).whitelisted_webservices
       expect(services.to_a.size).to eq(1)
@@ -30,7 +28,6 @@ RSpec.describe 'Authentication::Strategy::Input#to_access_request' do
   end
 
   context "An ENV containing CONJUR_AUTHENTICATORS" do
-
     it "whitelists exactly those authenticators as webservices" do
       services = subject
         .to_access_request(two_authenticator_env)
@@ -46,7 +43,6 @@ RSpec.describe 'Authentication::Strategy::Input#to_access_request' do
   end
 
   context "An input with a service_id" do
-
     it "creates a Webservice with the correct authenticator_name" do
       webservice = subject.to_access_request(blank_env).webservice
       expect(webservice.authenticator_name).to eq(subject.authenticator_name)
@@ -64,7 +60,6 @@ RSpec.describe 'Authentication::Strategy::Input#to_access_request' do
   end
 
   context "An input without a service_id" do
-
     subject do
       Authentication::Strategy::Input.new(
         authenticator_name: 'authn-test',
@@ -80,12 +75,9 @@ RSpec.describe 'Authentication::Strategy::Input#to_access_request' do
       expect(webservice.service_id).to be_nil
     end
   end
-
 end
 
 RSpec.describe 'Authentication::Strategy' do
-
-
   ####################################
   # Available Authenticators - doubles
   ####################################
@@ -164,7 +156,6 @@ RSpec.describe 'Authentication::Strategy' do
 
 
   context "An unavailable authenticator" do
-
     subject do
       Authentication::Strategy.new(
         authenticators: authenticators,
@@ -186,7 +177,6 @@ RSpec.describe 'Authentication::Strategy' do
 
   context "An available authenticator" do
     context "that passes Security checks" do
-
       subject do
         Authentication::Strategy.new(
           authenticators: authenticators,
@@ -199,7 +189,6 @@ RSpec.describe 'Authentication::Strategy' do
       end
 
       context "and receives invalid credentials" do
-
         it "raises InvalidCredentials" do
           input_ = input(authenticator_name: 'authn-always-fail')
           expect{ subject.conjur_token(input_) }.to raise_error(
@@ -214,11 +203,9 @@ RSpec.describe 'Authentication::Strategy' do
           expect(subject.conjur_token(input_)).to equal(a_new_token)
         end
       end
-
     end
 
     context "that fails Security checks" do
-
       subject do
         Authentication::Strategy.new(
           authenticators: authenticators,
@@ -237,6 +224,5 @@ RSpec.describe 'Authentication::Strategy' do
         )
       end
     end
-
   end
 end

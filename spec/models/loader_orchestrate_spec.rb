@@ -54,7 +54,6 @@ describe Loader::Orchestrate do
   let(:perform_automatic_deletion) { true }
 
   context "with a minimal base policy" do
-
     let(:base_policy_path) { 'empty.yml' }
     it "loads the minimal policy" do
       expect(resource_policy).to be

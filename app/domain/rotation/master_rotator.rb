@@ -33,7 +33,6 @@ module Rotation
 
     def scheduled_rotations
       @rotation_model.scheduled_rotations.map do |rotation|
-
         rotated_var = ::Rotation::RotatedVariable.new(rotation)
         facade = @facade_cls.new(rotated_variable: rotated_var)
 
