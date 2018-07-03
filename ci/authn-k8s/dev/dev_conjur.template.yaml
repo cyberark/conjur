@@ -74,3 +74,27 @@ spec:
 #            value: authn-k8s
           - name: CONJUR_AUTHENTICATORS
             value: authn-k8s/minikube
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: conjur-cli
+  name: conjur-cli
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: conjur-cli
+  template:
+    metadata:
+      labels:
+        app: conjur-cli
+        name: conjur-cli
+    spec:
+      containers:
+      - name: conjur-cli
+        image: cyberark/conjur-cli:5
+        imagePullPolicy: Always
+        command: ["sleep"]
+        args: ["infinity"]

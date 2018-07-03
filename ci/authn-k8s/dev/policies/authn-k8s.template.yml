@@ -85,15 +85,6 @@
         description: This host does not have "authenticate" privilege on the webservice.
 
     - !grant
-      role: !layer /inventory
-      members:
-      - !host {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/*/*
-      - !host {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/pod/inventory-pod
-      - !host {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/deployment/inventory-deployment
-      - !host {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/deployment_config/inventory-deployment-cfg
-      - !host {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/stateful_set/inventory-stateful
-
-    - !grant
       role: !layer      
       members: *hosts
 

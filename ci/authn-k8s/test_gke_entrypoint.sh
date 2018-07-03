@@ -54,6 +54,7 @@ function main() {
 
   launchConjurMaster
 #  createSSLCertConfigMap
+  copyConjurPolicies
   loadConjurPolicies
   launchInventoryServices
 
@@ -134,9 +135,8 @@ function launchConjurMaster() {
 
   echo "Conjur pod name is: $pod_name"
 
-#  kubectl exec $pod_name -- bundle
-#  kubectl exec $pod_name -- conjurctl db migrate
-#  kubectl exec $pod_name -- conjurctl account create cucumber || true
+  kubectl exec $pod_name -- conjurctl db migrate
+  export API_KEY=$(kubectl exec $pod_name -- conjurctl account create cucumber | tail -n 1 | awk '{ print $NF }')
   
 #  kubectl cp $pod_name:/opt/conjur/etc/authn-k8s.conf ./dev/tmp/authn-k8s.conf
 #  cat << CONFIG >> ./dev/tmp/authn-k8s.conf
@@ -161,15 +161,32 @@ function createSSLCertConfigMap() {
     --from-literal=ssl-certificate="$ssl_certificate"
 }
 
+function copyConjurPolicies() {
+  conjur_pod=$(kubectl get pod -l app=conjur --no-headers | grep Running | awk '{ print $1 }')
+  cli_pod=$(kubectl get pod -l app=conjur-cli --no-headers | grep Running | awk '{ print $1 }')
+
+  mkdir -p ./policies
+  kubectl cp $conjur_pod:/opt/conjur-server/ci/authn-k8s/dev/policies/ ./policies/
+  kubectl cp ./policies $cli_pod:/
+}
+
 function loadConjurPolicies() {
   echo 'Loading the policies and data'
 
-  conjurcmd conjur policy load --as-group security_admin /opt/conjur-server/ci/authn-k8s/dev/conjur.${TEMPLATE_TAG}yml
-#  conjurcmd conjur-dev-service authn-k8s rake ca:initialize["conjur/authn-k8s/minikube"]
+  cli_pod=$(kubectl get pod -l app=conjur-cli --no-headers | grep Running | awk '{ print $1 }')
+  
+  kubectl exec $cli_pod -- conjur init -u conjur -a cucumber
+  kubectl exec $cli_pod -- conjur authn login -u admin -p $api_key
+
+  # load policies
+  kubectl exec $cli_pod -- conjur policy load root /policies/users.yml
+  kubectl exec $cli_pod -- conjur policy load root /policies/apps.yml
+  kubectl exec $cli_pod -- conjur policy load root /policies/authn-k8s.yml
+  kubectl exec $cli_pod -- conjur policy load root /policies/entitlements.yml
 
   password=$(openssl rand -hex 12)
 
-  conjurcmd conjur variable values add inventory-db/password $password
+  kubectl exec $cli_pod -- conjur variable values add inventory-db/password $password
 }
 
 function launchInventoryServices() {
