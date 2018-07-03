@@ -457,7 +457,6 @@ detectors:
     - Authenticate#authenticated_role
     - Authenticate#basic_user
     - Authenticate#selected_role
-    - Credentials#password_required
     - PolicyVersion#delete_permitted
     - PolicyVersion#parse_error
     - PolicyVersion#perform_automatic_deletion
