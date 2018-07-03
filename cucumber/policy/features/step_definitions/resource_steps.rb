@@ -1,9 +1,9 @@
 Then(/^([\w_]+) "([^"]*)" exists$/) do |kind, id|
-  expect(conjur_api.resource make_full_id(kind, id)).to exist
+  expect(conjur_api.resource(make_full_id(kind, id))).to exist
 end
 
 Then(/^([\w_]+) "([^"]*)" does not exist$/) do |kind, id|
-  expect(conjur_api.resource make_full_id(kind, id)).to_not exist
+  expect(conjur_api.resource(make_full_id(kind, id))).to_not exist
 end
 
 Then(/^there is a ([\w_]+) resource "([^"]*)"$/) do |kind, id|

@@ -37,7 +37,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
 
   dataset_module do
     def current
-      from(Sequel.function :current_policy_version).first
+      from(Sequel.function(:current_policy_version)).first
     end
   end
 

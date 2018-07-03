@@ -50,9 +50,9 @@ describe Credentials, :type => :model do
         it 'sets no password when given nil' do
           credentials.password = nil
           credentials.save
-          expect(credentials.authenticate password).to be_falsey
-          expect(credentials.valid_password? password).to be_falsey
-          expect(credentials.valid_password? nil).to be_falsey
+          expect(credentials.authenticate(password)).to be_falsey
+          expect(credentials.valid_password?(password)).to be_falsey
+          expect(credentials.valid_password?(nil)).to be_falsey
         end
       end
       it 'disallows passwords with newlines' do
@@ -69,8 +69,8 @@ describe Credentials, :type => :model do
     context "with password" do
       let(:password) { "the-password" }
       it "returns true on good password" do
-        expect(credentials.authenticate password).to be_truthy
-        expect(credentials.valid_password? password).to be_truthy
+        expect(credentials.authenticate(password)).to be_truthy
+        expect(credentials.valid_password?(password)).to be_truthy
       end
     end
     
@@ -102,29 +102,29 @@ describe Credentials, :type => :model do
         describe "when expired" do
           let(:expiration_time) { past }
           it "has a valid password" do
-            expect(credentials.valid_password? password).to be_truthy
+            expect(credentials.valid_password?(password)).to be_truthy
           end
           it "authenticates" do
-            expect(credentials.authenticate password).to be_truthy
+            expect(credentials.authenticate(password)).to be_truthy
           end
         end
       end
     end
 
     it "returns true on good api key" do
-      expect(credentials.authenticate credentials.api_key).to be_truthy
+      expect(credentials.authenticate(credentials.api_key)).to be_truthy
     end
 
     it "returns false otherwise" do
-      expect(credentials.authenticate "backdoor").to be_falsey
+      expect(credentials.authenticate("backdoor")).to be_falsey
     end
     
     it "returns false on nil" do
-      expect(credentials.authenticate nil).to be_falsey
+      expect(credentials.authenticate(nil)).to be_falsey
     end
     
     it "returns false on empty string" do
-      expect(credentials.authenticate "").to be_falsey
+      expect(credentials.authenticate("")).to be_falsey
     end
   end
 end
