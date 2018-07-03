@@ -85,15 +85,6 @@
         description: This host does not have "authenticate" privilege on the webservice.
 
     - !grant
-      role: !layer /inventory
-      members:
-      - !host authn-k8s/*/*
-      - !host authn-k8s/pod/inventory-pod
-      - !host authn-k8s/deployment/inventory-deployment
-      - !host authn-k8s/deployment_config/inventory-deployment-config
-      - !host authn-k8s/stateful_set/inventory-stateful
-
-    - !grant
       role: !layer      
       members: *hosts
 
