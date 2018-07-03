@@ -106,7 +106,7 @@ function launchConjurMaster() {
   sed -e "s#{{ DATA_KEY }}#$(openssl rand -base64 32)#g" dev/dev_conjur.${TEMPLATE_TAG}yaml |
     kubectl create -f -
 
-  wait_for_it 300 "kubectl describe po conjur-authn-k8s | grep Status: | grep -q Running"
+  wait_for_it 300 "kubectl describe pod conjur | grep Status: | grep -q Running"
 
 #  echo 'Disabling unused services'
 #  for service in authn-tv ldap ldap-sync pubkeys rotation; do
@@ -131,7 +131,7 @@ function launchConjurMaster() {
 
   # authn-k8s must be in "development" mode to allow request IP spoofing, which is used by the 
   # test cases.
-  pod_name=$(kubectl get pods -l app=conjur-authn-k8s -o=jsonpath='{.items[].metadata.name}')
+  pod_name=$(kubectl get pods -l app=conjur -o=jsonpath='{.items[].metadata.name}')
 
   echo "Conjur pod name is: $pod_name"
 

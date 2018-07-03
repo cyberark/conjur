@@ -13,7 +13,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: conjur-authn-k8s
+  name: conjur
 spec:
   ports:
   - port: 443
@@ -21,7 +21,7 @@ spec:
   - port: 636
     name: ldaps
   selector:
-    app: conjur-authn-k8ss
+    app: conjur
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -36,26 +36,22 @@ spec:
     spec:
       containers:
       - image: postgres:9.4
-#      - image: launcher.gcr.io/google/postgresql9
         name: postgres
-#        env:
-#        - name: POSTGRES_PASSWORD
-#          value: postgres_secret
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: conjur-authn-k8s
+  name: conjur
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: conjur-authn-k8s
+        app: conjur
     spec:
       containers:
       - image: us.gcr.io/conjur-gke-dev/conjur:authn-k8s
-        name: conjur-authn-k8s
+        name: conjur
         command: ["conjurctl", "server"]
         env:
           - name: CONJUR_APPLIANCE_URL
@@ -70,8 +66,6 @@ spec:
             value: "{{ DATA_KEY }}"
           - name: RAILS_ENV
             value: test
-#          - name: CONJUR_AUTHN_K8S_TEST_NAMESPACE
-#            value: authn-k8s
           - name: CONJUR_AUTHENTICATORS
             value: authn-k8s/minikube
 ---
