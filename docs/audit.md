@@ -38,9 +38,10 @@ For messages generated in response to web request, this is a web request GUID. F
 
 This field is the type of event. Allowed values:
 - `authn` for authentication events,
-- `update` for value changes,
 - `check` for permission checks,
-- `policy` for policy changes.
+- `fetch` for secret value fetches,
+- `policy` for policy changes,
+- `update` for value changes.
 
 ### Structured data
 
