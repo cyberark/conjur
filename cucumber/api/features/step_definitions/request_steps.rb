@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Given(/^I authorize the request with the host factory token$/) do
   expect(@host_factory_token).to be
   headers[:authorization] = %Q(Token token="#{@host_factory_token.token}")

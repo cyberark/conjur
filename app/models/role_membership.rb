@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class RoleMembership < Sequel::Model
   unrestrict_primary_key
   

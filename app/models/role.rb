@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Role < Sequel::Model
   include HasId
   

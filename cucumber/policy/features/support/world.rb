@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'conjur-api'
 
 Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || 'http://conjur'

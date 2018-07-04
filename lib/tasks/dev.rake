@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Load development tasks. 
 # Assume any LoadErrors to be caused by the production environment missing
 # required gems, and skip this file.

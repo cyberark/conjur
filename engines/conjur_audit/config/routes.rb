@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ConjurAudit::Engine.routes.draw do
   scope format: false do
     root 'messages#index'

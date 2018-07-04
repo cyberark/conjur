@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class HostFactoriesController < ApplicationController
   before_filter :verify_token,  only: :create_host
 

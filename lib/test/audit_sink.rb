@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Test
   class AuditSink
     def initialize

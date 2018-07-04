@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Then(/^I create a db user "(.*?)" with password "(.*?)"$/) do |user, pw|
   # drop them first, in case we're re-running during dev
   run_sql_in_testdb("DROP DATABASE #{user};")

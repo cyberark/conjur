@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'socket'
 
 Given(/^I request from authn\-local:$/) do |claims|

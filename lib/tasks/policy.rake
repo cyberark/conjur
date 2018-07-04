@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :policy do
   desc "Watch a file and reload the policy when it changes"
   task :watch, [ "account", "file-name" ] do |t,args|

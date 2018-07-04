@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 When(/^I am the super\-user$/) do
   @selected_user = @current_user = admin_user
 end

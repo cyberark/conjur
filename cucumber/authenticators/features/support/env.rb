@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rest-client'
 require 'aruba'
 require 'aruba/cucumber'

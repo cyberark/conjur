@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ResourcesController < RestController
   include FindResource
   include AssumedRole

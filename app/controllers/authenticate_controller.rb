@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # NOTE: This is needed to make the introspection use by InstalledAuthenticators
 #       work.  It cannot be placed in an initializer instead.  There may be a 
 #       better place for it, but this works.
@@ -11,7 +13,7 @@ end
 
 class AuthenticateController < ApplicationController
 
-  AUTHN_RESOURCE_PREFIX = "conjur/authn-".freeze
+  AUTHN_RESOURCE_PREFIX = "conjur/authn-"
 
   def index 
     authenticators = {

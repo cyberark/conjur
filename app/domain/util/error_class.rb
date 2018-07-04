@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # A simple factory for creating custom RuntimeError classes without
 # the typical boilerplate
 #

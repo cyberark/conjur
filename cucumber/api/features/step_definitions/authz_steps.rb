@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Given(/^I create a new(?: "([^"]*)")? resource(?: called "([^"]*)")?$/) do |kind, identifier|
   kind ||= "test-resource"
   identifier ||= random_hex

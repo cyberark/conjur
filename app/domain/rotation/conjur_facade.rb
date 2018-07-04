@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Rotation
 
   # This class is the only API that the rotators are provided with.

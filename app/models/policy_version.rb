@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Stores a policy which has been applied to the database, along with metadata such as the role
 # which submitted the policy.
 # 

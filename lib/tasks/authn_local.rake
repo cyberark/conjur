@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :authn_local do
   desc "Run the authn-local service"
   task :run, [ "socket", "queue_length", "timeout" ] => :environment do |t,args|

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Given(/^I log in as ([\w_]+) "([^"]*)"$/) do |role_kind, id|
   login = if role_kind == "user"
     id

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 HostBuilder = Struct.new(:account, :id, :owner, :layers, :options) do
   
   # Find or create the host. If the host exists, the API key is rotated. 

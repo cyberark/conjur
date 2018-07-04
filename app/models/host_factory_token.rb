@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class HostFactoryToken < Sequel::Model
   plugin :validation_helpers
 

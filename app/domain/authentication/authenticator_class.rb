@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Represents a class that implements an authenticator.
 #
 module Authentication

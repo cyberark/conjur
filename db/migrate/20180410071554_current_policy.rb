@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Sequel.migration do
   # Record time when policy loading is finished. This is mainly so that policy
   # log triggers can store a reference to the current policy version when it's

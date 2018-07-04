@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Exceptions
   class RecordExists < RuntimeError
     attr_reader :kind, :id

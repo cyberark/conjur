@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_dependency "conjur_audit/application_controller"
 
 module ConjurAudit

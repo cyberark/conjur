@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Rack
   # Middleware to store request ID in a thread variable
   class RememberUuid

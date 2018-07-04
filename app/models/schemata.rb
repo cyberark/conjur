@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Manages the schema search path and identifies the primary schema (the one to which 
 # SQL and DDL operations will apply by default).
 #

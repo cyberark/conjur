@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 When(/^I GET the root route$/) do
   @response = RestClient.get(Conjur.configuration.appliance_url)
 end

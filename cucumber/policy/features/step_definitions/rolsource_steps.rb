@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Given(/^I show the ([\w_]+) "([^"]*)"$/) do |kind, id|
   invoke do
     data = conjur_api.resource(make_full_id(kind, id)).attributes

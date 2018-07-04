@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PublicKeysController < ApplicationController
   def show
     account, kind, id = [ params[:account], params[:kind], params[:identifier] ]

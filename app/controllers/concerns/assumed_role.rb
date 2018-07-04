@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # AssumedRole adds support allowing the requestor to assume another
 # role. A query parameter (:role by default) is used to specify the
 # role. If the query parameter is not present, assumed_role will be

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 shared_context "authenticate Basic" do
   let(:params) { { account: account } }
   let(:basic_auth_header) {

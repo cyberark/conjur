@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Miscellaneous utility functions for cucumber tests
 module Utils
   class << self

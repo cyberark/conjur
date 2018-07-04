@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'gli'
 require 'net/http'
 require 'uri'

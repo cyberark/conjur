@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ConjurAudit
   class Engine < ::Rails::Engine
     isolate_namespace ConjurAudit

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'logger/formatter/rfc5424_formatter'
 
 describe Logger::Formatter::RFC5424Formatter do

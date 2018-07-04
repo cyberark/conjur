@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 shared_context "database setup" do
   let(:db) { Sequel::Model.db }
 
