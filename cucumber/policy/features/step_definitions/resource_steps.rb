@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Then(/^([\w_]+) "([^"]*)" exists$/) do |kind, id|
   expect(conjur_api.resource(make_full_id(kind, id))).to exist
 end

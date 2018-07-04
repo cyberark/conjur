@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # note the resulting encoding is a bit ugly
 class Delegator
   def encode_with coder

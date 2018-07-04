@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bcrypt'
 
 class Credentials < Sequel::Model

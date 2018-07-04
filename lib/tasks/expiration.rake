@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 namespace :expiration do
   desc "Watch for expired variables and rotate"

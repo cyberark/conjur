@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CredentialsController < ApplicationController
   include BasicAuthenticator
   include TokenUser

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Sequel.migration do
   TABLES = %w(roles resources role_memberships permissions annotations)
 

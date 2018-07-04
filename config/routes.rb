@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class QueryParameterActionRecognizer
   def initialize(action)
     @action = action

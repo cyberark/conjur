@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Rotators:
 #
 # - live under a submodule of Rotation::Rotators (eg, Rotation::Rotators::AWS)

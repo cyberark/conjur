@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Authentication
   class AuditLog
     def self.record_authn_event(role:, webservice_id:, authenticator_name:,

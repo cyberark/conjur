@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Audit
   # RFC5424 structured data IDs for Conjur-specific audit fields.
   module SDID

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Bring in the policy's World
 #
 require_relative './world.rb'

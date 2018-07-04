@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Authenticate
   attr_accessor :basic_user, :authenticated_role, :selected_role
 

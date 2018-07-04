@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Require at least TLSv1 due to POODLE. The way to specify a minimum
 # version changed in ruby 2.5.
 if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.5')

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ConjurAudit
   class Message < Sequel::Model
     dataset_module do

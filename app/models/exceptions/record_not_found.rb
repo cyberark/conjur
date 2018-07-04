@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Exceptions
   class RecordNotFound < RuntimeError
     attr_reader :id, :account, :kind, :identifier

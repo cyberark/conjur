@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This migration has been ported over from Conjur v3's /authz project. I had to 
 # make a few changes for possum that have been documented with comments.
 Sequel.migration do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'iso8601'
 
 module Rotation

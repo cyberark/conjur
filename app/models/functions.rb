@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Functions
   class << self
     def ownership_trigger_sql

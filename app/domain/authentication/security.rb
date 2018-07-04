@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'types'
 require 'util/error_class'
 require 'authentication/webservice'

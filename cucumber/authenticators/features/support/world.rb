@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module AuthenticatorWorld
 
   # Mostly to document the mutable variables that are in play.

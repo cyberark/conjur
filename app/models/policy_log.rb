@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PolicyLog < Sequel::Model :policy_log
   many_to_one :policy_version, key: %i(policy_id version)
 

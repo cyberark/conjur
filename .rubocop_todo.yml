@@ -741,13 +741,6 @@ Style/FormatString:
   Exclude:
     - 'app/models/account.rb'
 
-# Offense count: 239
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: when_needed, always, never
-Style/FrozenStringLiteralComment:
-  Enabled: false
-
 # Offense count: 10
 # Configuration parameters: MinBodyLength.
 Style/GuardClause:

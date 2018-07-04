@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Then(/^there is an audit record matching:$/) do |given|
   if Utils.local_conjur_server
     expect(audit_messages).to include(matching(audit_template(given)))

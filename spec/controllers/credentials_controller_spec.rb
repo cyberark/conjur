@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe CredentialsController, :type => :controller do
@@ -80,7 +82,7 @@ describe CredentialsController, :type => :controller do
   end
   
   context "#update_password" do
-    let(:new_password) { "new-password" }
+    let(:new_password) { +"new-password" }
     context "without auth" do
       it "is unauthorized" do
         post :update_password, account: account
@@ -124,7 +126,7 @@ describe CredentialsController, :type => :controller do
           end
         end
         context "and invalid password" do
-          let(:new_password) { "the\npassword" }
+          let(:new_password) { +"the\npassword" }
           let(:errors) {
             {
               error: {

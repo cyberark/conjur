@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module PossumWorld
   
   USER_NAMES = %w(auto-larry auto-mike auto-norbert auto-otto)

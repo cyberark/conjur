@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Uses cucumber's multiline string feature: https://bit.ly/2vpzqJx
 #
 Given(/^a policy:$/) do |policy|

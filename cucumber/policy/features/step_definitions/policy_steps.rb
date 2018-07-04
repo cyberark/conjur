@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Given(/^a policy:$/) do |policy|
   invoke do
     load_root_policy policy

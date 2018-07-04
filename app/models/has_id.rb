@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module HasId
   def account
     self.id.split(':')[0]

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # TODO: Explanation of design and how to add a new rotator
 #
 
