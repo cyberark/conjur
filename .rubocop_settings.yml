@@ -1,0 +1,77 @@
+AllCops:
+  TargetRubyVersion: 2.5
+
+# These non-default settings best reflect our current code style.
+Style/MethodDefParentheses:
+  EnforcedStyle: require_no_parentheses_except_multiline
+Style/PercentLiteralDelimiters:
+  PreferredDelimiters:
+    "%i": ()
+    "%w": ()
+Style/RescueStandardError:
+  EnforcedStyle: implicit
+Style/AndOr:
+  EnforcedStyle: conditionals
+Layout/IndentHeredoc:
+  EnforcedStyle: squiggly
+Layout/MultilineMethodCallBraceLayout:
+  EnforcedStyle: symmetrical
+Layout/SpaceAroundBlockParameters:
+  EnforcedStyleInsidePipes: no_space
+Layout/SpaceAroundEqualsInParameterDefault:
+  EnforcedStyle: space
+Layout/SpaceBeforeBlockBraces:
+  EnforcedStyle: space
+  EnforcedStyleForEmptyBraces: space
+Layout/SpaceInsideBlockBraces:
+  EnforcedStyle: space
+  EnforcedStyleForEmptyBraces: no_space
+  SpaceBeforeBlockParameters: true
+Layout/SpaceInsideHashLiteralBraces:
+  EnforcedStyle: space
+  EnforcedStyleForEmptyBraces: no_space
+Layout/SpaceInsideParens:
+  EnforcedStyle: no_space
+Layout/SpaceInsideReferenceBrackets:
+  EnforcedStyle: no_space
+  EnforcedStyleForEmptyBrackets: no_space
+Layout/TrailingBlankLines:
+  EnforcedStyle: final_newline
+Style/BarePercentLiterals:
+  EnforcedStyle: percent_q
+
+# Either style of these arguably has its place depending on the context.
+Style/FormatStringToken:
+  Enabled: false
+Style/LambdaCall:
+  Enabled: false
+Style/StringLiterals:
+  Enabled: false
+Layout/SpaceInsideArrayLiteralBrackets:
+  Enabled: false
+  # However, these score at comparatively fewer offences, so I'll 
+  # leave it here in case we want to enforce a style after all.
+  EnforcedStyle: no_space
+  EnforcedStyleForEmptyBrackets: no_space
+
+# The default configuration of these makes it hard to use proportional fonts.
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+Layout/AlignParameters:
+  EnforcedStyle: with_fixed_indentation
+Layout/EndAlignment:
+  EnforcedStyleAlignWith: start_of_line
+Layout/ExtraSpacing:
+  AllowForAlignment: false
+Layout/FirstParameterIndentation:
+  EnforcedStyle: consistent
+Layout/IndentHash:
+  EnforcedStyle: consistent
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+Layout/MultilineOperationIndentation:
+  EnforcedStyle: indented
+Layout/SpaceAroundOperators:
+  AllowForAlignment: false
+Layout/SpaceBeforeFirstArg:
+  AllowForAlignment: false
