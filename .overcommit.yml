@@ -4,7 +4,13 @@ PreCommit:
 
   RuboCop:
     enabled: true
+    flags: [
+      '--format=emacs', '--force-exclusion', '--display-cop-names',
+      '-c', '.rubocop_settings.yml']
 
   Reek:
     enabled: true
+    flags: [
+      '--single-line', '--no-color',
+      '-c', '/dev/null']
 
