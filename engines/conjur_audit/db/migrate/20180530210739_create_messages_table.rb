@@ -1,6 +1,6 @@
 Sequel.migration do
   change do
-    create_table :messages do
+    create_table :messages, if_not_exists: true do
       Integer :facility, null: false
       Integer :severity, null: false
       timestamptz :timestamp, null: false
