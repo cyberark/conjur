@@ -38,7 +38,7 @@ function finish {
   gcloud container images delete --force-delete-tags -q \
     $CONJUR_AUTHN_K8S_TAG $INVENTORY_TAG
 }
-trap finish EXIT
+#trap finish EXIT
 
 export TEMPLATE_TAG=gke.
 export API_VERSION=rbac.authorization.k8s.io/v1beta1
