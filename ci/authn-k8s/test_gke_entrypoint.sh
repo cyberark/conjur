@@ -133,7 +133,6 @@ function launchConjurMaster() {
 
   wait_for_it 300 "kubectl describe po $pod_name | grep Status: | grep -q Running"
   
-#  kubectl exec $pod_name -- conjurctl db migrate
   export API_KEY=$(kubectl exec $pod_name -- conjurctl account create cucumber | tail -n 1 | awk '{ print $NF }')
   
 #  kubectl cp $pod_name:/opt/conjur/etc/authn-k8s.conf ./dev/tmp/authn-k8s.conf
