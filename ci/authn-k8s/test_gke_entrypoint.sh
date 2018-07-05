@@ -135,7 +135,8 @@ function launchConjurMaster() {
 
   echo "Conjur pod name is: $pod_name"
 
-  sleep 10
+  kubectl get pods
+  kubectl describe pod $pod_name
   
   kubectl exec $pod_name -- conjurctl db migrate
   export API_KEY=$(kubectl exec $pod_name -- conjurctl account create cucumber | tail -n 1 | awk '{ print $NF }')
