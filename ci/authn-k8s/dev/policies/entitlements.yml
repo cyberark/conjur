@@ -1,5 +1,5 @@
 - !grant
-  role: !layer /inventory
+  role: !layer inventory
   members:
   - !host conjur/authn-k8s/minikube/apps/authn-k8s/*/*
   - !host conjur/authn-k8s/minikube/apps/authn-k8s/pod/inventory-pod
