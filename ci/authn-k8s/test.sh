@@ -6,6 +6,8 @@
 #!/bin/bash -euf
 set -o pipefail
 
+. version_utils.sh
+
 PLATFORM="$1"  # k8s platform
 
 function main() {
@@ -51,8 +53,10 @@ function setupTestEnvironment() {
 }
 
 function buildDockerImages() {
-  docker pull registry.tld/conjur:0.8.0-stable
-  docker tag registry.tld/conjur:0.8.0-stable $CONJUR_AUTHN_K8S_TAG
+#  docker pull registry.tld/conjur:0.8.0-stable
+#  docker tag registry.tld/conjur:0.8.0-stable $CONJUR_AUTHN_K8S_TAG
+
+  docker tag conjur:$(version_tag) $CONJUR_AUTHN_K8S_TAG
 
   # build the inventory image
   docker build -t $INVENTORY_TAG -f dev/Dockerfile.inventory dev

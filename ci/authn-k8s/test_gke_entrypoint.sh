@@ -95,7 +95,6 @@ function createNamespace() {
 }
 
 function pushDockerImages() {
-  # push images to gcloud registry
   gcloud docker -- push $CONJUR_AUTHN_K8S_TAG
   gcloud docker -- push $INVENTORY_TAG
 }
