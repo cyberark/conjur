@@ -103,8 +103,8 @@ function pushDockerImages() {
 function launchConjurMaster() {
   echo 'Launching Conjur master service'
 
-  sed -e "s#{{ DATA_KEY }}#$(openssl rand -base64 32)#g" dev/dev_conjur.${TEMPLATE_TAG}yaml |
   sed -e "s#{{ CONJUR_AUTHN_K8S_TAG }}#$CONJUR_AUTHN_K8S_TAG#g" dev/dev_conjur.${TEMPLATE_TAG}yaml |
+    sed -e "s#{{ DATA_KEY }}#$(openssl rand -base64 32)#g" |
     kubectl create -f -
 
   wait_for_it 300 "kubectl describe po conjur | grep Status: | grep -q Running"
