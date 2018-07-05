@@ -30,11 +30,13 @@ pipeline {
             }
           }
         }
+        /*
         stage('gem audit') {
           steps {
             sh 'ci/security-scan -a'
           }
         }
+        */
         stage('rubocop') {
           steps {
             sh 'ci/docker-rubocop'
