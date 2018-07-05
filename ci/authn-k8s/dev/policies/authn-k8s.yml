@@ -55,7 +55,7 @@
           kubernetes/authentication-container-name: authenticator
 
       - !host
-        id: authn-k8s/deployment_config/inventory-deployment-config
+        id: authn-k8s/deployment_config/inventory-deployment-cfg
         annotations:
           kubernetes/authentication-container-name: authenticator
 
