@@ -106,8 +106,6 @@ function launchConjurMaster() {
     sed -e "s#{{ DATA_KEY }}#$(openssl rand -base64 32)#g" |
     kubectl create -f -
 
-  wait_for_it 300 "kubectl describe po conjur | grep Status: | grep -q Running"
-
 #  echo 'Disabling unused services'
 #  for service in authn-tv ldap ldap-sync pubkeys rotation; do
 #    conjurcmd touch /etc/service/conjur/$service/down
@@ -133,10 +131,7 @@ function launchConjurMaster() {
   # test cases.
   pod_name=$(kubectl get pods -l app=conjur -o=jsonpath='{.items[].metadata.name}')
 
-  echo "Conjur pod name is: $pod_name"
-
-  kubectl get pods
-  kubectl describe pod $pod_name
+  wait_for_it 300 "kubectl describe po $pod_name | grep Status: | grep -q Running"
   
   kubectl exec $pod_name -- conjurctl db migrate
   export API_KEY=$(kubectl exec $pod_name -- conjurctl account create cucumber | tail -n 1 | awk '{ print $NF }')
