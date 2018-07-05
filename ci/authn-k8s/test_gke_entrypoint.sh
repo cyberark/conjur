@@ -160,12 +160,9 @@ function createSSLCertConfigMap() {
 }
 
 function copyConjurPolicies() {
-  conjur_pod=$(kubectl get pod -l app=conjur --no-headers | grep Running | awk '{ print $1 }')
   cli_pod=$(kubectl get pod -l app=conjur-cli --no-headers | grep Running | awk '{ print $1 }')
 
-  mkdir -p ./policies
-  kubectl cp $conjur_pod:/opt/conjur-server/ci/authn-k8s/dev/policies/ ./policies/
-  kubectl cp ./policies $cli_pod:/policies
+  kubectl cp ./dev/policies $cli_pod:/policies
 }
 
 function loadConjurPolicies() {

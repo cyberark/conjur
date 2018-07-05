@@ -17,8 +17,7 @@ compiletemplatescmd <(echo '')
 )
 end_long_comment
 
-#PROGRAM=$(dirname $(realpath $BASH_SOURCE))/templater.sh
-PROGRAM=/opt/conjur-server/ci/authn-k8s/dev/templater.sh
+PROGRAM=$(dirname $(realpath $BASH_SOURCE))/templater.sh
 
 function compiletemplatescmd() {
   if [[ ! -e "$1" ]]; then
