@@ -46,7 +46,6 @@ export API_VERSION=rbac.authorization.k8s.io/v1beta1
 function main() {
   sourceFunctions
   renderResourceTemplates
-  exit
   
   initializeKubeCtl
   createNamespace
