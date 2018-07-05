@@ -188,10 +188,10 @@ function loadConjurPolicies() {
 function launchInventoryServices() {
   echo 'Launching inventory services'
 
-  kubectl create -f /opt/conjur-server/ci/authn-k8s/dev/dev_inventory.${TEMPLATE_TAG}yaml
-  kubectl create -f /opt/conjur-server/ci/authn-k8s/dev/dev_inventory_stateful.${TEMPLATE_TAG}yaml
-  kubectl create -f /opt/conjur-server/ci/authn-k8s/dev/dev_inventory_pod.${TEMPLATE_TAG}yaml
-  kubectl create -f /opt/conjur-server/ci/authn-k8s/dev/dev_inventory_unauthorized.${TEMPLATE_TAG}yaml
+  kubectl create -f dev/dev_inventory.${TEMPLATE_TAG}yaml
+  kubectl create -f dev/dev_inventory_stateful.${TEMPLATE_TAG}yaml
+  kubectl create -f dev/dev_inventory_pod.${TEMPLATE_TAG}yaml
+  kubectl create -f dev/dev_inventory_unauthorized.${TEMPLATE_TAG}yaml
 
   wait_for_it 300 "kubectl describe po inventory | grep Status: | grep -c Running | grep -q 4"
 }
