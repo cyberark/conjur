@@ -171,6 +171,7 @@ function loadConjurPolicies() {
   cli_pod=$(kubectl get pod -l app=conjur-cli --no-headers | grep Running | awk '{ print $1 }')
   
   kubectl exec $cli_pod -- conjur init -u conjur -a cucumber
+  sleep 5
   kubectl exec $cli_pod -- conjur authn login -u admin -p $API_KEY
 
   # load policies
