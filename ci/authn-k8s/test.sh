@@ -55,7 +55,7 @@ function buildDockerImages() {
 #  docker tag registry.tld/conjur:0.8.0-stable $CONJUR_AUTHN_K8S_TAG
 
   conjur_version=$(echo "$(< ../../VERSION)-$(git rev-parse --short HEAD)")
-  docker tag conjur:$(conjur_version) $CONJUR_AUTHN_K8S_TAG
+  docker tag conjur:$conjur_version $CONJUR_AUTHN_K8S_TAG
 
   # build the inventory image
   docker build -t $INVENTORY_TAG -f dev/Dockerfile.inventory dev
