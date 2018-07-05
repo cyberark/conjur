@@ -23,7 +23,7 @@ spec:
   - port: 80
     name: http
   selector:
-    app: conjur
+    app: conjur-authn-k8s
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -50,7 +50,7 @@ spec:
   template:
     metadata:
       labels:
-        app: conjur
+        app: conjur-authn-k8s
     spec:
       containers:
       - image: us.gcr.io/conjur-gke-dev/conjur:authn-k8s
