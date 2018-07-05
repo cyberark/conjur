@@ -38,7 +38,7 @@ Feature: Adding and fetching secrets
       <37>1 * * conjur * update
       [auth@43868 user="cucumber:user:eve"]
       [subject@43868 resource="cucumber:variable:probe"]
-      [action@43868 operation="update"]
+      [action@43868 operation="update" result="success"]
       cucumber:user:eve updated cucumber:variable:probe
     """
     When I successfully GET "/secrets/cucumber/variable/probe"
@@ -73,7 +73,7 @@ Feature: Adding and fetching secrets
       <38>1 * * conjur * fetch
       [auth@43868 user="cucumber:user:eve"]
       [subject@43868 resource="cucumber:variable:probe"]
-      [action@43868 operation="fetch"]
+      [action@43868 operation="fetch" result="success"]
       cucumber:user:eve fetched cucumber:variable:probe
     """
 
@@ -97,7 +97,7 @@ Feature: Adding and fetching secrets
       <38>1 * * conjur * fetch
       [auth@43868 user="cucumber:user:eve"]
       [subject@43868 resource="cucumber:variable:probe" version="1"]
-      [action@43868 operation="fetch"]
+      [action@43868 operation="fetch" result="success"]
       cucumber:user:eve fetched version 1 of cucumber:variable:probe
     """
 

@@ -4,21 +4,23 @@ module Audit
       field :role, :authenticator_name, service: nil
       facility Syslog::LOG_AUTHPRIV
       message_id 'authn'
+      can_fail
 
       def structured_data
-        {
+        super.deep_merge \
           SDID::SUBJECT => { role: role_id },
           SDID::AUTH => auth_sd,
           SDID::ACTION => { operation: 'authenticate' }
-        }
       end
 
-      def success
-        Success.new to_h
+      def success_message
+        format "%s successfully authenticated with authenticator %s%s",
+          role_id, authenticator_name, service_message_part
       end
 
-      def failure error_message
-        Failure.new to_h.merge error_message: error_message
+      def failure_message
+        format "%s failed to authenticate with authenticator %s%s",
+          role_id, authenticator_name, service_message_part
       end
 
       protected
@@ -38,37 +40,6 @@ module Audit
       def auth_sd
         { authenticator: authenticator_name }.tap do |result|
           result[:service] = service_id if service_id
-        end
-      end
-
-      class Success < Authn
-        severity Syslog::LOG_INFO
-
-        def message
-          format "%s successfully authenticated with authenticator %s%s",
-            role_id, authenticator_name, service_message_part
-        end
-
-        def structured_data
-          super.tap do |sd|
-            sd[SDID::ACTION][:result] = 'success'
-          end
-        end
-      end
-
-      class Failure < Authn
-        field :error_message
-        severity Syslog::LOG_WARNING
-
-        def message
-          format "%s failed to authenticate with authenticator %s%s: %s",
-            role_id, authenticator_name, service_message_part, error_message
-        end
-
-        def structured_data
-          super.tap do |sd|
-            sd[SDID::ACTION][:result] = 'failure'
-          end
         end
       end
     end

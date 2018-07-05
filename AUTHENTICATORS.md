@@ -1,5 +1,11 @@
 # Using, securing, and creating authenticators
 
+## Existing Authenticators
+
+Links to the current Authenticator Feature specs:
+* [Authn-LDAP](https://github.com/cyberark/conjur/issues/524)
+* [Authn-IAM](https://github.com/cyberark/conjur/issues/542)
+
 ## Using authenticators
 
 Successful authentication returns a new **Conjur token**, which you can use to

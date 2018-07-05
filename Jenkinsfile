@@ -17,11 +17,11 @@ pipeline {
       }
     }
 
-    stage('Security Scans') {
+    stage('Static analysis') {
       parallel {
-        stage('Static Analysis') {
+        stage('brakeman') {
           steps {
-            sh './security-scan.sh -b'
+            sh 'ci/security-scan -b'
           }
           post {
             always {
@@ -30,9 +30,21 @@ pipeline {
             }
           }
         }
-        stage('Vulnerability Scan') {
+        stage('gem audit') {
           steps {
-            sh './security-scan.sh -a'
+            sh 'ci/security-scan -a'
+          }
+        }
+        stage('rubocop') {
+          steps {
+            sh 'ci/docker-rubocop'
+            checkstyle pattern: 'reports/xml/checkstyle-result.xml', canComputeNew: false, unstableTotalAll: '0', healthy: '0', failedTotalAll: '20',  unHealthy: '10'
+          }
+        }
+        stage('reek') {
+          steps {
+            sh 'ci/docker-reek'
+            checkstyle pattern: 'reports/reek.xml', canComputeNew: false, unstableTotalAll: '0', healthy: '0', failedTotalAll: '20',  unHealthy: '10'
           }
         }
       }

@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+. `dirname $0`/docker-utils.sh
+
+IMAGE=$(build_ruby_image `gem_version reek`)
+
+mkdir -p reports
+
+echo "Running reek..."
+( docker_run $IMAGE reek . --format xml || :) | sed -e "s@='/app/@='@" > reports/reek.xml

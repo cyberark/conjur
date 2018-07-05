@@ -58,6 +58,7 @@ module Possum
         /^\/authn\/.*\/authenticate$/,
         /^\/host_factories\/hosts$/,
         /^\/assets\/.*/,
+        /^\/authenticators$/,
         /^\/$/
       ]
   end

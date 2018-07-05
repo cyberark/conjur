@@ -1,0 +1,13 @@
+#!/bin/sh -e
+
+. `dirname $0`/docker-utils.sh
+
+IMAGE=$(build_ruby_image `gem_version rubocop rubocop-checkstyle_formatter`)
+
+echo "Running rubocop..."
+
+docker_run $IMAGE rubocop \
+  --require rubocop/formatter/checkstyle_formatter \
+  --format clang \
+  --format RuboCop::Formatter::CheckstyleFormatter -o reports/xml/checkstyle-result.xml \
+  || :

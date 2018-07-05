@@ -19,7 +19,7 @@ Feature: Batch retrieval of secrets
       <38>1 * * conjur * fetch
       [auth@43868 user="cucumber:user:bob"]
       [subject@43868 resource="cucumber:variable:secret1"]
-      [action@43868 operation="fetch"]
+      [action@43868 operation="fetch" result="success"]
       cucumber:user:bob fetched cucumber:variable:secret1
     """
     And there is an audit record matching:
@@ -27,7 +27,7 @@ Feature: Batch retrieval of secrets
       <38>1 * * conjur * fetch
       [auth@43868 user="cucumber:user:bob"]
       [subject@43868 resource="cucumber:variable:secret2"]
-      [action@43868 operation="fetch"]
+      [action@43868 operation="fetch" result="success"]
       cucumber:user:bob fetched cucumber:variable:secret2
     """
 

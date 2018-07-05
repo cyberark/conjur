@@ -85,6 +85,12 @@ group :development, :test do
   gem 'rspec-core', '~> 3.0'
 end
 
+group :development do
+  gem 'reek', require: false
+  gem 'rubocop', require: false
+  gem 'rubocop-checkstyle_formatter', require: false # for Jenkins
+end
+
 group :test do
   gem 'haikunator', '~> 1' # for generating random names in tests
 end
