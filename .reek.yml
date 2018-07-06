@@ -403,7 +403,7 @@ detectors:
     - SecretsController#show
     - Account#create
     - Authenticate#self?
-    - HostFactoryToken#cidr_mask
+    - Util::CIDR#cidr_mask
     - Schemata#initialize
   NestedIterators:
     exclude:

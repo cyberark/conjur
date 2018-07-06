@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'util/cidr'
+
 class HostFactoryToken < Sequel::Model
   plugin :validation_helpers
 
@@ -33,7 +35,7 @@ class HostFactoryToken < Sequel::Model
   def as_json options = {}
     super(options.merge(except: [ :token, :token_sha256, :cidr, :expiration, :resource_id ])).tap do |response|
       response[:expiration] = expiration.utc.iso8601
-      response[:cidr] = format_cidr
+      response[:cidr] = cidr.map(&Util::CIDR.method(:format_cidr))
       response[:token] = token
     end
   end
@@ -66,19 +68,6 @@ class HostFactoryToken < Sequel::Model
   end
    
   private
-  
-  def format_cidr
-    cidr.map do |c|
-      c.is_a?(IPAddr) ? "#{c.to_s}/#{cidr_mask c}" : c.to_s
-    end
-  end
-
-  # returns the length of the netmask in bits
-  def cidr_mask cidr
-    mask = cidr.instance_variable_get(:@mask_addr).to_s(2)[/\A(1*)0*\z/, 1]
-    raise ArgumentError, "invalid IP mask in #{cidr.inspect}" if mask.nil?
-    mask.length
-  end
 
   def generate_token
     require 'digest'
