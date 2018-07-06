@@ -10,7 +10,6 @@ module Authentication
 
       # Gets the client object to the /api v1 endpoint.
       def kubectl_client
-        require 'kubectl_client'
         KubectlClient.client
       end
 
@@ -85,8 +84,6 @@ module Authentication
       # If more API versions appear, add them here.
       # List them in the order that you want them to be searched for methods.
       def k8s_clients
-        require 'kubectl_client'
-
         @clients ||= [
           kubectl_client,
           KubectlClient.client(api: 'apis/apps', version: 'v1beta2'),

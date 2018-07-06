@@ -6,7 +6,7 @@ module AuthnK8sWorld
   alias namespace test_namespace
 
   def kubectl_client
-    K8sObjectLookup.kubectl_client
+    Authentication::AuthnK8s::K8sObjectLookup.kubectl_client
   end
 
   def authn_k8s_host
@@ -47,7 +47,7 @@ module AuthnK8sWorld
 
   # Find pod matching label selector.
   def find_matching_pod label_selector
-    @pod = pod = K8sObjectLookup.find_pods_by_label_selector_in_namespace(label_selector, namespace).first
+    @pod = pod = Authentication::AuthnK8s::K8sObjectLookup.find_pods_by_label_selector_in_namespace(label_selector, namespace).first
     raise "No pod found matching label selector: #{label_selector.inspect}" unless pod
     "found"
   end
@@ -56,7 +56,7 @@ module AuthnK8sWorld
   def detect_request_ip objectid
     expect(objectid).to match(/^([\w-])+\/([\w-])+$/)
     controller_type, id = objectid.split('/')
-    controller = K8sObjectLookup.find_object_by_name controller_type, id, namespace
+    controller = Authentication::AuthnK8s::K8sObjectLookup.find_object_by_name controller_type, id, namespace
     raise "#{objectid.inspect} not found" unless controller
 
     @pod = pod = kubectl_client.get_pods(namespace: namespace).find do |pod|
