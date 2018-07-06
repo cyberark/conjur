@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 When(/^I am the super\-user$/) do
-  @selected_user = @current_user = admin_user
+  @current_user = admin_user
 end
 
 When(/^I am a user named "([^"]*)"$/) do |login|
-  @selected_user = @current_user = create_user(login, admin_user)
+  @current_user = create_user(login, admin_user)
 end
 
 Given(/^I create a new user "([^"]*)"$/) do |login|
@@ -22,7 +22,7 @@ Given(/^I create a new user "([^"]*)" in account "([^"]*)"$/) do |login, account
 end
 
 When(/^I operate on "([^"]*)"$/) do |login|
-  @selected_user = lookup_user(login)
+  @current_user = lookup_user(login)
 end
 
 Given(/^I login as "([^"]*)"$/) do |login|
