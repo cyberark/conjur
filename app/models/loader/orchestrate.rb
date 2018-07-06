@@ -2,7 +2,7 @@
 
 # Loads a policy into the database, by operating on a PolicyVersion which has already been created with the policy id, 
 # policy text, the authenticated user, and the policy owner. The PolicyVersion also parses the policy
-# and checks it for syntatic errors, before this code is invoked.
+# and checks it for syntax errors, before this code is invoked.
 #
 # The algorithm works by loading the policy into a new, temporary schema (schemas are lightweight namespaces
 # in Postgres). Then this "new" policy (in the temporary schema) is merged into the "old" policy (in the 
@@ -33,7 +33,7 @@
 # 9) Add any new public keys.
 #
 # All steps occur within a transaction, so that if any errors occur (e.g. a role or permission grant which references
-# a non-existant role or resource), the entire operation is rolled back.
+# a non-existent role or resource), the entire operation is rolled back.
 #
 # Future: Note that it is also possible to skip step (1) (deletion of records from the "old" policy which are not defined in the 
 # "new"). This "safe" mode can be operationally important, because the presence of cascading foreign key constraints in the schema
@@ -44,8 +44,11 @@ module Loader
   class Orchestrate
     extend Forwardable
     include Schemata::Helper
+    include Handlers::RestrictedTo
+    include Handlers::Password
+    include Handlers::PublicKey
 
-    attr_reader :policy_version, :create_records, :delete_records, :policy_passwords, :policy_public_keys, :new_roles, :schemata
+    attr_reader :policy_version, :create_records, :delete_records, :new_roles, :schemata
 
     TABLES = %i(roles role_memberships resources permissions annotations)
 
@@ -60,8 +63,6 @@ module Loader
 
     def initialize policy_version
       @policy_version = policy_version
-      @policy_public_keys = []
-      @policy_passwords = []
       @schemata = Schemata.new
 
       # Transform each statement into a Loader type
@@ -76,20 +77,6 @@ module Loader
     # Gets the id of the policy being loaded.
     def policy_id
       policy_version.policy.id
-    end
-
-    # When a public key is encountered in a policy, it is saved here. It can't be written directly into
-    # the temporary schema, because that schema doesn't have a secrets table. The merge algorithm only operates
-    # on the RBAC tables.
-    def handle_password id, password
-      policy_passwords << [ id, password ]
-    end
-
-    # When a public key is encountered in a policy, it is saved here. It can't be written directly into
-    # the temporary schema, because that schema doesn't have a credentials table. The merge algorithm only operates
-    # on the RBAC tables.
-    def handle_public_key id, public_key
-      policy_public_keys << [ id, public_key ]
     end
 
     def load
@@ -120,6 +107,8 @@ module Loader
       store_passwords
 
       store_public_keys
+
+      store_restricted_to
 
       emit_audit
     end
@@ -165,32 +154,6 @@ module Loader
     end
 
     protected
-
-    # Update the public keys in the master schema, by comparing the public keys declared in the policy
-    # with the existing public keys in the database.
-    def store_public_keys
-      policy_public_keys.each do |entry|
-        id, public_key = entry
-        resource = Resource[id]
-        existing_secret = resource.secrets.last
-        unless existing_secret && existing_secret.value == public_key
-          ::Secret.create resource: resource, value: public_key
-        end
-      end
-    end
-
-    # Store all passwords which were encountered during the policy load. The passwords aren't declared in the
-    # policy itself, they are obtained from the environment. This generally only happens when setting up the
-    # +admin+ user in the bootstrap phase, but setting passwords for other users can be useful for dev/test.
-    def store_passwords
-      policy_passwords.each do |entry|
-        id, password = entry
-        $stderr.puts "Setting password for '#{id}'"
-        role = ::Role[id]
-        role.password = password
-        role.save
-      end
-    end
 
     # Delete rows in the existing policy which do not exist in the new policy.
     # Matching rows are selected by primary keys only, using a LEFT JOIN between the

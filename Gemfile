@@ -39,7 +39,7 @@ gem 'ruby_dep', '= 1.3.1'
 gem 'conjur-api', github: 'cyberark/conjur-api-ruby', branch: 'master'
 gem 'conjur-rack', '~> 3.1'
 gem 'conjur-rack-heartbeat'
-gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'possum'
+gem 'conjur-policy-parser', github: 'conjurinc/conjur-policy-parser', branch: 'restricted_to_cidr'
 gem 'rack-rewrite'
 
 # Putting this here currently confuses debify, so instead load it in application.rb
