@@ -5,18 +5,19 @@ function print_help() {
 Starts Conjur for development. Once setup is complete, the user is dropped into the Conjur container.
 To start the application server, run:
     # conjurctl server
+
 Usage: start [options]
     --authn-ldap    Starts OpenLDAP server and loads a demo policy to enable authentication via:
                     'curl -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate'
     --rotators      Starts a cucumber and test postgres container.
                     Drops you into the cucumber container.
-                    You then manually start `conjurctl server` in another tab.
+                    You then manually start 'conjurctl server' in another tab.
 
     --authn-iam     Starts with authn-iam/prod as authenticator
 
     -h, --help      Shows this help message.
 EOF
-exit
+  exit
 }
 
 unset COMPOSE_PROJECT_NAME
