@@ -1,7 +1,7 @@
 policy: >
   --format pretty
-  -r cucumber/policy/features/support
-  -r cucumber/policy/features/step_definitions cucumber/policy
+  -r cucumber/policy
+  cucumber/policy
 
 api: >
   --format pretty
