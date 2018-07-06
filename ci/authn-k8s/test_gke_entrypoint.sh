@@ -200,7 +200,8 @@ function runTests() {
   echo 'Running tests'
 
   conjurcmd mkdir -p /opt/conjur-server/output
-  echo "cd /opt/conjur-server && ./bin/cucumber K8S_VERSION=1.7 PLATFORM=kubernetes --no-color --format pretty --format junit --out /opt/conjur-server/output ./cucumber/kubernetes" | conjurcmd -i bash
+
+  echo "./bin/cucumber K8S_VERSION=1.7 PLATFORM=kubernetes --no-color --format pretty --format junit --out /opt/conjur-server/output -r ./cucumber/kubernetes/features/step_definitions/ -r ./cucumber/features/support ./cucumber/kubernetes/features/" | conjurcmd -i bash
 }
 
 main
