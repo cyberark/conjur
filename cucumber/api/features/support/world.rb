@@ -143,7 +143,7 @@ module PossumWorld
       users[login] = user
     end
   end
-  
+
   def current_user?
     !!@current_user
   end

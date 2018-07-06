@@ -171,3 +171,4 @@ module RotatorWorld
     end
   end
 end
+World(RotatorWorld)
