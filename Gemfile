@@ -8,7 +8,6 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 #ruby=ruby-2.5.1
 #ruby-gemset=conjur
 
-gem 'aws-sdk'
 gem 'base58'
 gem 'iso8601'
 gem 'nokogiri', '>= 1.8.2'
@@ -57,6 +56,9 @@ gem 'bootstrap-sass', '~> 3.2.0'
 gem 'dry-struct'
 gem 'font-awesome-sass', '~> 4.7.0'
 gem 'net-ldap'
+
+# for AWS rotator
+gem 'aws-sdk-iam', require: false
 
 group :production do
   gem 'rails_12factor'

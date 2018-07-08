@@ -8,7 +8,7 @@ if defined? Rotation::Rotators::Aws::SecretKey
   return
 end
 
-require 'aws-sdk'
+require 'aws-sdk-iam'
 
 module Rotation
   module Rotators

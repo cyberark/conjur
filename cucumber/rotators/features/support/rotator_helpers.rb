@@ -3,7 +3,7 @@
 # TODO: Explanation of design and how to add a new rotator
 #
 
-require 'aws-sdk'
+require 'aws-sdk-iam'
 
 # Utility methods for rotation tests
 #
