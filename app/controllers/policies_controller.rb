@@ -6,7 +6,6 @@ class PoliciesController < RestController
   
   before_filter :current_user
   before_filter :find_or_create_root_policy
-  before_filter :find_resource
 
   def put
     authorize :update
@@ -31,7 +30,8 @@ class PoliciesController < RestController
   def load_policy perform_automatic_deletion:, delete_permitted:, update_permitted:
     policy_text = request.raw_post
 
-    policy_version = PolicyVersion.new role: current_user, policy: @resource, policy_text: policy_text
+    policy_version = PolicyVersion.new \
+      role: current_user, policy: resource, policy_text: policy_text
     policy_version.perform_automatic_deletion = perform_automatic_deletion
     policy_version.delete_permitted = delete_permitted
     policy_version.update_permitted = update_permitted

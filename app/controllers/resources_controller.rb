@@ -4,8 +4,6 @@ class ResourcesController < RestController
   include FindResource
   include AssumedRole
   
-  before_filter :find_resource, only: [ :show, :permitted_roles, :check_permission ]
-  
   def index
     options = params.slice(:account, :kind, :limit, :offset, :search).symbolize_keys
     
@@ -35,13 +33,13 @@ class ResourcesController < RestController
   end
   
   def show
-    render json: @resource
+    render json: resource
   end
   
   def permitted_roles
     privilege = params[:privilege] || params[:permission]
     raise ArgumentError, "privilege" unless privilege
-    render json: Role.that_can(privilege, @resource).map {|r| r.id}
+    render json: Role.that_can(privilege, resource).map(&:id)
   end
 
   # Implements the use case "check permission on some resource",
@@ -51,11 +49,11 @@ class ResourcesController < RestController
     privilege = params[:privilege]
     raise ArgumentError, "privilege" unless privilege
 
-    result = assumed_role.allowed_to?(privilege, @resource)
+    result = assumed_role.allowed_to?(privilege, resource)
 
     Audit::Event::Check.new(
       user: current_user,
-      resource: @resource,
+      resource: resource,
       privilege: privilege,
       role: assumed_role,
       success: result

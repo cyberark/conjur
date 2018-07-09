@@ -9,8 +9,19 @@ module FindResource
     [ params[:account], params[:kind], params[:identifier] ].join(":")
   end
 
-  def find_resource
-    @resource ||= Resource.find_if_visible current_user, resource_id: resource_id
-    raise Exceptions::RecordNotFound, resource_id unless @resource
+  def resource!
+    @resource ||= Resource[resource_id]
+  end
+
+  def resource_visible?
+    @resource_visible ||= resource! && @resource.visible_to?(current_user)
+  end
+
+  def resource
+    if resource_visible?
+      resource!
+    else
+      raise Exceptions::RecordNotFound, resource_id unless resource_visible?
+    end
   end  
 end

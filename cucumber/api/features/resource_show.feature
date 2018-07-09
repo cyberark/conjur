@@ -40,3 +40,7 @@ Feature: Fetch resource details.
       ]
     }
     """
+
+  Scenario: Trying to show a resource that does not exist
+    When I GET "/resources/cucumber/santa/claus"
+    Then the HTTP response status code is 404
