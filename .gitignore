@@ -41,3 +41,10 @@ brakeman-output.*
 .idea
 TEMP_NOTES.txt
 awstest
+
+# authn-k8s plugin
+!ci/authn-k8s/dev/*template*
+ci/authn-k8s/dev/*.yaml
+!ci/authn-k8s/dev/policies/*template*
+ci/authn-k8s/dev/policies/*.yaml
+
