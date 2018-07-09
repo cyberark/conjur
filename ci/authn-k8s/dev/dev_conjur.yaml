@@ -56,7 +56,8 @@ spec:
       - image: us.gcr.io/conjur-gke-dev/conjur:authn-k8s
         imagePullPolicy: Always
         name: conjur
-        command: ["conjurctl", "server"]
+#        command: ["conjurctl", "server"]
+        command: ["sleep", "infinity"]
         env:
         - name: CONJUR_APPLIANCE_URL
           value: http://localhost:80
