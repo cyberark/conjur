@@ -56,8 +56,7 @@ spec:
       - image: {{ CONJUR_AUTHN_K8S_TAG }}
         imagePullPolicy: Always
         name: conjur
-#        command: ["conjurctl", "server"]
-        command: ["sleep", "infinity"]
+        command: ["conjurctl", "server"]
         env:
         - name: CONJUR_APPLIANCE_URL
           value: http://localhost:80
