@@ -246,7 +246,6 @@ module Authentication
       end
 
       def service_lookup
-        binding.pry
         @service ||= host_api_client.resource("webservice:conjur/authn-k8s/#{service_id}")
         raise NotFoundError, "Service #{service_id} not found" unless @service.exists?
       end
