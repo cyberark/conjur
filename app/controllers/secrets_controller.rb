@@ -5,7 +5,6 @@ class SecretsController < RestController
   include AuthorizeResource
   
   before_filter :current_user
-  before_filter :find_resource, except: [:batch]
   
   def create
     authorize :update
@@ -14,13 +13,13 @@ class SecretsController < RestController
 
     raise ArgumentError, "'value' may not be empty" if value.blank?
 
-    Secret.create resource_id: @resource.id, value: value
-    @resource.enforce_secrets_version_limit
+    Secret.create resource_id: resource.id, value: value
+    resource.enforce_secrets_version_limit
 
     head :created
   ensure
     Audit::Event::Update.new_with_exception(
-      resource: @resource,
+      resource: resource,
       user: @current_user
     ).log_to Audit.logger
   end
@@ -29,16 +28,18 @@ class SecretsController < RestController
     authorize :execute
     version = params[:version]
 
-    secret = @resource.secret version: version
-    raise Exceptions::RecordNotFound.new(@resource.id, message: "Requested version does not exist") if secret.nil?
+    unless (secret = resource.secret version: version)
+      raise Exceptions::RecordNotFound.new \
+        resource.id, message: "Requested version does not exist"
+    end
     value = secret.value
 
     mime_type = \
-      @resource.annotation('conjur/mime_type') || 'application/octet-stream'
+      resource.annotation('conjur/mime_type') || 'application/octet-stream'
 
     send_data value, type: mime_type
   ensure
-    audit_fetch @resource, version: version
+    audit_fetch resource, version: version
   end
 
   def batch
@@ -98,7 +99,7 @@ class SecretsController < RestController
   #
   def expire
     authorize :update
-    Secret.update_expiration(@resource.id, nil)
+    Secret.update_expiration(resource.id, nil)
     head :created
   end
 end
