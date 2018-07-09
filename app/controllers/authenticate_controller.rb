@@ -53,7 +53,7 @@ class AuthenticateController < ApplicationController
   end
 
   def k8s_inject_client_cert
-    ::Authentication::AuthnK8s.inject_client_cert(params, request)
+    ::Authentication::AuthnK8s::Authenticator.new(env: ENV).inject_client_cert(params, request)
     head :ok
   rescue => e
     logger.debug("Authentication Error: #{e.message}")
