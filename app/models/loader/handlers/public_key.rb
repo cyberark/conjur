@@ -19,7 +19,7 @@ module Loader
         policy_public_keys.each do |entry|
           id, public_key = entry
           resource = Resource[id]
-          existing_secret = resource.secrets.last
+          existing_secret = resource.last_secret
           ::Secret.create resource: resource, value: public_key.strip unless existing_secret && existing_secret.value == public_key
         end
       end
