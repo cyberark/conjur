@@ -33,10 +33,8 @@ class SecretsController < RestController
     raise Exceptions::RecordNotFound.new(@resource.id, message: "Requested version does not exist") if secret.nil?
     value = secret.value
 
-    mime_type = if ( a = @resource.annotations_dataset.select(:value).where(name: 'conjur/mime_type').first )
-      a[:value]
-    end
-    mime_type ||= 'application/octet-stream'
+    mime_type = \
+      @resource.annotation('conjur/mime_type') || 'application/octet-stream'
 
     send_data value, type: mime_type
   ensure
