@@ -255,7 +255,7 @@ module Authentication
       end
 
       def host
-        @host ||= host_api_client.host(host_id)
+        @host ||= host_api_client.resource(host_id)
       end
 
       def host_api_client
@@ -267,7 +267,7 @@ module Authentication
       end
 
       def host_id_prefix
-        "conjur/authn-k8s/#{service_id}/apps"
+        "#{@env['CONJUR_ACCOUNT']}:host:conjur/authn-k8s/#{service_id}/apps"
       end
 
       def host_id
