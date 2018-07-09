@@ -60,11 +60,11 @@ module AuthnK8sWorld
     raise "#{objectid.inspect} not found" unless controller
 
     @pod = pod = kubectl_client.get_pods(namespace: namespace).find do |pod|
-      resolver = K8sResolver.for_controller(controller_type).new(controller, pod)
+      resolver = Authentication::AuthnK8s::K8sResolver.for_controller(controller_type).new(controller, pod)
       begin
         resolver.validate_pod
         true
-      rescue K8sResolver::ValidationError
+      rescue Authentication::AuthnK8s::K8sResolver::ValidationError
         false
       end
     end
