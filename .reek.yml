@@ -385,6 +385,7 @@ detectors:
     - Authentication::Strategy#audit_failure
     - Authentication::Strategy#audit_success
     - Authentication::Strategy#new_token
+    - Authentication::Strategy#validate_origin
     - Rotation::Rotators::Aws::SecretKey#rotate
     - HostBuilder#find_and_rotate
     - HostFactoryToken#cidr_mask

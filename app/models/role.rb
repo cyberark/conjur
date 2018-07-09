@@ -72,12 +72,24 @@ class Role < Sequel::Model
     end
   end
 
+  def valid_origin?(ip_addr)
+    ip = IPAddr.new(ip_addr)
+    restricted_to.blank? || restricted_to.any? do |cidr|
+      cidr.include?(ip)
+    end
+  end
+
+  def restricted_to
+    credentials = self.credentials ||= Credentials.new(role: self)
+    credentials.restricted_to  
+  end
+
   def restricted_to= restricted_to
     modify_credentials do |credentials| 
       credentials.restricted_to = restricted_to
     end
   end
-  
+
   def api_key
     unless self.credentials
       _, kind, id = self.id.split(":", 3)

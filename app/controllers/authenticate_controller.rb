@@ -45,7 +45,8 @@ class AuthenticateController < ApplicationController
         service_id:         params[:service_id],
         account:            params[:account],
         username:           params[:id],
-        password:           request.body.read
+        password:           request.body.read,
+        origin:             request.ip
       )
     )
     render json: authentication_token
