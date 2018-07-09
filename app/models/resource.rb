@@ -174,4 +174,8 @@ class Resource < Sequel::Model
   rescue ArgumentError
     raise ArgumentError, "invalid type for parameter 'version'"
   end
+
+  def annotation name
+    annotations_dataset.where(name: name).select(:value).single_value
+  end
 end
