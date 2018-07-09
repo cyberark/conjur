@@ -74,6 +74,15 @@ spec:
           value: authn-k8s/minikube
         - name: CONJUR_AUTHN_K8S_TEST_NAMESPACE
           value: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        volumeMounts:
+          - mountPath: /run/authn-local
+            name: authn-local
+      volumes:
+        - name: authn-local
+          emptyDir:
+            medium: Memory
+
+          
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
