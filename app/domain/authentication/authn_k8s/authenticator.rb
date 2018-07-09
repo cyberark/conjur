@@ -246,7 +246,7 @@ module Authentication
       end
 
       def service_lookup
-        @service ||= host_api_client.resource("webservice:conjur/authn-k8s/#{service_id}")
+        @service ||= host_api_client.resource("#{@env['CONJUR_ACCOUNT']}:webservice:conjur/authn-k8s/#{service_id}")
         raise NotFoundError, "Service #{service_id} not found" unless @service.exists?
       end
 
