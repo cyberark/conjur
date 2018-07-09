@@ -27,15 +27,9 @@ class SecretsController < RestController
   
   def show
     authorize :execute
-    
     version = params[:version]
-    secret = if version.is_a?(String) && version.to_i.to_s == version
-      @resource.secrets.find{|s| s.version == version.to_i}
-    elsif version.nil?
-      @resource.secrets.last
-    else
-      raise ArgumentError, "invalid type for parameter 'version'"
-    end
+
+    secret = @resource.secret version: version
     raise Exceptions::RecordNotFound.new(@resource.id, message: "Requested version does not exist") if secret.nil?
     value = secret.value
 
@@ -68,11 +62,11 @@ class SecretsController < RestController
     authorize_many variables, :execute
     
     variables.each do |variable|
-      if variable.secrets.last.nil?
+      unless (secret = variable.last_secret)
         raise Exceptions::RecordNotFound, variable.resource_id
       end
       
-      result[variable.resource_id] = variable.secrets.last.value
+      result[variable.resource_id] = secret.value
       audit_fetch variable
     end
 
