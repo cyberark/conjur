@@ -4,7 +4,6 @@ class HostFactoryTokensController < RestController
   include FindResource
   include AuthorizeResource
 
-  before_filter :find_resource, only: [ :create ]
   before_filter :find_token, only: [ :destroy ]
 
   def create
@@ -29,8 +28,6 @@ class HostFactoryTokensController < RestController
   end
   
   def destroy
-    @resource = @token.host_factory
-    
     authorize :update
     
     @token.destroy
@@ -45,9 +42,12 @@ class HostFactoryTokensController < RestController
   def find_token
     id = params[:id]
     @token = HostFactoryToken.from_token(id) or raise RecordNotFound, "*:host_factory_token:#{id}"
+    @resource = @token.host_factory
+    @resource_id = @resource.id
   end
   
   def resource_id
-    params[:host_factory] or raise ArgumentError, "host_factory"
+    @resource_id ||= \
+      params[:host_factory] or raise ArgumentError, "host_factory"
   end
 end
