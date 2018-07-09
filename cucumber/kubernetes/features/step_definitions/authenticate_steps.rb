@@ -11,7 +11,12 @@ Then(/^I( can)? authenticate with authn-k8s as "([^"]*)"( without cert and key)?
   key = nocertkey ? nil : @pkey
 
   begin
-    @token = RestClient::Resource.new(authn_k8s_host, ssl_client_cert: cert, ssl_client_key: key, verify_ssl: OpenSSL::SSL::VERIFY_PEER)["users/#{CGI.escape username}/authenticate?request_ip=#{@request_ip}"].post('')
+    @token = RestClient::Resource.new(
+      authn_k8s_host,
+      ssl_client_cert: cert,
+      ssl_client_key: key,
+      verify_ssl: OpenSSL::SSL::VERIFY_PEER
+    )["#{CGI.escape username}/authenticate?request_ip=#{@request_ip}"].post('')
   rescue
     raise if success
     @error = $!

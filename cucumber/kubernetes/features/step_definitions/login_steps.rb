@@ -39,7 +39,8 @@ def login username, request_ip, authn_k8s_host, pkey
     "URI:spiffe://cluster.local/namespace/#{@pod.metadata.namespace}/pod/#{@pod.metadata.name}"
   ])
 
-  resp = RestClient::Resource.new(authn_k8s_host)["users/login?request_ip=#{request_ip}"].post(csr.to_pem, content_type: 'text/plain')
+  resp = RestClient::Resource.new(authn_k8s_host)["inject_client_cert?request_ip=#{request_ip}"].post(csr.to_pem, content_type: 'text/plain')
+  
   @cert = pod_certificate
 
   resp
