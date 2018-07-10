@@ -18,7 +18,7 @@ module Authentication
 
       # Generates a CA certificate and key and store them in Conjur variables.  
       def initialize_ca
-        subject = "/CN=#{id.gsub('/', '.')}/OU=Conjur Kubernetes CA/O=#{Conjur.configuration.account}"
+        subject = "/CN=#{id.gsub('/', '.')}/OU=Conjur Kubernetes CA/O=#{conjur_account}"
 
         cert, key = CA.generate subject
 
@@ -36,14 +36,16 @@ module Authentication
         end
       end
 
-      # Gets a variable containing the CA cert.
-      def ca_cert_variable
-        ca_variable "ca/cert"
+      def conjur_account
+        Conjur.configuration.account
       end
 
-      # Gets a variable containing the CA key.
+      def ca_cert_variable
+        Resource["#{conjur_account}:variable:#{id}/ca/cert"]
+      end
+
       def ca_key_variable
-        ca_variable "ca/key"
+        Resource["#{conjur_account}:variable:#{id}/ca/key"]
       end
 
       # Initialize CA from Conjur variables
@@ -54,12 +56,7 @@ module Authentication
       end
 
       protected
-
-      # Gets a Conjur API client authenticated as the policy role.
-      def conjur_api
-        @policy_api_client ||= Conjur::API.new_from_token policy_token
-      end
-
+      
       # Gets an access token for the policy role.
       def policy_token
         @policy_token ||= Conjur::API.authenticate_local "policy/#{id}"
@@ -82,16 +79,6 @@ module Authentication
             sleep 2
           end
         end
-      end
-
-      # Webservice resource of the authenticator.
-      def service
-        conjur_api.resource("webservice:#{id}")
-      end
-
-      def ca_variable name
-        namespace = service.annotations['kubernetes/namespace']
-        conjur_api.variable([ id, name ].join('/'))
       end
 
       # On a follower, the CONJUR_MASTER_HOST environment variable contains the
