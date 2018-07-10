@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'English'
+
 class SecretsController < RestController
   include FindResource
   include AuthorizeResource
@@ -18,10 +20,10 @@ class SecretsController < RestController
 
     head :created
   ensure
-    Audit::Event::Update.new_with_exception(
+    Audit::Event::Update.new(error_info.merge(
       resource: resource,
       user: @current_user
-    ).log_to Audit.logger
+    )).log_to Audit.logger
   end
   
   def show
@@ -39,7 +41,7 @@ class SecretsController < RestController
 
     send_data value, type: mime_type
   ensure
-    audit_fetch resource, version: version
+    audit_fetch resource!, version: version
   end
 
   def batch
@@ -73,11 +75,25 @@ class SecretsController < RestController
   end
 
   def audit_fetch resource, version: nil
-    Audit::Event::Fetch.new_with_exception(
-      resource: resource,
-      version: version,
-      user: current_user
+    Audit::Event::Fetch.new(
+      error_info.merge(
+        resource: resource,
+        version: version,
+        user: current_user
+      )
     ).log_to Audit.logger
+  end
+
+  def error_info
+    return { success: true } unless $ERROR_INFO
+
+    # If resource is not visible, the error info will say it cannot be found.
+    # That is still what we want to report to the client, but in the log we
+    # want more accurate 'Forbidden'.
+    {
+      success: false,
+      error_message: (resource_visible? ? $ERROR_INFO.message : 'Forbidden')
+    }
   end
 
   # NOTE: We're following REST/http semantics here by representing this as 
