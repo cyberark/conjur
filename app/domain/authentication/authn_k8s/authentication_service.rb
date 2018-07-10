@@ -50,8 +50,8 @@ module Authentication
 
       # Initialize CA from Conjur variables
       def load_ca
-        ca_cert = OpenSSL::X509::Certificate.new(ca_cert_variable.value)
-        ca_key = OpenSSL::PKey::RSA.new(ca_key_variable.value)
+        ca_cert = OpenSSL::X509::Certificate.new(ca_cert_variable.secrets.first)
+        ca_key = OpenSSL::PKey::RSA.new(ca_key_variable.secrets.first)
         CA.new(ca_cert, ca_key)
       end
 

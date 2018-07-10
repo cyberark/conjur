@@ -181,8 +181,12 @@ function loadConjurPolicies() {
   kubectl exec $cli_pod -- conjur policy load root /policies/authn-k8s.${TEMPLATE_TAG}yml
   kubectl exec $cli_pod -- conjur policy load root /policies/entitlements.${TEMPLATE_TAG}yml
 
-  password=$(openssl rand -hex 12)
+  # init ca certs
+  conjur_pod=$(kubectl get pod -l app=conjur-authn-k8s --no-headers | grep Running | awk '{ print $1 }')
+  kubectl exec $conjur_pod -- rake authn_k8s:ca_init["conjur/authn-k8s/minikube"]
 
+  # set test password value
+  password=$(openssl rand -hex 12)
   kubectl exec $cli_pod -- conjur variable values add inventory-db/password $password
 }
 
