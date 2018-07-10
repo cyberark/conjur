@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'bcrypt'
+require 'util/cidr'
 
 class Credentials < Sequel::Model
   # Bcrypt work factor, minimum recommended work factor is 12
@@ -27,6 +28,10 @@ class Credentials < Sequel::Model
     { }
   end
   
+  def restricted_to
+    self[:restricted_to].map { |cidr| Util::CIDR.new(cidr) }
+  end
+
   def password= pwd
     @plain_password = pwd
     self.encrypted_hash = pwd && BCrypt::Password.create(pwd, cost: BCRYPT_COST)

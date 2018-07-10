@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'util/cidr'
-
 class Resource < Sequel::Model
   include HasId
   
@@ -43,7 +41,7 @@ class Resource < Sequel::Model
         response["tokens"] = self.host_factory_tokens.as_json.map {|h| h.except 'resource'}
         response["layers"] = self.role.layers.map(&:role_id)
       when "user", "host"
-        response["restricted_to"] = self.role.credentials.restricted_to.map(&Util::CIDR.method(:format_cidr))
+        response["restricted_to"] = self.role.restricted_to.map(&:to_s)
       end
     end
   end

@@ -1,23 +1,30 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 module Util
-
   # provides helper methods for interacting with CIDR network addresses 
-  module CIDR
-    class << self
+  class CIDR
+    extend Forwardable
 
-      # returns the formatted CIDR formatted string for a network
-      def format_cidr cidr
-        cidr.is_a?(IPAddr) ? "#{cidr}/#{cidr_mask cidr}" : cidr.to_s
-      end
+    def_delegators :@cidr, :include?
 
-      # returns the length of the netmask in bits
-      def cidr_mask cidr
-        mask = cidr.instance_variable_get(:@mask_addr).to_s(2)[/\A(1*)0*\z/, 1]
-        raise ArgumentError, "invalid IP mask in #{cidr.inspect}" if mask.nil?
-        mask.length
-      end
-      
+    def initialize(ip_addr)
+      @cidr = ip_addr
+    end
+
+    def to_s
+      cidr.is_a?(IPAddr) ? "#{cidr}/#{mask}" : cidr.to_s
+    end
+
+    private 
+
+    attr_reader :cidr
+
+    def mask
+      mask = cidr.instance_variable_get(:@mask_addr).to_s(2)[/\A(1*)0*\z/, 1]
+      raise ArgumentError, "invalid IP mask in #{cidr.inspect}" if mask.nil?
+      mask.length
     end
   end
 end

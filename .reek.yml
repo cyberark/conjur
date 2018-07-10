@@ -139,6 +139,7 @@ detectors:
     - ConjurAudit::Message::Filter
     - ConjurAudit::Engine
     - ConjurAudit
+    - Util
   UncommunicativeParameterName:
     exclude:
     - CallSql::Sequel::Model#call_sql
@@ -389,8 +390,6 @@ detectors:
     - Authentication::Strategy#validate_origin
     - Rotation::Rotators::Aws::SecretKey#rotate
     - HostBuilder#find_and_rotate
-    - HostFactoryToken#cidr_mask
-    - HostFactoryToken#format_cidr
     - Loader::Handlers::Password#store_passwords
     - MembershipSearch#result_set
     - Resource#permit
@@ -405,7 +404,7 @@ detectors:
     - SecretsController#show
     - Account#create
     - Authenticate#self?
-    - Util::CIDR#cidr_mask
+    - Util::CIDR#mask
     - Schemata#initialize
   NestedIterators:
     exclude:

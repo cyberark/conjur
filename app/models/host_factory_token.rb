@@ -35,13 +35,17 @@ class HostFactoryToken < Sequel::Model
   def as_json options = {}
     super(options.merge(except: [ :token, :token_sha256, :cidr, :expiration, :resource_id ])).tap do |response|
       response[:expiration] = expiration.utc.iso8601
-      response[:cidr] = cidr.map(&Util::CIDR.method(:format_cidr))
+      response[:cidr] = cidr.map(&:to_s)
       response[:token] = token
     end
   end
   
   def valid?
     !expired?
+  end
+
+  def cidr
+    self[:cidr].map { |cidr| Util::CIDR.new(cidr) }
   end
 
   def valid_origin? ip

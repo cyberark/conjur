@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Role < Sequel::Model
+  extend Forwardable
   include HasId
   
   unrestrict_primary_key
@@ -81,7 +82,7 @@ class Role < Sequel::Model
 
   def restricted_to
     self.credentials ||= Credentials.new(role: self)
-    self.credentials.restricted_to  
+    self.credentials.restricted_to
   end
 
   def restricted_to= restricted_to
