@@ -57,7 +57,9 @@ class AuthenticateController < ApplicationController
     head :ok
   rescue => e
     logger.debug("Authentication Error: #{e.message}")
-    logger.debug(e.backtrace)
+    e.backtrace.each do |line|
+      logger.debug(line)
+    end
     raise Unauthorized
   end
 

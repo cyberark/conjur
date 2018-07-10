@@ -168,7 +168,7 @@ module Authentication
       end
 
       def k8s_container_name
-        host.resource.annotations['kubernetes/authentication-container-name'] || 'authenticator'
+        host.annotations.find { |a| a.values[:name] == 'kubernetes/authentication-container-name' }[:value] || 'authenticator'
       end
 
       def find_pod
@@ -230,7 +230,7 @@ module Authentication
       end
 
       def authorize_host
-        raise AuthenticationError, "#{host.roleid} does not have 'authenticate' privilege on #{@service.resourceid}" unless @service.permitted?("authenticate")
+        raise AuthenticationError, "#{host.role.id} does not have 'authenticate' privilege on #{@service.id}" unless @service.permitted?("authenticate")
       end
 
       def request_ip
@@ -246,8 +246,8 @@ module Authentication
       end
 
       def service_lookup
-        @service ||= host_api_client.resource("#{@env['CONJUR_ACCOUNT']}:webservice:conjur/authn-k8s/#{service_id}")
-        raise NotFoundError, "Service #{service_id} not found" unless @service.exists?
+        @service ||= Resource["#{@env['CONJUR_ACCOUNT']}:webservice:conjur/authn-k8s/#{service_id}"]
+        raise NotFoundError, "Service #{service_id} not found" if @service.nil?
       end
 
       def host_lookup
@@ -255,27 +255,15 @@ module Authentication
       end
 
       def host
-        @host ||= host_api_client.resource(host_id)
-      end
-
-      def host_api_client
-        @host_api_client ||= Conjur::API.new_from_token host_token
-      end
-
-      def host_token
-        @host_token ||=# Conjur::API.authenticate_local "host/#{host_id}"
-          TokenFactory.new.signed_token(
-            account: @env['CONJUR_ACCOUNT'],
-            username: host_id
-          )
-      end
-
-      def host_id_prefix
-        "#{@env['CONJUR_ACCOUNT']}:host:conjur/authn-k8s/#{service_id}/apps"
+        @host ||= Resource[host_id]
       end
 
       def host_id
         [ host_id_prefix, host_id_param ].compact.join('/')
+      end
+
+      def host_id_prefix
+        "#{@env['CONJUR_ACCOUNT']}:host:conjur/authn-k8s/#{service_id}/apps"
       end
 
       def host_id_tokens
