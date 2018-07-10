@@ -50,8 +50,8 @@ module Authentication
 
       # Initialize CA from Conjur variables
       def load_ca
-        ca_cert = OpenSSL::X509::Certificate.new(ca_cert_variable.secrets.first)
-        ca_key = OpenSSL::PKey::RSA.new(ca_key_variable.secrets.first)
+        ca_cert = OpenSSL::X509::Certificate.new(ca_cert_variable.secrets.last)
+        ca_key = OpenSSL::PKey::RSA.new(ca_key_variable.secrets.last)
         CA.new(ca_cert, ca_key)
       end
 
@@ -64,8 +64,8 @@ module Authentication
 
       # Stores the CA cert and key in variables.
       def populate_ca_variables cert, key
-        ca_cert_variable.add_value cert.to_pem
-        ca_key_variable.add_value key.to_pem
+        Secret.create(resource_id: ca_cert_variable.id, value: cert.to_pem)
+        Secret.create(resource_id: ca_key_variable.id, value: key.to_pem)
       end
 
       # In the case that this node is a follower, it's necessary to wait for the
