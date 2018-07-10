@@ -34,9 +34,16 @@ module Authentication
         # TODO: replace this hack
         @host_id_param_method = :authenticate
 
+        verify_enabled
+        service_lookup
+        host_lookup
+        authorize_host
+        load_ca
+        find_pod
+        find_container
+
         Rails.logger.debug("********* password")
         Rails.logger.debug(input.password)
-
         @client_cert = input.password
         
         # Run through cert validations
