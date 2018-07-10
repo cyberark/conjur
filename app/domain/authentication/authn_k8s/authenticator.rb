@@ -13,7 +13,7 @@ module Authentication
 
       def inject_client_cert(params, request)
         # TODO: replace this hack
-        @host_id_param_method = :login
+        @v4_controller = :login
         
         @params = params
         @request = request
@@ -34,13 +34,14 @@ module Authentication
       
       def valid?(input)
         # TODO: replace this hack
-        @host_id_param_method = :authenticate
+        @v4_controller = :authenticate
 
         # some variables that need to be used in helper methods
         Rails.logger.debug("********* password")
         Rails.logger.debug(input.password)
         @client_cert = input.password
         @service_id = input.service_id
+        @host_id_param = input.username
         
 #        verify_enabled
         service_lookup
@@ -63,9 +64,9 @@ module Authentication
       # of supporting both overrides in one class and should be replaced ASAP.
       
       def host_id_param
-        if @host_id_param_method == :login
+        if @v4_controller == :login
           host_id_param_login
-        elsif @host_id_param_method == :authenticate
+        elsif @v4_controller == :authenticate
           host_id_param_authenticate
         end
       end
@@ -82,13 +83,13 @@ module Authentication
       end
 
       def host_id_param_authenticate
-        @host_id_param = params[:id]
+        @host_id_param
       end
 
       def spiffe_id
-        if @host_id_param_method == :login
+        if @v4_controller == :login
           spiffe_id_login
-        elsif @host_id_param_method == :authenticate
+        elsif @v4_controller == :authenticate
           spiffe_id_authenticate          
         end
       end
@@ -102,9 +103,9 @@ module Authentication
       end
 
       def pod_name
-        if @host_id_param_method == :login
+        if @v4_controller == :login
           pod_name_login
-        elsif @host_id_param_method == :authenticate
+        elsif @v4_controller == :authenticate
           pod_name_authenticate
         end
       end
