@@ -217,9 +217,9 @@ module Authentication
           # verify host_id matches CN
           cn_entry = get_subject_hash(@pod_cert)["CN"]
 
-          Rails.logger("******* CN TEST")
-          Rails.logger("CN: #{cn_entry.gsub('.', '/')}")
-          Rails.logger("host_id_param: #{host_id_param}")
+          Rails.logger.debug("******* CN TEST")
+          Rails.logger.debug("CN: #{cn_entry.gsub('.', '/')}")
+          Rails.logger.debug("host_id_param: #{host_id_param}")
           
           raise ClientCertVerificationError, 'Client certificate CN must match host_id' unless cn_entry.gsub('.', '/') == host_id_param
 
