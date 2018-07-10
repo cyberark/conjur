@@ -34,8 +34,8 @@ module Authentication
         # TODO: replace this hack
         @host_id_param_method = :authenticate
 
-        logger.debug("********* password")
-        logger.debug(input.password)
+        Rails.logger.debug("********* password")
+        Rails.logger.debug(input.password)
 
         @client_cert = input.password
         
