@@ -65,3 +65,11 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
 
     When I GET "/secrets/cucumber/:resource_kind/:resource_id"
     Then the HTTP response status code is 404
+    And there is an audit record matching:
+    """
+      <36>1 * * conjur * fetch
+      [auth@43868 user="cucumber:user:alice"]
+      [subject@43868 resource="cucumber:variable:probe"]
+      [action@43868 operation="fetch" result="failure"]
+      cucumber:user:alice tried to fetch cucumber:variable:probe: Forbidden
+    """

@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Audit attempts to update and fetch an invisible secret.
 
 ## [9.0.0] - 2018-7-11
 ### Changes
@@ -14,7 +16,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - `start` no longer fails to show Help information.
-
 
 ## [0.8.1] - 2018-06-29
 ### Added
