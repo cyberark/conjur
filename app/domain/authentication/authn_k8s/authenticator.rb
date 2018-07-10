@@ -263,7 +263,11 @@ module Authentication
       end
 
       def host_token
-        @host_token ||= Conjur::API.authenticate_local "host/#{host_id}"
+        @host_token ||=# Conjur::API.authenticate_local "host/#{host_id}"
+          TokenFactory.new.signed_token(
+            account: @env['CONJUR_ACCOUNT'],
+            username: host_id
+          )
       end
 
       def host_id_prefix
