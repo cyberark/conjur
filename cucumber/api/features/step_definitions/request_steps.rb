@@ -83,12 +83,13 @@ When(/^I( (?:can|successfully))? POST "([^"]*)" with parameters:$/) do |can, pat
   end
 end
 
-When(/^I authenticate as "([^"]*)" with account "([^"]*)"/) do |login, account|
+When(/^I( ?:can|successfully)? authenticate as "([^"]*)" with account "([^"]*)"/) do |can, login, account|
   user = lookup_user(login, account)
   user.reload
-  steps %Q{
-    When I POST "/authn/#{account}/#{login}/authenticate" with plain text body "#{user.api_key}"
-  }
+
+  try_request can do
+    post_json "/authn/#{account}/#{login}/authenticate", user.api_key
+  end
 end
 
 Then(/^the result is an API key$/) do
