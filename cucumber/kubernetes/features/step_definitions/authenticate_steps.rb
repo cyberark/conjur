@@ -16,7 +16,7 @@ Then(/^I( can)? authenticate with authn-k8s as "([^"]*)"( without cert and key)?
       ssl_client_cert: cert,
       ssl_client_key: key,
       verify_ssl: OpenSSL::SSL::VERIFY_PEER
-    )["#{CGI.escape username}/authenticate?request_ip=#{@request_ip}"].post('')
+    )["#{ENV['CONJUR_ACCOUNT']}/#{CGI.escape username}/authenticate?request_ip=#{@request_ip}"].post(cert.to_s)
   rescue
     raise if success
     @error = $!
