@@ -7,7 +7,7 @@ module Loader
     module PublicKey
   
       # When a public key is encountered in a policy, it is saved here. It can't be written directly into
-      # the temporary schema, because that schema doesn't have a credentials table. The merge algorithm only operates
+      # the temporary schema, because that schema doesn't have a secrets table. The merge algorithm only operates
       # on the RBAC tables.
       def handle_public_key id, public_key
         policy_public_keys << [ id, public_key ]

@@ -6,9 +6,9 @@ module Loader
     # after the initial policy load, since variable values are not part of the policy load
     module Password
   
-      # When a public key is encountered in a policy, it is saved here. It can't be written directly into
-      # the temporary schema, because that schema doesn't have a secrets table. The merge algorithm only operates
-      # on the RBAC tables.
+      # Passwords generated and read during policy loading for new roles cannot be immediately saved
+      # because the credentials table is not part of the temporary comparison schema. So these are tracked
+      # here to be saved at the end.
       def handle_password id, password
         policy_passwords << [ id, password ]
       end
