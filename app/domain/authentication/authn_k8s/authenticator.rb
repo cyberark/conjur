@@ -230,7 +230,9 @@ module Authentication
       end
 
       def authorize_host
-        raise AuthenticationError, "#{host.role.id} does not have 'authenticate' privilege on #{@service.id}" unless @service.permitted?("authenticate")
+        unless host.role.allowed_to?("authenticate", @service)
+          raise AuthenticationError, "#{host.role.id} does not have 'authenticate' privilege on #{@service.id}"
+        end
       end
 
       def request_ip
