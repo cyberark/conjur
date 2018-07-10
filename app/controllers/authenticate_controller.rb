@@ -49,6 +49,9 @@ class AuthenticateController < ApplicationController
     render json: authentication_token
   rescue => e
     logger.debug("Authentication Error: #{e.message}")
+    e.backtrace.each do |line|
+      logger.debug(line)
+    end
     raise Unauthorized
   end
 
