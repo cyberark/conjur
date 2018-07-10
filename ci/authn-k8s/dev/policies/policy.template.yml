@@ -42,7 +42,3 @@
   - !grant
     role: !group clients
     member: !layer apps
-      
-- !grant
-  role: !group conjur/authn-k8s/minikube/clients
-  member: !layer conjur/authn-k8s/minikube/apps
