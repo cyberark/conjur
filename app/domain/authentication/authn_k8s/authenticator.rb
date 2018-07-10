@@ -210,7 +210,9 @@ module Authentication
           end
 
           # verify pod cert was signed by ca
-          raise ClientCertVerificationError, 'Client certificate cannot be verified by trusted certification authority' unless @pod_cert && @ca.verify(@pod_cert)
+          unless @pod_cert && @ca.verify(@pod_cert)
+            raise ClientCertVerificationError, 'Client certificate cannot be verified by trusted certification authority'
+          end
 
           # verify podname SAN matches calling pod ?
 
@@ -220,11 +222,15 @@ module Authentication
           Rails.logger.debug("******* CN TEST")
           Rails.logger.debug("CN: #{cn_entry.gsub('.', '/')}")
           Rails.logger.debug("host_id_param: #{host_id_param}")
-          
-          raise ClientCertVerificationError, 'Client certificate CN must match host_id' unless cn_entry.gsub('.', '/') == host_id_param
+
+          unless host_id_param.end_with?(cn_entry.gsub('.', '/'))
+            raise ClientCertVerificationError, 'Client certificate CN must match host_id'
+          end
 
           # verify pod cert is still valid
-          raise ClientCertExpiredError, 'Client certificate session expired' unless @pod_cert.not_after > Time.now
+          if @pod_cert.not_after <= Time.now
+            raise ClientCertExpiredError, 'Client certificate session expired'
+          end
         end
 
         @pod_cert
