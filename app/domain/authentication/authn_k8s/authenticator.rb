@@ -18,6 +18,8 @@ module Authentication
         @params = params
         @request = request
 
+        @service_id = params[:service_id]
+
         verify_enabled
         service_lookup
         host_lookup
@@ -34,17 +36,19 @@ module Authentication
         # TODO: replace this hack
         @host_id_param_method = :authenticate
 
-        verify_enabled
-        service_lookup
-        host_lookup
-        authorize_host
-        load_ca
-        find_pod
-        find_container
-
+        # some variables that need to be used in helper methods
         Rails.logger.debug("********* password")
         Rails.logger.debug(input.password)
         @client_cert = input.password
+        @service_id = input.service_id
+        
+#        verify_enabled
+        service_lookup
+#        host_lookup
+#        authorize_host
+        load_ca
+#        find_pod
+#        find_container
         
         # Run through cert validations
         pod_certificate
@@ -361,7 +365,8 @@ module Authentication
       end
 
       def service_id
-        @params[:service_id]
+#        @params[:service_id]
+        @service_id
       end
 
       def service_lookup
