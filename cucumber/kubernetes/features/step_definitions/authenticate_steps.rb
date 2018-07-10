@@ -5,7 +5,8 @@ end
 Then(/^I( can)? authenticate with authn-k8s as "([^"]*)"( without cert and key)?$/) do |success, objectid, nocertkey|
   @request_ip ||= detect_request_ip(objectid)
 
-  username = [ namespace, objectid ].join('/')
+  #username = [ namespace, objectid ].join('/')
+  username = "host/conjur/authn-k8s/minikube/apps/#{namespace}/#{objectid}"
 
   cert = nocertkey ? nil : OpenSSL::X509::Certificate.new(@cert)
   key = nocertkey ? nil : @pkey
