@@ -189,7 +189,7 @@ function loadConjurPolicies() {
 
   # set test password value
   password=$(openssl rand -hex 12)
-  kubectl exec $cli_pod -- conjur variable values add inventory-db/password $password
+#  kubectl exec $cli_pod -- conjur variable values add inventory-db/password $password
 }
 
 function launchInventoryServices() {

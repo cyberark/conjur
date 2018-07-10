@@ -31,13 +31,13 @@
     - !layer
 
     - !host
-      id: test-6d77d3dd-7e28-46a4-90bf-bdf91972f1f6/pod/inventory-pod
+      id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/pod/inventory-pod
       annotations:
         kubernetes/authentication-container-name: authenticator
 
     - !grant
       role: !layer
-      members: !host test-6d77d3dd-7e28-46a4-90bf-bdf91972f1f6/pod/inventory-pod
+      members: !host {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/pod/inventory-pod
 
   - !grant
     role: !group clients
