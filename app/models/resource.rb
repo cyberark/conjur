@@ -7,7 +7,7 @@ class Resource < Sequel::Model
   
   one_to_many :permissions, reciprocal: :resource
   one_to_many :annotations, reciprocal: :resource
-  one_to_many :secrets,     reciprocal: :resource, order: :version
+  one_to_many :secrets, reciprocal: :resource
   one_to_many :policy_versions, reciprocal: :resource, order: :version
   one_to_many :host_factory_tokens, reciprocal: :resource
   many_to_one :owner, class: :Role
@@ -33,7 +33,8 @@ class Resource < Sequel::Model
       response["annotations"] = self.annotations.as_json.map {|h| h.except 'resource'}
 
       if kind == "variable"
-        response["secrets"] = self.secrets.as_json.map {|h| h.except 'resource'}
+        response["secrets"] = secrets_dataset.order(:version).as_json
+          .map { |h| h.except 'resource' }
       end
       if kind == "policy"
         response["policy_versions"] = self.policy_versions.as_json.map {|h| h.except 'resource'}
@@ -160,5 +161,20 @@ class Resource < Sequel::Model
     WHERE "secrets"."resource_id" = "delete_secrets"."resource_id" AND
       "secrets"."version" = "delete_secrets"."version"
     SQL
+  end
+
+  def last_secret
+    secrets_dataset.order(Sequel.desc(:version)).first
+  end
+
+  def secret version: nil
+    return last_secret unless version
+    secrets_dataset.where(version: Integer(version)).first
+  rescue ArgumentError
+    raise ArgumentError, "invalid type for parameter 'version'"
+  end
+
+  def annotation name
+    annotations_dataset.where(name: name).select(:value).single_value
   end
 end

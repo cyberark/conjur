@@ -5,7 +5,6 @@ class SecretsController < RestController
   include AuthorizeResource
   
   before_filter :current_user
-  before_filter :find_resource, except: [:batch]
   
   def create
     authorize :update
@@ -14,39 +13,33 @@ class SecretsController < RestController
 
     raise ArgumentError, "'value' may not be empty" if value.blank?
 
-    Secret.create resource_id: @resource.id, value: value
-    @resource.enforce_secrets_version_limit
+    Secret.create resource_id: resource.id, value: value
+    resource.enforce_secrets_version_limit
 
     head :created
   ensure
     Audit::Event::Update.new_with_exception(
-      resource: @resource,
+      resource: resource,
       user: @current_user
     ).log_to Audit.logger
   end
   
   def show
     authorize :execute
-    
     version = params[:version]
-    secret = if version.is_a?(String) && version.to_i.to_s == version
-      @resource.secrets.find{|s| s.version == version.to_i}
-    elsif version.nil?
-      @resource.secrets.last
-    else
-      raise ArgumentError, "invalid type for parameter 'version'"
+
+    unless (secret = resource.secret version: version)
+      raise Exceptions::RecordNotFound.new \
+        resource.id, message: "Requested version does not exist"
     end
-    raise Exceptions::RecordNotFound.new(@resource.id, message: "Requested version does not exist") if secret.nil?
     value = secret.value
 
-    mime_type = if ( a = @resource.annotations_dataset.select(:value).where(name: 'conjur/mime_type').first )
-      a[:value]
-    end
-    mime_type ||= 'application/octet-stream'
+    mime_type = \
+      resource.annotation('conjur/mime_type') || 'application/octet-stream'
 
     send_data value, type: mime_type
   ensure
-    audit_fetch @resource, version: version
+    audit_fetch resource, version: version
   end
 
   def batch
@@ -68,11 +61,11 @@ class SecretsController < RestController
     authorize_many variables, :execute
     
     variables.each do |variable|
-      if variable.secrets.last.nil?
+      unless (secret = variable.last_secret)
         raise Exceptions::RecordNotFound, variable.resource_id
       end
       
-      result[variable.resource_id] = variable.secrets.last.value
+      result[variable.resource_id] = secret.value
       audit_fetch variable
     end
 
@@ -106,7 +99,7 @@ class SecretsController < RestController
   #
   def expire
     authorize :update
-    Secret.update_expiration(@resource.id, nil)
+    Secret.update_expiration(resource.id, nil)
     head :created
   end
 end

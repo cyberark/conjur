@@ -7,8 +7,7 @@ module AuthorizeResource
     include CurrentUser
   end
   
-  def authorize(privilege, resource=nil)
-    resource ||= @resource 
+  def authorize privilege, resource = self.resource
     auth(current_user, privilege, resource)
   end
 
