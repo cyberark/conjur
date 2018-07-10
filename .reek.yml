@@ -244,6 +244,7 @@ detectors:
     - Role#as_json
     - Role#make_full_id
     - Role#password=
+    - Role#restricted_to
     - Schemata#initialize
     - Secret#current_values
     - connect

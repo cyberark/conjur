@@ -80,8 +80,8 @@ class Role < Sequel::Model
   end
 
   def restricted_to
-    credentials = self.credentials ||= Credentials.new(role: self)
-    credentials.restricted_to  
+    self.credentials ||= Credentials.new(role: self)
+    self.credentials.restricted_to  
   end
 
   def restricted_to= restricted_to
