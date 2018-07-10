@@ -176,10 +176,12 @@ function loadConjurPolicies() {
   kubectl exec $cli_pod -- conjur authn login -u admin -p $API_KEY
 
   # load policies
-  kubectl exec $cli_pod -- conjur policy load root /policies/users.${TEMPLATE_TAG}yml
-  kubectl exec $cli_pod -- conjur policy load root /policies/apps.${TEMPLATE_TAG}yml
-  kubectl exec $cli_pod -- conjur policy load root /policies/authn-k8s.${TEMPLATE_TAG}yml
-  kubectl exec $cli_pod -- conjur policy load root /policies/entitlements.${TEMPLATE_TAG}yml
+#  kubectl exec $cli_pod -- conjur policy load root /policies/users.${TEMPLATE_TAG}yml
+#  kubectl exec $cli_pod -- conjur policy load root /policies/apps.${TEMPLATE_TAG}yml
+#  kubectl exec $cli_pod -- conjur policy load root /policies/authn-k8s.${TEMPLATE_TAG}yml
+#  kubectl exec $cli_pod -- conjur policy load root /policies/entitlements.${TEMPLATE_TAG}yml
+
+  kubectl exec $cli_pod -- conjur policy load root /policies/policy.${TEMPLATE_TAG}yml
 
   # init ca certs
   conjur_pod=$(kubectl get pod -l app=conjur-authn-k8s --no-headers | grep Running | awk '{ print $1 }')

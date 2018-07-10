@@ -1,0 +1,88 @@
+#### USERS ####
+
+- !group developers
+- !group operations
+
+- !grant
+  role: !group developers
+  members:
+    - !group operations
+
+
+#### APPS (define secrets for k8s apps) ####
+- !policy
+  id: inventory
+  owner: !group developers
+  body:
+  - !layer
+
+- !policy
+  id: inventory-db
+  owner: !group operations
+  body:
+  - &variables
+    - !variable password
+
+  - !permit
+    resources: *variables
+    privilege: [ read, execute ]
+    role: !layer /inventory
+
+    
+#### AUTHN-K8S (define webservice and hosts that have access to it) ####
+- !policy
+  id: conjur/authn-k8s/minikube
+  body:
+  - !webservice
+
+  - !policy
+    id: ca
+    body:
+    - !variable
+      id: cert
+      annotations:
+        description: CA cert for Kubernetes Pods.
+
+    - !variable
+      id: key
+      annotations:
+        description: CA key for Kubernetes Pods.
+  
+  - !group clients
+
+  - !permit
+    role: !group clients
+    privilege: [ read, authenticate ]
+    resource: !webservice
+
+  - !policy
+    id: apps
+    annotations:
+      description: Apps and services in the "minikube" Kubernetes cluster.
+    body:
+    - !layer
+
+    - &hosts
+      - !host
+        id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/pod/inventory-pod
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+
+    - !grant
+      role: !layer
+      members: *hosts
+
+  - !grant
+    role: !group clients
+    member: !layer apps
+      
+- !grant
+  role: !group conjur/authn-k8s/minikube/clients
+  member: !layer conjur/authn-k8s/minikube/apps
+
+
+#### ENTITLEMENTS (grant hosts access to secrets) ####
+- !grant
+  role: !layer inventory
+  members:
+  - !host conjur/authn-k8s/minikube/apps/{{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/pod/inventory-pod
