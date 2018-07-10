@@ -10,7 +10,7 @@ namespace :authn_k8s do
 
     puts "Populated CA and Key of service #{service.inspect}"
     puts "To print values:"
-    puts " conjur variable value #{svc.ca_cert_variable.id}"
-    puts " conjur variable value #{svc.ca_key_variable.id}"
+    puts " conjur variable value #{svc.ca_cert_variable.identifier}"
+    puts " conjur variable value #{svc.ca_key_variable.identifier}"
   end
 end
