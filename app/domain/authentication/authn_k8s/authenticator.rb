@@ -12,9 +12,12 @@ module Authentication
       end
 
       def inject_client_cert(params, request)
+        # TODO: replace this hack
+        @host_id_param_method = :login
+        
         @params = params
         @request = request
-        
+
         verify_enabled
         service_lookup
         host_lookup
@@ -28,46 +31,74 @@ module Authentication
       end
       
       def valid?(input)
-        # input has 5 attributes:
-        #
-        #     input.authenticator_name
-        #     input.service_id
-        #     input.account
-        #     input.username
-        #     input.password
-        #
-        # return true for valid credentials, false otherwise
+        # TODO: replace this hack
+        @host_id_param_method = :authenticate
+
+        logger.debug("********* password")
+        logger.debug(input.password)
+
+        @client_cert = input.password
+        
+        # Run through cert validations
+        pod_certificate
+        
+        true
       end
 
       private
 
-      ### authn-k8s LoginController helpers
-
-      def install_signed_cert cert
-        exec = KubectlExec.new @pod, container: k8s_container_name
-        response = exec.copy "/etc/conjur/ssl/client.pem", cert.to_pem, "0644"
-        
-        if response[:error].present?
-          raise AuthenticationError, response[:error].join
+      ### TODO: The following section contains methods that were overridden in
+      # two different controllers in the v4 implementation. This is a hacky way
+      # of supporting both overrides in one class and should be replaced ASAP.
+      
+      def host_id_param
+        if @host_id_param_method == :login
+          host_id_param_login
+        elsif @host_id_param_method == :authenticate
+          host_id_param_authenticate
         end
       end
 
-      def host_id_param
+      def host_id_param_login
         if !@host_id_param
           cn_entry = get_subject_hash(pod_csr)["CN"]
           raise CSRVerificationError, 'CSR must contain CN' unless cn_entry
-
+          
           @host_id_param = cn_entry.gsub('.', '/')
         end
 
         @host_id_param
       end
 
+      def host_id_param_authenticate
+        @host_id_param = params[:id]
+      end
+
       def spiffe_id
+        if @host_id_param_method == :login
+          spiffe_id_login
+        elsif @host_id_param_method == :authenticate
+          spiffe_id_authenticate          
+        end
+      end
+
+      def spiffe_id_login
         @spiffe_id ||= csr_spiffe_id(pod_csr)
       end
 
+      def spiffe_id_authenticate
+        @spiffe_id ||= cert_spiffe_id(pod_certificate)        
+      end
+
       def pod_name
+        if @host_id_param_method == :login
+          pod_name_login
+        elsif @host_id_param_method == :authenticate
+          pod_name_authenticate
+        end
+      end
+
+      def pod_name_login
         if !@pod_name
           raise CSRVerificationError, 'CSR must contain SPIFFE ID SAN' unless spiffe_id
 
@@ -76,6 +107,30 @@ module Authentication
         end
 
         @pod_name
+      end
+
+      def pod_name_authenticate
+        if !@pod_name
+          raise ClientCertVerificationError, 'Client certificate must contain SPIFFE ID SAN' unless spiffe_id
+
+          _, _, namespace, _, @pod_name = URI.parse(spiffe_id).path.split("/")
+          raise ClientCertVerificationError, 'Client certificate SPIFFE ID SAN namespace must match conjur host id namespace' unless namespace == k8s_namespace
+        end
+
+        @pod_name
+      end
+      
+      #----------------------------------------
+      # authn-k8s LoginController helpers
+      #----------------------------------------
+      
+      def install_signed_cert cert
+        exec = KubectlExec.new @pod, container: k8s_container_name
+        response = exec.copy "/etc/conjur/ssl/client.pem", cert.to_pem, "0644"
+        
+        if response[:error].present?
+          raise AuthenticationError, response[:error].join
+        end
       end
 
       def pod_csr
@@ -118,7 +173,6 @@ module Authentication
 
         values = OpenSSL::ASN1.decode(values).value
 
-
         uris = begin
                  URI_from_asn1_seq(values)
                rescue StandardError => e
@@ -129,7 +183,63 @@ module Authentication
         uris[0]
       end
 
-      ### authn-k8s ApplicationController helpers
+      #----------------------------------------
+      # authn-k8s AuthenticateController helpers
+      #----------------------------------------
+
+      def pod_certificate
+        #client_cert = request.env['HTTP_X_SSL_CLIENT_CERTIFICATE']
+        raise AuthenticationError, "No client certificate provided" unless @client_cert
+
+        if !@pod_cert
+          begin
+            @pod_cert ||= OpenSSL::X509::Certificate.new(@client_cert)
+          rescue OpenSSL::X509::CertificateError
+          end
+
+          # verify pod cert was signed by ca
+          raise ClientCertVerificationError, 'Client certificate cannot be verified by trusted certification authority' unless @pod_cert && @ca.verify(@pod_cert)
+
+          # verify podname SAN matches calling pod ?
+
+          # verify host_id matches CN
+          cn_entry = get_subject_hash(@pod_cert)["CN"]
+          raise ClientCertVerificationError, 'Client certificate CN must match host_id' unless cn_entry.gsub('.', '/') == host_id_param
+
+          # verify pod cert is still valid
+          raise ClientCertExpiredError, 'Client certificate session expired' unless @pod_cert.not_after > Time.now
+        end
+
+        @pod_cert
+      end
+
+      # ssl stuff
+
+      def cert_spiffe_id(cert)
+        subject_alt_name = cert.extensions.find {|e| e.oid == "subjectAltName"}
+        raise ClientCertVerificationError, "Client Certificate must contain pod SPIFFE ID subjectAltName" if not subject_alt_name
+
+        # Parse the subject alternate name certificate extension as ASN1, first value should be the key
+        asn_san = OpenSSL::ASN1.decode(subject_alt_name)
+        raise "Expected ASN1 Subject Alternate Name extension key to be subjectAltName but was #{asn_san.value[0].value}" if asn_san.value[0].value != 'subjectAltName'
+
+        # And the second value should be a nested ASN1 sequence
+        values = OpenSSL::ASN1.decode(asn_san.value[1].value)
+
+        uris =
+          begin
+            URI_from_asn1_seq(values)
+          rescue StandardError => e
+            raise ClientCertVerificationError, e.message
+          end
+
+        raise ClientCertVerificationError, "Client Certificate must contain exactly one URI SAN" unless (uris.count == 1)
+        uris[0]
+      end
+      
+      #----------------------------------------
+      # authn-k8s ApplicationController helpers
+      #----------------------------------------
       
       def verify_enabled
         conjur_authenticators = (@env['CONJUR_AUTHENTICATORS'] || '').split(',').map(&:strip)
