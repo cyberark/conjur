@@ -141,7 +141,7 @@ function createSSLCertConfigMap() {
 function copyConjurPolicies() {
   cli_pod=$(oc get pod -l app=conjur-cli --no-headers | grep Running | awk '{ print $1 }')
 
-  oc cp ./dev/policies $cli_pod:/policies
+  oc rsync ./dev/policies $cli_pod:/policies
 }
 
 function loadConjurPolicies() {
