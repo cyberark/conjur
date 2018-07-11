@@ -38,7 +38,7 @@ function finish {
   gcloud container images delete --force-delete-tags -q \
     $CONJUR_AUTHN_K8S_TAG $INVENTORY_TAG
 }
-#trap finish EXIT
+trap finish EXIT
 
 export TEMPLATE_TAG=gke.
 export API_VERSION=rbac.authorization.k8s.io/v1beta1
@@ -107,46 +107,12 @@ function launchConjurMaster() {
     sed -e "s#{{ CONJUR_AUTHN_K8S_TEST_NAMESPACE }}#$CONJUR_AUTHN_K8S_TEST_NAMESPACE#g" |
     kubectl create -f -
 
-#  echo 'Disabling unused services'
-#  for service in authn-tv ldap ldap-sync pubkeys rotation; do
-#    conjurcmd touch /etc/service/conjur/$service/down
-#  done
+  conjur_pod=$(kubectl get pods -l app=conjur-authn-k8s -o=jsonpath='{.items[].metadata.name}')
 
-#  echo 'Enabling authn-k8s'
+  wait_for_it 300 "kubectl describe po $conjur_pod | grep Status: | grep -q Running"
 
-#  conjurcmd sv stop conjur nginx pg && sleep 3
-#  conjurcmd evoke ca regenerate conjur-authn-k8s
-#  conjurcmd rm -f /etc/service/conjur/authn-k8s/down
-
-#  conjurcmd mkdir -p /src/authn-k8s
-
-#  WORKSPACE_PARENT_DIR=$(dirname $PWD)
-#  tar --exclude="./*.deb" --exclude="./*.git" -zcvf $WORKSPACE_PARENT_DIR/src.tgz .
-#  kubectl cp $WORKSPACE_PARENT_DIR/src.tgz $pod_name:/src/
-#  rm -rf $WORKSPACE_PARENT_DIR/src.tgz
-#  conjurcmd tar -zxvf /src/src.tgz -C /src/authn-k8s
-
-#  conjurcmd /opt/conjur/evoke/bin/dev-install authn-k8s
-
-  # authn-k8s must be in "development" mode to allow request IP spoofing, which is used by the 
-  # test cases.
-  pod_name=$(kubectl get pods -l app=conjur-authn-k8s -o=jsonpath='{.items[].metadata.name}')
-
-  wait_for_it 300 "kubectl describe po $pod_name | grep Status: | grep -q Running"
-
-  kubectl exec $pod_name -- conjurctl db migrate
-  export API_KEY=$(kubectl exec $pod_name -- conjurctl account create cucumber | tail -n 1 | awk '{ print $NF }')
-  
-#  kubectl cp $pod_name:/opt/conjur/etc/authn-k8s.conf ./dev/tmp/authn-k8s.conf
-#  cat << CONFIG >> ./dev/tmp/authn-k8s.conf
-#  RAILS_ENV=development
-#  RAILS_LOG_TO_STDOUT=true
-#CONFIG
-
-#  kubectl cp ./dev/tmp/authn-k8s.conf $pod_name:/opt/conjur/etc/authn-k8s.conf
-
-#  conjurcmd sv start nginx pg conjur
-#  conjurcmd /opt/conjur/evoke/bin/wait_for_conjur
+  kubectl exec $conjur_pod -- conjurctl db migrate
+  export API_KEY=$(kubectl exec $conjur_pod -- conjurctl account create cucumber | tail -n 1 | awk '{ print $NF }')
 }
 
 function createSSLCertConfigMap() {
