@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # See:
 #   https://github.com/cucumber/cucumber/wiki/Step-Argument-Transforms
 # for an explanation of this cucumber feature.
@@ -8,7 +10,7 @@
 # Replaces:
 #   @response_api_key@ with the actual @response_api_key
 #
-Transform /@response_api_key@/ do |item|
+Transform(/@response_api_key@/) do |item|
   @response_api_key ? item.gsub("@response_api_key@", @response_api_key) : item
 end
 
@@ -18,7 +20,7 @@ end
 #
 DummyToken = Struct.new(:token, :expiration)
 
-Transform /@host_factory.+@/ do |item|
+Transform(/@host_factory.+@/) do |item|
   token = @host_factory_token || DummyToken.new(
     @result[0]['token'], Time.parse(@result[0]['expiration'])
   )
