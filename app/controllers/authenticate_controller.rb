@@ -29,7 +29,6 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticate
-
     authentication_token = ::Authentication::Strategy.new(
       authenticators: installed_authenticators,
       audit_log: ::Authentication::AuditLog,
