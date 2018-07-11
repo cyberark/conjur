@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/conjurinc/conjur-policy-parser.git
-  revision: 8b494b8fe2722fb7a2271239b84eee053f4c95c0
-  branch: restricted_to_cidr
+  revision: c23df8e0856053103ce55f1ec4e6331c375c26c5
+  branch: possum
   specs:
     conjur-policy-parser (3.0.0)
       activesupport (>= 4.2)
