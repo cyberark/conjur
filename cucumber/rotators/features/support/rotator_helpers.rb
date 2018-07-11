@@ -5,7 +5,7 @@
 
 require 'aws-sdk'
 
-module RotatorWorld
+module RotatorHelpers
 
   # Utility for the postgres rotator
   #
@@ -171,4 +171,4 @@ module RotatorWorld
     end
   end
 end
-World(RotatorWorld)
+World(RotatorHelpers)

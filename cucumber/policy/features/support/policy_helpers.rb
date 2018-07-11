@@ -8,7 +8,7 @@ module FullId
   end
 end
 
-module PossumWorld
+module PolicyHelpers
   include FullId
 
   attr_reader :result
@@ -93,4 +93,4 @@ module PossumWorld
     @conjur_api = Conjur::API.new_from_key login, api_key
   end
 end
-World(PossumWorld)
+World(PolicyHelpers)

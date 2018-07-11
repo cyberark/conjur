@@ -10,8 +10,8 @@ require_relative 'utils'
 ENV['CONJUR_ACCOUNT'] = 'cucumber'
 ENV['RAILS_ENV'] ||= 'test'
 
-# This line is here to support running these tests outside a container.
-# It could be deleted were it not for that.
+# This line is here to support running these tests outside a container,
+# per Rafal's request.  It could be deleted were it not for that.
 ENV['CONJUR_APPLIANCE_URL'] ||= Utils.start_local_server
 
 Slosilo["authn:cucumber"] ||= Slosilo::Key.new

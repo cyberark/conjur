@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module PossumWorld
+module RestHelpers
   
   USER_NAMES = %w(auto-larry auto-mike auto-norbert auto-otto)
   
@@ -239,4 +239,4 @@ module PossumWorld
   end
 end
 
-World(PossumWorld)
+World(RestHelpers)

@@ -5,15 +5,15 @@ policy: >
 
 api: >
   --format pretty
-  -r cucumber/api/features/support
-  -r cucumber/api/features/step_definitions cucumber/api
+  -r cucumber/api
+  cucumber/api
 
 authenticators: >
   --format pretty
-  -r cucumber/authenticators/features/support
-  -r cucumber/api/features/support/world.rb
+  -r cucumber/api/features/support/rest_helpers.rb
   -r cucumber/api/features/step_definitions/request_steps.rb
-  -r cucumber/authenticators/features/step_definitions cucumber/authenticators
+  -r cucumber/authenticators
+  cucumber/authenticators
 
 # NOTE: We have to require the needed files from "api" individually, because
 #       if you mass require the folder it includes "api"s env.rb, which screws
@@ -23,10 +23,11 @@ authenticators: >
 rotators: >
   --format pretty
   --tags ~@manual
-  -r cucumber/api/features/support/world.rb
+  -r cucumber/api/features/support/rest_helpers.rb
   -r cucumber/api/features/step_definitions/request_steps.rb
   -r cucumber/api/features/step_definitions/user_steps.rb
-  -r cucumber/policy
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
   -r cucumber/rotators
   cucumber/rotators
 
@@ -34,4 +35,5 @@ manual-rotators: >
   --format pretty
   --tags @manual
   -r cucumber/rotators/features/support
-  -r cucumber/rotators/features/step_definitions cucumber/rotators
+  -r cucumber/rotators/features/step_definitions
+  cucumber/rotators
