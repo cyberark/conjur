@@ -208,7 +208,7 @@ function runTests() {
 
   conjurcmd mkdir -p /opt/conjur-server/output
 
-  echo "./bin/cucumber K8S_VERSION=1.7 PLATFORM=kubernetes --no-color --format pretty --format junit --out /opt/conjur-server/output -r ./cucumber/kubernetes/features/step_definitions/ -r ./cucumber/kubernetes/features/env.rb -r ./cucumber/kubernetes/features/support/world.rb ./cucumber/kubernetes/features" | conjurcmd -i bash
+  echo "./bin/cucumber K8S_VERSION=1.7 PLATFORM=kubernetes --no-color --format pretty --format junit --out /opt/conjur-server/output -r ./cucumber/kubernetes/features/step_definitions/ -r ./cucumber/kubernetes/features/support/world.rb -r ./cucumber/kubernetes/features/support/conjur_token.rb ./cucumber/kubernetes/features" | conjurcmd -i bash
 }
 
 main

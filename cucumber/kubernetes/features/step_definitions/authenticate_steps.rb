@@ -11,7 +11,7 @@ Then(/^I( can)? authenticate with authn-k8s as "([^"]*)"( without cert and key)?
   key = nocertkey ? nil : @pkey
 
   begin
-    @token = RestClient::Resource.new(
+    response = RestClient::Resource.new(
       authn_k8s_host,
       ssl_client_cert: cert,
       ssl_client_key: key,
