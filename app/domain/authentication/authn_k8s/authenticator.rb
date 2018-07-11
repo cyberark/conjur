@@ -46,7 +46,7 @@ module Authentication
         host_lookup
         authorize_host
         load_ca
-#        find_pod
+        find_pod
 #        find_container
         
         # Run through cert validations
