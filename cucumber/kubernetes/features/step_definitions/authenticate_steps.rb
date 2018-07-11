@@ -31,7 +31,7 @@ end
 Then(/^I( can)? authenticate pod matching "([^"]*)" with authn-k8s as "([^"]*)"( without cert and key)?$/) do |success, objectid, hostid, nocertkey|
   @request_ip ||= detect_request_ip(objectid)
 
-  username = "host/conjur/authn-k8s/minikube/apps/#{namespace}/#{objectid}"
+  username = "host/conjur/authn-k8s/minikube/apps/#{namespace}/#{hostid}"
 
   cert = nocertkey ? nil : OpenSSL::X509::Certificate.new(@cert)
   key = nocertkey ? nil : @pkey
