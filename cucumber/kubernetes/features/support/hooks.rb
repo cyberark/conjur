@@ -18,7 +18,7 @@ Before do
     next if pod.metadata.name =~ /conjur\-authn\-k8s/
 
     pod.spec.containers.each do |container|
-      exec = KubectlExec.new pod, container: container.name
+      exec = Authentication::AuthnK8s::KubectlExec.new pod, container: container.name
       response = exec.exec %w(ls /etc/conjur/ssl)
       if response[:error] && response[:error].join =~ /command terminated with non-zero exit code/
       else
