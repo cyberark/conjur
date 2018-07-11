@@ -111,7 +111,7 @@ function launchConjurMaster() {
 
   wait_for_it 300 "kubectl describe po $conjur_pod | grep Status: | grep -q Running"
 
-  kubectl exec $conjur_pod -- conjurctl db migrate
+#  kubectl exec $conjur_pod -- conjurctl db migrate
   export API_KEY=$(kubectl exec $conjur_pod -- conjurctl account create cucumber | tail -n 1 | awk '{ print $NF }')
 }
 

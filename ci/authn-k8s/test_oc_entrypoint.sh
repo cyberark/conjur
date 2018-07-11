@@ -123,7 +123,7 @@ function launchConjurMaster() {
   
   wait_for_it 300 "oc describe po $conjur_pod | grep Status: | grep -q Running"
 
-  oc exec $conjur_pod -- conjurctl db migrate
+#  oc exec $conjur_pod -- conjurctl db migrate
   export API_KEY=$(oc exec $conjur_pod -- conjurctl account create cucumber | tail -n 1 | awk '{ print $NF }')
 }
 
