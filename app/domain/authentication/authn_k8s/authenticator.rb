@@ -47,7 +47,7 @@ module Authentication
         authorize_host
         load_ca
         find_pod
-#        find_container
+        find_container
         
         # Run through cert validations
         pod_certificate
