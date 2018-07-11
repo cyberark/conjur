@@ -958,16 +958,16 @@ GEM
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.5)
-    websocket (1.2.8)
-    websocket-client-simple (0.3.0)
-      event_emitter
-      websocket
     unicode-display_width (1.4.0)
     virtus (1.0.5)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
       descendants_tracker (~> 0.0, >= 0.0.3)
       equalizer (~> 0.0, >= 0.0.9)
+    websocket (1.2.8)
+    websocket-client-simple (0.3.0)
+      event_emitter
+      websocket
     xdg (2.2.3)
 
 PLATFORMS

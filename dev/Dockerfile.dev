@@ -5,7 +5,8 @@ RUN apt-get update -y && \
     apt-add-repository -y ppa:brightbox/ruby-ng && \
     apt-get update -y
 
-RUN apt-get install -y \
+RUN apt-get update -y && \
+    apt-get install -y \
     build-essential \
     ruby2.5 ruby2.5-dev \
     postgresql-client \
@@ -19,7 +20,7 @@ RUN apt-get install -y \
     jq \
     tzdata
 
-RUN gem install -N -v 1.16.1 bundler
+RUN gem install -N -v 1.16.2 bundler
 
 RUN mkdir -p /src/conjur-server
 
