@@ -17,38 +17,38 @@ pipeline {
       }
     }
 
-    stage('Static analysis') {
-      parallel {
-        stage('brakeman') {
-          steps {
-            sh 'ci/security-scan -b'
-          }
-          post {
-            always {
-              // junit 'brakeman-output.json'
-              publishHTML([reportDir: 'brakeman/reports', reportFiles: 'brakeman-output.html', reportName: 'Brakeman Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false])
-            }
-          }
-        }
-        stage('gem audit') {
-          steps {
-            sh 'ci/security-scan -a'
-          }
-        }
-        stage('rubocop') {
-          steps {
-            sh 'ci/docker-rubocop'
-            checkstyle pattern: 'reports/xml/checkstyle-result.xml', canComputeNew: false, unstableTotalAll: '0', healthy: '0', failedTotalAll: '20',  unHealthy: '10'
-          }
-        }
-        stage('reek') {
-          steps {
-            sh 'ci/docker-reek'
-            checkstyle pattern: 'reports/reek.xml', canComputeNew: false, unstableTotalAll: '0', healthy: '0', failedTotalAll: '20',  unHealthy: '10'
-          }
-        }
-      }
-    }
+    // stage('Static analysis') {
+    //   parallel {
+    //     stage('brakeman') {
+    //       steps {
+    //         sh 'ci/security-scan -b'
+    //       }
+    //       post {
+    //         always {
+    //           // junit 'brakeman-output.json'
+    //           publishHTML([reportDir: 'brakeman/reports', reportFiles: 'brakeman-output.html', reportName: 'Brakeman Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false])
+    //         }
+    //       }
+    //     }
+    //     stage('gem audit') {
+    //       steps {
+    //         sh 'ci/security-scan -a'
+    //       }
+    //     }
+    //     stage('rubocop') {
+    //       steps {
+    //         sh 'ci/docker-rubocop'
+    //         checkstyle pattern: 'reports/xml/checkstyle-result.xml', canComputeNew: false, unstableTotalAll: '0', healthy: '0', failedTotalAll: '20',  unHealthy: '10'
+    //       }
+    //     }
+    //     stage('reek') {
+    //       steps {
+    //         sh 'ci/docker-reek'
+    //         checkstyle pattern: 'reports/reek.xml', canComputeNew: false, unstableTotalAll: '0', healthy: '0', failedTotalAll: '20',  unHealthy: '10'
+    //       }
+    //     }
+    //   }
+    // }
 
     stage('Build Docker image') {
       steps {

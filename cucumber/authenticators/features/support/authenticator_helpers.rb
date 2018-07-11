@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-module AuthenticatorWorld
+# Utility methods for authenticators
+#
+module AuthenticatorHelpers
 
   # Mostly to document the mutable variables that are in play.
   # To at least mitigate the poor design encouraged by the way cucumber
@@ -71,4 +73,4 @@ module AuthenticatorWorld
 
 end
 
-World(AuthenticatorWorld)
+World(AuthenticatorHelpers)

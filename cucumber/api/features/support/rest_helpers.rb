@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-module PossumWorld
+# Utility methods for making API requests
+#
+module RestHelpers
   
   USER_NAMES = %w(auto-larry auto-mike auto-norbert auto-otto)
   
@@ -143,7 +145,7 @@ module PossumWorld
       users[login] = user
     end
   end
-  
+
   def current_user?
     !!@current_user
   end
@@ -239,4 +241,4 @@ module PossumWorld
   end
 end
 
-World(PossumWorld)
+World(RestHelpers)
