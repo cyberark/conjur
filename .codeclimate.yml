@@ -1,0 +1,9 @@
+plugins:
+  rubocop:
+    enabled: true
+  reek:
+    enabled: true
+  bundler-audit:
+    enabled: true
+  brakeman:
+    enabled: true
