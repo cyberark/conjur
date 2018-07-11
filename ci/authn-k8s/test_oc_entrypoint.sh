@@ -126,8 +126,6 @@ function launchConjurMaster() {
   # wait for the 'conjurctl server' entrypoint to finish
   oc exec $conjur_pod -- bash -c "while ! curl -sI localhost:80 > /dev/null; do sleep 1; done"
 
-#  oc exec $conjur_pod -- conjurctl db migrate
-  
   export API_KEY=$(oc exec $conjur_pod -- conjurctl account create cucumber | tail -n 1 | awk '{ print $NF }')
 }
 
@@ -145,6 +143,7 @@ function createSSLCertConfigMap() {
 function copyConjurPolicies() {
   cli_pod=$(oc get pod -l app=conjur-cli --no-headers | grep Running | awk '{ print $1 }')
 
+  oc exec $cli_pod -- mkdir /policies
   oc rsync ./dev/policies $cli_pod:/policies
 }
 
