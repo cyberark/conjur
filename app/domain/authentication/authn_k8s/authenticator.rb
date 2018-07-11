@@ -387,7 +387,7 @@ module Authentication
       end
 
       def host_lookup
-        raise NotFoundError, "Host #{host.id} not found" unless host.exists?
+        raise NotFoundError, "Host #{host.id} not found" if host.nil?
       end
 
       def host
