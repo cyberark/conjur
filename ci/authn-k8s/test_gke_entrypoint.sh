@@ -47,7 +47,7 @@ function main() {
   sourceFunctions
   renderResourceTemplates
   
-  initializeKubeCtl
+  initialize
   createNamespace
 
   pushDockerImages
@@ -72,7 +72,7 @@ function renderResourceTemplates() {
   compiletemplatescmd <(echo '') $TEMPLATE_TAG
 }
 
-function initializeKubeCtl() {
+function initialize() {
   # setup kubectl
   gcloud auth activate-service-account --key-file $GCLOUD_SERVICE_KEY
   gcloud container clusters get-credentials $GCLOUD_CLUSTER_NAME --zone $GCLOUD_ZONE --project $GCLOUD_PROJECT_NAME
@@ -154,7 +154,7 @@ function loadConjurPolicies() {
   kubectl exec $conjur_pod -- rake authn_k8s:ca_init["conjur/authn-k8s/minikube"]
 
   # set test password value
-  password=$(openssl rand -hex 12)
+#  password=$(openssl rand -hex 12)
 #  kubectl exec $cli_pod -- conjur variable values add inventory-db/password $password
 }
 

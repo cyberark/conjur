@@ -47,13 +47,14 @@ function main() {
   sourceFunctions
   renderResourceTemplates
   
-  initializeKubeCtl
+  initialize
   createNamespace
 
   pushDockerImages
 
   launchConjurMaster
-  createSSLCertConfigMap
+#  createSSLCertConfigMap
+  copyConjurPolicies
   loadConjurPolicies
   launchInventoryServices
 
@@ -71,7 +72,7 @@ function renderResourceTemplates() {
   compiletemplatescmd <(echo '') $TEMPLATE_TAG
 }
 
-function initializeKubeCtl() {
+function initialize() {
   # setup kubectl, oc and docker
   oc login $OPENSHIFT_URL --username=$OPENSHIFT_USERNAME --password=$OPENSHIFT_PASSWORD --insecure-skip-tls-verify=true
   docker login -u _ -p $(oc whoami -t) $OPENSHIFT_REGISTRY_URL
@@ -113,46 +114,17 @@ function pushDockerImages() {
 function launchConjurMaster() {
   echo 'Launching Conjur master service'
 
-  oc create -f dev/dev_conjur.${TEMPLATE_TAG}yaml
-  wait_for_it 300 "oc describe po conjur-authn-k8s | grep Status: | grep -q Running"
+  sed -e "s#{{ CONJUR_AUTHN_K8S_TAG }}#$CONJUR_AUTHN_K8S_TAG#g" dev/dev_conjur.${TEMPLATE_TAG}yaml |
+    sed -e "s#{{ DATA_KEY }}#$(openssl rand -base64 32)#g" |
+    sed -e "s#{{ CONJUR_AUTHN_K8S_TEST_NAMESPACE }}#$CONJUR_AUTHN_K8S_TEST_NAMESPACE#g" |
+    oc create -f -
 
-  echo 'Disabling unused services'
-  for service in authn-tv ldap ldap-sync pubkeys rotation; do
-    conjurcmd touch /etc/service/conjur/$service/down
-  done
+  conjur_pod=$(oc get pods -l app=conjur-authn-k8s -o=jsonpath='{.items[].metadata.name}')
+  
+  wait_for_it 300 "oc describe po $conjur_pod | grep Status: | grep -q Running"
 
-  echo 'Enabling authn-k8s'
-
-  conjurcmd sv stop conjur nginx pg && sleep 3
-  conjurcmd evoke ca regenerate conjur-authn-k8s
-  conjurcmd rm -f /etc/service/conjur/authn-k8s/down
-
-  conjurcmd mkdir -p /src/authn-k8s
-
-  WORKSPACE_PARENT_DIR=$(dirname $PWD)
-  tar --exclude="./*.deb" --exclude="./*.git" -zcvf $WORKSPACE_PARENT_DIR/src.tgz .
-  kubectl cp $WORKSPACE_PARENT_DIR/src.tgz $pod_name:/src/
-  rm -rf $WORKSPACE_PARENT_DIR/src.tgz
-  conjurcmd tar -zxvf /src/src.tgz -C /src/authn-k8s
-
-  conjurcmd /opt/conjur/evoke/bin/dev-install authn-k8s
-
-  # authn-k8s must be in "development" mode to allow request IP spoofing, which is used by the 
-  # test cases.
-  pod_name=$(oc get pods -l app=conjur-authn-k8s -o=jsonpath='{.items[].metadata.name}')
-
-  echo "Conjur pod name is : $pod_name"
-
-  kubectl cp $pod_name:/opt/conjur/etc/authn-k8s.conf ./dev/tmp/authn-k8s.conf
-  cat << CONFIG >> ./dev/tmp/authn-k8s.conf
-  RAILS_ENV=development
-  RAILS_LOG_TO_STDOUT=true
-CONFIG
-
-  kubectl cp ./dev/tmp/authn-k8s.conf $pod_name:/opt/conjur/etc/authn-k8s.conf
-
-  conjurcmd sv start nginx pg conjur
-  conjurcmd /opt/conjur/evoke/bin/wait_for_conjur
+  oc exec $conjur_pod -- conjurctl db migrate
+  export API_KEY=$(oc exec $conjur_pod -- conjurctl account create cucumber | tail -n 1 | awk '{ print $NF }')
 }
 
 function createSSLCertConfigMap() {
@@ -166,15 +138,30 @@ function createSSLCertConfigMap() {
     --from-literal=ssl-certificate="$ssl_certificate"
 }
 
+function copyConjurPolicies() {
+  cli_pod=$(oc get pod -l app=conjur-cli --no-headers | grep Running | awk '{ print $1 }')
+
+  oc cp ./dev/policies $cli_pod:/policies
+}
+
 function loadConjurPolicies() {
   echo 'Loading the policies and data'
 
-  conjurcmd conjur policy load --as-group security_admin /src/authn-k8s/dev/policies/conjur.${TEMPLATE_TAG}yml
-  conjurcmd conjur-dev-service authn-k8s rake ca:initialize["conjur/authn-k8s/minikube"]
+  cli_pod=$(oc get pod -l app=conjur-cli --no-headers | grep Running | awk '{ print $1 }')
+  
+  oc exec $cli_pod -- conjur init -u conjur -a cucumber
+  sleep 5
+  oc exec $cli_pod -- conjur authn login -u admin -p $API_KEY
 
-  password=$(openssl rand -hex 12)
+  oc exec $cli_pod -- conjur policy load root /policies/policy.${TEMPLATE_TAG}yml
 
-  conjurcmd conjur variable values add inventory-db/password $password
+  # init ca certs
+  conjur_pod=$(oc get pod -l app=conjur-authn-k8s --no-headers | grep Running | awk '{ print $1 }')
+  oc exec $conjur_pod -- rake authn_k8s:ca_init["conjur/authn-k8s/minikube"]
+
+  # set test password value
+#  password=$(openssl rand -hex 12)
+#  conjurcmd conjur variable values add inventory-db/password $password
 }
 
 function launchInventoryServices() {
@@ -197,8 +184,9 @@ function launchInventoryServices() {
 function runTests() {
   echo 'Running tests'
 
-  conjurcmd mkdir -p /src/authn-k8s/output
-  echo "cd /src/authn-k8s && ./bin/cucumber K8S_VERSION=$K8S_VERSION PLATFORM=openshift --no-color --format pretty --format junit --out /src/authn-k8s/output ./features/cucumber/kubernetes" | conjurcmd -i bash
+  conjurcmd mkdir -p /opt/conjur-server/output
+
+  echo "./bin/cucumber K8S_VERSION=$K8S_VERSION PLATFORM=openshift --no-color --format pretty --format junit --out /opt/conjur-server/output -r ./cucumber/kubernetes/features/step_definitions/ -r ./cucumber/kubernetes/features/support/world.rb -r ./cucumber/kubernetes/features/support/hooks.rb -r ./cucumber/kubernetes/features/support/conjur_token.rb --tags ~@skip ./cucumber/kubernetes/features" | conjurcmd -i bash
 }
 
 main
