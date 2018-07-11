@@ -1,0 +1,64 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: inventory-pod-in-namespace
+spec:
+  containers:
+  - image: {{INVENTORY_TAG}}
+    imagePullPolicy: IfNotPresent
+    name: inventory
+    env:
+      - name: CONJUR_APPLIANCE_URL
+        value: https://conjur-authn-k8s/api
+      - name: CONJUR_ACCOUNT
+        value: cucumber
+      - name: CONJUR_SSL_CERTIFICATE
+        valueFrom:
+          configMapKeyRef:
+            name: conjurrc
+            key: ssl-certificate
+    volumeMounts:
+      - mountPath: /run/conjur
+        name: conjur-access-token
+        readOnly: true
+  - image: {{AUTHENTICATOR_TAG}}
+    imagePullPolicy: IfNotPresent
+    name: authenticator
+    env:
+      - name: MY_POD_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
+      - name: MY_POD_NAMESPACE
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.namespace
+      - name: MY_POD_IP
+        valueFrom:
+          fieldRef:
+            fieldPath: status.podIP
+      - name: CONJUR_APPLIANCE_URL
+        value: https://conjur-authn-k8s/api
+      - name: CONJUR_AUTHN_URL
+        value: https://conjur-authn-k8s/api/authn-k8s/minikube
+      - name: CONJUR_ACCOUNT
+        value: cucumber
+      - name: CONJUR_AUTHN_LOGIN
+        value: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/*/*
+      - name: CONJUR_SSL_CERTIFICATE
+        valueFrom:
+          configMapKeyRef:
+            name: conjurrc
+            key: ssl-certificate
+    volumeMounts:
+      - mountPath: /run/conjur
+        name: conjur-access-token
+#      - mountPath: /usr/src
+#        name: local-dev
+  volumes:
+    - name: conjur-access-token
+      emptyDir:
+        medium: Memory
+#    - name: local-dev
+#      {{LOCAL_DEV_VOLUME}}/sidecar

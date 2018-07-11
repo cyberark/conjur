@@ -1,0 +1,8 @@
+- !grant
+  role: !layer inventory
+  members:
+  - !host conjur/authn-k8s/minikube/apps/{{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/*/*
+  - !host conjur/authn-k8s/minikube/apps/{{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/pod/inventory-pod
+  - !host conjur/authn-k8s/minikube/apps/{{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/deployment/inventory-deployment
+  - !host conjur/authn-k8s/minikube/apps/{{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/deployment_config/inventory-deployment-cfg
+  - !host conjur/authn-k8s/minikube/apps/{{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/stateful_set/inventory-stateful

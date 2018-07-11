@@ -31,7 +31,6 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticate
-
     authentication_token = ::Authentication::Strategy.new(
       authenticators: installed_authenticators,
       audit_log: ::Authentication::AuditLog,
@@ -52,6 +51,20 @@ class AuthenticateController < ApplicationController
     render json: authentication_token
   rescue => e
     logger.debug("Authentication Error: #{e.message}")
+    e.backtrace.each do |line|
+      logger.debug(line)
+    end
+    raise Unauthorized
+  end
+
+  def k8s_inject_client_cert
+    ::Authentication::AuthnK8s::Authenticator.new(env: ENV).inject_client_cert(params, request)
+    head :ok
+  rescue => e
+    logger.debug("Authentication Error: #{e.message}")
+    e.backtrace.each do |line|
+      logger.debug(line)
+    end
     raise Unauthorized
   end
 
@@ -78,5 +91,4 @@ class AuthenticateController < ApplicationController
   def enabled_authenticators
     (ENV["CONJUR_AUTHENTICATORS"] || Authentication::Strategy.default_authenticator_name).split(",")
   end
-
 end

@@ -1,0 +1,85 @@
+- !policy
+  id: conjur/authn-k8s/minikube
+  body:
+  - !webservice
+
+  - !policy
+    id: ca
+    body:
+    - !variable
+      id: cert
+      annotations:
+        description: CA cert for Kubernetes Pods.
+
+    - !variable
+      id: key
+      annotations:
+        description: CA key for Kubernetes Pods.
+  
+  - !group clients
+
+  - !permit
+    role: !group clients
+    privilege: [ read, authenticate ]
+    resource: !webservice
+
+  - !policy
+    id: apps
+    annotations:
+      description: Apps and services in the "minikube" Kubernetes cluster.
+    body:
+    - !layer
+
+    - &hosts
+      - !host
+        id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/*/*
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+
+      - !host
+        id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/service_account/inventory-pod-only
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+
+      - !host
+        id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/deployment/inventory-deployment
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+
+      - !host
+        id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/deployment_config/inventory-deployment-cfg
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+
+      - !host
+        id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/pod/inventory-pod
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+
+      - !host
+        id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/stateful_set/inventory-stateful
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+
+      - !host
+        id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/node/inventory-node
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+          
+      - !host
+        id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/pod/different-service-host
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+
+    - !host
+      id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/pod/inventory-unauthorized
+      annotations:
+        description: This host does not have "authenticate" privilege on the webservice.
+
+    - !grant
+      role: !layer
+      members: *hosts
+
+  - !grant
+    role: !group clients
+    member: !layer apps

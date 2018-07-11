@@ -1,0 +1,4 @@
+- !revoke
+  role: !group conjur/authn-k8s/minikube/{{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/clients
+  member: !layer conjur/authn-k8s/minikube/{{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/apps
+

@@ -1,0 +1,17 @@
+- !group developers
+
+- !group operations
+
+- !user dan
+
+- !user otto
+
+- !grant
+  role: !group developers
+  members:
+    - !user dan
+    - !group operations
+
+- !grant
+  role: !group operations
+  member: !user otto

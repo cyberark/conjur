@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-headless
+spec:
+  ports:
+  - port: 80
+  clusterIP: None
+  selector:
+    app: inventory-stateful
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: inventory-stateful
+spec:
+  serviceName: inventory-headless
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: inventory-stateful
+    spec:
+      containers:
+      - image: {{INVENTORY_TAG}}
+        name: inventory
+        command: ["sleep", "infinity"]
+      - image: {{INVENTORY_TAG}}
+        name: authenticator
+        command: ["sleep", "infinity"]
