@@ -37,16 +37,14 @@ module Authentication
         @v4_controller = :authenticate
 
         # some variables that need to be used in helper methods
-        Rails.logger.debug("********* password")
-        Rails.logger.debug(input.password)
         @client_cert = input.password
         @service_id = input.service_id
         @host_id_param = input.username
         
-#        verify_enabled
+        verify_enabled
         service_lookup
-#        host_lookup
-#        authorize_host
+        host_lookup
+        authorize_host
         load_ca
 #        find_pod
 #        find_container
@@ -377,7 +375,6 @@ module Authentication
       end
 
       def service_id
-#        @params[:service_id]
         @service_id
       end
 
