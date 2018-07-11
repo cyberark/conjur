@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# Utility methods for authenticators
+#
 module AuthenticatorHelpers
 
   # Mostly to document the mutable variables that are in play.

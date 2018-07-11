@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 $LOAD_PATH.unshift(Dir.pwd)
 require 'config/environment'
 

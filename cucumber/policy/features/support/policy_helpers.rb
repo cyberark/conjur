@@ -8,6 +8,8 @@ module FullId
   end
 end
 
+# Utility methods for loading, replacing, etc of policies
+#
 module PolicyHelpers
   include FullId
 

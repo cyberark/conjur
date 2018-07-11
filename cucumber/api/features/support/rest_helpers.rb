@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# Utility methods for making API requests
+#
 module RestHelpers
   
   USER_NAMES = %w(auto-larry auto-mike auto-norbert auto-otto)
