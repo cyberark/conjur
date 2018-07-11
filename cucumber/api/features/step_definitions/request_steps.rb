@@ -83,6 +83,15 @@ When(/^I( (?:can|successfully))? POST "([^"]*)" with parameters:$/) do |can, pat
   end
 end
 
+When(/^I( ?:can|successfully)? authenticate as "([^"]*)" with account "([^"]*)"/) do |can, login, account|
+  user = lookup_user(login, account)
+  user.reload
+
+  try_request can do
+    post_json "/authn/#{account}/#{login}/authenticate", user.api_key
+  end
+end
+
 Then(/^the result is an API key$/) do
   expect(@result).to be
   expect(@result.length).to be > 40

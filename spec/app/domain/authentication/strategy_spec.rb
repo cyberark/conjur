@@ -15,7 +15,8 @@ RSpec.describe 'Authentication::Strategy::Input#to_access_request' do
       service_id:         'my-service',
       account:            'my-acct',
       username:           'someuser',
-      password:           'secret'
+      password:           'secret',
+      origin:             '127.0.0.1'
     )
   end
 
@@ -68,7 +69,8 @@ RSpec.describe 'Authentication::Strategy::Input#to_access_request' do
         service_id:         nil,
         account:            'my-acct',
         username:           'someuser',
-        password:           'secret'
+        password:           'secret',
+        origin:             '127.0.0.1'
       )
     end
 
@@ -95,14 +97,16 @@ RSpec.describe 'Authentication::Strategy' do
     service_id: nil,
     account: 'my-acct',
     username: 'my-user',
-    password: 'my-pw'
+    password: 'my-pw',
+    origin: '127.0.0.1'
   )
     Authentication::Strategy::Input.new(
       authenticator_name: authenticator_name,
       service_id: service_id,
       account: account,
       username: username,
-      password: password
+      password: password,
+      origin: origin
     )
   end
 
@@ -201,6 +205,8 @@ RSpec.describe 'Authentication::Strategy' do
 
       context "and receives valid credentials" do
         it "returns a new token" do
+          allow(subject).to receive(:validate_origin) { true }
+
           input_ = input(authenticator_name: 'authn-always-pass')
           expect(subject.conjur_token(input_)).to equal(a_new_token)
         end

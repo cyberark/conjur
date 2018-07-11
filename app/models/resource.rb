@@ -31,21 +31,23 @@ class Resource < Sequel::Model
       end
       response["permissions"] = permissions.as_json.map {|h| h.except 'resource'}
       response["annotations"] = self.annotations.as_json.map {|h| h.except 'resource'}
-
-      if kind == "variable"
+      
+      case kind
+      when "variable"
         response["secrets"] = self.secrets.as_json.map {|h| h.except 'resource'}
-      end
-      if kind == "policy"
+      when "policy"
         response["policy_versions"] = self.policy_versions.as_json.map {|h| h.except 'resource'}
-      end
-      if kind == "host_factory"
+      when "host_factory"
         response["tokens"] = self.host_factory_tokens.as_json.map {|h| h.except 'resource'}
         response["layers"] = self.role.layers.map(&:role_id)
+      when "user", "host"
+        response["restricted_to"] = self.role.restricted_to.map(&:to_s)
       end
     end
   end
 
   class << self
+    
     def make_full_id id, account
       Role.make_full_id id, account
     end

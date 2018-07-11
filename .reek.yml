@@ -139,6 +139,7 @@ detectors:
     - ConjurAudit::Message::Filter
     - ConjurAudit::Engine
     - ConjurAudit
+    - Util
   UncommunicativeParameterName:
     exclude:
     - CallSql::Sequel::Model#call_sql
@@ -244,6 +245,7 @@ detectors:
     - Role#as_json
     - Role#make_full_id
     - Role#password=
+    - Role#restricted_to
     - Schemata#initialize
     - Secret#current_values
     - connect
@@ -297,7 +299,7 @@ detectors:
     - Loader::Orchestrate#create_schema
     - Loader::Orchestrate#load
     - Loader::Orchestrate#load_records
-    - Loader::Orchestrate#store_passwords
+    - Loader::Handlers::Password#store_passwords
     - Loader::Orchestrate#table_data
     - Loader::Orchestrate#update_changed
     - Loader::Types::User#create!
@@ -385,11 +387,10 @@ detectors:
     - Authentication::Strategy#audit_failure
     - Authentication::Strategy#audit_success
     - Authentication::Strategy#new_token
+    - Authentication::Strategy#validate_origin
     - Rotation::Rotators::Aws::SecretKey#rotate
     - HostBuilder#find_and_rotate
-    - HostFactoryToken#cidr_mask
-    - HostFactoryToken#format_cidr
-    - Loader::Orchestrate#store_passwords
+    - Loader::Handlers::Password#store_passwords
     - MembershipSearch#result_set
     - Resource#permit
     - Resource#search
@@ -403,7 +404,7 @@ detectors:
     - SecretsController#show
     - Account#create
     - Authenticate#self?
-    - HostFactoryToken#cidr_mask
+    - Util::CIDR#mask
     - Schemata#initialize
   NestedIterators:
     exclude:
@@ -447,6 +448,7 @@ detectors:
     - Loader::Types::Record
     - Loader::Types::Revoke
     - Loader::Types::User
+    - Loader::Types::Host
     - Loader::Types::Variable
   UnusedParameters:
     exclude:

@@ -20,6 +20,7 @@ module Authentication
       attribute :account,            Types::NonEmptyString
       attribute :username,           Types::NonEmptyString
       attribute :password,           Types::NonEmptyString
+      attribute :origin,             Types::NonEmptyString
 
       # Convert this Input to an Security::AccessRequest
       #
@@ -64,6 +65,7 @@ module Authentication
       validate_authenticator_exists(input, authenticator)
       validate_security(input)
       validate_credentials(input, authenticator)
+      validate_origin(input)
 
       audit_success(input)
       new_token(input)
@@ -77,7 +79,7 @@ module Authentication
 
     def audit_success(input)
       audit_log.record_authn_event(
-        role: audit_role(input.username, input.account),
+        role: role(input.username, input.account),
         webservice_id: input.webservice.resource_id,
         authenticator_name: input.authenticator_name,
         success: true
@@ -86,7 +88,7 @@ module Authentication
 
     def audit_failure(input, err)
       audit_log.record_authn_event(
-        role: audit_role(input.username, input.account),
+        role: role(input.username, input.account),
         webservice_id: input.webservice.resource_id,
         authenticator_name: input.authenticator_name,
         success: false,
@@ -94,7 +96,7 @@ module Authentication
       )
     end
 
-    def audit_role(username, account)
+    def role(username, account)
       role_cls.by_login(username, account: account)
     end
 
@@ -108,6 +110,11 @@ module Authentication
 
     def validate_credentials(input, authenticator)
       raise InvalidCredentials unless authenticator.valid?(input)
+    end
+
+    def validate_origin(input)
+      authn_role = role(input.username, input.account)
+      raise Unauthorized, "Invalid origin" unless authn_role.valid_origin?(input.origin)
     end
 
     def new_token(input)

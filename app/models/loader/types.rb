@@ -34,7 +34,7 @@ module Loader
     class Base
       extend Forwardable
 
-      def_delegators :@external_handler, :policy_id, :handle_password, :handle_public_key
+      def_delegators :@external_handler, :policy_id, :handle_password, :handle_public_key, :handle_restricted_to
       def_delegators :@policy_object, :owner, :id
 
       attr_reader :policy_object, :external_handler
@@ -123,6 +123,12 @@ module Loader
     end
 
     class Host < Record
+      def_delegators :@policy_object, :restricted_to
+
+      def create!
+        self.handle_restricted_to(self.roleid, restricted_to)    
+        super  
+      end
     end
 
     class HostFactory < Record
@@ -161,7 +167,7 @@ module Loader
     end
     
     class User < Record
-      def_delegators :@policy_object, :public_keys, :account, :role_kind, :uidnumber
+      def_delegators :@policy_object, :public_keys, :account, :role_kind, :uidnumber, :restricted_to
 
       def create!
         self.annotations ||= {}
@@ -181,6 +187,8 @@ module Loader
             handle_public_key resource.id, public_key
           end
         end
+
+        handle_restricted_to(self.roleid, restricted_to) 
       end
     end
     

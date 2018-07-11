@@ -16,7 +16,8 @@ Feature: Create a host using the host factory.
       "id": "cucumber:host:host-01",
       "owner": "cucumber:host_factory:the-layer-factory",
       "api_key": "@response_api_key@",
-      "permissions": []
+      "permissions": [],
+      "restricted_to": []
     }
     """
 
