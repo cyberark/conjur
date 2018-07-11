@@ -6,7 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [9.0.0] - 2018-7-11
 ### Changes
+- Adds CIDR restrictions to Host and User resources
+- Adds Kubernete authentication
 - Optimize audit database and responses, for a significant improvement of performance.
 
 ### Fixed
