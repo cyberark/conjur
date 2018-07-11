@@ -39,7 +39,7 @@ module Authentication
         # some variables that need to be used in helper methods
         @client_cert = input.password
         @service_id = input.service_id
-        @host_id_param = input.username
+        @host_id_param = input.username.split('/').last(3).join('/')
         
         verify_enabled
         service_lookup
@@ -221,7 +221,7 @@ module Authentication
           Rails.logger.debug("CN: #{cn_entry.gsub('.', '/')}")
           Rails.logger.debug("host_id_param: #{host_id_param}")
 
-          unless host_id_param.end_with?(cn_entry.gsub('.', '/'))
+          if cn_entry.gsub('.', '/') != host_id_param
             raise ClientCertVerificationError, 'Client certificate CN must match host_id'
           end
 
