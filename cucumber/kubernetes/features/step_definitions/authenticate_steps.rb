@@ -24,7 +24,7 @@ Then(/^I( can)? authenticate with authn-k8s as "([^"]*)"( without cert and key)?
 
   token = ConjurToken.new(response.body)
 
-  expect(token.payload['sub']).to eq(username)
+  expect(token.username).to eq(username)
 end
 
 Then(/^I( can)? authenticate pod matching "([^"]*)" with authn-k8s as "([^"]*)"( without cert and key)?$/) do |success, objectid, hostid, nocertkey|
@@ -49,5 +49,5 @@ Then(/^I( can)? authenticate pod matching "([^"]*)" with authn-k8s as "([^"]*)"(
 
   token = ConjurToken.new(response.body)
 
-  expect(token.payload['sub']).to eq(username)
+  expect(token.username).to eq(username)
 end
