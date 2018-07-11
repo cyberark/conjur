@@ -144,7 +144,7 @@ function copyConjurPolicies() {
   cli_pod=$(oc get pod -l app=conjur-cli --no-headers | grep Running | awk '{ print $1 }')
 
   oc exec $cli_pod -- mkdir /policies
-  oc rsync ./dev/policies $cli_pod:/policies
+  oc rsync ./dev/policies $cli_pod:/
 }
 
 function loadConjurPolicies() {
