@@ -38,7 +38,7 @@ function finish {
   oc adm policy remove-scc-from-user anyuid -z default
   oc --ignore-not-found=true delete project $CONJUR_AUTHN_K8S_TEST_NAMESPACE
 }
-trap finish EXIT
+#trap finish EXIT
 
 export TEMPLATE_TAG="$PLATFORM."
 export API_VERSION=v1
