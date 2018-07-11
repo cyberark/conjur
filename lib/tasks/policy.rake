@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :policy do
   desc "Watch a file and reload the policy when it changes"
   task :watch, [ "account", "file-name" ] do |t,args|
@@ -23,12 +25,11 @@ namespace :policy do
         rescue Errno::ENOENT
           false
         end
-        if do_load
-          $stderr.puts "Loading #{policy_file_name}"
-          system *[ "rake", %Q(policy:load[#{account},#{policy_file_name}]) ]
-          require 'fileutils'
-          FileUtils.touch File.join(dir_name, "finished")
-        end
+        next unless do_load
+        $stderr.puts "Loading #{policy_file_name}"
+        system *[ "rake", %Q(policy:load[#{account},#{policy_file_name}]) ]
+        require 'fileutils'
+        FileUtils.touch File.join(dir_name, "finished")
       end
     end
     listener.start

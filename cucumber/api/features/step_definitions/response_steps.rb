@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Then(/^the resource list should include the newest resource$/) do
   expect(@result.map{|r| r['id']}).to include(@current_resource.id)
 end

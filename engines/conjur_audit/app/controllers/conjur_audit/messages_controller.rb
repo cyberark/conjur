@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require_dependency "conjur_audit/application_controller"
 
 module ConjurAudit
   class MessagesController < ApplicationController
     def index
-      render json: messages, status: messages.any? ? :ok : :not_found
+      render json: messages_json, status: messages.any? ? :ok : :not_found
     end
 
     private
@@ -65,7 +67,16 @@ module ConjurAudit
         dataset = dataset.limit(limit)
       end
 
-      @messages ||= dataset.all
+      @messages ||= dataset
+    end
+
+    # Convert messages to JSON.
+    # Note: For performance, we use JSON.dump directly.
+    # Giving messages to render(json:) renders it using ActiveSupport
+    # which does a lot of things we don't need and is an order of
+    # magnitude slower.
+    def messages_json
+      JSON.dump messages.map(&:to_hash)
     end
   end
 end

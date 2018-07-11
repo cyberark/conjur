@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SecretsController < RestController
   include FindResource
   include AuthorizeResource

@@ -1,7 +1,4 @@
-require 'conjur-api'
-
-Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || 'http://conjur'
-Conjur.configuration.account = ENV['CONJUR_ACCOUNT'] || 'cucumber'
+# frozen_string_literal: true
 
 module FullId
   def make_full_id id, account: Conjur.configuration.account
@@ -11,7 +8,9 @@ module FullId
   end
 end
 
-module PossumWorld
+# Utility methods for loading, replacing, etc of policies
+#
+module PolicyHelpers
   include FullId
 
   attr_reader :result
@@ -96,3 +95,4 @@ module PossumWorld
     @conjur_api = Conjur::API.new_from_key login, api_key
   end
 end
+World(PolicyHelpers)

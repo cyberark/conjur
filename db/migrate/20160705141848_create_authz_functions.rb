@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Sequel.migration do
   up do
     execute %Q(CREATE OR REPLACE FUNCTION all_roles(role_id text) RETURNS TABLE(role_id text, admin_option boolean)

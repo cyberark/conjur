@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class TokenFactory < Dry::Struct
 
   NoSigningKey = ::Util::ErrorClass.new(

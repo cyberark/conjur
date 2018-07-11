@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Permission < Sequel::Model
   unrestrict_primary_key
 

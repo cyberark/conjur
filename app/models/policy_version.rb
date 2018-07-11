@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Stores a policy which has been applied to the database, along with metadata such as the role
 # which submitted the policy.
 # 
@@ -37,7 +39,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
 
   dataset_module do
     def current
-      from(Sequel.function :current_policy_version).first
+      from(Sequel.function(:current_policy_version)).first
     end
   end
 
@@ -93,7 +95,6 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     require 'digest'
     self.policy_sha256 = Digest::SHA256.hexdigest(policy_text)
   end
-
 
   def before_update
     raise Sequel::ValidationFailed, "Policy version cannot be updated once created"

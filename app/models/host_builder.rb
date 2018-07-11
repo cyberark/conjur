@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 HostBuilder = Struct.new(:account, :id, :owner, :layers, :options) do
+  include Loader::Handlers::RestrictedTo
   
   # Find or create the host. If the host exists, the API key is rotated. 
   # Otherwise the host is created. In either case, the host is added to the layers of 
@@ -46,9 +49,11 @@ HostBuilder = Struct.new(:account, :id, :owner, :layers, :options) do
     
     policy_objects = [ host_p ] + role_grants
     host = policy_objects.map do |obj|
-      Loader::Types.wrap(obj).create!
+      Loader::Types.wrap(obj, self).create!
     end.first
     
+    store_restricted_to
+
     [ host, host.role.api_key ]    
   end
 end

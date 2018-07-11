@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Then(/^I can( not)? add a secret to ([\w_]+) resource "([^"]*)"$/) do |fail, kind, id|
   @value = SecureRandom.uuid
   status = fail ? 403 : 200

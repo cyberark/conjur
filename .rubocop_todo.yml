@@ -79,15 +79,6 @@ Layout/ElseAlignment:
   Exclude:
     - 'app/controllers/resources_controller.rb'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: AllowAdjacentOneLineDefs, NumberOfEmptyLines.
-Layout/EmptyLineBetweenDefs:
-  Exclude:
-    - 'app/models/loader/orchestrate.rb'
-    - 'app/models/policy_version.rb'
-    - 'spec/models/loader_orchestrate_spec.rb'
-
 # Offense count: 12
 # Cop supports --auto-correct.
 Layout/EmptyLines:
@@ -126,7 +117,7 @@ Layout/EmptyLinesAroundBlockBody:
     - 'spec/controllers/status_controller_spec.rb'
     - 'spec/models/loader_orchestrate_spec.rb'
 
-# Offense count: 37
+# Offense count: 38
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines, beginning_only, ending_only

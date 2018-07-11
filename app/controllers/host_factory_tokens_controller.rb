@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class HostFactoryTokensController < RestController
   include FindResource
   include AuthorizeResource

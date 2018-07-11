@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # An encrypted secure value.
 class Secret < Sequel::Model
   unrestrict_primary_key

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Represents the contract of a class that implements an rotator.
 #
 module Rotation

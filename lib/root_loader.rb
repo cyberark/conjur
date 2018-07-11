@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # BootstrapLoader is used to load an initial "root" policy when the database is completely empty.
 class RootLoader
   class << self

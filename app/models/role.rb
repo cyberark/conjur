@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 class Role < Sequel::Model
+  extend Forwardable
   include HasId
   
   unrestrict_primary_key
@@ -65,11 +68,29 @@ class Role < Sequel::Model
   end
   
   def password= password
-    self.credentials ||= Credentials.new(role: self)
-    self.credentials.password = password
-    self.credentials.save(raise_on_save_failure: true)
+    modify_credentials do |credentials| 
+      credentials.password = password
+    end
   end
-  
+
+  def valid_origin?(ip_addr)
+    ip = IPAddr.new(ip_addr)
+    restricted_to.blank? || restricted_to.any? do |cidr|
+      cidr.include?(ip)
+    end
+  end
+
+  def restricted_to
+    self.credentials ||= Credentials.new(role: self)
+    self.credentials.restricted_to
+  end
+
+  def restricted_to= restricted_to
+    modify_credentials do |credentials| 
+      credentials.restricted_to = restricted_to
+    end
+  end
+
   def api_key
     unless self.credentials
       _, kind, id = self.id.split(":", 3)
@@ -126,5 +147,13 @@ class Role < Sequel::Model
 
   def graph
     Role.from(Sequel.function(:role_graph, id)).order(:parent, :child)
+  end
+
+  private
+
+  def modify_credentials
+    credentials = self.credentials ||= Credentials.new(role: self)
+    yield credentials
+    credentials.save(raise_on_save_failure: true)
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Stores a text annotation on a resource.
 class Annotation < Sequel::Model
   plugin :timestamps,         :update_on_create=>true

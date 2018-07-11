@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # default conjur authenticator
 #
 module Authentication

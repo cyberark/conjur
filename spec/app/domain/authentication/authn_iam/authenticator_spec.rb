@@ -1,7 +1,8 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Authentication::AuthnIam::Authenticator do
-
   def expired_aws_headers
     "{\"host\":\"sts.amazonaws.com\",\"x-amz-date\":\"20180620T025910Z\","\
     "\"x-amz-security-token\":\"FQoDYXdzEPv//////////wEaDHwvkDqh5pHmZNe5hSK3AzevmnHjzweG6m1in"\
@@ -80,7 +81,6 @@ RSpec.describe Authentication::AuthnIam::Authenticator do
 
     expect(subject.identity_hash(valid_response)).to include(expected)
     expect(subject.identity_hash(valid_response))
-
   end
 
   it "validates identity_hash with invalid response" do
@@ -102,5 +102,4 @@ RSpec.describe Authentication::AuthnIam::Authenticator do
 
     expect(subject.iam_role_matches?(invalid_login, identity_hash)).to eq(false)
   end
-
 end

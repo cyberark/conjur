@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module CallSql
   module Sequel
     module Model

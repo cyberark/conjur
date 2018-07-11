@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'authentication/webservice'
 
 require 'rspec'
@@ -6,12 +8,10 @@ require 'authentication/webservice'
 
 
 RSpec.describe Authentication::Webservice do
-
   WS = Authentication::Webservice
 
   context "A Webservice created from a string" do
     context "with no service id" do
-
       let(:ws) { WS.from_string('my-account', 'authn-ldap') }
 
       it "has the correct account" do
@@ -25,11 +25,9 @@ RSpec.describe Authentication::Webservice do
       it "has the correct service_id" do
         expect(ws.service_id).to be_nil
       end
-
     end
 
     context "with no service id containing no slashes" do
-
       let(:ws) { WS.from_string('my-account', 'authn-ldap/test') }
 
       it "has the correct account" do
@@ -43,11 +41,9 @@ RSpec.describe Authentication::Webservice do
       it "has the correct service_id" do
         expect(ws.service_id).to eq('test')
       end
-
     end
 
     context "with no service id containing slashes" do
-
       let(:ws) { WS.from_string('my-account', 'authn-ldap/test/subtest') }
 
       it "has the correct account" do
@@ -61,8 +57,6 @@ RSpec.describe Authentication::Webservice do
       it "has the correct service_id" do
         expect(ws.service_id).to eq('test/subtest')
       end
-
     end
   end
-
 end

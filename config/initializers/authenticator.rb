@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'slosilo'
 require 'slosilo/adapters/sequel_adapter'
 

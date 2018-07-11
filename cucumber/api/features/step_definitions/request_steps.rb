@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Given(/^I authorize the request with the host factory token$/) do
   expect(@host_factory_token).to be
   headers[:authorization] = %Q(Token token="#{@host_factory_token.token}")
@@ -78,6 +80,15 @@ When(/^I( (?:can|successfully))? POST "([^"]*)" with parameters:$/) do |can, pat
   params = YAML.load(parameters)
   try_request can do
     post_json path, params
+  end
+end
+
+When(/^I( ?:can|successfully)? authenticate as "([^"]*)" with account "([^"]*)"/) do |can, login, account|
+  user = lookup_user(login, account)
+  user.reload
+
+  try_request can do
+    post_json "/authn/#{account}/#{login}/authenticate", user.api_key
   end
 end
 

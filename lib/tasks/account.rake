@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :"account" do
   def signing_key_key account
     [ "authn", account ].join(":")

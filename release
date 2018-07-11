@@ -1,0 +1,35 @@
+#!/bin/bash -e
+
+git fetch --tags
+
+if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]; then
+  echo "Must be on the master branch to releases.  Please switch with 'git checkout master'."
+  exit 1
+fi
+
+version="v$(< VERSION)"
+last_release=$(git describe --abbrev=0 --tags)
+
+echo "The last release was: $last_release"
+echo "The next release will be: $version"
+
+if [ "$version" = "$last_release" ]; then
+  echo 'To release, the VERSION file must be incremented to the latest release number.'
+  exit 1
+fi
+
+if [[ ! $(git status --porcelain) ]]; then
+  echo 'Your Git is clean. Please update the VERSION, CHANGELOG.md, and optionally RELEASE_NOTES.md before releasing.  The script will handle commits and pushing.'
+  exit 1
+fi
+
+# Make sure we have the most recent changes, without destroying local changes.
+git stash
+git pull --rebase origin master
+git stash pop
+
+# Perform a commit, tag, and push. The tag needs to be present before the commit
+# to insure Jenkins has what it needs to make a decision about a release.
+git commit -am "$version"
+git tag -a "$version" -m "$version release"
+git push --follow-tags

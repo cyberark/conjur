@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # A public key.
 class PublicKey
   class << self

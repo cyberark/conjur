@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Rotation
 
   # This class is the only API that the rotators are provided with.
@@ -44,7 +46,6 @@ module Rotation
     #
     def update_variables(new_values, &rotator_code)
       @db.transaction do
-
         new_values.each do |resource_id, value|
           update_secret(resource_id, value)
         end

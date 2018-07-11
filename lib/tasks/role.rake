@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :role do
   desc "Retrieve the API key for the given role"
   task :"retrieve-key", [:role_id] => [:environment] do |t, args|

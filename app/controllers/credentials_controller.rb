@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CredentialsController < ApplicationController
   include BasicAuthenticator
   include TokenUser
@@ -34,7 +36,6 @@ class CredentialsController < ApplicationController
   def update_password
     password = request.body.read
     
-    @role.credentials.password_required = true
     @role.credentials.password = password
     @role.credentials.save
     head 204

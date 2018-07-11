@@ -1,7 +1,8 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Authentication::Security do
-
   # create an example webservice
   def webservice(service_id, account: 'my-acct', authenticator_name: 'authn-x')
     ::Authentication::Webservice.new(
@@ -105,7 +106,6 @@ RSpec.describe Authentication::Security do
   end
  
   context "A whitelisted, authorized webservice and authorized user" do
-
     it "validates without error" do
       subject = full_access_security_double
       expect { subject.validate(valid_access_request) }.to_not raise_error
@@ -113,7 +113,6 @@ RSpec.describe Authentication::Security do
   end
 
   context "A un-whitelisted, authorized webservice and authorized user" do
-
     it "raises a NotWhitelisted error" do
       subject = full_access_security_double
       access_request = Authentication::Security::AccessRequest.new(
@@ -128,7 +127,6 @@ RSpec.describe Authentication::Security do
   end
 
   context "A whitelisted, unauthorized webservice and authorized user" do
-
     it "raises a ServiceNotDefined error" do
       subject = Authentication::Security.new(
         role_class: full_access_role_class,
@@ -141,7 +139,6 @@ RSpec.describe Authentication::Security do
   end
 
   context "A whitelisted, authorized webservice and non-existent user" do
-
     it "raises a NotAuthorizedInConjur error" do
       subject = Authentication::Security.new(
         role_class: nil_user_role_class,
@@ -154,7 +151,6 @@ RSpec.describe Authentication::Security do
   end
 
   context "A whitelisted, authorized webservice and unauthorized user" do
-
     it "raises a NotAuthorizedInConjur error" do
       subject = Authentication::Security.new(
         role_class: no_access_role_class,
@@ -167,9 +163,7 @@ RSpec.describe Authentication::Security do
   end
 
   context "Two whitelisted, authorized webservices" do
-
     context "and a user authorized for only one on them" do
-
       let (:webservice_resource) { 'CAN ACCESS ME' }
       let (:partial_access_role_class) do
         role_class(user_role_for_service(webservice_resource))
@@ -195,8 +189,5 @@ RSpec.describe Authentication::Security do
         )
       end
     end
-
   end
-
-
 end

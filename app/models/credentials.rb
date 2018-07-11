@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 require 'bcrypt'
+require 'util/cidr'
 
 class Credentials < Sequel::Model
   # Bcrypt work factor, minimum recommended work factor is 12
@@ -14,10 +17,6 @@ class Credentials < Sequel::Model
   attr_encrypted :api_key, aad: :role_id
   attr_encrypted :encrypted_hash, aad: :role_id
 
-  attr_accessor :password_required
-  
-  alias password_required? password_required
-
   class << self
     def random_api_key
       require 'base32/crockford'
@@ -29,6 +28,10 @@ class Credentials < Sequel::Model
     { }
   end
   
+  def restricted_to
+    self[:restricted_to].map { |cidr| Util::CIDR.new(cidr) }
+  end
+
   def password= pwd
     @plain_password = pwd
     self.encrypted_hash = pwd && BCrypt::Password.create(pwd, cost: BCRYPT_COST)
@@ -39,13 +42,15 @@ class Credentials < Sequel::Model
   end
 
   def valid_password? pwd
-    bc = BCrypt::Password.new(self.encrypted_hash) rescue nil
-    if bc && !bc.blank? && bc == pwd
+    bc = BCrypt::Password.new self.encrypted_hash
+    if bc == pwd
       self.update password: pwd if bc.cost != BCRYPT_COST
       return true
     else
       return false
     end
+  rescue BCrypt::Errors::InvalidHash
+    false
   end
 
   def valid_api_key? key
@@ -58,7 +63,7 @@ class Credentials < Sequel::Model
 
     validates_presence [ :api_key ]
 
-    errors.add(:password, 'must not be blank') if password_required? && @plain_password.blank?
+    errors.add(:password, 'must not be blank') if @plain_password && @plain_password.empty?
     errors.add(:password, 'cannot contain a newline') if @plain_password && @plain_password.index("\n")
   end
   

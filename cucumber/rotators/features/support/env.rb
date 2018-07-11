@@ -1,13 +1,10 @@
-# Bring in the policy's World
-#
-require_relative './world.rb'
-# require_relative '../../../policy/features/support/world.rb'
+# frozen_string_literal: true
+
+# so that we can require relative to the project root
+$LOAD_PATH.unshift(Dir.pwd)
+require 'config/environment'
 
 ENV['RAILS_ENV'] ||= 'test'
-require ::File.expand_path('../../../../../config/environment', __FILE__)
 
 Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || 'http://possum'
 Conjur.configuration.account = ENV['CONJUR_ACCOUNT'] || 'cucumber'
-
-World(PossumWorld)
-World(RotatorWorld)

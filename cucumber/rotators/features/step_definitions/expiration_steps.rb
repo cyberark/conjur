@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # NOTE: I saw no reason to make this dynamically accept parameters --
 #       the step is by nature coupled to the expiration feature, so
 #       hardcoding these values should actually be preferred.

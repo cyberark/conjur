@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Then(/^([\w_]+) "([^"]*)" is a role member( with admin option)?$/) do |role_kind, role_id, admin|
   members = @result['members']
   if admin

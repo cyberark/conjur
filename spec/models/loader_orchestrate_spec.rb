@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Loader::Orchestrate do
   def policy_path path
     File.expand_path("loader_fixtures/#{path}", File.dirname(__FILE__))
   end
+
   def expectation_path path
     File.expand_path("loader_expectations/#{path}", File.dirname(__FILE__))
   end
@@ -54,7 +57,6 @@ describe Loader::Orchestrate do
   let(:perform_automatic_deletion) { true }
 
   context "with a minimal base policy" do
-
     let(:base_policy_path) { 'empty.yml' }
     it "loads the minimal policy" do
       expect(resource_policy).to be

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Given(/^a host factory for layer "([^"]*)"$/) do |layer_id|
   layer_p = Conjur::PolicyParser::Types::Layer.new(layer_id)
   layer_p.owner = Conjur::PolicyParser::Types::Role.new(admin_user.id)

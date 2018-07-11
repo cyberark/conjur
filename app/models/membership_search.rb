@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # MembershipSearch provides the `search`` extension method
 # for Roles.membership_dataset to allow text searching
 # and paging of Role members
