@@ -1,5 +1,4 @@
-# Generated automatically by reek --todo.
-# We should go one by one and fix them.
+---
 detectors:
   IrresponsibleModule:
     exclude:
@@ -12,6 +11,7 @@ detectors:
     - PossumWorld
     - ConjurToken
     - AuthenticatorWorld
+    - AuthnK8sWorld
     - FullId
     - RotatorWorld
     - RotatorWorld::Timer
@@ -50,6 +50,25 @@ detectors:
     - Authentication::AuthenticatorClass
     - Authentication::Authn::Authenticator
     - Authentication::AuthnIam::Authenticator
+    - Authentication::AuthnK8s::AuthenticationService
+    - Authentication::AuthnK8s::AuthenticationError
+    - Authentication::AuthnK8s::Authenticator
+    - Authentication::AuthnK8s::CSRVerificationError
+    - Authentication::AuthnK8s::ClientCertExpiredError
+    - Authentication::AuthnK8s::ClientCertVerificationError
+    - Authentication::AuthnK8s::NotFoundError
+    - Authentication::AuthnK8s::CA
+    - Authentication::AuthnK8s::K8sObjectLookup
+    - Authentication::AuthnK8s::K8sObjectLookup::K8sForbiddenError
+    - Authentication::AuthnK8s::K8sResolver
+    - Authentication::AuthnK8s::K8sResolver::DeploymentConfig
+    - Authentication::AuthnK8s::K8sResolver::Pod
+    - Authentication::AuthnK8s::K8sResolver::ReplicaSet
+    - Authentication::AuthnK8s::K8sResolver::ServiceAccount
+    - Authentication::AuthnK8s::K8sResolver::StatefulSet
+    - Authentication::AuthnK8s::K8sResolver::ValidationError
+    - Authentication::AuthnK8s::KubectlClient
+    - Authentication::AuthnK8s::KubectlExec
     - Authentication::AuthnLdap::Authenticator
     - Authentication::AuthnLdap::Server
     - Authentication::InstalledAuthenticators
@@ -161,6 +180,7 @@ detectors:
     exclude:
     - String#decode64
     - String#encode64
+    - Authentication::AuthnK8s::Authenticator#URI_from_asn1_seq
     - Rotation::Password#self.base58
   UncommunicativeVariableName:
     exclude:
@@ -173,11 +193,19 @@ detectors:
     - PossumWorld#invoke
     - authenticator
     - AuthenticateController#authenticate
+    - AuthenticateController#k8s_inject_client_cert
     - CurrentUser#current_user?
     - ResourcesController#permitted_roles
     - SecretsController#batch
     - SecretsController#show
     - Authentication::AuthnIam::Authenticator#response_from_signed_request
+    - Authentication::AuthnK8s::Authenticator#URI_from_asn1_seq
+    - Authentication::AuthnK8s::Authenticator#cert_spiffe_id
+    - Authentication::AuthnK8s::Authenticator#csr_spiffe_id
+    - Authentication::AuthnK8s::Authenticator#find_container
+    - Authentication::AuthnK8s::Authenticator#k8s_container_name
+    - Authentication::AuthnK8s::K8sObjectLookup#find_object_by_name
+    - Authentication::AuthnK8s::KubectlExec#exec
     - Authentication::MemoizedRole#self.[]
     - Authentication::Strategy#conjur_token
     - Rotation::MasterRotator::ScheduledRotation#run
@@ -205,6 +233,9 @@ detectors:
     - PossumWorld#current_user_credentials
     - PossumWorld#denormalize
     - PossumWorld#rest_resource
+    - login
+    - AuthnK8sWorld#pod_certificate
+    - AuthnK8sWorld#substitute
     - verify_data
     - ApplicationController#foreign_key_constraint_violation
     - ApplicationController#policy_invalid
@@ -222,6 +253,24 @@ detectors:
     - Authentication::AuthnIam::Authenticator#iam_role_matches?
     - Authentication::AuthnIam::Authenticator#identity_hash
     - Authentication::AuthnIam::Authenticator#response_from_signed_request
+    - Authentication::AuthnK8s::AuthenticationService#initialize_ca
+    - Authentication::AuthnK8s::Authenticator#URI_from_asn1_seq
+    - Authentication::AuthnK8s::Authenticator#authorize_host
+    - Authentication::AuthnK8s::Authenticator#cert_spiffe_id
+    - Authentication::AuthnK8s::Authenticator#csr_spiffe_id
+    - Authentication::AuthnK8s::Authenticator#find_container
+    - Authentication::AuthnK8s::Authenticator#find_pod
+    - Authentication::AuthnK8s::Authenticator#find_pod_under_controller
+    - Authentication::AuthnK8s::Authenticator#install_signed_cert
+    - Authentication::AuthnK8s::CA#generate
+    - Authentication::AuthnK8s::K8sResolver::Deployment#validate_pod
+    - Authentication::AuthnK8s::K8sResolver::DeploymentConfig#validate_pod
+    - Authentication::AuthnK8s::K8sResolver::Pod#validate_pod
+    - Authentication::AuthnK8s::K8sResolver::ReplicaSet#validate_pod
+    - Authentication::AuthnK8s::K8sResolver::ServiceAccount#validate_pod
+    - Authentication::AuthnK8s::K8sResolver::StatefulSet#validate_pod
+    - Authentication::AuthnK8s::KubectlExec#exec
+    - Authentication::AuthnK8s::KubectlExec#exec#message_binary
     - Authentication::Security#validate_user_has_access
     - Rotation::Rotators::Aws::SecretKey#rotate
     - Account#delete
@@ -260,6 +309,9 @@ detectors:
     - PossumWorld#set_result
     - PossumWorld#try_request
     - AuthenticatorWorld#post
+    - gen_csr
+    - AuthnK8sWorld#detect_request_ip
+    - AuthnK8sWorld#pod_certificate
     - PossumWorld#invoke
     - RotatorWorld#current_value
     - RotatorWorld::PollingSession#captured_values
@@ -267,6 +319,8 @@ detectors:
     - load_policy_update
     - ApplicationController#foreign_key_constraint_violation
     - ApplicationController#validation_failed
+    - AuthenticateController#authenticate
+    - AuthenticateController#k8s_inject_client_cert
     - HostFactoriesController#create_host
     - HostFactoriesController#verify_token
     - HostFactoryTokensController#create
@@ -280,6 +334,21 @@ detectors:
     - SecretsController#show
     - Authentication::AuthnIam::Authenticator#iam_role_matches?
     - Authentication::AuthnIam::Authenticator#response_from_signed_request
+    - Authentication::AuthnK8s::Authenticator#cert_spiffe_id
+    - Authentication::AuthnK8s::Authenticator#csr_spiffe_id
+    - Authentication::AuthnK8s::Authenticator#find_pod
+    - Authentication::AuthnK8s::Authenticator#find_pod_under_controller
+    - Authentication::AuthnK8s::Authenticator#inject_client_cert
+    - Authentication::AuthnK8s::Authenticator#pod_certificate
+    - Authentication::AuthnK8s::Authenticator#valid?
+    - Authentication::AuthnK8s::CA#generate
+    - Authentication::AuthnK8s::K8sResolver::Deployment#validate_pod
+    - Authentication::AuthnK8s::K8sResolver::DeploymentConfig#validate_pod
+    - Authentication::AuthnK8s::K8sResolver::ReplicaSet#validate_pod
+    - Authentication::AuthnK8s::K8sResolver::StatefulSet#validate_pod
+    - Authentication::AuthnK8s::KubectlClient#client
+    - Authentication::AuthnK8s::KubectlExec#exec
+    - Authentication::AuthnK8s::KubectlExec#exec#message_binary
     - Authentication::AuthnLdap::Authenticator#valid?
     - Authentication::AuthnLdap::Server#self.new
     - Authentication::Security#validate_user_has_access
@@ -311,6 +380,7 @@ detectors:
   ControlParameter:
     exclude:
     - PossumWorld#try_request
+    - Authentication::AuthnK8s::KubectlExec#exec
     - Authentication::Strategy#validate_authenticator_exists
     - Rotation::ConjurFacade#expires_at
     - Exceptions::RecordNotFound#initialize
@@ -323,6 +393,7 @@ detectors:
     exclude:
     - PossumWorld#set_result
     - Authentication::AuthenticatorClass#requires_env_arg?
+    - Authentication::AuthnK8s::K8sObjectLookup#k8s_client_for_method
     - Loader::Types::Delete#delete!
     - Loader::Types::Record#create!
   UtilityFunction:
@@ -332,6 +403,11 @@ detectors:
     - AuthenticatorWorld#admin_password
     - AuthenticatorWorld#conjur_hostname
     - AuthenticatorWorld#full_username
+    - gen_csr
+    - app
+    - AuthnK8sWorld#authn_k8s_host
+    - AuthnK8sWorld#kubectl_client
+    - AuthnK8sWorld#test_namespace
     - FullId#make_full_id
     - RotatorWorld#valid_aws_credentials?
     - RotatorWorld#valid_credentials?
@@ -352,6 +428,11 @@ detectors:
     - RolesController#filtered_roles
     - Authentication::AuthnIam::Authenticator#iam_role_matches?
     - Authentication::AuthnIam::Authenticator#identity_hash
+    - Authentication::AuthnK8s::AuthenticationService#conjur_account
+    - Authentication::AuthnK8s::AuthenticationService#master_host
+    - Authentication::AuthnK8s::Authenticator#get_subject_hash
+    - Authentication::AuthnK8s::K8sObjectLookup#kubectl_client
+    - Authentication::AuthnK8s::KubectlExec#generate_file_tar_string
     - Authentication::AuthnLdap::Authenticator#blacklisted_ldap_user?
     - Authentication::Security#default_conjur_authn?
     - Rotation::NextExpiration#time_from_now
@@ -361,9 +442,11 @@ detectors:
     - Schemata#db
     - secrets_version_limit
     - Sequel::Model#write_id_to_json
+    - conjur_api
   LongParameterList:
     exclude:
     - AuthenticatorWorld#authenticate_with_ldap
+    - login
     - RotatorWorld#postgres_password_history
     - input
     - Authentication::AuditLog#self.record_authn_event
@@ -372,6 +455,7 @@ detectors:
     - Resource#search
   FeatureEnvy:
     exclude:
+    - AuthnK8sWorld#pod_certificate
     - RotatorWorld::PollingSession#updated_history
     - ApplicationController#foreign_key_constraint_violation
     - ApplicationController#no_matching_row
@@ -381,6 +465,7 @@ detectors:
     - ApplicationController#validation_failed
     - PoliciesController#load_policy
     - Authentication::Authn::Authenticator#valid?
+    - Authentication::AuthnK8s::Authenticator#URI_from_asn1_seq
     - Authentication::AuthnLdap::Authenticator#initialize
     - Authentication::Strategy#audit_failure
     - Authentication::Strategy#audit_success
@@ -397,10 +482,14 @@ detectors:
     - Secret#as_json
   NilCheck:
     exclude:
+    - AuthnK8sWorld#pod_certificate
     - RotatorWorld#current_value
     - RotatorWorld::PollingSession#stop?
     - SecretsController#batch
     - SecretsController#show
+    - Authentication::AuthnK8s::Authenticator#find_container
+    - Authentication::AuthnK8s::Authenticator#host_lookup
+    - Authentication::AuthnK8s::Authenticator#service_lookup
     - Account#create
     - Authenticate#self?
     - HostFactoryToken#cidr_mask
@@ -408,6 +497,8 @@ detectors:
   NestedIterators:
     exclude:
     - ApplicationController#validation_failed
+    - Authentication::AuthnK8s::Authenticator#csr_spiffe_id
+    - Authentication::AuthnK8s::KubectlExec#generate_file_tar_string
     - Loader::Orchestrate#delete_removed
     - Loader::Orchestrate#eliminate_shadowed
     - Loader::Orchestrate#update_changed
@@ -422,6 +513,8 @@ detectors:
     - ResourcesController
     - RolesController
     - SecretsController
+    - Authentication::AuthnK8s::Authenticator
+    - Authentication::AuthnK8s::KubectlExec
     - Rotation::Rotators::Aws::SecretKey::AwsCredentials
     - Credentials
     - Loader::Orchestrate
@@ -430,6 +523,7 @@ detectors:
   TooManyMethods:
     exclude:
     - RolesController
+    - Authentication::AuthnK8s::Authenticator
     - Loader::Orchestrate
     - Role
   MissingSafeMethod:
@@ -448,6 +542,17 @@ detectors:
     - Loader::Types::Revoke
     - Loader::Types::User
     - Loader::Types::Variable
+  RepeatedConditional:
+    exclude:
+    - Authentication::AuthnK8s::Authenticator
+  TooManyInstanceVariables:
+    exclude:
+    - Authentication::AuthnK8s::Authenticator
+    - Authentication::AuthnK8s::KubectlExec
+    - Loader::Orchestrate
+  BooleanParameter:
+    exclude:
+    - Authentication::AuthnK8s::KubectlExec#exec
   UnusedParameters:
     exclude:
     - Rotation::MasterRotator::ScheduledRotation#log_error
@@ -463,6 +568,3 @@ detectors:
     - PolicyVersion#perform_automatic_deletion
     - PolicyVersion#policy_filename
     - PolicyVersion#update_permitted
-  TooManyInstanceVariables:
-    exclude:
-    - Loader::Orchestrate
