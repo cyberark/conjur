@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+- Handling of absolute user ids in policies.
 
 ## [1.0.0] - 2018-7-16
 ### Added
