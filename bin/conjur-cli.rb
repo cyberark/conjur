@@ -272,4 +272,17 @@ command :wait do |c|
   end
 end
 
+desc "Export the Conjur data for migration to Conjur Enteprise Edition"
+command :export do |c|
+  c.desc "Output directory"
+  c.arg_name :out_dir
+  c.default_value Dir.pwd
+  c.flag [:o, :out_dir]
+
+  c.action do |global_options,options,args|
+    connect
+    exec "rake export[#{options[:out_dir]}]"
+  end
+end
+
 exit run(ARGV)
