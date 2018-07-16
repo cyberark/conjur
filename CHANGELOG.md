@@ -5,11 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+
+## [1.0.0] - 2018-7-16
 ### Added
 - Audit attempts to update and fetch an invisible secret.
+- Updated license to LGPL
 
 ## [0.9.0] - 2018-7-11
-### Changes
+### Added
 - Adds CIDR restrictions to Host and User resources
 - Adds Kubernete authentication
 - Optimize audit database and responses, for a significant improvement of performance.
