@@ -34,7 +34,7 @@ Adding new rotators is easy: It requires no updates to existing code.  Follow th
 
 The rotator itself is simply a class with:
 
-1. A initializer that has zero _required_ arguments.
+1. An initializer that has zero _required_ arguments.
 2. A `rotate(facade)` method
 
 The `rotate(facade)` method will be called whenever a variable's ttl has expired.
