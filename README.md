@@ -287,6 +287,15 @@ Conjur makes it easy to:
 
 [Detailed authenticator documenation](AUTHENTICATORS.md)
 
+## Rotators
+
+Conjur makes it easy to:
+
+- Rotate variables regularly using built-in rotators
+- Create custom rotators
+
+[Detailed rotator documenation](ROTATORS.md)
+
 ## Secrets and keys
 
 Main article: [Conjur Cryptography](https://www.conjur.org/reference/cryptography.html)
