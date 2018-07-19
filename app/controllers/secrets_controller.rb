@@ -45,12 +45,6 @@ class SecretsController < RestController
   end
 
   def batch
-    raise ArgumentError, 'variable_ids' if params[:variable_ids].blank?
-
-    variable_ids = params[:variable_ids].split(',').compact
-
-    raise ArgumentError, 'variable_ids' if variable_ids.blank?
-    
     variables = Resource.where(resource_id: variable_ids).eager(:secrets).all
 
     unless variable_ids.count == variables.count
@@ -120,5 +114,12 @@ class SecretsController < RestController
     authorize :update
     Secret.update_expiration(resource.id, nil)
     head :created
+  end
+
+  private
+
+  def variable_ids
+    @variable_ids ||= (params[:variable_ids] || '').split(',').compact
+      .tap { |ids| raise ArgumentError, 'variable_ids' if ids.empty? }
   end
 end
