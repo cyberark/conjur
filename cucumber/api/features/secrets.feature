@@ -22,6 +22,11 @@ Feature: Adding and fetching secrets
     When I GET "/secrets/cucumber/variable/probe"
     Then the HTTP response status code is 404
 
+  Scenario: Fetching a secret for a nonexistent resource
+
+    When I GET "/secrets/cucumber/variable/non-existent"
+    Then the HTTP response status code is 404
+
   Scenario: The 'conjur/mime_type' annotation is used in the value response.
 
     If the annotation `conjur/mime_type` exists on a resource, then when a
