@@ -75,6 +75,9 @@ class SecretsController < RestController
   end
 
   def audit_fetch resource, version: nil
+    # don't audit the fetch if the resource doesn't exist
+    return unless resource
+
     Audit::Event::Fetch.new(
       error_info.merge(
         resource: resource,
