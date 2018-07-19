@@ -12,7 +12,7 @@
 # puts '**************************************************'
 
 Dir[File.expand_path("../domain/authentication/**/*.rb", __dir__)].each do |f|
-  require_dependency(f)
+  require f 
 end
 
 class AuthenticateController < ApplicationController
