@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-if Authentication::Webservice
+if defined? Authentication::Webservice
   return
 end
 
