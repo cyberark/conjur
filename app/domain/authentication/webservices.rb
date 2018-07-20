@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+if defined? Authentication::Webservices
+  return
+end
+
 require 'forwardable'
 
 module Authentication
