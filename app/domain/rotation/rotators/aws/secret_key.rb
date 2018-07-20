@@ -2,7 +2,7 @@
 
 # This is here to fix a double-loading bug that occurs only in openshift and
 # K8s tests.  We don't fully understand what causes the bug but this is the
-# back we settled on to fix it.
+# hack we settled on to fix it.
 #
 if defined? Rotation::Rotators::Aws::SecretKey
   return
