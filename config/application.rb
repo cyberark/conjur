@@ -1,11 +1,5 @@
 # frozen_string_literal: true
 
-ActiveSupport::Dependencies.singleton_class.prepend(Module.new do
-  def load_missing_constant(*args)
-    Rails.logger.debug "#{__method__}(#{args.map(&:inspect).join(', ')})"
-    super
-  end
-end)
 
 require File.expand_path('../boot', __FILE__)
 
@@ -42,6 +36,13 @@ module Possum
     # config.i18n.default_locale = :de
 
     config.autoload_paths << Rails.root.join('lib')
+
+ActiveSupport::Dependencies.singleton_class.prepend(Module.new do
+  def load_missing_constant(*args)
+    puts "#{__method__}(#{args.map(&:inspect).join(', ')})"
+    super
+  end
+end)
 
 
     config.sequel.after_connect = proc do
