@@ -10,7 +10,7 @@ Rails.application.configure do
 
   # Do not eager load code on boot.
   config.serve_static_files = true
-  config.eager_load = false
+  config.eager_load = true
   config.assets.digest = false
 
   # Show full error reports and disable caching.

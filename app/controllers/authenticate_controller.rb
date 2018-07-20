@@ -11,9 +11,9 @@
 # puts $LOAD_PATH
 # puts '**************************************************'
 
-Dir[File.expand_path("../domain/authentication/**/*.rb", __dir__)].each do |f|
-  require f 
-end
+# Dir[File.expand_path("../domain/authentication/**/*.rb", __dir__)].each do |f|
+#   require f 
+# end
 
 class AuthenticateController < ApplicationController
 

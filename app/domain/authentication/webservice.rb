@@ -11,7 +11,7 @@ module Authentication
 
     def self.from_string(account, str)
       type, id = *str.split('/', 2)
-      Webservice.new(account: account, authenticator_name: type, service_id: id)
+      self.new(account: account, authenticator_name: type, service_id: id)
     end
 
     def name
