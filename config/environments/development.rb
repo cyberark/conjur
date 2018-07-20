@@ -8,9 +8,11 @@ Rails.application.configure do
   # since you don't have to restart the web server when you make code changes.
   config.cache_classes = false
 
-  # Do not eager load code on boot.
+  # eager_load needed to make authentication work without the hacky
+  # loading code...
+  #
   config.serve_static_files = true
-  config.eager_load = false
+  config.eager_load = true
   config.assets.digest = false
 
   # Show full error reports and disable caching.

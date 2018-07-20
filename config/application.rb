@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+
 require File.expand_path('../boot', __FILE__)
 
 # Pick the frameworks you want:
@@ -35,7 +36,6 @@ module Possum
     # config.i18n.default_locale = :de
 
     config.autoload_paths << Rails.root.join('lib')
-
 
     config.sequel.after_connect = proc do
       Sequel.extension :core_extensions, :postgres_schemata

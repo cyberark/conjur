@@ -5,7 +5,7 @@ class TokenFactory < Dry::Struct
   NoSigningKey = ::Util::ErrorClass.new(
     "Signing key not found for account '{0}'")
 
-  attribute :slosilo, Types::Any.default{ Slosilo }
+  attribute :slosilo, ::Types::Any.default{ Slosilo }
 
   def signing_key(account)
     slosilo["authn:#{account}".to_sym] or raise NoSigningKey, account

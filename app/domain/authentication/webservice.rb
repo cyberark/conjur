@@ -1,5 +1,13 @@
 # frozen_string_literal: true
 
+# This is here to fix a double-loading bug that occurs only in openshift and
+# K8s tests.  We don't fully understand what causes the bug but this is the
+# hack we settled on to fix it.
+#
+if defined? Authentication::Webservice
+  return
+end
+
 require 'dry-struct'
 require 'types'
 
@@ -11,7 +19,7 @@ module Authentication
 
     def self.from_string(account, str)
       type, id = *str.split('/', 2)
-      Webservice.new(account: account, authenticator_name: type, service_id: id)
+      self.new(account: account, authenticator_name: type, service_id: id)
     end
 
     def name

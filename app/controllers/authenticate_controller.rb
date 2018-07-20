@@ -1,16 +1,5 @@
 # frozen_string_literal: true
 
-# NOTE: This is needed to make the introspection use by InstalledAuthenticators
-#       work.  It cannot be placed in an initializer instead.  There may be a 
-#       better place for it, but this works.
-#
-#       It's purpose it to load all the pluggable authenticator files into 
-#       memory, so we can determine which authenticators are available
-#
-Dir[File.expand_path("../domain/authentication/**/*.rb", __dir__)].each do |f|
-  require f
-end
-
 class AuthenticateController < ApplicationController
 
   AUTHN_RESOURCE_PREFIX = "conjur/authn-"
@@ -85,10 +74,10 @@ class AuthenticateController < ApplicationController
       )
       .select_map(identifier)
       .map { |id| id.sub /^conjur\//, "" }
-      .push(Authentication::Strategy.default_authenticator_name)
+      .push(::Authentication::Strategy.default_authenticator_name)
   end
 
   def enabled_authenticators
-    (ENV["CONJUR_AUTHENTICATORS"] || Authentication::Strategy.default_authenticator_name).split(",")
+    (ENV["CONJUR_AUTHENTICATORS"] || ::Authentication::Strategy.default_authenticator_name).split(",")
   end
 end

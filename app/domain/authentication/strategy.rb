@@ -15,19 +15,19 @@ module Authentication
 
 
     class Input < ::Dry::Struct
-      attribute :authenticator_name, Types::NonEmptyString
-      attribute :service_id,         Types::NonEmptyString.optional
-      attribute :account,            Types::NonEmptyString
-      attribute :username,           Types::NonEmptyString
-      attribute :password,           Types::NonEmptyString
-      attribute :origin,             Types::NonEmptyString
+      attribute :authenticator_name, ::Types::NonEmptyString
+      attribute :service_id,         ::Types::NonEmptyString.optional
+      attribute :account,            ::Types::NonEmptyString
+      attribute :username,           ::Types::NonEmptyString
+      attribute :password,           ::Types::NonEmptyString
+      attribute :origin,             ::Types::NonEmptyString
 
       # Convert this Input to an Security::AccessRequest
       #
       def to_access_request(env)
         ::Authentication::Security::AccessRequest.new(
           webservice: webservice,
-          whitelisted_webservices: Webservices.from_string(
+          whitelisted_webservices: ::Authentication::Webservices.from_string(
             account, env['CONJUR_AUTHENTICATORS'] ||
                        Authentication::Strategy.default_authenticator_name
           ),
@@ -36,10 +36,11 @@ module Authentication
       end
 
       def webservice
-        @webservice ||= Webservice.new \
+        @webservice ||= ::Authentication::Webservice.new(
           account:            account,
           authenticator_name: authenticator_name,
           service_id:         service_id
+        )
       end
     end
 
