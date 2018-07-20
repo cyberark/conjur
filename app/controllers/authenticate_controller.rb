@@ -89,10 +89,10 @@ class AuthenticateController < ApplicationController
       )
       .select_map(identifier)
       .map { |id| id.sub /^conjur\//, "" }
-      .push(Authentication::Strategy.default_authenticator_name)
+      .push(::Authentication::Strategy.default_authenticator_name)
   end
 
   def enabled_authenticators
-    (ENV["CONJUR_AUTHENTICATORS"] || Authentication::Strategy.default_authenticator_name).split(",")
+    (ENV["CONJUR_AUTHENTICATORS"] || ::Authentication::Strategy.default_authenticator_name).split(",")
   end
 end
