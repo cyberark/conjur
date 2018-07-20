@@ -37,14 +37,6 @@ module Possum
 
     config.autoload_paths << Rails.root.join('lib')
 
-ActiveSupport::Dependencies.singleton_class.prepend(Module.new do
-  def load_missing_constant(*args)
-    puts "#{__method__}(#{args.map(&:inspect).join(', ')})"
-    super
-  end
-end)
-
-
     config.sequel.after_connect = proc do
       Sequel.extension :core_extensions, :postgres_schemata
     end

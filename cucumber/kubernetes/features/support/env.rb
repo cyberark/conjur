@@ -1,4 +1,4 @@
-# require 'cucumber/rails'
+require 'cucumber/rails'
 require 'rack/test'
 require 'json_spec/cucumber'
 
