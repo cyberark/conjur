@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+if defined? Rotation::Rotators::Aws::SecretKey
+  return
+end
+
 require 'aws-sdk'
 
 module Rotation
