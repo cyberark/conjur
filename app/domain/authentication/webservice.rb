@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+if Authentication::Webservice
+  return
+end
+
 require 'dry-struct'
 require 'types'
 
