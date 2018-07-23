@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.0.1] - 2018-7-23
 ### Fixed
 - Handling of absolute user ids in policies.
 - Attempts to fetch a secret from a nonexistent resource no longer cause 500.
