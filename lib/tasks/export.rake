@@ -34,7 +34,7 @@ task :export, [ "out_dir" ] do |t,args|
 
     # export CONJUR_DATA_KEY
     FileUtils.mkpath out_dir.join("etc")
-    data_key_file = out_dir.join("etc/conjur.key")
+    data_key_file = out_dir.join("etc/possum.key")
     File.write(data_key_file, "CONJUR_DATA_KEY=#{ENV['CONJUR_DATA_KEY']}\n")
 
     archive_file = out_dir.join("#{timestamp}.tar.xz")
