@@ -3,6 +3,7 @@
 # Generates random unique names
 #
 require 'haikunator'
+require 'fileutils'
 
 Before do
   @user_index = 0
@@ -20,6 +21,10 @@ Before do
   Account.find_or_create_accounts_resource
   admin_role = Role.create(role_id: "cucumber:user:admin")
   Credentials.new(role: admin_role).save(raise_on_save_failure: true)
+end
+
+After do
+  FileUtils.remove_dir('cuke_export') if Dir.exists?('cuke_export')
 end
 
 Before("@logged-in") do
