@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- Adds `conjurctl export` command to provide a migration data package to Conjur EE
+
 ## [1.0.1] - 2018-7-23
 ### Fixed
 - Handling of absolute user ids in policies.
