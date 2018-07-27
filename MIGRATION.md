@@ -17,15 +17,15 @@ To create the migration data archive:
 2. Run the export command
     ```sh-session
     $ conjurctl export -o /var/export
-    Exporting to '/opt/export'...
-    Generating key file /opt/export/key
+    Exporting to '/var/export'...
+    Generating key file /var/export/key
     gpg: directory `/root/.gnupg' created
     gpg: new configuration file `/root/.gnupg/gpg.conf' created
     gpg: WARNING: options in `/root/.gnupg/gpg.conf' are not yet active during this run
     gpg: keyring `/root/.gnupg/pubring.gpg' created
 
-    Export placed in /opt/export/2018-07-23T21-08-19Z.tar.xz.gpg
-    It's encrypted with key in /opt/export/key.
+    Export placed in /var/export/2018-07-23T21-08-19Z.tar.xz.gpg
+    It's encrypted with key in /var/export/key.
     If you're going to store the export, make
     sure to store the key file separately.
     ```
