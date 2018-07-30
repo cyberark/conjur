@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.1.0] - 2018-7-30
 ### Added
 - Adds `conjurctl export` command to provide a migration data package to Conjur EE
 
