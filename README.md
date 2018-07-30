@@ -38,6 +38,13 @@ _Note: our badges and social media buttons never track you._
 Our primary channel for support is through our Slack community. More
 here: [community support](https://www.conjur.org/support.html)
 
+## Migrating to Conjur EE
+
+Migrating data from Conjur Open Source to Conjur EE is simple using our
+[migration guide][migration]
+
+[migration]: MIGRATION.md
+
 # Development
 
 We welcome contributions of all kinds to Conjur. See our [contributing
