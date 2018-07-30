@@ -30,8 +30,9 @@ services:
     - ../../conjur-policy-parser:/src/conjur-policy-parser
     - authn-local:/run/authn-local
     links:
-    - pg:pg
+    - pg
     - ldap-server
+    - gogs
 
   cucumber:
     image: conjur-dev
@@ -76,6 +77,11 @@ services:
 
     volumes:
       - ./files/authn-ldap/ldap:/container/service/slapd/assets/config/bootstrap/ldif/custom
+
+  gogs:
+    image: gogs/gogs
+    ports:
+      - "3080:3000"
 
 
 volumes:
