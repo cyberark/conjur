@@ -9,6 +9,8 @@ require 'config/environment'
 
 require 'json_spec/cucumber'
 require_relative 'utils'
+require 'tmpdir'
+require 'securerandom'
 
 # This line is here to support running these tests outside a container,
 # per Rafal's request.  It could be deleted were it not for that.
