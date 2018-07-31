@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+- Update puma to a version that understands how to handle having ipv6 disabled
+
 ## [1.1.0] - 2018-7-30
 ### Added
 - Adds `conjurctl export` command to provide a migration data package to Conjur EE
@@ -107,7 +109,9 @@ format and pushed to a UNIX socket for further processing.
 
 The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/cyberark/conjur/compare/v1.0.1...v1.1.0
+[1.0.1]: https://github.com/cyberark/conjur/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/cyberark/conjur/compare/v0.9.0...v1.0.0
 [0.9.0]: https://github.com/cyberark/conjur/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/cyberark/conjur/compare/v0.8.0...v0.8.1

@@ -11,7 +11,7 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 gem 'base58'
 gem 'iso8601'
 gem 'nokogiri', '>= 1.8.2'
-gem 'puma'
+gem 'puma', ' ~> 3.10'
 gem 'rails', '~> 4.2'
 gem 'rails-api'
 gem 'rake'
