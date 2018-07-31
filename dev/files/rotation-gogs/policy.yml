@@ -1,0 +1,10 @@
+- !policy
+  id: rotation-gogs
+  body:
+    - !variable
+      id: password
+      annotations:
+        gogs/url: http://gogs:3000/
+        gogs/user_name: cucumber
+        rotation/rotator: gogs
+        rotation/ttl: PT1M

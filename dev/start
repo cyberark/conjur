@@ -60,7 +60,9 @@ if [[ $ENABLE_AUTHN_LDAP = true ]]; then
   env_args="$env_args -e LDAP_FILTER=(uid=%s)"
   env_args="$env_args -e LDAP_BINDDN=cn=admin,dc=conjur,dc=net"
   env_args="$env_args -e LDAP_BINDPW=ldapsecret"
-  docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-ldap/policy.yml
+  docker-compose exec conjur \
+                 conjurctl policy load cucumber \
+                 /src/conjur-server/dev/files/authn-ldap/policy.yml
 fi
 
 if [[ $ENABLE_ROTATORS = true ]]; then
@@ -69,7 +71,16 @@ fi
 
 if [[ $ENABLE_AUTHN_IAM = true ]]; then
   env_args="$env_args -e CONJUR_AUTHENTICATORS=authn-iam/prod"
-  docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-iam/policy.yml
+  docker-compose exec conjur \
+                 conjurctl policy load cucumber \
+                 /src/conjur-server/dev/files/authn-iam/policy.yml
+fi
+
+if [[ $ENABLE_GOGS = true ]]; then
+    services="$services gogs"
+    docker-compose exec conjur \
+                   conjurctl policy load cucumber \
+                   /src/conjur-server/dev/files/rotation-gogs/policy.yml
 fi
 
 docker-compose up -d --no-deps $services
