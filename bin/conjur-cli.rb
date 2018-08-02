@@ -279,9 +279,14 @@ command :export do |c|
   c.default_value Dir.pwd
   c.flag [:o, :out_dir]
 
+  c.desc "Label to use for archive filename"
+  c.arg_name :label
+  c.default_value Time.now.strftime('%Y-%m-%dT%H-%M-%SZ')
+  c.flag [:l, :label]
+
   c.action do |global_options,options,args|
     connect
-    exec "rake export[#{options[:out_dir]}]"
+    exec %(rake export["#{options[:out_dir]}","#{options[:label]}"])
   end
 end
 

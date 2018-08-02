@@ -5,8 +5,9 @@ require 'time'
 require 'pathname'
 
 desc 'Export the Conjur data necessary to migrate to Enterprise Edition'
-task :export, ['out_dir'] => :environment do |_t, args|
+task :export, ['out_dir', 'label'] => :environment do |_t, args|
   out_dir = Pathname.new args[:out_dir]
+  label = args[:label]
 
   puts "Exporting to '#{out_dir}'..."
   ExportTask.create_export_directory(out_dir)
@@ -18,7 +19,7 @@ task :export, ['out_dir'] => :environment do |_t, args|
     files.push(ExportTask.export_database(out_dir))
     files.push(ExportTask.export_data_key(out_dir))
     files.push(ExportTask.export_accounts(out_dir))
-    archive_file = ExportTask.create_export_archive(out_dir, files)    
+    archive_file = ExportTask.create_export_archive(out_dir, label, files)    
   end
 
   ExportTask.encrypt_export_archive(export_key_file, archive_file)
@@ -90,11 +91,8 @@ module ExportTask
       accounts_file
     end
 
-    def create_export_archive(out_dir, files)
-      # Timestamp to name export file
-      timestamp = Time.now.strftime('%Y-%m-%dT%H-%M-%SZ')
-
-      archive_file = out_dir.join("#{timestamp}.tar.xz")
+    def create_export_archive(out_dir, label, files)
+      archive_file = out_dir.join("#{label}.tar.xz")
       call(%(tar Jcf "#{archive_file}" -C "#{out_dir}" ) +
           %(--transform="s|^|/opt/conjur/|" ) +
           relative_paths(files, out_dir)) ||

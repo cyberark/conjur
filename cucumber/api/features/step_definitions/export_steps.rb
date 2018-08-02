@@ -1,9 +1,12 @@
-When(/^I run conjurctl export$/) do
-  system("conjurctl export -o cuke_export/") || fail('Could not execute `conjurctl export`')
+When(/^I run conjurctl export(?: with label "([^"]*)")?$/) do |label|
+  command = "conjurctl export -o cuke_export/"
+  command << " -l #{label}" unless label.nil?
+  system(command) || fail('Could not execute `conjurctl export`')
 end
 
-Then(/^the export file exists$/) do
-  Dir['cuke_export/*.tar.xz.gpg'].any? || fail('No export archive file exists')
+Then(/^the export file exists(?: with label "([^"]*)")?$/) do |label|
+  archive_name = label.nil? ? '*' : label
+  Dir["cuke_export/#{archive_name}.tar.xz.gpg"].any? || fail('No export archive file exists')
   File.exists?('cuke_export/key') || fail('No export archive key file exists')
 end
 
