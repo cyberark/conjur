@@ -7,6 +7,8 @@ class PoliciesController < RestController
   before_filter :current_user
   before_filter :find_or_create_root_policy
 
+  rescue_from Sequel::UniqueConstraintViolation, with: :concurrent_load
+
   def put
     authorize :update
 
@@ -55,5 +57,23 @@ class PoliciesController < RestController
 
   def find_or_create_root_policy
     Loader::Types.find_or_create_root_policy account
+  end
+
+  private
+
+  def concurrent_load _exception
+    response.headers['Retry-After'] = retry_delay
+    render json: {
+      error: {
+        code: "policy_conflict",
+        message: "Concurrent policy load in progress, please retry"
+      }
+    }, status: :conflict
+  end
+
+  # Delay in seconds to advise the client to wait before retrying on conflict.
+  # It's randomized to avoid request bunching.
+  def retry_delay
+    rand 1..8
   end
 end
