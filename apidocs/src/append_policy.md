@@ -51,6 +51,7 @@ The request body should be a policy file. For example:
 | <!-- include(partials/http_401.md) -->                                                               |
 | <!-- include(partials/http_403.md) -->                                                               |
 |  404 | The policy referred to a role or resource that does not exist in the specified account        |
+| <!-- include(partials/http_409.md) --> |
 |  422 | The request body was empty or the policy was not valid YAML or the policy includes a deletion |
 
 + Parameters
