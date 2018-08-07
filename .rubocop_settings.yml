@@ -75,3 +75,11 @@ Layout/SpaceAroundOperators:
   AllowForAlignment: false
 Layout/SpaceBeforeFirstArg:
   AllowForAlignment: false
+
+Metrics/BlockLength:
+  CountComments: false
+  Max: 25
+  Exclude:
+    - 'Rakefile'
+    - '**/*.rake'
+    - 'spec/**/*.rb'
