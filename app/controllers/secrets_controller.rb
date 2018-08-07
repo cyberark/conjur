@@ -5,12 +5,12 @@ require 'English'
 class SecretsController < RestController
   include FindResource
   include AuthorizeResource
-  
+
   before_filter :current_user
-  
+
   def create
     authorize :update
-    
+
     value = request.raw_post
 
     raise ArgumentError, "'value' may not be empty" if value.blank?
@@ -25,7 +25,7 @@ class SecretsController < RestController
       user: @current_user
     )).log_to Audit.logger
   end
-  
+
   def show
     authorize :execute
     version = params[:version]
@@ -51,16 +51,16 @@ class SecretsController < RestController
       raise Exceptions::RecordNotFound,
             variable_ids.find { |r| !variables.map(&:id).include?(r) }
     end
-    
+
     result = {}
 
     authorize_many variables, :execute
-    
+
     variables.each do |variable|
       unless (secret = variable.last_secret)
         raise Exceptions::RecordNotFound, variable.resource_id
       end
-      
+
       result[variable.resource_id] = secret.value
       audit_fetch variable
     end
@@ -93,21 +93,21 @@ class SecretsController < RestController
     }
   end
 
-  # NOTE: We're following REST/http semantics here by representing this as 
+  # NOTE: We're following REST/http semantics here by representing this as
   #       an "expirations" that you POST to you.  This may seem strange given
   #       that what we're doing is simply updating an attribute on a secret.
-  #       But keep in mind this purely an implementation detail -- we could 
+  #       But keep in mind this purely an implementation detail -- we could
   #       have implemented expirations in many ways.  We want to expose the
-  #       concept of an "expiration" to the user.  And per standard rest, 
+  #       concept of an "expiration" to the user.  And per standard rest,
   #       we do that with a resource, "expirations."  Expiring a variable
   #       is then a matter of POSTing to create a new "expiration" resource.
-  #       
+  #
   #       It is irrelevant that the server happens to implement this request
   #       by assigning nil to `expires_at`.
   #
   #       Unfortuneatly, to be consistent with our other routes, we're abusing
   #       query strings to represent what is in fact a new resource.  Ideally,
-  #       we'd use a slash instead, but decided that consistency trumps 
+  #       we'd use a slash instead, but decided that consistency trumps
   #       correctness in this case.
   #
   def expire
@@ -115,6 +115,7 @@ class SecretsController < RestController
     Secret.update_expiration(resource.id, nil)
     head :created
   end
+
 
   private
 
