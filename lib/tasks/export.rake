@@ -5,18 +5,20 @@ require 'time'
 require 'pathname'
 
 desc 'Export the Conjur data necessary to migrate to Enterprise Edition'
-task :export, ['out_dir'] do |_t, args|
+task :export, ['out_dir'] => :environment do |_t, args|
   out_dir = Pathname.new args[:out_dir]
 
   puts "Exporting to '#{out_dir}'..."
   ExportTask.create_export_directory(out_dir)
   export_key_file = ExportTask.ensure_export_key(out_dir)  
 
-  dbdump = data_key_file = archive_file = nil
+  archive_file = nil
+  files = []
   ExportTask.with_umask 077 do
-    dbdump = ExportTask.export_database(out_dir)
-    data_key_file = ExportTask.export_data_key(out_dir)
-    archive_file = ExportTask.create_export_archive(out_dir, dbdump, data_key_file)    
+    files.push(ExportTask.export_database(out_dir))
+    files.push(ExportTask.export_data_key(out_dir))
+    files.push(ExportTask.export_accounts(out_dir))
+    archive_file = ExportTask.create_export_archive(out_dir, files)    
   end
 
   ExportTask.encrypt_export_archive(export_key_file, archive_file)
@@ -66,16 +68,43 @@ module ExportTask
       data_key_file
     end
 
-    def create_export_archive(out_dir, dbdump, data_key_file)
+    def export_accounts(out_dir)
+      FileUtils.mkpath out_dir.join('backup')
+      accounts_file = out_dir.join('backup/accounts')
+
+      # Select all accounts from database, ordered by
+      # the number of resources in that account
+      accounts =  Sequel::Model.db.fetch(%{
+                      Select account from (
+                      SELECT account(resource_id) as account FROM resources
+                      UNION
+                      SELECT account(role_id) as account FROM roles
+                      ) as accounts
+                      WHERE account != '!'
+                      GROUP BY account                
+                      ORDER BY count(*);
+                    })
+                    .map {|row| row[:account]}
+                    .join("\n")
+      File.write(accounts_file, accounts)
+      accounts_file
+    end
+
+    def create_export_archive(out_dir, files)
       # Timestamp to name export file
       timestamp = Time.now.strftime('%Y-%m-%dT%H-%M-%SZ')
 
       archive_file = out_dir.join("#{timestamp}.tar.xz")
       call(%(tar Jcf "#{archive_file}" -C "#{out_dir}" ) +
           %(--transform="s|^|/opt/conjur/|" ) +
-          %("#{dbdump.relative_path_from(out_dir)}" "#{data_key_file.relative_path_from(out_dir)}")) ||
+          relative_paths(files, out_dir)) ||
         raise('unable to make archive for backup')
       archive_file
+    end
+
+    def relative_paths(files, relative_from)
+      files.map { |file| %("#{file.relative_path_from(relative_from)}") }
+           .join(' ')
     end
 
     def encrypt_export_archive(export_key_file, archive_file)

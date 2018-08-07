@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- `conjurctl export` now includes the account list to support migration
 
 - Update puma to a version that understands how to handle having ipv6 disabled
 
