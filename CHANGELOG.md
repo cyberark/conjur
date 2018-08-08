@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `conjurctl export` now includes the account list to support migration
 
 - Update puma to a version that understands how to handle having ipv6 disabled
+- Update puma worker timeout to allow longer requests to finish (from 1 minute to 10 minutes)
 
 ## [1.1.0] - 2018-7-30
 ### Added
