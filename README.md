@@ -89,7 +89,7 @@ It's easy to get started with Conjur and Docker:
 The `dev` directory contains a `docker-compose` file which creates a development
 environment with a database container (`pg`, short for *postgres*), and a
 `conjur` server container with source code mounted into the directory
-`/src/conjur`.
+`/src/conjur-server`.
 
 To use it:
 
@@ -100,7 +100,7 @@ To use it:
    $ cd dev
    $ ./start
    ...
-   root@f39015718062:/src/conjur#
+   root@f39015718062:/src/conjur-server#
    ```
 
    Once the `start` script finishes, you're in a Bash shell inside the Conjur
@@ -119,7 +119,7 @@ To use it:
    $ cd dev
    $ ./start --authn-ldap
    ...
-   root@f39015718062:/src/conjur#
+   root@f39015718062:/src/conjur-server#
    ```
 
    The `--authn-ldap` flag will:
@@ -130,7 +130,7 @@ To use it:
 3. Run the server
 
    ```sh-session
-   root@f39015718062:/src/conjur# conjurctl server
+   root@f39015718062:/src/conjur-server# conjurctl server
    <various startup messages, then finally:>
    * Listening on tcp://localhost:3000
    Use Ctrl-C to stop
@@ -215,7 +215,7 @@ Conjur has `rspec` and `cucumber` tests.
 RSpec tests are easy to run from within the `conjur` server container:
 
 ```sh-session
-root@aa8bc35ba7f4:/src/conjur# rspec
+root@aa8bc35ba7f4:/src/conjur-server# rspec
 Run options: exclude {:performance=>true}
 
 Randomized with seed 62317
@@ -232,7 +232,7 @@ this by starting Conjur in one container and running Cucumber from another. Run
 the service in the `conjur` server container:
 
 ```sh-session
-root@aa8bc35ba7f4:/src/conjur# conjurctl server
+root@aa8bc35ba7f4:/src/conjur-server# conjurctl server
 ...
 * Listening on tcp://localhost:3000
 Use Ctrl-C to stop
@@ -243,7 +243,7 @@ Then, using the `dev/cli` script, step into the Conjur container to run the cuke
 ```sh-session
 $ ./cli exec
 ...
-root@9feae5e5e001:/src/conjur#
+root@9feae5e5e001:/src/conjur-server#
 ```
 
 #### Run all the cukes:
@@ -251,16 +251,16 @@ root@9feae5e5e001:/src/conjur#
 There are three different cucumber suites: `api`, `policy`, and `authenticators`. Each of these can be run using a profile of the same name:
 
 ```sh-session
-root@9feae5e5e001:/src/conjur# cucumber --profile api               # runs api cukes
-root@9feae5e5e001:/src/conjur# cucumber --profile policy            # runs policy cukes
-root@9feae5e5e001:/src/conjur# cucumber --profile authenticators    # runs authenticators cukes
+root@9feae5e5e001:/src/conjur-server# cucumber --profile api               # runs api cukes
+root@9feae5e5e001:/src/conjur-server# cucumber --profile policy            # runs policy cukes
+root@9feae5e5e001:/src/conjur-server# cucumber --profile authenticators    # runs authenticators cukes
 ```
 
 
 #### Run just one feature:
 
 ```sh-session
-root@9feae5e5e001:/src/conjur# cucumber --profile api cucumber/api/features/resource_list.feature
+root@9feae5e5e001:/src/conjur-server# cucumber --profile api cucumber/api/features/resource_list.feature
 ```
 
 # Architecture
