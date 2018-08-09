@@ -152,4 +152,6 @@ describe CredentialsController, :type => :controller do
       end
     end
   end
+
+  before(:all) { Slosilo["authn:rspec"] ||= Slosilo::Key.new }
 end
