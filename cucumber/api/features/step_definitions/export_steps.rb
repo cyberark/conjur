@@ -1,5 +1,5 @@
 When(/^I run conjurctl export(?: with label "([^"]*)")?$/) do |label|
-  command = "conjurctl export -o cuke_export/"
+  command = 'conjurctl export -o cuke_export/'
   command << " -l #{label}" unless label.nil?
   system(command) || fail('Could not execute `conjurctl export`')
 end

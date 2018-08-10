@@ -272,14 +272,14 @@ command :wait do |c|
   end
 end
 
-desc "Export the Conjur data for migration to Conjur Enteprise Edition"
+desc 'Export the Conjur data for migration to Conjur Enteprise Edition'
 command :export do |c|
-  c.desc "Output directory"
+  c.desc 'Output directory'
   c.arg_name :out_dir
   c.default_value Dir.pwd
   c.flag [:o, :out_dir]
 
-  c.desc "Label to use for archive filename"
+  c.desc 'Label to use for archive filename'
   c.arg_name :label
   c.default_value Time.now.strftime('%Y-%m-%dT%H-%M-%SZ')
   c.flag [:l, :label]

@@ -5,7 +5,7 @@ require 'time'
 require 'pathname'
 
 desc 'Export the Conjur data necessary to migrate to Enterprise Edition'
-task :export, ['out_dir', 'label'] => :environment do |_t, args|
+task :export, %w[out_dir label] => :environment do |_t, args|
   out_dir = Pathname.new args[:out_dir]
   label = args[:label]
 
