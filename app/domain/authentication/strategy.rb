@@ -19,8 +19,9 @@ module Authentication
       attribute :service_id,         ::Types::NonEmptyString.optional
       attribute :account,            ::Types::NonEmptyString
       attribute :username,           ::Types::NonEmptyString
-      attribute :password,           ::Types::NonEmptyString
+      attribute :password,           ::Types::String
       attribute :origin,             ::Types::NonEmptyString
+      attribute :request,            ::Types::Any.optional # for k8s authenticator
 
       # Convert this Input to an Security::AccessRequest
       #

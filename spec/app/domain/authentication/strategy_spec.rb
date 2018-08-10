@@ -16,7 +16,8 @@ RSpec.describe 'Authentication::Strategy::Input#to_access_request' do
       account:            'my-acct',
       username:           'someuser',
       password:           'secret',
-      origin:             '127.0.0.1'
+      origin:             '127.0.0.1',
+      request:            nil
     )
   end
 
@@ -70,7 +71,8 @@ RSpec.describe 'Authentication::Strategy::Input#to_access_request' do
         account:            'my-acct',
         username:           'someuser',
         password:           'secret',
-        origin:             '127.0.0.1'
+        origin:             '127.0.0.1',
+        request:            nil
       )
     end
 
@@ -98,7 +100,8 @@ RSpec.describe 'Authentication::Strategy' do
     account: 'my-acct',
     username: 'my-user',
     password: 'my-pw',
-    origin: '127.0.0.1'
+    origin: '127.0.0.1',
+    request: nil
   )
     Authentication::Strategy::Input.new(
       authenticator_name: authenticator_name,
@@ -106,7 +109,8 @@ RSpec.describe 'Authentication::Strategy' do
       account: account,
       username: username,
       password: password,
-      origin: origin
+      origin: origin,
+      request: request
     )
   end
 

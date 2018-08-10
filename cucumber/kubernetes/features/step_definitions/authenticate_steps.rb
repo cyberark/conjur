@@ -13,10 +13,11 @@ Then(/^I( can)? authenticate with authn-k8s as "([^"]*)"( without cert and key)?
   begin
     response = RestClient::Resource.new(
       authn_k8s_host,
+      ssl_ca_file: './nginx.crt',
       ssl_client_cert: cert,
       ssl_client_key: key,
       verify_ssl: OpenSSL::SSL::VERIFY_PEER
-    )["#{ENV['CONJUR_ACCOUNT']}/#{CGI.escape username}/authenticate?request_ip=#{@request_ip}"].post(cert.to_s)
+    )["#{ENV['CONJUR_ACCOUNT']}/#{CGI.escape username}/authenticate?request_ip=#{@request_ip}"].post('')
   rescue
     raise if success
     @error = $!
@@ -35,14 +36,15 @@ Then(/^I( can)? authenticate pod matching "([^"]*)" with authn-k8s as "([^"]*)"(
 
   cert = nocertkey ? nil : OpenSSL::X509::Certificate.new(@cert)
   key = nocertkey ? nil : @pkey
-
+  
   begin
     response = RestClient::Resource.new(
       authn_k8s_host,
+      ssl_ca_file: './nginx.crt',
       ssl_client_cert: cert,
       ssl_client_key: key,
       verify_ssl: OpenSSL::SSL::VERIFY_PEER
-    )["#{ENV['CONJUR_ACCOUNT']}/#{CGI.escape username}/authenticate?request_ip=#{@request_ip}"].post(cert.to_s)
+    )["#{ENV['CONJUR_ACCOUNT']}/#{CGI.escape username}/authenticate?request_ip=#{@request_ip}"].post('')
   rescue
     raise if success
     @error = $!

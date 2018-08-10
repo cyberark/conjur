@@ -1,5 +1,7 @@
 FROM ubuntu:16.04
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update -y && \
     apt-get install -y software-properties-common && \
     apt-add-repository -y ppa:brightbox/ruby-ng && \

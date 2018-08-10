@@ -39,11 +39,15 @@ def login username, request_ip, authn_k8s_host, pkey
     "URI:spiffe://cluster.local/namespace/#{@pod.metadata.namespace}/pod/#{@pod.metadata.name}"
   ])
 
-  resp = RestClient::Resource.new(authn_k8s_host)["inject_client_cert?request_ip=#{request_ip}"].post(csr.to_pem, content_type: 'text/plain')
+  response =
+    RestClient::Resource.new(
+      authn_k8s_host,
+      ssl_ca_file: './nginx.crt'
+    )["inject_client_cert?request_ip=#{request_ip}"].post(csr.to_pem, content_type: 'text/plain')
   
   @cert = pod_certificate
 
-  resp
+  response
 end
 
 Then(/^I( can)? login to pod matching "([^"]*)" to authn-k8s as "([^"]*)"$/) do |success, objectid, host_id|

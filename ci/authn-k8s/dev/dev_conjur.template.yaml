@@ -16,14 +16,23 @@ metadata:
   name: conjur
 spec:
   ports:
-  - port: 443
-    name: https
-  - port: 636
-    name: ldaps
   - port: 80
     name: http
+  - port: 443
+    name: https
   selector:
     app: conjur-authn-k8s
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  ports:
+  - port: 443
+    name: https
+  selector:
+    app: nginx-authn-k8s
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -96,7 +105,7 @@ spec:
         command: ["sleep", "infinity"]
         env:
         - name: CONJUR_APPLIANCE_URL
-          value: http://conjur:80
+          value: https://nginx
         - name: DATABASE_URL
           value: postgres://postgres@postgres:5432/postgres
         - name: CONJUR_ACCOUNT
@@ -111,14 +120,9 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  labels:
-    app: conjur-cli
   name: conjur-cli
 spec:
   replicas: 1
-  selector:
-    matchLabels:
-      app: conjur-cli
   template:
     metadata:
       labels:
@@ -137,3 +141,19 @@ spec:
           value: cucumber
         - name: CONJUR_AUTHN_LOGIN
           value: admin
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx-authn-k8s
+    spec:
+      containers:
+      - name: nginx
+        image: {{NGINX_TAG}}
+        imagePullPolicy: Always

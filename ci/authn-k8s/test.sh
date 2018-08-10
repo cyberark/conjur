@@ -10,6 +10,9 @@ PLATFORM="$1"  # k8s platform
 
 function main() {
   setupTestEnvironment $PLATFORM
+
+  createNginxCert
+    
   buildDockerImages
 
   case "$PLATFORM" in
@@ -49,6 +52,24 @@ function setupTestEnvironment() {
   export CONJUR_AUTHN_K8S_TESTER_TAG="${DOCKER_REGISTRY_PATH}/authn-k8s-tester:$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
 
   export INVENTORY_TAG="${DOCKER_REGISTRY_PATH}/inventory:$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
+
+  export NGINX_TAG="${DOCKER_REGISTRY_PATH}/nginx:$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
+}
+
+function createNginxCert() {
+  docker pull svagi/openssl
+
+  docker run --rm -i \
+         -w /home -v $PWD/dev/tls:/home \
+         svagi/openssl req\
+         -x509 \
+         -nodes \
+         -days 365 \
+         -newkey rsa:2048 \
+         -config /home/tls.conf \
+         -extensions v3_ca \
+         -keyout nginx.key \
+         -out nginx.crt
 }
 
 function buildDockerImages() {
@@ -61,6 +82,8 @@ function buildDockerImages() {
   
   docker build -t $INVENTORY_TAG -f dev/Dockerfile.inventory dev
 
+  docker build -t $NGINX_TAG -f dev/Dockerfile.nginx dev
+
   docker build --build-arg OPENSHIFT_CLI_URL=$OPENSHIFT_CLI_URL \
     -t $CONJUR_AUTHN_K8S_TESTER_TAG -f dev/Dockerfile.test dev
 }
@@ -70,6 +93,7 @@ function test_gke() {
     -e CONJUR_AUTHN_K8S_TAG \
     -e CONJUR_TEST_AUTHN_K8S_TAG \
     -e INVENTORY_TAG \
+    -e NGINX_TAG \
     -e CONJUR_AUTHN_K8S_TEST_NAMESPACE \
     -e GCLOUD_CLUSTER_NAME \
     -e GCLOUD_PROJECT_NAME \
@@ -86,6 +110,7 @@ function test_openshift() {
     -e CONJUR_AUTHN_K8S_TAG \
     -e CONJUR_TEST_AUTHN_K8S_TAG \
     -e INVENTORY_TAG \
+    -e NGINX_TAG \
     -e CONJUR_AUTHN_K8S_TEST_NAMESPACE \
     -e PLATFORM \
     -e K8S_VERSION \

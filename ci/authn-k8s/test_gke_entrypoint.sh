@@ -53,9 +53,12 @@ function main() {
   pushDockerImages
 
   launchConjurMaster
-#  createSSLCertConfigMap
+  
+  copyNginxSSLCert
+  
   copyConjurPolicies
   loadConjurPolicies
+  
   launchInventoryServices
 
   runTests
@@ -98,6 +101,7 @@ function pushDockerImages() {
   gcloud docker -- push $CONJUR_AUTHN_K8S_TAG
   gcloud docker -- push $CONJUR_TEST_AUTHN_K8S_TAG
   gcloud docker -- push $INVENTORY_TAG
+  gcloud docker -- push $NGINX_TAG
 }
 
 function launchConjurMaster() {
@@ -119,15 +123,12 @@ function launchConjurMaster() {
   export API_KEY=$(kubectl exec $conjur_pod -- conjurctl account create cucumber | tail -n 1 | awk '{ print $NF }')
 }
 
-function createSSLCertConfigMap() {
-  echo 'Storing non-secret configuration data'
+function copyNginxSSLCert() {
+  nginx_pod=$(kubectl get pods -l app=nginx-authn-k8s -o=jsonpath='{.items[].metadata.name}')
+  cucumber_pod=$(kubectl get pods -l app=cucumber-authn-k8s -o=jsonpath='{.items[].metadata.name}')
 
-  ssl_certificate=$(conjurcmd cat /opt/conjur/etc/ssl/conjur.pem)
-
-  # write out conjur ssl cert in configmap
-  kubectl delete --ignore-not-found=true configmap conjurrc
-  kubectl create configmap conjurrc \
-    --from-literal=ssl-certificate="$ssl_certificate"
+  kubectl cp $nginx_pod:/etc/nginx/nginx.crt ./nginx.crt
+  kubectl cp ./nginx.crt $cucumber_pod:/opt/conjur-server/nginx.crt
 }
 
 function copyConjurPolicies() {

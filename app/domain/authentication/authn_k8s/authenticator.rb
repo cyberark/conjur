@@ -37,9 +37,9 @@ module Authentication
         @v4_controller = :authenticate
 
         # some variables that need to be used in helper methods
-        @client_cert = input.password
         @service_id = input.service_id
         @host_id_param = input.username.split('/').last(3).join('/')
+        @request = input.request
         
         verify_enabled
         service_lookup
@@ -137,7 +137,7 @@ module Authentication
       def install_signed_cert cert
         exec = KubectlExec.new @pod, container: k8s_container_name
         response = exec.copy "/etc/conjur/ssl/client.pem", cert.to_pem, "0644"
-        
+
         if response[:error].present?
           raise AuthenticationError, response[:error].join
         end
@@ -198,12 +198,12 @@ module Authentication
       #----------------------------------------
 
       def pod_certificate
-        #client_cert = request.env['HTTP_X_SSL_CLIENT_CERTIFICATE']
-        raise AuthenticationError, "No client certificate provided" unless @client_cert
+        client_cert = @request.env['HTTP_X_SSL_CLIENT_CERTIFICATE']
+        raise AuthenticationError, "No client certificate provided" unless client_cert
 
         if !@pod_cert
           begin
-            @pod_cert ||= OpenSSL::X509::Certificate.new(@client_cert)
+            @pod_cert ||= OpenSSL::X509::Certificate.new(client_cert)
           rescue OpenSSL::X509::CertificateError
           end
 
