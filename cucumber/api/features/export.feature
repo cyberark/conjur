@@ -10,3 +10,7 @@ Feature: Export Conjur Open Source data
    When I run conjurctl export
    Then the export file exists
    And the accounts file contains "export_account"
+
+   Scenario: Export with chosen label
+   When I run conjurctl export with label "my_export"
+   Then the export file exists with label "my_export"

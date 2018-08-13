@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.1.1] - 2018-8-10
 ### Added
 - `conjurctl export` now includes the account list to support migration
+- `conjurctl export` allows the operator to specify the file name label using the `-l` or `--label` flag
 - Update puma to a version that understands how to handle having ipv6 disabled
 - Update puma worker timeout to allow longer requests to finish (from 1 minute to 10 minutes)
 
