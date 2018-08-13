@@ -256,26 +256,27 @@ module Loader
 
       in_primary_schema do
         disable_policy_log_trigger
-        TABLES.each do |table|
-          columns = (TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ]).join(", ")          
-          db.run "INSERT INTO #{table} ( #{columns} ) SELECT #{columns} FROM #{schema_name}.#{table}"
-          
-          # For large policies, the policy logging triggers occupy the majority
-          # of the policy load time. To make this more efficient on the initial
-          # load, we disable the triggers and update the policy log in bulk.
-          insert_policy_log_records(table)
-        end
-
+        TABLES.each { |table| insert_table_records(table) }
         enable_policy_log_trigger
       end
     end
 
+    def insert_table_records(table)
+      columns = (TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ]).join(", ")          
+      db.run "INSERT INTO #{table} ( #{columns} ) SELECT #{columns} FROM #{schema_name}.#{table}"
+      
+      # For large policies, the policy logging triggers occupy the majority
+      # of the policy load time. To make this more efficient on the initial
+      # load, we disable the triggers and update the policy log in bulk.
+      insert_policy_log_records(table)
+    end
+
     def disable_policy_log_trigger
-      db.run "SET myvars.skip_insert_policy_log_trigger = true"
+      db.run 'SET myvars.skip_insert_policy_log_trigger = true'
     end
 
     def enable_policy_log_trigger
-      db.run "SET myvars.skip_insert_policy_log_trigger = false"
+      db.run 'SET myvars.skip_insert_policy_log_trigger = false'
     end
 
     def insert_policy_log_records(table)
