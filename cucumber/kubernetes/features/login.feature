@@ -13,14 +13,12 @@ Feature: An authorized client can login as a permitted role
   Scenario: Login as a ServiceAccount.
     Then I can login to pod matching "app=inventory-pod" to authn-k8s as "service_account/inventory-pod-only"
 
-  @k8s_skip @k8s_1.3_skip
+  @k8s_skip
   Scenario: Login as a DeploymentConfig.
     Then I can login to pod matching "app=inventory-deployment-cfg" to authn-k8s as "deployment_config/inventory-deployment-cfg"
 
-  @k8s_1.3_skip
   Scenario: Login as a Deployment.
     Then I can login to authn-k8s as "deployment/inventory-deployment"
 
-  @k8s_1.3_skip
   Scenario: Login as a StatefulSet.
     Then I can login to authn-k8s as "stateful_set/inventory-stateful"

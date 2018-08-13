@@ -45,20 +45,22 @@ function setupTestEnvironment() {
   export PLATFORM
 
   export CONJUR_AUTHN_K8S_TAG="${DOCKER_REGISTRY_PATH}/conjur:authn-k8s-$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
+  export CONJUR_TEST_AUTHN_K8S_TAG="${DOCKER_REGISTRY_PATH}/conjur-test:authn-k8s-$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
   export CONJUR_AUTHN_K8S_TESTER_TAG="${DOCKER_REGISTRY_PATH}/authn-k8s-tester:$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
 
   export INVENTORY_TAG="${DOCKER_REGISTRY_PATH}/inventory:$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
 }
 
 function buildDockerImages() {
-  # tag the test conjur image
   conjur_version=$(echo "$(< ../../VERSION)-$(git rev-parse --short HEAD)")
-  docker tag conjur-test:$conjur_version $CONJUR_AUTHN_K8S_TAG
 
-  # build the inventory image
+  docker tag conjur:$conjur_version $CONJUR_AUTHN_K8S_TAG
+
+  # cukes will be run from this image
+  docker tag conjur-test:$conjur_version $CONJUR_TEST_AUTHN_K8S_TAG
+  
   docker build -t $INVENTORY_TAG -f dev/Dockerfile.inventory dev
 
-  # build the testing image
   docker build --build-arg OPENSHIFT_CLI_URL=$OPENSHIFT_CLI_URL \
     -t $CONJUR_AUTHN_K8S_TESTER_TAG -f dev/Dockerfile.test dev
 }
@@ -66,8 +68,9 @@ function buildDockerImages() {
 function test_gke() {
   docker run --rm \
     -e CONJUR_AUTHN_K8S_TAG \
-    -e CONJUR_AUTHN_K8S_TEST_NAMESPACE \
+    -e CONJUR_TEST_AUTHN_K8S_TAG \
     -e INVENTORY_TAG \
+    -e CONJUR_AUTHN_K8S_TEST_NAMESPACE \
     -e GCLOUD_CLUSTER_NAME \
     -e GCLOUD_PROJECT_NAME \
     -e GCLOUD_SERVICE_KEY=/tmp$GCLOUD_SERVICE_KEY \
@@ -81,8 +84,9 @@ function test_gke() {
 function test_openshift() {
   docker run --rm \
     -e CONJUR_AUTHN_K8S_TAG \
-    -e CONJUR_AUTHN_K8S_TEST_NAMESPACE \
+    -e CONJUR_TEST_AUTHN_K8S_TAG \
     -e INVENTORY_TAG \
+    -e CONJUR_AUTHN_K8S_TEST_NAMESPACE \
     -e PLATFORM \
     -e K8S_VERSION \
     -e OPENSHIFT_URL \

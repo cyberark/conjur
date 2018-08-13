@@ -58,8 +58,6 @@ spec:
         name: conjur
         command: ["conjurctl", "server"]
         env:
-        - name: CONJUR_APPLIANCE_URL
-          value: http://localhost:80
         - name: DATABASE_URL
           value: postgres://postgres@postgres:5432/postgres
         - name: CONJUR_ADMIN_PASSWORD
@@ -72,8 +70,6 @@ spec:
           value: test
         - name: CONJUR_AUTHENTICATORS
           value: authn-k8s/minikube
-        - name: CONJUR_AUTHN_K8S_TEST_NAMESPACE
-          value: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
         volumeMounts:
           - mountPath: /run/authn-local
             name: authn-local
@@ -81,8 +77,36 @@ spec:
         - name: authn-local
           emptyDir:
             medium: Memory
-
-          
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: cucumber
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cucumber-authn-k8s
+    spec:
+      containers:
+      - image: {{ CONJUR_TEST_AUTHN_K8S_TAG }}
+        imagePullPolicy: Always
+        name: conjur
+        command: ["sleep", "infinity"]
+        env:
+        - name: CONJUR_APPLIANCE_URL
+          value: http://conjur:80
+        - name: DATABASE_URL
+          value: postgres://postgres@postgres:5432/postgres
+        - name: CONJUR_ACCOUNT
+          value: cucumber
+        - name: CONJUR_DATA_KEY
+          value: "{{ DATA_KEY }}"
+        - name: RAILS_ENV
+          value: test
+        - name: CONJUR_AUTHN_K8S_TEST_NAMESPACE
+          value: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment

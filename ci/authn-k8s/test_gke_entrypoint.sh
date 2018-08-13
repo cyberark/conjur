@@ -36,7 +36,7 @@ function finish {
   echo '-----'
   kubectl --ignore-not-found=true delete namespace $CONJUR_AUTHN_K8S_TEST_NAMESPACE
   gcloud container images delete --force-delete-tags -q \
-    $CONJUR_AUTHN_K8S_TAG $INVENTORY_TAG
+    $CONJUR_AUTHN_K8S_TAG $CONJUR_TEST_AUTHN_K8S_TAG $INVENTORY_TAG
 }
 trap finish EXIT
 
@@ -96,6 +96,7 @@ function createNamespace() {
 
 function pushDockerImages() {
   gcloud docker -- push $CONJUR_AUTHN_K8S_TAG
+  gcloud docker -- push $CONJUR_TEST_AUTHN_K8S_TAG
   gcloud docker -- push $INVENTORY_TAG
 }
 
@@ -103,6 +104,7 @@ function launchConjurMaster() {
   echo 'Launching Conjur master service'
 
   sed -e "s#{{ CONJUR_AUTHN_K8S_TAG }}#$CONJUR_AUTHN_K8S_TAG#g" dev/dev_conjur.${TEMPLATE_TAG}yaml |
+    sed -e "s#{{ CONJUR_TEST_AUTHN_K8S_TAG }}#$CONJUR_TEST_AUTHN_K8S_TAG#g" |
     sed -e "s#{{ DATA_KEY }}#$(openssl rand -base64 32)#g" |
     sed -e "s#{{ CONJUR_AUTHN_K8S_TEST_NAMESPACE }}#$CONJUR_AUTHN_K8S_TEST_NAMESPACE#g" |
     kubectl create -f -
@@ -144,20 +146,11 @@ function loadConjurPolicies() {
   kubectl exec $cli_pod -- conjur authn login -u admin -p $API_KEY
 
   # load policies
-#  kubectl exec $cli_pod -- conjur policy load root /policies/users.${TEMPLATE_TAG}yml
-#  kubectl exec $cli_pod -- conjur policy load root /policies/apps.${TEMPLATE_TAG}yml
-#  kubectl exec $cli_pod -- conjur policy load root /policies/authn-k8s.${TEMPLATE_TAG}yml
-#  kubectl exec $cli_pod -- conjur policy load root /policies/entitlements.${TEMPLATE_TAG}yml
-
   kubectl exec $cli_pod -- conjur policy load root /policies/policy.${TEMPLATE_TAG}yml
 
   # init ca certs
   conjur_pod=$(kubectl get pod -l app=conjur-authn-k8s --no-headers | grep Running | awk '{ print $1 }')
   kubectl exec $conjur_pod -- rake authn_k8s:ca_init["conjur/authn-k8s/minikube"]
-
-  # set test password value
-#  password=$(openssl rand -hex 12)
-#  kubectl exec $cli_pod -- conjur variable values add inventory-db/password $password
 }
 
 function launchInventoryServices() {
@@ -176,7 +169,7 @@ function runTests() {
 
   conjurcmd mkdir -p /opt/conjur-server/output
 
-  echo "./bin/cucumber K8S_VERSION=1.7 PLATFORM=kubernetes --no-color --format pretty --format junit --out /opt/conjur-server/output -r ./cucumber/kubernetes/features/step_definitions/ -r ./cucumber/kubernetes/features/support/world.rb -r ./cucumber/kubernetes/features/support/hooks.rb -r ./cucumber/kubernetes/features/support/conjur_token.rb --tags ~@skip ./cucumber/kubernetes/features" | conjurcmd -i bash
+  echo "./bin/cucumber K8S_VERSION=1.7 PLATFORM=kubernetes --no-color --format pretty --format junit --out /opt/conjur-server/output -r ./cucumber/kubernetes/features/step_definitions/ -r ./cucumber/kubernetes/features/support/world.rb -r ./cucumber/kubernetes/features/support/hooks.rb -r ./cucumber/kubernetes/features/support/conjur_token.rb --tags ~@skip ./cucumber/kubernetes/features" | cucumbercmd -i bash
 }
 
 main
