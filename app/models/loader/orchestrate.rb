@@ -272,6 +272,23 @@ module Loader
     end
 
     def disable_policy_log_trigger
+      # To disable the triggers during the bulk load, I tried a couple of
+      # methods before landing on the current:
+      #
+      # 1. `ALTER TABLE table ENABLE/DISABLE TRIGGER {trigger name}`
+      #     This didn't work because `ALTER TABLE` obtains an `ACCESS 
+      #     EXCLUSIVE LOCK`, which breaks concurrent policy loading.
+      #
+      # 2. `SET session_replication_role = replica;`
+      #     This didn't work because it disables *ALL* triggers for the
+      #     current session, and there are a number of other triggers that 
+      #     are necessary, and would become cumbersome to re-implement as bulk ops.
+      #
+      # 3. Configuration setting
+      #     The method I settled on was to use a configuration setting, scoped
+      #     to the session, that the trigger function is aware of. When we set
+      #     this setting to bypass the trigger to `true`, then the trigger will
+      #     observe the setting value and not create its own policy log.
       db.run 'SET myvars.skip_insert_policy_log_trigger = true'
     end
 
