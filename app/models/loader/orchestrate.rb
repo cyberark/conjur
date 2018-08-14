@@ -272,23 +272,10 @@ module Loader
     end
 
     def disable_policy_log_trigger
-      # To disable the triggers during the bulk load, I tried a couple of
-      # methods before landing on the current:
-      #
-      # 1. `ALTER TABLE table ENABLE/DISABLE TRIGGER {trigger name}`
-      #     This didn't work because `ALTER TABLE` obtains an `ACCESS 
-      #     EXCLUSIVE LOCK`, which breaks concurrent policy loading.
-      #
-      # 2. `SET session_replication_role = replica;`
-      #     This didn't work because it disables *ALL* triggers for the
-      #     current session, and there are a number of other triggers that 
-      #     are necessary, and would become cumbersome to re-implement as bulk ops.
-      #
-      # 3. Configuration setting
-      #     The method I settled on was to use a configuration setting, scoped
-      #     to the session, that the trigger function is aware of. When we set
-      #     this setting to bypass the trigger to `true`, then the trigger will
-      #     observe the setting value and not create its own policy log.
+      # To disable the triggers during the bulk load we use a local
+      # configuration setting that the trigger function is aware of. 
+      # When we set this variable to `true`, then the trigger will
+      # observe the setting value and skip its own policy log.
       db.run 'SET LOCAL conjur.skip_insert_policy_log_trigger = true'
     end
 
@@ -297,7 +284,6 @@ module Loader
     end
 
     def insert_policy_log_records(table)
-      primary_key_columns = Array(Sequel::Model(table).primary_key).map(&:to_s).pg_array
       db.run <<-POLICY_LOG
           INSERT INTO policy_log(
             policy_id, 
@@ -306,13 +292,23 @@ module Loader
             kind, 
             subject)
           SELECT
-          #{db.literal(policy_id)},
-          #{db.literal(policy_version.version)},
-          'INSERT',
-          '#{table}'::policy_log_kind,
-          slice(hstore(#{table}), #{db.literal(primary_key_columns)})
+            r.policy_id,
+            r.version,
+            r.operation,
+            r.kind,
+            r.subject
           FROM
-          #{schema_name}.#{table}
+            #{schema_name}.#{table},
+            policy_log_#{table}_record(
+              /* We need to convert the temp schema table type
+                 to the publish schema type for the same table.
+                 We have to use string serialization to accomplish
+                 this. */
+              #{table}::text::#{table},
+              #{db.literal(policy_id)},
+              #{db.literal(policy_version.version)},
+              'INSERT'
+              ) r
       POLICY_LOG
     end
 
