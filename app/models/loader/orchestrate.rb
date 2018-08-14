@@ -289,11 +289,11 @@ module Loader
       #     to the session, that the trigger function is aware of. When we set
       #     this setting to bypass the trigger to `true`, then the trigger will
       #     observe the setting value and not create its own policy log.
-      db.run 'SET myvars.skip_insert_policy_log_trigger = true'
+      db.run 'SET LOCAL conjur.skip_insert_policy_log_trigger = true'
     end
 
     def enable_policy_log_trigger
-      db.run 'SET myvars.skip_insert_policy_log_trigger = false'
+      db.run 'SET LOCAL conjur.skip_insert_policy_log_trigger = false'
     end
 
     def insert_policy_log_records(table)

@@ -2,9 +2,8 @@
 
 Sequel.migration do
   tables = %i(roles role_memberships resources permissions annotations)
-
+  
   up do
-
     tables.each do |table|
       # find the primary key of the table
       primary_key = schema(table).select{|x,s|s[:primary_key]}.map(&:first).map(&:to_s).pg_array
@@ -22,7 +21,7 @@ Sequel.migration do
             END IF;
 
             BEGIN
-                skip := current_setting('myvars.skip_insert_policy_log_trigger');
+                skip := current_setting('conjur.skip_insert_policy_log_trigger');
             EXCEPTION WHEN OTHERS THEN
                 skip := false;
             END;
