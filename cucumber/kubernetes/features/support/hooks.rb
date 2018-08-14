@@ -6,10 +6,6 @@ Before('@k8s_skip') do
   skip_this_scenario if ENV['PLATFORM'] == 'kubernetes'
 end
 
-Before('@k8s_1.3_skip') do
-  skip_this_scenario if ENV['K8S_VERSION'].start_with?('1.3')
-end
-
 Before do
   # Erase the certificates and keys from each container.
   kubectl_client.get_pods(namespace: namespace).select{|p| p.metadata.namespace == namespace}.each do |pod|
