@@ -301,7 +301,7 @@ module Loader
             #{schema_name}.#{table},
             policy_log_#{table}_record(
               /* We need to convert the temp schema table type
-                 to the publish schema type for the same table.
+                 to the public schema type for the same table.
                  We have to use string serialization to accomplish
                  this. */
               #{table}::text::#{table},
