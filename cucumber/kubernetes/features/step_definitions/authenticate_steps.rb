@@ -5,7 +5,7 @@ end
 Then(/^I( can)? authenticate with authn-k8s as "([^"]*)"( without cert and key)?$/) do |success, objectid, nocertkey|
   @request_ip ||= detect_request_ip(objectid)
 
-  username = "host/conjur/authn-k8s/minikube/apps/#{namespace}/#{objectid}"
+  conjur_id = conjur_resource_id(namespace, objectid)
 
   cert = nocertkey ? nil : OpenSSL::X509::Certificate.new(@cert)
   key = nocertkey ? nil : @pkey
@@ -17,7 +17,7 @@ Then(/^I( can)? authenticate with authn-k8s as "([^"]*)"( without cert and key)?
       ssl_client_cert: cert,
       ssl_client_key: key,
       verify_ssl: OpenSSL::SSL::VERIFY_PEER
-    )["#{ENV['CONJUR_ACCOUNT']}/#{CGI.escape username}/authenticate?request_ip=#{@request_ip}"].post('')
+    )["#{ENV['CONJUR_ACCOUNT']}/#{CGI.escape conjur_id}/authenticate?request_ip=#{@request_ip}"].post('')
   rescue
     raise if success
     @error = $!
@@ -32,8 +32,8 @@ end
 Then(/^I( can)? authenticate pod matching "([^"]*)" with authn-k8s as "([^"]*)"( without cert and key)?$/) do |success, objectid, hostid, nocertkey|
   @request_ip ||= detect_request_ip(objectid)
 
-  username = "host/conjur/authn-k8s/minikube/apps/#{namespace}/#{hostid}"
-
+  conjur_id = conjur_resource_id(namespace, hostid)
+  
   cert = nocertkey ? nil : OpenSSL::X509::Certificate.new(@cert)
   key = nocertkey ? nil : @pkey
   
@@ -44,7 +44,7 @@ Then(/^I( can)? authenticate pod matching "([^"]*)" with authn-k8s as "([^"]*)"(
       ssl_client_cert: cert,
       ssl_client_key: key,
       verify_ssl: OpenSSL::SSL::VERIFY_PEER
-    )["#{ENV['CONJUR_ACCOUNT']}/#{CGI.escape username}/authenticate?request_ip=#{@request_ip}"].post('')
+    )["#{ENV['CONJUR_ACCOUNT']}/#{CGI.escape conjur_id}/authenticate?request_ip=#{@request_ip}"].post('')
   rescue
     raise if success
     @error = $!
@@ -54,4 +54,8 @@ Then(/^I( can)? authenticate pod matching "([^"]*)" with authn-k8s as "([^"]*)"(
     token = ConjurToken.new(response.body)
     expect(token.username).to eq(username)
   end
+end
+
+def conjur_resource_id(namespace, resource_id)
+  "host/conjur/authn-k8s/minikube/apps/#{namespace}/#{resource_id}"
 end
