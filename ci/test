@@ -18,6 +18,8 @@ GLOBAL OPTIONS
 
     --cucumber-authenticators                 - Runs Cucumber Authenticator features
 
+    --cucumber-ca                             - Runs Cucumber Certificate Authority (CA) features
+
     --cucumber-rotators                       - Runs Cucumber Rotator features
 
     --cucumber-policy                         - Runs Cucumber Policy features
@@ -70,6 +72,7 @@ export COMPOSE_PROJECT_NAME="$(openssl rand -hex 3)"
 services="pg conjur"
 RUN_ALL=true
 RUN_AUTHENTICATORS=false
+RUN_CA=false
 RUN_ROTATORS=false
 RUN_API=false
 RUN_POLICY=false
@@ -80,6 +83,7 @@ while true ; do
     --cucumber-authenticators ) RUN_ALL=false ; RUN_AUTHENTICATORS=true ; shift ;;
     --cucumber-api ) RUN_ALL=false ; RUN_API=true ; shift ;;
     --cucumber-policy ) RUN_ALL=false ; RUN_POLICY=true ; shift ;;
+    --cucumber-ca ) RUN_ALL=false ; RUN_CA=true ; shift ;;
     --rspec ) RUN_ALL=false ; RUN_RSPEC=true ; shift ;;
     -h | --help ) print_help ; shift ;;
      * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
@@ -108,6 +112,10 @@ fi
 
 if [[ $RUN_API = true || $RUN_ALL = true ]]; then
   run_cucumber_tests 'api'
+fi
+
+if [[ $RUN_CA = true || $RUN_ALL = true ]]; then
+  run_cucumber_tests 'ca'
 fi
 
 if [[ $RUN_POLICY = true || $RUN_ALL = true ]]; then

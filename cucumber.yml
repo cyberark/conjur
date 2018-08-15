@@ -37,3 +37,8 @@ manual-rotators: >
   -r cucumber/rotators/features/support
   -r cucumber/rotators/features/step_definitions
   cucumber/rotators
+
+ca: >
+  --format pretty
+  -r cucumber/ca
+  cucumber/ca
