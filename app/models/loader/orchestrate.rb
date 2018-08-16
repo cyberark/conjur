@@ -284,6 +284,7 @@ module Loader
     end
 
     def insert_policy_log_records(table)
+      primary_key_columns = Array(Sequel::Model(table).primary_key).map(&:to_s).pg_array
       db.run <<-POLICY_LOG
           INSERT INTO policy_log(
             policy_id, 
@@ -292,23 +293,16 @@ module Loader
             kind, 
             subject)
           SELECT
-            r.policy_id,
-            r.version,
-            r.operation,
-            r.kind,
-            r.subject
+          (policy_log_record(
+            '#{table}',
+            #{db.literal primary_key_columns},
+            hstore(#{table}),
+            #{db.literal(policy_id)},
+            #{db.literal(policy_version.version)},
+            'INSERT'
+            )).*
           FROM
-            #{schema_name}.#{table},
-            policy_log_#{table}_record(
-              /* We need to convert the temp schema table type
-                 to the public schema type for the same table.
-                 We have to use string serialization to accomplish
-                 this. */
-              #{table}::text::#{table},
-              #{db.literal(policy_id)},
-              #{db.literal(policy_version.version)},
-              'INSERT'
-              ) r
+          #{schema_name}.#{table}
       POLICY_LOG
     end
 

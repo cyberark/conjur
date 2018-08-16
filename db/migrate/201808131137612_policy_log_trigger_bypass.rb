@@ -13,36 +13,37 @@ Sequel.migration do
       version int,
       operation policy_log_op,
       kind policy_log_kind,
-      subject hstore);
+      subject hstore
+      );
+    SQL
+
+    # This function is used both by the policy_log trigger for each
+    # table, as well as for the bulk insert policy log in the policy
+    # load orchestrator.
+    execute <<-SQL
+      CREATE OR REPLACE FUNCTION policy_log_record(
+        table_name text,
+        pkey_cols text[],
+        subject hstore,
+        policy_id text,
+        policy_version int,
+        operation text
+      ) RETURNS policy_log_record AS $$
+      BEGIN
+        return (
+          policy_id,
+          policy_version,
+          operation::policy_log_op,
+          table_name::policy_log_kind,
+          slice(subject, pkey_cols)
+          );
+      END;
+      $$ LANGUAGE plpgsql;
     SQL
 
     tables.each do |table|
       # find the primary key of the table
-      primary_key = schema(table).select{|x,s|s[:primary_key]}.map(&:first).map(&:to_s).pg_array
-
-      # Each table has a function format the policy record for that type.
-      # This function is used both by the policy_log trigger for each
-      # table, as well as for the bulk insert policy log in the policy
-      # load orchestrator.
-      execute <<-SQL
-        CREATE OR REPLACE FUNCTION policy_log_#{table}_record(
-          subject #{table},
-          policy_id text,
-          policy_version int,
-          operation text
-        ) RETURNS policy_log_record AS $$
-        BEGIN
-          return (
-            policy_id,
-            policy_version,
-            operation::policy_log_op,
-            '#{table}'::policy_log_kind,
-            slice(hstore(subject), #{literal primary_key})
-            );
-        END;
-        $$ LANGUAGE plpgsql;
-      SQL
-
+      primary_key_columns = schema(table).select{|x,s|s[:primary_key]}.map(&:first).map(&:to_s).pg_array
       execute <<-SQL
         CREATE OR REPLACE FUNCTION policy_log_#{table}() RETURNS TRIGGER AS $$
           DECLARE
@@ -73,18 +74,14 @@ Sequel.migration do
                 operation, kind,
                 subject)
               SELECT
-                r.policy_id,
-                r.version,
-                r.operation,
-                r.kind,
-                r.subject
-              FROM
-                  policy_log_#{table}_record(
-                    subject,
+                (policy_log_record(
+                    '#{table}',
+                    #{literal primary_key_columns},
+                    hstore(subject),
                     current.resource_id,
                     current.version,
                     TG_OP
-                  ) r;
+                  )).*;
             ELSE
               RAISE WARNING 'modifying data outside of policy load: %', subject.policy_id;
             END IF;
@@ -99,7 +96,7 @@ Sequel.migration do
   down do
     tables.each do |table|
       # find the primary key of the table
-      primary_key = schema(table).select{|x,s|s[:primary_key]}.map(&:first).map(&:to_s).pg_array
+      primary_key_columns = schema(table).select{|x,s|s[:primary_key]}.map(&:first).map(&:to_s).pg_array
       execute <<-SQL
         CREATE OR REPLACE FUNCTION policy_log_#{table}() RETURNS TRIGGER AS $$
           DECLARE
@@ -120,7 +117,7 @@ Sequel.migration do
               SELECT
                 current.resource_id, current.version,
                 TG_OP::policy_log_op, '#{table}'::policy_log_kind,
-                slice(hstore(subject), #{literal primary_key})
+                slice(hstore(subject), #{literal primary_key_columns})
               ;
             ELSE
               RAISE WARNING 'modifying data outside of policy load: %', subject.policy_id;
@@ -131,15 +128,19 @@ Sequel.migration do
         SET search_path FROM CURRENT;
       SQL
 
-      execute <<-SQL
-        DROP FUNCTION IF EXISTS policy_log_#{table}_record(
-          subject #{table},
-          policy_id text,
-          policy_version int,
-          operation text
-        );
-      SQL
+      
     end
+
+    execute <<-SQL
+      DROP FUNCTION IF EXISTS policy_log_record(
+        table_name text,
+        pkey_cols text[],
+        subject hstore,
+        policy_id text,
+        policy_version int,
+        operation text
+      );
+    SQL
 
     execute 'DROP TYPE policy_log_record;'
   end
