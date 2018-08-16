@@ -9,6 +9,7 @@
 . version_utils.sh
 
 TAG="${1:-$(version_tag)}"
+VERSION="$(< VERSION)"
 
 SOURCE_IMAGE="conjur:$TAG"
 INTERNAL_IMAGE='registry.tld/conjur'
@@ -18,6 +19,7 @@ QUAY_IMAGE='quay.io/cyberark/conjur'
 
 function main() {
   echo "TAG = $TAG"
+  echo "VERSION = $VERSION"
 
   tag_and_push $INTERNAL_IMAGE $TAG
   tag_and_push $INTERNAL_IMAGE_NEW $TAG
@@ -34,13 +36,22 @@ function main() {
     tag_and_push $INTERNAL_IMAGE_NEW $latest_tag
     tag_and_push $INTERNAL_IMAGE_NEW $stable_tag
 
-    tag_and_push $DOCKERHUB_IMAGE $TAG
-    tag_and_push $DOCKERHUB_IMAGE $latest_tag
-    tag_and_push $DOCKERHUB_IMAGE $stable_tag
+    git fetch --tags
+    tag_sha=`git rev-list -n 1 "v$VERSION"`
+    head_sha=`git rev-list -n 1 master`
+    if [ "$tag_sha" = "$head_sha" ]; then
+      # Add release tagged image to our internal repository
+      tag_and_push $INTERNAL_IMAGE $VERSION
+      tag_and_push $INTERNAL_IMAGE_NEW $VERSION
 
-    tag_and_push $QUAY_IMAGE $TAG
-    tag_and_push $QUAY_IMAGE $latest_tag
-    tag_and_push $QUAY_IMAGE $stable_tag
+      # Add release tagged image to our DockerHub repository
+      tag_and_push $DOCKERHUB_IMAGE $VERSION
+      tag_and_push $DOCKERHUB_IMAGE $latest_tag
+
+      # Add release tagged image to our Quay.io repository
+      tag_and_push $QUAY_IMAGE $VERSION
+      tag_and_push $QUAY_IMAGE $latest_tag
+    fi
   fi
 }
 
