@@ -1,3 +1,23 @@
+def conjur_resource_id(namespace, resource_id)
+  "host/conjur/authn-k8s/minikube/apps/#{namespace}/#{resource_id}"
+end
+
+def gen_cert(host_id)
+  id = "conjur/authn-k8s/minikube"
+  conjur_account = ENV['CONJUR_ACCOUNT']
+  subject = "/CN=#{id.gsub('/', '.')}/OU=Conjur Kubernetes CA/O=#{conjur_account}"
+  ca_cert, ca_key = CA.generate(subject)
+  ca = CA.new(ca_cert, ca_key)
+
+  spiffe_id = "URI:spiffe://cluster.local/namespace/#{@pod.metadata.namespace}/pod/#{@pod.metadata.name}"
+
+  username = [ namespace, host_id ].join('/')
+  @pkey = OpenSSL::PKey::RSA.new 1048
+  csr = gen_csr(pkey, spiffe_id)
+  
+  ca.issue(csr, [ spiffe_id ])
+end
+
 Given(/^I use the IP address of(?: a pod in)? "([^"]*)"$/) do |objectid|
   @request_ip = find_matching_pod(objectid)
 end
@@ -56,6 +76,23 @@ Then(/^I( can)? authenticate pod matching "([^"]*)" with authn-k8s as "([^"]*)"(
   end
 end
 
-def conjur_resource_id(namespace, resource_id)
-  "host/conjur/authn-k8s/minikube/apps/#{namespace}/#{resource_id}"
+Then(/^I cannot authenticate as "([^"]*)" using a cert signed by a different CA?$/) do |host_id|
+  cert = gen_cert(host_id)
+
+  conjur_id = conjur_resource_id(namespace, hostid)
+  
+  begin
+    response = RestClient::Resource.new(
+      authn_k8s_host,
+      ssl_ca_file: './nginx.crt',
+      ssl_client_cert: cert,
+      ssl_client_key: @pkey,
+      verify_ssl: OpenSSL::SSL::VERIFY_PEER
+    )["#{ENV['CONJUR_ACCOUNT']}/#{CGI.escape conjur_id}/authenticate?request_ip=#{@request_ip}"].post('')
+  rescue
+    raise if success
+    @error = $!
+  end
+
+  expect(response.code).to eq(401)
 end
