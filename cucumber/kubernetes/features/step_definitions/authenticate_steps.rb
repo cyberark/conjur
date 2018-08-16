@@ -6,8 +6,8 @@ def gen_cert(host_id)
   id = "conjur/authn-k8s/minikube"
   conjur_account = ENV['CONJUR_ACCOUNT']
   subject = "/CN=#{id.gsub('/', '.')}/OU=Conjur Kubernetes CA/O=#{conjur_account}"
-  ca_cert, ca_key = CA.generate(subject)
-  ca = CA.new(ca_cert, ca_key)
+  ca_cert, ca_key = Authentication::AuthnK8s::CA.generate(subject)
+  ca = Authentication::AuthnK8s::CA.new(ca_cert, ca_key)
 
   spiffe_id = "URI:spiffe://cluster.local/namespace/#{@pod.metadata.namespace}/pod/#{@pod.metadata.name}"
 
