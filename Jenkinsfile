@@ -48,6 +48,9 @@ pipeline {
           steps { sh 'cd ci/authn-k8s && summon -e openshift37 ./test.sh openshift37' }
         }
         */
+        stage('Certificate Authority') {
+          steps { sh 'cd ci && ./test --cucumber-ca' }
+        }
       }
       post {
         always {
