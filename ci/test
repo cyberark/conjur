@@ -92,7 +92,11 @@ cd ..
 ./build.sh -j
 # Grab the build tag so we launch the correct version of Conjur
 . version_utils.sh
-export TAG="$(version_tag)"
+TAGS="$(version_tags)"
+IFS=',' read -ra TAGS_ARR <<< "$TAGS"
+
+# we test only the full-build tag (major.minor.build)
+export TAG="${TAGS_ARR[${#TAGS_ARR[@]}-1]}"
 cd ci
 
 # Run tests based on what flags were passed

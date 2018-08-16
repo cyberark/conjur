@@ -3,7 +3,8 @@
 # shellcheck disable=SC1091
 . version_utils.sh
 
-TAG="$(version_tag)"
+TAGS="$(version_tags)"
+IFS=',' read -ra TAGS_ARR <<< "$TAGS"
 RUN_DEV=true
 
 while [[ $# -gt 0 ]]
@@ -19,11 +20,15 @@ esac
 shift # past argument or value
 done
 
-echo "Building image conjur:$TAG"
-docker build -t "conjur:$TAG" .
+for tag in "${TAGS_ARR[@]}"; do
+  echo "Building image conjur:$tag"
+  docker build -t "conjur:$tag" .
+done
 
-echo "Building image conjur-test:$TAG container"
-docker build --build-arg "VERSION=$TAG" -t "conjur-test:$TAG" -f Dockerfile.test .
+# we test only the full-build tag (major.minor.build)
+FULL_TAG=${TAGS_ARR[${#TAGS_ARR[@]}-1]}
+echo "Building image conjur-test:$FULL_TAG container"
+docker build --build-arg "VERSION=$FULL_TAG" -t "conjur-test:$FULL_TAG" -f Dockerfile.test .
 
 if [[ $RUN_DEV = true ]]; then
   echo "Building image conjur-dev"

@@ -8,47 +8,49 @@
 # shellcheck disable=SC1091
 . version_utils.sh
 
-TAG="${1:-$(version_tag)}"
+TAGS="${1:-$(version_tags)}"
+IFS=',' read -ra TAGS_ARR <<< "$TAGS"
 
-SOURCE_IMAGE="conjur:$TAG"
 INTERNAL_IMAGE='registry.tld/conjur'
 INTERNAL_IMAGE_NEW='registry.tld/cyberark/conjur'  # We'll transition to this
 DOCKERHUB_IMAGE='cyberark/conjur'
 QUAY_IMAGE='quay.io/cyberark/conjur'
 
 function main() {
-  echo "TAG = $TAG"
+  for tag in "${TAGS_ARR[@]}"; do
+    echo "TAG = $tag"
 
-  tag_and_push $INTERNAL_IMAGE $TAG
-  tag_and_push $INTERNAL_IMAGE_NEW $TAG
+    tag_and_push $INTERNAL_IMAGE $tag
+    tag_and_push $INTERNAL_IMAGE_NEW $tag
 
-  if [ "$BRANCH_NAME" = "master" ]; then
-    local latest_tag='latest'
-    local stable_tag="$(< VERSION)-stable"
+    if [ "$BRANCH_NAME" = "master" ]; then
+      local latest_tag='latest'
+      local stable_tag="$(< VERSION)-stable"
 
-    echo "TAG = $stable_tag, stable image"
+      echo "tag = $stable_tag, stable image"
 
-    tag_and_push $INTERNAL_IMAGE $latest_tag
-    tag_and_push $INTERNAL_IMAGE $stable_tag
+      tag_and_push $INTERNAL_IMAGE $latest_tag
+      tag_and_push $INTERNAL_IMAGE $stable_tag
 
-    tag_and_push $INTERNAL_IMAGE_NEW $latest_tag
-    tag_and_push $INTERNAL_IMAGE_NEW $stable_tag
+      tag_and_push $INTERNAL_IMAGE_NEW $latest_tag
+      tag_and_push $INTERNAL_IMAGE_NEW $stable_tag
 
-    tag_and_push $DOCKERHUB_IMAGE $TAG
-    tag_and_push $DOCKERHUB_IMAGE $latest_tag
-    tag_and_push $DOCKERHUB_IMAGE $stable_tag
+      tag_and_push $DOCKERHUB_IMAGE $tag
+      tag_and_push $DOCKERHUB_IMAGE $latest_tag
+      tag_and_push $DOCKERHUB_IMAGE $stable_tag
 
-    tag_and_push $QUAY_IMAGE $TAG
-    tag_and_push $QUAY_IMAGE $latest_tag
-    tag_and_push $QUAY_IMAGE $stable_tag
-  fi
+      tag_and_push $QUAY_IMAGE $tag
+      tag_and_push $QUAY_IMAGE $latest_tag
+      tag_and_push $QUAY_IMAGE $stable_tag
+    fi
+  done
 }
 
 function tag_and_push() {
   local image="$1"
   local tag="$2"
 
-  docker tag "$SOURCE_IMAGE" "$image:$tag"
+  docker tag "conjur:$tag" "$image:$tag"
   docker push "$image:$tag"
 }
 
