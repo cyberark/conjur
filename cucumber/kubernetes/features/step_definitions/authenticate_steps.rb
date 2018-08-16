@@ -76,7 +76,9 @@ Then(/^I( can)? authenticate pod matching "([^"]*)" with authn-k8s as "([^"]*)"(
   end
 end
 
-Then(/^I cannot authenticate as "([^"]*)" using a cert signed by a different CA?$/) do |host_id|
+Then(/^I cannot authenticate with pod matching "([^"]*)" as "([^"]*)" using a cert signed by a different CA?$/) do |object_id, host_id|
+  @request_ip ||= detect_request_ip(object_id)
+  
   cert = gen_cert(host_id)
 
   conjur_id = conjur_resource_id(namespace, hostid)
