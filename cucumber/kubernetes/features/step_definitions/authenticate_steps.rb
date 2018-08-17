@@ -13,7 +13,7 @@ def gen_cert(host_id)
 
   username = [ namespace, host_id ].join('/')
   @pkey = OpenSSL::PKey::RSA.new 1048
-  csr = gen_csr(pkey, spiffe_id)
+  csr = gen_csr(username, @pkey, [ spiffe_id ])
   
   ca.issue(csr, [ spiffe_id ])
 end
@@ -81,10 +81,10 @@ Then(/^I cannot authenticate with pod matching "([^"]*)" as "([^"]*)" using a ce
   
   cert = gen_cert(host_id)
 
-  conjur_id = conjur_resource_id(namespace, hostid)
-  
+  conjur_id = conjur_resource_id(namespace, host_id)
+
   begin
-    response = RestClient::Resource.new(
+    RestClient::Resource.new(
       authn_k8s_host,
       ssl_ca_file: './nginx.crt',
       ssl_client_cert: cert,
@@ -92,9 +92,8 @@ Then(/^I cannot authenticate with pod matching "([^"]*)" as "([^"]*)" using a ce
       verify_ssl: OpenSSL::SSL::VERIFY_PEER
     )["#{ENV['CONJUR_ACCOUNT']}/#{CGI.escape conjur_id}/authenticate?request_ip=#{@request_ip}"].post('')
   rescue
-    raise if success
     @error = $!
   end
 
-  expect(response.code).to eq(401)
+  expect(@error.http_code).to eq(401)
 end

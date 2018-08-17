@@ -21,4 +21,4 @@ Feature: An authorized client can authenticate as a permitted role
     Then I can authenticate with authn-k8s as "stateful_set/inventory-stateful"
 
   Scenario: Authenticate using a certificate signed by a different CA
-    Then I cannot authenticate with pod matching "app=inventory-pod" as "service_account/inventory-pod-only" using a cert signed by a different CA
+    Then I cannot authenticate with pod matching "pod/inventory-pod" as "service_account/inventory-pod-only" using a cert signed by a different CA
