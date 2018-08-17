@@ -1,49 +1,17 @@
-def gen_csr(id, signing_key, altnames)
-  # create certificate subject
-  common_name = id.gsub('/', '.')
-  subject = OpenSSL::X509::Name.new [
-    ['CN', common_name],
-    # ['O', id],
-    # ['C', id],
-    # ['ST', id],
-    # ['L', id]
-  ]
-
-  # create CSR
-  csr = OpenSSL::X509::Request.new
-  csr.version = 0
-  csr.subject = subject
-  csr.public_key = signing_key.public_key
-
-  # prepare SAN extension
-  extensions = [
-      OpenSSL::X509::ExtensionFactory.new.create_extension('subjectAltName', altnames.join(','))
-  ]
-
-  # add SAN extension to the CSR
-  attribute_values = OpenSSL::ASN1::Set [OpenSSL::ASN1::Sequence(extensions)]
-  [
-      OpenSSL::X509::Attribute.new('extReq', attribute_values),
-      OpenSSL::X509::Attribute.new('msExtReq', attribute_values)
-  ].each do |attribute|
-    csr.add_attribute attribute
-  end
-
-  # sign CSR with the signing key
-  csr.sign signing_key, OpenSSL::Digest::SHA256.new
-
-end
-
 def login username, request_ip, authn_k8s_host, pkey
   csr = gen_csr(username, pkey, [
     "URI:spiffe://cluster.local/namespace/#{@pod.metadata.namespace}/pod/#{@pod.metadata.name}"
   ])
 
-  resp = RestClient::Resource.new(authn_k8s_host)["inject_client_cert?request_ip=#{request_ip}"].post(csr.to_pem, content_type: 'text/plain')
+  response =
+    RestClient::Resource.new(
+      authn_k8s_host,
+      ssl_ca_file: './nginx.crt'
+    )["inject_client_cert?request_ip=#{request_ip}"].post(csr.to_pem, content_type: 'text/plain')
   
   @cert = pod_certificate
 
-  resp
+  response
 end
 
 Then(/^I( can)? login to pod matching "([^"]*)" to authn-k8s as "([^"]*)"$/) do |success, objectid, host_id|
