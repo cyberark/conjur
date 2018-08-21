@@ -25,7 +25,7 @@ When(/^I send a CSR for "([^"]*)" to the "([^"]*)" CA with a ttl of "([^"]*)" an
   ttl=#{ttl}&csr=#{CGI.escape(host.csr.to_pem)}
   BODY
   try_request false do
-    put_json path, body
+    post_json path, body
   end
 end
 

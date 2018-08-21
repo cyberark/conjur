@@ -61,7 +61,7 @@ Rails.application.routes.draw do
 
       get     "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
 
-      put     "/ca/:account/:service_id/hosts/*identifier" => 'certificate_authority#sign_host'
+      post     "/ca/:account/:service_id/hosts/*identifier" => 'certificate_authority#sign_host'
     end
 
     post "/host_factories/hosts" => 'host_factories#create_host'
