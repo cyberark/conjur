@@ -23,3 +23,15 @@ wait_for_it() {
         done
     fi
 }
+
+delete_image() {
+    local image_and_tag=$1
+
+    IFS=':' read -r -a array <<< $image_and_tag
+    local image="${array[0]}"
+    local tag="${array[1]}"
+    
+    if gcloud container images list-tags $image | grep $tag; then
+        gcloud container images delete --force-delete-tags -q $image_and_tag
+    fi
+}

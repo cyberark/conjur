@@ -35,8 +35,11 @@ function finish {
   echo 'Removing namespace $CONJUR_AUTHN_K8S_TEST_NAMESPACE'
   echo '-----'
   kubectl --ignore-not-found=true delete namespace $CONJUR_AUTHN_K8S_TEST_NAMESPACE
-  gcloud container images delete -q \
-    $CONJUR_AUTHN_K8S_TAG $CONJUR_TEST_AUTHN_K8S_TAG $INVENTORY_TAG $NGINX_TAG
+
+  delete_image $CONJUR_TEST_AUTHN_K8S_TAG
+  delete_image $CONJUR_AUTHN_K8S_TAG
+  delete_image $INVENTORY_TAG
+  delete_image $NGINX_TAG
 }
 trap finish EXIT
 
