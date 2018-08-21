@@ -10,8 +10,9 @@ class CertificateAuthorityController < RestController
     raise Forbidden.new('Requestor is not CSR host') unless requestor_is_host?
     raise Forbidden.new('CSR cannot be verified') unless csr.verify(csr.public_key)
     raise Forbidden.new('CSR CN does not match host') unless host_name_matches?(csr)
-    
-    certificate = sign_csr
+
+    ca = ::CA::CertificateAuthority.new(ca_resource)
+    certificate = ca.sign_csr(csr, ttl)
 
     render json: {
       id: host_full_id,
@@ -39,62 +40,6 @@ class CertificateAuthorityController < RestController
     [account, 'host', host_id].join(':')
   end
 
-  def sign_csr
-    csr_cert = OpenSSL::X509::Certificate.new
-    csr_cert.serial = 0
-    csr_cert.version = 2
-    csr_cert.not_before = Time.now
-    csr_cert.not_after = Time.now + csr_cert_ttl
-
-    csr_cert.subject = csr.subject
-    csr_cert.public_key = csr.public_key
-    csr_cert.issuer = ca_cert.subject
-
-    extension_factory = OpenSSL::X509::ExtensionFactory.new
-    extension_factory.subject_certificate = csr_cert
-    extension_factory.issuer_certificate = ca_cert
-
-    csr_cert.add_extension(
-      extension_factory.create_extension('basicConstraints', 'CA:FALSE')
-    )
-    csr_cert.add_extension(
-      extension_factory.create_extension('keyUsage', 'keyEncipherment,dataEncipherment,digitalSignature')
-    )
-    csr_cert.add_extension(
-      extension_factory.create_extension('subjectKeyIdentifier', 'hash')
-    )
-
-    csr_cert.sign ca_key, OpenSSL::Digest::SHA256.new
-
-    csr_cert
-  end
-
-  def csr_cert_ttl
-    [ttl, ca_max_ttl].map { |ttl| ISO8601::Duration.new(ttl).to_seconds }.min
-  end
-
-  def ca_cert
-    secret_id = [account, 'variable', ca_cert_variable].join(':')
-    @ca_cert ||= OpenSSL::X509::Certificate.new Resource[secret_id].secret.value
-  end
-
-  def ca_key
-    secret_id = [account, 'variable', ca_key_variable].join(':')
-    @ca_key ||= OpenSSL::PKey::RSA.new Resource[secret_id].secret.value
-  end
-
-  def ca_cert_variable
-    ca_resource.annotation('ca/certificate-chain')
-  end
-
-  def ca_key_variable
-    ca_resource.annotation('ca/private-key')
-  end
-
-  def ca_max_ttl
-    ca_resource.annotation('ca/max_ttl')
-  end
-  
   def csr
     @csr ||= OpenSSL::X509::Request.new (params[:csr] + "\n")
   end
@@ -140,6 +85,6 @@ class CertificateAuthorityController < RestController
   end
 
   def ttl
-    params[:ttl]
+    ISO8601::Duration.new(params[:ttl]).to_seconds 
   end
 end

@@ -379,6 +379,7 @@ detectors:
     - Role#make_full_id
     - Secret#current_values
     - connect
+    - CA::CertificateAuthority#sign_csr
   ControlParameter:
     exclude:
     - PossumWorld#try_request
@@ -476,6 +477,7 @@ detectors:
     - Rotation::Rotators::Aws::SecretKey#rotate
     - HostBuilder#find_and_rotate
     - Loader::Handlers::Password#store_passwords
+    - CA::CertificateAuthority#sign_csr
     - MembershipSearch#result_set
     - Resource#permit
     - Resource#search
