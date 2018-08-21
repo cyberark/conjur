@@ -69,7 +69,7 @@ function main() {
 
 function sourceFunctions() {
   source dev/utils.sh
-  source dev/tesmplatecmd.sh
+  source dev/templatecmd.sh
   source dev/conjurcmd.sh
 }
 
