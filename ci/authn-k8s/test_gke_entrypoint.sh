@@ -82,8 +82,6 @@ function initialize() {
 }
 
 function createNamespace() {
-  kubectl version --short
-    
   # clean ups namespaces older than minutes or seconds
   old_namespaces=$(kubectl get namespaces | awk '$1 ~ /test-/ && $3 !~ /[m|s]/ { print $1; }')
   [ ! -z ${old_namespaces} ] && kubectl delete --ignore-not-found=true namespaces ${old_namespaces}
