@@ -35,7 +35,7 @@ function finish {
   echo 'Removing namespace $CONJUR_AUTHN_K8S_TEST_NAMESPACE'
   echo '-----'
   kubectl --ignore-not-found=true delete namespace $CONJUR_AUTHN_K8S_TEST_NAMESPACE
-  gcloud container images delete --force-delete-tags -q \
+  gcloud container images delete -q \
     $CONJUR_AUTHN_K8S_TAG $CONJUR_TEST_AUTHN_K8S_TAG $INVENTORY_TAG
 }
 trap finish EXIT
@@ -82,6 +82,8 @@ function initialize() {
 }
 
 function createNamespace() {
+  kubectl version --short
+    
   # clean ups namespaces older than minutes or seconds
   old_namespaces=$(kubectl get namespaces | awk '$1 ~ /test-/ && $3 !~ /[m|s]/ { print $1; }')
   [ ! -z ${old_namespaces} ] && kubectl delete --ignore-not-found=true namespaces ${old_namespaces}
