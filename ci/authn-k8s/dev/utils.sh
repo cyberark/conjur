@@ -32,6 +32,6 @@ delete_image() {
     local tag="${array[1]}"
     
     if gcloud container images list-tags $image | grep $tag; then
-        gcloud container images delete --force-delete-tags -q $image
+        gcloud container images delete --force-delete-tags -q $image_and_tag
     fi
 }
