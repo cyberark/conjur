@@ -5,6 +5,10 @@ Given(/^I authorize the request with the host factory token$/) do
   headers[:authorization] = %Q(Token token="#{@host_factory_token.token}")
 end
 
+Given(/^I set the "([^"]*)" header to "([^"]*)"$/) do |header, value|
+  headers[header] = value
+end
+
 When(/^I( (?:can|successfully))? GET "([^"]*)"$/) do |can, path|
   try_request can do
     get_json path
@@ -111,6 +115,10 @@ end
 
 Then(/^the HTTP response status code is (\d+)$/) do |code|
   expect(@status).to eq(code.to_i)
+end
+
+Then(/^the HTTP response content type is "([^"]*)"$/) do |content_type|
+  expect(@content_type).to match(content_type)
 end
 
 Then(/^the result is true$/) do

@@ -62,4 +62,14 @@ Feature: Conjur signs certificates using a configured CA
     Given I login as "cucumber:host:bacon"
     When I send a CSR for "bacon" to the "kitchen" CA with a ttl of "P6M" and CN of "bacon"
     Then the HTTP response status code is 200
-    And the resulting certificate is valid according to the intermediate CA
+    And the HTTP response content type is "application/json"
+    And the resulting json certificate is valid according to the intermediate CA
+
+  Scenario: I can receive the result directly as a PEM formatted certificate
+    Given I login as "cucumber:host:bacon"
+    And I set the "Accept" header to "application/x-pem-file" 
+    When I send a CSR for "bacon" to the "kitchen" CA with a ttl of "P6M" and CN of "bacon"
+    Then the HTTP response status code is 200
+    And the HTTP response content type is "application/x-pem-file"
+    And the resulting pem certificate is valid according to the intermediate CA
+

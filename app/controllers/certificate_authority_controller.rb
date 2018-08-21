@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class CertificateAuthorityController < RestController
+  include ActionController::MimeResponds
 
   def sign_host
     raise RecordNotFound, "No CA #{service_id}" unless ca_resource
@@ -14,12 +15,17 @@ class CertificateAuthorityController < RestController
     ca = ::CA::CertificateAuthority.new(ca_resource)
     certificate = ca.sign_csr(csr, ttl)
 
-    render json: {
-      id: host_full_id,
-      created_at: certificate.not_before,
-      expires_at: certificate.not_after,
-      certificate: certificate.to_pem
-    }
+    respond_to do |format|
+      format.json do
+        render json: {
+          certificate: certificate.to_pem
+        }
+      end
+
+      format.pem do
+        render body: certificate.to_pem, content_type: 'application/x-pem-file'
+      end
+    end
   end
 
   protected

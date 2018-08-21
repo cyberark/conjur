@@ -46,7 +46,8 @@ module RestHelpers
   def set_result result
     @response_api_key = nil
     @status = result.code
-    if result.headers[:content_type] =~ /^application\/json/
+    @content_type = result.headers[:content_type]
+    if @content_type =~ /^application\/json/
       @result = JSON.parse(result)
       @response_api_key = @result['api_key'] if @result.is_a?(Hash)
       if @result.respond_to?(:sort!)

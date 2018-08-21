@@ -29,8 +29,9 @@ When(/^I send a CSR for "([^"]*)" to the "([^"]*)" CA with a ttl of "([^"]*)" an
   end
 end
 
-Then(/^the resulting certificate is valid according to the intermediate CA$/) do
-  cert = OpenSSL::X509::Certificate.new @result['certificate']
+Then(/^the resulting (pem|json) certificate is valid according to the intermediate CA$/) do |type|
+  cert_body = (type == 'pem' ? @result : @result['certificate'])
+  cert = OpenSSL::X509::Certificate.new cert_body
 
   store = OpenSSL::X509::Store.new
   store.add_cert @root_ca.cert
