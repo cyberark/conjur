@@ -38,7 +38,7 @@ function main() {
 
     git fetch --tags
     tag_sha=`git rev-list -n 1 "v$VERSION"`
-    head_sha=`git rev-list -n 1 master`
+    head_sha=`git rev-list -n 1 HEAD`
     if [ "$tag_sha" = "$head_sha" ]; then
       # Add release tagged image to our internal repository
       tag_and_push $INTERNAL_IMAGE $VERSION
