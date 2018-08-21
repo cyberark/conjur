@@ -3,13 +3,13 @@
 class CertificateAuthorityController < RestController
 
   def sign_host
-    raise RecordNotFound.new("No CA #{service_id}") unless ca_resource
-    raise RecordNotFound.new("No Host #{host_id}") unless host
+    raise RecordNotFound, "No CA #{service_id}" unless ca_resource
+    raise RecordNotFound, "No Host #{host_id}" unless host
 
-    raise Forbidden.new unless current_user.allowed_to?('sign', ca_resource)
-    raise Forbidden.new('Requestor is not CSR host') unless requestor_is_host?
-    raise Forbidden.new('CSR cannot be verified') unless csr.verify(csr.public_key)
-    raise Forbidden.new('CSR CN does not match host') unless host_name_matches?(csr)
+    raise Forbidden unless current_user.allowed_to?('sign', ca_resource)
+    raise Forbidden, 'Requestor is not CSR host' unless requestor_is_host?
+    raise Forbidden, 'CSR cannot be verified' unless csr.verify(csr.public_key)
+    raise Forbidden, 'CSR CN does not match host' unless host_name_matches?(csr)
 
     ca = ::CA::CertificateAuthority.new(ca_resource)
     certificate = ca.sign_csr(csr, ttl)
@@ -25,11 +25,11 @@ class CertificateAuthorityController < RestController
   protected
 
   def host_name_matches?(csr)
-    csr_info = csr.subject.to_a.inject({}) do |r, s|
-        r.merge!(s[0] => s[1])
-      end
+    csr_info = csr.subject.to_a.inject({}) do |result, (k, v)|
+      result.merge!(k => v)
+    end
 
-    csr_info["CN"] == host_id.split('/').last
+    csr_info['CN'] == host_id.split('/').last
   end
 
   def requestor_is_host?
@@ -41,7 +41,7 @@ class CertificateAuthorityController < RestController
   end
 
   def csr
-    @csr ||= OpenSSL::X509::Request.new (params[:csr] + "\n")
+    @csr ||= OpenSSL::X509::Request.new(params[:csr])
   end
 
   def ca_resource
@@ -50,12 +50,12 @@ class CertificateAuthorityController < RestController
     account = Sequel.function(:account, :resource_id)
 
     @ca_resource ||= Resource
-                        .where(
-                          identifier => "conjur/#{service_id}/ca", 
-                          kind => "webservice",
-                          account => account
-                        )
-                        .first
+                     .where(
+                       identifier => "conjur/#{service_id}/ca", 
+                       kind => 'webservice',
+                       account => account
+                     )
+                     .first
   end
 
   def host
@@ -64,12 +64,12 @@ class CertificateAuthorityController < RestController
     account = Sequel.function(:account, :resource_id)
 
     @host ||= Resource
-                        .where(
-                          identifier => host_id, 
-                          kind => "host",
-                          account => account
-                        )
-                        .first
+              .where(
+                identifier => host_id, 
+                kind => 'host',
+                account => account
+              )
+              .first
   end
 
   def service_id
