@@ -12,17 +12,17 @@ module CAHelpers
 
   def generate_intermediate_ca(root_ca)
     intermediate_ca = IntermediateCA.new('CN=Conjur Intermediate CA/DC=Conjur Certificate Authority')
-    intermediate_ca.cert = root_ca.sign(intermediate_ca.csr, 3600, ca: true)
+    intermediate_ca.cert = root_ca.sign(intermediate_ca.csr, 3600, create_ca: true)
     intermediate_ca
   end
 
-  def create_host(cn)
-    Host.new("CN=#{cn}")
+  def create_host(common_name)
+    Host.new("CN=#{common_name}")
   end
 
   module CertificateAuthority
 
-    def sign(csr, ttl, ca: false)
+    def sign(csr, ttl, create_ca: false)
       raise 'CSR cannot be verified' unless csr.verify csr.public_key
 
       csr_cert = OpenSSL::X509::Certificate.new
@@ -41,7 +41,7 @@ module CAHelpers
 
       csr_cert.add_extension(extension_factory.create_extension('subjectKeyIdentifier', 'hash'))
 
-      if ca
+      if create_ca
         csr_cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:TRUE', true))
         csr_cert.add_extension(extension_factory.create_extension('keyUsage', 'cRLSign,keyCertSign', true))
       else

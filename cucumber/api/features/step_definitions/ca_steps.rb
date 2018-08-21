@@ -22,7 +22,7 @@ When(/^I send a CSR for "([^"]*)" to the "([^"]*)" CA with a ttl of "([^"]*)" an
   # TODO: It would be nice if this also worked with multipart/form-data
 
   body = <<~BODY
-  ttl=#{ttl}&csr=#{CGI.escape(host.csr.to_pem)}
+    ttl=#{ttl}&csr=#{CGI.escape(host.csr.to_pem)}
   BODY
   try_request false do
     post_json path, body
@@ -30,7 +30,7 @@ When(/^I send a CSR for "([^"]*)" to the "([^"]*)" CA with a ttl of "([^"]*)" an
 end
 
 Then(/^the resulting certificate is valid according to the intermediate CA$/) do
-  cert = OpenSSL::X509::Certificate.new @result["certificate"]
+  cert = OpenSSL::X509::Certificate.new @result['certificate']
 
   store = OpenSSL::X509::Store.new
   store.add_cert @root_ca.cert
