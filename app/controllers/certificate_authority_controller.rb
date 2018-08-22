@@ -3,12 +3,11 @@
 class CertificateAuthorityController < RestController
   include ActionController::MimeResponds
 
-  def sign_host
+  def sign
     raise RecordNotFound, "No CA #{service_id}" unless ca_resource
-    raise RecordNotFound, "No Host #{host_id}" unless host
 
     raise Forbidden unless current_user.allowed_to?('sign', ca_resource)
-    raise Forbidden, 'Requestor is not CSR host' unless requestor_is_host?
+    raise Forbidden, 'Requestor is not a host' unless requestor_is_host?
     raise Forbidden, 'CSR cannot be verified' unless csr.verify(csr.public_key)
     raise Forbidden, 'CSR CN does not match host' unless host_name_matches?(csr)
 
@@ -35,15 +34,11 @@ class CertificateAuthorityController < RestController
       result.merge!(k => v)
     end
 
-    csr_info['CN'] == host_id.split('/').last
+    csr_info['CN'] == host.identifier.split('/').last
   end
 
   def requestor_is_host?
-    current_user.id == host_full_id
-  end
-
-  def host_full_id
-    [account, 'host', host_id].join(':')
+    current_user.kind == 'host'
   end
 
   def csr
@@ -65,16 +60,8 @@ class CertificateAuthorityController < RestController
   end
 
   def host
-    identifier = Sequel.function(:identifier, :resource_id)
-    kind = Sequel.function(:kind, :resource_id)
-    account = Sequel.function(:account, :resource_id)
-
     @host ||= Resource
-              .where(
-                identifier => host_id, 
-                kind => 'host',
-                account => account
-              )
+              .where(:resource_id => current_user.id)
               .first
   end
 
@@ -84,10 +71,6 @@ class CertificateAuthorityController < RestController
 
   def account
     params[:account]
-  end
-
-  def host_id
-    params[:identifier]
   end
 
   def ttl

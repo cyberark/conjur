@@ -36,20 +36,15 @@ Feature: Conjur signs certificates using a configured CA
     And I add the intermediate CA cert chain to the resource "cucumber:variable:conjur/kitchen/ca/cert-chain"
 
   Scenario: A non-existent ca returns a 404
-    When I POST "/ca/cucumber/living-room/hosts/bacon"
+    When I POST "/ca/cucumber/living-room/sign"
     Then the HTTP response status code is 404
 
-  Scenario: A non-existent host returns a 404
-    When I POST "/ca/cucumber/kitchen/hosts/coffee"
-    Then the HTTP response status code is 404
+  Scenario: A login that isn't a host returns a 403
+    When I POST "/ca/cucumber/kitchen/sign"
+    Then the HTTP response status code is 403
 
   Scenario: The service returns 403 Forbidden if the host doesn't have sign privileges
     Given I login as "cucumber:host:toast"
-    When I send a CSR for "toast" to the "kitchen" CA with a ttl of "P6M" and CN of "toast"
-    Then the HTTP response status code is 403
-
-  Scenario: The service returns 403 Forbidden if the request isn't made by the host
-    Given I login as "cucumber:host:bacon"
     When I send a CSR for "toast" to the "kitchen" CA with a ttl of "P6M" and CN of "toast"
     Then the HTTP response status code is 403
 
