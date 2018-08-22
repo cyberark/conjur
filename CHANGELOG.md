@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.1.2] - 2018-
+### Security
+- Fixes bug that allowed an Authn-Kubernetes request to bypass mutual TLS. All users are strongly recommended to upgrade to this version of Conjur.
+
+### Fixed
+- Substantial performance improvement when loading large policy files
+
 ## [1.1.1] - 2018-8-10
 ### Added
 - `conjurctl export` now includes the account list to support migration
