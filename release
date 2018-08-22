@@ -1,5 +1,13 @@
 #!/bin/bash -e
 
+function revert_tag {
+  local tag="$1"
+  echo "Revert tag: $tag"
+  git tag -d $tag
+  git push origin :refs/tags/$tag
+  echo "Successfully reverted release: $tag"
+}
+
 git fetch --tags
 
 if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]; then
@@ -9,6 +17,14 @@ fi
 
 version="v$(< VERSION)"
 last_release=$(git describe --abbrev=0 --tags)
+
+while true ; do
+  case "$1" in
+    --revert ) revert_tag $version ; exit 0 ;;
+     * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
+  esac
+done
+
 
 echo "The last release was: $last_release"
 echo "The next release will be: $version"

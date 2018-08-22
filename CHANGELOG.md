@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.1.2] - 2018-
 ### Security
-- Fixes bug that allowed an Authn-Kubernetes request to bypass mutual TLS. All users are strongly recommended to upgrade to this version of Conjur.
+- Fixes a vulnerability that could allow an authn-K8s request to bypass mutual TLS authentication. All Conjur users using authn-k8s within Kubernetes or OpenShift are strongly recommended to upgrade to this version.
 
 ### Fixed
 - Substantial performance improvement when loading large policy files
