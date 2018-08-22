@@ -10,57 +10,61 @@
 
 TAG="${1:-$(version_tag)}"
 VERSION="$(< VERSION)"
-
 SOURCE_IMAGE="conjur:$TAG"
-INTERNAL_IMAGE='registry.tld/conjur'
-INTERNAL_IMAGE_NEW='registry.tld/cyberark/conjur'  # We'll transition to this
-DOCKERHUB_IMAGE='cyberark/conjur'
-QUAY_IMAGE='quay.io/cyberark/conjur'
+
+CONJUR_REGISTRY=registry.tld
+IMAGE_NAME=cyberark/conjur
+
+# both old-style 'conjur' and new-style 'cyberark/conjur'
+INTERNAL_IMAGES=`echo $CONJUR_REGISTRY/{conjur,$IMAGE_NAME}`
+
+# for releases, push to dockerhub and quay.io in addition to our registry
+RELEASE_IMAGES=`echo $INTERNAL_IMAGES {,quay.io/}$IMAGE_NAME`
 
 function main() {
   echo "TAG = $TAG"
   echo "VERSION = $VERSION"
 
-  tag_and_push $INTERNAL_IMAGE $TAG
-  tag_and_push $INTERNAL_IMAGE_NEW $TAG
+  # always push VERSION-SHA tags to our registry
+  tag_and_push $TAG $INTERNAL_IMAGES
 
+  # if on master (as determined by examining Jenkins-set envar BRANCH_NAME)
+  # assume tests have passed and push to latest and stable tags, too
   if [ "$BRANCH_NAME" = "master" ]; then
-    local latest_tag='latest'
-    local stable_tag="$(< VERSION)-stable"
+    tag_and_push latest $INTERNAL_IMAGES
 
-    echo "TAG = $stable_tag, stable image"
+    # only do 1-stable and 1.2-stable for 1.2.3-dev
+    # (1.2.3-stable doesn't make sense if there is a released version called 1.2.3)
+    for v in `gen_versions $VERSION`; do
+      tag_and_push $v-stable $INTERNAL_IMAGES
+    done
+  fi
 
-    tag_and_push $INTERNAL_IMAGE $latest_tag
-    tag_and_push $INTERNAL_IMAGE $stable_tag
+  git fetch --tags || : # Jenkins brokenness workaround
+  local git_description=`git describe`
 
-    tag_and_push $INTERNAL_IMAGE_NEW $latest_tag
-    tag_and_push $INTERNAL_IMAGE_NEW $stable_tag
-
-    git fetch --tags
-    tag_sha=`git rev-list -n 1 "v$VERSION"`
-    head_sha=`git rev-list -n 1 HEAD`
-    if [ "$tag_sha" = "$head_sha" ]; then
-      # Add release tagged image to our internal repository
-      tag_and_push $INTERNAL_IMAGE $VERSION
-      tag_and_push $INTERNAL_IMAGE_NEW $VERSION
-
-      # Add release tagged image to our DockerHub repository
-      tag_and_push $DOCKERHUB_IMAGE $VERSION
-      tag_and_push $DOCKERHUB_IMAGE $latest_tag
-
-      # Add release tagged image to our Quay.io repository
-      tag_and_push $QUAY_IMAGE $VERSION
-      tag_and_push $QUAY_IMAGE $latest_tag
-    fi
+  # if on tag matching the VERSION, also push releases to dockerhub and quay
+  if [[ $git_description = v$VERSION ]]; then
+    echo "Revision $git_description matches version exactly, pushing releases..."
+    for v in latest $VERSION `gen_versions $VERSION`; do
+      tag_and_push $v $RELEASE_IMAGES
+    done
+  else
+    echo "Revision $git_description does not match version $VERSION exactly, not releasing."
   fi
 }
 
+# tag_and_publish tag image1 image2 ...
 function tag_and_push() {
-  local image="$1"
-  local tag="$2"
+  local tag="$1"
+  shift
 
-  docker tag "$SOURCE_IMAGE" "$image:$tag"
-  docker push "$image:$tag"
+  for image in $*; do
+    local target=$image:$tag
+    echo Tagging and pushing $target...
+    docker tag "$SOURCE_IMAGE" $target
+    docker push $target
+  done
 }
 
 main
