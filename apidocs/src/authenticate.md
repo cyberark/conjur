@@ -7,6 +7,8 @@ Gets a [short-lived access token](/reference/cryptography.html#authentication-to
 The login must be [URL encoded][percent-encoding]. For example, `alice@devops`
 must be encoded as `alice%40devops`.
 
+For host authentication, the login is the host ID with the prefix `host/`. For example, the host `webserver` would login as `host/webserver`, and would be encoded as `host%2Fwebserver`.
+
 [percent-encoding]: https://developer.mozilla.org/en-US/docs/Glossary/percent-encoding
 
 For API usage, the access token is ordinarily passed as an HTTP Authorization "Token" header.
