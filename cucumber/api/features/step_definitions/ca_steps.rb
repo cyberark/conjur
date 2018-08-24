@@ -15,7 +15,7 @@ Given(/^I add the intermediate CA cert chain to the resource "([^"]*)"$/) do |re
   Secret.create resource_id: resource_id, value: chain
 end
 
-When(/^I send a CSR for "([^"]*)" to the "([^"]*)" CA with a ttl of "([^"]*)" and CN of "([^"]*)"$/) do |host_name, service_name, ttl, common_name|
+When(/^I send a CSR for "([^"]*)" to the "([^"]*)" CA with a ttl of "([^"]*)" and CN of "([^"]*)"$/) do |_host_name, service_name, ttl, common_name|
   host = create_host(common_name)
   path = "/ca/cucumber/#{service_name}/sign"
 

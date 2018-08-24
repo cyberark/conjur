@@ -1,25 +1,42 @@
 # frozen_string_literal: true
 
+# Responsible for API calls to interact with a Conjur-configured
+# certificate authority (CA) service
 class CertificateAuthorityController < RestController
   include ActionController::MimeResponds
 
-  def sign
-    raise RecordNotFound, "No CA #{service_id}" unless ca_resource
+  before_action :verify_ca
+  before_action :verify_host, only: :sign
+  before_action :verify_csr, only: :sign
+  
+  def sign    
+    certificate = certificate_authority.sign_csr(csr, ttl)
+    render_certificate(certificate)
+  end
 
+  protected
+
+  def verify_ca
+    raise RecordNotFound, "No CA #{service_id}" unless ca_resource
+  end
+
+  def verify_host
     raise Forbidden unless current_user.allowed_to?('sign', ca_resource)
     raise Forbidden, 'Requestor is not a host' unless requestor_is_host?
+  end
+
+  def verify_csr
     raise Forbidden, 'CSR cannot be verified' unless csr.verify(csr.public_key)
     raise Forbidden, 'CSR CN does not match host' unless host_name_matches?(csr)
+  end
 
-    ca = ::CA::CertificateAuthority.new(ca_resource)
-    certificate = ca.sign_csr(csr, ttl)
-
+  def render_certificate(certificate)
     respond_to do |format|
       format.json do
         render json: {
           certificate: certificate.to_pem
         },
-        status: :created
+               status: :created
       end
 
       format.pem do
@@ -28,14 +45,16 @@ class CertificateAuthorityController < RestController
     end
   end
 
-  protected
-
   def host_name_matches?(csr)
-    csr_info = csr.subject.to_a.inject({}) do |result, (k, v)|
-      result.merge!(k => v)
+    csr_info = csr.subject.to_a.inject({}) do |result, (key, value)|
+      result.merge!(key => value)
     end
 
     csr_info['CN'] == host.identifier.split('/').last
+  end
+
+  def certificate_authority
+    ::CA::CertificateAuthority.new(ca_resource)
   end
 
   def requestor_is_host?
@@ -62,7 +81,7 @@ class CertificateAuthorityController < RestController
 
   def host
     @host ||= Resource
-              .where(:resource_id => current_user.id)
+              .where(resource_id: current_user.id)
               .first
   end
 

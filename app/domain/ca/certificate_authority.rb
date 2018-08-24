@@ -23,7 +23,7 @@ module CA
     #
     # csr: OpenSSL::X509::Request. Certificate signing request to sign
     # ttl: Integer. The desired lifetime, in seconds, for the 
-    #                certificate 
+    #               certificate 
     def sign_csr(csr, ttl)
       csr_cert = OpenSSL::X509::Certificate.new
 

@@ -20,6 +20,8 @@ module CAHelpers
     Host.new("CN=#{common_name}")
   end
 
+  # Provides certificate authority capabilities. This is
+  # namely signing certificates for certificate signing requests (CSRs)
   module CertificateAuthority
 
     def sign(csr, ttl, create_ca: false)
@@ -55,6 +57,9 @@ module CAHelpers
     end
   end
 
+  # Provides certificate host capabilities. This includes
+  # creating a certificate signing request (CSR) to submit
+  # to an issuer CA
   module CertificateHost
     def key
       @key
@@ -79,6 +84,8 @@ module CAHelpers
     end
   end
 
+  # Represent a root certificate authority. A root
+  # CA creates and signs its own certificate
   class RootCA
     include CertificateAuthority
     include CertificateHost
@@ -114,6 +121,9 @@ module CAHelpers
     end
   end
 
+  # Represents an Intermediate Certificate authority.
+  # An Intermediate CA cannot sign its own certificate,
+  # but must submit a CSR to an issuer CA.
   class IntermediateCA
     include CertificateAuthority
     include CertificateHost
@@ -124,6 +134,8 @@ module CAHelpers
     end
   end
 
+  # Represents a host to create a certificate signing request
+  # for a host certificate
   class Host
     include CAHelpers::CertificateHost
 
