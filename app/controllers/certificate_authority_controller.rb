@@ -18,11 +18,12 @@ class CertificateAuthorityController < RestController
       format.json do
         render json: {
           certificate: certificate.to_pem
-        }
+        },
+        status: :created
       end
 
       format.pem do
-        render body: certificate.to_pem, content_type: 'application/x-pem-file'
+        render body: certificate.to_pem, content_type: 'application/x-pem-file', status: :created
       end
     end
   end
