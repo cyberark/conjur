@@ -1,5 +1,5 @@
 module Authentication
-  module AuthnLdap
+  module AuthnOidc
 
     class Authenticator
 
