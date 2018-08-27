@@ -9,10 +9,10 @@
     id: client-id
 
   - !variable
-    id: url
+    id: client-secret
 
   - !variable
-    id: client-secret
+    id: provider-uri
 
   - !group users
 

@@ -11,10 +11,6 @@ module Authentication
         @conjur_account = conjur_account
       end
 
-      def conjur_account
-        @conjur_account
-      end
-
       def client_id_variable
         Resource["#{conjur_account}:variable:#{service_id}/client-id"]
       end
@@ -23,8 +19,8 @@ module Authentication
         Resource["#{conjur_account}:variable:#{service_id}/client-secret"]
       end
 
-      def url_variable
-        Resource["#{conjur_account}:variable:#{service_id}/url"]
+      def provider_uri_variable
+        Resource["#{conjur_account}:variable:#{service_id}/provider-uri"]
       end
     end
   end
