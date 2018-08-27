@@ -20,7 +20,7 @@ module Authentication
 
         @authenticator_name = input.authenticator_name
         @service_id = input.service_id
-        @account = input.account
+        @conjur_account = input.account
 
         verify_service_exists
         verify_service_enabled
@@ -29,13 +29,14 @@ module Authentication
         verify_user_exists
         verify_user_is_authorized_for_service
 
-        # return true for valid credentials, false otherwise
-        # we return true for now, untill we have real code
+        authn_service = AuthenticationService.new(@service.identifier, @conjur_account)
+        # use authn service to authenticate user
+
         true
       end
 
-      def account
-        @account
+      def conjur_account
+        @conjur_account
       end
 
       def authenticator_name
@@ -47,7 +48,7 @@ module Authentication
       end
 
       def service
-        @service ||= Resource["#{account}:webservice:conjur/#{authenticator_name}/#{service_id}"]
+        @service ||= Resource["#{conjur_account}:webservice:conjur/#{authenticator_name}/#{service_id}"]
       end
 
       def username
