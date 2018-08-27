@@ -12,7 +12,7 @@ module CAHelpers
 
   def generate_intermediate_ca(root_ca)
     intermediate_ca = IntermediateCA.new('CN=Conjur Intermediate CA/DC=Conjur Certificate Authority')
-    intermediate_ca.cert = root_ca.sign(intermediate_ca.csr, 3600, create_ca: true)
+    intermediate_ca.cert = root_ca.sign_ca(intermediate_ca.csr, 3600)
     intermediate_ca
   end
 
@@ -24,15 +24,14 @@ module CAHelpers
   # namely signing certificates for certificate signing requests (CSRs)
   module CertificateAuthority
 
-    def sign(csr, ttl, create_ca: false)
+    def sign_ca(csr, ttl)
       raise 'CSR cannot be verified' unless csr.verify csr.public_key
 
       csr_cert = OpenSSL::X509::Certificate.new
       csr_cert.serial = 0
       csr_cert.version = 3
       csr_cert.not_before = Time.now
-      csr_cert.not_after = Time.now + ttl
-
+      csr_cert.not_after = csr_cert.not_before + ttl
       csr_cert.subject = csr.subject
       csr_cert.public_key = csr.public_key
       csr_cert.issuer = @cert.subject
@@ -42,15 +41,10 @@ module CAHelpers
       extension_factory.issuer_certificate = @cert
 
       csr_cert.add_extension(extension_factory.create_extension('subjectKeyIdentifier', 'hash'))
+      csr_cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:TRUE', true))
+      csr_cert.add_extension(extension_factory.create_extension('keyUsage', 'cRLSign,keyCertSign', true))
 
-      if create_ca
-        csr_cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:TRUE', true))
-        csr_cert.add_extension(extension_factory.create_extension('keyUsage', 'cRLSign,keyCertSign', true))
-      else
-        csr_cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:FALSE'))
-        csr_cert.add_extension(extension_factory.create_extension('keyUsage', 'keyEncipherment,dataEncipherment,digitalSignature', true))
-      end
-
+      # Sign the issued CA certificate with the CA private key
       csr_cert.sign @key, OpenSSL::Digest::SHA256.new
 
       csr_cert
@@ -102,7 +96,7 @@ module CAHelpers
       cert.version = 3
       cert.serial = 0
       cert.not_before = Time.now
-      cert.not_after = Time.now + ttl
+      cert.not_after = cert.not_before + ttl
       cert.public_key = key.public_key
       cert.subject = @name
       cert.issuer = @name

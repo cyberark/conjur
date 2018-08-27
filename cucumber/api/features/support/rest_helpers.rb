@@ -160,10 +160,9 @@ module RestHelpers
   end
   
   def current_user_credentials
-    headers = {}.tap do |headers|
-      token = Slosilo["authn:#{@current_user.account}"].signed_token @current_user.login
-      headers[:authorization] = "Token token=\"#{Base64.strict_encode64 token.to_json}\""
-    end
+    token = Slosilo["authn:#{@current_user.account}"].signed_token @current_user.login
+    token_authorization = "Token token=\"#{Base64.strict_encode64 token.to_json}\""
+    headers = { authorization: token_authorization }
     { headers: headers, username: @current_user.login }
   end
 
