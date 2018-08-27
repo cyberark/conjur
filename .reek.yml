@@ -504,7 +504,7 @@ detectors:
     - Resource#search
     - Role#grant_to
     - Secret#as_json
-    - CAHelpers::CertificateAuthority#sign
+    - CAHelpers::CertificateAuthority#sign_ca
     - CAHelpers::CertificateHost#csr
     - CAHelpers::RootCA#create_cert
 

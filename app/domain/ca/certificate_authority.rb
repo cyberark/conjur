@@ -36,11 +36,8 @@ module CA
 
       now = Time.now
       csr_cert.not_before = now
-      csr_cert.not_after = now + [ttl, max_ttl].min
-  
-      # TODO: Subject name should be generated, not copied from CSR
+      csr_cert.not_after = now + [ttl, max_ttl].min 
       csr_cert.subject = csr.subject
-      
       csr_cert.public_key = csr.public_key
       csr_cert.issuer = certificate.subject
   
@@ -58,10 +55,6 @@ module CA
         extension_factory.create_extension('subjectKeyIdentifier', 'hash')
       )
 
-      # TODO: Add SPIFFE ID as URI subject alternative name (SAN)
-  
-      # TODO: If the private key is encrypted, we need to unlock it
-      # with the provided private key password
       csr_cert.sign private_key, OpenSSL::Digest::SHA256.new
   
       csr_cert
