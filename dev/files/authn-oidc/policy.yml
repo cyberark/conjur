@@ -1,0 +1,29 @@
+- !policy
+  id: conjur/authn-oidc/okta
+  body:
+  - !webservice
+    annotations:
+      description: Authentication service for Okta, based on Open ID Connect.
+
+  - !variable
+    id: client-id
+
+  - !variable
+    id: url
+
+  - !variable
+    id: client-secret
+
+  - !group users
+
+  - !permit
+    role: !group users
+    privilege: [ read, authenticate ]
+    resource: !webservice
+
+- !user alice
+- !user bob
+
+- !grant
+  role: !group conjur/authn-oidc/okta/users
+  member: !user alice

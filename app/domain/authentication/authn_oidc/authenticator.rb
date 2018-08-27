@@ -5,6 +5,7 @@ module Authentication
 
       def initialize(env:)
         # initialization code based on ENV config
+        @env = env
       end
 
       def valid?(input)
@@ -17,6 +18,9 @@ module Authentication
         #     input.password
         #
         # return true for valid credentials, false otherwise
+
+        # returning true by default until we have real code
+        true
       end
     end
 

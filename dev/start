@@ -15,6 +15,8 @@ Usage: start [options]
 
     --authn-iam     Starts with authn-iam/prod as authenticator
 
+    --authn-oidc     Starts with authn-oidc/okta as authenticator
+
     -h, --help      Shows this help message.
 EOF
   exit
@@ -25,11 +27,13 @@ unset COMPOSE_PROJECT_NAME
 # Determine which extra services should be loaded when working with authenticators
 ENABLE_AUTHN_LDAP=false
 ENABLE_AUTHN_IAM=false
+ENABLE_AUTHN_OIDC=false
 ENABLE_ROTATORS=false
 while true ; do
   case "$1" in
     --authn-iam ) ENABLE_AUTHN_IAM=true ; shift ;;
     --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
+    --authn-oidc ) ENABLE_AUTHN_OIDC=true ; shift ;;
     --rotators ) ENABLE_ROTATORS=true ; shift ;;
     -h | --help ) print_help ; shift ;;
      * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
@@ -61,6 +65,11 @@ if [[ $ENABLE_AUTHN_LDAP = true ]]; then
   env_args="$env_args -e LDAP_BINDDN=cn=admin,dc=conjur,dc=net"
   env_args="$env_args -e LDAP_BINDPW=ldapsecret"
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-ldap/policy.yml
+fi
+
+if [[ $ENABLE_AUTHN_OIDC = true ]]; then
+  env_args="$env_args -e CONJUR_AUTHENTICATORS=authn-oidc/okta"
+  docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-oidc/policy.yml
 fi
 
 if [[ $ENABLE_ROTATORS = true ]]; then
