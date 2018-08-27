@@ -20,7 +20,7 @@ module Authentication
       attribute :authenticator_name, ::Types::NonEmptyString
       attribute :service_id,         ::Types::NonEmptyString.optional
       attribute :account,            ::Types::NonEmptyString
-      attribute :username,           ::Types::NonEmptyString
+      attribute :username,           ::Types::NonEmptyString.optional
       attribute :password,           ::Types::String
       attribute :origin,             ::Types::NonEmptyString
       attribute :request,            ::Types::Any.optional # for k8s authenticator

@@ -23,6 +23,7 @@ Rails.application.routes.draw do
       constraints authenticator: /authn-?[^\/]*/, id: /[^\/\?]+/ do
         get '/:authenticator(/:service_id)/:account/login' => 'authenticate#login'
         post '/:authenticator(/:service_id)/:account/:id/authenticate' => 'authenticate#authenticate'
+        post '/authn-oicd(/:service_id)/:account/authenticate' => 'authenticate#authenticate'
 
         # Update password is only relevant when using the default authenticator
         put  '/authn/:account/password' => 'credentials#update_password', defaults: { authenticator: 'authn' }
@@ -31,7 +32,7 @@ Rails.application.routes.draw do
         # other authenticators will return this at login (e.g. LDAP), we want
         # this to be accessible when using other authenticators to login.
         put  '/:authenticator/:account/api_key'  => 'credentials#rotate_api_key'
-        
+
         post '/authn-k8s/:service_id/inject_client_cert' => 'authenticate#k8s_inject_client_cert'
       end
 
@@ -42,7 +43,7 @@ Rails.application.routes.draw do
       post    "/roles/:account/:kind/*identifier" => "roles#add_member", :constraints => QueryParameterActionRecognizer.new("members")
       delete  "/roles/:account/:kind/*identifier" => "roles#delete_member", :constraints => QueryParameterActionRecognizer.new("members")
       get     "/roles/:account/:kind/*identifier" => "roles#show"
-     
+
 
       get     "/resources/:account/:kind/*identifier" => 'resources#check_permission', :constraints => QueryParameterActionRecognizer.new("check")
       get     "/resources/:account/:kind/*identifier" => 'resources#permitted_roles', :constraints => QueryParameterActionRecognizer.new("permitted_roles")
@@ -51,7 +52,7 @@ Rails.application.routes.draw do
       get     "/resources/:account"                   => "resources#index"
       get     "/resources"                            => "resources#index"
 
-      # NOTE: the order of these routes matters: we need the expire 
+      # NOTE: the order of these routes matters: we need the expire
       #       route to come first.
       post    "/secrets/:account/:kind/*identifier" => "secrets#expire",
         :constraints => QueryParameterActionRecognizer.new("expirations")
