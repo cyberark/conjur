@@ -5,10 +5,6 @@ module Authentication
     class NotFoundError < RuntimeError; end
 
     class Authenticator
-      attr_reader :authenticator_name
-      attr_reader :conjur_account
-      attr_reader :service_id
-      attr_reader :username
 
       def initialize(env:)
         @env = env
@@ -38,6 +34,24 @@ module Authentication
 
         # return true until we have real authentication code
         true
+      end
+
+      private
+
+      def authenticator_name
+        @authenticator_name
+      end
+
+      def conjur_account
+        @conjur_account
+      end
+
+      def service_id
+        @service_id
+      end
+
+      def username
+        @username
       end
 
       def service
