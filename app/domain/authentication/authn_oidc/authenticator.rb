@@ -28,11 +28,14 @@ module Authentication
         verify_service_enabled
 
         authn_service = AuthenticationService.new(service.identifier, conjur_account)
-        # todo: should we initialize only once?
+        # TODO: should we initialize only once?
 
-        # todo: use authn service to authenticate user
+        # TODO: use authn service to authenticate user
 
         # return true until we have real authentication code
+
+        # TODO: we set the username hardcoded for now until we will have the openID connection implemented
+        input.instance_variable_set(:@username, 'alice')
         true
       end
 
