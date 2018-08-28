@@ -91,8 +91,10 @@ group :development, :test do
 end
 
 group :development do
+  # note: minor version of this needs to match codeclimate channel
+  gem 'rubocop', '~> 0.58.0', require: false
+
   gem 'reek', require: false
-  gem 'rubocop', require: false
   gem 'rubocop-checkstyle_formatter', require: false # for Jenkins
 end
 
