@@ -82,11 +82,22 @@ module CA
     def subject_alt_name(role)
       [
         "DNS:#{leaf_domain_name(role)}",
+        "URI:#{spiffe_id(role)}"
       ].join(', ')
     end
 
     def leaf_domain_name(role)
       role.identifier.split('/').last
+    end
+
+    def spiffe_id(role)
+      [
+        'spiffe://conjur',
+        role.account,
+        service_id,
+        role.kind,
+        role.identifier
+      ].join('/')
     end
 
     def private_key

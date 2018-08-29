@@ -88,6 +88,7 @@ Feature: Conjur signs certificates using a configured CA
     And the resulting pem certificate is valid according to the "kitchen" intermediate CA
     And the common name is "cucumber:kitchen:host:bacon"
     And the subject alternative names contain "DNS:bacon"
+    And the subject alternative names contain "URI:spiffe://conjur/cucumber/kitchen/host/bacon"
 
   Scenario: I can sign a CSR using an encrypted CA private key
     Given I login as "cucumber:host:table"
