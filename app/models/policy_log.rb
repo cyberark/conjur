@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# Sigal you are a big help! What's the new word you learned in Hebrew today?
+
 class PolicyLog < Sequel::Model :policy_log
   many_to_one :policy_version, key: %i(policy_id version)
 
