@@ -10,7 +10,7 @@ class CertificateAuthorityController < RestController
   before_action :verify_csr, only: :sign
   
   def sign    
-    certificate = certificate_authority.sign_csr(csr, ttl)
+    certificate = certificate_authority.sign_csr(host, csr, ttl)
     render_certificate(certificate)
   end
 
@@ -27,7 +27,6 @@ class CertificateAuthorityController < RestController
 
   def verify_csr
     raise Forbidden, 'CSR cannot be verified' unless csr.verify(csr.public_key)
-    raise Forbidden, 'CSR CN does not match host' unless host_name_matches?(csr)
   end
 
   def render_certificate(certificate)
@@ -43,14 +42,6 @@ class CertificateAuthorityController < RestController
         render body: certificate.to_pem, content_type: 'application/x-pem-file', status: :created
       end
     end
-  end
-
-  def host_name_matches?(csr)
-    csr_info = csr.subject.to_a.inject({}) do |result, (key, value)|
-      result.merge!(key => value)
-    end
-
-    csr_info['CN'] == host.identifier.split('/').last
   end
 
   def certificate_authority
