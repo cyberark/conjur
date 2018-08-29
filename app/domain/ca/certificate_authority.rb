@@ -63,7 +63,14 @@ module CA
     protected
 
     def private_key
-      @private_key ||= OpenSSL::PKey::RSA.new secret(private_key_var)
+      @private_key ||= private_key_password? ?
+        OpenSSL::PKey::RSA.new(secret(private_key_var), private_key_password)
+        :
+        OpenSSL::PKey::RSA.new(secret(private_key_var))
+    end
+
+    def private_key_password?
+      !private_key_password.to_s.empty?
     end
 
     def private_key_password
@@ -95,7 +102,7 @@ module CA
     end
 
     def secret(name)
-      Resource[secret_id(name)].secret.value
+      Resource[secret_id(name)]&.secret&.value
     end
 
     def secret_id(name)
