@@ -16,6 +16,7 @@ module Authentication
         @conjur_account = conjur_account
       end
 
+      # Retrieves an id token from the OpenIDConnect Provider and returns it decoded
       def get_id_token request_body
         request_body = URI.decode_www_form(request_body)
         @redirect_uri = request_body.assoc('redirect_uri').last
@@ -24,8 +25,8 @@ module Authentication
         client = get_client
         client.authorization_code = authorization_code
         access_token = client.access_token!
-        id_token = access_token.id_token
 
+        id_token = decode_id_token(access_token.id_token)
         rescue => e
           raise OpenIdConnectAuthenticationError.new(e)
       end
@@ -59,6 +60,10 @@ module Authentication
             redirect_uri: redirect_uri,
             token_endpoint: discover.token_endpoint
         )
+      end
+
+      def decode_id_token id_token
+        id_token = OpenIDConnect::ResponseObject::IdToken.decode id_token, discover.jwks
       end
     end
   end
