@@ -149,7 +149,13 @@ To use it:
    `conjurctl server`. This will allow you to work in the debugger without the
    server timing out.
 
-4. Cleanup
+4. Validate authentication using the username `alice` with the password `alice`:
+
+```sh-session
+$ curl -v -k -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate
+```
+
+5. Cleanup
 
     ```sh-session
     $ ./stop
