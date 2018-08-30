@@ -69,10 +69,8 @@ class AuthenticateController < ApplicationController
     kind = Sequel.function(:kind, :resource_id)
 
     Resource
-      .where(
-        identifier.like("#{AUTHN_RESOURCE_PREFIX}%"), 
-        kind => "webservice"
-      )
+      .where(identifier.like("#{AUTHN_RESOURCE_PREFIX}%"))
+      .where(kind => "webservice")
       .select_map(identifier)
       .map { |id| id.sub /^conjur\//, "" }
       .push(::Authentication::Strategy.default_authenticator_name)
