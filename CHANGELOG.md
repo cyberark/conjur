@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Added support for issuing certificates to Hosts using CAs configured as
   Conjur services. More details are available [here](docs/CERTIFICATE_SIGNING.md).
+- Added support for Conjur CAs to use encrypted private keys
 
 ## [1.1.2] - 2018-
 ### Security
