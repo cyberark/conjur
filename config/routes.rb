@@ -60,6 +60,8 @@ Rails.application.routes.draw do
       post    "/policies/:account/:kind/*identifier" => 'policies#post'
 
       get     "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
+
+      post     "/ca/:account/:service_id/sign" => 'certificate_authority#sign'
     end
 
     post "/host_factories/hosts" => 'host_factories#create_host'

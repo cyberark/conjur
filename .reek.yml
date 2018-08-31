@@ -159,6 +159,7 @@ detectors:
     - ConjurAudit::Engine
     - ConjurAudit
     - Util
+    - CAHelpers
   UncommunicativeParameterName:
     exclude:
     - CallSql::Sequel::Model#call_sql
@@ -177,6 +178,7 @@ detectors:
     - ApplicationController#validation_failed
     - Rotation::MasterRotator::ScheduledRotation#log_error
     - Resource#find_if_visible
+    
   UncommunicativeMethodName:
     exclude:
     - String#decode64
@@ -299,6 +301,11 @@ detectors:
     - Secret#current_values
     - connect
     - connect#test_select
+    - CertificateAuthorityController#render_certificate
+    - RestHelpers
+    - CAHelpers::CertificateAuthority
+    - CAHelpers::RootCA
+
   TooManyStatements:
     exclude:
     - initialize
@@ -379,6 +386,11 @@ detectors:
     - Role#make_full_id
     - Secret#current_values
     - connect
+    - CA::CertificateAuthority#sign_csr
+    - RestHelpers
+    - CAHelpers::CertificateAuthority#sign
+    - CAHelpers::RootCA#create_cert
+
   ControlParameter:
     exclude:
     - PossumWorld#try_request
@@ -388,9 +400,14 @@ detectors:
     - Exceptions::RecordNotFound#initialize
     - MembershipSearch#result_set
     - Resource#search
+    - RestHelpers#try_request
+    - CAHelpers::CertificateAuthority#sign
+
   DataClump:
     exclude:
     - PossumWorld
+    - RestHelpers
+
   ManualDispatch:
     exclude:
     - PossumWorld#set_result
@@ -398,6 +415,8 @@ detectors:
     - Authentication::AuthnK8s::K8sObjectLookup#k8s_client_for_method
     - Loader::Types::Delete#delete!
     - Loader::Types::Record#create!
+    - RestHelpers#set_result
+
   UtilityFunction:
     exclude:
     - PossumWorld#admin_user
@@ -445,6 +464,9 @@ detectors:
     - secrets_version_limit
     - Sequel::Model#write_id_to_json
     - conjur_api
+    - RestHelpers
+    - CAHelpers
+
   LongParameterList:
     exclude:
     - AuthenticatorWorld#authenticate_with_ldap
@@ -476,11 +498,16 @@ detectors:
     - Rotation::Rotators::Aws::SecretKey#rotate
     - HostBuilder#find_and_rotate
     - Loader::Handlers::Password#store_passwords
+    - CA::CertificateAuthority#sign_csr
     - MembershipSearch#result_set
     - Resource#permit
     - Resource#search
     - Role#grant_to
     - Secret#as_json
+    - CAHelpers::CertificateAuthority#sign_ca
+    - CAHelpers::CertificateHost#csr
+    - CAHelpers::RootCA#create_cert
+
   NilCheck:
     exclude:
     - AuthnK8sWorld#pod_certificate
@@ -555,6 +582,7 @@ detectors:
   BooleanParameter:
     exclude:
     - Authentication::AuthnK8s::KubectlExec#exec
+    - CAHelpers::CertificateAuthority#sign
   UnusedParameters:
     exclude:
     - Rotation::MasterRotator::ScheduledRotation#log_error

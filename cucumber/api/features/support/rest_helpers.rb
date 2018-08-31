@@ -4,7 +4,7 @@
 #
 module RestHelpers
   
-  USER_NAMES = %w(auto-larry auto-mike auto-norbert auto-otto)
+  USER_NAMES = %w[auto-larry auto-mike auto-norbert auto-otto].freeze
   
   def headers
     @headers ||= {}
@@ -46,7 +46,8 @@ module RestHelpers
   def set_result result
     @response_api_key = nil
     @status = result.code
-    if result.headers[:content_type] =~ /^application\/json/
+    @content_type = result.headers[:content_type]
+    if /^application\/json/.match?(@content_type)
       @result = JSON.parse(result)
       @response_api_key = @result['api_key'] if @result.is_a?(Hash)
       if @result.respond_to?(:sort!)
@@ -58,11 +59,11 @@ module RestHelpers
   end
 
   def set_token_result result
-    unless result.blank?
-      @result = JSON.parse(result)
-    else
-      @result = result
-    end
+    @result = if result.blank?
+                result
+              else
+                JSON.parse(result)
+              end
   end
 
   def token_payload
@@ -82,23 +83,23 @@ module RestHelpers
   # Write a command to the authn-local Unix socket.
   def authn_local_request command
     require 'socket'
-    socket_file = "/run/authn-local/.socket"
-    raise "Socket #{socket_file} does not exist" unless File.exists?(socket_file)
-    UNIXSocket.open socket_file do |s|
-      s.puts command
-      s.read
+    socket_file = '/run/authn-local/.socket'
+    raise "Socket #{socket_file} does not exist" unless File.exist?(socket_file)
+    UNIXSocket.open socket_file do |sock|
+      sock.puts command
+      sock.read
     end
   end
   
   def authn_params
-    raise "No selected user" unless @selected_user
+    raise 'No selected user' unless @selected_user
     @authn_params = {
       id: @selected_user.login
     }
   end
   
   def last_json
-    raise "No result captured!" unless @result
+    raise 'No result captured!' unless @result
     JSON.pretty_generate(@result)
   end
   
@@ -106,9 +107,13 @@ module RestHelpers
     @users ||= {}
   end
   
-  def lookup_user login, account = "cucumber"
+  def lookup_user login, account = 'cucumber'
     roleid = "#{account}:user:#{login}"
-    existing = Role[roleid] rescue nil
+    existing = begin
+                 Role[roleid]
+               rescue StandardError
+                 nil
+               end
     if existing
       Credentials.new(role: existing).save unless existing.credentials
       users[login] = existing
@@ -126,7 +131,7 @@ module RestHelpers
   end
   
   def admin_user
-    Role["cucumber:user:admin"]
+    Role['cucumber:user:admin']
   end
   
   # Create a regular user, owned by the admin user
@@ -140,7 +145,7 @@ module RestHelpers
 
     roleid = "cucumber:user:#{login}"
     Role.create(role_id: roleid).tap do |user|
-      Credentials[role: user] or Credentials.new(role: user).save(raise_on_save_failure: true)
+      Credentials[role: user] || Credentials.new(role: user).save(raise_on_save_failure: true)
       Resource.create(resource_id: roleid, owner: owner)
       users[login] = user
     end
@@ -155,10 +160,9 @@ module RestHelpers
   end
   
   def current_user_credentials
-    headers = {}.tap do |h|
-      token = Slosilo["authn:#{@current_user.account}"].signed_token @current_user.login
-      h[:authorization] = "Token token=\"#{Base64.strict_encode64 token.to_json}\""
-    end
+    token = Slosilo["authn:#{@current_user.account}"].signed_token @current_user.login
+    token_authorization = "Token token=\"#{Base64.strict_encode64 token.to_json}\""
+    headers = { authorization: token_authorization }
     { headers: headers, username: @current_user.login }
   end
 
@@ -176,27 +180,23 @@ module RestHelpers
   end
   
   def try_request can
-    begin
-      yield
-    rescue RestClient::Exception
-      puts $!
-      @exception = $!
-      @status = $!.http_code
-      if can
-        raise
-      else
-        set_result @exception.response
-      end
-    end
+    
+    yield
+  rescue RestClient::Exception
+    puts $ERROR_INFO
+    @exception = $ERROR_INFO
+    @status = $ERROR_INFO.http_code
+    raise if can
+    set_result @exception.response  
   end
   
   def account
-    "cucumber"
+    'cucumber'
   end
 
   def random_hex nbytes = 12
     @random ||= Random.new
-    @random.bytes(nbytes).unpack('h*').first
+    @random.bytes(nbytes).unpack1('h*')
   end
   
   protected
@@ -206,32 +206,32 @@ module RestHelpers
     return if str.is_a?(Hash)
     str = str.dup
     patterns = {}
-    patterns["api_key"] = current_user_api_key if current_user?
+    patterns['api_key'] = current_user_api_key if current_user?
     if @current_resource
-      patterns["resource_id"] = @current_resource.identifier
-      patterns["resource_kind"] = @current_resource.kind
+      patterns['resource_id'] = @current_resource.identifier
+      patterns['resource_kind'] = @current_resource.kind
     end
-    users.each do |k,v|
-      patterns["#{k}_api_key"] = v.credentials.api_key
+    users.each do |key, val|
+      patterns["#{key}_api_key"] = val.credentials.api_key
     end
-    patterns.each do |k,v|
-      str.gsub! ":#{k}", v
-      str.gsub! "@#{k}@", v
-      str.gsub! CGI.escape(":#{k}"), CGI.escape(v)
-      str.gsub! CGI.escape("@#{k}@"), CGI.escape(v)
+    patterns.each do |key, val|
+      str.gsub! ":#{key}", val
+      str.gsub! "@#{key}@", val
+      str.gsub! CGI.escape(":#{key}"), CGI.escape(val)
+      str.gsub! CGI.escape("@#{key}@"), CGI.escape(val)
     end
     str
   end
 
   def rest_resource options
-    args = [ Conjur.configuration.appliance_url ]
+    args = [Conjur.configuration.appliance_url]
     args << current_user_credentials if current_user?
-    args << Hash.new if args.length == 1
+    args <<({}) if args.length == 1
     args.last[:headers] ||= {}
     args.last[:headers].merge(headers) if headers
     RestClient::Resource.new(*args).tap do |request|
-      headers.each do |k,v|
-        request.headers[k] = v
+      headers.each do |key, val|
+        request.headers[key] = val
       end
       if options[:user] && options[:password]
         request.options[:user] = denormalize(options[:user])
