@@ -10,14 +10,18 @@ module CAHelpers
     RootCA.new('CN=Conjur Root CA/DC=Conjur Certificate Authority', 3600)
   end
 
-  def generate_intermediate_ca(root_ca)
-    intermediate_ca = IntermediateCA.new('CN=Conjur Intermediate CA/DC=Conjur Certificate Authority')
-    intermediate_ca.cert = root_ca.sign_ca(intermediate_ca.csr, 3600)
-    intermediate_ca
+  def generate_intermediate_ca(root_ca, password = nil)
+    int_ca = IntermediateCA.new('CN=Conjur Intermediate CA/DC=Conjur Certificate Authority', password: password)
+    int_ca.cert = root_ca.sign_ca(int_ca.csr, 3600)
+    int_ca
   end
 
   def create_host(common_name)
     Host.new("CN=#{common_name}")
+  end
+
+  def intermediate_ca
+    @intermediate_ca ||= {}
   end
 
   # Provides certificate authority capabilities. This is
@@ -57,6 +61,10 @@ module CAHelpers
   module CertificateHost
     def key
       @key
+    end
+
+    def key_pem
+      @password.to_s.empty? ? @key.to_pem : @key.to_pem(OpenSSL::Cipher::AES256.new(:CBC), @password)
     end
 
     def cert
@@ -122,9 +130,10 @@ module CAHelpers
     include CertificateAuthority
     include CertificateHost
 
-    def initialize(name, key_size: 4096)
+    def initialize(name, password: nil, key_size: 4096)
       @name = OpenSSL::X509::Name.parse name
       @key = OpenSSL::PKey::RSA.new key_size
+      @password = password
     end
   end
 
