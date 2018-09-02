@@ -17,7 +17,7 @@ module Authentication
       end
 
       # Retrieves an id token from the OpenIDConnect Provider and returns it decoded
-      def get_id_token request_body
+      def get_user_details request_body
         request_body = URI.decode_www_form(request_body)
         @redirect_uri = request_body.assoc('redirect_uri').last
         authorization_code = request_body.assoc('code').last
@@ -27,6 +27,9 @@ module Authentication
         access_token = client.access_token!
 
         id_token = decode_id_token(access_token.id_token)
+        user_info = access_token.userinfo!
+
+        return id_token, user_info
         rescue => e
           raise OpenIdConnectAuthenticationError.new(e)
       end
@@ -58,7 +61,8 @@ module Authentication
             identifier: client_id,
             secret: client_secret,
             redirect_uri: redirect_uri,
-            token_endpoint: discover.token_endpoint
+            token_endpoint: discover.token_endpoint,
+            userinfo_endpoint: discover.userinfo_endpoint
         )
       end
 

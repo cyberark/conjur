@@ -3,6 +3,7 @@ module Authentication
 
     class AuthenticationError < RuntimeError; end
     class NotFoundError < RuntimeError; end
+    class OpenIdConnectAuthenticationError < RuntimeError; end
 
     class Authenticator
 
@@ -19,14 +20,18 @@ module Authentication
         verify_service_enabled
 
         oidc_authn_service = AuthenticationService.new(service.identifier, conjur_account)
-
-        id_token = oidc_authn_service.get_id_token(request_body)
+        id_token, user_info = oidc_authn_service.get_user_details(request_body)
 
         # TODO: validate id_token - if not raise error
 
-        # TODO: Link to Conjur user
+        # validate user_info
+        unless id_token.sub == user_info.sub
+          raise OpenIdConnectAuthenticationError, "User info subject and id token subject are not equal"
+        end
 
-        # TODO: we set the username hardcoded for now until we will have the openID connection implemented
+        username = user_info.preferred_username
+
+        # TODO: remove hardcode 'alice' once we have an oidc container
         input.instance_variable_set(:@username, 'alice')
         true
       end
