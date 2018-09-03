@@ -1,0 +1,20 @@
+#!/bin/sh
+
+echo "Fetching authorization code"
+
+cd /scripts
+echo "Deleting authorization_code file"
+rm -rf authorization_code || true
+
+echo "Copying file keycloak_login.js"
+cp -rf keycloak_login.js keycloak_login_tmp.js
+
+echo "Replacing user and password in keycloak_login_tmp.js"
+
+sed -i 's/TO_BE_REPLACED_USER/'"$KEYCLOAK_USER"'/g' keycloak_login_tmp.js
+sed -i 's/TO_BE_REPLACED_PASSSWORD/'"$KEYCLOAK_PASSWORD"'/g' keycloak_login_tmp.js
+
+echo "Running phantomjs script"
+phantomjs keycloak_login_tmp.js
+
+echo "Script complete!"

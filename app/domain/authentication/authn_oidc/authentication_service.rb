@@ -53,7 +53,19 @@ module Authentication
       end
 
       def discover
+        # TODO: should not run in production
+        disable_ssl_verification
+        
         @discover ||= OpenIDConnect::Discovery::Provider::Config.discover! provider_uri
+      end
+
+      def disable_ssl_verification
+        # TODO: Delete disable ssl action after fix OpenID connect to support self sign ceritficate
+        unless OpenIDConnect.http_client.ssl_config.verify_mode == OpenSSL::SSL::VERIFY_NONE
+          OpenIDConnect.http_config do |config|
+            config.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          end
+        end
       end
 
       def get_client

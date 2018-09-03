@@ -68,8 +68,43 @@ if [[ $ENABLE_AUTHN_LDAP = true ]]; then
 fi
 
 if [[ $ENABLE_AUTHN_OIDC = true ]]; then
-  env_args="$env_args -e CONJUR_AUTHENTICATORS=authn-oidc/okta"
+  services="$services oidc-keycloak oidc-phantomjs client"
+  docker-compose up -d --no-deps $services
+
+  echo "Configuring Okta as OpenID provider for manual testing"
+  echo "Configuring Keycloak as OpenID provider for automatic testing"
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-oidc/policy.yml
+
+  env_args="$env_args -e CONJUR_AUTHENTICATORS=authn-oidc/okta,authn-oidc/keycloak"
+
+  # For future use, when we will solve the self sign certificate issue with OpenID lib and keycloak
+  # echo "Initialize keycloak certificate in conjur server"
+  # docker-compose exec conjur /src/conjur-server/dev/files/authn-oidc/keycloak/fetchCertificate
+
+  echo "Starting Conjur server"
+  api_key=$(docker-compose exec -T conjur conjurctl \
+  	role retrieve-key cucumber:user:admin | tr -d '\r')
+  docker-compose exec $env_args -d conjur conjurctl server
+
+  echo "Sleep 30 sec for Conjur server to start"
+  sleep 30
+
+
+  echo "Setting keycloak variables values in conjur"
+  keycloak_CLIENT_ID=$(docker-compose exec oidc-keycloak printenv CLIENT_ID | tr -d '\r')
+  keycloak_CLIENT_SECRET=$(docker-compose exec oidc-keycloak printenv CLIENT_SECRET | tr -d '\r')
+
+  docker-compose exec client conjur authn login -u admin -p $api_key
+  docker-compose exec client conjur variable values add conjur/authn-oidc/keycloak/client-id $keycloak_CLIENT_ID
+  docker-compose exec client conjur variable values add conjur/authn-oidc/keycloak/client-secret $keycloak_CLIENT_SECRET
+  docker-compose exec client conjur variable values add conjur/authn-oidc/keycloak/provider-uri "https://keycloak:8443/auth/realms/master"
+
+  echo "Creating OpenID client in keycloack OpenID provider"
+  docker-compose exec oidc-keycloak /scripts/create_client
+  echo "keycloack admin console url: http://0.0.0.0:7777/auth/admin"
+
+  echo "Fetch OpenID authrization code from keycloak using phantomjs"
+  docker-compose exec oidc-phantomjs /scripts/fetchAuthCode
 fi
 
 if [[ $ENABLE_ROTATORS = true ]]; then
