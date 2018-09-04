@@ -113,29 +113,6 @@ module Authentication
         raise e
     end
 
-    def conjur_token_oidc(input)
-
-      authenticator = authenticators[input.authenticator_name]
-
-      validate_authenticator_exists(input, authenticator)
-
-      # TODO: Push the user to input
-
-      validate_credentials(input, authenticator)
-
-      # We need the user name to verifty that it exist in conjur TODO: delete
-      validate_security(input)
-
-      validate_origin(input)
-
-      audit_success(input)
-      new_token(input)
-
-      rescue => e
-        audit_failure(input, e)
-        raise e
-    end
-
     private
 
     def audit_success(input)
