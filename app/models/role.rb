@@ -6,8 +6,8 @@ class Role < Sequel::Model
   
   unrestrict_primary_key
 
-  one_to_many :memberships, class: :RoleMembership, extend: MembershipSearch.new(:member_id)
-  one_to_many :memberships_as_member, class: :RoleMembership, key: :member_id, extend: MembershipSearch.new(:role_id)
+  one_to_many :memberships, class: :RoleMembership, extend: MembershipSearch, search_key: :member_id
+  one_to_many :memberships_as_member, class: :RoleMembership, key: :member_id, extend: MembershipSearch, search_key: :role_id
   one_to_one  :credentials, reciprocal: :role
   
   alias id role_id
