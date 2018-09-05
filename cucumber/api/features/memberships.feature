@@ -82,6 +82,24 @@ Feature: Obtain the memberships of a role
     }
     """
 
+  Scenario: Direct memberships can be searched
+    Given I create a new user "bob"
+    And I create a new user "carol"
+    And I grant user "alice" to user "bob"
+    And I grant user "carol" to user "bob"
+    When I successfully GET "/roles/cucumber/user/bob?memberships&search=alice"
+    Then the JSON should be:
+    """
+    [
+      {
+        "admin_option": false,
+        "member": "cucumber:user:bob",
+        "ownership": false,
+        "role": "cucumber:user:alice"
+      }
+    ]
+    """
+
   Scenario: The role memberships list can be filtered.
 
     The `filter` parameter can be used to select just a subset of the

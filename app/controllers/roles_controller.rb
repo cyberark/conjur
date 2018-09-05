@@ -33,7 +33,7 @@ class RolesController < RestController
   # +params[:filter]+ and +params[:count]+ are handled as for +#all_memberships+
   #
   def direct_memberships
-    memberships = filtered_roles(role.memberships_as_member_dataset, membership_filter)
+    memberships = filtered_roles(role.direct_memberships_dataset(filter_params), membership_filter)
     render_dataset(memberships)
   end
   

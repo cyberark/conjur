@@ -6,8 +6,8 @@ class Role < Sequel::Model
   
   unrestrict_primary_key
 
-  one_to_many :memberships, class: :RoleMembership, extend: MembershipSearch
-  one_to_many :memberships_as_member, class: :RoleMembership, key: :member_id
+  one_to_many :memberships, class: :RoleMembership, extend: MembershipSearch, search_key: :member_id
+  one_to_many :memberships_as_member, class: :RoleMembership, key: :member_id, extend: MembershipSearch, search_key: :role_id
   one_to_one  :credentials, reciprocal: :role
   
   alias id role_id
@@ -116,6 +116,11 @@ class Role < Sequel::Model
     memberships_as_member.select do |membership|
       membership.role.kind == "layer"
     end.map(&:role)
+  end
+
+  def direct_memberships_dataset(search_options = {})
+    memberships_as_member_dataset.search(search_options)
+                                 .select(:role_memberships.*)
   end
 
   def members_dataset(search_options = {})

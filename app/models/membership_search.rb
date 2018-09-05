@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 # MembershipSearch provides the `search`` extension method
-# for Roles.membership_dataset to allow text searching
+# for Role membership datasets to allow text searching
 # and paging of Role members
-module MembershipSearch
+module MembershipSearch 
+
   # @param search [String] - a search term in the resource id
   def search(search: nil, kind: nil)
     filter_kind(kind).textsearch(search)
@@ -12,7 +13,8 @@ module MembershipSearch
   def filter_kind(kind)
     return self unless kind
 
-    where(Sequel.lit("kind(member_id) in ?", Array(kind))) 
+    kind_function = Sequel.function(:kind, search_key)
+    where(kind_function => Array(kind))
   end
 
   def textsearch(input)
@@ -20,13 +22,13 @@ module MembershipSearch
 
     # If I use 3 literal spaces, it gets send to PG as one space.
     query = Sequel.function(:plainto_tsquery, "english",
-                            Sequel.function(:translate, input.to_s, "./-", "   "))
+      Sequel.function(:translate, input.to_s, "./-", "   "))
 
     # Default weights for ts_rank_cd are {0.1, 0.2, 0.4, 1.0} for DCBA resp.
     # Sounds just about right. A are name and id, B is rest of annotations, C is kind.
     rank = Sequel.function(:ts_rank_cd, :textsearch, query)
 
-    left_join(:resources_textsearch, resource_id: :member_id)
+    left_join(:resources_textsearch, resource_id: search_key)
       .where(Sequel.lit("? @@ textsearch", query))
       .order(Sequel.desc(rank))
   end
@@ -36,7 +38,7 @@ module MembershipSearch
   def result_set(order_by: nil, offset: nil, limit: nil)
     scope = self
 
-    order_by ||= :member_id
+    order_by ||= search_key
     scope = scope.order(order_by)
 
     if offset || limit
@@ -47,5 +49,13 @@ module MembershipSearch
     end
 
     scope.all
+  end
+
+  private
+
+  # Column to use when join free text search results
+  # for resource Id
+  def search_key
+    association_reflection[:search_key]
   end
 end
