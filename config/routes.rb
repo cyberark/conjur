@@ -23,7 +23,7 @@ Rails.application.routes.draw do
       constraints authenticator: /authn-?[^\/]*/, id: /[^\/\?]+/ do
         get '/:authenticator(/:service_id)/:account/login' => 'authenticate#login'
         post '/:authenticator(/:service_id)/:account/:id/authenticate' => 'authenticate#authenticate'
-        post '/authn-oicd(/:service_id)/:account/authenticate' => 'authenticate#authenticate'
+        post '/authn-oidc(/:service_id)/:account/authenticate' => 'authenticate#authenticate'
 
         # Update password is only relevant when using the default authenticator
         put  '/authn/:account/password' => 'credentials#update_password', defaults: { authenticator: 'authn' }

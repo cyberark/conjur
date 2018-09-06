@@ -63,6 +63,21 @@ module Authentication
     attribute :role_cls, ::Types::Any.default{ ::Role }
     attribute :audit_log, ::Types::Any.default{ AuditLog }
 
+    def login(input)
+      authenticator = authenticators[input.authenticator_name]
+
+      validate_authenticator_exists(input, authenticator)
+      validate_security(input)
+
+      key = authenticator.login(input)
+      raise InvalidCredentials unless key
+
+      audit_success(input)
+      new_login(input, key)
+    rescue => err
+      audit_failure(input, err)
+      raise err
+
     def conjur_token(input)
       authenticator = authenticators[input.authenticator_name]
 
@@ -78,21 +93,28 @@ module Authentication
       audit_failure(input, e)
       raise e
     end
+    
+    def conjur_token_oidc(input)
 
-    def login(input)
       authenticator = authenticators[input.authenticator_name]
 
       validate_authenticator_exists(input, authenticator)
+
+      # TODO: Push the user to input
+
+      validate_credentials(input, authenticator)
+
+      # We need the user name to verifty that it exist in conjur TODO: delete
       validate_security(input)
 
-      key = authenticator.login(input)      
-      raise InvalidCredentials unless key
+      validate_origin(input)
 
       audit_success(input)
-      new_login(input, key)
-    rescue => err
-      audit_failure(input, err)
-      raise err
+      new_token(input)
+
+    rescue => e
+      audit_failure(input, e)
+      raise e
     end
 
     private
