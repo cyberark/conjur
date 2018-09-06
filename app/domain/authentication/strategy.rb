@@ -89,9 +89,9 @@ module Authentication
       audit_success(input)
       new_token(input)
 
-      rescue => e
-        audit_failure(input, e)
-        raise e
+    rescue => e
+      audit_failure(input, e)
+      raise e
     end
     
     def conjur_token_oidc(input)
@@ -107,10 +107,9 @@ module Authentication
 
       audit_success(input)
       new_token(input)
-
-      rescue => e
-        audit_failure(input, e)
-        raise e
+    rescue => e
+      audit_failure(input, e)
+      raise e
     end
 
     private

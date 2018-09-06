@@ -1,9 +1,9 @@
 module Authentication
   module AuthnOidc
-
     class AuthenticationError < RuntimeError; end
     class NotFoundError < RuntimeError; end
-    class OpenIdConnectAuthenticationError < RuntimeError; end
+    class OIDCConfigurationError < RuntimeError; end
+    class OIDCAuthenticationError < RuntimeError; end
 
     class Authenticator
 
@@ -24,15 +24,11 @@ module Authentication
 
         # TODO: validate id_token - if not raise error
 
-        # validate user_info
-        unless id_token.sub == user_info.sub
-          raise OpenIdConnectAuthenticationError, "User info subject and id token subject are not equal"
-        end
+        validate_user_info(user_info, id_token.sub)
 
         username = user_info.preferred_username
+        input.instance_variable_set(:@username, username)
 
-        # TODO: remove hardcode 'alice' once we have an oidc container
-        input.instance_variable_set(:@username, 'alice')
         true
       end
 
@@ -58,14 +54,29 @@ module Authentication
         @service ||= Resource["#{conjur_account}:webservice:conjur/#{authenticator_name}/#{service_id}"]
       end
 
-      def user
-        @user ||= Resource["#{conjur_account}:user:#{username}"]
-      end
-
       def verify_service_enabled
+        verify_service_exist
+
         conjur_authenticators = (@env['CONJUR_AUTHENTICATORS'] || '').split(',').map(&:strip)
         unless conjur_authenticators.include?("#{authenticator_name}/#{service_id}")
           raise NotFoundError, "#{authenticator_name}/#{service_id} not whitelisted in CONJUR_AUTHENTICATORS"
+        end
+      end
+
+      def verify_service_exist
+        unless service
+          raise OIDCConfigurationError, "Webservice [conjur/#{authenticator_name}/#{service_id}] not found in Conjur"
+        end
+      end
+
+      def validate_user_info(user_info, id_token_subject)
+        unless user_info.sub == id_token_subject
+          raise OIDCAuthenticationError, "User info subject [#{user_info.sub}] and id token subject [#{id_token.sub}] are not equal"
+        end
+
+        # validate user_info was included in scope
+        if user_info.preferred_username.nil?
+          raise OIDCAuthenticationError, "[profile] is not included in scope of authorization code request"
         end
       end
     end

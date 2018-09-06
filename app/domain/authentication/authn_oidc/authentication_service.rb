@@ -3,21 +3,23 @@ require 'openid_connect'
 
 module Authentication
   module AuthnOidc
-    class OpenIdConnectAuthenticationError < RuntimeError; end
-
     class AuthenticationService
       attr_reader :service_id
       attr_reader :conjur_account
 
       # Constructs AuthenticationService from the <service-id>, which is typically something like
       # conjur/authn-oidc/<service-id>.
-      def initialize service_id, conjur_account
+      def initialize(service_id, conjur_account)
         @service_id = service_id
         @conjur_account = conjur_account
+
+        validate_variable_exists("client-id")
+        validate_variable_exists("client-secret")
+        validate_variable_exists("provider-uri")
       end
 
       # Retrieves an id token from the OpenIDConnect Provider and returns it decoded
-      def get_user_details request_body
+      def get_user_details (request_body)
         request_body = URI.decode_www_form(request_body)
         @redirect_uri = request_body.assoc('redirect_uri').last
         authorization_code = request_body.assoc('code').last
@@ -30,11 +32,18 @@ module Authentication
         user_info = access_token.userinfo!
 
         return id_token, user_info
-        rescue => e
-          raise OpenIdConnectAuthenticationError.new(e)
+      rescue => e
+        raise OIDCAuthenticationError.new(e)
       end
 
       private
+
+      def validate_variable_exists (variableName)
+        resource = Resource["#{conjur_account}:variable:#{service_id}/#{variableName}"]
+        if resource.nil? || resource.secret.nil?
+          raise OIDCConfigurationError, "Variable [#{service_id}/#{variableName}] not found in Conjur"
+        end
+      end
 
       def client_id
         Resource["#{conjur_account}:variable:#{service_id}/client-id"].secret.value
@@ -78,8 +87,8 @@ module Authentication
         )
       end
 
-      def decode_id_token id_token
-        id_token = OpenIDConnect::ResponseObject::IdToken.decode id_token, discover.jwks
+      def decode_id_token(id_token)
+        OpenIDConnect::ResponseObject::IdToken.decode id_token, discover.jwks
       end
     end
   end
