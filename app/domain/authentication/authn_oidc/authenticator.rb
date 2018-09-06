@@ -59,7 +59,7 @@ module Authentication
 
         conjur_authenticators = (@env['CONJUR_AUTHENTICATORS'] || '').split(',').map(&:strip)
         unless conjur_authenticators.include?("#{authenticator_name}/#{service_id}")
-          raise NotFoundError, "#{authenticator_name}/#{service_id} not whitelisted in CONJUR_AUTHENTICATORS"
+          raise OIDCConfigurationError, "#{authenticator_name}/#{service_id} not whitelisted in CONJUR_AUTHENTICATORS"
         end
       end
 
