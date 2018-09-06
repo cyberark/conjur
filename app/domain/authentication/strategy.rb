@@ -89,26 +89,28 @@ module Authentication
       audit_success(input)
       new_token(input)
 
-    rescue => e
-      audit_failure(input, e)
-      raise e
+      rescue => e
+        audit_failure(input, e)
+        raise e
     end
     
     def conjur_token_oidc(input)
-
       authenticator = authenticators[input.authenticator_name]
 
       validate_authenticator_exists(input, authenticator)
+
+      # this method also injects the username to input
       validate_credentials(input, authenticator)
+
       validate_security(input)
       validate_origin(input)
 
       audit_success(input)
       new_token(input)
 
-    rescue => e
-      audit_failure(input, e)
-      raise e
+      rescue => e
+        audit_failure(input, e)
+        raise e
     end
 
     private

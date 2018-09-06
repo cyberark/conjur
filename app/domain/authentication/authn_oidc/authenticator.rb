@@ -11,28 +11,20 @@ module Authentication
       end
 
       def valid?(input)
-        # input has 5 attributes:
-        #
-        #     input.authenticator_name
-        #     input.service_id
-        #     input.account
-        #     input.username
-        #     input.password
-        #
-
         @authenticator_name = input.authenticator_name
         @service_id = input.service_id
         @conjur_account = input.account
-        @username = input.username
+        @request_body = input.request.body.read
 
         verify_service_enabled
 
-        authn_service = AuthenticationService.new(service.identifier, conjur_account)
-        # TODO: should we initialize only once?
+        oidc_authn_service = AuthenticationService.new(service.identifier, conjur_account)
 
-        # TODO: use authn service to authenticate user
+        id_token = oidc_authn_service.get_id_token(request_body)
 
-        # return true until we have real authentication code
+        # TODO: validate id_token - if not raise error
+
+        # TODO: Link to Conjur user
 
         # TODO: we set the username hardcoded for now until we will have the openID connection implemented
         input.instance_variable_set(:@username, 'alice')
@@ -53,8 +45,8 @@ module Authentication
         @service_id
       end
 
-      def username
-        @username
+      def request_body
+        @request_body
       end
 
       def service
