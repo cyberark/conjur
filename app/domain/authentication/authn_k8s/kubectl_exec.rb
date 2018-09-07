@@ -167,10 +167,12 @@ module Authentication
       end
 =end
       def add_websocket_event_handlers(ws, stdin)
-        # NOTE: `logger` here calls the method `logger` created by
-        # `WithAttributes`, and returns @logger (the one from KubectlExec)  In
-        # this way we avoid the "self" problems inherent in the callback blocks
-        #
+        # These callbacks have access to local variables, but we can't use the
+        # instance variables because 'self' is not KubectlExec. Make some local
+        # vars to pass the instance variables in.
+        logger = @logger
+        messages = @messages
+        stream_state = @stream_state
         
         ws.on(:message) do |msg|
           puts "*** MESSAGE!"
@@ -178,11 +180,11 @@ module Authentication
           
           # if msg.type == 'binary'
           if msg.type == 'text'
-            @messages.save_message(ws.msg_data(msg))
-            @logger.debug("Pod #{@pod_name}, stream #{@messages.stream(msg)}: #{@messages.msg_data(msg)}")
+            messages.save_message(ws.msg_data(msg))
+            logger.debug("Pod #{@pod_name}, stream #{messages.stream(msg)}: #{messages.msg_data(msg)}")
           elsif msg.type == 'close'
-            @stream_state.close
-            @logger.debug("Pod: #{@pod_name}, message: close, data: #{ws.msg_data(msg)}")
+            stream_state.close
+            logger.debug("Pod: #{@pod_name}, message: close, data: #{messages.msg_data(msg)}")
           end
         end
 
@@ -194,11 +196,11 @@ module Authentication
           if hs.error
             emit(:error, ws.messages)
           else
-            puts "WORKED"
-            @logger.debug("Pod #{@pod_name} : channel open")
+            puts "*** IT WORKED!"
+            logger.debug("Pod #{@pod_name} : channel open")
 
             if stdin
-              data = @messages.channel('stdin').chr + body
+              data = messages.channel('stdin').chr + body
               ws.send_msg(data)
               ws.send_msg(nil, type: :close)
             end
@@ -208,20 +210,18 @@ module Authentication
         ws.on(:close) do |e|
           puts "*** CLOSE!"
           
-          @stream_state.close
-          @logger.debug("Pod #{@pod_name} : channel closed")
+          stream_state.close
+          logger.debug("Pod #{@pod_name} : channel closed")
         end
 
-        strm_state = @stream_state
-        
         ws.on(:error) do |e|
           puts "*** ERROR!"
           puts e.inspect
           
-          strm_state.close
-          @logger.debug("Pod #{@pod_name} error: #{e.inspect}")
+          stream_state.close
+          logger.debug("Pod #{@pod_name} error: #{e.inspect}")
           
-          @messages.save_message(e.inspect, stream: "error")
+          messages.save_message(e.inspect, stream: "error")
         end
       end
 
