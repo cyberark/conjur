@@ -15,8 +15,8 @@ Before do
 
     pod.spec.containers.each do |container|
       exec = Authentication::AuthnK8s::KubectlExec.new(
-        pod_name: pod.metadata.name.inspect,
-        pod_namespace: pod.metadata.namespace.inspect,
+        pod_name: pod.metadata.name,
+        pod_namespace: pod.metadata.namespace,
         logger: Rails.logger,
         kubeclient: Authentication::AuthnK8s::K8sObjectLookup.kubectl_client,
         container: container.name

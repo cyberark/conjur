@@ -136,8 +136,8 @@ module Authentication
       
       def install_signed_cert cert
         exec = KubectlExec.new(
-          pod_name: @pod.metadata.name.inspect,
-          pod_namespace: @pod.metadata.namespace.inspect,
+          pod_name: @pod.metadata.name,
+          pod_namespace: @pod.metadata.namespace,
           logger: Rails.logger,
           kubeclient: K8sObjectLookup.kubectl_client,
           container: k8s_container_name
