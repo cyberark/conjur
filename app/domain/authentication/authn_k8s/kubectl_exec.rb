@@ -100,7 +100,7 @@ module Authentication
         logger:,
         kubeclient:,
         container: 'authentication',
-        timeout: 1.seconds
+        timeout: 5.seconds
       )
         @pod_name = pod_name
         @pod_namespace = pod_namespace
