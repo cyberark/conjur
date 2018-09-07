@@ -212,11 +212,13 @@ module Authentication
           @logger.debug("Pod #{@pod_name} : channel closed")
         end
 
+        strm_state = @stream_state
+        
         ws.on(:error) do |e|
           puts "*** ERROR!"
           puts e.inspect
           
-          @stream_state.close
+          strm_state.close
           @logger.debug("Pod #{@pod_name} error: #{e.inspect}")
           
           @messages.save_message(e.inspect, stream: "error")
