@@ -26,7 +26,14 @@ module AuthnK8sWorld
 
   # get pod cert
   def pod_certificate
-    exec = Authentication::AuthnK8s::KubectlExec.new @pod, container: "authenticator"
+    exec = KubectlExec.new(
+      pod_name: @pod.metadata.name.inspect,
+      pod_namespace: @pod.metadata.namespace.inspect,
+      logger: Rails.logger,
+      kubeclient: K8sObjectLookup.kubectl_client,
+      container: 'authenticator'
+    )
+
     response = nil
 
     retries = 3

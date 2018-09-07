@@ -135,7 +135,14 @@ module Authentication
       #----------------------------------------
       
       def install_signed_cert cert
-        exec = KubectlExec.new @pod, container: k8s_container_name
+        exec = KubectlExec.new(
+          pod_name: @pod.metadata.name.inspect,
+          pod_namespace: @pod.metadata.namespace.inspect,
+          logger: Rails.logger,
+          kubeclient: K8sObjectLookup.kubectl_client,
+          container: k8s_container_name
+        )
+        
         response = exec.copy "/etc/conjur/ssl/client.pem", cert.to_pem, "0644"
 
         if response[:error].present?

@@ -9,7 +9,6 @@ require 'rubygems/package'
 
 require 'active_support/time'
 require 'websocket-client-simple'
-require 'pry'
 
 #require 'util/error_class'
 #require 'util/web_socket/stream_state'
@@ -32,6 +31,50 @@ module Authentication
     CommandTimedOut = ::Util::ErrorClass.new(
       "Command timed out in container '{0}' of pod '{1}'"
     )
+
+    class Messages
+      attr_reader :messages
+      
+      def initialize
+        @messages = Hash.new { |hash,key| hash[key] = [] }
+      end
+
+      def save_message(msg, stream: nil)
+        strm ||= stream(msg)
+        raise "Unexpected channel: #{channel(msg)}" unless strm
+        @messages[strm.to_sym] << msg
+      end
+
+      def stream(msg)
+        stream_name(channel_from_message(msg))
+      end
+
+      def msg_data(msg)
+        msg.data[1..-1]
+      end
+
+      # NOTE: yes, a hash would be more efficient, but it doesn't matter
+      #
+      def channel(stream_name)
+        stream_names.index(stream_name)
+      end
+
+      def stream_name(channel)
+        stream_names[channel]
+      end
+
+      private
+
+      def channel_from_message(msg)
+        # THIS LINE WAS THE FIX
+        return channel('error') unless msg.respond_to?(:data)
+        msg.data[0..0].bytes.first
+      end
+
+      def stream_names
+        %[stdin stdout stderr error resize]
+      end
+    end
     
     class KubectlExec
       # logger: an object responding to `debug`
@@ -51,6 +94,9 @@ module Authentication
         @timeout = timeout
         @logger = logger
         @kubeclient = kubeclient
+
+        @messages = Messages.new
+        @stream_state = Util::WebSocket::StreamState.new
       end
 
       def execute(cmds, body: "", stdin: false)
@@ -59,23 +105,24 @@ module Authentication
         add_websocket_event_handlers(ws, stdin)
         #add_simple_event_handlers(ws, stdin)
 
-        url = server_url(cmds, stdin)
-        ws.connect(url, headers: headers)
+        #url = server_url(cmds, stdin)
+        #ws.connect(url, headers: headers)
 
         # JT: I *think* the connection is not being established until this
         # method exists, which means the open callback never gets hit and
         # the CommandTimeOut error is raised before a connection is established.
-        
 
         ws.send_msg("\n") #TODO: remove or add comment why this is needed
         wait_for_close_message(ws)
         
         puts "*** puts newline"
         
-        raise CommandTimedOut, @container, @pod_name unless closed?(ws)
+        raise CommandTimedOut, @container, @pod_name unless @stream_state.closed?
         
         # TODO: raise an `WebsocketServerFailure` here in the case of ws :error
-        ws.messages
+#        ws.messages
+
+        @messages
       end
       
       def copy(path, content, mode)
@@ -87,11 +134,7 @@ module Authentication
       end
 
       private
-
-      def closed?(ws)
-        ws.stream_state.closed?
-      end
-
+=begin
       def add_simple_event_handlers(ws, stdin)
         ws.on :open do
           puts "*** OPEN!"
@@ -108,7 +151,7 @@ module Authentication
           puts e
         end
       end
-
+=end
       def add_websocket_event_handlers(ws, stdin)
         # NOTE: `logger` here calls the method `logger` created by
         # `WithAttributes`, and returns @logger (the one from KubectlExec)  In
@@ -117,30 +160,31 @@ module Authentication
         
         ws.on(:message) do |msg|
           puts "*** MESSAGE!"
-          p msg
+          puts msg
+          
           # if msg.type == 'binary'
           if msg.type == 'text'
-            ws.save_message(ws.msg_data(msg))
-            #TODO fix pod_name
-            ws.logger.debug("Pod #{@pod_name}, stream #{ws.stream(msg)}: #{ws.msg_data(msg)}")
+            @messages.save_message(ws.msg_data(msg))
+            @logger.debug("Pod #{@pod_name}, stream #{@messages.stream(msg)}: #{@messages.msg_data(msg)}")
           elsif msg.type == 'close'
-            ws.stream_state.close
-            ws.logger.debug("Pod: #{@pod_name}, message: close, data: #{ws.msg_data(msg)}")
+            @stream_state.close
+            @logger.debug("Pod: #{@pod_name}, message: close, data: #{ws.msg_data(msg)}")
           end
         end
 
         ws.on :open do
           puts "*** OPEN!"
+          
           hs = ws.handshake
 
           if hs.error
             emit(:error, ws.messages)
           else
             puts "WORKED"
-            ws.logger.debug("Pod #{@pod_name} : channel open")
+            @logger.debug("Pod #{@pod_name} : channel open")
 
             if stdin
-              data = ws.channel('stdin').chr + body
+              data = @messages.channel('stdin').chr + body
               ws.send_msg(data)
               ws.send_msg(nil, type: :close)
             end
@@ -149,23 +193,26 @@ module Authentication
 
         ws.on(:close) do |e|
           puts "*** CLOSE!"
-          ws.stream_state.close
-          ws.logger.debug("Pod #{@pod_name} : channel closed")
+          
+          @stream_state.close
+          @logger.debug("Pod #{@pod_name} : channel closed")
         end
 
         ws.on(:error) do |e|
           puts "*** ERROR!"
           puts e.inspect
-          ws.stream_state.close
-          ws.logger.debug("Pod #{@pod_name} error: #{e.inspect}")
-          ws.save_message(e.inspect, stream: "error")
+          
+          @stream_state.close
+          @logger.debug("Pod #{@pod_name} error: #{e.inspect}")
+          
+          @messages.save_message(e.inspect, stream: "error")
         end
       end
 
       def wait_for_close_message(ws)
         (@timeout / 0.1).to_i.times do
           puts "*** wait for close..."
-          break if closed?(ws)
+          break if @stream_state.closed?
           sleep 0.1
         end
       end
@@ -176,16 +223,16 @@ module Authentication
       #
       def websocket_client(cmds, stdin)
         url = server_url(cmds, stdin)
-        #ws = WebSocket::Client::Simple.connect(url, headers: headers)
-        ws = WebSocket::Client::Simple::Client.new
-        ws = Util::WebSocket::WithMessageSaving.new(ws)
-        Util::WebSocket::WithAttributes.new(ws, websocket_client_attrs)
+        WebSocket::Client::Simple.connect(url, headers: headers)
+        #ws = WebSocket::Client::Simple::Client.new
+#        ws = Util::WebSocket::WithMessageSaving.new(ws)
+        #        Util::WebSocket::WithAttributes.new(ws, websocket_client_attrs)
       end
 
-      def websocket_client_attrs
-        stream_state = Util::WebSocket::StreamState.new
-        {logger: @logger, pod_name: @pod_name, stream_state: stream_state}
-      end
+#      def websocket_client_attrs
+#        stream_state = Util::WebSocket::StreamState.new
+#        {logger: @logger, pod_name: @pod_name, stream_state: stream_state}
+#      end
 
       def query_string(cmds, stdin)
         stdin_part = stdin ? ['stdin=true'] : []
