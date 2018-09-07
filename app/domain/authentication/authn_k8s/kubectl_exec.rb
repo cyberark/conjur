@@ -126,11 +126,11 @@ module Authentication
         # method exists, which means the open callback never gets hit and
         # the CommandTimeOut error is raised before a connection is established.
 
-        ws.send_msg("\n") #TODO: remove or add comment why this is needed
-        wait_for_close_message(ws)
-        
         puts "*** puts newline"
         
+        ws.send_msg("\n") #TODO: remove or add comment why this is needed
+        wait_for_close_message(ws)
+
         raise CommandTimedOut.new(@container, @pod_name) unless @stream_state.closed?
         
         # TODO: raise an `WebsocketServerFailure` here in the case of ws :error
@@ -176,13 +176,14 @@ module Authentication
         
         ws.on(:message) do |msg|
           puts "*** MESSAGE!"
+          puts "type: #{msg.type}"
           puts msg
           
-          # if msg.type == 'binary'
-          if msg.type == 'text'
+          if msg.type == 'binary'
             messages.save_message(ws.msg_data(msg))
             logger.debug("Pod #{@pod_name}, stream #{messages.stream(msg)}: #{messages.msg_data(msg)}")
           elsif msg.type == 'close'
+            puts "* CLOSED!"
             stream_state.close
             logger.debug("Pod: #{@pod_name}, message: close, data: #{messages.msg_data(msg)}")
           end
