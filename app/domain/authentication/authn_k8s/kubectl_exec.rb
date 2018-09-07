@@ -116,7 +116,7 @@ module Authentication
       def execute(cmds, body: "", stdin: false)
         ws = websocket_client(cmds, stdin)
 
-        add_websocket_event_handlers(ws, stdin)
+        add_websocket_event_handlers(ws, body, stdin)
         #add_simple_event_handlers(ws, stdin)
 
         #url = server_url(cmds, stdin)
@@ -166,7 +166,7 @@ module Authentication
         end
       end
 =end
-      def add_websocket_event_handlers(ws, stdin)
+      def add_websocket_event_handlers(ws, body, stdin)
         # These callbacks have access to local variables, but we can't use the
         # instance variables because 'self' is not KubectlExec. Make some local
         # vars to pass the instance variables in.
