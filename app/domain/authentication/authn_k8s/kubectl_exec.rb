@@ -194,6 +194,7 @@ module Authentication
           hs = ws.handshake
 
           if hs.error
+            puts "handshake err: #{hs.error}"
             emit(:error, messages.messages)
           else
             puts "*** IT WORKED!"
