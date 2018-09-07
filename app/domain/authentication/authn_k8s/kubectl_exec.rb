@@ -131,7 +131,7 @@ module Authentication
         
         puts "*** puts newline"
         
-        raise CommandTimedOut, @container, @pod_name unless @stream_state.closed?
+        raise CommandTimedOut.new(@container, @pod_name) unless @stream_state.closed?
         
         # TODO: raise an `WebsocketServerFailure` here in the case of ws :error
 #        ws.messages
