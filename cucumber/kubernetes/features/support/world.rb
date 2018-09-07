@@ -30,7 +30,7 @@ module AuthnK8sWorld
       pod_name: @pod.metadata.name.inspect,
       pod_namespace: @pod.metadata.namespace.inspect,
       logger: Rails.logger,
-      kubeclient: K8sObjectLookup.kubectl_client,
+      kubeclient: kubectl_client,
       container: 'authenticator'
     )
 

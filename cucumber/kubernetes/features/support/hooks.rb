@@ -18,7 +18,7 @@ Before do
         pod_name: pod.metadata.name.inspect,
         pod_namespace: pod.metadata.namespace.inspect,
         logger: Rails.logger,
-        kubeclient: K8sObjectLookup.kubectl_client,
+        kubeclient: Authentication::AuthnK8s::K8sObjectLookup.kubectl_client,
         container: container.name
       )
       
