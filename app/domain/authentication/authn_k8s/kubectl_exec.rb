@@ -140,7 +140,7 @@ module Authentication
       end
       
       def copy(path, content, mode)
-        exec(
+        execute(
           [ 'tar', 'xvf', '-', '-C', '/' ],
           stdin: true,
           body: generate_file_tar_string(path, content, mode)

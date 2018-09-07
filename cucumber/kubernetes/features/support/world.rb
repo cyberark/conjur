@@ -40,7 +40,7 @@ module AuthnK8sWorld
     count = 0
 
     while response.nil? || (!response[:error].empty? && count < retries)
-      response = exec.exec [ "cat", "/etc/conjur/ssl/client.pem" ]
+      response = exec.execute [ "cat", "/etc/conjur/ssl/client.pem" ]
       sleep 2
       count += 1
     end

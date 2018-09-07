@@ -22,7 +22,7 @@ Before do
         container: container.name
       )
       
-      response = exec.exec %w(ls /etc/conjur/ssl)
+      response = exec.execute %w(ls /etc/conjur/ssl)
       if response[:error] && response[:error].join =~ /command terminated with non-zero exit code/
       else
         # $stderr.puts "Cleaning /etc/conjur/ssl on container #{container.name} of Pod #{pod.metadata.name}"
