@@ -270,8 +270,6 @@ module Authentication
         path = "/api/v1/namespaces/#{@pod_namespace}/pods/#{@pod_name}/exec"
         query = query_string(cmds, stdin)
         "#{base_url}#{path}?#{query}"
-        #TODO: remove
-        base_url
       end
 
       def headers
