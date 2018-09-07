@@ -175,15 +175,11 @@ module Authentication
         stream_state = @stream_state
         
         ws.on(:message) do |msg|
-          puts "*** MESSAGE!"
-          puts "type: #{msg.type}"
-          puts msg
-          
-          if msg.type == 'binary'
+          if msg.type == :binary
             puts "* BINARY!"
             messages.save_message(ws.msg_data(msg))
             logger.debug("Pod #{@pod_name}, stream #{messages.stream(msg)}: #{messages.msg_data(msg)}")
-          elsif msg.type == 'close'
+          elsif msg.type == :close
             puts "* CLOSED!"
             stream_state.close
             logger.debug("Pod: #{@pod_name}, message: close, data: #{messages.msg_data(msg)}")
