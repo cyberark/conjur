@@ -26,7 +26,7 @@ Before do
       if response[:error] && response[:error].join =~ /command terminated with non-zero exit code/
       else
         # $stderr.puts "Cleaning /etc/conjur/ssl on container #{container.name} of Pod #{pod.metadata.name}"
-        exec.exec %w(rm -rf /etc/conjur/ssl)
+        exec.execute %w(rm -rf /etc/conjur/ssl)
       end
     end
   end

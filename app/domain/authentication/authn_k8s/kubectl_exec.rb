@@ -194,7 +194,7 @@ module Authentication
           hs = ws.handshake
 
           if hs.error
-            emit(:error, ws.messages)
+            emit(:error, @messages.messages)
           else
             puts "*** IT WORKED!"
             logger.debug("Pod #{@pod_name} : channel open")
