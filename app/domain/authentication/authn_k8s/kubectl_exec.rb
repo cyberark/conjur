@@ -265,7 +265,7 @@ module Authentication
 
       def server_url(cmds, stdin)
         api_uri = @kubeclient.api_endpoint
-        base_url = "ws://#{api_uri.host}:#{api_uri.port}"
+        base_url = "wss://#{api_uri.host}:#{api_uri.port}"
         path = "/api/v1/namespaces/#{@pod_namespace}/pods/#{@pod_name}/exec"
         query = query_string(cmds, stdin)
         "#{base_url}#{path}?#{query}"
