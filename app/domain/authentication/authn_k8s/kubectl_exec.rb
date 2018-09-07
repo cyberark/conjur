@@ -180,6 +180,7 @@ module Authentication
           puts msg
           
           if msg.type == 'binary'
+            puts "* BINARY!"
             messages.save_message(ws.msg_data(msg))
             logger.debug("Pod #{@pod_name}, stream #{messages.stream(msg)}: #{messages.msg_data(msg)}")
           elsif msg.type == 'close'
