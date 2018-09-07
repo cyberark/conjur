@@ -75,6 +75,20 @@ module Authentication
         %[stdin stdout stderr error resize]
       end
     end
+
+    class StreamState
+      def initialize
+        @closed = false
+      end
+
+      def close
+        @closed = true
+      end
+
+      def closed?
+        @closed
+      end
+    end
     
     class KubectlExec
       # logger: an object responding to `debug`
@@ -96,7 +110,7 @@ module Authentication
         @kubeclient = kubeclient
 
         @messages = Messages.new
-        @stream_state = Util::WebSocket::StreamState.new
+        @stream_state = StreamState.new
       end
 
       def execute(cmds, body: "", stdin: false)
