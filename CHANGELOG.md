@@ -5,13 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.2.0] - 2018-09-07
 ### Added
 - Added support for issuing certificates to Hosts using CAs configured as
   Conjur services. More details are available [here](docs/CERTIFICATE_SIGNING.md).
 - Added support for Conjur CAs to use encrypted private keys
 - Implemented keyword search for Role memberships
 
-## [1.1.2] - 2018-
+## [1.1.2] - 2018-08-22
 ### Security
 - Fixes a vulnerability that could allow an authn-K8s request to bypass mutual TLS authentication. All Conjur users using authn-k8s within Kubernetes or OpenShift are strongly recommended to upgrade to this version.
 
