@@ -26,7 +26,7 @@ module AuthnK8sWorld
 
   # get pod cert
   def pod_certificate
-    exec = KubectlExec.new(
+    exec = Authentication::AuthnK8s::KubectlExec.new(
       pod_name: @pod.metadata.name.inspect,
       pod_namespace: @pod.metadata.namespace.inspect,
       logger: Rails.logger,

@@ -14,7 +14,7 @@ Before do
     next if pod.metadata.name =~ /conjur\-authn\-k8s/
 
     pod.spec.containers.each do |container|
-      exec = KubectlExec.new(
+      exec = Authentication::AuthnK8s::KubectlExec.new(
         pod_name: pod.metadata.name.inspect,
         pod_namespace: pod.metadata.namespace.inspect,
         logger: Rails.logger,
