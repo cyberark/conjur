@@ -136,7 +136,7 @@ module Authentication
         # TODO: raise an `WebsocketServerFailure` here in the case of ws :error
 #        ws.messages
 
-        @messages
+        @messages.messages
       end
       
       def copy(path, content, mode)
@@ -239,6 +239,9 @@ module Authentication
       #
       def websocket_client(cmds, stdin)
         url = server_url(cmds, stdin)
+
+        puts "*** connecting to: #{url}"
+        
         WebSocket::Client::Simple.connect(url, headers: headers)
         #ws = WebSocket::Client::Simple::Client.new
 #        ws = Util::WebSocket::WithMessageSaving.new(ws)
