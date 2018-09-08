@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+- Change authn-k8s to expect the client cert (passed in `X-SSL-Client-Certificate`) to be
+  url-escaped.
+
 ## [1.2.0] - 2018-09-07
 ### Added
 - Added support for issuing certificates to Hosts using CAs configured as

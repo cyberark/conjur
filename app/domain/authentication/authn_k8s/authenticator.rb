@@ -1,3 +1,5 @@
+require 'cgi'
+
 module Authentication
   module AuthnK8s
     class AuthenticationError < RuntimeError; end
@@ -198,7 +200,7 @@ module Authentication
       #----------------------------------------
 
       def pod_certificate
-        client_cert = @request.env['HTTP_X_SSL_CLIENT_CERTIFICATE']
+        client_cert = CGI.unescape(@request.env['HTTP_X_SSL_CLIENT_CERTIFICATE'])
         raise AuthenticationError, "No client certificate provided" unless client_cert
 
         if !@pod_cert
