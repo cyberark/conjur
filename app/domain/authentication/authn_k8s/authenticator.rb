@@ -145,6 +145,9 @@ module Authentication
         
         response = exec.copy "/etc/conjur/ssl/client.pem", cert.to_pem, "0644"
 
+        puts "##### Response: #{response}"
+        puts "##### Response: #{response[:error]}"
+        
         if response[:error].present?
           raise AuthenticationError, response[:error].join
         end
