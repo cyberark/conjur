@@ -69,7 +69,8 @@ module CA
         role.account,
         service_id,
         role.kind,
-        role.identifier].join(':')
+        role.identifier
+      ].join(':')
       OpenSSL::X509::Name.new [['CN', common_name]]
     end
 

@@ -40,7 +40,6 @@ Then(/^the resulting (pem|json) certificate is valid according to the "([^"]*)" 
 end
 
 Then(/^the common name is "([^"]*)"$/) do |cn|
-
   subject_parts = response_certificate.subject
     .to_a
     .inject({}) do |result, (key, value)|
