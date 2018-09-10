@@ -113,7 +113,7 @@ module Authentication
       def execute(cmds, body: "", stdin: false)
         url = server_url(cmds, stdin)
         headers = @kubeclient.headers.clone
-        WebSocket::Client::Simple.connect(url, headers: headers)
+        ws = WebSocket::Client::Simple.connect(url, headers: headers)
 
         add_websocket_event_handlers(ws, body, stdin)
 
