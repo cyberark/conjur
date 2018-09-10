@@ -40,6 +40,7 @@ module Authentication
       end
 
       def save_message(msg, stream: nil)
+        puts "* SAVING MESSAGE: #{msg}"
         strm ||= stream(msg)
         raise "Unexpected channel: #{channel(msg)}" unless strm
         @messages[strm.to_sym] << msg
@@ -67,10 +68,7 @@ module Authentication
 
       def channel_from_message(msg)
         if !msg.respond_to?(:data)
-          puts "&&&&&&&&&&&&&&"
-          puts msg.class
-          puts msg.type
-          puts msg
+          puts "&&& msg does not respond to :data"
         end
         
         # THIS LINE WAS THE FIX
@@ -183,12 +181,14 @@ module Authentication
         stream_state = @stream_state
         
         ws.on(:message) do |msg|
+          puts "*** RECEIVED MESSAGE: #{msg.type}"
+          
           if msg.type == :binary
-            puts "* BINARY!"
+            puts "* BINARY"
             messages.save_message(messages.msg_data(msg))
             logger.debug("Pod #{pod_name}, stream #{messages.stream(msg)}: #{messages.msg_data(msg)}")
           elsif msg.type == :close
-            puts "* CLOSED!"
+            puts "* CLOSE"
             stream_state.close
             logger.debug("Pod: #{pod_name}, message: close, data: #{messages.msg_data(msg)}")
           end
@@ -203,12 +203,14 @@ module Authentication
             puts "handshake err: #{hs.error}"
             emit(:error, messages.messages)
           else
-            puts "*** IT WORKED!"
+            puts "* HANDSHAKE SUCCESS"            
             logger.debug("Pod #{pod_name} : channel open")
 
             if stdin
               data = messages.channel('stdin').chr + body
+              puts "sending message #{data}"
               ws.send_msg(data)
+              puts "sending close message"
               ws.send_msg(nil, type: :close)
             end
           end
