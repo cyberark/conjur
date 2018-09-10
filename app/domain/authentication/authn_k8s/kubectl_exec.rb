@@ -40,7 +40,6 @@ module Authentication
       end
 
       def save_message(msg)
-        puts "* SAVING MESSAGE: #{msg}"
         strm ||= stream_name(msg)
         raise "Unexpected channel: #{channel(msg)}" unless strm
         @messages[strm.to_sym] << msg_data(msg)
@@ -58,8 +57,6 @@ module Authentication
         msg.data[1..-1]
       end
 
-      # NOTE: yes, a hash would be more efficient, but it doesn't matter
-      #
       def channel(stream_name)
         stream_names.index(stream_name)
       end
@@ -67,11 +64,6 @@ module Authentication
       private
 
       def channel_from_message(msg)
-        if !msg.respond_to?(:data)
-          puts "&&& msg does not respond to :data"
-        end
-        
-        # THIS LINE WAS THE FIX
         return channel('error') unless msg.respond_to?(:data)
         msg.data[0..0].bytes.first
       end
@@ -119,27 +111,17 @@ module Authentication
       end
 
       def execute(cmds, body: "", stdin: false)
-        ws = websocket_client(cmds, stdin)
+        url = server_url(cmds, stdin)
+        headers = @kubeclient.headers.clone
+        WebSocket::Client::Simple.connect(url, headers: headers)
 
         add_websocket_event_handlers(ws, body, stdin)
-        #add_simple_event_handlers(ws, stdin)
 
-        #url = server_url(cmds, stdin)
-        #ws.connect(url, headers: headers)
-
-        # JT: I *think* the connection is not being established until this
-        # method exists, which means the open callback never gets hit and
-        # the CommandTimeOut error is raised before a connection is established.
-
-#        puts "*** puts newline"
-        
-#        ws.send_msg("\n") #TODO: remove or add comment why this is needed
         wait_for_close_message(ws)
 
         raise CommandTimedOut.new(@container, @pod_name) unless @stream_state.closed?
         
         # TODO: raise an `WebsocketServerFailure` here in the case of ws :error
-#        ws.messages
 
         @messages.messages
       end
@@ -153,24 +135,7 @@ module Authentication
       end
 
       private
-=begin
-      def add_simple_event_handlers(ws, stdin)
-        ws.on :open do
-          puts "*** OPEN!"
-          ws.send_msg("hello world")
-        end
-        
-        ws.on :message do |msg|
-          puts "*** MESSAGE!"
-          puts msg.to_s
-        end
 
-        ws.on :error do |e|
-          puts "*** ERROR!"
-          puts e
-        end
-      end
-=end
       def add_websocket_event_handlers(ws, body, stdin)
         # These callbacks have access to local variables, but we can't use the
         # instance variables because 'self' is not KubectlExec. Make some local
@@ -181,57 +146,39 @@ module Authentication
         stream_state = @stream_state
         
         ws.on(:message) do |msg|
-          puts "*** RECEIVED MESSAGE: #{msg.type}"
-          
           if msg.type == :binary
-            puts "* BINARY"
-
-            #messages.save_message(messages.msg_data(msg))
             messages.save_message(msg)
-            
             logger.debug("Pod #{pod_name}, stream #{messages.stream_name(msg)}: #{messages.msg_data(msg)}")
           elsif msg.type == :close
-            puts "* CLOSE"
             logger.debug("Pod: #{pod_name}, message: close, data: #{messages.msg_data(msg)}")
             close
           end
         end
 
         ws.on :open do
-          puts "*** OPEN!"
-          
           hs = ws.handshake
 
           if hs.error
-            puts "handshake err: #{hs.error}"
             emit(:error, messages.messages)
           else
-            puts "* HANDSHAKE SUCCESS"            
             logger.debug("Pod #{pod_name} : channel open")
 
             if stdin
               data = messages.channel('stdin').chr + body
-              puts "sending message #{data}"
               ws.send_msg(data)
-              puts "sending close message"
               ws.send_msg(nil, type: :close)
             end
           end
         end
 
         ws.on(:close) do |e|
-          puts "*** CLOSE!"
-          
           stream_state.close
           logger.debug("Pod #{pod_name} : channel closed")
         end
 
         ws.on(:error) do |e|
-          puts "*** ERROR!"
-          puts e.inspect
-          
           stream_state.close
-          logger.debug("Pod #{pod_name} error: #{e.inspect}")
+          logger.debug("Pod #{pod_name} error : #{e.inspect}")
           
           messages.save_string(e.inspect, stream: :error)
         end
@@ -239,31 +186,10 @@ module Authentication
 
       def wait_for_close_message(ws)
         (@timeout / 0.1).to_i.times do
-          puts "*** wait for close..."
           break if @stream_state.closed?
           sleep 0.1
         end
       end
-
-      # Decorates the websocket gem's default client with the ability to save
-      # messages, and to hold objects that can be used within the callback
-      # blocks, to allow features like logging
-      #
-      def websocket_client(cmds, stdin)
-        url = server_url(cmds, stdin)
-
-        puts "*** connecting to: #{url}"
-        
-        WebSocket::Client::Simple.connect(url, headers: headers)
-        #ws = WebSocket::Client::Simple::Client.new
-#        ws = Util::WebSocket::WithMessageSaving.new(ws)
-        #        Util::WebSocket::WithAttributes.new(ws, websocket_client_attrs)
-      end
-
-#      def websocket_client_attrs
-#        stream_state = Util::WebSocket::StreamState.new
-#        {logger: @logger, pod_name: @pod_name, stream_state: stream_state}
-#      end
 
       def query_string(cmds, stdin)
         stdin_part = stdin ? ['stdin=true'] : []
@@ -281,10 +207,6 @@ module Authentication
         path = "/api/v1/namespaces/#{@pod_namespace}/pods/#{@pod_name}/exec"
         query = query_string(cmds, stdin)
         "#{base_url}#{path}?#{query}"
-      end
-
-      def headers
-        @kubeclient.headers.clone
       end
 
       def generate_file_tar_string(path, content, mode)
