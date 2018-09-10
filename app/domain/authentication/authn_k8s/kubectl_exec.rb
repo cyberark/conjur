@@ -66,6 +66,12 @@ module Authentication
       private
 
       def channel_from_message(msg)
+        if !msg.response_to?(:data)
+          puts "&&&&&&&&&&&&&&"
+          puts msg.class
+          puts msg
+        end
+        
         # THIS LINE WAS THE FIX
         return channel('error') unless msg.respond_to?(:data)
         msg.data[0..0].bytes.first
