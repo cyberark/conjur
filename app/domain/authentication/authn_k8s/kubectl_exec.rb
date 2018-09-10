@@ -69,6 +69,7 @@ module Authentication
         if !msg.respond_to?(:data)
           puts "&&&&&&&&&&&&&&"
           puts msg.class
+          puts msg.type
           puts msg
         end
         
