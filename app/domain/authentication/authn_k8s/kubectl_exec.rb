@@ -1,8 +1,3 @@
-# Collect messages and return them
-# Log certain things to a logger
-#
-#
-#
 require 'uri'
 require 'websocket'
 require 'rubygems/package'

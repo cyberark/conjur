@@ -145,9 +145,6 @@ module Authentication
         
         response = exec.copy "/etc/conjur/ssl/client.pem", cert.to_pem, "0644"
 
-        Rails.logger.debug("##### Response: #{response}")
-        Rails.logger.debug("##### Response: #{response[:error]}")
-        
         if response[:error].present?
           raise AuthenticationError, response[:error].join
         end
