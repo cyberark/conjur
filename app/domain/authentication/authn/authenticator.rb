@@ -13,17 +13,27 @@ module Authentication
 
       # optional
       #
-      attribute :role_cls,
-        ::Types::Any.default{ ::Authentication::MemoizedRole }
+      attribute :role_cls, ::Types::Any.default{ ::Authentication::MemoizedRole }
       attribute :credentials_cls, ::Types::Any.default { ::Credentials }
 
-      def valid?(input)
-        role_id = role_cls.roleid_from_username(input.account, input.username)
-        credentials = credentials_cls[role_id]
-        credentials.valid_api_key?(input.password)
+      # Authenticates a Conjur using their username and password
+      def login(input)
+        credentials = credentials(input)
+        success = credentials&.authenticate(input.password)
+
+        success ? credentials.api_key : nil
       end
 
-    end
+      # Authenticates a Conjur role using its id and API key
+      def valid?(input)
+        credentials = credentials(input)
+        credentials&.valid_api_key?(input.password)
+      end
 
+      def credentials(input)
+        role_id = role_cls.roleid_from_username(input.account, input.username)
+        credentials_cls[role_id]
+      end
+    end
   end
 end
