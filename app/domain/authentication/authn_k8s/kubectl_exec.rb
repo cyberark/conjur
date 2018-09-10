@@ -66,7 +66,7 @@ module Authentication
       private
 
       def channel_from_message(msg)
-        if !msg.response_to?(:data)
+        if !msg.respond_to?(:data)
           puts "&&&&&&&&&&&&&&"
           puts msg.class
           puts msg
