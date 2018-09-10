@@ -5,12 +5,6 @@ require 'rubygems/package'
 require 'active_support/time'
 require 'websocket-client-simple'
 
-#require 'util/error_class'
-#require 'util/web_socket/stream_state'
-#require 'util/web_socket/with_attributes'
-#require 'util/web_socket/with_message_saving'
-#require 'util/web_socket/stream_state'
-
 module WebSocket
   module Client
     module Simple
