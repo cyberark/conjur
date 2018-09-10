@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 class AuthenticateController < ApplicationController
-
-  AUTHN_RESOURCE_PREFIX = "conjur/authn-"
+  include Authenticators
 
   def index 
     authenticators = {
@@ -61,27 +60,5 @@ class AuthenticateController < ApplicationController
       logger.debug(line)
     end
     raise Unauthorized
-  end
-
-  private
-
-  def installed_authenticators
-    @installed_authenticators ||= ::Authentication::InstalledAuthenticators.new(ENV)
-  end
-
-  def configured_authenticators
-    identifier = Sequel.function(:identifier, :resource_id)
-    kind = Sequel.function(:kind, :resource_id)
-
-    Resource
-      .where(identifier.like("#{AUTHN_RESOURCE_PREFIX}%"))
-      .where(kind => "webservice")
-      .select_map(identifier)
-      .map { |id| id.sub /^conjur\//, "" }
-      .push(::Authentication::Strategy.default_authenticator_name)
-  end
-
-  def enabled_authenticators
-    (ENV["CONJUR_AUTHENTICATORS"] || ::Authentication::Strategy.default_authenticator_name).split(",")
   end
 end
