@@ -32,6 +32,10 @@ module Authentication
         valid_name? && valid_parent_name? && valid_interface?
       end
 
+      def provides_login?
+        @cls.method_defined?(:login)
+      end
+
       def validate!
         raise DoesntStartWithAuthn, own_name unless valid_name?
         raise NotNamedAuthenticator, parent_name unless valid_parent_name?

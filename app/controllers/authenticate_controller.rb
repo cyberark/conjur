@@ -7,6 +7,9 @@ class AuthenticateController < ApplicationController
     authenticators = {
       # Installed authenticator plugins
       installed: installed_authenticators.keys.sort,
+
+      # Authenticators that support user login
+      login: installed_login_authenticators.keys.sort,
     
       # Authenticator webservices created in policy
       configured: configured_authenticators.sort,

@@ -12,6 +12,10 @@ module Authenticators
     @installed_authenticators ||= ::Authentication::InstalledAuthenticators.authenticators(ENV)
   end
 
+  def installed_login_authenticators
+    @installed_login_authenticators ||= ::Authentication::InstalledAuthenticators.login_authenticators(ENV)
+  end
+
   def configured_authenticators
     identifier = Sequel.function(:identifier, :resource_id)
     kind = Sequel.function(:kind, :resource_id)

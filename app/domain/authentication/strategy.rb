@@ -79,6 +79,24 @@ module Authentication
       raise e
     end
 
+    def login(input)
+      authenticator = authenticators[input.authenticator_name]
+
+      validate_authenticator_exists(input, authenticator)
+      validate_security(input)
+
+      key = authenticator.login(input)      
+      raise InvalidCredentials unless key
+
+      # TODO: Should be audit_login_success
+      audit_success(input)
+      new_login(input, key)
+    rescue => err
+      # TODO: Should be audit_login_failure
+      audit_failure(input, err)
+      raise err
+    end
+
     private
 
     def audit_success(input)
@@ -125,6 +143,13 @@ module Authentication
       token_factory.signed_token(
         account: input.account,
         username: input.username
+      )
+    end
+
+    def new_login(input, key)
+      LoginResponse.new(
+        role_id: role(input.username, input.account).id,
+        authentication_key: key
       )
     end
   end
