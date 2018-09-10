@@ -66,7 +66,6 @@ module CA
 
     def subject(role)
       common_name = [
-        'conjur', 
         role.account,
         service_id,
         role.kind,
