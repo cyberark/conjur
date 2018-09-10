@@ -189,8 +189,8 @@ module Authentication
             logger.debug("Pod #{pod_name}, stream #{messages.stream(msg)}: #{messages.msg_data(msg)}")
           elsif msg.type == :close
             puts "* CLOSE"
-            stream_state.close
             logger.debug("Pod: #{pod_name}, message: close, data: #{messages.msg_data(msg)}")
+            close
           end
         end
 
