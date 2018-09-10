@@ -170,6 +170,7 @@ module Authentication
         # These callbacks have access to local variables, but we can't use the
         # instance variables because 'self' is not KubectlExec. Make some local
         # vars to pass the instance variables in.
+        pod_name = @pod_name
         logger = @logger
         messages = @messages
         stream_state = @stream_state
@@ -178,11 +179,11 @@ module Authentication
           if msg.type == :binary
             puts "* BINARY!"
             messages.save_message(messages.msg_data(msg))
-            logger.debug("Pod #{@pod_name}, stream #{messages.stream(msg)}: #{messages.msg_data(msg)}")
+            logger.debug("Pod #{pod_name}, stream #{messages.stream(msg)}: #{messages.msg_data(msg)}")
           elsif msg.type == :close
             puts "* CLOSED!"
             stream_state.close
-            logger.debug("Pod: #{@pod_name}, message: close, data: #{messages.msg_data(msg)}")
+            logger.debug("Pod: #{pod_name}, message: close, data: #{messages.msg_data(msg)}")
           end
         end
 
@@ -196,7 +197,7 @@ module Authentication
             emit(:error, messages.messages)
           else
             puts "*** IT WORKED!"
-            logger.debug("Pod #{@pod_name} : channel open")
+            logger.debug("Pod #{pod_name} : channel open")
 
             if stdin
               data = messages.channel('stdin').chr + body
@@ -210,7 +211,7 @@ module Authentication
           puts "*** CLOSE!"
           
           stream_state.close
-          logger.debug("Pod #{@pod_name} : channel closed")
+          logger.debug("Pod #{pod_name} : channel closed")
         end
 
         ws.on(:error) do |e|
@@ -218,7 +219,7 @@ module Authentication
           puts e.inspect
           
           stream_state.close
-          logger.debug("Pod #{@pod_name} error: #{e.inspect}")
+          logger.debug("Pod #{pod_name} error: #{e.inspect}")
           
           messages.save_message(e.inspect, stream: "error")
         end
