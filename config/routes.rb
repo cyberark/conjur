@@ -20,13 +20,12 @@ Rails.application.routes.draw do
     end
 
     constraints account: /[^\/\?]+/ do
-      get  '/authn/:account/login' => 'credentials#login'
-      put  '/authn/:account/password' => 'credentials#update_password'
-      put  '/authn/:account/api_key'  => 'credentials#rotate_api_key'
-
       constraints authenticator: /authn-?[^\/]*/, id: /[^\/\?]+/ do
+        get '/:authenticator(/:service_id)/:account/login' => 'authenticate#login'
         post '/:authenticator(/:service_id)/:account/:id/authenticate' =>
           'authenticate#authenticate'
+        put  '/:authenticator/:account/password' => 'credentials#update_password'
+        put  '/:authenticator/:account/api_key'  => 'credentials#rotate_api_key'
         
         post '/authn-k8s/:service_id/inject_client_cert' => 'authenticate#k8s_inject_client_cert'
       end

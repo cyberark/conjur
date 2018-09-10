@@ -2,6 +2,7 @@
 
 module BasicAuthenticator
   extend ActiveSupport::Concern
+  include Authenticators
   
   included do
     include ActionController::HttpAuthentication::Basic::ControllerMethods
@@ -9,12 +10,44 @@ module BasicAuthenticator
   
   def perform_basic_authn
     authenticate_with_http_basic do |username, password|
-      credentials = Credentials[Role.roleid_from_username(account, username)]
-      if credentials && credentials.authenticate(password)
-        authentication.authenticated_role = credentials.role
+      authenticator_login(username, password).tap do |response|
+        authentication.authenticated_role = ::Role[response.role_id]
         authentication.basic_user = true
       end
+    rescue ::Authentication::Strategy::InvalidCredentials, 
+           ::Authentication::Strategy::InvalidOrigin,
+           ::Authentication::Security::NotAuthorizedInConjur
+      raise ApplicationController::Unauthorized
     end if request.authorization =~ /^Basic / # we need to check the auth method.
     # authenticate_with_http_basic doesn't do that and freaks out randomly.
+  end
+
+  protected
+
+  def authenticator_login(username, password)
+    authentication_strategy.login(login_input(username, password))
+  end
+
+  def authentication_strategy
+    ::Authentication::Strategy.new(
+      authenticators: installed_login_authenticators,
+      audit_log: ::Authentication::AuditLog,
+      security: nil,
+      env: ENV,
+      role_cls: ::Role,
+      token_factory: TokenFactory.new
+    )
+  end
+
+  def login_input(username, password)
+    ::Authentication::Strategy::Input.new(
+      authenticator_name: params[:authenticator],
+      service_id:         params[:service_id],
+      account:            params[:account],
+      username:           username,
+      password:           password,
+      origin:             request.ip,
+      request:            request
+    )
   end
 end

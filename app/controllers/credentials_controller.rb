@@ -50,10 +50,6 @@ class CredentialsController < ApplicationController
     render text: @role.credentials.api_key
   end
   
-  def login
-    render text: @role.credentials.api_key
-  end
-  
   protected
   
   def authenticate_client

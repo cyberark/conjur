@@ -2,6 +2,7 @@
 
 class AuthenticateController < ApplicationController
   include Authenticators
+  include BasicAuthenticator
 
   def index 
     authenticators = {
@@ -19,6 +20,12 @@ class AuthenticateController < ApplicationController
     }
 
     render json: authenticators
+  end
+
+  def login
+    result = perform_basic_authn
+    raise Unauthorized, "Client not authenticated" unless authentication.authenticated?
+    render text: result.authentication_key
   end
 
   def authenticate
