@@ -39,12 +39,15 @@ module Authentication
         @messages = Hash.new { |hash,key| hash[key] = [] }
       end
 
-      # This is taking either a string or message DATA
-      def save_message(msg, stream: nil)
+      def save_message(msg)
         puts "* SAVING MESSAGE: #{msg}"
         strm ||= stream_name(msg)
         raise "Unexpected channel: #{channel(msg)}" unless strm
         @messages[strm.to_sym] << msg
+      end
+
+      def save_string(str, stream: nil)
+        @messages[stream] << str
       end
 
       def stream_name(msg)
@@ -183,10 +186,8 @@ module Authentication
           if msg.type == :binary
             puts "* BINARY"
 
-            
             #messages.save_message(messages.msg_data(msg))
             messages.save_message(msg)
-
             
             logger.debug("Pod #{pod_name}, stream #{messages.stream_name(msg)}: #{messages.msg_data(msg)}")
           elsif msg.type == :close
@@ -232,7 +233,7 @@ module Authentication
           stream_state.close
           logger.debug("Pod #{pod_name} error: #{e.inspect}")
           
-          messages.save_message(e.inspect, stream: "error")
+          messages.save_string(e.inspect, stream: :error)
         end
       end
 
