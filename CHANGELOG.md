@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+- Change authn-k8s to expect the client cert (passed in `X-SSL-Client-Certificate`) to be
+  url-escaped.
+
 ## [1.2.0] - 2018-09-07
 ### Added
 - Added support for issuing certificates to Hosts using CAs configured as
@@ -129,6 +132,9 @@ format and pushed to a UNIX socket for further processing.
 The first tagged version.
 
 [Unreleased]: https://github.com/cyberark/conjur/compare/v1.1.0...HEAD
+[1.2.0]: https://github.com/cyberark/conjur/compare/v1.1.2...v1.2.0
+[1.1.2]: https://github.com/cyberark/conjur/compare/v1.1.1...v1.1.2
+[1.1.1]: https://github.com/cyberark/conjur/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/cyberark/conjur/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/cyberark/conjur/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/cyberark/conjur/compare/v0.9.0...v1.0.0
