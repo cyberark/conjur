@@ -72,7 +72,7 @@ module Authentication
       end
 
       def stream_names
-        %[stdin stdout stderr error resize]
+        %w[stdin stdout stderr error resize]
       end
     end
 
