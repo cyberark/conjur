@@ -43,7 +43,7 @@ module Authentication
         puts "* SAVING MESSAGE: #{msg}"
         strm ||= stream_name(msg)
         raise "Unexpected channel: #{channel(msg)}" unless strm
-        @messages[strm.to_sym] << msg
+        @messages[strm.to_sym] << msg_data(msg)
       end
 
       def save_string(str, stream: nil)
