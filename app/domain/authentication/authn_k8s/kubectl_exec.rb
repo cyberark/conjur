@@ -133,9 +133,9 @@ module Authentication
         # method exists, which means the open callback never gets hit and
         # the CommandTimeOut error is raised before a connection is established.
 
-        puts "*** puts newline"
+#        puts "*** puts newline"
         
-        ws.send_msg("\n") #TODO: remove or add comment why this is needed
+#        ws.send_msg("\n") #TODO: remove or add comment why this is needed
         wait_for_close_message(ws)
 
         raise CommandTimedOut.new(@container, @pod_name) unless @stream_state.closed?
