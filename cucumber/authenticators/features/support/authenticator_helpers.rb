@@ -8,12 +8,18 @@ module AuthenticatorHelpers
   # To at least mitigate the poor design encouraged by the way cucumber
   # shares state
   #
-  attr_reader :response_body, :http_status, :rest_client_error
+  attr_reader :response_body, :http_status, :rest_client_error, :ldap_auth_key
 
-  def authenticate_with_ldap(service_id:, account:, username:, password:)
+  def login_with_ldap(service_id:, account:, username:, password:)
+    path = "#{conjur_hostname}/authn-ldap/#{service_id}/#{account}/login"
+    get(path, user: username, password: password)
+    @ldap_auth_key=response_body
+  end
+
+  def authenticate_with_ldap(service_id:, account:, username:, key:)
     # TODO fix this the right way
     path = "#{conjur_hostname}/authn-ldap/#{service_id}/#{account}/#{username}/authenticate"
-    post(path, password)
+    post(path, key)
   end
 
   def token_for(username, token_string)
@@ -24,7 +30,7 @@ module AuthenticatorHelpers
   end
 
   def authorized?
-    @http_status == 401
+    http_status == 401
   end
 
   def load_root_policy(policy)
@@ -34,14 +40,28 @@ module AuthenticatorHelpers
 
   private
 
+  def get(path, options = {}) 
+    options = options.merge(
+      method: :get,
+      url: path
+    )
+    result             = RestClient::Request.execute(options)
+    @response_body     = result.body
+    @http_status       = result.code
+  rescue RestClient::Exception => err
+    @rest_client_error = err
+    @http_status       = err.http_code
+    @response_body     = err.response
+  end
+
   def post(path, payload, options = {})
     result             = RestClient.post(path, payload, options)
     @response_body     = result.body
     @http_status       = result.code
-  rescue RestClient::Exception => e
-    @rest_client_error = e
-    @http_status       = e.http_code
-    @response_body     = e.response
+  rescue RestClient::Exception => err
+    @rest_client_error = err
+    @http_status       = err.http_code
+    @response_body     = err.response
   end
 
   def conjur_hostname

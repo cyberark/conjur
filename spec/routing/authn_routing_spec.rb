@@ -17,6 +17,7 @@ describe "routing for authentication", :type => :routing do
     expect(put: '/authn/the-account/password').to route_to(
       controller: 'credentials',
       account: 'the-account',
+      authenticator: 'authn',
       action: 'update_password'
     )
   end

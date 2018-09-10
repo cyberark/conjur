@@ -54,7 +54,7 @@ docker-compose exec conjur conjurctl account create cucumber || true
 env_args=
 if [[ $ENABLE_AUTHN_LDAP = true ]]; then
   services="$services ldap-server"
-  env_args="$env_args -e CONJUR_AUTHENTICATORS=authn-ldap/test"
+  env_args="$env_args -e CONJUR_AUTHENTICATORS=authn,authn-ldap/test"
   env_args="$env_args -e LDAP_URI=ldap://ldap-server:389"
   env_args="$env_args -e LDAP_BASE=dc=conjur,dc=net"
   env_args="$env_args -e LDAP_FILTER=(uid=%s)"

@@ -25,10 +25,19 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
 
   Scenario: An LDAP user authorized in Conjur can login with a good password
     When I login via LDAP as authorized Conjur user "alice"
+    And I authenticate via LDAP as authorized Conjur user "alice" using key
+    Then "alice" is authorized
+
+  Scenario: An LDAP user authorized in Conjur can authenticate with a good password
+    When I authenticate via LDAP as authorized Conjur user "alice"
     Then "alice" is authorized
 
   Scenario: An LDAP user authorized in Conjur can't login with a bad password
     When my LDAP password is wrong for authorized user "alice"
+    Then it is denied
+
+  Scenario: 'admin' cannot use LDAP authentication
+    When I login via LDAP as authorized Conjur user "admin"
     Then it is denied
 
   Scenario: An valid LDAP user who's not in Conjur can't login
