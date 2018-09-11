@@ -5,23 +5,44 @@ require 'rubygems/package'
 require 'active_support/time'
 require 'websocket-client-simple'
 
-module WebSocket
-  module Client
-    module Simple
-      class Client
-        alias_method :send_msg, :send
-      end
-    end
-  end
-end
-
 module Authentication
   module AuthnK8s
     CommandTimedOut = ::Util::ErrorClass.new(
       "Command timed out in container '{0}' of pod '{1}'"
     )
 
-    class Messages
+    class WebSocketMessage
+      class << self
+        def msg_data(msg)
+          msg.data[1..-1]
+        end
+
+        def channel_name(msg)
+          channel_names[channel_number_from_message(msg)]
+        end
+
+        private
+
+        def channel_number_from_message(msg)
+          return channel_number('error') unless msg.respond_to?(:data)
+          msg.data[0..0].bytes.first
+        end
+        
+        def channel_number(channel_name)
+          channel_names.index(channel_name)
+        end
+
+        def channel_byte(channel_name)
+          channel_number(channel_name).chr
+        end
+
+        def channel_names
+          %w[stdin stdout stderr error resize]
+        end
+      end      
+    end
+
+    class MessageLog
       attr_reader :messages
       
       def initialize
@@ -29,50 +50,17 @@ module Authentication
       end
 
       def save_message(msg)
-        strm ||= stream_name(msg)
-        raise "Unexpected channel: #{channel(msg)}" unless strm
-        @messages[strm.to_sym] << msg_data(msg)
+        channel_name = WebSocketMessage.channel_name(msg)
+        
+        if !channel_name
+          raise "Unexpected channel: #{WebSocketMessage.channel_number_from_message(msg)}"
+        end
+        
+        @messages[channel_name.to_sym] << WebSocketMessage.msg_data(msg)
       end
 
-      def save_string(str, stream: nil)
-        @messages[stream] << str
-      end
-
-      def stream_name(msg)
-        stream_names[channel_from_message(msg)]
-      end
-
-      def msg_data(msg)
-        msg.data[1..-1]
-      end
-
-      def channel(stream_name)
-        stream_names.index(stream_name)
-      end
-
-      private
-
-      def channel_from_message(msg)
-        return channel('error') unless msg.respond_to?(:data)
-        msg.data[0..0].bytes.first
-      end
-
-      def stream_names
-        %w[stdin stdout stderr error resize]
-      end
-    end
-
-    class StreamState
-      def initialize
-        @closed = false
-      end
-
-      def close
-        @closed = true
-      end
-
-      def closed?
-        @closed
+      def save_error_string(str)
+        @messages[:error] << str
       end
     end
     
@@ -95,8 +83,8 @@ module Authentication
         @logger = logger
         @kubeclient = kubeclient
 
-        @messages = Messages.new
-        @stream_state = StreamState.new
+        @message_log = MessageLog.new
+        @channel_closed = false
       end
 
       def execute(cmds, body: "", stdin: false)
@@ -106,76 +94,70 @@ module Authentication
 
         add_websocket_event_handlers(ws, body, stdin)
 
-        wait_for_close_message(ws)
+        wait_for_close_message
 
-        raise CommandTimedOut.new(@container, @pod_name) unless @stream_state.closed?
+        raise CommandTimedOut.new(@container, @pod_name) unless @channel_closed
         
         # TODO: raise an `WebsocketServerFailure` here in the case of ws :error
 
-        @messages.messages
+        @message_log.messages
       end
       
       def copy(path, content, mode)
         execute(
           [ 'tar', 'xvf', '-', '-C', '/' ],
           stdin: true,
-          body: generate_file_tar_string(path, content, mode)
+          body: tar_file_as_string(path, content, mode)
         )
       end
 
       private
 
       def add_websocket_event_handlers(ws, body, stdin)
-        # These callbacks have access to local variables, but we can't use the
-        # instance variables because 'self' is not KubectlExec. Make some local
-        # vars to pass the instance variables in.
-        pod_name = @pod_name
-        logger = @logger
-        messages = @messages
-        stream_state = @stream_state
-        
-        ws.on(:message) do |msg|
-          if msg.type == :binary
-            messages.save_message(msg)
-            logger.debug("Pod #{pod_name}, stream #{messages.stream_name(msg)}: #{messages.msg_data(msg)}")
-          elsif msg.type == :close
-            logger.debug("Pod: #{pod_name}, message: close, data: #{messages.msg_data(msg)}")
-            close
+        ws.on(:open, &method(:on_open).curry.(ws, body, stdin))
+        ws.on(:message, &method(:on_message))
+        ws.on(:close, &method(:on_close))
+        ws.on(:error, &method(:on_error))
+      end
+      
+      def on_open(ws, body, stdin)
+        if ws.handshake.error
+          ws.emit(:error, @message_log.messages)
+        else
+          @logger.debug("Pod #{pod_name} : channel open")
+
+          if @stdin
+            data = WebSocketMessage.channel_byte('stdin') + body
+            ws.send(data)
+            ws.send(nil, type: :close)
           end
-        end
-
-        ws.on :open do
-          hs = ws.handshake
-
-          if hs.error
-            emit(:error, messages.messages)
-          else
-            logger.debug("Pod #{pod_name} : channel open")
-
-            if stdin
-              data = messages.channel('stdin').chr + body
-              ws.send_msg(data)
-              ws.send_msg(nil, type: :close)
-            end
-          end
-        end
-
-        ws.on(:close) do |e|
-          stream_state.close
-          logger.debug("Pod #{pod_name} : channel closed")
-        end
-
-        ws.on(:error) do |e|
-          stream_state.close
-          logger.debug("Pod #{pod_name} error : #{e.inspect}")
-          
-          messages.save_string(e.inspect, stream: :error)
         end
       end
 
-      def wait_for_close_message(ws)
+      def on_message(msg)
+        if msg.type == :binary
+          @logger.debug("Pod #{@pod_name}, channel #{WebSocketMessage.channel_name(msg)}: #{WebSocketMessage.msg_data(msg)}")
+          @message_log.save_message(msg)
+        elsif msg.type == :close
+          @logger.debug("Pod: #{@pod_name}, message: close, data: #{WebSocketMessage.msg_data(msg)}")
+          @close
+        end
+      end
+      
+      def on_close
+        @channel_closed = true
+        @logger.debug("Pod #{@pod_name} : channel closed")
+      end
+
+      def on_error(err)
+        @channel_closed = true
+        @logger.debug("Pod #{@pod_name} error : #{err.inspect}")
+        @message_log.save_error_string(err.inspect)
+      end
+
+      def wait_for_close_message
         (@timeout / 0.1).to_i.times do
-          break if @stream_state.closed?
+          break if @channel_closed
           sleep 0.1
         end
       end
@@ -198,8 +180,9 @@ module Authentication
         "#{base_url}#{path}?#{query}"
       end
 
-      def generate_file_tar_string(path, content, mode)
+      def tar_file_as_string(path, content, mode)
         tarfile = StringIO.new("")
+        
         Gem::Package::TarWriter.new(tarfile) do |tar|
           tar.add_file(path, mode) do |tf|
             tf.write(content)
