@@ -11,6 +11,7 @@ module Authentication
       "Command timed out in container '{0}' of pod '{1}'"
     )
 
+    # Utility class for processing WebSocket messages.
     class WebSocketMessage
       class << self
         def msg_data(msg)
@@ -37,11 +38,12 @@ module Authentication
         end
 
         def channel_names
-          %w[stdin stdout stderr error resize]
+          %w(stdin stdout stderr error resize)
         end
       end
     end
 
+    # Utility class for storing messages received during websocket communication.
     class MessageLog
       attr_reader :messages
       
@@ -52,7 +54,7 @@ module Authentication
       def save_message(msg)
         channel_name = WebSocketMessage.channel_name(msg)
         
-        if !channel_name
+        unless channel_name
           raise "Unexpected channel: #{WebSocketMessage.channel_number_from_message(msg)}"
         end
         
@@ -90,9 +92,9 @@ module Authentication
       def execute(cmds, body: "", stdin: false)
         url = server_url(cmds, stdin)
         headers = @kubeclient.headers.clone
-        ws = WebSocket::Client::Simple.connect(url, headers: headers)
+        ws_client = WebSocket::Client::Simple.connect(url, headers: headers)
 
-        add_websocket_event_handlers(ws, body, stdin)
+        add_websocket_event_handlers(ws_client, body, stdin)
 
         wait_for_close_message
 
@@ -111,27 +113,30 @@ module Authentication
         )
       end
       
-      def on_open(ws, body, stdin)
-        if ws.handshake.error
-          ws.emit(:error, @message_log.messages)
+      def on_open(ws_client, body, stdin)
+        if ws_client.handshake.error
+          ws_client.emit(:error, @message_log.messages)
         else
           @logger.debug("Pod #{@pod_name} : channel open")
 
           if stdin
             data = WebSocketMessage.channel_byte('stdin') + body
-            ws.send(data)
-            ws.send(nil, type: :close)
+            ws_client.send(data)
+            ws_client.send(nil, type: :close)
           end
         end
       end
 
-      def on_message(msg, ws)
-        if msg.type == :binary
-          @logger.debug("Pod #{@pod_name}, channel #{WebSocketMessage.channel_name(msg)}: #{WebSocketMessage.msg_data(msg)}")
+      def on_message(msg, ws_client)
+        msg_type = msg.type
+        msg_data = WebSocketMessage.msg_data(msg)
+        
+        if msg_type == :binary
+          @logger.debug("Pod #{@pod_name}, channel #{WebSocketMessage.channel_name(msg)}: #{msg_data}")
           @message_log.save_message(msg)
-        elsif msg.type == :close
-          @logger.debug("Pod: #{@pod_name}, message: close, data: #{WebSocketMessage.msg_data(msg)}")
-          ws.close
+        elsif msg_type == :close
+          @logger.debug("Pod: #{@pod_name}, message: close, data: #{msg_data}")
+          ws_client.close
         end
       end
       
@@ -149,13 +154,13 @@ module Authentication
 
       private
 
-      def add_websocket_event_handlers(ws, body, stdin)
+      def add_websocket_event_handlers(ws_client, body, stdin)
         kubectl = self
         
-        ws.on(:open) { kubectl.on_open(ws, body, stdin) }
-        ws.on(:message) { |msg| kubectl.on_message(msg, ws) }
-        ws.on(:close) { kubectl.on_close }
-        ws.on(:error) { |err| kubectl.on_error(err) }
+        ws_client.on(:open) { kubectl.on_open(ws_client, body, stdin) }
+        ws_client.on(:message) { |msg| kubectl.on_message(msg, ws_client) }
+        ws_client.on(:close) { kubectl.on_close }
+        ws_client.on(:error) { |err| kubectl.on_error(err) }
       end
 
       def wait_for_close_message
@@ -167,7 +172,7 @@ module Authentication
 
       def query_string(cmds, stdin)
         stdin_part = stdin ? ['stdin=true'] : []
-        cmds_part = cmds.map { |c| "command=#{CGI.escape(c)}" }
+        cmds_part = cmds.map { |cmd| "command=#{CGI.escape(cmd)}" }
         (base_query_string_parts + stdin_part + cmds_part).join("&")
       end
 
