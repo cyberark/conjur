@@ -21,6 +21,10 @@ module Authentication
           channel_names[channel_number_from_message(msg)]
         end
 
+        def channel_byte(channel_name)
+          channel_number(channel_name).chr
+        end
+        
         private
 
         def channel_number_from_message(msg)
@@ -30,10 +34,6 @@ module Authentication
         
         def channel_number(channel_name)
           channel_names.index(channel_name)
-        end
-
-        def channel_byte(channel_name)
-          channel_number(channel_name).chr
         end
 
         def channel_names
