@@ -125,13 +125,13 @@ module Authentication
         end
       end
 
-      def on_message(msg)
+      def on_message(msg, ws)
         if msg.type == :binary
           @logger.debug("Pod #{@pod_name}, channel #{WebSocketMessage.channel_name(msg)}: #{WebSocketMessage.msg_data(msg)}")
           @message_log.save_message(msg)
         elsif msg.type == :close
           @logger.debug("Pod: #{@pod_name}, message: close, data: #{WebSocketMessage.msg_data(msg)}")
-          @close
+          ws.close
         end
       end
       
@@ -153,7 +153,7 @@ module Authentication
         kubectl = self
         
         ws.on(:open) { kubectl.on_open(ws, body, stdin) }
-        ws.on(:message) { |msg| kubectl.on_message(msg) }
+        ws.on(:message) { |msg| kubectl.on_message(msg, ws) }
         ws.on(:close) { kubectl.on_close }
         ws.on(:error) { |err| kubectl.on_error(err) }
       end
