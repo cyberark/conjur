@@ -124,7 +124,7 @@ module Authentication
         if ws.handshake.error
           ws.emit(:error, @message_log.messages)
         else
-          @logger.debug("Pod #{pod_name} : channel open")
+          @logger.debug("Pod #{@pod_name} : channel open")
 
           if @stdin
             data = WebSocketMessage.channel_byte('stdin') + body
