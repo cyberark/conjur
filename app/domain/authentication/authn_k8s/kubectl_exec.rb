@@ -117,7 +117,7 @@ module Authentication
         else
           @logger.debug("Pod #{@pod_name} : channel open")
 
-          if @stdin
+          if stdin
             data = WebSocketMessage.channel_byte('stdin') + body
             ws.send(data)
             ws.send(nil, type: :close)
