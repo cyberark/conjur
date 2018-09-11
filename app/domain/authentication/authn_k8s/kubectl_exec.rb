@@ -114,7 +114,7 @@ module Authentication
       private
 
       def add_websocket_event_handlers(ws, body, stdin)
-        ws.on(:open, &method(:on_open).curry.(ws, body, stdin))
+        ws.on(:open, &method(:on_open).curry.(ws, body, stdin, x))
         ws.on(:message, &method(:on_message))
         ws.on(:close, &method(:on_close))
         ws.on(:error, &method(:on_error))
