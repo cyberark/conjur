@@ -24,6 +24,18 @@ module CAHelpers
     @intermediate_ca ||= {}
   end
 
+  def response_certificate
+    @response_certificate ||= OpenSSL::X509::Certificate.new certificate_response_body
+  end
+
+  def certificate_response_body
+    @certificate_response_body ||= (certificate_response_type == 'pem' ? @result : @result['certificate'])
+  end
+
+  def certificate_response_type
+    @certificate_response_type ||= 'json'
+  end
+  
   # Provides certificate authority capabilities. This is
   # namely signing certificates for certificate signing requests (CSRs)
   module CertificateAuthority

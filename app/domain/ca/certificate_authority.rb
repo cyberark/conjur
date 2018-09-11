@@ -24,20 +24,19 @@ module CA
     # csr: OpenSSL::X509::Request. Certificate signing request to sign
     # ttl: Integer. The desired lifetime, in seconds, for the 
     #               certificate 
-    def sign_csr(csr, ttl)
+    def sign_csr(role, csr, ttl)
       csr_cert = OpenSSL::X509::Certificate.new
 
       # Generate a random 20 byte (160 bit) serial number for the certificate
       csr_cert.serial = SecureRandom.random_number(1<<160)
 
-      # This value is one less than the X509 version, so this is a
-      # version 3 certification
+      # This value is zero-based. This is a version 3 certificate.
       csr_cert.version = 2
 
       now = Time.now
       csr_cert.not_before = now
       csr_cert.not_after = now + [ttl, max_ttl].min 
-      csr_cert.subject = csr.subject
+      csr_cert.subject = subject(role)
       csr_cert.public_key = csr.public_key
       csr_cert.issuer = certificate.subject
   
@@ -55,12 +54,51 @@ module CA
         extension_factory.create_extension('subjectKeyIdentifier', 'hash')
       )
 
+      csr_cert.add_extension(
+        extension_factory.create_extension("subjectAltName", subject_alt_name(role))
+      )
+
       csr_cert.sign private_key, OpenSSL::Digest::SHA256.new
-  
       csr_cert
     end
 
     protected
+
+    def subject(role)
+      common_name = [
+        role.account,
+        service_id,
+        role.kind,
+        role.identifier
+      ].join(':')
+      OpenSSL::X509::Name.new [['CN', common_name]]
+    end
+
+    def service_id
+      # CA services have ids like 'conjur/<service_id>/ca'
+      @service_id ||= service.identifier.split('/')[1]
+    end
+
+    def subject_alt_name(role)
+      [
+        "DNS:#{leaf_domain_name(role)}",
+        "URI:#{spiffe_id(role)}"
+      ].join(', ')
+    end
+
+    def leaf_domain_name(role)
+      role.identifier.split('/').last
+    end
+
+    def spiffe_id(role)
+      [
+        'spiffe://conjur',
+        role.account,
+        service_id,
+        role.kind,
+        role.identifier
+      ].join('/')
+    end
 
     def private_key
       @private_key ||= load_private_key

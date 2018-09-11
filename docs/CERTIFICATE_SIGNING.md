@@ -87,15 +87,22 @@ Once the CA is configured in Conjur and a host has `sign` privileges,
 then a host may submit a CSR to the CA endpoint for signing:
 
 - The host first needs to generate its own private key and a
-  certificate signing request (CSR). The common name (CN) on the CSR
-  must match the host id in conjur. For example, if the host id is
-  `web-server/host-01`, then the CSR common name must be `host-01`.
+  certificate signing request (CSR).
 
 - The host must be authenticated to conjur, and then POST the PEM
   encoded CSR to `/ca/<account>/<ca_id>/sign`
 
 - If the CSR is valid and the host is authorized, then the CA
   will respond with the PEM encoded certificate.
+  
+- The CA will assign the follow subject data on the issued certificate:
+  - The common name (CN) will have the form
+    `{account}:{ca_service_id}:host:{host_id}`.
+  - A DNS subject alternative name will be added with the leaf
+    portion of the host. e.g. a host with id `production/cart/srv-01`
+    will include a DNS subject alternative name of `srv-01`.
+  - A SPIFFE SVID URI subject alternative name will be added of the form
+    `spiffe://conjur/{account}/{ca_service_id}/host/{host_id}`
 
 A full example of certificate signing is available
 [here](https://github.com/conjurdemos/misc-util/tree/master/demos/certificate-authority/mutual-tls)

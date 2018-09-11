@@ -30,12 +30,32 @@ When(/^I send a CSR for "([^"]*)" to the "([^"]*)" CA with a ttl of "([^"]*)" an
 end
 
 Then(/^the resulting (pem|json) certificate is valid according to the "([^"]*)" intermediate CA$/) do |type, ca_name|
-  cert_body = (type == 'pem' ? @result : @result['certificate'])
-  cert = OpenSSL::X509::Certificate.new cert_body
-
+  @certificate_response_type = type
+  
   store = OpenSSL::X509::Store.new
   store.add_cert @root_ca.cert
   store.add_cert intermediate_ca[ca_name].cert
 
-  expect(store.verify(cert)).to eq(true)
+  expect(store.verify(response_certificate)).to eq(true)
+end
+
+Then(/^the common name is "([^"]*)"$/) do |cn|
+  subject_parts = response_certificate.subject
+    .to_a
+    .inject({}) do |result, (key, value)|
+      result.merge!(key => value)
+    end
+
+  expect(subject_parts['CN']).to eq(cn)
+end
+
+Then(/^the subject alternative names contain "([^"]*)"$/) do |san|
+  exists = false
+  response_certificate.extensions.each do |ext|
+    next unless ext.oid == 'subjectAltName'
+
+    subject_alt_names = ext.value.split(', ')
+    exists = subject_alt_names.include?(san)
+  end
+  expect(exists).to eq(true)
 end
