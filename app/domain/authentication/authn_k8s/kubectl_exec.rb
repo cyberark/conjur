@@ -39,7 +39,7 @@ module Authentication
         def channel_names
           %w[stdin stdout stderr error resize]
         end
-      end      
+      end
     end
 
     class MessageLog
@@ -141,6 +141,7 @@ module Authentication
       end
 
       def on_error(err)
+        puts("*** error: #{err.inspect}")
         @channel_closed = true
         @logger.debug("Pod #{@pod_name} error : #{err.inspect}")
         @message_log.save_error_string(err.inspect)
@@ -149,12 +150,12 @@ module Authentication
       private
 
       def add_websocket_event_handlers(ws, body, stdin)
-        this_obj = self
+        kubectl = self
         
-        ws.on(:open) { this_obj.on_open(ws, body, stdin) }
-        ws.on(:message) { |msg| this_obj.on_message(msg) }
-        ws.on(:close) { this_obj.on_close }
-        ws.on(:error) { |err| this_obj.on_error(err) }
+        ws.on(:open) { kubectl.on_open(ws, body, stdin) }
+        ws.on(:message) { |msg| kubectl.on_message(msg) }
+        ws.on(:close) { kubectl.on_close }
+        ws.on(:error) { |err| kubectl.on_error(err) }
       end
 
       def wait_for_close_message
