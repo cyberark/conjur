@@ -14,32 +14,40 @@ module Authentication
     # Utility class for processing WebSocket messages.
     class WebSocketMessage
       class << self
-        def msg_data(msg)
-          msg.data[1..-1]
-        end
-
-        def channel_name(msg)
-          channel_names[channel_number_from_message(msg)]
-        end
-
         def channel_byte(channel_name)
           channel_number(channel_name).chr
         end
-        
-        private
+      end
+      
+      def initialize(msg)
+        @msg = msg
+      end
 
-        def channel_number_from_message(msg)
-          return channel_number('error') unless msg.respond_to?(:data)
-          msg.data[0..0].bytes.first
-        end
-        
-        def channel_number(channel_name)
-          channel_names.index(channel_name)
-        end
+      def type
+        @msg.type
+      end
+      
+      def data
+        @msg.data[1..-1]
+      end
 
-        def channel_names
-          %w(stdin stdout stderr error resize)
-        end
+      def channel_name
+        channel_names[channel_number_from_message]
+      end
+      
+      def channel_number
+        return channel_number('error') unless @msg.respond_to?(:data)
+        @msg.data[0..0].bytes.first
+      end
+
+      public
+      
+      def channel_number(channel_name)
+        channel_names.index(channel_name)
+      end
+
+      def channel_names
+        %w(stdin stdout stderr error resize)
       end
     end
 
@@ -51,14 +59,14 @@ module Authentication
         @messages = Hash.new { |hash,key| hash[key] = [] }
       end
 
-      def save_message(msg)
-        channel_name = WebSocketMessage.channel_name(msg)
+      def save_message(wsmsg)
+        channel_name = wsmsg.channel_name
         
         unless channel_name
-          raise "Unexpected channel: #{WebSocketMessage.channel_number_from_message(msg)}"
+          raise "Unexpected channel: #{wsmsg.channel_number}"
         end
         
-        @messages[channel_name.to_sym] << WebSocketMessage.msg_data(msg)
+        @messages[channel_name.to_sym] << wsmsg.data
       end
 
       def save_error_string(str)
@@ -128,12 +136,14 @@ module Authentication
       end
 
       def on_message(msg, ws_client)
-        msg_type = msg.type
-        msg_data = WebSocketMessage.msg_data(msg)
+        wsmsg = WebSocketMessage.new(msg)
+        
+        msg_type = wsmsg.type
+        msg_data = wsmsg.data
         
         if msg_type == :binary
-          @logger.debug("Pod #{@pod_name}, channel #{WebSocketMessage.channel_name(msg)}: #{msg_data}")
-          @message_log.save_message(msg)
+          @logger.debug("Pod #{@pod_name}, channel #{wsmsg.channel_name}: #{msg_data}")
+          @message_log.save_message(wsmsg)
         elsif msg_type == :close
           @logger.debug("Pod: #{@pod_name}, message: close, data: #{msg_data}")
           ws_client.close
