@@ -18,8 +18,6 @@ module Authentication
           channel_number_from_name(channel_name).chr
         end
 
-        private
-        
         def channel_number_from_name(channel_name)
           channel_names.index(channel_name)
         end
