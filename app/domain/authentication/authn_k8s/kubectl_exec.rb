@@ -32,7 +32,7 @@ module Authentication
       end
 
       def channel_name
-        channel_names[channel_number_from_message]
+        channel_names[channel_number]
       end
       
       def channel_number
