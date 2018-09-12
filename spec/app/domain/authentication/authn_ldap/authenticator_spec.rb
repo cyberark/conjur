@@ -20,16 +20,16 @@ RSpec.describe Authentication::AuthnLdap::Authenticator do
   end
 
   before do
+    # Assume all of the LDAP binds would be valid
     allow_any_instance_of(Net::LDAP)
       .to receive(:bind_as)
-      .and_return(:valid_login?)
+      .and_return(true)
   end
 
   context "as user alice" do
     let(:username) { 'alice'}
 
     context "with valid non-empty password" do
-      let(:valid_login?) { true } 
       let(:password) { 'secret' }
 
       it "is accepted" do
@@ -38,7 +38,6 @@ RSpec.describe Authentication::AuthnLdap::Authenticator do
     end
 
     context "with valid empty password" do
-      let(:valid_login?) { true } 
       let(:password) { '' }
 
       it "is rejected" do
@@ -48,7 +47,6 @@ RSpec.describe Authentication::AuthnLdap::Authenticator do
   end
 
   context "with admin user" do
-    let(:valid_login?) { true }
     let(:username) { 'admin' }
     let(:password) { 'my_password' }
 
