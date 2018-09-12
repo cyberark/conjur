@@ -1,133 +1,216 @@
+require 'uri'
 require 'websocket'
 require 'rubygems/package'
 
+require 'active_support/time'
+require 'websocket-client-simple'
+
 module Authentication
   module AuthnK8s
+    CommandTimedOut = ::Util::ErrorClass.new(
+      "Command timed out in container '{0}' of pod '{1}'"
+    )
+
+    # Utility class for processing WebSocket messages.
+    class WebSocketMessage
+      class << self
+        def channel_byte(channel_name)
+          channel_number_from_name(channel_name).chr
+        end
+
+        def channel_number_from_name(channel_name)
+          channel_names.index(channel_name)
+        end
+
+        def channel_names
+          %w(stdin stdout stderr error resize)
+        end
+      end
+      
+      def initialize(msg)
+        @msg = msg
+      end
+
+      def type
+        @msg.type
+      end
+      
+      def data
+        @msg.data[1..-1]
+      end
+
+      def channel_name
+        self.class.channel_names[channel_number]
+      end
+      
+      def channel_number
+        unless @msg.respond_to?(:data)
+          return self.class.channel_number_from_name('error') 
+        end
+        
+        @msg.data[0..0].bytes.first
+      end
+    end
+
+    # Utility class for storing messages received during websocket communication.
+    class MessageLog
+      attr_reader :messages
+      
+      def initialize
+        @messages = Hash.new { |hash,key| hash[key] = [] }
+      end
+
+      def save_message(wsmsg)
+        channel_name = wsmsg.channel_name
+        
+        unless channel_name
+          raise "Unexpected channel: #{wsmsg.channel_number}"
+        end
+        
+        @messages[channel_name.to_sym] << wsmsg.data
+      end
+
+      def save_error_string(str)
+        @messages[:error] << str
+      end
+    end
+    
     class KubectlExec
-      STDIN_CHANNEL = 0
-      STDOUT_CHANNEL = 1
-      STDERR_CHANNEL = 2
-      ERROR_CHANNEL = 3
-      RESIZE_CHANNEL = 4
-
-      attr_reader :pod, :container, :timeout, :ws
-
-      def initialize pod, container: "authentication", timeout: 5.seconds
-        @pod = pod
+      # logger: an object responding to `debug`
+      # kubeclient: Kubeclient::Client from "kubeclient" gem
+      #
+      def initialize(
+        pod_name:,
+        pod_namespace:,
+        logger:,
+        kubeclient:,
+        container: 'authentication',
+        timeout: 5.seconds
+      )
+        @pod_name = pod_name
+        @pod_namespace = pod_namespace
         @container = container
         @timeout = timeout
+        @logger = logger
+        @kubeclient = kubeclient
+
+        @message_log = MessageLog.new
+        @channel_closed = false
       end
 
-      def exec command, body: "", stdin: false
-        kubectl = K8sObjectLookup.kubectl_client
+      def execute(cmds, body: "", stdin: false)
+        url = server_url(cmds, stdin)
+        headers = @kubeclient.headers.clone
+        ws_client = WebSocket::Client::Simple.connect(url, headers: headers)
 
-        base_url = "wss://#{kubectl.api_endpoint.host}:#{kubectl.api_endpoint.port}"
-        path = "/api/v1/namespaces/#{pod.metadata.namespace}/pods/#{pod.metadata.name}/exec"
+        add_websocket_event_handlers(ws_client, body, stdin)
 
-        query = [
-          "container=#{CGI.escape container}",
-          "stderr=true",
-          "stdout=true",
-        ]
-        query << "stdin=true" if stdin
+        wait_for_close_message
 
-        for arg in Array(command)
-          query << "command=#{CGI.escape arg}"
-        end
-        query = query.join("&")
+        raise CommandTimedOut.new(@container, @pod_name) unless @channel_closed
+        
+        # TODO: raise an `WebsocketServerFailure` here in the case of ws :error
 
-        url = "#{base_url}#{path}?#{query}"
-        headers = kubectl.headers.clone
-
-        ws = @ws = WebSocket::Client::Simple.connect url, headers: headers
-        ws.instance_variable_set "@messages", Hash.new {|hash,key| hash[key] = []}
-        ws.instance_variable_set "@pod", pod
-        ws.instance_variable_set "@closed", false
-
-        class << ws
-          def message_binary msg
-            channel = msg.data[0..0].bytes.first
-            stream = case channel
-                     when STDOUT_CHANNEL
-                       "stdout"
-                     when STDERR_CHANNEL
-                       "stderr"
-                     when ERROR_CHANNEL
-                       "error"
-                     when RESIZE_CHANNEL
-                       "resize"
-                     else
-                       raise "Unexpected channel number : #{channel}"
-                     end
-            @messages[stream.to_sym] << msg.data[1..-1]
-            Rails.logger.debug "Pod #{@pod.metadata.name.inspect} message :#{stream} : #{msg.data[1..-1]}"
-          end
-
-          def message_close msg
-            Rails.logger.debug "Pod #{@pod.metadata.name.inspect} message :#{close} : #{msg.data[1..-1]}"
-            close
-          end
-        end
-
-        ws.on :message do |msg|
-          __send__ "message_#{msg.type}", msg
-        end
-
-        ws.on :open do
-          hs = ws.handshake
-          if hs.error
-            emit :error, hs.instance_variable_get("@data")
-          else
-            Rails.logger.debug "Pod #{@pod.metadata.name.inspect} : channel open"
-
-            if stdin
-              ws.send(STDIN_CHANNEL.chr + body)
-              ws.send nil, :type => :close
-            end
-          end
-        end
-
-        ws.on :close do |e|
-          @closed = true
-          Rails.logger.debug "Pod #{@pod.metadata.name.inspect} : channel closed"
-        end
-
-        ws.on :error do |e|
-          @closed = true
-          Rails.logger.debug "Pod #{@pod.metadata.name.inspect} error : #{e.inspect}"
-          @messages[:error] << e.inspect
-        end
-
-        ws.send "\n"
-
-        (@timeout / 0.1).to_i.times do
-          break if ws.instance_variable_get("@closed")
-          sleep 0.1
-        end
-
-        if ws.instance_variable_get("@closed")
-          ws.instance_variable_get "@messages"
+        @message_log.messages
+      end
+      
+      def copy(path, content, mode)
+        execute(
+          [ 'tar', 'xvf', '-', '-C', '/' ],
+          stdin: true,
+          body: tar_file_as_string(path, content, mode)
+        )
+      end
+      
+      def on_open(ws_client, body, stdin)
+        if ws_client.handshake.error
+          ws_client.emit(:error, @message_log.messages)
         else
-          raise "Command timed out in container #{container.inspect} of Pod #{@pod.metadata.name.inspect}"
+          @logger.debug("Pod #{@pod_name} : channel open")
+
+          if stdin
+            data = WebSocketMessage.channel_byte('stdin') + body
+            ws_client.send(data)
+            ws_client.send(nil, type: :close)
+          end
         end
       end
 
-      def copy path, content, mode
-        exec [ 'tar', 'xvf', '-', '-C', '/' ], stdin: true, body: generate_file_tar_string(path, content, mode)
+      def on_message(msg, ws_client)
+        wsmsg = WebSocketMessage.new(msg)
+        
+        msg_type = wsmsg.type
+        msg_data = wsmsg.data
+        
+        if msg_type == :binary
+          @logger.debug("Pod #{@pod_name}, channel #{wsmsg.channel_name}: #{msg_data}")
+          @message_log.save_message(wsmsg)
+        elsif msg_type == :close
+          @logger.debug("Pod: #{@pod_name}, message: close, data: #{msg_data}")
+          ws_client.close
+        end
+      end
+      
+      def on_close
+        @channel_closed = true
+        @logger.debug("Pod #{@pod_name} : channel closed")
+      end
+
+      def on_error(err)
+        puts("*** error: #{err.inspect}")
+        @channel_closed = true
+        @logger.debug("Pod #{@pod_name} error : #{err.inspect}")
+        @message_log.save_error_string(err.inspect)
       end
 
       private
 
-      def generate_file_tar_string path, content, mode
+      def add_websocket_event_handlers(ws_client, body, stdin)
+        kubectl = self
+        
+        ws_client.on(:open) { kubectl.on_open(ws_client, body, stdin) }
+        ws_client.on(:message) { |msg| kubectl.on_message(msg, ws_client) }
+        ws_client.on(:close) { kubectl.on_close }
+        ws_client.on(:error) { |err| kubectl.on_error(err) }
+      end
+
+      def wait_for_close_message
+        (@timeout / 0.1).to_i.times do
+          break if @channel_closed
+          sleep 0.1
+        end
+      end
+
+      def query_string(cmds, stdin)
+        stdin_part = stdin ? ['stdin=true'] : []
+        cmds_part = cmds.map { |cmd| "command=#{CGI.escape(cmd)}" }
+        (base_query_string_parts + stdin_part + cmds_part).join("&")
+      end
+
+      def base_query_string_parts
+        [ "container=#{CGI.escape(@container)}", "stderr=true", "stdout=true" ]
+      end
+
+      def server_url(cmds, stdin)
+        api_uri = @kubeclient.api_endpoint
+        base_url = "wss://#{api_uri.host}:#{api_uri.port}"
+        path = "/api/v1/namespaces/#{@pod_namespace}/pods/#{@pod_name}/exec"
+        query = query_string(cmds, stdin)
+        "#{base_url}#{path}?#{query}"
+      end
+
+      def tar_file_as_string(path, content, mode)
         tarfile = StringIO.new("")
+        
         Gem::Package::TarWriter.new(tarfile) do |tar|
-          tar.add_file path, mode do |tf|
-            tf.write content
+          tar.add_file(path, mode) do |tf|
+            tf.write(content)
           end
         end
 
         tarfile.string
       end
+
     end
   end
 end

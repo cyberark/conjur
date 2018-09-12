@@ -26,14 +26,21 @@ module AuthnK8sWorld
 
   # get pod cert
   def pod_certificate
-    exec = Authentication::AuthnK8s::KubectlExec.new @pod, container: "authenticator"
+    exec = Authentication::AuthnK8s::KubectlExec.new(
+      pod_name: @pod.metadata.name,
+      pod_namespace: @pod.metadata.namespace,
+      logger: Rails.logger,
+      kubeclient: kubectl_client,
+      container: 'authenticator'
+    )
+
     response = nil
 
     retries = 3
     count = 0
 
     while response.nil? || (!response[:error].empty? && count < retries)
-      response = exec.exec [ "cat", "/etc/conjur/ssl/client.pem" ]
+      response = exec.execute [ "cat", "/etc/conjur/ssl/client.pem" ]
       sleep 2
       count += 1
     end
