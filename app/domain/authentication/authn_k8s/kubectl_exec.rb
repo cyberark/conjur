@@ -17,6 +17,16 @@ module Authentication
         def channel_byte(channel_name)
           channel_number_from_name(channel_name).chr
         end
+
+        private
+        
+        def channel_number_from_name(channel_name)
+          channel_names.index(channel_name)
+        end
+
+        def channel_names
+          %w(stdin stdout stderr error resize)
+        end
       end
       
       def initialize(msg)
@@ -32,7 +42,7 @@ module Authentication
       end
 
       def channel_name
-        channel_names[channel_number]
+        self.class.channel_names[channel_number]
       end
       
       def channel_number
@@ -41,16 +51,6 @@ module Authentication
         end
         
         @msg.data[0..0].bytes.first
-      end
-
-      public
-      
-      def channel_number_from_name(channel_name)
-        channel_names.index(channel_name)
-      end
-
-      def channel_names
-        %w(stdin stdout stderr error resize)
       end
     end
 
