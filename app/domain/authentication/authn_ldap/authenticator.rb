@@ -24,7 +24,7 @@ module Authentication
       def valid?(input)
         login, password = input.username, input.password
 
-        # Prevent authenticating with username only
+        # Prevent anonymous LDAP authentication with username only
         return false if password.blank?
 
         # Prevent LDAP injection attack
