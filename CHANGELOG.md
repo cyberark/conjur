@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   host, rather than use the value from the CSR.
 - Update Conjur issued certificates to include a SPIFFE SVID as a subject alternative
   name (SAN).
+- Prevent anonymous (password-less) authentication with LDAP.
 
 ## [1.2.0] - 2018-09-07
 ### Added

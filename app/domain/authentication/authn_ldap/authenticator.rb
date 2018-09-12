@@ -23,6 +23,10 @@ module Authentication
 
       def valid?(input)
         login, password = input.username, input.password
+
+        # Prevent anonymous LDAP authentication with username only
+        return false if password.blank?
+
         # Prevent LDAP injection attack
         safe_login = Net::LDAP::Filter.escape(login)
         return false if blacklisted_ldap_user?(safe_login)
