@@ -15,7 +15,7 @@ module Authentication
     class WebSocketMessage
       class << self
         def channel_byte(channel_name)
-          channel_number(channel_name).chr
+          channel_number_from_name(channel_name).chr
         end
       end
       
@@ -36,13 +36,16 @@ module Authentication
       end
       
       def channel_number
-        return channel_number('error') unless @msg.respond_to?(:data)
+        unless @msg.respond_to?(:data)
+          return self.class.channel_number_from_name('error') 
+        end
+        
         @msg.data[0..0].bytes.first
       end
 
       public
       
-      def channel_number(channel_name)
+      def channel_number_from_name(channel_name)
         channel_names.index(channel_name)
       end
 
