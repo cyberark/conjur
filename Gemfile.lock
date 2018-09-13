@@ -122,6 +122,7 @@ GEM
       rack
     contracts (0.16.0)
     crass (1.0.3)
+    csr (0.1.0)
     cucumber (2.4.0)
       builder (>= 2.1.2)
       cucumber-core (~> 1.5.0)
@@ -133,6 +134,7 @@ GEM
     cucumber-core (1.5.0)
       gherkin (~> 4.0)
     cucumber-wire (0.0.1)
+    daemons (1.2.6)
     database_cleaner (1.6.1)
     deep_merge (1.2.1)
     descendants_tracker (0.0.4)
@@ -172,6 +174,7 @@ GEM
     equalizer (0.0.11)
     erubis (2.7.0)
     event_emitter (0.2.6)
+    eventmachine (1.2.7)
     excon (0.62.0)
     execjs (2.7.0)
     ffi (1.9.18)
@@ -374,6 +377,10 @@ GEM
     therubyracer (0.12.3)
       libv8 (~> 3.16.14.15)
       ref
+    thin (1.7.2)
+      daemons (~> 1.0, >= 1.0.9)
+      eventmachine (~> 1.0, >= 1.0.4)
+      rack (>= 1, < 3)
     thor (0.20.0)
     thread_safe (0.3.6)
     tilt (2.0.8)
@@ -394,6 +401,13 @@ GEM
     websocket-client-simple (0.3.0)
       event_emitter
       websocket
+    websocket-eventmachine-base (1.2.0)
+      eventmachine (~> 1.0)
+      websocket (~> 1.0)
+      websocket-native (~> 1.0)
+    websocket-eventmachine-server (1.0.1)
+      websocket-eventmachine-base (~> 1.0)
+    websocket-native (1.0.0)
     xdg (2.2.3)
 
 PLATFORMS
@@ -416,6 +430,7 @@ DEPENDENCIES
   conjur-policy-parser (>= 3.0.2)!
   conjur-rack (~> 3.1)
   conjur-rack-heartbeat
+  csr
   cucumber
   database_cleaner
   dry-struct
@@ -459,8 +474,10 @@ DEPENDENCIES
   sprockets (~> 3.7.0, >= 3.7.2)
   table_print
   therubyracer
+  thin
   uglifier
   websocket-client-simple
+  websocket-eventmachine-server
 
 BUNDLED WITH
    1.16.3

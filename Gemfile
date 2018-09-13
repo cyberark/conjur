@@ -70,6 +70,7 @@ gem 'websocket-client-simple'
 
 group :development, :test do
   gem 'aruba'
+  gem 'csr'
   gem 'ci_reporter_rspec'
   gem 'conjur-cli', '~> 6.1'
   gem 'conjur-debify', require: false
@@ -88,6 +89,8 @@ group :development, :test do
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
   gem 'table_print'
+  gem 'websocket-eventmachine-server'
+  gem 'thin'
 end
 
 group :development do

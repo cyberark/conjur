@@ -53,9 +53,13 @@ module AuthnK8sWorld
   end
 
   # Find pod matching label selector.
-  def find_matching_pod label_selector
-    @pod = pod = Authentication::AuthnK8s::K8sObjectLookup.find_pods_by_label_selector_in_namespace(label_selector, namespace).first
-    raise "No pod found matching label selector: #{label_selector.inspect}" unless pod
+  def find_matching_pod(label_selector)
+    @pod = Authentication::AuthnK8s::K8sObjectLookup
+      .pods_by_label(label_selector, namespace)
+      .first
+
+    err = "No pod found matching label selector: #{label_selector.inspect}"
+    raise err unless @pod
     "found"
   end
 

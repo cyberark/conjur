@@ -1,26 +1,32 @@
 # K8sObjectLookup is used to lookup Kubernetes object metadata using 
-# Kubernetes API.
+# Kubernetes API. This is essentially a facade over the API
+#
 module Authentication
   module AuthnK8s
+    #TODO: rename to K8sApiFacade
+    #
     module K8sObjectLookup
       extend self
 
-      class K8sForbiddenError < RuntimeError
-      end
+      class K8sForbiddenError < RuntimeError; end
 
       # Gets the client object to the /api v1 endpoint.
       def kubectl_client
-        KubectlClient.client
+        KubeClientFactory.client
       end
 
       # Locates the Pod with a given IP address.
       #
       # @return nil if no such Pod exists.
-      def find_pod_by_request_ip_in_namespace request_ip, namespace
-        # TODO: use "status.podIP" field_selector for versions of k8s that support it
-        # the current implementation is a performance optimization for very early K8s versions
-        # usage of "status.podIP" field_selector on versions of k8s that do not support it results in no pods returned from #get_pods
-        pod = k8s_client_for_method("get_pods").get_pods(field_selector: "", namespace: namespace).select do |pod|
+      def pod_by_ip(request_ip, namespace)
+        # TODO: use "status.podIP" field_selector for versions of k8s that
+        # support it the current implementation is a performance optimization
+        # for very early K8s versions usage of "status.podIP" field_selector on
+        # versions of k8s that do not support it results in no pods returned
+        # from #get_pods
+        k8s_client_for_method("get_pods")
+          .get_pods(field_selector: "", namespace: namespace)
+          .select do |pod|
           # Just in case the filter is mis-implemented on the server side.
           pod.status.podIP == request_ip
         end.first
@@ -29,13 +35,13 @@ module Authentication
       # Locates the Pod with a given podname in a namespace.
       #
       # @return nil if no such Pod exists.
-      def find_pod_by_podname_in_namespace podname, namespace
-        pod = k8s_client_for_method("get_pod").get_pod(podname, namespace)
+      def pod_by_name(podname, namespace)
+        k8s_client_for_method("get_pod").get_pod(podname, namespace)
       end
 
       # Locates pods matching label selector in a namespace.
       #
-      def find_pods_by_label_selector_in_namespace label_selector, namespace
+      def pods_by_label(label_selector, namespace)
         k8s_client_for_method("get_pods").get_pods(label_selector: label_selector, namespace: namespace)
       end
 
@@ -66,7 +72,10 @@ module Authentication
       protected
 
       def invoke_k8s_method method_name, *arguments
+        # orig
         k8s_client_for_method(method_name).send *( [ method_name ] + arguments )
+        # rewrite
+        k8s_client_for_method(method_name).send(method_name, *arguments)
       end
 
       # Methods move around between API versions across releases, so search the
@@ -86,13 +95,13 @@ module Authentication
       def k8s_clients
         @clients ||= [
           kubectl_client,
-          KubectlClient.client(api: 'apis/apps', version: 'v1beta2'),
-          KubectlClient.client(api: 'apis/apps', version: 'v1beta1'),
-          KubectlClient.client(api: 'apis/extensions', version: 'v1beta1'),
+          KubeClientFactory.client(api: 'apis/apps', version: 'v1beta2'),
+          KubeClientFactory.client(api: 'apis/apps', version: 'v1beta1'),
+          KubeClientFactory.client(api: 'apis/extensions', version: 'v1beta1'),
           # OpenShift 3.3 DeploymentConfig
-          KubectlClient.client(api: 'oapi', version: 'v1'),
+          KubeClientFactory.client(api: 'oapi', version: 'v1'),
           # OpenShift 3.7 DeploymentConfig
-          KubectlClient.client(api: 'apis/apps.openshift.io', version: 'v1')
+          KubeClientFactory.client(api: 'apis/apps.openshift.io', version: 'v1')
         ]
       end
 

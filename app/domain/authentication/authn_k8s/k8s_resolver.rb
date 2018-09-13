@@ -1,3 +1,10 @@
+# NOTE: This file has has not been refactored yet.  In particular, the name
+# K8sResolver is too ambiguous, and per the explanation below should probably
+# be changed to `K8sApplication`. Even better, since its used only for
+# validation, we could name it `ValidateK8sApplication`, inject the
+# K8sObjectLookup dependency, and give it a `.call(controller, object, pod)`
+# method.
+#
 # A resolver looks up a logical application in the Kubernetes object store.
 # A logical application is a K8s "controller" such as a Deployment or StatefulSet.
 # When a request arrives at authn-k8s, the request IP identifies a Pod, and the
@@ -41,14 +48,20 @@ module Authentication
           end
         end
 
-        # Gets the controller object name.
         def name
           controller.metadata.name
         end
 
-        # Gets the controller object namespace.
         def namespace
           controller.metadata.namespace
+        end
+
+        def pod_name
+          pod.metadata.name.inspect
+        end
+
+        def pod_owner_refs
+          pod.metadata.ownerReferences
         end
 
         # Validates that the +pod+ belongs to the controller object.
@@ -62,21 +75,21 @@ module Authentication
       # Tests whether the Pod's ReplicaSet belongs to the Deployment.
       class Deployment < Base
         def validate_pod
-          replica_set_ref = verify "Pod #{pod.metadata.name.inspect} does not belong to a ReplicaSet (or Deployment)" do
-            pod.metadata.ownerReferences &&
-              pod.metadata.ownerReferences.find{|ref| ref.kind == "ReplicaSet"}
+          replica_set_ref = verify "Pod #{pod_name} does not belong to a ReplicaSet (or Deployment)" do
+            pod_owner_refs &&
+              pod_owner_refs.find{|ref| ref.kind == "ReplicaSet"}
           end
           
           replica_set = K8sObjectLookup.find_object_by_name "replica_set", replica_set_ref.name, namespace
 
-          deployment_ref = verify "Pod #{pod.metadata.name.inspect} does not belong to a Deployment" do
+          deployment_ref = verify "Pod #{pod_name} does not belong to a Deployment" do
             replica_set.metadata.ownerReferences &&
               replica_set.metadata.ownerReferences.find{|ref| ref.kind == "Deployment"}
           end
 
           deployment = K8sObjectLookup.find_object_by_name "deployment", deployment_ref.name, namespace
 
-          verify "Pod #{pod.metadata.name.inspect} Deployment is #{deployment.metadata.name.inspect}, not #{self.name.inspect}" do
+          verify "Pod #{pod_name} Deployment is #{deployment.metadata.name.inspect}, not #{self.name.inspect}" do
             self.name == deployment.metadata.name
           end
         end
@@ -84,21 +97,21 @@ module Authentication
 
       class DeploymentConfig < Base
         def validate_pod
-          replication_controller_ref = verify "Pod #{pod.metadata.name.inspect} does not belong to a ReplicationController (or DeploymentConfig)" do
-            pod.metadata.ownerReferences &&
-              pod.metadata.ownerReferences.find{|ref| ref.kind == "ReplicationController"}
+          replication_controller_ref = verify "Pod #{pod_name} does not belong to a ReplicationController (or DeploymentConfig)" do
+            pod_owner_refs &&
+              pod_owner_refs.find{|ref| ref.kind == "ReplicationController"}
           end
           
           replication_controller = K8sObjectLookup.find_object_by_name "replication_controller", replication_controller_ref.name, namespace
 
-          deployment_config_ref = verify "Pod #{pod.metadata.name.inspect} does not belong to a DeploymentConfig" do
+          deployment_config_ref = verify "Pod #{pod_name} does not belong to a DeploymentConfig" do
             replication_controller.metadata.ownerReferences &&
               replication_controller.metadata.ownerReferences.find{|ref| ref.kind == "DeploymentConfig"}
           end
 
           deployment_config = K8sObjectLookup.find_object_by_name "deployment_config", deployment_config_ref.name, namespace
 
-          verify "Pod #{pod.metadata.name.inspect} DeploymentConfig is #{deployment_config.metadata.name.inspect}, not #{self.name.inspect}" do
+          verify "Pod #{pod_name} DeploymentConfig is #{deployment_config.metadata.name.inspect}, not #{self.name.inspect}" do
             self.name == deployment_config.metadata.name
           end
         end
@@ -106,14 +119,14 @@ module Authentication
 
       class ReplicaSet < Base
         def validate_pod
-          replica_set_ref = verify "Pod #{pod.metadata.name.inspect} does not belong to a ReplicaSet" do
-            pod.metadata.ownerReferences &&
-              pod.metadata.ownerReferences.find{|ref| ref.kind == "ReplicaSet"}
+          replica_set_ref = verify "Pod #{pod_name} does not belong to a ReplicaSet" do
+            pod_owner_refs &&
+              pod_owner_refs.find{|ref| ref.kind == "ReplicaSet"}
           end
 
           replica_set = K8sObjectLookup.find_object_by_name "replica_set", replica_set_ref.name, namespace
 
-          verify "Pod #{pod.metadata.name.inspect} ReplicaSet is #{replica_set.metadata.name.inspect}, not #{self.name.inspect}" do
+          verify "Pod #{pod_name} ReplicaSet is #{replica_set.metadata.name.inspect}, not #{self.name.inspect}" do
             self.name == replica_set.metadata.name
           end
         end
@@ -121,7 +134,7 @@ module Authentication
 
       class ServiceAccount < Base
         def validate_pod
-          verify "Pod #{pod.metadata.name.inspect} assigned ServiceAccount #{pod.spec.serviceAccountName.inspect}, not #{self.name.inspect}" do
+          verify "Pod #{pod_name} assigned ServiceAccount #{pod.spec.serviceAccountName.inspect}, not #{self.name.inspect}" do
             self.name == pod.spec.serviceAccountName
           end
         end
@@ -129,14 +142,14 @@ module Authentication
 
       class StatefulSet < Base
         def validate_pod
-          stateful_set_ref = verify "Pod #{pod.metadata.name.inspect} does not belong to a StatefulSet" do
-            pod.metadata.ownerReferences &&
-              pod.metadata.ownerReferences.find{|ref| ref.kind == "StatefulSet"}
+          stateful_set_ref = verify "Pod #{pod_name} does not belong to a StatefulSet" do
+            pod_owner_refs &&
+              pod_owner_refs.find{|ref| ref.kind == "StatefulSet"}
           end
 
           stateful_set = K8sObjectLookup.find_object_by_name "stateful_set", stateful_set_ref.name, namespace      
 
-          verify "Pod #{pod.metadata.name.inspect} StatefulSet name is #{stateful_set.metadata.name.inspect}, not #{self.name.inspect}" do
+          verify "Pod #{pod_name} StatefulSet name is #{stateful_set.metadata.name.inspect}, not #{self.name.inspect}" do
             self.name == stateful_set.metadata.name
           end
         end
@@ -145,7 +158,7 @@ module Authentication
       class Pod < Base
         # The pod is always a member of itself.
         def validate_pod
-          verify "Pod #{pod.metadata.name.inspect} is not #{self.name.inspect}" do
+          verify "Pod #{pod_name} is not #{self.name.inspect}" do
             self.name == pod.metadata.name
           end
         end
