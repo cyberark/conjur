@@ -104,6 +104,7 @@ module Authentication
       end
 
       def pod_request
+        Rails.logger.debug("jonah #{header_cert_str}")
         PodRequest.new(
           service_id: service_id,
           k8s_host: K8sHost.from_cert(
