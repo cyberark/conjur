@@ -12,14 +12,28 @@ module Authentication
       input :authenticator_input
       steps :validate_the_request, :validate_header_cert
 
-      def_delegators @authenticator_input, :service_id, :authenticator_name,
-                     :account, :username, :request
+      # def_delegators @authenticator_input, :service_id, :authenticator_name,
+      #                :account, :username, :request
+      def service_id
+        authenticator_input.service_id
+      end
+      def authenticator_name
+        authenticator_input.authenticator_name
+      end
+      def account
+        authenticator_input.account
+      end
+      def username
+        authenticator_input.username
+      end
+      def request
+        authenticator_input.request
+      end
 
       # This delegates to all the work to the call method created automatically
       # by the steps method above
       #
       def valid?(input)
-        @authenticator_input = input
         call(authenticator_input: input)
       end
 
