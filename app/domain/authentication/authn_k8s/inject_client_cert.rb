@@ -111,7 +111,7 @@ module Authentication
       def cert_to_install
         ca_for_webservice.signed_cert(
           @csr, 
-          subject_altnames: [ spiffe_id.to_s ]
+          subject_altnames: [ spiffe_id.to_altname ]
         )
       end
     end

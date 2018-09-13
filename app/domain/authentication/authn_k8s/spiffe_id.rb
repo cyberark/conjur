@@ -18,6 +18,10 @@ module Authentication
         @spiffe_id
       end
 
+      def to_altname
+        'URI:' + @spiffe_id
+      end
+
       private
 
       def parsed
