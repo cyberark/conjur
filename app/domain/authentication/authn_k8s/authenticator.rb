@@ -12,8 +12,10 @@ module Authentication
       input :authenticator_input
       steps :validate_the_request, :validate_header_cert
 
+      # TODO:
       # def_delegators @authenticator_input, :service_id, :authenticator_name,
       #                :account, :username, :request
+      #
       def service_id
         authenticator_input.service_id
       end
@@ -104,7 +106,11 @@ module Authentication
       def pod_request
         PodRequest.new(
           service_id: service_id,
-          k8s_host: K8sHost.from_cert(cert),
+          k8s_host: K8sHost.from_cert(
+            account: account,
+            service_name: service_id,
+            cert: header_cert_str 
+          ),
           spiffe_id: SpiffeId.new(cert.spiffe_id)
         )
       end
