@@ -8,7 +8,7 @@ namespace :authn_k8s do
     service_id = "#{ENV['CONJUR_ACCOUNT']}:webservice:#{service_name}"
 
     Repos::ConjurCA.create(service_id)
-    cert_resource = Repos::ConjurCA.cert_resource(service_id)
+    cert_resource = ::Conjur::CaInfo.new(service_id)
 
     puts "Populated CA and Key of service #{service_name}"
     puts "To print values:"
