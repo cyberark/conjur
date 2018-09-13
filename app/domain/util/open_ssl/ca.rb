@@ -34,10 +34,11 @@ module Util
       # Returns an OpenSSL::X509::Certificate
       #
       def signed_cert(csr, subject_altnames: nil, good_for: 3.days)
+        smart_csr = ::Util::OpenSsl::X509::SmartCsr.new(csr)
         Util::OpenSsl::X509::Certificate.from_hash(
-          subject: csr.subject,
+          subject: smart_csr.subject,
           issuer: @cert.subject,
-          public_key: csr.public_key,
+          public_key: smart_csr.public_key,
           good_for: good_for,
           extensions: extensions(subject_altnames)
         ).tap do |cert|
