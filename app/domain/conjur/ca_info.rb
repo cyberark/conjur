@@ -17,7 +17,7 @@ module Conjur
     end
 
     def key_id
-      #{account}:variable:#{service_id}/ca/key"
+      "#{account}:variable:#{service_id}/ca/key"
     end
 
     def cert_subject
