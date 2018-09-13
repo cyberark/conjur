@@ -1,6 +1,5 @@
 $LOAD_PATH.unshift(File.expand_path('../../..', __FILE__))
 require 'app/domain/repos/conjur_ca'
-require 'app/domain/conjur/certificate_resource'
 
 namespace :authn_k8s do
   desc "Initialize CA certificates for authn-k8s webservice"
