@@ -13,11 +13,11 @@ module Conjur
     end
 
     def cert_id
-      "#{@resource_id}/ca/cert"
+      "#{account}:variable:#{service_id}/ca/cert"
     end
 
     def key_id
-      "#{@resource_id}/ca/key"
+      #{account}:variable:#{service_id}/ca/key"
     end
 
     def cert_subject
@@ -31,6 +31,11 @@ module Conjur
     def account
       @resource_id.split(':').first
     end
-  end
 
+    private
+
+    def service_id
+      @resource_id.split(':').last
+    end
+  end
 end
