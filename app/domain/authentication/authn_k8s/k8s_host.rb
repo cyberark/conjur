@@ -30,6 +30,8 @@ module Authentication
       end
 
       def self.from_cert(account:, service_name:, cert:)
+        Rails.logger.debug('jonah', cert.inspect)
+        Rails.logger.debug('jonah', cert.is_a?(String))
         cn = Util::OpenSsl::X509::SmartCert.new(cert).common_name
         raise ArgumentError, 'Certificate must have a CN entry' unless cn
 
