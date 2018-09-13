@@ -19,7 +19,7 @@ module Authentication
       # by the steps method above
       #
       def valid?(input)
-        call(input)
+        call(authenticator_input: input)
       end
 
       private
