@@ -19,6 +19,7 @@ module Authentication
       # by the steps method above
       #
       def valid?(input)
+        @authenticator_input = input
         call(authenticator_input: input)
       end
 
