@@ -12,10 +12,8 @@ def gen_cert(host_id)
   spiffe_id = "URI:spiffe://cluster.local/namespace/#{metadata.namespace}/pod/#{metadata.name}"
 
   username = [namespace, host_id].join('/')
-  @pkey = OpenSSL::PKey::RSA.new 1048
-  csr = gen_csr(username, @pkey, [spiffe_id])
-  
-  ca.issue(csr, [spiffe_id])
+  webservice_resource_id = "#{ENV['CONJUR_ACCOUNT']}:webservice:#{username}"
+  ::Repos::ConjurCA.create(webservice_resource_id)
 end
 
 Given(/^I use the IP address of(?: a pod in)? "([^"]*)"$/) do |objectid|
