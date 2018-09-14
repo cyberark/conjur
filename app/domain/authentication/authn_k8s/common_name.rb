@@ -35,6 +35,10 @@ module Authentication
         host_name_parts.join('/')
       end
 
+      def to_s
+        host_name_parts.join('.')
+      end
+
       private
 
       def validate!
@@ -44,7 +48,7 @@ module Authentication
       end
 
       def host_name_parts
-        @host_name_parts ||= @common_name.split('.')
+        @host_name_parts ||= @common_name.split('.').last(3)
       end
 
     end

@@ -63,7 +63,7 @@ module Authentication
 
       def validate_common_name_matches
         return if host_and_cert_cn_match?
-        raise CommonNameDoesntMatchHost.new(cert.common_name, host_name)
+        raise CommonNameDoesntMatchHost.new(cert.common_name, host_common_name)
       end
 
       def validate_cert_isnt_expired
@@ -79,7 +79,7 @@ module Authentication
       end
 
       def host_and_cert_cn_match?
-        cert.common_name == host_name
+        cert.common_name == host_common_name
       end
 
       def cert_expired?
@@ -88,16 +88,13 @@ module Authentication
 
       def header_cert_str
         str = request.env['HTTP_X_SSL_CLIENT_CERTIFICATE']
-        Rails.logger.debug("jonah str #{str}")
-        x = str ? CGI.unescape(str) : nil
-        Rails.logger.debug("x #{x}")
-        x
+        str ? CGI.unescape(str) : nil
       end
 
       # username in this context is the host name
-      def host_name
+      def host_common_name
         resource_name = username
-        CommonName.from_host_resource_name(resource_name).k8s_host_name
+        CommonName.from_host_resource_name(resource_name).to_s
       end
 
       def webservice_ca
