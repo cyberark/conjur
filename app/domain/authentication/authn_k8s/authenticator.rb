@@ -92,7 +92,8 @@ module Authentication
 
       # username in this context is the host name
       def host_name
-        CommonName.new(username).k8s_host_name
+        resource_name = username
+        CommonName.from_host_resource_name(resource_name).k8s_host_name
       end
 
       def webservice_ca

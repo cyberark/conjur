@@ -9,6 +9,11 @@ module Authentication
   module AuthnK8s
     class CommonName
 
+      def self.from_host_resource_name(name)
+        common_name = username.tr('/', '.')
+        new(common_name)
+      end
+
       def initialize(common_name)
         @common_name  = common_name
         validate!
