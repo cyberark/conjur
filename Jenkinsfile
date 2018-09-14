@@ -25,21 +25,21 @@ pipeline {
 
     stage('Run Tests') {
       parallel {
-        // stage('RSpec') {
-        //   steps { sh 'cd ci && ./test --rspec' }
-        // }
-        // stage('Authenticators') {
-        //   steps { sh 'cd ci && ./test --cucumber-authenticators' }
-        // }
-        // stage('Policy') {
-        //   steps { sh 'cd ci && ./test --cucumber-policy' }
-        // }
-        // stage('API') {
-        //   steps { sh 'cd ci && ./test --cucumber-api' }
-        // }
-        // stage('Rotators') {
-        //   steps { sh 'cd ci && ./test --cucumber-rotators' }
-        // }
+        stage('RSpec') {
+          steps { sh 'cd ci && ./test --rspec' }
+        }
+        stage('Authenticators') {
+          steps { sh 'cd ci && ./test --cucumber-authenticators' }
+        }
+        stage('Policy') {
+          steps { sh 'cd ci && ./test --cucumber-policy' }
+        }
+        stage('API') {
+          steps { sh 'cd ci && ./test --cucumber-api' }
+        }
+        stage('Rotators') {
+          steps { sh 'cd ci && ./test --cucumber-rotators' }
+        }
         stage('Kubernetes 1.7 in GKE') {
           steps { sh 'cd ci/authn-k8s && summon ./test.sh gke' }
         }
