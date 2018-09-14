@@ -101,7 +101,7 @@ module Authentication
 
       # @return [SpiffeId] A SpiffeId value object
       def spiffe_id
-        cert.spiffe_id
+        SpiffeId.new(cert.san.sub(/^uri:/i, ''))
       end
 
       def pod_request
@@ -109,7 +109,8 @@ module Authentication
         puts service_id
         puts account
         puts header_cert_str
-        puts cert.spiffe_id
+        puts 'cert.san', cert.san
+        puts 'spiffe_id', spiffe_id.inspect
         
         Rails.logger.debug("jonah #{header_cert_str}")
         PodRequest.new(
@@ -119,7 +120,7 @@ module Authentication
             service_name: service_id,
             cert: header_cert_str 
           ),
-          spiffe_id: SpiffeId.new(cert.spiffe_id)
+          spiffe_id: spiffe_id
         )
       end
 
