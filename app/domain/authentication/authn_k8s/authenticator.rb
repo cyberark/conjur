@@ -11,7 +11,7 @@ module Authentication
 
       dependencies env: ENV, validate_pod_request: ValidatePodRequest.new
       input :authenticator_input
-      steps :validate_the_request, :validate_header_cert
+      steps :validate_cert_exists, :validate_the_request, :validate_header_cert
 
       # TODO:
       # def_delegators @authenticator_input, :service_id, :authenticator_name,
@@ -47,7 +47,6 @@ module Authentication
       end
 
       def validate_header_cert
-        validate_cert_exists
         validate_cert_is_trusted
         validate_common_name_matches
         validate_cert_isnt_expired
