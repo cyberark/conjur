@@ -89,7 +89,7 @@ Then(/^I cannot authenticate with pod matching "([^"]*)" as "([^"]*)" using a ce
       ssl_client_key: @pkey,
       verify_ssl: OpenSSL::SSL::VERIFY_PEER
     )["#{ENV['CONJUR_ACCOUNT']}/#{CGI.escape conjur_id}/authenticate?request_ip=#{@request_ip}"].post('')
-  rescue
+  rescue RestClient::Exception
     @error = $!
   end
 
