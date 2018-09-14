@@ -86,7 +86,7 @@ module Authentication
       end
 
       def header_cert_str
-        request.env['HTTP_X_SSL_CLIENT_CERTIFICATE']
+        CGI.unescape(request.env['HTTP_X_SSL_CLIENT_CERTIFICATE'])
       end
 
       # username in this context is the host name
@@ -104,6 +104,12 @@ module Authentication
       end
 
       def pod_request
+        puts("************")
+        puts service_id
+        puts account
+        puts header_cert_str
+        puts cert.spiffe_id
+        
         Rails.logger.debug("jonah #{header_cert_str}")
         PodRequest.new(
           service_id: service_id,
