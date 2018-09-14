@@ -7,12 +7,19 @@ module Util
     module X509
       class SmartCert < SimpleDelegator
 
+        class InvalidCert < RuntimeError
+          def to_s
+            'Cert must be a String or X509::Certificate'
+          end
+        end
+
         # Support both method of creation so that it will behave like an
         # `OpenSSL::X509::Certificate`
         #
         def initialize(cert)
-          cert = cert.is_a?(String) ?
-            OpenSSL::X509::Certificate.new(cert) : cert
+          Rails.logger.debug("jonah #{cert.inspect}")
+          validate_cert(cert)
+          cert = cert.is_a?(String) ? OpenSSL::X509::Certificate.new(cert) : cert
           super(cert)
         end
 
@@ -30,9 +37,14 @@ module Util
 
         private
 
-        # def san_asn1data
-        #   OpenSSL::ASN1.decode(san_ext)
-        # end
+        def validate_cert(cert)
+          valid = !cert.nil? && valid_type?(cert)
+          raise InvalidCert unless valid
+        end
+
+        def valid_type?(cert)
+          cert.is_a?(String) || cert.is_a?(OpenSSL::X509::Certificate)
+        end
 
         # san = subject alt name
         #

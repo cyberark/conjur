@@ -88,7 +88,10 @@ module Authentication
 
       def header_cert_str
         str = request.env['HTTP_X_SSL_CLIENT_CERTIFICATE']
-        str ? CGI.unescape(str) : nil
+        Rails.logger.debug("jonah str #{str}")
+        x = str ? CGI.unescape(str) : nil
+        Rails.logger.debug("x #{x}")
+        x
       end
 
       # username in this context is the host name
