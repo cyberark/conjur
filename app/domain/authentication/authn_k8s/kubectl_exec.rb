@@ -84,7 +84,7 @@ module Authentication
         pod_namespace:,
         logger:,
         kubeclient:,
-        container: 'authentication',
+        container: 'authenticator',
         timeout: 5.seconds
       )
         @pod_name = pod_name
@@ -127,8 +127,7 @@ module Authentication
         hs_error = hs.error
         
         if hs_error
-          @message_log.save_error_string(hs_error.inspect)
-          ws_client.emit(:error, @message_log.messages)
+          ws_client.emit(:error, "Websocket handshake error: #{hs_error.inspect}")
         else
           @logger.debug("Pod #{@pod_name} : channel open")
 
