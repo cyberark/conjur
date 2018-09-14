@@ -123,7 +123,11 @@ module Authentication
       end
       
       def on_open(ws_client, body, stdin)
-        if ws_client.handshake.error
+        hs = ws_client.handshake
+        hs_error = hs.error
+        
+        if hs_error
+          @message_log.save_error_string(hs_error.inspect)
           ws_client.emit(:error, @message_log.messages)
         else
           @logger.debug("Pod #{@pod_name} : channel open")
@@ -157,7 +161,6 @@ module Authentication
       end
 
       def on_error(err)
-        puts("*** error: #{err.inspect}")
         @channel_closed = true
         @logger.debug("Pod #{@pod_name} error : #{err.inspect}")
         @message_log.save_error_string(err.inspect)
