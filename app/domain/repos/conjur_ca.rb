@@ -8,6 +8,7 @@ module Repos
       ca = ::Util::OpenSsl::CA.from_subject(ca_info.cert_subject)
       Secret.create(resource_id: ca_info.cert_id, value: ca.cert.to_pem)
       Secret.create(resource_id: ca_info.key_id, value: ca.key.to_pem)
+      ca.cert
     end
 
     # Initialize stored CA from Conjur resource_id
