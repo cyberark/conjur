@@ -39,6 +39,7 @@ module Util
         end
 
         def subject_altname
+          # TODO:
           ext_req_attr_val.extension('subjectAltName').value.sub(/^uri:/i, '')
         end
 

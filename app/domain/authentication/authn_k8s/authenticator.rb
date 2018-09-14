@@ -96,7 +96,9 @@ module Authentication
       end
 
       def webservice_ca
-        @webservice_ca ||= Repos::ConjurCA.ca(service_id)
+        # TODO: pull this into an object
+        webservice_id = "#{account}:webservice:conjur/authn-k8s/#{service_id}"
+        @webservice_ca ||= Repos::ConjurCA.ca(webservice_id)
       end
 
       # @return [SpiffeId] A SpiffeId value object
