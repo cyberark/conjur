@@ -10,7 +10,7 @@ module Authentication
     class CommonName
 
       def self.from_host_resource_name(name)
-        common_name = username.tr('/', '.')
+        common_name = name.tr('/', '.')
         new(common_name)
       end
 
