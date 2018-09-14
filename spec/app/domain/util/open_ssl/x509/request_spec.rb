@@ -1,6 +1,4 @@
-__END__
-require 'csr'
-# require 'app/domain/util/open_ssl/x509/request'
+require 'spec_helper'
 
 private_key = OpenSSL::PKey::RSA.new(1048)
 altnames = ['URI:spiffe://cluster.local/namespace/foo/pod/bar']

@@ -1,7 +1,4 @@
-require 'app/domain/util/open_ssl/x509/certificate'
-require 'app/domain/util/open_ssl/x509/smart_csr'
-require 'app/domain/util/open_ssl/x509/quick_csr'
-
+require 'spec_helper'
 
 RSpec.shared_context "certificate testing" do
 
