@@ -62,7 +62,8 @@ module Authentication
       end
 
       def validate_common_name_matches
-        raise CommonNameDoesntMatchHost unless host_and_cert_cn_match?
+        return if host_and_cert_cn_match?
+        raise CommonNameDoesntMatchHost.new(cert.common_name, host_name)
       end
 
       def validate_cert_isnt_expired

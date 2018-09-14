@@ -42,7 +42,8 @@ module Authentication
       "Client certificate cannot be verified by certification authority"
     )
     CommonNameDoesntMatchHost = ::Util::ErrorClass.new(
-      "Client certificate CN must match host_id"
+      "Client certificate CN must match host name. Cert CN: {0}. " +
+      "Host name: {1}. "
     )
     ClientCertificateExpired = ::Util::ErrorClass.new(
       "Client certificate expired"
