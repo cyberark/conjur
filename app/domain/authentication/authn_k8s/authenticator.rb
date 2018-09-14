@@ -87,7 +87,8 @@ module Authentication
       end
 
       def header_cert_str
-        CGI.unescape(request.env['HTTP_X_SSL_CLIENT_CERTIFICATE'])
+        str = request.env['HTTP_X_SSL_CLIENT_CERTIFICATE']
+        str ? CGI.unescape(str) : nil
       end
 
       # username in this context is the host name
