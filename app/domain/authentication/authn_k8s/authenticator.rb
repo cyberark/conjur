@@ -1,3 +1,4 @@
+require 'cgi'
 require 'forwardable'
 require_relative 'errors'
 
