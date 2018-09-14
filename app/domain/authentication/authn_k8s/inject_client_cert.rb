@@ -86,6 +86,8 @@ module Authentication
       end
 
       def validate_cert_installation(resp)
+        puts("&&&&& #{resp}")
+        puts("&&&&& #{resp[:error]}")
         return unless resp[:error]
         raise CertInstallationError, cert_error(resp[:error])
       end
