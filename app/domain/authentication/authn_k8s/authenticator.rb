@@ -105,12 +105,10 @@ module Authentication
       end
 
       def pod_request
-        puts("************")
-        puts service_id
-        puts account
-        puts header_cert_str
-        puts 'cert.san', cert.san
-        puts 'spiffe_id', spiffe_id.inspect
+        Rails.logger.debug("service_id #{service_id}")
+        Rails.logger.debug("account #{account}")
+        Rails.logger.debug("cert.san #{cert.san}")
+        Rails.logger.debug("spiffe_id #{spiffe_id}")
         
         Rails.logger.debug("jonah #{header_cert_str}")
         PodRequest.new(
