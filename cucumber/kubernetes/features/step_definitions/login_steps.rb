@@ -9,7 +9,7 @@ def login username, request_ip, authn_k8s_host, pkey
       ssl_ca_file: './nginx.crt'
     )["inject_client_cert?request_ip=#{request_ip}"].post(csr.to_pem, content_type: 'text/plain')
   
-  p 'resp', resp
+  p 'resp', response
   @cert = pod_certificate
   p '@cert', @cert
 
