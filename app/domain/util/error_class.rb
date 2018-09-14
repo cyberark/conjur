@@ -13,6 +13,7 @@ module Util
         end
         define_method(:to_s) do
           @args.each.with_index.reduce(msg) do |m,(x,i)|
+            puts msg
             m.gsub(Regexp.new("\\{#{i}}"), x || 'nil')
           end
         end
