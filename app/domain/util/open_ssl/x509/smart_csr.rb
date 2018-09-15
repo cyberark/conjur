@@ -21,7 +21,8 @@ module Util
         # Assumes the spiffe_id is the first alt name
         #
         def spiffe_id
-          @spiffe_id ||= ext_req_attr ? subject_altname : nil
+          return nil unless ext_req_attr
+          @spiffe_id ||= subject_altname.sub(/^URI:/i, '')
         end
 
         def common_name
@@ -39,8 +40,7 @@ module Util
         end
 
         def subject_altname
-          # TODO:
-          ext_req_attr_val.extension('subjectAltName').value.sub(/^uri:/i, '')
+          ext_req_attr_val.extension('subjectAltName').value
         end
 
         def ext_req_attr

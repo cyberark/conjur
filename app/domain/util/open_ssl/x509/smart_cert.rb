@@ -17,7 +17,6 @@ module Util
         # `OpenSSL::X509::Certificate`
         #
         def initialize(cert)
-          Rails.logger.debug("jonah #{cert.inspect}")
           validate_cert(cert)
           cert = cert.is_a?(String) ? OpenSSL::X509::Certificate.new(cert) : cert
           super(cert)
@@ -25,6 +24,11 @@ module Util
 
         def san
           san_ext&.value
+        end
+
+        # Removes the URI: prefix
+        def san_uri
+          san.sub(/^URI:/i, '')
         end
 
         def common_name

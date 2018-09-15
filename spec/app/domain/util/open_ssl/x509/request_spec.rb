@@ -1,3 +1,4 @@
+__END__
 require 'spec_helper'
 
 private_key = OpenSSL::PKey::RSA.new(1048)
