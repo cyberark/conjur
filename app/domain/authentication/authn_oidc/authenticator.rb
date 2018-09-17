@@ -71,7 +71,7 @@ module Authentication
 
       def validate_user_info(user_info, id_token_subject)
         unless user_info.sub == id_token_subject
-          raise OIDCAuthenticationError, "User info subject [#{user_info.sub}] and id token subject [#{id_token.sub}] are not equal"
+          raise OIDCAuthenticationError, "User info subject [#{user_info.sub}] and id token subject [#{id_token_subject}] are not equal"
         end
 
         # validate user_info was included in scope
