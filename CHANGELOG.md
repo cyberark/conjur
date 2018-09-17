@@ -39,24 +39,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Adds `conjurctl export` command to provide a migration data package to Conjur EE
 
-## [1.1.2] - 2018-
-### Security
-- Fixes a vulnerability that could allow an authn-K8s request to bypass mutual TLS authentication. All Conjur users using authn-k8s within Kubernetes or OpenShift are strongly recommended to upgrade to this version.
-
-### Fixed
-- Substantial performance improvement when loading large policy files
-
-## [1.1.1] - 2018-8-10
-### Added
-- `conjurctl export` now includes the account list to support migration
-- `conjurctl export` allows the operator to specify the file name label using the `-l` or `--label` flag
-- Update puma to a version that understands how to handle having ipv6 disabled
-- Update puma worker timeout to allow longer requests to finish (from 1 minute to 10 minutes)
-
-## [1.1.0] - 2018-7-30
-### Added
-- Adds `conjurctl export` command to provide a migration data package to Conjur EE
-
 ## [1.0.1] - 2018-7-23
 ### Fixed
 - Handling of absolute user ids in policies.
