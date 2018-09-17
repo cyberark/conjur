@@ -105,16 +105,10 @@ module Authentication
 
       # @return [SpiffeId] A SpiffeId value object
       def spiffe_id
-        SpiffeId.new(cert.san.sub(/^uri:/i, ''))
+        SpiffeId.new(cert.san_uri)
       end
 
       def pod_request
-        #TODO:
-        # Rails.logger.debug("service_id #{service_id}")
-        # Rails.logger.debug("account #{account}")
-        # Rails.logger.debug("cert.san #{cert.san}")
-        # Rails.logger.debug("spiffe_id #{spiffe_id}")
-        # Rails.logger.debug("jonah #{header_cert_str}")
         PodRequest.new(
           service_id: service_id,
           k8s_host: K8sHost.from_cert(

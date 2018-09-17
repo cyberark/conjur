@@ -1,15 +1,20 @@
-require 'spec_helper'
+$LOAD_PATH << File.expand_path('../../../../../../..', __FILE__)
+require 'app/domain/util/open_ssl/x509/certificate'
+require 'app/domain/util/open_ssl/x509/smart_csr'
+require 'app/domain/util/open_ssl/x509/smart_cert'
+require 'app/domain/util/open_ssl/x509/quick_csr'
 
 RSpec.shared_context "certificate testing" do
 
   let(:common_name) { 'example.com' }
-  let(:spiffe_id) { 'URI:spiffe://cluster.local/example' }
+  let(:spiffe_id) { 'spiffe://cluster.local/example' }
+  let(:alt_name) { 'URI:' + spiffe_id }
   let(:cert_subject) { "/CN=#{common_name}/OU=Conjur Kubernetes CA/O=conjur" }
 
   let(:csr_with_spiffe_id) do
     Util::OpenSsl::X509::QuickCsr.new(
       common_name: common_name,
-      alt_names: [spiffe_id]
+      alt_names: [alt_name]
     ).request
   end
 
@@ -20,7 +25,7 @@ RSpec.shared_context "certificate testing" do
   let(:cert_with_spiffe_id) do
     Util::OpenSsl::X509::Certificate.from_subject(
       subject: cert_subject,
-      alt_name: spiffe_id
+      alt_name: alt_name
     )
   end
 

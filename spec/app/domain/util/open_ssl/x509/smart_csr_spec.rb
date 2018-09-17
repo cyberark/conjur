@@ -1,4 +1,4 @@
-require 'spec_helper'
+require_relative 'shared_context'
 
 RSpec.describe 'Util::OpenSsl::X509::SmartCsr' do
   include_context "certificate testing"

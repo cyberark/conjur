@@ -1,4 +1,4 @@
-require 'spec_helper'
+require_relative 'shared_context'
 
 RSpec.describe 'Util::OpenSsl::X509::SmartCert' do
   include_context "certificate testing"
@@ -27,7 +27,7 @@ RSpec.describe 'Util::OpenSsl::X509::SmartCert' do
     subject(:cert) { smart_cert(reconstructed_cert(cert_with_spiffe_id)) }
 
     it "returns the SAN" do
-      expect(cert.san).to eq(spiffe_id)
+      expect(cert.san).to eq(alt_name)
     end
 
     it "returns the common name" do
