@@ -89,8 +89,6 @@ group :development, :test do
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
   gem 'table_print'
-  gem 'websocket-eventmachine-server'
-  gem 'thin'
 end
 
 group :development do
