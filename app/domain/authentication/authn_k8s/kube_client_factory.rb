@@ -1,6 +1,9 @@
 require 'kubeclient'
 
 #TODO make it class that accepts env, so the validation is only done once
+# That is, this is a really an object whose ctor dependency is ENV, and
+# where the validation is done at construction.  `client` then becomes
+# a method on that constructed object
 #
 module Authentication
   module AuthnK8s
@@ -22,31 +25,33 @@ module Authentication
         Kubeclient::Client.new(full_url, version, options)
       end
 
-      private
+      class << self
+        private
 
-      def self.validate_serviceaccount_dir_exists!
-        valid = File.exists?(SERVICEACCOUNT_DIR)
-        raise MissingServiceAccountDir, SERVICEACCOUNT_DIR unless valid
-      end
+        def validate_serviceaccount_dir_exists!
+          valid = File.exists?(SERVICEACCOUNT_DIR)
+          raise MissingServiceAccountDir, SERVICEACCOUNT_DIR unless valid
+        end
 
-      def self.validate_env_variables!
-        EXPECTED_ENV_VARS.each { |v| raise MissingEnvVar, v unless ENV[v] }
-      end
+        def validate_env_variables!
+          EXPECTED_ENV_VARS.each { |v| raise MissingEnvVar, v unless ENV[v] }
+        end
 
-      def self.host_url
-        "https://#{ENV['KUBERNETES_SERVICE_HOST']}:#{ENV['KUBERNETES_SERVICE_PORT']}"
-      end
+        def host_url
+          "https://#{ENV['KUBERNETES_SERVICE_HOST']}:#{ENV['KUBERNETES_SERVICE_PORT']}"
+        end
 
-      def self.options
-        {
-          auth_options: {
-            bearer_token_file: File.join(SERVICEACCOUNT_DIR, 'token')
-          },
-          ssl_options: {
-            ca_file: File.join(SERVICEACCOUNT_DIR, 'ca.crt'),
-            verify_ssl: OpenSSL::SSL::VERIFY_PEER
+        def options
+          {
+            auth_options: {
+              bearer_token_file: File.join(SERVICEACCOUNT_DIR, 'token')
+            },
+            ssl_options: {
+              ca_file: File.join(SERVICEACCOUNT_DIR, 'ca.crt'),
+              verify_ssl: OpenSSL::SSL::VERIFY_PEER
+            }
           }
-        }
+        end
       end
 
     end

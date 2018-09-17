@@ -3,7 +3,6 @@ module Repos
 
     # Generates a CA certificate and key and store them in Conjur variables.  
     def self.create(resource_id)
-      #TODO:
       ca_info = ::Conjur::CaInfo.new(resource_id)
       ca = ::Util::OpenSsl::CA.from_subject(ca_info.cert_subject)
       Secret.create(resource_id: ca_info.cert_id, value: ca.cert.to_pem)
@@ -14,7 +13,6 @@ module Repos
     # Initialize stored CA from Conjur resource_id
     #
     def self.ca(resource_id)
-      #TODO:
       ca_info = ::Conjur::CaInfo.new(resource_id)
       stored_cert = Resource[ca_info.cert_id].last_secret.value
       stored_key = Resource[ca_info.key_id].last_secret.value

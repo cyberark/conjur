@@ -72,9 +72,6 @@ module Authentication
       protected
 
       def invoke_k8s_method method_name, *arguments
-        # orig
-        k8s_client_for_method(method_name).send *( [ method_name ] + arguments )
-        # rewrite
         k8s_client_for_method(method_name).send(method_name, *arguments)
       end
 

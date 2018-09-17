@@ -21,6 +21,17 @@ module Authentication
         validate_csr
       end
 
+      def install_signed_cert
+        exec = @kubectl_exec.new(
+          pod_name: spiffe_id.name,
+          pod_namespace: spiffe_id.namespace,
+          logger: Rails.logger,
+          kubeclient: k8s_object_lookup.kubectl_client
+        )
+        resp = exec.copy("/etc/conjur/ssl/client.pem", cert_to_install.to_pem, "0644")
+        validate_cert_installation(resp)
+      end
+
       def pod_request
         PodRequest.new(
           service_id: service_id,
@@ -74,17 +85,6 @@ module Authentication
         @common_name ||= CommonName.new(smart_csr.common_name)
       end
       
-      def install_signed_cert
-        exec = @kubectl_exec.new(
-          pod_name: spiffe_id.name,
-          pod_namespace: spiffe_id.namespace,
-          logger: Rails.logger,
-          kubeclient: k8s_object_lookup.kubectl_client
-        )
-        resp = exec.copy("/etc/conjur/ssl/client.pem", cert_to_install.to_pem, "0644")
-        validate_cert_installation(resp)
-      end
-
       def validate_cert_installation(resp)
         return if resp[:error].empty?
         raise CertInstallationError, cert_error(resp[:error])

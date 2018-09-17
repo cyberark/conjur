@@ -1,9 +1,8 @@
 # NOTE: This file has has not been refactored yet.  In particular, the name
 # K8sResolver is too ambiguous, and per the explanation below should probably
-# be changed to `K8sApplication`. Even better, since its used only for
-# validation, we could name it `ValidateK8sApplication`, inject the
-# K8sObjectLookup dependency, and give it a `.call(controller, object, pod)`
-# method.
+# be changed to `ValidateK8sResource`. Since its used only for validation, we
+# could use that name, inject the K8sObjectLookup dependency, and give it a
+# `.call(controller, object, pod)` method.
 #
 # A resolver looks up a logical application in the Kubernetes object store.
 # A logical application is a K8s "controller" such as a Deployment or StatefulSet.

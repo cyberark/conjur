@@ -41,7 +41,7 @@ function finish {
   delete_image $INVENTORY_TAG
   delete_image $NGINX_TAG
 }
-# trap finish EXIT
+trap finish EXIT
 
 export TEMPLATE_TAG=gke.
 export API_VERSION=rbac.authorization.k8s.io/v1beta1

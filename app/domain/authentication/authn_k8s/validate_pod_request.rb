@@ -33,11 +33,6 @@ module Authentication
 
       def validate_host_can_access_service
         return if host_can_access_service?
-
-        puts("^^^^^^^^^^^^")
-        puts("host role id: #{host.role.id}")
-        puts("service_id: #{service_id}")
-        
         raise HostNotAuthorized.new(host.role.id, service_id)
       end
 
@@ -98,7 +93,7 @@ module Authentication
 
       def container
         pod.spec.containers.find { |c| c.name == container_name } ||
-        pod.spec.initContainers.find { |c| c.name == container_name }
+          pod.spec.initContainers.find { |c| c.name == container_name }
       end
 
       def container_name
