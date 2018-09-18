@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+- Previously, loading a policy with a host factory that doesn't include
+  any layers would cause a `nil` runtime exception. Now this case is checked
+  specifically and raises a policy load error with a description of the problem.
+
 ## [1.2.0] - 2018-09-18
 ### Added
 - Added support for issuing certificates to Hosts using CAs configured as

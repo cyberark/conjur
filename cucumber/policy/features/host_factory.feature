@@ -67,3 +67,21 @@ Feature: Host Factories can be managed through policies.
         "cucumber:layer:myapp"
       ]
       """
+
+    Scenario: Load a Host Factory with no layers
+      Given a policy:
+        """ 
+        - !policy
+          id: another-app
+          body:
+            - !policy
+              id: hosts
+              annotations:
+                description: Layer & Host Factory for machines that can read secrets
+              body:
+                - !layer
+                - !host-factory
+        """
+      Then there is an error
+      And the error code is "policy_invalid"
+      And the error message is "Host factory 'another-app/hosts' does not include any layers"

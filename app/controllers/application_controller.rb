@@ -27,6 +27,7 @@ class ApplicationController < ActionController::API
   rescue_from Sequel::NoMatchingRow, with: :no_matching_row
   rescue_from Sequel::ForeignKeyConstraintViolation, with: :foreign_key_constraint_violation
   rescue_from Conjur::PolicyParser::Invalid, with: :policy_invalid
+  rescue_from Exceptions::InvalidPolicyObject, with: :policy_invalid
   rescue_from ArgumentError, with: :argument_error
 
   around_action :run_with_transaction
@@ -120,17 +121,23 @@ class ApplicationController < ActionController::API
 
   def policy_invalid e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
-    render json: {
-      error: {
+
+    error = {
+      code: "policy_invalid",
+      message: e.message
+    }
+
+    if e.instance_of?(Conjur::PolicyParser::Invalid)
+      error[:innererror] = {
         code: "policy_invalid",
-        message: e.message,
-        innererror: {
-          code: "policy_invalid",
-          filename: e.filename,
-          line: e.mark.line,
-          column: e.mark.column
-        }
+        filename: e.filename,
+        line: e.mark.line,
+        column: e.mark.column
       }
+    end
+
+    render json: {
+      error: error
     }, status: :unprocessable_entity
   end
 
