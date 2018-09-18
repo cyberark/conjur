@@ -6,20 +6,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-- Change authn-k8s to expect the client cert (passed in `X-SSL-Client-Certificate`) to be
-  url-escaped.
-- Update Conjur issued certificates to use the common name derived from the authenticated
-  host, rather than use the value from the CSR.
-- Update Conjur issued certificates to include a SPIFFE SVID as a subject alternative
-  name (SAN).
-- Prevent anonymous (password-less) authentication with LDAP.
-
-## [1.2.0] - 2018-09-07
+## [1.2.0] - 2018-09-18
 ### Added
 - Added support for issuing certificates to Hosts using CAs configured as
   Conjur services. More details are available [here](docs/CERTIFICATE_SIGNING.md).
 - Added support for Conjur CAs to use encrypted private keys
 - Implemented keyword search for Role memberships
+- Update Conjur issued certificates to include a SPIFFE SVID as a subject alternative
+  name (SAN).
+
+### Changed
+- Change authn-k8s to expect the client cert (passed in `X-SSL-Client-Certificate`) to be
+  url-escaped.
+- Update Conjur issued certificates to use the common name derived from the authenticated
+  host, rather than use the value from the CSR.
+
+### Fixed
+- Prevent anonymous (password-less) authentication with LDAP.
 
 ## [1.1.2] - 2018-08-22
 ### Security
