@@ -127,24 +127,24 @@ module Authentication
         # initialization code based on ENV config
       end
 
-      # OPTIONAL
-      # Implement `login` if your authenticator will
-      # accept end-user credentials in exchange for a
-      # token the user can used to authenticate with this
-      # same authenticator.
-      #
-      # input has 5 attributes:
-      #
-      #     input.authenticator_name
-      #     input.service_id
-      #     input.account
-      #     input.username
-      #     input.password
-      #
-      # return either
-      #   - a `string` containing the authentication key if successful
-      #   - `nil` if the authentication is not successful
       def login(input)
+        # OPTIONAL
+        # Implement `login` if your authenticator will
+        # accept end-user credentials in exchange for a
+        # token the user can used to authenticate with this
+        # same authenticator.
+        #
+        # input has 5 attributes:
+        #
+        #     input.authenticator_name
+        #     input.service_id
+        #     input.account
+        #     input.username
+        #     input.password
+        #
+        # return either
+        #   - a `string` containing the authentication key if successful
+        #   - `nil` if the authentication is not successful
       end
 
       def valid?(input)
@@ -168,7 +168,7 @@ end
 
 1. Your authenticator directory can contain other supporting files used by your
    authenticator.
-2. Conjur will instantiate your authenticator at bootup.  By default, when your
+2. Conjur will instantiate your authenticator at boot up.  By default, when your
    authenticator is instantiated by conjur, it will be passed the `ENV` through
    the kwarg `env`.  If you don't need any configuration from the environment,
    you can opt out like so:
