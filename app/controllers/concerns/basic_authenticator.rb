@@ -9,6 +9,10 @@ module BasicAuthenticator
   end
   
   def perform_basic_authn
+    # we need to check the auth method.
+    # authenticate_with_http_basic doesn't do that and freaks out randomly.
+    return unless request.authorization =~ /^Basic /
+
     authenticate_with_http_basic do |username, password|
       authenticator_login(username, password).tap do |response|
         authentication.authenticated_role = ::Role[response.role_id]
@@ -18,8 +22,7 @@ module BasicAuthenticator
            ::Authentication::Strategy::InvalidOrigin,
            ::Authentication::Security::NotAuthorizedInConjur
       raise ApplicationController::Unauthorized
-    end if request.authorization =~ /^Basic / # we need to check the auth method.
-    # authenticate_with_http_basic doesn't do that and freaks out randomly.
+    end
   end
 
   protected
