@@ -42,7 +42,7 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
 
   Scenario: An valid LDAP user who's not in Conjur can't login
     When I login via LDAP as non-existent Conjur user "bob"
-    Then it is denied
+    Then it is forbidden
 
   Scenario: An empty password may never be used to authenticate
     When my LDAP password for authorized Conjur user "alice" is empty
@@ -67,4 +67,4 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
         resource: !webservice
     """
     When I login via LDAP as authorized Conjur user "alice"
-    Then it is denied
+    Then it is forbidden

@@ -37,5 +37,9 @@ Then(/"(\S+)" is authorized/) do |username|
 end
 
 Then(/it is denied/) do
-  expect(authorized?).to be true
+  expect(unauthorized?).to be true
+end
+
+Then(/it is forbidden/) do
+  expect(forbidden?).to be true
 end

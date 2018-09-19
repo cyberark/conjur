@@ -29,8 +29,12 @@ module AuthenticatorHelpers
     nil
   end
 
-  def authorized?
+  def unauthorized?
     http_status == 401
+  end
+
+  def forbidden?
+    http_status == 403
   end
 
   def load_root_policy(policy)
