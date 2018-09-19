@@ -48,7 +48,12 @@ class AuthenticateController < ApplicationController
   end
 
   def k8s_inject_client_cert
-    ::Authentication::AuthnK8s::Authenticator.new(env: ENV).inject_client_cert(params, request)
+    # TODO: add this to initializer
+    ::Authentication::AuthnK8s::InjectClientCert.new.(
+      conjur_account: ENV['CONJUR_ACCOUNT'],
+      service_id: params[:service_id],
+      csr: request.body.read
+    )
     head :ok
   rescue => e
     logger.debug("Authentication Error: #{e.message}")

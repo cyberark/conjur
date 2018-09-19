@@ -10,7 +10,6 @@ def login username, request_ip, authn_k8s_host, pkey
     )["inject_client_cert?request_ip=#{request_ip}"].post(csr.to_pem, content_type: 'text/plain')
   
   @cert = pod_certificate
-
   response
 end
 

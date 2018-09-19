@@ -8,6 +8,7 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 #ruby=ruby-2.5.1
 #ruby-gemset=conjur
 
+gem 'command_class'
 gem 'base58'
 gem 'iso8601'
 gem 'nokogiri', '>= 1.8.2'
@@ -70,6 +71,7 @@ gem 'websocket-client-simple'
 
 group :development, :test do
   gem 'aruba'
+  gem 'csr'
   gem 'ci_reporter_rspec'
   gem 'conjur-cli', '~> 6.1'
   gem 'conjur-debify', require: false

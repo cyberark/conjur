@@ -1,11 +1,4 @@
-# frozen_string_literal: true
-
-require 'authentication/webservice'
-
-require 'rspec'
-$: << '../../../../app/domain'
-require 'authentication/webservice'
-
+require 'spec_helper'
 
 RSpec.describe Authentication::Webservice do
   WS = Authentication::Webservice

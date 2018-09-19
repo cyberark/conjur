@@ -6,17 +6,14 @@ def gen_cert(host_id)
   id = 'conjur/authn-k8s/minikube'
   conjur_account = ENV['CONJUR_ACCOUNT']
   subject = "/CN=#{id.tr('/', '.')}/OU=Conjur Kubernetes CA/O=#{conjur_account}"
-  ca_cert, ca_key = Authentication::AuthnK8s::CA.generate(subject)
-  ca = Authentication::AuthnK8s::CA.new(ca_cert, ca_key)
+  ca = ::Util::OpenSsl::CA.from_subject(subject)
 
   metadata = @pod.metadata
   spiffe_id = "URI:spiffe://cluster.local/namespace/#{metadata.namespace}/pod/#{metadata.name}"
 
   username = [namespace, host_id].join('/')
-  @pkey = OpenSSL::PKey::RSA.new 1048
-  csr = gen_csr(username, @pkey, [spiffe_id])
-  
-  ca.issue(csr, [spiffe_id])
+  webservice_resource_id = "#{ENV['CONJUR_ACCOUNT']}:webservice:#{username}"
+  ::Repos::ConjurCA.create(webservice_resource_id)
 end
 
 Given(/^I use the IP address of(?: a pod in)? "([^"]*)"$/) do |objectid|
@@ -92,7 +89,7 @@ Then(/^I cannot authenticate with pod matching "([^"]*)" as "([^"]*)" using a ce
       ssl_client_key: @pkey,
       verify_ssl: OpenSSL::SSL::VERIFY_PEER
     )["#{ENV['CONJUR_ACCOUNT']}/#{CGI.escape conjur_id}/authenticate?request_ip=#{@request_ip}"].post('')
-  rescue
+  rescue RestClient::Exception
     @error = $!
   end
 

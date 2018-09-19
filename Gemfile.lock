@@ -100,6 +100,7 @@ GEM
     coderay (1.1.1)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
+    command_class (0.0.1)
     concurrent-ruby (1.0.5)
     conjur-cli (6.1.0)
       activesupport (>= 4.2, < 6)
@@ -122,6 +123,7 @@ GEM
       rack
     contracts (0.16.0)
     crass (1.0.3)
+    csr (0.1.0)
     cucumber (2.4.0)
       builder (>= 2.1.2)
       cucumber-core (~> 1.5.0)
@@ -410,12 +412,14 @@ DEPENDENCIES
   bcrypt-ruby (~> 3.0.0)
   bootstrap-sass (~> 3.2.0)
   ci_reporter_rspec
+  command_class
   conjur-api!
   conjur-cli (~> 6.1)
   conjur-debify
   conjur-policy-parser (>= 3.0.2)!
   conjur-rack (~> 3.1)
   conjur-rack-heartbeat
+  csr
   cucumber
   database_cleaner
   dry-struct
@@ -463,4 +467,4 @@ DEPENDENCIES
   websocket-client-simple
 
 BUNDLED WITH
-   1.16.3
+   1.16.4
