@@ -3,6 +3,8 @@
 module Authentication
   class InstalledAuthenticators
 
+    AUTHN_RESOURCE_PREFIX = "conjur/authn-"
+
     def self.authenticators(env, authentication_module: ::Authentication)
       loaded_authenticators(authentication_module)
         .select { |cls| valid?(cls) }
@@ -15,6 +17,22 @@ module Authentication
         .select { |cls| provides_login?(cls) }
         .map { |cls| [url_for(cls), authenticator_instance(cls, env)] }
         .to_h
+    end
+
+    def self.configured_authenticators
+      identifier = Sequel.function(:identifier, :resource_id)
+      kind = Sequel.function(:kind, :resource_id)
+
+      Resource
+        .where(identifier.like("#{AUTHN_RESOURCE_PREFIX}%"))
+        .where(kind => "webservice")
+        .select_map(identifier)
+        .map { |id| id.sub %r{^conjur\/}, "" }
+        .push(::Authentication::Strategy.default_authenticator_name)
+    end
+
+    def self.enabled_authenticators(env)
+      (env["CONJUR_AUTHENTICATORS"] || ::Authentication::Strategy.default_authenticator_name).split(",")
     end
 
     private
