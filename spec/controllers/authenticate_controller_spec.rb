@@ -9,7 +9,7 @@ describe AuthenticateController, :type => :controller do
   let(:authenticator) { "authn" }
 
   context "#login" do
-    shared_examples_for "successful authentication" do
+    shared_examples_for "successful login" do
       it "succeeds" do
         post :login, params
         expect(response).to be_ok
@@ -17,7 +17,7 @@ describe AuthenticateController, :type => :controller do
       end
     end
     
-    shared_examples_for "authentication denied" do
+    shared_examples_for "login denied" do
       it "is unauthorized" do
         post :login, account: account, authenticator: authenticator
         expect(response.code).to eq("401")
@@ -25,23 +25,25 @@ describe AuthenticateController, :type => :controller do
     end
     
     context "without auth" do
-      it_should_behave_like "authentication denied"
+      it_should_behave_like "login denied"
     end
+
     context "when user doesn't exist" do
       let(:basic_password) { "the-password" }
       include_context "authenticate Basic"
-      it_should_behave_like "authentication denied"
+      it_should_behave_like "login denied"
     end
+
     context "when user exists" do
       include_context "create user"
       context "with basic auth" do
         let(:basic_password) { api_key }
         include_context "authenticate Basic"
-        it_should_behave_like "successful authentication"
+        it_should_behave_like "successful login"
       end
       context "with Token auth" do
         include_context "authenticate Token"
-        it_should_behave_like "authentication denied"
+        it_should_behave_like "login denied"
       end
     end
   end
