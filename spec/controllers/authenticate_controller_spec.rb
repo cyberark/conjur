@@ -13,7 +13,7 @@ describe AuthenticateController, :type => :controller do
       it "succeeds" do
         post :login, params
         expect(response).to be_ok
-        expect(response.body.length).to be >= 44
+        expect(response.body).to eq(api_key)
       end
     end
     
