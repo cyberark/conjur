@@ -88,11 +88,9 @@ module Authentication
       key = authenticator.login(input)      
       raise InvalidCredentials unless key
 
-      # TODO: Should be audit_login_success
       audit_success(input)
       new_login(input, key)
     rescue => err
-      # TODO: Should be audit_login_failure
       audit_failure(input, err)
       raise err
     end
