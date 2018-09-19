@@ -148,9 +148,22 @@ module Loader
       protected
 
       def layer_roleids
-        self.layers.map do |layer|
+        verify_layers_exist!
+
+        Array(self.layers).map do |layer|
           find_roleid layer.roleid
         end
+      end
+
+      def verify_layers_exist!
+        if self.layers.nil?
+          message = "Host factory '#{identifier}' does not include any layers"
+          raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
+        end
+      end
+
+      def identifier
+        self.roleid.split(':', 3)[2]
       end
     end
 
