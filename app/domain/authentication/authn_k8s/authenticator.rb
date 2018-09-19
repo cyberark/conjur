@@ -1,49 +1,30 @@
 require 'cgi'
 require 'forwardable'
+require 'command_class'
 require_relative 'errors'
 
 module Authentication
   module AuthnK8s
 
-    class Authenticator
-      extend ::Util::CommandObject
+    Authenticator = CommandClass.new(
+      dependencies: {validate_pod_request: ValidatePodRequest.new},
+      inputs: [:authenticator_input]
+    ) do
       extend Forwardable
 
-      dependencies env: ENV, validate_pod_request: ValidatePodRequest.new
-      input :authenticator_input
-      steps :validate_cert_exists, :validate_the_request, :validate_header_cert
+      def_delegators :@authenticator_input, :service_id, :authenticator_name,
+        :account, :username, :request
 
-      # TODO:
-      # def_delegators @authenticator_input, :service_id, :authenticator_name,
-      #                :account, :username, :request
-      #
-      def service_id
-        authenticator_input.service_id
-      end
-      def authenticator_name
-        authenticator_input.authenticator_name
-      end
-      def account
-        authenticator_input.account
-      end
-      def username
-        authenticator_input.username
-      end
-      def request
-        authenticator_input.request
-      end
-
-      # This delegates to all the work to the call method created automatically
-      # by the steps method above
-      #
-      def valid?(input)
-        call(authenticator_input: input)
+      def call
+        validate_cert_exists
+        validate_the_request
+        validate_header_cert
       end
 
       private
 
       def validate_the_request
-        validate_pod_request.(pod_request)
+        @validate_pod_request.(pod_request: pod_request)
       end
 
       def validate_header_cert
@@ -141,5 +122,21 @@ module Authentication
       #   env['CONJUR_ACCOUNT']
       # end
     end
+
+    class Authenticator
+      # This delegates to all the work to the call method created automatically
+      # by CommandClass
+      #
+      # This is needed because we need `valid?` to exist on the Authenticator
+      # class, but that class contains only a metaprogramming generated
+      # `call(authenticator_input:)` method.  The methods we define in the
+      # block passed to `CommandClass` exist only on the private internal
+      # `Call` objects created each time `call` is run.
+      #
+      def valid?(input)
+        call(authenticator_input: input)
+      end
+    end
+
   end
 end

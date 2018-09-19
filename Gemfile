@@ -8,6 +8,7 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 #ruby=ruby-2.5.1
 #ruby-gemset=conjur
 
+gem 'command_class'
 gem 'base58'
 gem 'iso8601'
 gem 'nokogiri', '>= 1.8.2'

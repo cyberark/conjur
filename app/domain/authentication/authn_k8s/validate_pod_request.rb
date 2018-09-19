@@ -1,29 +1,29 @@
 #require_relative 'host'
 require 'forwardable'
+require 'command_class'
 
 module Authentication
   module AuthnK8s
 
-    class ValidatePodRequest
-
-      extend ::Util::CommandObject
-      extend Forwardable
-
-      dependencies(
+    ValidatePodRequest = CommandClass.new(
+      dependencies: {
         resource_repo: Resource,
         k8s_resolver: K8sResolver,
         k8s_object_lookup: K8sObjectLookup # K8s API facade
-      )
-      input :pod_request
-      steps(
-        :validate_webservice_exists,
-        :validate_host_can_access_service,
-        :validate_pod_exists,
-        :validate_pod_properties,
-        :validate_container
-      )
+      },
+      inputs: [:pod_request]
+    ) do
 
+      extend Forwardable
       def_delegators :@pod_request, :service_id, :k8s_host, :spiffe_id
+
+      def call
+        validate_webservice_exists
+        validate_host_can_access_service
+        validate_pod_exists
+        validate_pod_properties
+        validate_container
+      end
 
       private
 
@@ -62,7 +62,7 @@ module Authentication
       end
 
       def validate_pod_metadata
-        k8s_resolver
+        @k8s_resolver
           .for_controller(k8s_host.controller)
           .new(controller_object, pod)
           .validate_pod
@@ -70,7 +70,7 @@ module Authentication
 
       # @return The Conjur resource for the webservice.
       def webservice
-        @webservice ||= resource_repo[logical_webservice.resource_id]
+        @webservice ||= @resource_repo[logical_webservice.resource_id]
       end
 
       # @return A value object for the webservice that encapsulates
@@ -88,7 +88,7 @@ module Authentication
       end
 
       def host
-        @host ||= resource_repo[k8s_host.conjur_host_id]
+        @host ||= @resource_repo[k8s_host.conjur_host_id]
       end
 
       def container
@@ -103,7 +103,7 @@ module Authentication
       end
 
       def pod
-        @pod ||= k8s_object_lookup.pod_by_name(pod_name, pod_namespace)
+        @pod ||= @k8s_object_lookup.pod_by_name(pod_name, pod_namespace)
       end
 
       def pod_name
@@ -115,7 +115,7 @@ module Authentication
       end
 
       def controller_object
-        @controller_object ||= k8s_object_lookup.find_object_by_name(
+        @controller_object ||= @k8s_object_lookup.find_object_by_name(
           k8s_host.controller,
           k8s_host.object,
           k8s_host.namespace

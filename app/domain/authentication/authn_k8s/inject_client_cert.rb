@@ -1,23 +1,28 @@
+require 'command_class'
+
 module Authentication
   module AuthnK8s
 
-    class InjectClientCert
-      extend ::Util::CommandObject
-
-      dependencies(
+    InjectClientCert = CommandClass.new(
+      dependencies: {
         resource_repo: Resource,
         conjur_ca_repo: Repos::ConjurCA,
         k8s_object_lookup: K8sObjectLookup,
         kubectl_exec: KubectlExec,
         validate_pod_request: ValidatePodRequest.new
-      )
-      input :conjur_account, :service_id, :csr
-      steps :validate, :install_signed_cert
+      },
+      inputs: [:conjur_account, :service_id, :csr]
+    ) do
+
+      def call
+        validate
+        install_signed_cert
+      end
 
       private
 
       def validate
-        validate_pod_request.(pod_request)
+        @validate_pod_request.(pod_request: pod_request)
         validate_csr
       end
 
@@ -26,7 +31,7 @@ module Authentication
           pod_name: spiffe_id.name,
           pod_namespace: spiffe_id.namespace,
           logger: Rails.logger,
-          kubeclient: k8s_object_lookup.kubectl_client
+          kubeclient: @k8s_object_lookup.kubectl_client
         )
         resp = exec.copy("/etc/conjur/ssl/client.pem", cert_to_install.to_pem, "0644")
         validate_cert_installation(resp)
@@ -34,7 +39,7 @@ module Authentication
 
       def pod_request
         PodRequest.new(
-          service_id: service_id,
+          service_id: @service_id,
           k8s_host: k8s_host,
           spiffe_id: spiffe_id
         )
@@ -42,9 +47,9 @@ module Authentication
 
       def k8s_host
         @k8s_host ||= Authentication::AuthnK8s::K8sHost.from_csr(
-          account: conjur_account,
-          service_name: service_id,
-          csr: csr
+          account: @conjur_account,
+          service_name: @service_id,
+          csr: @csr
         )
       end
 
@@ -57,13 +62,13 @@ module Authentication
       end
 
       def pod
-        @pod ||= k8s_object_lookup.pod_by_name(
+        @pod ||= @k8s_object_lookup.pod_by_name(
           spiffe_id.name, spiffe_id.namespace
         )
       end
 
       def host
-        @host ||= resource_repo[host_id]
+        @host ||= @resource_repo[host_id]
       end
 
       def container_name
@@ -78,7 +83,7 @@ module Authentication
       end
 
       def smart_csr
-        @smart_csr ||= Util::OpenSsl::X509::SmartCsr.new(csr)
+        @smart_csr ||= Util::OpenSsl::X509::SmartCsr.new(@csr)
       end
 
       def common_name
@@ -102,9 +107,9 @@ module Authentication
 
       def webservice
         ::Authentication::Webservice.new(
-          account: conjur_account,
+          account: @conjur_account,
           authenticator_name: 'authn-k8s',
-          service_id: service_id
+          service_id: @service_id
         )
       end
 

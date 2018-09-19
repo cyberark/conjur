@@ -100,6 +100,7 @@ GEM
     coderay (1.1.1)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
+    command_class (0.0.1)
     concurrent-ruby (1.0.5)
     conjur-cli (6.1.0)
       activesupport (>= 4.2, < 6)
@@ -411,6 +412,7 @@ DEPENDENCIES
   bcrypt-ruby (~> 3.0.0)
   bootstrap-sass (~> 3.2.0)
   ci_reporter_rspec
+  command_class
   conjur-api!
   conjur-cli (~> 6.1)
   conjur-debify
