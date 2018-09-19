@@ -2,7 +2,6 @@
 
 module BasicAuthenticator
   extend ActiveSupport::Concern
-  include Authenticators
   
   included do
     include ActionController::HttpAuthentication::Basic::ControllerMethods
@@ -27,7 +26,7 @@ module BasicAuthenticator
     end
   end
 
-  protected
+  private
 
   def authenticator_login(username, password)
     authentication_strategy.login(login_input(username, password))
@@ -54,5 +53,9 @@ module BasicAuthenticator
       origin:             request.ip,
       request:            request
     )
+  end
+
+  def installed_login_authenticators
+    @installed_login_authenticators ||= ::Authentication::InstalledAuthenticators.login_authenticators(ENV)
   end
 end

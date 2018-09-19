@@ -1,16 +1,12 @@
 # frozen_string_literal: true
 
 class AuthenticateController < ApplicationController
-  include Authenticators
   include BasicAuthenticator
 
   def index 
     authenticators = {
       # Installed authenticator plugins
       installed: installed_authenticators.keys.sort,
-
-      # Authenticators that support user login
-      login: installed_login_authenticators.keys.sort,
     
       # Authenticator webservices created in policy
       configured: configured_authenticators.sort,
@@ -70,5 +66,19 @@ class AuthenticateController < ApplicationController
       logger.debug(line)
     end
     raise Unauthorized
+  end
+
+  private
+
+  def installed_authenticators
+    @installed_authenticators ||= ::Authentication::InstalledAuthenticators.authenticators(ENV)
+  end
+
+  def configured_authenticators
+    @configured_authenticators ||= ::Authentication::InstalledAuthenticators.configured_authenticators()
+  end
+
+  def enabled_authenticators
+    ::Authentication::InstalledAuthenticators.enabled_authenticators(ENV)
   end
 end
