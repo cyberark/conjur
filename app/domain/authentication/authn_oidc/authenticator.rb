@@ -22,7 +22,8 @@ module Authentication
         oidc_authn_service = AuthenticationService.new(service.identifier, conjur_account)
         id_token, user_info = oidc_authn_service.get_user_details(request_body)
 
-        # TODO: validate id_token - if not raise error
+        # validate id_token claims - if not raise error
+        validate_id_token_claims(id_token, oidc_authn_service.client_id, oidc_authn_service.issuer)
 
         validate_user_info(user_info, id_token.sub)
 
@@ -67,6 +68,11 @@ module Authentication
         unless service
           raise OIDCConfigurationError, "Webservice [conjur/#{authenticator_name}/#{service_id}] not found in Conjur"
         end
+      end
+
+      def validate_id_token_claims (id_token, client_id, issuer)
+        expected = {:client_id => client_id, :issuer => issuer } #, :nonce => 'nonce'}
+        id_token.verify! expected
       end
 
       def validate_user_info(user_info, id_token_subject)

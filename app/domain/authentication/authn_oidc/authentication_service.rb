@@ -28,12 +28,21 @@ module Authentication
         client.authorization_code = authorization_code
         access_token = client.access_token!
 
+        client.host = URI.parse(provider_uri).host
         id_token = decode_id_token(access_token.id_token)
         user_info = access_token.userinfo!
 
         return id_token, user_info
       rescue => e
         raise OIDCAuthenticationError.new(e)
+      end
+
+      def client_id
+        Resource["#{conjur_account}:variable:#{service_id}/client-id"].secret.value
+      end
+
+      def issuer
+        discover.issuer
       end
 
       private
@@ -43,10 +52,6 @@ module Authentication
         if resource.nil? || resource.secret.nil?
           raise OIDCConfigurationError, "Variable [#{service_id}/#{variableName}] not found in Conjur"
         end
-      end
-
-      def client_id
-        Resource["#{conjur_account}:variable:#{service_id}/client-id"].secret.value
       end
 
       def client_secret
@@ -64,7 +69,7 @@ module Authentication
       def discover
         # TODO: should not run in production
         disable_ssl_verification
-        
+
         @discover ||= OpenIDConnect::Discovery::Provider::Config.discover! provider_uri
       end
 
@@ -88,6 +93,7 @@ module Authentication
       end
 
       def decode_id_token(id_token)
+        # TBD: catpture exception: JSON::JWK::Set::KidNotFound: JSON::JWK::Set::KidNotFound and try refresh signing keys
         OpenIDConnect::ResponseObject::IdToken.decode id_token, discover.jwks
       end
     end
