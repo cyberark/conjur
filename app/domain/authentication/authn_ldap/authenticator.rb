@@ -13,13 +13,7 @@ module Authentication
                      role_cls: ::Authentication::MemoizedRole,
                      credentials_cls: ::Credentials)
         @env = env
-        @filter = env['LDAP_FILTER'] || '(&(objectClass=posixAccount)(uid=%s))'
-        @ldap_server = ldap_server_factory.new(
-          uri:     env['LDAP_URI'],
-          base:    env['LDAP_BASE'],
-          bind_dn: env['LDAP_BINDDN'],
-          bind_pw: env['LDAP_BINDPW']
-        )
+        @ldap_server_factory = ldap_server_factory
         @role_cls = role_cls
         @credentials_cls = credentials_cls
       end
@@ -36,8 +30,8 @@ module Authentication
         return nil if blacklisted_ldap_user?(safe_login)
 
         # Authenticate against LDAP
-        filter = @filter % safe_login
-        bind_results = @ldap_server.bind_as(filter: filter, password: password)
+        filter = filter_template % safe_login
+        bind_results = ldap_server.bind_as(filter: filter, password: password)
         return nil unless bind_results
 
         # Return Conjur API key
@@ -54,6 +48,20 @@ module Authentication
       end
 
       private
+
+      def filter_template
+        @filter_template ||= 
+          @env['LDAP_FILTER'] || '(&(objectClass=posixAccount)(uid=%s))'
+      end
+
+      def ldap_server
+        @ldap_server ||= @ldap_server_factory.new(
+          uri:     @env['LDAP_URI'],
+          base:    @env['LDAP_BASE'],
+          bind_dn: @env['LDAP_BINDDN'],
+          bind_pw: @env['LDAP_BINDPW']
+        )
+      end
 
       def conjur_authenticator
         Authentication::Authn::Authenticator.new
