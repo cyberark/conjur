@@ -3,9 +3,7 @@
 module BasicAuthenticator
   extend ActiveSupport::Concern
   
-  included do
-    include ActionController::HttpAuthentication::Basic::ControllerMethods
-  end
+  include ActionController::HttpAuthentication::Basic::ControllerMethods
   
   def perform_basic_authn
     # we need to check the auth method.
