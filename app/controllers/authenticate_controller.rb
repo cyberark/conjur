@@ -25,25 +25,8 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticate
-    authentication_token = ::Authentication::Strategy.new(
-      authenticators: installed_authenticators,
-      audit_log: ::Authentication::AuditLog,
-      security: nil,
-      env: ENV,
-      role_cls: ::Role,
-      token_factory: TokenFactory.new
-    ).conjur_token(
-      ::Authentication::Strategy::Input.new(
-        authenticator_name: params[:authenticator],
-        service_id:         params[:service_id],
-        account:            params[:account],
-        username:           params[:id],
-        password:           request.body.read,
-        origin:             request.ip,
-        request:            request
-      )
-    )
-    render json: authentication_token
+    authn_token = authentication_strategy.conjur_token(authentication_input)
+    render json: authn_token
   rescue => e
     logger.debug("Authentication Error: #{e.message}")
     e.backtrace.each do |line|
@@ -69,6 +52,29 @@ class AuthenticateController < ApplicationController
   end
 
   private
+
+  def authentication_strategy
+    @authentication_strategy ||= ::Authentication::Strategy.new(
+      authenticators: installed_authenticators,
+      audit_log: ::Authentication::AuditLog,
+      security: nil,
+      env: ENV,
+      role_cls: ::Role,
+      token_factory: TokenFactory.new
+    )
+  end
+
+  def authentication_input
+    ::Authentication::Strategy::Input.new(
+      authenticator_name: params[:authenticator],
+      service_id:         params[:service_id],
+      account:            params[:account],
+      username:           params[:id],
+      password:           request.body.read,
+      origin:             request.ip,
+      request:            request
+    )
+  end
 
   def installed_authenticators
     @installed_authenticators ||= ::Authentication::InstalledAuthenticators.authenticators(ENV)

@@ -33,7 +33,7 @@ module BasicAuthenticator
   end
 
   def authentication_strategy
-    ::Authentication::Strategy.new(
+    @authentication_strategy ||= ::Authentication::Strategy.new(
       authenticators: installed_login_authenticators,
       audit_log: ::Authentication::AuditLog,
       security: nil,
