@@ -7,10 +7,7 @@ require 'net/ldap'
 module Authentication
   module AuthnLdap
 
-    class Authenticator < ::Dry::Struct
-      attr_reader :role_cls
-      attr_reader :credentials_cls
-
+    class Authenticator
       def initialize(env:,
                      ldap_server_factory: ::Authentication::AuthnLdap::Server,
                      role_cls: ::Authentication::MemoizedRole,
@@ -44,8 +41,8 @@ module Authentication
         return nil unless bind_results
 
         # Return Conjur API key
-        role_id = role_cls.roleid_from_username(input.account, input.username)
-        credentials_cls[role_id].api_key
+        role_id = @role_cls.roleid_from_username(input.account, input.username)
+        @credentials_cls[role_id].api_key
       end
 
       # The current LDAP authenticator expects to authenticate using the Conjur API

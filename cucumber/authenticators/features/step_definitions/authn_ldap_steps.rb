@@ -17,7 +17,7 @@ end
 When(/I authenticate via LDAP as (?:\S)+ Conjur user "(\S+)"( using key)?/) do |username, using_key|
   password = using_key ? ldap_auth_key : username
   authenticate_with_ldap(service_id: 'test', account: 'cucumber', 
-                         username: username, key: password)
+                         username: username, api_key: password)
 end
 
 When(/my LDAP password for (?:\S)+ Conjur user "(\S+)" is empty/) do |username|

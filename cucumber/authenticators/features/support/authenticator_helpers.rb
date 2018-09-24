@@ -16,10 +16,10 @@ module AuthenticatorHelpers
     @ldap_auth_key=response_body
   end
 
-  def authenticate_with_ldap(service_id:, account:, username:, key:)
+  def authenticate_with_ldap(service_id:, account:, username:, api_key:)
     # TODO fix this the right way
     path = "#{conjur_hostname}/authn-ldap/#{service_id}/#{account}/#{username}/authenticate"
-    post(path, key)
+    post(path, api_key)
   end
 
   def token_for(username, token_string)

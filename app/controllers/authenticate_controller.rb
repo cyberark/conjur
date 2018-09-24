@@ -81,7 +81,7 @@ class AuthenticateController < ApplicationController
   end
 
   def configured_authenticators
-    @configured_authenticators ||= ::Authentication::InstalledAuthenticators.configured_authenticators()
+    @configured_authenticators ||= ::Authentication::InstalledAuthenticators.configured_authenticators
   end
 
   def enabled_authenticators
