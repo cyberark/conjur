@@ -22,13 +22,13 @@ page.onConsoleMessage = function(msg) {
 /**********DEFINE STEPS THAT FANTOM SHOULD DO***********************/
 steps = [
 
-	//Step 1 - Open Amazon home page
+
     function(){
-        console.log('Step 1 - Open keycloak home page');
+        console.log('Open keycloak home page');
         var authorize_request = "http://keycloak:8080/auth/realms/master/protocol/openid-connect/auth";
         authorize_request = authorize_request + "?client_id=" + env['CLIENT_ID'];
         authorize_request = authorize_request + "&response_type=code&response_mode=query";
-        authorize_request = authorize_request + "&scope=" + env['SCOPE'];
+        authorize_request = authorize_request + "&scope=" + env['SCOPE'].replace(/,/g, " ");
         authorize_request = authorize_request + "&redirect_uri=" + env['REDIRECT_URI'];
         console.log('Rest request : ' + authorize_request.toString());
         //http://keycloak:8080/auth/admin
@@ -38,18 +38,17 @@ steps = [
 		});
     },
 
-	//Step 2 - Populate and submit the login form
     function(){
-        console.log('Step 2 - Populate and submit the login form');
+        console.log('Populate and submit the login form');
         page.evaluate(function(){
-          document.getElementById("username").value = "alice";
-          document.getElementById("password").value = "alice";
+          document.getElementById("username").value = "TO_BE_REPLACED_USER";
+          document.getElementById("password").value = "TO_BE_REPLACED_PASSSWORD";
           document.getElementById("kc-login").click();
          });
     },
-	//Step 4 - Wait Amazon to login user. After user is successfully logged in, user is redirected to home page. Content of the home page is saved to AmazonLoggedIn.html. You can find this file where phantomjs.exe file is. You can open this file using Chrome to ensure that you are logged in.
+
     function(){
-		     console.log("Step 3 - Wait keycloak to login user");
+		     console.log("Wait keycloak to login user");
          var fs = require('fs');
 		     var result = page.evaluate(function() {
 			       return document.querySelectorAll("html")[0].outerHTML;

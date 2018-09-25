@@ -22,6 +22,12 @@ module AuthenticatorHelpers
     post(path, api_key)
   end
 
+  def authenticate_with_oidc(service_id:, account:)
+    path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
+    payload = { code: oidc_auth_code, redirect_uri: oidc_redirect_uri }
+    post(path, payload)
+  end
+
   def token_for(username, token_string)
     return nil unless http_status == 200
     ConjurToken.new(token_string).username == username
@@ -93,6 +99,47 @@ module AuthenticatorHelpers
 
   def full_username(username, account: Conjur.configuration.account)
     "#{account}:user:#{username}"
+  end
+
+  def oidc_client_id
+    raise 'Environment variable [CLIENT_ID] is not defined' if ENV['CLIENT_ID'].blank?
+    @oidc_client_id ||= ENV['CLIENT_ID']
+  end
+
+  def oidc_client_secret
+    raise 'Environment variable [CLIENT_SECRET] is not defined' if ENV['CLIENT_SECRET'].blank?
+    @oidc_client_secret ||= ENV['CLIENT_SECRET']
+  end
+
+  def oidc_provider_uri
+    raise 'Environment variable [PROVIDER_URI] is not defined' if ENV['PROVIDER_URI'].blank?
+    @oidc_provider_uri ||= ENV['PROVIDER_URI']
+  end
+
+  def oidc_redirect_uri
+    raise 'Environment variable [REDIRECT_URI] is not defined' if ENV['REDIRECT_URI'].blank?
+    @oidc_redirect_uri ||= ENV['REDIRECT_URI']
+  end
+
+  def oidc_auth_code
+    raise 'Authorization code is not initialized' if @oidc_auth_code.blank?
+    @oidc_auth_code
+  end
+
+
+  def set_oidc_variables
+    path = "cucumber:variable:conjur/authn-oidc/keycloak"
+    Secret.create resource_id: "#{path}/client-id" , value: oidc_client_id
+    Secret.create resource_id: "#{path}/client-secret" , value: oidc_client_secret
+    Secret.create resource_id: "#{path}/provider-uri" , value: oidc_provider_uri
+  end
+
+  def get_oidc_authorization_code
+    path_script = "/authn-oidc/phantomjs/scripts/fetchAuthCode"
+    authorization_code_file = "cat /authn-oidc/phantomjs/scripts/authorization_code"
+
+    system("sh #{path_script}")
+    @oidc_auth_code = %x( #{authorization_code_file} )
   end
 
 end

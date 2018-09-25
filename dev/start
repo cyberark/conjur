@@ -15,7 +15,7 @@ Usage: start [options]
 
     --authn-iam     Starts with authn-iam/prod as authenticator
 
-    --authn-oidc     Starts with authn-oidc/okta as authenticator
+    --authn-oidc    Starts with authn-oidc/okta as authenticator
 
     -h, --help      Shows this help message.
 EOF
@@ -106,11 +106,11 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   docker-compose exec client conjur variable values add conjur/authn-oidc/okta/provider-uri https://cyberarkoren.okta.com
 
   echo "Creating OpenID client in keycloack OpenID provider"
-  docker-compose exec oidc-keycloak /scripts/create_client
+  docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_client
   echo "keycloack admin console url: http://0.0.0.0:7777/auth/admin"
 
   echo "Fetch OpenID authrization code from keycloak using phantomjs"
-  docker-compose exec oidc-phantomjs /scripts/fetchAuthCode
+  docker-compose exec oidc-phantomjs /authn-oidc/phantomjs/scripts/fetchAuthCode
 fi
 
 if [[ $ENABLE_ROTATORS = true ]]; then

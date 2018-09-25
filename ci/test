@@ -58,10 +58,54 @@ function run_cucumber_tests() {
     role retrieve-key cucumber:user:admin | tr -d '\r')
 
   # Run the tests
-  docker-compose run --no-deps -T --rm -e CONJUR_AUTHN_API_KEY=$api_key cucumber -c \
-    "bundle exec cucumber -p $profile --format junit --out cucumber/$profile/features/reports"
+  docker-compose run --no-deps -T --rm $cucumber_env_args -e CONJUR_AUTHN_API_KEY=$api_key cucumber -c \
+     "bundle exec cucumber -p $profile --format junit --out cucumber/$profile/features/reports"
 
+  cucumber_env_args=""
   docker-compose down --rmi 'local' --volumes
+}
+
+function prepare_env_auth_oidc() {
+  docker-compose up --no-deps -d oidc-keycloak
+  
+  # Fetch oidc-keycloak environment variables
+  KEYCLOAK_USER=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_USER | tr -d '\r')
+  KEYCLOAK_PASSWORD=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_PASSWORD | tr -d '\r')
+  CLIENT_ID=$(docker-compose exec oidc-keycloak printenv CLIENT_ID | tr -d '\r')
+  REDIRECT_URI=$(docker-compose exec oidc-keycloak printenv REDIRECT_URI | tr -d '\r')
+  CLIENT_SECRET=$(docker-compose exec oidc-keycloak printenv CLIENT_SECRET | tr -d '\r')
+  SCOPE=$(docker-compose exec oidc-keycloak printenv SCOPE | tr -d '\r')
+  cucumber_env_args="$cucumber_env_args -e KEYCLOAK_USER=$KEYCLOAK_USER"
+  cucumber_env_args="$cucumber_env_args -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD"
+  cucumber_env_args="$cucumber_env_args -e CLIENT_ID=$CLIENT_ID"
+  cucumber_env_args="$cucumber_env_args -e REDIRECT_URI=$REDIRECT_URI"
+  cucumber_env_args="$cucumber_env_args -e CLIENT_SECRET=$CLIENT_SECRET"
+  cucumber_env_args="$cucumber_env_args -e PROVIDER_URI=https://keycloak:8443/auth/realms/master"
+  cucumber_env_args="$cucumber_env_args -e SCOPE=$SCOPE"
+
+  # Check if keycloak is up
+  keycloak_isready?
+
+  # Define oidc-keycloak client
+  docker-compose exec oidc-keycloak /scripts/create_client
+
+}
+
+function keycloak_isready?() {
+  for i in {1..5}
+  do
+   sleep=4
+   output=$(docker-compose logs oidc-keycloak | grep "started" | wc -l)
+   if [ $output -ne 0 ]; then
+        echo "Keycloak server is up and ready"
+        return 0;
+   else
+        echo "Keycloak not ready yet sleep number $i for $sleep seconds"
+        sleep $sleep
+   fi
+  done
+  echo "Error with keycloak server start or it is too slow"
+  return 1
 }
 
 # Setup to allow compose to run in an isolated namespace
@@ -102,7 +146,8 @@ if [[ $RUN_ROTATORS = true || $RUN_ALL = true ]]; then
 fi
 
 if [[ $RUN_AUTHENTICATORS = true || $RUN_ALL = true ]]; then
-  services="$services ldap-server"
+  services="$services oidc-keycloak ldap-server"
+  prepare_env_auth_oidc
   run_cucumber_tests 'authenticators'
 fi
 

@@ -92,7 +92,7 @@ services:
 
     volumes:
       - ./files/authn-oidc/keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
-      - ./files/authn-oidc/keycloak:/scripts
+      - ./files/authn-oidc/keycloak:/authn-oidc/keycloak/scripts
 
   oidc-phantomjs:
     environment:
@@ -105,7 +105,7 @@ services:
     entrypoint: sleep
     command: infinity
     volumes:
-      - ./files/authn-oidc/phantomjs:/scripts
+      - ./files/authn-oidc/phantomjs:/authn-oidc/phantomjs/scripts
     links:
       - oidc-keycloak:keycloak
 
