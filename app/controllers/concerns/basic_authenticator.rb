@@ -3,18 +3,57 @@
 module BasicAuthenticator
   extend ActiveSupport::Concern
   
-  included do
-    include ActionController::HttpAuthentication::Basic::ControllerMethods
-  end
+  include ActionController::HttpAuthentication::Basic::ControllerMethods
   
   def perform_basic_authn
+    # we need to check the auth method.
+    # authenticate_with_http_basic doesn't do that and freaks out randomly.
+    return unless request.authorization =~ /^Basic /
+
     authenticate_with_http_basic do |username, password|
-      credentials = Credentials[Role.roleid_from_username(account, username)]
-      if credentials && credentials.authenticate(password)
-        authentication.authenticated_role = credentials.role
+      authenticator_login(username, password).tap do |response|
+        authentication.authenticated_role = ::Role[response.role_id]
         authentication.basic_user = true
       end
-    end if request.authorization =~ /^Basic / # we need to check the auth method.
-    # authenticate_with_http_basic doesn't do that and freaks out randomly.
+    rescue ::Authentication::Strategy::InvalidCredentials
+      raise ApplicationController::Unauthorized, "Invalid username or password"
+    rescue ::Authentication::Strategy::InvalidOrigin
+      raise ApplicationController::Forbidden, "User is not authorized to login from the current origin"
+    rescue ::Authentication::Security::NotAuthorizedInConjur
+      raise ApplicationController::Forbidden, "User is not authorized to login to Conjur"
+    end
+  end
+
+  private
+
+  def authenticator_login(username, password)
+    authentication_strategy.login(login_input(username, password))
+  end
+
+  def authentication_strategy
+    @authentication_strategy ||= ::Authentication::Strategy.new(
+      authenticators: installed_login_authenticators,
+      audit_log: ::Authentication::AuditLog,
+      security: nil,
+      env: ENV,
+      role_cls: ::Role,
+      token_factory: TokenFactory.new
+    )
+  end
+
+  def login_input(username, password)
+    ::Authentication::Strategy::Input.new(
+      authenticator_name: params[:authenticator],
+      service_id:         params[:service_id],
+      account:            params[:account],
+      username:           username,
+      password:           password,
+      origin:             request.ip,
+      request:            request
+    )
+  end
+
+  def installed_login_authenticators
+    @installed_login_authenticators ||= ::Authentication::InstalledAuthenticators.login_authenticators(ENV)
   end
 end

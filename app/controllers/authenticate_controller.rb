@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 class AuthenticateController < ApplicationController
-
-  AUTHN_RESOURCE_PREFIX = "conjur/authn-"
+  include BasicAuthenticator
 
   def index 
     authenticators = {
@@ -19,26 +18,15 @@ class AuthenticateController < ApplicationController
     render json: authenticators
   end
 
+  def login
+    result = perform_basic_authn
+    raise Unauthorized, "Client not authenticated" unless authentication.authenticated?
+    render text: result.authentication_key
+  end
+
   def authenticate
-    authentication_token = ::Authentication::Strategy.new(
-      authenticators: installed_authenticators,
-      audit_log: ::Authentication::AuditLog,
-      security: nil,
-      env: ENV,
-      role_cls: ::Role,
-      token_factory: TokenFactory.new
-    ).conjur_token(
-      ::Authentication::Strategy::Input.new(
-        authenticator_name: params[:authenticator],
-        service_id:         params[:service_id],
-        account:            params[:account],
-        username:           params[:id],
-        password:           request.body.read,
-        origin:             request.ip,
-        request:            request
-      )
-    )
-    render json: authentication_token
+    authn_token = authentication_strategy.conjur_token(authentication_input)
+    render json: authn_token
   rescue => e
     logger.debug("Authentication Error: #{e.message}")
     e.backtrace.each do |line|
@@ -65,23 +53,38 @@ class AuthenticateController < ApplicationController
 
   private
 
+  def authentication_strategy
+    @authentication_strategy ||= ::Authentication::Strategy.new(
+      authenticators: installed_authenticators,
+      audit_log: ::Authentication::AuditLog,
+      security: nil,
+      env: ENV,
+      role_cls: ::Role,
+      token_factory: TokenFactory.new
+    )
+  end
+
+  def authentication_input
+    ::Authentication::Strategy::Input.new(
+      authenticator_name: params[:authenticator],
+      service_id:         params[:service_id],
+      account:            params[:account],
+      username:           params[:id],
+      password:           request.body.read,
+      origin:             request.ip,
+      request:            request
+    )
+  end
+
   def installed_authenticators
-    @installed_authenticators ||= ::Authentication::InstalledAuthenticators.new(ENV)
+    @installed_authenticators ||= ::Authentication::InstalledAuthenticators.authenticators(ENV)
   end
 
   def configured_authenticators
-    identifier = Sequel.function(:identifier, :resource_id)
-    kind = Sequel.function(:kind, :resource_id)
-
-    Resource
-      .where(identifier.like("#{AUTHN_RESOURCE_PREFIX}%"))
-      .where(kind => "webservice")
-      .select_map(identifier)
-      .map { |id| id.sub /^conjur\//, "" }
-      .push(::Authentication::Strategy.default_authenticator_name)
+    @configured_authenticators ||= ::Authentication::InstalledAuthenticators.configured_authenticators
   end
 
   def enabled_authenticators
-    (ENV["CONJUR_AUTHENTICATORS"] || ::Authentication::Strategy.default_authenticator_name).split(",")
+    ::Authentication::InstalledAuthenticators.enabled_authenticators(ENV)
   end
 end

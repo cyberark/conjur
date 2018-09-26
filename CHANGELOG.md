@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Previously, loading a policy with a host factory that doesn't include
   any layers would cause a `nil` runtime exception. Now this case is checked
   specifically and raises a policy load error with a description of the problem.
+- Added support for authenticators to implement `/login` in addition to `/authenticate`
+- Implemented `/login` for `authn-ldap`.
 
 ## [1.2.0] - 2018-09-18
 ### Added

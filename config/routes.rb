@@ -20,13 +20,17 @@ Rails.application.routes.draw do
     end
 
     constraints account: /[^\/\?]+/ do
-      get  '/authn/:account/login' => 'credentials#login'
-      put  '/authn/:account/password' => 'credentials#update_password'
-      put  '/authn/:account/api_key'  => 'credentials#rotate_api_key'
-
       constraints authenticator: /authn-?[^\/]*/, id: /[^\/\?]+/ do
-        post '/:authenticator(/:service_id)/:account/:id/authenticate' =>
-          'authenticate#authenticate'
+        get '/:authenticator(/:service_id)/:account/login' => 'authenticate#login'
+        post '/:authenticator(/:service_id)/:account/:id/authenticate' => 'authenticate#authenticate'
+
+        # Update password is only relevant when using the default authenticator
+        put  '/authn/:account/password' => 'credentials#update_password', defaults: { authenticator: 'authn' }
+
+        # The API key this rotates is the internal Conjur API key. Because some
+        # other authenticators will return this at login (e.g. LDAP), we want
+        # this to be accessible when using other authenticators to login.
+        put  '/:authenticator/:account/api_key'  => 'credentials#rotate_api_key'
         
         post '/authn-k8s/:service_id/inject_client_cert' => 'authenticate#k8s_inject_client_cert'
       end

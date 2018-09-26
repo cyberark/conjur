@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 shared_context "authenticate Basic" do
-  let(:params) { { account: account } }
+  let(:params) { { account: account, authenticator: authenticator } }
   let(:basic_auth_header) {
     basic = Base64.strict_encode64([login, basic_password].join(':'))
     "Basic #{basic}"

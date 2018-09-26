@@ -12,6 +12,8 @@ module Authentication
       "'{0}' wasn't in the available authenticators")
     InvalidCredentials = ::Util::ErrorClass.new(
       "Invalid credentials")
+    InvalidOrigin = ::Util::ErrorClass.new(
+      "Invalid origin")
 
 
     class Input < ::Dry::Struct
@@ -77,6 +79,22 @@ module Authentication
       raise e
     end
 
+    def login(input)
+      authenticator = authenticators[input.authenticator_name]
+
+      validate_authenticator_exists(input, authenticator)
+      validate_security(input)
+
+      key = authenticator.login(input)      
+      raise InvalidCredentials unless key
+
+      audit_success(input)
+      new_login(input, key)
+    rescue => err
+      audit_failure(input, err)
+      raise err
+    end
+
     private
 
     def audit_success(input)
@@ -116,13 +134,20 @@ module Authentication
 
     def validate_origin(input)
       authn_role = role(input.username, input.account)
-      raise Unauthorized, "Invalid origin" unless authn_role.valid_origin?(input.origin)
+      raise InvalidOrigin unless authn_role.valid_origin?(input.origin)
     end
 
     def new_token(input)
       token_factory.signed_token(
         account: input.account,
         username: input.username
+      )
+    end
+
+    def new_login(input, key)
+      LoginResponse.new(
+        role_id: role(input.username, input.account).id,
+        authentication_key: key
       )
     end
   end
