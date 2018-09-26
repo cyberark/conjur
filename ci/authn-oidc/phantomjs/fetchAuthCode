@@ -15,6 +15,6 @@ sed -i 's/TO_BE_REPLACED_USER/'"$KEYCLOAK_USER"'/g' keycloak_login_tmp.js
 sed -i 's/TO_BE_REPLACED_PASSSWORD/'"$KEYCLOAK_PASSWORD"'/g' keycloak_login_tmp.js
 
 echo "Running phantomjs script"
-phantomjs keycloak_login_tmp.js
+phantomjs --ignore-ssl-errors=true keycloak_login_tmp.js
 
 echo "Script complete!"
