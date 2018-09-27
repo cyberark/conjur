@@ -124,7 +124,7 @@ class Resource < Sequel::Model
       rank = Sequel.function(:ts_rank_cd, :textsearch, query)
 
       natural_join(:resources_textsearch).
-        where("? @@ textsearch", query).
+        where(Sequel.lit("? @@ textsearch", query)).
         order(Sequel.desc(rank))
     end
 
