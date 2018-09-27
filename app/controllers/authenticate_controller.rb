@@ -82,7 +82,7 @@ class AuthenticateController < ApplicationController
   end
 
   def new_authentication_strategy
-    ::Authentication::Strategy.new(
+    @new_authentication_strategy ||= ::Authentication::Strategy.new(
       authenticators: installed_authenticators,
       audit_log: ::Authentication::AuditLog,
       security: nil,

@@ -19,15 +19,15 @@ module Authentication
 
         verify_service_enabled
 
-        oidc_authn_service = AuthenticationService.new(service.identifier, conjur_account)
-        id_token, user_info = oidc_authn_service.get_user_details(request_body)
+        oidc_authn_service = AuthenticationService.new(service.identifier, @conjur_account)
+        user_details = oidc_authn_service.user_details(@request_body)
 
         # validate id_token claims - if not raise error
-        validate_id_token_claims(id_token, oidc_authn_service.client_id, oidc_authn_service.issuer)
+        validate_id_token_claims(user_details.id_token, oidc_authn_service.client_id, oidc_authn_service.issuer)
 
-        validate_user_info(user_info, id_token.sub)
+        validate_user_info(user_details.user_info, user_details.id_token.sub)
 
-        username = user_info.preferred_username
+        username = user_details.user_info.preferred_username
         input.instance_variable_set(:@username, username)
 
         true
@@ -35,38 +35,22 @@ module Authentication
 
       private
 
-      def authenticator_name
-        @authenticator_name
-      end
-
-      def conjur_account
-        @conjur_account
-      end
-
-      def service_id
-        @service_id
-      end
-
-      def request_body
-        @request_body
-      end
-
       def service
-        @service ||= Resource["#{conjur_account}:webservice:conjur/#{authenticator_name}/#{service_id}"]
+        @service ||= Resource["#{@conjur_account}:webservice:conjur/#{@authenticator_name}/#{@service_id}"]
       end
 
       def verify_service_enabled
         verify_service_exist
 
         conjur_authenticators = (@env['CONJUR_AUTHENTICATORS'] || '').split(',').map(&:strip)
-        unless conjur_authenticators.include?("#{authenticator_name}/#{service_id}")
-          raise OIDCConfigurationError, "#{authenticator_name}/#{service_id} not whitelisted in CONJUR_AUTHENTICATORS"
+        unless conjur_authenticators.include?("#{@authenticator_name}/#{@service_id}")
+          raise OIDCConfigurationError, "#{@authenticator_name}/#{@service_id} not whitelisted in CONJUR_AUTHENTICATORS"
         end
       end
 
       def verify_service_exist
         unless service
-          raise OIDCConfigurationError, "Webservice [conjur/#{authenticator_name}/#{service_id}] not found in Conjur"
+          raise OIDCConfigurationError, "Webservice [conjur/#{@authenticator_name}/#{@service_id}] not found in Conjur"
         end
       end
 

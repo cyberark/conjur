@@ -12,58 +12,52 @@ module Authentication
       def initialize(service_id, conjur_account)
         @service_id = service_id
         @conjur_account = conjur_account
-
-        validate_variable_exists("client-id")
-        validate_variable_exists("client-secret")
-        validate_variable_exists("provider-uri")
       end
 
       # Retrieves an id token from the OpenIDConnect Provider and returns it decoded
-      def get_user_details (request_body)
+      def user_details (request_body)
         request_body = URI.decode_www_form(request_body)
         @redirect_uri = request_body.assoc('redirect_uri').last
         authorization_code = request_body.assoc('code').last
 
-        client = get_client
+        client = oidc_client
         client.authorization_code = authorization_code
         access_token = client.access_token!
 
         client.host = URI.parse(provider_uri).host
-        id_token = decode_id_token(access_token.id_token)
+        id_token = decoded_id_token(access_token.id_token)
         user_info = access_token.userinfo!
 
-        return id_token, user_info
+        return UserDetails.new(id_token, user_info)
       rescue => e
         raise OIDCAuthenticationError.new(e)
-      end
-
-      def client_id
-        Resource["#{conjur_account}:variable:#{service_id}/client-id"].secret.value
       end
 
       def issuer
         discover.issuer
       end
 
+      def client_id
+        secret("client-id")
+      end
+
       private
 
-      def validate_variable_exists (variableName)
+      def secret (variableName)
         resource = Resource["#{conjur_account}:variable:#{service_id}/#{variableName}"]
         if resource.nil? || resource.secret.nil?
           raise OIDCConfigurationError, "Variable [#{service_id}/#{variableName}] not found in Conjur"
         end
+
+        resource.secret.value
       end
 
       def client_secret
-        Resource["#{conjur_account}:variable:#{service_id}/client-secret"].secret.value
+        secret("client-secret")
       end
 
       def provider_uri
-        Resource["#{conjur_account}:variable:#{service_id}/provider-uri"].secret.value
-      end
-
-      def redirect_uri
-        @redirect_uri
+        secret("provider-uri")
       end
 
       def discover
@@ -82,17 +76,17 @@ module Authentication
         end
       end
 
-      def get_client
+      def oidc_client
         @client ||= OpenIDConnect::Client.new(
             identifier: client_id,
             secret: client_secret,
-            redirect_uri: redirect_uri,
+            redirect_uri: @redirect_uri,
             token_endpoint: discover.token_endpoint,
             userinfo_endpoint: discover.userinfo_endpoint
         )
       end
 
-      def decode_id_token(id_token)
+      def decoded_id_token(id_token)
         # TBD: catpture exception: JSON::JWK::Set::KidNotFound: JSON::JWK::Set::KidNotFound and try refresh signing keys
         OpenIDConnect::ResponseObject::IdToken.decode id_token, discover.jwks
       end
