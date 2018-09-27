@@ -43,19 +43,16 @@ module Authentication
         verify_service_exist
 
         conjur_authenticators = (@env['CONJUR_AUTHENTICATORS'] || '').split(',').map(&:strip)
-        unless conjur_authenticators.include?("#{@authenticator_name}/#{@service_id}")
-          raise OIDCConfigurationError, "#{@authenticator_name}/#{@service_id} not whitelisted in CONJUR_AUTHENTICATORS"
-        end
+
+        raise OIDCConfigurationError, "#{@authenticator_name}/#{@service_id} not whitelisted in CONJUR_AUTHENTICATORS" unless authenticator_available?
       end
 
       def verify_service_exist
-        unless service
-          raise OIDCConfigurationError, "Webservice [conjur/#{@authenticator_name}/#{@service_id}] not found in Conjur"
-        end
+        raise OIDCConfigurationError, "Webservice [conjur/#{@authenticator_name}/#{@service_id}] not found in Conjur" unless service
       end
 
-      def validate_id_token_claims (id_token, client_id, issuer)
-        expected = {:client_id => client_id, :issuer => issuer } #, :nonce => 'nonce'}
+      def validate_id_token_claims(id_token, client_id, issuer)
+        expected = { client_id: client_id, issuer: issuer } # , nonce: 'nonce'}
         id_token.verify! expected
       end
 
@@ -68,6 +65,10 @@ module Authentication
         if user_info.preferred_username.nil?
           raise OIDCAuthenticationError, "[profile] is not included in scope of authorization code request"
         end
+      end
+
+      def authenticator_available?
+        conjur_authenticators.include?("#{@authenticator_name}/#{@service_id}")
       end
     end
   end

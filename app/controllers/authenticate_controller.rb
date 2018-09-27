@@ -103,18 +103,6 @@ class AuthenticateController < ApplicationController
     )
   end
 
-  def authentication_input
-    ::Authentication::Strategy::Input.new(
-      authenticator_name: params[:authenticator],
-      service_id:         params[:service_id],
-      account:            params[:account],
-      username:           params[:id],
-      password:           request.body.read,
-      origin:             request.ip,
-      request:            request
-    )
-  end
-
   def installed_authenticators
     @installed_authenticators ||= ::Authentication::InstalledAuthenticators.authenticators(ENV)
   end

@@ -1,5 +1,5 @@
 Given(/I get authorization code/) do
-  get_oidc_authorization_code
+  oidc_authorization_code
 end
 
 Given(/I successfully set OIDC variables/) do

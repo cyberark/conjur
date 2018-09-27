@@ -13,7 +13,7 @@ module AuthenticatorHelpers
   def login_with_ldap(service_id:, account:, username:, password:)
     path = "#{conjur_hostname}/authn-ldap/#{service_id}/#{account}/login"
     get(path, user: username, password: password)
-    @ldap_auth_key=response_body
+    @ldap_auth_key = response_body
   end
 
   def authenticate_with_ldap(service_id:, account:, username:, api_key:)
@@ -50,7 +50,7 @@ module AuthenticatorHelpers
 
   private
 
-  def get(path, options = {}) 
+  def get(path, options = {})
     options = options.merge(
       method: :get,
       url: path
@@ -126,20 +126,19 @@ module AuthenticatorHelpers
     @oidc_auth_code
   end
 
-
   def set_oidc_variables
     path = "cucumber:variable:conjur/authn-oidc/keycloak"
-    Secret.create resource_id: "#{path}/client-id" , value: oidc_client_id
-    Secret.create resource_id: "#{path}/client-secret" , value: oidc_client_secret
-    Secret.create resource_id: "#{path}/provider-uri" , value: oidc_provider_uri
+    Secret.create resource_id: "#{path}/client-id", value: oidc_client_id
+    Secret.create resource_id: "#{path}/client-secret", value: oidc_client_secret
+    Secret.create resource_id: "#{path}/provider-uri", value: oidc_provider_uri
   end
 
-  def get_oidc_authorization_code
+  def oidc_authorization_code
     path_script = "/authn-oidc/phantomjs/scripts/fetchAuthCode"
     authorization_code_file = "cat /authn-oidc/phantomjs/scripts/authorization_code"
 
     system("sh #{path_script}")
-    @oidc_auth_code = %x( #{authorization_code_file} )
+    @oidc_auth_code = `#{authorization_code_file}`
   end
 
 end

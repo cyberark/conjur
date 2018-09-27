@@ -15,7 +15,7 @@ module Authentication
       end
 
       # Retrieves an id token from the OpenIDConnect Provider and returns it decoded
-      def user_details (request_body)
+      def user_details(request_body)
         request_body = URI.decode_www_form(request_body)
         @redirect_uri = request_body.assoc('redirect_uri').last
         authorization_code = request_body.assoc('code').last
@@ -28,7 +28,7 @@ module Authentication
         id_token = decoded_id_token(access_token.id_token)
         user_info = access_token.userinfo!
 
-        return UserDetails.new(id_token, user_info)
+        UserDetails.new(id_token, user_info)
       rescue => e
         raise OIDCAuthenticationError.new(e)
       end
@@ -43,10 +43,10 @@ module Authentication
 
       private
 
-      def secret (variableName)
-        resource = Resource["#{conjur_account}:variable:#{service_id}/#{variableName}"]
+      def secret(variable_name)
+        resource = Resource["#{conjur_account}:variable:#{service_id}/#{variable_name}"]
         if resource.nil? || resource.secret.nil?
-          raise OIDCConfigurationError, "Variable [#{service_id}/#{variableName}] not found in Conjur"
+          raise OIDCConfigurationError, "Variable [#{service_id}/#{variable_name}] not found in Conjur"
         end
 
         resource.secret.value
@@ -69,20 +69,20 @@ module Authentication
 
       def disable_ssl_verification
         # TODO: Delete disable ssl action after fix OpenID connect to support self sign ceritficate
-        unless OpenIDConnect.http_client.ssl_config.verify_mode == OpenSSL::SSL::VERIFY_NONE
-          OpenIDConnect.http_config do |config|
-            config.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
-          end
+
+        return if OpenIDConnect.http_client.ssl_config.verify_mode == OpenSSL::SSL::VERIFY_NONE
+        OpenIDConnect.http_config do |config|
+          config.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
         end
       end
 
       def oidc_client
-        @client ||= OpenIDConnect::Client.new(
-            identifier: client_id,
-            secret: client_secret,
-            redirect_uri: @redirect_uri,
-            token_endpoint: discover.token_endpoint,
-            userinfo_endpoint: discover.userinfo_endpoint
+        @oidc_client ||= OpenIDConnect::Client.new(
+          identifier: client_id,
+          secret: client_secret,
+          redirect_uri: @redirect_uri,
+          token_endpoint: discover.token_endpoint,
+          userinfo_endpoint: discover.userinfo_endpoint
         )
       end
 
