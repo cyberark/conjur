@@ -104,28 +104,12 @@ To use it:
    ```
 
    Once the `start` script finishes, you're in a Bash shell inside the Conjur
-   server container.
+   server container.  To 
 
    After staring Conjur, your instance will be configured with the following:
    * Account: `cucumber`
    * User: `admin`
    * Password: Run `conjurctl role retrieve-key cucumber:user:admin` inside the container shell to retrieve the admin user API key (which is also the password)
-
-  #### LDAP Authentication
-
-   To enable a user to log into Conjur using LDAP credentials, run `start` with the `--authn-ldap` flag:
-
-   ```sh-session
-   $ cd dev
-   $ ./start --authn-ldap
-   ...
-   root@f39015718062:/src/conjur-server#
-   ```
-
-   The `--authn-ldap` flag will:
-  * Start an OpenLDAP container.
-  * Load a user `alice` with the password `alice` into the LDAP server.
-  * Load a policy `authn-ldap/test`, that grants `alice` the ability to authenticate via `http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate` with the password `alice`.
 
 3. Run the server
 
@@ -149,18 +133,35 @@ To use it:
    `conjurctl server`. This will allow you to work in the debugger without the
    server timing out.
 
-4. Validate authentication using the username `alice` with the password `alice`:
-
-```sh-session
-$ curl -v -k -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate
-```
-
-5. Cleanup
+4. Cleanup
 
     ```sh-session
     $ ./stop
     ```
     Running `stop` removes the running Docker Compose containers and the data key.
+
+  #### LDAP Authentication
+
+   To enable a user to log into Conjur using LDAP credentials, run `start` with the `--authn-ldap` flag:
+
+   ```sh-session
+   $ cd dev
+   $ ./start --authn-ldap
+   ...
+   root@f39015718062:/src/conjur-server#
+   ```
+
+   The `--authn-ldap` flag will:
+  * Start an OpenLDAP container.
+  * Load a user `alice` with the password `alice` into the LDAP server.
+  * Load a policy `authn-ldap/test`, that grants `alice` the ability to authenticate via `http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate` with the password `alice`.
+
+
+Validate authentication using the username `alice` with the password `alice`:
+
+```sh-session
+$ curl -v -k -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate
+```
 
 ### Development CLI
 
