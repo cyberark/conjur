@@ -45,8 +45,13 @@ module Util
         end
 
         def args
-          num_args >  1 ? @raw_args       :
-          num_args == 1 ? @raw_args.first : nil
+          if num_args >  1
+            @raw_args
+          elsif num_args == 1
+            @raw_args.first
+          else
+            nil
+          end
         end
       end
 
@@ -60,10 +65,12 @@ module Util
       end
 
       def create_methods_defined_in_spec
-        @spec.keys.each do |meth|
-          define_singleton_method(meth.to_sym) do |*args|
-            LookupReturnValue.new(meth, @spec, args).call
-          end
+        @spec.keys.each { |meth| create_method(meth) }
+      end
+
+      def create_method(meth)
+        define_singleton_method(meth.to_sym) do |*args|
+          LookupReturnValue.new(meth, @spec, args).call
         end
       end
 
