@@ -77,6 +77,7 @@ module Authentication
     rescue => err
       audit_failure(input, err)
       raise err
+    end
 
     def conjur_token(input)
       authenticator = authenticators[input.authenticator_name]
@@ -93,7 +94,7 @@ module Authentication
       audit_failure(input, e)
       raise e
     end
-    
+
     def conjur_token_oidc(input)
       authenticator = authenticators[input.authenticator_name]
 

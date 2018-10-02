@@ -159,7 +159,7 @@ RSpec.describe 'Authentication::Strategy' do
     double('TokenFactory', signed_token: a_new_token)
   end
 
-#  ____  _   _  ____    ____  ____  ___  ____  ___ 
+#  ____  _   _  ____    ____  ____  ___  ____  ___
 # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)
 #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
 #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
@@ -183,6 +183,57 @@ RSpec.describe 'Authentication::Strategy' do
         Authentication::Strategy::AuthenticatorNotFound
       )
     end
+
+    it "raises AuthenticatorNotFound for oidc" do
+      input_ = input(authenticator_name: 'AUTHN-MISSING')
+      expect{ subject.conjur_token_oidc(input_) }.to raise_error(
+        Authentication::Strategy::AuthenticatorNotFound
+      )
+    end
+  end
+
+  context "An available oidc authenticator" do
+    context "that receives valid credentials" do
+      context "that fails Security checks" do
+        subject do
+          Authentication::Strategy.new(
+            authenticators: authenticators,
+            security: failing_security,
+            env: two_authenticator_env,
+            token_factory: token_factory,
+            audit_log: nil,
+            role_cls: nil
+          )
+        end
+        it "raises an error" do
+          allow(subject).to receive(:validate_credentials) { true }
+          input_ = input(authenticator_name: 'authn-always-pass')
+          expect{ subject.conjur_token_oidc(input_) }.to raise_error(
+            /FAKE_SECURITY_ERROR/
+          )
+        end
+      end
+
+      context "that passes Security checks" do
+        subject do
+          Authentication::Strategy.new(
+            authenticators: authenticators,
+            security: passing_security,
+            env: two_authenticator_env,
+            token_factory: token_factory,
+            audit_log: nil,
+            role_cls: nil
+          )
+        end
+        it "returns a new token" do
+          allow(subject).to receive(:validate_credentials) { true }
+          allow(subject).to receive(:validate_origin) { true }
+          input_ = input(authenticator_name: 'authn-always-pass')
+          expect(subject.conjur_token(input_)).to equal(a_new_token)
+        end
+      end
+    end
+
   end
 
   context "An available authenticator" do
