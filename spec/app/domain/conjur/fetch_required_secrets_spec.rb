@@ -1,3 +1,4 @@
+require 'spec_helper'
 require 'conjur/fetch_required_secrets'
 require 'util/stubs/deep_double'
 
