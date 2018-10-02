@@ -3,9 +3,6 @@ require 'util/error_class'
 
 module Conjur
 
-  # TODO: really, these errors should be inside FetchRequiredSecrets but that
-  # will require changing its interface
-  #
   RequiredResourceMissing = Util::ErrorClass.new(
     'Missing required resource: {0}'
   )
