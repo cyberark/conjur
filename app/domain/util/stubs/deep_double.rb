@@ -28,11 +28,7 @@ module Util
         end
 
         def found_value
-          return recursive(stubbed_vals) unless args
-          recursive(stubbed_vals[args])
-        end
-
-        def recursive(val)
+          val = args ? stubbed_vals[args] : stubbed_vals
           val.is_a?(Hash) ? DeepDouble.new(val) : val
         end
 
@@ -49,22 +45,28 @@ module Util
         end
 
         def args
-          case
-          when num_args >  1 then @raw_args 
-          when num_args == 1 then @raw_args.first
-          else nil
+          num_args >  1 ? @raw_args       :
+          num_args == 1 ? @raw_args.first : nil
+        end
+      end
+
+      # In this case, having an optional name first makes for a cleaner API
+      #
+      # rubocop:disable OptionalArguments
+      def initialize(name = 'Double', spec)
+        @name = name
+        @spec = spec
+        create_methods_defined_in_spec
+      end
+
+      def create_methods_defined_in_spec
+        @spec.keys.each do |meth|
+          define_singleton_method(meth.to_sym) do |*args|
+            LookupReturnValue.new(meth, @spec, args).call
           end
         end
       end
 
-      def initialize(name = 'Double', spec)
-        @name = name
-        @spec = spec
-      end
-
-      def method_missing(meth, *args)
-        LookupReturnValue.new(meth, @spec, args).call
-      end
     end
   end
 end

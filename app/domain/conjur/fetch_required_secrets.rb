@@ -14,7 +14,7 @@ module Conjur
   )
 
   FetchRequiredSecrets = ::CommandClass.new(
-    dependencies: {resource_repo: ::Resource},
+    dependencies: { resource_repo: ::Resource },
     inputs: [:resource_ids]
   ) do
 
