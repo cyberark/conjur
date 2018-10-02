@@ -49,8 +49,6 @@ module Util
             @raw_args
           elsif num_args == 1
             @raw_args.first
-          else
-            nil
           end
         end
       end
