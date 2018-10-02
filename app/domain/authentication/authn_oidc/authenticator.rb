@@ -42,8 +42,6 @@ module Authentication
       def verify_service_enabled
         verify_service_exist
 
-        conjur_authenticators = (@env['CONJUR_AUTHENTICATORS'] || '').split(',').map(&:strip)
-
         raise OIDCConfigurationError, "#{@authenticator_name}/#{@service_id} not whitelisted in CONJUR_AUTHENTICATORS" unless authenticator_available?
       end
 
@@ -68,6 +66,8 @@ module Authentication
       end
 
       def authenticator_available?
+        conjur_authenticators = (@env['CONJUR_AUTHENTICATORS'] || '').split(',').map(&:strip)
+
         conjur_authenticators.include?("#{@authenticator_name}/#{@service_id}")
       end
     end

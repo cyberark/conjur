@@ -67,14 +67,14 @@ function run_cucumber_tests() {
 
 function prepare_env_auth_oidc() {
   docker-compose up --no-deps -d oidc-keycloak
-  
+
   # Fetch oidc-keycloak environment variables
-  KEYCLOAK_USER=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_USER | tr -d '\r')
-  KEYCLOAK_PASSWORD=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_PASSWORD | tr -d '\r')
-  CLIENT_ID=$(docker-compose exec oidc-keycloak printenv CLIENT_ID | tr -d '\r')
-  REDIRECT_URI=$(docker-compose exec oidc-keycloak printenv REDIRECT_URI | tr -d '\r')
-  CLIENT_SECRET=$(docker-compose exec oidc-keycloak printenv CLIENT_SECRET | tr -d '\r')
-  SCOPE=$(docker-compose exec oidc-keycloak printenv SCOPE | tr -d '\r')
+  KEYCLOAK_USER=$(docker-compose exec -T oidc-keycloak printenv KEYCLOAK_USER | tr -d '\r')
+  KEYCLOAK_PASSWORD=$(docker-compose exec -T oidc-keycloak printenv KEYCLOAK_PASSWORD | tr -d '\r')
+  CLIENT_ID=$(docker-compose exec -T oidc-keycloak printenv CLIENT_ID | tr -d '\r')
+  REDIRECT_URI=$(docker-compose exec -T oidc-keycloak printenv REDIRECT_URI | tr -d '\r')
+  CLIENT_SECRET=$(docker-compose exec -T oidc-keycloak printenv CLIENT_SECRET | tr -d '\r')
+  SCOPE=$(docker-compose exec -T oidc-keycloak printenv SCOPE | tr -d '\r')
   cucumber_env_args="$cucumber_env_args -e KEYCLOAK_USER=$KEYCLOAK_USER"
   cucumber_env_args="$cucumber_env_args -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD"
   cucumber_env_args="$cucumber_env_args -e CLIENT_ID=$CLIENT_ID"
@@ -87,7 +87,7 @@ function prepare_env_auth_oidc() {
   keycloak_isready?
 
   # Define oidc-keycloak client
-  docker-compose exec oidc-keycloak /scripts/create_client
+  docker-compose exec -T oidc-keycloak /scripts/create_client
 
 }
 
