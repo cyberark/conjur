@@ -61,6 +61,7 @@ module Util
         @spec = spec
         create_methods_defined_in_spec
       end
+      # rubocop:enable OptionalArguments
 
       def create_methods_defined_in_spec
         @spec.keys.each { |meth| create_method(meth) }
