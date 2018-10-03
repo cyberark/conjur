@@ -151,7 +151,10 @@ class Role < Sequel::Model
   end
 
   def graph
-    Role.from(Sequel.function(:role_graph, id)).order(:parent, :child)
+    Role.from(Sequel.function(:role_graph, id))
+        .order(:parent, :child)
+        .all
+        .map(&:values)
   end
 
   private

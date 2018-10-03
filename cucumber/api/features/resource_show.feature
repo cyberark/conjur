@@ -24,7 +24,7 @@ Feature: Fetch resource details.
           "value": "Front end server"
         }
       ],
-      "id": "cucumber:variable:app-01.mycorp.com",
+      "id": "cucumber:variable:@namespace@/app-01.mycorp.com",
       "owner": "cucumber:user:alice",
       "permissions": [
       {
