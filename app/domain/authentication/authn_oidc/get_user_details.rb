@@ -102,7 +102,7 @@ module Authentication
       end
 
       def provider_uri
-        @provider_uri ||= secret_value('provider_uri')
+        @provider_uri ||= secret_value('provider-uri')
       end
 
       def secret_value(var_name)

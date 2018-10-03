@@ -110,9 +110,6 @@ module Authentication
     # Or take a different approach that accomplishes the same goals
     #
     def conjur_token_oidc(input)
-      authenticator = authenticators[input.authenticator_name]
-      validate_authenticator_exists(input, authenticator)
-      
       user_details = oidc_user_details(input)
       username = user_details.user_info.preferred_username
       input_with_username = input.update(username: username)
