@@ -1,8 +1,19 @@
 # frozen_string_literal: true
 
+require 'util/error_class'
+
 # Utility methods for authenticators
 #
 module AuthenticatorHelpers
+
+  MissingEnvVarirable = ::Util::ErrorClass.new(
+    'Environment variable [{0}] is not defined'
+  )
+
+  def validated_env_var(var)
+    raise MissingEnvVarirable, var if ENV[var].blank?
+    ENV[var]
+  end
 
   # Mostly to document the mutable variables that are in play.
   # To at least mitigate the poor design encouraged by the way cucumber
@@ -101,24 +112,21 @@ module AuthenticatorHelpers
     "#{account}:user:#{username}"
   end
 
+
   def oidc_client_id
-    raise 'Environment variable [CLIENT_ID] is not defined' if ENV['CLIENT_ID'].blank?
-    @oidc_client_id ||= ENV['CLIENT_ID']
+    @oidc_client_id ||= validated_env_var('CLIENT_ID')
   end
 
   def oidc_client_secret
-    raise 'Environment variable [CLIENT_SECRET] is not defined' if ENV['CLIENT_SECRET'].blank?
-    @oidc_client_secret ||= ENV['CLIENT_SECRET']
+    @oidc_client_secret ||= validated_env_var('CLIENT_SECRET')
   end
 
   def oidc_provider_uri
-    raise 'Environment variable [PROVIDER_URI] is not defined' if ENV['PROVIDER_URI'].blank?
-    @oidc_provider_uri ||= ENV['PROVIDER_URI']
+    @oidc_provider_uri ||= validated_env_var('PROVIDER_URI')
   end
 
   def oidc_redirect_uri
-    raise 'Environment variable [REDIRECT_URI] is not defined' if ENV['REDIRECT_URI'].blank?
-    @oidc_redirect_uri ||= ENV['REDIRECT_URI']
+    @oidc_redirect_uri ||= validated_env_var('REDIRECT_URI')
   end
 
   def oidc_auth_code
