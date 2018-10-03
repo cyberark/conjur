@@ -192,13 +192,6 @@ RSpec.describe 'Authentication::Strategy' do
         Authentication::Strategy::AuthenticatorNotFound
       )
     end
-
-    it "raises AuthenticatorNotFound for oidc" do
-      input_ = input(authenticator_name: 'AUTHN-MISSING')
-      expect{ subject.conjur_token_oidc(input_) }.to raise_error(
-        Authentication::Strategy::AuthenticatorNotFound
-      )
-    end
   end
 
   context "An available oidc authenticator" do
