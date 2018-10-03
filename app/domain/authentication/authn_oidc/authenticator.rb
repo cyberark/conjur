@@ -78,24 +78,6 @@ module Authentication
       def user_info_subject_err_msg(user_info_sub, id_token_sub)
         "User info subject [#{user_info_sub}] and id token subject [#{id_token_sub}] are not equal"
       end
-
-      # NOTE: These can be removed since they're now handled by
-      # `validate_security` in strategy
-      #
-      # def verify_service_enabled
-      #   verify_service_exists
-
-      #   raise OIDCConfigurationError, "#{authenticator_name}/#{service_id} not whitelisted in CONJUR_AUTHENTICATORS" unless authenticator_available?
-      # end
-
-      # def verify_service_exists
-      #   raise OIDCConfigurationError, "Webservice [conjur/#{authenticator_name}/#{service_id}] not found in Conjur" unless service
-      # end
-
-      # def authenticator_available?
-      #   conjur_authenticators = (@env['CONJUR_AUTHENTICATORS'] || '').split(',').map(&:strip)
-      #   conjur_authenticators.include?("#{authenticator_name}/#{service_id}")
-      # end
     end
   end
 end
