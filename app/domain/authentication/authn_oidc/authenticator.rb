@@ -19,6 +19,7 @@ module Authentication
 
         verify_service_enabled
 
+        # TODO update name to GetUserDetails
         oidc_authn_service = AuthenticationService.new(service.identifier, @conjur_account)
         user_details = oidc_authn_service.user_details(@request_body)
 
