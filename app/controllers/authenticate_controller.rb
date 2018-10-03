@@ -25,7 +25,7 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticate
-    authn_token = new_authentication_strategy.conjur_token(
+    authn_token = authentication_strategy.conjur_token(
       ::Authentication::Strategy::Input.new(
         authenticator_name: params[:authenticator],
         service_id:         params[:service_id],
@@ -42,7 +42,7 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticate_oidc
-    authentication_token = new_authentication_strategy.conjur_token_oidc(
+    authentication_token = authentication_strategy.conjur_token_oidc(
       ::Authentication::Strategy::Input.new(
         authenticator_name: 'authn-oidc',
         service_id:         params[:service_id],
@@ -80,8 +80,8 @@ class AuthenticateController < ApplicationController
     raise Unauthorized
   end
 
-  def new_authentication_strategy
-    @new_authentication_strategy ||= ::Authentication::Strategy.new(
+  def authentication_strategy
+    @authentication_strategy ||= ::Authentication::Strategy.new(
       authenticators: installed_authenticators,
       audit_log: ::Authentication::AuditLog,
       security: nil,
