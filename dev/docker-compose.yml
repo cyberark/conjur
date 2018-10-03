@@ -109,5 +109,12 @@ services:
     links:
       - oidc-keycloak:keycloak
 
+  okta-ldap-agent:
+    image: weareenvoy/okta-ldap-agent
+    volumes:
+      - ./files/okta-ldap-agent/conf:/opt/Okta/OktaLDAPAgent/conf
+    entrypoint: sleep
+    command: infinity
+
 volumes:
   authn-local:

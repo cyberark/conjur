@@ -55,15 +55,19 @@ docker-compose exec conjur bundle
 docker-compose exec conjur conjurctl db migrate
 docker-compose exec conjur conjurctl account create cucumber || true
 
+enabled_authenticators="authn"
+
 env_args=
 if [[ $ENABLE_AUTHN_LDAP = true ]]; then
   services="$services ldap-server"
-  env_args="$env_args -e CONJUR_AUTHENTICATORS=authn,authn-ldap/test"
   env_args="$env_args -e LDAP_URI=ldap://ldap-server:389"
   env_args="$env_args -e LDAP_BASE=dc=conjur,dc=net"
   env_args="$env_args -e LDAP_FILTER=(uid=%s)"
   env_args="$env_args -e LDAP_BINDDN=cn=admin,dc=conjur,dc=net"
   env_args="$env_args -e LDAP_BINDPW=ldapsecret"
+
+  enabled_authenticators="$enabled_authenticators,authn-ldap/test"
+
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-ldap/policy.yml
 fi
 
@@ -75,7 +79,7 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   echo "Configuring Keycloak as OpenID provider for automatic testing"
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-oidc/policy.yml
 
-  env_args="$env_args -e CONJUR_AUTHENTICATORS=authn-oidc/okta,authn-oidc/keycloak"
+  enabled_authenticators="$enabled_authenticators,authn-oidc/okta,authn-oidc/keycloak"
 
   # For future use, when we will solve the self sign certificate issue with OpenID lib and keycloak
   # echo "Initialize keycloak certificate in conjur server"
@@ -111,6 +115,15 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
 
   echo "Fetch OpenID authrization code from keycloak using phantomjs"
   docker-compose exec oidc-phantomjs /authn-oidc/phantomjs/scripts/fetchAuthCode
+
+  echo "Building & configuring Okta-LDAP agent"
+  if [[ $ENABLE_AUTHN_LDAP = true ]]; then
+    services="$services okta-ldap-agent"
+    docker-compose up -d --no-deps $services
+
+    echo "Starting Okta agent service"
+    Docker exec "$(docker-compose ps -q okta-ldap-agent)" /opt/Okta/OktaLDAPAgent/scripts/OktaLDAPAgent
+  fi
 fi
 
 if [[ $ENABLE_ROTATORS = true ]]; then
@@ -118,9 +131,13 @@ if [[ $ENABLE_ROTATORS = true ]]; then
 fi
 
 if [[ $ENABLE_AUTHN_IAM = true ]]; then
-  env_args="$env_args -e CONJUR_AUTHENTICATORS=authn-iam/prod"
+  enabled_authenticators="$enabled_authenticators,authn-iam/prod"
+
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-iam/policy.yml
 fi
+
+echo "Setting CONJUR_AUTHENTICATORS to: $enabled_authenticators"
+env_args="$env_args -e CONJUR_AUTHENTICATORS=$enabled_authenticators"
 
 docker-compose up -d --no-deps $services
 
