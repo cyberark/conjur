@@ -112,7 +112,6 @@ module AuthenticatorHelpers
     "#{account}:user:#{username}"
   end
 
-
   def oidc_client_id
     @oidc_client_id ||= validated_env_var('CLIENT_ID')
   end
