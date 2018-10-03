@@ -2,8 +2,12 @@ dn: uid=alice,dc=conjur,dc=net
 cn: Alice
 sn: Smith
 uid: alice
+givenName: alice
+mail: alice@cyberark.com
 objectClass: person
 objectClass: uidObject
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
 objectClass: top
 userPassword: alice
 
@@ -11,7 +15,11 @@ dn: uid=charles,dc=conjur,dc=net
 cn: Charles
 sn: Berkeley
 uid: charles
+givenName: charles
+mail: charles@cyberark.com
 objectClass: person
 objectClass: uidObject
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
 objectClass: top
 userPassword: charles

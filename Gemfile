@@ -69,6 +69,9 @@ end
 gem 'kubeclient'
 gem 'websocket-client-simple'
 
+# authn-oidc
+gem 'openid_connect'
+
 group :development, :test do
   gem 'aruba'
   gem 'csr'

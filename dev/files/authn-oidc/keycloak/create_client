@@ -1,0 +1,13 @@
+#!/bin/sh
+
+
+keycloak/bin/kcreg.sh config credentials \
+  --server http://localhost:8080/auth \
+  --realm master \
+  --user "$KEYCLOAK_USER" \
+  --password "$KEYCLOAK_PASSWORD"
+keycloak/bin/kcreg.sh create \
+  -s clientId="$CLIENT_ID" \
+  -s "redirectUris=[\"$REDIRECT_URI\"]" \
+  -s "secret=$CLIENT_SECRET"
+keycloak/bin/kcreg.sh get "$CLIENT_ID" | jq '.secret'

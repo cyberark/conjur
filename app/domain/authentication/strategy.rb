@@ -20,7 +20,7 @@ module Authentication
       attribute :authenticator_name, ::Types::NonEmptyString
       attribute :service_id,         ::Types::NonEmptyString.optional
       attribute :account,            ::Types::NonEmptyString
-      attribute :username,           ::Types::NonEmptyString
+      attribute :username,           ::Types::NonEmptyString.optional
       attribute :password,           ::Types::String
       attribute :origin,             ::Types::NonEmptyString
       attribute :request,            ::Types::Any.optional # for k8s authenticator
@@ -36,6 +36,13 @@ module Authentication
           ),
           user_id: username
         )
+      end
+
+      # Creates a copy of this object with the attributes updated by those
+      # specified in hash
+      #
+      def update(hash)
+        self.class.new(to_hash.merge(hash))
       end
 
       def webservice
@@ -63,6 +70,22 @@ module Authentication
     attribute :role_cls, ::Types::Any.default{ ::Role }
     attribute :audit_log, ::Types::Any.default{ AuditLog }
 
+    def login(input)
+      authenticator = authenticators[input.authenticator_name]
+
+      validate_authenticator_exists(input, authenticator)
+      validate_security(input)
+
+      key = authenticator.login(input)
+      raise InvalidCredentials unless key
+
+      audit_success(input)
+      new_login(input, key)
+    rescue => err
+      audit_failure(input, err)
+      raise err
+    end
+
     def conjur_token(input)
       authenticator = authenticators[input.authenticator_name]
 
@@ -79,23 +102,61 @@ module Authentication
       raise e
     end
 
-    def login(input)
-      authenticator = authenticators[input.authenticator_name]
+    # TODO: (later version) Extract this and related private methods into its
+    # own object.  We'll need to break down Strategy into its component parts
+    # to avoid repetition, and then use those parts in both the new
+    # "OIDCStrategy" and this original Strategy.
+    #
+    # Or take a different approach that accomplishes the same goals
+    #
+    def conjur_token_oidc(input)
+      user_details = oidc_user_details(input)
+      username = user_details.user_info.preferred_username
+      input_with_username = input.update(username: username)
 
-      validate_authenticator_exists(input, authenticator)
-      validate_security(input)
+      validate_security(input_with_username)
+      oidc_validate_credentials(input_with_username, user_details)
+      validate_origin(input_with_username)
 
-      key = authenticator.login(input)      
-      raise InvalidCredentials unless key
-
-      audit_success(input)
-      new_login(input, key)
-    rescue => err
-      audit_failure(input, err)
-      raise err
+      audit_success(input_with_username)
+      new_token(input_with_username)
+    rescue => e
+      audit_failure(input, e)
+      raise e
     end
 
     private
+
+    # NOTE: These two methods are "special" (outside the framework) by design.
+    # We already know that the OIDC authenticator doesn't fit within this
+    # framework design, and will be pulling it out into multiple routes and its
+    # own objects on the next iteration.
+    #
+    # Thus these two methods actually represent the first step in that
+    # direction.  They also more honestly portray the situation.
+    #
+    def oidc_user_details(input)
+      AuthnOidc::GetUserDetails.new.(
+        request_body: input.request.body.read,
+        service_id: input.service_id,
+        conjur_account: input.account
+      )
+    end
+
+    # NOTE: We can revisit this decision, but for now there is absolutely no
+    # reason to be bound the `valid?(input)` interface for this "exceptional"
+    # authenticator.
+    #
+    # Since we've already get to call `GetUserDetials` here for the username to
+    # be used in `validate_security`, we don't want to recalculate it, so we
+    # pass the result in.
+    #
+    def oidc_validate_credentials(input_with_username, user_details)
+      AuthnOidc::Authenticator.new.(
+        input: input_with_username,
+        user_details: user_details
+      )
+    end
 
     def audit_success(input)
       audit_log.record_authn_event(

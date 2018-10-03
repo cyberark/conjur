@@ -14,7 +14,7 @@ services:
       CONJUR_ACCOUNT: cucumber
       CONJUR_DATA_KEY:
       RAILS_ENV:
-      CONJUR_AUTHENTICATORS: authn-ldap/test
+      CONJUR_AUTHENTICATORS: authn-ldap/test,authn-oidc/keycloak
       LDAP_URI: ldap://ldap-server:389
       LDAP_BASE: dc=conjur,dc=net
       LDAP_FILTER: '(uid=%s)'
@@ -28,6 +28,7 @@ services:
     links:
       - pg
       - ldap-server
+      - oidc-keycloak:keycloak
 
   cucumber:
     image: conjur-test:$TAG
@@ -42,10 +43,12 @@ services:
     volumes:
       - ..:/src/conjur-server
       - authn-local:/run/authn-local
+      - ./authn-oidc/phantomjs:/authn-oidc/phantomjs/scripts
     links:
       - conjur
       - pg
       - testdb
+      - oidc-keycloak:keycloak
 
   ldap-server:
     image: osixia/openldap
@@ -54,9 +57,24 @@ services:
       LDAP_ORGANISATION: CyberArk
       LDAP_DOMAIN: conjur.net
       LDAP_ADMIN_PASSWORD: ldapsecret
-
     volumes:
       - ./authn-ldap/ldap-data:/container/service/slapd/assets/config/bootstrap/ldif/custom
+
+  oidc-keycloak:
+    image: jboss/keycloak
+    environment:
+      - KEYCLOAK_USER=alice
+      - KEYCLOAK_PASSWORD=alice
+      - DB_VENDOR=H2
+      - CLIENT_ID=conjurClient
+      - REDIRECT_URI=http://locallhost.com/
+      - CLIENT_SECRET=d7047915-9029-45b8-9bd6-7ec5c2f75e5b
+      - SCOPE=openid,profile
+    ports:
+      - "7777:8080"
+    volumes:
+      - ./authn-oidc/keycloak:/scripts
+
 
 volumes:
   authn-local:

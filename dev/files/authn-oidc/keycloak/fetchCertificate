@@ -1,0 +1,3 @@
+#!/bin/sh
+
+echo | openssl s_client -showcerts -connect keycloak:8443 -servername keycloak 2>/dev/null | openssl x509 -outform PEM > /etc/ssl/certs/keycloak.pem

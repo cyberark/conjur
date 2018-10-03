@@ -15,6 +15,8 @@ Usage: start [options]
 
     --authn-iam     Starts with authn-iam/prod as authenticator
 
+    --authn-oidc    Starts with authn-oidc/okta as authenticator
+
     -h, --help      Shows this help message.
 EOF
   exit
@@ -25,11 +27,13 @@ unset COMPOSE_PROJECT_NAME
 # Determine which extra services should be loaded when working with authenticators
 ENABLE_AUTHN_LDAP=false
 ENABLE_AUTHN_IAM=false
+ENABLE_AUTHN_OIDC=false
 ENABLE_ROTATORS=false
 while true ; do
   case "$1" in
     --authn-iam ) ENABLE_AUTHN_IAM=true ; shift ;;
     --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
+    --authn-oidc ) ENABLE_AUTHN_OIDC=true ; shift ;;
     --rotators ) ENABLE_ROTATORS=true ; shift ;;
     -h | --help ) print_help ; shift ;;
      * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
@@ -51,16 +55,75 @@ docker-compose exec conjur bundle
 docker-compose exec conjur conjurctl db migrate
 docker-compose exec conjur conjurctl account create cucumber || true
 
+enabled_authenticators="authn"
+
 env_args=
 if [[ $ENABLE_AUTHN_LDAP = true ]]; then
   services="$services ldap-server"
-  env_args="$env_args -e CONJUR_AUTHENTICATORS=authn,authn-ldap/test"
   env_args="$env_args -e LDAP_URI=ldap://ldap-server:389"
   env_args="$env_args -e LDAP_BASE=dc=conjur,dc=net"
   env_args="$env_args -e LDAP_FILTER=(uid=%s)"
   env_args="$env_args -e LDAP_BINDDN=cn=admin,dc=conjur,dc=net"
   env_args="$env_args -e LDAP_BINDPW=ldapsecret"
+
+  enabled_authenticators="$enabled_authenticators,authn-ldap/test"
+
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-ldap/policy.yml
+fi
+
+if [[ $ENABLE_AUTHN_OIDC = true ]]; then
+  services="$services oidc-keycloak oidc-phantomjs client"
+  docker-compose up -d --no-deps $services
+
+  echo "Configuring Okta as OpenID provider for manual testing"
+  echo "Configuring Keycloak as OpenID provider for automatic testing"
+  docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-oidc/policy.yml
+
+  enabled_authenticators="$enabled_authenticators,authn-oidc/okta,authn-oidc/keycloak"
+
+  # For future use, when we will solve the self sign certificate issue with OpenID lib and keycloak
+  # echo "Initialize keycloak certificate in conjur server"
+  # docker-compose exec conjur /src/conjur-server/dev/files/authn-oidc/keycloak/fetchCertificate
+
+  echo "Starting Conjur server"
+  api_key=$(docker-compose exec -T conjur conjurctl \
+  	role retrieve-key cucumber:user:admin | tr -d '\r')
+  docker-compose exec $env_args -d conjur conjurctl server
+
+  echo "Sleep 30 sec for Conjur server to start"
+  sleep 30
+
+  echo "Setting keycloak variables values in conjur"
+  KEYCLOAK_CLIENT_ID=$(docker-compose exec oidc-keycloak printenv CLIENT_ID | tr -d '\r')
+  KEYCLOAK_CLIENT_SECRET=$(docker-compose exec oidc-keycloak printenv CLIENT_SECRET | tr -d '\r')
+
+  docker-compose exec client conjur authn login -u admin -p $api_key
+
+  # add variables' values for keycloak
+  docker-compose exec client conjur variable values add conjur/authn-oidc/keycloak/client-id $KEYCLOAK_CLIENT_ID
+  docker-compose exec client conjur variable values add conjur/authn-oidc/keycloak/client-secret $KEYCLOAK_CLIENT_SECRET
+  docker-compose exec client conjur variable values add conjur/authn-oidc/keycloak/provider-uri "https://keycloak:8443/auth/realms/master"
+
+  # add variables' values for okta
+  docker-compose exec client conjur variable values add conjur/authn-oidc/okta/client-id 0oagd87pc7rUCknhR0h7
+  docker-compose exec client conjur variable values add conjur/authn-oidc/okta/client-secret aDL6DTH7WIE3qsTjnY6H_lYcfMKXK7hCA6AlZEer
+  docker-compose exec client conjur variable values add conjur/authn-oidc/okta/provider-uri https://dev-842018.oktapreview.com
+
+  echo "Creating OpenID client in keycloack OpenID provider"
+  docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_client
+  echo "keycloack admin console url: http://0.0.0.0:7777/auth/admin"
+
+  echo "Fetch OpenID authrization code from keycloak using phantomjs"
+  docker-compose exec oidc-phantomjs /authn-oidc/phantomjs/scripts/fetchAuthCode
+
+  echo "Building & configuring Okta-LDAP agent"
+  if [[ $ENABLE_AUTHN_LDAP = true ]]; then
+    services="$services okta-ldap-agent"
+    docker-compose up -d --no-deps $services
+
+    echo "Starting Okta agent service"
+    Docker exec "$(docker-compose ps -q okta-ldap-agent)" /opt/Okta/OktaLDAPAgent/scripts/OktaLDAPAgent
+  fi
 fi
 
 if [[ $ENABLE_ROTATORS = true ]]; then
@@ -68,9 +131,13 @@ if [[ $ENABLE_ROTATORS = true ]]; then
 fi
 
 if [[ $ENABLE_AUTHN_IAM = true ]]; then
-  env_args="$env_args -e CONJUR_AUTHENTICATORS=authn-iam/prod"
+  enabled_authenticators="$enabled_authenticators,authn-iam/prod"
+
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-iam/policy.yml
 fi
+
+echo "Setting CONJUR_AUTHENTICATORS to: $enabled_authenticators"
+env_args="$env_args -e CONJUR_AUTHENTICATORS=$enabled_authenticators"
 
 docker-compose up -d --no-deps $services
 

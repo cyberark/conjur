@@ -12,6 +12,7 @@ authenticators: >
   --format pretty
   -r cucumber/api/features/support/rest_helpers.rb
   -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
   -r cucumber/authenticators
   cucumber/authenticators
 
