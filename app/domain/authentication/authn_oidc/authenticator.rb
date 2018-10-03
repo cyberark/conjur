@@ -23,7 +23,7 @@ module Authentication
 
       private
 
-      def validate_id_token_claims(id_token, client_id, issuer)
+      def validate_id_token_claims
         expected = { client_id: client_id, issuer: issuer } # , nonce: 'nonce'}
         @user_details.id_token.verify!(expected)
       end
@@ -41,6 +41,14 @@ module Authentication
 
       def user_info
         @user_details.user_info
+      end
+
+      def client_id
+        @user_details.client_id
+      end
+
+      def issuer
+        @user_details.issuer
       end
 
       def id_token_subject

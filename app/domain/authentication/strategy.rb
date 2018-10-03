@@ -140,9 +140,9 @@ module Authentication
     #
     def oidc_user_details(input)
       AuthnOidc::GetUserDetails.new.(
-        request_body: input.service_id,
-        service_id: input.account,
-        conjur_account: input.request.body.read
+        request_body: input.request.body.read,
+        service_id: input.service_id,
+        conjur_account: input.account
       )
     end
 
@@ -154,7 +154,7 @@ module Authentication
     # be used in `validate_security`, we don't want to recalculate it, so we
     # pass the result in.
     #
-    def oidc_validate_credentials(input, user_details)
+    def oidc_validate_credentials(input_with_username, user_details)
       AuthnOidc::Authenticator.new.(
         input: input_with_username,
         user_details: user_details

@@ -1,7 +1,7 @@
 module Authentication
   module AuthnOidc
     class UserDetails
-      attr_reader :id_token, :user_info, :issuer
+      attr_reader :id_token, :user_info, :client_id, :issuer
 
       def initialize(id_token:, user_info:, client_id:, issuer:)
         @id_token = id_token

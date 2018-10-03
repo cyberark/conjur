@@ -90,7 +90,7 @@ module Authentication
       # NOTE: technically this should be memoized by argument (through memoist
       # gem, eg) but the calc is so simple it doesn't matter.
       def variable_id(var_name)
-        "#{@conjur_account}:variable:#{@service_id}/#{var_name}"
+        "#{@conjur_account}:variable:conjur/authn-oidc/#{@service_id}/#{var_name}"
       end
 
       def client_id
