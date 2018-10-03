@@ -1,23 +1,24 @@
 require 'uri'
 require 'openid_connect'
 require 'command_class'
+require 'conjur/fetch_required_secrets'
 
 module Authentication
   module AuthnOidc
 
     # TODO: (later version) Fix CommandClass so we can add errors directly
-    # inside of it 
+    # inside of it
     #
     # TODO: list any OIDC or other errors here.  The errors are part of the
     # API.
     #
     # Errors from FetchRequiredSecrets
     #
-    RequiredResourceMissing = ::Conjur::RequiredResourceMissing 
-    RequiredSecretMissing = ::Conjur::RequiredSecretMissing 
+    RequiredResourceMissing = ::Conjur::RequiredResourceMissing
+    RequiredSecretMissing = ::Conjur::RequiredSecretMissing
 
     GetUserDetails = CommandClass.new(
-      dependencies: {fetch_secrets: FetchRequiredSecrets.new},
+      dependencies: {fetch_secrets: ::Conjur::FetchRequiredSecrets.new},
       inputs: [:request_body, :service_id, :conjur_account]
     ) do
 
@@ -85,7 +86,7 @@ module Authentication
       end
 
       # TODO: for next version: push this logic into a reusable value object
-      # 
+      #
       # NOTE: technically this should be memoized by argument (through memoist
       # gem, eg) but the calc is so simple it doesn't matter.
       def variable_id(var_name)
