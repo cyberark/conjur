@@ -11,8 +11,8 @@ module Authentication
     # object but we'll leave it like this for now for consistency
     #
     Authenticator = CommandClass.new(
-      dependencies: {env: ENV},
-      inputs: [:input, :user_details]
+      dependencies: { env: ENV },
+      inputs: %i(input user_details)
     ) do
 
       def call
@@ -29,14 +29,10 @@ module Authentication
       end
 
       def validate_user_info
-        unless user_info.sub == id_token_subject
-          raise OIDCAuthenticationError, "User info subject [#{user_info.sub}] and id token subject [#{id_token_subject}] are not equal"
-        end
+        raise OIDCAuthenticationError, user_info_subject_err_msg(user_info.sub, id_token_subject) unless user_info.sub == id_token_subject
 
         # validate user_info was included in scope
-        if user_info.preferred_username.nil?
-          raise OIDCAuthenticationError, "[profile] is not included in scope of authorization code request"
-        end
+        raise OIDCAuthenticationError, no_username_inuser_info_err_msg if user_info.preferred_username.nil?
       end
 
       def user_info
@@ -73,6 +69,14 @@ module Authentication
 
       def service
         @service ||= Resource["#{conjur_account}:webservice:conjur/#{authenticator_name}/#{service_id}"]
+      end
+
+      def no_username_inuser_info_err_msg
+        "[profile] is not included in scope of authorization code request"
+      end
+
+      def user_info_subject_err_msg(user_info_sub, id_token_sub)
+        "User info subject [#{user_info_sub}] and id token subject [#{id_token_sub}] are not equal"
       end
 
       # NOTE: These can be removed since they're now handled by

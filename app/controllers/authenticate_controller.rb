@@ -48,7 +48,7 @@ class AuthenticateController < ApplicationController
         service_id:         params[:service_id],
         account:            params[:account],
         username:           nil,
-        password:           nil, #TODO: the body will contain info about OpenID
+        password:           nil, # TODO: Remove once we seperate oidc Strategy
         origin:             request.ip,
         request:            request
       )
@@ -57,7 +57,6 @@ class AuthenticateController < ApplicationController
   rescue => e
     handle_authentication_error(e)
   end
-
 
   def k8s_inject_client_cert
     # TODO: add this to initializer

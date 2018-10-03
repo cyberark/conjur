@@ -18,8 +18,8 @@ module Authentication
     RequiredSecretMissing = ::Conjur::RequiredSecretMissing
 
     GetUserDetails = CommandClass.new(
-      dependencies: {fetch_secrets: ::Conjur::FetchRequiredSecrets.new},
-      inputs: [:request_body, :service_id, :conjur_account]
+      dependencies: { fetch_secrets: ::Conjur::FetchRequiredSecrets.new },
+      inputs: %i(request_body service_id conjur_account)
     ) do
 
       # @return [AuthOidc::UserDetails] containing decoded id token, user info,
@@ -133,7 +133,6 @@ module Authentication
           userinfo_endpoint: discovered_resource.userinfo_endpoint
         )
       end
-
     end
   end
 end
