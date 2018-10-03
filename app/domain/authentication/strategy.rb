@@ -105,11 +105,14 @@ module Authentication
     # TODO: (later version) Extract this and related private methods into its
     # own object.  We'll need to break down Strategy into its component parts
     # to avoid repetition, and then use those parts in both the new
-    # "OIDCStrategy" and this original Strategy. 
+    # "OIDCStrategy" and this original Strategy.
     #
     # Or take a different approach that accomplishes the same goals
     #
     def conjur_token_oidc(input)
+      authenticator = authenticators[input.authenticator_name]
+      validate_authenticator_exists(input, authenticator)
+      
       user_details = oidc_user_details(input)
       username = user_details.user_info.preferred_username
       input_with_username = input.update(username: username)

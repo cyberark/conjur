@@ -121,6 +121,15 @@ RSpec.describe 'Authentication::Strategy' do
     }
   end
 
+  let (:oidc_user_details) do
+    double('userInfo', user_info: user_info)
+  end
+
+  let (:user_info) do
+    double('userInfo', preferred_username: "alice")
+  end
+
+
   ####################################
   # Security doubles
   ####################################
@@ -206,7 +215,7 @@ RSpec.describe 'Authentication::Strategy' do
           )
         end
         it "raises an error" do
-          allow(subject).to receive(:validate_credentials) { true }
+          allow(subject).to receive(:oidc_user_details) { oidc_user_details }
           input_ = input(authenticator_name: 'authn-always-pass')
           expect{ subject.conjur_token_oidc(input_) }.to raise_error(
             /FAKE_SECURITY_ERROR/
@@ -226,10 +235,11 @@ RSpec.describe 'Authentication::Strategy' do
           )
         end
         it "returns a new token" do
-          allow(subject).to receive(:validate_credentials) { true }
+          allow(subject).to receive(:oidc_user_details) { oidc_user_details }
+          allow(subject).to receive(:oidc_validate_credentials) { true }
           allow(subject).to receive(:validate_origin) { true }
           input_ = input(authenticator_name: 'authn-always-pass')
-          expect(subject.conjur_token(input_)).to equal(a_new_token)
+          expect(subject.conjur_token_oidc(input_)).to equal(a_new_token)
         end
       end
     end

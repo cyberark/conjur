@@ -94,7 +94,7 @@ function prepare_env_auth_oidc() {
 function keycloak_isready?() {
   for i in {1..5}
   do
-   sleep=4
+   sleep=10
    echo "keycloak starting logs:"
    echo "$(docker-compose logs oidc-keycloak)"
    output=$(docker-compose logs oidc-keycloak | grep "started" | wc -l)
