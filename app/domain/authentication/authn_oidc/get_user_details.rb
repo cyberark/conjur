@@ -39,6 +39,7 @@ module Authentication
         UserDetails.new(
           id_token: id_token,
           user_info: user_info,
+          client_id: client_id,
           issuer: discovered_resource.issuer
         )
       end
