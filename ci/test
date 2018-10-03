@@ -95,6 +95,8 @@ function keycloak_isready?() {
   for i in {1..5}
   do
    sleep=4
+   echo "keycloak starting logs:"
+   echo "$(docker-compose logs oidc-keycloak)"
    output=$(docker-compose logs oidc-keycloak | grep "started" | wc -l)
    if [ $output -ne 0 ]; then
         echo "Keycloak server is up and ready"
