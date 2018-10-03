@@ -11,6 +11,18 @@ require 'command_class'
 #
 module Authentication
   module AuthnOidc
+
+    # TODO: (later version) Fix CommandClass so we can add errors directly
+    # inside of it 
+    #
+    # TODO: list any OIDC or other errors here.  The errors are part of the
+    # API.
+    #
+    # Errors from FetchRequiredSecrets
+    #
+    RequiredResourceMissing = ::Conjur::RequiredResourceMissing 
+    RequiredSecretMissing = ::Conjur::RequiredSecretMissing 
+
     GetUserDetails = CommandClass.new(
       dependencies: {fetch_secrets: FetchRequiredSecrets.new},
       inputs: [:request_body, :service_id, :conjur_account]
@@ -19,24 +31,20 @@ module Authentication
       # @return [AuthOidc::UserDetails] containing decoded id token, user info,
       # and issuer
       def call
-        set_client_authorization_code
-        set_client_host
+        configure_oidc_client
         user_details
       end
 
       private
 
-      def set_client_authorization_code
+      def configure_oidc_client
         oidc_client.authorization_code = authorization_code
-      end
-
-      def set_client_host
         oidc_client.host = URI.parse(provider_uri).host
       end
 
       def user_details
         UserDetails.new(
-          id_token: id_toden,
+          id_token: id_token,
           user_info: user_info,
           issuer: discovered_resource.issuer
         )
