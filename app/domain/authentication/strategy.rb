@@ -38,6 +38,13 @@ module Authentication
         )
       end
 
+      # Creates a copy of this object with the attributes updated by those
+      # specified in hash
+      #
+      def update(hash)
+        self.class.new(to_hash.merge(hash))
+      end
+
       def webservice
         @webservice ||= ::Authentication::Webservice.new(
           account:            account,
@@ -95,25 +102,61 @@ module Authentication
       raise e
     end
 
+    # TODO: (later version) Extract this and related private methods into its
+    # own object.  We'll need to break down Strategy into its component parts
+    # to avoid repetition, and then use those parts in both the new
+    # "OIDCStrategy" and this original Strategy. 
+    #
+    # Or take a different approach that accomplishes the same goals
+    #
     def conjur_token_oidc(input)
-      authenticator = authenticators[input.authenticator_name]
+      user_details = oidc_user_details(input)
+      username = user_details.user_info.preferred_username
+      input_with_username = input.update(username: username)
 
-      validate_authenticator_exists(input, authenticator)
+      validate_security(input_with_username)
+      oidc_validate_credentials(input_with_username, user_details)
+      validate_origin(input_with_username)
 
-      # this method also injects the username to input
-      validate_credentials(input, authenticator)
-
-      validate_security(input)
-      validate_origin(input)
-
-      audit_success(input)
-      new_token(input)
+      audit_success(input_with_username)
+      new_token(input_with_username)
     rescue => e
       audit_failure(input, e)
       raise e
     end
 
     private
+
+    # NOTE: These two methods are "special" (outside the framework) by design.
+    # We already know that the OIDC authenticator doesn't fit within this
+    # framework design, and will be pulling it out into multiple routes and its
+    # own objects on the next iteration.
+    #
+    # Thus these two methods actually represent the first step in that
+    # direction.  They also more honestly portray the situation.
+    #
+    def oidc_user_details(input)
+      AuthnOidc::GetUserDetails.new.(
+        request_body: input.service_id,
+        service_id: input.account,
+        conjur_account: input.request.body.read
+      )
+    end
+
+    # NOTE: We can revisit this decision, but for now there is absolutely no
+    # reason to be bound the `valid?(input)` interface for this "exceptional"
+    # authenticator.
+    #
+    # Since we've already get to call `GetUserDetials` here for the username to
+    # be used in `validate_security`, we don't want to recalculate it, so we
+    # pass the result in.
+    #
+    def oidc_validate_credentials(input, user_details)
+      AuthnOidc::Authenticator.new.(
+        input: input_with_username,
+        user_details: user_details
+      )
+    end
 
     def audit_success(input)
       audit_log.record_authn_event(
