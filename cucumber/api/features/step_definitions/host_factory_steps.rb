@@ -17,7 +17,8 @@ Given(/^a host factory for layer "([^"]*)"$/) do |layer_id|
   @current_resource = @host_factory = Resource[hf_p.resourceid]
 end
 
-Given(/^a host factory token$/) do
+Given(/^a host factory token(?: for "([^"]*)")?$/) do |host_factory_id|
+  @host_factory = Resource["cucumber:host_factory:#{host_factory_id}"] if host_factory_id.present?
   expect(@host_factory).to be
   @host_factory_token = HostFactoryToken.create(resource: @host_factory, expiration: Time.now + 10.minutes)
 end

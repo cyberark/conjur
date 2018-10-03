@@ -20,7 +20,7 @@ HostBuilder = Struct.new(:account, :id, :owner, :layers, :options) do
     host = Role[host_id]
     return nil unless host
 
-    raise Exceptions::Forbidden unless host.resource.owner == owner
+    raise Exceptions::Forbidden unless host.resource? && host.resource.owner == owner
     
     # Find-or-create Credentials
     host.api_key

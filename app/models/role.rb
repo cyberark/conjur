@@ -107,6 +107,10 @@ class Role < Sequel::Model
     self.class.username_from_roleid(role_id)
   end
 
+  def resource?
+    Resource[id].present?
+  end
+
   def resource
     Resource[id] or raise "Resource not found for #{id}"
   end
