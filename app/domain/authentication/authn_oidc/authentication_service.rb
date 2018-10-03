@@ -2,13 +2,6 @@ require 'uri'
 require 'openid_connect'
 require 'command_class'
 
-# TODO create this directly inside strategy
-# add it to Authenticator to make it accessible
-#
-# Update name AuthenticationService
-#
-# Update user_details to call
-#
 module Authentication
   module AuthnOidc
 
