@@ -77,7 +77,13 @@ class AuthenticateController < ApplicationController
     err.backtrace.each do |line|
       logger.debug(line)
     end
-    raise Unauthorized
+
+    case err
+    when OIDCConfigurationError
+      raise NotImplemented, err.message
+    else
+      raise Unauthorized
+    end
   end
 
   def authentication_strategy
