@@ -209,6 +209,7 @@ RSpec.describe 'Authentication::Strategy' do
         end
         it "raises an error" do
           allow(subject).to receive(:oidc_user_details) { oidc_user_details }
+          allow(subject).to receive(:oidc_validate_credentials) { true }
           input_ = input(authenticator_name: 'authn-always-pass')
           expect{ subject.conjur_token_oidc(input_) }.to raise_error(
             /FAKE_SECURITY_ERROR/

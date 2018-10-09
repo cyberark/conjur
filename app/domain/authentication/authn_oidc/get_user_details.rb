@@ -59,6 +59,9 @@ module Authentication
 
       def access_token
         @access_token ||= oidc_client.access_token!
+      rescue => e
+        raise OIDCAuthenticationError, e.message if is_oauth_error?(e)
+        raise e
       end
 
       def decoded_body
@@ -121,6 +124,10 @@ module Authentication
           token_endpoint: discovered_resource.token_endpoint,
           userinfo_endpoint: discovered_resource.userinfo_endpoint
         )
+      end
+
+      def is_oauth_error? err
+        err.class <= Rack::OAuth2::Client::Error
       end
     end
   end
