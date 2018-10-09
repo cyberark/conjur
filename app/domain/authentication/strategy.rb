@@ -111,11 +111,12 @@ module Authentication
     #
     def conjur_token_oidc(input)
       user_details = oidc_user_details(input)
+      oidc_validate_credentials(input, user_details)
+
       username = user_details.user_info.preferred_username
       input_with_username = input.update(username: username)
 
       validate_security(input_with_username)
-      oidc_validate_credentials(input_with_username, user_details)
       validate_origin(input_with_username)
 
       audit_success(input_with_username)
@@ -151,9 +152,9 @@ module Authentication
     # be used in `validate_security`, we don't want to recalculate it, so we
     # pass the result in.
     #
-    def oidc_validate_credentials(input_with_username, user_details)
+    def oidc_validate_credentials(input, user_details)
       AuthnOidc::Authenticator.new.(
-        input: input_with_username,
+        input: input,
         user_details: user_details
       )
     end
