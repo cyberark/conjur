@@ -7,9 +7,6 @@ class ApplicationController < ActionController::API
   class Unauthorized < RuntimeError
   end
 
-  class NotImplemented < Exceptions::NotImplemented
-  end
-
   class Forbidden < Exceptions::Forbidden
     def message
       'Forbidden'

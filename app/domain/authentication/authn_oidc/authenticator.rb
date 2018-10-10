@@ -23,9 +23,8 @@ module Authentication
       def validate_id_token_claims
         expected = { client_id: client_id, issuer: issuer } # , nonce: 'nonce'}
         @user_details.id_token.verify!(expected)
-      rescue => e
-        raise OIDCAuthenticationError, e.message if is_invalid_token_error?(e)
-        raise e
+      rescue OpenIDConnect::ResponseObject::IdToken::InvalidToken => e
+        raise OIDCAuthenticationError, e.message
       end
 
       def validate_user_info
@@ -84,10 +83,6 @@ module Authentication
       def subject_err_msg
         "User info subject [#{user_info.sub}] and id token subject " +
          "[#{id_token_subject}] are not equal"
-      end
-
-      def is_invalid_token_error? err
-        err.class <= OpenIDConnect::ResponseObject::IdToken::InvalidToken
       end
     end
   end

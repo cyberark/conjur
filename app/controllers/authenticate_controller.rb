@@ -83,7 +83,7 @@ class AuthenticateController < ApplicationController
     when Conjur::RequiredSecretMissing
     when Authentication::Security::ServiceNotDefined
     when Authentication::Security::NotWhitelisted
-      raise NotImplemented, err.message
+      raise Exceptions::NotImplemented, err.message
     else
       raise Unauthorized
     end
