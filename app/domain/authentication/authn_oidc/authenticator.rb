@@ -29,7 +29,7 @@ module Authentication
 
       def validate_user_info
         raise OIDCAuthenticationError, subject_err_msg unless valid_subject?
-        raise OIDCAuthenticationError, no_profile_err_msg unless preferred_username
+        raise OIDCAuthenticationError, no_username_err_msg unless preferred_username
       end
 
       def user_info
@@ -76,8 +76,8 @@ module Authentication
         @service ||= Resource["#{conjur_account}:webservice:conjur/#{authenticator_name}/#{service_id}"]
       end
 
-      def no_profile_err_msg
-        "[profile] is not included in scope of authorization code request"
+      def no_username_err_msg
+        "username not found in OIDC access token"
       end
 
       def subject_err_msg
