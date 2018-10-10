@@ -26,7 +26,7 @@ module Authentication
           %w(stdin stdout stderr error resize)
         end
       end
-      
+
       def initialize(msg)
         @msg = msg
       end
@@ -34,7 +34,7 @@ module Authentication
       def type
         @msg.type
       end
-      
+
       def data
         @msg.data[1..-1]
       end
@@ -42,39 +42,16 @@ module Authentication
       def channel_name
         self.class.channel_names[channel_number]
       end
-      
+
       def channel_number
         unless @msg.respond_to?(:data)
           return self.class.channel_number_from_name('error') 
         end
-        
+
         @msg.data[0..0].bytes.first
       end
     end
 
-    # Utility class for storing messages received during websocket communication.
-    class MessageLog
-      attr_reader :messages
-      
-      def initialize
-        @messages = Hash.new { |hash,key| hash[key] = [] }
-      end
-
-      def save_message(wsmsg)
-        channel_name = wsmsg.channel_name
-        
-        unless channel_name
-          raise "Unexpected channel: #{wsmsg.channel_number}"
-        end
-        
-        @messages[channel_name.to_sym] << wsmsg.data
-      end
-
-      def save_error_string(str)
-        @messages[:error] << str
-      end
-    end
-    
     class KubectlExec
       # logger: an object responding to `debug`
       # kubeclient: Kubeclient::Client from "kubeclient" gem
@@ -108,12 +85,12 @@ module Authentication
         wait_for_close_message
 
         raise CommandTimedOut.new(@container, @pod_name) unless @channel_closed
-        
+
         # TODO: raise an `WebsocketServerFailure` here in the case of ws :error
 
         @message_log.messages
       end
-      
+
       def copy(path, content, mode)
         execute(
           [ 'tar', 'xvf', '-', '-C', '/' ],
@@ -121,11 +98,11 @@ module Authentication
           body: tar_file_as_string(path, content, mode)
         )
       end
-      
+
       def on_open(ws_client, body, stdin)
         hs = ws_client.handshake
         hs_error = hs.error
-        
+
         if hs_error
           ws_client.emit(:error, "Websocket handshake error: #{hs_error.inspect}")
         else
@@ -141,10 +118,10 @@ module Authentication
 
       def on_message(msg, ws_client)
         wsmsg = WebSocketMessage.new(msg)
-        
+
         msg_type = wsmsg.type
         msg_data = wsmsg.data
-        
+
         if msg_type == :binary
           @logger.debug("Pod #{@pod_name}, channel #{wsmsg.channel_name}: #{msg_data}")
           @message_log.save_message(wsmsg)
@@ -153,7 +130,7 @@ module Authentication
           ws_client.close
         end
       end
-      
+
       def on_close
         @channel_closed = true
         @logger.debug("Pod #{@pod_name} : channel closed")
@@ -169,7 +146,7 @@ module Authentication
 
       def add_websocket_event_handlers(ws_client, body, stdin)
         kubectl = self
-        
+
         ws_client.on(:open) { kubectl.on_open(ws_client, body, stdin) }
         ws_client.on(:message) { |msg| kubectl.on_message(msg, ws_client) }
         ws_client.on(:close) { kubectl.on_close }
@@ -203,7 +180,7 @@ module Authentication
 
       def tar_file_as_string(path, content, mode)
         tarfile = StringIO.new("")
-        
+
         Gem::Package::TarWriter.new(tarfile) do |tar|
           tar.add_file(path, mode) do |tf|
             tf.write(content)
