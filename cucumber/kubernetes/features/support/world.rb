@@ -24,29 +24,51 @@ module AuthnK8sWorld
     pattern
   end
 
-  # get pod cert
-  def pod_certificate
-    exec = Authentication::AuthnK8s::KubectlExec.new(
-      pod_name: @pod.metadata.name,
-      pod_namespace: @pod.metadata.namespace,
+  def kubectl_exec
+    pod_metadata = @pod.metadata
+
+    Authentication::AuthnK8s::KubectlExec.new(
+      pod_name: pod_metadata.name,
+      pod_namespace: pod_metadata.namespace,
       logger: Rails.logger,
       kubeclient: kubectl_client,
       container: 'authenticator'
     )
+  end
 
+  def print_result_errors response
+    if response
+      $stderr.puts "ERROR: STDOUT: '#{response[:stdout]}'"
+      $stderr.puts "ERROR: STDERR: '#{response[:error]}'"
+    else
+      $stderr.puts "ERROR: Response was nil!"
+    end
+  end
+
+  # get pod cert
+  def pod_certificate
+    exec = kubectl_exec
     response = nil
-
-    retries = 3
+    retries = 10
     count = 0
+    success = false
 
-    while response.nil? || (!response[:error].empty? && count < retries)
+    while count < retries
+      puts "Waiting for client cert to be available (Attempt #{count + 1} of #{retries})"
       response = exec.execute [ "cat", "/etc/conjur/ssl/client.pem" ]
+
+      if !response.nil? && response[:error].empty? && !response[:stdout].to_s.strip.empty?
+        success = true
+        break
+      end
+
+      print_result_errors response
       sleep 2
       count += 1
     end
 
-    if response[:error] && response[:error].join =~ /command terminated with non-zero exit code/
-      $stderr.puts "Unable to retrieve client certificate for pod #{@pod.metadata.name.inspect}"
+    if !success
+      $stderr.puts "ERROR: Unable to retrieve client certificate for pod #{@pod.metadata.name.inspect}"
     else
       response[:stdout].join
     end
