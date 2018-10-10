@@ -8,43 +8,39 @@ def login username, request_ip, authn_k8s_host, pkey
       authn_k8s_host,
       ssl_ca_file: './nginx.crt'
     )["inject_client_cert?request_ip=#{request_ip}"].post(csr.to_pem, content_type: 'text/plain')
-  
+
   @cert = pod_certificate
+
+  if @cert.to_s.empty?
+    warn "WARN: Certificate is empty!"
+  end
+
   response
+end
+
+def login_with_id request_ip, id, success
+  username = [ namespace, id ].join('/')
+  begin
+    @pkey = OpenSSL::PKey::RSA.new 1048
+    login(username, request_ip, authn_k8s_host, @pkey)
+  rescue
+    raise if success
+    @error = $!
+  end
+
+  expect(@cert).to include("BEGIN CERTIFICATE") unless @cert.to_s.empty?
 end
 
 Then(/^I( can)? login to pod matching "([^"]*)" to authn-k8s as "([^"]*)"$/) do |success, objectid, host_id|
   @request_ip ||= find_matching_pod(objectid)
 
-  username = [ namespace, host_id ].join('/')
-  begin
-    @pkey = OpenSSL::PKey::RSA.new 1048
-    login(username, @request_ip, authn_k8s_host, @pkey)
-  rescue
-    raise if success
-    @error = $!
-  end
-
-  if @cert
-    expect(@cert).to include("BEGIN CERTIFICATE")
-  end
+  login_with_id(@request_ip, host_id, success)
 end
 
 Then(/^I( can)? login to authn-k8s as "([^"]*)"$/) do |success, objectid|
   @request_ip ||= detect_request_ip(objectid)
 
-  username = [ namespace, objectid ].join('/')
-  begin
-    @pkey = OpenSSL::PKey::RSA.new 1048
-    login(username, @request_ip, authn_k8s_host, @pkey)
-  rescue
-    raise if success
-    @error = $!
-  end
-
-  if @cert
-    expect(@cert).to include("BEGIN CERTIFICATE")
-  end
+  login_with_id(@request_ip, objectid, success)
 end
 
 When(/^I launch many concurrent login requests$/) do
