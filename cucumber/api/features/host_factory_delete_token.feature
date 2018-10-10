@@ -3,8 +3,8 @@ Feature: Delete (revoke) a host factory token.
 
 Background:
   Given I create a new user "alice"
-  And a host factory for layer "the-layer"
-  And a host factory token
+  And I create a host factory for layer "the-layer"
+  And I create a host factory token
 
   Scenario: Unauthorized users cannot delete host factory tokens.
     When I DELETE "/host_factory_tokens/@host_factory_token_token@"

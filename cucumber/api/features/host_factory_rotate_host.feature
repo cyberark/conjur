@@ -12,7 +12,7 @@ Feature: Rotate a host api key using the host factory.
           id: users
           layers: [ !layer users ]
     """
-    And a host factory token for "database/users"
+    And I create a host factory token for "database/users"
     And I authorize the request with the host factory token
     And I successfully POST "/host_factories/hosts?id=brand-new-host"
     And I log out
@@ -35,7 +35,7 @@ Feature: Rotate a host api key using the host factory.
           id: users
           layers: [ !layer users ]
     """
-    And a host factory token for "database/users"
+    And I create a host factory token for "database/users"
     And I authorize the request with the host factory token
     And I POST "/host_factories/hosts?id=brand-new-host"
     Then the HTTP response status code is 403
@@ -57,7 +57,7 @@ Feature: Rotate a host api key using the host factory.
       id: brand-new-host
       owner: !host-factory database/users
     """
-    And a host factory token for "database/users"
+    And I create a host factory token for "database/users"
     And I authorize the request with the host factory token
     And I successfully POST "/host_factories/hosts?id=brand-new-host"
     Then the HTTP response status code is 201

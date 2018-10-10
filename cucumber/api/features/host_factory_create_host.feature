@@ -1,8 +1,8 @@
 Feature: Create a host using the host factory.
 
   Background:
-    Given a host factory for layer "the-layer"
-    And a host factory token
+    Given I create a host factory for layer "the-layer"
+    And I create a host factory token
     
   Scenario: The host factory token authenticates and authorizes a request
     to create a new host.
