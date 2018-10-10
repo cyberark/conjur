@@ -49,7 +49,8 @@ function run_cucumber_tests() {
   rm -rf cucumber/$profile/features/reports/*
 
   # Start Conjur and supporting services
-  docker-compose up --no-deps -d $services
+  docker-compose up --no-deps --no-recreate -d $services
+
   docker-compose exec -T conjur conjurctl wait
   docker-compose exec -T conjur conjurctl account create cucumber
 
@@ -66,7 +67,7 @@ function run_cucumber_tests() {
 }
 
 function prepare_env_auth_oidc() {
-  docker-compose up --no-deps -d oidc-keycloak
+  docker-compose up --no-deps -d pg conjur oidc-keycloak
 
   # Fetch oidc-keycloak environment variables
   KEYCLOAK_USER=$(docker-compose exec -T oidc-keycloak printenv KEYCLOAK_USER | tr -d '\r')
@@ -88,6 +89,9 @@ function prepare_env_auth_oidc() {
 
   # Define oidc-keycloak client
   docker-compose exec -T oidc-keycloak /scripts/create_client
+
+  echo "Initialize keycloak certificate in conjur server"
+  docker-compose exec -T conjur /authn-oidc/keycloak/scripts/fetchCertificate
 
 }
 

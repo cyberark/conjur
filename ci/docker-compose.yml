@@ -23,6 +23,7 @@ services:
     command: server
     volumes:
       - authn-local:/run/authn-local
+      - ./authn-oidc/keycloak:/authn-oidc/keycloak/scripts
     expose:
       - "80"
     links:
@@ -74,6 +75,7 @@ services:
       - "7777:8080"
     volumes:
       - ./authn-oidc/keycloak:/scripts
+      - ./authn-oidc/keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
 
 
 volumes:

@@ -109,19 +109,8 @@ module Authentication
         required_secrets[variable_id(var_name)]
       end
 
-      # TODO: disable_ssl_verification should not run in production
       def discovered_resource
-        return @discovered_resource if @discovered_resource
-        disable_ssl_verification
         @discovered_resource ||= OpenIDConnect::Discovery::Provider::Config.discover!(provider_uri)
-      end
-
-      # TODO: Delete disable ssl action after fix OpenID connect to support
-      # self sign ceritficate
-      def disable_ssl_verification
-        OpenIDConnect.http_config do |config|
-          config.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        end
       end
 
       def oidc_client
