@@ -25,15 +25,7 @@ module AuthnK8sWorld
   end
 
   def kubectl_exec
-    pod_metadata = @pod.metadata
-
-    Authentication::AuthnK8s::KubectlExec.new(
-      pod_name: pod_metadata.name,
-      pod_namespace: pod_metadata.namespace,
-      logger: Rails.logger,
-      kubeclient: kubectl_client,
-      container: 'authenticator'
-    )
+    Authentication::AuthnK8s::KubectlExec.new
   end
 
   def print_result_errors response
@@ -47,7 +39,6 @@ module AuthnK8sWorld
 
   # get pod cert
   def pod_certificate
-    exec = kubectl_exec
     response = nil
     retries = 10
     count = 0
@@ -55,7 +46,13 @@ module AuthnK8sWorld
 
     while count < retries
       puts "Waiting for client cert to be available (Attempt #{count + 1} of #{retries})"
-      response = exec.execute [ "cat", "/etc/conjur/ssl/client.pem" ]
+
+      pod_metadata = @pod.metadata
+      response = kubectl_exec.execute(
+        pod_namespace: pod_metadata.namespace,
+        pod_name: pod_metadata.name,
+        cmds: [ "cat", "/etc/conjur/ssl/client.pem" ]
+      )
 
       if !response.nil? && response[:error].empty? && !response[:stdout].to_s.strip.empty?
         success = true

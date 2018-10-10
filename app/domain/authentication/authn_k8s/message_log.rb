@@ -1,11 +1,11 @@
-# Utility class for storing messages received during websocket communication.
 module Authentication
   module AuthnK8s
+    # Utility class for storing messages received during websocket communication.
     class MessageLog
       attr_reader :messages
 
       def initialize
-        @messages = Hash.new { |hash,key| hash[key] = [] }
+        @messages = Hash.new { |hash, key| hash[key] = [] }
       end
 
       def save_message(wsmsg)
