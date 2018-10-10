@@ -7,7 +7,7 @@ module Conjur
     'Missing required resource: {0}'
   )
   RequiredSecretMissing = Util::ErrorClass.new(
-    'Missing secret for resource: {0}'
+    'Missing value for resource: {0}'
   )
 
   FetchRequiredSecrets = ::CommandClass.new(

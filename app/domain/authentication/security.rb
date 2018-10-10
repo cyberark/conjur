@@ -14,6 +14,8 @@ module Authentication
       "Webservice '{0}' is not defined in the Conjur policy")
     NotAuthorizedInConjur = ::Util::ErrorClass.new(
       "User '{0}' is not authorized in the Conjur policy")
+    NotDefinedInConjur = ::Util::ErrorClass.new(
+      "User '{0}' is not defined in Conjur")
 
     class AccessRequest < ::Dry::Struct
       attribute :webservice, ::Types.Instance(::Authentication::Webservice)
@@ -54,7 +56,7 @@ module Authentication
       account      = req.webservice.account
       user_role_id = role_class.roleid_from_username(account, req.user_id)
       user_role    = role_class[user_role_id]
-      raise NotAuthorizedInConjur, req.user_id unless user_role
+      raise NotDefinedInConjur, req.user_id unless user_role
 
       # Ensure user has access to the service
       has_access = user_role.allowed_to?('authenticate', webservice_resource)

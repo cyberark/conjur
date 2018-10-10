@@ -104,7 +104,7 @@ RSpec.describe Authentication::Security do
       )
     end
   end
- 
+
   context "A whitelisted, authorized webservice and authorized user" do
     it "validates without error" do
       subject = full_access_security_double
@@ -139,13 +139,13 @@ RSpec.describe Authentication::Security do
   end
 
   context "A whitelisted, authorized webservice and non-existent user" do
-    it "raises a NotAuthorizedInConjur error" do
+    it "raises a NotDefinedInConjur error" do
       subject = Authentication::Security.new(
         role_class: nil_user_role_class,
         resource_class: full_access_resource_class
       )
       expect { subject.validate(valid_access_request) }.to(
-        raise_error(Authentication::Security::NotAuthorizedInConjur)
+        raise_error(Authentication::Security::NotDefinedInConjur)
       )
     end
   end
