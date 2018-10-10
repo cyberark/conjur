@@ -27,13 +27,13 @@ module Authentication
       end
 
       def install_signed_cert
-        exec = @kubectl_exec.new(
-          pod_name: spiffe_id.name,
+        resp = @kubectl_exec.new.copy(
           pod_namespace: spiffe_id.namespace,
-          logger: Rails.logger,
-          kubeclient: @k8s_object_lookup.kubectl_client
+          pod_name: spiffe_id.name,
+          path: "/etc/conjur/ssl/client.pem",
+          content: cert_to_install.to_pem,
+          mode: "0644"
         )
-        resp = exec.copy("/etc/conjur/ssl/client.pem", cert_to_install.to_pem, "0644")
         validate_cert_installation(resp)
       end
 
@@ -56,7 +56,7 @@ module Authentication
       def host_id
         k8s_host.conjur_host_id
       end
-      
+
       def spiffe_id
         @spiffe_id ||= SpiffeId.new(smart_csr.spiffe_id)
       end
@@ -89,7 +89,7 @@ module Authentication
       def common_name
         @common_name ||= CommonName.new(smart_csr.common_name)
       end
-      
+
       def validate_cert_installation(resp)
         return if resp[:error].empty?
         raise CertInstallationError, cert_error(resp[:error])
@@ -115,7 +115,7 @@ module Authentication
 
       def cert_to_install
         ca_for_webservice.signed_cert(
-          @csr, 
+          @csr,
           subject_altnames: [ spiffe_id.to_altname ]
         )
       end

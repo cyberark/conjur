@@ -13,20 +13,25 @@ Before do
     next unless ready_status.status == "True"
     next if pod.metadata.name =~ /conjur\-authn\-k8s/
 
+    exec = Authentication::AuthnK8s::KubectlExec.new
+
     pod.spec.containers.each do |container|
-      exec = Authentication::AuthnK8s::KubectlExec.new(
-        pod_name: pod.metadata.name,
+      response = exec.execute(
         pod_namespace: pod.metadata.namespace,
-        logger: Rails.logger,
-        kubeclient: Authentication::AuthnK8s::K8sObjectLookup.kubectl_client,
-        container: container.name
+        pod_name: pod.metadata.name,
+        container: container.name,
+        cmds: %w(ls /etc/conjur/ssl)
       )
-      
-      response = exec.execute %w(ls /etc/conjur/ssl)
+
       if response[:error] && response[:error].join =~ /command terminated with non-zero exit code/
       else
         # $stderr.puts "Cleaning /etc/conjur/ssl on container #{container.name} of Pod #{pod.metadata.name}"
-        exec.execute %w(rm -rf /etc/conjur/ssl)
+        exec.execute(
+          pod_namespace: pod.metadata.namespace,
+          pod_name: pod.metadata.name,
+          container: container.name,
+          cmds: %w(rm /etc/conjur/ssl)
+        )
       end
     end
   end

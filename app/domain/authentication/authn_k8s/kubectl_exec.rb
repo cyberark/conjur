@@ -1,3 +1,4 @@
+require 'command_class'
 require 'uri'
 require 'websocket'
 require 'rubygems/package'
@@ -52,35 +53,26 @@ module Authentication
       end
     end
 
-    class KubectlExec
-      # logger: an object responding to `debug`
-      # kubeclient: Kubeclient::Client from "kubeclient" gem
-      #
-      def initialize(
-        pod_name:,
-        pod_namespace:,
-        logger:,
-        kubeclient:,
-        container: 'authenticator',
-        timeout: 5.seconds
-      )
-        @pod_name = pod_name
-        @pod_namespace = pod_namespace
-        @container = container
-        @timeout = timeout
-        @logger = logger
-        @kubeclient = kubeclient
-
+    KubectlExec = CommandClass.new(
+      dependencies: { logger: Rails.logger,
+                      k8s_object_lookup: K8sObjectLookup,
+                      timeout: 5.seconds },
+      inputs: %i( pod_namespace
+                  pod_name
+                  container
+                  cmds
+                  body
+                  stdin )
+    ) do
+      def call
         @message_log = MessageLog.new
         @channel_closed = false
-      end
 
-      def execute(cmds, body: "", stdin: false)
-        url = server_url(cmds, stdin)
-        headers = @kubeclient.headers.clone
+        url = server_url(@cmds, @stdin)
+        headers = kubeclient.headers.clone
         ws_client = WebSocket::Client::Simple.connect(url, headers: headers)
 
-        add_websocket_event_handlers(ws_client, body, stdin)
+        add_websocket_event_handlers(ws_client, @body, @stdin)
 
         wait_for_close_message
 
@@ -91,14 +83,8 @@ module Authentication
         @message_log.messages
       end
 
-      def copy(path, content, mode)
-        execute(
-          [ 'tar', 'xvf', '-', '-C', '/' ],
-          stdin: true,
-          body: tar_file_as_string(path, content, mode)
-        )
-      end
-
+      # on_* methods are public since ws_client needs public callbacks that it will
+      # invoke
       def on_open(ws_client, body, stdin)
         hs = ws_client.handshake
         hs_error = hs.error
@@ -138,11 +124,17 @@ module Authentication
 
       def on_error(err)
         @channel_closed = true
-        @logger.debug("Pod #{@pod_name} error : #{err.inspect}")
-        @message_log.save_error_string(err.inspect)
+
+        error_info = err.inspect
+        @logger.debug("Pod #{@pod_name} error : #{error_info}")
+        @message_log.save_error_string(error_info)
       end
 
       private
+
+      def kubeclient
+        @kubeclient ||= @k8s_object_lookup.kubectl_client
+      end
 
       def add_websocket_event_handlers(ws_client, body, stdin)
         kubectl = self
@@ -171,7 +163,7 @@ module Authentication
       end
 
       def server_url(cmds, stdin)
-        api_uri = @kubeclient.api_endpoint
+        api_uri = kubeclient.api_endpoint
         base_url = "wss://#{api_uri.host}:#{api_uri.port}"
         path = "/api/v1/namespaces/#{@pod_namespace}/pods/#{@pod_name}/exec"
         query = query_string(cmds, stdin)
@@ -189,7 +181,35 @@ module Authentication
 
         tarfile.string
       end
+    end
 
+    class KubectlExec
+      # This delegates to all the work to the call method created automatically
+      # by CommandClass
+      #
+      # This is needed because we need these methods to exist on the class,
+      # but that class contains only a metaprogramming generated `call()`.
+      def execute(pod_namespace:, pod_name:, cmds:, container: 'authenticator', body: "", stdin: false)
+        call(
+          pod_namespace: pod_namespace,
+          pod_name: pod_name,
+          container: container,
+          cmds: cmds,
+          body: body,
+          stdin: stdin
+        )
+      end
+
+      def copy(pod_namespace:, pod_name:, path:, content:, mode:, container: 'authenticator')
+        execute(
+          pod_namespace: pod_namespace,
+          pod_name: pod_name,
+          container: container,
+          cmds: [ 'tar', 'xvf', '-', '-C', '/' ],
+          body: tar_file_as_string(path, content, mode),
+          stdin: true
+        )
+      end
     end
   end
 end

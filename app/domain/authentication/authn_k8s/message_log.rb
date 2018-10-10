@@ -5,7 +5,7 @@ module Authentication
       attr_reader :messages
 
       def initialize
-        @messages = Hash.new { |hash,key| hash[key] = [] }
+        @messages = Hash.new { |hash, key| hash[key] = [] }
       end
 
       def save_message(wsmsg)
