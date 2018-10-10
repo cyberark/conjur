@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.3.0] - 2018-10-10
 ### Fixed
 - Previously, loading a policy with a host factory that doesn't include
   any layers would cause a `nil` runtime exception. Now this case is checked
