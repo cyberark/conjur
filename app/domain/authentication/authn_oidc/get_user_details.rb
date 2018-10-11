@@ -59,6 +59,8 @@ module Authentication
 
       def access_token
         @access_token ||= oidc_client.access_token!
+      rescue Rack::OAuth2::Client::Error => e
+        raise OIDCAuthenticationError, e.message
       end
 
       def decoded_body

@@ -2,9 +2,6 @@ require 'command_class'
 
 module Authentication
   module AuthnOidc
-    class AuthenticationError < RuntimeError; end
-    class NotFoundError < RuntimeError; end
-    class OIDCConfigurationError < RuntimeError; end
     class OIDCAuthenticationError < RuntimeError; end
 
     # TODO: Should really have a verb name "Authenticate" since it's a command
@@ -26,11 +23,13 @@ module Authentication
       def validate_id_token_claims
         expected = { client_id: client_id, issuer: issuer } # , nonce: 'nonce'}
         @user_details.id_token.verify!(expected)
+      rescue OpenIDConnect::ResponseObject::IdToken::InvalidToken => e
+        raise OIDCAuthenticationError, e.message
       end
 
       def validate_user_info
         raise OIDCAuthenticationError, subject_err_msg unless valid_subject?
-        raise OIDCAuthenticationError, no_profile_err_msg unless preferred_username
+        raise OIDCAuthenticationError, no_username_err_msg unless preferred_username
       end
 
       def user_info
@@ -77,8 +76,8 @@ module Authentication
         @service ||= Resource["#{conjur_account}:webservice:conjur/#{authenticator_name}/#{service_id}"]
       end
 
-      def no_profile_err_msg
-        "[profile] is not included in scope of authorization code request"
+      def no_username_err_msg
+        "username not found in OIDC access token"
       end
 
       def subject_err_msg

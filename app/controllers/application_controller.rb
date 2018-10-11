@@ -23,6 +23,7 @@ class ApplicationController < ActionController::API
   rescue_from Exceptions::RecordExists, with: :record_exists
   rescue_from Exceptions::Forbidden, with: :forbidden
   rescue_from Unauthorized, with: :unauthorized
+  rescue_from Exceptions::NotImplemented, with: :not_implemented
   rescue_from Sequel::ValidationFailed, with: :validation_failed
   rescue_from Sequel::NoMatchingRow, with: :no_matching_row
   rescue_from Sequel::ForeignKeyConstraintViolation, with: :foreign_key_constraint_violation
@@ -175,6 +176,16 @@ class ApplicationController < ActionController::API
   def unauthorized e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
     head :unauthorized
+  end
+
+  def not_implemented e
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    render json: {
+      error: {
+        code: "not_implemented",
+        message: e.message
+      }
+    }, status: :not_implemented
   end
 
   # Gets the value of the :account parameter.

@@ -77,7 +77,16 @@ class AuthenticateController < ApplicationController
     err.backtrace.each do |line|
       logger.debug(line)
     end
-    raise Unauthorized
+
+    case err
+    when Conjur::RequiredResourceMissing
+    when Conjur::RequiredSecretMissing
+    when Authentication::Security::ServiceNotDefined
+    when Authentication::Security::NotWhitelisted
+      raise Exceptions::NotImplemented, err.message
+    else
+      raise Unauthorized
+    end
   end
 
   def authentication_strategy
