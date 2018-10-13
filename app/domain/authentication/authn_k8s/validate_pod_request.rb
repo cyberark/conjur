@@ -58,7 +58,7 @@ module Authentication
 
       def validate_controller
         return if controller_object
-        raise ControllerNotFound.new(controller, object, namespace)
+        raise ControllerNotFound.new(k8s_host.controller, k8s_host.object, k8s_host.namespace)
       end
 
       def validate_pod_metadata
