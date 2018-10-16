@@ -96,10 +96,17 @@ module Authentication
           pod.spec.initContainers.find { |c| c.name == container_name }
       end
 
+      def default_container_name
+        'authenticator'
+      end
+
       def container_name
         name = 'kubernetes/authentication-container-name'
         annotation = host.annotations.find { |a| a.values[:name] == name }
-        annotation[:value] || 'authenticator'
+
+        return default_container_name unless annotation
+
+        annotation[:value] || default_container_name
       end
 
       def pod
