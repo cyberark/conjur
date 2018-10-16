@@ -17,3 +17,6 @@ test.sh
 publish.sh
 push-image.sh
 website.sh
+
+# Ignore vim swapfiles
+*.sw[po]

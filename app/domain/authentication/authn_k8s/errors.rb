@@ -48,6 +48,5 @@ module Authentication
     ClientCertificateExpired = ::Util::ErrorClass.new(
       "Client certificate expired"
     )
-    
   end
 end
