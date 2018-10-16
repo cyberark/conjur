@@ -37,6 +37,9 @@ api.html
 # Emacs backup files
 *~
 
+# Vim backup files
+*.sw[po]
+
 brakeman-output.*
 .idea
 TEMP_NOTES.txt
