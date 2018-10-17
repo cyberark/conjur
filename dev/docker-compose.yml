@@ -55,7 +55,7 @@ services:
       - testdb
 
   client:
-    image: conjurinc/cli5
+    image: cyberark/conjur-cli:5
     entrypoint: sleep
     command: infinity
     environment:

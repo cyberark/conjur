@@ -3,7 +3,7 @@ Feature: Create a host factory token.
 
   Background:
     Given I create a new user "alice"
-    And a host factory for layer "the-layer"
+    And I create a host factory for layer "the-layer"
 
 
   Scenario: A host factory is invisible without some permission on it

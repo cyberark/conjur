@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   specifically and raises a policy load error with a description of the problem.
 - Added support for authenticators to implement `/login` in addition to `/authenticate`
 - Implemented `/login` for `authn-ldap`.
+- Fixed host factory `500` server response when a `Role` for a given host ID already
+  exists but there is no corresponding `Resource` record.
 
 ## [1.2.0] - 2018-09-18
 ### Added

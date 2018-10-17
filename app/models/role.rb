@@ -107,6 +107,10 @@ class Role < Sequel::Model
     self.class.username_from_roleid(role_id)
   end
 
+  def resource?
+    Resource[id].present?
+  end
+
   def resource
     Resource[id] or raise "Resource not found for #{id}"
   end
@@ -151,7 +155,10 @@ class Role < Sequel::Model
   end
 
   def graph
-    Role.from(Sequel.function(:role_graph, id)).order(:parent, :child)
+    Role.from(Sequel.function(:role_graph, id))
+        .order(:parent, :child)
+        .all
+        .map(&:values)
   end
 
   private

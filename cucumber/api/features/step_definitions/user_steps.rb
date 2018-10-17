@@ -38,6 +38,7 @@ end
 
 Given(/^I log out$/) do
   @current_user =  nil
+  headers.delete(:authorization) if headers.key?(:authorization)
 end
   
 When(/^I have a password$/) do
