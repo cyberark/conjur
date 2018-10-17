@@ -81,9 +81,8 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
 
   enabled_authenticators="$enabled_authenticators,authn-oidc/okta,authn-oidc/keycloak"
 
-  # For future use, when we will solve the self sign certificate issue with OpenID lib and keycloak
-  # echo "Initialize keycloak certificate in conjur server"
-  # docker-compose exec conjur /src/conjur-server/dev/files/authn-oidc/keycloak/fetchCertificate
+  echo "Initialize keycloak certificate in conjur server"
+  docker-compose exec conjur /src/conjur-server/dev/files/authn-oidc/keycloak/fetchCertificate
 
   echo "Starting Conjur server"
   api_key=$(docker-compose exec -T conjur conjurctl \
