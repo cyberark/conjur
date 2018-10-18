@@ -27,6 +27,10 @@ module Authentication
       def call
         configure_oidc_client
         user_details
+      rescue OpenIDConnect::HttpError => e
+        # adding the reponse body as it includes additional error information
+        raise e, "#{e.message}, #{e.response.body}", e.backtrace if e.response
+        raise e
       end
 
       private
