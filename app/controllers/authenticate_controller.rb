@@ -41,6 +41,10 @@ class AuthenticateController < ApplicationController
     handle_authentication_error(e)
   end
 
+  def login_oidc
+    render text: true
+  end
+
   def authenticate_oidc
     authentication_token = authentication_strategy.conjur_token_oidc(
       ::Authentication::Strategy::Input.new(
