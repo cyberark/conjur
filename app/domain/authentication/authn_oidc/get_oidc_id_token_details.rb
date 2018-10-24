@@ -18,7 +18,10 @@ module Authentication
     RequiredSecretMissing = ::Conjur::RequiredSecretMissing
 
     GetOidcIDTokenDetails = CommandClass.new(
-      dependencies: { fetch_secrets: ::Conjur::FetchRequiredSecrets.new },
+      dependencies: {
+        oidc_client_class: OidcClient,
+        fetch_secrets: ::Conjur::FetchRequiredSecrets.new
+      },
       inputs: %i(request_body service_id conjur_account)
     ) do
 
@@ -36,40 +39,23 @@ module Authentication
       private
 
       def configure_oidc_client
-        oidc_client.authorization_code = authorization_code
-        oidc_client.host = URI.parse(provider_uri).host
+        host = URI.parse(provider_uri).host
+        oidc_client.configure(authorization_code: authorization_code, host: host)
       end
 
       def oidc_id_token_details
         OidcIDTokenDetails.new(
-          id_token: id_token,
-          user_info: user_info,
+          id_token: oidc_client.id_token,
+          user_info: oidc_client.user_info,
           client_id: client_id,
-          issuer: discovered_resource.issuer,
+          issuer: oidc_client.issuer,
           expiration_time: expiration_time
         )
       end
 
-      # TODO: capture exception: JSON::JWK::Set::KidNotFound and try refresh
-      # signing keys
-      def id_token
-        OpenIDConnect::ResponseObject::IdToken.decode(
-          access_token.id_token, discovered_resource.jwks
-        )
-      end
-
-      def user_info
-        access_token.userinfo!
-      end
-
+      # todo: move inside OidcClient
       def expiration_time
-        id_token.raw_attributes["exp"]
-      end
-
-      def access_token
-        @access_token ||= oidc_client.access_token!
-      rescue Rack::OAuth2::Client::Error => e
-        raise OIDCAuthenticationError, e.message
+        oidc_client.id_token.raw_attributes["exp"]
       end
 
       def decoded_body
@@ -105,32 +91,27 @@ module Authentication
       end
 
       def client_id
-        @client_id ||= secret_value('client-id')
+        secret_value('client-id')
       end
 
       def client_secret
-        @client_secret ||= secret_value('client-secret')
+        secret_value('client-secret')
       end
 
       def provider_uri
-        @provider_uri ||= secret_value('provider-uri')
+        secret_value('provider-uri')
       end
 
       def secret_value(var_name)
         required_secrets[variable_id(var_name)]
       end
 
-      def discovered_resource
-        @discovered_resource ||= OpenIDConnect::Discovery::Provider::Config.discover!(provider_uri)
-      end
-
       def oidc_client
-        @oidc_client ||= OpenIDConnect::Client.new(
+        @oidc_client_class.new(
           identifier: client_id,
-          secret: client_secret,
+          client_secret: client_secret,
           redirect_uri: redirect_uri,
-          token_endpoint: discovered_resource.token_endpoint,
-          userinfo_endpoint: discovered_resource.userinfo_endpoint
+          provider_uri: provider_uri
         )
       end
     end
