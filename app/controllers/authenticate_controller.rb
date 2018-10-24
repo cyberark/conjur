@@ -42,7 +42,20 @@ class AuthenticateController < ApplicationController
   end
 
   def login_oidc
-    render text: true
+    oidc_encrypted_token = authentication_strategy.oidc_encrypted_token(
+      ::Authentication::Strategy::Input.new(
+        authenticator_name: 'authn-oidc',
+        service_id:         params[:service_id],
+        account:            params[:account],
+        username:           nil,
+        password:           nil, # TODO: Remove once we seperate oidc Strategy
+        origin:             request.ip,
+        request:            request
+      )
+    )
+    render json: oidc_encrypted_token
+  rescue => e
+    handle_authentication_error(e)
   end
 
   def authenticate_oidc

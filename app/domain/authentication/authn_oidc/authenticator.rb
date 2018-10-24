@@ -15,6 +15,7 @@ module Authentication
       def call
         validate_id_token_claims
         validate_user_info
+        # TODO: validate_nonce
         true
       end
 

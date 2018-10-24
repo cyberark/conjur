@@ -126,6 +126,23 @@ module Authentication
       raise e
     end
 
+    def oidc_encrypted_token(input)
+      user_details = oidc_user_details(input)
+      oidc_validate_credentials(input, user_details)
+
+      username = user_details.user_info.preferred_username
+      input_with_username = input.update(username: username)
+
+      validate_security(input_with_username)
+      validate_origin(input_with_username)
+
+      audit_success(input_with_username)
+      new_oidc_token(user_details)
+    rescue => e
+      audit_failure(input, e)
+      raise e
+    end
+
     private
 
     # NOTE: These two methods are "special" (outside the framework) by design.
@@ -204,6 +221,15 @@ module Authentication
         account: input.account,
         username: input.username
       )
+    end
+
+    def new_oidc_token(user_details)
+      # TODO: encrypt the id_token
+      AuthnOidc::OidcToken.new(
+        id_token_encrypted: user_details.id_token,
+        user_info: user_details.user_info.preferred_username,
+        expiration_time: user_details.id_token.raw_attributes["exp"]
+        )
     end
 
     def new_login(input, key)

@@ -61,6 +61,10 @@ module Authentication
         access_token.userinfo!
       end
 
+      def expitation_time
+        user_details.id_token.raw_attributes["exp"]
+      end
+
       def access_token
         @access_token ||= oidc_client.access_token!
       rescue Rack::OAuth2::Client::Error => e
