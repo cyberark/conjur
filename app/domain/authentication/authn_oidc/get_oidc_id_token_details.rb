@@ -107,8 +107,8 @@ module Authentication
       end
 
       def oidc_client
-        @oidc_client_class.new(
-          identifier: client_id,
+        @oidc_client ||= @oidc_client_class.new(
+          client_id: client_id,
           client_secret: client_secret,
           redirect_uri: redirect_uri,
           provider_uri: provider_uri
