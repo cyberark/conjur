@@ -182,7 +182,8 @@ RSpec.describe 'Authentication::Strategy' do
         env: two_authenticator_env,
         token_factory: token_factory,
         audit_log: nil,
-        role_cls: nil
+        role_cls: nil,
+        oidc_client_class: ::Authentication::AuthnOidc::OidcClient
       )
     end
 
@@ -203,7 +204,8 @@ RSpec.describe 'Authentication::Strategy' do
           env: two_authenticator_env,
           token_factory: token_factory,
           audit_log: nil,
-          role_cls: nil
+          role_cls: nil,
+          oidc_client_class: ::Authentication::AuthnOidc::OidcClient
         )
       end
 
@@ -234,7 +236,8 @@ RSpec.describe 'Authentication::Strategy' do
           env: two_authenticator_env,
           token_factory: token_factory,
           audit_log: nil,
-          role_cls: nil
+          role_cls: nil,
+          oidc_client_class: ::Authentication::AuthnOidc::OidcClient
         )
       end
 

@@ -125,7 +125,8 @@ class AuthenticateController < ApplicationController
       security: nil,
       env: ENV,
       role_cls: ::Role,
-      token_factory: TokenFactory.new
+      token_factory: TokenFactory.new,
+      oidc_client_class: ::Authentication::AuthnOidc::OidcClient
     )
   end
 

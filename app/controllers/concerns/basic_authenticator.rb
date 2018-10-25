@@ -2,9 +2,9 @@
 
 module BasicAuthenticator
   extend ActiveSupport::Concern
-  
+
   include ActionController::HttpAuthentication::Basic::ControllerMethods
-  
+
   def perform_basic_authn
     # we need to check the auth method.
     # authenticate_with_http_basic doesn't do that and freaks out randomly.
@@ -37,7 +37,8 @@ module BasicAuthenticator
       security: nil,
       env: ENV,
       role_cls: ::Role,
-      token_factory: TokenFactory.new
+      token_factory: TokenFactory.new,
+      oidc_client_class: ::Authentication::AuthnOidc::OidcClient
     )
   end
 
