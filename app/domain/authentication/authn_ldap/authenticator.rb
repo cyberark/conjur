@@ -18,33 +18,21 @@ module Authentication
         @credentials_cls = credentials_cls
       end
 
-      # Login the role using LDAP credentials
-      def login(input)
+      # Authenticate the role using LDAP credentials
+      def valid?(input)
         login, password = input.username, input.password
 
         # Prevent anonymous LDAP authentication with username only
-        return nil if password.blank?
+        return false if password.blank?
 
         # Prevent LDAP injection attack
         safe_login = Net::LDAP::Filter.escape(login)
-        return nil if blacklisted_ldap_user?(safe_login)
+        return false if blacklisted_ldap_user?(safe_login)
 
         # Authenticate against LDAP
         filter = filter_template % safe_login
         bind_results = ldap_server.bind_as(filter: filter, password: password)
-        return nil unless bind_results
-
-        # Return Conjur API key
-        role_id = @role_cls.roleid_from_username(input.account, input.username)
-        @credentials_cls[role_id].api_key
-      end
-
-      # The current LDAP authenticator expects to authenticate using the Conjur API
-      # key returned by LDAP login. To support backward compatibility, the LDAP
-      # authenticator will still accept the LDAP credentials directly.
-      def valid?(input)
-        conjur_authenticator.valid?(input) ||
-          !login(input).nil? # Deprecated, exists for backward compatibility
+        return bind_results.present?
       end
 
       private
