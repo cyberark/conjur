@@ -2,6 +2,7 @@
 
 class AccountsController < ApplicationController
   include AuthorizeResource
+  include BodyParser
 
   def index
     authorize :read

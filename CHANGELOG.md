@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Security
+- Don't try to interpret request bodies as request parameters by default.
+  This fixes a problem body data would end up being written to logs under
+  some circumstances.
+
 ## [1.3.1] - 2018-10-19
 ### Fixed
 - Fixed host factory `500` server response when a `Role` for a given host ID already

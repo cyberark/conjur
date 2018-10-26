@@ -4,6 +4,7 @@
 # certificate authority (CA) service
 class CertificateAuthorityController < RestController
   include ActionController::MimeResponds
+  include BodyParser
 
   before_action :verify_ca
   before_action :verify_host, only: :sign

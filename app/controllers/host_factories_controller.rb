@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class HostFactoriesController < ApplicationController
+  include BodyParser
+
   before_filter :verify_token,  only: :create_host
 
   # Ask the host factory to create a host.
