@@ -21,6 +21,24 @@ Feature: Create a host using the host factory.
     }
     """
 
+  Scenario: Creating a host with parameters in POST body
+    Given I authorize the request with the host factory token
+    When I successfully POST "/host_factories/hosts" with body:
+    """
+    id=host-01
+    """
+    Then the JSON should be:
+    """
+    {
+      "annotations" : [],
+      "id": "cucumber:host:host-01",
+      "owner": "cucumber:host_factory:the-layer-factory",
+      "api_key": "@response_api_key@",
+      "permissions": [],
+      "restricted_to": []
+    }
+    """
+
   @logged-in-admin
   Scenario: Invalid tokens are rejected.
 
