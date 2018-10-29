@@ -5,8 +5,6 @@
 Modifies an existing [Conjur policy](/reference/policy.html).
 Data may be explicitly deleted using the `!delete`, `!revoke`, and `!deny` statements. Unlike "replace" mode, no data is ever implicitly deleted.
 
-<!-- include(partials/policy_size_restriction.md) -->
-
 <!-- include(partials/url_encoding.md) -->
 
 **Permissions required**
