@@ -7,8 +7,6 @@ document.
 
 Any policy data which already exists on the server but is **not** explicitly specified in the new policy file **will be deleted**. 
 
-<!-- include(partials/policy_size_restriction.md) -->
-
 <!-- include(partials/url_encoding.md) -->
 
 **Permissions required**
