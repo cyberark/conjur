@@ -40,8 +40,10 @@ class HostFactoryToken < Sequel::Model
     end
   end
   
-  def valid?
-    !expired?
+  def valid? origin: nil
+    return false if expired?
+    return true unless origin
+    valid_origin? origin
   end
 
   def cidr
