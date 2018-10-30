@@ -23,6 +23,11 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
       member: !user alice
     """
 
+  Scenario: An LDAP user authorized in Conjur can login with a good password
+    When I login via LDAP as authorized Conjur user "alice"
+    And I authenticate via LDAP as authorized Conjur user "alice" using key
+    Then "alice" is authorized
+
   Scenario: An LDAP user authorized in Conjur can authenticate with a good password
     When I authenticate via LDAP as authorized Conjur user "alice"
     Then "alice" is authorized
@@ -32,12 +37,12 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
     Then it is denied
 
   Scenario: 'admin' cannot use LDAP authentication
-    When I authenticate via LDAP as authorized Conjur user "admin"
+    When I login via LDAP as authorized Conjur user "admin"
     Then it is denied
 
   Scenario: An valid LDAP user who's not in Conjur can't login
-    When I authenticate via LDAP as non-existent Conjur user "bob"
-    Then it is denied
+    When I login via LDAP as non-existent Conjur user "bob"
+    Then it is forbidden
 
   Scenario: An empty password may never be used to authenticate
     When my LDAP password for authorized Conjur user "alice" is empty
@@ -61,5 +66,5 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
         privilege: [ read, authenticate ]
         resource: !webservice
     """
-    When I authenticate via LDAP as authorized Conjur user "alice"
-    Then it is denied
+    When I login via LDAP as authorized Conjur user "alice"
+    Then it is forbidden

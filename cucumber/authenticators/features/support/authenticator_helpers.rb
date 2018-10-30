@@ -21,9 +21,16 @@ module AuthenticatorHelpers
   #
   attr_reader :response_body, :http_status, :rest_client_error, :ldap_auth_key
 
-  def authenticate_with_ldap(service_id:, account:, username:, password:)
+  def login_with_ldap(service_id:, account:, username:, password:)
+    path = "#{conjur_hostname}/authn-ldap/#{service_id}/#{account}/login"
+    get(path, user: username, password: password)
+    @ldap_auth_key = response_body
+  end
+
+  def authenticate_with_ldap(service_id:, account:, username:, api_key:)
+    # TODO fix this the right way
     path = "#{conjur_hostname}/authn-ldap/#{service_id}/#{account}/#{username}/authenticate"
-    post(path, password)
+    post(path, api_key)
   end
 
   def authenticate_with_oidc(service_id:, account:)

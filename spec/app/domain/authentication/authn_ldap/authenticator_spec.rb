@@ -38,6 +38,11 @@ RSpec.describe Authentication::AuthnLdap::Authenticator do
       let(:password) { 'secret' }
 
       it "is accepted" do
+        expect(authenticator_instance.login(input)).to be_truthy
+      end
+
+      # Legacy behavior backward compatibly regression check
+      it "is accepted by authenticate" do
         expect(authenticator_instance.valid?(input)).to be(true)
       end
     end
@@ -46,7 +51,7 @@ RSpec.describe Authentication::AuthnLdap::Authenticator do
       let(:password) { '' }
 
       it "is rejected" do
-        expect(authenticator_instance.valid?(input)).to be(false)
+        expect(authenticator_instance.login(input)).to be_falsy
       end
     end
   end
@@ -56,7 +61,7 @@ RSpec.describe Authentication::AuthnLdap::Authenticator do
     let(:password) { 'my_password' }
 
     it "is rejected" do
-      expect(authenticator_instance.valid?(input)).to be(false)
+      expect(authenticator_instance.login(input)).to be_falsy
     end
   end
 end
