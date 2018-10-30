@@ -30,6 +30,7 @@ class ApplicationController < ActionController::API
   rescue_from Conjur::PolicyParser::Invalid, with: :policy_invalid
   rescue_from Exceptions::InvalidPolicyObject, with: :policy_invalid
   rescue_from ArgumentError, with: :argument_error
+  rescue_from ActionController::ParameterMissing, with: :argument_error
 
   around_action :run_with_transaction
 
