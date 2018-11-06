@@ -39,5 +39,8 @@ Feature: Users can authneticate with OIDC authenticator
 
   Scenario: A valid authorization code and redirect uri to get Conjur access token
     Given I get authorization code
+    When I successfully login via OIDC
+    Then login response token is valid
+
     When I successfully authenticate via OIDC
     Then "alice" is authorized
