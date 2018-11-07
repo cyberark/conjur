@@ -1,6 +1,6 @@
 module Authentication
   module AuthnOidc
-    class UserDetails
+    class OidcIDTokenDetails
       attr_reader :id_token, :user_info, :client_id, :issuer, :expiration_time
 
       def initialize(id_token:, user_info:, client_id:, issuer:, expiration_time:)

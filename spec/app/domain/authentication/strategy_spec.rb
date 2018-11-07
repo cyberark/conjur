@@ -121,7 +121,7 @@ RSpec.describe 'Authentication::Strategy' do
     }
   end
 
-  let (:oidc_user_details) do
+  let (:oidc_id_token_details) do
     double('userInfo', user_info: user_info)
   end
 

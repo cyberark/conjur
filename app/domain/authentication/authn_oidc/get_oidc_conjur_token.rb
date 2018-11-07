@@ -6,31 +6,30 @@ module Authentication
 
     # TODO:
     # dependencies: get key for decryption
-    # input: request_body type: raw text,  contains jwt_signed {id_token_encrypted + expiration_time + user_info }
+    # input: request_body type: raw text,  contains jwt_signed {id_token_encrypted + expiration_time + user_name }
     # actions:
     # - decode body
     # - Validate input
     # - Validate JWT signing token
     # - Decrypt ID token
-    GetOidcToken = CommandClass.new(
+    GetOidcConjurToken = CommandClass.new(
       dependencies: { },
-      # dependencies: { fetch_key: ::Conjur::FetchRequiredKey.new },
       inputs: %i(request_body)
     ) do
 
       def call
         # validate_signing
-        oidc_token
+        oidc_conjur_token
         # decrypt_token
       end
 
       private
 
 
-      def oidc_token
-        OidcToken.new(
+      def oidc_conjur_token
+        OidcConjurToken.new(
           id_token_encrypted: id_token_encrypted,
-          user_info: user_info,
+          user_name: user_name,
           expiration_time: expiration_time
           )
       end
@@ -43,8 +42,8 @@ module Authentication
         @id_token_encrypted ||= decoded_body.assoc('id_token_encrypted').last
       end
 
-      def user_info
-        @user_info ||= decoded_body.assoc('user_info').last
+      def user_name
+        @user_name ||= decoded_body.assoc('user_name').last
       end
 
       def expiration_time

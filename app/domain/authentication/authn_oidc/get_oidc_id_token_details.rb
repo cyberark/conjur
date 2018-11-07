@@ -17,16 +17,16 @@ module Authentication
     RequiredResourceMissing = ::Conjur::RequiredResourceMissing
     RequiredSecretMissing = ::Conjur::RequiredSecretMissing
 
-    GetUserDetails = CommandClass.new(
+    GetOidcIDTokenDetails = CommandClass.new(
       dependencies: { fetch_secrets: ::Conjur::FetchRequiredSecrets.new },
       inputs: %i(request_body service_id conjur_account)
     ) do
 
-      # @return [AuthOidc::UserDetails] containing decoded id token, user info,
+      # @return [AuthOidc::OidcIDTokenDetails] containing decoded id token, user info,
       # and issuer
       def call
         configure_oidc_client
-        user_details
+        oidc_id_token_details
       rescue OpenIDConnect::HttpError => e
         # adding the reponse body as it includes additional error information
         raise e, "#{e.message}, #{e.response.body}", e.backtrace if e.response
@@ -40,8 +40,8 @@ module Authentication
         oidc_client.host = URI.parse(provider_uri).host
       end
 
-      def user_details
-        UserDetails.new(
+      def oidc_id_token_details
+        OidcIDTokenDetails.new(
           id_token: id_token,
           user_info: user_info,
           client_id: client_id,
