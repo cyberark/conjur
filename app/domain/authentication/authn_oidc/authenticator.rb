@@ -9,12 +9,13 @@ module Authentication
     #
     Authenticator = CommandClass.new(
       dependencies: { env: ENV },
-      inputs: %i(input user_details)
+      inputs: %i(input oidc_id_token_details)
     ) do
 
       def call
         validate_id_token_claims
         validate_user_info
+        # TODO: validate_nonce
         true
       end
 
@@ -22,7 +23,7 @@ module Authentication
 
       def validate_id_token_claims
         expected = { client_id: client_id, issuer: issuer } # , nonce: 'nonce'}
-        @user_details.id_token.verify!(expected)
+        @oidc_id_token_details.id_token.verify!(expected)
       rescue OpenIDConnect::ResponseObject::IdToken::InvalidToken => e
         raise OIDCAuthenticationError, e.message
       end
@@ -33,7 +34,7 @@ module Authentication
       end
 
       def user_info
-        @user_details.user_info
+        @oidc_id_token_details.user_info
       end
 
       def valid_subject?
@@ -45,15 +46,15 @@ module Authentication
       end
 
       def client_id
-        @user_details.client_id
+        @oidc_id_token_details.client_id
       end
 
       def issuer
-        @user_details.issuer
+        @oidc_id_token_details.issuer
       end
 
       def id_token_subject
-        @user_details.id_token.sub
+        @oidc_id_token_details.id_token.sub
       end
 
       def authenticator_name

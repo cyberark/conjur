@@ -121,7 +121,7 @@ RSpec.describe 'Authentication::Strategy' do
     }
   end
 
-  let (:oidc_user_details) do
+  let (:oidc_id_token_details) do
     double('userInfo', user_info: user_info)
   end
 
@@ -192,52 +192,6 @@ RSpec.describe 'Authentication::Strategy' do
         Authentication::Strategy::AuthenticatorNotFound
       )
     end
-  end
-
-  context "An available oidc authenticator" do
-    context "that receives valid credentials" do
-      context "that fails Security checks" do
-        subject do
-          Authentication::Strategy.new(
-            authenticators: authenticators,
-            security: failing_security,
-            env: two_authenticator_env,
-            token_factory: token_factory,
-            audit_log: nil,
-            role_cls: nil
-          )
-        end
-        it "raises an error" do
-          allow(subject).to receive(:oidc_user_details) { oidc_user_details }
-          allow(subject).to receive(:oidc_validate_credentials) { true }
-          input_ = input(authenticator_name: 'authn-always-pass')
-          expect{ subject.conjur_token_oidc(input_) }.to raise_error(
-            /FAKE_SECURITY_ERROR/
-          )
-        end
-      end
-
-      context "that passes Security checks" do
-        subject do
-          Authentication::Strategy.new(
-            authenticators: authenticators,
-            security: passing_security,
-            env: two_authenticator_env,
-            token_factory: token_factory,
-            audit_log: nil,
-            role_cls: nil
-          )
-        end
-        it "returns a new token" do
-          allow(subject).to receive(:oidc_user_details) { oidc_user_details }
-          allow(subject).to receive(:oidc_validate_credentials) { true }
-          allow(subject).to receive(:validate_origin) { true }
-          input_ = input(authenticator_name: 'authn-always-pass')
-          expect(subject.conjur_token_oidc(input_)).to equal(a_new_token)
-        end
-      end
-    end
-
   end
 
   context "An available authenticator" do

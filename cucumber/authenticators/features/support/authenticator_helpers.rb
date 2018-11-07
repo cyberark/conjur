@@ -33,15 +33,31 @@ module AuthenticatorHelpers
     post(path, api_key)
   end
 
+  def login_with_oidc(service_id:, account:)
+    path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/login"
+    payload = { code: oidc_auth_code, redirect_uri: oidc_redirect_uri }
+    post(path, payload)
+    @login_oidc_conjur_token = @response_body
+  end
+
   def authenticate_with_oidc(service_id:, account:)
     path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
-    payload = { code: oidc_auth_code, redirect_uri: oidc_redirect_uri }
+    # TODO: Since the input going to change to a base64 signed token, i didnt invest time to extract the real values
+    payload = { id_token_encrypted: "login_oidc_conjur_token", user_name: "alice", expiration_time: "1231" }
     post(path, payload)
   end
 
   def token_for(username, token_string)
     return nil unless http_status == 200
     ConjurToken.new(token_string).username == username
+  rescue
+    nil
+  end
+
+  def token_for_keys(keys, token_string)
+    return nil unless http_status == 200
+    token = JSON.parse(token_string)
+    keys.all? { |k| token.key? k }
   rescue
     nil
   end
@@ -79,6 +95,7 @@ module AuthenticatorHelpers
     result             = RestClient.post(path, payload, options)
     @response_body     = result.body
     @http_status       = result.code
+
   rescue RestClient::Exception => err
     @rest_client_error = err
     @http_status       = err.http_code

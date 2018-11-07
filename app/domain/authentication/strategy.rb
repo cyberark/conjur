@@ -110,10 +110,9 @@ module Authentication
     # Or take a different approach that accomplishes the same goals
     #
     def conjur_token_oidc(input)
-      user_details = oidc_user_details(input)
-      oidc_validate_credentials(input, user_details)
+      oidc_conjur_token = oidc_conjur_token(input)
 
-      username = user_details.user_info.preferred_username
+      username = oidc_conjur_token.user_name
       input_with_username = input.update(username: username)
 
       validate_security(input_with_username)
@@ -121,6 +120,23 @@ module Authentication
 
       audit_success(input_with_username)
       new_token(input_with_username)
+    rescue => e
+      audit_failure(input, e)
+      raise e
+    end
+
+    def oidc_encrypted_token(input)
+      oidc_id_token_details = oidc_id_token_details(input)
+      oidc_validate_credentials(input, oidc_id_token_details)
+
+      username = oidc_id_token_details.user_info.preferred_username
+      input_with_username = input.update(username: username)
+
+      validate_security(input_with_username)
+      validate_origin(input_with_username)
+
+      audit_success(input_with_username)
+      new_oidc_conjur_token(oidc_id_token_details)
     rescue => e
       audit_failure(input, e)
       raise e
@@ -136,11 +152,17 @@ module Authentication
     # Thus these two methods actually represent the first step in that
     # direction.  They also more honestly portray the situation.
     #
-    def oidc_user_details(input)
-      AuthnOidc::GetUserDetails.new.(
+    def oidc_id_token_details(input)
+      AuthnOidc::GetOidcIDTokenDetails.new.(
         request_body: input.request.body.read,
         service_id: input.service_id,
         conjur_account: input.account
+      )
+    end
+
+    def oidc_conjur_token(input)
+      AuthnOidc::GetOidcConjurToken.new.(
+        request_body: input.request.body.read
       )
     end
 
@@ -152,10 +174,10 @@ module Authentication
     # be used in `validate_security`, we don't want to recalculate it, so we
     # pass the result in.
     #
-    def oidc_validate_credentials(input, user_details)
+    def oidc_validate_credentials(input, oidc_id_token_details)
       AuthnOidc::Authenticator.new.(
         input: input,
-        user_details: user_details
+        oidc_id_token_details: oidc_id_token_details
       )
     end
 
@@ -204,6 +226,17 @@ module Authentication
         account: input.account,
         username: input.username
       )
+    end
+
+    #TODO: should be done by oidc_token_factory as we did in the regular new_token function,
+    # and should be used as a dependency in the new OidcStrategy
+    def new_oidc_conjur_token(oidc_id_token_details)
+      # TODO: encrypt the id_token
+      AuthnOidc::OidcConjurToken.new(
+        id_token_encrypted: oidc_id_token_details.id_token,
+        user_name: oidc_id_token_details.user_info.preferred_username,
+        expiration_time: oidc_id_token_details.expiration_time
+        )
     end
 
     def new_login(input, key)

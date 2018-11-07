@@ -13,6 +13,15 @@ describe "routing for authentication", :type => :routing do
     )
   end
 
+  it "routes POST /authn-oidc/the-service/the-account/login to authenticate#login_oidc" do
+    expect(post: '/authn-oidc/the-service/the-account/login').to route_to(
+      controller: 'authenticate',
+      action: 'login_oidc',
+      service_id: 'the-service',
+      account: 'the-account'
+    )
+  end
+
   it "routes POST /authn-oidc/the-service/the-account/authenticate to authenticate#authenticate_oidc" do
     expect(post: '/authn-oidc/the-service/the-account/authenticate').to route_to(
       controller: 'authenticate',

@@ -41,6 +41,35 @@ class AuthenticateController < ApplicationController
     handle_authentication_error(e)
   end
 
+  # - Prepare ID Token request
+  # - Get ID Token with code from OKTA (OpenID Provider)
+  # - Validate ID Token
+  # - Link user details to Conjur User
+  # - Check user has permmisions
+  # - Encrypt ID Token
+  # Returns IDToken encrypted, Expiration Duration and Username
+  def login_oidc
+    oidc_encrypted_token = authentication_strategy.oidc_encrypted_token(
+      ::Authentication::Strategy::Input.new(
+        authenticator_name: 'authn-oidc',
+        service_id:         params[:service_id],
+        account:            params[:account],
+        username:           nil,
+        password:           nil, # TODO: Remove once we seperate oidc Strategy
+        origin:             request.ip,
+        request:            request
+      )
+    )
+    render json: oidc_encrypted_token
+  rescue => e
+    handle_authentication_error(e)
+  end
+
+  # - Decrypt ID token
+  # - Validate UD Token
+  # - Check user permission
+  # - Introspect ID Token
+  # Returns Conjur access token
   def authenticate_oidc
     authentication_token = authentication_strategy.conjur_token_oidc(
       ::Authentication::Strategy::Input.new(
