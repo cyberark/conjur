@@ -11,15 +11,16 @@ module Authentication
         @provider_uri = configuration.provider_uri
       end
 
-      def user_details!(authorization_code)
+      def oidc_id_token_details!(authorization_code)
         oidc_client.host = host
         oidc_client.authorization_code = authorization_code
 
-        UserDetails.new(
+        OidcIDTokenDetails.new(
           id_token: id_token,
           user_info: user_info,
           client_id: @client_id,
-          issuer: issuer
+          issuer: issuer,
+          expiration_time: expiration_time
         )
       rescue OpenIDConnect::HttpError => e
         # adding the reponse body as it includes additional error information
@@ -46,7 +47,7 @@ module Authentication
       # TODO: capture exception: JSON::JWK::Set::KidNotFound and try refresh
       # signing keys
       def id_token
-        OpenIDConnect::ResponseObject::IdToken.decode(
+        @id_token ||= OpenIDConnect::ResponseObject::IdToken.decode(
           access_token.id_token, discovered_resource.jwks
         )
       end
@@ -57,6 +58,10 @@ module Authentication
 
       def issuer
         discovered_resource.issuer
+      end
+
+      def expiration_time
+        id_token.raw_attributes["exp"]
       end
 
       def access_token

@@ -103,13 +103,33 @@ module Authentication
       raise e
     end
 
-    # TODO: (later version) Extract this and related private methods into its
-    # own object.  We'll need to break down Strategy into its component parts
-    # to avoid repetition, and then use those parts in both the new
-    # "OIDCStrategy" and this original Strategy.
-    #
-    # Or take a different approach that accomplishes the same goals
-    #
+    # TODO: extract to OidcStrategy
+
+    def oidc_encrypted_token(input)
+      request_body = AuthnOidc::OidcRequestBody.new(input.request)
+
+      oidc_client = oidc_client(
+        redirect_uri: request_body.redirect_uri,
+        service_id: input.service_id,
+        conjur_account: input.account
+      )
+
+      oidc_id_token_details = oidc_client.oidc_id_token_details!(request_body.authorization_code)
+      oidc_validate_credentials(input, oidc_id_token_details)
+
+      username = oidc_id_token_details.user_info.preferred_username
+      input_with_username = input.update(username: username)
+
+      validate_security(input_with_username)
+      validate_origin(input_with_username)
+
+      audit_success(input_with_username)
+      new_oidc_conjur_token(oidc_id_token_details)
+    rescue => e
+      audit_failure(input, e)
+      raise e
+    end
+
     def conjur_token_oidc(input)
       oidc_conjur_token = oidc_conjur_token(input)
 
@@ -126,37 +146,6 @@ module Authentication
       raise e
     end
 
-    def oidc_encrypted_token(input)
-      # we decode the request body here as we can read it once
-      decoded_request_body = decoded_body(input.request.body.read)
-      redirect_uri = decoded_request_body.assoc('redirect_uri').last
-      authorization_code = decoded_request_body.assoc('code').last
-
-      oidc_client = oidc_client(
-        redirect_uri: redirect_uri,
-        service_id: input.service_id,
-        conjur_account: input.account
-      )
-
-      user_details = oidc_client.user_details!(authorization_code)
-      oidc_validate_credentials(input, user_details)
-
-      # oidc_id_token_details = oidc_id_token_details(input)
-      # oidc_validate_credentials(input, oidc_id_token_details)
-
-      username = user_details.user_info.preferred_username
-      input_with_username = input.update(username: username)
-
-      validate_security(input_with_username)
-      validate_origin(input_with_username)
-
-      audit_success(input_with_username)
-      new_oidc_conjur_token(oidc_id_token_details)
-    rescue => e
-      audit_failure(input, e)
-      raise e
-    end
-
     private
 
     def oidc_client(redirect_uri:, service_id:, conjur_account:)
@@ -167,18 +156,6 @@ module Authentication
       )
 
       oidc_client_class.new(oidc_client_configuration)
-    end
-
-    def oidc_id_token_details(input)
-      AuthnOidc::GetOidcIDTokenDetails.new.(
-        request_body: input.request.body.read,
-        service_id: input.service_id,
-        conjur_account: input.account
-      )
-    end
-
-    def decoded_body(request_body)
-      URI.decode_www_form(request_body)
     end
 
     def oidc_conjur_token(input)

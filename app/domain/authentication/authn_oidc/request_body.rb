@@ -5,7 +5,7 @@ module Authentication
     class OidcRequestBody
       attr_reader :redirect_uri, :authorization_code
 
-      def initialize(request:)
+      def initialize(request)
         decoded_request_body = decoded_body(request.body.read)
 
         @redirect_uri = decoded_request_body.assoc('redirect_uri').last
