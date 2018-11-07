@@ -45,7 +45,8 @@ module Authentication
           id_token: id_token,
           user_info: user_info,
           client_id: client_id,
-          issuer: discovered_resource.issuer
+          issuer: discovered_resource.issuer,
+          expiration_time: expiration_time
         )
       end
 
@@ -61,8 +62,8 @@ module Authentication
         access_token.userinfo!
       end
 
-      def expitation_time
-        user_details.id_token.raw_attributes["exp"]
+      def expiration_time
+        id_token.raw_attributes["exp"]
       end
 
       def access_token

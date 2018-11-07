@@ -110,10 +110,9 @@ module Authentication
     # Or take a different approach that accomplishes the same goals
     #
     def conjur_token_oidc(input)
-      user_details = oidc_user_details(input)
-      oidc_validate_credentials(input, user_details)
+      oidc_token = oidc_token(input)
 
-      username = user_details.user_info.preferred_username
+      username = oidc_token.user_info
       input_with_username = input.update(username: username)
 
       validate_security(input_with_username)
@@ -158,6 +157,12 @@ module Authentication
         request_body: input.request.body.read,
         service_id: input.service_id,
         conjur_account: input.account
+      )
+    end
+
+    def oidc_token(input)
+      AuthnOidc::GetOidcToken.new.(
+        request_body: input.request.body.read
       )
     end
 
@@ -228,7 +233,7 @@ module Authentication
       AuthnOidc::OidcToken.new(
         id_token_encrypted: user_details.id_token,
         user_info: user_details.user_info.preferred_username,
-        expiration_time: user_details.id_token.raw_attributes["exp"]
+        expiration_time: user_details.expiration_time
         )
     end
 

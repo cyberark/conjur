@@ -7,7 +7,7 @@ Given(/I successfully set OIDC variables/) do
 end
 
 When(/I successfully login via OIDC/) do
-login_with_oidc(service_id: 'keycloak', account: 'cucumber')
+  login_with_oidc(service_id: 'keycloak', account: 'cucumber')
 end
 
 When(/I successfully authenticate via OIDC/) do

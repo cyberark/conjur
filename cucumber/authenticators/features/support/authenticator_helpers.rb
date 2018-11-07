@@ -42,7 +42,8 @@ module AuthenticatorHelpers
 
   def authenticate_with_oidc(service_id:, account:)
     path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
-    payload = { login_token: @login_oidc_token }
+    # TODO: Since the input going to change to a base64 signed token, i didnt invest time to extract the real values
+    payload = { id_token_encrypted: "login_oidc_token", user_info: "alice", expiration_time: "1231" }
     post(path, payload)
   end
 
