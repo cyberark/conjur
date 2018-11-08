@@ -226,15 +226,8 @@ module Authentication
       )
     end
 
-    #TODO: should be done by oidc_token_factory as we did in the regular new_token function,
-    # and should be used as a dependency in the new OidcStrategy
     def new_oidc_conjur_token(oidc_id_token_details)
-      # TODO: encrypt the id_token
-      AuthnOidc::OidcConjurToken.new(
-        id_token_encrypted: oidc_id_token_details.id_token,
-        user_name: oidc_id_token_details.user_info.preferred_username,
-        expiration_time: oidc_id_token_details.expiration_time
-        )
+      token_factory.oidc_token(oidc_id_token_details)
     end
 
     def new_login(input, key)

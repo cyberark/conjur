@@ -234,6 +234,13 @@ RSpec.describe 'Authentication::Strategy' do
     end
   end
 
+  let (:oidc_token_factory) do
+    double('OidcTokenFactory').tap do |factory|
+      allow(factory).to receive(:oidc_token).and_return(
+        a_new_token
+      )
+    end
+  end
 #  ____  _   _  ____    ____  ____  ___  ____  ___
 # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)
 #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
@@ -324,32 +331,32 @@ RSpec.describe 'Authentication::Strategy' do
 
   context "An available oidc authenticator" do
     context "that receives valid credentials" do
-      # context "that fails Security checks" do
-      #   subject do
-      #     Authentication::Strategy.new(
-      #       authenticators: authenticators,
-      #       security: failing_security,
-      #       env: two_authenticator_env,
-      #       token_factory: token_factory,
-      #       audit_log: nil,
-      #       role_cls: nil,
-      #       oidc_client_class: oidc_client_class
-      #     )
-      #   end
-      #   it "raises an error" do
-      #     allow(subject).to receive(:oidc_validate_credentials) { true }
-      #     allow(subject).to receive(:validate_origin) { true }
-      #
-      #     input_ = input(
-      #       authenticator_name: 'authn-always-pass',
-      #       request: oidc_request
-      #     )
-      #
-      #     expect{ subject.conjur_token_oidc(input_) }.to raise_error(
-      #       /FAKE_SECURITY_ERROR/
-      #     )
-      #   end
-      # end
+      context "that fails Security checks" do
+        subject do
+          Authentication::Strategy.new(
+            authenticators: authenticators,
+            security: failing_security,
+            env: two_authenticator_env,
+            token_factory: oidc_token_factory,
+            audit_log: nil,
+            role_cls: nil,
+            oidc_client_class: oidc_client_class
+          )
+        end
+        it "raises an error" do
+          allow(subject).to receive(:oidc_validate_credentials) { true }
+          allow(subject).to receive(:validate_origin) { true }
+
+          input_ = input(
+            authenticator_name: 'authn-always-pass',
+            request: oidc_request
+          )
+
+          expect{ subject.oidc_encrypted_token(input_) }.to raise_error(
+            /FAKE_SECURITY_ERROR/
+          )
+        end
+      end
 
       context "that passes Security checks" do
         subject do
@@ -357,7 +364,7 @@ RSpec.describe 'Authentication::Strategy' do
             authenticators: authenticators,
             security: passing_security,
             env: two_authenticator_env,
-            token_factory: token_factory,
+            token_factory: oidc_token_factory,
             audit_log: nil,
             role_cls: nil,
             oidc_client_class: oidc_client_class
