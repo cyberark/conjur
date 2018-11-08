@@ -121,10 +121,6 @@ RSpec.describe 'Authentication::Strategy' do
     }
   end
 
-  let (:oidc_id_token_details) do
-    double('userInfo', user_info: user_info)
-  end
-
   let (:user_info) do
     double('userInfo', preferred_username: "alice")
   end
@@ -168,6 +164,75 @@ RSpec.describe 'Authentication::Strategy' do
     double('TokenFactory', signed_token: a_new_token)
   end
 
+  # todo: Extract this to oidc_strategy_spec after refactoring
+
+  ####################################
+  # Oidc
+  ####################################
+
+  let(:account) { "my-acct" } # todo: use this also in input after split
+  let(:username) { "my-user" } # todo: use this also in input after split
+
+  let (:mocked_secret) do
+      double('Secret').tap do |secret|
+        allow(secret).to receive(:value).and_return("secret")
+      end
+  end
+
+  let (:mocked_resource) do
+    double('Resource').tap do |resource|
+      allow(resource).to receive(:secret).and_return(mocked_secret)
+    end
+  end
+
+  before(:each) do
+    allow(Resource).to receive(:[])
+      .with(/#{account}:variable:conjur\/authn-oidc/)
+      .and_return(mocked_resource)
+  end
+
+  let (:user_info) do
+    double('UserInfo').tap do |user_info|
+      allow(user_info).to receive(:preferred_username).and_return(username)
+    end
+  end
+
+  let (:oidc_id_token_details) do
+    double('OidcIDTokenDetails').tap do |oidc_id_token_details|
+      allow(oidc_id_token_details).to receive(:user_info).and_return(user_info)
+      allow(oidc_id_token_details).to receive(:id_token).and_return("id_token")
+      allow(oidc_id_token_details).to receive(:expiration_time).and_return("expiration_time")
+
+    end
+  end
+
+  let (:oidc_client) do
+    double('OidcClient').tap do |client|
+      allow(client).to receive(:oidc_id_token_details!).and_return(oidc_id_token_details)
+    end
+  end
+
+  let (:oidc_client_class) do
+    double('OidcClientClass').tap do |client_class|
+      allow(client_class).to receive(:new).and_return(oidc_client)
+    end
+  end
+
+  let (:oidc_request) do
+    request_body = StringIO.new
+    request_body.puts "code=some-code&redirect_uri=some-redirect-uri"
+    request_body.rewind
+
+    double('Request').tap do |request|
+      allow(request).to receive(:body).and_return(request_body)
+    end
+  end
+
+  let (:oidc_token_factory) do
+    double('OidcTokenFactory').tap do |factory|
+      allow(factory).to receive(:oidc_token).and_return(a_new_token)
+    end
+  end
 #  ____  _   _  ____    ____  ____  ___  ____  ___
 # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)
 #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
@@ -182,7 +247,8 @@ RSpec.describe 'Authentication::Strategy' do
         env: two_authenticator_env,
         token_factory: token_factory,
         audit_log: nil,
-        role_cls: nil
+        role_cls: nil,
+        oidc_client_class: ::Authentication::AuthnOidc::OidcClient
       )
     end
 
@@ -203,7 +269,8 @@ RSpec.describe 'Authentication::Strategy' do
           env: two_authenticator_env,
           token_factory: token_factory,
           audit_log: nil,
-          role_cls: nil
+          role_cls: nil,
+          oidc_client_class: ::Authentication::AuthnOidc::OidcClient
         )
       end
 
@@ -234,7 +301,8 @@ RSpec.describe 'Authentication::Strategy' do
           env: two_authenticator_env,
           token_factory: token_factory,
           audit_log: nil,
-          role_cls: nil
+          role_cls: nil,
+          oidc_client_class: ::Authentication::AuthnOidc::OidcClient
         )
       end
 
@@ -243,6 +311,69 @@ RSpec.describe 'Authentication::Strategy' do
         expect{ subject.conjur_token(input_) }.to raise_error(
           /FAKE_SECURITY_ERROR/
         )
+      end
+    end
+  end
+
+  # todo: Extract this to oidc_strategy_spec after refactoring & add UTs for authenticate method
+
+  ####################################
+  # Oidc
+  ####################################
+
+  context "An available oidc authenticator" do
+    context "that receives valid credentials" do
+      context "that fails Security checks" do
+        subject do
+          Authentication::Strategy.new(
+            authenticators: authenticators,
+            security: failing_security,
+            env: two_authenticator_env,
+            token_factory: oidc_token_factory,
+            audit_log: nil,
+            role_cls: nil,
+            oidc_client_class: oidc_client_class
+          )
+        end
+        it "raises an error" do
+          allow(subject).to receive(:oidc_validate_credentials) { true }
+          allow(subject).to receive(:validate_origin) { true }
+
+          input_ = input(
+            authenticator_name: 'authn-always-pass',
+            request: oidc_request
+          )
+
+          expect{ subject.oidc_encrypted_token(input_) }.to raise_error(
+            /FAKE_SECURITY_ERROR/
+          )
+        end
+      end
+
+      context "that passes Security checks" do
+        subject do
+          Authentication::Strategy.new(
+            authenticators: authenticators,
+            security: passing_security,
+            env: two_authenticator_env,
+            token_factory: oidc_token_factory,
+            audit_log: nil,
+            role_cls: nil,
+            oidc_client_class: oidc_client_class
+          )
+        end
+
+        it "returns a new token" do
+          allow(subject).to receive(:oidc_validate_credentials) { true }
+          allow(subject).to receive(:validate_origin) { true }
+
+          input_ = input(
+            authenticator_name: 'authn-always-pass',
+            request: oidc_request
+          )
+
+          expect(subject.oidc_encrypted_token(input_)).to equal(a_new_token)
+        end
       end
     end
   end

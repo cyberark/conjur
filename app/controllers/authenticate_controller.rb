@@ -49,7 +49,7 @@ class AuthenticateController < ApplicationController
   # - Encrypt ID Token
   # Returns IDToken encrypted, Expiration Duration and Username
   def login_oidc
-    oidc_encrypted_token = authentication_strategy.oidc_encrypted_token(
+    oidc_encrypted_token = oidc_authentication_strategy.oidc_encrypted_token(
       ::Authentication::Strategy::Input.new(
         authenticator_name: 'authn-oidc',
         service_id:         params[:service_id],
@@ -71,7 +71,7 @@ class AuthenticateController < ApplicationController
   # - Introspect ID Token
   # Returns Conjur access token
   def authenticate_oidc
-    authentication_token = authentication_strategy.conjur_token_oidc(
+    authentication_token = oidc_authentication_strategy.conjur_token_oidc(
       ::Authentication::Strategy::Input.new(
         authenticator_name: 'authn-oidc',
         service_id:         params[:service_id],
@@ -125,7 +125,20 @@ class AuthenticateController < ApplicationController
       security: nil,
       env: ENV,
       role_cls: ::Role,
-      token_factory: TokenFactory.new
+      token_factory: TokenFactory.new,
+      oidc_client_class: ::Authentication::AuthnOidc::OidcClient
+    )
+  end
+
+  def oidc_authentication_strategy
+    @oidc_authentication_strategy ||= ::Authentication::Strategy.new(
+      authenticators: installed_authenticators,
+      audit_log: ::Authentication::AuditLog,
+      security: nil,
+      env: ENV,
+      role_cls: ::Role,
+      token_factory: OidcTokenFactory.new,
+      oidc_client_class: ::Authentication::AuthnOidc::OidcClient
     )
   end
 

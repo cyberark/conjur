@@ -69,6 +69,7 @@ module Authentication
     attribute :token_factory, ::Types::Any.default{ TokenFactory.new }
     attribute :role_cls, ::Types::Any.default{ ::Role }
     attribute :audit_log, ::Types::Any.default{ AuditLog }
+    attribute :oidc_client_class, ::Types::Any.default{ AuthnOidc::OidcClient }
 
     def login(input)
       authenticator = authenticators[input.authenticator_name]
@@ -102,13 +103,33 @@ module Authentication
       raise e
     end
 
-    # TODO: (later version) Extract this and related private methods into its
-    # own object.  We'll need to break down Strategy into its component parts
-    # to avoid repetition, and then use those parts in both the new
-    # "OIDCStrategy" and this original Strategy.
-    #
-    # Or take a different approach that accomplishes the same goals
-    #
+    # TODO: extract to OidcStrategy
+
+    def oidc_encrypted_token(input)
+      request_body = AuthnOidc::OidcRequestBody.new(input.request)
+
+      oidc_client = oidc_client(
+        redirect_uri: request_body.redirect_uri,
+        service_id: input.service_id,
+        conjur_account: input.account
+      )
+
+      oidc_id_token_details = oidc_client.oidc_id_token_details!(request_body.authorization_code)
+      oidc_validate_credentials(input, oidc_id_token_details)
+
+      username = oidc_id_token_details.user_info.preferred_username
+      input_with_username = input.update(username: username)
+
+      validate_security(input_with_username)
+      validate_origin(input_with_username)
+
+      audit_success(input_with_username)
+      new_oidc_conjur_token(oidc_id_token_details)
+    rescue => e
+      audit_failure(input, e)
+      raise e
+    end
+
     def conjur_token_oidc(input)
       oidc_conjur_token = oidc_conjur_token(input)
 
@@ -125,39 +146,16 @@ module Authentication
       raise e
     end
 
-    def oidc_encrypted_token(input)
-      oidc_id_token_details = oidc_id_token_details(input)
-      oidc_validate_credentials(input, oidc_id_token_details)
-
-      username = oidc_id_token_details.user_info.preferred_username
-      input_with_username = input.update(username: username)
-
-      validate_security(input_with_username)
-      validate_origin(input_with_username)
-
-      audit_success(input_with_username)
-      new_oidc_conjur_token(oidc_id_token_details)
-    rescue => e
-      audit_failure(input, e)
-      raise e
-    end
-
     private
 
-    # NOTE: These two methods are "special" (outside the framework) by design.
-    # We already know that the OIDC authenticator doesn't fit within this
-    # framework design, and will be pulling it out into multiple routes and its
-    # own objects on the next iteration.
-    #
-    # Thus these two methods actually represent the first step in that
-    # direction.  They also more honestly portray the situation.
-    #
-    def oidc_id_token_details(input)
-      AuthnOidc::GetOidcIDTokenDetails.new.(
-        request_body: input.request.body.read,
-        service_id: input.service_id,
-        conjur_account: input.account
+    def oidc_client(redirect_uri:, service_id:, conjur_account:)
+      oidc_client_configuration = AuthnOidc::GetOidcClientConfiguration.new.(
+        redirect_uri: redirect_uri,
+        service_id: service_id,
+        conjur_account: conjur_account
       )
+
+      oidc_client_class.new(oidc_client_configuration)
     end
 
     def oidc_conjur_token(input)
@@ -228,15 +226,8 @@ module Authentication
       )
     end
 
-    #TODO: should be done by oidc_token_factory as we did in the regular new_token function,
-    # and should be used as a dependency in the new OidcStrategy
     def new_oidc_conjur_token(oidc_id_token_details)
-      # TODO: encrypt the id_token
-      AuthnOidc::OidcConjurToken.new(
-        id_token_encrypted: oidc_id_token_details.id_token,
-        user_name: oidc_id_token_details.user_info.preferred_username,
-        expiration_time: oidc_id_token_details.expiration_time
-        )
+      token_factory.oidc_token(oidc_id_token_details)
     end
 
     def new_login(input, key)

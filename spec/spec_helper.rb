@@ -32,3 +32,5 @@ RSpec.configure do |config|
 end
 
 require 'simplecov'
+
+require 'stringio'
