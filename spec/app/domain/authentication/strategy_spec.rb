@@ -175,17 +175,13 @@ RSpec.describe 'Authentication::Strategy' do
 
   let (:mocked_secret) do
       double('Secret').tap do |secret|
-        allow(secret).to receive(:value).and_return(
-          "secret"
-        )
+        allow(secret).to receive(:value).and_return("secret")
       end
   end
 
   let (:mocked_resource) do
     double('Resource').tap do |resource|
-      allow(resource).to receive(:secret).and_return(
-        mocked_secret
-      )
+      allow(resource).to receive(:secret).and_return(mocked_secret)
     end
   end
 
@@ -228,17 +224,13 @@ RSpec.describe 'Authentication::Strategy' do
     request_body.rewind
 
     double('Request').tap do |request|
-      allow(request).to receive(:body).and_return(
-        request_body
-      )
+      allow(request).to receive(:body).and_return(request_body)
     end
   end
 
   let (:oidc_token_factory) do
     double('OidcTokenFactory').tap do |factory|
-      allow(factory).to receive(:oidc_token).and_return(
-        a_new_token
-      )
+      allow(factory).to receive(:oidc_token).and_return(a_new_token)
     end
   end
 #  ____  _   _  ____    ____  ____  ___  ____  ___
