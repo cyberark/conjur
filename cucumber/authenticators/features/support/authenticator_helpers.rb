@@ -33,6 +33,15 @@ module AuthenticatorHelpers
     post(path, api_key)
   end
 
+  def save_variable_value(account, variable_name, value)
+    resource_id = [account, "variable", variable_name].join(":")
+    conjur_api.resource(resource_id).add_value(value)
+  end
+
+  def ldap_ca_certificate_value
+    @ldap_ca_certificate_value ||= File.read('/ldap-certs/ca.crt')
+  end
+
   def login_with_oidc(service_id:, account:)
     path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/login"
     payload = { code: oidc_auth_code, redirect_uri: oidc_redirect_uri }

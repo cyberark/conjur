@@ -14,7 +14,7 @@ services:
       CONJUR_ACCOUNT: cucumber
       CONJUR_DATA_KEY:
       RAILS_ENV:
-      CONJUR_AUTHENTICATORS: authn-ldap/test,authn-oidc/keycloak
+      CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak
       LDAP_URI: ldap://ldap-server:389
       LDAP_BASE: dc=conjur,dc=net
       LDAP_FILTER: '(uid=%s)'
@@ -24,6 +24,7 @@ services:
     volumes:
       - authn-local:/run/authn-local
       - ./authn-oidc/keycloak:/authn-oidc/keycloak/scripts
+      - ldap-certs:/ldap-certs
     expose:
       - "80"
     links:
@@ -45,6 +46,7 @@ services:
       - ..:/src/conjur-server
       - authn-local:/run/authn-local
       - ./authn-oidc/phantomjs:/authn-oidc/phantomjs/scripts
+      - ldap-certs:/ldap-certs
     links:
       - conjur
       - pg
@@ -54,12 +56,15 @@ services:
   ldap-server:
     image: osixia/openldap
     command: --copy-service --loglevel debug
+    hostname: ldap-server
     environment:
       LDAP_ORGANISATION: CyberArk
       LDAP_DOMAIN: conjur.net
       LDAP_ADMIN_PASSWORD: ldapsecret
+      LDAP_TLS_VERIFY_CLIENT: allow
     volumes:
       - ./authn-ldap/ldap-data:/container/service/slapd/assets/config/bootstrap/ldif/custom
+      - ldap-certs:/ldap-certs
 
   oidc-keycloak:
     image: jboss/keycloak:4.3.0.Final
@@ -78,3 +83,4 @@ services:
 
 volumes:
   authn-local:
+  ldap-certs:
