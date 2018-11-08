@@ -41,7 +41,7 @@ module Authentication
       end
 
       def host
-        host ||= URI.parse(@provider_uri).host
+        URI.parse(@provider_uri).host
       end
 
       # TODO: capture exception: JSON::JWK::Set::KidNotFound and try refresh
