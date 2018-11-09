@@ -30,7 +30,7 @@ gem 'listen'
 gem 'random_password_generator', '= 1.0.0'
 gem 'slosilo', '~> 2.1'
 
-# Explicitly required as their are vulnerabilities older versions
+# Explicitly required as there are vulnerabilities older versions
 gem "loofah", ">= 2.2.3"
 gem "ffi", ">= 1.9.24"
 
