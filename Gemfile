@@ -30,6 +30,10 @@ gem 'listen'
 gem 'random_password_generator', '= 1.0.0'
 gem 'slosilo', '~> 2.1'
 
+# Explicitly required as their are vulnerabilities older versions
+gem "loofah", ">= 2.2.3"
+gem "ffi", ">= 1.9.24"
+
 # Installing ruby_dep 1.4.0
 # Gem::InstallError: ruby_dep requires Ruby version >= 2.2.5, ~> 2.2.
 gem 'ruby_dep', '= 1.3.1'

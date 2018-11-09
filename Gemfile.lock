@@ -460,6 +460,7 @@ DEPENDENCIES
   cucumber
   database_cleaner
   dry-struct
+  ffi (>= 1.9.24)
   font-awesome-sass (~> 4.7.0)
   gli
   haikunator (~> 1)
@@ -467,6 +468,7 @@ DEPENDENCIES
   json_spec
   kubeclient
   listen
+  loofah (>= 2.2.3)
   net-ldap
   nokogiri (>= 1.8.2)
   openid_connect
