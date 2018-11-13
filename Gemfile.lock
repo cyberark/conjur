@@ -125,7 +125,7 @@ GEM
     conjur-rack-heartbeat (2.0.0)
       rack
     contracts (0.16.0)
-    crass (1.0.3)
+    crass (1.0.4)
     csr (0.1.0)
     cucumber (2.4.0)
       builder (>= 2.1.2)
@@ -179,7 +179,7 @@ GEM
     event_emitter (0.2.6)
     excon (0.62.0)
     execjs (2.7.0)
-    ffi (1.9.18)
+    ffi (1.9.25)
     font-awesome-sass (4.7.0)
       sass (>= 3.2)
     gherkin (4.1.1)
@@ -223,7 +223,7 @@ GEM
     listen (3.0.6)
       rb-fsevent (>= 0.9.3)
       rb-inotify (>= 0.9.7)
-    loofah (2.2.2)
+    loofah (2.2.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.6.5)
@@ -238,7 +238,7 @@ GEM
     multi_test (0.1.2)
     net-ldap (0.16.1)
     netrc (0.11.0)
-    nokogiri (1.8.4)
+    nokogiri (1.8.5)
       mini_portile2 (~> 2.3.0)
     openid_connect (1.1.6)
       activemodel
@@ -460,6 +460,7 @@ DEPENDENCIES
   cucumber
   database_cleaner
   dry-struct
+  ffi (>= 1.9.24)
   font-awesome-sass (~> 4.7.0)
   gli
   haikunator (~> 1)
@@ -467,6 +468,7 @@ DEPENDENCIES
   json_spec
   kubeclient
   listen
+  loofah (>= 2.2.3)
   net-ldap
   nokogiri (>= 1.8.2)
   openid_connect
