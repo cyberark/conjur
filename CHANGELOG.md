@@ -4,13 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.3.2] - 2018-11-14
 
-### Security
-- Don't try to interpret request bodies as request parameters by default.
-  This fixes a problem body data would end up being written to logs under
-  some circumstances.
-- Bumped the `loofah` and `ffi` gem to versions that resolve known vulnerabilities.
+### Fixed
+- Fixed request parameter parsing when creating or deleting a host factory token.
+- Updated ffi and loofah dependencies to latest versions of each.
 
 ## [1.3.1] - 2018-10-19
 ### Fixed
