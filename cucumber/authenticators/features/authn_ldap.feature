@@ -21,11 +21,52 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
     - !grant
       role: !group conjur/authn-ldap/test/clients
       member: !user alice
+
+    - !policy
+      id: conjur/authn-ldap/secure
+      body:
+      - !host
+      - !webservice
+        owner: !host
+        annotations:
+          ldap-authn/base_dn: dc=conjur,dc=net
+          ldap-authn/bind_dn: cn=admin,dc=conjur,dc=net
+          ldap-authn/connect_type: tls
+          ldap-authn/host: ldap-server
+          ldap-authn/port: 389
+          ldap-authn/filter_template: (uid=%s)
+
+      - !group clients
+
+      - !permit
+        role: !group clients
+        privilege: [ read, authenticate ]
+        resource: !webservice
+
+      - !variable
+        id: bind-password
+        owner: !host
+
+      - !variable
+        id: tls-ca-cert
+        owner: !host
+
+    - !grant
+      role: !group conjur/authn-ldap/secure/clients
+      member: !user alice
+      
     """
+    And I store the LDAP bind password in "conjur/authn-ldap/secure/bind-password"
+    And I store the LDAP CA certificate in "conjur/authn-ldap/secure/tls-ca-cert"
 
   Scenario: An LDAP user authorized in Conjur can login with a good password
     When I login via LDAP as authorized Conjur user "alice"
     And I authenticate via LDAP as authorized Conjur user "alice" using key
+    Then "alice" is authorized
+
+  Scenario: An LDAP user authorized in Conjur can login with a good password using TLS
+    When I login via secure LDAP as authorized Conjur user "alice"
+    And I authenticate via secure LDAP as authorized Conjur user "alice" using key
     Then "alice" is authorized
 
   Scenario: An LDAP user authorized in Conjur can authenticate with a good password

@@ -6,14 +6,17 @@ require 'net/ldap'
 
 module Authentication
   module AuthnLdap
-
     class Authenticator
       def initialize(env:,
                      ldap_server_factory: ::Authentication::AuthnLdap::Server,
+                     ldap_server_configuration: ::Authentication::AuthnLdap::Configuration,
+                     conjur_authenticator: ::Authentication::Authn::Authenticator,
                      role_cls: ::Authentication::MemoizedRole,
                      credentials_cls: ::Credentials)
         @env = env
         @ldap_server_factory = ldap_server_factory
+        @ldap_server_configuration = ldap_server_configuration
+        @conjur_authenticator = conjur_authenticator
         @role_cls = role_cls
         @credentials_cls = credentials_cls
       end
@@ -30,8 +33,8 @@ module Authentication
         return nil if blacklisted_ldap_user?(safe_login)
 
         # Authenticate against LDAP
-        filter = filter_template % safe_login
-        bind_results = ldap_server.bind_as(filter: filter, password: password)
+        filter = ldap_configuration(input).filter_template % safe_login
+        bind_results = ldap_server(input).bind_as(filter: filter, password: password)
         return nil unless bind_results
 
         # Return Conjur API key
@@ -43,28 +46,18 @@ module Authentication
       # key returned by LDAP login. To support backward compatibility, the LDAP
       # authenticator will still accept the LDAP credentials directly.
       def valid?(input)
-        conjur_authenticator.valid?(input) ||
+        @conjur_authenticator.new.valid?(input) ||
           !login(input).nil? # Deprecated, exists for backward compatibility
       end
 
       private
 
-      def filter_template
-        @filter_template ||= 
-          @env['LDAP_FILTER'] || '(&(objectClass=posixAccount)(uid=%s))'
+      def ldap_server(input)
+        @ldap_server_factory.new(ldap_configuration(input))
       end
 
-      def ldap_server
-        @ldap_server ||= @ldap_server_factory.new(
-          uri:     @env['LDAP_URI'],
-          base:    @env['LDAP_BASE'],
-          bind_dn: @env['LDAP_BINDDN'],
-          bind_pw: @env['LDAP_BINDPW']
-        )
-      end
-
-      def conjur_authenticator
-        Authentication::Authn::Authenticator.new
+      def ldap_configuration(input)
+        @ldap_server_configuration.new(input, @env)
       end
 
       # admin should only be able to login through plain Conjur authn

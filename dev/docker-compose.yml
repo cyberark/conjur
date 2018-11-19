@@ -29,6 +29,7 @@ services:
     - ..:/src/conjur-server
     - ../../conjur-policy-parser:/src/conjur-policy-parser
     - authn-local:/run/authn-local
+    - ldap-certs:/ldap-certs
     links:
     - pg:pg
     - ldap-server
@@ -49,6 +50,7 @@ services:
     volumes:
       - ..:/src/conjur-server
       - authn-local:/run/authn-local
+      - ldap-certs:/ldap-certs
     links:
       - conjur
       - pg
@@ -70,13 +72,16 @@ services:
   ldap-server:
     image: osixia/openldap
     command: --copy-service --loglevel debug
+    hostname: ldap-server
     environment:
       LDAP_ORGANISATION: CyberArk
       LDAP_DOMAIN: conjur.net
       LDAP_ADMIN_PASSWORD: ldapsecret
+      LDAP_TLS_VERIFY_CLIENT: allow
 
     volumes:
       - ./files/authn-ldap/ldap:/container/service/slapd/assets/config/bootstrap/ldif/custom
+      - ldap-certs:/ldap-certs
 
   oidc-keycloak:
     image: jboss/keycloak
@@ -118,3 +123,4 @@ services:
 
 volumes:
   authn-local:
+  ldap-certs:

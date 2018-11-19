@@ -66,6 +66,18 @@ function run_cucumber_tests() {
   docker-compose down --rmi 'local' --volumes
 }
 
+function prepare_env_auth_ldap() {
+  docker-compose up --no-deps -d ldap-server
+
+  docker-compose exec -T ldap-server bash -c "
+    while [[ ! -f /container/run/service/slapd/assets/certs/ca.crt ]]
+    do
+      sleep 2
+    done
+    cp /container/run/service/slapd/assets/certs/*.crt /ldap-certs/
+  "
+}
+
 function prepare_env_auth_oidc() {
   docker-compose up --no-deps -d pg conjur oidc-keycloak
 
@@ -154,6 +166,7 @@ fi
 if [[ $RUN_AUTHENTICATORS = true || $RUN_ALL = true ]]; then
   services="$services oidc-keycloak ldap-server"
   prepare_env_auth_oidc
+  prepare_env_auth_ldap
   run_cucumber_tests 'authenticators'
 fi
 
