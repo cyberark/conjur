@@ -3,20 +3,28 @@
 # Utility methods for making API requests
 #
 module RestHelpers
-  
+
   USER_NAMES = %w[auto-larry auto-mike auto-norbert auto-otto].freeze
-  
+
   def headers
     @headers ||= {}
   end
-  
+
   def post_json path, body, options = {}
     path = denormalize(path)
     body = denormalize(body)
     result = rest_resource(options)[path].post(body)
     set_result result
   end
-  
+
+  def post_multipart_json path
+    denormalized_path = denormalize(path)
+
+    cleaned_path, parameters = strip_rest_params_from_path(denormalized_path)
+    result = rest_resource({})[cleaned_path].post(parameters)
+    set_result result
+  end
+
   def put_json path, body = nil, options = {}
     path = denormalize(path)
     body = denormalize(body)
@@ -42,7 +50,31 @@ module RestHelpers
     result = rest_resource(options)[path].get
     set_result result
   end
-  
+
+  def strip_rest_params_from_path path
+    uri = URI.parse(path)
+    params = {}
+    params = CGI.parse(uri.query) if uri.query
+
+    # Stringified params keys have [] at the end so we clip those
+    # They also turn all params into an array so we ensure that we don't send
+    # garbage
+    remapped_params = {}
+    params.each do |key, val|
+      if key.ends_with?("[]")
+        remapped_params[key.chomp("[]")] = val
+      else
+        remapped_params[key.chomp("[]")] = val.first
+      end
+    end
+
+    # Remove query params from our new uri
+    uri.query=""
+    new_path = uri.to_s
+
+    [new_path, remapped_params]
+  end
+
   def set_result result
     @response_api_key = nil
     @status = result.code
@@ -90,23 +122,23 @@ module RestHelpers
       sock.read
     end
   end
-  
+
   def authn_params
     raise 'No selected user' unless @selected_user
     @authn_params = {
       id: @selected_user.login
     }
   end
-  
+
   def last_json
     raise 'No result captured!' unless @result
     JSON.pretty_generate(@result)
   end
-  
+
   def users
     @users ||= {}
   end
-  
+
   def lookup_user login, account = 'cucumber'
     roleid = "#{account}:user:#{login}"
     existing = begin
@@ -129,11 +161,11 @@ module RestHelpers
     role_id = "#{account}:user:admin"
     Role[role_id] || Role.create(role_id: role_id)
   end
-  
+
   def admin_user
     Role['cucumber:user:admin']
   end
-  
+
   # Create a regular user, owned by the admin user
   def create_user login, owner
     unless login
@@ -158,7 +190,7 @@ module RestHelpers
   def current_user_api_key
     @current_user.api_key
   end
-  
+
   def current_user_credentials
     token = Slosilo["authn:#{@current_user.account}"].signed_token @current_user.login
     token_authorization = "Token token=\"#{Base64.strict_encode64 token.to_json}\""
@@ -170,17 +202,16 @@ module RestHelpers
     password ||= @current_user.api_key
     { user: @current_user.login, password: password }
   end
-  
+
   def token_auth_request
     RestClient::Resource.new(Conjur::Authn::API.host, current_user_credentials)
   end
-  
+
   def basic_auth_request password = nil
     RestClient::Resource.new(Conjur::Authn::API.host, current_user_basic_auth(password))
   end
-  
+
   def try_request can
-    
     yield
   rescue RestClient::Exception
     puts $ERROR_INFO
@@ -189,7 +220,7 @@ module RestHelpers
     raise if can
     set_result @exception.response  
   end
-  
+
   def account
     'cucumber'
   end
@@ -198,7 +229,7 @@ module RestHelpers
     @random ||= Random.new
     @random.bytes(nbytes).unpack1('h*')
   end
-  
+
   protected
 
   def denormalize str
