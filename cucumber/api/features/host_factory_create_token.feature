@@ -9,7 +9,7 @@ Feature: Create a host factory token.
   Scenario: A host factory is invisible without some permission on it
     Given I login as "alice"
 
-    When I POST "/host_factory_tokens?host_factory=cucumber:host_factory:the-layer-factory&expiration=2050-12-31"
+    When I POST "/host_factory_tokens?host_factory=cucumber:host_factory:the-layer-factory&expiration=2050-12-31" with in-body params
     Then the HTTP response status code is 404
 
   Scenario: Unauthorized users cannot create host factory tokens.
@@ -21,7 +21,7 @@ Feature: Create a host factory token.
   Scenario: A host factory token can be created by specifying an expiration time.
     Given I permit user "alice" to "execute" it
     And I login as "alice"
-    When I successfully POST "/host_factory_tokens?host_factory=cucumber:host_factory:the-layer-factory&expiration=2050-12-31"
+    When I successfully POST "/host_factory_tokens?host_factory=cucumber:host_factory:the-layer-factory&expiration=2050-12-31" with in-body params
     Then the JSON should be:
     """
     [
@@ -36,7 +36,7 @@ Feature: Create a host factory token.
   Scenario: A host factory token can be created by specifying an expiration time and CIDR.
     Given I permit user "alice" to "execute" it
     And I login as "alice"
-    When I successfully POST "/host_factory_tokens?host_factory=cucumber:host_factory:the-layer-factory&expiration=2050-12-31&cidr[]=123.234.0.0/16&cidr[]=222.222.222.0/24"
+    When I successfully POST "/host_factory_tokens?host_factory=cucumber:host_factory:the-layer-factory&expiration=2050-12-31&cidr[]=123.234.0.0/16&cidr[]=222.222.222.0/24" with in-body params
     Then the JSON should be:
     """
     [

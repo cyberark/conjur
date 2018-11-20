@@ -56,6 +56,12 @@ When(/^I( (?:can|successfully))? PUT "([^"]*)" with body from file "([^"]*)"/) d
   end
 end
 
+When(/^I( (?:can|successfully))? POST "([^"]*)" with in-body params$/) do |can, path|
+  try_request can do
+    post_multipart_json path
+  end
+end
+
 When(/^I( (?:can|successfully))? POST "([^"]*)"(?: with plain text body "([^"]*)")?$/) do |can, path, body|
   try_request can do
     post_json path, body
