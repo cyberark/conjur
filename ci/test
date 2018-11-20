@@ -2,7 +2,6 @@
 
 # shellcheck disable=SC1091
 
-
 # Display CLI usage information
 function print_help {
   cat << EOF
@@ -67,15 +66,15 @@ function run_cucumber_tests() {
 }
 
 function prepare_env_auth_ldap() {
+  LDAP_CHECK_COMMAND='ldapsearch -x -ZZ -H ldapi:/// -b dc=conjur,dc=net -D "cn=admin,dc=conjur,dc=net" -w ldapsecret'
   docker-compose up --no-deps -d ldap-server
 
-  docker-compose exec -T ldap-server bash -c "
-    while [[ ! -f /container/run/service/slapd/assets/certs/ca.crt ]]
-    do
-      sleep 2
-    done
-    cp /container/run/service/slapd/assets/certs/*.crt /ldap-certs/
-  "
+  # LDAP is a bit slow to start up
+  echo "Ensuring that LDAP is up..."
+  while ! docker-compose exec -T ldap-server bash -c "${LDAP_CHECK_COMMAND}" | grep '^search: 3$'; do
+    echo "  Waiting for LDAP..."
+    sleep 1
+  done
 }
 
 function prepare_env_auth_oidc() {
@@ -157,17 +156,17 @@ cd ..
 export TAG="$(version_tag)"
 cd ci
 
-# Run tests based on what flags were passed
-if [[ $RUN_ROTATORS = true || $RUN_ALL = true ]]; then
-  services="$services testdb"
-  run_cucumber_tests 'rotators'
-fi
-
 if [[ $RUN_AUTHENTICATORS = true || $RUN_ALL = true ]]; then
   services="$services oidc-keycloak ldap-server"
   prepare_env_auth_oidc
   prepare_env_auth_ldap
   run_cucumber_tests 'authenticators'
+fi
+
+# Run tests based on what flags were passed
+if [[ $RUN_ROTATORS = true || $RUN_ALL = true ]]; then
+  services="$services testdb"
+  run_cucumber_tests 'rotators'
 fi
 
 if [[ $RUN_API = true || $RUN_ALL = true ]]; then

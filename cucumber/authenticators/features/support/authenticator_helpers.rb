@@ -39,7 +39,7 @@ module AuthenticatorHelpers
   end
 
   def ldap_ca_certificate_value
-    @ldap_ca_certificate_value ||= File.read('/ldap-certs/ca.crt')
+    @ldap_ca_certificate_value ||= File.read('/ldap-certs/root.cert.pem')
   end
 
   def login_with_oidc(service_id:, account:)
