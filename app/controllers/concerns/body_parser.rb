@@ -24,8 +24,7 @@ module BodyParser
 
   private
 
-  # note it does not parse rails magic [] params syntax, but we don't need it
   def decode_form_body
-    Hash[*URI.decode_www_form(request.body.read).flatten(1)]
+    Rack::Utils.parse_nested_query(request.body.read)
   end
 end
