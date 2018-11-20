@@ -6,12 +6,12 @@ class HostFactoryToken < Sequel::Model
   plugin :validation_helpers
 
   unrestrict_primary_key
-  
+
   attr_encrypted :token
   many_to_one :resource, reciprocal: :host_factory_tokens
 
   alias host_factory resource
-  
+
   class << self
     # Generates a random token.
     #
@@ -39,7 +39,7 @@ class HostFactoryToken < Sequel::Model
       response[:token] = token
     end
   end
-  
+
   def valid? origin: nil
     return false if expired?
     return true unless origin
@@ -60,7 +60,7 @@ class HostFactoryToken < Sequel::Model
   def expired?
     Time.now >= self.expiration
   end
-  
+
   def validate
     super
 
@@ -69,10 +69,10 @@ class HostFactoryToken < Sequel::Model
 
   def before_create
     super
-    
+
     generate_token
   end
-   
+
   private
 
   def generate_token
