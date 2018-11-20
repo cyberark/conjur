@@ -32,3 +32,21 @@ Feature: Create a host factory token.
       }
     ]
     """
+
+  Scenario: A host factory token can be created by specifying an expiration time and CIDR.
+    Given I permit user "alice" to "execute" it
+    And I login as "alice"
+    When I successfully POST "/host_factory_tokens?host_factory=cucumber:host_factory:the-layer-factory&expiration=2050-12-31&cidr[]=123.234.0.0/16&cidr[]=222.222.222.0/24"
+    Then the JSON should be:
+    """
+    [
+      {
+        "cidr": [
+          "123.234.0.0/16",
+          "222.222.222.0/24"
+        ],
+        "expiration": "2050-12-31T00:00:00Z",
+        "token": "@host_factory_token_token@"
+      }
+    ]
+    """
