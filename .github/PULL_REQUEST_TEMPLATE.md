@@ -1,7 +1,7 @@
 #### What does this PR do?
 #### Any background context you want to provide?
 #### What ticket does this PR close?
-Contributes to [relevant GitHub issues, eg #76]
+Connected to [relevant GitHub issues, eg #76]
 #### Where should the reviewer start?
 #### How should this be manually tested?
 #### Screenshots (if appropriate)
