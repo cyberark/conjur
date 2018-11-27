@@ -143,11 +143,5 @@ docker-compose up -d --no-deps $services
 api_key=$(docker-compose exec -T conjur conjurctl \
 	role retrieve-key cucumber:user:admin | tr -d '\r')
 
-if [[ $ENABLE_AUTHN_LDAP = true ]]; then
-  docker-compose exec ldap-server bash -c "
-    cp /container/run/service/slapd/assets/certs/*.crt /ldap-certs/
-  "
-fi
-
 docker exec -e CONJUR_AUTHN_API_KEY=$api_key $env_args \
   -it --detach-keys 'ctrl-\' "$(docker-compose ps -q conjur)" bash

@@ -24,7 +24,7 @@ services:
     volumes:
       - authn-local:/run/authn-local
       - ./authn-oidc/keycloak:/authn-oidc/keycloak/scripts
-      - ldap-certs:/ldap-certs
+      - ./ldap-certs:/ldap-certs:ro
     expose:
       - "80"
     links:
@@ -46,7 +46,7 @@ services:
       - ..:/src/conjur-server
       - authn-local:/run/authn-local
       - ./authn-oidc/phantomjs:/authn-oidc/phantomjs/scripts
-      - ldap-certs:/ldap-certs
+      - ./ldap-certs:/ldap-certs:ro
     links:
       - conjur
       - pg
@@ -61,10 +61,13 @@ services:
       LDAP_ORGANISATION: CyberArk
       LDAP_DOMAIN: conjur.net
       LDAP_ADMIN_PASSWORD: ldapsecret
-      LDAP_TLS_VERIFY_CLIENT: allow
+      LDAP_TLS_CA_CRT_FILENAME: "ca-chain.cert.pem"
+      LDAP_TLS_CRT_FILENAME: "ldap-server.cert.pem"
+      LDAP_TLS_KEY_FILENAME: "ldap-server.key.pem"
+      LDAP_TLS_VERIFY_CLIENT: try
     volumes:
       - ./authn-ldap/ldap-data:/container/service/slapd/assets/config/bootstrap/ldif/custom
-      - ldap-certs:/ldap-certs
+      - ./ldap-certs:/container/service/slapd/assets/certs:ro
 
   oidc-keycloak:
     image: jboss/keycloak:4.3.0.Final
@@ -83,4 +86,3 @@ services:
 
 volumes:
   authn-local:
-  ldap-certs:
