@@ -1,9 +1,15 @@
 # frozen_string_literal: true
 
 shared_context "database setup" do
-  let(:db) { Sequel::Model.db }
 
-  before { db[:messages].truncate }
+  let(:db_uri) { ENV['AUDIT_DATABASE_URL'] || 'postgres://postgres@pg/postgres' }
+  let(:db) { Sequel.connect db_uri }
+
+  before do
+    db.extension :pg_json
+    ConjurAudit::Message.set_dataset db[:messages]
+    db[:messages].truncate 
+  end
 
   around do |ex|
     db.transaction do
