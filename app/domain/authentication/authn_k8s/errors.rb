@@ -17,7 +17,7 @@ module Authentication
       'CSR must contain SPIFFE ID SAN'
     )
     CSRNamespaceMismatch = ::Util::ErrorClass.new(
-      'Namespace in SPIFFE ID must match namespace implied by common name'
+      "Namespace in SPIFFE ID '{0}' must match namespace implied by common name ('{1}')"
     )
     PodNotFound = ::Util::ErrorClass.new(
       "No Pod found for podname '{0}' in namespace '{1}'"
