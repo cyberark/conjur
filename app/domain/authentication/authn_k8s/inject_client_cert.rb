@@ -23,8 +23,10 @@ module Authentication
       private
 
       def validate
-        @validate_pod_request.(pod_request: pod_request)
+        # We validate the CSR first since the pod_request uses its values
         validate_csr
+
+        @validate_pod_request.(pod_request: pod_request)
       end
 
       def install_signed_cert
