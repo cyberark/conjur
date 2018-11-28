@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Fixed Syslog formatting to properly escape the closing square bracket (]) per RFC 5424
 
 ### Changed
 - Updated dependencies and Ruby version of Docker image
