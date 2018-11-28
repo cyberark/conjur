@@ -43,10 +43,13 @@ pipeline {
         stage('Kubernetes 1.7 in GKE') {
           steps { sh 'cd ci/authn-k8s && summon ./test.sh gke' }
         }
+        stage('Audit') {
+          steps { sh 'cd ci && ./test --rspec-audit'}
+        }
       }
       post {
         always {
-          junit 'spec/reports/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,cucumber/authenticators/features/reports/**/*.xml'
+          junit 'spec/reports/*.xml,spec/reports-audit/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,cucumber/authenticators/features/reports/**/*.xml'
           publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false])
         }
       }

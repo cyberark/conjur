@@ -3,6 +3,9 @@ services:
   pg:
     image: postgres:9.3
 
+  audit:
+    image: postgres:9.4
+
   testdb:
     image: postgres:9.3
 
@@ -39,6 +42,7 @@ services:
       CONJUR_APPLIANCE_URL: http://conjur
       CONJUR_ACCOUNT: cucumber
       DATABASE_URL: postgres://postgres@pg/postgres
+      AUDIT_DATABASE_URL:
       RAILS_ENV: test
       CONJUR_DATA_KEY:
       REPORT_ROOT:

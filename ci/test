@@ -25,6 +25,8 @@ GLOBAL OPTIONS
 
     --rspec                                   - Runs RSpec specs
 
+    --rspec-audit                             - Runs RSpecs for the Audit engine
+
 EOF
 exit
 }
@@ -135,6 +137,7 @@ RUN_ROTATORS=false
 RUN_API=false
 RUN_POLICY=false
 RUN_RSPEC=false
+RUN_AUDIT_RSPEC=false
 while true ; do
   case "$1" in
     --cucumber-rotators ) RUN_ALL=false ; RUN_ROTATORS=true ; shift ;;
@@ -142,6 +145,7 @@ while true ; do
     --cucumber-api ) RUN_ALL=false ; RUN_API=true ; shift ;;
     --cucumber-policy ) RUN_ALL=false ; RUN_POLICY=true ; shift ;;
     --rspec ) RUN_ALL=false ; RUN_RSPEC=true ; shift ;;
+    --rspec-audit ) RUN_ALL=false ; RUN_AUDIT_RSPEC=true ; shift ;;
     -h | --help ) print_help ; shift ;;
      * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
   esac
@@ -175,6 +179,32 @@ fi
 
 if [[ $RUN_POLICY = true || $RUN_ALL = true ]]; then
   run_cucumber_tests 'policy'
+fi
+
+if [[ $RUN_AUDIT_RSPEC = true || $RUN_ALL = true ]]; then
+  export AUDIT_DATABASE_URL=postgres://postgres@audit/postgres
+  # Start Conjur with the audit database
+  docker-compose up --no-deps -d audit pg
+
+  # Wait for audit database to be ready
+  until docker-compose run -T --rm audit psql -U postgres -h audit -c "select 1" -d postgres; do sleep 1; done
+
+  #prepare_env_audit
+  docker-compose run -T --rm --no-deps cucumber -c "
+    # Run DB migration for audit database
+    BUNDLE_GEMFILE=/src/conjur-server/Gemfile \
+      bundle exec sequel $AUDIT_DATABASE_URL \
+      -E -m /src/conjur-server/engines/conjur_audit/db/migrate/
+    
+    rm -rf $REPORT_ROOT/spec/reports-audit
+
+    # Run tests from audit engine directory
+    pushd engines/conjur_audit
+    BUNDLE_GEMFILE=/src/conjur-server/Gemfile \
+    CI_REPORTS=$REPORT_ROOT/spec/reports-audit bundle exec rspec \
+      --format progress --require ci/reporter/rspec --format CI::Reporter::RSpecFormatter
+    popd
+  "
 fi
 
 if [[ $RUN_RSPEC = true || $RUN_ALL = true ]]; then

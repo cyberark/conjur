@@ -20,6 +20,7 @@ dhparam.pem
 .byebug_history
 config/database.yml
 reports
+reports-audit
 demo/run/finished
 demo/run/load
 /run
