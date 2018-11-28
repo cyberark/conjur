@@ -107,7 +107,7 @@ function prepare_env_auth_oidc() {
 }
 
 function keycloak_isready?() {
-  for i in {1..10}
+  for i in {1..20}
   do
    sleep=10
    echo "keycloak starting logs:"
