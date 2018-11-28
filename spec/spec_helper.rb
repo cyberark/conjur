@@ -31,6 +31,10 @@ RSpec.configure do |config|
   config.filter_run_when_matching :focus
 end
 
+# We want full-length error messages since RSpec has a pretty small
+# limit for those when they're printed
+RSpec::Support::ObjectFormatter.default_instance.max_formatted_output_length = 999
+
 require 'simplecov'
 
 require 'stringio'
