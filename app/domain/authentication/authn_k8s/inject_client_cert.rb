@@ -37,6 +37,7 @@ module Authentication
         resp = @kubectl_exec.new.copy(
           pod_namespace: pod_namespace,
           pod_name: pod_name,
+          container: container_name,
           path: "/etc/conjur/ssl/client.pem",
           content: cert_to_install.to_pem,
           mode: 0o644
