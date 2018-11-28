@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- Updated dependencies and Ruby version of Docker image
+
 ## [1.3.3] - 2018-11-20
 ### Added
 - Added support for secure LDAP connections in the LDAP authenticator.
