@@ -84,7 +84,10 @@ module Authentication
 
       def validate_csr
         raise CSRIsMissingSpiffeId unless smart_csr.spiffe_id
-        raise CSRNamespaceMismatch unless common_name.namespace == spiffe_id.namespace
+
+        spiffe_namespace = spiffe_id.namespace
+        cn_namespace = common_name.namespace
+        raise CSRNamespaceMismatch.new(cn_namespace, spiffe_namespace) unless cn_namespace == spiffe_namespace
       end
 
       def smart_csr
