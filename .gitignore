@@ -38,9 +38,6 @@ api.html
 # Emacs backup files
 *~
 
-# Vim backup files
-*.sw[po]
-
 brakeman-output.*
 .idea
 TEMP_NOTES.txt
@@ -55,3 +52,6 @@ ci/authn-k8s/dev/policies/*.yml
 # authn-oidc phantomjs temp files
 dev/files/authn-oidc/phantomjs/authorization_code
 dev/files/authn-oidc/phantomjs/keycloak_login_tmp.js
+
+# Vim backup files
+*.sw[po]
