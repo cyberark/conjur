@@ -102,14 +102,15 @@ module Authentication
       end
 
       def validate_cert_installation(resp)
-        return if resp[:error].empty?
-        raise CertInstallationError, cert_error(resp[:error])
+        error_stream = resp[:error]
+        return if error_stream.nil? || error_stream.empty?
+        raise CertInstallationError, cert_error(error_stream)
       end
 
       # In case there's a blank error message...
       def cert_error(msg)
-        blank_msg = msg =~ /^\s*$/
-        blank_msg ? 'The server returned a blank error message' : msg
+        return 'The server returned a blank error message' if msg.blank?
+        msg.to_s
       end
 
       def ca_for_webservice
