@@ -102,6 +102,14 @@ Resources:
 
           exec >>/var/log/conjur-init.log 2>&1
 
+          # Prevent CoreOS auto-updates
+          systemctl stop update-engine
+          systemctl disable update-engine
+          systemctl mask update-engine
+          systemctl stop locksmithd
+          systemctl disable locksmithd
+          systemctl mask locksmithd
+          systemctl daemon-reload
           set -x
 
           # Only initialize once
