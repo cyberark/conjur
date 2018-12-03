@@ -74,7 +74,11 @@ class Logger
         end
 
         def self.sd_parameters params
-          params.map { |parameter, value| [parameter, value.to_s.inspect].join('=') }
+          # Ensure quote, backslash, and closing square bracket are all escaped per:
+          # https://tools.ietf.org/html/rfc5424#section-6.3.3
+          #
+          # `inspect` handles quote and backslash, gsub handles the square bracket
+          params.map { |parameter, value| [parameter, value.to_s.inspect.gsub("]", "\\]")].join('=') }
         end
       end
     end
