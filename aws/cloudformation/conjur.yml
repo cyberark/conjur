@@ -35,7 +35,7 @@ Parameters:
     Description: AWS keypair to use
 
   VpcId:
-    Type: AWS::EC2::VPC::Id 
+    Type: AWS::EC2::VPC::Id
     Description: VPC in which to launch Conjur instances
 
   VpcSubnetIds:
@@ -44,16 +44,16 @@ Parameters:
 
 
 Metadata:
-  AWS::CloudFormation::Interface: 
-    ParameterGroups: 
-      - Label: 
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
           default: "Conjur Configuration"
         Parameters:
           - ConjurAccount
           - ConjurAdminPassword
           - DBAdminUser
           - DBAdminPassword
-      - Label: 
+      - Label:
           default: "EC2 Instance Configuration"
         Parameters:
           - ImageId
@@ -90,7 +90,7 @@ Resources:
 
   ConjurInstance:
     Type: "AWS::EC2::Instance"
-    Properties: 
+    Properties:
       ImageId: !Ref ImageId
       InstanceType: !Ref InstanceType
       KeyName: !Ref KeyName
@@ -103,8 +103,9 @@ Resources:
           exec >>/var/log/conjur-init.log 2>&1
 
           set -x
+
           # Only initialize once
-          if grep -q CONJUR_DATA_KEY /etc/default/conjur; then 
+          if grep -q CONJUR_DATA_KEY /etc/default/conjur; then
             exit 0;
           fi
 
@@ -141,6 +142,6 @@ Resources:
       SubnetIds: !Ref VpcSubnetIds
 
 Outputs:
-  ConjurAddress: 
+  ConjurAddress:
     Description: public IP address of Conjur CE instance
     Value: !GetAtt ConjurInstance.PublicIp
