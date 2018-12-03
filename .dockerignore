@@ -1,21 +1,38 @@
+# Don't include the cucumber directory in the image. This allows you
+# to make changes to the cucumber tests without busting the docker
+# layer cache (and incurring the cost of rebuilding the image).
+#
+# You should, instead, insure that it's mounted it into the container
+# you're using for testing.
+# 
+cucumber
+
+# Make an exception for kubernetes, though
+!cucumber/kubernetes/features
+
 *.deb
-dev
-demo
-docker
-package
 .git
-run
-tmp
+engines/conjur_audit/spec/dummy/log
+coverage
+demo
+dev
+docker
 log
+package
+run
+spec/reports
+spec/reports-audit
+tmp
 
 docs/_site
 
 # Ignore the scripts that are used by the Jenkinsfile
 build.sh
+ci
 package.sh
-test.sh
 publish.sh
 push-image.sh
+test.sh
 website.sh
 
 # Ignore vim swapfiles

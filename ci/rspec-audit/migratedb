@@ -1,0 +1,5 @@
+#!/bin/bash -e
+# Run DB migration for audit database
+BUNDLE_GEMFILE=./Gemfile \
+  bundle exec sequel $AUDIT_DATABASE_URL \
+  -E -m ./engines/conjur_audit/db/migrate/

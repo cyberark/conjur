@@ -1,114 +1,181 @@
-#!/bin/bash -ex
-
+#!/bin/bash -e
 # shellcheck disable=SC1091
 
-# Display CLI usage information
-function print_help {
+export REPORT_ROOT=/src/conjur-server
+# Setup to allow compose to run in an isolated namespace
+: ${COMPOSE_PROJECT_NAME="$(openssl rand -hex 3)"}
+export COMPOSE_PROJECT_NAME
+
+### Subcommands
+#
+# All functions with names that start with a character in the set
+# [a-z] will act as subcommands. Each of them:
+#
+#  * can be called from the commandline
+#  * will be displayed by the help subcommand
+#  * is expected to have a statement that starts ": DOC", which
+#    defines the help text for the subcommand
+#
+# They're defined below in alphabetical order.
+all() {
+  : DOC - Run all tests
+
+  local old_ifs="$IFS"
+  IFS=$'\012'
+  local cmds=( $(_subcommands) )
+  IFS="$old_ifs"
+  for c in ${cmds[*]}; do
+    [[ $c = 'all' ]] && continue # no need to call recursively ;)
+    $c
+  done
+}
+
+cucumber_authenticators() {
+  : DOC - Runs Cucumber Authenticator features
+
+  _prepare_env_auth_oidc
+  
+  local vars="
+    KEYCLOAK_USER
+    KEYCLOAK_PASSWORD
+    CLIENT_ID
+    REDIRECT_URI
+    CLIENT_SECRET
+    SCOPE
+  "
+  
+  # for each of $vars, exec into oid-keycloak and get the value of the
+  # variable. Collect all the variables in $cucumber_env_args
+  local cucumber_env_args=''
+  for v in $vars; do
+    cucumber_env_args="$cucumber_env_args -e $v=$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv $v | tr -d '\r')"
+  done
+  cucumber_env_args="$cucumber_env_args -e PROVIDER_URI=https://keycloak:8443/auth/realms/master"
+  
+  _prepare_env_auth_ldap
+  _run_cucumber_tests authenticators 'oidc-keycloak ldap-server' "$cucumber_env_args"
+}
+
+cucumber_api() {
+  : DOC - Runs Cucumber API features
+
+  _run_cucumber_tests api
+}
+
+cucumber_policy() {
+  : DOC - Runs Cucumber Policy features
+  
+  _run_cucumber_tests policy
+}
+
+cucumber_rotators() {
+  : DOC - Runs Cucumber Rotator features
+  
+  _run_cucumber_tests rotators testdb
+}
+
+help() {
+  : DOC - Show this message
+  
+  # _subcommands returns the list of commands, separated by a
+  # newline. Set IFS to newline so each element in the cmds array will
+  # be one command. _subcommands_doc returns the doc for each
+  # command, separated by newlines, so IFS needs to be set for it,
+  # too.
+  IFS=$'\012'
+  local cmds=( $(_subcommands) )
+  local doc=( $(_subcommands_doc) )
+  
   cat << EOF
 NAME
     test - CLI to simplify testing
 
 SYNOPSIS
-    test [global options]
+    test <subcommand>
 
-GLOBAL OPTIONS
-
-    --cucumber-api                            - Runs Cucumber API features
-
-    --cucumber-authenticators                 - Runs Cucumber Authenticator features
-
-    --cucumber-rotators                       - Runs Cucumber Rotator features
-
-    --cucumber-policy                         - Runs Cucumber Policy features
-
-    -h | --help                               - Show this message
-
-    --rspec                                   - Runs RSpec specs
-
-    --rspec-audit                             - Runs RSpecs for the Audit engine
-
+SUBCOMMANDS
 EOF
-exit
+
+  for i in $(seq 0 ${#cmds[@]}); do
+    echo -e "    ${cmds[i]}\t${doc[i]}"
+  done  | column -t -s $'\011'
 }
 
-# Cleanup started containers, ok they're already gone.
-function finish {
+rspec() {
+  : DOC - Runs RSpec specs
+  
+  docker-compose up --no-deps -d pg
+
+  _wait_for_pg pg
+
+  docker-compose run -T --rm --no-deps cucumber -ec "
+    bundle exec rake db:migrate
+    rm -rf $REPORT_ROOT/spec/reports
+    bundle exec env CI_REPORTS=$REPORT_ROOT/spec/reports rspec --format progress --require ci/reporter/rspec --format CI::Reporter::RSpecFormatter
+  "
+}
+
+rspec_audit() {
+  : DOC - Runs RSpecs for the Audit engine
+  
+  # Start Conjur with the audit database
+  docker-compose up --no-deps -d audit pg
+
+  _wait_for_pg audit
+
+  AUDIT_DATABASE_URL=postgres://postgres@audit/postgres \
+    docker-compose run -T --rm --no-deps  -w /src/conjur-server cucumber -ec "
+      pwd
+      ci/rspec-audit/migratedb
+      
+      rm -rf $REPORT_ROOT/spec/reports-audit
+  
+      # Run tests from audit engine directory
+      pushd engines/conjur_audit
+      BUNDLE_GEMFILE=/src/conjur-server/Gemfile \
+      CI_REPORTS=$REPORT_ROOT/spec/reports-audit bundle exec rspec \
+        --format progress --require ci/reporter/rspec --format CI::Reporter::RSpecFormatter
+      popd
+    "
+}
+
+
+### Internal functions
+#
+# Functions with names that start with a character other than [a-z]
+# are for internal use. These functions are not displayed by the help
+# subcommand.
+#
+# They're also defined alphabetically.
+# Cleanup started containers, ok if they're already gone.
+
+
+# Build the conjur image. Note the '(' instead of '{'. Defining the
+# function this way means we'll run in a subshell. As a result, we
+# won't change the caller's working directory or scribble on the
+# environment.
+_build_conjur() (
+  local testdir="$1"; shift
+  # Set release tag for building this version of Conjur
+  cd "${testdir}/.."
+  
+  # Create Conjur Image
+  ./build.sh -j >&2
+  # Grab the build tag so we launch the correct version of Conjur
+  . version_utils.sh
+  version_tag
+)
+
+_finish() {
   docker-compose down --rmi 'local' --volumes || true
 }
-trap finish EXIT
 
-export REPORT_ROOT=/src/conjur-server
-
-# Setup and run Cucumber tests.
-# args: profile name
-# example: run_cucumber_tests 'policy'
-function run_cucumber_tests() {
-  profile="$1"
-
-  # Create reports folders
-  mkdir -p cucumber/$profile/features/reports
-  rm -rf cucumber/$profile/features/reports/*
-
-  # Start Conjur and supporting services
-  docker-compose up --no-deps --no-recreate -d $services
-
-  docker-compose exec -T conjur conjurctl wait
-  docker-compose exec -T conjur conjurctl account create cucumber
-
-  # Grab the admin user API key
-  api_key=$(docker-compose exec -T conjur conjurctl \
-    role retrieve-key cucumber:user:admin | tr -d '\r')
-
-  # Run the tests
-  docker-compose run --no-deps -T --rm $cucumber_env_args -e CONJUR_AUTHN_API_KEY=$api_key cucumber -c \
-     "bundle exec cucumber -p $profile --format junit --out cucumber/$profile/features/reports"
-
-  cucumber_env_args=""
-  docker-compose down --rmi 'local' --volumes
+_find_cucumber_network() {
+  local net=$(docker inspect $(docker-compose ps -q conjur) --format '{{.HostConfig.NetworkMode}}')
+  docker network inspect $net --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}'
 }
 
-function prepare_env_auth_ldap() {
-  LDAP_CHECK_COMMAND='ldapsearch -x -ZZ -H ldapi:/// -b dc=conjur,dc=net -D "cn=admin,dc=conjur,dc=net" -w ldapsecret'
-  docker-compose up --no-deps -d ldap-server
-
-  # LDAP is a bit slow to start up
-  echo "Ensuring that LDAP is up..."
-  while ! docker-compose exec -T ldap-server bash -c "${LDAP_CHECK_COMMAND}" | grep '^search: 3$'; do
-    echo "  Waiting for LDAP..."
-    sleep 1
-  done
-}
-
-function prepare_env_auth_oidc() {
-  docker-compose up --no-deps -d pg conjur oidc-keycloak
-
-  # Fetch oidc-keycloak environment variables
-  KEYCLOAK_USER=$(docker-compose exec -T oidc-keycloak printenv KEYCLOAK_USER | tr -d '\r')
-  KEYCLOAK_PASSWORD=$(docker-compose exec -T oidc-keycloak printenv KEYCLOAK_PASSWORD | tr -d '\r')
-  CLIENT_ID=$(docker-compose exec -T oidc-keycloak printenv CLIENT_ID | tr -d '\r')
-  REDIRECT_URI=$(docker-compose exec -T oidc-keycloak printenv REDIRECT_URI | tr -d '\r')
-  CLIENT_SECRET=$(docker-compose exec -T oidc-keycloak printenv CLIENT_SECRET | tr -d '\r')
-  SCOPE=$(docker-compose exec -T oidc-keycloak printenv SCOPE | tr -d '\r')
-  cucumber_env_args="$cucumber_env_args -e KEYCLOAK_USER=$KEYCLOAK_USER"
-  cucumber_env_args="$cucumber_env_args -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD"
-  cucumber_env_args="$cucumber_env_args -e CLIENT_ID=$CLIENT_ID"
-  cucumber_env_args="$cucumber_env_args -e REDIRECT_URI=$REDIRECT_URI"
-  cucumber_env_args="$cucumber_env_args -e CLIENT_SECRET=$CLIENT_SECRET"
-  cucumber_env_args="$cucumber_env_args -e PROVIDER_URI=https://keycloak:8443/auth/realms/master"
-  cucumber_env_args="$cucumber_env_args -e SCOPE=$SCOPE"
-
-  # Check if keycloak is up
-  keycloak_isready?
-
-  # Define oidc-keycloak client
-  docker-compose exec -T oidc-keycloak /scripts/create_client
-
-  echo "Initialize keycloak certificate in conjur server"
-  docker-compose exec -T conjur /authn-oidc/keycloak/scripts/fetchCertificate
-
-}
-
-function keycloak_isready?() {
+_keycloak_isready?() {
   for i in {1..20}
   do
    sleep=10
@@ -127,94 +194,150 @@ function keycloak_isready?() {
   return 1
 }
 
-# Setup to allow compose to run in an isolated namespace
-export COMPOSE_PROJECT_NAME="$(openssl rand -hex 3)"
+_main() {
+  local testdir="$1"; shift
+  
+  # If there are no arguments, show help
+  if [[ "${#@}" -eq 0 || "$1" == 'help' ]]; then
+    help
+    exit 1
+  fi
 
-services="pg conjur"
-RUN_ALL=true
-RUN_AUTHENTICATORS=false
-RUN_ROTATORS=false
-RUN_API=false
-RUN_POLICY=false
-RUN_RSPEC=false
-RUN_AUDIT_RSPEC=false
-while true ; do
-  case "$1" in
-    --cucumber-rotators ) RUN_ALL=false ; RUN_ROTATORS=true ; shift ;;
-    --cucumber-authenticators ) RUN_ALL=false ; RUN_AUTHENTICATORS=true ; shift ;;
-    --cucumber-api ) RUN_ALL=false ; RUN_API=true ; shift ;;
-    --cucumber-policy ) RUN_ALL=false ; RUN_POLICY=true ; shift ;;
-    --rspec ) RUN_ALL=false ; RUN_RSPEC=true ; shift ;;
-    --rspec-audit ) RUN_ALL=false ; RUN_AUDIT_RSPEC=true ; shift ;;
-    -h | --help ) print_help ; shift ;;
-     * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
-  esac
-done
+  [[ -z "$KEEP_CONTAINERS" ]] && trap _finish EXIT
 
-# Set release tag for building this version of Conjur
-cd ..
-# Create Conjur Image
-./build.sh -j
-# Grab the build tag so we launch the correct version of Conjur
-. version_utils.sh
-export TAG="$(version_tag)"
-cd ci
+  export TAG=$(_build_conjur "$testdir")
+  
+  cd "${testdir}"
+  "$@"
+}
 
-if [[ $RUN_AUTHENTICATORS = true || $RUN_ALL = true ]]; then
-  services="$services oidc-keycloak ldap-server"
-  prepare_env_auth_oidc
-  prepare_env_auth_ldap
-  run_cucumber_tests 'authenticators'
-fi
+_prepare_env_auth_ldap() {
+  LDAP_CHECK_COMMAND='ldapsearch -x -ZZ -H ldapi:/// -b dc=conjur,dc=net -D "cn=admin,dc=conjur,dc=net" -w ldapsecret'
+  docker-compose up --no-deps -d ldap-server
 
-# Run tests based on what flags were passed
-if [[ $RUN_ROTATORS = true || $RUN_ALL = true ]]; then
-  services="$services testdb"
-  run_cucumber_tests 'rotators'
-fi
+  # LDAP is a bit slow to start up
+  echo "Ensuring that LDAP is up..."
+  for i in {1..45}; do
+    (docker-compose exec -T ldap-server bash -c "${LDAP_CHECK_COMMAND}" | grep '^search: 3$') >/dev/null 2>&1 && break
+    echo -n '.'
+    sleep 2
+  done
+  # Make sure it's really up
+  (docker-compose exec -T ldap-server bash -c "${LDAP_CHECK_COMMAND}" | grep '^search: 3$') || (echo 'LDAP server failed to start in time'; exit 1)
+}
 
-if [[ $RUN_API = true || $RUN_ALL = true ]]; then
-  run_cucumber_tests 'api'
-fi
+_prepare_env_auth_oidc() {
+  docker-compose up --no-deps -d pg conjur oidc-keycloak
 
-if [[ $RUN_POLICY = true || $RUN_ALL = true ]]; then
-  run_cucumber_tests 'policy'
-fi
 
-if [[ $RUN_AUDIT_RSPEC = true || $RUN_ALL = true ]]; then
-  export AUDIT_DATABASE_URL=postgres://postgres@audit/postgres
-  # Start Conjur with the audit database
-  docker-compose up --no-deps -d audit pg
+  # Check if keycloak is up
+  _keycloak_isready?
 
-  # Wait for audit database to be ready
-  until docker-compose run -T --rm audit psql -U postgres -h audit -c "select 1" -d postgres; do sleep 1; done
+  # Define oidc-keycloak client
+  docker-compose exec -T oidc-keycloak /scripts/create_client
 
-  #prepare_env_audit
-  docker-compose run -T --rm --no-deps cucumber -c "
-    # Run DB migration for audit database
-    BUNDLE_GEMFILE=/src/conjur-server/Gemfile \
-      bundle exec sequel $AUDIT_DATABASE_URL \
-      -E -m /src/conjur-server/engines/conjur_audit/db/migrate/
-    
-    rm -rf $REPORT_ROOT/spec/reports-audit
+  echo "Initialize keycloak certificate in conjur server"
+  docker-compose exec -T conjur /authn-oidc/keycloak/scripts/fetchCertificate
 
-    # Run tests from audit engine directory
-    pushd engines/conjur_audit
-    BUNDLE_GEMFILE=/src/conjur-server/Gemfile \
-    CI_REPORTS=$REPORT_ROOT/spec/reports-audit bundle exec rspec \
-      --format progress --require ci/reporter/rspec --format CI::Reporter::RSpecFormatter
-    popd
-  "
-fi
+}
 
-if [[ $RUN_RSPEC = true || $RUN_ALL = true ]]; then
-  docker-compose up --no-deps -d pg
 
-  until docker-compose run -T --rm pg psql -U postgres -h pg -c "select 1" -d postgres; do sleep 1; done
 
-  docker-compose run -T --rm --no-deps cucumber -c "
-    bundle exec rake db:migrate
-    rm -rf $REPORT_ROOT/spec/reports
-    bundle exec env CI_REPORTS=$REPORT_ROOT/spec/reports rspec --format progress --require ci/reporter/rspec --format CI::Reporter::RSpecFormatter
-  "
-fi
+# Setup and run Cucumber tests, first starting any other services required
+# args: <profile name> <extra services>
+# example: run_cucumber_tests 'policy'
+_setup_for_cucumber() {
+  if [[ ! -z "$1" ]]; then
+    local services="$1"; shift
+  fi
+  
+  # Create reports folders
+  mkdir -p cucumber/$profile/features/reports
+  rm -rf cucumber/$profile/features/reports/*
+
+  # Make sure all the services are up
+  docker-compose up --no-deps --no-recreate -d pg conjur $services
+
+  
+  docker-compose exec -T conjur conjurctl wait
+  docker-compose exec -T conjur conjurctl account create cucumber
+}
+
+_get_api_key() {
+  docker-compose exec -T conjur conjurctl \
+    role retrieve-key cucumber:user:admin | tr -d '\r'
+}
+
+# run cucumber, using $1 to initialize the environment. $1 can be
+# empty, but it must be present.
+_run_cucumber() {
+  local cucumber_env_args="$1"; shift
+  # If there's no tty (e.g. we're running as a Jenkins job, pass -T to
+  # docker-compose)
+  local notty=$(tty -s || echo '-T' && true)
+  
+  docker-compose run --no-deps $notty --rm $cucumber_env_args \
+     -e CONJUR_AUTHN_API_KEY=$api_key \
+     -e CUCUMBER_NETWORK=$(_find_cucumber_network) \
+     cucumber -ec "$@"
+}
+
+_run_cucumber_tests() {
+  local profile="$1"; shift
+  if [[ ! -z "$1" ]]; then
+    local services="$1"; shift
+  fi
+  if [[ ! -z "$1" ]]; then
+    local cucumber_env_args="$1"; shift
+  fi
+  
+  _setup_for_cucumber "$services"
+  
+  # Grab the admin user API key
+  local api_key=$(_get_api_key)
+  
+  # Run the tests
+  _run_cucumber "$cucumber_env_args" \
+     "bundle exec cucumber -p $profile --format junit --out cucumber/$profile/features/reports"
+
+  docker-compose down --rmi 'local' --volumes
+}
+
+_run_cucumber_shell() {
+  if [[ ! -z "$1" ]]; then
+    local services="$1"; shift
+  fi
+  
+  _setup_for_cucumber "$services"
+  local api_key=$(_get_api_key)
+
+  _run_cucumber '' /bin/bash
+}
+
+
+_start_conjur() {
+  if [[ ! -z "$1" ]]; then
+    local services="$1"; shift
+  fi
+  
+  # Start Conjur and supporting services
+  typeset -p COMPOSE_PROJECT_NAME
+  docker-compose up --no-deps --no-recreate -d pg conjur $services
+}
+
+_subcommands() {
+  typeset -f | awk '/^[a-z]/ {print $1}'
+}
+
+_subcommands_doc() {
+  typeset -f | awk '/^    : DOC/ {sub(/    : DOC/, "", $0); print $0}' | tr -d ';'
+}
+
+_wait_for_pg() {
+  local svc="$1"; shift
+
+  until docker-compose exec -T $svc psql -U postgres -c "select 1" -d postgres; do sleep 1; done
+}
+
+
+_main "$(dirname $0)" "$@"

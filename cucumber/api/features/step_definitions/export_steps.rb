@@ -1,18 +1,18 @@
 When(/^I run conjurctl export(?: with label "([^"]*)")?$/) do |label|
-  command = 'conjurctl export -o cuke_export/'
+  command = 'conjurctl export -o /tmp/cuke_export/'
   command << " -l #{label}" unless label.nil?
   system(command) || fail('Could not execute `conjurctl export`')
 end
 
 Then(/^the export file exists(?: with label "([^"]*)")?$/) do |label|
   archive_name = label.nil? ? '*' : label
-  Dir["cuke_export/#{archive_name}.tar.xz.gpg"].any? || fail('No export archive file exists')
-  File.exists?('cuke_export/key') || fail('No export archive key file exists')
+  Dir["/tmp/cuke_export/#{archive_name}.tar.xz.gpg"].any? || fail('No export archive file exists')
+  File.exists?('/tmp/cuke_export/key') || fail('No export archive key file exists')
 end
 
 Then (/^the accounts file contains "([^"]*)"$/) do |contents|
-  key_file = 'cuke_export/key'.freeze
-  backup_file = Dir['cuke_export/*.tar.xz.gpg'].sort().first
+  key_file = '/tmp/cuke_export/key'.freeze
+  backup_file = Dir['/tmp/cuke_export/*.tar.xz.gpg'].sort().first
 
   Dir.mktmpdir do |temp_dir|
     plain_backup_file = temp_dir + '/backup.tar.xz'
