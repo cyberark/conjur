@@ -110,7 +110,6 @@ Resources:
           systemctl disable locksmithd
           systemctl mask locksmithd
           systemctl daemon-reload
-          set -x
 
           # Only initialize once
           if grep -q CONJUR_DATA_KEY /etc/default/conjur; then
