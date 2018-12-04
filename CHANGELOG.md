@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - Updated dependencies and Ruby version of Docker image
+- Removed the cloudformation template in favor of the one found in the docs
+  at https://docs.conjur.org/Latest/en/Content/Get%20Started/install-open-source.htm#h2-item-2
 
 ## [1.3.3] - 2018-11-20
 ### Added
