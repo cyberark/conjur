@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Fixed
+- Fixed the authn_restricted_to.feature so that it doesn't depend on the default docker
+  network (172.0.0.0/8).
 - Fixed Syslog formatting to properly escape the closing square bracket (]) per RFC 5424
 
 ### Changed
