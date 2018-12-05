@@ -38,6 +38,7 @@ services:
   cucumber:
     image: conjur-test:$TAG
     entrypoint: bash
+    working_dir: /src/conjur-server
     environment:
       CONJUR_APPLIANCE_URL: http://conjur
       CONJUR_ACCOUNT: cucumber
@@ -46,6 +47,7 @@ services:
       RAILS_ENV: test
       CONJUR_DATA_KEY:
       REPORT_ROOT:
+      CUCUMBER_NETWORK:
     volumes:
       - ..:/src/conjur-server
       - authn-local:/run/authn-local
