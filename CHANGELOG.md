@@ -7,15 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ## [1.3.4] - 2018-12-19
-### Fixed
-- Fixed the authn_restricted_to.feature so that it doesn't depend on the default docker
-  network (172.0.0.0/8).
-- Fixed Syslog formatting to properly escape the closing square bracket (]) per RFC 5424
-
 ### Changed
 - Updated dependencies and Ruby version of Docker image
 - Removed the cloudformation template in favor of the one found in the docs
   at https://docs.conjur.org/Latest/en/Content/Get%20Started/install-open-source.htm#h2-item-2
+
+### Fixed
+- Fixed the authn_restricted_to.feature so that it doesn't depend on the default docker
+  network (172.0.0.0/8).
+- Fixed Syslog formatting to properly escape the closing square bracket (]) per RFC 5424
 
 ## [1.3.3] - 2018-11-20
 ### Added
@@ -61,11 +61,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Prevent anonymous (password-less) authentication with LDAP.
 
 ## [1.1.2] - 2018-08-22
-### Security
-- Fixes a vulnerability that could allow an authn-K8s request to bypass mutual TLS authentication. All Conjur users using authn-k8s within Kubernetes or OpenShift are strongly recommended to upgrade to this version.
-
 ### Fixed
 - Substantial performance improvement when loading large policy files
+
+### Security
+- Fixes a vulnerability that could allow an authn-K8s request to bypass mutual TLS authentication. All Conjur users using authn-k8s within Kubernetes or OpenShift are strongly recommended to upgrade to this version.
 
 ## [1.1.1] - 2018-8-10
 ### Added
@@ -103,43 +103,32 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.8.0] - 2018-06-26
 ### Added
-
 - Audit events for entitlements, variable fetches and updates, authentication and authorization.
 
 ## [0.7.0] - 2018-06-25
 ### Added
-
 - Added AWS Secret Access Key Rotator
 
 ## [0.6.0] - 2018-06-25
+### Added
+- AWS Hosts can authenticate using their assigned AWS IAM role.
+- Added variable rotation for Postgres databases
+- Experimental audit querying engine mounted at /audit. It can be configured to work with
+an external audit database by using config.audit_database configuration entry.
+- API endpoints for granting and revoking role membership
+- API endpoint for the role graph
+- Paging parameters (`offset` and `limit`) for audit API endpoints
+
 ### Changed
 - RolesController#index now accepts `role` as a query parameter. If
   present, resources visible to that role are listed.
-
 - Resources are now only visible if the user is a member of a role that owns them or has some
 permission on them.
-
 - RolesController now implements #direct_memberships to return the
   direct members of a role, without recursive expansion.
-
 - Updated Ruby version from 2.2, which is no longer supported, to version 2.5.
-
 - RolesController now implements #members to return a searchable, pageable collection
   of members of a Role.
-
-### Added
-- AWS Hosts can authenticate using their assigned AWS IAM role.
-
-- Added variable rotation for Postgres databases
-
-- Experimental audit querying engine mounted at /audit. It can be configured to work with
-an external audit database by using config.audit_database configuration entry.
-
-- API endpoints for granting and revoking role membership
-
-- API endpoint for the role graph
-
-- Paging parameters (`offset` and `limit`) for audit API endpoints
 
 ## [0.4.0] - 2018-04-10
 ### Added
@@ -158,11 +147,11 @@ format and pushed to a UNIX socket for further processing.
 ### Added
 - Add `authn-local` service which issues access tokens over a Unix domain socket.
 
-### Fixed
-- Resolved bug: Policy replace can fail when user is deleted and removed from group
-
 ### Changed
 - CTA was updated
+
+### Fixed
+- Resolved bug: Policy replace can fail when user is deleted and removed from group
 
 ## [0.1.1] - 2017-12-04
 ### Changed
@@ -176,6 +165,10 @@ format and pushed to a UNIX socket for further processing.
 The first tagged version.
 
 [Unreleased]: https://github.com/cyberark/conjur/compare/v1.3.0...HEAD
+[1.3.4]: https://github.com/cyberark/conjur/compare/v1.3.3...v1.3.4
+[1.3.3]: https://github.com/cyberark/conjur/compare/v1.3.2...v1.3.3
+[1.3.2]: https://github.com/cyberark/conjur/compare/v1.3.1...v1.3.2
+[1.3.1]: https://github.com/cyberark/conjur/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/cyberark/conjur/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/cyberark/conjur/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/cyberark/conjur/compare/v1.1.1...v1.1.2
