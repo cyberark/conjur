@@ -9,6 +9,7 @@ module ConjurAudit
       if (db = config.audit_database)
         db = Sequel.connect db
         db.extension :pg_json
+        Message.db.extension :pg_json
         Message.set_dataset db[:messages]
       end
     end
@@ -22,7 +23,6 @@ module ConjurAudit
     end
     
     initializer :load_sequel_extensions do
-      Message.db.extension :pg_json
       Sequel.extension :pg_json_ops
     end
   end

@@ -39,6 +39,9 @@ module Possum
 
     config.sequel.after_connect = proc do
       Sequel.extension :core_extensions, :postgres_schemata
+      Sequel::Model.db.extension :pg_array, :pg_inet, :pg_hstore
+    rescue
+      raise unless is_asset_precompile?
     end
 
     config.encoding = "utf-8"
@@ -68,5 +71,9 @@ module Possum
     # ParamsParser can cause data from the body to end up in params and then
     # in logs. It's better to explicitly parse the body where needed.
     config.middleware.delete ActionDispatch::ParamsParser
+
+    def self.is_asset_precompile?
+      /assets:precompile/.match?(ARGV.join(' '))
+    end
   end
 end
