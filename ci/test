@@ -143,7 +143,7 @@ changelog() {
   : DOC - Runs parse-a-changelog gem against CHANGELOG.md to validate format.
 
   docker-compose run -T --rm --no-deps cucumber -ec "
-    gem install parse-a-changelog
+    gem install parse_a_changelog
     parse CHANGELOG.md
   "
 }
