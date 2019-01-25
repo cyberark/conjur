@@ -144,7 +144,8 @@ changelog() {
 
   docker-compose run -T --rm --no-deps cucumber -ec "
     gem install parse_a_changelog
-    parse CHANGELOG.md
+    gemdir=$(gem which parse_a_changelog)
+    $(dirname $gemdir)/../bin/parse ./CHANGELOG.md
   "
 }
 
