@@ -70,28 +70,28 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Security
 - Fixes a vulnerability that could allow an authn-K8s request to bypass mutual TLS authentication. All Conjur users using authn-k8s within Kubernetes or OpenShift are strongly recommended to upgrade to this version.
 
-## [1.1.1] - 2018-8-10
+## [1.1.1] - 2018-08-10
 ### Added
 - `conjurctl export` now includes the account list to support migration
 - `conjurctl export` allows the operator to specify the file name label using the `-l` or `--label` flag
 - Update puma to a version that understands how to handle having ipv6 disabled
 - Update puma worker timeout to allow longer requests to finish (from 1 minute to 10 minutes)
 
-## [1.1.0] - 2018-7-30
+## [1.1.0] - 2018-07-30
 ### Added
 - Adds `conjurctl export` command to provide a migration data package to Conjur EE
 
-## [1.0.1] - 2018-7-23
+## [1.0.1] - 2018-07-23
 ### Fixed
 - Handling of absolute user ids in policies.
 - Attempts to fetch a secret from a nonexistent resource no longer cause 500.
 
-## [1.0.0] - 2018-7-16
+## [1.0.0] - 2018-07-16
 ### Added
 - Audit attempts to update and fetch an invisible secret.
 - Updated license to LGPL
 
-## [0.9.0] - 2018-7-11
+## [0.9.0] - 2018-07-11
 ### Added
 - Adds CIDR restrictions to Host and User resources
 - Adds Kubernete authentication
@@ -117,7 +117,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - AWS Hosts can authenticate using their assigned AWS IAM role.
 - Added variable rotation for Postgres databases
 - Experimental audit querying engine mounted at /audit. It can be configured to work with
-an external audit database by using config.audit_database configuration entry.
+  an external audit database by using config.audit_database configuration entry.
 - API endpoints for granting and revoking role membership
 - API endpoint for the role graph
 - Paging parameters (`offset` and `limit`) for audit API endpoints
@@ -126,7 +126,7 @@ an external audit database by using config.audit_database configuration entry.
 - RolesController#index now accepts `role` as a query parameter. If
   present, resources visible to that role are listed.
 - Resources are now only visible if the user is a member of a role that owns them or has some
-permission on them.
+  permission on them.
 - RolesController now implements #direct_memberships to return the
   direct members of a role, without recursive expansion.
 - Updated Ruby version from 2.2, which is no longer supported, to version 2.5.
@@ -136,7 +136,7 @@ permission on them.
 ## [0.4.0] - 2018-04-10
 ### Added
 - Policy changes now generate audit log messages. These can optionally be generated in RFC5424
-format and pushed to a UNIX socket for further processing.
+  format and pushed to a UNIX socket for further processing.
 - Code of Conduct
 
 ## [0.3.0] - 2018-01-11
@@ -164,8 +164,8 @@ format and pushed to a UNIX socket for further processing.
 - When a policy is loaded which references a non-existant object, that error is now reported as a JSON-formatted 404 error rather than an ugly 500 error.
 
 ## 0.1.0 - 2017-12-04
-
-The first tagged version.
+### Added
+- The first tagged version.
 
 [Unreleased]: https://github.com/cyberark/conjur/compare/v1.3.0...HEAD
 [1.3.4]: https://github.com/cyberark/conjur/compare/v1.3.3...v1.3.4
