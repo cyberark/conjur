@@ -67,6 +67,7 @@ services:
       LDAP_ORGANISATION: CyberArk
       LDAP_DOMAIN: conjur.net
       LDAP_ADMIN_PASSWORD: ldapsecret
+      LDAP_TLS_DH_PARAM_FILENAME: "dhparam.pem"
       LDAP_TLS_CA_CRT_FILENAME: "ca-chain.cert.pem"
       LDAP_TLS_CRT_FILENAME: "ldap-server.cert.pem"
       LDAP_TLS_KEY_FILENAME: "ldap-server.key.pem"
