@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.3.5] - 2019-02-07
 ### Changed
-- Updated Docker build to pre-compile Rails assets for Conjur image
+- Rails version updated to v4.2.11.
+- Updated Docker build to pre-compile Rails assets for Conjur image.
 
 ## [1.3.4] - 2018-12-19
 ### Changed
