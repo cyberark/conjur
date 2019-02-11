@@ -18,12 +18,12 @@ module Authentication
 
     class Input < ::Dry::Struct
       attribute :authenticator_name, ::Types::NonEmptyString
-      attribute :service_id,         ::Types::NonEmptyString.optional
-      attribute :account,            ::Types::NonEmptyString
-      attribute :username,           ::Types::NonEmptyString.optional
-      attribute :password,           ::Types::String
-      attribute :origin,             ::Types::NonEmptyString
-      attribute :request,            ::Types::Any.optional # for k8s authenticator
+      attribute :service_id, ::Types::NonEmptyString.optional
+      attribute :account, ::Types::NonEmptyString
+      attribute :username, ::Types::NonEmptyString.optional
+      attribute :password, ::Types::String
+      attribute :origin, ::Types::NonEmptyString
+      attribute :request, ::Types::Any.optional # for k8s authenticator
 
       # Convert this Input to an Security::AccessRequest
       #
@@ -32,7 +32,7 @@ module Authentication
           webservice: webservice,
           whitelisted_webservices: ::Authentication::Webservices.from_string(
             account, env['CONJUR_AUTHENTICATORS'] ||
-                       Authentication::Strategy.default_authenticator_name
+            Authentication::Strategy.default_authenticator_name
           ),
           user_id: username
         )
@@ -47,9 +47,9 @@ module Authentication
 
       def webservice
         @webservice ||= ::Authentication::Webservice.new(
-          account:            account,
+          account: account,
           authenticator_name: authenticator_name,
-          service_id:         service_id
+          service_id: service_id
         )
       end
     end
@@ -64,12 +64,12 @@ module Authentication
 
     # optional constructor parameters
     #
-    attribute :security, ::Types::Any.default{ ::Authentication::Security.new }
+    attribute :security, ::Types::Any.default {::Authentication::Security.new}
     attribute :env, ::Types::Any.default(ENV)
-    attribute :token_factory, ::Types::Any.default{ TokenFactory.new }
-    attribute :role_cls, ::Types::Any.default{ ::Role }
-    attribute :audit_log, ::Types::Any.default{ AuditLog }
-    attribute :oidc_client_class, ::Types::Any.default{ AuthnOidc::OidcClient }
+    attribute :token_factory, ::Types::Any.default {TokenFactory.new}
+    attribute :role_cls, ::Types::Any.default {::Role}
+    attribute :audit_log, ::Types::Any.default {AuditLog}
+    attribute :oidc_client_class, ::Types::Any.default {AuthnOidc::OidcClient}
 
     def login(input)
       authenticator = authenticators[input.authenticator_name]
@@ -103,81 +103,7 @@ module Authentication
       raise e
     end
 
-    # TODO: extract to OidcStrategy
-
-    def oidc_encrypted_token(input)
-      request_body = AuthnOidc::OidcRequestBody.new(input.request)
-
-      oidc_client = oidc_client(
-        redirect_uri: request_body.redirect_uri,
-        service_id: input.service_id,
-        conjur_account: input.account
-      )
-
-      oidc_id_token_details = oidc_client.oidc_id_token_details!(request_body.authorization_code)
-      oidc_validate_credentials(input, oidc_id_token_details)
-
-      username = oidc_id_token_details.user_info.preferred_username
-      input_with_username = input.update(username: username)
-
-      validate_security(input_with_username)
-      validate_origin(input_with_username)
-
-      audit_success(input_with_username)
-      new_oidc_conjur_token(oidc_id_token_details)
-    rescue => e
-      audit_failure(input, e)
-      raise e
-    end
-
-    def conjur_token_oidc(input)
-      oidc_conjur_token = oidc_conjur_token(input)
-
-      username = oidc_conjur_token.user_name
-      input_with_username = input.update(username: username)
-
-      validate_security(input_with_username)
-      validate_origin(input_with_username)
-
-      audit_success(input_with_username)
-      new_token(input_with_username)
-    rescue => e
-      audit_failure(input, e)
-      raise e
-    end
-
     private
-
-    def oidc_client(redirect_uri:, service_id:, conjur_account:)
-      oidc_client_configuration = AuthnOidc::GetOidcClientConfiguration.new.(
-        redirect_uri: redirect_uri,
-        service_id: service_id,
-        conjur_account: conjur_account
-      )
-
-      oidc_client_class.new(oidc_client_configuration)
-    end
-
-    def oidc_conjur_token(input)
-      AuthnOidc::GetOidcConjurToken.new.(
-        request_body: input.request.body.read
-      )
-    end
-
-    # NOTE: We can revisit this decision, but for now there is absolutely no
-    # reason to be bound the `valid?(input)` interface for this "exceptional"
-    # authenticator.
-    #
-    # Since we've already get to call `GetUserDetials` here for the username to
-    # be used in `validate_security`, we don't want to recalculate it, so we
-    # pass the result in.
-    #
-    def oidc_validate_credentials(input, oidc_id_token_details)
-      AuthnOidc::Authenticator.new.(
-        input: input,
-        oidc_id_token_details: oidc_id_token_details
-      )
-    end
 
     def audit_success(input)
       audit_log.record_authn_event(
@@ -226,10 +152,6 @@ module Authentication
       )
     end
 
-    def new_oidc_conjur_token(oidc_id_token_details)
-      token_factory.oidc_token(oidc_id_token_details)
-    end
-
     def new_login(input, key)
       LoginResponse.new(
         role_id: role(input.username, input.account).id,
@@ -237,5 +159,4 @@ module Authentication
       )
     end
   end
-
 end
