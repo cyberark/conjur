@@ -43,14 +43,14 @@ module AuthenticatorHelpers
   end
 
   def login_with_oidc(service_id:, account:)
-    path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/future-use/login"
+    path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/login"
     payload = { code: oidc_auth_code, redirect_uri: oidc_redirect_uri }
     post(path, payload)
     @login_oidc_conjur_token = @response_body
   end
 
   def authenticate_with_oidc(service_id:, account:)
-    path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/future-use/authenticate"
+    path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
     # TODO: Since the input going to change to a base64 signed token, i didnt invest time to extract the real values
     payload = { id_token_encrypted: "login_oidc_conjur_token", user_name: "alice", expiration_time: "1231" }
     post(path, payload)
