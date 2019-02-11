@@ -13,8 +13,8 @@ describe "routing for authentication", :type => :routing do
     )
   end
 
-  it "routes POST /authn-oidc/the-service/the-account/login to authenticate#login_oidc" do
-    expect(post: '/authn-oidc/the-service/the-account/login').to route_to(
+  it "routes POST /authn-oidc/the-service/the-account/future-use/login to authenticate#login_oidc" do
+    expect(post: '/authn-oidc/the-service/the-account/future-use/login').to route_to(
       controller: 'authenticate',
       action: 'login_oidc',
       service_id: 'the-service',
@@ -22,8 +22,8 @@ describe "routing for authentication", :type => :routing do
     )
   end
 
-  it "routes POST /authn-oidc/the-service/the-account/authenticate to authenticate#authenticate_oidc" do
-    expect(post: '/authn-oidc/the-service/the-account/authenticate').to route_to(
+  it "routes POST /authn-oidc/the-service/the-account/future-use/authenticate to authenticate#authenticate_oidc" do
+    expect(post: '/authn-oidc/the-service/the-account/future-use/authenticate').to route_to(
       controller: 'authenticate',
       action: 'authenticate_oidc',
       service_id: 'the-service',
@@ -31,8 +31,8 @@ describe "routing for authentication", :type => :routing do
     )
   end
 
-  it "routes POST /authn-oidc/the-account/authenticate to authenticate#authenticate_oidc" do
-    expect(post: '/authn-oidc/the-account/authenticate').to route_to(
+  it "routes POST /authn-oidc/the-account/future-use/authenticate to authenticate#authenticate_oidc" do
+    expect(post: '/authn-oidc/the-account/future-use/authenticate').to route_to(
       controller: 'authenticate',
       action: 'authenticate_oidc',
       account: 'the-account'
