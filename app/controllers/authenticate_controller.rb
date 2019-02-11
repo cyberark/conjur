@@ -25,20 +25,27 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticate
-    authn_token = authentication_strategy.conjur_token(
-      ::Authentication::Strategy::Input.new(
-        authenticator_name: params[:authenticator],
-        service_id: params[:service_id],
-        account: params[:account],
-        username: params[:id],
-        password: request.body.read,
-        origin: request.ip,
-        request: request
-      )
+    authn_token = ::Authentication::Authenticate.new.(
+      authenticator_input: authenticator_input,
+        authenticators: installed_authenticators,
+        enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
+        token_factory: TokenFactory.new
     )
     render json: authn_token
   rescue => e
     handle_authentication_error(e)
+  end
+
+  def authenticator_input
+    @authenticator_input ||= ::Authentication::Input.new(
+      authenticator_name: params[:authenticator],
+      service_id: params[:service_id],
+      account: params[:account],
+      username: params[:id],
+      password: request.body.read,
+      origin: request.ip,
+      request: request
+    )
   end
 
   # - Prepare ID Token request
@@ -53,7 +60,7 @@ class AuthenticateController < ApplicationController
     oidc_encrypted_token = ::Authentication::AuthnOidc::Login.new.(
       authenticator_input: oidc_authenticator_input,
         oidc_client_class: ::Authentication::AuthnOidc::OidcClient,
-        env: ENV,
+        enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
         token_factory: OidcTokenFactory.new
     )
     render json: oidc_encrypted_token
@@ -70,7 +77,7 @@ class AuthenticateController < ApplicationController
   def authenticate_oidc
     authentication_token = ::Authentication::AuthnOidc::Authenticate.new.(
       authenticator_input: oidc_authenticator_input,
-        env: ENV,
+        enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
         token_factory: OidcTokenFactory.new
     )
     render json: authentication_token

@@ -31,9 +31,7 @@ RSpec.describe 'Authentication::Oidc' do
   # env double
   ####################################
 
-  let (:oidc_authenticator_env) do
-    {'CONJUR_AUTHENTICATORS' => 'authn-oidc-test'}
-  end
+  let(:oidc_authenticator_name) {"authn-oidc-test"}
 
   ####################################
   # TokenFactory double
@@ -173,7 +171,7 @@ RSpec.describe 'Authentication::Oidc' do
         ::Authentication::AuthnOidc::Login.new.(
           authenticator_input: input_,
             oidc_client_class: oidc_client_class,
-            env: oidc_authenticator_env,
+            enabled_authenticators: oidc_authenticator_name,
             token_factory: oidc_token_factory
         )
       end
@@ -191,7 +189,7 @@ RSpec.describe 'Authentication::Oidc' do
 
         ::Authentication::AuthnOidc::Authenticate.new.(
           authenticator_input: input_,
-            env: oidc_authenticator_env,
+            enabled_authenticators: oidc_authenticator_name,
             token_factory: token_factory
         )
       end

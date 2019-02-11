@@ -32,7 +32,7 @@ module Authentication
           webservice: webservice,
           whitelisted_webservices: ::Authentication::Webservices.from_string(
             account, env['CONJUR_AUTHENTICATORS'] ||
-            Authentication::Strategy.default_authenticator_name
+            Authentication::Common.default_authenticator_name
           ),
           user_id: username
         )
@@ -52,10 +52,6 @@ module Authentication
           service_id: service_id
         )
       end
-    end
-
-    def self.default_authenticator_name
-      'authn'
     end
 
     # required constructor parameters
@@ -85,22 +81,6 @@ module Authentication
     rescue => err
       audit_failure(input, err)
       raise err
-    end
-
-    def conjur_token(input)
-      authenticator = authenticators[input.authenticator_name]
-
-      validate_authenticator_exists(input, authenticator)
-      validate_security(input)
-      validate_credentials(input, authenticator)
-      validate_origin(input)
-
-      audit_success(input)
-      new_token(input)
-
-    rescue => e
-      audit_failure(input, e)
-      raise e
     end
 
     private
@@ -136,20 +116,9 @@ module Authentication
       security.validate(input.to_access_request(env))
     end
 
-    def validate_credentials(input, authenticator)
-      raise InvalidCredentials unless authenticator.valid?(input)
-    end
-
     def validate_origin(input)
       authn_role = role(input.username, input.account)
       raise InvalidOrigin unless authn_role.valid_origin?(input.origin)
-    end
-
-    def new_token(input)
-      token_factory.signed_token(
-        account: input.account,
-        username: input.username
-      )
     end
 
     def new_login(input, key)

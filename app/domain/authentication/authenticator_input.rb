@@ -22,12 +22,13 @@ module Authentication
 
     # Convert this Input to a Security::AccessRequest
     #
-    def to_access_request(env)
+    def to_access_request(enabled_authenticators)
       ::Authentication::Security::AccessRequest.new(
         webservice: webservice,
         whitelisted_webservices: ::Authentication::Webservices.from_string(
           @account,
-          env['CONJUR_AUTHENTICATORS'] || Authentication::Strategy.default_authenticator_name
+          enabled_authenticators ||
+            Authentication::Common.default_authenticator_name
         ),
         user_id: @username
       )

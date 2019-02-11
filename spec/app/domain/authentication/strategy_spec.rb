@@ -2,15 +2,13 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::Strategy::Input#to_access_request' do
-  let (:two_authenticator_env) do
-    {'CONJUR_AUTHENTICATORS' => 'authn-one, authn-two'}
-  end
+RSpec.describe 'Authentication::Input#to_access_request' do
+  let (:two_authenticator_env) { "authn-one, authn-two" }
 
-  let (:blank_env) {Hash.new}
+  let (:blank_env) { nil }
 
   subject do
-    Authentication::Strategy::Input.new(
+    Authentication::Input.new(
       authenticator_name: 'authn-test',
       service_id: 'my-service',
       account: 'my-acct',
@@ -26,7 +24,7 @@ RSpec.describe 'Authentication::Strategy::Input#to_access_request' do
       services = subject.to_access_request(blank_env).whitelisted_webservices
       expect(services.to_a.size).to eq(1)
       expect(services.first.name).to eq(
-                                       Authentication::Strategy.default_authenticator_name
+                                       Authentication::Common.default_authenticator_name
                                      )
     end
   end
@@ -65,7 +63,7 @@ RSpec.describe 'Authentication::Strategy::Input#to_access_request' do
 
   context "An input without a service_id" do
     subject do
-      Authentication::Strategy::Input.new(
+      Authentication::Input.new(
         authenticator_name: 'authn-test',
         service_id: nil,
         account: 'my-acct',
@@ -103,7 +101,7 @@ RSpec.describe 'Authentication::Strategy' do
     origin: '127.0.0.1',
     request: nil
   )
-    Authentication::Strategy::Input.new(
+    Authentication::Input.new(
       authenticator_name: authenticator_name,
       service_id: service_id,
       account: account,
@@ -121,25 +119,25 @@ RSpec.describe 'Authentication::Strategy' do
     }
   end
 
-  let (:user_info) do
-    double('userInfo', preferred_username: "alice")
-  end
-
-
   ####################################
   # Security doubles
   ####################################
 
-  let (:passing_security) do
-    double('Security').tap do |x|
-      allow(x).to receive(:validate)
-    end
-  end
+  let (:mocked_security_validator) {double("MockSecurityValidator")}
+  let (:mocked_origin_validator) {double("MockOriginValidator")}
 
-  let (:failing_security) do
-    double('Security').tap do |x|
-      allow(x).to receive(:validate).and_raise('FAKE_SECURITY_ERROR')
-    end
+  before(:each) do
+    allow(Authentication::ValidateSecurity)
+      .to receive(:new)
+            .and_return(mocked_security_validator)
+    allow(mocked_security_validator).to receive(:call)
+                                          .and_return(true)
+
+    allow(Authentication::ValidateOrigin)
+      .to receive(:new)
+            .and_return(mocked_origin_validator)
+    allow(mocked_origin_validator).to receive(:call)
+                                        .and_return(true)
   end
 
   ####################################
@@ -172,74 +170,85 @@ RSpec.describe 'Authentication::Strategy' do
 
   context "An unavailable authenticator" do
     subject do
-      Authentication::Strategy.new(
-        authenticators: authenticators,
-        security: passing_security,
-        env: two_authenticator_env,
-        token_factory: token_factory,
-        audit_log: nil,
-        role_cls: nil,
-        oidc_client_class: ::Authentication::AuthnOidc::OidcClient
+      input_ = input(
+        authenticator_name: 'AUTHN-MISSING'
+      )
+
+      Authentication::Authenticate.new.(
+        authenticator_input: input_,
+          authenticators: authenticators,
+          enabled_authenticators: two_authenticator_env,
+          token_factory: token_factory
       )
     end
 
     it "raises AuthenticatorNotFound" do
-      input_ = input(authenticator_name: 'AUTHN-MISSING')
-      expect {subject.conjur_token(input_)}.to raise_error(
-                                                 Authentication::Strategy::AuthenticatorNotFound
-                                               )
+      expect {subject}.to raise_error(
+                            Authentication::AuthenticatorNotFound
+                          )
     end
   end
 
   context "An available authenticator" do
-    context "that passes Security checks" do
+    context "that receives invalid credentials" do
       subject do
-        Authentication::Strategy.new(
-          authenticators: authenticators,
-          security: passing_security,
-          env: two_authenticator_env,
-          token_factory: token_factory,
-          audit_log: nil,
-          role_cls: nil,
-          oidc_client_class: ::Authentication::AuthnOidc::OidcClient
+        input_ = input(
+          authenticator_name: 'authn-always-fail'
+        )
+
+        Authentication::Authenticate.new.(
+          authenticator_input: input_,
+            authenticators: authenticators,
+            enabled_authenticators: two_authenticator_env,
+            token_factory: token_factory
         )
       end
 
-      context "and receives invalid credentials" do
-        it "raises InvalidCredentials" do
-          input_ = input(authenticator_name: 'authn-always-fail')
-          expect {subject.conjur_token(input_)}.to raise_error(
-                                                     Authentication::Strategy::InvalidCredentials
-                                                   )
-        end
-      end
-
-      context "and receives valid credentials" do
-        it "returns a new token" do
-          allow(subject).to receive(:validate_origin) {true}
-
-          input_ = input(authenticator_name: 'authn-always-pass')
-          expect(subject.conjur_token(input_)).to equal(a_new_token)
-        end
+      it "raises InvalidCredentials" do
+        expect {subject}.to raise_error(
+                              Authentication::InvalidCredentials
+                            )
       end
     end
 
-    context "that fails Security checks" do
+    context "that receives valid credentials" do
       subject do
-        Authentication::Strategy.new(
-          authenticators: authenticators,
-          security: failing_security,
-          env: two_authenticator_env,
-          token_factory: token_factory,
-          audit_log: nil,
-          role_cls: nil,
-          oidc_client_class: ::Authentication::AuthnOidc::OidcClient
+        input_ = input(
+          authenticator_name: 'authn-always-pass'
+        )
+
+        Authentication::Authenticate.new.(
+          authenticator_input: input_,
+            authenticators: authenticators,
+            enabled_authenticators: two_authenticator_env,
+            token_factory: token_factory
         )
       end
 
-      it "raises an error" do
-        input_ = input(authenticator_name: 'authn-always-pass')
-        expect {subject.conjur_token(input_)}.to raise_error(
+      it "returns a new token" do
+        expect(subject).to equal(a_new_token)
+      end
+    end
+
+    context "that receives valid credentials" do
+      subject do
+        input_ = input(
+          authenticator_name: 'authn-always-pass'
+        )
+
+        Authentication::Authenticate.new.(
+          authenticator_input: input_,
+            authenticators: authenticators,
+            enabled_authenticators: two_authenticator_env,
+            token_factory: token_factory
+        )
+      end
+
+      it "raises an error when security fails" do
+        allow(mocked_security_validator).to receive(:call)
+                                              .and_raise('FAKE_SECURITY_ERROR')
+
+        expect {subject}.to raise_error(
                                                    /FAKE_SECURITY_ERROR/
                                                  )
       end

@@ -28,11 +28,11 @@ module Authentication
         .where(kind => "webservice")
         .select_map(identifier)
         .map { |id| id.sub %r{^conjur\/}, "" }
-        .push(::Authentication::Strategy.default_authenticator_name)
+        .push(::Authentication::Common.default_authenticator_name)
     end
 
     def self.enabled_authenticators(env)
-      (env["CONJUR_AUTHENTICATORS"] || ::Authentication::Strategy.default_authenticator_name).split(",")
+      (env["CONJUR_AUTHENTICATORS"] || ::Authentication::Common.default_authenticator_name).split(",")
     end
 
     private

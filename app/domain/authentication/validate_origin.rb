@@ -1,31 +1,28 @@
 # frozen_string_literal: true
 
 require 'types'
-require 'util/error_class'
-require 'authentication/webservice'
-require 'authentication/webservices'
 
 module Authentication
   ValidateOrigin = CommandClass.new(
     dependencies: {
-      role_cls: ::Role
+      get_role_by_login: GetRoleByLogin.new
     },
-    inputs: %i(input_to_validate)
+    inputs: %i(input)
   ) do
 
     def call
-      validate_origin(@input_to_validate)
+      validate_origin
     end
 
     private
 
-    def validate_origin(input)
-      authn_role = role(input.username, input.account)
-      raise InvalidOrigin unless authn_role.valid_origin?(input.origin)
+    def validate_origin
+      authn_role = role(@input.username, @input.account)
+      raise InvalidOrigin unless authn_role.valid_origin?(@input.origin)
     end
 
     def role(username, account)
-      @role_cls.by_login(username, account: account)
+      @get_role_by_login.(username: username, account: account)
     end
   end
 end

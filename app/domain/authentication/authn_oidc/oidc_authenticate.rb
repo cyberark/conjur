@@ -5,9 +5,11 @@ module Authentication
 
     Authenticate = CommandClass.new(
       dependencies: {
-        common_class: ::Authentication::Common
+        validate_security: ::Authentication::ValidateSecurity.new,
+        validate_origin: ::Authentication::ValidateOrigin.new,
+        audit_event: ::Authentication::AuditEvent.new
       },
-      inputs: %i(authenticator_input token_factory env)
+      inputs: %i(authenticator_input token_factory enabled_authenticators)
     ) do
 
       def call
@@ -22,14 +24,23 @@ module Authentication
         username = oidc_conjur_token.user_name
         input.username = username
 
-        @common_class.validate_security(input, @env)
-        @common_class.validate_origin(input)
+        @validate_security.(input: input, enabled_authenticators: @enabled_authenticators)
 
-        @common_class.audit_success(input)
+        @validate_origin.(input: input)
+
+        @audit_event.(
+          input: input,
+            success: true,
+            message: nil
+        )
 
         new_token(input)
       rescue => e
-        @common_class.audit_failure(input, e)
+        @audit_event.(
+          input: input,
+            success: false,
+            message: e.message
+        )
         raise e
       end
 

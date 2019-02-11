@@ -4,11 +4,9 @@ module Authentication
   module AuthnOidc
     class OIDCAuthenticationError < RuntimeError; end
 
-    # TODO: Should really have a verb name "Authenticate" since it's a command
-    # object but we'll leave it like this for now for consistency
-    #
     Authenticator = CommandClass.new(
-      dependencies: { env: ENV },
+      dependencies: {
+      },
       inputs: %i(input oidc_id_token_details)
     ) do
 

@@ -1,26 +1,23 @@
 # frozen_string_literal: true
 
 require 'types'
-require 'util/error_class'
-require 'authentication/webservice'
-require 'authentication/webservices'
 
 module Authentication
   ValidateSecurity = CommandClass.new(
     dependencies: {
       security: ::Authentication::Security.new
     },
-    inputs: %i(input_to_validate env)
+    inputs: %i(input enabled_authenticators)
   ) do
 
     def call
-      validate_security(@input_to_validate)
+      validate_security
     end
 
     private
 
-    def validate_security(input)
-      @security.validate(input.to_access_request(@env))
+    def validate_security
+      @security.validate(@input.to_access_request(@enabled_authenticators))
     end
   end
 end

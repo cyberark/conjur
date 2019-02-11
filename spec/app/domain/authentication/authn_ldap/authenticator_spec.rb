@@ -8,7 +8,7 @@ RSpec.describe Authentication::AuthnLdap::Authenticator do
   end
   
   let(:input) do
-    ::Authentication::Strategy::Input.new(
+    ::Authentication::Input.new(
       authenticator_name: 'ldap',
       service_id: 'test',
       account: 'test',
