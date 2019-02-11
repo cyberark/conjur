@@ -1,3 +1,8 @@
+In order not to delete our previous OIDC authenticator development which stopped in the middle due to change in priority,
+We decide to mark this feature as shutdown.
+In addition we want to use the same url of the authenticate API for this new feature which is also an OIDC authenticator,
+But for different use case.
+
 Feature: Users can authneticate with OIDC authenticator
 
   Background:
