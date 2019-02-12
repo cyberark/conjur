@@ -30,7 +30,7 @@ module BasicAuthenticator
     ::Authentication::Login.new.(
       authenticator_input: login_input(username, password),
         authenticators: installed_login_authenticators,
-        enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
+        enabled_authenticators: ENV['CONJUR_AUTHENTICATORS']
     )
   end
 

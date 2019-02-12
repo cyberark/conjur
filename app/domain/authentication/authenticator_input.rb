@@ -16,10 +16,6 @@ module Authentication
       @password = password
     end
 
-    def initialize(attributes)
-      attributes.each {|key, value| instance_variable_set("@#{key}", value)}
-    end
-
     # Convert this Input to a Security::AccessRequest
     #
     def to_access_request(enabled_authenticators)
@@ -27,8 +23,7 @@ module Authentication
         webservice: webservice,
         whitelisted_webservices: ::Authentication::Webservices.from_string(
           @account,
-          enabled_authenticators ||
-            Authentication::Common.default_authenticator_name
+          enabled_authenticators || Authentication::Common.default_authenticator_name
         ),
         user_id: @username
       )
