@@ -15,9 +15,9 @@ module BasicAuthenticator
         authentication.authenticated_role = ::Role[response.role_id]
         authentication.basic_user = true
       end
-    rescue ::Authentication::Strategy::InvalidCredentials
+    rescue ::Authentication::InvalidCredentials
       raise ApplicationController::Unauthorized, "Invalid username or password"
-    rescue ::Authentication::Strategy::InvalidOrigin
+    rescue ::Authentication::InvalidOrigin
       raise ApplicationController::Forbidden, "User is not authorized to login from the current origin"
     rescue ::Authentication::Security::NotAuthorizedInConjur
       raise ApplicationController::Forbidden, "User is not authorized to login to Conjur"
@@ -27,23 +27,15 @@ module BasicAuthenticator
   private
 
   def authenticator_login(username, password)
-    authentication_strategy.login(login_input(username, password))
-  end
-
-  def authentication_strategy
-    @authentication_strategy ||= ::Authentication::Strategy.new(
-      authenticators: installed_login_authenticators,
-      audit_log: ::Authentication::AuditLog,
-      security: nil,
-      env: ENV,
-      role_cls: ::Role,
-      token_factory: TokenFactory.new,
-      oidc_client_class: ::Authentication::AuthnOidc::OidcClient
+    ::Authentication::Login.new.(
+      authenticator_input: login_input(username, password),
+        authenticators: installed_login_authenticators,
+        enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
     )
   end
 
   def login_input(username, password)
-    ::Authentication::Strategy::Input.new(
+    ::Authentication::Input.new(
       authenticator_name: params[:authenticator],
       service_id:         params[:service_id],
       account:            params[:account],

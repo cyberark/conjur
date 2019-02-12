@@ -126,18 +126,6 @@ class AuthenticateController < ApplicationController
     end
   end
 
-  def authentication_strategy
-    @authentication_strategy ||= ::Authentication::Strategy.new(
-      authenticators: installed_authenticators,
-      audit_log: ::Authentication::AuditLog,
-      security: nil,
-      env: ENV,
-      role_cls: ::Role,
-      token_factory: TokenFactory.new,
-      oidc_client_class: ::Authentication::AuthnOidc::OidcClient
-    )
-  end
-
   def installed_authenticators
     @installed_authenticators ||= ::Authentication::InstalledAuthenticators.authenticators(ENV)
   end

@@ -3,31 +3,30 @@
 require 'command_class'
 
 module Authentication
-  Authenticate = CommandClass.new(
+  Login = CommandClass.new(
     dependencies: {
       validate_authenticator_exists: ::Authentication::ValidateAuthenticatorExist.new,
       validate_security: ::Authentication::ValidateSecurity.new,
-      validate_origin: ::Authentication::ValidateOrigin.new,
-      audit_event: ::Authentication::AuditEvent.new
+      audit_event: ::Authentication::AuditEvent.new,
+      get_role_by_login: GetRoleByLogin.new
     },
-    inputs: %i(authenticator_input authenticators enabled_authenticators token_factory)
+    inputs: %i(authenticator_input authenticators enabled_authenticators)
   ) do
 
     def call
-      conjur_token(@authenticator_input)
+      login(@authenticator_input)
     end
 
     private
 
-    def conjur_token(input)
+    def login(input)
       authenticator = @authenticators[input.authenticator_name]
 
       @validate_authenticator_exists.(input: input, authenticator: authenticator)
-
       @validate_security.(input: input, enabled_authenticators: @enabled_authenticators)
-      validate_credentials(input, authenticator)
 
-      @validate_origin.(input: input)
+      key = authenticator.login(input)
+      raise InvalidCredentials unless key
 
       @audit_event.(
         input: input,
@@ -35,7 +34,7 @@ module Authentication
           message: nil
       )
 
-      new_token(input)
+      new_login(input, key)
     rescue => e
       @audit_event.(
         input: input,
@@ -45,15 +44,15 @@ module Authentication
       raise e
     end
 
-    def validate_credentials(input, authenticator)
-      raise ::Authentication::InvalidCredentials unless authenticator.valid?(input)
+    def new_login(input, key)
+      LoginResponse.new(
+        role_id: role(input.username, input.account).id,
+        authentication_key: key
+      )
     end
 
-    def new_token(input)
-      @token_factory.signed_token(
-        account: input.account,
-        username: input.username
-      )
+    def role(username, account)
+      @get_role_by_login.(username: username, account: account)
     end
   end
 end
