@@ -22,7 +22,7 @@ module Authentication
         oidc_conjur_token = oidc_conjur_token(input)
 
         username = oidc_conjur_token.user_name
-        input.username = username
+        input = input.update(username: username)
 
         @validate_security.(input: input, enabled_authenticators: @enabled_authenticators)
 

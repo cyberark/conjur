@@ -31,7 +31,7 @@ module Authentication
         validate_credentials(input, oidc_id_token_details)
 
         username = oidc_id_token_details.user_info.preferred_username
-        input.username = username
+        input = input.update(username: username)
 
         @validate_security.(input: input, enabled_authenticators: @enabled_authenticators)
 

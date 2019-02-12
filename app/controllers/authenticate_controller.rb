@@ -90,6 +90,8 @@ class AuthenticateController < ApplicationController
       authenticator_name: 'authn-oidc',
       service_id: params[:service_id],
       account: params[:account],
+      username: nil,
+      password: nil,
       origin: request.ip,
       request: request
     )

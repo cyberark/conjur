@@ -10,8 +10,10 @@ RSpec.describe 'Authentication::Oidc' do
 
   def input(
     authenticator_name: 'authn-oidc-test',
-    service_id: nil,
+    service_id: 'my-service',
     account: 'my-acct',
+    username: nil,
+    password: nil,
     origin: '127.0.0.1',
     request: nil
   )
@@ -19,6 +21,8 @@ RSpec.describe 'Authentication::Oidc' do
       authenticator_name: authenticator_name,
       service_id: service_id,
       account: account,
+      username: username,
+      password: password,
       origin: origin,
       request: request
     )
