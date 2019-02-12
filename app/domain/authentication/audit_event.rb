@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'types'
-
 module Authentication
   AuditEvent = CommandClass.new(
     dependencies: {
