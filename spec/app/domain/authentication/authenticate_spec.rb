@@ -149,29 +149,23 @@ RSpec.describe 'Authentication::Authenticate' do
       it "returns a new token" do
         expect(subject).to equal(a_new_token)
       end
-    end
-
-    context "that receives valid credentials" do
-      subject do
-        input_ = input(
-          authenticator_name: 'authn-always-pass'
-        )
-
-        Authentication::Authenticate.new.(
-          authenticator_input: input_,
-            authenticators: authenticators,
-            enabled_authenticators: two_authenticator_env,
-            token_factory: token_factory
-        )
-      end
 
       it "raises an error when security fails" do
         allow(mocked_security_validator).to receive(:call)
                                               .and_raise('FAKE_SECURITY_ERROR')
 
         expect {subject}.to raise_error(
-                                                   /FAKE_SECURITY_ERROR/
-                                                 )
+                              /FAKE_SECURITY_ERROR/
+                            )
+      end
+
+      it "raises an error when origin validation fails" do
+        allow(mocked_origin_validator).to receive(:call)
+                                            .and_raise('FAKE_ORIGIN_ERROR')
+
+        expect {subject}.to raise_error(
+                              /FAKE_ORIGIN_ERROR/
+                            )
       end
     end
   end

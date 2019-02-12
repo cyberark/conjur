@@ -179,6 +179,24 @@ RSpec.describe 'Authentication::Oidc' do
       it "returns a new oidc conjur token" do
         expect(subject).to equal(a_new_token)
       end
+
+      it "raises an error when security validation fails" do
+        allow(mocked_security_validator).to receive(:call)
+                                              .and_raise('FAKE_SECURITY_ERROR')
+
+        expect {subject}.to raise_error(
+                              /FAKE_SECURITY_ERROR/
+                            )
+      end
+
+      it "raises an error when origin validation fails" do
+        allow(mocked_origin_validator).to receive(:call)
+                                            .and_raise('FAKE_ORIGIN_ERROR')
+
+        expect {subject}.to raise_error(
+                              /FAKE_ORIGIN_ERROR/
+                            )
+      end
     end
 
     context "that receives authenticate request with valid oidc conjur token" do
@@ -196,6 +214,24 @@ RSpec.describe 'Authentication::Oidc' do
 
       it "returns a new oidc conjur token" do
         expect(subject).to equal(a_new_token)
+      end
+
+      it "raises an error when security validation fails" do
+        allow(mocked_security_validator).to receive(:call)
+                                              .and_raise('FAKE_SECURITY_ERROR')
+
+        expect {subject}.to raise_error(
+                              /FAKE_SECURITY_ERROR/
+                            )
+      end
+
+      it "raises an error when origin validation fails" do
+        allow(mocked_origin_validator).to receive(:call)
+                                            .and_raise('FAKE_ORIGIN_ERROR')
+
+        expect {subject}.to raise_error(
+                              /FAKE_ORIGIN_ERROR/
+                            )
       end
     end
   end
