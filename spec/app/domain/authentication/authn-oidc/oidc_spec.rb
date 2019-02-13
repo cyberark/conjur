@@ -4,30 +4,6 @@ require 'spec_helper'
 
 RSpec.describe 'Authentication::Oidc' do
 
-  ####################################
-  # authentication input mock
-  ####################################
-
-  def input(
-    authenticator_name: 'authn-oidc-test',
-    service_id: 'my-service',
-    account: 'my-acct',
-    username: nil,
-    password: nil,
-    origin: '127.0.0.1',
-    request: nil
-  )
-    Authentication::Input.new(
-      authenticator_name: authenticator_name,
-      service_id: service_id,
-      account: account,
-      username: username,
-      password: password,
-      origin: origin,
-      request: request
-    )
-  end
-
   let(:username) {"my-user"}
   let(:account) {"my-acct"}
 
@@ -168,7 +144,13 @@ RSpec.describe 'Authentication::Oidc' do
   context "An oidc authenticator" do
     context "that receives login request with valid oidc details" do
       subject do
-        input_ = input(
+        input_ = Authentication::Input.new(
+          authenticator_name: 'authn-oidc-test',
+          service_id: 'my-service',
+          account: 'my-acct',
+          username: nil,
+          password: nil,
+          origin: '127.0.0.1',
           request: oidc_login_request
         )
 
@@ -205,7 +187,13 @@ RSpec.describe 'Authentication::Oidc' do
 
     context "that receives authenticate request with valid oidc conjur token" do
       subject do
-        input_ = input(
+        input_ = Authentication::Input.new(
+          authenticator_name: 'authn-oidc-test',
+          service_id: 'my-service',
+          account: 'my-acct',
+          username: nil,
+          password: nil,
+          origin: '127.0.0.1',
           request: oidc_authenticate_request
         )
 

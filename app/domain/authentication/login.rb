@@ -5,7 +5,6 @@ require 'command_class'
 module Authentication
   Login = CommandClass.new(
     dependencies: {
-      validate_authenticator_exists: ::Authentication::ValidateAuthenticatorExist.new,
       validate_security: ::Authentication::ValidateSecurity.new,
       audit_event: ::Authentication::AuditEvent.new,
       get_role_by_login: GetRoleByLogin.new
@@ -22,25 +21,17 @@ module Authentication
     def login(input)
       authenticator = @authenticators[input.authenticator_name]
 
-      @validate_authenticator_exists.(input: input, authenticator: authenticator)
+      validate_authenticator_exists(input, authenticator)
       @validate_security.(input: input, enabled_authenticators: @enabled_authenticators)
 
       key = authenticator.login(input)
       raise InvalidCredentials unless key
 
-      @audit_event.(
-        input: input,
-          success: true,
-          message: nil
-      )
+      @audit_event.(input: input, success: true, message: nil)
 
       new_login(input, key)
     rescue => e
-      @audit_event.(
-        input: input,
-          success: false,
-          message: e.message
-      )
+      @audit_event.(input: input, success: false, message: e.message)
       raise e
     end
 
@@ -53,6 +44,10 @@ module Authentication
 
     def role(username, account)
       @get_role_by_login.(username: username, account: account)
+    end
+
+    def validate_authenticator_exists(input, authenticator)
+      raise AuthenticatorNotFound, input.authenticator_name unless authenticator
     end
   end
 end

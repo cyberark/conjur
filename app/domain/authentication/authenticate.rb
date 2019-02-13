@@ -5,7 +5,6 @@ require 'command_class'
 module Authentication
   Authenticate = CommandClass.new(
     dependencies: {
-      validate_authenticator_exists: ::Authentication::ValidateAuthenticatorExist.new,
       validate_security: ::Authentication::ValidateSecurity.new,
       validate_origin: ::Authentication::ValidateOrigin.new,
       audit_event: ::Authentication::AuditEvent.new
@@ -22,26 +21,18 @@ module Authentication
     def conjur_token(input)
       authenticator = @authenticators[input.authenticator_name]
 
-      @validate_authenticator_exists.(input: input, authenticator: authenticator)
+      validate_authenticator_exists(input, authenticator)
 
       @validate_security.(input: input, enabled_authenticators: @enabled_authenticators)
       validate_credentials(input, authenticator)
 
       @validate_origin.(input: input)
 
-      @audit_event.(
-        input: input,
-          success: true,
-          message: nil
-      )
+      @audit_event.(input: input, success: true, message: nil)
 
       new_token(input)
     rescue => e
-      @audit_event.(
-        input: input,
-          success: false,
-          message: e.message
-      )
+      @audit_event.(input: input, success: false, message: e.message)
       raise e
     end
 
@@ -54,6 +45,10 @@ module Authentication
         account: input.account,
         username: input.username
       )
+    end
+
+    def validate_authenticator_exists(input, authenticator)
+      raise AuthenticatorNotFound, input.authenticator_name unless authenticator
     end
   end
 end

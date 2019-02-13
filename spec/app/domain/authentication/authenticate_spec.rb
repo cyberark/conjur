@@ -13,26 +13,6 @@ RSpec.describe 'Authentication::Authenticate' do
     end
   end
 
-  def input(
-    authenticator_name: 'authn-always-pass',
-    service_id: nil,
-    account: 'my-acct',
-    username: 'my-user',
-    password: 'my-pw',
-    origin: '127.0.0.1',
-    request: nil
-  )
-    Authentication::Input.new(
-      authenticator_name: authenticator_name,
-      service_id: service_id,
-      account: account,
-      username: username,
-      password: password,
-      origin: origin,
-      request: request
-    )
-  end
-
   let (:authenticators) do
     {
       'authn-always-pass' => authenticator(pass: true),
@@ -91,8 +71,14 @@ RSpec.describe 'Authentication::Authenticate' do
 
   context "An unavailable authenticator" do
     subject do
-      input_ = input(
-        authenticator_name: 'AUTHN-MISSING'
+      input_ = Authentication::Input.new(
+        authenticator_name: 'AUTHN-MISSING',
+        service_id: nil,
+        account: 'my-acct',
+        username: 'my-user',
+        password: 'my-pw',
+        origin: '127.0.0.1',
+        request: nil
       )
 
       Authentication::Authenticate.new.(
@@ -113,8 +99,14 @@ RSpec.describe 'Authentication::Authenticate' do
   context "An available authenticator" do
     context "that receives invalid credentials" do
       subject do
-        input_ = input(
-          authenticator_name: 'authn-always-fail'
+        input_ = Authentication::Input.new(
+          authenticator_name: 'authn-always-fail',
+          service_id: nil,
+          account: 'my-acct',
+          username: 'my-user',
+          password: 'my-pw',
+          origin: '127.0.0.1',
+          request: nil
         )
 
         Authentication::Authenticate.new.(
@@ -134,8 +126,14 @@ RSpec.describe 'Authentication::Authenticate' do
 
     context "that receives valid credentials" do
       subject do
-        input_ = input(
-          authenticator_name: 'authn-always-pass'
+        input_ = Authentication::Input.new(
+          authenticator_name: 'authn-always-pass',
+          service_id: nil,
+          account: 'my-acct',
+          username: 'my-user',
+          password: 'my-pw',
+          origin: '127.0.0.1',
+          request: nil
         )
 
         Authentication::Authenticate.new.(

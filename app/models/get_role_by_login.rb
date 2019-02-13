@@ -8,12 +8,6 @@ GetRoleByLogin = CommandClass.new(
 ) do
 
   def call
-    role
-  end
-
-  private
-
-  def role
     @role_cls.by_login(@username, account: @account)
   end
 end
