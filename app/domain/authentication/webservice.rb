@@ -3,7 +3,7 @@
 # This is here to fix a double-loading bug that occurs only in openshift and
 # K8s tests.  We don't fully understand what causes the bug but this is the
 # hack we settled on to fix it.
-#
+
 if defined? Authentication::Webservice
   return
 end
