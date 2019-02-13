@@ -5,7 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
+### Changed
+- Updated conjur-policy-parser to
+  [v3.0.3](https://github.com/conjurinc/conjur-policy-parser/blob/possum/CHANGELOG.md#v303).
+  
 ## [1.3.5] - 2019-02-07
 ### Changed
 - Rails version updated to v4.2.11.

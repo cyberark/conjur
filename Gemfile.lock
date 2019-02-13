@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/conjurinc/conjur-policy-parser.git
-  revision: 10baf38207c470ecbea43bc94078f83a81a7117b
+  revision: bfefc5c7a6faec7fa716372d7b7a7233291d839d
   branch: possum
   specs:
-    conjur-policy-parser (3.0.2)
+    conjur-policy-parser (3.0.3)
       activesupport (>= 4.2)
       safe_yaml
 
@@ -454,7 +454,7 @@ DEPENDENCIES
   conjur-api!
   conjur-cli (~> 6.1)
   conjur-debify
-  conjur-policy-parser (>= 3.0.2)!
+  conjur-policy-parser (>= 3.0.3)!
   conjur-rack (~> 3.1)
   conjur-rack-heartbeat
   csr
