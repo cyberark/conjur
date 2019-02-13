@@ -2,8 +2,7 @@ require 'command_class'
 
 module Authentication
   module AuthnOidc
-    class OIDCAuthenticationError < RuntimeError;
-    end
+    class OIDCAuthenticationError < RuntimeError; end
 
     Authenticator = CommandClass.new(
       dependencies: {
