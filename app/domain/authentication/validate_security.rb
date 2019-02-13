@@ -5,7 +5,7 @@ module Authentication
     dependencies: {
       security: ::Authentication::Security.new
     },
-    inputs: %i(input enabled_authenticators)
+    inputs:       %i(input enabled_authenticators)
   ) do
 
     def call

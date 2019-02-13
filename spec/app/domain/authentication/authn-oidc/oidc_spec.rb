@@ -4,20 +4,20 @@ require 'spec_helper'
 
 RSpec.describe 'Authentication::Oidc' do
 
-  let(:username) {"my-user"}
-  let(:account) {"my-acct"}
+  let(:username) { "my-user" }
+  let(:account) { "my-acct" }
 
   ####################################
   # env double
   ####################################
 
-  let(:oidc_authenticator_name) {"authn-oidc-test"}
+  let(:oidc_authenticator_name) { "authn-oidc-test" }
 
   ####################################
   # TokenFactory double
   ####################################
 
-  let (:a_new_token) {'A NICE NEW TOKEN'}
+  let (:a_new_token) { 'A NICE NEW TOKEN' }
 
   let (:oidc_token_factory) do
     double('OidcTokenFactory').tap do |factory|
@@ -49,30 +49,21 @@ RSpec.describe 'Authentication::Oidc' do
   # authenticator & validators
   ####################################
 
-  let (:mocked_oidc_authenticator) {double("MockOidcAuthenticator")}
-  let (:mocked_security_validator) {double("MockSecurityValidator")}
-  let (:mocked_origin_validator) {double("MockOriginValidator")}
+  let (:mocked_oidc_authenticator) { double("MockOidcAuthenticator") }
+  let (:mocked_security_validator) { double("MockSecurityValidator") }
+  let (:mocked_origin_validator) { double("MockOriginValidator") }
 
   before(:each) do
     allow(Resource).to receive(:[])
                          .with(/#{account}:variable:conjur\/authn-oidc/)
                          .and_return(mocked_resource)
 
-    allow(Authentication::AuthnOidc::Authenticator)
-      .to receive(:new)
-            .and_return(mocked_oidc_authenticator)
     allow(mocked_oidc_authenticator).to receive(:call)
                                           .and_return(true)
 
-    allow(Authentication::ValidateSecurity)
-      .to receive(:new)
-            .and_return(mocked_security_validator)
     allow(mocked_security_validator).to receive(:call)
                                           .and_return(true)
 
-    allow(Authentication::ValidateOrigin)
-      .to receive(:new)
-            .and_return(mocked_origin_validator)
     allow(mocked_origin_validator).to receive(:call)
                                         .and_return(true)
   end
@@ -146,19 +137,23 @@ RSpec.describe 'Authentication::Oidc' do
       subject do
         input_ = Authentication::Input.new(
           authenticator_name: 'authn-oidc-test',
-          service_id: 'my-service',
-          account: 'my-acct',
-          username: nil,
-          password: nil,
-          origin: '127.0.0.1',
-          request: oidc_login_request
+          service_id:         'my-service',
+          account:            'my-acct',
+          username:           nil,
+          password:           nil,
+          origin:             '127.0.0.1',
+          request:            oidc_login_request
         )
 
-        ::Authentication::AuthnOidc::Login.new.(
-          authenticator_input: input_,
-            oidc_client_class: oidc_client_class,
-            enabled_authenticators: oidc_authenticator_name,
-            token_factory: oidc_token_factory
+        ::Authentication::AuthnOidc::Login.new(
+          oidc_authenticator:     mocked_oidc_authenticator,
+          oidc_client_class:      oidc_client_class,
+          enabled_authenticators: oidc_authenticator_name,
+          token_factory:          oidc_token_factory,
+          validate_security:      mocked_security_validator,
+          validate_origin:        mocked_origin_validator
+        ).(
+          authenticator_input: input_
         )
       end
 
@@ -170,18 +165,18 @@ RSpec.describe 'Authentication::Oidc' do
         allow(mocked_security_validator).to receive(:call)
                                               .and_raise('FAKE_SECURITY_ERROR')
 
-        expect {subject}.to raise_error(
-                              /FAKE_SECURITY_ERROR/
-                            )
+        expect { subject }.to raise_error(
+                                /FAKE_SECURITY_ERROR/
+                              )
       end
 
       it "raises an error when origin validation fails" do
         allow(mocked_origin_validator).to receive(:call)
                                             .and_raise('FAKE_ORIGIN_ERROR')
 
-        expect {subject}.to raise_error(
-                              /FAKE_ORIGIN_ERROR/
-                            )
+        expect { subject }.to raise_error(
+                                /FAKE_ORIGIN_ERROR/
+                              )
       end
     end
 
@@ -189,18 +184,21 @@ RSpec.describe 'Authentication::Oidc' do
       subject do
         input_ = Authentication::Input.new(
           authenticator_name: 'authn-oidc-test',
-          service_id: 'my-service',
-          account: 'my-acct',
-          username: nil,
-          password: nil,
-          origin: '127.0.0.1',
-          request: oidc_authenticate_request
+          service_id:         'my-service',
+          account:            'my-acct',
+          username:           nil,
+          password:           nil,
+          origin:             '127.0.0.1',
+          request:            oidc_authenticate_request
         )
 
-        ::Authentication::AuthnOidc::Authenticate.new.(
-          authenticator_input: input_,
-            enabled_authenticators: oidc_authenticator_name,
-            token_factory: token_factory
+        ::Authentication::AuthnOidc::Authenticate.new(
+          enabled_authenticators: oidc_authenticator_name,
+          token_factory:          token_factory,
+          validate_security:      mocked_security_validator,
+          validate_origin:        mocked_origin_validator
+        ).(
+          authenticator_input: input_
         )
       end
 
@@ -212,18 +210,18 @@ RSpec.describe 'Authentication::Oidc' do
         allow(mocked_security_validator).to receive(:call)
                                               .and_raise('FAKE_SECURITY_ERROR')
 
-        expect {subject}.to raise_error(
-                              /FAKE_SECURITY_ERROR/
-                            )
+        expect { subject }.to raise_error(
+                                /FAKE_SECURITY_ERROR/
+                              )
       end
 
       it "raises an error when origin validation fails" do
         allow(mocked_origin_validator).to receive(:call)
                                             .and_raise('FAKE_ORIGIN_ERROR')
 
-        expect {subject}.to raise_error(
-                              /FAKE_ORIGIN_ERROR/
-                            )
+        expect { subject }.to raise_error(
+                                /FAKE_ORIGIN_ERROR/
+                              )
       end
     end
   end

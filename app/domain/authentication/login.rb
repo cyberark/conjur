@@ -5,11 +5,12 @@ require 'command_class'
 module Authentication
   Login = CommandClass.new(
     dependencies: {
-      validate_security: ::Authentication::ValidateSecurity.new,
-      audit_event: ::Authentication::AuditEvent.new,
-      get_role_by_login: GetRoleByLogin.new
+      enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
+      validate_security:      ::Authentication::ValidateSecurity.new,
+      audit_event:            ::Authentication::AuditEvent.new,
+      get_role_by_login:      GetRoleByLogin.new
     },
-    inputs: %i(authenticator_input authenticators enabled_authenticators)
+    inputs:       %i(authenticator_input authenticators)
   ) do
 
     def call
@@ -37,7 +38,7 @@ module Authentication
 
     def new_login(input, key)
       LoginResponse.new(
-        role_id: role(input.username, input.account).id,
+        role_id:            role(input.username, input.account).id,
         authentication_key: key
       )
     end

@@ -5,11 +5,13 @@ require 'command_class'
 module Authentication
   Authenticate = CommandClass.new(
     dependencies: {
-      validate_security: ::Authentication::ValidateSecurity.new,
-      validate_origin: ::Authentication::ValidateOrigin.new,
-      audit_event: ::Authentication::AuditEvent.new
+      enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
+      token_factory:          TokenFactory.new,
+      validate_security:      ::Authentication::ValidateSecurity.new,
+      validate_origin:        ::Authentication::ValidateOrigin.new,
+      audit_event:            ::Authentication::AuditEvent.new
     },
-    inputs: %i(authenticator_input authenticators enabled_authenticators token_factory)
+    inputs:       %i(authenticator_input authenticators)
   ) do
 
     def call
@@ -42,7 +44,7 @@ module Authentication
 
     def new_token(input)
       @token_factory.signed_token(
-        account: input.account,
+        account:  input.account,
         username: input.username
       )
     end

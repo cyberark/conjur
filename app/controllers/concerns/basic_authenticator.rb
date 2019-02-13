@@ -13,7 +13,7 @@ module BasicAuthenticator
     authenticate_with_http_basic do |username, password|
       authenticator_login(username, password).tap do |response|
         authentication.authenticated_role = ::Role[response.role_id]
-        authentication.basic_user = true
+        authentication.basic_user         = true
       end
     rescue ::Authentication::InvalidCredentials
       raise ApplicationController::Unauthorized, "Invalid username or password"
@@ -29,8 +29,7 @@ module BasicAuthenticator
   def authenticator_login(username, password)
     ::Authentication::Login.new.(
       authenticator_input: login_input(username, password),
-        authenticators: installed_login_authenticators,
-        enabled_authenticators: ENV['CONJUR_AUTHENTICATORS']
+        authenticators: installed_login_authenticators
     )
   end
 

@@ -5,7 +5,7 @@ module Authentication
     dependencies: {
       get_role_by_login: GetRoleByLogin.new
     },
-    inputs: %i(input)
+    inputs:       %i(input)
   ) do
 
     def call

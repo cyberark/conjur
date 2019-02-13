@@ -5,11 +5,15 @@ module Authentication
 
     Login = CommandClass.new(
       dependencies: {
-        validate_security: ::Authentication::ValidateSecurity.new,
-        validate_origin: ::Authentication::ValidateOrigin.new,
-        audit_event: ::Authentication::AuditEvent.new
+        oidc_authenticator:     AuthnOidc::Authenticator.new,
+        enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
+        oidc_client_class:      ::Authentication::AuthnOidc::OidcClient,
+        token_factory:          OidcTokenFactory.new,
+        validate_security:      ::Authentication::ValidateSecurity.new,
+        validate_origin:        ::Authentication::ValidateOrigin.new,
+        audit_event:            ::Authentication::AuditEvent.new
       },
-      inputs: %i(authenticator_input oidc_client_class enabled_authenticators token_factory)
+      inputs:       %i(authenticator_input)
     ) do
 
       def call
@@ -22,8 +26,8 @@ module Authentication
         request_body = AuthnOidc::OidcRequestBody.new(input.request)
 
         oidc_client = oidc_client(
-          redirect_uri: request_body.redirect_uri,
-          service_id: input.service_id,
+          redirect_uri:   request_body.redirect_uri,
+          service_id:     input.service_id,
           conjur_account: input.account
         )
 
@@ -31,25 +35,17 @@ module Authentication
         validate_credentials(input, oidc_id_token_details)
 
         username = oidc_id_token_details.user_info.preferred_username
-        input = input.update(username: username)
+        input    = input.update(username: username)
 
         @validate_security.(input: input, enabled_authenticators: @enabled_authenticators)
 
         @validate_origin.(input: input)
 
-        @audit_event.(
-          input: input,
-            success: true,
-            message: nil
-        )
+        @audit_event.(input: input, success: true, message: nil)
 
         new_oidc_conjur_token(oidc_id_token_details)
       rescue => e
-        @audit_event.(
-          input: input,
-            success: false,
-            message: e.message
-        )
+        @audit_event.(input: input, success: false, message: e.message)
         raise e
       end
 
@@ -64,10 +60,7 @@ module Authentication
       end
 
       def validate_credentials(input, oidc_id_token_details)
-        AuthnOidc::Authenticator.new.(
-          input: input,
-            oidc_id_token_details: oidc_id_token_details
-        )
+        @oidc_authenticator.(input: input, oidc_id_token_details: oidc_id_token_details)
       end
 
       def new_oidc_conjur_token(details)

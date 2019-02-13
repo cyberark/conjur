@@ -27,9 +27,7 @@ class AuthenticateController < ApplicationController
   def authenticate
     authn_token = ::Authentication::Authenticate.new.(
       authenticator_input: authenticator_input,
-        authenticators: installed_authenticators,
-        enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
-        token_factory: TokenFactory.new
+        authenticators: installed_authenticators
     )
     render json: authn_token
   rescue => e
@@ -39,12 +37,12 @@ class AuthenticateController < ApplicationController
   def authenticator_input
     @authenticator_input ||= ::Authentication::Input.new(
       authenticator_name: params[:authenticator],
-      service_id: params[:service_id],
-      account: params[:account],
-      username: params[:id],
-      password: request.body.read,
-      origin: request.ip,
-      request: request
+      service_id:         params[:service_id],
+      account:            params[:account],
+      username:           params[:id],
+      password:           request.body.read,
+      origin:             request.ip,
+      request:            request
     )
   end
 
@@ -58,10 +56,7 @@ class AuthenticateController < ApplicationController
   # Returns IDToken encrypted, Expiration Duration and Username
   def login_oidc
     oidc_encrypted_token = ::Authentication::AuthnOidc::Login.new.(
-      authenticator_input: oidc_authenticator_input,
-        oidc_client_class: ::Authentication::AuthnOidc::OidcClient,
-        enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
-        token_factory: OidcTokenFactory.new
+      authenticator_input: oidc_authenticator_input
     )
     render json: oidc_encrypted_token
   rescue => e
@@ -76,9 +71,7 @@ class AuthenticateController < ApplicationController
   # Returns Conjur access token
   def authenticate_oidc
     authentication_token = ::Authentication::AuthnOidc::Authenticate.new.(
-      authenticator_input: oidc_authenticator_input,
-        enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
-        token_factory: OidcTokenFactory.new
+      authenticator_input: oidc_authenticator_input
     )
     render json: authentication_token
   rescue => e
@@ -88,12 +81,12 @@ class AuthenticateController < ApplicationController
   def oidc_authenticator_input
     @oidc_authenticator_input ||= ::Authentication::Input.new(
       authenticator_name: 'authn-oidc',
-      service_id: params[:service_id],
-      account: params[:account],
-      username: nil,
-      password: nil,
-      origin: request.ip,
-      request: request
+      service_id:         params[:service_id],
+      account:            params[:account],
+      username:           nil,
+      password:           nil,
+      origin:             request.ip,
+      request:            request
     )
   end
 

@@ -2,12 +2,13 @@ require 'command_class'
 
 module Authentication
   module AuthnOidc
-    class OIDCAuthenticationError < RuntimeError; end
+    class OIDCAuthenticationError < RuntimeError;
+    end
 
     Authenticator = CommandClass.new(
       dependencies: {
       },
-      inputs: %i(input oidc_id_token_details)
+      inputs:       %i(input oidc_id_token_details)
     ) do
 
       def call
@@ -81,7 +82,7 @@ module Authentication
 
       def subject_err_msg
         "User info subject [#{user_info.sub}] and id token subject " +
-         "[#{id_token_subject}] are not equal"
+          "[#{id_token_subject}] are not equal"
       end
     end
   end

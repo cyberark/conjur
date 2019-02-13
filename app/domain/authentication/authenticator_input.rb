@@ -6,12 +6,12 @@ module Authentication
   class Input < ::Dry::Struct
 
     attribute :authenticator_name, ::Types::NonEmptyString
-    attribute :service_id,         ::Types::NonEmptyString.optional
-    attribute :account,            ::Types::NonEmptyString
-    attribute :username,           ::Types::NonEmptyString.optional
-    attribute :password,           ::Types::String.optional
-    attribute :origin,             ::Types::NonEmptyString
-    attribute :request,            ::Types::Any
+    attribute :service_id, ::Types::NonEmptyString.optional
+    attribute :account, ::Types::NonEmptyString
+    attribute :username, ::Types::NonEmptyString.optional
+    attribute :password, ::Types::String.optional
+    attribute :origin, ::Types::NonEmptyString
+    attribute :request, ::Types::Any
 
     # Creates a copy of this object with the attributes updated by those
     # specified in hash
@@ -24,20 +24,20 @@ module Authentication
     #
     def to_access_request(enabled_authenticators)
       ::Authentication::Security::AccessRequest.new(
-        webservice: webservice,
+        webservice:              webservice,
         whitelisted_webservices: ::Authentication::Webservices.from_string(
           @account,
           enabled_authenticators || Authentication::Common.default_authenticator_name
         ),
-        user_id: @username
+        user_id:                 @username
       )
     end
 
     def webservice
       @webservice ||= ::Authentication::Webservice.new(
-        account: @account,
+        account:            @account,
         authenticator_name: @authenticator_name,
-        service_id: @service_id
+        service_id:         @service_id
       )
     end
   end
