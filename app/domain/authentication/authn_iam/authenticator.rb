@@ -53,7 +53,6 @@ module Authentication
 
       def response_from_signed_request(aws_headers)
         Rails.logger.debug("Retrieving IAM identity")
-        RestClient.log = Rails.logger
         begin
           RestClient.get(aws_signed_url, headers = aws_headers)
         rescue RestClient::ExceptionWithResponse => e
