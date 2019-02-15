@@ -47,7 +47,7 @@ pipeline {
           steps { sh 'ci/test rspec_audit'}
         }
         stage('Changelog') {
-          steps { sh 'ci/test changelog' }
+          steps { sh 'ci/parse-changelog' }
         }
       }
       post {
