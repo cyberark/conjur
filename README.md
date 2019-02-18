@@ -93,7 +93,8 @@ environment with a database container (`pg`, short for *postgres*), and a
 To use it:
 
 1. Install dependencies (as above)
-2. Debugging with RubyMine
+
+2. Prepare debugging environment for [RubyMine IDE](https://www.jetbrains.com/ruby/) (Optional)
 
    If you are going to be debugging Conjur using RubyMine, follow these steps:
    1. Add a debug configuration
@@ -104,14 +105,26 @@ To use it:
       4. Specify these parameters:
          - Remote host: localhost
          - Remote port: 1234
-         - Remote root folder: /src/conjur-server
+         - Remote root folder: `/src/conjur-server`
          - Local port: 26162
-         - Local root folder: /Users/orenb/git/conjur
-      5. Click "OK"    
+         - Local root folder: `/local/path/to/conjur/repository`
+      5. Click "OK"
+      
    2. Use remote SDK
       1. Go to Preferences -> Ruby SDK and Gems
-      2. Under "conjur", choose the remote SDK for the project
-2. Start the container (and optional extensions):
+      2. In the Ruby SDK and Gems dialog, click + on the toolbar 
+      and choose “New remote...”
+      3. Choose “Docker Compose” and specify these parameters:
+         - Server: Docker
+            - If Docker isn't configured, click "New..." and configure it.
+         - Configuration File(s): `./dev/docker-compose.yml`
+            - Note: remove other `docker-compose` files if present.
+         - Service: conjur
+         - Environment variables: This can be left blank
+         - Ruby or version manager path: ruby
+      4. Click "OK" 
+     
+3. Start the container (and optional extensions):
 
    ```sh-session
    $ cd dev
@@ -128,7 +141,7 @@ To use it:
    * User: `admin`
    * Password: Run `conjurctl role retrieve-key cucumber:user:admin` inside the container shell to retrieve the admin user API key (which is also the password)
 
-3. Run the server
+4. Run the server
 
    ```sh-session
    root@f39015718062:/src/conjur-server# conjurctl server
@@ -145,16 +158,14 @@ To use it:
    * find or create the token-signing key
    * start the web server
 
-   If you are going to be debugging Conjur using `pry.byebug`, you may choose to
-   start the web server by calling `rails server -b 0.0.0.0 webrick` instead of
-   `conjurctl server`. This will allow you to work in the debugger without the
-   server timing out.
+   You may choose to debug Conjur using `pry.byebug` or RubyMine IDE. This will 
+   allow you to work in the debugger without the server timing out. To do so, 
+   run the following command instead of `conjurctl server`:
+   - `pry.byebug`: `rails server -b 0.0.0.0 webrick`
+   - RubyMine IDE: `rdebug-ide --port 1234 --dispatcher-port 26162 --host 0.0.0.0 -- bin/rails s -b 0.0.0.0 webrick`
+      - Now that the server is listening, debug the code via RubyMine's debugger.
    
-   If you are going to be debugging Conjur using RubyMine, start the web server 
-   by calling `rdebug-ide --port 1234 --dispatcher-port 26162 --host 0.0.0.0 -- bin/rails s -b 0.0.0.0 webrick`.
-   Now you may debug the web server via RubyMine's Debugger.
-   
-4. Cleanup
+5. Cleanup
 
     ```sh-session
     $ ./stop
