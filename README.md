@@ -93,6 +93,24 @@ environment with a database container (`pg`, short for *postgres*), and a
 To use it:
 
 1. Install dependencies (as above)
+2. Debugging with RubyMine
+
+   If you are going to be debugging Conjur using RubyMine, follow these steps:
+   1. Add a debug configuration
+      1. Go to: Run -> Edit Configurations
+      2. In the Run/Debug Configuration dialog, click + on the toolbar and 
+      choose “Ruby remote debug”
+      3. Specify a name for this configuration (i.e “debug Conjur server”)
+      4. Specify these parameters:
+         - Remote host: localhost
+         - Remote port: 1234
+         - Remote root folder: /src/conjur-server
+         - Local port: 26162
+         - Local root folder: /Users/orenb/git/conjur
+      5. Click "OK"    
+   2. Use remote SDK
+      1. Go to Preferences -> Ruby SDK and Gems
+      2. Under "conjur", choose the remote SDK for the project
 2. Start the container (and optional extensions):
 
    ```sh-session
@@ -131,7 +149,11 @@ To use it:
    start the web server by calling `rails server -b 0.0.0.0 webrick` instead of
    `conjurctl server`. This will allow you to work in the debugger without the
    server timing out.
-
+   
+   If you are going to be debugging Conjur using RubyMine, start the web server 
+   by calling `rdebug-ide --port 1234 --dispatcher-port 26162 --host 0.0.0.0 -- bin/rails s -b 0.0.0.0 webrick`.
+   Now you may debug the web server via RubyMine's Debugger.
+   
 4. Cleanup
 
     ```sh-session
