@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.3.6] - 2019-02-19
+### Changed
+- Reduced IAM authentication logging
+- Refactored authentication strategies
+
+### Removed
+- Removed OIDC APIs public access
+
 ## [1.3.5] - 2019-02-07
 ### Changed
 - Rails version updated to v4.2.11.
