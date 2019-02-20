@@ -42,7 +42,7 @@ gem 'ruby_dep', '= 1.3.1'
  # Pinned to update for role member search, using ref so merging and removing the branch doesn't
  # immediately break this link
 gem 'conjur-api', github: 'cyberark/conjur-api-ruby', branch: 'master'
-gem 'conjur-policy-parser', '>= 3.0.2',
+gem 'conjur-policy-parser', '>= 3.0.3',
   github: 'conjurinc/conjur-policy-parser', branch: 'possum'
 gem 'conjur-rack', '~> 3.1'
 gem 'conjur-rack-heartbeat'

@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Updated conjur-policy-parser to
+  [v3.0.3](https://github.com/conjurinc/conjur-policy-parser/blob/possum/CHANGELOG.md#v303).
+- Replaced `changelog` entrypoint in `ci/test` with a separate script. Building
+  the `conjur` and `conjur-test` images just to be able to install and run the
+  `parse_a_changelog` gem seemed a little heavyweight.
 
 ## [1.3.6] - 2019-02-19
 ### Changed
