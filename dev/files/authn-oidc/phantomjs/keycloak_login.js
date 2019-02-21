@@ -28,7 +28,7 @@ steps = [
         var authorize_request = "https://keycloak:8443/auth/realms/master/protocol/openid-connect/auth";
         authorize_request = authorize_request + "?client_id=" + env['CLIENT_ID'];
         authorize_request = authorize_request + "&response_type=code&response_mode=query";
-        authorize_request = authorize_request + "&scope=" + env['SCOPE'];
+        authorize_request = authorize_request + "&scope=" + env['SCOPE'].replace(/,/g, " ");
         authorize_request = authorize_request + "&redirect_uri=" + env['REDIRECT_URI'];
         console.log('Rest request : ' + authorize_request.toString());
         //http://keycloak:8080/auth/admin
