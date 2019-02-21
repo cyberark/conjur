@@ -178,8 +178,11 @@ these steps:
       choose “Ruby remote debug”
       1. Specify a name for this configuration (i.e “debug Conjur server”)
       1. Specify these parameters:
-         - Remote host: localhost
-         - Remote port: 1234
+         - Remote host - the address of Conjur. if it's a local docker environment the address 
+         should be `localhost`, otherwise enter the address of Conjur
+         - Remote port - the port which RubyMine will try to connect to for its debugging protocol. 
+         The convention is `1234`. If you changing this, remember to change also the exposed port in
+         `docker-compose.yml` & in the `rdebug-ide` command when running the server
          - Remote root folder: `/src/conjur-server`
          - Local port: 26162
          - Local root folder: `/local/path/to/conjur/repository`
