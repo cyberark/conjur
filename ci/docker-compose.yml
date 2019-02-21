@@ -26,7 +26,7 @@ services:
     command: server
     volumes:
       - authn-local:/run/authn-local
-      - ./authn-oidc/keycloak:/authn-oidc/keycloak/scripts
+      - ../authn-oidc-files/keycloak:/authn-oidc/keycloak/scripts
       - ./ldap-certs:/ldap-certs:ro
     expose:
       - "80"
@@ -51,7 +51,7 @@ services:
     volumes:
       - ..:/src/conjur-server
       - authn-local:/run/authn-local
-      - ./authn-oidc/phantomjs:/authn-oidc/phantomjs/scripts
+      - ../authn-oidc-files/phantomjs:/authn-oidc/phantomjs/scripts
       - ./ldap-certs:/ldap-certs:ro
     links:
       - conjur
@@ -87,8 +87,8 @@ services:
       - CLIENT_SECRET=d7047915-9029-45b8-9bd6-7ec5c2f75e5b
       - SCOPE=openid,profile
     volumes:
-      - ./authn-oidc/keycloak:/scripts
-      - ./authn-oidc/keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
+      - ../authn-oidc-files/keycloak:/scripts
+      - ../authn-oidc-files/keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
 
 
 volumes:

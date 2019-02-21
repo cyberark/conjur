@@ -35,7 +35,7 @@ services:
     - ../../conjur-policy-parser:/src/conjur-policy-parser
     - authn-local:/run/authn-local
     - ../ci/ldap-certs:/ldap-certs:ro
-    - ./files/authn-oidc/phantomjs:/authn-oidc/phantomjs/scripts
+    - ../authn-oidc-files/phantomjs:/authn-oidc/phantomjs/scripts
     links:
     - pg:pg
     - ldap-server
@@ -105,8 +105,8 @@ services:
     ports:
       - "7777:8080"
     volumes:
-      - ./files/authn-oidc/keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
-      - ./files/authn-oidc/keycloak:/authn-oidc/keycloak/scripts
+      - ../authn-oidc-files/keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
+      - ../authn-oidc-files/keycloak:/authn-oidc/keycloak/scripts
 
   oidc-phantomjs:
     environment:
@@ -119,7 +119,7 @@ services:
     entrypoint: sleep
     command: infinity
     volumes:
-      - ./files/authn-oidc/phantomjs:/authn-oidc/phantomjs/scripts
+      - ../authn-oidc-files/phantomjs:/authn-oidc/phantomjs/scripts
     links:
       - oidc-keycloak:keycloak
 
