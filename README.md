@@ -292,6 +292,15 @@ $ ./cli exec
 root@9feae5e5e001:/src/conjur-server#
 ```
 
+To run the cukes with an Open ID Connect (OIDC) compatible environment, run `cli` 
+with the `--authn-oidc` flag:
+
+```sh-session
+$ ./cli exec --authn-oidc
+...
+root@9feae5e5e001:/src/conjur-server#
+```
+
 #### Run all the cukes:
 
 There are three different cucumber suites: `api`, `policy`, and `authenticators`. Each of these can be run using a profile of the same name:
