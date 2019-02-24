@@ -19,6 +19,33 @@ EOF
 exit
 }
 
+function print_exec_help() {
+  cat << EOF
+NAME
+    exec - Steps into the running Conjur container, into a bash shell.
+
+SYNOPSIS
+    exec [global options] command [command options] [arguments...]
+GLOBAL OPTIONS
+    --help                                    - Show this message
+COMMANDS
+    --authn-oidc    Enables OIDC features
+EOF
+exit
+}
+
+function enable_oidc() {
+  echo "Extracting keycloak variables & setting as env variables"
+
+  env_args="$env_args -e CLIENT_ID=$(docker-compose exec oidc-keycloak printenv CLIENT_ID | tr -d '\r')"
+  env_args="$env_args -e CLIENT_SECRET=$(docker-compose exec oidc-keycloak printenv CLIENT_SECRET | tr -d '\r')"
+  env_args="$env_args -e REDIRECT_URI=$(docker-compose exec oidc-keycloak printenv REDIRECT_URI | tr -d '\r')"
+  env_args="$env_args -e KEYCLOAK_USER=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_USER | tr -d '\r')"
+  env_args="$env_args -e KEYCLOAK_PASSWORD=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_PASSWORD | tr -d '\r')"
+  env_args="$env_args -e SCOPE=$(docker-compose exec oidc-keycloak printenv SCOPE | tr -d '\r')"
+  env_args="$env_args -e PROVIDER_URI="https://keycloak:8443/auth/realms/master""
+}
+
 unset COMPOSE_PROJECT_NAME
 
 while true ; do
@@ -26,7 +53,15 @@ while true ; do
     -h | --help ) print_help ; shift ;;
     exec )
       api_key=$(docker-compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin | tr -d '\r')
-      docker exec -e CONJUR_AUTHN_API_KEY=$api_key -it --detach-keys 'ctrl-\' $(docker-compose ps -q conjur) bash
+      env_args="-e CONJUR_AUTHN_API_KEY=$api_key"
+
+      case "$2" in
+        -h | --help ) print_exec_help ; shift ;;
+        --authn-oidc ) enable_oidc ; shift ;;
+        * ) if [ -z "$2" ]; then shift ; else echo "$2 is not a valid option"; exit 1; fi;;
+      esac
+
+      docker exec $env_args -it --detach-keys 'ctrl-\' $(docker-compose ps -q conjur) bash
      shift ;;
     policy )
       case "$2" in

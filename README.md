@@ -58,8 +58,8 @@ required to deploy Conjur but they will let you develop using a standardized,
 expertly configured environment.
 
 1. [git][get-git] to manage source code
-2. [Docker][get-docker] to manage dependencies and runtime environments
-3. [Docker Compose][get-docker-compose] to orchestrate Docker environments
+1. [Docker][get-docker] to manage dependencies and runtime environments
+1. [Docker Compose][get-docker-compose] to orchestrate Docker environments
 
 [get-docker]: https://docs.docker.com/engine/installation
 [get-git]: https://git-scm.com/downloads
@@ -70,8 +70,8 @@ expertly configured environment.
 It's easy to get started with Conjur and Docker:
 
 1. install dependencies (as above)
-2. clone this repository
-3. run the build script in your terminal:
+1. clone this repository
+1. run the build script in your terminal:
 
    ```sh-session
    $ ./build.sh
@@ -85,6 +85,9 @@ It's easy to get started with Conjur and Docker:
 
 ## Set up a development environment
 
+**Note**: If you are going to be debugging Conjur using [RubyMine IDE](https://www.jetbrains.com/ruby/),
+see [RubyMine IDE Debugging](#rubymine-ide-debugging) before setting up the development environment.
+
 The `dev` directory contains a `docker-compose` file which creates a development
 environment with a database container (`pg`, short for *postgres*), and a
 `conjur` server container with source code mounted into the directory
@@ -93,7 +96,8 @@ environment with a database container (`pg`, short for *postgres*), and a
 To use it:
 
 1. Install dependencies (as above)
-2. Start the container (and optional extensions):
+     
+1. Start the container (and optional extensions):
 
    ```sh-session
    $ cd dev
@@ -110,7 +114,7 @@ To use it:
    * User: `admin`
    * Password: Run `conjurctl role retrieve-key cucumber:user:admin` inside the container shell to retrieve the admin user API key (which is also the password)
 
-3. Run the server
+1. Run the server
 
    ```sh-session
    root@f39015718062:/src/conjur-server# conjurctl server
@@ -127,40 +131,76 @@ To use it:
    * find or create the token-signing key
    * start the web server
 
-   If you are going to be debugging Conjur using `pry.byebug`, you may choose to
-   start the web server by calling `rails server -b 0.0.0.0 webrick` instead of
-   `conjurctl server`. This will allow you to work in the debugger without the
-   server timing out.
-
-4. Cleanup
+   You may choose to debug Conjur using `pry.byebug` or RubyMine IDE. This will 
+   allow you to work in the debugger without the server timing out. To do so, 
+   run the following command instead of `conjurctl server`:
+   - `pry.byebug`: `rails server -b 0.0.0.0 webrick`
+   - RubyMine IDE: `rdebug-ide --port 1234 --dispatcher-port 26162 --host 0.0.0.0 -- bin/rails s -b 0.0.0.0 webrick`
+      - Now that the server is listening, debug the code via RubyMine's debugger.
+   
+1. Cleanup
 
     ```sh-session
     $ ./stop
     ```
     Running `stop` removes the running Docker Compose containers and the data key.
 
-  #### LDAP Authentication
+#### LDAP Authentication
 
-   To enable a user to log into Conjur using LDAP credentials, run `start` with the `--authn-ldap` flag:
+To enable a user to log into Conjur using LDAP credentials, run `start` with the `--authn-ldap` flag:
 
-   ```sh-session
-   $ cd dev
-   $ ./start --authn-ldap
-   ...
-   root@f39015718062:/src/conjur-server#
-   ```
+```sh-session
+$ cd dev
+$ ./start --authn-ldap
+...
+root@f39015718062:/src/conjur-server#
+```
 
-   The `--authn-ldap` flag will:
-  * Start an OpenLDAP container.
-  * Load a user `alice` with the password `alice` into the LDAP server.
-  * Load a policy `authn-ldap/test`, that grants `alice` the ability to authenticate via `http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate` with the password `alice`.
-
+The `--authn-ldap` flag will:
+* Start an OpenLDAP container.
+* Load a user `alice` with the password `alice` into the LDAP server.
+* Load a policy `authn-ldap/test`, that grants `alice` the ability to authenticate via `http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate` with the password `alice`.
 
 Validate authentication using the username `alice` with the password `alice`:
 
 ```sh-session
 $ curl -v -k -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate
 ```
+
+#### RubyMine IDE Debugging
+
+If you are going to be debugging Conjur using [RubyMine IDE](https://www.jetbrains.com/ruby/), follow
+these steps:
+
+   1. Add a debug configuration
+      1. Go to: Run -> Edit Configurations
+      1. In the Run/Debug Configuration dialog, click + on the toolbar and 
+      choose “Ruby remote debug”
+      1. Specify a name for this configuration (i.e “debug Conjur server”)
+      1. Specify these parameters:
+         - Remote host - the address of Conjur. if it's a local docker environment the address 
+         should be `localhost`, otherwise enter the address of Conjur
+         - Remote port - the port which RubyMine will try to connect to for its debugging protocol. 
+         The convention is `1234`. If you changing this, remember to change also the exposed port in
+         `docker-compose.yml` & in the `rdebug-ide` command when running the server
+         - Remote root folder: `/src/conjur-server`
+         - Local port: 26162
+         - Local root folder: `/local/path/to/conjur/repository`
+      1. Click "OK"
+      
+   1. Create remote SDK
+      1. Go to Preferences -> Ruby SDK and Gems
+      1. In the Ruby SDK and Gems dialog, click + on the toolbar 
+      and choose “New remote...”
+      1. Choose “Docker Compose” and specify these parameters:
+         - Server: Docker
+            - If Docker isn't configured, click "New..." and configure it.
+         - Configuration File(s): `./dev/docker-compose.yml`
+            - Note: remove other `docker-compose` files if present.
+         - Service: conjur
+         - Environment variables: This can be left blank
+         - Ruby or version manager path: ruby
+      1. Click "OK" 
 
 ### Development CLI
 
@@ -248,6 +288,15 @@ Then, using the `dev/cli` script, step into the Conjur container to run the cuke
 
 ```sh-session
 $ ./cli exec
+...
+root@9feae5e5e001:/src/conjur-server#
+```
+
+To run the cukes with an Open ID Connect (OIDC) compatible environment, run `cli` 
+with the `--authn-oidc` flag:
+
+```sh-session
+$ ./cli exec --authn-oidc
 ...
 root@9feae5e5e001:/src/conjur-server#
 ```
