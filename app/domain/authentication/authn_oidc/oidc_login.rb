@@ -45,7 +45,9 @@ module Authentication
 
         new_oidc_conjur_token(oidc_id_token_details)
       rescue => e
-        @audit_event.(input: input, success: false, message: e.message)
+        unless input.username.nil?
+          @audit_event.(input: input, success: false, message: e.message)
+        end
         raise e
       end
 

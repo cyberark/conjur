@@ -34,7 +34,9 @@ module Authentication
 
         new_token(input)
       rescue => e
-        @audit_event.(input: input, success: false, message: e.message)
+        unless input.username.nil?
+          @audit_event.(input: input, success: false, message: e.message)
+        end
         raise e
       end
 
