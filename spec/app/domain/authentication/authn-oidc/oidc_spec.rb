@@ -52,6 +52,7 @@ RSpec.describe 'Authentication::Oidc' do
   let (:mocked_oidc_authenticator) { double("MockOidcAuthenticator") }
   let (:mocked_security_validator) { double("MockSecurityValidator") }
   let (:mocked_origin_validator) { double("MockOriginValidator") }
+  let (:failing_get_oidc_conjur_token) { double("MockGetOidcConjurToken") }
 
   before(:each) do
     allow(Resource).to receive(:[])
@@ -66,6 +67,9 @@ RSpec.describe 'Authentication::Oidc' do
 
     allow(mocked_origin_validator).to receive(:call)
                                         .and_return(true)
+
+    allow(failing_get_oidc_conjur_token).to receive(:call)
+                                             .and_raise('FAKE_OIDC_ERROR')
   end
 
   ####################################
@@ -100,6 +104,18 @@ RSpec.describe 'Authentication::Oidc' do
   let (:oidc_client_class) do
     double('OidcClientClass').tap do |client_class|
       allow(client_class).to receive(:new).and_return(oidc_client)
+    end
+  end
+
+  let (:failing_oidc_client) do
+    double('OidcClient').tap do |client|
+      allow(client).to receive(:oidc_id_token_details!).and_raise('FAKE_OIDC_ERROR')
+    end
+  end
+
+  let (:failing_oidc_client_class) do
+    double('OidcClientClass').tap do |client_class|
+      allow(client_class).to receive(:new).and_return(failing_oidc_client)
     end
   end
 
@@ -180,6 +196,37 @@ RSpec.describe 'Authentication::Oidc' do
       end
     end
 
+    context "that receives login request and fails on oidc details retrieval" do
+      subject do
+        input_ = Authentication::Input.new(
+          authenticator_name: 'authn-oidc-test',
+          service_id:         'my-service',
+          account:            'my-acct',
+          username:           nil,
+          password:           nil,
+          origin:             '127.0.0.1',
+          request:            oidc_login_request
+        )
+
+        ::Authentication::AuthnOidc::Login.new(
+          oidc_authenticator:     mocked_oidc_authenticator,
+          oidc_client_class:      failing_oidc_client_class,
+          enabled_authenticators: oidc_authenticator_name,
+          token_factory:          oidc_token_factory,
+          validate_security:      mocked_security_validator,
+          validate_origin:        mocked_origin_validator
+        ).(
+          authenticator_input: input_
+        )
+      end
+
+      it "raises the actual oidc error" do
+        expect { subject }.to raise_error(
+                                /FAKE_OIDC_ERROR/
+                              )
+      end
+    end
+
     context "that receives authenticate request with valid oidc conjur token" do
       subject do
         input_ = Authentication::Input.new(
@@ -221,6 +268,36 @@ RSpec.describe 'Authentication::Oidc' do
 
         expect { subject }.to raise_error(
                                 /FAKE_ORIGIN_ERROR/
+                              )
+      end
+    end
+
+    context "that receives authenticate request and fails on oidc details retrieval" do
+      subject do
+        input_ = Authentication::Input.new(
+          authenticator_name: 'authn-oidc-test',
+          service_id:         'my-service',
+          account:            'my-acct',
+          username:           nil,
+          password:           nil,
+          origin:             '127.0.0.1',
+          request:            oidc_authenticate_request
+        )
+
+        ::Authentication::AuthnOidc::Authenticate.new(
+          get_oidc_conjur_token: failing_get_oidc_conjur_token,
+          enabled_authenticators: oidc_authenticator_name,
+          token_factory:          token_factory,
+          validate_security:      mocked_security_validator,
+          validate_origin:        mocked_origin_validator
+        ).(
+          authenticator_input: input_
+        )
+      end
+
+      it "raises the actual oidc error" do
+        expect { subject }.to raise_error(
+                                /FAKE_OIDC_ERROR/
                               )
       end
     end
