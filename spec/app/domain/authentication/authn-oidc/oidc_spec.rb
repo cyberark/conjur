@@ -272,7 +272,7 @@ RSpec.describe 'Authentication::Oidc' do
       end
     end
 
-    context "that receives authenticate request" do
+    context "that receives authenticate request and fails on oidc details retrieval" do
       subject do
         input_ = Authentication::Input.new(
           authenticator_name: 'authn-oidc-test',
@@ -295,7 +295,7 @@ RSpec.describe 'Authentication::Oidc' do
         )
       end
 
-      it "raises the actual oidc error when it fails on oidc details retrieval" do
+      it "raises the actual oidc error" do
         expect { subject }.to raise_error(
                                 /FAKE_OIDC_ERROR/
                               )
