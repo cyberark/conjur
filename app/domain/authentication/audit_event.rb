@@ -16,6 +16,8 @@ module Authentication
     private
 
     def role(username, account)
+      return nil if username.nil?
+
       @get_role_by_login.(username: username, account: account)
     end
 

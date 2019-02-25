@@ -5,6 +5,7 @@ module Authentication
 
     Authenticate = CommandClass.new(
       dependencies: {
+        get_oidc_conjur_token: AuthnOidc::GetOidcConjurToken.new,
         enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
         token_factory:          OidcTokenFactory.new,
         validate_security:      ::Authentication::ValidateSecurity.new,
@@ -34,16 +35,12 @@ module Authentication
 
         new_token(input)
       rescue => e
-        unless input.username.nil?
-          @audit_event.(input: input, success: false, message: e.message)
-        end
+        @audit_event.(input: input, success: false, message: e.message)
         raise e
       end
 
       def oidc_conjur_token(input)
-        AuthnOidc::GetOidcConjurToken.new.(
-          request_body: input.request.body.read
-        )
+        @get_oidc_conjur_token.(request_body: input.request.body.read)
       end
 
       def new_token(input)
