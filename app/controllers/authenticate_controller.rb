@@ -70,7 +70,7 @@ class AuthenticateController < ApplicationController
   #
   # Returns Conjur access token
   def authenticate_oidc
-    authentication_token = ::Authentication::AuthnOidc::Authenticate.new.(
+    authentication_token = ::Authentication::AuthnOidc::AuthenticateOidcConjurToken.new.(
       authenticator_input: oidc_authenticator_input
     )
     render json: authentication_token

@@ -239,7 +239,7 @@ RSpec.describe 'Authentication::Oidc' do
           request:            oidc_authenticate_request
         )
 
-        ::Authentication::AuthnOidc::Authenticate.new(
+        ::Authentication::AuthnOidc::AuthenticateOidcConjurToken.new(
           enabled_authenticators: oidc_authenticator_name,
           token_factory:          token_factory,
           validate_security:      mocked_security_validator,
@@ -284,7 +284,7 @@ RSpec.describe 'Authentication::Oidc' do
           request:            oidc_authenticate_request
         )
 
-        ::Authentication::AuthnOidc::Authenticate.new(
+        ::Authentication::AuthnOidc::AuthenticateOidcConjurToken.new(
           get_oidc_conjur_token: failing_get_oidc_conjur_token,
           enabled_authenticators: oidc_authenticator_name,
           token_factory:          token_factory,
