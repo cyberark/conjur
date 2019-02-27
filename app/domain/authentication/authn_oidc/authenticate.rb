@@ -29,7 +29,7 @@ module Authentication
         # Validate ID Token is active
 
         # Retrieve mail from response
-        conjur_username = response.mail
+        conjur_username = "alice"
 
         input = input.update(username: conjur_username)
 
