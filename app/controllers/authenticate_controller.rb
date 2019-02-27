@@ -69,8 +69,17 @@ class AuthenticateController < ApplicationController
   # - Introspect ID Token
   #
   # Returns Conjur access token
-  def authenticate_oidc
+  def authenticate_oidc_conjur_token
     authentication_token = ::Authentication::AuthnOidc::AuthenticateOidcConjurToken.new.(
+      authenticator_input: oidc_authenticator_input
+    )
+    render json: authentication_token
+  rescue => e
+    handle_authentication_error(e)
+  end
+
+  def authenticate_oidc
+    authentication_token = ::Authentication::AuthnOidc::Authenticate.new.(
       authenticator_input: oidc_authenticator_input
     )
     render json: authentication_token
