@@ -8,7 +8,7 @@ RSpec.describe 'Authentication::Input#to_access_request' do
   let (:blank_env) { nil }
 
   subject do
-    Authentication::Input.new(
+    Authentication::AuthenticatorInput.new(
       authenticator_name: 'authn-test',
       service_id: 'my-service',
       account: 'my-acct',
@@ -63,7 +63,7 @@ RSpec.describe 'Authentication::Input#to_access_request' do
 
   context "An input without a service_id" do
     subject do
-      Authentication::Input.new(
+      Authentication::AuthenticatorInput.new(
         authenticator_name: 'authn-test',
         service_id: nil,
         account: 'my-acct',

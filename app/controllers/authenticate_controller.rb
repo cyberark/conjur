@@ -35,7 +35,7 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticator_input
-    @authenticator_input ||= ::Authentication::Input.new(
+    ::Authentication::AuthenticatorInput.new(
       authenticator_name: params[:authenticator],
       service_id:         params[:service_id],
       account:            params[:account],
@@ -79,7 +79,7 @@ class AuthenticateController < ApplicationController
   end
 
   def oidc_authenticator_input
-    @oidc_authenticator_input ||= ::Authentication::Input.new(
+    ::Authentication::AuthenticatorInput.new(
       authenticator_name: 'authn-oidc',
       service_id:         params[:service_id],
       account:            params[:account],

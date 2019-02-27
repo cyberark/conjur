@@ -151,7 +151,7 @@ RSpec.describe 'Authentication::Oidc' do
   context "An oidc authenticator" do
     context "that receives login request with valid oidc details" do
       subject do
-        input_ = Authentication::Input.new(
+        input_ = Authentication::AuthenticatorInput.new(
           authenticator_name: 'authn-oidc-test',
           service_id:         'my-service',
           account:            'my-acct',
@@ -198,7 +198,7 @@ RSpec.describe 'Authentication::Oidc' do
 
     context "that receives login request and fails on oidc details retrieval" do
       subject do
-        input_ = Authentication::Input.new(
+        input_ = Authentication::AuthenticatorInput.new(
           authenticator_name: 'authn-oidc-test',
           service_id:         'my-service',
           account:            'my-acct',
@@ -229,7 +229,7 @@ RSpec.describe 'Authentication::Oidc' do
 
     context "that receives authenticate request with valid oidc conjur token" do
       subject do
-        input_ = Authentication::Input.new(
+        input_ = Authentication::AuthenticatorInput.new(
           authenticator_name: 'authn-oidc-test',
           service_id:         'my-service',
           account:            'my-acct',
@@ -274,7 +274,7 @@ RSpec.describe 'Authentication::Oidc' do
 
     context "that receives authenticate request and fails on oidc details retrieval" do
       subject do
-        input_ = Authentication::Input.new(
+        input_ = Authentication::AuthenticatorInput.new(
           authenticator_name: 'authn-oidc-test',
           service_id:         'my-service',
           account:            'my-acct',

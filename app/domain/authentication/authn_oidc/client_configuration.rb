@@ -1,6 +1,6 @@
 module Authentication
   module AuthnOidc
-    class OidcClientConfiguration
+    class ClientConfiguration
       attr_reader :client_id, :client_secret, :redirect_uri, :provider_uri
 
       def initialize(client_id:, client_secret:, redirect_uri:, provider_uri:)

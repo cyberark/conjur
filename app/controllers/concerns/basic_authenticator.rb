@@ -34,7 +34,7 @@ module BasicAuthenticator
   end
 
   def login_input(username, password)
-    ::Authentication::Input.new(
+    ::Authentication::AuthenticatorInput.new(
       authenticator_name: params[:authenticator],
       service_id:         params[:service_id],
       account:            params[:account],

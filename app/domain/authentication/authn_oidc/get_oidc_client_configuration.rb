@@ -65,7 +65,7 @@ module Authentication
       end
 
       def oidc_client_configuration
-        OidcClientConfiguration.new(
+        ClientConfiguration.new(
           client_id: client_id,
           client_secret: client_secret,
           redirect_uri: @redirect_uri,

@@ -27,7 +27,7 @@ module Authentication
 
 
       def oidc_conjur_token
-        OidcConjurToken.new(
+        ConjurToken.new(
           id_token_encrypted: id_token_encrypted,
           user_name: user_name,
           expiration_time: expiration_time

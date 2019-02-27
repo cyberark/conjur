@@ -7,7 +7,7 @@ module Authentication
       dependencies: {
         oidc_authenticator:     AuthnOidc::Authenticator.new,
         enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
-        oidc_client_class:      ::Authentication::AuthnOidc::OidcClient,
+        oidc_client_class:      ::Authentication::AuthnOidc::Client,
         token_factory:          OidcTokenFactory.new,
         validate_security:      ::Authentication::ValidateSecurity.new,
         validate_origin:        ::Authentication::ValidateOrigin.new,
@@ -23,7 +23,7 @@ module Authentication
       private
 
       def oidc_encrypted_token(input)
-        request_body = AuthnOidc::OidcRequestBody.new(input.request)
+        request_body = AuthnOidc::RequestBody.new(input.request)
 
         oidc_client = oidc_client(
           redirect_uri:   request_body.redirect_uri,

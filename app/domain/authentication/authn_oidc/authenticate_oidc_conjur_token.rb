@@ -3,7 +3,7 @@ require 'command_class'
 module Authentication
   module AuthnOidc
 
-    Authenticate = CommandClass.new(
+    AuthenticateOidcConjurToken = CommandClass.new(
       dependencies: {
         get_oidc_conjur_token: AuthnOidc::GetOidcConjurToken.new,
         enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
