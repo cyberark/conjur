@@ -1,6 +1,6 @@
 module Authentication
   module AuthnOidc
-    class OidcConjurToken
+    class ConjurToken
       attr_reader :id_token_encrypted, :user_name, :expiration_time
 
       def initialize(id_token_encrypted:, user_name:, expiration_time:)

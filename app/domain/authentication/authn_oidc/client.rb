@@ -3,7 +3,7 @@ require 'openid_connect'
 
 module Authentication
   module AuthnOidc
-    class OidcClient
+    class Client
       def initialize(configuration)
         @client_id = configuration.client_id
         @client_secret = configuration.client_secret
@@ -15,7 +15,7 @@ module Authentication
         oidc_client.host = host
         oidc_client.authorization_code = authorization_code
 
-        OidcIDTokenDetails.new(
+        IDTokenDetails.new(
           id_token: id_token,
           user_info: user_info,
           client_id: @client_id,

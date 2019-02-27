@@ -3,7 +3,7 @@
 require 'types'
 
 module Authentication
-  class Input < ::Dry::Struct
+  class AuthenticatorInput < ::Dry::Struct
 
     attribute :authenticator_name, ::Types::NonEmptyString
     attribute :service_id, ::Types::NonEmptyString.optional

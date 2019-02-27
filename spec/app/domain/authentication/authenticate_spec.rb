@@ -71,7 +71,7 @@ RSpec.describe 'Authentication::Authenticate' do
 
   context "An unavailable authenticator" do
     subject do
-      input_ = Authentication::Input.new(
+      input_ = Authentication::AuthenticatorInput.new(
         authenticator_name: 'AUTHN-MISSING',
         service_id:         nil,
         account:            'my-acct',
@@ -100,7 +100,7 @@ RSpec.describe 'Authentication::Authenticate' do
   context "An available authenticator" do
     context "that receives invalid credentials" do
       subject do
-        input_ = Authentication::Input.new(
+        input_ = Authentication::AuthenticatorInput.new(
           authenticator_name: 'authn-always-fail',
           service_id:         nil,
           account:            'my-acct',
@@ -128,7 +128,7 @@ RSpec.describe 'Authentication::Authenticate' do
 
     context "that receives valid credentials" do
       subject do
-        input_ = Authentication::Input.new(
+        input_ = Authentication::AuthenticatorInput.new(
           authenticator_name: 'authn-always-pass',
           service_id:         nil,
           account:            'my-acct',
