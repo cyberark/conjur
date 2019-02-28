@@ -11,5 +11,5 @@ When(/I successfully login via OIDC/) do
 end
 
 When(/I successfully authenticate via OIDC/) do
-  authenticate_with_oidc(service_id: 'keycloak', account: 'cucumber')
+  authenticate_id_token_with_oidc(service_id: 'keycloak', account: 'cucumber')
 end

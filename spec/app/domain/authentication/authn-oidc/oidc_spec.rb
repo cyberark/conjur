@@ -133,7 +133,7 @@ RSpec.describe 'Authentication::Oidc' do
     end
   end
 
-  let (:oidc_authenticate_request) do
+  let (:oidc_authenticate_conjur_oidc_token_request) do
     request_body = StringIO.new
     request_body.puts "id_token_encrypted=some-id-token-encrypted&user_name=my-user&expiration_time=1234567"
     request_body.rewind
@@ -143,6 +143,15 @@ RSpec.describe 'Authentication::Oidc' do
     end
   end
 
+  let (:oidc_authenticate_id_token_request) do
+    request_body = StringIO.new
+    request_body.puts "id_token=some-id-token"
+    request_body.rewind
+
+    double('Request').tap do |request|
+      allow(request).to receive(:body).and_return(request_body)
+    end
+  end
   #  ____  _   _  ____    ____  ____  ___  ____  ___
   # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
@@ -236,10 +245,10 @@ RSpec.describe 'Authentication::Oidc' do
           username:           nil,
           password:           nil,
           origin:             '127.0.0.1',
-          request:            oidc_authenticate_request
+          request:            oidc_authenticate_conjur_oidc_token_request
         )
 
-        ::Authentication::AuthnOidc::Authenticate.new(
+        ::Authentication::AuthnOidc::AuthenticateOidcConjurToken.new(
           enabled_authenticators: oidc_authenticator_name,
           token_factory:          token_factory,
           validate_security:      mocked_security_validator,
@@ -281,10 +290,10 @@ RSpec.describe 'Authentication::Oidc' do
           username:           nil,
           password:           nil,
           origin:             '127.0.0.1',
-          request:            oidc_authenticate_request
+          request:            oidc_authenticate_conjur_oidc_token_request
         )
 
-        ::Authentication::AuthnOidc::Authenticate.new(
+        ::Authentication::AuthnOidc::AuthenticateOidcConjurToken.new(
           get_oidc_conjur_token: failing_get_oidc_conjur_token,
           enabled_authenticators: oidc_authenticator_name,
           token_factory:          token_factory,
@@ -298,6 +307,51 @@ RSpec.describe 'Authentication::Oidc' do
       it "raises the actual oidc error" do
         expect { subject }.to raise_error(
                                 /FAKE_OIDC_ERROR/
+                              )
+      end
+    end
+
+    context "that receives authenticate request with valid id token" do
+      subject do
+        input_ = Authentication::AuthenticatorInput.new(
+          authenticator_name: 'authn-oidc-test',
+          service_id:         'my-service',
+          account:            'my-acct',
+          username:           nil,
+          password:           nil,
+          origin:             '127.0.0.1',
+          request:            oidc_authenticate_id_token_request
+        )
+
+        ::Authentication::AuthnOidc::Authenticate.new(
+          enabled_authenticators: oidc_authenticator_name,
+          token_factory:          token_factory,
+          validate_security:      mocked_security_validator,
+          validate_origin:        mocked_origin_validator
+        ).(
+          authenticator_input: input_
+        )
+      end
+
+      it "returns a new access token" do
+        expect(subject).to equal(a_new_token)
+      end
+
+      it "raises an error when security validation fails" do
+        allow(mocked_security_validator).to receive(:call)
+                                              .and_raise('FAKE_SECURITY_ERROR')
+
+        expect { subject }.to raise_error(
+                                /FAKE_SECURITY_ERROR/
+                              )
+      end
+
+      it "raises an error when origin validation fails" do
+        allow(mocked_origin_validator).to receive(:call)
+                                            .and_raise('FAKE_ORIGIN_ERROR')
+
+        expect { subject }.to raise_error(
+                                /FAKE_ORIGIN_ERROR/
                               )
       end
     end
