@@ -42,17 +42,25 @@ module AuthenticatorHelpers
     @ldap_ca_certificate_value ||= File.read('/ldap-certs/root.cert.pem')
   end
 
-  def login_with_oidc(service_id:, account:)
-    path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/login"
-    payload = { code: oidc_auth_code, redirect_uri: oidc_redirect_uri }
-    post(path, payload)
-    @login_oidc_conjur_token = @response_body
-  end
+  # relevant for original oidc flow
+  # def login_with_oidc(service_id:, account:)
+  #   path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/login"
+  #   payload = { code: oidc_auth_code, redirect_uri: oidc_redirect_uri }
+  #   post(path, payload)
+  #   @login_oidc_conjur_token = @response_body
+  # end
 
-  def authenticate_with_oidc(service_id:, account:)
+  # # relevant for oidc flow for Conjur oidc token retrieved in oidc login flow
+  # def authenticate_conjur_oidc_token_with_oidc(service_id:, account:)
+  #   path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
+  #   # TODO: Since the input going to change to a base64 signed token, i didnt invest time to extract the real values
+  #   payload = { id_token_encrypted: "login_oidc_conjur_token", user_name: "alice", expiration_time: "1231" }
+  #   post(path, payload)
+  # end
+
+  def authenticate_id_token_with_oidc(service_id:, account:)
     path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
-    # TODO: Since the input going to change to a base64 signed token, i didnt invest time to extract the real values
-    payload = { id_token_encrypted: "login_oidc_conjur_token", user_name: "alice", expiration_time: "1231" }
+    payload = { id_token: "some_id_token" }
     post(path, payload)
   end
 
