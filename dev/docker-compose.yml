@@ -97,6 +97,9 @@ services:
     environment:
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=admin
+      - KEYCLOAK_APP_USER=alice
+      - KEYCLOAK_APP_USER_PASSWORD=alice
+      - KEYCLOAK_APP_USER_EMAIL=alice@conjur.net
       - DB_VENDOR=H2
       - CLIENT_ID=conjurClient
       - REDIRECT_URI=http://locallhost.com/

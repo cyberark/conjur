@@ -153,9 +153,19 @@ RSpec.describe 'Authentication::Oidc' do
     end
   end
 
-  let (:invalid_oidc_authenticate_id_token_request) do
+  let (:no_preferred_username_field_oidc_authenticate_id_token_request) do
     request_body = StringIO.new
     request_body.puts "id_token={}"
+    request_body.rewind
+
+    double('Request').tap do |request|
+      allow(request).to receive(:body).and_return(request_body)
+    end
+  end
+
+  let (:no_preferred_username_value_oidc_authenticate_id_token_request) do
+    request_body = StringIO.new
+    request_body.puts "id_token={\"preferred_username\": \"\"}"
     request_body.rewind
 
     double('Request').tap do |request|
@@ -375,7 +385,34 @@ RSpec.describe 'Authentication::Oidc' do
           username:           nil,
           password:           nil,
           origin:             '127.0.0.1',
-          request:            invalid_oidc_authenticate_id_token_request
+          request:            no_preferred_username_field_oidc_authenticate_id_token_request
+        )
+
+        ::Authentication::AuthnOidc::Authenticate.new(
+          enabled_authenticators: oidc_authenticator_name,
+          token_factory:          token_factory,
+          validate_security:      mocked_security_validator,
+          validate_origin:        mocked_origin_validator
+        ).(
+          authenticator_input: input_
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(::Authentication::AuthnOidc::IdTokenFieldNotFound)
+      end
+    end
+
+    context "that receives authenticate request with empty preferred username in id token" do
+      subject do
+        input_ = Authentication::AuthenticatorInput.new(
+          authenticator_name: 'authn-oidc-test',
+          service_id:         'my-service',
+          account:            'my-acct',
+          username:           nil,
+          password:           nil,
+          origin:             '127.0.0.1',
+          request:            no_preferred_username_value_oidc_authenticate_id_token_request
         )
 
         ::Authentication::AuthnOidc::Authenticate.new(

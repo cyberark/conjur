@@ -56,7 +56,7 @@ module Authentication
       def conjur_username(request_body)
         id_token_username_field = "preferred_username"
         conjur_username = request_body.id_token[id_token_username_field]
-        raise IdTokenFieldNotFound, id_token_username_field unless conjur_username
+        raise IdTokenFieldNotFound, id_token_username_field unless conjur_username&.present?
 
         conjur_username
       end

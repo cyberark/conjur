@@ -6,10 +6,9 @@ keycloak/bin/kcadm.sh config credentials \
   --user "$KEYCLOAK_USER" \
   --password "$KEYCLOAK_PASSWORD"
 keycloak/bin/kcadm.sh create users \
-  -s username=alice \
-  -s email=alice@example.com \
+  -s username="$KEYCLOAK_APP_USER" \
+  -s email="$KEYCLOAK_APP_USER_EMAIL" \
   -s enabled=true
 keycloak/bin/kcadm.sh set-password \
-  --username alice \
+  --username "$KEYCLOAK_APP_USER_PASSWORD" \
   -p alice
-
