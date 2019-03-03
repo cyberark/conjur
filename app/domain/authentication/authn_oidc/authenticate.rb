@@ -20,6 +20,8 @@ module Authentication
       private
 
       def access_token(input)
+        request_body = AuthnOidc::AuthenticateRequestBody.new(input.request)
+
         # Prepare ID token introspect request
 
         # send id token to OIDC Provider
@@ -28,8 +30,7 @@ module Authentication
 
         # Validate ID Token is active
 
-        # Retrieve mail from response
-        conjur_username = "alice"
+        conjur_username = conjur_username(request_body)
 
         input = input.update(username: conjur_username)
 
@@ -50,6 +51,14 @@ module Authentication
           account:  input.account,
           username: input.username
         )
+      end
+
+      def conjur_username(request_body)
+        id_token_username_field = "preferred_username"
+        conjur_username = request_body.id_token[id_token_username_field]
+        raise IdTokenFieldNotFound, id_token_username_field unless conjur_username
+
+        conjur_username
       end
     end
   end

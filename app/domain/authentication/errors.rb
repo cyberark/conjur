@@ -16,4 +16,11 @@ module Authentication
     "Invalid origin"
   )
 
+  module AuthnOidc
+
+    IdTokenFieldNotFound = ::Util::ErrorClass.new(
+      "field '{0}' not found in ID Token"
+    )
+  end
+
 end
