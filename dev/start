@@ -114,7 +114,10 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
 
   echo "Creating OpenID client in keycloack OpenID provider"
   docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_client
-  echo "keycloack admin console url: http://0.0.0.0:7777/auth/admin"
+  echo "keycloak admin console url: http://0.0.0.0:7777/auth/admin"
+
+  echo "Creating user 'alice' in Keycloak"
+  docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_user
 
   echo "Fetch OpenID authrization code from keycloak using phantomjs"
   docker-compose exec oidc-phantomjs /authn-oidc/phantomjs/scripts/fetchAuthCode

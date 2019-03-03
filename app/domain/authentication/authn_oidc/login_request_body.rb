@@ -2,7 +2,7 @@ require 'uri'
 
 module Authentication
   module AuthnOidc
-    class RequestBody
+    class LoginRequestBody
       attr_reader :redirect_uri, :authorization_code
 
       def initialize(request)

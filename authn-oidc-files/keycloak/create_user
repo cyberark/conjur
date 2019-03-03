@@ -1,0 +1,14 @@
+#!/bin/sh
+
+keycloak/bin/kcadm.sh config credentials \
+  --server http://localhost:8080/auth \
+  --realm master \
+  --user "$KEYCLOAK_USER" \
+  --password "$KEYCLOAK_PASSWORD"
+keycloak/bin/kcadm.sh create users \
+  -s username="$KEYCLOAK_APP_USER" \
+  -s email="$KEYCLOAK_APP_USER_EMAIL" \
+  -s enabled=true
+keycloak/bin/kcadm.sh set-password \
+  --username "$KEYCLOAK_APP_USER_PASSWORD" \
+  -p alice

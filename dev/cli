@@ -42,6 +42,9 @@ function enable_oidc() {
   env_args="$env_args -e REDIRECT_URI=$(docker-compose exec oidc-keycloak printenv REDIRECT_URI | tr -d '\r')"
   env_args="$env_args -e KEYCLOAK_USER=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_USER | tr -d '\r')"
   env_args="$env_args -e KEYCLOAK_PASSWORD=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_PASSWORD | tr -d '\r')"
+  env_args="$env_args -e KEYCLOAK_APP_USER=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER | tr -d '\r')"
+  env_args="$env_args -e KEYCLOAK_APP_USER_PASSWORD=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER_PASSWORD | tr -d '\r')"
+  env_args="$env_args -e KEYCLOAK_APP_USER_EMAIL=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER_EMAIL | tr -d '\r')"
   env_args="$env_args -e SCOPE=$(docker-compose exec oidc-keycloak printenv SCOPE | tr -d '\r')"
   env_args="$env_args -e PROVIDER_URI="https://keycloak:8443/auth/realms/master""
 }

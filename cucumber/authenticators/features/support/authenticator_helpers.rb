@@ -60,7 +60,7 @@ module AuthenticatorHelpers
 
   def authenticate_id_token_with_oidc(service_id:, account:)
     path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
-    payload = { id_token: "some_id_token" }
+    payload = { id_token: "{\"preferred_username\": \"alice\",\"email\": \"alice@example.com\"}" }
     post(path, payload)
   end
 

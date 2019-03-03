@@ -23,7 +23,7 @@ module Authentication
       private
 
       def oidc_encrypted_token(input)
-        request_body = AuthnOidc::RequestBody.new(input.request)
+        request_body = AuthnOidc::LoginRequestBody.new(input.request)
 
         oidc_client = oidc_client(
           redirect_uri:   request_body.redirect_uri,
