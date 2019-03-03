@@ -145,7 +145,7 @@ RSpec.describe 'Authentication::Oidc' do
 
   let (:oidc_authenticate_id_token_request) do
     request_body = StringIO.new
-    request_body.puts "id_token=some-id-token"
+    request_body.puts "id_token={\"preferred_username\": \"alice\",\"email\": \"alice@example.com\"}"
     request_body.rewind
 
     double('Request').tap do |request|

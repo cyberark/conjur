@@ -3,7 +3,7 @@ cn: Alice
 sn: Smith
 uid: alice
 givenName: alice
-mail: alice@cyberark.com
+mail: alice@conjur.net
 objectClass: person
 objectClass: uidObject
 objectClass: organizationalPerson
@@ -16,7 +16,7 @@ cn: Charles
 sn: Berkeley
 uid: charles
 givenName: charles
-mail: charles@cyberark.com
+mail: charles@conjur.net
 objectClass: person
 objectClass: uidObject
 objectClass: organizationalPerson
