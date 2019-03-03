@@ -11,8 +11,8 @@ cp -rf keycloak_login.js keycloak_login_tmp.js
 
 echo "Replacing user and password in keycloak_login_tmp.js"
 
-sed -i 's/TO_BE_REPLACED_USER/'"$KEYCLOAK_USER"'/g' keycloak_login_tmp.js
-sed -i 's/TO_BE_REPLACED_PASSSWORD/'"$KEYCLOAK_PASSWORD"'/g' keycloak_login_tmp.js
+sed -i 's/TO_BE_REPLACED_USER/'"alice"'/g' keycloak_login_tmp.js
+sed -i 's/TO_BE_REPLACED_PASSSWORD/'"alice"'/g' keycloak_login_tmp.js
 
 echo "Running phantomjs script"
 phantomjs --ignore-ssl-errors=true keycloak_login_tmp.js

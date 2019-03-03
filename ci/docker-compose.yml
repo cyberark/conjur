@@ -85,7 +85,7 @@ services:
       - CLIENT_ID=conjurClient
       - REDIRECT_URI=http://locallhost.com/
       - CLIENT_SECRET=d7047915-9029-45b8-9bd6-7ec5c2f75e5b
-      - SCOPE=openid,profile
+      - SCOPE=openid,profile,email
     volumes:
       - ../authn-oidc-files/keycloak:/scripts
       - ../authn-oidc-files/keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
