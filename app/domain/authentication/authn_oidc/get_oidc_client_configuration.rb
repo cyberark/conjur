@@ -37,7 +37,7 @@ module Authentication
       end
 
       def required_variable_names
-        %w(client-id client-secret provider-uri)
+        %w(client-id client-secret provider-uri id-token-user-property)
       end
 
       # TODO: for next version: push this logic into a reusable value object
@@ -60,6 +60,10 @@ module Authentication
         secret_value('provider-uri')
       end
 
+      def id_token_user_property
+        secret_value('id-token-user-property')
+      end
+
       def secret_value(var_name)
         required_secrets[variable_id(var_name)]
       end
@@ -69,7 +73,8 @@ module Authentication
           client_id: client_id,
           client_secret: client_secret,
           redirect_uri: @redirect_uri,
-          provider_uri: provider_uri
+          provider_uri: provider_uri,
+          id_token_user_property: id_token_user_property
         )
       end
     end

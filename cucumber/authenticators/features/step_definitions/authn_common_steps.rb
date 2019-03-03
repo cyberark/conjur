@@ -1,3 +1,5 @@
+require_relative '../../../../cucumber/api/features/step_definitions/authz_steps'
+
 Given(/^a policy:$/) do |policy|
   load_root_policy(policy)
 end

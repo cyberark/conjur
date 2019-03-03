@@ -106,11 +106,13 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   docker-compose exec client conjur variable values add conjur/authn-oidc/keycloak/client-id $KEYCLOAK_CLIENT_ID
   docker-compose exec client conjur variable values add conjur/authn-oidc/keycloak/client-secret $KEYCLOAK_CLIENT_SECRET
   docker-compose exec client conjur variable values add conjur/authn-oidc/keycloak/provider-uri "https://keycloak:8443/auth/realms/master"
+  docker-compose exec client conjur variable values add conjur/authn-oidc/keycloak/id-token-user-property "preferred_username"
 
   # add variables' values for okta
   docker-compose exec client conjur variable values add conjur/authn-oidc/okta/client-id 0oagd87pc7rUCknhR0h7
   docker-compose exec client conjur variable values add conjur/authn-oidc/okta/client-secret aDL6DTH7WIE3qsTjnY6H_lYcfMKXK7hCA6AlZEer
   docker-compose exec client conjur variable values add conjur/authn-oidc/okta/provider-uri https://dev-842018.oktapreview.com
+  docker-compose exec client conjur variable values add conjur/authn-oidc/okta/id-token-user-property "preferred_username"
 
   echo "Creating OpenID client in keycloack OpenID provider"
   docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_client

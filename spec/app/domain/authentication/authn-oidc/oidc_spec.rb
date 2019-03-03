@@ -119,6 +119,19 @@ RSpec.describe 'Authentication::Oidc' do
     end
   end
 
+  let (:oidc_client_configuration) do
+    double('OidcClientConfiguration').tap do |client_configuration|
+      allow(client_configuration).to receive(:id_token_user_property).and_return('preferred_username')
+    end
+  end
+
+  let (:get_oidc_client_configuration) do
+    double('GetOidcClientConfiguration').tap do |get_client_configuration|
+      allow(get_client_configuration).to receive(:call)
+                                           .and_return(oidc_client_configuration)
+    end
+  end
+
   ####################################
   # oidc request mock
   ####################################
@@ -345,6 +358,7 @@ RSpec.describe 'Authentication::Oidc' do
 
         ::Authentication::AuthnOidc::Authenticate.new(
           enabled_authenticators: oidc_authenticator_name,
+          get_oidc_client_configuration: get_oidc_client_configuration,
           token_factory:          token_factory,
           validate_security:      mocked_security_validator,
           validate_origin:        mocked_origin_validator
@@ -390,6 +404,7 @@ RSpec.describe 'Authentication::Oidc' do
 
         ::Authentication::AuthnOidc::Authenticate.new(
           enabled_authenticators: oidc_authenticator_name,
+          get_oidc_client_configuration: get_oidc_client_configuration,
           token_factory:          token_factory,
           validate_security:      mocked_security_validator,
           validate_origin:        mocked_origin_validator
@@ -417,6 +432,7 @@ RSpec.describe 'Authentication::Oidc' do
 
         ::Authentication::AuthnOidc::Authenticate.new(
           enabled_authenticators: oidc_authenticator_name,
+          get_oidc_client_configuration: get_oidc_client_configuration,
           token_factory:          token_factory,
           validate_security:      mocked_security_validator,
           validate_origin:        mocked_origin_validator
