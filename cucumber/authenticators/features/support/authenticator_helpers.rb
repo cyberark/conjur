@@ -21,26 +21,11 @@ module AuthenticatorHelpers
   #
   attr_reader :response_body, :http_status, :rest_client_error, :ldap_auth_key
 
-  def login_with_ldap(service_id:, account:, username:, password:)
-    path = "#{conjur_hostname}/authn-ldap/#{service_id}/#{account}/login"
-    get(path, user: username, password: password)
-    @ldap_auth_key = response_body
-  end
-
-  def authenticate_with_ldap(service_id:, account:, username:, api_key:)
-    # TODO fix this the right way
-    path = "#{conjur_hostname}/authn-ldap/#{service_id}/#{account}/#{username}/authenticate"
-    post(path, api_key)
-  end
-
   def save_variable_value(account, variable_name, value)
     resource_id = [account, "variable", variable_name].join(":")
     conjur_api.resource(resource_id).add_value(value)
   end
 
-  def ldap_ca_certificate_value
-    @ldap_ca_certificate_value ||= File.read('/ldap-certs/root.cert.pem')
-  end
 
   # relevant for original oidc flow
   # def login_with_oidc(service_id:, account:)
@@ -92,8 +77,6 @@ module AuthenticatorHelpers
                            method: Conjur::API::POLICY_METHOD_PUT)
   end
 
-  private
-
   def get(path, options = {})
     options = options.merge(
       method: :get,
@@ -122,6 +105,8 @@ module AuthenticatorHelpers
   def conjur_hostname
     ENV.fetch('CONJUR_APPLIANCE_URL', 'http://conjur')
   end
+
+  private
 
   def admin_password
     ENV['CONJUR_AUTHN_API_KEY'] || 'admin'
