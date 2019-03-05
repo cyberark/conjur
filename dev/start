@@ -81,12 +81,12 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
 
   echo "Configuring Okta as OpenID provider for manual testing"
   echo "Configuring Keycloak as OpenID provider for automatic testing"
-  docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/authn-oidc-files/policy.yml
+  docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/ci/authn-oidc/policy.yml
 
   enabled_authenticators="$enabled_authenticators,authn-oidc/okta,authn-oidc/keycloak"
 
   echo "Initialize keycloak certificate in conjur server"
-  docker-compose exec conjur /src/conjur-server/authn-oidc-files/keycloak/fetchCertificate
+  docker-compose exec conjur /src/conjur-server/ci/authn-oidc/keycloak/fetchCertificate
 
   echo "Starting Conjur server"
   api_key=$(docker-compose exec -T conjur conjurctl \

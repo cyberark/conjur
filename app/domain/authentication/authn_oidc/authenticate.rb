@@ -37,7 +37,7 @@ module Authentication
 
         # Validate ID Token is active
 
-        input = input.update(username: conjur_username(request_body, oidc_client_configuration.id_token_user_property))
+        input = input.update(username: conjur_username(request_body.id_token, oidc_client_configuration.id_token_user_property))
 
         @validate_security.(input: input, enabled_authenticators: @enabled_authenticators)
 
@@ -58,9 +58,9 @@ module Authentication
         )
       end
 
-      def conjur_username(request_body, id_token_username_field)
-        conjur_username = request_body.id_token[id_token_username_field]
-        raise IdTokenFieldNotFound, id_token_username_field unless conjur_username&.present?
+      def conjur_username(id_token, id_token_username_field)
+        conjur_username = id_token[id_token_username_field]
+        raise IdTokenFieldNotFound, id_token_username_field unless conjur_username.present?
 
         conjur_username
       end
