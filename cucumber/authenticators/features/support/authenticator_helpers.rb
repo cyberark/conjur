@@ -60,7 +60,7 @@ module AuthenticatorHelpers
 
   def authenticate_id_token_with_oidc(service_id:, account:)
     path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
-    payload = { id_token: "{\"preferred_username\": \"alice\",\"email\": \"alice@example.com\"}" }
+    payload = { id_token: "{\"preferred_username\": \"alice\",\"email\": \"alice@conjur.net\"}" }
     post(path, payload)
   end
 
@@ -158,6 +158,10 @@ module AuthenticatorHelpers
     @oidc_provider_uri ||= validated_env_var('PROVIDER_URI')
   end
 
+  def oidc_id_token_user_property
+    @oidc_id_token_user_property ||= validated_env_var('ID_TOKEN_USER_PROPERTY')
+  end
+
   def oidc_redirect_uri
     @oidc_redirect_uri ||= validated_env_var('REDIRECT_URI')
   end
@@ -172,6 +176,7 @@ module AuthenticatorHelpers
     Secret.create resource_id: "#{path}/client-id", value: oidc_client_id
     Secret.create resource_id: "#{path}/client-secret", value: oidc_client_secret
     Secret.create resource_id: "#{path}/provider-uri", value: oidc_provider_uri
+    Secret.create resource_id: "#{path}/id-token-user-property", value: oidc_id_token_user_property
   end
 
   def oidc_authorization_code

@@ -26,6 +26,9 @@ Feature: Users can authneticate with OIDC authenticator
       - !variable
         id: provider-uri
 
+      - !variable
+        id: id-token-user-property
+
       - !group users
 
       - !permit
