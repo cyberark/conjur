@@ -27,6 +27,12 @@ When(/^I( (?:can|successfully))? DELETE "([^"]*)"$/) do |can, path|
   end
 end
 
+When(/^I( (?:can|successfully))? GET "([^"]*)" with user "([^"]*)"$/) do |can, path, username|
+  try_request can do
+    get_json path, user: username
+  end
+end
+
 When(/^I( (?:can|successfully))? GET "([^"]*)" with parameters:$/) do |can, path, parameters|
   params = YAML.load(parameters)
   path = [ path, params.to_query ].join("?")

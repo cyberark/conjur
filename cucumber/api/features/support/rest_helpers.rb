@@ -192,10 +192,15 @@ module RestHelpers
   end
 
   def current_user_credentials
-    token = Slosilo["authn:#{@current_user.account}"].signed_token @current_user.login
+    username = @current_user.login
+    token = Slosilo["authn:#{@current_user.account}"].signed_token username
+    user_credentials username, token
+  end
+
+  def user_credentials username, token
     token_authorization = "Token token=\"#{Base64.strict_encode64 token.to_json}\""
     headers = { authorization: token_authorization }
-    { headers: headers, username: @current_user.login }
+    { headers: headers, username: username }
   end
 
   def current_user_basic_auth password = nil
@@ -256,7 +261,14 @@ module RestHelpers
 
   def rest_resource options
     args = [Conjur.configuration.appliance_url]
-    args << current_user_credentials if current_user?
+
+    if options[:user]
+      token = JSON.parse(@response_body)
+      args << user_credentials(options[:user], token)
+    elsif current_user?
+      args << current_user_credentials
+    end
+
     args <<({}) if args.length == 1
     args.last[:headers] ||= {}
     args.last[:headers].merge(headers) if headers
