@@ -262,9 +262,8 @@ module RestHelpers
   def rest_resource options
     args = [Conjur.configuration.appliance_url]
 
-    if options[:user]
-      token = JSON.parse(@response_body)
-      args << user_credentials(options[:user], token)
+    if options[:token]
+      args << user_credentials(options[:token].username, options[:token].token)
     elsif current_user?
       args << current_user_credentials
     end
