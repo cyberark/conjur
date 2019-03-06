@@ -27,9 +27,9 @@ When(/^I( (?:can|successfully))? DELETE "([^"]*)"$/) do |can, path|
   end
 end
 
-When(/^I( (?:can|successfully))? GET "([^"]*)" with user "([^"]*)"$/) do |can, path, username|
+When(/^I( (?:can|successfully))? GET "([^"]*)" with authorized user$/) do |can, path|
   try_request can do
-    get_json path, user: username
+    get_json path, token: ConjurToken.new(@response_body)
   end
 end
 

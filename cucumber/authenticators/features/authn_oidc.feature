@@ -61,7 +61,7 @@ Feature: Users can authneticate with OIDC authenticator
     """
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
 
-    Then I successfully GET "/secrets/cucumber/variable/test-variable" with user "alice"
+    Then I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
 
   Scenario: A valid id token with email as id-token-user-property
     # Add user `alice@conjur.net` to keycloak-users group

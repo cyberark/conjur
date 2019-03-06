@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class ConjurToken
+  attr_reader :token
+
   def initialize(raw_token)
     @token = JSON.parse(raw_token)
   end
