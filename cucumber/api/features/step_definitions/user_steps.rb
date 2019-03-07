@@ -12,6 +12,12 @@ Given(/^I create a new user "([^"]*)"$/) do |login|
   create_user login, @current_user || admin_user
 end
 
+Given(/^I have user "([^"]*)"$/) do |login|
+  unless user_exists?(login)
+    create_user login, @current_user || admin_user
+  end
+end
+
 Given(/^I create a new admin-owned user "(.*?)"$/) do |login|
   create_user login, admin_user
 end

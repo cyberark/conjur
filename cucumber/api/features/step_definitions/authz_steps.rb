@@ -1,18 +1,11 @@
 # frozen_string_literal: true
 
 Given(/^I create a new(?: "([^"]*)")? resource(?: called "([^"]*)")?$/) do |kind, identifier|
-  kind ||= "test-resource"
-  identifier ||= random_hex
-  identifier = denormalize identifier
-  resource_id = "cucumber:#{kind}:#{identifier}"
+  i_have_a_resource kind, identifier, must_be_new: true
+end
 
-  @resources ||= {}
-  
-  @current_resource =
-    Resource.create(resource_id: resource_id,
-                    owner: @current_user || admin_user)
-
-  @resources[resource_id] = @current_resource
+Given(/^I have a(?: "([^"]*)")? resource(?: called "([^"]*)")?$/) do |kind, identifier|
+  i_have_a_resource kind, identifier
 end
 
 Given(/^I add an annotation value of(?: "([^"]*)")? to the resource$/) do |annotation_value|
@@ -95,7 +88,9 @@ end
 Given(/^I permit user "([^"]*)" to "([^"]*)" it$/) do |grantee, privilege|
   grantee = lookup_user(grantee)
   target = @current_resource
-  target.permit privilege, grantee
+  unless grantee.allowed_to?(privilege, target)
+    target.permit privilege, grantee
+  end
 end
 
 Given(/^I grant my role to user "([^"]*)"$/) do |login|

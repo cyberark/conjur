@@ -183,6 +183,11 @@ module RestHelpers
     end
   end
 
+  def user_exists? login
+    roleid = "cucumber:user:#{login}"
+    Role[role_id: roleid]
+  end
+
   def current_user?
     !!@current_user
   end
