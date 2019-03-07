@@ -12,8 +12,10 @@ module AuthzHelpers
     @resources ||= {}
 
     @current_resource = Resource[resource_id: resource_id]
-    @current_resource = Resource.create(resource_id: resource_id,
-                                        owner: @current_user || admin_user) unless @current_resource
+    unless @current_resource
+      @current_resource = Resource.create(resource_id: resource_id,
+                                          owner: @current_user || admin_user)
+    end
 
     @resources[resource_id] = @current_resource
   end
