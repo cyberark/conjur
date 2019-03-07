@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Given(/^I create a new(?: "([^"]*)")? resource(?: called "([^"]*)")?$/) do |kind, identifier|
-  i_have_a_resource kind, identifier, must_be_new: true
+  i_have_a_new_resource kind, identifier
 end
 
 Given(/^I have a(?: "([^"]*)")? resource(?: called "([^"]*)")?$/) do |kind, identifier|
