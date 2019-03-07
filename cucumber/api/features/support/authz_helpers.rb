@@ -11,12 +11,9 @@ module AuthzHelpers
 
     @resources ||= {}
 
-    @current_resource = if Resource[resource_id: resource_id] &&
-      Resource[resource_id: resource_id]
-                        else
-                          Resource.create(resource_id: resource_id,
-                                          owner:       @current_user || admin_user)
-                        end
+    @current_resource = Resource[resource_id: resource_id]
+    @current_resource = Resource.create(resource_id: resource_id,
+                                        owner: @current_user || admin_user) unless @current_resource
 
     @resources[resource_id] = @current_resource
   end
