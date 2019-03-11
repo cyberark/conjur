@@ -80,10 +80,11 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   docker-compose up -d --no-deps $services
 
   echo "Configuring Okta as OpenID provider for manual testing"
+  echo "Configuring ADFS as OpenID provider for manual testing"
   echo "Configuring Keycloak as OpenID provider for automatic testing"
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/ci/authn-oidc/policy.yml
 
-  enabled_authenticators="$enabled_authenticators,authn-oidc/okta,authn-oidc/keycloak"
+  enabled_authenticators="$enabled_authenticators,authn-oidc/okta,authn-oidc/keycloak,authn-oidc/adfs"
 
   echo "Initialize keycloak certificate in conjur server"
   docker-compose exec conjur /src/conjur-server/ci/authn-oidc/keycloak/fetchCertificate
@@ -113,6 +114,10 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   docker-compose exec client conjur variable values add conjur/authn-oidc/okta/client-secret aDL6DTH7WIE3qsTjnY6H_lYcfMKXK7hCA6AlZEer
   docker-compose exec client conjur variable values add conjur/authn-oidc/okta/provider-uri https://dev-842018.oktapreview.com
   docker-compose exec client conjur variable values add conjur/authn-oidc/okta/id-token-user-property "preferred_username"
+
+  # add variables' values for ADFS
+  docker-compose exec client conjur variable values add conjur/authn-oidc/adfs/provider-uri https://adfs4win2016.northeurope.cloudapp.azure.com
+  docker-compose exec client conjur variable values add conjur/authn-oidc/adfs/id-token-user-property "unique_name"
 
   echo "Creating OpenID client in keycloack OpenID provider"
   docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_client
