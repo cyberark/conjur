@@ -15,7 +15,9 @@ Usage: start [options]
 
     --authn-iam     Starts with authn-iam/prod as authenticator
 
-    --authn-oidc    Starts with authn-oidc/okta as authenticator
+    --authn-oidc    Starts with authn-oidc/keycloak as authenticator
+
+    --oidc-adfs     Adds to authn-oidc adfs static env configuration
 
     --audit         Starts with the audit engine and database enabled
 
@@ -30,6 +32,7 @@ unset COMPOSE_PROJECT_NAME
 ENABLE_AUTHN_LDAP=false
 ENABLE_AUTHN_IAM=false
 ENABLE_AUTHN_OIDC=false
+ENABLE_OIDC_ADFS=false
 ENABLE_ROTATORS=false
 ENABLE_AUDIT=false
 while true ; do
@@ -37,6 +40,7 @@ while true ; do
     --authn-iam ) ENABLE_AUTHN_IAM=true ; shift ;;
     --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
     --authn-oidc ) ENABLE_AUTHN_OIDC=true ; shift ;;
+    --oidc-adfs ) ENABLE_OIDC_ADFS=true ; shift ;;
     --rotators ) ENABLE_ROTATORS=true ; shift ;;
     --audit ) ENABLE_AUDIT=true ; shift ;;
     -h | --help ) print_help ; shift ;;
@@ -80,7 +84,6 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   docker-compose up -d --no-deps $services
 
   echo "Configuring Okta as OpenID provider for manual testing"
-  echo "Configuring ADFS as OpenID provider for manual testing"
   echo "Configuring Keycloak as OpenID provider for automatic testing"
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/ci/authn-oidc/policy.yml
 
@@ -88,6 +91,13 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
 
   echo "Initialize keycloak certificate in conjur server"
   docker-compose exec conjur /src/conjur-server/ci/authn-oidc/keycloak/fetchCertificate
+
+  # Since ADFS is a static environment, this is the only step that will failed if the environment doesn't exists
+  if [[ $ENABLE_OIDC_ADFS = true ]]; then
+    echo "Configuring ADFS as OpenID provider for manual testing"
+    echo "Initialize ADFS certificate in conjur server"
+    docker-compose exec conjur /src/conjur-server/dev/files/authn-oidc/adfs/fetchCertificate
+  fi
 
   echo "Starting Conjur server"
   api_key=$(docker-compose exec -T conjur conjurctl \

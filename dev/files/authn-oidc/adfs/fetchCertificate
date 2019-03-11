@@ -1,0 +1,7 @@
+#!/bin/sh
+httpclient_pem_location="/var/lib/gems/2.5.0/gems/httpclient-2.8.3/lib/httpclient"
+
+echo “ADFS cert” >> "$httpclient_pem_location/cacert.pem"
+echo | openssl s_client -showcerts -connect adfs4win2016.northeurope.cloudapp.azure.com:443 -servername adfs4win2016.northeurope.cloudapp.azure.com 2>/dev/null | openssl x509 -outform PEM >>  "$httpclient_pem_location/cacert.pem"
+echo “ADFS cert” >> "$httpclient_pem_location/cacert1024.pem"
+echo | openssl s_client -showcerts -connect adfs4win2016.northeurope.cloudapp.azure.com:443 -servername adfs4win2016.northeurope.cloudapp.azure.com 2>/dev/null | openssl x509 -outform PEM >>  "$httpclient_pem_location/cacert1024.pem"
