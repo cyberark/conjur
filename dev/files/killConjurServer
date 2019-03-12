@@ -1,0 +1,3 @@
+#!/bin/sh
+
+kill $(ps aux | grep '[r]uby /usr/local/bin/conjurctl server' | awk '{print $2}')

@@ -114,6 +114,9 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   docker-compose exec client conjur variable values add conjur/authn-oidc/okta/provider-uri https://dev-842018.oktapreview.com
   docker-compose exec client conjur variable values add conjur/authn-oidc/okta/id-token-user-property "preferred_username"
 
+  echo "killing the conjur server process"
+  docker-compose exec conjur /src/conjur-server/dev/files/killConjurServer
+
   echo "Creating OpenID client in keycloack OpenID provider"
   docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_client
   echo "keycloak admin console url: http://0.0.0.0:7777/auth/admin"
