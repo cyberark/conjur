@@ -268,6 +268,10 @@ RSpec.describe 'Authentication::Oidc' do
 
         it_behaves_like "raises an error when security validation fails"
         it_behaves_like "raises an error when origin validation fails"
+
+        it_behaves_like "it fails when variable is missing or has no value", "client-id"
+        it_behaves_like "it fails when variable is missing or has no value", "client-secret"
+        it_behaves_like "it fails when variable is missing or has no value", "provider-uri"
       end
 
       context "and fails on oidc details retrieval" do
@@ -403,8 +407,6 @@ RSpec.describe 'Authentication::Oidc' do
         it_behaves_like "raises an error when security validation fails"
         it_behaves_like "raises an error when origin validation fails"
 
-        it_behaves_like "it fails when variable is missing or has no value", "client-id"
-        it_behaves_like "it fails when variable is missing or has no value", "client-secret"
         it_behaves_like "it fails when variable is missing or has no value", "provider-uri"
         it_behaves_like "it fails when variable is missing or has no value", "id-token-user-property"
       end
