@@ -9,12 +9,6 @@
       description: Authentication service for Keycloak, based on Open ID Connect.
 
   - !variable
-    id: client-id
-
-  - !variable
-    id: client-secret
-
-  - !variable
     id: provider-uri
 
   - !variable

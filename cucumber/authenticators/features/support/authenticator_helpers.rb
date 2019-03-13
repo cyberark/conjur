@@ -173,8 +173,6 @@ module AuthenticatorHelpers
 
   def set_oidc_variables
     path = "cucumber:variable:conjur/authn-oidc/keycloak"
-    Secret.create resource_id: "#{path}/client-id", value: oidc_client_id
-    Secret.create resource_id: "#{path}/client-secret", value: oidc_client_secret
     Secret.create resource_id: "#{path}/provider-uri", value: oidc_provider_uri
     Secret.create resource_id: "#{path}/id-token-user-property", value: oidc_id_token_user_property
   end
@@ -186,7 +184,6 @@ module AuthenticatorHelpers
     system("sh #{path_script}")
     @oidc_auth_code = `#{authorization_code_file}`
   end
-
 end
 
 World(AuthenticatorHelpers)
