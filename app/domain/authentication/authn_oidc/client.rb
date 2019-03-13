@@ -4,11 +4,11 @@ require 'openid_connect'
 module Authentication
   module AuthnOidc
     class Client
-      def initialize(configuration)
-        @client_id = configuration.client_id
-        @client_secret = configuration.client_secret
-        @redirect_uri = configuration.redirect_uri
-        @provider_uri = configuration.provider_uri
+      def initialize(client_id:, client_secret:, redirect_uri:, provider_uri:)
+        @client_id = client_id
+        @client_secret = client_secret
+        @redirect_uri = redirect_uri
+        @provider_uri = provider_uri
       end
 
       def oidc_id_token_details!(authorization_code)

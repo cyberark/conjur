@@ -7,6 +7,7 @@ module Authentication
       dependencies: {
         oidc_authenticator:     AuthnOidc::Authenticator.new,
         enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
+        fetch_oidc_secrets: AuthnOidc::FetchOidcSecrets.new,
         oidc_client_class:      ::Authentication::AuthnOidc::Client,
         token_factory:          OidcTokenFactory.new,
         validate_security:      ::Authentication::ValidateSecurity.new,
@@ -50,13 +51,18 @@ module Authentication
       end
 
       def oidc_client(redirect_uri:, service_id:, conjur_account:)
-        oidc_client_configuration = AuthnOidc::GetOidcClientConfiguration.new.(
-          redirect_uri: redirect_uri,
-            service_id: service_id,
-            conjur_account: conjur_account
-        )
+        required_variable_names = %w(client-id client-secret provider-uri)
+        oidc_secrets = @fetch_oidc_secrets.(
+          service_id: service_id,
+            conjur_account: conjur_account,
+            required_variable_names: required_variable_names)
 
-        @oidc_client_class.new(oidc_client_configuration)
+        @oidc_client_class.new(
+          client_id: oidc_secrets["client-id"],
+          client_secret: oidc_secrets["client-secret"],
+          redirect_uri: redirect_uri,
+          provider_uri: oidc_secrets["provider-uri"]
+        )
       end
 
       def validate_credentials(input, oidc_id_token_details)

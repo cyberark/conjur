@@ -5,7 +5,7 @@ module Authentication
     Authenticate = CommandClass.new(
       dependencies: {
         enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
-        get_oidc_client_configuration: AuthnOidc::GetOidcClientConfiguration.new,
+        fetch_oidc_secrets: AuthnOidc::FetchOidcSecrets.new,
         token_factory:          OidcTokenFactory.new,
         validate_security:      ::Authentication::ValidateSecurity.new,
         validate_origin:        ::Authentication::ValidateOrigin.new,
@@ -23,11 +23,11 @@ module Authentication
       def access_token(input)
         request_body = AuthnOidc::AuthenticateRequestBody.new(input.request)
 
-        oidc_client_configuration = @get_oidc_client_configuration.(
-          redirect_uri: nil, # not needed for this request
-            service_id: input.service_id,
-            conjur_account: input.account
-        )
+        required_variable_names = %w(provider-uri id-token-user-property)
+        oidc_secrets = @fetch_oidc_secrets.(
+          service_id: input.service_id,
+            conjur_account: input.account,
+            required_variable_names: required_variable_names)
 
         # Prepare ID token introspect request
 
@@ -37,7 +37,7 @@ module Authentication
 
         # Validate ID Token is active
 
-        input = input.update(username: conjur_username(request_body.id_token, oidc_client_configuration.id_token_user_property))
+        input = input.update(username: conjur_username(request_body.id_token, oidc_secrets["id-token-user-property"]))
 
         @validate_security.(input: input, enabled_authenticators: @enabled_authenticators)
 
