@@ -19,11 +19,32 @@ Usage: start [options]
 
     --oidc-adfs     Adds to authn-oidc adfs static env configuration
 
+    --oidc-okta     Adds to authn-oidc okta static env configuration
+
     --audit         Starts with the audit engine and database enabled
 
     -h, --help      Shows this help message.
 EOF
   exit
+}
+
+function keycloak_isready?() {
+  for i in {1..20}
+  do
+   sleep=10
+   echo "keycloak starting logs:"
+   echo "$(docker-compose logs oidc-keycloak)"
+   output=$(docker-compose logs oidc-keycloak | grep "started" | wc -l)
+   if [ $output -ne 0 ]; then
+        echo "Keycloak server is up and ready"
+        return 0;
+   else
+        echo "Keycloak not ready yet sleep number $i for $sleep seconds"
+        sleep $sleep
+   fi
+  done
+  echo "Error with keycloak server start or it is too slow"
+  return 1
 }
 
 unset COMPOSE_PROJECT_NAME
@@ -33,6 +54,7 @@ ENABLE_AUTHN_LDAP=false
 ENABLE_AUTHN_IAM=false
 ENABLE_AUTHN_OIDC=false
 ENABLE_OIDC_ADFS=false
+ENABLE_OIDC_OKTA=false
 ENABLE_ROTATORS=false
 ENABLE_AUDIT=false
 while true ; do
@@ -41,6 +63,7 @@ while true ; do
     --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
     --authn-oidc ) ENABLE_AUTHN_OIDC=true ; shift ;;
     --oidc-adfs ) ENABLE_OIDC_ADFS=true ; shift ;;
+    --oidc-okta ) ENABLE_OIDC_OKTA=true ; shift ;;
     --rotators ) ENABLE_ROTATORS=true ; shift ;;
     --audit ) ENABLE_AUDIT=true ; shift ;;
     -h | --help ) print_help ; shift ;;
@@ -79,22 +102,32 @@ if [[ $ENABLE_AUTHN_LDAP = true ]]; then
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-ldap/policy.yml
 fi
 
+if [[ $ENABLE_AUTHN_OIDC = false && ($ENABLE_OIDC_ADFS = true || $ENABLE_OIDC_OKTA = true) ]]; then
+    echo "Error: --oidc-adfs/--oidc-okta should be configured as part of --authn-oidc"
+    exit 1
+fi
+
 if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   services="$services oidc-keycloak oidc-phantomjs client"
   docker-compose up -d --no-deps $services
 
-  echo "Configuring Okta as OpenID provider for manual testing"
   echo "Configuring Keycloak as OpenID provider for automatic testing"
-  docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/ci/authn-oidc/policy.yml
+  enabled_authenticators="$enabled_authenticators,authn-oidc/keycloak"
 
-  enabled_authenticators="$enabled_authenticators,authn-oidc/okta,authn-oidc/keycloak,authn-oidc/adfs"
+  # Check if keycloak is up
+  keycloak_isready?
 
   echo "Initialize keycloak certificate in conjur server"
   docker-compose exec conjur /src/conjur-server/ci/authn-oidc/keycloak/fetchCertificate
 
-  # Since ADFS is a static environment, this is the only step that will failed if the environment doesn't exists
+  if [[ $ENABLE_OIDC_OKTA = true ]]; then
+    echo "Configuring OKTA as OpenID provider for manual testing"
+    enabled_authenticators="$enabled_authenticators,authn-oidc/okta"
+  fi
+
   if [[ $ENABLE_OIDC_ADFS = true ]]; then
     echo "Configuring ADFS as OpenID provider for manual testing"
+    enabled_authenticators="$enabled_authenticators,authn-oidc/adfs"
     echo "Initialize ADFS certificate in conjur server"
     docker-compose exec conjur /src/conjur-server/dev/files/authn-oidc/adfs/fetchCertificate
   fi
@@ -114,20 +147,27 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   docker-compose exec client conjur authn login -u admin -p $api_key
 
   # add variables' values for keycloak
+  docker-compose exec client conjur policy load root /src/conjur-server/ci/authn-oidc/policy.yml
   docker-compose exec client conjur variable values add conjur/authn-oidc/keycloak/client-id $KEYCLOAK_CLIENT_ID
   docker-compose exec client conjur variable values add conjur/authn-oidc/keycloak/client-secret $KEYCLOAK_CLIENT_SECRET
   docker-compose exec client conjur variable values add conjur/authn-oidc/keycloak/provider-uri "https://keycloak:8443/auth/realms/master"
   docker-compose exec client conjur variable values add conjur/authn-oidc/keycloak/id-token-user-property "preferred_username"
 
-  # add variables' values for okta
-  docker-compose exec client conjur variable values add conjur/authn-oidc/okta/client-id 0oagd87pc7rUCknhR0h7
-  docker-compose exec client conjur variable values add conjur/authn-oidc/okta/client-secret aDL6DTH7WIE3qsTjnY6H_lYcfMKXK7hCA6AlZEer
-  docker-compose exec client conjur variable values add conjur/authn-oidc/okta/provider-uri https://dev-842018.oktapreview.com
-  docker-compose exec client conjur variable values add conjur/authn-oidc/okta/id-token-user-property "preferred_username"
+  if [[ $ENABLE_OIDC_OKTA = true ]]; then
+      # add variables' values for okta
+      docker-compose exec client conjur policy load root /src/conjur-server/ci/authn-oidc/policy_okta.yml
+      docker-compose exec client conjur variable values add conjur/authn-oidc/okta/client-id 0oagd87pc7rUCknhR0h7
+      docker-compose exec client conjur variable values add conjur/authn-oidc/okta/client-secret aDL6DTH7WIE3qsTjnY6H_lYcfMKXK7hCA6AlZEer
+      docker-compose exec client conjur variable values add conjur/authn-oidc/okta/provider-uri https://dev-842018.oktapreview.com
+      docker-compose exec client conjur variable values add conjur/authn-oidc/okta/id-token-user-property "preferred_username"
+  fi
 
-  # add variables' values for ADFS
-  docker-compose exec client conjur variable values add conjur/authn-oidc/adfs/provider-uri https://adfs4win2016.northeurope.cloudapp.azure.com
-  docker-compose exec client conjur variable values add conjur/authn-oidc/adfs/id-token-user-property "unique_name"
+  if [[ $ENABLE_OIDC_ADFS = true ]]; then
+    # add variables' values for ADFS
+    docker-compose exec client conjur policy load root /src/conjur-server/ci/authn-oidc/policy_adfs.yml
+    docker-compose exec client conjur variable values add conjur/authn-oidc/adfs/provider-uri https://adfs4win2016.northeurope.cloudapp.azure.com
+    docker-compose exec client conjur variable values add conjur/authn-oidc/adfs/id-token-user-property "unique_name"
+  fi
 
   echo "Creating OpenID client in keycloack OpenID provider"
   docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_client
@@ -139,8 +179,8 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   echo "Fetch OpenID authrization code from keycloak using phantomjs"
   docker-compose exec oidc-phantomjs /authn-oidc/phantomjs/scripts/fetchAuthCode
 
-  echo "Building & configuring Okta-LDAP agent"
-  if [[ $ENABLE_AUTHN_LDAP = true ]]; then
+  if [[ $ENABLE_AUTHN_LDAP = true && $ENABLE_OIDC_OKTA = true ]]; then
+    echo "Building & configuring Okta-LDAP agent"
     services="$services okta-ldap-agent"
     docker-compose up -d --no-deps $services
 

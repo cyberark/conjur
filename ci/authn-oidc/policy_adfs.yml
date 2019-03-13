@@ -1,0 +1,28 @@
+- !user test1@adfs4domain.local
+- !user ADFS4DOMAIN\test1
+
+- !policy
+  id: conjur/authn-oidc/adfs
+  body:
+    - !webservice
+      annotations:
+        description: Authentication service for adfs, based on Open ID Connect.
+
+    - !variable
+      id: provider-uri
+
+    - !variable
+      id: id-token-user-property
+
+    - !group users
+
+    - !permit
+      role: !group users
+      privilege: [ read, authenticate ]
+      resource: !webservice
+
+- !grant
+  role: !group conjur/authn-oidc/adfs/users
+  member:
+    - !user test1@adfs4domain.local
+    - !user ADFS4DOMAIN\test1
