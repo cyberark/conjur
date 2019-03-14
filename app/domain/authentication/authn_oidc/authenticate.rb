@@ -5,7 +5,7 @@ module Authentication
     Authenticate = CommandClass.new(
       dependencies: {
         enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
-        fetch_oidc_secrets: AuthnOidc::FetchOidcSecrets.new,
+        fetch_oidc_secrets:     AuthnOidc::FetchOidcSecrets.new,
         token_factory:          OidcTokenFactory.new,
         validate_security:      ::Authentication::ValidateSecurity.new,
         validate_origin:        ::Authentication::ValidateOrigin.new,
@@ -24,10 +24,11 @@ module Authentication
         request_body = AuthnOidc::AuthenticateRequestBody.new(input.request)
 
         required_variable_names = %w(provider-uri id-token-user-property)
-        oidc_secrets = @fetch_oidc_secrets.(
+        oidc_secrets            = @fetch_oidc_secrets.(
           service_id: input.service_id,
             conjur_account: input.account,
-            required_variable_names: required_variable_names)
+            required_variable_names: required_variable_names
+        )
 
         # Prepare ID token introspect request
 

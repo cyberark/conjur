@@ -13,13 +13,13 @@ module Authentication
     # Errors from FetchRequiredSecrets
     #
     RequiredResourceMissing = ::Conjur::RequiredResourceMissing
-    RequiredSecretMissing = ::Conjur::RequiredSecretMissing
+    RequiredSecretMissing   = ::Conjur::RequiredSecretMissing
 
     FetchOidcSecrets = CommandClass.new(
       dependencies: {
         fetch_secrets: ::Conjur::FetchRequiredSecrets.new
       },
-      inputs: %i(conjur_account service_id required_variable_names)
+      inputs:       %i(conjur_account service_id required_variable_names)
     ) do
 
       def call
@@ -45,7 +45,7 @@ module Authentication
       end
 
       def oidc_secrets
-        secrets = Hash.new
+        secrets = {}
 
         @required_variable_names.each do |variable_name|
           secrets[variable_name] = secret_value(variable_name)
