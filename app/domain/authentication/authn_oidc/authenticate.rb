@@ -31,9 +31,9 @@ module Authentication
             required_variable_names: required_variable_names
         )
 
-        id_token_attribs = @decode_and_verify_id_token.(oidc_secrets["provider-uri"], request_body.id_token)
+        id_token_attributes = @decode_and_verify_id_token.(oidc_secrets["provider-uri"], request_body.id_token)
 
-        input = input.update(username: conjur_username(id_token_attribs, oidc_secrets["id-token-user-property"]))
+        input = input.update(username: conjur_username(id_token_attributes, oidc_secrets["id-token-user-property"]))
 
         @validate_security.(input: input, enabled_authenticators: @enabled_authenticators)
 
@@ -54,8 +54,8 @@ module Authentication
         )
       end
 
-      def conjur_username(id_token_attribs, id_token_username_field)
-        conjur_username = id_token_attribs[id_token_username_field]
+      def conjur_username(id_token_attributes, id_token_username_field)
+        conjur_username = id_token_attributes[id_token_username_field]
         raise IdTokenFieldNotFound, id_token_username_field unless conjur_username.present?
 
         conjur_username
