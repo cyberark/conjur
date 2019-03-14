@@ -19,7 +19,6 @@ module Authentication
       def parsed_id_token(request_body)
         decoded_request_body = decoded_body(request_body)
         id_token = decoded_request_body.assoc('id_token').last
-        JSON.parse(id_token)
       end
     end
   end

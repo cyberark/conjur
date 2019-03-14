@@ -9,7 +9,8 @@ module Authentication
         token_factory: OidcTokenFactory.new,
         validate_security: ::Authentication::ValidateSecurity.new,
         validate_origin: ::Authentication::ValidateOrigin.new,
-        audit_event: ::Authentication::AuditEvent.new
+        audit_event: ::Authentication::AuditEvent.new,
+        decode_and_verify_id_token: ::Authentication::AuthnOidc::DecodeAndVerifyIdToken.new
       },
       inputs: %i(authenticator_input)
     ) do
@@ -30,15 +31,9 @@ module Authentication
             required_variable_names: required_variable_names
         )
 
-        # Prepare ID token introspect request
+        id_token_attribs = @decode_and_verify_id_token.(oidc_secrets["provider-uri"], request_body.id_token)
 
-        # send id token to OIDC Provider
-
-        # Get JSON from OIDC Provider
-
-        # Validate ID Token is active
-
-        input = input.update(username: conjur_username(request_body.id_token, oidc_secrets["id-token-user-property"]))
+        input = input.update(username: conjur_username(id_token_attribs, oidc_secrets["id-token-user-property"]))
 
         @validate_security.(input: input, enabled_authenticators: @enabled_authenticators)
 
@@ -59,8 +54,8 @@ module Authentication
         )
       end
 
-      def conjur_username(id_token, id_token_username_field)
-        conjur_username = id_token[id_token_username_field]
+      def conjur_username(id_token_attribs, id_token_username_field)
+        conjur_username = id_token_attribs[id_token_username_field]
         raise IdTokenFieldNotFound, id_token_username_field unless conjur_username.present?
 
         conjur_username
