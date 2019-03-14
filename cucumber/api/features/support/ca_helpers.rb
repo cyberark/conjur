@@ -16,16 +16,32 @@ module CAHelpers
     int_ca
   end
 
+  def generate_ssh_ca(comment, password = nil)
+    SshKey.new(comment, password: password)
+  end
+
   def create_host(common_name)
     Host.new("CN=#{common_name}")
+  end
+
+  def create_ssh_key(comment)
+    SshKey.new(comment)
   end
 
   def intermediate_ca
     @intermediate_ca ||= {}
   end
 
+  def ssh_ca
+    @ssh_ca ||= {}
+  end
+
   def response_certificate
     @response_certificate ||= OpenSSL::X509::Certificate.new certificate_response_body
+  end
+
+  def response_ssh_certificate
+    @response_ssh_certificate ||= Net::SSH::KeyFactory.load_data_public_key(certificate_response_body)
   end
 
   def certificate_response_body
@@ -157,6 +173,26 @@ module CAHelpers
     def initialize(name, key_size: 4096)
       @name = OpenSSL::X509::Name.parse name
       @key = OpenSSL::PKey::RSA.new key_size
+    end
+  end
+
+  class SshKey
+    def initialize(comments, key_size: 4096, password: nil)
+      @comments = comments
+      @key = OpenSSL::PKey::RSA.new key_size
+      @password = password
+    end
+
+    def fingerprint
+      @key.public_key.fingerprint
+    end
+
+    def private_key
+      @password.to_s.empty? ? @key.to_pem : @key.to_pem(OpenSSL::Cipher::AES256.new(:CBC), @password)
+    end
+
+    def public_key
+      @key.public_key.to_pem
     end
   end
 end
