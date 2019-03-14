@@ -17,6 +17,7 @@ services to the API.
 Links to the current Authenticator Feature specs:
 * [Authn-LDAP](https://github.com/cyberark/conjur/issues/524)
 * [Authn-IAM](https://github.com/cyberark/conjur/issues/542)
+* [Authn-OIDC - POC](https://github.com/cyberark/conjur/issues/838)
 
 ## Login
 
@@ -95,7 +96,7 @@ CONJUR_AUTHENTICATORS=authn-ldap/sysadmins,authn
 
 Note that this is a comma-separated list.
 
-### Create webservice and authorize users 
+### Create webservice and authorize users
 
 Except for the default Conjur authenticator, authenticators must be listed as
 webservices in your Conjur policy, and users must be authorized to use them.
@@ -121,7 +122,7 @@ This requires two steps:
 ```ruby
 module Authentication
   module MyAuthenticator
-    
+
     class Authenticator
       def initialize(env:)
         # initialization code based on ENV config
@@ -175,7 +176,7 @@ end
 ```ruby
 module Authentication
   module MyAuthenticator
-    
+
     class Authenticator
       def self.requires_env_arg?
         false
