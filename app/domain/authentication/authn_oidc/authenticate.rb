@@ -5,13 +5,13 @@ module Authentication
     Authenticate = CommandClass.new(
       dependencies: {
         enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
-        fetch_oidc_secrets:     AuthnOidc::FetchOidcSecrets.new,
-        token_factory:          OidcTokenFactory.new,
-        validate_security:      ::Authentication::ValidateSecurity.new,
-        validate_origin:        ::Authentication::ValidateOrigin.new,
-        audit_event:            ::Authentication::AuditEvent.new
+        fetch_oidc_secrets: AuthnOidc::FetchOidcSecrets.new,
+        token_factory: OidcTokenFactory.new,
+        validate_security: ::Authentication::ValidateSecurity.new,
+        validate_origin: ::Authentication::ValidateOrigin.new,
+        audit_event: ::Authentication::AuditEvent.new
       },
-      inputs:       %i(authenticator_input)
+      inputs: %i(authenticator_input)
     ) do
 
       def call
@@ -24,7 +24,7 @@ module Authentication
         request_body = AuthnOidc::AuthenticateRequestBody.new(input.request)
 
         required_variable_names = %w(provider-uri id-token-user-property)
-        oidc_secrets            = @fetch_oidc_secrets.(
+        oidc_secrets = @fetch_oidc_secrets.(
           service_id: input.service_id,
             conjur_account: input.account,
             required_variable_names: required_variable_names
@@ -54,7 +54,7 @@ module Authentication
 
       def new_token(input)
         @token_factory.signed_token(
-          account:  input.account,
+          account: input.account,
           username: input.username
         )
       end
