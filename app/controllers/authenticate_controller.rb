@@ -120,10 +120,10 @@ class AuthenticateController < ApplicationController
     end
 
     case err
-    when Conjur::RequiredResourceMissing
-    when Conjur::RequiredSecretMissing
-    when Authentication::Security::ServiceNotDefined
-    when Authentication::Security::NotWhitelisted
+    when Conjur::RequiredResourceMissing,
+      Conjur::RequiredSecretMissing,
+      Authentication::Security::ServiceNotDefined,
+      Authentication::Security::NotWhitelisted
       raise Exceptions::NotImplemented, err.message
     else
       raise Unauthorized
