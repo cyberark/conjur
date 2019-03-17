@@ -31,11 +31,20 @@ module Authentication
             required_variable_names: required_variable_names
         )
 
-        id_token_attributes = @decode_and_verify_id_token.(oidc_secrets["provider-uri"], request_body.id_token)
+        id_token_attributes = @decode_and_verify_id_token.(
+          oidc_secrets["provider-uri"],
+          request_body.id_token
+        )
 
-        input = input.update(username: conjur_username(id_token_attributes, oidc_secrets["id-token-user-property"]))
+        input = input.update(
+          username: conjur_username(
+            id_token_attributes,
+            oidc_secrets["id-token-user-property"]
+          )
+        )
 
-        @validate_security.(input: input, enabled_authenticators: @enabled_authenticators)
+        @validate_security.(input: input,
+          enabled_authenticators: @enabled_authenticators)
 
         @validate_origin.(input: input)
 

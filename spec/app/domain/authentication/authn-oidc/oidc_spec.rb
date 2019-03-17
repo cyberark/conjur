@@ -128,10 +128,10 @@ RSpec.describe 'Authentication::Oidc' do
     allow(mocked_origin_validator).to receive(:call)
                                         .and_return(true)
 
-    # Avoid token verification and decoding by returning same tested json
-    allow(mocked_decode_and_verify_id_token).to receive(:call) do |provider_uri, id_token_jwt|
-      JSON.parse(id_token_jwt).to_hash
-    end
+
+    allow(mocked_decode_and_verify_id_token).to receive(:call)  { |*args|
+      JSON.parse(args[0][:id_token_jwt]).to_hash
+    }
 
   end
 
