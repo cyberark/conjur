@@ -43,6 +43,8 @@ Feature: Users can authneticate with OIDC authenticator
     Given I have a "variable" resource called "test-variable"
     And I permit user "alice" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I get authorization code
+    And I get ID Token
     When I successfully authenticate via OIDC with id token:
     """
     {"preferred_username": "alice","email": "alice@conjur.net"}
@@ -54,6 +56,8 @@ Feature: Users can authneticate with OIDC authenticator
     Given I have user "alice@conjur.net"
     # Add user `alice@conjur.net` to keycloak-users group
     And I successfully POST "/roles/cucumber/group/conjur%2Fauthn-oidc%2Fkeycloak%2Fusers?members&member=cucumber:user:alice@conjur.net"
+    And I get authorization code
+    And I get ID Token
     When I add the secret value "email" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/id-token-user-property"
     And I successfully authenticate via OIDC with id token:
     """

@@ -102,6 +102,17 @@ module AuthenticatorHelpers
     @response_body     = err.response
   end
 
+  def execute(method, path, payload = {}, options = {})
+    result             = RestClient::Request.execute(method: method, url: path, payload: payload, **options)
+    @response_body     = result.body
+    @http_status       = result.code
+
+  rescue RestClient::Exception => err
+    @rest_client_error = err
+    @http_status       = err.http_code
+    @response_body     = err.response
+  end
+
   def conjur_hostname
     ENV.fetch('CONJUR_APPLIANCE_URL', 'http://conjur')
   end

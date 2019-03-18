@@ -54,6 +54,7 @@ cucumber_authenticators() {
     cucumber_env_args="$cucumber_env_args -e $v=$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv $v | tr -d '\r')"
   done
   cucumber_env_args="$cucumber_env_args -e PROVIDER_URI=https://keycloak:8443/auth/realms/master"
+  cucumber_env_args="$cucumber_env_args -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect"
   cucumber_env_args="$cucumber_env_args -e ID_TOKEN_USER_PROPERTY=preferred_username"
 
   _prepare_env_auth_ldap
@@ -236,8 +237,10 @@ _prepare_env_auth_oidc() {
   # Check if keycloak is up
   _keycloak_isready?
 
-  # Define oidc-keycloak client & app user
+  # Define oidc-keycloak client
   docker-compose exec -T oidc-keycloak /scripts/create_client
+
+  echo "Creating user 'alice' in Keycloak"
   docker-compose exec -T oidc-keycloak /scripts/create_user
 
   echo "Initialize keycloak certificate in conjur server"
