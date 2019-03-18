@@ -2,8 +2,8 @@ Given(/^I get authorization code$/) do
   oidc_authorization_code
 end
 
-Given(/I get ID Token/) do
-  get_oidc_id_token
+Given(/I fetch ID Token/) do
+  fetch_oidc_id_token
 end
 
 Given(/^I successfully set OIDC variables$/) do

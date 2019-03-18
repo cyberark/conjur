@@ -1,5 +1,7 @@
-
-
+# frozen_string_literal: true
+#
+# Utility methods for OIDC authenticator
+#
 module AuthnOidcHelper
   include AuthenticatorHelpers
 
@@ -21,8 +23,8 @@ module AuthnOidcHelper
 
   def authenticate_id_token_with_oidc(service_id:, account:)
     path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
-    #TODO: Enable the following comment once the production code knows to get encoded id_token
-    #payload = { id_token: "#{oidc_id_token}" }
+    # TODO: Enable the following comment once the production code knows to get encoded id_token
+    # payload = { id_token: "#{oidc_id_token}" }
     payload = { id_token: "{\"preferred_username\": \"alice\",\"email\": \"alice@conjur.net\"}" }
     post(path, payload)
   end
@@ -35,9 +37,9 @@ module AuthnOidcHelper
     @oidc_auth_code = `#{authorization_code_file}`
   end
 
-  def get_oidc_id_token
+  def fetch_oidc_id_token
     path = "#{oidc_provider_internal_uri}/token"
-    payload = { grant_type: 'authorization_code' , redirect_uri: oidc_redirect_uri , code: oidc_auth_code }
+    payload = { grant_type: 'authorization_code', redirect_uri: oidc_redirect_uri, code: oidc_auth_code }
     options = { user: oidc_client_id, password: oidc_client_secret }
     execute(:post, path, payload, options)
     oidc_id_token

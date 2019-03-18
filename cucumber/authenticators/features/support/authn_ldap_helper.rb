@@ -1,5 +1,7 @@
+# frozen_string_literal: true
 
-
+# Utility methods for LDAP authenticator
+#
 module AuthnLdapHelper
   include AuthenticatorHelpers
 
