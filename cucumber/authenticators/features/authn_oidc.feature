@@ -11,12 +11,6 @@ Feature: Users can authneticate with OIDC authenticator
           description: Authentication service for Keycloak, based on Open ID Connect.
 
       - !variable
-        id: client-id
-
-      - !variable
-        id: client-secret
-
-      - !variable
         id: provider-uri
 
       - !variable
@@ -45,10 +39,7 @@ Feature: Users can authneticate with OIDC authenticator
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I get authorization code
     And I get ID Token
-    When I successfully authenticate via OIDC with id token:
-    """
-    {"preferred_username": "alice","email": "alice@conjur.net"}
-    """
+    When I successfully authenticate via OIDC with id token
     Then "alice" is authorized
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
 
@@ -59,8 +50,5 @@ Feature: Users can authneticate with OIDC authenticator
     And I get authorization code
     And I get ID Token
     When I add the secret value "email" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/id-token-user-property"
-    And I successfully authenticate via OIDC with id token:
-    """
-    {"preferred_username": "alice","email": "alice@conjur.net"}
-    """
+    And I successfully authenticate via OIDC with id token
     Then "alice@conjur.net" is authorized

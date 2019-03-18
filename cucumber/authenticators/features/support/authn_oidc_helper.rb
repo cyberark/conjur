@@ -3,19 +3,28 @@
 module AuthnOidcHelper
   include AuthenticatorHelpers
 
+  # relevant for original oidc flow
+  # def login_with_oidc(service_id:, account:)
+  #   path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/login"
+  #   payload = { code: oidc_auth_code, redirect_uri: oidc_redirect_uri }
+  #   post(path, payload)
+  #   @login_oidc_conjur_token = @response_body
+  # end
+
+  # # relevant for oidc flow for Conjur oidc token retrieved in oidc login flow
+  # def authenticate_conjur_oidc_token_with_oidc(service_id:, account:)
+  #   path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
+  #   # TODO: Since the input going to change to a base64 signed token, i didnt invest time to extract the real values
+  #   payload = { id_token_encrypted: "login_oidc_conjur_token", user_name: "alice", expiration_time: "1231" }
+  #   post(path, payload)
+  # end
+
   def authenticate_id_token_with_oidc(service_id:, account:)
     path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
     #TODO: Enable the following comment once the production code knows to get encoded id_token
     #payload = { id_token: "#{oidc_id_token}" }
-    payload = { id_token: "{\"preferred_username\": \"alice\",\"email\": \"alice@example.com\"}" }
+    payload = { id_token: "{\"preferred_username\": \"alice\",\"email\": \"alice@conjur.net\"}" }
     post(path, payload)
-  end
-
-  def set_oidc_variables
-    path = "cucumber:variable:conjur/authn-oidc/keycloak"
-    Secret.create resource_id: "#{path}/client-id", value: oidc_client_id
-    Secret.create resource_id: "#{path}/client-secret", value: oidc_client_secret
-    Secret.create resource_id: "#{path}/provider-uri", value: oidc_provider_uri
   end
 
   def oidc_authorization_code
@@ -34,6 +43,12 @@ module AuthnOidcHelper
     oidc_id_token
   end
 
+  def set_oidc_variables
+    path = "cucumber:variable:conjur/authn-oidc/keycloak"
+    Secret.create resource_id: "#{path}/provider-uri", value: oidc_provider_uri
+    Secret.create resource_id: "#{path}/id-token-user-property", value: oidc_id_token_user_property
+  end
+
   private
 
   def oidc_client_id
@@ -48,12 +63,16 @@ module AuthnOidcHelper
     @oidc_provider_uri ||= validated_env_var('PROVIDER_URI')
   end
 
-  def oidc_redirect_uri
-    @oidc_redirect_uri ||= validated_env_var('REDIRECT_URI')
-  end
-
   def oidc_provider_internal_uri
     @oidc_provider_internal_uri ||= validated_env_var('PROVIDER_INTERNAL_URI')
+  end
+
+  def oidc_id_token_user_property
+    @oidc_id_token_user_property ||= validated_env_var('ID_TOKEN_USER_PROPERTY')
+  end
+
+  def oidc_redirect_uri
+    @oidc_redirect_uri ||= validated_env_var('REDIRECT_URI')
   end
 
   def oidc_auth_code
@@ -63,10 +82,9 @@ module AuthnOidcHelper
 
   def oidc_id_token
     @oidc_id_token ||= (JSON.parse @response_body)["id_token"]
-    rescue Exception => err
-      raise "Failed to fetch id_token from HTTP response: #{@response_body} with Reason: #{err}"
+  rescue Exception => err
+    raise "Failed to fetch id_token from HTTP response: #{@response_body} with Reason: #{err}"
   end
-
 end
 
 World(AuthnOidcHelper)

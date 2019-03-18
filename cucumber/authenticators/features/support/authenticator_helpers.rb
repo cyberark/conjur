@@ -26,29 +26,6 @@ module AuthenticatorHelpers
     conjur_api.resource(resource_id).add_value(value)
   end
 
-
-  # relevant for original oidc flow
-  # def login_with_oidc(service_id:, account:)
-  #   path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/login"
-  #   payload = { code: oidc_auth_code, redirect_uri: oidc_redirect_uri }
-  #   post(path, payload)
-  #   @login_oidc_conjur_token = @response_body
-  # end
-
-  # # relevant for oidc flow for Conjur oidc token retrieved in oidc login flow
-  # def authenticate_conjur_oidc_token_with_oidc(service_id:, account:)
-  #   path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
-  #   # TODO: Since the input going to change to a base64 signed token, i didnt invest time to extract the real values
-  #   payload = { id_token_encrypted: "login_oidc_conjur_token", user_name: "alice", expiration_time: "1231" }
-  #   post(path, payload)
-  # end
-
-  def authenticate_id_token_with_oidc(service_id:, account:, id_token:)
-    path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
-    payload = { id_token: id_token }
-    post(path, payload)
-  end
-
   def token_for(username, token_string)
     return nil unless http_status == 200
     ConjurToken.new(token_string).username == username
@@ -140,45 +117,6 @@ module AuthenticatorHelpers
 
   def full_username(username, account: Conjur.configuration.account)
     "#{account}:user:#{username}"
-  end
-
-  def oidc_client_id
-    @oidc_client_id ||= validated_env_var('CLIENT_ID')
-  end
-
-  def oidc_client_secret
-    @oidc_client_secret ||= validated_env_var('CLIENT_SECRET')
-  end
-
-  def oidc_provider_uri
-    @oidc_provider_uri ||= validated_env_var('PROVIDER_URI')
-  end
-
-  def oidc_id_token_user_property
-    @oidc_id_token_user_property ||= validated_env_var('ID_TOKEN_USER_PROPERTY')
-  end
-
-  def oidc_redirect_uri
-    @oidc_redirect_uri ||= validated_env_var('REDIRECT_URI')
-  end
-
-  def oidc_auth_code
-    raise 'Authorization code is not initialized' if @oidc_auth_code.blank?
-    @oidc_auth_code
-  end
-
-  def set_oidc_variables
-    path = "cucumber:variable:conjur/authn-oidc/keycloak"
-    Secret.create resource_id: "#{path}/provider-uri", value: oidc_provider_uri
-    Secret.create resource_id: "#{path}/id-token-user-property", value: oidc_id_token_user_property
-  end
-
-  def oidc_authorization_code
-    path_script = "/authn-oidc/phantomjs/scripts/fetchAuthCode"
-    authorization_code_file = "cat /authn-oidc/phantomjs/scripts/authorization_code"
-
-    system("sh #{path_script}")
-    @oidc_auth_code = `#{authorization_code_file}`
   end
 end
 
