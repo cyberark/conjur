@@ -23,7 +23,7 @@ module AuthnOidcHelper
 
   def authenticate_id_token_with_oidc(service_id:, account:)
     path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
-    payload = { id_token: "#{oidc_id_token}" }
+    payload = { id_token: @oidc_id_token.to_s }
     post(path, payload)
   end
 
@@ -40,7 +40,7 @@ module AuthnOidcHelper
     payload = { grant_type: 'authorization_code', redirect_uri: oidc_redirect_uri, code: oidc_auth_code }
     options = { user: oidc_client_id, password: oidc_client_secret }
     execute(:post, path, payload, options)
-    oidc_id_token
+    parse_oidc_id_token
   end
 
   def set_oidc_variables
@@ -80,7 +80,7 @@ module AuthnOidcHelper
     @oidc_auth_code
   end
 
-  def oidc_id_token
+  def parse_oidc_id_token
     @oidc_id_token = (JSON.parse @response_body)["id_token"]
   rescue Exception => err
     raise "Failed to fetch id_token from HTTP response: #{@response_body} with Reason: #{err}"
