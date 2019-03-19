@@ -128,11 +128,9 @@ RSpec.describe 'Authentication::Oidc' do
     allow(mocked_origin_validator).to receive(:call)
                                         .and_return(true)
 
-
     allow(mocked_decode_and_verify_id_token).to receive(:call)  { |*args|
       JSON.parse(args[0][:id_token_jwt]).to_hash
     }
-
   end
 
   ####################################

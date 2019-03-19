@@ -32,8 +32,8 @@ module Authentication
         )
 
         id_token_attributes = @decode_and_verify_id_token.(
-          oidc_secrets["provider-uri"],
-          request_body.id_token
+          provider_uri: oidc_secrets["provider-uri"],
+            id_token_jwt: request_body.id_token
         )
 
         input = input.update(

@@ -23,9 +23,7 @@ module AuthnOidcHelper
 
   def authenticate_id_token_with_oidc(service_id:, account:)
     path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
-    # TODO: Enable the following comment once the production code knows to get encoded id_token
-    # payload = { id_token: "#{oidc_id_token}" }
-    payload = { id_token: "{\"preferred_username\": \"alice\",\"email\": \"alice@conjur.net\"}" }
+    payload = { id_token: "#{oidc_id_token}" }
     post(path, payload)
   end
 
@@ -83,7 +81,7 @@ module AuthnOidcHelper
   end
 
   def oidc_id_token
-    @oidc_id_token ||= (JSON.parse @response_body)["id_token"]
+    @oidc_id_token = (JSON.parse @response_body)["id_token"]
   rescue Exception => err
     raise "Failed to fetch id_token from HTTP response: #{@response_body} with Reason: #{err}"
   end

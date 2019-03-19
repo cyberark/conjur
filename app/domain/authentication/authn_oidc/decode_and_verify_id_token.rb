@@ -15,7 +15,7 @@ module Authentication
           @id_token_jwt,
           get_cert(@provider_uri))
 
-        attributes = @id_token_decoded.raw_attributes.to_hash
+        attributes = @id_token_decoded.raw_attributes
 
         # Verify id_token expiration. OpenIDConnect requires to verify few claims.
         # Mask required claims such that effectively only expiration will be verified
