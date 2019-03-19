@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'json'
 
 RSpec.describe 'Authentication::Oidc' do
 
@@ -90,6 +91,9 @@ RSpec.describe 'Authentication::Oidc' do
   let (:failing_get_oidc_conjur_token) { double("MockGetOidcConjurToken") }
   let (:mocked_security_validator) { double("MockSecurityValidator") }
   let (:mocked_origin_validator) { double("MockOriginValidator") }
+  let (:mocked_decode_and_verify_id_token) { double("MockIdTokenDecodeAndVerify") }
+
+
 
   shared_examples_for "raises an error when security validation fails" do
     it 'raises an error when security validation fails' do
@@ -123,6 +127,10 @@ RSpec.describe 'Authentication::Oidc' do
 
     allow(mocked_origin_validator).to receive(:call)
                                         .and_return(true)
+
+    allow(mocked_decode_and_verify_id_token).to receive(:call)  { |*args|
+      JSON.parse(args[0][:id_token_jwt]).to_hash
+    }
   end
 
   ####################################
@@ -391,10 +399,11 @@ RSpec.describe 'Authentication::Oidc' do
           )
 
           ::Authentication::AuthnOidc::Authenticate.new(
-            enabled_authenticators: oidc_authenticator_name,
-            token_factory:          token_factory,
-            validate_security:      mocked_security_validator,
-            validate_origin:        mocked_origin_validator
+              enabled_authenticators: oidc_authenticator_name,
+              token_factory:          token_factory,
+              validate_security:      mocked_security_validator,
+              validate_origin:        mocked_origin_validator,
+              decode_and_verify_id_token: mocked_decode_and_verify_id_token
           ).(
             authenticator_input: input_
           )
@@ -424,10 +433,11 @@ RSpec.describe 'Authentication::Oidc' do
           )
 
           ::Authentication::AuthnOidc::Authenticate.new(
-            enabled_authenticators: oidc_authenticator_name,
-            token_factory:          token_factory,
-            validate_security:      mocked_security_validator,
-            validate_origin:        mocked_origin_validator
+              enabled_authenticators: oidc_authenticator_name,
+              token_factory:          token_factory,
+              validate_security:      mocked_security_validator,
+              validate_origin:        mocked_origin_validator,
+              decode_and_verify_id_token: mocked_decode_and_verify_id_token
           ).(
             authenticator_input: input_
           )
@@ -451,10 +461,11 @@ RSpec.describe 'Authentication::Oidc' do
           )
 
           ::Authentication::AuthnOidc::Authenticate.new(
-            enabled_authenticators: oidc_authenticator_name,
-            token_factory:          token_factory,
-            validate_security:      mocked_security_validator,
-            validate_origin:        mocked_origin_validator
+              enabled_authenticators: oidc_authenticator_name,
+              token_factory:          token_factory,
+              validate_security:      mocked_security_validator,
+              validate_origin:        mocked_origin_validator,
+              decode_and_verify_id_token: mocked_decode_and_verify_id_token
           ).(
             authenticator_input: input_
           )
