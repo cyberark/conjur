@@ -13,7 +13,8 @@ module Authentication
         # decode id token and Validate signing.
         @id_token_decoded = OpenIDConnect::ResponseObject::IdToken.decode(
           @id_token_jwt,
-          get_cert(@provider_uri))
+          get_cert(@provider_uri)
+        )
 
         attributes = @id_token_decoded.raw_attributes
 
