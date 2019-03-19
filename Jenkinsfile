@@ -9,6 +9,10 @@ pipeline {
     skipDefaultCheckout()  // see 'Checkout SCM' below, once perms are fixed this is no longer needed
   }
 
+  triggers {
+    cron(getDailyCronString())
+  }
+
   stages {
     stage('Checkout SCM') {
       steps {
