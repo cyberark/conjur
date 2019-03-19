@@ -47,6 +47,7 @@ function enable_oidc() {
   env_args="$env_args -e KEYCLOAK_APP_USER_EMAIL=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER_EMAIL | tr -d '\r')"
   env_args="$env_args -e SCOPE=$(docker-compose exec oidc-keycloak printenv SCOPE | tr -d '\r')"
   env_args="$env_args -e PROVIDER_URI="https://keycloak:8443/auth/realms/master""
+  env_args="$env_args -e PROVIDER_INTERNAL_URI="http://keycloak:8080/auth/realms/master/protocol/openid-connect""
   env_args="$env_args -e ID_TOKEN_USER_PROPERTY="preferred_username""
 }
 
