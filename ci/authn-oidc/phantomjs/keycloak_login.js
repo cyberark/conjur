@@ -52,7 +52,7 @@ steps = [
     },
 
     function(){
-		     log("Wait keycloak to login user");
+		     log("Wait for keycloak to login user");
 		     var result = page.evaluate(function() {
 			       return document.querySelectorAll("html")[0].outerHTML;
 		         });
