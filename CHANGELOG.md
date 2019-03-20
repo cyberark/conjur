@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Replaced `changelog` entrypoint in `ci/test` with a separate script. Building
   the `conjur` and `conjur-test` images just to be able to install and run the
   `parse_a_changelog` gem seemed a little heavyweight.
+- Renamed the old docs/ folder to design/
 
 ## [1.3.6] - 2019-02-19
 ### Changed
@@ -64,7 +65,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.2.0] - 2018-09-18
 ### Added
 - Added support for issuing certificates to Hosts using CAs configured as
-  Conjur services. More details are available [here](docs/CERTIFICATE_SIGNING.md).
+  Conjur services. More details are available [here](design/CERTIFICATE_SIGNING.md).
 - Added support for Conjur CAs to use encrypted private keys
 - Implemented keyword search for Role memberships
 - Update Conjur issued certificates to include a SPIFFE SVID as a subject alternative
