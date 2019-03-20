@@ -250,21 +250,21 @@ RSpec.describe 'Authentication::Oidc' do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc-test',
-            service_id:         'my-service',
-            account:            'my-acct',
-            username:           nil,
-            password:           nil,
-            origin:             '127.0.0.1',
-            request:            oidc_login_request
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            password: nil,
+            origin: '127.0.0.1',
+            request: oidc_login_request
           )
 
-          ::Authentication::AuthnOidc::Login.new(
-            oidc_authenticator:     mocked_oidc_authenticator,
-            oidc_client_class:      oidc_client_class,
+          ::Authentication::AuthnOidc::GetConjurOidcToken::ConjurOidcToken.new(
+            oidc_authenticator: mocked_oidc_authenticator,
+            oidc_client_class: oidc_client_class,
             enabled_authenticators: oidc_authenticator_name,
-            token_factory:          oidc_token_factory,
-            validate_security:      mocked_security_validator,
-            validate_origin:        mocked_origin_validator
+            token_factory: oidc_token_factory,
+            validate_security: mocked_security_validator,
+            validate_origin: mocked_origin_validator
           ).(
             authenticator_input: input_
           )
@@ -286,21 +286,21 @@ RSpec.describe 'Authentication::Oidc' do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc-test',
-            service_id:         'my-service',
-            account:            'my-acct',
-            username:           nil,
-            password:           nil,
-            origin:             '127.0.0.1',
-            request:            oidc_login_request
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            password: nil,
+            origin: '127.0.0.1',
+            request: oidc_login_request
           )
 
-          ::Authentication::AuthnOidc::Login.new(
-            oidc_authenticator:     mocked_oidc_authenticator,
-            oidc_client_class:      failing_oidc_client_class,
+          ::Authentication::AuthnOidc::GetConjurOidcToken::ConjurOidcToken.new(
+            oidc_authenticator: mocked_oidc_authenticator,
+            oidc_client_class: failing_oidc_client_class,
             enabled_authenticators: oidc_authenticator_name,
-            token_factory:          oidc_token_factory,
-            validate_security:      mocked_security_validator,
-            validate_origin:        mocked_origin_validator
+            token_factory: oidc_token_factory,
+            validate_security: mocked_security_validator,
+            validate_origin: mocked_origin_validator
           ).(
             authenticator_input: input_
           )
@@ -319,19 +319,19 @@ RSpec.describe 'Authentication::Oidc' do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc-test',
-            service_id:         'my-service',
-            account:            'my-acct',
-            username:           nil,
-            password:           nil,
-            origin:             '127.0.0.1',
-            request:            oidc_authenticate_conjur_oidc_token_request
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            password: nil,
+            origin: '127.0.0.1',
+            request: oidc_authenticate_conjur_oidc_token_request
           )
 
-          ::Authentication::AuthnOidc::AuthenticateOidcConjurToken.new(
+          ::Authentication::AuthnOidc::AuthenticateOidcConjurToken::Authenticate.new(
             enabled_authenticators: oidc_authenticator_name,
-            token_factory:          token_factory,
-            validate_security:      mocked_security_validator,
-            validate_origin:        mocked_origin_validator
+            token_factory: token_factory,
+            validate_security: mocked_security_validator,
+            validate_origin: mocked_origin_validator
           ).(
             authenticator_input: input_
           )
@@ -349,20 +349,20 @@ RSpec.describe 'Authentication::Oidc' do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc-test',
-            service_id:         'my-service',
-            account:            'my-acct',
-            username:           nil,
-            password:           nil,
-            origin:             '127.0.0.1',
-            request:            oidc_authenticate_conjur_oidc_token_request
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            password: nil,
+            origin: '127.0.0.1',
+            request: oidc_authenticate_conjur_oidc_token_request
           )
 
-          ::Authentication::AuthnOidc::AuthenticateOidcConjurToken.new(
+          ::Authentication::AuthnOidc::AuthenticateOidcConjurToken::Authenticate.new(
             get_oidc_conjur_token: failing_get_oidc_conjur_token,
             enabled_authenticators: oidc_authenticator_name,
-            token_factory:          token_factory,
-            validate_security:      mocked_security_validator,
-            validate_origin:        mocked_origin_validator
+            token_factory: token_factory,
+            validate_security: mocked_security_validator,
+            validate_origin: mocked_origin_validator
           ).(
             authenticator_input: input_
           )
@@ -390,20 +390,20 @@ RSpec.describe 'Authentication::Oidc' do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc-test',
-            service_id:         'my-service',
-            account:            'my-acct',
-            username:           nil,
-            password:           nil,
-            origin:             '127.0.0.1',
-            request:            oidc_authenticate_id_token_request
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            password: nil,
+            origin: '127.0.0.1',
+            request: oidc_authenticate_id_token_request
           )
 
-          ::Authentication::AuthnOidc::Authenticate.new(
-              enabled_authenticators: oidc_authenticator_name,
-              token_factory:          token_factory,
-              validate_security:      mocked_security_validator,
-              validate_origin:        mocked_origin_validator,
-              decode_and_verify_id_token: mocked_decode_and_verify_id_token
+          ::Authentication::AuthnOidc::AuthenticateIdToken::Authenticate.new(
+            enabled_authenticators: oidc_authenticator_name,
+            token_factory: token_factory,
+            validate_security: mocked_security_validator,
+            validate_origin: mocked_origin_validator,
+            decode_and_verify_id_token: mocked_decode_and_verify_id_token
           ).(
             authenticator_input: input_
           )
@@ -424,20 +424,20 @@ RSpec.describe 'Authentication::Oidc' do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc-test',
-            service_id:         'my-service',
-            account:            'my-acct',
-            username:           nil,
-            password:           nil,
-            origin:             '127.0.0.1',
-            request:            no_field_oidc_authenticate_id_token_request
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            password: nil,
+            origin: '127.0.0.1',
+            request: no_field_oidc_authenticate_id_token_request
           )
 
-          ::Authentication::AuthnOidc::Authenticate.new(
-              enabled_authenticators: oidc_authenticator_name,
-              token_factory:          token_factory,
-              validate_security:      mocked_security_validator,
-              validate_origin:        mocked_origin_validator,
-              decode_and_verify_id_token: mocked_decode_and_verify_id_token
+          ::Authentication::AuthnOidc::AuthenticateIdToken::Authenticate.new(
+            enabled_authenticators: oidc_authenticator_name,
+            token_factory: token_factory,
+            validate_security: mocked_security_validator,
+            validate_origin: mocked_origin_validator,
+            decode_and_verify_id_token: mocked_decode_and_verify_id_token
           ).(
             authenticator_input: input_
           )
@@ -452,20 +452,20 @@ RSpec.describe 'Authentication::Oidc' do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc-test',
-            service_id:         'my-service',
-            account:            'my-acct',
-            username:           nil,
-            password:           nil,
-            origin:             '127.0.0.1',
-            request:            no_value_oidc_authenticate_id_token_request
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            password: nil,
+            origin: '127.0.0.1',
+            request: no_value_oidc_authenticate_id_token_request
           )
 
-          ::Authentication::AuthnOidc::Authenticate.new(
-              enabled_authenticators: oidc_authenticator_name,
-              token_factory:          token_factory,
-              validate_security:      mocked_security_validator,
-              validate_origin:        mocked_origin_validator,
-              decode_and_verify_id_token: mocked_decode_and_verify_id_token
+          ::Authentication::AuthnOidc::AuthenticateIdToken::Authenticate.new(
+            enabled_authenticators: oidc_authenticator_name,
+            token_factory: token_factory,
+            validate_security: mocked_security_validator,
+            validate_origin: mocked_origin_validator,
+            decode_and_verify_id_token: mocked_decode_and_verify_id_token
           ).(
             authenticator_input: input_
           )
