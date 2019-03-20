@@ -32,7 +32,7 @@ Feature: Users can authneticate with OIDC authenticator
     And I am the super-user
     And I successfully set OIDC variables
     And I get authorization code
-    And I fetch ID Token
+    And I fetch an ID Token
 
   Scenario: A valid id token to get Conjur access token
     # We want to verify the returned access token is valid for retrieving a secret

@@ -113,8 +113,8 @@ services:
 
   oidc-phantomjs:
     environment:
-      - KEYCLOAK_USER=alice
-      - KEYCLOAK_PASSWORD=alice
+      - KEYCLOAK_APP_USER=alice
+      - KEYCLOAK_APP_USER_PASSWORD=alice
       - CLIENT_ID=conjurClient
       - REDIRECT_URI=http://locallhost.com/
       - SCOPE=openid profile email
