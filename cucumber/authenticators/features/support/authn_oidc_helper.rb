@@ -29,7 +29,7 @@ module AuthnOidcHelper
 
   def oidc_authorization_code
     path_script = "/authn-oidc/phantomjs/scripts/fetchAuthCode"
-    system("#{path_script.to_s}")
+    system(path_script.to_s)
     @oidc_auth_code = `#{"cat /authn-oidc/phantomjs/scripts/authorization_code"}`
   end
 
