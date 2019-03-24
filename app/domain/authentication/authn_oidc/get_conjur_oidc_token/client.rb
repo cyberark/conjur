@@ -25,7 +25,8 @@ module Authentication
           )
         rescue OpenIDConnect::HttpError => e
           # adding the reponse body as it includes additional error information
-          raise e, "#{e.message}, #{e.response.body}", e.backtrace if e.response
+          res = e.response
+          raise e, "#{e.message}, #{res.body}", e.backtrace if res
           raise e
         end
 

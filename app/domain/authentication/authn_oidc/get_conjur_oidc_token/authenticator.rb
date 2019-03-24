@@ -54,7 +54,7 @@ module Authentication
         end
 
         def subject_err_msg
-          "User info subject [#{user_info.sub}] and id token subject " +
+          "User info subject [#{user_info.sub}] and id token subject " \
             "[#{id_token_subject}] are not equal"
         end
       end
