@@ -5,62 +5,16 @@ require 'json'
 
 RSpec.describe 'Authentication::Oidc' do
 
-  ####################################
-  # env double
-  ####################################
-
-  let(:oidc_authenticator_name) { "authn-oidc-test" }
-
-  ####################################
-  # TokenFactory double
-  ####################################
-
-  let (:a_new_token) { 'A NICE NEW TOKEN' }
-
-  let (:token_factory) do
-    double('TokenFactory', signed_token: a_new_token)
-  end
+  include_context "oidc setup"
 
   ####################################
   # authenticator & validators
   ####################################
 
   let (:failing_validate_and_decrypt_oidc_conjur_token) { double("MockGetOidcConjurToken") }
-  let (:mocked_security_validator) { double("MockSecurityValidator") }
-  let (:mocked_origin_validator) { double("MockOriginValidator") }
-
-  shared_examples_for "raises an error when security validation fails" do
-    it 'raises an error when security validation fails' do
-      allow(mocked_security_validator).to receive(:call)
-                                            .and_raise('FAKE_SECURITY_ERROR')
-
-      expect { subject }.to raise_error(
-                              /FAKE_SECURITY_ERROR/
-                            )
-    end
-  end
-
-  shared_examples_for "raises an error when origin validation fails" do
-    it "raises an error when origin validation fails" do
-      allow(mocked_origin_validator).to receive(:call)
-                                          .and_raise('FAKE_ORIGIN_ERROR')
-
-      expect { subject }.to raise_error(
-                              /FAKE_ORIGIN_ERROR/
-                            )
-    end
-  end
-
-  before(:each) do
-    allow(mocked_security_validator).to receive(:call)
-                                          .and_return(true)
-
-    allow(mocked_origin_validator).to receive(:call)
-                                        .and_return(true)
-  end
 
   ####################################
-  # oidc request mock
+  # request mock
   ####################################
 
   let (:oidc_authenticate_conjur_oidc_token_request) do

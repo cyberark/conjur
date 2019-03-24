@@ -5,113 +5,15 @@ require 'json'
 
 RSpec.describe 'Authentication::Oidc' do
 
-  let(:username) { "my-user" }
-  let(:account) { "my-acct" }
-  let(:service) { "my-service" }
-
-  ####################################
-  # env double
-  ####################################
-
-  let(:oidc_authenticator_name) { "authn-oidc-test" }
-
-  ####################################
-  # TokenFactory double
-  ####################################
-
-  let (:a_new_token) { 'A NICE NEW TOKEN' }
-
-  let (:oidc_token_factory) do
-    double('OidcTokenFactory').tap do |factory|
-      allow(factory).to receive(:oidc_token).and_return(a_new_token)
-    end
-  end
-
-  ####################################
-  # secrets
-  ####################################
-
-  let (:mocked_secret) do
-    double('Secret').tap do |secret|
-      allow(secret).to receive(:value).and_return("mocked-secret")
-    end
-  end
-
-  let (:mocked_resource) do
-    double('Resource').tap do |resource|
-      allow(resource).to receive(:secret).and_return(mocked_secret)
-    end
-  end
-
-  let (:resource_without_value) do
-    double('Resource').tap do |resource|
-      allow(resource).to receive(:secret).and_return(nil)
-    end
-  end
-
-  shared_examples_for "it fails when variable is missing or has no value" do |variable|
-    it "fails when variable is missing" do
-      allow(Resource).to receive(:[])
-                           .with(/#{account}:variable:conjur\/authn-oidc\/#{service}\/#{variable}/)
-                           .and_return(nil)
-
-      expect { subject }.to raise_error(Conjur::RequiredResourceMissing)
-    end
-
-    it "fails when variable has no value" do
-      allow(Resource).to receive(:[])
-                           .with(/#{account}:variable:conjur\/authn-oidc\/#{service}\/#{variable}/)
-                           .and_return(resource_without_value)
-
-      expect { subject }.to raise_error(Conjur::RequiredSecretMissing)
-    end
-  end
-
-  ####################################
-  # authenticator & validators
-  ####################################
+  include_context "oidc setup"
 
   let (:mocked_oidc_authenticator) { double("MockOidcAuthenticator") }
-  let (:mocked_security_validator) { double("MockSecurityValidator") }
-  let (:mocked_origin_validator) { double("MockOriginValidator") }
-
-  shared_examples_for "raises an error when security validation fails" do
-    it 'raises an error when security validation fails' do
-      allow(mocked_security_validator).to receive(:call)
-                                            .and_raise('FAKE_SECURITY_ERROR')
-
-      expect { subject }.to raise_error(
-                              /FAKE_SECURITY_ERROR/
-                            )
-    end
-  end
-
-  shared_examples_for "raises an error when origin validation fails" do
-    it "raises an error when origin validation fails" do
-      allow(mocked_origin_validator).to receive(:call)
-                                          .and_raise('FAKE_ORIGIN_ERROR')
-
-      expect { subject }.to raise_error(
-                              /FAKE_ORIGIN_ERROR/
-                            )
-    end
-  end
-
-  before(:each) do
-    allow(Resource).to receive(:[])
-                         .with(/#{account}:variable:conjur\/authn-oidc/)
-                         .and_return(mocked_resource)
-
-    allow(mocked_security_validator).to receive(:call)
-                                          .and_return(true)
-
-    allow(mocked_origin_validator).to receive(:call)
-                                        .and_return(true)
-  end
 
   ####################################
   # oidc id token values
   ####################################
+
+  let(:username) { "my-user" }
 
   let (:user_info) do
     double('UserInfo').tap do |user_info|
@@ -129,7 +31,7 @@ RSpec.describe 'Authentication::Oidc' do
   end
 
   ####################################
-  # oidc mock
+  # oidc client mock
   ####################################
 
   let (:oidc_client) do
@@ -157,7 +59,7 @@ RSpec.describe 'Authentication::Oidc' do
   end
 
   ####################################
-  # oidc request mock
+  # request mock
   ####################################
 
   let (:oidc_login_request) do
