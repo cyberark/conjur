@@ -65,7 +65,7 @@ module Authentication
           @required_variable_names ||= %w(provider-uri id-token-user-property)
         end
 
-        def new_token()
+        def new_token
           @token_factory.signed_token(
             account: @authenticator_input.account,
             username: @authenticator_input.username
