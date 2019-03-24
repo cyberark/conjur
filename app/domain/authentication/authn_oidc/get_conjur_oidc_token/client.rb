@@ -12,7 +12,7 @@ module Authentication
           @provider_uri = provider_uri
         end
 
-        def oidc_id_token_details!(authorization_code)
+        def oidc_id_token_details(authorization_code)
           oidc_client.host = host
           oidc_client.authorization_code = authorization_code
 

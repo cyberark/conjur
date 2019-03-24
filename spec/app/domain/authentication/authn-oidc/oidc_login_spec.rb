@@ -134,7 +134,7 @@ RSpec.describe 'Authentication::Oidc' do
 
   let (:oidc_client) do
     double('OidcClient').tap do |client|
-      allow(client).to receive(:oidc_id_token_details!).and_return(oidc_id_token_details)
+      allow(client).to receive(:oidc_id_token_details).and_return(oidc_id_token_details)
     end
   end
 
@@ -146,7 +146,7 @@ RSpec.describe 'Authentication::Oidc' do
 
   let (:failing_oidc_client) do
     double('OidcClient').tap do |client|
-      allow(client).to receive(:oidc_id_token_details!).and_raise('FAKE_OIDC_ERROR')
+      allow(client).to receive(:oidc_id_token_details).and_raise('FAKE_OIDC_ERROR')
     end
   end
 

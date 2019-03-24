@@ -52,7 +52,7 @@ module Authentication
         end
 
         def oidc_id_token_details
-          @oidc_id_token_details ||= oidc_client.oidc_id_token_details!(request_body.authorization_code)
+          @oidc_id_token_details ||= oidc_client.oidc_id_token_details(request_body.authorization_code)
         end
 
         def oidc_client
