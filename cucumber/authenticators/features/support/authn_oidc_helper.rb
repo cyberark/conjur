@@ -74,7 +74,9 @@ module AuthnOidcHelper
   end
 
   def oidc_auth_code
-    raise 'Authorization code is not initialized, Additional logs exists in keycloak_login.[date].log file' if @oidc_auth_code.blank?
+    if @oidc_auth_code.blank?
+      raise 'Authorization code is not initialized, Additional logs exists in keycloak_login.[date].log file'
+    end
     @oidc_auth_code
   end
 

@@ -23,7 +23,7 @@ log('All settings loaded, start with execution');
 page.onConsoleMessage = function(msg) {
     log(msg);
 };
-/**********DEFINE STEPS THAT FANTOM SHOULD DO***********************/
+/**********DEFINE STEPS THAT PHANTOM SHOULD DO***********************/
 steps = [
 
 
@@ -52,17 +52,17 @@ steps = [
     },
 
     function(){
-		     log("Wait for keycloak to login user");
-		     var result = page.evaluate(function() {
-			       return document.querySelectorAll("html")[0].outerHTML;
-		         });
+         log("Wait for keycloak to login user");
+         var result = page.evaluate(function() {
+           return document.querySelectorAll("html")[0].outerHTML;
+         });
          var code = result.substring(result.indexOf('code=') + 5, result.length);
          code = code.substring(0, code.indexOf('>http') - 1);
          log('authorization code=' + code);
-        fs.write('authorization_code',code,'w');
+         fs.write('authorization_code',code,'w');
     },
 ];
-/**********END STEPS THAT FANTOM SHOULD DO***********************/
+/**********END STEPS THAT PHANTOM SHOULD DO***********************/
 
 //Execute steps one by one
 interval = setInterval(executeRequestsStepByStep,50);
@@ -81,7 +81,6 @@ function executeRequestsStepByStep(){
 function log(msg) {
     console.log(msg);
     fs.write(logfile,msg,'a');
-
 }
 
 /**
