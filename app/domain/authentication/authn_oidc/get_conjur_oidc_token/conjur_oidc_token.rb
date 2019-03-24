@@ -18,60 +18,87 @@ module Authentication
       ) do
 
         def call
-          oidc_encrypted_token(@authenticator_input)
+          fetch_id_token_details
+
+          validate_credentials
+
+          add_username_to_input
+
+          validate_security
+          validate_origin
+
+          audit_success
+
+          new_conjur_oidc_token
+        rescue => e
+          audit_failure(e)
+          raise e
         end
 
         private
 
-        def oidc_encrypted_token(input)
-          request_body = AuthnOidc::GetConjurOidcToken::LoginRequestBody.new(input.request)
-
-          oidc_client = oidc_client(
-            redirect_uri: request_body.redirect_uri,
-            service_id: input.service_id,
-            conjur_account: input.account
-          )
-
-          oidc_id_token_details = oidc_client.oidc_id_token_details!(request_body.authorization_code)
-          validate_credentials(input, oidc_id_token_details)
-
-          username = oidc_id_token_details.user_info.preferred_username
-          input = input.update(username: username)
-
-          @validate_security.(input: input, enabled_authenticators: @enabled_authenticators)
-
-          @validate_origin.(input: input)
-
-          @audit_event.(input: input, success: true, message: nil)
-
-          new_conjur_oidc_token(oidc_id_token_details)
-        rescue => e
-          @audit_event.(input: input, success: false, message: e.message)
-          raise e
+        def fetch_id_token_details
+          oidc_id_token_details
         end
 
-        def oidc_client(redirect_uri:, service_id:, conjur_account:)
-          required_variable_names = %w(client-id client-secret provider-uri)
-          oidc_secrets = @fetch_oidc_secrets.(
-            service_id: service_id,
-              conjur_account: conjur_account,
-              required_variable_names: required_variable_names
-          )
+        def validate_credentials
+          @oidc_authenticator.(input: @authenticator_input,
+            oidc_id_token_details: oidc_id_token_details)
+        end
 
-          @oidc_client_class.new(
+        def add_username_to_input
+          username = oidc_id_token_details.user_info.preferred_username
+          @authenticator_input = @authenticator_input.update(username: username)
+        end
+
+        def oidc_id_token_details
+          @oidc_id_token_details ||= oidc_client.oidc_id_token_details!(request_body.authorization_code)
+        end
+
+        def oidc_client
+          @oidc_client ||= @oidc_client_class.new(
             client_id: oidc_secrets["client-id"],
             client_secret: oidc_secrets["client-secret"],
-            redirect_uri: redirect_uri,
+            redirect_uri: request_body.redirect_uri,
             provider_uri: oidc_secrets["provider-uri"]
           )
         end
 
-        def validate_credentials(input, oidc_id_token_details)
-          @oidc_authenticator.(input: input, oidc_id_token_details: oidc_id_token_details)
+        def oidc_secrets
+          @oidc_secrets ||= @fetch_oidc_secrets.(
+            service_id: @authenticator_input.service_id,
+              conjur_account: @authenticator_input.account,
+              required_variable_names: required_variable_names
+          )
         end
 
-        def new_conjur_oidc_token(details)
-          @token_factory.oidc_token(details)
+        def required_variable_names
+          @required_variable_names ||= %w(client-id client-secret provider-uri)
+        end
+
+        def new_conjur_oidc_token
+          @token_factory.oidc_token(oidc_id_token_details)
+        end
+
+        def request_body
+          @request_body ||= AuthnOidc::GetConjurOidcToken::LoginRequestBody.new(@authenticator_input.request)
+        end
+
+        def validate_security
+          @validate_security.(input: @authenticator_input,
+            enabled_authenticators: @enabled_authenticators)
+        end
+
+        def validate_origin
+          @validate_origin.(input: @authenticator_input)
+        end
+
+        def audit_success
+          @audit_event.(input: @authenticator_input, success: true, message: nil)
+        end
+
+        def audit_failure(err)
+          @audit_event.(input: @authenticator_input, success: false, message: err.message)
         end
       end
     end

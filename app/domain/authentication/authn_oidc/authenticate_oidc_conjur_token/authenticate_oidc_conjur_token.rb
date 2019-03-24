@@ -5,7 +5,7 @@ module Authentication
     module AuthenticateOidcConjurToken
       Authenticate = CommandClass.new(
         dependencies: {
-          get_oidc_conjur_token: GetOidcConjurToken.new,
+          validate_and_decrypt_oidc_conjur_token: ValidateAndDecryptOidcConjurToken.new,
           enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
           token_factory: OidcTokenFactory.new,
           validate_security: ::Authentication::ValidateSecurity.new,
@@ -16,37 +16,56 @@ module Authentication
       ) do
 
         def call
-          conjur_token_oidc(@authenticator_input)
+          validate_and_decrypt_oidc_conjur_token
+
+          add_username_to_input
+
+          validate_security
+          validate_origin
+
+          audit_success
+
+          new_token
+        rescue => e
+          audit_failure(e)
+          raise e
         end
 
         private
 
-        def conjur_token_oidc(input)
-          oidc_conjur_token = oidc_conjur_token(input)
+        def validate_and_decrypt_oidc_conjur_token
+          oidc_conjur_token
+        end
 
+        def add_username_to_input
           username = oidc_conjur_token.user_name
-          input = input.update(username: username)
-
-          @validate_security.(input: input, enabled_authenticators: @enabled_authenticators)
-
-          @validate_origin.(input: input)
-
-          @audit_event.(input: input, success: true, message: nil)
-
-          new_token(input)
-        rescue => e
-          @audit_event.(input: input, success: false, message: e.message)
-          raise e
+          @authenticator_input = @authenticator_input.update(username: username)
         end
 
-        def oidc_conjur_token(input)
-          @get_oidc_conjur_token.(request_body: input.request.body.read)
+        def oidc_conjur_token
+          @oidc_conjur_token ||= @validate_and_decrypt_oidc_conjur_token.(request_body: @authenticator_input.request.body.read)
         end
 
-        def new_token(input)
+        def validate_security
+          @validate_security.(input: @authenticator_input, enabled_authenticators: @enabled_authenticators)
+        end
+
+        def validate_origin
+          @validate_origin.(input: @authenticator_input)
+        end
+
+        def audit_success
+          @audit_event.(input: @authenticator_input, success: true, message: nil)
+        end
+
+        def audit_failure(err)
+          @audit_event.(input: @authenticator_input, success: false, message: err.message)
+        end
+
+        def new_token
           @token_factory.signed_token(
-            account: input.account,
-            username: input.username
+            account: @authenticator_input.account,
+            username: @authenticator_input.username
           )
         end
       end

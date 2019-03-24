@@ -25,7 +25,7 @@ RSpec.describe 'Authentication::Oidc' do
   # authenticator & validators
   ####################################
 
-  let (:failing_get_oidc_conjur_token) { double("MockGetOidcConjurToken") }
+  let (:failing_validate_and_decrypt_oidc_conjur_token) { double("MockGetOidcConjurToken") }
   let (:mocked_security_validator) { double("MockSecurityValidator") }
   let (:mocked_origin_validator) { double("MockOriginValidator") }
 
@@ -123,7 +123,7 @@ RSpec.describe 'Authentication::Oidc' do
           )
 
           ::Authentication::AuthnOidc::AuthenticateOidcConjurToken::Authenticate.new(
-            get_oidc_conjur_token: failing_get_oidc_conjur_token,
+            validate_and_decrypt_oidc_conjur_token: failing_validate_and_decrypt_oidc_conjur_token,
             enabled_authenticators: oidc_authenticator_name,
             token_factory:          token_factory,
             validate_security:      mocked_security_validator,
@@ -134,7 +134,7 @@ RSpec.describe 'Authentication::Oidc' do
         end
 
         it "raises the actual oidc error" do
-          allow(failing_get_oidc_conjur_token).to receive(:call)
+          allow(failing_validate_and_decrypt_oidc_conjur_token).to receive(:call)
                                                     .and_raise('FAKE_OIDC_ERROR')
 
           expect { subject }.to raise_error(

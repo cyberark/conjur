@@ -12,14 +12,14 @@ module Authentication
       # - Validate input
       # - Validate JWT signing token
       # - Decrypt ID token
-      GetOidcConjurToken = CommandClass.new(
+      ValidateAndDecryptOidcConjurToken = CommandClass.new(
         dependencies: {},
         inputs: %i(request_body)
       ) do
 
         def call
-          # validate_signing
           oidc_conjur_token
+          # validate_signing
           # decrypt_token
         end
 

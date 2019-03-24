@@ -17,58 +17,85 @@ module Authentication
       ) do
 
         def call
-          access_token(@authenticator_input)
+          decode_and_verify_id_token
+
+          add_username_to_input
+
+          validate_security
+          validate_origin
+
+          audit_success
+
+          new_token
+        rescue => e
+          audit_failure(e)
+          raise e
         end
 
         private
 
-        def access_token(input)
-          request_body = AuthnOidc::AuthenticateIdToken::AuthenticateRequestBody.new(input.request)
+        def decode_and_verify_id_token
+          id_token_attributes
+        end
 
-          required_variable_names = %w(provider-uri id-token-user-property)
-          oidc_secrets = @fetch_oidc_secrets.(
-            service_id: input.service_id,
-              conjur_account: input.account,
-              required_variable_names: required_variable_names
-          )
+        def add_username_to_input
+          @authenticator_input = @authenticator_input.update(username: conjur_username)
+        end
 
-          id_token_attributes = @decode_and_verify_id_token.(
+        def id_token_attributes
+          @id_token_attributes ||= @decode_and_verify_id_token.(
             provider_uri: oidc_secrets["provider-uri"],
               id_token_jwt: request_body.id_token
           )
-
-          input = input.update(
-            username: conjur_username(
-              id_token_attributes,
-              oidc_secrets["id-token-user-property"]
-            )
-          )
-
-          @validate_security.(input: input,
-            enabled_authenticators: @enabled_authenticators)
-
-          @validate_origin.(input: input)
-
-          @audit_event.(input: input, success: true, message: nil)
-
-          new_token(input)
-        rescue => e
-          @audit_event.(input: input, success: false, message: e.message)
-          raise e
         end
 
-        def new_token(input)
+        def request_body
+          @request_body ||= AuthnOidc::AuthenticateIdToken::AuthenticateRequestBody.new(@authenticator_input.request)
+        end
+
+        def oidc_secrets
+          @oidc_secrets ||= @fetch_oidc_secrets.(
+            service_id: @authenticator_input.service_id,
+              conjur_account: @authenticator_input.account,
+              required_variable_names: required_variable_names
+          )
+        end
+
+        def required_variable_names
+          @required_variable_names ||= %w(provider-uri id-token-user-property)
+        end
+
+        def new_token()
           @token_factory.signed_token(
-            account: input.account,
-            username: input.username
+            account: @authenticator_input.account,
+            username: @authenticator_input.username
           )
         end
 
-        def conjur_username(id_token_attributes, id_token_username_field)
+        def conjur_username
+          id_token_username_field = oidc_secrets["id-token-user-property"]
+
           conjur_username = id_token_attributes[id_token_username_field]
           raise IdTokenFieldNotFound, id_token_username_field unless conjur_username.present?
 
           conjur_username
+        end
+
+        def validate_security
+          @validate_security.(input: @authenticator_input,
+            enabled_authenticators: @enabled_authenticators)
+        end
+
+        def validate_origin
+          @validate_origin.(input: @authenticator_input)
+        end
+
+        def audit_success
+          @audit_event.(input: @authenticator_input, success: true, message: nil)
+        end
+
+        def audit_failure(err)
+          @audit_event.(input: @authenticator_input, success: false, message: err.message)
         end
       end
     end

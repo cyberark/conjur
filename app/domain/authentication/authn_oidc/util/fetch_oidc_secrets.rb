@@ -16,20 +16,6 @@ module Authentication
       ) do
 
         def call
-          oidc_secrets
-        end
-
-        private
-
-        def required_resource_ids
-          @required_variable_names.map { |var_name| full_variable_name(var_name) }
-        end
-
-        def full_variable_name(var_name)
-          "#{@conjur_account}:variable:conjur/authn-oidc/#{@service_id}/#{var_name}"
-        end
-
-        def oidc_secrets
           secrets = {}
 
           required_secrets = @fetch_secrets.(resource_ids: required_resource_ids)
@@ -40,6 +26,16 @@ module Authentication
           end
 
           secrets
+        end
+
+        private
+
+        def required_resource_ids
+          @required_variable_names.map { |var_name| full_variable_name(var_name) }
+        end
+
+        def full_variable_name(var_name)
+          "#{@conjur_account}:variable:conjur/authn-oidc/#{@service_id}/#{var_name}"
         end
       end
     end
