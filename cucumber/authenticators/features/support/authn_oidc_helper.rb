@@ -29,10 +29,8 @@ module AuthnOidcHelper
 
   def oidc_authorization_code
     path_script = "/authn-oidc/phantomjs/scripts/fetchAuthCode"
-    authorization_code_file = "cat /authn-oidc/phantomjs/scripts/authorization_code"
-
-    system("sh #{path_script}")
-    @oidc_auth_code = `#{authorization_code_file}`
+    system(path_script.to_s)
+    @oidc_auth_code = `#{"cat /authn-oidc/phantomjs/scripts/authorization_code"}`
   end
 
   def fetch_oidc_id_token
@@ -45,8 +43,8 @@ module AuthnOidcHelper
 
   def set_oidc_variables
     path = "cucumber:variable:conjur/authn-oidc/keycloak"
-    Secret.create resource_id: "#{path}/provider-uri", value: oidc_provider_uri
-    Secret.create resource_id: "#{path}/id-token-user-property", value: oidc_id_token_user_property
+    Secret.create(resource_id: "#{path}/provider-uri", value: oidc_provider_uri)
+    Secret.create(resource_id: "#{path}/id-token-user-property", value: oidc_id_token_user_property)
   end
 
   private
@@ -76,7 +74,9 @@ module AuthnOidcHelper
   end
 
   def oidc_auth_code
-    raise 'Authorization code is not initialized' if @oidc_auth_code.blank?
+    if @oidc_auth_code.blank?
+      raise 'Authorization code is not initialized, Additional logs exists in keycloak_login.[date].log file'
+    end
     @oidc_auth_code
   end
 

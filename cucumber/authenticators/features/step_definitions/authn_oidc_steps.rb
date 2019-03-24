@@ -2,7 +2,7 @@ Given(/^I get authorization code$/) do
   oidc_authorization_code
 end
 
-Given(/I fetch ID Token/) do
+Given(/I fetch an ID Token/) do
   fetch_oidc_id_token
 end
 
