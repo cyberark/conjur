@@ -15,9 +15,9 @@ services to the API.
 ## Existing Authenticators
 
 Links to the current Authenticator Feature specs:
-* [Authn-LDAP](https://github.com/cyberark/conjur/issues/524)
-* [Authn-IAM](https://github.com/cyberark/conjur/issues/542)
-* [Authn-OIDC - POC](https://github.com/cyberark/conjur/issues/838)
+* [Authn-LDAP](authn_ldap.md)
+* [Authn-IAM](authn_iam.md)
+* [Authn-OIDC - POC](authn_oidc.md)
 
 ## Login
 

@@ -347,7 +347,7 @@ Conjur makes it easy to:
 - Secure access to authenticators using policy files
 - Create custom authenticators
 
-[Detailed authenticator documenation](docs/AUTHENTICATORS.md)
+[Detailed authenticator design documentation](design/AUTHENTICATORS.md)
 
 ## Rotators
 
@@ -356,7 +356,7 @@ Conjur makes it easy to:
 - Rotate variables regularly using built-in rotators
 - Create custom rotators
 
-[Detailed rotator documenation](docs/ROTATORS.md)
+[Detailed rotator design documenation](design/ROTATORS.md)
 
 ## Secrets and keys
 
