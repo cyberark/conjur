@@ -27,9 +27,11 @@ module AuthnOidcHelper
     post(path, payload)
   end
 
-  def oidc_authorization_code
+  def oidc_authorization_code(username:, password:)
     path_script = "/authn-oidc/phantomjs/scripts/fetchAuthCode"
-    system(path_script.to_s)
+    params = "#{username} #{password}"
+    system("#{path_script} #{params}")
+
     @oidc_auth_code = `#{"cat /authn-oidc/phantomjs/scripts/authorization_code"}`
   end
 

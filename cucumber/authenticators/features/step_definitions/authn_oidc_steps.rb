@@ -1,5 +1,5 @@
-Given(/^I get authorization code$/) do
-  oidc_authorization_code
+Given(/^I get authorization code for username "([^"]*)" and password "([^"]*)"$/) do |username, password|
+  oidc_authorization_code(username: username, password: password)
 end
 
 Given(/I fetch an ID Token/) do
