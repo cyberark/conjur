@@ -83,3 +83,13 @@ Feature: Users can authneticate with OIDC authenticator
     And I fetch an ID Token
     When I authenticate via OIDC with id token
     Then it is denied
+
+  Scenario: User that is not permitted to webservice in ID token is denied
+    Given I extend the policy with:
+    """
+    - !user bob
+    """
+    And I get authorization code for username "bob" and password "bob"
+    And I fetch an ID Token
+    When I authenticate via OIDC with id token
+    Then it is denied
