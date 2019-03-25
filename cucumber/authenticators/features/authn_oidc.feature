@@ -93,3 +93,10 @@ Feature: Users can authneticate with OIDC authenticator
     And I fetch an ID Token
     When I authenticate via OIDC with id token
     Then it is denied
+
+  Scenario: ID token without value of variable id-token-user-property is denied
+    When I add the secret value "non_existing_field" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/id-token-user-property"
+    And I get authorization code for username "alice" and password "alice"
+    And I fetch an ID Token
+    When I authenticate via OIDC with id token
+    Then it is denied
