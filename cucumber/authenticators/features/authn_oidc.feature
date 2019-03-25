@@ -39,7 +39,7 @@ Feature: Users can authneticate with OIDC authenticator
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    When I successfully authenticate via OIDC with id token
+    When I authenticate via OIDC with id token
     Then "alice" is authorized
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
 
@@ -55,7 +55,7 @@ Feature: Users can authneticate with OIDC authenticator
     When I add the secret value "email" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/id-token-user-property"
     And I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    And I successfully authenticate via OIDC with id token
+    And I authenticate via OIDC with id token
     Then "alice@conjur.net" is authorized
 
   Scenario: Adding a group to keycloak/users group permits users to authenticate
@@ -75,5 +75,11 @@ Feature: Users can authneticate with OIDC authenticator
     """
     And I get authorization code for username "bob" and password "bob"
     And I fetch an ID Token
-    When I successfully authenticate via OIDC with id token
+    When I authenticate via OIDC with id token
     Then "bob" is authorized
+
+  Scenario: Non-existing username in ID token is denied
+    Given I get authorization code for username "not_in_conjur" and password "not_in_conjur"
+    And I fetch an ID Token
+    When I authenticate via OIDC with id token
+    Then it is denied

@@ -103,6 +103,9 @@ services:
       - KEYCLOAK_SECOND_APP_USER=bob
       - KEYCLOAK_SECOND_APP_USER_PASSWORD=bob
       - KEYCLOAK_SECOND_APP_USER_EMAIL=bob@conjur.net
+      - KEYCLOAK_NON_CONJUR_APP_USER=not_in_conjur
+      - KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD=not_in_conjur
+      - KEYCLOAK_NON_CONJUR_APP_USER_EMAIL=not_in_conjur
       - DB_VENDOR=H2
       - CLIENT_ID=conjurClient
       - REDIRECT_URI=http://locallhost.com/
