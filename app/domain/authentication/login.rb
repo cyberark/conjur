@@ -15,13 +15,9 @@ module Authentication
 
     def call
       validate_authenticator_exists
-
       validate_security
-
       validate_credentials
-
       audit_success
-
       new_login
     rescue => e
       audit_failure(e)
