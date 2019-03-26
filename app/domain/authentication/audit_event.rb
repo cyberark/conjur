@@ -10,7 +10,13 @@ module Authentication
   ) do
 
     def call
-      audit
+      @audit_log.record_authn_event(
+        role:               role(@input.username, @input.account),
+        webservice_id:      @input.webservice.resource_id,
+        authenticator_name: @input.authenticator_name,
+        success:            @success,
+        message:            @message
+      )
     end
 
     private
@@ -19,16 +25,6 @@ module Authentication
       return nil if username.nil?
 
       @get_role_by_login.(username: username, account: account)
-    end
-
-    def audit
-      @audit_log.record_authn_event(
-        role:               role(@input.username, @input.account),
-        webservice_id:      @input.webservice.resource_id,
-        authenticator_name: @input.authenticator_name,
-        success:            @success,
-        message:            @message
-      )
     end
   end
 end

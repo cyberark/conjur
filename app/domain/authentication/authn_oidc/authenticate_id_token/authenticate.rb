@@ -18,14 +18,10 @@ module Authentication
 
         def call
           decode_and_verify_id_token
-
           add_username_to_input
-
           validate_security
           validate_origin
-
           audit_success
-
           new_token
         rescue => e
           audit_failure(e)
