@@ -21,9 +21,14 @@ module AuthnOidcHelper
   #   post(path, payload)
   # end
 
-  def authenticate_id_token_with_oidc(service_id:, account:)
+  def authenticate_id_token_with_oidc(service_id:, account:, id_token: @oidc_id_token.to_s)
     path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
-    payload = { id_token: @oidc_id_token.to_s }
+
+    payload = {}
+    unless id_token.nil?
+      payload["id_token"] = id_token
+    end
+
     post(path, payload)
   end
 

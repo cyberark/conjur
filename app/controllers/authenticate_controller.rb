@@ -125,6 +125,8 @@ class AuthenticateController < ApplicationController
       Authentication::Security::ServiceNotDefined,
       Authentication::Security::NotWhitelisted
       raise Exceptions::NotImplemented, err.message
+    when Authentication::MissingRequestParam
+      raise BadRequest
     else
       raise Unauthorized
     end

@@ -100,3 +100,10 @@ Feature: Users can authneticate with OIDC authenticator
     And I fetch an ID Token
     When I authenticate via OIDC with id token
     Then it is denied
+
+  Scenario: Empty or missing id token is a bad request
+    When I authenticate via OIDC with no id token
+    Then it is a bad request
+
+    When I authenticate via OIDC with empty id token
+    Then it is a bad request

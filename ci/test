@@ -34,7 +34,7 @@ cucumber_authenticators() {
   : DOC - Runs Cucumber Authenticator features
 
   _prepare_env_auth_oidc
-  
+
   local vars="
     KEYCLOAK_USER
     KEYCLOAK_PASSWORD
@@ -52,7 +52,7 @@ cucumber_authenticators() {
     CLIENT_SECRET
     SCOPE
   "
-  
+
   # for each of $vars, exec into oid-keycloak and get the value of the
   # variable. Collect all the variables in $cucumber_env_args
   local cucumber_env_args=''
@@ -239,15 +239,33 @@ _prepare_env_auth_ldap() {
 _prepare_env_auth_oidc() {
   docker-compose up --no-deps -d pg conjur oidc-keycloak
 
-
   # Check if keycloak is up
   _keycloak_isready?
+
+  echo "extracting keycloak parameters"
+  KEYCLOAK_APP_USER="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER | tr -d '\r')"
+  KEYCLOAK_APP_USER_PASSWORD="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER_PASSWORD | tr -d '\r')"
+  KEYCLOAK_APP_USER_EMAIL="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER_EMAIL | tr -d '\r')"
+
+  KEYCLOAK_SECOND_APP_USER="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER | tr -d '\r')"
+  KEYCLOAK_SECOND_APP_USER_PASSWORD="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_PASSWORD | tr -d '\r')"
+  KEYCLOAK_SECOND_APP_USER_EMAIL="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_EMAIL | tr -d '\r')"
+
+  KEYCLOAK_NON_CONJUR_APP_USER="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER | tr -d '\r')"
+  KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD | tr -d '\r')"
+  KEYCLOAK_NON_CONJUR_APP_USER_EMAIL="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_EMAIL | tr -d '\r')"
 
   # Define oidc-keycloak client
   docker-compose exec -T oidc-keycloak /scripts/create_client
 
   echo "Creating user 'alice' in Keycloak"
-  docker-compose exec -T oidc-keycloak /scripts/create_user
+  docker-compose exec -T oidc-keycloak /scripts/create_user $KEYCLOAK_APP_USER $KEYCLOAK_APP_USER_PASSWORD $KEYCLOAK_APP_USER_EMAIL
+
+  echo "Creating second user 'bob' in Keycloak"
+  docker-compose exec -T oidc-keycloak /scripts/create_user $KEYCLOAK_SECOND_APP_USER $KEYCLOAK_SECOND_APP_USER_PASSWORD $KEYCLOAK_SECOND_APP_USER_EMAIL
+
+  echo "Creating user in Keycloak that will not exist in conjur"
+  docker-compose exec -T oidc-keycloak /scripts/create_user $KEYCLOAK_NON_CONJUR_APP_USER $KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD $KEYCLOAK_NON_CONJUR_APP_USER_EMAIL
 
   echo "Initialize keycloak certificate in conjur server"
   docker-compose exec -T conjur /authn-oidc/keycloak/scripts/fetchCertificate

@@ -7,6 +7,9 @@ class ApplicationController < ActionController::API
   class Unauthorized < RuntimeError
   end
 
+  class BadRequest < RuntimeError
+  end
+
   class Forbidden < Exceptions::Forbidden
     def message
       'Forbidden'
@@ -22,6 +25,7 @@ class ApplicationController < ActionController::API
   rescue_from Exceptions::RecordNotFound, with: :record_not_found
   rescue_from Exceptions::RecordExists, with: :record_exists
   rescue_from Exceptions::Forbidden, with: :forbidden
+  rescue_from BadRequest, with: :bad_request
   rescue_from Unauthorized, with: :unauthorized
   rescue_from Exceptions::NotImplemented, with: :not_implemented
   rescue_from Sequel::ValidationFailed, with: :validation_failed
@@ -172,6 +176,11 @@ class ApplicationController < ActionController::API
   def forbidden e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
     head :forbidden
+  end
+
+  def bad_request e
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    head :bad_request
   end
 
   def unauthorized e

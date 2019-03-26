@@ -17,3 +17,11 @@ end
 When(/^I authenticate via OIDC with id token$/) do
   authenticate_id_token_with_oidc(service_id: 'keycloak', account: 'cucumber')
 end
+
+When(/^I authenticate via OIDC with no id token$/) do
+  authenticate_id_token_with_oidc(service_id: 'keycloak', account: 'cucumber', id_token: nil)
+end
+
+When(/^I authenticate via OIDC with empty id token$/) do
+  authenticate_id_token_with_oidc(service_id: 'keycloak', account: 'cucumber', id_token: "")
+end

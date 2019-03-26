@@ -41,6 +41,10 @@ module AuthenticatorHelpers
     nil
   end
 
+  def bad_request?
+    http_status == 400
+  end
+
   def unauthorized?
     http_status == 401
   end
