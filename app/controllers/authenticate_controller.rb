@@ -37,12 +37,12 @@ class AuthenticateController < ApplicationController
   def authenticator_input
     ::Authentication::AuthenticatorInput.new(
       authenticator_name: params[:authenticator],
-      service_id:         params[:service_id],
-      account:            params[:account],
-      username:           params[:id],
-      password:           request.body.read,
-      origin:             request.ip,
-      request:            request
+      service_id: params[:service_id],
+      account: params[:account],
+      username: params[:id],
+      password: request.body.read,
+      origin: request.ip,
+      request: request
     )
   end
 
@@ -55,7 +55,7 @@ class AuthenticateController < ApplicationController
   #
   # Returns IDToken encrypted, Expiration Duration and Username
   def login_oidc
-    oidc_encrypted_token = ::Authentication::AuthnOidc::Login.new.(
+    oidc_encrypted_token = ::Authentication::AuthnOidc::GetConjurOidcToken::ConjurOidcToken.new.(
       authenticator_input: oidc_authenticator_input
     )
     render json: oidc_encrypted_token
@@ -70,7 +70,7 @@ class AuthenticateController < ApplicationController
   #
   # Returns Conjur access token
   def authenticate_oidc_conjur_token
-    authentication_token = ::Authentication::AuthnOidc::AuthenticateOidcConjurToken.new.(
+    authentication_token = ::Authentication::AuthnOidc::AuthenticateOidcConjurToken::Authenticate.new.(
       authenticator_input: oidc_authenticator_input
     )
     render json: authentication_token
@@ -79,7 +79,7 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticate_oidc
-    authentication_token = ::Authentication::AuthnOidc::Authenticate.new.(
+    authentication_token = ::Authentication::AuthnOidc::AuthenticateIdToken::Authenticate.new.(
       authenticator_input: oidc_authenticator_input
     )
     render json: authentication_token
@@ -90,12 +90,12 @@ class AuthenticateController < ApplicationController
   def oidc_authenticator_input
     ::Authentication::AuthenticatorInput.new(
       authenticator_name: 'authn-oidc',
-      service_id:         params[:service_id],
-      account:            params[:account],
-      username:           nil,
-      password:           nil,
-      origin:             request.ip,
-      request:            request
+      service_id: params[:service_id],
+      account: params[:account],
+      username: nil,
+      password: nil,
+      origin: request.ip,
+      request: request
     )
   end
 

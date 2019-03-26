@@ -11,5 +11,4 @@ class OidcTokenFactory < TokenFactory
       expiration_time: oidc_id_token_details.expiration_time
     )
   end
-
 end
