@@ -15,42 +15,57 @@ module Authentication
   ) do
 
     def call
-      conjur_token(@authenticator_input)
+      validate_authenticator_exists
+
+      validate_security
+      validate_credentials
+
+      validate_origin
+
+      audit_success
+
+      new_token
+    rescue => e
+      audit_failure(e)
+      raise e
     end
 
     private
 
-    def conjur_token(input)
-      authenticator = @authenticators[input.authenticator_name]
-
-      validate_authenticator_exists(input, authenticator)
-
-      @validate_security.(input: input, enabled_authenticators: @enabled_authenticators)
-      validate_credentials(input, authenticator)
-
-      @validate_origin.(input: input)
-
-      @audit_event.(input: input, success: true, message: nil)
-
-      new_token(input)
-    rescue => e
-      @audit_event.(input: input, success: false, message: e.message)
-      raise e
+    def authenticator
+      @authenticator = @authenticators[@authenticator_input.authenticator_name]
     end
 
-    def validate_credentials(input, authenticator)
-      raise ::Authentication::InvalidCredentials unless authenticator.valid?(input)
+    def validate_authenticator_exists
+      raise AuthenticatorNotFound, @authenticator_input.authenticator_name unless authenticator
     end
 
-    def new_token(input)
+    def validate_credentials
+      raise ::Authentication::InvalidCredentials unless authenticator.valid?(@authenticator_input)
+    end
+
+    def validate_security
+      @validate_security.(input: @authenticator_input, enabled_authenticators: @enabled_authenticators)
+    end
+
+    def validate_origin
+      @validate_origin.(input: @authenticator_input)
+    end
+
+    def audit_success
+      @audit_event.(input: @authenticator_input, success: true, message: nil)
+    end
+
+    def audit_failure(err)
+      @audit_event.(input: @authenticator_input, success: false, message: err.message)
+    end
+
+    def new_token
       @token_factory.signed_token(
-        account:  input.account,
-        username: input.username
+        account:  @authenticator_input.account,
+        username: @authenticator_input.username
       )
     end
 
-    def validate_authenticator_exists(input, authenticator)
-      raise AuthenticatorNotFound, input.authenticator_name unless authenticator
-    end
   end
 end
