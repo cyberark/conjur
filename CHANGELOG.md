@@ -14,6 +14,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   the `conjur` and `conjur-test` images just to be able to install and run the
   `parse_a_changelog` gem seemed a little heavyweight.
 - Renamed the old docs/ folder to design/
+- Changed API endpoint for certificate signing from `POST /ca/:account/:service_id/sign` to
+  `POST /ca/:account/:service_id/certificate`. See [design/CERTIFICATE_SIGNING.md](design/CERTIFICATE_SIGNING.md)
+  for more information.
+- Changed policy ID convention for certificate authorities from `conjur/:service_id/ca` to
+  `conjur/ca/:service_id`. See [design/CERTIFICATE_SIGNING.md](design/CERTIFICATE_SIGNING.md)
+  for more information.
+
+### Added
+- Added support for SSH certificate authorities. See [design/CERTIFICATE_SIGNING.md](design/CERTIFICATE_SIGNING.md)
+  for more information.
 
 ## [1.3.6] - 2019-02-19
 ### Changed
