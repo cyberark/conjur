@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.3.7] - 2019-03-27
 ### Changed
 - Updated conjur-policy-parser to
   [v3.0.3](https://github.com/conjurinc/conjur-policy-parser/blob/possum/CHANGELOG.md#v303).
@@ -185,6 +187,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - The first tagged version.
 
 [Unreleased]: https://github.com/cyberark/conjur/compare/v1.3.0...HEAD
+[1.3.7]: https://github.com/cyberark/conjur/compare/v1.3.6...v1.3.7
+[1.3.6]: https://github.com/cyberark/conjur/compare/v1.3.5...v1.3.6
 [1.3.5]: https://github.com/cyberark/conjur/compare/v1.3.4...v1.3.5
 [1.3.4]: https://github.com/cyberark/conjur/compare/v1.3.3...v1.3.4
 [1.3.3]: https://github.com/cyberark/conjur/compare/v1.3.2...v1.3.3
