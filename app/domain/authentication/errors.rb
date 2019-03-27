@@ -16,6 +16,10 @@ module Authentication
     "Invalid origin"
   )
 
+  MissingRequestParam = ::Util::ErrorClass.new(
+    "field '{0}' is missing or empty in request body"
+  )
+
   module AuthnOidc
 
     IdTokenFieldNotFound = ::Util::ErrorClass.new(

@@ -18,8 +18,17 @@ module Authentication
         end
 
         def parsed_id_token(request_body)
-          decoded_request_body = decoded_body(request_body)
-          decoded_request_body.assoc('id_token').last
+          id_token_field = "id_token"
+
+          decoded_id_token_key_value = decoded_body(request_body).assoc(id_token_field)
+
+          # check that id token field exists and has some value
+          raise ::Authentication::MissingRequestParam, id_token_field if decoded_id_token_key_value.nil? ||
+            !decoded_id_token_key_value.include?(id_token_field) ||
+            !decoded_id_token_key_value.last.present?
+
+          # return the value of the id token
+          decoded_id_token_key_value.last
         end
       end
     end

@@ -1,14 +1,21 @@
 #!/bin/sh
 
+echo "login as admin with user $KEYCLOAK_USER"
+
 keycloak/bin/kcadm.sh config credentials \
   --server http://localhost:8080/auth \
   --realm master \
   --user "$KEYCLOAK_USER" \
   --password "$KEYCLOAK_PASSWORD"
+
+echo "creating user $1 with email $3"
+
 keycloak/bin/kcadm.sh create users \
-  -s username="$KEYCLOAK_APP_USER" \
-  -s email="$KEYCLOAK_APP_USER_EMAIL" \
+  -s username="$1" \
+  -s email="$3" \
   -s enabled=true
+
+echo "setting password of user $1 to $2"
 keycloak/bin/kcadm.sh set-password \
-  --username "$KEYCLOAK_APP_USER_PASSWORD" \
-  -p alice
+  --username "$1" \
+  -p "$2"

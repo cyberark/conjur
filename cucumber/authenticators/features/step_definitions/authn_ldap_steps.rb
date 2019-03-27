@@ -31,6 +31,10 @@ When(/my LDAP password is wrong for authorized user "(\S+)"/) do |username|
                   username: username, password: 'BAD_PASSWORD')
 end
 
+Then(/it is a bad request/) do
+  expect(bad_request?).to be true
+end
+
 Then(/it is denied/) do
   expect(unauthorized?).to be true
 end
