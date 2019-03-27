@@ -243,17 +243,17 @@ _prepare_env_auth_oidc() {
   _keycloak_isready?
 
   echo "extracting keycloak parameters"
-  KEYCLOAK_APP_USER="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER | tr -d '\r')"
-  KEYCLOAK_APP_USER_PASSWORD="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER_PASSWORD | tr -d '\r')"
-  KEYCLOAK_APP_USER_EMAIL="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER_EMAIL | tr -d '\r')"
+  KEYCLOAK_APP_USER="$(docker-compose exec -T oidc-keycloak printenv KEYCLOAK_APP_USER | tr -d '\r')"
+  KEYCLOAK_APP_USER_PASSWORD="$(docker-compose -T exec oidc-keycloak printenv KEYCLOAK_APP_USER_PASSWORD | tr -d '\r')"
+  KEYCLOAK_APP_USER_EMAIL="$(docker-compose exec -T oidc-keycloak printenv KEYCLOAK_APP_USER_EMAIL | tr -d '\r')"
 
-  KEYCLOAK_SECOND_APP_USER="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER | tr -d '\r')"
-  KEYCLOAK_SECOND_APP_USER_PASSWORD="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_PASSWORD | tr -d '\r')"
-  KEYCLOAK_SECOND_APP_USER_EMAIL="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_EMAIL | tr -d '\r')"
+  KEYCLOAK_SECOND_APP_USER="$(docker-compose exec -T oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER | tr -d '\r')"
+  KEYCLOAK_SECOND_APP_USER_PASSWORD="$(docker-compose exec -T oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_PASSWORD | tr -d '\r')"
+  KEYCLOAK_SECOND_APP_USER_EMAIL="$(docker-compose exec -T oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_EMAIL | tr -d '\r')"
 
-  KEYCLOAK_NON_CONJUR_APP_USER="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER | tr -d '\r')"
-  KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD | tr -d '\r')"
-  KEYCLOAK_NON_CONJUR_APP_USER_EMAIL="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_EMAIL | tr -d '\r')"
+  KEYCLOAK_NON_CONJUR_APP_USER="$(docker-compose exec -T oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER | tr -d '\r')"
+  KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD="$(docker-compose exec -T oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD | tr -d '\r')"
+  KEYCLOAK_NON_CONJUR_APP_USER_EMAIL="$(docker-compose exec -T oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_EMAIL | tr -d '\r')"
 
   # Define oidc-keycloak client
   docker-compose exec -T oidc-keycloak /scripts/create_client
