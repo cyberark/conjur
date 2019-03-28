@@ -25,8 +25,9 @@ class CertificateAuthorityController < RestController
   protected
 
   def available_ca_types
-    {
-      x509: CA::X509::CertificateAuthority
+    @available_ca_types ||= {
+      x509: CA::X509::CertificateAuthority,
+      ssh: CA::SSH::CertificateAuthority
     }
   end
 
