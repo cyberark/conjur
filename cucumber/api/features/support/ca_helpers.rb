@@ -29,7 +29,7 @@ module CAHelpers
   end
 
   def certificate_response_body
-    @certificate_response_body ||= (certificate_response_type == 'pem' ? @result : @result['certificate'])
+    @certificate_response_body ||= (certificate_response_type == 'json' ? @result['certificate'] : @result)
   end
 
   def certificate_response_type
