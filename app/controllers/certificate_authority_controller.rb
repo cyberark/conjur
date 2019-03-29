@@ -6,75 +6,66 @@ class CertificateAuthorityController < RestController
   include ActionController::MimeResponds
   include BodyParser
 
-  before_action :verify_ca
-  before_action :verify_host, only: :sign
-  before_action :verify_csr, only: :sign
-  
-  def sign    
-    certificate = certificate_authority.sign_csr(host, csr, ttl)
-    render_certificate(certificate)
+  before_action :verify_ca_exists
+  before_action :verify_role
+  before_action :verify_kind
+ 
+  def sign_certificate     
+    formatted_certificate = signed_certificate.to_formatted
+    render(
+      body: formatted_certificate.to_s,
+      content_type: formatted_certificate.content_type, 
+      status: :created
+    )
   end
 
   protected
 
-  def verify_ca
-    raise RecordNotFound, "No CA #{service_id}" unless ca_resource
+  def verify_role
+    can_sign = current_user.allowed_to?('sign', ca_resource)
+    raise Forbidden, "Role is not authorized to request signed certificate." unless can_sign
   end
 
-  def verify_host
-    raise Forbidden unless current_user.allowed_to?('sign', ca_resource)
-    raise Forbidden, 'Requestor is not a host' unless requestor_is_host?
+  def verify_kind
+    raise ArgumentError, "Invalid certificate kind: '#{certificate_kind}'" unless certificate_authority.present?
   end
 
-  def verify_csr
-    raise Forbidden, 'CSR cannot be verified' unless csr.verify(csr.public_key)
+  def verify_ca_exists
+    raise RecordNotFound, "There is no certificate authority with ID: #{service_id}" unless ca_resource
   end
 
-  def render_certificate(certificate)
-    respond_to do |format|
-      format.json do
-        render json: {
-          certificate: certificate.to_pem
-        },
-               status: :created
-      end
+  private
 
-      format.pem do
-        render body: certificate.to_pem, content_type: 'application/x-pem-file', status: :created
-      end
-    end
+  def signed_certificate
+    certificate_authority.sign.new.(
+      issuer: issuer,
+      certificate_request: certificate_request
+    )
+  end
+
+  def certificate_request
+    @certificate_request = certificate_authority
+      .certificate_request
+      .build(
+        role: current_user,
+        params: params
+      )
   end
 
   def certificate_authority
-    ::CA::CertificateAuthority.new(ca_resource)
+    @certificate_authority ||= ::CA.from_type(certificate_kind)
   end
 
-  def requestor_is_host?
-    current_user.kind == 'host'
+  def certificate_kind
+    (params[:kind] || 'x509').downcase.to_sym
   end
 
-  def csr
-    @csr ||= OpenSSL::X509::Request.new(params[:csr])
+  def issuer
+    @issuer ||= certificate_authority.issuer.from_resource(ca_resource)
   end
 
   def ca_resource
-    identifier = Sequel.function(:identifier, :resource_id)
-    kind = Sequel.function(:kind, :resource_id)
-    account = Sequel.function(:account, :resource_id)
-
-    @ca_resource ||= Resource
-                     .where(
-                       identifier => "conjur/#{service_id}/ca", 
-                       kind => 'webservice',
-                       account => account
-                     )
-                     .first
-  end
-
-  def host
-    @host ||= Resource
-              .where(resource_id: current_user.id)
-              .first
+    @ca_resource ||= Resource["#{account}:webservice:conjur/ca/#{service_id}"]
   end
 
   def service_id
@@ -83,9 +74,5 @@ class CertificateAuthorityController < RestController
 
   def account
     params[:account]
-  end
-
-  def ttl
-    ISO8601::Duration.new(params[:ttl]).to_seconds 
   end
 end
