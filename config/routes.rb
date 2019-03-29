@@ -70,7 +70,7 @@ Rails.application.routes.draw do
 
       get     "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
 
-      post     "/ca/:account/:service_id/sign" => 'certificate_authority#sign'
+      post    "/ca/:account/:service_id/certificates" => 'certificate_authority#sign_certificate'
     end
 
     post "/host_factories/hosts" => 'host_factories#create_host'

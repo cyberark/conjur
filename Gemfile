@@ -62,6 +62,7 @@ gem 'bootstrap-sass', '~> 3.2.0'
 gem 'dry-struct'
 gem 'font-awesome-sass', '~> 4.7.0'
 gem 'net-ldap'
+gem 'net-ssh'
 
 # for AWS rotator
 gem 'aws-sdk-iam', require: false
