@@ -17,7 +17,7 @@ end
 
 When(/^I send a CSR for "([^"]*)" to the "([^"]*)" CA with a ttl of "([^"]*)" and CN of "([^"]*)"$/) do |_host_name, service_name, ttl, common_name|
   host = create_host(common_name)
-  path = "/ca/cucumber/#{service_name}/sign"
+  path = "/ca/cucumber/#{service_name}/certificates"
 
   # TODO: It would be nice if this also worked with multipart/form-data
 
