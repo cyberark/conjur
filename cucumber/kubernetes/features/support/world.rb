@@ -5,8 +5,12 @@ module AuthnK8sWorld
 
   alias namespace test_namespace
 
+  def k8s_object_lookup
+    @k8s_object_lookup ||= Authentication::AuthnK8s::K8sObjectLookup.new
+  end
+
   def kubectl_client
-    Authentication::AuthnK8s::K8sObjectLookup.kubectl_client
+    k8s_object_lookup.kubectl_client
   end
 
   def authn_k8s_host
@@ -49,6 +53,7 @@ module AuthnK8sWorld
 
       pod_metadata = @pod.metadata
       response = kubectl_exec.execute(
+        k8s_object_lookup: Authentication::AuthnK8s::K8sObjectLookup.new,
         pod_namespace: pod_metadata.namespace,
         pod_name: pod_metadata.name,
         cmds: [ "cat", "/etc/conjur/ssl/client.pem" ]
@@ -73,7 +78,7 @@ module AuthnK8sWorld
 
   # Find pod matching label selector.
   def find_matching_pod(label_selector)
-    @pod = Authentication::AuthnK8s::K8sObjectLookup
+    @pod = k8s_object_lookup
       .pods_by_label(label_selector, namespace)
       .first
 
@@ -86,11 +91,11 @@ module AuthnK8sWorld
   def detect_request_ip objectid
     expect(objectid).to match(/^([\w-])+\/([\w-])+$/)
     controller_type, id = objectid.split('/')
-    controller = Authentication::AuthnK8s::K8sObjectLookup.find_object_by_name controller_type, id, namespace
+    controller = k8s_object_lookup.find_object_by_name controller_type, id, namespace
     raise "#{objectid.inspect} not found" unless controller
 
     @pod = pod = kubectl_client.get_pods(namespace: namespace).find do |pod|
-      resolver = Authentication::AuthnK8s::K8sResolver.for_controller(controller_type).new(controller, pod)
+      resolver = Authentication::AuthnK8s::K8sResolver.for_controller(controller_type).new(controller, pod, k8s_object_lookup)
       begin
         resolver.validate_pod
         true

@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe Authentication::AuthnK8s::InjectClientCert do
+  include_context "running in kubernetes"
+
   let(:spiffe_name) { "SpiffeName" }
   let(:spiffe_namespace) { "SpiffeNamespace" }
 

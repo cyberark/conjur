@@ -55,9 +55,9 @@ module Authentication
 
     KubectlExec = CommandClass.new(
       dependencies: { logger: Rails.logger,
-                      k8s_object_lookup: K8sObjectLookup,
                       timeout: 5.seconds },
-      inputs: %i( pod_namespace
+      inputs: %i( k8s_object_lookup
+                  pod_namespace
                   pod_name
                   container
                   cmds
@@ -175,8 +175,15 @@ module Authentication
       #
       # This is needed because we need these methods to exist on the class,
       # but that class contains only a metaprogramming generated `call()`.
-      def execute(pod_namespace:, pod_name:, cmds:, container: 'authenticator', body: "", stdin: false)
+      def execute(k8s_object_lookup:,
+        pod_namespace:,
+        pod_name:,
+        cmds:,
+        container: 'authenticator',
+        body: "",
+        stdin: false)
         call(
+          k8s_object_lookup: k8s_object_lookup,
           pod_namespace: pod_namespace,
           pod_name: pod_name,
           container: container,
@@ -186,8 +193,15 @@ module Authentication
         )
       end
 
-      def copy(pod_namespace:, pod_name:, path:, content:, mode:, container: 'authenticator')
+      def copy(k8s_object_lookup:,
+        pod_namespace:,
+        pod_name:,
+        path:,
+        content:,
+        mode:,
+        container: 'authenticator')
         execute(
+          k8s_object_lookup: k8s_object_lookup,
           pod_namespace: pod_namespace,
           pod_name: pod_name,
           container: container,

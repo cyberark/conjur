@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
+  include_context "running outside kubernetes"
+
   let(:error_template) { "An error occured" }
 
   let(:k8s_resolver) { double("K8sResolver") }
@@ -28,12 +30,16 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
                                      :namespace => k8s_host_namespace,
                                      :object => k8s_host_object) }
 
-  let (:container_name) { "ContainerName" }
+  let(:container_name) { "ContainerName" }
 
   let(:bad_service_name) { "BadMockService" }
   let(:good_service_name) { "MockService" }
 
-  let(:good_webservice) { double("GoodWebservice") }
+  let(:good_webservice) { Authentication::Webservice.new(
+    account: account,
+    authenticator_name: 'authn-k8s',
+    service_id: good_service_name
+  )}
 
   let(:spiffe_name) { "SpiffeName" }
   let(:spiffe_namespace) { "SpiffeNamespace" }
@@ -43,8 +49,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
                                            :spiffe_id => spiffe_id) }
 
   let(:dependencies) { { resource_repo: double(),
-                         k8s_resolver: k8s_resolver,
-                         k8s_object_lookup: double() } }
+                         k8s_resolver: k8s_resolver } }
 
   before(:each) do
     allow(Resource).to receive(:[])
@@ -57,7 +62,6 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
     allow(Resource).to receive(:[])
       .with("#{account}:webservice:conjur/authn-k8s/#{bad_service_name}")
       .and_return(nil)
-
   end
 
   context "invocation" do
@@ -89,7 +93,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
       allow(host_role).to receive(:allowed_to?)
         .with("authenticate", good_webservice)
         .and_return(true)
-      allow(Authentication::AuthnK8s::K8sObjectLookup).to receive(:pod_by_name)
+      allow_any_instance_of(Authentication::AuthnK8s::K8sObjectLookup).to receive(:pod_by_name)
         .with(spiffe_name, spiffe_namespace)
         .and_return(nil)
 
@@ -109,7 +113,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
         allow(host_role).to receive(:allowed_to?)
           .with("authenticate", good_webservice)
           .and_return(true)
-        allow(Authentication::AuthnK8s::K8sObjectLookup).to receive(:pod_by_name)
+        allow_any_instance_of(Authentication::AuthnK8s::K8sObjectLookup).to receive(:pod_by_name)
           .with(spiffe_name, spiffe_namespace)
           .and_return(pod)
         allow(k8s_host).to receive(:namespace_scoped?)
@@ -171,7 +175,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
         allow(host_role).to receive(:allowed_to?)
           .with("authenticate", good_webservice)
           .and_return(true)
-        allow(Authentication::AuthnK8s::K8sObjectLookup).to receive(:pod_by_name)
+        allow_any_instance_of(Authentication::AuthnK8s::K8sObjectLookup).to receive(:pod_by_name)
           .with(spiffe_name, spiffe_namespace)
           .and_return(pod)
         allow(k8s_host).to receive(:namespace_scoped?)
@@ -198,21 +202,21 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
         before(:each) do
           allow(k8s_host).to receive(:permitted_scope?)
             .and_return(true)
-          allow(Authentication::AuthnK8s::K8sObjectLookup).to receive(:find_object_by_name)
+          allow_any_instance_of(Authentication::AuthnK8s::K8sObjectLookup).to receive(:find_object_by_name)
             .with(k8s_host_controller, k8s_host_object, k8s_host_namespace)
             .and_return(k8s_host_controller_object)
           allow(Authentication::AuthnK8s::K8sResolver).to receive(:for_controller)
             .with(k8s_host_controller)
             .and_return(k8s_resolver_for_controller)
           allow(k8s_resolver_for_controller).to receive(:new)
-            .with(k8s_host_controller_object, pod)
+            .with(k8s_host_controller_object, pod, Authentication::AuthnK8s::K8sObjectLookup)
             .and_return(k8s_host_instantiated_controller)
           allow(k8s_host_instantiated_controller).to receive(:validate_pod)
             .and_return(false)
         end
 
         it 'raises ControllerNotFound if controller object cannot be found' do
-          allow(Authentication::AuthnK8s::K8sObjectLookup)
+          allow_any_instance_of(Authentication::AuthnK8s::K8sObjectLookup)
             .to receive(:find_object_by_name)
             .with(k8s_host_controller, k8s_host_object, k8s_host_namespace)
             .and_return(nil)
@@ -226,7 +230,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
         it 'raises error if pod metadata fails validation' do
           expected_message = "PodValidationFailed"
 
-          allow(Authentication::AuthnK8s::K8sObjectLookup)
+          allow_any_instance_of(Authentication::AuthnK8s::K8sObjectLookup)
             .to receive(:find_object_by_name)
             .with(k8s_host_controller, k8s_host_object, k8s_host_namespace)
             .and_raise(expected_message)

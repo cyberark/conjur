@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # K8sObjectLookup is used to lookup Kubernetes object metadata using 
 # Kubernetes API. This is essentially a facade over the API
 #
@@ -5,14 +7,74 @@ module Authentication
   module AuthnK8s
     #TODO: rename to K8sApiFacade
     #
-    module K8sObjectLookup
-      extend self
+
+    VARIABLE_BEARER_TOKEN = 'kubernetes/service-account-token'
+    VARIABLE_CA_CERT = 'kubernetes/ca-cert'
+    VARIABLE_API_URL = 'kubernetes/api-url'
+    SERVICEACCOUNT_DIR = '/var/run/secrets/kubernetes.io/serviceaccount'
+    SERVICEACCOUNT_CA_PATH = File.join(SERVICEACCOUNT_DIR, 'ca.crt').freeze
+    SERVICEACCOUNT_TOKEN_PATH = File.join(SERVICEACCOUNT_DIR, 'token').freeze
+
+    MissingCertificate = ::Util::ErrorClass.new(
+      "no Kubernetes API certificate available"
+    )
+
+    class K8sObjectLookup
 
       class K8sForbiddenError < RuntimeError; end
 
+      def initialize(webservice = nil)
+        @webservice = webservice
+        @cert_store = OpenSSL::X509::Store.new
+        @cert_store.set_default_paths
+        @cert_store.add_cert(ca_cert)
+      end
+
+      def bearer_token
+        @bearer_token ||= K8sContextValue.get(
+          @webservice,
+          SERVICEACCOUNT_TOKEN_PATH,
+          VARIABLE_BEARER_TOKEN
+        )
+      end
+
+      def ca_cert
+        cert = K8sContextValue.get(
+          @webservice,
+          SERVICEACCOUNT_CA_PATH,
+          VARIABLE_CA_CERT
+        )
+
+        raise MissingCertificate if cert.blank?
+        OpenSSL::X509::Certificate.new(cert)
+      end
+
+      def options
+        @options ||= {
+          auth_options: {
+            bearer_token: bearer_token
+          },
+          ssl_options: {
+            cert_store: @cert_store,
+            verify_ssl: OpenSSL::SSL::VERIFY_PEER
+          }
+        }
+      end
+
+      def api_url
+        host = ENV['KUBERNETES_SERVICE_HOST']
+        port = ENV['KUBERNETES_SERVICE_PORT']
+
+        if host.present? && port.present?
+          "https://#{host}:#{port}"
+        else
+          @webservice.variable(VARIABLE_API_URL).secret.value
+        end
+      end
+
       # Gets the client object to the /api v1 endpoint.
       def kubectl_client
-        KubeClientFactory.client
+        KubeClientFactory.client(host_url: api_url, options: options)
       end
 
       # Locates the Pod with a given IP address.
@@ -92,13 +154,13 @@ module Authentication
       def k8s_clients
         @clients ||= [
           kubectl_client,
-          KubeClientFactory.client(api: 'apis/apps', version: 'v1beta2'),
-          KubeClientFactory.client(api: 'apis/apps', version: 'v1beta1'),
-          KubeClientFactory.client(api: 'apis/extensions', version: 'v1beta1'),
+          KubeClientFactory.client(api: 'apis/apps', version: 'v1beta2', host_url: api_url, options: options),
+          KubeClientFactory.client(api: 'apis/apps', version: 'v1beta1', host_url: api_url, options: options),
+          KubeClientFactory.client(api: 'apis/extensions', version: 'v1beta1', host_url: api_url, options: options),
           # OpenShift 3.3 DeploymentConfig
-          KubeClientFactory.client(api: 'oapi', version: 'v1'),
+          KubeClientFactory.client(api: 'oapi', version: 'v1', host_url: api_url, options: options),
           # OpenShift 3.7 DeploymentConfig
-          KubeClientFactory.client(api: 'apis/apps.openshift.io', version: 'v1')
+          KubeClientFactory.client(api: 'apis/apps.openshift.io', version: 'v1', host_url: api_url, options: options)
         ]
       end
 

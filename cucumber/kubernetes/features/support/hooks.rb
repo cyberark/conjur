@@ -17,6 +17,7 @@ Before do
 
     pod.spec.containers.each do |container|
       exec.execute(
+        k8s_object_lookup: Authentication::AuthnK8s::K8sObjectLookup.new,
         pod_namespace: pod.metadata.namespace,
         pod_name: pod.metadata.name,
         container: container.name,

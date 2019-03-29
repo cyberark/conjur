@@ -8,11 +8,10 @@ module Authentication
         logger: Rails.logger,
         resource_repo: Resource,
         conjur_ca_repo: Repos::ConjurCA,
-        k8s_object_lookup: K8sObjectLookup,
         kubectl_exec: KubectlExec,
         validate_pod_request: ValidatePodRequest.new
       },
-      inputs: [:conjur_account, :service_id, :csr]
+      inputs: %i(conjur_account service_id csr)
     ) do
 
       def call
@@ -35,6 +34,7 @@ module Authentication
         @logger.debug "Copying SSL cert to #{pod_namespace}/#{pod_name}"
 
         resp = @kubectl_exec.new.copy(
+          k8s_object_lookup: k8s_object_lookup,
           pod_namespace: pod_namespace,
           pod_name: pod_name,
           container: container_name,
@@ -70,7 +70,7 @@ module Authentication
       end
 
       def pod
-        @pod ||= @k8s_object_lookup.pod_by_name(
+        @pod ||= k8s_object_lookup.pod_by_name(
           spiffe_id.name, spiffe_id.namespace
         )
       end
@@ -123,6 +123,10 @@ module Authentication
           authenticator_name: 'authn-k8s',
           service_id: @service_id
         )
+      end
+
+      def k8s_object_lookup
+        @k8s_object_lookup ||= K8sObjectLookup.new(webservice)
       end
 
       def cert_to_install
