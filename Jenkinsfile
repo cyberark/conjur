@@ -21,6 +21,14 @@ pipeline {
       }
     }
 
+    stage('Validate') {
+      parallel {
+        stage('Changelog') {
+          steps { sh 'ci/parse-changelog' }
+        }
+      }
+    }
+
     stage('Build Docker image') {
       steps {
         sh './build.sh -j'
@@ -49,9 +57,6 @@ pipeline {
         }
         stage('Audit') {
           steps { sh 'ci/test rspec_audit'}
-        }
-        stage('Changelog') {
-          steps { sh 'ci/parse-changelog' }
         }
       }
       post {
