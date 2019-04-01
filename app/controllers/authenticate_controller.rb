@@ -120,13 +120,31 @@ class AuthenticateController < ApplicationController
     end
 
     case err
-    when Conjur::RequiredResourceMissing,
-      Conjur::RequiredSecretMissing,
+    when Authentication::AuthnOidc::IdTokenFieldNotFound,
+      Authentication::Security::NotAuthorizedInConjur,
+      Authentication::Security::NotWhitelisted,
       Authentication::Security::ServiceNotDefined,
-      Authentication::Security::NotWhitelisted
-      raise Exceptions::NotImplemented, err.message
-    when Authentication::MissingRequestParam
+      Authentication::AuthnOidc::IdTokenVerifyFailed,
+      Authentication::AuthnOidc::IdTokenInvalidFormat,
+      Authentication::Security::NotDefinedInConjur,
+      Conjur::RequiredSecretMissing,
+      Conjur::RequiredResourceMissing
+      raise Unauthorized
+
+    when Authentication::AuthnOidc::IdTokenMissingOrEmpty,
+      Authentication::MissingRequestParam
       raise BadRequest
+
+    when Authentication::AuthnOidc::IdTokenExpired
+      raise Unauthorized, err.message
+
+    when Authentication::AuthnOidc::ProviderDiscoveryTimeout
+      raise GatewayTimeout
+
+    when Authentication::AuthnOidc::ProviderDiscoveryFailed,
+      Authentication::AuthnOidc::ProviderRetrieveCertificateFailed
+      raise BadGateway
+
     else
       raise Unauthorized
     end

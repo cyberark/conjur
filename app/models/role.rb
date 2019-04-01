@@ -3,25 +3,25 @@
 class Role < Sequel::Model
   extend Forwardable
   include HasId
-  
+
   unrestrict_primary_key
 
   one_to_many :memberships, class: :RoleMembership, extend: MembershipSearch, search_key: :member_id
   one_to_many :memberships_as_member, class: :RoleMembership, key: :member_id, extend: MembershipSearch, search_key: :role_id
-  one_to_one  :credentials, reciprocal: :role
-  
+  one_to_one :credentials, reciprocal: :role
+
   alias id role_id
 
   def as_json options = {}
     options[:exclude] ||= []
     options[:exclude] << :credentials
-      
+
     super(options).tap do |response|
       response["id"] = response.delete("role_id")
       write_id_to_json response, "policy"
     end
   end
-  
+
   class << self
     def that_can permission, resource
       Role.from(::Sequel.function(:roles_that_can, permission.to_s, resource.pk))
@@ -30,13 +30,13 @@ class Role < Sequel::Model
     def make_full_id id, account
       tokens = id.split(":", 3) rescue []
       account, kind, id = if tokens.size < 2
-        raise ArgumentError, "Expected at least 2 tokens in #{id}"
-      elsif tokens.size == 2
-        [ account ] + tokens
-      else
-        tokens
-      end
-      [ account, kind, id ].join(":")
+                            raise ArgumentError, "Expected at least 2 tokens in #{id}"
+                          elsif tokens.size == 2
+                            [account] + tokens
+                          else
+                            tokens
+                          end
+      [account, kind, id].join(":")
     end
 
     def roleid_from_username account, login
@@ -45,20 +45,20 @@ class Role < Sequel::Model
       tokens.unshift account
       tokens.join(":")
     end
-    
+
     def username_from_roleid roleid
       _, kind, id = roleid.split(":", 3)
       if kind == 'user'
         id
       else
-        [ kind, id ].join('/')
+        [kind, id].join('/')
       end
     end
   end
 
   dataset_module do
     def member_of role_ids
-      filter_memberships = Set.new(role_ids.map{|id| Role[id]}.compact.map(&:role_id))
+      filter_memberships = Set.new(role_ids.map { |id| Role[id] }.compact.map(&:role_id))
       where(role_id: filter_memberships.to_a)
     end
 
@@ -66,9 +66,9 @@ class Role < Sequel::Model
       self[role_id: Role.roleid_from_username(account, login)]
     end
   end
-  
+
   def password= password
-    modify_credentials do |credentials| 
+    modify_credentials do |credentials|
       credentials.password = password
     end
   end
@@ -86,7 +86,7 @@ class Role < Sequel::Model
   end
 
   def restricted_to= restricted_to
-    modify_credentials do |credentials| 
+    modify_credentials do |credentials|
       credentials.restricted_to = restricted_to
     end
   end
@@ -97,12 +97,12 @@ class Role < Sequel::Model
       if %w(user host deputy).member?(kind)
         self.credentials = Credentials.create(role: self)
       else
-        raise "Role #{id} has no credentials" 
+        raise "Role #{id} has no credentials"
       end
     end
     self.credentials.api_key
   end
-  
+
   def login
     self.class.username_from_roleid(role_id)
   end
@@ -124,12 +124,12 @@ class Role < Sequel::Model
 
   def direct_memberships_dataset(search_options = {})
     memberships_as_member_dataset.search(search_options)
-                                 .select(:role_memberships.*)
+      .select(:role_memberships.*)
   end
 
   def members_dataset(search_options = {})
     memberships_dataset.search(search_options)
-                       .select(:role_memberships.*)
+      .select(:role_memberships.*)
   end
 
   # Role grants are performed by the policy loader, but not exposed through the API.
@@ -141,11 +141,11 @@ class Role < Sequel::Model
   rescue Sequel::UniqueConstraintViolation
     # Membership grant already exists
   end
-  
+
   def allowed_to? privilege, resource
     Role.from(Sequel.function(:is_role_allowed_to, id, privilege.to_s, resource.id)).first[:is_role_allowed_to]
   end
-  
+
   def all_roles
     Role.from(Sequel.function(:all_roles, id))
   end
@@ -156,9 +156,9 @@ class Role < Sequel::Model
 
   def graph
     Role.from(Sequel.function(:role_graph, id))
-        .order(:parent, :child)
-        .all
-        .map(&:values)
+      .order(:parent, :child)
+      .all
+      .map(&:values)
   end
 
   private

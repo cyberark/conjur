@@ -11,7 +11,8 @@ module Authentication
       ) do
 
         def call
-          decode_id_token
+          discovered_provider
+          decoded_id_token
           verify_id_token
 
           # return decoded attributes as hash
@@ -19,10 +20,6 @@ module Authentication
         end
 
         private
-
-        def decode_id_token
-          decoded_id_token
-        end
 
         def verify_id_token
           # Verify id_token expiration. OpenIDConnect requires to verify few claims.
@@ -32,6 +29,10 @@ module Authentication
                        nonce: decoded_attributes[:nonce] }
 
           decoded_id_token.verify!(expected)
+        rescue OpenIDConnect::ResponseObject::IdToken::ExpiredToken
+          raise IdTokenExpired
+        rescue => e
+          raise IdTokenVerifyFailed, e.to_s
         end
 
         def decoded_attributes
@@ -41,12 +42,24 @@ module Authentication
         def decoded_id_token
           @decoded_id_token ||= OpenIDConnect::ResponseObject::IdToken.decode(
             @id_token_jwt,
-            get_cert(@provider_uri)
+            get_cert
           )
+        rescue => e
+          raise IdTokenInvalidFormat, e.to_s
         end
 
-        def get_cert(provider_uri)
-          OpenIDConnect::Discovery::Provider::Config.discover!(provider_uri).jwks
+        def discovered_provider
+          @discovered_provider ||= OpenIDConnect::Discovery::Provider::Config.discover!(@provider_uri)
+        rescue HTTPClient::ConnectTimeoutError => e
+          raise ProviderDiscoveryTimeout, @provider_uri
+        rescue => e
+          raise ProviderDiscoveryFailed, @provider_uri
+        end
+
+        def get_cert
+          discovered_provider.jwks
+        rescue => e
+          raise ProviderRetrieveCertificateFailed, @provider_uri
         end
       end
     end

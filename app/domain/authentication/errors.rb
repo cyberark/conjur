@@ -22,9 +22,38 @@ module Authentication
 
   module AuthnOidc
 
-    IdTokenFieldNotFound = ::Util::ErrorClass.new(
-      "field '{0}' not found in ID Token"
+    ProviderDiscoveryTimeout = ::Util::ErrorClass.new(
+      "OIDC provider failed with timeout error (provider_uri='{0})'"
     )
+
+    ProviderDiscoveryFailed = ::Util::ErrorClass.new(
+      "OIDC provider discovery failed (provider_uri='{0})'"
+    )
+
+    ProviderRetrieveCertificateFailed = ::Util::ErrorClass.new(
+      "Failed retrieve certificate from OIDC provider (provider_uri='{0})'"
+    )
+
+    IdTokenFieldNotFound = ::Util::ErrorClass.new(
+      "Field '{0}' not found in ID Token"
+    )
+
+    IdTokenInvalidFormat = ::Util::ErrorClass.new(
+      "Invalid ID Token Format (3rdPartyError ='{0}')"
+    )
+
+    IdTokenVerifyFailed = ::Util::ErrorClass.new(
+      "ID Token verification failed (3rdPartyError ='{0}')"
+    )
+
+    IdTokenMissingOrEmpty = ::Util::ErrorClass.new(
+      "Field 'id-token' is missing or empty in request body"
+    )
+
+    IdTokenExpired = ::Util::ErrorClass.new(
+      "ID Token Expired"
+    )
+
   end
 
 end
