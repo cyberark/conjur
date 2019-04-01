@@ -131,8 +131,7 @@ class AuthenticateController < ApplicationController
       Conjur::RequiredResourceMissing
       raise Unauthorized
 
-    when Authentication::AuthnOidc::IdTokenMissingOrEmpty,
-      Authentication::MissingRequestParam
+    when Authentication::MissingRequestParam
       raise BadRequest
 
     when Authentication::AuthnOidc::IdTokenExpired

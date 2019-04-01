@@ -46,10 +46,6 @@ module Authentication
       "ID Token verification failed (3rdPartyError ='{0}')"
     )
 
-    IdTokenMissingOrEmpty = ::Util::ErrorClass.new(
-      "Field 'id-token' is missing or empty in request body"
-    )
-
     IdTokenExpired = ::Util::ErrorClass.new(
       "ID Token Expired"
     )
