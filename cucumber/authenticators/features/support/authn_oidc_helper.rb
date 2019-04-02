@@ -49,9 +49,21 @@ module AuthnOidcHelper
   end
 
   def set_oidc_variables
+    set_provider_uri_variable
+    set_id_token_user_property_variable
+  end
+
+  def set_provider_uri_variable
+    set_oidc_variable("provider-uri", oidc_provider_uri)
+  end
+
+  def set_id_token_user_property_variable
+    set_oidc_variable("id-token-user-property", oidc_id_token_user_property)
+  end
+
+  def set_oidc_variable(variable_name, value)
     path = "cucumber:variable:conjur/authn-oidc/keycloak"
-    Secret.create(resource_id: "#{path}/provider-uri", value: oidc_provider_uri)
-    Secret.create(resource_id: "#{path}/id-token-user-property", value: oidc_id_token_user_property)
+    Secret.create(resource_id: "#{path}/#{variable_name}", value: value)
   end
 
   private
