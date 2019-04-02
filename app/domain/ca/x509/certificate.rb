@@ -8,6 +8,14 @@ module CA
       def to_formatted
         FormattedCertificate.new(content: certificate.to_pem, content_type: 'application/x-pem-file')
       end
+
+      def ca?
+        /CA:TRUE/i.match?(extension("basicConstraints").value)
+      end
+
+      def extension(name)
+        certificate.extensions.find { |ext| ext.oid == name }
+      end
     end
   end
 end

@@ -73,6 +73,7 @@ module CAHelpers
       extension_factory.issuer_certificate = @cert
 
       csr_cert.add_extension(extension_factory.create_extension('subjectKeyIdentifier', 'hash'))
+      csr_cert.add_extension(extension_factory.create_extension('authorityKeyIdentifier', 'keyid', false))
       csr_cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:TRUE', true))
       csr_cert.add_extension(extension_factory.create_extension('keyUsage', 'cRLSign,keyCertSign', true))
 
@@ -143,6 +144,7 @@ module CAHelpers
 
       cert.add_extension(extension_factory.create_extension('subjectKeyIdentifier', 'hash'))
       cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:TRUE', true))
+      cert.add_extension(extension_factory.create_extension('authorityKeyIdentifier', 'keyid', false))
       cert.add_extension(extension_factory.create_extension('keyUsage', 'cRLSign,keyCertSign', true))
 
       cert.sign(key, OpenSSL::Digest::SHA256.new)

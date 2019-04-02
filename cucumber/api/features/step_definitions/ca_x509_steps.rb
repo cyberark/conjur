@@ -15,14 +15,16 @@ Given(/^I add the "([^"]*)" intermediate CA cert chain to the resource "([^"]*)"
   Secret.create resource_id: resource_id, value: chain
 end
 
-When(/^I send a CSR for "([^"]*)" to the "([^"]*)" CA with a ttl of "([^"]*)" and CN of "([^"]*)"$/) do |_host_name, service_name, ttl, common_name|
+When(/^I send a(?: "([^"]*)")? CSR for "([^"]*)" to the "([^"]*)" CA with a ttl of "([^"]*)" and CN of "([^"]*)"$/) do |use, _host_name, service_name, ttl, common_name|
   host = create_host(common_name)
   path = "/ca/cucumber/#{service_name}/certificates"
+
+  use ||= 'server'
 
   # TODO: It would be nice if this also worked with multipart/form-data
 
   body = <<~BODY
-    ttl=#{ttl}&csr=#{CGI.escape(host.csr.to_pem)}
+    ttl=#{ttl}&use=#{use}&csr=#{CGI.escape(host.csr.to_pem)}
   BODY
   try_request false do
     post_json path, body
@@ -47,6 +49,11 @@ Then(/^the common name is "([^"]*)"$/) do |cn|
     end
 
   expect(subject_parts['CN']).to eq(cn)
+end
+
+Then(/^the "([^"]*)" extension is "([^"]*)"$/) do |name, value|
+  extension = response_certificate.extensions.find { |ext| ext.oid == name }
+  expect(extension.value).to eq(value)  
 end
 
 Then(/^the subject alternative names contain "([^"]*)"$/) do |san|

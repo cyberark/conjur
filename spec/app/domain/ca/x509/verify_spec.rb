@@ -46,7 +46,23 @@ describe ::CA::X509::Verify do
       CERT
     end
 
+    let(:role_annotations) { {} }
+    let(:ca_resource_annotations) { {} }
+
     subject { ::CA::X509::Verify.new(webservice: webservice, env: env).(certificate_request: certificate_request) }
+
+    before do
+      allow(webservice).to receive(:service_id)
+        .and_return('rspec_ca')
+
+      allow(role).to receive(:annotation).with(anything) do |value|
+        role_annotations[value]
+      end
+
+      allow(ca_resource).to receive(:annotation).with(anything) do |value|
+        ca_resource_annotations[value]
+      end
+    end
 
     context "when all of the inputs are valid" do
       before do
@@ -57,6 +73,72 @@ describe ::CA::X509::Verify do
 
       it "returns without error" do
         subject
+      end
+    end
+
+    context "when a non-existing certificate use is requested" do
+      let(:params) do
+        {
+          csr: csr,
+          use: 'foobar'
+        }
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(ArgumentError)
+      end
+    end
+
+    context "when a CA certificate is requested" do
+      let(:params) do
+        {
+          csr: csr,
+          use: 'ca'
+        }
+      end
+
+      context "and the CA is not permitted to sign CA certificates" do
+        it "raises an error" do
+          expect { subject }.to raise_error(::Exceptions::Forbidden)
+        end
+      end
+
+      context "and the CA and user are permitted to sign CA certificates" do
+        let(:role_annotations) do
+          {
+            'ca/ca-use-permitted' => 'true'
+          }
+        end
+
+        let(:ca_resource_annotations) do
+          {
+            'ca/ca-use-permitted' => 'true'
+          }
+        end
+
+        it "does not an error" do
+          expect { subject }.not_to raise_error
+        end
+      end
+
+      context "and the requestor is not permitted to request a CA certificate" do
+        it "raises an error" do
+          expect { subject }.to raise_error(::Exceptions::Forbidden)
+        end
+      end
+
+      context "and a path length that exists the configured max is requested" do
+        let(:params) do
+          {
+            csr: csr,
+            use: 'ca',
+            path_length: 5
+          }
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(::Exceptions::Forbidden)
+        end
       end
     end
   end

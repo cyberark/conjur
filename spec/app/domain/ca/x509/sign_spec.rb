@@ -217,6 +217,21 @@ describe ::CA::X509::Sign do
     context "when all of the inputs are valid" do
       it "returns a signed certificate" do
         expect(subject).to be_a(::CA::X509::Certificate)
+        expect(subject.ca?).to be(false)
+      end
+    end
+
+    context "when a CA certificate is requested" do
+      let(:params) do
+        {
+          csr: csr,
+          use: 'ca'
+        }
+      end
+
+      it "returns a signed certificate with the correct extensions" do
+        expect(subject).to be_a(::CA::X509::Certificate)
+        expect(subject.ca?).to be(true)
       end
     end
   end
