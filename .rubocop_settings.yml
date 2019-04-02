@@ -55,8 +55,6 @@ Layout/SpaceInsideArrayLiteralBrackets:
   EnforcedStyleForEmptyBrackets: no_space
 
 # The default configuration of these makes it hard to use proportional fonts.
-Layout/MultilineMethodCallIndentation:
-  EnforcedStyle: indented
 Layout/AlignParameters:
   EnforcedStyle: with_fixed_indentation
 Layout/EndAlignment:
