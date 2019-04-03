@@ -6,25 +6,21 @@ module Authentication
     module AuthenticateIdToken
       DecodeAndVerifyIdToken = CommandClass.new(
         dependencies: {
+          provider_certificate: ::Authentication::AuthnOidc::AuthenticateIdToken::ProviderCertificate.new
         },
         inputs: %i(provider_uri id_token_jwt)
       ) do
 
         def call
-          decode_id_token
-          verify_id_token
-
-          # return decoded attributes as hash
-          decoded_attributes
+          certs # may raise errors
+          decoded_id_token # we decode the id token separately to propagate relevant errors
+          verify_decoded_id_token
+          decoded_attributes # return decoded attributes as hash
         end
 
         private
 
-        def decode_id_token
-          decoded_id_token
-        end
-
-        def verify_id_token
+        def verify_decoded_id_token
           # Verify id_token expiration. OpenIDConnect requires to verify few claims.
           # Mask required claims such that effectively only expiration will be verified
           expected = { client_id: decoded_attributes[:aud] || decoded_attributes[:client_id],
@@ -32,6 +28,14 @@ module Authentication
                        nonce: decoded_attributes[:nonce] }
 
           decoded_id_token.verify!(expected)
+        rescue OpenIDConnect::ResponseObject::IdToken::ExpiredToken
+          raise IdTokenExpired
+        rescue => e
+          raise IdTokenVerifyFailed, e.inspect
+        end
+
+        def certs
+          @certs ||= @provider_certificate.fetch_certs(@provider_uri)
         end
 
         def decoded_attributes
@@ -41,12 +45,10 @@ module Authentication
         def decoded_id_token
           @decoded_id_token ||= OpenIDConnect::ResponseObject::IdToken.decode(
             @id_token_jwt,
-            get_cert(@provider_uri)
+            certs
           )
-        end
-
-        def get_cert(provider_uri)
-          OpenIDConnect::Discovery::Provider::Config.discover!(provider_uri).jwks
+        rescue => e
+          raise IdTokenInvalidFormat, e.inspect
         end
       end
     end

@@ -5,6 +5,18 @@ class ApplicationController < ActionController::API
   include ::ActionView::Layouts
 
   class Unauthorized < RuntimeError
+    attr_reader :return_message_in_response
+
+    def initialize(message = nil, return_message_with_response = false)
+      super(message)
+      @return_message_in_response = return_message_with_response
+    end
+  end
+
+  class GatewayTimeout < RuntimeError
+  end
+
+  class BadGateway < RuntimeError
   end
 
   class BadRequest < RuntimeError
@@ -27,6 +39,8 @@ class ApplicationController < ActionController::API
   rescue_from Exceptions::Forbidden, with: :forbidden
   rescue_from BadRequest, with: :bad_request
   rescue_from Unauthorized, with: :unauthorized
+  rescue_from GatewayTimeout, with: :gateway_timeout
+  rescue_from BadGateway, with: :bad_gateway
   rescue_from Exceptions::NotImplemented, with: :not_implemented
   rescue_from Sequel::ValidationFailed, with: :validation_failed
   rescue_from Sequel::NoMatchingRow, with: :no_matching_row
@@ -81,14 +95,14 @@ class ApplicationController < ActionController::API
       key_string = ''
       e.message.split(" ").map do |text|
         if text["(member_id)"] || text["(role_id)"]
-          key_string = text 
-          break 
-        end 
+          key_string = text
+          break
+        end
       end
 
       # the member ID is inside the second set of parentheses of the key_string
       key_index = key_string.index(/\(/, 1) + 1
-      key = key_string[ key_index, key_string.length - key_index - 1 ]
+      key = key_string[key_index, key_string.length - key_index - 1]
 
       exc = Exceptions::RecordNotFound.new key, message: "Role #{key} does not exist"
       render_record_not_found exc
@@ -102,7 +116,7 @@ class ApplicationController < ActionController::API
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
     message = e.errors.map do |field, messages|
       messages.map do |message|
-        [ field, message ].join(' ')
+        [field, message].join(' ')
       end
     end.flatten.join(',')
 
@@ -147,7 +161,7 @@ class ApplicationController < ActionController::API
     }, status: :unprocessable_entity
   end
 
-  def argument_error  e
+  def argument_error e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
     render json: {
       error: {
@@ -185,7 +199,26 @@ class ApplicationController < ActionController::API
 
   def unauthorized e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
-    head :unauthorized
+    if e.return_message_in_response
+      render json: {
+        error: {
+          code: :unauthorized,
+          message: e.message
+        }
+      }, status: :unauthorized
+    else
+      head :unauthorized
+    end
+  end
+
+  def gateway_timeout e
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    head :gateway_timeout
+  end
+
+  def bad_gateway e
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    head :bad_gateway
   end
 
   def not_implemented e
