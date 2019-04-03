@@ -70,20 +70,21 @@ module Authentication
 
         def conjur_username
           id_token_username_field = oidc_secrets["id-token-user-property"]
-
           conjur_username = id_token_attributes[id_token_username_field]
           raise IdTokenFieldNotFoundOrEmpty, id_token_username_field unless conjur_username.present?
-
+          Rails.logger.debug("[OIDC] Extracted username '#{conjur_username}' from ID Token")
           conjur_username
         end
 
         def validate_security
           @validate_security.(input: @authenticator_input,
             enabled_authenticators: @enabled_authenticators)
+          Rails.logger.debug("[OIDC] Security validated")
         end
 
         def validate_origin
           @validate_origin.(input: @authenticator_input)
+          Rails.logger.debug("[OIDC] Origin validated ")
         end
 
         def audit_success
