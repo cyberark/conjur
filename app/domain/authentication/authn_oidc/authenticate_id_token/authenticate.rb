@@ -73,7 +73,7 @@ module Authentication
 
           conjur_username = id_token_attributes[id_token_username_field]
           raise IdTokenFieldNotFoundOrEmpty, id_token_username_field unless conjur_username.present?
-          raise BlacklistedOidcUser, conjur_username if blacklisted_oidc_user?(conjur_username)
+          raise AdminAuthenticationAttempt if is_admin?(conjur_username)
 
           conjur_username
         end
@@ -95,7 +95,7 @@ module Authentication
           @audit_event.(input: @authenticator_input, success: false, message: err.message)
         end
 
-        def blacklisted_oidc_user?(username)
+        def is_admin?(username)
           username == "admin"
         end
       end
