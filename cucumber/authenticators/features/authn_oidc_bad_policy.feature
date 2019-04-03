@@ -1,4 +1,4 @@
-Feature: Users can authneticate with OIDC authenticator
+Feature: Users can authenticate with OIDC authenticator
 
   Scenario: id-token-user-property variable missing in policy is denied
     Given a policy:
