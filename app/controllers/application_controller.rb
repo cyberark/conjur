@@ -199,7 +199,7 @@ class ApplicationController < ActionController::API
 
   def unauthorized e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
-    if e.response_with_message == true
+    if e.response_with_message
       render json: {
         error: {
           code: :unauthorized,
