@@ -73,7 +73,7 @@ module Authentication
 
           conjur_username = id_token_attributes[id_token_username_field]
           raise IdTokenFieldNotFoundOrEmpty, id_token_username_field unless conjur_username.present?
-          raise AdminAuthenticationAttempt if is_admin?(conjur_username)
+          raise AdminAuthenticationDenied if is_admin?(conjur_username)
 
           conjur_username
         end
