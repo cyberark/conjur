@@ -47,6 +47,8 @@ module Authentication
             @id_token_jwt,
             certs
           )
+          Rails.logger.debug("[OIDC] Decode ID Token succeeded")
+          @decoded_id_token
         rescue => e
           raise IdTokenInvalidFormat, e.inspect
         end
