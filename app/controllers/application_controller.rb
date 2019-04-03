@@ -5,11 +5,11 @@ class ApplicationController < ActionController::API
   include ::ActionView::Layouts
 
   class Unauthorized < RuntimeError
-    attr_accessor :response_with_message
+    attr_reader :return_message_in_response
 
-    def initialize(message = nil, respone_with_message = false)
+    def initialize(message = nil, return_message_with_response = false)
       super(message)
-      @response_with_message = respone_with_message
+      @return_message_in_response = return_message_with_response
     end
   end
 
@@ -199,7 +199,7 @@ class ApplicationController < ActionController::API
 
   def unauthorized e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
-    if e.response_with_message
+    if e.return_message_in_response
       render json: {
         error: {
           code: :unauthorized,

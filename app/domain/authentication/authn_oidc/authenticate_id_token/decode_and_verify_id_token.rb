@@ -12,7 +12,7 @@ module Authentication
       ) do
 
         def call
-          fetch_certs
+          certs # may raise errors
           decoded_id_token # we decode the id token separately to propagate relevant errors
           verify_decoded_id_token
           decoded_attributes # return decoded attributes as hash
@@ -34,7 +34,7 @@ module Authentication
           raise IdTokenVerifyFailed, e.inspect
         end
 
-        def fetch_certs
+        def certs
           @certs ||= @provider_certificate.fetch_certs(@provider_uri)
         end
 
@@ -45,7 +45,7 @@ module Authentication
         def decoded_id_token
           @decoded_id_token ||= OpenIDConnect::ResponseObject::IdToken.decode(
             @id_token_jwt,
-            @certs
+            certs
           )
         rescue => e
           raise IdTokenInvalidFormat, e.inspect
