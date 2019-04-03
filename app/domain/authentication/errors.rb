@@ -50,6 +50,9 @@ module Authentication
       "ID Token Expired"
     )
 
+    BlacklistedOidcUser = ::Util::ErrorClass.new(
+      "User '{0}' is not allowed to authenticate with OIDC"
+    )
   end
 
 end
