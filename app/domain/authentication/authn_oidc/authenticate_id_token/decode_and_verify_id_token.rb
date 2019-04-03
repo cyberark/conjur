@@ -12,13 +12,20 @@ module Authentication
       ) do
 
         def call
-          certs # may raise errors
-          decoded_id_token # we decode the id token separately to propagate relevant errors
+          # we fetch the certs & decode the id token here to propagate relevant errors
+          certs
+          decode_id_token
+
           verify_decoded_id_token
           decoded_attributes # return decoded attributes as hash
         end
 
         private
+
+        def decode_id_token
+          decoded_id_token
+          Rails.logger.debug("[OIDC] Decode ID Token succeeded")
+        end
 
         def verify_decoded_id_token
           # Verify id_token expiration. OpenIDConnect requires to verify few claims.
@@ -28,6 +35,7 @@ module Authentication
                        nonce: decoded_attributes[:nonce] }
 
           decoded_id_token.verify!(expected)
+          Rails.logger.debug("[OIDC] ID Token verification succeeded")
         rescue OpenIDConnect::ResponseObject::IdToken::ExpiredToken
           raise IdTokenExpired
         rescue => e
@@ -47,8 +55,6 @@ module Authentication
             @id_token_jwt,
             certs
           )
-          Rails.logger.debug("[OIDC] Decode ID Token succeeded")
-          @decoded_id_token
         rescue => e
           raise IdTokenInvalidFormat, e.inspect
         end
