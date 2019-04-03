@@ -120,7 +120,7 @@ class AuthenticateController < ApplicationController
     end
 
     case err
-    when Authentication::AuthnOidc::IdTokenFieldNotFound,
+    when Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty,
       Authentication::Security::NotAuthorizedInConjur,
       Authentication::Security::NotWhitelisted,
       Authentication::Security::ServiceNotDefined,
@@ -135,13 +135,13 @@ class AuthenticateController < ApplicationController
       raise BadRequest
 
     when Authentication::AuthnOidc::IdTokenExpired
-      raise Unauthorized, err.message
+      raise Unauthorized.new(err.message, true)
 
     when Authentication::AuthnOidc::ProviderDiscoveryTimeout
       raise GatewayTimeout
 
     when Authentication::AuthnOidc::ProviderDiscoveryFailed,
-      Authentication::AuthnOidc::ProviderRetrieveCertificateFailed
+      Authentication::AuthnOidc::ProviderFetchCertificateFailed
       raise BadGateway
 
     else

@@ -10,7 +10,7 @@ RSpec.describe 'Authentication::Oidc' do
   let (:mocked_decode_and_verify_id_token) { double("MockIdTokenDecodeAndVerify") }
 
   before(:each) do
-    allow(mocked_decode_and_verify_id_token).to receive(:call)  { |*args|
+    allow(mocked_decode_and_verify_id_token).to receive(:call) { |*args|
       JSON.parse(args[0][:id_token_jwt]).to_hash
     }
   end
@@ -66,20 +66,20 @@ RSpec.describe 'Authentication::Oidc' do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc-test',
-            service_id:         'my-service',
-            account:            'my-acct',
-            username:           nil,
-            password:           nil,
-            origin:             '127.0.0.1',
-            request:            oidc_authenticate_id_token_request
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            password: nil,
+            origin: '127.0.0.1',
+            request: oidc_authenticate_id_token_request
           )
 
           ::Authentication::AuthnOidc::AuthenticateIdToken::Authenticate.new(
-              enabled_authenticators: oidc_authenticator_name,
-              token_factory:          token_factory,
-              validate_security:      mocked_security_validator,
-              validate_origin:        mocked_origin_validator,
-              decode_and_verify_id_token: mocked_decode_and_verify_id_token
+            enabled_authenticators: oidc_authenticator_name,
+            token_factory: token_factory,
+            validate_security: mocked_security_validator,
+            validate_origin: mocked_origin_validator,
+            decode_and_verify_id_token: mocked_decode_and_verify_id_token
           ).(
             authenticator_input: input_
           )
@@ -100,27 +100,27 @@ RSpec.describe 'Authentication::Oidc' do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc-test',
-            service_id:         'my-service',
-            account:            'my-acct',
-            username:           nil,
-            password:           nil,
-            origin:             '127.0.0.1',
-            request:            no_field_oidc_authenticate_id_token_request
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            password: nil,
+            origin: '127.0.0.1',
+            request: no_field_oidc_authenticate_id_token_request
           )
 
           ::Authentication::AuthnOidc::AuthenticateIdToken::Authenticate.new(
-              enabled_authenticators: oidc_authenticator_name,
-              token_factory:          token_factory,
-              validate_security:      mocked_security_validator,
-              validate_origin:        mocked_origin_validator,
-              decode_and_verify_id_token: mocked_decode_and_verify_id_token
+            enabled_authenticators: oidc_authenticator_name,
+            token_factory: token_factory,
+            validate_security: mocked_security_validator,
+            validate_origin: mocked_origin_validator,
+            decode_and_verify_id_token: mocked_decode_and_verify_id_token
           ).(
             authenticator_input: input_
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(::Authentication::AuthnOidc::IdTokenFieldNotFound)
+          expect { subject }.to raise_error(::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty)
         end
       end
 
@@ -128,27 +128,27 @@ RSpec.describe 'Authentication::Oidc' do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc-test',
-            service_id:         'my-service',
-            account:            'my-acct',
-            username:           nil,
-            password:           nil,
-            origin:             '127.0.0.1',
-            request:            no_value_oidc_authenticate_id_token_request
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            password: nil,
+            origin: '127.0.0.1',
+            request: no_value_oidc_authenticate_id_token_request
           )
 
           ::Authentication::AuthnOidc::AuthenticateIdToken::Authenticate.new(
-              enabled_authenticators: oidc_authenticator_name,
-              token_factory:          token_factory,
-              validate_security:      mocked_security_validator,
-              validate_origin:        mocked_origin_validator,
-              decode_and_verify_id_token: mocked_decode_and_verify_id_token
+            enabled_authenticators: oidc_authenticator_name,
+            token_factory: token_factory,
+            validate_security: mocked_security_validator,
+            validate_origin: mocked_origin_validator,
+            decode_and_verify_id_token: mocked_decode_and_verify_id_token
           ).(
             authenticator_input: input_
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(::Authentication::AuthnOidc::IdTokenFieldNotFound)
+          expect { subject }.to raise_error(::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty)
         end
       end
     end

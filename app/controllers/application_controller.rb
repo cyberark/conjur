@@ -5,16 +5,18 @@ class ApplicationController < ActionController::API
   include ::ActionView::Layouts
 
   class Unauthorized < RuntimeError
+    attr_accessor :response_with_message
 
+    def initialize(message = nil, respone_with_message = false)
+      super(message)
+      @response_with_message = respone_with_message
+    end
   end
 
   class GatewayTimeout < RuntimeError
   end
 
   class BadGateway < RuntimeError
-  end
-
-  class BadRequest < RuntimeError
   end
 
   class BadRequest < RuntimeError
@@ -39,7 +41,6 @@ class ApplicationController < ActionController::API
   rescue_from Unauthorized, with: :unauthorized
   rescue_from GatewayTimeout, with: :gateway_timeout
   rescue_from BadGateway, with: :bad_gateway
-  rescue_from BadRequest, with: :bad_request
   rescue_from Exceptions::NotImplemented, with: :not_implemented
   rescue_from Sequel::ValidationFailed, with: :validation_failed
   rescue_from Sequel::NoMatchingRow, with: :no_matching_row
@@ -198,7 +199,7 @@ class ApplicationController < ActionController::API
 
   def unauthorized e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
-    if e.message == Authentication::AuthnOidc::IdTokenExpired.new.to_s
+    if e.response_with_message == true
       render json: {
         error: {
           code: :unauthorized,
@@ -206,7 +207,6 @@ class ApplicationController < ActionController::API
         }
       }, status: :unauthorized
     else
-      logger.debug "#{e}\n#{e.backtrace.join "\n"}"
       head :unauthorized
     end
   end
@@ -219,11 +219,6 @@ class ApplicationController < ActionController::API
   def bad_gateway e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
     head :bad_gateway
-  end
-
-  def bad_request e
-    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
-    head :bad_request
   end
 
   def not_implemented e

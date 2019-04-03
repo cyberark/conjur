@@ -72,7 +72,7 @@ module Authentication
           id_token_username_field = oidc_secrets["id-token-user-property"]
 
           conjur_username = id_token_attributes[id_token_username_field]
-          raise IdTokenFieldNotFound, id_token_username_field unless conjur_username
+          raise IdTokenFieldNotFoundOrEmpty, id_token_username_field unless conjur_username.present?
 
           conjur_username
         end

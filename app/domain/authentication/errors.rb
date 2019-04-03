@@ -23,19 +23,19 @@ module Authentication
   module AuthnOidc
 
     ProviderDiscoveryTimeout = ::Util::ErrorClass.new(
-      "OIDC provider failed with timeout error (provider_uri='{0})'"
+      "OIDC provider discovery failed with timeout error (provider_uri='{0})'"
     )
 
     ProviderDiscoveryFailed = ::Util::ErrorClass.new(
       "OIDC provider discovery failed (provider_uri='{0})'"
     )
 
-    ProviderRetrieveCertificateFailed = ::Util::ErrorClass.new(
-      "Failed retrieve certificate from OIDC provider (provider_uri='{0})'"
+    ProviderFetchCertificateFailed = ::Util::ErrorClass.new(
+      "Failed to fetch certificate from OIDC provider (provider_uri='{0})'"
     )
 
-    IdTokenFieldNotFound = ::Util::ErrorClass.new(
-      "Field '{0}' not found in ID Token"
+    IdTokenFieldNotFoundOrEmpty = ::Util::ErrorClass.new(
+      "Field '{0}' not found or empty in ID Token"
     )
 
     IdTokenInvalidFormat = ::Util::ErrorClass.new(
