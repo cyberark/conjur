@@ -43,7 +43,7 @@ module Authentication
         end
 
         def fetch_certs
-          @certs ||= @provider_certificate.fetch_certs(@provider_uri)
+          @certs = @provider_certificate.fetch_certs(@provider_uri)
         end
 
         def decoded_attributes
@@ -53,7 +53,7 @@ module Authentication
         def decoded_id_token
           @decoded_id_token ||= OpenIDConnect::ResponseObject::IdToken.decode(
             @id_token_jwt,
-            fetch_certs
+            @certs
           )
         rescue => e
           raise IdTokenInvalidFormat, e.inspect
