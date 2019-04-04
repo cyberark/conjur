@@ -72,8 +72,11 @@ module Authentication
           id_token_username_field = oidc_secrets["id-token-user-property"]
 
           conjur_username = id_token_attributes[id_token_username_field]
+
           raise IdTokenFieldNotFoundOrEmpty, id_token_username_field unless conjur_username.present?
-          raise AdminAuthenticationDenied if is_admin?(conjur_username)
+          raise AdminAuthenticationDenied if admin?(conjur_username)
+
+          Rails.logger.debug("[OIDC] Extracted username '#{conjur_username}' from ID Token")
 
           conjur_username
         end
@@ -81,10 +84,12 @@ module Authentication
         def validate_security
           @validate_security.(input: @authenticator_input,
             enabled_authenticators: @enabled_authenticators)
+          Rails.logger.debug("[OIDC] Security validated")
         end
 
         def validate_origin
           @validate_origin.(input: @authenticator_input)
+          Rails.logger.debug("[OIDC] Origin validated")
         end
 
         def audit_success
@@ -95,7 +100,7 @@ module Authentication
           @audit_event.(input: @authenticator_input, success: false, message: err.message)
         end
 
-        def is_admin?(username)
+        def admin?(username)
           username == "admin"
         end
       end

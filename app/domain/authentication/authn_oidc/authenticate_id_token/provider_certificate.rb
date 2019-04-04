@@ -7,6 +7,8 @@ module Authentication
       class ProviderCertificate
 
         def fetch_certs(provider_uri)
+          Rails.logger.debug("[OIDC] Fetching provider certificate from '#{provider_uri}'")
+
           # provider discovery might throw exception. Let it propagate upward
           discovered_provider = discover_provider(provider_uri)
           begin

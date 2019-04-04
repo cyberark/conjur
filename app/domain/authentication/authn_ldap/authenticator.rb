@@ -65,6 +65,5 @@ module Authentication
         login == 'admin'
       end
     end
-
   end
 end
