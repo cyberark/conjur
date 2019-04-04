@@ -50,6 +50,9 @@ module Authentication
       "ID Token Expired"
     )
 
+    AdminAuthenticationDenied = ::Util::ErrorClass.new(
+      "admin user is not allowed to authenticate with OIDC"
+    )
   end
 
 end

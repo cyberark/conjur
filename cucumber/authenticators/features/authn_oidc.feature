@@ -107,3 +107,15 @@ Feature: Users can authneticate with OIDC authenticator
 
     When I authenticate via OIDC with empty id token
     Then it is a bad request
+
+  Scenario: non-existing account in request is denied
+    Given I get authorization code for username "alice" and password "alice"
+    And I fetch an ID Token
+    When I authenticate via OIDC with id token and account "non-existing"
+    Then it is denied
+
+  Scenario: admin user is denied
+    Given I get authorization code for username "admin" and password "admin"
+    And I fetch an ID Token
+    When I authenticate via OIDC with id token
+    Then it is denied

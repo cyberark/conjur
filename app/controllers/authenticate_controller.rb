@@ -114,7 +114,7 @@ class AuthenticateController < ApplicationController
   private
 
   def handle_authentication_error(err)
-    logger.debug("Authentication Error: #{err.message}")
+    logger.debug("Authentication Error: #{err.inspect}")
     err.backtrace.each do |line|
       logger.debug(line)
     end
