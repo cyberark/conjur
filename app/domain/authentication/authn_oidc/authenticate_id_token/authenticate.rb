@@ -74,7 +74,7 @@ module Authentication
           conjur_username = id_token_attributes[id_token_username_field]
 
           raise IdTokenFieldNotFoundOrEmpty, id_token_username_field unless conjur_username.present?
-          raise AdminAuthenticationDenied if is_admin?(conjur_username)
+          raise AdminAuthenticationDenied if admin?(conjur_username)
 
           Rails.logger.debug("[OIDC] Extracted username '#{conjur_username}' from ID Token")
 
@@ -100,7 +100,7 @@ module Authentication
           @audit_event.(input: @authenticator_input, success: false, message: err.message)
         end
 
-        def is_admin?(username)
+        def admin?(username)
           username == "admin"
         end
       end
