@@ -14,7 +14,7 @@ module Authentication
           begin
             discovered_provider.jwks
           rescue => e
-            raise ProviderFetchCertificateFailed, provider_uri, e.inspect
+            raise ProviderFetchCertificateFailed.new(provider_uri, e.inspect)
           end
         end
 
@@ -23,9 +23,9 @@ module Authentication
         def discover_provider(provider_uri)
           OpenIDConnect::Discovery::Provider::Config.discover!(provider_uri)
         rescue HTTPClient::ConnectTimeoutError => e
-          raise ProviderDiscoveryTimeout, provider_uri, e.inspect
+          raise ProviderDiscoveryTimeout.new(provider_uri, e.inspect)
         rescue => e
-          raise ProviderDiscoveryFailed, provider_uri, e.inspect
+          raise ProviderDiscoveryFailed.new(provider_uri, e.inspect)
         end
       end
     end
