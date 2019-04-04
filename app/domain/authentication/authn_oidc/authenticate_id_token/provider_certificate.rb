@@ -12,7 +12,9 @@ module Authentication
           # provider discovery might throw exception. Let it propagate upward
           discovered_provider = discover_provider(provider_uri)
           begin
-            discovered_provider.jwks
+            jwks = discovered_provider.jwks
+            Rails.logger.debug("[OIDC] Provider certificate was fetched successfully from '#{provider_uri}'")
+            jwks
           rescue => e
             raise ProviderFetchCertificateFailed.new(provider_uri, e.inspect)
           end
