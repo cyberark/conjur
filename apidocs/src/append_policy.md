@@ -2,7 +2,7 @@
 
 ### Append to a policy [POST]
 
-Adds data to the existing [Conjur policy](/reference/policy.html).
+Adds data to the existing [Conjur policy](https://docs.conjur.org/Latest/en/Content/Operations/Policy/policy-intro.html).
 Deletions are not allowed. Any policy objects that exist on the server but
 are omitted from the policy file will not be deleted and any explicit deletions in
 the policy file will result in an error.

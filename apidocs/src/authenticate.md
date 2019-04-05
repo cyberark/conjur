@@ -2,7 +2,7 @@
 
 ### Authenticate [POST]
 
-Gets a [short-lived access token](/reference/cryptography.html#authentication-tokens), which can be used to authenticate requests to (most of) the rest of the Conjur API. A client can obtain an access token by presenting a valid login name and API key.
+Gets a [short-lived access token](https://docs.conjur.org/Latest/en/Content/Get%20Started/cryptography.html?Highlight=cryptography#Authenticationtokens), which can be used to authenticate requests to (most of) the rest of the Conjur API. A client can obtain an access token by presenting a valid login name and API key.
 
 The login must be [URL encoded][percent-encoding]. For example, `alice@devops`
 must be encoded as `alice%40devops`.
@@ -18,7 +18,7 @@ Authorization: Token token="eyJkYX...Rhb="
 ```
 
 Therefore, before the access token can be used to make subsequent calls to the API, a raw token must be formatted.
-Take the response from this method and base64-encode it, stripping out newlines.
+Take the response from this method and base64-encode it, stripping out newlines. 
 
 ```
 token=$(echo -n $response | base64 | tr -d '\r\n')
