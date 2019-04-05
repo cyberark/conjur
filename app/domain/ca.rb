@@ -3,7 +3,8 @@
 # Conjur PKI services.
 module CA
   AVAILABLE_CA_TYPES = {
-    x509: CA::X509
+    x509: CA::X509,
+    ssh: CA::SSH
   }.freeze
 
   def self.from_type(type)
