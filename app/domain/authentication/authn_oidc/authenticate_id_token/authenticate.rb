@@ -11,7 +11,8 @@ module Authentication
           validate_security: ::Authentication::ValidateSecurity.new,
           validate_origin: ::Authentication::ValidateOrigin.new,
           audit_event: ::Authentication::AuditEvent.new,
-          decode_and_verify_id_token: ::Authentication::AuthnOidc::AuthenticateIdToken::DecodeAndVerifyIdToken.new
+          decode_and_verify_id_token: ::Authentication::AuthnOidc::AuthenticateIdToken::DecodeAndVerifyIdToken.new,
+          logger: Rails.logger
         },
         inputs: %i(authenticator_input)
       ) do
@@ -31,18 +32,14 @@ module Authentication
         private
 
         def decode_and_verify_id_token
-          id_token_attributes
+          @id_token_attributes = @decode_and_verify_id_token.(
+            provider_uri: oidc_secrets["provider-uri"],
+              id_token_jwt: request_body.id_token
+          )
         end
 
         def add_username_to_input
           @authenticator_input = @authenticator_input.update(username: conjur_username)
-        end
-
-        def id_token_attributes
-          @id_token_attributes ||= @decode_and_verify_id_token.(
-            provider_uri: oidc_secrets["provider-uri"],
-              id_token_jwt: request_body.id_token
-          )
         end
 
         def request_body
@@ -71,12 +68,12 @@ module Authentication
         def conjur_username
           id_token_username_field = oidc_secrets["id-token-user-property"]
 
-          conjur_username = id_token_attributes[id_token_username_field]
+          conjur_username = @id_token_attributes[id_token_username_field]
 
           raise IdTokenFieldNotFoundOrEmpty, id_token_username_field unless conjur_username.present?
           raise AdminAuthenticationDenied if admin?(conjur_username)
 
-          Rails.logger.debug("[OIDC] Extracted username '#{conjur_username}' from ID Token")
+          @logger.debug("[OIDC] Extracted username '#{conjur_username}' from ID Token")
 
           conjur_username
         end
@@ -84,12 +81,12 @@ module Authentication
         def validate_security
           @validate_security.(input: @authenticator_input,
             enabled_authenticators: @enabled_authenticators)
-          Rails.logger.debug("[OIDC] Security validated")
+          @logger.debug("[OIDC] Security validated")
         end
 
         def validate_origin
           @validate_origin.(input: @authenticator_input)
-          Rails.logger.debug("[OIDC] Origin validated")
+          @logger.debug("[OIDC] Origin validated")
         end
 
         def audit_success
