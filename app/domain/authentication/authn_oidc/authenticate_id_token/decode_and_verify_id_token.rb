@@ -6,7 +6,8 @@ module Authentication
     module AuthenticateIdToken
       DecodeAndVerifyIdToken = CommandClass.new(
         dependencies: {
-          provider_certificate: ::Authentication::AuthnOidc::AuthenticateIdToken::ProviderCertificate.new
+          fetch_provider_certificate: ::Authentication::AuthnOidc::AuthenticateIdToken::FetchProviderCertificate.new,
+          logger: Rails.logger
         },
         inputs: %i(provider_uri id_token_jwt)
       ) do
@@ -15,7 +16,6 @@ module Authentication
           # we fetch the certs & decode the id token here to propagate relevant errors
           fetch_certs
           decode_id_token
-
           verify_decoded_id_token
           decoded_attributes # return decoded attributes as hash
         end
@@ -24,7 +24,7 @@ module Authentication
 
         def decode_id_token
           decoded_id_token
-          Rails.logger.debug("[OIDC] Decode ID Token succeeded")
+          @logger.debug("[OIDC] Decode ID Token succeeded")
         end
 
         def verify_decoded_id_token
@@ -35,7 +35,7 @@ module Authentication
                        nonce: decoded_attributes[:nonce] }
 
           decoded_id_token.verify!(expected)
-          Rails.logger.debug("[OIDC] ID Token verification succeeded")
+          @logger.debug("[OIDC] ID Token verification succeeded")
         rescue OpenIDConnect::ResponseObject::IdToken::ExpiredToken
           raise IdTokenExpired
         rescue => e
@@ -43,7 +43,7 @@ module Authentication
         end
 
         def fetch_certs
-          @certs = @provider_certificate.fetch_certs(@provider_uri)
+          @certs = @fetch_provider_certificate.(provider_uri: @provider_uri)
         end
 
         def decoded_attributes
