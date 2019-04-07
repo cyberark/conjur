@@ -186,6 +186,7 @@ detectors:
     - Authentication::AuthnK8s::Authenticator#URI_from_asn1_seq
     - Rotation::Password#self.base58
   UncommunicativeVariableName:
+    enabled: false
     exclude:
     - Delegator#init_with
     - PossumWorld#authn_local_request
