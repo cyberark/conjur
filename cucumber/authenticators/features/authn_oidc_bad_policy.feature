@@ -93,3 +93,39 @@ Feature: Users can authenticate with OIDC authenticator
     And I fetch an ID Token
     When I authenticate via OIDC with id token
     Then it is denied
+
+  Scenario: webservice with read and no authenticate permission in policy is denied
+    Given a policy:
+    """
+    - !policy
+      id: conjur/authn-oidc/keycloak
+      body:
+        - !webservice
+          annotations:
+            description: Authentication service for Keycloak, based on Open ID Connect.
+
+        - !variable
+          id: provider-uri
+
+        - !variable
+          id: id-token-user-property
+
+        - !group users
+
+        - !permit
+          role: !group users
+          privilege: [ read ]
+          resource: !webservice
+
+    - !user alice
+
+    - !grant
+      role: !group conjur/authn-oidc/keycloak/users
+      member: !user alice
+    """
+    And I am the super-user
+    And I successfully set OIDC variables
+    Given I get authorization code for username "alice" and password "alice"
+    And I fetch an ID Token
+    When I authenticate via OIDC with id token
+    Then it is denied
