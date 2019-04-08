@@ -60,7 +60,11 @@ module Authentication
 
       # Ensure user has access to the service
       has_access = user_role.allowed_to?('authenticate', webservice_resource)
-      raise NotAuthorizedInConjur, req.user_id unless has_access
+      unless has_access
+        Rails.logger.debug("[OIDC] User '#{req.user_id}' is not authorized to " \
+          "authenticate with webservice '#{webservice_resource[:resource_id]}'")
+        raise NotAuthorizedInConjur, req.user_id
+      end
     end
   end
 
