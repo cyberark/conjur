@@ -48,8 +48,10 @@ module Authentication
     end
 
     def validate_user_has_access(req)
+      resource_id = req.webservice.resource_id
+
       # Ensure webservice is defined in Conjur
-      webservice_resource = resource_class[req.webservice.resource_id]
+      webservice_resource = resource_class[resource_id]
       raise ServiceNotDefined, req.webservice.name unless webservice_resource
 
       # Ensure user is defined in Conjur
@@ -62,7 +64,7 @@ module Authentication
       has_access = user_role.allowed_to?('authenticate', webservice_resource)
       unless has_access
         Rails.logger.debug("[OIDC] User '#{req.user_id}' is not authorized to " \
-          "authenticate with webservice '#{webservice_resource[:resource_id]}'")
+          "authenticate with webservice '#{resource_id}'")
         raise NotAuthorizedInConjur, req.user_id
       end
     end
