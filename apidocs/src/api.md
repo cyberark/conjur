@@ -1,12 +1,8 @@
 FORMAT: 1A
 
-# Conjur V5 API
+# Conjur API
 
-This is official documentation of the Conjur V5 API. It
-allows you tremendous flexibility to control and manipulate your
-Conjur software.
-
-Looking for the Conjur Enterprise (V4) API? https://conjur.docs.apiary.io
+This is official documentation of the Conjur V5 API. It allows you tremendous flexibility to control and manipulate your Conjur software.
 
 # Group Authentication
 

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.3.7] - 2019-03-27
 ### Changed
+- Updated links to Policy & Cryptography reference in API documentation
 - Updated conjur-policy-parser to
   [v3.0.3](https://github.com/conjurinc/conjur-policy-parser/blob/possum/CHANGELOG.md#v303).
 - Replaced `changelog` entrypoint in `ci/test` with a separate script. Building
