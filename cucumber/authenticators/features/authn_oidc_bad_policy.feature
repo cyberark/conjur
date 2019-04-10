@@ -31,7 +31,7 @@ Feature: Users can authenticate with OIDC authenticator
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
     When I authenticate via OIDC with id token
-    Then it is denied
+    Then it is unauthorized
 
   Scenario: provider-uri variable missing in policy is denied
     Given a policy:
@@ -64,7 +64,7 @@ Feature: Users can authenticate with OIDC authenticator
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
     When I authenticate via OIDC with id token
-    Then it is denied
+    Then it is unauthorized
 
   Scenario: webservice missing in policy is denied
     Given a policy:
@@ -92,7 +92,7 @@ Feature: Users can authenticate with OIDC authenticator
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
     When I authenticate via OIDC with id token
-    Then it is denied
+    Then it is unauthorized
 
   Scenario: webservice with read and no authenticate permission in policy is denied
     Given a policy:
@@ -128,4 +128,4 @@ Feature: Users can authenticate with OIDC authenticator
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
     When I authenticate via OIDC with id token
-    Then it is denied
+    Then it is unauthorized

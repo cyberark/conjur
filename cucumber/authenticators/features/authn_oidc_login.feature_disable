@@ -51,4 +51,4 @@ Feature: Users can authneticate with OIDC authenticator
     Then login response token is valid
 
     When I successfully authenticate via OIDC
-    Then "alice" is authorized
+    Then user "alice" is authorized

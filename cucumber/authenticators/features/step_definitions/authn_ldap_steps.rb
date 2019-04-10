@@ -24,23 +24,9 @@ When(/my LDAP password for (?:\S)+ Conjur user "(\S+)" is empty/) do |username|
                   username: username, password: '')
 end
 
-
-
 When(/my LDAP password is wrong for authorized user "(\S+)"/) do |username|
   login_with_ldap(service_id: 'test', account: 'cucumber', 
                   username: username, password: 'BAD_PASSWORD')
-end
-
-Then(/it is a bad request/) do
-  expect(bad_request?).to be true
-end
-
-Then(/it is denied/) do
-  expect(unauthorized?).to be true
-end
-
-Then(/it is forbidden/) do
-  expect(forbidden?).to be true
 end
 
 Given(/^I store the LDAP bind password in "([^"]*)"$/) do |variable_name|
