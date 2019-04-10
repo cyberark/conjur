@@ -40,7 +40,7 @@ Feature: Users can authneticate with OIDC authenticator
     And I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
     When I authenticate via OIDC with id token
-    Then "alice" is authorized
+    Then user "alice" is authorized
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
 
   Scenario: A valid id token with email as id-token-user-property
@@ -56,7 +56,7 @@ Feature: Users can authneticate with OIDC authenticator
     And I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
     And I authenticate via OIDC with id token
-    Then "alice@conjur.net" is authorized
+    Then user "alice@conjur.net" is authorized
 
   Scenario: Adding a group to keycloak/users group permits users to authenticate
     Given I extend the policy with:
@@ -76,13 +76,13 @@ Feature: Users can authneticate with OIDC authenticator
     And I get authorization code for username "bob" and password "bob"
     And I fetch an ID Token
     When I authenticate via OIDC with id token
-    Then "bob" is authorized
+    Then user "bob" is authorized
 
   Scenario: Non-existing username in ID token is denied
     Given I get authorization code for username "not_in_conjur" and password "not_in_conjur"
     And I fetch an ID Token
     When I authenticate via OIDC with id token
-    Then it is denied
+    Then it is unauthorized
 
   Scenario: User that is not permitted to webservice in ID token is denied
     Given I extend the policy with:
@@ -92,14 +92,14 @@ Feature: Users can authneticate with OIDC authenticator
     And I get authorization code for username "bob" and password "bob"
     And I fetch an ID Token
     When I authenticate via OIDC with id token
-    Then it is denied
+    Then it is unauthorized
 
   Scenario: ID token without value of variable id-token-user-property is denied
     When I add the secret value "non_existing_field" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/id-token-user-property"
     And I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
     When I authenticate via OIDC with id token
-    Then it is denied
+    Then it is unauthorized
 
   Scenario: Empty or missing id token is a bad request
     When I authenticate via OIDC with no id token
@@ -112,10 +112,10 @@ Feature: Users can authneticate with OIDC authenticator
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
     When I authenticate via OIDC with id token and account "non-existing"
-    Then it is denied
+    Then it is unauthorized
 
   Scenario: admin user is denied
     Given I get authorization code for username "admin" and password "admin"
     And I fetch an ID Token
     When I authenticate via OIDC with id token
-    Then it is denied
+    Then it is unauthorized
