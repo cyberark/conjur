@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 require 'kubeclient'
+require 'uri'
 
 #TODO make it class that accepts env, so the validation is only done once
 # That is, this is a really an object whose ctor dependency is ENV, and
@@ -9,48 +12,23 @@ module Authentication
   module AuthnK8s
     module KubeClientFactory
 
-      MissingServiceAccountDir = ::Util::ErrorClass.new(
-        "Kubernetes serviceaccount dir '{0}' does not exist")
+      InvalidApiUrl = ::Util::ErrorClass.new(
+        "Received invalid Kubernetes API url: '{0}'")
 
-      MissingEnvVar = ::Util::ErrorClass.new(
-        "Expected ENV variable '{0}' is not set")
-      
-      SERVICEACCOUNT_DIR = '/var/run/secrets/kubernetes.io/serviceaccount'
-      EXPECTED_ENV_VARS = %w[KUBERNETES_SERVICE_HOST KUBERNETES_SERVICE_PORT]
-
-      def self.client(api: 'api', version: 'v1')
-        validate_serviceaccount_dir_exists!
-        validate_env_variables!
+      def self.client(api: 'api', version: 'v1', host_url: nil, options: nil)
         full_url = "#{host_url}/#{api}"
+        validate_host_url! full_url
+
         Kubeclient::Client.new(full_url, version, options)
       end
 
       class << self
         private
 
-        def validate_serviceaccount_dir_exists!
-          valid = File.exists?(SERVICEACCOUNT_DIR)
-          raise MissingServiceAccountDir, SERVICEACCOUNT_DIR unless valid
-        end
-
-        def validate_env_variables!
-          EXPECTED_ENV_VARS.each { |v| raise MissingEnvVar, v unless ENV[v] }
-        end
-
-        def host_url
-          "https://#{ENV['KUBERNETES_SERVICE_HOST']}:#{ENV['KUBERNETES_SERVICE_PORT']}"
-        end
-
-        def options
-          {
-            auth_options: {
-              bearer_token_file: File.join(SERVICEACCOUNT_DIR, 'token')
-            },
-            ssl_options: {
-              ca_file: File.join(SERVICEACCOUNT_DIR, 'ca.crt'),
-              verify_ssl: OpenSSL::SSL::VERIFY_PEER
-            }
-          }
+        def validate_host_url! host_url
+          raise if URI.parse(host_url).host.empty?
+        rescue
+          raise InvalidApiUrl, host_url
         end
       end
 

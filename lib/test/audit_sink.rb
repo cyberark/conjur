@@ -2,10 +2,24 @@
 
 module Test
   class AuditSink
+    SOCKET_PATH="audit.sock"
+
     def initialize
-      @socket = UNIXServer.new ''
+      delete_socket
+
+      begin
+        @socket = UNIXServer.new SOCKET_PATH
+      ensure
+        at_exit { delete_socket }
+      end
+
       @messages = []
       listen
+    end
+
+    def delete_socket
+      @socket.close if @socket
+      File.delete(SOCKET_PATH) if File.exist?(SOCKET_PATH)
     end
 
     def listen backlog = 1

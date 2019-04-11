@@ -36,7 +36,7 @@ module Authentication
       #
       # * +controller+ the controller API object (e.g. a Deployment)
       # * +pod+ the Pod API object.
-      Base = Struct.new(:controller, :pod) do
+      Base = Struct.new(:controller, :pod, :k8s_object_lookup) do
         # Verifies that a condition, specified by a block, is truthy.
         #
         # @exception ValidationError with the specified +message+ is raised if the
@@ -79,14 +79,14 @@ module Authentication
               pod_owner_refs.find{|ref| ref.kind == "ReplicaSet"}
           end
           
-          replica_set = K8sObjectLookup.find_object_by_name "replica_set", replica_set_ref.name, namespace
+          replica_set = k8s_object_lookup.find_object_by_name "replica_set", replica_set_ref.name, namespace
 
           deployment_ref = verify "Pod #{pod_name} does not belong to a Deployment" do
             replica_set.metadata.ownerReferences &&
               replica_set.metadata.ownerReferences.find{|ref| ref.kind == "Deployment"}
           end
 
-          deployment = K8sObjectLookup.find_object_by_name "deployment", deployment_ref.name, namespace
+          deployment = k8s_object_lookup.find_object_by_name "deployment", deployment_ref.name, namespace
 
           verify "Pod #{pod_name} Deployment is #{deployment.metadata.name.inspect}, not #{self.name.inspect}" do
             self.name == deployment.metadata.name
@@ -101,14 +101,14 @@ module Authentication
               pod_owner_refs.find{|ref| ref.kind == "ReplicationController"}
           end
           
-          replication_controller = K8sObjectLookup.find_object_by_name "replication_controller", replication_controller_ref.name, namespace
+          replication_controller = k8s_object_lookup.find_object_by_name "replication_controller", replication_controller_ref.name, namespace
 
           deployment_config_ref = verify "Pod #{pod_name} does not belong to a DeploymentConfig" do
             replication_controller.metadata.ownerReferences &&
               replication_controller.metadata.ownerReferences.find{|ref| ref.kind == "DeploymentConfig"}
           end
 
-          deployment_config = K8sObjectLookup.find_object_by_name "deployment_config", deployment_config_ref.name, namespace
+          deployment_config = k8s_object_lookup.find_object_by_name "deployment_config", deployment_config_ref.name, namespace
 
           verify "Pod #{pod_name} DeploymentConfig is #{deployment_config.metadata.name.inspect}, not #{self.name.inspect}" do
             self.name == deployment_config.metadata.name
@@ -123,7 +123,7 @@ module Authentication
               pod_owner_refs.find{|ref| ref.kind == "ReplicaSet"}
           end
 
-          replica_set = K8sObjectLookup.find_object_by_name "replica_set", replica_set_ref.name, namespace
+          replica_set = k8s_object_lookup.find_object_by_name "replica_set", replica_set_ref.name, namespace
 
           verify "Pod #{pod_name} ReplicaSet is #{replica_set.metadata.name.inspect}, not #{self.name.inspect}" do
             self.name == replica_set.metadata.name
@@ -146,7 +146,7 @@ module Authentication
               pod_owner_refs.find{|ref| ref.kind == "StatefulSet"}
           end
 
-          stateful_set = K8sObjectLookup.find_object_by_name "stateful_set", stateful_set_ref.name, namespace      
+          stateful_set = k8s_object_lookup.find_object_by_name "stateful_set", stateful_set_ref.name, namespace      
 
           verify "Pod #{pod_name} StatefulSet name is #{stateful_set.metadata.name.inspect}, not #{self.name.inspect}" do
             self.name == stateful_set.metadata.name
