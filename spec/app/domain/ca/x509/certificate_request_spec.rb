@@ -43,7 +43,7 @@ describe ::CA::X509::CertificateRequest do
       CERT
     end
 
-    let(:certificate_request) { ::CA::X509::CertificateRequest.build(role: role, params: params) }
+    let(:certificate_request) { ::CA::X509::CertificateRequest.from_hash(params.merge(role: role)) }
 
     context "when all of the inputs are valid" do
       it "returns a Certificate Request object" do

@@ -2,17 +2,17 @@ module CA
   # :reek:UncommunicativeModuleName
   module X509
     # Responsible for producing the SPIFFE ID format for a role
-    class SpiffeId < Dry::Struct::Value
+    class SpiffeId < Dry::Struct
       attribute :issuer_id, Types::Strict::String
-      attribute :requestor, CA::Requestor
+      attribute :role, Types.Definition(Role)
 
       def to_s
         [
           'spiffe://conjur',
-          requestor.account,
+          role.account,
           issuer_id,
-          requestor.kind,
-          requestor.identifier
+          role.kind,
+          role.identifier
         ].join('/')
       end
 

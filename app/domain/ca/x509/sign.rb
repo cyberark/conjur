@@ -53,10 +53,10 @@ module CA
   
         def subject
           common_name = [
-            requestor.account,
+            role.account,
             issuer.issuer_id,
-            requestor.kind,
-            requestor.identifier
+            role.kind,
+            role.identifier
           ].join(':')
           OpenSSL::X509::Name.new [['CN', common_name]]
         end
@@ -69,15 +69,15 @@ module CA
         end
   
         def leaf_domain_name
-          requestor.identifier.split('/').last
+          role.identifier.split('/').last
         end
 
         def spiffe_id
-          @spiffe_id ||= SpiffeId.new(issuer_id: issuer.issuer_id, requestor: requestor)
+          @spiffe_id ||= SpiffeId.new(issuer_id: issuer.issuer_id, role: role)
         end
 
-        def requestor
-          certificate_request.requestor
+        def role
+          certificate_request.requested_by
         end
       end
     end

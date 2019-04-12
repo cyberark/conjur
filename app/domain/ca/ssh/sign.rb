@@ -35,7 +35,7 @@ module CA
         end
 
         def key_id
-          certificate_request.requestor.id
+          certificate_request.requested_by.id
         end
 
         def good_for

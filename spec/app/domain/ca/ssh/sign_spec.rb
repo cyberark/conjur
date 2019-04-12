@@ -5,7 +5,7 @@ require 'spec_helper'
 describe ::CA::SSH::Sign do
   describe '#sign' do
     let(:certificate_request) do
-      ::CA::SSH::CertificateRequest.build(params: params, role: role)
+      ::CA::SSH::CertificateRequest.from_hash(params.merge(role: role))
     end
   
     let(:issuer) do
@@ -21,6 +21,7 @@ describe ::CA::SSH::Sign do
 
     let(:role) do
       double("role", 
+        id: "rspec:user:alice",
         account: "rspec", 
         kind: "user", 
         identifier: "alice",

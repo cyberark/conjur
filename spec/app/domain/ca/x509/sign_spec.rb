@@ -5,7 +5,7 @@ require 'spec_helper'
 describe ::CA::X509::Sign do
   describe '#call' do
     let(:certificate_request) do
-      ::CA::X509::CertificateRequest.build(params: params, role: role)
+      ::CA::X509::CertificateRequest.from_hash(params.merge(role: role))
     end
 
     let(:issuer) do

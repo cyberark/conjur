@@ -44,12 +44,10 @@ class CertificateAuthorityController < RestController
   end
 
   def certificate_request
-    @certificate_request = certificate_authority
+    symbolized_params = params.to_unsafe_h.symbolize_keys
+    certificate_authority
       .certificate_request
-      .build(
-        role: current_user,
-        params: params
-      )
+      .from_hash(symbolized_params.merge(role: current_user))
   end
 
   def certificate_authority
