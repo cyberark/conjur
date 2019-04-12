@@ -5,7 +5,6 @@ Connected to [relevant GitHub issues, eg #76]
 #### Where should the reviewer start?
 #### How should this be manually tested?
 #### Screenshots (if appropriate)
-#### Link to build in Jenkins (if appropriate)
 #### Has the Version and Changelog been updated?
 #### Questions:
 > Does this work have automated integration and unit tests?
