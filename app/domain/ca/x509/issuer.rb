@@ -4,26 +4,23 @@ module CA
     # Issuer represent the CA signing key material stored in Conjur
     class Issuer < Dry::Struct::Value
       class << self
-        include ::CA::AnnotationLoader::RsaPrivateKey
-        include ::CA::AnnotationLoader::MaxTTL
-
         def from_resource(resource)
-          annotations = ::CA::AnnotationLoader.new(resource)
+          config = ::CA::Configuration.new(resource)
 
           Issuer.new(
-            private_key: load_rsa_private_key(annotations),
-            certificate: load_certificate(annotations),
-            max_ttl: load_max_ttl(annotations),
+            private_key: config.rsa_private_key,
+            certificate: certificate(config),
+            max_ttl: config.max_ttl,
             issuer_id: service_id(resource)
           )
         end
 
-        def load_certificate(annotations)
-          cert = annotations.variable('ca/certificate') do |cert_data|
+        def certificate(config)
+          cert = config.variable('ca/certificate') do |cert_data|
             OpenSSL::X509::Certificate.new cert_data
           end
 
-          unless cert.present?
+          unless cert
             raise ArgumentError, "The certificate (ca/certificate) for '#{service_id}' is missing." 
           end
 

@@ -3,15 +3,12 @@ module CA
     # Issuer represent the CA signing key material stored in Conjur
     class Issuer < Dry::Struct
       class << self
-        include ::CA::AnnotationLoader::RsaPrivateKey
-        include ::CA::AnnotationLoader::MaxTTL
-
         def from_resource(resource)
-          annotations = ::CA::AnnotationLoader.new(resource)
+          config = ::CA::Configuration.new(resource)
 
           Issuer.new(
-            private_key: load_rsa_private_key(annotations),
-            max_ttl: load_max_ttl(annotations)
+            private_key: config.rsa_private_key,
+            max_ttl: config.max_ttl
           )
         end
       end
