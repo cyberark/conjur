@@ -43,7 +43,12 @@ module Authentication
         end
 
         def validate_security
-          @validate_security.(input: @authenticator_input, enabled_authenticators: @enabled_authenticators)
+          @validate_security.(
+            webservice: @authenticator_input.webservice,
+              account: @authenticator_input.account,
+              user_id: @authenticator_input.username,
+              enabled_authenticators: @enabled_authenticators
+          )
         end
 
         def validate_origin
