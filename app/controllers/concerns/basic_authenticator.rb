@@ -19,7 +19,7 @@ module BasicAuthenticator
       raise ApplicationController::Unauthorized, "Invalid username or password"
     rescue ::Authentication::InvalidOrigin
       raise ApplicationController::Forbidden, "User is not authorized to login from the current origin"
-    rescue ::Authentication::Security::NotAuthorizedInConjur
+    rescue ::Authentication::NotAuthorizedInConjur
       raise ApplicationController::Forbidden, "User is not authorized to login to Conjur"
     end
   end
