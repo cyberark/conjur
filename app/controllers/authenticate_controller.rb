@@ -121,12 +121,12 @@ class AuthenticateController < ApplicationController
 
     case err
     when Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty,
-      Authentication::Security::NotAuthorizedInConjur,
-      Authentication::Security::NotWhitelisted,
-      Authentication::Security::ServiceNotDefined,
+      Authentication::NotAuthorizedInConjur,
+      Authentication::NotWhitelisted,
+      Authentication::ServiceNotDefined,
       Authentication::AuthnOidc::IdTokenVerifyFailed,
       Authentication::AuthnOidc::IdTokenInvalidFormat,
-      Authentication::Security::NotDefinedInConjur,
+      Authentication::NotDefinedInConjur,
       Conjur::RequiredSecretMissing,
       Conjur::RequiredResourceMissing
       raise Unauthorized
