@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Authentication::ValidateSecurity do
   let (:test_account) { 'test-account' }
-  let (:non_existing_account) { "non-existing" }
+  let (:non_existing_account) { 'non-existing' }
 
   # create an example webservice
   def webservice(service_id, account: test_account, authenticator_name: 'authn-x')
