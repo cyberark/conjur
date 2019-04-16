@@ -6,8 +6,6 @@ module Authentication
   module AuthnIam
     class Authenticator
 
-      InvalidAWSHeaders = ::Util::ErrorClass.new("'Invalid or Expired AWS Headers: {0}")
-
       def initialize(env:)
         @env = env
       end
@@ -57,7 +55,7 @@ module Authentication
           RestClient.get(aws_signed_url, headers = aws_headers)
         rescue RestClient::ExceptionWithResponse => e
           Rails.logger.error("Verification of IAM identity Exception #{e.to_s}")
-          raise InvalidAWSHeaders, e.to_s
+          raise Authentication::AuthnIam::InvalidAWSHeaders, e.to_s
         end
       end
     end
