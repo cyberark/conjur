@@ -32,6 +32,9 @@ module Authentication
   NotDefinedInConjur = ::Util::ErrorClass.new(
     "User '{0}' is not defined in Conjur")
 
+  AccountNotDefined = ::Util::ErrorClass.new(
+    "account '{0}' is not defined in Conjur")
+
   module AuthnOidc
 
     ProviderDiscoveryTimeout = ::Util::ErrorClass.new(

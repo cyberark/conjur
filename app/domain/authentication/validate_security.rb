@@ -16,6 +16,7 @@ module Authentication
       # No checks required for default conjur authn
       return if default_conjur_authn?
 
+      validate_account_exists
       validate_webservice_is_whitelisted
       validate_webservice_exists
       validate_user_is_defined
@@ -27,6 +28,10 @@ module Authentication
     def default_conjur_authn?
       @webservice.authenticator_name ==
         ::Authentication::Common.default_authenticator_name
+    end
+
+    def validate_account_exists
+      raise AccountNotDefined, @account unless account_admin_role
     end
 
     def validate_webservice_exists
@@ -58,6 +63,10 @@ module Authentication
 
     def user_role
       @role_class[user_role_id]
+    end
+
+    def account_admin_role
+      @role_class["#{@account}:user:admin"]
     end
 
     def webservice_resource
