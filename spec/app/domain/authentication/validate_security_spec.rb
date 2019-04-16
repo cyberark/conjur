@@ -3,9 +3,11 @@
 require 'spec_helper'
 
 RSpec.describe Authentication::ValidateSecurity do
+  let (:test_account) { 'test-account' }
+  let (:non_existing_account) { 'non-existing' }
 
   # create an example webservice
-  def webservice(service_id, account: 'my-acct', authenticator_name: 'authn-x')
+  def webservice(service_id, account: test_account, authenticator_name: 'authn-x')
     ::Authentication::Webservice.new(
       account: account,
       authenticator_name: authenticator_name,
@@ -30,12 +32,20 @@ RSpec.describe Authentication::ValidateSecurity do
   end
 
   # generates a Role class which returns the provided user_role
+  # Also returns a role for an existing account admin, and nil admin for non-existing account
   def role_class(returned_role)
-    double(
-      'Role',
-       :roleid_from_username => 'some-role-id',
-       :[] => returned_role
-    )
+    double('role').tap do |role|
+      allow(role).to receive(:roleid_from_username).and_return('some-role-id')
+      allow(role).to receive(:[]).and_return(returned_role)
+
+      allow(role).to receive(:[])
+                       .with(/#{test_account}:user:admin/)
+                       .and_return(user_role(true))
+
+      allow(role).to receive(:[])
+                       .with(/#{non_existing_account}:user:admin/)
+                       .and_return(nil)
+    end
   end
 
   # generates a Resource class which returns the provided object
@@ -65,6 +75,7 @@ RSpec.describe Authentication::ValidateSecurity do
   let (:no_access_resource_class) { resource_class(nil) }
 
   let (:nil_user_role_class) { role_class(nil) }
+  let (:non_existing_account_role_class) { role_class(nil) }
   let (:full_access_role_class) { role_class(user_role(true)) }
   let (:no_access_role_class) { role_class(user_role(false)) }
 
@@ -75,7 +86,7 @@ RSpec.describe Authentication::ValidateSecurity do
         webservice_resource_class: full_access_resource_class
       ).(
         webservice: webservice('service1'),
-          account: 'my-acct',
+          account: test_account,
           user_id: 'some-user',
           enabled_authenticators: two_authenticator_env
       )
@@ -93,7 +104,7 @@ RSpec.describe Authentication::ValidateSecurity do
         webservice_resource_class: full_access_resource_class
       ).(
         webservice: webservice('DOESNT_EXIST'),
-          account: 'my-acct',
+          account: test_account,
           user_id: 'some-user',
           enabled_authenticators: two_authenticator_env
       )
@@ -111,7 +122,7 @@ RSpec.describe Authentication::ValidateSecurity do
         webservice_resource_class: no_access_resource_class
       ).(
         webservice: webservice('service1'),
-          account: 'my-acct',
+          account: test_account,
           user_id: 'some-user',
           enabled_authenticators: two_authenticator_env
       )
@@ -129,7 +140,7 @@ RSpec.describe Authentication::ValidateSecurity do
         webservice_resource_class: full_access_resource_class
       ).(
         webservice: webservice('service1'),
-          account: 'my-acct',
+          account: test_account,
           user_id: 'some-user',
           enabled_authenticators: two_authenticator_env
       )
@@ -146,7 +157,7 @@ RSpec.describe Authentication::ValidateSecurity do
         webservice_resource_class: full_access_resource_class
       ).(
         webservice: webservice('service1'),
-          account: 'my-acct',
+          account: test_account,
           user_id: 'some-user',
           enabled_authenticators: two_authenticator_env
       )
@@ -174,7 +185,7 @@ RSpec.describe Authentication::ValidateSecurity do
             webservice_resource_class: accessible_resource_class
           ).(
             webservice: webservice('service1'),
-              account: 'my-acct',
+              account: test_account,
               user_id: 'some-user',
               enabled_authenticators: two_authenticator_env
           )
@@ -192,7 +203,7 @@ RSpec.describe Authentication::ValidateSecurity do
             webservice_resource_class: inaccessible_resource_class
           ).(
             webservice: webservice('service1'),
-              account: 'my-acct',
+              account: test_account,
               user_id: 'some-user',
               enabled_authenticators: two_authenticator_env
           )
@@ -212,7 +223,7 @@ RSpec.describe Authentication::ValidateSecurity do
         webservice_resource_class: full_access_resource_class
       ).(
         webservice: default_authenticator_mock,
-          account: 'my-acct',
+          account: test_account,
           user_id: 'some-user',
           enabled_authenticators: blank_env
       )
@@ -220,6 +231,24 @@ RSpec.describe Authentication::ValidateSecurity do
 
     it "the default Conjur authenticator is included in whitelisted webservices" do
       expect { subject }.to_not raise_error
+    end
+  end
+
+  context "A non-existing account" do
+    subject do
+      Authentication::ValidateSecurity.new(
+        role_class: non_existing_account_role_class,
+        webservice_resource_class: full_access_resource_class
+      ).(
+        webservice: webservice('service1'),
+          account: non_existing_account,
+          user_id: 'some-user',
+          enabled_authenticators: two_authenticator_env
+      )
+    end
+
+    it "raises an AccountNotDefined error" do
+      expect { subject }.to raise_error(Authentication::AccountNotDefined)
     end
   end
 end
