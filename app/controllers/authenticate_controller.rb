@@ -127,6 +127,7 @@ class AuthenticateController < ApplicationController
       Authentication::AuthnOidc::IdTokenVerifyFailed,
       Authentication::AuthnOidc::IdTokenInvalidFormat,
       Authentication::NotDefinedInConjur,
+      Authentication::AccountNotDefined,
       Conjur::RequiredSecretMissing,
       Conjur::RequiredResourceMissing
       raise Unauthorized
