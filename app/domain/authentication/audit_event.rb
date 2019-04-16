@@ -3,7 +3,7 @@
 module Authentication
   AuditEvent = CommandClass.new(
     dependencies: {
-      get_role_by_login: GetRoleByLogin.new,
+      role_cls: ::Role,
       audit_log:         ::Authentication::AuditLog
     },
     inputs:       %i(input success message)
@@ -11,7 +11,7 @@ module Authentication
 
     def call
       @audit_log.record_authn_event(
-        role:               role(@input.username, @input.account),
+        role:               role,
         webservice_id:      @input.webservice.resource_id,
         authenticator_name: @input.authenticator_name,
         success:            @success,
@@ -21,10 +21,18 @@ module Authentication
 
     private
 
-    def role(username, account)
+    def role
       return nil if username.nil?
 
-      @get_role_by_login.(username: username, account: account)
+      @role_cls.by_login(username, account: account)
+    end
+
+    def username
+      @input.username
+    end
+
+    def account
+      @input.account
     end
   end
 end

@@ -20,6 +20,18 @@ module Authentication
     "field '{0}' is missing or empty in request body"
   )
 
+  NotWhitelisted = ::Util::ErrorClass.new(
+    "'{0}' not whitelisted in CONJUR_AUTHENTICATORS")
+
+  ServiceNotDefined = ::Util::ErrorClass.new(
+    "Webservice '{0}' is not defined in the Conjur policy")
+
+  NotAuthorizedInConjur = ::Util::ErrorClass.new(
+    "User '{0}' is not authorized in the Conjur policy")
+
+  NotDefinedInConjur = ::Util::ErrorClass.new(
+    "User '{0}' is not defined in Conjur")
+
   module AuthnOidc
 
     ProviderDiscoveryTimeout = ::Util::ErrorClass.new(

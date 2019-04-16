@@ -8,10 +8,10 @@ module Authentication
           enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
           fetch_oidc_secrets: AuthnOidc::Util::FetchOidcSecrets.new,
           token_factory: OidcTokenFactory.new,
-          validate_security: ::Authentication::ValidateSecurity.new,
-          validate_origin: ::Authentication::ValidateOrigin.new,
-          audit_event: ::Authentication::AuditEvent.new,
-          decode_and_verify_id_token: ::Authentication::AuthnOidc::AuthenticateIdToken::DecodeAndVerifyIdToken.new,
+          validate_security: ValidateSecurity.new,
+          validate_origin: ValidateOrigin.new,
+          audit_event: AuditEvent.new,
+          decode_and_verify_id_token: DecodeAndVerifyIdToken.new,
           logger: Rails.logger
         },
         inputs: %i(authenticator_input)
@@ -19,6 +19,7 @@ module Authentication
 
         def call
           decode_and_verify_id_token
+          validate_conjur_username
           add_username_to_input
           validate_security
           validate_origin
@@ -65,22 +66,27 @@ module Authentication
           )
         end
 
-        def conjur_username
-          id_token_username_field = oidc_secrets["id-token-user-property"]
-
-          conjur_username = @id_token_attributes[id_token_username_field]
-
-          raise IdTokenFieldNotFoundOrEmpty, id_token_username_field unless conjur_username.present?
+        def validate_conjur_username
+          raise IdTokenFieldNotFoundOrEmpty, id_token_username_field if conjur_username.to_s.empty?
           raise AdminAuthenticationDenied if admin?(conjur_username)
-
           @logger.debug("[OIDC] Extracted username '#{conjur_username}' from ID Token")
+        end
 
-          conjur_username
+        def conjur_username
+          @conjur_username ||= @id_token_attributes[id_token_username_field]
+        end
+
+        def id_token_username_field
+          oidc_secrets["id-token-user-property"]
         end
 
         def validate_security
-          @validate_security.(input: @authenticator_input,
-            enabled_authenticators: @enabled_authenticators)
+          @validate_security.(
+            webservice: @authenticator_input.webservice,
+              account: @authenticator_input.account,
+              user_id: @authenticator_input.username,
+              enabled_authenticators: @enabled_authenticators
+          )
           @logger.debug("[OIDC] Security validated")
         end
 

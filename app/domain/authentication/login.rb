@@ -8,7 +8,7 @@ module Authentication
       enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
       validate_security:      ::Authentication::ValidateSecurity.new,
       audit_event:            ::Authentication::AuditEvent.new,
-      get_role_by_login:      GetRoleByLogin.new
+      role_cls: ::Role
     },
     inputs:       %i(authenticator_input authenticators)
   ) do
@@ -43,7 +43,12 @@ module Authentication
     end
 
     def validate_security
-      @validate_security.(input: @authenticator_input, enabled_authenticators: @enabled_authenticators)
+      @validate_security.(
+        webservice: @authenticator_input.webservice,
+          account: account,
+          user_id: username,
+          enabled_authenticators: @enabled_authenticators
+      )
     end
 
     def audit_success
@@ -56,13 +61,21 @@ module Authentication
 
     def new_login
       LoginResponse.new(
-        role_id:            role(@authenticator_input.username, @authenticator_input.account).id,
+        role_id:            role.id,
         authentication_key: key
       )
     end
 
-    def role(username, account)
-      @get_role_by_login.(username: username, account: account)
+    def role
+      @role_cls.by_login(username, account: account)
+    end
+
+    def username
+      @authenticator_input.username
+    end
+
+    def account
+      @authenticator_input.account
     end
   end
 end
