@@ -6,7 +6,8 @@ module Authentication
   ValidateSecurity = CommandClass.new(
     dependencies: {
       role_class: ::Authentication::MemoizedRole,
-      webservice_resource_class: ::Resource
+      webservice_resource_class: ::Resource,
+      logger: Rails.logger
     },
     inputs: %i(webservice account user_id enabled_authenticators)
   ) do
@@ -16,7 +17,7 @@ module Authentication
       return if default_conjur_authn?
 
       validate_webservice_is_whitelisted
-      validate_webservice_exist
+      validate_webservice_exists
       validate_user_is_defined
       validate_user_has_access
     end
@@ -28,7 +29,7 @@ module Authentication
         ::Authentication::Common.default_authenticator_name
     end
 
-    def validate_webservice_exist
+    def validate_webservice_exists
       raise ServiceNotDefined, @webservice.name unless webservice_resource
     end
 
@@ -45,7 +46,7 @@ module Authentication
       # Ensure user has access to the service
       has_access = user_role.allowed_to?('authenticate', webservice_resource)
       unless has_access
-        Rails.logger.debug("[OIDC] User '#{@user_id}' is not authorized to " \
+        @logger.debug("[OIDC] User '#{@user_id}' is not authorized to " \
           "authenticate with webservice '#{webservice_resource_id}'")
         raise NotAuthorizedInConjur, @user_id
       end
