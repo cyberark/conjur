@@ -1,7 +1,6 @@
 require 'cgi'
 require 'forwardable'
 require 'command_class'
-require_relative 'errors'
 
 module Authentication
   module AuthnK8s
@@ -35,20 +34,20 @@ module Authentication
       end
 
       def validate_cert_exists
-        raise MissingClientCertificate unless header_cert_str
+        raise Authentication::AuthnK8s::MissingClientCertificate unless header_cert_str
       end
 
       def validate_cert_is_trusted
-        raise UntrustedClientCertificate unless ca_can_verify_cert?
+        raise Authentication::AuthnK8s::UntrustedClientCertificate unless ca_can_verify_cert?
       end
 
       def validate_common_name_matches
         return if host_and_cert_cn_match?
-        raise CommonNameDoesntMatchHost.new(cert.common_name, host_common_name)
+        raise Authentication::AuthnK8s::CommonNameDoesntMatchHost.new(cert.common_name, host_common_name)
       end
 
       def validate_cert_isnt_expired
-        raise ClientCertificateExpired if cert_expired?
+        raise Authentication::AuthnK8s::ClientCertificateExpired if cert_expired?
       end
 
       def cert
@@ -107,7 +106,7 @@ module Authentication
       # def validate_authenticator_enabled(service_name)
       #   authenticator_name = "authn-k8s/#{service_name}"
       #   valid = available_authenticators.include?(authenticator_name)
-      #   raise AuthenticatorNotFound, authenticator_name unless valid
+      #   raise Authentication::AuthenticatorNotFound, authenticator_name unless valid
       # end
 
       # def available_authenticators

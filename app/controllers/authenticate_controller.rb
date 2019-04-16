@@ -25,7 +25,7 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticate
-    authn_token = ::Authentication::Authenticate.new.(
+    authn_token = Authentication::Authenticate.new.(
       authenticator_input: authenticator_input,
         authenticators: installed_authenticators
     )
@@ -35,7 +35,7 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticator_input
-    ::Authentication::AuthenticatorInput.new(
+    Authentication::AuthenticatorInput.new(
       authenticator_name: params[:authenticator],
       service_id: params[:service_id],
       account: params[:account],
@@ -55,7 +55,7 @@ class AuthenticateController < ApplicationController
   #
   # Returns IDToken encrypted, Expiration Duration and Username
   def login_oidc
-    oidc_encrypted_token = ::Authentication::AuthnOidc::GetConjurOidcToken::ConjurOidcToken.new.(
+    oidc_encrypted_token = Authentication::AuthnOidc::GetConjurOidcToken::ConjurOidcToken.new.(
       authenticator_input: oidc_authenticator_input
     )
     render json: oidc_encrypted_token
@@ -70,7 +70,7 @@ class AuthenticateController < ApplicationController
   #
   # Returns Conjur access token
   def authenticate_oidc_conjur_token
-    authentication_token = ::Authentication::AuthnOidc::AuthenticateOidcConjurToken::Authenticate.new.(
+    authentication_token = Authentication::AuthnOidc::AuthenticateOidcConjurToken::Authenticate.new.(
       authenticator_input: oidc_authenticator_input
     )
     render json: authentication_token
@@ -79,7 +79,7 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticate_oidc
-    authentication_token = ::Authentication::AuthnOidc::AuthenticateIdToken::Authenticate.new.(
+    authentication_token = Authentication::AuthnOidc::AuthenticateIdToken::Authenticate.new.(
       authenticator_input: oidc_authenticator_input
     )
     render json: authentication_token
@@ -88,7 +88,7 @@ class AuthenticateController < ApplicationController
   end
 
   def oidc_authenticator_input
-    ::Authentication::AuthenticatorInput.new(
+    Authentication::AuthenticatorInput.new(
       authenticator_name: 'authn-oidc',
       service_id: params[:service_id],
       account: params[:account],
@@ -101,7 +101,7 @@ class AuthenticateController < ApplicationController
 
   def k8s_inject_client_cert
     # TODO: add this to initializer
-    ::Authentication::AuthnK8s::InjectClientCert.new.(
+    Authentication::AuthnK8s::InjectClientCert.new.(
       conjur_account: ENV['CONJUR_ACCOUNT'],
         service_id: params[:service_id],
         csr: request.body.read
@@ -120,19 +120,19 @@ class AuthenticateController < ApplicationController
     end
 
     case err
-    when Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty,
-      Authentication::NotAuthorizedInConjur,
-      Authentication::NotWhitelisted,
-      Authentication::ServiceNotDefined,
+    when Authentication::Security::UserNotAuthorizedInConjur,
+      Authentication::Security::NotWhitelisted,
+      Authentication::Security::ServiceNotDefined,
+      Authentication::Security::UserNotDefinedInConjur,
+      Authentication::Security::AccountNotDefined,
+      Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty,
       Authentication::AuthnOidc::IdTokenVerifyFailed,
       Authentication::AuthnOidc::IdTokenInvalidFormat,
-      Authentication::NotDefinedInConjur,
-      Authentication::AccountNotDefined,
       Conjur::RequiredSecretMissing,
       Conjur::RequiredResourceMissing
       raise Unauthorized
 
-    when Authentication::MissingRequestParam
+    when Authentication::RequestBody::MissingRequestParam
       raise BadRequest
 
     when Authentication::AuthnOidc::IdTokenExpired
@@ -151,14 +151,14 @@ class AuthenticateController < ApplicationController
   end
 
   def installed_authenticators
-    @installed_authenticators ||= ::Authentication::InstalledAuthenticators.authenticators(ENV)
+    @installed_authenticators ||= Authentication::InstalledAuthenticators.authenticators(ENV)
   end
 
   def configured_authenticators
-    @configured_authenticators ||= ::Authentication::InstalledAuthenticators.configured_authenticators
+    @configured_authenticators ||= Authentication::InstalledAuthenticators.configured_authenticators
   end
 
   def enabled_authenticators
-    ::Authentication::InstalledAuthenticators.enabled_authenticators(ENV)
+    Authentication::InstalledAuthenticators.enabled_authenticators(ENV)
   end
 end

@@ -8,12 +8,6 @@ require 'kubeclient'
 module Authentication
   module AuthnK8s
     module KubeClientFactory
-
-      MissingServiceAccountDir = ::Util::ErrorClass.new(
-        "Kubernetes serviceaccount dir '{0}' does not exist")
-
-      MissingEnvVar = ::Util::ErrorClass.new(
-        "Expected ENV variable '{0}' is not set")
       
       SERVICEACCOUNT_DIR = '/var/run/secrets/kubernetes.io/serviceaccount'
       EXPECTED_ENV_VARS = %w[KUBERNETES_SERVICE_HOST KUBERNETES_SERVICE_PORT]
@@ -30,11 +24,11 @@ module Authentication
 
         def validate_serviceaccount_dir_exists!
           valid = File.exists?(SERVICEACCOUNT_DIR)
-          raise MissingServiceAccountDir, SERVICEACCOUNT_DIR unless valid
+          raise Authentication::AuthnK8s::KubeClientFactory::MissingServiceAccountDir, SERVICEACCOUNT_DIR unless valid
         end
 
         def validate_env_variables!
-          EXPECTED_ENV_VARS.each { |v| raise MissingEnvVar, v unless ENV[v] }
+          EXPECTED_ENV_VARS.each { |v| raise Authentication::AuthnK8s::KubeClientFactory::MissingEnvVar, v unless ENV[v] }
         end
 
         def host_url
