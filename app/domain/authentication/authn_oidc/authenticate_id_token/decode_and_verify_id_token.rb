@@ -37,9 +37,9 @@ module Authentication
           decoded_id_token.verify!(expected)
           @logger.debug("[OIDC] ID Token verification succeeded")
         rescue OpenIDConnect::ResponseObject::IdToken::ExpiredToken
-          raise IdTokenExpired
+          raise Authentication::AuthnOidc::IdTokenExpired
         rescue => e
-          raise IdTokenVerifyFailed, e.inspect
+          raise Authentication::AuthnOidc::IdTokenVerifyFailed, e.inspect
         end
 
         def fetch_certs
@@ -56,7 +56,7 @@ module Authentication
             @certs
           )
         rescue => e
-          raise IdTokenInvalidFormat, e.inspect
+          raise Authentication::AuthnOidc::IdTokenInvalidFormat, e.inspect
         end
       end
     end

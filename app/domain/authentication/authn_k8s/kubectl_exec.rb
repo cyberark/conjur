@@ -8,9 +8,6 @@ require 'websocket-client-simple'
 
 module Authentication
   module AuthnK8s
-    CommandTimedOut = ::Util::ErrorClass.new(
-      "Command timed out in container '{0}' of pod '{1}'"
-    )
 
     # Utility class for processing WebSocket messages.
     class WebSocketMessage
@@ -76,7 +73,7 @@ module Authentication
 
         wait_for_close_message
 
-        raise CommandTimedOut.new(@container, @pod_name) unless @channel_closed
+        raise Authentication::AuthnK8s::CommandTimedOut.new(@container, @pod_name) unless @channel_closed
 
         # TODO: raise an `WebsocketServerFailure` here in the case of ws :error
 
