@@ -238,5 +238,8 @@ if [[ $ENABLE_AUDIT = true ]]; then
   '
 fi
 
+echo "Creating user alice"
+docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/policy.yml
+
 docker exec -e CONJUR_AUTHN_API_KEY=$api_key $env_args \
   -it --detach-keys 'ctrl-\' "$(docker-compose ps -q conjur)" bash
