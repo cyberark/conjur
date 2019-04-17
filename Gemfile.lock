@@ -104,7 +104,7 @@ GEM
     coderay (1.1.1)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
-    command_class (0.0.1)
+    command_class (0.0.2)
     concurrent-ruby (1.1.4)
     conjur-cli (6.1.0)
       activesupport (>= 4.2, < 6)
