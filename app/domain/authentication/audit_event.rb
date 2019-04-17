@@ -1,38 +1,42 @@
 # frozen_string_literal: true
 
 module Authentication
-  AuditEvent = CommandClass.new(
-    dependencies: {
-      role_cls: ::Role,
-      audit_log:         ::Authentication::AuditLog
-    },
-    inputs:       %i(input success message)
-  ) do
+  class AuditEvent
+    extend CommandClass::Include
 
-    def call
-      @audit_log.record_authn_event(
-        role:               role,
-        webservice_id:      @input.webservice.resource_id,
-        authenticator_name: @input.authenticator_name,
-        success:            @success,
-        message:            @message
-      )
-    end
+    command_class(
+      dependencies: {
+        role_cls: ::Role,
+        audit_log:         ::Authentication::AuditLog
+      },
+      inputs:       %i(input success message)
+    ) do
 
-    private
+      def call
+        @audit_log.record_authn_event(
+          role:               role,
+          webservice_id:      @input.webservice.resource_id,
+          authenticator_name: @input.authenticator_name,
+          success:            @success,
+          message:            @message
+        )
+      end
 
-    def role
-      return nil if username.nil?
+      private
 
-      @role_cls.by_login(username, account: account)
-    end
+      def role
+        return nil if username.nil?
 
-    def username
-      @input.username
-    end
+        @role_cls.by_login(username, account: account)
+      end
 
-    def account
-      @input.account
+      def username
+        @input.username
+      end
+
+      def account
+        @input.account
+      end
     end
   end
 end

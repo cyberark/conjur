@@ -8,34 +8,38 @@ module Authentication
       RequiredResourceMissing = ::Conjur::RequiredResourceMissing
       RequiredSecretMissing = ::Conjur::RequiredSecretMissing
 
-      FetchOidcSecrets = CommandClass.new(
-        dependencies: {
-          fetch_secrets: ::Conjur::FetchRequiredSecrets.new
-        },
-        inputs: %i(conjur_account service_id required_variable_names)
-      ) do
+      class FetchOidcSecrets
+        extend CommandClass::Include
 
-        def call
-          secrets = {}
+        command_class(
+          dependencies: {
+            fetch_secrets: ::Conjur::FetchRequiredSecrets.new
+          },
+          inputs: %i(conjur_account service_id required_variable_names)
+        ) do
 
-          required_secrets = @fetch_secrets.(resource_ids: required_resource_ids)
+          def call
+            secrets = {}
 
-          @required_variable_names.each do |variable_name|
-            full_variable_name = full_variable_name(variable_name)
-            secrets[variable_name] = required_secrets[full_variable_name]
+            required_secrets = @fetch_secrets.(resource_ids: required_resource_ids)
+
+            @required_variable_names.each do |variable_name|
+              full_variable_name = full_variable_name(variable_name)
+              secrets[variable_name] = required_secrets[full_variable_name]
+            end
+
+            secrets
           end
 
-          secrets
-        end
+          private
 
-        private
+          def required_resource_ids
+            @required_variable_names.map { |var_name| full_variable_name(var_name) }
+          end
 
-        def required_resource_ids
-          @required_variable_names.map { |var_name| full_variable_name(var_name) }
-        end
-
-        def full_variable_name(var_name)
-          "#{@conjur_account}:variable:conjur/authn-oidc/#{@service_id}/#{var_name}"
+          def full_variable_name(var_name)
+            "#{@conjur_account}:variable:conjur/authn-oidc/#{@service_id}/#{var_name}"
+          end
         end
       end
     end
