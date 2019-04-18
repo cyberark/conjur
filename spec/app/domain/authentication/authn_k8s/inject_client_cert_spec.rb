@@ -136,7 +136,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
       it "throws CSRIsMissingSpiffeId if smart_csr.spiffe_id is not defined" do
         error_type = Authentication::AuthnK8s::CSRIsMissingSpiffeId
-        missing_spiffe_id_error = "CSR must contain SPIFFE ID SAN"
+        missing_spiffe_id_error = /CSR must contain SPIFFE ID SAN/
 
         allow(Util::OpenSsl::X509::SmartCsr)
           .to receive(:new)
@@ -150,8 +150,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
       it "throws CSRNamespaceMismatch when common_name does not match spiffe_id.namespace" do
         error_type = Authentication::AuthnK8s::CSRNamespaceMismatch
-        wrong_cn_error = "Namespace in SPIFFE ID 'WrongNamespace' must match namespace implied " \
-          "by common name ('SpiffeNamespace')"
+        wrong_cn_error = /Namespace in SPIFFE ID 'WrongNamespace' must match namespace implied by common name 'SpiffeNamespace'/
 
         allow(Util::OpenSsl::X509::SmartCsr)
           .to receive(:new)
@@ -226,7 +225,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
       it "throws CertInstallationError if copy response error stream is not empty" do
         error_type = Authentication::AuthnK8s::CertInstallationError
         expected_error_text = "ExpectedCopyError"
-        expected_full_error_text = "Cert could not be copied to pod: ExpectedCopyError"
+        expected_full_error_text = /Cert could not be copied to pod: ExpectedCopyError/
 
         allow(copy_response).to receive(:[])
           .with(:error)
@@ -239,7 +238,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
       it "throws CertInstallationError if copy response error stream is just whitespace" do
         error_type = Authentication::AuthnK8s::CertInstallationError
-        expected_full_error_text = "Cert could not be copied to pod: The server returned a blank error message"
+        expected_full_error_text = /Cert could not be copied to pod: The server returned a blank error message/
 
         allow(copy_response).to receive(:[])
           .with(:error)

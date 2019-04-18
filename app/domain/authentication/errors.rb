@@ -133,7 +133,7 @@ module Authentication
     )
 
     CSRNamespaceMismatch = ::Util::ErrorClassWithCode.new(
-      msg: "Namespace in SPIFFE ID '{0}' must match namespace implied by common name ('{1}')",
+      msg: "Namespace in SPIFFE ID '{0}' must match namespace implied by common name '{1}'",
       code: "CONJ00023E"
     )
 
