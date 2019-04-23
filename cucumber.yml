@@ -13,6 +13,8 @@ authenticators: >
   -r cucumber/api/features/support/rest_helpers.rb
   -r cucumber/api/features/step_definitions/request_steps.rb
   -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/logs_steps.rb
   -r cucumber/api/features/support/authz_helpers.rb
   -r cucumber/api/features/step_definitions/authz_steps.rb
   -r cucumber/policy/features/support/policy_helpers.rb
