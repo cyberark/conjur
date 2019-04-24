@@ -81,6 +81,7 @@ Feature: Users can authneticate with OIDC authenticator
   Scenario: Non-existing username in ID token is denied
     Given I get authorization code for username "not_in_conjur" and password "not_in_conjur"
     And I fetch an ID Token
+    And I save the amount of log lines into "bookmark_not_in_conjur"
     When I authenticate via OIDC with id token
     Then it is unauthorized
     And The log filtered from line number in "bookmark_not_in_conjur" should contains "1" messages:
