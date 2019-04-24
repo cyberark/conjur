@@ -28,6 +28,7 @@ services:
       - authn-local:/run/authn-local
       - ./authn-oidc/keycloak:/authn-oidc/keycloak/scripts
       - ./ldap-certs:/ldap-certs:ro
+      - log-volume:/opt/conjur-server/log
     expose:
       - "80"
     links:
@@ -53,6 +54,7 @@ services:
       - authn-local:/run/authn-local
       - ./authn-oidc/phantomjs:/authn-oidc/phantomjs/scripts
       - ./ldap-certs:/ldap-certs:ro
+      - log-volume:/opt/conjur-server/log
     links:
       - conjur
       - pg
@@ -104,3 +106,4 @@ services:
 
 volumes:
   authn-local:
+  log-volume:
