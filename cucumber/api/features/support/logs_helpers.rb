@@ -5,7 +5,7 @@
 require 'open3'
 
 module LogsHelpers
-  @@log_location = "/opt/conjur-server/log/development.log"
+  @@log_location = "/src/conjur-server/log/development.log"
 
   def save_amount_of_log_lines(bookmark)
     @bookmarks ||= Hash.new
