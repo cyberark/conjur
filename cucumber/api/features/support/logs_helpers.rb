@@ -7,12 +7,12 @@ require 'open3'
 module LogsHelpers
   @@log_location = "/src/conjur-server/log/development.log"
 
-  def save_log_data_from_bookmark(bookmark)
+  def save_log_data_from_bookmark(bookmark = "bookmark")
     @bookmarks ||= Hash.new
     @bookmarks[bookmark] = amount_of_log_lines
   end
 
-  def occurences_in_log_filtered_from_bookmark(bookmark, msg)
+  def occurences_in_log_filtered_from_bookmark(bookmark = "bookmark", msg)
     raise "Bookmark #{bookmark} doesn't exists" unless @bookmarks[bookmark].present?
     amount = amount_of_log_lines
     raise "Current logs lines amount '#{amount}' is smaller then bookmark '#{bookmark}' value '#{@bookmarks[bookmark]}'" unless amount >= @bookmarks[bookmark]
