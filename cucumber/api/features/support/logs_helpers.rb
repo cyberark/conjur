@@ -7,7 +7,7 @@ require 'open3'
 module LogsHelpers
   @@log_location = "/src/conjur-server/log/development.log"
 
-  def save_amount_of_log_lines(bookmark)
+  def save_log_data_from_bookmark(bookmark)
     @bookmarks ||= Hash.new
     @bookmarks[bookmark] = amount_of_log_lines
   end
@@ -15,7 +15,7 @@ module LogsHelpers
   def occurences_in_log_filtered_from_bookmark(bookmark, msg)
     raise "Bookmark #{bookmark} doesn't exists" unless @bookmarks[bookmark].present?
     amount = amount_of_log_lines
-    raise "Current logs amount is smaller then bookmark '#{bookmark}' value '#{@bookmarks[bookmark]}'" unless amount >= @bookmarks[bookmark]
+    raise "Current logs lines amount '#{amount}' is smaller then bookmark '#{bookmark}' value '#{@bookmarks[bookmark]}'" unless amount >= @bookmarks[bookmark]
     occurences_in_log_section(from: @bookmarks[bookmark], to: amount, message: msg)
   end
 
@@ -35,7 +35,7 @@ module LogsHelpers
   def occurences_in_log_section(from:, to:, message:)
     sed_cmd = "sed -n #{from},#{to}p #{@@log_location}"
     stdout, stderr, status = Open3.capture3(sed_cmd)
-    raise "Failed to run command '#{sed_cmd}' with error '#{stderr}'" unless status.success?
+    raise "Command '#{sed_cmd}' raised error '#{stderr}'" unless status.success?
     stdout.to_s.scan(message).count
   end
 end
