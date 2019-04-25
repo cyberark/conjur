@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 Given(/^I save the log data from bookmark$/) do
-  save_log_data_from_bookmark()
+  lines_amount_in_bookmark()
 end
 
 Given(/^I save the log data from bookmark "([^"]*)"$/) do |bookmark|
-  save_log_data_from_bookmark(bookmark)
+  lines_amount_in_bookmark(bookmark)
 end
 
 And(/^The log filtered from bookmark contains messages:$/) do |message|
