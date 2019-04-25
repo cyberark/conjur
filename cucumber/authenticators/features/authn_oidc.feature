@@ -81,10 +81,10 @@ Feature: Users can authneticate with OIDC authenticator
   Scenario: Non-existing username in ID token is denied
     Given I get authorization code for username "not_in_conjur" and password "not_in_conjur"
     And I fetch an ID Token
-    And I save the log data from bookmark "bookmark_not_in_conjur"
+    And I save the log data from bookmark
     When I authenticate via OIDC with id token
     Then it is unauthorized
-    And The log filtered from bookmark "bookmark_not_in_conjur" contains "1" messages:
+    And The log filtered from bookmark contains messages:
     """
     Authentication Error: #<Authentication::NotDefinedInConjur: User 'not_in_conjur' is not defined in Conjur
     """
@@ -96,10 +96,10 @@ Feature: Users can authneticate with OIDC authenticator
     """
     And I get authorization code for username "bob" and password "bob"
     And I fetch an ID Token
-    And I save the log data from bookmark "bookmark_bob"
+    And I save the log data from bookmark
     When I authenticate via OIDC with id token
     Then it is unauthorized
-    And The log filtered from bookmark "bookmark_bob" contains "1" messages:
+    And The log filtered from bookmark contains messages:
     """
     [OIDC] User 'bob' is not authorized to authenticate with webservice 'cucumber:webservice:conjur/authn-oidc/keycloak'
     """
@@ -108,28 +108,28 @@ Feature: Users can authneticate with OIDC authenticator
     When I add the secret value "non_existing_field" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/id-token-user-property"
     And I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    And I save the log data from bookmark "bookmark_alice"
+    And I save the log data from bookmark
     When I authenticate via OIDC with id token
     Then it is unauthorized
-    And The log filtered from bookmark "bookmark_alice" contains "1" messages:
+    And The log filtered from bookmark contains messages:
     """
     Authentication Error: #<Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty: Field 'non_existing_field' not found or empty in ID Token
     """
 
   Scenario: Missing id token is a bad request
-    Given I save the log data from bookmark "bookmark_bad_req"
+    Given I save the log data from bookmark
     When I authenticate via OIDC with no id token
     Then it is a bad request
-    And The log filtered from bookmark "bookmark_bad_req" contains "1" messages:
+    And The log filtered from bookmark contains messages:
     """
     Authentication Error: #<Authentication::MissingRequestParam: field 'id_token' is missing or empty in request body
     """
 
   Scenario: Empty id token is a bad request
-    Given I save the log data from bookmark "bookmark_empty_token"
+    Given I save the log data from bookmark
     When I authenticate via OIDC with empty id token
     Then it is a bad request
-    And The log filtered from bookmark "bookmark_empty_token" contains "1" messages:
+    And The log filtered from bookmark contains messages:
     """
     Authentication Error: #<Authentication::MissingRequestParam: field 'id_token' is missing or empty in request body
     """
@@ -138,10 +138,10 @@ Feature: Users can authneticate with OIDC authenticator
   Scenario: non-existing account in request is denied
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    And I save the log data from bookmark "bookmark_not_existing_acnt"
+    And I save the log data from bookmark
     When I authenticate via OIDC with id token and account "non-existing"
     Then it is unauthorized
-    And The log filtered from bookmark "bookmark_not_existing_acnt" contains "1" messages:
+    And The log filtered from bookmark contains messages:
     """
     Authentication Error: #<Conjur::RequiredResourceMissing: Missing required resource: non-existing:variable:conjur/authn-oidc/keycloak/provider-uri
     """
@@ -149,10 +149,10 @@ Feature: Users can authneticate with OIDC authenticator
   Scenario: admin user is denied
     Given I get authorization code for username "admin" and password "admin"
     And I fetch an ID Token
-    And I save the log data from bookmark "bookmark_admin_blocked"
+    And I save the log data from bookmark
     When I authenticate via OIDC with id token
     Then it is unauthorized
-    And The log filtered from bookmark "bookmark_admin_blocked" contains "1" messages:
+    And The log filtered from bookmark contains messages:
     """
     Authentication Error: #<Authentication::AuthnOidc::AdminAuthenticationDenied: admin user is not allowed to authenticate with OIDC
     """

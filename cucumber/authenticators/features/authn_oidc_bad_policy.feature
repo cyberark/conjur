@@ -30,10 +30,10 @@ Feature: Users can authenticate with OIDC authenticator
     And I successfully set provider-uri variable
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    And I save the log data from bookmark "bookmark_variable_missing"
+    And I save the log data from bookmark
     When I authenticate via OIDC with id token
     Then it is unauthorized
-    And The log filtered from bookmark "bookmark_variable_missing" contains "1" messages:
+    And The log filtered from bookmark contains messages:
     """
     Authentication Error: #<Conjur::RequiredResourceMissing: Missing required resource: cucumber:variable:conjur/authn-oidc/keycloak/id-token-user-property
     """
@@ -68,10 +68,10 @@ Feature: Users can authenticate with OIDC authenticator
     And I successfully set id-token-user-property variable
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    And I save the log data from bookmark "bookmark_variable_missing"
+    And I save the log data from bookmark
     When I authenticate via OIDC with id token
     Then it is unauthorized
-    And The log filtered from bookmark "bookmark_variable_missing" contains "1" messages:
+    And The log filtered from bookmark contains messages:
     """
     Authentication Error: #<Conjur::RequiredResourceMissing: Missing required resource: cucumber:variable:conjur/authn-oidc/keycloak/provider-uri
     """
@@ -101,10 +101,10 @@ Feature: Users can authenticate with OIDC authenticator
     And I successfully set OIDC variables
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    And I save the log data from bookmark "bookmark_variable_missing"
+    And I save the log data from bookmark
     When I authenticate via OIDC with id token
     Then it is unauthorized
-    And The log filtered from bookmark "bookmark_variable_missing" contains "1" messages:
+    And The log filtered from bookmark contains messages:
     """
     Authentication Error: #<Authentication::ServiceNotDefined: Webservice 'authn-oidc/keycloak' is not defined in the Conjur policy
     """
@@ -142,10 +142,10 @@ Feature: Users can authenticate with OIDC authenticator
     And I successfully set OIDC variables
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    And I save the log data from bookmark "bookmark_no_authenticate_permission"
+    And I save the log data from bookmark
     When I authenticate via OIDC with id token
     Then it is unauthorized
-    And The log filtered from bookmark "bookmark_no_authenticate_permission" contains "1" messages:
+    And The log filtered from bookmark contains messages:
     """
     Authentication Error: #<Authentication::NotAuthorizedInConjur: User 'alice' is not authorized in the Conjur policy
     """
