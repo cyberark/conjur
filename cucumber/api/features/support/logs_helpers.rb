@@ -7,7 +7,7 @@ require 'open3'
 module LogsHelpers
   @@log_location = "/src/conjur-server/log/development.log"
 
-  def save_log_data_from_bookmark(bookmark = "bookmark")
+  def lines_amount_in_bookmark(bookmark = "bookmark")
     @bookmarks ||= Hash.new
     @bookmarks[bookmark] = amount_of_log_lines
   end
@@ -22,9 +22,9 @@ module LogsHelpers
   private
 
   def amount_of_log_lines
-    wc_cmd = "wc -l #{@@log_location}"
-    stdout, stderr, status = Open3.capture3(wc_cmd)
-    raise "Failed to run command '#{wc_cmd}' with error '#{stderr}'" unless status.success?
+    count_lines_cmd = "wc -l #{@@log_location}"
+    stdout, stderr, status = Open3.capture3(count_lines_cmd)
+    raise "Command '#{count_lines_cmd}' raised error '#{stderr}'" unless status.success?
     raise "Log file #{@@log_location} is empty" if stdout.to_s.empty?
 
     amount = stdout.to_s.split(" ").first().to_i
@@ -33,9 +33,9 @@ module LogsHelpers
   end
 
   def occurences_in_log_section(from:, to:, message:)
-    sed_cmd = "sed -n #{from},#{to}p #{@@log_location}"
-    stdout, stderr, status = Open3.capture3(sed_cmd)
-    raise "Command '#{sed_cmd}' raised error '#{stderr}'" unless status.success?
+    filter_log_cmd = "sed -n #{from},#{to}p #{@@log_location}"
+    stdout, stderr, status = Open3.capture3(filter_log_cmd)
+    raise "Command '#{filter_log_cmd}' raised error '#{stderr}'" unless status.success?
     stdout.to_s.scan(message).count
   end
 end
