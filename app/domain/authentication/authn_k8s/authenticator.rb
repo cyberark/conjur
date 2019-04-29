@@ -1,10 +1,12 @@
 require 'cgi'
 require 'forwardable'
 require 'command_class'
-require_relative 'errors'
 
 module Authentication
   module AuthnK8s
+
+    # Possible Errors Raised:
+    # MissingClientCertificate, UntrustedClientCertificate, CommonNameDoesntMatchHost, ClientCertificateExpired
 
     Authenticator = CommandClass.new(
       dependencies: {validate_pod_request: ValidatePodRequest.new},
@@ -13,7 +15,7 @@ module Authentication
       extend Forwardable
 
       def_delegators :@authenticator_input, :service_id, :authenticator_name,
-        :account, :username, :request
+                     :account, :username, :request
 
       def call
         validate_cert_exists
@@ -95,7 +97,7 @@ module Authentication
           k8s_host: K8sHost.from_cert(
             account: account,
             service_name: service_id,
-            cert: header_cert_str 
+            cert: header_cert_str
           ),
           spiffe_id: spiffe_id
         )
@@ -107,7 +109,7 @@ module Authentication
       # def validate_authenticator_enabled(service_name)
       #   authenticator_name = "authn-k8s/#{service_name}"
       #   valid = available_authenticators.include?(authenticator_name)
-      #   raise AuthenticatorNotFound, authenticator_name unless valid
+      #   raise Authentication::AuthenticatorNotFound, authenticator_name unless valid
       # end
 
       # def available_authenticators
@@ -137,6 +139,5 @@ module Authentication
         call(authenticator_input: input)
       end
     end
-
   end
 end

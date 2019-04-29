@@ -15,11 +15,11 @@ module BasicAuthenticator
         authentication.authenticated_role = ::Role[response.role_id]
         authentication.basic_user         = true
       end
-    rescue ::Authentication::InvalidCredentials
+    rescue Authentication::InvalidCredentials
       raise ApplicationController::Unauthorized, "Invalid username or password"
-    rescue ::Authentication::InvalidOrigin
+    rescue Authentication::InvalidOrigin
       raise ApplicationController::Forbidden, "User is not authorized to login from the current origin"
-    rescue ::Authentication::NotAuthorizedInConjur
+    rescue Authentication::Security::UserNotAuthorizedInConjur
       raise ApplicationController::Forbidden, "User is not authorized to login to Conjur"
     end
   end
