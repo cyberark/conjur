@@ -37,20 +37,20 @@ module Authentication
     end
 
     def validate_account_exists
-      raise AccountNotDefined, @account unless account_admin_role
+      raise Authentication::Security::AccountNotDefined, @account unless account_admin_role
     end
 
     def validate_webservice_exists
-      raise ServiceNotDefined, @webservice.name unless webservice_resource
+      raise Authentication::Security::ServiceNotDefined, @webservice.name unless webservice_resource
     end
 
     def validate_webservice_is_whitelisted
       is_whitelisted = whitelisted_webservices.include?(@webservice)
-      raise NotWhitelisted, @webservice.name unless is_whitelisted
+      raise Authentication::Security::NotWhitelisted, @webservice.name unless is_whitelisted
     end
 
     def validate_user_is_defined
-      raise UserNotDefinedInConjur, @user_id unless user_role
+      raise Authentication::Security::UserNotDefinedInConjur, @user_id unless user_role
     end
 
     def validate_user_has_access
@@ -59,7 +59,7 @@ module Authentication
       unless has_access
         @logger.debug("[OIDC] User '#{@user_id}' is not authorized to " \
           "authenticate with webservice '#{webservice_resource_id}'")
-        raise UserNotAuthorizedInConjur, @user_id
+        raise Authentication::Security::UserNotAuthorizedInConjur, @user_id
       end
     end
 

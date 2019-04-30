@@ -29,9 +29,9 @@ module Authentication
 
           @discovered_provider = OpenIDConnect::Discovery::Provider::Config.discover!(@provider_uri)
         rescue HTTPClient::ConnectTimeoutError => e
-          raise_error(ProviderDiscoveryTimeout, e)
+          raise_error(Authentication::AuthnOidc::ProviderDiscoveryTimeout, e)
         rescue => e
-          raise_error(ProviderDiscoveryFailed, e)
+          raise_error(Authentication::AuthnOidc::ProviderDiscoveryFailed, e)
         end
 
         def fetch_certs
@@ -41,7 +41,7 @@ module Authentication
           @logger.debug("[OIDC] Provider certificate was fetched successfully from '#{@provider_uri}'")
           jwks
         rescue => e
-          raise_error(ProviderFetchCertificateFailed, e)
+          raise_error(Authentication::AuthnOidc::ProviderFetchCertificateFailed, e)
         end
 
         def raise_error(error_class, original_error)

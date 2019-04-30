@@ -5,10 +5,6 @@ module Authentication
   module AuthnOidc
     module Util
 
-      # Possible Errors Raised:
-      # RequiredResourceMissing, RequiredSecretMissing, NotWhitelisted
-
-
       FetchOidcSecrets = CommandClass.new(
         dependencies: {
           fetch_secrets: ::Conjur::FetchRequiredSecrets.new

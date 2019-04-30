@@ -33,16 +33,16 @@ module Authentication
       private
 
       def validate_webservice_exists
-        raise WebserviceNotFound, service_id unless webservice
+        raise Authentication::AuthnK8s::WebserviceNotFound, service_id unless webservice
       end
 
       def validate_host_can_access_service
         return if host_can_access_service?
-        raise HostNotAuthorized.new(host.role.id, service_id)
+        raise Authentication::AuthnK8s::HostNotAuthorized.new(host.role.id, service_id)
       end
 
       def validate_pod_exists
-        raise PodNotFound.new(pod_name, pod_namespace) unless pod
+        raise Authentication::AuthnK8s::PodNotFound.new(pod_name, pod_namespace) unless pod
       end
 
       def validate_pod_properties
@@ -53,17 +53,17 @@ module Authentication
       end
 
       def validate_container
-        raise ContainerNotFound, container_name unless container
+        raise Authentication::AuthnK8s::ContainerNotFound, container_name unless container
       end
 
       def validate_scope
         return if k8s_host.permitted_scope?
-        raise ScopeNotSupported, k8s_host.controller
+        raise Authentication::AuthnK8s::ScopeNotSupported, k8s_host.controller
       end
 
       def validate_controller
         return if controller_object
-        raise ControllerNotFound.new(k8s_host.controller, k8s_host.object, k8s_host.namespace)
+        raise Authentication::AuthnK8s::ControllerNotFound.new(k8s_host.controller, k8s_host.object, k8s_host.namespace)
       end
 
       def validate_pod_metadata
