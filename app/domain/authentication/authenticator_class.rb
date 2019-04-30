@@ -45,27 +45,15 @@ module Authentication
       private
 
       def valid_name?
-        valid = own_name == 'Authenticator'
-        unless valid
-          Rails.logger.debug("Authenticator own_name #{own_name} is not valid")
-        end
-        valid
+        own_name == 'Authenticator'
       end
 
       def valid_parent_name?
-        valid = parent_name =~ /^Authn/
-        unless valid
-          Rails.logger.debug("Authenticator parent_name #{parent_name} is not valid")
-        end
-        valid
+        parent_name =~ /^Authn/
       end
 
       def valid_interface?
-        valid = @cls.method_defined?(:valid?)
-        unless valid
-          Rails.logger.debug("Authenticator class #{@cls} has no valid? method defined")
-        end
-        valid
+        @cls.method_defined?(:valid?)
       end
 
       def own_name
