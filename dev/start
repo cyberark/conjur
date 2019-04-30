@@ -28,6 +28,27 @@ EOF
   exit
 }
 
+function conjur_isready?() {
+  api_key=$(docker-compose exec -T conjur conjurctl \
+  role retrieve-key cucumber:user:admin | tr -d '\r')
+
+  for i in {1..5}
+  do
+   sleep=10
+   echo "try login to conjur server:"
+   output=$(docker-compose exec client conjur authn login -u admin -p $api_key | grep "Failed to open TCP connection" | wc -l)
+   if [ $output -eq 0 ]; then
+        echo "conjur server is up and ready"
+        return 0;
+   else
+        echo "conjur not ready yet sleep number $i for $sleep seconds"
+        sleep $sleep
+   fi
+  done
+  echo "Error with conjur server start or it is too slow"
+  return 1
+}
+
 function keycloak_isready?() {
   for i in {1..20}
   do
@@ -80,11 +101,17 @@ fi
 
 export CONJUR_DATA_KEY="$(cat data_key)"
 
-services="pg conjur"
+services="pg conjur client"
 docker-compose up -d --no-deps $services
 docker-compose exec conjur bundle
 docker-compose exec conjur conjurctl db migrate
 docker-compose exec conjur conjurctl account create cucumber || true
+
+echo "Starting Conjur server"
+docker-compose exec -d conjur conjurctl server
+
+echo 'Checking if Conjur server is ready'
+conjur_isready?
 
 enabled_authenticators="authn"
 
@@ -108,11 +135,16 @@ if [[ $ENABLE_AUTHN_OIDC = false && ($ENABLE_OIDC_ADFS = true || $ENABLE_OIDC_OK
 fi
 
 if [[ $ENABLE_AUTHN_OIDC = true ]]; then
-  services="$services oidc-keycloak oidc-phantomjs client"
+  services="$services oidc-keycloak oidc-phantomjs"
   docker-compose up -d --no-deps $services
 
   echo "Configuring Keycloak as OpenID provider for automatic testing"
   enabled_authenticators="$enabled_authenticators,authn-oidc/keycloak"
+
+  # Start conjur again, since it is recreating by docker-compose because of dependency with keycloak
+  echo "Starting Conjur server"
+  docker-compose exec -d conjur conjurctl server
+  conjur_isready?
 
   # Check if keycloak is up
   keycloak_isready?
@@ -131,16 +163,6 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
     echo "Initialize ADFS certificate in conjur server"
     docker-compose exec conjur /src/conjur-server/dev/files/authn-oidc/adfs/fetchCertificate
   fi
-
-  echo "Starting Conjur server"
-  api_key=$(docker-compose exec -T conjur conjurctl \
-  	role retrieve-key cucumber:user:admin | tr -d '\r')
-  docker-compose exec $env_args -d conjur conjurctl server
-
-  echo "Sleep 30 sec for Conjur server to start"
-  sleep 30
-
-  docker-compose exec client conjur authn login -u admin -p $api_key
 
   # add variables' values for keycloak
   echo "Setting keycloak variables values in conjur"
@@ -163,9 +185,6 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
     docker-compose exec client conjur variable values add conjur/authn-oidc/adfs/provider-uri https://adfs4win2016.northeurope.cloudapp.azure.com
     docker-compose exec client conjur variable values add conjur/authn-oidc/adfs/id-token-user-property "unique_name"
   fi
-
-  echo "killing the conjur server process"
-  docker-compose exec conjur /src/conjur-server/dev/files/killConjurServer
 
   echo "Creating OpenID client in keycloack OpenID provider"
   docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_client
@@ -226,9 +245,6 @@ env_args="$env_args -e CONJUR_AUTHENTICATORS=$enabled_authenticators"
 
 docker-compose up -d --no-deps $services
 
-api_key=$(docker-compose exec -T conjur conjurctl \
-	role retrieve-key cucumber:user:admin | tr -d '\r')
-
 if [[ $ENABLE_AUDIT = true ]]; then
   # Run database migration to create audit database schema
   docker-compose exec -T conjur bash -c '
@@ -239,7 +255,10 @@ if [[ $ENABLE_AUDIT = true ]]; then
 fi
 
 echo "Creating user alice"
-docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/policy.yml
+docker-compose exec client conjur policy load root /src/conjur-server/dev/files/policy.yml
+
+echo "killing the conjur server process"
+docker-compose exec conjur /src/conjur-server/dev/files/killConjurServer
 
 docker exec -e CONJUR_AUTHN_API_KEY=$api_key $env_args \
   -it --detach-keys 'ctrl-\' "$(docker-compose ps -q conjur)" bash
