@@ -120,7 +120,7 @@ RSpec.describe 'Authentication::Oidc' do
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty)
+          expect { subject }.to raise_error(::Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty)
         end
       end
 
@@ -148,7 +148,7 @@ RSpec.describe 'Authentication::Oidc' do
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty)
+          expect { subject }.to raise_error(::Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty)
         end
       end
     end

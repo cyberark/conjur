@@ -55,7 +55,7 @@ module Authentication
           RestClient.get(aws_signed_url, headers = aws_headers)
         rescue RestClient::ExceptionWithResponse => e
           Rails.logger.error("Verification of IAM identity Exception #{e.to_s}")
-          raise Authentication::AuthnIam::InvalidAWSHeaders, e.to_s
+          raise Errors::Authentication::AuthnIam::InvalidAWSHeaders, e.to_s
         end
       end
     end

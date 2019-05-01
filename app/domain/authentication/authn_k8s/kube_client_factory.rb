@@ -24,11 +24,11 @@ module Authentication
 
         def validate_serviceaccount_dir_exists!
           valid = File.exists?(SERVICEACCOUNT_DIR)
-          raise Authentication::AuthnK8s::KubeClientFactory::MissingServiceAccountDir, SERVICEACCOUNT_DIR unless valid
+          raise Errors::Authentication::AuthnK8s::KubeClientFactory::MissingServiceAccountDir, SERVICEACCOUNT_DIR unless valid
         end
 
         def validate_env_variables!
-          EXPECTED_ENV_VARS.each { |v| raise Authentication::AuthnK8s::KubeClientFactory::MissingEnvVar, v unless ENV[v] }
+          EXPECTED_ENV_VARS.each { |v| raise Errors::Authentication::AuthnK8s::KubeClientFactory::MissingEnvVar, v unless ENV[v] }
         end
 
         def host_url

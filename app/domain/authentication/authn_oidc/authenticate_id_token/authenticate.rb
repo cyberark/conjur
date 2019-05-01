@@ -72,8 +72,8 @@ module Authentication
         end
 
         def validate_conjur_username
-          raise Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty, id_token_username_field if conjur_username.to_s.empty?
-          raise Authentication::AuthnOidc::AdminAuthenticationDenied if admin?(conjur_username)
+          raise Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty, id_token_username_field if conjur_username.to_s.empty?
+          raise Errors::Authentication::AuthnOidc::AdminAuthenticationDenied if admin?(conjur_username)
           @logger.debug(::LogMessages::Authentication::AuthnOidc::ExtractedUsernameFromIDToked.new(conjur_username).to_s)
         end
 

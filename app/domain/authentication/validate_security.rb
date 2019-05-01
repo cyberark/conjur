@@ -37,20 +37,20 @@ module Authentication
     end
 
     def validate_account_exists
-      raise Authentication::Security::AccountNotDefined, @account unless account_admin_role
+      raise Errors::Authentication::Security::AccountNotDefined, @account unless account_admin_role
     end
 
     def validate_webservice_exists
-      raise Authentication::Security::ServiceNotDefined, @webservice.name unless webservice_resource
+      raise Errors::Authentication::Security::ServiceNotDefined, @webservice.name unless webservice_resource
     end
 
     def validate_webservice_is_whitelisted
       is_whitelisted = whitelisted_webservices.include?(@webservice)
-      raise Authentication::Security::NotWhitelisted, @webservice.name unless is_whitelisted
+      raise Errors::Authentication::Security::NotWhitelisted, @webservice.name unless is_whitelisted
     end
 
     def validate_user_is_defined
-      raise Authentication::Security::UserNotDefinedInConjur, @user_id unless user_role
+      raise Errors::Authentication::Security::UserNotDefinedInConjur, @user_id unless user_role
     end
 
     def validate_user_has_access
@@ -59,7 +59,7 @@ module Authentication
       unless has_access
         @logger.debug(::LogMessages::Authentication::Security::UserNotAuthorized
                         .new(@user_id, webservice_resource_id).to_s)
-        raise Authentication::Security::UserNotAuthorizedInConjur, @user_id
+        raise Errors::Authentication::Security::UserNotAuthorizedInConjur, @user_id
       end
     end
 

@@ -111,7 +111,7 @@ RSpec.describe Authentication::ValidateSecurity do
     end
 
     it "raises a NotWhitelisted error" do
-      expect { subject }.to raise_error(Authentication::Security::NotWhitelisted)
+      expect { subject }.to raise_error(Errors::Authentication::Security::NotWhitelisted)
     end
   end
 
@@ -129,7 +129,7 @@ RSpec.describe Authentication::ValidateSecurity do
     end
 
     it "raises a ServiceNotDefined error" do
-      expect { subject }.to raise_error(Authentication::Security::ServiceNotDefined)
+      expect { subject }.to raise_error(Errors::Authentication::Security::ServiceNotDefined)
     end
   end
 
@@ -146,7 +146,7 @@ RSpec.describe Authentication::ValidateSecurity do
       )
     end
     it "raises a NotDefinedInConjur error" do
-      expect { subject }.to raise_error(Authentication::Security::UserNotDefinedInConjur)
+      expect { subject }.to raise_error(Errors::Authentication::Security::UserNotDefinedInConjur)
     end
   end
 
@@ -164,7 +164,7 @@ RSpec.describe Authentication::ValidateSecurity do
     end
 
     it "raises a NotAuthorizedInConjur error" do
-      expect { subject }.to raise_error(Authentication::Security::UserNotAuthorizedInConjur
+      expect { subject }.to raise_error(Errors::Authentication::Security::UserNotAuthorizedInConjur
       )
     end
   end
@@ -210,7 +210,7 @@ RSpec.describe Authentication::ValidateSecurity do
         end
 
         it "fails" do
-          expect { subject }.to raise_error(Authentication::Security::UserNotAuthorizedInConjur)
+          expect { subject }.to raise_error(Errors::Authentication::Security::UserNotAuthorizedInConjur)
         end
       end
     end
@@ -248,7 +248,7 @@ RSpec.describe Authentication::ValidateSecurity do
     end
 
     it "raises an AccountNotDefined error" do
-      expect { subject }.to raise_error(Authentication::Security::AccountNotDefined)
+      expect { subject }.to raise_error(Errors::Authentication::Security::AccountNotDefined)
     end
   end
 end
