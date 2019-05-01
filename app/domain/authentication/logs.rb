@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'util/log_message_with_code'
+require 'util/log_message_with_code_class'
 
 unless defined? LogMessages::Authentication::Security::SecurityValidated
   # this wrapper is here so these classes will not be loaded by Rails

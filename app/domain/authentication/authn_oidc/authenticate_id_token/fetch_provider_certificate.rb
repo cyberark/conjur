@@ -31,9 +31,9 @@ module Authentication
 
           @logger.debug(::LogMessages::Authentication::AuthnOidc::OIDCProviderDiscoverySuccess.new.to_s)
         rescue HTTPClient::ConnectTimeoutError => e
-          raise_error(Authentication::AuthnOidc::ProviderDiscoveryTimeout, e)
+          raise_error(Errors::Authentication::AuthnOidc::ProviderDiscoveryTimeout, e)
         rescue => e
-          raise_error(Authentication::AuthnOidc::ProviderDiscoveryFailed, e)
+          raise_error(Errors::Authentication::AuthnOidc::ProviderDiscoveryFailed, e)
         end
 
         def fetch_certs
@@ -41,7 +41,7 @@ module Authentication
           @logger.debug(::LogMessages::Authentication::AuthnOidc::FetchProviderCertsSuccess.new.to_s)
           jwks
         rescue => e
-          raise_error(Authentication::AuthnOidc::ProviderFetchCertificateFailed, e)
+          raise_error(Errors::Authentication::AuthnOidc::ProviderFetchCertificateFailed, e)
         end
 
         def raise_error(error_class, original_error)

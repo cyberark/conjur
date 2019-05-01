@@ -90,11 +90,11 @@ module Authentication
       end
 
       def validate_csr
-        raise Authentication::AuthnK8s::CSRIsMissingSpiffeId unless smart_csr.spiffe_id
+        raise Errors::Authentication::AuthnK8s::CSRIsMissingSpiffeId unless smart_csr.spiffe_id
 
         spiffe_namespace = spiffe_id.namespace
         cn_namespace = common_name.namespace
-        raise Authentication::AuthnK8s::CSRNamespaceMismatch.new(cn_namespace, spiffe_namespace) unless cn_namespace == spiffe_namespace
+        raise Errors::Authentication::AuthnK8s::CSRNamespaceMismatch.new(cn_namespace, spiffe_namespace) unless cn_namespace == spiffe_namespace
       end
 
       def smart_csr
@@ -108,7 +108,7 @@ module Authentication
       def validate_cert_installation(resp)
         error_stream = resp[:error]
         return if error_stream.nil? || error_stream.empty?
-        raise Authentication::AuthnK8s::CertInstallationError, cert_error(error_stream)
+        raise Errors::Authentication::AuthnK8s::CertInstallationError, cert_error(error_stream)
       end
 
       # In case there's a blank error message...

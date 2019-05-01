@@ -15,7 +15,7 @@ module Authentication
   ) do
 
     def call
-      raise Authentication::InvalidOrigin unless role.valid_origin?(@input.origin)
+      raise Errors::Authentication::InvalidOrigin unless role.valid_origin?(@input.origin)
     end
 
     private
