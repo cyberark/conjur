@@ -36,7 +36,7 @@ module Authentication
       def install_signed_cert
         pod_namespace = spiffe_id.namespace
         pod_name = spiffe_id.name
-        @logger.debug "Copying SSL cert to #{pod_namespace}/#{pod_name}"
+        @logger.debug(::LogMessages::Authentication::AuthnK8s::CopySSLToPod.new(pod_namespace, pod_name).to_s)
 
         resp = @kubectl_exec.new.copy(
           pod_namespace: pod_namespace,

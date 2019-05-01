@@ -74,7 +74,7 @@ module Authentication
         def validate_conjur_username
           raise Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty, id_token_username_field if conjur_username.to_s.empty?
           raise Authentication::AuthnOidc::AdminAuthenticationDenied if admin?(conjur_username)
-          @logger.debug("[OIDC] Extracted username '#{conjur_username}' from ID Token")
+          @logger.debug(::LogMessages::Authentication::AuthnOidc::ExtractedUsernameFromIDToked.new(conjur_username).to_s)
         end
 
         def conjur_username
@@ -92,12 +92,12 @@ module Authentication
               user_id: @authenticator_input.username,
               enabled_authenticators: @enabled_authenticators
           )
-          @logger.debug("[OIDC] Security validated")
+          @logger.debug(::LogMessages::Authentication::Security::SecurityValidated.new.to_s)
         end
 
         def validate_origin
           @validate_origin.(input: @authenticator_input)
-          @logger.debug("[OIDC] Origin validated")
+          @logger.debug(::LogMessages::Authentication::Origin::OriginValidated.new.to_s)
         end
 
         def audit_success

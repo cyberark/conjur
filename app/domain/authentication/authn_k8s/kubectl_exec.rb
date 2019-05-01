@@ -50,7 +50,7 @@ module Authentication
         if hs_error
           ws_client.emit(:error, "Websocket handshake error: #{hs_error.inspect}")
         else
-          @logger.debug("Pod #{@pod_name} : channel open")
+          @logger.debug(::LogMessages::Authentication::AuthnK8s::PodChannelOpen.new(@pod_name).to_s)
 
           if stdin
             data = WebSocketMessage.channel_byte('stdin') + body
@@ -67,24 +67,28 @@ module Authentication
         msg_data = wsmsg.data
 
         if msg_type == :binary
-          @logger.debug("Pod #{@pod_name}, channel #{wsmsg.channel_name}: #{msg_data}")
+          @logger.debug(::LogMessages::Authentication::AuthnK8s::PodChannelData
+                          .new(@pod_name, wsmsg.channel_name, msg_data).to_s
+          )
           @message_log.save_message(wsmsg)
         elsif msg_type == :close
-          @logger.debug("Pod: #{@pod_name}, message: close, data: #{msg_data}")
+          @logger.debug(::LogMessages::Authentication::AuthnK8s::PodMessageData
+                          .new(@pod_name, "close", msg_data).to_s
+          )
           ws_client.close
         end
       end
 
       def on_close
         @channel_closed = true
-        @logger.debug("Pod #{@pod_name} : channel closed")
+        @logger.debug(::LogMessages::Authentication::AuthnK8s::PodChannelClosed.new(@pod_name).to_s)
       end
 
       def on_error(err)
         @channel_closed = true
 
         error_info = err.inspect
-        @logger.debug("Pod #{@pod_name} error : #{error_info}")
+        @logger.debug(::LogMessages::Authentication::AuthnK8s::PodError.new(@pod_name, error_info).to_s)
         @message_log.save_error_string(error_info)
       end
 

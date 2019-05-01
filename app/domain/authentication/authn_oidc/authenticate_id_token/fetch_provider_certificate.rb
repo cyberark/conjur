@@ -17,6 +17,8 @@ module Authentication
       ) do
 
         def call
+          @logger.debug(::LogMessages::Authentication::AuthnOidc::OIDCProviderUri.new(@provider_uri).to_s)
+
           # provider discovery might throw exception. Let it propagate upward
           discover_provider
           fetch_certs
@@ -25,9 +27,9 @@ module Authentication
         private
 
         def discover_provider
-          @logger.debug("[OIDC] Discovering provider '#{@provider_uri}'")
-
           @discovered_provider = OpenIDConnect::Discovery::Provider::Config.discover!(@provider_uri)
+
+          @logger.debug(::LogMessages::Authentication::AuthnOidc::OIDCProviderDiscoverySuccess.new.to_s)
         rescue HTTPClient::ConnectTimeoutError => e
           raise_error(Authentication::AuthnOidc::ProviderDiscoveryTimeout, e)
         rescue => e
@@ -35,10 +37,8 @@ module Authentication
         end
 
         def fetch_certs
-          @logger.debug("[OIDC] Fetching provider certificate from '#{@provider_uri}'")
-
           jwks = @discovered_provider.jwks
-          @logger.debug("[OIDC] Provider certificate was fetched successfully from '#{@provider_uri}'")
+          @logger.debug(::LogMessages::Authentication::AuthnOidc::FetchProviderCertsSuccess.new.to_s)
           jwks
         rescue => e
           raise_error(Authentication::AuthnOidc::ProviderFetchCertificateFailed, e)
