@@ -86,7 +86,7 @@ Feature: Users can authneticate with OIDC authenticator
     Then it is unauthorized
     And The log filtered from bookmark contains messages:
     """
-    Authentication Error: #<Authentication::NotDefinedInConjur: User 'not_in_conjur' is not defined in Conjur
+    Authentication::NotDefinedInConjur
     """
 
   Scenario: User that is not permitted to webservice in ID token is denied
@@ -101,7 +101,7 @@ Feature: Users can authneticate with OIDC authenticator
     Then it is unauthorized
     And The log filtered from bookmark contains messages:
     """
-    [OIDC] User 'bob' is not authorized to authenticate with webservice 'cucumber:webservice:conjur/authn-oidc/keycloak'
+    User 'bob' is not authorized to authenticate with webservice 'cucumber:webservice:conjur/authn-oidc/keycloak'
     """
 
   Scenario: ID token without value of variable id-token-user-property is denied
@@ -113,7 +113,7 @@ Feature: Users can authneticate with OIDC authenticator
     Then it is unauthorized
     And The log filtered from bookmark contains messages:
     """
-    Authentication Error: #<Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty: Field 'non_existing_field' not found or empty in ID Token
+    Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty
     """
 
   Scenario: Missing id token is a bad request
@@ -122,7 +122,7 @@ Feature: Users can authneticate with OIDC authenticator
     Then it is a bad request
     And The log filtered from bookmark contains messages:
     """
-    Authentication Error: #<Authentication::MissingRequestParam: field 'id_token' is missing or empty in request body
+    Authentication::MissingRequestParam
     """
 
   Scenario: Empty id token is a bad request
@@ -131,7 +131,7 @@ Feature: Users can authneticate with OIDC authenticator
     Then it is a bad request
     And The log filtered from bookmark contains messages:
     """
-    Authentication Error: #<Authentication::MissingRequestParam: field 'id_token' is missing or empty in request body
+    Authentication::MissingRequestParam
     """
 
     # Should be crashed in GA, update the message to "account does not exists"
@@ -143,7 +143,7 @@ Feature: Users can authneticate with OIDC authenticator
     Then it is unauthorized
     And The log filtered from bookmark contains messages:
     """
-    Authentication Error: #<Conjur::RequiredResourceMissing: Missing required resource: non-existing:variable:conjur/authn-oidc/keycloak/provider-uri
+    Conjur::RequiredResourceMissing
     """
 
   Scenario: admin user is denied
@@ -154,5 +154,5 @@ Feature: Users can authneticate with OIDC authenticator
     Then it is unauthorized
     And The log filtered from bookmark contains messages:
     """
-    Authentication Error: #<Authentication::AuthnOidc::AdminAuthenticationDenied: admin user is not allowed to authenticate with OIDC
+    Authentication::AuthnOidc::AdminAuthenticationDenied
     """
