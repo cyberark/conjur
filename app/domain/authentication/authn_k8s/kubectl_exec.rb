@@ -5,7 +5,7 @@ require 'rubygems/package'
 
 require 'active_support/time'
 require 'websocket-client-simple'
-require 'authentication/errors'
+require 'errors'
 
 module Authentication
   module AuthnK8s

@@ -1,5 +1,5 @@
 require 'command_class'
-require 'authentication/errors'
+require 'errors'
 
 module Authentication
   module AuthnOidc
