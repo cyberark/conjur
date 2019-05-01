@@ -18,8 +18,7 @@ unless defined? LogMessages::Authentication::Security::SecurityValidated
         )
 
         UserNotAuthorized = ::Util::LogMessageWithCodeClass.new(
-          msg: "User '{0}' is not authorized to " \
-          "authenticate with webservice '{1}'",
+          msg: "User '{0}' is not authorized to authenticate with webservice '{1}'",
           code: "CONJ00002D"
         )
 
