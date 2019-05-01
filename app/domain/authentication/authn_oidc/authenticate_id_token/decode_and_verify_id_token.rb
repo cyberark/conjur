@@ -29,7 +29,7 @@ module Authentication
 
         def decode_id_token
           decoded_id_token
-          @logger.debug("[OIDC] Decode ID Token succeeded")
+          @logger.debug(::LogMessages::Authentication::AuthnOidc::IDTokenDecodeSuccess.new.to_s)
         end
 
         def verify_decoded_id_token
@@ -40,7 +40,7 @@ module Authentication
                        nonce: decoded_attributes[:nonce] }
 
           decoded_id_token.verify!(expected)
-          @logger.debug("[OIDC] ID Token verification succeeded")
+          @logger.debug(::LogMessages::Authentication::AuthnOidc::IDTokenVerificationSuccess.new.to_s)
         rescue OpenIDConnect::ResponseObject::IdToken::ExpiredToken
           raise Authentication::AuthnOidc::IdTokenExpired
         rescue => e
