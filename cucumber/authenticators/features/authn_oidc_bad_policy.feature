@@ -35,7 +35,7 @@ Feature: Users can authenticate with OIDC authenticator
     Then it is unauthorized
     And The log filtered from bookmark contains messages:
     """
-    Authentication Error: #<Conjur::RequiredResourceMissing: Missing required resource: cucumber:variable:conjur/authn-oidc/keycloak/id-token-user-property
+    Conjur::RequiredResourceMissing
     """
 
   Scenario: provider-uri variable missing in policy is denied
@@ -73,7 +73,7 @@ Feature: Users can authenticate with OIDC authenticator
     Then it is unauthorized
     And The log filtered from bookmark contains messages:
     """
-    Authentication Error: #<Conjur::RequiredResourceMissing: Missing required resource: cucumber:variable:conjur/authn-oidc/keycloak/provider-uri
+    Conjur::RequiredResourceMissing
     """
 
   Scenario: webservice missing in policy is denied
@@ -106,7 +106,7 @@ Feature: Users can authenticate with OIDC authenticator
     Then it is unauthorized
     And The log filtered from bookmark contains messages:
     """
-    Authentication Error: #<Authentication::ServiceNotDefined: Webservice 'authn-oidc/keycloak' is not defined in the Conjur policy
+    Authentication::ServiceNotDefined
     """
 
   Scenario: webservice with read and no authenticate permission in policy is denied
@@ -147,5 +147,5 @@ Feature: Users can authenticate with OIDC authenticator
     Then it is unauthorized
     And The log filtered from bookmark contains messages:
     """
-    Authentication Error: #<Authentication::NotAuthorizedInConjur: User 'alice' is not authorized in the Conjur policy
+    Authentication::NotAuthorizedInConjur
     """
