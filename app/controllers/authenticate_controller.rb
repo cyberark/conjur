@@ -128,8 +128,8 @@ class AuthenticateController < ApplicationController
       Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty,
       Errors::Authentication::AuthnOidc::IdTokenVerifyFailed,
       Errors::Authentication::AuthnOidc::IdTokenInvalidFormat,
-      Conjur::RequiredSecretMissing,
-      Conjur::RequiredResourceMissing
+      Errors::Conjur::RequiredSecretMissing,
+      Errors::Conjur::RequiredResourceMissing
       raise Unauthorized
 
     when Errors::Authentication::RequestBody::MissingRequestParam

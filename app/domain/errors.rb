@@ -7,6 +7,18 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
   # auto-load. #TODO: fix this in a proper manner
 
   module Errors
+    module Conjur
+
+      RequiredResourceMissing = Util::ErrorClass.new(
+        'Missing required resource: {0}'
+      )
+
+      RequiredSecretMissing = Util::ErrorClass.new(
+        'Missing value for resource: {0}'
+      )
+
+    end
+
     module Authentication
 
       AuthenticatorNotFound = ::Util::ErrorClassWithCode.new(
