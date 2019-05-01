@@ -120,29 +120,29 @@ class AuthenticateController < ApplicationController
     end
 
     case err
-    when Authentication::Security::UserNotAuthorizedInConjur,
-      Authentication::Security::NotWhitelisted,
-      Authentication::Security::ServiceNotDefined,
-      Authentication::Security::UserNotDefinedInConjur,
-      Authentication::Security::AccountNotDefined,
-      Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty,
-      Authentication::AuthnOidc::IdTokenVerifyFailed,
-      Authentication::AuthnOidc::IdTokenInvalidFormat,
+    when Errors::Authentication::Security::UserNotAuthorizedInConjur,
+      Errors::Authentication::Security::NotWhitelisted,
+      Errors::Authentication::Security::ServiceNotDefined,
+      Errors::Authentication::Security::UserNotDefinedInConjur,
+      Errors::Authentication::Security::AccountNotDefined,
+      Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty,
+      Errors::Authentication::AuthnOidc::IdTokenVerifyFailed,
+      Errors::Authentication::AuthnOidc::IdTokenInvalidFormat,
       Conjur::RequiredSecretMissing,
       Conjur::RequiredResourceMissing
       raise Unauthorized
 
-    when Authentication::RequestBody::MissingRequestParam
+    when Errors::Authentication::RequestBody::MissingRequestParam
       raise BadRequest
 
-    when Authentication::AuthnOidc::IdTokenExpired
+    when Errors::Authentication::AuthnOidc::IdTokenExpired
       raise Unauthorized.new(err.message, true)
 
-    when Authentication::AuthnOidc::ProviderDiscoveryTimeout
+    when Errors::Authentication::AuthnOidc::ProviderDiscoveryTimeout
       raise GatewayTimeout
 
-    when Authentication::AuthnOidc::ProviderDiscoveryFailed,
-      Authentication::AuthnOidc::ProviderFetchCertificateFailed
+    when Errors::Authentication::AuthnOidc::ProviderDiscoveryFailed,
+      Errors::Authentication::AuthnOidc::ProviderFetchCertificateFailed
       raise BadGateway
 
     else

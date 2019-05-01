@@ -59,7 +59,7 @@ RSpec.describe Authentication::AuthnIam::Authenticator do
     subject = authenticator_instance
     parameters = double('AuthenticationParameters', password: expired_aws_headers)
     expect{subject.valid?(parameters)}.to(
-        raise_error(Authentication::AuthnIam::InvalidAWSHeaders)
+        raise_error(Errors::Authentication::AuthnIam::InvalidAWSHeaders)
     )
   end
 

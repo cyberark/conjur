@@ -31,7 +31,6 @@ module Authentication
           raise InvalidApiUrl, host_url
         end
       end
-
     end
   end
 end

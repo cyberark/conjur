@@ -92,7 +92,7 @@ RSpec.describe 'Authentication::Authenticate' do
 
     it "raises AuthenticatorNotFound" do
       expect { subject }.to raise_error(
-                              Authentication::AuthenticatorNotFound
+                              Errors::Authentication::AuthenticatorNotFound
                             )
     end
   end
@@ -121,7 +121,7 @@ RSpec.describe 'Authentication::Authenticate' do
 
       it "raises InvalidCredentials" do
         expect { subject }.to raise_error(
-                                Authentication::InvalidCredentials
+                                Errors::Authentication::InvalidCredentials
                               )
       end
     end

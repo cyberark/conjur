@@ -40,11 +40,11 @@ module Authentication
     end
 
     def validate_authenticator_exists
-      raise Authentication::AuthenticatorNotFound, @authenticator_input.authenticator_name unless authenticator
+      raise Errors::Authentication::AuthenticatorNotFound, @authenticator_input.authenticator_name unless authenticator
     end
 
     def validate_credentials
-      raise Authentication::InvalidCredentials unless key
+      raise Errors::Authentication::InvalidCredentials unless key
     end
 
     def validate_security

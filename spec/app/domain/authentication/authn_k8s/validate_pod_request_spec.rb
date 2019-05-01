@@ -73,7 +73,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
 
       expected_message = /Webservice '#{bad_service_name}' wasn't found/
       expect { validator.(pod_request: pod_request) }
-        .to raise_error(Authentication::AuthnK8s::WebserviceNotFound, expected_message)
+        .to raise_error(Errors::Authentication::AuthnK8s::WebserviceNotFound, expected_message)
     end
 
     it 'raises HostNotAuthorized when host is not allowed to authenticate to service' do
@@ -85,7 +85,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
       expected_message = /'#{host_id}' does not have 'authenticate' privilege on #{good_service_name}/
 
       expect { validator.(pod_request: pod_request) }
-        .to raise_error(Authentication::AuthnK8s::HostNotAuthorized, expected_message)
+        .to raise_error(Errors::Authentication::AuthnK8s::HostNotAuthorized, expected_message)
     end
 
     it 'raises PodNotFound when pod is not known' do
@@ -100,7 +100,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
       expected_message = /No Pod found for podname '#{spiffe_name}' in namespace '#{spiffe_namespace}'/
 
       expect { validator.(pod_request: pod_request) }
-        .to raise_error(Authentication::AuthnK8s::PodNotFound, expected_message)
+        .to raise_error(Errors::Authentication::AuthnK8s::PodNotFound, expected_message)
     end
 
     context 'when namespace scoped' do
@@ -132,7 +132,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
 
         expected_message = /Container authenticator was not found for requesting pod/
         expect { validator.(pod_request: pod_request) }
-          .to raise_error(Authentication::AuthnK8s::ContainerNotFound, expected_message)
+          .to raise_error(Errors::Authentication::AuthnK8s::ContainerNotFound, expected_message)
       end
 
       it 'raises ContainerNotFound if container cannot be found and container name annotation is missing' do
@@ -145,7 +145,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
 
         expected_message = /Container authenticator was not found for requesting pod/
         expect { validator.(pod_request: pod_request) }
-          .to raise_error(Authentication::AuthnK8s::ContainerNotFound, expected_message)
+          .to raise_error(Errors::Authentication::AuthnK8s::ContainerNotFound, expected_message)
       end
 
       it 'does not raise errors if all checks pass' do
@@ -189,7 +189,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
 
         expected_message = /Resource type '#{k8s_host_controller}' identity scope is not supported in this version of authn-k8s/
         expect { validator.(pod_request: pod_request) }
-          .to raise_error(Authentication::AuthnK8s::ScopeNotSupported, expected_message)
+          .to raise_error(Errors::Authentication::AuthnK8s::ScopeNotSupported, expected_message)
       end
 
       context 'in permitted scope' do
@@ -221,7 +221,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
 
           expected_message = /Kubernetes K8sHostController K8sHostObject not found in namespace K8sHostNamespace/
           expect { validator.(pod_request: pod_request) }
-            .to raise_error(Authentication::AuthnK8s::ControllerNotFound, expected_message)
+            .to raise_error(Errors::Authentication::AuthnK8s::ControllerNotFound, expected_message)
         end
 
         it 'raises error if pod metadata fails validation' do
@@ -249,7 +249,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
 
           expected_message = /Container authenticator was not found for requesting pod/
           expect { validator.(pod_request: pod_request) }
-            .to raise_error(Authentication::AuthnK8s::ContainerNotFound, expected_message)
+            .to raise_error(Errors::Authentication::AuthnK8s::ContainerNotFound, expected_message)
         end
 
         it 'raises ContainerNotFound if container cannot be found and container name annotation is missing' do
@@ -262,7 +262,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
 
           expected_message = /Container authenticator was not found for requesting pod/
           expect { validator.(pod_request: pod_request) }
-            .to raise_error(Authentication::AuthnK8s::ContainerNotFound, expected_message)
+            .to raise_error(Errors::Authentication::AuthnK8s::ContainerNotFound, expected_message)
         end
 
         it 'does not raise errors if all checks pass' do

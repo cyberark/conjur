@@ -109,7 +109,7 @@ module Authentication
       # def validate_authenticator_enabled(service_name)
       #   authenticator_name = "authn-k8s/#{service_name}"
       #   valid = available_authenticators.include?(authenticator_name)
-      #   raise Authentication::AuthenticatorNotFound, authenticator_name unless valid
+      #   raise Errors::Authentication::AuthenticatorNotFound, authenticator_name unless valid
       # end
 
       # def available_authenticators
