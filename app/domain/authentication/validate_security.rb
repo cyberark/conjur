@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'authentication/webservices'
-require 'authentication/errors'
+require 'errors'
 
 module Authentication
 

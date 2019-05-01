@@ -1,6 +1,6 @@
 require 'uri'
 require 'json'
-require 'authentication/errors'
+require 'errors'
 
 module Authentication
   module AuthnOidc

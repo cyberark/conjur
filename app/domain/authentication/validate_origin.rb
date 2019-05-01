@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'authentication/errors'
+require 'errors'
 
 module Authentication
 

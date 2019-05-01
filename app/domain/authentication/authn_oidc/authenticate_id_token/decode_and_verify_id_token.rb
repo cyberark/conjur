@@ -1,6 +1,6 @@
 require 'uri'
 require 'openid_connect'
-require 'authentication/errors'
+require 'errors'
 
 module Authentication
   module AuthnOidc

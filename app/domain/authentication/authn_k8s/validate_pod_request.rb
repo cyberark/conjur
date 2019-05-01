@@ -1,7 +1,7 @@
 #require_relative 'host'
 require 'forwardable'
 require 'command_class'
-require 'authentication/errors'
+require 'errors'
 
 module Authentication
   module AuthnK8s
