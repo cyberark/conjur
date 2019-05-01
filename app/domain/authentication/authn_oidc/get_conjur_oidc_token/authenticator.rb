@@ -8,6 +8,7 @@ module Authentication
 
       Authenticator = CommandClass.new(
         dependencies: {
+          resource_repo: ::Resource
         },
         inputs: %i(input oidc_id_token_details)
       ) do
@@ -46,7 +47,7 @@ module Authentication
         end
 
         def service
-          @service ||= Resource["#{@input.account}:webservice:conjur/#{@input.authenticator_name}/#{@input.service_id}"]
+          @service ||= @resource_repo["#{@input.account}:webservice:conjur/#{@input.authenticator_name}/#{@input.service_id}"]
         end
 
         def no_username_err_msg
