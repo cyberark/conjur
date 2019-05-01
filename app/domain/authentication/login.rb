@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'command_class'
-require 'authentication/errors'
+require 'errors'
 
 module Authentication
 
