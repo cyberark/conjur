@@ -10,12 +10,12 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
     module Conjur
 
       RequiredResourceMissing = Util::ErrorClassWithCode.new(
-        msg: "Missing required resource: {0}",
+        msg: "Missing required resource: {0-resource-name}",
         code: "CONJ00036E"
       )
 
       RequiredSecretMissing = Util::ErrorClassWithCode.new(
-        msg: "Missing value for resource: {0}",
+        msg: "Missing value for resource: {0-resource-name}",
         code: "CONJ00037E"
       )
 
@@ -24,7 +24,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
     module Authentication
 
       AuthenticatorNotFound = ::Util::ErrorClassWithCode.new(
-        msg: "'{0}' wasn't in the available authenticators",
+        msg: "'{0-authenticator-name}' wasn't in the available authenticators",
         code: "CONJ00001E"
       )
 
@@ -41,20 +41,20 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       module AuthenticatorClass
 
         DoesntStartWithAuthn = ::Util::ErrorClassWithCode.new(
-          msg: "'{0}' is not a valid authenticator parent module, because it does " +
+          msg: "'{0-authenticator-parent-name}' is not a valid authenticator parent module, because it does " +
             "not begin with 'Authn'",
           code: "CONJ00038E"
         )
 
         NotNamedAuthenticator = ::Util::ErrorClassWithCode.new(
-          msg: "'{0}' is not a valid authenticator name.  The actual class " +
-            "implementing the authenticator must be named 'Authenticator'",
+          msg: "'{0-authenticator-name}' is not a valid authenticator name. " +
+            "The actual class implementing the authenticator must be named 'Authenticator'",
           code: "CONJ00039E"
         )
 
         MissingValidMethod = ::Util::ErrorClassWithCode.new(
-          msg: "'{0}' is not a valid authenticator, because it does not have " +
-            "a `:valid?(input)` method.",
+          msg: "'{0-authenticator-name}' is not a valid authenticator, because " +
+            "it does not have a `:valid?(input)` method.",
           code: "CONJ00040E"
         )
 
@@ -63,27 +63,27 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       module Security
 
         NotWhitelisted = ::Util::ErrorClassWithCode.new(
-          msg: "'{0}' not whitelisted in CONJUR_AUTHENTICATORS",
+          msg: "'{0-authenticator-name}' is not whitelisted in CONJUR_AUTHENTICATORS",
           code: "CONJ00004E"
         )
 
         ServiceNotDefined = ::Util::ErrorClassWithCode.new(
-          msg: "Webservice '{0}' is not defined in the Conjur policy",
+          msg: "Webservice '{0-webservice-name}' is not defined in the Conjur policy",
           code: "CONJ00005E"
         )
 
         UserNotAuthorizedInConjur = ::Util::ErrorClassWithCode.new(
-          msg: "User '{0}' is not authorized in the Conjur policy",
+          msg: "User '{0-user-name}' is not authorized in the Conjur policy",
           code: "CONJ00006E"
         )
 
         UserNotDefinedInConjur = ::Util::ErrorClassWithCode.new(
-          msg: "User '{0}' is not defined in Conjur",
+          msg: "User '{0-user-name}' is not defined in Conjur",
           code: "CONJ00007E"
         )
 
         AccountNotDefined = ::Util::ErrorClassWithCode.new(
-          msg: "account '{0}' is not defined in Conjur",
+          msg: "account '{0-account-name}' is not defined in Conjur",
           code: "CONJ00008E"
         )
 
@@ -92,7 +92,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       module RequestBody
 
         MissingRequestParam = ::Util::ErrorClassWithCode.new(
-          msg: "field '{0}' is missing or empty in request body",
+          msg: "field '{0-field-name}' is missing or empty in request body",
           code: "CONJ00009E"
         )
 
@@ -116,7 +116,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         IdTokenFieldNotFoundOrEmpty = ::Util::ErrorClassWithCode.new(
-          msg: "Field '{0}' not found or empty in ID Token",
+          msg: "Field '{0-field-name}' not found or empty in ID Token",
           code: "CONJ00013E"
         )
 
@@ -154,17 +154,17 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       module AuthnK8s
 
         WebserviceNotFound = ::Util::ErrorClassWithCode.new(
-          msg: "Webservice '{0}' wasn't found",
+          msg: "Webservice '{0-webservice-name}' wasn't found",
           code: "CONJ00019E"
         )
 
         HostNotFound = ::Util::ErrorClassWithCode.new(
-          msg: "Host '{0}' wasn't found",
+          msg: "Host '{0-host-name}' wasn't found",
           code: "CONJ00020E"
         )
 
         HostNotAuthorized = ::Util::ErrorClassWithCode.new(
-          msg: "'{0}' does not have 'authenticate' privilege on {1}",
+          msg: "'{0-hostname}' does not have 'authenticate' privilege on {1-service-name}",
           code: "CONJ00021E"
         )
 
@@ -174,7 +174,8 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         CSRNamespaceMismatch = ::Util::ErrorClassWithCode.new(
-          msg: "Namespace in SPIFFE ID '{0}' must match namespace implied by common name '{1}'",
+          msg: "Namespace in SPIFFE ID '{0-cn-namespace}' must match namespace " +
+            "implied by common name '{1-spiffe-namespace}'",
           code: "CONJ00023E"
         )
 
@@ -190,7 +191,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         ControllerNotFound = ::Util::ErrorClassWithCode.new(
-          msg: "Kubernetes {0} {1} not found in namespace {2}",
+          msg: "Kubernetes {0-controller-name} {1-object-name} not found in namespace {2}",
           code: "CONJ00026E"
         )
 
@@ -243,11 +244,6 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         UnknownControllerType = ::Util::ErrorClassWithCode.new(
           msg: "Unknown Kubernetes controller type '{0}'",
           code: "CONJ00041E"
-        )
-
-        NoCnEntry = ::Util::ErrorClassWithCode.new(
-          msg: "Unknown Kubernetes controller type '{0}'",
-          code: "CONJ00042E"
         )
 
       end
