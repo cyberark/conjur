@@ -47,7 +47,7 @@ unless defined? LogMessages::Authentication::OriginValidated
         )
 
         OIDCProviderUri = ::Util::LogMessageWithCodeClass.new(
-          msg: "Working with provider {0}",
+          msg: "Working with provider {0-provider-uri}",
           code: "CONJ00007D"
         )
 
@@ -66,32 +66,32 @@ unless defined? LogMessages::Authentication::OriginValidated
       module AuthnK8s
 
         PodChannelOpen = ::Util::LogMessageWithCodeClass.new(
-          msg: "Pod '{0}' : channel open",
+          msg: "Pod '{0-pod-name}' : channel open",
           code: "CONJ00010D"
         )
 
         PodChannelClosed = ::Util::LogMessageWithCodeClass.new(
-          msg: "Pod '{0}' : channel closed",
+          msg: "Pod '{0-pod-name}' : channel closed",
           code: "CONJ00011D"
         )
 
         PodChannelData = ::Util::LogMessageWithCodeClass.new(
-          msg: "Pod '{0}', channel '{1}': {2}",
+          msg: "Pod '{0-pod-name}', channel '{1-cahnnel-name}': {2-message-data}",
           code: "CONJ00012D"
         )
 
         PodMessageData = ::Util::LogMessageWithCodeClass.new(
-          msg: "Pod: '{0}', message: '{1}', data: '{2}'",
+          msg: "Pod: '{0-pod-name}', message: '{1-message-type}', data: '{2-message-data}'",
           code: "CONJ00013D"
         )
 
         PodError = ::Util::LogMessageWithCodeClass.new(
-          msg: "Pod '{0}' error : '{1}'",
+          msg: "Pod '{0-pod-name}' error : '{1}'",
           code: "CONJ00014D"
         )
 
         CopySSLToPod = ::Util::LogMessageWithCodeClass.new(
-          msg: "Copying SSL cert to {0}/{1}",
+          msg: "Copying SSL cert to {0-pod-namespace}/{1-pod-name}",
           code: "CONJ00015D"
         )
 
