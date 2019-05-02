@@ -223,7 +223,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
       it "throws CertInstallationError if copy response error stream is not empty" do
         error_type = Errors::Authentication::AuthnK8s::CertInstallationError
         expected_error_text = "ExpectedCopyError"
-        expected_full_error_text = /Cert could not be copied to pod: ExpectedCopyError/
+        expected_full_error_text = /CONJ00027E.*ExpectedCopyError/
 
         allow(copy_response).to receive(:[])
           .with(:error)
@@ -236,7 +236,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
       it "throws CertInstallationError if copy response error stream is just whitespace" do
         error_type = Errors::Authentication::AuthnK8s::CertInstallationError
-        expected_full_error_text = /Cert could not be copied to pod: The server returned a blank error message/
+        expected_full_error_text = /CONJ00027E.*The server returned a blank error message/
 
         allow(copy_response).to receive(:[])
           .with(:error)

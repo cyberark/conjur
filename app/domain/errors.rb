@@ -3,7 +3,7 @@
 require 'util/trackable_error_class'
 
 unless defined? Errors::Authentication::AuthenticatorNotFound
-  # this wrapper is here so these classes will not be loaded by Rails
+  # This wrapper prevents classes from being loaded by Rails
   # auto-load. #TODO: fix this in a proper manner
 
   module Errors
@@ -24,7 +24,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
     module Authentication
 
       AuthenticatorNotFound = ::Util::TrackableErrorClass.new(
-        msg: "'{0-authenticator-name}' wasn't in the available authenticators",
+        msg: "Authenticator '{0-authenticator-name}' is not implemented in Conjur",
         code: "CONJ00001E"
       )
 
@@ -83,7 +83,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         AccountNotDefined = ::Util::TrackableErrorClass.new(
-          msg: "account '{0-account-name}' is not defined in Conjur",
+          msg: "Account '{0-account-name}' is not defined in Conjur",
           code: "CONJ00008E"
         )
 
@@ -92,7 +92,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       module RequestBody
 
         MissingRequestParam = ::Util::TrackableErrorClass.new(
-          msg: "field '{0-field-name}' is missing or empty in request body",
+          msg: "Field '{0-field-name}' is missing or empty in request body",
           code: "CONJ00009E"
         )
 
@@ -101,17 +101,17 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       module AuthnOidc
 
         ProviderDiscoveryTimeout = ::Util::TrackableErrorClass.new(
-          msg: "OIDC provider discovery failed with timeout error (provider_uri='{0}'). Reason: '{1}'",
+          msg: "OIDC provider discovery failed with timeout error (Provider URI: '{0}'). Reason: '{1}'",
           code: "CONJ00010E"
         )
 
         ProviderDiscoveryFailed = ::Util::TrackableErrorClass.new(
-          msg: "OIDC provider discovery failed (provider_uri='{0}'). Reason: '{1}'",
+          msg: "OIDC provider discovery failed (Provider URI: '{0}'). Reason: '{1}'",
           code: "CONJ00011E"
         )
 
         ProviderFetchCertificateFailed = ::Util::TrackableErrorClass.new(
-          msg: "Failed to fetch certificate from OIDC provider (provider_uri='{0}'). Reason: '{1}'",
+          msg: "Failed to fetch certificate from OIDC provider (Provider URI: '{0}'). Reason: '{1}'",
           code: "CONJ00012E"
         )
 
@@ -121,7 +121,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         IdTokenInvalidFormat = ::Util::TrackableErrorClass.new(
-          msg: "Invalid ID Token Format (3rdPartyError ='{0}')",
+          msg: "Invalid ID Token format (3rdPartyError ='{0}')",
           code: "CONJ00014E"
         )
 
@@ -131,7 +131,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         IdTokenExpired = ::Util::TrackableErrorClass.new(
-          msg: "ID Token Expired",
+          msg: "ID Token expired",
           code: "CONJ00016E"
         )
 
@@ -145,7 +145,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       module AuthnIam
 
         InvalidAWSHeaders = ::Util::TrackableErrorClass.new(
-          msg: "'Invalid or Expired AWS Headers: {0}",
+          msg: "'Invalid or expired AWS headers: {0}",
           code: "CONJ00018E"
         )
 
@@ -180,7 +180,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         PodNotFound = ::Util::TrackableErrorClass.new(
-          msg: "No Pod found for podname '{0}' in namespace '{1}'",
+          msg: "No pod found for '{0-pod-name}' in namespace '{1}'",
           code: "CONJ00024E"
         )
 
@@ -196,7 +196,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         CertInstallationError = ::Util::TrackableErrorClass.new(
-          msg: "Cert could not be copied to pod: {0}",
+          msg: "Certificate could not be copied to pod: {0}",
           code: "CONJ00027E"
         )
 
@@ -206,7 +206,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         MissingClientCertificate = ::Util::TrackableErrorClass.new(
-          msg: "The client SSL cert is missing from the header",
+          msg: "Client SSL certificate is missing from the header",
           code: "CONJ00029E"
         )
 
