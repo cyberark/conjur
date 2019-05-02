@@ -3,7 +3,7 @@
 require 'util/trackable_log_message_class'
 
 unless defined? LogMessages::Authentication::OriginValidated
-  # this wrapper is here so these classes will not be loaded by Rails
+  # This wrapper prevents classes from being loaded by Rails
   # auto-load. #TODO: fix this in a proper manner
 
   module LogMessages
@@ -37,7 +37,7 @@ unless defined? LogMessages::Authentication::OriginValidated
         )
 
         IDTokenDecodeSuccess = ::Util::TrackableLogMessageClass.new(
-          msg: "ID Token Decode succeeded",
+          msg: "ID Token decode succeeded",
           code: "CONJ00005D"
         )
 
@@ -47,17 +47,17 @@ unless defined? LogMessages::Authentication::OriginValidated
         )
 
         OIDCProviderUri = ::Util::TrackableLogMessageClass.new(
-          msg: "Working with provider {0-provider-uri}",
+          msg: "Working with OIDC Provider {0-provider-uri}",
           code: "CONJ00007D"
         )
 
         OIDCProviderDiscoverySuccess = ::Util::TrackableLogMessageClass.new(
-          msg: "Provider discovery succeeded",
+          msg: "OIDC Provider discovery succeeded",
           code: "CONJ00008D"
         )
 
         FetchProviderCertsSuccess = ::Util::TrackableLogMessageClass.new(
-          msg: "Fetched provider certificates successfully",
+          msg: "Fetched OIDC Provider certificates successfully",
           code: "CONJ00009D"
         )
 
@@ -91,7 +91,7 @@ unless defined? LogMessages::Authentication::OriginValidated
         )
 
         CopySSLToPod = ::Util::TrackableLogMessageClass.new(
-          msg: "Copying SSL cert to {0-pod-namespace}/{1-pod-name}",
+          msg: "Copying SSL certificate to {0-pod-namespace}/{1-pod-name}",
           code: "CONJ00015D"
         )
 

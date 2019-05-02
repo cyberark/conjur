@@ -97,7 +97,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
         .with(spiffe_name, spiffe_namespace)
         .and_return(nil)
 
-      expected_message = /No Pod found for podname '#{spiffe_name}' in namespace '#{spiffe_namespace}'/
+      expected_message = /CONJ00024E.*'#{spiffe_name}'.*'#{spiffe_namespace}'/
 
       expect { validator.(pod_request: pod_request) }
         .to raise_error(Errors::Authentication::AuthnK8s::PodNotFound, expected_message)
