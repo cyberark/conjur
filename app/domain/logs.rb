@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'util/log_message_with_code_class'
+require 'util/trackable_log_message_class'
 
 unless defined? LogMessages::Authentication::OriginValidated
   # this wrapper is here so these classes will not be loaded by Rails
@@ -10,19 +10,19 @@ unless defined? LogMessages::Authentication::OriginValidated
 
     module Authentication
 
-      OriginValidated = ::Util::LogMessageWithCodeClass.new(
+      OriginValidated = ::Util::TrackableLogMessageClass.new(
         msg: "Origin validated",
         code: "CONJ00003D"
       )
 
       module Security
 
-        SecurityValidated = ::Util::LogMessageWithCodeClass.new(
+        SecurityValidated = ::Util::TrackableLogMessageClass.new(
           msg: "Security validated",
           code: "CONJ00001D"
         )
 
-        UserNotAuthorized = ::Util::LogMessageWithCodeClass.new(
+        UserNotAuthorized = ::Util::TrackableLogMessageClass.new(
           msg: "User '{0}' is not authorized to authenticate with webservice '{1}'",
           code: "CONJ00002D"
         )
@@ -31,32 +31,32 @@ unless defined? LogMessages::Authentication::OriginValidated
 
       module AuthnOidc
 
-        ExtractedUsernameFromIDToked = ::Util::LogMessageWithCodeClass.new(
+        ExtractedUsernameFromIDToked = ::Util::TrackableLogMessageClass.new(
           msg: "Extracted username '{0}' from ID Token",
           code: "CONJ00004D"
         )
 
-        IDTokenDecodeSuccess = ::Util::LogMessageWithCodeClass.new(
+        IDTokenDecodeSuccess = ::Util::TrackableLogMessageClass.new(
           msg: "ID Token Decode succeeded",
           code: "CONJ00005D"
         )
 
-        IDTokenVerificationSuccess = ::Util::LogMessageWithCodeClass.new(
+        IDTokenVerificationSuccess = ::Util::TrackableLogMessageClass.new(
           msg: "ID Token verification succeeded",
           code: "CONJ00006D"
         )
 
-        OIDCProviderUri = ::Util::LogMessageWithCodeClass.new(
+        OIDCProviderUri = ::Util::TrackableLogMessageClass.new(
           msg: "Working with provider {0-provider-uri}",
           code: "CONJ00007D"
         )
 
-        OIDCProviderDiscoverySuccess = ::Util::LogMessageWithCodeClass.new(
+        OIDCProviderDiscoverySuccess = ::Util::TrackableLogMessageClass.new(
           msg: "Provider discovery succeeded",
           code: "CONJ00008D"
         )
 
-        FetchProviderCertsSuccess = ::Util::LogMessageWithCodeClass.new(
+        FetchProviderCertsSuccess = ::Util::TrackableLogMessageClass.new(
           msg: "Fetched provider certificates successfully",
           code: "CONJ00009D"
         )
@@ -65,32 +65,32 @@ unless defined? LogMessages::Authentication::OriginValidated
 
       module AuthnK8s
 
-        PodChannelOpen = ::Util::LogMessageWithCodeClass.new(
+        PodChannelOpen = ::Util::TrackableLogMessageClass.new(
           msg: "Pod '{0-pod-name}' : channel open",
           code: "CONJ00010D"
         )
 
-        PodChannelClosed = ::Util::LogMessageWithCodeClass.new(
+        PodChannelClosed = ::Util::TrackableLogMessageClass.new(
           msg: "Pod '{0-pod-name}' : channel closed",
           code: "CONJ00011D"
         )
 
-        PodChannelData = ::Util::LogMessageWithCodeClass.new(
+        PodChannelData = ::Util::TrackableLogMessageClass.new(
           msg: "Pod '{0-pod-name}', channel '{1-cahnnel-name}': {2-message-data}",
           code: "CONJ00012D"
         )
 
-        PodMessageData = ::Util::LogMessageWithCodeClass.new(
+        PodMessageData = ::Util::TrackableLogMessageClass.new(
           msg: "Pod: '{0-pod-name}', message: '{1-message-type}', data: '{2-message-data}'",
           code: "CONJ00013D"
         )
 
-        PodError = ::Util::LogMessageWithCodeClass.new(
+        PodError = ::Util::TrackableLogMessageClass.new(
           msg: "Pod '{0-pod-name}' error : '{1}'",
           code: "CONJ00014D"
         )
 
-        CopySSLToPod = ::Util::LogMessageWithCodeClass.new(
+        CopySSLToPod = ::Util::TrackableLogMessageClass.new(
           msg: "Copying SSL cert to {0-pod-namespace}/{1-pod-name}",
           code: "CONJ00015D"
         )
