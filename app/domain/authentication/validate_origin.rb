@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-require 'errors'
-
 module Authentication
 
+  Err = Errors::Authentication
   # Possible Errors Raised:
   # InvalidOrigin
 
@@ -15,7 +14,7 @@ module Authentication
   ) do
 
     def call
-      raise Errors::Authentication::InvalidOrigin unless role.valid_origin?(@input.origin)
+      raise Err::InvalidOrigin unless role.valid_origin?(@input.origin)
     end
 
     private

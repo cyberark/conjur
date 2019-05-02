@@ -9,7 +9,7 @@ module Authentication
           validate_and_decrypt_oidc_conjur_token: ValidateAndDecryptOidcConjurToken.new,
           enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
           token_factory: OidcTokenFactory.new,
-          validate_security: ::Authentication::ValidateSecurity.new,
+          validate_security: ::Authentication::Security::ValidateSecurity.new,
           validate_origin: ::Authentication::ValidateOrigin.new,
           audit_event: ::Authentication::AuditEvent.new
         },

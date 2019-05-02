@@ -20,12 +20,14 @@ module Authentication
       class ValidationError < StandardError
       end
 
+      Err = Errors::Authentication::AuthnK8s
+
       class << self
         # Gets a resolver class for a controller type.
         def for_controller controller_type
           const_get(controller_type.classify)
         rescue NameError
-          raise ValidationError, "Unknown Kubernetes controller type #{controller_type.inspect}"
+          raise Err::UnknownControllerType, controller_type.inspect
         end
       end
 

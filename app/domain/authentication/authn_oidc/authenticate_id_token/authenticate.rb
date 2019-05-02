@@ -1,10 +1,11 @@
 require 'command_class'
-require 'errors'
 
 module Authentication
   module AuthnOidc
     module AuthenticateIdToken
 
+      Log = LogMessages::Authentication::AuthnOidc
+      Err = Errors::Authentication::AuthnOidc
       # Possible Errors Raised:
       # IdTokenFieldNotFoundOrEmpty, AdminAuthenticationDenied
 
@@ -13,7 +14,7 @@ module Authentication
           enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
           fetch_oidc_secrets: AuthnOidc::Util::FetchOidcSecrets.new,
           token_factory: OidcTokenFactory.new,
-          validate_security: ValidateSecurity.new,
+          validate_security: ::Authentication::Security::ValidateSecurity.new,
           validate_origin: ValidateOrigin.new,
           audit_event: AuditEvent.new,
           decode_and_verify_id_token: DecodeAndVerifyIdToken.new,
@@ -72,9 +73,9 @@ module Authentication
         end
 
         def validate_conjur_username
-          raise Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty, id_token_username_field if conjur_username.to_s.empty?
-          raise Errors::Authentication::AuthnOidc::AdminAuthenticationDenied if admin?(conjur_username)
-          @logger.debug(::LogMessages::Authentication::AuthnOidc::ExtractedUsernameFromIDToked.new(conjur_username).to_s)
+          raise Err::IdTokenFieldNotFoundOrEmpty, id_token_username_field if conjur_username.to_s.empty?
+          raise Err::AdminAuthenticationDenied if admin?(conjur_username)
+          @logger.debug(Log::ExtractedUsernameFromIDToked.new(conjur_username).to_s)
         end
 
         def conjur_username
@@ -92,12 +93,13 @@ module Authentication
               user_id: @authenticator_input.username,
               enabled_authenticators: @enabled_authenticators
           )
-          @logger.debug(::LogMessages::Authentication::Security::SecurityValidated.new.to_s)
+
+          @logger.debug(LogMessages::Authentication::Security::SecurityValidated.new.to_s)
         end
 
         def validate_origin
           @validate_origin.(input: @authenticator_input)
-          @logger.debug(::LogMessages::Authentication::Origin::OriginValidated.new.to_s)
+          @logger.debug(LogMessages::Authentication::OriginValidated.new.to_s)
         end
 
         def audit_success
