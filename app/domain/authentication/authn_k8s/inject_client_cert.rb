@@ -1,9 +1,10 @@
 require 'command_class'
-require 'errors'
 
 module Authentication
   module AuthnK8s
 
+    Log = LogMessages::Authentication::AuthnK8s
+    Err = Errors::Authentication::AuthnK8s
     # Possible Errors Raised:
     # CSRIsMissingSpiffeId, CSRNamespaceMismatch, CertInstallationError
 
@@ -36,7 +37,7 @@ module Authentication
       def install_signed_cert
         pod_namespace = spiffe_id.namespace
         pod_name = spiffe_id.name
-        @logger.debug(::LogMessages::Authentication::AuthnK8s::CopySSLToPod.new(pod_namespace, pod_name).to_s)
+        @logger.debug(Log::CopySSLToPod.new(pod_namespace, pod_name).to_s)
 
         resp = @kubectl_exec.new.copy(
           pod_namespace: pod_namespace,
@@ -90,11 +91,11 @@ module Authentication
       end
 
       def validate_csr
-        raise Errors::Authentication::AuthnK8s::CSRIsMissingSpiffeId unless smart_csr.spiffe_id
+        raise Err::CSRIsMissingSpiffeId unless smart_csr.spiffe_id
 
         spiffe_namespace = spiffe_id.namespace
         cn_namespace = common_name.namespace
-        raise Errors::Authentication::AuthnK8s::CSRNamespaceMismatch.new(cn_namespace, spiffe_namespace) unless cn_namespace == spiffe_namespace
+        raise Err::CSRNamespaceMismatch.new(cn_namespace, spiffe_namespace) unless cn_namespace == spiffe_namespace
       end
 
       def smart_csr
@@ -108,7 +109,7 @@ module Authentication
       def validate_cert_installation(resp)
         error_stream = resp[:error]
         return if error_stream.nil? || error_stream.empty?
-        raise Errors::Authentication::AuthnK8s::CertInstallationError, cert_error(error_stream)
+        raise Err::CertInstallationError, cert_error(error_stream)
       end
 
       # In case there's a blank error message...

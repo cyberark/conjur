@@ -3,6 +3,8 @@ require 'util/error_class'
 
 module Conjur
 
+  Err = Errors::Conjur
+
   FetchRequiredSecrets = ::CommandClass.new(
     dependencies: { resource_repo: ::Resource },
     inputs: [:resource_ids]
@@ -18,13 +20,13 @@ module Conjur
 
     def validate_resources_exist
       resources.each do |id, rsc|
-        raise Errors::Conjur::RequiredResourceMissing, id unless rsc
+        raise Err::RequiredResourceMissing, id unless rsc
       end
     end
 
     def validate_secrets_exist
       secrets.each do |id, secret|
-        raise Errors::Conjur::RequiredSecretMissing, id unless secret
+        raise Err::RequiredSecretMissing, id unless secret
       end
     end
 

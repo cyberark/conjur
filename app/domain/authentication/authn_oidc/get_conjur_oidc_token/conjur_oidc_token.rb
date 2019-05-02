@@ -11,7 +11,7 @@ module Authentication
           fetch_oidc_secrets: AuthnOidc::Util::FetchOidcSecrets.new,
           oidc_client_class: ::Authentication::AuthnOidc::GetConjurOidcToken::Client,
           token_factory: OidcTokenFactory.new,
-          validate_security: ::Authentication::ValidateSecurity.new,
+          validate_security: ::Authentication::Security::ValidateSecurity.new,
           validate_origin: ::Authentication::ValidateOrigin.new,
           audit_event: ::Authentication::AuditEvent.new
         },

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Authentication::ValidateSecurity do
+RSpec.describe Authentication::Security::ValidateSecurity do
   let (:test_account) { 'test-account' }
   let (:non_existing_account) { 'non-existing' }
 
@@ -81,7 +81,7 @@ RSpec.describe Authentication::ValidateSecurity do
 
   context "A whitelisted, authorized webservice and authorized user" do
     subject do
-      Authentication::ValidateSecurity.new(
+      Authentication::Security::ValidateSecurity.new(
         role_class: full_access_role_class,
         webservice_resource_class: full_access_resource_class
       ).(
@@ -99,7 +99,7 @@ RSpec.describe Authentication::ValidateSecurity do
 
   context "A un-whitelisted, authorized webservice and authorized user" do
     subject do
-      Authentication::ValidateSecurity.new(
+      Authentication::Security::ValidateSecurity.new(
         role_class: full_access_role_class,
         webservice_resource_class: full_access_resource_class
       ).(
@@ -117,7 +117,7 @@ RSpec.describe Authentication::ValidateSecurity do
 
   context "A whitelisted, unauthorized webservice and authorized user" do
     subject do
-      Authentication::ValidateSecurity.new(
+      Authentication::Security::ValidateSecurity.new(
         role_class: full_access_role_class,
         webservice_resource_class: no_access_resource_class
       ).(
@@ -135,7 +135,7 @@ RSpec.describe Authentication::ValidateSecurity do
 
   context "A whitelisted, authorized webservice and non-existent user" do
     subject do
-      Authentication::ValidateSecurity.new(
+      Authentication::Security::ValidateSecurity.new(
         role_class: nil_user_role_class,
         webservice_resource_class: full_access_resource_class
       ).(
@@ -152,7 +152,7 @@ RSpec.describe Authentication::ValidateSecurity do
 
   context "A whitelisted, authorized webservice and unauthorized user" do
     subject do
-      Authentication::ValidateSecurity.new(
+      Authentication::Security::ValidateSecurity.new(
         role_class: no_access_role_class,
         webservice_resource_class: full_access_resource_class
       ).(
@@ -180,7 +180,7 @@ RSpec.describe Authentication::ValidateSecurity do
 
       context "when accessing the authorized one" do
         subject do
-          Authentication::ValidateSecurity.new(
+          Authentication::Security::ValidateSecurity.new(
             role_class: partial_access_role_class,
             webservice_resource_class: accessible_resource_class
           ).(
@@ -198,7 +198,7 @@ RSpec.describe Authentication::ValidateSecurity do
 
       context "when accessing the blocked one" do
         subject do
-          Authentication::ValidateSecurity.new(
+          Authentication::Security::ValidateSecurity.new(
             role_class: partial_access_role_class,
             webservice_resource_class: inaccessible_resource_class
           ).(
@@ -218,7 +218,7 @@ RSpec.describe Authentication::ValidateSecurity do
 
   context "An ENV lacking CONJUR_AUTHENTICATORS" do
     subject do
-      Authentication::ValidateSecurity.new(
+      Authentication::Security::ValidateSecurity.new(
         role_class: full_access_role_class,
         webservice_resource_class: full_access_resource_class
       ).(
@@ -236,7 +236,7 @@ RSpec.describe Authentication::ValidateSecurity do
 
   context "A non-existing account" do
     subject do
-      Authentication::ValidateSecurity.new(
+      Authentication::Security::ValidateSecurity.new(
         role_class: non_existing_account_role_class,
         webservice_resource_class: full_access_resource_class
       ).(

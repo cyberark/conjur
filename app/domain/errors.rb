@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'util/error_class'
+require 'util/error_class_with_code'
 
 unless defined? Errors::Authentication::AuthenticatorNotFound
   # this wrapper is here so these classes will not be loaded by Rails
@@ -9,12 +9,14 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
   module Errors
     module Conjur
 
-      RequiredResourceMissing = Util::ErrorClass.new(
-        'Missing required resource: {0}'
+      RequiredResourceMissing = Util::ErrorClassWithCode.new(
+        msg: "Missing required resource: {0}",
+        code: "CONJ00036E"
       )
 
-      RequiredSecretMissing = Util::ErrorClass.new(
-        'Missing value for resource: {0}'
+      RequiredSecretMissing = Util::ErrorClassWithCode.new(
+        msg: "Missing value for resource: {0}",
+        code: "CONJ00037E"
       )
 
     end
@@ -35,6 +37,28 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         msg: "Invalid origin",
         code: "CONJ00003E"
       )
+
+      module AuthenticatorClass
+
+        DoesntStartWithAuthn = ::Util::ErrorClassWithCode.new(
+          msg: "'{0}' is not a valid authenticator parent module, because it does " +
+            "not begin with 'Authn'",
+          code: "CONJ00038E"
+        )
+
+        NotNamedAuthenticator = ::Util::ErrorClassWithCode.new(
+          msg: "'{0}' is not a valid authenticator name.  The actual class " +
+            "implementing the authenticator must be named 'Authenticator'",
+          code: "CONJ00039E"
+        )
+
+        MissingValidMethod = ::Util::ErrorClassWithCode.new(
+          msg: "'{0}' is not a valid authenticator, because it does not have " +
+            "a `:valid?(input)` method.",
+          code: "CONJ00040E"
+        )
+
+      end
 
       module Security
 
@@ -206,19 +230,26 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00033E"
         )
 
-        module KubeClientFactory
+        MissingServiceAccountDir = ::Util::ErrorClassWithCode.new(
+          msg: "Kubernetes serviceaccount dir '{0}' does not exist",
+          code: "CONJ00034E"
+        )
 
-          MissingServiceAccountDir = ::Util::ErrorClassWithCode.new(
-            msg: "Kubernetes serviceaccount dir '{0}' does not exist",
-            code: "CONJ00034E"
-          )
+        MissingEnvVar = ::Util::ErrorClassWithCode.new(
+          msg: "Expected ENV variable '{0}' is not set",
+          code: "CONJ00035E"
+        )
 
-          MissingEnvVar = ::Util::ErrorClassWithCode.new(
-            msg: "Expected ENV variable '{0}' is not set",
-            code: "CONJ00035E"
-          )
+        UnknownControllerType = ::Util::ErrorClassWithCode.new(
+          msg: "Unknown Kubernetes controller type '{0}'",
+          code: "CONJ00041E"
+        )
 
-        end
+        NoCnEntry = ::Util::ErrorClassWithCode.new(
+          msg: "Unknown Kubernetes controller type '{0}'",
+          code: "CONJ00042E"
+        )
+
       end
     end
   end

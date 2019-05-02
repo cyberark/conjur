@@ -9,20 +9,9 @@ module Authentication
     #
     class Validation
 
-      DoesntStartWithAuthn = ::Util::ErrorClass.new(
-        "'{0}' is not a valid authenticator parent module, because it does " +
-        "not begin with 'Authn'"
-      )
-
-      NotNamedAuthenticator = ::Util::ErrorClass.new(
-        "'{0}' is not a valid authenticator name.  The actual class " +
-        "implementing the authenticator must be named 'Authenticator'"
-      )
-
-      MissingValidMethod = ::Util::ErrorClass.new(
-        "'{0}' is not a valid authenticator, because it does not have " +
-        "a `:valid?(input)` method."
-      )
+      Err = Errors::Authentication::AuthenticatorClass
+      # Possible Errors Raised:
+      # DoesntStartWithAuthn, NotNamedAuthenticator, MissingValidMethod
 
       def initialize(cls)
         @cls = cls
@@ -37,9 +26,9 @@ module Authentication
       end
 
       def validate!
-        raise DoesntStartWithAuthn, own_name unless valid_name?
-        raise NotNamedAuthenticator, parent_name unless valid_parent_name?
-        raise MissingValidMethod, own_name unless valid_interface?
+        raise Err::DoesntStartWithAuthn, own_name unless valid_name?
+        raise Err::NotNamedAuthenticator, parent_name unless valid_parent_name?
+        raise Err::MissingValidMethod, own_name unless valid_interface?
       end
 
       private

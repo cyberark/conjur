@@ -5,11 +5,12 @@ require 'rubygems/package'
 
 require 'active_support/time'
 require 'websocket-client-simple'
-require 'errors'
 
 module Authentication
   module AuthnK8s
 
+    Log = LogMessages::Authentication::AuthnK8s
+    Err = Errors::Authentication::AuthnK8s
     # Possible Errors Raised:
     # CommandTimedOut
 
@@ -36,7 +37,7 @@ module Authentication
 
         wait_for_close_message
 
-        raise Errors::Authentication::AuthnK8s::CommandTimedOut.new(@container, @pod_name) unless @channel_closed
+        raise Err::CommandTimedOut.new(@container, @pod_name) unless @channel_closed
 
         # TODO: raise an `WebsocketServerFailure` here in the case of ws :error
 
@@ -50,7 +51,7 @@ module Authentication
         if hs_error
           ws_client.emit(:error, "Websocket handshake error: #{hs_error.inspect}")
         else
-          @logger.debug(::LogMessages::Authentication::AuthnK8s::PodChannelOpen.new(@pod_name).to_s)
+          @logger.debug(Log::PodChannelOpen.new(@pod_name).to_s)
 
           if stdin
             data = WebSocketMessage.channel_byte('stdin') + body
@@ -67,12 +68,12 @@ module Authentication
         msg_data = wsmsg.data
 
         if msg_type == :binary
-          @logger.debug(::LogMessages::Authentication::AuthnK8s::PodChannelData
+          @logger.debug(Log::PodChannelData
                           .new(@pod_name, wsmsg.channel_name, msg_data).to_s
           )
           @message_log.save_message(wsmsg)
         elsif msg_type == :close
-          @logger.debug(::LogMessages::Authentication::AuthnK8s::PodMessageData
+          @logger.debug(Log::PodMessageData
                           .new(@pod_name, "close", msg_data).to_s
           )
           ws_client.close
@@ -81,14 +82,14 @@ module Authentication
 
       def on_close
         @channel_closed = true
-        @logger.debug(::LogMessages::Authentication::AuthnK8s::PodChannelClosed.new(@pod_name).to_s)
+        @logger.debug(Log::PodChannelClosed.new(@pod_name).to_s)
       end
 
       def on_error(err)
         @channel_closed = true
 
         error_info = err.inspect
-        @logger.debug(::LogMessages::Authentication::AuthnK8s::PodError.new(@pod_name, error_info).to_s)
+        @logger.debug(Log::PodError.new(@pod_name, error_info).to_s)
         @message_log.save_error_string(error_info)
       end
 

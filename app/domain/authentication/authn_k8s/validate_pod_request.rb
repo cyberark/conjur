@@ -1,11 +1,11 @@
 #require_relative 'host'
 require 'forwardable'
 require 'command_class'
-require 'errors'
 
 module Authentication
   module AuthnK8s
 
+    Err = Errors::Authentication::AuthnK8s
     # Possible Errors Raised:
     # WebserviceNotFound, HostNotAuthorized, PodNotFound
     # ContainerNotFound, ScopeNotSupported, ControllerNotFound
@@ -33,16 +33,16 @@ module Authentication
       private
 
       def validate_webservice_exists
-        raise Errors::Authentication::AuthnK8s::WebserviceNotFound, service_id unless webservice
+        raise Err::WebserviceNotFound, service_id unless webservice
       end
 
       def validate_host_can_access_service
         return if host_can_access_service?
-        raise Errors::Authentication::AuthnK8s::HostNotAuthorized.new(host.role.id, service_id)
+        raise Err::HostNotAuthorized.new(host.role.id, service_id)
       end
 
       def validate_pod_exists
-        raise Errors::Authentication::AuthnK8s::PodNotFound.new(pod_name, pod_namespace) unless pod
+        raise Err::PodNotFound.new(pod_name, pod_namespace) unless pod
       end
 
       def validate_pod_properties
@@ -53,17 +53,17 @@ module Authentication
       end
 
       def validate_container
-        raise Errors::Authentication::AuthnK8s::ContainerNotFound, container_name unless container
+        raise Err::ContainerNotFound, container_name unless container
       end
 
       def validate_scope
         return if k8s_host.permitted_scope?
-        raise Errors::Authentication::AuthnK8s::ScopeNotSupported, k8s_host.controller
+        raise Err::ScopeNotSupported, k8s_host.controller
       end
 
       def validate_controller
         return if controller_object
-        raise Errors::Authentication::AuthnK8s::ControllerNotFound.new(k8s_host.controller, k8s_host.object, k8s_host.namespace)
+        raise Err::ControllerNotFound.new(k8s_host.controller, k8s_host.object, k8s_host.namespace)
       end
 
       def validate_pod_metadata
