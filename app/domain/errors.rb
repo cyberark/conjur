@@ -116,7 +116,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         IdTokenFieldNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
-          msg: "Field '{0-field-name}' not found or empty in ID Token",
+          msg: "Field '{0-field-name}' not found or empty in ID Token. This field is defined in the id-token-user-property variable.",
           code: "CONJ00013E"
         )
 

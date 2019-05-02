@@ -32,7 +32,7 @@ unless defined? LogMessages::Authentication::OriginValidated
       module AuthnOidc
 
         ExtractedUsernameFromIDToked = ::Util::TrackableLogMessageClass.new(
-          msg: "Extracted username '{0}' from ID Token",
+          msg: "Extracted username '{0}' from ID Token field '{1-id-token-username-field}'",
           code: "CONJ00004D"
         )
 
