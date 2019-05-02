@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require 'command_class'
-require 'errors'
+require 'authentication/validate_security'
 
 module Authentication
 
+  Err = Errors::Authentication
   # Possible Errors Raised:
   # AuthenticatorNotFound, InvalidCredentials
 
@@ -12,7 +13,7 @@ module Authentication
     dependencies: {
       enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
       token_factory: TokenFactory.new,
-      validate_security: ::Authentication::ValidateSecurity.new,
+      validate_security: ::Authentication::Security::ValidateSecurity.new,
       validate_origin: ::Authentication::ValidateOrigin.new,
       audit_event: ::Authentication::AuditEvent.new
     },
@@ -38,11 +39,11 @@ module Authentication
     end
 
     def validate_authenticator_exists
-      raise Errors::Authentication::AuthenticatorNotFound, @authenticator_input.authenticator_name unless authenticator
+      raise Err::AuthenticatorNotFound, @authenticator_input.authenticator_name unless authenticator
     end
 
     def validate_credentials
-      raise Errors::Authentication::InvalidCredentials unless authenticator.valid?(@authenticator_input)
+      raise Err::InvalidCredentials unless authenticator.valid?(@authenticator_input)
     end
 
     def validate_security

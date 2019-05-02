@@ -28,7 +28,7 @@ RSpec.describe 'Authentication::Authenticate' do
   let (:mocked_origin_validator) { double("MockOriginValidator") }
 
   before(:each) do
-    allow(Authentication::ValidateSecurity)
+    allow(Authentication::Security::ValidateSecurity)
       .to receive(:new)
             .and_return(mocked_security_validator)
     allow(mocked_security_validator).to receive(:call)

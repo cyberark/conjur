@@ -2,13 +2,18 @@
 
 require 'util/log_message_with_code_class'
 
-unless defined? LogMessages::Authentication::Security::SecurityValidated
+unless defined? LogMessages::Authentication::OriginValidated
   # this wrapper is here so these classes will not be loaded by Rails
   # auto-load. #TODO: fix this in a proper manner
 
   module LogMessages
 
     module Authentication
+
+      OriginValidated = ::Util::LogMessageWithCodeClass.new(
+        msg: "Origin validated",
+        code: "CONJ00003D"
+      )
 
       module Security
 
@@ -20,15 +25,6 @@ unless defined? LogMessages::Authentication::Security::SecurityValidated
         UserNotAuthorized = ::Util::LogMessageWithCodeClass.new(
           msg: "User '{0}' is not authorized to authenticate with webservice '{1}'",
           code: "CONJ00002D"
-        )
-
-      end
-
-      module Origin
-
-        OriginValidated = ::Util::LogMessageWithCodeClass.new(
-          msg: "Origin validated",
-          code: "CONJ00003D"
         )
 
       end
