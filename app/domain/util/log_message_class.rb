@@ -5,7 +5,7 @@
 module Util
   class LogMessageClass
     def self.new(msg)
-      Class.new(String) do
+      Class.new do
         def initialize(*args)
           @args = args
         end
