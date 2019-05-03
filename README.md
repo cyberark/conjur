@@ -1,8 +1,5 @@
 # Conjur
 
-[![Issues ready for work](https://img.shields.io/waffle/label/cyberark/conjur/ready.svg?label=issues%20ready%20for%20work)][waffle]
-[![Issues in progress](https://img.shields.io/waffle/label/cyberark/conjur/in%20progress.svg)][waffle]
-
 [![Conjur on DockerHub](https://img.shields.io/docker/pulls/cyberark/conjur.svg)](https://hub.docker.com/r/cyberark/conjur/)
 [![Conjur on Quay.io](https://img.shields.io/badge/quay%20build-automated-0db7ed.svg)](https://quay.io/repository/cyberark/conjur)
 
@@ -10,7 +7,6 @@
 [![Follow Conjur on Twitter](https://img.shields.io/twitter/follow/conjurinc.svg?style=social&label=Follow%20%40ConjurInc)][twitter]
 
 [slack]: https://slackin-conjur.herokuapp.com "Join our Slack community"
-[waffle]: https://waffle.io/cyberark/conjur "Conjur issues on Waffle.io"
 [quay]: https://quay.io/repository/cyberark/conjur "Conjur container image on Quay.io"
 [twitter]: https://twitter.com/intent/user?screen_name=ConjurInc "Follow Conjur on Twitter"
 
