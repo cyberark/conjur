@@ -30,10 +30,10 @@ Feature: Users can authenticate with OIDC authenticator
     And I successfully set provider-uri variable
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    And I save the log data from bookmark
+    And I save my place in the log file
     When I authenticate via OIDC with id token
     Then it is unauthorized
-    And The log filtered from bookmark contains messages:
+    And The following appears in the log after my savepoint:
     """
     Conjur::RequiredResourceMissing
     """
@@ -68,10 +68,10 @@ Feature: Users can authenticate with OIDC authenticator
     And I successfully set id-token-user-property variable
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    And I save the log data from bookmark
+    And I save my place in the log file
     When I authenticate via OIDC with id token
     Then it is unauthorized
-    And The log filtered from bookmark contains messages:
+    And The following appears in the log after my savepoint:
     """
     Conjur::RequiredResourceMissing
     """
@@ -101,10 +101,10 @@ Feature: Users can authenticate with OIDC authenticator
     And I successfully set OIDC variables
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    And I save the log data from bookmark
+    And I save my place in the log file
     When I authenticate via OIDC with id token
     Then it is unauthorized
-    And The log filtered from bookmark contains messages:
+    And The following appears in the log after my savepoint:
     """
     Authentication::ServiceNotDefined
     """
@@ -142,10 +142,10 @@ Feature: Users can authenticate with OIDC authenticator
     And I successfully set OIDC variables
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    And I save the log data from bookmark
+    And I save my place in the log file
     When I authenticate via OIDC with id token
     Then it is unauthorized
-    And The log filtered from bookmark contains messages:
+    And The following appears in the log after my savepoint:
     """
     Authentication::NotAuthorizedInConjur
     """
