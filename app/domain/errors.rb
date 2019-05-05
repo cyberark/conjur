@@ -41,7 +41,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       module AuthenticatorClass
 
         DoesntStartWithAuthn = ::Util::TrackableErrorClass.new(
-          msg: "'{0-authenticator-parent-name}' is not a valid authenticator parent module, because it does " +
+          msg: "'{0-authenticator-parent-name}' is not a valid authenticator parent module because it does " +
             "not begin with 'Authn'",
           code: "CONJ00038E"
         )
@@ -53,7 +53,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         MissingValidMethod = ::Util::TrackableErrorClass.new(
-          msg: "'{0-authenticator-name}' is not a valid authenticator, because " +
+          msg: "'{0-authenticator-name}' is not a valid authenticator because " +
             "it does not have a `:valid?(input)` method.",
           code: "CONJ00040E"
         )
@@ -101,17 +101,17 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       module AuthnOidc
 
         ProviderDiscoveryTimeout = ::Util::TrackableErrorClass.new(
-          msg: "OIDC provider discovery failed with timeout error (Provider URI: '{0}'). Reason: '{1}'",
+          msg: "OIDC Provider discovery failed with timeout error (Provider URI: '{0}'). Reason: '{1}'",
           code: "CONJ00010E"
         )
 
         ProviderDiscoveryFailed = ::Util::TrackableErrorClass.new(
-          msg: "OIDC provider discovery failed (Provider URI: '{0}'). Reason: '{1}'",
+          msg: "OIDC Provider discovery failed (Provider URI: '{0}'). Reason: '{1}'",
           code: "CONJ00011E"
         )
 
         ProviderFetchCertificateFailed = ::Util::TrackableErrorClass.new(
-          msg: "Failed to fetch certificate from OIDC provider (Provider URI: '{0}'). Reason: '{1}'",
+          msg: "Failed to fetch certificate from OIDC Provider (Provider URI: '{0}'). Reason: '{1}'",
           code: "CONJ00012E"
         )
 
