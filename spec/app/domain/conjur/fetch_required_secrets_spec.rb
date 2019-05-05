@@ -42,7 +42,7 @@ RSpec.describe 'Conjur::FetchRequiredSecrets' do
 
     it 'raises RequiredResourceMissing' do
       expect{ fetch_secrets(repo_missing_resource) }.to raise_error(
-        Conjur::RequiredResourceMissing
+        Errors::Conjur::RequiredResourceMissing
       )
     end
   end
@@ -59,7 +59,7 @@ RSpec.describe 'Conjur::FetchRequiredSecrets' do
 
     it 'raises RequiredSecretMissing' do
       expect{ fetch_secrets(repo_missing_secret) }.to raise_error(
-        Conjur::RequiredSecretMissing
+        Errors::Conjur::RequiredSecretMissing
       )
     end
   end

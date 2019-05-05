@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Authentication::ValidateSecurity do
+RSpec.describe Authentication::Security::ValidateSecurity do
   let (:test_account) { 'test-account' }
   let (:non_existing_account) { 'non-existing' }
 
@@ -81,7 +81,7 @@ RSpec.describe Authentication::ValidateSecurity do
 
   context "A whitelisted, authorized webservice and authorized user" do
     subject do
-      Authentication::ValidateSecurity.new(
+      Authentication::Security::ValidateSecurity.new(
         role_class: full_access_role_class,
         webservice_resource_class: full_access_resource_class
       ).(
@@ -99,7 +99,7 @@ RSpec.describe Authentication::ValidateSecurity do
 
   context "A un-whitelisted, authorized webservice and authorized user" do
     subject do
-      Authentication::ValidateSecurity.new(
+      Authentication::Security::ValidateSecurity.new(
         role_class: full_access_role_class,
         webservice_resource_class: full_access_resource_class
       ).(
@@ -111,13 +111,13 @@ RSpec.describe Authentication::ValidateSecurity do
     end
 
     it "raises a NotWhitelisted error" do
-      expect { subject }.to raise_error(Authentication::Security::NotWhitelisted)
+      expect { subject }.to raise_error(Errors::Authentication::Security::NotWhitelisted)
     end
   end
 
   context "A whitelisted, unauthorized webservice and authorized user" do
     subject do
-      Authentication::ValidateSecurity.new(
+      Authentication::Security::ValidateSecurity.new(
         role_class: full_access_role_class,
         webservice_resource_class: no_access_resource_class
       ).(
@@ -129,13 +129,13 @@ RSpec.describe Authentication::ValidateSecurity do
     end
 
     it "raises a ServiceNotDefined error" do
-      expect { subject }.to raise_error(Authentication::Security::ServiceNotDefined)
+      expect { subject }.to raise_error(Errors::Authentication::Security::ServiceNotDefined)
     end
   end
 
   context "A whitelisted, authorized webservice and non-existent user" do
     subject do
-      Authentication::ValidateSecurity.new(
+      Authentication::Security::ValidateSecurity.new(
         role_class: nil_user_role_class,
         webservice_resource_class: full_access_resource_class
       ).(
@@ -146,13 +146,13 @@ RSpec.describe Authentication::ValidateSecurity do
       )
     end
     it "raises a NotDefinedInConjur error" do
-      expect { subject }.to raise_error(Authentication::Security::UserNotDefinedInConjur)
+      expect { subject }.to raise_error(Errors::Authentication::Security::UserNotDefinedInConjur)
     end
   end
 
   context "A whitelisted, authorized webservice and unauthorized user" do
     subject do
-      Authentication::ValidateSecurity.new(
+      Authentication::Security::ValidateSecurity.new(
         role_class: no_access_role_class,
         webservice_resource_class: full_access_resource_class
       ).(
@@ -164,7 +164,7 @@ RSpec.describe Authentication::ValidateSecurity do
     end
 
     it "raises a NotAuthorizedInConjur error" do
-      expect { subject }.to raise_error(Authentication::Security::UserNotAuthorizedInConjur
+      expect { subject }.to raise_error(Errors::Authentication::Security::UserNotAuthorizedInConjur
       )
     end
   end
@@ -180,7 +180,7 @@ RSpec.describe Authentication::ValidateSecurity do
 
       context "when accessing the authorized one" do
         subject do
-          Authentication::ValidateSecurity.new(
+          Authentication::Security::ValidateSecurity.new(
             role_class: partial_access_role_class,
             webservice_resource_class: accessible_resource_class
           ).(
@@ -198,7 +198,7 @@ RSpec.describe Authentication::ValidateSecurity do
 
       context "when accessing the blocked one" do
         subject do
-          Authentication::ValidateSecurity.new(
+          Authentication::Security::ValidateSecurity.new(
             role_class: partial_access_role_class,
             webservice_resource_class: inaccessible_resource_class
           ).(
@@ -210,7 +210,7 @@ RSpec.describe Authentication::ValidateSecurity do
         end
 
         it "fails" do
-          expect { subject }.to raise_error(Authentication::Security::UserNotAuthorizedInConjur)
+          expect { subject }.to raise_error(Errors::Authentication::Security::UserNotAuthorizedInConjur)
         end
       end
     end
@@ -218,7 +218,7 @@ RSpec.describe Authentication::ValidateSecurity do
 
   context "An ENV lacking CONJUR_AUTHENTICATORS" do
     subject do
-      Authentication::ValidateSecurity.new(
+      Authentication::Security::ValidateSecurity.new(
         role_class: full_access_role_class,
         webservice_resource_class: full_access_resource_class
       ).(
@@ -236,7 +236,7 @@ RSpec.describe Authentication::ValidateSecurity do
 
   context "A non-existing account" do
     subject do
-      Authentication::ValidateSecurity.new(
+      Authentication::Security::ValidateSecurity.new(
         role_class: non_existing_account_role_class,
         webservice_resource_class: full_access_resource_class
       ).(
@@ -248,7 +248,7 @@ RSpec.describe Authentication::ValidateSecurity do
     end
 
     it "raises an AccountNotDefined error" do
-      expect { subject }.to raise_error(Authentication::Security::AccountNotDefined)
+      expect { subject }.to raise_error(Errors::Authentication::Security::AccountNotDefined)
     end
   end
 end

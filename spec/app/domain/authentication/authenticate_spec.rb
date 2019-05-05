@@ -28,7 +28,7 @@ RSpec.describe 'Authentication::Authenticate' do
   let (:mocked_origin_validator) { double("MockOriginValidator") }
 
   before(:each) do
-    allow(Authentication::ValidateSecurity)
+    allow(Authentication::Security::ValidateSecurity)
       .to receive(:new)
             .and_return(mocked_security_validator)
     allow(mocked_security_validator).to receive(:call)
@@ -92,7 +92,7 @@ RSpec.describe 'Authentication::Authenticate' do
 
     it "raises AuthenticatorNotFound" do
       expect { subject }.to raise_error(
-                              Authentication::AuthenticatorNotFound
+                              Errors::Authentication::AuthenticatorNotFound
                             )
     end
   end
@@ -121,7 +121,7 @@ RSpec.describe 'Authentication::Authenticate' do
 
       it "raises InvalidCredentials" do
         expect { subject }.to raise_error(
-                                Authentication::InvalidCredentials
+                                Errors::Authentication::InvalidCredentials
                               )
       end
     end

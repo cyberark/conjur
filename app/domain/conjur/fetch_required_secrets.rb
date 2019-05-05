@@ -3,12 +3,7 @@ require 'util/error_class'
 
 module Conjur
 
-  RequiredResourceMissing = Util::ErrorClass.new(
-    'Missing required resource: {0}'
-  )
-  RequiredSecretMissing = Util::ErrorClass.new(
-    'Missing value for resource: {0}'
-  )
+  Err = Errors::Conjur
 
   FetchRequiredSecrets = ::CommandClass.new(
     dependencies: { resource_repo: ::Resource },
@@ -25,13 +20,13 @@ module Conjur
 
     def validate_resources_exist
       resources.each do |id, rsc|
-        raise RequiredResourceMissing, id unless rsc
+        raise Err::RequiredResourceMissing, id unless rsc
       end
     end
 
     def validate_secrets_exist
       secrets.each do |id, secret|
-        raise RequiredSecretMissing, id unless secret
+        raise Err::RequiredSecretMissing, id unless secret
       end
     end
 

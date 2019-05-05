@@ -1,11 +1,12 @@
 require 'uri'
 require 'openid_connect'
-require 'authentication/errors'
 
 module Authentication
   module AuthnOidc
     module AuthenticateIdToken
 
+      Log = LogMessages::Authentication::AuthnOidc
+      Err = Errors::Authentication::AuthnOidc
       # Possible Errors Raised:
       # IdTokenExpired, IdTokenVerifyFailed, IdTokenInvalidFormat
 
@@ -29,7 +30,7 @@ module Authentication
 
         def decode_id_token
           decoded_id_token
-          @logger.debug("[OIDC] Decode ID Token succeeded")
+          @logger.debug(Log::IDTokenDecodeSuccess.new.to_s)
         end
 
         def verify_decoded_id_token
@@ -40,11 +41,11 @@ module Authentication
                        nonce: decoded_attributes[:nonce] }
 
           decoded_id_token.verify!(expected)
-          @logger.debug("[OIDC] ID Token verification succeeded")
+          @logger.debug(Log::IDTokenVerificationSuccess.new.to_s)
         rescue OpenIDConnect::ResponseObject::IdToken::ExpiredToken
-          raise Authentication::AuthnOidc::IdTokenExpired
+          raise Err::IdTokenExpired
         rescue => e
-          raise Authentication::AuthnOidc::IdTokenVerifyFailed, e.inspect
+          raise Err::IdTokenVerifyFailed, e.inspect
         end
 
         def fetch_certs
@@ -61,7 +62,7 @@ module Authentication
             @certs
           )
         rescue => e
-          raise Authentication::AuthnOidc::IdTokenInvalidFormat, e.inspect
+          raise Err::IdTokenInvalidFormat, e.inspect
         end
       end
     end

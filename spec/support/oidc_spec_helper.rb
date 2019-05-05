@@ -82,7 +82,7 @@ shared_examples_for "it fails when variable is missing or has no value" do |vari
                          .with(/#{account}:variable:conjur\/authn-oidc\/#{service}\/#{variable}/)
                          .and_return(nil)
 
-    expect { subject }.to raise_error(Conjur::RequiredResourceMissing)
+    expect { subject }.to raise_error(Errors::Conjur::RequiredResourceMissing)
   end
 
   it "fails when variable has no value" do
@@ -90,7 +90,7 @@ shared_examples_for "it fails when variable is missing or has no value" do |vari
                          .with(/#{account}:variable:conjur\/authn-oidc\/#{service}\/#{variable}/)
                          .and_return(resource_without_value)
 
-    expect { subject }.to raise_error(Conjur::RequiredSecretMissing)
+    expect { subject }.to raise_error(Errors::Conjur::RequiredSecretMissing)
   end
 end
 

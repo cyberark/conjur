@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
-# A simple factory for creating custom RuntimeError classes without
-# the typical boilerplate
+# A factory for creating a LogMessage
 #
 module Util
-
-  class ErrorClass
+  class LogMessageClass
     def self.new(msg)
-      Class.new(RuntimeError) do
+      Class.new do
         def initialize(*args)
           @args = args
         end

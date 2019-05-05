@@ -23,7 +23,7 @@ module Authentication
           decoded_id_token_key_value = decoded_body(request_body).assoc(id_token_field)
 
           # check that id token field exists and has some value
-          raise Authentication::RequestBody::MissingRequestParam, id_token_field if decoded_id_token_key_value.nil? ||
+          raise Errors::Authentication::RequestBody::MissingRequestParam, id_token_field if decoded_id_token_key_value.nil? ||
             !decoded_id_token_key_value.include?(id_token_field) ||
             !decoded_id_token_key_value.last.present?
 
