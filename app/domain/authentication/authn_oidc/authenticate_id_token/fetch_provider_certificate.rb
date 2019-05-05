@@ -12,20 +12,28 @@ module Authentication
 
       FetchProviderCertificate = CommandClass.new(
         dependencies: {
-          logger: Rails.logger
+          logger: Rails.logger,
+          cert_cache: lambda {::Authentication::AuthnOidc::CertificateCache.instance}
         },
-        inputs: %i(provider_uri)
+        inputs: %i(provider_uri force_read_from_provider)
       ) do
 
         def call
           @logger.debug(Log::OIDCProviderUri.new(@provider_uri).to_s)
 
           # provider discovery might throw exception. Let it propagate upward
-          discover_provider
-          fetch_certs
+          fetch_cert_via_cache
         end
 
         private
+
+        def fetch_cert_via_cache
+          cert_cache_instance = @cert_cache.call
+          cert_cache_instance.fetch @provider_uri, @force_read_from_provider do
+            discover_provider
+            fetch_certs
+          end
+        end
 
         def discover_provider
           @discovered_provider = OpenIDConnect::Discovery::Provider::Config.discover!(@provider_uri)
