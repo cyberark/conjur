@@ -48,8 +48,9 @@ module Authentication
           raise Err::IdTokenVerifyFailed, e.inspect
         end
 
-        def fetch_certs
-          @certs = @fetch_provider_certificate.(provider_uri: @provider_uri)
+        def fetch_certs(force_read = false)
+          @certs = @fetch_provider_certificate.(provider_uri: @provider_uri,
+            force_read_from_provider: force_read)
         end
 
         def decoded_attributes
@@ -61,8 +62,17 @@ module Authentication
             @id_token_jwt,
             @certs
           )
-        rescue => e
-          raise Err::IdTokenInvalidFormat, e.inspect
+        rescue
+          # maybe failed due to certificate rotation. Force cache to read it again
+          fetch_certs true
+          begin
+            @decoded_id_token ||= OpenIDConnect::ResponseObject::IdToken.decode(
+              @id_token_jwt,
+              @certs
+            )
+          rescue => e
+            raise Err::IdTokenInvalidFormat, e.inspect
+          end
         end
       end
     end
