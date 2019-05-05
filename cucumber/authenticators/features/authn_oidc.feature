@@ -81,10 +81,10 @@ Feature: Users can authneticate with OIDC authenticator
   Scenario: Non-existing username in ID token is denied
     Given I get authorization code for username "not_in_conjur" and password "not_in_conjur"
     And I fetch an ID Token
-    And I save the log data from bookmark
+    And I save my place in the log file
     When I authenticate via OIDC with id token
     Then it is unauthorized
-    And The log filtered from bookmark contains messages:
+    And The following appears in the log after my savepoint:
     """
     Authentication::NotDefinedInConjur
     """
@@ -96,10 +96,10 @@ Feature: Users can authneticate with OIDC authenticator
     """
     And I get authorization code for username "bob" and password "bob"
     And I fetch an ID Token
-    And I save the log data from bookmark
+    And I save my place in the log file
     When I authenticate via OIDC with id token
     Then it is unauthorized
-    And The log filtered from bookmark contains messages:
+    And The following appears in the log after my savepoint:
     """
     User 'bob' is not authorized to authenticate with webservice 'cucumber:webservice:conjur/authn-oidc/keycloak'
     """
@@ -108,28 +108,28 @@ Feature: Users can authneticate with OIDC authenticator
     When I add the secret value "non_existing_field" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/id-token-user-property"
     And I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    And I save the log data from bookmark
+    And I save my place in the log file
     When I authenticate via OIDC with id token
     Then it is unauthorized
-    And The log filtered from bookmark contains messages:
+    And The following appears in the log after my savepoint:
     """
     Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty
     """
 
   Scenario: Missing id token is a bad request
-    Given I save the log data from bookmark
+    Given I save my place in the log file
     When I authenticate via OIDC with no id token
     Then it is a bad request
-    And The log filtered from bookmark contains messages:
+    And The following appears in the log after my savepoint:
     """
     Authentication::MissingRequestParam
     """
 
   Scenario: Empty id token is a bad request
-    Given I save the log data from bookmark
+    Given I save my place in the log file
     When I authenticate via OIDC with empty id token
     Then it is a bad request
-    And The log filtered from bookmark contains messages:
+    And The following appears in the log after my savepoint:
     """
     Authentication::MissingRequestParam
     """
@@ -138,10 +138,10 @@ Feature: Users can authneticate with OIDC authenticator
   Scenario: non-existing account in request is denied
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    And I save the log data from bookmark
+    And I save my place in the log file
     When I authenticate via OIDC with id token and account "non-existing"
     Then it is unauthorized
-    And The log filtered from bookmark contains messages:
+    And The following appears in the log after my savepoint:
     """
     Conjur::RequiredResourceMissing
     """
@@ -149,10 +149,10 @@ Feature: Users can authneticate with OIDC authenticator
   Scenario: admin user is denied
     Given I get authorization code for username "admin" and password "admin"
     And I fetch an ID Token
-    And I save the log data from bookmark
+    And I save my place in the log file
     When I authenticate via OIDC with id token
     Then it is unauthorized
-    And The log filtered from bookmark contains messages:
+    And The following appears in the log after my savepoint:
     """
     Authentication::AuthnOidc::AdminAuthenticationDenied
     """
