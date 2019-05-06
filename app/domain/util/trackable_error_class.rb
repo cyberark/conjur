@@ -4,9 +4,9 @@
 #
 module Util
 
-  class TrackableErrorClass < ErrorClass
+  class TrackableErrorClass
     def self.new(msg:, code:)
-      super("#{code} #{msg}")
+      ErrorClass.new("#{code} #{msg}")
     end
   end
 end
