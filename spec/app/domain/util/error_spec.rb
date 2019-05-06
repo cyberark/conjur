@@ -75,5 +75,16 @@ RSpec.describe 'Util::ErrorClass' do
           .to raise_error("Variables are #22 #11 #22 #00 #44 #44.")
       end
     end
+
+    context 'with arg description' do
+      let(:descriptive_error_template) { "Variable is {0-var-description}." }
+
+      subject(:descriptive_error_class) { Util::ErrorClass.new(descriptive_error_template) }
+
+      it 'ignores the description' do
+        expect { raise descriptive_error_class.new("var") }
+          .to raise_error("Variable is var.")
+      end
+    end
   end
 end
