@@ -35,7 +35,7 @@ Feature: Users can authenticate with OIDC authenticator
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Conjur::RequiredResourceMissing
+    Errors::Conjur::RequiredResourceMissing
     """
 
   Scenario: provider-uri variable missing in policy is denied
