@@ -3,11 +3,14 @@
 This doc challenges the current `/authenticators` endpoint in the Conjur API, and
 suggests a new approach.
 
-###Terminolgy
+Full feature doc for the Authenticators Health-Check API can be found [here](authenticators_health_api.md)
 
-|     **Term**    |                       **Description**                       |
-|:---------------:|:-------------------------------------------------------------:|
-| Conjur Operator | A Conjur user with admin privileges (i.e load to root policy) |
+### Terminology
+
+|     **Term**    |                       **Description**                             |
+|:---------------:|:-----------------------------------------------------------------:|
+| Conjur Operator | A Conjur user with admin privileges (i.e load to root policy)     |
+| Conjur User     | A developer/app that needs to login to Conjur to retrieve secrets |
 
 ## Current Mechanism
 
@@ -62,16 +65,16 @@ This feature is divided into 2 personas:
 
 #### Conjur operator
 
-As a Conjur operator\
-I'd like to know which authenticators are configured correctly\
-So that I can complete the configuration properly if it's incomplete (or remove
+**As a** Conjur operator\
+**I'd like to** know which authenticators are configured correctly\
+**So that** I can complete the configuration properly if it's incomplete (or remove
 it if it's not needed)
 
 #### Conjur user
 
-As a Conjur user\
-I'd like to know which authenticators are configured correctly\
-So that I can authenticate with a properly configured one
+**As a** Conjur user\
+**I'd like to** know which authenticators are configured correctly\
+**So that** I can authenticate with a properly configured one
 
 Note that both personas would like to know the same thing but the action they need
 it for is different. The Conjur user needs to authenticate according to the response
@@ -93,7 +96,7 @@ and `authn-2` is not whitelisted in the ENV.
 
 - A Conjur user runs an `/authenticators` request:\
 `GET /authenticators`
-- The user gets a response with code 200 with the following body:\
+- The user gets a response with code 200 with the following body:
 ```
 {
    “authenticators”:
@@ -109,7 +112,7 @@ and `authn-2` is not whitelisted in the ENV.
 - A Conjur operator logs into Conjur (in any authn method) and receives an access token
 - The operator runs an `/authenticators/health` request with the given access token:\
 `GET /authenticators/health`
-- The operator gets a response with code 200 (more info [here](authenticators_health_api.md#Response code for unhealthy authenticators)) with the following body:
+- The operator gets a response with code 200 (more info [here](authenticators_health_api.md#response-code-for-unhealthy-authenticators)) with the following body:
 ```
 {
    “authenticators”:

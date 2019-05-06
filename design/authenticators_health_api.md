@@ -1,4 +1,4 @@
-### Terminolgy
+### Terminology
 
 |     **Term**    |                       **Description**                       |
 |:---------------:|:-------------------------------------------------------------:|
@@ -54,7 +54,7 @@ if it's still Unauthorized will solve the configuration issues one-by-one.
 1. The Conjur operator configures the Authenticators according to the docs
     1. We might have several authenticators configured
 1. The operator runs the Healthcheck request: `GET /authenticators/health`
-1. The operator gets a response with code 200 (more info [here](authenticators_health_api.md#Response code for unhealthy authenticators)) and with the following body:
+1. The operator gets a response with code 200 (more info [here](authenticators_health_api.md#response-code-for-unhealthy-authenticators)) and with the following body:
     1. In case all the authenticators are healthy:
         
         ```
@@ -101,7 +101,9 @@ A possible response can look like this:
 }
 ```
 
-More info on this can be found in the appendix [here](authenticators_health_api.md#Which authenticators should we list in the response) & [here](authenticators_health_api.md#Incremental health check for authenticators).
+More info on this can be found in the appendix 
+[here](authenticators_health_api.md#which-authenticators-should-we-list-in-the-response) 
+& [here](authenticators_health_api.md#incremental-health-check-for-authenticators).
 
 ### General Analysis
 
@@ -118,8 +120,8 @@ with a Conjur access token of a privileged user
 
 Note: The term "privileged user" is still under sharpening.
 
-#Appendix
-##Lines of Thought
+# Appendix
+## Lines of Thought
 
 ### Which authenticators should we list in the response
 
@@ -161,7 +163,7 @@ The "configured" authenticators are those who have a webservice resource startin
 
 This group is not the one we want to list in the health-check as in case there is an error with loading the policy then the authenticator will not be configured and then we won't test it
 
-#####Enabled
+##### Enabled
 The "enabled" authenticators are those who are whitelisted in the CONJUR_AUTHENTICATORS variable. If the variable is not configured then we have only the "authn" authenticator.
 
 ##### Conclusion
