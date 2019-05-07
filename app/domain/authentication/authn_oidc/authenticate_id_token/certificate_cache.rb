@@ -22,28 +22,28 @@ module Authentication
       end
 
       def clear_all
-        @redis = {}
+        @cache = {}
       end
 
       def fetch key, force_read = false, &block
-        if not @redis.key?(key)
+        if not @cache.key?(key)
           # make the DB query and create a new entry for the request result
-          @redis[key] = { value: yield(block), num_retries: 0, last_retry_time: Time.now.to_i }
+          @cache[key] = { value: yield(block), num_retries: 0, last_retry_time: Time.now.to_i }
         else
           force_read key, &block if force_read
         end
-        @redis[key][:value]
+        @cache[key][:value]
       end
 
       private
 
       def force_read key, &block
-        @redis[key][:num_retries] = @redis[key][:num_retries] + 1
-        if ((Time.now.to_i - @redis[key][:last_retry_time]) > @RETRIES_TIME_LAP)
-          @redis[key][:num_retries] = 1
-          @redis[key][:last_retry_time] = Time.now.to_i
+        @cache[key][:num_retries] = @cache[key][:num_retries] + 1
+        if ((Time.now.to_i - @cache[key][:last_retry_time]) > @RETRIES_TIME_LAP)
+          @cache[key][:num_retries] = 1
+          @cache[key][:last_retry_time] = Time.now.to_i
         end
-        @redis[key][:value] = yield(block) if (@redis[key][:num_retries] <= @NUM_MAX_RETRIES)
+        @cache[key][:value] = yield(block) if (@cache[key][:num_retries] <= @NUM_MAX_RETRIES)
       end
 
     end
