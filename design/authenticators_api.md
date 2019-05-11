@@ -9,7 +9,7 @@ Full feature doc for the Authenticators Health-Check API can be found [here](aut
 
 |     **Persona**    |                       **Description**                             |
 |:---------------:|:-----------------------------------------------------------------:|
-| Conjur Operator | A Conjur user with enhanced privileges (has permissions to [restricted resources](authenticators_api.md#limit-access-to-`/authenticators/health`-endpoint)) |
+| Conjur Operator | A Conjur user with enhanced privileges (has permissions to [restricted resources](authenticators_api.md#limit-access-to-authenticatorshealth-endpoint)) |
 | Conjur User     | A developer/app that needs to login to Conjur to retrieve secrets |
 
 ## Current Mechanism
