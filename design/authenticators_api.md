@@ -9,7 +9,7 @@ Full feature doc for the Authenticators Health-Check API can be found [here](aut
 
 |     **Term**    |                       **Description**                             |
 |:---------------:|:-----------------------------------------------------------------:|
-| Conjur Operator | A Conjur user with admin privileges (i.e load to root policy)     |
+| Conjur Operator | A Conjur user with enhanced privileges (has permissions to restricted resources) |
 | Conjur User     | A developer/app that needs to login to Conjur to retrieve secrets |
 
 ## Current Mechanism
@@ -146,6 +146,25 @@ with a Conjur access token of a privileged user.
 
 Any request lacking a valid access token will be responded with a 403 code.
 
-Note: The term "privileged user" is still under sharpening.
+##### Limit access to `/authenticators/health` Endpoint
+
+We will limit access to this endpoint by defining a webservice on it,
+and granting permission on it.
+
+A Conjur Operator will need to load the following policy in order to enable it:
+```
+- !webservice
+  id: conjur/authenticators/health
+  
+- !permit
+  role: !group operators
+  privilege: [ read, authenticate ]
+  resource: !webservice conjur/authenticators/health
+```
+
+In case such a policy is loaded then access to this endpoint will be available, and
+will be restricted only to users who are members of the `operators` group. 
+
+In case the policy above is not loaded then the endpoint will return a 403 Forbidden response
 
 Full feature doc for the `/authenticators/health` Endpoint can be found [here](authenticators_health_api.md)
