@@ -1,8 +1,9 @@
-### Terminology
+### Personas
 
-|     **Term**    |                       **Description**                       |
-|:---------------:|:-------------------------------------------------------------:|
-| Conjur Operator | A Conjur user with admin privileges (i.e load to root policy) |
+|     **Persona**    |                       **Description**                             |
+|:---------------:|:-----------------------------------------------------------------:|
+| Conjur Operator | A Conjur user with enhanced privileges (has permissions to [restricted resources](authenticators_api.md#limit-access-to-`/authenticators/health`-endpoint)) |
+| Conjur User     | A developer/app that needs to login to Conjur to retrieve secrets |
 
 # Introduction 
 
