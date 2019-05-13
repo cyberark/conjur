@@ -86,7 +86,7 @@ Feature: Users can authneticate with OIDC authenticator
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Authentication::NotDefinedInConjur
+    Errors::Authentication::Security::UserNotDefinedInConjur
     """
 
   Scenario: User that is not permitted to webservice in ID token is denied
@@ -101,7 +101,7 @@ Feature: Users can authneticate with OIDC authenticator
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    User 'bob' is not authorized to authenticate with webservice 'cucumber:webservice:conjur/authn-oidc/keycloak'
+    Errors::Authentication::Security::UserNotAuthorizedInConjur
     """
 
   Scenario: ID token without value of variable id-token-user-property is denied
@@ -113,7 +113,7 @@ Feature: Users can authneticate with OIDC authenticator
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty
+    Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty
     """
 
   Scenario: Missing id token is a bad request
@@ -122,7 +122,7 @@ Feature: Users can authneticate with OIDC authenticator
     Then it is a bad request
     And The following appears in the log after my savepoint:
     """
-    Authentication::MissingRequestParam
+    Errors::Authentication::RequestBody::MissingRequestParam
     """
 
   Scenario: Empty id token is a bad request
@@ -131,10 +131,10 @@ Feature: Users can authneticate with OIDC authenticator
     Then it is a bad request
     And The following appears in the log after my savepoint:
     """
-    Authentication::MissingRequestParam
+    Errors::Authentication::RequestBody::MissingRequestParam
     """
 
-    # Should be crashed in GA, update the message to "account does not exists"
+  # Should crash in GA, update the message to "account does not exists"
   Scenario: non-existing account in request is denied
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
@@ -143,7 +143,7 @@ Feature: Users can authneticate with OIDC authenticator
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Conjur::RequiredResourceMissing
+    Errors::Conjur::RequiredResourceMissing
     """
 
   Scenario: admin user is denied
@@ -154,5 +154,5 @@ Feature: Users can authneticate with OIDC authenticator
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Authentication::AuthnOidc::AdminAuthenticationDenied
+    Errors::Authentication::AuthnOidc::AdminAuthenticationDenied
     """

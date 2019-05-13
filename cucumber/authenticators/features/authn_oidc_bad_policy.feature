@@ -73,7 +73,7 @@ Feature: Users can authenticate with OIDC authenticator
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Conjur::RequiredResourceMissing
+    Errors::Conjur::RequiredResourceMissing
     """
 
   Scenario: webservice missing in policy is denied
@@ -106,7 +106,7 @@ Feature: Users can authenticate with OIDC authenticator
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Authentication::ServiceNotDefined
+    Errors::Authentication::Security::ServiceNotDefined
     """
 
   Scenario: webservice with read and no authenticate permission in policy is denied
@@ -147,5 +147,5 @@ Feature: Users can authenticate with OIDC authenticator
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Authentication::NotAuthorizedInConjur
+    Errors::Authentication::Security::UserNotAuthorizedInConjur
     """
