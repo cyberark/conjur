@@ -173,9 +173,7 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   if [[ $ENABLE_OIDC_OKTA = true ]]; then
       # add variables' values for okta
       docker-compose exec client conjur policy load root /src/conjur-server/ci/authn-oidc/policy_okta.yml
-      docker-compose exec client conjur variable values add conjur/authn-oidc/okta/client-id 0oaendblxV2shmOjY356
-      docker-compose exec client conjur variable values add conjur/authn-oidc/okta/client-secret YU1_BVcUHNwP-6-cg8CHah_M6HiP3SiSlbN2rAEz
-      docker-compose exec client conjur variable values add conjur/authn-oidc/okta/provider-uri https://cyberarkoidctest.okta.com
+      docker-compose exec client conjur variable values add conjur/authn-oidc/okta/provider-uri "https://dev-842018.oktapreview.com"
       docker-compose exec client conjur variable values add conjur/authn-oidc/okta/id-token-user-property "preferred_username"
   fi
 
