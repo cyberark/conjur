@@ -21,11 +21,16 @@ module Authentication
       ) do
 
         def call
+          log_provider_uri
           discover_provider
           fetch_certs
         end
 
         private
+
+        def log_provider_uri
+          @logger.debug(Log::OIDCProviderUri.new(@provider_uri).to_s)
+        end
 
         def discover_provider
           @discovered_provider = @open_id_discovery_service.discover!(@provider_uri)
