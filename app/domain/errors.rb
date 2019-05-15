@@ -41,19 +41,19 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       module AuthenticatorClass
 
         DoesntStartWithAuthn = ::Util::TrackableErrorClass.new(
-          msg: "'{0-authenticator-parent-name}' is not a valid authenticator parent module because it does " +
+          msg: "'{0-authenticator-parent-name}' is not a valid authenticator parent module because it does " \
             "not begin with 'Authn'",
           code: "CONJ00038E"
         )
 
         NotNamedAuthenticator = ::Util::TrackableErrorClass.new(
-          msg: "'{0-authenticator-name}' is not a valid authenticator name. " +
+          msg: "'{0-authenticator-name}' is not a valid authenticator name. " \
             "The actual class implementing the authenticator must be named 'Authenticator'",
           code: "CONJ00039E"
         )
 
         MissingValidMethod = ::Util::TrackableErrorClass.new(
-          msg: "'{0-authenticator-name}' is not a valid authenticator because " +
+          msg: "'{0-authenticator-name}' is not a valid authenticator because " \
             "it does not have a `:valid?(input)` method.",
           code: "CONJ00040E"
         )
@@ -174,7 +174,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         CSRNamespaceMismatch = ::Util::TrackableErrorClass.new(
-          msg: "Namespace in SPIFFE ID '{0-cn-namespace}' must match namespace " +
+          msg: "Namespace in SPIFFE ID '{0-cn-namespace}' must match namespace " \
             "implied by common name '{1-spiffe-namespace}'",
           code: "CONJ00023E"
         )
@@ -185,7 +185,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         ScopeNotSupported = ::Util::TrackableErrorClass.new(
-          msg: "Resource type '{0}' identity scope is not supported in this version " +
+          msg: "Resource type '{0}' identity scope is not supported in this version " \
             "of authn-k8s",
           code: "CONJ00025E"
         )
@@ -216,7 +216,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         CommonNameDoesntMatchHost = ::Util::TrackableErrorClass.new(
-          msg: "Client certificate CN must match host name. Cert CN: {0}. " +
+          msg: "Client certificate CN must match host name. Cert CN: {0}. " \
             "Host name: {1}. ",
           code: "CONJ00031E"
         )

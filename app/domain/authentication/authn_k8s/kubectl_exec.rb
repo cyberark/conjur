@@ -68,14 +68,10 @@ module Authentication
         msg_data = wsmsg.data
 
         if msg_type == :binary
-          @logger.debug(Log::PodChannelData
-                          .new(@pod_name, wsmsg.channel_name, msg_data).to_s
-          )
+          @logger.debug (Log::PodChannelData.new(@pod_name, wsmsg.channel_name, msg_data).to_s)
           @message_log.save_message(wsmsg)
         elsif msg_type == :close
-          @logger.debug(Log::PodMessageData
-                          .new(@pod_name, "close", msg_data).to_s
-          )
+          @logger.debug(Log::PodMessageData.new(@pod_name, "close", msg_data).to_s)
           ws_client.close
         end
       end

@@ -91,7 +91,6 @@ module Authentication
             @certs
           )
         end
-
       end
     end
   end
