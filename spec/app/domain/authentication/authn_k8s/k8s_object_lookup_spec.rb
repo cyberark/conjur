@@ -46,7 +46,7 @@ RSpec.describe Authentication::AuthnK8s::K8sObjectLookup do
             Authentication::AuthnK8s::VARIABLE_CA_CERT)
           .and_return(nil)
 
-        expect { Authentication::AuthnK8s::K8sObjectLookup.new }.to raise_error(Authentication::AuthnK8s::MissingCertificate)
+        expect { Authentication::AuthnK8s::K8sObjectLookup.new }.to raise_error(Errors::Authentication::AuthnK8s::MissingCertificate)
       end
     end
 
