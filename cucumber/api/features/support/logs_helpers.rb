@@ -29,7 +29,7 @@ module LogsHelpers
 
     start_line = @saved_num_lines
     end_line = cur_num_lines
-    (File.readlines(LOG_LOCATION)[start_line..end_line].grep(/#{msg}/i)).count
+    File.readlines(LOG_LOCATION)[start_line..end_line].grep(/#{msg}/i).count
   end
 
   private
