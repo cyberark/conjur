@@ -17,14 +17,11 @@ module Util
   #
   class RateLimitedCache
 
-    REFRESHES_PER_INTERVAL = 10
-    RATE_LIMIT_INTERVAL = 300 # seconds (300 = 5 minutes)
-
     # NOTE: "callable" is anything with a "call" method
     def initialize(
       callable,
-      refreshes_per_interval: REFRESHES_PER_INTERVAL,
-      rate_limit_interval: RATE_LIMIT_INTERVAL,
+      refreshes_per_interval:,
+      rate_limit_interval:,    # in seconds
       time: Time
     )
       @target = callable
