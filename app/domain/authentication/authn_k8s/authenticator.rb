@@ -15,8 +15,7 @@ module Authentication
     ) do
       extend Forwardable
 
-      def_delegators :@authenticator_input, :service_id, :authenticator_name,
-                     :account, :username, :request
+      def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :username, :request
 
       def call
         validate_cert_exists

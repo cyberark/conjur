@@ -27,7 +27,8 @@ module LogsHelpers
     validate_savepoint_exists
     validate_log_didnt_shrink(cur_num_lines)
 
-    start_line, end_line = @saved_num_lines, cur_num_lines
+    start_line = @saved_num_lines
+    end_line = cur_num_lines
     (File.readlines(LOG_LOCATION)[start_line..end_line].grep(/#{msg}/i)).count
   end
 
