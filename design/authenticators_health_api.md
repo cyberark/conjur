@@ -2,15 +2,18 @@
 
 |     **Persona**    |                       **Description**                             |
 |:---------------:|:-----------------------------------------------------------------:|
-| Conjur Operator | A Conjur user with enhanced privileges (has permissions to [restricted resources](authenticators_api.md#limit-access-to-authenticatorshealth-endpoint)) |
+| Conjur Operator | A Conjur user with enhanced privileges (loads policies to root, configures authenticators, etc.) |
 | Conjur User     | A developer/app that needs to login to Conjur to retrieve secrets |
 
 # Introduction 
 
 ## Feature Overview
 
-As a Conjur Operator I'd like to know which Authenticators are configured correctly 
-before starting to use them, so that I can complete the configuration properly if it's incomplete. 
+**As a** Conjur operator\
+**I'd like to** know which authenticators are configured correctly\
+**So that** I can complete the configuration properly if it's incomplete (or remove
+it if it's not needed).
+
 This feature lets the person who configures the Authenticator to get an immediate feedback 
 on the configuration, before any user needs to run an authentication request.
 
@@ -84,7 +87,7 @@ if it's still Unauthorized will solve the configuration issues one-by-one.
 1. The operator understands the issue from the response and fixes the issue
 1. The operator runs the request once again and until he gets a healthy response
 
-Note: we should list in the response all the authenticators which are implemented in Conjur. 
+**Note**: we should list in the response all the authenticators which are implemented in Conjur. 
 Authenticators for which we didn't implement the health-check will have the message "not-implemented". 
 A possible response can look like this:
 
@@ -114,12 +117,7 @@ As the user isn't accessing any resource there is no need to audit in this featu
 
 #### Security
 
-This endpoint reveals some serious details on the Conjur environment, so it should be 
-secure. As the use-case of this endpoint is to be hit by the operator who configures an
-authenticator, we can limit this request to be run only from `localhost` and only
-with a Conjur access token of a privileged user
-
-Note: The term "privileged user" is still under sharpening.
+Security aspects of this feature are defined [here](authenticators_api.md#authenticatorshealth-endpoint-1)
 
 # Appendix
 ## Lines of Thought

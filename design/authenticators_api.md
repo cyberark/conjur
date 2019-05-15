@@ -9,7 +9,7 @@ Full feature doc for the Authenticators Health-Check API can be found [here](aut
 
 |     **Persona**    |                       **Description**                             |
 |:---------------:|:-----------------------------------------------------------------:|
-| Conjur Operator | A Conjur user with enhanced privileges (has permissions to [restricted resources](authenticators_api.md#limit-access-to-authenticatorshealth-endpoint)) |
+| Conjur Operator | A Conjur user with enhanced privileges (loads policies to root, configures authenticators, etc.) |
 | Conjur User     | A developer/app that needs to login to Conjur to retrieve secrets |
 
 ## Current Mechanism
@@ -55,7 +55,7 @@ Sections 2 & 3 combined can help a conjur user to know if he can use an authenti
 but that's not entirely true. some authenticators need further configuration than 
 just configuring a webservice and enabling the authenticator in the ENV (for example, 
 authn-oidc needs to load variables). So while a user will get _some_ value using this API, 
-it won't fully let him know that he can use the authenticator.
+it won't fully let him know that he can use the authenticator, which is the purpose of this.
 
 ## Feature Overview 
 
@@ -73,14 +73,17 @@ it if it's not needed)
 #### Conjur user
 
 **As a** Conjur user\
-**I'd like to** know which authenticators are configured correctly\
+**I'd like to** know which authenticators are available for authentication\
 **So that** I can authenticate with a properly configured one
 
-Note that both personas would like to know the same thing but the action they need
-it for is different. The Conjur user needs to authenticate according to the response
-so this request must be applicable without a Conjur access token. On the other hand 
-the Conjur operator needs to know what is needed for completing the configuration,
-which may be sensitive data. So he must be authenticated before calling this endpoint.
+Note that both personas would like to know the same thing (configured correctly == available for authentication)
+but the action they need it for is different. 
+
+We can learn 2 things from the above:
+
+1. The Conjur user needs to authenticate according to the response. So this request must be applicable **without** a Conjur access token. 
+1. The Conjur operator needs to know which actions are needed for completing the configuration,
+which may consist sensitive data. So this request must be applicable **only with** a Conjur access token.
 
 This leads us to 2 API endpoints:
 
@@ -140,15 +143,10 @@ without the need of a Conjur access token
 #### `/authenticators/health` Endpoint
 
 This endpoint reveals some serious details on the Conjur environment, so it should be 
-secure. As the use-case of this endpoint is to be hit by the operator who configures an
-authenticator, we can limit this request to be run only from `localhost` and only
-with a Conjur access token of a privileged user.
+secure. Any request lacking a valid access token will be responded with a 403 code.
 
-Any request lacking a valid access token will be responded with a 403 code.
-
-##### Limit access to `/authenticators/health` Endpoint
-
-We will limit access to this endpoint by defining a webservice on it,
+As the use-case of this endpoint is to be hit by the operator who configures an
+authenticator, we will limit access to this endpoint by defining a webservice on it,
 and granting permission on it.
 
 A Conjur Operator will need to load the following policy in order to enable it:
@@ -165,6 +163,8 @@ A Conjur Operator will need to load the following policy in order to enable it:
 In case such a policy is loaded then access to this endpoint will be available, and
 will be restricted only to users who are members of the `operators` group. 
 
-In case the policy above is not loaded then the endpoint will return a 403 Forbidden response
+In case the policy above is not loaded then the endpoint will return a 403 Forbidden response to any request.
+
+---
 
 Full feature doc for the `/authenticators/health` Endpoint can be found [here](authenticators_health_api.md)
