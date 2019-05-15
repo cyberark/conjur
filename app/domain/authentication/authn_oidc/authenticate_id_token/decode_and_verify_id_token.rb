@@ -1,5 +1,6 @@
 require 'uri'
 require 'openid_connect'
+require_relative './fetch_provider_certificate'
 
 module Authentication
   module AuthnOidc
@@ -12,7 +13,9 @@ module Authentication
 
       DecodeAndVerifyIdToken = CommandClass.new(
         dependencies: {
-          fetch_provider_certificate: ::Authentication::AuthnOidc::AuthenticateIdToken::FetchProviderCertificate.new,
+          fetch_provider_certificate: ::Util::RateLimitedCache.new(
+            FetchProviderCertificate.new
+          ),
           logger: Rails.logger
         },
         inputs: %i(provider_uri id_token_jwt)
@@ -34,11 +37,15 @@ module Authentication
         end
 
         def verify_decoded_id_token
-          # Verify id_token expiration. OpenIDConnect requires to verify few claims.
-          # Mask required claims such that effectively only expiration will be verified
-          expected = { client_id: decoded_attributes[:aud] || decoded_attributes[:client_id],
-                       issuer: decoded_attributes[:iss],
-                       nonce: decoded_attributes[:nonce] }
+          # Verify id_token expiration. OpenIDConnect requires to verify few
+          # claims.  Mask required claims such that effectively only expiration
+          # will be verified
+
+          expected = {
+            client_id: decoded_attributes[:aud] || decoded_attributes[:client_id],
+            issuer: decoded_attributes[:iss],
+            nonce: decoded_attributes[:nonce]
+          }
 
           decoded_id_token.verify!(expected)
           @logger.debug(Log::IDTokenVerificationSuccess.new.to_s)
@@ -49,8 +56,10 @@ module Authentication
         end
 
         def fetch_certs(force_read = false)
-          @certs = @fetch_provider_certificate.(provider_uri: @provider_uri,
-            force_read_from_provider: force_read)
+          @certs = @fetch_provider_certificate.(
+            provider_uri: @provider_uri,
+            refresh: force_read
+          )
         end
 
         def decoded_attributes
