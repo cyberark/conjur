@@ -7,18 +7,18 @@ module Util
   #
   # 1. By default cached values are always returned when available
   # 2. You can force the cached value to be refreshed/recalculated by adding 
-  #    a `refresh: true` to the named parameter arguments.
-  # 3. However, your refreshes are rate-limited.  If you exceed them limit,
+  #    a `refresh: true` to the named arguments.
+  # 3. However, your refreshes are rate-limited.  If you exceed the limit,
   #    refresh requests will be ignored until enough time passes.
   #
-  # The `RateLimitedCache` instance is passed exactly the same
-  # named arguments you'd pass to the callable object, but you can optionally
-  # include the `refresh: true` to force recalculation.
+  # The `RateLimitedCache` instance is passed exactly the same named arguments
+  # you'd pass to the callable object, but you can optionally include the
+  # `refresh: true` to force recalculation.
   #
   class RateLimitedCache
 
-    REFRESHES_PER_INTERVAL = 3
-    RATE_LIMIT_INTERVAL = 3600 #seconds
+    REFRESHES_PER_INTERVAL = 10
+    RATE_LIMIT_INTERVAL = 300 # seconds (300 = 5 minutes)
 
     # NOTE: "callable" is anything with a "call" method
     def initialize(
