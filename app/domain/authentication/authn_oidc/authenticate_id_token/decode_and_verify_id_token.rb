@@ -1,6 +1,5 @@
 require 'uri'
 require 'openid_connect'
-require_relative './fetch_provider_certificate'
 
 module Authentication
   module AuthnOidc
@@ -14,7 +13,7 @@ module Authentication
       DecodeAndVerifyIdToken = CommandClass.new(
         dependencies: {
           fetch_provider_certificate: ::Util::RateLimitedCache.new(
-            FetchProviderCertificate.new
+            ::Authentication::AuthnOidc::AuthenticateIdToken::FetchProviderCertificate.new
           ),
           logger: Rails.logger
         },
