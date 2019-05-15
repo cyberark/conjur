@@ -6,7 +6,6 @@
 module Authentication
   module AuthnK8s
     #TODO: rename to K8sApiFacade
-    #
 
     VARIABLE_BEARER_TOKEN = 'kubernetes/service-account-token'
     VARIABLE_CA_CERT = 'kubernetes/ca-cert'
@@ -15,9 +14,7 @@ module Authentication
     SERVICEACCOUNT_CA_PATH = File.join(SERVICEACCOUNT_DIR, 'ca.crt').freeze
     SERVICEACCOUNT_TOKEN_PATH = File.join(SERVICEACCOUNT_DIR, 'token').freeze
 
-    MissingCertificate = ::Util::ErrorClass.new(
-      "no Kubernetes API certificate available"
-    )
+    Err = Errors::Authentication::AuthnK8s
 
     class K8sObjectLookup
 
@@ -45,7 +42,7 @@ module Authentication
           VARIABLE_CA_CERT
         )
 
-        raise MissingCertificate if cert.blank?
+        raise Err::MissingCertificate if cert.blank?
         OpenSSL::X509::Certificate.new(cert)
       end
 

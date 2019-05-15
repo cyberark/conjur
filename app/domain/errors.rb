@@ -246,6 +246,15 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00041E"
         )
 
+        InvalidApiUrl = ::Util::TrackableErrorClass.new(
+          msg: "Received invalid Kubernetes API url: '{0}'",
+          code: "CONJ00042E"
+        )
+
+        MissingCertificate = ::Util::TrackableErrorClass.new(
+          msg: "No Kubernetes API certificate available",
+          code: "CONJ00043E"
+        )
       end
     end
   end
