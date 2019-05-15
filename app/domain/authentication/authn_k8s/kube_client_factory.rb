@@ -12,8 +12,7 @@ module Authentication
   module AuthnK8s
     module KubeClientFactory
 
-      InvalidApiUrl = ::Util::ErrorClass.new(
-        "Received invalid Kubernetes API url: '{0}'")
+      Err = Errors::Authentication::AuthnK8s
 
       def self.client(api: 'api', version: 'v1', host_url: nil, options: nil)
         full_url = "#{host_url}/#{api}"
@@ -28,7 +27,7 @@ module Authentication
         def validate_host_url! host_url
           raise if URI.parse(host_url).host.empty?
         rescue
-          raise InvalidApiUrl, host_url
+          raise Err::InvalidApiUrl, host_url
         end
       end
     end
