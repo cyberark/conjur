@@ -153,8 +153,8 @@ check their health.
 ##### Installed
 The "installed" authenticators are those who meet to following criteria:
 
-- It's class name is "Authenticator"
-- It's parent module starts with "Authn"
+- Its class name is "Authenticator"
+- Its parent module starts with "Authn"
 - It has the "valid?" method
 
 ##### Configured

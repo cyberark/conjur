@@ -118,13 +118,22 @@ and `authn-2` is not whitelisted in the ENV.
 - The operator gets a response with code 200 (more info [here](authenticators_health_api.md#response-code-for-unhealthy-authenticators)) with the following body:
 ```
 {
-   “authenticators”:
+   "authenticators":
    {
-      "authn": "ok",
-      "authn-1": "ok",
-      "authn-2": "Authentication::Security::NotWhitelisted: CONJ00004E 'authn-2' is not whitelisted in CONJUR_AUTHENTICATORS", 
+      "authn": {
+        "status": "ok"
+      },
+      "authn-1": {
+        "status": "ok"
+      },
+      "authn-2": {
+        "status": "error",
+        "error": "Authentication::Security::NotWhitelisted",
+        "code": "CONJ00004E",
+        "message": "'authn-2' is not whitelisted in CONJUR_AUTHENTICATORS",
+      }
    },
-   "ok": false
+   "status": "error"
 }
 ```
 - The operator understands the issue from the response and fixes it
