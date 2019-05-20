@@ -58,8 +58,8 @@ if it's still Unauthorized will solve the configuration issues one-by-one.
 1. The Conjur operator configures the Authenticators according to the docs
     1. We might have several authenticators configured
 1. The operator runs the Healthcheck request: `GET /authenticators/health`
-1. The operator gets a response with code 200 (more info [here](authenticators_health_api.md#response-code-for-unhealthy-authenticators)) and with the following body:
-    1. In case all the authenticators are healthy:
+1. The operator gets a response:
+    1. In case all the authenticators are healthy, a response with code 200 and the following body:
         
         ```
         {
@@ -71,7 +71,7 @@ if it's still Unauthorized will solve the configuration issues one-by-one.
            "ok": true
         }
         ```
-    1. In case some of the authenticators aren't healthy:
+    1. In case some of the authenticators aren't healthy, a response with code 500 (more info [here](authenticators_health_api.md#response-code-for-unhealthy-authenticators)) and the following body:
 
         ```
         {
@@ -187,7 +187,7 @@ So a response can look like this:
    “authenticators”:
    {
       "authn-ldap": "not-implemented",
-      "authn-oidc": "fail",
+      "authn-oidc": "error",
       "authn": "ok"
    },
    "ok": false
@@ -199,7 +199,7 @@ Another option is to not have the authenticator health-check in the response at 
 {
    “authenticators”:
    {
-      "authn-oidc": "fail",
+      "authn-oidc": "error",
       "authn": "ok"
    },
    "ok": false
@@ -210,9 +210,12 @@ I think the first option is better as it tells the full story explicitly without
 
 ### Response code for unhealthy authenticators
 
-In case of an error we need to return a response code which will best indicate the issue. Let's explore the possibilities and find the best response code. 
+In case of an error we need to return a response code which will best indicate the issue. Let's explore the possibilities and find the best 
+response code. 
 
-A valid option will be to return an error response code (4xx, 5xx). In this case the 500's make more sense as the error here is not in the actual request so it's more of a server error that a client error. The possibilities for 5xx responses are:
+2xx isn't good as it doesn't indicate there is an error and 3xx is irrelevant as there is no redirection.
+A valid option will be to return an error response code (4xx, 5xx). In this case the 500's make more sense as the error here is not in the 
+actual request so it's more of a server error that a client error. The possibilities for 5xx responses are:
 
 - 500 Internal Server Error
     - Con: This is very general and we should try to avoid it when possible
@@ -223,9 +226,8 @@ A valid option will be to return an error response code (4xx, 5xx). In this case
 - 502 Bad Gateway & 504 Gateway Timeout
     - Irrelevant as this is not a gateway.
 
-So response codes from the 4xx & the 5xx families aren't quite good.
+Although we'd like not to return 500 when possible i think there is no specific error code which tells the story here so we need to go with the 
+general 500 Internal Server Error
 
-Another option is to return a 200 OK response. Yes, there is an error and 200 doesn't indicate that but the response body will. This also makes sense as the request itself succeeded and the server returned a response successfully so it makes sense to return a successful code.
-
-Conclusion: return 200 OK. 
+Conclusion: return 500 Internal Server Error. 
 

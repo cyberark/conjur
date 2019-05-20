@@ -115,7 +115,7 @@ and `authn-2` is not whitelisted in the ENV.
 - A Conjur operator logs into Conjur (in any authn method) and receives an access token
 - The operator runs an `/authenticators/health` request with the given access token:\
 `GET /authenticators/health`
-- The operator gets a response with code 200 (more info [here](authenticators_health_api.md#response-code-for-unhealthy-authenticators)) with the following body:
+- The operator gets a response with code 500 (more info [here](authenticators_health_api.md#response-code-for-unhealthy-authenticators)) with the following body:
 ```
 {
    "authenticators":
