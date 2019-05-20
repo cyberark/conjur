@@ -25,15 +25,11 @@ module Authentication
     def role
       return nil if username.nil?
 
-      @role_cls.by_login(username, account: account)
+      @role_cls.by_login(username, account: @input.account)
     end
 
     def username
       @input.username
-    end
-
-    def account
-      @input.account
     end
   end
 end
