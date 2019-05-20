@@ -130,6 +130,14 @@ and `authn-2` is not whitelisted in the ENV.
 - The operator understands the issue from the response and fixes it
 - The operator runs the request once again until he gets a healthy response
 
+#### `/info` endpoint
+
+Another endpoint we should address is `evoke`'s `/info` endpoint, which contains the data of the `/authenticators` endpoint
+(with other info such as release, version, etc.). This endpoint calls `http://localhost/authenticators` and adds the output to the info
+json. Having the same data in 2 different places is not optimal as it can confuse the user (and developers), so it would make sense to move the
+implementation of the `/authenticators` endpoint to `evoke`, and remove the `/authenticators` endpoint.
+However, as `evoke` is not part of the OSS, we will leave the implementation in the `/authenticators` endpoint and will not change the implementation in `evoke`.
+
 ### Security
 
 #### `/authenticators` Endpoint
