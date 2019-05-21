@@ -1,4 +1,6 @@
 module Util
+
+  Log = LogMessages::Util
   # This can wrap any "callable" object (anything with a `call` method)
   # to add caching with optional force refreshing, where the refreshing
   # is itself subject to rate limiting.
@@ -22,7 +24,8 @@ module Util
       callable,
       refreshes_per_interval:,
       rate_limit_interval:,    # in seconds
-      time: Time
+      time: Time,
+      logger:
     )
       @target = callable
       @refreshes_per_interval = refreshes_per_interval
@@ -31,6 +34,7 @@ module Util
       @cache = {}
       @refresh_history = Hash.new([]) # default history is an empty list
       @semaphore = Mutex.new
+      @logger = logger
     end
 
     # This  method is passed exactly the same named arguments you'd pass to the
@@ -54,6 +58,7 @@ module Util
     def recalculate(args)
       return if too_many_requests?(args)
       @cache[args] = @target.call(**args)
+      @logger.debug(Log::RateLimitedCacheUpdated.new.to_s)
       @refresh_history[args].push(@time.now)
     end
 

@@ -61,6 +61,21 @@ unless defined? LogMessages::Authentication::OriginValidated
           code: "CONJ00009D"
         )
 
+        OIDCProviderCertificateFetchedFromCache = ::Util::TrackableLogMessageClass.new(
+            msg: "OIDC Provider certificates fetched successfully from cache",
+            code: "CONJ00017D"
+        )
+
+        IDTokenDecodeFailed = ::Util::TrackableLogMessageClass.new(
+            msg: "Failed to decode ID Token with the error '{0-exception}'",
+            code: "CONJ00018D"
+        )
+
+        ValidateProviderCertificateIsUpdated = ::Util::TrackableLogMessageClass.new(
+            msg: "Validating OIDC Provider certificates are up do date",
+            code: "CONJ00019D"
+        )
+
       end
 
       module AuthnK8s
@@ -96,6 +111,15 @@ unless defined? LogMessages::Authentication::OriginValidated
         )
 
       end
+    end
+
+    module Util
+
+      RateLimitedCacheUpdated = ::Util::TrackableLogMessageClass.new(
+          msg: "Rate limited cache updated successfully",
+          code: "CONJ00016D"
+      )
+
     end
   end
 end
