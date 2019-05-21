@@ -1,3 +1,5 @@
+require 'thread'
+
 module Util
   # This can wrap any "callable" object (anything with a `call` method)
   # to add caching with optional force refreshing, where the refreshing
@@ -30,6 +32,7 @@ module Util
       @time = time
       @cache = {}
       @refresh_history = Hash.new([]) # default history is an empty list
+      @semaphore = Mutex.new
     end
 
     # This  method is passed exactly the same named arguments you'd pass to the
@@ -40,10 +43,12 @@ module Util
       refresh_requested = args[:refresh]
       args.delete(:refresh)
 
-      first_calculation = !@cache.key?(args)
-      recalculate(args) if refresh_requested || first_calculation
+      @semaphore.synchronize do
+        first_calculation = !@cache.key?(args)
+        recalculate(args) if refresh_requested || first_calculation
 
-      @cache[args]
+        @cache[args]
+      end
     end
 
     private
@@ -60,8 +65,8 @@ module Util
     end
 
     def prune_old_requests(args)
-      @refresh_history[args].select! do |timestamp|
-        @time.now - timestamp < @rate_limit_interval
+      @refresh_history[args] = @refresh_history[args].drop_while do |timestamp|
+        @time.now - timestamp >= @rate_limit_interval
       end
     end
   end
