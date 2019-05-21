@@ -13,6 +13,7 @@ module Authentication
             ::Authentication::AuthnOidc::AuthenticateIdToken::FetchProviderCertificate.new,
             refreshes_per_interval: 10,
             rate_limit_interval: 300, # 300 seconds (every 5 mins)
+            logger: Rails.logger
           ),
           logger: Rails.logger
         },
@@ -64,6 +65,7 @@ module Authentication
             provider_uri: @provider_uri,
             refresh: force_read
           )
+          @logger.debug(Log::OIDCProviderCertificateFetchedFromCache.new.to_s)
         end
 
         def decoded_attributes
@@ -72,7 +74,9 @@ module Authentication
 
         def ensure_certs_are_fresh
           decoded_id_token
-        rescue
+        rescue => e
+          @logger.debug(Log::IDTokenDecodeFailed.new(e.inspect).to_s)
+          @logger.debug(Log::ValidateProviderCertificateIsUpdated.new.to_s)
           # maybe failed due to certificate rotation. Force cache to read it again
           fetch_certs(force_read: true)
         end
