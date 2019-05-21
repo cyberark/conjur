@@ -133,7 +133,7 @@ and `authn-2` is not whitelisted in the ENV.
         "message": "'authn-2' is not whitelisted in CONJUR_AUTHENTICATORS",
       }
    },
-   "status": "error"
+   "ok": false
 }
 ```
 - The operator understands the issue from the response and fixes it

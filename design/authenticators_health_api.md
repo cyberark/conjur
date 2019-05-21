@@ -80,7 +80,7 @@ if it's still Unauthorized will solve the configuration issues one-by-one.
               "authn-1": "ok",
               "authn-2": "<configuration error>",
            },
-           "ok": true
+           "ok": false
         }
         ```
         1. In case there is more than one error in an authenticator, they should be comma-separated.
@@ -90,16 +90,25 @@ if it's still Unauthorized will solve the configuration issues one-by-one.
 **Note**: we should list in the response all the authenticators which are implemented in Conjur. 
 Authenticators for which we didn't implement the health-check will have the message "not-implemented". 
 A possible response can look like this:
-
 ```
 {
-   “authenticators”:
+   "authenticators":
    {
-      "authn": "ok",
-      "authn-1": "ok",
-      "authn-2": "not-implemented"
-      "authn-3": "not-implemented",
-      "authn-4": "CONJ00004E 'authn-4' is not whitelisted in CONJUR_AUTHENTICATORS",
+      "authn": {
+        "status": "ok"
+      },
+      "authn-1": {
+        "status": "ok"
+      },
+      "authn-2": {
+              "not-implemented"
+      },
+      "authn-3": {
+        "status": "error",
+        "error": "Authentication::Security::NotWhitelisted",
+        "code": "CONJ00004E",
+        "message": "'authn-3' is not whitelisted in CONJUR_AUTHENTICATORS",
+      }
    },
    "ok": false
 }
