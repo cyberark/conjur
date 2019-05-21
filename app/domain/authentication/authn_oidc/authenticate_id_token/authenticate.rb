@@ -13,7 +13,7 @@ module Authentication
         dependencies: {
           enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
           fetch_oidc_secrets: AuthnOidc::Util::FetchOidcSecrets.new,
-          token_factory: OidcTokenFactory.new,
+          token_factory: TokenFactory.new,
           validate_security: ::Authentication::Security::ValidateSecurity.new,
           validate_origin: ValidateOrigin.new,
           audit_event: AuditEvent.new,
