@@ -22,7 +22,7 @@ For example, the OIDC Authenticator configuration includes whitelisting the auth
 `CONJUR_AUTHENTICATORS=authn-oidc/adfs,authn`
 
 Let's say the Conjur Operator configured the OIDC Authenticator and forgot to whitelist 
-the authenticator in the CONJUR_AUTHENTICATORS variable. Without the Helthcheck API, 
+the authenticator in the CONJUR_AUTHENTICATORS variable. Without the Healthcheck API, 
 the first time the user will encounter the error will be in an authentication request. 
 A user `alice` will try to authenticate with OIDC and will get a 401 Unauthorized 
 response without any description on what happened (the answer will be in the logs which 
