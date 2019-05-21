@@ -27,6 +27,7 @@ RSpec.describe 'Util::RateLimitedCache' do
         Count.new,
         refreshes_per_interval: 3, 
         rate_limit_interval: 3600,
+        logger: Rails.logger
       )
     end
 
@@ -63,7 +64,8 @@ RSpec.describe 'Util::RateLimitedCache' do
         Count.new,
         refreshes_per_interval: 3, 
         rate_limit_interval: 10,
-        time: time
+        time: time,
+        logger: Rails.logger
       )
     end
 
