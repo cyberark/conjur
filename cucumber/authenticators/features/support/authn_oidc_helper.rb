@@ -2,6 +2,7 @@
 #
 # Utility methods for OIDC authenticator
 #
+
 module AuthnOidcHelper
   include AuthenticatorHelpers
 
@@ -64,6 +65,38 @@ module AuthnOidcHelper
   def set_oidc_variable(variable_name, value)
     path = "cucumber:variable:conjur/authn-oidc/keycloak"
     Secret.create(resource_id: "#{path}/#{variable_name}", value: value)
+  end
+
+    def measure_oidc_performance(num_requests:, num_threads:, service_id:, account:)
+    queue = (1..num_requests).inject(Queue.new, :push)
+    results = []
+
+    all_threads = Array.new(num_threads) do
+      Thread.new do
+        until queue.empty? do
+          queue.shift
+          results.push(
+              Benchmark.measure do
+                authenticate_id_token_with_oidc(
+                    service_id: service_id,
+                    account: account
+                )
+              end
+          )
+        end
+      end
+    end
+
+    all_threads.each(&:join)
+    @oidc_perf_results = results.map(&:real)
+  end
+
+  def ensure_performance_result(type_str, threshold)
+    type = type_str.downcase.to_sym
+    raise "Unexpected Type" unless [:max, :avg].include?(type)
+    results = @oidc_perf_results
+    actual_time = (type == :avg) ? results.sum.fdiv(results.size) : results.max
+    expect(actual_time).to be < threshold
   end
 
   private

@@ -37,3 +37,11 @@ end
 When(/^I authenticate via OIDC with empty id token$/) do
   authenticate_id_token_with_oidc(service_id: 'keycloak', account: 'cucumber', id_token: "")
 end
+
+When(/^I authenticate "([^"]*)" times in "([^"]*)" threads via OIDC with id token$/) do |num_of_requests, num_of_threads|
+  measure_oidc_performance(num_of_requests.to_i, num_of_threads.to_i, service_id: 'keycloak', account: 'cucumber')
+end
+
+Then(/^The "([^"]*)" response time should be less than "([^"]*)" seconds$/) do |type, threshold|
+  ensure_performance_result(type, threshold.to_f)
+end
