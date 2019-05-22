@@ -67,7 +67,7 @@ module AuthnOidcHelper
     Secret.create(resource_id: "#{path}/#{variable_name}", value: value)
   end
 
-    def measure_oidc_performance(num_requests:, num_threads:, service_id:, account:)
+  def measure_oidc_performance(num_requests:, num_threads:, service_id:, account:)
     queue = (1..num_requests).inject(Queue.new, :push)
     results = []
 
