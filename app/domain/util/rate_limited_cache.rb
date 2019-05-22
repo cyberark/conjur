@@ -1,4 +1,3 @@
-require 'thread'
 
 module Util
   # This can wrap any "callable" object (anything with a `call` method)
