@@ -67,12 +67,12 @@ unless defined? LogMessages::Authentication::OriginValidated
         )
 
         IDTokenDecodeFailed = ::Util::TrackableLogMessageClass.new(
-            msg: "Failed to decode ID Token with the error '{0-exception}'",
+            msg: "Failed to decode the ID Token with the error '{0-exception}'",
             code: "CONJ00018D"
         )
 
         ValidateProviderCertificateIsUpdated = ::Util::TrackableLogMessageClass.new(
-            msg: "Validating OIDC Provider certificates are up do date",
+            msg: "Validating OIDC Provider certificates are up to date",
             code: "CONJ00019D"
         )
 
