@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require './config/custom_formatter'
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -28,6 +30,7 @@ Rails.application.configure do
 
   # Use log level "warn" in prod to avoid logging parameters.
   config.log_level = :warn
+  config.log_formatter = CustomFormatter.new
 
   # Specifies the header that your server uses for sending files.
   # config.action_dispatch.x_sendfile_header = 'X-Sendfile' # for Apache
@@ -58,9 +61,6 @@ Rails.application.configure do
 
   # Send deprecation notices to registered listeners.
   config.active_support.deprecation = :notify
-
-  # Use default logging formatter so that PID and timestamp are not suppressed.
-  config.log_formatter = ::Logger::Formatter.new
 
   #Add support for asset compression in production
   config.assets.css_compressor = :sass
