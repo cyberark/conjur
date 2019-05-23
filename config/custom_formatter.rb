@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class CustomFormatter < Logger::Formatter
-  Format = "[%s] %5s | %s | %s | %s\n".freeze
+  Format = "[%s] %5s | PID:%s | TID:%s | %s\n".freeze
 
   def initialize
     super
