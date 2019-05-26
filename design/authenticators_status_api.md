@@ -22,14 +22,14 @@ For example, the OIDC Authenticator configuration includes whitelisting the auth
 `CONJUR_AUTHENTICATORS=authn-oidc/adfs,authn`
 
 Let's say the Conjur Operator configured the OIDC Authenticator and forgot to whitelist 
-the authenticator in the CONJUR_AUTHENTICATORS variable. Without the Healthcheck API, 
+the authenticator in the CONJUR_AUTHENTICATORS variable. Without the Status API, 
 the first time the user will encounter the error will be in an authentication request. 
 A user `alice` will try to authenticate with OIDC and will get a 401 Unauthorized 
 response without any description on what happened (the answer will be in the logs which 
 are probably unaccessible to her) even if the actual request is ok. The main problem 
 here is that the Unauthorized response has nothing to do with the actual request, as 
 the problem is not in it. The problem is in the configuration which was made by another 
-person in another time. With the Healthcheck API the person who does the configuration will 
+person in another time. With the Status API the person who does the configuration will 
 get an immediate feedback on it, and the users that are *using* the authenticators will not 
 be unauthorized due to configuration errors.
 
@@ -57,7 +57,7 @@ if it's still Unauthorized will solve the configuration issues one-by-one.
 1. The Conjur operator logs into Conjur
 1. The Conjur operator configures the Authenticators according to the docs
     1. We might have several authenticators configured
-1. The operator runs the Healthcheck request: `GET /authenticators/health`
+1. The operator runs the Status request: `GET /authenticators/status`
 1. The operator gets a response:
     1. In case all the authenticators are healthy, a response with code 200 and the following body:
         
@@ -71,7 +71,7 @@ if it's still Unauthorized will solve the configuration issues one-by-one.
            "ok": true
         }
         ```
-    1. In case some of the authenticators aren't healthy, a response with code 500 (more info [here](authenticators_health_api.md#response-code-for-unhealthy-authenticators)) and the following body:
+    1. In case some of the authenticators aren't healthy, a response with code 500 (more info [here](authenticators_status_api.md#response-code-for-unhealthy-authenticators)) and the following body:
 
         ```
         {
@@ -88,7 +88,7 @@ if it's still Unauthorized will solve the configuration issues one-by-one.
 1. The operator runs the request once again and until he gets a healthy response
 
 **Note**: we should list in the response all the authenticators which are implemented in Conjur. 
-Authenticators for which we didn't implement the health-check will have the message "health-check-not-implemented". 
+Authenticators for which we didn't implement the status-check will have the message "status-check-not-implemented". 
 A possible response can look like this:
 ```
 {
@@ -101,7 +101,7 @@ A possible response can look like this:
         "status": "ok"
       },
       "authn-2": {
-              "health-check-not-implemented"
+              "status-check-not-implemented"
       },
       "authn-3": {
         "status": "error",
@@ -115,8 +115,8 @@ A possible response can look like this:
 ```
 
 More info on this can be found in the appendix 
-[here](authenticators_health_api.md#which-authenticators-should-we-list-in-the-response) 
-& [here](authenticators_health_api.md#incremental-health-check-for-authenticators).
+[here](authenticators_status_api.md#which-authenticators-should-we-list-in-the-response) 
+& [here](authenticators_status_api.md#incremental-status-check-for-authenticators).
 
 ### General Analysis
 
@@ -126,7 +126,7 @@ As the user isn't accessing any resource there is no need to audit in this featu
 
 #### Security
 
-Security aspects of this feature are defined [here](authenticators_api.md#authenticatorshealth-endpoint-1)
+Security aspects of this feature are defined [here](authenticators_api.md#authenticatorsstatus-endpoint-1)
 
 # Appendix
 ## Lines of Thought
@@ -157,7 +157,7 @@ We get the following response:
 ```
 
 Let's go over the sections and decide which group should be the one we list in the response and 
-check their health.
+check their status.
 
 ##### Installed
 The "installed" authenticators are those who meet to following criteria:
@@ -169,7 +169,7 @@ The "installed" authenticators are those who meet to following criteria:
 ##### Configured
 The "configured" authenticators are those who have a webservice resource starting with "conjur/authn-". 
 
-This group is not the one we want to list in the health-check as in case there is an error with loading the policy then the authenticator will not be configured and then we won't test it
+This group is not the one we want to list in the status-check as in case there is an error with loading the policy then the authenticator will not be configured and then we won't test it
 
 ##### Enabled
 The "enabled" authenticators are those who are whitelisted in the CONJUR_AUTHENTICATORS variable. If the variable is not configured then we have only the "authn" authenticator.
@@ -180,22 +180,22 @@ It seems that we'll want to list all the "installed" authenticators and test if 
 Note: At this point the "authn-oidc" is not showing in the installed authenticators as it doesn't meet 
 the first & third sections in the criteria. we'll need to fix this before implementing this.
 
-### Incremental health check for authenticators
+### Incremental status check for authenticators
 
-As each authenticator health check will need its own development effort, we'll want to have this feature in production even if we didn't perform the needed development for each authenticator. This means that we need some "N/A" status for authenticators which we didn't develop their health-check.
+As each authenticator status check will need its own development effort, we'll want to have this feature in production even if we didn't perform the needed development for each authenticator. This means that we need some "N/A" status for authenticators which we didn't develop their status-check.
 
 So the statuses for authenticators are:
 
 - ok: the authenticator is healthy
 - fail: the authenticator is unhealthy
-- health-check-not-implemented: he authenticator health-check is not implemented
+- status-check-not-implemented: the authenticator's status-check is not implemented
 
 So a response can look like this:
 ```
 {
    “authenticators”:
    {
-      "authn-ldap": "health-check-not-implemented",
+      "authn-ldap": "status-check-not-implemented",
       "authn-oidc/okta": "error",
       "authn": "ok"
    },
@@ -203,7 +203,7 @@ So a response can look like this:
 }
 ```
 
-Another option is to not have the authenticator health-check in the response at all in case it's not implemented. so for the case above, the response will be:
+Another option is to not have the authenticator status-check in the response at all in case it's not implemented. so for the case above, the response will be:
 ```
 {
    “authenticators”:
@@ -231,7 +231,7 @@ actual request so it's more of a server error that a client error. The possibili
 - 501 Not Implemented
     - Con: Well, this is actually implemented. 
 - 503 Service Unavailable
-    - Con: This doesn't really tell the story as the service that we're calling - The Authenticator health service - is actually available. 
+    - Con: This doesn't really tell the story as the service that we're calling - The Authenticator status service - is actually available. 
 - 502 Bad Gateway & 504 Gateway Timeout
     - Irrelevant as this is not a gateway.
 
