@@ -42,10 +42,10 @@ Let's go over the sections in the response to understand them:
 1. installed: these authenticators are implemented in conjur code 
 (e.g they have an `Authn-somehting::Authenticator` class with a `valid?` method).
 
-2. configured: these authenticators have a webservice called 
+1. configured: these authenticators have a webservice called 
 `conjur/authn-something/webservice`.
 
-3. enabled: these authenticators are whitelisted in the CONJUR_AUTHENTICATORS variable.
+1. enabled: these authenticators are whitelisted in the CONJUR_AUTHENTICATORS variable.
 
 Section 1 has important data but it shouldn't be here, but rather in the docs. It has
 nothing to do with the given Conjur instance and just describes the authenticators that
@@ -88,11 +88,11 @@ which may consist sensitive data. So this request must be applicable **only with
 This leads us to 2 API endpoints:
 
 1. `/authenticators` (for Conjur users)
-2. `/authenticators/health` (for Conjur operators)
+1. `/authenticators/health` (for Conjur operators)
 
 ### Process Logic
 
-In the following example, the authenticators `authn` & `authn-1` are properly configured
+In the following example, the authenticators `authn` &`authn-1/service-id` are properly configured
 and `authn-2` is not whitelisted in the ENV.
 
 #### `/authenticators` Endpoint
@@ -105,10 +105,13 @@ and `authn-2` is not whitelisted in the ENV.
    “authenticators”:
    [
       "authn",
-      "authn-1"
+      "authn-1/service-id"
    ]
 }
 ```
+
+***Note:*** Some of the authenticators have a service-id. If an authenticator has one then it should
+be present in the response.
 
 #### `/authenticators/health` Endpoint
 
@@ -123,7 +126,7 @@ and `authn-2` is not whitelisted in the ENV.
       "authn": {
         "status": "ok"
       },
-      "authn-1": {
+      "authn-1/service-id": {
         "status": "ok"
       },
       "authn-2": {

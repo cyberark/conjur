@@ -88,7 +88,7 @@ if it's still Unauthorized will solve the configuration issues one-by-one.
 1. The operator runs the request once again and until he gets a healthy response
 
 **Note**: we should list in the response all the authenticators which are implemented in Conjur. 
-Authenticators for which we didn't implement the health-check will have the message "not-implemented". 
+Authenticators for which we didn't implement the health-check will have the message "health-check-not-implemented". 
 A possible response can look like this:
 ```
 {
@@ -97,11 +97,11 @@ A possible response can look like this:
       "authn": {
         "status": "ok"
       },
-      "authn-1": {
+      "authn-1/service-id": {
         "status": "ok"
       },
       "authn-2": {
-              "not-implemented"
+              "health-check-not-implemented"
       },
       "authn-3": {
         "status": "error",
@@ -147,11 +147,11 @@ We get the following response:
     ],
     "configured": [
         "authn",
-        "authn-1"
+        "authn-1/service-id"
     ],
     "enabled": [
         "authn",
-        "authn-1"
+        "authn-1/service-id"
     ]
 }
 ```
@@ -188,15 +188,15 @@ So the statuses for authenticators are:
 
 - ok: the authenticator is healthy
 - fail: the authenticator is unhealthy
-- not-implemented: he authenticator health-check is not implemented
+- health-check-not-implemented: he authenticator health-check is not implemented
 
 So a response can look like this:
 ```
 {
    “authenticators”:
    {
-      "authn-ldap": "not-implemented",
-      "authn-oidc": "error",
+      "authn-ldap": "health-check-not-implemented",
+      "authn-oidc/okta": "error",
       "authn": "ok"
    },
    "ok": false
@@ -208,7 +208,7 @@ Another option is to not have the authenticator health-check in the response at 
 {
    “authenticators”:
    {
-      "authn-oidc": "error",
+      "authn-oidc/okta": "error",
       "authn": "ok"
    },
    "ok": false
