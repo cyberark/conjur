@@ -3,7 +3,7 @@
 This doc challenges the current `/authenticators` endpoint in the Conjur API, and
 suggests a new approach.
 
-Full feature doc for the Authenticators Status API can be found [here](authenticators_status_api.md)
+Full feature doc for the Authenticator Status API can be found [here](authenticator_status_api.md)
 
 ### Personas
 
@@ -88,7 +88,7 @@ which may consist sensitive data. So this request must be applicable **only with
 This leads us to 2 API endpoints:
 
 1. `/authenticators` (for Conjur users)
-1. `/authenticators/status` (for Conjur operators)
+1. `/authenticators/<authenticator_id>/status` (for Conjur operators)
 
 ### Process Logic
 
@@ -113,30 +113,24 @@ and `authn-2` is not whitelisted in the ENV.
 ***Note:*** Some of the authenticators have a service-id. If an authenticator has one then it should
 be present in the response.
 
-#### `/authenticators/status` Endpoint
+#### `/authenticators/<authenticator_id>/status` Endpoint
+
+In the following example, a Conjur Operator configured the authenticator `authn-2/service-id` and would like
+to know if the configuration was successful. The operator forgot to enable the authenticator in the ENV.
 
 - A Conjur operator logs into Conjur (in any authn method) and receives an access token
-- The operator runs an `/authenticators/status` request with the given access token:\
-`GET /authenticators/status`
-- The operator gets a response with code 500 (more info [here](authenticators_status_api.md#response-code-for-unhealthy-authenticators)) with the following body:
+- The operator configures the authenticator `authn-2/service-id`
+- The operator runs an `/authenticators/<authenticator_id>/status` request with the given access token:\
+`GET /authenticators/authn-2/service-id/status`
+- The operator gets a response with code 500 (more info [here](authenticator_status_api.md#response-code-for-unhealthy-authenticators)) with the following body:
 ```
 {
-   "authenticators":
-   {
-      "authn": {
-        "status": "ok"
-      },
-      "authn-1/service-id": {
-        "status": "ok"
-      },
-      "authn-2": {
-        "status": "error",
-        "error": "Authentication::Security::NotWhitelisted",
-        "code": "CONJ00004E",
-        "message": "'authn-2' is not whitelisted in CONJUR_AUTHENTICATORS",
-      }
-   },
-   "ok": false
+  "authn-2/service-id": {
+    "status": "error",
+    "error": "Authentication::Security::NotWhitelisted",
+    "code": "CONJ00004E",
+    "message": "'authn-2/service-id' is not whitelisted in CONJUR_AUTHENTICATORS",
+  }
 }
 ```
 - The operator understands the issue from the response and fixes it
@@ -160,7 +154,7 @@ provide the information needed for authentication. Furthermore, we don't say _wh
 the authenticator is invalid so this endpoint can be hit by anyone,
 without the need of a Conjur access token
 
-#### `/authenticators/status` Endpoint
+#### `/authenticators/<authenticator_id>/status` Endpoint
 
 This endpoint reveals some serious details on the Conjur environment, so it should be 
 secure. Any request lacking a valid access token will be responded with a 403 code.
@@ -172,12 +166,12 @@ and granting permission on it.
 A Conjur Operator will need to load the following policy in order to enable it:
 ```
 - !webservice
-  id: conjur/authenticators/status
+  id: conjur/authenticators/<authenticator_id>/status
   
 - !permit
   role: !group operators
   privilege: [ read, authenticate ]
-  resource: !webservice conjur/authenticators/status
+  resource: !webservice conjur/authenticators/<authenticator_id>/status
 ```
 
 In case such a policy is loaded then access to this endpoint will be available, and
@@ -187,4 +181,4 @@ In case the policy above is not loaded then the endpoint will return a 403 Forbi
 
 ---
 
-Full feature doc for the `/authenticators/status` Endpoint can be found [here](authenticators_status_api.md)
+Full feature doc for the `/authenticators/<authenticator_id>/status` Endpoint can be found [here](authenticator_status_api.md)
