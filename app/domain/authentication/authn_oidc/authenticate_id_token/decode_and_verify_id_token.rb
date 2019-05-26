@@ -73,7 +73,7 @@ module Authentication
         end
 
         def ensure_certs_are_fresh
-          decoded_id_token
+          decode_id_token
         rescue => e
           @logger.debug(Log::IDTokenDecodeFailed.new(e.inspect).to_s)
           @logger.debug(Log::ValidateProviderCertificateIsUpdated.new.to_s)
@@ -84,7 +84,7 @@ module Authentication
         # Note: Order matters here.  It is assumed this is called after
         #       `ensure_certs_are_fresh`.
         def validate_id_token
-          decoded_id_token
+          decode_id_token
         rescue => e
           raise Err::IdTokenInvalidFormat, e.inspect
         end
