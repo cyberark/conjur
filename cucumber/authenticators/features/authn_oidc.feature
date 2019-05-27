@@ -52,7 +52,7 @@ Feature: Users can authneticate with OIDC authenticator
       role: !group conjur/authn-oidc/keycloak/users
       member: !user alice@conjur.net
     """
-    When I add the secret value "email" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/id-token-user-property"
+    When I add the secret value "email" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
     And I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
     And I authenticate via OIDC with id token
@@ -156,6 +156,21 @@ Feature: Users can authneticate with OIDC authenticator
     """
     Errors::Authentication::AuthnOidc::AdminAuthenticationDenied
     """
+
+  Scenario: Provider uri Dynamic change
+    Given I get authorization code for username "alice" and password "alice"
+    And I fetch an ID Token
+    And I save my place in the log file
+    When I authenticate via OIDC with id token
+    Then it is unauthorized
+    # Update provider uri to an unreachable hostname
+    When I add the secret value "http://unreachable.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/id-token-user-property"
+    And I authenticate via OIDC with id token
+    Then it is unauthorized
+    # Check recovery to a valid provider uri
+    And I successfully set OIDC variables
+    And I authenticate via OIDC with id token
+    Then user "alice" is authorized
 
   Scenario: Performance test
     Given I get authorization code for username "alice" and password "alice"
