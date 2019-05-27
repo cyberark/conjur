@@ -17,3 +17,11 @@ end
 Then(/it is forbidden/) do
   expect(forbidden?).to be true
 end
+
+Then(/it is read timeout/) do
+  expect(read_timeout?).to be true
+end
+
+Then(/it is bad gateway/) do
+  expect(bad_gateway?).to be true
+end
