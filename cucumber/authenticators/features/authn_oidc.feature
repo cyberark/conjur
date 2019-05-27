@@ -52,7 +52,7 @@ Feature: Users can authneticate with OIDC authenticator
       role: !group conjur/authn-oidc/keycloak/users
       member: !user alice@conjur.net
     """
-    When I add the secret value "email" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
+    When I add the secret value "email" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/id-token-user-property"
     And I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
     And I authenticate via OIDC with id token
