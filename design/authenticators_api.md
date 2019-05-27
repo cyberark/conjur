@@ -49,9 +49,9 @@ Let's go over the sections in the response to understand them:
 
 Section 1 has important data but it shouldn't be here, but rather in the docs. It has
 nothing to do with the given Conjur instance and just describes the authenticators that
-are implemented in Conjur.
+are implemented in Conjur. 
 
-Sections 2 & 3 combined can help a conjur user to know if he can use an authenticator
+Sections 2 & 3 combined _can_ help a conjur user to know if he can use an authenticator
 but that's not entirely true. some authenticators need further configuration than 
 just configuring a webservice and enabling the authenticator in the ENV (for example, 
 authn-oidc needs to load variables). So while a user will get _some_ value using this API, 
@@ -66,7 +66,7 @@ This feature is divided into 2 personas:
 #### Conjur operator
 
 **As a** Conjur operator\
-**I'd like to** know which authenticators are configured correctly\
+**I'd like to** know that an authenticator is configured correctly\
 **So that** I can complete the configuration properly if it's incomplete (or remove
 it if it's not needed)
 
@@ -113,12 +113,12 @@ and `authn-2` is not whitelisted in the ENV.
 ***Note:*** Some of the authenticators have a service-id. If an authenticator has one then it should
 be present in the response.
 
-More info on tracking implemented authenticators [here](authenticators_api.md#track-implemented-authenticators-in-the-authenticators-endpoint)
+We don't track the implemented (currently called `installed`) authenticators in this API. More info [here](authenticators_api.md#track-implemented-authenticators-in-the-authenticators-endpoint)
 
 #### `/authenticators/<authenticator_id>/status` Endpoint
 
-In the following example, a Conjur Operator configured the authenticator `authn-2/service-id` and would like
-to know if the configuration was successful. The operator forgot to enable the authenticator in the ENV.
+In the following example, a Conjur Operator configured the authenticator `authn-2/service-id` 
+and forgot to enable the authenticator in the ENV. He would like to know if the configuration was successful.
 
 - A Conjur operator logs into Conjur (in any authn method) and receives an access token
 - The operator configures the authenticator `authn-2/service-id`
@@ -153,10 +153,8 @@ However, as `evoke` is not part of the OSS, we will leave the implementation in 
 Although the response reveals which authenticators are configured and this request is prone
 for brute-force attacks, the value of this endpoint for the user is high and can
 provide the information needed for authentication. Furthermore, we don't say _why_
-the authenticator is invalid so this endpoint can be hit by anyone,
+the authenticator is invalid (or even mention that an authenticator is invalid) so this endpoint can be hit by anyone,
 without the need of a Conjur access token
-
-
 
 #### `/authenticators/<authenticator_id>/status` Endpoint
 
@@ -188,6 +186,7 @@ In case the policy above is not loaded then the endpoint will return a 403 Forbi
 
 ### Track implemented authenticators in the `/authenticators` endpoint
 
+TODO: add content
 
 ---
 
