@@ -113,6 +113,8 @@ and `authn-2` is not whitelisted in the ENV.
 ***Note:*** Some of the authenticators have a service-id. If an authenticator has one then it should
 be present in the response.
 
+More info on tracking implemented authenticators [here]
+
 #### `/authenticators/<authenticator_id>/status` Endpoint
 
 In the following example, a Conjur Operator configured the authenticator `authn-2/service-id` and would like
@@ -154,6 +156,8 @@ provide the information needed for authentication. Furthermore, we don't say _wh
 the authenticator is invalid so this endpoint can be hit by anyone,
 without the need of a Conjur access token
 
+
+
 #### `/authenticators/<authenticator_id>/status` Endpoint
 
 This endpoint reveals some serious details on the Conjur environment, so it should be 
@@ -179,6 +183,10 @@ will be restricted only to users who are members of the `operators` group.
 
 In case the policy above is not loaded then the endpoint will return a 403 Forbidden response to any request.
 
+# Appendix
+## Lines of Thought
+
+### Track implemented authenticator in the `/authenticators` endpoint
 ---
 
 Full feature doc for the `/authenticators/<authenticator_id>/status` Endpoint can be found [here](authenticator_status_api.md)
