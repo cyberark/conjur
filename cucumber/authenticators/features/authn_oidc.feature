@@ -160,16 +160,26 @@ Feature: Users can authneticate with OIDC authenticator
   Scenario: Provider uri Dynamic change
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    And I save my place in the log file
     When I authenticate via OIDC with id token
-    Then it is unauthorized
+    Then user "alice" is authorized
     # Update provider uri to an unreachable hostname
-    When I add the secret value "http://unreachable.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/id-token-user-property"
+    When I add the secret value "http://unreachable.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
+    And I save my place in the log file
     And I authenticate via OIDC with id token
-    Then it is unauthorized
+    Then it is read timeout
+    And The following appears in the log after my savepoint:
+    """
+    504 Gateway Timeout
+    """
+    # Update provider uri to reachable but invalid hostname
+    When I add the secret value "http://127.0.0.1.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
+    And I authenticate via OIDC with id token
+    Then it is bad gateway
     # Check recovery to a valid provider uri
-    And I successfully set OIDC variables
-    And I authenticate via OIDC with id token
+    Given I successfully set OIDC variables
+    And I get authorization code for username "alice" and password "alice"
+    And I fetch an ID Token
+    When I authenticate via OIDC with id token
     Then user "alice" is authorized
 
   Scenario: Performance test

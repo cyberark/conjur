@@ -53,6 +53,14 @@ module AuthenticatorHelpers
     http_status == 403
   end
 
+  def bad_gateway?
+    http_status == 502
+  end
+
+  def read_timeout?
+    rest_client_error.class == RestClient::Exceptions::ReadTimeout
+  end
+
   def load_root_policy(policy)
     conjur_api.load_policy('root', policy,
                            method: Conjur::API::POLICY_METHOD_PUT)
