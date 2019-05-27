@@ -113,7 +113,7 @@ and `authn-2` is not whitelisted in the ENV.
 ***Note:*** Some of the authenticators have a service-id. If an authenticator has one then it should
 be present in the response.
 
-More info on tracking implemented authenticators [here]
+More info on tracking implemented authenticators [here](authenticators_api.md#track-implemented-authenticators-in-the-authenticators-endpoint)
 
 #### `/authenticators/<authenticator_id>/status` Endpoint
 
@@ -186,7 +186,9 @@ In case the policy above is not loaded then the endpoint will return a 403 Forbi
 # Appendix
 ## Lines of Thought
 
-### Track implemented authenticator in the `/authenticators` endpoint
+### Track implemented authenticators in the `/authenticators` endpoint
+
+
 ---
 
 Full feature doc for the `/authenticators/<authenticator_id>/status` Endpoint can be found [here](authenticator_status_api.md)

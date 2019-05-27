@@ -108,7 +108,7 @@ As the user isn't accessing any resource there is no need to audit in this featu
 
 #### Security
 
-Security aspects of this feature are defined [here](authenticators_api.md#authenticatorsstatus-endpoint-1)
+Security aspects of this feature are defined [here](authenticators_api.md#authenticatorsauthenticator_idstatus-endpoint-1)
 
 # Appendix
 ## Lines of Thought
