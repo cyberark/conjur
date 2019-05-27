@@ -47,9 +47,9 @@ Let's go over the sections in the response to understand them:
 
 1. enabled: these authenticators are whitelisted in the CONJUR_AUTHENTICATORS variable.
 
-Section 1 has important data but it shouldn't be here, but rather in the docs. It has
-nothing to do with the given Conjur instance and just describes the authenticators that
-are implemented in Conjur. 
+Section 1 has important data but it shouldn't be here, but rather [in the docs]((authenticators_api.md#track-implemented-authenticators-in-the-authenticators-endpoint)). 
+It has nothing to do with the given Conjur instance and just describes the authenticators that
+are implemented in Conjur.
 
 Sections 2 & 3 combined _can_ help a conjur user to know if he can use an authenticator
 but that's not entirely true. some authenticators need further configuration than 
@@ -186,7 +186,15 @@ In case the policy above is not loaded then the endpoint will return a 403 Forbi
 
 ### Track implemented authenticators in the `/authenticators` endpoint
 
-TODO: add content
+**As a** Conjur operator\
+**I'd like to** know which authenticators are implemented in Conjur\
+**So that** I can configure them for authentication
+
+As mentioned earlier in the doc, this data should be implemented in a versioned documentation,
+rather than in an API call. Although at this point we don't have versioned documentation in Conjur, 
+we should strive to the solution and not settle on developing and maintaining workarounds in the product.
+The correct way for a user to get this info is to run the `/info` API, get the version and look in the 
+documentation of that version to see which authenticators are implemented and ready for configuration.
 
 ---
 
