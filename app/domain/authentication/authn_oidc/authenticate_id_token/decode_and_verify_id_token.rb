@@ -33,16 +33,44 @@ module Authentication
 
         private
 
+        def fetch_certs(force_read: false)
+          @certs = @fetch_provider_certificate.(
+            provider_uri: @provider_uri,
+              refresh: force_read
+          )
+          @logger.debug(Log::OIDCProviderCertificateFetchedFromCache.new.to_s)
+        end
+
+        # Note: This is the first time we try to decode the id token so we call
+        # `decode_id_token` which also logs success and failure
+        def ensure_certs_are_fresh
+          decode_id_token
+        rescue
+          @logger.debug(Log::ValidateProviderCertificateIsUpdated.new.to_s)
+          # maybe failed due to certificate rotation. Force cache to read it again
+          fetch_certs(force_read: true)
+        end
+
+        # Note: Order matters here.  It is assumed this is called after
+        #       `ensure_certs_are_fresh`.
+        # We call `decode_id_token` and not the memoized object as this may be the first time
+        # we actually decode the id token so we want to log the success/failure
+        def validate_id_token
+          decode_id_token
+        rescue => e
+          raise Err::IdTokenInvalidFormat, e.inspect
+        end
+
         # Note: At this point `validate_id_token` will have already been called
         # and `decoded_id_token` will just return the memoized value, so nothing
-        # is really "happening" here.  Nevertheless, the steps `validate_id_token`
-        # and `decoded_id_token` are semantically distinct.  The former has 
-        # the responsiblity of raising an error.  The latter of logging the success.
-        # Also, it is merely a coincidental implementation detail that validate_id_token
-        # happens to validate by calling `decoded_id_token` and checking if it errors
+        # is really "happening" here.  This method is still in the `call` method
+        # to tell the story
         def decode_id_token
           decoded_id_token
           @logger.debug(Log::IDTokenDecodeSuccess.new.to_s)
+        rescue => e
+          @logger.debug(Log::IDTokenDecodeFailed.new(e.inspect).to_s)
+          raise e
         end
 
         def verify_token_claims
@@ -60,40 +88,15 @@ module Authentication
           raise Err::IdTokenVerifyFailed, e.inspect
         end
 
-        def fetch_certs(force_read: false)
-          @certs = @fetch_provider_certificate.(
-            provider_uri: @provider_uri,
-            refresh: force_read
-          )
-          @logger.debug(Log::OIDCProviderCertificateFetchedFromCache.new.to_s)
-        end
-
-        def decoded_attributes
-          @decoded_attributes ||= decoded_id_token.raw_attributes
-        end
-
-        def ensure_certs_are_fresh
-          decode_id_token
-        rescue => e
-          @logger.debug(Log::IDTokenDecodeFailed.new(e.inspect).to_s)
-          @logger.debug(Log::ValidateProviderCertificateIsUpdated.new.to_s)
-          # maybe failed due to certificate rotation. Force cache to read it again
-          fetch_certs(force_read: true)
-        end
-
-        # Note: Order matters here.  It is assumed this is called after
-        #       `ensure_certs_are_fresh`.
-        def validate_id_token
-          decode_id_token
-        rescue => e
-          raise Err::IdTokenInvalidFormat, e.inspect
-        end
-
         def decoded_id_token
           @decoded_id_token ||= OpenIDConnect::ResponseObject::IdToken.decode(
             @id_token_jwt,
             @certs
           )
+        end
+
+        def decoded_attributes
+          @decoded_attributes ||= decoded_id_token.raw_attributes
         end
       end
     end
