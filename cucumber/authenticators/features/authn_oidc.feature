@@ -164,12 +164,21 @@ Feature: Users can authneticate with OIDC authenticator
     Then The "max" response time should be less than "1" seconds
     And The "avg" response time should be less than "0.25" seconds
 
-  Scenario: Load test
+  Scenario: Load with cache
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
+    # Make sure cache contains a valid certificate
+    And I authenticate via OIDC with id token
+    And user "alice" is authorized
     And I save my place in the log file
+    # Load while the cache is full
     When I authenticate "2000" times in "20" threads via OIDC with id token
     Then The following appears "2000" times in the log after my savepoint:
     """
     Completed 200 OK
+    """
+    # Validate cache functionality
+    And The following appears "0" times in the log after my savepoint:
+    """
+    CONJ00016D Rate limited cache updated successfully
     """
