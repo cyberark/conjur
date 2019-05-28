@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require './config/conjur_log_formatter'
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -22,6 +24,7 @@ Rails.application.configure do
   # Use the lowest log level to ensure availability of diagnostic information
   # when problems arise.
   config.log_level = :debug
+  config.log_formatter = ConjurLogFormatter.new
 
   # Don't care if the mailer can't send.
   # config.action_mailer.raise_delivery_errors = false
