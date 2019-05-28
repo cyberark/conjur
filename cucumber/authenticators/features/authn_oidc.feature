@@ -157,16 +157,16 @@ Feature: Users can authneticate with OIDC authenticator
     Errors::Authentication::AuthnOidc::AdminAuthenticationDenied
     """
 
-  Scenario: Provider uri Dynamic change
+  Scenario: provider-uri dynamic change
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    When I authenticate via OIDC with id token
-    Then user "alice" is authorized
+    And I authenticate via OIDC with id token
+    And user "alice" is authorized
     # Update provider uri to an unreachable hostname
     When I add the secret value "http://unreachable.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
     And I save my place in the log file
     And I authenticate via OIDC with id token
-    Then it is read timeout
+    Then it is gateway timeout
     And The following appears in the log after my savepoint:
     """
     504 Gateway Timeout
@@ -176,10 +176,10 @@ Feature: Users can authneticate with OIDC authenticator
     And I authenticate via OIDC with id token
     Then it is bad gateway
     # Check recovery to a valid provider uri
-    Given I successfully set OIDC variables
+    When I successfully set OIDC variables
     And I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    When I authenticate via OIDC with id token
+    And I authenticate via OIDC with id token
     Then user "alice" is authorized
 
   Scenario: Performance test
