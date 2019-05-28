@@ -47,9 +47,7 @@ Let's go over the sections in the response to understand them:
 
 1. enabled: these authenticators are whitelisted in the CONJUR_AUTHENTICATORS variable.
 
-Section 1 has important data but it shouldn't be here, but rather [in the docs]((authenticators_api.md#track-implemented-authenticators-in-the-authenticators-endpoint)). 
-It has nothing to do with the given Conjur instance and just describes the authenticators that
-are implemented in Conjur.
+Section 1 has important data but it shouldn't be here, but rather [in the docs](authenticators_api.md#track-implemented-authenticators-in-the-authenticators-endpoint). 
 
 Sections 2 & 3 combined _can_ help a conjur user to know if he can use an authenticator
 but that's not entirely true. some authenticators need further configuration than 
@@ -110,10 +108,12 @@ and `authn-2` is not whitelisted in the ENV.
 }
 ```
 
-***Note:*** Some of the authenticators have a service-id. If an authenticator has one then it should
-be present in the response.
+***Notes:*** 
 
-We don't track the implemented (currently called `installed`) authenticators in this API. More info [here](authenticators_api.md#track-implemented-authenticators-in-the-authenticators-endpoint)
+- Some of the authenticators have a service-id. If an authenticator has one then it should
+be present in the response.
+- We don't track the implemented (currently called `installed`) authenticators in this API. More info [here](authenticators_api.md#track-implemented-authenticators-in-the-authenticators-endpoint).
+- This change breaks backward compatibility.
 
 #### `/authenticators/<authenticator_id>/status` Endpoint
 
@@ -153,7 +153,7 @@ However, as `evoke` is not part of the OSS, we will leave the implementation in 
 Although the response reveals which authenticators are configured and this request is prone
 for brute-force attacks, the value of this endpoint for the user is high and can
 provide the information needed for authentication. Furthermore, we don't say _why_
-the authenticator is invalid (or even mention that an authenticator is invalid) so this endpoint can be hit by anyone,
+the authenticator is invalid (or even mention that an authenticator _is_ invalid) so this endpoint can be hit by anyone,
 without the need of a Conjur access token
 
 #### `/authenticators/<authenticator_id>/status` Endpoint
