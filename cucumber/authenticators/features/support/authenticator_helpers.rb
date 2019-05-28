@@ -57,8 +57,9 @@ module AuthenticatorHelpers
     http_status == 502
   end
 
-  def read_timeout?
-    rest_client_error.class == RestClient::Exceptions::ReadTimeout
+  def gateway_timeout?
+    # In case the client gets timeout, before the server gets timeout against the 3rd party
+    http_status == 504 || client_timeout?
   end
 
   def load_root_policy(policy)
@@ -129,6 +130,10 @@ module AuthenticatorHelpers
 
   def full_username(username, account: Conjur.configuration.account)
     "#{account}:user:#{username}"
+  end
+
+  def client_timeout?
+    rest_client_error.class == RestClient::Exceptions::ReadTimeout
   end
 end
 

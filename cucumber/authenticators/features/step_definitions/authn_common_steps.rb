@@ -18,8 +18,8 @@ Then(/it is forbidden/) do
   expect(forbidden?).to be true
 end
 
-Then(/it is read timeout/) do
-  expect(read_timeout?).to be true
+Then(/it is gateway timeout/) do
+  expect(gateway_timeout?).to be true
 end
 
 Then(/it is bad gateway/) do
