@@ -171,7 +171,7 @@ Feature: Users can authneticate with OIDC authenticator
     And I authenticate via OIDC with id token
     And user "alice" is authorized
     And I save my place in the log file
-    # Load while the cache is full
+    # Load while the cache contains OIDC provider certificate
     When I authenticate "2000" times in "20" threads via OIDC with id token
     Then The following appears "2000" times in the log after my savepoint:
     """
