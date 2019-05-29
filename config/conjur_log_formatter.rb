@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ConjurLogFormatter < Logger::Formatter
-  Format = "%5s [%s] %s\n".freeze
+  Format = "%5s [%s] [tid=%s] [pid=%s] %s\n".freeze
 
   def initialize
     super
@@ -9,6 +9,16 @@ class ConjurLogFormatter < Logger::Formatter
   end
 
   def call(severity, time, progname, msg)
-    Format % [severity, format_datetime(time), msg2str(msg)]
+    Format % [severity, format_datetime(time), tid, pid, msg2str(msg)]
+  end
+
+  private
+
+  def tid
+    Thread.current.object_id
+  end
+
+  def pid
+    $$
   end
 end
