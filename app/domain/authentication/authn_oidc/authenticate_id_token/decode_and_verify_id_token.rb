@@ -41,10 +41,8 @@ module Authentication
           @logger.debug(Log::OIDCProviderCertificateFetchedFromCache.new.to_s)
         end
 
-        # Note: This is the first time we try to decode the id token so we call
-        # `decode_id_token` which also logs success and failure
         def ensure_certs_are_fresh
-          decode_id_token
+          decoded_id_token
         rescue
           @logger.debug(Log::ValidateProviderCertificateIsUpdated.new.to_s)
           # maybe failed due to certificate rotation. Force cache to read it again
@@ -53,10 +51,8 @@ module Authentication
 
         # Note: Order matters here.  It is assumed this is called after
         #       `ensure_certs_are_fresh`.
-        # We call `decode_id_token` and not the memoized object as this may be the first time
-        # we actually decode the id token so we want to log the success/failure
         def validate_id_token
-          decode_id_token
+          decoded_id_token
         rescue => e
           raise Err::IdTokenInvalidFormat, e.inspect
         end
@@ -67,10 +63,6 @@ module Authentication
         # to tell the story
         def decode_id_token
           decoded_id_token
-          @logger.debug(Log::IDTokenDecodeSuccess.new.to_s)
-        rescue => e
-          @logger.debug(Log::IDTokenDecodeFailed.new(e.inspect).to_s)
-          raise e
         end
 
         def verify_token_claims
@@ -89,10 +81,15 @@ module Authentication
         end
 
         def decoded_id_token
-          @decoded_id_token ||= OpenIDConnect::ResponseObject::IdToken.decode(
+          return @decoded_id_token unless @decoded_id_token.nil?
+          @decoded_id_token = OpenIDConnect::ResponseObject::IdToken.decode(
             @id_token_jwt,
             @certs
           )
+          @logger.debug(Log::IDTokenDecodeSuccess.new.to_s)
+        rescue => e
+          @logger.debug(Log::IDTokenDecodeFailed.new(e.inspect).to_s)
+          raise e
         end
 
         def decoded_attributes

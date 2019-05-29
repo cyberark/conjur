@@ -67,7 +67,7 @@ module AuthnOidcHelper
     Secret.create(resource_id: "#{path}/#{variable_name}", value: value)
   end
 
-  def measure_oidc_performance(num_requests:, num_threads:, service_id:, account:)
+  def measure_oidc_performance(num_requests:, num_threads:, service_id:, account:, id_token: @oidc_id_token.to_s)
     queue = (1..num_requests).inject(Queue.new, :push)
     results = []
 
@@ -79,7 +79,8 @@ module AuthnOidcHelper
               Benchmark.measure do
                 authenticate_id_token_with_oidc(
                     service_id: service_id,
-                    account: account
+                    account: account,
+                    id_token: id_token
                 )
               end
           )
