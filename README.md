@@ -38,7 +38,7 @@ here: [community support](https://www.conjur.org/support.html)
 Migrating data from Conjur Open Source to Conjur EE is simple using our
 [migration guide][migration]
 
-[migration]: MIGRATION.md
+[migration]: design/MIGRATION.md
 
 # Development
 
@@ -356,7 +356,7 @@ Conjur makes it easy to:
 
 ## Secrets and keys
 
-Main article: [Conjur Cryptography](https://www.conjur.org/reference/cryptography.html)
+Main article: [Conjur Cryptography](https://docs.conjur.org/Latest/en/Content/Get%20Started/cryptography.html)
 
 Conjur uses industry-standard cryptography to protect your data.
 
