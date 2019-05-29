@@ -40,7 +40,6 @@ module Util
     # This  method is passed exactly the same named arguments you'd pass to the
     # callable object, but you can optionally include the `refresh: true` to
     # force recalculation.
-    #
     def call(**args)
       refresh_requested = args[:refresh]
       args.delete(:refresh)
@@ -56,7 +55,10 @@ module Util
     private
 
     def recalculate(args)
-      return if too_many_requests?(args)
+      if too_many_requests?(args)
+        @logger.debug(Log::RateLimitedCacheLimitReached.new.to_s)
+        return
+      end
       @cache[args] = @target.call(**args)
       @logger.debug(Log::RateLimitedCacheUpdated.new.to_s)
       @refresh_history[args].push(@time.now)
