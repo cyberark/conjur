@@ -105,7 +105,7 @@ To use it:
    Once the `start` script finishes, you're in a Bash shell inside the Conjur
    server container.  To 
 
-   After staring Conjur, your instance will be configured with the following:
+   After starting Conjur, your instance will be configured with the following:
    * Account: `cucumber`
    * User: `admin`
    * Password: Run `conjurctl role retrieve-key cucumber:user:admin` inside the container shell to retrieve the admin user API key (which is also the password)
