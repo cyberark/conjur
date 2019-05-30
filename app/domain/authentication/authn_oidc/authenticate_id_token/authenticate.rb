@@ -114,6 +114,11 @@ module Authentication
           username == "admin"
         end
       end
+
+      # An singleton instance we can call from the controller so to ensure all
+      # requests pass through a single cache.  Ideally, we'd move this to a
+      # rails initializer.
+      AuthenticateInstance = Authenticate.new
     end
   end
 end
