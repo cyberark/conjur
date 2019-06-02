@@ -39,6 +39,7 @@ module Authentication
               refresh: force_read
           )
           @logger.debug(Log::OIDCProviderCertificateFetchedFromCache.new.to_s)
+          @certs
         end
 
         def ensure_certs_are_fresh
@@ -87,6 +88,7 @@ module Authentication
             @certs
           )
           @logger.debug(Log::IDTokenDecodeSuccess.new.to_s)
+          @decoded_id_token
         rescue => e
           @logger.debug(Log::IDTokenDecodeFailed.new(e.inspect).to_s)
           raise e
