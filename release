@@ -10,11 +10,6 @@ function revert_tag {
 
 git fetch --tags
 
-if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]; then
-  echo "Must be on the master branch to releases.  Please switch with 'git checkout master'."
-  exit 1
-fi
-
 version="v$(< VERSION)"
 last_release=$(git describe --abbrev=0 --tags)
 
