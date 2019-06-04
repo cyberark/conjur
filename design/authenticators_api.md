@@ -196,7 +196,7 @@ we should strive to the solution and not settle on developing and maintaining wo
 The correct way for a user to get this info is to run the `/info` API, get the version and look in the 
 documentation of that version to see which authenticators are implemented and ready for configuration.
 
-***TBD***: Decide if we want another API for this. Draft feature doc can be found [here](implemented_authenticators_api.md)
+***TBD***: Decide if we want another API for this. Draft feature doc can be found [here](available_authenticators_api.md)
 
 ---
 

@@ -11,11 +11,11 @@ This is a DRAFT
 ## Feature Overview
 
 **As a** Conjur operator\
-**I'd like to** know which authenticators are implemented in Conjur\
+**I'd like to** know which authenticators are available in Conjur\
 **So that** I can configure them for users to authenticate
 
 Ideally this data should be managed in our docs but as we don't have yet a fully versioned
-documentation, and customers need to know which authenticators are implemented
+documentation, and customers need to know which authenticators are available
 in the Conjur instance they are using, we will add an API for this. 
 
 ### Process Logic
@@ -23,11 +23,11 @@ in the Conjur instance they are using, we will add an API for this.
 In the following example, the Conjur version includes the authenticators `authn`, `authn-1` & `authn-2`.
 
 - A Conjur Operator runs an `/authenticators` request:\
-`GET /authenticators/implemented`
+`GET /authenticators/available`
 - The user gets a response with code 200 with the following body:
 ```
 {
-   “implemented-authenticators”:
+   “authenticators”:
    [
       "authn",
       "authn-1",
@@ -44,6 +44,6 @@ As the user isn't accessing any resource there is no need to audit in this featu
 
 ### Security
 
-#### `/authenticators/implemented` Endpoint
+#### `/authenticators/available` Endpoint
 
 - no need for token as this data is in the docs
