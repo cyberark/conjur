@@ -22,6 +22,9 @@ class ApplicationController < ActionController::API
   class BadRequest < RuntimeError
   end
 
+  class InternalServerError < RuntimeError
+  end
+
   class Forbidden < Exceptions::Forbidden
     def message
       'Forbidden'
@@ -39,6 +42,7 @@ class ApplicationController < ActionController::API
   rescue_from Exceptions::Forbidden, with: :forbidden
   rescue_from BadRequest, with: :bad_request
   rescue_from Unauthorized, with: :unauthorized
+  rescue_from InternalServerError, with: :internal_server_error
   rescue_from GatewayTimeout, with: :gateway_timeout
   rescue_from BadGateway, with: :bad_gateway
   rescue_from Exceptions::NotImplemented, with: :not_implemented
@@ -209,6 +213,11 @@ class ApplicationController < ActionController::API
     else
       head :unauthorized
     end
+  end
+
+  def internal_server_error e
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    head :internal_server_error
   end
 
   def gateway_timeout e
