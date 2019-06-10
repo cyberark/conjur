@@ -157,31 +157,6 @@ Feature: Users can authneticate with OIDC authenticator
     Errors::Authentication::AuthnOidc::AdminAuthenticationDenied
     """
 
-  Scenario: provider-uri dynamic change
-    Given I get authorization code for username "alice" and password "alice"
-    And I fetch an ID Token
-    And I authenticate via OIDC with id token
-    And user "alice" is authorized
-    # Update provider uri to an unreachable hostname
-    When I add the secret value "http://unreachable.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
-    And I save my place in the log file
-    And I authenticate via OIDC with id token
-    Then it is gateway timeout
-    And The following appears in the log after my savepoint:
-    """
-    504 Gateway Timeout
-    """
-    # Update provider uri to reachable but invalid hostname
-    When I add the secret value "http://127.0.0.1.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
-    And I authenticate via OIDC with id token
-    Then it is bad gateway
-    # Check recovery to a valid provider uri
-    When I successfully set OIDC variables
-    And I get authorization code for username "alice" and password "alice"
-    And I fetch an ID Token
-    And I authenticate via OIDC with id token
-    Then user "alice" is authorized
-
   Scenario: Performance test
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
@@ -189,21 +164,30 @@ Feature: Users can authneticate with OIDC authenticator
     Then The "max" response time should be less than "1" seconds
     And The "avg" response time should be less than "0.25" seconds
 
-  Scenario: Load with cache
+  Scenario: Load test
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    # Make sure cache contains a valid certificate
-    And I authenticate via OIDC with id token
-    And user "alice" is authorized
     And I save my place in the log file
-    # Load while the cache contains OIDC provider certificate
     When I authenticate "2000" times in "20" threads via OIDC with id token
     Then The following appears "2000" times in the log after my savepoint:
     """
     Completed 200 OK
     """
-    # Validate cache functionality
-    And The following appears "0" times in the log after my savepoint:
+
+  Scenario: Load unreachable provider-uri requests
+    # i have valid certificate in cache
+    Given I get authorization code for username "alice" and password "alice"
+    And I fetch an ID Token
+    And I authenticate via OIDC with id token
+    And user "alice" is authorized
+    # load of invalid requests above the "refreshes_per_interval"
+    When I add the secret value "http://unreachable.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
+    And I save my place in the log file
+    And I authenticate "20" times in "20" threads via OIDC with id token
+    Then The following appears in the log after my savepoint:
     """
-    CONJ00016D Rate limited cache updated successfully
+    CONJ00022D Concurrency limited cache reached
     """
+    # The server is available (the multiple timeouts errors blocked by concurrency cache limit)
+    And I authenticate as "alice" with account "cucumber"
+    And the HTTP response status code is 200
