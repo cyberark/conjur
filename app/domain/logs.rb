@@ -121,8 +121,23 @@ unless defined? LogMessages::Authentication::OriginValidated
       )
 
       RateLimitedCacheLimitReached = ::Util::TrackableLogMessageClass.new(
-        msg: "Rate limited cache reached limit and will not call target",
+        msg: "Rate limited cache reached the '{0-limit}' limit and will not call target for the next '{1-seconds}' ",
         code: "CONJ00020D"
+      )
+
+      ConcurrencyLimitedCacheUpdated = ::Util::TrackableLogMessageClass.new(
+          msg: "Concurrency limited cache updated successfully",
+          code: "CONJ00021D"
+      )
+
+      ConcurrencyLimitedCacheReached = ::Util::TrackableLogMessageClass.new(
+          msg: "Concurrency limited cache reached the '{0-limit}' limit and will not call target",
+          code: "CONJ00022D"
+      )
+
+      ConcurrencyLimitedCacheConcurrentRequestsUpdated = ::Util::TrackableLogMessageClass.new(
+          msg: "Concurrency limited cache concurrent requests updated to '{0-concurrent-requests}'",
+          code: "CONJ00023D"
       )
 
     end
