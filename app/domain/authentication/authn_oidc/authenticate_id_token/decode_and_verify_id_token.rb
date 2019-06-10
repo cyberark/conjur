@@ -7,14 +7,18 @@ module Authentication
       # Possible Errors Raised:
       # IdTokenExpired, IdTokenVerifyFailed, IdTokenInvalidFormat
 
+      OIDCCache = ::Util::ConcurrencyLimitedCache.new(::Util::RateLimitedCache.new(
+          ::Authentication::AuthnOidc::AuthenticateIdToken::FetchProviderCertificate.new,
+          refreshes_per_interval: 10,
+          rate_limit_interval: 300, # 300 seconds (every 5 mins)
+          logger: Rails.logger
+      ),
+                                                      max_concurrent_requests: 3, # TODO: Should be dynamic calculation
+                                                      logger: Rails.logger)
+
       DecodeAndVerifyIdToken = CommandClass.new(
         dependencies: {
-          fetch_provider_certificate: ::Util::RateLimitedCache.new(
-            ::Authentication::AuthnOidc::AuthenticateIdToken::FetchProviderCertificate.new,
-            refreshes_per_interval: 10,
-            rate_limit_interval: 300, # 300 seconds (every 5 mins)
-            logger: Rails.logger
-          ),
+          fetch_provider_certificate: OIDCCache,
           logger: Rails.logger
         },
         inputs: %i(provider_uri id_token_jwt)
