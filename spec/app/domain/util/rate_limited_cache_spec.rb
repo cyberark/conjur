@@ -20,7 +20,7 @@ end
 
 RSpec.describe 'Util::RateLimitedCache' do
 
-  context "Mulitple calls within the rate limit interval" do
+  context "Multiple calls within the rate limit interval" do
 
     subject(:cached_count) do
       Util::RateLimitedCache.new(
@@ -57,7 +57,7 @@ RSpec.describe 'Util::RateLimitedCache' do
   #TODO another example with differet params, to test
   #     that keys are cached independently
 
-  context "Mulitple calls across rate limit intervals" do
+  context "Multiple calls across rate limit intervals" do
 
     def new_cached_count(time)
       Util::RateLimitedCache.new(
