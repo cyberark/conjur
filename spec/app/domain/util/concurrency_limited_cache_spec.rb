@@ -46,18 +46,18 @@ RSpec.describe 'Util::ConcurrencyLimitedCache' do
 
     it "should work the same as what it's wrapping" do
       current_concurrency_count.threads_failed = false
-      expect(cached_count_unlimit.call).to eq(1)
+      expect(cached_count_unlimited.call).to eq(1)
 
       current_concurrency_count.threads_failed = true
-      expect{ cached_count_unlimit.call }.to raise_error(TARGET_EXCEPTION)
+      expect { cached_count_unlimited.call }.to raise_error(TARGET_EXCEPTION)
     end
 
     it "should return cached values" do
-      cached_count_unlimit.call(key: "key1")
-      cached_count_unlimit.call(key: "key2")
-      cached_count_unlimit.call(key: "key3")
-      cached_count_unlimit.call(key: "key4")
-      expect(cached_count_unlimit.call).to eq(5)
+      cached_count_unlimited.call(key: "key1")
+      cached_count_unlimited.call(key: "key2")
+      cached_count_unlimited.call(key: "key3")
+      cached_count_unlimited.call(key: "key4")
+      expect(cached_count_unlimited.call).to eq(5)
     end
 
     it "should work the same as what it's wrapping in concurrency" do
@@ -67,7 +67,7 @@ RSpec.describe 'Util::ConcurrencyLimitedCache' do
         Thread.new do
           until queue.empty? do
             queue.shift
-            cached_count_unlimit.call
+            cached_count_unlimited.call
           end
         end
       end
@@ -76,7 +76,7 @@ RSpec.describe 'Util::ConcurrencyLimitedCache' do
       all_threads.each(&:join)
 
       # The above threads died before updating the cache value
-      expect(cached_count_unlimit.call).to eq(11)
+      expect(cached_count_unlimited.call).to eq(11)
     end
 
   end
@@ -108,7 +108,7 @@ RSpec.describe 'Util::ConcurrencyLimitedCache' do
       sleep(2.second)
       all_threads.each(&:kill)
 
-      expect{ cached_count.call }.to raise_error(Errors::Util::ConcurrencyLimitReachedBeforeCacheInitialization)
+      expect { cached_count.call }.to raise_error(Errors::Util::ConcurrencyLimitReachedBeforeCacheInitialization)
     end
 
     it "should return the cache value when we reached concurrency limit" do
