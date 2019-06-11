@@ -7,9 +7,9 @@ module Util
 
     # NOTE: "callable" is anything with a "call" method
     def initialize(
-        callable,
-        max_concurrent_requests:,
-        logger:
+      callable,
+      max_concurrent_requests:,
+      logger:
     )
       @target = callable
       @cache = {}
@@ -24,7 +24,6 @@ module Util
     # callable object, but you can optionally include the `refresh: true` to
     # force recalculation.
     def call(**args)
-
       @concurrency_mutex.synchronize do
         if @concurrent_requests >= @max_concurrent_requests
           @logger.debug(Log::ConcurrencyLimitedCacheReached.new(@max_concurrent_requests).to_s)
@@ -54,7 +53,7 @@ module Util
     end
 
     def decrease_concurrent_requests
-      unless @concurrent_requests == 0
+      unless @concurrent_requests.zero?
         @concurrent_requests -= 1
         @logger.debug(Log::ConcurrencyLimitedCacheConcurrentRequestsUpdated.new(@concurrent_requests).to_s)
       end

@@ -261,8 +261,8 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
     module Util
 
       ConcurrencyLimitReachedBeforeCacheInitialization = ::Util::TrackableErrorClass.new(
-          msg: "Concurrency limited cache reached before cache initialized",
-          code: "CONJ00044E"
+        msg: "Concurrency limited cache reached before cache initialized",
+        code: "CONJ00044E"
       )
     end
   end
