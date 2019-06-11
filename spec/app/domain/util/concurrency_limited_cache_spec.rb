@@ -1,52 +1,58 @@
 require 'spec_helper'
 
-@@is_threads_blocked = false
-@@is_threads_failed = false
 TARGET_EXCEPTION = "dummy exception"
 
 class ConcurrencyCount
 
-  def initialize
+  attr_accessor :threads_blocked
+  attr_accessor :threads_failed
+
+  def initialize(threads_blocked, threads_failed)
+    @thread_blocked = threads_blocked
+    @threads_failed = threads_failed
     @count = 0
   end
 
   def call(**args)
     @count += 1
     # Simulate thread failure
-    raise TARGET_EXCEPTION if @@is_threads_failed
+    raise TARGET_EXCEPTION if @threads_failed
     # Simulate threads work
-    while @@is_threads_blocked
+    while @threads_blocked
     end
     @count
   end
 end
 
 RSpec.describe 'Util::ConcurrencyLimitedCache' do
-  before (:each) do
-    @@is_threads_blocked = false
-    @@is_threads_failed = false
-    @currentConcurrencyCount = ConcurrencyCount.new
-  end
+  let(:threads_blocked) { false }
+  let(:threads_failed) { false }
+  let(:current_concurrency_count) {
+    ConcurrencyCount.new(
+      threads_blocked,
+      threads_failed
+    )
+  }
 
   context "Multiple calls within concurrency limit" do
 
-    subject(:cached_count_unlimit) do
+    subject(:cached_count_unlimited) do
       Util::ConcurrencyLimitedCache.new(
-          @currentConcurrencyCount,
-          max_concurrent_requests: 100,
-          logger: Rails.logger
+        current_concurrency_count,
+        max_concurrent_requests: 100,
+        logger: Rails.logger
       )
     end
 
-    it "it should work the same as what it's wrapping" do
-      @@is_threads_failed = false
+    it "should work the same as what it's wrapping" do
+      current_concurrency_count.threads_failed = false
       expect(cached_count_unlimit.call).to eq(1)
 
-      @@is_threads_failed = true
+      current_concurrency_count.threads_failed = true
       expect{ cached_count_unlimit.call }.to raise_error(TARGET_EXCEPTION)
     end
 
-    it "it should return cached values" do
+    it "should return cached values" do
       cached_count_unlimit.call(key: "key1")
       cached_count_unlimit.call(key: "key2")
       cached_count_unlimit.call(key: "key3")
@@ -54,7 +60,7 @@ RSpec.describe 'Util::ConcurrencyLimitedCache' do
       expect(cached_count_unlimit.call).to eq(5)
     end
 
-    it "it should work the same as what it's wrapping in concurrency" do
+    it "should work the same as what it's wrapping in concurrency" do
       # Simulate concurrency work
       queue = (1..10).inject(Queue.new, :push)
       all_threads = Array.new(10) do
@@ -79,16 +85,16 @@ RSpec.describe 'Util::ConcurrencyLimitedCache' do
 
     subject(:cached_count) do
       Util::ConcurrencyLimitedCache.new(
-          @currentConcurrencyCount,
-          max_concurrent_requests: 4,
-          logger: Rails.logger
+        current_concurrency_count,
+        max_concurrent_requests: 4,
+        logger: Rails.logger
       )
     end
 
     it "should throw error when we reached concurrency limit and cache uninitialized" do
       # Simulate concurrency work
       queue = (1..4).inject(Queue.new, :push)
-      @@is_threads_blocked = true
+      current_concurrency_count.threads_blocked = true
       all_threads = Array.new(4) do
         Thread.new do
           until queue.empty? do
@@ -107,13 +113,13 @@ RSpec.describe 'Util::ConcurrencyLimitedCache' do
 
     it "should return the cache value when we reached concurrency limit" do
       # Initialize cache
-      @@is_threads_blocked = false
+      current_concurrency_count.threads_blocked = false
 
       expect(cached_count.call).to eq(1)
 
       # Simulate concurrency work
       queue = (1..4).inject(Queue.new, :push)
-      @@is_threads_blocked = true
+      current_concurrency_count.threads_blocked = true
       all_threads = Array.new(4) do
         Thread.new do
           until queue.empty? do

@@ -209,7 +209,7 @@ Feature: Users can authneticate with OIDC authenticator
     """
 
   Scenario: Load unreachable provider-uri requests
-    # i have valid certificate in cache
+    # I have a valid certificate in the cache
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
     And I authenticate via OIDC with id token
