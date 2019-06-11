@@ -141,6 +141,9 @@ class AuthenticateController < ApplicationController
     when Errors::Authentication::AuthnOidc::ProviderDiscoveryTimeout
       raise GatewayTimeout
 
+    when Errors::Util::ConcurrencyLimitReachedBeforeCacheInitialization
+      raise InternalServerError
+
     when Errors::Authentication::AuthnOidc::ProviderDiscoveryFailed,
       Errors::Authentication::AuthnOidc::ProviderFetchCertificateFailed
       raise BadGateway
