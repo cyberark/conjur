@@ -9,10 +9,15 @@ module Authentication
 
       DecodeAndVerifyIdToken = CommandClass.new(
         dependencies: {
-          fetch_provider_certificate: ::Util::RateLimitedCache.new(
-            ::Authentication::AuthnOidc::AuthenticateIdToken::FetchProviderCertificate.new,
-            refreshes_per_interval: 10,
-            rate_limit_interval: 300, # 300 seconds (every 5 mins)
+          # We have a ConcurrencyLimitedCache which wraps a RateLimitedCache which wraps a FetchProviderCertificate class
+          fetch_provider_certificate: ::Util::ConcurrencyLimitedCache.new(
+            ::Util::RateLimitedCache.new(
+              ::Authentication::AuthnOidc::AuthenticateIdToken::FetchProviderCertificate.new,
+              refreshes_per_interval: 10,
+              rate_limit_interval: 300, # 300 seconds (every 5 mins)
+              logger: Rails.logger
+            ),
+            max_concurrent_requests: 3, # TODO: Should be dynamic calculation
             logger: Rails.logger
           ),
           logger: Rails.logger

@@ -20,7 +20,7 @@ end
 
 RSpec.describe 'Util::RateLimitedCache' do
 
-  context "Mulitple calls within the rate limit interval" do
+  context "Multiple calls within the rate limit interval" do
 
     subject(:cached_count) do
       Util::RateLimitedCache.new(
@@ -31,21 +31,21 @@ RSpec.describe 'Util::RateLimitedCache' do
       )
     end
 
-    it "it should work the same as what it's wrapping" do
+    it "should work the same as what it's wrapping" do
       expect(cached_count.call).to eq(1)
     end
 
-    it "it should return cached values" do
+    it "should return cached values" do
       cached_count.call
       expect(cached_count.call).to eq(1)
     end
 
-    it "it should recalculate upon request" do
+    it "should recalculate upon request" do
       cached_count.call
       expect(cached_count.call(refresh: true)).to eq(2)
     end
 
-    it "it should only recalculate the rate-limited number of times" do
+    it "should only recalculate the rate-limited number of times" do
       cached_count.call # call 1
       expect(cached_count.call(refresh: true)).to eq(2) # call 2
       expect(cached_count.call(refresh: true)).to eq(3) # call 3
@@ -57,7 +57,7 @@ RSpec.describe 'Util::RateLimitedCache' do
   #TODO another example with differet params, to test
   #     that keys are cached independently
 
-  context "Mulitple calls across rate limit intervals" do
+  context "Multiple calls across rate limit intervals" do
 
     def new_cached_count(time)
       Util::RateLimitedCache.new(

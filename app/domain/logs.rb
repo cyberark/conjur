@@ -62,18 +62,18 @@ unless defined? LogMessages::Authentication::OriginValidated
         )
 
         OIDCProviderCertificateFetchedFromCache = ::Util::TrackableLogMessageClass.new(
-            msg: "OIDC Provider certificates fetched successfully from cache",
-            code: "CONJ00017D"
+          msg: "OIDC Provider certificates fetched successfully from cache",
+          code: "CONJ00017D"
         )
 
         IDTokenDecodeFailed = ::Util::TrackableLogMessageClass.new(
-            msg: "Failed to decode the ID Token with the error '{0-exception}'",
-            code: "CONJ00018D"
+          msg: "Failed to decode the ID Token with the error '{0-exception}'",
+          code: "CONJ00018D"
         )
 
         ValidateProviderCertificateIsUpdated = ::Util::TrackableLogMessageClass.new(
-            msg: "Validating OIDC Provider certificates are up to date",
-            code: "CONJ00019D"
+          msg: "Validating OIDC Provider certificates are up to date",
+          code: "CONJ00019D"
         )
 
       end
@@ -116,13 +116,28 @@ unless defined? LogMessages::Authentication::OriginValidated
     module Util
 
       RateLimitedCacheUpdated = ::Util::TrackableLogMessageClass.new(
-          msg: "Rate limited cache updated successfully",
-          code: "CONJ00016D"
+        msg: "Rate limited cache updated successfully",
+        code: "CONJ00016D"
       )
 
       RateLimitedCacheLimitReached = ::Util::TrackableLogMessageClass.new(
-        msg: "Rate limited cache reached limit and will not call target",
+        msg: "Rate limited cache reached the '{0-limit}' limit and will not call target for the next '{1-seconds}' seconds",
         code: "CONJ00020D"
+      )
+
+      ConcurrencyLimitedCacheUpdated = ::Util::TrackableLogMessageClass.new(
+        msg: "Concurrency limited cache updated successfully",
+        code: "CONJ00021D"
+      )
+
+      ConcurrencyLimitedCacheReached = ::Util::TrackableLogMessageClass.new(
+        msg: "Concurrency limited cache reached the '{0-limit}' limit and will not call target",
+        code: "CONJ00022D"
+      )
+
+      ConcurrencyLimitedCacheConcurrentRequestsUpdated = ::Util::TrackableLogMessageClass.new(
+        msg: "Concurrency limited cache concurrent requests updated to '{0-concurrent-requests}'",
+        code: "CONJ00023D"
       )
 
     end
