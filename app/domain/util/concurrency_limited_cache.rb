@@ -48,10 +48,9 @@ module Util
       @cache[args] = @target.call(**args)
       @logger.debug(Log::ConcurrencyLimitedCacheUpdated.new.to_s)
       decrease_concurrent_requests
-
-      rescue => e
-        decrease_concurrent_requests
-        raise e
+    rescue => e
+      decrease_concurrent_requests
+      raise e
     end
 
     def decrease_concurrent_requests
