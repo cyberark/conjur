@@ -207,21 +207,3 @@ Feature: Users can authneticate with OIDC authenticator
     """
     CONJ00016D Rate limited cache updated successfully
     """
-
-  Scenario: Load unreachable provider-uri requests
-    # I have a valid certificate in the cache
-    Given I get authorization code for username "alice" and password "alice"
-    And I fetch an ID Token
-    And I authenticate via OIDC with id token
-    And user "alice" is authorized
-    # load of invalid requests above the "refreshes_per_interval"
-    When I add the secret value "http://unreachable.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
-    And I save my place in the log file
-    And I authenticate "20" times in "20" threads via OIDC with id token
-    Then The following appears in the log after my savepoint:
-    """
-    CONJ00022D Concurrency limited cache reached
-    """
-    # The server is available (the multiple timeouts errors blocked by concurrency cache limit)
-    And I authenticate as "alice" with account "cucumber"
-    And the HTTP response status code is 200
