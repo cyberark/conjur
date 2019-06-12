@@ -140,7 +140,8 @@ module Authentication
         k8s_clients.find do |client|
           begin
             client.respond_to?(method_name)
-          rescue KubeException
+          rescue KubeException => e
+            raise e unless e.error_code == 404
             false
           end
         end
