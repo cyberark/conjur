@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require './config/conjur_log_formatter'
+require 'logger/formatter/conjur_formatter'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -30,7 +30,7 @@ Rails.application.configure do
 
   # Use log level "warn" in prod to avoid logging parameters.
   config.log_level = :warn
-  config.log_formatter = ConjurLogFormatter.new
+  config.log_formatter = ConjurFormatter.new
 
   # Specifies the header that your server uses for sending files.
   # config.action_dispatch.x_sendfile_header = 'X-Sendfile' # for Apache

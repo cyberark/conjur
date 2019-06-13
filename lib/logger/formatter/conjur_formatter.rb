@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ConjurLogFormatter < Logger::Formatter
+class ConjurFormatter < Logger::Formatter
   Format = "%5s [%s] [tid=%s] [pid=%s] %s\n".freeze
 
   def initialize
