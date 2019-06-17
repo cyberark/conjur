@@ -43,6 +43,7 @@ class ApplicationController < ActionController::API
   rescue_from BadRequest, with: :bad_request
   rescue_from Unauthorized, with: :unauthorized
   rescue_from InternalServerError, with: :internal_server_error
+  rescue_from ServiceUnavailable, with: :service_unavailable
   rescue_from GatewayTimeout, with: :gateway_timeout
   rescue_from BadGateway, with: :bad_gateway
   rescue_from Exceptions::NotImplemented, with: :not_implemented
@@ -218,6 +219,11 @@ class ApplicationController < ActionController::API
   def internal_server_error e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
     head :internal_server_error
+  end
+
+  def service_unavailable e
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    head :service_unavailable
   end
 
   def gateway_timeout e
