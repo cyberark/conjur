@@ -25,6 +25,9 @@ class ApplicationController < ActionController::API
   class InternalServerError < RuntimeError
   end
 
+  class ServiceUnavailable < RuntimeError
+  end
+
   class Forbidden < Exceptions::Forbidden
     def message
       'Forbidden'
