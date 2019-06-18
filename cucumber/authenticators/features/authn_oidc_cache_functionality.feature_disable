@@ -79,6 +79,23 @@ Feature: Disable feature to test Cache functionality manually
     CONJ00017D OIDC Provider certificates fetched successfully from cache
     """
 
+  Scenario: Cache - Exceed refreshes_per_interval , cache not initialized
+    # TODO: start the server to have a clean cache
+    Given I get authorization code for username "alice" and password "alice"
+    And I fetch an ID Token
+    And I authenticate via OIDC with id token
+    And I save my place in the log file
+    # Running 10 threads at a time so we surely exceed the 3 concurrency limit
+    When I authenticate "10" times in "10" threads via OIDC with invalid id token
+    Then The following appears in the log after my savepoint:
+    """
+    CONJ00044E Concurrency limited cache reached before cache initialized
+    """
+    And The following appears in the log after my savepoint:
+    """
+    503 Service Unavailable
+    """
+
   Scenario: Load unreachable provider-uri requests
     # I have a valid certificate in the cache
     Given I get authorization code for username "alice" and password "alice"
