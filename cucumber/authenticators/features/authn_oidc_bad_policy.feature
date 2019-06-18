@@ -144,7 +144,7 @@ Feature: Users can authenticate with OIDC authenticator
     And I fetch an ID Token
     And I save my place in the log file
     When I authenticate via OIDC with id token
-    Then it is unauthorized
+    Then it is forbidden
     And The following appears in the log after my savepoint:
     """
     Errors::Authentication::Security::UserNotAuthorizedInConjur
