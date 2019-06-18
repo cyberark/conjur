@@ -120,8 +120,7 @@ class AuthenticateController < ApplicationController
     end
 
     case err
-    when Errors::Authentication::Security::UserNotAuthorizedInConjur,
-      Errors::Authentication::Security::NotWhitelisted,
+    when Errors::Authentication::Security::NotWhitelisted,
       Errors::Authentication::Security::ServiceNotDefined,
       Errors::Authentication::Security::UserNotDefinedInConjur,
       Errors::Authentication::Security::AccountNotDefined,
@@ -131,6 +130,9 @@ class AuthenticateController < ApplicationController
       Errors::Conjur::RequiredSecretMissing,
       Errors::Conjur::RequiredResourceMissing
       raise Unauthorized
+
+    when Errors::Authentication::Security::UserNotAuthorizedInConjur
+      raise Forbidden
 
     when Errors::Authentication::RequestBody::MissingRequestParam
       raise BadRequest
