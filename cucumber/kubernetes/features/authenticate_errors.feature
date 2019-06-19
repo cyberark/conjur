@@ -11,7 +11,7 @@ Feature: Errors emitted by the authenticate method.
   Scenario: It's an error to authenticate as a host which does not hold "authenticate" privilege 
     on the webservice.
     When I authenticate with authn-k8s as "pod/inventory-unauthorized" without cert and key
-    Then the HTTP status is "401"
+    Then the HTTP status is "403"
 
   Scenario: It's an error to authenticate without providing a cert and key.
     When I authenticate with authn-k8s as "pod/inventory-pod" without cert and key
