@@ -5,9 +5,10 @@ require 'spec_helper'
 RSpec.describe Authentication::Security::ValidateSecurity do
   let (:test_account) { 'test-account' }
   let (:non_existing_account) { 'non-existing' }
-
+  let (:fake_authenticator_name) { 'authn-x' }
+  
   # create an example webservice
-  def webservice(service_id, account: test_account, authenticator_name: 'authn-x')
+  def webservice(service_id, account: test_account, authenticator_name: fake_authenticator_name)
     ::Authentication::Webservice.new(
       account: account,
       authenticator_name: authenticator_name,
@@ -31,20 +32,24 @@ RSpec.describe Authentication::Security::ValidateSecurity do
     end
   end
 
-  # generates a Role class which returns the provided user_role
-  # Also returns a role for an existing account admin, and nil admin for non-existing account
+  def role_class_instance(returned_role)
+    double('role_class_instance').tap do |inst|
+      allow(inst).to receive(:roleid_from_username).and_return('some-role-id')
+      allow(inst).to receive(:[]).and_return(returned_role)
+      
+      allow(inst).to receive(:[])
+        .with(/#{test_account}:user:admin/)
+        .and_return(user_role(true))
+      
+      allow(inst).to receive(:[])
+        .with(/#{non_existing_account}:user:admin/)
+        .and_return(nil)
+    end
+  end
+  
   def role_class(returned_role)
-    double('role').tap do |role|
-      allow(role).to receive(:roleid_from_username).and_return('some-role-id')
-      allow(role).to receive(:[]).and_return(returned_role)
-
-      allow(role).to receive(:[])
-                       .with(/#{test_account}:user:admin/)
-                       .and_return(user_role(true))
-
-      allow(role).to receive(:[])
-                       .with(/#{non_existing_account}:user:admin/)
-                       .and_return(nil)
+    double('role_class').tap do |role|
+      allow(role).to receive(:new).and_return(role_class_instance(returned_role))
     end
   end
 
@@ -57,7 +62,7 @@ RSpec.describe Authentication::Security::ValidateSecurity do
 
   let (:blank_env) { nil }
 
-  let (:two_authenticator_env) { "authn-x/service1, authn-x/service2" }
+  let (:two_authenticator_env) { "#{fake_authenticator_name}/service1, #{fake_authenticator_name}/service2" }
 
   let(:default_authenticator_mock) do
     double('authenticator').tap do |authenticator|
@@ -67,7 +72,7 @@ RSpec.describe Authentication::Security::ValidateSecurity do
 
   let(:random_authenticator_mock) do
     double('authenticator').tap do |authenticator|
-      allow(authenticator).to receive(:authenticator_name).and_return("authn-x")
+      allow(authenticator).to receive(:authenticator_name).and_return(fake_authenticator_name)
     end
   end
 
@@ -249,6 +254,59 @@ RSpec.describe Authentication::Security::ValidateSecurity do
 
     it "raises an AccountNotDefined error" do
       expect { subject }.to raise_error(Errors::Authentication::Security::AccountNotDefined)
+    end
+  end
+
+  context "with the default role class" do
+    let(:admin_roleid) { [test_account, 'user', 'admin'].join(':') }
+    let(:admin_role_double) { double('admin_role_double') }
+
+    let(:ws_name) { 'service1' }
+    let(:ws_id) { ['conjur', fake_authenticator_name, ws_name].join('/') }
+    let(:ws_resourceid) { [test_account, 'webservice', ws_id].join(':') }
+    let(:ws_double) { double('ws_resource_double') }
+    
+    let(:user_id) { 'some-user' }
+    let(:user_roleid) { [test_account, 'user', user_id].join(':') }
+    let(:user_role_double) { double('user_role_double') }
+
+    before do 
+      allow(Role).to receive(:[]).with(admin_roleid).and_return(admin_role_double)
+      allow(Role).to receive(:roleid_from_username).and_return(user_roleid)
+      
+      allow(Resource).to receive(:[]).with(ws_resourceid).and_return(ws_double)
+
+      allow(user_role_double).to receive(:allowed_to?).with('authenticate', ws_double).and_return(true)
+    end
+    
+    it "role lookups are not cached across validations" do
+
+      # Simulate two validations. For the first, the role should not
+      # be found.
+      allow(Role).to receive(:[]).with(user_roleid).and_return(nil)
+      expect { subject.(
+                   webservice: webservice(ws_name),
+                   account: test_account,
+                   user_id: user_id,
+                   enabled_authenticators: two_authenticator_env
+                 )
+      }.to raise_error(Errors::Authentication::Security::UserNotDefinedInConjur)
+
+      # For the second, the role should be found, and validation
+      # should succeed.
+
+      # Note that, because the arguments are the same, this +allow+
+      # overwrites the previous one.
+      allow(Role).to receive(:[]).with(user_roleid).and_return(user_role_double)
+      
+      expect { subject.(
+                   webservice: webservice(ws_name),
+                   account: test_account,
+                   user_id: user_id,
+                   enabled_authenticators: two_authenticator_env
+                 )
+      }.not_to raise_error
+      
     end
   end
 end

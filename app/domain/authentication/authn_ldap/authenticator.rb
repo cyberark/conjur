@@ -11,7 +11,7 @@ module Authentication
                      ldap_server_factory: ::Authentication::AuthnLdap::Server,
                      ldap_server_configuration: ::Authentication::AuthnLdap::Configuration,
                      conjur_authenticator: ::Authentication::Authn::Authenticator,
-                     role_cls: ::Authentication::MemoizedRole,
+                     role_cls: Role,
                      credentials_cls: ::Credentials)
         @env = env
         @ldap_server_factory = ldap_server_factory
