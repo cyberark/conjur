@@ -18,58 +18,22 @@ be returned.
 
 # Implementation Details
 
-For each authenticator that _will_ implement the status check, we will add a `Status` CommandClass in the 
-structure `Authentication::AuthnOidc::Status` (its body is described later in the doc). 
-We will also add a `status` method to its authenticator class (i.e. `Authentication::AuthnOidc::Authenticator`) 
+As mentioned in the general status check implementation details, we will add the following for the 
+oidc status check:
+
+1. A `Status` CommandClass in the structure `Authentication::AuthnOidc::Status`
+1. A `status` method to its authenticator class (i.e. `Authentication::AuthnOidc::Authenticator`)
 which will call the new CommandClass, as follows: 
+ 
+ ```
+ def status
+   Authentication::AuthnOidc::Status.new.(
+     <input for status check>
+   )
+ end
+ ``` 
 
-```
-def status
-  Authentication::AuthnOidc::Status.new.(
-    <input for status check>
-  )
-end
-``` 
-
-The `status` method above will be called from the general status check, when validating
-the authenticator's specific requirements. We will first verify that the `status` method exists
-in the `Authenticator` class, which will indicate that the status check is implemented on the given
-authenticator. Therefore, the `call` method of the general status check 
-will look like the following:
-                                                                           
-```
-def call
- validate_authenticator_implements_status_check
- .
- .
- # perform other validations
- .
- .
- validate_authenticator_requirements
-end
-
-private
-
-def validate_authenticator_implements_status_check
- unless @authenticator.method_defined?(:status)
-   return 503
-end
-
-def validate_authenticator_requirements
- @authenticator.status
-end
-
-def authenticator
- # The `@authenticators` map includes all authenticator classes that are implemented in 
- # Conjur (`Authentication::AuthnOidc::Authenticator`, `Authentication::AuthnLdap::Authenticator`, etc.). 
- #
- @authenticator = @authenticators[@authenticator_input.authenticator_name]
-end
-```
-
-### Status class definition
-
-The OIDC CommandClass `Authentication::AuthnOidc::Status` will consist of a
+The new CommandClass `Authentication::AuthnOidc::Status` will consist of a
 `call` method that will perform the following checks:
 
 - The following variables exist and have value

@@ -32,6 +32,64 @@ In this method we will call a new CommandClass `Authentication::Status`. This cl
  
  ***Note:*** The default authenticator (`authn`) is always healthy
  
+ ## Implementing Specific authenticator status check
+ 
+ ***Note:*** In the following section, we will use `authn-oidc` as an example.
+ 
+ For each authenticator that will implement the status check, we will add:
+ 1. A `Status` CommandClass in the structure `Authentication::AuthnOidc::Status` (its body is described [here]()). 
+ 1. A `status` method to its authenticator class (i.e. `Authentication::AuthnOidc::Authenticator`)
+ which will call the new CommandClass, as follows: 
+ 
+ ```
+ def status
+   Authentication::AuthnOidc::Status.new.(
+     <input for status check>
+   )
+ end
+ ``` 
+ 
+ The `status` method above will be called from the general status check, when validating
+ the authenticator's specific requirements. We will first verify that the `status` method exists
+ in the `Authenticator` class, which will indicate that the status check is implemented on the given
+ authenticator. Therefore, the `call` method of the general status check 
+ will look like the following:
+                                                                            
+ ```
+ def call
+  validate_authenticator_exists
+  validate_authenticator_implements_status_check
+  .
+  .
+  # perform general validations (whitelisted in env, etc.)
+  .
+  .
+  validate_authenticator_requirements
+ end
+ 
+ private
+ 
+ def validate_authenticator_exists
+   raise Err::AuthenticatorNotFound unless authenticator
+ end
+     
+ def validate_authenticator_implements_status_check
+  unless authenticator.method_defined?(:status)
+    raise 503
+ end
+ 
+ def validate_authenticator_requirements
+  authenticator.status
+ end
+ 
+ def authenticator
+  # The `@authenticators` map includes all authenticator classes that are implemented in 
+  # Conjur (`Authentication::AuthnOidc::Authenticator`, `Authentication::AuthnLdap::Authenticator`, etc.). 
+  #
+  @authenticator = @authenticators[@authenticator_input.authenticator_name]
+ end
+ ```
+ 
  # Test Plan
  
  # Effort Estimation
