@@ -43,8 +43,6 @@ The new CommandClass `Authentication::AuthnOidc::Status` will consist of a
 - The following variables exist and have value
     - `provider-uri`
     - `id-token-user-property`
-- The group `conjur/authn-oidc/<service-id>/users` exists and has `read` & `authenticate` 
-permissions on the webservice
 - The OIDC Provider (defined in the `provider-uri` variable) is responsive
 
 ## Things we will not check
@@ -62,7 +60,12 @@ permissions on the webservice
     stronger than the pros. As we will still log the error, the operator will be able to 
     see the configuration failure and may proceed accordingly. This is relevant for all the 
     checks but this check's price is too high.
-
+- The group `conjur/authn-oidc/<service-id>/users` exists and has `read` & `authenticate` 
+permissions on the webservice
+    - Although it is a best practice to create a group with this name and add members who we want to have permissions to that group
+    (instead of giving permissions to each group separately), we do not limit this in the product. Thus, we cannot define an
+    authenticator as unhealthy if the group doesn't exist (or has insufficient permissions on the webservice). Thus we will
+    not check this in the status check.
 # Test Plan
 
 | **Given**                                 | **When**                                                                                           | **Then**                                   | **Status** |
