@@ -10,6 +10,8 @@ on the configuration, before any user needs to run an authentication request.
 
 # Implementation Details
 
+![alt text](authn-status-flow.jpeg "Authenticator Status API flow")
+
 We will create a new route in `routes.rb` for `/authenticators/:authenticator(/:service_id)/:account/status`.
 This route will lead to `AuthenticateController` which will consist of a new `status` method.
 In this method we will call a new CommandClass `Authentication::Status`. This class's
