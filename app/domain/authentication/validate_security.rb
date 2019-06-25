@@ -15,7 +15,7 @@ module Authentication
 
     ValidateSecurity = CommandClass.new(
       dependencies: {
-        role_class: ::Authentication::MemoizedRole,
+        role_class: ::Role,
         webservice_resource_class: ::Resource,
         logger: Rails.logger
       },
@@ -72,11 +72,11 @@ module Authentication
       end
 
       def user_role
-        @role_class[user_role_id]
+        @user_role ||= @role_class[user_role_id]
       end
 
       def account_admin_role
-        @role_class["#{@account}:user:admin"]
+        @account_admin_role ||= @role_class["#{@account}:user:admin"]
       end
 
       def webservice_resource
