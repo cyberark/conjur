@@ -62,10 +62,11 @@ The new CommandClass `Authentication::AuthnOidc::Status` will consist of a
     checks but this check's price is too high.
 - The group `conjur/authn-oidc/<service-id>/users` exists and has `read` & `authenticate` 
 permissions on the webservice
-    - Although it is a best practice to create a group with this name and add members who we want to have permissions to that group
-    (instead of giving permissions to each group separately), we do not limit this in the product. Thus, we cannot define an
-    authenticator as unhealthy if the group doesn't exist (or has insufficient permissions on the webservice). Thus we will
-    not check this in the status check.
+    - For organizational purposes, we recommend that a new `users` group is created for each authenticator. 
+    That way, you can easily give the necessary `read` and `authenticate` privileges to multiple groups 
+    that already exist in Conjur. Although this is best practice, we do not enforce this in the product. 
+    Therefore, we cannot consider an authenticator 'unhealthy' if that extra grouping does not exist 
+    (or has insufficient permissions on the webservice) and will not include this as one of the status checks.
 # Test Plan
 
 | **Given**                                 | **When**                                                                                           | **Then**                                   | **Status** |
