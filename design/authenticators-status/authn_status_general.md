@@ -27,7 +27,9 @@ and those specific to each authenticator:
 - The authenticator is enabled in the ENV
 - [Specific authenticator requirements](#implementing_specific_authenticator_status_check)
  
- ***Note:*** The default authenticator (`authn`) is always healthy
+***Note:*** The default authenticator (`authn`) is always healthy
+
+We will also need to audit access success & failures to this endpoint.
  
 ## Implementing specific authenticator status check
  
