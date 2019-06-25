@@ -1,3 +1,7 @@
+# Introduction
+
+This is a design doc for the user story [Authenticator Status API - General](https://github.com/cyberark/conjur/issues/1064) that is part of the epic [Authenticators Status API returns status of a specific authenticator](https://github.com/cyberark/conjur/issues/1062)
+
 # Feature Overview
 
 ***As a*** Conjur operator\
@@ -60,7 +64,7 @@ For each authenticator that will implement the status check, we will add:
  authenticator. Therefore, the `call` method of the general status check 
  will look like the following:
                                                                             
- ```
+```
  def call
   validate_authenticator_exists
   validate_authenticator_implements_status_check
@@ -93,21 +97,57 @@ For each authenticator that will implement the status check, we will add:
   
   @authenticator = @authenticators[@authenticator_input.authenticator_name]
  end
- ```
+```
  
  # Test Plan
  
+ ## Response bodies
+ 
+ The following are the response bodies that will be returned to the user
+ 
+ ### Success
+ 
+ ```
+{
+   "authn-name": {
+     "status": "ok"
+   }
+}
+```
+
+ ### Failure
+ 
+ ```
+{
+  "authn-name": {
+    "status": "error",
+    "error": "<configuration_error>",
+    "code": "<conjur_error_code>",
+    "message": "<conjur_error_message>",
+  }
+}
+```
+
+For example,  if the status check failed on `WebserviceNotFound` then the message 
+will be `Webservice '{webservice-name}' wasn't found` (which is its built-in message)
+ 
+## Integration Tests
  |                               **Given**                               | **When**                                                                                       | **Then**                                   | **Status** |
  |:---------------------------------------------------------------------:|------------------------------------------------------------------------------------------------|--------------------------------------------|------------|
- | A healthy authenticator                                               | I send a request with a valid access token                                                     | I get a 200 OK response                    | [ ]        |
- | A healthy authenticator                                               | I send a request with an invalid access token (user is not permitted on the status webservice) | I get a 403 Forbidden response             | [ ]        |
- | An authenticator without an implemented status check                  | I send a request with a valid access token                                                     | I get a 503 Not Implemented response       | [ ]        |
- | A non-existing authenticator                                          | I send a request with a valid access token                                                     | I get a 404 Not Found response             | [ ]        |
- | A non-existing account name in the request                            | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response | [ ]        |
- | Authenticator webservice doesn't exist  (wasn't loaded in the policy) | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response | [ ]        |
- | The authenticator isn't whitelisted in the ENV                        | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response | [ ]        |
+ | A healthy authenticator                                               | I send a request with a valid access token                                                     | I get a 200 OK response with a successful body                | [ ]        |
+ | A healthy authenticator                                               | I send a request with an invalid access token (user is not permitted on the status webservice) | I get a 403 Forbidden response                                | [ ]        |
+ | An authenticator without an implemented status check                  | I send a request with a valid access token                                                     | I get a 503 Not Implemented response                          | [ ]        |
+ | A non-existing authenticator                                          | I send a request with a valid access token                                                     | I get a 404 Not Found response                                | [ ]        |
+ | A non-existing account name in the request                            | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response with an error body with the relevant error message | [ ]        |
+ | Authenticator webservice doesn't exist (wasn't loaded in the policy)  | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response with an error body with the relevant error message | [ ]        |
+ | The authenticator isn't whitelisted in the ENV                        | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response with an error body with the relevant error message | [ ]        |
  
- # Effort Estimation
+## Unit Tests
+
+1. if `authenticator.status` (specific authenticator validation) raises an error then it propagates to the user
+1. if `authenticator.status` (specific authenticator validation) succeeds then the user gets a successful message
  
- 5 Days
+# Effort Estimation
+
+5 Days
  

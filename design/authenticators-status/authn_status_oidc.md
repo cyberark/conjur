@@ -1,3 +1,7 @@
+# Introduction
+
+This is a design doc for the user story [OIDC authenticator status check](https://github.com/cyberark/conjur/issues/1063) that is part of the epic [Authenticators Status API returns status of a specific authenticator](https://github.com/cyberark/conjur/issues/1062)
+
 # Feature Overview
 
 ***As a*** Conjur operator\
