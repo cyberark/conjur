@@ -19,10 +19,10 @@ be returned.
 # Implementation Details
 
 As mentioned in the general status check implementation details, we will add the following for the 
-oidc status check:
+OIDC status check:
 
 1. A `Status` CommandClass in the structure `Authentication::AuthnOidc::Status`
-1. A `status` method to its authenticator class (i.e. `Authentication::AuthnOidc::Authenticator`)
+1. A `status` method to its existing authenticator class (i.e. `Authentication::AuthnOidc::Authenticator`)
 which will call the new CommandClass, as follows: 
  
  ```
@@ -43,7 +43,6 @@ The new CommandClass `Authentication::AuthnOidc::Status` will consist of a
 permissions on the webservice
 - The OIDC Provider (defined in the `provider-uri` variable) is responsive
 
-# Appendix
 ## Things we will not check
 - Value of `id-token-user-property` is configured correctly
     - How we would check
@@ -59,9 +58,17 @@ permissions on the webservice
     stronger than the pros. As we will still log the error, the operator will be able to 
     see the configuration failure and may proceed accordingly. This is relevant for all the 
     checks but this check's price is too high.
-    
-#TODO: define how we do every check 
 
 # Test Plan
 
+| **Given**                                 | **When**                                                                                           | **Then**                                   | **Status** |
+|-------------------------------------------|----------------------------------------------------------------------------------------------------|--------------------------------------------|------------|
+| General checks for the authenticator pass | `provider-uri` variable doesn't exist                                                              | I get a 500 Internal Server Error response | [ ]        |
+| General checks for the authenticator pass | `id-token-user-property` variable doesn't exist                                                    | I get a 500 Internal Server Error response | [ ]        |
+| General checks for the authenticator pass | `conjur/authn-oidc/{service-id}/users` group doesn't exist                                         | I get a 500 Internal Server Error response | [ ]        |
+| General checks for the authenticator pass | `conjur/authn-oidc/{service-id}/users` group exists but doesn't have permissions on the webservice | I get a 500 Internal Server Error response | [ ]        |
+| General checks for the authenticator pass | OIDC Provider is not responsive                                                                    | I get a 500 Internal Server Error response | [ ]        |
+
 # Effort Estimation
+
+5 Days
