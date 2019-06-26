@@ -44,6 +44,8 @@ The new CommandClass `Authentication::AuthnOidc::Status` will consist of a
     - `provider-uri`
     - `id-token-user-property`
 - The OIDC Provider (defined in the `provider-uri` variable) is responsive
+    - We may want to fetch the certificate to optimize the first `/authenticate` request
+    so it will already be in the cache
 
 ## Things we will not check
 - Value of `id-token-user-property` is configured correctly
@@ -67,15 +69,52 @@ permissions on the webservice
     that already exist in Conjur. Although this is best practice, we do not enforce this in the product. 
     Therefore, we cannot consider an authenticator 'unhealthy' if that extra grouping does not exist 
     (or has insufficient permissions on the webservice) and will not include this as one of the status checks.
+
 # Test Plan
+
+## Response bodies
+ 
+ The following are the response bodies that will be returned to the user
+ 
+ ### Success
+ 
+ ```
+{
+   "authn-name": {
+     "status": "ok"
+   }
+}
+```
+
+ ### Failure
+ 
+ ```
+{
+  "authn-name": {
+    "status": "error",
+    "error": "<configuration_error>",
+    "code": "<conjur_error_code>",
+    "message": "<conjur_error_message>",
+  }
+}
+```
+
+For example,  if the status check failed on `WebserviceNotFound` then the message 
+will be `Webservice '{webservice-name}' wasn't found` (which is its built-in message)
+
+## Integration Tests
 
 | **Given**                                 | **When**                                                                                           | **Then**                                   | **Status** |
 |-------------------------------------------|----------------------------------------------------------------------------------------------------|--------------------------------------------|------------|
-| General checks for the authenticator pass | `provider-uri` variable doesn't exist                                                              | I get a 500 Internal Server Error response | [ ]        |
-| General checks for the authenticator pass | `id-token-user-property` variable doesn't exist                                                    | I get a 500 Internal Server Error response | [ ]        |
-| General checks for the authenticator pass | `conjur/authn-oidc/{service-id}/users` group doesn't exist                                         | I get a 500 Internal Server Error response | [ ]        |
-| General checks for the authenticator pass | `conjur/authn-oidc/{service-id}/users` group exists but doesn't have permissions on the webservice | I get a 500 Internal Server Error response | [ ]        |
-| General checks for the authenticator pass | OIDC Provider is not responsive                                                                    | I get a 500 Internal Server Error response | [ ]        |
+| General checks for the authenticator pass | `provider-uri` variable doesn't exist                                                              | I get a 500 Internal Server Error response with an error body with the relevant error message | [ ]        |
+| General checks for the authenticator pass | `id-token-user-property` variable doesn't exist                                                    | I get a 500 Internal Server Error response with an error body with the relevant error message | [ ]        |
+| General checks for the authenticator pass | OIDC Provider is not responsive                                                                    | I get a 500 Internal Server Error response with an error body with the relevant error message | [ ]        |
+
+## Unit Tests
+
+| **When**                                                                                           | **Then**                                   |
+|----------------------------------------------------------------------------------------------------|--------------------------------------------|
+| all checks pass                                                              | I return success |
 
 # Effort Estimation
 
