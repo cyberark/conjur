@@ -16,7 +16,7 @@ on the configuration, before any user needs to run an authentication request.
 
 ![alt text](authn-status-flow.jpeg "Authenticator Status API flow")
 
-We will create a new route in `routes.rb` for `/authenticators/:authenticator(/:service_id)/:account/status`.
+We will create a new route in `routes.rb` for `/authenticators/:authenticator/:service_id/:account/status`.
 This route will lead to `AuthenticateController` which will consist of a new `status` method.
 In this method we will call a new CommandClass `Authentication::Status`. This class's
 `call` method will perform the general checks that apply to all authenticators
@@ -99,6 +99,9 @@ For each authenticator that will implement the status check, we will add:
  end
 ```
  
+ ***Note***: We check that the authenticator status check exists before we check the permissions to
+ the status webservice as this info isn't sensitive and we can expose it.
+ 
  # Test Plan
  
  ## Response bodies
@@ -132,6 +135,9 @@ For example,  if the status check failed on `WebserviceNotFound` then the messag
 will be `Webservice '{webservice-name}' wasn't found` (which is its built-in message)
  
 ## Integration Tests
+
+### OSS
+
  |                               **Given**                               | **When**                                                                                       | **Then**                                   | **Status** |
  |:---------------------------------------------------------------------:|------------------------------------------------------------------------------------------------|--------------------------------------------|------------|
  | A healthy authenticator                                               | I send a request with a valid access token                                                     | I get a 200 OK response with a successful body                | [ ]        |
@@ -142,6 +148,12 @@ will be `Webservice '{webservice-name}' wasn't found` (which is its built-in mes
  | Authenticator webservice doesn't exist (wasn't loaded in the policy)  | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response with an error body with the relevant error message | [ ]        |
  | The authenticator isn't whitelisted in the ENV                        | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response with an error body with the relevant error message | [ ]        |
  
+### Enterprise
+
+|                               **Given**                               | **When**                                                                                       | **Then**                                   | **Status** |
+|:---------------------------------------------------------------------:|------------------------------------------------------------------------------------------------|--------------------------------------------|------------|
+| A healthy authenticator                                               | I send a request with a valid access token                                                     | I get a 200 OK response with a successful body                | [ ]        |
+
 ## Unit Tests
 
 1. if `authenticator.status` (specific authenticator validation) raises an error then it propagates to the user
