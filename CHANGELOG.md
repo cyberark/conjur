@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [1.4.1] - 2019-06-25
+## [1.4.1] - 2019-06-24
 ### Fixed
 - Make sure the authentication framework only caches Role lookups for the
   duration of a single request. Reusing stale lookups was leading to
