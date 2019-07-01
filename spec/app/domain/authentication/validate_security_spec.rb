@@ -63,7 +63,7 @@ RSpec.describe Authentication::Security::ValidateSecurity do
       allow(mock_validate_webservice_access)
         .to receive(:call)
               .and_raise("webservice-access-validation-error")
-      
+
       expect { subject }.to raise_error("webservice-access-validation-error")
     end
   end
