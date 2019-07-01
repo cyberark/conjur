@@ -33,6 +33,13 @@ module Authentication
       validate_webservice_is_whitelisted
 
       validate_authenticator_requirements
+
+        # todo: audit success
+
+        # todo: create response object
+    rescue => e
+      # todo: audit failure
+      raise e
     end
 
     private
@@ -84,14 +91,6 @@ module Authentication
 
     def validate_authenticator_requirements
       authenticator.status
-    end
-
-    def audit_success
-      @audit_event.(input: @authenticator_input, success: true, message: nil)
-    end
-
-    def audit_failure(err)
-      @audit_event.(input: @authenticator_input, success: false, message: err.message)
     end
 
     def authenticator
