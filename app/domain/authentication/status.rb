@@ -18,7 +18,7 @@ module Authentication
       implemented_authenticators: Authentication::InstalledAuthenticators.authenticators(ENV),
       enabled_authenticators: ENV['CONJUR_AUTHENTICATORS']
     },
-    inputs: %i(authenticator_name account status_webservice authenticator_webservice user_id)
+    inputs: %i(authenticator_name account authenticator_webservice user_id)
   ) do
 
     def call
@@ -56,11 +56,15 @@ module Authentication
     end
 
     def validate_status_webservice_exists
-      raise Err::Security::ServiceNotDefined, status_webservice_name unless status_webservice_resource
+      validate_webservice_exists(status_webservice)
     end
 
     def validate_authenticator_webservice_exists
-      raise Err::Security::ServiceNotDefined, authenticator_webservice_name unless authenticator_webservice_resource
+      validate_webservice_exists(@authenticator_webservice)
+    end
+
+    def validate_webservice_exists(webservice)
+      raise Err::Security::ServiceNotDefined, webservice.name unless webservice_resource(webservice)
     end
 
     def validate_user_is_defined
@@ -70,12 +74,12 @@ module Authentication
     def validate_user_has_access
       # Ensure user has access to the service
       raise Err::Security::UserNotAuthorizedInConjur,
-            @user_id unless user_role.allowed_to?('authenticate', status_webservice_resource)
+            @user_id unless user_role.allowed_to?('authenticate', webservice_resource(status_webservice))
     end
 
     def validate_webservice_is_whitelisted
       is_whitelisted = whitelisted_webservices.include?(@authenticator_webservice)
-      raise Err::Security::NotWhitelisted, authenticator_webservice_name unless is_whitelisted
+      raise Err::Security::NotWhitelisted, @authenticator_webservice.name unless is_whitelisted
     end
 
     def validate_authenticator_requirements
@@ -101,16 +105,12 @@ module Authentication
       @account_admin_role ||= @role_class["#{@account}:user:admin"]
     end
 
-    def status_webservice_resource
-      @resource_class[status_webservice_resource_id]
+    def status_webservice
+      @authenticator_webservice.status_webservice
     end
 
-    def status_webservice_resource_id
-      @status_webservice.resource_id
-    end
-
-    def status_webservice_name
-      @status_webservice.name
+    def webservice_resource(webservice)
+      @resource_class[webservice.resource_id]
     end
 
     def authenticator_webservice_resource
@@ -119,10 +119,6 @@ module Authentication
 
     def authenticator_webservice_resource_id
       @authenticator_webservice.resource_id
-    end
-
-    def authenticator_webservice_name
-      @authenticator_webservice.name
     end
 
     def user_role
