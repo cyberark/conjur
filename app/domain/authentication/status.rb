@@ -74,7 +74,7 @@ module Authentication
     def validate_user_has_access
       # Ensure user has access to the service
       raise Err::Security::UserNotAuthorizedInConjur,
-            @user_id unless user_role.allowed_to?('authenticate', webservice_resource(status_webservice))
+            @user_id unless user_role.allowed_to?('read', webservice_resource(status_webservice))
     end
 
     def validate_webservice_is_whitelisted

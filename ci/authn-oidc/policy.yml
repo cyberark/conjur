@@ -10,6 +10,8 @@
 
   - !webservice
     id: status
+    annotations:
+      description: Status service to verify the authenticator is configured correctly
 
   - !variable
     id: provider-uri
@@ -24,6 +26,8 @@
 
   - !group
     id: managers
+    annotations:
+      description: Group of users who can check the status of the authn-oidc/keycloak authenticator
 
   - !permit
     role: !group users
@@ -32,7 +36,7 @@
 
   - !permit
     role: !group managers
-    privilege: [ read, authenticate ]
+    privilege: [ read ]
     resource: !webservice status
 
 - !grant
