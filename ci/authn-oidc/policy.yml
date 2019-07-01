@@ -8,6 +8,9 @@
     annotations:
       description: Authentication service for Keycloak, based on Open ID Connect.
 
+  - !webservice
+    id: status
+
   - !variable
     id: provider-uri
 
@@ -19,10 +22,18 @@
     annotations:
       description: Group of users who can authenticate using the authn-oidc/keycloak authenticator
 
+  - !group
+    id: managers
+
   - !permit
     role: !group users
     privilege: [ read, authenticate ]
     resource: !webservice
+
+  - !permit
+    role: !group managers
+    privilege: [ read, authenticate ]
+    resource: !webservice status
 
 - !grant
   role: !group conjur/authn-oidc/keycloak/users

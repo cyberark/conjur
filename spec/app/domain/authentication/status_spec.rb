@@ -67,6 +67,16 @@ RSpec.describe Authentication::Status do
     end
   end
 
+  def mock_status_webservice(resource_id)
+    double('status_webservice').tap do |status_webservice|
+      allow(status_webservice).to receive(:name)
+                             .and_return("some-string")
+
+      allow(status_webservice).to receive(:resource_id)
+                             .and_return("#{resource_id}/status")
+    end
+  end
+
   def mock_webservice(resource_id)
     double('webservice').tap do |webservice|
       allow(webservice).to receive(:name)
@@ -74,6 +84,9 @@ RSpec.describe Authentication::Status do
 
       allow(webservice).to receive(:resource_id)
                              .and_return(resource_id)
+
+      allow(webservice).to receive(:status_webservice)
+                             .and_return(mock_status_webservice(resource_id))
     end
   end
 
@@ -119,7 +132,6 @@ RSpec.describe Authentication::Status do
       ).(
         authenticator_name: "authn-status-pass",
           account: test_account,
-          status_webservice: mock_webservice("some-string"),
           authenticator_webservice: mock_webservice("authn-status-pass"),
           user_id: "some-user"
       )
@@ -141,7 +153,6 @@ RSpec.describe Authentication::Status do
       ).(
         authenticator_name: "authn-non-exist",
           account: test_account,
-          status_webservice: mock_webservice("some-string"),
           authenticator_webservice: mock_webservice("authn-status-pass"),
           user_id: "some-user"
       )
@@ -166,7 +177,6 @@ RSpec.describe Authentication::Status do
         ).(
           authenticator_name: "authn-status-not-implemented",
             account: test_account,
-            status_webservice: mock_webservice("some-string"),
             authenticator_webservice: mock_webservice("authn-status-not-implemented"),
             user_id: "some-user"
         )
@@ -191,7 +201,6 @@ RSpec.describe Authentication::Status do
           ).(
             authenticator_name: "authn-status-pass",
               account: non_existing_account,
-              status_webservice: mock_webservice("some-string"),
               authenticator_webservice: mock_webservice("authn-status-pass"),
               user_id: "some-user"
           )
@@ -216,7 +225,6 @@ RSpec.describe Authentication::Status do
             ).(
               authenticator_name: "authn-status-pass",
                 account: test_account,
-                status_webservice: mock_webservice("some-string"),
                 authenticator_webservice: mock_webservice("authn-status-pass"),
                 user_id: "some-user"
             )
@@ -242,7 +250,6 @@ RSpec.describe Authentication::Status do
               ).(
                 authenticator_name: "authn-status-pass",
                   account: test_account,
-                  status_webservice: mock_webservice("some-string"),
                   authenticator_webservice: mock_webservice("authn-status-pass"),
                   user_id: "some-user"
               )
@@ -268,7 +275,6 @@ RSpec.describe Authentication::Status do
                 ).(
                   authenticator_name: "authn-status-pass",
                     account: test_account,
-                    status_webservice: mock_webservice("some-string"),
                     authenticator_webservice: mock_webservice("authn-status-pass"),
                     user_id: "some-user"
                 )
@@ -293,7 +299,6 @@ RSpec.describe Authentication::Status do
                   ).(
                     authenticator_name: "authn-status-fail",
                       account: test_account,
-                      status_webservice: mock_webservice("some-string"),
                       authenticator_webservice: mock_webservice("authn-status-fail"),
                       user_id: "some-user"
                   )

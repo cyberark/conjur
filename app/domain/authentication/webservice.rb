@@ -52,5 +52,12 @@ module Authentication
       identifier = "conjur/#{name}/#{variable_name}"
       [account, "variable", identifier].join(":")
     end
+
+    def status_webservice
+      @status_webservice ||= ::Authentication::StatusWebservice.new(
+        parent_name: name,
+        parent_resource_id: resource_id
+      )
+    end
   end
 end
