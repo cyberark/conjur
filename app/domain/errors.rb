@@ -38,6 +38,11 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         code: "CONJ00003E"
       )
 
+      StatusNotImplemented = ::Util::TrackableErrorClass.new(
+        msg: "Status check not implemented for authenticator '{0-authenticator-name}'",
+        code: "CONJ00045E"
+      )
+
       module AuthenticatorClass
 
         DoesntStartWithAuthn = ::Util::TrackableErrorClass.new(
