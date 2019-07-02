@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Authentication::Status do
+RSpec.describe Authentication::ValidateStatus do
 
   ### From ValidateSecurity spec
 
@@ -123,7 +123,7 @@ RSpec.describe Authentication::Status do
   context "A valid, whitelisted authenticator" do
 
     subject do
-      Authentication::Status.new(
+      Authentication::ValidateStatus.new(
         role_class: mock_role_class,
         resource_class: mock_resource_class,
         webservices_class: mock_webservices_class,
@@ -144,7 +144,7 @@ RSpec.describe Authentication::Status do
 
   context "A non-existing authenticator" do
     subject do
-      Authentication::Status.new(
+      Authentication::ValidateStatus.new(
         role_class: mock_role_class,
         resource_class: mock_resource_class,
         webservices_class: mock_webservices_class,
@@ -168,7 +168,7 @@ RSpec.describe Authentication::Status do
     context "that does not implement the status check" do
 
       subject do
-        Authentication::Status.new(
+        Authentication::ValidateStatus.new(
           role_class: mock_role_class,
           resource_class: mock_resource_class,
           webservices_class: mock_webservices_class,
@@ -192,7 +192,7 @@ RSpec.describe Authentication::Status do
       context "with a non-existing account" do
 
         subject do
-          Authentication::Status.new(
+          Authentication::ValidateStatus.new(
             role_class: mock_role_class,
             resource_class: mock_resource_class,
             webservices_class: mock_webservices_class,
@@ -216,7 +216,7 @@ RSpec.describe Authentication::Status do
         context "where the user doesn't have access to the status check" do
 
           subject do
-            Authentication::Status.new(
+            Authentication::ValidateStatus.new(
               role_class: mock_role_class,
               resource_class: mock_resource_class,
               webservices_class: mock_webservices_class,
@@ -241,7 +241,7 @@ RSpec.describe Authentication::Status do
           context "with a non-existing authenticator webservice" do
 
             subject do
-              Authentication::Status.new(
+              Authentication::ValidateStatus.new(
                 role_class: mock_role_class,
                 resource_class: non_existing_resource_class,
                 webservices_class: mock_webservices_class,
@@ -266,7 +266,7 @@ RSpec.describe Authentication::Status do
             context "and the authenticator is not whitelisted" do
 
               subject do
-                Authentication::Status.new(
+                Authentication::ValidateStatus.new(
                   role_class: mock_role_class,
                   resource_class: mock_resource_class,
                   webservices_class: mock_webservices_class,
@@ -290,7 +290,7 @@ RSpec.describe Authentication::Status do
 
               context "with failing specific requirements" do
                 subject do
-                  Authentication::Status.new(
+                  Authentication::ValidateStatus.new(
                     role_class: mock_role_class,
                     resource_class: mock_resource_class,
                     webservices_class: mock_webservices_class,

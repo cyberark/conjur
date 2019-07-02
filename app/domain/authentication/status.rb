@@ -8,9 +8,11 @@ module Authentication
   Err = Errors::Authentication
 
   # Possible Errors Raised:
-  # TODO: add errors
+  # AuthenticatorNotFound, StatusNotImplemented, AccountNotDefined
+  # ServiceNotDefined, UserNotDefinedInConjur, UserNotAuthorizedInConjur,
+  # NotWhitelisted
 
-  Status = CommandClass.new(
+  ValidateStatus = CommandClass.new(
     dependencies: {
       role_class: ::Role,
       resource_class: ::Resource,
