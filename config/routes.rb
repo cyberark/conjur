@@ -21,6 +21,8 @@ Rails.application.routes.draw do
 
     constraints account: /[^\/\?]+/ do
       constraints authenticator: /authn-?[^\/]*/, id: /[^\/\?]+/ do
+        get '/:authenticator/:service_id/:account/status' => 'authenticate#status'
+
         get '/:authenticator(/:service_id)/:account/login' => 'authenticate#login'
         # authn-oidc login & authenticate are currently for future use only
         #post '/authn-oidc(/:service_id)/:account/login' => 'authenticate#login_oidc'

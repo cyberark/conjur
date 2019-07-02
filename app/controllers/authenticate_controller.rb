@@ -187,13 +187,13 @@ class AuthenticateController < ApplicationController
     }
 
     case error
-    when Err::Security::UserNotAuthorizedInConjur
+    when Errors::Authentication::Security::UserNotAuthorizedInConjur
       status_code = :forbidden
 
-    when Err::StatusNotImplemented
+    when Errors::Authentication::StatusNotImplemented
       status_code = :not_implemented
 
-    when Err::AuthenticatorNotFound
+    when Errors::Authentication::AuthenticatorNotFound
       status_code = :not_found
 
     else
