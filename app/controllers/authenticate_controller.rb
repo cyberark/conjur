@@ -20,7 +20,7 @@ class AuthenticateController < ApplicationController
   end
 
   def status
-    Authentication::Status.new.(
+    Authentication::ValidateStatus.new.(
       authenticator_name: params[:authenticator],
         account: params[:account],
         authenticator_webservice: ::Authentication::Webservice.new(
@@ -30,6 +30,9 @@ class AuthenticateController < ApplicationController
         ),
         user: current_user
     )
+    status_success_json
+  rescue => e
+    status_failure_json(e)
   end
 
   def login
@@ -167,6 +170,37 @@ class AuthenticateController < ApplicationController
     else
       raise Unauthorized
     end
+  end
+
+  def status_success_json
+    claims = {
+      status: "ok"
+    }
+
+    render json: JSON[claims]
+  end
+
+  def status_failure_json(error)
+    claims = {
+      status: "error",
+      error: error.inspect
+    }
+
+    case error
+    when Err::Security::UserNotAuthorizedInConjur
+      status_code = :forbidden
+
+    when Err::StatusNotImplemented
+      status_code = :not_implemented
+
+    when Err::AuthenticatorNotFound
+      status_code = :not_found
+
+    else
+      status_code = :internal_server_error
+    end
+
+    render json: JSON[claims], status: status_code
   end
 
   def installed_authenticators
