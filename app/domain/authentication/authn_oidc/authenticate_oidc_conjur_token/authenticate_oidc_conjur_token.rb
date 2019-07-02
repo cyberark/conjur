@@ -57,11 +57,25 @@ module Authentication
         end
 
         def audit_success
-          @audit_event.(input: @authenticator_input, success: true, message: nil)
+          @audit_event.(
+            resource_id: @authenticator_input.webservice.resource_id,
+              authenticator_name: @authenticator_input.authenticator_name,
+              account: @authenticator_input.account,
+              username: @authenticator_input.username,
+              success: true,
+              message: nil
+          )
         end
 
         def audit_failure(err)
-          @audit_event.(input: @authenticator_input, success: false, message: err.message)
+          @audit_event.(
+            resource_id: @authenticator_input.webservice.resource_id,
+              authenticator_name: @authenticator_input.authenticator_name,
+              account: @authenticator_input.account,
+              username: @authenticator_input.username,
+              success: false,
+              message: err.message
+          )
         end
 
         def new_token

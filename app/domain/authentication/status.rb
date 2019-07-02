@@ -16,7 +16,8 @@ module Authentication
       resource_class: ::Resource,
       webservices_class: ::Authentication::Webservices,
       implemented_authenticators: Authentication::InstalledAuthenticators.authenticators(ENV),
-      enabled_authenticators: ENV['CONJUR_AUTHENTICATORS']
+      enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
+      audit_event: AuditEvent.new
     },
     inputs: %i(authenticator_name account authenticator_webservice user_id)
   ) do
@@ -34,11 +35,11 @@ module Authentication
 
       validate_authenticator_requirements
 
-        # todo: audit success
+      audit_success
 
         # todo: create response object
     rescue => e
-      # todo: audit failure
+      audit_failure(e)
       raise e
     end
 
@@ -91,6 +92,28 @@ module Authentication
 
     def validate_authenticator_requirements
       authenticator.status
+    end
+
+    def audit_success
+      @audit_event.(
+        resource_id: @authenticator_webservice.resource_id,
+          authenticator_name: @authenticator_name,
+          account: @account,
+          username: @user_id,
+          success: true,
+          message: nil
+      )
+    end
+
+    def audit_failure(err)
+      @audit_event.(
+        resource_id: @authenticator_webservice.resource_id,
+          authenticator_name: @authenticator_name,
+          account: @account,
+          username: @user_id,
+          success: false,
+          message: err.message
+      )
     end
 
     def authenticator

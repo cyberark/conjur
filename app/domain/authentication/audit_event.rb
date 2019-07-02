@@ -7,14 +7,14 @@ module Authentication
       role_cls: ::Role,
       audit_log: ::Authentication::AuditLog
     },
-    inputs: %i(input success message)
+    inputs: %i(resource_id authenticator_name account username success message)
   ) do
 
     def call
       @audit_log.record_authn_event(
         role: role,
-        webservice_id: @input.webservice.resource_id,
-        authenticator_name: @input.authenticator_name,
+        webservice_id: @resource_id,
+        authenticator_name: @authenticator_name,
         success: @success,
         message: @message
       )
@@ -25,11 +25,11 @@ module Authentication
     def role
       return nil if username.nil?
 
-      @role_cls.by_login(username, account: @input.account)
+      @role_cls.by_login(username, account: @account)
     end
 
     def username
-      @input.username
+      @username
     end
   end
 end
