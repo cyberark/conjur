@@ -2,6 +2,7 @@
 
 class AuthenticateController < ApplicationController
   include BasicAuthenticator
+  include AuthorizeResource
 
   def index
     authenticators = {
@@ -16,6 +17,19 @@ class AuthenticateController < ApplicationController
     }
 
     render json: authenticators
+  end
+
+  def status
+    Authentication::Status.new.(
+      authenticator_name: params[:authenticator],
+        account: params[:account],
+        authenticator_webservice: ::Authentication::Webservice.new(
+          account: params[:account],
+          authenticator_name: params[:authenticator],
+          service_id: params[:service_id]
+        ),
+        user: current_user
+    )
   end
 
   def login
