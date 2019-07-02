@@ -19,7 +19,7 @@ module Authentication
       enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
       audit_event: AuditEvent.new
     },
-    inputs: %i(authenticator_name account authenticator_webservice user_id)
+    inputs: %i(authenticator_name account authenticator_webservice user)
   ) do
 
     def call
@@ -36,8 +36,6 @@ module Authentication
       validate_authenticator_requirements
 
       audit_success
-
-        # todo: create response object
     rescue => e
       audit_failure(e)
       raise e
@@ -76,13 +74,13 @@ module Authentication
     end
 
     def validate_user_is_defined
-      raise Err::Security::UserNotDefinedInConjur, @user_id unless user_role
+      raise Err::Security::UserNotDefinedInConjur, user_id unless @user
     end
 
     def validate_user_has_access
       # Ensure user has access to the service
       raise Err::Security::UserNotAuthorizedInConjur,
-            @user_id unless user_role.allowed_to?('read', webservice_resource(status_webservice))
+            user_id unless @user.allowed_to?('read', webservice_resource(status_webservice))
     end
 
     def validate_webservice_is_whitelisted
@@ -99,7 +97,7 @@ module Authentication
         resource_id: @authenticator_webservice.resource_id,
           authenticator_name: @authenticator_name,
           account: @account,
-          username: @user_id,
+          username: user_id,
           success: true,
           message: nil
       )
@@ -110,7 +108,7 @@ module Authentication
         resource_id: @authenticator_webservice.resource_id,
           authenticator_name: @authenticator_name,
           account: @account,
-          username: @user_id,
+          username: user_id,
           success: false,
           message: err.message
       )
@@ -143,12 +141,8 @@ module Authentication
       @authenticator_webservice.resource_id
     end
 
-    def user_role
-      @user_role ||= @role_class[user_role_id]
-    end
-
-    def user_role_id
-      @user_role_id ||= @role_class.roleid_from_username(@account, @user_id)
+    def user_id
+      @user_id ||= @role_class.username_from_roleid(@user.role_id)
     end
 
     def whitelisted_webservices

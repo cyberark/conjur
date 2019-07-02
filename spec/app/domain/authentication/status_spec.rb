@@ -11,17 +11,17 @@ RSpec.describe Authentication::Status do
   def user_role(is_authorized:)
     double('user_role').tap do |role|
       allow(role).to receive(:allowed_to?).and_return(is_authorized)
+      allow(role).to receive(:role_id).and_return('some-role-id')
     end
   end
 
-  def role_class(returned_role)
+  def mock_role_class
     double('role_class').tap do |role_class|
-      allow(role_class).to receive(:roleid_from_username).and_return('some-role-id')
-      allow(role_class).to receive(:[]).and_return(returned_role)
-
+      allow(role_class).to receive(:username_from_roleid).and_return('some-username')
+      
       allow(role_class).to receive(:[])
-                             .with(/#{test_account}:user:admin/)
-                             .and_return(user_role(is_authorized: true))
+                       .with(/#{test_account}:user:admin/)
+                       .and_return(user_role(is_authorized: true))
 
       allow(role_class).to receive(:[])
                              .with(/#{non_existing_account}:user:admin/)
@@ -35,10 +35,10 @@ RSpec.describe Authentication::Status do
     end
   end
 
-  let (:full_access_role_class) { role_class(user_role(is_authorized: true)) }
-  let (:no_access_role_class) { role_class(user_role(is_authorized: false)) }
+  let (:full_access_user) { user_role(is_authorized: true) }
+  let (:no_access_user) { user_role(is_authorized: false) }
 
-  let (:full_access_resource_class) { resource_class('some random resource') }
+  let (:mock_resource_class) { resource_class('some random resource') }
   let (:non_existing_resource_class) { resource_class(nil) }
 
   ### Only here
@@ -124,8 +124,8 @@ RSpec.describe Authentication::Status do
 
     subject do
       Authentication::Status.new(
-        role_class: full_access_role_class,
-        resource_class: full_access_resource_class,
+        role_class: mock_role_class,
+        resource_class: mock_resource_class,
         webservices_class: mock_webservices_class,
         implemented_authenticators: mock_implemented_authenticators,
         enabled_authenticators: mock_enabled_authenticators
@@ -133,7 +133,7 @@ RSpec.describe Authentication::Status do
         authenticator_name: "authn-status-pass",
           account: test_account,
           authenticator_webservice: mock_webservice("authn-status-pass"),
-          user_id: "some-user"
+          user: full_access_user
       )
     end
 
@@ -145,8 +145,8 @@ RSpec.describe Authentication::Status do
   context "A non-existing authenticator" do
     subject do
       Authentication::Status.new(
-        role_class: full_access_role_class,
-        resource_class: full_access_resource_class,
+        role_class: mock_role_class,
+        resource_class: mock_resource_class,
         webservices_class: mock_webservices_class,
         implemented_authenticators: mock_implemented_authenticators,
         enabled_authenticators: mock_enabled_authenticators
@@ -154,7 +154,7 @@ RSpec.describe Authentication::Status do
         authenticator_name: "authn-non-exist",
           account: test_account,
           authenticator_webservice: mock_webservice("authn-status-pass"),
-          user_id: "some-user"
+          user: full_access_user
       )
     end
 
@@ -169,8 +169,8 @@ RSpec.describe Authentication::Status do
 
       subject do
         Authentication::Status.new(
-          role_class: full_access_role_class,
-          resource_class: full_access_resource_class,
+          role_class: mock_role_class,
+          resource_class: mock_resource_class,
           webservices_class: mock_webservices_class,
           implemented_authenticators: mock_implemented_authenticators,
           enabled_authenticators: mock_enabled_authenticators
@@ -178,7 +178,7 @@ RSpec.describe Authentication::Status do
           authenticator_name: "authn-status-not-implemented",
             account: test_account,
             authenticator_webservice: mock_webservice("authn-status-not-implemented"),
-            user_id: "some-user"
+            user: full_access_user
         )
       end
 
@@ -193,8 +193,8 @@ RSpec.describe Authentication::Status do
 
         subject do
           Authentication::Status.new(
-            role_class: full_access_role_class,
-            resource_class: full_access_resource_class,
+            role_class: mock_role_class,
+            resource_class: mock_resource_class,
             webservices_class: mock_webservices_class,
             implemented_authenticators: mock_implemented_authenticators,
             enabled_authenticators: mock_enabled_authenticators
@@ -202,7 +202,7 @@ RSpec.describe Authentication::Status do
             authenticator_name: "authn-status-pass",
               account: non_existing_account,
               authenticator_webservice: mock_webservice("authn-status-pass"),
-              user_id: "some-user"
+              user: full_access_user
           )
         end
 
@@ -217,8 +217,8 @@ RSpec.describe Authentication::Status do
 
           subject do
             Authentication::Status.new(
-              role_class: no_access_role_class,
-              resource_class: full_access_resource_class,
+              role_class: mock_role_class,
+              resource_class: mock_resource_class,
               webservices_class: mock_webservices_class,
               implemented_authenticators: mock_implemented_authenticators,
               enabled_authenticators: mock_enabled_authenticators
@@ -226,7 +226,7 @@ RSpec.describe Authentication::Status do
               authenticator_name: "authn-status-pass",
                 account: test_account,
                 authenticator_webservice: mock_webservice("authn-status-pass"),
-                user_id: "some-user"
+                user: no_access_user
             )
           end
 
@@ -242,7 +242,7 @@ RSpec.describe Authentication::Status do
 
             subject do
               Authentication::Status.new(
-                role_class: full_access_role_class,
+                role_class: mock_role_class,
                 resource_class: non_existing_resource_class,
                 webservices_class: mock_webservices_class,
                 implemented_authenticators: mock_implemented_authenticators,
@@ -251,7 +251,7 @@ RSpec.describe Authentication::Status do
                 authenticator_name: "authn-status-pass",
                   account: test_account,
                   authenticator_webservice: mock_webservice("authn-status-pass"),
-                  user_id: "some-user"
+                  user: full_access_user
               )
             end
 
@@ -267,8 +267,8 @@ RSpec.describe Authentication::Status do
 
               subject do
                 Authentication::Status.new(
-                  role_class: full_access_role_class,
-                  resource_class: full_access_resource_class,
+                  role_class: mock_role_class,
+                  resource_class: mock_resource_class,
                   webservices_class: mock_webservices_class,
                   implemented_authenticators: mock_implemented_authenticators,
                   enabled_authenticators: not_including_enabled_authenticators
@@ -276,7 +276,7 @@ RSpec.describe Authentication::Status do
                   authenticator_name: "authn-status-pass",
                     account: test_account,
                     authenticator_webservice: mock_webservice("authn-status-pass"),
-                    user_id: "some-user"
+                    user: full_access_user
                 )
               end
 
@@ -291,8 +291,8 @@ RSpec.describe Authentication::Status do
               context "with failing specific requirements" do
                 subject do
                   Authentication::Status.new(
-                    role_class: full_access_role_class,
-                    resource_class: full_access_resource_class,
+                    role_class: mock_role_class,
+                    resource_class: mock_resource_class,
                     webservices_class: mock_webservices_class,
                     implemented_authenticators: mock_implemented_authenticators,
                     enabled_authenticators: mock_enabled_authenticators
@@ -300,7 +300,7 @@ RSpec.describe Authentication::Status do
                     authenticator_name: "authn-status-fail",
                       account: test_account,
                       authenticator_webservice: mock_webservice("authn-status-fail"),
-                      user_id: "some-user"
+                      user: full_access_user
                   )
                 end
 
