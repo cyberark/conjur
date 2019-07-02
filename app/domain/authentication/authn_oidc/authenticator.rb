@@ -16,6 +16,13 @@ module Authentication
 
       def valid?
       end
+
+      def status(account:, authenticator_name:, webservice:)
+        Authentication::AuthnOidc::ValidateStatus.new.(
+          account: account,
+            service_id: webservice.service_id
+        )
+      end
     end
   end
 end
