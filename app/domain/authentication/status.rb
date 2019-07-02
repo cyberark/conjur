@@ -50,7 +50,7 @@ module Authentication
     end
 
     def validate_authenticator_implements_status_check
-      raise Err::StatusNotImplemented, @authenticator_name unless authenticator.method_defined?(:status)
+      raise Err::StatusNotImplemented, @authenticator_name unless authenticator.class.method_defined?(:status)
     end
 
     def validate_account_exists

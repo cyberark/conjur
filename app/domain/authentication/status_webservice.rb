@@ -24,7 +24,7 @@ module Authentication
       end
 
       def resource_id
-        "#{resource_id}/status"
+        "#{parent_resource_id}/status"
       end
 
       def resource
