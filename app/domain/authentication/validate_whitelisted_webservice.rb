@@ -13,7 +13,7 @@ module Authentication
     ValidateWhitelistedWebservice = CommandClass.new(
       dependencies: {
         role_class: ::Role,
-        webservices_class: ::Authentication::Webservices,
+        webservices_class: ::Authentication::Webservices
       },
       inputs: %i(webservice account enabled_authenticators)
     ) do
