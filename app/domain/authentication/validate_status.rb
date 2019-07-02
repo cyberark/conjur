@@ -91,7 +91,11 @@ module Authentication
     end
 
     def validate_authenticator_requirements
-      authenticator.status
+      authenticator.status(
+        account: @account,
+        authenticator_name: @authenticator_name,
+        webservice: @authenticator_webservice
+        )
     end
 
     def audit_success
