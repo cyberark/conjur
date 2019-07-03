@@ -2,7 +2,6 @@
 
 require 'authentication/webservices'
 require 'authentication/validate_webservice_access'
-require 'authentication/validate_webservice_access'
 require 'authentication/validate_whitelisted_webservice'
 
 module Authentication
