@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'authentication/webservices'
+require 'authentication/validate_account_exists'
 
 module Authentication
 
@@ -13,7 +14,8 @@ module Authentication
     ValidateWhitelistedWebservice = CommandClass.new(
       dependencies: {
         role_class: ::Role,
-        webservices_class: ::Authentication::Webservices
+        webservices_class: ::Authentication::Webservices,
+        validate_account_exists: ::Authentication::Security::ValidateAccountExists.new
       },
       inputs: %i(webservice account enabled_authenticators)
     ) do
@@ -34,11 +36,9 @@ module Authentication
       end
 
       def validate_account_exists
-        raise Err::AccountNotDefined, @account unless account_admin_role
-      end
-
-      def account_admin_role
-        @account_admin_role ||= @role_class["#{@account}:user:admin"]
+        @validate_account_exists.(
+          account: @account
+        )
       end
 
       def validate_webservice_is_whitelisted

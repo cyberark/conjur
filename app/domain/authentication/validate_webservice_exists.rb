@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'authentication/validate_account_exists'
+
 module Authentication
 
   module Security
@@ -11,7 +13,8 @@ module Authentication
     ValidateWebserviceExists = CommandClass.new(
       dependencies: {
         role_class: ::Role,
-        resource_class: ::Resource
+        resource_class: ::Resource,
+        validate_account_exists: ::Authentication::Security::ValidateAccountExists.new
       },
       inputs: %i(webservice account)
     ) do
@@ -32,15 +35,13 @@ module Authentication
       end
 
       def validate_account_exists
-        raise Err::AccountNotDefined, @account unless account_admin_role
+        @validate_account_exists.(
+          account: @account
+        )
       end
 
       def validate_webservice_exists
         raise Err::ServiceNotDefined, @webservice.name unless webservice_resource
-      end
-
-      def account_admin_role
-        @account_admin_role ||= @role_class["#{@account}:user:admin"]
       end
 
       def webservice_resource

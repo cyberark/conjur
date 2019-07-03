@@ -33,4 +33,16 @@ shared_context "security mocks" do
                              .and_return(nil)
     end
   end
+
+  let (:account_not_exist_error) { "account doesn't exist" }
+
+  def mock_validate_account_exists(is_failing:)
+    double('validate_account_exists').tap do |validate_account_exists|
+      if is_failing
+        allow(validate_account_exists).to receive(:call).and_raise(account_not_exist_error)
+      else
+        allow(validate_account_exists).to receive(:call)
+      end
+    end
+  end
 end

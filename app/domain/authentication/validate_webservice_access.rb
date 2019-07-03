@@ -2,6 +2,7 @@
 
 require 'logs'
 require 'authentication/validate_webservice_exists'
+require 'authentication/validate_account_exists'
 
 module Authentication
 
@@ -18,6 +19,7 @@ module Authentication
         role_class: ::Role,
         resource_class: ::Resource,
         validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
+        validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
         logger: Rails.logger
       },
       inputs: %i(webservice account user_id)
@@ -41,7 +43,9 @@ module Authentication
       end
 
       def validate_account_exists
-        raise Err::AccountNotDefined, @account unless account_admin_role
+        @validate_account_exists.(
+          account: @account
+        )
       end
 
       def validate_webservice_exists
@@ -71,10 +75,6 @@ module Authentication
 
       def user_role
         @user_role ||= @role_class[user_role_id]
-      end
-
-      def account_admin_role
-        @account_admin_role ||= @role_class["#{@account}:user:admin"]
       end
 
       def webservice_resource
