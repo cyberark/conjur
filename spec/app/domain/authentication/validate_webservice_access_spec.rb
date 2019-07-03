@@ -42,11 +42,24 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
     end
   end
 
+  let (:webservice_not_exist_error) { "webservice doesn't exist" }
+
+  def mock_validate_webservice_exists(is_failing:)
+    double('validate_webservice_exists').tap do |validate_webservice_exists|
+      if is_failing
+        allow(validate_webservice_exists).to receive(:call).and_raise(webservice_not_exist_error)
+      else
+        allow(validate_webservice_exists).to receive(:call)
+      end
+    end
+  end
+
   context "An authorized webservice and authorized user" do
     subject do
       Authentication::Security::ValidateWebserviceAccess.new(
         role_class: full_access_role_class,
-        resource_class: full_access_resource_class
+        resource_class: full_access_resource_class,
+        validate_webservice_exists: mock_validate_webservice_exists(is_failing: false)
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
@@ -59,11 +72,12 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
     end
   end
 
-  context "An unauthorized webservice and authorized user" do
+  context "A non-existing webservice and authorized user" do
     subject do
       Authentication::Security::ValidateWebserviceAccess.new(
         role_class: full_access_role_class,
-        resource_class: no_access_resource_class
+        resource_class: no_access_resource_class,
+        validate_webservice_exists: mock_validate_webservice_exists(is_failing: true)
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
@@ -71,8 +85,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       )
     end
 
-    it "raises a ServiceNotDefined error" do
-      expect { subject }.to raise_error(Errors::Authentication::Security::ServiceNotDefined)
+    it "raises the error raised by validate_webservice_exists" do
+      expect { subject }.to raise_error(webservice_not_exist_error)
     end
   end
 
@@ -80,7 +94,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
     subject do
       Authentication::Security::ValidateWebserviceAccess.new(
         role_class: nil_user_role_class,
-        resource_class: full_access_resource_class
+        resource_class: full_access_resource_class,
+        validate_webservice_exists: mock_validate_webservice_exists(is_failing: false)
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
@@ -96,7 +111,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
     subject do
       Authentication::Security::ValidateWebserviceAccess.new(
         role_class: no_access_role_class,
-        resource_class: full_access_resource_class
+        resource_class: full_access_resource_class,
+        validate_webservice_exists: mock_validate_webservice_exists(is_failing: false)
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
@@ -114,7 +130,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
     subject do
       Authentication::Security::ValidateWebserviceAccess.new(
         role_class: non_existing_account_role_class,
-        resource_class: full_access_resource_class
+        resource_class: full_access_resource_class,
+        validate_webservice_exists: mock_validate_webservice_exists(is_failing: false)
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: non_existing_account,
@@ -142,8 +159,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       double('role_class').tap {|rc|
         allow(rc).to receive(:roleid_from_username).and_return(user_roleid)
         allow(rc).to receive(:[])
-          .with("#{test_account}:user:admin")
-          .and_return(user_role(is_authorized: true))
+                       .with("#{test_account}:user:admin")
+                       .and_return(user_role(is_authorized: true))
       }
     }
 
@@ -151,20 +168,21 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       described_class
         .new(
           role_class: role_class,
-          resource_class: full_access_resource_class
+          resource_class: full_access_resource_class,
+          validate_webservice_exists: mock_validate_webservice_exists(is_failing: false)
         )
     end
-    
+
     it "role lookups are not cached" do
 
       # Simulate two validations. For the first, the role should not
       # be found.
       allow(role_class).to receive(:[]).with(user_roleid).and_return(nil)
       expect { subject.(
-                 webservice: mock_webservice("#{fake_authenticator_name}/service1"),
-                 account: test_account,
-                 user_id: user_id
-               )
+        webservice: mock_webservice("#{fake_authenticator_name}/service1"),
+          account: test_account,
+          user_id: user_id
+      )
       }.to raise_error(Errors::Authentication::Security::UserNotDefinedInConjur)
 
       # For the second, the role should be found, and validation
@@ -174,12 +192,12 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       # overwrites the previous one.
       allow(role_class).to receive(:[]).with(user_roleid).and_return(user_role_double)
       expect { subject.(
-                 webservice: mock_webservice("#{fake_authenticator_name}/service1"),
-                 account: test_account,
-                 user_id: user_id
-               )
+        webservice: mock_webservice("#{fake_authenticator_name}/service1"),
+          account: test_account,
+          user_id: user_id
+      )
       }.not_to raise_error
-      
+
     end
   end
 end

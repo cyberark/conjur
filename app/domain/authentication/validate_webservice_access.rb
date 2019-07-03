@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'authentication/webservices'
 require 'logs'
+require 'authentication/validate_webservice_exists'
 
 module Authentication
 
@@ -17,6 +17,7 @@ module Authentication
       dependencies: {
         role_class: ::Role,
         resource_class: ::Resource,
+        validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
         logger: Rails.logger
       },
       inputs: %i(webservice account user_id)
@@ -44,7 +45,10 @@ module Authentication
       end
 
       def validate_webservice_exists
-        raise Err::ServiceNotDefined, @webservice.name unless webservice_resource
+        @validate_webservice_exists.(
+          webservice: @webservice,
+            account: @account
+        )
       end
 
       def validate_user_is_defined
