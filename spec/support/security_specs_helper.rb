@@ -22,4 +22,15 @@ shared_context "security mocks" do
     end
   end
 
+  def mock_admin_role_class
+    double('role_class').tap do |role_class|
+      allow(role_class).to receive(:[])
+                             .with(/#{test_account}:user:admin/)
+                             .and_return("admin-role")
+
+      allow(role_class).to receive(:[])
+                             .with(/#{non_existing_account}:user:admin/)
+                             .and_return(nil)
+    end
+  end
 end

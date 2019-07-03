@@ -16,18 +16,6 @@ RSpec.describe Authentication::Security::ValidateWhitelistedWebservice do
     end
   end
 
-  def mock_admin_role_class
-    double('role_class').tap do |role_class|
-      allow(role_class).to receive(:[])
-                             .with(/#{test_account}:user:admin/)
-                             .and_return("admin-role")
-
-      allow(role_class).to receive(:[])
-                             .with(/#{non_existing_account}:user:admin/)
-                             .and_return(nil)
-    end
-  end
-
   def webservices_dict(includes_authenticator:)
     double('webservices_dict').tap do |webservices_dict|
       allow(webservices_dict).to receive(:include?)
