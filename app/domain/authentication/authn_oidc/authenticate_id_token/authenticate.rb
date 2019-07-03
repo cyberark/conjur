@@ -75,7 +75,7 @@ module Authentication
         def validate_conjur_username
           raise Err::IdTokenFieldNotFoundOrEmpty, id_token_username_field if conjur_username.to_s.empty?
           raise Err::AdminAuthenticationDenied if admin?(conjur_username)
-          @logger.debug(Log::ExtractedUsernameFromIDToked.new(conjur_username, id_token_username_field).to_s)
+          @logger.debug(Log::ExtractedUsernameFromIDToked.new(conjur_username, id_token_username_field))
         end
 
         def conjur_username

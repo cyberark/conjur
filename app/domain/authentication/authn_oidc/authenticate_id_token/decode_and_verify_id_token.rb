@@ -43,14 +43,14 @@ module Authentication
             provider_uri: @provider_uri,
               refresh: force_read
           )
-          @logger.debug(Log::OIDCProviderCertificateFetchedFromCache.new.to_s)
+          @logger.debug(Log::OIDCProviderCertificateFetchedFromCache.new)
           @certs
         end
 
         def ensure_certs_are_fresh
           decoded_id_token
         rescue
-          @logger.debug(Log::ValidateProviderCertificateIsUpdated.new.to_s)
+          @logger.debug(Log::ValidateProviderCertificateIsUpdated.new)
           # maybe failed due to certificate rotation. Force cache to read it again
           fetch_certs(force_read: true)
         end
@@ -79,7 +79,7 @@ module Authentication
                        nonce: decoded_attributes[:nonce] }
 
           decoded_id_token.verify!(expected)
-          @logger.debug(Log::IDTokenVerificationSuccess.new.to_s)
+          @logger.debug(Log::IDTokenVerificationSuccess.new)
         rescue OpenIDConnect::ResponseObject::IdToken::ExpiredToken
           raise Err::IdTokenExpired
         rescue => e
@@ -92,10 +92,10 @@ module Authentication
             @id_token_jwt,
             @certs
           )
-          @logger.debug(Log::IDTokenDecodeSuccess.new.to_s)
+          @logger.debug(Log::IDTokenDecodeSuccess.new)
           @decoded_id_token
         rescue => e
-          @logger.debug(Log::IDTokenDecodeFailed.new(e.inspect).to_s)
+          @logger.debug(Log::IDTokenDecodeFailed.new(e.inspect))
           raise e
         end
 

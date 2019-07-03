@@ -29,12 +29,12 @@ module Authentication
         private
 
         def log_provider_uri
-          @logger.debug(Log::OIDCProviderUri.new(@provider_uri).to_s)
+          @logger.debug(Log::OIDCProviderUri.new(@provider_uri))
         end
 
         def discover_provider
           @discovered_provider = @open_id_discovery_service.discover!(@provider_uri)
-          @logger.debug(Log::OIDCProviderDiscoverySuccess.new.to_s)
+          @logger.debug(Log::OIDCProviderDiscoverySuccess.new)
         rescue HTTPClient::ConnectTimeoutError => e
           raise_error(Err::ProviderDiscoveryTimeout, e)
         rescue => e
@@ -43,7 +43,7 @@ module Authentication
 
         def fetch_certs
           @discovered_provider.jwks.tap do
-            @logger.debug(Log::FetchProviderCertsSuccess.new.to_s)
+            @logger.debug(Log::FetchProviderCertsSuccess.new)
           end
         rescue => e
           raise_error(Err::ProviderFetchCertificateFailed, e)

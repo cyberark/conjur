@@ -51,7 +51,7 @@ module Authentication
         if hs_error
           ws_client.emit(:error, "Websocket handshake error: #{hs_error.inspect}")
         else
-          @logger.debug(Log::PodChannelOpen.new(@pod_name).to_s)
+          @logger.debug(Log::PodChannelOpen.new(@pod_name))
 
           if stdin
             data = WebSocketMessage.channel_byte('stdin') + body
@@ -68,24 +68,24 @@ module Authentication
         msg_data = wsmsg.data
 
         if msg_type == :binary
-          @logger.debug(Log::PodChannelData.new(@pod_name, wsmsg.channel_name, msg_data).to_s)
+          @logger.debug(Log::PodChannelData.new(@pod_name, wsmsg.channel_name, msg_data))
           @message_log.save_message(wsmsg)
         elsif msg_type == :close
-          @logger.debug(Log::PodMessageData.new(@pod_name, "close", msg_data).to_s)
+          @logger.debug(Log::PodMessageData.new(@pod_name, "close", msg_data))
           ws_client.close
         end
       end
 
       def on_close
         @channel_closed = true
-        @logger.debug(Log::PodChannelClosed.new(@pod_name).to_s)
+        @logger.debug(Log::PodChannelClosed.new(@pod_name))
       end
 
       def on_error(err)
         @channel_closed = true
 
         error_info = err.inspect
-        @logger.debug(Log::PodError.new(@pod_name, error_info).to_s)
+        @logger.debug(Log::PodError.new(@pod_name, error_info))
         @message_log.save_error_string(error_info)
       end
 
