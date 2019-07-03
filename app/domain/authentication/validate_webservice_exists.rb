@@ -11,7 +11,7 @@ module Authentication
     ValidateWebserviceExists = CommandClass.new(
       dependencies: {
         role_class: ::Role,
-        resource_class: ::Resource,
+        resource_class: ::Resource
       },
       inputs: %i(webservice account)
     ) do
