@@ -56,7 +56,7 @@ module Authentication
         has_access = user_role.allowed_to?('authenticate', webservice_resource)
         unless has_access
           @logger.debug(Log::UserNotAuthorized
-                          .new(@user_id, webservice_resource_id).to_s)
+                          .new(@user_id, webservice_resource_id))
           raise Err::UserNotAuthorizedInConjur, @user_id
         end
       end
