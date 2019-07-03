@@ -44,9 +44,9 @@ RSpec.describe Authentication::Security::ValidateWhitelistedWebservice do
   context "A whitelisted webservice" do
     subject do
       Authentication::Security::ValidateWhitelistedWebservice.new(
-        role_class: mock_admin_role_class,
+        role_class: mock_role_class,
         webservices_class: mock_webservices_class,
-        validate_account_exists: mock_validate_account_exists(is_failing: false)
+        validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
@@ -62,9 +62,9 @@ RSpec.describe Authentication::Security::ValidateWhitelistedWebservice do
   context "A un-whitelisted webservice" do
     subject do
       Authentication::Security::ValidateWhitelistedWebservice.new(
-        role_class: mock_admin_role_class,
+        role_class: mock_role_class,
         webservices_class: mock_webservices_class,
-        validate_account_exists: mock_validate_account_exists(is_failing: false)
+        validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
@@ -80,9 +80,9 @@ RSpec.describe Authentication::Security::ValidateWhitelistedWebservice do
   context "An ENV lacking CONJUR_AUTHENTICATORS" do
     subject do
       Authentication::Security::ValidateWhitelistedWebservice.new(
-        role_class: mock_admin_role_class,
+        role_class: mock_role_class,
         webservices_class: mock_webservices_class,
-        validate_account_exists: mock_validate_account_exists(is_failing: false)
+        validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
       ).(
         webservice: default_authenticator_mock,
           account: test_account,
@@ -98,9 +98,9 @@ RSpec.describe Authentication::Security::ValidateWhitelistedWebservice do
   context "A non-existing account" do
     subject do
       Authentication::Security::ValidateWhitelistedWebservice.new(
-        role_class: mock_admin_role_class,
+        role_class: mock_role_class,
         webservices_class: mock_webservices_class,
-        validate_account_exists: mock_validate_account_exists(is_failing: true)
+        validate_account_exists: mock_validate_account_exists(validation_succeeded: false)
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: non_existing_account,
@@ -109,7 +109,7 @@ RSpec.describe Authentication::Security::ValidateWhitelistedWebservice do
     end
 
     it "raises the error raised by validate_account_exists" do
-      expect { subject }.to raise_error(account_not_exist_error)
+      expect { subject }.to raise_error(validate_account_exists_error)
     end
   end
 end

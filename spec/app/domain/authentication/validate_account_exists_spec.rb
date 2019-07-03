@@ -8,7 +8,7 @@ RSpec.describe Authentication::Security::ValidateAccountExists do
   context "An existing account" do
     subject do
       Authentication::Security::ValidateAccountExists.new(
-        role_class: mock_admin_role_class
+        role_class: mock_role_class
       ).(
         account: test_account
       )
@@ -22,7 +22,7 @@ RSpec.describe Authentication::Security::ValidateAccountExists do
   context "A non-existing account" do
     subject do
       Authentication::Security::ValidateAccountExists.new(
-        role_class: mock_admin_role_class
+        role_class: mock_role_class
       ).(
         account: non_existing_account
       )

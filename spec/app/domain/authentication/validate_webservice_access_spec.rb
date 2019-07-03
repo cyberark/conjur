@@ -35,32 +35,13 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
     end
   end
 
-  # generates user_role authorized for all or no services
-  def user_role(is_authorized:)
-    double('user_role').tap do |role|
-      allow(role).to receive(:allowed_to?).and_return(is_authorized)
-    end
-  end
-
-  let (:webservice_not_exist_error) { "webservice doesn't exist" }
-
-  def mock_validate_webservice_exists(is_failing:)
-    double('validate_webservice_exists').tap do |validate_webservice_exists|
-      if is_failing
-        allow(validate_webservice_exists).to receive(:call).and_raise(webservice_not_exist_error)
-      else
-        allow(validate_webservice_exists).to receive(:call)
-      end
-    end
-  end
-
   context "An authorized webservice and authorized user" do
     subject do
       Authentication::Security::ValidateWebserviceAccess.new(
         role_class: full_access_role_class,
         resource_class: full_access_resource_class,
-        validate_webservice_exists: mock_validate_webservice_exists(is_failing: false),
-        validate_account_exists: mock_validate_account_exists(is_failing: false)
+        validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
+        validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
@@ -78,8 +59,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       Authentication::Security::ValidateWebserviceAccess.new(
         role_class: full_access_role_class,
         resource_class: no_access_resource_class,
-        validate_webservice_exists: mock_validate_webservice_exists(is_failing: true),
-        validate_account_exists: mock_validate_account_exists(is_failing: false)
+        validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: false),
+        validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
@@ -88,7 +69,7 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
     end
 
     it "raises the error raised by validate_webservice_exists" do
-      expect { subject }.to raise_error(webservice_not_exist_error)
+      expect { subject }.to raise_error(validate_webservice_exists_error)
     end
   end
 
@@ -97,8 +78,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       Authentication::Security::ValidateWebserviceAccess.new(
         role_class: nil_user_role_class,
         resource_class: full_access_resource_class,
-        validate_webservice_exists: mock_validate_webservice_exists(is_failing: false),
-        validate_account_exists: mock_validate_account_exists(is_failing: false)
+        validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
+        validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
@@ -115,8 +96,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       Authentication::Security::ValidateWebserviceAccess.new(
         role_class: no_access_role_class,
         resource_class: full_access_resource_class,
-        validate_webservice_exists: mock_validate_webservice_exists(is_failing: false),
-        validate_account_exists: mock_validate_account_exists(is_failing: false)
+        validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
+        validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
@@ -135,8 +116,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       Authentication::Security::ValidateWebserviceAccess.new(
         role_class: non_existing_account_role_class,
         resource_class: full_access_resource_class,
-        validate_webservice_exists: mock_validate_webservice_exists(is_failing: false),
-        validate_account_exists: mock_validate_account_exists(is_failing: true)
+        validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
+        validate_account_exists: mock_validate_account_exists(validation_succeeded: false)
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: non_existing_account,
@@ -145,7 +126,7 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
     end
 
     it "raises the error raised by validate_account_exists" do
-      expect { subject }.to raise_error(account_not_exist_error)
+      expect { subject }.to raise_error(validate_account_exists_error)
     end
   end
 
@@ -174,8 +155,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
         .new(
           role_class: role_class,
           resource_class: full_access_resource_class,
-          validate_webservice_exists: mock_validate_webservice_exists(is_failing: false),
-          validate_account_exists: mock_validate_account_exists(is_failing: false)
+          validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
+          validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
         )
     end
 

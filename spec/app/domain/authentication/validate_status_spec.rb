@@ -1,48 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Authentication::ValidateStatus do
-
-  ### From ValidateSecurity spec
-
-  let (:test_account) { 'test-account' }
-  let (:non_existing_account) { 'non-existing' }
-
-  # generates user_role authorized for all or no services
-  def user_role(is_authorized:)
-    double('user_role').tap do |role|
-      allow(role).to receive(:allowed_to?).and_return(is_authorized)
-      allow(role).to receive(:role_id).and_return('some-role-id')
-    end
-  end
-
-  def mock_role_class
-    double('role_class').tap do |role_class|
-      allow(role_class).to receive(:username_from_roleid).and_return('some-username')
-      
-      allow(role_class).to receive(:[])
-                       .with(/#{test_account}:user:admin/)
-                       .and_return(user_role(is_authorized: true))
-
-      allow(role_class).to receive(:[])
-                             .with(/#{non_existing_account}:user:admin/)
-                             .and_return(nil)
-    end
-  end
-
-  def resource_class(returned_resource)
-    double('Resource').tap do |resource_class|
-      allow(resource_class).to receive(:[]).and_return(returned_resource)
-    end
-  end
-
-  let (:full_access_user) { user_role(is_authorized: true) }
-  let (:no_access_user) { user_role(is_authorized: false) }
-
-  let (:mock_resource_class) { resource_class('some random resource') }
-  let (:non_existing_resource_class) { resource_class(nil) }
-
-  ### Only here
-
+  include_context "security mocks"
 
   let (:mock_enabled_authenticators) do
     "authn-status-pass,authn-status-not-implemented"
@@ -52,11 +11,18 @@ RSpec.describe Authentication::ValidateStatus do
     "authn-other"
   end
 
+  def authenticator_class(is_status_defined)
+    double('authenticator_class').tap do |authenticator_class|
+      allow(authenticator_class).to receive(:method_defined?)
+                                      .with(:status)
+                                      .and_return(is_status_defined)
+    end
+  end
+
   def authenticator(is_status_defined:, is_failing_requirements:)
     double('authenticator').tap do |authenticator|
-      allow(authenticator).to receive(:method_defined?)
-                                .with(:status)
-                                .and_return(is_status_defined)
+      allow(authenticator).to receive(:class)
+                                .and_return(authenticator_class(is_status_defined))
 
       if is_failing_requirements
         allow(authenticator).to receive(:status)
@@ -70,10 +36,10 @@ RSpec.describe Authentication::ValidateStatus do
   def mock_status_webservice(resource_id)
     double('status_webservice').tap do |status_webservice|
       allow(status_webservice).to receive(:name)
-                             .and_return("some-string")
+                                    .and_return("some-string")
 
       allow(status_webservice).to receive(:resource_id)
-                             .and_return("#{resource_id}/status")
+                                    .and_return("#{resource_id}/status")
     end
   end
 
@@ -99,7 +65,6 @@ RSpec.describe Authentication::ValidateStatus do
 
   def mock_webservices_class
     double('webservices_class').tap do |webservices_class|
-
       allow(webservices_class).to receive(:from_string)
                                     .with(anything, mock_enabled_authenticators)
                                     .and_return(webservices_dict(includes_authenticator: true))
@@ -118,22 +83,21 @@ RSpec.describe Authentication::ValidateStatus do
     }
   end
 
-  # UTs
-
   context "A valid, whitelisted authenticator" do
 
     subject do
       Authentication::ValidateStatus.new(
         role_class: mock_role_class,
-        resource_class: mock_resource_class,
-        webservices_class: mock_webservices_class,
+        validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: true),
+        validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
+        validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
         implemented_authenticators: mock_implemented_authenticators,
         enabled_authenticators: mock_enabled_authenticators
       ).(
         authenticator_name: "authn-status-pass",
           account: test_account,
           authenticator_webservice: mock_webservice("authn-status-pass"),
-          user: full_access_user
+          user: mock_role
       )
     end
 
@@ -146,15 +110,16 @@ RSpec.describe Authentication::ValidateStatus do
     subject do
       Authentication::ValidateStatus.new(
         role_class: mock_role_class,
-        resource_class: mock_resource_class,
-        webservices_class: mock_webservices_class,
+        validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: true),
+        validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
+        validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
         implemented_authenticators: mock_implemented_authenticators,
         enabled_authenticators: mock_enabled_authenticators
       ).(
         authenticator_name: "authn-non-exist",
           account: test_account,
           authenticator_webservice: mock_webservice("authn-status-pass"),
-          user: full_access_user
+          user: mock_role
       )
     end
 
@@ -170,15 +135,16 @@ RSpec.describe Authentication::ValidateStatus do
       subject do
         Authentication::ValidateStatus.new(
           role_class: mock_role_class,
-          resource_class: mock_resource_class,
-          webservices_class: mock_webservices_class,
+          validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: true),
+          validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
+          validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
           implemented_authenticators: mock_implemented_authenticators,
           enabled_authenticators: mock_enabled_authenticators
         ).(
           authenticator_name: "authn-status-not-implemented",
             account: test_account,
             authenticator_webservice: mock_webservice("authn-status-not-implemented"),
-            user: full_access_user
+            user: mock_role
         )
       end
 
@@ -189,124 +155,102 @@ RSpec.describe Authentication::ValidateStatus do
 
     context "that implements the status check" do
 
-      context "with a non-existing account" do
+      context "where the user doesn't have access to the status check" do
 
         subject do
           Authentication::ValidateStatus.new(
             role_class: mock_role_class,
-            resource_class: mock_resource_class,
-            webservices_class: mock_webservices_class,
+            validate_whitelisted_webservice: mock_validate_webservice_exists(validation_succeeded: true),
+            validate_webservice_access: mock_validate_webservice_access(validation_succeeded: false),
+            validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
             implemented_authenticators: mock_implemented_authenticators,
             enabled_authenticators: mock_enabled_authenticators
           ).(
             authenticator_name: "authn-status-pass",
-              account: non_existing_account,
+              account: test_account,
               authenticator_webservice: mock_webservice("authn-status-pass"),
-              user: full_access_user
+              user: mock_role
           )
         end
 
-        it "raises an AccountNotDefined error" do
-          expect { subject }.to raise_error(Errors::Authentication::Security::AccountNotDefined)
+        it "raises the error raised by validate_webservice_access" do
+          expect { subject }.to raise_error(validate_webservice_access_error)
         end
+
       end
 
-      context "with an existing account" do
+      context "where the user has access to the status check" do
 
-        context "where the user doesn't have access to the status check" do
+        context "with a non-existing authenticator webservice" do
 
           subject do
             Authentication::ValidateStatus.new(
               role_class: mock_role_class,
-              resource_class: mock_resource_class,
-              webservices_class: mock_webservices_class,
+              validate_whitelisted_webservice: mock_validate_webservice_exists(validation_succeeded: true),
+              validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
+              validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: false),
               implemented_authenticators: mock_implemented_authenticators,
               enabled_authenticators: mock_enabled_authenticators
             ).(
               authenticator_name: "authn-status-pass",
                 account: test_account,
                 authenticator_webservice: mock_webservice("authn-status-pass"),
-                user: no_access_user
+                user: mock_role
             )
           end
 
-          it "raises a UserNotAuthorizedInConjur error" do
-            expect { subject }.to raise_error(Errors::Authentication::Security::UserNotAuthorizedInConjur)
+          it "raises the error raised by validate_webservice_exists" do
+            expect { subject }.to raise_error(validate_webservice_exists_error)
           end
 
         end
 
-        context "where the operator has access to the status check" do
+        context "with an existing authenticator webservice" do
 
-          context "with a non-existing authenticator webservice" do
+          context "and the authenticator is not whitelisted" do
 
             subject do
               Authentication::ValidateStatus.new(
                 role_class: mock_role_class,
-                resource_class: non_existing_resource_class,
-                webservices_class: mock_webservices_class,
+                validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: false),
+                validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
+                validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
                 implemented_authenticators: mock_implemented_authenticators,
-                enabled_authenticators: mock_enabled_authenticators
+                enabled_authenticators: not_including_enabled_authenticators
               ).(
                 authenticator_name: "authn-status-pass",
                   account: test_account,
                   authenticator_webservice: mock_webservice("authn-status-pass"),
-                  user: full_access_user
+                  user: mock_role
               )
             end
 
-            it "raises a ServiceNotDefined error" do
-              expect { subject }.to raise_error(Errors::Authentication::Security::ServiceNotDefined)
+            it "raises the error raised by validate_whitelisted_webservice" do
+              expect { subject }.to raise_error(validate_whitelisted_webservice_error)
             end
-
           end
 
-          context "with an existing authenticator webservice" do
+          context "and the authenticator is whitelisted" do
 
-            context "and the authenticator is not whitelisted" do
-
+            context "with failing specific requirements" do
               subject do
                 Authentication::ValidateStatus.new(
                   role_class: mock_role_class,
-                  resource_class: mock_resource_class,
-                  webservices_class: mock_webservices_class,
+                  validate_whitelisted_webservice: mock_validate_webservice_exists(validation_succeeded: true),
+                  validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
+                  validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
                   implemented_authenticators: mock_implemented_authenticators,
-                  enabled_authenticators: not_including_enabled_authenticators
+                  enabled_authenticators: mock_enabled_authenticators
                 ).(
-                  authenticator_name: "authn-status-pass",
+                  authenticator_name: "authn-status-fail",
                     account: test_account,
-                    authenticator_webservice: mock_webservice("authn-status-pass"),
-                    user: full_access_user
+                    authenticator_webservice: mock_webservice("authn-status-fail"),
+                    user: mock_role
                 )
               end
 
-              it "raises an NotWhitelisted error" do
-                expect { subject }.to raise_error(Errors::Authentication::Security::NotWhitelisted)
-              end
-
-            end
-
-            context "and the authenticator is whitelisted" do
-
-              context "with failing specific requirements" do
-                subject do
-                  Authentication::ValidateStatus.new(
-                    role_class: mock_role_class,
-                    resource_class: mock_resource_class,
-                    webservices_class: mock_webservices_class,
-                    implemented_authenticators: mock_implemented_authenticators,
-                    enabled_authenticators: mock_enabled_authenticators
-                  ).(
-                    authenticator_name: "authn-status-fail",
-                      account: test_account,
-                      authenticator_webservice: mock_webservice("authn-status-fail"),
-                      user: full_access_user
-                  )
-                end
-
-                it "raises the same error" do
-                  expect { subject }.to raise_error("specific-authn-error")
-                end
+              it "raises the same error" do
+                expect { subject }.to raise_error("specific-authn-error")
               end
             end
           end
