@@ -43,3 +43,7 @@
   role: !group conjur/authn-oidc/keycloak/users
   member: !user alice
 
+- !grant
+  role: !group conjur/authn-oidc/keycloak/managers
+  member: !user alice
+
