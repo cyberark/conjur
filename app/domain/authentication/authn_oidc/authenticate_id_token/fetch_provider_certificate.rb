@@ -15,30 +15,22 @@ module Authentication
       FetchProviderCertificate = CommandClass.new(
         dependencies: {
           logger: Rails.logger,
-          open_id_discovery_service: OpenIDConnect::Discovery::Provider::Config
+          discover_oidc_provider: Authentication::AuthnOidc::AuthenticateIdToken::DiscoverOIDCProvider.new
         },
         inputs: %i(provider_uri)
       ) do
 
         def call
-          log_provider_uri
           discover_provider
           fetch_certs
         end
 
         private
 
-        def log_provider_uri
-          @logger.debug(Log::OIDCProviderUri.new(@provider_uri))
-        end
-
         def discover_provider
-          @discovered_provider = @open_id_discovery_service.discover!(@provider_uri)
-          @logger.debug(Log::OIDCProviderDiscoverySuccess.new)
-        rescue HTTPClient::ConnectTimeoutError => e
-          raise_error(Err::ProviderDiscoveryTimeout, e)
-        rescue => e
-          raise_error(Err::ProviderDiscoveryFailed, e)
+          @discovered_provider ||= @discover_oidc_provider.(
+            provider_uri: @provider_uri
+          )
         end
 
         def fetch_certs
@@ -46,11 +38,7 @@ module Authentication
             @logger.debug(Log::FetchProviderCertsSuccess.new)
           end
         rescue => e
-          raise_error(Err::ProviderFetchCertificateFailed, e)
-        end
-
-        def raise_error(error_class, original_error)
-          raise error_class.new(@provider_uri, original_error.inspect)
+          raise Err::ProviderFetchCertificateFailed.new(@provider_uri, e.inspect)
         end
       end
     end

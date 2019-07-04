@@ -9,7 +9,7 @@ module Authentication
     ValidateStatus = CommandClass.new(
       dependencies: {
         fetch_oidc_secrets: AuthnOidc::Util::FetchOidcSecrets.new,
-        open_id_discovery_service: OpenIDConnect::Discovery::Provider::Config
+        discover_oidc_provider: Authentication::AuthnOidc::AuthenticateIdToken::DiscoverOIDCProvider.new
       },
       inputs: %i(account service_id)
     ) do
@@ -38,11 +38,9 @@ module Authentication
       end
 
       def validate_provider_is_responsive
-        @open_id_discovery_service.discover!(provider_uri)
-      rescue HTTPClient::ConnectTimeoutError => e
-        raise_error(Err::ProviderDiscoveryTimeout, e)
-      rescue => e
-        raise_error(Err::ProviderDiscoveryFailed, e)
+        @discover_oidc_provider.(
+          provider_uri: provider_uri
+        )
       end
 
       def raise_error(error_class, original_error)
