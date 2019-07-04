@@ -22,7 +22,7 @@ module Authentication
         validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
         logger: Rails.logger
       },
-      inputs: %i(webservice account user_id)
+      inputs: %i(webservice account user_id privilege)
     ) do
 
       def call
@@ -61,7 +61,7 @@ module Authentication
 
       def validate_user_has_access
         # Ensure user has access to the service
-        has_access = user_role.allowed_to?('authenticate', webservice_resource)
+        has_access = user_role.allowed_to?(@privilege, webservice_resource)
         unless has_access
           @logger.debug(Log::UserNotAuthorized
                           .new(@user_id, webservice_resource_id))

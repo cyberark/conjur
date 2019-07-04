@@ -16,6 +16,7 @@ module Authentication
     constructor_type :schema
 
       attribute :parent_name, ::Types::NonEmptyString
+      attribute :authenticator_name, ::Types::NonEmptyString
       attribute :parent_resource_id, ::Types::NonEmptyString
       attribute :resource_class, (::Types::Any.default { ::Resource })
 

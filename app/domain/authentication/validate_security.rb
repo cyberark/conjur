@@ -47,7 +47,8 @@ module Authentication
         @validate_webservice_access.(
           webservice: @webservice,
             account: @account,
-            user_id: @user_id
+            user_id: @user_id,
+            privilege: 'authenticate'
         )
       end
     end

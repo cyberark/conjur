@@ -45,7 +45,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
-          user_id: test_user_id
+          user_id: test_user_id,
+          privilege: 'test-privilege'
       )
     end
 
@@ -64,7 +65,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
-          user_id: test_user_id
+          user_id: test_user_id,
+          privilege: 'test-privilege'
       )
     end
 
@@ -83,7 +85,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
-          user_id: test_user_id
+          user_id: test_user_id,
+          privilege: 'test-privilege'
       )
     end
     it "raises a NotDefinedInConjur error" do
@@ -101,7 +104,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
-          user_id: test_user_id
+          user_id: test_user_id,
+          privilege: 'test-privilege'
       )
     end
 
@@ -121,7 +125,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       ).(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: non_existing_account,
-          user_id: test_user_id
+          user_id: test_user_id,
+          privilege: 'test-privilege'
       )
     end
 
@@ -168,7 +173,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       expect { subject.(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
-          user_id: user_id
+          user_id: user_id,
+          privilege: 'test-privilege'
       )
       }.to raise_error(Errors::Authentication::Security::UserNotDefinedInConjur)
 
@@ -181,7 +187,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       expect { subject.(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
-          user_id: user_id
+          user_id: user_id,
+          privilege: 'test-privilege'
       )
       }.not_to raise_error
 
