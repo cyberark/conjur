@@ -55,6 +55,7 @@ module Authentication
 
     def status_webservice
       @status_webservice ||= ::Authentication::StatusWebservice.new(
+        authenticator_name: authenticator_name,
         parent_name: name,
         parent_resource_id: resource_id
       )
