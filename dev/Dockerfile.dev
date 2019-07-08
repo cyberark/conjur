@@ -1,9 +1,4 @@
-FROM phusion/baseimage:0.9.22
-
-RUN apt-get update -y && \
-    apt-get install -y software-properties-common && \
-    apt-add-repository -y ppa:brightbox/ruby-ng && \
-    apt-get update -y
+FROM phusion/baseimage:0.11
 
 RUN apt-get update -y && \
     apt-get install -y \
