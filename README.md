@@ -81,8 +81,8 @@ It's easy to get started with Conjur and Docker:
 
 ## Set up a development environment
 
-**Note**: If you are going to be debugging Conjur using [RubyMine IDE](https://www.jetbrains.com/ruby/),
-see [RubyMine IDE Debugging](#rubymine-ide-debugging) before setting up the development environment.
+**Note**: If you are going to debug Conjur using [RubyMine IDE](https://www.jetbrains.com/ruby/) or [Visual Studio Code IDE](https://code.visualstudio.com),
+see [RubyMine IDE Debugging](#rubymine-ide-debugging) or [Visual Studio Code IDE debugging](#visual-studio-code-ide-debugging) respectively before setting up the development environment.
 
 The `dev` directory contains a `docker-compose` file which creates a development
 environment with a database container (`pg`, short for *postgres*), and a
@@ -132,8 +132,7 @@ To use it:
    run the following command instead of `conjurctl server`:
    - `pry.byebug`: `rails server -b 0.0.0.0 webrick`
    - RubyMine and VS Code IDE: `rdebug-ide --port 1234 --dispatcher-port 26162 --host 0.0.0.0 -- bin/rails s -b 0.0.0.0 webrick`
-      - Now that the server is listening, debug the code via RubyMine's or VC Code's debuggers.  
-        See how to configure [RubyMine IDE](#rubymine-ide-debugging) or [Visual Studio Code IDE](#visual-studio-code-ide-debugging) debuggers. 
+      - Now that the server is listening, debug the code via [RubyMine's](#rubymine-ide-debugging) or [VC Code's](#visual-studio-code-ide-debugging) debuggers.
    
 1. Cleanup
 
