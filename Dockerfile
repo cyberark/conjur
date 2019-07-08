@@ -18,7 +18,8 @@ RUN apt-get update -y && \
                        unattended-upgrades \
                        update-notifier-common \
                        # needed to build some gem native extensions:
-                       libz-dev
+                       libz-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN gem install -N -v 1.16.1 bundler
 
