@@ -80,9 +80,7 @@ permissions on the webservice
  
  ```
 {
-   "authn-name": {
-     "status": "ok"
-   }
+   "status": "ok"
 }
 ```
 
@@ -90,12 +88,8 @@ permissions on the webservice
  
  ```
 {
-  "authn-name": {
-    "status": "error",
-    "error": "<configuration_error>",
-    "code": "<conjur_error_code>",
-    "message": "<conjur_error_message>",
-  }
+  "status": "error",
+  "error": "<configuration_error>"
 }
 ```
 
@@ -106,9 +100,9 @@ will be `Webservice '{webservice-name}' wasn't found` (which is its built-in mes
 
 | **Given**                                 | **When**                                                                                           | **Then**                                   | **Status** |
 |-------------------------------------------|----------------------------------------------------------------------------------------------------|--------------------------------------------|------------|
-| General checks for the authenticator pass | `provider-uri` variable doesn't exist                                                              | I get a 500 Internal Server Error response with an error body with the relevant error message | [ ]        |
-| General checks for the authenticator pass | `id-token-user-property` variable doesn't exist                                                    | I get a 500 Internal Server Error response with an error body with the relevant error message | [ ]        |
-| General checks for the authenticator pass | OIDC Provider is not responsive                                                                    | I get a 500 Internal Server Error response with an error body with the relevant error message | [ ]        |
+| General checks for the authenticator pass | `provider-uri` variable doesn't exist                                                              | I get a 500 Internal Server Error response with an error body with the relevant error message | - [ ]        |
+| General checks for the authenticator pass | `id-token-user-property` variable doesn't exist                                                    | I get a 500 Internal Server Error response with an error body with the relevant error message | - [ ]        |
+| General checks for the authenticator pass | OIDC Provider is not responsive                                                                    | I get a 500 Internal Server Error response with an error body with the relevant error message | - [ ]        |
 
 ## Unit Tests
 
