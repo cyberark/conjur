@@ -1,14 +1,10 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 ENV PORT 80
 
 EXPOSE 80
-
-RUN apt-get update -y && \
-    apt-get install -y software-properties-common && \
-    apt-add-repository -y ppa:brightbox/ruby-ng
 
 RUN apt-get update -y && \
     apt-get install -y build-essential \
@@ -20,7 +16,9 @@ RUN apt-get update -y && \
                        ruby2.5 ruby2.5-dev \
                        tzdata \
                        unattended-upgrades \
-                       update-notifier-common
+                       update-notifier-common \
+                       # needed to build some gem native extensions:
+                       libz-dev
 
 RUN gem install -N -v 1.16.1 bundler
 
