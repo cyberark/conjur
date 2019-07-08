@@ -74,7 +74,7 @@ module Authentication
         account: @account,
         authenticator_name: @authenticator_name,
         webservice: @authenticator_webservice
-        )
+      )
     end
 
     def validate_authenticator_webservice_exists
