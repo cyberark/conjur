@@ -38,6 +38,7 @@ api.html
 
 brakeman-output.*
 .idea
+.vscode
 TEMP_NOTES.txt
 awstest
 
