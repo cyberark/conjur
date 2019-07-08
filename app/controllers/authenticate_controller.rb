@@ -186,19 +186,17 @@ class AuthenticateController < ApplicationController
       error: error.inspect
     }
 
-    case error
-    when Errors::Authentication::Security::UserNotAuthorizedInConjur
-      status_code = :forbidden
+    status_code = case error
+                  when Errors::Authentication::Security::UserNotAuthorizedInConjur
+                    :forbidden
+                  when Errors::Authentication::StatusNotImplemented
+                    :not_implemented
 
-    when Errors::Authentication::StatusNotImplemented
-      status_code = :not_implemented
-
-    when Errors::Authentication::AuthenticatorNotFound
-      status_code = :not_found
-
-    else
-      status_code = :internal_server_error
-    end
+                  when Errors::Authentication::AuthenticatorNotFound
+                    :not_found
+                  else
+                    :internal_server_error
+                  end
 
     render json: JSON[claims], status: status_code
   end

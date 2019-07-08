@@ -15,25 +15,25 @@ module Authentication
   class StatusWebservice < ::Dry::Struct
     constructor_type :schema
 
-      attribute :parent_name, ::Types::NonEmptyString
-      attribute :authenticator_name, ::Types::NonEmptyString
-      attribute :parent_resource_id, ::Types::NonEmptyString
-      attribute :resource_class, (::Types::Any.default { ::Resource })
+    attribute :parent_name, ::Types::NonEmptyString
+    attribute :authenticator_name, ::Types::NonEmptyString
+    attribute :parent_resource_id, ::Types::NonEmptyString
+    attribute :resource_class, (::Types::Any.default { ::Resource })
 
-      def name
-        "#{parent_name}/status"
-      end
+    def name
+      "#{parent_name}/status"
+    end
 
-      def resource_id
-        "#{parent_resource_id}/status"
-      end
+    def resource_id
+      "#{parent_resource_id}/status"
+    end
 
-      def resource
-        @status_resource ||= resource_class[resource_id]
-      end
+    def resource
+      @resource ||= resource_class[resource_id]
+    end
 
-      def annotation(name)
-        resource&.annotation(name)
-      end
+    def annotation(name)
+      resource&.annotation(name)
     end
   end
+end

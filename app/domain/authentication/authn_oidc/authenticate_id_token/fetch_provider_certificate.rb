@@ -21,13 +21,13 @@ module Authentication
       ) do
 
         def call
-          discover_provider
+          discovered_provider
           fetch_certs
         end
 
         private
 
-        def discover_provider
+        def discovered_provider
           @discovered_provider ||= @discover_oidc_provider.(
             provider_uri: @provider_uri
           )
