@@ -1,4 +1,3 @@
-
 module Authentication
   module AuthnOidc
     module AuthenticateIdToken
