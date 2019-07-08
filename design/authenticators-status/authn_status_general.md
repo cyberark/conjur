@@ -40,7 +40,7 @@ We will also need to audit access success & failures to this endpoint.
 ## Implementing specific authenticator status check
  
 Some authenticators need extra validation. As mentioned in the Epic, if 
-the status check is not implemented for the authenticator we will return a 503 Not 
+the status check is not implemented for the authenticator we will return a 501 Not 
 Implemented response. 
 
 In the following section, we will use `authn-oidc` as an example.
@@ -84,7 +84,7 @@ For each authenticator that will implement the status check, we will add:
      
  def validate_authenticator_implements_status_check
   unless authenticator.method_defined?(:status)
-    raise 503
+    raise 501
  end
  
  def validate_authenticator_requirements
@@ -112,9 +112,7 @@ For each authenticator that will implement the status check, we will add:
  
  ```
 {
-   "authn-name": {
-     "status": "ok"
-   }
+   "status": "ok"
 }
 ```
 
@@ -122,12 +120,8 @@ For each authenticator that will implement the status check, we will add:
  
  ```
 {
-  "authn-name": {
-    "status": "error",
-    "error": "<configuration_error>",
-    "code": "<conjur_error_code>",
-    "message": "<conjur_error_message>",
-  }
+  "status": "error",
+  "error": "<configuration_error>"
 }
 ```
 
@@ -140,19 +134,20 @@ will be `Webservice '{webservice-name}' wasn't found` (which is its built-in mes
 
  |                               **Given**                               | **When**                                                                                       | **Then**                                   | **Status** |
  |:---------------------------------------------------------------------:|------------------------------------------------------------------------------------------------|--------------------------------------------|------------|
- | A healthy authenticator                                               | I send a request with a valid access token                                                     | I get a 200 OK response with a successful body                | [ ]        |
- | A healthy authenticator                                               | I send a request with an invalid access token (user is not permitted on the status webservice) | I get a 403 Forbidden response                                | [ ]        |
- | An authenticator without an implemented status check                  | I send a request with a valid access token                                                     | I get a 503 Not Implemented response                          | [ ]        |
- | A non-existing authenticator                                          | I send a request with a valid access token                                                     | I get a 404 Not Found response                                | [ ]        |
- | A non-existing account name in the request                            | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response with an error body with the relevant error message | [ ]        |
- | Authenticator webservice doesn't exist (wasn't loaded in the policy)  | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response with an error body with the relevant error message | [ ]        |
- | The authenticator isn't whitelisted in the ENV                        | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response with an error body with the relevant error message | [ ]        |
+ | A healthy authenticator                                               | I send a request with a valid access token                                                     | I get a 200 OK response with a successful body                | - [ ]        |
+ | A healthy authenticator                                               | I send a request with an invalid access token (user is not permitted on the status webservice) | I get a 403 Forbidden response                                | - [ ]        |
+ | An authenticator without an implemented status check                  | I send a request with a valid access token                                                     | I get a 501 Not Implemented response                          | - [ ]        |
+ | A non-existing authenticator                                          | I send a request with a valid access token                                                     | I get a 404 Not Found response                                | - [ ]        |
+ | A missing status webservice in the policy                             | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response with an error body with the relevant error message                          | - [ ]        |
+ | A non-existing account name in the request                            | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response with an error body with the relevant error message | - [ ]        |
+ | Authenticator webservice doesn't exist (wasn't loaded in the policy)  | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response with an error body with the relevant error message | - [ ]        |
+ | The authenticator isn't whitelisted in the ENV                        | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response with an error body with the relevant error message | - [ ]        |
  
 ### Enterprise
 
 |                               **Given**                               | **When**                                                                                       | **Then**                                   | **Status** |
 |:---------------------------------------------------------------------:|------------------------------------------------------------------------------------------------|--------------------------------------------|------------|
-| A healthy authenticator                                               | I send a request with a valid access token                                                     | I get a 200 OK response with a successful body                | [ ]        |
+| A healthy authenticator                                               | I send a request with a valid access token                                                     | I get a 200 OK response with a successful body                | - [ ]        |
 
 ## Unit Tests
 
