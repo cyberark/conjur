@@ -3,5 +3,5 @@ Then(/^the authenticator status check succeeds$/) do
 end
 
 Then(/^the authenticator status check fails with error "([^"]*)"$/) do |error|
-  expect(@result["error"]).to eq error
+  expect(@result["error"]).to include error
 end

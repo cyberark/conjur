@@ -14,6 +14,10 @@ Given(/^I successfully set provider-uri variable$/) do
   set_provider_uri_variable
 end
 
+Given(/^I successfully set provider-uri variable to value "([^"]*)"$/) do | provider_uri |
+  set_provider_uri_variable(provider_uri)
+end
+
 Given(/^I successfully set id-token-user-property variable$/) do
   set_id_token_user_property_variable
 end
