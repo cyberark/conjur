@@ -211,6 +211,7 @@ Feature: OIDC Authenticator status check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "#<Errors::Conjur::RequiredResourceMissing: CONJ00036E Missing required resource: cucumber:variable:conjur/authn-oidc/keycloak/id-token-user-property>"
 
+  # TODO: add these tests when issue #1085 is done
 #  Scenario: provider-uri value has not been set and a 500 error response is returned
 #  Scenario: id-token-user-property value has not been set and a 500 error response is returned
 
