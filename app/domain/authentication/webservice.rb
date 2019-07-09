@@ -10,6 +10,7 @@ end
 
 require 'dry-struct'
 require 'types'
+require 'util/fetch_resource'
 
 module Authentication
   class Webservice < ::Dry::Struct
@@ -18,7 +19,6 @@ module Authentication
     attribute :account,            ::Types::NonEmptyString
     attribute :authenticator_name, ::Types::NonEmptyString
     attribute :service_id,         ::Types::NonEmptyString.optional
-    attribute :resource_class,     (::Types::Any.default { ::Resource })
 
     def self.from_string(account, str)
       type, id = *str.split('/', 2)
@@ -34,7 +34,7 @@ module Authentication
     end
 
     def resource
-      @resource ||= resource_class[resource_id]
+      @resource ||= Util::FetchResource.new.(resource_id: resource_id)
     end
 
     def annotation(name)
@@ -45,20 +45,12 @@ module Authentication
     # This is used to read configuration values stored as
     # Conjur secrets.
     def variable(variable_name)
-      resource_class[variable_id(variable_name)]
+      Util::FetchResource.new.(resource_id: variable_id(variable_name))
     end
 
     def variable_id(variable_name)
       identifier = "conjur/#{name}/#{variable_name}"
       [account, "variable", identifier].join(":")
-    end
-
-    def status_webservice
-      @status_webservice ||= ::Authentication::StatusWebservice.new(
-        authenticator_name: authenticator_name,
-        parent_name: name,
-        parent_resource_id: resource_id
-      )
     end
   end
 end

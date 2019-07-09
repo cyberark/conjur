@@ -23,16 +23,18 @@ class AuthenticateController < ApplicationController
     Authentication::ValidateStatus.new.(
       authenticator_name: params[:authenticator],
         account: params[:account],
-        authenticator_webservice: ::Authentication::Webservice.new(
-          account: params[:account],
-          authenticator_name: params[:authenticator],
-          service_id: params[:service_id]
+        status_webservice: ::Authentication::StatusWebservice.from_webservice(
+          ::Authentication::Webservice.new(
+            account: params[:account],
+            authenticator_name: params[:authenticator],
+            service_id: params[:service_id]
+          )
         ),
         user: current_user
     )
-    status_success_json
+    render json: { status: "ok" }
   rescue => e
-    status_failure_json(e)
+    render status_failure_response(e)
   end
 
   def login
@@ -172,15 +174,7 @@ class AuthenticateController < ApplicationController
     end
   end
 
-  def status_success_json
-    claims = {
-      status: "ok"
-    }
-
-    render json: JSON[claims]
-  end
-
-  def status_failure_json(error)
+  def status_failure_response(error)
     claims = {
       status: "error",
       error: error.inspect
@@ -198,7 +192,7 @@ class AuthenticateController < ApplicationController
                     :internal_server_error
                   end
 
-    render json: JSON[claims], status: status_code
+    { :json => claims, :status => status_code }
   end
 
   def installed_authenticators

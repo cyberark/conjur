@@ -22,10 +22,10 @@ module Authentication
       private
 
       def validate_secrets
-        oidc_secrets
+        fetch_oidc_secrets
       end
 
-      def oidc_secrets
+      def fetch_oidc_secrets
         @oidc_secrets ||= @fetch_oidc_secrets.(
           service_id: @service_id,
             conjur_account: @account,
@@ -48,7 +48,7 @@ module Authentication
       end
 
       def provider_uri
-        oidc_secrets["provider-uri"]
+        @oidc_secrets["provider-uri"]
       end
     end
   end

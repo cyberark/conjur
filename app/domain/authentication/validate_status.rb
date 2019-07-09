@@ -22,7 +22,7 @@ module Authentication
       enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
       audit_event: AuditEvent.new
     },
-    inputs: %i(authenticator_name account authenticator_webservice user)
+    inputs: %i(authenticator_name account status_webservice user)
   ) do
 
     def call
@@ -54,7 +54,7 @@ module Authentication
 
     def validate_user_has_access_to_status_webservice
       @validate_webservice_access.(
-        webservice: status_webservice,
+        webservice: @status_webservice,
           account: @account,
           user_id: user_id,
           privilege: 'read'
@@ -63,7 +63,7 @@ module Authentication
 
     def validate_webservice_is_whitelisted
       @validate_whitelisted_webservice.(
-        webservice: @authenticator_webservice,
+        webservice: authenticator_webservice,
           account: @account,
           enabled_authenticators: @enabled_authenticators
       )
@@ -73,20 +73,20 @@ module Authentication
       authenticator.status(
         account: @account,
         authenticator_name: @authenticator_name,
-        webservice: @authenticator_webservice
+        webservice: authenticator_webservice
       )
     end
 
     def validate_authenticator_webservice_exists
       @validate_webservice_exists.(
-        webservice: @authenticator_webservice,
+        webservice: authenticator_webservice,
           account: @account
       )
     end
 
     def audit_success
       @audit_event.(
-        resource_id: @authenticator_webservice.resource_id,
+        resource_id: authenticator_webservice.resource_id,
           authenticator_name: @authenticator_name,
           account: @account,
           username: user_id,
@@ -97,7 +97,7 @@ module Authentication
 
     def audit_failure(err)
       @audit_event.(
-        resource_id: @authenticator_webservice.resource_id,
+        resource_id: authenticator_webservice.resource_id,
           authenticator_name: @authenticator_name,
           account: @account,
           username: user_id,
@@ -113,8 +113,8 @@ module Authentication
       @authenticator = @implemented_authenticators[@authenticator_name]
     end
 
-    def status_webservice
-      @authenticator_webservice.status_webservice
+    def authenticator_webservice
+      @status_webservice.parent_webservice
     end
 
     def user_id

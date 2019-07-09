@@ -1,35 +1,34 @@
 # frozen_string_literal: true
 
-# This is here to fix a double-loading bug that occurs only in openshift and
-# K8s tests.  We don't fully understand what causes the bug but this is the
-# hack we settled on to fix it.
-
-if defined? Authentication::StatusWebservice
-  return
-end
-
-require 'dry-struct'
-require 'types'
+require 'util/fetch_resource'
 
 module Authentication
-  class StatusWebservice < ::Dry::Struct
-    constructor_type :schema
+  class StatusWebservice
 
-    attribute :parent_name, ::Types::NonEmptyString
-    attribute :authenticator_name, ::Types::NonEmptyString
-    attribute :parent_resource_id, ::Types::NonEmptyString
-    attribute :resource_class, (::Types::Any.default { ::Resource })
+    attr_reader :parent_webservice
+
+    def self.from_webservice(webservice)
+      self.new(webservice)
+    end
+
+    def initialize(parent_webservice)
+      @parent_webservice = parent_webservice
+    end
 
     def name
-      "#{parent_name}/status"
+      @name ||= "#{@parent_webservice.name}/status"
     end
 
     def resource_id
-      "#{parent_resource_id}/status"
+      @resource_id ||= "#{@parent_webservice.resource_id}/status"
     end
 
     def resource
-      @resource ||= resource_class[resource_id]
+      @resource ||= Util::FetchResource.new.(resource_id: resource_id)
+    end
+
+    def authenticator_name
+      @parent_webservice.authenticator_name
     end
 
     def annotation(name)

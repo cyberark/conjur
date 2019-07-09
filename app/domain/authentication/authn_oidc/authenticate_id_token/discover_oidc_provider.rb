@@ -18,6 +18,8 @@ module Authentication
 
         def call
           log_provider_uri
+
+          # return an OpenIDConnect::Discovery::Provider::Config::Resource instance
           discover_provider
         end
 
