@@ -15,14 +15,14 @@ module Authentication
   ValidateStatus = CommandClass.new(
     dependencies: {
       validate_whitelisted_webservice: ::Authentication::Security::ValidateWhitelistedWebservice.new,
-      validate_webservice_access: ::Authentication::Security::ValidateWebserviceAccess.new,
-      validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
-      role_class: ::Role,
-      implemented_authenticators: Authentication::InstalledAuthenticators.authenticators(ENV),
-      enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
-      audit_event: AuditEvent.new
+      validate_webservice_access:      ::Authentication::Security::ValidateWebserviceAccess.new,
+      validate_webservice_exists:      ::Authentication::Security::ValidateWebserviceExists.new,
+      role_class:                      ::Role,
+      implemented_authenticators:      Authentication::InstalledAuthenticators.authenticators(ENV),
+      enabled_authenticators:          ENV['CONJUR_AUTHENTICATORS'],
+      audit_event:                     AuditEvent.new
     },
-    inputs: %i(authenticator_status_input)
+    inputs:       %i(authenticator_status_input)
   ) do
 
     def call
@@ -84,10 +84,7 @@ module Authentication
 
     def audit_success
       @audit_event.(
-        resource_id: authenticator_webservice.resource_id,
-          authenticator_name: @authenticator_status_input.authenticator_name,
-          account: @authenticator_status_input.account,
-          username: @authenticator_status_input.username,
+        authenticator_input: @authenticator_status_input,
           success: true,
           message: nil
       )
@@ -95,10 +92,7 @@ module Authentication
 
     def audit_failure(err)
       @audit_event.(
-        resource_id: authenticator_webservice.resource_id,
-          authenticator_name: @authenticator_status_input.authenticator_name,
-          account: @authenticator_status_input.account,
-          username: @authenticator_status_input.username,
+        authenticator_input: @authenticator_status_input,
           success: false,
           message: err.message
       )

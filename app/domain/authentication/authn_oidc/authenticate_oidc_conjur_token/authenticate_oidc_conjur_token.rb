@@ -7,13 +7,13 @@ module Authentication
       Authenticate = CommandClass.new(
         dependencies: {
           validate_and_decrypt_oidc_conjur_token: ValidateAndDecryptOidcConjurToken.new,
-          enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
-          token_factory: OidcTokenFactory.new,
-          validate_security: ::Authentication::Security::ValidateSecurity.new,
-          validate_origin: ::Authentication::ValidateOrigin.new,
-          audit_event: ::Authentication::AuditEvent.new
+          enabled_authenticators:                 ENV['CONJUR_AUTHENTICATORS'],
+          token_factory:                          OidcTokenFactory.new,
+          validate_security:                      ::Authentication::Security::ValidateSecurity.new,
+          validate_origin:                        ::Authentication::ValidateOrigin.new,
+          audit_event:                            ::Authentication::AuditEvent.new
         },
-        inputs: %i(authenticator_input)
+        inputs:       %i(authenticator_input)
       ) do
 
         def call
@@ -35,7 +35,7 @@ module Authentication
         end
 
         def add_username_to_input
-          username = oidc_conjur_token.user_name
+          username             = oidc_conjur_token.user_name
           @authenticator_input = @authenticator_input.update(username: username)
         end
 
@@ -58,10 +58,7 @@ module Authentication
 
         def audit_success
           @audit_event.(
-            resource_id: @authenticator_input.webservice.resource_id,
-              authenticator_name: @authenticator_input.authenticator_name,
-              account: @authenticator_input.account,
-              username: @authenticator_input.username,
+            authenticator_input: @authenticator_input,
               success: true,
               message: nil
           )
@@ -69,10 +66,7 @@ module Authentication
 
         def audit_failure(err)
           @audit_event.(
-            resource_id: @authenticator_input.webservice.resource_id,
-              authenticator_name: @authenticator_input.authenticator_name,
-              account: @authenticator_input.account,
-              username: @authenticator_input.username,
+            authenticator_input: @authenticator_input,
               success: false,
               message: err.message
           )
@@ -80,7 +74,7 @@ module Authentication
 
         def new_token
           @token_factory.signed_token(
-            account: @authenticator_input.account,
+            account:  @authenticator_input.account,
             username: @authenticator_input.username
           )
         end
