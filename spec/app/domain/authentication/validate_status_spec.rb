@@ -94,11 +94,11 @@ RSpec.describe Authentication::ValidateStatus do
       allow(status_input).to receive(:status_webservice)
                                .and_return(mock_status_webservice(authenticator_name))
 
-      allow(status_input).to receive(:authenticator_webservice)
+      allow(status_input).to receive(:webservice)
                                .and_return(mock_webservice(authenticator_name))
 
-      allow(status_input).to receive(:user)
-                               .and_return(mock_role)
+      allow(status_input).to receive(:username)
+                               .and_return(test_user_id)
     end
   end
 

@@ -10,6 +10,10 @@ module Authentication
     attribute :service_id, ::Types::NonEmptyString.optional
     attribute :account, ::Types::NonEmptyString
 
+    def webservice
+      status_webservice.parent_webservice
+    end
+
     def status_webservice
       @status_webservice ||= ::Authentication::StatusWebservice.from_webservice(
         ::Authentication::Webservice.new(
@@ -20,12 +24,8 @@ module Authentication
       )
     end
 
-    def authenticator_webservice
-      status_webservice.parent_webservice
-    end
-
-    def user
-      current_user
+    def username
+      Util::GetUsernameFromRoleId.new.(role_id: current_user.role_id)
     end
   end
 end
