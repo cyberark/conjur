@@ -43,10 +43,6 @@ module Authentication
         )
       end
 
-      def raise_error(error_class, original_error)
-        raise error_class.new(provider_uri, original_error.inspect)
-      end
-
       def provider_uri
         @oidc_secrets["provider-uri"]
       end

@@ -22,7 +22,7 @@ module Authentication
       enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
       audit_event: AuditEvent.new
     },
-    inputs: %i(authenticator_name account status_webservice user)
+    inputs: %i(authenticator_status_input)
   ) do
 
     def call
@@ -45,17 +45,17 @@ module Authentication
     private
 
     def validate_authenticator_exists
-      raise Err::AuthenticatorNotFound, @authenticator_name unless authenticator
+      raise Err::AuthenticatorNotFound, @authenticator_status_input.authenticator_name unless authenticator
     end
 
     def validate_authenticator_implements_status_check
-      raise Err::StatusNotImplemented, @authenticator_name unless authenticator.class.method_defined?(:status)
+      raise Err::StatusNotImplemented, @authenticator_status_input.authenticator_name unless authenticator.class.method_defined?(:status)
     end
 
     def validate_user_has_access_to_status_webservice
       @validate_webservice_access.(
-        webservice: @status_webservice,
-          account: @account,
+        webservice: @authenticator_status_input.status_webservice,
+          account: @authenticator_status_input.account,
           user_id: user_id,
           privilege: 'read'
       )
@@ -64,31 +64,29 @@ module Authentication
     def validate_webservice_is_whitelisted
       @validate_whitelisted_webservice.(
         webservice: authenticator_webservice,
-          account: @account,
+          account: @authenticator_status_input.account,
           enabled_authenticators: @enabled_authenticators
       )
     end
 
     def validate_authenticator_requirements
       authenticator.status(
-        account: @account,
-        authenticator_name: @authenticator_name,
-        webservice: authenticator_webservice
+        authenticator_status_input: @authenticator_status_input
       )
     end
 
     def validate_authenticator_webservice_exists
       @validate_webservice_exists.(
         webservice: authenticator_webservice,
-          account: @account
+          account: @authenticator_status_input.account
       )
     end
 
     def audit_success
       @audit_event.(
         resource_id: authenticator_webservice.resource_id,
-          authenticator_name: @authenticator_name,
-          account: @account,
+          authenticator_name: @authenticator_status_input.authenticator_name,
+          account: @authenticator_status_input.account,
           username: user_id,
           success: true,
           message: nil
@@ -98,8 +96,8 @@ module Authentication
     def audit_failure(err)
       @audit_event.(
         resource_id: authenticator_webservice.resource_id,
-          authenticator_name: @authenticator_name,
-          account: @account,
+          authenticator_name: @authenticator_status_input.authenticator_name,
+          account: @authenticator_status_input.account,
           username: user_id,
           success: false,
           message: err.message
@@ -110,15 +108,15 @@ module Authentication
       # The `@implemented_authenticators` map includes all authenticator classes that are implemented in
       # Conjur (`Authentication::AuthnOidc::Authenticator`, `Authentication::AuthnLdap::Authenticator`, etc.).
 
-      @authenticator = @implemented_authenticators[@authenticator_name]
+      @authenticator = @implemented_authenticators[@authenticator_status_input.authenticator_name]
     end
 
     def authenticator_webservice
-      @status_webservice.parent_webservice
+      @authenticator_status_input.authenticator_webservice
     end
 
     def user_id
-      @user_id ||= @role_class.username_from_roleid(@user.role_id)
+      @user_id ||= @role_class.username_from_roleid(@authenticator_status_input.user.role_id)
     end
   end
 end
