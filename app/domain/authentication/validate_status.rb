@@ -56,7 +56,7 @@ module Authentication
       @validate_webservice_access.(
         webservice: @authenticator_status_input.status_webservice,
           account: @authenticator_status_input.account,
-          user_id: user_id,
+          user_id: @authenticator_status_input.username,
           privilege: 'read'
       )
     end
@@ -87,7 +87,7 @@ module Authentication
         resource_id: authenticator_webservice.resource_id,
           authenticator_name: @authenticator_status_input.authenticator_name,
           account: @authenticator_status_input.account,
-          username: user_id,
+          username: @authenticator_status_input.username,
           success: true,
           message: nil
       )
@@ -98,7 +98,7 @@ module Authentication
         resource_id: authenticator_webservice.resource_id,
           authenticator_name: @authenticator_status_input.authenticator_name,
           account: @authenticator_status_input.account,
-          username: user_id,
+          username: @authenticator_status_input.username,
           success: false,
           message: err.message
       )
@@ -112,11 +112,7 @@ module Authentication
     end
 
     def authenticator_webservice
-      @authenticator_status_input.authenticator_webservice
-    end
-
-    def user_id
-      @user_id ||= @role_class.username_from_roleid(@authenticator_status_input.user.role_id)
+      @authenticator_status_input.webservice
     end
   end
 end
