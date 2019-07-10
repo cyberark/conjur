@@ -83,6 +83,25 @@ RSpec.describe Authentication::ValidateStatus do
     }
   end
 
+  def mock_status_input(authenticator_name)
+    double('status_input').tap do |status_input|
+      allow(status_input).to receive(:authenticator_name)
+                                    .and_return(authenticator_name)
+
+      allow(status_input).to receive(:account)
+                                    .and_return(test_account)
+
+      allow(status_input).to receive(:status_webservice)
+                               .and_return(mock_status_webservice(authenticator_name))
+
+      allow(status_input).to receive(:authenticator_webservice)
+                               .and_return(mock_webservice(authenticator_name))
+
+      allow(status_input).to receive(:user)
+                               .and_return(mock_role)
+    end
+  end
+
   context "A valid, whitelisted authenticator" do
 
     subject do
@@ -94,10 +113,7 @@ RSpec.describe Authentication::ValidateStatus do
         implemented_authenticators: mock_implemented_authenticators,
         enabled_authenticators: mock_enabled_authenticators
       ).(
-        authenticator_name: "authn-status-pass",
-          account: test_account,
-          status_webservice: mock_status_webservice("authn-status-pass"),
-          user: mock_role
+        authenticator_status_input: mock_status_input("authn-status-pass")
       )
     end
 
@@ -116,10 +132,7 @@ RSpec.describe Authentication::ValidateStatus do
         implemented_authenticators: mock_implemented_authenticators,
         enabled_authenticators: mock_enabled_authenticators
       ).(
-        authenticator_name: "authn-non-exist",
-          account: test_account,
-          status_webservice: mock_status_webservice("authn-status-pass"),
-          user: mock_role
+        authenticator_status_input: mock_status_input("authn-non-exist")
       )
     end
 
@@ -141,10 +154,7 @@ RSpec.describe Authentication::ValidateStatus do
           implemented_authenticators: mock_implemented_authenticators,
           enabled_authenticators: mock_enabled_authenticators
         ).(
-          authenticator_name: "authn-status-not-implemented",
-            account: test_account,
-            status_webservice: mock_status_webservice("authn-status-not-implemented"),
-            user: mock_role
+          authenticator_status_input: mock_status_input("authn-status-not-implemented")
         )
       end
 
@@ -166,10 +176,7 @@ RSpec.describe Authentication::ValidateStatus do
             implemented_authenticators: mock_implemented_authenticators,
             enabled_authenticators: mock_enabled_authenticators
           ).(
-            authenticator_name: "authn-status-pass",
-              account: test_account,
-              status_webservice: mock_status_webservice("authn-status-pass"),
-              user: mock_role
+            authenticator_status_input: mock_status_input("authn-status-pass")
           )
         end
 
@@ -192,10 +199,7 @@ RSpec.describe Authentication::ValidateStatus do
               implemented_authenticators: mock_implemented_authenticators,
               enabled_authenticators: mock_enabled_authenticators
             ).(
-              authenticator_name: "authn-status-pass",
-                account: test_account,
-                status_webservice: mock_status_webservice("authn-status-pass"),
-                user: mock_role
+              authenticator_status_input: mock_status_input("authn-status-pass")
             )
           end
 
@@ -218,10 +222,7 @@ RSpec.describe Authentication::ValidateStatus do
                 implemented_authenticators: mock_implemented_authenticators,
                 enabled_authenticators: not_including_enabled_authenticators
               ).(
-                authenticator_name: "authn-status-pass",
-                  account: test_account,
-                  status_webservice: mock_status_webservice("authn-status-pass"),
-                  user: mock_role
+                authenticator_status_input: mock_status_input("authn-status-pass")
               )
             end
 
@@ -242,10 +243,7 @@ RSpec.describe Authentication::ValidateStatus do
                   implemented_authenticators: mock_implemented_authenticators,
                   enabled_authenticators: mock_enabled_authenticators
                 ).(
-                  authenticator_name: "authn-status-fail",
-                    account: test_account,
-                    status_webservice: mock_status_webservice("authn-status-fail"),
-                    user: mock_role
+                  authenticator_status_input: mock_status_input("authn-status-fail")
                 )
               end
 

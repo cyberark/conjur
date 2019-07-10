@@ -2,7 +2,6 @@
 
 class AuthenticateController < ApplicationController
   include BasicAuthenticator
-  include AuthorizeResource
 
   def index
     authenticators = {
@@ -21,20 +20,19 @@ class AuthenticateController < ApplicationController
 
   def status
     Authentication::ValidateStatus.new.(
-      authenticator_name: params[:authenticator],
-        account: params[:account],
-        status_webservice: ::Authentication::StatusWebservice.from_webservice(
-          ::Authentication::Webservice.new(
-            account: params[:account],
-            authenticator_name: params[:authenticator],
-            service_id: params[:service_id]
-          )
-        ),
-        user: current_user
+      authenticator_status_input: status_input
     )
     render json: { status: "ok" }
   rescue => e
     render status_failure_response(e)
+  end
+
+  def status_input
+    Authentication::AuthenticatorStatusInput.new(
+      authenticator_name: params[:authenticator],
+      service_id: params[:service_id],
+      account: params[:account]
+    )
   end
 
   def login
