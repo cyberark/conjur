@@ -6,16 +6,16 @@ module Authentication
 
       ConjurOidcToken = CommandClass.new(
         dependencies: {
-          oidc_authenticator: AuthnOidc::GetConjurOidcToken::Authenticator.new,
+          oidc_authenticator:     AuthnOidc::GetConjurOidcToken::Authenticator.new,
           enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
-          fetch_oidc_secrets: AuthnOidc::Util::FetchOidcSecrets.new,
-          oidc_client_class: ::Authentication::AuthnOidc::GetConjurOidcToken::Client,
-          token_factory: OidcTokenFactory.new,
-          validate_security: ::Authentication::Security::ValidateSecurity.new,
-          validate_origin: ::Authentication::ValidateOrigin.new,
-          audit_event: ::Authentication::AuditEvent.new
+          fetch_oidc_secrets:     AuthnOidc::Util::FetchOidcSecrets.new,
+          oidc_client_class:      ::Authentication::AuthnOidc::GetConjurOidcToken::Client,
+          token_factory:          OidcTokenFactory.new,
+          validate_security:      ::Authentication::Security::ValidateSecurity.new,
+          validate_origin:        ::Authentication::ValidateOrigin.new,
+          audit_event:            ::Authentication::AuditEvent.new
         },
-        inputs: %i(authenticator_input)
+        inputs:       %i(authenticator_input)
       ) do
 
         def call
@@ -43,7 +43,7 @@ module Authentication
         end
 
         def add_username_to_input
-          username = oidc_id_token_details.user_info.preferred_username
+          username             = oidc_id_token_details.user_info.preferred_username
           @authenticator_input = @authenticator_input.update(username: username)
         end
 
@@ -53,10 +53,10 @@ module Authentication
 
         def oidc_client
           @oidc_client ||= @oidc_client_class.new(
-            client_id: oidc_secrets["client-id"],
+            client_id:     oidc_secrets["client-id"],
             client_secret: oidc_secrets["client-secret"],
-            redirect_uri: request_body.redirect_uri,
-            provider_uri: oidc_secrets["provider-uri"]
+            redirect_uri:  request_body.redirect_uri,
+            provider_uri:  oidc_secrets["provider-uri"]
           )
         end
 
@@ -95,10 +95,7 @@ module Authentication
 
         def audit_success
           @audit_event.(
-            resource_id: @authenticator_input.webservice.resource_id,
-              authenticator_name: @authenticator_input.authenticator_name,
-              account: @authenticator_input.account,
-              username: @authenticator_input.username,
+            authenticator_input: @authenticator_input,
               success: true,
               message: nil
           )
@@ -106,10 +103,7 @@ module Authentication
 
         def audit_failure(err)
           @audit_event.(
-            resource_id: @authenticator_input.webservice.resource_id,
-              authenticator_name: @authenticator_input.authenticator_name,
-              account: @authenticator_input.account,
-              username: @authenticator_input.username,
+            authenticator_input: @authenticator_input,
               success: false,
               message: err.message
           )

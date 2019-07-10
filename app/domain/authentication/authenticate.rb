@@ -12,12 +12,12 @@ module Authentication
   Authenticate = CommandClass.new(
     dependencies: {
       enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
-      token_factory: TokenFactory.new,
-      validate_security: ::Authentication::Security::ValidateSecurity.new,
-      validate_origin: ::Authentication::ValidateOrigin.new,
-      audit_event: ::Authentication::AuditEvent.new
+      token_factory:          TokenFactory.new,
+      validate_security:      ::Authentication::Security::ValidateSecurity.new,
+      validate_origin:        ::Authentication::ValidateOrigin.new,
+      audit_event:            ::Authentication::AuditEvent.new
     },
-    inputs: %i(authenticator_input authenticators)
+    inputs:       %i(authenticator_input authenticators)
   ) do
 
     def call
@@ -61,10 +61,7 @@ module Authentication
 
     def audit_success
       @audit_event.(
-        resource_id: @authenticator_input.webservice.resource_id,
-          authenticator_name: @authenticator_input.authenticator_name,
-          account: @authenticator_input.account,
-          username: @authenticator_input.username,
+        authenticator_input: @authenticator_input,
           success: true,
           message: nil
       )
@@ -72,10 +69,7 @@ module Authentication
 
     def audit_failure(err)
       @audit_event.(
-        resource_id: @authenticator_input.webservice.resource_id,
-          authenticator_name: @authenticator_input.authenticator_name,
-          account: @authenticator_input.account,
-          username: @authenticator_input.username,
+        authenticator_input: @authenticator_input,
           success: false,
           message: err.message
       )
@@ -83,7 +77,7 @@ module Authentication
 
     def new_token
       @token_factory.signed_token(
-        account: @authenticator_input.account,
+        account:  @authenticator_input.account,
         username: @authenticator_input.username
       )
     end

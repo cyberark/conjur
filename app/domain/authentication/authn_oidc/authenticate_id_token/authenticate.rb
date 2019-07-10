@@ -11,16 +11,16 @@ module Authentication
 
       Authenticate = CommandClass.new(
         dependencies: {
-          enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
-          fetch_oidc_secrets: AuthnOidc::Util::FetchOidcSecrets.new,
-          token_factory: TokenFactory.new,
-          validate_security: ::Authentication::Security::ValidateSecurity.new,
-          validate_origin: ValidateOrigin.new,
-          audit_event: AuditEvent.new,
+          enabled_authenticators:     ENV['CONJUR_AUTHENTICATORS'],
+          fetch_oidc_secrets:         AuthnOidc::Util::FetchOidcSecrets.new,
+          token_factory:              TokenFactory.new,
+          validate_security:          ::Authentication::Security::ValidateSecurity.new,
+          validate_origin:            ValidateOrigin.new,
+          audit_event:                AuditEvent.new,
           decode_and_verify_id_token: DecodeAndVerifyIdToken.new,
-          logger: Rails.logger
+          logger:                     Rails.logger
         },
-        inputs: %i(authenticator_input)
+        inputs:       %i(authenticator_input)
       ) do
 
         def call
@@ -67,7 +67,7 @@ module Authentication
 
         def new_token
           @token_factory.signed_token(
-            account: @authenticator_input.account,
+            account:  @authenticator_input.account,
             username: @authenticator_input.username
           )
         end
@@ -104,10 +104,7 @@ module Authentication
 
         def audit_success
           @audit_event.(
-            resource_id: @authenticator_input.webservice.resource_id,
-              authenticator_name: @authenticator_input.authenticator_name,
-              account: @authenticator_input.account,
-              username: @authenticator_input.username,
+            authenticator_input: @authenticator_input,
               success: true,
               message: nil
           )
@@ -115,10 +112,7 @@ module Authentication
 
         def audit_failure(err)
           @audit_event.(
-            resource_id: @authenticator_input.webservice.resource_id,
-              authenticator_name: @authenticator_input.authenticator_name,
-              account: @authenticator_input.account,
-              username: @authenticator_input.username,
+            authenticator_input: @authenticator_input,
               success: false,
               message: err.message
           )
