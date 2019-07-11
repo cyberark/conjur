@@ -81,8 +81,8 @@ It's easy to get started with Conjur and Docker:
 
 ## Set up a development environment
 
-**Note**: If you are going to be debugging Conjur using [RubyMine IDE](https://www.jetbrains.com/ruby/),
-see [RubyMine IDE Debugging](#rubymine-ide-debugging) before setting up the development environment.
+**Note**: If you are going to debug Conjur using [RubyMine IDE](https://www.jetbrains.com/ruby/) or [Visual Studio Code IDE](https://code.visualstudio.com),
+see [RubyMine IDE Debugging](#rubymine-ide-debugging) or [Visual Studio Code IDE debugging](#visual-studio-code-ide-debugging) respectively before setting up the development environment.
 
 The `dev` directory contains a `docker-compose` file which creates a development
 environment with a database container (`pg`, short for *postgres*), and a
@@ -127,12 +127,12 @@ To use it:
    * find or create the token-signing key
    * start the web server
 
-   You may choose to debug Conjur using `pry.byebug` or RubyMine IDE. This will 
+   You may choose to debug Conjur using `pry.byebug`, RubyMine or Visual Studio Code IDEs. This will 
    allow you to work in the debugger without the server timing out. To do so, 
    run the following command instead of `conjurctl server`:
    - `pry.byebug`: `rails server -b 0.0.0.0 webrick`
-   - RubyMine IDE: `rdebug-ide --port 1234 --dispatcher-port 26162 --host 0.0.0.0 -- bin/rails s -b 0.0.0.0 webrick`
-      - Now that the server is listening, debug the code via RubyMine's debugger.
+   - RubyMine and VS Code IDE: `rdebug-ide --port 1234 --dispatcher-port 26162 --host 0.0.0.0 -- bin/rails s -b 0.0.0.0 webrick`
+      - Now that the server is listening, debug the code via [RubyMine's](#rubymine-ide-debugging) or [VC Code's](#visual-studio-code-ide-debugging) debuggers.
    
 1. Cleanup
 
@@ -197,6 +197,21 @@ these steps:
          - Environment variables: This can be left blank
          - Ruby or version manager path: ruby
       1. Click "OK" 
+
+#### Visual Studio Code IDE Debugging
+
+If you are going to be debugging Conjur using [VS Code IDE](https://code.visualstudio.com), follow
+these steps:
+
+   1. Go to: Debugger view
+   1. Choose Ruby -> Listen for rdebug-ide from the prompt window, then you'll get the sample launch configuration in `.vscode/launch.json`.
+   1. Edit "Listen for rdebug-ide" configuration in the `launch.json` file:
+      - remoteHost - the address of Conjur. if it's a local docker environment the address 
+      should be `localhost`, otherwise enter the address of Conjur
+      - remotePort - the port which VS Code will try to connect to for its debugging protocol. 
+      The convention is `1234`. If you changing this, remember to change also the exposed port in
+      `docker-compose.yml` & in the `rdebug-ide` command when running the server
+      - remoteWorkspaceRoot: `/src/conjur-server`
 
 ### Development CLI
 
