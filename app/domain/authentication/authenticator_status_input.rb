@@ -4,11 +4,11 @@ require 'types'
 
 module Authentication
   class AuthenticatorStatusInput < ::Dry::Struct
-    include CurrentUser
 
     attribute :authenticator_name, ::Types::NonEmptyString
     attribute :service_id, ::Types::NonEmptyString.optional
     attribute :account, ::Types::NonEmptyString
+    attribute :username, ::Types::NonEmptyString
 
     def webservice
       status_webservice.parent_webservice
@@ -22,10 +22,6 @@ module Authentication
           service_id:         @service_id
         )
       )
-    end
-
-    def username
-      Util::GetUsernameFromRoleId.new.(role_id: current_user.role_id)
     end
   end
 end

@@ -2,6 +2,7 @@
 
 class AuthenticateController < ApplicationController
   include BasicAuthenticator
+  include AuthorizeResource
 
   def index
     authenticators = {
@@ -31,7 +32,8 @@ class AuthenticateController < ApplicationController
     Authentication::AuthenticatorStatusInput.new(
       authenticator_name: params[:authenticator],
       service_id: params[:service_id],
-      account: params[:account]
+      account: params[:account],
+      username: ::Role.username_from_roleid(current_user.role_id)
     )
   end
 
@@ -173,7 +175,7 @@ class AuthenticateController < ApplicationController
   end
 
   def status_failure_response(error)
-    claims = {
+    payload = {
       status: "error",
       error: error.inspect
     }
@@ -190,7 +192,7 @@ class AuthenticateController < ApplicationController
                     :internal_server_error
                   end
 
-    { :json => claims, :status => status_code }
+    { :json => payload, :status => status_code }
   end
 
   def installed_authenticators

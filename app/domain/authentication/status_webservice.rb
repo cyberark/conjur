@@ -30,9 +30,5 @@ module Authentication
     def authenticator_name
       @parent_webservice.authenticator_name
     end
-
-    def annotation(name)
-      resource&.annotation(name)
-    end
   end
 end

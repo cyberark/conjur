@@ -109,7 +109,7 @@ Feature: OIDC Authenticator status check
     And I login as "alice"
     When I GET "/authn-oidc/keycloak/cucumber/status"
     Then the HTTP response status code is 500
-    And the authenticator status check fails with error "#<Errors::Authentication::AuthnOidc::ProviderDiscoveryFailed: CONJ00011E OIDC Provider discovery failed"
+    And the authenticator status check fails with error "ProviderDiscoveryFailed: CONJ00011E"
 
   Scenario: provider-uri variable is missing and a 500 error response is returned
     Given a policy:
@@ -157,9 +157,11 @@ Feature: OIDC Authenticator status check
       member: !user alice
     """
     And I am the super-user
+    And I successfully set id-token-user-property variable
+    And I login as "alice"
     When I GET "/authn-oidc/keycloak/cucumber/status"
     Then the HTTP response status code is 500
-    And the authenticator status check fails with error "#<Errors::Conjur::RequiredResourceMissing: CONJ00036E Missing required resource: cucumber:variable:conjur/authn-oidc/keycloak/provider-uri>"
+    And the authenticator status check fails with error "RequiredResourceMissing: CONJ00036E"
 
   Scenario: id-token-user-property variable is missing and a 500 error response is returned
     Given a policy:
@@ -207,9 +209,11 @@ Feature: OIDC Authenticator status check
       member: !user alice
     """
     And I am the super-user
+    And I successfully set provider-uri variable
+    And I login as "alice"
     When I GET "/authn-oidc/keycloak/cucumber/status"
     Then the HTTP response status code is 500
-    And the authenticator status check fails with error "#<Errors::Conjur::RequiredResourceMissing: CONJ00036E Missing required resource: cucumber:variable:conjur/authn-oidc/keycloak/id-token-user-property>"
+    And the authenticator status check fails with error "RequiredResourceMissing: CONJ00036E"
 
   # TODO: add these tests when issue #1085 is done
 #  Scenario: provider-uri value has not been set and a 500 error response is returned

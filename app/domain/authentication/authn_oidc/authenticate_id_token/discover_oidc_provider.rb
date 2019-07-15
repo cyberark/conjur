@@ -18,8 +18,6 @@ module Authentication
 
         def call
           log_provider_uri
-
-          # return an OpenIDConnect::Discovery::Provider::Config::Resource instance
           discover_provider
         end
 
@@ -29,6 +27,10 @@ module Authentication
           @logger.debug(Log::OIDCProviderUri.new(@provider_uri))
         end
 
+        # returns an OpenIDConnect::Discovery::Provider::Config::Resource instance.
+        # While this leaks 3rd party code into ours, the only time this Resource
+        # is used is inside of FetchProviderCertificate.  This is unlikely change, and hence
+        # unlikely to be a problem
         def discover_provider
           @discovered_provider = @open_id_discovery_service.discover!(@provider_uri)
           @logger.debug(Log::OIDCProviderDiscoverySuccess.new)
