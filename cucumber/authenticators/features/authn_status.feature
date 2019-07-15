@@ -104,19 +104,19 @@ Feature: Authenticator status check
     And I login as "alice"
     When I GET "/authn-oidc/keycloak/cucumber/status"
     Then the HTTP response status code is 403
-    And the authenticator status check fails with error "#<Errors::Authentication::Security::UserNotAuthorizedInConjur: CONJ00006E User 'alice' is not authorized in the Conjur policy>"
+    And the authenticator status check fails with error "UserNotAuthorizedInConjur: CONJ00006E"
 
   Scenario: An authenticator without an implemented status check returns 503
     Given I login as "alice"
     When I GET "/authn-ldap/test/cucumber/status"
     Then the HTTP response status code is 501
-    And the authenticator status check fails with error "#<Errors::Authentication::StatusNotImplemented: CONJ00045E Status check not implemented for authenticator 'authn-ldap'>"
+    And the authenticator status check fails with error "StatusNotImplemented: CONJ00045E"
 
   Scenario: A non-existing authenticator status check returns 404
     Given I login as "alice"
     When I GET "/authn-nonexist/test/cucumber/status"
     Then the HTTP response status code is 404
-    And the authenticator status check fails with error "#<Errors::Authentication::AuthenticatorNotFound: CONJ00001E Authenticator 'authn-nonexist' is not implemented in Conjur>"
+    And the authenticator status check fails with error "AuthenticatorNotFound: CONJ00001E"
 
   Scenario: A missing status webservice returns 500
     Given a policy:
@@ -155,7 +155,7 @@ Feature: Authenticator status check
     And I login as "alice"
     When I GET "/authn-oidc/keycloak/cucumber/status"
     Then the HTTP response status code is 500
-    And the authenticator status check fails with error "#<Errors::Authentication::Security::ServiceNotDefined: CONJ00005E Webservice 'authn-oidc/keycloak/status' is not defined in the Conjur policy>"
+    And the authenticator status check fails with error "ServiceNotDefined: CONJ00005E"
 
   Scenario: A non-existing account name in the status request returns 500
     Given a policy:
@@ -210,7 +210,7 @@ Feature: Authenticator status check
     And I login as "alice"
     When I GET "/authn-oidc/keycloak/non-existing-account/status"
     Then the HTTP response status code is 500
-    And the authenticator status check fails with error "#<Errors::Authentication::Security::AccountNotDefined: CONJ00008E Account 'non-existing-account' is not defined in Conjur>"
+    And the authenticator status check fails with error "AccountNotDefined: CONJ00008E"
 
   Scenario: An authenticator webservice doesn't exist in policy
     Given a policy:
@@ -251,7 +251,7 @@ Feature: Authenticator status check
     And I login as "alice"
     When I GET "/authn-oidc/keycloak/cucumber/status"
     Then the HTTP response status code is 500
-    And the authenticator status check fails with error "#<Errors::Authentication::Security::ServiceNotDefined: CONJ00005E Webservice 'authn-oidc/keycloak' is not defined in the Conjur policy>"
+    And the authenticator status check fails with error "ServiceNotDefined: CONJ00005E"
 
     # TODO: Implement this test when we have the ability to start a Conjur server from Cucumber
 #    Scenario: The authenticator is not whitelisted in environment variables
