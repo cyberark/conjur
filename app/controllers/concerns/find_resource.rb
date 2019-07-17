@@ -4,7 +4,11 @@ module FindResource
   extend ActiveSupport::Concern
 
   def resource_id
-    [ params[:account], params[:kind], params[:identifier] ].join(":")
+    [ params[:account], resource_kind, params[:identifier] ].join(":")
+  end
+
+  def resource_kind
+    params[:kind]
   end
 
   protected
