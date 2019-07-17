@@ -77,6 +77,17 @@ Rails.application.routes.draw do
       get     "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
 
       post     "/ca/:account/:service_id/sign" => 'certificate_authority#sign'
+
+      # Policy Factory routes
+      scope '/policy_factories/:account/*identifier' do
+        # The `/template` routes need to be listed before create policy, so
+        # that `create_policy` doesn't attempt to include `/template` in the
+        # policy factory ID.
+        get '/template' => 'policy_factories#get_template'
+        put '/template' => 'policy_factories#update_template'
+
+        post '/' => 'policy_factories#create_policy'
+      end
     end
 
     post "/host_factories/hosts" => 'host_factories#create_host'
