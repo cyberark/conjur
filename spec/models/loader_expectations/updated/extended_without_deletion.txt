@@ -54,3 +54,6 @@ rspec:variable:the-policy/the-secret | description | it's a secret | rspec:polic
 rspec:variable:the-policy/the-secret | kind        | plain text    | rspec:policy:the-policy
 rspec:variable:the-policy/the-secret | length      | 20            | rspec:policy:the-policy
 
+policy_factories
+No data.
+

@@ -39,5 +39,11 @@ module Audit
         ownership == 't' ? :owner : :member
       end
     end
+
+    class PolicyFactory < Subject
+      field :role_id
+      to_h {{ role: role_id }}
+      to_s { format "policy_factory %s", role_id }
+    end
   end
 end

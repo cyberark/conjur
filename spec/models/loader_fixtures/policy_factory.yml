@@ -1,0 +1,13 @@
+- !policy certificates
+
+- !policy-factory
+  id: certificates
+  annotations:
+    description: Policy factory for server certificates
+  base: !policy certificates
+  template:
+    - !policy
+      id: <%=role.identifier%>
+      body:
+      - !variable
+        id: ssl-private-key
