@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
-require 'util/fetch_resource'
+require 'types'
+require 'dry-struct'
 
 module Authentication
-  class StatusWebservice
+  class StatusWebservice < ::Dry::Struct
 
     attr_reader :parent_webservice
+    attribute :resource_class, (::Types::Any.default { ::Resource })
 
     def self.from_webservice(webservice)
       self.new(webservice)
@@ -24,7 +26,7 @@ module Authentication
     end
 
     def resource
-      @resource ||= Util::FetchResource.new.(resource_id: resource_id)
+      @resource ||= resource_class[resource_id]
     end
 
     def authenticator_name
