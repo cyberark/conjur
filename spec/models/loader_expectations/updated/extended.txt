@@ -48,3 +48,6 @@ RESOURCE_ID                          | NAME        | VALUE         | POLICY_ID
 rspec:variable:the-policy/the-secret | description | it's a secret | rspec:policy:the-policy
 rspec:variable:the-policy/the-secret | length      | 20            | rspec:policy:the-policy
 
+policy_factories
+No data.
+

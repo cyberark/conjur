@@ -1,0 +1,38 @@
+roles
+ROLE_ID                                      | POLICY_ID              
+---------------------------------------------|------------------------
+rspec:policy_factory:the-policy/certificates | rspec:policy:the-policy
+rspec:policy:root                            |                        
+rspec:policy:the-policy                      | rspec:policy:root      
+rspec:policy:the-policy/certificates         | rspec:policy:the-policy
+rspec:user:admin                             |                        
+
+role_memberships
+ROLE_ID                                      | MEMBER_ID               | ADMIN_OPTION | OWNERSHIP | POLICY_ID              
+---------------------------------------------|-------------------------|--------------|-----------|------------------------
+rspec:policy_factory:the-policy/certificates | rspec:policy:the-policy | true         | true      | rspec:policy:the-policy
+rspec:policy:root                            | rspec:user:admin        | true         | true      |                        
+rspec:policy:the-policy                      | rspec:user:admin        | true         | true      | rspec:policy:root      
+rspec:policy:the-policy/certificates         | rspec:policy:the-policy | true         | true      | rspec:policy:the-policy
+
+resources
+RESOURCE_ID                                  | OWNER_ID                | POLICY_ID              
+---------------------------------------------|-------------------------|------------------------
+rspec:policy_factory:the-policy/certificates | rspec:policy:the-policy | rspec:policy:the-policy
+rspec:policy:root                            | rspec:user:admin        |                        
+rspec:policy:the-policy                      | rspec:user:admin        | rspec:policy:root      
+rspec:policy:the-policy/certificates         | rspec:policy:the-policy | rspec:policy:the-policy
+
+permissions
+No data.
+
+annotations
+RESOURCE_ID                                  | NAME        | VALUE                                  | POLICY_ID              
+---------------------------------------------|-------------|----------------------------------------|------------------------
+rspec:policy_factory:the-policy/certificates | description | Policy factory for server certificates | rspec:policy:the-policy
+
+policy_factories
+ROLE_ID                                      | BASE_POLICY_ID                       | TEMPLATE                                                                                  | POLICY_ID              
+---------------------------------------------|--------------------------------------|-------------------------------------------------------------------------------------------|------------------------
+rspec:policy_factory:the-policy/certificates | rspec:policy:the-policy/certificates | --- - !policy   id: "<%=role.identifier%>"   body:   - !variable     id: ssl-private-key  | rspec:policy:the-policy
+

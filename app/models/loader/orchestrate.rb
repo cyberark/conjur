@@ -62,7 +62,14 @@ module Loader
 
     attr_reader :policy_version, :create_records, :delete_records, :new_roles, :schemata
 
-    TABLES = %i[roles role_memberships resources permissions annotations]
+    TABLES = %i[
+      roles
+      role_memberships
+      resources
+      permissions
+      annotations
+      policy_factories
+    ]
 
     # Columns to compare across schemata to find exact duplicates.
     TABLE_EQUIVALENCE_COLUMNS = {
@@ -70,7 +77,8 @@ module Loader
       resources: [ :resource_id, :owner_id ],
       role_memberships: [ :role_id, :member_id, :admin_option, :ownership ],
       permissions: [ :resource_id, :privilege, :role_id ],
-      annotations: [ :resource_id, :name, :value ]
+      annotations: [ :resource_id, :name, :value ],
+      policy_factories: [ :role_id, :base_policy_id, :template ]
     }
 
     def initialize(
