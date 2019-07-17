@@ -1,13 +1,9 @@
 # frozen_string_literal: true
 
-require 'types'
-require 'dry-struct'
-
 module Authentication
-  class StatusWebservice < ::Dry::Struct
+  class StatusWebservice
 
     attr_reader :parent_webservice
-    attribute :resource_class, (::Types::Any.default { ::Resource })
 
     def self.from_webservice(webservice)
       self.new(webservice)
@@ -26,7 +22,7 @@ module Authentication
     end
 
     def resource
-      @resource ||= resource_class[resource_id]
+      @resource ||= ::Resource[resource_id]
     end
 
     def authenticator_name
