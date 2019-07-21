@@ -42,7 +42,7 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
         resource_class: full_access_resource_class,
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
         validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
-      ).(
+      ).call(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
           user_id: test_user_id,
@@ -62,7 +62,7 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
         resource_class: no_access_resource_class,
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: false),
         validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
-      ).(
+      ).call(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
           user_id: test_user_id,
@@ -82,7 +82,7 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
         resource_class: full_access_resource_class,
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
         validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
-      ).(
+      ).call(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
           user_id: test_user_id,
@@ -101,7 +101,7 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
         resource_class: full_access_resource_class,
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
         validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
-      ).(
+      ).call(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: test_account,
           user_id: test_user_id,
@@ -122,7 +122,7 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
         resource_class: full_access_resource_class,
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
         validate_account_exists: mock_validate_account_exists(validation_succeeded: false)
-      ).(
+      ).call(
         webservice: mock_webservice("#{fake_authenticator_name}/service1"),
           account: non_existing_account,
           user_id: test_user_id,

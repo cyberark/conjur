@@ -33,7 +33,7 @@ RSpec.describe Authentication::Security::ValidateSecurity do
       Authentication::Security::ValidateSecurity.new(
         validate_whitelisted_webservice: mock_validate_whitelisted_webservice,
         validate_webservice_access: mock_validate_webservice_access
-      ).(
+      ).call(
         webservice: authenticator_mock,
           account: test_account,
           user_id: test_user_id,
@@ -51,7 +51,7 @@ RSpec.describe Authentication::Security::ValidateSecurity do
       Authentication::Security::ValidateSecurity.new(
         validate_whitelisted_webservice: mock_validate_whitelisted_webservice,
         validate_webservice_access: mock_validate_webservice_access
-      ).(
+      ).call(
         webservice: authenticator_mock,
           account: test_account,
           user_id: test_user_id,
@@ -73,7 +73,7 @@ RSpec.describe Authentication::Security::ValidateSecurity do
       Authentication::Security::ValidateSecurity.new(
         validate_whitelisted_webservice: mock_validate_whitelisted_webservice,
         validate_webservice_access: mock_validate_webservice_access
-      ).(
+      ).call(
         webservice: authenticator_mock,
           account: test_account,
           user_id: test_user_id,

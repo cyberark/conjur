@@ -51,7 +51,7 @@ RSpec.describe 'Authentication::Oidc' do
             token_factory:          token_factory,
             validate_security:      mocked_security_validator,
             validate_origin:        mocked_origin_validator
-          ).(
+          ).call(
             authenticator_input: input_
           )
         end
@@ -82,7 +82,7 @@ RSpec.describe 'Authentication::Oidc' do
             token_factory:          token_factory,
             validate_security:      mocked_security_validator,
             validate_origin:        mocked_origin_validator
-          ).(
+          ).call(
             authenticator_input: input_
           )
         end
