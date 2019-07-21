@@ -44,7 +44,7 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
         Authentication::AuthnOidc::ValidateStatus.new(
           fetch_oidc_secrets: mock_fetch_secrets(is_successful: true),
           discover_oidc_provider: mock_discover_oidc_provider(is_successful: true)
-        ).(
+        ).call(
           account: test_account,
             service_id: test_service_id
         )
@@ -61,7 +61,7 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
         Authentication::AuthnOidc::ValidateStatus.new(
           fetch_oidc_secrets: mock_fetch_secrets(is_successful: true),
           discover_oidc_provider: mock_discover_oidc_provider(is_successful: false)
-        ).(
+        ).call(
           account: test_account,
             service_id: test_service_id
         )
@@ -79,7 +79,7 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
       Authentication::AuthnOidc::ValidateStatus.new(
         fetch_oidc_secrets: mock_fetch_secrets(is_successful: false),
         discover_oidc_provider: mock_discover_oidc_provider(is_successful: true)
-      ).(
+      ).call(
         account: test_account,
           service_id: test_service_id
       )

@@ -22,7 +22,7 @@ RSpec.describe Authentication::AuthnOidc::AuthenticateIdToken::DiscoverOIDCProvi
     subject do
       Authentication::AuthnOidc::AuthenticateIdToken::DiscoverOIDCProvider.new(
         open_id_discovery_service: mock_discovery_provider(error: nil)
-      ).(
+      ).call(
         provider_uri: test_provider_uri
       )
     end
@@ -41,7 +41,7 @@ RSpec.describe Authentication::AuthnOidc::AuthenticateIdToken::DiscoverOIDCProvi
       subject do
         Authentication::AuthnOidc::AuthenticateIdToken::DiscoverOIDCProvider.new(
           open_id_discovery_service: mock_discovery_provider(error: HTTPClient::ConnectTimeoutError)
-        ).(
+        ).call(
           provider_uri: test_provider_uri
         )
       end
@@ -54,7 +54,7 @@ RSpec.describe Authentication::AuthnOidc::AuthenticateIdToken::DiscoverOIDCProvi
         subject do
           Authentication::AuthnOidc::AuthenticateIdToken::DiscoverOIDCProvider.new(
             open_id_discovery_service: mock_discovery_provider(error: test_error)
-          ).(
+          ).call(
             provider_uri: test_provider_uri
           )
         end

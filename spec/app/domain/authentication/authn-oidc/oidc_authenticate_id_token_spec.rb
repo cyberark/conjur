@@ -80,7 +80,7 @@ RSpec.describe 'Authentication::Oidc' do
             validate_security: mocked_security_validator,
             validate_origin: mocked_origin_validator,
             decode_and_verify_id_token: mocked_decode_and_verify_id_token
-          ).(
+          ).call(
             authenticator_input: input_
           )
         end
@@ -114,7 +114,7 @@ RSpec.describe 'Authentication::Oidc' do
             validate_security: mocked_security_validator,
             validate_origin: mocked_origin_validator,
             decode_and_verify_id_token: mocked_decode_and_verify_id_token
-          ).(
+          ).call(
             authenticator_input: input_
           )
         end
@@ -142,7 +142,7 @@ RSpec.describe 'Authentication::Oidc' do
             validate_security: mocked_security_validator,
             validate_origin: mocked_origin_validator,
             decode_and_verify_id_token: mocked_decode_and_verify_id_token
-          ).(
+          ).call(
             authenticator_input: input_
           )
         end
