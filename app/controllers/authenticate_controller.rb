@@ -98,7 +98,7 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticate_oidc
-    authentication_token = Authentication::AuthnOidc::AuthenticateIdToken::Authenticate.new.(
+    authentication_token = Authentication::AuthnOidc::Authenticate.new.(
       authenticator_input: oidc_authenticator_input
     )
     render json: authentication_token

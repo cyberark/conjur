@@ -22,10 +22,6 @@ Given(/^I successfully set id-token-user-property variable$/) do
   set_id_token_user_property_variable
 end
 
-When(/^I successfully login via OIDC$/) do
-  login_with_oidc(service_id: 'keycloak', account: 'cucumber')
-end
-
 When(/^I authenticate via OIDC with id token$/) do
   authenticate_id_token_with_oidc(service_id: 'keycloak', account: 'cucumber')
 end

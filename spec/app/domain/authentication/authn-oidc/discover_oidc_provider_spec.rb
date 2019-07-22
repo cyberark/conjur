@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Authentication::AuthnOidc::AuthenticateIdToken::DiscoverOIDCProvider do
+RSpec.describe Authentication::AuthnOidc::DiscoverOIDCProvider do
 
   let (:test_provider_uri) { "test-provider-uri" }
   let (:test_error) { "test-error" }
@@ -20,7 +20,7 @@ RSpec.describe Authentication::AuthnOidc::AuthenticateIdToken::DiscoverOIDCProvi
 
   context "A discoverable Oidc provider" do
     subject do
-      Authentication::AuthnOidc::AuthenticateIdToken::DiscoverOIDCProvider.new(
+      Authentication::AuthnOidc::DiscoverOIDCProvider.new(
         open_id_discovery_service: mock_discovery_provider(error: nil)
       ).call(
         provider_uri: test_provider_uri
@@ -39,7 +39,7 @@ RSpec.describe Authentication::AuthnOidc::AuthenticateIdToken::DiscoverOIDCProvi
   context "A non-discoverable Oidc provider" do
     context "fails on timeout error" do
       subject do
-        Authentication::AuthnOidc::AuthenticateIdToken::DiscoverOIDCProvider.new(
+        Authentication::AuthnOidc::DiscoverOIDCProvider.new(
           open_id_discovery_service: mock_discovery_provider(error: HTTPClient::ConnectTimeoutError)
         ).call(
           provider_uri: test_provider_uri
@@ -52,7 +52,7 @@ RSpec.describe Authentication::AuthnOidc::AuthenticateIdToken::DiscoverOIDCProvi
 
       context "fails on general error" do
         subject do
-          Authentication::AuthnOidc::AuthenticateIdToken::DiscoverOIDCProvider.new(
+          Authentication::AuthnOidc::DiscoverOIDCProvider.new(
             open_id_discovery_service: mock_discovery_provider(error: test_error)
           ).call(
             provider_uri: test_provider_uri
