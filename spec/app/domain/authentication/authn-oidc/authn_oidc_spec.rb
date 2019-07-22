@@ -74,7 +74,7 @@ RSpec.describe 'Authentication::Oidc' do
             request: oidc_authenticate_id_token_request
           )
 
-          ::Authentication::AuthnOidc::AuthenticateIdToken::Authenticate.new(
+          ::Authentication::AuthnOidc::Authenticate.new(
             enabled_authenticators: oidc_authenticator_name,
             token_factory: token_factory,
             validate_security: mocked_security_validator,
@@ -108,7 +108,7 @@ RSpec.describe 'Authentication::Oidc' do
             request: no_field_oidc_authenticate_id_token_request
           )
 
-          ::Authentication::AuthnOidc::AuthenticateIdToken::Authenticate.new(
+          ::Authentication::AuthnOidc::Authenticate.new(
             enabled_authenticators: oidc_authenticator_name,
             token_factory: token_factory,
             validate_security: mocked_security_validator,
@@ -136,7 +136,7 @@ RSpec.describe 'Authentication::Oidc' do
             request: no_value_oidc_authenticate_id_token_request
           )
 
-          ::Authentication::AuthnOidc::AuthenticateIdToken::Authenticate.new(
+          ::Authentication::AuthnOidc::Authenticate.new(
             enabled_authenticators: oidc_authenticator_name,
             token_factory: token_factory,
             validate_security: mocked_security_validator,
