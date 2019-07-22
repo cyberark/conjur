@@ -23,8 +23,8 @@ module Authentication
 
         # check that id token field exists and has some value
         raise Errors::Authentication::RequestBody::MissingRequestParam, id_token_field if decoded_id_token_key_value.nil? ||
-          !decoded_id_token_key_value.include?(id_token_field) ||
-          !decoded_id_token_key_value.last.present?
+            !decoded_id_token_key_value.include?(id_token_field) ||
+            !decoded_id_token_key_value.last.present?
 
         # return the value of the id token
         decoded_id_token_key_value.last
