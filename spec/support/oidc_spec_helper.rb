@@ -12,12 +12,6 @@ shared_context "oidc setup" do
 
   let (:a_new_token) { 'A NICE NEW TOKEN' }
 
-  let (:oidc_token_factory) do
-    double('OidcTokenFactory').tap do |factory|
-      allow(factory).to receive(:oidc_token).and_return(a_new_token)
-    end
-  end
-
   let (:token_factory) do
     double('TokenFactory', signed_token: a_new_token)
   end
