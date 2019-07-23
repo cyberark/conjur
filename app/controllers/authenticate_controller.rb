@@ -65,38 +65,6 @@ class AuthenticateController < ApplicationController
     )
   end
 
-  # - Prepare ID Token request
-  # - Get ID Token with code from OpenID Provider
-  # - Validate ID Token
-  # - Link user details to Conjur User
-  # - Check user has permissions
-  # - Encrypt ID Token
-  #
-  # Returns IDToken encrypted, Expiration Duration and Username
-  def login_oidc
-    oidc_encrypted_token = Authentication::AuthnOidc::GetConjurOidcToken::ConjurOidcToken.new.(
-      authenticator_input: oidc_authenticator_input
-    )
-    render json: oidc_encrypted_token
-  rescue => e
-    handle_authentication_error(e)
-  end
-
-  # - Decrypt ID token
-  # - Validate ID Token
-  # - Check user permission
-  # - Introspect ID Token
-  #
-  # Returns Conjur access token
-  def authenticate_oidc_conjur_token
-    authentication_token = Authentication::AuthnOidc::AuthenticateOidcConjurToken::Authenticate.new.(
-      authenticator_input: oidc_authenticator_input
-    )
-    render json: authentication_token
-  rescue => e
-    handle_authentication_error(e)
-  end
-
   def authenticate_oidc
     authentication_token = Authentication::AuthnOidc::Authenticate.new.(
       authenticator_input: oidc_authenticator_input
