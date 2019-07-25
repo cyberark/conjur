@@ -29,7 +29,7 @@ Rails.application.configure do
   config.serve_static_files = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
   # Use log level "warn" in prod to avoid logging parameters.
-  config.log_level = :warn
+  config.log_level = ENV['CONJUR_LOG_LEVEL'] || :warn
   config.log_formatter = ConjurFormatter.new
 
   # Specifies the header that your server uses for sending files.

@@ -43,7 +43,7 @@ Rails.application.configure do
 
   # Use the lowest log level to ensure availability of diagnostic information
   # when problems arise.
-  config.log_level = :debug
+  config.log_level = ENV['CONJUR_LOG_LEVEL'] || :debug
   config.log_formatter = ConjurFormatter.new
 
   # Raises error for missing translations
