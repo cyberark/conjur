@@ -2,6 +2,7 @@
 
 ENV['CONJUR_ACCOUNT'] = 'cucumber'
 ENV['RAILS_ENV'] ||= 'test'
+ENV['CONJUR_LOG_LEVEL'] ||= 'debug'
 
 # so that we can require relative to the project root
 $LOAD_PATH.unshift File.expand_path '../../../..', __dir__

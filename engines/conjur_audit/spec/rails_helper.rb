@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 ENV['RAILS_ENV'] ||= 'test'
+ENV['CONJUR_LOG_LEVEL'] ||= 'debug'
 require File.expand_path('../dummy/config/environment', __FILE__)
 
 # Prevent database truncation if the environment is production
