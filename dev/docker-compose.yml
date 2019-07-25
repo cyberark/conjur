@@ -24,6 +24,7 @@ services:
       CONJUR_PASSWORD_ALICE: secret
       CONJUR_DATA_KEY:
       RAILS_ENV:
+      CONJUR_LOG_LEVEL: debug
       AUDIT_DATABASE_URL:
     ports:
       - "3000:3000"
