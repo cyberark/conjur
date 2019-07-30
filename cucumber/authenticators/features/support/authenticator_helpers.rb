@@ -27,7 +27,7 @@ module AuthenticatorHelpers
   end
 
   def token_for(username, token_string)
-    return nil unless http_status == 200
+    expect(http_status).to eq(200), "couldn't retrieve Conjur access token. error is #{rest_client_error.inspect}"
     ConjurToken.new(token_string).username == username
   rescue
     nil

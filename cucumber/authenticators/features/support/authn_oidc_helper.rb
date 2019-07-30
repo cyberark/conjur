@@ -39,6 +39,7 @@ module AuthnOidcHelper
     system("#{path_script} #{params}")
 
     @oidc_auth_code = `#{"cat /authn-oidc/phantomjs/scripts/authorization_code"}`
+    expect(@oidc_auth_code).not_to be_empty, "couldn't fetch authorization code"
   end
 
   def fetch_oidc_id_token
