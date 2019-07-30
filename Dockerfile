@@ -37,7 +37,6 @@ COPY . .
 RUN ln -sf /opt/conjur-server/bin/conjurctl /usr/local/bin/
 
 ENV RAILS_ENV production
-ENV CONJUR_LOG_LEVEL info
 
 # The Rails initialization expects the database configuration
 # and data key to exist. We supply placeholder values so that
