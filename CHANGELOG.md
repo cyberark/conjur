@@ -200,7 +200,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/cyberark/conjur/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/cyberark/conjur/compare/v1.3.7...v1.4.0
 [1.3.7]: https://github.com/cyberark/conjur/compare/v1.3.6...v1.3.7
 [1.3.6]: https://github.com/cyberark/conjur/compare/v1.3.5...v1.3.6
