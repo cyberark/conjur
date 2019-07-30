@@ -1,7 +1,7 @@
 FROM phusion/baseimage:0.11
 
-RUN apt-get update -y && \
-    apt-get install -y \
+RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
     build-essential \
     ruby2.5 ruby2.5-dev \
     postgresql-client \
@@ -13,11 +13,11 @@ RUN apt-get update -y && \
     vim \
     curl \
     jq \
-    tzdata
+    tzdata \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN echo Installing phantomjs && \
-    apt-get update -y && \
-    apt-get install -y build-essential \
+RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential \
                        chrpath \
                        libfreetype6 \
                        libfreetype6-dev \
@@ -25,9 +25,10 @@ RUN echo Installing phantomjs && \
                        libfontconfig1-dev \
                        libssl-dev \
                        libxft-dev \
-                       wget
+                       wget \
+                       && rm -rf /var/lib/apt/lists/*
 
-ENV PHANTOM_JS="phantomjs-1.9.8-linux-x86_64"
+ENV PHANTOM_JS="phantomjs-2.1.1-linux-x86_64"
 
 RUN cd ~ && \
     wget https://bitbucket.org/ariya/phantomjs/downloads/${PHANTOM_JS}.tar.bz2 && \
