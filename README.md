@@ -131,7 +131,7 @@ To use it:
    allow you to work in the debugger without the server timing out. To do so, 
    run the following command instead of `conjurctl server`:
    - `pry.byebug`: `rails server -b 0.0.0.0 webrick`
-   - RubyMine and VS Code IDE: `rdebug-ide --port 1234 --dispatcher-port 26162 --host 0.0.0.0 -- bin/rails s -b 0.0.0.0 webrick`
+   - RubyMine and VS Code IDE, make sure you are in `/src/conjur-server` and run the following command: `rdebug-ide --port 1234 --dispatcher-port 26162 --host 0.0.0.0 -- bin/rails s -b 0.0.0.0 webrick`
       - Now that the server is listening, debug the code via [RubyMine's](#rubymine-ide-debugging) or [VC Code's](#visual-studio-code-ide-debugging) debuggers.
    
 1. Cleanup
