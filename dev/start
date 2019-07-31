@@ -188,27 +188,14 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_client
   echo "keycloak admin console url: http://0.0.0.0:7777/auth/admin"
 
-  echo "extracting keycloak parameters"
-  KEYCLOAK_APP_USER="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER | tr -d '\r')"
-  KEYCLOAK_APP_USER_PASSWORD="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER_PASSWORD | tr -d '\r')"
-  KEYCLOAK_APP_USER_EMAIL="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER_EMAIL | tr -d '\r')"
-
-  KEYCLOAK_SECOND_APP_USER="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER | tr -d '\r')"
-  KEYCLOAK_SECOND_APP_USER_PASSWORD="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_PASSWORD | tr -d '\r')"
-  KEYCLOAK_SECOND_APP_USER_EMAIL="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_EMAIL | tr -d '\r')"
-
-  KEYCLOAK_NON_CONJUR_APP_USER="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER | tr -d '\r')"
-  KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD | tr -d '\r')"
-  KEYCLOAK_NON_CONJUR_APP_USER_EMAIL="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_EMAIL | tr -d '\r')"
-
   echo "Creating user 'alice' in Keycloak"
-  docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_user $KEYCLOAK_APP_USER $KEYCLOAK_APP_USER_PASSWORD $KEYCLOAK_APP_USER_EMAIL
+  docker-compose exec oidc-keycloak bash -c '/authn-oidc/keycloak/scripts/create_user "$KEYCLOAK_APP_USER" "$KEYCLOAK_APP_USER_PASSWORD" "$KEYCLOAK_APP_USER_EMAIL"'
 
   echo "Creating second user 'bob' in Keycloak"
-  docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_user $KEYCLOAK_SECOND_APP_USER $KEYCLOAK_SECOND_APP_USER_PASSWORD $KEYCLOAK_SECOND_APP_USER_EMAIL
+  docker-compose exec oidc-keycloak bash -c '/authn-oidc/keycloak/scripts/create_user "$KEYCLOAK_SECOND_APP_USER" "$KEYCLOAK_SECOND_APP_USER_PASSWORD" "$KEYCLOAK_SECOND_APP_USER_EMAIL"'
 
   echo "Creating user in Keycloak that will not exist in conjur"
-  docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_user $KEYCLOAK_NON_CONJUR_APP_USER $KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD $KEYCLOAK_NON_CONJUR_APP_USER_EMAIL
+  docker-compose exec oidc-keycloak bash -c '/authn-oidc/keycloak/scripts/create_user "$KEYCLOAK_NON_CONJUR_APP_USER" "$KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD" "$KEYCLOAK_NON_CONJUR_APP_USER_EMAIL"'
 
   echo "Fetch OpenID authrization code from keycloak using phantomjs"
   docker-compose exec oidc-phantomjs /authn-oidc/phantomjs/scripts/fetchAuthCode $KEYCLOAK_APP_USER $KEYCLOAK_APP_USER_PASSWORD

@@ -30,10 +30,10 @@ steps = [
     function(){
         log('Open keycloak home page');
         var authorize_request = "https://keycloak:8443/auth/realms/master/protocol/openid-connect/auth";
-        authorize_request = authorize_request + "?client_id=" + env['CLIENT_ID'];
+        authorize_request = authorize_request + "?client_id=" + env['KEYCLOAK_CLIENT_ID'];
         authorize_request = authorize_request + "&response_type=code&response_mode=query";
-        authorize_request = authorize_request + "&scope=" + env['SCOPE'].replace(/,/g, " ");
-        authorize_request = authorize_request + "&redirect_uri=" + env['REDIRECT_URI'];
+        authorize_request = authorize_request + "&scope=" + env['KEYCLOAK_SCOPE'].replace(/,/g, " ");
+        authorize_request = authorize_request + "&redirect_uri=" + env['KEYCLOAK_REDIRECT_URI'];
         log('Rest request : ' + authorize_request.toString());
         //http://keycloak:8080/auth/admin
         //example to request: http://keycloak:8080/auth/realms/master/protocol/openid-connect/auth?client_id=myclient&response_type=code&response_mode=query&scope=openid profile&redirect_uri=http://locallhost.com/"

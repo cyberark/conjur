@@ -34,37 +34,18 @@ cucumber_authenticators() {
   : DOC - Runs Cucumber Authenticator features
 
   _prepare_env_auth_oidc
-
-  local vars="
-    KEYCLOAK_USER
-    KEYCLOAK_PASSWORD
-    KEYCLOAK_APP_USER
-    KEYCLOAK_APP_USER_PASSWORD
-    KEYCLOAK_APP_USER_EMAIL
-    KEYCLOAK_SECOND_APP_USER
-    KEYCLOAK_SECOND_APP_USER_PASSWORD
-    KEYCLOAK_SECOND_APP_USER_EMAIL
-    KEYCLOAK_NON_CONJUR_APP_USER
-    KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD
-    KEYCLOAK_NON_CONJUR_APP_USER_EMAIL
-    CLIENT_ID
-    REDIRECT_URI
-    CLIENT_SECRET
-    SCOPE
-  "
-
-  # for each of $vars, exec into oid-keycloak and get the value of the
-  # variable. Collect all the variables in $cucumber_env_args
-  local cucumber_env_args=''
-  for v in $vars; do
-    cucumber_env_args="$cucumber_env_args -e $v=$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv $v | tr -d '\r')"
-  done
-  cucumber_env_args="$cucumber_env_args -e PROVIDER_URI=https://keycloak:8443/auth/realms/master"
-  cucumber_env_args="$cucumber_env_args -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect"
-  cucumber_env_args="$cucumber_env_args -e ID_TOKEN_USER_PROPERTY=preferred_username"
-
   _prepare_env_auth_ldap
-  _run_cucumber_tests authenticators 'oidc-keycloak ldap-server' "$cucumber_env_args"
+  _run_cucumber_tests authenticators 'oidc-keycloak ldap-server' "$(get_oidc_env_args)"
+}
+
+get_oidc_env_args() {
+  local oidc_env_args=''
+  oidc_env_args="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv | grep KEYCLOAK | sed 's/.*/-e &/')"
+  oidc_env_args="$oidc_env_args -e PROVIDER_URI=https://keycloak:8443/auth/realms/master"
+  oidc_env_args="$oidc_env_args -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect"
+  oidc_env_args="$oidc_env_args -e ID_TOKEN_USER_PROPERTY=preferred_username"
+
+  echo "${oidc_env_args}"
 }
 
 cucumber_api() {
@@ -185,12 +166,11 @@ _find_cucumber_network() {
   docker network inspect $net --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}'
 }
 
-_keycloak_isready?() {
+wait_for_keycloak() {
   for i in {1..20}
   do
    sleep=10
    echo "keycloak starting logs:"
-   echo "$(docker-compose logs oidc-keycloak)"
    output=$(docker-compose logs oidc-keycloak | grep "started" | wc -l)
    if [ $output -ne 0 ]; then
         echo "Keycloak server is up and ready"
@@ -240,39 +220,24 @@ _prepare_env_auth_oidc() {
   docker-compose up --no-deps -d pg conjur oidc-keycloak
 
   # Check if keycloak is up
-  _keycloak_isready?
-
-  echo "Extracting keycloak parameters"
-  KEYCLOAK_APP_USER="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_APP_USER | tr -d '\r')"
-  KEYCLOAK_APP_USER_PASSWORD="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_APP_USER_PASSWORD | tr -d '\r')"
-  KEYCLOAK_APP_USER_EMAIL="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_APP_USER_EMAIL | tr -d '\r')"
-
-  KEYCLOAK_SECOND_APP_USER="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER | tr -d '\r')"
-  KEYCLOAK_SECOND_APP_USER_PASSWORD="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_PASSWORD | tr -d '\r')"
-  KEYCLOAK_SECOND_APP_USER_EMAIL="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_EMAIL | tr -d '\r')"
-
-  KEYCLOAK_NON_CONJUR_APP_USER="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER | tr -d '\r')"
-  KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD | tr -d '\r')"
-  KEYCLOAK_NON_CONJUR_APP_USER_EMAIL="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_EMAIL | tr -d '\r')"
+  wait_for_keycloak
 
   # Define oidc-keycloak client
   echo "Defining oidc-keycloak client"
   docker-compose exec -T oidc-keycloak /scripts/create_client
 
   echo "Creating user 'alice' in Keycloak"
-  docker-compose exec -T oidc-keycloak /scripts/create_user $KEYCLOAK_APP_USER $KEYCLOAK_APP_USER_PASSWORD $KEYCLOAK_APP_USER_EMAIL
+  docker-compose exec -T oidc-keycloak bash -c '/scripts/create_user "$KEYCLOAK_APP_USER" "$KEYCLOAK_APP_USER_PASSWORD" "$KEYCLOAK_APP_USER_EMAIL"'
 
   echo "Creating second user 'bob' in Keycloak"
-  docker-compose exec -T oidc-keycloak /scripts/create_user $KEYCLOAK_SECOND_APP_USER $KEYCLOAK_SECOND_APP_USER_PASSWORD $KEYCLOAK_SECOND_APP_USER_EMAIL
+  docker-compose exec -T oidc-keycloak bash -c '/scripts/create_user "$KEYCLOAK_SECOND_APP_USER" "$KEYCLOAK_SECOND_APP_USER_PASSWORD" "$KEYCLOAK_SECOND_APP_USER_EMAIL"'
 
   echo "Creating user in Keycloak that will not exist in conjur"
-  docker-compose exec -T oidc-keycloak /scripts/create_user $KEYCLOAK_NON_CONJUR_APP_USER $KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD $KEYCLOAK_NON_CONJUR_APP_USER_EMAIL
+  docker-compose exec -T oidc-keycloak bash -c '/scripts/create_user "$KEYCLOAK_NON_CONJUR_APP_USER" "$KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD" "$KEYCLOAK_NON_CONJUR_APP_USER_EMAIL"'
 
   echo "Initialize keycloak certificate in conjur server"
   docker-compose exec -T conjur /authn-oidc/keycloak/scripts/fetchCertificate
 }
-
-
 
 # Setup and run Cucumber tests, first starting any other services required
 # args: <profile name> <extra services>
@@ -289,7 +254,6 @@ _setup_for_cucumber() {
   # Make sure all the services are up
   docker-compose up --no-deps --no-recreate -d pg conjur $services
 
-  
   docker-compose exec -T conjur conjurctl wait
   docker-compose exec -T conjur conjurctl account create cucumber
 }

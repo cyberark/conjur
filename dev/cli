@@ -37,24 +37,13 @@ exit
 function enable_oidc() {
   echo "Extracting keycloak variables & setting as env variables"
 
-  env_args="$env_args -e CLIENT_ID=$(docker-compose exec oidc-keycloak printenv CLIENT_ID | tr -d '\r')"
-  env_args="$env_args -e CLIENT_SECRET=$(docker-compose exec oidc-keycloak printenv CLIENT_SECRET | tr -d '\r')"
-  env_args="$env_args -e REDIRECT_URI=$(docker-compose exec oidc-keycloak printenv REDIRECT_URI | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_USER=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_USER | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_PASSWORD=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_PASSWORD | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_APP_USER=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_APP_USER_PASSWORD=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER_PASSWORD | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_APP_USER_EMAIL=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER_EMAIL | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_SECOND_APP_USER=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_SECOND_APP_USER_PASSWORD=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_PASSWORD | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_SECOND_APP_USER_EMAIL=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_EMAIL | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_NON_CONJUR_APP_USER=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_NON_CONJUR_APP_USER_EMAIL=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_EMAIL | tr -d '\r')"
-  env_args="$env_args -e SCOPE=$(docker-compose exec oidc-keycloak printenv SCOPE | tr -d '\r')"
-  env_args="$env_args -e PROVIDER_URI="https://keycloak:8443/auth/realms/master""
-  env_args="$env_args -e PROVIDER_INTERNAL_URI="http://keycloak:8080/auth/realms/master/protocol/openid-connect""
-  env_args="$env_args -e ID_TOKEN_USER_PROPERTY="preferred_username""
+  local keycloak_env_args=''
+  keycloak_env_args="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv | grep KEYCLOAK | sed 's/.*/-e &/')"
+  keycloak_env_args="$keycloak_env_args -e PROVIDER_URI=https://keycloak:8443/auth/realms/master"
+  keycloak_env_args="$keycloak_env_args -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect"
+  keycloak_env_args="$keycloak_env_args -e ID_TOKEN_USER_PROPERTY=preferred_username"
+
+  env_args="$env_args $keycloak_env_args"
 }
 
 unset COMPOSE_PROJECT_NAME
