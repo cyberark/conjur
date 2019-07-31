@@ -76,7 +76,7 @@ When(/^I authenticate ([^"]*) times? in ([^"]*) threads via OIDC with( invalid)?
 end
 
 Then(/^The "([^"]*)" response time should be less than "([^"]*)" seconds$/) do |type, threshold|
-  type = type_str.downcase.to_sym
+  type = type.downcase.to_sym
   raise "Unexpected Type" unless [:max, :avg].include?(type)
   results = @oidc_perf_results
   actual_time = (type == :avg) ? results.sum.fdiv(results.size) : results.max
