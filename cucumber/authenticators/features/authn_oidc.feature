@@ -185,7 +185,7 @@ Feature: Users can authneticate with OIDC authenticator
   Scenario: Performance test
     Given I get authorization code for username "alice" and password "alice"
     And I fetch an ID Token
-    When I authenticate "1000" times in "10" threads via OIDC with id token
+    When I authenticate 1000 times in 10 threads via OIDC with id token
     Then The "max" response time should be less than "1" seconds
     And The "avg" response time should be less than "0.25" seconds
 
@@ -197,13 +197,13 @@ Feature: Users can authneticate with OIDC authenticator
     And user "alice" is authorized
     And I save my place in the log file
     # Load while the cache contains OIDC provider certificate
-    When I authenticate "2000" times in "20" threads via OIDC with id token
-    Then The following appears "2000" times in the log after my savepoint:
+    When I authenticate 2000 times in 20 threads via OIDC with id token
+    Then The following appears 2000 times in the log after my savepoint:
     """
     Completed 200 OK
     """
     # Validate cache functionality
-    And The following appears "0" times in the log after my savepoint:
+    And The following appears 0 times in the log after my savepoint:
     """
     CONJ00016D Rate limited cache updated successfully
     """
