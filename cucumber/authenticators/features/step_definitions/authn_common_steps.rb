@@ -1,5 +1,5 @@
 Then(/^user "(\S+)" is authorized$/) do |username|
-  expect(token_for(username, @response_body)).to be
+  expect(retrieved_access_token.username).to eq(username)
 end
 
 Then(/^login response token is valid$/) do

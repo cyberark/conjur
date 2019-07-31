@@ -26,11 +26,9 @@ module AuthenticatorHelpers
     conjur_api.resource(resource_id).add_value(value)
   end
 
-  def token_for(username, token_string)
-    expect(http_status).to eq(200), "couldn't retrieve Conjur access token. error is #{rest_client_error.inspect}"
-    ConjurToken.new(token_string).username == username
-  rescue
-    nil
+  def retrieved_access_token
+    expect(http_status).to eq(200), "Couldn't retrieve access token due to error #{rest_client_error.inspect}"
+    ConjurToken.new(response_body)
   end
 
   def token_for_keys(keys, token_string)
