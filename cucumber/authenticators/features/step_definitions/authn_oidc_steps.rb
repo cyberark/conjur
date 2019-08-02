@@ -1,17 +1,9 @@
-Given(/^I get authorization code for username "([^"]*)" and password "([^"]*)"$/) do |username, password|
-  path_script = "/authn-oidc/phantomjs/scripts/fetchAuthCode"
-  params = "#{username} #{password}"
-  system("#{path_script} #{params}")
-
-  @oidc_auth_code = `#{"cat /authn-oidc/phantomjs/scripts/authorization_code"}`
-  expect(@oidc_auth_code).not_to be_empty, "couldn't fetch authorization code"
-end
-
-Given(/I fetch an ID Token/) do
+Given(/I fetch an ID Token for username "([^"]*)" and password "([^"]*)"/) do |username, password|
   path = "#{oidc_provider_internal_uri}/token"
-  payload = { grant_type: 'authorization_code', redirect_uri: oidc_redirect_uri, code: oidc_auth_code }
+  payload = { grant_type: 'password', username: username, password: password, scope: oidc_scope }
   options = { user: oidc_client_id, password: oidc_client_secret }
   execute(:post, path, payload, options)
+
   parse_oidc_id_token
 end
 

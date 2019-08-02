@@ -19,13 +19,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && \
     libfontconfig1-dev \
     && rm -rf /var/lib/apt/lists/*
 
-ENV PHANTOM_JS="phantomjs-2.1.1-linux-x86_64"
-
-RUN wget https://bitbucket.org/ariya/phantomjs/downloads/${PHANTOM_JS}.tar.bz2 -O - | \
-    tar xvjC /usr/local/share && \
-    ln -sf /usr/local/share/${PHANTOM_JS}/bin/phantomjs /usr/local/bin && \
-    phantomjs --version
-
 RUN gem install -N -v 1.16.2 bundler
 
 RUN mkdir -p /src/conjur-server

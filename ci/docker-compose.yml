@@ -54,7 +54,6 @@ services:
     volumes:
       - ..:/src/conjur-server
       - authn-local:/run/authn-local
-      - ./authn-oidc/phantomjs:/authn-oidc/phantomjs/scripts
       - ./ldap-certs:/ldap-certs:ro
       - log-volume:/src/conjur-server/log
     links:
@@ -98,7 +97,7 @@ services:
       - KEYCLOAK_CLIENT_ID=conjurClient
       - KEYCLOAK_REDIRECT_URI=http://locallhost.com/
       - KEYCLOAK_CLIENT_SECRET=d7047915-9029-45b8-9bd6-7ec5c2f75e5b
-      - KEYCLOAK_SCOPE=openid,profile,email
+      - KEYCLOAK_SCOPE=openid
     ports:
       - "7777:8080"
     volumes:
