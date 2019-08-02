@@ -60,15 +60,8 @@ module AuthnOidcHelper
     @oidc_id_token_user_property ||= validated_env_var('ID_TOKEN_USER_PROPERTY')
   end
 
-  def oidc_redirect_uri
-    @oidc_redirect_uri ||= validated_env_var('KEYCLOAK_REDIRECT_URI')
-  end
-
-  def oidc_auth_code
-    if @oidc_auth_code.blank?
-      raise 'Authorization code is not initialized, Additional logs exists in keycloak_login.[date].log file'
-    end
-    @oidc_auth_code
+  def oidc_scope
+    @oidc_scope ||= validated_env_var('KEYCLOAK_SCOPE')
   end
 
   def parse_oidc_id_token
