@@ -40,7 +40,7 @@ When(/^I authenticate via OIDC with empty id token$/) do
   authenticate_id_token_with_oidc(service_id: 'keycloak', account: 'cucumber', id_token: "")
 end
 
-When(/^I authenticate ([^"]*) times? in ([^"]*) threads via OIDC with( invalid)? id token$/) do |num_requests, num_threads, is_invalid|
+When(/^I authenticate (\d+) times? in (\d+) threads? via OIDC with( invalid)? id token$/) do |num_requests, num_threads, is_invalid|
   id_token = is_invalid ? invalid_id_token : parsed_id_token
 
   queue = (1..num_requests.to_i).inject(Queue.new, :push)
