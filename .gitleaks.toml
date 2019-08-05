@@ -1,0 +1,258 @@
+title = "conjur gitleaks config"
+
+# You can configure gitleaks what to search for and what to whitelist.
+# The output you are seeing here is the default gitleaks config. If GITLEAKS_CONFIG environment variable
+# is set, gitleaks will load configurations from that path. If option --config-path is set, gitleaks will load
+# configurations from that path. Gitleaks does not whitelist anything by default.
+# - https://www.ndss-symposium.org/wp-content/uploads/2019/02/ndss2019_04B-3_Meli_paper.pdf
+# - https://github.com/dxa4481/truffleHogRegexes/blob/master/truffleHogRegexes/regexes.json
+[[rules]]
+description = "AWS Client ID"
+regex = '''(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}'''
+tags = ["key", "AWS"]
+
+[[rules]]
+description = "AWS Secret Key"
+regex = '''(?i)aws(.{0,20})?(?-i)['\"][0-9a-zA-Z\/+]{40}['\"]'''
+tags = ["key", "AWS"]
+
+[[rules]]
+description = "AWS MWS key"
+regex = '''amzn\.mws\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'''
+tags = ["key", "AWS", "MWS"]
+
+[[rules]]
+description = "PKCS8"
+regex = '''-----BEGIN PRIVATE KEY-----'''
+tags = ["key", "PKCS8"]
+
+[[rules]]
+description = "RSA"
+regex = '''-----BEGIN RSA PRIVATE KEY-----'''
+tags = ["key", "RSA"]
+
+[[rules]]
+description = "SSH"
+regex = '''-----BEGIN OPENSSH PRIVATE KEY-----'''
+tags = ["key", "SSH"]
+
+[[rules]]
+description = "PGP"
+regex = '''-----BEGIN PGP PRIVATE KEY BLOCK-----'''
+tags = ["key", "PGP"]
+
+[[rules]]
+description = "Facebook Secret Key"
+regex = '''(?i)(facebook|fb)(.{0,20})?(?-i)['\"][0-9a-f]{32}['\"]'''
+tags = ["key", "Facebook"]
+
+[[rules]]
+description = "Facebook Client ID"
+regex = '''(?i)(facebook|fb)(.{0,20})?['\"][0-9]{13,17}['\"]'''
+tags = ["key", "Facebook"]
+
+[[rules]]
+description = "Facebook access token"
+regex = '''EAACEdEose0cBA[0-9A-Za-z]+'''
+tags = ["key", "Facebook"]
+
+[[rules]]
+description = "Twitter Secret Key"
+regex = '''(?i)twitter(.{0,20})?['\"][0-9a-z]{35,44}['\"]'''
+tags = ["key", "Twitter"]
+
+[[rules]]
+description = "Twitter Client ID"
+regex = '''(?i)twitter(.{0,20})?['\"][0-9a-z]{18,25}['\"]'''
+tags = ["client", "Twitter"]
+
+[[rules]]
+description = "Github"
+regex = '''(?i)github(.{0,20})?(?-i)['\"][0-9a-zA-Z]{35,40}['\"]'''
+tags = ["key", "Github"]
+
+[[rules]]
+description = "LinkedIn Client ID"
+regex = '''(?i)linkedin(.{0,20})?(?-i)['\"][0-9a-z]{12}['\"]'''
+tags = ["client", "Twitter"]
+
+[[rules]]
+description = "LinkedIn Secret Key"
+regex = '''(?i)linkedin(.{0,20})?['\"][0-9a-z]{16}['\"]'''
+tags = ["secret", "Twitter"]
+
+[[rules]]
+description = "Slack"
+regex = '''xox[baprs]-([0-9a-zA-Z]{10,48})?'''
+tags = ["key", "Slack"]
+
+[[rules]]
+description = "EC"
+regex = '''-----BEGIN EC PRIVATE KEY-----'''
+tags = ["key", "EC"]
+
+[[rules]]
+description = "Generic API key"
+regex = '''(?i)api_key(.{0,20})?['|"][0-9a-zA-Z]{32,45}['|"]'''
+tags = ["key", "API", "generic"]
+
+[[rules]]
+description = "Generic Secret"
+regex = '''(?i)secret(.{0,20})?['|"][0-9a-zA-Z]{32,45}['|"]'''
+tags = ["key", "Secret", "generic"]
+
+[[rules]]
+description = "Google API key"
+regex = '''AIza[0-9A-Za-z\\-_]{35}'''
+tags = ["key", "Google"]
+
+[[rules]]
+description = "Google Cloud Platform API key"
+regex = '''(?i)(google|gcp|youtube|drive|yt)(.{0,20})?['\"][AIza[0-9a-z\\-_]{35}]['\"]'''
+tags = ["key", "Google", "GCP"]
+
+[[rules]]
+description = "Google OAuth"
+regex = '''(?i)(google|gcp|auth)(.{0,20})?['"][0-9]+-[0-9a-z_]{32}\.apps\.googleusercontent\.com['"]'''
+tags = ["key", "Google", "OAuth"]
+
+[[rules]]
+description = "Google OAuth access token"
+regex = '''ya29\.[0-9A-Za-z\-_]+'''
+tags = ["key", "Google", "OAuth"]
+
+[[rules]]
+description = "Heroku API key"
+regex = '''(?i)heroku(.{0,20})?['"][0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}['"]'''
+tags = ["key", "Heroku"]
+
+[[rules]]
+description = "MailChimp API key"
+regex = '''(?i)(mailchimp|mc)(.{0,20})?['"][0-9a-f]{32}-us[0-9]{1,2}['"]'''
+tags = ["key", "Mailchimp"]
+
+[[rules]]
+description = "Mailgun API key"
+regex = '''(?i)(mailgun|mg)(.{0,20})?['"][0-9a-z]{32}['"]'''
+tags = ["key", "Mailgun"]
+
+[[rules]]
+description = "Password in URL"
+regex = '''[a-zA-Z]{3,10}:\/\/[^\/\s:@]{3,20}:[^\/\s:@]{3,20}@.{1,100}\/?.?'''
+tags = ["key", "URL", "generic"]
+
+[[rules]]
+description = "PayPal Braintree access token"
+regex = '''access_token\$production\$[0-9a-z]{16}\$[0-9a-f]{32}'''
+tags = ["key", "Paypal"]
+
+[[rules]]
+description = "Picatic API key"
+regex = '''sk_live_[0-9a-z]{32}'''
+tags = ["key", "Picatic"]
+
+[[rules]]
+description = "Slack Webhook"
+regex = '''https://hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}'''
+tags = ["key", "slack"]
+
+[[rules]]
+description = "Stripe API key"
+regex = '''(?i)stripe(.{0,20})?['\"][sk|rk]_live_[0-9a-zA-Z]{24}'''
+tags = ["key", "Stripe"]
+
+[[rules]]
+description = "Square access token"
+regex = '''sq0atp-[0-9A-Za-z\-_]{22}'''
+tags = ["key", "square"]
+
+[[rules]]
+description = "Square OAuth secret"
+regex = '''sq0csp-[0-9A-Za-z\\-_]{43}'''
+tags = ["key", "square"]
+
+[[rules]]
+description = "Twilio API key"
+regex = '''(?i)twilio(.{0,20})?['\"][0-9a-f]{32}['\"]'''
+tags = ["key", "twilio"]
+
+[whitelist]
+files = [
+  ".gitleaks.toml"
+]
+regexes= [
+  "AKIAIOSFODNN7EXAMPLE"
+]
+commits = [
+  "a8087a7774374d7a7396b07058c1775a1ec66252",
+  "bab22ff81c758c6c0fb8d1b9482594876c129b21",
+  "dd08bebb5a69a36d22474e62ea2264c9ec7fe2e4",
+  "1fff5504a926191a5926d7995ba6aa9b2b4b7eb0",
+  "4a695b2c5b3ad8ca3dcf75f10ff8deb100fc9a21",
+  "b3473310837cd0401114df9191a750cececf313a",
+  "2ba5f6bf9ceb5b836977646b2709d861cca5ef3c",
+  "41b2560f79e7b84b94f6037c6173d15652b02098",
+  "d4ed80fd1b62e177479279ae9fdff783802dd14f",
+  "a061fcbff43b0042b620982952cb0c26508b14f0",
+  "796a6c2a6f514021ce14e06db308cc9f9cf3881c",
+  "1bf0d01c7c8c74ba7f095fe1c7e22c593ccde6cd",
+  "f3f636f35b6b2ae859ed693e4a8cd009527d0eac",
+  "17848f09830adb2cc09b27fa66746914991f8cf7",
+  "f524ba88b8118f2e7589c3a54ab27bd89118ac87",
+  "eacb6434ea279c6a2bb89d6c4fd799609132bd90",
+  "0b18913fa2250465384d6d548f56d408ed9d9cbb",
+  "0ffda4621c84037d5cb3dae463559840892228b3",
+  "90c4b8a7b390697837cc46def9e4a5310221edf9",
+  "e9cac372b6de3b8918853eb5d3857e191d4c7ee1",
+  "17e3a019f370380a5b96f94eb66bf1cd1250df0d",
+  "9a2c316ed2feb483ba9b13b8686ee7ab5efa4dd9",
+  "ec556c87e2c72fded36cb214e107e075ec92ffa7",
+  "ffa39b900aab9a4e146af3ab89e0f5d20bb4600c",
+  "ac6d52fe3cf67c940da8fe7388ffff8618f0d8f9",
+  "566dfcd9c68525773a43ab6b491c5ed31c5fc253",
+  "34907e55819c058aa64ea06ba936a954d9b905d9",
+  "0a4dc06689c8d254e1dcf08459585a95789049d2",
+  "81465bd49ee42c8b15d673abcec729d388c33f57",
+  "4d53aeab1137a5b53b1200b57926bfda1bdc6675",
+  "1cea4e3b4f5a54456bf3a1cd083574fab952cb72",
+  "2e79bbc20938869081c55bdb5d6cfabdbb48caac",
+  "ca98a356c2715eb1c5aee15a849138eaacc8f0c8"
+]
+
+#commits = [
+#  "whitelisted-commit1",
+#  "whitelisted-commit2",
+#]
+#repos = [
+#	"whitelisted-repo"
+#]
+
+# Additional Examples
+
+# [[rules]]
+# description = "Generic Key"
+# regex = '''(?i)key(.{0,6})?(:|=|=>|:=)'''
+# entropies = [
+#     "4.1-4.3",
+#     "5.5-6.3",
+# ]
+# entropyROI = "line"
+# filetypes = [".go", ".py", ".c"]
+# tags = ["key"]
+# severity = "8"
+#
+#
+# [[rules]]
+# description = "Generic Key"
+# regex = '''(?i)key(.{0,6})?(:|=|=>|:=)'''
+# entropies = ["4.1-4.3"]
+# filetypes = [".gee"]
+# entropyROI = "line"
+# tags = ["key"]
+# severity = "medium"
+
+# [[rules]]
+# description = "Any pem file"
+# filetypes = [".key"]
+# tags = ["pem"]
+# severity = "high"
