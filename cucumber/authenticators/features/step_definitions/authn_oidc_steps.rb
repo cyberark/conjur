@@ -48,7 +48,7 @@ When(/^I authenticate (\d+) times? in (\d+) threads? via OIDC with( invalid)? id
 
   all_threads = Array.new(num_threads.to_i) do
     Thread.new do
-      until queue.empty? do
+      until queue.empty?
         queue.shift
         results.push(
           Benchmark.measure do
@@ -69,8 +69,8 @@ end
 
 Then(/^The "([^"]*)" response time should be less than "([^"]*)" seconds$/) do |type, threshold|
   type = type.downcase.to_sym
-  raise "Unexpected Type" unless [:max, :avg].include?(type)
+  raise "Unexpected Type" unless %i(max avg).include?(type)
   results = @oidc_perf_results
-  actual_time = (type == :avg) ? results.sum.fdiv(results.size) : results.max
+  actual_time = type == :avg ? results.sum.fdiv(results.size) : results.max
   expect(actual_time).to be < threshold.to_f
 end
