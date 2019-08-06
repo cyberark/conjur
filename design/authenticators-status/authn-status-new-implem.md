@@ -26,10 +26,8 @@ As described in step 2, the status of an authenticator method is checked for imp
 
 ```ruby
 def status(authenticator_status_input:)
-  Authentication::Authn<Type>::ValidateStatus.new.(
-  .
-  .
-  .
+  Authentication::Authn<Type>::ValidateStatus.new.call(
+    <ValidateStatus input>
   )
 end
 ```
@@ -40,7 +38,7 @@ The `authenticator_status_input` object wraps a group of fields that may be need
 
 The fields in the `authenticator_status_input` object include:
 
-`authenticator_name`- type of authenticator, for example OIDC
+`authenticator_name`- type of authenticator, for example authn-oidc
 
 `service_id`- ID of the authenticator provider, for example Okta
 
@@ -50,13 +48,13 @@ The fields in the `authenticator_status_input` object include:
 
 `webservice`- resource for the authenticator
 
-`status_webservice`- resource for the status Endpoint
+`status_webservice`- resource for the authenticator's status endpoint
 
 See below for an example of the [status implementation](https://github.com/cyberark/conjur/blob/master/app/domain/authentication/authn_oidc/authenticator.rb#L12) for OIDC. Notice how this particular status implementation uses only the `account` and `service_id` fields from the `authenticator_status_input` object.
  
 ```ruby
 def status(authenticator_status_input:)
-    Authentication::AuthnOidc::ValidateStatus.new.(
+    Authentication::AuthnOidc::ValidateStatus.new.call(
       account: authenticator_status_input.account,
         service_id: authenticator_status_input.service_id
     )
@@ -101,7 +99,7 @@ end
 
 **NOTE:** It is important to keep the `Authn<Type>` pattern when defining the class structure. 
 
-**NOTE:** For an example of an Authenticator CommandClass see [here](https://github.com/cyberark/conjur/blob/master/app/domain/authentication/authn_oidc/validate_status.rb)
+**NOTE:** For an example of an Authenticator ValidateStatus CommandClass see [here](https://github.com/cyberark/conjur/blob/master/app/domain/authentication/authn_oidc/validate_status.rb)
 
 ## Test Plan
 All new status implementations should inspire a new suite of unit and integration tests appropriate for that authenticator.
