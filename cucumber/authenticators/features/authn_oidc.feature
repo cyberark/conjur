@@ -153,8 +153,8 @@ Feature: Users can authneticate with OIDC authenticator
     And I fetch an ID Token for username "alice" and password "alice"
     And I authenticate via OIDC with id token
     And user "alice" is authorized
-    # Update provider uri to an unreachable hostname
-    When I add the secret value "http://unreachable.test/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
+    # Update provider uri to an unreachable hostname (not using ".test" TLD as it returns a bad gateway response)
+    When I add the secret value "http://unreachable.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
     And I save my place in the log file
     And I authenticate via OIDC with id token
     Then it is gateway timeout
