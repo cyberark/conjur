@@ -5,7 +5,7 @@ Connected to [relevant GitHub issues, eg #76]
 ### Code
 - [ ] The code works.
 - [ ] The code performs its intended function and the logic is correct.
-- [ ] The code easy to understand.
+- [ ] The code is easy to understand.
 - [ ] Redundant or duplicate code has been removed.
 - [ ] All debugging code has been removed.
 - [ ] The code is as modular as possible.
