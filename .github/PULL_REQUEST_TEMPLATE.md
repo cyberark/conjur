@@ -7,7 +7,7 @@ Connected to [relevant GitHub issues, eg #76]
 - [ ] The code performs its intended function and the logic is correct.
 - [ ] The code is easy to understand.
 - [ ] Redundant or duplicate code has been removed.
-- [ ] All debugging code has been removed.
+- [ ] All debugging or commented out code has been removed.
 - [ ] The code is as modular as possible.
 - [ ] All code follows the defined architecture.
 - [ ] The feature implementation follows the Feature Spec.
