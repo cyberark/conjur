@@ -153,17 +153,8 @@ Feature: Users can authneticate with OIDC authenticator
     And I fetch an ID Token for username "alice" and password "alice"
     And I authenticate via OIDC with id token
     And user "alice" is authorized
-    # Update provider uri to an unreachable hostname (not using ".test" TLD as it returns a bad gateway response)
-    When I add the secret value "http://unreachable.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
-    And I save my place in the log file
-    And I authenticate via OIDC with id token
-    Then it is gateway timeout
-    And The following appears in the log after my savepoint:
-    """
-    504 Gateway Timeout
-    """
-    # Update provider uri to reachable but invalid hostname
-    When I add the secret value "http://127.0.0.1.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
+    # Update provider uri to a different hostname and verify `provider-uri` has changed
+    When I add the secret value "https://different-provider:8443" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
     And I authenticate via OIDC with id token
     Then it is bad gateway
     # Check recovery to a valid provider uri
@@ -171,6 +162,15 @@ Feature: Users can authneticate with OIDC authenticator
     And I fetch an ID Token for username "alice" and password "alice"
     And I authenticate via OIDC with id token
     Then user "alice" is authorized
+
+  Scenario: Bad Gateway is raised in case of an invalid OIDC Provider hostname
+    Given I fetch an ID Token for username "alice" and password "alice"
+    And I authenticate via OIDC with id token
+    And user "alice" is authorized
+    # Update provider uri to reachable but invalid hostname
+    When I add the secret value "http://127.0.0.1.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
+    And I authenticate via OIDC with id token
+    Then it is bad gateway
 
   Scenario: Performance test
     And I fetch an ID Token for username "alice" and password "alice"
