@@ -110,10 +110,10 @@ rspec() {
 rspec_audit() {
   : DOC - Runs RSpecs for the Audit engine
   
-  # Start Conjur with the audit database
-  docker-compose up --no-deps -d audit pg
+  # Start Conjur with the postgres database
+  docker-compose up --no-deps -d pg
 
-  _wait_for_pg audit
+  _wait_for_pg pg
 
     docker-compose run -T --rm --no-deps  -w /src/conjur-server cucumber -ec "
       pwd
