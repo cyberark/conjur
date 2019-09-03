@@ -3,9 +3,6 @@ services:
   pg:
     image: postgres:9.4
 
-  audit:
-    image: postgres:9.4
-
   testdb:
     image: postgres:9.4
 
