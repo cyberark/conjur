@@ -7,7 +7,7 @@ services:
     image: postgres:9.4
 
   testdb:
-    image: postgres:9.3
+    image: postgres:9.4
     environment:
       POSTGRES_PASSWORD: postgres_secret
 
