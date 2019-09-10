@@ -2,8 +2,7 @@
 
 shared_context "database setup" do
 
-  let(:db_uri) { ENV['AUDIT_DATABASE_URL'] || 'postgres://postgres@pg/postgres' }
-  let(:db) { Sequel.connect db_uri }
+  let(:db) { Sequel.connect ENV['DATABASE_URL'] }
 
   before do
     db.extension :pg_json
