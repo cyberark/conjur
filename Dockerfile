@@ -35,6 +35,7 @@ RUN bundle --without test development
 COPY . .
 
 RUN ln -sf /opt/conjur-server/bin/conjurctl /usr/local/bin/
+RUN ln -sf /opt/conjur-server/engines/conjur_audit/db/migrate/* /opt/conjur-server/db/migrate
 
 ENV RAILS_ENV production
 

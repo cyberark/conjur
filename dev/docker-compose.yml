@@ -40,6 +40,8 @@ services:
     - pg:pg
     - ldap-server
     - oidc-keycloak:keycloak
+    command:
+    - dev/init.sh
 
   cucumber:
     image: conjur-dev

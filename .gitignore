@@ -51,4 +51,6 @@ ci/authn-k8s/dev/policies/*.yml
 # Vim backup files
 *.sw[po]
 
-
+# Ignore link files sourced at audit engine DB migration 
+db/migrate/20180530210739_create_messages_table.rb
+db/migrate/20180704132624_add_indexes.rb
