@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+- An unset initContainer field in a deployment config pod spec will no
+  longer cause the k8s authenticator to fail with `undefined method` ([#1182](https://github.com/cyberark/conjur/issues/1182)).
+
 ## [1.4.1] - 2019-06-24
 ### Fixed
 - Make sure the authentication framework only caches Role lookups for the

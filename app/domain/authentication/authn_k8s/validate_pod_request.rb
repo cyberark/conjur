@@ -94,8 +94,8 @@ module Authentication
       end
 
       def container
-        pod.spec.containers.find { |c| c.name == container_name } ||
-          pod.spec.initContainers.find { |c| c.name == container_name }
+        (pod.spec.containers || []).find { |c| c.name == container_name } ||
+          (pod.spec.initContainers || []).find { |c| c.name == container_name }
       end
 
       def default_container_name
