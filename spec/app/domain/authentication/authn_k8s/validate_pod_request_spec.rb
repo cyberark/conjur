@@ -148,6 +148,32 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
           .to raise_error(Errors::Authentication::AuthnK8s::ContainerNotFound, expected_message)
       end
 
+      it 'raises ContainerNotFound if initContainers is nil' do
+        allow(pod_spec).to receive(:initContainers)
+          .and_return({})
+        allow(pod_spec).to receive(:containers)
+          .and_return(nil)
+        allow(host_annotation_2).to receive(:values)
+          .and_return({ :name => "notimportant" })
+
+        expected_message = /Container authenticator was not found for requesting pod/
+        expect { validator.(pod_request: pod_request) }
+          .to raise_error(Errors::Authentication::AuthnK8s::ContainerNotFound, expected_message)
+      end
+
+      it 'raises ContainerNotFound if containers is nil' do
+        allow(pod_spec).to receive(:initContainers)
+          .and_return(nil)
+        allow(pod_spec).to receive(:containers)
+          .and_return({})
+        allow(host_annotation_2).to receive(:values)
+          .and_return({ :name => "notimportant" })
+
+        expected_message = /Container authenticator was not found for requesting pod/
+        expect { validator.(pod_request: pod_request) }
+          .to raise_error(Errors::Authentication::AuthnK8s::ContainerNotFound, expected_message)
+      end
+
       it 'does not raise errors if all checks pass' do
         allow(pod_spec).to receive(:initContainers)
           .and_return({})
