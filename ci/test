@@ -115,7 +115,6 @@ rspec_audit() {
 
   _wait_for_pg audit
 
-  AUDIT_DATABASE_URL=postgres://postgres@audit/postgres \
     docker-compose run -T --rm --no-deps  -w /src/conjur-server cucumber -ec "
       pwd
       ci/rspec-audit/migratedb
