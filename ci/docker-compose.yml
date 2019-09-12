@@ -45,7 +45,6 @@ services:
       CONJUR_APPLIANCE_URL: http://conjur
       CONJUR_ACCOUNT: cucumber
       DATABASE_URL: postgres://postgres@pg/postgres
-      AUDIT_DATABASE_URL:
       RAILS_ENV: test
       CONJUR_LOG_LEVEL: debug
       CONJUR_DATA_KEY:
