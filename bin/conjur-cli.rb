@@ -208,8 +208,9 @@ command :db do |cgrp|
   cgrp.desc "Create and/or upgrade the database schema"
   cgrp.command :migrate do |c|
     c.action do |global_options,options,args|
-      connect
 
+      connect
+      exec "rake conjur_audit:install:migrations"
       exec "rake db:migrate"
     end
   end
@@ -267,7 +268,7 @@ command :wait do |c|
     if conjur_ready.call
       puts " Conjur is ready!"
     else
-      exit_now! " Conjur is not ready after #{retries} seconds" 
+      exit_now! " Conjur is not ready after #{retries} seconds"
     end
   end
 end
