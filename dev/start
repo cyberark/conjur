@@ -21,8 +21,6 @@ Usage: start [options]
 
     --oidc-okta     Adds to authn-oidc okta static env configuration
 
-    --audit         Starts with the audit engine and database enabled
-
     -h, --help      Shows this help message.
 EOF
   exit
@@ -77,7 +75,6 @@ ENABLE_AUTHN_OIDC=false
 ENABLE_OIDC_ADFS=false
 ENABLE_OIDC_OKTA=false
 ENABLE_ROTATORS=false
-ENABLE_AUDIT=false
 while true ; do
   case "$1" in
     --authn-iam ) ENABLE_AUTHN_IAM=true ; shift ;;
@@ -86,7 +83,6 @@ while true ; do
     --oidc-adfs ) ENABLE_OIDC_ADFS=true ; shift ;;
     --oidc-okta ) ENABLE_OIDC_OKTA=true ; shift ;;
     --rotators ) ENABLE_ROTATORS=true ; shift ;;
-    --audit ) ENABLE_AUDIT=true ; shift ;;
     -h | --help ) print_help ; shift ;;
      * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
   esac
@@ -217,24 +213,10 @@ if [[ $ENABLE_AUTHN_IAM = true ]]; then
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-iam/policy.yml
 fi
 
-if [[ $ENABLE_AUDIT = true ]]; then
-  services="$services audit"
-  export AUDIT_DATABASE_URL=postgres://postgres@audit
-fi
-
 echo "Setting CONJUR_AUTHENTICATORS to: $enabled_authenticators"
 env_args="$env_args -e CONJUR_AUTHENTICATORS=$enabled_authenticators"
 
 docker-compose up -d --no-deps $services
-
-if [[ $ENABLE_AUDIT = true ]]; then
-  # Run database migration to create audit database schema
-  docker-compose exec -T conjur bash -c '
-  BUNDLE_GEMFILE=/src/conjur-server/Gemfile \
-    bundle exec sequel $AUDIT_DATABASE_URL \
-    -E -m /src/conjur-server/engines/conjur_audit/db/migrate/
-  '
-fi
 
 echo "Creating user alice"
 docker-compose exec client conjur policy load root /src/conjur-server/dev/files/policy.yml
