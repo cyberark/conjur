@@ -350,6 +350,13 @@ Typical options for this URL are:
 Conjur creates and/or updates the database schema automatically when it starts
 up. Migration scripts are located in the `db/migrate` directory.
 
+## Audit
+
+The Conjur audit service captures events related to Conjur authentication and access to Conjur resources.
+The service is enabled by default. No configuration is required.
+
+[Detailed audit design documentation](design/AUDIT.md)
+
 ## Authenticators
 
 Conjur makes it easy to:
