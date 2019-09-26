@@ -1,21 +1,17 @@
 # Conjur v5 Audit
 
-Conjur audit is a Rails engine that adds support to Conjur for storing audit records in a PostgreSQL
-database.
+The Conjur audit service captures events related to Conjur authentication and access to Conjur resources.
+The service is enabled by default. No configuration is required.
 
-## Developing
+The following types of messages are captured.
 
-To start a development environment that includes and enables Conjur audit:
-
-1. Navigate to the development environment directory
-    ```sh-session
-    cd dev
-    ```
-
-2. Start the development environment with the audit flag
-    ```sh-session
-    ./start --audit
-    ```
+| Message id          | Description |
+| -------------       | ------------- |
+| authn         | Authentication attempts, whether successful or failed.  |
+| check         | Permission checks, whether permitted or denied.         |
+| fetch         | Secret value fetches.                                   |
+| policy        | Policy changes, including changes to the permissions model:<br/>* New roles and resources.<br/>* Permit and deny privileges.<br/>* Granting and revoking roles. | 
+| update        | Secret value changes.                                   |
 
 ## Testing
 
