@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Create rake task to copy the migration file out of the conjur_audit engine
+- Create messages table in the Conjur database
+- Save Audit events in the messages table
 
 ## [1.4.2] - 2019-09-13
 
