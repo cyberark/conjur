@@ -163,8 +163,8 @@ Feature: Users can authneticate with OIDC authenticator
     And I authenticate via OIDC with id token
     Then user "alice" is authorized
 
-  @skip
   Scenario: Bad Gateway is raised in case of an invalid OIDC Provider hostname
+    Given I skip
     Given I fetch an ID Token for username "alice" and password "alice"
     And I authenticate via OIDC with id token
     And user "alice" is authorized
@@ -173,15 +173,15 @@ Feature: Users can authneticate with OIDC authenticator
     And I authenticate via OIDC with id token
     Then it is bad gateway
 
-  @skip
   Scenario: Performance test
+    Given I skip
     And I fetch an ID Token for username "alice" and password "alice"
     When I authenticate 1000 times in 10 threads via OIDC with id token
     Then The "max" response time should be less than "1" seconds
     And The "avg" response time should be less than "0.25" seconds
 
-  @skip
   Scenario: Load with cache
+    Given I skip
     And I fetch an ID Token for username "alice" and password "alice"
     # Make sure cache contains a valid certificate
     And I authenticate via OIDC with id token
