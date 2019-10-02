@@ -175,8 +175,7 @@ Feature: Users can authneticate with OIDC authenticator
   Scenario: Performance test
     And I fetch an ID Token for username "alice" and password "alice"
     When I authenticate 1000 times in 10 threads via OIDC with id token
-    Then The "max" response time should be less than "1" seconds
-    And The "avg" response time should be less than "0.25" seconds
+    Then The "avg" response time should be less than "0.25" seconds
 
   Scenario: Load with cache
     And I fetch an ID Token for username "alice" and password "alice"
