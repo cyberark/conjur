@@ -3,6 +3,9 @@ services:
   pg:
     image: postgres:9.4
 
+  audit:
+    image: postgres:9.4
+
   testdb:
     image: postgres:9.4
     environment:
@@ -22,6 +25,7 @@ services:
       CONJUR_DATA_KEY:
       RAILS_ENV:
       CONJUR_LOG_LEVEL: debug
+      AUDIT_DATABASE_URL:
     ports:
       - "3000:3000"
       - "1234:1234"

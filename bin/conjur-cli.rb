@@ -60,7 +60,7 @@ command :server do |c|
     account = options[:account]
 
     connect
-    system "rake conjur_audit:install:migrations"
+
     system "rake db:migrate" or exit $?.exitstatus
     if account
       system "rake account:create[#{account}]" or exit $?.exitstatus
