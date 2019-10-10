@@ -10,22 +10,7 @@ module Audit
     progname 'conjur'
 
     def log_to logger
-      log_to_db
       logger.log logger_severity, self, progname
-    end
-
-    def log_to_db
-      ConjurAudit::Message.create(
-        facility: facility >> 3,
-        severity: severity,
-        timestamp: Time.now.utc.iso8601(3),
-        hostname: Socket.gethostname,
-        appname: progname,
-        procid: Thread.current[:request_id],
-        msgid: message_id,
-        sdata: Sequel.pg_jsonb(structured_data),
-        message: message
-      )
     end
 
     def to_s
