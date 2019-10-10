@@ -185,12 +185,8 @@ Feature: Users can authneticate with OIDC authenticator
     And I save my place in the log file
     # Load while the cache contains OIDC provider certificate
     When I authenticate 2000 times in 20 threads via OIDC with id token
-    Then The following appears 2000 times in the log after my savepoint:
-    """
-    Completed 200 OK
-    """
     # Validate cache functionality
-    And The following appears 0 times in the log after my savepoint:
+    Then The following appears 0 times in the log after my savepoint:
     """
     CONJ00016D Rate limited cache updated successfully
     """
