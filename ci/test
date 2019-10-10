@@ -101,7 +101,6 @@ rspec() {
   _wait_for_pg pg
 
   docker-compose run -T --rm --no-deps cucumber -ec "
-    bundle exec rake conjur_audit:install:migrations
     bundle exec rake db:migrate
     rm -rf $REPORT_ROOT/spec/reports
     bundle exec env CI_REPORTS=$REPORT_ROOT/spec/reports rspec --format progress --require ci/reporter/rspec --format CI::Reporter::RSpecFormatter
