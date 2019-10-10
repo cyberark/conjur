@@ -10,5 +10,4 @@ Rails.application.configure do
   config.log_level = ENV['CONJUR_LOG_LEVEL'] || :info
   config.middleware.use Rack::RememberUuid
   config.audit_socket = '/run/conjur/audit.socket'
-  config.audit_database = 'postgres://:5433/audit'
 end
