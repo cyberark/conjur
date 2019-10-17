@@ -9,7 +9,7 @@ module Authentication
         @env = env
       end
 
-      def webservice
+      def webservice()
         @webservice ||= ::Authentication::Webservice.new(
           account:            @account,
           authenticator_name: @authenticator_name,
@@ -17,7 +17,7 @@ module Authentication
         )
       end
 
-      def httpGetRequest(url, username, password) 
+      def http_get_request(url, username, password) 
         begin
           uri = URI.parse(url)
           http = Net::HTTP.new(uri.host, uri.port)
@@ -34,11 +34,14 @@ module Authentication
         return response
       end
 
-      def buildRunning?(jenkinsURL, jobPath, buildNumber, username, password)
+      def get_build_info(jenkinsURL, jobPath, buildNumber, username, password)
         jenkinsBuildEndpoint = "/job/#{jobPath}/#{buildNumber}/api/json"
         jenkinsBuildURL = "#{jenkinsURL}#{jenkinsBuildEndpoint}"
-        response = httpGetRequest(jenkinsBuildURL, username, password)
+        response = http_get_request(jenkinsBuildURL, username, password)
+        return response
+      end
 
+      def build_running?(response)
         Rails.logger.debug("Jenkins Build Response: #{response.body}")
 
         if response.code != '200'
@@ -49,8 +52,7 @@ module Authentication
         return json['building']
       end
 
-      def getPublicKey(jenkinsURL, username, password)
-        response = httpGetRequest(jenkinsURL, username, password)
+      def jenkins_public_key(response)
         publicKey = response['X-Instance-Identity']
 
         publicKey = "-----BEGIN PUBLIC KEY-----\n#{publicKey}\n-----END PUBLIC KEY-----"
@@ -58,12 +60,27 @@ module Authentication
         return OpenSSL::PKey::RSA.new(publicKey)
       end
 
+      def parse_metadata(username, password)
+        jsonBody = JSON.parse password
+
+        buildNumber = jsonBody["buildNumber"]
+        signature = Base64.decode64(jsonBody["signature"])
+        jobProperty_hostPrefix = jsonBody["jobProperty_hostPrefix"]
+        if jsonBody.key?("jobProperty_hostPrefix")
+          jobName = username.sub("host/#{jobProperty_hostPrefix}/", "")
+        else
+          jobName = username.sub("host/", "")
+        end
+        jobPath = jobName.split("/").join("/job/")
+
+        return jobName, jobPath, buildNumber, signature
+      end
+
       def valid?(input)
-        # Needed to create the webservice object
         @account = input.account
         @service_id = input.service_id
         @authenticator_name = input.authenticator_name
-
+        
         # Get needed secrets to connect into the jenkins API
         jenkinsUsername = webservice.variable("jenkinsUsername").secret.value
         jenkinsPassword = webservice.variable("jenkinsPassword").secret.value
@@ -71,25 +88,15 @@ module Authentication
 
         # Parse the body
         # e.g {"buildNumber": 5, "signature": "<base64 signature>", "jobProperty_hostPrefix": "myapp"}
-        jsonBody = JSON.parse input.password
-        buildNumber = jsonBody["buildNumber"]
-        signature = Base64.decode64(jsonBody["signature"])
-        jobProperty_hostPrefix = jsonBody["jobProperty_hostPrefix"]
-        if jsonBody.key?("jobProperty_hostPrefix")
-          jobName = input.username.sub("host/#{jobProperty_hostPrefix}/", "")
-        else
-          jobName = input.username.sub("host/", "")
-        end
-        jobPath = jobName.split("/").join("/job/")
-
+        jobName, jobPath, buildNumber, signature = parse_metadata(input.username, input.password)
 
         Rails.logger.debug("Jenkins job name: #{jobName}")
         Rails.logger.debug("Jenkins build number: #{buildNumber}")
         Rails.logger.debug("Jenkins signature: #{signature}")
 
         # Validate job is running and signature was signed with the jenkins identities private key
-        if buildRunning?(jenkinsURL, jobPath, buildNumber, jenkinsUsername, jenkinsPassword)
-          jenkinsPublicKey = getPublicKey(jenkinsURL, jenkinsUsername, jenkinsPassword)
+        if build_running?(get_build_info(jenkinsURL, jobPath, buildNumber, jenkinsUsername, jenkinsPassword))
+          jenkinsPublicKey = jenkins_public_key(http_get_request(jenkinsURL, jenkinsUsername, jenkinsPassword))
           message = "#{jobName}-#{buildNumber}"
 
           if jenkinsPublicKey.verify(OpenSSL::Digest::SHA256.new, signature, message)
@@ -102,6 +109,7 @@ module Authentication
           Rails.logger.error("AUTHENTICATION FAILED: Job '#{jobName} ##{buildNumber}' is currently not running.")
           raise Err::RunningJobNotFound "#{jobName} ##{buildNumber}"
         end
+
         false
       end
     end
