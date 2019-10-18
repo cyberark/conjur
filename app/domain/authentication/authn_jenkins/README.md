@@ -92,7 +92,7 @@ node {
 19. Set ```ID``` to ```SECRET_ID```
 20. It should look like:
 
-21. No run the job and it should fetch the secret successfully. When looking at the job console the password should be scrubbed automatically
+21. Now run the job and it should fetch the secret successfully. When looking at the job console the password should be scrubbed automatically
 
 ```
 
