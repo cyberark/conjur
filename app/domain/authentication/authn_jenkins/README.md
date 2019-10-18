@@ -56,7 +56,7 @@ Authenticate jenkins jobs without api keys.
 7. Execute ```conjur variable values add team1/secret "someSecret"``` to populate the secret with a dummy value
 
 ### Jenkins
-1. Import the [Jenkins Conjur Credential Plugin](https://github.com/cyberark/conjur-credentials-plugin)
+1. Import the [Jenkins Conjur Credential Plugin](https://github.com/AndrewCopeland/conjur/blob/master/dev/files/authn-jenkins/conjur-jenkins-plugin.hpi)
 2. Create a service account for this jenkins instance. (Remember the username and password since it will be used in a future step #4)
 3. Setup the jenkins authentication URL. Execute ```conjur variable values add conjur/authn-jenkins/prod/jenkinsURL "http://<jenkinsURL>:<jenkinsPort>"```
 4. Setup the jenkins authentication service account credentials. Execute ```conjur variable values add conjur/authn-jenkins/prod/jenkinsUsername "<serviceAccountUsername>"``` & ```conjur variable values add conjur/authn-jenkins/prod/jenkinsPassword "<serviceAccountPassword>"```
