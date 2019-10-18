@@ -156,6 +156,35 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
 
       end
 
+      module AuthnJenkins
+
+        InvalidJenkinsCred = ::Util::TrackableErrorClass.new(
+          msg: "'Invalid Jenkins Cred: {0}",
+          code: "CONJ00045E"
+        )
+
+        HostNotFound=::Util::TrackableErrorClass.new(
+          msg: "Host '{0}' wasn't found'",
+          code: "CONJ00046E"
+        )
+
+        RunningJobNotFound=::Util::TrackableErrorClass.new(
+          msg: "Job '{0}' is not running and cannot be authenticated",
+          code: "CONJ00047E"
+        )
+        
+        InvalidSignature=::Util::TrackableErrorClass.new(
+          msg: "Invalid signature provided by jenkins. Data tampered or private-public key mismatch",
+          code: "CONJ00048E"
+        )
+
+        BuildInfoError=::Util::TrackableErrorClass.new(
+          msg: "Failed to retrieve build info from '{0}'. Recieved {1}",
+          code: "CONJ00049E"
+        )
+
+      end
+
       module AuthnK8s
 
         WebserviceNotFound = ::Util::TrackableErrorClass.new(
