@@ -55,14 +55,6 @@ RSpec.describe Authentication::AuthnIam::Authenticator do
     )
   end
 
-  def valid_login
-    "host/myapp/jenkins/testJob"
-  end
-
-  def invalid_login
-    "host/myapp/invalidJenkins/invalidJob"
-  end
-
   let (:authenticator_instance) do
     Authentication::AuthnJenkins::Authenticator.new(env:[])
   end
