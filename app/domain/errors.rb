@@ -179,7 +179,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         BuildInfoError=::Util::TrackableErrorClass.new(
-          msg: "Failed to retrieve build info from '{0}'. Recieved {1}",
+          msg: "Failed to retrieve build info from. Recieved {0}",
           code: "CONJ00049E"
         )
 

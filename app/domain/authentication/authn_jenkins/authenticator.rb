@@ -18,48 +18,20 @@ module Authentication
         )
       end
 
-      def http_get_request(url, username, password) 
-        begin
-          uri = URI.parse(url)
-          http = Net::HTTP.new(uri.host, uri.port)
-          http.read_timeout = 5
-          request = Net::HTTP::Get.new(uri.request_uri)
-          request.basic_auth(username, password)
-          http.request(request)
-        rescue Net::OpenTimeout => e
-          Rails.logger.error("Timeout to Jenkins host Exception #{e}. Jenkins host '#{url}' is most likely invalid. Validate this url can be accessed from the conjur server.")
-          raise Err::HostNotFound, url
-        end
-      end
-
-      def get_build_info(jenkins_url, job_path, build_number, username, password)
-        jenkins_build_endpoint = "/job/#{job_path}/#{build_number}/api/json"
-        jenkins_build_url = "#{jenkins_url}#{jenkins_build_endpoint}"
-        http_get_request(jenkins_build_url, username, password)
-      end
-
       def build_running?(response)
         body = response.body
         status_code = response.code
 
         Rails.logger.debug("Jenkins Build Response: #{body}")
-        if status_code != '200'
-          raise Err::BuildInfoError.new(jenkinsBuildURL, "#{status_code} - #{body}")
+        if status_code != 200
+          raise Err::BuildInfoError.new("#{status_code} - #{body}")
         end
 
         JSON.parse(body)['building']
       end
 
-      def jenkins_public_key(response)
-        public_key = response['X-Instance-Identity']
-
-        public_key = "-----BEGIN PUBLIC KEY-----\n#{public_key}\n-----END PUBLIC KEY-----"
-        Rails.logger.debug("Returned public key: #{public_key}")
-        OpenSSL::PKey::RSA.new(public_key)
-      end
-
-      def parse_metadata(username, password)
-        json_body = JSON.parse password
+      def parse_metadata(username, message_body)
+        json_body = JSON.parse message_body
 
         build_number = json_body["buildNumber"]
         signature = Base64.decode64(json_body["signature"])
@@ -74,39 +46,42 @@ module Authentication
         return job_name, job_path, build_number, signature
       end
 
+      def jenkins_client(account, authenticator_name, service_id)
+        @jenkins_client ||= begin
+          variables = webservice(
+            account,
+            authenticator_name,
+            service_id
+          )
+          JenkinsClient.new(
+            variables.variable("jenkinsURL").secret.value,
+            variables.variable("jenkinsUsername").secret.value,
+            variables.variable("jenkinsPassword").secret.value
+          )
+        end
+      end
+      
       def valid?(input)
-        variables = webservice(
-          input.account,
-          input.authenticator_name,
-          input.service_id
-        )
-        
-        # Get needed secrets to connect into the jenkins API
-        jenkins_username = variables.variable("jenkinsUsername").secret.value
-        jenkins_password = variables.variable("jenkinsPassword").secret.value
-        jenkins_url = variables.variable("jenkinsURL").secret.value
-
         # Parse the body
         # e.g {"buildNumber": 5, "signature": "<base64 signature>", "jobProperty_hostPrefix": "myapp"}
         job_name, job_path, build_number, signature = parse_metadata(input.username, input.password)
-
+      
         Rails.logger.debug("Job Name: #{job_name} | Build Number: #{build_number} | Signatature: #{signature}")
-
+        jenkins_client(input.account, input.authenticator_name, input.service_id)
+      
         # Validate job is running and signature was signed with the jenkins identities private key
-        if build_running?(get_build_info(jenkins_url, job_path, build_number, jenkins_username, jenkins_password))
-          jenkinsPublicKey = jenkins_public_key(http_get_request(jenkins_url, jenkins_username, jenkins_password))
-          message = "#{job_name}-#{build_number}"
-
-          if jenkinsPublicKey.verify(OpenSSL::Digest::SHA256.new, signature, message)
-            return true
-          else
-            Rails.logger.error("AUTHENTICATION FAILED: Data tampered or private-public key mismatch.")
-            raise Err::InvalidSignature
-          end
-        else
+        unless build_running?(@jenkins_client.build(job_path, build_number))
           Rails.logger.error("AUTHENTICATION FAILED: Job '#{job_name} ##{build_number}' is currently not running.")
           raise Err::RunningJobNotFound "#{job_name} ##{build_number}"
         end
+        public_key = @jenkins_client.public_key
+        message = "#{job_name}-#{build_number}"
+
+        unless public_key.verify(OpenSSL::Digest::SHA256.new, signature, message)
+          Rails.logger.error("AUTHENTICATION FAILED: Data tampered or private-public key mismatch.")
+          raise Err::InvalidSignature
+        end
+        true
       end
     end
   end
