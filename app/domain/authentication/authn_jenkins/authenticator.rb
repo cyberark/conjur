@@ -10,11 +10,11 @@ module Authentication
         @env = env
       end
 
-      def webservice
+      def webservice(account, authenticator_name, service_id)
         @webservice ||= ::Authentication::Webservice.new(
-          account:            @account,
-          authenticator_name: @authenticator_name,
-          service_id:         @service_id
+          account:            account,
+          authenticator_name: authenticator_name,
+          service_id:         service_id
         )
       end
 
@@ -75,14 +75,16 @@ module Authentication
       end
 
       def valid?(input)
-        @account = input.account
-        @service_id = input.service_id
-        @authenticator_name = input.authenticator_name
+        variables = webservice(
+          input.account,
+          input.authenticator_name,
+          input.service_id
+        )
         
         # Get needed secrets to connect into the jenkins API
-        jenkins_username = webservice.variable("jenkinsUsername").secret.value
-        jenkins_password = webservice.variable("jenkinsPassword").secret.value
-        jenkins_url = webservice.variable("jenkinsURL").secret.value
+        jenkins_username = variables.variable("jenkinsUsername").secret.value
+        jenkins_password = variables.variable("jenkinsPassword").secret.value
+        jenkins_url = variables.variable("jenkinsURL").secret.value
 
         # Parse the body
         # e.g {"buildNumber": 5, "signature": "<base64 signature>", "jobProperty_hostPrefix": "myapp"}
