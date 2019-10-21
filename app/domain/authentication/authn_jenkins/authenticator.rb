@@ -64,20 +64,20 @@ module Authentication
       def valid?(input)
         # Parse the body
         # e.g {"buildNumber": 5, "signature": "<base64 signature>", "jobProperty_hostPrefix": "myapp"}
-        job_name, job_path, build_number, signature = parse_metadata(input.username, input.password)
+        load = JenkinsLoad.new(input.password, input.username)
       
-        Rails.logger.debug("Job Name: #{job_name} | Build Number: #{build_number} | Signatature: #{signature}")
+        Rails.logger.debug("Job Name: #{load.job_name} | Build Number: #{load.build_number} | Signatature: #{load.signature}")
         jenkins_client(input.account, input.authenticator_name, input.service_id)
       
         # Validate job is running and signature was signed with the jenkins identities private key
-        unless build_running?(@jenkins_client.build(job_path, build_number))
-          Rails.logger.error("AUTHENTICATION FAILED: Job '#{job_name} ##{build_number}' is currently not running.")
-          raise Err::RunningJobNotFound "#{job_name} ##{build_number}"
+        unless build_running?(@jenkins_client.build(load.job_path, load.build_number))
+          Rails.logger.error("AUTHENTICATION FAILED: Job '#{load.job_name} ##{load.build_number}' is currently not running.")
+          raise Err::RunningJobNotFound "#{load.job_name} ##{load.build_number}"
         end
         public_key = @jenkins_client.public_key
-        message = "#{job_name}-#{build_number}"
+        message = "#{load.job_name}-#{load.build_number}"
 
-        unless public_key.verify(OpenSSL::Digest::SHA256.new, signature, message)
+        unless public_key.verify(OpenSSL::Digest::SHA256.new, load.signature, message)
           Rails.logger.error("AUTHENTICATION FAILED: Data tampered or private-public key mismatch.")
           raise Err::InvalidSignature
         end
