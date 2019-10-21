@@ -30,22 +30,6 @@ module Authentication
         JSON.parse(body)['building']
       end
 
-      def parse_metadata(username, message_body)
-        json_body = JSON.parse message_body
-
-        build_number = json_body["buildNumber"]
-        signature = Base64.decode64(json_body["signature"])
-        job_property_host_prefix = json_body["jobProperty_hostPrefix"]
-        if json_body.key?("jobProperty_hostPrefix")
-          job_name = username.sub("host/#{job_property_host_prefix}/", "")
-        else
-          job_name = username.sub("host/", "")
-        end
-        job_path = job_name.split("/").join("/job/")
-
-        return job_name, job_path, build_number, signature
-      end
-
       def jenkins_client(account, authenticator_name, service_id)
         @jenkins_client ||= begin
           variables = webservice(
