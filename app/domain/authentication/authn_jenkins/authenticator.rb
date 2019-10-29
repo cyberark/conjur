@@ -29,7 +29,8 @@ module Authentication
             variables.variable("jenkinsURL").secret.value,
             variables.variable("jenkinsUsername").secret.value,
             variables.variable("jenkinsPassword").secret.value,
-            variables.variable("jenkinsCertificate").secret.value
+            variables.variable("jenkinsCertificate").secret.value,
+            variables.annotation("allow-http")
           )
         end
       end
@@ -63,7 +64,7 @@ module Authentication
           raise Err::InvalidSignature
         end
       
-        # Validate job is running and signature was signed with the jenkins identities private key
+        # Validate job is currently running
         unless build_running?(@jenkins_client.build(load.job_path, load.build_number))
           Rails.logger.error("AUTHENTICATION FAILED: Job '#{load.job_name} ##{load.build_number}' is currently not running.")
           raise Err::RunningJobNotFound "#{load.job_name} ##{load.build_number}"

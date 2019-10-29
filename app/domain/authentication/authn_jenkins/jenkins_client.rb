@@ -1,16 +1,19 @@
 module Authentication
   module AuthnJenkins
     class JenkinsClient
-      def initialize(url, username, password, public_key)
+      Err = Errors::Authentication::AuthnJenkins
+      def initialize(url, username, password, public_key, allow_http)
         @url = url
         @username = username
         @password = password
         @public_key = public_key
+        if allow_http != 'true' && !@url.starts_with('https')
+          raise Err::InvalidURL, @url
+        end
       end
       
       def public_key()
-        response = request('')
-        create_public_key(response['X-Instance-Identity'])
+        create_public_key
       end
       
       def build(job, build_number)
@@ -18,7 +21,7 @@ module Authentication
       end
       
       private
-      def create_public_key(identity)
+      def create_public_key()
         public_key = @public_key
         if !public_key.starts_with('-----BEGIN PUBLIC KEY-----') && !public_key.ends_with('-----END PUBLIC KEY-----')
           public_key = [

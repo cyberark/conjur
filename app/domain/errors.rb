@@ -183,6 +183,11 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00049E"
         )
 
+        InvalidURL=::Util::TrackableErrorClass.new(
+          msg: "Invalid URL '{0}' http is not allowed unless the webservice annotation 'allow-http' is set to 'true'",
+          code: "CONJ00050E"
+        )
+
       end
 
       module AuthnK8s
