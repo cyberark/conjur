@@ -22,6 +22,7 @@ Authenticate jenkins jobs without api keys.
   - !variable jenkinsURL
   - !variable jenkinsUsername
   - !variable jenkinsPassword
+  - !variable jenkinsCertificate
 
   # create a group that can authenticate to this jenkins instance
   - !permit

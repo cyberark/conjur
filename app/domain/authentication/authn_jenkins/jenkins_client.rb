@@ -1,10 +1,11 @@
 module Authentication
   module AuthnJenkins
     class JenkinsClient
-      def initialize(url, username, password)
+      def initialize(url, username, password, public_key)
         @url = url
         @username = username
         @password = password
+        @public_key = public_key
       end
       
       def public_key()
@@ -18,11 +19,15 @@ module Authentication
       
       private
       def create_public_key(identity)
-        public_key = [
-        "-----BEGIN PUBLIC KEY-----",
-        identity,
-        "-----END PUBLIC KEY-----"
-        ].join("\n")
+        public_key = @public_key
+        if !public_key.starts_with('-----BEGIN PUBLIC KEY-----') && !public_key.ends_with('-----END PUBLIC KEY-----')
+          public_key = [
+            "-----BEGIN PUBLIC KEY-----",
+            identity,
+            "-----END PUBLIC KEY-----"
+            ].join("\n")
+        end
+
         Rails.logger.debug("Returned public key: #{public_key}")
         OpenSSL::PKey::RSA.new(public_key)
       end

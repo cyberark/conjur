@@ -18,6 +18,22 @@ module Authentication
         )
       end
 
+      def jenkins_client(account, authenticator_name, service_id)
+        @jenkins_client ||= begin
+          variables = webservice(
+            account,
+            authenticator_name,
+            service_id
+          )
+          JenkinsClient.new(
+            variables.variable("jenkinsURL").secret.value,
+            variables.variable("jenkinsUsername").secret.value,
+            variables.variable("jenkinsPassword").secret.value,
+            variables.variable("jenkinsCertificate").secret.value
+          )
+        end
+      end
+
       def build_running?(response)
         body = response.body
         status_code = response.code
@@ -29,21 +45,6 @@ module Authentication
 
         JSON.parse(body)['building']
       end
-
-      def jenkins_client(account, authenticator_name, service_id)
-        @jenkins_client ||= begin
-          variables = webservice(
-            account,
-            authenticator_name,
-            service_id
-          )
-          JenkinsClient.new(
-            variables.variable("jenkinsURL").secret.value,
-            variables.variable("jenkinsUsername").secret.value,
-            variables.variable("jenkinsPassword").secret.value
-          )
-        end
-      end
       
       def valid?(input)
         # Parse the body
@@ -52,18 +53,20 @@ module Authentication
       
         Rails.logger.debug("Job Name: #{load.job_name} | Build Number: #{load.build_number} | Signatature: #{load.signature}")
         jenkins_client(input.account, input.authenticator_name, input.service_id)
+
+        # validate signature with public key
+        public_key = @jenkins_client.public_key
+        message = "#{load.job_name}-#{load.build_number}"
+  
+        unless public_key.verify(OpenSSL::Digest::SHA256.new, load.signature, message)
+          Rails.logger.error("AUTHENTICATION FAILED: Data tampered or private-public key mismatch.")
+          raise Err::InvalidSignature
+        end
       
         # Validate job is running and signature was signed with the jenkins identities private key
         unless build_running?(@jenkins_client.build(load.job_path, load.build_number))
           Rails.logger.error("AUTHENTICATION FAILED: Job '#{load.job_name} ##{load.build_number}' is currently not running.")
           raise Err::RunningJobNotFound "#{load.job_name} ##{load.build_number}"
-        end
-        public_key = @jenkins_client.public_key
-        message = "#{load.job_name}-#{load.build_number}"
-
-        unless public_key.verify(OpenSSL::Digest::SHA256.new, load.signature, message)
-          Rails.logger.error("AUTHENTICATION FAILED: Data tampered or private-public key mismatch.")
-          raise Err::InvalidSignature
         end
         true
       end
