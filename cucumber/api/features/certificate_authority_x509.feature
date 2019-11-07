@@ -5,16 +5,16 @@ Feature: Conjur signs certificates using a configured CA
     And I successfully PUT "/policies/cucumber/policy/root" with body:
     """
     - !policy
-      id: conjur/kitchen/ca
+      id: conjur/ca/kitchen
       body:
         - !variable private-key
         - !variable cert-chain
 
         - !webservice
           annotations:
-            ca/private-key: conjur/kitchen/ca/private-key
-            ca/certificate-chain: conjur/kitchen/ca/cert-chain
-            ca/max_ttl: P1Y
+            ca/private-key: conjur/ca/kitchen/private-key
+            ca/certificate: conjur/ca/kitchen/cert-chain
+            ca/max-ttl: P1Y
 
         - !group clients
 
@@ -28,11 +28,11 @@ Feature: Conjur signs certificates using a configured CA
     - !user alice
 
     - !grant
-      role: !group conjur/kitchen/ca/clients
+      role: !group conjur/ca/kitchen/clients
       member: !host bacon
 
     - !policy
-      id: conjur/dining-room/ca
+      id: conjur/ca/dining-room
       body:
         - !variable private-key
         - !variable private-key-password
@@ -40,32 +40,32 @@ Feature: Conjur signs certificates using a configured CA
 
         - !webservice
           annotations:
-            ca/private-key: conjur/dining-room/ca/private-key
-            ca/private-key-password: conjur/dining-room/ca/private-key-password
-            ca/certificate-chain: conjur/dining-room/ca/cert-chain
-            ca/max_ttl: P1Y
+            ca/private-key: conjur/ca/dining-room/private-key
+            ca/private-key-password: conjur/ca/dining-room/private-key-password
+            ca/certificate: conjur/ca/dining-room/cert-chain
+            ca/max-ttl: P1Y
 
     - !host table
     - !permit
       role: !host table
       privilege: [ sign ]
-      resource: !webservice conjur/dining-room/ca
+      resource: !webservice conjur/ca/dining-room
     """
     And I have an intermediate CA "kitchen"
-    And I add the "kitchen" intermediate CA private key to the resource "cucumber:variable:conjur/kitchen/ca/private-key"
-    And I add the "kitchen" intermediate CA cert chain to the resource "cucumber:variable:conjur/kitchen/ca/cert-chain"
+    And I add the "kitchen" intermediate CA private key to the resource "cucumber:variable:conjur/ca/kitchen/private-key"
+    And I add the "kitchen" intermediate CA cert chain to the resource "cucumber:variable:conjur/ca/kitchen/cert-chain"
     And I have an intermediate CA "dining-room" with password "secret"
-    And I add the "dining-room" intermediate CA private key to the resource "cucumber:variable:conjur/dining-room/ca/private-key"
-    And I add the "dining-room" intermediate CA cert chain to the resource "cucumber:variable:conjur/dining-room/ca/cert-chain"
-    And I add the secret value "secret" to the resource "cucumber:variable:conjur/dining-room/ca/private-key-password"
+    And I add the "dining-room" intermediate CA private key to the resource "cucumber:variable:conjur/ca/dining-room/private-key"
+    And I add the "dining-room" intermediate CA cert chain to the resource "cucumber:variable:conjur/ca/dining-room/cert-chain"
+    And I add the secret value "secret" to the resource "cucumber:variable:conjur/ca/dining-room/private-key-password"
 
   Scenario: A non-existent ca returns a 404
-    When I POST "/ca/cucumber/living-room/sign"
+    When I POST "/ca/cucumber/living-room/certificates"
     Then the HTTP response status code is 404
 
-  Scenario: A login that isn't a host returns a 403
-    When I POST "/ca/cucumber/kitchen/sign"
-    Then the HTTP response status code is 403
+  Scenario: A login that isn't a host returns a 422
+    When I POST "/ca/cucumber/kitchen/certificates"
+    Then the HTTP response status code is 422
 
   Scenario: The service returns 403 Forbidden if the host doesn't have sign privileges
     Given I login as "cucumber:host:toast"
@@ -74,14 +74,6 @@ Feature: Conjur signs certificates using a configured CA
 
   Scenario: I can sign a valid CSR with a configured Conjur CA
     Given I login as "cucumber:host:bacon"
-    When I send a CSR for "bacon" to the "kitchen" CA with a ttl of "P6M" and CN of "bacon"
-    Then the HTTP response status code is 201
-    And the HTTP response content type is "application/json"
-    And the resulting json certificate is valid according to the "kitchen" intermediate CA
-
-  Scenario: I can receive the result directly as a PEM formatted certificate
-    Given I login as "cucumber:host:bacon"
-    And I set the "Accept" header to "application/x-pem-file" 
     When I send a CSR for "bacon" to the "kitchen" CA with a ttl of "P6M" and CN of "bacon"
     Then the HTTP response status code is 201
     And the HTTP response content type is "application/x-pem-file"
@@ -94,4 +86,4 @@ Feature: Conjur signs certificates using a configured CA
     Given I login as "cucumber:host:table"
     When I send a CSR for "table" to the "dining-room" CA with a ttl of "P6M" and CN of "table"
     Then the HTTP response status code is 201
-    And the resulting json certificate is valid according to the "dining-room" intermediate CA
+    And the resulting pem certificate is valid according to the "dining-room" intermediate CA
