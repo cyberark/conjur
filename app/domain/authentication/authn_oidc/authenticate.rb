@@ -55,13 +55,13 @@ module Authentication
       def oidc_secrets
         @oidc_secrets ||= @fetch_oidc_secrets.(
           service_id: @authenticator_input.service_id,
-            conjur_account: @authenticator_input.account,
-            required_variable_names: required_variable_names
+          conjur_account: @authenticator_input.account,
+          required_variable_names: required_variable_names,
         )
       end
 
       def required_variable_names
-        @required_variable_names ||= %w(provider-uri id-token-user-property)
+        @required_variable_names ||= %w(provider-uri id-token-user-property role-type)
       end
 
       def new_token
@@ -72,17 +72,36 @@ module Authentication
       end
 
       def validate_conjur_username
-        raise Err::IdTokenFieldNotFoundOrEmpty, id_token_username_field if conjur_username.to_s.empty?
+        for field in id_token_username_fields do
+          if @id_token_attributes[field].to_s.empty?
+            raise Err::IdTokenFieldNotFoundOrEmpty, field
+          end
+        end
+
         raise Err::AdminAuthenticationDenied if admin?(conjur_username)
-        @logger.debug(Log::ExtractedUsernameFromIDToked.new(conjur_username, id_token_username_field))
+
+        @logger.debug(Log::ExtractedUsernameFromIDToked.new(conjur_username, id_token_username_fields))
       end
 
       def conjur_username
-        @conjur_username ||= @id_token_attributes[id_token_username_field]
+        @conjur_username ||= begin
+          role_type + id_token_username_fields.map{ |field| \
+                                         @id_token_attributes[field] }.join('/')
+        end
       end
 
-      def id_token_username_field
-        oidc_secrets["id-token-user-property"]
+      def role_type
+        @role_type ||= begin
+          if oidc_secrets.key?("role-type")
+            oidc_secrets["role-type"] + "/"
+          else
+            ""
+          end
+        end
+      end
+
+      def id_token_username_fields
+        oidc_secrets["id-token-user-property"].split(",").compact.collect(&:strip)
       end
 
       def validate_security
