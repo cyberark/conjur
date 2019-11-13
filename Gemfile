@@ -20,6 +20,7 @@ gem 'rake'
 gem 'sprockets', '~> 3.7.0', '>= 3.7.2'
 
 gem 'pg'
+gem 'sequel-pg_advisory_locking'
 gem 'sequel-postgres-schemata', require: false
 gem 'sequel-rails'
 
