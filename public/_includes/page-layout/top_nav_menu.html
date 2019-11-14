@@ -1,0 +1,31 @@
+{% assign item = include.item %}
+{% assign section = include.section %}
+
+{% assign active = false %}
+{% if item.path %}
+  {% if page.url contains section %}
+    {% assign active = true %}
+  {% endif %}
+
+  {% if section == "welcome" and item.path == "/" and page.url == "/" %}
+    {% assign active = true %}
+  {% endif %}
+{% endif %}
+
+{% assign subitems = item.items %}
+
+<li class="{% if active %}active{% endif %} nav-item {% if subitems %}dropdown{% endif %}">
+  {% if item.url != null %}
+    <a class="" href="{{ item.url }}" target="_blank">{{ item.title }}</a>
+  {% elsif item.path != null %}
+    <a class="nav-link {% if page.url == item.path %}active{% endif %}" href="{{ site.baseurl }}{{ item.path }}">
+      {{ item.title }}
+    </a>
+    {% include page-layout/subitems.html items=subitems item=item %}
+  {% else %}
+    <a class="nav-link {% if page.url == item.path %}active{% endif %}" href="#">
+      {{ item.title }}
+    </a>
+    {% include page-layout/subitems.html items=subitems item=item %}
+  {% endif %}
+</li>

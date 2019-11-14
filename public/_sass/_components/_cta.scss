@@ -1,0 +1,338 @@
+// ***********************
+// Enterprise CTA
+// ***********************
+
+.enterprise-cta {
+  background-color: $conjur-softgray;
+  text-align: center;
+  padding: 1em 0 2.5em 0;
+  margin: 4em 0;
+
+  h1 {
+    font-size: 35px;
+  }
+
+  h2 {
+    margin: .5em 0;
+  }
+
+  ul {
+    text-align: left;
+    list-style-type: none;
+    li {
+      &:before {
+        content: "\f058";
+        font-family: FontAwesome;
+        margin-right: 10px;
+        margin-left: -24px;
+        font-size: 95%;
+        color: $conjur-teal;
+      }
+    }
+  }
+
+  .row.cta {
+    margin: 1em 0 .5em 0;
+  }
+
+}
+
+
+
+// ***********************
+// CTA Boxes
+// ***********************
+
+.get-started-cta {
+  border-radius: 3px;
+  background-color: $conjur-softgray;
+  color: $conjur-text;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 100%;
+  padding: 1.5em 1.5em 2em 1.5em;
+  min-height: 242px;
+  margin-bottom: 2em;
+
+  .cta-content-wrap {
+    flex: 1;
+  }
+
+  .cta-box-header {
+    font-weight: 400;
+    font-size: 140%;
+  }
+
+  p {
+    margin-top: 0;
+  }
+}
+
+.careers-cta {
+  border-radius: 3px;
+  background-color: $conjur-softgray;
+  color: $conjur-text;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 100%;
+  padding: 1.5em 1.5em 2em 1.5em;
+  //min-height: 242px;
+  margin-bottom: 2em;
+
+  .cta-content-wrap {
+    flex: 1;
+  }
+
+  .cta-box-header {
+    font-weight: 400;
+    font-size: 140%;
+  }
+
+  p {
+    margin-top: 0;
+  }
+}
+
+.cta-box-webinar {
+  border-radius: 4px;
+  padding: 16px;
+  border: 4px solid $conjur-softgray;
+
+  .header {
+    margin: 0px;
+    font-size: 14px;
+    font-family: "Open Sans";
+    color: $conjur-dark;
+    font-weight: bold;
+  }
+
+  .date {
+    font-size: 14px;
+    color: $conjur-text;
+    margin: 0px;
+    padding-bottom: 10px;
+  }
+
+  .description {
+    color: $conjur-teal;
+    margin: 0px;
+    font-size: 17px;
+  }
+
+  .link {
+    a {
+      text-decoration: none;
+      display: block;
+      transition: all 0.4s;
+      color: #ffffff;
+      background: $conjur-teal;
+      padding: 0.4em;
+      text-transform: uppercase;
+      text-align: center;
+
+      &:hover {
+        text-decoration: none;
+        color: white;
+        transition: all 0.4s;
+        background-color: darken($conjur-teal,08);
+      }
+    }
+  }
+
+}
+
+.cta-box {
+  border-radius: 3px;
+  background-color: $conjur-softgray;
+  color: $conjur-text;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 100%;
+  height: 100%;
+  padding: 1.5em 1.5em 2em 1.5em;
+  width: 100%;
+
+  .cta-content-wrap {
+    flex: 1;
+  }
+  .cta-box-header {
+    font-weight: 400;
+    font-size: 140%;
+  }
+
+  hr {
+    border-bottom: 1px solid $conjur-medgray;
+  }
+
+  p {
+    font-weight: 300;
+    margin-top: 0px;
+    flex: 1;
+  }
+
+  ul.cta-links {
+    padding: 1em;
+    margin: 1em 0 0 1em;
+    text-align: left;
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    a {
+      color: $conjur-text;
+
+      &.conjur-btn {
+        transition: all 0.4s;
+        color: #fff;
+        padding: .5em 1.3em;
+        text-transform: uppercase;
+        font-weight: 500;
+
+        &:hover {
+          text-decoration: none;
+          box-shadow: 0px 0px 5px rgba(165,165,165,0.8);
+        }
+      }
+
+      &.conjur-cta-primary {
+        background-color: $cybr-blue;
+
+        &:hover {
+          background-color: darken($cybr-blue,08);
+        }
+      }
+
+      &.conjur-cta-secondary {
+        background-color: $conjur-teal;
+
+        &:hover {
+          background-color: darken($conjur-teal,08);
+        }
+      }
+    }
+
+    i {
+      color: $conjur-medgray;
+      font-size: 120%;
+      margin-right: 5px;
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  .cta-box {
+    margin: 0 0 1em 0;
+    min-height: auto;
+
+    ul.cta-links {
+      margin: 0 0 1em 1em;
+    }
+  }
+
+  .cta-box ul.cta-links a.conjur-cta-primary, .cta-box ul.cta-links a.conjur-cta-secondary {
+    position: relative;
+    bottom: initial;
+  }
+}
+
+
+// ***********************
+// Cards
+// ***********************
+
+.card-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 3em;
+
+  &.sidebar {
+    display: inline-block;
+    margin-top: 1em;
+
+    .card {
+      padding: 16px;
+      width: 100%;
+      margin-bottom: 1em;
+    }
+
+  }
+
+  &.two-up {
+    .card {
+      width: 48%;
+    }
+  }
+
+  &.three-up {
+    .card {
+      width: 30%;
+    }
+  }
+
+} // /.card-row
+
+.card {
+  border-radius: 4px;
+  font-size: 16px;
+  padding: 16px;
+  border: 4px solid $conjur-softgray;
+  //display: flex;
+  flex-direction: column;
+
+  .card-type {
+    margin: 0px;
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .card-heading {
+    color: $conjur-teal;
+    margin: 5px 0 0 0;
+    font-size: 17px;
+  }
+
+  .card-secondary {
+    font-size: 14px;
+    margin: 10px 0;
+    flex-grow: 1;
+    line-height: 1.5em;
+  }
+
+  .card-content {
+    font-size: 16px;
+    flex-grow: 1;
+    margin: 0 0 1em 0;
+
+  }
+
+  .btn-wrap {
+    display: flex;
+    margin-top: .5em;
+  }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 800;
+    margin: 0;
+  }
+
+} // END .card
+
+@media (max-width: 800px) {
+
+  .card-row {
+    flex-direction: column;
+
+    &.two-up {
+      .card {
+        width: 100%;
+        margin-bottom: 1em;
+      }
+    }
+
+  }
+
+}

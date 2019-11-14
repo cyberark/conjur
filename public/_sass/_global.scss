@@ -1,0 +1,263 @@
+// ***********************
+// Global
+// ***********************
+
+body {
+  background-color: $conjur-bg;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.8rem;
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+html {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.8rem;
+  color: $conjur-text;
+  font-weight: 300;
+  position: relative;
+  height: 100%;
+}
+
+pre {
+  background-color: $conjur-smoke;
+  padding: 1.5rem;
+  border: none;
+  margin: 1rem 0;
+}
+
+code {
+  font-size: 85%;
+  color: $conjur-teal;
+  background-color: #f9f9f9;
+  border-radius: 3px;
+}
+
+.landing-img {
+  margin: 50px 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 50px 0;
+
+	&.no-margin {
+		margin: 0;
+	}
+
+	&.integration-diagram {
+		margin-top: 0;
+		margin-bottom: 1em;
+	}
+}
+
+figure {
+	margin: 2em 0;
+}
+
+figcaption {
+	font-style: italic;
+	margin-top: .5em;
+	color: $conjur-medgray;
+	padding: 1em;
+	font-size: 14px;
+	line-height: 20px;
+}
+
+.list-unstyled {
+  list-style: none;
+  padding-left: 0px;
+  margin-left: 0px;
+}
+
+hr {
+  &.dark {
+    border-top: 1px solid #dcd5d5;
+  }
+}
+
+
+// ***********************
+// Buttons
+// ***********************
+
+.btn {
+  padding: .5rem 1rem;
+  border-radius: 4px;
+  font-weight: 300;
+  border: none;
+  color: #ffffff;
+}
+
+.btn-primary {
+  background-color: $conjur-blue;
+
+  &:hover {
+    background-color: darken($conjur-blue,10);
+  }
+}
+
+// ***********************
+// Container
+// ***********************
+
+.container {
+  flex: 1;
+}
+
+@media (min-width: 1200px) {
+  .container {
+    //width: 1070px;
+  }
+}
+
+@media (max-width: 767px) {
+  .container {
+    margin-right: 1.5em;
+    margin-left: 1.5em;
+  }
+}
+
+p {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.8rem;
+  //color: $conjur-text;
+}
+
+.page {
+  padding: 2rem 1rem;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.8rem;
+  color: $conjur-text;
+  //font-weight: 300;
+
+  h2 {
+    margin: 3rem 0 1rem 0;
+  }
+}
+
+#content.api-docs {
+  header,
+  header h1 {
+    margin-top: 0px;
+  }
+}
+
+@media (max-width: 767px) {
+  #content {
+    .page-title {
+      margin-top: 0;
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  #content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar {
+    order: 4;
+  }
+}
+
+// Bootstrap removes table cell padding for some weird reason,
+// which makes unstyled tables look really ugly.
+td, th {
+  padding: 0 8px;
+}
+
+
+// ***********************
+// Utility
+// ***********************
+
+.center-image
+{
+    margin: 0 auto;
+    display: block;
+}
+
+.img500 {
+  width: 500px;
+}
+
+.imgmax {
+  max-width: 100%;
+}
+
+.img-margin {
+  margin: 2em auto;
+}
+
+// ***********************
+// Details Accordion
+// ***********************
+
+details {
+  padding: 1em;
+
+  &:focus {
+    outline: none;
+  }
+
+  summary {
+    &:focus { outline: none; }
+  }
+
+  pre {
+    border-radius: 4px;
+    font-size: 14px;
+    padding: 1.5em 0 0 0;
+  }
+
+  code {
+    font-family: monospace;
+    font-size: 16px;
+    background-color: #fff;
+    color: $cybr-blue;
+    padding: 4px;
+    border-radius: 3px;
+    margin: 0 5px;
+  }
+
+}
+
+
+// ***********************
+// Blog
+// ***********************
+
+article.blog {
+  margin-bottom: 4em;
+}
+
+// ***********************
+//Cookie Consent
+// ***********************
+
+#truste-consent-track {
+  position: fixed;
+  bottom: 0;
+  z-index: 10000;
+  width: 100%;
+}
+
+#teconsent {
+  position: fixed;
+  bottom: 0;
+  z-index: 9999;
+
+  img {
+    margin-bottom: 0;
+  }
+}

@@ -1,0 +1,30 @@
+{% assign item = include.item %}
+
+{% assign open = false %}
+{% if item.path %}
+  {% assign page_path_prefix = page.url | slice: 0, item.path.size %}
+  {% if page_path_prefix == item.path %}
+    {% assign open = true %}
+  {% endif %}
+  {% if page_path_prefix contains "/#" %}
+    {% assign open = false %}
+  {% endif %}
+{% endif %}
+
+{% assign subitems = item.items %}
+
+{% if item.url != null %}
+  <a class="primary-nav-item" href="{{ item.url }}" target="_blank">
+    {{ item.title }} &raquo;
+  </a>
+{% elsif item.path != null %}
+  <a class="primary-nav-item{% if page.url == item.path %} active{% endif %} {% if subitems %}dropdown{% endif %}" href="{{ site.baseurl }}{{ item.path }}">
+    {{ item.title }}
+  </a>
+    {% include page-layout/subitems.html items=subitems %}
+{% else %}
+  <a class="primary-nav-item" href="#">
+    {{ item.title }}
+  </a>
+  {% include page-layout/subitems.html items=subitems %}
+{% endif %}

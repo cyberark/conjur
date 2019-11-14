@@ -1,0 +1,98 @@
+// ***********************
+// Eval Signup
+// ***********************
+
+form {
+  .form-group.required,
+  .form-check.required {
+    label {
+      &:after {
+        content: " *";
+        color: $error;
+      }
+    }
+  }
+
+  &.hosted-account-form {
+    background-color: $conjur-softgray;
+    padding: 1.5em 2em;
+    border-radius: 3px;
+    border: 0;
+
+    label {
+      font-weight: 400;
+      font-size: 14px;
+      margin-bottom: 0;
+    }
+
+    .form-control {
+      border-radius: 3px;
+      border: 0;
+      height: 38px;
+      padding: 8px 12px;
+    }
+  }
+
+  .help-block.with-errors {
+    ul {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+  }
+}
+
+h2#hosted-signup {
+  margin-bottom: 0;
+}
+
+.hosted-confirmation {
+  display: none;
+
+  .success-msg.notification {
+    background-color: $success;
+    padding: .5em 1em;
+    color: #fff;
+    border-radius: 3px;
+    font-weight: 500;
+    font-size: 16px;
+  }
+
+  .hosted-account-credentials {
+    background-color: $conjur-softgray;
+    padding: 1.5em 2em;
+    border-radius: 4px;
+
+    strong {
+      font-weight: bold;
+    }
+
+    h3 {
+      margin-top: 0;
+      font-weight: 800;
+    }
+  }
+}
+
+.hosted-api-key-reset {
+  display: none;
+}
+
+.hosted-conjur-signup {
+
+  .tos {
+    margin-bottom: 1em;
+  }
+
+}
+
+.hosted-conjur-signup h2, .hosted-confirmation h2 {
+  margin-bottom: 0;
+}
+
+// ***********************
+// Forms
+// ***********************
+
+.form-error {
+  color: $error;
+}
