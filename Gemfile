@@ -11,17 +11,17 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 gem 'command_class'
 gem 'base58'
 gem 'iso8601'
-gem 'nokogiri', '>= 1.8.2'
+gem 'nokogiri', '>= 1.10.5'
 gem 'puma', ' ~> 3.10'
 gem 'rack', '~> 1.6.11'
 gem 'rails', '= 4.2.11'
-gem 'rails-api'
+gem 'rails-api', '>= 0.4.1'
 gem 'rake'
 gem 'sprockets', '~> 3.7.0', '>= 3.7.2'
 
 gem 'pg'
 gem 'sequel-postgres-schemata', require: false
-gem 'sequel-rails'
+gem 'sequel-rails', '>= 0.9.15'
 
 gem 'activesupport'
 gem 'base32-crockford'
@@ -33,7 +33,7 @@ gem 'slosilo', '~> 2.1'
 
 # Explicitly required as there are vulnerabilities in older versions
 gem "ffi", ">= 1.9.24"
-gem "loofah", ">= 2.2.3"
+gem "loofah", ">= 2.3.1"
 
 # Installing ruby_dep 1.4.0
 # Gem::InstallError: ruby_dep requires Ruby version >= 2.2.5, ~> 2.2.
@@ -53,7 +53,7 @@ gem 'rack-rewrite'
 
 gem 'simplecov', require: false
 
-gem 'sass-rails'
+gem 'sass-rails', '>= 5.0.6'
 gem 'therubyracer'
 gem 'uglifier'
 #gem 'coffee-rails'
@@ -95,7 +95,7 @@ group :development, :test do
   gem 'rake_shared_context'
   gem 'rspec'
   gem 'rspec-core', '~> 3.0'
-  gem 'rspec-rails'
+  gem 'rspec-rails', '>= 3.5.2'
   gem 'spring'
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
