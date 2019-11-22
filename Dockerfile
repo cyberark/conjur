@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -21,9 +21,7 @@ RUN apt-get update -y && \
                        libz-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN gem install -N -v 1.16.1 bundler
-
-RUN mkdir -p /opt/conjur-server
+RUN gem install -N -v 1.17.3 bundler
 
 WORKDIR /opt/conjur-server
 
