@@ -1,8 +1,7 @@
 FROM ubuntu:20.04
 
-ENV DEBIAN_FRONTEND=noninteractive
-
-ENV PORT 80
+ENV DEBIAN_FRONTEND=noninteractive \
+    PORT=80
 
 EXPOSE 80
 
@@ -15,8 +14,6 @@ RUN apt-get update -y && \
                        postgresql-client \
                        ruby2.5 ruby2.5-dev \
                        tzdata \
-                       unattended-upgrades \
-                       update-notifier-common \
                        # needed to build some gem native extensions:
                        libz-dev \
     && rm -rf /var/lib/apt/lists/*
@@ -41,6 +38,6 @@ ENV RAILS_ENV production
 # the asset compilation can complete.
 RUN DATABASE_URL=postgresql:does_not_exist \
     CONJUR_DATA_KEY=$(openssl rand -base64 32) \
-    bundle exec rake assets:precompile 
+    bundle exec rake assets:precompile
 
 ENTRYPOINT [ "conjurctl" ]
