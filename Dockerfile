@@ -1,7 +1,10 @@
 FROM ubuntu:20.04
 
 ENV DEBIAN_FRONTEND=noninteractive \
-    PORT=80
+    PORT=80 \
+    LOG_DIR=/opt/conjur-server/log \
+    TMP_DIR=/opt/conjur-server/tmp \
+    SSL_CERT_DIRECTORY=/opt/conjur/etc/ssl
 
 EXPOSE 80
 
@@ -21,6 +24,13 @@ RUN apt-get update -y && \
 RUN gem install -N -v 1.17.3 bundler
 
 WORKDIR /opt/conjur-server
+
+# Ensure few required GID0-owned folders to run as a random UID (OpenShift requirement)
+RUN mkdir -p $TMP_DIR \
+             $LOG_DIR \
+             $SSL_CERT_DIRECTORY/ca \
+             $SSL_CERT_DIRECTORY/cert \
+             /run/authn-local
 
 COPY Gemfile \
      Gemfile.lock ./
