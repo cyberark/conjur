@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- Flattening of OSS container layers.
+
+### Changed
+- Upgraded Nokogiri to 1.10.5.
+- Upgrade base image of OSS to `ubuntu:20.20`.
+- Enablement work to get OSS container to work on OpenShift as-is.
+
 ## [1.4.2] - 2019-09-13
 
 ### Fixed
