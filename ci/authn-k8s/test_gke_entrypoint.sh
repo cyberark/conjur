@@ -8,6 +8,8 @@ set -o pipefail
 # LOCAL_DEV_VOLUME
 # to exist
 
+# PWD = /src (which is mapped via docker volume to ${WORKSPACE}/ci/authn-k8s)
+
 export LOCAL_DEV_VOLUME=$(cat <<- ENDOFLINE
 emptyDir: {}
 ENDOFLINE
@@ -26,6 +28,14 @@ function finish {
 
       echo "Logs from Conjur Pod $pod_name:"
       kubectl logs $pod_name > output/gke-authn-k8s-logs.txt
+
+      echo "Killing conjur so that coverage report is written"
+      # The container is kept alive using an infinite sleep in the at_exit hook
+      # (see .simplecov) so that the kubectl cp below works.
+      kubectl exec -it $pod_name -- bash -c "pkill -f 'puma 3'"
+
+      echo "Retrieving coverage report"
+      kubectl cp $pod_name:/opt/conjur-server/coverage/.resultset.json output/simplecov-resultset-authnk8s-gke.json
     fi
   } || {
     echo "Logs could not be extracted from $pod_name"

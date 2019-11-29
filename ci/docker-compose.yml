@@ -17,6 +17,7 @@ services:
       CONJUR_ACCOUNT: cucumber
       CONJUR_DATA_KEY:
       RAILS_ENV:
+      REQUIRE_SIMPLECOV: "true"
       CONJUR_LOG_LEVEL: debug
       CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak
       LDAP_URI: ldap://ldap-server:389
@@ -24,12 +25,15 @@ services:
       LDAP_FILTER: '(uid=%s)'
       LDAP_BINDDN: cn=admin,dc=conjur,dc=net
       LDAP_BINDPW: ldapsecret
+      WEB_CONCURRENCY: 0
+      RAILS_MAX_THREADS: 10
     command: server
     volumes:
       - authn-local:/run/authn-local
       - ./authn-oidc/keycloak:/authn-oidc/keycloak/scripts
       - ./ldap-certs:/ldap-certs:ro
       - log-volume:/opt/conjur-server/log
+      - ../coverage:/opt/conjur-server/coverage
     expose:
       - "80"
     links:

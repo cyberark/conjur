@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-if ENV['RAILS_ENV'] == 'test'
+if ENV['REQUIRE_SIMPLECOV'] == 'true'
   require 'simplecov'
   puts "Required simplecov"
 end

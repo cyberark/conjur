@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'simplecov'
+SimpleCov.command_name "SimpleCov #{rand(1000000)}"
+SimpleCov.start
+
 require 'db_helper'
 
 RSpec.configure do |config|
