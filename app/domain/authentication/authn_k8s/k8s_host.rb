@@ -23,7 +23,7 @@ module Authentication
         :k8s_host_name
 
       def self.from_csr(account:, service_name:, csr:)
-        cn = Util::OpenSsl::X509::SmartCsr.new(csr).common_name
+        cn = csr.common_name
         raise ArgumentError, 'CSR must have a CN entry' unless cn
 
         new(account: account, service_name: service_name, common_name: cn)
@@ -43,7 +43,7 @@ module Authentication
       end
 
       def conjur_host_id
-        host_id_prefix + '/' + host_name
+        "#{@account}:" + host_name.sub('host/', 'host:')
       end
 
       def host_name
@@ -65,11 +65,6 @@ module Authentication
           pod service_account deployment stateful_set deployment_config
         )
       end
-
-      def host_id_prefix
-        "#{@account}:host:conjur/authn-k8s/#{@service_name}/apps"
-      end
-
     end
   end
 end

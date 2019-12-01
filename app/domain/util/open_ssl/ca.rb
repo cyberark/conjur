@@ -33,10 +33,9 @@ module Util
       #
       # Returns an OpenSSL::X509::Certificate
       #
-      def signed_cert(csr, subject_altnames: nil, good_for: 3.days)
-        smart_csr = ::Util::OpenSsl::X509::SmartCsr.new(csr)
+      def signed_cert(smart_csr, subject_altnames: nil, good_for: 3.days)
         Util::OpenSsl::X509::Certificate.from_hash(
-          subject: smart_csr.subject,
+          subject: smart_csr.subject_to_s,
           issuer: @cert.subject,
           public_key: smart_csr.public_key,
           good_for: good_for,
