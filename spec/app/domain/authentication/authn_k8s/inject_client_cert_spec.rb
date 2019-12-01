@@ -11,6 +11,8 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
   let(:account) { "SomeAccount" }
   let(:service_id) { "ServiceName" }
   let(:common_name) { "CommonName.#{spiffe_namespace}.Controller.Id" }
+  let(:host_id_prefix) { "host.some-policy" }
+  let(:nil_host_id_prefix) { nil }
   let(:csr) { "CSR" }
 
   let(:host_id) { "HostId" }
@@ -40,13 +42,13 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
                                        namespace: spiffe_namespace,
                                        to_altname: spiffe_altname) }
 
-  let(:smart_csr) { double("SmartCSR", common_name: common_name,
+  let(:smart_csr_mock) { double("SmartCSR", common_name: common_name,
                                        spiffe_id: spiffe_id) }
 
-  let(:bad_spiffe_smart_csr) { double("SmartCSR", common_name: common_name,
+  let(:bad_spiffe_smart_csr_mock) { double("SmartCSR", common_name: common_name,
                                                   spiffe_id: nil) }
 
-  let(:bad_cn_namespace_smart_csr) {
+  let(:bad_cn_namespace_smart_csr_mock) {
     double("SmartCSR",
       common_name: "CommonName.WrongNamespace.Controller.Id",
       spiffe_id: spiffe_id)
@@ -80,7 +82,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
       .and_return(ca_for_webservice)
 
     allow(ca_for_webservice).to receive(:signed_cert)
-      .with(csr, hash_including(
+      .with(smart_csr_mock, hash_including(
         subject_altnames: [ spiffe_altname ]))
       .and_return(webservice_signed_cert)
 
@@ -91,13 +93,13 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
       .to receive(:from_csr)
       .with(hash_including(account: account,
                            service_name: service_id,
-                           csr: csr))
+                           csr: smart_csr_mock))
       .and_return(k8s_host)
 
     allow(Util::OpenSsl::X509::SmartCsr)
       .to receive(:new)
       .with(csr)
-      .and_return(smart_csr)
+      .and_return(smart_csr_mock)
 
     allow(Authentication::AuthnK8s::SpiffeId)
       .to receive(:new)
@@ -120,6 +122,8 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
       allow(host_annotation_2).to receive(:[])
         .with(:value)
         .and_return(nil)
+
+    allow(smart_csr_mock).to receive(:common_name=)
   end
 
   subject(:injector) { Authentication::AuthnK8s::InjectClientCert
@@ -141,11 +145,13 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
         allow(Util::OpenSsl::X509::SmartCsr)
           .to receive(:new)
           .with(csr)
-          .and_return(bad_spiffe_smart_csr)
+          .and_return(bad_spiffe_smart_csr_mock)
+        allow(bad_spiffe_smart_csr_mock).to receive(:common_name=)
 
         expect { injector.(conjur_account: account,
                            service_id: service_id,
-                           csr: csr) }.to raise_error(error_type, missing_spiffe_id_error)
+                           csr: csr,
+                           host_id_prefix: host_id_prefix) }.to raise_error(error_type, missing_spiffe_id_error)
       end
 
       it "throws CSRNamespaceMismatch when common_name does not match spiffe_id.namespace" do
@@ -155,11 +161,13 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
         allow(Util::OpenSsl::X509::SmartCsr)
           .to receive(:new)
           .with(csr)
-          .and_return(bad_cn_namespace_smart_csr)
+          .and_return(bad_cn_namespace_smart_csr_mock)
+        allow(bad_cn_namespace_smart_csr_mock).to receive(:common_name=)
 
         expect { injector.(conjur_account: account,
                            service_id: service_id,
-                           csr: csr) }.to raise_error(error_type, wrong_cn_error)
+                           csr: csr,
+                           host_id_prefix: host_id_prefix) }.to raise_error(error_type, wrong_cn_error)
       end
     end
 
@@ -173,7 +181,8 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
       expect { injector.(conjur_account: account,
                          service_id: service_id,
-                         csr: csr) }.to raise_error(RuntimeError, pod_validation_error)
+                         csr: csr,
+                         host_id_prefix: host_id_prefix) }.to raise_error(RuntimeError, pod_validation_error)
     end
 
     context "when cert is being installed" do
@@ -219,7 +228,8 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
         expect { injector.(conjur_account: account,
                            service_id: service_id,
-                           csr: csr) }.to raise_error(RuntimeError, expected_error_text)
+                           csr: csr,
+                           host_id_prefix: host_id_prefix) }.to raise_error(RuntimeError, expected_error_text)
       end
 
       it "throws CertInstallationError if copy response error stream is not empty" do
@@ -233,7 +243,8 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
         expect { injector.(conjur_account: account,
                            service_id: service_id,
-                           csr: csr) }.to raise_error(error_type, expected_full_error_text)
+                           csr: csr,
+                           host_id_prefix: host_id_prefix) }.to raise_error(error_type, expected_full_error_text)
       end
 
       it "throws CertInstallationError if copy response error stream is just whitespace" do
@@ -246,24 +257,27 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
         expect { injector.(conjur_account: account,
                            service_id: service_id,
-                           csr: csr) }.to raise_error(error_type, expected_full_error_text)
+                           csr: csr,
+                           host_id_prefix: host_id_prefix) }.to raise_error(error_type, expected_full_error_text)
       end
 
       context "and is successfully copied" do
-        it "throws no errors if copy is sucessful and error stream is nil" do
+        it "throws no errors if copy is successful and error stream is nil" do
           expect { injector.(conjur_account: account,
                              service_id: service_id,
-                             csr: csr) }.to_not raise_error
+                             csr: csr,
+                             host_id_prefix: host_id_prefix) }.to_not raise_error
         end
 
-        it "throws no errors if copy is sucessful and error stream is empty string" do
+        it "throws no errors if copy is successful and error stream is empty string" do
           allow(copy_response).to receive(:[])
             .with(:error)
             .and_return("")
 
           expect { injector.(conjur_account: account,
                              service_id: service_id,
-                             csr: csr) }.to_not raise_error
+                             csr: csr,
+                             host_id_prefix: host_id_prefix) }.to_not raise_error
         end
 
         it "uses policy-defined container name if set" do
@@ -287,7 +301,38 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
           expect { injector.(conjur_account: account,
                              service_id: service_id,
-                             csr: csr) }.to_not raise_error
+                             csr: csr,
+                             host_id_prefix: host_id_prefix) }.to_not raise_error
+        end
+
+        context "when the Host-Id-Prefix parameter doesn't exist" do
+          subject do
+            injector.(conjur_account: account,
+              service_id: service_id,
+              csr: csr,
+              host_id_prefix: nil_host_id_prefix)
+          end
+
+          it "updates the common-name to the hard coded prefix and raises no error" do
+            expect(smart_csr_mock).to receive(:common_name=)
+                                        .with("host.conjur.authn-k8s.#{service_id}.apps.#{common_name}")
+            expect{ subject }.to_not raise_error
+          end
+        end
+
+        context "when the Host-Id-Prefix parameter exists" do
+          subject do
+            injector.(conjur_account: account,
+              service_id: service_id,
+              csr: csr,
+              host_id_prefix: host_id_prefix)
+          end
+
+          it "updates the common-name to the value of Host-Id-Prefix and raises no error" do
+            expect(smart_csr_mock).to receive(:common_name=)
+                                        .with("#{host_id_prefix}.#{common_name}")
+            expect{ subject }.to_not raise_error
+          end
         end
       end
     end

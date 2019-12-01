@@ -13,6 +13,11 @@ Feature: Errors emitted by the login method.
     When I login to authn-k8s as "pod/inventory-unauthorized"
     Then the HTTP status is "401"
 
+  Scenario: It's an error to login with a custom prefix as a host which does not
+    hold "authenticate" privilege on the webservice.
+    When I login to authn-k8s as "@namespace@/pod/inventory-unauthorized" with prefix "host/conjur/authn-k8s/minikube/apps"
+    Then the HTTP status is "401"
+
   Scenario: It's an error to login as a service account host which does not match the calling pod.
     When I login to pod matching "app=inventory-deployment" to authn-k8s as "service_account/inventory-pod-only"
     Then the HTTP status is "401"

@@ -115,7 +115,7 @@ module AuthnK8sWorld
 
   def gen_csr(id, signing_key, altnames)
     # create certificate subject
-    common_name = id.gsub('/', '.')
+    common_name = id.tr('/', '.')
     subject = OpenSSL::X509::Name.new(
       [
         ['CN', common_name],

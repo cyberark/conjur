@@ -25,7 +25,7 @@ module Conjur
     end
 
     def common_name
-      @resource_id.gsub('/', '.')
+      @resource_id.tr('/', '.')
     end
 
     def account
