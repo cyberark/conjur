@@ -20,37 +20,40 @@ module Authentication
       end
 
       def namespace
-        host_name_parts[-3]
+        host_name_suffix[-3]
       end
 
       def controller
-        host_name_parts[-2]
+        host_name_suffix[-2]
       end
 
       def object
-        host_name_parts[-1]
+        host_name_suffix[-1]
       end
 
       def k8s_host_name
-        host_name_parts.join('/')
+        full_host_name.join('/')
       end
 
       def to_s
-        host_name_parts.join('.')
+        full_host_name.join('.')
       end
 
       private
 
       def validate!
-        valid = host_name_parts.length >= 3
+        valid = host_name_suffix.length == 3
         raise ArgumentError, "Invalid K8s host CN: #{@common_name}. " +
               "Must end with namespace.controller.id" unless valid
       end
 
-      def host_name_parts
-        @host_name_parts ||= @common_name.split('.').last(3)
+      def host_name_suffix
+        @host_name_suffix ||= full_host_name.last(3)
       end
 
+      def full_host_name
+        @full_host_name ||= @common_name.split('.')
+      end
     end
   end
 end

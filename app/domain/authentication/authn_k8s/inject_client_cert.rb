@@ -16,10 +16,11 @@ module Authentication
         kubectl_exec: KubectlExec,
         validate_pod_request: ValidatePodRequest.new
       },
-      inputs: %i(conjur_account service_id csr)
+      inputs: %i(conjur_account service_id csr host_id_prefix)
     ) do
 
       def call
+        update_csr_common_name
         validate
         install_signed_cert
       end
@@ -50,6 +51,22 @@ module Authentication
         validate_cert_installation(resp)
       end
 
+      # In the old version of the authn-client we assumed that the host is under the "apps" policy branch.
+      # Now we send the host-id in 2 parts:
+      #   suffix - the last 3 parts that indicate the machine identity (e.g ${TEST_APP_NAMESPACE_NAME}/*/*)
+      #   prefix - all the rest (e.g host/conjur/authn-k8s/${AUTHENTICATOR_ID})
+      # We update the CSR's common_name to have the full host-id. This way, the validation
+      # that happens in the "authenticate" request will work, as the signed certificate
+      # contains the full host-id.
+      def update_csr_common_name
+        prefix = @host_id_prefix.nil? || @host_id_prefix.empty? ? apps_host_id_prefix : @host_id_prefix
+        smart_csr.common_name = prefix + "." + smart_csr.common_name
+      end
+
+      def apps_host_id_prefix
+        "host.conjur.authn-k8s.#{@service_id}.apps"
+      end
+
       def pod_request
         PodRequest.new(
           service_id: @service_id,
@@ -62,7 +79,7 @@ module Authentication
         @k8s_host ||= Authentication::AuthnK8s::K8sHost.from_csr(
           account: @conjur_account,
           service_name: @service_id,
-          csr: @csr
+          csr: smart_csr
         )
       end
 
@@ -132,7 +149,7 @@ module Authentication
 
       def cert_to_install
         ca_for_webservice.signed_cert(
-          @csr,
+          smart_csr,
           subject_altnames: [spiffe_id.to_altname]
         )
       end
