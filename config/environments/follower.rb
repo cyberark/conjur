@@ -7,6 +7,7 @@ load File.expand_path '../production.rb', __FILE__
 require 'rack/remember_uuid'
 
 Rails.application.configure do
+  config.logger = Logger.new(STDOUT)
   config.log_level = ENV['CONJUR_LOG_LEVEL'] || :info
   config.middleware.use Rack::RememberUuid
   config.audit_socket = '/run/conjur/audit.socket'
