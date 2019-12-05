@@ -18,7 +18,7 @@ module Rotation
 
     def self.base58(length:)
 
-      valid = length > 0 && length.is_a?(Integer)
+      valid = length.is_a?(Integer) && length > 0
       raise ArgumentError, "length must be a positive integer" unless valid
 
       # Here's what we're doing:
