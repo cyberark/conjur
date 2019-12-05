@@ -270,7 +270,7 @@ GEM
     pry-rails (0.3.6)
       pry (>= 0.10.4)
     public_suffix (3.0.2)
-    puma (3.12.0)
+    puma (3.12.2)
     rack (1.6.11)
     rack-oauth2 (1.9.2)
       activesupport
@@ -491,7 +491,7 @@ DEPENDENCIES
   pg
   pry-byebug
   pry-rails
-  puma (~> 3.10)
+  puma (~> 3.12)
   rack (~> 1.6.11)
   rack-rewrite
   rails (= 4.2.11)
