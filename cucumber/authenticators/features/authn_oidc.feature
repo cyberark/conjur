@@ -128,15 +128,13 @@ Feature: Users can authneticate with OIDC authenticator
     Errors::Authentication::RequestBody::MissingRequestParam
     """
 
-  # Should crash in GA, update the message to "account does not exists"
   Scenario: non-existing account in request is denied
-    And I fetch an ID Token for username "alice" and password "alice"
-    And I save my place in the log file
+    Given I save my place in the log file
     When I authenticate via OIDC with id token and account "non-existing"
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Errors::Conjur::RequiredResourceMissing
+    Errors::Authentication::Security::AccountNotDefined
     """
 
   Scenario: admin user is denied
