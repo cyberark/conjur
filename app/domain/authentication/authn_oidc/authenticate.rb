@@ -13,6 +13,7 @@ module Authentication
         enabled_authenticators:     ENV['CONJUR_AUTHENTICATORS'],
         fetch_oidc_secrets:         AuthnOidc::Util::FetchOidcSecrets.new,
         token_factory:              TokenFactory.new,
+        validate_account_exists:    ::Authentication::Security::ValidateAccountExists.new,
         validate_security:          ::Authentication::Security::ValidateSecurity.new,
         validate_origin:            ValidateOrigin.new,
         audit_event:                AuditEvent.new,
@@ -23,6 +24,7 @@ module Authentication
     ) do
 
       def call
+        validate_account_exists
         decode_and_verify_id_token
         validate_conjur_username
         add_username_to_input
@@ -36,6 +38,12 @@ module Authentication
       end
 
       private
+
+      def validate_account_exists
+        @validate_account_exists.(
+          account: @authenticator_input.account
+        )
+      end
 
       def decode_and_verify_id_token
         @id_token_attributes = @decode_and_verify_id_token.(
