@@ -6,19 +6,21 @@
 
 set -xeu
 
-repo_root=$(git rev-parse --show-toplevel)
+IMAGE="ruby:2.6.5-stretch"
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+
 # Use the first arg, or if not supplied use the simplecov default report location
-report_file="${1:-${repo_root}/coverage/.resultset.json}"
-image="ruby:2.6.5-stretch"
+REPORT_FILE="${1:-${REPO_ROOT}/coverage/.resultset.json}"
 
 docker run \
     --rm \
-    -v "${repo_root}":"${repo_root}" \
-    -w "${repo_root}/ci/coverage-report-generator" \
-    "${image}" \
-        bash -cx "bundle install --path gems
-                  bundle list
-                  bundle exec ./generate_report.rb \
-                     ${repo_root} \
-                     ${report_file}
-                 "
+    -v "${REPO_ROOT}":"${REPO_ROOT}" \
+    -w "${REPO_ROOT}/ci/coverage-report-generator" \
+    "${IMAGE}" \
+        bash -cex "bundle install --path gems
+                   bundle list
+                   bundle exec ./generate_report.rb \
+                       ${REPO_ROOT} \
+                       ${REPORT_FILE}
+                  "

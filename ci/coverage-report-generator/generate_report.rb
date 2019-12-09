@@ -7,8 +7,8 @@
 # are much harder. So instead we merge the json files then use this script
 # to generate a new html report. See ci/submit-coverage for the merge.
 
-require 'simplecov'
 require 'json'
+require 'simplecov'
 
 # Override at_exit callback as we don't want this program to hang forever
 # (.simplecov adds infinite sleep to keep containers alive after writing the

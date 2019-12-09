@@ -12,4 +12,3 @@ SimpleCov.at_exit do
     sleep()
   end
 end
-

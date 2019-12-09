@@ -105,7 +105,6 @@ rspec() {
     rm -rf $REPORT_ROOT/spec/reports
     bundle exec env CI_REPORTS=$REPORT_ROOT/spec/reports rspec --format progress --require ci/reporter/rspec --format CI::Reporter::RSpecFormatter
   "
-
 }
 
 rspec_audit() {

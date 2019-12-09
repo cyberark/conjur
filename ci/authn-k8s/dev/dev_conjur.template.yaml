@@ -84,6 +84,10 @@ spec:
         # so the report can be retrieved.
         - name: SIMPLECOV_SLEEP
           value: "true"
+        - name: WEB_CONCURRENCY
+          value: "0"
+        - name: RAILS_MAX_THREADS
+          value: "10"
         - name: CONJUR_AUTHENTICATORS
           value: authn-k8s/minikube
         volumeMounts:
