@@ -78,6 +78,7 @@ RSpec.describe 'Authentication::Oidc' do
             enabled_authenticators: oidc_authenticator_name,
             token_factory: token_factory,
             validate_security: mocked_security_validator,
+            validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
             decode_and_verify_id_token: mocked_decode_and_verify_id_token
           ).call(
@@ -91,6 +92,7 @@ RSpec.describe 'Authentication::Oidc' do
 
         it_behaves_like "raises an error when security validation fails"
         it_behaves_like "raises an error when origin validation fails"
+        it_behaves_like "raises an error when account validation fails"
 
         it_behaves_like "it fails when variable is missing or has no value", "provider-uri"
         it_behaves_like "it fails when variable is missing or has no value", "id-token-user-property"
@@ -112,6 +114,7 @@ RSpec.describe 'Authentication::Oidc' do
             enabled_authenticators: oidc_authenticator_name,
             token_factory: token_factory,
             validate_security: mocked_security_validator,
+            validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
             decode_and_verify_id_token: mocked_decode_and_verify_id_token
           ).call(
@@ -140,6 +143,7 @@ RSpec.describe 'Authentication::Oidc' do
             enabled_authenticators: oidc_authenticator_name,
             token_factory: token_factory,
             validate_security: mocked_security_validator,
+            validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
             decode_and_verify_id_token: mocked_decode_and_verify_id_token
           ).call(
