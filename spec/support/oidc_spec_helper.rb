@@ -56,6 +56,7 @@ shared_context "oidc setup" do
 
   let (:mocked_security_validator) { double("MockSecurityValidator") }
   let (:mocked_origin_validator) { double("MockOriginValidator") }
+  let (:mocked_account_validator) { double("MockAccountValidator") }
 
   before(:each) do
     allow(Resource).to receive(:[])
@@ -66,6 +67,9 @@ shared_context "oidc setup" do
                                           .and_return(true)
 
     allow(mocked_origin_validator).to receive(:call)
+                                        .and_return(true)
+
+    allow(mocked_account_validator).to receive(:call)
                                         .and_return(true)
   end
 end
@@ -106,6 +110,17 @@ shared_examples_for "raises an error when origin validation fails" do
 
     expect { subject }.to raise_error(
                             /FAKE_ORIGIN_ERROR/
+                          )
+  end
+end
+
+shared_examples_for "raises an error when account validation fails" do
+  it 'raises an error when account validation fails' do
+    allow(mocked_account_validator).to receive(:call)
+                                          .and_raise('ACCOUNT_NOT_EXIST_ERROR')
+
+    expect { subject }.to raise_error(
+                            /ACCOUNT_NOT_EXIST_ERROR/
                           )
   end
 end
