@@ -267,6 +267,12 @@ For most development work, the account will be `cucumber`, which is created when
 
 Conjur has `rspec` and `cucumber` tests.
 
+Note on perfomance testing: [ci/docker-compose.yml](ci/docker-compose.yml) and
+[conjur/ci/authn-k8s/dev/dev_conjur.template.yaml](conjur/ci/authn-k8s/dev/dev_conjur.template.yaml)
+set `WEB_CONCURRENCY: 0` a configuration that is useful for recording accurate
+coverage data, but isn't a realistic configuration, so shouldn't be used for
+benchmarking.
+
 ### RSpec
 
 RSpec tests are easy to run from within the `conjur` server container:

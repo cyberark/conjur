@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'simplecov'
+SimpleCov.command_name "SimpleCov #{rand(1000000)}"
+SimpleCov.start
+
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 ENV["RAILS_ENV"] ||= 'test'
 ENV["CONJUR_LOG_LEVEL"] ||= 'debug'
@@ -35,7 +39,5 @@ end
 # We want full-length error messages since RSpec has a pretty small
 # limit for those when they're printed
 RSpec::Support::ObjectFormatter.default_instance.max_formatted_output_length = 999
-
-require 'simplecov'
 
 require 'stringio'

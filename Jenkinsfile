@@ -35,6 +35,15 @@ pipeline {
       }
     }
 
+    stage('Prepare For CodeClimate Coverage Report Submission'){
+      steps {
+        script {
+          ccCoverage.dockerPrep()
+          sh 'mkdir -p coverage'
+        }
+      }
+    }
+
     stage('Run Tests') {
       parallel {
         stage('RSpec') {
@@ -62,8 +71,15 @@ pipeline {
       post {
         always {
           junit 'spec/reports/*.xml,spec/reports-audit/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,cucumber/authenticators/features/reports/**/*.xml'
-          publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false])
         }
+      }
+    }
+
+    stage('Submit Coverage Report'){
+      steps{
+        sh 'ci/submit-coverage'
+        archiveArtifacts artifacts: "coverage/.resultset.json", fingerprint: false
+        publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
       }
     }
 
