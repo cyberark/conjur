@@ -10,7 +10,7 @@ module Authentication
 
   Login = CommandClass.new(
     dependencies: {
-      enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
+      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
       validate_security:      ::Authentication::Security::ValidateSecurity.new,
       audit_event:            ::Authentication::AuditEvent.new,
       role_cls:               ::Role

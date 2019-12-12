@@ -19,7 +19,7 @@ module Authentication
       validate_webservice_exists:      ::Authentication::Security::ValidateWebserviceExists.new,
       role_class:                      ::Role,
       implemented_authenticators:      Authentication::InstalledAuthenticators.authenticators(ENV),
-      enabled_authenticators:          ENV['CONJUR_AUTHENTICATORS'],
+      enabled_authenticators:          Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
       audit_event:                     AuditEvent.new
     },
     inputs:       %i(authenticator_status_input)

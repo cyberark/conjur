@@ -32,7 +32,11 @@ module Authentication
     end
 
     def self.enabled_authenticators(env)
-      (env["CONJUR_AUTHENTICATORS"] || ::Authentication::Common.default_authenticator_name).split(",")
+      self.enabled_authenticators_str(env).split(",")
+    end
+
+    def self.enabled_authenticators_str(env)
+      env["CONJUR_AUTHENTICATORS"] || ::Authentication::Common.default_authenticator_name
     end
 
     private

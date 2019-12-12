@@ -11,7 +11,7 @@ module Authentication
 
   Authenticate = CommandClass.new(
     dependencies: {
-      enabled_authenticators: ENV['CONJUR_AUTHENTICATORS'],
+      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
       token_factory:          TokenFactory.new,
       validate_security:      ::Authentication::Security::ValidateSecurity.new,
       validate_origin:        ::Authentication::ValidateOrigin.new,
