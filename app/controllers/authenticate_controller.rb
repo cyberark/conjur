@@ -10,7 +10,8 @@ class AuthenticateController < ApplicationController
       installed: installed_authenticators.keys.sort,
 
       # Authenticator webservices created in policy
-      configured: configured_authenticators.sort,
+      configured:
+        Authentication::InstalledAuthenticators.configured_authenticators.sort,
 
       # Authenticators white-listed in CONJUR_AUTHENTICATORS
       enabled: enabled_authenticators.sort
@@ -42,15 +43,15 @@ class AuthenticateController < ApplicationController
 
     # Verify that the authenticator exists and that the current role is able to
     # view it.
-    resource = Resource[resource_id]
-    resource_visible = resource && resource.visible_to?(current_user)
-    raise Exceptions::RecordNotFound unless resource_visible
+    resource = Resource.with_pk!(resource_id)
+    
+    raise Exceptions::RecordNotFound unless resource.visible_to?(current_user)
 
     # Verify that the role has the privilege to update the authenticator
     authorize(:write, resource)
     
     AuthenticatorConfig.find_or_create(resource_id: resource_id)
-                       .update(enabled: enabled)
+      .update(enabled: enabled)
 
     head :no_content
   end
@@ -193,10 +194,6 @@ class AuthenticateController < ApplicationController
 
   def installed_authenticators
     @installed_authenticators ||= Authentication::InstalledAuthenticators.authenticators(ENV)
-  end
-
-  def configured_authenticators
-    @configured_authenticators ||= Authentication::InstalledAuthenticators.configured_authenticators
   end
 
   def enabled_authenticators
