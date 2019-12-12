@@ -75,7 +75,8 @@ class AuthenticateController < ApplicationController
   def authenticate
     authn_token = Authentication::Authenticate.new.(
       authenticator_input: authenticator_input,
-        authenticators: installed_authenticators
+      authenticators: installed_authenticators,
+      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV)
     )
     render json: authn_token
   rescue => e

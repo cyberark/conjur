@@ -29,7 +29,8 @@ module BasicAuthenticator
   def authenticator_login(username, password)
     ::Authentication::Login.new.(
       authenticator_input: login_input(username, password),
-        authenticators: installed_login_authenticators
+      authenticators: installed_login_authenticators,
+      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV)
     )
   end
 

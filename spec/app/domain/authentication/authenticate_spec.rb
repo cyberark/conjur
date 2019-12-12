@@ -82,11 +82,11 @@ RSpec.describe 'Authentication::Authenticate' do
       )
 
       Authentication::Authenticate.new(
-        enabled_authenticators: two_authenticator_env,
         token_factory:          token_factory
       ).call(
         authenticator_input: input_,
-          authenticators: authenticators
+        authenticators: authenticators,
+        enabled_authenticators: two_authenticator_env
       )
     end
 
@@ -111,11 +111,11 @@ RSpec.describe 'Authentication::Authenticate' do
         )
 
         Authentication::Authenticate.new(
-          enabled_authenticators: two_authenticator_env,
           token_factory:          token_factory
         ).call(
           authenticator_input: input_,
-            authenticators: authenticators
+          authenticators: authenticators,
+          enabled_authenticators: two_authenticator_env
         )
       end
 
@@ -139,11 +139,11 @@ RSpec.describe 'Authentication::Authenticate' do
         )
 
         Authentication::Authenticate.new(
-          enabled_authenticators: two_authenticator_env,
           token_factory:          token_factory
         ).call(
           authenticator_input: input_,
-            authenticators: authenticators
+          authenticators: authenticators,
+          enabled_authenticators: two_authenticator_env
         )
       end
 
