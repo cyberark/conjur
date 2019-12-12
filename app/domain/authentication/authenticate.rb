@@ -11,13 +11,12 @@ module Authentication
 
   Authenticate = CommandClass.new(
     dependencies: {
-      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
       token_factory:          TokenFactory.new,
       validate_security:      ::Authentication::Security::ValidateSecurity.new,
       validate_origin:        ::Authentication::ValidateOrigin.new,
       audit_event:            ::Authentication::AuditEvent.new
     },
-    inputs:       %i(authenticator_input authenticators)
+    inputs:       %i(authenticator_input authenticators enabled_authenticators)
   ) do
 
     def call
