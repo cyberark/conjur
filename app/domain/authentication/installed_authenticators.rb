@@ -32,14 +32,33 @@ module Authentication
     end
 
     def self.enabled_authenticators(env)
-      self.enabled_authenticators_str(env).split(",")
+      # Enabling via environment overrides enabling via CLI
+      self.env_enabled_authenticators(env) || self.db_enabled_authenticators
     end
 
     def self.enabled_authenticators_str(env)
-      env["CONJUR_AUTHENTICATORS"] || ::Authentication::Common.default_authenticator_name
+      enabled_authenticators(env).join(',')
     end
 
     private
+
+    def self.env_enabled_authenticators(env)
+      authenticators = env["CONJUR_AUTHENTICATORS"]
+
+      if authenticators.present?
+        authenticators.split(',')
+      else
+        nil
+      end
+    end
+    
+    def self.db_enabled_authenticators
+      # For now, always include 'authn' when enabling authenticators via CLI
+      # so that it doesn't get disabled when another authenticator is enabled
+      AuthenticatorConfig.where(enabled: true).
+        map { |row| row.resource_id.split('/').drop(1).join('/') }.
+        append("authn")
+    end
 
     def self.loaded_authenticators(authentication_module)
       ::Util::Submodules.of(authentication_module)
