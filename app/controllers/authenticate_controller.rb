@@ -69,6 +69,8 @@ class AuthenticateController < ApplicationController
     result = perform_basic_authn
     raise Unauthorized, "Client not authenticated" unless authentication.authenticated?
     render text: result.authentication_key
+  rescue => e
+    handle_login_error(e)
   end
 
   def authenticate
@@ -129,8 +131,24 @@ class AuthenticateController < ApplicationController
 
   private
 
+  def handle_login_error(err)
+    logger.warn("Authentication Error: #{err.inspect}")
+    err.backtrace.each do |line|
+      logger.debug(line)
+    end
+
+    case err
+    when Errors::Authentication::Security::NotWhitelisted,
+      Errors::Authentication::Security::ServiceNotDefined,
+      Errors::Authentication::Security::AccountNotDefined
+      raise Unauthorized
+    else
+      raise err
+    end
+  end
+
   def handle_authentication_error(err)
-    logger.debug("Authentication Error: #{err.inspect}")
+    logger.warn("Authentication Error: #{err.inspect}")
     err.backtrace.each do |line|
       logger.debug(line)
     end
