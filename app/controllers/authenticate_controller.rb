@@ -32,7 +32,6 @@ class AuthenticateController < ApplicationController
     # TODO: validate that params[:enabed] is actually a boolean value,
     # otherwise anything other than false or nil will eval to true
     body_params = Rack::Utils.parse_nested_query(request.body.read)
-
     enabled = body_params['enabled'] || false
     
     resource_id = ::Authentication::Webservice.new(
@@ -41,18 +40,17 @@ class AuthenticateController < ApplicationController
       service_id: params[:service_id]
     ).resource_id
 
-    # TODO: return better error if resource doesn't exist
-    
-    authn_config = AuthenticatorConfig.where(resource_id: resource_id).first
+    # Verify that the authenticator exists and that the current role is able to
+    # view it.
+    resource = Resource[resource_id]
+    resource_visible = resource && resource.visible_to?(current_user)
+    raise Exceptions::RecordNotFound unless resource_visible
 
-    if authn_config.nil?
-      authn_config = AuthenticatorConfig.create(
-        resource_id: resource_id,
-        enabled: enabled
-      )
-    else
-      authn_config.update(enabled: enabled)
-    end
+    # Verify that the role has the privilege to update the authenticator
+    authorize(:write, resource)
+    
+    AuthenticatorConfig.find_or_create(resource_id: resource_id)
+                       .update(enabled: enabled)
 
     head :no_content
   end
