@@ -25,3 +25,13 @@ end
 Then(/it is bad gateway/) do
   expect(bad_gateway?).to be(true), "http status is #{http_status}"
 end
+
+Then(/authenticator "([^"]*)" is enabled/) do |resource_id|
+  config = AuthenticatorConfig.where(resource_id: resource_id).first
+  expect(config.enabled).to eq(true)
+end
+
+Then(/authenticator "([^"]*)" is disabled/) do |resource_id|
+  config = AuthenticatorConfig.where(resource_id: resource_id).first
+  expect(config.enabled).to eq(false)
+end

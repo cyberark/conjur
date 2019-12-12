@@ -28,6 +28,35 @@ class AuthenticateController < ApplicationController
     render status_failure_response(e)
   end
 
+  def update
+    # TODO: validate that params[:enabed] is actually a boolean value,
+    # otherwise anything other than false or nil will eval to true
+    body_params = Rack::Utils.parse_nested_query(request.body.read)
+
+    enabled = body_params['enabled'] || false
+    
+    resource_id = ::Authentication::Webservice.new(
+      account: params[:account],
+      authenticator_name: params[:authenticator],
+      service_id: params[:service_id]
+    ).resource_id
+
+    # TODO: return better error if resource doesn't exist
+    
+    authn_config = AuthenticatorConfig.where(resource_id: resource_id).first
+
+    if authn_config.nil?
+      authn_config = AuthenticatorConfig.create(
+        resource_id: resource_id,
+        enabled: enabled
+      )
+    else
+      authn_config.update(enabled: enabled)
+    end
+
+    head :no_content
+  end
+  
   def status_input
     Authentication::AuthenticatorStatusInput.new(
       authenticator_name: params[:authenticator],
