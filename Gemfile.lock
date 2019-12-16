@@ -181,7 +181,7 @@ GEM
     equalizer (0.0.11)
     erubis (2.7.0)
     event_emitter (0.2.6)
-    excon (0.62.0)
+    excon (0.71.0)
     execjs (2.7.0)
     ffi (1.9.25)
     font-awesome-sass (4.7.0)
