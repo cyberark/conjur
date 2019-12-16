@@ -11,6 +11,9 @@ Feature: Authenticator configuration
       body:
       - !webservice
 
+      - !webservice
+        id: status
+
       - !group readers
 
       - !permit
@@ -34,7 +37,7 @@ Feature: Authenticator configuration
       member: !user authn-writer
     """
 
-  Scenario: Authenticator is configured
+  Scenario: Authenticator is successfully configured
     When I login as "authn-writer"
     And I successfully PATCH "/authn-ldap/test/cucumber" with body:
     """
@@ -73,3 +76,11 @@ Feature: Authenticator configuration
     enabled=true
     """
     Then the HTTP response status code is 403
+
+  Scenario: Nested webservice can not be configured
+    When I am the super-user
+    And I PATCH "/authn-ldap/test%2Fstatus/cucumber" with body:
+    """
+    enabled=true
+    """
+    Then the HTTP response status code is 404

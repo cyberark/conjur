@@ -26,7 +26,7 @@ class AuthenticateController < ApplicationController
     )
     render json: { status: "ok" }
   rescue => e
-    render status_failure_response(e)
+    render status_response(e)
   end
 
   def update
@@ -41,6 +41,8 @@ class AuthenticateController < ApplicationController
     )
 
     head :no_content
+  rescue Errors::Authentication::AuthenticatorNotFound => e
+    render json: { status: "error", error: e.inspect }, status: :not_found
   end
   
   def status_input
@@ -176,7 +178,7 @@ class AuthenticateController < ApplicationController
     end
   end
 
-  def status_failure_response(error)
+  def status_response(error)
     payload = {
       status: "error",
       error: error.inspect
@@ -187,14 +189,13 @@ class AuthenticateController < ApplicationController
                     :forbidden
                   when Errors::Authentication::StatusNotImplemented
                     :not_implemented
-
                   when Errors::Authentication::AuthenticatorNotFound
                     :not_found
                   else
                     :internal_server_error
                   end
 
-    { :json => payload, :status => status_code }
+    { json: payload, status: status_code }
   end
 
   def installed_authenticators

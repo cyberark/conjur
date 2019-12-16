@@ -13,10 +13,8 @@ module Authentication
     
     def call
       validate_resource_visible
-
-      validate_resource_writable
-
       validate_resource_is_authenticator
+      validate_resource_writable
 
       update_authenticator_config
     end
@@ -28,14 +26,15 @@ module Authentication
         unless resource.visible_to?(@current_user)
     end
 
+    def validate_resource_is_authenticator
+      raise Errors::Authentication::AuthenticatorNotFound, resource_id \
+        unless Authentication::InstalledAuthenticators.configured_authenticators
+            .include?("#{@authenticator}/#{@service_id}")
+    end
+    
     def validate_resource_writable
       raise ApplicationController::Forbidden \
         unless @current_user.allowed_to?(:update, resource)
-    end
-
-    def validate_resource_is_authenticator
-      raise Errors::Authentication::AuthenticatorNotFound, resource_id \
-        unless resource_id.match(%r{^conjur\/(authn(?:-[^\/]+)?(?:\/[^\/]+)?)$})
     end
 
     def update_authenticator_config
