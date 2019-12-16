@@ -28,7 +28,7 @@ module Authentication
 
     def validate_resource_writable
       raise ApplicationController::Forbidden \
-        unless @current_user.allowed_to?(:write, resource)
+        unless @current_user.allowed_to?(:update, resource)
     end
 
     def update_authenticator_config

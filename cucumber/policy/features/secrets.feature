@@ -1,7 +1,7 @@
 Feature: Secrets can be managed through policies.
 
   Each resource in Possum can have an associated list of secrets. Secrets on a resource
-  support two operations, which correspond to `execuet` and `update` privileges:
+  support two operations, which correspond to `execute` and `update` privileges:
 
   - **update** Adds a new value to the secrets list.
   - **execute** Fetches a value from the secrets list.
