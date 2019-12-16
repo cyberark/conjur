@@ -16,6 +16,8 @@ module Authentication
 
       validate_resource_writable
 
+      validate_resource_is_authenticator
+
       update_authenticator_config
     end
 
@@ -29,6 +31,11 @@ module Authentication
     def validate_resource_writable
       raise ApplicationController::Forbidden \
         unless @current_user.allowed_to?(:update, resource)
+    end
+
+    def validate_resource_is_authenticator
+      raise Errors::Authentication::AuthenticatorNotFound, resource_id \
+        unless resource_id.match(%r{^conjur\/(authn(?:-[^\/]+)?(?:\/[^\/]+)?)$})
     end
 
     def update_authenticator_config

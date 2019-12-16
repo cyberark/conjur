@@ -28,7 +28,8 @@ module Authentication
           .where(identifier.like("#{AUTHN_RESOURCE_PREFIX}%"))
           .where(kind => "webservice")
           .select_map(identifier)
-          .map { |id| id.sub %r{^conjur\/}, "" }
+          .map { |id| id[%r{^conjur\/(authn(?:-[^\/]+)?(?:\/[^\/]+)?)$}, 1] }
+          .compact
           .push(::Authentication::Common.default_authenticator_name)
       end
 
