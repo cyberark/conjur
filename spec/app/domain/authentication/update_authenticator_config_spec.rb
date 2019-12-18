@@ -1,107 +1,106 @@
 require 'spec_helper'
 
 RSpec.describe Authentication::UpdateAuthenticatorConfig do
-  include_context "create user"
+  include_context "security mocks"
 
-  let(:account) { "test-account" }
-  let(:authenticator) { "authn-test" }
+  let(:authenticator_name) { "authn-test" }
   let(:service_id) { "test-service" }
 
-  let(:resource_id) {
-    "#{account}:webservice:conjur/#{authenticator}/#{service_id}"
-  }
-
-  let(:webservice_owner) { create_user("webservice-owner") }
+  let(:mock_model) { double(::AuthenticatorConfig) }
   
-  let(:current_user) { create_user("current-user") }
-
-  let(:webservice) {
-    Resource.create(resource_id: resource_id, owner: webservice_owner)
-  }
-
-  let(:read_grant) {
-    Permission.create(
-      resource: webservice,
-      role: current_user,
-      privilege: "read"
-    )
-  }
-
-  let(:write_grant) {
-    Permission.create(
-      resource: webservice,
-      role: current_user,
-      privilege: "write"
-    )
-  }
-  
-  let(:subject) {
-    Authentication::UpdateAuthenticatorConfig.new
-  }
-
   let(:call_params) {
     {
-      account: account,
-      authenticator: authenticator,
+      account: test_account,
+      authenticator_name: authenticator_name,
       service_id: service_id,
       enabled: true,
-      current_user: current_user
+      username: test_user_id
     }
   }
 
+  before do
+    allow(mock_model)
+      .to receive_message_chain(:find_or_create, :update)
+            .and_return(1)
+  end
+
   context "webservice resource exists and the current user has correct permissions" do
-    before do
-      webservice
-      read_grant
-      write_grant
+    let(:subject) {
+      Authentication::UpdateAuthenticatorConfig.new(
+        authenticator_config_class: mock_model,
+        validate_account_exists: mock_validate_account_exists(validation_succeeded: true),
+        validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
+        validate_webservice_is_authenticator: mock_validate_webservice_is_authenticator(validation_succeeded: true),
+        validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true)
+      ).call(call_params)
+    }
 
-      subject.call(call_params)
-    end
-
-    it "creates a config record for the resource" do
-      config = AuthenticatorConfig.where(resource_id: resource_id).first
-      expect(config).to_not be_nil
-    end
-
-    it "sets the enabled field correctly" do
-      config = AuthenticatorConfig.where(resource_id: resource_id).first
-      expect(config.enabled).to eq(true)
-    end
-
-    it "updates the enabled field when config already exists" do
-      subject.call(call_params.merge(enabled: false))
-      config = AuthenticatorConfig.where(resource_id: resource_id).first
-      expect(config.enabled).to eq(false)
+    it "updates the config record of an authenticator" do
+      expect(subject).to eq(1)
     end
   end
 
-  context "webservice resource does not exist" do
-    it "raises an error" do
-      expect { subject.call(call_params) }
-        .to raise_error(Exceptions::RecordNotFound)
+  context "webservice account does not exist" do
+    let(:subject) {
+      Authentication::UpdateAuthenticatorConfig.new(
+        authenticator_config_class: mock_model,
+        validate_account_exists: mock_validate_account_exists(validation_succeeded: false),
+        validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
+        validate_webservice_is_authenticator: mock_validate_webservice_is_authenticator(validation_succeeded: true),
+        validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true)
+      ).call(call_params)
+    }
+
+    it "raises the error raised by validate_account_exists" do
+      expect { subject }.to raise_error(validate_account_exists_error)
     end
   end
 
-  context "webservice resource is not visible to the current user" do
-    before do
-      webservice
-    end
+  context "webservice does not exist" do
+    let(:subject) {
+      Authentication::UpdateAuthenticatorConfig.new(
+        authenticator_config_class: mock_model,
+        validate_account_exists: mock_validate_account_exists(validation_succeeded: true),
+        validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: false),
+        validate_webservice_is_authenticator: mock_validate_webservice_is_authenticator(validation_succeeded: true),
+        validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true)
+      ).call(call_params)
+    }
 
-    it "raises an error" do
-      expect { subject.call(call_params) }
-        .to raise_error(Exceptions::RecordNotFound)
+    it "raises the error raised by validate_webservice_exists" do
+      expect { subject }.to raise_error(validate_webservice_exists_error)
     end
   end
 
-  context "webservice resource is not writable by the current user" do
-    before do
-      webservice
-      read_grant
+  context "user does not have update privileges on webservice" do
+    let(:subject) {
+      Authentication::UpdateAuthenticatorConfig.new(
+        authenticator_config_class: mock_model,
+        validate_account_exists: mock_validate_account_exists(validation_succeeded: true),
+        validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
+        validate_webservice_is_authenticator: mock_validate_webservice_is_authenticator(validation_succeeded: true),
+        validate_webservice_access: mock_validate_webservice_access(validation_succeeded: false)
+      ).call(call_params)
+    }
+
+    it "raises the error raised by validate_webservice_access" do
+      expect { subject }.to raise_error(validate_webservice_access_error)
     end
-    
-    it "raises an error" do
-      expect { subject.call(call_params) }.
-        to raise_error(ApplicationController::Forbidden)
+  end
+
+  context "webservice is not an authenticator" do
+    let(:subject) {
+      Authentication::UpdateAuthenticatorConfig.new(
+        authenticator_config_class: mock_model,
+        validate_account_exists: mock_validate_account_exists(validation_succeeded: true),
+        validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
+        validate_webservice_is_authenticator: mock_validate_webservice_is_authenticator(validation_succeeded: false),
+        validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true)
+      ).call(call_params)
+    }
+
+    it "raises the error raised by validate_webservice_is_authenticator" do
+      expect { subject }.to raise_error(validate_webservice_is_authenticator_error)
     end
   end
 end

@@ -6,7 +6,11 @@ RSpec.describe Authentication::Security::ValidateWebserviceExists do
   include_context "security mocks"
 
   let (:mock_resource) { 'some-random-resource' }
-  let (:non_existing_resource_id) { 'non-existing-resource' }
+  let (:non_existing_authenticator_name) { 'non-existing-authenticator' }
+  let (:non_existing_service_id) { 'non-existing-service' }
+  let (:non_existing_resource_id) {
+    "#{test_account}:webservice:conjur/#{non_existing_authenticator_name}/#{non_existing_service_id}"
+  }
 
   def mock_resource_class
     double('Resource').tap do |resource_class|
@@ -25,8 +29,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceExists do
         resource_class: mock_resource_class,
         validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
       ).call(
-        webservice: mock_webservice("#{fake_authenticator_name}/service1"),
-          account: test_account
+        webservice: mock_webservice(test_account, fake_authenticator_name, "service1"),
+        account: test_account
       )
     end
 
@@ -42,8 +46,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceExists do
         resource_class: mock_resource_class,
         validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
       ).call(
-        webservice: mock_webservice(non_existing_resource_id),
-          account: test_account
+        webservice: mock_webservice(test_account, non_existing_authenticator_name, non_existing_service_id),
+        account: test_account
       )
     end
 
@@ -59,8 +63,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceExists do
         resource_class: mock_resource_class,
         validate_account_exists: mock_validate_account_exists(validation_succeeded: false)
       ).call(
-        webservice: mock_webservice("#{fake_authenticator_name}/service1"),
-          account: non_existing_account
+        webservice: mock_webservice(test_account, fake_authenticator_name, "service1"),
+        account: non_existing_account
       )
     end
 

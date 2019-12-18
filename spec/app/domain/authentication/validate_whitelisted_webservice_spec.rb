@@ -25,8 +25,6 @@ RSpec.describe Authentication::Security::ValidateWhitelistedWebservice do
 
   def mock_webservices_class
     double('webservices_class').tap do |webservices_class|
-
-
       allow(webservices_class).to receive(:from_string)
                                     .with(anything, two_authenticator_env)
                                     .and_return(webservices_dict(includes_authenticator: true))
@@ -41,6 +39,10 @@ RSpec.describe Authentication::Security::ValidateWhitelistedWebservice do
     end
   end
 
+  let(:webservice_mock) {
+    mock_webservice(test_account, fake_authenticator_name, "service1")
+  }
+
   context "A whitelisted webservice" do
     subject do
       Authentication::Security::ValidateWhitelistedWebservice.new(
@@ -48,9 +50,9 @@ RSpec.describe Authentication::Security::ValidateWhitelistedWebservice do
         webservices_class: mock_webservices_class,
         validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
       ).call(
-        webservice: mock_webservice("#{fake_authenticator_name}/service1"),
-          account: test_account,
-          enabled_authenticators: two_authenticator_env
+        webservice: webservice_mock,
+        account: test_account,
+        enabled_authenticators: two_authenticator_env
       )
     end
 
@@ -66,9 +68,9 @@ RSpec.describe Authentication::Security::ValidateWhitelistedWebservice do
         webservices_class: mock_webservices_class,
         validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
       ).call(
-        webservice: mock_webservice("#{fake_authenticator_name}/service1"),
-          account: test_account,
-          enabled_authenticators: not_including_env
+        webservice: webservice_mock,
+        account: test_account,
+        enabled_authenticators: not_including_env
       )
     end
 
@@ -85,8 +87,8 @@ RSpec.describe Authentication::Security::ValidateWhitelistedWebservice do
         validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
       ).call(
         webservice: default_authenticator_mock,
-          account: test_account,
-          enabled_authenticators: blank_env
+        account: test_account,
+        enabled_authenticators: blank_env
       )
     end
 
@@ -102,9 +104,9 @@ RSpec.describe Authentication::Security::ValidateWhitelistedWebservice do
         webservices_class: mock_webservices_class,
         validate_account_exists: mock_validate_account_exists(validation_succeeded: false)
       ).call(
-        webservice: mock_webservice("#{fake_authenticator_name}/service1"),
-          account: non_existing_account,
-          enabled_authenticators: two_authenticator_env
+        webservice: webservice_mock,
+        account: non_existing_account,
+        enabled_authenticators: two_authenticator_env
       )
     end
 
