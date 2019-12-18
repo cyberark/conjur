@@ -13,6 +13,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
   let (:full_access_role_class) { role_class(user_role(is_authorized: true)) }
   let (:no_access_role_class) { role_class(user_role(is_authorized: false)) }
 
+  let (:webservice_mock) { mock_webservice(test_account, fake_authenticator_name, "service1") }
+
   # generates a Resource class which returns the provided object
   def resource_class(returned_resource)
     double('Resource').tap do |resource_class|
@@ -43,10 +45,10 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
         validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
       ).call(
-        webservice: mock_webservice("#{fake_authenticator_name}/service1"),
-          account: test_account,
-          user_id: test_user_id,
-          privilege: 'test-privilege'
+        webservice: webservice_mock,
+        account: test_account,
+        user_id: test_user_id,
+        privilege: 'test-privilege'
       )
     end
 
@@ -63,10 +65,10 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: false),
         validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
       ).call(
-        webservice: mock_webservice("#{fake_authenticator_name}/service1"),
-          account: test_account,
-          user_id: test_user_id,
-          privilege: 'test-privilege'
+        webservice: webservice_mock,
+        account: test_account,
+        user_id: test_user_id,
+        privilege: 'test-privilege'
       )
     end
 
@@ -83,10 +85,10 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
         validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
       ).call(
-        webservice: mock_webservice("#{fake_authenticator_name}/service1"),
-          account: test_account,
-          user_id: test_user_id,
-          privilege: 'test-privilege'
+        webservice: webservice_mock,
+        account: test_account,
+        user_id: test_user_id,
+        privilege: 'test-privilege'
       )
     end
     it "raises a NotDefinedInConjur error" do
@@ -102,10 +104,10 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
         validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
       ).call(
-        webservice: mock_webservice("#{fake_authenticator_name}/service1"),
-          account: test_account,
-          user_id: test_user_id,
-          privilege: 'test-privilege'
+        webservice: webservice_mock,
+        account: test_account,
+        user_id: test_user_id,
+        privilege: 'test-privilege'
       )
     end
 
@@ -123,10 +125,10 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
         validate_account_exists: mock_validate_account_exists(validation_succeeded: false)
       ).call(
-        webservice: mock_webservice("#{fake_authenticator_name}/service1"),
-          account: non_existing_account,
-          user_id: test_user_id,
-          privilege: 'test-privilege'
+        webservice: webservice_mock,
+        account: non_existing_account,
+        user_id: test_user_id,
+        privilege: 'test-privilege'
       )
     end
 
@@ -171,10 +173,10 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       # be found.
       allow(role_class).to receive(:[]).with(user_roleid).and_return(nil)
       expect { subject.(
-        webservice: mock_webservice("#{fake_authenticator_name}/service1"),
-          account: test_account,
-          user_id: user_id,
-          privilege: 'test-privilege'
+        webservice: webservice_mock,
+        account: test_account,
+        user_id: user_id,
+        privilege: 'test-privilege'
       )
       }.to raise_error(Errors::Authentication::Security::UserNotDefinedInConjur)
 
@@ -185,10 +187,10 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       # overwrites the previous one.
       allow(role_class).to receive(:[]).with(user_roleid).and_return(user_role_double)
       expect { subject.(
-        webservice: mock_webservice("#{fake_authenticator_name}/service1"),
-          account: test_account,
-          user_id: user_id,
-          privilege: 'test-privilege'
+        webservice: webservice_mock,
+        account: test_account,
+        user_id: user_id,
+        privilege: 'test-privilege'
       )
       }.not_to raise_error
 

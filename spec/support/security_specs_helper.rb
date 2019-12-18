@@ -6,19 +6,23 @@ shared_context "security mocks" do
   let (:test_account) { 'test-account' }
   let (:non_existing_account) { 'non-existing' }
   let (:fake_authenticator_name) { 'authn-x' }
+  let (:fake_service_id) { 'fake-service-id' }
   let (:test_user_id) { 'some-user' }
   let (:two_authenticator_env) { "#{fake_authenticator_name}/service1, #{fake_authenticator_name}/service2" }
 
-  def mock_webservice(resource_id)
+  def mock_webservice(account, authenticator_name, service_id)
     double('webservice').tap do |webservice|
       allow(webservice).to receive(:authenticator_name)
-                             .and_return("some-string")
+          .and_return(authenticator_name)
 
+      allow(webservice).to receive(:service_id)
+          .and_return(service_id)
+      
       allow(webservice).to receive(:name)
-                             .and_return("some-string")
+          .and_return("#{authenticator_name}/#{service_id}")
 
       allow(webservice).to receive(:resource_id)
-                             .and_return(resource_id)
+          .and_return("#{account}:webservice:conjur/#{authenticator_name}/#{service_id}")
     end
   end
 
@@ -40,6 +44,7 @@ shared_context "security mocks" do
   let (:validate_whitelisted_webservice_error) { "validate whitelisted webservice error" }
   let (:validate_webservice_access_error) { "validate webservice access error" }
   let (:validate_webservice_exists_error) { "validate webservice exists error" }
+  let (:validate_webservice_is_authenticator_error) { "validate webservice is authenticator error" }
 
   def mock_validator(validation_succeeded:, validation_error:)
     double('validator').tap do |validator|
@@ -65,6 +70,10 @@ shared_context "security mocks" do
 
   def mock_validate_webservice_exists(validation_succeeded:)
     mock_validator(validation_succeeded: validation_succeeded, validation_error: validate_webservice_exists_error)
+  end
+
+  def mock_validate_webservice_is_authenticator(validation_succeeded:)
+    mock_validator(validation_succeeded: validation_succeeded, validation_error: validate_webservice_is_authenticator_error)
   end
 
   # generates user_role authorized for all or no services

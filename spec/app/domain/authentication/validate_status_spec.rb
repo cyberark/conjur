@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 RSpec.describe Authentication::ValidateStatus do
   include_context "security mocks"
 

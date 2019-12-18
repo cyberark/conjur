@@ -5,10 +5,10 @@ module Authentication
   UpdateAuthenticatorConfig = CommandClass.new(
     dependencies: {
       webservice_class: ::Authentication::Webservice,
-      resource_class: ::Resource,
       authenticator_config_class: ::AuthenticatorConfig,
       validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
       validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
+      validate_webservice_is_authenticator: ::Authentication::Security::ValidateWebserviceIsAuthenticator.new,
       validate_webservice_access: ::Authentication::Security::ValidateWebserviceAccess.new,
       configured_authenticators: Authentication::InstalledAuthenticators.configured_authenticators
     },
@@ -18,7 +18,7 @@ module Authentication
     def call
       validate_account_exists
       validate_webservice_exists
-      validate_webservice_is_configured_authenticator
+      validate_webservice_is_authenticator
       validate_user_can_update_webservice
       
       update_authenticator_config
@@ -39,10 +39,10 @@ module Authentication
       )
     end
 
-    def validate_webservice_is_configured_authenticator
-      raise Errors::Authentication::AuthenticatorNotFound, resource_id \
-        unless @configured_authenticators
-            .include?("#{@authenticator_name}/#{@service_id}")
+    def validate_webservice_is_authenticator
+      @validate_webservice_is_authenticator.(
+        webservice: webservice
+      )
     end
     
     def validate_user_can_update_webservice
@@ -70,12 +70,6 @@ module Authentication
     
     def resource_id
       @resource_id ||= webservice.resource_id
-    end
-
-    def resource
-      @resource ||= Resource.with_pk!(resource_id)
-    rescue Sequel::NoMatchingRow
-      raise Exceptions::RecordNotFound, resource_id
     end
   end
 end
