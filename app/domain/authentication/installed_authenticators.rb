@@ -28,7 +28,7 @@ module Authentication
           .where(identifier.like("#{AUTHN_RESOURCE_PREFIX}%"))
           .where(kind => "webservice")
           .select_map(identifier)
-          .map { |id| id[%r{^conjur\/(authn(?:-[^\/]+)?(?:\/[^\/]+)?)$}, 1] }
+          .map { |id| id[%r{^conjur\/(authn(?:-[^\/]+)?(?:\/[^\/]+)?)$}, 1] } # filter out nested status webservice
           .compact
           .push(::Authentication::Common.default_authenticator_name)
       end
@@ -50,8 +50,8 @@ module Authentication
       end
       
       def db_enabled_authenticators
-        # For now, always include 'authn' when enabling authenticators via CLI
-        # so that it doesn't get disabled when another authenticator is enabled
+        # Always include 'authn' when enabling authenticators via CLI so that it
+        # doesn't get disabled when another authenticator is enabled
         AuthenticatorConfig.where(enabled: true)
           .map { |row| row.resource_id.split('/').drop(1).join('/') }
           .append("authn")

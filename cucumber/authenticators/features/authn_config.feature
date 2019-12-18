@@ -37,6 +37,9 @@ Feature: Authenticator configuration
       member: !user authn-writer
     """
 
+  Scenario: An unconfigured authenticator is disabled
+    Then authenticator "cucumber:webservice:conjur/authn-ldap/test" is disabled
+
   Scenario: Authenticator is successfully configured
     When I login as "authn-writer"
     And I successfully PATCH "/authn-ldap/test/cucumber" with body:
@@ -53,21 +56,29 @@ Feature: Authenticator configuration
     Then the HTTP response status code is 204
     And authenticator "cucumber:webservice:conjur/authn-ldap/test" is disabled
 
-  Scenario: Authenticator does not exist
+  Scenario: Account does not exist
     When I am the super-user
     And I PATCH "/authn-ldap/test/nope" with body:
     """
     enabled=true
     """
-    Then the HTTP response status code is 404
+    Then the HTTP response status code is 401
 
-  Scenario: Authenticated user can not read authenticator
+  Scenario: Authenticator does not exist
+    When I am the super-user
+    And I PATCH "/authn-ldap/test%2Fnope/cucumber" with body:
+    """
+    enabled=true
+    """
+    Then the HTTP response status code is 401
+
+  Scenario: Authenticated user can not see authenticator webservice resources
     When I login as "no-authn-access"
     And I PATCH "/authn-ldap/test/cucumber" with body:
     """
     enabled=true
     """
-    Then the HTTP response status code is 404
+    Then the HTTP response status code is 403
 
   Scenario: Authenticated user can not write authenticator
     When I login as "authn-reader"
@@ -83,4 +94,4 @@ Feature: Authenticator configuration
     """
     enabled=true
     """
-    Then the HTTP response status code is 404
+    Then the HTTP response status code is 401

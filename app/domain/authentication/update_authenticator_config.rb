@@ -6,35 +6,52 @@ module Authentication
     dependencies: {
       webservice_class: ::Authentication::Webservice,
       resource_class: ::Resource,
-      authenticator_config_class: ::AuthenticatorConfig
+      authenticator_config_class: ::AuthenticatorConfig,
+      validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
+      validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
+      validate_webservice_access: ::Authentication::Security::ValidateWebserviceAccess.new,
+      configured_authenticators: Authentication::InstalledAuthenticators.configured_authenticators
     },
-    inputs: %i(account authenticator service_id enabled current_user)
+    inputs: %i(account authenticator_name service_id enabled username)
   ) do
     
     def call
-      validate_resource_visible
-      validate_resource_is_authenticator
-      validate_resource_writable
-
+      validate_account_exists
+      validate_webservice_exists
+      validate_webservice_is_configured_authenticator
+      validate_user_can_update_webservice
+      
       update_authenticator_config
     end
 
     private
 
-    def validate_resource_visible
-      raise Exceptions::RecordNotFound, resource_id \
-        unless resource.visible_to?(@current_user)
-    end
-
-    def validate_resource_is_authenticator
-      raise Errors::Authentication::AuthenticatorNotFound, resource_id \
-        unless Authentication::InstalledAuthenticators.configured_authenticators
-            .include?("#{@authenticator}/#{@service_id}")
+    def validate_account_exists
+      @validate_account_exists.(
+        account: @account
+      )
     end
     
-    def validate_resource_writable
-      raise ApplicationController::Forbidden \
-        unless @current_user.allowed_to?(:update, resource)
+    def validate_webservice_exists
+      @validate_webservice_exists.(
+        webservice: webservice,
+        account: @account
+      )
+    end
+
+    def validate_webservice_is_configured_authenticator
+      raise Errors::Authentication::AuthenticatorNotFound, resource_id \
+        unless @configured_authenticators
+            .include?("#{@authenticator_name}/#{@service_id}")
+    end
+    
+    def validate_user_can_update_webservice
+      @validate_webservice_access.(
+        webservice: webservice,
+        account: @account,
+        user_id: @username,
+        privilege: 'update'
+      )
     end
 
     def update_authenticator_config
@@ -42,13 +59,17 @@ module Authentication
         .find_or_create(resource_id: resource_id)
         .update(enabled: @enabled)
     end
+
+    def webservice
+      @webservice ||= @webservice_class.new(
+        account: @account,
+        authenticator_name: @authenticator_name,
+        service_id: @service_id
+      )
+    end
     
     def resource_id
-      @resource_id ||= @webservice_class.new(
-        account: @account,
-        authenticator_name: @authenticator,
-        service_id: @service_id
-      ).resource_id
+      @resource_id ||= webservice.resource_id
     end
 
     def resource
