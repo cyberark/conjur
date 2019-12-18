@@ -29,20 +29,20 @@ class AuthenticateController < ApplicationController
     render status_response(e)
   end
 
-  def update
+  def update_config
     body_params = Rack::Utils.parse_nested_query(request.body.read)
     
     Authentication::UpdateAuthenticatorConfig.new.(
       account: params[:account],
-      authenticator: params[:authenticator],
+      authenticator_name: params[:authenticator],
       service_id: params[:service_id],
-      current_user: current_user,
+      username: ::Role.username_from_roleid(current_user.role_id),
       enabled: body_params['enabled'] || false
     )
 
     head :no_content
-  rescue Errors::Authentication::AuthenticatorNotFound => e
-    render json: { status: "error", error: e.inspect }, status: :not_found
+  rescue => e
+    handle_authentication_error(e)
   end
   
   def status_input
@@ -121,7 +121,7 @@ class AuthenticateController < ApplicationController
   private
 
   def handle_login_error(err)
-    logger.warn("Authentication Error: #{err.inspect}")
+    logger.debug("Login Error: #{err.inspect}")
     err.backtrace.each do |line|
       logger.debug(line)
     end
@@ -137,7 +137,7 @@ class AuthenticateController < ApplicationController
   end
 
   def handle_authentication_error(err)
-    logger.warn("Authentication Error: #{err.inspect}")
+    logger.debug("Authentication Error: #{err.inspect}")
     err.backtrace.each do |line|
       logger.debug(line)
     end
