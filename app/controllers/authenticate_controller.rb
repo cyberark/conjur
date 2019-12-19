@@ -26,7 +26,7 @@ class AuthenticateController < ApplicationController
     )
     render json: { status: "ok" }
   rescue => e
-    render status_response(e)
+    render status_failure_response(e)
   end
 
   def update_config
@@ -178,7 +178,7 @@ class AuthenticateController < ApplicationController
     end
   end
 
-  def status_response(error)
+  def status_failure_response(error)
     payload = {
       status: "error",
       error: error.inspect
@@ -195,7 +195,7 @@ class AuthenticateController < ApplicationController
                     :internal_server_error
                   end
 
-    { json: payload, status: status_code }
+    { :json => payload, :status => status_code }
   end
 
   def installed_authenticators
