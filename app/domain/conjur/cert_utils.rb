@@ -10,7 +10,7 @@ module Conjur
       # @return [Array<OpenSSL::X509::Certificate>] certificates contained in the string
       def parse_certs certs
         # fix any mangled namespace
-        certs = certs.gsub /\s+/, "\n"
+        certs = certs.gsub(/\s+/, "\n")
         certs.gsub! "-----BEGIN\nCERTIFICATE-----", '-----BEGIN CERTIFICATE-----'
         certs.gsub! "-----END\nCERTIFICATE-----", '-----END CERTIFICATE-----'
         certs += "\n" unless certs[-1] == "\n"
