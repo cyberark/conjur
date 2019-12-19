@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Util::OpenSsl::X509::CertUtils do
+describe Conjur::CertUtils do
   describe '.parse_certs' do
     let(:cert1_raw) do
       """-----BEGIN CERTIFICATE-----
@@ -54,25 +54,25 @@ RjvSxre4Xg2qlI9Laybb4oZ4g6DI8hRbL0VdFAsveg6SXg2RxgJcXeJUFw==
     let(:cert2) { OpenSSL::X509::Certificate.new cert2_raw }
 
     it 'parses a certificate' do
-      expect(Util::OpenSsl::X509::CertUtils.parse_certs(cert1_raw).map(&:to_der))\
+      expect(Conjur::CertUtils.parse_certs(cert1_raw).map(&:to_der))\
           .to eq [cert1.to_der]
     end
 
     it 'parses two certificates' do
-      expect(Util::OpenSsl::X509::CertUtils.parse_certs(cert1_raw + cert2_raw).map(&:to_der))\
+      expect(Conjur::CertUtils.parse_certs(cert1_raw + cert2_raw).map(&:to_der))\
           .to eq [cert1.to_der, cert2.to_der]
     end
 
     it 'parses the certificate correctly even if the whitespace is wrong' do
       bad_whitespace = cert1_raw.gsub "\n", " "
-      expect(Util::OpenSsl::X509::CertUtils.parse_certs(bad_whitespace).map(&:to_der))\
+      expect(Conjur::CertUtils.parse_certs(bad_whitespace).map(&:to_der))\
           .to eq [cert1.to_der]
     end
 
     it 'shows a bad cert in error message' do
       bad_cert = "-----BEGIN CERTIFICATE-----\nfoo\n-----END CERTIFICATE-----\n"
       expect do
-        Util::OpenSsl::X509::CertUtils.parse_certs(bad_cert)
+        Conjur::CertUtils.parse_certs(bad_cert)
       end.to raise_error(OpenSSL::X509::CertificateError) do |exn|
         expect(exn.message).to include bad_cert
       end
@@ -152,7 +152,7 @@ RjvSxre4Xg2qlI9Laybb4oZ4g6DI8hRbL0VdFAsveg6SXg2RxgJcXeJUFw==
     let(:store){ double('default store') }
 
     context 'with one certificate in the chain' do
-      subject{ Util::OpenSsl::X509::CertUtils.add_chained_cert(store, one_certificate_chain) }
+      subject{ Conjur::CertUtils.add_chained_cert(store, one_certificate_chain) }
 
       it 'adds one certificate to the store' do
         expect(store).to receive(:add_cert).once
@@ -161,7 +161,7 @@ RjvSxre4Xg2qlI9Laybb4oZ4g6DI8hRbL0VdFAsveg6SXg2RxgJcXeJUFw==
     end
 
     context 'with two certificate in the chain' do
-      subject{ Util::OpenSsl::X509::CertUtils.add_chained_cert(store, two_certificates_chain) }
+      subject{ Conjur::CertUtils.add_chained_cert(store, two_certificates_chain) }
 
       it 'adds both certificate to the store' do
         expect(store).to receive(:add_cert).twice

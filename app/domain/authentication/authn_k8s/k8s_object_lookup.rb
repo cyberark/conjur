@@ -24,7 +24,7 @@ module Authentication
         @webservice = webservice
         @cert_store = OpenSSL::X509::Store.new
         @cert_store.set_default_paths
-        ::Util::OpenSsl::X509::CertUtils.add_chained_cert(@cert_store, ca_cert)
+        ::Conjur::CertUtils.add_chained_cert(@cert_store, ca_cert)
       end
 
       def bearer_token
