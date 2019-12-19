@@ -9,8 +9,7 @@ module Authentication
       validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
       validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
       validate_webservice_is_authenticator: ::Authentication::Security::ValidateWebserviceIsAuthenticator.new,
-      validate_webservice_access: ::Authentication::Security::ValidateWebserviceAccess.new,
-      configured_authenticators: Authentication::InstalledAuthenticators.configured_authenticators
+      validate_webservice_access: ::Authentication::Security::ValidateWebserviceAccess.new
     },
     inputs: %i(account authenticator_name service_id enabled username)
   ) do
