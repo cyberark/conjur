@@ -2,7 +2,7 @@ module Authentication
   module Security
     ValidateWebserviceIsAuthenticator = CommandClass.new(
       dependencies: {
-        configured_authenticators: Authentication::InstalledAuthenticators.configured_authenticators
+        installed_authenticators_class: Authentication::InstalledAuthenticators
       },
       inputs: %i(webservice)
     ) do
@@ -15,7 +15,7 @@ module Authentication
 
       def validate_webservice_is_configured_authenticator
         raise Errors::Authentication::AuthenticatorNotFound, webservice_id \
-          unless @configured_authenticators.include?(webservice_id)
+          unless @installed_authenticators_class.configured_authenticators.include?(webservice_id)
       end
 
       def webservice_id
