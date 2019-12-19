@@ -6,6 +6,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.4.4] - 2019-12-19
+
+### Added
+- Early validation of account existence during OIDC authentication
+- Code coverage reporting and collection
+
+### Changed
+- Bumped `puma` from 3.12.0 to 3.12.2
+- Bumped `rack` from 1.6.11 to 1.6.12
+- Bumped `excon` from 0.62.0 to 0.71.0
+
+### Fixed
+- Fixed password rotation of blank password
+- Fixed bug with multi-cert CA chains in Kubernetes service accounts
+- Fixed build issues with creating namespaces with multiple values
+
+### Removed
+- Removed follower env configuration
+
 ## [1.4.3] - 2019-11-26
 
 ### Added
@@ -216,7 +235,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.4.3...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.4.4...HEAD
+[1.4.4]: https://github.com/cyberark/conjur/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/cyberark/conjur/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/cyberark/conjur/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/cyberark/conjur/compare/v1.4.0...v1.4.1
