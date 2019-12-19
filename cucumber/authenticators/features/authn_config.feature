@@ -75,33 +75,53 @@ Feature: Authenticator configuration
 
   Scenario: Authenticator account does not exist
     When I am the super-user
+    And I save my place in the log file
     And I PATCH "/authn-config/db/nope" with body:
     """
     enabled=true
     """
     Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::Security::AccountNotDefined
+    """
 
   Scenario: Authenticator webservice does not exist
     When I am the super-user
+    And I save my place in the log file
     And I PATCH "/authn-config/db%2Fnope/cucumber" with body:
     """
     enabled=true
     """
     Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::Security::ServiceNotDefined
+    """
 
   Scenario: Authenticated user can not update authenticator
     When I login as "authn-viewer"
+    And I save my place in the log file
     And I PATCH "/authn-config/db/cucumber" with body:
     """
     enabled=true
     """
     Then the HTTP response status code is 403
     And authenticator "cucumber:webservice:conjur/authn-config/db" is disabled
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::Security::UserNotAuthorizedInConjur
+    """
 
   Scenario: Nested webservice can not be configured
     When I am the super-user
+    And I save my place in the log file
     And I PATCH "/authn-config/db%2Fstatus/cucumber" with body:
     """
     enabled=true
     """
     Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::AuthenticatorNotFound
+    """
