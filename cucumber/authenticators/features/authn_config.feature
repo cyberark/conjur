@@ -1,96 +1,106 @@
 Feature: Authenticator configuration
 
   Background:
-    Given I have user "no-authn-access"
-    And I have user "authn-reader"
-    And I have user "authn-writer"
+    Given I have user "authn-viewer"
+    And I have user "authn-updater"
     And a policy:
     """
+    # authn-config/env is enabled in CONJUR_AUTHENTICATORS and used in tests to
+    # ensure that the env value continues to be used even when DB config exists.
     - !policy
-      id: conjur/authn-ldap/test
+      id: conjur/authn-config/env
+      body:
+      - !webservice
+
+    - !policy
+      id: conjur/authn-config/db
       body:
       - !webservice
 
       - !webservice
         id: status
 
-      - !group readers
+      - !group viewers
 
       - !permit
-        role: !group readers
+        role: !group viewers
         privileges: [ read ]
         resource: !webservice
 
-      - !group writers
+      - !group updaters
 
       - !permit
-        role: !group writers
+        role: !group updaters
         privileges: [ update ]
         resource: !webservice
 
     - !grant
-      role: !group conjur/authn-ldap/test/readers
-      member: !user authn-reader
+      role: !group conjur/authn-config/db/viewers
+      member: !user authn-viewer
 
     - !grant
-      role: !group conjur/authn-ldap/test/writers
-      member: !user authn-writer
+      role: !group conjur/authn-config/db/updaters
+      member: !user authn-updater
     """
 
-  Scenario: An unconfigured authenticator is disabled
-    Then authenticator "cucumber:webservice:conjur/authn-ldap/test" is disabled
+  Scenario: Authenticator is not configured in database
+    When I am the super-user
+    And I retrieve the list of authenticators
+    Then the enabled authenticators contains "authn-config/env"
+
+  Scenario: Authenticator is enabled in the environment and disabled in the database
+    When I am the super-user
+    And I successfully PATCH "/authn-config/env/cucumber" with body:
+    """
+    enabled=false
+    """
+    And I retrieve the list of authenticators
+    Then the enabled authenticators contains "authn-config/env"
 
   Scenario: Authenticator is successfully configured
-    When I login as "authn-writer"
-    And I successfully PATCH "/authn-ldap/test/cucumber" with body:
+    When I login as "authn-updater"
+    And I successfully PATCH "/authn-config/db/cucumber" with body:
     """
     enabled=true
     """
     Then the HTTP response status code is 204
-    And authenticator "cucumber:webservice:conjur/authn-ldap/test" is enabled
+    And authenticator "cucumber:webservice:conjur/authn-config/db" is enabled
 
-    When I successfully PATCH "/authn-ldap/test/cucumber" with body:
+    When I successfully PATCH "/authn-config/db/cucumber" with body:
     """
     enabled=false
     """
     Then the HTTP response status code is 204
-    And authenticator "cucumber:webservice:conjur/authn-ldap/test" is disabled
+    And authenticator "cucumber:webservice:conjur/authn-config/db" is disabled
 
-  Scenario: Account does not exist
+  Scenario: Authenticator account does not exist
     When I am the super-user
-    And I PATCH "/authn-ldap/test/nope" with body:
+    And I PATCH "/authn-config/db/nope" with body:
     """
     enabled=true
     """
     Then the HTTP response status code is 401
 
-  Scenario: Authenticator does not exist
+  Scenario: Authenticator webservice does not exist
     When I am the super-user
-    And I PATCH "/authn-ldap/test%2Fnope/cucumber" with body:
+    And I PATCH "/authn-config/db%2Fnope/cucumber" with body:
     """
     enabled=true
     """
     Then the HTTP response status code is 401
 
-  Scenario: Authenticated user can not see authenticator webservice resources
-    When I login as "no-authn-access"
-    And I PATCH "/authn-ldap/test/cucumber" with body:
+  Scenario: Authenticated user can not update authenticator
+    When I login as "authn-viewer"
+    And I PATCH "/authn-config/db/cucumber" with body:
     """
     enabled=true
     """
     Then the HTTP response status code is 403
-
-  Scenario: Authenticated user can not write authenticator
-    When I login as "authn-reader"
-    And I PATCH "/authn-ldap/test/cucumber" with body:
-    """
-    enabled=true
-    """
-    Then the HTTP response status code is 403
+    And authenticator "cucumber:webservice:conjur/authn-config/db" is disabled
 
   Scenario: Nested webservice can not be configured
     When I am the super-user
-    And I PATCH "/authn-ldap/test%2Fstatus/cucumber" with body:
+    And I PATCH "/authn-config/db%2Fstatus/cucumber" with body:
     """
     enabled=true
     """

@@ -113,7 +113,7 @@ docker-compose exec -d conjur conjurctl server
 echo 'Checking if Conjur server is ready'
 conjur_isready?
 
-enabled_authenticators="authn"
+enabled_authenticators="authn,authn-config/env"
 
 env_args=
 if [[ $ENABLE_AUTHN_LDAP = true ]]; then
