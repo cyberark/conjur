@@ -24,7 +24,7 @@ module Authentication
         @webservice = webservice
         @cert_store = OpenSSL::X509::Store.new
         @cert_store.set_default_paths
-        @cert_store.add_cert(ca_cert)
+        ::Conjur::CertUtils.add_chained_cert(@cert_store, ca_cert)
       end
 
       def bearer_token
@@ -43,7 +43,7 @@ module Authentication
         )
 
         raise Err::MissingCertificate if cert.blank?
-        OpenSSL::X509::Certificate.new(cert)
+        cert
       end
 
       def options
