@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.4.5] - 2019-12-22
+
 ### Changed
 - The k8s host id does not use the "{@account}:host:conjur/authn-k8s/#{@service_name}/apps"
   prefix and takes the full host-id from the CSR. We also handle backwards-compatibility and use
@@ -240,7 +242,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.4.3...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.4.5...HEAD
+[1.4.5]: https://github.com/cyberark/conjur/compare/v1.4.4...v1.4.5
+[1.4.4]: https://github.com/cyberark/conjur/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/cyberark/conjur/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/cyberark/conjur/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/cyberark/conjur/compare/v1.4.0...v1.4.1
