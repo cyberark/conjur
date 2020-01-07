@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.4.5] - 2019-12-22
 
+### Added
+- Added API endpoint to enable and disable authenticators. See
+  [design/authenticator_whitelist_api.md](design/authenticator_whitelist_api.md)
+  for details.
+
 ### Changed
 - The k8s host id does not use the "{@account}:host:conjur/authn-k8s/#{@service_name}/apps"
   prefix and takes the full host-id from the CSR. We also handle backwards-compatibility and use
