@@ -29,6 +29,9 @@ function finish {
       echo "Logs from Conjur Pod $pod_name:"
       kubectl logs $pod_name > output/gke-authn-k8s-logs.txt
 
+      # Rails.logger writes the logs to the environment log file
+      kubectl exec $pod_name -- bash -c "cat /opt/conjur-server/log/test.log" >> output/gke-authn-k8s-logs.txt
+
       echo "Killing conjur so that coverage report is written"
       # The container is kept alive using an infinite sleep in the at_exit hook
       # (see .simplecov) so that the kubectl cp below works.
