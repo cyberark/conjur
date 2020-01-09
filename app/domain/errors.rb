@@ -178,12 +178,6 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00022E"
         )
 
-        CSRNamespaceMismatch = ::Util::TrackableErrorClass.new(
-          msg: "Namespace in SPIFFE ID '{0-cn-namespace}' must match namespace " \
-            "implied by common name '{1-spiffe-namespace}'",
-          code: "CONJ00023E"
-        )
-
         PodNotFound = ::Util::TrackableErrorClass.new(
           msg: "No pod found for '{0-pod-name}' in namespace '{1}'",
           code: "CONJ00024E"
