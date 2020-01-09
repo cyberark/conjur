@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- K8s hosts' application identity is extracted from annotations or id. If it is
+  defined in annotations it will taken from there and if not, it will be taken 
+  from the id.
+
 ## [1.4.5] - 2019-12-22
 
 ### Changed
