@@ -1,9 +1,7 @@
 # Represents a K8s host, typically created from a CSR or a Cert.
 #
 # This is not to be confused with Conjur model host.  It exists purely to
-# encapsulate logic about how to translate K8s host info into a Conjur host id,
-# and how to break a K8s host into its component parts: namespace, controller,
-# object
+# encapsulate logic about how to translate K8s host info into a Conjur host id.
 #
 require 'forwardable'
 
@@ -18,9 +16,6 @@ module Authentication
       extend Forwardable
 
       attr_reader :account, :service_name, :csr
-
-      def_delegators :@common_name, :namespace, :controller, :object,
-        :k8s_host_name
 
       def self.from_csr(account:, service_name:, csr:)
         cn = csr.common_name
@@ -43,27 +38,7 @@ module Authentication
       end
 
       def conjur_host_id
-        "#{@account}:" + host_name.sub('host/', 'host:')
-      end
-
-      def host_name
-        @common_name.k8s_host_name
-      end
-
-      def namespace_scoped?
-        controller == '*' && object == '*'
-      end
-
-      def permitted_scope?
-        permitted_controllers.include?(controller)
-      end
-
-      private
-
-      def permitted_controllers
-        @permitted_controllers ||= %w(
-          pod service_account deployment stateful_set deployment_config
-        )
+        "#{@account}:" + @common_name.k8s_host_name.sub('host/', 'host:')
       end
     end
   end

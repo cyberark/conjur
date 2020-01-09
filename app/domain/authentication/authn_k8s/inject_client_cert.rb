@@ -53,8 +53,8 @@ module Authentication
 
       # In the old version of the authn-client we assumed that the host is under the "apps" policy branch.
       # Now we send the host-id in 2 parts:
-      #   suffix - the last 3 parts that indicate the machine identity (e.g ${TEST_APP_NAMESPACE_NAME}/*/*)
-      #   prefix - all the rest (e.g host/conjur/authn-k8s/${AUTHENTICATOR_ID})
+      #   suffix - the host id
+      #   prefix - the policy id
       # We update the CSR's common_name to have the full host-id. This way, the validation
       # that happens in the "authenticate" request will work, as the signed certificate
       # contains the full host-id.
@@ -99,12 +99,6 @@ module Authentication
 
       def host
         @host ||= @resource_repo[host_id]
-      end
-
-      def container_name
-        name = 'kubernetes/authentication-container-name'
-        annotation = host.annotations.find { |a| a.values[:name] == name }
-        annotation[:value] || 'authenticator'
       end
 
       def validate_csr
@@ -156,6 +150,23 @@ module Authentication
 
       def k8s_object_lookup
         @k8s_object_lookup ||= K8sObjectLookup.new(webservice)
+      end
+
+      # This code is implemented similarly also in application_identity.rb
+      # We have it here too as we need the container name for the injection
+      # and it simplifies the code to have this specific 2 methods duplicated
+      # rather than passing around the ApplicationIdentity object
+      def container_name
+        container_annotation_value("authn-k8s/#{@service_id}") ||
+          container_annotation_value("authn-k8s") ||
+          container_annotation_value("kubernetes") ||
+          "authenticator"
+      end
+
+      def container_annotation_value prefix
+        annotation_name = "authentication-container-name"
+        annotation = host.annotations.find { |a| a.values[:name] == "#{prefix}/#{annotation_name}" }
+        annotation ? annotation[:value] : nil
       end
     end
   end

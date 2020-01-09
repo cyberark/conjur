@@ -12,10 +12,11 @@ module Authentication
 
     ValidatePodRequest = CommandClass.new(
       dependencies: {
-        resource_repo: Resource,
-        k8s_resolver: K8sResolver
+        resource_repo:                 Resource,
+        k8s_object_lookup_class:       K8sObjectLookup,
+        validate_application_identity: ValidateApplicationIdentity.new
       },
-      inputs: %i(pod_request)
+      inputs:       %i(pod_request)
     ) do
 
       extend Forwardable
@@ -25,8 +26,7 @@ module Authentication
         validate_webservice_exists
         validate_host_can_access_service
         validate_pod_exists
-        validate_pod_properties
-        validate_container
+        validate_application_identity
       end
 
       private
@@ -44,45 +44,27 @@ module Authentication
         raise Err::PodNotFound.new(pod_name, pod_namespace) unless pod
       end
 
-      def validate_pod_properties
-        return if k8s_host.namespace_scoped?
-        validate_scope
-        validate_controller
-        validate_pod_metadata
-      end
-
-      def validate_container
-        raise Err::ContainerNotFound, container_name unless container
-      end
-
-      def validate_scope
-        return if k8s_host.permitted_scope?
-        raise Err::ScopeNotSupported, k8s_host.controller
-      end
-
-      def validate_controller
-        return if controller_object
-        raise Err::ControllerNotFound.new(k8s_host.controller, k8s_host.object, k8s_host.namespace)
-      end
-
-      def validate_pod_metadata
-        @k8s_resolver
-          .for_controller(k8s_host.controller)
-          .new(controller_object, pod, k8s_object_lookup)
-          .validate_pod
+      def validate_application_identity
+        @validate_application_identity.(
+          host_id: k8s_host.conjur_host_id,
+          host_annotations: host.annotations,
+          service_id: service_id,
+          account: k8s_host.account,
+          spiffe_id: spiffe_id
+        )
       end
 
       # @return The Conjur resource for the webservice.
       def webservice
         @webservice ||= ::Authentication::Webservice.new(
-          account: k8s_host.account,
+          account:            k8s_host.account,
           authenticator_name: 'authn-k8s',
-          service_id: service_id
+          service_id:         service_id
         )
       end
 
       def k8s_object_lookup
-        @k8s_object_lookup ||= K8sObjectLookup.new(webservice)
+        @k8s_object_lookup ||= @k8s_object_lookup_class.new(webservice)
       end
 
       def host_can_access_service?
@@ -91,24 +73,6 @@ module Authentication
 
       def host
         @host ||= @resource_repo[k8s_host.conjur_host_id]
-      end
-
-      def container
-        (pod.spec.containers || []).find { |c| c.name == container_name } ||
-          (pod.spec.initContainers || []).find { |c| c.name == container_name }
-      end
-
-      def default_container_name
-        'authenticator'
-      end
-
-      def container_name
-        name = 'kubernetes/authentication-container-name'
-        annotation = host.annotations.find { |a| a.values[:name] == name }
-
-        return default_container_name unless annotation
-
-        annotation[:value] || default_container_name
       end
 
       def pod
@@ -121,14 +85,6 @@ module Authentication
 
       def pod_namespace
         spiffe_id.namespace
-      end
-
-      def controller_object
-        @controller_object ||= k8s_object_lookup.find_object_by_name(
-          k8s_host.controller,
-          k8s_host.object,
-          k8s_host.namespace
-        )
       end
     end
   end
