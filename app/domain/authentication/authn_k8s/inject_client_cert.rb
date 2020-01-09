@@ -6,7 +6,7 @@ module Authentication
     Log = LogMessages::Authentication::AuthnK8s
     Err = Errors::Authentication::AuthnK8s
     # Possible Errors Raised:
-    # CSRIsMissingSpiffeId, CSRNamespaceMismatch, CertInstallationError
+    # CSRIsMissingSpiffeId, CertInstallationError
 
     InjectClientCert = CommandClass.new(
       dependencies: {
@@ -103,10 +103,6 @@ module Authentication
 
       def validate_csr
         raise Err::CSRIsMissingSpiffeId unless smart_csr.spiffe_id
-
-        spiffe_namespace = spiffe_id.namespace
-        cn_namespace = common_name.namespace
-        raise Err::CSRNamespaceMismatch.new(cn_namespace, spiffe_namespace) unless cn_namespace == spiffe_namespace
       end
 
       def smart_csr
