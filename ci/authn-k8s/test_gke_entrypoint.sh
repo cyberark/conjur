@@ -60,7 +60,7 @@ function main() {
   sourceFunctions
   renderResourceTemplates
   
-  initialize
+  initialize_gke
   createNamespace
 
   pushDockerImages
@@ -86,12 +86,6 @@ function sourceFunctions() {
 function renderResourceTemplates() {
   cleanuptemplatescmd $TEMPLATE_TAG
   compiletemplatescmd <(echo '') $TEMPLATE_TAG
-}
-
-function initialize() {
-  # setup kubectl
-  gcloud auth activate-service-account --key-file $GCLOUD_SERVICE_KEY
-  gcloud container clusters get-credentials $GCLOUD_CLUSTER_NAME --zone $GCLOUD_ZONE --project $GCLOUD_PROJECT_NAME
 }
 
 function createNamespace() {

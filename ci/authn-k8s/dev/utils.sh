@@ -35,3 +35,15 @@ delete_image() {
         gcloud container images delete --force-delete-tags -q $image_and_tag
     fi
 }
+
+function initialize_gke() {
+  # setup kubectl
+  gcloud auth activate-service-account --key-file $GCLOUD_SERVICE_KEY
+  gcloud container clusters get-credentials $GCLOUD_CLUSTER_NAME --zone $GCLOUD_ZONE --project $GCLOUD_PROJECT_NAME
+}
+
+function initialize_oc() {
+  # setup kubectl, oc and docker
+  oc login $OPENSHIFT_URL --username=$OPENSHIFT_USERNAME --password=$OPENSHIFT_PASSWORD --insecure-skip-tls-verify=true
+  docker login -u _ -p $(oc whoami -t) $OPENSHIFT_REGISTRY_URL
+}
