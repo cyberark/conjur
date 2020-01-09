@@ -8,7 +8,7 @@ module Authentication
     Err = Errors::Authentication::AuthnK8s
     # Possible Errors Raised:
     # WebserviceNotFound, HostNotAuthorized, PodNotFound
-    # ContainerNotFound, ScopeNotSupported, ControllerNotFound
+    # ContainerNotFound, ScopeNotSupported, K8sResourceNotFound
 
     ValidatePodRequest = CommandClass.new(
       dependencies: {
