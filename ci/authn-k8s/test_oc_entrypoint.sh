@@ -47,7 +47,7 @@ function main() {
   sourceFunctions
   renderResourceTemplates
   
-  initialize
+  initialize_oc
   createNamespace
 
   pushDockerImages
@@ -70,12 +70,6 @@ function sourceFunctions() {
 function renderResourceTemplates() {
   cleanuptemplatescmd $TEMPLATE_TAG
   compiletemplatescmd <(echo '') $TEMPLATE_TAG
-}
-
-function initialize() {
-  # setup kubectl, oc and docker
-  oc login $OPENSHIFT_URL --username=$OPENSHIFT_USERNAME --password=$OPENSHIFT_PASSWORD --insecure-skip-tls-verify=true
-  docker login -u _ -p $(oc whoami -t) $OPENSHIFT_REGISTRY_URL
 }
 
 function createNamespace() {
