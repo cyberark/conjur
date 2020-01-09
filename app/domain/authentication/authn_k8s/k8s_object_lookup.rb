@@ -104,17 +104,17 @@ module Authentication
         k8s_client_for_method("get_pods").get_pods(label_selector: label_selector, namespace: namespace)
       end
 
-      # Look up an object according to the controller name. In Kubernetes, the 
-      # "controller" means something like ReplicaSet, Job, Deployment, etc.
+      # Look up an object according to the resource name. In Kubernetes, the
+      # "resource" means something like ReplicaSet, Job, Deployment, etc.
       #
-      # Here, controller_name should be the underscore-ized controller, e.g.
+      # Here, resource_name should be the underscore-ized resource, e.g.
       # "replica_set".
       #
       # @return nil if no such object exists.
-      def find_object_by_name controller_name, name, namespace
+      def find_object_by_name resource_name, name, namespace
         begin
           handle_object_not_found do
-            invoke_k8s_method "get_#{controller_name}", name, namespace
+            invoke_k8s_method "get_#{resource_name}", name, namespace
           end
         rescue KubeException => e
           # This error message can be a bit confusing when multiple authorizers are

@@ -10,7 +10,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
   let(:account) { "SomeAccount" }
   let(:service_id) { "ServiceName" }
-  let(:common_name) { "CommonName.#{spiffe_namespace}.Controller.Id" }
+  let(:common_name) { "CommonName.#{spiffe_namespace}.Resource.Id" }
   let(:host_id_prefix) { "host.some-policy" }
   let(:nil_host_id_prefix) { nil }
   let(:csr) { "CSR" }
@@ -50,7 +50,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
   let(:bad_cn_namespace_smart_csr_mock) {
     double("SmartCSR",
-      common_name: "CommonName.WrongNamespace.Controller.Id",
+      common_name: "CommonName.WrongNamespace.Resource.Id",
       spiffe_id: spiffe_id)
   }
 

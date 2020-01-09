@@ -195,8 +195,8 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00025E"
         )
 
-        ControllerNotFound = ::Util::TrackableErrorClass.new(
-          msg: "Kubernetes {0-controller-name} {1-object-name} not found in namespace {2}",
+        K8sResourceNotFound = ::Util::TrackableErrorClass.new(
+          msg: "Kubernetes {0-resource-name} {1-object-name} not found in namespace {2}",
           code: "CONJ00026E"
         )
 
@@ -246,8 +246,8 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00035E"
         )
 
-        UnknownControllerType = ::Util::TrackableErrorClass.new(
-          msg: "Unknown Kubernetes controller type '{0}'",
+        UnknownK8sResourceType = ::Util::TrackableErrorClass.new(
+          msg: "Unknown Kubernetes resource type '{0}'",
           code: "CONJ00041E"
         )
 
