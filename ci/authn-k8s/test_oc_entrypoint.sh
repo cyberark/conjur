@@ -29,6 +29,11 @@ function finish {
 
       # Rails.logger writes the logs to the environment log file
       oc exec $pod_name -- bash -c "cat /opt/conjur-server/log/test.log" >> "output/$PLATFORM-authn-k8s-logs.txt"
+
+      echo "Printing Logs from Conjur to the console"
+      echo "==========================="
+      cat "output/$PLATFORM-authn-k8s-logs.txt"
+      echo "==========================="
     fi
   } || {
     echo "Logs could not be extracted from $pod_name"
