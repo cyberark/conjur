@@ -153,22 +153,6 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
                            csr: csr,
                            host_id_prefix: host_id_prefix) }.to raise_error(error_type, missing_spiffe_id_error)
       end
-
-      it "throws CSRNamespaceMismatch when common_name does not match spiffe_id.namespace" do
-        error_type = Errors::Authentication::AuthnK8s::CSRNamespaceMismatch
-        wrong_cn_error = /Namespace in SPIFFE ID 'WrongNamespace' must match namespace implied by common name 'SpiffeNamespace'/
-
-        allow(Util::OpenSsl::X509::SmartCsr)
-          .to receive(:new)
-          .with(csr)
-          .and_return(bad_cn_namespace_smart_csr_mock)
-        allow(bad_cn_namespace_smart_csr_mock).to receive(:common_name=)
-
-        expect { injector.(conjur_account: account,
-                           service_id: service_id,
-                           csr: csr,
-                           host_id_prefix: host_id_prefix) }.to raise_error(error_type, wrong_cn_error)
-      end
     end
 
     it "raises RuntimeError when validate_pod_request fails" do
