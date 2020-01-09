@@ -190,8 +190,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         ScopeNotSupported = ::Util::TrackableErrorClass.new(
-          msg: "Resource type '{0}' identity scope is not supported in this version " \
-            "of authn-k8s",
+          msg: "Resource type '{0}' is not a supported application identity",
           code: "CONJ00025E"
         )
 
@@ -259,6 +258,22 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         MissingCertificate = ::Util::TrackableErrorClass.new(
           msg: "No Kubernetes API certificate available",
           code: "CONJ00043E"
+        )
+
+        IllegalConstraintCombinations = ::Util::TrackableErrorClass.new(
+          msg: "Application identity includes an illegal combination - '{0-controller-constraints}'",
+          code: "CONJ00044E"
+        )
+
+        MissingNamespaceConstraint = ::Util::TrackableErrorClass.new(
+          msg: "Conjur host does not have a namespace constraint",
+          code: "CONJ00045E"
+        )
+
+        NamespaceMismatch = ::Util::TrackableErrorClass.new(
+          msg: "Namespace in SPIFFE ID '{0-spiffe-namespace}' must match namespace " \
+            "implied by application identity '{1-application-identity-namespace}'",
+          code: "CONJ00023E"
         )
       end
     end
