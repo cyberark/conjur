@@ -4,6 +4,12 @@ kind: ServiceAccount
 metadata:
   name: inventory-pod-only
 ---
+# This service account is used for testing authentication with an incorrect service-account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: other-service-account
+---
 apiVersion: v1
 kind: Pod
 metadata:
