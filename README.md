@@ -3,10 +3,10 @@
 [![Conjur on DockerHub](https://img.shields.io/docker/pulls/cyberark/conjur.svg)](https://hub.docker.com/r/cyberark/conjur/)
 [![Conjur on Quay.io](https://img.shields.io/badge/quay%20build-automated-0db7ed.svg)](https://quay.io/repository/cyberark/conjur)
 
-[![Join Conjur Slack](https://img.shields.io/badge/slack-open-e01563.svg)][slack]
+[![CyberArk Commons - ask](https://img.shields.io/badge/CyberArk%20Commons-ask-e01563.svg)][commons]
 [![Follow Conjur on Twitter](https://img.shields.io/twitter/follow/conjurinc.svg?style=social&label=Follow%20%40ConjurInc)][twitter]
 
-[slack]: https://slackin-conjur.herokuapp.com "Join our Slack community"
+[commons]: https://discuss.cyberarkcommons.org/c/conjur/5 "Find answers on CyberArk Commons"
 [quay]: https://quay.io/repository/cyberark/conjur "Conjur container image on Quay.io"
 [twitter]: https://twitter.com/intent/user?screen_name=ConjurInc "Follow Conjur on Twitter"
 
@@ -30,8 +30,8 @@ _Note: our badges and social media buttons never track you._
 
 ## Community Support
 
-Our primary channel for support is through our Slack community. More
-here: [community support](https://www.conjur.org/support.html)
+Our primary channel for support is through our CyberArk Commons community
+[here][commons]
 
 ## Migrating to Conjur EE
 
@@ -397,7 +397,7 @@ using [Slosilo](https://github.com/conjurinc/slosilo), a library which provides:
 * a keystore in a Postgresql database for easy storage and retrieval of keys
 
 Slosilo has been verified by a professional cryptographic audit. Ask in our
-Slack community for more details. (You can join [here][slack].)
+CyberArk Commons community for more details. (You can join [here][commons].)
 
 ### Important: avoid data loss
 
