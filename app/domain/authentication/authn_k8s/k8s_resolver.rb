@@ -17,8 +17,6 @@
 module Authentication
   module AuthnK8s
     module K8sResolver
-      class ValidationError < StandardError
-      end
 
       Err = Errors::Authentication::AuthnK8s
 
@@ -45,7 +43,7 @@ module Authentication
         # +block+ returns a falsey value.
         def verify message, &block
           yield.tap do |result|
-            raise ValidationError, message unless result
+            raise Err::ValidationError, message unless result
           end
         end
 

@@ -99,7 +99,7 @@ module AuthnK8sWorld
       begin
         resolver.validate_pod
         true
-      rescue Authentication::AuthnK8s::K8sResolver::ValidationError
+      rescue Errors::Authentication::AuthnK8s::ValidationError
         false
       end
     end

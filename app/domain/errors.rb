@@ -269,6 +269,11 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
             "implied by application identity '{1-application-identity-namespace}'",
           code: "CONJ00023E"
         )
+
+        ValidationError = ::Util::TrackableErrorClass.new(
+          msg: "{0-message}",
+          code: "CONJ00047E"
+        )
       end
     end
 
