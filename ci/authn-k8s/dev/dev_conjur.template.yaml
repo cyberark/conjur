@@ -93,10 +93,15 @@ spec:
         volumeMounts:
           - mountPath: /run/authn-local
             name: authn-local
+          - mountPath: /opt/conjur-server/log
+            name: conjur-log
       volumes:
         - name: authn-local
           emptyDir:
             medium: Memory
+        - name: conjur-log
+          persistentVolumeClaim:
+            claimName: conjur-log-pv-claim
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -127,6 +132,14 @@ spec:
           value: test
         - name: CONJUR_AUTHN_K8S_TEST_NAMESPACE
           value: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        volumeMounts:
+          # We mount the log to this path so logs_helpers.rb will work seamlessly
+          - mountPath: /src/conjur-server/log
+            name: conjur-log
+      volumes:
+        - name: conjur-log
+          persistentVolumeClaim:
+            claimName: conjur-log-pv-claim
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment

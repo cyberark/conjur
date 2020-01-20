@@ -43,6 +43,10 @@ function finish {
   echo 'Removing namespace $CONJUR_AUTHN_K8S_TEST_NAMESPACE'
   echo '-----'
 
+  echo 'Removing Conjur log PersistentVolume'
+  echo '-----'
+  oc delete --ignore-not-found=true pv $LOG_VOLUME_NAME
+
   oc adm policy remove-scc-from-user anyuid -z default
   oc --ignore-not-found=true delete project $CONJUR_AUTHN_K8S_TEST_NAMESPACE
 }
@@ -60,6 +64,7 @@ function main() {
 
   pushDockerImages
 
+  createLogPersistentVolume
   launchConjurMaster
 #  createSSLCertConfigMap
   copyConjurPolicies
@@ -111,6 +116,17 @@ function pushDockerImages() {
   # push images to openshift registry
   docker push $CONJUR_AUTHN_K8S_TAG
   docker push $INVENTORY_TAG
+}
+
+# We create a PersistentVolume so cucumber tests can read Conjur logs to test the output
+function createLogPersistentVolume() {
+  echo 'Creating PersistentVolume for Conjur log'
+
+  LOG_VOLUME_NAME="conjur-log-volume"
+  oc delete --ignore-not-found=true pv $LOG_VOLUME_NAME
+
+  sed -e "s#{{ LOG_VOLUME_NAME }}#$LOG_VOLUME_NAME#g" dev/dev_conjur_log_volume.${TEMPLATE_TAG}yaml |
+    oc create -f -
 }
 
 function launchConjurMaster() {
@@ -191,7 +207,16 @@ function runTests() {
 
   conjurcmd mkdir -p /opt/conjur-server/output
 
-  echo "./bin/cucumber K8S_VERSION=$K8S_VERSION PLATFORM=openshift --no-color --format pretty --format junit --out /opt/conjur-server/output -r ./cucumber/kubernetes/features/step_definitions/ -r ./cucumber/kubernetes/features/support/world.rb -r ./cucumber/kubernetes/features/support/hooks.rb -r ./cucumber/kubernetes/features/support/conjur_token.rb --tags ~@skip ./cucumber/kubernetes/features" | conjurcmd -i bash
+  echo "./bin/cucumber K8S_VERSION=$K8S_VERSION PLATFORM=openshift --no-color \
+  --format pretty --format junit --out /opt/conjur-server/output \
+  -r ./cucumber/kubernetes/features/step_definitions/ \
+  -r ./cucumber/kubernetes/features/support/world.rb \
+  -r ./cucumber/kubernetes/features/support/hooks.rb \
+  -r ./cucumber/kubernetes/features/support/conjur_token.rb \
+  -r ./cucumber/api/features/support/logs_helpers.rb \
+  -r ./cucumber/api/features/step_definitions/logs_steps.rb \
+  --tags ~@skip \
+  ./cucumber/kubernetes/features" | conjurcmd -i bash
 }
 
 main

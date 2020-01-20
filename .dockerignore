@@ -7,8 +7,10 @@
 # 
 cucumber
 
-# Make an exception for kubernetes, though
+# Make an exception for kubernetes features and its required helpers
 !cucumber/kubernetes/features
+!cucumber/api/features/support/logs_helpers.rb
+!cucumber/api/features/step_definitions/logs_steps.rb
 
 *.deb
 .git
