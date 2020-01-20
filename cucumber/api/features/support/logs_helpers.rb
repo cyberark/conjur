@@ -2,14 +2,14 @@
 
 # Utility methods for Logs steps
 #
-# In order to be able validating messages in the conjur server log,
+# In order to be able to validate messages in the conjur server log,
 # we chose to filter the log by save points instead of zeroing out the log,
 # due to the following reasons:
 # 1. save the log content for troubleshooting
 # 2. be able to parallelize the tests in the future
 #
 module LogsHelpers
-  LOG_LOCATION = "/src/conjur-server/log/development.log"
+  LOG_LOCATION = "/src/conjur-server/log/#{ENV['RAILS_ENV']}.log"
 
   def num_log_lines
     File.new(LOG_LOCATION).readlines.size
