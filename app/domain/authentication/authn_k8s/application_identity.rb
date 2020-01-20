@@ -1,6 +1,7 @@
 module Authentication
   module AuthnK8s
 
+    Log = LogMessages::Authentication::AuthnK8s
     Err = Errors::Authentication::AuthnK8s
     # Possible Errors Raised: MissingNamespaceConstraint, IllegalConstraintCombinations,
     # ScopeNotSupported, ArgumentError
@@ -84,9 +85,7 @@ module Authentication
         controllers = %i(deployment deployment_config stateful_set)
 
         controller_constraints = constraints.keys & controllers
-        unless controller_constraints.length <= 1
-          raise Err::IllegalConstraintCombinations, controller_constraints
-        end
+        raise Err::IllegalConstraintCombinations, controller_constraints unless controller_constraints.length <= 1
       end
 
       def constraint_value constraint_name
@@ -100,7 +99,12 @@ module Authentication
 
       def annotation_value name
         annotation = @host_annotations.find { |a| a.values[:name] == name }
-        annotation ? annotation[:value] : nil
+
+        # return the value of the annotation if it exists, nil otherwise
+        if annotation
+          Rails.logger.debug(Log::RetrievedAnnotationValue.new(name))
+          annotation[:value]
+        end
       end
 
       def constraint_from_id constraint_name
@@ -117,6 +121,8 @@ module Authentication
       end
 
       def validate_prefixed_permitted_annotations prefix
+        Rails.logger.debug(Log::ValidatingAnnotationsWithPrefix.new(prefix))
+
         prefixed_k8s_annotations(prefix).each do |annotation|
           annotation_name = annotation[:name]
           unless prefixed_permitted_annotations(prefix).include?(annotation_name)
@@ -140,6 +146,8 @@ module Authentication
       end
 
       def validate_host_id
+        Rails.logger.debug(Log::ValidatingHostId.new(@host_id))
+
         valid_host_id = host_id_suffix.length == 3
         unless valid_host_id
           raise ArgumentError, "Invalid K8s host id: #{@host_id}. " \
