@@ -60,7 +60,7 @@ RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
 
   let(:application_identity_class) { double("ApplicationIdentity") }
 
-  let(:dependencies) { { resource_repo:           double(),
+  let(:dependencies) { { resource_class:           double(),
                          k8s_object_lookup_class: k8s_object_lookup_class,
                          k8s_resolver:            k8s_resolver,
                          application_identity_class:  application_identity_class } }

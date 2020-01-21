@@ -11,7 +11,7 @@ module Authentication
     InjectClientCert = CommandClass.new(
       dependencies: {
         logger: Rails.logger,
-        resource_repo: Resource,
+        resource_class: Resource,
         conjur_ca_repo: Repos::ConjurCA,
         kubectl_exec: KubectlExec,
         validate_pod_request: ValidatePodRequest.new
@@ -98,7 +98,7 @@ module Authentication
       end
 
       def host
-        @host ||= @resource_repo[host_id]
+        @host ||= @resource_class[host_id]
       end
 
       def validate_csr
