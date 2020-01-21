@@ -1,5 +1,5 @@
-Feature: An authorized client can authenticate as a permitted role with the host's
-  application identity defined in its annotations
+Feature: A permitted Conjur host can login with a valid application identity
+  that is defined in annotations
 
   Scenario: Authenticate as a Pod.
     Given I login to pod matching "app=inventory-pod" to authn-k8s as "test-app-pod" with prefix "host/some-policy"
