@@ -21,7 +21,7 @@ module AuthnK8sWorld
     last_response.body
   end
 
-  def substitute pattern
+  def substitute! pattern
     pattern.gsub! "@pod_ip@", @pod.status.podIP if @pod
     pattern.gsub! "@pod_ip_dashes@", @pod.status.podIP.gsub('.', '-') if @pod
     pattern.gsub! "@namespace@", @pod.metadata.namespace if @pod
