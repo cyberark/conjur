@@ -28,7 +28,7 @@ end
 
 def login_with_custom_prefix request_ip, host_id_suffix, host_id_prefix, success
   headers = { 'Host-Id-Prefix' => host_id_prefix.tr('/', '.') }
-  username = substitute(host_id_suffix)
+  username = substitute!(host_id_suffix)
 
   login_with_username(request_ip, username, success, headers)
 end
@@ -94,7 +94,7 @@ end
 
 When(/^the certificate subject name is "([^"]*)"$/) do |subject_name|
   certificate = OpenSSL::X509::Certificate.new(@cert)
-  expect(certificate.subject.to_s).to eq(substitute(subject_name))
+  expect(certificate.subject.to_s).to eq(substitute!(subject_name))
 end
 
 When(/^the certificate is valid for 3 days$/) do ||
