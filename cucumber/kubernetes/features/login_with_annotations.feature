@@ -1,5 +1,5 @@
-Feature: An authorized client can login as a permitted role with the host's
-  application identity defined in its annotations
+Feature: A permitted Conjur host can login with a valid application identity
+  that is defined in annotations
 
   Scenario: Login as the namespace a pod belongs to.
     Then I can login to pod matching "app=inventory-pod" to authn-k8s as "test-app-namespace" with prefix "host/some-policy"
@@ -30,18 +30,18 @@ Feature: An authorized client can login as a permitted role with the host's
   Scenario: Login as the namespace a pod belongs to when the constraint is on the authenticator.
     Then I can login to pod matching "app=inventory-pod" to authn-k8s as "test-app-service-id-constraint" with prefix "host/some-policy"
 
-  Scenario: It's an error to login with a host that has an unsupported resource type
+  Scenario: it raises an error when logging in with a host that has an unsupported resource type
     Given I login to pod matching "app=inventory-deployment" to authn-k8s as "test-app-non-permited-scope" with prefix "host/some-policy"
     Then the HTTP status is "401"
 
-  Scenario: It's an error to login from a namespace which does not match the one configured in the host
+  Scenario: it raises an error when logging in from a namespace which does not match the one configured in the host
     When I login to pod matching "app=inventory-deployment" to authn-k8s as "test-app-incorrect-namespace" with prefix "host/some-policy"
     Then the HTTP status is "401"
 
-  Scenario: It's an error to login with a non-existing K8s resource
+  Scenario: it raises an error when logging in with a non-existing K8s resource
     When I login to pod matching "app=inventory-pod" to authn-k8s as "test-app-non-existing-resource" with prefix "host/some-policy"
     Then the HTTP status is "401"
 
-  Scenario: It's an error to login from a K8s resource which does not match the one configured in the host
+  Scenario: it raises an error when logging in from a K8s resource which does not match the one configured in the host
     When I login to pod matching "app=inventory-pod" to authn-k8s as "test-app-incorrect-resource" with prefix "host/some-policy"
     Then the HTTP status is "401"

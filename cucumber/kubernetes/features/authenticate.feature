@@ -1,4 +1,5 @@
-Feature: An authorized client can authenticate as a permitted role
+Feature: A permitted Conjur host can authenticate with a valid application identity
+  that is defined in the id
 
   Scenario: Authenticate as a Pod.
     Given I login to authn-k8s as "pod/inventory-pod"
