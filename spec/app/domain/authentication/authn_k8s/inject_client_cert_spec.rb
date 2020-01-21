@@ -59,7 +59,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
   let(:validate_pod_request) { double("ValidatePodRequest") }
 
-  let(:dependencies) { { resource_repo: double(),
+  let(:dependencies) { { resource_class: double(),
                          conjur_ca_repo: double(),
                          k8s_object_lookup: double(),
                          kubectl_exec: double(),

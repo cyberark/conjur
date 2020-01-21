@@ -6,7 +6,7 @@ RSpec.describe 'Conjur::FetchRequiredSecrets' do
 
   def fetch_secrets(repo)
     Conjur::FetchRequiredSecrets
-      .new(resource_repo: repo)
+      .new(resource_class: repo)
       .(resource_ids: ['resource1', 'resource2'])
   end
 

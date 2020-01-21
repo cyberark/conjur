@@ -47,7 +47,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
 
   let(:validate_application_identity) { double("ValidateApplicationIdentity") }
 
-  let(:dependencies) { { resource_repo:             double(),
+  let(:dependencies) { { resource_class:             double(),
                          k8s_object_lookup_class:   k8s_object_lookup_class,
                          validate_application_identity: validate_application_identity } }
 

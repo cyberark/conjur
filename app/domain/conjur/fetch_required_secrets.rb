@@ -6,7 +6,7 @@ module Conjur
   Err = Errors::Conjur
 
   FetchRequiredSecrets = ::CommandClass.new(
-    dependencies: { resource_repo: ::Resource },
+    dependencies: { resource_class: ::Resource },
     inputs: [:resource_ids]
   ) do
 
@@ -35,7 +35,7 @@ module Conjur
     end
 
     def resources
-      @resources ||= @resource_ids.map { |id| [id, @resource_repo[id]] }.to_h
+      @resources ||= @resource_ids.map { |id| [id, @resource_class[id]] }.to_h
     end
 
     def secrets

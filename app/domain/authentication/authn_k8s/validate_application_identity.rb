@@ -10,7 +10,7 @@ module Authentication
 
     ValidateApplicationIdentity = CommandClass.new(
       dependencies: {
-        resource_repo:              Resource,
+        resource_class:              Resource,
         k8s_resolver:               K8sResolver,
         k8s_object_lookup_class:    K8sObjectLookup,
         application_identity_class: ApplicationIdentity
@@ -71,7 +71,7 @@ module Authentication
       end
 
       def host
-        @host ||= @resource_repo[k8s_host.conjur_host_id]
+        @host ||= @resource_class[k8s_host.conjur_host_id]
       end
 
       # @return The Conjur resource for the webservice.
