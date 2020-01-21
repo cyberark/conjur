@@ -140,7 +140,7 @@ RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
                                       .with(:value)
                                       .and_return(nil)
 
-        expected_message = /Container authenticator was not found for requesting pod/
+        expected_message = /Container authenticator was not found in the pod/
         expect { validator.(
           host_id: host_id,
             host_annotations: host_annotations,
@@ -159,7 +159,7 @@ RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
         allow(host_annotation_2).to receive(:values)
                                       .and_return({ :name => "notimportant" })
 
-        expected_message = /Container authenticator was not found for requesting pod/
+        expected_message = /Container authenticator was not found in the pod/
         expect { validator.(
           host_id: host_id,
             host_annotations: host_annotations,
@@ -178,7 +178,7 @@ RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
         allow(host_annotation_2).to receive(:values)
                                       .and_return({ :name => "notimportant" })
 
-        expected_message = /Container authenticator was not found for requesting pod/
+        expected_message = /Container authenticator was not found in the pod/
         expect { validator.(
           host_id: host_id,
             host_annotations: host_annotations,
@@ -197,7 +197,7 @@ RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
         allow(host_annotation_2).to receive(:values)
                                       .and_return({ :name => "notimportant" })
 
-        expected_message = /Container authenticator was not found for requesting pod/
+        expected_message = /Container authenticator was not found in the pod/
         expect { validator.(
           host_id: host_id,
             host_annotations: host_annotations,
@@ -280,12 +280,11 @@ RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
         end
 
         it 'raises error if pod metadata fails validation' do
-          expected_message = "PodValidationFailed"
-
+          validation_error_message = "PodValidationFailed"
           allow(k8s_object_lookup_class)
             .to receive(:find_object_by_name)
                   .with(k8s_resource_name, k8s_resource_value, k8s_host_namespace)
-                  .and_raise(expected_message)
+                  .and_raise(validation_error_message)
 
           expect { validator.(
             host_id: host_id,
@@ -294,7 +293,7 @@ RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
               account: account,
               spiffe_id: spiffe_id
           ) }.to raise_error(RuntimeError,
-                             expected_message)
+                             validation_error_message)
         end
 
         it 'raises ContainerNotFound if container cannot be found and container name is defaulted' do
@@ -308,7 +307,7 @@ RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
                                         .with(:value)
                                         .and_return(nil)
 
-          expected_message = /Container authenticator was not found for requesting pod/
+          expected_message = /Container authenticator was not found in the pod/
           expect { validator.(
             host_id: host_id,
               host_annotations: host_annotations,
@@ -327,7 +326,7 @@ RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
           allow(host_annotation_2).to receive(:values)
                                         .and_return({ :name => "notimportant" })
 
-          expected_message = /Container authenticator was not found for requesting pod/
+          expected_message = /Container authenticator was not found in the pod/
           expect { validator.(
             host_id: host_id,
               host_annotations: host_annotations,

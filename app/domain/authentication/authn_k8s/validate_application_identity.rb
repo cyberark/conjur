@@ -38,7 +38,7 @@ module Authentication
       end
 
       def validate_container
-        raise Err::ContainerNotFound, application_identity.container_name unless container
+        raise Err::ContainerNotFound, application_identity.container_name, @host_id unless container
       end
 
       def validate_pod_metadata

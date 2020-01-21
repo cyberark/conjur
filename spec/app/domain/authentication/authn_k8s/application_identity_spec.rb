@@ -164,7 +164,7 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
           let(:host_id) { "HostId" }
 
           it "raises an error" do
-            expect { subject }.to raise_error(ArgumentError)
+            expect { subject }.to raise_error(::Errors::Authentication::AuthnK8s::InvalidHostId)
           end
         end
 

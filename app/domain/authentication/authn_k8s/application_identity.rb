@@ -4,7 +4,7 @@ module Authentication
     Log = LogMessages::Authentication::AuthnK8s
     Err = Errors::Authentication::AuthnK8s
     # Possible Errors Raised: MissingNamespaceConstraint, IllegalConstraintCombinations,
-    # ScopeNotSupported, ArgumentError
+    # ScopeNotSupported, InvalidHostId
 
     # This class defines an application identity of a given conjur host.
     # The constructor initializes an ApplicationIdentity object and validates that
@@ -149,10 +149,7 @@ module Authentication
         Rails.logger.debug(Log::ValidatingHostId.new(@host_id))
 
         valid_host_id = host_id_suffix.length == 3
-        unless valid_host_id
-          raise ArgumentError, "Invalid K8s host id: #{@host_id}. " \
-          "Must end with namespace/resource_type/resource_id"
-        end
+        raise Err::InvalidHostId, @host_id unless valid_host_id
 
         return if host_id_namespace_scoped?
 
