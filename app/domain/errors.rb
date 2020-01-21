@@ -199,7 +199,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         ContainerNotFound = ::Util::TrackableErrorClass.new(
-          msg: "Container {0} was not found for requesting pod",
+          msg: "Container {0} was not found in the pod. Host id: {1}",
           code: "CONJ00028E"
         )
 
@@ -255,12 +255,12 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         IllegalConstraintCombinations = ::Util::TrackableErrorClass.new(
-          msg: "Application identity includes an illegal combination - '{0-controller-constraints}'",
+          msg: "Application identity includes an illegal Kubernetes resource constraint combination - '{0-controller-constraints}'",
           code: "CONJ00044E"
         )
 
         MissingNamespaceConstraint = ::Util::TrackableErrorClass.new(
-          msg: "Conjur host does not have a namespace constraint",
+          msg: "Host does not have a namespace constraint",
           code: "CONJ00045E"
         )
 
@@ -273,6 +273,11 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         ValidationError = ::Util::TrackableErrorClass.new(
           msg: "{0-message}",
           code: "CONJ00047E"
+        )
+
+        InvalidHostId = ::Util::TrackableErrorClass.new(
+          msg: "Invalid Kubernetes host id: {0}. Must end with <namespace>/<resource_type>/<resource_id>",
+          code: "CONJ00048E"
         )
       end
     end
