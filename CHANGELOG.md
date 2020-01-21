@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.4.6] - 2020-01-21
+
 ### Changed
 - K8s hosts' application identity is extracted from annotations or id. If it is
   defined in annotations it will taken from there and if not, it will be taken 
@@ -252,7 +254,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.4.5...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.4.6...HEAD
+[1.4.6]: https://github.com/cyberark/conjur/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/cyberark/conjur/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/cyberark/conjur/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/cyberark/conjur/compare/v1.4.2...v1.4.3
