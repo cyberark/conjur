@@ -16,7 +16,7 @@ services:
       CONJUR_ADMIN_PASSWORD: admin
       CONJUR_ACCOUNT: cucumber
       CONJUR_DATA_KEY:
-      RAILS_ENV:
+      RAILS_ENV: test
       REQUIRE_SIMPLECOV: "true"
       CONJUR_LOG_LEVEL: debug
       CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak,authn-config/env
