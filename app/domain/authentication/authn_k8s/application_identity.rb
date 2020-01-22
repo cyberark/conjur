@@ -112,7 +112,13 @@ module Authentication
       end
 
       def host_id_suffix
-        @host_id_suffix ||= @host_id.split('/').last(3)
+        @host_id_suffix ||= hostname.split('/').last(3)
+      end
+
+      # Return the last part of the host id (which is the actual hostname).
+      # The host id is build as "account_name:kind:identifier" (e.g "org:host:some_hostname").
+      def hostname
+        @hostname ||= @host_id.split(':')[2]
       end
 
       def validate_permitted_annotations

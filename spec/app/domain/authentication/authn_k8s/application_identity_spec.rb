@@ -5,6 +5,8 @@ require 'spec_helper'
 RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
   include_context "running outside kubernetes"
 
+  let(:host_id_prefix) { "accountName:host:" }
+
   let(:namespace) { "K8sNamespace" }
 
   let(:k8s_resource_name) { "K8sResourceName" }
@@ -136,7 +138,7 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
 
     context "Application identity in host id" do
       let(:host_annotations) { [] }
-      let(:host_id) { "#{namespace}/#{k8s_resource_name}/#{k8s_resource_value}" }
+      let(:host_id) { "#{host_id_prefix}#{namespace}/#{k8s_resource_name}/#{k8s_resource_value}" }
 
       context "with a valid application identity" do
         context "when is namespace scoped" do
@@ -161,7 +163,7 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
 
       context "with an invalid application identity" do
         context "where the id isn't a 3 part string" do
-          let(:host_id) { "HostId" }
+          let(:host_id) { "#{host_id_prefix}HostId" }
 
           it "raises an error" do
             expect { subject }.to raise_error(::Errors::Authentication::AuthnK8s::InvalidHostId)
@@ -179,7 +181,7 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
     end
 
     context "Application identity in annotations" do
-      let(:host_id) { "HostId" }
+      let(:host_id) { "#{host_id_prefix}HostId" }
 
       context "with a valid application identity" do
         context "when is namespace scoped" do
@@ -486,7 +488,7 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
     context "Application identity in host id and in annotations" do
       let(:host_annotations) { [namespace_annotation, service_account_annotation, container_name_annotation] }
       let(:k8s_resource_name) { "service_account" }
-      let(:host_id) { "#{namespace}/#{k8s_resource_name}/#{k8s_resource_value}" }
+      let(:host_id) { "#{host_id_prefix}#{namespace}/#{k8s_resource_name}/#{k8s_resource_value}" }
 
       before(:each) do
         allow(namespace_annotation).to receive(:[])
