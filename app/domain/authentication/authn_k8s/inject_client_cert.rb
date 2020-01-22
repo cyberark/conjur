@@ -60,7 +60,10 @@ module Authentication
       # contains the full host-id.
       def update_csr_common_name
         prefix = @host_id_prefix.nil? || @host_id_prefix.empty? ? apps_host_id_prefix : @host_id_prefix
-        smart_csr.common_name = prefix + "." + smart_csr.common_name
+        full_host_name = prefix + "." + smart_csr.common_name
+
+        Rails.logger.debug(Log::SetCommonName.new(full_host_name))
+        smart_csr.common_name = full_host_name
       end
 
       def apps_host_id_prefix
