@@ -22,3 +22,6 @@ Feature: A permitted Conjur host can login with a valid application identity
 
   Scenario: Login with a custom prefix.
     Then I can login to authn-k8s as "@namespace@/pod/inventory-pod" with prefix "host/some-policy"
+
+  Scenario: Login with a host defined in the root policy
+    Then I can login to pod matching "app=inventory-pod" to authn-k8s as "@namespace@/*/*" with prefix "host"

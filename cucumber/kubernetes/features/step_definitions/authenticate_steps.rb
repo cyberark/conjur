@@ -17,6 +17,8 @@ def gen_cert(host_id)
 end
 
 def authenticate_k8s(host, cert, key, conjur_id)
+  conjur_id = substitute!(conjur_id)
+
   RestClient::Resource.new(
     host,
     ssl_ca_file: './nginx.crt',
