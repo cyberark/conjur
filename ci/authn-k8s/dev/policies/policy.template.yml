@@ -197,3 +197,23 @@
 - !grant
   role: !group conjur/authn-k8s/minikube/clients
   member: !layer some-policy
+
+# Define hosts under root policy
+- &root-based-hosts
+  # Application identity defined in the host id
+  - !host
+    id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/*/*
+    annotations:
+      kubernetes/authentication-container-name: authenticator
+
+  # Application identity defined in annotations
+  - !host
+    id: root-based-app
+    annotations:
+      authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+      authn-k8s/authentication-container-name: authenticator
+
+# Permit the hosts above to authenticate with authn-k8s
+- !grant
+  role: !group conjur/authn-k8s/minikube/clients
+  member: *root-based-hosts

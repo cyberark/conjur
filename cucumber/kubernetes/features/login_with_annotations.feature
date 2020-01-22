@@ -30,6 +30,9 @@ Feature: A permitted Conjur host can login with a valid application identity
   Scenario: Login as the namespace a pod belongs to when the constraint is on the authenticator.
     Then I can login to pod matching "app=inventory-pod" to authn-k8s as "test-app-service-id-constraint" with prefix "host/some-policy"
 
+  Scenario: Login with a host defined in the root policy
+    Then I can login to pod matching "app=inventory-pod" to authn-k8s as "root-based-app" with prefix "host"
+
   Scenario: it raises an error when logging in with a host that has an unsupported resource type
     Given I login to pod matching "app=inventory-deployment" to authn-k8s as "test-app-non-permited-scope" with prefix "host/some-policy"
     Then the HTTP status is "401"
