@@ -35,7 +35,7 @@ end
 
 def login_with_username request_ip, username, success, headers = {}
   begin
-    @pkey = OpenSSL::PKey::RSA.new 1048
+    @pkey = OpenSSL::PKey::RSA.new 2048
     login(username, request_ip, authn_k8s_host, @pkey, headers)
   rescue
     raise if success
@@ -78,7 +78,7 @@ When(/^I launch many concurrent login requests$/) do
     sleep 0.05
     Thread.new do
       begin
-        login(username, request_ip, authn_k8s_host, OpenSSL::PKey::RSA.new(1048))
+        login(username, request_ip, authn_k8s_host, OpenSSL::PKey::RSA.new(2048))
       rescue
         errors << $!
       end
