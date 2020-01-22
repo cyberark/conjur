@@ -70,10 +70,6 @@ module Authentication
         @k8s_object_lookup ||= @k8s_object_lookup_class.new(webservice)
       end
 
-      def host
-        @host ||= @resource_class[k8s_host.conjur_host_id]
-      end
-
       # @return The Conjur resource for the webservice.
       def webservice
         @webservice ||= ::Authentication::Webservice.new(
