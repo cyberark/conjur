@@ -38,7 +38,9 @@ module Authentication
       end
 
       def conjur_host_id
-        "#{@account}:" + @common_name.k8s_host_name.sub('host/', 'host:')
+        host_id = "#{@account}:" + @common_name.k8s_host_name.sub('host/', 'host:')
+        Rails.logger.debug(Log::HostIdFromCommonName.new(host_id))
+        host_id
       end
     end
   end

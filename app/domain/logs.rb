@@ -124,6 +124,16 @@ unless defined? LogMessages::Authentication::OriginValidated
           msg: "Validating host id {0}",
           code: "CONJ00026D"
         )
+
+        HostIdFromCommonName = ::Util::TrackableLogMessageClass.new(
+          msg: "Host id {0} extracted from CSR common name",
+          code: "CONJ00027D"
+        )
+
+        SetCommonName = ::Util::TrackableLogMessageClass.new(
+          msg: "Setting common name to {0-full-host-name}",
+          code: "CONJ00028D"
+        )
       end
     end
 
