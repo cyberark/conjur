@@ -7,6 +7,13 @@ class Credentials < Sequel::Model
   # Bcrypt work factor, minimum recommended work factor is 12
   BCRYPT_COST = 12
 
+  # special characters according to https://www.owasp.org/index.php/Password_special_characters
+  VALID_PASSWORD_REGEX = %r{^(?=.*?[A-Z].*[A-Z])                             # 2 uppercase letters
+                             (?=.*?[a-z].*[a-z])                             # 2 lowercase letters
+                             (?=.*?[0-9])                                    # 1 digit
+                             (?=.*[ !"#$%&'()*+,-.\/:;<=>?@\[\\\]^_`{|}~]).  # 1 special character
+                             {12,128}$}x                                     # 12-128 characters
+
   plugin :validation_helpers
 
   unrestrict_primary_key
@@ -23,7 +30,7 @@ class Credentials < Sequel::Model
       Slosilo::Random.salt.unpack("N*").map{|i| Base32::Crockford::encode(i)}.join.downcase
     end
   end
-  
+
   def as_json
     { }
   end
@@ -63,8 +70,7 @@ class Credentials < Sequel::Model
 
     validates_presence [ :api_key ]
 
-    errors.add(:password, 'must not be blank') if @plain_password && @plain_password.empty?
-    errors.add(:password, 'cannot contain a newline') if @plain_password && @plain_password.index("\n")
+    errors.add(:password, ::Errors::Conjur::InsufficientPasswordComplexity.new.to_s) if @plain_password && (@plain_password.index("\n") || @plain_password !~ VALID_PASSWORD_REGEX)
   end
   
   def before_validation

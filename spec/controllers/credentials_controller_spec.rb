@@ -45,7 +45,8 @@ describe CredentialsController, :type => :controller do
   end
   
   context "#update_password" do
-    let(:new_password) { +"new-password" }
+    let(:new_password) { +"New-Password1" }
+    let(:insufficient_msg) { ::Errors::Conjur::InsufficientPasswordComplexity.new.to_s }
     context "without auth" do
       it "is unauthorized" do
         post :update_password, account: account, authenticator: authenticator
@@ -61,12 +62,12 @@ describe CredentialsController, :type => :controller do
           {
             error: {
               code: "validation_failed",
-              message: "password must not be blank",
+              message: "password #{insufficient_msg}",
               details: [
                 {
                   code: "validation_failed",
                   target: "password",
-                  message: "must not be blank"
+                  message: insufficient_msg
                 }
               ]
             }
@@ -94,12 +95,12 @@ describe CredentialsController, :type => :controller do
             {
               error: {
                 code: "validation_failed",
-                message: "password cannot contain a newline",
+                message: "password #{insufficient_msg}",
                 details: [
                   {
                     code: "validation_failed",
                     target: "password",
-                    message: "cannot contain a newline"
+                    message: insufficient_msg
                   }
                 ]
               }

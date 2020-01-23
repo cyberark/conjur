@@ -19,6 +19,12 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         code: "CONJ00037E"
       )
 
+      InsufficientPasswordComplexity = Util::TrackableErrorClass.new(
+        msg: "The password you have chosen does not meet the complexity requirements. " \
+             "Choose a password that includes: 12-128 characters, 2 uppercase letters, 2 lowercase letters, 1 digit, 1 special character",
+        code: "CONJ00046E"
+      )
+
     end
 
     module Authentication
