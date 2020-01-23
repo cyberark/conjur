@@ -35,9 +35,9 @@ class CredentialsController < ApplicationController
   # This method requires a PUT request. The new password is in the request body.
   def update_password
     password = request.body.read
-    
+
     @role.credentials.password = password
-    @role.credentials.save
+    @role.credentials.save(raise_on_save_failure: true)
     head 204
   end
   

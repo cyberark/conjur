@@ -13,7 +13,7 @@ services:
     image: "conjur:${TAG}"
     environment:
       DATABASE_URL: postgres://postgres@pg/postgres
-      CONJUR_ADMIN_PASSWORD: admin
+      CONJUR_ADMIN_PASSWORD: ADmin123!!!!
       CONJUR_ACCOUNT: cucumber
       CONJUR_DATA_KEY:
       RAILS_ENV:

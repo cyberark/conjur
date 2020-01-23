@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe AuthenticateController, :type => :controller do
-  let(:password) { "password" }
+  let(:password) { "The-Password1" }
   let(:login) { "u-#{random_hex}" }
   let(:account) { "rspec" }
   let(:authenticator) { "authn" }

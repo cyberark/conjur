@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- Improved flows and rules around user creation
+
 ## [1.4.6] - 2020-01-21
 
 ### Changed
