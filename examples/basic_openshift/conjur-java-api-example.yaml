@@ -1,0 +1,84 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conjur-cli-example
+  labels:
+    app: conjur-cli-example
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: conjur-cli-example
+  template:
+    metadata:
+      name: conjur-cli-example
+      labels:
+        app: conjur-cli-example
+    spec:
+      serviceAccountName: default
+      containers:
+      - image: cyberark/conjur-authn-k8s-client:latest
+        imagePullPolicy: IfNotPresent
+        name: authenticator
+        env:
+          - name: CONJUR_VERSION
+            value: "5"
+          - name: CONTAINER_MODE
+            value: sidecar
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: MY_POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: CONJUR_AUTHN_URL
+            value: https://conjur-oss.ofira-conjur-test.svc.cluster.local/authn-k8s/minikube
+          - name: CONJUR_APPLIANCE_URL
+            value: https://conjur-oss.ofira-conjur-test.svc.cluster.local
+          - name: CONJUR_ACCOUNT
+            value: myaccount
+          - name: CONJUR_AUTHN_LOGIN
+            value: "host/conjur/authn-k8s/minikube/apps/ofira-conjur-test/*/*"
+          - name: CONJUR_SSL_CERTIFICATE
+            valueFrom:
+              configMapKeyRef:
+                name: conjur-cert
+                key: ssl-certificate
+        volumeMounts:
+          - mountPath: /run/conjur
+            name: conjur-access-token
+      - name: ofira-conjur-java-client
+        image: docker-registry.default.svc:5000/ofira-conjur-test/ofira-conjur-java-client-7:latest
+        imagePullPolicy: Always
+        env:
+          - name: CONJUR_AUTHN_URL
+            value: https://conjur-oss.ofira-conjur-test.svc.cluster.local/authn-k8s/minikube
+          - name: CONJUR_APPLIANCE_URL
+            value: https://conjur-oss.ofira-conjur-test.svc.cluster.local
+          - name: CONJUR_ACCOUNT
+            value: myaccount
+          - name: CONJUR_AUTHN_LOGIN
+            value: admin
+          - name: CONJUR_AUTHN_API_KEY
+            value: 2naavj9kywx73q7zr5q2qz1e1q1f8e7spg3g7e3tddtv133v95pt
+          - name: PATH_TO_AUTH_TOKEN_FILE
+            value: /run/conjur/access-token
+          - name: CONJUR_SSL_CERTIFICATE
+            valueFrom:
+              configMapKeyRef:
+                name: conjur-cert
+                key: ssl-certificate
+        volumeMounts:
+          - mountPath: /run/conjur
+            name: conjur-access-token
+      volumes:
+        - name: conjur-access-token
+          emptyDir:
+            medium: Memory

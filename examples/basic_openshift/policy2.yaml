@@ -1,0 +1,23 @@
+---
+# Filename: policy_for_authenticator_identities.yml
+# This policy defines a layer of whitelisted identities permitted to authenticate to the authn-k8s endpoint.
+- !policy
+  id: conjur/authn-k8s/minikube/apps
+  owner: !group devops
+  annotations:
+    description: Identities permitted to authenticate
+  body:
+  - !layer
+    annotations:
+      description: Layer of authenticator identities permitted to call authn svc
+  - &hosts
+    - !host
+      id: ofira-conjur-test/*/*
+      annotations:
+        kubernetes/authentication-container-name: authenticator
+        openshift: "true"
+
+  - !grant
+    role: !layer
+    members: *hosts
+

@@ -1,0 +1,39 @@
+# Filename: policy_for_human_users.yml
+# initializes users
+# ted - kubernetes admin
+# bob - devops admin
+# alice - db admin
+# carol - developer
+
+- !group kube_admin
+- !group devops
+- !group ops
+- !group db_admin
+
+# kube_admin and devops groups are members of the ops admin group
+- !grant
+  role: !group ops
+  members:
+  - !group kube_admin
+  - !group devops
+
+- !user ted
+- !grant
+  role: !group kube_admin
+  member: !user ted
+
+- !user bob
+- !grant
+  role: !group devops
+  member: !user bob
+
+- !user alice
+- !grant
+  role: !group db_admin
+  member: !user alice
+
+- !user carol
+- !grant
+  role: !group devops
+  member: !user carol
+

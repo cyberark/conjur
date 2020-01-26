@@ -1,0 +1,15 @@
+authenticators: "authn-k8s/minikube,authn"
+dataKey: "iMldjotGK9DcKUjKfCv+k6vzVSoL/6ODTpS0CAoKio8="
+account: "myaccount"
+
+image:
+  repository: "docker-registry.default.svc:5000/ofira-conjur-test/conjur"
+  tag: "latest"
+  pullPolicy: Always
+
+ssl:
+  hositname: custom.domainname.com
+
+postgres:
+  persistentVolume:
+    create: false

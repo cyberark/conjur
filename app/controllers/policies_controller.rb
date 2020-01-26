@@ -31,7 +31,8 @@ class PoliciesController < RestController
 
   def load_policy perform_automatic_deletion:, delete_permitted:, update_permitted:
     policy_text = request.raw_post
-
+    puts "++++++++++++++++ OFIRA puts load_policy ++++++++++++++++"
+    logger.debug("+++++++++++ OFIRA logger load_policy +++++++++++")
     policy_version = PolicyVersion.new \
       role: current_user, policy: resource, policy_text: policy_text
     policy_version.perform_automatic_deletion = perform_automatic_deletion

@@ -1,0 +1,31 @@
+# Filename: policy_for_k8s_authenticator_service.yml
+# This policy defines an authn-k8s endpoint, CA creds and a layer for whitelisted identities permitted to authenticate to it
+- !policy
+  id: conjur/authn-k8s/minikube
+  owner: !group devops
+  annotations:
+    description: Namespace defs for the Conjur cluster in dev
+  body:
+  - !webservice
+    annotations:
+      description: authn service for cluster
+
+# CA cert and key for creating client certificates
+  - !policy
+    id: ca
+    body:
+    - !variable
+      id: cert
+      annotations:
+        description: CA cert for Kubernetes Pods.
+    - !variable
+      id: key
+      annotations:
+        description: CA key for Kubernetes Pods.
+
+  # permit a layer of whitelisted authn ids to call authn service
+  - !permit
+    resource: !webservice
+    privilege: [ read, authenticate ]
+    role: !layer /conjur/authn-k8s/minikube/apps
+
