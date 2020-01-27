@@ -184,7 +184,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         ScopeNotSupported = ::Util::TrackableErrorClass.new(
-          msg: "Resource type '{0}' is not a supported application identity",
+          msg: "Resource type '{0}' is not a supported application identity. The supported resources are '{1}'",
           code: "CONJ00025E"
         )
 

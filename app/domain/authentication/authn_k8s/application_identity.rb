@@ -131,9 +131,8 @@ module Authentication
 
         prefixed_k8s_annotations(prefix).each do |annotation|
           annotation_name = annotation[:name]
-          unless prefixed_permitted_annotations(prefix).include?(annotation_name)
-            raise Err::ScopeNotSupported, annotation_name
-          end
+          next if prefixed_permitted_annotations(prefix).include?(annotation_name)
+          raise Err::ScopeNotSupported.new(annotation_name.gsub(prefix, ""), annotation_type_constraints)
         end
       end
 
@@ -161,7 +160,7 @@ module Authentication
 
         constraint       = host_id_suffix[-2]
         valid_constraint = permitted_constraints.include?(constraint)
-        raise Err::ScopeNotSupported, constraint unless valid_constraint
+        raise Err::ScopeNotSupported.new(constraint, permitted_constraints) unless valid_constraint
       end
 
       def permitted_constraints
