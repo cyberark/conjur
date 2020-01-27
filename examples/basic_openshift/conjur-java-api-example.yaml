@@ -39,13 +39,13 @@ spec:
               fieldRef:
                 fieldPath: status.podIP
           - name: CONJUR_AUTHN_URL
-            value: https://conjur-oss.ofira-conjur-test.svc.cluster.local/authn-k8s/minikube
+            value: https://conjur-oss.ofira-conjur-test.svc.cluster.local/authn-k8s/myminikube
           - name: CONJUR_APPLIANCE_URL
             value: https://conjur-oss.ofira-conjur-test.svc.cluster.local
           - name: CONJUR_ACCOUNT
             value: myaccount
           - name: CONJUR_AUTHN_LOGIN
-            value: "host/conjur/authn-k8s/minikube/apps/ofira-conjur-test/*/*"
+            value: "host/conjur/authn-k8s/myminikube/apps/ofira-conjur-test/*/*"
           - name: CONJUR_SSL_CERTIFICATE
             valueFrom:
               configMapKeyRef:
@@ -59,7 +59,7 @@ spec:
         imagePullPolicy: Always
         env:
           - name: CONJUR_AUTHN_URL
-            value: https://conjur-oss.ofira-conjur-test.svc.cluster.local/authn-k8s/minikube
+            value: https://conjur-oss.ofira-conjur-test.svc.cluster.local/authn-k8s/myminikube
           - name: CONJUR_APPLIANCE_URL
             value: https://conjur-oss.ofira-conjur-test.svc.cluster.local
           - name: CONJUR_ACCOUNT

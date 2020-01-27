@@ -1,4 +1,4 @@
-authenticators: "authn-k8s/minikube,authn"
+authenticators: "authn-k8s/myminikube,authn"
 dataKey: "iMldjotGK9DcKUjKfCv+k6vzVSoL/6ODTpS0CAoKio8="
 account: "myaccount"
 

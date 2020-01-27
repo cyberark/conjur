@@ -37,7 +37,9 @@ COPY Gemfile \
 
 ENV WEB_CONCURRENCY=2
 
-RUN if [ "$debug" = "true" ] ; then WEB_CONCURRENCY=0 ; fi
+RUN if [ "$debug" = "true" ] ; 
+then WEB_CONCURRENCY=0 ; 
+fi
 
 RUN if [ "$debug" != "true" ] ; then bundle --without test development ; else bundle --without test ; fi
 
