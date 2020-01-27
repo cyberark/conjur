@@ -89,7 +89,7 @@ module Authentication
       end
 
       def constraint_value constraint_name
-        application_identity_in_annotations? ? constraint_from_annotation(constraint_name) : constraint_from_id(constraint_name)
+        application_identity_in_annotations? ? constraint_from_annotation(annotation_type_constraint(constraint_name)) : constraint_from_id(constraint_name)
       end
 
       def constraint_from_annotation constraint_name
@@ -171,7 +171,15 @@ module Authentication
       end
 
       def permitted_annotations
-        @permitted_annotations ||= permitted_constraints << "authentication-container-name"
+        @permitted_annotations ||= annotation_type_constraints << "authentication-container-name"
+      end
+
+      def annotation_type_constraints
+        @annotation_type_constraints ||= permitted_constraints.map { |constraint| annotation_type_constraint(constraint) }
+      end
+
+      def annotation_type_constraint constraint
+        constraint.tr('_', '-')
       end
 
       def application_identity_in_annotations?
