@@ -73,6 +73,8 @@ module Authentication
 
       def host
         @host ||= @resource_class[k8s_host.conjur_host_id]
+        raise Err::HostNotFound(k8s_host.conjur_host_id) if @host.nil?
+        @host
       end
 
       def pod
