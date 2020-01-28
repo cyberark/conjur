@@ -66,12 +66,12 @@ RSpec.describe 'Authentication::Oidc' do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc-test',
-            service_id: 'my-service',
-            account: 'my-acct',
-            username: nil,
-            password: nil,
-            origin: '127.0.0.1',
-            request: oidc_authenticate_id_token_request
+            service_id:         'my-service',
+            account:            'my-acct',
+            username:           nil,
+            request_body:       nil,
+            origin:             '127.0.0.1',
+            request:            oidc_authenticate_id_token_request
           )
 
           ::Authentication::AuthnOidc::Authenticate.new(
@@ -102,12 +102,12 @@ RSpec.describe 'Authentication::Oidc' do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc-test',
-            service_id: 'my-service',
-            account: 'my-acct',
-            username: nil,
-            password: nil,
-            origin: '127.0.0.1',
-            request: no_field_oidc_authenticate_id_token_request
+            service_id:         'my-service',
+            account:            'my-acct',
+            username:           nil,
+            request_body:       nil,
+            origin:             '127.0.0.1',
+            request:            no_field_oidc_authenticate_id_token_request
           )
 
           ::Authentication::AuthnOidc::Authenticate.new(
@@ -131,12 +131,12 @@ RSpec.describe 'Authentication::Oidc' do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc-test',
-            service_id: 'my-service',
-            account: 'my-acct',
-            username: nil,
-            password: nil,
-            origin: '127.0.0.1',
-            request: no_value_oidc_authenticate_id_token_request
+            service_id:         'my-service',
+            account:            'my-acct',
+            username:           nil,
+            request_body:       nil,
+            origin:             '127.0.0.1',
+            request:            no_value_oidc_authenticate_id_token_request
           )
 
           ::Authentication::AuthnOidc::Authenticate.new(

@@ -23,7 +23,7 @@ module Authentication
 
       # Login the role using LDAP credentials
       def login(input)
-        login, password = input.username, input.password
+        login, password = input.username, input.request_body
 
         # Prevent anonymous LDAP authentication with username only
         return nil if password.blank?

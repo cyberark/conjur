@@ -76,7 +76,7 @@ RSpec.describe 'Authentication::Authenticate' do
         service_id:         nil,
         account:            'my-acct',
         username:           'my-user',
-        password:           'my-pw',
+        request_body:       'my-pw',
         origin:             '127.0.0.1',
         request:            nil
       )
@@ -105,7 +105,7 @@ RSpec.describe 'Authentication::Authenticate' do
           service_id:         nil,
           account:            'my-acct',
           username:           'my-user',
-          password:           'my-pw',
+          request_body:       'my-pw',
           origin:             '127.0.0.1',
           request:            nil
         )
@@ -133,7 +133,7 @@ RSpec.describe 'Authentication::Authenticate' do
           service_id:         nil,
           account:            'my-acct',
           username:           'my-user',
-          password:           'my-pw',
+          request_body:       'my-pw',
           origin:             '127.0.0.1',
           request:            nil
         )

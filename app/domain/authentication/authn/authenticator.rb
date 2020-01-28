@@ -20,7 +20,7 @@ module Authentication
         creds = credentials(input)
         return nil unless creds
 
-        success = creds.authenticate(input.password)
+        success = creds.authenticate(input.request_body)
         success ? creds.api_key : nil
       end
 
@@ -29,7 +29,7 @@ module Authentication
         creds = credentials(input)
         return nil unless creds
         
-        creds.valid_api_key?(input.password)
+        creds.valid_api_key?(input.request_body)
       end
 
       def credentials(input)
