@@ -15,7 +15,7 @@ module Authentication
       end
 
       def valid?(input)
-        signed_aws_headers = JSON.parse input.password # input.password is JSON holding the AWS signed headers
+        signed_aws_headers = JSON.parse input.request_body # input.request_body is JSON holding the AWS signed headers
 
         response_hash = identity_hash(response_from_signed_request(signed_aws_headers))
         trusted = response_hash != false

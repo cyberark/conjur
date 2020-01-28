@@ -76,12 +76,12 @@ class AuthenticateController < ApplicationController
   def authenticator_input
     Authentication::AuthenticatorInput.new(
       authenticator_name: params[:authenticator],
-      service_id: params[:service_id],
-      account: params[:account],
-      username: params[:id],
-      password: request.body.read,
-      origin: request.ip,
-      request: request
+      service_id:         params[:service_id],
+      account:            params[:account],
+      username:           params[:id],
+      request_body:       request.body.read,
+      origin:             request.ip,
+      request:            request
     )
   end
 
@@ -97,12 +97,12 @@ class AuthenticateController < ApplicationController
   def oidc_authenticator_input
     Authentication::AuthenticatorInput.new(
       authenticator_name: 'authn-oidc',
-      service_id: params[:service_id],
-      account: params[:account],
-      username: nil,
-      password: nil,
-      origin: request.ip,
-      request: request
+      service_id:         params[:service_id],
+      account:            params[:account],
+      username:           nil,
+      request_body:       nil,
+      origin:             request.ip,
+      request:            request
     )
   end
 
