@@ -2,7 +2,7 @@
 # Filename: policy_for_authenticator_identities.yml
 # This policy defines a layer of whitelisted identities permitted to authenticate to the authn-k8s endpoint.
 - !policy
-  id: conjur/authn-k8s/myminikube/apps
+  id: conjur/authn-k8s/myauthenticator/apps
   owner: !group devops
   annotations:
     description: Identities permitted to authenticate

@@ -39,13 +39,13 @@ spec:
               fieldRef:
                 fieldPath: status.podIP
           - name: CONJUR_AUTHN_URL
-            value: https://conjur-oss.ofira-conjur-test.svc.cluster.local/authn-k8s/myminikube
+            value: https://conjur-oss.ofira-conjur-test.svc.cluster.local/authn-k8s/myauthenticator
           - name: CONJUR_APPLIANCE_URL
             value: https://conjur-oss.ofira-conjur-test.svc.cluster.local
           - name: CONJUR_ACCOUNT
             value: myaccount
           - name: CONJUR_AUTHN_LOGIN
-            value: "host/conjur/authn-k8s/myminikube/apps/ofira-conjur-test/*/*"
+            value: "host/conjur/authn-k8s/myauthenticator/apps/ofira-conjur-test/*/*"
           - name: CONJUR_SSL_CERTIFICATE
             valueFrom:
               configMapKeyRef:
@@ -55,11 +55,11 @@ spec:
           - mountPath: /run/conjur
             name: conjur-access-token
       - name: ofira-conjur-java-client
-        image: docker-registry.default.svc:5000/ofira-conjur-test/ofira-conjur-java-client-7:latest
+        image: docker-registry.default.svc:5000/ofira-conjur-test/ofira-conjur-java-client:latest
         imagePullPolicy: Always
         env:
           - name: CONJUR_AUTHN_URL
-            value: https://conjur-oss.ofira-conjur-test.svc.cluster.local/authn-k8s/myminikube
+            value: https://conjur-oss.ofira-conjur-test.svc.cluster.local/authn-k8s/myauthenticator
           - name: CONJUR_APPLIANCE_URL
             value: https://conjur-oss.ofira-conjur-test.svc.cluster.local
           - name: CONJUR_ACCOUNT
@@ -67,7 +67,7 @@ spec:
           - name: CONJUR_AUTHN_LOGIN
             value: admin
           - name: CONJUR_AUTHN_API_KEY
-            value: 2naavj9kywx73q7zr5q2qz1e1q1f8e7spg3g7e3tddtv133v95pt
+            value: <API Key>
           - name: PATH_TO_AUTH_TOKEN_FILE
             value: /run/conjur/access-token
           - name: CONJUR_SSL_CERTIFICATE

@@ -10,5 +10,5 @@
   - !permit
     resource: !variable mypassword
     privilege: [ read, execute ]
-    role: !host /conjur/authn-k8s/myminikube/apps/ofira-conjur-test/*/*
+    role: !host /conjur/authn-k8s/myauthenticator/apps/ofira-conjur-test/*/*
 

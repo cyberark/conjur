@@ -1,5 +1,5 @@
-authenticators: "authn-k8s/myminikube,authn"
-dataKey: "iMldjotGK9DcKUjKfCv+k6vzVSoL/6ODTpS0CAoKio8="
+authenticators: "authn-k8s/myauthenticator,authn"
+dataKey: "<datakey>"
 account: "myaccount"
 
 image:

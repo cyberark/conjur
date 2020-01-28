@@ -1,0 +1,27 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conjur-cli
+  labels:
+    app: conjur-cli
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: conjur-cli
+  template:
+    metadata:
+      name: conjur-cli
+      labels:
+        app: conjur-cli
+    spec:
+      serviceAccountName: default
+      containers:
+      - name: conjur-cli
+        image: cyberark/conjur-cli:5-latest
+        imagePullPolicy: IfNotPresent
+        command: ["sleep"]
+        args: ["infinity"]
+      imagePullSecrets:
+        - name: dockerpullsecret

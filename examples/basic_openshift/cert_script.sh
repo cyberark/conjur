@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-AUTHENTICATOR_ID='myminikube'
+AUTHENTICATOR_ID='myauthenticator'
 CONJUR_ACCOUNT='myaccount'
 
 # Generate OpenSSL private key
