@@ -17,11 +17,27 @@ module Authentication
       def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :username, :request, :request_body
 
       def call
-
+        validate_azure_token
+        validate_application_identity
       end
 
       private
 
+      def validate_azure_token
+
+      end
+
+      def validate_application_identity
+
+      end
+
+      def host
+
+      end
+
+      def host_annotations
+
+      end
     end
 
     class Authenticator
