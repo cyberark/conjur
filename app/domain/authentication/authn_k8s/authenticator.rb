@@ -54,7 +54,7 @@ module Authentication
       end
 
       def cert
-        @cert ||= Util::OpenSsl::X509::SmartCert.new(header_cert_str)
+        @cert ||= ::Util::OpenSsl::X509::SmartCert.new(header_cert_str)
       end
 
       def ca_can_verify_cert?

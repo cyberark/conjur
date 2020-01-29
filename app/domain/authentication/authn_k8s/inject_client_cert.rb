@@ -109,7 +109,7 @@ module Authentication
       end
 
       def smart_csr
-        @smart_csr ||= Util::OpenSsl::X509::SmartCsr.new(@csr)
+        @smart_csr ||= ::Util::OpenSsl::X509::SmartCsr.new(@csr)
       end
 
       def common_name

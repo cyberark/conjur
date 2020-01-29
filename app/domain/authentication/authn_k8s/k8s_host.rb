@@ -25,7 +25,7 @@ module Authentication
       end
 
       def self.from_cert(account:, service_name:, cert:)
-        cn = Util::OpenSsl::X509::SmartCert.new(cert).common_name
+        cn = ::Util::OpenSsl::X509::SmartCert.new(cert).common_name
         raise ArgumentError, 'Certificate must have a CN entry' unless cn
 
         new(account: account, service_name: service_name, common_name: cn)
