@@ -92,10 +92,10 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
 
       expected_message = /Webservice '#{bad_service_name}' wasn't found/
       expect { validator.(pod_request: pod_request) }
-        .to raise_error(Errors::Authentication::AuthnK8s::WebserviceNotFound, expected_message)
+        .to raise_error(Errors::Authentication::Security::WebserviceNotFound, expected_message)
     end
 
-    it 'raises HostNotAuthorized when host is not allowed to authenticate to service' do
+    it 'raises RoleNotAuthorizedOnWebservice when host is not allowed to authenticate to service' do
       allow(pod_request).to receive(:service_id).and_return(good_service_id)
       allow(host_role).to receive(:allowed_to?)
                             .with("authenticate", good_webservice)
@@ -104,7 +104,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
       expected_message = /'#{host_id}' does not have 'authenticate' privilege on #{good_service_id}/
 
       expect { validator.(pod_request: pod_request) }
-        .to raise_error(Errors::Authentication::AuthnK8s::HostNotAuthorized, expected_message)
+        .to raise_error(Errors::Authentication::Security::RoleNotAuthorizedOnWebservice, expected_message)
     end
 
     it 'raises PodNotFound when pod is not known' do

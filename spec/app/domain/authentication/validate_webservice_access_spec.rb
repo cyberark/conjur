@@ -91,8 +91,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
         privilege: 'test-privilege'
       )
     end
-    it "raises a NotDefinedInConjur error" do
-      expect { subject }.to raise_error(Errors::Authentication::Security::UserNotDefinedInConjur)
+    it "raises a RoleNotFound error" do
+      expect { subject }.to raise_error(Errors::Authentication::Security::RoleNotFound)
     end
   end
 
@@ -111,8 +111,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       )
     end
 
-    it "raises a NotAuthorizedInConjur error" do
-      expect { subject }.to raise_error(Errors::Authentication::Security::UserNotAuthorizedInConjur
+    it "raises a RoleNotAuthorizedOnWebservice error" do
+      expect { subject }.to raise_error(Errors::Authentication::Security::RoleNotAuthorizedOnWebservice
       )
     end
   end
@@ -178,7 +178,7 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
         user_id: user_id,
         privilege: 'test-privilege'
       )
-      }.to raise_error(Errors::Authentication::Security::UserNotDefinedInConjur)
+      }.to raise_error(Errors::Authentication::Security::RoleNotFound)
 
       # For the second, the role should be found, and validation
       # should succeed.

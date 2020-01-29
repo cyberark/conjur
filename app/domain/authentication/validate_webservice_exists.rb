@@ -8,7 +8,7 @@ module Authentication
 
     Err = Errors::Authentication::Security
     # Possible Errors Raised:
-    # AccountNotDefined, ServiceNotDefined
+    # AccountNotDefined, WebserviceNotFound
 
     ValidateWebserviceExists = CommandClass.new(
       dependencies: {
@@ -41,7 +41,7 @@ module Authentication
       end
 
       def validate_webservice_exists
-        raise Err::ServiceNotDefined, @webservice.name unless webservice_resource
+        raise Err::WebserviceNotFound, @webservice.name unless webservice_resource
       end
 
       def webservice_resource

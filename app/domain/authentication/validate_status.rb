@@ -9,8 +9,8 @@ module Authentication
 
   # Possible Errors Raised:
   # AuthenticatorNotFound, StatusNotImplemented, AccountNotDefined
-  # ServiceNotDefined, UserNotDefinedInConjur, UserNotAuthorizedInConjur,
-  # NotWhitelisted
+  # WebserviceNotFound, RoleNotFound, RoleNotAuthorizedOnWebservice,
+  # AuthenticatorNotWhitelisted
 
   ValidateStatus = CommandClass.new(
     dependencies: {

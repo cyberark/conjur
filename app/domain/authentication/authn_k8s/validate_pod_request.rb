@@ -6,8 +6,9 @@ module Authentication
   module AuthnK8s
 
     Err = Errors::Authentication::AuthnK8s
+    SecurityErr = Errors::Authentication::Security
     # Possible Errors Raised:
-    # WebserviceNotFound, HostNotAuthorized, PodNotFound
+    # WebserviceNotFound, RoleNotAuthorizedOnWebservice, PodNotFound
     # ContainerNotFound, ScopeNotSupported, K8sResourceNotFound
 
     ValidatePodRequest = CommandClass.new(
@@ -32,12 +33,12 @@ module Authentication
       private
 
       def validate_webservice_exists
-        raise Err::WebserviceNotFound, service_id unless webservice.resource
+        raise SecurityErr::WebserviceNotFound, service_id unless webservice.resource
       end
 
       def validate_host_can_access_service
         return if host_can_access_service?
-        raise Err::HostNotAuthorized.new(host.role.id, service_id)
+        raise SecurityErr::RoleNotAuthorizedOnWebservice.new(host.role.id, service_id)
       end
 
       def validate_pod_exists
@@ -73,7 +74,7 @@ module Authentication
 
       def host
         @host ||= @resource_class[k8s_host.conjur_host_id]
-        raise Err::HostNotFound(k8s_host.conjur_host_id) if @host.nil?
+        raise SecurityErr::RoleNotFound(k8s_host.conjur_host_id) if @host.nil?
         @host
       end
 

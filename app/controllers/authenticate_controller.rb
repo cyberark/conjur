@@ -130,8 +130,8 @@ class AuthenticateController < ApplicationController
     end
 
     case err
-    when Errors::Authentication::Security::NotWhitelisted,
-      Errors::Authentication::Security::ServiceNotDefined,
+    when Errors::Authentication::Security::AuthenticatorNotWhitelisted,
+      Errors::Authentication::Security::WebserviceNotFound,
       Errors::Authentication::Security::AccountNotDefined
       raise Unauthorized
     else
@@ -146,9 +146,9 @@ class AuthenticateController < ApplicationController
     end
 
     case err
-    when Errors::Authentication::Security::NotWhitelisted,
-      Errors::Authentication::Security::ServiceNotDefined,
-      Errors::Authentication::Security::UserNotDefinedInConjur,
+    when Errors::Authentication::Security::AuthenticatorNotWhitelisted,
+      Errors::Authentication::Security::WebserviceNotFound,
+      Errors::Authentication::Security::RoleNotFound,
       Errors::Authentication::Security::AccountNotDefined,
       Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty,
       Errors::Authentication::AuthnOidc::IdTokenVerifyFailed,
@@ -157,7 +157,7 @@ class AuthenticateController < ApplicationController
       Errors::Conjur::RequiredResourceMissing
       raise Unauthorized
 
-    when Errors::Authentication::Security::UserNotAuthorizedInConjur
+    when Errors::Authentication::Security::RoleNotAuthorizedOnWebservice
       raise Forbidden
 
     when Errors::Authentication::RequestBody::MissingRequestParam
@@ -188,7 +188,7 @@ class AuthenticateController < ApplicationController
     }
 
     status_code = case error
-                  when Errors::Authentication::Security::UserNotAuthorizedInConjur
+                  when Errors::Authentication::Security::RoleNotAuthorizedOnWebservice
                     :forbidden
                   when Errors::Authentication::StatusNotImplemented
                     :not_implemented

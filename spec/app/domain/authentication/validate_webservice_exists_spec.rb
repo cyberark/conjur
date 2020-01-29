@@ -51,8 +51,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceExists do
       )
     end
 
-    it "raises a ServiceNotDefined error" do
-      expect { subject }.to raise_error(Errors::Authentication::Security::ServiceNotDefined)
+    it "raises a WebserviceNotFound error" do
+      expect { subject }.to raise_error(Errors::Authentication::Security::WebserviceNotFound)
     end
   end
 
