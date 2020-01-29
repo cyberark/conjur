@@ -40,7 +40,7 @@ module BasicAuthenticator
       service_id:         params[:service_id],
       account:            params[:account],
       username:           username,
-      request_body:       password,
+      credentials:        password,
       origin:             request.ip,
       request:            request
     )

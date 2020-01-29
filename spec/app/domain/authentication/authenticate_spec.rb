@@ -76,16 +76,16 @@ RSpec.describe 'Authentication::Authenticate' do
         service_id:         nil,
         account:            'my-acct',
         username:           'my-user',
-        request_body:       'my-pw',
+        credentials:        'my-pw',
         origin:             '127.0.0.1',
         request:            nil
       )
 
       Authentication::Authenticate.new(
-        token_factory:          token_factory
+        token_factory: token_factory
       ).call(
-        authenticator_input: input_,
-        authenticators: authenticators,
+        authenticator_input:    input_,
+        authenticators:         authenticators,
         enabled_authenticators: two_authenticator_env
       )
     end
@@ -105,16 +105,16 @@ RSpec.describe 'Authentication::Authenticate' do
           service_id:         nil,
           account:            'my-acct',
           username:           'my-user',
-          request_body:       'my-pw',
+          credentials:        'my-pw',
           origin:             '127.0.0.1',
           request:            nil
         )
 
         Authentication::Authenticate.new(
-          token_factory:          token_factory
+          token_factory: token_factory
         ).call(
-          authenticator_input: input_,
-          authenticators: authenticators,
+          authenticator_input:    input_,
+          authenticators:         authenticators,
           enabled_authenticators: two_authenticator_env
         )
       end
@@ -133,16 +133,16 @@ RSpec.describe 'Authentication::Authenticate' do
           service_id:         nil,
           account:            'my-acct',
           username:           'my-user',
-          request_body:       'my-pw',
+          credentials:        'my-pw',
           origin:             '127.0.0.1',
           request:            nil
         )
 
         Authentication::Authenticate.new(
-          token_factory:          token_factory
+          token_factory: token_factory
         ).call(
-          authenticator_input: input_,
-          authenticators: authenticators,
+          authenticator_input:    input_,
+          authenticators:         authenticators,
           enabled_authenticators: two_authenticator_env
         )
       end
