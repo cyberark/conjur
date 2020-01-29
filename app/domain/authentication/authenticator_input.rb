@@ -9,7 +9,7 @@ module Authentication
     attribute :service_id, ::Types::NonEmptyString.optional
     attribute :account, ::Types::NonEmptyString
     attribute :username, ::Types::NonEmptyString.optional
-    attribute :request_body, ::Types::String.optional
+    attribute :credentials, ::Types::String.optional
     attribute :origin, ::Types::NonEmptyString
     attribute :request, ::Types::Any
 

@@ -141,7 +141,7 @@ module Authentication
         #     input.service_id
         #     input.account
         #     input.username
-        #     input.request_body
+        #     input.credentials
         #
         # return either
         #   - a `string` containing the authentication key if successful
@@ -155,7 +155,7 @@ module Authentication
         #     input.service_id
         #     input.account
         #     input.username
-        #     input.request_body
+        #     input.credentials
         #
         # return true for valid credentials, false otherwise
       end
