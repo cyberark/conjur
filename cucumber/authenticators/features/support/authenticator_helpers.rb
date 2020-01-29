@@ -6,12 +6,12 @@ require 'util/error_class'
 #
 module AuthenticatorHelpers
 
-  MissingEnvVarirable = ::Util::ErrorClass.new(
+  MissingEnvVariable = ::Util::ErrorClass.new(
     'Environment variable [{0}] is not defined'
   )
 
   def validated_env_var(var)
-    raise MissingEnvVarirable, var if ENV[var].blank?
+    raise MissingEnvVariable, var if ENV[var].blank?
     ENV[var]
   end
 
