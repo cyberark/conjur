@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - Improved flows and rules around user creation
+- Kubernetes authenticator now returns 403 on unpermitted hosts instead of a 401
 
 ## [1.4.6] - 2020-01-21
 
