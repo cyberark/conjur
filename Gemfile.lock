@@ -236,8 +236,8 @@ GEM
       recursive-open-struct (~> 1.0, >= 1.0.4)
       rest-client (~> 2.0)
     kwalify (0.7.2)
-    libv8 (3.16.14.19)
-    libv8 (3.16.14.19-x86_64-darwin-18)
+    libv8 (7.3.492.27.1)
+    libv8 (7.3.492.27.1-x86_64-darwin-18)
     listen (3.2.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -252,6 +252,8 @@ GEM
     mime-types-data (3.2019.1009)
     mini_mime (1.0.2)
     mini_portile2 (2.4.0)
+    mini_racer (0.2.9)
+      libv8 (>= 6.9.411)
     minitest (5.14.0)
     multi_json (1.14.1)
     multi_test (0.1.2)
@@ -339,7 +341,6 @@ GEM
       parser (>= 2.5.0.0, < 2.8, != 2.5.1.1)
       psych (~> 3.1.0)
       rainbow (>= 2.0, < 4.0)
-    ref (2.0.0)
     rest-client (2.1.0)
       http-accept (>= 1.7.0, < 2.0)
       http-cookie (>= 1.0.2, < 2.0)
@@ -426,9 +427,6 @@ GEM
       attr_required (>= 0.0.5)
       httpclient (>= 2.4)
     table_print (1.5.6)
-    therubyracer (0.12.3)
-      libv8 (~> 3.16.14.15)
-      ref
     thor (1.0.1)
     thread_safe (0.3.6)
     tilt (2.0.10)
@@ -498,6 +496,7 @@ DEPENDENCIES
   kubeclient
   listen
   loofah (>= 2.2.3)
+  mini_racer
   net-ldap
   nokogiri (>= 1.8.2)
   openid_connect
@@ -532,7 +531,6 @@ DEPENDENCIES
   spring-commands-rspec
   sprockets (~> 3.7.0, >= 3.7.2)
   table_print
-  therubyracer
   uglifier
   websocket-client-simple
 

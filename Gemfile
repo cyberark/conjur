@@ -53,7 +53,7 @@ gem 'rack-rewrite'
 gem 'simplecov', require: false
 
 gem 'sass-rails'
-gem 'therubyracer'
+gem 'mini_racer'
 gem 'uglifier'
 #gem 'coffee-rails'
 gem 'autoprefixer-rails'
