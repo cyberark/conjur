@@ -6,7 +6,7 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
   let (:test_oidc_discovery_error) { "test-oidc-discovery-error" }
   let (:test_fetch_secrets_error) { "test-fetch-secrets-error" }
 
-  let (:oidc_secrets) do
+  let (:oidc_authenticator_secrets) do
     {
       "provider-uri" => "test-uri",
       "id-token-user-property" => "test-property"
@@ -28,7 +28,7 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
     double('fetch_secrets').tap do |fetch_secrets|
       if is_successful
         allow(fetch_secrets).to receive(:call)
-                                  .and_return(oidc_secrets)
+                                  .and_return(oidc_authenticator_secrets)
       else
         allow(fetch_secrets).to receive(:call)
                                   .and_raise(test_fetch_secrets_error)
@@ -42,7 +42,7 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
 
       subject do
         Authentication::AuthnOidc::ValidateStatus.new(
-          fetch_oidc_secrets: mock_fetch_secrets(is_successful: true),
+          fetch_authenticator_secrets: mock_fetch_secrets(is_successful: true),
           discover_oidc_provider: mock_discover_oidc_provider(is_successful: true)
         ).call(
           account: test_account,
@@ -59,7 +59,7 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
 
       subject do
         Authentication::AuthnOidc::ValidateStatus.new(
-          fetch_oidc_secrets: mock_fetch_secrets(is_successful: true),
+          fetch_authenticator_secrets: mock_fetch_secrets(is_successful: true),
           discover_oidc_provider: mock_discover_oidc_provider(is_successful: false)
         ).call(
           account: test_account,
@@ -77,7 +77,7 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
   context "Required variables do not exist or does not have value" do
     subject do
       Authentication::AuthnOidc::ValidateStatus.new(
-        fetch_oidc_secrets: mock_fetch_secrets(is_successful: false),
+        fetch_authenticator_secrets: mock_fetch_secrets(is_successful: false),
         discover_oidc_provider: mock_discover_oidc_provider(is_successful: true)
       ).call(
         account: test_account,
@@ -85,7 +85,7 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
       )
     end
 
-    it "raises the error raised by fetch_oidc_secrets" do
+    it "raises the error raised by fetch_authenticator_secrets" do
       expect { subject }.to raise_error(test_fetch_secrets_error)
     end
   end

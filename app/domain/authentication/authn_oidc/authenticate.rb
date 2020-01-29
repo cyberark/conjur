@@ -10,15 +10,15 @@ module Authentication
 
     Authenticate = CommandClass.new(
       dependencies: {
-        enabled_authenticators:     Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
-        fetch_oidc_secrets:         AuthnOidc::Util::FetchOidcSecrets.new,
-        token_factory:              TokenFactory.new,
-        validate_account_exists:    ::Authentication::Security::ValidateAccountExists.new,
-        validate_security:          ::Authentication::Security::ValidateSecurity.new,
-        validate_origin:            ValidateOrigin.new,
-        audit_event:                AuditEvent.new,
-        decode_and_verify_id_token: DecodeAndVerifyIdToken.new,
-        logger:                     Rails.logger
+        enabled_authenticators:      Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
+        fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
+        token_factory:               TokenFactory.new,
+        validate_account_exists:     ::Authentication::Security::ValidateAccountExists.new,
+        validate_security:           ::Authentication::Security::ValidateSecurity.new,
+        validate_origin:             ValidateOrigin.new,
+        audit_event:                 AuditEvent.new,
+        decode_and_verify_id_token:  DecodeAndVerifyIdToken.new,
+        logger:                      Rails.logger
       },
       inputs:       %i(authenticator_input)
     ) do
@@ -47,7 +47,7 @@ module Authentication
 
       def decode_and_verify_id_token
         @id_token_attributes = @decode_and_verify_id_token.(
-          provider_uri: oidc_secrets["provider-uri"],
+          provider_uri: oidc_authenticator_secrets["provider-uri"],
             id_token_jwt: request_body.id_token
         )
       end
@@ -60,11 +60,12 @@ module Authentication
         @request_body ||= AuthnOidc::AuthenticateRequestBody.new(@authenticator_input.request)
       end
 
-      def oidc_secrets
-        @oidc_secrets ||= @fetch_oidc_secrets.(
+      def oidc_authenticator_secrets
+        @oidc_authenticator_secrets ||= @fetch_authenticator_secrets.(
           service_id: @authenticator_input.service_id,
-            conjur_account: @authenticator_input.account,
-            required_variable_names: required_variable_names
+          conjur_account: @authenticator_input.account,
+          authenticator_name: @authenticator_input.authenticator_name,
+          required_variable_names: required_variable_names
         )
       end
 
@@ -90,7 +91,7 @@ module Authentication
       end
 
       def id_token_username_field
-        oidc_secrets["id-token-user-property"]
+        oidc_authenticator_secrets["id-token-user-property"]
       end
 
       def validate_security

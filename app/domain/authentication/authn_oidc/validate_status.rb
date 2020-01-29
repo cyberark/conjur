@@ -8,7 +8,7 @@ module Authentication
 
     ValidateStatus = CommandClass.new(
       dependencies: {
-        fetch_oidc_secrets: AuthnOidc::Util::FetchOidcSecrets.new,
+        fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
         discover_oidc_provider: Authentication::AuthnOidc::DiscoverOIDCProvider.new
       },
       inputs: %i(account service_id)
@@ -26,10 +26,11 @@ module Authentication
       end
 
       def fetch_oidc_secrets
-        @oidc_secrets ||= @fetch_oidc_secrets.(
+        @oidc_authenticator_secrets ||= @fetch_authenticator_secrets.(
           service_id: @service_id,
-            conjur_account: @account,
-            required_variable_names: required_variable_names
+          conjur_account: @account,
+          authenticator_name: "authn-oidc",
+          required_variable_names: required_variable_names
         )
       end
 
@@ -44,7 +45,7 @@ module Authentication
       end
 
       def provider_uri
-        @oidc_secrets["provider-uri"]
+        @oidc_authenticator_secrets["provider-uri"]
       end
     end
   end
