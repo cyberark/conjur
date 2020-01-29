@@ -74,8 +74,8 @@ RSpec.describe Authentication::Security::ValidateWhitelistedWebservice do
       )
     end
 
-    it "raises a NotWhitelisted error" do
-      expect { subject }.to raise_error(Errors::Authentication::Security::NotWhitelisted)
+    it "raises a AuthenticatorNotWhitelisted error" do
+      expect { subject }.to raise_error(Errors::Authentication::Security::AuthenticatorNotWhitelisted)
     end
   end
 

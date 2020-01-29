@@ -96,7 +96,7 @@ Feature: Authenticator configuration
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::Security::ServiceNotDefined
+    Errors::Authentication::Security::WebserviceNotFound
     """
 
   Scenario: Authenticated user can not update authenticator
@@ -110,7 +110,7 @@ Feature: Authenticator configuration
     And authenticator "cucumber:webservice:conjur/authn-config/db" is disabled
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::Security::UserNotAuthorizedInConjur
+    Errors::Authentication::Security::RoleNotAuthorizedOnWebservice
     """
 
   Scenario: Nested webservice can not be configured

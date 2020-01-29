@@ -9,7 +9,7 @@ module Authentication
 
     Err = Errors::Authentication::Security
     # Possible Errors Raised:
-    # AccountNotDefined, NotWhitelisted
+    # AccountNotDefined, AuthenticatorNotWhitelisted
 
     ValidateWhitelistedWebservice = CommandClass.new(
       dependencies: {
@@ -43,7 +43,7 @@ module Authentication
 
       def validate_webservice_is_whitelisted
         is_whitelisted = whitelisted_webservices.include?(@webservice)
-        raise Err::NotWhitelisted, @webservice.name unless is_whitelisted
+        raise Err::AuthenticatorNotWhitelisted, @webservice.name unless is_whitelisted
       end
 
       def whitelisted_webservices

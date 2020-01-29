@@ -9,8 +9,8 @@ module Authentication
   module Security
 
     # Possible Errors Raised:
-    # AccountNotDefined, ServiceNotDefined, NotWhitelisted,
-    # UserNotDefinedInConjur, UserNotAuthorizedInConjur
+    # AccountNotDefined, WebserviceNotFound, AuthenticatorNotWhitelisted,
+    # RoleNotFound, RoleNotAuthorizedOnWebservice
 
     ValidateSecurity = CommandClass.new(
       dependencies: {

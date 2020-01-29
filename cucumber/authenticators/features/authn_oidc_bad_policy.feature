@@ -103,7 +103,7 @@ Feature: Users can authenticate with OIDC authenticator
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::Security::ServiceNotDefined
+    Errors::Authentication::Security::WebserviceNotFound
     """
 
   Scenario: webservice with read and no authenticate permission in policy is denied
@@ -143,5 +143,5 @@ Feature: Users can authenticate with OIDC authenticator
     Then it is forbidden
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::Security::UserNotAuthorizedInConjur
+    Errors::Authentication::Security::RoleNotAuthorizedOnWebservice
     """

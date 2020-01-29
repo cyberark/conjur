@@ -73,23 +73,23 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
 
       module Security
 
-        NotWhitelisted = ::Util::TrackableErrorClass.new(
-          msg: "'{0-authenticator-name}' is not whitelisted in CONJUR_AUTHENTICATORS",
+        AuthenticatorNotWhitelisted = ::Util::TrackableErrorClass.new(
+          msg: "'{0-authenticator-name}' is not enabled",
           code: "CONJ00004E"
         )
 
-        ServiceNotDefined = ::Util::TrackableErrorClass.new(
-          msg: "Webservice '{0-webservice-name}' is not defined in the Conjur policy",
+        WebserviceNotFound = ::Util::TrackableErrorClass.new(
+          msg: "Webservice '{0-webservice-name}' wasn't found",
           code: "CONJ00005E"
         )
 
-        UserNotAuthorizedInConjur = ::Util::TrackableErrorClass.new(
-          msg: "User '{0-user-name}' is not authorized in the Conjur policy",
+        RoleNotAuthorizedOnWebservice = ::Util::TrackableErrorClass.new(
+          msg: "'{0-role-name}' does not have 'authenticate' privilege on {1-service-name}",
           code: "CONJ00006E"
         )
 
-        UserNotDefinedInConjur = ::Util::TrackableErrorClass.new(
-          msg: "User '{0-user-name}' is not defined in Conjur",
+        RoleNotFound = ::Util::TrackableErrorClass.new(
+          msg: "'{0-role-name}' wasn't found",
           code: "CONJ00007E"
         )
 
@@ -163,21 +163,6 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       end
 
       module AuthnK8s
-
-        WebserviceNotFound = ::Util::TrackableErrorClass.new(
-          msg: "Webservice '{0-webservice-name}' wasn't found",
-          code: "CONJ00019E"
-        )
-
-        HostNotFound = ::Util::TrackableErrorClass.new(
-          msg: "Host '{0-host-name}' wasn't found",
-          code: "CONJ00020E"
-        )
-
-        HostNotAuthorized = ::Util::TrackableErrorClass.new(
-          msg: "'{0-hostname}' does not have 'authenticate' privilege on {1-service-name}",
-          code: "CONJ00021E"
-        )
 
         CSRIsMissingSpiffeId = ::Util::TrackableErrorClass.new(
           msg: 'CSR must contain SPIFFE ID SAN',

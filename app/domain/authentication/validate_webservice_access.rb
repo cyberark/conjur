@@ -11,8 +11,8 @@ module Authentication
     Log = LogMessages::Authentication::Security
     Err = Errors::Authentication::Security
     # Possible Errors Raised:
-    # AccountNotDefined, ServiceNotDefined,
-    # UserNotDefinedInConjur, UserNotAuthorizedInConjur
+    # AccountNotDefined, WebserviceNotFound,
+    # RoleNotFound, RoleNotAuthorizedOnWebservice
 
     ValidateWebserviceAccess = CommandClass.new(
       dependencies: {
@@ -56,7 +56,7 @@ module Authentication
       end
 
       def validate_user_is_defined
-        raise Err::UserNotDefinedInConjur, @user_id unless user_role
+        raise Err::RoleNotFound, @user_id unless user_role
       end
 
       def validate_user_has_access
@@ -65,7 +65,7 @@ module Authentication
         unless has_access
           @logger.debug(Log::UserNotAuthorized
                           .new(@user_id, webservice_resource_id))
-          raise Err::UserNotAuthorizedInConjur, @user_id
+          raise Err::RoleNotAuthorizedOnWebservice.new(@user_id, webservice_resource_id)
         end
       end
 

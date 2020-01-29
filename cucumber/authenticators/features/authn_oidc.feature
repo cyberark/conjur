@@ -82,7 +82,7 @@ Feature: Users can authneticate with OIDC authenticator
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::Security::UserNotDefinedInConjur
+    Errors::Authentication::Security::RoleNotFound
     """
 
   Scenario: User that is not permitted to webservice in ID token is denied
@@ -96,7 +96,7 @@ Feature: Users can authneticate with OIDC authenticator
     Then it is forbidden
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::Security::UserNotAuthorizedInConjur
+    Errors::Authentication::Security::RoleNotAuthorizedOnWebservice
     """
 
   Scenario: ID token without value of variable id-token-user-property is denied
