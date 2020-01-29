@@ -240,11 +240,6 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00034E"
         )
 
-        MissingEnvVar = ::Util::TrackableErrorClass.new(
-          msg: "Expected ENV variable '{0}' is not set",
-          code: "CONJ00035E"
-        )
-
         UnknownK8sResourceType = ::Util::TrackableErrorClass.new(
           msg: "Unknown Kubernetes resource type '{0}'",
           code: "CONJ00041E"
