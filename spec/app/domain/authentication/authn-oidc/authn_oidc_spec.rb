@@ -65,7 +65,7 @@ RSpec.describe 'Authentication::Oidc' do
       context "with valid id token" do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
-            authenticator_name: 'authn-oidc-test',
+            authenticator_name: 'authn-oidc',
             service_id:         'my-service',
             account:            'my-acct',
             username:           nil,
@@ -101,7 +101,7 @@ RSpec.describe 'Authentication::Oidc' do
       context "with no id token username field in id token" do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
-            authenticator_name: 'authn-oidc-test',
+            authenticator_name: 'authn-oidc',
             service_id:         'my-service',
             account:            'my-acct',
             username:           nil,
@@ -130,7 +130,7 @@ RSpec.describe 'Authentication::Oidc' do
       context "with empty id token username value in id token" do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
-            authenticator_name: 'authn-oidc-test',
+            authenticator_name: 'authn-oidc',
             service_id:         'my-service',
             account:            'my-acct',
             username:           nil,
