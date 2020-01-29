@@ -72,11 +72,6 @@ module Conjur
         /^\/$/
       ]
 
-    # NOTE: removing this middleware is important for security.
-    # ParamsParser can cause data from the body to end up in params and then
-    # in logs. It's better to explicitly parse the body where needed.
-    config.middleware.delete ActionDispatch::ParamsParser
-
     def self.is_asset_precompile?
       /assets:precompile/.match?(ARGV.join(' '))
     end
