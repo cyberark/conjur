@@ -15,7 +15,6 @@ gem 'nokogiri', '>= 1.8.2'
 gem 'puma', '~> 3.12'
 gem 'rack', '~> 2.0'
 gem 'rails', '= 5.0.0'
-gem 'rails-api'
 gem 'rake'
 gem 'sprockets', '~> 3.7.0', '>= 3.7.2'
 
