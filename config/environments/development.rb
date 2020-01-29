@@ -13,7 +13,7 @@ Rails.application.configure do
   # eager_load needed to make authentication work without the hacky
   # loading code...
   #
-  config.serve_static_files = true
+  config.public_file_server.enabled = true
   config.eager_load = true
   config.assets.digest = false
 
