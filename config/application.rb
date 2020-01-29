@@ -51,6 +51,11 @@ module Conjur
     # Defaults to false in production and test, true otherwise.
     config.sequel.schema_dump = false
 
+    # This setting disables the automatic connect after Rails init. It prevents
+    # rake assets:precompile from triggering a database connection during the
+    # Docker image build.
+    config.sequel.skip_connect = true
+
     # Token authentication is optional for authn routes, and it's not applied at all to authentication.
     config.middleware.use Conjur::Rack::Authenticator,
       optional: [
