@@ -15,5 +15,9 @@ require File.expand_path('../application', __FILE__)
 
 assert_valid_conjur_log_level
 
+unless Conjur::Application.is_asset_precompile?
+  Sequel.connect(ENV['DATABASE_URL']) 
+end
+
 # Initialize the Rails application.
 Rails.application.initialize!
