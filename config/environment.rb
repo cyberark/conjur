@@ -15,5 +15,7 @@ require File.expand_path('../application', __FILE__)
 
 assert_valid_conjur_log_level
 
+Sequel.connect(ENV['DATABASE_URL'])
+
 # Initialize the Rails application.
 Rails.application.initialize!
