@@ -169,13 +169,51 @@ module Authentication
  
 #### validate_azure_token
 
-(TBD)
+The Azure token validation checks the signature and claims of the Azure token to ensure that the token was issued by Azure Active Directory. To do this we need to:
+1. Discover the Oauth 2.0 provider - in this case the Azure AD is the Oauth 2.0 provider. Its URl will be retrieved from the "provider-uri" variable defined in the authenticator policy
+1. Retrieve JWKs from the discovery endpoint - These keys are used for the token validation
+1. Decode and verify the token using the JWKs.
 
-The validate_azure_token function will check the signature of the Azure token to ensure that the token was issued by Azure Active Directory. In this function, we will retrieve the provider_uri variable from Conjur and use it to validate the signature.  The provider_uri variable represents the Azure Identity Provider and is a variable saved in Conjur (see policy under Solution named "Define Azure Policy"). If check passes, we will move onto the next function validation_application_identity, otherwise raise the appropriate error.
+Steps 1 & 2 may seem familiar as they are the exact steps that we perform in the OIDC Authenticator. This is because OIDC is Oauth 2.0 based. We will take advantage on this and use the 3rd party used in the OIDC Authenticator to perform steps 1 & 2 in our authenticator.
+Unfortunately, the 3rd party used in the OIDC Authenticator does not implement an access token decoding. Thus, to perform step 3, we will need another 3rd party - the "jwt" gem. 
+
+As you can see in the following blueprint for the `validate_azure_token` implementation, it will use `AuthnOidc`'s `FetchProviderCertificate` class to retrieve the JWKs and will use them to decode the token, using `JWT`'s `decode` function:
+```
+require 'jwt'
+
+module Authentication
+  module AuthnAzure
+    DecodeAndVerifyToken = CommandClass.new(
+      dependencies: {
+        fetch_provider_certificate: ::Authentication::AuthnOidc::FetchProviderCertificate.new,
+      },
+      inputs:       %i(provider_uri token_jwt)
+    ) do
+
+      def call
+		certs = @fetch_provider_certificate.(
+		  provider_uri: @provider_uri
+		)     
+
+		# indicate that we should verify the issuer and audience claims
+		options = { iss: provider_uri, verify_iss: true, verify_aud: true }
+
+        @decoded_token = JWT.decode(
+          @token_jwt,
+          @certs, # JWKs retrieved from the 
+          true, # tells the decoder to verify the token
+          options
+        )
+      end
+    end
+  end
+end
+```
  
 #### validate_application_identity
 
-The validate_application_identity function will validate if the Azure VM can authenticate with Conjur and fetch secrets based on information extracted from the provided Azure token. This function will parse the "xms_mirid" field of the Azure token provided by the Azure VM, extracting resource group, system/user assigned identity, and client ID. Once extracted, we will compare them to the annotations of the Conjur host for this Azure resource. If they match, the Azure VM resource will receive a Conjur access token in return. All further requests that this Azure VM sends will need to have this Conjur access token in the header.
+The validate_application_identity function will validate if the Azure VM can authenticate with Conjur and fetch secrets based on information extracted from the provided Azure token. 
+This function will parse the `xms_mirid` field of the Azure token provided by the Azure VM, extracting resource group, system/user assigned identity, and client ID. Once extracted, we will compare them to the annotations of the Conjur host for this Azure resource. If they match, the Azure VM resource will receive a Conjur access token in return. All further requests that this Azure VM sends will need to have this Conjur access token in the header.
 
 ### Backwards compatibility
 
