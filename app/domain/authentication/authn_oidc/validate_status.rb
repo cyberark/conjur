@@ -22,10 +22,10 @@ module Authentication
       private
 
       def validate_secrets
-        fetch_oidc_secrets
+        oidc_authenticator_secrets
       end
 
-      def fetch_oidc_secrets
+      def oidc_authenticator_secrets
         @oidc_authenticator_secrets ||= @fetch_authenticator_secrets.(
           service_id: @service_id,
           conjur_account: @account,
