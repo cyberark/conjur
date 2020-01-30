@@ -12,19 +12,17 @@ module Authentication
     ) do
 
       def call
-        secrets = {}
-
-        required_secrets = @fetch_secrets.(resource_ids: required_resource_ids)
-
-        @required_variable_names.each do |variable_name|
+        @required_variable_names.each_with_object({}) do |variable_name, secrets|
           full_variable_name     = full_variable_name(variable_name)
           secrets[variable_name] = required_secrets[full_variable_name]
         end
-
-        secrets
       end
 
       private
+
+      def required_secrets
+        @required_secrets ||= @fetch_secrets.(resource_ids: required_resource_ids)
+      end
 
       def required_resource_ids
         @required_variable_names.map { |var_name| full_variable_name(var_name) }
