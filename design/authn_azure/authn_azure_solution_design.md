@@ -61,8 +61,8 @@ request is sent to Conjur, the admin will load the authenticator policy:
   body:
   - !webservice
   
-    - !variable
-      id: provider-uri # https://sts.windows.net/TENANT_ID
+  - !variable
+    id: provider-uri # https://sts.windows.net/TENANT_ID
       
   - !group apps
   
@@ -87,11 +87,11 @@ A Conjur host will be defined as follows with their annotations holding Azure-sp
   - !host 
     id: test-app 
     annotations: 
-    authn-azure/subscription-id: test-subscription 
-    authn-azure/resource-group: test-group 
-    authn-azure/user-assigned-identity: test-app-pipeline 
+      authn-azure/subscription-id: test-subscription 
+      authn-azure/resource-group: test-group 
+      authn-azure/user-assigned-identity: test-app-pipeline 
 OR 
-    authn-azure/system-assigned-identity: ie_qWCXhXxt1zIEsu4c7acQVGn4
+      authn-azure/system-assigned-identity: ie_qWCXhXxt1zIEsu4c7acQVGn4
 ```
 
 #### Multiple-assigned identity for host - NOT FOR NOW
@@ -110,7 +110,7 @@ This flow assumes that the VM already exists in Azure, and that an authn-azure a
 
 1. Azure VM sends the following request to Conjur:
     ```yaml
-    POST https://<DAP-server-hostname>/authn-azure/<service-id>/<account>/<host-id>authenticate
+    POST https://<DAP-server-hostname>/authn-azure/<service-id>/<account>/<host-id>/authenticate
     Header 
     
     Content-Type: application/x-www-form-urlencoded
@@ -129,7 +129,7 @@ This flow assumes that the VM already exists in Azure, and that an authn-azure a
 
     1. validate_security validates that the Azure authenticator has been defined correctly in policy and the host is permitted to authenticate to the webservice.
 
-1. The next validation, validate_credentials calls the authenticator's valid? function. If so, Azure-specific authenticator validations will be triggered. 
+1. The next validation, validate_credentials calls the authenticator's `valid?` function. If so, Azure-specific authenticator validations will be triggered. 
 
     1. validate_azure_token (see below for a more detailed explanation of the function).
     
@@ -252,7 +252,7 @@ An example of a "xms_mirid" claim is listed below. We will use what is defined i
 Azure resource that has made the request has a Conjur identity.
 
 ```yaml
-"xms_mirid": "/subscriptions/<subscription_id>/resourcegroups/<resource_group>/providers/Microsoft.ContainerInstance/containerGroups/<assigned_identity>"
+"xms_mirid": "/subscriptions/<subscription_id>/resourceGroups/<resource_group>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<assigned_identity>"
 ```
 
 | Host annotation                                                      | xms_mirid              |
@@ -277,33 +277,28 @@ Azure authenticator performance should conform with our other authenticators wit
 
 ## Test Plan
 
-TBT
-
 ### Integration tests
 
 #### Functionality
 
 This suite of tests assumes that the Azure authenticator has been configured correctly
 
-|    | Given                                                                                        | When                                                     | Then                                                                                          | Manual / UT / Integration | Status     |
-|----|----------------------------------------------------------------------------------------------|----------------------------------------------------------|-----------------------------------------------------------------------------------------------|---------------------------|------------|
-| 1  | *Vanilla flow* - a Conjur identity exists for Azure VM and added to privileged layer         | VM sends authentication request with a valid Azure token | Conjur access token is returned in body and action is logged                                  | Integration               |            |
-| 2  | A Conjur Host identity for Azure VM, added to privileged layer and has permissions on secret | VM sends request with valid Azure token to fetch secret  | Secret is successfully returned and action is logged                                          | Integration               |            |
-| 3  | No Conjur Host identity exists for Azure VM                                                  | VM sends authentication request with a valid Azure token | 403 Forbidden response / RoleNotFound in error body is returned and action is logged          | Integration               |            |
-| 4  | Conjur identity exists for Azure VM but doesn't have permissions on secret                   | VM sends request with valid Azure token to fetch secret  | 401 Unauthorized response is returned and action is logged                                    | Integration               |            |
-
-#### Error handling
-
-|    | Given                                                                                     | When                                                                | Then                                                                                                                                         | Manual / UT / Integration | Status     |
-|----|-------------------------------------------------------------------------------------------|---------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|---------------------------|------------|
-| 1  | authn-azure is not whitelisted in ENV or enabled in DB                                    | VM sends authentication request to Conjur with valid Azure token    | 500 Internal Server Error response with an error body with the relevant error message (AuthenticatorNotWhitelisted) is returned and logged   | Integration               |            |
-| 2  | Policy is loaded w/o "provider-uri" variable or value is missing                          | VM sends authentication request to Conjur with valid Azure token    | 500 Internal Server Error response with an error body with the relevant error message (RoleNotAuthorizedOnWebservice) is returned and logged | Integration               |            |
-| 3  | Policy is loaded w/o defining authenticator webservice                                    | VM sends authentication request to Conjur with valid Azure token    | 500 Internal Server Error response with an error body with the relevant error message (WebserviceNotFound) is returned and logged            | Integration               |            |
-| 4  | An incorrectly/undefined provider-uri (Conjur couldn't connect to provider)               | VM sends authentication request to Conjur with valid Azure token    | 500 Internal Server Error response with an error body with the relevant error message (ProviderDiscoveryTimeout) is returned and logged      | Integration               |            |
-| 5  | Conjur can make contact with provider but couldn't confirm token signature                | VM sends authentication request to Conjur with invalid Azure token  | 500 Internal Server Error response with an error body with the relevant error message (ProviderTokenInvalid) is returned and logged          | Integration               |            |
-| 6  | One or more annotations are missing from the host policy **                               | VM sends authentication request to Conjur with valid Azure token    | 500 Internal Server Error response with an error body with the relevant error message (MissingRequestParam) is returned and logged           | Integration               |            |
-| 7  | One or more fields in Azure token is missing                                              | VM sends authentication request to Conjur with invalid Azure token  | 500 Internal Server Error response with an error body with the relevant error message (TokenFieldNotFoundOrEmpty) is returned and logged     | Integration               |            |
-| 8  | One or more fields in the Azure token don't match the Conjur host annotations             | VM sends authentication request to Conjur with valid   Azure token  | 500 Internal Server Error response with an error body with the relevant error message (InvalidApplicationIdentity) is returned and logged    | Integration               |            |
+|    | Given                                                                                        | When                                                                | Then                                                                                     | Manual / UT / Integration | Status           |
+|----|----------------------------------------------------------------------------------------------|---------------------------------------------------------------------|------------------------------------------------------------------------------------------|---------------------------|------------------|
+| 1  | *Vanilla flow* - a Conjur identity exists for Azure VM and added to privileged layer         | VM sends authentication request with a valid Azure token            | Return Conjur access token is returned in body and action is logged                      | Integration               | - [ ]            |
+| 2  | A Conjur Host identity for Azure VM, added to privileged layer and has permissions on secret | VM sends request with valid Azure token to fetch secret             | Azure resource can successfully send GET request for a secret and action is logged       | Integration               | - [ ]            |
+| 3  | No Conjur Host identity exists for Azure VM                                                  | VM sends authentication request with a valid Azure token            | Return 401 Unauthorized error and `RoleNotFound` message appears in log                  | Integration               | - [ ]            |
+| 4  | Conjur identity exists for Azure VM but doesn't have permissions on secret                   | VM sends request with valid Azure token to fetch secret             | Return 401 Unauthorized error and `RoleNotAuthorizedOnWebservice` message appears in log | Integration               | - [ ]            |
+| 1  | authn-azure is not whitelisted in ENV or enabled in DB                                       | VM sends authentication request to Conjur with valid Azure token    | Return 401 Unauthorized error and `AuthenticatorNotWhitelisted` message appears in log   | Integration               | - [ ]            |
+| 2  | Policy is loaded w/o `provider-uri` variable                                                 | VM sends authentication request to Conjur with valid Azure token    | Return 401 Unauthorized error and `RequiredResourceMissing` message appears in log       | Integration               | - [ ]            |
+| 2  | Policy is loaded w/o `provider-uri` value                                                    | VM sends authentication request to Conjur with valid Azure token    | Return 401 Unauthorized error and `RequiredSecretMissing` message appears in log         | Integration               | - [ ]            |
+| 3  | Policy is loaded w/o defining authenticator webservice                                       | VM sends authentication request to Conjur with valid Azure token    | Return 401 Unauthorized error and `WebserviceNotFound` message appears in log            | Integration               | - [ ]            |
+| 4  | An invalid/non-existent `provider-uri` (Conjur couldn't connect to provider)                 | VM sends authentication request to Conjur with valid Azure token    | Return 504 GatewayTimeout error and `ProviderDiscoveryTimeout` message appears in log    | Integration               | - [ ]            |
+| 5  | Conjur can make contact with provider but couldn't confirm token signature                   | VM sends authentication request to Conjur with invalid Azure token  | Return 502 Bad Gateway error and `ProviderTokenInvalid` message appears in log           | Integration               | - [ ]            |
+| 6  | One or more annotations are missing from the host policy                                     | VM sends authentication request to Conjur with valid Azure token    | Return 401 Unauthorized error and `RoleMissingAnnotations` message appears in log        | Integration               | - [ ]            |
+| 7  | One or more fields from Azure access token are missing                                       | VM sends authentication request to Conjur with invalid Azure token  | Return 401 Unauthorized error and `MissingRequestParam` message appears in log           | Integration               | - [ ]            |
+| 8  | `xms_mirid` field of the Azure token is missing                                              | VM sends authentication request to Conjur with invalid Azure token  | Return 400 Bad Request error and `TokenFieldNotFoundOrEmpty` message appears in log      | Integration               | - [ ]            |
+| 9  | One or more fields in the Azure token don't match the Conjur host annotations                | VM sends authentication request to Conjur with valid Azure token    | Return 401 Unauthorized error and `InvalidApplicationIdentity` message appears in log    | Integration               | - [ ]            |
 
 ### Unit tests
 
@@ -315,11 +310,11 @@ This suite of tests assumes that the Azure authenticator has been configured cor
 
 ### Performance
 
-|    | Type      | Given                                                | When                                                                      | Then                                             | Environment      | Status     |
-|----|-----------|------------------------------------------------------|---------------------------------------------------------------------------|--------------------------------------------------|------------------|------------|
-| 1  | Load      | Multiple Azure VMs defined in Conjur                 | Each Azure VM sends authentication requests                               | Check load on Azure and check load on Conjur     | Prod and OSS     |            |
-| 2  | Load      | Multiple Azure VMs defined in Conjur                 | Each Azure VM has invalid Azure tokens and sends authentication requests  | Check load on Azure and check load on Conjur     | Prod and OSS     |            |
-| 3  | Stability | Multiple Azure VMs defined in Conjur                 | Each Azure VM sends authentication requests for a few days                | Ensure no errors are returned                    | Prod and OSS     |            |
+|    | Type      | Given                                                | When                                                                      | Then                                             | Status           |
+|----|-----------|------------------------------------------------------|---------------------------------------------------------------------------|--------------------------------------------------|------------------|
+| 1  | Load      | Multiple Azure VMs defined in Conjur                 | Each Azure VM sends authentication requests                               | Check load on Azure and check load on Conjur     | - [ ]            |
+| 2  | Load      | Multiple Azure VMs defined in Conjur                 | Each Azure VM has invalid Azure tokens and sends authentication requests  | Check load on Azure and check load on Conjur     | - [ ]            |
+| 3  | Stability | Multiple Azure VMs defined in Conjur                 | Each Azure VM sends authentication requests for a few days                | Ensure no errors are returned                    | - [ ]            |
 
 
 ### Regression
@@ -328,18 +323,32 @@ This suite of tests assumes that the Azure authenticator has been configured cor
 
 ## Logs
 
-|    | Scenario                                                              | Log message                                                                            | Notes                                                                                | Status | Exists?                                       |
-|--- |-----------------------------------------------------------------------|----------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|--------|-----------------------------------------------|
-| 1  | AuthenticatorNotWhitelisted (in DB/ENV)                               | {0-authenticator-name}' is not enabled                                                 |                                                                                      |        | Yes                                           |
-| 2  | WebserviceNotFound (in Conjur)                                        | Webservice '{0-webservice-name}' wasn't found                                          |                                                                                      |        | Yes                                           |
-| 3  | RoleNotAuthorizedOnWebservice (in Conjur)                             | '{0-role-name}' does not have 'authenticate' privilege on {1-service-name}             |                                                                                      |        | Yes                                           |
-| 4  | RoleNotFound (Host/User not defined in Conjur)                        | '{0-role-name}' wasn't found                                                           |                                                                                      |        | Yes                                           |
-| 5  | ProviderDiscoveryTimeout (couldn't make connection with provider-uri) | Azure Identity Provider failed with timeout error (Provider URI: '{0}'). Reason: '{1}' |                                                                                      |        | Yes (needed to be generalized)                |
-| 6  | ProviderTokenInvalid (failed to confirm token signature of provider)  | Failed to confirm signature of '{0-token}' issued by (Provider URI: '{1}'              |                                                                                      |        | No                                            |
-| 7  | MissingRequestParam                                                   | Field '{0-field-name}' is missing or empty in request body                             | "Token" not in body of request                                                       |        | Yes (must extract authn-request body)         |
-| 8  | TokenFieldNotFoundOrEmpty                                             | Field '{0-field-name}' not found or empty in token                                     |                                                                                      |        | No (for OIDC but need to be more generalized) |
-| 9  | InvalidApplicationIdentity                                            | Azure application identity field '{0-field-name}' does not match Azure token           | 1+ of the fields in the Azure token don't match the Conjur host identity annotations |        | No                                            |
- 
+|    | Scenario                                                              | Log message                                                                            | Notes                                                                                | Status       | Exists?                                       |
+|--- |-----------------------------------------------------------------------|----------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|--------------|-----------------------------------------------|
+| 1  | AuthenticatorNotWhitelisted (in DB/ENV)                               | {0-authenticator-name}' is not enabled                                                 |                                                                                      | - [ ]        | Yes                                           |
+| 2  | WebserviceNotFound (in Conjur)                                        | Webservice '{0-webservice-name}' wasn't found                                          |                                                                                      | - [ ]        | Yes                                           |
+| 3  | RoleNotAuthorizedOnWebservice (in Conjur)                             | '{0-role-name}' does not have 'authenticate' privilege on {1-service-name}             |                                                                                      | - [ ]        | Yes                                           |
+| 4  | RoleNotFound (Host/User not defined in Conjur)                        | '{0-role-name}' wasn't found                                                           |                                                                                      | - [ ]        | Yes                                           |
+| 5  | ProviderDiscoveryTimeout (couldn't make connection with provider-uri) | Azure Identity Provider failed with timeout error (Provider URI: '{0}'). Reason: '{1}' |                                                                                      | - [ ]        | Yes (needs to be generalized)                 |
+| 6  | ProviderTokenInvalid (failed to confirm token signature of provider)  | Failed to confirm signature of '{0-token}' issued by (Provider URI: '{1}'              |                                                                                      | - [ ]        | No                                            |
+| 7  | RoleMissingAnnotations                                                | Annotation is missing for authentication for Role '{0-role}'                           | One of the fields for the Conjur Host identity for Azure resource is missing         | - [ ]        | No                                            |
+| 7  | MissingRequestParam                                                   | Field '{0-field-name}' is missing or empty in request body                             | "Token" not in body of request                                                       | - [ ]        | Yes (must extract authn-request body)         |
+| 8  | TokenFieldNotFoundOrEmpty                                             | Field '{0-field-name}' not found or empty                                              |                                                                                      | - [ ]        | Yes (for OIDC but need to be more generalized)|
+| 9  | InvalidApplicationIdentity                                            | Azure application identity field '{0-field-name}' does not match Azure token           | 1+ of the fields in the Azure token don't match the Conjur host identity annotations | - [ ]        | No                                            |
+
+## Successful logs
+
+|    | Scenario                                                              | Log message                                                                            | Notes                                                                                | Status       | Exists?                                       |
+|--- |-----------------------------------------------------------------------|----------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|--------------|-----------------------------------------------|
+| 1  | ValidatingAnnotationsWithPrefix                                       | Validating annotations with prefix {0-prefix}                                          | Returned when validating if host annotations have proper prefix                      | - [ ]        | Yes
+| 2  | ValidatingHostId                                                      | Validating host id {0}                                                                 | Returned when VM attempts to authenticate, confirming resource has Conjur identity   | - [ ]        | Yes                                           |
+| 3  | ProviderUri                                                           | Working with Provider {0-provider-uri}                                                 | Returned when Conjur made a connection with provider uri and authenticating          | - [ ]        | Yes (for OIDC but need to be more generalized)|
+| 4  | ProviderDiscoverySuccess                                              | Provider discovery succeeded                                                           | Returned when Conjur made a connection with the provider-uri successfully            | - [ ]        | Yes (for OIDC but need to be more generalized)|
+| 5  | TokenDecodeSuccess                                                    | Token decode succeeded                                                                 | Returned during token decoding has been successful                                   | - [ ]        | Yes (for OIDC but need to be more generalized)|
+| 6  | TokenVerificationSuccess                                              | Token verification succeeded                                                           | Returned when provided `provider-uri` signature has been verified                    | - [ ]        | Yes (for OIDC but need to be more generalized)|
+| 7  | ClaimsFromToken                                                       | Extracting claims from token for resource {0-resource-name}                            | Returned when VM attempts to authenticate. Here, `xms_mirid` claims are extracted    | - [ ]        | No                                            |
+| 8  | ValidatingApplicationIdentity                                         | Resource identity for {0-resource-name} has been validated successfully                | Returned when `xms_mirid` claim matches Host identity                                | - [ ]        | No
+
 ## Docs
 
 ## Version update
