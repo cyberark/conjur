@@ -74,9 +74,9 @@ request is sent to Conjur, the admin will load the authenticator policy:
 
 ### Azure Application Identity
 
-To authenticate with Conjur, Azure-specific fields will need to be provided in the host annotations of the Conjur host identity for the Azure resource, 
-specifically subscription-id, resource-group, and user/system-assigned-identity. These fields will be used to confirm the identity of the Azure resource 
-sending the authentication request by comparing the Azure token information with the host annotations that are defined in the above policy.
+To authenticate with Conjur, Azure-specific fields will need to be provided in the host annotations of the Conjur host identity for the Azure resource- subscription-id, resource-group, and user/system-assigned-identity. Specifically, If the Azure resource is assigned a system-assigned-identity, 
+we will also need to validate the `oid` field of the Azure access token. These fields will be used to confirm the identity of the Azure resource that is
+sending the authentication request. This will be done by comparing the Azure access token information with the host annotations that are defined in the policy below.
 
 A Conjur host will be defined as follows with their annotations holding Azure-specific identification properties.
 
@@ -136,6 +136,7 @@ This flow assumes that the VM already exists in Azure, and that an authn-azure a
     1. validate_application_identity, the annotations of the host provided in the URL and the properties extracted from the "xms_mirid" field of the Azure token provided by the Azure VM are compared (see below for a more detailed explanation of the function).
 
 1. Once the Azure authenticator-specific validations have passed, the general authenticator validations can continue.
+   
     1. validate_origin checks the origin of the request to determine if the origin of the request is restricted.
     
     1. audit_success writes the event to the audit logs
@@ -238,35 +239,94 @@ Azure provider (which is the Oauth 2.0 provider).
  
 #### validate_application_identity
 
-The validate_application_identity function will validate if the Azure VM can authenticate with Conjur and fetch secrets based on information extracted from the provided Azure token. 
-This function will parse the `xms_mirid` field of the Azure token provided by the Azure VM, extracting resource group, system/user assigned identity, and client ID. Once extracted, 
-we will compare them to the annotations of the Conjur host for this Azure resource. If they match, the next validation test will run. If all validations run without raising an error, 
-the Azure VM resource will receive a Conjur access token in return. All further requests that this Azure VM sends will need to have this Conjur access token in the header.
+The `validate_application_identity` function will validate that the Azure VM can authenticate with Conjur and fetch secrets based on information extracted from the provided Azure token.
+The process of validating the Azure resource identity differs, depending on the identity assigned to the Azure resource. Because of this, we need to handle each case differently. The two types of identities that can be assigned to an
+Azure resource include the following:
 
-##### Host annotation / xms_mirid mapping
+1. system-assigned identity
 
-Recap, Conjur Host annotations that need to be filled and match based on "xms_mirid" claim in the Azure token:
+1. user-assigned identity
+
+Proposed validation flow is as followings:
+
+![Assigned Identity Flow](assigned-identity-flow.png)
+
+1. We will extract the `xms_mirid` field from the Azure access token
+
+1. If the `xms_mirid` field exists, we will parse it and extract the `resource_group` and `subscription_id` and compare them with their equivalents in the Conjur host
+
+1. If "userAssignedIdentities" is defined in the `xms_mirid`, we will compare it with the `authn-azure/user-assigned-identity` annotation in the Conjur host
+
+1. Otherwise, we will check if `providers/Microsoft.Compute/virtualMachines/` is present in the `xms_mirid` claim. If so, we will compare the `oid` field from the Azure 
+access token with the `authn-azure/user-assigned-identity` annotation in the Conjur host
+
+Example Azure access token of Azure resource with `system-assigned identity`
 
 ```yaml
-  authn-azure/subscription-id: test-subscription 
-  authn-azure/resource-group: test-group 
-  authn-azure/user-assigned-identity: test-app-pipeline 
-OR 
-  authn-azure/system-assigned-identity: ie_qWCXhXxt1zIEsu4c7acQVGn4
+{
+  "aud": "https://management.azure.com/",
+  "iss": "https://sts.windows.net/df242c82.../",
+  "iat": 157...,
+  "nbf": 157...,
+  "exp": 157...,
+  "aio": "42Vg...",
+  "appid": "7230cc60...",
+  "appidacr": "2",
+  "idp": "https://sts.windows.net/df242c82...",
+  "oid": "14751f4a...",
+  "sub": "14751f4a...",
+  "tid": "df242c82...",
+  "uti": "g1mKQ0DE...",
+  "ver": "1.0",
+  "xms_mirid": "/subscriptions/<subscription_id>/resourcegroups/<resource_group>/providers/Microsoft.Compute/virtualMachines/<system_assigned_identity>"
+}
 ```
 
-An example of a "xms_mirid" claim is listed below. We will use what is defined in this claim and compare it against the Conjur identity for the Azure resource. If they match, then we can confirm that the 
-Azure resource that has made the request has a Conjur identity.
+##### Identity mappings for system-assigned-identities
+
+The following is a mapping of Host annotations with the values we will be extracting in the Azure access token for `system-assigned-identities` 
+
+| Host annotation                                                      | Azure access token             | 
+|----------------------------------------------------------------------|--------------------------------|
+| `authn-azure/subscription-id`                                        | subscription_id (`xms_mirid`)  |
+| `authn-azure/resource-group`                                         | resource_group (`xms_mirid`)   |
+| `authn-azure/system-assigned-identity`                               | `oid` field (Azure token)      |
+
+
+Example Azure access token of Azure resource with `user-assigned identity`
 
 ```yaml
-"xms_mirid": "/subscriptions/<subscription_id>/resourceGroups/<resource_group>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<assigned_identity>"
+{
+  "aud": "https://management.azure.com/",
+  "iss": "https://sts.windows.net/df242c82.../",
+  "iat": 157...,
+  "nbf": 157...,
+  "exp": 157...,
+  "aio": "42Vg...",
+  "appid": "7230cc60...",
+  "appidacr": "2",
+  "idp": "https://sts.windows.net/df242c82...",
+  "oid": "14751f4a...",
+  "sub": "14751f4a...",
+  "tid": "df242c82...",
+  "uti": "g1mKQ0DE...",
+  "ver": "1.0",
+  "xms_mirid": "/subscriptions/<subscription_id>/resourceGroups/<resource_group>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<user_assigned_identity>"
+}
 ```
 
-| Host annotation                                                      | xms_mirid              |
-|----------------------------------------------------------------------|------------------------|
-| `authn-azure/subscription-id`                                        | subscription_id        |
-| `authn-azure/resource-group`                                         | resource_group         |
-| `authn-azure/user-assigned-identity` or `system-assigned-identity`   | assigned_identity      |
+##### Identity mappings for user-assigned-identities
+
+The following is a mapping of Host annotations with the values we will be extracting in the Azure access token for `user-assigned-identities`
+
+| Host annotation                                                      | Azure access token             | 
+|----------------------------------------------------------------------|--------------------------------|
+| `authn-azure/subscription-id`                                        | subscription_id (`xms_mirid`)  |
+| `authn-azure/resource-group`                                         | resource_group (`xms_mirid`)   |
+| `authn-azure/user-assigned-identity`                                 | assigned_identity (`xms_mirid`)| 
+
+Regardless of assigned-identity for the Azure resource, once the proper fields are extracted from the Azure token, we will compare them to the annotations of the Conjur host for this Azure resource. If they match, the next validation test will run. If all 
+validations run without raising an error, the Azure VM resource will receive a Conjur access token in return. All further requests that this Azure VM sends will need to have this Conjur access token in the header.
 
 ### Backwards compatibility
 
