@@ -186,7 +186,9 @@ Unfortunately, the 3rd party used in the OIDC Authenticator does not implement
 an access token decoding, and only an ID Token decoding. Thus, to perform step 3, we will need another 3rd 
 party - the ["jwt" gem](https://github.com/jwt/ruby-jwt). This gem has an MIT License which is aligned with our policy.
 
-As you can see in the following blueprint for the `validate_azure_token` implementation, it will use `AuthnOidc`'s `FetchProviderCertificate` class to retrieve the JWKs and will use them to decode the token, using `JWT`'s `decode` function:
+As you can see in the following blueprint for the `validate_azure_token` 
+implementation, it will use `AuthnOidc`'s `FetchProviderCertificate` class to 
+retrieve the JWKs and will use them to verify & decode the token, using `JWT`'s `decode` function:
 ```
 require 'jwt'
 
@@ -219,7 +221,7 @@ module Authentication
 
         @decoded_token = JWT.decode(
           @token_jwt,
-          @certs, # JWKs retrieved from the 
+          @certs, # JWKs retrieved from the provider
           true, # tells the decoder to verify the token
           options
         )
@@ -228,6 +230,11 @@ module Authentication
   end
 end
 ```
+
+Note that `JWT.decode` not only decodes the token but also validates it. It gets as
+input the JWKs retrieved from the provider and validates the signature of the token.
+It also validates the `iss` claim to verify that the token was issued by the correct
+Azure provider (which is the Oauth 2.0 provider).
  
 #### validate_application_identity
 
