@@ -203,6 +203,29 @@
   role: !group conjur/authn-k8s/minikube/clients
   member: !layer some-policy
 
+# This policy is for testing that in case a host doesn't have any annotations defined
+# then the "authentication-container-name" annotation is defaulted to "authenticator"
+# and the host is authenticated.
+# We have a separate policy for this host so we can use the id '{{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/*/*'
+# without duplication.
+- !policy
+  id: host-without-container-name
+  body:
+    - !layer
+
+    - &host-without-container-name-hosts
+      - !host
+        id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/*/*
+
+    - !grant
+      role: !layer
+      members: *host-without-container-name-hosts
+
+# Permit the host above to authenticate with authn-k8s
+- !grant
+  role: !group conjur/authn-k8s/minikube/clients
+  member: !layer host-without-container-name
+
 # Define hosts under root policy
 - &root-based-hosts
   # Application identity defined in the host id
