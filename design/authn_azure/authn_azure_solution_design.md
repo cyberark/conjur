@@ -177,8 +177,14 @@ The Azure token validation checks the signature and claims of the Azure token to
 1. Retrieve JWKs from the discovery endpoint - These keys are used for the token validation
 1. Decode and verify the token using the JWKs.
 
-Steps 1 & 2 may seem familiar as they are the exact steps that we perform in the OIDC Authenticator. This is because OIDC is Oauth 2.0 based. We will take advantage on this and use the 3rd party used in the OIDC Authenticator to perform steps 1 & 2 in our authenticator.
-Unfortunately, the 3rd party used in the OIDC Authenticator does not implement an access token decoding. Thus, to perform step 3, we will need another 3rd party - the "jwt" gem. 
+Steps 1 & 2 may seem familiar as they are the exact steps that we perform in the 
+OIDC Authenticator. This is because OIDC is Oauth 2.0 based. We will take advantage 
+on this and use the 3rd party used in the OIDC Authenticator to perform steps 
+1 & 2 in our authenticator.
+
+Unfortunately, the 3rd party used in the OIDC Authenticator does not implement 
+an access token decoding, and only an ID Token decoding. Thus, to perform step 3, we will need another 3rd 
+party - the ["jwt" gem](https://github.com/jwt/ruby-jwt). This gem has an MIT License which is aligned with our policy.
 
 As you can see in the following blueprint for the `validate_azure_token` implementation, it will use `AuthnOidc`'s `FetchProviderCertificate` class to retrieve the JWKs and will use them to decode the token, using `JWT`'s `decode` function:
 ```
@@ -188,7 +194,17 @@ module Authentication
   module AuthnAzure
     DecodeAndVerifyToken = CommandClass.new(
       dependencies: {
-        fetch_provider_certificate: ::Authentication::AuthnOidc::FetchProviderCertificate.new,
+        # We have a ConcurrencyLimitedCache which wraps a RateLimitedCache which wraps a FetchProviderCertificate class
+        fetch_provider_certificate: ::Util::ConcurrencyLimitedCache.new(
+          ::Util::RateLimitedCache.new(
+            ::Authentication::AuthnOidc::FetchProviderCertificate.new,
+            refreshes_per_interval: 10,
+            rate_limit_interval:    300, # 300 seconds (every 5 mins)
+            logger: Rails.logger
+          ),
+          max_concurrent_requests: 3,
+          logger: Rails.logger
+        ),
       },
       inputs:       %i(provider_uri token_jwt)
     ) do
