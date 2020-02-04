@@ -29,3 +29,7 @@ Feature: A permitted Conjur host can login with a valid application identity
   Scenario: Authenticate as a host defined under the root policy
     Given I login to pod matching "app=inventory-pod" to authn-k8s as "root-based-app" with prefix "host"
     Then I can authenticate pod matching "pod/inventory-pod" with authn-k8s as "root-based-app" with prefix "host"
+
+  Scenario: Authenticate without the "authentication-container-name" annotation defaults to "authenticator" and succeeds
+    Given I can login to pod matching "app=inventory-pod" to authn-k8s as "test-app-no-container-annotation" with prefix "host/some-policy"
+    Then I can authenticate pod matching "pod/inventory-pod" with authn-k8s as "test-app-no-container-annotation" with prefix "host/some-policy"
