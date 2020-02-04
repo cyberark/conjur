@@ -48,3 +48,6 @@ Feature: A permitted Conjur host can login with a valid application identity
   Scenario: it raises an error when logging in from a K8s resource which does not match the one configured in the host
     When I login to pod matching "app=inventory-pod" to authn-k8s as "test-app-incorrect-resource" with prefix "host/some-policy"
     Then the HTTP status is "401"
+
+  Scenario: Login without the "authentication-container-name" annotation defaults to "authenticator" and succeeds
+    Then I can login to pod matching "app=inventory-pod" to authn-k8s as "test-app-no-container-annotation" with prefix "host/some-policy"

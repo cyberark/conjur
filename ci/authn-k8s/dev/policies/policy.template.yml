@@ -189,6 +189,11 @@
         authn-k8s/service-account: other-service-account
         authn-k8s/authentication-container-name: authenticator
 
+    - !host
+      id: test-app-no-container-annotation
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+
   - !grant
     role: !layer
     members: *some-policy-hosts
