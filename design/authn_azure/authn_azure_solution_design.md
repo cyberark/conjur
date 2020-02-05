@@ -59,8 +59,9 @@ request is sent to Conjur, the admin will load the authenticator policy:
   id: conjur/authn-azure/prod
   body:
   - !webservice
-    annotations: 
-      provider-uri: https://sts.windows.net/TENANT_ID
+
+  - !variable
+    id: provider-uri  
       
   - !group apps
   
@@ -70,7 +71,7 @@ request is sent to Conjur, the admin will load the authenticator policy:
     resource: !webservice
 ```
 
-and add the `provider-uri` annotation to the webservice (e.g `https://sts.windows.net/TENANT_ID`). 
+and add the `provider-uri` variable to the webservice (e.g `https://sts.windows.net/TENANT_ID`). 
 
 As part of our effort to improve the user experience for our authenticators, we discussed two options for defining the `provider-uri`:
  
@@ -96,9 +97,10 @@ As part of our effort to improve the user experience for our authenticators, we 
           
     ```     
 
-Because the `provider-uri` does not hold sensitive information, it does not need to saved in Conjur. Adding the `provider-uri` as a variable demands later that the
-admin user populate its value through the CLI. Supplying `provider-uri` as annotation entry makes it easier to set it as a key-value pair and is therefore more readable. 
-For these reasons, we have decided to add provide the `provider-uri`.
+Because the `provider-uri` doesn't hold sensitive information, it doesn't necessary need to be saved as a secret in Conjur. Adding the `provider-uri` as a variable in the policy demands later that the
+admin user populate its value through the CLI. Further, adding it as annotation entry makes it easier to set it as a key-value pair and is therefore more readable. 
+On the other hand, with `provider-uri` in the host annotations, any change to this value will demand a complete replacement of the root policy which raises concerns for maintenance. 
+For concerns of maintenance and for uniformity preservation across our different authenticators, we have decided against moving the `provider-uri` to the webservice annotation.
  
 ### Azure Application Identity
 
@@ -225,7 +227,7 @@ The Azure token validation checks the signature and claims of the Azure token to
 ensure that the token was issued by the Azure Active Directory defined in the authenticator policy. 
 To do this we need to:
 1. Discover the Oauth 2.0 provider - in this case the Azure AD is the Oauth 2.0 
-provider. Its URl will be retrieved from the "provider-uri" annotation defined in the authenticator policy
+provider. Its URl will be retrieved from the "provider-uri" variable value defined in the authenticator policy
 1. Retrieve JWKs from the discovery endpoint - These keys are used for the token validation
 1. Decode and verify the token using the JWKs.
 
@@ -347,7 +349,7 @@ Let's take a look at examples for tokens with a system-assigned identity and tok
   "tid": "df242c82...",
   "uti": "g1mKQ0DE...",
   "ver": "1.0",
-  "xms_mirid": "/subscriptions/<subscription_id>/resourcegroups/<resource_group>/providers/Microsoft.Compute/virtualMachines/<system_assigned_identity>"
+  "xms_mirid": "/subscriptions/<subscription_id>/resourcegroups/<resource_group>/providers/Microsoft.Compute/virtualMachines/<resource_name>"
 }
 ```
 
@@ -377,7 +379,7 @@ The following is a mapping of Host annotations with the values we will be extrac
   "tid": "df242c82...",
   "uti": "g1mKQ0DE...",
   "ver": "1.0",
-  "xms_mirid": "/subscriptions/<subscription_id>/resourceGroups/<resource_group>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<user_assigned_identity>"
+  "xms_mirid": "/subscriptions/<subscription_id>/resourceGroups/<resource_group>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<resource_name>"
 }
 ```
 
@@ -387,7 +389,7 @@ The following is a mapping of Host annotations with the values we will be extrac
 |----------------------------------------------------------------------|--------------------------------|
 | `authn-azure/subscription-id`                                        | subscription_id (inside `xms_mirid`)  |
 | `authn-azure/resource-group`                                         | resource_group (inside `xms_mirid`)   |
-| `authn-azure/user-assigned-identity`                                 | user_assigned_identity (inside `xms_mirid`)| 
+| `authn-azure/user-assigned-identity`                                 | resource_name (inside `xms_mirid`)| 
 
 Regardless of the assigned-identity for the Azure resource, once the proper fields are extracted from the Azure token, we will compare them to the annotations of the Conjur host for this Azure resource. If they match, the next validation test will run. If all 
 validations run without raising an error, the Azure VM resource will receive a Conjur access token in return. All further requests that this Azure VM sends will need to have this Conjur access token in the header.
@@ -409,8 +411,6 @@ Azure authenticator performance should conform with our other authenticators wit
 ## Test Plan
 
 ### Integration tests
-
-#### Functionality
 
 This suite of tests assumes that the Azure authenticator has been configured correctly
 
@@ -513,3 +513,9 @@ This suite of tests assumes that the Azure authenticator has been configured cor
 ## Open questions
 
 - Do we want to develop a mechanism to support a request body with more than one field (currently, we have only "token", but we may want to add more fields later).
+
+## Future efforts
+
+- Challenge moving the `provider-uri` to the webservice annotations in terms of maintenance and evaluate the effort needed to cascade this update to our other authenticators (OIDC, K8s, etc)
+    - How often does this value change?
+    - How will it impact the OIDC authenticator experience?
