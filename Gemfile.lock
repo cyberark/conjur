@@ -318,7 +318,6 @@ GEM
     rainbow (3.0.0)
     rake (13.0.1)
     rake_shared_context (0.3.0)
-    random_password_generator (1.0.0)
     rb-fsevent (0.9.8)
     rb-inotify (0.9.8)
       ffi (>= 0.5.0)
@@ -499,7 +498,6 @@ DEPENDENCIES
   rails_layout
   rake
   rake_shared_context
-  random_password_generator (= 1.0.0)
   reek
   rspec
   rspec-core (~> 3.0)

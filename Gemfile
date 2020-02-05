@@ -28,7 +28,6 @@ gem 'base32-crockford'
 gem 'bcrypt-ruby', '~> 3.0.0'
 gem 'gli', require: false
 gem 'listen'
-gem 'random_password_generator', '= 1.0.0'
 gem 'slosilo', '~> 2.1'
 
 # Explicitly required as there are vulnerabilities in older versions
