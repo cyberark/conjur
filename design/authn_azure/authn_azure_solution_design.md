@@ -151,7 +151,7 @@ This flow assumes that the VM already exists in Azure, and that an authn-azure a
     Content-Type: application/x-www-form-urlencoded
     Body 
     
-     token: "eyJhbGciOiJSUzI1NiIs......uTonCA"
+     jwt: "eyJhbGciOiJSUzI1NiIs......uTonCA"
     ```
 
 1. An already existing route will be used (post '/:authenticator(/:service_id)/:account/:id/authenticate' => 'authenticate#authenticate') that will forward the request to the AuthenticationController. 
@@ -210,6 +210,8 @@ module Authentication
     end
  ```
  
+![Authn Azure Flow](authn-azure-flow.png)
+
 #### validate_azure_token
 
 The Azure token validation checks the signature and claims of the Azure token to 
@@ -283,12 +285,6 @@ Azure provider (which is the Oauth 2.0 provider).
 
 The `validate_application_identity` function will validate that the Azure VM can 
 authenticate with Conjur based on information extracted from the provided Azure token.
-The process of validating the Azure resource identity differs, depending on the identity assigned to the Azure resource. Because of this, we need to handle each case differently. The two types of identities that can be assigned to an
-Azure resource include the following:
-
-1. system-assigned identity
-
-1. user-assigned identity
 
 Proposed validation flow is as followings:
 
@@ -300,7 +296,18 @@ Proposed validation flow is as followings:
 `resource_group` and `subscription_id` and compare them with their equivalents 
 in the Conjur host. If the field does not exist, we will raise a proper error.
 
-1. As you can see in the examples below, the suffix of the `xms_mirid` field includes
+    *NOTE:* It is required that the Host annotation have at least `authn-azure/subscription-id` and `authn-azure/resource-group` but
+    for greater security granularity, a third host annotation can exist - `authn-azure/system-assigned-identity` or `authn-azure/user-assigned-identity`. 
+
+1. If a third annotation, `authn-azure/system-assigned-identity` or `authn-azure/user-assigned-identity` is present, the process of 
+validating this annotation entry differs depending on the identity assigned to the Azure resource. 
+Because of this, we need to handle each case differently. The two types of identities that can be assigned to an Azure resource include the following:
+
+    1. system-assigned identity
+
+    1. user-assigned identity
+
+1. As you can see in the "Examples" section below, the suffix of the `xms_mirid` field includes
 the assigned identity. If the suffix includes `Microsoft.ManagedIdentity/userAssignedIdentities/<user_assigned_identity>`
 then it is a user assigned identity. In this case we will compare its value (i.e `<user_assigned_identity>`) 
 with the `authn-azure/user-assigned-identity` annotation defined in the Conjur host.
@@ -309,6 +316,7 @@ with the `authn-azure/user-assigned-identity` annotation defined in the Conjur h
 If so, we will compare the `oid` field from the Azure access token with the 
 `authn-azure/user-assigned-identity` annotation in the Conjur host.
   1. Note: At this point we support only VMs. In the future we can check for other Azure resources in the `xms_mirid` suffix.
+  
 
 ##### Examples
 
