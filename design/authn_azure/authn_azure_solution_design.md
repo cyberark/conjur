@@ -74,7 +74,7 @@ and add the `provider-uri` annotation to the webservice (e.g `https://sts.window
 
 As part of our effort to improve the user experience for our authenticators, we discussed two options for defining the `provider-uri`:
  
-1. `provider-uri` as a variable_+
+1. `provider-uri` as a variable
     ```yaml
     - !policy
       id: conjur/authn-azure/prod
@@ -126,8 +126,15 @@ OR
   member: !host azure-apps/test-app
 ```
 
-Note that such a host can have only one of the annotations 
-`authn-azure/user-assigned-identity` & `authn-azure/system-assigned-identity`
+#### Supported granularity
+
+1. Subscription ID + Resource Group
+
+1. Subscription ID + Resource Group + System Assigned Identity
+
+1. Subscription ID + Resource Group + User Assigned Identity
+
+We do not support a combination of System Assigned Identity & User Assigned Identity
 
 #### Multiple-assigned identity for host - NOT FOR NOW
 
@@ -144,13 +151,14 @@ This flow assumes that the VM already exists in Azure, and that an authn-azure a
 
 
 1. Azure VM sends the following request to Conjur:
+   
     ```yaml
     POST https://<conjur-server-hostname>/authn-azure/<service-id>/<account>/<host-id>/authenticate
+    
     Header 
+     Content-Type: application/x-www-form-urlencoded
     
-    Content-Type: application/x-www-form-urlencoded
     Body 
-    
      jwt: "eyJhbGciOiJSUzI1NiIs......uTonCA"
     ```
 
@@ -209,8 +217,7 @@ module Authentication
 
     end
  ```
- 
-![Authn Azure Flow](authn-azure-flow.png)
+
 
 #### validate_azure_token
 
@@ -315,7 +322,7 @@ with the `authn-azure/user-assigned-identity` annotation defined in the Conjur h
 1. Otherwise, we will check if `providers/Microsoft.Compute/virtualMachines/` is present in the `xms_mirid` claim. 
 If so, we will compare the `oid` field from the Azure access token with the 
 `authn-azure/user-assigned-identity` annotation in the Conjur host.
-  1. Note: At this point we support only VMs. In the future we can check for other Azure resources in the `xms_mirid` suffix.
+    Note: At this point we support only VMs. In the future we can check for other Azure resources in the `xms_mirid` suffix.
   
 
 ##### Examples
