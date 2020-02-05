@@ -59,9 +59,8 @@ request is sent to Conjur, the admin will load the authenticator policy:
   id: conjur/authn-azure/prod
   body:
   - !webservice
-  
-  - !variable
-    id: provider-uri
+    annotations: 
+      provider-uri: https://sts.windows.net/TENANT_ID
       
   - !group apps
   
@@ -71,7 +70,35 @@ request is sent to Conjur, the admin will load the authenticator policy:
     resource: !webservice
 ```
 
-and load a value to the `provider-uri` variable (e.g `https://sts.windows.net/TENANT_ID`). 
+and add the `provider-uri` annotation to the webservice (e.g `https://sts.windows.net/TENANT_ID`). 
+
+As part of our effort to improve the user experience for our authenticators, we discussed two options for defining the `provider-uri`:
+ 
+1. `provider-uri` as a variable_+
+    ```yaml
+    - !policy
+      id: conjur/authn-azure/prod
+      body:
+      - !webservice
+    
+      - !variable
+        id: provider-uri      
+    ```
+    
+1. `provider-uri` as an entry in the webservice annotations
+    ```yaml
+    - !policy
+      id: conjur/authn-azure/prod
+      body:
+        - !webservice
+          annotations: 
+            provider-uri: https://sts.windows.net/TENANT_ID
+          
+    ```     
+
+Because the `provider-uri` does not hold sensitive information, it does not need to saved in Conjur. Adding the `provider-uri` as a variable demands later that the
+admin user populate its value through the CLI. Supplying `provider-uri` as annotation entry makes it easier to set it as a key-value pair and is therefore more readable. 
+For these reasons, we have decided to add provide the `provider-uri`.
  
 ### Azure Application Identity
 
@@ -189,7 +216,7 @@ The Azure token validation checks the signature and claims of the Azure token to
 ensure that the token was issued by the Azure Active Directory defined in the authenticator policy. 
 To do this we need to:
 1. Discover the Oauth 2.0 provider - in this case the Azure AD is the Oauth 2.0 
-provider. Its URl will be retrieved from the "provider-uri" variable defined in the authenticator policy
+provider. Its URl will be retrieved from the "provider-uri" annotation defined in the authenticator policy
 1. Retrieve JWKs from the discovery endpoint - These keys are used for the token validation
 1. Decode and verify the token using the JWKs.
 
