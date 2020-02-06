@@ -4,6 +4,7 @@ module Authentication
   module AuthnAzure
 
     Err = Errors::Authentication::AuthnAzure
+    Log = LogMessages::Authentication::AuthnAzure
     # Possible Errors Raised:
     # TODO: Add errors
 
@@ -14,7 +15,7 @@ module Authentication
       inputs: [:authenticator_input]
     ) do
       extend Forwardable
-      def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :username, :request, :request_body
+      def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :username, :request, :credentials
 
       def call
         validate_azure_token
@@ -28,14 +29,6 @@ module Authentication
       end
 
       def validate_application_identity
-
-      end
-
-      def host
-
-      end
-
-      def host_annotations
 
       end
     end
