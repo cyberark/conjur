@@ -128,6 +128,10 @@ unless defined? LogMessages::Authentication::OriginValidated
           code: "CONJ00028D"
         )
       end
+
+      module AuthnAzure
+
+      end
     end
 
     module Util
