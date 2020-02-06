@@ -133,7 +133,7 @@ BSD 2-clause "Simplified" License is applicable to the following component(s).
 
 >>> https://rubygems.org/gems/pg/versions/0.20.0
 
-Copyright <YEAR> Yukihiro Matsumoto <matz@netlab.jp>
+Copyright Yukihiro Matsumoto <matz@netlab.jp>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -188,7 +188,7 @@ BSD 3-clause "New" or "Revised" License is applicable to the following component
 
 >>> https://rubygems.org/gems/puma/versions/3.12.2
 
-Some code copyright (c) 2005, Zed Shaw
+Copyright (c) 2005, Zed Shaw
 Copyright (c) 2011, Evan Phoenix
 All rights reserved.
 
@@ -298,7 +298,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 >>> https://rubygems.org/gems/iso8601/versions/0.10.1
 
-Copyright (c) 2012-2018 Arnau Siches
+Copyright (c) 2012-2015 Arnau Siches
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -347,7 +347,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 >>> https://rubygems.org/gems/rack/versions/1.6.12
 
-Copyright (C) 2007-2019 Leah Neukirchen <http://leahneukirchen.org/infopage.html>
+Copyright (c) 2007-2015 Christian Neukirchen <purl.org/net/chneukirchen>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to
@@ -441,7 +441,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 >>> https://rubygems.org/gems/sprockets/versions/3.7.2
 
-Copyright (c) 2014-2019 Sam StephensonCopyright (c) 2014-2019 Joshua Peek
+Copyright (c) 2014 Sam Stephenson
+Copyright (c) 2014 Joshua Peek
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -513,7 +514,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 >>> https://rubygems.org/gems/activesupport/versions/4.2.11
 
-Copyright (c) 2005-2020 David Heinemeier Hansson
+Copyright (c) 2005-2014 David Heinemeier Hansson
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -633,7 +634,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 >>> https://rubygems.org/gems/simplecov/versions/0.14.1
 
-Copyright (c) 2010-2017 Christoph Olszowka
+Copyright (c) 2010-2015 Christoph Olszowka
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -657,7 +658,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 >>> https://rubygems.org/gems/sass-rails/versions/5.0.6
 
-Copyright (c) 2011-2019 Christopher Eppstein
+Copyright (c) 2011 Christopher Eppstein
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -753,7 +754,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 >>> https://rubygems.org/gems/bootstrap-sass/versions/3.4.1
 
-Copyright (c) 2011-2016 Twitter, IncCopyright (c) 2011-2016 The Bootstrap Authors
+Copyright (c) 2011-2016 Twitter, Inc
+Copyright (c) 2011-2016 The Bootstrap Authors
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -777,7 +779,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 >>> https://rubygems.org/gems/dry-struct/versions/0.4.0
 
-Copyright (c) 2015-2020 dry-rb team
+Copyright (c) 2013-2016 Piotr Solnica
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -824,8 +826,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 >>> https://rubygems.org/gems/net-ldap/versions/0.16.1
-
-!!!!Can't find original license that applies to this version!!!!
 
 Copyright 2006–2011 by Francis Cianfrocca and other contributors.
 
@@ -969,7 +969,7 @@ THE SOFTWARE.
 
 >>> https://rubygems.org/gems/conjur-rack/versions/3.1.0
 
-Copyright (c) 2020 CyberArk Software Ltd. All rights reserved.
+Copyright (c) 2013 Kevin Gilpin
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -1068,10 +1068,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 Copyright 2007-2011:
 
 * Coda Hale <coda.hale@gmail.com>
-
-C implementation of the BCrypt algorithm by Solar Designer and placed in the
-public domain.
-jBCrypt is Copyright (c) 2006 Damien Miller <djm@mindrot.org>.
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
