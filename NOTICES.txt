@@ -79,7 +79,7 @@ Apache License 2.0 is applicable to the following component(s).
 
 >>> https://rubygems.org/gems/gli/versions/2.17.1
 
-   Copyright [yyyy] [name of copyright owner]
+   Copyright © 2010 by Dave Copeland
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
