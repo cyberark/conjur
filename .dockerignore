@@ -28,8 +28,8 @@ tmp
 Contributing_OSS
 apidocs
 design
-public
-public/**/*
+docs
+docs/**/*
 
 # Ignore the scripts that are used by the Jenkinsfile
 build.sh

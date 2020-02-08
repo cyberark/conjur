@@ -52,5 +52,5 @@ ci/authn-k8s/dev/policies/*.yml
 *.sw[po]
 
 # GitHub landing page
-public/_site/
-public/.sass-cache
+docs/_site/
+docs/.sass-cache
