@@ -1,4 +1,8 @@
 #!/bin/bash -ex
+#
+# Builds Conjur Docker images
+# Intended to be run from the project root dir
+# usage: ./build.sh
 
 # shellcheck disable=SC1091
 . version_utils.sh

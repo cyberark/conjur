@@ -1,0 +1,54 @@
+section:
+  description: Conjur OSS integrations with platforms and DevOps tools.
+  categories:
+  - name: Platform Integrations
+    description: Tools for Conjur integrations with platforms and cloud providers.
+    repos:
+      - name: cyberark/conjur-authn-k8s-client
+        url: https://github.com/cyberark/conjur-authn-k8s-client
+        tool: Kubernetes
+        description: The Conjur authenticator client can be deployed as a sidecar
+          or init container to ensure your application has a valid Conjur access token.
+      - name: cyberark/secrets-provider-for-k8s
+        url: https://github.com/cyberark/secrets-provider-for-k8s
+        tool: Kubernetes
+        description: The Conjur Secrets Provider for K8s is deployed as an init
+          container in your application pod. It injects secrets from Conjur
+          into Kubernetes secrets, which are accessible to your application pod.
+      - name: cyberark/conjur-service-broker
+        url: https://github.com/cyberark/conjur-service-broker
+        tool: Cloud Foundry
+        description: The Conjur service broker ensures your Cloud Foundry-deployed
+          applications are bootstrapped with a Conjur machine identity on deploy.
+      - name: cyberark/cloudfoundry-conjur-buildpack
+        url: https://github.com/cyberark/cloudfoundry-conjur-buildpack
+        tool: Cloud Foundry
+        description: The Conjur buildpack brings the benefit of Summon to
+          your Cloud Foundry-deployed applications. Leverage your app's Conjur identity
+          to automatically inject the secrets your app needs into its environment
+          at runtime.
+
+  - name: DevOps Tools
+    description: Conjur OSS integrations with DevOps tools.
+    repos:
+      - name: cyberark/ansible-conjur-host-identity
+        url: https://github.com/cyberark/ansible-conjur-host-identity
+        tool: Ansible
+        description: Ansible role to provide Conjur machine identity to application
+          hosts and install the Summon tool, which enables hosts to securely retrieve
+          credentials.
+      - name: cyberark/conjur-credentials-plugin
+        url: https://github.com/cyberark/conjur-credentials-plugin
+        tool: Jenkins
+        description: Conjur plugin for securely providing credentials to Jenkins jobs.
+      - name: cyberark/conjur-puppet
+        url: https://github.com/cyberark/conjur-puppet
+        tool: Puppet
+        description: Puppet module that simplifies the operation of establishing
+          Conjur host identity and allows authorized Puppet nodes to fetch secrets
+          from Conjur.
+      - name: cyberark/terraform-provider-conjur
+        url: https://github.com/cyberark/terraform-provider-conjur
+        tool: Terraform
+        description: Terraform provider that makes secrets in Conjur available in
+          Terraform manifests.

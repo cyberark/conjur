@@ -51,4 +51,6 @@ ci/authn-k8s/dev/policies/*.yml
 # Vim backup files
 *.sw[po]
 
-
+# GitHub landing page
+public/_site/
+public/.sass-cache

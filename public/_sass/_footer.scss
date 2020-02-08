@@ -1,0 +1,108 @@
+#footer {
+  .slack-bar {
+    background: #275e91; /* Old browsers */
+    background: -moz-linear-gradient(left, #275e91 0%, #6ba3d7 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(left, #275e91 0%,#6ba3d7 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right, #275e91 0%,#6ba3d7 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    text-align: center;
+    padding: 15px 0;
+    height: 110px;
+    display: flex;
+    align-items: center;
+
+    a {
+      color: #fff;
+      font-size: 24px;
+    }
+  }
+
+  .cta-bar {
+    background: #0071c7; /* Old browsers */
+    background: -moz-linear-gradient(left, #0071c7 0%, #00b49d 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(left, #0071c7 0%,#00b49d 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right, #0071c7 0%,#00b49d 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    text-align: center;
+    padding: 15px 0;
+    align-items: center;
+
+    .row {
+      padding: 30px 0;
+    }
+
+    p {
+      color: #fff;
+      margin: 5px 0 0 0;
+    }
+
+    a {
+      color: #fff;
+      font-size: 24px;
+      transition: all 0.4s;
+      &:hover {
+        text-decoration: none;
+        text-shadow: 0px 0px 10px #374850;
+      }
+    }
+
+    h3 {
+      font-weight: 300;
+      color: #fff;
+      margin: 0;
+    }
+  }
+
+  .copyright {
+    padding: 15px 0;
+    background-color: $cybr-dkblue;
+
+    .disclaimer {
+      color: #ffffff;
+      font-size: 14px;
+      margin-top: 0;
+    }
+
+    img.cyberark-sidebar-logo {
+    	width: 140px;
+      margin-top: 1rem;
+      margin-right: 2rem;
+  	}
+  }
+
+  .footer-links {
+    li {
+      display: inline-block;
+      margin: 0 0.5em;
+    }
+
+    a {
+      color: $cybr-ltblue;
+      font-size: 14px;
+    }
+
+    a:hover {
+      color: lighten($cybr-ltblue,05);
+    }
+  }
+
+  .footer-branding {
+    display: flex;
+    align-items: center;
+  }
+
+}
+
+@media (max-width: 992px) {
+  .footer-branding {
+    justify-content: center;
+  }
+
+  .disclaimer {
+    padding:20px;
+    padding-right:0px;
+  }
+
+  .list-unstyled {
+    text-align: center;
+  }
+
+}
