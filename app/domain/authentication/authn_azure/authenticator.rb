@@ -10,10 +10,12 @@ module Authentication
 
     Authenticator = CommandClass.new(
       dependencies: {
-
+        fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
+        logger:                      Rails.logger
       },
       inputs: [:authenticator_input]
     ) do
+
       extend Forwardable
       def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :username, :request, :credentials
 
@@ -30,6 +32,23 @@ module Authentication
 
       def validate_application_identity
 
+      end
+
+      def provider_uri
+        azure_authenticator_secrets["provider-uri"]
+      end
+
+      def azure_authenticator_secrets
+        @azure_authenticator_secrets ||= @fetch_authenticator_secrets.(
+          service_id: service_id,
+          conjur_account: account,
+          authenticator_name: authenticator_name,
+          required_variable_names: required_variable_names
+        )
+      end
+
+      def required_variable_names
+        @required_variable_names ||= %w(provider-uri)
       end
     end
 
