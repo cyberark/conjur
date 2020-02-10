@@ -23,6 +23,9 @@ module Authentication
       inputs:       %i(authenticator_input)
     ) do
 
+      extend Forwardable
+      def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :username, :request, :webservice
+
       def call
         validate_account_exists
         decode_and_verify_id_token
@@ -41,7 +44,7 @@ module Authentication
 
       def validate_account_exists
         @validate_account_exists.(
-          account: @authenticator_input.account
+          account: account
         )
       end
 
@@ -57,14 +60,14 @@ module Authentication
       end
 
       def request_body
-        @request_body ||= AuthnOidc::AuthenticateRequestBody.new(@authenticator_input.request)
+        @request_body ||= AuthnOidc::AuthenticateRequestBody.new(request)
       end
 
       def oidc_authenticator_secrets
         @oidc_authenticator_secrets ||= @fetch_authenticator_secrets.(
-          service_id: @authenticator_input.service_id,
-          conjur_account: @authenticator_input.account,
-          authenticator_name: @authenticator_input.authenticator_name,
+          service_id: service_id,
+          conjur_account: account,
+          authenticator_name: authenticator_name,
           required_variable_names: required_variable_names
         )
       end
@@ -75,8 +78,8 @@ module Authentication
 
       def new_token
         @token_factory.signed_token(
-          account:  @authenticator_input.account,
-          username: @authenticator_input.username
+          account:  account,
+          username: username
         )
       end
 
@@ -96,9 +99,9 @@ module Authentication
 
       def validate_security
         @validate_security.(
-          webservice: @authenticator_input.webservice,
-            account: @authenticator_input.account,
-            user_id: @authenticator_input.username,
+          webservice: webservice,
+            account: account,
+            user_id: username,
             enabled_authenticators: @enabled_authenticators
         )
 
