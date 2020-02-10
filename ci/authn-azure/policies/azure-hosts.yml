@@ -1,0 +1,21 @@
+# Hosts that will authenticate with the Azure authenticator
+- !policy
+  id: azure-apps
+  body:
+    - !group
+
+    - &hosts
+      - !host
+        id: test-app
+        annotations:
+          authn-azure/subscription-id: test-subscription
+          authn-azure/resource-group: test-group
+          authn-azure/user-assigned-identity: test-app-pipeline
+
+    - !grant
+      role: !group
+      members: *hosts
+
+- !grant
+  role: !group conjur/authn-azure/test/apps
+  member: !group azure-apps
