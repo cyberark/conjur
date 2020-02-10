@@ -1,0 +1,16 @@
+# Azure authenticator
+- !policy
+  id: conjur/authn-azure/test
+  body:
+  - !webservice
+
+  - !variable
+    id: provider-uri
+
+  - !group
+    id: apps
+
+  - !permit
+    role: !group apps
+    privilege: [ read, authenticate ]
+    resource: !webservice
