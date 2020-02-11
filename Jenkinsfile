@@ -115,8 +115,15 @@ pipeline {
   }
 
   post {
-    always {
-      cleanupAndNotify(currentBuild.currentResult)
-    }
+      success {
+          script {
+               if (env.BRANCH_NAME == 'master') {
+                      build (job:'../cyberark--secrets-provider-for-k8s/master', wait: false)
+               }
+          }
+      }
+      always {
+        cleanupAndNotify(currentBuild.currentResult)
+      }
   }
 }
