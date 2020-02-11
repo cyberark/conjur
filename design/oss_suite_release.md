@@ -58,9 +58,7 @@ In addition, as part of building this release, we'll also be creating:
 
 ## Repositories Included in the Conjur OSS Suite Release
 - Conjur OSS Core
-  - [Conjur OSS](https://github.com/cyberark/conjur)
-    - [Conjur OSS Helm Chart](https://github.com/cyberark/conjur-oss-helm-chart)
-    - [Conjur OSS Cloudformation Templates](https://github.com/cyberark/conjur-aws)
+  - [Conjur Core](https://github.com/cyberark/conjur)
   - [Conjur CLI](https://github.com/cyberark/conjur-cli)
   - Client Libraries
     - [Golang](https://github.com/cyberark/conjur-api-go)
@@ -76,6 +74,7 @@ In addition, as part of building this release, we'll also be creating:
   - [Jenkins](https://github.com/cyberark/conjur-credentials-plugin)
   - Kubernetes / OpenShift
     - [Kubernetes authenticator client](https://github.com/cyberark/conjur-authn-k8s-client)
+    - [Conjur Kubernetes Secrets Provider](https://github.com/cyberark/secrets-provider-for-k8s)
   - [Puppet](https://github.com/cyberark/conjur-puppet)
   - [Terraform](https://github.com/cyberark/terraform-provider-conjur)
 - Secrets Delivery
@@ -230,14 +229,16 @@ will include:
     links to artifacts for each component version included in the release
   - Note: when possible, links to artifacts should link directly to the canonical
     source, rather than linking to the component README (eg link directly to Dockerhub, etc)
+  - Bumping the version of Conjur pinned in the [Conjur helm chart](https://github.com/cyberark/conjur-oss-helm-chart)
+  - (optional) Build and publish the [Conjur OSS AMI](https://github.com/cyberark/conjur-aws)
 - A test suite that can be run manually or automatically to test the pinned versions
   included in the release
   - It will be designed so that new test cases can be added as needed going forward
   - The initial test case will test deploying Conjur OSS to GKE using the Helm Chart
     and enabling a sample app to connect to its database via Secretless using credentials
     pulled from Conjur
-- A test suite that can be run manually or automatically, and that runs daily against
-  the latest versions of all OSS suite components (optional)
+- (optional) A test suite that can be run manually or automatically, and that runs daily against
+  the latest versions of all OSS suite components
 - A CONTRIBUTING.md guide for contributors to OSS suite releases (including release
   managers, component contributors, and component maintainers) that includes:
   - Guidelines for building new releases, including any manual steps
