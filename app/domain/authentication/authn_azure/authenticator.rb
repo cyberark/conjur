@@ -20,19 +20,18 @@ module Authentication
       def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :username, :request, :credentials
 
       def call
-        validate_azure_token
-        validate_application_identity
+        true
       end
 
       private
 
-      def validate_azure_token
-
-      end
-
-      def validate_application_identity
-
-      end
+      #def validate_azure_token
+      #
+      #end
+      #
+      #def validate_application_identity
+      #
+      #end
 
       def provider_uri
         azure_authenticator_secrets["provider-uri"]
