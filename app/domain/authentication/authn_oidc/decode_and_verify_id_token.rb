@@ -26,9 +26,7 @@ module Authentication
 
       def call
         fetch_certs
-        ensure_certs_are_fresh
-        validate_id_token
-        decode_id_token
+        decode_and_validate_id_token
         verify_token_claims
         # TODO: In general we should be returning proper value objects rather
         # than raw hashes.
@@ -46,28 +44,20 @@ module Authentication
         @certs
       end
 
+      def decode_and_validate_id_token
+        # We ensure that the certs are fresh just before we validate the token
+        ensure_certs_are_fresh
+        decoded_id_token
+      rescue => e
+        raise Err::IdTokenInvalidFormat, e.inspect
+      end
+
       def ensure_certs_are_fresh
         decoded_id_token
       rescue
         @logger.debug(Log::ValidateProviderCertificateIsUpdated.new)
         # maybe failed due to certificate rotation. Force cache to read it again
         fetch_certs(force_read: true)
-      end
-
-      # Note: Order matters here.  It is assumed this is called after
-      #       `ensure_certs_are_fresh`.
-      def validate_id_token
-        decoded_id_token
-      rescue => e
-        raise Err::IdTokenInvalidFormat, e.inspect
-      end
-
-      # Note: At this point `validate_id_token` will have already been called
-      # and `decoded_id_token` will just return the memoized value, so nothing
-      # is really "happening" here.  This method is still in the `call` method
-      # to tell the story
-      def decode_id_token
-        decoded_id_token
       end
 
       def verify_token_claims
