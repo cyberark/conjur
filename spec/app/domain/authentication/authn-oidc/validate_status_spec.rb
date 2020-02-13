@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 RSpec.describe Authentication::AuthnOidc::ValidateStatus do
+
+  include_context "fetch secrets"
+
   let (:test_account) { "test-account" }
   let (:test_service_id) { "test-service-id" }
   let (:test_oidc_discovery_error) { "test-oidc-discovery-error" }
-  let (:test_fetch_secrets_error) { "test-fetch-secrets-error" }
 
   let (:oidc_authenticator_secrets) do
     {
@@ -24,25 +26,16 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
     end
   end
 
-  def mock_fetch_secrets(is_successful:)
-    double('fetch_secrets').tap do |fetch_secrets|
-      if is_successful
-        allow(fetch_secrets).to receive(:call)
-                                  .and_return(oidc_authenticator_secrets)
-      else
-        allow(fetch_secrets).to receive(:call)
-                                  .and_raise(test_fetch_secrets_error)
-      end
-    end
-  end
-
   context "Required variables exist and have values" do
 
     context "and Oidc provider is responsive" do
 
       subject do
         Authentication::AuthnOidc::ValidateStatus.new(
-          fetch_authenticator_secrets: mock_fetch_secrets(is_successful: true),
+          fetch_authenticator_secrets: mock_fetch_secrets(
+                                         is_successful: true,
+                                         fetched_secrets: oidc_authenticator_secrets
+                                       ),
           discover_oidc_provider: mock_discover_oidc_provider(is_successful: true)
         ).call(
           account: test_account,
@@ -59,7 +52,10 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
 
       subject do
         Authentication::AuthnOidc::ValidateStatus.new(
-          fetch_authenticator_secrets: mock_fetch_secrets(is_successful: true),
+          fetch_authenticator_secrets: mock_fetch_secrets(
+                                         is_successful: true,
+                                         fetched_secrets: oidc_authenticator_secrets
+                                       ),
           discover_oidc_provider: mock_discover_oidc_provider(is_successful: false)
         ).call(
           account: test_account,
@@ -77,7 +73,10 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
   context "Required variables do not exist or does not have value" do
     subject do
       Authentication::AuthnOidc::ValidateStatus.new(
-        fetch_authenticator_secrets: mock_fetch_secrets(is_successful: false),
+        fetch_authenticator_secrets: mock_fetch_secrets(
+                                       is_successful: false,
+                                       fetched_secrets: oidc_authenticator_secrets
+                                     ),
         discover_oidc_provider: mock_discover_oidc_provider(is_successful: true)
       ).call(
         account: test_account,
