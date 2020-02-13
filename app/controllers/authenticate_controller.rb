@@ -79,7 +79,7 @@ class AuthenticateController < ApplicationController
       service_id:         params[:service_id],
       account:            params[:account],
       username:           params[:id],
-      credentials:       request.body.read,
+      credentials:        request.body.read,
       origin:             request.ip,
       request:            request
     )
@@ -100,7 +100,7 @@ class AuthenticateController < ApplicationController
       service_id:         params[:service_id],
       account:            params[:account],
       username:           nil,
-      credentials:       nil,
+      credentials:        request.body.read,
       origin:             request.ip,
       request:            request
     )

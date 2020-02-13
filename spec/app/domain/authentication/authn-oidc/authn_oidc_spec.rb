@@ -69,7 +69,7 @@ RSpec.describe 'Authentication::Oidc' do
             service_id:         'my-service',
             account:            'my-acct',
             username:           nil,
-            credentials:       nil,
+            credentials:        oidc_authenticate_id_token_request.body.read,
             origin:             '127.0.0.1',
             request:            oidc_authenticate_id_token_request
           )
@@ -105,7 +105,7 @@ RSpec.describe 'Authentication::Oidc' do
             service_id:         'my-service',
             account:            'my-acct',
             username:           nil,
-            credentials:       nil,
+            credentials:        no_field_oidc_authenticate_id_token_request.body.read,
             origin:             '127.0.0.1',
             request:            no_field_oidc_authenticate_id_token_request
           )
@@ -134,7 +134,7 @@ RSpec.describe 'Authentication::Oidc' do
             service_id:         'my-service',
             account:            'my-acct',
             username:           nil,
-            credentials:       nil,
+            credentials:        no_value_oidc_authenticate_id_token_request.body.read,
             origin:             '127.0.0.1',
             request:            no_value_oidc_authenticate_id_token_request
           )

@@ -24,10 +24,11 @@ module Authentication
     ) do
 
       extend Forwardable
-      def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :username, :request, :webservice
+      def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :username, :webservice, :credentials
 
       def call
         validate_account_exists
+        validate_credentials_include_id_token
         decode_and_verify_id_token
         validate_conjur_username
         add_username_to_input
@@ -48,10 +49,18 @@ module Authentication
         )
       end
 
+      def validate_credentials_include_id_token
+        id_token_field_name = "id_token"
+
+        # check that id token field exists and has some value
+        raise Errors::Authentication::RequestBody::MissingRequestParam, id_token_field_name unless decoded_credentials.include?(id_token_field_name) &&
+          !decoded_credentials[id_token_field_name].empty?
+      end
+
       def decode_and_verify_id_token
         @id_token_attributes = @decode_and_verify_id_token.(
           provider_uri: oidc_authenticator_secrets["provider-uri"],
-            id_token_jwt: request_body.id_token
+            id_token_jwt: decoded_credentials["id_token"]
         )
       end
 
@@ -59,8 +68,12 @@ module Authentication
         @authenticator_input = @authenticator_input.update(username: conjur_username)
       end
 
-      def request_body
-        @request_body ||= AuthnOidc::AuthenticateRequestBody.new(request)
+      def decoded_credentials
+        return @decoded_credentials unless @decoded_credentials.nil?
+
+        # The credentials are in a URL encoded form data in the request body
+        decoded_request_body = URI.decode_www_form(credentials)
+        @decoded_credentials = Hash[decoded_request_body]
       end
 
       def oidc_authenticator_secrets
