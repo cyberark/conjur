@@ -3,7 +3,7 @@
 class RolesController < RestController
   include AuthorizeResource
 
-  before_filter :current_user
+  before_action :current_user
 
   def show
     render json: role.as_json.merge(members: role.memberships)

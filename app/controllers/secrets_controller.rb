@@ -6,7 +6,7 @@ class SecretsController < RestController
   include FindResource
   include AuthorizeResource
   
-  before_filter :current_user
+  before_action :current_user
   
   def create
     authorize :update
