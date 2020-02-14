@@ -4,8 +4,8 @@ class PoliciesController < RestController
   include FindResource
   include AuthorizeResource
   
-  before_filter :current_user
-  before_filter :find_or_create_root_policy
+  before_action :current_user
+  before_action :find_or_create_root_policy
 
   rescue_from Sequel::UniqueConstraintViolation, with: :concurrent_load
 
