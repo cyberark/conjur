@@ -5,7 +5,7 @@ class HostFactoryTokensController < RestController
   include FindResource
   include AuthorizeResource
 
-  before_filter :find_token, only: [ :destroy ]
+  before_action :find_token, only: [ :destroy ]
 
   def create
     authorize :execute
