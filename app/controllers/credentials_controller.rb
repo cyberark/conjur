@@ -47,7 +47,7 @@ class CredentialsController < ApplicationController
   def rotate_api_key
     @role.credentials.rotate_api_key
     @role.credentials.save
-    render text: @role.credentials.api_key
+    render plain: @role.credentials.api_key
   end
   
   protected
