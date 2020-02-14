@@ -7,27 +7,27 @@ class CredentialsController < ApplicationController
   # Read authentication from token, basic, or CAS.
   # Some form of authentication must be provided for all methods except +authenticate+, which
   # expects the API key in the request body.
-  before_filter :authenticate_client
+  before_action :authenticate_client
 
   # The username can also come from an +id+ parameter, if the operation will be performed on a different
   # user than the authenticated user.
-  before_filter :accept_id_parameter
+  before_action :accept_id_parameter
     
   # Ensure that the referenced role exists.
-  before_filter :find_role
+  before_action :find_role
 
   # Token authentication cannot be used to update +self+ credentials.
-  before_filter :restrict_token_auth
+  before_action :restrict_token_auth
   
   # Users can update their own record, and +update+ privilege on the authn service enables a superuser
   # to update any user's record.
-  before_filter :authorize_self_or_update, only: [ :rotate_api_key ]
+  before_action :authorize_self_or_update, only: [ :rotate_api_key ]
     
   # Users are always permitted to perform some operations on their own record.
-  before_filter :authorize_self, except: [ :rotate_api_key ]
+  before_action :authorize_self, except: [ :rotate_api_key ]
 
   # Ensure the credentials exist if they will be accessed or modified.
-  before_filter :ensure_credentials, only: [ :update_password, :rotate_api_key, :login ]
+  before_action :ensure_credentials, only: [ :update_password, :rotate_api_key, :login ]
     
   # Update the authenticated user's password. The implication of this is that if you can login as a user, you can change
   # that user's password.
