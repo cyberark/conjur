@@ -36,7 +36,11 @@ class Credentials < Sequel::Model
   end
   
   def restricted_to
-    self[:restricted_to].map { |cidr| Util::CIDR.new(cidr) }
+    if self[:restricted_to] == "{}"
+      return []
+    else
+      self[:restricted_to].map { |cidr| Util::CIDR.new(cidr) }
+    end
   end
 
   def password= pwd
