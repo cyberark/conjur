@@ -3,16 +3,14 @@ require 'command_class'
 module Authentication
   module AuthnAzure
 
-    Err = Errors::Authentication::AuthnAzure
     Log = LogMessages::Authentication
-    # Possible Errors Raised:
-    # TODO: Add errors
+    Err = Errors::Authentication::AuthnAzure
 
     Authenticator = CommandClass.new(
       dependencies: {
-        fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
-        validate_application_identity: ValidateApplicationIdentity.new,
-        logger:                      Rails.logger
+        fetch_authenticator_secrets:    Authentication::Util::FetchAuthenticatorSecrets.new,
+        validate_application_identity:  ValidateApplicationIdentity.new,
+        logger:                         Rails.logger
       },
       inputs: [:authenticator_input]
     ) do
@@ -21,18 +19,21 @@ module Authentication
       def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :username, :request, :credentials
 
       def call
-        true
+        validate_application_identity
       end
 
       private
 
-      #def validate_azure_token
-      #
-      #end
-      #
-      #def validate_application_identity
-      #
-      #end
+      # expecting to receive xms_mirid and oid as inputs (either global instance or function). This will change to hash map.
+      def validate_application_identity
+        @validate_application_identity.(
+            service_id: service_id,
+            account: account,
+            username: username,
+            xms_mirid: decoded_token["xms_mirid"],
+            oid: decoded_token["oid"]
+        )
+      end
 
       def provider_uri
         azure_authenticator_secrets["provider-uri"]

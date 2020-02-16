@@ -137,6 +137,20 @@ unless defined? LogMessages::Authentication::OriginValidated
       end
 
       module AuthnAzure
+        ExtractingIdentityForAuthentication = ::Util::TrackableLogMessageClass.new(
+            msg: "Extracting resource type {0-resource-type} for authentication",
+            code: "CONJ00029D"
+        )
+
+        ValidatingApplicationIdentity = ::Util::TrackableLogMessageClass.new(
+            msg: "Validating application identity for {0-resource-name}",
+            code: "CONJ00030D"
+        )
+
+        ValidatedApplicationIdentity = ::Util::TrackableLogMessageClass.new(
+            msg: "Application identity for {0-resource-name} validated",
+            code: "CONJ00030D"
+        )
 
       end
     end

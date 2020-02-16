@@ -1,7 +1,7 @@
 module Authentication
   module AuthnK8s
 
-    Log = LogMessages::Authentication::AuthnK8s
+    Log = LogMessages::Authentication
     Err = Errors::Authentication::AuthnK8s
     # Possible Errors Raised: MissingNamespaceConstraint, IllegalConstraintCombinations,
     # ScopeNotSupported, InvalidHostId
@@ -97,6 +97,7 @@ module Authentication
           annotation_value("authn-k8s/#{constraint_name}")
       end
 
+      # gets value for annotations for name inputed as key
       def annotation_value name
         annotation = @host_annotations.find { |a| a.values[:name] == name }
 
@@ -141,7 +142,7 @@ module Authentication
           annotation_name = a.values[:name]
 
           annotation_name.start_with?(prefix) &&
-            # Verify we take only annotations from the same level
+            # verify we take only annotations from the same level
             annotation_name.split('/').length == prefix.split('/').length + 1
         end
       end

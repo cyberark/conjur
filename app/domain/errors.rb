@@ -270,8 +270,18 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       module AuthnAzure
 
         MissingAnnotationConstraint = ::Util::TrackableErrorClass.new(
-            msg: "Host does not have a {0} constraint",
+            msg: "Host does not have a {0} constraint defined in its annotations",
             code: "CONJ00045E"
+        )
+
+        InvalidApplicationIdentity = ::Util::TrackableErrorClass.new(
+            msg: "Application identity field '{0-field-name}' does not match what is provided in Azure token",
+            code: "CONJ00049E"
+        )
+
+        ConstraintNotSupported = ::Util::TrackableErrorClass.new(
+            msg: "Constraint type '{0}' is not a supported application identity. The supported resources are '{1}'",
+            code: "CONJ00025E"
         )
 
       end
