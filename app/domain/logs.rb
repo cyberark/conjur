@@ -15,6 +15,16 @@ unless defined? LogMessages::Authentication::OriginValidated
         code: "CONJ00003D"
       )
 
+      ValidatingAnnotationsWithPrefix = ::Util::TrackableLogMessageClass.new(
+          msg: "Validating annotations with prefix {0-prefix}",
+          code: "CONJ00025D"
+      )
+
+      RetrievedAnnotationValue = ::Util::TrackableLogMessageClass.new(
+          msg: "Retrieved value of annotation {0-annotation-name}",
+          code: "CONJ00024D"
+      )
+
       module Security
 
         SecurityValidated = ::Util::TrackableLogMessageClass.new(
@@ -108,16 +118,6 @@ unless defined? LogMessages::Authentication::OriginValidated
         CopySSLToPod = ::Util::TrackableLogMessageClass.new(
           msg: "Copying SSL certificate to {0-pod-namespace}/{1-pod-name}",
           code: "CONJ00015D"
-        )
-
-        RetrievedAnnotationValue = ::Util::TrackableLogMessageClass.new(
-          msg: "Retrieved value of annotation {0-annotation-name}",
-          code: "CONJ00024D"
-        )
-
-        ValidatingAnnotationsWithPrefix = ::Util::TrackableLogMessageClass.new(
-          msg: "Validating annotations with prefix {0-prefix}",
-          code: "CONJ00025D"
         )
 
         ValidatingHostId = ::Util::TrackableLogMessageClass.new(

@@ -4,13 +4,14 @@ module Authentication
   module AuthnAzure
 
     Err = Errors::Authentication::AuthnAzure
-    Log = LogMessages::Authentication::AuthnAzure
+    Log = LogMessages::Authentication
     # Possible Errors Raised:
     # TODO: Add errors
 
     Authenticator = CommandClass.new(
       dependencies: {
         fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
+        validate_application_identity: ValidateApplicationIdentity.new,
         logger:                      Rails.logger
       },
       inputs: [:authenticator_input]

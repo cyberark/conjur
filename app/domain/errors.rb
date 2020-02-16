@@ -269,6 +269,11 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
 
       module AuthnAzure
 
+        MissingAnnotationConstraint = ::Util::TrackableErrorClass.new(
+            msg: "Host does not have a {0} constraint",
+            code: "CONJ00045E"
+        )
+
       end
     end
 
