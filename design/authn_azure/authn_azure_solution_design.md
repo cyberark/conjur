@@ -505,13 +505,13 @@ The rest of the testing is TBT depending on guidelines and feedback resulting fr
 | 2  | Webservice is not defined in a Conjur policy                            | Webservice '{0-webservice-name}' wasn't found                                          | <ul><li> [ ] </li></ul> |
 | 3  | Host is not permitted to authenticate with the webservice               | '{0-role-name}' does not have 'authenticate' privilege on {1-service-name}             | <ul><li> [ ] </li></ul> |
 | 4  | Host is not defined in Conjur                                           | '{0-role-name}' wasn't found                                                           | <ul><li> [ ] </li></ul> |
-| 5  | Couldn't make connection with Azure Identity Provider                   | Azure Identity Provider failed with timeout error (Provider URI: '{0}'). Reason: '{1}' | <ul><li> [ ] </li></ul> |
+| 5  | Couldn't make connection with Azure Identity Provider in time           | Azure Identity Provider failed with timeout error (Provider URI: '{0}'). Reason: '{1}' | <ul><li> [ ] </li></ul> |
 | 6  | Failed to confirm Azure token signature                                 | Failed to confirm signature of '{0-token}' issued by (Provider URI: '{1}'              | <ul><li> [ ] </li></ul> |
 | 7  | A required annotation is missing in the Conjur host                     | Annotation is missing for authentication for Role '{0-role}'                           | <ul><li> [ ] </li></ul> |
 | 8  | Authentication request body is missing a field (e.g `azure_token`)      | Field '{0-field-name}' is missing or empty in request body                             | <ul><li> [ ] </li></ul> |
 | 9  | xms_field is not found in the Azure token                               | Field '{0-field-name}' not found or empty in token                                     | <ul><li> [ ] </li></ul> |
 | 10 | Application identity defined in Conjur host doesn't match Azure token   | Application identity field '{0-field-name}' does not match Azure token                 | <ul><li> [ ] </li></ul> |
-| 11 | Conjur host is defined with both a user-assigned & a system-assigned id | Two conflicting assigned identities were provided                                      | <ul><li> [ ] </li></ul> |
+| 11 | Conjur host is defined with both a user-assigned & a system-assigned id | Application identity includes an illegal constraint combination - '{0-constraints}'    | <ul><li> [ ] </li></ul> |
 
 ### Debug Log level
 
