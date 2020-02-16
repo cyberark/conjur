@@ -476,9 +476,9 @@ The rest of the testing is TBT depending on guidelines and feedback resulting fr
 
 1. If `validate_azure_token` or `validate_application_identity` raise an error then it propagates to calling `Authentication::Authenticate` class
 
-|    | Given | When | Then | Manual / UT / Integration | Tested                 |
-|----|-------|------|------|---------------------------|------------------------|
-| 1  |       |      |      |                           | <ul><li> [ ]</li></ul> |
+|    | Given                                                                                                                | When                                                                | Then                                                                                     | Manual / UT / Integration | Status  |
+|----|----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|------------------------------------------------------------------------------------------|---------------------------|---------|
+| 1  | A host with Subscription ID OR Resource Group in its annotations                                                     | That host attempts to authenticates with authn-azure                | Return 403 Forbidden error and `RoleMissingAnnotations` message appears in log           | UT                        | [ ]     |
 | 2  | A host with Subscription ID + Resource Group + User Assigned Identity + System Assigned Identity in its annotations  | That host attempts to authenticates with authn-azure                | Return 403 Forbidden error and `IdentityAssignedInvalid` message appears in log          | UT                        | [ ]     |
  
     
