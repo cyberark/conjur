@@ -89,7 +89,6 @@ group :development, :test do
   gem 'parallel'
   gem 'pry-byebug'
   gem 'pry-rails'
-  gem 'ruby-debug-ide'
   gem 'debase'
   gem 'rails_layout'
   gem 'rake_shared_context'
