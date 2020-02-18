@@ -31,9 +31,9 @@ module Authentication
       # is used is inside of FetchProviderCertificate.  This is unlikely change, and hence
       # unlikely to be a problem
       def discover_provider
-        @discovered_provider = @open_id_discovery_service.discover!(@provider_uri)
-        @logger.debug(Log::OIDCProviderDiscoverySuccess.new)
-        @discovered_provider
+        @discovered_provider = @open_id_discovery_service.discover!(@provider_uri).tap do
+          @logger.debug(Log::OIDCProviderDiscoverySuccess.new)
+        end
       rescue HTTPClient::ConnectTimeoutError => e
         raise_error(Err::ProviderDiscoveryTimeout, e)
       rescue => e
