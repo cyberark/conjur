@@ -131,6 +131,17 @@ unless defined? LogMessages::Authentication::OriginValidated
 
       module AuthnAzure
 
+        # TODO: get security approval for this message
+        ExtractedFieldFromAzureToken = ::Util::TrackableLogMessageClass.new(
+          msg: "Extracted field '{0-field-name}' with value {1-field-value} from token",
+          code: "CONJ00029D"
+        )
+
+        ValidatingTokenFieldExists = ::Util::TrackableLogMessageClass.new(
+          msg: "Validating that field '{0}' exists in token",
+          code: "CONJ00030D"
+        )
+
       end
     end
 
