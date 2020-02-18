@@ -69,12 +69,9 @@ module Authentication
         @authenticator_input = @authenticator_input.update(username: conjur_username)
       end
 
+      # The credentials are in a URL encoded form data in the request body
       def decoded_credentials
-        return @decoded_credentials unless @decoded_credentials.nil?
-
-        # The credentials are in a URL encoded form data in the request body
-        decoded_request_body = URI.decode_www_form(credentials)
-        @decoded_credentials = Hash[decoded_request_body]
+        @decoded_credentials ||= Hash[URI.decode_www_form(credentials)]
       end
 
       def oidc_authenticator_secrets
