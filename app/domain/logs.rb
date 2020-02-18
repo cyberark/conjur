@@ -47,27 +47,27 @@ unless defined? LogMessages::Authentication::OriginValidated
         )
 
         OIDCProviderUri = ::Util::TrackableLogMessageClass.new(
-          msg: "Working with OIDC Provider {0-provider-uri}",
+          msg: "Working with Identity Provider {0-provider-uri}",
           code: "CONJ00007D"
         )
 
         OIDCProviderDiscoverySuccess = ::Util::TrackableLogMessageClass.new(
-          msg: "OIDC Provider discovery succeeded",
+          msg: "Identity Provider discovery succeeded",
           code: "CONJ00008D"
         )
 
         FetchProviderCertsSuccess = ::Util::TrackableLogMessageClass.new(
-          msg: "Fetched OIDC Provider certificates successfully",
+          msg: "Fetched Identity Provider certificates successfully",
           code: "CONJ00009D"
         )
 
         OIDCProviderCertificateFetchedFromCache = ::Util::TrackableLogMessageClass.new(
-          msg: "OIDC Provider certificates fetched successfully from cache",
+          msg: "Identity Provider certificates fetched successfully from cache",
           code: "CONJ00017D"
         )
 
         ValidateProviderCertificateIsUpdated = ::Util::TrackableLogMessageClass.new(
-          msg: "Validating OIDC Provider certificates are up to date",
+          msg: "Validating Identity Provider certificates are up to date",
           code: "CONJ00019D"
         )
 
