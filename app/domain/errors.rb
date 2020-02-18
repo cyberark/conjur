@@ -112,17 +112,17 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       module AuthnOidc
 
         ProviderDiscoveryTimeout = ::Util::TrackableErrorClass.new(
-          msg: "OIDC Provider discovery failed with timeout error (Provider URI: '{0}'). Reason: '{1}'",
+          msg: "Identity Provider discovery failed with timeout error (Provider URI: '{0}'). Reason: '{1}'",
           code: "CONJ00010E"
         )
 
         ProviderDiscoveryFailed = ::Util::TrackableErrorClass.new(
-          msg: "OIDC Provider discovery failed (Provider URI: '{0}'). Reason: '{1}'",
+          msg: "Identity Provider discovery failed (Provider URI: '{0}'). Reason: '{1}'",
           code: "CONJ00011E"
         )
 
         ProviderFetchCertificateFailed = ::Util::TrackableErrorClass.new(
-          msg: "Failed to fetch certificate from OIDC Provider (Provider URI: '{0}'). Reason: '{1}'",
+          msg: "Failed to fetch certificate from Identity Provider (Provider URI: '{0}'). Reason: '{1}'",
           code: "CONJ00012E"
         )
 
