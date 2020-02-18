@@ -217,6 +217,7 @@ GEM
     json_spec (1.1.5)
       multi_json (~> 1.0)
       rspec (>= 2.0, < 4.0)
+    jwt (2.2.1)
     kubeclient (3.1.2)
       http (~> 2.2.2)
       recursive-open-struct (~> 1.0, >= 1.0.4)
@@ -478,6 +479,7 @@ DEPENDENCIES
   haikunator (~> 1)
   iso8601
   json_spec
+  jwt
   kubeclient
   listen
   loofah (>= 2.2.3)

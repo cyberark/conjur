@@ -72,7 +72,8 @@ within this repository:
 * jekyll-watch - https://rubygems.org/gems/jekyll-watch
 * jemoji - https://rubygems.org/gems/jemoji 
 * json_spec - https://rubygems.org/gems/json_spec 
-* kramdown - https://rubygems.org/gems/kramdown 
+* jwt - https://rubygems.org/gems/jwt
+* kramdown - https://rubygems.org/gems/kramdown
 * libv8 - https://rubygems.org/gems/libv8 
 * liquid - https://rubygems.org/gems/liquid 
 * listen - https://rubygems.org/gems/listen 
