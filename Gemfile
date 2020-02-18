@@ -75,6 +75,7 @@ gem 'kubeclient'
 gem 'websocket-client-simple'
 
 # authn-oidc
+gem 'jwt'
 gem 'openid_connect'
 
 group :development, :test do
