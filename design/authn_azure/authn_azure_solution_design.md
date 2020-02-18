@@ -466,7 +466,7 @@ Azure authenticator performance should conform with our other authenticators wit
 
 |    | Scenario                                                                | Log message                                                                            | Implemented            |
 |--- |-----------------------------------------------------------------------  |----------------------------------------------------------------------------------------|------------------------|
-| 1  | Authenticator is not enabled (in DB/ENV)                                | {0-authenticator-name}' is not enabled                                                 | <ul><li> [ ] </li></ul> |
+| 1  | Authenticator is not enabled (in DB/ENV)                                | Authenticator '{0-authenticator-name}' is not enabled                                                 | <ul><li> [ ] </li></ul> |
 | 2  | Webservice is not defined in a Conjur policy                            | Webservice '{0-webservice-name}' wasn't found                                          | <ul><li> [ ] </li></ul> |
 | 3  | Host is not permitted to authenticate with the webservice               | '{0-role-name}' does not have 'authenticate' privilege on {1-service-name}             | <ul><li> [ ] </li></ul> |
 | 4  | Host is not defined in Conjur                                           | '{0-role-name}' wasn't found                                                           | <ul><li> [ ] </li></ul> |
