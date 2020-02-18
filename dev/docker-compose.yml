@@ -2,9 +2,13 @@ version: "3"
 services:
   pg:
     image: postgres:9.4
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
 
   audit:
     image: postgres:9.4
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
 
   testdb:
     image: postgres:9.4
