@@ -36,14 +36,14 @@ unless defined? LogMessages::Authentication::OriginValidated
           code: "CONJ00004D"
         )
 
-        IDTokenDecodeSuccess = ::Util::TrackableLogMessageClass.new(
-          msg: "ID Token decode succeeded",
+        TokenDecodeSuccess = ::Util::TrackableLogMessageClass.new(
+          msg: "Token decode succeeded",
           code: "CONJ00005D"
         )
 
-        IDTokenVerificationSuccess = ::Util::TrackableLogMessageClass.new(
-          msg: "ID Token verification succeeded",
-          code: "CONJ00006D"
+        TokenDecodeFailed = ::Util::TrackableLogMessageClass.new(
+          msg: "Failed to decode the token with the error '{0-exception}'",
+          code: "CONJ00018D"
         )
 
         OIDCProviderUri = ::Util::TrackableLogMessageClass.new(
@@ -64,11 +64,6 @@ unless defined? LogMessages::Authentication::OriginValidated
         OIDCProviderCertificateFetchedFromCache = ::Util::TrackableLogMessageClass.new(
           msg: "OIDC Provider certificates fetched successfully from cache",
           code: "CONJ00017D"
-        )
-
-        IDTokenDecodeFailed = ::Util::TrackableLogMessageClass.new(
-          msg: "Failed to decode the ID Token with the error '{0-exception}'",
-          code: "CONJ00018D"
         )
 
         ValidateProviderCertificateIsUpdated = ::Util::TrackableLogMessageClass.new(

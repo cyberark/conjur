@@ -1,17 +1,19 @@
+require 'jwt'
+
 module Authentication
   module AuthnOidc
 
-    Log = LogMessages::Authentication::AuthnOidc
     Err = Errors::Authentication::AuthnOidc
+    Log = LogMessages::Authentication::AuthnOidc
     # Possible Errors Raised:
-    # IdTokenExpired, IdTokenVerifyFailed, IdTokenInvalidFormat
+    # TokenExpired, TokenDecodeFailed, TokenVerifyFailed
 
-    DecodeAndVerifyIdToken = CommandClass.new(
+    VerifyAndDecodeToken = CommandClass.new(
       dependencies: {
         # We have a ConcurrencyLimitedCache which wraps a RateLimitedCache which wraps a FetchProviderCertificate class
         fetch_provider_certificate: ::Util::ConcurrencyLimitedCache.new(
           ::Util::RateLimitedCache.new(
-            ::Authentication::AuthnOidc::FetchProviderCertificate.new,
+            ::Authentication::AuthnOidc::FetchProviderCertificates.new,
             refreshes_per_interval: 10,
             rate_limit_interval:    300, # 300 seconds (every 5 mins)
             logger: Rails.logger
@@ -21,75 +23,64 @@ module Authentication
         ),
         logger:                     Rails.logger
       },
-      inputs:       %i(provider_uri id_token_jwt)
+      inputs:       %i(provider_uri token_jwt claims_to_verify)
     ) do
 
       def call
         fetch_certs
-        decode_and_validate_id_token
-        verify_token_claims
-        # TODO: In general we should be returning proper value objects rather
-        # than raw hashes.
-        decoded_attributes # return decoded attributes as hash
+        verify_and_decode_token
       end
 
       private
 
       def fetch_certs(force_read: false)
-        @certs = @fetch_provider_certificate.(
+        provider_certificates = @fetch_provider_certificate.call(
           provider_uri: @provider_uri,
-            refresh: force_read
+          refresh: force_read
         )
+
+        @jwks = provider_certificates.jwks
+        @algs = provider_certificates.algorithms
         @logger.debug(Log::OIDCProviderCertificateFetchedFromCache.new)
-        @certs
       end
 
-      def decode_and_validate_id_token
-        # We ensure that the certs are fresh just before we validate the token
+      def verify_and_decode_token
         ensure_certs_are_fresh
-        decoded_id_token
-      rescue => e
-        raise Err::IdTokenInvalidFormat, e.inspect
+        verified_and_decoded_token
       end
 
       def ensure_certs_are_fresh
-        decoded_id_token
+        verified_and_decoded_token
       rescue
         @logger.debug(Log::ValidateProviderCertificateIsUpdated.new)
         # maybe failed due to certificate rotation. Force cache to read it again
         fetch_certs(force_read: true)
       end
 
-      def verify_token_claims
-        # Verify id_token expiration. OpenIDConnect requires to verify few claims.
-        # Mask required claims such that effectively only expiration will be verified
-        expected = { client_id: decoded_attributes[:aud] || decoded_attributes[:client_id],
-                     issuer:    decoded_attributes[:iss],
-                     nonce:     decoded_attributes[:nonce] }
+      def verified_and_decoded_token
+        return @decoded_token unless @decoded_token.nil?
 
-        decoded_id_token.verify!(expected)
-        @logger.debug(Log::IDTokenVerificationSuccess.new)
-      rescue OpenIDConnect::ResponseObject::IdToken::ExpiredToken
+        options = {
+          algorithms: @algs,
+          jwks: @jwks
+        }.merge(@claims_to_verify)
+
+        # JWT.decode returns an array with one decoded token so we take the first object
+        @decoded_token = JWT.decode(
+          @token_jwt,
+          nil, # the key will be taken from options[:jwks]
+          true, # indicates that we should verify the token
+          options
+        ).first.tap do
+          @logger.debug(Log::TokenDecodeSuccess.new)
+        end
+      rescue JWT::ExpiredSignature
         raise Err::IdTokenExpired
+      rescue JWT::DecodeError
+        @logger.debug(Log::TokenDecodeFailed.new(e.inspect))
+        raise Err::TokenDecodeFailed, e.inspect
       rescue => e
-        raise Err::IdTokenVerifyFailed, e.inspect
-      end
-
-      def decoded_id_token
-        return @decoded_id_token unless @decoded_id_token.nil?
-        @decoded_id_token = OpenIDConnect::ResponseObject::IdToken.decode(
-          @id_token_jwt,
-          @certs
-        )
-        @logger.debug(Log::IDTokenDecodeSuccess.new)
-        @decoded_id_token
-      rescue => e
-        @logger.debug(Log::IDTokenDecodeFailed.new(e.inspect))
-        raise e
-      end
-
-      def decoded_attributes
-        @decoded_attributes ||= decoded_id_token.raw_attributes
+        raise Err::TokenVerifyFailed, e.inspect
       end
     end
   end

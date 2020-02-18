@@ -17,7 +17,7 @@ module Authentication
         validate_security:           ::Authentication::Security::ValidateSecurity.new,
         validate_origin:             ValidateOrigin.new,
         audit_event:                 AuditEvent.new,
-        decode_and_verify_id_token:  DecodeAndVerifyIdToken.new,
+        verify_and_decode_token:     VerifyAndDecodeToken.new,
         logger:                      Rails.logger
       },
       inputs:       %i(authenticator_input)
@@ -29,7 +29,7 @@ module Authentication
       def call
         validate_account_exists
         validate_credentials_include_id_token
-        decode_and_verify_id_token
+        verify_and_decode_token
         validate_conjur_username
         add_username_to_input
         validate_security
@@ -57,10 +57,11 @@ module Authentication
           !decoded_credentials[id_token_field_name].empty?
       end
 
-      def decode_and_verify_id_token
-        @id_token_attributes = @decode_and_verify_id_token.(
+      def verify_and_decode_token
+        @decoded_token = @verify_and_decode_token.(
           provider_uri: oidc_authenticator_secrets["provider-uri"],
-            id_token_jwt: decoded_credentials["id_token"]
+          token_jwt: decoded_credentials["id_token"],
+          claims_to_verify: {} # We don't verify any claims
         )
       end
 
@@ -103,7 +104,7 @@ module Authentication
       end
 
       def conjur_username
-        @conjur_username ||= @id_token_attributes[id_token_username_field]
+        @conjur_username ||= @decoded_token[id_token_username_field]
       end
 
       def id_token_username_field

@@ -131,18 +131,18 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00013E"
         )
 
-        IdTokenInvalidFormat = ::Util::TrackableErrorClass.new(
-          msg: "Invalid ID Token format (3rdPartyError ='{0}')",
-          code: "CONJ00014E"
-        )
-
-        IdTokenVerifyFailed = ::Util::TrackableErrorClass.new(
-          msg: "ID Token verification failed (3rdPartyError ='{0}')",
+        TokenVerifyFailed = ::Util::TrackableErrorClass.new(
+          msg: "Token verification failed (3rdPartyError ='{0}')",
           code: "CONJ00015E"
         )
 
+        TokenDecodeFailed = ::Util::TrackableErrorClass.new(
+          msg: "Token decode failed (3rdPartyError ='{0}')",
+          code: "CONJ00035E"
+        )
+
         IdTokenExpired = ::Util::TrackableErrorClass.new(
-          msg: "ID Token expired",
+          msg: "Token expired",
           code: "CONJ00016E"
         )
 

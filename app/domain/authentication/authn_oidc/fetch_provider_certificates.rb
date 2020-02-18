@@ -1,4 +1,3 @@
-require 'uri'
 require 'json'
 
 module Authentication
@@ -11,7 +10,7 @@ module Authentication
     #   ProviderDiscoveryFailed
     #   ProviderFetchCertificateFailed
 
-    FetchProviderCertificate = CommandClass.new(
+    FetchProviderCertificates = CommandClass.new(
       dependencies: {
         logger:                 Rails.logger,
         discover_oidc_provider: Authentication::AuthnOidc::DiscoverOIDCProvider.new
@@ -27,15 +26,21 @@ module Authentication
       private
 
       def discover_provider
+        discovered_provider
+      end
+
+      def discovered_provider
         @discovered_provider ||= @discover_oidc_provider.(
           provider_uri: @provider_uri
         )
       end
 
       def fetch_certs
-        @discovered_provider.jwks.tap do
-          @logger.debug(Log::FetchProviderCertsSuccess.new)
-        end
+        jwks = {
+          keys: @discovered_provider.jwks
+        }
+        algs = @discovered_provider.id_token_signing_alg_values_supported
+        ProviderCertificates.new(jwks, algs)
       rescue => e
         raise Err::ProviderFetchCertificateFailed.new(@provider_uri, e.inspect)
       end
