@@ -151,8 +151,8 @@ class AuthenticateController < ApplicationController
       Errors::Authentication::Security::RoleNotFound,
       Errors::Authentication::Security::AccountNotDefined,
       Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty,
-      Errors::Authentication::AuthnOidc::IdTokenVerifyFailed,
-      Errors::Authentication::AuthnOidc::IdTokenInvalidFormat,
+      Errors::Authentication::AuthnOidc::TokenVerifyFailed,
+      Errors::Authentication::AuthnOidc::TokenDecodeFailed,
       Errors::Conjur::RequiredSecretMissing,
       Errors::Conjur::RequiredResourceMissing
       raise Unauthorized
