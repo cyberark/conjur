@@ -29,11 +29,31 @@ unless defined? LogMessages::Authentication::OriginValidated
 
       end
 
-      module AuthnOidc
+      module OAuth
 
-        ExtractedUsernameFromIDToked = ::Util::TrackableLogMessageClass.new(
-          msg: "Extracted username '{0}' from ID Token field '{1-id-token-username-field}'",
-          code: "CONJ00004D"
+        IdentityProviderUri = ::Util::TrackableLogMessageClass.new(
+          msg: "Working with Identity Provider {0-provider-uri}",
+          code: "CONJ00007D"
+        )
+
+        IdentityProviderDiscoverySuccess = ::Util::TrackableLogMessageClass.new(
+          msg: "Identity Provider discovery succeeded",
+          code: "CONJ00008D"
+        )
+
+        IdentityProviderCertificateFetchedFromCache = ::Util::TrackableLogMessageClass.new(
+          msg: "Identity Provider certificates fetched successfully from cache",
+          code: "CONJ00017D"
+        )
+
+        FetchProviderCertsSuccess = ::Util::TrackableLogMessageClass.new(
+          msg: "Fetched Identity Provider certificates successfully",
+          code: "CONJ00009D"
+        )
+
+        ValidateProviderCertificateIsUpdated = ::Util::TrackableLogMessageClass.new(
+          msg: "Validating Identity Provider certificates are up to date",
+          code: "CONJ00019D"
         )
 
         TokenDecodeSuccess = ::Util::TrackableLogMessageClass.new(
@@ -46,29 +66,13 @@ unless defined? LogMessages::Authentication::OriginValidated
           code: "CONJ00018D"
         )
 
-        OIDCProviderUri = ::Util::TrackableLogMessageClass.new(
-          msg: "Working with Identity Provider {0-provider-uri}",
-          code: "CONJ00007D"
-        )
+      end
 
-        OIDCProviderDiscoverySuccess = ::Util::TrackableLogMessageClass.new(
-          msg: "Identity Provider discovery succeeded",
-          code: "CONJ00008D"
-        )
+      module AuthnOidc
 
-        FetchProviderCertsSuccess = ::Util::TrackableLogMessageClass.new(
-          msg: "Fetched Identity Provider certificates successfully",
-          code: "CONJ00009D"
-        )
-
-        OIDCProviderCertificateFetchedFromCache = ::Util::TrackableLogMessageClass.new(
-          msg: "Identity Provider certificates fetched successfully from cache",
-          code: "CONJ00017D"
-        )
-
-        ValidateProviderCertificateIsUpdated = ::Util::TrackableLogMessageClass.new(
-          msg: "Validating Identity Provider certificates are up to date",
-          code: "CONJ00019D"
+        ExtractedUsernameFromIDToked = ::Util::TrackableLogMessageClass.new(
+          msg: "Extracted username '{0}' from ID Token field '{1-id-token-username-field}'",
+          code: "CONJ00004D"
         )
 
       end

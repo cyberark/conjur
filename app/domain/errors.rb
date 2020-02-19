@@ -109,7 +109,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
 
       end
 
-      module AuthnOidc
+      module OAuth
 
         ProviderDiscoveryTimeout = ::Util::TrackableErrorClass.new(
           msg: "Identity Provider discovery failed with timeout error (Provider URI: '{0}'). Reason: '{1}'",
@@ -126,14 +126,9 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00012E"
         )
 
-        IdTokenFieldNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
-          msg: "Field '{0-field-name}' not found or empty in ID Token. This field is defined in the id-token-user-property variable.",
-          code: "CONJ00013E"
-        )
-
-        TokenVerifyFailed = ::Util::TrackableErrorClass.new(
-          msg: "Token verification failed (3rdPartyError ='{0}')",
-          code: "CONJ00015E"
+        TokenExpired = ::Util::TrackableErrorClass.new(
+          msg: "Token expired",
+          code: "CONJ00016E"
         )
 
         TokenDecodeFailed = ::Util::TrackableErrorClass.new(
@@ -141,9 +136,18 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00035E"
         )
 
-        IdTokenExpired = ::Util::TrackableErrorClass.new(
-          msg: "Token expired",
-          code: "CONJ00016E"
+        TokenVerifyFailed = ::Util::TrackableErrorClass.new(
+          msg: "Token verification failed (3rdPartyError ='{0}')",
+          code: "CONJ00015E"
+        )
+
+      end
+
+      module AuthnOidc
+
+        IdTokenFieldNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
+          msg: "Field '{0-field-name}' not found or empty in ID Token. This field is defined in the id-token-user-property variable.",
+          code: "CONJ00013E"
         )
 
         AdminAuthenticationDenied = ::Util::TrackableErrorClass.new(

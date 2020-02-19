@@ -1,10 +1,10 @@
 require 'json'
 
 module Authentication
-  module AuthnOidc
+  module OAuth
 
-    Log = LogMessages::Authentication::AuthnOidc
-    Err = Errors::Authentication::AuthnOidc
+    Log = LogMessages::Authentication::OAuth
+    Err = Errors::Authentication::OAuth
     # Possible Errors Raised:
     #   ProviderDiscoveryTimeout
     #   ProviderDiscoveryFailed
@@ -13,7 +13,7 @@ module Authentication
     FetchProviderCertificates = CommandClass.new(
       dependencies: {
         logger:                 Rails.logger,
-        discover_oidc_provider: Authentication::AuthnOidc::DiscoverOIDCProvider.new
+        discover_oidc_provider: ::Authentication::OAuth::DiscoverIdentityProvider.new
       },
       inputs:       %i(provider_uri)
     ) do
@@ -40,6 +40,7 @@ module Authentication
           keys: @discovered_provider.jwks
         }
         algs = @discovered_provider.id_token_signing_alg_values_supported
+        @logger.debug(Log::FetchProviderCertsSuccess.new)
         ProviderCertificates.new(jwks, algs)
       rescue => e
         raise Err::ProviderFetchCertificateFailed.new(@provider_uri, e.inspect)

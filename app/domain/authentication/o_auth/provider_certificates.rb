@@ -1,8 +1,7 @@
-require 'uri'
 require 'json'
 
 module Authentication
-  module AuthnOidc
+  module OAuth
     class ProviderCertificates
       attr_reader :jwks
       attr_reader :algorithms
