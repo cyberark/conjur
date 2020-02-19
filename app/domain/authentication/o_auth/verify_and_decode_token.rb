@@ -1,10 +1,10 @@
 require 'jwt'
 
 module Authentication
-  module AuthnOidc
+  module OAuth
 
-    Err = Errors::Authentication::AuthnOidc
-    Log = LogMessages::Authentication::AuthnOidc
+    Err = Errors::Authentication::OAuth
+    Log = LogMessages::Authentication::OAuth
     # Possible Errors Raised:
     # TokenExpired, TokenDecodeFailed, TokenVerifyFailed
 
@@ -13,7 +13,7 @@ module Authentication
         # We have a ConcurrencyLimitedCache which wraps a RateLimitedCache which wraps a FetchProviderCertificate class
         fetch_provider_certificate: ::Util::ConcurrencyLimitedCache.new(
           ::Util::RateLimitedCache.new(
-            ::Authentication::AuthnOidc::FetchProviderCertificates.new,
+            ::Authentication::OAuth::FetchProviderCertificates.new,
             refreshes_per_interval: 10,
             rate_limit_interval:    300, # 300 seconds (every 5 mins)
             logger: Rails.logger
@@ -41,7 +41,7 @@ module Authentication
 
         @jwks = provider_certificates.jwks
         @algs = provider_certificates.algorithms
-        @logger.debug(Log::OIDCProviderCertificateFetchedFromCache.new)
+        @logger.debug(Log::IdentityProviderCertificateFetchedFromCache.new)
       end
 
       def verify_and_decode_token
@@ -75,7 +75,7 @@ module Authentication
           @logger.debug(Log::TokenDecodeSuccess.new)
         end
       rescue JWT::ExpiredSignature
-        raise Err::IdTokenExpired
+        raise Err::TokenExpired
       rescue JWT::DecodeError
         @logger.debug(Log::TokenDecodeFailed.new(e.inspect))
         raise Err::TokenDecodeFailed, e.inspect

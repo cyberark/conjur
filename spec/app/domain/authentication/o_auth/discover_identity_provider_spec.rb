@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Authentication::AuthnOidc::DiscoverOIDCProvider do
+RSpec.describe Authentication::OAuth::DiscoverIdentityProvider do
 
   let (:test_provider_uri) { "test-provider-uri" }
   let (:test_error) { "test-error" }
@@ -18,9 +18,9 @@ RSpec.describe Authentication::AuthnOidc::DiscoverOIDCProvider do
     end
   end
 
-  context "A discoverable Oidc provider" do
+  context "A discoverable identity provider" do
     subject do
-      Authentication::AuthnOidc::DiscoverOIDCProvider.new(
+      Authentication::OAuth::DiscoverIdentityProvider.new(
         open_id_discovery_service: mock_discovery_provider(error: nil)
       ).call(
         provider_uri: test_provider_uri
@@ -36,10 +36,10 @@ RSpec.describe Authentication::AuthnOidc::DiscoverOIDCProvider do
     end
   end
 
-  context "A non-discoverable Oidc provider" do
+  context "A non-discoverable identity provider" do
     context "fails on timeout error" do
       subject do
-        Authentication::AuthnOidc::DiscoverOIDCProvider.new(
+        Authentication::OAuth::DiscoverIdentityProvider.new(
           open_id_discovery_service: mock_discovery_provider(error: HTTPClient::ConnectTimeoutError)
         ).call(
           provider_uri: test_provider_uri
@@ -47,12 +47,12 @@ RSpec.describe Authentication::AuthnOidc::DiscoverOIDCProvider do
       end
 
       it "returns a ProviderDiscoveryTimeout error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnOidc::ProviderDiscoveryTimeout)
+        expect { subject }.to raise_error(Errors::Authentication::OAuth::ProviderDiscoveryTimeout)
       end
 
       context "fails on general error" do
         subject do
-          Authentication::AuthnOidc::DiscoverOIDCProvider.new(
+          Authentication::OAuth::DiscoverIdentityProvider.new(
             open_id_discovery_service: mock_discovery_provider(error: test_error)
           ).call(
             provider_uri: test_provider_uri
@@ -60,7 +60,7 @@ RSpec.describe Authentication::AuthnOidc::DiscoverOIDCProvider do
         end
 
         it "returns a ProviderDiscoveryFailed error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnOidc::ProviderDiscoveryFailed)
+          expect { subject }.to raise_error(Errors::Authentication::OAuth::ProviderDiscoveryFailed)
         end
       end
     end

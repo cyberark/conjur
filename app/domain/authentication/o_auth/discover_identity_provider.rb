@@ -1,13 +1,13 @@
 module Authentication
-  module AuthnOidc
+  module OAuth
 
-    Log = LogMessages::Authentication::AuthnOidc
-    Err = Errors::Authentication::AuthnOidc
+    Log = LogMessages::Authentication::OAuth
+    Err = Errors::Authentication::OAuth
     # Possible Errors Raised:
     #   ProviderDiscoveryTimeout
     #   ProviderDiscoveryFailed
 
-    DiscoverOIDCProvider = CommandClass.new(
+    DiscoverIdentityProvider = CommandClass.new(
       dependencies: {
         logger:                    Rails.logger,
         open_id_discovery_service: OpenIDConnect::Discovery::Provider::Config
@@ -23,7 +23,7 @@ module Authentication
       private
 
       def log_provider_uri
-        @logger.debug(Log::OIDCProviderUri.new(@provider_uri))
+        @logger.debug(Log::IdentityProviderUri.new(@provider_uri))
       end
 
       # returns an OpenIDConnect::Discovery::Provider::Config::Resource instance.
@@ -32,7 +32,7 @@ module Authentication
       # unlikely to be a problem
       def discover_provider
         @discovered_provider = @open_id_discovery_service.discover!(@provider_uri).tap do
-          @logger.debug(Log::OIDCProviderDiscoverySuccess.new)
+          @logger.debug(Log::IdentityProviderDiscoverySuccess.new)
         end
       rescue HTTPClient::ConnectTimeoutError => e
         raise_error(Err::ProviderDiscoveryTimeout, e)

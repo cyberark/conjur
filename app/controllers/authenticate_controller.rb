@@ -151,8 +151,8 @@ class AuthenticateController < ApplicationController
       Errors::Authentication::Security::RoleNotFound,
       Errors::Authentication::Security::AccountNotDefined,
       Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty,
-      Errors::Authentication::AuthnOidc::TokenVerifyFailed,
-      Errors::Authentication::AuthnOidc::TokenDecodeFailed,
+      Errors::Authentication::OAuth::TokenVerifyFailed,
+      Errors::Authentication::OAuth::TokenDecodeFailed,
       Errors::Conjur::RequiredSecretMissing,
       Errors::Conjur::RequiredResourceMissing
       raise Unauthorized
@@ -163,17 +163,17 @@ class AuthenticateController < ApplicationController
     when Errors::Authentication::RequestBody::MissingRequestParam
       raise BadRequest
 
-    when Errors::Authentication::AuthnOidc::IdTokenExpired
+    when Errors::Authentication::OAuth::TokenExpired
       raise Unauthorized.new(err.message, true)
 
-    when Errors::Authentication::AuthnOidc::ProviderDiscoveryTimeout
+    when Errors::Authentication::OAuth::ProviderDiscoveryTimeout
       raise GatewayTimeout
 
     when Errors::Util::ConcurrencyLimitReachedBeforeCacheInitialization
       raise ServiceUnavailable
 
-    when Errors::Authentication::AuthnOidc::ProviderDiscoveryFailed,
-      Errors::Authentication::AuthnOidc::ProviderFetchCertificateFailed
+    when Errors::Authentication::OAuth::ProviderDiscoveryFailed,
+      Errors::Authentication::OAuth::ProviderFetchCertificateFailed
       raise BadGateway
 
     else

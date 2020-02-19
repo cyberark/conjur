@@ -17,7 +17,7 @@ module Authentication
         validate_security:           ::Authentication::Security::ValidateSecurity.new,
         validate_origin:             ValidateOrigin.new,
         audit_event:                 AuditEvent.new,
-        verify_and_decode_token:     VerifyAndDecodeToken.new,
+        verify_and_decode_token:     ::Authentication::OAuth::VerifyAndDecodeToken.new,
         logger:                      Rails.logger
       },
       inputs:       %i(authenticator_input)
