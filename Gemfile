@@ -59,7 +59,7 @@ gem 'uglifier'
 gem 'autoprefixer-rails'
 gem 'bootstrap-sass', '~> 3.4.0'
 gem 'dry-struct'
-gem 'font-awesome-sass', '~> 4.7.0'
+gem 'font-awesome-sass', '~> 5.12.0'
 gem 'net-ldap'
 
 # for AWS rotator
