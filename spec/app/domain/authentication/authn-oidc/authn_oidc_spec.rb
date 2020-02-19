@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'support/security_specs_helper'
+require 'support/fetch_secrets_helper'
 require 'json'
 
 RSpec.describe 'Authentication::Oidc' do
 
+  include_context "fetch secrets"
+  include_context "security mocks"
   include_context "oidc setup"
 
   let (:mocked_verify_and_decode_token) { double("MockIdTokenDecodeAndVerify") }
@@ -75,7 +79,7 @@ RSpec.describe 'Authentication::Oidc' do
           )
 
           ::Authentication::AuthnOidc::Authenticate.new(
-            enabled_authenticators: oidc_authenticator_name,
+            enabled_authenticators: authenticator_name,
             token_factory: token_factory,
             validate_security: mocked_security_validator,
             validate_account_exists: mocked_account_validator,
@@ -111,7 +115,7 @@ RSpec.describe 'Authentication::Oidc' do
           )
 
           ::Authentication::AuthnOidc::Authenticate.new(
-            enabled_authenticators: oidc_authenticator_name,
+            enabled_authenticators: authenticator_name,
             token_factory: token_factory,
             validate_security: mocked_security_validator,
             validate_account_exists: mocked_account_validator,
@@ -140,7 +144,7 @@ RSpec.describe 'Authentication::Oidc' do
           )
 
           ::Authentication::AuthnOidc::Authenticate.new(
-            enabled_authenticators: oidc_authenticator_name,
+            enabled_authenticators: authenticator_name,
             token_factory: token_factory,
             validate_security: mocked_security_validator,
             validate_account_exists: mocked_account_validator,

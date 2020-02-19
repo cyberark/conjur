@@ -3,12 +3,21 @@
 require 'spec_helper'
 
 shared_context "security mocks" do
-  let (:test_account) { 'test-account' }
-  let (:non_existing_account) { 'non-existing' }
-  let (:fake_authenticator_name) { 'authn-x' }
-  let (:fake_service_id) { 'fake-service-id' }
-  let (:test_user_id) { 'some-user' }
-  let (:two_authenticator_env) { "#{fake_authenticator_name}/service1, #{fake_authenticator_name}/service2" }
+  let(:test_account) { 'test-account' }
+  let(:non_existing_account) { 'non-existing' }
+  let(:fake_authenticator_name) { 'authn-x' }
+  let(:fake_service_id) { 'fake-service-id' }
+  let(:test_user_id) { 'some-user' }
+  let(:two_authenticator_env) { "#{fake_authenticator_name}/service1, #{fake_authenticator_name}/service2" }
+  let(:mocked_security_validator) { double("ValidateSecurity") }
+  let(:mocked_origin_validator) { double("ValidateOrigin") }
+  let(:mocked_account_validator) { double("ValidateAccountExists") }
+
+  let(:validate_account_exists_error) { "validate account exists error" }
+  let(:validate_whitelisted_webservice_error) { "validate whitelisted webservice error" }
+  let(:validate_webservice_access_error) { "validate webservice access error" }
+  let(:validate_webservice_exists_error) { "validate webservice exists error" }
+  let(:validate_webservice_is_authenticator_error) { "validate webservice is authenticator error" }
 
   def mock_webservice(account, authenticator_name, service_id)
     double('webservice').tap do |webservice|
@@ -39,12 +48,6 @@ shared_context "security mocks" do
                              .and_return(nil)
     end
   end
-
-  let (:validate_account_exists_error) { "validate account exists error" }
-  let (:validate_whitelisted_webservice_error) { "validate whitelisted webservice error" }
-  let (:validate_webservice_access_error) { "validate webservice access error" }
-  let (:validate_webservice_exists_error) { "validate webservice exists error" }
-  let (:validate_webservice_is_authenticator_error) { "validate webservice is authenticator error" }
 
   def mock_validator(validation_succeeded:, validation_error:)
     double('validator').tap do |validator|
@@ -88,5 +91,49 @@ shared_context "security mocks" do
     double('user_role').tap do |role|
       allow(role).to receive(:role_id).and_return('some-role-id')
     end
+  end
+
+  before(:each) do
+    allow(mocked_security_validator).to receive(:call)
+                                          .and_return(true)
+
+    allow(mocked_origin_validator).to receive(:call)
+                                        .and_return(true)
+
+    allow(mocked_account_validator).to receive(:call)
+                                         .and_return(true)
+  end
+end
+
+shared_examples_for "raises an error when security validation fails" do
+  it 'raises an error when security validation fails' do
+    allow(mocked_security_validator).to receive(:call)
+                                          .and_raise('FAKE_SECURITY_ERROR')
+
+    expect { subject }.to raise_error(
+                            /FAKE_SECURITY_ERROR/
+                          )
+  end
+end
+
+shared_examples_for "raises an error when origin validation fails" do
+  it "raises an error when origin validation fails" do
+    allow(mocked_origin_validator).to receive(:call)
+                                        .and_raise('FAKE_ORIGIN_ERROR')
+
+    expect { subject }.to raise_error(
+                            /FAKE_ORIGIN_ERROR/
+                          )
+  end
+end
+
+shared_examples_for "raises an error when account validation fails" do
+  it 'raises an error when account validation fails' do
+    allow(mocked_account_validator).to receive(:call)
+                                         .and_raise('ACCOUNT_NOT_EXIST_ERROR')
+
+    expect { subject }.to raise_error(
+                            /ACCOUNT_NOT_EXIST_ERROR/
+                          )
   end
 end
