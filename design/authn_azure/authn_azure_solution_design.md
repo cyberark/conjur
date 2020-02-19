@@ -42,15 +42,13 @@
 
 ## Issue description
 
-Many of our customers are using Azure as their main cloud provider. Therefore we want to enable Azure resources to authenticate according to Azure 
+We want to enable Azure resources to authenticate according to Azure 
 properties and get back a Conjur access token in order to retrieve secrets from our providers. At current, customers can authenticate their Azure 
 VMs with Conjur by creating a Conjur host identity for their Azure resources. The Azure resource would then receive an API key as part of the 
 creation of a Conjur identity which they must use to connect to targets. This is not optimal nor convenient because we are not allowing the 
 resources to authenticate based on their Azure identity and demand that the resource hold an extra secret, the Conjur-given API key.
 
 ## Solution
-
-We expect the app to be on an Azure VM and we currently do not officially support having a Conjur instance in Azure.
 
 We will add a new authenticator to Conjur, which users can authenticate with from Azure VMs. As mentioned in the [feature doc](https://app.zenhub.com/workspaces/appliance-development-5c9cf04bfa1c204b63eddcc6/issues/cyberark/conjur/1266), before any authentication 
 request is sent to Conjur, the admin will load the authenticator policy: 
