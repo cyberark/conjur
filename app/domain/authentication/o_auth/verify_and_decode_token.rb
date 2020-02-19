@@ -8,6 +8,10 @@ module Authentication
     # Possible Errors Raised:
     # TokenExpired, TokenDecodeFailed, TokenVerifyFailed
 
+    # This class decodes and verifies JWT tokens, issued by an OAuthn 2.0 Identity Provider.
+    # It first retrieves the JWKs from the identity provider and sets them as verification options
+    # for Authentication::Jwt::VerifyAndDecodeToken. That class does the offline verification and decode,
+    # using the JWKs retrieved from the OAuthn 2.0 Identity Provider.
     VerifyAndDecodeToken = CommandClass.new(
       dependencies: {
         # We have a ConcurrencyLimitedCache which wraps a RateLimitedCache which wraps a FetchProviderCertificate class

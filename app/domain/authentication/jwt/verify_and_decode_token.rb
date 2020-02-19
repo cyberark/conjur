@@ -8,6 +8,19 @@ module Authentication
     # Possible Errors Raised:
     # TokenExpired, TokenDecodeFailed, TokenVerifyFailed
 
+    # This class Verifies and decodes a JWT token. It doesn't connect with the issuer
+    # of the token for verification. If a token verification is needed, a verification_options
+    # object should be provided with the JWKs & algorithms required for the verification.
+    # In addition, if token claims need to be verified they should be specified in the verification_options.
+    # For example:
+    #     @verification_options = {
+    #       algorithms: @algs,
+    #       jwks: @jwks,
+    #       verify_iss: true
+    #       iss: https://token-issuer.com/
+    #     }
+    #
+    # For more information on the verification and decode process: https://github.com/jwt/ruby-jwt
     VerifyAndDecodeToken = CommandClass.new(
       dependencies: {
         jwt_decoder: JWT,
