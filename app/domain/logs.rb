@@ -56,6 +56,10 @@ unless defined? LogMessages::Authentication::OriginValidated
           code: "CONJ00019D"
         )
 
+      end
+
+      module Jwt
+
         TokenDecodeSuccess = ::Util::TrackableLogMessageClass.new(
           msg: "Token decode succeeded",
           code: "CONJ00005D"
