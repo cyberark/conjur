@@ -21,6 +21,7 @@ module Authentication
           max_concurrent_requests: 3, # TODO: Should be dynamic calculation
           logger: Rails.logger
         ),
+        verify_and_decode_token: ::Authentication::Jwt::VerifyAndDecodeToken.new,
         logger:                     Rails.logger
       },
       inputs:       %i(provider_uri token_jwt claims_to_verify)
@@ -58,29 +59,17 @@ module Authentication
       end
 
       def verified_and_decoded_token
-        return @decoded_token unless @decoded_token.nil?
+        @verified_and_decoded_token ||= @verify_and_decode_token.call(
+          token_jwt: @token_jwt,
+          verification_options: verification_options
+        )
+      end
 
-        options = {
+      def verification_options
+        @verification_options ||= {
           algorithms: @algs,
           jwks: @jwks
         }.merge(@claims_to_verify)
-
-        # JWT.decode returns an array with one decoded token so we take the first object
-        @decoded_token = JWT.decode(
-          @token_jwt,
-          nil, # the key will be taken from options[:jwks]
-          true, # indicates that we should verify the token
-          options
-        ).first.tap do
-          @logger.debug(Log::TokenDecodeSuccess.new)
-        end
-      rescue JWT::ExpiredSignature
-        raise Err::TokenExpired
-      rescue JWT::DecodeError
-        @logger.debug(Log::TokenDecodeFailed.new(e.inspect))
-        raise Err::TokenDecodeFailed, e.inspect
-      rescue => e
-        raise Err::TokenVerifyFailed, e.inspect
       end
     end
   end

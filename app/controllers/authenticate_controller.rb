@@ -151,8 +151,8 @@ class AuthenticateController < ApplicationController
       Errors::Authentication::Security::RoleNotFound,
       Errors::Authentication::Security::AccountNotDefined,
       Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty,
-      Errors::Authentication::OAuth::TokenVerifyFailed,
-      Errors::Authentication::OAuth::TokenDecodeFailed,
+      Errors::Authentication::Jwt::TokenVerifyFailed,
+      Errors::Authentication::Jwt::TokenDecodeFailed,
       Errors::Conjur::RequiredSecretMissing,
       Errors::Conjur::RequiredResourceMissing
       raise Unauthorized
@@ -163,7 +163,7 @@ class AuthenticateController < ApplicationController
     when Errors::Authentication::RequestBody::MissingRequestParam
       raise BadRequest
 
-    when Errors::Authentication::OAuth::TokenExpired
+    when Errors::Authentication::Jwt::TokenExpired
       raise Unauthorized.new(err.message, true)
 
     when Errors::Authentication::OAuth::ProviderDiscoveryTimeout

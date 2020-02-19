@@ -126,6 +126,10 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00012E"
         )
 
+      end
+
+      module Jwt
+
         TokenExpired = ::Util::TrackableErrorClass.new(
           msg: "Token expired",
           code: "CONJ00016E"
