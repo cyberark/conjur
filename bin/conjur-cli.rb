@@ -74,6 +74,8 @@ command :server do |c|
     Process.fork do
       exec "rails server -p #{options[:port]} -b #{options[:'bind-address']}"
     end
+    #
+    # TODO: turn this off.  Add a ticket to remove the code
     Process.fork do
       exec "rake authn_local:run"
     end
