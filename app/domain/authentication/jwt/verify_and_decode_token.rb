@@ -6,9 +6,9 @@ module Authentication
     Err = Errors::Authentication::Jwt
     Log = LogMessages::Authentication::Jwt
     # Possible Errors Raised:
-    # TokenExpired, TokenDecodeFailed, TokenVerifyFailed
+    # TokenExpired, TokenDecodeFailed, TokenVerificationFailed
 
-    # This class Verifies and decodes a JWT token. It doesn't connect with the issuer
+    # This class verifies and decodes a JWT token. It doesn't connect with the issuer
     # of the token for verification. If a token verification is needed, a verification_options
     # object should be provided with the JWKs & algorithms required for the verification.
     # In addition, if token claims need to be verified they should be specified in the verification_options.
@@ -51,7 +51,7 @@ module Authentication
         @logger.debug(Log::TokenDecodeFailed.new(e.inspect))
         raise Err::TokenDecodeFailed, e.inspect
       rescue => e
-        raise Err::TokenVerifyFailed, e.inspect
+        raise Err::TokenVerificationFailed, e.inspect
       end
 
       def should_verify

@@ -140,7 +140,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00035E"
         )
 
-        TokenVerifyFailed = ::Util::TrackableErrorClass.new(
+        TokenVerificationFailed = ::Util::TrackableErrorClass.new(
           msg: "Token verification failed (3rdPartyError ='{0}')",
           code: "CONJ00015E"
         )

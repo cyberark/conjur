@@ -6,7 +6,7 @@ module Authentication
     Err = Errors::Authentication::OAuth
     Log = LogMessages::Authentication::OAuth
     # Possible Errors Raised:
-    # TokenExpired, TokenDecodeFailed, TokenVerifyFailed
+    # TokenExpired, TokenDecodeFailed, TokenVerificationFailed
 
     # This class decodes and verifies JWT tokens, issued by an OAuthn 2.0 Identity Provider.
     # It first retrieves the JWKs from the identity provider and sets them as verification options
