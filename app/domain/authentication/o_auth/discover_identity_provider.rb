@@ -28,7 +28,7 @@ module Authentication
 
       # returns an OpenIDConnect::Discovery::Provider::Config::Resource instance.
       # While this leaks 3rd party code into ours, the only time this Resource
-      # is used is inside of FetchProviderCertificate.  This is unlikely change, and hence
+      # is used is inside of FetchProviderKeys.  This is unlikely change, and hence
       # unlikely to be a problem
       def discover_provider
         @discovered_provider = @open_id_discovery_service.discover!(@provider_uri).tap do

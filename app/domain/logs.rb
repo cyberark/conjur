@@ -41,18 +41,18 @@ unless defined? LogMessages::Authentication::OriginValidated
           code: "CONJ00008D"
         )
 
-        IdentityProviderCertificateFetchedFromCache = ::Util::TrackableLogMessageClass.new(
-          msg: "Identity Provider certificates fetched successfully from cache",
+        IdentityProviderKeysFetchedFromCache = ::Util::TrackableLogMessageClass.new(
+          msg: "Identity Provider keys fetched successfully from cache",
           code: "CONJ00017D"
         )
 
-        FetchProviderCertsSuccess = ::Util::TrackableLogMessageClass.new(
-          msg: "Fetched Identity Provider certificates successfully",
+        FetchProviderKeysSuccess = ::Util::TrackableLogMessageClass.new(
+          msg: "Fetched Identity Provider keys successfully",
           code: "CONJ00009D"
         )
 
-        ValidateProviderCertificateIsUpdated = ::Util::TrackableLogMessageClass.new(
-          msg: "Validating Identity Provider certificates are up to date",
+        ValidateProviderKeysAreUpdated = ::Util::TrackableLogMessageClass.new(
+          msg: "Validating Identity Provider keys are up to date",
           code: "CONJ00019D"
         )
 

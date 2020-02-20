@@ -173,7 +173,7 @@ class AuthenticateController < ApplicationController
       raise ServiceUnavailable
 
     when Errors::Authentication::OAuth::ProviderDiscoveryFailed,
-      Errors::Authentication::OAuth::ProviderFetchCertificateFailed
+      Errors::Authentication::OAuth::FetchProviderKeysFailed
       raise BadGateway
 
     else
