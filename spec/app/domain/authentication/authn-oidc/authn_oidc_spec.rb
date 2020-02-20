@@ -7,7 +7,7 @@ require 'json'
 
 RSpec.describe 'Authentication::Oidc' do
 
-  include_context "fetch secrets"
+  include_context "fetch secrets", %w(provider-uri id-token-user-property)
   include_context "security mocks"
   include_context "oidc setup"
 
