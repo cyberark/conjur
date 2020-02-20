@@ -15,7 +15,7 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
     }
   end
 
-  def mock_discover_oidc_provider(is_successful:)
+  def mock_discover_identity_provider(is_successful:)
     double('discovery-provider').tap do |discover_provider|
       if is_successful
         allow(discover_provider).to receive(:call)
@@ -36,7 +36,7 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
                                          is_successful: true,
                                          fetched_secrets: oidc_authenticator_secrets
                                        ),
-          discover_oidc_provider: mock_discover_oidc_provider(is_successful: true)
+          discover_identity_provider: mock_discover_identity_provider(is_successful: true)
         ).call(
           account: test_account,
             service_id: test_service_id
@@ -56,14 +56,14 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
                                          is_successful: true,
                                          fetched_secrets: oidc_authenticator_secrets
                                        ),
-          discover_oidc_provider: mock_discover_oidc_provider(is_successful: false)
+          discover_identity_provider: mock_discover_identity_provider(is_successful: false)
         ).call(
           account: test_account,
             service_id: test_service_id
         )
       end
 
-      it "raises the error raised by discover_oidc_provider" do
+      it "raises the error raised by discover_identity_provider" do
         expect { subject }.to raise_error(test_oidc_discovery_error)
       end
 
@@ -77,7 +77,7 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
                                        is_successful: false,
                                        fetched_secrets: oidc_authenticator_secrets
                                      ),
-        discover_oidc_provider: mock_discover_oidc_provider(is_successful: true)
+        discover_identity_provider: mock_discover_identity_provider(is_successful: true)
       ).call(
         account: test_account,
           service_id: test_service_id

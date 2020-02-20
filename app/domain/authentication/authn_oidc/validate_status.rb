@@ -9,7 +9,7 @@ module Authentication
     ValidateStatus = CommandClass.new(
       dependencies: {
         fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
-        discover_oidc_provider: Authentication::OAuth::DiscoverIdentityProvider.new
+        discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new
       },
       inputs: %i(account service_id)
     ) do
@@ -39,7 +39,7 @@ module Authentication
       end
 
       def validate_provider_is_responsive
-        @discover_oidc_provider.(
+        @discover_identity_provider.(
           provider_uri: provider_uri
         )
       end

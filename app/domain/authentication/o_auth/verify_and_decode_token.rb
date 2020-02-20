@@ -17,7 +17,7 @@ module Authentication
         # We have a ConcurrencyLimitedCache which wraps a RateLimitedCache which wraps a FetchProviderCertificate class
         fetch_provider_certificate: ::Util::ConcurrencyLimitedCache.new(
           ::Util::RateLimitedCache.new(
-            ::Authentication::OAuth::FetchProviderCertificates.new,
+            FetchProviderCertificates.new,
             refreshes_per_interval: 10,
             rate_limit_interval:    300, # 300 seconds (every 5 mins)
             logger: Rails.logger

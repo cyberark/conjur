@@ -13,7 +13,7 @@ module Authentication
     FetchProviderCertificates = CommandClass.new(
       dependencies: {
         logger:                 Rails.logger,
-        discover_oidc_provider: ::Authentication::OAuth::DiscoverIdentityProvider.new
+        discover_identity_provider: DiscoverIdentityProvider.new
       },
       inputs:       %i(provider_uri)
     ) do
@@ -30,7 +30,7 @@ module Authentication
       end
 
       def discovered_provider
-        @discovered_provider ||= @discover_oidc_provider.(
+        @discovered_provider ||= @discover_identity_provider.(
           provider_uri: @provider_uri
         )
       end

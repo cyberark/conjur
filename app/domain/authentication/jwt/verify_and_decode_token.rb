@@ -37,7 +37,7 @@ module Authentication
 
       def verified_and_decoded_token
         # @jwt_decoder.decode returns an array with one decoded token so we take the first object
-        @decoded_token = @jwt_decoder.decode(
+        @verified_and_decoded_token ||= @jwt_decoder.decode(
           @token_jwt,
           nil, # the key will be taken from options[:jwks] if present
           should_verify,
