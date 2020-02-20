@@ -2,18 +2,13 @@
 
 RSpec.describe Authentication::AuthnOidc::ValidateStatus do
 
-  include_context "fetch secrets"
+  let(:authenticator_name) { "authn-oidc" }
+  let(:account) { "my-acct" }
+  let(:service) { "my-service" }
 
-  let (:test_account) { "test-account" }
-  let (:test_service_id) { "test-service-id" }
-  let (:test_oidc_discovery_error) { "test-oidc-discovery-error" }
+  include_context "fetch secrets", %w(provider-uri id-token-user-property)
 
-  let (:oidc_authenticator_secrets) do
-    {
-      "provider-uri" => "test-uri",
-      "id-token-user-property" => "test-property"
-    }
-  end
+  let(:test_oidc_discovery_error) { "test-oidc-discovery-error" }
 
   def mock_discover_identity_provider(is_successful:)
     double('discovery-provider').tap do |discover_provider|
@@ -32,34 +27,29 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
 
       subject do
         Authentication::AuthnOidc::ValidateStatus.new(
-          fetch_authenticator_secrets: mock_fetch_secrets(
-                                         is_successful: true,
-                                         fetched_secrets: oidc_authenticator_secrets
-                                       ),
           discover_identity_provider: mock_discover_identity_provider(is_successful: true)
         ).call(
-          account: test_account,
-            service_id: test_service_id
+          account: account,
+          service_id: service
         )
       end
 
       it "validates without errors" do
         expect { subject }.to_not raise_error
       end
+
+      it_behaves_like "it fails when variable is missing or has no value", "provider-uri"
+      it_behaves_like "it fails when variable is missing or has no value", "id-token-user-property"
     end
 
     context "and Oidc provider is not responsive" do
 
       subject do
         Authentication::AuthnOidc::ValidateStatus.new(
-          fetch_authenticator_secrets: mock_fetch_secrets(
-                                         is_successful: true,
-                                         fetched_secrets: oidc_authenticator_secrets
-                                       ),
           discover_identity_provider: mock_discover_identity_provider(is_successful: false)
         ).call(
-          account: test_account,
-            service_id: test_service_id
+          account: account,
+          service_id: service
         )
       end
 
@@ -67,25 +57,6 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
         expect { subject }.to raise_error(test_oidc_discovery_error)
       end
 
-    end
-  end
-
-  context "Required variables do not exist or does not have value" do
-    subject do
-      Authentication::AuthnOidc::ValidateStatus.new(
-        fetch_authenticator_secrets: mock_fetch_secrets(
-                                       is_successful: false,
-                                       fetched_secrets: oidc_authenticator_secrets
-                                     ),
-        discover_identity_provider: mock_discover_identity_provider(is_successful: true)
-      ).call(
-        account: test_account,
-          service_id: test_service_id
-      )
-    end
-
-    it "raises the error raised by fetch_authenticator_secrets" do
-      expect { subject }.to raise_error(test_fetch_secrets_error)
     end
   end
 end
