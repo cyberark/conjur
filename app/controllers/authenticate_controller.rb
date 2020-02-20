@@ -151,7 +151,7 @@ class AuthenticateController < ApplicationController
       Errors::Authentication::Security::RoleNotFound,
       Errors::Authentication::Security::AccountNotDefined,
       Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty,
-      Errors::Authentication::Jwt::TokenVerifyFailed,
+      Errors::Authentication::Jwt::TokenVerificationFailed,
       Errors::Authentication::Jwt::TokenDecodeFailed,
       Errors::Conjur::RequiredSecretMissing,
       Errors::Conjur::RequiredResourceMissing
