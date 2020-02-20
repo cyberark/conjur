@@ -77,10 +77,15 @@ pipeline {
 
     stage('Submit Coverage Report'){
       steps{
-        archiveArtifacts artifacts: "coverage/.resultset.json", fingerprint: false
-        archiveArtifacts artifacts: "ci/authn-k8s/output/simplecov-resultset-authnk8s-gke.json", fingerprint: false
-        sh 'ci/submit-coverage'
-        publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
+        script {
+          try {
+            sh 'ci/submit-coverage'
+          } finally {
+            archiveArtifacts artifacts: "coverage/.resultset*.json", fingerprint: false
+            archiveArtifacts artifacts: "ci/authn-k8s/output/simplecov-resultset-authnk8s-gke.json", fingerprint: false
+            publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
+          }
+        }
       }
     }
 

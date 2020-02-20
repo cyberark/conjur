@@ -22,6 +22,24 @@ if [[ ! -e ${REPORT} ]]; then
     exit 1
 fi
 
+if ! grep -q SimpleCov "${REPORT}"; then
+    echo "SimpleCov report (${REPORT}) does not contain any SimpleCov data: $(cat ${REPORT})"
+    exit 1
+fi
+
+if [[ ! -e "${GKE_REPORT}" ]]; then
+    echo "GKE SimpleCov report not found :("
+    ls -laR ci/authn-k8s/output
+    exit 1
+fi
+
+if ! grep -q SimpleCov "${GKE_REPORT}"; then
+    echo "SimpleCov report (${GKE_REPORT}) does not contain any SimpleCov data: $(cat ${GKE_REPORT})"
+    exit 1
+fi
+
+echo "SimpleCov Reports Found: ${REPORT}, ${GKE_REPORT}"
+
 if [[ ! -x ${BIN} ]]; then
     echo "cc-test-reporter binary not found, not reporting coverage data to code climate"
     ls -laR ${DIR}
@@ -29,12 +47,9 @@ if [[ ! -x ${BIN} ]]; then
     exit 1
 fi
 
-if [[ ! -e "${GKE_REPORT}" ]]; then
-    echo "GKE report not found :("
-    ls -laR ci/authn-k8s/output
-    exit 1
-fi
-echo "GKE report found"
+
+# Preserve a pre-merge version of the results from the non gke test branches.
+cp "${REPORT}" "${DIR}/.resultset-non-gke.json"
 
 # Merge GKE report with the already combined cucumber and rspec results.
 # -s loads input files into an array
