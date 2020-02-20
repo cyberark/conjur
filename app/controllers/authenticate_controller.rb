@@ -69,7 +69,10 @@ class AuthenticateController < ApplicationController
       enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV)
     )
 
-    render json: authn_token
+    puts '********************************************************************************'
+    puts authn_token.to_json
+    # render json: authn_token
+    render plain: authn_token.to_json, content_type: 'application/json'
   rescue => e
     handle_authentication_error(e)
   end
