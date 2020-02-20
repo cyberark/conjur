@@ -1,8 +1,20 @@
 # frozen_string_literal: true
 
-shared_context "fetch secrets" do
-
-  let(:test_fetch_secrets_error) { "test-fetch-secrets-error" }
+# To use this helper you need to:
+# 1. Define a a memoized helper method for:
+#   a. account
+#   b. authenticator_name
+#   c. service
+# 2. Provide a list of required secrets
+#
+# For example:
+#   let(:authenticator_name) { "authn-oidc" }
+#   let(:account) { "my-acct" }
+#   let(:service) { "my-service" }
+#
+#   include_context "fetch secrets", %w(provider-uri id-token-user-property)
+#
+shared_context "fetch secrets" do |required_secrets|
 
   let(:mocked_secret) do
     double('Secret').tap do |secret|
@@ -22,16 +34,12 @@ shared_context "fetch secrets" do
     end
   end
 
-  def mock_fetch_secrets(is_successful:, fetched_secrets:)
-    double('fetch_secrets').tap do |fetch_secrets|
-      if is_successful
-        allow(fetch_secrets).to receive(:call)
-                                  .and_return(fetched_secrets)
-      else
-        allow(fetch_secrets).to receive(:call)
-                                  .and_raise(test_fetch_secrets_error)
-      end
-    end
+  before(:each) do
+    required_secrets.each { |secret_name|
+      allow(Resource).to receive(:[])
+                           .with(/#{account}:variable:conjur\/#{authenticator_name}\/#{service}\/#{secret_name}/)
+                           .and_return(mocked_resource)
+    }
   end
 end
 
