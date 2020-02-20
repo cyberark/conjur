@@ -121,8 +121,8 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00011E"
         )
 
-        ProviderFetchCertificateFailed = ::Util::TrackableErrorClass.new(
-          msg: "Failed to fetch certificate from Identity Provider (Provider URI: '{0}'). Reason: '{1}'",
+        FetchProviderKeysFailed = ::Util::TrackableErrorClass.new(
+          msg: "Failed to fetch keys from Identity Provider (Provider URI: '{0}'). Reason: '{1}'",
           code: "CONJ00012E"
         )
 
