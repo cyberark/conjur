@@ -10,9 +10,9 @@ module Authentication
 
     Authenticator = CommandClass.new(
       dependencies: {
-        fetch_authenticator_secrets:   Authentication::Util::FetchAuthenticatorSecrets.new,
-        verify_and_decode_token:       Authentication::AuthnOidc::VerifyAndDecodeToken.new,
-        logger:                        Rails.logger
+        fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
+        verify_and_decode_token:     Authentication::OAuth::VerifyAndDecodeToken.new,
+        logger:                      Rails.logger
       },
       inputs:       [:authenticator_input]
     ) do
@@ -21,8 +21,8 @@ module Authentication
       def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :credentials
 
       JWT_REQUEST_BODY_FIELD_NAME = "jwt"
-      XMS_MIRID_TOKEN_FIELD_NAME = "xms_mirid"
-      OID_TOKEN_FIELD_NAME = "oid"
+      XMS_MIRID_TOKEN_FIELD_NAME  = "xms_mirid"
+      OID_TOKEN_FIELD_NAME        = "oid"
 
       def call
         validate_credentials_include_azure_token
@@ -35,8 +35,10 @@ module Authentication
 
       def validate_credentials_include_azure_token
         # check that id token field exists and has some value
-        raise Errors::Authentication::RequestBody::MissingRequestParam, JWT_REQUEST_BODY_FIELD_NAME unless decoded_credentials.include?(JWT_REQUEST_BODY_FIELD_NAME) &&
+        unless decoded_credentials.include?(JWT_REQUEST_BODY_FIELD_NAME) &&
           !decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME].empty?
+          raise Errors::Authentication::RequestBody::MissingRequestParam
+        end
       end
 
       # The credentials are in a URL encoded form data in the request body
@@ -66,9 +68,9 @@ module Authentication
       def azure_authenticator_secrets
         @azure_authenticator_secrets ||= @fetch_authenticator_secrets.(
           service_id: service_id,
-            conjur_account: account,
-            authenticator_name: authenticator_name,
-            required_variable_names: required_variable_names
+          conjur_account: account,
+          authenticator_name: authenticator_name,
+          required_variable_names: required_variable_names
         )
       end
 
@@ -87,13 +89,15 @@ module Authentication
       end
 
       def xms_mirid
-        @logger.debug(Log::ExtractedFieldFromAzureToken.new(XMS_MIRID_TOKEN_FIELD_NAME, decoded_token[XMS_MIRID_TOKEN_FIELD_NAME]))
-        decoded_token[XMS_MIRID_TOKEN_FIELD_NAME]
+        decoded_token[XMS_MIRID_TOKEN_FIELD_NAME].tap do |token_field_value|
+          @logger.debug(Log::ExtractedFieldFromAzureToken.new(XMS_MIRID_TOKEN_FIELD_NAME, token_field_value))
+        end
       end
 
       def oid
-        @logger.debug(Log::ExtractedFieldFromAzureToken.new(OID_TOKEN_FIELD_NAME, decoded_token[OID_TOKEN_FIELD_NAME]))
-        decoded_token[OID_TOKEN_FIELD_NAME]
+        decoded_token[OID_TOKEN_FIELD_NAME].tap do |token_field_value|
+          @logger.debug(Log::ExtractedFieldFromAzureToken.new(OID_TOKEN_FIELD_NAME, token_field_value))
+        end
       end
     end
 
