@@ -49,6 +49,11 @@ module Authentication
         @logger.debug(Log::IdentityProviderKeysFetchedFromCache.new)
       end
 
+      # ensure_keys_are_fresh will try to verify and decode the token and if it
+      # fails we fetch the provider keys again. We then verify and decode again
+      # so we definitely don't fail because the keys are too old. If ensure_keys_are_fresh
+      # will succeed to decode the token then the call to verified_and_decoded_token
+      # will not do a thing because the object is memoized
       def verify_and_decode_token
         ensure_keys_are_fresh
         verified_and_decoded_token
