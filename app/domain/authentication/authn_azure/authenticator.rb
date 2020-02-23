@@ -125,6 +125,13 @@ module Authentication
       def valid?(input)
         call(authenticator_input: input)
       end
+
+      def status(authenticator_status_input:)
+        Authentication::AuthnAzure::ValidateStatus.new.(
+          account: authenticator_status_input.account,
+          service_id: authenticator_status_input.service_id
+        )
+      end
     end
   end
 end
