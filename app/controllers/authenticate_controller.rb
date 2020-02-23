@@ -22,7 +22,8 @@ class AuthenticateController < ApplicationController
 
   def status
     Authentication::ValidateStatus.new.(
-      authenticator_status_input: status_input
+      authenticator_status_input: status_input,
+      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV)
     )
     render json: { status: "ok" }
   rescue => e

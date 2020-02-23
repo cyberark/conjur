@@ -112,10 +112,10 @@ RSpec.describe Authentication::ValidateStatus do
         validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: true),
         validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-        implemented_authenticators: mock_implemented_authenticators,
-        enabled_authenticators: mock_enabled_authenticators
+        implemented_authenticators: mock_implemented_authenticators
       ).call(
-        authenticator_status_input: mock_status_input("authn-status-pass")
+        authenticator_status_input: mock_status_input("authn-status-pass"),
+        enabled_authenticators: mock_enabled_authenticators
       )
     end
 
@@ -131,10 +131,10 @@ RSpec.describe Authentication::ValidateStatus do
         validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: true),
         validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-        implemented_authenticators: mock_implemented_authenticators,
-        enabled_authenticators: mock_enabled_authenticators
+        implemented_authenticators: mock_implemented_authenticators
       ).call(
-        authenticator_status_input: mock_status_input("authn-non-exist")
+        authenticator_status_input: mock_status_input("authn-non-exist"),
+        enabled_authenticators: mock_enabled_authenticators
       )
     end
 
@@ -153,10 +153,10 @@ RSpec.describe Authentication::ValidateStatus do
           validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: true),
           validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
           validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-          implemented_authenticators: mock_implemented_authenticators,
-          enabled_authenticators: mock_enabled_authenticators
+          implemented_authenticators: mock_implemented_authenticators
         ).call(
-          authenticator_status_input: mock_status_input("authn-status-not-implemented")
+          authenticator_status_input: mock_status_input("authn-status-not-implemented"),
+          enabled_authenticators: mock_enabled_authenticators
         )
       end
 
@@ -175,10 +175,10 @@ RSpec.describe Authentication::ValidateStatus do
             validate_whitelisted_webservice: mock_validate_webservice_exists(validation_succeeded: true),
             validate_webservice_access: mock_validate_webservice_access(validation_succeeded: false),
             validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-            implemented_authenticators: mock_implemented_authenticators,
-            enabled_authenticators: mock_enabled_authenticators
+            implemented_authenticators: mock_implemented_authenticators
           ).call(
-            authenticator_status_input: mock_status_input("authn-status-pass")
+            authenticator_status_input: mock_status_input("authn-status-pass"),
+            enabled_authenticators: mock_enabled_authenticators
           )
         end
 
@@ -198,10 +198,10 @@ RSpec.describe Authentication::ValidateStatus do
               validate_whitelisted_webservice: mock_validate_webservice_exists(validation_succeeded: true),
               validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
               validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: false),
-              implemented_authenticators: mock_implemented_authenticators,
-              enabled_authenticators: mock_enabled_authenticators
+              implemented_authenticators: mock_implemented_authenticators
             ).call(
-              authenticator_status_input: mock_status_input("authn-status-pass")
+              authenticator_status_input: mock_status_input("authn-status-pass"),
+              enabled_authenticators: mock_enabled_authenticators
             )
           end
 
@@ -221,10 +221,10 @@ RSpec.describe Authentication::ValidateStatus do
                 validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: false),
                 validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
                 validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-                implemented_authenticators: mock_implemented_authenticators,
-                enabled_authenticators: not_including_enabled_authenticators
+                implemented_authenticators: mock_implemented_authenticators
               ).call(
-                authenticator_status_input: mock_status_input("authn-status-pass")
+                authenticator_status_input: mock_status_input("authn-status-pass"),
+                enabled_authenticators: not_including_enabled_authenticators
               )
             end
 
@@ -242,10 +242,10 @@ RSpec.describe Authentication::ValidateStatus do
                   validate_whitelisted_webservice: mock_validate_webservice_exists(validation_succeeded: true),
                   validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
                   validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-                  implemented_authenticators: mock_implemented_authenticators,
-                  enabled_authenticators: mock_enabled_authenticators
+                  implemented_authenticators: mock_implemented_authenticators
                 ).call(
-                  authenticator_status_input: mock_status_input("authn-status-fail")
+                  authenticator_status_input: mock_status_input("authn-status-fail"),
+                  enabled_authenticators: mock_enabled_authenticators
                 )
               end
 
