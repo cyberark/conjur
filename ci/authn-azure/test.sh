@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -exuo pipefail
 
 # TODO: get these dynamically
 AWS_PEM_FILE_LOCATION="<location of pem file to login to machine>"
