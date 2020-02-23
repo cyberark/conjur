@@ -11,7 +11,7 @@ RSpec.describe 'Authentication::Oidc' do
   include_context "security mocks"
   include_context "oidc setup"
 
-  let (:mocked_verify_and_decode_token) { double("MockIdTokenDecodeAndVerify") }
+  let(:mocked_verify_and_decode_token) { double("MockIdTokenDecodeAndVerify") }
 
   before(:each) do
     allow(mocked_verify_and_decode_token).to receive(:call) { |*args|
@@ -23,34 +23,38 @@ RSpec.describe 'Authentication::Oidc' do
   # request mock
   ####################################
 
-  let (:oidc_authenticate_id_token_request) do
-    request_body = StringIO.new
-    request_body.puts "id_token={\"id_token_username_field\": \"alice\"}"
-    request_body.rewind
+  def mock_authenticate_oidc_request(request_body_data:)
+    double('AuthnOidcRequest').tap do |request|
+      request_body = StringIO.new
+      request_body.puts request_body_data
+      request_body.rewind
 
-    double('Request').tap do |request|
       allow(request).to receive(:body).and_return(request_body)
     end
   end
 
-  let (:no_field_oidc_authenticate_id_token_request) do
-    request_body = StringIO.new
-    request_body.puts "id_token={}"
-    request_body.rewind
-
-    double('Request').tap do |request|
-      allow(request).to receive(:body).and_return(request_body)
-    end
+  def request_body(request)
+    request.body.read.chomp
   end
 
-  let (:no_value_oidc_authenticate_id_token_request) do
-    request_body = StringIO.new
-    request_body.puts "id_token={\"id_token_username_field\": \"\"}"
-    request_body.rewind
+  let(:authenticate_id_token_request) do
+    mock_authenticate_oidc_request(request_body_data: "id_token={\"id_token_username_field\": \"alice\"}")
+  end
 
-    double('Request').tap do |request|
-      allow(request).to receive(:body).and_return(request_body)
-    end
+  let(:authenticate_id_token_request_missing_id_token_username_field) do
+    mock_authenticate_oidc_request(request_body_data: "id_token={}")
+  end
+
+  let(:authenticate_id_token_request_empty_id_token_username_field) do
+    mock_authenticate_oidc_request(request_body_data: "id_token={\"id_token_username_field\": \"\"}")
+  end
+
+  let(:authenticate_id_token_request_missing_id_token_field) do
+    mock_authenticate_oidc_request(request_body_data: "some_key=some_value")
+  end
+
+  let(:authenticate_id_token_request_empty_id_token_field) do
+    mock_authenticate_oidc_request(request_body_data: "id_token=")
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
@@ -73,9 +77,9 @@ RSpec.describe 'Authentication::Oidc' do
             service_id:         'my-service',
             account:            'my-acct',
             username:           nil,
-            credentials:        oidc_authenticate_id_token_request.body.read,
+            credentials:        request_body(authenticate_id_token_request),
             origin:             '127.0.0.1',
-            request:            oidc_authenticate_id_token_request
+            request:            authenticate_id_token_request
           )
 
           ::Authentication::AuthnOidc::Authenticate.new(
@@ -109,9 +113,9 @@ RSpec.describe 'Authentication::Oidc' do
             service_id:         'my-service',
             account:            'my-acct',
             username:           nil,
-            credentials:        no_field_oidc_authenticate_id_token_request.body.read,
+            credentials:        request_body(authenticate_id_token_request_missing_id_token_username_field),
             origin:             '127.0.0.1',
-            request:            no_field_oidc_authenticate_id_token_request
+            request:            authenticate_id_token_request_missing_id_token_username_field
           )
 
           ::Authentication::AuthnOidc::Authenticate.new(
@@ -138,9 +142,9 @@ RSpec.describe 'Authentication::Oidc' do
             service_id:         'my-service',
             account:            'my-acct',
             username:           nil,
-            credentials:        no_value_oidc_authenticate_id_token_request.body.read,
+            credentials:        request_body(authenticate_id_token_request_empty_id_token_username_field),
             origin:             '127.0.0.1',
-            request:            no_value_oidc_authenticate_id_token_request
+            request:            authenticate_id_token_request_empty_id_token_username_field
           )
 
           ::Authentication::AuthnOidc::Authenticate.new(
@@ -157,6 +161,64 @@ RSpec.describe 'Authentication::Oidc' do
 
         it "raises an error" do
           expect { subject }.to raise_error(::Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty)
+        end
+      end
+
+      context "with no id_token field in the request" do
+        subject do
+          input_ = Authentication::AuthenticatorInput.new(
+            authenticator_name: 'authn-oidc',
+            service_id:         'my-service',
+            account:            'my-acct',
+            username:           nil,
+            credentials:        request_body(authenticate_id_token_request_missing_id_token_field),
+            origin:             '127.0.0.1',
+            request:            authenticate_id_token_request_missing_id_token_field
+          )
+
+          ::Authentication::AuthnOidc::Authenticate.new(
+            enabled_authenticators: authenticator_name,
+            token_factory: token_factory,
+            validate_security: mocked_security_validator,
+            validate_account_exists: mocked_account_validator,
+            validate_origin: mocked_origin_validator,
+            verify_and_decode_token: mocked_verify_and_decode_token
+          ).call(
+            authenticator_input: input_
+          )
+        end
+
+        it "raises a MissingRequestParam error" do
+          expect { subject }.to raise_error(::Errors::Authentication::RequestBody::MissingRequestParam)
+        end
+      end
+
+      context "with an empty id_token field in the request" do
+        subject do
+          input_ = Authentication::AuthenticatorInput.new(
+            authenticator_name: 'authn-oidc',
+            service_id:         'my-service',
+            account:            'my-acct',
+            username:           nil,
+            credentials:        request_body(authenticate_id_token_request_empty_id_token_field),
+            origin:             '127.0.0.1',
+            request:            authenticate_id_token_request_empty_id_token_field
+          )
+
+          ::Authentication::AuthnOidc::Authenticate.new(
+            enabled_authenticators: authenticator_name,
+            token_factory: token_factory,
+            validate_security: mocked_security_validator,
+            validate_account_exists: mocked_account_validator,
+            validate_origin: mocked_origin_validator,
+            verify_and_decode_token: mocked_verify_and_decode_token
+          ).call(
+            authenticator_input: input_
+          )
+        end
+
+        it "raises a MissingRequestParam error" do
+          expect { subject }.to raise_error(::Errors::Authentication::RequestBody::MissingRequestParam)
         end
       end
     end
