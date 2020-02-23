@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -exuo pipefail
 
 echo "Retieving Azure access token"
 # Get an Azure access token
