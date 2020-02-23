@@ -292,7 +292,7 @@ _run_cucumber_tests() {
   
   # Run the tests
   _run_cucumber "$cucumber_env_args" \
-     "bundle exec cucumber -p $profile --format junit --out cucumber/$profile/features/reports"
+     "bundle exec cucumber -p $profile --format json --out cucumber/$profile/cucumber_results.json --format junit --out cucumber/$profile/features/reports"
 
   # Simplecov writes its report using an at_exit ruby hook. If the container
   # is killed before ruby, the report doesn't get written. So here we
