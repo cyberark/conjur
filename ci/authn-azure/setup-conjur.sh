@@ -47,6 +47,7 @@ azure_provider_uri="https://sts.windows.net/df242c82-fe4a-47e0-b0f4-e3cb7f8104f1
 sudo docker-compose exec -T client conjur variable values add conjur/authn-azure/test/provider-uri $azure_provider_uri
 
 sudo docker-compose exec -T client conjur policy load root policy/azure-hosts.yml
+sudo docker-compose exec -T client conjur policy load root policy/azure-operators.yml
 
 sudo docker-compose exec -T client conjur policy load root policy/test-secrets.yml
 sudo docker-compose exec -T client conjur variable values add secrets/test-variable test-secret
@@ -59,3 +60,16 @@ admin_conjur_access_token=$(echo -n "$authn_admin_response" | base64 | tr -d '\r
 # Enable the authn-azure authenticator in the DB
 curl -k -X PATCH  -H "Authorization: Token token=\"$admin_conjur_access_token\"" \
   --data "enabled=true" https://0.0.0.0:8443/authn-azure/test/cucumber
+
+# Validate Status of authn-azure/test
+operator_api_key=$(sudo docker-compose exec -T conjur conjurctl role retrieve-key cucumber:user:authn-azure-test-operator | tr -d '\r')
+authn_operator_response=$(curl -k -X POST --data "${operator_api_key}" \
+  https://0.0.0.0:8443/authn/cucumber/authn-azure-test-operator/authenticate)
+operator_conjur_access_token=$(echo -n "$authn_operator_response" | base64 | tr -d '\r\n')
+
+status_response_code=$(curl -s -o status_response_body.txt -w "%{http_code}" -k \
+  -H "Authorization: Token token=\"$operator_conjur_access_token\"" https://0.0.0.0:8443/authn-azure/test/cucumber/status)
+if [[ $status_response_code -ne 200 ]]; then
+  echo "Status check failed with: $(cat status_response_body.txt)"
+  exit 1
+fi
