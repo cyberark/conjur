@@ -1,4 +1,5 @@
-#!/bin/bash -ex
+#!/bin/bash
+set -euo pipefail
 
 tar xvzf conjur-image.tar.gz
 sudo docker load -i conjur-image.tar
