@@ -34,10 +34,9 @@ module Authentication
       private
 
       def validate_credentials_include_azure_token
-        # check that id token field exists and has some value
         unless decoded_credentials.include?(JWT_REQUEST_BODY_FIELD_NAME) &&
           !decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME].empty?
-          raise Errors::Authentication::RequestBody::MissingRequestParam
+          raise Errors::Authentication::RequestBody::MissingRequestParam, JWT_REQUEST_BODY_FIELD_NAME
         end
       end
 
@@ -89,14 +88,16 @@ module Authentication
       end
 
       def xms_mirid
-        decoded_token[XMS_MIRID_TOKEN_FIELD_NAME].tap do |token_field_value|
-          @logger.debug(Log::ExtractedFieldFromAzureToken.new(XMS_MIRID_TOKEN_FIELD_NAME, token_field_value))
-        end
+        token_field_value(XMS_MIRID_TOKEN_FIELD_NAME)
       end
 
       def oid
-        decoded_token[OID_TOKEN_FIELD_NAME].tap do |token_field_value|
-          @logger.debug(Log::ExtractedFieldFromAzureToken.new(OID_TOKEN_FIELD_NAME, token_field_value))
+        token_field_value(OID_TOKEN_FIELD_NAME)
+      end
+
+      def token_field_value field_name
+        decoded_token[field_name].tap do |token_field_value|
+          @logger.debug(Log::ExtractedFieldFromAzureToken.new(field_name, token_field_value))
         end
       end
     end
