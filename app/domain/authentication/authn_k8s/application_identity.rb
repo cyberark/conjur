@@ -100,7 +100,7 @@ module Authentication
       end
 
       def annotation_value name
-        annotation = @host_annotations.find { |a| a.values[:name] == name }
+        annotation = @host_annotations.find {|a| a.values[:name] == name}
 
         # return the value of the annotation if it exists, nil otherwise
         if annotation
@@ -159,7 +159,7 @@ module Authentication
       end
 
       def prefixed_permitted_annotations prefix
-        permitted_annotations.map { |k| "#{prefix}#{k}" }
+        permitted_annotations.map {|k| "#{prefix}#{k}"}
       end
 
       def validate_host_id
@@ -186,7 +186,7 @@ module Authentication
       end
 
       def annotation_type_constraints
-        @annotation_type_constraints ||= permitted_constraints.map { |constraint| annotation_type_constraint(constraint) }
+        @annotation_type_constraints ||= permitted_constraints.map {|constraint| annotation_type_constraint(constraint)}
       end
 
       def annotation_type_constraint constraint
@@ -194,7 +194,7 @@ module Authentication
       end
 
       def application_identity_in_annotations?
-        @application_identity_in_annotations ||= @host_annotations.select { |a| a.values[:name].start_with?("authn-k8s/") }.any?
+        @application_identity_in_annotations ||= @host_annotations.select {|a| a.values[:name].start_with?("authn-k8s/")}.any?
       end
 
       def host_id_namespace_scoped?
