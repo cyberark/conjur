@@ -424,8 +424,8 @@ article {
 }
 
 .ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active, a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover {
-	border: .1rem solid $sless-blue;
-	background: $sless-blue;
+	border: .1rem solid $cybr-blue;
+	background: $cybr-blue;
 	font-weight: normal;
 	color: #fff;
 }
@@ -439,7 +439,7 @@ article {
 }
 
 .ui-tabs.ui-tabs-panel {
-	background-color: $sless-blue;
+	background-color: $cybr-blue;
 }
 
 .ui-widget.ui-widget-content {
@@ -464,7 +464,7 @@ pre {
 	display: block;
 	border-width: 0;
 	padding: 2rem 2rem 2rem 0;
-	background: $sless-light-blue;
+	background: $cybr-blue;
 }
 
 .ui-tabs .ui-tabs-nav li {
@@ -476,16 +476,16 @@ pre {
 }
 
 .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-button, html .ui-button.ui-state-disabled:hover, html .ui-button.ui-state-disabled:active {
-	border: .3rem solid $sless-light-blue;
+	border: .3rem solid $cybr-blue;
 }
 
 .ui-tabs .ui-tabs-nav li.ui-tabs-active {
-	background-color: $sless-light-blue;
-	color: $sless-blue;
+	background-color: $cybr-blue;
+	color: $cybr-blue;
 }
 
 .ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited {
-	color: $sless-blue;
+	color: $cybr-blue;
 }
 
 .ui-tabs .ui-tabs-nav {
@@ -504,6 +504,18 @@ pre {
 .ui-tabs-panel {
   height: 30rem;
   overflow: auto;
+}
+
+.post-content {
+  h2 {
+    text-decoration: none;
+    color: $cybr-ltblue;
+  }
+
+  h2:hover {
+    text-decoration: underline;
+    color: $cybr-blue;
+  }
 }
 
 // ***********************
@@ -544,7 +556,7 @@ pre {
 .tooltip-text {
   visibility: hidden;
   width: 12rem;
-  background-color: $sless-blue;
+  background-color: $cybr-blue;
   font-family: $sless-font-primary;
   font-size: 1.2rem;
   color: #fff;
@@ -577,7 +589,7 @@ figure.highlight {
   position: absolute;
   pointer-events: none;
   border-color: rgba(0, 0, 0, 0);
-  border-bottom-color: $sless-blue;
+  border-bottom-color: $cybr-blue;
   border-width: 1rem;
   margin-left: -1rem;
 }
