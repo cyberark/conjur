@@ -64,10 +64,10 @@ module Authentication
       def validate_application_identity
         @validate_application_identity.(
           service_id: service_id,
-            account: account,
-            username: username,
-            xms_mirid: xms_mirid,
-            oid: oid
+          account: account,
+          username: username,
+          xms_mirid_token_field: xms_mirid,
+          oid_token_field: oid
         )
       end
 
@@ -78,9 +78,9 @@ module Authentication
       def azure_authenticator_secrets
         @azure_authenticator_secrets ||= @fetch_authenticator_secrets.(
           service_id: service_id,
-            conjur_account: account,
-            authenticator_name: authenticator_name,
-            required_variable_names: required_variable_names
+          conjur_account: account,
+          authenticator_name: authenticator_name,
+          required_variable_names: required_variable_names
         )
       end
 
