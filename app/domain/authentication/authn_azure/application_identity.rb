@@ -15,8 +15,8 @@ module Authentication
     # identity is actually the one we expect from Azure. This validation is done through
     # a combination of comparisons that are performed based on the type of assigned
     # identity provided.
-    # For example, an application identity `authn-azure/some-value` is not
-    # valid and will fail the validation here. For example, application identity like
+    # For example, an application identity annotation `authn-azure/some-value` is not
+    # valid and will fail the validation here. For example, application identity annotation like
     # `authn-azure/subscription-id` or `authn-azure/<service-id>/subscription-id`
     # defined in the Conjur resource's annotations is a valid application identity
     # because `subscription_id` is one of the defined, accepted constraints and will pass
@@ -80,7 +80,7 @@ module Authentication
 
       # add prefix to all permitted constraints
       def prefixed_permitted_constraints prefix
-        permitted_constraints.map {|k| "#{prefix}#{k}"}
+        permitted_constraints.map { |k| "#{prefix}#{k}" }
       end
 
       def validate_required_constraints_exist
@@ -93,13 +93,13 @@ module Authentication
       end
 
       # check the `service-id` specific constraint first to be more granular
-      def constraint_from_annotation constraint_name
+      def constraint_value constraint_name
         annotation_value("authn-azure/#{@service_id}/#{constraint_name}") ||
           annotation_value("authn-azure/#{constraint_name}")
       end
 
       def annotation_value name
-        annotation = @role_annotations.find {|a| a.values[:name] == name}
+        annotation = @role_annotations.find { |a| a.values[:name] == name }
 
         # return the value of the annotation if it exists, nil otherwise
         if annotation
@@ -121,10 +121,6 @@ module Authentication
 
         identifiers_constraints = constraints.keys & identifiers
         raise Errors::Authentication::IllegalConstraintCombinations, identifiers_constraints unless identifiers_constraints.length <= 1
-      end
-
-      def constraint_value constraint_name
-        constraint_from_annotation(constraint_name)
       end
     end
   end
