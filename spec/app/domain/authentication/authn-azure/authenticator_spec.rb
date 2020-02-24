@@ -6,15 +6,15 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
 
   include_context "fetch secrets", %w(provider-uri)
 
-  let(:account) {"my-acct"}
-  let(:authenticator_name) {"authn-azure"}
-  let(:service) {"my-service"}
+  let(:account) { "my-acct" }
+  let(:authenticator_name) { "authn-azure" }
+  let(:service) { "my-service" }
 
-  let(:mocked_verify_and_decode_token) {double("VerifyAndDecodeAzureToken")}
-  let(:mocked_validate_application_identity) {double("ValidateApplicationIdentity")}
+  let(:mocked_verify_and_decode_token) { double("VerifyAndDecodeAzureToken") }
+  let(:mocked_validate_application_identity) { double("ValidateApplicationIdentity") }
 
   before(:each) do
-    allow(mocked_verify_and_decode_token).to receive(:call) {|*args|
+    allow(mocked_verify_and_decode_token).to receive(:call) { |*args|
       JSON.parse(args[0][:token_jwt]).to_hash
     }
 
@@ -88,7 +88,7 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
           end
 
           it "does not raise an error" do
-            expect {subject}.to_not raise_error
+            expect { subject }.to_not raise_error
             expect(subject).to eq(true)
           end
 
@@ -119,9 +119,9 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
             allow(mocked_validate_application_identity).to receive(:call)
                                                              .and_raise('FAKE_VALIDATE_APPLICATION_IDENTITY_ERROR')
 
-            expect {subject}.to raise_error(
-                                  /FAKE_VALIDATE_APPLICATION_IDENTITY_ERROR/
-                                )
+            expect { subject }.to raise_error(
+                                    /FAKE_VALIDATE_APPLICATION_IDENTITY_ERROR/
+                                  )
           end
         end
       end
@@ -151,9 +151,9 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
             allow(mocked_verify_and_decode_token).to receive(:call)
                                                        .and_raise('FAKE_VERIFY_AND_DECODE_ERROR')
 
-            expect {subject}.to raise_error(
-                                  /FAKE_VERIFY_AND_DECODE_ERROR/
-                                )
+            expect { subject }.to raise_error(
+                                    /FAKE_VERIFY_AND_DECODE_ERROR/
+                                  )
           end
         end
 
@@ -178,7 +178,7 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
           end
 
           it "raises a TokenFieldNotFoundOrEmpty error" do
-            expect {subject}.to raise_error(::Errors::Authentication::AuthnAzure::TokenFieldNotFoundOrEmpty)
+            expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::TokenFieldNotFoundOrEmpty)
           end
         end
 
@@ -203,7 +203,7 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
           end
 
           it "raises a TokenFieldNotFoundOrEmpty error" do
-            expect {subject}.to raise_error(::Errors::Authentication::AuthnAzure::TokenFieldNotFoundOrEmpty)
+            expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::TokenFieldNotFoundOrEmpty)
           end
         end
       end
@@ -229,7 +229,7 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
         end
 
         it "raises a MissingRequestParam error" do
-          expect {subject}.to raise_error(::Errors::Authentication::RequestBody::MissingRequestParam)
+          expect { subject }.to raise_error(::Errors::Authentication::RequestBody::MissingRequestParam)
         end
       end
 
@@ -254,7 +254,7 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
         end
 
         it "raises a MissingRequestParam error" do
-          expect {subject}.to raise_error(::Errors::Authentication::RequestBody::MissingRequestParam)
+          expect { subject }.to raise_error(::Errors::Authentication::RequestBody::MissingRequestParam)
         end
       end
     end

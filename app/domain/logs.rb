@@ -146,13 +146,8 @@ unless defined? LogMessages::Authentication::OriginValidated
           code: "CONJ00029D"
         )
 
-        ValidatingApplicationIdentity = ::Util::TrackableLogMessageClass.new(
-          msg:  "Validating application identity for {0-resource-name}",
-          code: "CONJ00030D"
-        )
-
         ValidatedApplicationIdentity = ::Util::TrackableLogMessageClass.new(
-          msg:  "Application identity for {0-resource-name} validated",
+          msg:  "Application identity validated",
           code: "CONJ00030D"
         )
 
