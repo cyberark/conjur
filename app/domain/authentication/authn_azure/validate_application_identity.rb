@@ -14,43 +14,22 @@ module Authentication
         application_identity_class: ApplicationIdentity,
         logger:                     Rails.logger
       },
-      inputs:       %i(account service_id username xms_mirid oid)
+      inputs:       %i(account service_id username xms_mirid_token_field oid_token_field)
     ) do
 
       def call
+        validate_xms_mirid_format
         token_identity_from_claims
-        # compare xms_mirid with what is defined in annotations
-        validate_application_identity
+        compare_token_identity_with_annotations
       end
 
       private
-
-      def application_identity
-        @application_identity ||= @application_identity_class.new(
-          role_annotations: role.annotations,
-          service_id:       @service_id
-        )
-      end
-
-      def role_id
-        @role_id ||= @role_class.roleid_from_username(@account, @username)
-      end
-
-      def role
-        @role ||= @resource_class[role_id].tap do |role|
-          raise SecurityErr::RoleNotFound(role_id) unless role
-        end
-      end
 
       # xms_mirid is a term in Azure to define a claim that describes the resource that holds the encoding of the instance's
       # among other details the subscription_id, resource group, and provider identity needed for authorization.
       # xms_mirid is one of the fields in the JWT token. This function will extract the relevant information from
       # xms_mirid claim and populate a representative hash with the appropriate fields.
       def token_identity_from_claims
-
-        # validates format of claim
-        raise Err::ClaimInInvalidFormat unless validate_xms_mirid_format
-
         @token_identity = {
           subscription_id: xms_mirid_hash["subscriptions"],
           resource_group:  xms_mirid_hash["resourcegroups"]
@@ -69,27 +48,25 @@ module Authentication
         @logger.debug(Log::ExtractingIdentityForAuthentication.new("#{xms_mirid_hash["providers"]}/#{xms_mirid_hash.keys[-1]}"))
         if xms_mirid_hash["providers"] == "Microsoft.ManagedIdentity"
           @token_identity[:user_assigned_identity] = xms_mirid_hash["userAssignedIdentities"]
-          @token_identity[:resource_name]          = xms_mirid_hash["userAssignedIdentities"]
         else
-          @token_identity[:system_assigned_identity] = @oid
-          @token_identity[:resource_name]            = @oid
+          @token_identity[:system_assigned_identity] = @oid_token_field
         end
       end
 
-      # xms_mirid claim starts with an extra '/' so we will be ignoring it for parsing purposes
-      # ex: /subscription/<subscription_id> -> subscription/<subscription_id>
-      def xms_mirid_hash
-        _, *field_split = @xms_mirid.split('/')
-        Hash[field_split.each_slice(2).to_a]
+      def validate_xms_mirid_format
+        valid_xms_mirid_format = xms_mirid_hash.length == 4 && xms_mirid_hash.key?("subscriptions" && "resourcegroups" && "providers")
+        raise Err::ClaimInInvalidFormat unless valid_xms_mirid_format
       end
 
-      def validate_xms_mirid_format
-        xms_mirid_hash.length == 4 && xms_mirid_hash.key?("subscriptions" && "resourcegroups" && "providers")
+      # we expect the xms_mirid claim to be in the format of /subscriptions/<subscription-id>/...
+      # therefore, we are ignoring the first slash of the xms_mirid field and grouping the entries in key-value pairs.
+      # ultimately, transforming "/key1/value1/key2/value2" to {"key1" => "value1", "key2" => "value2"}
+      def xms_mirid_hash
+        @xms_mirid_hash ||= Hash[*@xms_mirid_token_field.split('/').drop(1)]
       end
 
       # validate the integrity of annotations against the xms_mirid object representation
-      def validate_application_identity
-        @logger.debug(Log::ValidatingApplicationIdentity.new(@token_identity[:resource_name]))
+      def compare_token_identity_with_annotations
         application_identity.constraints.each do |constraint|
           annotation_type  = constraint[0].to_s
           annotation_value = constraint[1]
@@ -97,7 +74,24 @@ module Authentication
             raise Err::InvalidApplicationIdentity.new(annotation_type)
           end
         end
-        @logger.debug(Log::ValidatedApplicationIdentity.new(@token_identity[:resource_name]))
+        @logger.debug(Log::ValidatedApplicationIdentity.new)
+      end
+
+      def application_identity
+        @application_identity ||= @application_identity_class.new(
+          role_annotations: role.annotations,
+          service_id:       @service_id
+        )
+      end
+
+      def role
+        @role ||= @resource_class[role_id].tap do |role|
+          raise SecurityErr::RoleNotFound(role_id) unless role
+        end
+      end
+
+      def role_id
+        @role_id ||= @role_class.roleid_from_username(@account, @username)
       end
     end
   end
