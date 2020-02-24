@@ -85,7 +85,7 @@ module Authentication
         controllers = %i(deployment deployment_config stateful_set)
 
         controller_constraints = constraints.keys & controllers
-        raise Err::IllegalConstraintCombinations, controller_constraints unless controller_constraints.length <= 1
+        raise Errors::Authentication::IllegalConstraintCombinations, controller_constraints unless controller_constraints.length <= 1
       end
 
       def constraint_value constraint_name
@@ -98,11 +98,11 @@ module Authentication
       end
 
       def annotation_value name
-        annotation = @host_annotations.find { |a| a.values[:name] == name }
+        annotation = @host_annotations.find {|a| a.values[:name] == name}
 
         # return the value of the annotation if it exists, nil otherwise
         if annotation
-          Rails.logger.debug(Log::RetrievedAnnotationValue.new(name))
+          Rails.logger.debug(LogMessages::Authentication::RetrievedAnnotationValue.new(name))
           annotation[:value]
         end
       end
@@ -127,7 +127,7 @@ module Authentication
       end
 
       def validate_prefixed_permitted_annotations prefix
-        Rails.logger.debug(Log::ValidatingAnnotationsWithPrefix.new(prefix))
+        Rails.logger.debug(LogMessages::Authentication::ValidatingAnnotationsWithPrefix.new(prefix))
 
         prefixed_k8s_annotations(prefix).each do |annotation|
           annotation_name = annotation[:name]
@@ -141,13 +141,13 @@ module Authentication
           annotation_name = a.values[:name]
 
           annotation_name.start_with?(prefix) &&
-            # Verify we take only annotations from the same level
+            # verify we take only annotations from the same level
             annotation_name.split('/').length == prefix.split('/').length + 1
         end
       end
 
       def prefixed_permitted_annotations prefix
-        permitted_annotations.map { |k| "#{prefix}#{k}" }
+        permitted_annotations.map {|k| "#{prefix}#{k}"}
       end
 
       def validate_host_id
@@ -174,7 +174,7 @@ module Authentication
       end
 
       def annotation_type_constraints
-        @annotation_type_constraints ||= permitted_constraints.map { |constraint| annotation_type_constraint(constraint) }
+        @annotation_type_constraints ||= permitted_constraints.map {|constraint| annotation_type_constraint(constraint)}
       end
 
       def annotation_type_constraint constraint
@@ -182,7 +182,7 @@ module Authentication
       end
 
       def application_identity_in_annotations?
-        @application_identity_in_annotations ||= @host_annotations.select { |a| a.values[:name].start_with?("authn-k8s/") }.any?
+        @application_identity_in_annotations ||= @host_annotations.select {|a| a.values[:name].start_with?("authn-k8s/")}.any?
       end
 
       def host_id_namespace_scoped?

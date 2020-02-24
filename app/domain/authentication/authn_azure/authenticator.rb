@@ -10,15 +10,16 @@ module Authentication
 
     Authenticator = CommandClass.new(
       dependencies: {
-        fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
-        verify_and_decode_token:     Authentication::OAuth::VerifyAndDecodeToken.new,
-        logger:                      Rails.logger
+        fetch_authenticator_secrets:   Authentication::Util::FetchAuthenticatorSecrets.new,
+        verify_and_decode_token:       Authentication::OAuth::VerifyAndDecodeToken.new,
+        validate_application_identity: ValidateApplicationIdentity.new,
+        logger:                        Rails.logger
       },
       inputs:       [:authenticator_input]
     ) do
 
       extend Forwardable
-      def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :credentials
+      def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :credentials, :username
 
       JWT_REQUEST_BODY_FIELD_NAME = "jwt"
       XMS_MIRID_TOKEN_FIELD_NAME  = "xms_mirid"
@@ -28,7 +29,7 @@ module Authentication
         validate_credentials_include_azure_token
         validate_azure_token
         validate_required_token_fields_exist
-        true
+        validate_application_identity
       end
 
       private
@@ -60,6 +61,16 @@ module Authentication
         )
       end
 
+      def validate_application_identity
+        @validate_application_identity.(
+          service_id: service_id,
+            account: account,
+            username: username,
+            xms_mirid: xms_mirid,
+            oid: oid
+        )
+      end
+
       def provider_uri
         @provider_uri ||= azure_authenticator_secrets["provider-uri"]
       end
@@ -67,9 +78,9 @@ module Authentication
       def azure_authenticator_secrets
         @azure_authenticator_secrets ||= @fetch_authenticator_secrets.(
           service_id: service_id,
-          conjur_account: account,
-          authenticator_name: authenticator_name,
-          required_variable_names: required_variable_names
+            conjur_account: account,
+            authenticator_name: authenticator_name,
+            required_variable_names: required_variable_names
         )
       end
 
@@ -111,7 +122,6 @@ module Authentication
       # `call(authenticator_input:)` method.  The methods we define in the
       # block passed to `CommandClass` exist only on the private internal
       # `Call` objects created each time `call` is run.
-      #
       def valid?(input)
         call(authenticator_input: input)
       end
