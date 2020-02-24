@@ -15,6 +15,16 @@ unless defined? LogMessages::Authentication::OriginValidated
         code: "CONJ00003D"
       )
 
+      ValidatingAnnotationsWithPrefix = ::Util::TrackableLogMessageClass.new(
+          msg: "Validating annotations with prefix {0-prefix}",
+          code: "CONJ00025D"
+      )
+
+      RetrievedAnnotationValue = ::Util::TrackableLogMessageClass.new(
+          msg: "Retrieved value of annotation {0-annotation-name}",
+          code: "CONJ00024D"
+      )
+
       module Security
 
         SecurityValidated = ::Util::TrackableLogMessageClass.new(
@@ -113,16 +123,6 @@ unless defined? LogMessages::Authentication::OriginValidated
           code: "CONJ00015D"
         )
 
-        RetrievedAnnotationValue = ::Util::TrackableLogMessageClass.new(
-          msg: "Retrieved value of annotation {0-annotation-name}",
-          code: "CONJ00024D"
-        )
-
-        ValidatingAnnotationsWithPrefix = ::Util::TrackableLogMessageClass.new(
-          msg: "Validating annotations with prefix {0-prefix}",
-          code: "CONJ00025D"
-        )
-
         ValidatingHostId = ::Util::TrackableLogMessageClass.new(
           msg: "Validating host id {0}",
           code: "CONJ00026D"
@@ -140,6 +140,20 @@ unless defined? LogMessages::Authentication::OriginValidated
       end
 
       module AuthnAzure
+        ExtractingIdentityForAuthentication = ::Util::TrackableLogMessageClass.new(
+            msg: "Extracting resource type {0-resource-type} for authentication",
+            code: "CONJ00029D"
+        )
+
+        ValidatingApplicationIdentity = ::Util::TrackableLogMessageClass.new(
+            msg: "Validating application identity for {0-resource-name}",
+            code: "CONJ00030D"
+        )
+
+        ValidatedApplicationIdentity = ::Util::TrackableLogMessageClass.new(
+            msg: "Application identity for {0-resource-name} validated",
+            code: "CONJ00030D"
+        )
 
         # TODO: get security approval for this message
         ExtractedFieldFromAzureToken = ::Util::TrackableLogMessageClass.new(

@@ -18,7 +18,7 @@ module Authentication
     ) do
 
       extend Forwardable
-      def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :credentials
+      def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :credentials, :username
 
       JWT_REQUEST_BODY_FIELD_NAME = "jwt"
       XMS_MIRID_TOKEN_FIELD_NAME  = "xms_mirid"
@@ -28,7 +28,7 @@ module Authentication
         validate_credentials_include_azure_token
         validate_azure_token
         validate_required_token_fields_exist
-        true
+        validate_application_identity
       end
 
       private
@@ -57,6 +57,17 @@ module Authentication
             verify_iss: true,
             iss:        provider_uri
           }
+        )
+      end
+
+      # expecting to receive xms_mirid and oid as inputs (either global instance or function). This will change to hash map.
+      def validate_application_identity
+        @validate_application_identity.(
+            service_id: service_id,
+                account: account,
+                username: username,
+                xms_mirid: xms_mirid,
+                oid: oid
         )
       end
 
@@ -111,7 +122,6 @@ module Authentication
       # `call(authenticator_input:)` method.  The methods we define in the
       # block passed to `CommandClass` exist only on the private internal
       # `Call` objects created each time `call` is run.
-      #
       def valid?(input)
         call(authenticator_input: input)
       end

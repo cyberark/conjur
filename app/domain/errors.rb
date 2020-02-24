@@ -49,6 +49,11 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         code: "CONJ00045E"
       )
 
+      IllegalConstraintCombinations = ::Util::TrackableErrorClass.new(
+          msg: "Application identity includes an illegal resource constraint combination - '{0-constraints}'",
+          code: "CONJ00044E"
+      )
+
       module AuthenticatorClass
 
         DoesntStartWithAuthn = ::Util::TrackableErrorClass.new(
@@ -248,11 +253,6 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00043E"
         )
 
-        IllegalConstraintCombinations = ::Util::TrackableErrorClass.new(
-          msg: "Application identity includes an illegal Kubernetes resource constraint combination - '{0-controller-constraints}'",
-          code: "CONJ00044E"
-        )
-
         MissingNamespaceConstraint = ::Util::TrackableErrorClass.new(
           msg: "Host does not have a namespace constraint",
           code: "CONJ00045E"
@@ -276,6 +276,26 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       end
 
       module AuthnAzure
+
+        MissingConstraint = ::Util::TrackableErrorClass.new(
+            msg: "Role does not have the required constraint: {0-constraint}",
+            code: "CONJ00045E"
+        )
+
+        InvalidApplicationIdentity = ::Util::TrackableErrorClass.new(
+            msg: "Application identity field '{0-field-name}' does not match what is provided in Azure token",
+            code: "CONJ00049E"
+        )
+
+        ConstraintNotSupported = ::Util::TrackableErrorClass.new(
+            msg: "Constraint type '{0}' is not a supported application identity. The supported resources are '{1}'",
+            code: "CONJ00050E"
+        )
+
+        ClaimInInvalidFormat = ::Util::TrackableErrorClass.new(
+            msg: "xms_mirid claim has been received in an invalid format",
+            code: "CONJ00051E"
+        )
 
         TokenFieldNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
           msg: "Field '{0-field-name}' not found or empty in token",
