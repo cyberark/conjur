@@ -10,7 +10,7 @@ module Authentication
 
     ValidateApplicationIdentity = CommandClass.new(
       dependencies: {
-        resource_class:              Resource,
+        resource_class:             ::Resource,
         k8s_resolver:               K8sResolver,
         k8s_object_lookup_class:    K8sObjectLookup,
         application_identity_class: ApplicationIdentity
