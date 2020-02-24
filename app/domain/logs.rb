@@ -11,19 +11,29 @@ unless defined? LogMessages::Authentication::OriginValidated
     module Authentication
 
       OriginValidated = ::Util::TrackableLogMessageClass.new(
-        msg: "Origin validated",
+        msg:  "Origin validated",
         code: "CONJ00003D"
+      )
+
+      ValidatingAnnotationsWithPrefix = ::Util::TrackableLogMessageClass.new(
+        msg:  "Validating annotations with prefix {0-prefix}",
+        code: "CONJ00025D"
+      )
+
+      RetrievedAnnotationValue = ::Util::TrackableLogMessageClass.new(
+        msg:  "Retrieved value of annotation {0-annotation-name}",
+        code: "CONJ00024D"
       )
 
       module Security
 
         SecurityValidated = ::Util::TrackableLogMessageClass.new(
-          msg: "Security validated",
+          msg:  "Security validated",
           code: "CONJ00001D"
         )
 
         UserNotAuthorized = ::Util::TrackableLogMessageClass.new(
-          msg: "User '{0}' is not authorized to authenticate with webservice '{1}'",
+          msg:  "User '{0}' is not authorized to authenticate with webservice '{1}'",
           code: "CONJ00002D"
         )
 
@@ -32,27 +42,27 @@ unless defined? LogMessages::Authentication::OriginValidated
       module OAuth
 
         IdentityProviderUri = ::Util::TrackableLogMessageClass.new(
-          msg: "Working with Identity Provider {0-provider-uri}",
+          msg:  "Working with Identity Provider {0-provider-uri}",
           code: "CONJ00007D"
         )
 
         IdentityProviderDiscoverySuccess = ::Util::TrackableLogMessageClass.new(
-          msg: "Identity Provider discovery succeeded",
+          msg:  "Identity Provider discovery succeeded",
           code: "CONJ00008D"
         )
 
         IdentityProviderKeysFetchedFromCache = ::Util::TrackableLogMessageClass.new(
-          msg: "Identity Provider keys fetched successfully from cache",
+          msg:  "Identity Provider keys fetched successfully from cache",
           code: "CONJ00017D"
         )
 
         FetchProviderKeysSuccess = ::Util::TrackableLogMessageClass.new(
-          msg: "Fetched Identity Provider keys successfully",
+          msg:  "Fetched Identity Provider keys successfully",
           code: "CONJ00009D"
         )
 
         ValidateProviderKeysAreUpdated = ::Util::TrackableLogMessageClass.new(
-          msg: "Validating Identity Provider keys are up to date",
+          msg:  "Validating Identity Provider keys are up to date",
           code: "CONJ00019D"
         )
 
@@ -61,12 +71,12 @@ unless defined? LogMessages::Authentication::OriginValidated
       module Jwt
 
         TokenDecodeSuccess = ::Util::TrackableLogMessageClass.new(
-          msg: "Token decode succeeded",
+          msg:  "Token decode succeeded",
           code: "CONJ00005D"
         )
 
         TokenDecodeFailed = ::Util::TrackableLogMessageClass.new(
-          msg: "Failed to decode the token with the error '{0-exception}'",
+          msg:  "Failed to decode the token with the error '{0-exception}'",
           code: "CONJ00018D"
         )
 
@@ -75,7 +85,7 @@ unless defined? LogMessages::Authentication::OriginValidated
       module AuthnOidc
 
         ExtractedUsernameFromIDToked = ::Util::TrackableLogMessageClass.new(
-          msg: "Extracted username '{0}' from ID Token field '{1-id-token-username-field}'",
+          msg:  "Extracted username '{0}' from ID Token field '{1-id-token-username-field}'",
           code: "CONJ00004D"
         )
 
@@ -84,71 +94,75 @@ unless defined? LogMessages::Authentication::OriginValidated
       module AuthnK8s
 
         PodChannelOpen = ::Util::TrackableLogMessageClass.new(
-          msg: "Pod '{0-pod-name}' : channel open",
+          msg:  "Pod '{0-pod-name}' : channel open",
           code: "CONJ00010D"
         )
 
         PodChannelClosed = ::Util::TrackableLogMessageClass.new(
-          msg: "Pod '{0-pod-name}' : channel closed",
+          msg:  "Pod '{0-pod-name}' : channel closed",
           code: "CONJ00011D"
         )
 
         PodChannelData = ::Util::TrackableLogMessageClass.new(
-          msg: "Pod '{0-pod-name}', channel '{1-cahnnel-name}': {2-message-data}",
+          msg:  "Pod '{0-pod-name}', channel '{1-cahnnel-name}': {2-message-data}",
           code: "CONJ00012D"
         )
 
         PodMessageData = ::Util::TrackableLogMessageClass.new(
-          msg: "Pod: '{0-pod-name}', message: '{1-message-type}', data: '{2-message-data}'",
+          msg:  "Pod: '{0-pod-name}', message: '{1-message-type}', data: '{2-message-data}'",
           code: "CONJ00013D"
         )
 
         PodError = ::Util::TrackableLogMessageClass.new(
-          msg: "Pod '{0-pod-name}' error : '{1}'",
+          msg:  "Pod '{0-pod-name}' error : '{1}'",
           code: "CONJ00014D"
         )
 
         CopySSLToPod = ::Util::TrackableLogMessageClass.new(
-          msg: "Copying SSL certificate to {0-pod-namespace}/{1-pod-name}",
+          msg:  "Copying SSL certificate to {0-pod-namespace}/{1-pod-name}",
           code: "CONJ00015D"
         )
 
-        RetrievedAnnotationValue = ::Util::TrackableLogMessageClass.new(
-          msg: "Retrieved value of annotation {0-annotation-name}",
-          code: "CONJ00024D"
-        )
-
-        ValidatingAnnotationsWithPrefix = ::Util::TrackableLogMessageClass.new(
-          msg: "Validating annotations with prefix {0-prefix}",
-          code: "CONJ00025D"
-        )
-
         ValidatingHostId = ::Util::TrackableLogMessageClass.new(
-          msg: "Validating host id {0}",
+          msg:  "Validating host id {0}",
           code: "CONJ00026D"
         )
 
         HostIdFromCommonName = ::Util::TrackableLogMessageClass.new(
-          msg: "Host id {0} extracted from CSR common name",
+          msg:  "Host id {0} extracted from CSR common name",
           code: "CONJ00027D"
         )
 
         SetCommonName = ::Util::TrackableLogMessageClass.new(
-          msg: "Setting common name to {0-full-host-name}",
+          msg:  "Setting common name to {0-full-host-name}",
           code: "CONJ00028D"
         )
       end
 
       module AuthnAzure
 
-        # TODO: get security approval for this message
+        ExtractingIdentityForAuthentication = ::Util::TrackableLogMessageClass.new(
+          msg:  "Extracting resource type {0-resource-type} for authentication",
+          code: "CONJ00029D"
+        )
+
+        ValidatingApplicationIdentity = ::Util::TrackableLogMessageClass.new(
+          msg:  "Validating application identity for {0-resource-name}",
+          code: "CONJ00030D"
+        )
+
+        ValidatedApplicationIdentity = ::Util::TrackableLogMessageClass.new(
+          msg:  "Application identity for {0-resource-name} validated",
+          code: "CONJ00030D"
+        )
+
         ExtractedFieldFromAzureToken = ::Util::TrackableLogMessageClass.new(
-          msg: "Extracted field '{0-field-name}' with value {1-field-value} from token",
+          msg:  "Extracted field '{0-field-name}' with value {1-field-value} from token",
           code: "CONJ00029D"
         )
 
         ValidatingTokenFieldExists = ::Util::TrackableLogMessageClass.new(
-          msg: "Validating that field '{0}' exists in token",
+          msg:  "Validating that field '{0}' exists in token",
           code: "CONJ00030D"
         )
 
@@ -158,27 +172,27 @@ unless defined? LogMessages::Authentication::OriginValidated
     module Util
 
       RateLimitedCacheUpdated = ::Util::TrackableLogMessageClass.new(
-        msg: "Rate limited cache updated successfully",
+        msg:  "Rate limited cache updated successfully",
         code: "CONJ00016D"
       )
 
       RateLimitedCacheLimitReached = ::Util::TrackableLogMessageClass.new(
-        msg: "Rate limited cache reached the '{0-limit}' limit and will not call target for the next '{1-seconds}' seconds",
+        msg:  "Rate limited cache reached the '{0-limit}' limit and will not call target for the next '{1-seconds}' seconds",
         code: "CONJ00020D"
       )
 
       ConcurrencyLimitedCacheUpdated = ::Util::TrackableLogMessageClass.new(
-        msg: "Concurrency limited cache updated successfully",
+        msg:  "Concurrency limited cache updated successfully",
         code: "CONJ00021D"
       )
 
       ConcurrencyLimitedCacheReached = ::Util::TrackableLogMessageClass.new(
-        msg: "Concurrency limited cache reached the '{0-limit}' limit and will not call target",
+        msg:  "Concurrency limited cache reached the '{0-limit}' limit and will not call target",
         code: "CONJ00022D"
       )
 
       ConcurrencyLimitedCacheConcurrentRequestsUpdated = ::Util::TrackableLogMessageClass.new(
-        msg: "Concurrency limited cache concurrent requests updated to '{0-concurrent-requests}'",
+        msg:  "Concurrency limited cache concurrent requests updated to '{0-concurrent-requests}'",
         code: "CONJ00023D"
       )
 
