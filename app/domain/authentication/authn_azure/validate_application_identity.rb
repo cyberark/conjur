@@ -20,7 +20,7 @@ module Authentication
       def call
         validate_xms_mirid_format
         token_identity_from_claims
-        compare_token_identity_with_annotations
+        validate_token_identity_matches_annotations
       end
 
       private
@@ -45,17 +45,21 @@ module Authentication
         #     claim and its resource is one that we support. At current, we only support a virtualMachines resource.
         #     If these conditions are met, a 'system_assigned_identity' attribute will be added to the hash with its
         #     value being the oid field in the JWT token.
-        @logger.debug(Log::ExtractingIdentityForAuthentication.new("#{xms_mirid_hash["providers"]}/#{xms_mirid_hash.keys[-1]}"))
         if xms_mirid_hash["providers"] == "Microsoft.ManagedIdentity"
           @token_identity[:user_assigned_identity] = xms_mirid_hash["userAssignedIdentities"]
         else
           @token_identity[:system_assigned_identity] = @oid_token_field
         end
+        @logger.debug(Log::ExtractedApplicationIdentityFromToken.new)
       end
 
       def validate_xms_mirid_format
-        valid_xms_mirid_format = xms_mirid_hash.length == 4 && xms_mirid_hash.key?("subscriptions" && "resourcegroups" && "providers")
-        raise Err::ClaimInInvalidFormat unless valid_xms_mirid_format
+        valid_length = xms_mirid_hash.length == 4
+
+        required_keys = %w(subscriptions resourcegroups providers)
+        required_keys_exist = required_keys.all? {|s| xms_mirid_hash.key? s}
+
+        raise Err::ClaimInInvalidFormat unless valid_length && required_keys_exist
       end
 
       # we expect the xms_mirid claim to be in the format of /subscriptions/<subscription-id>/...
@@ -65,8 +69,7 @@ module Authentication
         @xms_mirid_hash ||= Hash[*@xms_mirid_token_field.split('/').drop(1)]
       end
 
-      # validate the integrity of annotations against the xms_mirid object representation
-      def compare_token_identity_with_annotations
+      def validate_token_identity_matches_annotations
         application_identity.constraints.each do |constraint|
           annotation_type  = constraint[0].to_s
           annotation_value = constraint[1]
