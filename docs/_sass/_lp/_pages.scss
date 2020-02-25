@@ -28,7 +28,7 @@ body.lp
   }
   .lp-hero
   {
-    background: url(/img/lp/hero_banner.jpg);
+    background: url($baseurl + "/img/lp/hero_banner.jpg");
     height: calc(100vh - 127px);
     background-size: cover;
     h1,h2,h3,p
@@ -82,7 +82,7 @@ body.lp
   }
   .dark_bg
   {
-    background: url(/img/lp/Texture-01.png);
+    background: url($baseurl + "/img/lp/Texture-01.png");
     color: #fff;
     padding-bottom:60px;
 

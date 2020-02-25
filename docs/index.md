@@ -6,7 +6,14 @@ id: index
 description: Conjur is a scalable, flexible, open source security service that stores secrets, provides machine identity based authorization, and more.
 ---
 
-
+<div class="container">
+  <div class="banner">
+    Work in progress - Please excuse our appearance while we collect feedback
+    for this page. If you have feedback or suggestions on how to improve this page,
+    we would love to hear from you
+    <a href="https://discuss.cyberarkcommons.org/t/new-github-landing-page-for-conjur-open-source-suite/661">in Discourse</a>.
+  </div>
+</div>
 
 <div class="container">
   <div class="landing-page-header">

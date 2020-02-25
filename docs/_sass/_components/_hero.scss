@@ -3,7 +3,7 @@
 // ***********************
 
 #hero {
-  background: url("/img/conjur-hero-bg4.svg") no-repeat center center;
+  background: url($baseurl + "/img/conjur-hero-bg4.svg") no-repeat center center;
   background-size: cover;
   color: #ffffff;
   padding: 4.5em 0;

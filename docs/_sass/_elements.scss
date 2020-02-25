@@ -3,14 +3,14 @@
 // ***********************
 
 .icon-docker-hub {
-  background: url("/img/docker_icon.svg") no-repeat center center;
+  background: url($baseurl + "/img/docker_icon.svg") no-repeat center center;
   width: 16px;
   height: 16px;
   display: inline-block;
 }
 
 #footer .icon-docker-hub {
-  background: url("/img/docker-blue.svg") no-repeat center center;
+  background: url($baseurl + "/img/docker-blue.svg") no-repeat center center;
   width: 16px;
   height: 16px;
   display: inline-block;
@@ -78,7 +78,7 @@ a.doc-switch:after {
   position: absolute;
   width: 30px;
   height: 30px;
-  background: url("/img/copy-to-clipboard.svg");
+  background: url($baseurl + "/img/copy-to-clipboard.svg");
   background-repeat: no-repeat;
   background-position: center;
   border: none;
@@ -526,18 +526,18 @@ pre {
 	position: relative;
 	width: 1.5rem;
 	height: 2rem;
-	background: url("/img/clipboard.svg");
+	background: url($baseurl + "/img/clipboard.svg");
 	background-repeat: no-repeat;
 	background-position: center;
 	border: none;
 	cursor: pointer;
 	float: right;
 	&:hover {
-		background: url("/img/clipboard-hover.svg");
+		background: url($baseurl + "/img/clipboard-hover.svg");
 		background-repeat: no-repeat;
 	}
 	&:active {
-		background: url("/img/clipboard-focus.svg");
+		background: url($baseurl + "/img/clipboard-focus.svg");
 		background-repeat: no-repeat;
 	}
 }
@@ -545,7 +545,7 @@ pre {
   position: relative;
 	width: 1.5rem;
 	height: 2rem;
-  background: url("/img/clipboard-hover.svg");
+  background: url($baseurl + "/img/clipboard-hover.svg");
   background-repeat: no-repeat;
   background-position: center;
   border: none;
@@ -592,4 +592,19 @@ figure.highlight {
   border-bottom-color: $cybr-blue;
   border-width: 1rem;
   margin-left: -1rem;
+}
+
+// ***********************
+// Banner
+// ***********************
+.banner {
+  margin: 1em 0 1em 0;
+  padding: 1em;
+  background: $conjur-teal;
+  color: #FFFFFF;
+  border-radius: 3px;
+
+  a {
+    color: $cybr-dkblue;
+  }
 }
