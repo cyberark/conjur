@@ -31,21 +31,24 @@ module Authentication
       private
 
       def validate_xms_mirid_format
-        required_keys       = %w(subscriptions resourcegroups providers)
-        required_keys_exist = required_keys.all? { |s| xms_mirid_hash.key? s }
-
-        raise Err::ClaimInInvalidFormat unless required_keys_exist
+        begin
+          required_keys = %w(subscriptions resourcegroups providers)
+          required_keys_exist = required_keys.all? { |s| xms_mirid_hash.key? s }
+          raise Err::ClaimInInvalidFormat unless required_keys_exist
+        rescue
+          raise Err::ClaimInInvalidFormat
+        end
       end
 
       def xms_mirid_hash
-        @xms_mirid_hash ||= parse_xms_mirid
+        @xms_mirid_hash ||= parsed_xms_mirid
       end
 
       # we expect the xms_mirid claim to be in the format of /subscriptions/<subscription-id>/...
       # therefore, we ignore the first slash of the xms_mirid claim and group the entries in key-value pairs
       # according to fields we need to retrieve from the claim.
       # ultimately, transforming "/key1/value1/key2/value2" to {"key1" => "value1", "key2" => "value2"}
-      def parse_xms_mirid
+      def parsed_xms_mirid
         split_xms_mirid = @xms_mirid_token_field.split('/')
 
         if split_xms_mirid.first == ''
@@ -54,16 +57,15 @@ module Authentication
 
         index = 0
         split_xms_mirid.each_with_object({}) do |property, xms_mirid_hash|
-          if property == "subscriptions"
+          case property
+          when "subscriptions"
             xms_mirid_hash["subscriptions"] = split_xms_mirid[index + 1]
-          end
-          if property == "resourcegroups"
+          when "resourcegroups"
             xms_mirid_hash["resourcegroups"] = split_xms_mirid[index + 1]
-          end
-          if property == "providers"
+          when "providers"
             xms_mirid_hash["providers"] = split_xms_mirid[index + 1, index + 3]
           end
-          index = index + 1
+          index += 1
         end
       end
 
@@ -88,7 +90,7 @@ module Authentication
         #     If these conditions are met, a 'system_assigned_identity' attribute will be added to the hash with its
         #     value being the oid field in the JWT token.
         if xms_mirid_hash["providers"].include? "Microsoft.ManagedIdentity"
-          @token_identity[:user_assigned_identity] = xms_mirid_hash["userAssignedIdentities"]
+          @token_identity[:user_assigned_identity] = xms_mirid_hash["providers"].last
         else
           @token_identity[:system_assigned_identity] = @oid_token_field
         end
