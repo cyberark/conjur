@@ -148,12 +148,12 @@ unless defined? LogMessages::Authentication::OriginValidated
 
         ExtractedFieldFromAzureToken = ::Util::TrackableLogMessageClass.new(
           msg:  "Extracted field '{0-field-name}' with value {1-field-value} from token",
-          code: "CONJ00029D"
+          code: "CONJ00031D"
         )
 
         ValidatingTokenFieldExists = ::Util::TrackableLogMessageClass.new(
           msg:  "Validating that field '{0}' exists in token",
-          code: "CONJ00030D"
+          code: "CONJ00032D"
         )
 
       end
