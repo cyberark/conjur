@@ -11,6 +11,7 @@ module Authentication
       dependencies: {
         role_class:                 ::Role,
         resource_class:             ::Resource,
+        validate_azure_annotations: ValidateAzureAnnotations.new,
         application_identity_class: ApplicationIdentity,
         logger:                     Rails.logger
       },
@@ -20,10 +21,23 @@ module Authentication
       def call
         validate_xms_mirid_format
         token_identity_from_claims
+        validate_azure_annotations_are_permitted
+        extract_application_identity_from_role
+        validate_required_constraints_exist
+        validate_constraint_combinations
         validate_token_identity_matches_annotations
       end
 
       private
+
+      def validate_xms_mirid_format
+        valid_length = xms_mirid_hash.length == 4
+
+        required_keys = %w(subscriptions resourcegroups providers)
+        required_keys_exist = required_keys.all? {|s| xms_mirid_hash.key? s}
+
+        raise Err::ClaimInInvalidFormat unless valid_length && required_keys_exist
+      end
 
       # xms_mirid is a term in Azure to define a claim that describes the resource that holds the encoding of the instance's
       # among other details the subscription_id, resource group, and provider identity needed for authorization.
@@ -53,20 +67,52 @@ module Authentication
         @logger.debug(Log::ExtractedApplicationIdentityFromToken.new)
       end
 
-      def validate_xms_mirid_format
-        valid_length = xms_mirid_hash.length == 4
-
-        required_keys = %w(subscriptions resourcegroups providers)
-        required_keys_exist = required_keys.all? {|s| xms_mirid_hash.key? s}
-
-        raise Err::ClaimInInvalidFormat unless valid_length && required_keys_exist
-      end
-
       # we expect the xms_mirid claim to be in the format of /subscriptions/<subscription-id>/...
       # therefore, we are ignoring the first slash of the xms_mirid field and grouping the entries in key-value pairs.
       # ultimately, transforming "/key1/value1/key2/value2" to {"key1" => "value1", "key2" => "value2"}
       def xms_mirid_hash
         @xms_mirid_hash ||= Hash[*@xms_mirid_token_field.split('/').drop(1)]
+      end
+
+      def validate_azure_annotations_are_permitted
+        @validate_azure_annotations.call(
+          role_annotations: role.annotations
+        )
+      end
+
+      def extract_application_identity_from_role
+        application_identity
+      end
+
+      def application_identity
+        @application_identity ||= @application_identity_class.new(
+          role_annotations: role.annotations,
+          service_id:       @service_id
+        )
+      end
+
+      def validate_required_constraints_exist
+        validate_constraint_exists :subscription_id
+        validate_constraint_exists :resource_group
+      end
+
+      def validate_constraint_exists constraint
+        raise Err::MissingConstraint.new(constraint) unless application_identity.constraints[constraint]
+      end
+
+      # validates that the application identity doesn't include logical constraint
+      # combinations (e.g user_assigned_identity & system_assigned_identity)
+      def validate_constraint_combinations
+        identifiers = %i(user_assigned_identity system_assigned_identity)
+
+        identifiers_constraints = application_identity.constraints.keys & identifiers
+        raise Errors::Authentication::IllegalConstraintCombinations, identifiers_constraints unless identifiers_constraints.length <= 1
+      end
+
+      def permitted_constraints
+        @permitted_constraints ||= %w(
+          subscription-id resource-group user-assigned-identity system-assigned-identity
+        )
       end
 
       def validate_token_identity_matches_annotations
@@ -78,13 +124,6 @@ module Authentication
           end
         end
         @logger.debug(Log::ValidatedApplicationIdentity.new)
-      end
-
-      def application_identity
-        @application_identity ||= @application_identity_class.new(
-          role_annotations: role.annotations,
-          service_id:       @service_id
-        )
       end
 
       def role
