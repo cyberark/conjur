@@ -31,12 +31,40 @@ module Authentication
       private
 
       def validate_xms_mirid_format
-        valid_length = xms_mirid_hash.length == 4
+        required_keys       = %w(subscriptions resourcegroups providers)
+        required_keys_exist = required_keys.all? { |s| xms_mirid_hash.key? s }
 
-        required_keys = %w(subscriptions resourcegroups providers)
-        required_keys_exist = required_keys.all? {|s| xms_mirid_hash.key? s}
+        raise Err::ClaimInInvalidFormat unless required_keys_exist
+      end
 
-        raise Err::ClaimInInvalidFormat unless valid_length && required_keys_exist
+      def xms_mirid_hash
+        @xms_mirid_hash ||= parse_xms_mirid
+      end
+
+      # we expect the xms_mirid claim to be in the format of /subscriptions/<subscription-id>/...
+      # therefore, we ignore the first slash of the xms_mirid claim and group the entries in key-value pairs
+      # according to fields we need to retrieve from the claim.
+      # ultimately, transforming "/key1/value1/key2/value2" to {"key1" => "value1", "key2" => "value2"}
+      def parse_xms_mirid
+        split_xms_mirid = @xms_mirid_token_field.split('/')
+
+        if split_xms_mirid.first == ''
+          split_xms_mirid = split_xms_mirid.drop(1)
+        end
+
+        index = 0
+        split_xms_mirid.each_with_object({}) do |property, xms_mirid_hash|
+          if property == "subscriptions"
+            xms_mirid_hash["subscriptions"] = split_xms_mirid[index + 1]
+          end
+          if property == "resourcegroups"
+            xms_mirid_hash["resourcegroups"] = split_xms_mirid[index + 1]
+          end
+          if property == "providers"
+            xms_mirid_hash["providers"] = split_xms_mirid[index + 1, index + 3]
+          end
+          index = index + 1
+        end
       end
 
       # xms_mirid is a term in Azure to define a claim that describes the resource that holds the encoding of the instance's
@@ -59,19 +87,12 @@ module Authentication
         #     claim and its resource is one that we support. At current, we only support a virtualMachines resource.
         #     If these conditions are met, a 'system_assigned_identity' attribute will be added to the hash with its
         #     value being the oid field in the JWT token.
-        if xms_mirid_hash["providers"] == "Microsoft.ManagedIdentity"
+        if xms_mirid_hash["providers"].include? "Microsoft.ManagedIdentity"
           @token_identity[:user_assigned_identity] = xms_mirid_hash["userAssignedIdentities"]
         else
           @token_identity[:system_assigned_identity] = @oid_token_field
         end
         @logger.debug(Log::ExtractedApplicationIdentityFromToken.new)
-      end
-
-      # we expect the xms_mirid claim to be in the format of /subscriptions/<subscription-id>/...
-      # therefore, we are ignoring the first slash of the xms_mirid field and grouping the entries in key-value pairs.
-      # ultimately, transforming "/key1/value1/key2/value2" to {"key1" => "value1", "key2" => "value2"}
-      def xms_mirid_hash
-        @xms_mirid_hash ||= Hash[*@xms_mirid_token_field.split('/').drop(1)]
       end
 
       def validate_azure_annotations_are_permitted
@@ -137,5 +158,4 @@ module Authentication
       end
     end
   end
-
 end
