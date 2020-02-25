@@ -16,7 +16,7 @@
       margin-right: 35px;
       display: inline-block;
       width: 220px;
-      background: url("/img/Conjur_4C_KO.svg") no-repeat top left;
+      background: url($baseurl + "/img/Conjur_4C_KO.svg") no-repeat top left;
       padding: 0px;
     }
   }
@@ -167,7 +167,7 @@
         display: inline-block;
         width: 220px;
         margin-top: 1em;
-        background: url("/img/Conjur_4C_KO.svg") no-repeat top left;
+        background: url($baseurl + "/img/Conjur_4C_KO.svg") no-repeat top left;
         padding: 0px;
       }
     }

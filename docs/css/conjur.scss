@@ -12,6 +12,9 @@
 *
 */
 
+// Set the base URL
+$baseurl: "{{ site.baseurl }}";
+
 @import
   "bootstrap",
   "variables",
