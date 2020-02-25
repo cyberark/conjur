@@ -10,6 +10,13 @@
         annotations:
           authn-azure/subscription-id: test-subscription
           authn-azure/resource-group: test-group
+          authn-azure/system-assigned-identity: test-app-pipeline
+
+      - !host
+        id: user-app
+        annotations:
+          authn-azure/subscription-id: test-subscription
+          authn-azure/resource-group: test-group
           authn-azure/user-assigned-identity: test-app-pipeline
 
     - !grant
