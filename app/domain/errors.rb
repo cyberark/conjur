@@ -160,7 +160,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         AdminAuthenticationDenied = ::Util::TrackableErrorClass.new(
-          msg:  "admin user is not allowed to authenticate with OIDC",
+          msg:  "Admin user is not allowed to authenticate with OIDC",
           code: "CONJ00017E"
         )
 
