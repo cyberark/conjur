@@ -299,7 +299,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
 
         TokenFieldNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
           msg:  "Field '{0-field-name}' not found or empty in token",
-          code: "CONJ00049E"
+          code: "CONJ00052E"
         )
 
       end
