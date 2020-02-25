@@ -593,3 +593,18 @@ figure.highlight {
   border-width: 1rem;
   margin-left: -1rem;
 }
+
+// ***********************
+// Banner
+// ***********************
+.banner {
+  margin: 1em 0 1em 0;
+  padding: 1em;
+  background: $conjur-teal;
+  color: #FFFFFF;
+  border-radius: 3px;
+
+  a {
+    color: $cybr-dkblue;
+  }
+}
