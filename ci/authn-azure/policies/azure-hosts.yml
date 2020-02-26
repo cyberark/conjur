@@ -6,18 +6,18 @@
 
     - &hosts
       - !host
-        id: test-app
+        id: system-assigned-identity-app
         annotations:
-          authn-azure/subscription-id: test-subscription
-          authn-azure/resource-group: test-group
-          authn-azure/system-assigned-identity: test-app-pipeline
+          authn-azure/subscription-id: <subscription_id>
+          authn-azure/resource-group: <resource_group>
+          authn-azure/system-assigned-identity: <oid>
 
       - !host
-        id: user-app
+        id: user-assigned-identity-app
         annotations:
-          authn-azure/subscription-id: test-subscription
-          authn-azure/resource-group: test-group
-          authn-azure/user-assigned-identity: test-app-pipeline
+          authn-azure/subscription-id: <subscription_id>
+          authn-azure/resource-group: <resource_group>
+          authn-azure/user-assigned-identity: <user-assigned-identity>
 
     - !grant
       role: !group
