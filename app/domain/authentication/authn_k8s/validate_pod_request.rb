@@ -38,7 +38,7 @@ module Authentication
 
       def validate_host_can_access_service
         return if host_can_access_service?
-        raise SecurityErr::RoleNotAuthorizedOnWebservice.new(host.role.id, service_id)
+        raise SecurityErr::RoleNotAuthorizedOnWebservice.new(host.role.id, "authenticate", service_id)
       end
 
       def validate_pod_exists

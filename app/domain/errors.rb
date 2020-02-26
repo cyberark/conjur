@@ -84,7 +84,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         RoleNotAuthorizedOnWebservice = ::Util::TrackableErrorClass.new(
-          msg: "'{0-role-name}' does not have 'authenticate' privilege on {1-service-name}",
+          msg: "'{0-role-name}' does not have '{1-privilege}' privilege on {2-webservice-name}",
           code: "CONJ00006E"
         )
 

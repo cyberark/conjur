@@ -65,7 +65,7 @@ module Authentication
         unless has_access
           @logger.debug(Log::UserNotAuthorized
                           .new(@user_id, webservice_resource_id))
-          raise Err::RoleNotAuthorizedOnWebservice.new(@user_id, webservice_resource_id)
+          raise Err::RoleNotAuthorizedOnWebservice.new(@user_id, @privilege, webservice_resource_id)
         end
       end
 
