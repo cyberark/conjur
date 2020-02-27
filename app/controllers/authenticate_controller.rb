@@ -183,6 +183,11 @@ class AuthenticateController < ApplicationController
   end
 
   def status_failure_response(error)
+    logger.debug("Status check failed with error: #{error.inspect}")
+    error.backtrace.each do |line|
+      logger.debug(line)
+    end
+
     payload = {
       status: "error",
       error: error.inspect
