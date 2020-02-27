@@ -184,8 +184,8 @@ GEM
     excon (0.71.0)
     execjs (2.7.0)
     ffi (1.9.25)
-    font-awesome-sass (4.7.0)
-      sass (>= 3.2)
+    font-awesome-sass (5.12.0)
+      sassc (>= 1.11)
     gherkin (4.1.1)
     gli (2.17.1)
     globalid (0.4.2)
@@ -473,7 +473,7 @@ DEPENDENCIES
   debase
   dry-struct
   ffi (>= 1.9.24)
-  font-awesome-sass (~> 4.7.0)
+  font-awesome-sass (~> 5.12.0)
   gli
   haikunator (~> 1)
   iso8601

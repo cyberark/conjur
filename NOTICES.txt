@@ -47,7 +47,7 @@ SECTION 4: MIT License
 >>> https://rubygems.org/gems/autoprefixer-rails/versions/7.1.2.3
 >>> https://rubygems.org/gems/bootstrap-sass/versions/3.4.1
 >>> https://rubygems.org/gems/dry-struct/versions/0.4.0
->>> https://rubygems.org/gems/font-awesome-sass/versions/4.7.0
+>>> https://rubygems.org/gems/font-awesome-sass/versions/5.12.0
 >>> https://rubygems.org/gems/net-ldap/versions/0.16.1
 >>> https://rubygems.org/gems/rails_12factor/versions/0.0.3
 >>> https://rubygems.org/gems/jwt
@@ -802,7 +802,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
->>> https://rubygems.org/gems/font-awesome-sass/versions/4.7.0
+>>> https://rubygems.org/gems/font-awesome-sass/versions/5.12.0
 
 Copyright (c) 2013 Travis Chase
 
