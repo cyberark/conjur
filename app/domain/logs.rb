@@ -22,11 +22,6 @@ unless defined? LogMessages::Authentication::OriginValidated
           code: "CONJ00001D"
         )
 
-        UserNotAuthorized = ::Util::TrackableLogMessageClass.new(
-          msg: "User '{0}' is not authorized to authenticate with webservice '{1}'",
-          code: "CONJ00002D"
-        )
-
       end
 
       module OAuth

@@ -60,11 +60,8 @@ module Authentication
       end
 
       def validate_user_has_access
-        # Ensure user has access to the service
         has_access = user_role.allowed_to?(@privilege, webservice_resource)
         unless has_access
-          @logger.debug(Log::UserNotAuthorized
-                          .new(@user_id, webservice_resource_id))
           raise Err::RoleNotAuthorizedOnWebservice.new(@user_id, @privilege, webservice_resource_id)
         end
       end
