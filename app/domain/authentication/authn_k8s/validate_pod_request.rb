@@ -5,12 +5,12 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
-    Err = Errors::Authentication::AuthnK8s
+    Err ||= Errors::Authentication::AuthnK8s
     # Possible Errors Raised:
     # WebserviceNotFound, HostNotAuthorized, PodNotFound
     # ContainerNotFound, ScopeNotSupported, K8sResourceNotFound
 
-    ValidatePodRequest = CommandClass.new(
+    ValidatePodRequest ||= CommandClass.new(
       dependencies: {
         resource_class:                Resource,
         k8s_object_lookup_class:       K8sObjectLookup,

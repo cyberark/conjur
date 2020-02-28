@@ -7,11 +7,11 @@ module Authentication
 
   module Security
 
-    Err = Errors::Authentication::Security
+    Err ||= Errors::Authentication::Security
     # Possible Errors Raised:
     # AccountNotDefined, NotWhitelisted
 
-    ValidateWhitelistedWebservice = CommandClass.new(
+    ValidateWhitelistedWebservice ||= CommandClass.new(
       dependencies: {
         role_class: ::Role,
         webservices_class: ::Authentication::Webservices,

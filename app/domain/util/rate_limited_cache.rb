@@ -1,6 +1,6 @@
 module Util
 
-  Log = LogMessages::Util
+  Log ||= LogMessages::Util
   # This can wrap any "callable" object (anything with a `call` method)
   # to add caching with optional force refreshing, where the refreshing
   # is itself subject to rate limiting.

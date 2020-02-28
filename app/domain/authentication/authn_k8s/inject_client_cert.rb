@@ -3,12 +3,12 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
-    Log = LogMessages::Authentication::AuthnK8s
-    Err = Errors::Authentication::AuthnK8s
+    Log ||= LogMessages::Authentication::AuthnK8s
+    Err ||= Errors::Authentication::AuthnK8s
     # Possible Errors Raised:
     # CSRIsMissingSpiffeId, CertInstallationError
 
-    InjectClientCert = CommandClass.new(
+    InjectClientCert ||= CommandClass.new(
       dependencies: {
         logger: Rails.logger,
         resource_class: Resource,

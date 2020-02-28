@@ -1,12 +1,12 @@
 module Authentication
   module AuthnOidc
 
-    Log = LogMessages::Authentication::AuthnOidc
-    Err = Errors::Authentication::AuthnOidc
+    Log ||= LogMessages::Authentication::AuthnOidc
+    Err ||= Errors::Authentication::AuthnOidc
     # Possible Errors Raised:
     # IdTokenExpired, IdTokenVerifyFailed, IdTokenInvalidFormat
 
-    DecodeAndVerifyIdToken = CommandClass.new(
+    DecodeAndVerifyIdToken ||= CommandClass.new(
       dependencies: {
         # We have a ConcurrencyLimitedCache which wraps a RateLimitedCache which wraps a FetchProviderCertificate class
         fetch_provider_certificate: ::Util::ConcurrencyLimitedCache.new(

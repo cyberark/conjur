@@ -4,14 +4,14 @@ require 'json'
 module Authentication
   module AuthnOidc
 
-    Log = LogMessages::Authentication::AuthnOidc
-    Err = Errors::Authentication::AuthnOidc
+    Log ||= LogMessages::Authentication::AuthnOidc
+    Err ||= Errors::Authentication::AuthnOidc
     # Possible Errors Raised:
     #   ProviderDiscoveryTimeout
     #   ProviderDiscoveryFailed
     #   ProviderFetchCertificateFailed
 
-    FetchProviderCertificate = CommandClass.new(
+    FetchProviderCertificate ||= CommandClass.new(
       dependencies: {
         logger:                 Rails.logger,
         discover_oidc_provider: Authentication::AuthnOidc::DiscoverOIDCProvider.new

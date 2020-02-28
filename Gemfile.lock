@@ -228,6 +228,9 @@ GEM
     inflecto (0.0.2)
     iso8601 (0.12.1)
     jaro_winkler (1.5.4)
+    jbuilder (2.7.0)
+      activesupport (>= 4.2.0)
+      multi_json (>= 1.2)
     jmespath (1.4.0)
     json-jwt (1.11.0)
       activesupport (>= 4.2)
@@ -502,6 +505,7 @@ DEPENDENCIES
   gli
   haikunator (~> 1)
   iso8601
+  jbuilder (~> 2.7.0)
   json_spec
   kubeclient
   listen

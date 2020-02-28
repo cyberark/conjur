@@ -171,6 +171,10 @@ class ApplicationController < ActionController::API
 
   def argument_error e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    # require 'pry'
+    # binding.pry
+# render plain: authn_token.to_json, content_type: 'application/json'
+
     render json: {
       error: {
         code: error_code_of_exception_class(e.class),

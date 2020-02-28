@@ -1,13 +1,13 @@
 module Authentication
   module AuthnOidc
 
-    Log = LogMessages::Authentication::AuthnOidc
-    Err = Errors::Authentication::AuthnOidc
+    Log ||= LogMessages::Authentication::AuthnOidc
+    Err ||= Errors::Authentication::AuthnOidc
     # Possible Errors Raised:
     #   ProviderDiscoveryTimeout
     #   ProviderDiscoveryFailed
 
-    DiscoverOIDCProvider = CommandClass.new(
+    DiscoverOIDCProvider ||= CommandClass.new(
       dependencies: {
         logger:                    Rails.logger,
         open_id_discovery_service: OpenIDConnect::Discovery::Provider::Config

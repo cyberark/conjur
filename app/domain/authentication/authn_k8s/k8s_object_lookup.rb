@@ -7,14 +7,14 @@ module Authentication
   module AuthnK8s
     #TODO: rename to K8sApiFacade
 
-    VARIABLE_BEARER_TOKEN = 'kubernetes/service-account-token'
-    VARIABLE_CA_CERT = 'kubernetes/ca-cert'
-    VARIABLE_API_URL = 'kubernetes/api-url'
-    SERVICEACCOUNT_DIR = '/var/run/secrets/kubernetes.io/serviceaccount'
-    SERVICEACCOUNT_CA_PATH = File.join(SERVICEACCOUNT_DIR, 'ca.crt').freeze
-    SERVICEACCOUNT_TOKEN_PATH = File.join(SERVICEACCOUNT_DIR, 'token').freeze
+    VARIABLE_BEARER_TOKEN ||= 'kubernetes/service-account-token'
+    VARIABLE_CA_CERT ||= 'kubernetes/ca-cert'
+    VARIABLE_API_URL ||= 'kubernetes/api-url'
+    SERVICEACCOUNT_DIR ||= '/var/run/secrets/kubernetes.io/serviceaccount'
+    SERVICEACCOUNT_CA_PATH ||= File.join(SERVICEACCOUNT_DIR, 'ca.crt').freeze
+    SERVICEACCOUNT_TOKEN_PATH ||= File.join(SERVICEACCOUNT_DIR, 'token').freeze
 
-    Err = Errors::Authentication::AuthnK8s
+    Err ||= Errors::Authentication::AuthnK8s
 
     class K8sObjectLookup
 

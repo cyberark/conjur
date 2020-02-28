@@ -9,12 +9,12 @@ require 'websocket-client-simple'
 module Authentication
   module AuthnK8s
 
-    Log = LogMessages::Authentication::AuthnK8s
-    Err = Errors::Authentication::AuthnK8s
+    Log ||= LogMessages::Authentication::AuthnK8s
+    Err ||= Errors::Authentication::AuthnK8s
     # Possible Errors Raised:
     # CommandTimedOut
 
-    KubectlExec = CommandClass.new(
+    KubectlExec ||= CommandClass.new(
       dependencies: { logger: Rails.logger,
                       timeout: 5.seconds },
       inputs: %i( k8s_object_lookup
