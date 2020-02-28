@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Improved flows and rules around user creation
 - Kubernetes authenticator now returns 403 on unpermitted hosts instead of a 401
+- Authenticator will now log initial authentication failure reason at the `warn`
+  level rather than `debug`. Full stack trace is still available at `debug` level.
 
 ### Fixed
 - Updated broken links on server status page (#1341)
