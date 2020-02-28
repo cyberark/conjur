@@ -43,9 +43,19 @@ module RestHelpers
     set_result result
   end
 
-  def get_json path, options = {}
+  def get_json(path, options = {})
     path = denormalize(path)
     result = rest_resource(options)[path].get
+    set_result result
+  end
+
+  #TODO: Add proper fix for this with real refactor of test code
+  def get_json_with_basic_auth(path, options = {})
+    path = denormalize(path)
+    resource = rest_resource(options)[path]
+    #TODO: Add proper fix for this with real refactor of test code
+    resource.options[:headers].delete(:authorization)
+    result = resource.get
     set_result result
   end
 
@@ -287,7 +297,6 @@ module RestHelpers
 
   def rest_resource options
     args = [Conjur.configuration.appliance_url]
-
     if options[:token]
       args << user_credentials(options[:token].username, options[:token].token)
     elsif current_user?
@@ -297,6 +306,7 @@ module RestHelpers
     args <<({}) if args.length == 1
     args.last[:headers] ||= {}
     args.last[:headers].merge(headers) if headers
+
     RestClient::Resource.new(*args).tap do |request|
       headers.each do |key, val|
         request.headers[key] = val

@@ -33,6 +33,12 @@ class AccountsController < ApplicationController
   end
 
   def account_name
-    params[:id]
+    # allowed_params = [:account, :kind, :limit, :offset, :search]
+    # options = params.permit(*allowed_params)
+    #   .slice(*allowed_params).to_h.symbolize_keys
+    # Rails 5 requires parameters to be explicitly permitted before converting 
+    # to Hash.  See: https://stackoverflow.com/a/46029524
+
+    params.permit(:id)[:id]
   end
 end

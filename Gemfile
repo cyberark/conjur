@@ -17,6 +17,7 @@ gem 'rack', '~> 2.0'
 gem 'rails', '= 5.2.4.1'
 gem 'rake'
 gem 'sprockets', '~> 3.7.0', '>= 3.7.2'
+gem 'jbuilder', '~> 2.7.0'
 
 gem 'pg'
 gem 'sequel-pg_advisory_locking'
