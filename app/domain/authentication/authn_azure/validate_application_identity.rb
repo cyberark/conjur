@@ -33,10 +33,10 @@ module Authentication
       def validate_xms_mirid_format
         begin
           required_keys = %w(subscriptions resourcegroups providers)
-          required_keys_exist = required_keys.all? { |s| xms_mirid_hash.key? s }
-          raise Err::ClaimInInvalidFormat unless required_keys_exist
-        rescue
-          raise Err::ClaimInInvalidFormat
+          missing_keys = required_keys - xms_mirid_hash.keys
+          raise Err::ClaimInInvalidFormat, "Required keys #{missing_keys} are missing" if missing_keys.empty?
+        rescue => e
+          raise Err::ClaimInInvalidFormat, e.inspect
         end
       end
 
