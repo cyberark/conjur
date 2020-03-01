@@ -293,7 +293,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         ClaimInInvalidFormat = ::Util::TrackableErrorClass.new(
-          msg:  "xms_mirid claim has been received in an invalid format",
+          msg:  "xms_mirid claim has been received in an invalid format. Reason: {0}",
           code: "CONJ00051E"
         )
 
