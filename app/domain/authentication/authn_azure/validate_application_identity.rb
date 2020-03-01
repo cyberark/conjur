@@ -132,12 +132,6 @@ module Authentication
         raise Errors::Authentication::IllegalConstraintCombinations, identifiers_constraints unless identifiers_constraints.length <= 1
       end
 
-      def permitted_constraints
-        @permitted_constraints ||= %w(
-          subscription-id resource-group user-assigned-identity system-assigned-identity
-        )
-      end
-
       def validate_token_identity_matches_annotations
         application_identity.constraints.each do |constraint|
           annotation_type  = constraint[0].to_s
