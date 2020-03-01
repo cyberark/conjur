@@ -47,7 +47,7 @@ module Authentication
         end
       rescue JWT::ExpiredSignature
         raise Err::TokenExpired
-      rescue JWT::DecodeError
+      rescue JWT::DecodeError => e
         @logger.debug(Log::TokenDecodeFailed.new(e.inspect))
         raise Err::TokenDecodeFailed, e.inspect
       rescue => e
