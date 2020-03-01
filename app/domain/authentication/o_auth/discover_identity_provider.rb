@@ -34,7 +34,7 @@ module Authentication
         @discovered_provider = @open_id_discovery_service.discover!(@provider_uri).tap do
           @logger.debug(Log::IdentityProviderDiscoverySuccess.new)
         end
-      rescue HTTPClient::ConnectTimeoutError => e
+      rescue HTTPClient::ConnectTimeoutError, Errno::ETIMEDOUT => e
         raise_error(Err::ProviderDiscoveryTimeout, e)
       rescue => e
         raise_error(Err::ProviderDiscoveryFailed, e)
