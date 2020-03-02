@@ -34,7 +34,7 @@ module Authentication
         begin
           required_keys = %w(subscriptions resourcegroups providers)
           missing_keys = required_keys - xms_mirid_hash.keys
-          raise Err::ClaimInInvalidFormat, "Required keys #{missing_keys} are missing" if missing_keys.empty?
+          raise Err::ClaimInInvalidFormat, "Required keys #{missing_keys} are missing" unless missing_keys.empty?
         rescue => e
           raise Err::ClaimInInvalidFormat, e.inspect
         end
