@@ -292,14 +292,19 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00050E"
         )
 
-        ClaimInInvalidFormat = ::Util::TrackableErrorClass.new(
-          msg:  "xms_mirid claim has been received in an invalid format. Reason: {0}",
+        TokenFieldNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
+          msg:  "Field '{0-field-name}' not found or empty in token",
           code: "CONJ00051E"
         )
 
-        TokenFieldNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
-          msg:  "Field '{0-field-name}' not found or empty in token",
+        XmsMiridParseError = ::Util::TrackableErrorClass.new(
+          msg:  "Failed to parse xms_mirid {0}. Reason: {1}",
           code: "CONJ00052E"
+        )
+
+        MissingRequiredKeysInXmsMirid = ::Util::TrackableErrorClass.new(
+          msg:  "Required keys {0} are missing in xms_mirid {1}",
+          code: "CONJ00053E"
         )
 
       end

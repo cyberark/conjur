@@ -32,11 +32,7 @@ module Authentication
       private
 
       def parse_xms_mirid
-        begin
-          xms_mirid_hash
-        rescue => e
-          raise Err::ClaimInInvalidFormat, e.inspect
-        end
+        xms_mirid_hash
       end
 
       def xms_mirid_hash
@@ -48,30 +44,36 @@ module Authentication
       # according to fields we need to retrieve from the claim.
       # ultimately, transforming "/key1/value1/key2/value2" to {"key1" => "value1", "key2" => "value2"}
       def parsed_xms_mirid
-        split_xms_mirid = @xms_mirid_token_field.split('/')
+        begin
+          split_xms_mirid = @xms_mirid_token_field.split('/')
 
-        if split_xms_mirid.first == ''
-          split_xms_mirid = split_xms_mirid.drop(1)
-        end
-
-        index = 0
-        split_xms_mirid.each_with_object({}) do |property, xms_mirid_hash|
-          case property
-          when "subscriptions"
-            xms_mirid_hash["subscriptions"] = split_xms_mirid[index + 1]
-          when "resourcegroups"
-            xms_mirid_hash["resourcegroups"] = split_xms_mirid[index + 1]
-          when "providers"
-            xms_mirid_hash["providers"] = split_xms_mirid[index + 1, index + 3]
+          if split_xms_mirid.first == ''
+            split_xms_mirid = split_xms_mirid.drop(1)
           end
-          index += 1
+
+          index = 0
+          split_xms_mirid.each_with_object({}) do |property, xms_mirid_hash|
+            case property
+            when "subscriptions"
+              xms_mirid_hash["subscriptions"] = split_xms_mirid[index + 1]
+            when "resourcegroups"
+              xms_mirid_hash["resourcegroups"] = split_xms_mirid[index + 1]
+            when "providers"
+              xms_mirid_hash["providers"] = split_xms_mirid[index + 1, index + 3]
+            end
+            index += 1
+          end
+        rescue => e
+          raise Err::XmsMiridParseError.new(@xms_mirid_token_field, e.inspect)
         end
       end
 
       def validate_xms_mirid_format
         required_keys = %w(subscriptions resourcegroups providers)
         missing_keys = required_keys - xms_mirid_hash.keys
-        raise Err::ClaimInInvalidFormat, "Required keys #{missing_keys} are missing" unless missing_keys.empty?
+        unless missing_keys.empty?
+          raise Err::MissingRequiredKeysInXmsMirid.new(missing_keys, @xms_mirid_token_field)
+        end
       end
 
       # xms_mirid is a term in Azure to define a claim that describes the resource that holds the encoding of the instance's
