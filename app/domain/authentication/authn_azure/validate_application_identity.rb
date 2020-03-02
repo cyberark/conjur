@@ -19,6 +19,7 @@ module Authentication
     ) do
 
       def call
+        parse_xms_mirid
         validate_xms_mirid_format
         token_identity_from_claims
         validate_azure_annotations_are_permitted
@@ -30,11 +31,9 @@ module Authentication
 
       private
 
-      def validate_xms_mirid_format
+      def parse_xms_mirid
         begin
-          required_keys = %w(subscriptions resourcegroups providers)
-          missing_keys = required_keys - xms_mirid_hash.keys
-          raise Err::ClaimInInvalidFormat, "Required keys #{missing_keys} are missing" unless missing_keys.empty?
+          xms_mirid_hash
         rescue => e
           raise Err::ClaimInInvalidFormat, e.inspect
         end
@@ -67,6 +66,12 @@ module Authentication
           end
           index += 1
         end
+      end
+
+      def validate_xms_mirid_format
+        required_keys = %w(subscriptions resourcegroups providers)
+        missing_keys = required_keys - xms_mirid_hash.keys
+        raise Err::ClaimInInvalidFormat, "Required keys #{missing_keys} are missing" unless missing_keys.empty?
       end
 
       # xms_mirid is a term in Azure to define a claim that describes the resource that holds the encoding of the instance's
