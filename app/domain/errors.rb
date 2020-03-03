@@ -302,9 +302,14 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00052E"
         )
 
-        MissingRequiredKeysInXmsMirid = ::Util::TrackableErrorClass.new(
-          msg:  "Required keys {0} are missing in xms_mirid {1}",
+        MissingRequiredFieldsInXmsMirid = ::Util::TrackableErrorClass.new(
+          msg:  "Required fields {0} are missing in xms_mirid {1}",
           code: "CONJ00053E"
+        )
+
+        MissingProviderFieldsInXmsMirid = ::Util::TrackableErrorClass.new(
+          msg:  "Provider fields are missing in xms_mirid {1}",
+          code: "CONJ00054E"
         )
 
       end

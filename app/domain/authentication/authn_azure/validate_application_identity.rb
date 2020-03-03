@@ -59,7 +59,7 @@ module Authentication
             when "resourcegroups"
               xms_mirid_hash["resourcegroups"] = split_xms_mirid[index + 1]
             when "providers"
-              xms_mirid_hash["providers"] = split_xms_mirid[index + 1, index + 3]
+              xms_mirid_hash["providers"] = split_xms_mirid[index + 1, 3]
             end
             index += 1
           end
@@ -72,7 +72,11 @@ module Authentication
         required_keys = %w(subscriptions resourcegroups providers)
         missing_keys = required_keys - xms_mirid_hash.keys
         unless missing_keys.empty?
-          raise Err::MissingRequiredKeysInXmsMirid.new(missing_keys, @xms_mirid_token_field)
+          raise Err::MissingRequiredFieldsInXmsMirid.new(missing_keys, @xms_mirid_token_field)
+        end
+
+        unless xms_mirid_hash["providers"].length == 3
+          raise Err::MissingProviderFieldsInXmsMirid.new(@xms_mirid_token_field)
         end
       end
 
