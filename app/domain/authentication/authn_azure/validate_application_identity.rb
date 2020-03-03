@@ -110,7 +110,8 @@ module Authentication
 
       def validate_azure_annotations_are_permitted
         @validate_azure_annotations.call(
-          role_annotations: role.annotations
+          role_annotations: role.annotations,
+          service_id: @service_id
         )
       end
 
