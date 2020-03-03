@@ -3,6 +3,11 @@
 require 'bcrypt'
 require 'util/cidr'
 
+# TODO: This is needed because the loading being done in config/application.rb
+# is either not "taking" or being done after the models are loaded.
+#
+Sequel::Model.db.extension(:pg_array, :pg_inet)
+
 class Credentials < Sequel::Model
   # Bcrypt work factor, minimum recommended work factor is 12
   BCRYPT_COST = 12

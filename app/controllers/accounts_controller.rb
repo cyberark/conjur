@@ -23,7 +23,10 @@ class AccountsController < ApplicationController
 
     Account.new(account_name).delete
 
-    render nothing: true, status: :no_content
+    # Rails 5 changes the way to return no content:
+    #
+    # render nothing: true, status: :no_content
+    head :no_content
   end
 
   protected
