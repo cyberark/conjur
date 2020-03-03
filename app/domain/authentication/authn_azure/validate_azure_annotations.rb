@@ -12,7 +12,7 @@ module Authentication
       dependencies: {
         logger: Rails.logger
       },
-      inputs:       %i(role_annotations)
+      inputs:       %i(role_annotations service_id)
     ) do
 
       def call
