@@ -129,7 +129,7 @@ pipeline {
           }
       }
       always {
-        cleanupAndNotify(currentBuild.currentResult)
+        cleanupAndNotify(currentBuild.currentResult, '#conjur-core', '', true)
       }
   }
 }
