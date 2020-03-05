@@ -1,4 +1,5 @@
-Then(/^user "(\S+)" is authorized$/) do |username|
+Then(/^(user|host) "(\S+)" is authorized$/) do |role_type, username|
+  username = role_type == "user" ? username : "host/#{username}"
   expect(retrieved_access_token.username).to eq(username)
 end
 

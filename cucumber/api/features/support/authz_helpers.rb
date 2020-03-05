@@ -33,6 +33,12 @@ module AuthzHelpers
 
     @resources[resource_id] = @current_resource
   end
+
+  def set_annotation_to_resource(name, value, resource = @current_resource)
+    unless resource.annotations.find { |a| a.values[:name] == name }
+      resource.add_annotation name: name, value: value
+    end
+  end
 end
 
 World(AuthzHelpers)
