@@ -77,8 +77,8 @@ module PolicyHelpers
   end
 
   def admin_password
-    ENV['CONJUR_AUTHN_API_KEY'] || begin
-      raise StandardError.new('Environment variable `CONJUR_AUTHN_API_KEY` must be set.')
+    ENV['CONJUR_MICAH_PW'] || begin
+      raise StandardError.new('Environment variable `CONJUR_MICAH_PW` must be set.')
     end
   end
 

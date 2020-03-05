@@ -116,8 +116,6 @@ docker-compose exec conjur conjurctl account create cucumber || true
 #   2. rake authn_local:run
 #   3. rake expiration:watch (for rotatation, only on master node)
 
-exit 
-
 echo "Starting Conjur server"
 docker-compose exec -d conjur conjurctl server
 
