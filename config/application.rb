@@ -72,6 +72,10 @@ module Possum
         /^\/$/
       ]
 
+        # # require 'pry'
+        # # binding.pry
+    # ActionDispatch::Request.parameter_parsers={}
+
     def self.is_asset_precompile?
       /assets:precompile/.match?(ARGV.join(' '))
     end

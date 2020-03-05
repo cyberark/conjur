@@ -75,12 +75,12 @@ Feature: Secrets can be managed through policies.
       privileges: [ read, update ]
       role: !group secrets-updaters
     """
-    And I log in as user "alice"
+    And I log in as user "bob"
+    Then I can add a secret to variable resource "db-password"
+    And I can not fetch a secret from variable resource "db-password"
+    When I log in as user "alice"
     Then I can not add a secret to variable resource "db-password"
     And I can fetch a secret from variable resource "db-password"
-    And I log in as user "bob"
-    And I can add a secret to variable resource "db-password"
-    And I can not fetch a secret from variable resource "db-password"
 
   Scenario: Defining secrets which are available to a Layer
 
