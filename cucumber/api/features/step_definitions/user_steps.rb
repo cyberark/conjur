@@ -18,6 +18,12 @@ Given(/^I have user "([^"]*)"$/) do |login|
   end
 end
 
+Given(/^I have host "([^"]*)"$/) do |login|
+  unless host_exists?(login)
+    create_host login, @current_user || admin_user
+  end
+end
+
 Given(/^I create a new admin-owned user "(.*?)"$/) do |login|
   create_user login, admin_user
 end

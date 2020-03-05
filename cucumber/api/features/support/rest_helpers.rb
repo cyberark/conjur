@@ -135,12 +135,26 @@ module RestHelpers
     JSON.pretty_generate(@result)
   end
 
-  def users
-    @users ||= {}
+  def roles
+    @roles ||= {}
+  end
+
+  def lookup_host login, account = 'cucumber'
+    roleid = "#{account}:host:#{login}"
+    lookup_role roleid
   end
 
   def lookup_user login, account = 'cucumber'
     roleid = "#{account}:user:#{login}"
+    lookup_role roleid
+  end
+
+  def lookup_group login, account = 'cucumber'
+    roleid = "#{account}:group:#{login}"
+    lookup_role roleid
+  end
+
+  def lookup_role roleid
     existing = begin
                  Role[roleid]
                rescue
@@ -148,12 +162,12 @@ module RestHelpers
                end
     if existing
       Credentials.new(role: existing).save unless existing.credentials
-      users[login] = existing
+      roles[roleid] = existing
       existing
     else
-      users[login]
-    end.tap do |user|
-      raise "No such user '#{login}'" unless user
+      roles[roleid]
+    end.tap do |role|
+      raise "No such role '#{roleid}'" unless role
     end
   end
 
@@ -173,18 +187,37 @@ module RestHelpers
       @user_index += 1
     end
 
-    return if users[login]
-
     roleid = "cucumber:user:#{login}"
-    Role.create(role_id: roleid).tap do |user|
-      Credentials[role: user] || Credentials.new(role: user).save(raise_on_save_failure: true)
+    create_role(roleid, owner)
+  end
+
+  # Create a regular host, owned by the admin user
+  def create_host login, owner
+    unless login
+      login = USER_NAMES[@user_index]
+      @user_index += 1
+    end
+
+    roleid = "cucumber:host:#{login}"
+    create_role(roleid, owner)
+  end
+
+  def create_role roleid, owner
+    return if roles[roleid]
+    Role.create(role_id: roleid).tap do |role|
+      Credentials[role: role] || Credentials.new(role: role).save(raise_on_save_failure: true)
       Resource.create(resource_id: roleid, owner: owner)
-      users[login] = user
+      roles[roleid] = role
     end
   end
 
   def user_exists? login
     roleid = "cucumber:user:#{login}"
+    Role[role_id: roleid]
+  end
+
+  def host_exists? login
+    roleid = "cucumber:host:#{login}"
     Role[role_id: roleid]
   end
 
@@ -252,7 +285,7 @@ module RestHelpers
       patterns['resource_id'] = @current_resource.identifier
       patterns['resource_kind'] = @current_resource.kind
     end
-    users.each do |key, val|
+    roles.each do |key, val|
       patterns["#{key}_api_key"] = val.credentials.api_key
     end
     patterns.each do |key, val|
