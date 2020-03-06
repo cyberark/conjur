@@ -77,9 +77,11 @@ module PolicyHelpers
   end
 
   def admin_password
-    ENV['CONJUR_MICAH_PW'] || begin
-      raise StandardError.new('Environment variable `CONJUR_MICAH_PW` must be set.')
-    end
+    'SEcret12!!!!'
+    # TODO: see note in hooks
+    # ENV['CONJUR_MICAH_PW'] || begin
+    #   raise StandardError.new('Environment variable `CONJUR_MICAH_PW` must be set.')
+    # end
   end
 
   def login_as_role login, api_key = nil
