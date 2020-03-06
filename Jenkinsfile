@@ -52,9 +52,9 @@ pipeline {
         // stage('Authenticators') {
         //   steps { sh 'ci/test cucumber_authenticators' }
         // }
-        stage('Policy') {
-          steps { sh 'ci/test cucumber_policy' }
-        }
+        // stage('Policy') {
+        //   steps { sh 'ci/test cucumber_policy' }
+        // }
         stage('API') {
           steps { sh 'ci/test cucumber_api' }
         }
