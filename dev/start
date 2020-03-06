@@ -30,41 +30,43 @@ EOF
   exit
 }
 
-function conjur_isready?() {
+conjur_isready() {
   api_key=$(docker-compose exec -T conjur conjurctl \
-  role retrieve-key cucumber:user:admin | tr -d '\r')
+    role retrieve-key cucumber:user:admin | tr -d '\r')
 
   for i in {1..5}
   do
-   sleep=10
-   echo "try login to conjur server:"
-   output=$(docker-compose exec client conjur authn login -u admin -p $api_key | grep "Failed to open TCP connection" | wc -l)
-   if [ $output -eq 0 ]; then
-        echo "conjur server is up and ready"
-        return 0;
-   else
-        echo "conjur not ready yet sleep number $i for $sleep seconds"
-        sleep $sleep
-   fi
+    sleep=10
+    echo "try login to conjur server:"
+
+    if docker-compose exec client conjur authn login -u admin -p "$api_key" \
+      | grep -q "Failed to open TCP connection"; then
+          echo "conjur not ready yet sleep number $i for $sleep seconds"
+          sleep "$sleep"
+        else
+          echo "conjur server is up and ready"
+          return 0
+    fi
   done
   echo "Error with conjur server start or it is too slow"
   return 1
 }
 
-function keycloak_isready?() {
+keycloak_isready() {
   for i in {1..20}
   do
-   sleep=10
-   echo "keycloak starting logs:"
-   echo "$(docker-compose logs oidc-keycloak)"
-   output=$(docker-compose logs oidc-keycloak | grep "started" | wc -l)
-   if [ $output -ne 0 ]; then
-        echo "Keycloak server is up and ready"
-        return 0;
-   else
-        echo "Keycloak not ready yet sleep number $i for $sleep seconds"
-        sleep $sleep
-   fi
+    sleep=10
+
+    echo "keycloak starting logs:"
+    docker-compose logs oidc-keycloak
+
+    if docker-compose logs oidc-keycloak | grep -q "started"; then
+      echo "Keycloak server is up and ready"
+      return 0;
+    else
+      echo "Keycloak not ready yet sleep number $i for $sleep seconds"
+      sleep $sleep
+    fi
   done
   echo "Error with keycloak server start or it is too slow"
   return 1
@@ -103,7 +105,8 @@ if [ ! -f data_key ]; then
 	openssl rand -base64 32 > data_key
 fi
 
-export CONJUR_DATA_KEY="$(cat data_key)"
+CONJUR_DATA_KEY="$(< data_key)"
+export CONJUR_DATA_KEY
 
 services="pg conjur client"
 docker-compose up -d --no-deps $services
@@ -120,7 +123,7 @@ echo "Starting Conjur server"
 docker-compose exec -d conjur conjurctl server
 
 echo 'Checking if Conjur server is ready'
-conjur_isready?
+conjur_isready
 
 enabled_authenticators="authn,authn-config/env"
 
@@ -168,10 +171,10 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   # Start conjur again, since it is recreating by docker-compose because of dependency with keycloak
   echo "Starting Conjur server"
   docker-compose exec -d conjur conjurctl server
-  conjur_isready?
+  conjur_isready
 
   # Check if keycloak is up
-  keycloak_isready?
+  keycloak_isready
 
   echo "Initialize keycloak certificate in conjur server"
   docker-compose exec conjur /src/conjur-server/ci/authn-oidc/keycloak/fetchCertificate
