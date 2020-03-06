@@ -46,27 +46,27 @@ pipeline {
 
     stage('Run Tests') {
       parallel {
-        stage('RSpec') {
-          steps { sh 'ci/test rspec' }
-        }
-        stage('Authenticators') {
-          steps { sh 'ci/test cucumber_authenticators' }
-        }
+        // stage('RSpec') {
+        //   steps { sh 'ci/test rspec' }
+        // }
+        // stage('Authenticators') {
+        //   steps { sh 'ci/test cucumber_authenticators' }
+        // }
         stage('Policy') {
           steps { sh 'ci/test cucumber_policy' }
         }
         stage('API') {
           steps { sh 'ci/test cucumber_api' }
         }
-        stage('Rotators') {
-          steps { sh 'ci/test cucumber_rotators' }
-        }
-        stage('Kubernetes 1.7 in GKE') {
-          steps { sh 'cd ci/authn-k8s && summon ./test.sh gke' }
-        }
-        stage('Audit') {
-          steps { sh 'ci/test rspec_audit'}
-        }
+        // stage('Rotators') {
+        //   steps { sh 'ci/test cucumber_rotators' }
+        // }
+        // stage('Kubernetes 1.7 in GKE') {
+        //   steps { sh 'cd ci/authn-k8s && summon ./test.sh gke' }
+        // }
+        // stage('Audit') {
+        //   steps { sh 'ci/test rspec_audit'}
+        // }
       }
       post {
         always {
