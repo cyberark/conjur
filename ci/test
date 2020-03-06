@@ -157,7 +157,13 @@ _build_conjur() (
   version_tag
 )
 
+function docker_diagnostics {
+  for container_id in $(docker ps -a | grep $COMPOSE_PROJECT_NAME | awk '{print $NF}'); do echo "CONTAINER: ${container_id}" && docker inspect $container_id; done
+  for container_id in $(docker ps -a | grep $COMPOSE_PROJECT_NAME | awk '{print $NF}'); do echo "CONTAINER: ${container_id}" && docker logs $container_id; done
+}
+
 _finish() {
+  docker_diagnostics
   docker-compose down --rmi 'local' --volumes || true
 }
 
