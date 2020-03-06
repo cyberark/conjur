@@ -22,7 +22,9 @@ RUN apt-get update -y && \
                        libz-dev \
     && rm -rf /var/lib/apt/lists/*
 
+RUN gem install rake
 RUN gem install -N -v 1.17.3 bundler
+RUN gem install http -v4.2.0
 
 WORKDIR /opt/conjur-server
 
