@@ -23,7 +23,9 @@ RUN apt-get update -y && \
     && ln -sf /usr/bin/ruby2.5 /usr/bin/ruby \
     && ln -sf /usr/bin/gem2.5 /usr/bin/gem
 
+RUN gem install rake
 RUN gem install -N -v 1.17.3 bundler
+RUN gem install http -v4.2.0
 
 WORKDIR /opt/conjur-server
 
