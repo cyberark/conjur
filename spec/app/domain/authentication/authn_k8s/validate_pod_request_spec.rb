@@ -90,7 +90,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
     it 'raises WebserviceNotFound error when webservice is missing' do
       allow(pod_request).to receive(:service_id).and_return(bad_service_name)
 
-      expected_message = /Webservice '#{bad_service_name}' wasn't found/
+      expected_message = /Webservice '#{bad_service_name}' not found/
       expect { validator.(pod_request: pod_request) }
         .to raise_error(Errors::Authentication::Security::WebserviceNotFound, expected_message)
     end
