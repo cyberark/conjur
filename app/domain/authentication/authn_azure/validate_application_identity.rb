@@ -132,7 +132,7 @@ module Authentication
       end
 
       def validate_constraint_exists constraint
-        raise Err::MissingConstraint.new(constraint) unless application_identity.constraints[constraint]
+        raise Err::RoleMissingConstraint.new(constraint) unless application_identity.constraints[constraint]
       end
 
       # validates that the application identity doesn't include logical constraint
