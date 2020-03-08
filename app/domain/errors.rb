@@ -84,7 +84,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         WebserviceNotFound = ::Util::TrackableErrorClass.new(
-          msg:  "Webservice '{0-webservice-name}' wasn't found",
+          msg:  "Webservice '{0-webservice-name}' not found",
           code: "CONJ00005E"
         )
 
@@ -94,7 +94,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         RoleNotFound = ::Util::TrackableErrorClass.new(
-          msg:  "'{0-role-name}' wasn't found",
+          msg:  "'{0-role-name}' not found",
           code: "CONJ00007E"
         )
 
@@ -117,12 +117,12 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       module OAuth
 
         ProviderDiscoveryTimeout = ::Util::TrackableErrorClass.new(
-          msg:  "Identity Provider discovery failed with timeout error (Provider URI: '{0}'). Reason: '{1}'",
+          msg:  "Failed to discover Identity Provider with timeout error (Provider URI: '{0}'). Reason: '{1}'",
           code: "CONJ00010E"
         )
 
         ProviderDiscoveryFailed = ::Util::TrackableErrorClass.new(
-          msg:  "Identity Provider discovery failed (Provider URI: '{0}'). Reason: '{1}'",
+          msg:  "Failed to discover Identity Provider (Provider URI: '{0}'). Reason: '{1}'",
           code: "CONJ00011E"
         )
 
@@ -141,12 +141,12 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         TokenDecodeFailed = ::Util::TrackableErrorClass.new(
-          msg:  "Token decode failed (3rdPartyError ='{0}')",
+          msg:  "Failed to decode token (3rdPartyError ='{0}')",
           code: "CONJ00035E"
         )
 
         TokenVerificationFailed = ::Util::TrackableErrorClass.new(
-          msg:  "Token verification failed (3rdPartyError ='{0}')",
+          msg:  "Failed to verify token (3rdPartyError ='{0}')",
           code: "CONJ00015E"
         )
 
@@ -155,7 +155,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       module AuthnOidc
 
         IdTokenFieldNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
-          msg:  "Field '{0-field-name}' not found or empty in ID Token. This field is defined in the id-token-user-property variable.",
+          msg:  "Field '{0-field-name}' not found or empty in ID token. This field is defined in the id-token-user-property variable.",
           code: "CONJ00013E"
         )
 
@@ -283,7 +283,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         InvalidApplicationIdentity = ::Util::TrackableErrorClass.new(
-          msg:  "Application identity field '{0-field-name}' does not match what is provided in Azure token",
+          msg:  "Application identity field '{0-field-name}' does not match application identity in Azure token",
           code: "CONJ00049E"
         )
 

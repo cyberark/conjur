@@ -52,7 +52,7 @@ unless defined? LogMessages::Authentication::OriginValidated
         )
 
         ValidateProviderKeysAreUpdated = ::Util::TrackableLogMessageClass.new(
-          msg:  "Validating Identity Provider keys are up to date",
+          msg:  "Validating that Identity Provider keys are up to date",
           code: "CONJ00019D"
         )
 
@@ -61,7 +61,7 @@ unless defined? LogMessages::Authentication::OriginValidated
       module Jwt
 
         TokenDecodeSuccess = ::Util::TrackableLogMessageClass.new(
-          msg:  "Token decode succeeded",
+          msg:  "Token decoded successfully",
           code: "CONJ00005D"
         )
 
@@ -75,7 +75,7 @@ unless defined? LogMessages::Authentication::OriginValidated
       module AuthnOidc
 
         ExtractedUsernameFromIDToked = ::Util::TrackableLogMessageClass.new(
-          msg:  "Extracted username '{0}' from ID Token field '{1-id-token-username-field}'",
+          msg:  "Extracted username '{0}' from ID token field '{1-id-token-username-field}'",
           code: "CONJ00004D"
         )
 
@@ -132,7 +132,7 @@ unless defined? LogMessages::Authentication::OriginValidated
       module AuthnAzure
 
         ExtractedApplicationIdentityFromToken = ::Util::TrackableLogMessageClass.new(
-          msg:  "Extracted application identity from Token",
+          msg:  "Extracted application identity from token",
           code: "CONJ00029D"
         )
 
