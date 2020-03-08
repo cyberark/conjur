@@ -5,7 +5,7 @@
 
 require 'net/ssh'
 
-module MachineHelpers
+module SshHelpers
 
   def run_command_in_machine(machine_ip, machine_username, machine_password, command)
     ssh = Net::SSH.start(machine_ip, machine_username, :password => machine_password)
@@ -15,4 +15,4 @@ module MachineHelpers
   end
 end
 
-World(MachineHelpers)
+World(SshHelpers)
