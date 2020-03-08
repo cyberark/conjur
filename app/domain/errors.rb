@@ -277,13 +277,13 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
 
       module AuthnAzure
 
-        MissingConstraint = ::Util::TrackableErrorClass.new(
+        RoleMissingConstraint = ::Util::TrackableErrorClass.new(
           msg:  "Role does not have the required constraint: {0-constraint}",
-          code: "CONJ00045E"
+          code: "CONJ00057E"
         )
 
         InvalidApplicationIdentity = ::Util::TrackableErrorClass.new(
-          msg:  "Application identity field '{0-field-name}' does not match what is provided in Azure token",
+          msg:  "Application identity field '{0-field-name}' does not match application identity in Azure token",
           code: "CONJ00049E"
         )
 

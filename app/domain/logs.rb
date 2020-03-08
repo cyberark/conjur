@@ -132,7 +132,7 @@ unless defined? LogMessages::Authentication::OriginValidated
       module AuthnAzure
 
         ExtractedApplicationIdentityFromToken = ::Util::TrackableLogMessageClass.new(
-          msg:  "Extracted application identity from Token",
+          msg:  "Extracted application identity from token",
           code: "CONJ00029D"
         )
 
