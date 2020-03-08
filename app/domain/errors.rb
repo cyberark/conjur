@@ -277,7 +277,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
 
       module AuthnAzure
 
-        MissingConstraint = ::Util::TrackableErrorClass.new(
+        RoleMissingConstraint = ::Util::TrackableErrorClass.new(
           msg:  "Role does not have the required constraint: {0-constraint}",
           code: "CONJ00045E"
         )
