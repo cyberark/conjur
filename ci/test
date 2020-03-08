@@ -30,12 +30,33 @@ all() {
   done
 }
 
-cucumber_authenticators() {
-  : DOC - Runs Cucumber Authenticator features
+cucumber_authenticators_config() {
+  : DOC - Runs Cucumber Authenticator configuration features
 
-  _prepare_env_auth_oidc
+  _run_cucumber_tests authenticators_config
+}
+
+cucumber_authenticators_status() {
+  : DOC - Runs Cucumber Authenticator status features
+
+  _run_cucumber_tests authenticators_status
+}
+
+cucumber_authenticators_ldap() {
+  : DOC - Runs Cucumber LDAP Authenticator features
+
   _prepare_env_auth_ldap
-  _run_cucumber_tests authenticators 'oidc-keycloak ldap-server' "$(get_oidc_env_args)"
+  _run_cucumber_tests authenticators_ldap 'ldap-server'
+}
+
+cucumber_authenticators_oidc() {
+  : DOC - Runs Cucumber OIDC Authenticator features
+
+  # We also run an ldap-server container for testing the OIDC & LDAP combined use-case.
+  # Note: We can't run the above use-case in a separate Jenkins step because we'll have a port bind for keycloak
+  _prepare_env_auth_ldap
+  _prepare_env_auth_oidc
+  _run_cucumber_tests authenticators_oidc 'ldap-server oidc-keycloak' "$(get_oidc_env_args)"
 }
 
 get_oidc_env_args() {
