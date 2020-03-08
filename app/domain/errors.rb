@@ -51,7 +51,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
 
       IllegalConstraintCombinations = ::Util::TrackableErrorClass.new(
         msg:  "Application identity includes an illegal resource constraint combination - '{0-constraints}'",
-        code: "CONJ00044E"
+        code: "CONJ00055E"
       )
 
       module AuthenticatorClass
