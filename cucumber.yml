@@ -8,7 +8,20 @@ api: >
   -r cucumber/api
   cucumber/api
 
-authenticators: >
+authenticators_config: >
+  --format pretty
+  -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/authenticators_common
+  -r cucumber/authenticators_config
+  cucumber/authenticators_config
+
+authenticators_status: >
   --format pretty
   -r cucumber/api/features/support/rest_helpers.rb
   -r cucumber/api/features/step_definitions/request_steps.rb
@@ -19,8 +32,43 @@ authenticators: >
   -r cucumber/api/features/step_definitions/authz_steps.rb
   -r cucumber/policy/features/support/policy_helpers.rb
   -r cucumber/policy/features/step_definitions/policy_steps.rb
-  -r cucumber/authenticators
-  cucumber/authenticators
+  -r cucumber/authenticators_common
+  -r cucumber/authenticators_oidc
+  -r cucumber/authenticators_status
+  cucumber/authenticators_status
+
+authenticators_ldap: >
+  --format pretty
+  -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/api/features/support/authz_helpers.rb
+  -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/authenticators_common
+  -r cucumber/authenticators_ldap
+  cucumber/authenticators_ldap
+
+authenticators_oidc: >
+  --format pretty
+  -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/api/features/support/authz_helpers.rb
+  -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/authenticators_common
+  -r cucumber/authenticators_ldap/features/support/authn_ldap_helper.rb
+  -r cucumber/authenticators_ldap/features/step_definitions/authn_ldap_steps.rb
+  -r cucumber/authenticators_status/features/step_definitions/authn_status_steps.rb
+  -r cucumber/authenticators_oidc
+  cucumber/authenticators_oidc
 
 # NOTE: We have to require the needed files from "api" individually, because
 #       if you mass require the folder it includes "api"s env.rb, which screws

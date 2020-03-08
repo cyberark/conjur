@@ -49,8 +49,17 @@ pipeline {
         stage('RSpec') {
           steps { sh 'ci/test rspec' }
         }
-        stage('Authenticators') {
-          steps { sh 'ci/test cucumber_authenticators' }
+        stage('Authenticators Config') {
+          steps { sh 'ci/test cucumber_authenticators_config' }
+        }
+        stage('Authenticators Status') {
+          steps { sh 'ci/test cucumber_authenticators_status' }
+        }
+        stage('LDAP Authenticator') {
+          steps { sh 'ci/test cucumber_authenticators_ldap' }
+        }
+        stage('OIDC Authenticator') {
+          steps { sh 'ci/test cucumber_authenticators_oidc' }
         }
         stage('Policy') {
           steps { sh 'ci/test cucumber_policy' }
