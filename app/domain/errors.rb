@@ -46,7 +46,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
 
       StatusNotImplemented = ::Util::TrackableErrorClass.new(
         msg:  "Status check not implemented for authenticator '{0-authenticator-name}'",
-        code: "CONJ00045E"
+        code: "CONJ00056E"
       )
 
       IllegalConstraintCombinations = ::Util::TrackableErrorClass.new(
@@ -279,7 +279,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
 
         RoleMissingConstraint = ::Util::TrackableErrorClass.new(
           msg:  "Role does not have the required constraint: {0-constraint}",
-          code: "CONJ00045E"
+          code: "CONJ00057E"
         )
 
         InvalidApplicationIdentity = ::Util::TrackableErrorClass.new(
