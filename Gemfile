@@ -86,6 +86,7 @@ group :development, :test do
   gem 'cucumber'
   gem 'database_cleaner'
   gem 'json_spec'
+  gem 'net-ssh'
   gem 'parallel'
   gem 'pry-byebug'
   gem 'pry-rails'
