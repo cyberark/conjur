@@ -1,5 +1,19 @@
 Feature: Authenticator status check
 
+  Conjur supports a Status check where users can get immediate feedback
+  on authenticator configuration.
+
+  The Status check includes general checks (webservice is loaded, user is authorized
+  to check the Authenticator status, etc.) and authenticator-specific checks (e.g in
+  OIDC we check that the `provider-uri` variable is loaded and has a value).
+
+  Scenarios in this file test only the general checks. Authenticator specific checks
+  should go in a separate file (e.g authn_status_oidc.feature).
+
+  We use the OIDC authenticator in these scenarios as an authenticator that
+  implements the Status check but all these test are not OIDC-specific and do
+  not require a running OIDC Provider in order to run.
+
   Scenario: An unauthorized user is responded with 403
     Given a policy:
     """
