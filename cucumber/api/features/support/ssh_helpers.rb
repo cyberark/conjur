@@ -1,10 +1,8 @@
 # frozen_string_literal: true
-#
-# Utility methods for performing actions in remote machines
-#
 
 require 'net/ssh'
 
+# Utility methods for performing actions in remote machines
 module SshHelpers
 
   def run_command_in_machine(machine_ip, machine_username, machine_password, command)
