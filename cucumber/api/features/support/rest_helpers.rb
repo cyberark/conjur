@@ -143,7 +143,7 @@ module RestHelpers
     roleid = "#{account}:user:#{login}"
     existing = begin
                  Role[roleid]
-               rescue StandardError
+               rescue
                  nil
                end
     if existing

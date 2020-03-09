@@ -12,7 +12,6 @@ module AuthnLdapHelper
   end
 
   def authenticate_with_ldap(service_id:, account:, username:, api_key:)
-    # TODO fix this the right way
     path = "#{conjur_hostname}/authn-ldap/#{service_id}/#{account}/#{username}/authenticate"
     post(path, api_key)
   end

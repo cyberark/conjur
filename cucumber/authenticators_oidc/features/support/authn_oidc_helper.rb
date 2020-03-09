@@ -1,7 +1,6 @@
 # frozen_string_literal: true
-#
+
 # Utility methods for OIDC authenticator
-#
 
 module AuthnOidcHelper
   include AuthenticatorHelpers
@@ -66,7 +65,7 @@ module AuthnOidcHelper
 
   def parse_oidc_id_token
     @oidc_id_token = (JSON.parse @response_body)["id_token"]
-  rescue Exception => err
+  rescue => err
     raise "Failed to fetch id_token from HTTP response: #{@response_body} with Reason: #{err}"
   end
 end
