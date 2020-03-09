@@ -160,7 +160,7 @@ module Authentication
 
       def role
         @role ||= @resource_class[role_id].tap do |role|
-          raise raise Errors::Authentication::Security::RoleNotFound(role_id) unless role
+          raise Errors::Authentication::Security::RoleNotFound, role_id unless role
         end
       end
 
