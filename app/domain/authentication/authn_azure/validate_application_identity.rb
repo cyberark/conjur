@@ -5,7 +5,11 @@ module Authentication
 
     Log = LogMessages::Authentication::AuthnAzure
     Err = Errors::Authentication::AuthnAzure
-    # Possible Errors Raised: RoleNotFound, InvalidApplicationIdentity
+    SecurityErr = Errors::Authentication::Security
+
+    # Possible Errors Raised: RoleNotFound, InvalidApplicationIdentity, XmsMiridParseError,
+    # MissingRequiredFieldsInXmsMirid, MissingProviderFieldsInXmsMirid, MissingConstraint,
+    # IllegalConstraintCombinations
 
     ValidateApplicationIdentity = CommandClass.new(
       dependencies: {
