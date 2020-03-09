@@ -40,4 +40,28 @@ end
 # limit for those when they're printed
 RSpec::Support::ObjectFormatter.default_instance.max_formatted_output_length = 999
 
+def secret_logged?(secret)
+  log_file = './log/test.log'
+
+  # We use grep because doing this pure ruby is slow for large log files.
+  #
+  # We use backticks because we want the exit code for detailed error messages.
+  `grep --quiet '#{secret}' '#{log_file}'`
+  exit_status = ($?).exitstatus
+
+  # Grep exit codes:
+  # 0   - match
+  # 1   - no match
+  # 2   - file not found
+  # 127 - cmd not found, ie, grep missing
+  raise "grep wasn't found" if exit_status == 127
+  raise "log file not found" if exit_status == 2
+  raise "unexpected grep error" if exit_status > 1
+
+  # Remaining possibilities are 0 and 1, secret found or not found.
+  secret_found = exit_status == 0
+  secret_found
+end
+
+
 require 'stringio'
