@@ -99,7 +99,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateAzureAnnotations' do
       context "that are not permitted" do
         subject do
           Authentication::AuthnAzure::ValidateAzureAnnotations.new.call(
-            role_annotations: [invalid_azure_annotation],
+            role_annotations: [subscription_id_annotation, invalid_azure_annotation],
             service_id: good_service_id
           )
         end
@@ -127,7 +127,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateAzureAnnotations' do
       context "that are not permitted" do
         subject do
           Authentication::AuthnAzure::ValidateAzureAnnotations.new.call(
-            role_annotations: [invalid_azure_annotation_service_id_scoped],
+            role_annotations: [subscription_id_annotation_service_id_scoped, invalid_azure_annotation_service_id_scoped],
             service_id: good_service_id
           )
         end

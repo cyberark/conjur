@@ -5,20 +5,21 @@ require 'spec_helper'
 RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
   let(:account) { "account" }
   let(:service_id) { "serviceId" }
-  let(:username) { "host/azureTestVM" }
   let(:hostname) { "azureTestVM" }
+  let(:username) { "host/#{hostname}" }
 
-  let(:resource_class) { double("ResourceClass") }
-  let(:mocked_host) { double "MockHost" }
+  let(:resource_class) { double("Resource") }
+  let(:host) { double ("some-host") }
+  let(:non_existent_host_id) { double ("some-non-existent-host-id") }
+  let(:xms_mirid_token_field_user_assigned_identity) { "/subscriptions/some-subscription-id-value/resourcegroups/some-resource-group-value/providers/Microsoft.ManagedIdentity/userAssignedIdentities/some-user-assigned-identity-value" }
+  let(:xms_mirid_token_field_system_assigned_identity) { "/subscriptions/some-subscription-id-value/resourcegroups/some-resource-group-value/providers/Microsoft.Compute/virtualMachines/some-system-assigned-identity-value" }
 
-  let(:xms_mirid_token_field_user_identity) { "/subscriptions/some-subscription-id-value/resourcegroups/some-resource-group-value/providers/Microsoft.ManagedIdentity/userAssignedIdentities/some-user-assigned-identity-value" }
-  let(:xms_mirid_token_field_system_identity) { "/subscriptions/some-subscription-id-value/resourcegroups/some-resource-group-value/providers/Microsoft.Compute/virtualMachines/some-system-assigned-identity-value" }
-
-  let(:xms_mirid_token_missing_subscription_field) { "/resourcegroups/some-resource-group-value/providers/Microsoft.ManagedIdentity/userAssignedIdentities/some-system-assigned-identity-value" }
+  let(:xms_mirid_token_missing_subscription_id_field) { "/resourcegroups/some-resource-group-value/providers/Microsoft.ManagedIdentity/userAssignedIdentities/some-system-assigned-identity-value" }
   let(:xms_mirid_token_missing_resource_groups_field) { "/subscriptions/some-subscription-id-value/providers/Microsoft.ManagedIdentity/some-user-assigned-identity-value" }
   let(:xms_mirid_token_missing_providers_field) { "/subscriptions/some-subscription-id-value/resourcegroups/some-resource-group-value/" }
+  let(:xms_mirid_token_missing_initial_slash) { "subscriptions/some-subscription-id-value/resourcegroups/some-resource-group-value/providers/Microsoft.ManagedIdentity/userAssignedIdentities/some-system-assigned-identity-value" }
 
-  let(:invalid_xms_mirid_token_provider_field) { "/subscriptions/some-subscription-id-value/resourcegroups/some-resource-group-value/providers/Microsoft.ManagedIdentity/some-user-assigned-identity-value" }
+  let(:invalid_xms_mirid_token_providers_field) { "/subscriptions/some-subscription-id-value/resourcegroups/some-resource-group-value/providers/Microsoft.ManagedIdentity/some-user-assigned-identity-value" }
 
   let(:oid_token_field) { "test-oid" }
 
@@ -27,103 +28,45 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
   let(:user_assigned_identity_annotation) { double("UserAssignedIdentityAnnotation") }
   let(:system_assigned_identity_annotation) { double("SystemAssignedIdentityAnnotation") }
 
-  let(:mismatched_subscription_id_annotation) { double ("MismatchedSubscriptionIdAnnotation") }
-  let(:mismatched_resource_group_annotation) { double ("MismatchedResourceGroupAnnotation") }
-  let(:mismatched_system_assigned_identity_annotation) { double ("MismatchedSystemAssignedAnnotation") }
-  let(:mismatched_user_assigned_identity_annotation) { double ("MismatchedUserAssignedAnnotation") }
+  let(:mismatched_subscription_id_annotation) { double("MismatchedSubscriptionIdAnnotation") }
+  let(:mismatched_resource_group_annotation) { double("MismatchedResourceGroupAnnotation") }
+  let(:mismatched_system_assigned_identity_annotation) { double("MismatchedSystemAssignedAnnotation") }
+  let(:mismatched_user_assigned_identity_annotation) { double("MismatchedUserAssignedAnnotation") }
 
-  let(:invalid_azure_annotation) { double ("InvalidAzureAnnotation") }
   let(:validate_azure_annotations) { double("ValidateAzureAnnotations") }
 
+  def mock_annotation_builder(host_annotation_type, host_annotation_key, host_annotation_value)
+    allow(host_annotation_type).to receive(:values)
+                     .and_return(host_annotation_type)
+    allow(host_annotation_type).to receive(:[])
+                     .with(:name)
+                     .and_return(host_annotation_key)
+    allow(host_annotation_type).to receive(:[])
+                     .with(:value)
+                     .and_return(host_annotation_value)
+  end
+
   before(:each) do
-    allow(mocked_host).to receive(:annotations)
-                            .and_return([subscription_id_annotation, resource_group_annotation])
-
-    allow(subscription_id_annotation).to receive(:values)
-                                           .and_return(subscription_id_annotation)
-    allow(subscription_id_annotation).to receive(:[])
-                                           .with(:name)
-                                           .and_return("authn-azure/subscription-id")
-    allow(subscription_id_annotation).to receive(:[])
-                                           .with(:value)
-                                           .and_return("some-subscription-id-value")
-
-    allow(resource_group_annotation).to receive(:values)
-                                          .and_return(resource_group_annotation)
-    allow(resource_group_annotation).to receive(:[])
-                                          .with(:name)
-                                          .and_return("authn-azure/resource-group")
-    allow(resource_group_annotation).to receive(:[])
-                                          .with(:value)
-                                          .and_return("some-resource-group-value")
-
-    allow(user_assigned_identity_annotation).to receive(:values)
-                                                  .and_return(user_assigned_identity_annotation)
-    allow(user_assigned_identity_annotation).to receive(:[])
-                                                  .with(:name)
-                                                  .and_return("authn-azure/user-assigned-identity")
-    allow(user_assigned_identity_annotation).to receive(:[])
-                                                  .with(:value)
-                                                  .and_return("some-user-assigned-identity-value")
-
-    allow(system_assigned_identity_annotation).to receive(:values)
-                                                    .and_return(system_assigned_identity_annotation)
-    allow(system_assigned_identity_annotation).to receive(:[])
-                                                    .with(:name)
-                                                    .and_return("authn-azure/system-assigned-identity")
-    allow(system_assigned_identity_annotation).to receive(:[])
-                                                    .with(:value)
-                                                    .and_return(oid_token_field)
-
-    allow(mismatched_subscription_id_annotation).to receive(:values)
-                                                      .and_return(mismatched_subscription_id_annotation)
-    allow(mismatched_subscription_id_annotation).to receive(:[])
-                                                      .with(:name)
-                                                      .and_return("authn-azure/subscription-id")
-    allow(mismatched_subscription_id_annotation).to receive(:[])
-                                                      .with(:value)
-                                                      .and_return("mismatched-subscription-id")
-
-    allow(mismatched_resource_group_annotation).to receive(:values)
-                                                     .and_return(mismatched_resource_group_annotation)
-    allow(mismatched_resource_group_annotation).to receive(:[])
-                                                     .with(:name)
-                                                     .and_return("authn-azure/resource-group")
-    allow(mismatched_resource_group_annotation).to receive(:[])
-                                                     .with(:value)
-                                                     .and_return("mismatched-resource-group")
-
-    allow(mismatched_system_assigned_identity_annotation).to receive(:values)
-                                                               .and_return(mismatched_system_assigned_identity_annotation)
-    allow(mismatched_system_assigned_identity_annotation).to receive(:[])
-                                                               .with(:name)
-                                                               .and_return("authn-azure/system-assigned-identity")
-    allow(mismatched_system_assigned_identity_annotation).to receive(:[])
-                                                               .with(:value)
-                                                               .and_return("mismatched-system-assigned-identity")
-
-    allow(mismatched_user_assigned_identity_annotation).to receive(:values)
-                                                             .and_return(mismatched_user_assigned_identity_annotation)
-    allow(mismatched_user_assigned_identity_annotation).to receive(:[])
-                                                             .with(:name)
-                                                             .and_return("authn-azure/user-assigned-identity")
-    allow(mismatched_user_assigned_identity_annotation).to receive(:[])
-                                                             .with(:value)
-                                                             .and_return("mismatched-user-assigned-identity")
-
-    allow(invalid_azure_annotation).to receive(:values)
-                                         .and_return(subscription_id_annotation)
-    allow(invalid_azure_annotation).to receive(:[])
-                                         .with(:name)
-                                         .and_return("authn-azure/test")
+    allow(host).to receive(:annotations)
+                     .and_return([subscription_id_annotation, resource_group_annotation])
 
     allow(validate_azure_annotations).to receive(:call)
                                            .and_return(true)
 
     allow(resource_class).to receive(:[])
                                .with("#{account}:host:#{hostname}")
-                               .and_return(mocked_host)
+                               .and_return(host)
+
+    mock_annotation_builder(subscription_id_annotation,"authn-azure/subscription-id", "some-subscription-id-value")
+    mock_annotation_builder(resource_group_annotation,"authn-azure/resource-group", "some-resource-group-value")
+    mock_annotation_builder(user_assigned_identity_annotation,"authn-azure/user-assigned-identity", "some-user-assigned-identity-value")
+    mock_annotation_builder(system_assigned_identity_annotation,"authn-azure/system-assigned-identity", oid_token_field)
+    mock_annotation_builder(mismatched_subscription_id_annotation, "authn-azure/subscription-id", "mismatched-subscription-id")
+    mock_annotation_builder(mismatched_resource_group_annotation, "authn-azure/resource-group", "mismatched-resource-group")
+    mock_annotation_builder(mismatched_user_assigned_identity_annotation, "authn-azure/user-assigned-identity", "mismatched-user-assigned-identity")
+    mock_annotation_builder(mismatched_system_assigned_identity_annotation, "authn-azure/system-assigned-identity", "mismatched-system-assigned-identity")
   end
+
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
   # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)
@@ -131,7 +74,29 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
   context "A valid xms_mirid claim in the Azure token" do
-    context "A valid application identity" do
+    context "with a valid application identity" do
+      context "and a non-existent Role in Conjur" do
+        before(:each) do
+          allow(resource_class).to receive(:[])
+                                     .and_return(nil)
+        end
+        subject do
+          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+            resource_class:             resource_class,
+            validate_azure_annotations: validate_azure_annotations,
+            ).call(
+            account:               account,
+            service_id:            service_id,
+            username:              username,
+            xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
+            oid_token_field:       oid_token_field
+          )
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(::Errors::Authentication::Security::RoleNotFound)
+        end
+      end
       context "and an Azure token with matching data" do
         context "with no assigned Azure identity in application identity" do
           subject do
@@ -142,7 +107,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
               account:               account,
               service_id:            service_id,
               username:              username,
-              xms_mirid_token_field: xms_mirid_token_field_system_identity,
+              xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
               oid_token_field:       oid_token_field
             )
           end
@@ -154,8 +119,8 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
 
         context "with a user assigned Azure identity in application identity" do
           before(:each) do
-            allow(mocked_host).to receive(:annotations)
-                                    .and_return([subscription_id_annotation, resource_group_annotation, user_assigned_identity_annotation])
+            allow(host).to receive(:annotations)
+                             .and_return([subscription_id_annotation, resource_group_annotation, user_assigned_identity_annotation])
           end
           subject do
             Authentication::AuthnAzure::ValidateApplicationIdentity.new(
@@ -165,7 +130,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
               account:               account,
               service_id:            service_id,
               username:              username,
-              xms_mirid_token_field: xms_mirid_token_field_user_identity,
+              xms_mirid_token_field: xms_mirid_token_field_user_assigned_identity,
               oid_token_field:       oid_token_field
             )
           end
@@ -176,10 +141,6 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
         end
 
         context "with a system assigned Azure identity in application identity" do
-          before(:each) do
-            allow(mocked_host).to receive(:annotations)
-                                    .and_return([subscription_id_annotation, resource_group_annotation, system_assigned_identity_annotation])
-          end
           subject do
             Authentication::AuthnAzure::ValidateApplicationIdentity.new(
               resource_class:             resource_class,
@@ -188,7 +149,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
               account:               account,
               service_id:            service_id,
               username:              username,
-              xms_mirid_token_field: xms_mirid_token_field_system_identity,
+              xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
               oid_token_field:       oid_token_field
             )
           end
@@ -202,8 +163,8 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
       context "and an Azure token with non-matching data" do
         context "where the subscription id does not match the application identity" do
           before(:each) do
-            allow(mocked_host).to receive(:annotations)
-                                    .and_return([mismatched_subscription_id_annotation, resource_group_annotation])
+            allow(host).to receive(:annotations)
+                             .and_return([mismatched_subscription_id_annotation, resource_group_annotation])
           end
           subject do
             Authentication::AuthnAzure::ValidateApplicationIdentity.new(
@@ -213,7 +174,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
               account:               account,
               service_id:            service_id,
               username:              username,
-              xms_mirid_token_field: xms_mirid_token_field_system_identity,
+              xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
               oid_token_field:       oid_token_field
             )
           end
@@ -224,8 +185,8 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
         end
         context "where the resource group does not match the application identity" do
           before(:each) do
-            allow(mocked_host).to receive(:annotations)
-                                    .and_return([subscription_id_annotation, mismatched_resource_group_annotation])
+            allow(host).to receive(:annotations)
+                             .and_return([subscription_id_annotation, mismatched_resource_group_annotation])
           end
           subject do
             Authentication::AuthnAzure::ValidateApplicationIdentity.new(
@@ -235,7 +196,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
               account:               account,
               service_id:            service_id,
               username:              username,
-              xms_mirid_token_field: xms_mirid_token_field_system_identity,
+              xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
               oid_token_field:       oid_token_field
             )
           end
@@ -247,8 +208,8 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
 
         context "where the user assigned identity does not match the application identity" do
           before(:each) do
-            allow(mocked_host).to receive(:annotations)
-                                    .and_return([subscription_id_annotation, resource_group_annotation, mismatched_user_assigned_identity_annotation])
+            allow(host).to receive(:annotations)
+                             .and_return([subscription_id_annotation, resource_group_annotation, mismatched_user_assigned_identity_annotation])
           end
           subject do
             Authentication::AuthnAzure::ValidateApplicationIdentity.new(
@@ -258,7 +219,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
               account:               account,
               service_id:            service_id,
               username:              username,
-              xms_mirid_token_field: xms_mirid_token_field_system_identity,
+              xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
               oid_token_field:       oid_token_field
             )
           end
@@ -270,8 +231,8 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
 
         context "where the system assigned identity does not match the application identity" do
           before(:each) do
-            allow(mocked_host).to receive(:annotations)
-                                    .and_return([subscription_id_annotation, resource_group_annotation, mismatched_system_assigned_identity_annotation])
+            allow(host).to receive(:annotations)
+                             .and_return([subscription_id_annotation, resource_group_annotation, mismatched_system_assigned_identity_annotation])
           end
           subject do
             Authentication::AuthnAzure::ValidateApplicationIdentity.new(
@@ -281,7 +242,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
               account:               account,
               service_id:            service_id,
               username:              username,
-              xms_mirid_token_field: xms_mirid_token_field_system_identity,
+              xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
               oid_token_field:       oid_token_field
             )
           end
@@ -294,11 +255,11 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
       end
     end
 
-    context "An invalid application identity" do
+    context "an invalid application identity" do
       context "that does not have required constraints present in annotations" do
         before(:each) do
-          allow(mocked_host).to receive(:annotations)
-                                  .and_return([])
+          allow(host).to receive(:annotations)
+                           .and_return([])
         end
         subject do
           Authentication::AuthnAzure::ValidateApplicationIdentity.new(
@@ -308,19 +269,19 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
             account:               account,
             service_id:            service_id,
             username:              username,
-            xms_mirid_token_field: xms_mirid_token_field_system_identity,
+            xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
             oid_token_field:       oid_token_field
           )
         end
-        it "it raise an error" do
-          expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::MissingConstraint)
+        it "raises an error" do
+          expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::RoleMissingConstraint)
         end
       end
 
       context "that has invalid constraint combination in annotations" do
         before(:each) do
-          allow(mocked_host).to receive(:annotations)
-                                  .and_return([subscription_id_annotation, resource_group_annotation, user_assigned_identity_annotation, system_assigned_identity_annotation])
+          allow(host).to receive(:annotations)
+                           .and_return([subscription_id_annotation, resource_group_annotation, user_assigned_identity_annotation, system_assigned_identity_annotation])
         end
         subject do
           Authentication::AuthnAzure::ValidateApplicationIdentity.new(
@@ -330,7 +291,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
             account:               account,
             service_id:            service_id,
             username:              username,
-            xms_mirid_token_field: xms_mirid_token_field_system_identity,
+            xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
             oid_token_field:       oid_token_field
           )
         end
@@ -342,8 +303,8 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
 
       context "that has invalid Azure annotations" do
         before(:each) do
-          allow(mocked_host).to receive(:annotations)
-                                  .and_return([subscription_id_annotation, resource_group_annotation, system_assigned_identity_annotation])
+          allow(host).to receive(:annotations)
+                           .and_return([subscription_id_annotation, resource_group_annotation, system_assigned_identity_annotation])
 
           allow(validate_azure_annotations).to receive(:call)
                                                  .and_raise('FAKE_VALIDATE_APPLICATION_IDENTITY_ERROR')
@@ -356,7 +317,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
             account:               account,
             service_id:            service_id,
             username:              username,
-            xms_mirid_token_field: xms_mirid_token_field_system_identity,
+            xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
             oid_token_field:       oid_token_field
           )
         end
@@ -370,7 +331,25 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
     end
   end
 
-  context "An invalid xms_mirid claim in the Azure token" do
+  context "an invalid xms_mirid claim in the Azure token" do
+    context "that does not begin with a /" do
+      subject do
+        Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+          resource_class:             resource_class,
+          validate_azure_annotations: validate_azure_annotations,
+        ).call(
+          account:               account,
+          service_id:            service_id,
+          username:              username,
+          xms_mirid_token_field: xms_mirid_token_missing_initial_slash,
+          oid_token_field:       oid_token_field
+        )
+      end
+      it "does not raise an error" do
+        expect { subject }.to_not raise_error
+      end
+    end
+
     context "that is missing subscriptions field in xms_mirid" do
       subject do
         Authentication::AuthnAzure::ValidateApplicationIdentity.new(
@@ -380,7 +359,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
           account:               account,
           service_id:            service_id,
           username:              username,
-          xms_mirid_token_field: xms_mirid_token_missing_subscription_field,
+          xms_mirid_token_field: xms_mirid_token_missing_subscription_id_field,
           oid_token_field:       oid_token_field
         )
       end
@@ -437,11 +416,11 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
           account:               account,
           service_id:            service_id,
           username:              username,
-          xms_mirid_token_field: invalid_xms_mirid_token_provider_field,
+          xms_mirid_token_field: invalid_xms_mirid_token_providers_field,
           oid_token_field:       oid_token_field
         )
       end
-      it "it raise an error" do
+      it "raises an error" do
         expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::MissingProviderFieldsInXmsMirid)
       end
     end
