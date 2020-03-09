@@ -5,7 +5,6 @@ module Authentication
 
     Log = LogMessages::Authentication::AuthnAzure
     Err = Errors::Authentication::AuthnAzure
-    SecurityErr = Errors::Authentication::Security
 
     # Possible Errors Raised: RoleNotFound, InvalidApplicationIdentity, XmsMiridParseError,
     # MissingRequiredFieldsInXmsMirid, MissingProviderFieldsInXmsMirid, MissingConstraint,
@@ -161,7 +160,7 @@ module Authentication
 
       def role
         @role ||= @resource_class[role_id].tap do |role|
-          raise SecurityErr::RoleNotFound(role_id) unless role
+          raise raise Errors::Authentication::Security::RoleNotFound(role_id) unless role
         end
       end
 
