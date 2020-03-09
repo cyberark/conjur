@@ -11,8 +11,9 @@ module AuthenticatorHelpers
   )
 
   def validated_env_var(var)
-    raise MissingEnvVariable, var if ENV[var].blank?
-    ENV[var]
+    ENV[var].tap do |env_var_value|
+      raise MissingEnvVariable, var if env_var_value.blank?
+    end
   end
 
   # Mostly to document the mutable variables that are in play.
@@ -61,8 +62,7 @@ module AuthenticatorHelpers
   end
 
   def load_root_policy(policy)
-    conjur_api.load_policy('root', policy,
-                           method: Conjur::API::POLICY_METHOD_PUT)
+    conjur_api.load_policy('root', policy, method: Conjur::API::POLICY_METHOD_PUT)
   end
 
   def get(path, options = {})
@@ -83,7 +83,6 @@ module AuthenticatorHelpers
     result             = RestClient.post(path, payload, options)
     @response_body     = result.body
     @http_status       = result.code
-
   rescue RestClient::Exception => err
     @rest_client_error = err
     @http_status       = err.http_code
@@ -94,7 +93,6 @@ module AuthenticatorHelpers
     result             = RestClient::Request.execute(method: method, url: path, payload: payload, **options)
     @response_body     = result.body
     @http_status       = result.code
-
   rescue RestClient::Exception => err
     @rest_client_error = err
     @http_status       = err.http_code
@@ -122,7 +120,8 @@ module AuthenticatorHelpers
   def api_for(username, api_key = nil)
     api_key = admin_api_key if username == 'admin'
     api_key ||= Conjur::API.new_from_key('admin', admin_api_key).role(
-                  full_username(username)).rotate_api_key
+      full_username(username)
+    ).rotate_api_key
     Conjur::API.new_from_key(username, api_key)
   end
 
