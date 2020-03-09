@@ -8,6 +8,10 @@ api: >
   -r cucumber/api
   cucumber/api
 
+# NOTE: the directory '_authenticators_common' needs to start with an underscore
+#       so every authenticator directory is below it in the hierarchy. If the authenticator
+#       directory is above it (e.g authenticators_azure is above authenticators_common)
+#       then we will not be able to load the methods defined in authenticators_common
 authenticators_config: >
   --format pretty
   -r cucumber/api/features/support/rest_helpers.rb
@@ -17,7 +21,7 @@ authenticators_config: >
   -r cucumber/api/features/step_definitions/logs_steps.rb
   -r cucumber/policy/features/support/policy_helpers.rb
   -r cucumber/policy/features/step_definitions/policy_steps.rb
-  -r cucumber/authenticators_common
+  -r cucumber/_authenticators_common
   -r cucumber/authenticators_config
   cucumber/authenticators_config
 
@@ -32,7 +36,7 @@ authenticators_status: >
   -r cucumber/api/features/step_definitions/authz_steps.rb
   -r cucumber/policy/features/support/policy_helpers.rb
   -r cucumber/policy/features/step_definitions/policy_steps.rb
-  -r cucumber/authenticators_common
+  -r cucumber/_authenticators_common
   -r cucumber/authenticators_status
   cucumber/authenticators_status
 
@@ -47,7 +51,7 @@ authenticators_ldap: >
   -r cucumber/api/features/step_definitions/authz_steps.rb
   -r cucumber/policy/features/support/policy_helpers.rb
   -r cucumber/policy/features/step_definitions/policy_steps.rb
-  -r cucumber/authenticators_common
+  -r cucumber/_authenticators_common
   -r cucumber/authenticators_ldap
   cucumber/authenticators_ldap
 
@@ -62,7 +66,7 @@ authenticators_oidc: >
   -r cucumber/api/features/step_definitions/authz_steps.rb
   -r cucumber/policy/features/support/policy_helpers.rb
   -r cucumber/policy/features/step_definitions/policy_steps.rb
-  -r cucumber/authenticators_common
+  -r cucumber/_authenticators_common
   -r cucumber/authenticators_ldap/features/support/authn_ldap_helper.rb
   -r cucumber/authenticators_ldap/features/step_definitions/authn_ldap_steps.rb
   -r cucumber/authenticators_status/features/step_definitions/authn_status_steps.rb
