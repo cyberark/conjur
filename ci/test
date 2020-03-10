@@ -298,12 +298,12 @@ _run_cucumber() {
 }
 
 _run_cucumber_tests() {
-  local profile="$1"; shift
-  if [[ ! -z "$1" ]]; then
-    local services="$1"; shift
+  local profile="$1"
+  if [[ ! -z "$2" ]]; then
+    local services="$2"
   fi
-  if [[ ! -z "$1" ]]; then
-    local cucumber_env_args="$1"; shift
+  if [[ ! -z "$3" ]]; then
+    local cucumber_env_args="$3"
   fi
   
   _setup_for_cucumber "$services"
