@@ -10,7 +10,7 @@ Feature: Exchange a role's API key for a signed authentication token
     Given I create a new user "alice"
 
   Scenario: A role's API can be used to authenticate
-    Then I can POST "/authn/cucumber/alice/authenticate" with plain text body ":alice_api_key"
+    Then I can POST "/authn/cucumber/alice/authenticate" with plain text body ":cucumber:user:alice_api_key"
     And there is an audit record matching:
     """
       <86>1 * * conjur * authn
@@ -38,7 +38,7 @@ Feature: Exchange a role's API key for a signed authentication token
     with a foreign account.
 
     Given I create a new user "alice" in account "second-account"
-    When I POST "/authn/second-account/alice/authenticate" with plain text body ":alice_api_key"
+    When I POST "/authn/second-account/alice/authenticate" with plain text body ":cucumber:user:alice_api_key"
     Then the HTTP response status code is 401
 
   Scenario: Auth tokens cannot be refreshed

@@ -194,8 +194,8 @@ module RestHelpers
   # Create a regular host, owned by the admin user
   def create_host login, owner
     unless login
-      login = USER_NAMES[@user_index]
-      @user_index += 1
+      login = USER_NAMES[@host_index]
+      @host_index += 1
     end
 
     roleid = "cucumber:host:#{login}"
