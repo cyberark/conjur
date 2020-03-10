@@ -106,7 +106,7 @@ module AuthenticatorHelpers
   private
 
   def admin_password
-    ENV['CONJUR_AUTHN_API_KEY'] || 'admin'
+    'SEcret12!!!!'
   end
 
   def admin_api_key
