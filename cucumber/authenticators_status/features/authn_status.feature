@@ -65,13 +65,21 @@ Feature: Authenticator status check
     And the authenticator status check fails with error "RoleNotAuthorizedOnWebservice: CONJ00006E"
 
   Scenario: An authenticator without an implemented status check returns 501
-    Given I login as "alice"
+    Given a policy:
+    """
+    - !user alice
+    """
+    And I login as "alice"
     When I GET "/authn-ldap/test/cucumber/status"
     Then the HTTP response status code is 501
     And the authenticator status check fails with error "StatusNotImplemented: CONJ00056E"
 
   Scenario: A non-existing authenticator status check returns 404
-    Given I login as "alice"
+    Given a policy:
+    """
+    - !user alice
+    """
+    And I login as "alice"
     When I GET "/authn-nonexist/test/cucumber/status"
     Then the HTTP response status code is 404
     And the authenticator status check fails with error "AuthenticatorNotFound: CONJ00001E"
