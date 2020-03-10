@@ -62,7 +62,7 @@ RSpec.describe Authentication::AuthnAzure::ApplicationIdentity do
       let(:role_annotations) { [] }
 
       it "Returns Hash of the constraint and an empty value" do
-        expect(subject.constraints).to eq({ })
+        expect(subject.constraints).to eq({})
       end
     end
 
@@ -70,7 +70,7 @@ RSpec.describe Authentication::AuthnAzure::ApplicationIdentity do
       let(:role_annotations) { [non_azure_annotation] }
 
       it "Returns empty Hash" do
-        expect(subject.constraints).to eq({ })
+        expect(subject.constraints).to eq({})
       end
     end
   end

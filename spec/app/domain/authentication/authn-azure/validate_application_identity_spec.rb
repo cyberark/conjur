@@ -45,7 +45,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
                                .with("#{account}:host:#{hostname}")
                                .and_return(host)
 
-    define_host_annotation(system_assigned_identity_annotation,"#{global_annotation_type}/system-assigned-identity", oid_token_field)
+    define_host_annotation(system_assigned_identity_annotation, "#{global_annotation_type}/system-assigned-identity", oid_token_field)
     define_host_annotation(mismatched_subscription_id_annotation, "#{global_annotation_type}/subscription-id", "mismatched-subscription-id")
     define_host_annotation(mismatched_resource_group_annotation, "#{global_annotation_type}/resource-group", "mismatched-resource-group")
     define_host_annotation(mismatched_user_assigned_identity_annotation, "#{global_annotation_type}/user-assigned-identity", "mismatched-user-assigned-identity")
@@ -58,29 +58,26 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
   context "A valid xms_mirid claim in the Azure token" do
-    context "with a valid application identity" do
-      context "and a non-existent Role in Conjur" do
-        before(:each) do
-          allow(resource_class).to receive(:[])
-                                     .and_return(nil)
-        end
-        subject do
-          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
-            resource_class:             resource_class,
-            validate_azure_annotations: validate_azure_annotations,
-            ).call(
-            account:               account,
-            service_id:            service_id,
-            username:              username,
-            xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
-            oid_token_field:       oid_token_field
-          )
-        end
 
-        it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::Security::RoleNotFound)
-        end
+    context "that does not begin with a /" do
+      subject do
+        Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+          resource_class:             resource_class,
+          validate_azure_annotations: validate_azure_annotations,
+          ).call(
+          account:               account,
+          service_id:            service_id,
+          username:              username,
+          xms_mirid_token_field: xms_mirid_token_missing_initial_slash,
+          oid_token_field:       oid_token_field
+        )
       end
+      it "does not raise an error" do
+        expect { subject }.to_not raise_error
+      end
+    end
+
+    context "with a valid application identity" do
       context "and an Azure token with matching data" do
         context "with no assigned Azure identity in application identity" do
           subject do
@@ -144,6 +141,29 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
         end
       end
 
+      context "and a non-existent Role in Conjur" do
+        before(:each) do
+          allow(resource_class).to receive(:[])
+                                     .and_return(nil)
+        end
+        subject do
+          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+            resource_class:             resource_class,
+            validate_azure_annotations: validate_azure_annotations,
+          ).call(
+            account:               account,
+            service_id:            service_id,
+            username:              username,
+            xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
+            oid_token_field:       oid_token_field
+          )
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(Errors::Authentication::Security::RoleNotFound)
+        end
+      end
+
       context "and an Azure token with non-matching data" do
         context "where the subscription id does not match the application identity" do
           before(:each) do
@@ -154,7 +174,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
             Authentication::AuthnAzure::ValidateApplicationIdentity.new(
               resource_class:             resource_class,
               validate_azure_annotations: validate_azure_annotations,
-              ).call(
+            ).call(
               account:               account,
               service_id:            service_id,
               username:              username,
@@ -167,6 +187,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
             expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::InvalidApplicationIdentity)
           end
         end
+
         context "where the resource group does not match the application identity" do
           before(:each) do
             allow(host).to receive(:annotations)
@@ -176,7 +197,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
             Authentication::AuthnAzure::ValidateApplicationIdentity.new(
               resource_class:             resource_class,
               validate_azure_annotations: validate_azure_annotations,
-              ).call(
+            ).call(
               account:               account,
               service_id:            service_id,
               username:              username,
@@ -199,7 +220,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
             Authentication::AuthnAzure::ValidateApplicationIdentity.new(
               resource_class:             resource_class,
               validate_azure_annotations: validate_azure_annotations,
-              ).call(
+            ).call(
               account:               account,
               service_id:            service_id,
               username:              username,
@@ -222,7 +243,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
             Authentication::AuthnAzure::ValidateApplicationIdentity.new(
               resource_class:             resource_class,
               validate_azure_annotations: validate_azure_annotations,
-              ).call(
+            ).call(
               account:               account,
               service_id:            service_id,
               username:              username,
@@ -235,8 +256,8 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
             expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::InvalidApplicationIdentity)
           end
         end
-
       end
+
     end
 
     context "an invalid application identity" do
@@ -249,7 +270,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
           Authentication::AuthnAzure::ValidateApplicationIdentity.new(
             resource_class:             resource_class,
             validate_azure_annotations: validate_azure_annotations,
-            ).call(
+          ).call(
             account:               account,
             service_id:            service_id,
             username:              username,
@@ -271,7 +292,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
           Authentication::AuthnAzure::ValidateApplicationIdentity.new(
             resource_class:             resource_class,
             validate_azure_annotations: validate_azure_annotations,
-            ).call(
+          ).call(
             account:               account,
             service_id:            service_id,
             username:              username,
@@ -297,7 +318,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
           Authentication::AuthnAzure::ValidateApplicationIdentity.new(
             resource_class:             resource_class,
             validate_azure_annotations: validate_azure_annotations,
-            ).call(
+          ).call(
             account:               account,
             service_id:            service_id,
             username:              username,
@@ -321,7 +342,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
         Authentication::AuthnAzure::ValidateApplicationIdentity.new(
           resource_class:             resource_class,
           validate_azure_annotations: validate_azure_annotations,
-          ).call(
+        ).call(
           account:               account,
           service_id:            service_id,
           username:              username,
@@ -339,7 +360,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
         Authentication::AuthnAzure::ValidateApplicationIdentity.new(
           resource_class:             resource_class,
           validate_azure_annotations: validate_azure_annotations,
-          ).call(
+        ).call(
           account:               account,
           service_id:            service_id,
           username:              username,
@@ -358,7 +379,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
         Authentication::AuthnAzure::ValidateApplicationIdentity.new(
           resource_class:             resource_class,
           validate_azure_annotations: validate_azure_annotations,
-          ).call(
+        ).call(
           account:               account,
           service_id:            service_id,
           username:              username,
@@ -377,7 +398,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
         Authentication::AuthnAzure::ValidateApplicationIdentity.new(
           resource_class:             resource_class,
           validate_azure_annotations: validate_azure_annotations,
-          ).call(
+        ).call(
           account:               account,
           service_id:            service_id,
           username:              username,
@@ -396,7 +417,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
         Authentication::AuthnAzure::ValidateApplicationIdentity.new(
           resource_class:             resource_class,
           validate_azure_annotations: validate_azure_annotations,
-          ).call(
+        ).call(
           account:               account,
           service_id:            service_id,
           username:              username,
