@@ -1,19 +1,5 @@
 # frozen_string_literal: true
 
-# Generates random unique names
-#
-require 'haikunator'
-require 'fileutils'
-
-Before do |scenario|
-  @scenario_name = scenario.name
-end
-
-Before "@echo" do |scenario|
-  @echo = true
-end
-
-
 Before do
   @user_index = 0
 
@@ -27,7 +13,6 @@ Before do
     end
   end
   
-  Account.find_or_create_accounts_resource
   admin_role = Role.create(role_id: "cucumber:user:admin")
   creds = Credentials.new(role: admin_role)
   # TODO: Replace this hack with a refactoring of policy/api/authenticators to share
