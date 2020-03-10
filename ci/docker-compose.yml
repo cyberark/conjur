@@ -80,6 +80,9 @@ services:
       CONJUR_DATA_KEY:
       REPORT_ROOT:
       CUCUMBER_NETWORK:
+      # TODO: Where should we be running rspec tests from, ideally?
+      # See https://github.com/DatabaseCleaner/database_cleaner#safeguards
+      DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL: "true"
     volumes:
       - ..:/src/conjur-server
       - authn-local:/run/authn-local
