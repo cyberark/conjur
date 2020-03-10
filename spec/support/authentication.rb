@@ -6,18 +6,20 @@ shared_context "authenticate Basic" do
     basic = Base64.strict_encode64([login, basic_password].join(':'))
     "Basic #{basic}"
   }
-  before {
-    request.env['HTTP_AUTHORIZATION'] = basic_auth_header
-  }
+  let(:request_env) do
+    { 'HTTP_AUTHORIZATION' => basic_auth_header }
+  end
 end
 
 shared_context "authenticate Token" do
   let(:params) { { account: account  } }
   let(:bearer_token) { Slosilo["authn:rspec"].signed_token(login) }
-  let(:token_auth_header) { "Token token=\"#{Base64.strict_encode64 bearer_token.to_json}\"" }
-  before {
-    request.env['HTTP_AUTHORIZATION'] = token_auth_header
-  }
+  let(:token_auth_header) do
+    "Token token=\"#{Base64.strict_encode64 bearer_token.to_json}\""
+  end
+  let(:request_env) do
+    { 'HTTP_AUTHORIZATION' => token_auth_header }
+  end
 end
 
 shared_context "create user" do
