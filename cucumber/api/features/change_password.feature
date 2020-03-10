@@ -16,7 +16,7 @@ Feature: Change the password of a role
 
   Scenario: With basic authentication, users can update their own password using the current API key.
 
-    When I successfully PUT "/authn/cucumber/password" with username "alice" and password ":alice_api_key" and plain text body "New-Password1"
+    When I successfully PUT "/authn/cucumber/password" with username "alice" and password ":cucumber:user:alice_api_key" and plain text body "New-Password1"
     Then I can GET "/authn/cucumber/login" with username "alice" and password "New-Password1"
 
   Scenario: Succeed to set password with escaped special character applying to password complexity.

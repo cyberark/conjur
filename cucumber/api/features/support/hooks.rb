@@ -7,6 +7,7 @@ require 'fileutils'
 
 Before do
   @user_index = 0
+  @host_index = 0
 
   Role.truncate(cascade: true)
   Secret.truncate
