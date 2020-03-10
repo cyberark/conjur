@@ -7,9 +7,9 @@ module SshHelpers
 
   def run_command_in_machine(machine_ip, machine_username, machine_password, command)
     ssh = Net::SSH.start(machine_ip, machine_username, :password => machine_password)
-    res = ssh.exec!(command)
-    ssh.close
-    res
+    ssh.exec!(command).tap do
+      close
+    end
   end
 end
 
