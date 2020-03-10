@@ -4,8 +4,6 @@
 #
 module RestHelpers
 
-  USER_NAMES = %w[auto-larry auto-mike auto-norbert auto-otto].freeze
-
   def headers
     @headers ||= {}
   end
@@ -182,22 +180,12 @@ module RestHelpers
 
   # Create a regular user, owned by the admin user
   def create_user login, owner
-    unless login
-      login = USER_NAMES[@user_index]
-      @user_index += 1
-    end
-
     roleid = "cucumber:user:#{login}"
     create_role(roleid, owner)
   end
 
   # Create a regular host, owned by the admin user
   def create_host login, owner
-    unless login
-      login = USER_NAMES[@host_index]
-      @host_index += 1
-    end
-
     roleid = "cucumber:host:#{login}"
     create_role(roleid, owner)
   end
