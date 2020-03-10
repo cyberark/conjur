@@ -16,7 +16,7 @@ module CAHelpers
     int_ca
   end
 
-  def create_host(common_name)
+  def create_certificate_host(common_name)
     Host.new("CN=#{common_name}")
   end
 
