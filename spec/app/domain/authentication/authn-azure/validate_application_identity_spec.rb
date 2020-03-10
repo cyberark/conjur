@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
+  include_context "azure setup"
+
   let(:account) { "account" }
   let(:service_id) { "serviceId" }
   let(:hostname) { "azureTestVM" }
@@ -23,9 +25,6 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
 
   let(:oid_token_field) { "test-oid" }
 
-  let(:subscription_id_annotation) { double("SubscriptionIdAnnotation") }
-  let(:resource_group_annotation) { double("ResourceGroupAnnotation") }
-  let(:user_assigned_identity_annotation) { double("UserAssignedIdentityAnnotation") }
   let(:system_assigned_identity_annotation) { double("SystemAssignedIdentityAnnotation") }
 
   let(:mismatched_subscription_id_annotation) { double("MismatchedSubscriptionIdAnnotation") }
@@ -34,17 +33,6 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
   let(:mismatched_user_assigned_identity_annotation) { double("MismatchedUserAssignedAnnotation") }
 
   let(:validate_azure_annotations) { double("ValidateAzureAnnotations") }
-
-  def mock_annotation_builder(host_annotation_type, host_annotation_key, host_annotation_value)
-    allow(host_annotation_type).to receive(:values)
-                                     .and_return(host_annotation_type)
-    allow(host_annotation_type).to receive(:[])
-                                     .with(:name)
-                                     .and_return(host_annotation_key)
-    allow(host_annotation_type).to receive(:[])
-                                     .with(:value)
-                                     .and_return(host_annotation_value)
-  end
 
   before(:each) do
     allow(host).to receive(:annotations)
@@ -57,16 +45,12 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
                                .with("#{account}:host:#{hostname}")
                                .and_return(host)
 
-    mock_annotation_builder(subscription_id_annotation,"authn-azure/subscription-id", "some-subscription-id-value")
-    mock_annotation_builder(resource_group_annotation,"authn-azure/resource-group", "some-resource-group-value")
-    mock_annotation_builder(user_assigned_identity_annotation,"authn-azure/user-assigned-identity", "some-user-assigned-identity-value")
-    mock_annotation_builder(system_assigned_identity_annotation,"authn-azure/system-assigned-identity", oid_token_field)
-    mock_annotation_builder(mismatched_subscription_id_annotation, "authn-azure/subscription-id", "mismatched-subscription-id")
-    mock_annotation_builder(mismatched_resource_group_annotation, "authn-azure/resource-group", "mismatched-resource-group")
-    mock_annotation_builder(mismatched_user_assigned_identity_annotation, "authn-azure/user-assigned-identity", "mismatched-user-assigned-identity")
-    mock_annotation_builder(mismatched_system_assigned_identity_annotation, "authn-azure/system-assigned-identity", "mismatched-system-assigned-identity")
+    define_host_annotation(system_assigned_identity_annotation,"#{global_annotation_type}/system-assigned-identity", oid_token_field)
+    define_host_annotation(mismatched_subscription_id_annotation, "#{global_annotation_type}/subscription-id", "mismatched-subscription-id")
+    define_host_annotation(mismatched_resource_group_annotation, "#{global_annotation_type}/resource-group", "mismatched-resource-group")
+    define_host_annotation(mismatched_user_assigned_identity_annotation, "#{global_annotation_type}/user-assigned-identity", "mismatched-user-assigned-identity")
+    define_host_annotation(mismatched_system_assigned_identity_annotation, "#{global_annotation_type}/system-assigned-identity", "mismatched-system-assigned-identity")
   end
-
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
   # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)

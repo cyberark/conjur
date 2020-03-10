@@ -3,70 +3,74 @@
 require 'spec_helper'
 
 RSpec.describe Authentication::AuthnAzure::ApplicationIdentity do
+  include_context "azure setup"
+
   let(:subscription_id_annotation) { double("SubscriptionIdAnnotation") }
-  let(:subscription_id_annotation_empty) {double("SubscriptionIdAnnotationEmpty") }
   let(:subscription_id_service_id_scoped_annotation) { double("SubscriptionIdServiceIdAnnotation") }
 
-  let(:good_service_id) { "MockService" }
+  let(:resource_group_annotation) { double("ResourceGroupAnnotation") }
+  let(:resource_group_service_id_scoped_annotation) { double("ResourceGroupAnnotation") }
 
-  let(:global_annotation_type) { "authn-azure" }
-  let(:granular_annotation_type) { "authn-azure/#{good_service_id}" }
+  let(:user_assigned_identity_annotation) { double("UserAssignedIdentityAnnotation") }
+  let(:user_assigned_identity_service_id_scoped_annotation) { double("UserAssignedIdentityAnnotation") }
 
-  def mock_annotation_builder(host_annotation_type, host_annotation_key, host_annotation_value)
-    allow(host_annotation_type).to receive(:values)
-                                     .and_return(host_annotation_type)
-    allow(host_annotation_type).to receive(:[])
-                                     .with(:name)
-                                     .and_return(host_annotation_key)
-    allow(host_annotation_type).to receive(:[])
-                                     .with(:value)
-                                     .and_return(host_annotation_value)
-  end
+  let(:non_azure_annotation) { double("NonAzureAnnotation") }
+
+  let(:test_service_id) { "MockService" }
+
+  let(:granular_annotation_type) { "authn-azure/#{test_service_id}" }
 
   before(:each) do
-    mock_annotation_builder(subscription_id_annotation, "#{global_annotation_type}/subscription-id", "some-subscription-id-value")
-    mock_annotation_builder(subscription_id_annotation_empty, "#{global_annotation_type}/subscription-id", "")
-    mock_annotation_builder(subscription_id_service_id_scoped_annotation, "#{granular_annotation_type}/subscription-id", "some-subscription-id-service-id-scoped-value")
+    define_host_annotation(subscription_id_service_id_scoped_annotation, "#{granular_annotation_type}/subscription-id", "some-subscription-id-service-id-scoped-value")
+    define_host_annotation(resource_group_service_id_scoped_annotation, "#{granular_annotation_type}/resource-group", "some-resource-group-service-id-scoped-value")
+    define_host_annotation(user_assigned_identity_service_id_scoped_annotation, "#{granular_annotation_type}/user-assigned-identity", "some-user-assigned-service-id-scoped-value")
+    define_host_annotation(non_azure_annotation, "#{global_annotation_type}/non-azure-annotation", "some-non-azure-value")
   end
 
-  context "initialization" do
+  context "An application identity in annotations" do
     subject(:application_identity) {
       Authentication::AuthnAzure::ApplicationIdentity.new(
         role_annotations: role_annotations,
-        service_id:       good_service_id
+        service_id:       test_service_id
       )
     }
-    context("An application identity in annotations") do
-      context("with a global scoped constraint") do
-        let(:role_annotations) { [subscription_id_annotation] }
+    context("with a global scoped constraint") do
+      let(:role_annotations) { [subscription_id_annotation, resource_group_annotation, user_assigned_identity_annotation] }
 
-        it "Returns Hash of the constraint and its value" do
-          expect(subject.constraints).to eq({ subscription_id: "some-subscription-id-value" })
-        end
+      it "Returns Hash of the constraint and its value" do
+        expect(subject.constraints).to eq({ subscription_id: "some-subscription-id-value", resource_group: "some-resource-group-value", user_assigned_identity: "some-user-assigned-identity-value" })
       end
+    end
 
-      context("with a service-id scoped constraint") do
-        let(:role_annotations) { [subscription_id_service_id_scoped_annotation] }
+    context("with a service-id scoped constraint") do
+      let(:role_annotations) { [subscription_id_service_id_scoped_annotation, resource_group_service_id_scoped_annotation, user_assigned_identity_service_id_scoped_annotation] }
 
-        it "Returns Hash of the constraint and its value" do
-          expect(subject.constraints).to eq({ subscription_id: "some-subscription-id-service-id-scoped-value" })
-        end
+      it "Returns Hash of the constraint and its value" do
+        expect(subject.constraints).to eq({ subscription_id: "some-subscription-id-service-id-scoped-value", resource_group: "some-resource-group-service-id-scoped-value", user_assigned_identity: "some-user-assigned-service-id-scoped-value" })
       end
+    end
 
-      context("with both global & service-id scoped constraints") do
-        let(:role_annotations) { [subscription_id_annotation, subscription_id_service_id_scoped_annotation] }
+    context("with both global & service-id scoped constraints") do
+      let(:role_annotations) { [subscription_id_annotation, subscription_id_service_id_scoped_annotation] }
 
-        it ("chooses the service-id scoped constraint") do
-          expect(subject.constraints).to eq({ subscription_id: "some-subscription-id-service-id-scoped-value" })
-        end
+      it ("chooses the service-id scoped constraint") do
+        expect(subject.constraints).to eq({ subscription_id: "some-subscription-id-service-id-scoped-value" })
       end
+    end
 
-      context("with an empty annotation value") do
-        let(:role_annotations) { [subscription_id_annotation_empty] }
+    context("with an empty annotation") do
+      let(:role_annotations) { [] }
 
-        it "Returns Hash of the constraint and an empty value" do
-          expect(subject.constraints).to eq({ subscription_id: "" })
-        end
+      it "Returns Hash of the constraint and an empty value" do
+        expect(subject.constraints).to eq({ })
+      end
+    end
+
+    context("with annotations that are not Azure-specific") do
+      let(:role_annotations) { [non_azure_annotation] }
+
+      it "Returns empty Hash" do
+        expect(subject.constraints).to eq({ })
       end
     end
   end
