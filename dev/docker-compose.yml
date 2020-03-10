@@ -37,6 +37,9 @@ services:
       RAILS_ENV:
       CONJUR_LOG_LEVEL: debug
       AUDIT_DATABASE_URL:
+      # TODO: Where should we be running rspec tests from, ideally?
+      # See https://github.com/DatabaseCleaner/database_cleaner#safeguards
+      DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL: "true"
     ports:
       - "3000:3000"
       - "1234:1234"
