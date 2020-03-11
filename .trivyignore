@@ -1,0 +1,5 @@
+# Rake vulnerability for versions < 12.3.3. The version of Rake used by Conjur
+# has been updated to 13.0.1. Some of the Conjur dependencies still declare a
+# vulnerable version of Rake in their development dependencies, but do not pose 
+# a risk to Conjur.
+CVE-2020-8130
