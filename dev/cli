@@ -49,7 +49,7 @@ function enable_oidc() {
 
 function enable_azure() {
 
-  . ../ci/authn-azure/check_dependencies.sh
+  ../ci/authn-azure/check_dependencies.sh
 
   echo "Setting Azure details as env variables"
 
@@ -61,7 +61,10 @@ function enable_azure() {
   azure_env_args="$azure_env_args -e AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID"
   azure_env_args="$azure_env_args -e AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP"
   azure_env_args="$azure_env_args -e USER_ASSIGNED_IDENTITY=$USER_ASSIGNED_IDENTITY"
-#  azure_env_args="$azure_env_args -e SYSTEM_ASSIGNED_IDENTITY=$SYSTEM_ASSIGNED_IDENTITY" # TODO: add this once available
+
+ # TODO: add this once available
+#  azure_env_args="$azure_env_args -e SYSTEM_ASSIGNED_IDENTITY=$SYSTEM_ASSIGNED_IDENTITY"
+
   env_args="$env_args $azure_env_args"
 }
 

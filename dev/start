@@ -136,7 +136,7 @@ fi
 if [[ $ENABLE_AUTHN_AZURE = true ]]; then
   enabled_authenticators="$enabled_authenticators,authn-azure/prod"
 
-  . ../ci/authn-azure/check_dependencies.sh
+  ../ci/authn-azure/check_dependencies.sh
 
   docker-compose exec client conjur policy load root /src/conjur-server/ci/authn-azure/policies/policy.yml
   docker-compose exec client conjur variable values add conjur/authn-azure/prod/provider-uri "https://sts.windows.net/$AZURE_TENANT_ID/"
