@@ -72,7 +72,9 @@ module Authentication
       end
 
       def provider_uri
-        @provider_uri ||= azure_authenticator_secrets["provider-uri"]
+        @provider_uri ||= azure_authenticator_secrets["provider-uri"].tap do |provider_uri_value|
+          provider_uri_value << "/" unless provider_uri_value.end_with?('/')
+        end
       end
 
       def azure_authenticator_secrets
