@@ -1,10 +1,162 @@
+# This is our default .CodeClimate.yml, broken out by language. Uncomment the
+# sections at the bottom that apply to your project. ACTION comments indicate
+# places where config might need to be tweaked.
+
+version: "2"
+
 plugins:
-  rubocop:
+
+# ---------------
+# Cross-language plugins. Should always be on.
+
+  duplication: # Looks for similar and identical code blocks
     enabled: true
-    channel: rubocop-0-58
+    config:
+      languages:
+        go:
+        java:
+        javascript:
+        php:
+        python:
+          python_version: 3  # ACTION Comment this out if using Python 2
+        ruby:
+        swift:
+        typescript:
+
+  fixme: # Flags any FIXME, TODO, BUG, XXX, HACK comments so they can be fixed
+    enabled: true
+    config:
+      strings:
+      - FIXME
+      - TODO
+      - HACK
+      - XXX
+      - BUG
+
+# ---------------
+# Commonly-used languages - run time is minimal and all of these will work
+# whether files of that language are found or not. In general, leave uncommented
+
+  # Markdown
+  markdownlint:
+    enabled: true
+
+  # Go
+  gofmt:
+    enabled: true
+  golint:
+    enabled: true
+  govet:
+    enabled: true
+
+  # Ruby
+  flog:
+    enabled: true
   reek:
     enabled: true
-  bundler-audit:
+  rubocop:
     enabled: true
-  brakeman:
+    channel: rubocop-0-79 # As of March 10, 2020, rubocop 0.80.1 is the latest
+                          # However, it does not work with CodeClimate - throws
+                          # an Invalid JSON error.
+  # ACTION uncomment bundler-audit below if using Gemfile/Gemfile.lock
+  # ACTION uncomment brakeman below if using Rails
+
+  # Shell scripts
+  shellcheck:
+   enabled: true
+
+# ---------------
+# Other languages - will work with or without language files present. Again,
+# runtime is minimal, so OK to leave uncommented.
+
+  # CoffeeScript
+  coffeelint:
     enabled: true
+
+  # CSS
+  csslint:
+    enabled: true
+
+  # Groovy
+  codenarc:
+    enabled: true
+
+  # Java
+  pmd:
+    enabled: true
+  sonar-java:
+    enabled: true
+    config:
+      sonar.java.source: "7" # ACTION set this to the major version of Java used
+  # ACTION uncomment checkstyle below if Java code exists in repo
+
+  # Node.js
+  nodesecurity:
+    enabled: true
+  # ACTION uncomment eslint below if JavaScript already exists and .eslintrc
+  # file exists in repo
+
+  # PHP
+  phan:
+    enabled: true
+    config:
+      file_extensions: "php"
+  phpcodesniffer:
+    enabled: true
+    config:
+      file_extensions: "php,inc,lib"
+      # Using Wordpress standards as our one PHP repo is a Wordpress theme
+      standards: "PSR1,PSR2,WordPress,WordPress-Core,WordPress-Extra"
+  phpmd:
+    enabled: true
+    config:
+      file_extensions: "php,inc,lib"
+      rulesets: "cleancode,codesize,controversial,naming,unusedcode"
+  sonar-php:
+    enabled: true
+
+  # Python
+  bandit:
+    enabled: true
+  pep8:
+    enabled: true
+  radon:
+    enabled: true
+    # config:
+    #   python_version: 2 # ACTION Uncomment these 2 lines if using Python 2
+  sonar-python:
+    enabled: true
+
+# ---------------
+# Configuration Required Language specific - these will error and abort the
+# codeclimate run if they are turned on and certain files or configuration are
+# missing. Should be commented out unless the project already includes the
+# necessary files that the linter looks at
+
+  # Ruby - requires presence of Gemfile and Gemfile.lock
+  # bundler-audit:
+  #   enabled: true
+
+  # Rails - requires detecting a Rails application
+  # brakeman:
+  #   enabled: true
+
+  # Chef - requires detecting a cookbook
+  # foodcritic:
+  #   enabled: true
+
+  # Java - might require Java code? Errored when run without
+  # checkstyle:
+  #   enabled: true
+
+  # JavaScript - requires an eslintrc to be created and added to project
+  # eslint:
+  #   enabled: true
+  #   channel: "eslint-6"
+
+# ---------------
+# List any files/folders to exclude from checking. Wildcards accepted. Leave
+# commented if no files to exclude as an empty array will error
+exclude_patterns:
+  - ".gitignore"
