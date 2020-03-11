@@ -68,7 +68,7 @@ Feature: Authenticator status check
     Given I login as "alice"
     When I GET "/authn-ldap/test/cucumber/status"
     Then the HTTP response status code is 501
-    And the authenticator status check fails with error "StatusNotImplemented: CONJ00045E"
+    And the authenticator status check fails with error "StatusNotImplemented: CONJ00056E"
 
   Scenario: A non-existing authenticator status check returns 404
     Given I login as "alice"

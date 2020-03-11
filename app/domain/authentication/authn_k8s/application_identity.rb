@@ -85,7 +85,9 @@ module Authentication
         controllers = %i(deployment deployment_config stateful_set)
 
         controller_constraints = constraints.keys & controllers
-        raise Err::IllegalConstraintCombinations, controller_constraints unless controller_constraints.length <= 1
+        unless controller_constraints.length <= 1
+          raise Errors::Authentication::IllegalConstraintCombinations, controller_constraints
+        end
       end
 
       def constraint_value constraint_name
@@ -102,7 +104,7 @@ module Authentication
 
         # return the value of the annotation if it exists, nil otherwise
         if annotation
-          Rails.logger.debug(Log::RetrievedAnnotationValue.new(name))
+          Rails.logger.debug(LogMessages::Authentication::RetrievedAnnotationValue.new(name))
           annotation[:value]
         end
       end
@@ -127,7 +129,7 @@ module Authentication
       end
 
       def validate_prefixed_permitted_annotations prefix
-        Rails.logger.debug(Log::ValidatingAnnotationsWithPrefix.new(prefix))
+        Rails.logger.debug(LogMessages::Authentication::ValidatingAnnotationsWithPrefix.new(prefix))
 
         prefixed_k8s_annotations(prefix).each do |annotation|
           annotation_name = annotation[:name]
@@ -140,9 +142,18 @@ module Authentication
         @host_annotations.select do |a|
           annotation_name = a.values[:name]
 
+          # Calculate the granularity level of the annotation.
+          # For example, the annotation "authn-k8s/namespace" is in the general level,
+          # and applies to every host that tries to authenticate with the k8s authenticator, regardless
+          # of the service id.
+          # The annotation "authn-k8s/#{@service_id}/namespace" is on the service-id level,
+          # and applies only to hosts trying to authenticate with the authenticator "authn-k8s/#{@service_id}".
+          annotation_granularity_level = annotation_name.split('/').length
+          prefix_granularity_level = prefix.split('/').length
+
           annotation_name.start_with?(prefix) &&
-            # Verify we take only annotations from the same level
-            annotation_name.split('/').length == prefix.split('/').length + 1
+            # Verify we take only annotations from the same level.
+            annotation_granularity_level == prefix_granularity_level + 1
         end
       end
 

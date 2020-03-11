@@ -42,14 +42,18 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
                              :spiffe_id              => spiffe_id) }
   let(:pod_spec) { double("PodSpec") }
   let(:pod) { double("Pod", :spec => pod_spec) }
-  
+
   let(:k8s_object_lookup_class) { double("K8sObjectLookup") }
 
   let(:validate_application_identity) { double("ValidateApplicationIdentity") }
 
-  let(:dependencies) { { resource_class:             double(),
-                         k8s_object_lookup_class:   k8s_object_lookup_class,
-                         validate_application_identity: validate_application_identity } }
+  let(:dependencies) do
+    {
+      resource_class:                double,
+      k8s_object_lookup_class:       k8s_object_lookup_class,
+      validate_application_identity: validate_application_identity
+    }
+  end
 
   before(:each) do
     allow(Resource).to receive(:[])
@@ -80,7 +84,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
       .to receive(:new)
             .and_return(validate_application_identity)
     allow(validate_application_identity).to receive(:call)
-                                          .and_return(true)
+                                              .and_return(true)
   end
 
   context "invocation" do
@@ -90,7 +94,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
     it 'raises WebserviceNotFound error when webservice is missing' do
       allow(pod_request).to receive(:service_id).and_return(bad_service_name)
 
-      expected_message = /Webservice '#{bad_service_name}' wasn't found/
+      expected_message = /Webservice '#{bad_service_name}' not found/
       expect { validator.(pod_request: pod_request) }
         .to raise_error(Errors::Authentication::Security::WebserviceNotFound, expected_message)
     end
@@ -124,7 +128,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
 
     it 'raises an error when application identity validation fails' do
       allow(validate_application_identity).to receive(:call)
-                                            .and_raise('FAKE_application_identity_ERROR')
+                                                .and_raise('FAKE_application_identity_ERROR')
 
       expect { validator.(pod_request: pod_request) }
         .to raise_error(/FAKE_application_identity_ERROR/)
