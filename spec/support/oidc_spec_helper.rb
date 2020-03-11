@@ -33,8 +33,77 @@ shared_context "oidc setup" do
   end
 
   before(:each) do
-    allow(Resource).to receive(:[])
-                         .with(/#{account}:variable:conjur\/authn-oidc/)
-                         .and_return(mocked_resource)
+    allow(Resource).to(
+      receive(:[]).with(/#{account}:variable:conjur\/authn-oidc/)
+        .and_return(mocked_resource)
+    )
+
+    allow(mocked_security_validator).to(
+      receive(:call).and_return(true)
+    )
+
+    allow(mocked_origin_validator).to(
+      receive(:call).and_return(true)
+    )
+
+    allow(mocked_account_validator).to(
+      receive(:call).and_return(true)
+    )
+  end
+end
+
+shared_examples_for(
+  "it fails when variable is missing or has no value"
+) do |variable|
+
+  it "fails when variable is missing" do
+    allow(Resource).to(
+      receive(:[]).with(
+        /#{account}:variable:conjur\/authn-oidc\/#{service}\/#{variable}/
+      ).and_return(nil)
+    )
+
+    expect { subject }.to raise_error(Errors::Conjur::RequiredResourceMissing)
+  end
+
+  it "fails when variable has no value" do
+    allow(Resource).to(
+      receive(:[]).with(
+        /#{account}:variable:conjur\/authn-oidc\/#{service}\/#{variable}/
+      ).and_return(resource_without_value)
+    )
+
+    expect { subject }.to(
+      raise_error(Errors::Conjur::RequiredSecretMissing)
+    )
+  end
+end
+
+shared_examples_for "raises an error when security validation fails" do
+  it 'raises an error when security validation fails' do
+    allow(mocked_security_validator).to(
+      receive(:call).and_raise('FAKE_SECURITY_ERROR')
+    )
+
+    expect { subject }.to raise_error( /FAKE_SECURITY_ERROR/ )
+  end
+end
+
+shared_examples_for "raises an error when origin validation fails" do
+  it "raises an error when origin validation fails" do
+    allow(mocked_origin_validator).to receive(:call)
+                                        .and_raise('FAKE_ORIGIN_ERROR')
+
+    expect { subject }.to raise_error( /FAKE_ORIGIN_ERROR/ )
+  end
+end
+
+shared_examples_for "raises an error when account validation fails" do
+  it 'raises an error when account validation fails' do
+    allow(mocked_account_validator).to(
+      receive(:call).and_raise('ACCOUNT_NOT_EXIST_ERROR')
+    )
+
+    expect { subject }.to raise_error( /ACCOUNT_NOT_EXIST_ERROR/ )
   end
 end
