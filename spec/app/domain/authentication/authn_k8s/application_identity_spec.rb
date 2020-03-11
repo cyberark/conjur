@@ -128,13 +128,13 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
   end
 
   context "initialization" do
-    subject(:application_identity) {
+    subject do
       Authentication::AuthnK8s::ApplicationIdentity.new(
         host_id:          host_id,
         host_annotations: host_annotations,
         service_id:       good_service_id
       )
-    }
+    end
 
     context "Application identity in host id" do
       let(:host_annotations) { [] }
@@ -439,7 +439,7 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
             let(:host_annotations) { [namespace_annotation, deployment_annotation, deployment_config_annotation, container_name_annotation] }
 
             it "raises an error" do
-              expect { subject }.to raise_error(::Errors::Authentication::AuthnK8s::IllegalConstraintCombinations)
+              expect { subject }.to raise_error(::Errors::Authentication::IllegalConstraintCombinations)
             end
           end
 
@@ -447,7 +447,7 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
             let(:host_annotations) { [namespace_annotation, deployment_annotation, stateful_set_annotation, container_name_annotation] }
 
             it "raises an error" do
-              expect { subject }.to raise_error(::Errors::Authentication::AuthnK8s::IllegalConstraintCombinations)
+              expect { subject }.to raise_error(::Errors::Authentication::IllegalConstraintCombinations)
             end
           end
 
@@ -455,7 +455,7 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
             let(:host_annotations) { [namespace_annotation, deployment_config_annotation, stateful_set_annotation, container_name_annotation] }
 
             it "raises an error" do
-              expect { subject }.to raise_error(::Errors::Authentication::AuthnK8s::IllegalConstraintCombinations)
+              expect { subject }.to raise_error(::Errors::Authentication::IllegalConstraintCombinations)
             end
           end
 
@@ -463,7 +463,7 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
             let(:host_annotations) { [namespace_annotation, deployment_annotation, deployment_config_annotation, stateful_set_annotation, container_name_annotation] }
 
             it "raises an error" do
-              expect { subject }.to raise_error(::Errors::Authentication::AuthnK8s::IllegalConstraintCombinations)
+              expect { subject }.to raise_error(::Errors::Authentication::IllegalConstraintCombinations)
             end
           end
         end
