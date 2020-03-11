@@ -1,6 +1,6 @@
 # Azure authenticator
 - !policy
-  id: conjur/authn-azure/test
+  id: conjur/authn-azure/prod
   body:
   - !webservice
 
@@ -18,7 +18,7 @@
   - !group
     id: operators
     annotations:
-      description: Group of users who can check the status of the authn-azure/test authenticator
+      description: Group of users who can check the status of the authn-azure/prod authenticator
 
   - !permit
     role: !group apps

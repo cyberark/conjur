@@ -15,6 +15,8 @@ Usage: start [options]
 
     --authn-iam     Starts with authn-iam/prod as authenticator
 
+    --authn-azure   Starts with authn-azure/prod as authenticator
+
     --authn-oidc    Starts with authn-oidc/keycloak as authenticator
 
     --oidc-adfs     Adds to authn-oidc adfs static env configuration
@@ -73,6 +75,7 @@ unset COMPOSE_PROJECT_NAME
 # Determine which extra services should be loaded when working with authenticators
 ENABLE_AUTHN_LDAP=false
 ENABLE_AUTHN_IAM=false
+ENABLE_AUTHN_AZURE=false
 ENABLE_AUTHN_OIDC=false
 ENABLE_OIDC_ADFS=false
 ENABLE_OIDC_OKTA=false
@@ -81,6 +84,7 @@ ENABLE_AUDIT=false
 while true ; do
   case "$1" in
     --authn-iam ) ENABLE_AUTHN_IAM=true ; shift ;;
+    --authn-azure ) ENABLE_AUTHN_AZURE=true ; shift ;;
     --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
     --authn-oidc ) ENABLE_AUTHN_OIDC=true ; shift ;;
     --oidc-adfs ) ENABLE_OIDC_ADFS=true ; shift ;;
@@ -127,6 +131,21 @@ if [[ $ENABLE_AUTHN_LDAP = true ]]; then
   enabled_authenticators="$enabled_authenticators,authn-ldap/test,authn-ldap/secure"
 
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-ldap/policy.yml
+fi
+
+if [[ $ENABLE_AUTHN_AZURE = true ]]; then
+  enabled_authenticators="$enabled_authenticators,authn-azure/prod"
+
+  . ../ci/authn-azure/check_dependencies.sh
+
+  docker-compose exec client conjur policy load root /src/conjur-server/ci/authn-azure/policies/policy.yml
+  docker-compose exec client conjur variable values add conjur/authn-azure/prod/provider-uri "https://sts.windows.net/$AZURE_TENANT_ID/"
+
+  sed "s#{{ AZURE_SUBSCRIPTION_ID }}#$AZURE_SUBSCRIPTION_ID#g" ../ci/authn-azure/policies/azure-hosts.template.yml |
+    sed "s#{{ AZURE_RESOURCE_GROUP }}#$AZURE_RESOURCE_GROUP#g" > ../ci/authn-azure/policies/azure-hosts.yml
+  docker-compose exec client conjur policy load root /src/conjur-server/ci/authn-azure/policies/azure-hosts.yml
+
+  docker-compose exec client conjur policy load root /src/conjur-server/ci/authn-azure/policies/azure-operators.yml
 fi
 
 if [[ $ENABLE_AUTHN_OIDC = false && ($ENABLE_OIDC_ADFS = true || $ENABLE_OIDC_OKTA = true) ]]; then

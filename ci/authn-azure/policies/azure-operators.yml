@@ -1,7 +1,7 @@
-# Users who can check the status of the authn-azure/test authenticator
+# Users who can check the status of the authn-azure/prod authenticator
 - !user
   id: authn-azure-test-operator
 
 - !grant
-  role: !group conjur/authn-azure/test/operators
+  role: !group conjur/authn-azure/prod/operators
   member: !user authn-azure-test-operator
