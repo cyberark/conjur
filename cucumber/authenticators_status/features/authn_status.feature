@@ -64,7 +64,7 @@ Feature: Authenticator status check
     Then the HTTP response status code is 403
     And the authenticator status check fails with error "RoleNotAuthorizedOnWebservice: CONJ00006E"
 
-  Scenario: An authenticator without an implemented status check returns 503
+  Scenario: An authenticator without an implemented status check returns 501
     Given I login as "alice"
     When I GET "/authn-ldap/test/cucumber/status"
     Then the HTTP response status code is 501
