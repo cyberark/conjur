@@ -11,12 +11,16 @@ RSpec.describe 'Authentication::Oidc' do
   include_context "security mocks"
   include_context "oidc setup"
 
-  let(:mocked_verify_and_decode_token) { double("MockIdTokenDecodeAndVerify") }
+  let (:mocked_decode_and_verify_id_token) do
+    double("MockIdTokenDecodeAndVerify")
+  end
 
   before(:each) do
-    allow(mocked_verify_and_decode_token).to receive(:call) { |*args|
-      JSON.parse(args[0][:token_jwt]).to_hash
-    }
+    allow(mocked_decode_and_verify_id_token).to(
+      receive(:call) do |*args|
+        JSON.parse(args[0][:id_token_jwt]).to_hash
+      end
+    )
   end
 
   ####################################
@@ -65,9 +69,11 @@ RSpec.describe 'Authentication::Oidc' do
   context "An oidc authenticator" do
     context "that receives authenticate id token request" do
       before(:each) do
-        allow(Resource).to receive(:[])
-                             .with(/#{account}:variable:conjur\/authn-oidc\/#{service}\/id-token-user-property/)
-                             .and_return(mocked_id_token_resource)
+        allow(Resource).to(
+          receive(:[]).with(
+            /#{account}:variable:conjur\/authn-oidc\/#{service}\/id-token-user-property/
+          ).and_return(mocked_id_token_resource)
+        )
       end
 
       context "with valid id token" do
@@ -101,9 +107,14 @@ RSpec.describe 'Authentication::Oidc' do
         it_behaves_like "raises an error when security validation fails"
         it_behaves_like "raises an error when origin validation fails"
         it_behaves_like "raises an error when account validation fails"
-
-        it_behaves_like "it fails when variable is missing or has no value", "provider-uri"
-        it_behaves_like "it fails when variable is missing or has no value", "id-token-user-property"
+        it_behaves_like(
+          "it fails when variable is missing or has no value",
+          "provider-uri"
+        )
+        it_behaves_like(
+          "it fails when variable is missing or has no value",
+          "id-token-user-property"
+        )
       end
 
       context "with no id token username field in id token" do
@@ -131,7 +142,11 @@ RSpec.describe 'Authentication::Oidc' do
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(::Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty)
+          expect { subject }.to(
+            raise_error(
+              ::Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty
+            )
+          )
         end
       end
 
@@ -160,7 +175,11 @@ RSpec.describe 'Authentication::Oidc' do
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(::Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty)
+          expect { subject }.to(
+            raise_error(
+              ::Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty
+            )
+          )
         end
       end
 
