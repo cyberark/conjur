@@ -18,7 +18,7 @@ shared_context "fetch secrets" do |required_secrets|
 
   let(:mocked_secret) do
     double('Secret').tap do |secret|
-      allow(secret).to receive(:value).and_return("mocked-secret")
+      allow(secret).to receive(:value).and_return(+"mocked-secret") # unfreezing the secret for authn-azure tests
     end
   end
 
