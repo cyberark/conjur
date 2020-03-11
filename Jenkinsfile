@@ -29,10 +29,18 @@ pipeline {
       }
     }
 
-    stage('Build Docker image') {
+    stage('Build Docker Image') {
       steps {
         sh './build.sh -j'
       }
+    }
+
+    stage('Scan Docker Image') {
+      steps { 
+        script {
+          TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short HEAD)')
+        }
+        scanAndReport("conjur:${TAG}", "CRITICAL") }
     }
 
     stage('Prepare For CodeClimate Coverage Report Submission'){
