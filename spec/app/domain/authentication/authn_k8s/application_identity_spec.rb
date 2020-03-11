@@ -128,13 +128,13 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
   end
 
   context "initialization" do
-    subject(:application_identity) {
+    subject do
       Authentication::AuthnK8s::ApplicationIdentity.new(
         host_id:          host_id,
         host_annotations: host_annotations,
         service_id:       good_service_id
       )
-    }
+    end
 
     context "Application identity in host id" do
       let(:host_annotations) { [] }

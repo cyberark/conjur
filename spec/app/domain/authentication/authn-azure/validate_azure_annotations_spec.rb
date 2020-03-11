@@ -9,9 +9,15 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateAzureAnnotations' do
   let(:invalid_azure_annotation_service_id_scoped) { double("InvalidAzureAnnotationServiceIdScoped") }
 
   before(:each) do
-    define_host_annotation(host_annotation_type: invalid_azure_annotation, host_annotation_key: "#{global_annotation_type}/non_existing", host_annotation_value: "some-azure-non-existing-value")
-    define_host_annotation(host_annotation_type: invalid_azure_annotation_service_id_scoped, host_annotation_key: "#{granular_annotation_type}/non-existing", host_annotation_value: "some-invalid-existing-value")
-    define_host_annotation(host_annotation_type: non_azure_annotation, host_annotation_key: "authn-test/non_existing", host_annotation_value: "some-non-existing-value")
+    define_host_annotation(host_annotation_type:  invalid_azure_annotation,
+                           host_annotation_key:   "#{global_annotation_type}/non_existing",
+                           host_annotation_value: "some-azure-non-existing-value")
+    define_host_annotation(host_annotation_type:  invalid_azure_annotation_service_id_scoped,
+                           host_annotation_key:   "#{granular_annotation_type}/non-existing",
+                           host_annotation_value: "some-invalid-existing-value")
+    define_host_annotation(host_annotation_type:  non_azure_annotation,
+                           host_annotation_key:   "authn-test/non_existing",
+                           host_annotation_value: "some-non-existing-value")
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
