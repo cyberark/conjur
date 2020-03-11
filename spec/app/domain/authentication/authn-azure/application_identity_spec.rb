@@ -9,15 +9,21 @@ RSpec.describe Authentication::AuthnAzure::ApplicationIdentity do
   let(:system_assigned_identity_service_id_scoped_annotation) { double("UserAssignedIdentityServiceIdScopeAnnotation") }
 
   before(:each) do
-    define_host_annotation(host_annotation_type:  user_assigned_identity_service_id_scoped_annotation,
-                           host_annotation_key:   "#{granular_annotation_type}/user-assigned-identity",
-                           host_annotation_value: "some-user-assigned-service-id-scoped-value")
-    define_host_annotation(host_annotation_type:  system_assigned_identity_service_id_scoped_annotation,
-                           host_annotation_key:   "#{granular_annotation_type}/system-assigned-identity",
-                           host_annotation_value: "some-system-assigned-service-id-scoped-value")
-    define_host_annotation(host_annotation_type:  non_azure_annotation,
-                           host_annotation_key:   "#{global_annotation_type}/non-azure-annotation",
-                           host_annotation_value: "some-non-azure-value")
+    define_host_annotation(
+      host_annotation_type:  user_assigned_identity_service_id_scoped_annotation,
+      host_annotation_key:   "#{granular_annotation_type}/user-assigned-identity",
+      host_annotation_value: "some-user-assigned-service-id-scoped-value"
+    )
+    define_host_annotation(
+      host_annotation_type:  system_assigned_identity_service_id_scoped_annotation,
+      host_annotation_key:   "#{granular_annotation_type}/system-assigned-identity",
+      host_annotation_value: "some-system-assigned-service-id-scoped-value"
+    )
+    define_host_annotation(
+      host_annotation_type:  non_azure_annotation,
+      host_annotation_key:   "#{global_annotation_type}/non-azure-annotation",
+      host_annotation_value: "some-non-azure-value"
+    )
   end
 
   context "An application identity in annotations" do
@@ -32,11 +38,13 @@ RSpec.describe Authentication::AuthnAzure::ApplicationIdentity do
 
       it "has a constraints hash with its value" do
         expect(subject.constraints).to eq(
-                                         { subscription_id:          "some-subscription-id-value",
+                                         {
+                                           subscription_id:          "some-subscription-id-value",
                                            resource_group:           "some-resource-group-value",
                                            user_assigned_identity:   "some-user-assigned-identity-value",
                                            system_assigned_identity: "some-system-assigned-identity-value"
-                                         })
+                                         }
+                                       )
       end
     end
 
@@ -44,11 +52,14 @@ RSpec.describe Authentication::AuthnAzure::ApplicationIdentity do
       let(:role_annotations) { [subscription_id_service_id_scoped_annotation, resource_group_service_id_scoped_annotation, user_assigned_identity_service_id_scoped_annotation, system_assigned_identity_service_id_scoped_annotation] }
 
       it "has a constraints hash with its value" do
-        expect(subject.constraints).to eq({ subscription_id: "some-subscription-id-service-id-scoped-value",
-                                            resource_group: "some-resource-group-service-id-scoped-value",
-                                            user_assigned_identity: "some-user-assigned-service-id-scoped-value",
-                                            system_assigned_identity: "some-system-assigned-service-id-scoped-value"
-                                          })
+        expect(subject.constraints).to eq(
+                                         {
+                                           subscription_id:          "some-subscription-id-service-id-scoped-value",
+                                           resource_group:           "some-resource-group-service-id-scoped-value",
+                                           user_assigned_identity:   "some-user-assigned-service-id-scoped-value",
+                                           system_assigned_identity: "some-system-assigned-service-id-scoped-value"
+                                         }
+                                       )
       end
     end
 

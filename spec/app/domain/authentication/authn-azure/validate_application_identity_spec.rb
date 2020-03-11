@@ -44,21 +44,31 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
                                .with("#{account}:host:#{hostname}")
                                .and_return(host)
 
-    define_host_annotation(host_annotation_type:  system_assigned_identity_annotation,
-                           host_annotation_key:   "#{global_annotation_type}/system-assigned-identity",
-                           host_annotation_value: oid_token_field)
-    define_host_annotation(host_annotation_type:  mismatched_subscription_id_annotation,
-                           host_annotation_key:   "#{global_annotation_type}/subscription-id",
-                           host_annotation_value: "mismatched-subscription-id")
-    define_host_annotation(host_annotation_type:  mismatched_resource_group_annotation,
-                           host_annotation_key:   "#{global_annotation_type}/resource-group",
-                           host_annotation_value: "mismatched-resource-group")
-    define_host_annotation(host_annotation_type:  mismatched_user_assigned_identity_annotation,
-                           host_annotation_key:   "#{global_annotation_type}/user-assigned-identity",
-                           host_annotation_value: "mismatched-user-assigned-identity")
-    define_host_annotation(host_annotation_type:  mismatched_system_assigned_identity_annotation,
-                           host_annotation_key:   "#{global_annotation_type}/system-assigned-identity",
-                           host_annotation_value: "mismatched-system-assigned-identity")
+    define_host_annotation(
+      host_annotation_type:  system_assigned_identity_annotation,
+      host_annotation_key:   "#{global_annotation_type}/system-assigned-identity",
+      host_annotation_value: oid_token_field
+    )
+    define_host_annotation(
+      host_annotation_type:  mismatched_subscription_id_annotation,
+      host_annotation_key:   "#{global_annotation_type}/subscription-id",
+      host_annotation_value: "mismatched-subscription-id"
+    )
+    define_host_annotation(
+      host_annotation_type:  mismatched_resource_group_annotation,
+      host_annotation_key:   "#{global_annotation_type}/resource-group",
+      host_annotation_value: "mismatched-resource-group"
+    )
+    define_host_annotation(
+      host_annotation_type:  mismatched_user_assigned_identity_annotation,
+      host_annotation_key:   "#{global_annotation_type}/user-assigned-identity",
+      host_annotation_value: "mismatched-user-assigned-identity"
+    )
+    define_host_annotation(
+      host_annotation_type:  mismatched_system_assigned_identity_annotation,
+      host_annotation_key:   "#{global_annotation_type}/system-assigned-identity",
+      host_annotation_value: "mismatched-system-assigned-identity"
+    )
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
@@ -135,7 +145,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
             Authentication::AuthnAzure::ValidateApplicationIdentity.new(
               resource_class:             resource_class,
               validate_azure_annotations: validate_azure_annotations,
-              ).call(
+            ).call(
               account:               account,
               service_id:            test_service_id,
               username:              username,
