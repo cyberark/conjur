@@ -16,7 +16,7 @@ module AuthnAzureHelper
     raise "Failed to fetch azure token with reason: #{err}"
   end
 
-  def authenticate_azure_token(service_id:, account:, username:, azure_token: azure_token)
+  def authenticate_azure_token(service_id:, account:, username:, azure_token: @azure_token)
     username = username.gsub("/", "%2F")
     path = "#{conjur_hostname}/authn-azure/#{service_id}/#{account}/#{username}/authenticate"
 
@@ -66,10 +66,6 @@ module AuthnAzureHelper
 
   def user_assigned_identity
     @user_assigned_identity ||= validated_env_var('USER_ASSIGNED_IDENTITY')
-  end
-
-  def azure_token
-    @azure_token.to_s
   end
 end
 
