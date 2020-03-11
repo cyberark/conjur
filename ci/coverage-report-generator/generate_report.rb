@@ -28,6 +28,10 @@ end
 # Use the first argument so the user can specify the approprite dir
 SimpleCov.root ARGV[0]
 
+# Set the merge timeout so that older reports in the same file don't get
+# dropped when merging.
+SimpleCov.merge_timeout 1800
+
 # Read the result file, path passed in as second arg.
 jsonraw = File.open(ARGV[1]).read
 
