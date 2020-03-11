@@ -5,26 +5,13 @@ require 'spec_helper'
 RSpec.describe 'Authentication::AuthnAzure::ValidateAzureAnnotations' do
   include_context "azure setup"
 
-  let(:test_service_id) { "MockServiceId" }
-
-  let(:subscription_id_service_id_scoped_annotation) { double("SubscriptionIdServiceIdAnnotation") }
-  let(:resource_group_service_id_scoped_annotation) { double("ResourceGroupServiceIdAnnotation") }
-
   let(:invalid_azure_annotation) { double("InvalidAzureAnnotation") }
-  let(:non_azure_annotation) { double("NonAzureAnnotation") }
   let(:invalid_azure_annotation_service_id_scoped) { double("InvalidAzureAnnotationServiceIdScoped") }
 
-  let(:global_annotation_type) { "authn-azure" }
-  let(:granular_annotation_type) { "authn-azure/#{test_service_id}" }
-
-
   before(:each) do
-    define_host_annotation(subscription_id_service_id_scoped_annotation, "#{granular_annotation_type}/subscription-id", "some-subscription-id-service-id-scoped-value")
-    define_host_annotation(resource_group_service_id_scoped_annotation, "#{granular_annotation_type}/resource-group", "some-resource-group-service-id-scoped-value")
-
-    define_host_annotation(invalid_azure_annotation, "#{global_annotation_type}/non_existing", "some-azure-non-existing-value")
-    define_host_annotation(invalid_azure_annotation_service_id_scoped, "#{granular_annotation_type}/non-existing", "some-invalid-existing-value")
-    define_host_annotation(non_azure_annotation, "authn-test/non_existing", "some-non-existing-value")
+    define_host_annotation(host_annotation_type: invalid_azure_annotation, host_annotation_key: "#{global_annotation_type}/non_existing", host_annotation_value: "some-azure-non-existing-value")
+    define_host_annotation(host_annotation_type: invalid_azure_annotation_service_id_scoped, host_annotation_key: "#{granular_annotation_type}/non-existing", host_annotation_value: "some-invalid-existing-value")
+    define_host_annotation(host_annotation_type: non_azure_annotation, host_annotation_key: "authn-test/non_existing", host_annotation_value: "some-non-existing-value")
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
