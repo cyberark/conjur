@@ -93,6 +93,7 @@ group :development, :test do
   gem 'pry-byebug'
   gem 'pry-rails'
   gem 'debase'
+  gem 'rails-controller-testing'
   gem 'rails_layout'
   gem 'rake_shared_context'
   gem 'rspec'
