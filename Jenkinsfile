@@ -46,9 +46,9 @@ pipeline {
 
     stage('Run Tests') {
       parallel {
-        // stage('RSpec') {
-        //   steps { sh 'ci/test rspec' }
-        // }
+        stage('RSpec') {
+          steps { sh 'ci/test rspec' }
+        }
         // stage('Authenticators') {
         //   steps { sh 'ci/test cucumber_authenticators' }
         // }
