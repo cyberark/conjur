@@ -138,7 +138,8 @@ unless defined? LogMessages::Authentication::OriginValidated
       )
 
       RateLimitedCacheLimitReached = ::Util::TrackableLogMessageClass.new(
-        msg:  "Rate limited cache reached the '{0-limit}' limit and will not call target for the next '{1-seconds}' seconds",
+        msg:  "Rate limited cache reached the '{0-limit}' limit and will not" \
+              "call target for the next '{1-seconds}' seconds",
         code: "CONJ00020D"
       )
 

@@ -219,7 +219,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
 
         CommonNameDoesntMatchHost = ::Util::TrackableErrorClass.new(
           msg:  "Client certificate CN must match host name. Cert CN: {0}. " \
-            "Host name: {1}. ",
+                "Host name: {1}. ",
           code: "CONJ00031E"
         )
 
