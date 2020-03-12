@@ -2,6 +2,8 @@
 
 Thanks for your interest in Conjur. Before contributing, please take a moment to read and sign our <a href="https://github.com/cyberark/conjur/blob/master/Contributing_OSS/CyberArk_Open_Source_Contributor_Agreement.pdf" download="conjur_contributor_agreement">Contributor Agreement</a>. This provides patent protection for all Conjur users and allows CyberArk to enforce its license terms. Please email a signed copy to <a href="oss@cyberark.com">oss@cyberark.com</a>.
 
+For general contribution and community guidelines, please see the [community repo](https://github.com/cyberark/community).
+
 ## Pull Request Workflow
 
 1. Search the [open issues][issues] in GitHub to find out what has been planned
