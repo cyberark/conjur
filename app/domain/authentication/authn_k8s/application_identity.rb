@@ -143,13 +143,14 @@ module Authentication
           annotation_name = a.values[:name]
 
           # Calculate the granularity level of the annotation.
-          # For example, the annotation "authn-k8s/namespace" is in the general level,
-          # and applies to every host that tries to authenticate with the k8s authenticator, regardless
-          # of the service id.
-          # The annotation "authn-k8s/#{@service_id}/namespace" is on the service-id level,
-          # and applies only to hosts trying to authenticate with the authenticator "authn-k8s/#{@service_id}".
+          # For example, the annotation "authn-k8s/namespace" is in the general
+          # level, and applies to every host that tries to authenticate with the
+          # k8s authenticator, regardless of the service id.
+          # The annotation "authn-k8s/#{@service_id}/namespace" is on the
+          # service-id level, and applies only to hosts trying to authenticate
+          # with the authenticator "authn-k8s/#{@service_id}".
           annotation_granularity_level = annotation_name.split('/').length
-          prefix_granularity_level = prefix.split('/').length
+          prefix_granularity_level     = prefix.split('/').length
 
           annotation_name.start_with?(prefix) &&
             # Verify we take only annotations from the same level.
