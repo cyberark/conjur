@@ -294,7 +294,7 @@ _run_cucumber() {
   docker-compose run --no-deps $notty --rm $cucumber_env_args \
      -e CONJUR_AUTHN_API_KEY=$api_key \
      -e CUCUMBER_NETWORK=$(_find_cucumber_network) \
-     cucumber -ec "$@"
+     cucumber -ec "$@" || { echo "Tests failed, Printing Conjur logs"; docker-compose logs conjur; exit 1; }
 }
 
 _run_cucumber_tests() {
