@@ -9,5 +9,5 @@ require 'aruba/cucumber'
 require 'conjur-api'
 require 'json_spec/cucumber'
 
-Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || 'http://possum'
+Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || 'http://conjur'
 Conjur.configuration.account = ENV['CONJUR_ACCOUNT'] || 'cucumber'

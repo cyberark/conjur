@@ -88,7 +88,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Updated links to Policy & Cryptography reference in API documentation
 - Updated conjur-policy-parser to
-  [v3.0.3](https://github.com/conjurinc/conjur-policy-parser/blob/possum/CHANGELOG.md#v303).
+  [v3.0.3](https://github.com/conjurinc/conjur-policy-parser/blob/conjur-oss/CHANGELOG.md#v303).
 - Replaced `changelog` entrypoint in `ci/test` with a separate script. Building
   the `conjur` and `conjur-test` images just to be able to install and run the
   `parse_a_changelog` gem seemed a little heavyweight.

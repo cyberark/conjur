@@ -3,7 +3,7 @@ Feature: Exchange a role's API key for a signed authentication token
   A role's API key can be used to obtain a signed authentication token.
 
   The token is a signed JSON structure that contains the role id. The 
-  token can be sent as the `Authorization` header to other Possum REST
+  token can be sent as the `Authorization` header to other Conjur REST
   functions as proof of authentication.
 
   Background:
@@ -34,7 +34,7 @@ Feature: Exchange a role's API key for a signed authentication token
 
   Scenario: User cannot login as a same-named user in a different account
 
-    User logins are scoped per account. Possum cannot be tricked into authenticating a user
+    User logins are scoped per account. Conjur cannot be tricked into authenticating a user
     with a foreign account.
 
     Given I create a new user "alice" in account "second-account"
