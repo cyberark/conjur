@@ -43,7 +43,7 @@ gem 'ruby_dep', '= 1.3.1'
  # immediately break this link
 gem 'conjur-api', github: 'cyberark/conjur-api-ruby', branch: 'master'
 gem 'conjur-policy-parser', '>= 3.0.3',
-  github: 'conjurinc/conjur-policy-parser', branch: 'possum'
+  github: 'conjurinc/conjur-policy-parser', branch: 'conjur-oss'
 gem 'conjur-rack', '~> 3.1'
 gem 'conjur-rack-heartbeat'
 gem 'rack-rewrite'
