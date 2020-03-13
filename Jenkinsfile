@@ -126,27 +126,18 @@ pipeline {
         sh './publish.sh'
       }
     }
-
-    stage('Publish Conjur to Heroku') {
-      when {
-        branch 'master'
-      }
-      steps {
-        build job: 'release-heroku', parameters: [string(name: 'APP_NAME', value: 'possum-conjur')]
-      }
-    }
   }
 
   post {
-      success {
-          script {
-               if (env.BRANCH_NAME == 'master') {
-                      build (job:'../cyberark--secrets-provider-for-k8s/master', wait: false)
-               }
-          }
+    success {
+      script {
+         if (env.BRANCH_NAME == 'master') {
+           build (job:'../cyberark--secrets-provider-for-k8s/master', wait: false)
+         }
       }
-      always {
-        cleanupAndNotify(currentBuild.currentResult, '#conjur-core', '', true)
-      }
+    }
+    always {
+      cleanupAndNotify(currentBuild.currentResult, '#conjur-core', '', true)
+    }
   }
 }
