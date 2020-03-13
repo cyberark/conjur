@@ -19,6 +19,10 @@ RSpec.describe Authentication::AuthnLdap::Authenticator do
     )
   end
 
+  let(:credential) do 
+    double('credential', api_key: 'test', valid_api_key?: true)
+  end
+
   before do
     # Assume all of the LDAP binds would be valid
     allow_any_instance_of(Net::LDAP)
@@ -28,7 +32,7 @@ RSpec.describe Authentication::AuthnLdap::Authenticator do
     # Assume credentials will exist
     allow(::Credentials)
       .to receive(:[])
-      .and_return(Credentials.new.tap { | cred | cred.rotate_api_key })
+      .and_return(credential)
   end
 
   context "as user alice" do

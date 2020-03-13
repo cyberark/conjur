@@ -70,12 +70,12 @@ module Loader
     module CreateRole
       def self.included base
         base.module_eval do
-          def_delegators :@policy_object, :roleid
+          def_delegators :@policy_object, :roleid, :api_key_enabled
         end
       end
 
       def create_role!
-        ::Role.create role_id: roleid
+        ::Role.create role_id: roleid, api_key_enabled: api_key_enabled ||= true
       end
       
       def role

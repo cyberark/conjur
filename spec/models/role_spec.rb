@@ -18,7 +18,8 @@ describe Role, :type => :model do
 
   let(:base_hash) {
     {
-      id: the_user.role_id
+      id: the_user.role_id,
+      api_key_enabled: true
     }
   }
 
@@ -27,6 +28,14 @@ describe Role, :type => :model do
   end
   it "kind is required" do
     expect{ Role.create(role_id: "the-account") }.to raise_error(Sequel::CheckConstraintViolation, /has_kind/)
+  end
+
+  it "doesn't generate an API key if disabled" do 
+    expect(Role.create(role_id: 'account:host:spec', api_key_enabled: false).api_key).to be_nil
+  end
+
+  it "does generate an API key if not disabled" do 
+    expect(Role.create(role_id: 'account:host:spec').api_key).not_to be_nil
   end
 
   context "basic object" do

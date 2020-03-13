@@ -61,14 +61,14 @@ class Credentials < Sequel::Model
   end
 
   def valid_api_key? key
+    return false unless api_key_enabled?
     return false if expired?
+
     key && (key == api_key) 
   end
   
   def validate
     super
-
-    validates_presence [ :api_key ]
 
     errors.add(:password, ::Errors::Conjur::InsufficientPasswordComplexity.new.to_s) if @plain_password && (@plain_password.index("\n") || @plain_password !~ VALID_PASSWORD_REGEX)
   end
@@ -76,15 +76,21 @@ class Credentials < Sequel::Model
   def before_validation
     super
     
-    self.api_key ||= self.class.random_api_key
+    self.api_key ||= self.class.random_api_key if api_key_enabled?
   end
   
   def rotate_api_key
-    self.api_key = self.class.random_api_key
+    self.api_key = self.class.random_api_key if api_key_enabled?
   end
   
   private
   
+  def api_key_enabled?
+    return false unless self.role
+
+    self.role.api_key_enabled
+  end
+
   def expired?
     return false unless self.expiration
     
