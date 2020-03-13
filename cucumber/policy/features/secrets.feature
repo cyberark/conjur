@@ -1,6 +1,6 @@
 Feature: Secrets can be managed through policies.
 
-  Each resource in Possum can have an associated list of secrets. Secrets on a resource
+  Each resource in Conjur can have an associated list of secrets. Secrets on a resource
   support two operations, which correspond to `execute` and `update` privileges:
 
   - **update** Adds a new value to the secrets list.
@@ -10,7 +10,7 @@ Feature: Secrets can be managed through policies.
   Old secret values can still be obtained (up to a limit of retained history, which is currently
   20 values).
 
-  By convention, secrets are stored in Possum using a resource called a `variable`. 
+  By convention, secrets are stored in Conjur using a resource called a `variable`. 
 
   Scenario: The owner of a secret has full privileges to it.
 

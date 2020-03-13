@@ -131,9 +131,9 @@ pipeline {
   post {
     success {
       script {
-         if (env.BRANCH_NAME == 'master') {
-           build (job:'../cyberark--secrets-provider-for-k8s/master', wait: false)
-         }
+        if (env.BRANCH_NAME == 'master') {
+          build (job:'../cyberark--secrets-provider-for-k8s/master', wait: false)
+        }
       }
     }
     always {
