@@ -62,16 +62,16 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
   Scenario: An LDAP user authorized in Conjur can login with a good password
     When I login via LDAP as authorized Conjur user "alice"
     And I authenticate via LDAP as authorized Conjur user "alice" using key
-    Then user "alice" is authorized
+    Then user "alice" has been authorized by Conjur
 
   Scenario: An LDAP user authorized in Conjur can login with a good password using TLS
     When I login via secure LDAP as authorized Conjur user "alice"
     And I authenticate via secure LDAP as authorized Conjur user "alice" using key
-    Then user "alice" is authorized
+    Then user "alice" has been authorized by Conjur
 
   Scenario: An LDAP user authorized in Conjur can authenticate with a good password
     When I authenticate via LDAP as authorized Conjur user "alice"
-    Then user "alice" is authorized
+    Then user "alice" has been authorized by Conjur
 
   Scenario: An LDAP user authorized in Conjur can't login with a bad password
     When my LDAP password is wrong for authorized user "alice"

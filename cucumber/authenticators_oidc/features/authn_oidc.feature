@@ -39,7 +39,7 @@ Feature: Users can authneticate with OIDC authenticator
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I fetch an ID Token for username "alice" and password "alice"
     When I authenticate via OIDC with id token
-    Then user "alice" is authorized
+    Then user "alice" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
 
   Scenario: A valid id token with email as id-token-user-property
@@ -54,7 +54,7 @@ Feature: Users can authneticate with OIDC authenticator
     When I add the secret value "email" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/id-token-user-property"
     And I fetch an ID Token for username "alice" and password "alice"
     And I authenticate via OIDC with id token
-    Then user "alice@conjur.net" is authorized
+    Then user "alice@conjur.net" has been authorized by Conjur
 
   Scenario: Adding a group to keycloak/users group permits users to authenticate
     Given I extend the policy with:
@@ -73,7 +73,7 @@ Feature: Users can authneticate with OIDC authenticator
     """
     And I fetch an ID Token for username "bob" and password "bob"
     When I authenticate via OIDC with id token
-    Then user "bob" is authorized
+    Then user "bob" has been authorized by Conjur
 
   Scenario: Non-existing username in ID token is denied
     Given I fetch an ID Token for username "not_in_conjur" and password "not_in_conjur"
@@ -150,7 +150,7 @@ Feature: Users can authneticate with OIDC authenticator
   Scenario: provider-uri dynamic change
     And I fetch an ID Token for username "alice" and password "alice"
     And I authenticate via OIDC with id token
-    And user "alice" is authorized
+    And user "alice" has been authorized by Conjur
     # Update provider uri to a different hostname and verify `provider-uri` has changed
     When I add the secret value "https://different-provider:8443" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
     And I authenticate via OIDC with id token
@@ -159,12 +159,12 @@ Feature: Users can authneticate with OIDC authenticator
     When I successfully set OIDC variables
     And I fetch an ID Token for username "alice" and password "alice"
     And I authenticate via OIDC with id token
-    Then user "alice" is authorized
+    Then user "alice" has been authorized by Conjur
 
   Scenario: Bad Gateway is raised in case of an invalid OIDC Provider hostname
     Given I fetch an ID Token for username "alice" and password "alice"
     And I authenticate via OIDC with id token
-    And user "alice" is authorized
+    And user "alice" has been authorized by Conjur
     # Update provider uri to reachable but invalid hostname
     When I add the secret value "http://127.0.0.1.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
     And I authenticate via OIDC with id token

@@ -1,4 +1,4 @@
-Then(/^(user|host) "(\S+)" is authorized$/) do |role_type, username|
+Then(/^(user|host) "(\S+)" has been authorized by Conjur$/) do |role_type, username|
   username = role_type == "user" ? username : "host/#{username}"
   expect(retrieved_access_token.username).to eq(username)
 end
