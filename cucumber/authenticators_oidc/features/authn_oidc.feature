@@ -167,8 +167,13 @@ Feature: Users can authneticate with OIDC authenticator
     And user "alice" has been authorized by Conjur
     # Update provider uri to reachable but invalid hostname
     When I add the secret value "http://127.0.0.1.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
+    And I save my place in the log file
     And I authenticate via OIDC with id token
     Then it is bad gateway
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::OAuth::ProviderDiscoveryFailed
+    """
 
   Scenario: Performance test
     And I fetch an ID Token for username "alice" and password "alice"
