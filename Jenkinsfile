@@ -69,6 +69,45 @@ pipeline {
         stage('OIDC Authenticator') {
           steps { sh 'ci/test cucumber_authenticators_oidc' }
         }
+        // We have 2 stages for the Azure Authenticator tests. One is
+        // responsible for allocating an Azure VM, from which we will get an
+        // Azure access token for Conjur authentication. It sets the Azure VM IP
+        // in the env and waits until the authn-azure tests are finished. We use
+        // this mechanism as we need a live Azure VM for getting the Azure token
+        // and we don't want to have a long running-machine deployed in Azure.
+        stage('Azure Authenticator preparation - Allocate Azure Authenticator Instance') {
+          steps {
+            script {
+              node('azure-authn') {
+                env.AZURE_AUTHN_INSTANCE_IP = sh(script: 'curl icanhazip.com', returnStdout: true)
+                env.KEEP_AZURE_AUTHN_INSTANCE = "true"
+                while(env.KEEP_AZURE_AUTHN_INSTANCE == "true") {
+                  sleep(time: 1, unit: "SECONDS")
+                }
+              }
+            }
+          }
+        }
+        stage('Azure Authenticator') {
+          steps {
+            script {
+              while (!env.AZURE_AUTHN_INSTANCE_IP?.trim()) {
+                sleep(time: 1, unit: "SECONDS")
+              }
+              sh(
+                script: 'summon -f ci/authn-azure/secrets.yml ci/test cucumber_authenticators_azure',
+                returnStdout: true
+              )
+            }
+          }
+          post {
+            always {
+              script {
+                env.KEEP_AZURE_AUTHN_INSTANCE = "false"
+              }
+            }
+          }
+        }
         stage('Policy') {
           steps { sh 'ci/test cucumber_policy' }
         }
