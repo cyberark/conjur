@@ -274,6 +274,44 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00048E"
         )
       end
+
+      module AuthnAzure
+
+        RoleMissingConstraint = ::Util::TrackableErrorClass.new(
+          msg:  "Role does not have the required constraint: {0-constraint}",
+          code: "CONJ00057E"
+        )
+
+        InvalidApplicationIdentity = ::Util::TrackableErrorClass.new(
+          msg:  "Application identity field '{0-field-name}' does not match application identity in Azure token",
+          code: "CONJ00049E"
+        )
+
+        ConstraintNotSupported = ::Util::TrackableErrorClass.new(
+          msg:  "Constraint type '{0}' is not a supported application identity. The supported resources are '{1}'",
+          code: "CONJ00050E"
+        )
+
+        TokenFieldNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
+          msg:  "Field '{0-field-name}' not found or empty in token",
+          code: "CONJ00051E"
+        )
+
+        XmsMiridParseError = ::Util::TrackableErrorClass.new(
+          msg:  "Failed to parse xms_mirid {0}. Reason: {1}",
+          code: "CONJ00052E"
+        )
+
+        MissingRequiredFieldsInXmsMirid = ::Util::TrackableErrorClass.new(
+          msg:  "Required fields {0} are missing in xms_mirid {1}",
+          code: "CONJ00053E"
+        )
+
+        MissingProviderFieldsInXmsMirid = ::Util::TrackableErrorClass.new(
+          msg:  "Provider fields are missing in xms_mirid {1}",
+          code: "CONJ00054E"
+        )
+      end
     end
 
     module Util
