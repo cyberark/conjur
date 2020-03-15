@@ -60,10 +60,10 @@ Feature: Users can authenticate with OIDC & LDAP authenticators
     # Authenticate with authn-oidc
     And I fetch an ID Token for username "alice" and password "alice"
     When I authenticate via OIDC with id token
-    Then user "alice" is authorized
+    Then user "alice" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
     # Authenticate with authn-ldap
     When I login via LDAP as authorized Conjur user "alice"
     And I authenticate via LDAP as authorized Conjur user "alice" using key
-    Then user "alice" is authorized
+    Then user "alice" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
