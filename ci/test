@@ -49,6 +49,14 @@ cucumber_authenticators_ldap() {
   _run_cucumber_tests authenticators_ldap 'ldap-server'
 }
 
+cucumber_authenticators_azure() {
+  : DOC - Runs Cucumber Azure Authenticator features
+
+  ./authn-azure/check_dependencies.sh
+
+  _run_cucumber_tests authenticators_azure "" "$(_get_azure_env_args)"
+}
+
 cucumber_authenticators_oidc() {
   : DOC - Runs Cucumber OIDC Authenticator features
 
@@ -185,6 +193,21 @@ _get_oidc_env_args() {
   oidc_env_args="$oidc_env_args -e ID_TOKEN_USER_PROPERTY=preferred_username"
 
   echo "${oidc_env_args}"
+}
+
+_get_azure_env_args() {
+  local azure_env_args=''
+  azure_env_args="$azure_env_args -e AZURE_TENANT_ID=$AZURE_TENANT_ID"
+  azure_env_args="$azure_env_args -e AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID"
+  azure_env_args="$azure_env_args -e AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP"
+  azure_env_args="$azure_env_args -e AZURE_AUTHN_INSTANCE_IP=$AZURE_AUTHN_INSTANCE_IP"
+  azure_env_args="$azure_env_args -e AZURE_AUTHN_INSTANCE_USERNAME=$AZURE_AUTHN_INSTANCE_USERNAME"
+  azure_env_args="$azure_env_args -e AZURE_AUTHN_INSTANCE_PASSWORD=$AZURE_AUTHN_INSTANCE_PASSWORD"
+  azure_env_args="$azure_env_args -e USER_ASSIGNED_IDENTITY=$USER_ASSIGNED_IDENTITY"
+
+# TODO: add this once available
+#  azure_env_args="$azure_env_args -e SYSTEM_ASSIGNED_IDENTITY=$SYSTEM_ASSIGNED_IDENTITY"
+  echo "${azure_env_args}"
 }
 
 _wait_for_keycloak() {
