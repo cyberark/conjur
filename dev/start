@@ -151,6 +151,7 @@ main() {
   env_args="$env_args -e CONJUR_AUTHENTICATORS=$enabled_authenticators"
 
   start_services $services
+  start_conjur
 
   if [[ $ENABLE_AUDIT = true ]]; then
     # Run database migration to create audit database schema
