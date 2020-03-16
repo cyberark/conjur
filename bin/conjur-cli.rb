@@ -83,12 +83,12 @@ command :server do |c|
     # Start the rotation watcher on master
     #
     # TODO: turn this back on
-    # is_master = !Sequel::Model.db['SELECT pg_is_in_recovery()'].first.values[0]
-    # if is_master
-    #   Process.fork do
-    #     exec "rake expiration:watch"
-    #   end
-    # end
+    is_master = !Sequel::Model.db['SELECT pg_is_in_recovery()'].first.values[0]
+    if is_master
+      Process.fork do
+        exec "rake expiration:watch"
+      end
+    end
 
     Process.waitall
 
