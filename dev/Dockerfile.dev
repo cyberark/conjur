@@ -23,7 +23,6 @@ RUN gem install -N -v 1.16.2 bundler
 
 RUN mkdir -p /src/conjur-server
 
-ADD .irbrc /root
 ADD .pryrc /root
 
 WORKDIR /src/conjur-server
