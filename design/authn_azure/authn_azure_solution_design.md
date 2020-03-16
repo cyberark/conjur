@@ -418,18 +418,18 @@ Azure authenticator performance should conform with our other authenticators wit
 ### Security boundary
 
 #### Azure security boundary
-The security boundary (who can get an Azure access token) of the Azure Managed Identity Service is the resource to which it is attached to.
+The security boundary (i.e. who can get an Azure access token) of the Azure Managed Identity Service is the resource to which it is attached to.
 For more details about this boundary, please visit [Azure managed identity security boundary](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/known-issues#what-is-the-security-boundary-of-managed-identities-for-azure-resources).
 
 #### Conjur security boundary
-The security boundary of Conjur Azure authenticator is the access token received in the authentication request.
+The security boundary of the Conjur Azure authenticator is the Azure access token received in the authentication request.
 This access token is fetched using Azure Instance Metadata Service (IMDS) which in turn, uses Azure Active Directory (AAD) to generate the token.
 For the full details of how to achieve an access token and how its being generated, please visit [Azure managed identity overview](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview).
 
 
 ### Authentication
 Conjur Azure authenticator authenticates the originator by its provided access token.
-The full authentication process described in the [Authentication flow](#authentication-flow) section.
+The full authentication process is described in the [Authentication flow](#authentication-flow) section.
 
 ### Authorization
 After authenticating the originator, Conjur Azure authenticator returns a Conjur access token (which is different from the Azure access token).
@@ -440,17 +440,17 @@ For more details about how Conjur authorization works, please visit [Conjur auth
 
  
 ### Azure Access token
-Conjur Azure authenticator receive an Azure access token which is a credential for the Azure resource. As such, Conjur handles this token with the appropriate sensitivity.
+Conjur Azure authenticator receives an Azure access token which is a credential for the Azure resource. As such, Conjur handles this token with the appropriate sensitivity.
 
 #### Azure Access token in transit
-Any request to Conjur done over HTTPS to protect against any kind of Man-In-The-Middle attack. 
+Any request to Conjur is done over HTTPS to protect against any kind of Man-In-The-Middle attack. 
 
 #### Azure access token at rest 
-Conjur use that token only for the authentication flow and does not store it or log it into any persistent store.
+Conjur uses that token only for the authentication flow and does not store it or log it into any persistent store.
 
 #### Azure access token Time-To-Live (TTL)
-Attack surface can be reduce by limiting Azure access token time-to-live (TTL).
-The default TTL of an Azure access token is one hour, but it can reduce to shorter period. To reduce the TTL of Azure access token, please visit [Configurable token lifetimes in Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-configurable-token-lifetimes). 
+Attack surface can be reduced by limiting Azure access token time-to-live (TTL).
+The default TTL of an Azure access token is one hour, but it can reduced to a shorter period. To reduce the TTL of Azure access token, please visit [Configurable token lifetimes in Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-configurable-token-lifetimes). 
 ###
 
  
