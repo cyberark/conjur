@@ -2,9 +2,9 @@
 
 RSpec.describe Authentication::OAuth::DiscoverIdentityProvider do
 
-  let (:test_provider_uri) { "test-provider-uri" }
-  let (:test_error) { "test-error" }
-  let (:mock_provider) { "test-provider" }
+  let(:test_provider_uri) { "test-provider-uri" }
+  let(:test_error) { "test-error" }
+  let(:mock_provider) { "test-provider" }
 
   def mock_discovery_provider(error:)
     double('discovery_provider').tap do |discovery_provider|
@@ -37,7 +37,7 @@ RSpec.describe Authentication::OAuth::DiscoverIdentityProvider do
   end
 
   context "A non-discoverable identity provider" do
-    context "fails on timeout error" do
+    context "that fails on a timeout error" do
       subject do
         Authentication::OAuth::DiscoverIdentityProvider.new(
           open_id_discovery_service: mock_discovery_provider(error: HTTPClient::ConnectTimeoutError)
@@ -50,7 +50,7 @@ RSpec.describe Authentication::OAuth::DiscoverIdentityProvider do
         expect { subject }.to raise_error(Errors::Authentication::OAuth::ProviderDiscoveryTimeout)
       end
 
-      context "fails on general error" do
+      context "that fails on a general error" do
         subject do
           Authentication::OAuth::DiscoverIdentityProvider.new(
             open_id_discovery_service: mock_discovery_provider(error: test_error)
