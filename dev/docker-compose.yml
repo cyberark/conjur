@@ -43,6 +43,7 @@ services:
       # TODO: Where should we be running rspec tests from, ideally?
       # See https://github.com/DatabaseCleaner/database_cleaner#safeguards
       DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL: "true"
+      BUNDLE_GEMFILE: /src/conjur-server/Gemfile
     ports:
       - "3000:3000"
       - "1234:1234"
