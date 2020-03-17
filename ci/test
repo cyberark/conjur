@@ -196,14 +196,14 @@ _get_oidc_env_args() {
 }
 
 _get_azure_env_args() {
-  local azure_env_args=''
-  azure_env_args="$azure_env_args -e AZURE_TENANT_ID=$AZURE_TENANT_ID"
+  local azure_env_args="-e AZURE_TENANT_ID=$AZURE_TENANT_ID"
   azure_env_args="$azure_env_args -e AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID"
   azure_env_args="$azure_env_args -e AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP"
   azure_env_args="$azure_env_args -e AZURE_AUTHN_INSTANCE_IP=$AZURE_AUTHN_INSTANCE_IP"
   azure_env_args="$azure_env_args -e AZURE_AUTHN_INSTANCE_USERNAME=$AZURE_AUTHN_INSTANCE_USERNAME"
   azure_env_args="$azure_env_args -e AZURE_AUTHN_INSTANCE_PASSWORD=$AZURE_AUTHN_INSTANCE_PASSWORD"
   azure_env_args="$azure_env_args -e USER_ASSIGNED_IDENTITY=$USER_ASSIGNED_IDENTITY"
+  azure_env_args="$azure_env_args -e USER_ASSIGNED_IDENTITY_CLIENT_ID=$USER_ASSIGNED_IDENTITY_CLIENT_ID"
 
 # TODO: add this once available
 #  azure_env_args="$azure_env_args -e SYSTEM_ASSIGNED_IDENTITY=$SYSTEM_ASSIGNED_IDENTITY"
@@ -313,7 +313,7 @@ _run_cucumber() {
   # If there's no tty (e.g. we're running as a Jenkins job, pass -T to
   # docker-compose)
   local notty=$(tty -s || echo '-T' && true)
-  
+
   docker-compose run --no-deps $notty --rm $cucumber_env_args \
      -e CONJUR_AUTHN_API_KEY=$api_key \
      -e CUCUMBER_NETWORK=$(_find_cucumber_network) \
@@ -328,12 +328,12 @@ _run_cucumber_tests() {
   if [[ ! -z "$3" ]]; then
     local cucumber_env_args="$3"
   fi
-  
+
   _setup_for_cucumber "$services"
   
   # Grab the admin user API key
   local api_key=$(_get_api_key)
-  
+
   # Run the tests
   _run_cucumber "$cucumber_env_args" \
      "bundle exec cucumber -p $profile --format json --out cucumber/$profile/cucumber_results.json --format junit --out cucumber/$profile/features/reports"

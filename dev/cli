@@ -61,6 +61,7 @@ function enable_azure() {
   azure_env_args="$azure_env_args -e AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID"
   azure_env_args="$azure_env_args -e AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP"
   azure_env_args="$azure_env_args -e USER_ASSIGNED_IDENTITY=$USER_ASSIGNED_IDENTITY"
+  azure_env_args="$azure_env_args -e USER_ASSIGNED_IDENTITY_CLIENT_ID=$USER_ASSIGNED_IDENTITY_CLIENT_ID"
 
  # TODO: add this once available
 #  azure_env_args="$azure_env_args -e SYSTEM_ASSIGNED_IDENTITY=$SYSTEM_ASSIGNED_IDENTITY"
