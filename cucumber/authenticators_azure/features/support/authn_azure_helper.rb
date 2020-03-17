@@ -9,14 +9,30 @@ module AuthnAzureHelper
     set_azure_variable("provider-uri", value)
   end
 
-  def retrieve_azure_access_token
-    command = "curl 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fmanagement.azure.com%2F' -H Metadata:true -s | jq -r '.access_token'"
-    @azure_token = run_command_in_machine(azure_machine_ip, azure_machine_username, azure_machine_password, command)
+  def retrieve_user_assigned_azure_access_token
+    retrieve_azure_access_token(retrieve_azure_token_command(is_user_assigned: true))
+  end
+
+  def retrieve_system_assigned_azure_access_token
+    retrieve_azure_access_token(retrieve_azure_token_command(is_user_assigned: false))
+  end
+
+  def retrieve_azure_token_command is_user_assigned:
+    base_command = "curl 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01" \
+      "&resource=https%3A%2F%2Fmanagement.azure.com%2F"
+
+    base_command = "#{base_command}&client_id=#{user_assigned_identity_client_id}" if is_user_assigned
+
+    "#{base_command}' -H Metadata:true -s | jq -r '.access_token'"
+  end
+
+  def retrieve_azure_access_token retrieve_access_token_command
+    @azure_token = run_command_in_machine(azure_machine_ip, azure_machine_username, azure_machine_password, retrieve_access_token_command)
   rescue => err
     raise "Failed to fetch azure token with reason: #{err}"
   end
 
-  def authenticate_azure_token(service_id:, account:, username:, azure_token: @azure_token)
+  def authenticate_azure_token(service_id:, account:, username:, azure_token:)
     username = username.gsub("/", "%2F")
     path = "#{conjur_hostname}/authn-azure/#{service_id}/#{account}/#{username}/authenticate"
 
@@ -64,6 +80,14 @@ module AuthnAzureHelper
 
   def user_assigned_identity
     @user_assigned_identity ||= validated_env_var('USER_ASSIGNED_IDENTITY')
+  end
+
+  def user_assigned_identity_client_id
+    @user_assigned_identity_client_id ||= validated_env_var('USER_ASSIGNED_IDENTITY_CLIENT_ID')
+  end
+
+  def invalid_token
+    "invalidAzureToken"
   end
 end
 
