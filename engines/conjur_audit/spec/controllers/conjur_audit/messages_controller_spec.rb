@@ -3,13 +3,14 @@
 require 'rails_helper'
 
 module ConjurAudit
-  RSpec.describe MessagesController, type: :controller do
+  RSpec.describe MessagesController, type: :request do
+
     describe "GET #index" do
       let(:messages) { JSON.parse response.body }
 
       it "returns audit messages" do
         add_message "foo"
-        get :index
+        get root_path
         expect(response).to have_http_status(:success)
         expect(messages).to match [include('message' => 'foo')]
       end
@@ -18,10 +19,10 @@ module ConjurAudit
         add_message "foo", severity: 4
         add_message "bar", severity: 5
         
-        get :index, severity: 4
+        get root_path, params: { severity: 4 }, as: :json
 
         expect(response).to have_http_status(:success)
-        expect(messages).to match [include('message' => 'foo')]
+        expect(messages.any? { |h| h['message'] == 'foo' }).to be true
       end
 
       it "supports paging" do
@@ -29,7 +30,7 @@ module ConjurAudit
           add_message "#{val} foo"
         end
 
-        get :index, limit: 4, offset: 2
+        get root_path, params: { limit: 4, offset: 2 }
 
         expect(response).to have_http_status(:success)
         expect(messages.length).to eq(4)
@@ -42,7 +43,7 @@ module ConjurAudit
 
       it "returns 404 if no matching entries are found" do
         add_message "bar", severity: 5
-        get :index, severity: 4
+        get root_path, params: { severity: 4 }
         expect(response).to have_http_status(:not_found)
       end
 
@@ -53,15 +54,16 @@ module ConjurAudit
         end
 
         it "allows filtering on sdata" do
-          get :index, 'foo/present' => true
+          get root_path, params: { 'foo/present' => true }, as: :json
+          
           expect(response).to have_http_status(:success)
-          expect(messages).to match [include('message' => 'foo')]
+          expect(messages.any? { |h| h['message'] == 'foo' }).to be true
         end
 
         it "allows conjur-specific filtering on resources" do
           add_message "resource test", sdata: { "subject@43868": { resource: "acct:kind:id" } }
 
-          get :index, resource: "acct:kind:id"
+          get root_path, params: { resource: "acct:kind:id" }
 
           expect(response).to have_http_status(:success)
           expect(messages).to match [include("message" => "resource test")]
@@ -71,7 +73,7 @@ module ConjurAudit
           add_message "resource test", sdata: { "subject@43868": { resource: "acct:kind:id" } }
           add_message "role test", sdata: { "subject@43868": { role: "acct:kind:id" } }
 
-          get :index, role: "acct:kind:id"
+          get root_path, params: { role: "acct:kind:id" }
 
           expect(response).to have_http_status(:success)
           expect(messages).to match [include("message" => "role test")]
@@ -81,7 +83,7 @@ module ConjurAudit
           add_message "resource test", sdata: { "subject@43868": { resource: "acct:kind:id" } }
           add_message "role test", sdata: { "subject@43868": { role: "acct:kind:id" } }
 
-          get :index, entity: "acct:kind:id"
+          get root_path, params: { entity: "acct:kind:id" }
 
           expect(response).to have_http_status(:success)
           expect(messages).to match_array [
@@ -96,10 +98,10 @@ module ConjurAudit
           add_message "resource test 5", severity: 5, sdata: { "subject@43868": { resource: "acct:kind:id" } }
           add_message "resource test 5v", severity: 5, sdata: { "subject@43868": { resource: "acct:kind:id" }, other: { param: "value" } }
 
-          get :index, resource: "acct:kind:id", severity: 4, 'other/param': 'value'
+          get root_path, params: { resource: "acct:kind:id", severity: 4, 'other/param': 'value' }, as: :json
 
           expect(response).to have_http_status(:success)
-          expect(messages).to match [include("message" => "resource test 4v")]
+          expect(messages.any? { |h| h['message'] == 'resource test 4v' }).to be true
         end
       end
     end
