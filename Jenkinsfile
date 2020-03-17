@@ -61,9 +61,9 @@ pipeline {
         stage('Rotators') {
           steps { sh 'ci/test cucumber_rotators' }
         }
-        // stage('Kubernetes 1.7 in GKE') {
-        //   steps { sh 'cd ci/authn-k8s && summon ./test.sh gke' }
-        // }
+        stage('Kubernetes 1.7 in GKE') {
+          steps { sh 'cd ci/authn-k8s && summon ./test.sh gke' }
+        }
         // stage('Audit') {
         //   steps { sh 'ci/test rspec_audit'}
         // }
