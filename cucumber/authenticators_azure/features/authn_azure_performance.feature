@@ -1,4 +1,9 @@
-Feature: Azure Authenticator performance
+Feature: Azure Authenticator - Performance tests
+
+  In this feature we test that Azure Authenticator performance is meeting
+  the SLA. We run multiple authn-azure requests in multiple threads and verify
+  that the average time of a request is no more that the agreed time.
+  We test both successful requests and unsuccessful requests.
 
   Background:
     Given a policy:
@@ -19,7 +24,7 @@ Feature: Azure Authenticator performance
         resource: !webservice
     """
     And I am the super-user
-    And I successfully set Azure variables
+    And I successfully set Azure variables with the correct values
     And I have host "test-app"
     And I set Azure annotations to host "test-app"
     And I grant group "conjur/authn-azure/prod/apps" to host "test-app"

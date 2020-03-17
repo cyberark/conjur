@@ -1,4 +1,4 @@
-Feature: Azure Authenticator status check
+Feature: Azure Authenticator - Status Check
 
   Scenario: A properly configured Azure authenticator returns a successful response
     Given a policy:
@@ -44,7 +44,7 @@ Feature: Azure Authenticator status check
       member: !user alice
     """
     And I am the super-user
-    And I successfully set Azure variables
+    And I successfully set Azure variables with the correct values
     And I login as "alice"
     When I GET "/authn-azure/prod/cucumber/status"
     Then the HTTP response status code is 200

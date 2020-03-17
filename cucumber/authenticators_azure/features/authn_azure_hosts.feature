@@ -22,7 +22,7 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
         resource: !webservice
     """
     And I am the super-user
-    And I successfully set Azure variables
+    And I successfully set Azure variables with the correct values
 
   Scenario: Host with user-assigned-identity annotation is authorized
     And I have host "user-assigned-identity-app"
@@ -44,7 +44,7 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::AuthnAzure::RoleMissingConstraint
+    Errors::Authentication::AuthnAzure::RoleMissingConstraint: CONJ00057E Role does not have the required constraint: resource_group
     """
 
   Scenario: Host without subscription-id annotation is denied
@@ -57,7 +57,7 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::AuthnAzure::RoleMissingConstraint
+    Errors::Authentication::AuthnAzure::RoleMissingConstraint: CONJ00057E Role does not have the required constraint: subscription_id
     """
 
   Scenario: Host without any Azure annotation is denied
@@ -71,6 +71,8 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     """
     Errors::Authentication::AuthnAzure::RoleMissingConstraint
     """
+
+  # TODO: add test for IllegalConstraintCombinations once we can test system-assigned id
 
   Scenario: Host with incorrect subscription-id Azure annotation is denied
     And I have host "incorrect-subscription-id-app"

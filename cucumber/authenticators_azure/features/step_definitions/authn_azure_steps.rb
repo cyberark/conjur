@@ -1,4 +1,4 @@
-Given(/^I successfully set Azure variables$/) do
+Given(/^I successfully set Azure variables with the correct values$/) do
   set_azure_provider_uri_variable
 end
 

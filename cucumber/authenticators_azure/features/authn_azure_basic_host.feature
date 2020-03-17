@@ -25,7 +25,7 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
         resource: !webservice
     """
     And I am the super-user
-    And I successfully set Azure variables
+    And I successfully set Azure variables with the correct values
     And I have host "test-app"
     And I set Azure annotations to host "test-app"
     And I grant group "conjur/authn-azure/prod/apps" to host "test-app"
@@ -59,7 +59,7 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     And I authenticate via Azure with token as host "test-app"
     Then it is bad gateway
     # Check recovery to a valid provider uri
-    When I successfully set Azure variables
+    When I successfully set Azure variables with the correct values
     And I fetch an Azure access token from inside machine
     And I authenticate via Azure with token as host "test-app"
     And host "test-app" has been authorized by Conjur

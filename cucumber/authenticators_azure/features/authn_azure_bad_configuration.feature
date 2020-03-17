@@ -1,4 +1,4 @@
-Feature: Hosts can authenticate with Azure authenticator
+Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
 
   Scenario: provider-uri variable missing in policy is denied
     Given a policy:
@@ -77,7 +77,7 @@ Feature: Hosts can authenticate with Azure authenticator
     And I have host "test-app"
     And I set Azure annotations to host "test-app"
     And I grant group "conjur/authn-azure/prod/apps" to host "test-app"
-    And I successfully set Azure variables
+    And I successfully set Azure variables with the correct values
     And I fetch an Azure access token from inside machine
     And I save my place in the log file
     When I authenticate via Azure with token as host "test-app"
@@ -109,7 +109,7 @@ Feature: Hosts can authenticate with Azure authenticator
     And I have host "test-app"
     And I set Azure annotations to host "test-app"
     And I grant group "conjur/authn-azure/prod/apps" to host "test-app"
-    And I successfully set Azure variables
+    And I successfully set Azure variables with the correct values
     And I fetch an Azure access token from inside machine
     And I save my place in the log file
     When I authenticate via Azure with token as host "test-app"
