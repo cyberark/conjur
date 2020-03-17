@@ -82,7 +82,7 @@ pipeline {
                 env.AZURE_AUTHN_INSTANCE_IP = sh(script: 'curl icanhazip.com', returnStdout: true)
                 env.KEEP_AZURE_AUTHN_INSTANCE = "true"
                 while(env.KEEP_AZURE_AUTHN_INSTANCE == "true") {
-                  sleep(time: 1, unit: "SECONDS")
+                  sleep(time: 15, unit: "SECONDS")
                 }
               }
             }
@@ -92,11 +92,10 @@ pipeline {
           steps {
             script {
               while (!env.AZURE_AUTHN_INSTANCE_IP?.trim()) {
-                sleep(time: 1, unit: "SECONDS")
+                sleep(time: 15, unit: "SECONDS")
               }
               sh(
                 script: 'summon -f ci/authn-azure/secrets.yml ci/test cucumber_authenticators_azure',
-                returnStdout: true
               )
             }
           }
