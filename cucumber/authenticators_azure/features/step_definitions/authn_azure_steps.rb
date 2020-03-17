@@ -14,14 +14,54 @@ Given(/I fetch an Azure access token from inside machine/) do
   retrieve_azure_access_token
 end
 
-Given(/I authenticate via Azure with token as (user|host) "([^"]*)"/) do |role_type, username|
+Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?via Azure with (no |empty |invalid )?token as (user|host) "([^"]*)"/) do |num_requests, num_threads, token_state, role_type, username|
   username = role_type == "user" ? username : "host/#{username}"
 
-  authenticate_azure_token(
-    service_id: 'prod',
-    account: 'cucumber',
-    username: username
-  )
+  token = case token_state
+          when "no "
+            nil
+          when "empty "
+            ""
+          when "invalid "
+            invalid_token
+          else
+            @azure_token
+          end
+
+  num_requests = 1 unless num_requests
+  num_threads = 1 unless num_threads
+
+  queue = (1..num_requests.to_i).inject(Queue.new, :push)
+  results = []
+
+  all_threads = Array.new(num_threads.to_i) do
+    Thread.new do
+      until queue.empty?
+        queue.shift
+        results.push(
+          Benchmark.measure do
+            authenticate_azure_token(
+              service_id:  'prod',
+              account:     'cucumber',
+              username:    username,
+              azure_token: token
+            )
+          end
+        )
+      end
+    end
+  end
+
+  all_threads.each(&:join)
+  @azure_perf_results = results.map(&:real)
+end
+
+Then(/^The "([^"]*)" Azure Authentication request response time should be less than "([^"]*)" seconds?$/) do |type, threshold|
+  type = type.downcase.to_sym
+  raise "Unexpected Type" unless %i(max avg).include?(type)
+  results = @azure_perf_results
+  actual_time = type == :avg ? results.sum.fdiv(results.size) : results.max
+  expect(actual_time).to be < threshold.to_f
 end
 
 Given(/^I set Azure annotations to host "([^"]*)"$/) do |hostname|
