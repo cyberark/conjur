@@ -10,6 +10,8 @@ check_env_var() {
   fi
 }
 
+echo "Checking required environment variables for authn-azure tests"
+
 # These variables should come from Conjur via summon
 check_env_var "AZURE_TENANT_ID"
 check_env_var "AZURE_SUBSCRIPTION_ID"
@@ -17,7 +19,11 @@ check_env_var "AZURE_RESOURCE_GROUP"
 check_env_var "AZURE_AUTHN_INSTANCE_USERNAME"
 check_env_var "AZURE_AUTHN_INSTANCE_PASSWORD"
 check_env_var "USER_ASSIGNED_IDENTITY"
+check_env_var "USER_ASSIGNED_IDENTITY_CLIENT_ID"
 
 # These variables should come from Jenkins
 check_env_var "AZURE_AUTHN_INSTANCE_IP"
 #check_env_var "SYSTEM_ASSIGNED_IDENTITY" # TODO: add this once available
+
+echo "Required environment variables for authn-azure tests exist"
+
