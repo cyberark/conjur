@@ -1,4 +1,9 @@
-Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
+Feature: Azure Authenticator - Bad authenticator configuration leads to an error
+
+  In this feature we define an Azure Authenticator with a configuration
+  mistake. Each test will verify that we fail the authentication in such a case
+  and log the relevant error for the user to re-configure the authenticator
+  properly
 
   Scenario: provider-uri variable missing in policy is denied
     Given a policy:

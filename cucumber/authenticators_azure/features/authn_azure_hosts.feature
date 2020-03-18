@@ -1,4 +1,4 @@
-Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
+Feature: Azure Authenticator - Different Hosts can authenticate with Azure authenticator
 
   In this feature we define an Azure authenticator in policy, define different
   hosts and perform authentication with Conjur.
