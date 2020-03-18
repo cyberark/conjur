@@ -64,17 +64,6 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     And I authenticate via Azure with token as host "test-app"
     And host "test-app" has been authorized by Conjur
 
-  Scenario: Bad Gateway is raised in case of an invalid ID Provider hostname
-    Given I add the secret value "http://127.0.0.1.com/" to the resource "cucumber:variable:conjur/authn-azure/prod/provider-uri"
-    And I fetch an Azure access token from inside machine
-    And I save my place in the log file
-    When I authenticate via Azure with token as host "test-app"
-    Then it is bad gateway
-    And The following appears in the log after my savepoint:
-    """
-    Errors::Authentication::OAuth::ProviderDiscoveryFailed
-    """
-
   Scenario: Missing Azure access token is a bad request
     Given I save my place in the log file
     When I authenticate via Azure with no token as host "test-app"
