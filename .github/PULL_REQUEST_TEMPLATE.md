@@ -13,8 +13,8 @@ Connected to #[relevant GitHub issues, eg 76]
 - [ ] This PR does not include user-facing changes and doesn't require a CHANGELOG update
 
 #### Test coverage
-- [ ] This PR includes new unit or integration tests to go with the code changes
+- [ ] This PR includes new unit and integration tests to go with the code changes
 
 #### Follow-on issues
-- [ ] Follow-up issue(s) have been logged to update documentation or related projects, or
+- [ ] Follow-up issue(s) have been logged (and links included below) to update documentation or related projects, or
 - [ ] No follow-up issues are required
