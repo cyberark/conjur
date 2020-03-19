@@ -56,8 +56,13 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     # Update provider uri to a different hostname and verify `provider-uri` has changed
     When I add the secret value "https://different-provider:8443" to the resource "cucumber:variable:conjur/authn-azure/prod/provider-uri"
     And I fetch an Azure access token from inside machine
+    And I save my place in the log file
     And I authenticate via Azure with token as host "test-app"
     Then it is bad gateway
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00007D Working with Identity Provider https://different-provider:8443
+    """
     # Check recovery to a valid provider uri
     When I successfully set Azure variables with the correct values
     And I fetch an Azure access token from inside machine
