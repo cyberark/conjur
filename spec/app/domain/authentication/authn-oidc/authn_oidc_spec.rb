@@ -18,7 +18,8 @@ RSpec.describe 'Authentication::Oidc' do
   before(:each) do
     allow(mocked_decode_and_verify_id_token).to(
       receive(:call) do |*args|
-        JSON.parse(args[0][:id_token_jwt]).to_hash
+        token = args[0][:token_jwt]
+        JSON.parse(token).to_hash
       end
     )
   end
@@ -94,7 +95,7 @@ RSpec.describe 'Authentication::Oidc' do
             validate_security: mocked_security_validator,
             validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
-            verify_and_decode_token: mocked_verify_and_decode_token
+            verify_and_decode_token: mocked_decode_and_verify_id_token
           ).call(
             authenticator_input: input_
           )
@@ -135,7 +136,7 @@ RSpec.describe 'Authentication::Oidc' do
             validate_security: mocked_security_validator,
             validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
-            verify_and_decode_token: mocked_verify_and_decode_token
+            verify_and_decode_token: mocked_decode_and_verify_id_token
           ).call(
             authenticator_input: input_
           )
@@ -168,7 +169,7 @@ RSpec.describe 'Authentication::Oidc' do
             validate_security: mocked_security_validator,
             validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
-            verify_and_decode_token: mocked_verify_and_decode_token
+            verify_and_decode_token: mocked_decode_and_verify_id_token
           ).call(
             authenticator_input: input_
           )
@@ -201,7 +202,7 @@ RSpec.describe 'Authentication::Oidc' do
             validate_security: mocked_security_validator,
             validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
-            verify_and_decode_token: mocked_verify_and_decode_token
+            verify_and_decode_token: mocked_decode_and_verify_id_token
           ).call(
             authenticator_input: input_
           )
@@ -230,7 +231,7 @@ RSpec.describe 'Authentication::Oidc' do
             validate_security: mocked_security_validator,
             validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
-            verify_and_decode_token: mocked_verify_and_decode_token
+            verify_and_decode_token: mocked_decode_and_verify_id_token
           ).call(
             authenticator_input: input_
           )
