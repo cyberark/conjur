@@ -14,6 +14,7 @@ while [[ $# -gt 0 ]]
 do
 key="$1"
 case $key in
+    #TODO: Remove the shortform flag and update Jenkinsfile to use long-form
     -j|--jenkins)
     RUN_DEV=false
     ;;
