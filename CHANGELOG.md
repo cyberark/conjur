@@ -11,8 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.4.7] - 2020-03-12
 
 ### Changed
-- Improved flows and rules around user creation
-- Kubernetes authenticator now returns 403 on unpermitted hosts instead of a 401
+- Improved flows and rules around user creation (#1272)
+- Kubernetes authenticator now returns 403 on unpermitted hosts instead of a 401 (#1283)
+- Conjur hosts can authenticate with authn-k8s from anywhere in the policy branch (#1189)
 
 ### Fixed
 - Updated broken links on server status page (#1341)
