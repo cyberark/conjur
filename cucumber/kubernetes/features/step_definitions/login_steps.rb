@@ -45,18 +45,18 @@ def login_with_username request_ip, username, success, headers = {}
   expect(@cert).to include("BEGIN CERTIFICATE") unless @cert.to_s.empty?
 end
 
-Then(/^I( can)? login to pod matching "([^"]*)" to authn-k8s as "([^"]*)"( with prefix "([^"]*)")?$/) do |success, objectid, host_id_suffix, has_custom_prefix, host_id_prefix|
+Then(/^I( can)? login to pod matching "([^"]*)" to authn-k8s as "([^"]*)"(?: with prefix "([^"]*)")?$/) do |success, objectid, host_id_suffix, host_id_prefix|
   @request_ip ||= find_matching_pod(objectid)
 
-  if has_custom_prefix
+  if host_id_prefix
     login_with_custom_prefix(@request_ip, host_id_suffix, host_id_prefix, success)
   else
     login_with_hard_coded_prefix(@request_ip, host_id_suffix, success)
   end
 end
 
-Then(/^I( can)? login to authn-k8s as "([^"]*)"( with prefix "([^"]*)")?$/) do |success, host_id_suffix, has_custom_prefix, host_id_prefix|
-  if has_custom_prefix
+Then(/^I( can)? login to authn-k8s as "([^"]*)"(?: with prefix "([^"]*)")?$/) do |success, host_id_suffix, host_id_prefix|
+  if host_id_prefix
     # we take only the object type and id to detect the request_ip
     objectid = host_id_suffix.split('/').last(2).join('/')
     @request_ip ||= detect_request_ip(objectid)
