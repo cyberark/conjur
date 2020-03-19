@@ -165,6 +165,8 @@ module Authentication
         constraints.map { |constraint| annotation_type_constraint(constraint) }
       end
 
+      # converts the constraint to be in annotation style (e.g resource-group
+      # instead of resource_group) to enhance supportability
       def annotation_type_constraint constraint
         constraint.to_s.tr('_', '-')
       end
