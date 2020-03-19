@@ -58,10 +58,10 @@ Then(/^I( can)? authenticate with authn-k8s as "([^"]*)"( without cert and key)?
   end
 end
 
-Then(/^I( can)? authenticate pod matching "([^"]*)" with authn-k8s as "([^"]*)"( with prefix "([^"]*)")?( without cert and key)?$/) do |success, objectid, hostid_suffix, has_custom_prefix, hostid_prefix, nocertkey|
+Then(/^I( can)? authenticate pod matching "([^"]*)" with authn-k8s as "([^"]*)"(?: with prefix "([^"]*)")?( without cert and key)?$/) do |success, objectid, hostid_suffix, hostid_prefix, nocertkey|
   @request_ip ||= detect_request_ip(objectid)
 
-  if has_custom_prefix
+  if hostid_prefix
     conjur_id = "#{hostid_prefix}/#{hostid_suffix}"
   else
     conjur_id = conjur_resource_id(namespace, hostid_suffix)
