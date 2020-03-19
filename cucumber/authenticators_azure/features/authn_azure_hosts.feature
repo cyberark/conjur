@@ -44,7 +44,7 @@ Feature: Azure Authenticator - Different Hosts can authenticate with Azure authe
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::AuthnAzure::RoleMissingConstraint: CONJ00057E Role does not have the required constraint: resource_group
+    Errors::Authentication::AuthnAzure::RoleMissingConstraint: CONJ00057E Role does not have the required constraint: resource-group
     """
 
   Scenario: Host without subscription-id annotation is denied
@@ -57,7 +57,7 @@ Feature: Azure Authenticator - Different Hosts can authenticate with Azure authe
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::AuthnAzure::RoleMissingConstraint: CONJ00057E Role does not have the required constraint: subscription_id
+    Errors::Authentication::AuthnAzure::RoleMissingConstraint: CONJ00057E Role does not have the required constraint: subscription-id
     """
 
   Scenario: Host without any Azure annotation is denied
