@@ -134,7 +134,9 @@ module Authentication
       end
 
       def validate_constraint_exists constraint
-        raise Err::RoleMissingConstraint.new(constraint) unless application_identity.constraints[constraint]
+        unless application_identity.constraints[constraint]
+          raise Err::RoleMissingConstraint, annotation_type_constraint(constraint)
+        end
       end
 
       # validates that the application identity doesn't include logical constraint
@@ -144,7 +146,7 @@ module Authentication
 
         identifiers_constraints = application_identity.constraints.keys & identifiers
         unless identifiers_constraints.length <= 1
-          raise Errors::Authentication::IllegalConstraintCombinations, identifiers_constraints
+          raise Errors::Authentication::IllegalConstraintCombinations, annotation_type_constraints(identifiers_constraints)
         end
       end
 
@@ -153,10 +155,20 @@ module Authentication
           annotation_type  = constraint[0].to_s
           annotation_value = constraint[1]
           unless annotation_value == @token_identity[annotation_type.to_sym]
-            raise Err::InvalidApplicationIdentity.new(annotation_type)
+            raise Err::InvalidApplicationIdentity.new(annotation_type_constraint(annotation_type))
           end
         end
         @logger.debug(Log::ValidatedApplicationIdentity.new)
+      end
+
+      def annotation_type_constraints constraints
+        constraints.map { |constraint| annotation_type_constraint(constraint) }
+      end
+
+      # converts the constraint to be in annotation style (e.g resource-group
+      # instead of resource_group) to enhance supportability
+      def annotation_type_constraint constraint
+        constraint.to_s.tr('_', '-')
       end
 
       def role

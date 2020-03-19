@@ -29,7 +29,7 @@ module Authentication
 
       # check if annotations with the given prefix is part of the permitted list
       def validate_prefixed_permitted_annotations prefix
-        Rails.logger.debug(LogMessages::Authentication::ValidatingAnnotationsWithPrefix.new(prefix))
+        @logger.debug(LogMessages::Authentication::ValidatingAnnotationsWithPrefix.new(prefix))
 
         prefixed_annotations(prefix).each do |annotation|
           annotation_name = annotation[:name]
