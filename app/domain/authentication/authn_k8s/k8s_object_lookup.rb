@@ -152,13 +152,36 @@ module Authentication
       def k8s_clients
         @clients ||= [
           kubectl_client,
-          KubeClientFactory.client(api: 'apis/apps', version: 'v1beta2', host_url: api_url, options: options),
-          KubeClientFactory.client(api: 'apis/apps', version: 'v1beta1', host_url: api_url, options: options),
-          KubeClientFactory.client(api: 'apis/extensions', version: 'v1beta1', host_url: api_url, options: options),
+          KubeClientFactory.client(
+            api: 'apis/apps', version: 'v1', host_url: api_url,
+            options: options
+          ),
+          KubeClientFactory.client(
+            api: 'apis/apps', version: 'v1beta2', host_url: api_url,
+            options: options
+          ),
+          KubeClientFactory.client(
+            api: 'apis/apps', version: 'v1beta1', host_url: api_url,
+            options: options
+          ),
+          KubeClientFactory.client(
+            api: 'apis/extensions', version: 'v1', host_url: api_url,
+            options: options
+          ),
+          KubeClientFactory.client(
+            api: 'apis/extensions', version: 'v1beta1', host_url: api_url,
+            options: options
+          ),
           # OpenShift 3.3 DeploymentConfig
-          KubeClientFactory.client(api: 'oapi', version: 'v1', host_url: api_url, options: options),
+          KubeClientFactory.client(
+            api: 'oapi', version: 'v1', host_url: api_url,
+            options: options
+          ),
           # OpenShift 3.7 DeploymentConfig
-          KubeClientFactory.client(api: 'apis/apps.openshift.io', version: 'v1', host_url: api_url, options: options)
+          KubeClientFactory.client(
+            api: 'apis/apps.openshift.io', version: 'v1', host_url: api_url,
+            options: options
+          )
         ]
       end
 
