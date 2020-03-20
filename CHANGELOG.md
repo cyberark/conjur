@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Postgres advisory lock used for rotation
 - Updated conjur-policy-parser to
   [v3.0.4](https://github.com/conjurinc/conjur-policy-parser/blob/master/CHANGELOG.md#v304).
+- Fix support for using deployment as K8s authentication resource type for Kubernetes >= 1.16 (#1440)
 
 ## [1.4.7] - 2020-03-12
 
