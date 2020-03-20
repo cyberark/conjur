@@ -14,6 +14,7 @@ api: >
 #       then we will not be able to load the methods defined in authenticators_common
 authenticators_config: >
   --format pretty
+  -r cucumber/api/features/support/step_def_transforms.rb
   -r cucumber/api/features/support/rest_helpers.rb
   -r cucumber/api/features/step_definitions/request_steps.rb
   -r cucumber/api/features/step_definitions/user_steps.rb
@@ -28,6 +29,7 @@ authenticators_config: >
 authenticators_status: >
   --format pretty
   -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/support/step_def_transforms.rb
   -r cucumber/api/features/step_definitions/request_steps.rb
   -r cucumber/api/features/step_definitions/user_steps.rb
   -r cucumber/api/features/support/logs_helpers.rb
@@ -42,6 +44,7 @@ authenticators_status: >
 
 authenticators_ldap: >
   --format pretty
+  -r cucumber/api/features/support/step_def_transforms.rb
   -r cucumber/api/features/support/rest_helpers.rb
   -r cucumber/api/features/step_definitions/request_steps.rb
   -r cucumber/api/features/step_definitions/user_steps.rb
@@ -76,6 +79,7 @@ authenticators_oidc: >
 
 authenticators_azure: >
   --format pretty
+  -r cucumber/api/features/support/step_def_transforms.rb
   -r cucumber/api/features/support/rest_helpers.rb
   -r cucumber/api/features/step_definitions/request_steps.rb
   -r cucumber/api/features/step_definitions/user_steps.rb
