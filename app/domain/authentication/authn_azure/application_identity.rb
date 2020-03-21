@@ -5,9 +5,10 @@ module Authentication
 
     class ApplicationIdentity
 
-      def initialize(role_annotations:, service_id:)
+      def initialize(role_annotations:, service_id:, logger:)
         @role_annotations = role_annotations
         @service_id       = service_id
+        @logger           = logger
       end
 
       def constraints
@@ -32,7 +33,7 @@ module Authentication
 
         # return the value of the annotation if it exists, nil otherwise
         if annotation
-          Rails.logger.debug(LogMessages::Authentication::RetrievedAnnotationValue.new(name))
+          @logger.debug(LogMessages::Authentication::RetrievedAnnotationValue.new(name))
           annotation[:value]
         end
       end

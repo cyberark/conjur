@@ -124,7 +124,8 @@ module Authentication
       def application_identity
         @application_identity ||= @application_identity_class.new(
           role_annotations: role.annotations,
-          service_id:       @service_id
+          service_id:       @service_id,
+          logger:           @logger
         )
       end
 

@@ -30,7 +30,8 @@ RSpec.describe Authentication::AuthnAzure::ApplicationIdentity do
     subject do
       Authentication::AuthnAzure::ApplicationIdentity.new(
         role_annotations: role_annotations,
-        service_id:       test_service_id
+        service_id:       test_service_id,
+        logger:           Rails.logger
       )
     end
     context("with a global scoped constraint") do
