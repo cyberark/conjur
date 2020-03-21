@@ -17,13 +17,6 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
   let(:xms_mirid_token_field_user_assigned_identity) { "/subscriptions/some-subscription-id-value/resourcegroups/some-resource-group-value/providers/Microsoft.ManagedIdentity/userAssignedIdentities/some-user-assigned-identity-value" }
   let(:xms_mirid_token_field_system_assigned_identity) { "/subscriptions/some-subscription-id-value/resourcegroups/some-resource-group-value/providers/Microsoft.Compute/virtualMachines/some-system-assigned-identity-value" }
 
-  let(:xms_mirid_token_missing_subscription_id_field) { "/resourcegroups/some-resource-group-value/providers/Microsoft.ManagedIdentity/userAssignedIdentities/some-system-assigned-identity-value" }
-  let(:xms_mirid_token_missing_resource_groups_field) { "/subscriptions/some-subscription-id-value/providers/Microsoft.ManagedIdentity/some-user-assigned-identity-value" }
-  let(:xms_mirid_token_missing_providers_field) { "/subscriptions/some-subscription-id-value/resourcegroups/some-resource-group-value/" }
-  let(:xms_mirid_token_missing_initial_slash) { "subscriptions/some-subscription-id-value/resourcegroups/some-resource-group-value/providers/Microsoft.ManagedIdentity/userAssignedIdentities/some-system-assigned-identity-value" }
-
-  let(:invalid_xms_mirid_token_providers_field) { "/subscriptions/some-subscription-id-value/resourcegroups/some-resource-group-value/providers/Microsoft.ManagedIdentity/some-user-assigned-identity-value" }
-
   let(:oid_token_field) { "test-oid" }
 
   let(:mismatched_subscription_id_annotation) { double("MismatchedSubscriptionIdAnnotation") }
@@ -76,244 +69,81 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
-  context "A valid xms_mirid claim in the Azure token" do
-    context "with a valid application identity" do
-      context "and an Azure token with matching data" do
-        context "with no assigned Azure identity in application identity" do
-          subject do
-            Authentication::AuthnAzure::ValidateApplicationIdentity.new(
-              resource_class:             resource_class,
-              validate_azure_annotations: validate_azure_annotations,
+  context "A valid application identity" do
+    context "and an Azure token with matching data" do
+      context "with no assigned Azure identity in application identity" do
+        subject do
+          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+            resource_class:             resource_class,
+            validate_azure_annotations: validate_azure_annotations,
             ).call(
-              account:               account,
-              service_id:            test_service_id,
-              username:              username,
-              xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
-              oid_token_field:       oid_token_field
-            )
-          end
-
-          it "does not raise an error" do
-            expect { subject }.to_not raise_error
-          end
+            account:               account,
+            service_id:            test_service_id,
+            username:              username,
+            xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
+            oid_token_field:       oid_token_field
+          )
         end
 
-        context "with a user assigned Azure identity in application identity" do
-          before(:each) do
-            allow(host).to receive(:annotations)
-                             .and_return([subscription_id_annotation, resource_group_annotation, user_assigned_identity_annotation])
-          end
-          subject do
-            Authentication::AuthnAzure::ValidateApplicationIdentity.new(
-              resource_class:             resource_class,
-              validate_azure_annotations: validate_azure_annotations,
-            ).call(
-              account:               account,
-              service_id:            test_service_id,
-              username:              username,
-              xms_mirid_token_field: xms_mirid_token_field_user_assigned_identity,
-              oid_token_field:       oid_token_field
-            )
-          end
-
-          it "does not raise an error" do
-            expect { subject }.to_not raise_error
-          end
-        end
-
-        context "with a system assigned Azure identity in application identity" do
-          subject do
-            Authentication::AuthnAzure::ValidateApplicationIdentity.new(
-              resource_class:             resource_class,
-              validate_azure_annotations: validate_azure_annotations,
-            ).call(
-              account:               account,
-              service_id:            test_service_id,
-              username:              username,
-              xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
-              oid_token_field:       oid_token_field
-            )
-          end
-
-          it "does not raise an error" do
-            expect { subject }.to_not raise_error
-          end
-        end
-
-        context "where the xms mirid claim does not begin with a /" do
-          subject do
-            Authentication::AuthnAzure::ValidateApplicationIdentity.new(
-              resource_class:             resource_class,
-              validate_azure_annotations: validate_azure_annotations,
-            ).call(
-              account:               account,
-              service_id:            test_service_id,
-              username:              username,
-              xms_mirid_token_field: xms_mirid_token_missing_initial_slash,
-              oid_token_field:       oid_token_field
-            )
-          end
-          it "does not raise an error" do
-            expect { subject }.to_not raise_error
-          end
+        it "does not raise an error" do
+          expect { subject }.to_not raise_error
         end
       end
 
-      context "and an Azure token with non-matching data" do
-        context "where the subscription id does not match the application identity" do
-          before(:each) do
-            allow(host).to receive(:annotations)
-                             .and_return([mismatched_subscription_id_annotation, resource_group_annotation])
-          end
-          subject do
-            Authentication::AuthnAzure::ValidateApplicationIdentity.new(
-              resource_class:             resource_class,
-              validate_azure_annotations: validate_azure_annotations,
+      context "with a user assigned Azure identity in application identity" do
+        before(:each) do
+          allow(host).to receive(:annotations)
+                           .and_return([subscription_id_annotation, resource_group_annotation, user_assigned_identity_annotation])
+        end
+        subject do
+          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+            resource_class:             resource_class,
+            validate_azure_annotations: validate_azure_annotations,
             ).call(
-              account:               account,
-              service_id:            test_service_id,
-              username:              username,
-              xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
-              oid_token_field:       oid_token_field
-            )
-          end
-
-          it "raises an error" do
-            expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::InvalidApplicationIdentity)
-          end
+            account:               account,
+            service_id:            test_service_id,
+            username:              username,
+            xms_mirid_token_field: xms_mirid_token_field_user_assigned_identity,
+            oid_token_field:       oid_token_field
+          )
         end
 
-        context "where the resource group does not match the application identity" do
-          before(:each) do
-            allow(host).to receive(:annotations)
-                             .and_return([subscription_id_annotation, mismatched_resource_group_annotation])
-          end
-          subject do
-            Authentication::AuthnAzure::ValidateApplicationIdentity.new(
-              resource_class:             resource_class,
-              validate_azure_annotations: validate_azure_annotations,
-            ).call(
-              account:               account,
-              service_id:            test_service_id,
-              username:              username,
-              xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
-              oid_token_field:       oid_token_field
-            )
-          end
-
-          it "raises an error" do
-            expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::InvalidApplicationIdentity)
-          end
-        end
-
-        context "where the user assigned identity does not match the application identity" do
-          before(:each) do
-            allow(host).to receive(:annotations)
-                             .and_return([subscription_id_annotation, resource_group_annotation, mismatched_user_assigned_identity_annotation])
-          end
-          subject do
-            Authentication::AuthnAzure::ValidateApplicationIdentity.new(
-              resource_class:             resource_class,
-              validate_azure_annotations: validate_azure_annotations,
-            ).call(
-              account:               account,
-              service_id:            test_service_id,
-              username:              username,
-              xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
-              oid_token_field:       oid_token_field
-            )
-          end
-
-          it "raises an error" do
-            expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::InvalidApplicationIdentity)
-          end
-        end
-
-        context "where the system assigned identity does not match the application identity" do
-          before(:each) do
-            allow(host).to receive(:annotations)
-                             .and_return([subscription_id_annotation, resource_group_annotation, mismatched_system_assigned_identity_annotation])
-          end
-          subject do
-            Authentication::AuthnAzure::ValidateApplicationIdentity.new(
-              resource_class:             resource_class,
-              validate_azure_annotations: validate_azure_annotations,
-            ).call(
-              account:               account,
-              service_id:            test_service_id,
-              username:              username,
-              xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
-              oid_token_field:       oid_token_field
-            )
-          end
-
-          it "raises an error" do
-            expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::InvalidApplicationIdentity)
-          end
+        it "does not raise an error" do
+          expect { subject }.to_not raise_error
         end
       end
 
+      context "with a system assigned Azure identity in application identity" do
+        subject do
+          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+            resource_class:             resource_class,
+            validate_azure_annotations: validate_azure_annotations,
+            ).call(
+            account:               account,
+            service_id:            test_service_id,
+            username:              username,
+            xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
+            oid_token_field:       oid_token_field
+          )
+        end
+
+        it "does not raise an error" do
+          expect { subject }.to_not raise_error
+        end
+      end
     end
 
-    context "an invalid application identity" do
-      context "that does not have required constraints present in annotations" do
+    context "and an Azure token with non-matching data" do
+      context "where the subscription id does not match the application identity" do
         before(:each) do
           allow(host).to receive(:annotations)
-                           .and_return([])
+                           .and_return([mismatched_subscription_id_annotation, resource_group_annotation])
         end
         subject do
           Authentication::AuthnAzure::ValidateApplicationIdentity.new(
             resource_class:             resource_class,
             validate_azure_annotations: validate_azure_annotations,
-          ).call(
-            account:               account,
-            service_id:            test_service_id,
-            username:              username,
-            xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
-            oid_token_field:       oid_token_field
-          )
-        end
-        it "raises an error" do
-          expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::RoleMissingConstraint)
-        end
-      end
-
-      context "that has invalid constraint combination in annotations" do
-        before(:each) do
-          allow(host).to receive(:annotations)
-                           .and_return([subscription_id_annotation, resource_group_annotation, user_assigned_identity_annotation, system_assigned_identity_annotation])
-        end
-        subject do
-          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
-            resource_class:             resource_class,
-            validate_azure_annotations: validate_azure_annotations,
-          ).call(
-            account:               account,
-            service_id:            test_service_id,
-            username:              username,
-            xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
-            oid_token_field:       oid_token_field
-          )
-        end
-
-        it "raise an error" do
-          expect { subject }.to raise_error(::Errors::Authentication::IllegalConstraintCombinations)
-        end
-      end
-
-      context "that has invalid Azure annotations" do
-        before(:each) do
-          allow(host).to receive(:annotations)
-                           .and_return([subscription_id_annotation, resource_group_annotation, system_assigned_identity_annotation])
-
-          allow(validate_azure_annotations).to receive(:call)
-                                                 .and_raise('FAKE_VALIDATE_APPLICATION_IDENTITY_ERROR')
-        end
-        subject do
-          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
-            resource_class:             resource_class,
-            validate_azure_annotations: validate_azure_annotations,
-          ).call(
+            ).call(
             account:               account,
             service_id:            test_service_id,
             username:              username,
@@ -323,87 +153,152 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(
-                                  /FAKE_VALIDATE_APPLICATION_IDENTITY_ERROR/
-                                )
+          expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::InvalidApplicationIdentity)
+        end
+      end
+
+      context "where the resource group does not match the application identity" do
+        before(:each) do
+          allow(host).to receive(:annotations)
+                           .and_return([subscription_id_annotation, mismatched_resource_group_annotation])
+        end
+        subject do
+          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+            resource_class:             resource_class,
+            validate_azure_annotations: validate_azure_annotations,
+            ).call(
+            account:               account,
+            service_id:            test_service_id,
+            username:              username,
+            xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
+            oid_token_field:       oid_token_field
+          )
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::InvalidApplicationIdentity)
+        end
+      end
+
+      context "where the user assigned identity does not match the application identity" do
+        before(:each) do
+          allow(host).to receive(:annotations)
+                           .and_return([subscription_id_annotation, resource_group_annotation, mismatched_user_assigned_identity_annotation])
+        end
+        subject do
+          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+            resource_class:             resource_class,
+            validate_azure_annotations: validate_azure_annotations,
+            ).call(
+            account:               account,
+            service_id:            test_service_id,
+            username:              username,
+            xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
+            oid_token_field:       oid_token_field
+          )
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::InvalidApplicationIdentity)
+        end
+      end
+
+      context "where the system assigned identity does not match the application identity" do
+        before(:each) do
+          allow(host).to receive(:annotations)
+                           .and_return([subscription_id_annotation, resource_group_annotation, mismatched_system_assigned_identity_annotation])
+        end
+        subject do
+          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+            resource_class:             resource_class,
+            validate_azure_annotations: validate_azure_annotations,
+            ).call(
+            account:               account,
+            service_id:            test_service_id,
+            username:              username,
+            xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
+            oid_token_field:       oid_token_field
+          )
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::InvalidApplicationIdentity)
         end
       end
     end
   end
 
-  context "An invalid xms_mirid claim in the Azure token" do
-    context "that is missing subscriptions field in xms_mirid" do
+  context "An invalid application identity" do
+    context "that does not have required constraints present in annotations" do
+      before(:each) do
+        allow(host).to receive(:annotations)
+                         .and_return([])
+      end
       subject do
         Authentication::AuthnAzure::ValidateApplicationIdentity.new(
           resource_class:             resource_class,
           validate_azure_annotations: validate_azure_annotations,
-        ).call(
+          ).call(
           account:               account,
           service_id:            test_service_id,
           username:              username,
-          xms_mirid_token_field: xms_mirid_token_missing_subscription_id_field,
+          xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
           oid_token_field:       oid_token_field
         )
       end
       it "raises an error" do
-        expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::MissingRequiredFieldsInXmsMirid)
+        expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::RoleMissingConstraint)
       end
-
     end
 
-    context "that is missing resource groups field in xms_mirid" do
+    context "that has invalid constraint combination in annotations" do
+      before(:each) do
+        allow(host).to receive(:annotations)
+                         .and_return([subscription_id_annotation, resource_group_annotation, user_assigned_identity_annotation, system_assigned_identity_annotation])
+      end
       subject do
         Authentication::AuthnAzure::ValidateApplicationIdentity.new(
           resource_class:             resource_class,
           validate_azure_annotations: validate_azure_annotations,
-        ).call(
+          ).call(
           account:               account,
           service_id:            test_service_id,
           username:              username,
-          xms_mirid_token_field: xms_mirid_token_missing_resource_groups_field,
+          xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
           oid_token_field:       oid_token_field
         )
       end
-      it "raises an error" do
-        expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::MissingRequiredFieldsInXmsMirid)
-      end
 
+      it "raise an error" do
+        expect { subject }.to raise_error(::Errors::Authentication::IllegalConstraintCombinations)
+      end
     end
 
-    context "that is missing providers field in xms_mirid" do
+    context "that has invalid Azure annotations" do
+      before(:each) do
+        allow(host).to receive(:annotations)
+                         .and_return([subscription_id_annotation, resource_group_annotation, system_assigned_identity_annotation])
+
+        allow(validate_azure_annotations).to receive(:call)
+                                               .and_raise('FAKE_VALIDATE_APPLICATION_IDENTITY_ERROR')
+      end
       subject do
         Authentication::AuthnAzure::ValidateApplicationIdentity.new(
           resource_class:             resource_class,
           validate_azure_annotations: validate_azure_annotations,
-        ).call(
+          ).call(
           account:               account,
           service_id:            test_service_id,
           username:              username,
-          xms_mirid_token_field: xms_mirid_token_missing_providers_field,
+          xms_mirid_token_field: xms_mirid_token_field_system_assigned_identity,
           oid_token_field:       oid_token_field
         )
       end
-      it "raises an error" do
-        expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::MissingRequiredFieldsInXmsMirid)
-      end
 
-    end
-
-    context "without the proper number of fields in the providers claim" do
-      subject do
-        Authentication::AuthnAzure::ValidateApplicationIdentity.new(
-          resource_class:             resource_class,
-          validate_azure_annotations: validate_azure_annotations,
-        ).call(
-          account:               account,
-          service_id:            test_service_id,
-          username:              username,
-          xms_mirid_token_field: invalid_xms_mirid_token_providers_field,
-          oid_token_field:       oid_token_field
-        )
-      end
       it "raises an error" do
-        expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::MissingProviderFieldsInXmsMirid)
+        expect { subject }.to raise_error(
+                                /FAKE_VALIDATE_APPLICATION_IDENTITY_ERROR/
+                              )
       end
     end
   end

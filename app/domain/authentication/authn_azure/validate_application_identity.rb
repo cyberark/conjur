@@ -22,7 +22,6 @@ module Authentication
 
       def call
         parse_xms_mirid
-        validate_xms_mirid_format
         token_identity_from_claims
         validate_azure_annotations_are_permitted
         extract_application_identity_from_role
@@ -34,52 +33,11 @@ module Authentication
       private
 
       def parse_xms_mirid
-        xms_mirid_hash
+        xms_mirid
       end
 
-      def xms_mirid_hash
-        @xms_mirid_hash ||= parsed_xms_mirid
-      end
-
-      # we expect the xms_mirid claim to be in the format of /subscriptions/<subscription-id>/...
-      # therefore, we ignore the first slash of the xms_mirid claim and group the entries in key-value pairs
-      # according to fields we need to retrieve from the claim.
-      # ultimately, transforming "/key1/value1/key2/value2" to {"key1" => "value1", "key2" => "value2"}
-      def parsed_xms_mirid
-        split_xms_mirid = @xms_mirid_token_field.split('/')
-
-        if split_xms_mirid.first == ''
-          split_xms_mirid = split_xms_mirid.drop(1)
-        end
-
-        index = 0
-        split_xms_mirid.each_with_object({}) do |property_name, xms_mirid_hash|
-          property_value_index = index + 1
-
-          case property_name
-          when "subscriptions"
-            xms_mirid_hash["subscriptions"] = split_xms_mirid[property_value_index]
-          when "resourcegroups"
-            xms_mirid_hash["resourcegroups"] = split_xms_mirid[property_value_index]
-          when "providers"
-            xms_mirid_hash["providers"] = split_xms_mirid[property_value_index, 3]
-          end
-          index += 1
-        end
-      rescue => e
-        raise Err::XmsMiridParseError.new(@xms_mirid_token_field, e.inspect)
-      end
-
-      def validate_xms_mirid_format
-        required_keys = %w(subscriptions resourcegroups providers)
-        missing_keys  = required_keys - xms_mirid_hash.keys
-        unless missing_keys.empty?
-          raise Err::MissingRequiredFieldsInXmsMirid.new(missing_keys, @xms_mirid_token_field)
-        end
-
-        unless xms_mirid_hash["providers"].length == 3
-          raise Err::MissingProviderFieldsInXmsMirid, @xms_mirid_token_field
-        end
+      def xms_mirid
+        @xms_mirid ||= XmsMirid.new(@xms_mirid_token_field)
       end
 
       # xms_mirid is a term in Azure to define a claim that describes the resource that holds the encoding of the instance's
@@ -88,8 +46,8 @@ module Authentication
       # xms_mirid claim and populate a representative hash with the appropriate fields.
       def token_identity_from_claims
         @token_identity = {
-          subscription_id: xms_mirid_hash["subscriptions"],
-          resource_group:  xms_mirid_hash["resourcegroups"]
+          subscription_id: xms_mirid.subscriptions,
+          resource_group:  xms_mirid.resource_groups
         }
 
         # determines which Azure assigned identity is provided in annotations
@@ -102,8 +60,8 @@ module Authentication
         #     claim and its resource is one that we support. At current, we only support a virtualMachines resource.
         #     If these conditions are met, a 'system_assigned_identity' attribute will be added to the hash with its
         #     value being the oid field in the JWT token.
-        if xms_mirid_hash["providers"].include? "Microsoft.ManagedIdentity"
-          @token_identity[:user_assigned_identity] = xms_mirid_hash["providers"].last
+        if xms_mirid.providers.include? "Microsoft.ManagedIdentity"
+          @token_identity[:user_assigned_identity] = xms_mirid.providers.last
         else
           @token_identity[:system_assigned_identity] = @oid_token_field
         end
