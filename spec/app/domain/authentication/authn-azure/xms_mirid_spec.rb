@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
+RSpec.describe 'Authentication::AuthnAzure::XmsMirid' do
 
   let(:xms_mirid_token_field) {
     "/subscriptions/some-subscription-id-value/resourcegroups/" \

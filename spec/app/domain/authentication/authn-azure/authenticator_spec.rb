@@ -51,14 +51,6 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
     mock_authenticate_azure_token_request(request_body_data: "jwt={\"xms_mirid\": \"some_xms_mirid_value\"}")
   end
 
-  let(:authenticate_azure_token_request_missing_jwt_field) do
-    mock_authenticate_azure_token_request(request_body_data: "some_key=some_value")
-  end
-
-  let(:authenticate_azure_token_request_empty_jwt_field) do
-    mock_authenticate_azure_token_request(request_body_data: "jwt=")
-  end
-
   #  ____  _   _  ____    ____  ____  ___  ____  ___
   # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
@@ -205,56 +197,6 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
           it "raises a TokenFieldNotFoundOrEmpty error" do
             expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::TokenFieldNotFoundOrEmpty)
           end
-        end
-      end
-
-      context "with no jwt field in the request" do
-        subject do
-          input_ = Authentication::AuthenticatorInput.new(
-            authenticator_name: 'authn-azure',
-            service_id:         'my-service',
-            account:            'my-acct',
-            username:           nil,
-            credentials:        request_body(authenticate_azure_token_request_missing_jwt_field),
-            origin:             '127.0.0.1',
-            request:            authenticate_azure_token_request_missing_jwt_field
-          )
-
-          ::Authentication::AuthnAzure::Authenticator.new(
-            verify_and_decode_token:       mocked_verify_and_decode_token,
-            validate_application_identity: mocked_validate_application_identity
-          ).call(
-            authenticator_input: input_
-          )
-        end
-
-        it "raises a MissingRequestParam error" do
-          expect { subject }.to raise_error(::Errors::Authentication::RequestBody::MissingRequestParam)
-        end
-      end
-
-      context "with an empty jwt field in the request" do
-        subject do
-          input_ = Authentication::AuthenticatorInput.new(
-            authenticator_name: 'authn-azure',
-            service_id:         'my-service',
-            account:            'my-acct',
-            username:           nil,
-            credentials:        request_body(authenticate_azure_token_request_empty_jwt_field),
-            origin:             '127.0.0.1',
-            request:            authenticate_azure_token_request_empty_jwt_field
-          )
-
-          ::Authentication::AuthnAzure::Authenticator.new(
-            verify_and_decode_token:       mocked_verify_and_decode_token,
-            validate_application_identity: mocked_validate_application_identity
-          ).call(
-            authenticator_input: input_
-          )
-        end
-
-        it "raises a MissingRequestParam error" do
-          expect { subject }.to raise_error(::Errors::Authentication::RequestBody::MissingRequestParam)
         end
       end
     end

@@ -21,30 +21,16 @@ module Authentication
       extend Forwardable
       def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :credentials, :username
 
-      JWT_REQUEST_BODY_FIELD_NAME = "jwt".freeze
-      XMS_MIRID_TOKEN_FIELD_NAME  = "xms_mirid".freeze
-      OID_TOKEN_FIELD_NAME        = "oid".freeze
+      XMS_MIRID_TOKEN_FIELD_NAME = "xms_mirid".freeze
+      OID_TOKEN_FIELD_NAME       = "oid".freeze
 
       def call
-        validate_credentials_include_azure_token
         validate_azure_token
         validate_required_token_fields_exist
         validate_application_identity
       end
 
       private
-
-      def validate_credentials_include_azure_token
-        unless decoded_credentials.include?(JWT_REQUEST_BODY_FIELD_NAME) &&
-            !decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME].empty?
-          raise Errors::Authentication::RequestBody::MissingRequestParam, JWT_REQUEST_BODY_FIELD_NAME
-        end
-      end
-
-      # The credentials are in a URL encoded form data in the request body
-      def decoded_credentials
-        @decoded_credentials ||= Hash[URI.decode_www_form(credentials)]
-      end
 
       def validate_azure_token
         decoded_token
@@ -53,12 +39,16 @@ module Authentication
       def decoded_token
         @decoded_token ||= @verify_and_decode_token.call(
           provider_uri:     provider_uri,
-          token_jwt:        decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME],
+          token_jwt:        decoded_credentials.jwt,
           claims_to_verify: {
             verify_iss: true,
             iss:        provider_uri
           }
         )
+      end
+
+      def decoded_credentials
+        @decoded_credentials ||= DecodedCredentials.new(credentials)
       end
 
       def validate_application_identity
