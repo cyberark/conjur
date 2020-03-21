@@ -39,13 +39,13 @@ RSpec.describe Authentication::AuthnAzure::ApplicationIdentity do
 
       it "has a constraints hash with its value" do
         expect(subject.constraints).to eq(
-                                         {
-                                           subscription_id:          "some-subscription-id-value",
-                                           resource_group:           "some-resource-group-value",
-                                           user_assigned_identity:   "some-user-assigned-identity-value",
-                                           system_assigned_identity: "some-system-assigned-identity-value"
-                                         }
-                                       )
+          {
+            subscription_id:          "some-subscription-id-value",
+            resource_group:           "some-resource-group-value",
+            user_assigned_identity:   "some-user-assigned-identity-value",
+            system_assigned_identity: "some-system-assigned-identity-value"
+          }
+        )
       end
     end
 
@@ -54,13 +54,13 @@ RSpec.describe Authentication::AuthnAzure::ApplicationIdentity do
 
       it "has a constraints hash with its value" do
         expect(subject.constraints).to eq(
-                                         {
-                                           subscription_id:          "some-subscription-id-service-id-scoped-value",
-                                           resource_group:           "some-resource-group-service-id-scoped-value",
-                                           user_assigned_identity:   "some-user-assigned-service-id-scoped-value",
-                                           system_assigned_identity: "some-system-assigned-service-id-scoped-value"
-                                         }
-                                       )
+          {
+            subscription_id:          "some-subscription-id-service-id-scoped-value",
+            resource_group:           "some-resource-group-service-id-scoped-value",
+            user_assigned_identity:   "some-user-assigned-service-id-scoped-value",
+            system_assigned_identity: "some-system-assigned-service-id-scoped-value"
+          }
+        )
       end
     end
 

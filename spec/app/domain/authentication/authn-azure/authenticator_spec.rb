@@ -120,8 +120,8 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
                                                              .and_raise('FAKE_VALIDATE_APPLICATION_IDENTITY_ERROR')
 
             expect { subject }.to raise_error(
-                                    /FAKE_VALIDATE_APPLICATION_IDENTITY_ERROR/
-                                  )
+              /FAKE_VALIDATE_APPLICATION_IDENTITY_ERROR/
+            )
           end
         end
       end
@@ -152,8 +152,8 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
                                                        .and_raise('FAKE_VERIFY_AND_DECODE_ERROR')
 
             expect { subject }.to raise_error(
-                                    /FAKE_VERIFY_AND_DECODE_ERROR/
-                                  )
+              /FAKE_VERIFY_AND_DECODE_ERROR/
+            )
           end
         end
 
