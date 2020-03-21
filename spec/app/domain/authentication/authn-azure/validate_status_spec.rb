@@ -27,7 +27,7 @@ RSpec.describe Authentication::AuthnAzure::ValidateStatus do
         Authentication::AuthnAzure::ValidateStatus.new(
           discover_identity_provider: mock_discover_identity_provider(is_successful: true)
         ).call(
-          account: account,
+          account:    account,
           service_id: service
         )
       end
@@ -44,7 +44,7 @@ RSpec.describe Authentication::AuthnAzure::ValidateStatus do
         Authentication::AuthnAzure::ValidateStatus.new(
           discover_identity_provider: mock_discover_identity_provider(is_successful: false)
         ).call(
-          account: account,
+          account:    account,
           service_id: service
         )
       end

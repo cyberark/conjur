@@ -3,18 +3,40 @@
 require 'spec_helper'
 
 RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
-  
-  let(:xms_mirid_token_field) { "/subscriptions/some-subscription-id-value/resourcegroups/some-resource-group-value/providers/Microsoft.Compute/virtualMachines/some-system-assigned-identity-value" }
 
-  let(:xms_mirid_token_missing_subscription_id_field) { "/resourcegroups/some-resource-group-value/providers/Microsoft.ManagedIdentity/userAssignedIdentities/some-system-assigned-identity-value" }
+  let(:xms_mirid_token_field) {
+    "/subscriptions/some-subscription-id-value/resourcegroups/" \
+      "some-resource-group-value/providers/Microsoft.Compute/" \
+      "virtualMachines/some-system-assigned-identity-value"
+  }
 
-  let(:xms_mirid_token_missing_resource_groups_field) { "/subscriptions/some-subscription-id-value/providers/Microsoft.ManagedIdentity/some-user-assigned-identity-value" }
+  let(:xms_mirid_token_missing_subscription_id_field) {
+    "/resourcegroups/some-resource-group-value/providers/" \
+      "Microsoft.ManagedIdentity/userAssignedIdentities/" \
+      "some-system-assigned-identity-value"
+  }
 
-  let(:xms_mirid_token_missing_providers_field) { "/subscriptions/some-subscription-id-value/resourcegroups/some-resource-group-value/" }
+  let(:xms_mirid_token_missing_resource_groups_field) {
+    "/subscriptions/some-subscription-id-value/providers/" \
+      "Microsoft.ManagedIdentity/some-user-assigned-identity-value"
+  }
 
-  let(:xms_mirid_token_missing_initial_slash) { "subscriptions/some-subscription-id-value/resourcegroups/some-resource-group-value/providers/Microsoft.ManagedIdentity/userAssignedIdentities/some-system-assigned-identity-value" }
+  let(:xms_mirid_token_missing_providers_field) {
+    "/subscriptions/some-subscription-id-value/resourcegroups/" \
+      "some-resource-group-value/"
+  }
 
-  let(:invalid_xms_mirid_token_providers_field) { "/subscriptions/some-subscription-id-value/resourcegroups/some-resource-group-value/providers/Microsoft.ManagedIdentity/some-user-assigned-identity-value" }
+  let(:xms_mirid_token_missing_initial_slash) {
+    "subscriptions/some-subscription-id-value/resourcegroups/" \
+      "some-resource-group-value/providers/Microsoft.ManagedIdentity/" \
+      "userAssignedIdentities/some-system-assigned-identity-value"
+  }
+
+  let(:invalid_xms_mirid_token_providers_field) {
+    "/subscriptions/some-subscription-id-value/resourcegroups/" \
+      "some-resource-group-value/providers/Microsoft.ManagedIdentity/" \
+      "some-user-assigned-identity-value"
+  }
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
   # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)
@@ -52,7 +74,9 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
         )
       end
       it "raises an error" do
-        expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::MissingRequiredFieldsInXmsMirid)
+        expect { subject }.to raise_error(
+          ::Errors::Authentication::AuthnAzure::MissingRequiredFieldsInXmsMirid
+        )
       end
 
     end
@@ -64,7 +88,9 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
         )
       end
       it "raises an error" do
-        expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::MissingRequiredFieldsInXmsMirid)
+        expect { subject }.to raise_error(
+          ::Errors::Authentication::AuthnAzure::MissingRequiredFieldsInXmsMirid
+        )
       end
 
     end
@@ -76,7 +102,9 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
         )
       end
       it "raises an error" do
-        expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::MissingRequiredFieldsInXmsMirid)
+        expect { subject }.to raise_error(
+          ::Errors::Authentication::AuthnAzure::MissingRequiredFieldsInXmsMirid
+        )
       end
 
     end
