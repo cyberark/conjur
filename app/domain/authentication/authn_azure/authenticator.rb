@@ -21,12 +21,8 @@ module Authentication
       extend Forwardable
       def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :credentials, :username
 
-      XMS_MIRID_TOKEN_FIELD_NAME = "xms_mirid".freeze
-      OID_TOKEN_FIELD_NAME       = "oid".freeze
-
       def call
         validate_azure_token
-        validate_required_token_fields_exist
         validate_application_identity
       end
 
@@ -37,13 +33,16 @@ module Authentication
       end
 
       def decoded_token
-        @decoded_token ||= @verify_and_decode_token.call(
-          provider_uri:     provider_uri,
-          token_jwt:        decoded_credentials.jwt,
-          claims_to_verify: {
-            verify_iss: true,
-            iss:        provider_uri
-          }
+        @decoded_token ||= DecodedToken.new(
+          decoded_token_hash: @verify_and_decode_token.call(
+            provider_uri:     provider_uri,
+            token_jwt:        decoded_credentials.jwt,
+            claims_to_verify: {
+              verify_iss: true,
+              iss:        provider_uri
+            }
+          ),
+          logger:             @logger
         )
       end
 
@@ -56,8 +55,8 @@ module Authentication
           service_id: service_id,
           account: account,
           username: username,
-          xms_mirid_token_field: xms_mirid,
-          oid_token_field: oid
+          xms_mirid_token_field: decoded_token.xms_mirid,
+          oid_token_field: decoded_token.oid
         )
       end
 
@@ -78,30 +77,6 @@ module Authentication
 
       def required_variable_names
         @required_variable_names ||= %w(provider-uri)
-      end
-
-      def validate_required_token_fields_exist
-        validate_token_field_exists(XMS_MIRID_TOKEN_FIELD_NAME)
-        validate_token_field_exists(OID_TOKEN_FIELD_NAME)
-      end
-
-      def validate_token_field_exists field_name
-        @logger.debug(Log::ValidatingTokenFieldExists.new(field_name))
-        raise Err::TokenFieldNotFoundOrEmpty, field_name if decoded_token[field_name].to_s.empty?
-      end
-
-      def xms_mirid
-        token_field_value(XMS_MIRID_TOKEN_FIELD_NAME)
-      end
-
-      def oid
-        token_field_value(OID_TOKEN_FIELD_NAME)
-      end
-
-      def token_field_value field_name
-        decoded_token[field_name].tap do |token_field_value|
-          @logger.debug(Log::ExtractedFieldFromAzureToken.new(field_name, token_field_value))
-        end
       end
     end
 

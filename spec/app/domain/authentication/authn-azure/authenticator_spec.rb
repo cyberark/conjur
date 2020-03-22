@@ -148,56 +148,6 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
             )
           end
         end
-
-        context "that is missing the xms_mirid field" do
-          subject do
-            input_ = Authentication::AuthenticatorInput.new(
-              authenticator_name: 'authn-azure',
-              service_id:         'my-service',
-              account:            'my-acct',
-              username:           nil,
-              credentials:        request_body(authenticate_azure_token_request_missing_xms_mirid_field),
-              origin:             '127.0.0.1',
-              request:            authenticate_azure_token_request_missing_xms_mirid_field
-            )
-
-            ::Authentication::AuthnAzure::Authenticator.new(
-              verify_and_decode_token:       mocked_verify_and_decode_token,
-              validate_application_identity: mocked_validate_application_identity
-            ).call(
-              authenticator_input: input_
-            )
-          end
-
-          it "raises a TokenFieldNotFoundOrEmpty error" do
-            expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::TokenFieldNotFoundOrEmpty)
-          end
-        end
-
-        context "that is missing the oid field" do
-          subject do
-            input_ = Authentication::AuthenticatorInput.new(
-              authenticator_name: 'authn-azure',
-              service_id:         'my-service',
-              account:            'my-acct',
-              username:           nil,
-              credentials:        request_body(authenticate_azure_token_request_missing_oid_field),
-              origin:             '127.0.0.1',
-              request:            authenticate_azure_token_request_missing_oid_field
-            )
-
-            ::Authentication::AuthnAzure::Authenticator.new(
-              verify_and_decode_token:       mocked_verify_and_decode_token,
-              validate_application_identity: mocked_validate_application_identity
-            ).call(
-              authenticator_input: input_
-            )
-          end
-
-          it "raises a TokenFieldNotFoundOrEmpty error" do
-            expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::TokenFieldNotFoundOrEmpty)
-          end
-        end
       end
     end
   end
