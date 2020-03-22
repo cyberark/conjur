@@ -128,6 +128,30 @@ unless defined? LogMessages::Authentication::OriginValidated
           code: "CONJ00028D"
         )
       end
+
+      module AuthnAzure
+
+        ExtractedApplicationIdentityFromToken = ::Util::TrackableLogMessageClass.new(
+          msg:  "Extracted application identity from token",
+          code: "CONJ00029D"
+        )
+
+        ValidatedApplicationIdentity = ::Util::TrackableLogMessageClass.new(
+          msg:  "Application identity validated",
+          code: "CONJ00030D"
+        )
+
+        ExtractedFieldFromAzureToken = ::Util::TrackableLogMessageClass.new(
+          msg:  "Extracted field '{0-field-name}' with value {1-field-value} from token",
+          code: "CONJ00031D"
+        )
+
+        ValidatingTokenFieldExists = ::Util::TrackableLogMessageClass.new(
+          msg:  "Validating that field '{0}' exists in token",
+          code: "CONJ00032D"
+        )
+
+      end
     end
 
     module Util
