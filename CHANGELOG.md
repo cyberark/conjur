@@ -5,15 +5,21 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.5.0] - 2020-03-23
+
 ### Added
 - Hosts can authenticate from Azure VMs using an Azure access token. See
-  [design](design/authn_azure/authn_azure_solution_design.md) for details.
+  [design](design/authn_azure/authn_azure_solution_design.md) for details
+  ([conjurinc/appliance#927](https://github.com/conjurinc/appliance/issues/927)).
 
 ### Changed
-- Postgres advisory lock used for rotation
-- Updated conjur-policy-parser to
-  [v3.0.4](https://github.com/conjurinc/conjur-policy-parser/blob/master/CHANGELOG.md#v304).
-- Fix support for using deployment as K8s authentication resource type for Kubernetes >= 1.16 (#1440)
+- Lock rotators to prevent multiple rotations from incurring simultaneously.
+
+### Fixed
+- Fix support for using deployment as K8s authentication resource type for Kubernetes >= 1.16
+  ([#1440](https://github.com/cyberark/conjur/issues/1440))
+
 
 ## [1.4.7] - 2020-03-12
 
@@ -29,7 +35,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - K8s hosts' application identity is extracted from annotations or id. If it is
-  defined in annotations it will taken from there and if not, it will be taken 
+  defined in annotations it will taken from there and if not, it will be taken
   from the id.
 
 ## [1.4.5] - 2019-12-22
