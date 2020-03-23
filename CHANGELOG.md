@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Hosts can authenticate from Azure VMs using an Azure access token. See
+  [design](design/authn_azure/authn_azure_solution_design.md) for details.
+
 ### Changed
 - Postgres advisory lock used for rotation
 - Updated conjur-policy-parser to
