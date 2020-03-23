@@ -46,6 +46,7 @@ module Authentication
 
         @jwks = provider_keys.jwks
         @algs = provider_keys.algorithms
+        @logger.debug(Log::IdentityProviderKeysFetchedFromCache.new)
       end
 
       # ensure_keys_are_fresh will try to verify and decode the token and if it
