@@ -47,8 +47,13 @@ unless defined? LogMessages::Authentication::OriginValidated
         )
 
         FetchProviderKeysSuccess = ::Util::TrackableLogMessageClass.new(
-          msg:  "Fetched Identity Provider keys successfully",
+          msg:  "Fetched Identity Provider keys from provider successfully",
           code: "CONJ00009D"
+        )
+
+        IdentityProviderKeysFetchedFromCache = ::Util::TrackableLogMessageClass.new(
+          msg:  "Fetched Identity Provider keys from cache successfully",
+          code: "CONJ00017D"
         )
 
         ValidateProviderKeysAreUpdated = ::Util::TrackableLogMessageClass.new(
