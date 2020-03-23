@@ -20,7 +20,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fix support for using deployment as K8s authentication resource type for Kubernetes >= 1.16
   ([#1440](https://github.com/cyberark/conjur/issues/1440))
 
-
 ## [1.4.7] - 2020-03-12
 
 ### Changed
