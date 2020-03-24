@@ -1,0 +1,44 @@
+authnstatus.feature: 501 vs 503
+
+
+
+NEED TO STOP RAILS BOOT BEFORE UNIT TESTS
+
+we have many "unit tests" which are really integration tests
+we have no well-defined policy about what tests go where
+
+simplecov should be turned off during dev
+
+add ticket for drying up api/policy logic
+why are we loading all of rails in the cukes??
+  that seems potentially seriously bad
+  probably some really lazy reason
+
+our JSON host_factory_steps.rb
+
+- defined in policy but needed in api
+- silently overridden by json_spec method (which isn't applying our custom parameter type...)
+
+the deps among top level things aren't clear
+  - eg, that you have to manually set CONJUR_AUTHN_API_KEY in your cuke container, not documented
+  - and having to manually retrive with `conjurctl role retrieve-key cucumber:user:admin`
+
+  the way this knowledge is spread everywhere:
+    super tokens.join(":")
+    => "cucumber:variable:myapp/db-password"
+
+
+bundle exec rspec ./spec/app/domain/authentication/authn-oidc/authn_oidc_spec.rb:125 # Authentication::Oidc An oidc authenticator that receives authenticate id token request with no id token username field in id token raises an error
+bundle exec rspec ./spec/app/domain/authentication/authn-oidc/authn_oidc_spec.rb:89 # Authentication::Oidc An oidc authenticator that receives authenticate id token request with valid id token returns a new access token
+bundle exec rspec './spec/app/domain/authentication/authn-oidc/authn_oidc_spec.rb[1:1:1:1:6:1]' # Authentication::Oidc An oidc authenticator that receives authenticate id token request with valid id token behaves like it fails when variable is missing or has no value fails when variable is missing
+bundle exec rspec './spec/app/domain/authentication/authn-oidc/authn_oidc_spec.rb[1:1:1:1:6:2]' # Authentication::Oidc An oidc authenticator that receives authenticate id token request with valid id token behaves like it fails when variable is missing or has no value fails when variable has no value
+bundle exec rspec './spec/app/domain/authentication/authn-oidc/authn_oidc_spec.rb[1:1:1:1:5:2]' # Authentication::Oidc An oidc authenticator that receives authenticate id token request with valid id token behaves like it fails when variable is missing or has no value fails when variable has no value
+bundle exec rspec './spec/app/domain/authentication/authn-oidc/authn_oidc_spec.rb[1:1:1:1:5:1]' # Authentication::Oidc An oidc authenticator that receives authenticate id token request with valid id token behaves like it fails when variable is missing or has no value fails when variable is missing
+bundle exec rspec ./spec/app/domain/authentication/authn-oidc/authn_oidc_spec.rb:95 # Authentication::Oidc An oidc authenticator that receives authenticate id token request with valid id token behaves like raises an error when account validation fails raises an error when account validation fails
+bundle exec rspec ./spec/app/domain/authentication/authn-oidc/authn_oidc_spec.rb:94 # Authentication::Oidc An oidc authenticator that receives authenticate id token request with valid id token behaves like raises an error when origin validation fails raises an error when origin validation fails
+bundle exec rspec ./spec/app/domain/authentication/authn-oidc/authn_oidc_spec.rb:93 # Authentication::Oidc An oidc authenticator that receives authenticate id token request with valid id token behaves like raises an error when security validation fails raises an error when security validation fails
+bundle exec rspec ./spec/app/domain/authentication/authn-oidc/authn_oidc_spec.rb:154 # Authentication::Oidc An oidc authenticator that receives authenticate id token request with empty id token username value in id token raises an error
+bundle exec rspec ./spec/controllers/status_controller_spec.rb:7 # StatusController GET #index renders the index template
+bundle exec rspec ./spec/controllers/policies_controller_spec.rb:18 # PoliciesController#post does not return 500 when performed in parallel
+bundle exec rspec ./spec/controllers/policies_controller_spec.rb:12 # PoliciesController#post adds to an existing policy
+bundle exec rspec ./spec/controllers/policies_controller_spec.rb:27 # PoliciesController#post allows making nonconflicting changes in parallel
