@@ -19,7 +19,9 @@ RUN apt-get update -y && \
                        tzdata \
                        # needed to build some gem native extensions:
                        libz-dev \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -sf /usr/bin/ruby2.5 /usr/bin/ruby \
+    && ln -sf /usr/bin/gem2.5 /usr/bin/gem
 
 RUN gem install -N -v 1.17.3 bundler
 
