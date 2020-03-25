@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.5.1] - 2020-03-25
 
 ### Fixed
-- Version details now show the version number
-  [cyberark/conjur#1438](https://github.com/cyberark/conjur/issues/1438)
+- Status page details section now displays the Conjur version number
+  [cyberark/conjur#1438](https://github.com/cyberark/conjur/issues/1438).
 
 ## [1.5.0] - 2020-03-23
 
