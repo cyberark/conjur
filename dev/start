@@ -111,6 +111,11 @@ docker-compose exec conjur bundle
 docker-compose exec conjur conjurctl db migrate
 docker-compose exec conjur conjurctl account create cucumber || true
 
+# This is ultimately defined in bin/conjur-cli.rb, where it forks processes:
+#   1. rails server
+#   2. rake authn_local:run
+#   3. rake expiration:watch (for rotatation, only on master node)
+
 echo "Starting Conjur server"
 docker-compose exec -d conjur conjurctl server
 
