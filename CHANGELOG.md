@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.5.1] - 2020-03-25
+
+### Fixed
+- Version details now show the version number
+  [cyberark/conjur#1438](https://github.com/cyberark/conjur/issues/1438)
+
 ## [1.5.0] - 2020-03-23
 
 ### Added
@@ -278,7 +284,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.4.7...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.5.0...HEAD
+[1.5.1]: https://github.com/cyberark/conjur/compare/v1.5.0...v1.5.1
+[1.5.0]: https://github.com/cyberark/conjur/compare/v1.4.7...v1.5.0
 [1.4.7]: https://github.com/cyberark/conjur/compare/v1.4.6...v1.4.7
 [1.4.6]: https://github.com/cyberark/conjur/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/cyberark/conjur/compare/v1.4.4...v1.4.5
