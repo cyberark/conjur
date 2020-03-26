@@ -49,7 +49,7 @@ end
 
 When(/^I( (?:can|successfully))? GET "([^"]*)" with username "([^"]*)" and password "([^"]*)"$/) do |can, path, username, password|
   try_request can do
-    get_json path, user: username, password: password
+    get_json_with_basic_auth(path, user: username, password: password)
   end
 end
 
@@ -146,6 +146,8 @@ Then(/^I (?:can )*authenticate with the admin API key for the account "(.*?)"/) 
   user.reload
   steps %Q{
     Then I can POST "/authn/#{account}/admin/authenticate" with plain text body "#{user.api_key}"
+  }
+  steps %Q{
     And I can GET "/authn/#{account}/login" with username "admin" and password "#{user.api_key}"
   }
 end
