@@ -2,11 +2,11 @@
 
 module Authentication
 
-  Err = Errors::Authentication
+  Err ||= Errors::Authentication
   # Possible Errors Raised:
   # InvalidOrigin
 
-  ValidateOrigin = CommandClass.new(
+  ValidateOrigin ||= CommandClass.new(
     dependencies: {
       role_cls: ::Role
     },

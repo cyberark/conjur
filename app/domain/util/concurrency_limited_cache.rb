@@ -1,7 +1,7 @@
 module Util
 
-  Log = LogMessages::Util
-  Err = Errors::Util
+  Log ||= LogMessages::Util
+  Err ||= Errors::Util
 
   class ConcurrencyLimitedCache
 

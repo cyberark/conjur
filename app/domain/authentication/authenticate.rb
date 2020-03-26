@@ -5,11 +5,11 @@ require 'authentication/validate_security'
 
 module Authentication
 
-  Err = Errors::Authentication
+  Err ||= Errors::Authentication
   # Possible Errors Raised:
   # AuthenticatorNotFound, InvalidCredentials
 
-  Authenticate = CommandClass.new(
+  Authenticate ||= CommandClass.new(
     dependencies: {
       token_factory:          TokenFactory.new,
       validate_security:      ::Authentication::Security::ValidateSecurity.new,

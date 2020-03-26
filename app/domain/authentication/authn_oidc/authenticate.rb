@@ -3,12 +3,12 @@ require 'command_class'
 module Authentication
   module AuthnOidc
 
-    Log = LogMessages::Authentication::AuthnOidc
-    Err = Errors::Authentication::AuthnOidc
+    Log ||= LogMessages::Authentication::AuthnOidc
+    Err ||= Errors::Authentication::AuthnOidc
     # Possible Errors Raised:
     # IdTokenFieldNotFoundOrEmpty, AdminAuthenticationDenied
 
-    Authenticate = CommandClass.new(
+    Authenticate ||= CommandClass.new(
       dependencies: {
         enabled_authenticators:      Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
         fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
