@@ -1,9 +1,9 @@
-#!/bin/bash -e
-# shellcheck disable=SC1091
+#!/usr/bin/env bash
+set -e
 
 export REPORT_ROOT=/src/conjur-server
-# Setup to allow compose to run in an isolated namespace
-: ${COMPOSE_PROJECT_NAME="$(openssl rand -hex 3)"}
+# Create default value if not set: allows compose to run in isolated namespace
+: "${COMPOSE_PROJECT_NAME:="$(openssl rand -hex 3)"}"
 export COMPOSE_PROJECT_NAME
 
 ### Subcommands
@@ -176,7 +176,35 @@ _build_conjur() (
   version_tag
 )
 
+# TODO: Possibly move this into bash-lib: will be useful elsewhere
+docker_diagnostics() {
+  # Read the running containers names into an array.
+  #
+  # Note on bash trickiness: The backslash is required in \$NF because we want
+  # $NF to be passed literally to awk -- so awk can interpret it -- whereas we
+  # want the shell to interpret and expand ${COMPOSE_PROJECT_NAME}, so awk sees
+  # its _value_ in the regex.
+  #
+  # Docker Note: container name is always the last field.  Hence $NF gets it.
+  local cont_names
+  readarray -t cont_names < <(docker ps --all | \
+    awk "/${COMPOSE_PROJECT_NAME}/{print \$NF}")
+
+  # Print docker inspect info
+  for name in "${cont_names[@]}"; do
+    echo "CONTAINER: ${name}"
+    docker inspect "$name"
+  done
+
+  # Print container logs
+  for name in "${cont_names[@]}"; do
+    echo "CONTAINER: ${name}"
+    docker logs "$name"
+  done
+}
+
 _finish() {
+  docker_diagnostics
   docker-compose down --rmi 'local' --volumes || true
 }
 
