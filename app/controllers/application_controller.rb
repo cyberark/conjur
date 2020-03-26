@@ -171,6 +171,7 @@ class ApplicationController < ActionController::API
 
   def argument_error e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+
     render json: {
       error: {
         code: error_code_of_exception_class(e.class),

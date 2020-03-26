@@ -33,6 +33,8 @@ class AccountsController < ApplicationController
   end
 
   def account_name
-    params[:id]
+    # Rails 5 requires parameters to be explicitly permitted before converting 
+    # to Hash.  See: https://stackoverflow.com/a/46029524
+    params.permit(:id)[:id]
   end
 end
