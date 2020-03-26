@@ -20,6 +20,7 @@ gem 'sprockets', '~> 3.7.0', '>= 3.7.2'
 gem 'jbuilder', '~> 2.7.0'
 
 gem 'pg'
+gem 'sequel', '4.49.0' #NOTE: Avoid sequel-rails errors with 5
 gem 'sequel-pg_advisory_locking'
 gem 'sequel-postgres-schemata', require: false
 gem 'sequel-rails'
