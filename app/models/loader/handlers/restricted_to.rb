@@ -16,7 +16,7 @@ module Loader
         policy_restricted_to_records.each do |entry|
           id, cidr = entry
           role = ::Role[id]
-          role.restricted_to = Array(cidr)
+          role.restricted_to = Array(cidr) if cidr
           role.save
         end
       end
