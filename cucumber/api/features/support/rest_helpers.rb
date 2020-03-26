@@ -43,9 +43,32 @@ module RestHelpers
     set_result result
   end
 
-  def get_json path, options = {}
+  def get_json(path, options = {})
     path = denormalize(path)
     result = rest_resource(options)[path].get
+    set_result result
+  end
+
+  # TODO: Add proper fix for this with real refactor of test code
+  #
+  # NOTE: The way this works is tricky.  We are relying on a behavior of
+  # RestClient, which will automatically add a Basic Auth header to your
+  # request, if you've set the user and password fields on its Request object:
+  # 
+  # See: https://github.com/rest-client/rest-client/blob/f450a0f086f1cd1049abbef2a2c66166a1a9ba71/spec/unit/request_spec.rb#L442
+  #
+  # However, it will only do this IF the request does not already have its
+  # Authorization header set.  Because we wish to use this behavior to construct
+  # our Basic Auth header, we explicitly delete the ":authorization" header.
+  # Our own "rest_resource" method ensures that "user" and "password" are set
+  # on the request.
+  #
+  def get_json_with_basic_auth(path, options = {})
+    path = denormalize(path)
+    resource = rest_resource(options)[path]
+    #TODO: Add proper fix for this with real refactor of test code
+    resource.options[:headers].delete(:authorization)
+    result = resource.get
     set_result result
   end
 
@@ -287,7 +310,6 @@ module RestHelpers
 
   def rest_resource options
     args = [Conjur.configuration.appliance_url]
-
     if options[:token]
       args << user_credentials(options[:token].username, options[:token].token)
     elsif current_user?
@@ -297,6 +319,7 @@ module RestHelpers
     args <<({}) if args.length == 1
     args.last[:headers] ||= {}
     args.last[:headers].merge(headers) if headers
+
     RestClient::Resource.new(*args).tap do |request|
       headers.each do |key, val|
         request.headers[key] = val
