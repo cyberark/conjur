@@ -77,9 +77,7 @@ module PolicyHelpers
   end
 
   def admin_password
-    ENV['CONJUR_AUTHN_API_KEY'] || begin
-      raise StandardError.new('Environment variable `CONJUR_AUTHN_API_KEY` must be set.')
-    end
+    'SEcret12!!!!'
   end
 
   def login_as_role login, api_key = nil
