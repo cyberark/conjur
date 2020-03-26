@@ -21,14 +21,17 @@ Feature: Create a host factory token.
   Scenario: A host factory token can be created by specifying an expiration time.
     Given I permit user "alice" to "execute" it
     And I login as "alice"
+    # TODO: It appears we are posting this as query string only to have
+    # cucumber convert it back into a hash which it then sends as an ordinary
+    # body POST.  This serves no purpose afaict.
     When I successfully POST "/host_factory_tokens?host_factory=cucumber:host_factory:the-layer-factory&expiration=2050-12-31" with in-body params
-    Then the JSON should be:
+    Then our JSON should be:
     """
     [
       {
         "cidr": [],
         "expiration": "2050-12-31T00:00:00Z",
-        "token": "@host_factory_token_token@"
+        "token": "@host_factory_token@"
       }
     ]
     """
@@ -37,7 +40,7 @@ Feature: Create a host factory token.
     Given I permit user "alice" to "execute" it
     And I login as "alice"
     When I successfully POST "/host_factory_tokens?host_factory=cucumber:host_factory:the-layer-factory&expiration=2050-12-31&cidr[]=123.234.0.0/16&cidr[]=222.222.222.0/24" with in-body params
-    Then the JSON should be:
+    Then our JSON should be:
     """
     [
       {
@@ -46,7 +49,7 @@ Feature: Create a host factory token.
           "222.222.222.0/24"
         ],
         "expiration": "2050-12-31T00:00:00Z",
-        "token": "@host_factory_token_token@"
+        "token": "@host_factory_token@"
       }
     ]
     """
