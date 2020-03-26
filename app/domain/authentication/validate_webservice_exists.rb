@@ -6,11 +6,11 @@ module Authentication
 
   module Security
 
-    Err = Errors::Authentication::Security
+    Err ||= Errors::Authentication::Security
     # Possible Errors Raised:
     # AccountNotDefined, WebserviceNotFound
 
-    ValidateWebserviceExists = CommandClass.new(
+    ValidateWebserviceExists ||= CommandClass.new(
       dependencies: {
         role_class: ::Role,
         resource_class: ::Resource,

@@ -4,11 +4,11 @@ require 'command_class'
 
 module Authentication
 
-  Err = Errors::Authentication
+  Err ||= Errors::Authentication
   # Possible Errors Raised:
   # AuthenticatorNotFound, InvalidCredentials
 
-  Login = CommandClass.new(
+  Login ||= CommandClass.new(
     dependencies: {
       validate_security:      ::Authentication::Security::ValidateSecurity.new,
       audit_event:            ::Authentication::AuditEvent.new,

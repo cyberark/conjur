@@ -4,9 +4,9 @@ module Authentication
 
   module Security
 
-    Err = Errors::Authentication::Security
+    Err ||= Errors::Authentication::Security
 
-    ValidateAccountExists = CommandClass.new(
+    ValidateAccountExists ||= CommandClass.new(
       dependencies: {
         role_class: ::Role
       },

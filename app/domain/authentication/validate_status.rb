@@ -5,14 +5,14 @@ require 'authentication/webservices'
 
 module Authentication
 
-  Err = Errors::Authentication
+  Err ||= Errors::Authentication
 
   # Possible Errors Raised:
   # AuthenticatorNotFound, StatusNotImplemented, AccountNotDefined
   # WebserviceNotFound, RoleNotFound, RoleNotAuthorizedOnWebservice,
   # AuthenticatorNotWhitelisted
 
-  ValidateStatus = CommandClass.new(
+  ValidateStatus ||= CommandClass.new(
     dependencies: {
       validate_whitelisted_webservice: ::Authentication::Security::ValidateWhitelistedWebservice.new,
       validate_webservice_access:      ::Authentication::Security::ValidateWebserviceAccess.new,

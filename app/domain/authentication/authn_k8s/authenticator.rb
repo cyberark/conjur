@@ -5,11 +5,11 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
-    Err = Errors::Authentication::AuthnK8s
+    Err ||= Errors::Authentication::AuthnK8s
     # Possible Errors Raised:
     # MissingClientCertificate, UntrustedClientCertificate, CommonNameDoesntMatchHost, ClientCertificateExpired
 
-    Authenticator = CommandClass.new(
+    Authenticator ||= CommandClass.new(
       dependencies: {validate_pod_request: ValidatePodRequest.new},
       inputs: [:authenticator_input]
     ) do

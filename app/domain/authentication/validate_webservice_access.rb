@@ -8,13 +8,13 @@ module Authentication
 
   module Security
 
-    Log = LogMessages::Authentication::Security
-    Err = Errors::Authentication::Security
+    Log ||= LogMessages::Authentication::Security
+    Err ||= Errors::Authentication::Security
     # Possible Errors Raised:
     # AccountNotDefined, WebserviceNotFound,
     # RoleNotFound, RoleNotAuthorizedOnWebservice
 
-    ValidateWebserviceAccess = CommandClass.new(
+    ValidateWebserviceAccess ||= CommandClass.new(
       dependencies: {
         role_class: ::Role,
         resource_class: ::Resource,
