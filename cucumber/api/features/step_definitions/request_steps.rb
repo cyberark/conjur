@@ -21,6 +21,20 @@ When(/^I( (?:can|successfully))? PUT "([^"]*)"$/) do |can, path|
   end
 end
 
+# TODO: Remove the hack to avoid ambiguous match with one below it
+When('I do DELETE "\/host_factory_tokens\/{host_factory_token}"') do |hf|
+  try_request true do
+    delete_json "/host_factory_tokens/#{hf}"
+  end
+end
+
+# TODO: Remove the hack to avoid ambiguous match with one below it
+When('I try to DELETE "\/host_factory_tokens\/{host_factory_token}"') do |hf|
+  try_request false do
+    delete_json "/host_factory_tokens/#{hf}"
+  end
+end
+
 When(/^I( (?:can|successfully))? DELETE "([^"]*)"$/) do |can, path|
   try_request can do
     delete_json path
@@ -155,4 +169,30 @@ end
 Then(/^I save the response as "(.+)"$/) do |name|
   @saved_results = @saved_results || {}
   @saved_results[name] = @result
+end
+
+# TODO: is it right place?  This is ugly right now...
+# TODO: the host factory and other concern need to be split apart
+Then("our JSON should be:") do |json|
+  @result.delete('created_at')
+  json = @response_api_key ? 
+    json.gsub("@response_api_key@", @response_api_key) : json
+  json = render_hf(json)
+  expect(@result).to eq(JSON.parse(json))
+end
+
+# TODO: we need a better refactoring for this
+Then("the host factory JSON should be:") do |json|
+          # "expiration": "@host_factory_token_expiration@",
+          # "token": "@host_factory_token@"
+  @result.delete('created_at')
+  token = @result['tokens'] && @result['tokens'].first
+  if token
+    json = json.gsub("@host_factory_token@", token['token'])
+    json = json.gsub(
+      "@host_factory_token_expiration@",
+      parse_expiration(token['expiration'])
+    )
+  end
+  expect(@result).to eq(JSON.parse(json))
 end
