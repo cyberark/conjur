@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+Sequel::Model.db.extension(:pg_hstore)
+
 class PolicyLog < Sequel::Model :policy_log
   many_to_one :policy_version, key: %i(policy_id version)
 
@@ -19,6 +21,8 @@ class PolicyLog < Sequel::Model :policy_log
   end
 
   def event_subject
-    Audit::Subject.const_get(kind.singularize.camelize).new subject.symbolize_keys
+    Audit::Subject.const_get(kind.singularize.camelize).new(
+      subject.symbolize_keys
+    )
   end
 end
