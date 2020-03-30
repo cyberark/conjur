@@ -14,7 +14,9 @@ set -eux
 DIR="coverage"
 BIN="cc-test-reporter"
 REPORT="${DIR}/.resultset.json"
-GKE_REPORT="ci/authn-k8s/output/simplecov-resultset-authnk8s-gke.json"
+# GKE tests are being temporarily turned off per Jason V
+#
+# GKE_REPORT="ci/authn-k8s/output/simplecov-resultset-authnk8s-gke.json"
 
 if [[ ! -e ${REPORT} ]]; then
     echo "SimpleCov report (${REPORT}) not found"
@@ -27,18 +29,21 @@ if ! grep -q SimpleCov "${REPORT}"; then
     exit 1
 fi
 
-if [[ ! -e "${GKE_REPORT}" ]]; then
-    echo "GKE SimpleCov report not found :("
-    ls -laR ci/authn-k8s/output
-    exit 1
-fi
+# GKE tests are being temporarily turned off per Jason V
+#
+# if [[ ! -e "${GKE_REPORT}" ]]; then
+#     echo "GKE SimpleCov report not found :("
+#     ls -laR ci/authn-k8s/output
+#     exit 1
+# fi
 
-if ! grep -q SimpleCov "${GKE_REPORT}"; then
-    echo "SimpleCov report (${GKE_REPORT}) does not contain any SimpleCov data: $(cat ${GKE_REPORT})"
-    exit 1
-fi
+# if ! grep -q SimpleCov "${GKE_REPORT}"; then
+#     echo "SimpleCov report (${GKE_REPORT}) does not contain any SimpleCov data: $(cat ${GKE_REPORT})"
+#     exit 1
+# fi
 
-echo "SimpleCov Reports Found: ${REPORT}, ${GKE_REPORT}"
+# echo "SimpleCov Reports Found: ${REPORT}, ${GKE_REPORT}"
+echo "SimpleCov Reports Found: ${REPORT}"
 
 if [[ ! -x ${BIN} ]]; then
     echo "cc-test-reporter binary not found, not reporting coverage data to code climate"
@@ -51,12 +56,14 @@ fi
 # Preserve a pre-merge version of the results from the non gke test branches.
 cp "${REPORT}" "${DIR}/.resultset-non-gke.json"
 
+# GKE tests are being temporarily turned off per Jason V
+#
 # Merge GKE report with the already combined cucumber and rspec results.
 # -s loads input files into an array
 # * merges objects
-jq -s '.[0] * .[1]' "${REPORT}" "${GKE_REPORT}" > simplecov_combined
+# jq -s '.[0] * .[1]' "${REPORT}" "${GKE_REPORT}" > simplecov_combined
 # This mv is safe as it happens after all the parallel tests are complete.
-mv simplecov_combined "${REPORT}"
+# mv simplecov_combined "${REPORT}"
 
 # Simplecov excludes files not within the current repo, it also needs to
 # be able to read all the files referenced within the report. As the reports
