@@ -1,2 +1,4 @@
 source 'https://rubygems.org'
-gem 'simplecov', '~> 0.17.1'
+# Updating to latest version not compatible with CC
+# See: https://github.com/codeclimate/test-reporter/issues/418
+gem 'simplecov', '0.17'
