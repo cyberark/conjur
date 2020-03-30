@@ -9,6 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 EXPOSE 80
 
 RUN apt-get update -y && \
+    apt-get -y dist-upgrade && \
     apt-get install -y build-essential \
                        curl \
                        git \
