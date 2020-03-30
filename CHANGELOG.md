@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- Use Ubuntu 18.04 LTS as the base image for Conjur to continue using Ruby 2.5
+  ([cyberark/conjur#1456](https://github.com/cyberark/conjur/issues/1456)).
+
 ## [1.5.1] - 2020-03-25
 
 ### Fixed
