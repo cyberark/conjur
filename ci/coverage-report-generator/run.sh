@@ -15,12 +15,12 @@ REPORT_FILE="${1:-${REPO_ROOT}/coverage/.resultset.json}"
 
 docker run \
     --rm \
-    -v "${REPO_ROOT}":"${REPO_ROOT}" \
-    -w "${REPO_ROOT}/ci/coverage-report-generator" \
+    --volume "${REPO_ROOT}":"${REPO_ROOT}" \
+    --workdir "${REPO_ROOT}/ci/coverage-report-generator" \
     "${IMAGE}" \
-        bash -cex "bundle install --path gems
-                   bundle list
-                   bundle exec ./generate_report.rb \
-                       ${REPO_ROOT} \
-                       ${REPORT_FILE}
-                  "
+    bash -cex "
+      gem install bundler -v 2.1.4 
+      bundle config set path 'gems'
+      bundle install
+      bundle list
+      bundle exec ./generate_report.rb ${REPO_ROOT} ${REPORT_FILE}"
