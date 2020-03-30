@@ -52,7 +52,9 @@ gem 'rack-rewrite'
 # Putting this here currently confuses debify, so instead load it in application.rb
 # gem 'conjur_audit', path: 'engines/conjur_audit'
 
-gem 'simplecov', require: false
+# This old version is required to work with CC
+# See: https://github.com/codeclimate/test-reporter/issues/418
+gem 'simplecov', '0.14.1', require: false
 
 gem 'sass-rails'
 gem 'mini_racer'
