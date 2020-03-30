@@ -3,3 +3,12 @@
 # vulnerable version of Rake in their development dependencies, but do not pose 
 # a risk to Conjur.
 CVE-2020-8130
+
+
+# These vulnerabilites are present in the Ubuntu 18.04 base image and are being
+# analyzed to determined their impact on the Conjur container image.
+# Follow up issue: https://github.com/cyberark/conjur/issues/1461
+CVE-2019-10220
+CVE-2019-19813
+CVE-2019-19814
+CVE-2019-19816
