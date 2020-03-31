@@ -17,7 +17,7 @@ ParameterType(
   name: 'response_api_key',
   regexp: /@response_api_key@/,
   prefer_for_regexp_match: true,
-  transformer: ->(item) do
+  transformer: lambda do |item|
     @response_api_key ? item.gsub("@response_api_key@", @response_api_key) : item
   end
 )
@@ -37,20 +37,16 @@ DummyToken = Struct.new(:token, :expiration)
 #       .gsub("@host_factory_token_token@", token.token)
 # end
 
-# TODO: perhaps fix this to take @host_factory_token as arg?
 def render_hf_token(tmpl)
-  return tmpl unless @result
-  return tmpl unless @result[0]
-  return tmpl unless @result[0]['token']
-  tmpl.gsub("@host_factory_token@", @result[0]['token'])
+  token = @result.dig(0, 'token')
+  return tmpl unless token
+  tmpl.gsub("@host_factory_token@", token)
 end
 
 def render_hf_token_expiration(tmpl)
-  return tmpl unless @result
-  return tmpl unless @result[0]
-  return tmpl unless @result[0]['token']
-  exp = parse_expiration(@result[0]['expiration'])
-  tmpl.gsub("@host_factory_token_expiration@", exp)
+  exp = @result.dig(0, 'expiration')
+  return tmpl unless exp
+  tmpl.gsub("@host_factory_token_expiration@", parse_expiration(exp))
 end
 
 def parse_expiration(exp)
@@ -61,11 +57,10 @@ def render_hf(tmpl)
   render_hf_token_expiration(render_hf_token(tmpl))
 end
 
-# TODO This should probably be two types
 ParameterType(
   name: 'host_factory_token',
   regexp: /@host_factory_token@/,
-  transformer: ->(item) do
+  transformer: lambda do |item|
     # TODO: This coupling to global state is terrible, but seems to be
     #       unvoidable using the cucumber World approach.
     # TODO: replace these bodies with functions above
@@ -80,7 +75,7 @@ ParameterType(
 ParameterType(
   name: 'host_factory_token_expiration',
   regexp: /@host_factory_token_expiration@/,
-  transformer: ->(item) do
+  transformer: lambda do |item|
     # TODO: This coupling to global state is terrible, but seems to be
     #       unvoidable using the cucumber World approach.
     token = @host_factory_token || DummyToken.new(

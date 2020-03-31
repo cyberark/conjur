@@ -53,11 +53,12 @@ end
 Then(/^I( can)? authenticate pod matching "([^"]*)" with authn-k8s as "([^"]*)"(?: with prefix "([^"]*)")?( without cert and key)?$/) do |success, objectid, hostid_suffix, hostid_prefix, nocertkey|
   @request_ip ||= detect_request_ip(objectid)
 
-  if hostid_prefix
-    conjur_id = "#{hostid_prefix}/#{hostid_suffix}"
-  else
-    conjur_id = conjur_resource_id(namespace, hostid_suffix)
-  end
+  conjur_id = 
+    if hostid_prefix
+      "#{hostid_prefix}/#{hostid_suffix}"
+    else
+      conjur_resource_id(namespace, hostid_suffix)
+    end
 
   cert = nocertkey ? nil : OpenSSL::X509::Certificate.new(@cert)
   key = nocertkey ? nil : @pkey

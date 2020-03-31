@@ -11,13 +11,13 @@ ruby '~> 2.5.1'
 gem 'command_class'
 gem 'base58'
 gem 'iso8601'
+gem 'jbuilder', '~> 2.7.0'
 gem 'nokogiri', '>= 1.8.2'
 gem 'puma', '~> 3.12'
 gem 'rack', '~> 2.0'
 gem 'rails', '~> 5.2.4.1'
 gem 'rake'
 gem 'sprockets', '~> 3.7.0', '>= 3.7.2'
-gem 'jbuilder', '~> 2.7.0'
 
 gem 'pg'
 gem 'sequel', '4.49.0' #NOTE: Avoid sequel-rails errors with 5
@@ -40,8 +40,8 @@ gem "loofah", ">= 2.2.3"
 # Gem::InstallError: ruby_dep requires Ruby version >= 2.2.5, ~> 2.2.
 gem 'ruby_dep', '= 1.3.1'
 
- # Pinned to update for role member search, using ref so merging and removing the branch doesn't
- # immediately break this link
+ # Pinned to update for role member search, using ref so merging and removing
+# the branch doesn't immediately break this link
 gem 'conjur-api', github: 'cyberark/conjur-api-ruby', branch: 'master'
 gem 'conjur-policy-parser', '>= 3.0.4',
   github: 'cyberark/conjur-policy-parser', branch: 'master'
@@ -49,23 +49,22 @@ gem 'conjur-rack', '~> 4'
 gem 'conjur-rack-heartbeat'
 gem 'rack-rewrite'
 
-# Putting this here currently confuses debify, so instead load it in application.rb
-# gem 'conjur_audit', path: 'engines/conjur_audit'
+# Putting this here currently confuses debify, so instead load it in
+# application.rb gem 'conjur_audit', path: 'engines/conjur_audit'
 
 # This old version is required to work with CC
 # See: https://github.com/codeclimate/test-reporter/issues/418
 gem 'simplecov', '0.14.1', require: false
 
-gem 'sass-rails'
-gem 'mini_racer'
-gem 'uglifier'
-#gem 'coffee-rails'
 gem 'autoprefixer-rails'
 gem 'bootstrap-sass', '~> 3.4.0'
 gem 'dry-struct', '~> 0.4.0'
 gem 'dry-types', '~> 0.12.2'
 gem 'font-awesome-sass', '~> 4.7.0'
+gem 'mini_racer'
 gem 'net-ldap'
+gem 'sass-rails'
+gem 'uglifier'
 
 # for AWS rotator
 gem 'aws-sdk-iam', require: false

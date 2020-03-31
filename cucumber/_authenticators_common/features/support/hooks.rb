@@ -12,7 +12,7 @@ Before do
   Secret.truncate
   Credentials.truncate
 
-  Slosilo.each do |k,v|
+  Slosilo.each do |k, _|
     unless %w(authn:rspec authn:cucumber).member?(k)
       Slosilo.send(:keystore).adapter.model[k].delete
     end
@@ -22,8 +22,7 @@ Before do
   admin_role = Role.create(role_id: "cucumber:user:admin")
   creds = Credentials.new(role: admin_role)
   # TODO: Replace this hack with a refactoring of policy/api/authenticators to
-  #       share
-  # this code, and to it the api way (probably)
+  #       share this code, and to it the api way (probably)
   creds.password = 'SEcret12!!!!'
   creds.save(raise_on_save_failure: true)
 end

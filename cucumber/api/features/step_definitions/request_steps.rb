@@ -175,18 +175,17 @@ end
 # TODO: the host factory and other concern need to be split apart
 Then("our JSON should be:") do |json|
   @result.delete('created_at')
-  json = @response_api_key ? 
-    json.gsub("@response_api_key@", @response_api_key) : json
+  if @response_api_key
+    json = json.gsub("@response_api_key@", @response_api_key)
+  end
   json = render_hf(json)
   expect(@result).to eq(JSON.parse(json))
 end
 
 # TODO: we need a better refactoring for this
 Then("the host factory JSON should be:") do |json|
-          # "expiration": "@host_factory_token_expiration@",
-          # "token": "@host_factory_token@"
   @result.delete('created_at')
-  token = @result['tokens'] && @result['tokens'].first
+  token = @result.dig('tokens', 0)
   if token
     json = json.gsub("@host_factory_token@", token['token'])
     json = json.gsub(

@@ -66,7 +66,7 @@ module RestHelpers
   def get_json_with_basic_auth(path, options = {})
     path = denormalize(path)
     resource = rest_resource(options)[path]
-    #TODO: Add proper fix for this with real refactor of test code
+    # TODO: Add proper fix for this with real refactor of test code
     resource.options[:headers].delete(:authorization)
     result = resource.get
     set_result result
