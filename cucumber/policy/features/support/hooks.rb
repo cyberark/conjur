@@ -13,7 +13,6 @@ Before "@echo" do |scenario|
   @echo = true
 end
 
-
 Before do
   @user_index = 0
 
@@ -21,7 +20,7 @@ Before do
   Secret.truncate
   Credentials.truncate
 
-  Slosilo.each do |k,v|
+  Slosilo.each do |k, v|
     unless %w(authn:rspec authn:cucumber).member?(k)
       Slosilo.send(:keystore).adapter.model[k].delete
     end
