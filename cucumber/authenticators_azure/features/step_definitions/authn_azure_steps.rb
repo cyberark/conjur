@@ -1,4 +1,4 @@
-Given(/^I successfully set Azure variables with the correct values$/) do
+Given(/^I successfully set Azure provider-uri variable with the correct values$/) do
   create_and_set_azure_provider_uri_variable
 end
 
@@ -10,12 +10,13 @@ Given(/^I successfully set Azure provider-uri variable without trailing slash$/)
   create_and_set_azure_provider_uri_variable(azure_provider_uri.chop)
 end
 
-Given(/I fetch an Azure access token from inside machine/) do
-  retrieve_system_assigned_azure_access_token
-end
-
-Given(/I fetch a user-assigned Azure access token from inside machine/) do
-  retrieve_user_assigned_azure_access_token
+Given(/I fetch a (non|system|user)-assigned-identity Azure access token from inside machine/) do |identity_type|
+  case identity_type
+  when "non", "system"
+    retrieve_system_assigned_azure_access_token
+  when "user"
+    retrieve_user_assigned_azure_access_token
+  end
 end
 
 Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?via Azure with (no |empty |invalid )?token as (user|host) "([^"]*)"/) do |num_requests, num_threads, token_state, role_type, username|

@@ -44,7 +44,7 @@ Feature: Azure Authenticator - Status Check
       member: !user alice
     """
     And I am the super-user
-    And I successfully set Azure variables with the correct values
+    And I successfully set Azure provider-uri variable with the correct values
     And I login as "alice"
     When I GET "/authn-azure/prod/cucumber/status"
     Then the HTTP response status code is 200

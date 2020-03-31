@@ -25,7 +25,7 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
         resource: !webservice
     """
     And I am the super-user
-    And I successfully set Azure variables with the correct values
+    And I successfully set Azure provider-uri variable with the correct values
     And I have host "test-app"
     And I set Azure annotations to host "test-app"
     And I grant group "conjur/authn-azure/prod/apps" to host "test-app"
@@ -34,7 +34,7 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     Given I have a "variable" resource called "test-variable"
     And I permit host "test-app" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
-    And I fetch an Azure access token from inside machine
+    And I fetch a non-assigned-identity Azure access token from inside machine
     When I authenticate via Azure with token as host "test-app"
     Then host "test-app" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
@@ -43,19 +43,19 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     Given I have a "variable" resource called "test-variable"
     And I permit host "test-app" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
-    And I fetch an Azure access token from inside machine
+    And I fetch a non-assigned-identity Azure access token from inside machine
     When I successfully set Azure provider-uri variable without trailing slash
     And I authenticate via Azure with token as host "test-app"
     Then host "test-app" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
 
   Scenario: Changing provider-uri dynamically reflects on the ID Provider endpoint
-    Given I fetch an Azure access token from inside machine
+    Given I fetch a non-assigned-identity Azure access token from inside machine
     And I authenticate via Azure with token as host "test-app"
     And host "test-app" has been authorized by Conjur
     # Update provider uri to a different hostname and verify `provider-uri` has changed
     When I add the secret value "https://different-provider:8443" to the resource "cucumber:variable:conjur/authn-azure/prod/provider-uri"
-    And I fetch an Azure access token from inside machine
+    And I fetch a non-assigned-identity Azure access token from inside machine
     And I save my place in the log file
     And I authenticate via Azure with token as host "test-app"
     Then it is bad gateway
@@ -64,8 +64,8 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     CONJ00007D Working with Identity Provider https://different-provider:8443
     """
     # Check recovery to a valid provider uri
-    When I successfully set Azure variables with the correct values
-    And I fetch an Azure access token from inside machine
+    When I successfully set Azure provider-uri variable with the correct values
+    And I fetch a non-assigned-identity Azure access token from inside machine
     And I authenticate via Azure with token as host "test-app"
     And host "test-app" has been authorized by Conjur
 
