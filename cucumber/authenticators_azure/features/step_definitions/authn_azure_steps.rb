@@ -75,7 +75,7 @@ Given(/^I set Azure annotations to host "([^"]*)"$/) do |hostname|
   set_annotation_to_resource("authn-azure/resource-group", azure_resource_group)
 end
 
-Given(/^I set (subscription-id|resource-group|user-assigned-identity) annotation (with incorrect value )?to host "([^"]*)"$/) do |annotation_name, incorrect_value, hostname|
+Given(/^I set (subscription-id|resource-group|user-assigned-identity|system-assigned-identity) annotation (with incorrect value )?to host "([^"]*)"$/) do |annotation_name, incorrect_value, hostname|
   i_have_a_resource "host", hostname
 
   case annotation_name
@@ -85,6 +85,8 @@ Given(/^I set (subscription-id|resource-group|user-assigned-identity) annotation
     annotation_correct_value = azure_resource_group
   when "user-assigned-identity"
     annotation_correct_value = user_assigned_identity
+  when "system-assigned-identity"
+    annotation_correct_value = system_assigned_identity
   else
     raise "incorrect annotation name #{annotation_name}"
   end

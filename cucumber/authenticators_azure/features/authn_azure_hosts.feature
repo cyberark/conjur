@@ -34,6 +34,16 @@ Feature: Azure Authenticator - Different Hosts can authenticate with Azure authe
     When I authenticate via Azure with token as host "user-assigned-identity-app"
     Then host "user-assigned-identity-app" has been authorized by Conjur
 
+  Scenario: Host with system-assigned-identity annotation is authorized
+    And I have host "system-assigned-identity-app"
+    And I set subscription-id annotation to host "system-assigned-identity-app"
+    And I set resource-group annotation to host "system-assigned-identity-app"
+    And I set system-assigned-identity annotation to host "system-assigned-identity-app"
+    And I grant group "conjur/authn-azure/prod/apps" to host "system-assigned-identity-app"
+    And I fetch a system-assigned-identity Azure access token from inside machine
+    When I authenticate via Azure with token as host "system-assigned-identity-app"
+    Then host "system-assigned-identity-app" has been authorized by Conjur
+
   Scenario: Host without resource-group annotation is denied
     And I have host "no-resource-group-app"
     And I set subscription-id annotation to host "no-resource-group-app"
@@ -72,7 +82,21 @@ Feature: Azure Authenticator - Different Hosts can authenticate with Azure authe
     Errors::Authentication::AuthnAzure::RoleMissingConstraint
     """
 
-  # TODO: add test for IllegalConstraintCombinations once we can test system-assigned id
+  Scenario: Host with both identity Azure annotations is denied
+    And I have host "illegal-combination-app"
+    And I set resource-group annotation to host "illegal-combination-app"
+    And I set subscription-id annotation to host "illegal-combination-app"
+    And I set system-assigned-identity annotation to host "illegal-combination-app"
+    And I set user-assigned-identity annotation to host "illegal-combination-app"
+    And I grant group "conjur/authn-azure/prod/apps" to host "illegal-combination-app"
+    And I fetch a non-assigned-identity Azure access token from inside machine
+    And I save my place in the log file
+    When I authenticate via Azure with token as host "illegal-combination-app"
+    Then it is unauthorized
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::IllegalConstraintCombinations
+    """
 
   Scenario: Host with incorrect subscription-id Azure annotation is denied
     And I have host "incorrect-subscription-id-app"
@@ -111,6 +135,21 @@ Feature: Azure Authenticator - Different Hosts can authenticate with Azure authe
     And I fetch a user-assigned-identity Azure access token from inside machine
     And I save my place in the log file
     When I authenticate via Azure with token as host "incorrect-user-assigned-identity-app"
+    Then it is unauthorized
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::AuthnAzure::InvalidApplicationIdentity
+    """
+
+  Scenario: Host with incorrect system-assigned-identity annotation is denied
+    And I have host "incorrect-system-assigned-identity-app"
+    And I set subscription-id annotation to host "incorrect-system-assigned-identity-app"
+    And I set resource-group annotation to host "incorrect-system-assigned-identity-app"
+    And I set system-assigned-identity annotation with incorrect value to host "incorrect-system-assigned-identity-app"
+    And I grant group "conjur/authn-azure/prod/apps" to host "incorrect-system-assigned-identity-app"
+    And I fetch a system-assigned-identity Azure access token from inside machine
+    And I save my place in the log file
+    When I authenticate via Azure with token as host "incorrect-system-assigned-identity-app"
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
