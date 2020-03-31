@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   ([cyberark/conjur#1456](https://github.com/cyberark/conjur/issues/1456)).
 - Conjur image now performs a `dist-upgrade` as the first image build step to
   ensure the image includes all available vulnerability fixes in the base OS.
+- Upgrade from Rails 4 to Rails 5
 
 ## [1.5.1] - 2020-03-25
 
