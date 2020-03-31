@@ -3,14 +3,6 @@ def conjur_resource_id(namespace, resource_id)
 end
 
 def gen_cert(host_id)
-  id = 'conjur/authn-k8s/minikube'
-  conjur_account = ENV['CONJUR_ACCOUNT']
-  subject = "/CN=#{id.tr('/', '.')}/OU=Conjur Kubernetes CA/O=#{conjur_account}"
-  ca = ::Util::OpenSsl::CA.from_subject(subject)
-
-  metadata = @pod.metadata
-  spiffe_id = "URI:spiffe://cluster.local/namespace/#{metadata.namespace}/pod/#{metadata.name}"
-
   username = [namespace, host_id].join('/')
   webservice_resource_id = "#{ENV['CONJUR_ACCOUNT']}:webservice:#{username}"
   ::Repos::ConjurCA.create(webservice_resource_id)
