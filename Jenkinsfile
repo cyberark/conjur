@@ -78,8 +78,11 @@ pipeline {
         stage('Azure Authenticator preparation - Allocate Azure Authenticator Instance') {
           steps {
             script {
-              node('azure-authn') {
-                env.AZURE_AUTHN_INSTANCE_IP = sh(script: 'curl icanhazip.com', returnStdout: true)
+              node('azure-linux') {
+                // get `ci/authn-azure/get_system_assigned_identity.sh` from scm
+                checkout scm
+                env.AZURE_AUTHN_INSTANCE_IP = sh(script: 'curl icanhazip.com', returnStdout: true).trim()
+                env.SYSTEM_ASSIGNED_IDENTITY = sh(script: 'ci/authn-azure/get_system_assigned_identity.sh', returnStdout: true).trim()
                 env.KEEP_AZURE_AUTHN_INSTANCE = "true"
                 while(env.KEEP_AZURE_AUTHN_INSTANCE == "true") {
                   sleep(time: 15, unit: "SECONDS")
@@ -91,7 +94,7 @@ pipeline {
         stage('Azure Authenticator') {
           steps {
             script {
-              while (!env.AZURE_AUTHN_INSTANCE_IP?.trim()) {
+              while (!env.AZURE_AUTHN_INSTANCE_IP?.trim() || !env.SYSTEM_ASSIGNED_IDENTITY?.trim()) {
                 sleep(time: 15, unit: "SECONDS")
               }
               sh(
