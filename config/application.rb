@@ -23,6 +23,12 @@ require 'conjur_audit'
 
 module Conjur
   class Application < Rails::Application
+    # NOTE: This must be defined at the top in order to be available to the
+    # class level code below, unlike instance methods where the order doesn't
+    # matter.
+    def self.is_asset_precompile?
+      /assets:precompile/.match?(ARGV.join(' '))
+    end
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
@@ -71,9 +77,5 @@ module Conjur
         /^\/authenticators$/,
         /^\/$/
       ]
-
-    def self.is_asset_precompile?
-      /assets:precompile/.match?(ARGV.join(' '))
-    end
   end
 end
