@@ -23,4 +23,4 @@ docker run \
       bundle config set path 'gems'
       bundle install
       bundle list
-      bundle exec ./generate_report.rb ${REPO_ROOT} ${REPORT_FILE}"
+      bundle exec ./generate_report.rb '${REPO_ROOT}' '${REPORT_FILE}'"
