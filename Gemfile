@@ -20,7 +20,10 @@ gem 'rake'
 gem 'sprockets', '~> 3.7.0', '>= 3.7.2'
 
 gem 'pg'
-gem 'sequel', '4.49.0' #NOTE: Avoid sequel-rails errors with 5
+# TODO: When updating to 5, sequel-rails was throwing errors that
+# I wasn't able to resolve.  The quick fix was to pin sequel here
+# for now.  We can tackle the upgrade later.
+gem 'sequel', '4.49.0'
 gem 'sequel-pg_advisory_locking'
 gem 'sequel-postgres-schemata', require: false
 gem 'sequel-rails'
