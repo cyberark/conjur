@@ -9,6 +9,9 @@ module BodyParser
   #       feature parity with Rails 4 and simplifies the upgrade to 5,
   #       but a more Rails-5-in-spirit thing to do is upgrade all the
   #       call sites to permit only the expected params.
+  #
+  #       See: https://github.com/cyberark/conjur/issues/1467
+  #
   # :reek:NilCheck should be acceptable here
   def body_params
     @body_params ||= ActionController::Parameters.new(
