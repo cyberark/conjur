@@ -23,7 +23,7 @@ check_env_var "USER_ASSIGNED_IDENTITY_CLIENT_ID"
 
 # These variables should come from Jenkins
 check_env_var "AZURE_AUTHN_INSTANCE_IP"
-#check_env_var "SYSTEM_ASSIGNED_IDENTITY" # TODO: add this once available
+check_env_var "SYSTEM_ASSIGNED_IDENTITY"
 
 echo "Required environment variables for authn-azure tests exist"
 

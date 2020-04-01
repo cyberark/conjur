@@ -24,7 +24,7 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
     And I have host "test-app"
     And I set Azure annotations to host "test-app"
     And I grant group "conjur/authn-azure/prod/apps" to host "test-app"
-    And I fetch an Azure access token from inside machine
+    And I fetch a non-assigned-identity Azure access token from inside machine
     And I save my place in the log file
     When I authenticate via Azure with token as host "test-app"
     Then it is unauthorized
@@ -57,7 +57,7 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
     And I have host "test-app"
     And I set Azure annotations to host "test-app"
     And I grant group "conjur/authn-azure/prod/apps" to host "test-app"
-    And I fetch an Azure access token from inside machine
+    And I fetch a non-assigned-identity Azure access token from inside machine
     And I save my place in the log file
     When I authenticate via Azure with token as host "test-app"
     Then it is unauthorized
@@ -82,8 +82,8 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
     And I have host "test-app"
     And I set Azure annotations to host "test-app"
     And I grant group "conjur/authn-azure/prod/apps" to host "test-app"
-    And I successfully set Azure variables with the correct values
-    And I fetch an Azure access token from inside machine
+    And I successfully set Azure provider-uri variable with the correct values
+    And I fetch a non-assigned-identity Azure access token from inside machine
     And I save my place in the log file
     When I authenticate via Azure with token as host "test-app"
     Then it is unauthorized
@@ -114,8 +114,8 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
     And I have host "test-app"
     And I set Azure annotations to host "test-app"
     And I grant group "conjur/authn-azure/prod/apps" to host "test-app"
-    And I successfully set Azure variables with the correct values
-    And I fetch an Azure access token from inside machine
+    And I successfully set Azure provider-uri variable with the correct values
+    And I fetch a non-assigned-identity Azure access token from inside machine
     And I save my place in the log file
     When I authenticate via Azure with token as host "test-app"
     Then it is forbidden
@@ -147,7 +147,7 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
     And I have host "test-app"
     And I set Azure annotations to host "test-app"
     And I grant group "conjur/authn-azure/prod/apps" to host "test-app"
-    And I fetch an Azure access token from inside machine
+    And I fetch a non-assigned-identity Azure access token from inside machine
     And I save my place in the log file
     When I authenticate via Azure with token as host "test-app"
     Then it is bad gateway

@@ -73,10 +73,9 @@ module AuthnAzureHelper
     @azure_resource_group ||= validated_env_var('AZURE_RESOURCE_GROUP')
   end
 
-  # TODO: add this once available
-  # def system_assigned_identity
-  #   @system_assigned_identity ||= validated_env_var('SYSTEM_ASSIGNED_IDENTITY')
-  # end
+  def system_assigned_identity
+    @system_assigned_identity ||= validated_env_var('SYSTEM_ASSIGNED_IDENTITY')
+  end
 
   def user_assigned_identity
     @user_assigned_identity ||= validated_env_var('USER_ASSIGNED_IDENTITY')
