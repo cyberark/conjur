@@ -34,6 +34,5 @@ end
 
 Then(/authenticator "([^"]*)" is disabled/) do |resource_id|
   config = AuthenticatorConfig.where(resource_id: resource_id).first
-  enabled = config&.enabled || false
-  expect(enabled).to eq(false)
+  expect(config&.enabled).to be_falsey
 end
