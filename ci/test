@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+# TODO: Currently adding the -u and -o pipefail options breaks
+# this script.  We should fix these errors and turn them on.
 set -e
 
 export REPORT_ROOT=/src/conjur-server
