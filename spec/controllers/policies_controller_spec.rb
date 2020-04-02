@@ -20,7 +20,9 @@ describe PoliciesController, type: :request do
     Slosilo["authn:rspec"] ||= Slosilo::Key.new
   end
 
-  after(:all) { DatabaseCleaner.strategy = @original_database_cleaner_strategy }
+  after(:all) do
+    DatabaseCleaner.strategy = @original_database_cleaner_strategy
+  end
 
   before do
     allow_any_instance_of(described_class).to(

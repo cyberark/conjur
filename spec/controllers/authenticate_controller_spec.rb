@@ -23,7 +23,7 @@ describe AuthenticateController, :type => :request do
       end
     end
     
-    context "without auth" do
+    context "without authentication" do
       it "is unauthorized" do
         post(authenticate_url)
         expect(response.code).to eq("401")
@@ -79,7 +79,6 @@ describe AuthenticateController, :type => :request do
     end
     
     context "with api key" do
-      # before { request.env['RAW_POST_DATA'] = the_user.credentials.api_key }
       it "succeeds" do
         invoke
         expect(response).to have_valid_token_for(login)
