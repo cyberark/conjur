@@ -513,7 +513,7 @@ DEPENDENCIES
   puma (~> 3.12)
   rack (~> 2.0)
   rack-rewrite
-  rails (~> 5.2.4.1)
+  rails (~> 5.2)
   rails-controller-testing
   rails_12factor
   rails_layout
