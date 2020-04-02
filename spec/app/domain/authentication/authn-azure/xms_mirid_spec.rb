@@ -116,7 +116,7 @@ RSpec.describe 'Authentication::AuthnAzure::XmsMirid' do
         )
       end
       it "raises an error" do
-        expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::MissingProviderFieldsInXmsMirid)
+        expect { subject }.to raise_error(::Errors::Authentication::AuthnAzure::InvalidProviderFieldsInXmsMirid)
       end
     end
   end

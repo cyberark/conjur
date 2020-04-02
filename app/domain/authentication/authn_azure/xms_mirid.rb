@@ -58,7 +58,7 @@ module Authentication
         end
 
         unless @mirid_parts_hash["providers"].length == 3
-          raise Err::MissingProviderFieldsInXmsMirid, @xms_mirid_token_field
+          raise Err::InvalidProviderFieldsInXmsMirid, @xms_mirid_token_field
         end
       end
     end

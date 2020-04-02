@@ -307,8 +307,10 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00053E"
         )
 
-        MissingProviderFieldsInXmsMirid = ::Util::TrackableErrorClass.new(
-          msg:  "Provider fields are missing in xms_mirid {1}",
+        InvalidProviderFieldsInXmsMirid = ::Util::TrackableErrorClass.new(
+          msg:  "Provider fields are in invalid format in xms_mirid {1}." \
+                "xms_mirid must contain the resource provider namespace, the " \
+                "resource type, and the resource name",
           code: "CONJ00054E"
         )
       end
