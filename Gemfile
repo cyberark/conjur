@@ -10,6 +10,7 @@ ruby '~> 2.5.1'
 
 gem 'command_class'
 gem 'base58'
+gem 'http', '~> 4.2.0'
 gem 'iso8601'
 gem 'jbuilder', '~> 2.7.0'
 gem 'nokogiri', '>= 1.8.2'
