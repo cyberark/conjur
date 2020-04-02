@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# TODO: This script is need of a full cleanup.  Issue captured here:
+#   https://github.com/cyberark/conjur/issues/1471
+
 # TODO: Currently adding the -u and -o pipefail options breaks
 # this script.  We should fix these errors and turn them on.
 set -e
@@ -180,6 +183,9 @@ _build_conjur() (
 )
 
 # TODO: Possibly move this into bash-lib: will be useful elsewhere
+
+# NOTE: See linked to issue at top of file.  This code in particular is can be
+#   simplified, and we need to figure out if we want it to run by default.
 docker_diagnostics() {
   # Read the running containers names into an array.
   #
