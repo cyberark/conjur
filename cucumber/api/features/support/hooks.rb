@@ -5,6 +5,10 @@
 require 'haikunator'
 require 'fileutils'
 
+# Reset the DB between each test
+#
+# Prior to this hook, our tests had hidden coupling.  This ensures each test is
+# run independently.
 Before do
   @user_index = 0
   @host_index = 0
