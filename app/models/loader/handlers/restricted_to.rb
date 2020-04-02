@@ -16,7 +16,7 @@ module Loader
         policy_restricted_to_records.each do |entry|
           id, cidr = entry
           role = ::Role[id]
-          # Note: Sequel upgrade requires this explicit conversion now
+          # NOTE: By default restricted_to will be an empty array
           role.restricted_to = Sequel.pg_array(Array(cidr), :cidr) if cidr
           role.save
         end

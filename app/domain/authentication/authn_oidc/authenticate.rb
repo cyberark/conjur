@@ -8,7 +8,12 @@ module Authentication
     # Possible Errors Raised:
     # IdTokenFieldNotFoundOrEmpty, AdminAuthenticationDenied
 
-    # TODO: Figure out why we unitialized constant when we have the ||=
+    # TODO: Changing the = below to ||= causes an unitialized constant.  I 
+    # was never able to figure out why, but it would be worth investigating.
+    # Even better, figure out how to make all these classes play nice with 
+    # Rails auto-loading to the ||= hack isn't needed to prevent "constant
+    # already defined" errors.
+    #
     Authenticate = CommandClass.new(
       dependencies: {
         enabled_authenticators:      Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
