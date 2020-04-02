@@ -60,7 +60,7 @@ module Conjur
     # This setting disables the automatic connect after Rails init. It prevents
     # rake assets:precompile from triggering a database connection during the
     # Docker image build.
-    config.sequel.skip_connect = true
+    config.sequel.skip_connect = true if is_asset_precompile?
 
     # Token authentication is optional for authn routes, and it's not applied at all to authentication.
     config.middleware.use Conjur::Rack::Authenticator,
