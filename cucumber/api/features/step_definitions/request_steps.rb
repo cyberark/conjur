@@ -178,7 +178,7 @@ Then("our JSON should be:") do |json|
   if @response_api_key
     json = json.gsub("@response_api_key@", @response_api_key)
   end
-  json = render_hf(json)
+  json = render_hf_token_and_expiration(json)
   expect(@result).to eq(JSON.parse(json))
 end
 

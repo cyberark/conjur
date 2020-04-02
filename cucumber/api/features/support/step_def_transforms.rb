@@ -37,7 +37,7 @@ def parse_expiration(exp)
   Time.parse(exp).utc.iso8601
 end
 
-def render_hf(tmpl)
+def render_hf_token_and_expiration(tmpl)
   render_hf_token_expiration(render_hf_token(tmpl))
 end
 
