@@ -1,7 +1,7 @@
 SimpleCov.start 'rails' do
   command_name "SimpleCov #{rand(1000000)}"
   coverage_dir File.join(ENV['REPORT_ROOT'] || __dir__, 'coverage')
-  merge_timeout 1800 # Set largest gap between resultsets of 30 minutes
+  merge_timeout 7200 # Set largest gap between resultsets of 30 minutes
   # any custom configs like groups and filters can be here at a central place
 end
 
