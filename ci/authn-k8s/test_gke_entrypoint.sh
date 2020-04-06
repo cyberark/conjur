@@ -20,6 +20,7 @@ function finish {
   echo '-----'
 
   {
+    pod_name=$(retrieve_pod conjur-authn-k8s)
     if [[ "$pod_name" != "" ]]; then
       echo "Grabbing output from $pod_name"
       echo '-----'
@@ -128,26 +129,29 @@ function launchConjurMaster() {
     sed -e "s#{{ CONJUR_AUTHN_K8S_TEST_NAMESPACE }}#$CONJUR_AUTHN_K8S_TEST_NAMESPACE#g" |
     kubectl create -f -
 
-  conjur_pod=$(kubectl get pods -l app=conjur-authn-k8s -o=jsonpath='{.items[].metadata.name}')
+  conjur_pod=$(retrieve_pod conjur-authn-k8s)
 
-  wait_for_it 300 "kubectl describe po $conjur_pod | grep Status: | grep -q Running"
+  kubectl wait --for=condition=Ready pod/$conjur_pod --timeout=5m
 
   # wait for the 'conjurctl server' entrypoint to finish
-  kubectl exec $conjur_pod -- bash -c "while ! curl -sI localhost:80 > /dev/null; do sleep 1; done"
+  local wait_command="while ! curl --silent --head --fail localhost:80 > /dev/null; do sleep 1; done"
+  kubectl exec $conjur_pod -- bash -c "$wait_command"
   
   export API_KEY=$(kubectl exec $conjur_pod -- conjurctl account create cucumber | tail -n 1 | awk '{ print $NF }')
 }
 
 function copyNginxSSLCert() {
-  nginx_pod=$(kubectl get pods -l app=nginx-authn-k8s -o=jsonpath='{.items[].metadata.name}')
-  cucumber_pod=$(kubectl get pods -l app=cucumber-authn-k8s -o=jsonpath='{.items[].metadata.name}')
+  nginx_pod=$(retrieve_pod nginx-authn-k8s)
+  cucumber_pod=$(retrieve_pod cucumber-authn-k8s)
+
+  kubectl wait --for=condition=Ready pod/$cucumber_pod --timeout=5m
 
   kubectl cp $nginx_pod:/etc/nginx/nginx.crt ./nginx.crt
   kubectl cp ./nginx.crt $cucumber_pod:/opt/conjur-server/nginx.crt
 }
 
 function copyConjurPolicies() {
-  cli_pod=$(kubectl get pod -l app=conjur-cli --no-headers | grep Running | awk '{ print $1 }')
+  cli_pod=$(retrieve_pod conjur-cli)
 
   kubectl cp ./dev/policies $cli_pod:/policies
 }
@@ -155,18 +159,17 @@ function copyConjurPolicies() {
 function loadConjurPolicies() {
   echo 'Loading the policies and data'
 
-  cli_pod=$(kubectl get pod -l app=conjur-cli --no-headers | grep Running | awk '{ print $1 }')
+  cli_pod=$(retrieve_pod conjur-cli)
   
   kubectl exec $cli_pod -- conjur init -u conjur -a cucumber
   sleep 5
   kubectl exec $cli_pod -- conjur authn login -u admin -p $API_KEY
 
   # load policies
-  kubectl exec $cli_pod -- conjur policy load root /policies/policy.${TEMPLATE_TAG}yml
+  wait_for_it 300 "kubectl exec $cli_pod -- conjur policy load root /policies/policy.${TEMPLATE_TAG}yml"
 
   # init ca certs
-  conjur_pod=$(kubectl get pod -l app=conjur-authn-k8s --no-headers | grep Running | awk '{ print $1 }')
-  kubectl exec $conjur_pod -- rake authn_k8s:ca_init["conjur/authn-k8s/minikube"]
+  kubectl exec $(retrieve_pod conjur-authn-k8s) -- rake authn_k8s:ca_init["conjur/authn-k8s/minikube"]
 }
 
 function launchInventoryServices() {
@@ -186,6 +189,10 @@ function runTests() {
   conjurcmd mkdir -p /opt/conjur-server/output
 
   echo "./bin/cucumber K8S_VERSION=1.7 PLATFORM=kubernetes --no-color --format pretty --format junit --out /opt/conjur-server/output -r ./cucumber/kubernetes/features/step_definitions/ -r ./cucumber/kubernetes/features/support/world.rb -r ./cucumber/kubernetes/features/support/hooks.rb -r ./cucumber/kubernetes/features/support/conjur_token.rb --tags ~@skip ./cucumber/kubernetes/features" | cucumbercmd -i bash
+}
+
+retrieve_pod() {
+  kubectl get pods -l app=$1 -o=jsonpath='{.items[].metadata.name}'
 }
 
 main
