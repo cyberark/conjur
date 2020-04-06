@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - Hosts can authenticate from Azure VMs using an Azure access token. See
-  [design](design/authn_azure/authn_azure_solution_design.md) for details
+  [design](design/authenticators/authn_azure/authn_azure_solution_design.md) for details
   ([conjurinc/appliance#927](https://github.com/conjurinc/appliance/issues/927)).
 
 ### Changed
@@ -54,7 +54,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - Added API endpoint to enable and disable authenticators. See
-  [design/authenticator_whitelist_api.md](design/authenticator_whitelist_api.md)
+  [design/authenticator_whitelist_api.md](design/authenticators/authenticator_whitelist_api.md)
   for details.
 
 ### Changed
