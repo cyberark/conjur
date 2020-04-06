@@ -13,9 +13,6 @@ section:
       - name: cyberark/conjur-oss-helm-chart
         url: https://github.com/cyberark/conjur-oss-helm-chart
         description: Helm chart for deploying the Conjur server.
-      - name: cyberark/conjur-aws
-        url: https://github.com/cyberark/conjur-aws
-        description: AWS CloudFormation templates for deploying the Conjur server.
   - name: Conjur SDK
     description: Conjur Command Line Interface (CLI) and Client Libraries.
     repos:
