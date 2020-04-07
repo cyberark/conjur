@@ -89,7 +89,7 @@ Conjur makes it easy to:
 - Secure access to authenticators using policy files
 - Create custom authenticators
 
-[Detailed authenticator design documentation](design/AUTHENTICATORS.md)
+[Detailed authenticator design documentation](design/authenticators/AUTHENTICATORS.md)
 
 ### Rotators
 
