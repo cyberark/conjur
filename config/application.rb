@@ -23,12 +23,6 @@ require 'conjur_audit'
 
 module Conjur
   class Application < Rails::Application
-    # NOTE: This must be defined at the top in order to be available to the
-    # class level code below, unlike instance methods where the order doesn't
-    # matter.
-    def self.is_asset_precompile?
-      /assets:precompile/.match?(ARGV.join(' '))
-    end
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
@@ -46,8 +40,6 @@ module Conjur
     config.sequel.after_connect = proc do
       Sequel.extension :core_extensions, :postgres_schemata
       Sequel::Model.db.extension :pg_array, :pg_inet, :pg_hstore
-    rescue
-      raise unless is_asset_precompile?
     end
 
     config.encoding = "utf-8"
@@ -56,11 +48,6 @@ module Conjur
     # Whether to dump the schema after successful migrations.
     # Defaults to false in production and test, true otherwise.
     config.sequel.schema_dump = false
-
-    # This setting disables the automatic connect after Rails init. It prevents
-    # rake assets:precompile from triggering a database connection during the
-    # Docker image build.
-    config.sequel.skip_connect = true if is_asset_precompile?
 
     # Token authentication is optional for authn routes, and it's not applied at all to authentication.
     config.middleware.use Conjur::Rack::Authenticator,

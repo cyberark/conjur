@@ -15,7 +15,7 @@ Rails.application.configure do
   #
   config.public_file_server.enabled = true
   config.eager_load = true
-  config.assets.digest = false
+  # config.assets.digest = false
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local       = true

@@ -18,7 +18,7 @@ gem 'puma', '~> 3.12'
 gem 'rack', '~> 2.0'
 gem 'rails', '~> 5.2'
 gem 'rake'
-gem 'sprockets', '~> 3.7.0', '>= 3.7.2'
+# gem 'sprockets', '~> 3.7.0', '>= 3.7.2'
 
 gem 'pg'
 # TODO: When updating to 5, sequel-rails was throwing errors that
@@ -60,14 +60,14 @@ gem 'rack-rewrite'
 # See: https://github.com/codeclimate/test-reporter/issues/418
 gem 'simplecov', '0.14.1', require: false
 
-gem 'autoprefixer-rails'
-gem 'bootstrap-sass', '~> 3.4.0'
+# gem 'autoprefixer-rails'
+# gem 'bootstrap-sass', '~> 3.4.0'
 gem 'dry-struct', '~> 0.4.0'
 gem 'dry-types', '~> 0.12.2'
-gem 'font-awesome-sass', '~> 4.7.0'
+# gem 'font-awesome-sass', '~> 4.7.0'
 gem 'mini_racer'
 gem 'net-ldap'
-gem 'sass-rails'
+# gem 'sass-rails'
 gem 'uglifier'
 
 # for AWS rotator
