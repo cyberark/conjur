@@ -73,16 +73,14 @@ GEM
       thor (~> 1.0)
     ast (2.4.0)
     attr_required (1.0.1)
-    autoprefixer-rails (9.7.5)
-      execjs
     aws-eventstream (1.0.3)
-    aws-partitions (1.293.0)
-    aws-sdk-core (3.92.0)
+    aws-partitions (1.295.0)
+    aws-sdk-core (3.93.0)
       aws-eventstream (~> 1.0, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-iam (1.34.0)
+    aws-sdk-iam (1.35.0)
       aws-sdk-core (~> 3, >= 3.71.0)
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.1.1)
@@ -92,9 +90,6 @@ GEM
     base58 (0.2.3)
     bcrypt-ruby (3.0.1)
     bindata (2.4.7)
-    bootstrap-sass (3.4.1)
-      autoprefixer-rails (>= 5.2.1)
-      sassc (>= 2.0.0)
     builder (3.2.4)
     byebug (11.1.1)
     childprocess (3.0.0)
@@ -106,7 +101,7 @@ GEM
     coderay (1.1.2)
     command_class (0.0.2)
     concurrent-ruby (1.1.6)
-    conjur-cli (6.2.1)
+    conjur-cli (6.2.2)
       activesupport (>= 4.2, < 6)
       conjur-api (~> 5.3)
       deep_merge (~> 1.0)
@@ -145,7 +140,7 @@ GEM
     cucumber-expressions (6.0.1)
     cucumber-tag_expressions (1.1.1)
     cucumber-wire (0.0.1)
-    database_cleaner (1.8.3)
+    database_cleaner (1.8.4)
     debase (0.2.4.1)
       debase-ruby_core_source (>= 0.10.2)
     debase-ruby_core_source (0.10.9)
@@ -192,8 +187,6 @@ GEM
     ffi-compiler (1.0.1)
       ffi (>= 1.0.0)
       rake
-    font-awesome-sass (4.7.0)
-      sass (>= 3.2)
     gherkin (5.1.0)
     gli (2.19.0)
     globalid (0.4.2)
@@ -240,7 +233,7 @@ GEM
     listen (3.2.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
-    loofah (2.4.0)
+    loofah (2.5.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.7.1)
@@ -276,7 +269,7 @@ GEM
       validate_url
       webfinger (>= 1.0.1)
     parallel (1.19.1)
-    parser (2.7.0.5)
+    parser (2.7.1.0)
       ast (~> 2.4.0)
     pg (1.2.3)
     powerpack (0.1.2)
@@ -289,7 +282,7 @@ GEM
     pry-rails (0.3.9)
       pry (>= 0.10.4)
     psych (3.1.0)
-    public_suffix (4.0.3)
+    public_suffix (4.0.4)
     puma (3.12.4)
     rack (2.2.2)
     rack-oauth2 (1.11.0)
@@ -386,21 +379,6 @@ GEM
     ruby-progressbar (1.10.1)
     ruby_dep (1.3.1)
     safe_yaml (1.0.5)
-    sass (3.7.4)
-      sass-listen (~> 4.0.0)
-    sass-listen (4.0.0)
-      rb-fsevent (~> 0.9, >= 0.9.4)
-      rb-inotify (~> 0.9, >= 0.9.7)
-    sass-rails (6.0.0)
-      sassc-rails (~> 2.1, >= 2.1.1)
-    sassc (2.2.1)
-      ffi (~> 1.9)
-    sassc-rails (2.1.2)
-      railties (>= 4.0.0)
-      sassc (>= 2.0)
-      sprockets (> 3.0)
-      sprockets-rails
-      tilt
     sequel (4.49.0)
     sequel-pg_advisory_locking (1.0.1)
       sequel
@@ -422,7 +400,7 @@ GEM
       spring (>= 0.9.1)
     spring-commands-rspec (1.0.4)
       spring (>= 0.9.1)
-    sprockets (3.7.2)
+    sprockets (4.0.0)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
     sprockets-rails (3.2.1)
@@ -436,8 +414,7 @@ GEM
     table_print (1.5.6)
     thor (1.0.1)
     thread_safe (0.3.6)
-    tilt (2.0.10)
-    tzinfo (1.2.6)
+    tzinfo (1.2.7)
       thread_safe (~> 0.1)
     uglifier (4.2.0)
       execjs (>= 0.3.0, < 3)
@@ -469,12 +446,10 @@ PLATFORMS
 DEPENDENCIES
   activesupport
   aruba
-  autoprefixer-rails
   aws-sdk-iam
   base32-crockford
   base58
   bcrypt-ruby (~> 3.0.0)
-  bootstrap-sass (~> 3.4.0)
   ci_reporter_rspec
   command_class
   conjur-api!
@@ -490,7 +465,6 @@ DEPENDENCIES
   dry-struct (~> 0.4.0)
   dry-types (~> 0.12.2)
   ffi (>= 1.9.24)
-  font-awesome-sass (~> 4.7.0)
   gli
   haikunator (~> 1)
   http (~> 4.2.0)
@@ -526,7 +500,6 @@ DEPENDENCIES
   rubocop (~> 0.58.0)
   rubocop-checkstyle_formatter
   ruby_dep (= 1.3.1)
-  sass-rails
   sequel (= 4.49.0)
   sequel-pg_advisory_locking
   sequel-postgres-schemata
@@ -536,7 +509,6 @@ DEPENDENCIES
   spring
   spring-commands-cucumber
   spring-commands-rspec
-  sprockets (~> 3.7.0, >= 3.7.2)
   table_print
   uglifier
   websocket-client-simple

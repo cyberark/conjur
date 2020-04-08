@@ -1,0 +1,124 @@
+/* 
+ * We are purposefully using a single page of vanilla CSS to style our status
+ * page, to keep things simple and avoid depedencies on Sass or the asset
+ * pipeline.
+ *
+ * As such, there are few bits of repetition such as the background color
+ * of the header and footer.  We could use CSS variables but since 
+ * older versions of IE aren't supported, and the repetition is so minor,
+ * it didn't seem worth the trouble.
+ */
+
+/* 
+ * Required to get fill full page
+ * See: https://stackoverflow.com/questions/23090136
+ */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+body {
+  display: flex;
+  color: #333333;
+  flex-flow: column;
+  font-family: 'Open Sans', sans-serif;
+  width: 100%;
+}
+
+/* Header */
+
+header {
+  background: rgb(55,72,80);
+  display: flex;
+  min-height: 75px;
+  margin-bottom: 20px;
+}
+header .logo-cont {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  margin-left: 10%;
+}
+header .logo-cont img { height: 45px; }
+.links-cont {
+  align-items: center;
+  color: white;
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  margin-right: 10%;
+}
+.links-cont a {
+  color: white;
+  padding: 10px;
+  text-decoration: none;
+}
+.links-cont img { width: 50px; }
+
+/* Main Body */
+
+main { 
+  display: flex;
+  flex: 5;
+  margin-left: 10%;
+  margin-right: 10%;
+}
+main .left-panel { flex: 7; }
+main .right-panel {
+  display: flex;
+  flex: 3;
+  justify-content: flex-end;
+}
+main a {
+  color: rgb(51, 122, 183);
+  text-decoration: none;
+}
+main h1 {
+  color: #1cb9a2;
+  font-size: 3.5rem;
+  margin: 2rem 0;
+  font-weight: 800;
+}
+main .status-text {
+  font-size:  1.5rem; 
+  font-weight: 300;
+}
+main p { font-weight: 300; }
+main h2 {
+  color: #1a2226;
+  margin-bottom: .5rem;
+  line-height: 1.25;
+}
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+ul li { margin: 10px 0; }
+dt {
+  font-weight: bold;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+dd {
+  font-weight: 300;
+  margin-left: 0;
+  margin-bottom: 10px;
+}
+
+/* Footer */
+
+footer {
+  background: rgb(55,72,80);
+  color: white;
+  display: flex;
+  min-height: 100px;
+}
+footer .logo-cont { flex: 1; }
+footer .logo-cont img { height: 70px; }
+footer .copyright {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  font-size: 12px;
+}
