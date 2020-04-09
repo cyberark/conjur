@@ -63,6 +63,6 @@ Rails.application.configure do
   config.active_support.deprecation = :notify
 
   #Add support for asset compression in production
-  config.assets.css_compressor = :sass
-  config.assets.js_compressor = :uglifier
+  # config.assets.css_compressor = :sass
+  # config.assets.js_compressor = :uglifier
 end
