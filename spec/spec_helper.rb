@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require 'simplecov'
+require 'digest'
+require 'openssl'
+
 SimpleCov.command_name "SimpleCov #{rand(1000000)}"
 SimpleCov.merge_timeout 7200
 SimpleCov.start
@@ -21,6 +24,38 @@ ENV.delete('CONJUR_ADMIN_PASSWORD')
 $LOAD_PATH << '../app/domain'
 
 RSpec.configure do |config|
+  config.before(:all) do
+    Digest = OpenSSL::Digest # override the default Digest with OpenSSL::Digest
+    OpenSSL.fips_mode = true
+    ActiveSupport::Digest.hash_digest_class = OpenSSL::Digest::SHA1.new
+    Sprockets::DigestUtils.module_eval do
+      def digest_class
+        OpenSSL::Digest::SHA256
+      end
+    end
+
+    new_sprockets_config = {}
+    Sprockets.config.each do |key, val|
+      new_sprockets_config[key] = val
+    end
+    new_sprockets_config[:digest_class] = OpenSSL::Digest::SHA256
+    Sprockets.config = new_sprockets_config.freeze
+
+    OpenIDConnect::Discovery::Provider::Config::Resource.module_eval do
+      def cache_key
+        sha256 = Digest::SHA256.hexdigest host
+        "swd:resource:opneid-conf:#{sha256}"
+      end
+    end
+
+    # Remove pre-existing constants if they do exist to reduce the
+    # amount of log spam and warnings.
+    # Digest.send(:remove_const, "SHA1") if Digest.const_defined?("SHA1")
+    Digest.const_set("SHA1", OpenSSL::Digest::SHA1)
+    # OpenSSL::Digest.send(:remove_const, "MD5") if OpenSSL::Digest.const_defined?("MD5")
+    OpenSSL::Digest.const_set("MD5", Digest::MD5)
+  end
+
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
   end
