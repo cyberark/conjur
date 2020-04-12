@@ -39,6 +39,7 @@ function flatten() {
     --change "EXPOSE 80" \
     --change "ENV RAILS_ENV=production" \
     --change "WORKDIR /opt/conjur-server" \
+    --change "ENV PATH /usr/local/rvm/rubies/ruby-2.5.7/bin:/usr/local/ssl/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
     --change 'ENTRYPOINT ["conjurctl"]' \
     - $image
   docker rm $container
