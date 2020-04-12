@@ -23,7 +23,7 @@ module Util
         #
         def initialize(
           common_name:,
-          rsa_key: OpenSSL::PKey::RSA.new(1048),
+          rsa_key: OpenSSL::PKey::RSA.new(1024),
           alt_names: []
         )
           @cn = common_name
