@@ -31,10 +31,11 @@ gem 'sequel-rails'
 
 gem 'activesupport'
 gem 'base32-crockford'
-gem 'bcrypt-ruby', '~> 3.0.0'
+gem 'bcrypt', '~> 3.1.2'
 gem 'gli', require: false
 gem 'listen'
-gem 'slosilo', '~> 2.1'
+#gem 'slosilo', '~> 2.1'
+gem 'slosilo', github: 'cyberark/slosilo', branch: 'sha256'
 
 # Explicitly required as there are vulnerabilities in older versions
 gem "ffi", ">= 1.9.24"
