@@ -1,4 +1,5 @@
 ARG VERSION=latest
 FROM conjur:${VERSION}
 
+ENV PATH "/usr/local/rvm/rubies/ruby-2.5.7/bin:/usr/local/ssl/bin:${PATH}"
 RUN bundle --no-deployment --without ''
