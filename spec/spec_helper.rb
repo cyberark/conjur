@@ -25,7 +25,6 @@ $LOAD_PATH << '../app/domain'
 
 RSpec.configure do |config|
   config.before(:all) do
-    Digest = OpenSSL::Digest # override the default Digest with OpenSSL::Digest
     OpenSSL.fips_mode = true
     ActiveSupport::Digest.hash_digest_class = OpenSSL::Digest::SHA1.new
     Sprockets::DigestUtils.module_eval do
@@ -47,13 +46,6 @@ RSpec.configure do |config|
         "swd:resource:opneid-conf:#{sha256}"
       end
     end
-
-    # Remove pre-existing constants if they do exist to reduce the
-    # amount of log spam and warnings.
-    # Digest.send(:remove_const, "SHA1") if Digest.const_defined?("SHA1")
-    Digest.const_set("SHA1", OpenSSL::Digest::SHA1)
-    # OpenSSL::Digest.send(:remove_const, "MD5") if OpenSSL::Digest.const_defined?("MD5")
-    OpenSSL::Digest.const_set("MD5", Digest::MD5)
   end
 
   config.before(:suite) do
