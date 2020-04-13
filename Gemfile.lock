@@ -18,7 +18,7 @@ GIT
 
 GIT
   remote: https://github.com/cyberark/slosilo.git
-  revision: 1bfde00760b5b81e1ada5c3cf715a37ea9db6f3e
+  revision: d7434117ad4d9442eb83e0e0bc72386d80263e3b
   branch: sha256
   specs:
     slosilo (2.1.1)
