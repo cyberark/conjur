@@ -187,6 +187,7 @@ _build_conjur() (
 # NOTE: See linked to issue at top of file.  This code in particular is can be
 #   simplified, and we need to figure out if we want it to run by default.
 docker_diagnostics() {
+  local testSet="${1}"
   # Read the running containers names into an array.
   #
   # Note on bash trickiness: The backslash is required in \$NF because we want
@@ -199,21 +200,21 @@ docker_diagnostics() {
   readarray -t cont_names < <(docker ps --all | \
     awk "/${COMPOSE_PROJECT_NAME}/{print \$NF}")
 
-  # Print docker inspect info
+  # Store container logs for archiving
+  echo "Writing Container logs to container_logs/<testset>/container[-inspect].log"
+  container_log_dir="$(git rev-parse --show-toplevel)/container_logs/${testSet}"
+  mkdir -p "${container_log_dir}"
   for name in "${cont_names[@]}"; do
-    echo "CONTAINER: ${name}"
-    docker inspect "$name"
-  done
-
-  # Print container logs
-  for name in "${cont_names[@]}"; do
-    echo "CONTAINER: ${name}"
-    docker logs "$name"
+    docker inspect "$name" > "${container_log_dir}/${name}-inspect.log"
+    docker logs "$name" > "${container_log_dir}/${name}.log"
   done
 }
 
 _finish() {
-  docker_diagnostics
+  local testSet="${1}"
+  docker_diagnostics "${testSet}"
+  # Give SimpleCov time to generate reports.
+  sleep 15
   docker-compose down --rmi 'local' --volumes || true
 }
 
@@ -264,15 +265,16 @@ _wait_for_keycloak() {
 }
 
 _main() {
-  local testdir="$1"; shift
-  
+  local testdir="${1}"; shift
+  local testSet="${1}"
+
   # If there are no arguments, show help
   if [[ "${#@}" -eq 0 || "$1" == 'help' ]]; then
     help
     exit 1
   fi
-
-  [[ -z "$KEEP_CONTAINERS" ]] && trap _finish EXIT
+  # shellcheck disable=SC2064
+  [[ -z "$KEEP_CONTAINERS" ]] && trap "_finish ${testSet}" EXIT
 
   export TAG=$(_build_conjur "$testdir")
   cd "${testdir}"
@@ -352,7 +354,7 @@ _run_cucumber() {
   docker-compose run --no-deps $notty --rm $cucumber_env_args \
      -e CONJUR_AUTHN_API_KEY=$api_key \
      -e CUCUMBER_NETWORK=$(_find_cucumber_network) \
-     cucumber -ec "$@" || { echo "Tests failed, Printing Conjur logs"; docker-compose logs conjur; exit 1; }
+     cucumber -ec "$@"
 }
 
 _run_cucumber_tests() {
@@ -378,8 +380,6 @@ _run_cucumber_tests() {
   # kill the process to write the report. The container is kept alive
   # using an infinite sleep in the at_exit hook (see .simplecov).
   docker-compose exec -T conjur bash -c "pkill -f 'puma 3'"
-
-  [[ -z "$KEEP_CONTAINERS" ]] && docker-compose down --rmi 'local' --volumes
 }
 
 _run_cucumber_shell() {
