@@ -28,3 +28,15 @@ Feature: A permitted Conjur host can login with a valid application identity
 
   Scenario: Login without the "authentication-container-name" annotation defaults to "authenticator" and succeeds
     Then I can login to pod matching "app=inventory-pod" to authn-k8s as "@namespace@/*/*" with prefix "host/host-without-container-name"
+
+  Scenario: Fail to login with correct password
+    Given I set the password for "alice" to "My-Password1"
+    Then I can GET "/authn/cucumber/login" with username "alice" and password "My-Password1"
+    And there is an audit record matching:
+    """
+      <86>1 * * conjur * login
+      [auth@43868 authenticator="authn"]
+      [subject@43868 role="cucumber:user:alice"]
+      [action@43868 operation="login" result="success"]
+      cucumber:user:alice successfully logged-in with authenticator authn
+    """
