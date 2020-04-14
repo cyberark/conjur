@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## Unreleased
+
+## [1.6.0] - 2020-04-14
 
 ### Changed
 - Use Ubuntu 18.04 LTS as the base image for Conjur to continue using Ruby 2.5
