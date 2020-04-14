@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Conjur image now performs a `dist-upgrade` as the first image build step to
   ensure the image includes all available vulnerability fixes in the base OS.
 - Upgrade from Rails 4 to Rails 5
+- Authentication audit events have been split up into two seperate types of events,
+  authentication and login.
 
 ## [1.5.1] - 2020-03-25
 

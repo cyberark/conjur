@@ -22,7 +22,7 @@ module Authentication
         validate_account_exists:     ::Authentication::Security::ValidateAccountExists.new,
         validate_security:           ::Authentication::Security::ValidateSecurity.new,
         validate_origin:             ValidateOrigin.new,
-        audit_event:                 AuditEvent.new,
+        audit_event:                 AuditAuthnEvent.new,
         verify_and_decode_token:     ::Authentication::OAuth::VerifyAndDecodeToken.new,
         logger:                      Rails.logger
       },

@@ -2,26 +2,26 @@
 
 module Audit
   class Event
-    class Authn < Event
+    class Login < Event
       field :role, :authenticator_name, service: nil
       facility Syslog::LOG_AUTHPRIV
-      message_id 'authn'
+      message_id 'login'
       can_fail
 
       def structured_data
         super.deep_merge \
           SDID::SUBJECT => { role: role_id },
           SDID::AUTH => auth_sd,
-          SDID::ACTION => { operation: 'authenticate' }
+          SDID::ACTION => { operation: 'login' }
       end
 
       def success_message
-        format "%s successfully authenticated with authenticator %s%s",
+        format "%s successfully logged-in with authenticator %s%s",
           role_id, authenticator_name, service_message_part
       end
 
       def failure_message
-        format "%s failed to authenticate with authenticator %s%s",
+        format "%s failed to log in with authenticator %s%s",
           role_id, authenticator_name, service_message_part
       end
 

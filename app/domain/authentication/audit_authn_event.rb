@@ -2,7 +2,7 @@
 
 module Authentication
 
-  AuditEvent = CommandClass.new(
+  AuditAuthnEvent = CommandClass.new(
     dependencies: {
       role_cls:  ::Role,
       audit_log: ::Authentication::AuditLog
@@ -23,9 +23,7 @@ module Authentication
     private
 
     def role
-      return nil if username.nil?
-
-      @role_cls.by_login(username, account: @authenticator_input.account)
+      username ? @role_cls.by_login(username, account: @authenticator_input.account) :  nil
     end
 
     def username

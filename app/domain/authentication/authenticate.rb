@@ -14,7 +14,7 @@ module Authentication
       token_factory:          TokenFactory.new,
       validate_security:      ::Authentication::Security::ValidateSecurity.new,
       validate_origin:        ::Authentication::ValidateOrigin.new,
-      audit_event:            ::Authentication::AuditEvent.new
+      audit_event:            ::Authentication::AuditAuthnEvent.new
     },
     inputs:       %i(authenticator_input authenticators enabled_authenticators)
   ) do

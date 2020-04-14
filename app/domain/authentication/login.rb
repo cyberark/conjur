@@ -11,7 +11,7 @@ module Authentication
   Login ||= CommandClass.new(
     dependencies: {
       validate_security:      ::Authentication::Security::ValidateSecurity.new,
-      audit_event:            ::Authentication::AuditEvent.new,
+      audit_event:            ::Authentication::AuditLoginEvent.new,
       role_cls:               ::Role
     },
     inputs:       %i(authenticator_input authenticators enabled_authenticators)
