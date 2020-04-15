@@ -42,7 +42,7 @@ pipeline {
             script {
               TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short HEAD)')
             }
-            scanAndReport("conjur:${TAG}", "CRITICAL", false)
+            scanAndReport("conjur:${TAG}", "HIGH", false)
           }
         }
         stage("Scan Docker image for total issues") {
@@ -50,7 +50,7 @@ pipeline {
             script {
               TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short HEAD)')
             }
-            scanAndReport("conjur:${TAG}", "CRITICAL", true)
+            scanAndReport("conjur:${TAG}", "NONE", true)
           }
         }
       }
