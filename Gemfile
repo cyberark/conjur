@@ -108,8 +108,8 @@ group :development, :test do
   gem 'spring'
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
-  gem 'table_print'
   gem 'ruby-debug-ide'
+  gem 'table_print'
 end
 
 group :development do
