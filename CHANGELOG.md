@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Title of status page is now `Conjur Status` again, rather than only
   `Conjur` ([conjurinc/dap-support](https://github.com/conjurinc/dap-support/issues/75)).
 
+### Changed
+- Change ActiveSupport to use sha1 instead of md5
+
 ## [1.6.0] - 2020-04-14
 
 ### Changed
