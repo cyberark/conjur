@@ -1,5 +1,5 @@
 FROM registry2.itci.conjur.net/ubuntu-fips:18.04 as openSSL-builder
-FROM ubuntu:20.04
+FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PORT=80 \
