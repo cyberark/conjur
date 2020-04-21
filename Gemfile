@@ -105,10 +105,10 @@ group :development, :test do
   gem 'rspec'
   gem 'rspec-core', '~> 3.0'
   gem 'rspec-rails'
+  gem 'ruby-debug-ide'
   gem 'spring'
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
-  gem 'ruby-debug-ide'
   gem 'table_print'
 end
 
