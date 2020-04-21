@@ -1,6 +1,4 @@
-FROM registry2.itci.conjur.net/ubuntu-fips:18.04 as openSSL-builder
-
-FROM phusion/baseimage:0.11
+FROM registry.tld/ruby-fips-dev-base-image
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -9,35 +7,19 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && \
     libpq-dev \
     unattended-upgrades \
     ldap-utils \
-    git \
-    update-notifier-common \
     vim \
-    curl \
     jq \
     tzdata \
-    wget \
     libfontconfig1 \
-    libfontconfig1-dev \
-    && rm -rf /var/lib/apt/lists/*
+    libfontconfig1-dev
 
-RUN mkdir -p /usr/local/ssl/
-COPY --from=openSSL-builder /usr/local/ssl/ /usr/local/ssl/
-RUN ln -sf /usr/local/ssl/bin/openssl /usr/bin/openssl
-# ENV OPENSSL_FIPS 1
+RUN apt-get install -y wget openssl-
+RUN apt-get install -y curl openssl-
+RUN apt-get install -y git openssl-
+RUN rm -rf /var/lib/apt/lists/*
 
 RUN mkdir ~/.gnupg
 RUN echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf
-
-# install ruby compile with OpenSSL FIPS compliance
-RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB && \
-    curl -sSL https://get.rvm.io | bash -s stable
-RUN ["/bin/bash", "-c",  "source /usr/local/rvm/scripts/rvm; rvm install ruby-2.5.7 --with-openssl-dir=/usr/local/ssl"]
-ENV PATH "/usr/local/rvm/rubies/ruby-2.5.7/bin:/usr/local/ssl/bin:${PATH}"
-RUN ln -sf /usr/local/rvm/rubies/ruby-2.5.7/bin/ruby /usr/bin/ruby2.5
-
-RUN gem install bundler:2.1.4
-
-RUN rmdir /usr/local/ssl/certs && ln -sf /etc/ssl/certs/ /usr/local/ssl/
 
 RUN mkdir -p /src/conjur-server
 
@@ -50,7 +32,6 @@ ADD Gemfile.lock .
 
 RUN bundle
 
-RUN rm /etc/service/sshd/down
 RUN ln -sf /src/conjur-server/bin/conjurctl /usr/local/bin/
 
 ENV PORT 3000
