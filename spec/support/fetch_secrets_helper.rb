@@ -8,7 +8,7 @@
 # 2. Provide a list of required secrets
 #
 # For example:
-#   let(:authenticator_name) { "authn-oidc" }
+#   let(:authenticator_name) { "#{authenticator_name}" }
 #   let(:account) { "my-acct" }
 #   let(:service) { "my-service" }
 #
@@ -37,27 +37,38 @@ shared_context "fetch secrets" do |required_secrets|
 
   before(:each) do
     required_secrets.each { |secret_name|
-      allow(Resource).to receive(:[])
-                           .with(/#{account}:variable:conjur\/#{authenticator_name}\/#{service}\/#{secret_name}/)
-                           .and_return(mocked_resource)
+      allow(Resource).to(
+        receive(:[]).with(
+          /#{account}:variable:conjur\/#{authenticator_name}\/#{service}\/#{secret_name}/
+        ).and_return(mocked_resource)
+      )
     }
   end
 end
 
-shared_examples_for "it fails when variable is missing or has no value" do |variable_name|
+shared_examples_for(
+  "it fails when variable is missing or has no value"
+) do |variable|
+
   it "fails when variable is missing" do
-    allow(Resource).to receive(:[])
-                         .with(/#{account}:variable:conjur\/#{authenticator_name}\/#{service}\/#{variable_name}/)
-                         .and_return(nil)
+    allow(Resource).to(
+      receive(:[]).with(
+        /#{account}:variable:conjur\/#{authenticator_name}\/#{service}\/#{variable}/
+      ).and_return(nil)
+    )
 
     expect { subject }.to raise_error(Errors::Conjur::RequiredResourceMissing)
   end
 
   it "fails when variable has no value" do
-    allow(Resource).to receive(:[])
-                         .with(/#{account}:variable:conjur\/#{authenticator_name}\/#{service}\/#{variable_name}/)
-                         .and_return(resource_without_value)
+    allow(Resource).to(
+      receive(:[]).with(
+        /#{account}:variable:conjur\/#{authenticator_name}\/#{service}\/#{variable}/
+      ).and_return(resource_without_value)
+    )
 
-    expect { subject }.to raise_error(Errors::Conjur::RequiredSecretMissing)
+    expect { subject }.to(
+      raise_error(Errors::Conjur::RequiredSecretMissing)
+    )
   end
 end
