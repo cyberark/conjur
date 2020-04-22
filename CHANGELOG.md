@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Title of status page is now `Conjur Status` again, rather than only
   `Conjur` ([conjurinc/dap-support](https://github.com/conjurinc/dap-support/issues/75)).
+- Policy load API endpoints now default to the `application/x-yaml` content-type
+  if no content type is provided in the request
+  ([conjurinc/dap-support#74](https://github.com/conjurinc/dap-support/issues/74)).
 
 ### Changed
 - Change ActiveSupport to use sha1 instead of md5

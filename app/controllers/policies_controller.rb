@@ -9,6 +9,10 @@ class PoliciesController < RestController
 
   rescue_from Sequel::UniqueConstraintViolation, with: :concurrent_load
 
+  # Conjur policies are YAML documents, so we assume that if no content-type
+  # is provided in the request.
+  set_default_content_type_for_path(%r{^\/policies}, 'application/x-yaml')
+
   def put
     authorize :update
 
