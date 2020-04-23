@@ -176,7 +176,7 @@ _build_conjur() (
   cd "${testdir}/.."
   
   # Create Conjur Image
-  ./build.sh -j >&2
+  ./build.sh --jenkins >&2
   # Grab the build tag so we launch the correct version of Conjur
   . version_utils.sh
   version_tag
