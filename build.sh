@@ -8,14 +8,14 @@
 . version_utils.sh
 
 TAG="$(version_tag)"
-RUN_DEV=true
+jenkins=false # Running on Jenkins (vs local dev machine)
 
 while [[ $# -gt 0 ]]
 do
 key="$1"
 case $key in
     --jenkins)
-    RUN_DEV=false
+    jenkins=true
     ;;
     *)
     ;;
@@ -44,14 +44,27 @@ function flatten() {
   docker rm $container
 }
 
-echo "Building image conjur:$TAG"
-docker build -t "conjur:$TAG" .
-flatten "conjur:$TAG"
+# We want to build an image:
+# 1. Always, when we're developing locally
+# 2. Only if it doesn't already exist, when on Jenkins
+image_needs_building() {
+  [[ $jenkins = true ]] && 
+    # doesn't already exist
+    [[ "$(docker images -q "$1" 2> /dev/null)" == "" ]]
+}
 
-echo "Building image conjur-test:$TAG container"
-docker build --build-arg "VERSION=$TAG" -t "conjur-test:$TAG" -f Dockerfile.test .
+if image_needs_building "conjur:$TAG"; then
+  echo "Building image conjur:$TAG"
+  docker build -t "conjur:$TAG" .
+  flatten "conjur:$TAG"
+fi
 
-if [[ $RUN_DEV = true ]]; then
+if image_needs_building "conjur-test:$TAG"; then
+  echo "Building image conjur-test:$TAG container"
+  docker build --build-arg "VERSION=$TAG" -t "conjur-test:$TAG" -f Dockerfile.test .
+fi
+
+if [[ $jenkins = false ]]; then
   echo "Building image conjur-dev"
   docker build -t conjur-dev -f dev/Dockerfile.dev .
 fi
