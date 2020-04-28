@@ -34,14 +34,15 @@ function flatten() {
   # required for running the image (ENV, EXPOSE, WORKDIR, etc) so we
   # manually rebuild them.
   # See here for more details: https://github.com/moby/moby/issues/8334
-  local container=`docker create $image`
-  docker export $container | docker import \
+  local container
+  container=$(docker create "$image")
+  docker export "$container" | docker import \
     --change "EXPOSE 80" \
     --change "ENV RAILS_ENV=production" \
     --change "WORKDIR /opt/conjur-server" \
     --change 'ENTRYPOINT ["conjurctl"]' \
-    - $image
-  docker rm $container
+    - "$image"
+  docker rm "$container"
 }
 
 # We want to build an image:
