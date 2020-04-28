@@ -174,8 +174,3 @@ Feature: Users can authneticate with OIDC authenticator
     """
     Errors::Authentication::OAuth::ProviderDiscoveryFailed
     """
-
-  Scenario: Performance test
-    And I fetch an ID Token for username "alice" and password "alice"
-    When I authenticate 1000 times in 10 threads via OIDC with id token
-    Then The "avg" response time should be less than "0.75" seconds
