@@ -60,6 +60,12 @@ class ApplicationController < ActionController::API
 
   around_action :run_with_transaction
 
+  # sets the default content type header on incoming requests that match the
+  # path_match regex
+  def self.set_default_content_type_for_path(path_match, content_type)
+    ::Rack::DefaultContentType.content_type_by_path[path_match] = content_type
+  end
+
   private
 
   # Wrap the request in a transaction.
