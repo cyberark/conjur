@@ -177,3 +177,19 @@ Feature: Azure Authenticator - Different Hosts can authenticate with Azure authe
     """
     Errors::Authentication::Security::RoleNotAuthorizedOnWebservice
     """
+
+  # This test runs a failing authentication request that is already
+  # tested in another scenario (Host without resource-group annotation is denied).
+  # We run it again here to verify that we write a message to the audit log
+  Scenario: Authentication failure is written to the audit log
+    And I have host "no-resource-group-app"
+    And I set subscription-id annotation to host "no-resource-group-app"
+    And I grant group "conjur/authn-azure/prod/apps" to host "no-resource-group-app"
+    And I fetch a non-assigned-identity Azure access token from inside machine
+    And I save my place in the audit log file
+    When I authenticate via Azure with token as host "no-resource-group-app"
+    Then it is unauthorized
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:host:no-resource-group-app failed to authenticate with authenticator authn-azure service cucumber:webservice:conjur/authn-azure/prod
+    """

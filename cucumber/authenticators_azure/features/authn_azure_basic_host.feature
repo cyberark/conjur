@@ -35,9 +35,14 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     And I permit host "test-app" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I fetch a non-assigned-identity Azure access token from inside machine
+    And I save my place in the audit log file
     When I authenticate via Azure with token as host "test-app"
     Then host "test-app" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:host:test-app successfully authenticated with authenticator authn-azure service cucumber:webservice:conjur/authn-azure/prod
+    """
 
   Scenario: A valid provider-uri without trailing slash works
     Given I have a "variable" resource called "test-variable"
