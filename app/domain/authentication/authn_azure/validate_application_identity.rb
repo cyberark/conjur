@@ -50,16 +50,10 @@ module Authentication
           resource_group:  xms_mirid.resource_groups
         }
 
-        # determines which Azure assigned identity is provided in annotations
-        # user-assigned-identity:
-        #   - validates that the correct provider (Microsoft.ManagedIdentity) for a user identity is defined in the
-        #     claim. If so, the 'user_assigned_identity' attribute will be added to the hash with the corresponding
-        #     value from xms_mirid claim
-        # system-assigned-identity:
-        #   - validates that the correct provider (Microsoft.Compute) for a system identity is defined in the
-        #     claim and its resource is one that we support. At current, we only support a virtualMachines resource.
-        #     If these conditions are met, a 'system_assigned_identity' attribute will be added to the hash with its
-        #     value being the oid field in the JWT token.
+        # determine which identity is provided in the token. If the token is
+        # issued to a user-assigned identity then we take the identity name.
+        # If the token is issued to a system-assigned identity then we take the
+        # Object ID of the token.
         if xms_mirid.providers.include? "Microsoft.ManagedIdentity"
           @token_identity[:user_assigned_identity] = xms_mirid.providers.last
         else
