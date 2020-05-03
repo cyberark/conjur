@@ -1,4 +1,9 @@
-Feature: Users can authneticate with OIDC authenticator
+Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
+
+  In this feature we define an OIDC authenticator in policy and perform authentication
+  with Conjur. In successful scenarios we will also define a variable and permit the host to
+  execute it, to verify not only that the host can authenticate with the OIDC
+  Authenticator, but that it can retrieve a secret using the Conjur access token.
 
   Background:
     Given a policy:
@@ -38,9 +43,14 @@ Feature: Users can authneticate with OIDC authenticator
     And I permit user "alice" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I fetch an ID Token for username "alice" and password "alice"
+    And I save my place in the audit log file
     When I authenticate via OIDC with id token
     Then user "alice" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:user:alice successfully authenticated with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak
+    """
 
   Scenario: A valid id token with email as id-token-user-property
     Given I extend the policy with:
@@ -175,7 +185,19 @@ Feature: Users can authneticate with OIDC authenticator
     Errors::Authentication::OAuth::ProviderDiscoveryFailed
     """
 
-  Scenario: Performance test
-    And I fetch an ID Token for username "alice" and password "alice"
-    When I authenticate 1000 times in 10 threads via OIDC with id token
-    Then The "avg" response time should be less than "0.75" seconds
+  # This test runs a failing authentication request that is already
+  # tested in another scenario (User that is not permitted to webservice in ID token is denied).
+  # We run it again here to verify that we write a message to the audit log
+  Scenario: Authentication failure is written to the audit log
+    Given I extend the policy with:
+    """
+    - !user bob
+    """
+    And I fetch an ID Token for username "bob" and password "bob"
+    And I save my place in the audit log file
+    When I authenticate via OIDC with id token
+    Then it is forbidden
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:user:bob failed to authenticate with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak
+    """

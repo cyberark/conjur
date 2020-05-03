@@ -60,9 +60,14 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
     And I store the LDAP CA certificate in "conjur/authn-ldap/secure/tls-ca-cert"
 
   Scenario: An LDAP user authorized in Conjur can login with a good password
+    Given I save my place in the log file
     When I login via LDAP as authorized Conjur user "alice"
     And I authenticate via LDAP as authorized Conjur user "alice" using key
     Then user "alice" has been authorized by Conjur
+    And The following appears in the log after my savepoint:
+    """
+    cucumber:user:alice successfully authenticated with authenticator authn-ldap service cucumber:webservice:conjur/authn-ldap/test
+    """
 
   Scenario: An LDAP user authorized in Conjur can login with a good password using TLS
     When I login via secure LDAP as authorized Conjur user "alice"
@@ -109,3 +114,15 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
     """
     When I login via LDAP as authorized Conjur user "alice"
     Then it is forbidden
+
+  # This test runs a failing authentication request that is already
+  # tested in another scenario (An LDAP user authorized in Conjur can't login with a bad password).
+  # We run it again here to verify that we write a message to the audit log
+  Scenario: Authentication failure is written to the audit log
+    Given I save my place in the audit log file
+    When my LDAP password is wrong for authorized user "alice"
+    Then it is unauthorized
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:user:alice failed to authenticate with authenticator authn-ldap service cucumber:webservice:conjur/authn-ldap/test
+    """

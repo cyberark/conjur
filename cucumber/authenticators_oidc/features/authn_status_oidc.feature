@@ -1,4 +1,4 @@
-Feature: OIDC Authenticator status check
+Feature: OIDC Authenticator - Status Check
 
   Scenario: A properly configured OIDC authenticator returns a successful response
     Given a policy:

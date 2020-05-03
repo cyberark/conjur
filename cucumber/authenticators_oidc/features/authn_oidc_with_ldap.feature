@@ -1,4 +1,8 @@
-Feature: Users can authenticate with OIDC & LDAP authenticators
+Feature: OIDC Authenticator - Users can authenticate with OIDC & LDAP authenticators
+
+  In this feature we define an OIDC authenticator and LDAP authenticator
+  in policy and perform authentication with Conjur. This test verifies that the
+  two authenticators can live side by side without affecting each other.
 
   Background:
     # Configure OIDC authenticator
