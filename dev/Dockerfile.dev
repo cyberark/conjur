@@ -1,4 +1,4 @@
-FROM registry.tld/ruby-fips-dev-base-image
+FROM registry.tld/ruby-fips-base-image-phusion:1.0.0
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -11,15 +11,15 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && \
     jq \
     tzdata \
     libfontconfig1 \
-    libfontconfig1-dev
+    libfontconfig1-dev \
+    wget \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get install -y wget openssl-
-RUN apt-get install -y curl openssl-
-RUN apt-get install -y git openssl-
-RUN rm -rf /var/lib/apt/lists/*
-
-RUN mkdir ~/.gnupg
-RUN echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf
+# install openssl certificates
+RUN curl http://ftp.osuosl.org/pub/ubuntu/pool/main/c/ca-certificates/ca-certificates_20180409_all.deb --output ca-certiicates.deb
+RUN dpkg -i --ignore-depends=openssl ca-certiicates.deb
 
 RUN mkdir -p /src/conjur-server
 
@@ -32,6 +32,7 @@ ADD Gemfile.lock .
 
 RUN bundle
 
+RUN rm /etc/service/sshd/down
 RUN ln -sf /src/conjur-server/bin/conjurctl /usr/local/bin/
 
 ENV PORT 3000

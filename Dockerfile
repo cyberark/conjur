@@ -1,4 +1,4 @@
-FROM registry.tld/ruby-fips-base-image
+FROM registry.tld/ruby-fips-base-image-ubuntu:1.0.0
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PORT=80 \
@@ -20,9 +20,6 @@ RUN apt-get update -y && \
                        # needed to build some gem native extensions:
                        libz-dev \
     && rm -rf /var/lib/apt/lists/*
-
-RUN mkdir ~/.gnupg
-RUN echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf
 
 WORKDIR /opt/conjur-server
 
