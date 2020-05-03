@@ -2,9 +2,7 @@
 FROM @@image@@
 
 RUN apt-get update -y && \
-    apt-get install -y ruby2.5 \
-                       ruby2.5-dev \
-                       zlib1g-dev \
+    apt-get install -y zlib1g-dev \
                        liblzma-dev
 
 ENV BUNDLER_VERSION 2.1.4
