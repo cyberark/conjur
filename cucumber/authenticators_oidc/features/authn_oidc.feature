@@ -1,4 +1,9 @@
-Feature: Users can authneticate with OIDC authenticator
+Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
+
+  In this feature we define an OIDC authenticator in policy and perform authentication
+  with Conjur. In successful scenarios we will also define a variable and permit the host to
+  execute it, to verify not only that the host can authenticate with the OIDC
+  Authenticator, but that it can retrieve a secret using the Conjur access token.
 
   Background:
     Given a policy:

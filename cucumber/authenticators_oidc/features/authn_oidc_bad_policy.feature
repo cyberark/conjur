@@ -1,4 +1,9 @@
-Feature: Users can authenticate with OIDC authenticator
+Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
+
+  In this feature we define an OIDC Authenticator with a configuration
+  mistake. Each test will verify that we fail the authentication in such a case
+  and log the relevant error for the user to re-configure the authenticator
+  properly
 
   Scenario: id-token-user-property variable missing in policy is denied
     Given a policy:
