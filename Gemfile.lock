@@ -16,6 +16,13 @@ GIT
       activesupport (>= 4.2)
       safe_yaml
 
+GIT
+  remote: https://github.com/cyberark/slosilo.git
+  revision: 1bfde00760b5b81e1ada5c3cf715a37ea9db6f3e
+  branch: sha256
+  specs:
+    slosilo (2.1.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -88,7 +95,7 @@ GEM
     backports (3.17.0)
     base32-crockford (0.1.0)
     base58 (0.2.3)
-    bcrypt-ruby (3.0.1)
+    bcrypt (3.1.13)
     bindata (2.4.7)
     builder (3.2.4)
     byebug (11.1.1)
@@ -451,7 +458,7 @@ DEPENDENCIES
   aws-sdk-iam
   base32-crockford
   base58
-  bcrypt-ruby (~> 3.0.0)
+  bcrypt (~> 3.1.2)
   ci_reporter_rspec
   command_class
   conjur-api!

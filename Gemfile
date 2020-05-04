@@ -31,7 +31,7 @@ gem 'sequel-rails'
 
 gem 'activesupport'
 gem 'base32-crockford'
-gem 'bcrypt-ruby', '~> 3.0.0'
+gem 'bcrypt', '~> 3.1.2'
 gem 'gli', require: false
 gem 'listen'
 gem 'slosilo', '~> 2.1'
