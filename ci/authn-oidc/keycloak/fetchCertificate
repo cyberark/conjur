@@ -3,7 +3,8 @@
 # This script retrieves a certificate from the keycloak OIDC provider.
 # It is needed to communicate with the provider via SSL for validating ID tokens
 
-httpclient_pem_location="/var/lib/gems/2.5.0/gems/httpclient-2.8.3/lib/httpclient"
+httpclient_pem_location="/usr/local/lib/ruby/gems/2.5.0/gems/httpclient-2.8.3/lib/httpclient"
+#httpclient_pem_location="/var/lib/gems/2.5.0/gems/httpclient-2.8.3/lib/httpclient"
 
 echo “keycloak cert” >> "$httpclient_pem_location/cacert.pem"
 echo =============== >> "$httpclient_pem_location/cacert.pem"
