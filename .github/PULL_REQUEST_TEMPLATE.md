@@ -16,6 +16,6 @@ Connected to #[relevant GitHub issues, eg 76]
 - [ ] This PR includes new unit and integration tests to go with the code changes, or
 - [ ] The changes in this PR do not require tests
 
-#### Follow-on issues
-- [ ] Follow-up issue(s) have been logged (and links included below) to update documentation or related projects, or
-- [ ] No follow-up issues are required
+#### Documentation
+- [ ] This PR does not require updating any documentation, or
+- [ ] Docs (e.g. `README`s) were updated in this PR, and/or there is a follow-on issue to update docs
