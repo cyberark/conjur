@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM registry.tld/ruby-fips-base-image-ubuntu:1.0.0
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PORT=80 \
@@ -16,13 +16,10 @@ RUN apt-get update -y && \
                        libpq-dev \
                        ldap-utils \
                        postgresql-client \
-                       ruby2.5 ruby2.5-dev \
                        tzdata \
                        # needed to build some gem native extensions:
                        libz-dev \
     && rm -rf /var/lib/apt/lists/*
-
-RUN gem install --no-document --version 2.1.4 bundler
 
 WORKDIR /opt/conjur-server
 
