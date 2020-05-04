@@ -1,5 +1,5 @@
 #!/bin/bash -ex
-export DEBIFY_IMAGE='registry.tld/conjurinc/debify:1.11.4.12-7df1187'
+export DEBIFY_IMAGE='registry.tld/conjurinc/debify:1.11.4.12-c959595'
 
 docker run --rm $DEBIFY_IMAGE config script > docker-debify
 chmod +x docker-debify
