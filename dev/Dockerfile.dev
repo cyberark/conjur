@@ -17,10 +17,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# install openssl certificates
-RUN curl http://ftp.osuosl.org/pub/ubuntu/pool/main/c/ca-certificates/ca-certificates_20180409_all.deb --output ca-certiicates.deb
-RUN dpkg -i --ignore-depends=openssl ca-certiicates.deb
-
 RUN mkdir -p /src/conjur-server
 
 ADD .pryrc /root
