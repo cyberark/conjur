@@ -18,7 +18,7 @@ GIT
 
 GIT
   remote: https://github.com/cyberark/slosilo.git
-  revision: 1bfde00760b5b81e1ada5c3cf715a37ea9db6f3e
+  revision: d80f7009520ade3b43dc567d7904664910e5776c
   branch: sha256
   specs:
     slosilo (2.1.1)
@@ -403,7 +403,6 @@ GEM
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.2)
-    slosilo (2.1.1)
     spring (2.1.0)
     spring-commands-cucumber (1.0.1)
       spring (>= 0.9.1)
@@ -515,7 +514,7 @@ DEPENDENCIES
   sequel-postgres-schemata
   sequel-rails
   simplecov (= 0.14.1)
-  slosilo (~> 2.1)
+  slosilo!
   spring
   spring-commands-cucumber
   spring-commands-rspec
