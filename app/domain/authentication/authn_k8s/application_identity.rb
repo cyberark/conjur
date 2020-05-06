@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Authentication
   module AuthnK8s
 
@@ -22,6 +24,9 @@ module Authentication
     # validation of ValidateApplicationIdentity
     class ApplicationIdentity
 
+      AUTHENTICATION_CONTAINER_NAME_ANNOTATION = "authentication-container-name"
+      DEFAULT_AUTHENTICATION_CONTAINER_NAME = "authenticator"
+
       def initialize(host_id:, host_annotations:, service_id:)
         @host_id          = host_id
         @host_annotations = host_annotations
@@ -45,11 +50,21 @@ module Authentication
       end
 
       def container_name
-        annotation_name = "authentication-container-name"
-        annotation_value("authn-k8s/#{@service_id}/#{annotation_name}") ||
-          annotation_value("authn-k8s/#{annotation_name}") ||
-          annotation_value("kubernetes/#{annotation_name}") ||
-          "authenticator"
+        @container_name ||= annotation_value("authn-k8s/#{@service_id}/#{AUTHENTICATION_CONTAINER_NAME_ANNOTATION}") ||
+          annotation_value("authn-k8s/#{AUTHENTICATION_CONTAINER_NAME_ANNOTATION}") ||
+          annotation_value("kubernetes/#{AUTHENTICATION_CONTAINER_NAME_ANNOTATION}") ||
+          default_authentication_container_name
+      end
+
+      def default_authentication_container_name
+        Rails.logger.debug(
+          LogMessages::Authentication::ContainerNameAnnotationDefaultValue.new(
+            AUTHENTICATION_CONTAINER_NAME_ANNOTATION,
+            DEFAULT_AUTHENTICATION_CONTAINER_NAME
+          )
+        )
+
+        DEFAULT_AUTHENTICATION_CONTAINER_NAME
       end
 
       # returns true if the only constraint is on the namespace, false otherwise
