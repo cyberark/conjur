@@ -26,8 +26,8 @@ unless defined? LogMessages::Authentication::OriginValidated
       )
 
       ContainerNameAnnotationDefaultValue = ::Util::TrackableLogMessageClass.new(
-        msg:  "Annotation '{0-authentication-container-annotation-name}' not found." \
-                " Using default value '{1-default-authentication-container}'",
+        msg:  "Annotation '{0-authentication-container-annotation-name}' not found. " \
+                "Using default value '{1-default-authentication-container}'",
         code: "CONJ00033D"
       )
 
@@ -173,7 +173,7 @@ unless defined? LogMessages::Authentication::OriginValidated
       )
 
       RateLimitedCacheLimitReached = ::Util::TrackableLogMessageClass.new(
-        msg:  "Rate limited cache reached the '{0-limit}' limit and will not" \
+        msg:  "Rate limited cache reached the '{0-limit}' limit and will not " \
               "call target for the next '{1-seconds}' seconds",
         code: "CONJ00020D"
       )

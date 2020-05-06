@@ -21,7 +21,8 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
 
       InsufficientPasswordComplexity = Util::TrackableErrorClass.new(
         msg:  "The password you have chosen does not meet the complexity requirements. " \
-             "Choose a password that includes: 12-128 characters, 2 uppercase letters, 2 lowercase letters, 1 digit, 1 special character",
+          "Choose a password that includes: 12-128 characters, 2 uppercase letters, " \
+          "2 lowercase letters, 1 digit, 1 special character",
         code: "CONJ00046E"
       )
 
@@ -57,8 +58,8 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       module AuthenticatorClass
 
         DoesntStartWithAuthn = ::Util::TrackableErrorClass.new(
-          msg:  "'{0-authenticator-parent-name}' is not a valid authenticator parent module because it does " \
-            "not begin with 'Authn'",
+          msg:  "'{0-authenticator-parent-name}' is not a valid authenticator "\
+            "parent module because it does not begin with 'Authn'",
           code: "CONJ00038E"
         )
 
@@ -155,7 +156,8 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       module AuthnOidc
 
         IdTokenFieldNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
-          msg:  "Field '{0-field-name}' not found or empty in ID token. This field is defined in the id-token-user-property variable.",
+          msg:  "Field '{0-field-name}' not found or empty in ID token. " \
+            "This field is defined in the id-token-user-property variable.",
           code: "CONJ00013E"
         )
 
@@ -188,7 +190,8 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         ScopeNotSupported = ::Util::TrackableErrorClass.new(
-          msg:  "Resource type '{0}' is not a supported application identity. The supported resources are '{1}'",
+          msg:  "Resource type '{0}' is not a supported application identity. " \
+            "The supported resources are '{1}'",
           code: "CONJ00025E"
         )
 
@@ -219,7 +222,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
 
         CommonNameDoesntMatchHost = ::Util::TrackableErrorClass.new(
           msg:  "Client certificate CN must match host name. Cert CN: {0}. " \
-                "Host name: {1}. ",
+            "Host name: {1}.",
           code: "CONJ00031E"
         )
 
@@ -283,12 +286,14 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         InvalidApplicationIdentity = ::Util::TrackableErrorClass.new(
-          msg:  "Application identity field '{0-field-name}' does not match application identity in Azure token",
+          msg:  "Application identity field '{0-field-name}' does not match " \
+            "application identity in Azure token",
           code: "CONJ00049E"
         )
 
         ConstraintNotSupported = ::Util::TrackableErrorClass.new(
-          msg:  "Constraint type '{0}' is not a supported application identity. The supported resources are '{1}'",
+          msg:  "Constraint type '{0}' is not a supported application identity. " \
+            "The supported resources are '{1}'",
           code: "CONJ00050E"
         )
 
@@ -308,7 +313,7 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
         )
 
         InvalidProviderFieldsInXmsMirid = ::Util::TrackableErrorClass.new(
-          msg:  "Provider fields are in invalid format in xms_mirid {1}." \
+          msg:  "Provider fields are in invalid format in xms_mirid {1}. " \
                 "xms_mirid must contain the resource provider namespace, the " \
                 "resource type, and the resource name",
           code: "CONJ00054E"
