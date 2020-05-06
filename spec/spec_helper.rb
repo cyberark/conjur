@@ -25,21 +25,23 @@ $LOAD_PATH << '../app/domain'
 
 RSpec.configure do |config|
   config.before(:all) do
+    # enable FIPS mode
     OpenSSL.fips_mode = true
+
+    # override ActiveSupport hash_digest_class with FIPS complaint method
     ActiveSupport::Digest.hash_digest_class = OpenSSL::Digest::SHA1.new
+
+    # override Sprockets digest_class with FIPS complaint method
     Sprockets::DigestUtils.module_eval do
       def digest_class
         OpenSSL::Digest::SHA256
       end
     end
+    Sprockets.config = Sprockets.config.merge(
+        digest_class: OpenSSL::Digest::SHA256
+    ).freeze
 
-    new_sprockets_config = {}
-    Sprockets.config.each do |key, val|
-      new_sprockets_config[key] = val
-    end
-    new_sprockets_config[:digest_class] = OpenSSL::Digest::SHA256
-    Sprockets.config = new_sprockets_config.freeze
-
+    # override OpenIDConnect cache_key with FIPS complaint method
     OpenIDConnect::Discovery::Provider::Config::Resource.module_eval do
       def cache_key
         sha256 = Digest::SHA256.hexdigest host

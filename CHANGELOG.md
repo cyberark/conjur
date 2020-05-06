@@ -37,6 +37,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Upgraded Rails to `v5.2.4.3` to resolve [CVE-2020-8164](https://groups.google.com/forum/#!topic/rubyonrails-security/f6ioe4sdpbY).
 - Set openssl version to 1.0.2
 - Enable FIPS
+- Using a new base image ruby-fips-base-image-ubuntu and ruby-fips-base-image-phusion
+  The new image consists of openssl 1.0.2u which is FIPS complaint 
+- Enable FIPS. The enabling is done in fips.rb with the OpenSSL.fips_mode variable
 
 ## [1.6.0] - 2020-04-14
 
