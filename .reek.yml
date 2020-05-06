@@ -311,6 +311,7 @@ detectors:
     exclude:
     - initialize
     - RootLoader#load
+    - RootLoader#policy_version
     - PossumWorld#authn_local_request
     - PossumWorld#create_user
     - PossumWorld#denormalize
