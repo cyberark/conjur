@@ -25,6 +25,12 @@ unless defined? LogMessages::Authentication::OriginValidated
         code: "CONJ00024D"
       )
 
+      ContainerNameAnnotationDefaultValue = ::Util::TrackableLogMessageClass.new(
+        msg:  "Annotation '{0-authentication-container-annotation-name}' not found." \
+                " Using default value '{1-default-authentication-container}'",
+        code: "CONJ00033D"
+      )
+
       module Security
 
         SecurityValidated = ::Util::TrackableLogMessageClass.new(
