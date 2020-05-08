@@ -222,6 +222,9 @@ module RestHelpers
     end
   end
 
+  # TODO: This isn't a RestHelper
+  #   We probably want an object encapsulating DB interactions like a
+  #   UserRepo or db.User... TBD
   def user_exists? login
     roleid = "cucumber:user:#{login}"
     Role[role_id: roleid]
