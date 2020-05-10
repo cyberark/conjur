@@ -27,9 +27,33 @@ module Authentication
 
       private
 
+      # In the old version of the authn-client we assumed that the host is under the "apps" policy branch.
+      # Now we send the host-id in 2 parts:
+      #   suffix - the host id
+      #   prefix - the policy id
+      # We update the CSR's common_name to have the full host-id. This way, the validation
+      # that happens in the "authenticate" request will work, as the signed certificate
+      # contains the full host-id.
+      def update_csr_common_name
+        @logger.debug(Log::SetCommonName.new(full_host_name))
+        smart_csr.common_name = full_host_name
+      end
+
+      def full_host_name
+        common_name_prefix + "." + smart_csr.common_name
+      end
+
+      def common_name_prefix
+        @host_id_prefix.nil? || @host_id_prefix.empty? ? apps_host_id_prefix : @host_id_prefix
+      end
+
+      def apps_host_id_prefix
+        "host.conjur.authn-k8s.#{@service_id}.apps"
+      end
+
       def validate
         # We validate the CSR first since the pod_request uses its values
-        validate_csr
+        validate_spiffe_id_exists
 
         @validate_pod_request.(pod_request: pod_request)
       end
@@ -51,23 +75,10 @@ module Authentication
         validate_cert_installation(resp)
       end
 
-      # In the old version of the authn-client we assumed that the host is under the "apps" policy branch.
-      # Now we send the host-id in 2 parts:
-      #   suffix - the host id
-      #   prefix - the policy id
-      # We update the CSR's common_name to have the full host-id. This way, the validation
-      # that happens in the "authenticate" request will work, as the signed certificate
-      # contains the full host-id.
-      def update_csr_common_name
-        prefix = @host_id_prefix.nil? || @host_id_prefix.empty? ? apps_host_id_prefix : @host_id_prefix
-        full_host_name = prefix + "." + smart_csr.common_name
-
-        Rails.logger.debug(Log::SetCommonName.new(full_host_name))
-        smart_csr.common_name = full_host_name
-      end
-
-      def apps_host_id_prefix
-        "host.conjur.authn-k8s.#{@service_id}.apps"
+      def validate_cert_installation(resp)
+        error_stream = resp[:error]
+        return if error_stream.nil? || error_stream.empty?
+        raise Err::CertInstallationError, cert_error(error_stream)
       end
 
       def pod_request
@@ -104,7 +115,7 @@ module Authentication
         @host ||= @resource_class[host_id]
       end
 
-      def validate_csr
+      def validate_spiffe_id_exists
         raise Err::CSRIsMissingSpiffeId unless smart_csr.spiffe_id
       end
 
@@ -114,12 +125,6 @@ module Authentication
 
       def common_name
         @common_name ||= CommonName.new(smart_csr.common_name)
-      end
-
-      def validate_cert_installation(resp)
-        error_stream = resp[:error]
-        return if error_stream.nil? || error_stream.empty?
-        raise Err::CertInstallationError, cert_error(error_stream)
       end
 
       # In case there's a blank error message...
