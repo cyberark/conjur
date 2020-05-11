@@ -477,7 +477,7 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
         end
 
         context "where a constraint is missing a slash after authn-k8s" do
-          let(:host_annotations) { [namespace_annotation, container_name_annotation] }
+          let(:host_annotations) { [service_account_annotation, namespace_annotation, container_name_annotation] }
 
           before(:each) do
             allow(namespace_annotation).to receive(:[])

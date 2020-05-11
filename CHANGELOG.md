@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Policy load API endpoints now default to the `application/x-yaml` content-type
   if no content type is provided in the request
   ([conjurinc/dap-support#74](https://github.com/conjurinc/dap-support/issues/74)).
+- The k8s authenticator correctly authenticates an app using the host ID to specify
+  the k8s resource constraints and an annotation to specify the authenticator
+  container name using the "authn-k8s" prefix
+  ([cyberark/conjur#1535](https://github.com/cyberark/conjur/issues/1535),
+  [conjurinc/dap-support#79](https://github.com/conjurinc/dap-support/issues/79)).
 
 ### Changed
 - Change ActiveSupport to use sha1 instead of md5
