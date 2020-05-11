@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'simplecov'
-require 'digest'
-require 'openssl'
 
 SimpleCov.command_name "SimpleCov #{rand(1000000)}"
 SimpleCov.merge_timeout 7200
@@ -24,32 +22,6 @@ ENV.delete('CONJUR_ADMIN_PASSWORD')
 $LOAD_PATH << '../app/domain'
 
 RSpec.configure do |config|
-  config.before(:all) do
-    # enable FIPS mode
-    OpenSSL.fips_mode = true
-
-    # override ActiveSupport hash_digest_class with FIPS complaint method
-    ActiveSupport::Digest.hash_digest_class = OpenSSL::Digest::SHA1.new
-
-    # override Sprockets digest_class with FIPS complaint method
-    Sprockets::DigestUtils.module_eval do
-      def digest_class
-        OpenSSL::Digest::SHA256
-      end
-    end
-    Sprockets.config = Sprockets.config.merge(
-        digest_class: OpenSSL::Digest::SHA256
-    ).freeze
-
-    # override OpenIDConnect cache_key with FIPS complaint method
-    OpenIDConnect::Discovery::Provider::Config::Resource.module_eval do
-      def cache_key
-        sha256 = Digest::SHA256.hexdigest host
-        "swd:resource:opneid-conf:#{sha256}"
-      end
-    end
-  end
-
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
   end
