@@ -148,6 +148,14 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
           it "does not raise an error" do
             expect { subject }.not_to raise_error
           end
+
+          context "when using authenticator container name annotation" do
+            let(:host_annotations) { [container_name_annotation] }
+  
+            it "does not raise an error" do
+              expect { subject }.not_to raise_error
+            end
+          end
         end
 
         context "when is not namespace scoped" do
