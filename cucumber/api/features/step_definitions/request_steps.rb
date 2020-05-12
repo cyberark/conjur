@@ -122,12 +122,6 @@ When(/^I( ?:can|successfully)? authenticate as "([^"]*)" with account "([^"]*)"/
   end
 end
 
-Then(/^the result is an API key$/) do
-  expect(@result).to be
-  expect(@result.length).to be > 40
-  expect(@result).to match(/^[a-z0-9]+$/)
-end
-
 Then(/^the result is the API key for user "([^"]*)"$/) do |login|
   user = lookup_user(login)
   user.reload
@@ -145,14 +139,6 @@ end
 
 Then(/^the HTTP response content type is "([^"]*)"$/) do |content_type|
   expect(@content_type).to match(content_type)
-end
-
-Then(/^the result is true$/) do
-  expect(@result).to be true
-end
-
-Then(/^the result is false$/) do
-  expect(@result).to be false
 end
 
 Then(/^I (?:can )*authenticate with the admin API key for the account "(.*?)"/) do |account|
