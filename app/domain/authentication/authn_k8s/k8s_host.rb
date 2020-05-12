@@ -3,6 +3,7 @@
 # This is not to be confused with Conjur model host.  It exists purely to
 # encapsulate logic about how to translate K8s host info into a Conjur host id.
 #
+
 require 'forwardable'
 
 # NOTE: these are here for when we gemify this
@@ -12,6 +13,9 @@ require 'forwardable'
 
 module Authentication
   module AuthnK8s
+
+    Err ||= Errors::Authentication::AuthnK8s
+
     class K8sHost
       extend Forwardable
 
@@ -19,15 +23,18 @@ module Authentication
 
       def self.from_csr(account:, service_name:, csr:)
         cn = csr.common_name
-        raise ArgumentError, 'CSR must have a CN entry' unless cn
-
+        unless cn
+          raise Err::CSRMissingCNEntry.new(csr.subject_to_s, csr.spiffe_id.to_s)
+        end
         new(account: account, service_name: service_name, common_name: cn)
       end
 
       def self.from_cert(account:, service_name:, cert:)
-        cn = ::Util::OpenSsl::X509::SmartCert.new(cert).common_name
-        raise ArgumentError, 'Certificate must have a CN entry' unless cn
-
+        smart_cert = ::Util::OpenSsl::X509::SmartCert.new(cert)
+        cn = smart_cert.common_name
+        unless cn
+          raise Err::CertMissingCNEntry.new(smart_cert.smart_subject.to_s, smart_cert.san.to_s)
+        end
         new(account: account, service_name: service_name, common_name: cn)
       end
 

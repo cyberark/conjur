@@ -18,7 +18,7 @@ module Authentication
   module AuthnK8s
     module K8sResolver
 
-      Err = Errors::Authentication::AuthnK8s
+      Err ||= Errors::Authentication::AuthnK8s
 
       class << self
         # Gets a resolver class for a resource type.
@@ -37,16 +37,6 @@ module Authentication
       # * +resource+ the resource API object (e.g. a Deployment)
       # * +pod+ the Pod API object.
       Base = Struct.new(:resource, :pod, :k8s_object_lookup) do
-        # Verifies that a condition, specified by a block, is truthy.
-        #
-        # @exception ValidationError with the specified +message+ is raised if the
-        # +block+ returns a falsey value.
-        def verify message, &block
-          yield.tap do |result|
-            raise Err::ValidationError, message unless result
-          end
-        end
-
         def name
           resource.metadata.name
         end
@@ -65,7 +55,8 @@ module Authentication
 
         # Validates that the +pod+ belongs to the resource object.
         #
-        # @exception ValidationError if the +pod+ does not belong to the resource object.
+        # @exception PodNameMismatchError,PodRelationMismatchError, PodMissingRelationError if the +pod+ does not
+        # belong to the resource object.
         def validate_pod
           raise "validate_pod is not implemented"
         end
@@ -74,82 +65,116 @@ module Authentication
       # Tests whether the Pod's ReplicaSet belongs to the Deployment.
       class Deployment < Base
         def validate_pod
-          replica_set_ref = verify "Pod #{pod_name} does not belong to a ReplicaSet (or Deployment)" do
-            pod_owner_refs &&
-              pod_owner_refs.find{|ref| ref.kind == "ReplicaSet"}
+          replica_set_ref = pod_owner_refs&.find { |ref| ref.kind == "ReplicaSet" }
+          unless replica_set_ref
+            raise Err::PodMissingRelationError.new(pod_name, 'ReplicaSet')
           end
-          
-          replica_set = k8s_object_lookup.find_object_by_name "replica_set", replica_set_ref.name, namespace
 
-          deployment_ref = verify "Pod #{pod_name} does not belong to a Deployment" do
-            replica_set.metadata.ownerReferences &&
-              replica_set.metadata.ownerReferences.find{|ref| ref.kind == "Deployment"}
+          replica_set = k8s_object_lookup.find_object_by_name "replica_set", replica_set_ref.name, namespace
+          replica_set_owner_refs = replica_set.metadata.ownerReferences
+
+          deployment_ref = replica_set_owner_refs&.find { |ref| ref.kind == "Deployment" }
+          unless deployment_ref
+            raise Err::PodMissingRelationError.new(pod_name, 'Deployment')
           end
 
           deployment = k8s_object_lookup.find_object_by_name "deployment", deployment_ref.name, namespace
 
-          verify "Pod #{pod_name} Deployment is #{deployment.metadata.name.inspect}, not #{self.name.inspect}" do
-            self.name == deployment.metadata.name
+          unless self.name == deployment.metadata.name
+            raise Err::PodRelationMismatchError.new(
+              pod_name,
+              'Deployment',
+              deployment.metadata.name.inspect,
+              self.name.inspect
+            )
           end
         end
       end
 
       class DeploymentConfig < Base
         def validate_pod
-          replication_resource_ref = verify "Pod #{pod_name} does not belong to a ReplicationController (or DeploymentConfig)" do
-            pod_owner_refs &&
-              pod_owner_refs.find{|ref| ref.kind == "Replicationresource"}
-          end
-          
-          replication_resource = k8s_object_lookup.find_object_by_name "replication_resource", replication_resource_ref.name, namespace
-
-          deployment_config_ref = verify "Pod #{pod_name} does not belong to a DeploymentConfig" do
-            replication_resource.metadata.ownerReferences &&
-              replication_resource.metadata.ownerReferences.find{|ref| ref.kind == "DeploymentConfig"}
+          replication_resource_ref = pod_owner_refs&.find { |ref| ref.kind == "Replicationresource" }
+          unless replication_resource_ref
+            raise Err::PodMissingRelationError.new(pod_name, 'ReplicationController')
           end
 
-          deployment_config = k8s_object_lookup.find_object_by_name "deployment_config", deployment_config_ref.name, namespace
+          replication_resource = k8s_object_lookup.find_object_by_name(
+            "replication_resource",
+            replication_resource_ref.name,
+            namespace
+          )
 
-          verify "Pod #{pod_name} DeploymentConfig is #{deployment_config.metadata.name.inspect}, not #{self.name.inspect}" do
-            self.name == deployment_config.metadata.name
+          replication_resource_owner_refs = replication_resource.metadata.ownerReferences
+
+          deployment_config_ref = replication_resource_owner_refs&.find { |ref| ref.kind == "DeploymentConfig" }
+
+          unless deployment_config_ref
+            raise Err::PodMissingRelationError.new(pod_name, 'DeploymentConfig')
+          end
+
+          deployment_config = k8s_object_lookup.find_object_by_name "deployment_config",
+            deployment_config_ref.name, namespace
+
+          unless self.name == deployment_config.metadata.name
+            raise Err::PodRelationMismatchError.new(
+              pod_name,
+              'DeploymentConfig',
+              deployment_config.metadata.name.inspect,
+              self.name.inspect
+            )
           end
         end
       end
 
       class ReplicaSet < Base
         def validate_pod
-          replica_set_ref = verify "Pod #{pod_name} does not belong to a ReplicaSet" do
-            pod_owner_refs &&
-              pod_owner_refs.find{|ref| ref.kind == "ReplicaSet"}
+          replica_set_ref = pod_owner_refs&.find { |ref| ref.kind == "ReplicaSet" }
+          unless replica_set_ref
+            raise Err::PodMissingRelationError.new(pod_name, 'ReplicaSet')
           end
 
           replica_set = k8s_object_lookup.find_object_by_name "replica_set", replica_set_ref.name, namespace
 
-          verify "Pod #{pod_name} ReplicaSet is #{replica_set.metadata.name.inspect}, not #{self.name.inspect}" do
-            self.name == replica_set.metadata.name
+          unless self.name == replica_set.metadata.name
+            raise Err::PodRelationMismatchError.new(
+              pod_name,
+              'ReplicaSet',
+              replica_set.metadata.name.inspect,
+              self.name.inspect
+            )
           end
         end
       end
 
       class ServiceAccount < Base
         def validate_pod
-          verify "Pod #{pod_name} assigned ServiceAccount #{pod.spec.serviceAccountName.inspect}, not #{self.name.inspect}" do
-            self.name == pod.spec.serviceAccountName
+          unless self.name == pod.spec.serviceAccountName
+            raise Err::PodRelationMismatchError.new(
+              pod_name,
+              'ServiceAccount',
+              pod.spec.serviceAccountName.inspect,
+              self.name.inspect
+            )
           end
         end
       end
 
       class StatefulSet < Base
         def validate_pod
-          stateful_set_ref = verify "Pod #{pod_name} does not belong to a StatefulSet" do
-            pod_owner_refs &&
-              pod_owner_refs.find{|ref| ref.kind == "StatefulSet"}
+          stateful_set_ref = pod_owner_refs&.find { |ref| ref.kind == "StatefulSet" }
+          unless stateful_set_ref
+            raise Err::PodMissingRelationError.new(pod_name, 'StatefulSet')
           end
 
-          stateful_set = k8s_object_lookup.find_object_by_name "stateful_set", stateful_set_ref.name, namespace      
+          stateful_set = k8s_object_lookup.find_object_by_name "stateful_set", stateful_set_ref.name, namespace
 
-          verify "Pod #{pod_name} StatefulSet name is #{stateful_set.metadata.name.inspect}, not #{self.name.inspect}" do
-            self.name == stateful_set.metadata.name
+          unless self.name == stateful_set.metadata.name
+            raise Err::PodRelationMismatchError.new(
+              pod_name,
+              'StatefulSetName',
+              stateful_set.metadata.name.inspect,
+              self.name.inspect
+            )
           end
         end
       end
@@ -157,8 +182,8 @@ module Authentication
       class Pod < Base
         # The pod is always a member of itself.
         def validate_pod
-          verify "Pod #{pod_name} is not #{self.name.inspect}" do
-            self.name == pod.metadata.name
+          unless self.name == pod.metadata.name
+            raise Err::PodNameMismatchError.new(pod_name, self.name.inspect)
           end
         end
       end
