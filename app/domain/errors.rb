@@ -267,9 +267,30 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00023E"
         )
 
-        ValidationError = ::Util::TrackableErrorClass.new(
-          msg:  "{0-message}",
-          code: "CONJ00047E"
+        CSRMissingCNEntry = ::Util::TrackableErrorClass.new(
+          msg:  "CSR [subject: '{0-subject}', spiffe_id: '{1-spiffe-id}'] must have a CN (common name) entry.",
+          code: "CONJ00058E"
+        )
+
+        CertMissingCNEntry = ::Util::TrackableErrorClass.new(
+          msg:  "Cert [subject: '{0-subject}', san: '{1-san}'] must have a CN (common name) entry.",
+          code: "CONJ00059E"
+        )
+
+        PodNameMismatchError = ::Util::TrackableErrorClass.new(
+          msg:  "Pod: {0-pod-name} does not match: {1-actual-resource-name}.",
+          code: "CONJ00060E"
+        )
+
+        PodRelationMismatchError = ::Util::TrackableErrorClass.new(
+          msg:  "Pod: {0-pod-name}, {1-resource-type}: {2-expected-resource-name}, does not match: " \
+                  "{3-actual-resource-name}.",
+          code: "CONJ00061E"
+        )
+
+        PodMissingRelationError = ::Util::TrackableErrorClass.new(
+          msg:  "Pod: {0-pod-name} does not belong to a {1-resource-type}.",
+          code: "CONJ00062E"
         )
 
         InvalidHostId = ::Util::TrackableErrorClass.new(

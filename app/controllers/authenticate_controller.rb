@@ -177,6 +177,10 @@ class AuthenticateController < ApplicationController
       Errors::Authentication::OAuth::FetchProviderKeysFailed
       raise BadGateway
 
+    when Errors::Authentication::AuthnK8s::CSRMissingCNEntry,
+      Errors::Authentication::AuthnK8s::CertMissingCNEntry
+      raise ArgumentError
+
     else
       raise Unauthorized
     end

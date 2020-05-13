@@ -99,7 +99,9 @@ module AuthnK8sWorld
       begin
         resolver.validate_pod
         true
-      rescue Errors::Authentication::AuthnK8s::ValidationError
+      rescue Errors::Authentication::AuthnK8s::PodNameMismatchError,
+             Errors::Authentication::AuthnK8s::PodRelationMismatchError,
+             Errors::Authentication::AuthnK8s::PodMissingRelationError
         false
       end
     end

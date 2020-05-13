@@ -102,27 +102,6 @@ module Authentication
           spiffe_id: spiffe_id
         )
       end
-
-      #TODO: pull this code out of strategy into a separate object
-      #      then use that object here and in Strategy.
-      #
-      # def validate_authenticator_enabled(service_name)
-      #   authenticator_name = "authn-k8s/#{service_name}"
-      #   valid = available_authenticators.include?(authenticator_name)
-      #   raise Errors::Authentication::AuthenticatorNotFound, authenticator_name unless valid
-      # end
-
-      # def available_authenticators
-      #   (conjur_authenticators || '').split(',').map(&:strip)
-      # end
-
-      # def conjur_authenticators
-      #   env['CONJUR_AUTHENTICATORS']
-      # end
-
-      # def conjur_account
-      #   env['CONJUR_ACCOUNT']
-      # end
     end
 
     class Authenticator

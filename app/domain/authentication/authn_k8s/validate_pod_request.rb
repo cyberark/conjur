@@ -73,9 +73,9 @@ module Authentication
       end
 
       def host
-        @host ||= @resource_class[k8s_host.conjur_host_id]
-        raise SecurityErr::RoleNotFound(k8s_host.conjur_host_id) if @host.nil?
-        @host
+        @host ||= @resource_class[k8s_host.conjur_host_id].tap do |host|
+          raise SecurityErr::RoleNotFound(k8s_host.conjur_host_id) unless host
+        end
       end
 
       def pod
