@@ -208,8 +208,12 @@ module Authentication
         constraint.tr('_', '-')
       end
 
+      # We expect the application identity to be defined by the host's annotations
+      # if any of the constraint annotations is present.
       def application_identity_in_annotations?
-        @application_identity_in_annotations ||= @host_annotations.select { |a| a.values[:name].start_with?("authn-k8s/") }.any?
+        @application_identity_in_annotations ||= annotation_type_constraints.any? do |constraint|
+          constraint_from_annotation(constraint)
+        end
       end
 
       def host_id_namespace_scoped?
