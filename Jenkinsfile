@@ -7,6 +7,7 @@ pipeline {
     timestamps()
     buildDiscarder(logRotator(numToKeepStr: '30'))
     skipDefaultCheckout()  // see 'Checkout SCM' below, once perms are fixed this is no longer needed
+    timeout(time: 1, unit: 'HOURS')
   }
 
   triggers {
