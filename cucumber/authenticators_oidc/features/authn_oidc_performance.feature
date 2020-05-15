@@ -44,4 +44,4 @@ Feature: OIDC Authenticator - Performance tests
 
   Scenario: Unsuccessful requests with an invalid token
     When I authenticate 1000 times in 10 threads via OIDC with invalid id token
-    Then The "avg" Azure Authentication request response time should be less than "0.75" seconds
+    Then The "avg" response time should be less than "0.75" seconds
