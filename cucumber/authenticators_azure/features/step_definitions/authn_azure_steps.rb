@@ -61,7 +61,9 @@ Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?via Azure with (no |em
   @azure_perf_results = results.map(&:real)
 end
 
-Then(/^The "([^"]*)" Azure Authentication request response time should be less than "([^"]*)" seconds?$/) do |type, threshold|
+Then(
+  "The {string} Azure Authentication request responds in less than {string} second(s)"
+) do |type, threshold|
   type = type.downcase.to_sym
   raise "Unexpected Type" unless %i(max avg).include?(type)
   results     = @azure_perf_results
