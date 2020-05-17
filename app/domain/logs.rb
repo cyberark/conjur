@@ -8,6 +8,15 @@ unless defined? LogMessages::Authentication::OriginValidated
 
   module LogMessages
 
+    module Conjur
+
+      PrimarySchema = Util::TrackableErrorClass.new(
+        msg:  "Primary schema is {0-primary-schema}",
+        code: "CONJ00034I"
+      )
+
+    end
+
     module Authentication
 
       OriginValidated = ::Util::TrackableLogMessageClass.new(

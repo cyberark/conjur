@@ -29,7 +29,7 @@ class Schemata
     primary_schema = db.select(Sequel::function(:current_schema)).single_value
     raise "No primary schema is available from search path #{search_path.inspect}" if primary_schema.nil?
 
-    Rails.logger.info "Primary schema is #{primary_schema.inspect}"
+    Rails.logger.info(LogMessages::Conjur::PrimarySchema.new(primary_schema.inspect))
     @primary_schema = primary_schema.to_sym
   end
 
