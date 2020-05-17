@@ -140,6 +140,26 @@ unless defined? LogMessages::Authentication::OriginValidated
         )
       end
 
+      module AuthnIam
+
+        GetCallerIdentityBody = ::Util::TrackableLogMessageClass.new(
+          msg:  "AWS IAM get_caller_identity body:\n {0-response-body}",
+          code: "CONJ00034D"
+        )
+
+        AttemptToMatchHost = ::Util::TrackableLogMessageClass.new(
+          msg:  "IAM Role authentication attempt by AWS user {0-aws-user-id} " \
+                  "with host to match = {1-host-to-match}",
+          code: "CONJ00035D"
+        )
+
+        RetrieveIamIdentity = ::Util::TrackableLogMessageClass.new(
+          msg:  "Retrieving IAM identity",
+          code: "CONJ00036D"
+        )
+
+      end
+
       module AuthnAzure
 
         ExtractedApplicationIdentityFromToken = ::Util::TrackableLogMessageClass.new(
