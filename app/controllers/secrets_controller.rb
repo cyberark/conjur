@@ -119,7 +119,10 @@ class SecretsController < RestController
   private
 
   def variable_ids
-    @variable_ids ||= (params[:variable_ids] || '').split(',').compact
-      .tap { |ids| raise ArgumentError, 'variable_ids' if ids.empty? }
+    return @variable_ids if @variable_ids
+
+    @variable_ids = (params[:variable_ids] || '').split(',').compact
+    raise ArgumentError, 'variable_ids' if @variable_ids.empty?
+    @variable_ids
   end
 end

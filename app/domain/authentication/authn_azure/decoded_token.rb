@@ -35,9 +35,9 @@ module Authentication
       end
 
       def token_field_value(field_name)
-        @decoded_token_hash[field_name].tap do |token_field_value|
-          @logger.debug(Log::ExtractedFieldFromAzureToken.new(field_name, token_field_value))
-        end
+        token_field_value = @decoded_token_hash[field_name]
+        @logger.debug(Log::ExtractedFieldFromAzureToken.new(field_name, token_field_value))
+        token_field_value
       end
     end
   end

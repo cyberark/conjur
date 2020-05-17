@@ -31,9 +31,9 @@ module Authentication
       # is used is inside of FetchProviderKeys.  This is unlikely change, and hence
       # unlikely to be a problem
       def discover_provider
-        @discovered_provider = @open_id_discovery_service.discover!(@provider_uri).tap do
-          @logger.debug(Log::IdentityProviderDiscoverySuccess.new)
-        end
+        @discovered_provider = @open_id_discovery_service.discover!(@provider_uri)
+        @logger.debug(Log::IdentityProviderDiscoverySuccess.new)
+        @discovered_provider
       rescue HTTPClient::ConnectTimeoutError, Errno::ETIMEDOUT => e
         raise_error(Err::ProviderDiscoveryTimeout, e)
       rescue => e
