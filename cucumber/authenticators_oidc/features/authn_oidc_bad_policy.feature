@@ -148,5 +148,5 @@ Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
     Then it is forbidden
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::Security::RoleNotAuthorizedOnWebservice
+    Errors::Authentication::Security::RoleNotAuthorizedOnResource
     """

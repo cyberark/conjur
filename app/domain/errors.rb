@@ -89,8 +89,8 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00005E"
         )
 
-        RoleNotAuthorizedOnWebservice = ::Util::TrackableErrorClass.new(
-          msg:  "'{0-role-name}' does not have '{1-privilege}' privilege on {2-service-name}",
+        RoleNotAuthorizedOnResource = ::Util::TrackableErrorClass.new(
+          msg:  "'{0-role-name}' does not have '{1-privilege}' privilege on {2-resource-name}",
           code: "CONJ00006E"
         )
 

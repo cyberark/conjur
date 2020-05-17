@@ -158,7 +158,7 @@ class AuthenticateController < ApplicationController
       Errors::Conjur::RequiredResourceMissing
       raise Unauthorized
 
-    when Errors::Authentication::Security::RoleNotAuthorizedOnWebservice
+    when Errors::Authentication::Security::RoleNotAuthorizedOnResource
       raise Forbidden
 
     when Errors::Authentication::RequestBody::MissingRequestParam
@@ -198,7 +198,7 @@ class AuthenticateController < ApplicationController
     }
 
     status_code = case error
-                  when Errors::Authentication::Security::RoleNotAuthorizedOnWebservice
+                  when Errors::Authentication::Security::RoleNotAuthorizedOnResource
                     :forbidden
                   when Errors::Authentication::StatusNotImplemented
                     :not_implemented

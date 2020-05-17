@@ -10,7 +10,7 @@ module Authentication
 
     # Possible Errors Raised:
     # AccountNotDefined, WebserviceNotFound, AuthenticatorNotWhitelisted,
-    # RoleNotFound, RoleNotAuthorizedOnWebservice
+    # RoleNotFound, RoleNotAuthorizedOnResource
 
     ValidateSecurity = CommandClass.new(
       dependencies: {

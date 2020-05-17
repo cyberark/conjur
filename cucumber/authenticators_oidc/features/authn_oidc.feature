@@ -106,7 +106,7 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     Then it is forbidden
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::Security::RoleNotAuthorizedOnWebservice
+    Errors::Authentication::Security::RoleNotAuthorizedOnResource
     """
 
   Scenario: ID token without value of variable id-token-user-property is denied

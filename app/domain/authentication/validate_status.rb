@@ -9,7 +9,7 @@ module Authentication
 
   # Possible Errors Raised:
   # AuthenticatorNotFound, StatusNotImplemented, AccountNotDefined
-  # WebserviceNotFound, RoleNotFound, RoleNotAuthorizedOnWebservice,
+  # WebserviceNotFound, RoleNotFound, RoleNotAuthorizedOnResource,
   # AuthenticatorNotWhitelisted
 
   ValidateStatus ||= CommandClass.new(

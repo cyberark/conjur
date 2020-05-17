@@ -8,7 +8,7 @@ module Authentication
     Err = Errors::Authentication::AuthnK8s
     SecurityErr = Errors::Authentication::Security
     # Possible Errors Raised:
-    # WebserviceNotFound, RoleNotAuthorizedOnWebservice, PodNotFound
+    # WebserviceNotFound, RoleNotAuthorizedOnResource, PodNotFound
     # ContainerNotFound, ScopeNotSupported, K8sResourceNotFound
 
     ValidatePodRequest ||= CommandClass.new(
