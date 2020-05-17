@@ -49,6 +49,10 @@ module Authentication
         Rails.logger.debug(Log::HostIdFromCommonName.new(host_id))
         host_id
       end
+
+      def k8s_host_name
+        @common_name.k8s_host_name
+      end
     end
   end
 end

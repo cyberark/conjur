@@ -4,12 +4,12 @@ require 'spec_helper'
 
 RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
   include_context "running outside kubernetes"
-
-  let(:error_template) { "An error occured" }
+  include_context "security mocks"
 
   let(:account) { "SomeAccount" }
 
   let(:host_id) { "HostId" }
+  let(:host_name) { "HostName" }
   let(:host_role) { double("HostRole", :id => host_id) }
 
   let(:host_annotation_1) { double("Annot1", :values => { :name => "first" }) }
@@ -20,19 +20,20 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
   let(:host) { double("Host", :role => host_role,
                       :annotations  => host_annotations) }
 
-  let(:k8s_host_object) { "K8sHostObject" }
-  let(:k8s_host_namespace) { "K8sHostNamespace" }
-  let(:k8s_host) { double("K8sHost", :account => account,
-                          :conjur_host_id     => host_id) }
+  let(:k8s_host) {
+    double(
+      "K8sHost",
+      :account => account,
+      :conjur_host_id     => host_id,
+      :k8s_host_name     => host_name
+    )
+  }
 
-  let(:bad_service_name) { "BadMockService" }
-  let(:good_service_id) { "MockService" }
+  let(:resource_class) { double("Resource") }
 
-  let(:good_webservice) { Authentication::Webservice.new(
-    account:            account,
-    authenticator_name: 'authn-k8s',
-    service_id:         good_service_id
-  ) }
+  let(:service_id) { "MockService" }
+
+  let(:authenticator_name) { 'authn-k8s' }
 
   let(:spiffe_name) { "SpiffeName" }
   let(:spiffe_namespace) { "SpiffeNamespace" }
@@ -47,38 +48,19 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
 
   let(:validate_application_identity) { double("ValidateApplicationIdentity") }
 
-  let(:dependencies) do
-    {
-      resource_class:                double,
-      k8s_object_lookup_class:       k8s_object_lookup_class,
-      validate_application_identity: validate_application_identity
-    }
-  end
-
   before(:each) do
-    allow(Resource).to receive(:[])
-                         .with(host_id)
-                         .and_return(host)
+    allow(resource_class).to receive(:[])
+                               .with(host_id)
+                               .and_return(host)
 
-    allow(Resource).to receive(:[])
-                         .with("#{account}:webservice:conjur/authn-k8s/#{good_service_id}")
-                         .and_return(good_webservice)
-    allow(Resource).to receive(:[])
-                         .with("#{account}:webservice:conjur/authn-k8s/#{bad_service_name}")
-                         .and_return(nil)
-
-    allow(pod_request).to receive(:service_id).and_return(good_service_id)
-    allow(host_role).to receive(:allowed_to?)
-                          .with("authenticate", good_webservice)
-                          .and_return(true)
+    allow(pod_request).to receive(:service_id).and_return(service_id)
 
     allow(k8s_object_lookup_class).to receive(:pod_by_name)
                                         .with(spiffe_name, spiffe_namespace)
                                         .and_return(pod)
 
-    allow(Authentication::AuthnK8s::K8sObjectLookup)
-      .to receive(:new)
-            .and_return(k8s_object_lookup_class)
+    allow(k8s_object_lookup_class).to receive(:new)
+                                        .and_return(k8s_object_lookup_class)
 
     allow(Authentication::AuthnK8s::ValidateApplicationIdentity)
       .to receive(:new)
@@ -87,51 +69,44 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
                                               .and_return(true)
   end
 
-  context "invocation" do
-    subject(:validator) { Authentication::AuthnK8s::ValidatePodRequest
-                            .new(dependencies: dependencies) }
+  context "A ValidatePodRequest invocation" do
+    subject do
+      Authentication::AuthnK8s::ValidatePodRequest.new(
+        resource_class:                resource_class,
+        k8s_object_lookup_class:       k8s_object_lookup_class,
+        validate_security:             mocked_security_validator,
+        enabled_authenticators:        "#{authenticator_name}/#{service_id}",
+        validate_application_identity: validate_application_identity
+      ).call(
+        pod_request: pod_request
+      )
+      end
 
-    it 'raises WebserviceNotFound error when webservice is missing' do
-      allow(pod_request).to receive(:service_id).and_return(bad_service_name)
-
-      expected_message = /Webservice '#{bad_service_name}' not found/
-      expect { validator.(pod_request: pod_request) }
-        .to raise_error(Errors::Authentication::Security::WebserviceNotFound, expected_message)
-    end
-
-    it 'raises RoleNotAuthorizedOnWebservice when host is not allowed to authenticate to service' do
-      allow(pod_request).to receive(:service_id).and_return(good_service_id)
-      allow(host_role).to receive(:allowed_to?)
-                            .with("authenticate", good_webservice)
-                            .and_return(false)
-
-      expected_message = /'#{host_id}' does not have 'authenticate' privilege on #{good_service_id}/
-
-      expect { validator.(pod_request: pod_request) }
-        .to raise_error(Errors::Authentication::Security::RoleNotAuthorizedOnWebservice, expected_message)
-    end
+    it_behaves_like "raises an error when security validation fails"
 
     it 'raises PodNotFound when pod is not known' do
-      allow(pod_request).to receive(:service_id).and_return(good_service_id)
-      allow(host_role).to receive(:allowed_to?)
-                            .with("authenticate", good_webservice)
-                            .and_return(true)
       allow(k8s_object_lookup_class).to receive(:pod_by_name)
                                           .with(spiffe_name, spiffe_namespace)
                                           .and_return(nil)
 
       expected_message = /CONJ00024E.*'#{spiffe_name}'.*'#{spiffe_namespace}'/
 
-      expect { validator.(pod_request: pod_request) }
-        .to raise_error(Errors::Authentication::AuthnK8s::PodNotFound, expected_message)
+      expect { subject }.to(
+        raise_error(
+          ::Errors::Authentication::AuthnK8s::PodNotFound
+        )
+      )
     end
 
     it 'raises an error when application identity validation fails' do
       allow(validate_application_identity).to receive(:call)
-                                                .and_raise('FAKE_application_identity_ERROR')
+                                                .and_raise('FAKE_APPLICATION_IDENTITY_ERROR')
 
-      expect { validator.(pod_request: pod_request) }
-        .to raise_error(/FAKE_application_identity_ERROR/)
+      expect { subject }.to(
+        raise_error(
+          /FAKE_APPLICATION_IDENTITY_ERROR/
+        )
+      )
     end
   end
 end
