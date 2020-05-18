@@ -79,25 +79,23 @@ module Loader
       policy_version.policy.id
     end
 
-    def load
+    def setup_db_for_new_policy
       perform_deletion
 
       create_schema
 
       load_records
+    end
 
-      if policy_version.perform_automatic_deletion?
-        delete_removed
-      end
-
+    # TODO: consider renaming this method
+    def delete_shadowed_and_duplicate_rows
       eliminate_shadowed
 
       eliminate_duplicates_exact
+    end
 
-      if policy_version.update_permitted?
-        update_changed
-      end
-
+    # TODO: consider renaming this method
+    def store_policy_in_db
       eliminate_duplicates_pk
 
       insert_new
@@ -152,8 +150,6 @@ module Loader
         io.read
       end
     end
-
-    protected
 
     # Delete rows in the existing policy which do not exist in the new policy.
     # Matching rows are selected by primary keys only, using a LEFT JOIN between the
@@ -382,6 +378,81 @@ module Loader
 
     def db
       Sequel::Model.db
+    end
+  end
+
+  # Responsible for creating policy. Called when a POST request is received
+  class CreatePolicy
+    def initialize(loader)
+      @loader = loader
+    end
+
+    def self.from_policy(policy_version)
+      CreatePolicy.new(Loader::Orchestrate.new(policy_version))
+    end
+
+    def call
+      @loader.setup_db_for_new_policy
+
+      @loader.delete_shadowed_and_duplicate_rows
+
+      @loader.store_policy_in_db
+    end
+
+    def new_roles
+      @loader.new_roles
+    end
+  end
+
+  # Responsible for replacing policy. Called when a PUT request is received
+  class ReplacePolicy
+    def initialize(loader)
+      @loader = loader
+    end
+
+    def self.from_policy(policy_version)
+      ReplacePolicy.new(Loader::Orchestrate.new(policy_version))
+    end
+
+    def call
+      @loader.setup_db_for_new_policy
+
+      @loader.delete_removed
+      
+      @loader.delete_shadowed_and_duplicate_rows
+
+      @loader.update_changed
+
+      @loader.store_policy_in_db
+    end
+
+    def new_roles
+      @loader.new_roles
+    end
+  end
+
+  # Responsible for modifying policy. Called when a PATCH request is received
+  class ModifyPolicy
+    def initialize(loader)
+      @loader = loader
+    end
+
+    def self.from_policy(policy_version)
+      ModifyPolicy.new(Loader::Orchestrate.new(policy_version))
+    end
+
+    def call
+      @loader.setup_db_for_new_policy
+      
+      @loader.delete_shadowed_and_duplicate_rows
+
+      @loader.update_changed
+
+      @loader.store_policy_in_db
+    end
+
+    def new_roles
+      @loader.new_roles
     end
   end
 end
