@@ -15,6 +15,8 @@ module Authentication
       dependencies: {
         resource_class:                Resource,
         k8s_object_lookup_class:       K8sObjectLookup,
+        validate_security:             ::Authentication::Security::ValidateSecurity.new,
+        enabled_authenticators:        Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
         validate_application_identity: ValidateApplicationIdentity.new
       },
       inputs:       %i(pod_request)
@@ -24,21 +26,20 @@ module Authentication
       def_delegators :@pod_request, :service_id, :k8s_host, :spiffe_id
 
       def call
-        validate_webservice_exists
-        validate_host_can_access_service
+        validate_security
         validate_pod_exists
         validate_application_identity
       end
 
       private
 
-      def validate_webservice_exists
-        raise SecurityErr::WebserviceNotFound, service_id unless webservice.resource
-      end
-
-      def validate_host_can_access_service
-        return if host_can_access_service?
-        raise SecurityErr::RoleNotAuthorizedOnWebservice.new(host.role.id, "authenticate", service_id)
+      def validate_security
+        @validate_security.(
+          webservice: webservice,
+          account: k8s_host.account,
+          user_id: k8s_host.k8s_host_name,
+          enabled_authenticators: @enabled_authenticators
+        )
       end
 
       def validate_pod_exists
@@ -66,10 +67,6 @@ module Authentication
 
       def k8s_object_lookup
         @k8s_object_lookup ||= @k8s_object_lookup_class.new(webservice)
-      end
-
-      def host_can_access_service?
-        host.role.allowed_to?("authenticate", webservice.resource)
       end
 
       def host
