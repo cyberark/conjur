@@ -11,9 +11,9 @@ module AuthenticatorHelpers
   )
 
   def validated_env_var(var)
-    ENV[var].tap do |env_var_value|
-      raise MissingEnvVariable, var if env_var_value.blank?
-    end
+    env_var_value = ENV[var]
+    raise MissingEnvVariable, var if env_var_value.blank?
+    env_var_value
   end
 
   # Mostly to document the mutable variables that are in play.
