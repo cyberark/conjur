@@ -30,7 +30,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
 
   one_to_many :policy_log, key: %i(policy_id version)
 
-  attr_accessor :parse_error, :policy_filename, :perform_automatic_deletion, :delete_permitted, :update_permitted
+  attr_accessor :parse_error, :policy_filename, :delete_permitted
 
   alias id resource_id
   alias current_user role
@@ -56,20 +56,9 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     policy.kind == "policy" && policy.identifier == "root"
   end
 
-  # Indicates whether records that exist in the database but not in the policy 
-  # update should be deleted.
-  def perform_automatic_deletion?
-    !!@perform_automatic_deletion
-  end
-
   # Indicates whether explicit deletion is permitted.
   def delete_permitted?
     !!@delete_permitted
-  end
-
-  # Indicates whether updates to existing data fields are permitted.
-  def update_permitted?
-    !!@update_permitted
   end
 
   def validate

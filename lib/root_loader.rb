@@ -23,19 +23,19 @@ class RootLoader
         end
 
         root_policy_resource = Loader::Types.find_or_create_root_policy(account)
-        policy_ver = policy_version(
+        policy = save_submitted_policy(
           role: admin, 
           policy: root_policy_resource, 
           filename: filename
         )
 
-        acc_roles = accepted_roles(policy_ver)
+        acc_roles = accepted_roles(policy)
         created_roles = create_roles(acc_roles)
 
         $stderr.puts(
           JSON.pretty_generate(
             created_roles: created_roles,
-            version: policy_ver.version
+            version: policy.version
           )
         )
 
@@ -50,7 +50,7 @@ class RootLoader
       admin_credentials.save
     end
 
-    def create_roles accepted_roles
+    def create_roles(accepted_roles)
       accepted_roles.each_with_object({}) do |role, memo|
         credentials = Credentials[role: role] || Credentials.create(role: role)
         role_id = role.id
@@ -58,20 +58,18 @@ class RootLoader
       end
     end
 
-    def accepted_roles policy_version
-      loader = Loader::Orchestrate.new policy_version
-      loader.load
-      loader.new_roles.select do |role|
+    def accepted_roles(policy_version)
+      policy_action = Loader::ReplacePolicy.from_policy(policy_version)
+      policy_action.call
+      policy_action.new_roles.select do |role|
         %w(user host).member?(role.kind)
       end
     end
 
-    def policy_version role:, policy:, filename:
+    def save_submitted_policy(role:, policy:, filename:)
       policy_version = PolicyVersion.new role: role, policy: policy, policy_text: File.read(filename)
       policy_version.policy_filename = filename
-      policy_version.perform_automatic_deletion = true
       policy_version.delete_permitted = true
-      policy_version.update_permitted = true
       policy_version.save
     end
   end
