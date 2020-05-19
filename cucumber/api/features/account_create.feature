@@ -9,30 +9,32 @@ Feature: Create a new account
   Accounts are managed through a standard REST interface.  The "accounts" routes
   are authorized via privileges on the resource "!:webservice:accounts".
 
-  Scenario: POST /accounts to create a new account.
+#  Scenario: POST /accounts to create a new account.
+  Scenario: Create a new account.
 
-    "execute" privilege on "!:webservice:accounts" is required.
+  "execute" privilege is required.
 
-    The response is JSON which contains:
+#    I get back a key and an account id.
 
-    1. **id** The account id.
-    2. **api_key** The API key of the account "admin" user. 
+#    1. **id** The account id.
+#    2. **api_key** The API key of the account "admin" user.
 
     # Note: "!" is the default account
-    Given I create a new user "admin" in account "!"
-    And I permit role "!:user:admin" to "execute" resource "!:webservice:accounts"
-    And I login as "!:user:admin"
-    Then I successfully POST "/accounts" with body:
-    """
-    id=new-account
-    """
-    And the JSON should have "id"
-    And the JSON should have "api_key"
+#    Given I create a new user "admin" in account "!"
+And I permit role "!:user:admin" to "execute" resource "!:webservice:accounts"
+#    And I login as "!:user:admin"
+Then I successfully POST "/accounts" with body:
+    Given I create a default admin
+    And I allow the default admin to create accounts
+    And I login as the default admin
+    And I create an account called "new-account"
+    Then the account creation succeeds
+    And I get back an API key
 
   @logged-in-admin
   Scenario: POST /accounts requires "execute" privilege.
 
-    Without "execute" privilege the request is forbidden.
+  Without "execute" privilege the request is forbidden.
 
     When I POST "/accounts" with body:
     """
