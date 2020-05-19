@@ -1,21 +1,23 @@
 Feature: Secrets can be managed through policies.
 
-  Each resource in Conjur can have an associated list of secrets. Secrets on a resource
-  support two operations, which correspond to `execute` and `update` privileges:
+  Each resource in Conjur can have an associated list of secrets. Secrets on a
+  resource support two operations, which correspond to `execute` and `update`
+  privileges:
 
   - **update** Adds a new value to the secrets list.
   - **execute** Fetches a value from the secrets list.
 
-  When the value of a secrets is updated, it's added to an internal list of secret values.
-  Old secret values can still be obtained (up to a limit of retained history, which is currently
-  20 values).
+  When the value of a secrets is updated, it's added to an internal list of
+  secret values. Old secret values can still be obtained (up to a limit of
+  retained history, which is currently 20 values).
 
-  By convention, secrets are stored in Conjur using a resource called a `variable`. 
+  By convention, secrets are stored in Conjur using a resource called a
+  `variable`.
 
   Scenario: The owner of a secret has full privileges to it.
 
-    Because the owner of a resource has all privileges on the resource, the owner of a resource
-    can both add and fetch secret values.
+    Because the owner of a resource has all privileges on the resource, the
+    owner of a resource can both add and fetch secret values.
 
     Given a policy:
     """
@@ -84,12 +86,13 @@ Feature: Secrets can be managed through policies.
 
   Scenario: Defining secrets which are available to a Layer
 
-    A policy which is used to define an application will typically include a layer.
-    The layer is given any privileges which will be needed by the application hosts
-    (code, containers, etc). When the application will need to access specific secrets,
-    the secrets can be define in the policy as variables. The application layer is 
-    given `read` and `execute` permission on the variable, and a `secrets-managers` group is typically
-    created which has all privileges on the variable.
+    A policy which is used to define an application will typically include a
+    layer. The layer is given any privileges which will be needed by the
+    application hosts (code, containers, etc). When the application will need to
+    access specific secrets, the secrets can be define in the policy as
+    variables. The application layer is given `read` and `execute` permission on
+    the variable, and a `secrets-managers` group is typically created which has
+    all privileges on the variable.
 
     Given a policy:
     """
