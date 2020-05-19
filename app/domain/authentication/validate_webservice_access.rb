@@ -12,7 +12,7 @@ module Authentication
     Err ||= Errors::Authentication::Security
     # Possible Errors Raised:
     # AccountNotDefined, WebserviceNotFound,
-    # RoleNotFound, RoleNotAuthorizedOnWebservice
+    # RoleNotFound, RoleNotAuthorizedOnResource
 
     ValidateWebserviceAccess ||= CommandClass.new(
       dependencies: {
@@ -62,7 +62,7 @@ module Authentication
       def validate_user_has_access
         has_access = user_role.allowed_to?(@privilege, webservice_resource)
         unless has_access
-          raise Err::RoleNotAuthorizedOnWebservice.new(@user_id, @privilege, webservice_resource_id)
+          raise Err::RoleNotAuthorizedOnResource.new(@user_id, @privilege, webservice_resource_id)
         end
       end
 

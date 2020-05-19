@@ -175,7 +175,7 @@ Feature: Azure Authenticator - Different Hosts can authenticate with Azure authe
     Then it is forbidden
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::Security::RoleNotAuthorizedOnWebservice
+    Errors::Authentication::Security::RoleNotAuthorizedOnResource
     """
 
   # This test runs a failing authentication request that is already

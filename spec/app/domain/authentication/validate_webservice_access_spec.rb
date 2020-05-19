@@ -111,8 +111,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       )
     end
 
-    it "raises a RoleNotAuthorizedOnWebservice error" do
-      expect { subject }.to raise_error(Errors::Authentication::Security::RoleNotAuthorizedOnWebservice
+    it "raises a RoleNotAuthorizedOnResource error" do
+      expect { subject }.to raise_error(Errors::Authentication::Security::RoleNotAuthorizedOnResource
       )
     end
   end

@@ -89,8 +89,8 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
           code: "CONJ00005E"
         )
 
-        RoleNotAuthorizedOnWebservice = ::Util::TrackableErrorClass.new(
-          msg:  "'{0-role-name}' does not have '{1-privilege}' privilege on {2-service-name}",
+        RoleNotAuthorizedOnResource = ::Util::TrackableErrorClass.new(
+          msg:  "'{0-role-name}' does not have '{1-privilege}' privilege on {2-resource-name}",
           code: "CONJ00006E"
         )
 
@@ -171,8 +171,18 @@ unless defined? Errors::Authentication::AuthenticatorNotFound
       module AuthnIam
 
         InvalidAWSHeaders = ::Util::TrackableErrorClass.new(
-          msg:  "'Invalid or expired AWS headers: {0}",
+          msg:  "Invalid or expired AWS headers: {0}",
           code: "CONJ00018E"
+        )
+
+        VerificationError = ::Util::TrackableLogMessageClass.new(
+          msg:  "Verification of IAM identity failed with exception: {0-exception}",
+          code: "CONJ00063E"
+        )
+
+        IdentityVerificationErrorCode = ::Util::TrackableLogMessageClass.new(
+          msg:  "Verification of IAM identity failed with HTTP code: {0-http-code}",
+          code: "CONJ00064E"
         )
 
       end

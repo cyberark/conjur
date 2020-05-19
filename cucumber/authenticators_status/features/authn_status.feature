@@ -62,7 +62,7 @@ Feature: Authenticator status check
     And I login as "alice"
     When I GET "/authn-oidc/keycloak/cucumber/status"
     Then the HTTP response status code is 403
-    And the authenticator status check fails with error "RoleNotAuthorizedOnWebservice: CONJ00006E"
+    And the authenticator status check fails with error "RoleNotAuthorizedOnResource: CONJ00006E"
 
   Scenario: An authenticator without an implemented status check returns 501
     Given a policy:

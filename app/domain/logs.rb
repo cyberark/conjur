@@ -8,6 +8,15 @@ unless defined? LogMessages::Authentication::OriginValidated
 
   module LogMessages
 
+    module Conjur
+
+      PrimarySchema = Util::TrackableErrorClass.new(
+        msg:  "Primary schema is {0-primary-schema}",
+        code: "CONJ00034I"
+      )
+
+    end
+
     module Authentication
 
       OriginValidated = ::Util::TrackableLogMessageClass.new(
@@ -138,6 +147,26 @@ unless defined? LogMessages::Authentication::OriginValidated
           msg:  "Setting common name to {0-full-host-name}",
           code: "CONJ00028D"
         )
+      end
+
+      module AuthnIam
+
+        GetCallerIdentityBody = ::Util::TrackableLogMessageClass.new(
+          msg:  "AWS IAM get_caller_identity body:\n {0-response-body}",
+          code: "CONJ00034D"
+        )
+
+        AttemptToMatchHost = ::Util::TrackableLogMessageClass.new(
+          msg:  "IAM Role authentication attempt by AWS user {0-aws-user-id} " \
+                  "with host to match = {1-host-to-match}",
+          code: "CONJ00035D"
+        )
+
+        RetrieveIamIdentity = ::Util::TrackableLogMessageClass.new(
+          msg:  "Retrieving IAM identity",
+          code: "CONJ00036D"
+        )
+
       end
 
       module AuthnAzure

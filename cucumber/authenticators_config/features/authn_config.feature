@@ -110,7 +110,7 @@ Feature: Authenticator configuration
     And authenticator "cucumber:webservice:conjur/authn-config/db" is disabled
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::Security::RoleNotAuthorizedOnWebservice
+    Errors::Authentication::Security::RoleNotAuthorizedOnResource
     """
 
   Scenario: Nested webservice can not be configured
