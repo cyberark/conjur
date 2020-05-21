@@ -117,9 +117,9 @@ module Authentication
       def validate_security
         @validate_security.(
           webservice: webservice,
-            account: account,
-            user_id: username,
-            enabled_authenticators: @enabled_authenticators
+          account: account,
+          user_id: username,
+          enabled_authenticators: @enabled_authenticators
         )
 
         @logger.debug(LogMessages::Authentication::Security::SecurityValidated.new.to_s)
@@ -133,16 +133,16 @@ module Authentication
       def audit_success
         @audit_event.(
           authenticator_input: @authenticator_input,
-            success: true,
-            message: nil
+          success: true,
+          message: nil
         )
       end
 
       def audit_failure(err)
         @audit_event.(
           authenticator_input: @authenticator_input,
-            success: false,
-            message: err.message
+          success: false,
+          message: err.message
         )
       end
 
