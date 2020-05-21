@@ -3,6 +3,8 @@
 require 'types'
 
 module Authentication
+
+  # :reek:InstanceVariableAssumption
   class AuthenticatorInput < ::Dry::Struct
 
     attribute :authenticator_name, ::Types::NonEmptyString
@@ -26,6 +28,13 @@ module Authentication
         authenticator_name: @authenticator_name,
         service_id:         @service_id
       )
+    end
+
+    # :reek:NilCheck
+    def role
+      return nil if @username.nil?
+
+      ::Role.by_login(@username, account: @account)
     end
   end
 end

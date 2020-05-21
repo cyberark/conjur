@@ -3,7 +3,10 @@
 module Audit
   class Event
     class Authn < Event
+      abstract_field :success_message, :failure_message, :operation
+
       field :role, :authenticator_name, service: nil
+      
       facility Syslog::LOG_AUTHPRIV
       message_id 'authn'
       can_fail
@@ -12,17 +15,7 @@ module Audit
         super.deep_merge \
           SDID::SUBJECT => { role: role_id },
           SDID::AUTH => auth_sd,
-          SDID::ACTION => { operation: 'authenticate' }
-      end
-
-      def success_message
-        format "%s successfully authenticated with authenticator %s%s",
-          role_id, authenticator_name, service_message_part
-      end
-
-      def failure_message
-        format "%s failed to authenticate with authenticator %s%s",
-          role_id, authenticator_name, service_message_part
+          SDID::ACTION => { operation: operation }
       end
 
       protected

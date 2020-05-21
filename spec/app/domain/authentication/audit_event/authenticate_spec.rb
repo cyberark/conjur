@@ -2,12 +2,13 @@
 
 require 'spec_helper'
 
-describe Audit::Event::Authn do
+describe Authentication::AuditEvent::Authenticate do
   subject(:event) do
-    Audit::Event::Authn.new \
+    Authentication::AuditEvent::Authenticate.new(
       role: the_user,
       authenticator_name: 'authn-test',
       service: service
+    )
   end
 
   context 'when successful' do
@@ -36,12 +37,13 @@ describe Audit::Event::Authn do
 
   describe 'on failure' do
     subject(:event) do
-      Audit::Event::Authn.new \
+      Authentication::AuditEvent::Authenticate.new(
         role: the_user,
         authenticator_name: 'authn-test',
         service: service,
         success: false,
         error_message: 'test error'
+      )
     end
 
     it 'sends a warning message' do

@@ -11,7 +11,7 @@ module Authentication
   Login ||= CommandClass.new(
     dependencies: {
       validate_security:      ::Authentication::Security::ValidateSecurity.new,
-      audit_event:            ::Authentication::AuditEvent.new,
+      log_audit_event:        ::Authentication::LogAuditEvent.new,
       role_cls:               ::Role
     },
     inputs:       %i(authenticator_input authenticators enabled_authenticators)
@@ -56,7 +56,8 @@ module Authentication
     end
 
     def audit_success
-      @audit_event.(
+      @log_audit_event.(
+        event: ::Authentication::AuditEvent::Authenticate,
         authenticator_input: @authenticator_input,
         success: true,
         message: nil
@@ -64,7 +65,8 @@ module Authentication
     end
 
     def audit_failure(err)
-      @audit_event.(
+      @log_audit_event.(
+        event: ::Authentication::AuditEvent::Authenticate,
         authenticator_input: @authenticator_input,
         success: false,
         message: err.message
