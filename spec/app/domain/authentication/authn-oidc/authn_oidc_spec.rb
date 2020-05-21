@@ -62,6 +62,16 @@ RSpec.describe 'Authentication::Oidc' do
     mock_authenticate_oidc_request(request_body_data: "id_token=")
   end
 
+  let(:audit_success) { true }
+  let(:mocked_log_audit_event) do
+    double('log_audit_event').tap do |log_audit_event|
+      expect(log_audit_event).to receive(:call).with(hash_including(
+        event: ::Authentication::AuditEvent::Authenticate,
+        success: audit_success
+        ))
+    end
+  end
+
   #  ____  _   _  ____    ____  ____  ___  ____  ___
   # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
@@ -95,7 +105,8 @@ RSpec.describe 'Authentication::Oidc' do
             validate_security: mocked_security_validator,
             validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
-            verify_and_decode_token: mocked_decode_and_verify_id_token
+            verify_and_decode_token: mocked_decode_and_verify_id_token,
+            log_audit_event: mocked_log_audit_event
           ).call(
             authenticator_input: input_
           )
@@ -119,6 +130,7 @@ RSpec.describe 'Authentication::Oidc' do
       end
 
       context "with no id token username field in id token" do
+        let(:audit_success) { false }
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc',
@@ -136,7 +148,8 @@ RSpec.describe 'Authentication::Oidc' do
             validate_security: mocked_security_validator,
             validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
-            verify_and_decode_token: mocked_decode_and_verify_id_token
+            verify_and_decode_token: mocked_decode_and_verify_id_token,
+            log_audit_event: mocked_log_audit_event
           ).call(
             authenticator_input: input_
           )
@@ -152,6 +165,7 @@ RSpec.describe 'Authentication::Oidc' do
       end
 
       context "with empty id token username value in id token" do
+        let(:audit_success) { false }
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc',
@@ -169,7 +183,8 @@ RSpec.describe 'Authentication::Oidc' do
             validate_security: mocked_security_validator,
             validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
-            verify_and_decode_token: mocked_decode_and_verify_id_token
+            verify_and_decode_token: mocked_decode_and_verify_id_token,
+            log_audit_event: mocked_log_audit_event
           ).call(
             authenticator_input: input_
           )
@@ -185,6 +200,8 @@ RSpec.describe 'Authentication::Oidc' do
       end
 
       context "with no id_token field in the request" do
+        let(:audit_success) { false }
+
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc',
@@ -202,7 +219,8 @@ RSpec.describe 'Authentication::Oidc' do
             validate_security: mocked_security_validator,
             validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
-            verify_and_decode_token: mocked_decode_and_verify_id_token
+            verify_and_decode_token: mocked_decode_and_verify_id_token,
+            log_audit_event: mocked_log_audit_event
           ).call(
             authenticator_input: input_
           )
@@ -214,6 +232,7 @@ RSpec.describe 'Authentication::Oidc' do
       end
 
       context "with an empty id_token field in the request" do
+        let(:audit_success) { false }
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc',
@@ -231,7 +250,8 @@ RSpec.describe 'Authentication::Oidc' do
             validate_security: mocked_security_validator,
             validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
-            verify_and_decode_token: mocked_decode_and_verify_id_token
+            verify_and_decode_token: mocked_decode_and_verify_id_token,
+            log_audit_event: mocked_log_audit_event
           ).call(
             authenticator_input: input_
           )

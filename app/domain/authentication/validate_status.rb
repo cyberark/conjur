@@ -19,7 +19,7 @@ module Authentication
       validate_webservice_exists:      ::Authentication::Security::ValidateWebserviceExists.new,
       role_class:                      ::Role,
       implemented_authenticators:      Authentication::InstalledAuthenticators.authenticators(ENV),
-      audit_event:                     AuditEvent.new
+      log_audit_event:                 ::Authentication::LogAuditEvent.new
     },
     inputs:       %i(authenticator_status_input enabled_authenticators)
   ) do
@@ -54,17 +54,17 @@ module Authentication
     def validate_user_has_access_to_status_webservice
       @validate_webservice_access.(
         webservice: @authenticator_status_input.status_webservice,
-          account: @authenticator_status_input.account,
-          user_id: @authenticator_status_input.username,
-          privilege: 'read'
+        account: @authenticator_status_input.account,
+        user_id: @authenticator_status_input.username,
+        privilege: 'read'
       )
     end
 
     def validate_webservice_is_whitelisted
       @validate_whitelisted_webservice.(
         webservice: authenticator_webservice,
-          account: @authenticator_status_input.account,
-          enabled_authenticators: @enabled_authenticators
+        account: @authenticator_status_input.account,
+        enabled_authenticators: @enabled_authenticators
       )
     end
 
@@ -77,23 +77,25 @@ module Authentication
     def validate_authenticator_webservice_exists
       @validate_webservice_exists.(
         webservice: authenticator_webservice,
-          account: @authenticator_status_input.account
+        account: @authenticator_status_input.account
       )
     end
 
     def audit_success
-      @audit_event.(
+      @log_audit_event.(
+        event: ::Authentication::AuditEvent::ValidateStatus,
         authenticator_input: @authenticator_status_input,
-          success: true,
-          message: nil
+        success: true,
+        message: nil
       )
     end
 
     def audit_failure(err)
-      @audit_event.(
+      @log_audit_event.(
+        event: ::Authentication::AuditEvent::ValidateStatus,
         authenticator_input: @authenticator_status_input,
-          success: false,
-          message: err.message
+        success: false,
+        message: err.message
       )
     end
 

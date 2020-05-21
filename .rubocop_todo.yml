@@ -23,7 +23,6 @@ Layout/AlignHash:
 Layout/AlignParameters:
   Exclude:
     - 'app/controllers/secrets_controller.rb'
-    - 'app/domain/authentication/audit_log.rb'
     - 'app/domain/authentication/authn_ldap/authenticator.rb'
     - 'app/domain/rotation/conjur_facade.rb'
     - 'app/domain/rotation/master_rotator.rb'
