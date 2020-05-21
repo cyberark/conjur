@@ -124,5 +124,5 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
     Then it is unauthorized
     And The following appears in the audit log after my savepoint:
     """
-    cucumber:user:alice failed to authenticate with authenticator authn-ldap service cucumber:webservice:conjur/authn-ldap/test
+    cucumber:user:alice failed to login with authenticator authn-ldap service cucumber:webservice:conjur/authn-ldap/test
     """

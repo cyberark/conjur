@@ -80,7 +80,7 @@ RSpec.describe Authentication::ValidateStatus do
   def mock_log_audit_event(success: true)
     double('log_audit_event').tap do |log_audit_event|
       expect(log_audit_event).to receive(:call).with(hash_including(
-        event: ::Authentication::AuditEvent::Authenticate,
+        event: ::Authentication::AuditEvent::ValidateStatus,
         success: success
         ))
     end

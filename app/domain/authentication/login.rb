@@ -57,7 +57,7 @@ module Authentication
 
     def audit_success
       @log_audit_event.(
-        event: ::Authentication::AuditEvent::Authenticate,
+        event: ::Authentication::AuditEvent::Login,
         authenticator_input: @authenticator_input,
         success: true,
         message: nil
@@ -66,7 +66,7 @@ module Authentication
 
     def audit_failure(err)
       @log_audit_event.(
-        event: ::Authentication::AuditEvent::Authenticate,
+        event: ::Authentication::AuditEvent::Login,
         authenticator_input: @authenticator_input,
         success: false,
         message: err.message

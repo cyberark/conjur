@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - Change ActiveSupport to use sha1 instead of md5
+- Authentication audit events now use separate operations for `authenticate`,
+  `login`, and `validate-status` workflows
+  ((cyberark/conjur#1054)[https://github.com/cyberark/conjur/issues/1054]).
 
 ## [1.6.0] - 2020-04-14
 
