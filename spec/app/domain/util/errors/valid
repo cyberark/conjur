@@ -1,0 +1,24 @@
+
+# frozen_string_literal: true
+
+require 'util/trackable_error_class'
+
+module Errors
+  module Conjur
+
+    RequiredResourceMissing = Util::TrackableErrorClass.new(
+      msg:  "Missing required resource: {0-resource-name}",
+      code: "CONJ00001E"
+    )
+
+    RequiredSecretMissing = Util::TrackableErrorClass.new(
+      msg:  "Missing value for resource: {0-resource-name}",
+      code: "CONJ00002E"
+    )
+
+    RequiredSecretMissing = Util::TrackableErrorClass.new(
+      msg:  "Missing value for resource: {0-resource-name}",
+      code: "CONJ00004E"
+    )
+  end
+end
