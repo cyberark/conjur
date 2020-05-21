@@ -323,6 +323,19 @@ root@9feae5e5e001:/src/conjur-server# cucumber --profile authenticators    # run
 root@9feae5e5e001:/src/conjur-server# cucumber --profile api cucumber/api/features/resource_list.feature
 ```
 
+### Rake Tasks
+
+Rake tasks are easy to run from within the `conjur` server container:
+
+- Get the next available error code from [errors](./app/domain/errors.rb)
+  ```sh-session
+  root@aa8bc35ba7f4:/src/conjur-server# rake error_code:next
+  ```
+    The output will be similar to
+  ```sh-session
+  The next available error number is 63 ( CONJ00063E )
+  ```
+
 ## Pull Request Workflow
 
 1. [Fork the project](https://help.github.com/en/github/getting-started-with-github/fork-a-repo)
