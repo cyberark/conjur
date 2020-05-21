@@ -57,18 +57,39 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
   let(:pod_request) { double("PodRequest", k8s_host: k8s_host,
                                            spiffe_id: spiffe_id) }
 
+  let(:kubectl_exec_instance) { double("MockKubectlExec") }
+  let(:kubectl_exec) do
+    double('kubectl_exec').tap do |kubectl_exec|
+      allow(kubectl_exec).to receive(:new)
+        .with(no_args)
+        .and_return(kubectl_exec_instance)
+    end
+  end
+
+  let(:resource_class) do
+    double(Resource).tap do |resource_class|
+      allow(resource_class).to receive(:[])
+      .with(host_id)
+      .and_return(host)
+    end
+  end
+
+  let(:conjur_ca_repo) do
+    double(Repos::ConjurCA).tap do |conjur_ca_repo|
+      allow(conjur_ca_repo).to receive(:ca)
+      .with(webservice_resource_id)
+      .and_return(ca_for_webservice)
+    end
+  end
+
   let(:validate_pod_request) { double("ValidatePodRequest") }
 
-  let(:dependencies) { { resource_class: double(),
-                         conjur_ca_repo: double(),
-                         k8s_object_lookup: double(),
-                         kubectl_exec: double(),
+  let(:dependencies) { { resource_class: resource_class,
+                         conjur_ca_repo: conjur_ca_repo,
+                         kubectl_exec: kubectl_exec,
                          validate_pod_request: validate_pod_request } }
 
   before(:each) do
-    allow(Resource).to receive(:[])
-      .with(host_id)
-      .and_return(host)
 
     allow(Authentication::Webservice).to receive(:new)
       .with(hash_including(
@@ -76,10 +97,6 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
         authenticator_name: 'authn-k8s',
         service_id: service_id))
       .and_return(webservice)
-
-    allow(Repos::ConjurCA).to receive(:ca)
-      .with(webservice_resource_id)
-      .and_return(ca_for_webservice)
 
     allow(ca_for_webservice).to receive(:signed_cert)
       .with(smart_csr_mock, hash_including(
@@ -113,10 +130,6 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
                            spiffe_id: spiffe_id))
       .and_return(pod_request)
 
-    allow(Authentication::AuthnK8s::ValidatePodRequest)
-      .to receive(:new)
-      .and_return(validate_pod_request)
-
       allow(host_annotation_2).to receive(:values)
         .and_return({ name: k8s_authn_container_name })
       allow(host_annotation_2).to receive(:[])
@@ -126,8 +139,9 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
     allow(smart_csr_mock).to receive(:common_name=)
   end
 
-  subject(:injector) { Authentication::AuthnK8s::InjectClientCert
-    .new(dependencies: dependencies) }
+  subject(:injector) do
+     Authentication::AuthnK8s::InjectClientCert.new(**dependencies)
+  end
 
   context "invocation" do
     context "when csr is checked" do
@@ -160,7 +174,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
       allow(validate_pod_request)
         .to receive(:call)
-        .with(no_args)
+        .with(hash_including(pod_request: anything))
         .and_raise(pod_validation_error)
 
       expect { injector.(conjur_account: account,
@@ -170,18 +184,13 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
     end
 
     context "when cert is being installed" do
-      let (:kubectl_exec_instance) { double("MockKubectlExec") }
       let (:copy_response) { double("MockCopyrespoonse") }
 
       before :each do
         allow(validate_pod_request)
           .to receive(:call)
-          .with(no_args)
+          .with(hash_including(pod_request: anything))
           .and_return(nil)
-
-        allow(Authentication::AuthnK8s::KubectlExec)
-          .to receive(:new)
-          .and_return(kubectl_exec_instance)
 
         allow(copy_response).to receive(:[])
           .with(:error)
