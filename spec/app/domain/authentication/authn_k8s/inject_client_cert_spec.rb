@@ -16,7 +16,6 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
   let(:csr) { "CSR" }
 
   let(:host_id) { "HostId" }
-  let(:host_id) { "HostId" }
   let(:host_role) { double("HostRole", id: host_id) }
 
   let(:k8s_authn_container_name) { 'kubernetes/authentication-container-name' }
@@ -26,6 +25,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
   let(:host_annotations) { [ host_annotation_1, host_annotation_2 ] }
 
   let(:host) { double("Host", role: host_role,
+                              identifier: host_id,
                               annotations: host_annotations) }
 
   let(:webservice_resource_id) { "MockWebserviceResourceId" }
@@ -87,7 +87,18 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
   let(:dependencies) { { resource_class: resource_class,
                          conjur_ca_repo: conjur_ca_repo,
                          kubectl_exec: kubectl_exec,
-                         validate_pod_request: validate_pod_request } }
+                         validate_pod_request: validate_pod_request,
+                         log_audit_event: mocked_log_audit_event } }
+
+  let(:audit_success) { true }
+  let(:mocked_log_audit_event) do
+    double('log_audit_event').tap do |log_audit_event|
+      expect(log_audit_event).to receive(:call).with(hash_including(
+        event: ::Authentication::AuthnK8s::AuditEvent::InjectClientCert,
+        success: audit_success
+      ))
+    end
+  end
 
   before(:each) do
 
@@ -110,7 +121,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
       .to receive(:from_csr)
       .with(hash_including(account: account,
                            service_name: service_id,
-                           csr: smart_csr_mock))
+                           csr: anything))
       .and_return(k8s_host)
 
     allow(Util::OpenSsl::X509::SmartCsr)
@@ -152,35 +163,42 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           .and_return(nil)
       end
 
-      it "throws CSRIsMissingSpiffeId if smart_csr.spiffe_id is not defined" do
-        error_type = Errors::Authentication::AuthnK8s::CSRIsMissingSpiffeId
-        missing_spiffe_id_error = /CSR must contain SPIFFE ID SAN/
+      context "when smart_csr.spiffe_id is not defined" do
+        let(:audit_success) { false }
+        it "throws CSRIsMissingSpiffeId" do
+          error_type = Errors::Authentication::AuthnK8s::CSRIsMissingSpiffeId
+          missing_spiffe_id_error = /CSR must contain SPIFFE ID SAN/
 
-        allow(Util::OpenSsl::X509::SmartCsr)
-          .to receive(:new)
-          .with(csr)
-          .and_return(bad_spiffe_smart_csr_mock)
-        allow(bad_spiffe_smart_csr_mock).to receive(:common_name=)
+          allow(Util::OpenSsl::X509::SmartCsr)
+            .to receive(:new)
+            .with(csr)
+            .and_return(bad_spiffe_smart_csr_mock)
+          allow(bad_spiffe_smart_csr_mock).to receive(:common_name=)
 
-        expect { injector.(conjur_account: account,
-                           service_id: service_id,
-                           csr: csr,
-                           host_id_prefix: host_id_prefix) }.to raise_error(error_type, missing_spiffe_id_error)
+          expect { injector.(conjur_account: account,
+                            service_id: service_id,
+                            csr: csr,
+                            host_id_prefix: host_id_prefix) }.to raise_error(error_type, missing_spiffe_id_error)
+        end
       end
     end
 
-    it "raises RuntimeError when validate_pod_request fails" do
-      pod_validation_error = "PodValidationFailed"
+    context "when validate_pod_request fails" do
+      let(:audit_success) { false }
 
-      allow(validate_pod_request)
-        .to receive(:call)
-        .with(hash_including(pod_request: anything))
-        .and_raise(pod_validation_error)
+      it "raises RuntimeError" do
+        pod_validation_error = "PodValidationFailed"
 
-      expect { injector.(conjur_account: account,
-                         service_id: service_id,
-                         csr: csr,
-                         host_id_prefix: host_id_prefix) }.to raise_error(RuntimeError, pod_validation_error)
+        allow(validate_pod_request)
+          .to receive(:call)
+          .with(hash_including(pod_request: anything))
+          .and_raise(pod_validation_error)
+
+        expect { injector.(conjur_account: account,
+                          service_id: service_id,
+                          csr: csr,
+                          host_id_prefix: host_id_prefix) }.to raise_error(RuntimeError, pod_validation_error)
+      end
     end
 
     context "when cert is being installed" do
@@ -207,51 +225,63 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           .and_return(copy_response)
       end
 
-      it "rethrows if copy operation raises runtime error" do
-        expected_error_text = "ExpectedCopyError"
+      context "when copy operation raises runtime error" do
+        let(:audit_success) { false }
+        
+        it "rethrows" do
+          expected_error_text = "ExpectedCopyError"
 
-        allow(kubectl_exec_instance).to receive(:copy)
-          .with(hash_including(
-            pod_namespace: spiffe_namespace,
-            pod_name: spiffe_name,
-            path: "/etc/conjur/ssl/client.pem",
-            content: webservice_signed_cert_pem,
-            mode: 0o644))
-          .and_raise(RuntimeError.new(expected_error_text))
+          allow(kubectl_exec_instance).to receive(:copy)
+            .with(hash_including(
+              pod_namespace: spiffe_namespace,
+              pod_name: spiffe_name,
+              path: "/etc/conjur/ssl/client.pem",
+              content: webservice_signed_cert_pem,
+              mode: 0o644))
+            .and_raise(RuntimeError.new(expected_error_text))
 
-        expect { injector.(conjur_account: account,
-                           service_id: service_id,
-                           csr: csr,
-                           host_id_prefix: host_id_prefix) }.to raise_error(RuntimeError, expected_error_text)
+          expect { injector.(conjur_account: account,
+                            service_id: service_id,
+                            csr: csr,
+                            host_id_prefix: host_id_prefix) }.to raise_error(RuntimeError, expected_error_text)
+        end
       end
 
-      it "throws CertInstallationError if copy response error stream is not empty" do
-        error_type = Errors::Authentication::AuthnK8s::CertInstallationError
-        expected_error_text = "ExpectedCopyError"
-        expected_full_error_text = /CONJ00027E.*ExpectedCopyError/
+      context "when copy response error stream is not empty" do
+        let(:audit_success) { false}
 
-        allow(copy_response).to receive(:[])
-          .with(:error)
-          .and_return(expected_error_text)
+        it "throws CertInstallationError" do
+          error_type = Errors::Authentication::AuthnK8s::CertInstallationError
+          expected_error_text = "ExpectedCopyError"
+          expected_full_error_text = /CONJ00027E.*ExpectedCopyError/
 
-        expect { injector.(conjur_account: account,
-                           service_id: service_id,
-                           csr: csr,
-                           host_id_prefix: host_id_prefix) }.to raise_error(error_type, expected_full_error_text)
+          allow(copy_response).to receive(:[])
+            .with(:error)
+            .and_return(expected_error_text)
+
+          expect { injector.(conjur_account: account,
+                            service_id: service_id,
+                            csr: csr,
+                            host_id_prefix: host_id_prefix) }.to raise_error(error_type, expected_full_error_text)
+        end
       end
 
-      it "throws CertInstallationError if copy response error stream is just whitespace" do
-        error_type = Errors::Authentication::AuthnK8s::CertInstallationError
-        expected_full_error_text = /CONJ00027E.*The server returned a blank error message/
+      context "when copy response error stream is just whitespace" do
+        let(:audit_success) { false }
 
-        allow(copy_response).to receive(:[])
-          .with(:error)
-          .and_return("\n   \n")
+        it "throws CertInstallationError" do
+          error_type = Errors::Authentication::AuthnK8s::CertInstallationError
+          expected_full_error_text = /CONJ00027E.*The server returned a blank error message/
 
-        expect { injector.(conjur_account: account,
-                           service_id: service_id,
-                           csr: csr,
-                           host_id_prefix: host_id_prefix) }.to raise_error(error_type, expected_full_error_text)
+          allow(copy_response).to receive(:[])
+            .with(:error)
+            .and_return("\n   \n")
+
+          expect { injector.(conjur_account: account,
+                            service_id: service_id,
+                            csr: csr,
+                            host_id_prefix: host_id_prefix) }.to raise_error(error_type, expected_full_error_text)
+        end
       end
 
       context "and is successfully copied" do

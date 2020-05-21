@@ -24,6 +24,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   `login`, and `validate-status` workflows
   ((cyberark/conjur#1054)[https://github.com/cyberark/conjur/issues/1054]).
 
+### Added
+- The Kubernetes authentication '/inject-client-cert` endpoint now generates
+  an authentication audit event with the `k8s-inject-client-certificate` operation
+  ([cyberark/conjur#1538](https://github.com/cyberark/conjur/issues/1538)).
+
 ## [1.6.0] - 2020-04-14
 
 ### Changed
