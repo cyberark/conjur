@@ -15,7 +15,6 @@ more about the current state of the features, please see the official
 |- [Azure authenticator](authenticators/authn_azure/authn_azure_solution_design.md)|January 30, 2020|
 |- [Authenticator Status Check](authenticators/authenticators-status)|June 26, 2019|
 |- [Authenticator Whitelist API](authenticators/authenticator_whitelist_api.md)|January 07, 2020|
-|[Audit design](./audit.md)|June 6, 2018|
 |[Rotators design](./ROTATORS.md)|July 12, 2018|
 |[Enterprise migration design](./MIGRATION.md)|July 30, 2018|
 |[Certificate signing design](./CERTIFICATE_SIGNING.md)|August 31,2018|
