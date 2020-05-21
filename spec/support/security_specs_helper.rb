@@ -106,30 +106,42 @@ shared_context "security mocks" do
 end
 
 shared_examples_for "raises an error when security validation fails" do
-  it 'raises an error when security validation fails' do
-    allow(mocked_security_validator).to(
-      receive(:call).and_raise('FAKE_SECURITY_ERROR')
-    )
+  context 'when security validation fails' do
+    let (:audit_success) { false }
 
-    expect { subject }.to raise_error( /FAKE_SECURITY_ERROR/ )
+    it 'raises an error' do
+      allow(mocked_security_validator).to(
+        receive(:call).and_raise('FAKE_SECURITY_ERROR')
+      )
+
+      expect { subject }.to raise_error( /FAKE_SECURITY_ERROR/ )
+    end
   end
 end
 
 shared_examples_for "raises an error when origin validation fails" do
-  it "raises an error when origin validation fails" do
-    allow(mocked_origin_validator).to receive(:call)
-                                        .and_raise('FAKE_ORIGIN_ERROR')
+  context 'when origin validation fails' do
+    let(:audit_success) { false }
+    
+    it "raises an error" do
+      allow(mocked_origin_validator).to receive(:call)
+                                          .and_raise('FAKE_ORIGIN_ERROR')
 
-    expect { subject }.to raise_error( /FAKE_ORIGIN_ERROR/ )
+      expect { subject }.to raise_error( /FAKE_ORIGIN_ERROR/ )
+    end
   end
 end
 
 shared_examples_for "raises an error when account validation fails" do
-  it 'raises an error when account validation fails' do
-    allow(mocked_account_validator).to(
-      receive(:call).and_raise('ACCOUNT_NOT_EXIST_ERROR')
-    )
+  context 'when account validation fails' do
+    let(:audit_success) { false }
 
-    expect { subject }.to raise_error( /ACCOUNT_NOT_EXIST_ERROR/ )
+    it 'raises an error' do
+      allow(mocked_account_validator).to(
+        receive(:call).and_raise('ACCOUNT_NOT_EXIST_ERROR')
+      )
+
+      expect { subject }.to raise_error( /ACCOUNT_NOT_EXIST_ERROR/ )
+    end
   end
 end

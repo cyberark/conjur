@@ -50,25 +50,33 @@ shared_examples_for(
   "it fails when variable is missing or has no value"
 ) do |variable|
 
-  it "fails when variable is missing" do
-    allow(Resource).to(
-      receive(:[]).with(
-        /#{account}:variable:conjur\/#{authenticator_name}\/#{service}\/#{variable}/
-      ).and_return(nil)
-    )
+  context 'when variable is missing' do
+    let(:audit_success) { false }
 
-    expect { subject }.to raise_error(Errors::Conjur::RequiredResourceMissing)
+    it "fails" do
+      allow(Resource).to(
+        receive(:[]).with(
+          /#{account}:variable:conjur\/#{authenticator_name}\/#{service}\/#{variable}/
+        ).and_return(nil)
+      )
+
+      expect { subject }.to raise_error(Errors::Conjur::RequiredResourceMissing)
+    end
   end
 
-  it "fails when variable has no value" do
-    allow(Resource).to(
-      receive(:[]).with(
-        /#{account}:variable:conjur\/#{authenticator_name}\/#{service}\/#{variable}/
-      ).and_return(resource_without_value)
-    )
+  context 'when variable has no value' do
+    let(:audit_success) { false }
 
-    expect { subject }.to(
-      raise_error(Errors::Conjur::RequiredSecretMissing)
-    )
+    it "fails" do
+      allow(Resource).to(
+        receive(:[]).with(
+          /#{account}:variable:conjur\/#{authenticator_name}\/#{service}\/#{variable}/
+        ).and_return(resource_without_value)
+      )
+
+      expect { subject }.to(
+        raise_error(Errors::Conjur::RequiredSecretMissing)
+      )
+    end
   end
 end

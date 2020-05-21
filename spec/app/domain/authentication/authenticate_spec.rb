@@ -63,6 +63,20 @@ RSpec.describe 'Authentication::Authenticate' do
     double('TokenFactory', signed_token: a_new_token)
   end
 
+  ####################################
+  # AuditEvent double
+  ####################################
+
+  let(:audit_success) { true }
+  let(:mocked_log_audit_event) do
+    double('log_audit_event').tap do |log_audit_event|
+      expect(log_audit_event).to receive(:call).with(hash_including(
+        event: ::Authentication::AuditEvent::Authenticate,
+        success: audit_success
+        ))
+    end
+  end
+
   #  ____  _   _  ____    ____  ____  ___  ____  ___
   # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
@@ -70,6 +84,7 @@ RSpec.describe 'Authentication::Authenticate' do
 
 
   context "An unavailable authenticator" do
+    let(:audit_success) { false }
     subject do
       input_ = Authentication::AuthenticatorInput.new(
         authenticator_name: 'AUTHN-MISSING',
@@ -82,7 +97,8 @@ RSpec.describe 'Authentication::Authenticate' do
       )
 
       Authentication::Authenticate.new(
-        token_factory: token_factory
+        token_factory: token_factory,
+        log_audit_event: mocked_log_audit_event
       ).call(
         authenticator_input:    input_,
         authenticators:         authenticators,
@@ -99,6 +115,7 @@ RSpec.describe 'Authentication::Authenticate' do
 
   context "An available authenticator" do
     context "that receives invalid credentials" do
+      let(:audit_success) { false }
       subject do
         input_ = Authentication::AuthenticatorInput.new(
           authenticator_name: 'authn-always-fail',
@@ -111,7 +128,8 @@ RSpec.describe 'Authentication::Authenticate' do
         )
 
         Authentication::Authenticate.new(
-          token_factory: token_factory
+          token_factory: token_factory,
+          log_audit_event: mocked_log_audit_event
         ).call(
           authenticator_input:    input_,
           authenticators:         authenticators,
@@ -127,6 +145,8 @@ RSpec.describe 'Authentication::Authenticate' do
     end
 
     context "that receives valid credentials" do
+      let(:audit_success) { true }
+
       subject do
         input_ = Authentication::AuthenticatorInput.new(
           authenticator_name: 'authn-always-pass',
@@ -139,7 +159,8 @@ RSpec.describe 'Authentication::Authenticate' do
         )
 
         Authentication::Authenticate.new(
-          token_factory: token_factory
+          token_factory: token_factory,
+          log_audit_event: mocked_log_audit_event
         ).call(
           authenticator_input:    input_,
           authenticators:         authenticators,
@@ -151,22 +172,30 @@ RSpec.describe 'Authentication::Authenticate' do
         expect(subject).to equal(a_new_token)
       end
 
-      it "raises an error when security fails" do
-        allow(mocked_security_validator).to receive(:call)
-                                              .and_raise('FAKE_SECURITY_ERROR')
+      context "when security fails" do
+        let(:audit_success) { false }
 
-        expect { subject }.to raise_error(
-                                /FAKE_SECURITY_ERROR/
-                              )
+        it "raises an error" do
+          allow(mocked_security_validator).to receive(:call)
+                                                .and_raise('FAKE_SECURITY_ERROR')
+
+          expect { subject }.to raise_error(
+                                  /FAKE_SECURITY_ERROR/
+                                )
+        end
       end
 
-      it "raises an error when origin validation fails" do
-        allow(mocked_origin_validator).to receive(:call)
-                                            .and_raise('FAKE_ORIGIN_ERROR')
+      context "when origin validation fails" do
+        let(:audit_success) { false }
 
-        expect { subject }.to raise_error(
-                                /FAKE_ORIGIN_ERROR/
-                              )
+        it "raises an error" do
+          allow(mocked_origin_validator).to receive(:call)
+                                              .and_raise('FAKE_ORIGIN_ERROR')
+
+          expect { subject }.to raise_error(
+                                  /FAKE_ORIGIN_ERROR/
+                                )
+        end
       end
     end
   end
