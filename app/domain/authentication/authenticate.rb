@@ -22,8 +22,8 @@ module Authentication
     def call
       validate_authenticator_exists
       validate_security
-      validate_credentials
       validate_origin
+      validate_credentials
       audit_success
       new_token
     rescue => e
