@@ -17,6 +17,9 @@ module Authentication
     inputs:       %i(authenticator_input authenticators enabled_authenticators)
   ) do
 
+    extend Forwardable
+    def_delegators :@authenticator_input, :authenticator_name, :account, :username, :webservice
+
     def call
       validate_authenticator_exists
       validate_security
@@ -31,7 +34,7 @@ module Authentication
     private
 
     def authenticator
-      @authenticator = @authenticators[@authenticator_input.authenticator_name]
+      @authenticator = @authenticators[authenticator_name]
     end
 
     def key
@@ -39,7 +42,7 @@ module Authentication
     end
 
     def validate_authenticator_exists
-      raise Err::AuthenticatorNotFound, @authenticator_input.authenticator_name unless authenticator
+      raise Err::AuthenticatorNotFound, authenticator_name unless authenticator
     end
 
     def validate_credentials
@@ -48,7 +51,7 @@ module Authentication
 
     def validate_security
       @validate_security.(
-        webservice: @authenticator_input.webservice,
+        webservice: webservice,
         account: account,
         user_id: username,
         enabled_authenticators: @enabled_authenticators
@@ -82,14 +85,6 @@ module Authentication
 
     def role
       @role_cls.by_login(username, account: account)
-    end
-
-    def username
-      @authenticator_input.username
-    end
-
-    def account
-      @authenticator_input.account
     end
   end
 end

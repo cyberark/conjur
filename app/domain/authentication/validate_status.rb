@@ -24,6 +24,9 @@ module Authentication
     inputs:       %i(authenticator_status_input enabled_authenticators)
   ) do
 
+    extend Forwardable
+    def_delegators :@authenticator_status_input, :authenticator_name, :account, :username, :webservice, :status_webservice
+
     def call
       validate_authenticator_exists
       validate_authenticator_implements_status_check
@@ -44,26 +47,26 @@ module Authentication
     private
 
     def validate_authenticator_exists
-      raise Err::AuthenticatorNotFound, @authenticator_status_input.authenticator_name unless authenticator
+      raise Err::AuthenticatorNotFound, authenticator_name unless authenticator
     end
 
     def validate_authenticator_implements_status_check
-      raise Err::StatusNotImplemented, @authenticator_status_input.authenticator_name unless authenticator.class.method_defined?(:status)
+      raise Err::StatusNotImplemented, authenticator_name unless authenticator.class.method_defined?(:status)
     end
 
     def validate_user_has_access_to_status_webservice
       @validate_webservice_access.(
-        webservice: @authenticator_status_input.status_webservice,
-        account: @authenticator_status_input.account,
-        user_id: @authenticator_status_input.username,
+        webservice: status_webservice,
+        account: account,
+        user_id: username,
         privilege: 'read'
       )
     end
 
     def validate_webservice_is_whitelisted
       @validate_whitelisted_webservice.(
-        webservice: authenticator_webservice,
-        account: @authenticator_status_input.account,
+        webservice: webservice,
+        account: account,
         enabled_authenticators: @enabled_authenticators
       )
     end
@@ -76,8 +79,8 @@ module Authentication
 
     def validate_authenticator_webservice_exists
       @validate_webservice_exists.(
-        webservice: authenticator_webservice,
-        account: @authenticator_status_input.account
+        webservice: webservice,
+        account: account
       )
     end
 
@@ -103,11 +106,7 @@ module Authentication
       # The `@implemented_authenticators` map includes all authenticator classes that are implemented in
       # Conjur (`Authentication::AuthnOidc::Authenticator`, `Authentication::AuthnLdap::Authenticator`, etc.).
 
-      @authenticator = @implemented_authenticators[@authenticator_status_input.authenticator_name]
-    end
-
-    def authenticator_webservice
-      @authenticator_status_input.webservice
+      @authenticator = @implemented_authenticators[authenticator_name]
     end
   end
 end
