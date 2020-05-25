@@ -25,7 +25,7 @@ module Authentication
   ) do
 
     extend Forwardable
-    def_delegators :@authenticator_status_input, :authenticator_name, :account, :username, :webservice, :status_webservice
+    def_delegators :@authenticator_status_input, :authenticator_name, :account, :username, :webservice, :status_webservice, :role
 
     def call
       validate_authenticator_exists
@@ -87,7 +87,9 @@ module Authentication
     def audit_success
       @log_audit_event.(
         event: ::Authentication::AuditEvent::ValidateStatus,
-        authenticator_input: @authenticator_status_input,
+        authenticator_name: authenticator_name,
+        webservice: webservice,
+        role: role,
         success: true,
         message: nil
       )
@@ -96,7 +98,9 @@ module Authentication
     def audit_failure(err)
       @log_audit_event.(
         event: ::Authentication::AuditEvent::ValidateStatus,
-        authenticator_input: @authenticator_status_input,
+        authenticator_name: authenticator_name,
+        webservice: webservice,
+        role: role,
         success: false,
         message: err.message
       )

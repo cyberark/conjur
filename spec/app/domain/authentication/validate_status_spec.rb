@@ -110,6 +110,9 @@ RSpec.describe Authentication::ValidateStatus do
 
       allow(status_input).to receive(:username)
                                .and_return(test_user_id)
+
+      allow(status_input).to receive(:role)
+                               .and_return(mock_role_class)
     end
   end
 
