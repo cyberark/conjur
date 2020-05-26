@@ -38,7 +38,7 @@ class HostFactoriesController < ApplicationController
   # Please resist the temptation to roll them all into one conditional.
 
   def validate_token
-    raise Unauthorized unless hf_token.valid?(origin: request.ip)
+    raise Unauthorized unless hf_token.valid?(origin: client_ip)
   end
 
   def hf_token

@@ -279,4 +279,8 @@ class ApplicationController < ActionController::API
   def error_code_of_exception_class cls
     cls.to_s.underscore.split('/')[-1]
   end
+
+  def client_ip
+    request.ip
+  end
 end

@@ -41,7 +41,7 @@ module BasicAuthenticator
       account:            params[:account],
       username:           username,
       credentials:        password,
-      origin:             request.ip,
+      origin:             client_ip,
       request:            request
     )
   end

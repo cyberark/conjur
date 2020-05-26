@@ -81,7 +81,7 @@ class AuthenticateController < ApplicationController
       account:            params[:account],
       username:           params[:id],
       credentials:        request.body.read,
-      origin:             request.ip,
+      origin:             client_ip,
       request:            request
     )
   end
@@ -102,7 +102,7 @@ class AuthenticateController < ApplicationController
       account:            params[:account],
       username:           nil,
       credentials:        request.body.read,
-      origin:             request.ip,
+      origin:             client_ip,
       request:            request
     )
   end
