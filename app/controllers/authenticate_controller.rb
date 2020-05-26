@@ -51,7 +51,8 @@ class AuthenticateController < ApplicationController
       authenticator_name: params[:authenticator],
       service_id: params[:service_id],
       account: params[:account],
-      username: ::Role.username_from_roleid(current_user.role_id)
+      username: ::Role.username_from_roleid(current_user.role_id),
+      client_ip: client_ip
     )
   end
 
@@ -115,7 +116,8 @@ class AuthenticateController < ApplicationController
       csr: request.body.read,
       # The host-id is split in the client where the suffix is in the CSR
       # and the prefix is in the header. This is done to maintain backwards-compatibility
-      host_id_prefix: request.headers["Host-Id-Prefix"]
+      host_id_prefix: request.headers["Host-Id-Prefix"],
+      client_ip: client_ip
     )
     head :ok
   rescue => e

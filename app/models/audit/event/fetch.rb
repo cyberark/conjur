@@ -3,7 +3,7 @@
 module Audit
   class Event
     class Fetch < Event
-      field :resource, :user, version: nil
+      field :resource, :user, :client_ip, version: nil
       can_fail
       facility Syslog::LOG_AUTH
       message_id 'fetch'
@@ -20,7 +20,8 @@ module Audit
         super.deep_merge(
           SDID::AUTH => { user: user.id },
           SDID::SUBJECT => { resource: resource.id },
-          SDID::ACTION => { operation: 'fetch' }
+          SDID::ACTION => { operation: 'fetch' },
+          SDID::CLIENT => { ip: client_ip }
         ).tap do |sd|
           sd[SDID::SUBJECT][:version] = version if version
         end

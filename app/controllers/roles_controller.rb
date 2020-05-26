@@ -73,7 +73,8 @@ class RolesController < RestController
       Audit::Event::Policy.new(
         operation: :add,
         subject: Audit::Subject::RoleMembership.new(membership.pk_hash),
-        user: current_user
+        user: current_user,
+        client_ip: client_ip
       ).log_to Audit.logger
     end
 
@@ -96,7 +97,8 @@ class RolesController < RestController
     Audit::Event::Policy.new(
       operation: :remove,
       subject: Audit::Subject::RoleMembership.new(membership.pk_hash),
-      user: current_user
+      user: current_user,
+      client_ip: client_ip
     ).log_to Audit.logger
 
     head :no_content

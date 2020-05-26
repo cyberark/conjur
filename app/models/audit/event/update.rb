@@ -3,7 +3,7 @@
 module Audit
   class Event
     class Update < Event
-      field :resource, :user
+      field :resource, :user, :client_ip
       can_fail
       severity { success ? Syslog::LOG_NOTICE : Syslog::LOG_WARNING }
       facility Syslog::LOG_AUTH
@@ -15,7 +15,8 @@ module Audit
         super.deep_merge \
           SDID::AUTH => { user: user.id },
           SDID::SUBJECT => Subject::Resource.new(resource.pk_hash).to_h,
-          SDID::ACTION => { operation: 'update' }
+          SDID::ACTION => { operation: 'update' },
+          SDID::CLIENT => { ip: client_ip }
       end
     end
   end

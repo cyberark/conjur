@@ -31,13 +31,13 @@ describe Loader::Orchestrate do
 
   def replace_policy_with(path)
     version = save_policy(path)
-    policy_action = Loader::ReplacePolicy.from_policy(version)
+    policy_action = Loader::ReplacePolicy.from_policy(version, '')
     policy_action.call
   end
 
   def modify_policy_with(path)
     version = save_policy(path)
-    policy_action = Loader::ModifyPolicy.from_policy(version)
+    policy_action = Loader::ModifyPolicy.from_policy(version, '')
     policy_action.call
   end
 

@@ -13,6 +13,8 @@ RSpec.describe Authentication::ValidateStatus do
     "authn-other"
   end
 
+  let(:mock_client_ip) { '127.0.0.1' }
+
   def authenticator_class(is_status_defined)
     double('authenticator_class').tap do |authenticator_class|
       allow(authenticator_class).to receive(:method_defined?)
@@ -113,6 +115,9 @@ RSpec.describe Authentication::ValidateStatus do
 
       allow(status_input).to receive(:role)
                                .and_return(mock_role_class)
+
+      allow(status_input).to receive(:client_ip)
+                               .and_return(mock_client_ip)
     end
   end
 

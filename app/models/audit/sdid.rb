@@ -14,5 +14,6 @@ module Audit
     AUTH = conjur_sdid 'auth'
     SUBJECT = conjur_sdid 'subject'
     ACTION = conjur_sdid 'action'
+    CLIENT = conjur_sdid 'client'
   end
 end

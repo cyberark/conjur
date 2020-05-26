@@ -7,7 +7,8 @@ describe Authentication::AuditEvent::Authenticate do
     Authentication::AuditEvent::Authenticate.new(
       role: the_user,
       authenticator_name: 'authn-test',
-      service: service
+      service: service,
+      client_ip: client_ip
     )
   end
 
@@ -28,6 +29,9 @@ describe Authentication::AuditEvent::Authenticate do
             'action@43868': {
               operation: 'authenticate',
               result: 'success'
+            },
+            'client@43868': {
+              ip: client_ip
             }
           }
         ), 'conjur'
@@ -41,6 +45,7 @@ describe Authentication::AuditEvent::Authenticate do
         role: the_user,
         authenticator_name: 'authn-test',
         service: service,
+        client_ip: client_ip,
         success: false,
         error_message: 'test error'
       )
@@ -62,6 +67,9 @@ describe Authentication::AuditEvent::Authenticate do
             'action@43868': {
               operation: 'authenticate',
               result: 'failure'
+            },
+            'client@43868': {
+              ip: client_ip
             }
           }
         ), 'conjur'
@@ -80,5 +88,6 @@ describe Authentication::AuditEvent::Authenticate do
 
   let(:logger) { instance_double Logger }
   let(:service) { double(Resource, id: 'rspec:webservice:test') }
+  let(:client_ip) { '127.0.0.1' }
   include_context("create user") { let(:login) { 'alice' } }
 end

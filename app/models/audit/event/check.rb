@@ -3,7 +3,7 @@
 module Audit
   class Event
     class Check < Event
-      field :resource, :user, :privilege, :role
+      field :resource, :user, :privilege, :role, :client_ip
       facility Syslog::LOG_AUTH
       message_id 'check'
       can_fail
@@ -12,7 +12,8 @@ module Audit
         super.deep_merge \
           SDID::AUTH => { user: user.id },
           SDID::SUBJECT => { resource: resource.id, role: role.id, privilege: privilege },
-          SDID::ACTION => { operation: 'check' }
+          SDID::ACTION => { operation: 'check' },
+          SDID::CLIENT => { ip: client_ip }
       end
 
       def message

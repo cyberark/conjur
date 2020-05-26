@@ -59,7 +59,7 @@ class RootLoader
     end
 
     def accepted_roles(policy_version)
-      policy_action = Loader::ReplacePolicy.from_policy(policy_version)
+      policy_action = Loader::ReplacePolicy.from_policy(policy_version, '')
       policy_action.call
       policy_action.new_roles.select do |role|
         %w(user host).member?(role.kind)

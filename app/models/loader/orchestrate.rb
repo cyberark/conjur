@@ -61,9 +61,10 @@ module Loader
       annotations: [ :resource_id, :name, :value ]
     }
 
-    def initialize policy_version
+    def initialize(policy_version, client_ip)
       @policy_version = policy_version
       @schemata = Schemata.new
+      @client_ip = client_ip
 
       # Transform each statement into a Loader type
       @create_records = policy_version.create_records.map do |policy_object|
@@ -112,7 +113,8 @@ module Loader
     end
 
     def emit_audit
-      policy_version.policy_log.lazy.map(&:to_audit_event).each { |event| event.log_to Audit.logger }
+      policy_version.policy_log.lazy.map { |log| log.to_audit_event(@client_ip) }
+                                    .each { |event| event.log_to Audit.logger }
     end
 
     def table_data schema = ""
@@ -387,8 +389,8 @@ module Loader
       @loader = loader
     end
 
-    def self.from_policy(policy_version)
-      CreatePolicy.new(Loader::Orchestrate.new(policy_version))
+    def self.from_policy(policy_version, client_ip)
+      CreatePolicy.new(Loader::Orchestrate.new(policy_version, client_ip))
     end
 
     def call
@@ -410,8 +412,8 @@ module Loader
       @loader = loader
     end
 
-    def self.from_policy(policy_version)
-      ReplacePolicy.new(Loader::Orchestrate.new(policy_version))
+    def self.from_policy(policy_version, client_ip)
+      ReplacePolicy.new(Loader::Orchestrate.new(policy_version, client_ip))
     end
 
     def call
@@ -437,8 +439,8 @@ module Loader
       @loader = loader
     end
 
-    def self.from_policy(policy_version)
-      ModifyPolicy.new(Loader::Orchestrate.new(policy_version))
+    def self.from_policy(policy_version, client_ip)
+      ModifyPolicy.new(Loader::Orchestrate.new(policy_version, client_ip))
     end
 
     def call

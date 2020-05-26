@@ -8,7 +8,7 @@ module Authentication
       resource_cls: ::Resource,
       audit_log: ::Audit.logger
     },
-    inputs:       %i(authenticator_name webservice role event success message)
+    inputs:       %i(authenticator_name webservice role client_ip event success message)
   ) do
 
     def call
@@ -16,6 +16,7 @@ module Authentication
 
       @event.new(
         role: @role,
+        client_ip: @client_ip,
         authenticator_name: @authenticator_name,
         service: @resource_cls[webservice_id],
         success: @success,

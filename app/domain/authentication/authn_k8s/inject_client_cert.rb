@@ -21,7 +21,7 @@ module Authentication
         validate_pod_request:   ValidatePodRequest.new,
         log_audit_event:        ::Authentication::LogAuditEvent.new
       },
-      inputs: %i(conjur_account service_id csr host_id_prefix)
+      inputs: %i(conjur_account service_id csr host_id_prefix client_ip)
     ) do
 
       # :reek:TooManyStatements
@@ -189,6 +189,7 @@ module Authentication
           authenticator_name: KUBERNETES_AUTHENTICATOR_NAME,
           webservice: webservice,
           role: host,
+          client_ip: @client_ip,
           success: true,
           message: nil
         )
@@ -200,6 +201,7 @@ module Authentication
           authenticator_name: KUBERNETES_AUTHENTICATOR_NAME,
           webservice: webservice,
           role: host,
+          client_ip: @client_ip,
           success: false,
           message: err.message
         )

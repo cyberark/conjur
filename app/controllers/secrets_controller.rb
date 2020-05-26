@@ -22,7 +22,8 @@ class SecretsController < RestController
   ensure
     Audit::Event::Update.new(error_info.merge(
       resource: resource,
-      user: @current_user
+      user: @current_user,
+      client_ip: client_ip
     )).log_to Audit.logger
   end
   
@@ -76,7 +77,8 @@ class SecretsController < RestController
       error_info.merge(
         resource: resource,
         version: version,
-        user: current_user
+        user: current_user,
+        client_ip: client_ip
       )
     ).log_to Audit.logger
   end

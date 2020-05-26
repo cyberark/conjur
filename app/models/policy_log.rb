@@ -10,11 +10,12 @@ Sequel::Model.db.extension(:pg_hstore)
 class PolicyLog < Sequel::Model :policy_log
   many_to_one :policy_version, key: %i(policy_id version)
 
-  def to_audit_event
+  def to_audit_event(client_ip)
     Audit::Event::Policy.new \
       policy_version: policy_version,
       operation: operation,
-      subject: event_subject
+      subject: event_subject,
+      client_ip: client_ip
   end
 
   def operation

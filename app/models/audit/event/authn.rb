@@ -5,7 +5,7 @@ module Audit
     class Authn < Event
       abstract_field :success_message, :failure_message, :operation
 
-      field :role, :authenticator_name, service: nil
+      field :role, :authenticator_name, :client_ip, service: nil
       
       facility Syslog::LOG_AUTHPRIV
       message_id 'authn'
@@ -15,7 +15,8 @@ module Audit
         super.deep_merge \
           SDID::SUBJECT => { role: role_id },
           SDID::AUTH => auth_sd,
-          SDID::ACTION => { operation: operation }
+          SDID::ACTION => { operation: operation },
+          SDID::CLIENT => { ip: client_ip }
       end
 
       protected

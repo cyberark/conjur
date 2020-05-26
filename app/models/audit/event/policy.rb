@@ -5,7 +5,7 @@ require 'audit/event'
 module Audit
   class Event
     class Policy < Event
-      field :operation, :subject, policy_version: nil, user: nil
+      field :operation, :subject, :client_ip, policy_version: nil, user: nil
       severity Syslog::LOG_NOTICE
       facility Syslog::LOG_AUTH
       message_id 'policy'
@@ -16,7 +16,8 @@ module Audit
         {
           SDID::AUTH => { user: user_id },
           SDID::SUBJECT => subject.to_h,
-          SDID::ACTION => { operation: operation }
+          SDID::ACTION => { operation: operation },
+          SDID::CLIENT => { ip: client_ip }
         }.tap do |sd|
           if policy_version
             sd[SDID::POLICY] = { 

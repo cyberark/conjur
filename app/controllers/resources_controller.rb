@@ -57,6 +57,7 @@ class ResourcesController < RestController
 
     Audit::Event::Check.new(
       user: current_user,
+      client_ip: client_ip,
       resource: resource,
       privilege: privilege,
       role: assumed_role,

@@ -139,6 +139,7 @@ module Authentication
           authenticator_name: authenticator_name,
           webservice: webservice,
           role: role,
+          client_ip: origin,
           success: true,
           message: nil
         )
@@ -150,6 +151,7 @@ module Authentication
           authenticator_name: authenticator_name,
           webservice: webservice,
           role: role,
+          client_ip: origin,
           success: false,
           message: err.message
         )

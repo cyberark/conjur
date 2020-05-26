@@ -17,7 +17,7 @@ class PoliciesController < RestController
     authorize :update
 
     policy = save_submitted_policy(delete_permitted: true)
-    replace_policy = Loader::ReplacePolicy.from_policy(policy)
+    replace_policy = Loader::ReplacePolicy.from_policy(policy, client_ip)
     created_roles = perform(replace_policy)
 
     render json: {
@@ -30,7 +30,7 @@ class PoliciesController < RestController
     authorize :update
 
     policy = save_submitted_policy(delete_permitted: true)
-    modify_policy = Loader::ModifyPolicy.from_policy(policy)
+    modify_policy = Loader::ModifyPolicy.from_policy(policy, client_ip)
     created_roles = perform(modify_policy)
 
     render json: {
@@ -43,7 +43,7 @@ class PoliciesController < RestController
     authorize :create
 
     policy = save_submitted_policy(delete_permitted: false)
-    create_policy = Loader::CreatePolicy.from_policy(policy)
+    create_policy = Loader::CreatePolicy.from_policy(policy, client_ip)
     created_roles = perform(create_policy)
 
     render json: {

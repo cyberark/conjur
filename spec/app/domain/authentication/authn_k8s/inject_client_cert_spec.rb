@@ -17,6 +17,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
   let(:host_id) { "HostId" }
   let(:host_role) { double("HostRole", id: host_id) }
+  let(:client_ip) { "ClientIP" }
 
   let(:k8s_authn_container_name) { 'kubernetes/authentication-container-name' }
   let(:host_annotation_1) { double("Annot1", values: { name: "first" }) }
@@ -178,6 +179,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           expect { injector.(conjur_account: account,
                             service_id: service_id,
                             csr: csr,
+                            client_ip: client_ip,
                             host_id_prefix: host_id_prefix) }.to raise_error(error_type, missing_spiffe_id_error)
         end
       end
@@ -197,6 +199,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
         expect { injector.(conjur_account: account,
                           service_id: service_id,
                           csr: csr,
+                          client_ip: client_ip,
                           host_id_prefix: host_id_prefix) }.to raise_error(RuntimeError, pod_validation_error)
       end
     end
@@ -243,6 +246,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           expect { injector.(conjur_account: account,
                             service_id: service_id,
                             csr: csr,
+                            client_ip: client_ip,
                             host_id_prefix: host_id_prefix) }.to raise_error(RuntimeError, expected_error_text)
         end
       end
@@ -262,6 +266,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           expect { injector.(conjur_account: account,
                             service_id: service_id,
                             csr: csr,
+                            client_ip: client_ip,
                             host_id_prefix: host_id_prefix) }.to raise_error(error_type, expected_full_error_text)
         end
       end
@@ -280,6 +285,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           expect { injector.(conjur_account: account,
                             service_id: service_id,
                             csr: csr,
+                            client_ip: client_ip,
                             host_id_prefix: host_id_prefix) }.to raise_error(error_type, expected_full_error_text)
         end
       end
@@ -289,6 +295,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           expect { injector.(conjur_account: account,
                              service_id: service_id,
                              csr: csr,
+                             client_ip: client_ip,
                              host_id_prefix: host_id_prefix) }.to_not raise_error
         end
 
@@ -300,6 +307,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           expect { injector.(conjur_account: account,
                              service_id: service_id,
                              csr: csr,
+                             client_ip: client_ip,
                              host_id_prefix: host_id_prefix) }.to_not raise_error
         end
 
@@ -325,15 +333,19 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           expect { injector.(conjur_account: account,
                              service_id: service_id,
                              csr: csr,
+                             client_ip: client_ip,
                              host_id_prefix: host_id_prefix) }.to_not raise_error
         end
 
         context "when the Host-Id-Prefix parameter doesn't exist" do
           subject do
-            injector.(conjur_account: account,
+            injector.(
+              conjur_account: account,
               service_id: service_id,
               csr: csr,
-              host_id_prefix: nil_host_id_prefix)
+              client_ip: client_ip,
+              host_id_prefix: nil_host_id_prefix
+              )
           end
 
           it "updates the common-name to the hard coded prefix and raises no error" do
@@ -345,10 +357,13 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
         context "when the Host-Id-Prefix parameter exists" do
           subject do
-            injector.(conjur_account: account,
+            injector.(
+              conjur_account: account,
               service_id: service_id,
               csr: csr,
-              host_id_prefix: host_id_prefix)
+              client_ip: client_ip,
+              host_id_prefix: host_id_prefix
+              )
           end
 
           it "updates the common-name to the value of Host-Id-Prefix and raises no error" do
