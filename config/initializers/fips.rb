@@ -25,7 +25,7 @@ ActiveSupport::Digest.hash_digest_class = OpenSSL::Digest::SHA1.new
 # override OpenIDConnect cache_key with FIPS complaint method
 OpenIDConnect::Discovery::Provider::Config::Resource.module_eval do
   def cache_key
-    sha256 = Digest::SHA256.hexdigest host
+    sha256 = OpenSSL::Digest::SHA256.hexdigest host
     "swd:resource:opneid-conf:#{sha256}"
   end
 end
