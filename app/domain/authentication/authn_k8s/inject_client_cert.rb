@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'command_class'
 
 module Authentication
@@ -8,23 +10,7 @@ module Authentication
     # Possible Errors Raised:
     # CSRIsMissingSpiffeId, CertInstallationError
 
-    class InjectClientCertAuditInput < ::Dry::Struct
-      attribute :service_id, ::Types::NonEmptyString.optional
-      attribute :account, ::Types::NonEmptyString
-      attribute :role, ::Types::Any
-
-      def authenticator_name
-        'authn-k8s'
-      end
-
-      def webservice
-        @webservice ||= ::Authentication::Webservice.new(
-          account:            @account,
-          authenticator_name: authenticator_name,
-          service_id:         @service_id
-        )
-      end
-    end
+    KUBERNETES_AUTHENTICATOR_NAME = 'authn-k8s'
 
     InjectClientCert ||= CommandClass.new(
       dependencies: {
@@ -164,7 +150,7 @@ module Authentication
       def webservice
         ::Authentication::Webservice.new(
           account: @conjur_account,
-          authenticator_name: 'authn-k8s',
+          authenticator_name: KUBERNETES_AUTHENTICATOR_NAME,
           service_id: @service_id
         )
       end
@@ -200,7 +186,9 @@ module Authentication
       def audit_success
         @log_audit_event.(
           event: AuditEvent::InjectClientCert,
-          authenticator_input: audit_input,
+          authenticator_name: KUBERNETES_AUTHENTICATOR_NAME,
+          webservice: webservice,
+          role: host,
           success: true,
           message: nil
         )
@@ -209,18 +197,11 @@ module Authentication
       def audit_failure(err)
         @log_audit_event.(
           event: AuditEvent::InjectClientCert,
-          authenticator_input: audit_input,
+          authenticator_name: KUBERNETES_AUTHENTICATOR_NAME,
+          webservice: webservice,
+          role: host,
           success: false,
           message: err.message
-        )
-      end
-
-      # :reek:NilCheck
-      def audit_input
-        @audit_input ||= InjectClientCertAuditInput.new(
-          account: @conjur_account,
-          service_id: @service_id,
-          role: host
         )
       end
     end

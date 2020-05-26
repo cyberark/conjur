@@ -8,15 +8,15 @@ module Authentication
       resource_cls: ::Resource,
       audit_log: ::Audit.logger
     },
-    inputs:       %i(authenticator_input event success message)
+    inputs:       %i(authenticator_name webservice role event success message)
   ) do
 
     def call
-      return unless role
+      return unless @role
 
       @event.new(
-        role: role,
-        authenticator_name: @authenticator_input.authenticator_name,
+        role: @role,
+        authenticator_name: @authenticator_name,
         service: @resource_cls[webservice_id],
         success: @success,
         error_message: @message
@@ -26,11 +26,7 @@ module Authentication
     private
 
     def webservice_id
-      @authenticator_input.webservice.resource_id
-    end
-
-    def role
-      @authenticator_input.role
+      @webservice.resource_id
     end
   end
 end
