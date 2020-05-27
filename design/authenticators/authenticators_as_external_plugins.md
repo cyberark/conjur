@@ -24,13 +24,13 @@ Preserve set of authenticators that exist in Conjur
 Provide set of parameters for plugin-based authenticators per user decision
 
 ## Implementation Steps
-Identify the functional blocks that are common to all authenticators and split them into 2 kinds
-2.1 Blocks that are not going to be programmed by plugin (example: set / get authenticator in DB)
-2.2 Blocks that should be programmed by plugin (example: validate methods)
-Verify that base blocks inside Conjur are well separated from authenticator-specific blocks inside Conjur. 
-If they are not - take steps to make them such
-Define hook to load external authenticators
-Define hook to provide external authenticator parameters (probably in yaml)
-Define hook for "validate" step of external authenticator (should contain a pointer to function / executable)
-Verify that configuration of external authenticator is possible in Conjur
-Implement and test sample external authenticator
+- Identify the functional blocks that are common to all authenticators and split them into 2 kinds
+  Blocks that are not going to be programmed by plugin (example: set / get authenticator in DB)
+  Blocks that should be programmed by plugin (example: validate methods)
+- Verify that base blocks inside Conjur are well separated from authenticator-specific blocks inside Conjur. 
+- If they are not - take steps to make them such
+- Define hook to load external authenticators
+- Define hook to provide external authenticator parameters (probably in yaml)
+- Define hook for "validate" step of external authenticator (should contain a pointer to function / executable)
+- Verify that configuration of external authenticator is possible in Conjur
+- Implement and test sample external authenticator
