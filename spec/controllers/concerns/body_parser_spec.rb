@@ -46,7 +46,7 @@ describe BodyParser do
 
   describe '#params' do
     it "merges the body params with others" do
-      params_hash = controller.params.each {|x| x }
+      params_hash = controller.params.permit(:get, :id).to_h
       expect(params_hash).to include({'get' => 'params', 'id' => 'foo'})
     end
   end
