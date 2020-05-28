@@ -113,8 +113,9 @@ module Loader
     end
 
     def emit_audit
-      policy_version.policy_log.lazy.map { |log| log.to_audit_event(@client_ip) }
-                                    .each { |event| event.log_to Audit.logger }
+      policy_version.policy_log.lazy
+        .map { |log| log.to_audit_event(@client_ip) }
+        .each { |event| event.log_to Audit.logger }
     end
 
     def table_data schema = ""

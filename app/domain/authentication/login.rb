@@ -19,7 +19,7 @@ module Authentication
 
     extend Forwardable
     def_delegators :@authenticator_input, :authenticator_name, :account,
-                   :username, :webservice, :role, :origin
+      :username, :webservice, :role, :origin
 
     def call
       validate_authenticator_exists
