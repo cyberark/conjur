@@ -6,65 +6,63 @@ further if you wish to review the copyright notice(s) and the full text
 of the license associated with each component.
 
 
-SECTION 1: Apache-2.0 
+Section 1: Apache-2.0
 
 >>> https://rubygems.org/gems/aws-sdk-iam/versions/1.35.0
->>> https://rubygems.org/gems/conjur-api/versions/5.3.2
 >>> https://rubygems.org/gems/gli/versions/2.19.0
 
-SECTION 2: BSD-2-Clause 
+Section 2: BSD-2-Clause
 
 >>> https://rubygems.org/gems/base32-crockford/versions/0.1.0
 >>> https://rubygems.org/gems/pg/versions/1.2.3
 
-SECTION 3: BSD-3-Clause 
+Section 3: BSD-3-Clause
 
 >>> https://rubygems.org/gems/ffi/versions/1.12.2
->>> https://rubygems.org/gems/puma/versions/3.12.4
+>>> https://rubygems.org/gems/puma/versions/3.12.6
 
-SECTION 4: MIT 
+Section 4: MIT
 
->>> https://rubygems.org/gems/activesupport/versions/5.2.4.2
+>>> https://rubygems.org/gems/activesupport/versions/5.2.4.3
 >>> https://rubygems.org/gems/base58/versions/0.2.3
 >>> https://rubygems.org/gems/bcrypt-ruby/versions/3.0.1
 >>> https://rubygems.org/gems/command_class/versions/0.0.2
 >>> https://rubygems.org/gems/conjur-policy-parser/versions/3.0.4
 >>> https://rubygems.org/gems/conjur-rack/versions/4.0.0
->>> https://rubygems.org/gems/conjur-rack-heartbeat/versions/2.0.0
+>>> https://rubygems.org/gems/conjur-rack-heartbeat/versions/2.2.0
 >>> https://rubygems.org/gems/dry-struct/versions/0.4.0
 >>> https://rubygems.org/gems/dry-types/versions/0.12.3
 >>> https://rubygems.org/gems/http/versions/4.2.0
 >>> https://rubygems.org/gems/iso8601/versions/0.12.1
 >>> https://rubygems.org/gems/jbuilder/versions/2.7.0
+>>> https://rubygems.org/gems/jwt/versions/2.2.1
+>>> https://rubygems.org/gems/kubeclient/versions/4.6.0
 >>> https://rubygems.org/gems/listen/versions/3.2.1
 >>> https://rubygems.org/gems/loofah/versions/2.5.0
 >>> https://rubygems.org/gems/mini_racer/versions/0.2.9
 >>> https://rubygems.org/gems/net-ldap/versions/0.16.2
 >>> https://rubygems.org/gems/nokogiri/versions/1.10.9
+>>> https://rubygems.org/gems/openid_connect/versions/1.1.8
 >>> https://rubygems.org/gems/rack/versions/2.2.2
 >>> https://rubygems.org/gems/rack-rewrite/versions/1.5.1
->>> https://rubygems.org/gems/rails/versions/5.2.4.2
+>>> https://rubygems.org/gems/rails/versions/5.2.4.3
 >>> https://rubygems.org/gems/rake/versions/13.0.1
 >>> https://rubygems.org/gems/ruby_dep/versions/1.3.1
+>>> https://rubygems.org/gems/sequel/versions/4.49.0
 >>> https://rubygems.org/gems/sequel-pg_advisory_locking/versions/1.0.1
 >>> https://rubygems.org/gems/sequel-postgres-schemata/versions/0.1.3
 >>> https://rubygems.org/gems/sequel-rails/versions/1.1.0
->>> https://rubygems.org/gems/sequel/versions/4.49.0
 >>> https://rubygems.org/gems/simplecov/versions/0.14.1
 >>> https://rubygems.org/gems/slosilo/versions/2.1.1
 >>> https://rubygems.org/gems/uglifier/versions/4.2.0
-
+>>> https://rubygems.org/gems/websocket-client-simple/versions/0.3.0
 
 APPENDIX: Standard License Files and Templates
 
 >>> Apache-2.0
-
 >>> BSD-2-Clause
-
 >>> BSD-3-Clause
-
 >>> MIT
-
 
 --------------- SECTION 1: Apache-2.0 ----------
 
@@ -73,22 +71,6 @@ Apache-2.0 License is applicable to the following component(s).
 >>> https://rubygems.org/gems/aws-sdk-iam/versions/1.35.0
 
 Copyright 2011-2014 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
->>> https://rubygems.org/gems/conjur-api/versions/5.3.2
-
-Copyright (c) 2020 CyberArk Software Ltd. All rights reserved
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -209,30 +191,28 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
->>> https://rubygems.org/gems/puma/versions/3.12.4
+>>> https://rubygems.org/gems/puma/versions/3.12.6
 
-copyright (c) 2005, Zed Shaw
+Some code copyright (c) 2005, Zed Shaw
 Copyright (c) 2011, Evan Phoenix
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, this
-list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation
-and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors
-may be used to endorse or promote products derived from this software without
-specific prior written permission.
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+* Neither the name of the Evan Phoenix nor the names of its contributors
+  may be used to endorse or promote products derived from this software
+  without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
 FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
@@ -244,7 +224,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 MIT License is applicable to the following component(s).
 
->>> https://rubygems.org/gems/activesupport/versions/5.2.4.2
+>>> https://rubygems.org/gems/activesupport/versions/5.2.4.3
 
 Copyright (c) 2005-2018 David Heinemeier Hansson
 
@@ -518,6 +498,52 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+>>> https://rubygems.org/gems/jwt/versions/2.2.1
+
+Copyright (c) 2011 Jeff Lindsay
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in the
+Software without restriction, including without limitation the rights to use, copy,
+modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+and to permit persons to whom the Software is furnished to do so, subject to the
+following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+>>> https://rubygems.org/gems/kubeclient/versions/4.6.0
+
+Copyright (c) 2014 Alissa Bonas
+
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 >>> https://rubygems.org/gems/listen/versions/3.2.1
 
 Copyright (c) 2013 Thibaud Guillaume-Gentil
@@ -628,6 +654,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+>>> https://rubygems.org/gems/openid_connect/versions/1.1.8
+
+Copyright (c) 2011 nov matake
+
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 >>> https://rubygems.org/gems/rack/versions/2.2.2
 
 Copyright (C) 2007-2019 Leah Neukirchen <http://leahneukirchen.org/infopage.html>
@@ -673,7 +724,7 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
->>> https://rubygems.org/gems/rails/versions/5.2.4.2
+>>> https://rubygems.org/gems/rails/versions/5.2.4.3
 
 Copyright (c) 2005-2018 David Heinemeier Hansson
 
@@ -893,6 +944,31 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+>>> https://rubygems.org/gems/websocket-client-simple/versions/0.3.0
+
+Copyright (c) 2013-2014 Sho Hashimoto
+
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 =============== APPENDIX: License Files and Templates ==============
