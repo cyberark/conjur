@@ -1,7 +1,6 @@
 # Conjur
 
 [![Conjur on DockerHub](https://img.shields.io/docker/pulls/cyberark/conjur.svg)](https://hub.docker.com/r/cyberark/conjur/)
-[![Conjur on Quay.io](https://img.shields.io/badge/quay%20build-automated-0db7ed.svg)](https://quay.io/repository/cyberark/conjur)
 [![Maintainability](https://api.codeclimate.com/v1/badges/3754a79b22b9430040ba/maintainability)](https://codeclimate.com/github/cyberark/conjur/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/3754a79b22b9430040ba/test_coverage)](https://codeclimate.com/github/cyberark/conjur/test_coverage)
 
@@ -9,7 +8,6 @@
 [![Follow Conjur on Twitter](https://img.shields.io/twitter/follow/conjurinc.svg?style=social&label=Follow%20%40ConjurInc)][twitter]
 
 [commons]: https://discuss.cyberarkcommons.org/c/conjur/5 "Find answers on CyberArk Commons"
-[quay]: https://quay.io/repository/cyberark/conjur "Conjur container image on Quay.io"
 [twitter]: https://twitter.com/intent/user?screen_name=ConjurInc "Follow Conjur on Twitter"
 
 Conjur provides secrets management and application identity for modern infrastructure:
