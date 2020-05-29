@@ -30,6 +30,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Adds a `CertMissingCNEntry` error to improve visibility of Kubernetes authenticator failures ([cyberark/conjur#1278](cyberark/conjur/issues/1278)).
 - Logs the authenticator used when the `authentication-container-name` annotation is missing ([conjurinc/dap-support#69](https://github.com/conjurinc/dap-support/issues/69)) - [PR](https://github.com/cyberark/conjur/pull/1526).
 
+### Removed
+- Images are no longer published to Quay.io.
+
 ### Security
 - Upgraded Rails to `v5.2.4.3` to resolve [CVE-2020-8164](https://groups.google.com/forum/#!topic/rubyonrails-security/f6ioe4sdpbY).
 

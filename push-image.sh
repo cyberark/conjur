@@ -18,9 +18,6 @@ IMAGE_NAME=cyberark/conjur
 # both old-style 'conjur' and new-style 'cyberark/conjur'
 INTERNAL_IMAGES=`echo $CONJUR_REGISTRY/{conjur,$IMAGE_NAME}`
 
-# for releases, push to dockerhub and quay.io in addition to our registry
-RELEASE_IMAGES=`echo $INTERNAL_IMAGES {,quay.io/}$IMAGE_NAME`
-
 function main() {
   echo "TAG = $TAG"
   echo "VERSION = $VERSION"
@@ -43,11 +40,11 @@ function main() {
   git fetch --tags || : # Jenkins brokenness workaround
   local git_description=`git describe`
 
-  # if on tag matching the VERSION, also push releases to dockerhub and quay
+  # if on tag matching the VERSION, also push releases to dockerhub
   if [[ $git_description = v$VERSION ]]; then
     echo "Revision $git_description matches version exactly, pushing releases..."
     for v in latest $VERSION `gen_versions $VERSION`; do
-      tag_and_push $v $RELEASE_IMAGES
+      tag_and_push $v $IMAGE_NAME
     done
   else
     echo "Revision $git_description does not match version $VERSION exactly, not releasing."
