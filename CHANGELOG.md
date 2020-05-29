@@ -11,24 +11,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - The k8s authenticator correctly authenticates an app using the host ID to specify
   the k8s resource constraints and an annotation to specify the authenticator
-  container name using the "authn-k8s" prefix ([cyberark/conjur#1535](https://github.com/cyberark/conjur/issues/1535), [conjurinc/dap-support#79](https://github.com/conjurinc/dap-support/issues/79)).
-- Fixed exception in `conjurctl` when loading policy ([conjurinc/dap-support#80](https://github.com/conjurinc/dap-support/issues/80)).
+  container name using the "authn-k8s" prefix ([cyberark/conjur#1535](https://github.com/cyberark/conjur/issues/1535), [conjurinc/dap-support#79](https://github.com/conjurinc/dap-support/issues/79)) - [PR](https://github.com/cyberark/conjur/pull/1499).
+- Fixed exception in `conjurctl` when loading policy ([conjurinc/dap-support#80](https://github.com/conjurinc/dap-support/issues/80)) - [PR](https://github.com/cyberark/conjur/pull/1510).
 
 ### Changed
-- Updated the title of status page to `Conjur Status` from `Conjur` ([conjurinc/dap-support](https://github.com/conjurinc/dap-support/issues/75).
-- Policy load API endpoints now default to the `application/x-yaml` content-type if no content type is provided in the request ([conjurinc/dap-support#74](https://github.com/conjurinc/dap-support/issues/74)).
-- Change ActiveSupport to use SHA1 instead of MD5 ([cyberark/conjur#1418](https://github.com/cyberark/conjur/issues/1418)).
+- Updated the title of status page to `Conjur Status` from `Conjur` ([conjurinc/dap-support](https://github.com/conjurinc/dap-support/issues/75)) - [PR](https://github.com/cyberark/conjur/pull/1499).
+- Policy load API endpoints now default to the `application/x-yaml` content-type if no content type is provided in the request ([conjurinc/dap-support#74](https://github.com/conjurinc/dap-support/issues/74)) - [PR](https://github.com/cyberark/conjur/pull/1505).
+- ActiveSupport uses SHA1 instead of MD5 ([cyberark/conjur#1418](https://github.com/cyberark/conjur/issues/1418)).
 - Authentication audit events now use separate operations for `authenticate`,
   `login`, and `validate-status` workflows
   ([cyberark/conjur#1054](https://github.com/cyberark/conjur/issues/1054)).
-- Change authentication workflow to check origin before credentials to insure a request can authenticate before authenticating ([cyberark/conjur#1568](https://github.com/cyberark/conjur/issues/1568)).
+- Authentication workflow checks origin before credentials to insure a request can authenticate before authenticating ([cyberark/conjur#1568](https://github.com/cyberark/conjur/issues/1568)).
 
 ### Added
 - The Kubernetes authentication `/inject-client-cert` endpoint now generates
   an authentication audit event with the `k8s-inject-client-cert` operation
   ([cyberark/conjur#1538](https://github.com/cyberark/conjur/issues/1538)).
 - Adds a `CertMissingCNEntry` error to improve visibility of Kubernetes authenticator failures ([cyberark/conjur#1278](cyberark/conjur/issues/1278)).
-- Logs the authenticator used when the `authentication-container-name` annotation is missing ([conjurinc/dap-support#69](https://github.com/conjurinc/dap-support/issues/69)).
+- Logs the authenticator used when the `authentication-container-name` annotation is missing ([conjurinc/dap-support#69](https://github.com/conjurinc/dap-support/issues/69)) - [PR](https://github.com/cyberark/conjur/pull/1526).
 
 ### Security
 - Upgraded Rails to `v5.2.4.3` to resolve [CVE-2020-8164](https://groups.google.com/forum/#!topic/rubyonrails-security/f6ioe4sdpbY).
