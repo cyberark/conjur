@@ -3,8 +3,6 @@ FROM registry.tld/ruby-fips-base-image-phusion:1.0.0
 RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
     build-essential \
-    postgresql-client \
-    libpq-dev \
     unattended-upgrades \
     ldap-utils \
     git \

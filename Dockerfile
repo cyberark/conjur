@@ -13,9 +13,7 @@ RUN apt-get update -y && \
     apt-get install -y build-essential \
                        curl \
                        git \
-                       libpq-dev \
                        ldap-utils \
-                       postgresql-client \
                        tzdata \
                        # needed to build some gem native extensions:
                        libz-dev \
