@@ -265,7 +265,7 @@ GEM
     nio4r (2.5.2)
     nokogiri (1.10.9)
       mini_portile2 (~> 2.4.0)
-    openid_connect (1.1.8)
+    openid_connect (1.2.0)
       activemodel
       attr_required (>= 1.0.0)
       json-jwt (>= 1.5.0)
