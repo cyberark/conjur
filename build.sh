@@ -37,6 +37,9 @@ function flatten() {
   local container
   container=$(docker create "$image")
   docker export "$container" | docker import \
+    --change "ENV PATH /usr/local/pgsql/bin:/var/lib/ruby/bin:/usr/local/ssl/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+    --change "ENV LD_LIBRARY_PATH /usr/local/ssl/lib" \
+    --change "ENV OPENSSL_FIPS 1" \
     --change "EXPOSE 80" \
     --change "ENV RAILS_ENV=production" \
     --change "WORKDIR /opt/conjur-server" \
