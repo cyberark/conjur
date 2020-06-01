@@ -6,6 +6,8 @@ The linked documents below represent the original feature designs; to learn
 more about the current state of the features, please see the official
 [Conjur Documentation](https://docs.conjur.org).
 
+Writing a new design document for this project? Use our template [here](templates/solution_design.md)
+
 |Design Doc|Date Added|
 --- | ---
 |[Authenticator design](authenticators/AUTHENTICATORS.md)|May 7, 2018|
