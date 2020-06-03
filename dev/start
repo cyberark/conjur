@@ -132,7 +132,8 @@ docker-compose exec -d conjur conjurctl server
 echo 'Checking if Conjur server is ready'
 conjur_isready?
 
-enabled_authenticators="authn,authn-config/env"
+default_authenticators="authn,authn-config/env"
+enabled_authenticators="$default_authenticators"
 
 env_args=
 if [[ $ENABLE_AUTHN_LDAP = true ]]; then
@@ -255,6 +256,15 @@ echo "Setting CONJUR_AUTHENTICATORS to: $enabled_authenticators"
 env_args="$env_args -e CONJUR_AUTHENTICATORS=$enabled_authenticators"
 
 docker-compose up -d --no-deps $services
+
+# If the enabled authenticators changed after initial Conjur configuration,
+# then docker-compose recreates the container to set the environment variable,
+# and we need to restart the Conjur server process.
+if [[ $enabled_authenticators != $default_authenticators ]]; then
+  echo "Starting Conjur server"
+  docker-compose exec -d conjur conjurctl server
+  conjur_isready?
+fi
 
 echo "Creating user alice"
 docker-compose exec client conjur policy load root /src/conjur-server/dev/files/policy.yml
