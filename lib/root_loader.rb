@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'json'
+require 'logs'
 
 # BootstrapLoader is used to load an initial "root" policy when the database is completely empty.
 class RootLoader
