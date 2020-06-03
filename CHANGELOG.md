@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [1.7.1] - 2020-06-03
+
+### Added
+- Print version on server startup ([cyberark/conjur#1531](https://github.com/cyberark/conjur/issues/1531))
+
+### Fixed
+- `rake policy:load` fails when loading policy ([cyberark/conjur#1581](https://github.com/cyberark/conjur/issues/1581))
+
 ## [1.7.0] - 2020-05-29
 
 ### Fixed
@@ -323,7 +331,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.7.1...HEAD
+[1.7.1]: https://github.com/cyberark/conjur/compare/v1.7.0...v1.7.1
+[1.7.0]: https://github.com/cyberark/conjur/compare/v1.6.0...v1.7.0
+[1.6.0]: https://github.com/cyberark/conjur/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/cyberark/conjur/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/cyberark/conjur/compare/v1.4.7...v1.5.0
 [1.4.7]: https://github.com/cyberark/conjur/compare/v1.4.6...v1.4.7
