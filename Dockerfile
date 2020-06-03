@@ -10,13 +10,12 @@ EXPOSE 80
 
 RUN apt-get update -y && \
     apt-get -y dist-upgrade && \
-    apt-get install -y build-essential \
+    apt-get install -y libz-dev
+RUN apt-get install -y build-essential \
                        curl \
                        git \
                        ldap-utils \
                        tzdata \
-                       # needed to build some gem native extensions:
-                       libz-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/conjur-server
