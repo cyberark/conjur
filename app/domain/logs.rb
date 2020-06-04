@@ -222,11 +222,6 @@ unless defined? LogMessages::Authentication::OriginValidated
         code: "CONJ00023D"
       )
 
-      ConjurVersionStartup = ::Util::TrackableLogMessageClass.new(
-        msg:  "Conjur v{0-conjur-version} starting up...",
-        code: "CONJ00037I"
-      )
-
     end
   end
 end
