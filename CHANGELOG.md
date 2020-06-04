@@ -35,14 +35,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - The Kubernetes authentication `/inject-client-cert` endpoint now generates
   an authentication audit event with the `k8s-inject-client-cert` operation
   ([cyberark/conjur#1538](https://github.com/cyberark/conjur/issues/1538)).
-- Adds a `CertMissingCNEntry` error to improve visibility of Kubernetes authenticator failures ([cyberark/conjur#1278](cyberark/conjur/issues/1278)).
+- Adds a `CertMissingCNEntry` error to improve visibility of Kubernetes authenticator failures ([cyberark/conjur#1278](https://github.com/cyberark/conjur/issues/1278)).
 - Logs the authenticator used when the `authentication-container-name` annotation is missing ([conjurinc/dap-support#69](https://github.com/conjurinc/dap-support/issues/69)) - [PR](https://github.com/cyberark/conjur/pull/1526).
 
 ### Removed
 - Images are no longer published to Quay.io.
-
-### Security
-- Upgraded Rails to `v5.2.4.3` to resolve [CVE-2020-8164](https://groups.google.com/forum/#!topic/rubyonrails-security/f6ioe4sdpbY).
 
 ## [1.6.0] - 2020-04-14
 
@@ -63,7 +60,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - Hosts can authenticate from Azure VMs using an Azure access token. See
-  [design](design/authenticators/authn_azure/authn_azure_solution_design.md) for details
+  [design](https://github.com/design/authenticators/authn_azure/authn_azure_solution_design.md) for details
   ([conjurinc/appliance#927](https://github.com/conjurinc/appliance/issues/927)).
 
 ### Changed
@@ -94,7 +91,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - Added API endpoint to enable and disable authenticators. See
-  [design/authenticator_whitelist_api.md](design/authenticators/authenticator_whitelist_api.md)
+  [design/authenticator_whitelist_api.md](https://github.com/design/authenticators/authenticator_whitelist_api.md)
   for details.
 
 ### Changed
