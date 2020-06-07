@@ -37,4 +37,17 @@ Before do
   # this code, and to it the api way (probably)
   creds.password = 'SEcret12!!!!'
   creds.save(raise_on_save_failure: true)
+
+  # Save env to revert to it after the test
+  @env = {}
+  ENV.each do |key, value|
+    @env[key] = value
+  end
+end
+
+After do
+  # Revert to original env
+  @env.each do |key, value|
+    ENV[key] = value
+  end
 end
