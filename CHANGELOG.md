@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - The Conjur version is now printed on server startup, after running `conjurctl server`
   ([cyberark/conjur#1590](https://github.com/cyberark/conjur/pull/1590))
+- Raise proper error of an authn request with a non-existing user to the `authn`
+  authenticator ([cyberark/conjur#1591](https://github.com/cyberark/conjur/pull/1591))
 
 ## [1.7.1] - 2020-06-03
 

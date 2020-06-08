@@ -4,7 +4,7 @@ module Authentication
 
   Err ||= Errors::Authentication
   # Possible Errors Raised:
-  # InvalidOrigin
+  # InvalidOrigin, RoleNotFound
 
   ValidateOrigin ||= CommandClass.new(
     dependencies: {
@@ -22,7 +22,15 @@ module Authentication
     private
 
     def role
-      @role_cls.by_login(@username, account: @account)
+      return @role if @role
+
+      @role = @role_cls.by_login(@username, account: @account)
+      raise Err::Security::RoleNotFound, role_id unless @role
+      @role
+    end
+
+    def role_id
+      @role_id ||= @role_cls.roleid_from_username(@account, @username)
     end
   end
 end

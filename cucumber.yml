@@ -5,6 +5,8 @@ policy: >
 
 api: >
   --format pretty
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/logs_steps.rb
   -r cucumber/api
   cucumber/api
 

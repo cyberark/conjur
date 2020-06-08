@@ -57,3 +57,12 @@ Feature: Exchange a role's API key for a signed authentication token
 
     When I POST "/authn/cucumber/alice/authenticate" with plain text body "wrong-api-key"
     Then the HTTP response status code is 401
+
+  Scenario: A non existing user cannot authenticate
+    Given I save my place in the log file
+    When I POST "/authn/cucumber/non-existing/authenticate"
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::Security::RoleNotFound
+    """
