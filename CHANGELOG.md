@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [1.7.2] - 2020-06-08
+
 ### Fixed
 - The Conjur version is now printed on server startup, after running `conjurctl server`
   ([cyberark/conjur#1590](https://github.com/cyberark/conjur/pull/1590))
@@ -336,7 +339,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.7.1...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.7.2...HEAD
+[1.7.2]: https://github.com/cyberark/conjur/compare/v1.7.1...v1.7.2
 [1.7.1]: https://github.com/cyberark/conjur/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/cyberark/conjur/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/cyberark/conjur/compare/v1.5.1...v1.6.0
