@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Fixed
+- Host Factory Host creation no longer makes unecessary database queries, causing
+  performance issues with large numbers of created hosts
+  ([cyberark/conjur#1605](https://github.com/cyberark/conjur/issues/1605))
+
 ## [1.7.2] - 2020-06-08
 
 ### Fixed

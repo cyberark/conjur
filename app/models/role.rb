@@ -127,9 +127,9 @@ class Role < Sequel::Model
 
   # All Roles of kind "layer" which this role is a direct member of.
   def layers
-    memberships_as_member.select do |membership|
-      membership.role.kind == "layer"
-    end.map(&:role)
+    memberships_as_member_dataset
+      .where(Sequel.lit('kind(role_id) = \'layer\''))
+      .map(&:role)
   end
 
   def direct_memberships_dataset(search_options = {})
