@@ -19,6 +19,10 @@ module Commands
 
       def call
         change_password
+        audit_success
+      rescue => e
+        audit_failure(e)
+        raise e
       end
 
       private
@@ -30,6 +34,22 @@ module Commands
 
       def credentials
         @role.credentials
+      end
+
+      def audit_success
+        @audit_log.log(
+          ::Audit::Event::Password.new(user: @role, success: true)
+        )
+      end
+
+      def audit_failure(err)
+        @audit_log.log(
+          ::Audit::Event::Password.new(
+            user: @role,
+            success: false,
+            error_message: err.message
+          )
+        )
       end
     end
   end

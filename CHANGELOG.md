@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   performance issues with large numbers of created hosts
   ([cyberark/conjur#1605](https://github.com/cyberark/conjur/issues/1605))
 
+### Added
+- Password changes (`PUT /authn/:account/password`) now produce audit events with
+  message ID `password` ([cyberark/conjur#1548](https://github.com/cyberark/conjur/issues/1548))
+
 ## [1.7.2] - 2020-06-08
 
 ### Fixed
