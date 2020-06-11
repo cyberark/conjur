@@ -19,7 +19,7 @@ module Authentication
         conjur_ca_repo:         Repos::ConjurCA,
         kubectl_exec:           KubectlExec,
         validate_pod_request:   ValidatePodRequest.new,
-        log_audit_event:        ::Authentication::LogAuditEvent.new
+        audit_log:              ::Audit.logger
       },
       inputs: %i(conjur_account service_id csr host_id_prefix)
     ) do
@@ -184,24 +184,26 @@ module Authentication
       end
 
       def audit_success
-        @log_audit_event.(
-          event: AuditEvent::InjectClientCert,
-          authenticator_name: KUBERNETES_AUTHENTICATOR_NAME,
-          webservice: webservice,
-          role: host,
-          success: true,
-          message: nil
+        @audit_log.log(
+          Audit::Event::Authn::InjectClientCert.new(
+            authenticator_name: KUBERNETES_AUTHENTICATOR_NAME,
+            service: webservice,
+            role: host,
+            success: true,
+            error_message: nil
+          )
         )
       end
 
       def audit_failure(err)
-        @log_audit_event.(
-          event: AuditEvent::InjectClientCert,
-          authenticator_name: KUBERNETES_AUTHENTICATOR_NAME,
-          webservice: webservice,
-          role: host,
-          success: false,
-          message: err.message
+        @audit_log.log(
+          Audit::Event::Authn::InjectClientCert.new(
+            authenticator_name: KUBERNETES_AUTHENTICATOR_NAME,
+            service: webservice,
+            role: host,
+            success: false,
+            error_message: err.message
+          )
         )
       end
     end

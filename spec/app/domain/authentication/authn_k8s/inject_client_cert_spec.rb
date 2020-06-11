@@ -88,15 +88,12 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
                          conjur_ca_repo: conjur_ca_repo,
                          kubectl_exec: kubectl_exec,
                          validate_pod_request: validate_pod_request,
-                         log_audit_event: mocked_log_audit_event } }
+                         audit_log: audit_logger} }
 
   let(:audit_success) { true }
-  let(:mocked_log_audit_event) do
-    double('log_audit_event').tap do |log_audit_event|
-      expect(log_audit_event).to receive(:call).with(hash_including(
-        event: ::Authentication::AuthnK8s::AuditEvent::InjectClientCert,
-        success: audit_success
-      ))
+  let(:audit_logger) do
+    double('audit_logger').tap do |logger|
+      expect(logger).to receive(:log)
     end
   end
 

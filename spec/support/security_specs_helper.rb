@@ -37,6 +37,7 @@ shared_context "security mocks" do
 
   def mock_role_class
     double('role_class').tap do |role_class|
+      allow(role_class).to receive(:id).and_return('my-role-id')
       allow(role_class).to receive(:username_from_roleid).and_return('some-username')
 
       allow(role_class).to receive(:[])

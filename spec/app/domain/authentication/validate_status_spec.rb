@@ -77,12 +77,9 @@ RSpec.describe Authentication::ValidateStatus do
     end
   end
 
-  def mock_log_audit_event(success: true)
-    double('log_audit_event').tap do |log_audit_event|
-      expect(log_audit_event).to receive(:call).with(hash_including(
-        event: ::Authentication::AuditEvent::ValidateStatus,
-        success: success
-        ))
+  let(:audit_logger) do
+    double('audit_logger').tap do |logger|
+      expect(logger).to receive(:log)
     end
   end
 
@@ -125,7 +122,7 @@ RSpec.describe Authentication::ValidateStatus do
         validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
         implemented_authenticators: mock_implemented_authenticators,
-        log_audit_event: mock_log_audit_event
+        audit_log: audit_logger
       ).call(
         authenticator_status_input: mock_status_input("authn-status-pass"),
         enabled_authenticators: mock_enabled_authenticators
@@ -145,7 +142,7 @@ RSpec.describe Authentication::ValidateStatus do
         validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
         implemented_authenticators: mock_implemented_authenticators,
-        log_audit_event: mock_log_audit_event(success: false)
+        audit_log: audit_logger
       ).call(
         authenticator_status_input: mock_status_input("authn-non-exist"),
         enabled_authenticators: mock_enabled_authenticators
@@ -168,7 +165,7 @@ RSpec.describe Authentication::ValidateStatus do
           validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
           validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
           implemented_authenticators: mock_implemented_authenticators,
-          log_audit_event: mock_log_audit_event(success: false)
+          audit_log: audit_logger
         ).call(
           authenticator_status_input: mock_status_input("authn-status-not-implemented"),
           enabled_authenticators: mock_enabled_authenticators
@@ -191,7 +188,7 @@ RSpec.describe Authentication::ValidateStatus do
             validate_webservice_access: mock_validate_webservice_access(validation_succeeded: false),
             validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
             implemented_authenticators: mock_implemented_authenticators,
-            log_audit_event: mock_log_audit_event(success: false)
+            audit_log: audit_logger
           ).call(
             authenticator_status_input: mock_status_input("authn-status-pass"),
             enabled_authenticators: mock_enabled_authenticators
@@ -215,7 +212,7 @@ RSpec.describe Authentication::ValidateStatus do
               validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
               validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: false),
               implemented_authenticators: mock_implemented_authenticators,
-              log_audit_event: mock_log_audit_event(success: false)
+              audit_log: audit_logger
             ).call(
               authenticator_status_input: mock_status_input("authn-status-pass"),
               enabled_authenticators: mock_enabled_authenticators
@@ -239,7 +236,7 @@ RSpec.describe Authentication::ValidateStatus do
                 validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
                 validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
                 implemented_authenticators: mock_implemented_authenticators,
-                log_audit_event: mock_log_audit_event(success: false)
+                audit_log: audit_logger
               ).call(
                 authenticator_status_input: mock_status_input("authn-status-pass"),
                 enabled_authenticators: not_including_enabled_authenticators
@@ -261,7 +258,7 @@ RSpec.describe Authentication::ValidateStatus do
                   validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
                   validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
                   implemented_authenticators: mock_implemented_authenticators,
-                  log_audit_event: mock_log_audit_event(success: false)
+                  audit_log: audit_logger
                 ).call(
                   authenticator_status_input: mock_status_input("authn-status-fail"),
                   enabled_authenticators: mock_enabled_authenticators
