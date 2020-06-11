@@ -68,9 +68,12 @@ RSpec.describe 'Authentication::Authenticate' do
   ####################################
 
   let(:audit_success) { true }
-  let(:audit_logger) do
-    double('audit_logger').tap do |logger|
-      expect(logger).to receive(:log)
+  let(:mocked_log_audit_event) do
+    double('log_audit_event').tap do |log_audit_event|
+      expect(log_audit_event).to receive(:call).with(hash_including(
+        event: ::Authentication::AuditEvent::Authenticate,
+        success: audit_success
+        ))
     end
   end
 
@@ -95,7 +98,7 @@ RSpec.describe 'Authentication::Authenticate' do
 
       Authentication::Authenticate.new(
         token_factory: token_factory,
-        audit_log: audit_logger
+        log_audit_event: mocked_log_audit_event
       ).call(
         authenticator_input:    input_,
         authenticators:         authenticators,
@@ -126,7 +129,7 @@ RSpec.describe 'Authentication::Authenticate' do
 
         Authentication::Authenticate.new(
           token_factory: token_factory,
-          audit_log: audit_logger
+          log_audit_event: mocked_log_audit_event
         ).call(
           authenticator_input:    input_,
           authenticators:         authenticators,
@@ -157,7 +160,7 @@ RSpec.describe 'Authentication::Authenticate' do
 
         Authentication::Authenticate.new(
           token_factory: token_factory,
-          audit_log: audit_logger
+          log_audit_event: mocked_log_audit_event
         ).call(
           authenticator_input:    input_,
           authenticators:         authenticators,

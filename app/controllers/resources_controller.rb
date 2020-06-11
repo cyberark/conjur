@@ -55,15 +55,13 @@ class ResourcesController < RestController
 
     result = assumed_role.allowed_to?(privilege, resource)
 
-    Audit.logger.log(
-      Audit::Event::Check.new(
-        user: current_user,
-        resource: resource,
-        privilege: privilege,
-        role: assumed_role,
-        success: result
-      )
-    )
+    Audit::Event::Check.new(
+      user: current_user,
+      resource: resource,
+      privilege: privilege,
+      role: assumed_role,
+      success: result
+    ).log_to Audit.logger
 
     head(result ? :no_content : :not_found)
   end

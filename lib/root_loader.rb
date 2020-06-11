@@ -2,8 +2,6 @@
 
 require 'json'
 require 'logs'
-require 'app/models/loader/orchestrate'
-require 'app/domain/logs'
 
 # BootstrapLoader is used to load an initial "root" policy when the database is completely empty.
 class RootLoader
