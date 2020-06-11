@@ -11,16 +11,19 @@ module Authentication
 
   Authenticate ||= CommandClass.new(
     dependencies: {
-      token_factory:          TokenFactory.new,
-      validate_security:      ::Authentication::Security::ValidateSecurity.new,
-      validate_origin:        ::Authentication::ValidateOrigin.new,
-      log_audit_event:        ::Authentication::LogAuditEvent.new
+      token_factory:     TokenFactory.new,
+      validate_security: ::Authentication::Security::ValidateSecurity.new,
+      validate_origin:   ::Authentication::ValidateOrigin.new,
+      audit_log:         ::Audit.logger
     },
     inputs:       %i(authenticator_input authenticators enabled_authenticators)
   ) do
 
     extend Forwardable
-    def_delegators :@authenticator_input, :authenticator_name, :account, :username, :webservice, :origin, :role
+    def_delegators(
+      :@authenticator_input, :authenticator_name, :account, :username,
+      :webservice, :origin, :role
+    )
 
     def call
       validate_authenticator_exists
@@ -66,24 +69,26 @@ module Authentication
     end
 
     def audit_success
-      @log_audit_event.(
-        event: ::Authentication::AuditEvent::Authenticate,
-        authenticator_name: authenticator_name,
-        webservice: webservice,
-        role: role,
-        success: true,
-        message: nil
+      @audit_log.log(
+        ::Audit::Event::Authn::Authenticate.new(
+          authenticator_name: authenticator_name,
+          service: webservice,
+          role: role,
+          success: true,
+          error_message: nil
+        )
       )
     end
 
     def audit_failure(err)
-      @log_audit_event.(
-        event: ::Authentication::AuditEvent::Authenticate,
-        authenticator_name: authenticator_name,
-        webservice: webservice,
-        role: role,
-        success: false,
-        message: err.message
+      @audit_log.log(
+        ::Audit::Event::Authn::Authenticate.new(
+          authenticator_name: authenticator_name,
+          service: webservice,
+          role: role,
+          success: false,
+          error_message: err.message
+        )
       )
     end
 

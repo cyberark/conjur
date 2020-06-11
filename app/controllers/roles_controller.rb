@@ -70,11 +70,13 @@ class RolesController < RestController
     # If membership is already granted, grant_to will return nil.
     # In this case, don't emit an audit record.
     if (membership = role.grant_to member)
-      Audit::Event::Policy.new(
-        operation: :add,
-        subject: Audit::Subject::RoleMembership.new(membership.pk_hash),
-        user: current_user
-      ).log_to Audit.logger
+      Audit.logger.log(
+        Audit::Event::Policy.new(
+          operation: :add,
+          subject: Audit::Subject::RoleMembership.new(membership.pk_hash),
+          user: current_user
+        )
+      )
     end
 
     head :no_content
@@ -93,11 +95,13 @@ class RolesController < RestController
 
     membership.destroy
 
-    Audit::Event::Policy.new(
-      operation: :remove,
-      subject: Audit::Subject::RoleMembership.new(membership.pk_hash),
-      user: current_user
-    ).log_to Audit.logger
+    Audit.logger.log(
+      Audit::Event::Policy.new(
+        operation: :remove,
+        subject: Audit::Subject::RoleMembership.new(membership.pk_hash),
+        user: current_user
+      )
+    )
 
     head :no_content
   end
