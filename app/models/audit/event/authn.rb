@@ -29,6 +29,8 @@ module Audit
         "#{@authenticator_name} service #{service_id}"
       end
 
+      # TODO: See issue https://github.com/cyberark/conjur/issues/1608
+      # :reek:NilCheck
       def service_id
         @service&.resource_id
       end
@@ -45,6 +47,8 @@ module Audit
         "authn"
       end
 
+      # TODO: See issue https://github.com/cyberark/conjur/issues/1608
+      # :reek:NilCheck
       def structured_data
         {
           SDID::SUBJECT => { role: @role&.id },

@@ -31,6 +31,8 @@ module Audit
         message
       end
 
+      # TODO: See issue https://github.com/cyberark/conjur/issues/1608
+      # :reek:NilCheck
       def message
         past_tense_verb = @operation.to_s.chomp('e') + "ed"
         "#{@user&.id} #{past_tense_verb} #{@subject}"
@@ -40,6 +42,8 @@ module Audit
         "policy"
       end
 
+      # TODO: See issue https://github.com/cyberark/conjur/issues/1608
+      # :reek:NilCheck
       def structured_data
         {
           SDID::AUTH => { user: @user&.id },

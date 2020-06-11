@@ -32,6 +32,8 @@ module Audit
           message
         end
 
+        # TODO: See issue https://github.com/cyberark/conjur/issues/1608
+        # :reek:NilCheck
         def message
           auth_description = @authn.authenticator_description
           @authn.message(
