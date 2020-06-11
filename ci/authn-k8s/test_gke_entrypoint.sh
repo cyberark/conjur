@@ -63,7 +63,7 @@ function finish {
 trap finish EXIT
 
 export TEMPLATE_TAG=gke.
-export API_VERSION=rbac.authorization.k8s.io/v1beta1
+export API_VERSION=rbac.authorization.k8s.io/v1
 
 function main() {
   sourceFunctions
