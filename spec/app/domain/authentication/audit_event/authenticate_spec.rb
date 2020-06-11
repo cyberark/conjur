@@ -13,7 +13,10 @@ describe Authentication::AuditEvent::Authenticate do
 
   context 'when successful' do
     it 'sends an info message' do
-      expect(logger).to receive(:log).with \
+      # TODO: These two things should be tested separately
+      audit_logger = Audit::Log::SyslogAdapter.new(ruby_logger)
+
+      expect(ruby_logger).to receive(:log).with(
         Logger::Severity::INFO,
         an_object_having_attributes(
           message: matching(/successfully authenticated/),
