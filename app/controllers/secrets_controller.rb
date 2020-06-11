@@ -20,10 +20,10 @@ class SecretsController < RestController
 
     head :created
   ensure
-    Audit::Event::Update.new(error_info.merge(
-      resource: resource,
-      user: @current_user
-    )).log_to Audit.logger
+    update_info = error_info.merge(resource: resource, user: @current_user)
+    Audit.logger.log(
+      Audit::Event::Update.new(update_info)
+    )
   end
   
   def show
@@ -72,13 +72,15 @@ class SecretsController < RestController
     # don't audit the fetch if the resource doesn't exist
     return unless resource
 
-    Audit::Event::Fetch.new(
-      error_info.merge(
-        resource: resource,
-        version: version,
-        user: current_user
-      )
-    ).log_to Audit.logger
+    fetch_info = error_info.merge(
+      resource: resource,
+      version: version,
+      user: current_user
+    )
+
+    Audit.logger.log(
+      Audit::Event::Fetch.new(fetch_info)
+    )
   end
 
   def error_info

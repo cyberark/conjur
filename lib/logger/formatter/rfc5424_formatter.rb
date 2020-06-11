@@ -4,9 +4,6 @@ require 'logger'
 require 'syslog'
 require 'time'
 
-require 'active_support'
-require 'active_support/core_ext/object/try'
-
 require 'util/struct'
 
 class Logger
@@ -26,6 +23,7 @@ class Logger
         SEVERITY_MAP = {
           Logger::Severity::DEBUG => Syslog::LOG_DEBUG,
           Logger::Severity::ERROR => Syslog::LOG_ERR,
+          # TODO: is this right? (doesn't match reverse map)
           Logger::Severity::FATAL => Syslog::LOG_CRIT,
           Logger::Severity::INFO => Syslog::LOG_INFO,
           Logger::Severity::WARN => Syslog::LOG_WARNING
@@ -40,6 +38,7 @@ class Logger
           "<#{severity + facility}>1"
         end
 
+        # TODO: Severity translations now spread across two classes
         def severity
           msg.try(:severity) || SEVERITY_MAP[super]
         end
