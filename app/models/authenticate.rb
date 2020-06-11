@@ -4,12 +4,12 @@ class Authenticate
   attr_accessor :basic_user, :authenticated_role, :selected_role
 
   def basic_user?
-    !!basic_user
+    !basic_user.nil?
   end
 
   # Whether an authenticated user is available.
   def authenticated?
-    !!authenticated_role
+    !authenticated_role.nil?
   end
 
   def apply_to_role
