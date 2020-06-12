@@ -63,9 +63,12 @@ RSpec.describe 'Authentication::Oidc' do
   end
 
   let(:audit_success) { true }
-  let(:audit_logger) do
-    double('audit_logger').tap do |logger|
-      expect(logger).to receive(:log)
+  let(:mocked_log_audit_event) do
+    double('log_audit_event').tap do |log_audit_event|
+      expect(log_audit_event).to receive(:call).with(hash_including(
+        event: ::Authentication::AuditEvent::Authenticate,
+        success: audit_success
+        ))
     end
   end
 
@@ -103,7 +106,7 @@ RSpec.describe 'Authentication::Oidc' do
             validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
             verify_and_decode_token: mocked_decode_and_verify_id_token,
-            audit_log: audit_logger
+            log_audit_event: mocked_log_audit_event
           ).call(
             authenticator_input: input_
           )
@@ -146,7 +149,7 @@ RSpec.describe 'Authentication::Oidc' do
             validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
             verify_and_decode_token: mocked_decode_and_verify_id_token,
-            audit_log: audit_logger
+            log_audit_event: mocked_log_audit_event
           ).call(
             authenticator_input: input_
           )
@@ -181,7 +184,7 @@ RSpec.describe 'Authentication::Oidc' do
             validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
             verify_and_decode_token: mocked_decode_and_verify_id_token,
-            audit_log: audit_logger
+            log_audit_event: mocked_log_audit_event
           ).call(
             authenticator_input: input_
           )
@@ -217,7 +220,7 @@ RSpec.describe 'Authentication::Oidc' do
             validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
             verify_and_decode_token: mocked_decode_and_verify_id_token,
-            audit_log: audit_logger
+            log_audit_event: mocked_log_audit_event
           ).call(
             authenticator_input: input_
           )
@@ -248,7 +251,7 @@ RSpec.describe 'Authentication::Oidc' do
             validate_account_exists: mocked_account_validator,
             validate_origin: mocked_origin_validator,
             verify_and_decode_token: mocked_decode_and_verify_id_token,
-            audit_log: audit_logger
+            log_audit_event: mocked_log_audit_event
           ).call(
             authenticator_input: input_
           )
