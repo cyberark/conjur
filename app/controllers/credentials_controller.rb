@@ -36,8 +36,11 @@ class CredentialsController < ApplicationController
   def update_password
     password = request.body.read
 
-    @role.credentials.password = password
-    @role.credentials.save(raise_on_save_failure: true)
+    Commands::Credentials::ChangePassword.new.call(
+      role: @role,
+      password: password
+    )
+        
     head 204
   end
   
