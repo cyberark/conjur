@@ -1,25 +1,21 @@
-FROM phusion/baseimage:0.11
+    FROM cyberark/phusion-ruby-fips:0.11-latest
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+RUN DEBIAN_FRONTEND=noninteractive apt-get update -y
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     build-essential \
-    ruby2.5 ruby2.5-dev \
-    postgresql-client \
-    libpq-dev \
-    unattended-upgrades \
     ldap-utils \
     git \
-    update-notifier-common \
-    vim \
-    curl \
     jq \
     tzdata \
-    wget \
     libfontconfig1 \
-    libfontconfig1-dev \
+    libfontconfig1-dev
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    unattended-upgrades \
+    vim \
+    curl \
+    wget \
+    syslog-ng \
     && rm -rf /var/lib/apt/lists/*
-
-RUN gem install --no-document --version 2.1.4 bundler
 
 RUN mkdir -p /src/conjur-server
 

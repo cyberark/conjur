@@ -12,3 +12,19 @@ CVE-2019-10220
 CVE-2019-19813
 CVE-2019-19814
 CVE-2019-19816
+
+# Applications that call the SSL_check_chain() function during or after a TLS 1.3 handshake
+# may crash due to a NULL pointer dereference as a result of incorrect handling of the "signature_algorithms_cert"
+# TLS extension. this issue was fixed in OpenSSL 1.1.1g
+#
+# In order to support fips with openssl we are required to downgrading openssl version to 1.0.2 until openssl will
+# support fips module in newer versions
+# This vulnerability this is not relevant to us as
+# 1. The installed version (1.0.2u) does not support 1.3
+# 2. Trivy detect the usage of openssl 1.0.2 (can be reproduced with
+#    docker run -v /var/run/docker.sock:/var/run/docker.sock
+#   -v $(PWD):/workspace --rm aquasec/trivy -f json -o /workspace/scan_results-conjur-unfixed.json --no-progress
+#   --ignorefile .trivyignore registry.tld/ruby-fips-base-image-phusion:1.0.0)
+#
+# Performed by @yahalomk approved by @shaharglazner
+CVE-2020-1967
