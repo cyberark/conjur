@@ -25,6 +25,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Raise proper error of an authn request with a non-existing user to the `authn`
   authenticator ([cyberark/conjur#1591](https://github.com/cyberark/conjur/pull/1591))
 
+### Changed
+- Uses OpenSSL 1.0.2u to support FIPS compliance 
+- Conjur can be configured to run in FIPS compliant or Non-FIPS compliant mode depending on requirements.
+  FIPS Compliant mode is slightly slower then non-FIPS compliant
+
 ## [1.7.1] - 2020-06-03
 
 ### Added
@@ -59,9 +64,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Removed
 - Images are no longer published to Quay.io.
-
-### Security
-- Upgraded Rails to `v5.2.4.3` to resolve [CVE-2020-8164](https://groups.google.com/forum/#!topic/rubyonrails-security/f6ioe4sdpbY).
 
 ## [1.6.0] - 2020-04-14
 
