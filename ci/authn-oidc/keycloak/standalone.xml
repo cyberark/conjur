@@ -388,7 +388,7 @@
                 <sasl-authentication-factory name="management-sasl-authentication" sasl-server-factory="configured" security-domain="ManagementDomain">
                     <mechanism-configuration>
                         <mechanism mechanism-name="JBOSS-LOCAL-USER" realm-mapper="local"/>
-                        <mechanism mechanism-name="DIGEST-MD5">
+                        <mechanism mechanism-name="DIGEST-SHA-256">
                             <mechanism-realm realm-name="ManagementRealm"/>
                         </mechanism>
                     </mechanism-configuration>
@@ -396,7 +396,7 @@
                 <sasl-authentication-factory name="application-sasl-authentication" sasl-server-factory="configured" security-domain="ApplicationDomain">
                     <mechanism-configuration>
                         <mechanism mechanism-name="JBOSS-LOCAL-USER" realm-mapper="local"/>
-                        <mechanism mechanism-name="DIGEST-MD5">
+                        <mechanism mechanism-name="DIGEST-SHA-256">
                             <mechanism-realm realm-name="ApplicationRealm"/>
                         </mechanism>
                     </mechanism-configuration>
