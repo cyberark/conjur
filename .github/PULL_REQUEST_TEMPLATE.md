@@ -17,5 +17,5 @@ Connected to #[relevant GitHub issues, eg 76]
 - [ ] The changes in this PR do not require tests
 
 #### Documentation
-- [ ] This PR does not require updating any documentation, or
-- [ ] Docs (e.g. `README`s) were updated in this PR, and/or there is a follow-on issue to update docs
+- [ ] Docs (e.g. `README`s) were updated in this PR, and/or there is a follow-on issue to update docs, or
+- [ ] This PR does not require updating any documentation
