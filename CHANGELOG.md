@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- Uses OpenSSL 1.0.2u to support FIPS compliance 
+- Conjur can be configured to run in FIPS compliant or Non-FIPS compliant mode depending on requirements.
+  FIPS Compliant mode is slightly slower then non-FIPS compliant
+
 ## [1.7.3] - 2020-06-11
 
 ### Fixed
@@ -24,11 +29,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   ([cyberark/conjur#1590](https://github.com/cyberark/conjur/pull/1590))
 - Raise proper error of an authn request with a non-existing user to the `authn`
   authenticator ([cyberark/conjur#1591](https://github.com/cyberark/conjur/pull/1591))
-
-### Changed
-- Uses OpenSSL 1.0.2u to support FIPS compliance 
-- Conjur can be configured to run in FIPS compliant or Non-FIPS compliant mode depending on requirements.
-  FIPS Compliant mode is slightly slower then non-FIPS compliant
 
 ## [1.7.1] - 2020-06-03
 
