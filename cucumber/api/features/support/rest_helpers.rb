@@ -289,6 +289,10 @@ module RestHelpers
 
   protected
 
+  def api_key_for_role_id(role_id)
+    roles[role_id].credentials.api_key
+  end
+
   def denormalize str
     return unless str
     return if str.is_a?(Hash)
