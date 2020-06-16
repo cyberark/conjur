@@ -90,3 +90,8 @@ Feature: Updating policies
       id: simple/special @#$%^&*(){}[].,+/variable
     """
     Then the HTTP response status code is 201
+
+  Scenario: A large policy with no content type header
+    When I clear the "Content-Type" header
+    And I load a large policy with POST
+    Then the HTTP response status code is 201
