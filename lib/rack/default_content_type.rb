@@ -46,27 +46,26 @@ module Rack
       @app = app
     end
 
-    # :reek:DuplicateMethodCall
+    # This exhibits :reek:FeatureEnvy because it implements the default
+    # content type behavior on `env` (an argument), rather than on internal state.
+    #
+    # It also has :reek:TooManyStatements, but to factor these out would make
+    # the code less readable.
     def call(env)
+      content_type = env['CONTENT_TYPE']
+
+      # Content type is missing if the header is absent or is empty
+      content_type_present = content_type && !content_type.empty?
+      default_content_type = Rack::DefaultContentType.content_type_by_path[env['PATH_INFO']]
+
       # If a content type is already present on the request, we
       # don't need to do anything
-      if content_type_missing?(env) && default_content_type(env)
-        env['CONTENT_TYPE'] = default_content_type(env)
+      if !content_type_present && default_content_type
+        env['CONTENT_TYPE'] = default_content_type
         Rack::Request.new(env).body.rewind
       end
 
       @app.call(env)
-    end
-
-    # :reek:UtilityFunction
-    # :reek:NilCheck
-    def content_type_missing?(env)
-      env['CONTENT_TYPE']&.empty?
-    end
-
-    # :reek:UtilityFunction
-    def default_content_type(env)
-      Rack::DefaultContentType.content_type_by_path[env['PATH_INFO']]
     end
   end
 end
