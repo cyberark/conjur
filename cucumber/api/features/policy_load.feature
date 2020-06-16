@@ -79,14 +79,10 @@ Feature: Updating policies
     Then the HTTP response status code is 403
 
   Scenario: A policy with special characters and no content type header
-    When I set the "Content-Type" header to ""
-    And I POST "/policies/cucumber/policy/dev/db" with body:
-    """
-    - !variable
-      id: simple/basic/variable
-    - !variable
-      id: simple/space filled/variable
-    - !variable
-      id: simple/special @#$%^&*(){}[].,+/variable
-    """
+    When I use curl to load a policy with special characters and no content type
+    Then the command is successful
+
+  Scenario: A large policy with no content type header
+    When I clear the "Content-Type" header
+    And I load a large policy with POST
     Then the HTTP response status code is 201
