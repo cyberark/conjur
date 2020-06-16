@@ -9,6 +9,10 @@ Given(/^I set the "([^"]*)" header to "([^"]*)"$/) do |header, value|
   headers[header] = value
 end
 
+Given(/^I clear the "([^"]*)" header$/) do |header|
+  headers[header] = nil
+end
+
 When(/^I( (?:can|successfully))? GET "([^"]*)"$/) do |can, path|
   try_request can do
     get_json path
