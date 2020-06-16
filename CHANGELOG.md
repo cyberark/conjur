@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Changed
-- Uses OpenSSL 1.0.2u to support FIPS compliance 
+- Uses OpenSSL 1.0.2u to support FIPS compliance
+  ([cyberark/conjur#1527](https://github.com/cyberark/conjur/issues/1527))
 - Conjur can be configured to run in FIPS compliant or Non-FIPS compliant mode depending on requirements.
   FIPS Compliant mode is slightly slower then non-FIPS compliant
+  ([cyberark/conjur#1527](https://github.com/cyberark/conjur/issues/1527))
 
 ## [1.7.3] - 2020-06-11
 
