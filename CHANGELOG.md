@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   FIPS Compliant mode is slightly slower then non-FIPS compliant
   ([cyberark/conjur#1527](https://github.com/cyberark/conjur/issues/1527))
 
+### Added
+- Password changes (`PUT /authn/:account/password`) now produce audit events with
+  message ID `password` ([cyberark/conjur#1548](https://github.com/cyberark/conjur/issues/1548))
+- API key rotations (`PUT /:authenticator/:account/api_key`) now produce audit events with
+  message ID `api-key` ([cyberark/conjur#1549](https://github.com/cyberark/conjur/issues/1549))
+
+## [1.7.4] - 2020-06-17
+
 ### Fixed
 - The default content type for requests is now set at the beginning of the
   Rack middleware chain, so that the content type is available for
@@ -20,12 +28,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - The default content type middleware now correctly checks for the
   absence of the `Content-Type` header
   ([cyberark/conjur#1622](https://github.com/cyberark/conjur/issues/1622))
-
-### Added
-- Password changes (`PUT /authn/:account/password`) now produce audit events with
-  message ID `password` ([cyberark/conjur#1548](https://github.com/cyberark/conjur/issues/1548))
-- API key rotations (`PUT /:authenticator/:account/api_key`) now produce audit events with
-  message ID `api-key` ([cyberark/conjur#1549](https://github.com/cyberark/conjur/issues/1549))
 
 ## [1.7.3] - 2020-06-11
 
@@ -364,7 +366,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.7.3...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.7.4...HEAD
+[1.7.4]: https://github.com/cyberark/conjur/compare/v1.7.3...v1.7.4
 [1.7.3]: https://github.com/cyberark/conjur/compare/v1.7.2...v1.7.3
 [1.7.2]: https://github.com/cyberark/conjur/compare/v1.7.1...v1.7.2
 [1.7.1]: https://github.com/cyberark/conjur/compare/v1.7.0...v1.7.1
