@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.7.4] - 2020-06-17
+
 ### Fixed
 - The default content type for requests is now set at the beginning of the
   Rack middleware chain, so that the content type is available for
@@ -354,8 +356,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.7.3...HEAD
-[1.7.2]: https://github.com/cyberark/conjur/compare/v1.7.2...v1.7.3
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.7.4...HEAD
+[1.7.4]: https://github.com/cyberark/conjur/compare/v1.7.3...v1.7.4
+[1.7.3]: https://github.com/cyberark/conjur/compare/v1.7.2...v1.7.3
 [1.7.2]: https://github.com/cyberark/conjur/compare/v1.7.1...v1.7.2
 [1.7.1]: https://github.com/cyberark/conjur/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/cyberark/conjur/compare/v1.6.0...v1.7.0
