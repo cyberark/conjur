@@ -66,7 +66,7 @@ echo "The next release will be: $version"
 
 # Make sure we have the most recent changes, without destroying local changes.
 git stash
-git pull --rebase origin master
+git pull --rebase origin $(git rev-parse --abbrev-ref HEAD)
 git stash pop
 
 # Perform a commit, tag, and push. The tag needs to be present before the commit
