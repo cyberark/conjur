@@ -6,6 +6,9 @@ module Audit
         @user = user
         @success = success
         @error_message = error_message
+
+        # Implements `==` for audit events
+        @comparable_evt = ComparableEvent.new(self)
       end
 
       # Note: We want this class to be responsible for providing `progname`.
@@ -56,6 +59,10 @@ module Audit
         # Note: Changed this to from LOG_AUTH to LOG_AUTHPRIV because the former
         # is deprecated.
         Syslog::LOG_AUTHPRIV
+      end
+
+      def ==(other)
+        @comparable_evt == other
       end
 
       private
