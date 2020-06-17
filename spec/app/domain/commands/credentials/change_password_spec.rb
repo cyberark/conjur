@@ -10,12 +10,12 @@ describe Commands::Credentials::ChangePassword do
   let(:audit_log) { double(::Audit.logger)}
   
   let(:audit_success) do
-    ::Audit::Event::Password.new(user: role, success: true)
+    ::Audit::Event::Password.new(user_id: role.id, success: true)
   end
   
   let(:audit_failure) do
     ::Audit::Event::Password.new(
-      user: role,
+      user_id: role.id,
       success: false,
       error_message: err_message
     )

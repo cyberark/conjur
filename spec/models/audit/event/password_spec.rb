@@ -2,13 +2,12 @@ require 'spec_helper'
 
 describe Audit::Event::Password do
   let(:role_id) { 'rspec:user:my_user' }
-  let(:user) { double('The User', id: role_id) }
   let(:success) { true }
   let(:error_message) { nil }
 
   subject do
     Audit::Event::Password.new(
-      user: user,
+      user_id: role_id,
       success: success,
       error_message: error_message
     )
