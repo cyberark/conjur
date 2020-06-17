@@ -115,10 +115,10 @@ GEM
       conjur-cli (~> 6)
       docker-api (~> 1.33)
       gli
-    conjur-rack (4.0.0)
+    conjur-rack (4.2.0)
       conjur-api (< 6)
       rack (~> 2)
-      slosilo (~> 2.1)
+      slosilo (~> 2.2)
     conjur-rack-heartbeat (2.2.0)
       rack
     contracts (0.16.0)
