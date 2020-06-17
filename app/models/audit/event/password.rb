@@ -2,10 +2,13 @@ module Audit
   module Event
     class Password
 
-      def initialize(user:, success:, error_message: nil)
-        @user = user
+      def initialize(user_id:, success:, error_message: nil)
+        @user_id = user_id
         @success = success
         @error_message = error_message
+
+        # Implements `==` for audit events
+        @comparable_evt = ComparableEvent.new(self)
       end
 
       # Note: We want this class to be responsible for providing `progname`.
@@ -25,12 +28,10 @@ module Audit
         message
       end
 
-      # It's clearer to simply call the #id attribute multiple times, rather
-      # than factor it out, even though it reeks of :reek:DuplicateMethodCall
       def message
         attempted_action.message(
-          success_msg: "#{@user.id} successfully changed their password",
-          failure_msg: "#{@user.id} failed to change their password",
+          success_msg: "#{@user_id} successfully changed their password",
+          failure_msg: "#{@user_id} failed to change their password",
           error_msg: @error_message
         )
       end
@@ -39,12 +40,10 @@ module Audit
         'password'
       end
 
-      # It's clearer to simply call the #id attribute multiple times, rather
-      # than factor it out, even though it reeks of :reek:DuplicateMethodCall
       def structured_data
         {
-          SDID::AUTH => { user: @user.id },
-          SDID::SUBJECT => { user: @user.id }
+          SDID::AUTH => { user: @user_id },
+          SDID::SUBJECT => { user: @user_id }
         }.merge(
           attempted_action.action_sd
         )
@@ -56,6 +55,10 @@ module Audit
         # Note: Changed this to from LOG_AUTH to LOG_AUTHPRIV because the former
         # is deprecated.
         Syslog::LOG_AUTHPRIV
+      end
+
+      def ==(other)
+        @comparable_evt == other
       end
 
       private

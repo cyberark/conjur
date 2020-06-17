@@ -48,8 +48,10 @@ class CredentialsController < ApplicationController
   #
   # The new API key is in the request body.
   def rotate_api_key
-    @role.credentials.rotate_api_key
-    @role.credentials.save
+    Commands::Credentials::RotateApiKey.new.call(
+      role_to_rotate: authentication.apply_to_role,
+      authenticated_role: authentication.authenticated_role
+    )
     render plain: @role.credentials.api_key
   end
   

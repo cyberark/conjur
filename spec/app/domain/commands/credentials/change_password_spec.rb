@@ -2,25 +2,23 @@ require 'spec_helper'
 
 describe Commands::Credentials::ChangePassword do
   let(:credentials) { double(Credentials) }
-  let(:role) { double(Role, credentials: credentials) }
+  let(:role) { double(Role, id: 'role', credentials: credentials) }
   let(:password) { 'the_password' }
 
   let(:err_message) { 'the error message' }
 
   let(:audit_log) { double(::Audit.logger)}
-  let(:audit_success) { double("Successful audit event") }
-  let(:audit_failure) { double("Failed audit event") }
-
-  before do
-    # Set up our audit event to return either the success or failure
-    # audit event, depending on the arguments received
-    allow(::Audit::Event::Password).to receive(:new)
-      .with(user: role, success: true)
-      .and_return(audit_success)
-
-    allow(::Audit::Event::Password).to receive(:new)
-      .with(user: role, success: false, error_message: err_message)
-      .and_return(audit_failure)
+  
+  let(:audit_success) do
+    ::Audit::Event::Password.new(user_id: role.id, success: true)
+  end
+  
+  let(:audit_failure) do
+    ::Audit::Event::Password.new(
+      user_id: role.id,
+      success: false,
+      error_message: err_message
+    )
   end
 
   subject do 

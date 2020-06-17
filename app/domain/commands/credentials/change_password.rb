@@ -38,14 +38,14 @@ module Commands
 
       def audit_success
         @audit_log.log(
-          ::Audit::Event::Password.new(user: @role, success: true)
+          ::Audit::Event::Password.new(user_id: @role.id, success: true)
         )
       end
 
       def audit_failure(err)
         @audit_log.log(
           ::Audit::Event::Password.new(
-            user: @role,
+            user_id: @role.id,
             success: false,
             error_message: err.message
           )
