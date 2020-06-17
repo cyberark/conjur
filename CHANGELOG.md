@@ -21,16 +21,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   absence of the `Content-Type` header
   ([cyberark/conjur#1622](https://github.com/cyberark/conjur/issues/1622))
 
+### Added
+- Password changes (`PUT /authn/:account/password`) now produce audit events with
+  message ID `password` ([cyberark/conjur#1548](https://github.com/cyberark/conjur/issues/1548))
+- API key rotations (`PUT /:authenticator/:account/api_key`) now produce audit events with
+  message ID `api-key` ([cyberark/conjur#1549](https://github.com/cyberark/conjur/issues/1549))
+
 ## [1.7.3] - 2020-06-11
 
 ### Fixed
 - Host Factory Host creation no longer makes unecessary database queries, causing
   performance issues with large numbers of created hosts
   ([cyberark/conjur#1605](https://github.com/cyberark/conjur/issues/1605))
-
-### Added
-- Password changes (`PUT /authn/:account/password`) now produce audit events with
-  message ID `password` ([cyberark/conjur#1548](https://github.com/cyberark/conjur/issues/1548))
 
 ## [1.7.2] - 2020-06-08
 
