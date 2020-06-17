@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 # Push the 'conjur' image to various Docker registries
-# Push stable images on master branch
+# Push tagged images on master branch
 # Release images can be created by passing the desired tag to this script
 # Ex: ./push-image 4.9.5.1
 
@@ -25,9 +25,12 @@ function main() {
   # always push VERSION-SHA tags to our registry
   tag_and_push $TAG $INTERNAL_IMAGES
 
-  # if on master (as determined by examining Jenkins-set envar BRANCH_NAME)
-  # assume tests have passed and push to latest and stable tags, too
-  if [ "$BRANCH_NAME" = "master" ]; then
+  git fetch --tags || : # Jenkins brokenness workaround
+  local git_description=`git describe`
+
+  # if on a tag matching the VERSION, assume tests have passed and push to latest and stable tags
+  # and push releases to DockerHub
+  if [[ $git_description = v$VERSION ]]; then
     tag_and_push latest $INTERNAL_IMAGES
 
     # only do 1-stable and 1.2-stable for 1.2.3-dev
@@ -35,13 +38,7 @@ function main() {
     for v in `gen_versions $VERSION`; do
       tag_and_push $v-stable $INTERNAL_IMAGES
     done
-  fi
 
-  git fetch --tags || : # Jenkins brokenness workaround
-  local git_description=`git describe`
-
-  # if on tag matching the VERSION, also push releases to dockerhub
-  if [[ $git_description = v$VERSION ]]; then
     echo "Revision $git_description matches version exactly, pushing releases..."
     for v in latest $VERSION `gen_versions $VERSION`; do
       tag_and_push $v $IMAGE_NAME
