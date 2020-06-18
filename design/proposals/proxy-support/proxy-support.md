@@ -1,16 +1,15 @@
-# Maintaining Requester IP Addresses
+# Maintaining Requester IP Addresses <!-- omit in toc --> 
 
 For customers running Conjur behind a Load Balancer, they find themselves unable to use CIDR restrictions on Hosts or Layers. They also find the client IP address in audit events is that of the load balancer, not the requesting client. This is because Conjur references the last entry in the `X-Forwarded-For` header.
 
 This design decision was conscious, and meant to prevent IP spoofing. We have reached a point where customers need a mechanism to add known proxies to Conjur to identify the true requesting client. This design document is meant to provide a possible solution to the challenge of identifying the client IP while preventing IP spoofing.
 
-- [Maintaining Requester IP Addresses](#maintaining-requester-ip-addresses)
-  - [Current Request Flow](#current-request-flow)
-  - [Proposed Solution (Summary)](#proposed-solution-summary)
-  - [Proposed Solution (Detailed)](#proposed-solution-detailed)
-    - [Adding Proxies with Policy](#adding-proxies-with-policy)
-    - [Limitations](#limitations)
-      - [Proxies cannot be layered](#proxies-cannot-be-layered)
+- [Current Request Flow](#current-request-flow)
+- [Proposed Solution (Summary)](#proposed-solution-summary)
+- [Proposed Solution (Detailed)](#proposed-solution-detailed)
+  - [Adding Proxies with Policy](#adding-proxies-with-policy)
+  - [Limitations](#limitations)
+    - [Proxies cannot be layered](#proxies-cannot-be-layered)
 
 ## Current Request Flow
 
