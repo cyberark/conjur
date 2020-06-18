@@ -1,0 +1,12 @@
+@startuml
+
+participant "client\n(10.0.0.1)" as client
+participant "Layer 7 Load Balancer 1\n(10.1.0.1)" as lb_1
+participant "Layer 7 Load Balancer 2\n(10.2.0.1)" as lb_2
+participant "Conjur" as conjur
+
+client --> lb_1 : X-Forwarded-For: null
+lb_1 --> lb_2 : X-Forwarded-For: "10.0.0.1, 10.1.0.1"
+lb_2 --> conjur : X-Forwarded-For: "10.0.0.1, 10.1.0.1, 10.2.0.1"
+
+@enduml

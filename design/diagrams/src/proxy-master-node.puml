@@ -1,0 +1,10 @@
+@startuml
+
+participant "client\n(10.0.0.1)" as client
+participant "Layer 7 Load Balancer\ndap-master.mycompany.com\n(1.2.3.4)" as lb_1
+participant "dap-master-1.mycompany.com" as conjur
+
+client --> lb_1 : X-Forwarded-For: null
+lb_1 --> conjur : X-Forwarded-For: "10.0.0.1, 1.2.3.4"
+
+@enduml
