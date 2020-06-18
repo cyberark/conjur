@@ -1,8 +1,10 @@
 # Maintaining Requester IP Addresses <!-- omit in toc --> 
 
-For customers running Conjur behind a Load Balancer, they find themselves unable to use CIDR restrictions on Hosts or Layers. They also find the client IP address in audit events is that of the load balancer, not the requesting client. This is because Conjur references the last entry in the `X-Forwarded-For` header.
+When Conjur (or DAP) are run behind a load balancer, users are unable to use CIDR restrictions on Hosts or Layers. Furthermore, Load Balancer IP address appears in Audit logs instead of the true client IP address. This is because Conjur references the last entry in the `X-Forwarded-For` header.
 
-This design decision was conscious, and meant to prevent IP spoofing. We have reached a point where customers need a mechanism to add known proxies to Conjur to identify the true requesting client. This design document is meant to provide a possible solution to the challenge of identifying the client IP while preventing IP spoofing.
+This decision was conscious, and meant to prevent IP spoofing. We have reached a point where customers need a mechanism to add known proxies to Conjur/DAP to identify the true identity of the requesting client. 
+
+This design document is meant to provide a possible solution to the challenge of identifying the client IP while preventing IP spoofing.
 
 - [Current Request Flow](#current-request-flow)
 - [Proposed Solution (Summary)](#proposed-solution-summary)
@@ -10,14 +12,16 @@ This design decision was conscious, and meant to prevent IP spoofing. We have re
   - [Adding Proxies with Policy](#adding-proxies-with-policy)
   - [Limitations](#limitations)
     - [Proxies cannot be layered](#proxies-cannot-be-layered)
+- [Rejected Alternatives](#rejected-alternatives)
+  - [Configuration using Environment Variables](#configuration-using-environment-variables)
 
 ## Current Request Flow
 
-The following visualization offers a typical experience as a requests moves through Layer 7 load balancers.
+The following visualization offers a typical experience as a requests moves through a Layer 7 load balancers.
 
 ![](/design/diagrams/out/proxy-support-overview/proxy-support-overview.png)
 
-As we can see, each load balancer adds its IP address to the `X-Forwarded-For` header. 
+As we can see, each load balancer adds its IP address to the `X-Forwarded-For` header.
 
 With our current implementation:
 ```ruby
@@ -33,11 +37,9 @@ end
 the IP address of the last load balancer (`10.2.0.1`) would be used as the request IP.
 
 ## Proposed Solution (Summary)
-Users can define the proxies in front of a node(s) using Conjur Policy. This will allow load balancer IPs to be removed from the `X-Forwarded-For` header Conjur receives.
+Users can define the proxies in front of a node(s) using Conjur Policy. This enables Conjur to use the first non-proxy IP as the client IP.
 
 ## Proposed Solution (Detailed)
-
-Although we could accomplish adding proxy IPs with environment variables, these increase the effort required to setup Conjur. It also requires Conjur be restarted if proxy IP addresses change for a particular node.  To mitigate these shortcomings, we'll use policy.
 
 ### Adding Proxies with Policy
 
@@ -102,7 +104,7 @@ We can also configure multiple hosts to support multiple proxies:
 
 #### Proxies cannot be layered
 
-To simplify the initial setup, we will not support matches on multiple hosts. Multi-matches would allow more modular declaration, for example, the following policy:
+To simplify the initial implementation, we will not support matches on multiple hosts. Multi-matches would allow more modular declaration. With multi-host matching, we could rewrite the following policy:
 
 ```yaml
 - !policy
@@ -119,7 +121,7 @@ To simplify the initial setup, we will not support matches on multiple hosts. Mu
         proxy/ip-addresses: ['1.2.3.4', '10.10.0.1']
 ```
 
-could be re-written as:
+as:
 
 ```yaml
 - !policy
@@ -140,3 +142,16 @@ could be re-written as:
       annotations:
         proxy/ip-addresses: ['10.10.0.1']
 ```
+
+The above would add the proxy `1.2.3.4` to each of the subsequent hosts.
+
+This adds a substantial amount of complexity to the implementation and is not recommended in the initial version of this functionality.
+
+## Rejected Alternatives
+
+### Configuration using Environment Variables
+
+Although we could accomplish support for proxy IPs with environment variables, environment variables produce a couple of undesirable problems:
+
+- Increases the effort required to setup Conjur/DAP nodes.
+- Requires Conjur be restarted if proxy IP addresses change for a particular node.
