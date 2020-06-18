@@ -4,6 +4,14 @@ For customers running Conjur behind a Load Balancer, they find themselves unable
 
 This design decision was conscious, and meant to prevent IP spoofing. We have reached a point where customers need a mechanism to add known proxies to Conjur to identify the true requesting client. This design document is meant to provide a possible solution to the challenge of identifying the client IP while preventing IP spoofing.
 
+- [Maintaining Requester IP Addresses](#maintaining-requester-ip-addresses)
+  - [Current Request Flow](#current-request-flow)
+  - [Proposed Solution (Summary)](#proposed-solution-summary)
+  - [Proposed Solution (Detailed)](#proposed-solution-detailed)
+    - [Adding Proxies with Policy](#adding-proxies-with-policy)
+    - [Limitations](#limitations)
+      - [Proxies cannot be layered](#proxies-cannot-be-layered)
+
 ## Current Request Flow
 
 The following visualization offers a typical experience as a requests moves through Layer 7 load balancers.
