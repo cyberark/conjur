@@ -21,7 +21,7 @@ module Audit
       end
 
       def severity
-        RubySeverity.new(attempted_action.severity)
+        attempted_action.severity
       end
 
       def authenticator_description

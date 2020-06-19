@@ -26,6 +26,9 @@ module Audit
             success: success,
             operation: "authenticate"
           )
+
+          # Implements `==` for audit events
+          @comparable_evt = ComparableEvent.new(self)
         end
 
         def to_s
@@ -45,6 +48,10 @@ module Audit
               "#{auth_description}",
             error_msg: @error_message
           )
+        end
+
+        def ==(other)
+          @comparable_evt == other
         end
       end
     end
