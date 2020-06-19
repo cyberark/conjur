@@ -41,7 +41,7 @@ module Audit
               "#{@role&.id} successfully validated status for authenticator "\
                 "#{auth_description}",
             failure_msg:
-              "#{@role&.id} failed to authenticate with authenticator "\
+              "#{@role&.id} failed to validate status for authenticator "\
                 "#{auth_description}",
             error_msg: @error_message
           )
