@@ -1,13 +1,18 @@
 require 'spec_helper'
 
-describe Audit::Event::Password do
-  let(:role_id) { 'rspec:user:my_user' }
+describe Audit::Event::Update do
+
+  let(:user) { double('my-user', id: 'rspec:user:my_user') }
+  let(:resource) { double('my-resource', id: 'rspec:variable:my_var') }
+  
   let(:success) { true }
   let(:error_message) { nil }
 
+
   subject do
-    Audit::Event::Password.new(
-      user_id: role_id,
+    Audit::Event::Update.new(
+      user: user,
+      resource: resource,
       success: success,
       error_message: error_message
     )
@@ -16,7 +21,7 @@ describe Audit::Event::Password do
   context 'when successful' do
     it 'produces the expected message' do
       expect(subject.message).to eq(
-        'rspec:user:my_user successfully changed their password'
+        'rspec:user:my_user updated rspec:variable:my_var'
       )
     end
 
@@ -26,18 +31,18 @@ describe Audit::Event::Password do
 
     it 'renders to string correctly' do
       expect(subject.to_s).to eq(
-        'rspec:user:my_user successfully changed their password'
+        'rspec:user:my_user updated rspec:variable:my_var'
       )
     end
   end
 
   context 'when a failure occurs' do
     let(:success) { false }
-    let(:error_message) { 'invalid password' }
+    let(:error_message) { 'not permitted' }
 
     it 'produces the expected message' do
       expect(subject.message).to eq(
-        'rspec:user:my_user failed to change their password: invalid password'
+        'rspec:user:my_user tried to update rspec:variable:my_var: not permitted'
       )
     end
 

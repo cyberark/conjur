@@ -20,8 +20,9 @@ describe Audit::Event::ApiKey do
 
   context 'when successful' do
     it 'produces the expected message' do
-      expect(subject.message)
-        .to eq("rspec:user:my_user successfully rotated their API key")
+      expect(subject.message).to eq(
+        'rspec:user:my_user successfully rotated their API key'
+      )
     end
 
     it 'uses the INFO log level' do
@@ -29,7 +30,9 @@ describe Audit::Event::ApiKey do
     end
 
     it 'renders to string correctly' do
-      expect(subject.to_s).to eq('rspec:user:my_user successfully rotated their API key')
+      expect(subject.to_s).to eq(
+        'rspec:user:my_user successfully rotated their API key'
+      )
     end
 
     context 'when user rotates another role\'s key' do
@@ -49,8 +52,9 @@ describe Audit::Event::ApiKey do
     let(:error_message) { 'failed rotation' }
 
     it 'produces the expected message' do
-      expect(subject.message)
-        .to eq("rspec:user:my_user failed to rotate their API key: failed rotation")
+      expect(subject.message).to eq(
+        'rspec:user:my_user failed to rotate their API key: failed rotation'
+      )
     end
 
     it 'uses the WARNING log level' do
@@ -63,7 +67,8 @@ describe Audit::Event::ApiKey do
 
       it 'renders to string correctly' do
         expect(subject.to_s).to eq(
-          'rspec:user:my_user failed to rotate the api key for rspec:user:other_user: failed rotation'
+          'rspec:user:my_user failed to rotate the api key for ' \
+          'rspec:user:other_user: failed rotation'
         )
       end
     end
