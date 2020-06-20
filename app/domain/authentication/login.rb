@@ -10,9 +10,10 @@ module Authentication
 
   Login ||= CommandClass.new(
     dependencies: {
-      validate_security:      ::Authentication::Security::ValidateSecurity.new,
-      audit_log:              ::Audit.logger,
-      role_cls:               ::Role
+      validate_whitelisted_webservice: ::Authentication::Security::ValidateWhitelistedWebservice.new,
+      validate_webservice_access:      ::Authentication::Security::ValidateWebserviceAccess.new,
+      audit_log:                       ::Audit.logger,
+      role_cls:                        ::Role
     },
     inputs:       %i(authenticator_input authenticators enabled_authenticators)
   ) do
@@ -25,7 +26,8 @@ module Authentication
 
     def call
       validate_authenticator_exists
-      validate_security
+      validate_webservice_is_whitelisted
+      validate_user_has_access_to_webservice
       validate_credentials
       audit_success
       new_login
@@ -52,12 +54,20 @@ module Authentication
       raise Err::InvalidCredentials unless key
     end
 
-    def validate_security
-      @validate_security.(
+    def validate_webservice_is_whitelisted
+      @validate_whitelisted_webservice.(
+        webservice: webservice,
+        account: account,
+        enabled_authenticators: @enabled_authenticators
+      )
+    end
+
+    def validate_user_has_access_to_webservice
+      @validate_webservice_access.(
         webservice: webservice,
         account: account,
         user_id: username,
-        enabled_authenticators: @enabled_authenticators
+        privilege: 'authenticate'
       )
     end
 

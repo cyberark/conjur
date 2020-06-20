@@ -13,11 +13,12 @@ module Authentication
 
     ValidatePodRequest ||= CommandClass.new(
       dependencies: {
-        resource_class:                Resource,
-        k8s_object_lookup_class:       K8sObjectLookup,
-        validate_security:             ::Authentication::Security::ValidateSecurity.new,
-        enabled_authenticators:        Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
-        validate_application_identity: ValidateApplicationIdentity.new
+        resource_class:                  Resource,
+        k8s_object_lookup_class:         K8sObjectLookup,
+        validate_whitelisted_webservice: ::Authentication::Security::ValidateWhitelistedWebservice.new,
+        validate_webservice_access:      ::Authentication::Security::ValidateWebserviceAccess.new,
+        enabled_authenticators:          Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
+        validate_application_identity:   ValidateApplicationIdentity.new
       },
       inputs:       %i(pod_request)
     ) do
@@ -26,19 +27,28 @@ module Authentication
       def_delegators :@pod_request, :service_id, :k8s_host, :spiffe_id
 
       def call
-        validate_security
+        validate_webservice_is_whitelisted
+        validate_user_has_access_to_webservice
         validate_pod_exists
         validate_application_identity
       end
 
       private
 
-      def validate_security
-        @validate_security.(
+      def validate_webservice_is_whitelisted
+        @validate_whitelisted_webservice.(
+          webservice: webservice,
+          account: k8s_host.account,
+          enabled_authenticators: @enabled_authenticators
+        )
+      end
+
+      def validate_user_has_access_to_webservice
+        @validate_webservice_access.(
           webservice: webservice,
           account: k8s_host.account,
           user_id: k8s_host.k8s_host_name,
-          enabled_authenticators: @enabled_authenticators
+          privilege: 'authenticate'
         )
       end
 

@@ -9,7 +9,6 @@ shared_context "security mocks" do
   let(:fake_service_id) { 'fake-service-id' }
   let(:test_user_id) { 'some-user' }
   let(:two_authenticator_env) { "#{fake_authenticator_name}/service1, #{fake_authenticator_name}/service2" }
-  let(:mocked_security_validator) { double("ValidateSecurity") }
   let(:mocked_origin_validator) { double("ValidateOrigin") }
   let(:mocked_account_validator) { double("ValidateAccountExists") }
 
@@ -26,7 +25,7 @@ shared_context "security mocks" do
 
       allow(webservice).to receive(:service_id)
           .and_return(service_id)
-      
+
       allow(webservice).to receive(:name)
           .and_return("#{authenticator_name}/#{service_id}")
 
@@ -95,9 +94,6 @@ shared_context "security mocks" do
   end
 
   before(:each) do
-    allow(mocked_security_validator).to receive(:call)
-                                          .and_return(true)
-
     allow(mocked_origin_validator).to receive(:call)
                                         .and_return(true)
 
@@ -106,29 +102,15 @@ shared_context "security mocks" do
   end
 end
 
-shared_examples_for "raises an error when security validation fails" do
-  context 'when security validation fails' do
-    let (:audit_success) { false }
-
-    it 'raises an error' do
-      allow(mocked_security_validator).to(
-        receive(:call).and_raise('FAKE_SECURITY_ERROR')
-      )
-
-      expect { subject }.to raise_error( /FAKE_SECURITY_ERROR/ )
-    end
-  end
-end
-
 shared_examples_for "raises an error when origin validation fails" do
   context 'when origin validation fails' do
     let(:audit_success) { false }
-    
+
     it "raises an error" do
       allow(mocked_origin_validator).to receive(:call)
                                           .and_raise('FAKE_ORIGIN_ERROR')
 
-      expect { subject }.to raise_error( /FAKE_ORIGIN_ERROR/ )
+      expect { subject }.to raise_error(/FAKE_ORIGIN_ERROR/)
     end
   end
 end
@@ -142,7 +124,7 @@ shared_examples_for "raises an error when account validation fails" do
         receive(:call).and_raise('ACCOUNT_NOT_EXIST_ERROR')
       )
 
-      expect { subject }.to raise_error( /ACCOUNT_NOT_EXIST_ERROR/ )
+      expect { subject }.to raise_error(/ACCOUNT_NOT_EXIST_ERROR/)
     end
   end
 end

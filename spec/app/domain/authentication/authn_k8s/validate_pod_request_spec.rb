@@ -70,43 +70,88 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
   end
 
   context "A ValidatePodRequest invocation" do
-    subject do
-      Authentication::AuthnK8s::ValidatePodRequest.new(
-        resource_class:                resource_class,
-        k8s_object_lookup_class:       k8s_object_lookup_class,
-        validate_security:             mocked_security_validator,
-        enabled_authenticators:        "#{authenticator_name}/#{service_id}",
-        validate_application_identity: validate_application_identity
-      ).call(
-        pod_request: pod_request
-      )
+    context "that passes webservice validations" do
+      subject do
+        Authentication::AuthnK8s::ValidatePodRequest.new(
+          resource_class:                  resource_class,
+          k8s_object_lookup_class:         k8s_object_lookup_class,
+          validate_webservice_access:      mock_validate_webservice_access(validation_succeeded: true),
+          validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: true),
+          enabled_authenticators:          "#{authenticator_name}/#{service_id}",
+          validate_application_identity:   validate_application_identity
+        ).call(
+          pod_request: pod_request
+        )
       end
 
-    it_behaves_like "raises an error when security validation fails"
+      it 'raises PodNotFound when pod is not known' do
+        allow(k8s_object_lookup_class).to receive(:pod_by_name)
+                                            .with(spiffe_name, spiffe_namespace)
+                                            .and_return(nil)
 
-    it 'raises PodNotFound when pod is not known' do
-      allow(k8s_object_lookup_class).to receive(:pod_by_name)
-                                          .with(spiffe_name, spiffe_namespace)
-                                          .and_return(nil)
-
-      expected_message = /CONJ00024E.*'#{spiffe_name}'.*'#{spiffe_namespace}'/
-
-      expect { subject }.to(
-        raise_error(
-          ::Errors::Authentication::AuthnK8s::PodNotFound
+        expect { subject }.to(
+          raise_error(
+            ::Errors::Authentication::AuthnK8s::PodNotFound
+          )
         )
-      )
+      end
+
+      it 'raises an error when application identity validation fails' do
+        allow(validate_application_identity).to receive(:call)
+                                                  .and_raise('FAKE_APPLICATION_IDENTITY_ERROR')
+
+        expect { subject }.to(
+          raise_error(
+            /FAKE_APPLICATION_IDENTITY_ERROR/
+          )
+        )
+      end
     end
 
-    it 'raises an error when application identity validation fails' do
-      allow(validate_application_identity).to receive(:call)
-                                                .and_raise('FAKE_APPLICATION_IDENTITY_ERROR')
-
-      expect { subject }.to(
-        raise_error(
-          /FAKE_APPLICATION_IDENTITY_ERROR/
+    context "with an inaccessible webservice" do
+      subject do
+        Authentication::AuthnK8s::ValidatePodRequest.new(
+          resource_class:                  resource_class,
+          k8s_object_lookup_class:         k8s_object_lookup_class,
+          validate_webservice_access:      mock_validate_webservice_access(validation_succeeded: false),
+          validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: true),
+          enabled_authenticators:          "#{authenticator_name}/#{service_id}",
+          validate_application_identity:   validate_application_identity
+        ).call(
+          pod_request: pod_request
         )
-      )
+      end
+
+      it 'raises an error' do
+        expect { subject }.to(
+          raise_error(
+            validate_webservice_access_error
+          )
+        )
+      end
+    end
+
+    context "with a non-whitelisted webservice" do
+      subject do
+        Authentication::AuthnK8s::ValidatePodRequest.new(
+          resource_class:                  resource_class,
+          k8s_object_lookup_class:         k8s_object_lookup_class,
+          validate_webservice_access:      mock_validate_webservice_access(validation_succeeded: true),
+          validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: false),
+          enabled_authenticators:          "#{authenticator_name}/#{service_id}",
+          validate_application_identity:   validate_application_identity
+        ).call(
+          pod_request: pod_request
+        )
+      end
+
+      it 'raises an error' do
+        expect { subject }.to(
+          raise_error(
+            validate_whitelisted_webservice_error
+          )
+        )
+      end
     end
   end
 end

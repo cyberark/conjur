@@ -40,15 +40,6 @@ unless defined? LogMessages::Authentication::OriginValidated
         code: "CONJ00033D"
       )
 
-      module Security
-
-        SecurityValidated = ::Util::TrackableLogMessageClass.new(
-          msg:  "Security validated",
-          code: "CONJ00001D"
-        )
-
-      end
-
       module OAuth
 
         IdentityProviderUri = ::Util::TrackableLogMessageClass.new(

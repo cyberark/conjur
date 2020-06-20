@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe 'Authentication::Authenticate' do
+  include_context "security mocks"
+
   ####################################
   # Available Authenticators - doubles
   ####################################
@@ -18,27 +20,6 @@ RSpec.describe 'Authentication::Authenticate' do
       'authn-always-pass' => authenticator(pass: true),
       'authn-always-fail' => authenticator(pass: false)
     }
-  end
-
-  ####################################
-  # Security doubles
-  ####################################
-
-  let (:mocked_security_validator) { double("MockSecurityValidator") }
-  let (:mocked_origin_validator) { double("MockOriginValidator") }
-
-  before(:each) do
-    allow(Authentication::Security::ValidateSecurity)
-      .to receive(:new)
-            .and_return(mocked_security_validator)
-    allow(mocked_security_validator).to receive(:call)
-                                          .and_return(true)
-
-    allow(Authentication::ValidateOrigin)
-      .to receive(:new)
-            .and_return(mocked_origin_validator)
-    allow(mocked_origin_validator).to receive(:call)
-                                        .and_return(true)
   end
 
   ####################################
@@ -94,8 +75,11 @@ RSpec.describe 'Authentication::Authenticate' do
       )
 
       Authentication::Authenticate.new(
-        token_factory: token_factory,
-        audit_log: audit_logger
+        validate_webservice_access:      mock_validate_webservice_access(validation_succeeded: true),
+        validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: true),
+        validate_origin:                 mocked_origin_validator,
+        token_factory:                   token_factory,
+        audit_log:                       audit_logger
       ).call(
         authenticator_input:    input_,
         authenticators:         authenticators,
@@ -104,9 +88,11 @@ RSpec.describe 'Authentication::Authenticate' do
     end
 
     it "raises AuthenticatorNotFound" do
-      expect { subject }.to raise_error(
-                              Errors::Authentication::AuthenticatorNotFound
-                            )
+      expect { subject }.to(
+        raise_error(
+          Errors::Authentication::AuthenticatorNotFound
+        )
+      )
     end
   end
 
@@ -125,8 +111,11 @@ RSpec.describe 'Authentication::Authenticate' do
         )
 
         Authentication::Authenticate.new(
-          token_factory: token_factory,
-          audit_log: audit_logger
+          validate_webservice_access:      mock_validate_webservice_access(validation_succeeded: true),
+          validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: true),
+          validate_origin:                 mocked_origin_validator,
+          token_factory:                   token_factory,
+          audit_log:                       audit_logger
         ).call(
           authenticator_input:    input_,
           authenticators:         authenticators,
@@ -135,64 +124,123 @@ RSpec.describe 'Authentication::Authenticate' do
       end
 
       it "raises InvalidCredentials" do
-        expect { subject }.to raise_error(
-                                Errors::Authentication::InvalidCredentials
-                              )
+        expect { subject }.to(
+          raise_error(
+            Errors::Authentication::InvalidCredentials
+          )
+        )
       end
     end
 
     context "that receives valid credentials" do
-      let(:audit_success) { true }
+      context "with an inaccessible webservice" do
+        let(:audit_success) { true }
 
-      subject do
-        input_ = Authentication::AuthenticatorInput.new(
-          authenticator_name: 'authn-always-pass',
-          service_id:         nil,
-          account:            'my-acct',
-          username:           'my-user',
-          credentials:        'my-pw',
-          origin:             '127.0.0.1',
-          request:            nil
-        )
+        subject do
+          input_ = Authentication::AuthenticatorInput.new(
+            authenticator_name: 'authn-always-pass',
+            service_id:         nil,
+            account:            'my-acct',
+            username:           'my-user',
+            credentials:        'my-pw',
+            origin:             '127.0.0.1',
+            request:            nil
+          )
 
-        Authentication::Authenticate.new(
-          token_factory: token_factory,
-          audit_log: audit_logger
-        ).call(
-          authenticator_input:    input_,
-          authenticators:         authenticators,
-          enabled_authenticators: two_authenticator_env
-        )
-      end
-
-      it "returns a new token" do
-        expect(subject).to equal(a_new_token)
-      end
-
-      context "when security fails" do
-        let(:audit_success) { false }
+          Authentication::Authenticate.new(
+            validate_webservice_access:      mock_validate_webservice_access(validation_succeeded: false),
+            validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: true),
+            validate_origin:                 mocked_origin_validator,
+            token_factory:                   token_factory,
+            audit_log:                       audit_logger
+          ).call(
+            authenticator_input:    input_,
+            authenticators:         authenticators,
+            enabled_authenticators: two_authenticator_env
+          )
+        end
 
         it "raises an error" do
-          allow(mocked_security_validator).to receive(:call)
-                                                .and_raise('FAKE_SECURITY_ERROR')
-
-          expect { subject }.to raise_error(
-                                  /FAKE_SECURITY_ERROR/
-                                )
+          expect { subject }.to(
+            raise_error(
+              validate_webservice_access_error
+            )
+          )
         end
       end
 
-      context "when origin validation fails" do
-        let(:audit_success) { false }
+      context "with a non-whitelisted webservice" do
+        let(:audit_success) { true }
+
+        subject do
+          input_ = Authentication::AuthenticatorInput.new(
+            authenticator_name: 'authn-always-pass',
+            service_id:         nil,
+            account:            'my-acct',
+            username:           'my-user',
+            credentials:        'my-pw',
+            origin:             '127.0.0.1',
+            request:            nil
+          )
+
+          Authentication::Authenticate.new(
+            validate_webservice_access:      mock_validate_webservice_access(validation_succeeded: true),
+            validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: false),
+            validate_origin:                 mocked_origin_validator,
+            token_factory:                   token_factory,
+            audit_log:                       audit_logger
+          ).call(
+            authenticator_input:    input_,
+            authenticators:         authenticators,
+            enabled_authenticators: two_authenticator_env
+          )
+        end
 
         it "raises an error" do
-          allow(mocked_origin_validator).to receive(:call)
-                                              .and_raise('FAKE_ORIGIN_ERROR')
-
-          expect { subject }.to raise_error(
-                                  /FAKE_ORIGIN_ERROR/
-                                )
+          expect { subject }.to(
+            raise_error(
+              validate_whitelisted_webservice_error
+            )
+          )
         end
+      end
+
+      context "when webservice validations succeed" do
+        let(:audit_success) { true }
+
+        subject do
+          input_ = Authentication::AuthenticatorInput.new(
+            authenticator_name: 'authn-always-pass',
+            service_id:         nil,
+            account:            'my-acct',
+            username:           'my-user',
+            credentials:        'my-pw',
+            origin:             '127.0.0.1',
+            request:            nil
+          )
+
+          Authentication::Authenticate.new(
+            validate_webservice_access:      mock_validate_webservice_access(validation_succeeded: true),
+            validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: true),
+            validate_origin:                 mocked_origin_validator,
+            token_factory:                   token_factory,
+            audit_log:                       audit_logger
+          ).call(
+            authenticator_input:    input_,
+            authenticators:         authenticators,
+            enabled_authenticators: two_authenticator_env
+          )
+        end
+
+        it "returns a new token" do
+          expect(subject).to(
+            equal(
+              a_new_token
+            )
+          )
+        end
+
+        it_behaves_like "raises an error when origin validation fails"
       end
     end
   end

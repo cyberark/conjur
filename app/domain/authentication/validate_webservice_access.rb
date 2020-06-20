@@ -8,7 +8,6 @@ module Authentication
 
   module Security
 
-    Log ||= LogMessages::Authentication::Security
     Err ||= Errors::Authentication::Security
     # Possible Errors Raised:
     # AccountNotDefined, WebserviceNotFound,
@@ -16,13 +15,13 @@ module Authentication
 
     ValidateWebserviceAccess ||= CommandClass.new(
       dependencies: {
-        role_class: ::Role,
-        resource_class: ::Resource,
+        role_class:                 ::Role,
+        resource_class:             ::Resource,
         validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
-        validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
-        logger: Rails.logger
+        validate_account_exists:    ::Authentication::Security::ValidateAccountExists.new,
+        logger:                     Rails.logger
       },
-      inputs: %i(webservice account user_id privilege)
+      inputs:       %i(webservice account user_id privilege)
     ) do
 
       def call
