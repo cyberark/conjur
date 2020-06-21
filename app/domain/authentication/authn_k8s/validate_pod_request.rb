@@ -5,7 +5,7 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
-    Err = Errors::Authentication::AuthnK8s
+    Err         = Errors::Authentication::AuthnK8s
     SecurityErr = Errors::Authentication::Security
     # Possible Errors Raised:
     # WebserviceNotFound, RoleNotAuthorizedOnResource, PodNotFound
@@ -13,12 +13,12 @@ module Authentication
 
     ValidatePodRequest ||= CommandClass.new(
       dependencies: {
-        resource_class:                  Resource,
-        k8s_object_lookup_class:         K8sObjectLookup,
-        validate_whitelisted_webservice: ::Authentication::Security::ValidateWhitelistedWebservice.new,
-        validate_webservice_access:      ::Authentication::Security::ValidateWebserviceAccess.new,
-        enabled_authenticators:          Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
-        validate_application_identity:   ValidateApplicationIdentity.new
+        resource_class:                     Resource,
+        k8s_object_lookup_class:            K8sObjectLookup,
+        validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
+        validate_webservice_access:         ::Authentication::Security::ValidateWebserviceAccess.new,
+        enabled_authenticators:             Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
+        validate_application_identity:      ValidateApplicationIdentity.new
       },
       inputs:       %i(pod_request)
     ) do
@@ -36,7 +36,7 @@ module Authentication
       private
 
       def validate_webservice_is_whitelisted
-        @validate_whitelisted_webservice.(
+        @validate_webservice_is_whitelisted.(
           webservice: webservice,
           account: k8s_host.account,
           enabled_authenticators: @enabled_authenticators

@@ -44,7 +44,7 @@ RSpec.describe Authentication::ValidateStatus do
                                     .and_return("#{resource_id}/status")
 
       allow(status_webservice).to receive(:parent_webservice)
-                             .and_return(mock_webservice(resource_id))
+                                    .and_return(mock_webservice(resource_id))
     end
   end
 
@@ -85,19 +85,19 @@ RSpec.describe Authentication::ValidateStatus do
 
   let (:mock_implemented_authenticators) do
     {
-      'authn-status-pass' => authenticator(is_status_defined: true, is_failing_requirements: false),
+      'authn-status-pass'            => authenticator(is_status_defined: true, is_failing_requirements: false),
       'authn-status-not-implemented' => authenticator(is_status_defined: false, is_failing_requirements: false),
-      'authn-status-fail' => authenticator(is_status_defined: true, is_failing_requirements: true)
+      'authn-status-fail'            => authenticator(is_status_defined: true, is_failing_requirements: true)
     }
   end
 
   def mock_status_input(authenticator_name)
     double('status_input').tap do |status_input|
       allow(status_input).to receive(:authenticator_name)
-                                    .and_return(authenticator_name)
+                               .and_return(authenticator_name)
 
       allow(status_input).to receive(:account)
-                                    .and_return(test_account)
+                               .and_return(test_account)
 
       allow(status_input).to receive(:status_webservice)
                                .and_return(mock_status_webservice(authenticator_name))
@@ -117,15 +117,15 @@ RSpec.describe Authentication::ValidateStatus do
 
     subject do
       Authentication::ValidateStatus.new(
-        role_class: mock_role_class,
-        validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: true),
-        validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
-        validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-        implemented_authenticators: mock_implemented_authenticators,
-        audit_log: audit_logger
+        role_class:                         mock_role_class,
+        validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true),
+        validate_webservice_access:         mock_validate_webservice_access(validation_succeeded: true),
+        validate_webservice_exists:         mock_validate_webservice_exists(validation_succeeded: true),
+        implemented_authenticators:         mock_implemented_authenticators,
+        audit_log:                          audit_logger
       ).call(
         authenticator_status_input: mock_status_input("authn-status-pass"),
-        enabled_authenticators: mock_enabled_authenticators
+        enabled_authenticators:     mock_enabled_authenticators
       )
     end
 
@@ -137,15 +137,15 @@ RSpec.describe Authentication::ValidateStatus do
   context "A non-existing authenticator" do
     subject do
       Authentication::ValidateStatus.new(
-        role_class: mock_role_class,
-        validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: true),
-        validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
-        validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-        implemented_authenticators: mock_implemented_authenticators,
-        audit_log: audit_logger
+        role_class:                         mock_role_class,
+        validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true),
+        validate_webservice_access:         mock_validate_webservice_access(validation_succeeded: true),
+        validate_webservice_exists:         mock_validate_webservice_exists(validation_succeeded: true),
+        implemented_authenticators:         mock_implemented_authenticators,
+        audit_log:                          audit_logger
       ).call(
         authenticator_status_input: mock_status_input("authn-non-exist"),
-        enabled_authenticators: mock_enabled_authenticators
+        enabled_authenticators:     mock_enabled_authenticators
       )
     end
 
@@ -160,15 +160,15 @@ RSpec.describe Authentication::ValidateStatus do
 
       subject do
         Authentication::ValidateStatus.new(
-          role_class: mock_role_class,
-          validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: true),
-          validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
-          validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-          implemented_authenticators: mock_implemented_authenticators,
-          audit_log: audit_logger
+          role_class:                         mock_role_class,
+          validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true),
+          validate_webservice_access:         mock_validate_webservice_access(validation_succeeded: true),
+          validate_webservice_exists:         mock_validate_webservice_exists(validation_succeeded: true),
+          implemented_authenticators:         mock_implemented_authenticators,
+          audit_log:                          audit_logger
         ).call(
           authenticator_status_input: mock_status_input("authn-status-not-implemented"),
-          enabled_authenticators: mock_enabled_authenticators
+          enabled_authenticators:     mock_enabled_authenticators
         )
       end
 
@@ -183,15 +183,15 @@ RSpec.describe Authentication::ValidateStatus do
 
         subject do
           Authentication::ValidateStatus.new(
-            role_class: mock_role_class,
-            validate_whitelisted_webservice: mock_validate_webservice_exists(validation_succeeded: true),
-            validate_webservice_access: mock_validate_webservice_access(validation_succeeded: false),
-            validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-            implemented_authenticators: mock_implemented_authenticators,
-            audit_log: audit_logger
+            role_class:                         mock_role_class,
+            validate_webservice_is_whitelisted: mock_validate_webservice_exists(validation_succeeded: true),
+            validate_webservice_access:         mock_validate_webservice_access(validation_succeeded: false),
+            validate_webservice_exists:         mock_validate_webservice_exists(validation_succeeded: true),
+            implemented_authenticators:         mock_implemented_authenticators,
+            audit_log:                          audit_logger
           ).call(
             authenticator_status_input: mock_status_input("authn-status-pass"),
-            enabled_authenticators: mock_enabled_authenticators
+            enabled_authenticators:     mock_enabled_authenticators
           )
         end
 
@@ -207,15 +207,15 @@ RSpec.describe Authentication::ValidateStatus do
 
           subject do
             Authentication::ValidateStatus.new(
-              role_class: mock_role_class,
-              validate_whitelisted_webservice: mock_validate_webservice_exists(validation_succeeded: true),
-              validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
-              validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: false),
-              implemented_authenticators: mock_implemented_authenticators,
-              audit_log: audit_logger
+              role_class:                         mock_role_class,
+              validate_webservice_is_whitelisted: mock_validate_webservice_exists(validation_succeeded: true),
+              validate_webservice_access:         mock_validate_webservice_access(validation_succeeded: true),
+              validate_webservice_exists:         mock_validate_webservice_exists(validation_succeeded: false),
+              implemented_authenticators:         mock_implemented_authenticators,
+              audit_log:                          audit_logger
             ).call(
               authenticator_status_input: mock_status_input("authn-status-pass"),
-              enabled_authenticators: mock_enabled_authenticators
+              enabled_authenticators:     mock_enabled_authenticators
             )
           end
 
@@ -231,20 +231,20 @@ RSpec.describe Authentication::ValidateStatus do
 
             subject do
               Authentication::ValidateStatus.new(
-                role_class: mock_role_class,
-                validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: false),
-                validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
-                validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-                implemented_authenticators: mock_implemented_authenticators,
-                audit_log: audit_logger
+                role_class:                         mock_role_class,
+                validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: false),
+                validate_webservice_access:         mock_validate_webservice_access(validation_succeeded: true),
+                validate_webservice_exists:         mock_validate_webservice_exists(validation_succeeded: true),
+                implemented_authenticators:         mock_implemented_authenticators,
+                audit_log:                          audit_logger
               ).call(
                 authenticator_status_input: mock_status_input("authn-status-pass"),
-                enabled_authenticators: not_including_enabled_authenticators
+                enabled_authenticators:     not_including_enabled_authenticators
               )
             end
 
-            it "raises the error raised by validate_whitelisted_webservice" do
-              expect { subject }.to raise_error(validate_whitelisted_webservice_error)
+            it "raises the error raised by validate_webservice_is_whitelisted" do
+              expect { subject }.to raise_error(validate_webservice_is_whitelisted_error)
             end
           end
 
@@ -253,15 +253,15 @@ RSpec.describe Authentication::ValidateStatus do
             context "with failing specific requirements" do
               subject do
                 Authentication::ValidateStatus.new(
-                  role_class: mock_role_class,
-                  validate_whitelisted_webservice: mock_validate_webservice_exists(validation_succeeded: true),
-                  validate_webservice_access: mock_validate_webservice_access(validation_succeeded: true),
-                  validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-                  implemented_authenticators: mock_implemented_authenticators,
-                  audit_log: audit_logger
+                  role_class:                         mock_role_class,
+                  validate_webservice_is_whitelisted: mock_validate_webservice_exists(validation_succeeded: true),
+                  validate_webservice_access:         mock_validate_webservice_access(validation_succeeded: true),
+                  validate_webservice_exists:         mock_validate_webservice_exists(validation_succeeded: true),
+                  implemented_authenticators:         mock_implemented_authenticators,
+                  audit_log:                          audit_logger
                 ).call(
                   authenticator_status_input: mock_status_input("authn-status-fail"),
-                  enabled_authenticators: mock_enabled_authenticators
+                  enabled_authenticators:     mock_enabled_authenticators
                 )
               end
 

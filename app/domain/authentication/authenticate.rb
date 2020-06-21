@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'command_class'
-require 'authentication/validate_whitelisted_webservice'
+require 'authentication/validate_webservice_is_whitelisted'
 require 'authentication/validate_webservice_access'
 
 module Authentication
@@ -12,11 +12,11 @@ module Authentication
 
   Authenticate ||= CommandClass.new(
     dependencies: {
-      token_factory:                   TokenFactory.new,
-      validate_whitelisted_webservice: ::Authentication::Security::ValidateWhitelistedWebservice.new,
-      validate_webservice_access:      ::Authentication::Security::ValidateWebserviceAccess.new,
-      validate_origin:                 ::Authentication::ValidateOrigin.new,
-      audit_log:                       ::Audit.logger
+      token_factory:                      TokenFactory.new,
+      validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
+      validate_webservice_access:         ::Authentication::Security::ValidateWebserviceAccess.new,
+      validate_origin:                    ::Authentication::ValidateOrigin.new,
+      audit_log:                          ::Audit.logger
     },
     inputs:       %i(authenticator_input authenticators enabled_authenticators)
   ) do
@@ -55,7 +55,7 @@ module Authentication
     end
 
     def validate_webservice_is_whitelisted
-      @validate_whitelisted_webservice.(
+      @validate_webservice_is_whitelisted.(
         webservice: webservice,
         account: account,
         enabled_authenticators: @enabled_authenticators
@@ -83,10 +83,10 @@ module Authentication
       @audit_log.log(
         ::Audit::Event::Authn::Authenticate.new(
           authenticator_name: authenticator_name,
-          service: webservice,
-          role: role,
-          success: true,
-          error_message: nil
+          service:            webservice,
+          role:               role,
+          success:            true,
+          error_message:      nil
         )
       )
     end
@@ -95,10 +95,10 @@ module Authentication
       @audit_log.log(
         ::Audit::Event::Authn::Authenticate.new(
           authenticator_name: authenticator_name,
-          service: webservice,
-          role: role,
-          success: false,
-          error_message: err.message
+          service:            webservice,
+          role:               role,
+          success:            false,
+          error_message:      err.message
         )
       )
     end

@@ -13,7 +13,7 @@ shared_context "security mocks" do
   let(:mocked_account_validator) { double("ValidateAccountExists") }
 
   let(:validate_account_exists_error) { "validate account exists error" }
-  let(:validate_whitelisted_webservice_error) { "validate whitelisted webservice error" }
+  let(:validate_webservice_is_whitelisted_error) { "validate whitelisted webservice error" }
   let(:validate_webservice_access_error) { "validate webservice access error" }
   let(:validate_webservice_exists_error) { "validate webservice exists error" }
   let(:validate_webservice_is_authenticator_error) { "validate webservice is authenticator error" }
@@ -21,16 +21,16 @@ shared_context "security mocks" do
   def mock_webservice(account, authenticator_name, service_id)
     double('webservice').tap do |webservice|
       allow(webservice).to receive(:authenticator_name)
-          .and_return(authenticator_name)
+                             .and_return(authenticator_name)
 
       allow(webservice).to receive(:service_id)
-          .and_return(service_id)
+                             .and_return(service_id)
 
       allow(webservice).to receive(:name)
-          .and_return("#{authenticator_name}/#{service_id}")
+                             .and_return("#{authenticator_name}/#{service_id}")
 
       allow(webservice).to receive(:resource_id)
-          .and_return("#{account}:webservice:conjur/#{authenticator_name}/#{service_id}")
+                             .and_return("#{account}:webservice:conjur/#{authenticator_name}/#{service_id}")
     end
   end
 
@@ -63,8 +63,8 @@ shared_context "security mocks" do
     mock_validator(validation_succeeded: validation_succeeded, validation_error: validate_account_exists_error)
   end
 
-  def mock_validate_whitelisted_webservice(validation_succeeded:)
-    mock_validator(validation_succeeded: validation_succeeded, validation_error: validate_whitelisted_webservice_error)
+  def mock_validate_webservice_is_whitelisted(validation_succeeded:)
+    mock_validator(validation_succeeded: validation_succeeded, validation_error: validate_webservice_is_whitelisted_error)
   end
 
   def mock_validate_webservice_access(validation_succeeded:)

@@ -18,14 +18,14 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
   let(:host_annotations) { [host_annotation_1, host_annotation_2] }
 
   let(:host) { double("Host", :role => host_role,
-                      :annotations  => host_annotations) }
+    :annotations                    => host_annotations) }
 
   let(:k8s_host) {
     double(
       "K8sHost",
-      :account => account,
-      :conjur_host_id     => host_id,
-      :k8s_host_name     => host_name
+      :account        => account,
+      :conjur_host_id => host_id,
+      :k8s_host_name  => host_name
     )
   }
 
@@ -38,9 +38,9 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
   let(:spiffe_name) { "SpiffeName" }
   let(:spiffe_namespace) { "SpiffeNamespace" }
   let(:spiffe_id) { double("SpiffeId", :name => spiffe_name,
-                           :namespace        => spiffe_namespace) }
+    :namespace                               => spiffe_namespace) }
   let(:pod_request) { double("PodRequest", :k8s_host => k8s_host,
-                             :spiffe_id              => spiffe_id) }
+    :spiffe_id                                       => spiffe_id) }
   let(:pod_spec) { double("PodSpec") }
   let(:pod) { double("Pod", :spec => pod_spec) }
 
@@ -73,12 +73,12 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
     context "that passes webservice validations" do
       subject do
         Authentication::AuthnK8s::ValidatePodRequest.new(
-          resource_class:                  resource_class,
-          k8s_object_lookup_class:         k8s_object_lookup_class,
-          validate_webservice_access:      mock_validate_webservice_access(validation_succeeded: true),
-          validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: true),
-          enabled_authenticators:          "#{authenticator_name}/#{service_id}",
-          validate_application_identity:   validate_application_identity
+          resource_class:                     resource_class,
+          k8s_object_lookup_class:            k8s_object_lookup_class,
+          validate_webservice_access:         mock_validate_webservice_access(validation_succeeded: true),
+          validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true),
+          enabled_authenticators:             "#{authenticator_name}/#{service_id}",
+          validate_application_identity:      validate_application_identity
         ).call(
           pod_request: pod_request
         )
@@ -111,12 +111,12 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
     context "with an inaccessible webservice" do
       subject do
         Authentication::AuthnK8s::ValidatePodRequest.new(
-          resource_class:                  resource_class,
-          k8s_object_lookup_class:         k8s_object_lookup_class,
-          validate_webservice_access:      mock_validate_webservice_access(validation_succeeded: false),
-          validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: true),
-          enabled_authenticators:          "#{authenticator_name}/#{service_id}",
-          validate_application_identity:   validate_application_identity
+          resource_class:                     resource_class,
+          k8s_object_lookup_class:            k8s_object_lookup_class,
+          validate_webservice_access:         mock_validate_webservice_access(validation_succeeded: false),
+          validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true),
+          enabled_authenticators:             "#{authenticator_name}/#{service_id}",
+          validate_application_identity:      validate_application_identity
         ).call(
           pod_request: pod_request
         )
@@ -134,12 +134,12 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
     context "with a non-whitelisted webservice" do
       subject do
         Authentication::AuthnK8s::ValidatePodRequest.new(
-          resource_class:                  resource_class,
-          k8s_object_lookup_class:         k8s_object_lookup_class,
-          validate_webservice_access:      mock_validate_webservice_access(validation_succeeded: true),
-          validate_whitelisted_webservice: mock_validate_whitelisted_webservice(validation_succeeded: false),
-          enabled_authenticators:          "#{authenticator_name}/#{service_id}",
-          validate_application_identity:   validate_application_identity
+          resource_class:                     resource_class,
+          k8s_object_lookup_class:            k8s_object_lookup_class,
+          validate_webservice_access:         mock_validate_webservice_access(validation_succeeded: true),
+          validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: false),
+          enabled_authenticators:             "#{authenticator_name}/#{service_id}",
+          validate_application_identity:      validate_application_identity
         ).call(
           pod_request: pod_request
         )
@@ -148,7 +148,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
       it 'raises an error' do
         expect { subject }.to(
           raise_error(
-            validate_whitelisted_webservice_error
+            validate_webservice_is_whitelisted_error
           )
         )
       end

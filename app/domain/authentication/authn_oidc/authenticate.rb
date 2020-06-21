@@ -16,16 +16,16 @@ module Authentication
     #
     Authenticate = CommandClass.new(
       dependencies: {
-        enabled_authenticators:          Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
-        fetch_authenticator_secrets:     Authentication::Util::FetchAuthenticatorSecrets.new,
-        token_factory:                   TokenFactory.new,
-        validate_account_exists:         ::Authentication::Security::ValidateAccountExists.new,
-        validate_whitelisted_webservice: ::Authentication::Security::ValidateWhitelistedWebservice.new,
-        validate_webservice_access:      ::Authentication::Security::ValidateWebserviceAccess.new,
-        validate_origin:                 ValidateOrigin.new,
-        audit_log:                       ::Audit.logger,
-        verify_and_decode_token:         ::Authentication::OAuth::VerifyAndDecodeToken.new,
-        logger:                          Rails.logger
+        enabled_authenticators:             Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
+        fetch_authenticator_secrets:        Authentication::Util::FetchAuthenticatorSecrets.new,
+        token_factory:                      TokenFactory.new,
+        validate_account_exists:            ::Authentication::Security::ValidateAccountExists.new,
+        validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
+        validate_webservice_access:         ::Authentication::Security::ValidateWebserviceAccess.new,
+        validate_origin:                    ValidateOrigin.new,
+        audit_log:                          ::Audit.logger,
+        verify_and_decode_token:            ::Authentication::OAuth::VerifyAndDecodeToken.new,
+        logger:                             Rails.logger
       },
       inputs:       %i(authenticator_input)
     ) do
@@ -117,7 +117,7 @@ module Authentication
       end
 
       def validate_webservice_is_whitelisted
-        @validate_whitelisted_webservice.(
+        @validate_webservice_is_whitelisted.(
           webservice: webservice,
           account: account,
           enabled_authenticators: @enabled_authenticators
@@ -145,10 +145,10 @@ module Authentication
         @audit_log.log(
           ::Audit::Event::Authn::Authenticate.new(
             authenticator_name: authenticator_name,
-            service: webservice,
-            role: role,
-            success: true,
-            error_message: nil
+            service:            webservice,
+            role:               role,
+            success:            true,
+            error_message:      nil
           )
         )
       end
@@ -157,10 +157,10 @@ module Authentication
         @audit_log.log(
           ::Audit::Event::Authn::Authenticate.new(
             authenticator_name: authenticator_name,
-            service: webservice,
-            role: role,
-            success: false,
-            error_message: err.message
+            service:            webservice,
+            role:               role,
+            success:            false,
+            error_message:      err.message
           )
         )
       end

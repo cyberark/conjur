@@ -14,12 +14,12 @@ module Authentication
 
   ValidateStatus ||= CommandClass.new(
     dependencies: {
-      validate_whitelisted_webservice: ::Authentication::Security::ValidateWhitelistedWebservice.new,
-      validate_webservice_access:      ::Authentication::Security::ValidateWebserviceAccess.new,
-      validate_webservice_exists:      ::Authentication::Security::ValidateWebserviceExists.new,
-      role_class:                      ::Role,
-      implemented_authenticators:      Authentication::InstalledAuthenticators.authenticators(ENV),
-      audit_log:                       ::Audit.logger
+      validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
+      validate_webservice_access:         ::Authentication::Security::ValidateWebserviceAccess.new,
+      validate_webservice_exists:         ::Authentication::Security::ValidateWebserviceExists.new,
+      role_class:                         ::Role,
+      implemented_authenticators:         Authentication::InstalledAuthenticators.authenticators(ENV),
+      audit_log:                          ::Audit.logger
     },
     inputs:       %i(authenticator_status_input enabled_authenticators)
   ) do
@@ -64,7 +64,7 @@ module Authentication
     end
 
     def validate_webservice_is_whitelisted
-      @validate_whitelisted_webservice.(
+      @validate_webservice_is_whitelisted.(
         webservice: webservice,
         account: account,
         enabled_authenticators: @enabled_authenticators
@@ -88,10 +88,10 @@ module Authentication
       @audit_log.log(
         ::Audit::Event::Authn::ValidateStatus.new(
           authenticator_name: authenticator_name,
-          service: webservice,
-          role: role,
-          success: true,
-          error_message: nil
+          service:            webservice,
+          role:               role,
+          success:            true,
+          error_message:      nil
         )
       )
     end
@@ -100,10 +100,10 @@ module Authentication
       @audit_log.log(
         ::Audit::Event::Authn::ValidateStatus.new(
           authenticator_name: authenticator_name,
-          service: webservice,
-          role: role,
-          success: false,
-          error_message: err.message
+          service:            webservice,
+          role:               role,
+          success:            false,
+          error_message:      err.message
         )
       )
     end
