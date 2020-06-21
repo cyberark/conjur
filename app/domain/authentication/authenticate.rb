@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'command_class'
-require 'authentication/validate_webservice_is_whitelisted'
-require 'authentication/validate_user_can_access_webservice'
 
 module Authentication
 

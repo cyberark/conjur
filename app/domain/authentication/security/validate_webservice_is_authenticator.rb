@@ -1,5 +1,7 @@
 module Authentication
+
   module Security
+
     ValidateWebserviceIsAuthenticator = CommandClass.new(
       dependencies: {
         installed_authenticators_class: Authentication::InstalledAuthenticators

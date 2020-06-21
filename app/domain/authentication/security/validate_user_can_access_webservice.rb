@@ -1,14 +1,11 @@
 # frozen_string_literal: true
 
 require 'logs'
-require 'authentication/validate_webservice_exists'
-require 'authentication/validate_account_exists'
 
 module Authentication
 
   module Security
 
-    Err ||= Errors::Authentication::Security
     # Possible Errors Raised:
     # AccountNotDefined, WebserviceNotFound,
     # RoleNotFound, RoleNotAuthorizedOnResource
@@ -55,13 +52,13 @@ module Authentication
       end
 
       def validate_user_is_defined
-        raise Err::RoleNotFound, @user_id unless user_role
+        raise Errors::Authentication::Security::RoleNotFound, @user_id unless user_role
       end
 
       def validate_user_has_access
         has_access = user_role.allowed_to?(@privilege, webservice_resource)
         unless has_access
-          raise Err::RoleNotAuthorizedOnResource.new(@user_id, @privilege, webservice_resource_id)
+          raise Errors::Authentication::Security::RoleNotAuthorizedOnResource.new(@user_id, @privilege, webservice_resource_id)
         end
       end
 

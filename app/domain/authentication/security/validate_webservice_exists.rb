@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
-require 'authentication/validate_account_exists'
-
 module Authentication
 
   module Security
 
-    Err ||= Errors::Authentication::Security
     # Possible Errors Raised:
     # AccountNotDefined, WebserviceNotFound
 
@@ -41,7 +38,7 @@ module Authentication
       end
 
       def validate_webservice_exists
-        raise Err::WebserviceNotFound, @webservice.name unless webservice_resource
+        raise Errors::Authentication::Security::WebserviceNotFound, @webservice.name unless webservice_resource
       end
 
       def webservice_resource

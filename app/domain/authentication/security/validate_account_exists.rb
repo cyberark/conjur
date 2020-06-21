@@ -4,8 +4,6 @@ module Authentication
 
   module Security
 
-    Err ||= Errors::Authentication::Security
-
     ValidateAccountExists ||= CommandClass.new(
       dependencies: {
         role_class: ::Role
@@ -20,7 +18,7 @@ module Authentication
       private
 
       def validate_account_exists
-        raise Err::AccountNotDefined, @account unless account_admin_role
+        raise Errors::Authentication::Security::AccountNotDefined, @account unless account_admin_role
       end
 
       def account_admin_role

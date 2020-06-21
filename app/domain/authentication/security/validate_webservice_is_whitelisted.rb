@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
 require 'authentication/webservices'
-require 'authentication/validate_account_exists'
 
 module Authentication
 
   module Security
 
-    Err ||= Errors::Authentication::Security
     # Possible Errors Raised:
     # AccountNotDefined, AuthenticatorNotWhitelisted
 
@@ -43,7 +41,7 @@ module Authentication
 
       def validate_webservice_is_whitelisted
         is_whitelisted = whitelisted_webservices.include?(@webservice)
-        raise Err::AuthenticatorNotWhitelisted, @webservice.name unless is_whitelisted
+        raise Errors::Authentication::Security::AuthenticatorNotWhitelisted, @webservice.name unless is_whitelisted
       end
 
       def whitelisted_webservices
