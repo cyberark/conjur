@@ -63,7 +63,7 @@ RSpec.describe 'Authentication::Oidc' do
   end
 
   let(:audit_success) { true }
-  let(:audit_logger) do
+  let(:mocked_audit_logger) do
     double('audit_logger').tap do |logger|
       expect(logger).to receive(:log)
     end
@@ -99,13 +99,13 @@ RSpec.describe 'Authentication::Oidc' do
 
             ::Authentication::AuthnOidc::Authenticate.new(
               enabled_authenticators:              authenticator_name,
-              token_factory:                       token_factory,
+              token_factory:                       mocked_token_factory,
               validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
               validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
               validate_account_exists:             mocked_account_validator,
               validate_origin:                     mocked_origin_validator,
               verify_and_decode_token:             mocked_decode_and_verify_id_token,
-              audit_log:                           audit_logger
+              audit_log:                           mocked_audit_logger
             ).call(
               authenticator_input: input_
             )
@@ -143,13 +143,13 @@ RSpec.describe 'Authentication::Oidc' do
 
           ::Authentication::AuthnOidc::Authenticate.new(
             enabled_authenticators:              authenticator_name,
-            token_factory:                       token_factory,
+            token_factory:                       mocked_token_factory,
             validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: false),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
             validate_account_exists:             mocked_account_validator,
             validate_origin:                     mocked_origin_validator,
             verify_and_decode_token:             mocked_decode_and_verify_id_token,
-            audit_log:                           audit_logger
+            audit_log:                           mocked_audit_logger
           ).call(
             authenticator_input: input_
           )
@@ -179,13 +179,13 @@ RSpec.describe 'Authentication::Oidc' do
 
           ::Authentication::AuthnOidc::Authenticate.new(
             enabled_authenticators:              authenticator_name,
-            token_factory:                       token_factory,
+            token_factory:                       mocked_token_factory,
             validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: false),
             validate_account_exists:             mocked_account_validator,
             validate_origin:                     mocked_origin_validator,
             verify_and_decode_token:             mocked_decode_and_verify_id_token,
-            audit_log:                           audit_logger
+            audit_log:                           mocked_audit_logger
           ).call(
             authenticator_input: input_
           )
@@ -215,13 +215,13 @@ RSpec.describe 'Authentication::Oidc' do
 
           ::Authentication::AuthnOidc::Authenticate.new(
             enabled_authenticators:              authenticator_name,
-            token_factory:                       token_factory,
+            token_factory:                       mocked_token_factory,
             validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
             validate_account_exists:             mocked_account_validator,
             validate_origin:                     mocked_origin_validator,
             verify_and_decode_token:             mocked_decode_and_verify_id_token,
-            audit_log:                           audit_logger
+            audit_log:                           mocked_audit_logger
           ).call(
             authenticator_input: input_
           )
@@ -251,13 +251,13 @@ RSpec.describe 'Authentication::Oidc' do
 
           ::Authentication::AuthnOidc::Authenticate.new(
             enabled_authenticators:              authenticator_name,
-            token_factory:                       token_factory,
+            token_factory:                       mocked_token_factory,
             validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
             validate_account_exists:             mocked_account_validator,
             validate_origin:                     mocked_origin_validator,
             verify_and_decode_token:             mocked_decode_and_verify_id_token,
-            audit_log:                           audit_logger
+            audit_log:                           mocked_audit_logger
           ).call(
             authenticator_input: input_
           )
@@ -288,13 +288,13 @@ RSpec.describe 'Authentication::Oidc' do
 
           ::Authentication::AuthnOidc::Authenticate.new(
             enabled_authenticators:              authenticator_name,
-            token_factory:                       token_factory,
+            token_factory:                       mocked_token_factory,
             validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
             validate_account_exists:             mocked_account_validator,
             validate_origin:                     mocked_origin_validator,
             verify_and_decode_token:             mocked_decode_and_verify_id_token,
-            audit_log:                           audit_logger
+            audit_log:                           mocked_audit_logger
           ).call(
             authenticator_input: input_
           )
@@ -320,13 +320,13 @@ RSpec.describe 'Authentication::Oidc' do
 
           ::Authentication::AuthnOidc::Authenticate.new(
             enabled_authenticators:              authenticator_name,
-            token_factory:                       token_factory,
+            token_factory:                       mocked_token_factory,
             validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
             validate_account_exists:             mocked_account_validator,
             validate_origin:                     mocked_origin_validator,
             verify_and_decode_token:             mocked_decode_and_verify_id_token,
-            audit_log:                           audit_logger
+            audit_log:                           mocked_audit_logger
           ).call(
             authenticator_input: input_
           )

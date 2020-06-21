@@ -40,7 +40,7 @@ RSpec.describe 'Authentication::Authenticate' do
   #
   let (:a_new_token) { 'A NICE NEW TOKEN' }
 
-  let (:token_factory) do
+  let (:mocked_token_factory) do
     double('TokenFactory', signed_token: a_new_token)
   end
 
@@ -49,7 +49,7 @@ RSpec.describe 'Authentication::Authenticate' do
   ####################################
 
   let(:audit_success) { true }
-  let(:audit_logger) do
+  let(:mocked_audit_logger) do
     double('audit_logger').tap do |logger|
       expect(logger).to receive(:log)
     end
@@ -78,8 +78,8 @@ RSpec.describe 'Authentication::Authenticate' do
         validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
         validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
         validate_origin:                     mocked_origin_validator,
-        token_factory:                       token_factory,
-        audit_log:                           audit_logger
+        token_factory:                       mocked_token_factory,
+        audit_log:                           mocked_audit_logger
       ).call(
         authenticator_input:    input_,
         authenticators:         authenticators,
@@ -114,8 +114,8 @@ RSpec.describe 'Authentication::Authenticate' do
           validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
           validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
           validate_origin:                     mocked_origin_validator,
-          token_factory:                       token_factory,
-          audit_log:                           audit_logger
+          token_factory:                       mocked_token_factory,
+          audit_log:                           mocked_audit_logger
         ).call(
           authenticator_input:    input_,
           authenticators:         authenticators,
@@ -151,8 +151,8 @@ RSpec.describe 'Authentication::Authenticate' do
             validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: false),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
             validate_origin:                     mocked_origin_validator,
-            token_factory:                       token_factory,
-            audit_log:                           audit_logger
+            token_factory:                       mocked_token_factory,
+            audit_log:                           mocked_audit_logger
           ).call(
             authenticator_input:    input_,
             authenticators:         authenticators,
@@ -187,8 +187,8 @@ RSpec.describe 'Authentication::Authenticate' do
             validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: false),
             validate_origin:                     mocked_origin_validator,
-            token_factory:                       token_factory,
-            audit_log:                           audit_logger
+            token_factory:                       mocked_token_factory,
+            audit_log:                           mocked_audit_logger
           ).call(
             authenticator_input:    input_,
             authenticators:         authenticators,
@@ -223,8 +223,8 @@ RSpec.describe 'Authentication::Authenticate' do
             validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
             validate_origin:                     mocked_origin_validator,
-            token_factory:                       token_factory,
-            audit_log:                           audit_logger
+            token_factory:                       mocked_token_factory,
+            audit_log:                           mocked_audit_logger
           ).call(
             authenticator_input:    input_,
             authenticators:         authenticators,
