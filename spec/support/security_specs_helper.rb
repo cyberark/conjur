@@ -14,7 +14,7 @@ shared_context "security mocks" do
 
   let(:validate_account_exists_error) { "validate account exists error" }
   let(:validate_webservice_is_whitelisted_error) { "validate whitelisted webservice error" }
-  let(:validate_webservice_access_error) { "validate webservice access error" }
+  let(:validate_user_can_access_webservice_error) { "validate webservice access error" }
   let(:validate_webservice_exists_error) { "validate webservice exists error" }
   let(:validate_webservice_is_authenticator_error) { "validate webservice is authenticator error" }
 
@@ -67,8 +67,8 @@ shared_context "security mocks" do
     mock_validator(validation_succeeded: validation_succeeded, validation_error: validate_webservice_is_whitelisted_error)
   end
 
-  def mock_validate_webservice_access(validation_succeeded:)
-    mock_validator(validation_succeeded: validation_succeeded, validation_error: validate_webservice_access_error)
+  def mock_validate_user_can_access_webservice(validation_succeeded:)
+    mock_validator(validation_succeeded: validation_succeeded, validation_error: validate_user_can_access_webservice_error)
   end
 
   def mock_validate_webservice_exists(validation_succeeded:)

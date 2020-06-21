@@ -13,7 +13,7 @@ module Authentication
     # AccountNotDefined, WebserviceNotFound,
     # RoleNotFound, RoleNotAuthorizedOnResource
 
-    ValidateWebserviceAccess ||= CommandClass.new(
+    ValidateUserCanAccessWebservice ||= CommandClass.new(
       dependencies: {
         role_class:                 ::Role,
         resource_class:             ::Resource,

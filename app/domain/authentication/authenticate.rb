@@ -2,7 +2,7 @@
 
 require 'command_class'
 require 'authentication/validate_webservice_is_whitelisted'
-require 'authentication/validate_webservice_access'
+require 'authentication/validate_user_can_access_webservice'
 
 module Authentication
 
@@ -12,11 +12,11 @@ module Authentication
 
   Authenticate ||= CommandClass.new(
     dependencies: {
-      token_factory:                      TokenFactory.new,
-      validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
-      validate_webservice_access:         ::Authentication::Security::ValidateWebserviceAccess.new,
-      validate_origin:                    ::Authentication::ValidateOrigin.new,
-      audit_log:                          ::Audit.logger
+      token_factory:                       TokenFactory.new,
+      validate_webservice_is_whitelisted:  ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
+      validate_user_can_access_webservice: ::Authentication::Security::ValidateUserCanAccessWebservice.new,
+      validate_origin:                     ::Authentication::ValidateOrigin.new,
+      audit_log:                           ::Audit.logger
     },
     inputs:       %i(authenticator_input authenticators enabled_authenticators)
   ) do
@@ -63,7 +63,7 @@ module Authentication
     end
 
     def validate_user_has_access_to_webservice
-      @validate_webservice_access.(
+      @validate_user_can_access_webservice.(
         webservice: webservice,
         account: account,
         user_id: username,

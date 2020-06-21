@@ -14,12 +14,12 @@ module Authentication
 
   ValidateStatus ||= CommandClass.new(
     dependencies: {
-      validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
-      validate_webservice_access:         ::Authentication::Security::ValidateWebserviceAccess.new,
-      validate_webservice_exists:         ::Authentication::Security::ValidateWebserviceExists.new,
-      role_class:                         ::Role,
-      implemented_authenticators:         Authentication::InstalledAuthenticators.authenticators(ENV),
-      audit_log:                          ::Audit.logger
+      validate_webservice_is_whitelisted:  ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
+      validate_user_can_access_webservice: ::Authentication::Security::ValidateUserCanAccessWebservice.new,
+      validate_webservice_exists:          ::Authentication::Security::ValidateWebserviceExists.new,
+      role_class:                          ::Role,
+      implemented_authenticators:          Authentication::InstalledAuthenticators.authenticators(ENV),
+      audit_log:                           ::Audit.logger
     },
     inputs:       %i(authenticator_status_input enabled_authenticators)
   ) do
@@ -55,7 +55,7 @@ module Authentication
     end
 
     def validate_user_has_access_to_status_webservice
-      @validate_webservice_access.(
+      @validate_user_can_access_webservice.(
         webservice: status_webservice,
         account: account,
         user_id: username,

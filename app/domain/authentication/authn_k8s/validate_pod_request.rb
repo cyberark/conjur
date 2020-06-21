@@ -13,12 +13,12 @@ module Authentication
 
     ValidatePodRequest ||= CommandClass.new(
       dependencies: {
-        resource_class:                     Resource,
-        k8s_object_lookup_class:            K8sObjectLookup,
-        validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
-        validate_webservice_access:         ::Authentication::Security::ValidateWebserviceAccess.new,
-        enabled_authenticators:             Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
-        validate_application_identity:      ValidateApplicationIdentity.new
+        resource_class:                      Resource,
+        k8s_object_lookup_class:             K8sObjectLookup,
+        validate_webservice_is_whitelisted:  ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
+        validate_user_can_access_webservice: ::Authentication::Security::ValidateUserCanAccessWebservice.new,
+        enabled_authenticators:              Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
+        validate_application_identity:       ValidateApplicationIdentity.new
       },
       inputs:       %i(pod_request)
     ) do
@@ -44,7 +44,7 @@ module Authentication
       end
 
       def validate_user_has_access_to_webservice
-        @validate_webservice_access.(
+        @validate_user_can_access_webservice.(
           webservice: webservice,
           account: k8s_host.account,
           user_id: k8s_host.k8s_host_name,

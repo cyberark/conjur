@@ -16,16 +16,16 @@ module Authentication
     #
     Authenticate = CommandClass.new(
       dependencies: {
-        enabled_authenticators:             Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
-        fetch_authenticator_secrets:        Authentication::Util::FetchAuthenticatorSecrets.new,
-        token_factory:                      TokenFactory.new,
-        validate_account_exists:            ::Authentication::Security::ValidateAccountExists.new,
-        validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
-        validate_webservice_access:         ::Authentication::Security::ValidateWebserviceAccess.new,
-        validate_origin:                    ValidateOrigin.new,
-        audit_log:                          ::Audit.logger,
-        verify_and_decode_token:            ::Authentication::OAuth::VerifyAndDecodeToken.new,
-        logger:                             Rails.logger
+        enabled_authenticators:              Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
+        fetch_authenticator_secrets:         Authentication::Util::FetchAuthenticatorSecrets.new,
+        token_factory:                       TokenFactory.new,
+        validate_account_exists:             ::Authentication::Security::ValidateAccountExists.new,
+        validate_webservice_is_whitelisted:  ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
+        validate_user_can_access_webservice: ::Authentication::Security::ValidateUserCanAccessWebservice.new,
+        validate_origin:                     ValidateOrigin.new,
+        audit_log:                           ::Audit.logger,
+        verify_and_decode_token:             ::Authentication::OAuth::VerifyAndDecodeToken.new,
+        logger:                              Rails.logger
       },
       inputs:       %i(authenticator_input)
     ) do
@@ -125,7 +125,7 @@ module Authentication
       end
 
       def validate_user_has_access_to_webservice
-        @validate_webservice_access.(
+        @validate_user_can_access_webservice.(
           webservice: webservice,
           account: account,
           user_id: username,

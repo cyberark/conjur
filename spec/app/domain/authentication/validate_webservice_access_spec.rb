@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Authentication::Security::ValidateWebserviceAccess do
+RSpec.describe Authentication::Security::ValidateUserCanAccessWebservice do
   include_context "security mocks"
 
   let (:full_access_resource_class) { resource_class('some random resource') }
@@ -39,16 +39,16 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
 
   context "An authorized webservice and authorized user" do
     subject do
-      Authentication::Security::ValidateWebserviceAccess.new(
-        role_class: full_access_role_class,
-        resource_class: full_access_resource_class,
+      Authentication::Security::ValidateUserCanAccessWebservice.new(
+        role_class:                 full_access_role_class,
+        resource_class:             full_access_resource_class,
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-        validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
+        validate_account_exists:    mock_validate_account_exists(validation_succeeded: true)
       ).call(
         webservice: webservice_mock,
-        account: test_account,
-        user_id: test_user_id,
-        privilege: 'test-privilege'
+        account:    test_account,
+        user_id:    test_user_id,
+        privilege:  'test-privilege'
       )
     end
 
@@ -59,16 +59,16 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
 
   context "A non-existing webservice and authorized user" do
     subject do
-      Authentication::Security::ValidateWebserviceAccess.new(
-        role_class: full_access_role_class,
-        resource_class: no_access_resource_class,
+      Authentication::Security::ValidateUserCanAccessWebservice.new(
+        role_class:                 full_access_role_class,
+        resource_class:             no_access_resource_class,
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: false),
-        validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
+        validate_account_exists:    mock_validate_account_exists(validation_succeeded: true)
       ).call(
         webservice: webservice_mock,
-        account: test_account,
-        user_id: test_user_id,
-        privilege: 'test-privilege'
+        account:    test_account,
+        user_id:    test_user_id,
+        privilege:  'test-privilege'
       )
     end
 
@@ -79,16 +79,16 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
 
   context "An authorized webservice and non-existent user" do
     subject do
-      Authentication::Security::ValidateWebserviceAccess.new(
-        role_class: nil_user_role_class,
-        resource_class: full_access_resource_class,
+      Authentication::Security::ValidateUserCanAccessWebservice.new(
+        role_class:                 nil_user_role_class,
+        resource_class:             full_access_resource_class,
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-        validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
+        validate_account_exists:    mock_validate_account_exists(validation_succeeded: true)
       ).call(
         webservice: webservice_mock,
-        account: test_account,
-        user_id: test_user_id,
-        privilege: 'test-privilege'
+        account:    test_account,
+        user_id:    test_user_id,
+        privilege:  'test-privilege'
       )
     end
     it "raises a RoleNotFound error" do
@@ -98,16 +98,16 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
 
   context "An authorized webservice and unauthorized user" do
     subject do
-      Authentication::Security::ValidateWebserviceAccess.new(
-        role_class: no_access_role_class,
-        resource_class: full_access_resource_class,
+      Authentication::Security::ValidateUserCanAccessWebservice.new(
+        role_class:                 no_access_role_class,
+        resource_class:             full_access_resource_class,
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-        validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
+        validate_account_exists:    mock_validate_account_exists(validation_succeeded: true)
       ).call(
         webservice: webservice_mock,
-        account: test_account,
-        user_id: test_user_id,
-        privilege: 'test-privilege'
+        account:    test_account,
+        user_id:    test_user_id,
+        privilege:  'test-privilege'
       )
     end
 
@@ -119,16 +119,16 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
 
   context "A non-existing account" do
     subject do
-      Authentication::Security::ValidateWebserviceAccess.new(
-        role_class: non_existing_account_role_class,
-        resource_class: full_access_resource_class,
+      Authentication::Security::ValidateUserCanAccessWebservice.new(
+        role_class:                 non_existing_account_role_class,
+        resource_class:             full_access_resource_class,
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-        validate_account_exists: mock_validate_account_exists(validation_succeeded: false)
+        validate_account_exists:    mock_validate_account_exists(validation_succeeded: false)
       ).call(
         webservice: webservice_mock,
-        account: non_existing_account,
-        user_id: test_user_id,
-        privilege: 'test-privilege'
+        account:    non_existing_account,
+        user_id:    test_user_id,
+        privilege:  'test-privilege'
       )
     end
 
@@ -149,7 +149,7 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
     # We can't use the double returned by the +role_class+ function
     # above, because it doesn't constrain the arguments to +:[]+.
     let(:role_class) {
-      double('role_class').tap {|rc|
+      double('role_class').tap { |rc|
         allow(rc).to receive(:roleid_from_username).and_return(user_roleid)
         allow(rc).to receive(:[])
                        .with("#{test_account}:user:admin")
@@ -160,10 +160,10 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
     subject do
       described_class
         .new(
-          role_class: role_class,
-          resource_class: full_access_resource_class,
+          role_class:                 role_class,
+          resource_class:             full_access_resource_class,
           validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-          validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
+          validate_account_exists:    mock_validate_account_exists(validation_succeeded: true)
         )
     end
 
@@ -174,9 +174,9 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       allow(role_class).to receive(:[]).with(user_roleid).and_return(nil)
       expect { subject.(
         webservice: webservice_mock,
-        account: test_account,
-        user_id: user_id,
-        privilege: 'test-privilege'
+          account: test_account,
+          user_id: user_id,
+          privilege: 'test-privilege'
       )
       }.to raise_error(Errors::Authentication::Security::RoleNotFound)
 
@@ -188,9 +188,9 @@ RSpec.describe Authentication::Security::ValidateWebserviceAccess do
       allow(role_class).to receive(:[]).with(user_roleid).and_return(user_role_double)
       expect { subject.(
         webservice: webservice_mock,
-        account: test_account,
-        user_id: user_id,
-        privilege: 'test-privilege'
+          account: test_account,
+          user_id: user_id,
+          privilege: 'test-privilege'
       )
       }.not_to raise_error
 
