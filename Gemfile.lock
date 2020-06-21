@@ -284,7 +284,7 @@ GEM
     psych (3.1.0)
     public_suffix (4.0.4)
     puma (3.12.6)
-    rack (2.2.2)
+    rack (2.2.3)
     rack-oauth2 (1.11.0)
       activesupport
       attr_required
@@ -487,7 +487,7 @@ DEPENDENCIES
   pry-byebug
   pry-rails
   puma (~> 3.12.5)
-  rack (~> 2.0)
+  rack (~> 2.2.3)
   rack-rewrite
   rails (~> 5.2)
   rails-controller-testing
@@ -504,7 +504,7 @@ DEPENDENCIES
   ruby-debug-ide
   ruby_dep (= 1.3.1)
   sequel (= 4.49.0)
-  sequel-pg_advisory_locking`
+  sequel-pg_advisory_locking
   sequel-postgres-schemata
   sequel-rails
   simplecov (= 0.14.1)
