@@ -129,8 +129,14 @@ unless defined? LogMessages::Authentication::OriginValidated
         )
 
         CopySSLToPod = ::Util::TrackableLogMessageClass.new(
-          msg:  "Copying SSL certificate to {0-pod-namespace}/{1-pod-name}",
+          msg:  "Copying SSL certificate to {0-container-name}:{1-cert-file-path} " \
+            "in {2-pod-namespace}/{3-pod-name}",
           code: "CONJ00015D"
+        )
+
+        CopySSLToPodSuccess = ::Util::TrackableLogMessageClass.new(
+          msg:  "Copied SSL certificate successfully",
+          code: "CONJ00037D"
         )
 
         ValidatingHostId = ::Util::TrackableLogMessageClass.new(

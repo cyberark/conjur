@@ -71,18 +71,25 @@ module Authentication
       def install_signed_cert
         pod_namespace = spiffe_id.namespace
         pod_name = spiffe_id.name
-        @logger.debug(Log::CopySSLToPod.new(pod_namespace, pod_name))
+        cert_file_path = "/etc/conjur/ssl/client.pem"
+        @logger.debug(Log::CopySSLToPod.new(
+          container_name,
+          cert_file_path,
+          pod_namespace,
+          pod_name
+        ))
 
         resp = @kubectl_exec.new.copy(
           k8s_object_lookup: k8s_object_lookup,
           pod_namespace: pod_namespace,
           pod_name: pod_name,
           container: container_name,
-          path: "/etc/conjur/ssl/client.pem",
+          path: cert_file_path,
           content: cert_to_install.to_pem,
           mode: 0o644
         )
         validate_cert_installation(resp)
+        @logger.debug(Log::CopySSLToPodSuccess.new)
       end
 
       def validate_cert_installation(resp)
