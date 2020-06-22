@@ -4,7 +4,7 @@ module LogMessages
 
   module Conjur
 
-    PrimarySchema = Util::TrackableErrorClass.new(
+    PrimarySchema = ::Util::TrackableLogMessageClass.new(
       msg:  "Primary schema is {0-primary-schema}",
       code: "CONJ00034I"
     )

@@ -3,17 +3,17 @@
 module Errors
   module Conjur
 
-    RequiredResourceMissing = Util::TrackableErrorClass.new(
+    RequiredResourceMissing = ::Util::TrackableErrorClass.new(
       msg:  "Missing required resource: {0-resource-name}",
       code: "CONJ00036E"
     )
 
-    RequiredSecretMissing = Util::TrackableErrorClass.new(
+    RequiredSecretMissing = ::Util::TrackableErrorClass.new(
       msg:  "Missing value for resource: {0-resource-name}",
       code: "CONJ00037E"
     )
 
-    InsufficientPasswordComplexity = Util::TrackableErrorClass.new(
+    InsufficientPasswordComplexity = ::Util::TrackableErrorClass.new(
       msg:  "The password you have chosen does not meet the complexity requirements. " \
           "Choose a password that includes: 12-128 characters, 2 uppercase letters, " \
           "2 lowercase letters, 1 digit, 1 special character",
