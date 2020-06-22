@@ -20,7 +20,12 @@ class SecretsController < RestController
 
     head :created
   ensure
-    update_info = error_info.merge(resource: resource, user: @current_user)
+    update_info = error_info.merge(
+      resource: resource, 
+      user: @current_user,
+      client_ip: request.ip
+    )
+
     Audit.logger.log(
       Audit::Event::Update.new(update_info)
     )
@@ -75,7 +80,8 @@ class SecretsController < RestController
     fetch_info = error_info.merge(
       resource: resource,
       version: version,
-      user: current_user
+      user: current_user,
+      client_ip: request.ip
     )
 
     Audit.logger.log(

@@ -1,9 +1,17 @@
 module Audit
   module Event
+    # Note: Breaking this class up further would harm clarity.
+    # :reek:TooManyInstanceVariables and :reek:TooManyParameters
     class Password
 
-      def initialize(user_id:, success:, error_message: nil)
+      def initialize(
+        user_id:,
+        client_ip:,
+        success:,
+        error_message: nil
+      )
         @user_id = user_id
+        @client_ip = client_ip
         @success = success
         @error_message = error_message
 
@@ -43,7 +51,8 @@ module Audit
       def structured_data
         {
           SDID::AUTH => { user: @user_id },
-          SDID::SUBJECT => { user: @user_id }
+          SDID::SUBJECT => { user: @user_id },
+          SDID::CLIENT => { ip: @client_ip }
         }.merge(
           attempted_action.action_sd
         )

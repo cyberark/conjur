@@ -8,6 +8,7 @@ shared_context "security mocks" do
   let(:fake_authenticator_name) { 'authn-x' }
   let(:fake_service_id) { 'fake-service-id' }
   let(:test_user_id) { 'some-user' }
+  let(:test_client_ip) { 'test-client-up' }
   let(:two_authenticator_env) { "#{fake_authenticator_name}/service1, #{fake_authenticator_name}/service2" }
   let(:mocked_origin_validator) { double("ValidateOrigin") }
   let(:mocked_account_validator) { double("ValidateAccountExists") }

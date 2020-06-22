@@ -10,6 +10,7 @@
 #
 # * +role+ the authenticated role who performed the policy load.
 # * +created_at+ a timestamp.
+# * +client_ip+ the IP address of the client that loaded the policy.
 # * +policy_text+ the text of the policy itself.
 # * +policy_sha256+ the SHA-256 of the policy in hex digest form.
 #

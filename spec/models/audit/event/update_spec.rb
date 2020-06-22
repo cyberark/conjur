@@ -3,8 +3,15 @@ require 'spec_helper'
 describe Audit::Event::Update do
 
   let(:user) { double('my-user', id: 'rspec:user:my_user') }
-  let(:resource) { double('my-resource', id: 'rspec:variable:my_var') }
-  
+  let(:resource) do
+    double(
+      'my-resource',
+      id: 'rspec:variable:my_var',
+      # This is required for the Audit::Resource subject creation
+      pk_hash: { resource_id: 'rspec:variable:my_var' }
+    )
+  end
+  let(:client_ip) { 'my-client-ip' }
   let(:success) { true }
   let(:error_message) { nil }
 
@@ -13,6 +20,7 @@ describe Audit::Event::Update do
     Audit::Event::Update.new(
       user: user,
       resource: resource,
+      client_ip: client_ip,
       success: success,
       error_message: error_message
     )
@@ -34,6 +42,8 @@ describe Audit::Event::Update do
         'rspec:user:my_user updated rspec:variable:my_var'
       )
     end
+
+    it_behaves_like 'structured data includes client IP address'
   end
 
   context 'when a failure occurs' do
@@ -49,5 +59,7 @@ describe Audit::Event::Update do
     it 'uses the WARNING log level' do
       expect(subject.severity).to eq(Syslog::LOG_WARNING)
     end
+
+    it_behaves_like 'structured data includes client IP address'
   end
 end

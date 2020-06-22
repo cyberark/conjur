@@ -51,7 +51,8 @@ class AuthenticateController < ApplicationController
       authenticator_name: params[:authenticator],
       service_id: params[:service_id],
       account: params[:account],
-      username: ::Role.username_from_roleid(current_user.role_id)
+      username: ::Role.username_from_roleid(current_user.role_id),
+      client_ip: request.ip
     )
   end
 
@@ -81,7 +82,7 @@ class AuthenticateController < ApplicationController
       account:            params[:account],
       username:           params[:id],
       credentials:        request.body.read,
-      origin:             request.ip,
+      client_ip:          request.ip,
       request:            request
     )
   end
@@ -102,7 +103,7 @@ class AuthenticateController < ApplicationController
       account:            params[:account],
       username:           nil,
       credentials:        request.body.read,
-      origin:             request.ip,
+      client_ip:          request.ip,
       request:            request
     )
   end
@@ -110,12 +111,14 @@ class AuthenticateController < ApplicationController
   def k8s_inject_client_cert
     # TODO: add this to initializer
     Authentication::AuthnK8s::InjectClientCert.new.(
-      conjur_account: ENV['CONJUR_ACCOUNT'],
-      service_id: params[:service_id],
-      csr: request.body.read,
+      conjur_account:   ENV['CONJUR_ACCOUNT'],
+      service_id:       params[:service_id],
+      client_ip:        request.ip,
+      csr:              request.body.read,
+      
       # The host-id is split in the client where the suffix is in the CSR
       # and the prefix is in the header. This is done to maintain backwards-compatibility
-      host_id_prefix: request.headers["Host-Id-Prefix"]
+      host_id_prefix:   request.headers["Host-Id-Prefix"]
     )
     head :ok
   rescue => e

@@ -1,10 +1,18 @@
 module Audit
   module Event
     # Note: Breaking this class up further would harm clarity.
-    # :reek:TooManyInstanceVariables
+    # :reek:TooManyInstanceVariables and :reek:TooManyParameters
     class Check
-      def initialize(user:, resource:, privilege:, role:, success:)
+      def initialize(
+        user:,
+        client_ip:,
+        resource:,
+        privilege:,
+        role:,
+        success:
+      )
         @user = user
+        @client_ip = client_ip
         @resource = resource
         @privilege = privilege
         @role = role
@@ -44,7 +52,8 @@ module Audit
             resource: @resource.id,
             role: @role.id,
             privilege: @privilege
-          }
+          },
+          SDID::CLIENT => { ip: @client_ip }
         }.merge(
           attempted_action.action_sd
         )

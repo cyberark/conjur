@@ -87,7 +87,8 @@ class PoliciesController < RestController
     policy_version = PolicyVersion.new(
       role: current_user,
       policy: resource,
-      policy_text: request.raw_post
+      policy_text: request.raw_post,
+      client_ip: request.ip
     )
     policy_version.delete_permitted = delete_permitted
     policy_version.save

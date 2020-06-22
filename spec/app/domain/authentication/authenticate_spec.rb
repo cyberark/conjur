@@ -70,7 +70,7 @@ RSpec.describe 'Authentication::Authenticate' do
         account:            'my-acct',
         username:           'my-user',
         credentials:        'my-pw',
-        origin:             '127.0.0.1',
+        client_ip:          '127.0.0.1',
         request:            nil
       )
 
@@ -106,7 +106,7 @@ RSpec.describe 'Authentication::Authenticate' do
           account:            'my-acct',
           username:           'my-user',
           credentials:        'my-pw',
-          origin:             '127.0.0.1',
+          client_ip:          '127.0.0.1',
           request:            nil
         )
 
@@ -143,7 +143,7 @@ RSpec.describe 'Authentication::Authenticate' do
             account:            'my-acct',
             username:           'my-user',
             credentials:        'my-pw',
-            origin:             '127.0.0.1',
+            client_ip:          '127.0.0.1',
             request:            nil
           )
 
@@ -179,7 +179,7 @@ RSpec.describe 'Authentication::Authenticate' do
             account:            'my-acct',
             username:           'my-user',
             credentials:        'my-pw',
-            origin:             '127.0.0.1',
+            client_ip:          '127.0.0.1',
             request:            nil
           )
 
@@ -215,7 +215,7 @@ RSpec.describe 'Authentication::Authenticate' do
             account:            'my-acct',
             username:           'my-user',
             credentials:        'my-pw',
-            origin:             '127.0.0.1',
+            client_ip:          '127.0.0.1',
             request:            nil
           )
 
