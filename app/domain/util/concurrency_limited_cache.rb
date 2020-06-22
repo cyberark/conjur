@@ -1,7 +1,7 @@
 module Util
 
-  Log ||= LogMessages::Util
-  Err ||= Errors::Util
+  # Possible Errors Raised:
+  # ConcurrencyLimitReachedBeforeCacheInitialization
 
   class ConcurrencyLimitedCache
 
@@ -26,13 +26,13 @@ module Util
     def call(**args)
       @concurrency_mutex.synchronize do
         if @concurrent_requests >= @max_concurrent_requests
-          @logger.debug(Log::ConcurrencyLimitedCacheReached.new(@max_concurrent_requests))
-          raise Err::ConcurrencyLimitReachedBeforeCacheInitialization unless @cache.key?(args)
+          @logger.debug(LogMessages::Util::ConcurrencyLimitedCacheReached.new(@max_concurrent_requests))
+          raise Errors::Util::ConcurrencyLimitReachedBeforeCacheInitialization unless @cache.key?(args)
           return @cache[args]
         end
 
         @concurrent_requests += 1
-        @logger.debug(Log::ConcurrencyLimitedCacheConcurrentRequestsUpdated.new(@concurrent_requests))
+        @logger.debug(LogMessages::Util::ConcurrencyLimitedCacheConcurrentRequestsUpdated.new(@concurrent_requests))
       end
 
       @semaphore.synchronize do
@@ -45,7 +45,7 @@ module Util
 
     def recalculate(args)
       @cache[args] = @target.call(**args)
-      @logger.debug(Log::ConcurrencyLimitedCacheUpdated.new)
+      @logger.debug(LogMessages::Util::ConcurrencyLimitedCacheUpdated.new)
       decrease_concurrent_requests
     rescue => e
       decrease_concurrent_requests
@@ -55,7 +55,7 @@ module Util
     def decrease_concurrent_requests
       unless @concurrent_requests.zero?
         @concurrent_requests -= 1
-        @logger.debug(Log::ConcurrencyLimitedCacheConcurrentRequestsUpdated.new(@concurrent_requests))
+        @logger.debug(LogMessages::Util::ConcurrencyLimitedCacheConcurrentRequestsUpdated.new(@concurrent_requests))
       end
     end
   end

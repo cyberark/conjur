@@ -10,9 +10,8 @@ require 'uri'
 #
 module Authentication
   module AuthnK8s
-    module KubeClientFactory
 
-      Err = Errors::Authentication::AuthnK8s
+    module KubeClientFactory
 
       def self.client(api: 'api', version: 'v1', host_url: nil, options: nil)
         full_url = "#{host_url}/#{api}"
@@ -27,7 +26,7 @@ module Authentication
         def validate_host_url! host_url
           raise if URI.parse(host_url).host.empty?
         rescue
-          raise Err::InvalidApiUrl, host_url
+          raise Errors::Authentication::AuthnK8s::InvalidApiUrl, host_url
         end
       end
     end

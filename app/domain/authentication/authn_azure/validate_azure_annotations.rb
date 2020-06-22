@@ -3,8 +3,6 @@ require 'command_class'
 module Authentication
   module AuthnAzure
 
-    Log = LogMessages::Authentication::AuthnAzure
-    Err = Errors::Authentication::AuthnAzure
     # Possible Errors Raised: RoleNotFound, InvalidApplicationIdentity,
     # ConstraintNotSupported, MissingConstraint, IllegalConstraintCombinations
 
@@ -34,7 +32,7 @@ module Authentication
         prefixed_annotations(prefix).each do |annotation|
           annotation_name = annotation[:name]
           next if prefixed_permitted_constraints(prefix).include?(annotation_name)
-          raise Err::ConstraintNotSupported.new(annotation_name.gsub(prefix, ""), permitted_constraints)
+          raise Errors::Authentication::AuthnAzure::ConstraintNotSupported.new(annotation_name.gsub(prefix, ""), permitted_constraints)
         end
       end
 

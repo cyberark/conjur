@@ -1,11 +1,6 @@
 module Authentication
   module AuthnOidc
 
-    Err = Errors::Authentication::AuthnOidc
-    # Possible Errors Raised:
-    #   ProviderDiscoveryTimeout
-    #   ProviderDiscoveryFailed
-
     ValidateStatus = CommandClass.new(
       dependencies: {
         fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,

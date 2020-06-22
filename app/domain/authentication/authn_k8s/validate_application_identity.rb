@@ -4,7 +4,6 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
-    Err ||= Errors::Authentication::AuthnK8s
     # Possible Errors Raised: NamespaceMismatch, ContainerNotFound,
     # K8sResourceNotFound
 
@@ -28,7 +27,7 @@ module Authentication
 
       def validate_namespace
         return if application_identity.namespace == @spiffe_id.namespace
-        raise Err::NamespaceMismatch.new(@spiffe_id.namespace, application_identity.namespace)
+        raise Errors::Authentication::AuthnK8s::NamespaceMismatch.new(@spiffe_id.namespace, application_identity.namespace)
       end
 
       def validate_pod_properties
@@ -38,7 +37,7 @@ module Authentication
       end
 
       def validate_container
-        raise Err::ContainerNotFound, application_identity.container_name, @host_id unless container
+        raise Errors::Authentication::AuthnK8s::ContainerNotFound, application_identity.container_name, @host_id unless container
       end
 
       def validate_pod_metadata
@@ -52,7 +51,7 @@ module Authentication
           )
 
           unless resource_object
-            raise Err::K8sResourceNotFound.new(resource_type, resource_name, application_identity.namespace)
+            raise Errors::Authentication::AuthnK8s::K8sResourceNotFound.new(resource_type, resource_name, application_identity.namespace)
           end
 
           @k8s_resolver

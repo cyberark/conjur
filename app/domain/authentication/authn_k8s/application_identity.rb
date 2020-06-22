@@ -3,8 +3,6 @@
 module Authentication
   module AuthnK8s
 
-    Log = LogMessages::Authentication::AuthnK8s
-    Err = Errors::Authentication::AuthnK8s
     # Possible Errors Raised: MissingNamespaceConstraint, IllegalConstraintCombinations,
     # ScopeNotSupported, InvalidHostId
 
@@ -79,7 +77,7 @@ module Authentication
         validate_permitted_scope
 
         # validate that a constraint exists on the namespace
-        raise Err::MissingNamespaceConstraint unless namespace
+        raise Errors::Authentication::AuthnK8s::MissingNamespaceConstraint unless namespace
 
         validate_constraint_combinations
       end
@@ -149,7 +147,7 @@ module Authentication
         prefixed_k8s_annotations(prefix).each do |annotation|
           annotation_name = annotation[:name]
           next if prefixed_permitted_annotations(prefix).include?(annotation_name)
-          raise Err::ScopeNotSupported.new(annotation_name.gsub(prefix, ""), annotation_type_constraints)
+          raise Errors::Authentication::AuthnK8s::ScopeNotSupported.new(annotation_name.gsub(prefix, ""), annotation_type_constraints)
         end
       end
 
@@ -178,16 +176,16 @@ module Authentication
       end
 
       def validate_host_id
-        Rails.logger.debug(Log::ValidatingHostId.new(@host_id))
+        Rails.logger.debug(LogMessages::Authentication::AuthnK8s::ValidatingHostId.new(@host_id))
 
         valid_host_id = host_id_suffix.length == 3
-        raise Err::InvalidHostId, @host_id unless valid_host_id
+        raise Errors::Authentication::AuthnK8s::InvalidHostId, @host_id unless valid_host_id
 
         return if host_id_namespace_scoped?
 
         constraint       = host_id_suffix[-2]
         valid_constraint = permitted_constraints.include?(constraint)
-        raise Err::ScopeNotSupported.new(constraint, permitted_constraints) unless valid_constraint
+        raise Errors::Authentication::AuthnK8s::ScopeNotSupported.new(constraint, permitted_constraints) unless valid_constraint
       end
 
       def permitted_constraints

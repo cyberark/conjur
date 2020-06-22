@@ -2,7 +2,6 @@
 
 module Authentication
 
-  Err ||= Errors::Authentication
   # Possible Errors Raised:
   # InvalidOrigin, RoleNotFound
 
@@ -15,7 +14,7 @@ module Authentication
   ) do
 
     def call
-      raise Err::InvalidOrigin unless role.valid_origin?(@client_ip)
+      raise Errors::Authentication::InvalidOrigin unless role.valid_origin?(@client_ip)
       @logger.debug(LogMessages::Authentication::OriginValidated.new.to_s)
     end
 
@@ -25,7 +24,7 @@ module Authentication
       return @role if @role
 
       @role = @role_cls.by_login(@username, account: @account)
-      raise Err::Security::RoleNotFound, role_id unless @role
+      raise Errors::Authentication::Security::RoleNotFound, role_id unless @role
       @role
     end
 

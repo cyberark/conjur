@@ -5,7 +5,6 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
-    Err ||= Errors::Authentication::AuthnK8s
     # Possible Errors Raised:
     # MissingClientCertificate, UntrustedClientCertificate, CommonNameDoesntMatchHost, ClientCertificateExpired
 
@@ -37,20 +36,20 @@ module Authentication
       end
 
       def validate_cert_exists
-        raise Err::MissingClientCertificate unless header_cert_str
+        raise Errors::Authentication::AuthnK8s::MissingClientCertificate unless header_cert_str
       end
 
       def validate_cert_is_trusted
-        raise Err::UntrustedClientCertificate unless ca_can_verify_cert?
+        raise Errors::Authentication::AuthnK8s::UntrustedClientCertificate unless ca_can_verify_cert?
       end
 
       def validate_common_name_matches
         return if host_and_cert_cn_match?
-        raise Err::CommonNameDoesntMatchHost.new(cert.common_name, host_common_name)
+        raise Errors::Authentication::AuthnK8s::CommonNameDoesntMatchHost.new(cert.common_name, host_common_name)
       end
 
       def validate_cert_isnt_expired
-        raise Err::ClientCertificateExpired if cert_expired?
+        raise Errors::Authentication::AuthnK8s::ClientCertificateExpired if cert_expired?
       end
 
       def cert

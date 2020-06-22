@@ -1,8 +1,6 @@
 module Authentication
   module AuthnAzure
 
-    Log = LogMessages::Authentication::AuthnAzure
-
     class ApplicationIdentity
 
       def initialize(role_annotations:, service_id:, logger:)
