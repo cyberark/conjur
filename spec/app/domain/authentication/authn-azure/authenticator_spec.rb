@@ -70,7 +70,7 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
               account:            account,
               username:           'my-user',
               credentials:        request_body(authenticate_azure_token_request),
-              origin:             '127.0.0.1',
+              client_ip:          '127.0.0.1',
               request:            authenticate_azure_token_request
             )
 
@@ -98,7 +98,7 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
               account:            'my-acct',
               username:           nil,
               credentials:        request_body(authenticate_azure_token_request),
-              origin:             '127.0.0.1',
+              client_ip:          '127.0.0.1',
               request:            authenticate_azure_token_request
             )
 
@@ -130,7 +130,7 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
               account:            'my-acct',
               username:           nil,
               credentials:        request_body(authenticate_azure_token_request),
-              origin:             '127.0.0.1',
+              client_ip:          '127.0.0.1',
               request:            authenticate_azure_token_request
             )
 

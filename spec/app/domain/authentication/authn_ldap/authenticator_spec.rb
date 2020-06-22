@@ -13,8 +13,8 @@ RSpec.describe Authentication::AuthnLdap::Authenticator do
       service_id:         'test',
       account:            'test',
       username:           username,
-      credentials:       password,
-      origin:             '127.0.0.1',
+      credentials:        password,
+      client_ip:          '127.0.0.1',
       request:            nil
     )
   end

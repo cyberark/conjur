@@ -108,8 +108,8 @@ RSpec.describe Authentication::ValidateStatus do
       allow(status_input).to receive(:username)
                                .and_return(test_user_id)
 
-      allow(status_input).to receive(:origin)
-                               .and_return(test_origin)
+      allow(status_input).to receive(:client_ip)
+                               .and_return(test_client_ip)
 
       allow(status_input).to receive(:role)
                                .and_return(mock_role_class)

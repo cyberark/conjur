@@ -93,7 +93,7 @@ RSpec.describe Authentication::AuthnOidc::Authenticator do
               account:            'my-acct',
               username:           nil,
               credentials:        request_body(authenticate_id_token_request),
-              origin:             '127.0.0.1',
+              client_ip:          '127.0.0.1',
               request:            authenticate_id_token_request
             )
 
@@ -137,7 +137,7 @@ RSpec.describe Authentication::AuthnOidc::Authenticator do
             account:            'my-acct',
             username:           nil,
             credentials:        request_body(authenticate_id_token_request),
-            origin:             '127.0.0.1',
+            client_ip:          '127.0.0.1',
             request:            authenticate_id_token_request
           )
 
@@ -173,7 +173,7 @@ RSpec.describe Authentication::AuthnOidc::Authenticator do
             account:            'my-acct',
             username:           nil,
             credentials:        request_body(authenticate_id_token_request),
-            origin:             '127.0.0.1',
+            client_ip:          '127.0.0.1',
             request:            authenticate_id_token_request
           )
 
@@ -209,7 +209,7 @@ RSpec.describe Authentication::AuthnOidc::Authenticator do
             account:            'my-acct',
             username:           nil,
             credentials:        request_body(authenticate_id_token_request_missing_id_token_username_field),
-            origin:             '127.0.0.1',
+            client_ip:          '127.0.0.1',
             request:            authenticate_id_token_request_missing_id_token_username_field
           )
 
@@ -245,7 +245,7 @@ RSpec.describe Authentication::AuthnOidc::Authenticator do
             account:            'my-acct',
             username:           nil,
             credentials:        request_body(authenticate_id_token_request_empty_id_token_username_field),
-            origin:             '127.0.0.1',
+            client_ip:          '127.0.0.1',
             request:            authenticate_id_token_request_empty_id_token_username_field
           )
 
@@ -282,7 +282,7 @@ RSpec.describe Authentication::AuthnOidc::Authenticator do
             account:            'my-acct',
             username:           nil,
             credentials:        request_body(authenticate_id_token_request_missing_id_token_field),
-            origin:             '127.0.0.1',
+            client_ip:          '127.0.0.1',
             request:            authenticate_id_token_request_missing_id_token_field
           )
 
@@ -314,7 +314,7 @@ RSpec.describe Authentication::AuthnOidc::Authenticator do
             account:            'my-acct',
             username:           nil,
             credentials:        request_body(authenticate_id_token_request_empty_id_token_field),
-            origin:             '127.0.0.1',
+            client_ip:          '127.0.0.1',
             request:            authenticate_id_token_request_empty_id_token_field
           )
 

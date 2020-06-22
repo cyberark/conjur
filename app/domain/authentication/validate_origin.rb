@@ -11,11 +11,11 @@ module Authentication
       role_cls: ::Role,
       logger:   Rails.logger
     },
-    inputs: %i(account username origin)
+    inputs: %i(account username client_ip)
   ) do
 
     def call
-      raise Err::InvalidOrigin unless role.valid_origin?(@origin)
+      raise Err::InvalidOrigin unless role.valid_origin?(@client_ip)
       @logger.debug(LogMessages::Authentication::OriginValidated.new.to_s)
     end
 

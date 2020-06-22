@@ -12,7 +12,7 @@ module Authentication
     attribute :account, ::Types::NonEmptyString
     attribute :username, ::Types::NonEmptyString.optional
     attribute :credentials, ::Types::String.optional
-    attribute :origin, ::Types::NonEmptyString
+    attribute :client_ip, ::Types::NonEmptyString
     attribute :request, ::Types::Any
 
     # Creates a copy of this object with the attributes updated by those
