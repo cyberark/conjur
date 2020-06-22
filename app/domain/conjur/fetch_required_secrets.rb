@@ -2,7 +2,7 @@ require 'command_class'
 
 module Conjur
 
-  FetchRequiredSecrets = ::CommandClass.new(
+  FetchRequiredSecrets ||= CommandClass.new(
     dependencies: { resource_class: ::Resource },
     inputs: [:resource_ids]
   ) do
