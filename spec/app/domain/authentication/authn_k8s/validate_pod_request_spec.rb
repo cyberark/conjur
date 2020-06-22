@@ -98,11 +98,11 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
 
       it 'raises an error when application identity validation fails' do
         allow(validate_application_identity).to receive(:call)
-                                                  .and_raise('FAKE_APPLICATION_IDENTITY_ERROR')
+                                                  .and_raise(validate_application_identity_error)
 
         expect { subject }.to(
           raise_error(
-            /FAKE_APPLICATION_IDENTITY_ERROR/
+            validate_application_identity_error
           )
         )
       end

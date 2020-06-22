@@ -4,6 +4,7 @@ require 'spec_helper'
 
 RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
   include_context "azure setup"
+  include_context "security mocks"
 
   let(:account) { "account" }
 
@@ -333,7 +334,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
 
         allow(validate_azure_annotations).to receive(:call)
                                                .and_raise(
-                                                 'FAKE_VALIDATE_APPLICATION_IDENTITY_ERROR'
+                                                 validate_application_identity_error
                                                )
       end
       subject do
@@ -351,7 +352,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
 
       it "raises an error" do
         expect { subject }.to raise_error(
-          /FAKE_VALIDATE_APPLICATION_IDENTITY_ERROR/
+          validate_application_identity_error
         )
       end
     end
