@@ -17,7 +17,11 @@ module Authentication
       private
 
       def log_provider_uri
-        @logger.debug(LogMessages::Authentication::OAuth::IdentityProviderUri.new(@provider_uri))
+        @logger.debug(
+          LogMessages::Authentication::OAuth::IdentityProviderUri.new(
+            @provider_uri
+          )
+        )
       end
 
       # returns an OpenIDConnect::Discovery::Provider::Config::Resource instance.
@@ -26,7 +30,9 @@ module Authentication
       # unlikely to be a problem
       def discover_provider
         @discovered_provider = @open_id_discovery_service.discover!(@provider_uri)
-        @logger.debug(LogMessages::Authentication::OAuth::IdentityProviderDiscoverySuccess.new)
+        @logger.debug(
+          LogMessages::Authentication::OAuth::IdentityProviderDiscoverySuccess.new
+        )
         @discovered_provider
       rescue HTTPClient::ConnectTimeoutError, Errno::ETIMEDOUT => e
         raise_error(Errors::Authentication::OAuth::ProviderDiscoveryTimeout, e)

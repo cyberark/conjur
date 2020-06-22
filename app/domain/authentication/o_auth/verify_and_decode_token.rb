@@ -41,7 +41,9 @@ module Authentication
 
         @jwks = provider_keys.jwks
         @algs = provider_keys.algorithms
-        @logger.debug(LogMessages::Authentication::OAuth::IdentityProviderKeysFetchedFromCache.new)
+        @logger.debug(
+          LogMessages::Authentication::OAuth::IdentityProviderKeysFetchedFromCache.new
+        )
       end
 
       # ensure_keys_are_fresh will try to verify and decode the token and if it
@@ -57,7 +59,9 @@ module Authentication
       def ensure_keys_are_fresh
         verified_and_decoded_token
       rescue
-        @logger.debug(LogMessages::Authentication::OAuth::ValidateProviderKeysAreUpdated.new)
+        @logger.debug(
+          LogMessages::Authentication::OAuth::ValidateProviderKeysAreUpdated.new
+        )
         # maybe failed due to keys rotation. Force cache to read it again
         fetch_provider_keys(force_read: true)
       end

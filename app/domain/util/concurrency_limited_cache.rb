@@ -23,13 +23,19 @@ module Util
     def call(**args)
       @concurrency_mutex.synchronize do
         if @concurrent_requests >= @max_concurrent_requests
-          @logger.debug(LogMessages::Util::ConcurrencyLimitedCacheReached.new(@max_concurrent_requests))
+          @logger.debug(
+            LogMessages::Util::ConcurrencyLimitedCacheReached.new(@max_concurrent_requests)
+          )
           raise Errors::Util::ConcurrencyLimitReachedBeforeCacheInitialization unless @cache.key?(args)
           return @cache[args]
         end
 
         @concurrent_requests += 1
-        @logger.debug(LogMessages::Util::ConcurrencyLimitedCacheConcurrentRequestsUpdated.new(@concurrent_requests))
+        @logger.debug(
+          LogMessages::Util::ConcurrencyLimitedCacheConcurrentRequestsUpdated.new(
+            @concurrent_requests
+          )
+        )
       end
 
       @semaphore.synchronize do
@@ -52,7 +58,11 @@ module Util
     def decrease_concurrent_requests
       unless @concurrent_requests.zero?
         @concurrent_requests -= 1
-        @logger.debug(LogMessages::Util::ConcurrencyLimitedCacheConcurrentRequestsUpdated.new(@concurrent_requests))
+        @logger.debug(
+          LogMessages::Util::ConcurrencyLimitedCacheConcurrentRequestsUpdated.new(
+            @concurrent_requests
+          )
+        )
       end
     end
   end

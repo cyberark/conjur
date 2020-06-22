@@ -74,7 +74,9 @@ module Authentication
         validate_permitted_scope
 
         # validate that a constraint exists on the namespace
-        raise Errors::Authentication::AuthnK8s::MissingNamespaceConstraint unless namespace
+        unless namespace
+          raise Errors::Authentication::AuthnK8s::MissingNamespaceConstraint
+        end
 
         validate_constraint_combinations
       end
@@ -101,7 +103,11 @@ module Authentication
       end
 
       def constraint_value constraint_name
-        application_identity_in_annotations? ? constraint_from_annotation(annotation_type_constraint(constraint_name)) : constraint_from_id(constraint_name)
+        if application_identity_in_annotations?
+          constraint_from_annotation(annotation_type_constraint(constraint_name))
+        else
+          constraint_from_id(constraint_name)
+        end
       end
 
       def constraint_from_annotation constraint_name
@@ -144,7 +150,10 @@ module Authentication
         prefixed_k8s_annotations(prefix).each do |annotation|
           annotation_name = annotation[:name]
           next if prefixed_permitted_annotations(prefix).include?(annotation_name)
-          raise Errors::Authentication::AuthnK8s::ScopeNotSupported.new(annotation_name.gsub(prefix, ""), annotation_type_constraints)
+          raise Errors::Authentication::AuthnK8s::ScopeNotSupported.new(
+            annotation_name.gsub(prefix, ""),
+            annotation_type_constraints
+          )
         end
       end
 
@@ -182,7 +191,12 @@ module Authentication
 
         constraint       = host_id_suffix[-2]
         valid_constraint = permitted_constraints.include?(constraint)
-        raise Errors::Authentication::AuthnK8s::ScopeNotSupported.new(constraint, permitted_constraints) unless valid_constraint
+        unless valid_constraint
+          raise Errors::Authentication::AuthnK8s::ScopeNotSupported.new(
+            constraint,
+            permitted_constraints
+          )
+        end
       end
 
       def permitted_constraints

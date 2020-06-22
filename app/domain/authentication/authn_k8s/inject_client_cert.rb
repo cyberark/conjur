@@ -40,7 +40,11 @@ module Authentication
       # that happens in the "authenticate" request will work, as the signed certificate
       # contains the full host-id.
       def update_csr_common_name
-        @logger.debug(LogMessages::Authentication::AuthnK8s::SetCommonName.new(full_host_name))
+        @logger.debug(
+          LogMessages::Authentication::AuthnK8s::SetCommonName.new(
+            full_host_name
+          )
+        )
         smart_csr.common_name = full_host_name
       end
 
@@ -90,7 +94,8 @@ module Authentication
       def validate_cert_installation(resp)
         error_stream = resp[:error]
         return if error_stream.nil? || error_stream.empty?
-        raise Errors::Authentication::AuthnK8s::CertInstallationError, cert_error(error_stream)
+        raise Errors::Authentication::AuthnK8s::CertInstallationError,
+              cert_error(error_stream)
       end
 
       def pod_request

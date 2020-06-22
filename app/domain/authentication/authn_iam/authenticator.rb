@@ -20,12 +20,20 @@ module Authentication
       end
 
       def identity_hash(response)
-        Rails.logger.debug(LogMessages::Authentication::AuthnIam::GetCallerIdentityBody.new(response.body))
+        Rails.logger.debug(
+          LogMessages::Authentication::AuthnIam::GetCallerIdentityBody.new(
+            response.body
+          )
+        )
 
         if response.code < 300
           Hash.from_xml(response.body)
         else
-          Rails.logger.error(Errors::Authentication::AuthnIam::IdentityVerificationErrorCode.new(response.code))
+          Rails.logger.error(
+            Errors::Authentication::AuthnIam::IdentityVerificationErrorCode.new(
+              response.code
+            )
+          )
           false
         end
       end
@@ -40,7 +48,12 @@ module Authentication
         aws_user_id = response_hash["GetCallerIdentityResponse"]["GetCallerIdentityResult"]["UserId"]
         host_to_match = "#{host_prefix}/#{aws_account_id}/#{aws_role_name}"
 
-        Rails.logger.debug(LogMessages::Authentication::AuthnIam::AttemptToMatchHost.new(aws_user_id, host_to_match))
+        Rails.logger.debug(
+          LogMessages::Authentication::AuthnIam::AttemptToMatchHost.new(
+            aws_user_id,
+            host_to_match
+          )
+        )
 
         login.eql? host_to_match
       end

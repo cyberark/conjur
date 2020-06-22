@@ -36,7 +36,10 @@ module Authentication
         @logger.debug(LogMessages::Authentication::OAuth::FetchProviderKeysSuccess.new)
         ProviderKeys.new(jwks, algs)
       rescue => e
-        raise Errors::Authentication::OAuth::FetchProviderKeysFailed.new(@provider_uri, e.inspect)
+        raise Errors::Authentication::OAuth::FetchProviderKeysFailed.new(
+          @provider_uri,
+          e.inspect
+        )
       end
     end
   end

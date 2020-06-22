@@ -24,7 +24,8 @@ module Authentication
         def for_resource resource_type
           const_get(resource_type.classify)
         rescue NameError
-          raise Errors::Authentication::AuthnK8s::UnknownK8sResourceType, resource_type.inspect
+          raise Errors::Authentication::AuthnK8s::UnknownK8sResourceType,
+                resource_type.inspect
         end
       end
 
@@ -66,7 +67,10 @@ module Authentication
         def validate_pod
           replica_set_ref = pod_owner_refs&.find { |ref| ref.kind == "ReplicaSet" }
           unless replica_set_ref
-            raise Errors::Authentication::AuthnK8s::PodMissingRelationError.new(pod_name, 'ReplicaSet')
+            raise Errors::Authentication::AuthnK8s::PodMissingRelationError.new(
+              pod_name,
+              'ReplicaSet'
+            )
           end
 
           replica_set = k8s_object_lookup.find_object_by_name "replica_set", replica_set_ref.name, namespace
@@ -74,7 +78,10 @@ module Authentication
 
           deployment_ref = replica_set_owner_refs&.find { |ref| ref.kind == "Deployment" }
           unless deployment_ref
-            raise Errors::Authentication::AuthnK8s::PodMissingRelationError.new(pod_name, 'Deployment')
+            raise Errors::Authentication::AuthnK8s::PodMissingRelationError.new(
+              pod_name,
+              'Deployment'
+            )
           end
 
           deployment = k8s_object_lookup.find_object_by_name "deployment", deployment_ref.name, namespace
@@ -94,7 +101,10 @@ module Authentication
         def validate_pod
           replication_resource_ref = pod_owner_refs&.find { |ref| ref.kind == "Replicationresource" }
           unless replication_resource_ref
-            raise Errors::Authentication::AuthnK8s::PodMissingRelationError.new(pod_name, 'ReplicationController')
+            raise Errors::Authentication::AuthnK8s::PodMissingRelationError.new(
+              pod_name,
+              'ReplicationController'
+            )
           end
 
           replication_resource = k8s_object_lookup.find_object_by_name(
@@ -108,7 +118,10 @@ module Authentication
           deployment_config_ref = replication_resource_owner_refs&.find { |ref| ref.kind == "DeploymentConfig" }
 
           unless deployment_config_ref
-            raise Errors::Authentication::AuthnK8s::PodMissingRelationError.new(pod_name, 'DeploymentConfig')
+            raise Errors::Authentication::AuthnK8s::PodMissingRelationError.new(
+              pod_name,
+              'DeploymentConfig'
+            )
           end
 
           deployment_config = k8s_object_lookup.find_object_by_name "deployment_config",
@@ -129,7 +142,10 @@ module Authentication
         def validate_pod
           replica_set_ref = pod_owner_refs&.find { |ref| ref.kind == "ReplicaSet" }
           unless replica_set_ref
-            raise Errors::Authentication::AuthnK8s::PodMissingRelationError.new(pod_name, 'ReplicaSet')
+            raise Errors::Authentication::AuthnK8s::PodMissingRelationError.new(
+              pod_name,
+              'ReplicaSet'
+            )
           end
 
           replica_set = k8s_object_lookup.find_object_by_name "replica_set", replica_set_ref.name, namespace
@@ -162,7 +178,10 @@ module Authentication
         def validate_pod
           stateful_set_ref = pod_owner_refs&.find { |ref| ref.kind == "StatefulSet" }
           unless stateful_set_ref
-            raise Errors::Authentication::AuthnK8s::PodMissingRelationError.new(pod_name, 'StatefulSet')
+            raise Errors::Authentication::AuthnK8s::PodMissingRelationError.new(
+              pod_name,
+              'StatefulSet'
+            )
           end
 
           stateful_set = k8s_object_lookup.find_object_by_name "stateful_set", stateful_set_ref.name, namespace
@@ -182,7 +201,10 @@ module Authentication
         # The pod is always a member of itself.
         def validate_pod
           unless self.name == pod.metadata.name
-            raise Errors::Authentication::AuthnK8s::PodNameMismatchError.new(pod_name, self.name.inspect)
+            raise Errors::Authentication::AuthnK8s::PodNameMismatchError.new(
+              pod_name,
+              self.name.inspect
+            )
           end
         end
       end

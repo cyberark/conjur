@@ -22,7 +22,10 @@ module Authentication
       def self.from_csr(account:, service_name:, csr:)
         cn = csr.common_name
         unless cn
-          raise Errors::Authentication::AuthnK8s::CSRMissingCNEntry.new(csr.subject_to_s, csr.spiffe_id.to_s)
+          raise Errors::Authentication::AuthnK8s::CSRMissingCNEntry.new(
+            csr.subject_to_s,
+            csr.spiffe_id.to_s
+          )
         end
         new(account: account, service_name: service_name, common_name: cn)
       end
@@ -31,7 +34,10 @@ module Authentication
         smart_cert = ::Util::OpenSsl::X509::SmartCert.new(cert)
         cn = smart_cert.common_name
         unless cn
-          raise Errors::Authentication::AuthnK8s::CertMissingCNEntry.new(smart_cert.smart_subject.to_s, smart_cert.san.to_s)
+          raise Errors::Authentication::AuthnK8s::CertMissingCNEntry.new(
+            smart_cert.smart_subject.to_s,
+            smart_cert.san.to_s
+          )
         end
         new(account: account, service_name: service_name, common_name: cn)
       end
@@ -44,7 +50,9 @@ module Authentication
 
       def conjur_host_id
         host_id = "#{@account}:" + @common_name.k8s_host_name.sub('host/', 'host:')
-        Rails.logger.debug(LogMessages::Authentication::AuthnK8s::HostIdFromCommonName.new(host_id))
+        Rails.logger.debug(
+          LogMessages::Authentication::AuthnK8s::HostIdFromCommonName.new(host_id)
+        )
         host_id
       end
 

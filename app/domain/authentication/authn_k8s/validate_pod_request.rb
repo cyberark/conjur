@@ -47,7 +47,12 @@ module Authentication
       end
 
       def validate_pod_exists
-        raise Errors::Authentication::AuthnK8s::PodNotFound.new(pod_name, pod_namespace) unless pod
+        unless pod
+          raise Errors::Authentication::AuthnK8s::PodNotFound.new(
+            pod_name,
+            pod_namespace
+          )
+        end
       end
 
       def validate_application_identity
@@ -77,7 +82,11 @@ module Authentication
         return @host if @host
 
         @host = @resource_class[k8s_host.conjur_host_id]
-        raise Errors::Authentication::Security::RoleNotFound(k8s_host.conjur_host_id) unless @host
+        unless @host
+          raise Errors::Authentication::Security::RoleNotFound(
+            k8s_host.conjur_host_id
+          )
+        end
         @host
       end
 

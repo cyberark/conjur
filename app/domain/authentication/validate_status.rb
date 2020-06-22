@@ -44,7 +44,9 @@ module Authentication
     end
 
     def validate_authenticator_implements_status_check
-      raise Errors::Authentication::StatusNotImplemented, authenticator_name unless authenticator.class.method_defined?(:status)
+      unless authenticator.class.method_defined?(:status)
+        raise Errors::Authentication::StatusNotImplemented, authenticator_name
+      end
     end
 
     def validate_user_has_access_to_status_webservice

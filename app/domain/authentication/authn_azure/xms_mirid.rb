@@ -46,17 +46,24 @@ module Authentication
           .map { |x| [x.first, x.drop(1)] }.to_h
       rescue => e
         # this should never occur, it's here to enhance supportability in case it does
-        raise Errors::Authentication::AuthnAzure::XmsMiridParseError.new(@xms_mirid_token_field, e.inspect)
+        raise Errors::Authentication::AuthnAzure::XmsMiridParseError.new(
+          @xms_mirid_token_field,
+          e.inspect
+        )
       end
 
       def validate
         missing_keys = REQUIRED_KEYS - @mirid_parts_hash.keys
         unless missing_keys.empty?
-          raise Errors::Authentication::AuthnAzure::MissingRequiredFieldsInXmsMirid.new(missing_keys, @xms_mirid_token_field)
+          raise Errors::Authentication::AuthnAzure::MissingRequiredFieldsInXmsMirid.new(
+            missing_keys,
+            @xms_mirid_token_field
+          )
         end
 
         unless @mirid_parts_hash["providers"].length == 3
-          raise Errors::Authentication::AuthnAzure::InvalidProviderFieldsInXmsMirid, @xms_mirid_token_field
+          raise Errors::Authentication::AuthnAzure::InvalidProviderFieldsInXmsMirid,
+                @xms_mirid_token_field
         end
       end
     end

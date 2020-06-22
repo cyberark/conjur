@@ -55,7 +55,12 @@ module Util
 
     def recalculate(args)
       if too_many_requests?(args)
-        @logger.debug(LogMessages::Util::RateLimitedCacheLimitReached.new(@refreshes_per_interval, @rate_limit_interval))
+        @logger.debug(
+          LogMessages::Util::RateLimitedCacheLimitReached.new(
+            @refreshes_per_interval,
+            @rate_limit_interval
+          )
+        )
         return
       end
       @cache[args] = @target.call(**args)

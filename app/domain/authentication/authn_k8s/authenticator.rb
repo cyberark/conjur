@@ -42,7 +42,10 @@ module Authentication
 
       def validate_common_name_matches
         return if host_and_cert_cn_match?
-        raise Errors::Authentication::AuthnK8s::CommonNameDoesntMatchHost.new(cert.common_name, host_common_name)
+        raise Errors::Authentication::AuthnK8s::CommonNameDoesntMatchHost.new(
+          cert.common_name,
+          host_common_name
+        )
       end
 
       def validate_cert_isnt_expired
