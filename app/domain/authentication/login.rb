@@ -11,7 +11,7 @@ module Authentication
   Login ||= CommandClass.new(
     dependencies: {
       validate_webservice_is_whitelisted:  ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
-      validate_user_can_access_webservice: ::Authentication::Security::ValidateUserCanAccessWebservice.new,
+      validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
       audit_log:                           ::Audit.logger,
       role_cls:                            ::Role
     },
@@ -63,7 +63,7 @@ module Authentication
     end
 
     def validate_user_has_access_to_webservice
-      @validate_user_can_access_webservice.(
+      @validate_role_can_access_webservice.(
         webservice: webservice,
         account: account,
         user_id: username,

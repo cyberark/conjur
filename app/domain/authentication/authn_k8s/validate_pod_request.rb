@@ -16,7 +16,7 @@ module Authentication
         resource_class:                      Resource,
         k8s_object_lookup_class:             K8sObjectLookup,
         validate_webservice_is_whitelisted:  ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
-        validate_user_can_access_webservice: ::Authentication::Security::ValidateUserCanAccessWebservice.new,
+        validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
         enabled_authenticators:              Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
         validate_application_identity:       ValidateApplicationIdentity.new
       },
@@ -44,7 +44,7 @@ module Authentication
       end
 
       def validate_user_has_access_to_webservice
-        @validate_user_can_access_webservice.(
+        @validate_role_can_access_webservice.(
           webservice: webservice,
           account: k8s_host.account,
           user_id: k8s_host.k8s_host_name,

@@ -75,7 +75,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
         Authentication::AuthnK8s::ValidatePodRequest.new(
           resource_class:                      resource_class,
           k8s_object_lookup_class:             k8s_object_lookup_class,
-          validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+          validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
           validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
           enabled_authenticators:              "#{authenticator_name}/#{service_id}",
           validate_application_identity:       validate_application_identity
@@ -113,7 +113,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
         Authentication::AuthnK8s::ValidatePodRequest.new(
           resource_class:                      resource_class,
           k8s_object_lookup_class:             k8s_object_lookup_class,
-          validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: false),
+          validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: false),
           validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
           enabled_authenticators:              "#{authenticator_name}/#{service_id}",
           validate_application_identity:       validate_application_identity
@@ -136,7 +136,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
         Authentication::AuthnK8s::ValidatePodRequest.new(
           resource_class:                      resource_class,
           k8s_object_lookup_class:             k8s_object_lookup_class,
-          validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+          validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
           validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: false),
           enabled_authenticators:              "#{authenticator_name}/#{service_id}",
           validate_application_identity:       validate_application_identity

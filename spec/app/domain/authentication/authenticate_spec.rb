@@ -75,7 +75,7 @@ RSpec.describe 'Authentication::Authenticate' do
       )
 
       Authentication::Authenticate.new(
-        validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+        validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
         validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
         validate_origin:                     mocked_origin_validator,
         token_factory:                       mocked_token_factory,
@@ -111,7 +111,7 @@ RSpec.describe 'Authentication::Authenticate' do
         )
 
         Authentication::Authenticate.new(
-          validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+          validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
           validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
           validate_origin:                     mocked_origin_validator,
           token_factory:                       mocked_token_factory,
@@ -148,7 +148,7 @@ RSpec.describe 'Authentication::Authenticate' do
           )
 
           Authentication::Authenticate.new(
-            validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: false),
+            validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: false),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
             validate_origin:                     mocked_origin_validator,
             token_factory:                       mocked_token_factory,
@@ -184,7 +184,7 @@ RSpec.describe 'Authentication::Authenticate' do
           )
 
           Authentication::Authenticate.new(
-            validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+            validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: false),
             validate_origin:                     mocked_origin_validator,
             token_factory:                       mocked_token_factory,
@@ -220,7 +220,7 @@ RSpec.describe 'Authentication::Authenticate' do
           )
 
           Authentication::Authenticate.new(
-            validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+            validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
             validate_origin:                     mocked_origin_validator,
             token_factory:                       mocked_token_factory,

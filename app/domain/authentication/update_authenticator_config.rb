@@ -9,7 +9,7 @@ module Authentication
       validate_account_exists:              ::Authentication::Security::ValidateAccountExists.new,
       validate_webservice_exists:           ::Authentication::Security::ValidateWebserviceExists.new,
       validate_webservice_is_authenticator: ::Authentication::Security::ValidateWebserviceIsAuthenticator.new,
-      validate_user_can_access_webservice:  ::Authentication::Security::ValidateUserCanAccessWebservice.new
+      validate_role_can_access_webservice:  ::Authentication::Security::ValidateRoleCanAccessWebservice.new
     },
     inputs:       %i(account authenticator_name service_id enabled username)
   ) do
@@ -44,7 +44,7 @@ module Authentication
     end
 
     def validate_user_can_update_webservice
-      @validate_user_can_access_webservice.(
+      @validate_role_can_access_webservice.(
         webservice: webservice,
         account: @account,
         user_id: @username,

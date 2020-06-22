@@ -119,7 +119,7 @@ RSpec.describe Authentication::ValidateStatus do
       Authentication::ValidateStatus.new(
         role_class:                          mock_role_class,
         validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
-        validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+        validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
         validate_webservice_exists:          mock_validate_webservice_exists(validation_succeeded: true),
         implemented_authenticators:          mock_implemented_authenticators,
         audit_log:                           mocked_audit_logger
@@ -139,7 +139,7 @@ RSpec.describe Authentication::ValidateStatus do
       Authentication::ValidateStatus.new(
         role_class:                          mock_role_class,
         validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
-        validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+        validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
         validate_webservice_exists:          mock_validate_webservice_exists(validation_succeeded: true),
         implemented_authenticators:          mock_implemented_authenticators,
         audit_log:                           mocked_audit_logger
@@ -162,7 +162,7 @@ RSpec.describe Authentication::ValidateStatus do
         Authentication::ValidateStatus.new(
           role_class:                          mock_role_class,
           validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
-          validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+          validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
           validate_webservice_exists:          mock_validate_webservice_exists(validation_succeeded: true),
           implemented_authenticators:          mock_implemented_authenticators,
           audit_log:                           mocked_audit_logger
@@ -185,7 +185,7 @@ RSpec.describe Authentication::ValidateStatus do
           Authentication::ValidateStatus.new(
             role_class:                          mock_role_class,
             validate_webservice_is_whitelisted:  mock_validate_webservice_exists(validation_succeeded: true),
-            validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: false),
+            validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: false),
             validate_webservice_exists:          mock_validate_webservice_exists(validation_succeeded: true),
             implemented_authenticators:          mock_implemented_authenticators,
             audit_log:                           mocked_audit_logger
@@ -195,7 +195,7 @@ RSpec.describe Authentication::ValidateStatus do
           )
         end
 
-        it "raises the error raised by validate_user_can_access_webservice" do
+        it "raises the error raised by validate_role_can_access_webservice" do
           expect { subject }.to raise_error(validate_user_can_access_webservice_error)
         end
 
@@ -209,7 +209,7 @@ RSpec.describe Authentication::ValidateStatus do
             Authentication::ValidateStatus.new(
               role_class:                          mock_role_class,
               validate_webservice_is_whitelisted:  mock_validate_webservice_exists(validation_succeeded: true),
-              validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+              validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
               validate_webservice_exists:          mock_validate_webservice_exists(validation_succeeded: false),
               implemented_authenticators:          mock_implemented_authenticators,
               audit_log:                           mocked_audit_logger
@@ -233,7 +233,7 @@ RSpec.describe Authentication::ValidateStatus do
               Authentication::ValidateStatus.new(
                 role_class:                          mock_role_class,
                 validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: false),
-                validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+                validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
                 validate_webservice_exists:          mock_validate_webservice_exists(validation_succeeded: true),
                 implemented_authenticators:          mock_implemented_authenticators,
                 audit_log:                           mocked_audit_logger
@@ -255,7 +255,7 @@ RSpec.describe Authentication::ValidateStatus do
                 Authentication::ValidateStatus.new(
                   role_class:                          mock_role_class,
                   validate_webservice_is_whitelisted:  mock_validate_webservice_exists(validation_succeeded: true),
-                  validate_user_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+                  validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
                   validate_webservice_exists:          mock_validate_webservice_exists(validation_succeeded: true),
                   implemented_authenticators:          mock_implemented_authenticators,
                   audit_log:                           mocked_audit_logger

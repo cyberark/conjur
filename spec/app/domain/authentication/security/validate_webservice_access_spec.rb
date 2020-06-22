@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Authentication::Security::ValidateUserCanAccessWebservice do
+RSpec.describe Authentication::Security::ValidateRoleCanAccessWebservice do
   include_context "security mocks"
 
   let (:full_access_resource_class) { resource_class('some random resource') }
@@ -39,7 +39,7 @@ RSpec.describe Authentication::Security::ValidateUserCanAccessWebservice do
 
   context "An authorized webservice and authorized user" do
     subject do
-      Authentication::Security::ValidateUserCanAccessWebservice.new(
+      Authentication::Security::ValidateRoleCanAccessWebservice.new(
         role_class:                 full_access_role_class,
         resource_class:             full_access_resource_class,
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
@@ -59,7 +59,7 @@ RSpec.describe Authentication::Security::ValidateUserCanAccessWebservice do
 
   context "A non-existing webservice and authorized user" do
     subject do
-      Authentication::Security::ValidateUserCanAccessWebservice.new(
+      Authentication::Security::ValidateRoleCanAccessWebservice.new(
         role_class:                 full_access_role_class,
         resource_class:             no_access_resource_class,
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: false),
@@ -79,7 +79,7 @@ RSpec.describe Authentication::Security::ValidateUserCanAccessWebservice do
 
   context "An authorized webservice and non-existent user" do
     subject do
-      Authentication::Security::ValidateUserCanAccessWebservice.new(
+      Authentication::Security::ValidateRoleCanAccessWebservice.new(
         role_class:                 nil_user_role_class,
         resource_class:             full_access_resource_class,
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
@@ -98,7 +98,7 @@ RSpec.describe Authentication::Security::ValidateUserCanAccessWebservice do
 
   context "An authorized webservice and unauthorized user" do
     subject do
-      Authentication::Security::ValidateUserCanAccessWebservice.new(
+      Authentication::Security::ValidateRoleCanAccessWebservice.new(
         role_class:                 no_access_role_class,
         resource_class:             full_access_resource_class,
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
@@ -119,7 +119,7 @@ RSpec.describe Authentication::Security::ValidateUserCanAccessWebservice do
 
   context "A non-existing account" do
     subject do
-      Authentication::Security::ValidateUserCanAccessWebservice.new(
+      Authentication::Security::ValidateRoleCanAccessWebservice.new(
         role_class:                 non_existing_account_role_class,
         resource_class:             full_access_resource_class,
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
