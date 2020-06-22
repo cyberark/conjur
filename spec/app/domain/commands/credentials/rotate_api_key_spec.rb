@@ -7,6 +7,8 @@ describe Commands::Credentials::RotateApiKey do
   let(:other_credentials) { double(Credentials) }
   let(:other_role) { double(Role, id: 'other role', credentials: other_credentials) }
 
+  let(:client_ip) { 'my-client-ip' }
+
   let(:role_to_rotate) { role }
 
   let(:err_message) { 'the error message' }
@@ -17,6 +19,7 @@ describe Commands::Credentials::RotateApiKey do
     ::Audit::Event::ApiKey.new(
       authenticated_role_id: role.id,
       rotated_role_id: role_to_rotate.id,
+      client_ip: client_ip,
       success: true
     )
   end
@@ -25,6 +28,7 @@ describe Commands::Credentials::RotateApiKey do
     ::Audit::Event::ApiKey.new(
       authenticated_role_id: role.id,
       rotated_role_id: role_to_rotate.id,
+      client_ip: client_ip,
       success: false,
       error_message: err_message
     )
@@ -49,7 +53,11 @@ describe Commands::Credentials::RotateApiKey do
       expect(audit_log).to receive(:log).with(audit_success)
 
       # Call the command
-      subject.call(role_to_rotate: role, authenticated_role: role)
+      subject.call(
+        role_to_rotate: role, 
+        authenticated_role: role, 
+        client_ip: client_ip
+      )
     end
 
     it 'bubbles up exceptions' do 
@@ -67,7 +75,11 @@ describe Commands::Credentials::RotateApiKey do
 
       # Expect the command to raise the original exception
       expect do
-        subject.call(role_to_rotate: role, authenticated_role: role)
+        subject.call(
+          role_to_rotate: role,
+          authenticated_role: role,
+          client_ip: client_ip
+        )
       end.to raise_error(err_message)
     end
   end
@@ -84,7 +96,11 @@ describe Commands::Credentials::RotateApiKey do
       expect(audit_log).to receive(:log).with(audit_success)
 
       # Call the command
-      subject.call(role_to_rotate: other_role, authenticated_role: role)
+      subject.call(
+        role_to_rotate: other_role,
+        authenticated_role: role,
+        client_ip: client_ip
+      )
     end
 
     it 'bubbles up exceptions' do 
@@ -98,7 +114,11 @@ describe Commands::Credentials::RotateApiKey do
 
       # Expect the command to raise the original exception
       expect do
-        subject.call(role_to_rotate: other_role, authenticated_role: role)
+        subject.call(
+          role_to_rotate: other_role,
+          authenticated_role: role,
+          client_ip: client_ip
+        )
       end.to raise_error(err_message)
     end
   end

@@ -4,18 +4,24 @@ describe Commands::Credentials::ChangePassword do
   let(:credentials) { double(Credentials) }
   let(:role) { double(Role, id: 'role', credentials: credentials) }
   let(:password) { 'the_password' }
+  let(:client_ip) { 'my-client-ip' }
 
   let(:err_message) { 'the error message' }
 
   let(:audit_log) { double(::Audit.logger)}
   
   let(:audit_success) do
-    ::Audit::Event::Password.new(user_id: role.id, success: true)
+    ::Audit::Event::Password.new(
+      user_id: role.id,
+      client_ip: client_ip,
+      success: true
+    )
   end
   
   let(:audit_failure) do
     ::Audit::Event::Password.new(
       user_id: role.id,
+      client_ip: client_ip,
       success: false,
       error_message: err_message
     )
@@ -37,7 +43,7 @@ describe Commands::Credentials::ChangePassword do
     expect(audit_log).to receive(:log).with(audit_success)
 
     # Call the command
-    subject.call(role: role,  password: password)
+    subject.call(role: role,  password: password, client_ip: client_ip)
   end
 
   it 'bubbles up exceptions' do 
@@ -50,6 +56,8 @@ describe Commands::Credentials::ChangePassword do
     expect(audit_log).to receive(:log).with(audit_failure)
 
     # Expect the command to raise the original exception
-    expect { subject.call(role: role,  password: password) }.to raise_error(err_message)
+    expect do
+      subject.call(role: role,  password: password, client_ip: client_ip)
+    end.to raise_error(err_message)
   end
 end

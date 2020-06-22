@@ -6,6 +6,7 @@ describe Audit::Event::Check do
   let(:resource) { double('my-resource', id: 'rspec:variable:my_var') }
   let(:privilege) { 'execute' }
   let(:role) { double('my-host', id: 'rspec:host:my_host') }
+  let(:client_ip) { 'my-client-ip' }
   let(:success) { true }
 
   subject do
@@ -14,6 +15,7 @@ describe Audit::Event::Check do
       resource: resource,
       privilege: privilege,
       role: role,
+      client_ip: client_ip,
       success: success
     )
   end
@@ -36,6 +38,8 @@ describe Audit::Event::Check do
         'rspec:variable:my_var (success)'
       )
     end
+
+    it_behaves_like 'structured data includes client IP address'
   end
 
   context 'when a failure occurs' do
@@ -51,5 +55,7 @@ describe Audit::Event::Check do
     it 'uses the WARNING log level' do
       expect(subject.severity).to eq(Syslog::LOG_WARNING)
     end
+
+    it_behaves_like 'structured data includes client IP address'
   end
 end

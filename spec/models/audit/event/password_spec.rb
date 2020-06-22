@@ -2,12 +2,14 @@ require 'spec_helper'
 
 describe Audit::Event::Password do
   let(:role_id) { 'rspec:user:my_user' }
+  let(:client_ip) { 'my-client-ip' }
   let(:success) { true }
   let(:error_message) { nil }
 
   subject do
     Audit::Event::Password.new(
       user_id: role_id,
+      client_ip: client_ip,
       success: success,
       error_message: error_message
     )
@@ -29,6 +31,8 @@ describe Audit::Event::Password do
         'rspec:user:my_user successfully changed their password'
       )
     end
+
+    it_behaves_like 'structured data includes client IP address'
   end
 
   context 'when a failure occurs' do
@@ -44,5 +48,7 @@ describe Audit::Event::Password do
     it 'uses the WARNING log level' do
       expect(subject.severity).to eq(Syslog::LOG_WARNING)
     end
+
+    it_behaves_like 'structured data includes client IP address'
   end
 end

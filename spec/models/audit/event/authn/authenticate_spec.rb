@@ -5,6 +5,7 @@ describe Audit::Event::Authn::Authenticate do
   let(:role) { double('my-role', id: role_id) }
   let(:authenticator_name) { 'my-authenticator'}
   let(:service) { double('my-service', resource_id: 'rspec:webservice:my-service') }
+  let(:client_ip) { 'my-client-ip' }
   let(:success) { true }
   let(:error_message) { nil }
 
@@ -13,6 +14,7 @@ describe Audit::Event::Authn::Authenticate do
       role: role,
       authenticator_name: authenticator_name,
       service: service,
+      client_ip: client_ip,
       success: success,
       error_message: error_message
     )
@@ -36,6 +38,8 @@ describe Audit::Event::Authn::Authenticate do
         'my-authenticator service rspec:webservice:my-service'
       )
     end
+
+    it_behaves_like 'structured data includes client IP address'
   end
 
   context 'when a failure occurs' do
@@ -52,5 +56,7 @@ describe Audit::Event::Authn::Authenticate do
     it 'uses the WARNING log level' do
       expect(subject.severity).to eq(Syslog::LOG_WARNING)
     end
+
+    it_behaves_like 'structured data includes client IP address'
   end
 end

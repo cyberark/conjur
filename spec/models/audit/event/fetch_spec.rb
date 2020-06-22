@@ -4,7 +4,7 @@ describe Audit::Event::Fetch do
 
   let(:user) { double('my-user', id: 'rspec:user:my_user') }
   let(:resource) { double('my-resource', id: 'rspec:variable:my_var') }
-  
+  let(:client_ip) { 'my-client-ip' }
   let(:success) { true }
   let(:version) { 1 }
   let(:error_message) { nil }
@@ -15,6 +15,7 @@ describe Audit::Event::Fetch do
       user: user,
       resource: resource,
       version: version,
+      client_ip: client_ip,
       success: success,
       error_message: error_message
     )
@@ -36,6 +37,8 @@ describe Audit::Event::Fetch do
         'rspec:user:my_user fetched version 1 of rspec:variable:my_var'
       )
     end
+
+    it_behaves_like 'structured data includes client IP address'
   end
 
   context 'when a failure occurs' do
@@ -52,5 +55,7 @@ describe Audit::Event::Fetch do
     it 'uses the WARNING log level' do
       expect(subject.severity).to eq(Syslog::LOG_WARNING)
     end
+
+    it_behaves_like 'structured data includes client IP address'
   end
 end

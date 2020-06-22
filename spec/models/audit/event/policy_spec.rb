@@ -8,8 +8,16 @@ describe Audit::Event::Policy do
       resource_id: 'rspec:variable:my_var'
     )
   end
+  let(:client_ip) { 'my-client-ip' }
   let(:operation) { '' }
-  let(:policy_version) { double('the-policy-version') }
+  let(:policy_version) do
+    double(
+      'the-policy-version',
+      id: 'rspec:policy:my_policy', 
+      client_ip: client_ip,
+      version: 1
+    )
+  end
 
   subject do
     Audit::Event::Policy.new(
@@ -38,6 +46,8 @@ describe Audit::Event::Policy do
         'rspec:user:my_user added resource rspec:variable:my_var'
       )
     end
+
+    it_behaves_like 'structured data includes client IP address'
   end
 
   context "when operation is 'remove'" do
@@ -48,6 +58,8 @@ describe Audit::Event::Policy do
         'rspec:user:my_user removed resource rspec:variable:my_var'
       )
     end
+
+    it_behaves_like 'structured data includes client IP address'
   end
 
   context "when operation is 'change'" do
@@ -58,5 +70,7 @@ describe Audit::Event::Policy do
         'rspec:user:my_user changed resource rspec:variable:my_var'
       )
     end
+
+    it_behaves_like 'structured data includes client IP address'
   end
 end
