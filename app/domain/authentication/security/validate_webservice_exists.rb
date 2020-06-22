@@ -4,9 +4,6 @@ module Authentication
 
   module Security
 
-    # Possible Errors Raised:
-    # AccountNotDefined, WebserviceNotFound
-
     ValidateWebserviceExists ||= CommandClass.new(
       dependencies: {
         role_class: ::Role,
