@@ -1,5 +1,4 @@
 require 'command_class'
-require 'util/error_class'
 
 module Conjur
 

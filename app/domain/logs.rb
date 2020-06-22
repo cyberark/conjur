@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'util/trackable_log_message_class'
-
 module LogMessages
 
   module Conjur

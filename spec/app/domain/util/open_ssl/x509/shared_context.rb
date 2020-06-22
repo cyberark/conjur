@@ -1,8 +1,3 @@
-require 'util/open_ssl/x509/certificate'
-require 'util/open_ssl/x509/smart_csr'
-require 'util/open_ssl/x509/smart_cert'
-require 'util/open_ssl/x509/quick_csr'
-
 RSpec.shared_context "certificate testing" do
 
   let(:common_name) { 'example.com' }

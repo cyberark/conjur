@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'command_class'
-require 'authentication/webservices'
 
 module Authentication
 

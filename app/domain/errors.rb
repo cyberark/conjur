@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'util/trackable_error_class'
-
 module Errors
   module Conjur
 
