@@ -47,7 +47,7 @@ module Authentication
       def validate_webservice_exists
         @validate_webservice_exists.(
           webservice: @webservice,
-            account: @account
+          account: @account
         )
       end
 
@@ -58,7 +58,11 @@ module Authentication
       def validate_user_has_access
         has_access = user_role.allowed_to?(@privilege, webservice_resource)
         unless has_access
-          raise Errors::Authentication::Security::RoleNotAuthorizedOnResource.new(@user_id, @privilege, webservice_resource_id)
+          raise Errors::Authentication::Security::RoleNotAuthorizedOnResource.new(
+            @user_id,
+            @privilege,
+            webservice_resource_id
+          )
         end
       end
 
