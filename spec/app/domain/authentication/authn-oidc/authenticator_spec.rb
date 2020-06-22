@@ -5,7 +5,7 @@ require 'support/security_specs_helper'
 require 'support/fetch_secrets_helper'
 require 'json'
 
-RSpec.describe 'Authentication::Oidc' do
+RSpec.describe Authentication::AuthnOidc::Authenticator do
 
   include_context "fetch secrets", %w(provider-uri id-token-user-property)
   include_context "security mocks"
@@ -97,7 +97,7 @@ RSpec.describe 'Authentication::Oidc' do
               request:            authenticate_id_token_request
             )
 
-            ::Authentication::AuthnOidc::Authenticate.new(
+            ::Authentication::AuthnOidc::Authenticator.new(
               enabled_authenticators:              authenticator_name,
               token_factory:                       mocked_token_factory,
               validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
@@ -141,7 +141,7 @@ RSpec.describe 'Authentication::Oidc' do
             request:            authenticate_id_token_request
           )
 
-          ::Authentication::AuthnOidc::Authenticate.new(
+          ::Authentication::AuthnOidc::Authenticator.new(
             enabled_authenticators:              authenticator_name,
             token_factory:                       mocked_token_factory,
             validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: false),
@@ -177,7 +177,7 @@ RSpec.describe 'Authentication::Oidc' do
             request:            authenticate_id_token_request
           )
 
-          ::Authentication::AuthnOidc::Authenticate.new(
+          ::Authentication::AuthnOidc::Authenticator.new(
             enabled_authenticators:              authenticator_name,
             token_factory:                       mocked_token_factory,
             validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
@@ -213,7 +213,7 @@ RSpec.describe 'Authentication::Oidc' do
             request:            authenticate_id_token_request_missing_id_token_username_field
           )
 
-          ::Authentication::AuthnOidc::Authenticate.new(
+          ::Authentication::AuthnOidc::Authenticator.new(
             enabled_authenticators:              authenticator_name,
             token_factory:                       mocked_token_factory,
             validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
@@ -249,7 +249,7 @@ RSpec.describe 'Authentication::Oidc' do
             request:            authenticate_id_token_request_empty_id_token_username_field
           )
 
-          ::Authentication::AuthnOidc::Authenticate.new(
+          ::Authentication::AuthnOidc::Authenticator.new(
             enabled_authenticators:              authenticator_name,
             token_factory:                       mocked_token_factory,
             validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
@@ -286,7 +286,7 @@ RSpec.describe 'Authentication::Oidc' do
             request:            authenticate_id_token_request_missing_id_token_field
           )
 
-          ::Authentication::AuthnOidc::Authenticate.new(
+          ::Authentication::AuthnOidc::Authenticator.new(
             enabled_authenticators:              authenticator_name,
             token_factory:                       mocked_token_factory,
             validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
@@ -318,7 +318,7 @@ RSpec.describe 'Authentication::Oidc' do
             request:            authenticate_id_token_request_empty_id_token_field
           )
 
-          ::Authentication::AuthnOidc::Authenticate.new(
+          ::Authentication::AuthnOidc::Authenticator.new(
             enabled_authenticators:              authenticator_name,
             token_factory:                       mocked_token_factory,
             validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
