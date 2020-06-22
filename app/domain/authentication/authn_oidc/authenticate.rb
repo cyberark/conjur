@@ -16,15 +16,16 @@ module Authentication
     #
     Authenticate = CommandClass.new(
       dependencies: {
-        enabled_authenticators:      Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
-        fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
-        token_factory:               TokenFactory.new,
-        validate_account_exists:     ::Authentication::Security::ValidateAccountExists.new,
-        validate_security:           ::Authentication::Security::ValidateSecurity.new,
-        validate_origin:             ValidateOrigin.new,
-        audit_log:                   ::Audit.logger,
-        verify_and_decode_token:     ::Authentication::OAuth::VerifyAndDecodeToken.new,
-        logger:                      Rails.logger
+        enabled_authenticators:              Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
+        fetch_authenticator_secrets:         Authentication::Util::FetchAuthenticatorSecrets.new,
+        token_factory:                       TokenFactory.new,
+        validate_account_exists:             ::Authentication::Security::ValidateAccountExists.new,
+        validate_webservice_is_whitelisted:  ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
+        validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
+        validate_origin:                     ValidateOrigin.new,
+        audit_log:                           ::Audit.logger,
+        verify_and_decode_token:             ::Authentication::OAuth::VerifyAndDecodeToken.new,
+        logger:                              Rails.logger
       },
       inputs:       %i(authenticator_input)
     ) do
@@ -38,7 +39,8 @@ module Authentication
         verify_and_decode_token
         validate_conjur_username
         add_username_to_input
-        validate_security
+        validate_webservice_is_whitelisted
+        validate_user_has_access_to_webservice
         validate_origin
         audit_success
         new_token
@@ -114,15 +116,21 @@ module Authentication
         oidc_authenticator_secrets["id-token-user-property"]
       end
 
-      def validate_security
-        @validate_security.(
+      def validate_webservice_is_whitelisted
+        @validate_webservice_is_whitelisted.(
+          webservice: webservice,
+          account: account,
+          enabled_authenticators: @enabled_authenticators
+        )
+      end
+
+      def validate_user_has_access_to_webservice
+        @validate_role_can_access_webservice.(
           webservice: webservice,
           account: account,
           user_id: username,
-          enabled_authenticators: @enabled_authenticators
+          privilege: 'authenticate'
         )
-
-        @logger.debug(LogMessages::Authentication::Security::SecurityValidated.new.to_s)
       end
 
       def validate_origin
@@ -137,10 +145,10 @@ module Authentication
         @audit_log.log(
           ::Audit::Event::Authn::Authenticate.new(
             authenticator_name: authenticator_name,
-            service: webservice,
-            role: role,
-            success: true,
-            error_message: nil
+            service:            webservice,
+            role:               role,
+            success:            true,
+            error_message:      nil
           )
         )
       end
@@ -149,10 +157,10 @@ module Authentication
         @audit_log.log(
           ::Audit::Event::Authn::Authenticate.new(
             authenticator_name: authenticator_name,
-            service: webservice,
-            role: role,
-            success: false,
-            error_message: err.message
+            service:            webservice,
+            role:               role,
+            success:            false,
+            error_message:      err.message
           )
         )
       end

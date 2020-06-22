@@ -63,7 +63,7 @@ RSpec.describe 'Authentication::Oidc' do
   end
 
   let(:audit_success) { true }
-  let(:audit_logger) do
+  let(:mocked_audit_logger) do
     double('audit_logger').tap do |logger|
       expect(logger).to receive(:log)
     end
@@ -85,6 +85,51 @@ RSpec.describe 'Authentication::Oidc' do
       end
 
       context "with valid id token" do
+        context "when webservice validation succeeds" do
+          subject do
+            input_ = Authentication::AuthenticatorInput.new(
+              authenticator_name: 'authn-oidc',
+              service_id:         'my-service',
+              account:            'my-acct',
+              username:           nil,
+              credentials:        request_body(authenticate_id_token_request),
+              origin:             '127.0.0.1',
+              request:            authenticate_id_token_request
+            )
+
+            ::Authentication::AuthnOidc::Authenticate.new(
+              enabled_authenticators:              authenticator_name,
+              token_factory:                       mocked_token_factory,
+              validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
+              validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
+              validate_account_exists:             mocked_account_validator,
+              validate_origin:                     mocked_origin_validator,
+              verify_and_decode_token:             mocked_decode_and_verify_id_token,
+              audit_log:                           mocked_audit_logger
+            ).call(
+              authenticator_input: input_
+            )
+          end
+
+          it "returns a new access token" do
+            expect(subject).to equal(a_new_token)
+          end
+
+          it_behaves_like "raises an error when origin validation fails"
+          it_behaves_like "raises an error when account validation fails"
+          it_behaves_like(
+            "it fails when variable is missing or has no value",
+            "provider-uri"
+          )
+          it_behaves_like(
+            "it fails when variable is missing or has no value",
+            "id-token-user-property"
+          )
+        end
+      end
+
+      context "with an inaccessible webservice" do
+        let(:audit_success) { false }
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc',
@@ -97,33 +142,62 @@ RSpec.describe 'Authentication::Oidc' do
           )
 
           ::Authentication::AuthnOidc::Authenticate.new(
-            enabled_authenticators: authenticator_name,
-            token_factory: token_factory,
-            validate_security: mocked_security_validator,
-            validate_account_exists: mocked_account_validator,
-            validate_origin: mocked_origin_validator,
-            verify_and_decode_token: mocked_decode_and_verify_id_token,
-            audit_log: audit_logger
+            enabled_authenticators:              authenticator_name,
+            token_factory:                       mocked_token_factory,
+            validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: false),
+            validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
+            validate_account_exists:             mocked_account_validator,
+            validate_origin:                     mocked_origin_validator,
+            verify_and_decode_token:             mocked_decode_and_verify_id_token,
+            audit_log:                           mocked_audit_logger
           ).call(
             authenticator_input: input_
           )
         end
 
-        it "returns a new access token" do
-          expect(subject).to equal(a_new_token)
+        it "raises an error" do
+          expect { subject }.to(
+            raise_error(
+              validate_role_can_access_webservice_error
+            )
+          )
+        end
+      end
+
+      context "with a non-whitelisted webservice" do
+        let(:audit_success) { false }
+        subject do
+          input_ = Authentication::AuthenticatorInput.new(
+            authenticator_name: 'authn-oidc',
+            service_id:         'my-service',
+            account:            'my-acct',
+            username:           nil,
+            credentials:        request_body(authenticate_id_token_request),
+            origin:             '127.0.0.1',
+            request:            authenticate_id_token_request
+          )
+
+          ::Authentication::AuthnOidc::Authenticate.new(
+            enabled_authenticators:              authenticator_name,
+            token_factory:                       mocked_token_factory,
+            validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
+            validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: false),
+            validate_account_exists:             mocked_account_validator,
+            validate_origin:                     mocked_origin_validator,
+            verify_and_decode_token:             mocked_decode_and_verify_id_token,
+            audit_log:                           mocked_audit_logger
+          ).call(
+            authenticator_input: input_
+          )
         end
 
-        it_behaves_like "raises an error when security validation fails"
-        it_behaves_like "raises an error when origin validation fails"
-        it_behaves_like "raises an error when account validation fails"
-        it_behaves_like(
-          "it fails when variable is missing or has no value",
-          "provider-uri"
-        )
-        it_behaves_like(
-          "it fails when variable is missing or has no value",
-          "id-token-user-property"
-        )
+        it "raises an error" do
+          expect { subject }.to(
+            raise_error(
+              validate_webservice_is_whitelisted_error
+            )
+          )
+        end
       end
 
       context "with no id token username field in id token" do
@@ -140,13 +214,14 @@ RSpec.describe 'Authentication::Oidc' do
           )
 
           ::Authentication::AuthnOidc::Authenticate.new(
-            enabled_authenticators: authenticator_name,
-            token_factory: token_factory,
-            validate_security: mocked_security_validator,
-            validate_account_exists: mocked_account_validator,
-            validate_origin: mocked_origin_validator,
-            verify_and_decode_token: mocked_decode_and_verify_id_token,
-            audit_log: audit_logger
+            enabled_authenticators:              authenticator_name,
+            token_factory:                       mocked_token_factory,
+            validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
+            validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
+            validate_account_exists:             mocked_account_validator,
+            validate_origin:                     mocked_origin_validator,
+            verify_and_decode_token:             mocked_decode_and_verify_id_token,
+            audit_log:                           mocked_audit_logger
           ).call(
             authenticator_input: input_
           )
@@ -175,13 +250,14 @@ RSpec.describe 'Authentication::Oidc' do
           )
 
           ::Authentication::AuthnOidc::Authenticate.new(
-            enabled_authenticators: authenticator_name,
-            token_factory: token_factory,
-            validate_security: mocked_security_validator,
-            validate_account_exists: mocked_account_validator,
-            validate_origin: mocked_origin_validator,
-            verify_and_decode_token: mocked_decode_and_verify_id_token,
-            audit_log: audit_logger
+            enabled_authenticators:              authenticator_name,
+            token_factory:                       mocked_token_factory,
+            validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
+            validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
+            validate_account_exists:             mocked_account_validator,
+            validate_origin:                     mocked_origin_validator,
+            verify_and_decode_token:             mocked_decode_and_verify_id_token,
+            audit_log:                           mocked_audit_logger
           ).call(
             authenticator_input: input_
           )
@@ -211,13 +287,14 @@ RSpec.describe 'Authentication::Oidc' do
           )
 
           ::Authentication::AuthnOidc::Authenticate.new(
-            enabled_authenticators: authenticator_name,
-            token_factory: token_factory,
-            validate_security: mocked_security_validator,
-            validate_account_exists: mocked_account_validator,
-            validate_origin: mocked_origin_validator,
-            verify_and_decode_token: mocked_decode_and_verify_id_token,
-            audit_log: audit_logger
+            enabled_authenticators:              authenticator_name,
+            token_factory:                       mocked_token_factory,
+            validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
+            validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
+            validate_account_exists:             mocked_account_validator,
+            validate_origin:                     mocked_origin_validator,
+            verify_and_decode_token:             mocked_decode_and_verify_id_token,
+            audit_log:                           mocked_audit_logger
           ).call(
             authenticator_input: input_
           )
@@ -242,13 +319,14 @@ RSpec.describe 'Authentication::Oidc' do
           )
 
           ::Authentication::AuthnOidc::Authenticate.new(
-            enabled_authenticators: authenticator_name,
-            token_factory: token_factory,
-            validate_security: mocked_security_validator,
-            validate_account_exists: mocked_account_validator,
-            validate_origin: mocked_origin_validator,
-            verify_and_decode_token: mocked_decode_and_verify_id_token,
-            audit_log: audit_logger
+            enabled_authenticators:              authenticator_name,
+            token_factory:                       mocked_token_factory,
+            validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
+            validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
+            validate_account_exists:             mocked_account_validator,
+            validate_origin:                     mocked_origin_validator,
+            verify_and_decode_token:             mocked_decode_and_verify_id_token,
+            audit_log:                           mocked_audit_logger
           ).call(
             authenticator_input: input_
           )

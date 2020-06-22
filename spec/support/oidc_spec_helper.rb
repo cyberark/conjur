@@ -12,7 +12,7 @@ shared_context "oidc setup" do
 
   let(:a_new_token) { 'A NICE NEW TOKEN' }
 
-  let(:token_factory) do
+  let(:mocked_token_factory) do
     double('TokenFactory', signed_token: a_new_token)
   end
 

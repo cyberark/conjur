@@ -4,6 +4,7 @@ require 'spec_helper'
 
 RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
 
+  include_context "security mocks"
   include_context "fetch secrets", %w(provider-uri)
 
   let(:account) { "my-acct" }
@@ -12,6 +13,8 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
 
   let(:mocked_verify_and_decode_token) { double("VerifyAndDecodeAzureToken") }
   let(:mocked_validate_application_identity) { double("ValidateApplicationIdentity") }
+
+  let(:verify_and_decode_token_error) { "verify and decode token error" }
 
   before(:each) do
     allow(mocked_verify_and_decode_token).to receive(:call) { |*args|
@@ -109,10 +112,10 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
 
           it 'raises the error raised by mocked_validate_application_identity' do
             allow(mocked_validate_application_identity).to receive(:call)
-                                                             .and_raise('FAKE_VALIDATE_APPLICATION_IDENTITY_ERROR')
+                                                             .and_raise(validate_application_identity_error)
 
             expect { subject }.to raise_error(
-              /FAKE_VALIDATE_APPLICATION_IDENTITY_ERROR/
+              validate_application_identity_error
             )
           end
         end
@@ -141,10 +144,10 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
 
           it 'raises the error raised by mocked_verify_and_decode_token' do
             allow(mocked_verify_and_decode_token).to receive(:call)
-                                                       .and_raise('FAKE_VERIFY_AND_DECODE_ERROR')
+                                                       .and_raise(verify_and_decode_token_error)
 
             expect { subject }.to raise_error(
-              /FAKE_VERIFY_AND_DECODE_ERROR/
+              verify_and_decode_token_error
             )
           end
         end

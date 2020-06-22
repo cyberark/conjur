@@ -1,28 +1,24 @@
 # frozen_string_literal: true
 
 require 'logs'
-require 'authentication/validate_webservice_exists'
-require 'authentication/validate_account_exists'
 
 module Authentication
 
   module Security
 
-    Log ||= LogMessages::Authentication::Security
-    Err ||= Errors::Authentication::Security
     # Possible Errors Raised:
     # AccountNotDefined, WebserviceNotFound,
     # RoleNotFound, RoleNotAuthorizedOnResource
 
-    ValidateWebserviceAccess ||= CommandClass.new(
+    ValidateRoleCanAccessWebservice ||= CommandClass.new(
       dependencies: {
-        role_class: ::Role,
-        resource_class: ::Resource,
+        role_class:                 ::Role,
+        resource_class:             ::Resource,
         validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
-        validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
-        logger: Rails.logger
+        validate_account_exists:    ::Authentication::Security::ValidateAccountExists.new,
+        logger:                     Rails.logger
       },
-      inputs: %i(webservice account user_id privilege)
+      inputs:       %i(webservice account user_id privilege)
     ) do
 
       def call
@@ -51,18 +47,22 @@ module Authentication
       def validate_webservice_exists
         @validate_webservice_exists.(
           webservice: @webservice,
-            account: @account
+          account: @account
         )
       end
 
       def validate_user_is_defined
-        raise Err::RoleNotFound, @user_id unless user_role
+        raise Errors::Authentication::Security::RoleNotFound, @user_id unless user_role
       end
 
       def validate_user_has_access
         has_access = user_role.allowed_to?(@privilege, webservice_resource)
         unless has_access
-          raise Err::RoleNotAuthorizedOnResource.new(@user_id, @privilege, webservice_resource_id)
+          raise Errors::Authentication::Security::RoleNotAuthorizedOnResource.new(
+            @user_id,
+            @privilege,
+            webservice_resource_id
+          )
         end
       end
 

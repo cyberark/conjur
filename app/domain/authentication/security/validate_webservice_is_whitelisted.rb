@@ -1,23 +1,21 @@
 # frozen_string_literal: true
 
 require 'authentication/webservices'
-require 'authentication/validate_account_exists'
 
 module Authentication
 
   module Security
 
-    Err ||= Errors::Authentication::Security
     # Possible Errors Raised:
     # AccountNotDefined, AuthenticatorNotWhitelisted
 
-    ValidateWhitelistedWebservice ||= CommandClass.new(
+    ValidateWebserviceIsWhitelisted ||= CommandClass.new(
       dependencies: {
-        role_class: ::Role,
-        webservices_class: ::Authentication::Webservices,
+        role_class:              ::Role,
+        webservices_class:       ::Authentication::Webservices,
         validate_account_exists: ::Authentication::Security::ValidateAccountExists.new
       },
-      inputs: %i(webservice account enabled_authenticators)
+      inputs:       %i(webservice account enabled_authenticators)
     ) do
 
       def call
@@ -43,7 +41,7 @@ module Authentication
 
       def validate_webservice_is_whitelisted
         is_whitelisted = whitelisted_webservices.include?(@webservice)
-        raise Err::AuthenticatorNotWhitelisted, @webservice.name unless is_whitelisted
+        raise Errors::Authentication::Security::AuthenticatorNotWhitelisted, @webservice.name unless is_whitelisted
       end
 
       def whitelisted_webservices

@@ -88,10 +88,10 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
                          conjur_ca_repo: conjur_ca_repo,
                          kubectl_exec: kubectl_exec,
                          validate_pod_request: validate_pod_request,
-                         audit_log: audit_logger} }
+                         audit_log: mocked_audit_logger} }
 
   let(:audit_success) { true }
-  let(:audit_logger) do
+  let(:mocked_audit_logger) do
     double('audit_logger').tap do |logger|
       expect(logger).to receive(:log)
     end
