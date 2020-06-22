@@ -31,7 +31,7 @@ RSpec.describe Authentication::UpdateAuthenticatorConfig do
         validate_account_exists:              mock_validate_account_exists(validation_succeeded: true),
         validate_webservice_exists:           mock_validate_webservice_exists(validation_succeeded: true),
         validate_webservice_is_authenticator: mock_validate_webservice_is_authenticator(validation_succeeded: true),
-        validate_role_can_access_webservice:  mock_validate_user_can_access_webservice(validation_succeeded: true)
+        validate_role_can_access_webservice:  mock_validate_role_can_access_webservice(validation_succeeded: true)
       ).call(call_params)
     }
 
@@ -47,7 +47,7 @@ RSpec.describe Authentication::UpdateAuthenticatorConfig do
         validate_account_exists:              mock_validate_account_exists(validation_succeeded: false),
         validate_webservice_exists:           mock_validate_webservice_exists(validation_succeeded: true),
         validate_webservice_is_authenticator: mock_validate_webservice_is_authenticator(validation_succeeded: true),
-        validate_role_can_access_webservice:  mock_validate_user_can_access_webservice(validation_succeeded: true)
+        validate_role_can_access_webservice:  mock_validate_role_can_access_webservice(validation_succeeded: true)
       ).call(call_params)
     }
 
@@ -63,7 +63,7 @@ RSpec.describe Authentication::UpdateAuthenticatorConfig do
         validate_account_exists:              mock_validate_account_exists(validation_succeeded: true),
         validate_webservice_exists:           mock_validate_webservice_exists(validation_succeeded: false),
         validate_webservice_is_authenticator: mock_validate_webservice_is_authenticator(validation_succeeded: true),
-        validate_role_can_access_webservice:  mock_validate_user_can_access_webservice(validation_succeeded: true)
+        validate_role_can_access_webservice:  mock_validate_role_can_access_webservice(validation_succeeded: true)
       ).call(call_params)
     }
 
@@ -79,12 +79,12 @@ RSpec.describe Authentication::UpdateAuthenticatorConfig do
         validate_account_exists:              mock_validate_account_exists(validation_succeeded: true),
         validate_webservice_exists:           mock_validate_webservice_exists(validation_succeeded: true),
         validate_webservice_is_authenticator: mock_validate_webservice_is_authenticator(validation_succeeded: true),
-        validate_role_can_access_webservice:  mock_validate_user_can_access_webservice(validation_succeeded: false)
+        validate_role_can_access_webservice:  mock_validate_role_can_access_webservice(validation_succeeded: false)
       ).call(call_params)
     }
 
     it "raises the error raised by validate_role_can_access_webservice" do
-      expect { subject }.to raise_error(validate_user_can_access_webservice_error)
+      expect { subject }.to raise_error(validate_role_can_access_webservice_error)
     end
   end
 
@@ -95,7 +95,7 @@ RSpec.describe Authentication::UpdateAuthenticatorConfig do
         validate_account_exists:              mock_validate_account_exists(validation_succeeded: true),
         validate_webservice_exists:           mock_validate_webservice_exists(validation_succeeded: true),
         validate_webservice_is_authenticator: mock_validate_webservice_is_authenticator(validation_succeeded: false),
-        validate_role_can_access_webservice:  mock_validate_user_can_access_webservice(validation_succeeded: true)
+        validate_role_can_access_webservice:  mock_validate_role_can_access_webservice(validation_succeeded: true)
       ).call(call_params)
     }
 

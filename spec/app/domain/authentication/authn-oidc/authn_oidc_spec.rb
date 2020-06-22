@@ -100,7 +100,7 @@ RSpec.describe 'Authentication::Oidc' do
             ::Authentication::AuthnOidc::Authenticate.new(
               enabled_authenticators:              authenticator_name,
               token_factory:                       mocked_token_factory,
-              validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+              validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
               validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
               validate_account_exists:             mocked_account_validator,
               validate_origin:                     mocked_origin_validator,
@@ -144,7 +144,7 @@ RSpec.describe 'Authentication::Oidc' do
           ::Authentication::AuthnOidc::Authenticate.new(
             enabled_authenticators:              authenticator_name,
             token_factory:                       mocked_token_factory,
-            validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: false),
+            validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: false),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
             validate_account_exists:             mocked_account_validator,
             validate_origin:                     mocked_origin_validator,
@@ -158,7 +158,7 @@ RSpec.describe 'Authentication::Oidc' do
         it "raises an error" do
           expect { subject }.to(
             raise_error(
-              validate_user_can_access_webservice_error
+              validate_role_can_access_webservice_error
             )
           )
         end
@@ -180,7 +180,7 @@ RSpec.describe 'Authentication::Oidc' do
           ::Authentication::AuthnOidc::Authenticate.new(
             enabled_authenticators:              authenticator_name,
             token_factory:                       mocked_token_factory,
-            validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+            validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: false),
             validate_account_exists:             mocked_account_validator,
             validate_origin:                     mocked_origin_validator,
@@ -216,7 +216,7 @@ RSpec.describe 'Authentication::Oidc' do
           ::Authentication::AuthnOidc::Authenticate.new(
             enabled_authenticators:              authenticator_name,
             token_factory:                       mocked_token_factory,
-            validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+            validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
             validate_account_exists:             mocked_account_validator,
             validate_origin:                     mocked_origin_validator,
@@ -252,7 +252,7 @@ RSpec.describe 'Authentication::Oidc' do
           ::Authentication::AuthnOidc::Authenticate.new(
             enabled_authenticators:              authenticator_name,
             token_factory:                       mocked_token_factory,
-            validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+            validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
             validate_account_exists:             mocked_account_validator,
             validate_origin:                     mocked_origin_validator,
@@ -289,7 +289,7 @@ RSpec.describe 'Authentication::Oidc' do
           ::Authentication::AuthnOidc::Authenticate.new(
             enabled_authenticators:              authenticator_name,
             token_factory:                       mocked_token_factory,
-            validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+            validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
             validate_account_exists:             mocked_account_validator,
             validate_origin:                     mocked_origin_validator,
@@ -321,7 +321,7 @@ RSpec.describe 'Authentication::Oidc' do
           ::Authentication::AuthnOidc::Authenticate.new(
             enabled_authenticators:              authenticator_name,
             token_factory:                       mocked_token_factory,
-            validate_role_can_access_webservice: mock_validate_user_can_access_webservice(validation_succeeded: true),
+            validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
             validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
             validate_account_exists:             mocked_account_validator,
             validate_origin:                     mocked_origin_validator,
