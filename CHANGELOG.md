@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Conjur can be configured to run in FIPS compliant or Non-FIPS compliant mode depending on requirements.
   FIPS Compliant mode is slightly slower then non-FIPS compliant
   ([cyberark/conjur#1527](https://github.com/cyberark/conjur/issues/1527))
+- Bump conjur-rack from 4.0.0 to 4.2.0 that consumes FIPS compliant slosilo(https://github.com/cyberark/conjur/issues/1527))
 
 ### Added
 - Password changes (`PUT /authn/:account/password`) now produce audit events with
