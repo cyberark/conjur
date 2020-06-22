@@ -3,9 +3,6 @@ require 'jwt'
 module Authentication
   module Jwt
 
-    # Possible Errors Raised:
-    # TokenExpired, TokenDecodeFailed, TokenVerificationFailed
-
     # This class verifies and decodes a JWT token. It doesn't connect with the issuer
     # of the token for verification. If a token verification is needed, a verification_options
     # object should be provided with the JWKs & algorithms required for the verification.

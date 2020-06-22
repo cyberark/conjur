@@ -5,9 +5,6 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
-    # Possible Errors Raised:
-    # CSRIsMissingSpiffeId, CertInstallationError
-
     KUBERNETES_AUTHENTICATOR_NAME = 'authn-k8s'
 
     InjectClientCert ||= CommandClass.new(

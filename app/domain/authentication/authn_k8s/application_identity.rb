@@ -3,9 +3,6 @@
 module Authentication
   module AuthnK8s
 
-    # Possible Errors Raised: MissingNamespaceConstraint, IllegalConstraintCombinations,
-    # ScopeNotSupported, InvalidHostId
-
     # This class defines an application identity of a given conjur host.
     # The constructor initializes an ApplicationIdentity object and validates that
     # it is configured correctly.

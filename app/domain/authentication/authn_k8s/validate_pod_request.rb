@@ -5,9 +5,6 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
-    # Possible Errors Raised:
-    # PodNotFound
-
     ValidatePodRequest ||= CommandClass.new(
       dependencies: {
         resource_class:                      Resource,

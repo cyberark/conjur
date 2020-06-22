@@ -1,9 +1,6 @@
 module Authentication
   module AuthnOidc
 
-    # Possible Errors Raised:
-    # IdTokenFieldNotFoundOrEmpty, AdminAuthenticationDenied
-
     Authenticator ||= CommandClass.new(
       dependencies: {
         enabled_authenticators:              Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),

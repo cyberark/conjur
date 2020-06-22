@@ -5,12 +5,8 @@
 module Authentication
   class AuthenticatorClass
 
-    # Possible Errors Raised:
-    # DoesntStartWithAuthn, NotNamedAuthenticator, MissingValidMethod
-
     # Represents the rules any authenticator class must conform to
     class Validation
-
 
       def initialize(cls)
         @cls = cls

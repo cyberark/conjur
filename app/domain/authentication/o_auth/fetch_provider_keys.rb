@@ -3,9 +3,6 @@ require 'json'
 module Authentication
   module OAuth
 
-    # Possible Errors Raised:
-    #   FetchProviderKeysFailed
-
     FetchProviderKeys = CommandClass.new(
       dependencies: {
         logger:                 Rails.logger,

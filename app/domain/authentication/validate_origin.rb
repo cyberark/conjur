@@ -2,9 +2,6 @@
 
 module Authentication
 
-  # Possible Errors Raised:
-  # InvalidOrigin, RoleNotFound
-
   ValidateOrigin ||= CommandClass.new(
     dependencies: {
       role_cls: ::Role,

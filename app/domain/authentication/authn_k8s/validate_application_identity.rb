@@ -4,9 +4,6 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
-    # Possible Errors Raised: NamespaceMismatch, ContainerNotFound,
-    # K8sResourceNotFound
-
     ValidateApplicationIdentity ||= CommandClass.new(
       dependencies: {
         resource_class:             ::Resource,

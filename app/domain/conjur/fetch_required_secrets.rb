@@ -2,9 +2,6 @@ require 'command_class'
 
 module Conjur
 
-  # Possible Errors Raised:
-  # RequiredResourceMissing, RequiredSecretMissing
-
   FetchRequiredSecrets = ::CommandClass.new(
     dependencies: { resource_class: ::Resource },
     inputs: [:resource_ids]

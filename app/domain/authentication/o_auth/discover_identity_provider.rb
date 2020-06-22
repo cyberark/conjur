@@ -1,10 +1,6 @@
 module Authentication
   module OAuth
 
-    # Possible Errors Raised:
-    #   ProviderDiscoveryTimeout
-    #   ProviderDiscoveryFailed
-
     DiscoverIdentityProvider = CommandClass.new(
       dependencies: {
         logger:                    Rails.logger,

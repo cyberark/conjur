@@ -3,9 +3,6 @@ require 'command_class'
 module Authentication
   module AuthnAzure
 
-    # Possible Errors Raised: RoleNotFound, InvalidApplicationIdentity,
-    # ConstraintNotSupported, MissingConstraint, IllegalConstraintCombinations
-
     ValidateAzureAnnotations = CommandClass.new(
       dependencies: {
         logger: Rails.logger

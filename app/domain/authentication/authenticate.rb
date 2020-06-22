@@ -4,9 +4,6 @@ require 'command_class'
 
 module Authentication
 
-  # Possible Errors Raised:
-  # AuthenticatorNotFound, InvalidCredentials
-
   Authenticate ||= CommandClass.new(
     dependencies: {
       token_factory:                       TokenFactory.new,

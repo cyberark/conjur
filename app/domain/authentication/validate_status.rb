@@ -4,11 +4,6 @@ require 'command_class'
 
 module Authentication
 
-  # Possible Errors Raised:
-  # AuthenticatorNotFound, StatusNotImplemented, AccountNotDefined
-  # WebserviceNotFound, RoleNotFound, RoleNotAuthorizedOnResource,
-  # AuthenticatorNotWhitelisted
-
   ValidateStatus ||= CommandClass.new(
     dependencies: {
       validate_webservice_is_whitelisted:  ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,

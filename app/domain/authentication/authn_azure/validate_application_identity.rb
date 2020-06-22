@@ -3,10 +3,6 @@ require 'command_class'
 module Authentication
   module AuthnAzure
 
-    # Possible Errors Raised: RoleNotFound, InvalidApplicationIdentity, XmsMiridParseError,
-    # MissingRequiredFieldsInXmsMirid, MissingProviderFieldsInXmsMirid, MissingConstraint,
-    # IllegalConstraintCombinations
-
     ValidateApplicationIdentity = CommandClass.new(
       dependencies: {
         role_class:                 ::Role,

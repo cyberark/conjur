@@ -6,9 +6,6 @@ module Authentication
 
   module Security
 
-    # Possible Errors Raised:
-    # AccountNotDefined, AuthenticatorNotWhitelisted
-
     ValidateWebserviceIsWhitelisted ||= CommandClass.new(
       dependencies: {
         role_class:              ::Role,

@@ -6,9 +6,6 @@ module Authentication
   module AuthnIam
     class Authenticator
 
-    # Possible Errors Raised:
-    # InvalidAWSHeaders
-
       def initialize(env:)
         @env = env
       end

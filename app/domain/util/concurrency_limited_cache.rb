@@ -1,8 +1,5 @@
 module Util
 
-  # Possible Errors Raised:
-  # ConcurrencyLimitReachedBeforeCacheInitialization
-
   class ConcurrencyLimitedCache
 
     # NOTE: "callable" is anything with a "call" method
