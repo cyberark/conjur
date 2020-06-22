@@ -3,6 +3,8 @@ require 'forwardable'
 module Audit
   module Event
     class Authn
+      # Note: Breaking this class up further would harm clarity.
+      # :reek:TooManyInstanceVariables and :reek:TooManyParameters
       class Authenticate
         extend Forwardable
         def_delegators(
@@ -12,6 +14,7 @@ module Audit
 
         def initialize(
           role:,
+          client_ip:,
           authenticator_name:,
           service:,
           success:,
@@ -21,6 +24,7 @@ module Audit
           @error_message = error_message
           @authn = Authn.new(
             role: role,
+            client_ip: client_ip,
             authenticator_name: authenticator_name,
             service: service,
             success: success,

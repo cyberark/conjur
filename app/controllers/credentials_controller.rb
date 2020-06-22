@@ -38,7 +38,8 @@ class CredentialsController < ApplicationController
 
     Commands::Credentials::ChangePassword.new.call(
       role: @role,
-      password: password
+      password: password,
+      client_ip: request.ip
     )
         
     head 204
@@ -50,7 +51,8 @@ class CredentialsController < ApplicationController
   def rotate_api_key
     Commands::Credentials::RotateApiKey.new.call(
       role_to_rotate: authentication.apply_to_role,
-      authenticated_role: authentication.authenticated_role
+      authenticated_role: authentication.authenticated_role,
+      client_ip: request.ip
     )
     render plain: @role.credentials.api_key
   end

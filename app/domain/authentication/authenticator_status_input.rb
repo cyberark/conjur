@@ -11,6 +11,7 @@ module Authentication
     attribute :service_id, ::Types::NonEmptyString.optional
     attribute :account, ::Types::NonEmptyString
     attribute :username, ::Types::NonEmptyString
+    attribute :origin, ::Types::String
 
     def webservice
       status_webservice.parent_webservice

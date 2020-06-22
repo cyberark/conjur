@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   message ID `password` ([cyberark/conjur#1548](https://github.com/cyberark/conjur/issues/1548))
 - API key rotations (`PUT /:authenticator/:account/api_key`) now produce audit events with
   message ID `api-key` ([cyberark/conjur#1549](https://github.com/cyberark/conjur/issues/1549))
+- All audit events now contain the IP address of the client that initiated the
+  API request (e.g. `[client@43868 ip="172.24.0.5"]`)
+  ([cyberark/conjur#1550](https://github.com/cyberark/conjur/issues/1550))
 
 ## [1.7.4] - 2020-06-17
 

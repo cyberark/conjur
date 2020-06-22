@@ -25,7 +25,8 @@ module Authentication
   ) do
 
     extend Forwardable
-    def_delegators :@authenticator_status_input, :authenticator_name, :account, :username, :webservice, :status_webservice, :role
+    def_delegators :@authenticator_status_input, :authenticator_name, :account,
+      :username, :webservice, :status_webservice, :role, :origin
 
     def call
       validate_authenticator_exists
@@ -90,6 +91,7 @@ module Authentication
           authenticator_name: authenticator_name,
           service:            webservice,
           role:               role,
+          client_ip:          origin,
           success:            true,
           error_message:      nil
         )
@@ -102,6 +104,7 @@ module Authentication
           authenticator_name: authenticator_name,
           service:            webservice,
           role:               role,
+          client_ip:          origin,
           success:            false,
           error_message:      err.message
         )

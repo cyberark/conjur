@@ -1,10 +1,18 @@
 module Audit
   module Event
     # Note: Breaking this class up further would harm clarity.
-    # :reek:TooManyInstanceVariables
+    # :reek:TooManyInstanceVariables and :reek:TooManyParameters
     class Fetch
-      def initialize(user:, resource:, success:, version:, error_message: nil)
+      def initialize(
+        user:,
+        client_ip:,
+        resource:,
+        success:,
+        version:,
+        error_message: nil
+      )
         @user = user
+        @client_ip = client_ip
         @resource = resource
         @success = success
         @error_message = error_message
@@ -44,7 +52,8 @@ module Audit
       def structured_data
         {
           SDID::AUTH => { user: @user.id },
-          SDID::SUBJECT => subject_sd_value
+          SDID::SUBJECT => subject_sd_value,
+          SDID::CLIENT => { ip: @client_ip }
         }.merge(
           attempted_action.action_sd
         )

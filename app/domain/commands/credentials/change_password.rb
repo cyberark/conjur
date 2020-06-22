@@ -14,7 +14,7 @@ module Commands
       # dependency that it will use to save the new password.
       # This should be addressed to make the database dependency explicit:
       # https://github.com/cyberark/conjur/issues/1611
-      inputs: %i(role password)
+      inputs: %i(role password client_ip)
     ) do
 
       def call
@@ -38,7 +38,11 @@ module Commands
 
       def audit_success
         @audit_log.log(
-          ::Audit::Event::Password.new(user_id: @role.id, success: true)
+          ::Audit::Event::Password.new(
+            user_id: @role.id,
+            client_ip: @client_ip,
+            success: true
+          )
         )
       end
 
@@ -46,6 +50,7 @@ module Commands
         @audit_log.log(
           ::Audit::Event::Password.new(
             user_id: @role.id,
+            client_ip: @client_ip,
             success: false,
             error_message: err.message
           )

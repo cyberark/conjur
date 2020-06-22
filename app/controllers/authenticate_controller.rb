@@ -51,7 +51,8 @@ class AuthenticateController < ApplicationController
       authenticator_name: params[:authenticator],
       service_id: params[:service_id],
       account: params[:account],
-      username: ::Role.username_from_roleid(current_user.role_id)
+      username: ::Role.username_from_roleid(current_user.role_id),
+      origin: request.ip
     )
   end
 
@@ -112,6 +113,7 @@ class AuthenticateController < ApplicationController
     Authentication::AuthnK8s::InjectClientCert.new.(
       conjur_account: ENV['CONJUR_ACCOUNT'],
       service_id: params[:service_id],
+      origin: request.ip,
       csr: request.body.read,
       # The host-id is split in the client where the suffix is in the CSR
       # and the prefix is in the header. This is done to maintain backwards-compatibility

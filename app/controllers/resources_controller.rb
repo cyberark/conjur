@@ -58,6 +58,7 @@ class ResourcesController < RestController
     Audit.logger.log(
       Audit::Event::Check.new(
         user: current_user,
+        client_ip: request.ip,
         resource: resource,
         privilege: privilege,
         role: assumed_role,

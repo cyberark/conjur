@@ -1,17 +1,21 @@
 module Audit
   module Event
+    # Note: Breaking this class up further would harm clarity.
+    # :reek:TooManyInstanceVariables and :reek:TooManyParameters
     class Policy
 
       def initialize(
         operation:,
         subject:,
         user: nil,
-        policy_version: nil
+        policy_version: nil,
+        client_ip: nil
       )
         @operation = operation
         @subject = subject
         @user = user
         @policy_version = policy_version
+        @client_ip = client_ip
       end
 
       # Note: We want this class to be responsible for providing `progname`.
@@ -48,7 +52,8 @@ module Audit
         {
           SDID::AUTH => { user: @user&.id },
           SDID::SUBJECT => @subject.to_h,
-          SDID::ACTION => { operation: @operation }
+          SDID::ACTION => { operation: @operation },
+          SDID::CLIENT => { ip: client_ip }
         }.tap do |sd|
           if @policy_version
             sd[SDID::POLICY] = {
@@ -71,6 +76,10 @@ module Audit
 
       def user
         @user || @policy_version.role
+      end
+
+      def client_ip
+        @client_ip || @policy_version.client_ip
       end
     end
   end

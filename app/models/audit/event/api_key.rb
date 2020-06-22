@@ -1,11 +1,19 @@
 module Audit
   module Event
 
-    # As a value object, it is okay that this class has :reek:TooManyInstanceVariables
+    # Note: Breaking this class up further would harm clarity.
+    # :reek:TooManyInstanceVariables and :reek:TooManyParameters
     class ApiKey
-      def initialize(authenticated_role_id:, rotated_role_id:, success:, error_message: nil)
+      def initialize(
+        authenticated_role_id:,
+        rotated_role_id:,
+        client_ip:,
+        success:,
+        error_message: nil
+      )
         @authenticated_role_id = authenticated_role_id
         @rotated_role_id = rotated_role_id
+        @client_ip = client_ip
         @success = success
         @error_message = error_message
 
@@ -41,7 +49,8 @@ module Audit
       def structured_data
         {
           SDID::AUTH => { user: @authenticated_role_id },
-          SDID::SUBJECT => { role: @rotated_role_id }
+          SDID::SUBJECT => { role: @rotated_role_id },
+          SDID::CLIENT => { ip: @client_ip }
         }.merge(
           attempted_action.action_sd
         )

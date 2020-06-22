@@ -14,7 +14,7 @@ module Commands
       dependencies: {
         audit_log: ::Audit.logger
       },
-      inputs: %i(role_to_rotate authenticated_role)
+      inputs: %i(role_to_rotate authenticated_role client_ip)
     ) do
 
       def call
@@ -41,6 +41,7 @@ module Commands
           ::Audit::Event::ApiKey.new(
             authenticated_role_id: @authenticated_role.id,
             rotated_role_id: @role_to_rotate.id,
+            client_ip: @client_ip,
             success: true
           )
         )
@@ -51,6 +52,7 @@ module Commands
           ::Audit::Event::ApiKey.new(
             authenticated_role_id: @authenticated_role.id,
             rotated_role_id: @role_to_rotate.id,
+            client_ip: @client_ip,
             success: false,
             error_message: err.message
           )
