@@ -4,10 +4,6 @@ require 'command_class'
 
 module Authentication
 
-  Err ||= Errors::Authentication
-  # Possible Errors Raised:
-  # AuthenticatorNotFound, InvalidCredentials
-
   Login ||= CommandClass.new(
     dependencies: {
       validate_webservice_is_whitelisted:  ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
@@ -47,11 +43,11 @@ module Authentication
     end
 
     def validate_authenticator_exists
-      raise Err::AuthenticatorNotFound, authenticator_name unless authenticator
+      raise Errors::Authentication::AuthenticatorNotFound, authenticator_name unless authenticator
     end
 
     def validate_credentials
-      raise Err::InvalidCredentials unless key
+      raise Errors::Authentication::InvalidCredentials unless key
     end
 
     def validate_webservice_is_whitelisted

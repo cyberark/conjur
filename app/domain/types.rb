@@ -6,6 +6,5 @@ require 'dry-struct'
 module Types
   include Dry::Types.module
 
-  NonEmptyString = Types::Strict::String.constrained(format: /\S+/)
+  NonEmptyString ||= Types::Strict::String.constrained(format: /\S+/)
 end
-

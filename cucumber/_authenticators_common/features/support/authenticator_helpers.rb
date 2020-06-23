@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'util/error_class'
-
 # Utility methods for authenticators
 #
 module AuthenticatorHelpers

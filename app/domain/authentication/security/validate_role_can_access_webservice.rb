@@ -6,10 +6,6 @@ module Authentication
 
   module Security
 
-    # Possible Errors Raised:
-    # AccountNotDefined, WebserviceNotFound,
-    # RoleNotFound, RoleNotAuthorizedOnResource
-
     ValidateRoleCanAccessWebservice ||= CommandClass.new(
       dependencies: {
         role_class:                 ::Role,

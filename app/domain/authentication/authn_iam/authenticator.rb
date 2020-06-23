@@ -6,11 +6,6 @@ module Authentication
   module AuthnIam
     class Authenticator
 
-      Err = Errors::Authentication::AuthnIam
-      Log = LogMessages::Authentication::AuthnIam
-      # Possible Errors Raised:
-      # InvalidAWSHeaders
-
       def initialize(env:)
         @env = env
       end
@@ -25,12 +20,20 @@ module Authentication
       end
 
       def identity_hash(response)
-        Rails.logger.debug(Log::GetCallerIdentityBody.new(response.body))
+        Rails.logger.debug(
+          LogMessages::Authentication::AuthnIam::GetCallerIdentityBody.new(
+            response.body
+          )
+        )
 
         if response.code < 300
           Hash.from_xml(response.body)
         else
-          Rails.logger.error(Err::IdentityVerificationErrorCode.new(response.code))
+          Rails.logger.error(
+            Errors::Authentication::AuthnIam::IdentityVerificationErrorCode.new(
+              response.code
+            )
+          )
           false
         end
       end
@@ -45,7 +48,12 @@ module Authentication
         aws_user_id = response_hash["GetCallerIdentityResponse"]["GetCallerIdentityResult"]["UserId"]
         host_to_match = "#{host_prefix}/#{aws_account_id}/#{aws_role_name}"
 
-        Rails.logger.debug(Log::AttemptToMatchHost.new(aws_user_id, host_to_match))
+        Rails.logger.debug(
+          LogMessages::Authentication::AuthnIam::AttemptToMatchHost.new(
+            aws_user_id,
+            host_to_match
+          )
+        )
 
         login.eql? host_to_match
       end
@@ -55,12 +63,12 @@ module Authentication
       end
 
       def response_from_signed_request(aws_headers)
-        Rails.logger.debug(Log::RetrieveIamIdentity.new)
+        Rails.logger.debug(LogMessages::Authentication::AuthnIam::RetrieveIamIdentity.new)
         begin
           RestClient.get(aws_signed_url, headers = aws_headers)
         rescue RestClient::ExceptionWithResponse => e
-          Rails.logger.error(Err::VerificationError.new(e.to_s))
-          raise Err::InvalidAWSHeaders, e.to_s
+          Rails.logger.error(Errors::Authentication::AuthnIam::VerificationError.new(e.to_s))
+          raise Errors::Authentication::AuthnIam::InvalidAWSHeaders, e.to_s
         end
       end
     end

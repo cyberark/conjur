@@ -5,12 +5,6 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
-    Err         = Errors::Authentication::AuthnK8s
-    SecurityErr = Errors::Authentication::Security
-    # Possible Errors Raised:
-    # WebserviceNotFound, RoleNotAuthorizedOnResource, PodNotFound
-    # ContainerNotFound, ScopeNotSupported, K8sResourceNotFound
-
     ValidatePodRequest ||= CommandClass.new(
       dependencies: {
         resource_class:                      Resource,
@@ -53,7 +47,12 @@ module Authentication
       end
 
       def validate_pod_exists
-        raise Err::PodNotFound.new(pod_name, pod_namespace) unless pod
+        unless pod
+          raise Errors::Authentication::AuthnK8s::PodNotFound.new(
+            pod_name,
+            pod_namespace
+          )
+        end
       end
 
       def validate_application_identity
@@ -83,7 +82,11 @@ module Authentication
         return @host if @host
 
         @host = @resource_class[k8s_host.conjur_host_id]
-        raise SecurityErr::RoleNotFound(k8s_host.conjur_host_id) unless @host
+        unless @host
+          raise Errors::Authentication::Security::RoleNotFound(
+            k8s_host.conjur_host_id
+          )
+        end
         @host
       end
 

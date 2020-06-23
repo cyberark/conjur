@@ -3,12 +3,6 @@ require 'command_class'
 module Authentication
   module AuthnAzure
 
-    Log = LogMessages::Authentication::AuthnAzure
-    Err = Errors::Authentication::AuthnAzure
-    # Possible Errors Raised: RoleNotFound, InvalidApplicationIdentity, XmsMiridParseError,
-    # MissingRequiredFieldsInXmsMirid, MissingProviderFieldsInXmsMirid, MissingConstraint,
-    # IllegalConstraintCombinations
-
     ValidateApplicationIdentity = CommandClass.new(
       dependencies: {
         role_class:                 ::Role,
@@ -59,7 +53,9 @@ module Authentication
         else
           @token_identity[:system_assigned_identity] = @oid_token_field
         end
-        @logger.debug(Log::ExtractedApplicationIdentityFromToken.new)
+        @logger.debug(
+          LogMessages::Authentication::AuthnAzure::ExtractedApplicationIdentityFromToken.new
+        )
       end
 
       def validate_azure_annotations_are_permitted
@@ -88,7 +84,8 @@ module Authentication
 
       def validate_constraint_exists constraint
         unless application_identity.constraints[constraint]
-          raise Err::RoleMissingConstraint, annotation_type_constraint(constraint)
+          raise Errors::Authentication::AuthnAzure::RoleMissingConstraint,
+                annotation_type_constraint(constraint)
         end
       end
 
@@ -99,7 +96,8 @@ module Authentication
 
         identifiers_constraints = application_identity.constraints.keys & identifiers
         unless identifiers_constraints.length <= 1
-          raise Errors::Authentication::IllegalConstraintCombinations, annotation_type_constraints(identifiers_constraints)
+          raise Errors::Authentication::IllegalConstraintCombinations,
+                annotation_type_constraints(identifiers_constraints)
         end
       end
 
@@ -108,10 +106,11 @@ module Authentication
           annotation_type  = constraint[0].to_s
           annotation_value = constraint[1]
           unless annotation_value == @token_identity[annotation_type.to_sym]
-            raise Err::InvalidApplicationIdentity, annotation_type_constraint(annotation_type)
+            raise Errors::Authentication::AuthnAzure::InvalidApplicationIdentity,
+                  annotation_type_constraint(annotation_type)
           end
         end
-        @logger.debug(Log::ValidatedApplicationIdentity.new)
+        @logger.debug(LogMessages::Authentication::AuthnAzure::ValidatedApplicationIdentity.new)
       end
 
       def annotation_type_constraints constraints

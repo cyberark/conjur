@@ -4,10 +4,6 @@ require 'command_class'
 
 module Authentication
 
-  Err ||= Errors::Authentication
-  # Possible Errors Raised:
-  # AuthenticatorNotFound, InvalidCredentials
-
   Authenticate ||= CommandClass.new(
     dependencies: {
       token_factory:                       TokenFactory.new,
@@ -45,11 +41,11 @@ module Authentication
     end
 
     def validate_authenticator_exists
-      raise Err::AuthenticatorNotFound, authenticator_name unless authenticator
+      raise Errors::Authentication::AuthenticatorNotFound, authenticator_name unless authenticator
     end
 
     def validate_credentials
-      raise Err::InvalidCredentials unless authenticator.valid?(@authenticator_input)
+      raise Errors::Authentication::InvalidCredentials unless authenticator.valid?(@authenticator_input)
     end
 
     def validate_webservice_is_whitelisted

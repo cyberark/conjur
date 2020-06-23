@@ -3,11 +3,6 @@ require 'command_class'
 module Authentication
   module AuthnAzure
 
-    Err = Errors::Authentication::AuthnAzure
-    Log = LogMessages::Authentication::AuthnAzure
-    # Possible Errors Raised:
-    # TokenFieldNotFoundOrEmpty, MissingRequestParam
-
     Authenticator = CommandClass.new(
       dependencies: {
         fetch_authenticator_secrets:   Authentication::Util::FetchAuthenticatorSecrets.new,

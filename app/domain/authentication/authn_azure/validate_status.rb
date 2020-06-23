@@ -1,11 +1,6 @@
 module Authentication
   module AuthnAzure
 
-    Err = Errors::Authentication::AuthnAzure
-    # Possible Errors Raised:
-    #   ProviderDiscoveryTimeout, ProviderDiscoveryFailed
-    #   RequiredResourceMissing, RequiredSecretMissing
-
     ValidateStatus = CommandClass.new(
       dependencies: {
         fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
