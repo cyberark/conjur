@@ -6,12 +6,7 @@ module Authentication
   class AuthenticatorClass
 
     # Represents the rules any authenticator class must conform to
-    #
     class Validation
-
-      Err = Errors::Authentication::AuthenticatorClass
-      # Possible Errors Raised:
-      # DoesntStartWithAuthn, NotNamedAuthenticator, MissingValidMethod
 
       def initialize(cls)
         @cls = cls
@@ -26,9 +21,9 @@ module Authentication
       end
 
       def validate!
-        raise Err::DoesntStartWithAuthn, own_name unless valid_name?
-        raise Err::NotNamedAuthenticator, parent_name unless valid_parent_name?
-        raise Err::MissingValidMethod, own_name unless valid_interface?
+        raise Errors::Authentication::AuthenticatorClass::DoesntStartWithAuthn, own_name unless valid_name?
+        raise Errors::Authentication::AuthenticatorClass::NotNamedAuthenticator, parent_name unless valid_parent_name?
+        raise Errors::Authentication::AuthenticatorClass::MissingValidMethod, own_name unless valid_interface?
       end
 
       private

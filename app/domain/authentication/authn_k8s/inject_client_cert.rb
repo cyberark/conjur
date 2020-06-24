@@ -5,11 +5,6 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
-    Log ||= LogMessages::Authentication::AuthnK8s
-    Err ||= Errors::Authentication::AuthnK8s
-    # Possible Errors Raised:
-    # CSRIsMissingSpiffeId, CertInstallationError
-
     KUBERNETES_AUTHENTICATOR_NAME = 'authn-k8s'
 
     InjectClientCert ||= CommandClass.new(
@@ -45,7 +40,11 @@ module Authentication
       # that happens in the "authenticate" request will work, as the signed certificate
       # contains the full host-id.
       def update_csr_common_name
-        @logger.debug(Log::SetCommonName.new(full_host_name))
+        @logger.debug(
+          LogMessages::Authentication::AuthnK8s::SetCommonName.new(
+            full_host_name
+          )
+        )
         smart_csr.common_name = full_host_name
       end
 
@@ -72,7 +71,7 @@ module Authentication
         pod_namespace = spiffe_id.namespace
         pod_name = spiffe_id.name
         cert_file_path = "/etc/conjur/ssl/client.pem"
-        @logger.debug(Log::CopySSLToPod.new(
+        @logger.debug(LogMessages::Authentication::AuthnK8s::CopySSLToPod.new(
           container_name,
           cert_file_path,
           pod_namespace,
@@ -89,13 +88,14 @@ module Authentication
           mode: 0o644
         )
         validate_cert_installation(resp)
-        @logger.debug(Log::CopySSLToPodSuccess.new)
+        @logger.debug(LogMessages::Authentication::AuthnK8s::CopySSLToPodSuccess.new)
       end
 
       def validate_cert_installation(resp)
         error_stream = resp[:error]
         return if error_stream.nil? || error_stream.empty?
-        raise Err::CertInstallationError, cert_error(error_stream)
+        raise Errors::Authentication::AuthnK8s::CertInstallationError,
+              cert_error(error_stream)
       end
 
       def pod_request
@@ -133,7 +133,7 @@ module Authentication
       end
 
       def validate_spiffe_id_exists
-        raise Err::CSRIsMissingSpiffeId unless smart_csr.spiffe_id
+        raise Errors::Authentication::AuthnK8s::CSRIsMissingSpiffeId unless smart_csr.spiffe_id
       end
 
       def smart_csr

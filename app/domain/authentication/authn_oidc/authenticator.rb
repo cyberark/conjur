@@ -1,11 +1,6 @@
 module Authentication
   module AuthnOidc
 
-    Log ||= LogMessages::Authentication::AuthnOidc
-    Err ||= Errors::Authentication::AuthnOidc
-    # Possible Errors Raised:
-    # IdTokenFieldNotFoundOrEmpty, AdminAuthenticationDenied
-
     Authenticator ||= CommandClass.new(
       dependencies: {
         enabled_authenticators:              Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
@@ -99,9 +94,16 @@ module Authentication
       end
 
       def validate_conjur_username
-        raise Err::IdTokenFieldNotFoundOrEmpty, id_token_username_field if conjur_username.to_s.empty?
-        raise Err::AdminAuthenticationDenied if admin?(conjur_username)
-        @logger.debug(Log::ExtractedUsernameFromIDToked.new(conjur_username, id_token_username_field))
+        if conjur_username.to_s.empty?
+          raise Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty,
+                id_token_username_field
+        end
+
+        if admin?(conjur_username)
+          raise Errors::Authentication::AuthnOidc::AdminAuthenticationDenied
+        end
+
+        @logger.debug(LogMessages::Authentication::AuthnOidc::ExtractedUsernameFromIDToked.new(conjur_username, id_token_username_field))
       end
 
       def conjur_username

@@ -28,15 +28,24 @@ module Authentication
       end
 
       def validate_token_field_exists(field_name)
-        @logger.debug(Log::ValidatingTokenFieldExists.new(field_name))
+        @logger.debug(
+          LogMessages::Authentication::AuthnAzure::ValidatingTokenFieldExists.new(
+            field_name
+          )
+        )
         if @decoded_token_hash[field_name].to_s.empty?
-          raise Err::TokenFieldNotFoundOrEmpty, field_name
+          raise Errors::Authentication::AuthnAzure::TokenFieldNotFoundOrEmpty, field_name
         end
       end
 
       def token_field_value(field_name)
         token_field_value = @decoded_token_hash[field_name]
-        @logger.debug(Log::ExtractedFieldFromAzureToken.new(field_name, token_field_value))
+        @logger.debug(
+          LogMessages::Authentication::AuthnAzure::ExtractedFieldFromAzureToken.new(
+            field_name,
+            token_field_value
+          )
+        )
         token_field_value
       end
     end
