@@ -284,7 +284,7 @@ GEM
     psych (3.1.0)
     public_suffix (4.0.4)
     puma (3.12.4)
-    rack (2.2.2)
+    rack (2.2.3)
     rack-oauth2 (1.11.0)
       activesupport
       attr_required
