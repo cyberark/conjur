@@ -8,8 +8,8 @@ more about the current state of the features, please see the official
 
 Writing a new design document for this project? Use our template [here](templates/solution_design.md)
 
-|Design Doc|Date Added|Stage|
---- | --- | ---
+|Design Doc|Date Added|
+--- | ---
 |[Authenticator design](authenticators/AUTHENTICATORS.md)|May 7, 2018|
 |- [LDAP authenticator](authenticators/authn_ldap.md)|April 13, 2018|
 |- [IAM authenticator](authenticators/authn_iam.md)|May 7, 2018|
@@ -21,4 +21,3 @@ Writing a new design document for this project? Use our template [here](template
 |[Enterprise migration design](./MIGRATION.md)|July 30, 2018|
 |[Certificate signing design](./CERTIFICATE_SIGNING.md)|August 31,2018|
 |[OSS suite release](./oss_suite_release.md)|January 31, 2020|
-|[Proxy Support](./proposals/proxy-support/proxy-support.md)|June 18, 2020|Design|
