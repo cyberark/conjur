@@ -7,13 +7,19 @@ This decision was conscious, and meant to prevent IP spoofing. We have reached a
 This design document is meant to provide a possible solution to the challenge of identifying the client IP while preventing IP spoofing.
 
 - [Current Request Flow](#current-request-flow)
-- [Proposed Solution (Summary)](#proposed-solution-summary)
-- [Proposed Solution (Detailed)](#proposed-solution-detailed)
-  - [Adding Proxies with Policy](#adding-proxies-with-policy)
-  - [Limitations](#limitations)
-    - [Proxies cannot be layered](#proxies-cannot-be-layered)
-- [Rejected Alternatives](#rejected-alternatives)
-  - [Configuration using Environment Variables](#configuration-using-environment-variables)
+- [Proposed Solutions](#proposed-solutions)
+  - [Policy Based Proxies](#policy-based-proxies)
+    - [Proposed Solution (Summary)](#proposed-solution-summary)
+    - [Proposed Solution (Detailed)](#proposed-solution-detailed)
+      - [Adding Proxies with Policy](#adding-proxies-with-policy)
+      - [Limitations](#limitations)
+        - [Proxies cannot be layered](#proxies-cannot-be-layered)
+  - [Node-based Configuration](#node-based-configuration)
+    - [Proposed Solution (Summary)](#proposed-solution-summary-1)
+    - [Proposed Solution (Detailed)](#proposed-solution-detailed-1)
+      - [Adding/Changing Proxies](#addingchanging-proxies)
+    - [Advantages](#advantages)
+    - [Disadvantages](#disadvantages)
 
 ## Current Request Flow
 
@@ -36,12 +42,16 @@ end
 ```
 the IP address of the last load balancer (`10.2.0.1`) would be used as the request IP.
 
-## Proposed Solution (Summary)
+## Proposed Solutions
+
+### Policy Based Proxies
+
+#### Proposed Solution (Summary)
 Users can define the proxies in front of a node(s) using Conjur Policy. This enables Conjur to use the first non-proxy IP as the client IP.
 
-## Proposed Solution (Detailed)
+#### Proposed Solution (Detailed)
 
-### Adding Proxies with Policy
+##### Adding Proxies with Policy
 
 Given the following setup
 ![](/design/diagrams/out/proxy-master-node/proxy-master-node.png)
@@ -100,9 +110,9 @@ We can also configure multiple hosts to support multiple proxies:
         proxy/ip-addresses: ['10.10.0.1']
 ```
 
-### Limitations
+##### Limitations
 
-#### Proxies cannot be layered
+###### Proxies cannot be layered
 
 To simplify the initial implementation, we will not support matches on multiple hosts. Multi-matches would allow more modular declaration. With multi-host matching, we could rewrite the following policy:
 
@@ -147,11 +157,113 @@ The above would add the proxy `1.2.3.4` to each of the subsequent hosts.
 
 This adds a substantial amount of complexity to the implementation and is not recommended in the initial version of this functionality.
 
-## Rejected Alternatives
+### Node-based Configuration
 
-### Configuration using Environment Variables
+#### Proposed Solution (Summary)
 
-Although we could accomplish support for proxy IPs with environment variables, environment variables produce a couple of undesirable problems:
+An alternative to the policy based approach is to configure each node with support for one or more proxies. We'll accomplish this using a DAP configuration file or alternatively, an environment variable.
 
-- Increases the effort required to setup Conjur/DAP nodes.
-- Requires Conjur be restarted if proxy IP addresses change for a particular node.
+#### Proposed Solution (Detailed)
+
+Given the following setup
+![](/design/diagrams/out/proxy-master-node/proxy-master-node.png)
+
+
+Given a request from a client (IP: `10.0.0.1`) which has proxies through a load balancer (IP: `1.2.3.4`) to a particular Follower, we'd expect the following `X-Forwarded-For` header:
+
+```
+10.0.0.1, 1.2.3.4
+```
+
+Given a DAP instance is configured with the Following DAP configuration:
+```json
+# config/dap.json
+{
+  "conjur": {
+    "proxies": [10.10.0.1, 1.2.3.4]
+  }
+}
+```
+
+and loaded during the initial Master configuration:
+
+```sh
+$ evoke configure master \
+    --json-attributes-file config/dap.json
+    ...
+```
+
+or to uses the environment variable:
+
+```sh
+$ CONJUR_PROXIES=10.10.0.1,1.2.3.4 evoke configure master \
+    ...
+```
+
+Given a CIDR restricted Host or User:
+
+```yml
+- !host
+
+  id: my-host
+  restricted_to: [10.0.0.1]
+
+- !user
+  id: my-user
+  restricted_to: [10.0.0.1]
+```
+
+Then:
+
+- Audit events record the client IP as `10.0.0.1`
+- Hosts or Users with the `restricted_to` filter `restricted_to: [10.0.0.1]` can authenticate
+
+To support this, we'll need to update the `Rack::Request#ip` method from:
+
+```ruby
+# Rack::Request
+def ip
+  if addr = @env['HTTP_X_FORWARDED_FOR']
+    addr.split(',').last.strip
+  else
+    @env['REMOTE_ADDR']
+  end
+end
+```
+
+to something like:
+
+```ruby
+# Rack::Request
+def ip
+  if addr = @env['HTTP_X_FORWARDED_FOR']
+    proxies = ENV['CONJUR_PROXIES'] || config.conjur.proxies
+    addr.split(',').reverse.drop_while { |ip_addr| proxies.include?(ip_addr) }.first
+  else
+    @env['REMOTE_ADDR']
+  end
+end
+```
+
+Which returns the first entry not in the proxies list.
+
+##### Adding/Changing Proxies
+
+If a new load balancer is added upstream, the node can be updated with the following:
+
+```sh
+$ evoke evoke variable set CONJUR_PROXIES 10.10.10.10,1.2.3.4
+
+```
+
+Which updates the `CONJUR_PROXIES` environment variable with the value `10.10.10.10,1.2.3.4` and restart all the services.
+
+#### Advantages
+
+- Follows current configuration patterns (Config file and Environment variables)
+- Proxies can be added on a per node basis without a global list
+- Does not require complex policy changes
+
+#### Disadvantages
+
+- Not centralized. Each node must be configured individually

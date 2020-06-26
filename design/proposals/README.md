@@ -7,3 +7,4 @@ The linked documents below represent feature proposals; once a feature is decide
 |Proposal Doc|Date Added|
 --- | ---
 |[Authenticator Management Improvement](authenticator_management_improvement.md)|May 14, 2020|
+|[Supporting CIDR Restrictions and Audit Client IP](./proxy-support/proxy-support.md)|June 18, 2020|
