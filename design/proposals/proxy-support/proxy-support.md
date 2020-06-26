@@ -180,7 +180,7 @@ Given a DAP instance is configured with the Following DAP configuration:
 # config/dap.json
 {
   "conjur": {
-    "proxies": [10.10.0.1, 1.2.3.4]
+    "proxies": ["10.10.0.1", "1.2.3.4"]
   }
 }
 ```
