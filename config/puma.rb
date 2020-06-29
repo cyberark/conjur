@@ -23,5 +23,5 @@ on_worker_boot do
 end
 
 before_fork do
-  Rails.logger.info(LogMessages::Conjur::FipsModeStatus.new(OpenSSL.fips_mode ? "" : "non"))
+  Rails.logger.info(LogMessages::Conjur::FipsModeStatus.new(OpenSSL.fips_mode))
 end
