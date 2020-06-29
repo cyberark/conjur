@@ -22,3 +22,6 @@ on_worker_boot do
   Sequel::Model.db.disconnect
 end
 
+before_fork do
+  Rails.logger.info(LogMessages::Conjur::FipsModeStatus.new(OpenSSL.fips_mode ? "" : "non"))
+end

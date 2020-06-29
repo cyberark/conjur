@@ -9,6 +9,11 @@ module LogMessages
       code: "CONJ00034I"
     )
 
+    FipsModeStatus = ::Util::TrackableLogMessageClass.new(
+      msg:  "Conjur server set OpenSSL to run in {0} FIPS mode",
+      code: "CONJ00038I"
+    )
+
   end
 
   module Authentication
