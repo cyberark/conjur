@@ -207,6 +207,12 @@ docker_diagnostics() {
   for name in "${cont_names[@]}"; do
     docker inspect "$name" > "${container_log_dir}/${name}-inspect.log"
     docker logs "$name" > "${container_log_dir}/${name}.log"
+
+    # For the conjur container, we want the development.log too
+    if [[ "$name" =~ conjur ]]; then
+      docker cp "$name:/opt/conjur-server/log/development.log" \
+        "${container_log_dir}/development.log"
+    fi
   done
 }
 

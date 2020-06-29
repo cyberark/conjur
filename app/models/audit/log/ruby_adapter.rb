@@ -38,7 +38,8 @@ module Audit
         # Additionally, the Rails logger makes no guarantees about this
         # behavior, so we'd be coupling to an implementation detail by depending
         # on it.
-        @ruby_logger.log(event.severity, event.to_s, ::Audit::Event.progname)
+        severity = RubySeverity.new(event.severity)
+        @ruby_logger.log(severity, event.to_s, ::Audit::Event.progname)
       end
     end
   end

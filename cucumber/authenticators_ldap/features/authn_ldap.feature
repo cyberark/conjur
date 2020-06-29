@@ -115,14 +115,16 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
     When I login via LDAP as authorized Conjur user "alice"
     Then it is forbidden
 
-  # This test runs a failing authentication request that is already
-  # tested in another scenario (An LDAP user authorized in Conjur can't login with a bad password).
-  # We run it again here to verify that we write a message to the audit log
-  Scenario: Authentication failure is written to the audit log
+  # This test runs a failing authentication request that is already tested in
+  # another scenario (An LDAP user authorized in Conjur can't login with a bad
+  # password). We run it again here to verify that we write a message to the
+  # audit log in Syslog format.  This is our e2e test that the Syslog formatter
+  # is working correctly.
+  Scenario: Authentication failure is logged in Syslog format
     Given I save my place in the audit log file
     When my LDAP password is wrong for authorized user "alice"
     Then it is unauthorized
     And The following appears in the audit log after my savepoint:
     """
-    cucumber:user:alice failed to login with authenticator authn-ldap service cucumber:webservice:conjur/authn-ldap/test
+    <84>1 \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z - conjur \d+ authn \[subject@43868 role="cucumber:user:alice"]\[auth@43868 authenticator="authn-ldap" service="cucumber:webservice:conjur/authn-ldap/test"]\[client@43868 ip="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"]\[action@43868 result="failure" operation="login"] cucumber:user:alice failed to login with authenticator authn-ldap service cucumber:webservice:conjur/authn-ldap/test: CONJ00002E Invalid credentials
     """
