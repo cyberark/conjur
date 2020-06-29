@@ -128,7 +128,7 @@ class AuthenticateController < ApplicationController
   private
 
   def handle_login_error(err)
-    logger.debug("Login Error: #{err.inspect}")
+    logger.info("Login Error: #{err.inspect}")
     err.backtrace.each do |line|
       logger.debug(line)
     end
@@ -144,7 +144,7 @@ class AuthenticateController < ApplicationController
   end
 
   def handle_authentication_error(err)
-    logger.debug("Authentication Error: #{err.inspect}")
+    logger.info("Authentication Error: #{err.inspect}")
     err.backtrace.each do |line|
       logger.debug(line)
     end
