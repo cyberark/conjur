@@ -153,5 +153,32 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
         )
       end
     end
+
+    context "with a non-existing user" do
+      subject do
+        Authentication::AuthnK8s::ValidatePodRequest.new(
+          resource_class:                      resource_class,
+          k8s_object_lookup_class:             k8s_object_lookup_class,
+          validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
+          validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
+          enabled_authenticators:              "#{authenticator_name}/#{service_id}",
+          validate_application_identity:       validate_application_identity
+        ).call(
+          pod_request: pod_request
+        )
+      end
+
+      it 'raises an error' do
+        allow(resource_class).to receive(:[])
+                                   .with(host_id)
+                                   .and_return(nil)
+
+        expect { subject }.to(
+          raise_error(
+            Errors::Authentication::Security::RoleNotFound
+          )
+        )
+      end
+    end
   end
 end
