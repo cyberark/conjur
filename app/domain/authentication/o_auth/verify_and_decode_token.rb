@@ -3,11 +3,6 @@ require 'jwt'
 module Authentication
   module OAuth
 
-    Err = Errors::Authentication::OAuth
-    Log = LogMessages::Authentication::OAuth
-    # Possible Errors Raised:
-    # TokenExpired, TokenDecodeFailed, TokenVerificationFailed
-
     # This class decodes and verifies JWT tokens, issued by an OAuthn 2.0 Identity Provider.
     # It first retrieves the JWKs from the identity provider and sets them as verification options
     # for Authentication::Jwt::VerifyAndDecodeToken. That class does the offline verification and decode,
@@ -46,7 +41,9 @@ module Authentication
 
         @jwks = provider_keys.jwks
         @algs = provider_keys.algorithms
-        @logger.debug(Log::IdentityProviderKeysFetchedFromCache.new)
+        @logger.debug(
+          LogMessages::Authentication::OAuth::IdentityProviderKeysFetchedFromCache.new
+        )
       end
 
       # ensure_keys_are_fresh will try to verify and decode the token and if it
@@ -62,7 +59,9 @@ module Authentication
       def ensure_keys_are_fresh
         verified_and_decoded_token
       rescue
-        @logger.debug(Log::ValidateProviderKeysAreUpdated.new)
+        @logger.debug(
+          LogMessages::Authentication::OAuth::ValidateProviderKeysAreUpdated.new
+        )
         # maybe failed due to keys rotation. Force cache to read it again
         fetch_provider_keys(force_read: true)
       end

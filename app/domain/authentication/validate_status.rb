@@ -1,16 +1,8 @@
 # frozen_string_literal: true
 
 require 'command_class'
-require 'authentication/webservices'
 
 module Authentication
-
-  Err ||= Errors::Authentication
-
-  # Possible Errors Raised:
-  # AuthenticatorNotFound, StatusNotImplemented, AccountNotDefined
-  # WebserviceNotFound, RoleNotFound, RoleNotAuthorizedOnResource,
-  # AuthenticatorNotWhitelisted
 
   ValidateStatus ||= CommandClass.new(
     dependencies: {
@@ -48,11 +40,13 @@ module Authentication
     private
 
     def validate_authenticator_exists
-      raise Err::AuthenticatorNotFound, authenticator_name unless authenticator
+      raise Errors::Authentication::AuthenticatorNotFound, authenticator_name unless authenticator
     end
 
     def validate_authenticator_implements_status_check
-      raise Err::StatusNotImplemented, authenticator_name unless authenticator.class.method_defined?(:status)
+      unless authenticator.class.method_defined?(:status)
+        raise Errors::Authentication::StatusNotImplemented, authenticator_name
+      end
     end
 
     def validate_user_has_access_to_status_webservice

@@ -21,7 +21,14 @@ module Audit
       end
 
       def log(event)
-        @ruby_logger.log(event.severity, event, ::Audit::Event.progname)
+        # Note: Below we translate the Syslog "event.severity" into a Ruby
+        # Logger severity.  In our actual Syslog logging, this is simply thrown
+        # away (see note on "call" method in "rfc5424_formatter.rb").  However,
+        # _this_ adapter shouldn't have knowledge of that implementation detail,
+        # so we provide the correct Ruby severity that the "log" interface
+        # expects.
+        severity = RubySeverity.new(event.severity)
+        @ruby_logger.log(severity, event, ::Audit::Event.progname)
       end
     end
   end

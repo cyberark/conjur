@@ -5,7 +5,6 @@
 #
 module Authentication
   module AuthnK8s
-    #TODO: rename to K8sApiFacade
 
     VARIABLE_BEARER_TOKEN ||= 'kubernetes/service-account-token'
     VARIABLE_CA_CERT ||= 'kubernetes/ca-cert'
@@ -14,8 +13,7 @@ module Authentication
     SERVICEACCOUNT_CA_PATH ||= File.join(SERVICEACCOUNT_DIR, 'ca.crt').freeze
     SERVICEACCOUNT_TOKEN_PATH ||= File.join(SERVICEACCOUNT_DIR, 'token').freeze
 
-    Err ||= Errors::Authentication::AuthnK8s
-
+    #TODO: rename to K8sApiFacade
     class K8sObjectLookup
 
       class K8sForbiddenError < RuntimeError; end
@@ -42,7 +40,7 @@ module Authentication
           VARIABLE_CA_CERT
         )
 
-        raise Err::MissingCertificate if cert.blank?
+        raise Errors::Authentication::AuthnK8s::MissingCertificate if cert.blank?
         cert
       end
 

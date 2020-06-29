@@ -4,18 +4,16 @@ require 'command_class'
 
 module Authentication
 
-  Err ||= Errors::Authentication
-  # Possible Errors Raised:
-  # AuthenticatorNotFound, InvalidCredentials
-
   Login ||= CommandClass.new(
     dependencies: {
-      validate_webservice_is_whitelisted:  ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
-      validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
-      audit_log:                           ::Audit.logger,
-      role_cls:                            ::Role
+      validate_webservice_is_whitelisted:
+        ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
+      validate_role_can_access_webservice:
+        ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
+      audit_log: ::Audit.logger,
+      role_cls: ::Role
     },
-    inputs:       %i(authenticator_input authenticators enabled_authenticators)
+    inputs: %i(authenticator_input authenticators enabled_authenticators)
   ) do
 
     extend Forwardable
@@ -47,11 +45,11 @@ module Authentication
     end
 
     def validate_authenticator_exists
-      raise Err::AuthenticatorNotFound, authenticator_name unless authenticator
+      raise Errors::Authentication::AuthenticatorNotFound, authenticator_name unless authenticator
     end
 
     def validate_credentials
-      raise Err::InvalidCredentials unless key
+      raise Errors::Authentication::InvalidCredentials unless key
     end
 
     def validate_webservice_is_whitelisted
@@ -75,11 +73,11 @@ module Authentication
       @audit_log.log(
         ::Audit::Event::Authn::Login.new(
           authenticator_name: authenticator_name,
-          service:            webservice,
-          role:               role,
-          client_ip:          client_ip,
-          success:            true,
-          error_message:      nil
+          service: webservice,
+          role: role,
+          client_ip: client_ip,
+          success: true,
+          error_message: nil
         )
       )
     end
@@ -88,18 +86,18 @@ module Authentication
       @audit_log.log(
         ::Audit::Event::Authn::Login.new(
           authenticator_name: authenticator_name,
-          service:            webservice,
-          role:               role,
-          client_ip:          client_ip,
-          success:            false,
-          error_message:      err.message
+          service: webservice,
+          role: role,
+          client_ip: client_ip,
+          success: false,
+          error_message: err.message
         )
       )
     end
 
     def new_login
       LoginResponse.new(
-        role_id:            role.id,
+        role_id: role.id,
         authentication_key: key
       )
     end
