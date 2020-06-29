@@ -136,7 +136,8 @@ class AuthenticateController < ApplicationController
     case err
     when Errors::Authentication::Security::AuthenticatorNotWhitelisted,
       Errors::Authentication::Security::WebserviceNotFound,
-      Errors::Authentication::Security::AccountNotDefined
+      Errors::Authentication::Security::AccountNotDefined,
+      Errors::Authentication::Security::RoleNotFound
       raise Unauthorized
     else
       raise err

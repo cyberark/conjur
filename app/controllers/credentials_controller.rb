@@ -63,6 +63,14 @@ class CredentialsController < ApplicationController
     authentication.authenticated_role = Role[token_user.roleid] if token_user?
     perform_basic_authn
     raise Unauthorized, "Client not authenticated" unless authentication.authenticated?
+  rescue => err
+    case err
+    when Errors::Authentication::Security::AccountNotDefined,
+      Errors::Authentication::Security::RoleNotFound
+      raise Unauthorized, "Client not authenticated"
+    else
+      raise err
+    end
   end
 
   # Accept params[:role]. Later it will be ignored if it refers to the same user as the token auth.

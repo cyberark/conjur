@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Bump conjur-rack from 4.0.0 to 4.2.0 that consumes FIPS compliant slosilo(https://github.com/cyberark/conjur/issues/1527))
 - Print login and authentication error to the log in INFO level.
   [cyberark/conjur#1377](https://github.com/cyberark/conjur/issues/1377)
+- Print proper message when user does not exist in authn or login request with
+  default authenticator.
+  [cyberark/conjur#1655](https://github.com/cyberark/conjur/issues/1655)
 
 ### Added
 - Password changes (`PUT /authn/:account/password`) now produce audit events with
