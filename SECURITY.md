@@ -1,7 +1,7 @@
 # Security Policies and Procedures
 
 This document outlines security procedures and general policies for the CyberArk Conjur
-project.
+suite of tools and products.
 
   * [Reporting a Bug](#reporting-a-bug)
   * [Disclosure Policy](#disclosure-policy)
@@ -9,17 +9,17 @@ project.
 
 ## Reporting a Bug
 
-The CyberArk Conjur team and community take all security bugs in Conjur seriously.
-Thank you for improving the security of Conjur. We appreciate your efforts and
+The CyberArk Conjur team and community take all security bugs in the Conjur suite seriously.
+Thank you for improving the security of the Conjur suite. We appreciate your efforts and
 responsible disclosure and will make every effort to acknowledge your
 contributions.
 
 Report security bugs by emailing the lead maintainers at security@conjur.org.
 
 The maintainers will acknowledge your email within 2 business days. Subsequently, we will 
-send a more detailed response within 2 business days of our acknowledgement indicating the next steps in handling
-your report. After the initial reply to your report, the security team will
-endeavor to keep you informed of the progress towards a fix and full
+send a more detailed response within 2 business days of our acknowledgement indicating
+the next steps in handling your report. After the initial reply to your report, the security
+team will endeavor to keep you informed of the progress towards a fix and full
 announcement, and may ask for additional information or guidance.
 
 Report security bugs in third-party modules to the person or team maintaining
