@@ -18,13 +18,14 @@ module Authentication
     ) do
 
       def call
-        # No checks required for default conjur authn
+        validate_account_exists
+        validate_role_is_defined
+
+        # No further checks required for default conjur authn
         return if default_conjur_authn?
 
-        validate_account_exists
         validate_webservice_exists
-        validate_user_is_defined
-        validate_user_has_access
+        validate_role_has_access
       end
 
       private
@@ -47,11 +48,11 @@ module Authentication
         )
       end
 
-      def validate_user_is_defined
+      def validate_role_is_defined
         raise Errors::Authentication::Security::RoleNotFound, @user_id unless user_role
       end
 
-      def validate_user_has_access
+      def validate_role_has_access
         has_access = user_role.allowed_to?(@privilege, webservice_resource)
         unless has_access
           raise Errors::Authentication::Security::RoleNotAuthorizedOnResource.new(

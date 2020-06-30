@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 describe CredentialsController, :type => :request do
+  include_context "existing account"
+
   before(:all) { Slosilo["authn:rspec"] ||= Slosilo::Key.new }
 
   let(:login) { "u-#{random_hex}" }

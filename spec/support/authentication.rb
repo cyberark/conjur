@@ -1,5 +1,16 @@
 # frozen_string_literal: true
 
+shared_context "existing account" do
+  let(:validate_account_exists) { double("ValidateAccountExists") }
+  before(:each) do
+    allow(Authentication::Security::ValidateAccountExists)
+      .to receive(:new)
+            .and_return(validate_account_exists)
+    allow(validate_account_exists).to receive(:call)
+                                          .and_return(true)
+  end
+end
+
 shared_context "authenticate Basic" do
   let(:params) { { account: account, authenticator: authenticator } }
   let(:basic_auth_header) {

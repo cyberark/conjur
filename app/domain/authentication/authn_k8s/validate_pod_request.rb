@@ -83,7 +83,7 @@ module Authentication
 
         @host = @resource_class[k8s_host.conjur_host_id]
         unless @host
-          raise Errors::Authentication::Security::RoleNotFound(
+          raise Errors::Authentication::Security::RoleNotFound.new(
             k8s_host.conjur_host_id
           )
         end
