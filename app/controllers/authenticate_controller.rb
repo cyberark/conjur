@@ -128,10 +128,7 @@ class AuthenticateController < ApplicationController
   private
 
   def handle_login_error(err)
-    logger.info("Login Error: #{err.inspect}")
-    err.backtrace.each do |line|
-      logger.debug(line)
-    end
+    log_error(err, "Login")
 
     case err
     when Errors::Authentication::Security::AuthenticatorNotWhitelisted,
@@ -145,10 +142,7 @@ class AuthenticateController < ApplicationController
   end
 
   def handle_authentication_error(err)
-    logger.info("Authentication Error: #{err.inspect}")
-    err.backtrace.each do |line|
-      logger.debug(line)
-    end
+    log_error(err, "Authentication")
 
     case err
     when Errors::Authentication::Security::AuthenticatorNotWhitelisted,
@@ -187,6 +181,13 @@ class AuthenticateController < ApplicationController
 
     else
       raise Unauthorized
+    end
+  end
+
+  def log_error(err, action)
+    logger.info("#{action} Error: #{err.inspect}")
+    err.backtrace.each do |line|
+      logger.debug(line)
     end
   end
 
