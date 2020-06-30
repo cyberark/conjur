@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 describe AuthenticateController, :type => :request do
+  include_context "existing account"
+
   let(:password) { "The-Password1" }
   let(:login) { "u-#{random_hex}" }
   let(:account) { "rspec" }
