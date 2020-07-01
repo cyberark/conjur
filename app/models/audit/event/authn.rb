@@ -4,14 +4,14 @@ module Audit
     # :reek:TooManyInstanceVariables and :reek:TooManyParameters
     class Authn
       def initialize(
-        role:,
+        role_id:,
         client_ip:,
         authenticator_name:,
         service:,
         success:,
         operation:
       )
-        @role = role
+        @role_id = role_id
         @client_ip = client_ip
         @authenticator_name = authenticator_name
         @service = service
@@ -37,8 +37,6 @@ module Audit
         "#{@authenticator_name} service #{service_id}"
       end
 
-      # TODO: See issue https://github.com/cyberark/conjur/issues/1608
-      # :reek:NilCheck
       def service_id
         @service&.resource_id
       end
@@ -55,11 +53,9 @@ module Audit
         "authn"
       end
 
-      # TODO: See issue https://github.com/cyberark/conjur/issues/1608
-      # :reek:NilCheck
       def structured_data
         {
-          SDID::SUBJECT => { role: @role&.id },
+          SDID::SUBJECT => { role: @role_id },
           SDID::AUTH => auth_stuctured_data,
           SDID::CLIENT => { ip: @client_ip }
         }.merge(

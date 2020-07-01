@@ -186,7 +186,9 @@ module Authentication
 
       def container_annotation_value prefix
         annotation_name = "authentication-container-name"
-        annotation = host.annotations.find { |a| a.values[:name] == "#{prefix}/#{annotation_name}" }
+        annotation = host.annotations.find do |a|
+          a.values[:name] == "#{prefix}/#{annotation_name}"
+        end
         annotation ? annotation[:value] : nil
       end
 
@@ -195,7 +197,7 @@ module Authentication
           Audit::Event::Authn::InjectClientCert.new(
             authenticator_name: KUBERNETES_AUTHENTICATOR_NAME,
             service: webservice,
-            role: host,
+            role_id: host.id,
             client_ip: @client_ip,
             success: true,
             error_message: nil
@@ -208,7 +210,7 @@ module Authentication
           Audit::Event::Authn::InjectClientCert.new(
             authenticator_name: KUBERNETES_AUTHENTICATOR_NAME,
             service: webservice,
-            role: host,
+            role_id: host.id,
             client_ip: @client_ip,
             success: false,
             error_message: err.message

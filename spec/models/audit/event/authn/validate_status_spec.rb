@@ -2,7 +2,6 @@ require 'spec_helper'
 
 describe Audit::Event::Authn::ValidateStatus do
   let(:role_id) { 'rspec:user:my_user' }
-  let(:role) { double('my-role', id: role_id) }
   let(:authenticator_name) { 'my-authenticator'}
   let(:service) { double('my-service', resource_id: 'rspec:webservice:my-service') }
   let(:client_ip) { 'my-client-ip' }
@@ -11,7 +10,7 @@ describe Audit::Event::Authn::ValidateStatus do
 
   subject do
     Audit::Event::Authn::ValidateStatus.new(
-      role: role,
+      role_id: role_id,
       authenticator_name: authenticator_name,
       service: service,
       success: success,

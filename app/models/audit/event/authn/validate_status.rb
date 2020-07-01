@@ -13,17 +13,17 @@ module Audit
         )
 
         def initialize(
-          role:,
+          role_id:,
           client_ip:,
           authenticator_name:,
           service:,
           success:,
           error_message: nil
         )
-          @role = role
+          @role_id = role_id
           @error_message = error_message
           @authn = Authn.new(
-            role: role,
+            role_id: role_id,
             client_ip: client_ip,
             authenticator_name: authenticator_name,
             service: service,
@@ -36,16 +36,14 @@ module Audit
           message
         end
 
-        # TODO: See issue https://github.com/cyberark/conjur/issues/1608
-        # :reek:NilCheck
         def message
           auth_description = @authn.authenticator_description
           @authn.message(
             success_msg:
-              "#{@role&.id} successfully validated status for authenticator "\
+              "#{@role_id} successfully validated status for authenticator "\
                 "#{auth_description}",
             failure_msg:
-              "#{@role&.id} failed to validate status for authenticator "\
+              "#{@role_id} failed to validate status for authenticator "\
                 "#{auth_description}",
             error_msg: @error_message
           )
