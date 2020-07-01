@@ -74,7 +74,7 @@ module Authentication
         ::Audit::Event::Authn::Login.new(
           authenticator_name: authenticator_name,
           service: webservice,
-          role: role,
+          role_id: audit_role_id,
           client_ip: client_ip,
           success: true,
           error_message: nil
@@ -87,12 +87,18 @@ module Authentication
         ::Audit::Event::Authn::Login.new(
           authenticator_name: authenticator_name,
           service: webservice,
-          role: role,
+          role_id: audit_role_id,
           client_ip: client_ip,
           success: false,
           error_message: err.message
         )
       )
+    end
+
+    def audit_role_id
+      ::Audit::Event::Authn::RoleId.new(
+        role: role, account: account, username: username
+      ).to_s
     end
 
     def new_login

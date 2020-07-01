@@ -25,9 +25,15 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
   let(:host_annotations) { [ host_annotation_1, host_annotation_2 ] }
 
-  let(:host) { double("Host", role: host_role,
-                              identifier: host_id,
-                              annotations: host_annotations) }
+  let(:host) do
+    double(
+      "Host",
+      role: host_role,
+      identifier: host_id,
+      id: host_id,
+      annotations: host_annotations
+    )
+  end
 
   let(:webservice_resource_id) { "MockWebserviceResourceId" }
   let(:webservice_signed_cert) { double("MockWebserviceSignedCert") }
