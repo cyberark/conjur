@@ -28,6 +28,8 @@ Conjur provides secrets management and application identity for modern infrastru
 
 _Note: our badges and social media buttons never track you._
 
+- [Getting Started](#getting-started)
+  * [Compatibility](#compatibility)
 - [Community Support](#community-support)
 - [Migrating to Conjur EE](#migrating-to-conjur-ee)
 - [Architecture](#architecture)
@@ -45,6 +47,22 @@ _Note: our badges and social media buttons never track you._
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents
 generated with markdown-toc</a></i></small>
+
+
+## Getting Started 
+
+Please refer to our [Quick Start Guide](https://www.conjur.org/get-started/quick-start/oss-environment/) for detailed information on using Conjur OSS for the first time, or, refer to the 
+[Conjur docs](https://docs.conjur.org/Latest/en/Content/Resources/_TopNav/cc_Home.htm) for specific guides relating to setup, integrations, administration, and more.
+
+### Compatibility 
+
+We **strongly** recommend choosing the version of this project to use from the latest [Conjur OSS 
+suite release](https://docs.conjur.org/Latest/en/Content/Overview/Conjur-OSS-Suite-Overview.html). 
+Conjur maintainers perform additional testing on the suite release versions to ensure 
+compatibility. When possible, upgrade your Conjur version to match the 
+[latest suite release](https://docs.conjur.org/Latest/en/Content/ReleaseNotes/ConjurOSS-suite-RN.htm); 
+when using integrations, choose the latest suite release that matches your Conjur version. For any 
+questions, please contact us on [Discourse](https://discuss.cyberarkcommons.org/c/conjur/5).
 
 ## Community Support
 
