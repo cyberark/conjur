@@ -17,11 +17,10 @@ rackup      DefaultRackup
 port        ENV['PORT']     || 3000
 environment ENV['RACK_ENV'] || 'development'
 
+Rails.logger.info(LogMessages::Conjur::FipsModeStatus.new(OpenSSL.fips_mode))
+
 on_worker_boot do
   # https://groups.google.com/forum/#!topic/sequel-talk/LBAtdstVhWQ
   Sequel::Model.db.disconnect
 end
 
-before_fork do
-  Rails.logger.info(LogMessages::Conjur::FipsModeStatus.new(OpenSSL.fips_mode))
-end
