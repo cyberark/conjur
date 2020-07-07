@@ -10,7 +10,7 @@ module LogMessages
     )
 
     FipsModeStatus = ::Util::TrackableLogMessageClass.new(
-      msg:  "Server set OpenSSL FIPS mode to {0}",
+      msg:  "OpenSSL FIPS mode set to {0}",
       code: "CONJ00038I"
     )
 
