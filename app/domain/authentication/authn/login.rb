@@ -2,10 +2,9 @@
 
 require 'command_class'
 
-# default conjur authenticator
 module Authentication
   module Authn
-    Authenticator = CommandClass.new(
+    Login = CommandClass.new(
       dependencies: {
         role_cls:        ::Role,
         credentials_cls: ::Credentials
@@ -17,14 +16,19 @@ module Authentication
       def_delegators :@authenticator_input, :account, :credentials, :username
 
       def call
-        return false unless role_credentials
-        validate_api_key
+        return nil unless role_credentials
+        api_key
       end
 
       private
 
-      def validate_api_key
-        role_credentials.valid_api_key?(credentials)
+      def api_key
+        authenticate
+        @success ? role_credentials.api_key : nil
+      end
+
+      def authenticate
+        @success = role_credentials.authenticate(credentials)
       end
 
       def role_credentials
@@ -33,22 +37,6 @@ module Authentication
 
       def role_id
         @role_id ||= @role_cls.roleid_from_username(account, username)
-      end
-    end
-
-    class Authenticator
-
-      def self.requires_env_arg?
-        false
-      end
-
-      def login(input)
-        ::Authentication::Authn::Login.new.(authenticator_input: input)
-      end
-
-      # Authenticates a Conjur role using its id and API key
-      def valid?(input)
-        call(authenticator_input: input)
       end
     end
   end
