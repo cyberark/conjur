@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 pipeline {
-  agent { label 'executor-v2' }
+  agent { label 'executor-v2-rhel-ee-large' }
 
   options {
     timestamps()
