@@ -20,6 +20,11 @@ module Errors
       code: "CONJ00046E"
     )
 
+    TrustedProxiesMissing = ::Util::TrackableErrorClass.new(
+        msg:  "Failed to fetch trusted proxies list. Reason: '{1}'",
+        code: "CONJ00065E"
+    )
+
   end
 
   module Authentication

@@ -4,19 +4,25 @@ require 'command_class'
 
 module Conjur
 
-  FetchPermittedProxies ||= CommandClass.new(
+  FetchTrustedProxies ||= CommandClass.new(
     dependencies: {
-        role_cls:                          ::Role,
-        validate_account_exists:           ::Authentication::Security::ValidateAccountExists.new
+        role_cls:                 ::Role,
+        validate_account_exists:  ::Authentication::Security::ValidateAccountExists.new,
+        logger:                   Rails.logger
     },
     inputs: %i(account)
   ) do
 
     def call
       validate_account_exists
-      fetch_permitted_proxies_list
+      fetch_trusted_proxies_list
       delete_duplications_in_list
-      permitted_proxies_list
+      trusted_proxies_list
+    rescue => e
+      raise Errors::Conjur::TrustedProxiesMissing.new(
+          host_id,
+          e.inspect
+      )
     end
 
     private
@@ -27,18 +33,25 @@ module Conjur
       )
     end
 
-    def permitted_proxies_list
+    def trusted_proxies_list
       @proxies_list
     end
 
     def delete_duplications_in_list
+      @logger.debug(LogMessages::Conjur::DeletingTrustedProxiesDuplications.new)
       if @proxies_list
         @proxies_list = @proxies_list.uniq { |cidr| [cidr.to_s]}
       end
+      @logger.debug(LogMessages::Conjur::TrustedProxiesAmount.new(@proxies_list.length))
     end
 
-    def fetch_permitted_proxies_list
+    def fetch_trusted_proxies_list
+      @logger.debug(LogMessages::Conjur::FetchingTrustedProxies.new(host_id))
       @proxies_list = role.restricted_to
+      unless @proxies_list
+        @proxies_list = Array.new
+      end
+      @logger.debug(LogMessages::Conjur::FetchingTrustedProxies.new(@proxies_list.length))
     end
 
     def role
