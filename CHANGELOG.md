@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Log the OpenSSL FIPS mode after Rails is initialized for both OSS and DAP.
   [cyberark/conjur#1684](https://github.com/cyberark/conjur/pull/1684)
+- Bump `conjur-policy-parser` so `revoke (member)` and `deny (role)`
+  can correctly utilize relative paths. [conjurinc/dap-support#101](https://github.com/conjurinc/dap-support/issues/101)
 
 ## [1.8.0] - 2020-07-10
 ### Changed

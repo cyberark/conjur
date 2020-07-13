@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/cyberark/conjur-policy-parser.git
-  revision: d30e220260c7925386904dc0dfc5f86164db4488
+  revision: 2f958c88e59671e72368bf5dbe2845cc56c77c3b
   branch: master
   specs:
     conjur-policy-parser (3.0.4)
@@ -205,7 +205,7 @@ GEM
     http-parser (1.2.1)
       ffi-compiler (>= 1.0, < 2.0)
     httpclient (2.8.3)
-    i18n (1.8.2)
+    i18n (1.8.3)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     inflecto (0.0.2)
