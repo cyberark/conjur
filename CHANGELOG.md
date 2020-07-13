@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+- Log the OpenSSL FIPS mode after Rails is initialized for both OSS and DAP.
+  [cyberark/conjur#1684](https://github.com/cyberark/conjur/pull/1684)
+
 ## [1.8.0] - 2020-07-10
 ### Changed
 - Use OpenSSL 1.0.2u to support FIPS compliance.
