@@ -17,7 +17,12 @@ rackup      DefaultRackup
 port        ENV['PORT']     || 3000
 environment ENV['RACK_ENV'] || 'development'
 
-Rails.logger.info(LogMessages::Conjur::FipsModeStatus.new(OpenSSL.fips_mode))
+# Logging the FIPS mode needs to happen in the `before_fork` callback to ensure
+# that the Rails and domain libraries have been loaded. Otherwise this will
+# fail when started as a `puma` command, rather than using `rails server`.
+before_fork do
+  Rails.logger.info(LogMessages::Conjur::FipsModeStatus.new(OpenSSL.fips_mode))
+end
 
 on_worker_boot do
   # https://groups.google.com/forum/#!topic/sequel-talk/LBAtdstVhWQ
