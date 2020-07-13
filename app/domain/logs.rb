@@ -15,23 +15,23 @@ module LogMessages
     )
 
     FetchingTrustedProxies = ::Util::TrackableLogMessageClass.new(
-        msg:  "Fetching trusted proxies list from {0-host-id}",
-        code: "CONJ00039D"
+      msg:  "Fetching trusted proxy list from {0-host-id}",
+      code: "CONJ00039D"
     )
 
     FetchedTrustedProxies = ::Util::TrackableLogMessageClass.new(
-        msg:  "{0-list-length} trusted proxies ip addresses has fetched",
-        code: "CONJ00040D"
+      msg:  "{0-list-length} trusted proxies were fetched",
+      code: "CONJ00040D"
     )
 
     DeletingTrustedProxiesDuplications = ::Util::TrackableLogMessageClass.new(
-        msg:  "Deleting duplications from trusted proxies list",
-        code: "CONJ00041D"
+      msg:  "Deleting duplications from trusted proxy list",
+      code: "CONJ00041D"
     )
 
     TrustedProxiesAmount = ::Util::TrackableLogMessageClass.new(
-        msg:  "Trusted proxies list contains {0-list-length} ip addresses",
-        code: "CONJ00042D"
+      msg:  "Trusted proxy list contains {0-list-length} IP addresses",
+      code: "CONJ00042D"
     )
 
   end

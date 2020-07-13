@@ -6,12 +6,15 @@ module Conjur
 
   FetchTrustedProxies ||= CommandClass.new(
     dependencies: {
-        role_cls:                 ::Role,
-        validate_account_exists:  ::Authentication::Security::ValidateAccountExists.new,
-        logger:                   Rails.logger
+      role_cls:                 ::Role,
+      validate_account_exists:  ::Authentication::Security::ValidateAccountExists.new,
+      logger:                   Rails.logger
     },
-    inputs: %i(account)
+    inputs:       %i(account)
   ) do
+
+    SETTINGS_POLICY_ID = "conjur/settings"
+    TRUSTED_PROXIES_HOST_NAME = "trusted_proxies"
 
     def call
       validate_account_exists
@@ -19,9 +22,9 @@ module Conjur
       delete_duplications_in_list
       trusted_proxies_list
     rescue => e
-      raise Errors::Conjur::TrustedProxiesMissing.new(
-          host_id,
-          e.inspect
+      raise Errors::Conjur::TrustedProxiesFetchFailed.new(
+        host_id,
+        e.inspect
       )
     end
 
@@ -29,29 +32,26 @@ module Conjur
 
     def validate_account_exists
       @validate_account_exists.(
-          account: @account
+        account: @account
       )
-    end
-
-    def trusted_proxies_list
-      @proxies_list
-    end
-
-    def delete_duplications_in_list
-      @logger.debug(LogMessages::Conjur::DeletingTrustedProxiesDuplications.new)
-      if @proxies_list
-        @proxies_list = @proxies_list.uniq { |cidr| [cidr.to_s]}
-      end
-      @logger.debug(LogMessages::Conjur::TrustedProxiesAmount.new(@proxies_list.length))
     end
 
     def fetch_trusted_proxies_list
       @logger.debug(LogMessages::Conjur::FetchingTrustedProxies.new(host_id))
-      @proxies_list = role.restricted_to
-      unless @proxies_list
-        @proxies_list = Array.new
+      @trusted_proxies_list = role.restricted_to || []
+      @logger.debug(LogMessages::Conjur::FetchingTrustedProxies.new(@trusted_proxies_list.length))
+    end
+
+    def delete_duplications_in_list
+      @logger.debug(LogMessages::Conjur::DeletingTrustedProxiesDuplications.new)
+      if @trusted_proxies_list.any?
+        @trusted_proxies_list = @trusted_proxies_list.uniq {|cidr| [cidr.to_s]}
       end
-      @logger.debug(LogMessages::Conjur::FetchingTrustedProxies.new(@proxies_list.length))
+      @logger.debug(LogMessages::Conjur::TrustedProxiesAmount.new(@trusted_proxies_list.length))
+    end
+
+    def trusted_proxies_list
+      @trusted_proxies_list
     end
 
     def role
@@ -67,15 +67,8 @@ module Conjur
     end
 
     def host_id
-      return "host/" + policy_id + "/" + host_name
-    end
-
-    def policy_id
-      return "settings"
-    end
-
-    def host_name
-      return "trusted_proxies"
+      @host_id ||= "host/#{SETTINGS_POLICY_ID}/#{TRUSTED_PROXIES_HOST_NAME}"
     end
   end
 end
+
