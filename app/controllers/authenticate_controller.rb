@@ -153,7 +153,8 @@ class AuthenticateController < ApplicationController
       Errors::Authentication::Jwt::TokenVerificationFailed,
       Errors::Authentication::Jwt::TokenDecodeFailed,
       Errors::Conjur::RequiredSecretMissing,
-      Errors::Conjur::RequiredResourceMissing
+      Errors::Conjur::RequiredResourceMissing,
+      Errors::Conjur::TrustedProxiesFetchFailed
       raise Unauthorized
 
     when Errors::Authentication::Security::RoleNotAuthorizedOnResource

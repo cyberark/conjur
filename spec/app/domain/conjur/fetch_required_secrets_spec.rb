@@ -64,3 +64,4 @@ RSpec.describe 'Conjur::FetchRequiredSecrets' do
     end
   end
 end
+
