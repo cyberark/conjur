@@ -1,5 +1,6 @@
 # Conjur Community Code of Conduct
 
+
 We are setting a new standard for how development, security, and operations
 teams work together. We strive to give application developers protection from
 breaches and confidence that they can code safely and deliver reliable software
