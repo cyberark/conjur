@@ -23,7 +23,6 @@ module Conjur
       trusted_proxies_list
     rescue => e
       raise Errors::Conjur::TrustedProxiesFetchFailed.new(
-        host_id,
         e.inspect
       )
     end
@@ -39,7 +38,7 @@ module Conjur
     def fetch_trusted_proxies_list
       @logger.debug(LogMessages::Conjur::FetchingTrustedProxies.new(host_id))
       @trusted_proxies_list = role.restricted_to || []
-      @logger.debug(LogMessages::Conjur::FetchingTrustedProxies.new(@trusted_proxies_list.length))
+      @logger.debug(LogMessages::Conjur::FetchedTrustedProxies.new(@trusted_proxies_list.length))
     end
 
     def delete_duplications_in_list
