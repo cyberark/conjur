@@ -25,6 +25,11 @@ module Errors
       code: "CONJ00065E"
     )
 
+    InvalidProxy = ::Util::TrackableErrorClass.new(
+      msg:  "Invalid proxy '{0-proxy-ip-address}'",
+      code: "CONJ00066E"
+    )
+
   end
 
   module Authentication

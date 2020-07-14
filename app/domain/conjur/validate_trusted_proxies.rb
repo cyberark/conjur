@@ -6,10 +6,10 @@ module Conjur
 
   ValidateTrustedProxies ||= CommandClass.new(
     dependencies: {
-      fetch_trusted_proxies:  ::Conjur::FetchTrustedProxies,
+      fetch_trusted_proxies:  ::Conjur::FetchTrustedProxies.new,
       logger:                 Rails.logger
     },
-    inputs:       %i(account proxies_list)
+    inputs:       %i(account proxy_list)
   ) do
 
     def call
@@ -26,7 +26,20 @@ module Conjur
     end
 
     def validate_proxies
-      #TODO: validation logic
+      return if @trusted_proxies_list.blank? || @proxy_list.blank?
+
+      @logger.debug(LogMessages::Conjur::ValidatingProxyList.new(@proxy_list.map {|ip| ip.to_s}))
+      @proxy_list.each do |ip_addr|
+        valid_proxy?(ip_addr)
+      end
+      @logger.debug(LogMessages::Conjur::ProxyListValidated.new)
+    end
+
+    def valid_proxy?(ip_addr)
+      @trusted_proxies_list.each do |cidr|
+        return if cidr.include?(ip_addr)
+      end
+      raise Errors::Conjur::InvalidProxy, ip_addr.to_s
     end
   end
 end

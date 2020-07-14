@@ -34,6 +34,15 @@ module LogMessages
       code: "CONJ00042D"
     )
 
+    ValidatingProxyList = ::Util::TrackableLogMessageClass.new(
+      msg:  "Validating proxy list {0-proxy-list}",
+      code: "CONJ00043D"
+    )
+
+    ProxyListValidated = ::Util::TrackableLogMessageClass.new(
+      msg:  "Proxy list validated",
+      code: "CONJ00044D"
+    )
   end
 
   module Authentication
