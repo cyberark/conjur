@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.8.1] - 2020-07-14
 ### Fixed
 - Log the OpenSSL FIPS mode after Rails is initialized for both OSS and DAP.
   [cyberark/conjur#1684](https://github.com/cyberark/conjur/pull/1684)
@@ -387,7 +388,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.8.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.8.1...HEAD
+[1.8.1]: https://github.com/cyberark/conjur/compare/v1.7.0...v1.8.1
 [1.8.0]: https://github.com/cyberark/conjur/compare/v1.7.4...v1.8.0
 [1.7.4]: https://github.com/cyberark/conjur/compare/v1.7.3...v1.7.4
 [1.7.3]: https://github.com/cyberark/conjur/compare/v1.7.2...v1.7.3
