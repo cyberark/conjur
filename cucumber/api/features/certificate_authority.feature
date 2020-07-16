@@ -51,6 +51,7 @@ Feature: Conjur signs certificates using a configured CA
       privilege: [ sign ]
       resource: !webservice conjur/dining-room/ca
     """
+    And the HTTP response content type is "application/json"
     And I have an intermediate CA "kitchen"
     And I add the "kitchen" intermediate CA private key to the resource "cucumber:variable:conjur/kitchen/ca/private-key"
     And I add the "kitchen" intermediate CA cert chain to the resource "cucumber:variable:conjur/kitchen/ca/cert-chain"
@@ -94,4 +95,5 @@ Feature: Conjur signs certificates using a configured CA
     Given I login as "cucumber:host:table"
     When I send a CSR for "table" to the "dining-room" CA with a ttl of "P6M" and CN of "table"
     Then the HTTP response status code is 201
+    And the HTTP response content type is "application/json; charset=utf-8"
     And the resulting json certificate is valid according to the "dining-room" intermediate CA

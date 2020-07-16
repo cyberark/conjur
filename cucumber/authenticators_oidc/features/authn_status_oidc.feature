@@ -53,6 +53,7 @@ Feature: OIDC Authenticator - Status Check
     And I login as "alice"
     When I GET "/authn-oidc/keycloak/cucumber/status"
     Then the HTTP response status code is 200
+    And the HTTP response content type is "application/json"
     And the authenticator status check succeeds
 
   Scenario: A non-responsive OIDC provider returns a 500 response
