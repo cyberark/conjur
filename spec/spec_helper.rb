@@ -69,5 +69,13 @@ def secret_logged?(secret)
   secret_found
 end
 
+# Creates valid access token for the given username.
+# :reek:UtilityFunction
+def access_token_for(user, account: 'rspec')
+  # Configure Slosilo to produce valid access tokens
+  slosilo = Slosilo["authn:#{account}"] ||= Slosilo::Key.new
+  bearer_token = slosilo.issue_jwt(sub: user)
+  "Token token=\"#{Base64.strict_encode64 bearer_token.to_json}\""
+end
 
 require 'stringio'
