@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# This allows to you reference some global variables such as `$?` using less 
+# cryptic names like `$CHILD_STATUS`
+require 'English'
+
 require 'simplecov'
 
 SimpleCov.command_name "SimpleCov #{rand(1000000)}"
@@ -14,7 +18,7 @@ require 'rspec/rails'
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
-Dir[Rails.root.join("spec/support/**/*.rb")].each {|f| require f}
+Dir[Rails.root.join("spec/support/**/*.rb")].sort.each {|f| require f}
 
 ENV['CONJUR_ACCOUNT'] = 'rspec'
 ENV.delete('CONJUR_ADMIN_PASSWORD')
@@ -49,7 +53,7 @@ def secret_logged?(secret)
   #
   # We use backticks because we want the exit code for detailed error messages.
   `grep --quiet '#{secret}' '#{log_file}'`
-  exit_status = ($?).exitstatus
+  exit_status = $CHILD_STATUS.exitstatus
 
   # Grep exit codes:
   # 0   - match
