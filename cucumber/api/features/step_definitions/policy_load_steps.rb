@@ -1,4 +1,4 @@
-# Let's you reference the global variables such as `$?` using less 
+# This allows to you reference some global variables such as `$?` using less 
 # cryptic names like `$CHILD_STATUS`
 require 'English'
 
