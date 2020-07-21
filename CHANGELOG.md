@@ -5,14 +5,26 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Add `/whoami` API endpoint for improved supportability and debugging for access
+  tokens and client IP address determination. [cyberark/conjur#1697](https://github.com/cyberark/conjur/issues/1697)
 
+## [1.8.1] - 2020-07-14
+### Fixed
+- Log the OpenSSL FIPS mode after Rails is initialized for both OSS and DAP.
+  [cyberark/conjur#1684](https://github.com/cyberark/conjur/pull/1684)
+- Bump `conjur-policy-parser` so `revoke (member)` and `deny (role)`
+  can correctly utilize relative paths. [cyberark/conjur-policy-parser#23](https://github.com/cyberark/conjur-policy-parser/pull/23)
+
+## [1.8.0] - 2020-07-10
 ### Changed
-- Uses OpenSSL 1.0.2u to support FIPS compliance
-  ([cyberark/conjur#1527](https://github.com/cyberark/conjur/issues/1527))
+- Use OpenSSL 1.0.2u to support FIPS compliance.
+  [cyberark/conjur#1527](https://github.com/cyberark/conjur/issues/1527)
 - Conjur can be configured to run in FIPS compliant or Non-FIPS compliant mode depending on requirements.
-  FIPS Compliant mode is slightly slower then non-FIPS compliant
-  ([cyberark/conjur#1527](https://github.com/cyberark/conjur/issues/1527))
-- Bump conjur-rack from 4.0.0 to 4.2.0 that consumes FIPS compliant slosilo(https://github.com/cyberark/conjur/issues/1527))
+  FIPS Compliant mode is slightly slower then non-FIPS compliant.
+  [cyberark/conjur#1527](https://github.com/cyberark/conjur/issues/1527)
+- Bump conjur-rack from 4.0.0 to 4.2.0 that consumes FIPS compliant slosilo.
+  [cyberark/conjur#1527](https://github.com/cyberark/conjur/issues/1527)
 - Print login and authentication error to the log in INFO level.
   [cyberark/conjur#1377](https://github.com/cyberark/conjur/issues/1377)
 - Print proper message when user does not exist in authn or login request with
@@ -21,15 +33,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - Password changes (`PUT /authn/:account/password`) now produce audit events with
-  message ID `password` ([cyberark/conjur#1548](https://github.com/cyberark/conjur/issues/1548))
+  message ID `password`. [cyberark/conjur#1548](https://github.com/cyberark/conjur/issues/1548)
 - API key rotations (`PUT /:authenticator/:account/api_key`) now produce audit events with
-  message ID `api-key` ([cyberark/conjur#1549](https://github.com/cyberark/conjur/issues/1549))
+  message ID `api-key`. [cyberark/conjur#1549](https://github.com/cyberark/conjur/issues/1549)
 - All audit events now contain the IP address of the client that initiated the
-  API request (e.g. `[client@43868 ip="172.24.0.5"]`)
-  ([cyberark/conjur#1550](https://github.com/cyberark/conjur/issues/1550))
+  API request (e.g. `[client@43868 ip="172.24.0.5"]`).
+  [cyberark/conjur#1550](https://github.com/cyberark/conjur/issues/1550)
 - Print Conjur server FIPS mode status. [cyberark/conjur#1654](https://github.com/cyberark/conjur/issues/1654)
-- Add `/whoami` API endpoint for improved supportability and debugging for access
-  tokens and client IP address determination. [cyberark/conjur#1697](https://github.com/cyberark/conjur/issues/1697)
+
+### Security
+- Updated `rack` to `2.2.3` to resolve CVE-2020-8184. [cyberark/conjur#1643](https://github.com/cyberark/conjur/pull/1643)
 
 ## [1.7.4] - 2020-06-17
 
@@ -378,7 +391,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.7.4...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.8.1...HEAD
+[1.8.1]: https://github.com/cyberark/conjur/compare/v1.7.0...v1.8.1
+[1.8.0]: https://github.com/cyberark/conjur/compare/v1.7.4...v1.8.0
 [1.7.4]: https://github.com/cyberark/conjur/compare/v1.7.3...v1.7.4
 [1.7.3]: https://github.com/cyberark/conjur/compare/v1.7.2...v1.7.3
 [1.7.2]: https://github.com/cyberark/conjur/compare/v1.7.1...v1.7.2
