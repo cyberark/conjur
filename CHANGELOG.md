@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add `/whoami` API endpoint for improved supportability and debugging for access
   tokens and client IP address determination. [cyberark/conjur#1697](https://github.com/cyberark/conjur/issues/1697)
 
+### Fixed
+- The `TRUSTED_PROXIES` environment variable now works correctly again after the
+  Rails 5 upgrade. This is to indicate trusted proxy IP addresses when using the
+  `X-Forwarded-For` HTTP header to identity the true client IP address of a request.
+  [cyberark/conjur#1689](https://github.com/cyberark/conjur/issues/1689)
+
 ## [1.8.1] - 2020-07-14
 ### Fixed
 - Log the OpenSSL FIPS mode after Rails is initialized for both OSS and DAP.

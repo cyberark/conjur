@@ -51,4 +51,8 @@ Rails.application.configure do
 
   # TODO: figure out how to make it work in a spring environment
   config.audit_socket = Test::AuditSink.instance.address
+
+  # We don't want to cache TRUSTED_PROXIES for tests so that these may
+  # be modified for different test scenarios.
+  config.conjur_disable_trusted_proxies_cache = true
 end
