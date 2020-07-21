@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Add `/whoami` API endpoint for improved supportability and debugging for access
+  tokens and client IP address determination. [cyberark/conjur#1697](https://github.com/cyberark/conjur/issues/1697)
 
 ## [1.8.1] - 2020-07-14
 ### Fixed
@@ -37,8 +40,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   API request (e.g. `[client@43868 ip="172.24.0.5"]`).
   [cyberark/conjur#1550](https://github.com/cyberark/conjur/issues/1550)
 - Print Conjur server FIPS mode status. [cyberark/conjur#1654](https://github.com/cyberark/conjur/issues/1654)
-- Add `/whoami` API endpoint for improved supportability and debugging for access
-  tokens and client IP address determination. [cyberark/conjur#1697](https://github.com/cyberark/conjur/issues/1697)
 
 ### Security
 - Updated `rack` to `2.2.3` to resolve CVE-2020-8184. [cyberark/conjur#1643](https://github.com/cyberark/conjur/pull/1643)
