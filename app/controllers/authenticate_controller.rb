@@ -64,9 +64,9 @@ class AuthenticateController < ApplicationController
     handle_login_error(e)
   end
 
-  def authenticate
+  def authenticate(input = authenticator_input)
     authn_token = Authentication::Authenticate.new.(
-      authenticator_input: authenticator_input,
+      authenticator_input: input,
       authenticators: installed_authenticators,
       enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV)
     )
@@ -87,13 +87,15 @@ class AuthenticateController < ApplicationController
     )
   end
 
+  # Update the input to have the username from the token and authenticate
   def authenticate_oidc
-    authentication_token = Authentication::AuthnOidc::Authenticator.new.(
+    input = Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new.(
       authenticator_input: oidc_authenticator_input
     )
-    render json: authentication_token
   rescue => e
     handle_authentication_error(e)
+  else
+    authenticate(input)
   end
 
   def oidc_authenticator_input
@@ -115,7 +117,7 @@ class AuthenticateController < ApplicationController
       service_id:       params[:service_id],
       client_ip:        request.ip,
       csr:              request.body.read,
-      
+
       # The host-id is split in the client where the suffix is in the CSR
       # and the prefix is in the header. This is done to maintain backwards-compatibility
       host_id_prefix:   request.headers["Host-Id-Prefix"]
