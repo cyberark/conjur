@@ -383,6 +383,7 @@ _run_cucumber_tests() {
      --strict \
      -p $profile \
      --format json --out cucumber/$profile/cucumber_results.json \
+     --format html --out cucumber/$profile/cucumber_results.html \
      --format junit --out cucumber/$profile/features/reports"
 
   # Simplecov writes its report using an at_exit ruby hook. If the container
