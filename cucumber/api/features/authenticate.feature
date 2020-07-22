@@ -11,6 +11,7 @@ Feature: Exchange a role's API key for a signed authentication token
 
   Scenario: A role's API can be used to authenticate
     Then I can POST "/authn/cucumber/alice/authenticate" with plain text body ":cucumber:user:alice_api_key"
+    And the HTTP response content type is "application/json"
     And there is an audit record matching:
     """
       <86>1 * * conjur * authn

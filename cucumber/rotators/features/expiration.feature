@@ -39,4 +39,5 @@ Feature: Manually expiring a rotating variable
     And I save the response as "password_before_expiration"
     And I POST "/secrets/cucumber/variable/db-reports/password?expirations"
     Then the HTTP response status code is 201
+    And the HTTP response content type is "text/html"
     And the password will change from "password_before_expiration"

@@ -51,6 +51,7 @@ Feature: Adding and fetching secrets
     """
     [ "v-1" ]
     """
+    And the HTTP response content type is "application/json"
 
   Scenario: Secrets can contain any binary data.
 
@@ -73,6 +74,7 @@ Feature: Adding and fetching secrets
     """
     When I successfully GET "/secrets/cucumber/variable/probe"
     Then the binary result is "v-2"
+    And the HTTP response content type is "application/octet-stream"
     And there is an audit record matching:
     """
       <38>1 * * conjur * fetch

@@ -86,3 +86,4 @@ Feature: Updating policies
     When I clear the "Content-Type" header
     And I load a large policy with POST
     Then the HTTP response status code is 201
+    And the HTTP response content type is "application/json"
