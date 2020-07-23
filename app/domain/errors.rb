@@ -353,4 +353,18 @@ module Errors
       code: "CONJ00044E"
     )
   end
+
+  module System
+    EmptyConjurDataKey = ::Util::TrackableErrorClass.new(
+      msg:  "CONJUR_DATA_KEY is empty. " \
+            "Try loading the data key as an environment variable.",
+      code: "CONJ00065E"
+    )
+
+    InvalidConjurDataKey = ::Util::TrackableErrorClass.new(
+      msg:  "Invalid CONJUR_DATA_KEY. " \
+            "The key provided does not match the key that the database was created with.",
+      code: "CONJ00066E"
+    )
+  end
 end

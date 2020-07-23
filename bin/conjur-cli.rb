@@ -66,6 +66,9 @@ command :server do |c|
       system "rake account:create[#{account}]" or exit $?.exitstatus
     end
 
+    puts "Validating Conjur data key..."
+    system "rake data-key:validate" or exit $?.exitstatus
+
     if file_name = options[:file]
       raise "account option is required with file option" unless account
       system "rake policy:load[#{account},#{file_name}]" or exit $?.exitstatus
