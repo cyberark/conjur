@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
+RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
   include_context "running outside kubernetes"
 
   let(:host_id_prefix) { "accountName:host:" }
@@ -129,18 +129,18 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
 
   context "initialization" do
     subject do
-      Authentication::AuthnK8s::ApplicationIdentity.new(
+      Authentication::AuthnK8s::ResourceRestrictions.new(
         host_id:          host_id,
         host_annotations: host_annotations,
         service_id:       good_service_id
       )
     end
 
-    context "Application identity in host id" do
+    context "Resource restrictions in host id" do
       let(:host_annotations) { [] }
       let(:host_id) { "#{host_id_prefix}#{namespace}/#{k8s_resource_name}/#{k8s_resource_value}" }
 
-      context "with a valid application identity" do
+      context "with valid resource restrictions" do
         context "when is namespace scoped" do
           let(:k8s_resource_name) { "*" }
           let(:k8s_resource_value) { "*" }
@@ -169,7 +169,7 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
 
       end
 
-      context "with an invalid application identity" do
+      context "with invalid resource restrictions" do
         context "where the id isn't a 3 part string" do
           let(:host_id) { "#{host_id_prefix}HostId" }
 
@@ -182,16 +182,16 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
           let(:k8s_resource_name) { "non_existing_resource" }
 
           it "raises an error" do
-            expect { subject }.to raise_error(::Errors::Authentication::AuthnK8s::ScopeNotSupported)
+            expect { subject }.to raise_error(::Errors::Authentication::ConstraintNotSupported)
           end
         end
       end
     end
 
-    context "Application identity in annotations" do
+    context "Resource restrictions in annotations" do
       let(:host_id) { "#{host_id_prefix}HostId" }
 
-      context "with a valid application identity" do
+      context "with valid resource restrictions" do
         context "when is namespace scoped" do
           context "in a global constraint" do
             let(:host_annotations) { [namespace_annotation, container_name_annotation] }
@@ -408,7 +408,7 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
         end
       end
 
-      context "with an invalid application identity" do
+      context "with invalid resource restrictions" do
 
         context "where namespace constraint doesn't exist" do
           let(:host_annotations) { [service_account_annotation, container_name_annotation] }
@@ -423,7 +423,7 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
             let(:host_annotations) { [namespace_annotation, invalid_annotation, container_name_annotation] }
 
             it "raises an error" do
-              expect { subject }.to raise_error(::Errors::Authentication::AuthnK8s::ScopeNotSupported)
+              expect { subject }.to raise_error(::Errors::Authentication::ConstraintNotSupported)
             end
           end
 
@@ -437,7 +437,7 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
             end
 
             it "raises an error" do
-              expect { subject }.to raise_error(::Errors::Authentication::AuthnK8s::ScopeNotSupported)
+              expect { subject }.to raise_error(::Errors::Authentication::ConstraintNotSupported)
             end
           end
         end
@@ -493,7 +493,7 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
       end
     end
 
-    context "Application identity in host id and in annotations" do
+    context "Resource restrictions in host id and in annotations" do
       let(:host_annotations) { [namespace_annotation, service_account_annotation, container_name_annotation] }
       let(:k8s_resource_name) { "service_account" }
       let(:host_id) { "#{host_id_prefix}#{namespace}/#{k8s_resource_name}/#{k8s_resource_value}" }
@@ -512,7 +512,7 @@ RSpec.describe Authentication::AuthnK8s::ApplicationIdentity do
         expect { subject }.not_to raise_error
       end
 
-      it "takes the application identity from the annotations" do
+      it "takes the resource restrictions from the annotations" do
         expect(subject.namespace).to eq("OtherK8sNamespace")
         expect(subject.constraints[:service_account]).to eq("OtherK8sServiceAccount")
       end

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
+RSpec.describe Authentication::AuthnK8s::ValidateResourceRestrictions do
   include_context "running outside kubernetes"
 
   let(:k8s_resolver) { double("K8sResolver") }
@@ -58,12 +58,12 @@ RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
 
   let(:k8s_object_lookup_class) { double("K8sObjectLookup") }
 
-  let(:application_identity_class) { double("ApplicationIdentity") }
+  let(:resource_restrictions_class) { double("ResourceRestrictions") }
 
-  let(:dependencies) { { resource_class:           double(),
-                         k8s_object_lookup_class: k8s_object_lookup_class,
-                         k8s_resolver:            k8s_resolver,
-                         application_identity_class:  application_identity_class } }
+  let(:dependencies) { { resource_class:              double(),
+                         k8s_object_lookup_class:     k8s_object_lookup_class,
+                         k8s_resolver:                k8s_resolver,
+                         resource_restrictions_class: resource_restrictions_class } }
 
   before(:each) do
     allow(Resource).to receive(:[])
@@ -81,9 +81,9 @@ RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
       .to receive(:new)
             .and_return(k8s_object_lookup_class)
 
-    allow(Authentication::AuthnK8s::ApplicationIdentity)
+    allow(Authentication::AuthnK8s::ResourceRestrictions)
       .to receive(:new)
-            .and_return(application_identity_class)
+            .and_return(resource_restrictions_class)
 
     allow(pod_request).to receive(:service_id).and_return(good_service_id)
     allow(host_role).to receive(:allowed_to?)
@@ -92,26 +92,26 @@ RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
     allow(k8s_object_lookup_class).to receive(:pod_by_name)
                                         .with(spiffe_name, spiffe_namespace)
                                         .and_return(pod)
-    allow(application_identity_class).to receive(:container_name)
+    allow(resource_restrictions_class).to receive(:container_name)
                                        .and_return(default_container_name)
-    allow(application_identity_class).to receive(:constraints)
+    allow(resource_restrictions_class).to receive(:constraints)
                                        .and_return(no_constraints)
-    allow(application_identity_class).to receive(:namespace)
+    allow(resource_restrictions_class).to receive(:namespace)
                                        .and_return(k8s_host_namespace)
   end
 
   context "invocation" do
-    subject(:validator) { Authentication::AuthnK8s::ValidateApplicationIdentity
+    subject(:validator) { Authentication::AuthnK8s::ValidateResourceRestrictions
                             .new(dependencies: dependencies) }
 
-    context "when application identity namespace doesn't match the spiffe id namespace" do
+    context "when resource restrictions namespace doesn't match the spiffe id namespace" do
       before(:each) do
-        allow(application_identity_class).to receive(:namespace)
+        allow(resource_restrictions_class).to receive(:namespace)
                                            .and_return("WrongNamespace")
       end
 
       it "raises a NamespaceMismatch error" do
-        expected_message = /Namespace in SPIFFE ID 'SpiffeNamespace' must match namespace implied by application identity 'WrongNamespace'/
+        expected_message = /Namespace in SPIFFE ID 'SpiffeNamespace' must match namespace implied by resource restriction 'WrongNamespace'/
         expect { validator.(
           host_id: host_id,
             host_annotations: host_annotations,
@@ -125,7 +125,7 @@ RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
 
     context 'when namespace scoped' do
       before(:each) do
-        allow(application_identity_class).to receive(:namespace_scoped?)
+        allow(resource_restrictions_class).to receive(:namespace_scoped?)
                                            .and_return(true)
       end
 
@@ -219,7 +219,7 @@ RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
         allow(host_annotation_2).to receive(:[])
                                       .with(:value)
                                       .and_return(container_name)
-        allow(application_identity_class).to receive(:container_name)
+        allow(resource_restrictions_class).to receive(:container_name)
                                            .and_return(container_name)
 
         expect { validator.(
@@ -238,13 +238,13 @@ RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
       let(:k8s_instantiated_resource) { double("K8sHostInstantiatedResource") }
 
       before(:each) do
-        allow(application_identity_class).to receive(:namespace_scoped?)
+        allow(resource_restrictions_class).to receive(:namespace_scoped?)
                                            .and_return(false)
-        allow(application_identity_class).to receive(:constraints)
+        allow(resource_restrictions_class).to receive(:constraints)
                                            .and_return(one_constraint_list)
       end
 
-      context "when the resource in the application identity is not found" do
+      context "when the resource in the resource restrictions is not found" do
         before(:each) do
           allow(k8s_object_lookup_class).to receive(:find_object_by_name)
                                               .with(k8s_resource_name, k8s_resource_value, k8s_host_namespace)
@@ -264,7 +264,7 @@ RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
         end
       end
 
-      context 'when the resource in the application identity is found' do
+      context 'when the resource in the resource restrictions is found' do
         before(:each) do
           allow(k8s_object_lookup_class).to receive(:find_object_by_name)
                                               .with(k8s_resource_name, k8s_resource_value, k8s_host_namespace)
@@ -348,7 +348,7 @@ RSpec.describe Authentication::AuthnK8s::ValidateApplicationIdentity do
           allow(host_annotation_2).to receive(:[])
                                         .with(:value)
                                         .and_return(container_name)
-          allow(application_identity_class).to receive(:container_name)
+          allow(resource_restrictions_class).to receive(:container_name)
                                              .and_return(container_name)
 
           begin

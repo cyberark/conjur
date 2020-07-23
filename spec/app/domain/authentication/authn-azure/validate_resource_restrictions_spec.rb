@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
+RSpec.describe 'Authentication::AuthnAzure::ValidateResourceRestrictions' do
   include_context "azure setup"
   include_context "security mocks"
 
@@ -70,11 +70,11 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
-  context "A valid application identity" do
+  context "Valid resource restrictions" do
     context "and an Azure token with matching data" do
-      context "with no assigned Azure identity in application identity" do
+      context "with no assigned Azure identity in resource restrictions" do
         subject do
-          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+          Authentication::AuthnAzure::ValidateResourceRestrictions.new(
             resource_class:             resource_class,
             validate_azure_annotations: validate_azure_annotations,
           ).call(
@@ -91,7 +91,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
         end
       end
 
-      context "with a user assigned Azure identity in application identity" do
+      context "with a user assigned Azure identity in resource restrictions" do
         before(:each) do
           allow(host).to receive(:annotations)
                            .and_return(
@@ -103,7 +103,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
                            )
         end
         subject do
-          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+          Authentication::AuthnAzure::ValidateResourceRestrictions.new(
             resource_class:             resource_class,
             validate_azure_annotations: validate_azure_annotations,
           ).call(
@@ -120,9 +120,9 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
         end
       end
 
-      context "with a system assigned Azure identity in application identity" do
+      context "with a system assigned Azure identity in resource restrictions" do
         subject do
-          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+          Authentication::AuthnAzure::ValidateResourceRestrictions.new(
             resource_class:             resource_class,
             validate_azure_annotations: validate_azure_annotations,
           ).call(
@@ -141,7 +141,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
     end
 
     context "and an Azure token with non-matching data" do
-      context "where the subscription id does not match the application identity" do
+      context "where the subscription id does not match the resource restrictions" do
         before(:each) do
           allow(host).to receive(:annotations)
                            .and_return(
@@ -152,7 +152,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
                            )
         end
         subject do
-          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+          Authentication::AuthnAzure::ValidateResourceRestrictions.new(
             resource_class:             resource_class,
             validate_azure_annotations: validate_azure_annotations,
           ).call(
@@ -166,12 +166,12 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
 
         it "raises an error" do
           expect { subject }.to raise_error(
-            ::Errors::Authentication::AuthnAzure::InvalidApplicationIdentity
+            ::Errors::Authentication::AuthnAzure::InvalidResourceRestrictions
           )
         end
       end
 
-      context "where the resource group does not match the application identity" do
+      context "where the resource group does not match the resource restrictions" do
         before(:each) do
           allow(host).to receive(:annotations)
                            .and_return(
@@ -182,7 +182,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
                            )
         end
         subject do
-          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+          Authentication::AuthnAzure::ValidateResourceRestrictions.new(
             resource_class:             resource_class,
             validate_azure_annotations: validate_azure_annotations,
           ).call(
@@ -196,12 +196,12 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
 
         it "raises an error" do
           expect { subject }.to raise_error(
-            ::Errors::Authentication::AuthnAzure::InvalidApplicationIdentity
+            ::Errors::Authentication::AuthnAzure::InvalidResourceRestrictions
           )
         end
       end
 
-      context "where the user assigned identity does not match the application identity" do
+      context "where the user assigned identity does not match the resource restrictions" do
         before(:each) do
           allow(host).to receive(:annotations)
                            .and_return(
@@ -213,7 +213,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
                            )
         end
         subject do
-          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+          Authentication::AuthnAzure::ValidateResourceRestrictions.new(
             resource_class:             resource_class,
             validate_azure_annotations: validate_azure_annotations,
           ).call(
@@ -227,12 +227,12 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
 
         it "raises an error" do
           expect { subject }.to raise_error(
-            ::Errors::Authentication::AuthnAzure::InvalidApplicationIdentity
+            ::Errors::Authentication::AuthnAzure::InvalidResourceRestrictions
           )
         end
       end
 
-      context "where the system assigned identity does not match the application identity" do
+      context "where the system assigned identity does not match the resource restrictions" do
         before(:each) do
           allow(host).to receive(:annotations)
                            .and_return(
@@ -243,7 +243,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
                            )
         end
         subject do
-          Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+          Authentication::AuthnAzure::ValidateResourceRestrictions.new(
             resource_class:             resource_class,
             validate_azure_annotations: validate_azure_annotations,
           ).call(
@@ -257,21 +257,21 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
 
         it "raises an error" do
           expect { subject }.to raise_error(
-            ::Errors::Authentication::AuthnAzure::InvalidApplicationIdentity
+            ::Errors::Authentication::AuthnAzure::InvalidResourceRestrictions
           )
         end
       end
     end
   end
 
-  context "An invalid application identity" do
+  context "Invalid resource restrictions" do
     context "that does not have required constraints present in annotations" do
       before(:each) do
         allow(host).to receive(:annotations)
                          .and_return([])
       end
       subject do
-        Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+        Authentication::AuthnAzure::ValidateResourceRestrictions.new(
           resource_class:             resource_class,
           validate_azure_annotations: validate_azure_annotations,
         ).call(
@@ -302,7 +302,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
                          )
       end
       subject do
-        Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+        Authentication::AuthnAzure::ValidateResourceRestrictions.new(
           resource_class:             resource_class,
           validate_azure_annotations: validate_azure_annotations,
         ).call(
@@ -334,11 +334,11 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
 
         allow(validate_azure_annotations).to receive(:call)
                                                .and_raise(
-                                                 validate_application_identity_error
+                                                 'FAKE_VALIDATE_RESOURCE_RESTRICTIONS_ERROR'
                                                )
       end
       subject do
-        Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+        Authentication::AuthnAzure::ValidateResourceRestrictions.new(
           resource_class:             resource_class,
           validate_azure_annotations: validate_azure_annotations,
         ).call(
@@ -352,7 +352,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
 
       it "raises an error" do
         expect { subject }.to raise_error(
-          validate_application_identity_error
+          /FAKE_VALIDATE_RESOURCE_RESTRICTIONS_ERROR/
         )
       end
     end
@@ -364,7 +364,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateApplicationIdentity' do
                                  .and_return(nil)
     end
     subject do
-      Authentication::AuthnAzure::ValidateApplicationIdentity.new(
+      Authentication::AuthnAzure::ValidateResourceRestrictions.new(
         resource_class:             resource_class,
         validate_azure_annotations: validate_azure_annotations,
       ).call(

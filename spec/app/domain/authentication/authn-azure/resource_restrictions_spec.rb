@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Authentication::AuthnAzure::ApplicationIdentity do
+RSpec.describe Authentication::AuthnAzure::ResourceRestrictions do
   include_context "azure setup"
 
   let(:user_assigned_identity_service_id_scoped_annotation) { double("UserAssignedIdentityAnnotation") }
@@ -26,9 +26,9 @@ RSpec.describe Authentication::AuthnAzure::ApplicationIdentity do
     )
   end
 
-  context "An application identity in annotations" do
+  context "resource restrictions in annotations" do
     subject do
-      Authentication::AuthnAzure::ApplicationIdentity.new(
+      Authentication::AuthnAzure::ResourceRestrictions.new(
         role_annotations: role_annotations,
         service_id:       test_service_id,
         logger:           Rails.logger
@@ -64,8 +64,8 @@ RSpec.describe Authentication::AuthnAzure::ApplicationIdentity do
       end
     end
 
-    # Here we are only testing the scope of the subscription-id application identity because
-    # we want to test that we grab the more granular application identity and the behaviour
+    # Here we are only testing the scope of the subscription-id resource restriction because
+    # we want to test that we grab the more granular resource restriction and the behaviour
     # is the same regardless of the annotation name
     context("with both global & service-id scoped constraints") do
       let(:role_annotations) { [subscription_id_annotation, subscription_id_service_id_scoped_annotation] }
