@@ -5,10 +5,10 @@ module Authentication
 
     Authenticator = CommandClass.new(
       dependencies: {
-        fetch_authenticator_secrets:   Authentication::Util::FetchAuthenticatorSecrets.new,
-        verify_and_decode_token:       Authentication::OAuth::VerifyAndDecodeToken.new,
-        validate_application_identity: ValidateApplicationIdentity.new,
-        logger:                        Rails.logger
+        fetch_authenticator_secrets:    Authentication::Util::FetchAuthenticatorSecrets.new,
+        verify_and_decode_token:        Authentication::OAuth::VerifyAndDecodeToken.new,
+        validate_resource_restrictions: ValidateResourceRestrictions.new,
+        logger:                         Rails.logger
       },
       inputs:       [:authenticator_input]
     ) do
@@ -18,7 +18,7 @@ module Authentication
 
       def call
         validate_azure_token
-        validate_application_identity
+        validate_resource_restrictions
       end
 
       private
@@ -45,8 +45,8 @@ module Authentication
         @decoded_credentials ||= DecodedCredentials.new(credentials)
       end
 
-      def validate_application_identity
-        @validate_application_identity.(
+      def validate_resource_restrictions
+        @validate_resource_restrictions.(
           service_id: service_id,
           account: account,
           username: username,

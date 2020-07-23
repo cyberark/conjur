@@ -3,116 +3,65 @@
 module Authentication
   module AuthnK8s
 
-    # This class defines an application identity of a given conjur host.
-    # The constructor initializes an ApplicationIdentity object and validates that
-    # it is configured correctly.
-    # The difference between the validation in this constructor and
-    # the validation in ValidateApplicationIdentity is that here we validate that
-    # the application identity is configured correctly, and thus is a valid application
-    # identity. In ValidateApplicationIdentity we validate that the defined application
-    # identity is actually the correct one in kubernetes.
-    # For example, an application identity `some-namepsace/blah/some-value` is not
-    # valid and will fail the validation here. However, an application identity
-    # `some-namespace/service-account/some-value` is a valid application identity
-    # and will pass the validation here. If the host is actually running from
-    # a pod with service account `some-other-value` then it will fail the
-    # validation of ValidateApplicationIdentity
-    class ApplicationIdentity
+    # This class represents the restrictions that are set on a Conjur host regarding
+    # the K8s resources that it can authenticate with Conjur from.
+    # It consists a list of K8sResource objects which represent the resource
+    # restriction that need to be met in an authentication request.
+    #
+    # For example, if `resources` includes the K8sResource:
+    #   - type: "namespace"
+    #   - value: "some-namespace"
+    #
+    # then this Conjur host can authenticate with Conjur only from a pod that is
+    # part of the namespace "some-namespace".
+    #
+    # In authn-k8s, the resource restrictions can be defined in the host's id
+    # or in the host's annotations
+    class ResourceRestrictions
 
-      AUTHENTICATION_CONTAINER_NAME_ANNOTATION = "authentication-container-name"
-      DEFAULT_AUTHENTICATION_CONTAINER_NAME = "authenticator"
+      attr_reader :resources
 
-      def initialize(host_id:, host_annotations:, service_id:)
+      K8S_RESOURCE_TYPES = %w(namespace service-account pod deployment stateful-set deployment-config)
+
+      def initialize(host_id:, host_annotations:, service_id:, logger:)
         @host_id          = host_id
         @host_annotations = host_annotations
         @service_id       = service_id
+        @logger           = logger
 
-        validate
-      end
-
-      def namespace
-        @namespace ||= application_identity_in_annotations? ? constraint_from_annotation("namespace") : host_id_suffix[-3]
-      end
-
-      def constraints
-        @constraints ||= {
-          pod:               constraint_value("pod"),
-          service_account:   constraint_value("service_account"),
-          deployment:        constraint_value("deployment"),
-          deployment_config: constraint_value("deployment_config"),
-          stateful_set:      constraint_value("stateful_set")
-        }.compact
-      end
-
-      def container_name
-        @container_name ||= annotation_value("authn-k8s/#{@service_id}/#{AUTHENTICATION_CONTAINER_NAME_ANNOTATION}") ||
-          annotation_value("authn-k8s/#{AUTHENTICATION_CONTAINER_NAME_ANNOTATION}") ||
-          annotation_value("kubernetes/#{AUTHENTICATION_CONTAINER_NAME_ANNOTATION}") ||
-          default_authentication_container_name
-      end
-
-      def default_authentication_container_name
-        Rails.logger.debug(
-          LogMessages::Authentication::ContainerNameAnnotationDefaultValue.new(
-            AUTHENTICATION_CONTAINER_NAME_ANNOTATION,
-            DEFAULT_AUTHENTICATION_CONTAINER_NAME
-          )
-        )
-
-        DEFAULT_AUTHENTICATION_CONTAINER_NAME
-      end
-
-      # returns true if the only constraint is on the namespace, false otherwise
-      def namespace_scoped?
-        constraints.empty?
+        init_resources
+        validate_configuration
       end
 
       private
 
-      # Validates that the application identity is defined correctly
-      def validate
-        validate_permitted_scope
-
-        # validate that a constraint exists on the namespace
-        unless namespace
-          raise Errors::Authentication::AuthnK8s::MissingNamespaceConstraint
+      def init_resources
+        @resources = K8S_RESOURCE_TYPES.each_with_object([]) do |resource_type, resources|
+          resource_value = resource_value(resource_type)
+          if resource_value
+            resources.push(
+              K8sResource.new(
+                type: resource_type,
+                value: resource_value
+              )
+            )
+          end
         end
+      end
 
+      def validate_configuration
+        validate_constraints_are_permitted
+        validate_required_constraints_exist
         validate_constraint_combinations
       end
 
-      # If the application identity is defined in:
-      #   - annotations: validates that all the constraints are
-      #                  valid (e.g there is no "authn-k8s/blah" annotation)
-      #   - host id: validates that the host-id has 3 parts and that the given
-      #              constraint is valid (e.g the host id is not
-      #              "namespace/blah/some-value")
-      def validate_permitted_scope
-        application_identity_in_annotations? ? validate_permitted_annotations : validate_host_id
+      def resource_value resource_type
+        resource_restrictions_in_annotations? ? resource_from_annotation(resource_type) : resource_from_id(underscored_k8s_resource_type(resource_type))
       end
 
-      # Validates that the application identity doesn't include logical constraint
-      # combinations (e.g deployment & deploymentConfig)
-      def validate_constraint_combinations
-        controllers = %i(deployment deployment_config stateful_set)
-
-        controller_constraints = constraints.keys & controllers
-        unless controller_constraints.length <= 1
-          raise Errors::Authentication::IllegalConstraintCombinations, controller_constraints
-        end
-      end
-
-      def constraint_value constraint_name
-        if application_identity_in_annotations?
-          constraint_from_annotation(annotation_type_constraint(constraint_name))
-        else
-          constraint_from_id(constraint_name)
-        end
-      end
-
-      def constraint_from_annotation constraint_name
-        annotation_value("authn-k8s/#{@service_id}/#{constraint_name}") ||
-          annotation_value("authn-k8s/#{constraint_name}")
+      def resource_from_annotation resource_type
+        annotation_value("authn-k8s/#{@service_id}/#{resource_type}") ||
+          annotation_value("authn-k8s/#{resource_type}")
       end
 
       def annotation_value name
@@ -120,23 +69,27 @@ module Authentication
 
         # return the value of the annotation if it exists, nil otherwise
         if annotation
-          Rails.logger.debug(LogMessages::Authentication::RetrievedAnnotationValue.new(name))
+          @logger.debug(LogMessages::Authentication::RetrievedAnnotationValue.new(name))
           annotation[:value]
         end
       end
 
-      def constraint_from_id constraint_name
-        host_id_suffix[-2] == constraint_name ? host_id_suffix[-1] : nil
+      # If the resource restrictions are defined in:
+      #   - annotations: validates that all the constraints are
+      #                  valid (e.g there is no "authn-k8s/blah" annotation)
+      #   - host id: validates that the host-id has 3 parts and that the given
+      #              constraint is valid (e.g the host id is not
+      #              "namespace/blah/some-value")
+      def validate_constraints_are_permitted
+        resource_restrictions_in_annotations? ? validate_permitted_annotations : validate_host_id
       end
 
-      def host_id_suffix
-        @host_id_suffix ||= hostname.split('/').last(3)
-      end
-
-      # Return the last part of the host id (which is the actual hostname).
-      # The host id is build as "account_name:kind:identifier" (e.g "org:host:some_hostname").
-      def hostname
-        @hostname ||= @host_id.split(':')[2]
+      # We expect the resource restrictions to be defined by the host's annotations
+      # if any of the constraint annotations is present.
+      def resource_restrictions_in_annotations?
+        @resource_restrictions_in_annotations ||= K8S_RESOURCE_TYPES.any? do |resource_type|
+          resource_from_annotation(resource_type)
+        end
       end
 
       def validate_permitted_annotations
@@ -145,15 +98,12 @@ module Authentication
       end
 
       def validate_prefixed_permitted_annotations prefix
-        Rails.logger.debug(LogMessages::Authentication::ValidatingAnnotationsWithPrefix.new(prefix))
+        @logger.debug(LogMessages::Authentication::ValidatingAnnotationsWithPrefix.new(prefix))
 
         prefixed_k8s_annotations(prefix).each do |annotation|
           annotation_name = annotation[:name]
           next if prefixed_permitted_annotations(prefix).include?(annotation_name)
-          raise Errors::Authentication::AuthnK8s::ScopeNotSupported.new(
-            annotation_name.gsub(prefix, ""),
-            annotation_type_constraints
-          )
+          raise Errors::Authentication::ConstraintNotSupported.new(annotation_name.gsub(prefix, ""), K8S_RESOURCE_TYPES)
         end
       end
 
@@ -181,52 +131,59 @@ module Authentication
         permitted_annotations.map { |k| "#{prefix}#{k}" }
       end
 
-      def validate_host_id
-        Rails.logger.debug(LogMessages::Authentication::AuthnK8s::ValidatingHostId.new(@host_id))
+      def permitted_annotations
+        @permitted_annotations ||= K8S_RESOURCE_TYPES | [@authentication_container_name_annotation]
+      end
 
-        valid_host_id = host_id_suffix.length == 3
+      def validate_host_id
+        @logger.debug(LogMessages::Authentication::AuthnK8s::ValidatingHostId.new(@host_id))
+
+        valid_host_id = @host_id.length == 3
         raise Errors::Authentication::AuthnK8s::InvalidHostId, @host_id unless valid_host_id
 
         return if host_id_namespace_scoped?
 
-        constraint       = host_id_suffix[-2]
-        valid_constraint = permitted_constraints.include?(constraint)
-        unless valid_constraint
-          raise Errors::Authentication::AuthnK8s::ScopeNotSupported.new(
-            constraint,
-            permitted_constraints
-          )
-        end
-      end
-
-      def permitted_constraints
-        @permitted_constraints ||= %w(
-          namespace service_account pod deployment stateful_set deployment_config
-        )
-      end
-
-      def permitted_annotations
-        @permitted_annotations ||= annotation_type_constraints << "authentication-container-name"
-      end
-
-      def annotation_type_constraints
-        @annotation_type_constraints ||= permitted_constraints.map { |constraint| annotation_type_constraint(constraint) }
-      end
-
-      def annotation_type_constraint constraint
-        constraint.tr('_', '-')
-      end
-
-      # We expect the application identity to be defined by the host's annotations
-      # if any of the constraint annotations is present.
-      def application_identity_in_annotations?
-        @application_identity_in_annotations ||= annotation_type_constraints.any? do |constraint|
-          constraint_from_annotation(constraint)
+        resource_type       = @host_id[-2]
+        unless underscored_k8s_resource_types.include?(resource_type)
+          raise Errors::Authentication::ConstraintNotSupported.new(resource_type, underscored_k8s_resource_types)
         end
       end
 
       def host_id_namespace_scoped?
-        host_id_suffix[-2] == '*' && host_id_suffix[-1] == '*'
+        @host_id[-2] == '*' && @host_id[-1] == '*'
+      end
+
+      def validate_required_constraints_exist
+        validate_resource_constraint_exists "namespace"
+      end
+
+      def validate_resource_constraint_exists resource_type
+        resource = @resources.find { |a| a.type == resource_type }
+        raise Errors::Authentication::RoleMissingConstraint, resource_type unless resource
+      end
+
+      # Validates that the resource restrictions don't include logical resource constraint
+      # combinations (e.g deployment & deploymentConfig)
+      def validate_constraint_combinations
+        identifiers = %w(deployment deployment-config stateful-set)
+
+        identifiers_constraints = @resources.map(&:type) & identifiers
+        unless identifiers_constraints.length <= 1
+          raise Errors::Authentication::IllegalConstraintCombinations, identifiers_constraints
+        end
+      end
+
+      def resource_from_id resource_type
+        return @host_id[-3] if resource_type == "namespace"
+        @host_id[-2] == resource_type ? @host_id[-1] : nil
+      end
+
+      def underscored_k8s_resource_types
+        @underscored_k8s_resource_types ||= K8S_RESOURCE_TYPES.map { |resource_type| underscored_k8s_resource_type(resource_type) }
+      end
+
+      def underscored_k8s_resource_type resource_type
+        resource_type.tr('-', '_')
       end
     end
   end

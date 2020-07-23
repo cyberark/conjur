@@ -15,15 +15,13 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
   let(:namespace_annotation) { double("NamespaceAnnotation") }
   let(:namespace_annotation_service_id_scoped) { double("NamespaceServiceIdAnnotation") }
 
-  let(:container_name_annotation) { double("ContainerNameAnnotation") }
-  let(:container_name_annotation_service_id_prefix) { double("ContainerNameAnnotation") }
-  let(:container_name_annotation_kubernetes_prefix) { double("ContainerNameAnnotation") }
-
   let(:service_account_annotation) { double("ServiceAccountAnnotation") }
   let(:pod_annotation) { double("PodAnnotation") }
   let(:deployment_annotation) { double("DeploymentAnnotation") }
   let(:stateful_set_annotation) { double("StatefulSetAnnotation") }
   let(:deployment_config_annotation) { double("DeploymentConfigAnnotation") }
+
+  let(:container_name_annotation) { double("ContainerNameAnnotation") }
 
   let(:invalid_annotation) { double("InvalidAnnotation") }
 
@@ -47,33 +45,6 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
     allow(namespace_annotation_service_id_scoped).to receive(:[])
                                                        .with(:value)
                                                        .and_return("K8sNamespaceServiceIdScoped")
-
-    allow(container_name_annotation).to receive(:values)
-                                          .and_return(container_name_annotation)
-    allow(container_name_annotation).to receive(:[])
-                                          .with(:name)
-                                          .and_return("authn-k8s/authentication-container-name")
-    allow(container_name_annotation).to receive(:[])
-                                          .with(:value)
-                                          .and_return("ContainerName")
-
-    allow(container_name_annotation_service_id_prefix).to receive(:values)
-                                                            .and_return(container_name_annotation_service_id_prefix)
-    allow(container_name_annotation_service_id_prefix).to receive(:[])
-                                                            .with(:name)
-                                                            .and_return("authn-k8s/#{good_service_id}/authentication-container-name")
-    allow(container_name_annotation_service_id_prefix).to receive(:[])
-                                                            .with(:value)
-                                                            .and_return("ServiceIdContainerName")
-
-    allow(container_name_annotation_kubernetes_prefix).to receive(:values)
-                                                            .and_return(container_name_annotation_kubernetes_prefix)
-    allow(container_name_annotation_kubernetes_prefix).to receive(:[])
-                                                            .with(:name)
-                                                            .and_return("kubernetes/authentication-container-name")
-    allow(container_name_annotation_kubernetes_prefix).to receive(:[])
-                                                            .with(:value)
-                                                            .and_return("KubernetesContainerName")
 
     allow(service_account_annotation).to receive(:values)
                                            .and_return(service_account_annotation)
@@ -120,6 +91,15 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
                                              .with(:value)
                                              .and_return("K8sDeploymentConfig")
 
+    allow(container_name_annotation).to receive(:values)
+                                          .and_return(container_name_annotation)
+    allow(container_name_annotation).to receive(:[])
+                                          .with(:name)
+                                          .and_return("authn-k8s/authentication-container-name")
+    allow(container_name_annotation).to receive(:[])
+                                          .with(:value)
+                                          .and_return("ContainerName")
+
     allow(invalid_annotation).to receive(:values)
                                    .and_return(invalid_annotation)
     allow(invalid_annotation).to receive(:[])
@@ -132,44 +112,76 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
       Authentication::AuthnK8s::ResourceRestrictions.new(
         host_id:          host_id,
         host_annotations: host_annotations,
-        service_id:       good_service_id
+        service_id:       good_service_id,
+        logger:           Rails.logger
       )
     end
 
     context "Resource restrictions in host id" do
       let(:host_annotations) { [] }
-      let(:host_id) { "#{host_id_prefix}#{namespace}/#{k8s_resource_name}/#{k8s_resource_value}" }
+      let(:host_id) { [ namespace, k8s_resource_name, k8s_resource_value] }
 
-      context "with valid resource restrictions" do
-        context "when is namespace scoped" do
-          let(:k8s_resource_name) { "*" }
-          let(:k8s_resource_value) { "*" }
+      context "when is namespace scoped" do
+        let(:k8s_resource_name) { "*" }
+        let(:k8s_resource_value) { "*" }
+
+        it "does not raise an error" do
+          expect { subject }.not_to raise_error
+        end
+
+        it "has resources with its value" do
+          expect(subject.resources).to eq(
+            [
+              Authentication::AuthnK8s::K8sResource.new(
+                type: "namespace",
+                value: namespace
+              )
+            ]
+          )
+        end
+
+        it "has a valid configuration" do
+          expect { subject }.to_not raise_error
+        end
+
+        context "when using authenticator container name annotation" do
+          let(:host_annotations) { [container_name_annotation] }
 
           it "does not raise an error" do
             expect { subject }.not_to raise_error
           end
-
-          context "when using authenticator container name annotation" do
-            let(:host_annotations) { [container_name_annotation] }
-  
-            it "does not raise an error" do
-              expect { subject }.not_to raise_error
-            end
-          end
         end
-
-        context "when is not namespace scoped" do
-          let(:k8s_resource_name) { "service_account" }
-
-          it "does not raise an error" do
-            expect { subject }.not_to raise_error
-          end
-        end
-
-
       end
 
-      context "with invalid resource restrictions" do
+      context "when is not namespace scoped" do
+        let(:k8s_resource_name) { "service_account" }
+        let(:k8s_resource_value) { "some_service_account" }
+
+        it "does not raise an error" do
+          expect { subject }.not_to raise_error
+        end
+
+        it "has resources with its value" do
+          expect(subject.resources).to eq(
+            [
+              Authentication::AuthnK8s::K8sResource.new(
+                type: "namespace",
+                value: namespace
+              ),
+              Authentication::AuthnK8s::K8sResource.new(
+                type: "service-account",
+                value: k8s_resource_value
+              )
+            ]
+          )
+        end
+
+        it "has a valid configuration" do
+          expect { subject }.to_not raise_error
+        end
+      end
+
+      context "with invalid configuration" do
         context "where the id isn't a 3 part string" do
           let(:host_id) { "#{host_id_prefix}HostId" }
 
@@ -191,236 +203,236 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
     context "Resource restrictions in annotations" do
       let(:host_id) { "#{host_id_prefix}HostId" }
 
-      context "with valid resource restrictions" do
-        context "when is namespace scoped" do
-          context "in a global constraint" do
-            let(:host_annotations) { [namespace_annotation, container_name_annotation] }
+      context "when is namespace scoped" do
+        context "in a global constraint" do
+          let(:host_annotations) { [namespace_annotation] }
 
-            it "does not raise an error" do
-              expect { subject }.not_to raise_error
-            end
+          it "does not raise an error" do
+            expect { subject }.not_to raise_error
           end
 
-          context "in service-id constraint" do
-            let(:host_annotations) { [namespace_annotation_service_id_scoped, container_name_annotation] }
-
-            it "does not raise an error" do
-              expect { subject }.not_to raise_error
-            end
+          it "has resources with its value" do
+            expect(subject.resources).to eq(
+              [
+                Authentication::AuthnK8s::K8sResource.new(
+                  type: "namespace",
+                  value: "K8sNamespace"
+                )
+              ]
+            )
           end
 
-          context "in both global & service-id constraints" do
-            let(:host_annotations) { [namespace_annotation, namespace_annotation_service_id_scoped, container_name_annotation] }
-
-            it "does not raise an error" do
-              expect { subject }.not_to raise_error
-            end
-
-            it "chooses the service-id constraint" do
-              expect(subject.namespace).to eq("K8sNamespaceServiceIdScoped")
-            end
-
-            it "does not choose the service-id constraint if it is from another service-id" do
-              allow(namespace_annotation_service_id_scoped).to receive(:[])
-                                                                 .with(:name)
-                                                                 .and_return("authn-k8s/another-service-id/namespace")
-              expect(subject.namespace).to eq("K8sNamespace")
-            end
-          end
+          it "has a valid configuration" do
+          expect { subject }.to_not raise_error
+        end
         end
 
-        context "when is not namespace scoped" do
-          context "has only a service account constraint" do
-            let(:host_annotations) { [namespace_annotation, service_account_annotation, container_name_annotation] }
+        context "in service-id constraint" do
+          let(:host_annotations) { [namespace_annotation_service_id_scoped] }
 
-            it "does not raise an error" do
-              expect { subject }.not_to raise_error
-            end
+          it "does not raise an error" do
+            expect { subject }.not_to raise_error
           end
 
-          context "has only a pod constraint" do
-            let(:host_annotations) { [namespace_annotation, pod_annotation, container_name_annotation] }
-
-            it "does not raise an error" do
-              expect { subject }.not_to raise_error
-            end
+          it "has resources with its value" do
+            expect(subject.resources).to eq(
+              [
+                Authentication::AuthnK8s::K8sResource.new(
+                  type: "namespace",
+                  value: "K8sNamespaceServiceIdScoped"
+                )
+              ]
+            )
           end
 
-          context "has only a deployment constraint" do
-            let(:host_annotations) { [namespace_annotation, deployment_annotation, container_name_annotation] }
-
-            it "does not raise an error" do
-              expect { subject }.not_to raise_error
-            end
-          end
-
-          context "has only a stateful set constraint" do
-            let(:host_annotations) { [namespace_annotation, stateful_set_annotation, container_name_annotation] }
-
-            it "does not raise an error" do
-              expect { subject }.not_to raise_error
-            end
-          end
-
-          context "has only a deployment config constraint" do
-            let(:host_annotations) { [namespace_annotation, deployment_config_annotation, container_name_annotation] }
-
-            it "does not raise an error" do
-              expect { subject }.not_to raise_error
-            end
-          end
-
-          context "has a valid constraint combination" do
-            context "with a deployment constraint" do
-              let(:host_annotations) { [namespace_annotation, service_account_annotation, pod_annotation, deployment_annotation, container_name_annotation] }
-
-              it "does not raise an error" do
-                expect { subject }.not_to raise_error
-              end
-            end
-
-            context "with a deployment config constraint" do
-              let(:host_annotations) { [namespace_annotation, service_account_annotation, pod_annotation, deployment_config_annotation, container_name_annotation] }
-
-              it "does not raise an error" do
-                expect { subject }.not_to raise_error
-              end
-            end
-
-            context "with a stateful_set constraint" do
-              let(:host_annotations) { [namespace_annotation, service_account_annotation, pod_annotation, stateful_set_annotation, container_name_annotation] }
-
-              it "does not raise an error" do
-                expect { subject }.not_to raise_error
-              end
-            end
-          end
+          it "has a valid configuration" do
+          expect { subject }.to_not raise_error
+        end
         end
 
-        context "with different annotations for container name" do
-          context "all possible options exist" do
-            let(:host_annotations) { [namespace_annotation,
-                                      container_name_annotation,
-                                      container_name_annotation_service_id_prefix,
-                                      container_name_annotation_kubernetes_prefix] }
+        context "in both global & service-id constraints" do
+          let(:host_annotations) { [namespace_annotation, namespace_annotation_service_id_scoped] }
 
-            it "does not raise an error" do
-              expect { subject }.not_to raise_error
-            end
-
-            it "chooses the container name from the service-id annotation" do
-              expect(subject.container_name).to eq("ServiceIdContainerName")
-            end
+          it "does not raise an error" do
+            expect { subject }.not_to raise_error
           end
 
-          context "only global and service-id exist" do
-            let(:host_annotations) { [namespace_annotation,
-                                      container_name_annotation,
-                                      container_name_annotation_service_id_prefix] }
-
-            it "does not raise an error" do
-              expect { subject }.not_to raise_error
-            end
-
-            it "chooses the container name from the service-id annotation" do
-              expect(subject.container_name).to eq("ServiceIdContainerName")
-            end
+          it "chooses the service-id constraint" do
+            expect(subject.resources).to eq(
+              [
+                Authentication::AuthnK8s::K8sResource.new(
+                  type: "namespace",
+                  value: "K8sNamespaceServiceIdScoped"
+                )
+              ]
+            )
           end
 
-          context "only service-id & kubernetes exist" do
-            let(:host_annotations) { [namespace_annotation,
-                                      container_name_annotation_service_id_prefix,
-                                      container_name_annotation_kubernetes_prefix] }
-
-            it "does not raise an error" do
-              expect { subject }.not_to raise_error
-            end
-
-            it "chooses the container name from the service-id annotation" do
-              expect(subject.container_name).to eq("ServiceIdContainerName")
-            end
-          end
-
-          context "only global & kubernetes exist" do
-            let(:host_annotations) { [namespace_annotation,
-                                      container_name_annotation,
-                                      container_name_annotation_kubernetes_prefix] }
-
-            it "does not raise an error" do
-              expect { subject }.not_to raise_error
-            end
-
-            it "chooses the container name from the global annotation" do
-              expect(subject.container_name).to eq("ContainerName")
-            end
-          end
-
-          context "only service-id exists" do
-            let(:host_annotations) { [namespace_annotation,
-                                      container_name_annotation_service_id_prefix] }
-
-            it "does not raise an error" do
-              expect { subject }.not_to raise_error
-            end
-
-            it "chooses the container name from the service-id annotation" do
-              expect(subject.container_name).to eq("ServiceIdContainerName")
-            end
-          end
-
-          context "only global exists" do
-            let(:host_annotations) { [namespace_annotation,
-                                      container_name_annotation] }
-
-            it "does not raise an error" do
-              expect { subject }.not_to raise_error
-            end
-
-            it "chooses the container name from the global annotation" do
-              expect(subject.container_name).to eq("ContainerName")
-            end
-          end
-
-          context "only kubernetes exists" do
-            let(:host_annotations) { [namespace_annotation,
-                                      container_name_annotation_kubernetes_prefix] }
-
-            it "does not raise an error" do
-              expect { subject }.not_to raise_error
-            end
-
-            it "chooses the container name from the kubernetes annotation" do
-              expect(subject.container_name).to eq("KubernetesContainerName")
-            end
-          end
-
-          context "no annotation exists for container name" do
-            let(:host_annotations) { [namespace_annotation] }
-
-            it "does not raise an error" do
-              expect { subject }.not_to raise_error
-            end
-
-            it "chooses the default container name" do
-              expect(subject.container_name).to eq("authenticator")
-            end
+          it "does not choose the service-id constraint if it is from another service-id" do
+            allow(namespace_annotation_service_id_scoped).to receive(:[])
+                                                               .with(:name)
+                                                               .and_return("authn-k8s/another-service-id/namespace")
+            expect(subject.resources).to eq(
+              [
+                Authentication::AuthnK8s::K8sResource.new(
+                  type: "namespace",
+                  value: "K8sNamespace"
+                )
+              ]
+            )
           end
         end
       end
 
-      context "with invalid resource restrictions" do
+      context "when is not namespace scoped" do
+        context "has only a service account constraint" do
+          let(:host_annotations) { [namespace_annotation, service_account_annotation] }
 
+          it "does not raise an error" do
+            expect { subject }.not_to raise_error
+          end
+
+          it "has resources with its value" do
+            expect(subject.resources).to eq(
+              [
+                Authentication::AuthnK8s::K8sResource.new(
+                  type: "namespace",
+                  value: "K8sNamespace"
+                ),
+                Authentication::AuthnK8s::K8sResource.new(
+                  type: "service-account",
+                  value: "K8sServiceAccount"
+                )
+              ]
+            )
+          end
+
+          it "has a valid configuration" do
+          expect { subject }.to_not raise_error
+        end
+        end
+
+        context "has only a pod constraint" do
+          let(:host_annotations) { [namespace_annotation, pod_annotation] }
+
+          it "does not raise an error" do
+            expect { subject }.not_to raise_error
+          end
+
+          it "has resources with its value" do
+            expect(subject.resources).to eq(
+              [
+                Authentication::AuthnK8s::K8sResource.new(
+                  type: "namespace",
+                  value: "K8sNamespace"
+                ),
+                Authentication::AuthnK8s::K8sResource.new(
+                  type: "pod",
+                  value: "K8sPod"
+                )
+              ]
+            )
+          end
+
+          it "has a valid configuration" do
+          expect { subject }.to_not raise_error
+        end
+        end
+
+        context "has only a deployment constraint" do
+          let(:host_annotations) { [namespace_annotation, deployment_annotation] }
+
+          it "does not raise an error" do
+            expect { subject }.not_to raise_error
+          end
+
+          it "has resources with its value" do
+            expect(subject.resources).to eq(
+              [
+                Authentication::AuthnK8s::K8sResource.new(
+                  type: "namespace",
+                  value: "K8sNamespace"
+                ),
+                Authentication::AuthnK8s::K8sResource.new(
+                  type: "deployment",
+                  value: "K8sDeployment"
+                )
+              ]
+            )
+          end
+
+          it "has a valid configuration" do
+          expect { subject }.to_not raise_error
+        end
+        end
+
+        context "has only a stateful set constraint" do
+          let(:host_annotations) { [namespace_annotation, stateful_set_annotation] }
+
+          it "does not raise an error" do
+            expect { subject }.not_to raise_error
+          end
+
+          it "has resources with its value" do
+            expect(subject.resources).to eq(
+              [
+                Authentication::AuthnK8s::K8sResource.new(
+                  type: "namespace",
+                  value: "K8sNamespace"
+                ),
+                Authentication::AuthnK8s::K8sResource.new(
+                  type: "stateful-set",
+                  value: "K8sStatefulSet"
+                )
+              ]
+            )
+          end
+
+          it "has a valid configuration" do
+          expect { subject }.to_not raise_error
+        end
+        end
+
+        context "has only a deployment config constraint" do
+          let(:host_annotations) { [namespace_annotation, deployment_config_annotation] }
+
+          it "does not raise an error" do
+            expect { subject }.not_to raise_error
+          end
+
+          it "has resources with its value" do
+            expect(subject.resources).to eq(
+              [
+                Authentication::AuthnK8s::K8sResource.new(
+                  type: "namespace",
+                  value: "K8sNamespace"
+                ),
+                Authentication::AuthnK8s::K8sResource.new(
+                  type: "deployment-config",
+                  value: "K8sDeploymentConfig"
+                )
+              ]
+            )
+          end
+
+          it "has a valid configuration" do
+          expect { subject }.to_not raise_error
+        end
+        end
+      end
+
+      context "with invalid configuration" do
         context "where namespace constraint doesn't exist" do
-          let(:host_annotations) { [service_account_annotation, container_name_annotation] }
+          let(:host_annotations) { [service_account_annotation] }
 
           it "raises an error" do
-            expect { subject }.to raise_error(::Errors::Authentication::AuthnK8s::MissingNamespaceConstraint)
+            expect { subject }.to raise_error(Errors::Authentication::RoleMissingConstraint)
           end
         end
 
         context "with a non existing resource" do
           context "in a global constraint" do
-            let(:host_annotations) { [namespace_annotation, invalid_annotation, container_name_annotation] }
+            let(:host_annotations) { [namespace_annotation, invalid_annotation] }
 
             it "raises an error" do
               expect { subject }.to raise_error(::Errors::Authentication::ConstraintNotSupported)
@@ -428,7 +440,7 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
           end
 
           context "in service-id constraint" do
-            let(:host_annotations) { [namespace_annotation, invalid_annotation, container_name_annotation] }
+            let(:host_annotations) { [namespace_annotation, invalid_annotation] }
 
             before(:each) do
               allow(invalid_annotation).to receive(:[])
@@ -444,7 +456,7 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
 
         context "with an invalid constraint combination" do
           context "deployment and deployment_config" do
-            let(:host_annotations) { [namespace_annotation, deployment_annotation, deployment_config_annotation, container_name_annotation] }
+            let(:host_annotations) { [namespace_annotation, deployment_annotation, deployment_config_annotation] }
 
             it "raises an error" do
               expect { subject }.to raise_error(::Errors::Authentication::IllegalConstraintCombinations)
@@ -452,7 +464,7 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
           end
 
           context "deployment and stateful_set" do
-            let(:host_annotations) { [namespace_annotation, deployment_annotation, stateful_set_annotation, container_name_annotation] }
+            let(:host_annotations) { [namespace_annotation, deployment_annotation, stateful_set_annotation] }
 
             it "raises an error" do
               expect { subject }.to raise_error(::Errors::Authentication::IllegalConstraintCombinations)
@@ -460,7 +472,7 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
           end
 
           context "deployment_config and stateful_set" do
-            let(:host_annotations) { [namespace_annotation, deployment_config_annotation, stateful_set_annotation, container_name_annotation] }
+            let(:host_annotations) { [namespace_annotation, deployment_config_annotation, stateful_set_annotation] }
 
             it "raises an error" do
               expect { subject }.to raise_error(::Errors::Authentication::IllegalConstraintCombinations)
@@ -468,7 +480,7 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
           end
 
           context "deployment, deployment_config and stateful_set" do
-            let(:host_annotations) { [namespace_annotation, deployment_annotation, deployment_config_annotation, stateful_set_annotation, container_name_annotation] }
+            let(:host_annotations) { [namespace_annotation, deployment_annotation, deployment_config_annotation, stateful_set_annotation] }
 
             it "raises an error" do
               expect { subject }.to raise_error(::Errors::Authentication::IllegalConstraintCombinations)
@@ -477,7 +489,7 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
         end
 
         context "where a constraint is missing a slash after authn-k8s" do
-          let(:host_annotations) { [service_account_annotation, namespace_annotation, container_name_annotation] }
+          let(:host_annotations) { [service_account_annotation, namespace_annotation] }
 
           before(:each) do
             allow(namespace_annotation).to receive(:[])
@@ -487,14 +499,14 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
 
           it "ignores the annotation" do
             # the namespace annotation is not present
-            expect { subject }.to raise_error(::Errors::Authentication::AuthnK8s::MissingNamespaceConstraint)
+            expect { subject }.to raise_error(Errors::Authentication::RoleMissingConstraint)
           end
         end
       end
     end
 
     context "Resource restrictions in host id and in annotations" do
-      let(:host_annotations) { [namespace_annotation, service_account_annotation, container_name_annotation] }
+      let(:host_annotations) { [namespace_annotation, service_account_annotation] }
       let(:k8s_resource_name) { "service_account" }
       let(:host_id) { "#{host_id_prefix}#{namespace}/#{k8s_resource_name}/#{k8s_resource_value}" }
 
@@ -513,8 +525,18 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
       end
 
       it "takes the resource restrictions from the annotations" do
-        expect(subject.namespace).to eq("OtherK8sNamespace")
-        expect(subject.constraints[:service_account]).to eq("OtherK8sServiceAccount")
+        expect(subject.resources).to eq(
+          [
+            Authentication::AuthnK8s::K8sResource.new(
+              type: "namespace",
+              value: "OtherK8sNamespace"
+            ),
+            Authentication::AuthnK8s::K8sResource.new(
+              type: "service-account",
+              value: "OtherK8sServiceAccount"
+            )
+          ]
+        )
       end
     end
   end

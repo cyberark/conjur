@@ -1,4 +1,4 @@
-Feature: A permitted Conjur host can login with a valid application identity
+Feature: A permitted Conjur host can login with a valid resource restrictions
   that is defined in annotations
 
   Scenario: Login as the namespace a pod belongs to.

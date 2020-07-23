@@ -1,4 +1,4 @@
-Feature: A permitted Conjur host can authenticate with a valid application identity
+Feature: A permitted Conjur host can authenticate with a valid resource restrictions
   that is defined in the id
 
   Scenario: Authenticate as a Pod.

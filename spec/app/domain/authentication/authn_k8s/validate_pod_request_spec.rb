@@ -11,6 +11,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
   let(:host_id) { "HostId" }
   let(:host_name) { "HostName" }
   let(:host_role) { double("HostRole", :id => host_id) }
+  let(:k8s_authn_container_name) { 'kubernetes/authentication-container-name' }
 
   let(:host_annotation_1) { double("Annot1", :values => { :name => "first" }) }
   let(:host_annotation_2) { double("Annot2") }
@@ -46,7 +47,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
 
   let(:k8s_object_lookup_class) { double("K8sObjectLookup") }
 
-  let(:validate_application_identity) { double("ValidateApplicationIdentity") }
+  let(:validate_resource_restrictions) { double("ValidateResourceRestrictions") }
 
   before(:each) do
     allow(resource_class).to receive(:[])
@@ -62,10 +63,10 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
     allow(k8s_object_lookup_class).to receive(:new)
                                         .and_return(k8s_object_lookup_class)
 
-    allow(Authentication::AuthnK8s::ValidateApplicationIdentity)
+    allow(Authentication::AuthnK8s::ValidateResourceRestrictions)
       .to receive(:new)
-            .and_return(validate_application_identity)
-    allow(validate_application_identity).to receive(:call)
+            .and_return(validate_resource_restrictions)
+    allow(validate_resource_restrictions).to receive(:call)
                                               .and_return(true)
   end
 
@@ -78,7 +79,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
           validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
           validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
           enabled_authenticators:              "#{authenticator_name}/#{service_id}",
-          validate_application_identity:       validate_application_identity
+          validate_resource_restrictions:      validate_resource_restrictions
         ).call(
           pod_request: pod_request
         )
@@ -96,15 +97,42 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
         )
       end
 
-      it 'raises an error when application identity validation fails' do
-        allow(validate_application_identity).to receive(:call)
-                                                  .and_raise(validate_application_identity_error)
+      it 'raises an error when resource restrictions validation fails' do
+        allow(validate_resource_restrictions).to receive(:call)
+                                                   .and_raise('FAKE_RESOURCE_RESTRICTIONS_ERROR')
 
         expect { subject }.to(
           raise_error(
-            validate_application_identity_error
+            /FAKE_RESOURCE_RESTRICTIONS_ERROR/
           )
         )
+      end
+
+      it 'raises ContainerNotFound if container cannot be found and container name is defaulted' do
+        allow(pod_spec).to receive(:initContainers)
+                             .and_return({})
+        allow(pod_spec).to receive(:containers)
+                             .and_return({})
+        allow(host_annotation_2).to receive(:values)
+                                      .and_return({ :name => k8s_authn_container_name })
+        allow(host_annotation_2).to receive(:[])
+                                      .with(:value)
+                                      .and_return(nil)
+
+        expect { subject }
+          .to raise_error(Errors::Authentication::AuthnK8s::ContainerNotFound)
+      end
+
+      it 'raises ContainerNotFound if container cannot be found and container name annotation is missing' do
+        allow(pod_spec).to receive(:initContainers)
+                             .and_return({})
+        allow(pod_spec).to receive(:containers)
+                             .and_return({})
+        allow(host_annotation_2).to receive(:values)
+                                      .and_return({ :name => "notimportant" })
+
+        expect { subject }
+          .to raise_error(Errors::Authentication::AuthnK8s::ContainerNotFound)
       end
     end
 
@@ -116,7 +144,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
           validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: false),
           validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
           enabled_authenticators:              "#{authenticator_name}/#{service_id}",
-          validate_application_identity:       validate_application_identity
+          validate_resource_restrictions:      validate_resource_restrictions
         ).call(
           pod_request: pod_request
         )
@@ -139,7 +167,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
           validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
           validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: false),
           enabled_authenticators:              "#{authenticator_name}/#{service_id}",
-          validate_application_identity:       validate_application_identity
+          validate_resource_restrictions:      validate_resource_restrictions
         ).call(
           pod_request: pod_request
         )
@@ -162,7 +190,7 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
           validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
           validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
           enabled_authenticators:              "#{authenticator_name}/#{service_id}",
-          validate_application_identity:       validate_application_identity
+          validate_resource_restrictions:      validate_resource_restrictions
         ).call(
           pod_request: pod_request
         )

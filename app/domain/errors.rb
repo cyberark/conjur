@@ -45,8 +45,19 @@ module Errors
     )
 
     IllegalConstraintCombinations = ::Util::TrackableErrorClass.new(
-      msg:  "Application identity includes an illegal resource constraint combination - '{0-constraints}'",
+      msg:  "Resource restrictions include an illegal resource constraint combination - '{0-constraints}'",
       code: "CONJ00055E"
+    )
+
+    ConstraintNotSupported = ::Util::TrackableErrorClass.new(
+      msg:  "Resource type '{0}' is not a supported resource restriction. " \
+            "The supported resources are '{1}'",
+      code: "CONJ00050E"
+    )
+
+    RoleMissingConstraint = ::Util::TrackableErrorClass.new(
+      msg:  "Role does not have the required constraint: {0-constraint}",
+      code: "CONJ00057E"
     )
 
     module AuthenticatorClass
@@ -193,12 +204,6 @@ module Errors
         code: "CONJ00024E"
       )
 
-      ScopeNotSupported = ::Util::TrackableErrorClass.new(
-        msg:  "Resource type '{0}' is not a supported application identity. " \
-            "The supported resources are '{1}'",
-        code: "CONJ00025E"
-      )
-
       K8sResourceNotFound = ::Util::TrackableErrorClass.new(
         msg:  "Kubernetes {0-resource-name} {1-object-name} not found in namespace {2}",
         code: "CONJ00026E"
@@ -260,14 +265,9 @@ module Errors
         code: "CONJ00043E"
       )
 
-      MissingNamespaceConstraint = ::Util::TrackableErrorClass.new(
-        msg:  "Host does not have a namespace constraint",
-        code: "CONJ00045E"
-      )
-
       NamespaceMismatch = ::Util::TrackableErrorClass.new(
         msg:  "Namespace in SPIFFE ID '{0-spiffe-namespace}' must match namespace " \
-            "implied by application identity '{1-application-identity-namespace}'",
+            "implied by resource restriction: '{1-resource-restrictions-namespace}'",
         code: "CONJ00023E"
       )
 
@@ -305,21 +305,10 @@ module Errors
 
     module AuthnAzure
 
-      RoleMissingConstraint = ::Util::TrackableErrorClass.new(
-        msg:  "Role does not have the required constraint: {0-constraint}",
-        code: "CONJ00057E"
-      )
-
-      InvalidApplicationIdentity = ::Util::TrackableErrorClass.new(
-        msg:  "Application identity field '{0-field-name}' does not match " \
-            "application identity in Azure token",
+      InvalidResourceRestrictions = ::Util::TrackableErrorClass.new(
+        msg:  "Resource restriction '{0-resource-restriction-name}' does not match " \
+            "resource in Azure token",
         code: "CONJ00049E"
-      )
-
-      ConstraintNotSupported = ::Util::TrackableErrorClass.new(
-        msg:  "Constraint type '{0}' is not a supported application identity. " \
-            "The supported resources are '{1}'",
-        code: "CONJ00050E"
       )
 
       TokenFieldNotFoundOrEmpty = ::Util::TrackableErrorClass.new(

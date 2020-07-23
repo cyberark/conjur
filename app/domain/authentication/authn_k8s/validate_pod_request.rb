@@ -12,10 +12,15 @@ module Authentication
         validate_webservice_is_whitelisted:  ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
         validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
         enabled_authenticators:              Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
-        validate_application_identity:       ValidateApplicationIdentity.new
+        validate_resource_restrictions:      ValidateResourceRestrictions.new,
+        extract_container_name: ExtractContainerName.new,
+        logger: Rails.logger
       },
       inputs:       %i(pod_request)
     ) do
+
+      AUTHENTICATION_CONTAINER_NAME_ANNOTATION ||= "authentication-container-name"
+      DEFAULT_AUTHENTICATION_CONTAINER_NAME ||= "authenticator"
 
       extend Forwardable
       def_delegators :@pod_request, :service_id, :k8s_host, :spiffe_id
@@ -24,7 +29,8 @@ module Authentication
         validate_webservice_is_whitelisted
         validate_user_has_access_to_webservice
         validate_pod_exists
-        validate_application_identity
+        validate_resource_restrictions
+        validate_container
       end
 
       private
@@ -55,8 +61,8 @@ module Authentication
         end
       end
 
-      def validate_application_identity
-        @validate_application_identity.(
+      def validate_resource_restrictions
+        @validate_resource_restrictions.(
           host_id: k8s_host.conjur_host_id,
           host_annotations: host.annotations,
           service_id: service_id,
@@ -65,7 +71,27 @@ module Authentication
         )
       end
 
-      # @return The Conjur resource for the webservice.
+      def validate_container
+        unless container
+          raise Errors::Authentication::AuthnK8s::ContainerNotFound,
+            container_name,
+            k8s_host.conjur_host_id
+        end
+      end
+
+      def container
+        (pod.spec.containers || []).find { |c| c.name == container_name } ||
+          (pod.spec.initContainers || []).find { |c| c.name == container_name }
+      end
+
+      def container_name
+        @extract_container_name.call(
+          service_id: @service_id,
+          host_annotations: host.annotations
+        )
+      end
+
+      # @return The Conjur resource for the webservice
       def webservice
         @webservice ||= ::Authentication::Webservice.new(
           account:            k8s_host.account,

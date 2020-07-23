@@ -39,6 +39,11 @@ module LogMessages
       code: "CONJ00033D"
     )
 
+    ValidatedResourceRestrictions = ::Util::TrackableLogMessageClass.new(
+      msg:  "Resource restrictions validated",
+      code: "CONJ00030D"
+    )
+
     module OAuth
 
       IdentityProviderUri = ::Util::TrackableLogMessageClass.new(
@@ -167,14 +172,9 @@ module LogMessages
 
     module AuthnAzure
 
-      ExtractedApplicationIdentityFromToken = ::Util::TrackableLogMessageClass.new(
-        msg:  "Extracted application identity from token",
+      ExtractedResourceRestrictionsFromToken = ::Util::TrackableLogMessageClass.new(
+        msg:  "Extracted resource restrictions from token",
         code: "CONJ00029D"
-      )
-
-      ValidatedApplicationIdentity = ::Util::TrackableLogMessageClass.new(
-        msg:  "Application identity validated",
-        code: "CONJ00030D"
       )
 
       ExtractedFieldFromAzureToken = ::Util::TrackableLogMessageClass.new(
