@@ -17,8 +17,7 @@ module Authentication
       private
 
       def validate
-        unless @decoded_credentials.include?(JWT_REQUEST_BODY_FIELD_NAME) &&
-            !@decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME].empty?
+        if @decoded_credentials.fetch(JWT_REQUEST_BODY_FIELD_NAME, "") == ""
           raise Errors::Authentication::RequestBody::MissingRequestParam, JWT_REQUEST_BODY_FIELD_NAME
         end
       end
