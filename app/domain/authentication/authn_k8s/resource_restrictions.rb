@@ -22,6 +22,7 @@ module Authentication
       attr_reader :resources
 
       K8S_RESOURCE_TYPES = %w(namespace service-account pod deployment stateful-set deployment-config)
+      AUTHENTICATION_CONTAINER_NAME_ANNOTATION = "authentication-container-name"
 
       def initialize(host_id:, host_annotations:, service_id:, logger:)
         @host_id          = host_id
@@ -132,7 +133,7 @@ module Authentication
       end
 
       def permitted_annotations
-        @permitted_annotations ||= K8S_RESOURCE_TYPES | [@authentication_container_name_annotation]
+        @permitted_annotations ||= K8S_RESOURCE_TYPES | [ AUTHENTICATION_CONTAINER_NAME_ANNOTATION ]
       end
 
       def validate_host_id
