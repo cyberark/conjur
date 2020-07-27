@@ -14,6 +14,7 @@ module Authentication
         conjur_ca_repo:         Repos::ConjurCA,
         kubectl_exec:           KubectlExec,
         validate_pod_request:   ValidatePodRequest.new,
+        extract_container_name: ExtractContainerName.new,
         audit_log:              ::Audit.logger
       },
       inputs: %i(conjur_account service_id csr host_id_prefix client_ip)
@@ -173,23 +174,11 @@ module Authentication
         @k8s_object_lookup ||= K8sObjectLookup.new(webservice)
       end
 
-      # This code is implemented similarly also in application_identity.rb
-      # We have it here too as we need the container name for the injection
-      # and it simplifies the code to have this specific 2 methods duplicated
-      # rather than passing around the ApplicationIdentity object
       def container_name
-        container_annotation_value("authn-k8s/#{@service_id}") ||
-          container_annotation_value("authn-k8s") ||
-          container_annotation_value("kubernetes") ||
-          "authenticator"
-      end
-
-      def container_annotation_value prefix
-        annotation_name = "authentication-container-name"
-        annotation = host.annotations.find do |a|
-          a.values[:name] == "#{prefix}/#{annotation_name}"
-        end
-        annotation ? annotation[:value] : nil
+        @extract_container_name.call(
+          service_id: @service_id,
+          host_annotations: host.annotations
+        )
       end
 
       def audit_success

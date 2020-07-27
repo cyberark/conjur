@@ -14,7 +14,6 @@ shared_context "security mocks" do
   let(:mocked_account_validator) { double("ValidateAccountExists") }
 
   let(:validate_origin_error) { "validate origin error" }
-  let(:validate_application_identity_error) { "validate application identity error" }
   let(:validate_account_exists_error) { "validate account exists error" }
   let(:validate_webservice_is_whitelisted_error) { "validate whitelisted webservice error" }
   let(:validate_role_can_access_webservice_error) { "validate webservice access error" }

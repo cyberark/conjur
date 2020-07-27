@@ -6,7 +6,7 @@
 - [Useful Links](#useful-links)
 - [Issue description](#issue-description)
 - [Solution](#solution)
-    - [Azure Application Identity](#azure-application-identity)
+    - [Azure Resource Restrictions](#azure-application-identity)
     - [Design](#design)
         - [Authentication Flow](#authentication-flow)
         - [Azure authenticator class](#azure-authenticator-class)
@@ -103,7 +103,7 @@ admin user populate its value through the CLI. Further, adding it as annotation 
 On the other hand, with `provider-uri` in the host annotations, any change to this value will demand a complete replacement of the root policy which raises concerns for maintenance. 
 For concerns of maintenance and for uniformity preservation across our different authenticators, we have decided against moving the `provider-uri` to the webservice annotation.
  
-### Azure Application Identity
+### Azure Resource Restrictions
 
 To authenticate with Conjur, Azure-specific fields will need to be provided in the host annotations of the Conjur host identity for the Azure resource- subscription-id, resource-group, and user/system-assigned-identity. Specifically, If the Azure resource is assigned a system-assigned-identity, 
 we will also need to validate the `oid` field of the Azure access token. These fields will be used to confirm the identity of the Azure resource that is
@@ -515,8 +515,8 @@ The default TTL of an Azure access token is one hour, but it can reduced to a sh
 | 7  | A required annotation is missing in the Conjur host                     | Annotation is missing for authentication for Role '{0-role}'                           | <ul><li> [ ] </li></ul> |
 | 8  | Authentication request body is missing a field (e.g `azure_token`)      | Field '{0-field-name}' is missing or empty in request body                             | <ul><li> [ ] </li></ul> |
 | 9  | xms_field is not found in the Azure token                               | Field '{0-field-name}' not found or empty in token                                     | <ul><li> [ ] </li></ul> |
-| 10 | Application identity defined in Conjur host doesn't match Azure token   | Application identity field '{0-field-name}' does not match Azure token                 | <ul><li> [ ] </li></ul> |
-| 11 | Conjur host is defined with both a user-assigned & a system-assigned id | Application identity includes an illegal constraint combination - '{0-constraints}'    | <ul><li> [ ] </li></ul> |
+| 10 | Resource Restrictions defined in Conjur host doesn't match Azure token   | Resource Restrictions field '{0-field-name}' does not match Azure token                 | <ul><li> [ ] </li></ul> |
+| 11 | Conjur host is defined with both a user-assigned & a system-assigned id | Resource Restrictions includes an illegal constraint combination - '{0-constraints}'    | <ul><li> [ ] </li></ul> |
 
 ### Debug Log level
 
@@ -527,7 +527,7 @@ The default TTL of an Azure access token is one hour, but it can reduced to a sh
 | 3  | After discovering Azure Identity Provider             | Provider discovery succeeded                                                           | <ul><li> [ ] </li></ul> |
 | 4  | After decoding Azure token                            | Token decode succeeded                                                                 | <ul><li> [ ] </li></ul> |
 | 5  | Before extracting claims from the Azure token         | Extracting claims from token for resource {0-resource-name}                            | <ul><li> [ ] </li></ul> |
-| 6  | After validating the application identity of the host | Resource identity for {0-resource-name} has been validated successfully                | <ul><li> [ ] </li></ul> |     
+| 6  | After validating the resource restrictions of the host | Resource identity for {0-resource-name} has been validated successfully                | <ul><li> [ ] </li></ul> |     
 
 ## Docs
 

@@ -39,7 +39,7 @@ Feature: Azure Authenticator - Performance tests
     When I authenticate 1000 times in 10 threads via Azure with invalid token as host "test-app"
     Then The "avg" Azure Authentication request responds in less than "0.75" seconds
 
-  Scenario: Unsuccessful requests with invalid application identity
+  Scenario: Unsuccessful requests with invalid resource restrictions
     Given I have host "no-azure-annotations-app"
     And I grant group "conjur/authn-azure/prod/apps" to host "no-azure-annotations-app"
     And I fetch a non-assigned-identity Azure access token from inside machine

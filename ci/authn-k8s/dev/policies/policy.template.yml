@@ -228,13 +228,13 @@
 
 # Define hosts under root policy
 - &root-based-hosts
-  # Application identity defined in the host id
+  # Resource Restrictions defined in the host id
   - !host
     id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/*/*
     annotations:
       kubernetes/authentication-container-name: authenticator
 
-  # Application identity defined in annotations
+  # Resource Restrictions defined in annotations
   - !host
     id: root-based-app
     annotations:
