@@ -10,7 +10,7 @@
 [commons]: https://discuss.cyberarkcommons.org/c/conjur/5 "Find answers on CyberArk Commons"
 [twitter]: https://twitter.com/intent/user?screen_name=ConjurInc "Follow Conjur on Twitter"
 
-Conjur provides secrets management and resource restrictions for modern infrastructure:
+Conjur provides secrets management and application identity for modern infrastructure:
 
 * **Machine Authorization Markup Language ("MAML")**, a role-based
   access policy language to define system components & their roles,
