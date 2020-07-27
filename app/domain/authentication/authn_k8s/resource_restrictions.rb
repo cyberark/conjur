@@ -21,7 +21,7 @@ module Authentication
 
       attr_reader :resources
 
-      K8S_RESOURCE_TYPES = %w(namespace service-account pod deployment stateful-set deployment-config)
+      K8S_RESOURCE_TYPES = %w(namespace service-account pod deployment stateful-set deployment-config).freeze
       AUTHENTICATION_CONTAINER_NAME_ANNOTATION = "authentication-container-name"
 
       def initialize(host_id:, host_annotations:, service_id:, logger:)
@@ -39,14 +39,13 @@ module Authentication
       def init_resources
         @resources = K8S_RESOURCE_TYPES.each_with_object([]) do |resource_type, resources|
           resource_value = resource_value(resource_type)
-          if resource_value
-            resources.push(
-              K8sResource.new(
-                type: resource_type,
-                value: resource_value
-              )
+          next unless resource_value
+          resources.push(
+            K8sResource.new(
+              type: resource_type,
+              value: resource_value
             )
-          end
+          )
         end
       end
 

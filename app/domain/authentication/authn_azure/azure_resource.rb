@@ -9,8 +9,8 @@ module Authentication
         @value = value
       end
 
-      def ==(other_resource)
-        @type == other_resource.type && @value == other_resource.value
+      def ==(other)
+        @type == other.type && @value == other.value
       end
     end
   end

@@ -1,4 +1,5 @@
-#require_relative 'host'
+# frozen_string_literal: true
+
 require 'forwardable'
 require 'command_class'
 
@@ -74,8 +75,8 @@ module Authentication
       def validate_container
         unless container
           raise Errors::Authentication::AuthnK8s::ContainerNotFound,
-            container_name,
-            k8s_host.conjur_host_id
+                container_name,
+                k8s_host.conjur_host_id
         end
       end
 

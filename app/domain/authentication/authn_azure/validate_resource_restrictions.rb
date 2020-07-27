@@ -34,7 +34,7 @@ module Authentication
 
       def validate_resource_restrictions_match_request
         resource_restrictions.resources.each do |resource_from_role|
-          resource_from_request = resources_from_request.find { |resource_from_request| resource_from_request == resource_from_role }
+          resource_from_request = resources_from_request.find { |resource| resource == resource_from_role }
           unless resource_from_request
             raise Errors::Authentication::AuthnAzure::InvalidResourceRestrictions, resource_from_role.type
           end

@@ -17,7 +17,7 @@ module Authentication
 
       attr_reader :resources
 
-      AZURE_RESOURCE_TYPES = %w(subscription-id resource-group user-assigned-identity system-assigned-identity)
+      AZURE_RESOURCE_TYPES = %w(subscription-id resource-group user-assigned-identity system-assigned-identity).freeze
 
       def initialize(role_annotations:, service_id:, logger:)
         @role_annotations = role_annotations
@@ -33,14 +33,13 @@ module Authentication
       def init_resources
         @resources = AZURE_RESOURCE_TYPES.each_with_object([]) do |resource_type, resources|
           resource_value = resource_value(resource_type)
-          if resource_value
-            resources.push(
-              AzureResource.new(
-                type: resource_type,
-                value: resource_value
-              )
+          next unless resource_value
+          resources.push(
+            AzureResource.new(
+              type: resource_type,
+              value: resource_value
             )
-          end
+          )
         end
       end
 
