@@ -75,22 +75,11 @@ class AuthenticateController < ApplicationController
     handle_authentication_error(e)
   end
 
-  def authenticator_input
-    Authentication::AuthenticatorInput.new(
-      authenticator_name: params[:authenticator],
-      service_id:         params[:service_id],
-      account:            params[:account],
-      username:           params[:id],
-      credentials:        request.body.read,
-      client_ip:          request.ip,
-      request:            request
-    )
-  end
-
   # Update the input to have the username from the token and authenticate
   def authenticate_oidc
+    params[:authenticator] = "authn-oidc"
     input = Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new.(
-      authenticator_input: oidc_authenticator_input
+      authenticator_input: authenticator_input
     )
   rescue => e
     handle_authentication_error(e)
@@ -98,12 +87,12 @@ class AuthenticateController < ApplicationController
     authenticate(input)
   end
 
-  def oidc_authenticator_input
+  def authenticator_input
     Authentication::AuthenticatorInput.new(
-      authenticator_name: 'authn-oidc',
+      authenticator_name: params[:authenticator],
       service_id:         params[:service_id],
       account:            params[:account],
-      username:           nil,
+      username:           params[:id],
       credentials:        request.body.read,
       client_ip:          request.ip,
       request:            request
