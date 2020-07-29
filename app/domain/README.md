@@ -41,7 +41,12 @@ maintaing a strict sepration of responsibilities:
   - These go by many names: service objects, interactors, use cases
   - Coordinates high-level logic involving multiple collaborators
     - For example: `CreateUser` might need to coordinate user input validation,
-      a database transaction, a log entry, and a confirmation email
+      a database transaction, a log entry, and a confirmation email.
+  - Can be nested
+    - Continuing the previous example: The `CreateUser` database transaction
+      may itself be a CommandObject, involving multiple repositories, logging,
+      and security checks.
+
   - Makes all collaborators explicit as dependencies
   - Easy to unit test with doubles or mocks
 - **Value objects**
@@ -68,8 +73,28 @@ Other principles include:
 - Avoid inheritance
   - Instead, make shared code into its own object, which is passed into other
     objects that need it.  Composition over inheritance.
+  - One good example of refactoring inheritance into composition from Conjur
+    itself is [this cleanup of audit
+    events](https://github.com/cyberark/conjur/commit/476ef16768375c46fa7e5c2177210731d6c94205).
+    As an experiment, try to understand what is happening first by
+    reading the old, inheritance-based code. Note how many files you have to
+    look in and how much context you must keep in your head.  Then compare that
+    with the composition-based code:
+      - [Inheritance-based
+        version](https://github.com/cyberark/conjur/blob/292728d30bba3764730fe2fc940f89bf9fb1b36d/app/models/audit/event/fetch.rb)
+      - [Composition-based
+        version](https://github.com/cyberark/conjur/blob/292728d30bba3764730fe2fc940f89bf9fb1b36d/app/models/audit/event/fetch.rb)
 - All objects are immutable
-- Careful, consistent naming practices that align with documentation
+  - There are many ways to violate this rule
+  - A common example occurs with mutable configuration objects: objects created
+    empty or partially empty, and then mutated in a series of assignment
+    statements that hydrate their remaining properites.
+
+       Instead, gather all the information beforehand, and create the
+    configuration object all at once, as an immutable value object all of
+    whose properties are filled.
+- Careful, consistent naming practices that aligns with
+  documentation where relevant
 
 ### Specific Technologies
 
@@ -125,7 +150,13 @@ not necessarily, given as the params of an http request.
 
 - Hardcoding dependencies that should be injected.
   - For example: Directly referencing `Rails.logger` or a model class.
-  - All code with side effects should be injected as a depenency.
+  - Another example: In Conjur, a common mistake we've seen is to pass as an
+    input (rather than as a dependency) some object that interacts with the
+    database, perhaps in a non-obvious way.  Because the strict separatation
+    between value objects and side-effectful code is not maintained in older
+    Conjur code, it's possible to make this mistake without realizing you've
+    done so.
+  - All code with side effects should be injected as a dependency.
 - Names that are too long or require additional comments to explain.
   - Too verbose: `PerformValidationChecks`.  Better:  `ValidateNewUser`
 
@@ -269,7 +300,7 @@ in both `DoSomeUseCase` and the nested `Run` class.
 
 So we now have two options for vanilla ruby alternatives to the `CommandClass`:
 
-1. One which is coneptually simple but cluttered by passing runtime arguments
+1. One which is conceptually simple but cluttered by passing runtime arguments
    between all the methods.
 1. One which avoids that clutter but at the expense of other complexity and
    boilerplate.
