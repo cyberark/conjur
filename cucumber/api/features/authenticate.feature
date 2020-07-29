@@ -21,6 +21,20 @@ Feature: Exchange a role's API key for a signed authentication token
       cucumber:user:alice successfully authenticated with authenticator authn
     """
 
+  Scenario: Authenticate response should be encoded if asked
+    When I POST "/authn/cucumber/alice/authenticate?encoded=true" with plain text body ":cucumber:user:alice_api_key"
+    Then the HTTP response content type is "text/plain"
+    And the HTTP response is base64 encoded
+    And user "alice" has been authorized by Conjur
+    And there is an audit record matching:
+    """
+      <86>1 * * conjur * authn
+      [auth@43868 authenticator="authn"]
+      [subject@43868 role="cucumber:user:alice"]
+      [action@43868 operation="authenticate" result="success"]
+      cucumber:user:alice successfully authenticated with authenticator authn
+    """
+
   Scenario: Authenticating with no Content-Type header succeeds without writing API key to the logs
     And I save my place in the log file
     And I can authenticate Alice with no Content-Type header

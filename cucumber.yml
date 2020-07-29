@@ -7,6 +7,9 @@ api: >
   --format pretty
   -r cucumber/api/features/support/logs_helpers.rb
   -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/_authenticators_common/features/support/conjur_token.rb
+  -r cucumber/_authenticators_common/features/support/authenticator_helpers.rb
+  -r cucumber/_authenticators_common/features/step_definitions/authn_common_steps.rb
   -r cucumber/api
   cucumber/api
 

@@ -99,6 +99,10 @@ module RestHelpers
   def set_result result
     @response_api_key = nil
     @status = result.code
+
+    # Authenticators helpers using http_status
+    @http_status = result.code
+
     @content_type = result.headers[:content_type]
     if /^application\/json/.match?(@content_type)
       @result = JSON.parse(result)

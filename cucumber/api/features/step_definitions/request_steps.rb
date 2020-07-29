@@ -162,6 +162,12 @@ Then(/^the HTTP response content type is "([^"]*)"$/) do |content_type|
   expect(@content_type).to match(content_type)
 end
 
+Then(/^the HTTP response is base64 encoded$/) do
+  # Override encoded response with decode one to use other helpers
+  @result = @response_body = Base64.strict_decode64(@result)
+  expect(JSON.parse(@result).is_a?(Hash)).to be true
+end
+
 Then(/^the result is true$/) do
   expect(@result).to be true
 end
