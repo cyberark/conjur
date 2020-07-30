@@ -57,6 +57,7 @@ RSpec.describe "request IP address determination", type: :request do
         x_forwarded_for: '3.3.3.3'
       )
     ).to eq('44.0.0.1')
+    expect(request.remote_ip).to eq('44.0.0.1')
   end
 
   # By default "non-routable" IP addresses are trusted (according to this
@@ -70,6 +71,7 @@ RSpec.describe "request IP address determination", type: :request do
         x_forwarded_for: '3.3.3.3'
       )
     ).to eq('3.3.3.3')
+    expect(request.remote_ip).to eq('3.3.3.3')
   end
 
   it "doesn't trust the remote_addr if not included in TRUSTED_PROXIES" do
@@ -80,6 +82,7 @@ RSpec.describe "request IP address determination", type: :request do
         trusted_proxies: '4.4.4.4'
       )
     ).to eq('44.0.0.1')
+    expect(request.remote_ip).to eq('44.0.0.1')
   end
 
   it "trusts 127.0.0.1 for XFF even when not included explicitly with TRUSTED_PROXIES" do
@@ -90,6 +93,7 @@ RSpec.describe "request IP address determination", type: :request do
         trusted_proxies: '4.4.4.4'
       )
     ).to eq('3.3.3.3')
+    expect(request.remote_ip).to eq('3.3.3.3')
   end
   
   it "trusts IP ranges for XFF using CIDR notation in TRUSTED_PROXIES" do
@@ -100,6 +104,7 @@ RSpec.describe "request IP address determination", type: :request do
         trusted_proxies: '5.5.5.0/24'
       )
     ).to eq('3.3.3.3')
+    expect(request.remote_ip).to eq('3.3.3.3')
   end
 
   it "returns the expected IP when multiple XFF values are included" do
@@ -110,6 +115,7 @@ RSpec.describe "request IP address determination", type: :request do
         trusted_proxies: '5.5.5.0/24'
       )
     ).to eq('3.3.3.3')
+    expect(request.remote_ip).to eq('3.3.3.3')
   end
 
   it "returns the expected IP when multiple ranges are included in TRUSTED_PROXIES" do
@@ -120,6 +126,7 @@ RSpec.describe "request IP address determination", type: :request do
         trusted_proxies: '5.5.5.0/24,4.4.4.0/24'
       )
     ).to eq('3.3.3.3')
+    expect(request.remote_ip).to eq('3.3.3.3')
   end
 
   it "returns the right-most untrusted IP when XFF contains multiple untrusted IPs" do
@@ -130,6 +137,7 @@ RSpec.describe "request IP address determination", type: :request do
         trusted_proxies: '4.4.4.0/24'
       )
     ).to eq('7.7.7.7')
+    expect(request.remote_ip).to eq('7.7.7.7')
   end
 
   it "returns the right-most untrusted IP when XFF contains some trusted IPs" do
@@ -140,6 +148,7 @@ RSpec.describe "request IP address determination", type: :request do
         trusted_proxies: '4.4.4.0/24,5.5.5.0/24'
       )
     ).to eq('6.6.6.6')
+    expect(request.remote_ip).to eq('6.6.6.6')
   end
 
   it "returns the right-most untrusted IP when XFF contains a trusted IP in the middle" do
@@ -150,6 +159,7 @@ RSpec.describe "request IP address determination", type: :request do
         trusted_proxies: '4.4.4.0/24,5.5.5.0/24'
       )
     ).to eq('7.7.7.7')
+    expect(request.remote_ip).to eq('7.7.7.7')
   end
 
   it "returns the left-most trusted IP when XFF contains all trusted IPs" do
@@ -160,5 +170,6 @@ RSpec.describe "request IP address determination", type: :request do
         trusted_proxies: '4.4.4.4,5.5.5.5,6.6.6.6'
       )
     ).to eq('5.5.5.5')
+    expect(request.remote_ip).to eq('5.5.5.5')
   end
 end

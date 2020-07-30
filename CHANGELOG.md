@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add `/whoami` API endpoint for improved supportability and debugging for access
   tokens and client IP address determination. [cyberark/conjur#1697](https://github.com/cyberark/conjur/issues/1697)
 
+### Changed
+- The Conjur server request logs now records the same IP address used by audit
+  logs and network authentication filters with the `restricted_to` attribute.
+  [cyberark/conjur#1719](https://github.com/cyberark/conjur/issues/1719)
+
 ### Fixed
 - The `TRUSTED_PROXIES` environment variable now works correctly again after the
   Rails 5 upgrade. This is to indicate trusted proxy IP addresses when using the
