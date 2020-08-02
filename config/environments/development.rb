@@ -26,6 +26,9 @@ Rails.application.configure do
   config.log_level = ENV['CONJUR_LOG_LEVEL'] || :debug
   config.log_formatter = ConjurFormatter.new
 
+  # Set Audit database
+  config.audit_database ||= 'postgres://:5433/audit'
+  
   # Don't care if the mailer can't send.
   # config.action_mailer.raise_delivery_errors = false
 
