@@ -16,8 +16,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - The Conjur server request logs now records the same IP address used by audit
   logs and network authentication filters with the `restricted_to` attribute.
   [cyberark/conjur#1719](https://github.com/cyberark/conjur/issues/1719)
-- Conjur now only trusts `127.0.0.1` to send the `X-Forwarded-For` header by
-  default. Additional trusted IP addresses may be added with the `TRUSTED_PROXIES`
+- Conjur now only trusts `127.0.0.1` and `::1` to send the `X-Forwarded-For` header
+  by default. Additional trusted IP addresses may be added with the `TRUSTED_PROXIES`
   environment variable. [cyberark/conjur#1725](https://github.com/cyberark/conjur/issues/1725)
 
 ### Fixed

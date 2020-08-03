@@ -10,6 +10,11 @@ module Conjur
   #
   # Example: TRUSTED_PROXIES=4.4.4.4,192.168.100.0/24
   class TrustedProxyFilter
+    DEFAULT_TRUSTED_IPS = [
+      IPAddr.new('127.0.0.1'),
+      IPAddr.new('::1')
+    ]
+
     def initialize(env: ENV, options: { disable_cache: true })
       @env = env
       @options = options
@@ -34,7 +39,7 @@ module Conjur
 
       # The trusted proxy IPs are `127.0.0.1` plus those defined in the
       # `TRUSTED_PROXIES` environment variable.
-      proxy_ips = [IPAddr.new('127.0.0.1')] + env_trusted_proxies
+      proxy_ips = DEFAULT_TRUSTED_IPS + env_trusted_proxies
       
       # If not disabled, cache the IP address list
       @cached_trusted_proxies = proxy_ips unless @options[:disable_cache]

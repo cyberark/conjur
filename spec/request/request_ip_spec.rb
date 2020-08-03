@@ -61,7 +61,7 @@ RSpec.describe "request IP address determination", type: :request do
   end
 
   # `127.0.0.1` is important as the address of the nginx proxy when used in DAP
-  it 'trusts the loopback address by default to provide XFF' do
+  it 'trusts the ipv4 loopback address by default to provide XFF' do
     expect(
       request_ip(
         remote_addr: '127.0.0.1',
@@ -69,6 +69,26 @@ RSpec.describe "request IP address determination", type: :request do
       )
     ).to eq('3.3.3.3')
     expect(request.remote_ip).to eq('3.3.3.3')
+  end
+
+  it 'trusts the ipv6 loopback address by default to provide XFF' do
+    expect(
+      request_ip(
+        remote_addr: '::1',
+        x_forwarded_for: '3.3.3.3'
+      )
+    ).to eq('3.3.3.3')
+    expect(request.remote_ip).to eq('3.3.3.3')
+  end
+
+  it 'does not trust other ipv6 addresses by default to provide XFF' do
+    expect(
+      request_ip(
+        remote_addr: '::2',
+        x_forwarded_for: '3.3.3.3'
+      )
+    ).to eq('::2')
+    expect(request.remote_ip).to eq('::2')
   end
 
   it 'does not trust other non-routable addresses by default to provide XFF' do
@@ -112,6 +132,28 @@ RSpec.describe "request IP address determination", type: :request do
       )
     ).to eq('3.3.3.3')
     expect(request.remote_ip).to eq('3.3.3.3')
+  end
+
+  it 'trusts ipv6 addresses to provide XFF' do
+    expect(
+      request_ip(
+        remote_addr: '::2',
+        x_forwarded_for: '3.3.3.3',
+        trusted_proxies: '::2'
+      )
+    ).to eq('3.3.3.3')
+    expect(request.remote_ip).to eq('3.3.3.3')
+  end
+
+  it "trusts ipv6 ranges for XFF using CIDR notation in TRUSTED_PROXIES" do
+    expect(
+      request_ip(
+        remote_addr: '::2',
+        x_forwarded_for: '::5,::4,::3',
+        trusted_proxies: '::2/127'
+      )
+    ).to eq('::4')
+    expect(request.remote_ip).to eq('::4')
   end
 
   it "returns the expected IP when multiple XFF values are included" do
