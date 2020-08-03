@@ -14,10 +14,19 @@ module Conjur
       @env = env
       @options = options
       @cached_trusted_proxies = nil
+
+      # Validate the values in TRUSTED_PROXIES at creation
+      validate_trusted_proxies
     end
 
     def call(ip)
       trusted_proxies.any? { |cidr| cidr.include?(ip) }
+    end
+
+    def validate_trusted_proxies
+      # List the trusted proxies to verify that they are
+      # all valid IP addresses or CIDR address ranges.
+      trusted_proxies
     end
 
     def trusted_proxies    
@@ -39,7 +48,13 @@ module Conjur
       return [] unless @env['TRUSTED_PROXIES']
 
       Set.new(@env['TRUSTED_PROXIES'].split(','))
-        .collect { |cidr| IPAddr.new(cidr.strip) }
+        .collect { |cidr| parse_trusted_proxy(cidr.strip) }
+    end
+
+    def parse_trusted_proxy(cidr)
+      IPAddr.new(cidr)
+    rescue IPAddr::Error
+      raise Errors::Conjur::InvalidTrustedProxies, cidr
     end
   end
 end
