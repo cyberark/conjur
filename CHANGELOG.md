@@ -8,11 +8,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Add `/whoami` API endpoint for improved supportability and debugging for access
   tokens and client IP address determination. [cyberark/conjur#1697](https://github.com/cyberark/conjur/issues/1697)
+- `TRUSTED_PROXIES` is validated at Conjur startup to ensure that it contains
+  valid IP addresses and/or address ranges in CIDR notation.
+  [cyberark/conjur#1727](https://github.com/cyberark/conjur/issues/1727)
 
 ### Changed
 - The Conjur server request logs now records the same IP address used by audit
   logs and network authentication filters with the `restricted_to` attribute.
   [cyberark/conjur#1719](https://github.com/cyberark/conjur/issues/1719)
+- Conjur now only trusts `127.0.0.1` to send the `X-Forwarded-For` header by
+  default. Additional trusted IP addresses may be added with the `TRUSTED_PROXIES`
+  environment variable. [cyberark/conjur#1725](https://github.com/cyberark/conjur/issues/1725)
 
 ### Fixed
 - The `TRUSTED_PROXIES` environment variable now works correctly again after the

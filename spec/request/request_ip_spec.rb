@@ -30,8 +30,8 @@ RSpec.describe "request IP address determination", type: :request do
   end
 
   def request_ip(remote_addr:, x_forwarded_for: nil, trusted_proxies: nil)
-    ENV['TRUSTED_PROXIES'] = trusted_proxies if trusted_proxies
-  
+    ENV['TRUSTED_PROXIES'] = trusted_proxies
+
     headers = {}
     headers['X-Forwarded-For'] = x_forwarded_for if x_forwarded_for
   
@@ -60,9 +60,6 @@ RSpec.describe "request IP address determination", type: :request do
     expect(request.remote_ip).to eq('44.0.0.1')
   end
 
-  # By default "non-routable" IP addresses are trusted (according to this
-  # regular expression: https://github.com/rack/rack/blob/master/lib/rack/request.rb#L19)
-  #
   # `127.0.0.1` is important as the address of the nginx proxy when used in DAP
   it 'trusts the loopback address by default to provide XFF' do
     expect(
@@ -72,6 +69,16 @@ RSpec.describe "request IP address determination", type: :request do
       )
     ).to eq('3.3.3.3')
     expect(request.remote_ip).to eq('3.3.3.3')
+  end
+
+  it 'does not trust other non-routable addresses by default to provide XFF' do
+    expect(
+      request_ip(
+        remote_addr: '192.168.1.1',
+        x_forwarded_for: '3.3.3.3'
+      )
+    ).to eq('192.168.1.1')
+    expect(request.remote_ip).to eq('192.168.1.1')
   end
 
   it "doesn't trust the remote_addr if not included in TRUSTED_PROXIES" do
