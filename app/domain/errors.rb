@@ -20,6 +20,11 @@ module Errors
       code: "CONJ00046E"
     )
 
+    InvalidTrustedProxies = ::Util::TrackableErrorClass.new(
+      msg:  "Invalid IP address or CIDR address range in TRUSTED_PROXIES: {0-cidr}",
+      code: "CONJ00065E"
+    )
+
   end
 
   module Authentication
