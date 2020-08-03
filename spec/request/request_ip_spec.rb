@@ -30,8 +30,8 @@ RSpec.describe "request IP address determination", type: :request do
   end
 
   def request_ip(remote_addr:, x_forwarded_for: nil, trusted_proxies: nil)
-    ENV['TRUSTED_PROXIES'] = trusted_proxies if trusted_proxies
-  
+    ENV['TRUSTED_PROXIES'] = trusted_proxies
+
     headers = {}
     headers['X-Forwarded-For'] = x_forwarded_for if x_forwarded_for
   
