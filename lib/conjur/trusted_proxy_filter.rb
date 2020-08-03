@@ -10,33 +10,36 @@ module Conjur
   #
   # Example: TRUSTED_PROXIES=4.4.4.4,192.168.100.0/24
   class TrustedProxyFilter
-    def initialize(wrapped_filter, env: ENV, options: { disable_cache: true })
-      @wrapped_filter = wrapped_filter
+    def initialize(env: ENV, options: { disable_cache: true })
       @env = env
       @options = options
       @cached_trusted_proxies = nil
     end
 
     def call(ip)
-      return @wrapped_filter.call(ip) unless trusted_proxies
-
       trusted_proxies.any? { |cidr| cidr.include?(ip) }
     end
 
-    def trusted_proxies
-      @cached_trusted_proxies || load_trusted_proxies_from_env
+    def trusted_proxies    
+      return @cached_trusted_proxies if @cached_trusted_proxies
+
+      # The trusted proxy IPs are `127.0.0.1` plus those defined in the
+      # `TRUSTED_PROXIES` environment variable.
+      proxy_ips = [IPAddr.new('127.0.0.1')] + env_trusted_proxies
+      
+      # If not disabled, cache the IP address list
+      @cached_trusted_proxies = proxy_ips unless @options[:disable_cache]
+
+      proxy_ips
     end
 
     # Reek flags @env['TRUSTED_PROXIES'] as :reek:DuplicateMethodCall. Refactoring
     # this would not enhance the readability or performance.
-    def load_trusted_proxies_from_env
-      return nil unless @env['TRUSTED_PROXIES']
+    def env_trusted_proxies
+      return [] unless @env['TRUSTED_PROXIES']
 
-      proxy_ips = Set.new(@env['TRUSTED_PROXIES'].split(',') + ['127.0.0.1'])
+      Set.new(@env['TRUSTED_PROXIES'].split(','))
         .collect { |cidr| IPAddr.new(cidr.strip) }
-
-      @cached_trusted_proxies = proxy_ips unless @options[:disable_cache]
-      proxy_ips
     end
   end
 end
