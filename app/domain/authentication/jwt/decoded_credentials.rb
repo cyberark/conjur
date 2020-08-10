@@ -1,5 +1,5 @@
 module Authentication
-  module AuthnAzure
+  module Jwt
 
     class DecodedCredentials
 
