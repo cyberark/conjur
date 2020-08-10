@@ -6,11 +6,11 @@ module Authentication
     # This class is responsible of restrictions extraction that are set on a Conjur host or user as annotations.
     ExtractResourceRestrictions = CommandClass.new(
       dependencies: {
-        role_class: ::Role,
+        role_class:     ::Role,
         resource_class: ::Resource,
-        logger: Rails.logger
+        logger:         Rails.logger
       },
-      inputs: %i(extraction_prefix account username)
+      inputs:       %i(account username extraction_prefix)
     ) do
 
       def call
@@ -56,6 +56,10 @@ module Authentication
 
       def resource_annotations
         @resource_annotations ||= role.annotations
+
+        # This is an illegal state, because if the resource doesnt have annotations we should get an empty array
+        raise Errors::Conjur::FetchAnnotationsFailed.new(role_id) unless @resource_annotations
+        @resource_annotations
       end
 
       def annotation_value name
