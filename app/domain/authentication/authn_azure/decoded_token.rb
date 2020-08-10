@@ -41,7 +41,7 @@ module Authentication
       def token_field_value(field_name)
         token_field_value = @decoded_token_hash[field_name]
         @logger.debug(
-          LogMessages::Authentication::AuthnAzure::ExtractedFieldFromAzureToken.new(
+          LogMessages::Authentication::Jwt::ExtractedFieldFromToken.new(
             field_name,
             token_field_value
           )
