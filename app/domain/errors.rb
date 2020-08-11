@@ -70,6 +70,11 @@ module Errors
       code: "CONJ00057E"
     )
 
+    AdminAuthenticationDenied = ::Util::TrackableErrorClass.new(
+      msg:  "Admin user is not allowed to authenticate with {0-authenticate-name}",
+      code: "CONJ00017E"
+    )
+
     module AuthenticatorClass
 
       DoesntStartWithAuthn = ::Util::TrackableErrorClass.new(
@@ -166,6 +171,11 @@ module Errors
         code: "CONJ00015E"
       )
 
+      TokenFieldNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
+        msg:  "Field '{0-field-name}' not found or empty in token",
+        code: "CONJ00051E"
+      )
+
     end
 
     module AuthnOidc
@@ -174,11 +184,6 @@ module Errors
         msg:  "Field '{0-field-name}' not found or empty in ID token. " \
             "This field is defined in the id-token-user-property variable.",
         code: "CONJ00013E"
-      )
-
-      AdminAuthenticationDenied = ::Util::TrackableErrorClass.new(
-        msg:  "Admin user is not allowed to authenticate with OIDC",
-        code: "CONJ00017E"
       )
 
     end
@@ -319,11 +324,6 @@ module Errors
         msg:  "Resource restriction '{0-resource-restriction-name}' does not match " \
             "resource in Azure token",
         code: "CONJ00049E"
-      )
-
-      TokenFieldNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
-        msg:  "Field '{0-field-name}' not found or empty in token",
-        code: "CONJ00051E"
       )
 
       XmsMiridParseError = ::Util::TrackableErrorClass.new(
