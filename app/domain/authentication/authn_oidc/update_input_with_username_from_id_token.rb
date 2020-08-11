@@ -74,11 +74,11 @@ module Authentication
         end
 
         if conjur_username == "admin"
-          raise Errors::Authentication::AuthnOidc::AdminAuthenticationDenied
+          raise Errors::Authentication::AdminAuthenticationDenied, authenticator_name
         end
 
         @logger.debug(
-          LogMessages::Authentication::AuthnOidc::ExtractedUsernameFromIDToked.new(
+          LogMessages::Authentication::AuthnOidc::ExtractedUsernameFromIDToken.new(
             conjur_username,
             id_token_username_field
           )
