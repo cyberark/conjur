@@ -343,6 +343,21 @@ module Errors
         code: "CONJ00054E"
       )
     end
+
+    module AuthnGcp
+
+      InvalidAudience = ::Util::TrackableErrorClass.new(
+        msg:  "'audience' token claim {0} is invalid. The format should be " \
+              "'conjur/<account_name>/<host_id>'",
+        code: "CONJ00066E"
+      )
+
+      TokenClaimNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
+        msg:  "Claim '{0-claim-name}' not found or empty in token. " \
+              "Verify you request the token using 'format=full'",
+        code: "CONJ00067E"
+      )
+    end
   end
 
   module Util

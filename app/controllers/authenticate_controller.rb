@@ -87,6 +87,17 @@ class AuthenticateController < ApplicationController
     authenticate(input)
   end
 
+  def authenticate_gcp
+    params[:authenticator] = "authn-gcp"
+    input = Authentication::AuthnGcp::UpdateAuthenticatorInput.new.(
+      authenticator_input: authenticator_input
+    )
+  rescue => e
+    handle_authentication_error(e)
+  else
+    authenticate(input)
+  end
+
   def authenticator_input
     Authentication::AuthenticatorInput.new(
       authenticator_name: params[:authenticator],
