@@ -34,14 +34,14 @@ module Authentication
           )
         )
         if @decoded_token_hash[field_name].to_s.empty?
-          raise Errors::Authentication::AuthnAzure::TokenFieldNotFoundOrEmpty, field_name
+          raise Errors::Authentication::Jwt::TokenFieldNotFoundOrEmpty, field_name
         end
       end
 
       def token_field_value(field_name)
         token_field_value = @decoded_token_hash[field_name]
         @logger.debug(
-          LogMessages::Authentication::Jwt::ExtractedFieldFromToken.new(
+          LogMessages::Authentication::Jwt::ExtractedClaimFromToken.new(
             field_name,
             token_field_value
           )

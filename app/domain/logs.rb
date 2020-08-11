@@ -85,16 +85,21 @@ module LogMessages
         code: "CONJ00018D"
       )
 
-      ExtractedFieldFromToken = ::Util::TrackableLogMessageClass.new(
-        msg:  "Extracted field '{0-field-name}' with value {1-field-value} from token",
+      ExtractedClaimFromToken = ::Util::TrackableLogMessageClass.new(
+        msg:  "Extracted claim '{0-claim-name}' with value {1-field-value} from token",
         code: "CONJ00031D"
+      )
+
+      ExtractedUsernameFromToken = ::Util::TrackableLogMessageClass.new(
+        msg:  "Extracted username '{0}' from token",
+        code: "CONJ00038D"
       )
 
     end
 
     module AuthnOidc
 
-      ExtractedUsernameFromIDToked = ::Util::TrackableLogMessageClass.new(
+      ExtractedUsernameFromIDToken = ::Util::TrackableLogMessageClass.new(
         msg:  "Extracted username '{0}' from ID token field '{1-id-token-username-field}'",
         code: "CONJ00004D"
       )
