@@ -3,6 +3,9 @@
 require 'spec_helper'
 
 RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
+
+  include_context "security mocks"
+
   let(:valid_account) {'valid-account'}
   let(:invalid_account) {'invalid-account'}
 
@@ -268,46 +271,13 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
-  context "An invalid input parameters to extract resource restrictions" do
-    context "when account not exists" do
-      subject do
-        Authentication::AuthnGCP::ExtractResourceRestrictions.new(
-          resource_class: mocked_resource_class_return_nil
-        ).call(
-          account:           invalid_account,
-          username:          valid_host,
-          extraction_prefix: valid_prefix
-        )
-      end
-
-      it "raises an error" do
-        expect {subject}.to raise_error(Errors::Authentication::Security::RoleNotFound)
-      end
-
-      context "when host not exists" do
-        subject do
-          Authentication::AuthnGCP::ExtractResourceRestrictions.new(
-            resource_class: mocked_resource_class_return_nil
-          ).call(
-            account:           valid_account,
-            username:          invalid_host,
-            extraction_prefix: valid_prefix
-          )
-        end
-
-        it "raises an error" do
-          expect {subject}.to raise_error(Errors::Authentication::Security::RoleNotFound)
-        end
-      end
-    end
-  end
-
   context "A valid resource restrictions configuration" do
     context "host contains multiple annotations" do
       context "when prefix is empty" do
         subject do
           Authentication::AuthnGCP::ExtractResourceRestrictions.new(
-            resource_class: mocked_resource_class_return_annotations_list
+            resource_class:          mocked_resource_class_return_annotations_list,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(
             account:           valid_account,
             username:          valid_host,
@@ -323,7 +293,8 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
       context "when prefix case-sensitive with value authn-GCP/" do
         subject do
           Authentication::AuthnGCP::ExtractResourceRestrictions.new(
-            resource_class: mocked_resource_class_return_annotations_list
+            resource_class:          mocked_resource_class_return_annotations_list,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(
             account:           valid_account,
             username:          valid_host,
@@ -339,7 +310,8 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
       context "when prefix without_slash_prefix" do
         subject do
           Authentication::AuthnGCP::ExtractResourceRestrictions.new(
-            resource_class: mocked_resource_class_return_annotations_list
+            resource_class:          mocked_resource_class_return_annotations_list,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(
             account:           valid_account,
             username:          valid_host,
@@ -355,7 +327,8 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
       context "when prefix is valid with value auth-gcp/" do
         subject do
           Authentication::AuthnGCP::ExtractResourceRestrictions.new(
-            resource_class: mocked_resource_class_return_annotations_list
+            resource_class:          mocked_resource_class_return_annotations_list,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(
             account:           valid_account,
             username:          valid_host,
@@ -373,7 +346,8 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
       context "when annotations returned is nil" do
         subject do
           Authentication::AuthnGCP::ExtractResourceRestrictions.new(
-            resource_class: mocked_resource_class_return_annotations_nil
+            resource_class:          mocked_resource_class_return_annotations_nil,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(
             account:           valid_account,
             username:          valid_host,
@@ -389,7 +363,8 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
       context "when annotations returned is empty list" do
         subject do
           Authentication::AuthnGCP::ExtractResourceRestrictions.new(
-            resource_class: mocked_resource_class_return_annotations_empty_list
+            resource_class:          mocked_resource_class_return_annotations_empty_list,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(
             account:           valid_account,
             username:          valid_host,
@@ -407,7 +382,8 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
       context "when prefix is empty" do
         subject do
           Authentication::AuthnGCP::ExtractResourceRestrictions.new(
-            resource_class: mocked_resource_class_return_annotations_list_with_duplications
+            resource_class:          mocked_resource_class_return_annotations_list_with_duplications,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(
             account:           valid_account,
             username:          valid_host,
@@ -423,7 +399,8 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
       context "when prefix is valid with value auth-gcp/" do
         subject do
           Authentication::AuthnGCP::ExtractResourceRestrictions.new(
-            resource_class: mocked_resource_class_return_annotations_list_with_duplications
+            resource_class:          mocked_resource_class_return_annotations_list_with_duplications,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(
             account:           valid_account,
             username:          valid_host,
@@ -433,6 +410,42 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
 
         it "returns expected list" do
           expect(subject).to eq(expected_resource_restrictions_list_with_duplications_for_valid_prefix)
+        end
+      end
+    end
+  end
+
+  context "An invalid input parameters to extract resource restrictions" do
+    context "when account does not exists" do
+      subject do
+        Authentication::AuthnGCP::ExtractResourceRestrictions.new(
+          resource_class:          mocked_resource_class_return_nil,
+          validate_account_exists: mock_validate_account_exists(validation_succeeded: false)
+        ).call(
+          account:           invalid_account,
+          username:          valid_host,
+          extraction_prefix: valid_prefix
+        )
+      end
+
+      it "raises an error" do
+        expect {subject}.to raise_error(validate_account_exists_error)
+      end
+
+      context "when host does not exists" do
+        subject do
+          Authentication::AuthnGCP::ExtractResourceRestrictions.new(
+            resource_class:          mocked_resource_class_return_nil,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
+          ).call(
+            account:           valid_account,
+            username:          invalid_host,
+            extraction_prefix: valid_prefix
+          )
+        end
+
+        it "raises an error" do
+          expect {subject}.to raise_error(Errors::Authentication::Security::RoleNotFound)
         end
       end
     end

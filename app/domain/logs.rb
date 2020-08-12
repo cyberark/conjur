@@ -192,12 +192,12 @@ module LogMessages
     module AuthnGCP
 
       ExtractingRestrictionsFromResource = ::Util::TrackableLogMessageClass.new(
-          msg: "Extracting restrictions from resource '{0-resource-id}' with prefix '{1-prefix}'",
+          msg: "Extracting resource restrictions from role '{0-role-id}' with prefix '{1-prefix}'",
           code: "CONJ00039D"
       )
 
       ExtractedResourceRestrictions = ::Util::TrackableLogMessageClass.new(
-          msg: "{0-amount} restrictions were extracted",
+          msg: "{0-amount} resource restrictions were extracted",
           code: "CONJ00040D"
       )
 

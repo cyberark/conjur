@@ -6,31 +6,42 @@ module Authentication
     # This class is responsible of restrictions extraction that are set on a Conjur host or user as annotations.
     ExtractResourceRestrictions = CommandClass.new(
       dependencies: {
-        role_class:     ::Role,
-        resource_class: ::Resource,
-        logger:         Rails.logger
+        role_class:              ::Role,
+        resource_class:          ::Resource,
+        validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
+        logger:                  Rails.logger
       },
       inputs:       %i(account username extraction_prefix)
     ) do
 
       def call
+        validate_account_exists
         extract_resource_restrictions
-        restrictions_list
+        resource_restrictions
       end
 
       private
 
-      def extract_resource_restrictions
-        @logger.debug(LogMessages::Authentication::AuthnGCP::ExtractingRestrictionsFromResource.new(@username, @extraction_prefix))
-        prefixed_resource_annotations
-        init_restrictions_list
-        @logger.debug(LogMessages::Authentication::AuthnGCP::ExtractedResourceRestrictions.new(restrictions_list.length()))
+      def validate_account_exists
+        @validate_account_exists.(
+          account: @account
+        )
       end
 
-      def restrictions_list
-        return @restrictions_list if @restrictions_list
-
-        @restrictions_list = Array.new
+      def extract_resource_restrictions
+        @logger.debug(LogMessages::Authentication::AuthnGCP::ExtractingRestrictionsFromResource.new(@username, @extraction_prefix))
+        prefixed_resource_annotations.select do |a|
+          annotation_name = a.values[:name]
+          resource_value = annotation_value(annotation_name)
+          next unless resource_value
+          resource_restrictions.push(
+            ResourceRestriction.new(
+              type: annotation_name,
+              value: resource_value
+            )
+          )
+        end
+        @logger.debug(LogMessages::Authentication::AuthnGCP::ExtractedResourceRestrictions.new(resource_restrictions.length))
       end
 
       def prefixed_resource_annotations
@@ -40,12 +51,12 @@ module Authentication
         end
       end
 
-      def init_restrictions_list
+      def init_resource_restrictions
         prefixed_resource_annotations.select do |a|
           annotation_name = a.values[:name]
           resource_value = annotation_value(annotation_name)
           next unless resource_value
-          restrictions_list.push(
+          resource_restrictions.push(
             ResourceRestriction.new(
               type: annotation_name,
               value: resource_value
@@ -54,15 +65,20 @@ module Authentication
         end
       end
 
-      def resource_annotations
-        @resource_annotations ||= role.annotations
+      def resource_restrictions
+        @resource_restrictions ||= Array.new
+      end
 
+      def resource_annotations
+        return @resource_annotations if @resource_annotations
+
+        @resource_annotations ||= role.annotations
         # This is an illegal state, because if the resource doesnt have annotations we should get an empty array
         raise Errors::Conjur::FetchAnnotationsFailed.new(role_id) unless @resource_annotations
         @resource_annotations
       end
 
-      def annotation_value name
+      def annotation_value(name)
         annotation = prefixed_resource_annotations.find {|a| a.values[:name] == name}
 
         # return the value of the annotation if it exists, nil otherwise
