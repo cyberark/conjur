@@ -58,9 +58,9 @@ RSpec.describe 'Authentication::AuthnAzure::DecodedToken' do
         )
       end
 
-      it "raises a TokenFieldNotFoundOrEmpty error" do
+      it "raises a TokenClaimNotFoundOrEmpty error" do
         expect { subject }.to raise_error(
-          ::Errors::Authentication::Jwt::TokenFieldNotFoundOrEmpty
+          ::Errors::Authentication::Jwt::TokenClaimNotFoundOrEmpty
         )
       end
     end
@@ -73,9 +73,9 @@ RSpec.describe 'Authentication::AuthnAzure::DecodedToken' do
         )
       end
 
-      it "raises a TokenFieldNotFoundOrEmpty error" do
+      it "raises a TokenClaimNotFoundOrEmpty error" do
         expect { subject }.to raise_error(
-          ::Errors::Authentication::Jwt::TokenFieldNotFoundOrEmpty
+          ::Errors::Authentication::Jwt::TokenClaimNotFoundOrEmpty
         )
       end
     end

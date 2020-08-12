@@ -166,8 +166,8 @@ module Errors
         code: "CONJ00015E"
       )
 
-      TokenFieldNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
-        msg:  "Field '{0-field-name}' not found or empty in token",
+      TokenClaimNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
+        msg:  "Claim '{0-claim-name}' not found or empty in token",
         code: "CONJ00051E"
       )
 
@@ -175,9 +175,9 @@ module Errors
 
     module AuthnOidc
 
-      IdTokenFieldNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
-        msg:  "Field '{0-field-name}' not found or empty in ID token. " \
-            "This field is defined in the id-token-user-property variable.",
+      IdTokenClaimNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
+        msg:  "Claim '{0-claim-name}' not found or empty in ID token. " \
+            "This claim is defined in the id-token-user-property variable.",
         code: "CONJ00013E"
       )
 

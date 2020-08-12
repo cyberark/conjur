@@ -69,7 +69,7 @@ module Authentication
 
       def validate_conjur_username
         if conjur_username.to_s.empty?
-          raise Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty,
+          raise Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty,
                 id_token_username_field
         end
 
