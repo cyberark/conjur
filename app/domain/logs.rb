@@ -187,11 +187,6 @@ module LogMessages
         code: "CONJ00029D"
       )
 
-      ValidatingTokenClaimExists = ::Util::TrackableLogMessageClass.new(
-        msg:  "Validating that claim '{0}' exists in token",
-        code: "CONJ00032D"
-      )
-
     end
   end
 
