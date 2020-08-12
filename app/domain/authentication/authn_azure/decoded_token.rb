@@ -1,48 +1,36 @@
+# frozen_string_literal: true
+
 module Authentication
   module AuthnAzure
 
     class DecodedToken
 
-      XMS_MIRID_TOKEN_CLAIM_NAME = "xms_mirid".freeze
-      OID_TOKEN_CLAIM_NAME       = "oid".freeze
+      XMS_MIRID_TOKEN_CLAIM_NAME = "xms_mirid"
+      OID_TOKEN_CLAIM_NAME       = "oid"
+
+      attr_reader :xms_mirid, :oid
 
       def initialize(decoded_token_hash:, logger:)
         @decoded_token_hash = decoded_token_hash
         @logger = logger
-        validate
-      end
 
-      def xms_mirid
-        @xms_mirid ||= token_claim_value(XMS_MIRID_TOKEN_CLAIM_NAME)
-      end
-
-      def oid
-        @oid ||= token_claim_value(OID_TOKEN_CLAIM_NAME)
+        @xms_mirid = token_claim_value(XMS_MIRID_TOKEN_CLAIM_NAME)
+        @oid = token_claim_value(OID_TOKEN_CLAIM_NAME)
       end
 
       private
 
-      def validate
-        validate_token_claim_exists(XMS_MIRID_TOKEN_CLAIM_NAME)
-        validate_token_claim_exists(OID_TOKEN_CLAIM_NAME)
-      end
+      def token_claim_value(token_claim)
+        token_claim_path = (token_claim.split('/'))
+        token_claim_value = @decoded_token_hash.dig *token_claim_path
 
-      def validate_token_claim_exists(claim_name)
-        @logger.debug(
-          LogMessages::Authentication::AuthnAzure::ValidatingTokenClaimExists.new(
-            claim_name
-          )
-        )
-        if @decoded_token_hash[claim_name].to_s.empty?
-          raise Errors::Authentication::Jwt::TokenClaimNotFoundOrEmpty, claim_name
+        unless token_claim_value
+          raise Errors::Authentication::Jwt::TokenClaimNotFoundOrEmpty, token_claim
         end
-      end
 
-      def token_claim_value(claim_name)
-        token_claim_value = @decoded_token_hash[claim_name]
         @logger.debug(
           LogMessages::Authentication::Jwt::ExtractedClaimFromToken.new(
-            claim_name,
+            token_claim,
             token_claim_value
           )
         )
