@@ -160,7 +160,7 @@ RSpec.describe Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken do
         it "raises an error" do
           expect { subject }.to(
             raise_error(
-              ::Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty
+              ::Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
             )
           )
         end
@@ -190,7 +190,7 @@ RSpec.describe Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken do
         it "raises an error" do
           expect { subject }.to(
             raise_error(
-              ::Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty
+              ::Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
             )
           )
         end
