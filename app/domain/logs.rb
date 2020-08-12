@@ -86,7 +86,7 @@ module LogMessages
       )
 
       ExtractedClaimFromToken = ::Util::TrackableLogMessageClass.new(
-        msg:  "Extracted claim '{0-claim-name}' with value {1-field-value} from token",
+        msg:  "Extracted claim '{0-claim-name}' with value {1-claim-value} from token",
         code: "CONJ00031D"
       )
 
@@ -100,7 +100,7 @@ module LogMessages
     module AuthnOidc
 
       ExtractedUsernameFromIDToken = ::Util::TrackableLogMessageClass.new(
-        msg:  "Extracted username '{0}' from ID token field '{1-id-token-username-field}'",
+        msg:  "Extracted username '{0}' from ID token claim '{1-id-token-username-claim}'",
         code: "CONJ00004D"
       )
 
@@ -187,8 +187,8 @@ module LogMessages
         code: "CONJ00029D"
       )
 
-      ValidatingTokenFieldExists = ::Util::TrackableLogMessageClass.new(
-        msg:  "Validating that field '{0}' exists in token",
+      ValidatingTokenClaimExists = ::Util::TrackableLogMessageClass.new(
+        msg:  "Validating that claim '{0}' exists in token",
         code: "CONJ00032D"
       )
 
