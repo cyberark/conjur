@@ -114,6 +114,24 @@ authenticators_azure: >
   -r cucumber/authenticators_azure
   cucumber/authenticators_azure
 
+authenticators_gcp: >
+  --format pretty
+  -r cucumber/api/features/support/ssh_helpers.rb
+  -r cucumber/api/features/support/authz_helpers.rb
+  -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/api/features/support/step_def_transforms.rb
+  -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/_authenticators_common
+  -r cucumber/authenticators_gcp
+  cucumber/authenticators_gcp
+
+
 # NOTE: We have to require the needed files from "api" individually, because
 #       if you mass require the folder it includes "api"s env.rb, which screws
 #       things up because (I think) it sets ENV['CONJUR_ACCOUNT'].  Cucumber

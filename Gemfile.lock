@@ -89,6 +89,7 @@ GEM
     base32-crockford (0.1.0)
     base58 (0.2.3)
     bcrypt (3.1.13)
+    bcrypt_pbkdf (1.0.1)
     bindata (2.4.7)
     builder (3.2.4)
     byebug (11.1.1)
@@ -179,6 +180,7 @@ GEM
       dry-equalizer (~> 0.2)
       dry-logic (~> 0.4, >= 0.4.2)
       inflecto (~> 0.0.0, >= 0.0.2)
+    ed25519 (1.2.4)
     erubi (1.9.0)
     event_emitter (0.2.6)
     excon (0.73.0)
@@ -452,6 +454,7 @@ DEPENDENCIES
   base32-crockford
   base58
   bcrypt (~> 3.1.2)
+  bcrypt_pbkdf
   ci_reporter_rspec
   command_class
   conjur-api!
@@ -466,6 +469,7 @@ DEPENDENCIES
   debase
   dry-struct (~> 0.4.0)
   dry-types (~> 0.12.2)
+  ed25519
   ffi (>= 1.9.24)
   gli
   haikunator (~> 1)
