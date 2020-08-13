@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'invalid'
+
 class ApplicationController < ActionController::API
   include Authenticates
   include ::ActionView::Layouts

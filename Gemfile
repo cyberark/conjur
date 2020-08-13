@@ -35,6 +35,7 @@ gem 'bcrypt', '~> 3.1.2'
 gem 'gli', require: false
 gem 'listen'
 gem 'slosilo', '~> 2.2'
+gem 'safe_yaml'
 
 # Explicitly required as there are vulnerabilities in older versions
 gem "ffi", ">= 1.9.24"
@@ -47,8 +48,8 @@ gem 'ruby_dep', '= 1.3.1'
  # Pinned to update for role member search, using ref so merging and removing
 # the branch doesn't immediately break this link
 gem 'conjur-api', github: 'cyberark/conjur-api-ruby', branch: 'master'
-gem 'conjur-policy-parser', '>= 3.0.4',
-  github: 'cyberark/conjur-policy-parser', branch: 'master'
+# gem 'conjur-policy-parser', '>= 3.0.4',
+#  github: 'cyberark/conjur-policy-parser', branch: 'master'
 gem 'conjur-rack', '~> 4'
 gem 'conjur-rack-heartbeat'
 gem 'rack-rewrite'
