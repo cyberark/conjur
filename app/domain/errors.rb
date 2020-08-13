@@ -75,19 +75,9 @@ module Errors
       code: "CONJ00017E"
     )
 
-    IllegalStateResourceRestrictionsValidation = ::Util::TrackableErrorClass.new(
-      msg:  "Illegal state. Failed to validate restrictions constraint combinations. Reason: '{0}'",
-      code: "CONJ00067E"
-    )
-
-    RoleMissingRequiredConstraints = ::Util::TrackableErrorClass.new(
-      msg:  "Role should have at least 1 constraints: {0-constraints}",
-      code: "CONJ00068E"
-    )
-
     MissingResourceRestrictionsValue = ::Util::TrackableErrorClass.new(
       msg:  "Resource restriction '{0-resource-restriction-name}' value is missing or empty",
-      code: "CONJ000669E"
+      code: "CONJ000070E"
     )
 
     module AuthenticatorClass
@@ -364,13 +354,18 @@ module Errors
       InvalidAudience = ::Util::TrackableErrorClass.new(
         msg:  "'audience' token claim {0} is invalid. The format should be " \
               "'conjur/<account_name>/<host_id>'",
-        code: "CONJ00066E"
+        code: "CONJ00067E"
       )
 
       TokenClaimNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
         msg:  "Claim '{0-claim-name}' not found or empty in token. " \
               "Verify you request the token using 'format=full'",
-        code: "CONJ00067E"
+        code: "CONJ00068E"
+      )
+
+      RoleMissingRequiredConstraints = ::Util::TrackableErrorClass.new(
+        msg:  "Role should have at least one of the following constraints: {0-constraints}",
+        code: "CONJ00069E"
       )
     end
   end

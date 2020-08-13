@@ -181,9 +181,6 @@ class AuthenticateController < ApplicationController
       Errors::Authentication::AuthnK8s::CertMissingCNEntry
       raise ArgumentError
 
-    when Errors::Authentication::IllegalStateMissingConstraints
-      raise InternalServerError
-
     else
       raise Unauthorized
     end

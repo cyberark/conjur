@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::AuthnGCP::RestrictionsValidator' do
+RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration' do
 
   let(:gcp_instance_name_annotation_key) {'authn-gcp/instance-name'}
   let(:gcp_instance_name_annotation_value) {'instance-name'}
@@ -218,12 +218,11 @@ RSpec.describe 'Authentication::AuthnGCP::RestrictionsValidator' do
 
   context "A valid resource restrictions list" do
     context "permitted constraints are 4 gcp values" do
-      context "when resource restrictions lis contains 1 valid restriction" do
+      context "when resource restrictions list contains 1 valid restriction" do
         subject do
-          Authentication::AuthnGCP::RestrictionsValidator.new(
+          Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration.new.call(
             resource_restrictions: resource_restrictions_with_1_valid,
-            permitted_constraints: gcp_permitted_constraints,
-            logger:                Rails.logger
+            permitted_constraints: gcp_permitted_constraints
           )
         end
 
@@ -232,12 +231,11 @@ RSpec.describe 'Authentication::AuthnGCP::RestrictionsValidator' do
         end
       end
 
-      context "when resource restrictions lis contains 4 valid restrictions" do
+      context "when resource restrictions list contains 4 valid restrictions" do
         subject do
-          Authentication::AuthnGCP::RestrictionsValidator.new(
+          Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration.new.call(
             resource_restrictions: resource_restrictions_with_4_valid,
-            permitted_constraints: gcp_permitted_constraints,
-            logger:                Rails.logger
+            permitted_constraints: gcp_permitted_constraints
           )
         end
 
@@ -252,39 +250,36 @@ RSpec.describe 'Authentication::AuthnGCP::RestrictionsValidator' do
     context "permitted constraints are 4 gcp values" do
       context "when resource restrictions list is empty" do
         subject do
-          Authentication::AuthnGCP::RestrictionsValidator.new(
+          Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration.new.call(
             resource_restrictions: Array.new,
-            permitted_constraints: gcp_permitted_constraints,
-            logger:                Rails.logger
+            permitted_constraints: gcp_permitted_constraints
           )
         end
 
         it "raises an error" do
-          expect {subject}.to raise_error(Errors::Authentication::RoleMissingRequiredConstraints)
+          expect {subject}.to raise_error(Errors::Authentication::AuthnGcp::RoleMissingRequiredConstraints)
         end
       end
 
       context "when resource restrictions list is nil" do
         subject do
-          Authentication::AuthnGCP::RestrictionsValidator.new(
+          Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration.new.call(
             resource_restrictions: nil,
-            permitted_constraints: gcp_permitted_constraints,
-            logger:                Rails.logger
+            permitted_constraints: gcp_permitted_constraints
           )
         end
 
         it "raises an error" do
-          expect {subject}.to raise_error(Errors::Authentication::RoleMissingRequiredConstraints)
+          expect {subject}.to raise_error(Errors::Authentication::AuthnGcp::RoleMissingRequiredConstraints)
         end
       end
 
       context "when resource restrictions contains illegal constraints" do
         context "with 1 illegal restriction" do
           subject do
-            Authentication::AuthnGCP::RestrictionsValidator.new(
+            Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration.new.call(
               resource_restrictions: resource_restrictions_with_1_illegal,
-              permitted_constraints: gcp_permitted_constraints,
-              logger:                Rails.logger
+              permitted_constraints: gcp_permitted_constraints
             )
           end
 
@@ -295,10 +290,9 @@ RSpec.describe 'Authentication::AuthnGCP::RestrictionsValidator' do
 
         context "with 4 valid and 1 illegal restriction" do
           subject do
-            Authentication::AuthnGCP::RestrictionsValidator.new(
+            Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration.new.call(
               resource_restrictions: resource_restrictions_with_4_valid_and_1_illegal,
-              permitted_constraints: gcp_permitted_constraints,
-              logger:                Rails.logger
+              permitted_constraints: gcp_permitted_constraints
             )
           end
 
@@ -310,10 +304,9 @@ RSpec.describe 'Authentication::AuthnGCP::RestrictionsValidator' do
 
       context "when resource restrictions contains empty values" do
         subject do
-          Authentication::AuthnGCP::RestrictionsValidator.new(
+          Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration.new.call(
             resource_restrictions: resource_restrictions_with_empty_values,
-            permitted_constraints: gcp_permitted_constraints,
-            logger:                Rails.logger
+            permitted_constraints: gcp_permitted_constraints
           )
         end
 
@@ -324,102 +317,15 @@ RSpec.describe 'Authentication::AuthnGCP::RestrictionsValidator' do
 
       context "when resource restrictions contains nil values" do
         subject do
-          Authentication::AuthnGCP::RestrictionsValidator.new(
+          Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration.new.call(
             resource_restrictions: resource_restrictions_with_nil_values,
-            permitted_constraints: gcp_permitted_constraints,
-            logger:                Rails.logger
+            permitted_constraints: gcp_permitted_constraints
           )
         end
 
         it "raises an error" do
           expect {subject}.to raise_error(Errors::Authentication::MissingResourceRestrictionsValue)
         end
-      end
-    end
-  end
-
-  context "An invalid input" do
-    context "when permitted constraints list is empty" do
-      subject do
-        Authentication::AuthnGCP::RestrictionsValidator.new(
-          resource_restrictions: resource_restrictions_with_4_valid,
-          permitted_constraints: Array.new,
-          logger:                Rails.logger
-        )
-      end
-
-      it "raises an error" do
-        expect {subject}.to raise_error(Errors::Authentication::IllegalStateResourceRestrictionsValidation)
-      end
-    end
-
-    context "when permitted constraints list is nil" do
-      subject do
-        Authentication::AuthnGCP::RestrictionsValidator.new(
-          resource_restrictions: resource_restrictions_with_4_valid,
-          permitted_constraints: nil,
-          logger:                Rails.logger
-        )
-      end
-
-      it "raises an error" do
-        expect {subject}.to raise_error(Errors::Authentication::IllegalStateResourceRestrictionsValidation)
-      end
-    end
-
-    context "when permitted constraints contains duplications" do
-      subject do
-        Authentication::AuthnGCP::RestrictionsValidator.new(
-          resource_restrictions: resource_restrictions_with_4_valid,
-          permitted_constraints: gcp_permitted_constraints_with_duplications,
-          logger:                Rails.logger
-        )
-      end
-
-      it "raises an error" do
-        expect {subject}.to raise_error(Errors::Authentication::IllegalStateResourceRestrictionsValidation)
-      end
-    end
-
-    context "when resource restrictions contains an empty type" do
-      subject do
-        Authentication::AuthnGCP::RestrictionsValidator.new(
-          resource_restrictions: resource_restrictions_with_empty_types,
-          permitted_constraints: gcp_permitted_constraints,
-          logger:                Rails.logger
-        )
-      end
-
-      it "raises an error" do
-        expect {subject}.to raise_error(Errors::Authentication::IllegalStateResourceRestrictionsValidation)
-      end
-    end
-
-    context "when permitted constraints contains aa nil type" do
-      subject do
-        Authentication::AuthnGCP::RestrictionsValidator.new(
-          resource_restrictions: resource_restrictions_with_nil_types,
-          permitted_constraints: gcp_permitted_constraints,
-          logger:                Rails.logger
-        )
-      end
-
-      it "raises an error" do
-        expect {subject}.to raise_error(Errors::Authentication::IllegalStateResourceRestrictionsValidation)
-      end
-    end
-
-    context "when permitted constraints contains duplicated types" do
-      subject do
-        Authentication::AuthnGCP::RestrictionsValidator.new(
-          resource_restrictions: resource_restrictions_with_duplicated_types,
-          permitted_constraints: gcp_permitted_constraints,
-          logger:                Rails.logger
-        )
-      end
-
-      it "raises an error" do
-        expect {subject}.to raise_error(Errors::Authentication::IllegalStateResourceRestrictionsValidation)
       end
     end
   end

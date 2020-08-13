@@ -201,13 +201,13 @@ module LogMessages
           code: "CONJ00040D"
       )
 
-      ValidatingRestrictionsConstraintCombination = ::Util::TrackableLogMessageClass.new(
-        msg: "Validating restrictions constraint combinations",
+      ValidatingResourceRestrictionsConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating resource restrictions configuration",
         code: "CONJ00041D"
       )
 
-      ValidatedRestrictionsConstraintCombination = ::Util::TrackableLogMessageClass.new(
-        msg: "Restrictions constraint combinations are validated",
+      ValidatedResourceRestrictionsConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Resource restrictions configuration is validated",
         code: "CONJ00042D"
       )
 
