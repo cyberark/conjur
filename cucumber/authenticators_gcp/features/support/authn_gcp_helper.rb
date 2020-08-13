@@ -2,12 +2,15 @@ module AuthnGcpHelper
   include AuthenticatorHelpers
 
   # The ENV variables that are expected (temporary this will be injected)
+  #
   # export GCE_INSTANCE_IP='104.198.201.199'
   # export GCE_INSTANCE_USERNAME='gcp-authn'
   # export GCE_PRIVATE_KEY_PATH=./.gcp-authn
   # export GCP_SERVICE_ACCOUNT_ID='108551114425891493254'
 
 
+  # Obtains a GCE identity token by running a curl command inside a GCE instance using ssh.
+  # The above ENV variables are assumed to be set.
   # token_format; default="standard"
   # Specify whether or not the project and instance details are included in the identity token payload.
   # This flag only applies to Google Compute Engine instance identity tokens.
