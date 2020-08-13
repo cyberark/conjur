@@ -75,6 +75,21 @@ module Errors
       code: "CONJ00017E"
     )
 
+    IllegalStateResourceRestrictionsValidation = ::Util::TrackableErrorClass.new(
+      msg:  "Illegal state. Failed to validate restrictions constraint combinations. Reason: '{0}'",
+      code: "CONJ00067E"
+    )
+
+    RoleMissingRequiredConstraints = ::Util::TrackableErrorClass.new(
+      msg:  "Role should have at least 1 constraints: {0-constraints}",
+      code: "CONJ00068E"
+    )
+
+    MissingResourceRestrictionsValue = ::Util::TrackableErrorClass.new(
+      msg:  "Resource restriction '{0-resource-restriction-name}' value is missing or empty",
+      code: "CONJ000669E"
+    )
+
     module AuthenticatorClass
 
       DoesntStartWithAuthn = ::Util::TrackableErrorClass.new(
