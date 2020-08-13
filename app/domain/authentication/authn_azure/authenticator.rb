@@ -42,7 +42,7 @@ module Authentication
       end
 
       def decoded_credentials
-        @decoded_credentials ||= DecodedCredentials.new(credentials)
+        @decoded_credentials ||= Authentication::Jwt::DecodedCredentials.new(credentials)
       end
 
       def validate_resource_restrictions

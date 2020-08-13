@@ -85,12 +85,22 @@ module LogMessages
         code: "CONJ00018D"
       )
 
+      ExtractedClaimFromToken = ::Util::TrackableLogMessageClass.new(
+        msg:  "Extracted claim '{0-claim-name}' with value {1-claim-value} from token",
+        code: "CONJ00031D"
+      )
+
+      ExtractedUsernameFromToken = ::Util::TrackableLogMessageClass.new(
+        msg:  "Extracted username '{0}' from token",
+        code: "CONJ00038D"
+      )
+
     end
 
     module AuthnOidc
 
-      ExtractedUsernameFromIDToked = ::Util::TrackableLogMessageClass.new(
-        msg:  "Extracted username '{0}' from ID token field '{1-id-token-username-field}'",
+      ExtractedUsernameFromIDToken = ::Util::TrackableLogMessageClass.new(
+        msg:  "Extracted username '{0}' from ID token claim '{1-id-token-username-claim}'",
         code: "CONJ00004D"
       )
 
@@ -175,16 +185,6 @@ module LogMessages
       ExtractedResourceRestrictionsFromToken = ::Util::TrackableLogMessageClass.new(
         msg:  "Extracted resource restrictions from token",
         code: "CONJ00029D"
-      )
-
-      ExtractedFieldFromAzureToken = ::Util::TrackableLogMessageClass.new(
-        msg:  "Extracted field '{0-field-name}' with value {1-field-value} from token",
-        code: "CONJ00031D"
-      )
-
-      ValidatingTokenFieldExists = ::Util::TrackableLogMessageClass.new(
-        msg:  "Validating that field '{0}' exists in token",
-        code: "CONJ00032D"
       )
 
     end
