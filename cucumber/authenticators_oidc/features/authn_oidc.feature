@@ -117,7 +117,7 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty
+    Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
     """
 
   Scenario: Missing id token is a bad request
@@ -154,7 +154,7 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::AuthnOidc::AdminAuthenticationDenied
+    Errors::Authentication::AdminAuthenticationDenied
     """
 
   Scenario: provider-uri dynamic change

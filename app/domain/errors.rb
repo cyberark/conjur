@@ -70,6 +70,11 @@ module Errors
       code: "CONJ00057E"
     )
 
+    AdminAuthenticationDenied = ::Util::TrackableErrorClass.new(
+      msg:  "Admin user is not allowed to authenticate with {0-authenticate-name}",
+      code: "CONJ00017E"
+    )
+
     module AuthenticatorClass
 
       DoesntStartWithAuthn = ::Util::TrackableErrorClass.new(
@@ -166,19 +171,19 @@ module Errors
         code: "CONJ00015E"
       )
 
+      TokenClaimNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
+        msg:  "Claim '{0-claim-name}' not found or empty in token",
+        code: "CONJ00051E"
+      )
+
     end
 
     module AuthnOidc
 
-      IdTokenFieldNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
-        msg:  "Field '{0-field-name}' not found or empty in ID token. " \
-            "This field is defined in the id-token-user-property variable.",
+      IdTokenClaimNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
+        msg:  "Claim '{0-claim-name}' not found or empty in ID token. " \
+            "This claim is defined in the id-token-user-property variable.",
         code: "CONJ00013E"
-      )
-
-      AdminAuthenticationDenied = ::Util::TrackableErrorClass.new(
-        msg:  "Admin user is not allowed to authenticate with OIDC",
-        code: "CONJ00017E"
       )
 
     end
@@ -321,11 +326,6 @@ module Errors
         code: "CONJ00049E"
       )
 
-      TokenFieldNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
-        msg:  "Field '{0-field-name}' not found or empty in token",
-        code: "CONJ00051E"
-      )
-
       XmsMiridParseError = ::Util::TrackableErrorClass.new(
         msg:  "Failed to parse xms_mirid {0}. Reason: {1}",
         code: "CONJ00052E"
@@ -341,6 +341,21 @@ module Errors
                 "xms_mirid must contain the resource provider namespace, the " \
                 "resource type, and the resource name",
         code: "CONJ00054E"
+      )
+    end
+
+    module AuthnGcp
+
+      InvalidAudience = ::Util::TrackableErrorClass.new(
+        msg:  "'audience' token claim {0} is invalid. The format should be " \
+              "'conjur/<account_name>/<host_id>'",
+        code: "CONJ00066E"
+      )
+
+      TokenClaimNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
+        msg:  "Claim '{0-claim-name}' not found or empty in token. " \
+              "Verify you request the token using 'format=full'",
+        code: "CONJ00067E"
       )
     end
   end

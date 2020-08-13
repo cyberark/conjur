@@ -87,6 +87,17 @@ class AuthenticateController < ApplicationController
     authenticate(input)
   end
 
+  def authenticate_gcp
+    params[:authenticator] = "authn-gcp"
+    input = Authentication::AuthnGcp::UpdateAuthenticatorInput.new.(
+      authenticator_input: authenticator_input
+    )
+  rescue => e
+    handle_authentication_error(e)
+  else
+    authenticate(input)
+  end
+
   def authenticator_input
     Authentication::AuthenticatorInput.new(
       authenticator_name: params[:authenticator],
@@ -140,7 +151,7 @@ class AuthenticateController < ApplicationController
       Errors::Authentication::Security::WebserviceNotFound,
       Errors::Authentication::Security::RoleNotFound,
       Errors::Authentication::Security::AccountNotDefined,
-      Errors::Authentication::AuthnOidc::IdTokenFieldNotFoundOrEmpty,
+      Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty,
       Errors::Authentication::Jwt::TokenVerificationFailed,
       Errors::Authentication::Jwt::TokenDecodeFailed,
       Errors::Conjur::RequiredSecretMissing,
