@@ -201,6 +201,16 @@ module LogMessages
           code: "CONJ00040D"
       )
 
+      ValidatingResourceRestrictionsConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating resource restrictions configuration",
+        code: "CONJ00041D"
+      )
+
+      ValidatedResourceRestrictionsConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Resource restrictions configuration is validated",
+        code: "CONJ00042D"
+      )
+
     end
   end
 
