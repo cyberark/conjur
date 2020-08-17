@@ -5,22 +5,23 @@ module Authentication
 
     Authenticator = CommandClass.new(
       dependencies: {
-        logger: Rails.logger
+        validate_resource_restrictions: ValidateResourceRestrictions.new,
+        logger:                         Rails.logger
       },
       inputs:       [:authenticator_input]
     ) do
 
-      extend Forwardable
-      def_delegators :@authenticator_input, :account, :credentials, :username
-
       def call
-        # TODO: validate resource restrictions
-        # Note: 'credentials' is now the decoded token. you can access its
-        # fields with an argument reader (e.g credentials.project_id)
+        validate_resource_restrictions
       end
 
       private
 
+      def validate_resource_restrictions
+        @validate_resource_restrictions.call(
+          authenticator_input: @authenticator_input
+        )
+      end
     end
 
     class Authenticator
