@@ -32,14 +32,11 @@ module Authentication
       end
 
       def restriction_type_without_prefix(restriction_type)
-        restriction_type_without_prefix = restriction_type.sub(@restriction_prefix, "")
-        restriction_type_without_prefix
+        restriction_type.sub(@restriction_prefix, "")
       end
 
-      def restriction_value_from_token(restriction_type_without_prefix)
-        restriction_value_from_token = nil
-
-        case restriction_type_without_prefix
+      def restriction_value_from_token(restriction_type)
+        case restriction_type
         when PROJECT_ID_RESTRICTION_NAME
           restriction_value_from_token = @decoded_token.project_id
         when INSTANCE_NAME_RESTRICTION_NAME
