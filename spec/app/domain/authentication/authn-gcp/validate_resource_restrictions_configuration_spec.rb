@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration' do
+RSpec.describe 'Authentication::AuthnGcp::ValidateResourceRestrictionsConfiguration' do
 
   let(:gcp_instance_name_annotation_key) {'authn-gcp/instance-name'}
   let(:gcp_instance_name_annotation_value) {'instance-name'}
@@ -40,7 +40,7 @@ RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfigurat
 
   let(:resource_restrictions_with_1_valid) {
     [
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_instance_name_annotation_key,
         value: gcp_instance_name_annotation_value
       )
@@ -49,19 +49,19 @@ RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfigurat
 
   let(:resource_restrictions_with_4_valid) {
     [
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_instance_name_annotation_key,
         value: gcp_instance_name_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_project_id_annotation_key,
         value: gcp_project_id_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_service_account_id_annotation_key,
         value: gcp_service_account_id_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_service_account_email_annotation_key,
         value: gcp_service_account_email_annotation_value
       )
@@ -70,7 +70,7 @@ RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfigurat
 
   let(:resource_restrictions_with_1_illegal) {
     [
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: invalid_gcp_annotation_key,
         value: invalid_gcp_annotation_value
       )
@@ -79,23 +79,23 @@ RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfigurat
 
   let(:resource_restrictions_with_4_valid_and_1_illegal) {
     [
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_instance_name_annotation_key,
         value: gcp_instance_name_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_project_id_annotation_key,
         value: gcp_project_id_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_service_account_id_annotation_key,
         value: gcp_service_account_id_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_service_account_email_annotation_key,
         value: gcp_service_account_email_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: invalid_gcp_annotation_key,
         value: invalid_gcp_annotation_value
       )
@@ -104,19 +104,19 @@ RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfigurat
 
   let(:resource_restrictions_with_empty_values) {
     [
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_instance_name_annotation_key,
         value: empty_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_project_id_annotation_key,
         value: empty_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_service_account_id_annotation_key,
         value: empty_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_service_account_email_annotation_key,
         value: empty_annotation_value
       )
@@ -125,19 +125,19 @@ RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfigurat
 
   let(:resource_restrictions_with_nil_values) {
     [
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_instance_name_annotation_key,
         value: nil_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_project_id_annotation_key,
         value: nil_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_service_account_id_annotation_key,
         value: nil_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_service_account_email_annotation_key,
         value: nil_annotation_value
       )
@@ -146,19 +146,19 @@ RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfigurat
 
   let(:resource_restrictions_with_empty_types) {
     [
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: empty_annotation_key,
         value: gcp_instance_name_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: empty_annotation_key,
         value: gcp_project_id_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: empty_annotation_key,
         value: gcp_service_account_id_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: empty_annotation_key,
         value: gcp_service_account_email_annotation_value
       )
@@ -167,19 +167,19 @@ RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfigurat
 
   let(:resource_restrictions_with_nil_types) {
     [
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: nil_annotation_key,
         value: gcp_instance_name_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: nil_annotation_key,
         value: gcp_project_id_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: nil_annotation_key,
         value: gcp_service_account_id_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: nil_annotation_key,
         value: gcp_service_account_email_annotation_value
       )
@@ -188,23 +188,23 @@ RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfigurat
 
   let(:resource_restrictions_with_duplicated_types) {
     [
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_instance_name_annotation_key,
         value: gcp_instance_name_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_project_id_annotation_key,
         value: gcp_project_id_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_service_account_id_annotation_key,
         value: gcp_service_account_id_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_service_account_email_annotation_key,
         value: gcp_service_account_email_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_instance_name_annotation_key,
         value: gcp_instance_name_annotation_value
       )
@@ -220,7 +220,7 @@ RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfigurat
     context "permitted constraints are 4 gcp values" do
       context "when resource restrictions list contains 1 valid restriction" do
         subject do
-          Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration.new.call(
+          Authentication::AuthnGcp::ValidateResourceRestrictionsConfiguration.new.call(
             resource_restrictions: resource_restrictions_with_1_valid,
             permitted_constraints: gcp_permitted_constraints
           )
@@ -233,7 +233,7 @@ RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfigurat
 
       context "when resource restrictions list contains 4 valid restrictions" do
         subject do
-          Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration.new.call(
+          Authentication::AuthnGcp::ValidateResourceRestrictionsConfiguration.new.call(
             resource_restrictions: resource_restrictions_with_4_valid,
             permitted_constraints: gcp_permitted_constraints
           )
@@ -250,7 +250,7 @@ RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfigurat
     context "permitted constraints are 4 gcp values" do
       context "when resource restrictions list is empty" do
         subject do
-          Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration.new.call(
+          Authentication::AuthnGcp::ValidateResourceRestrictionsConfiguration.new.call(
             resource_restrictions: Array.new,
             permitted_constraints: gcp_permitted_constraints
           )
@@ -263,7 +263,7 @@ RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfigurat
 
       context "when resource restrictions list is nil" do
         subject do
-          Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration.new.call(
+          Authentication::AuthnGcp::ValidateResourceRestrictionsConfiguration.new.call(
             resource_restrictions: nil,
             permitted_constraints: gcp_permitted_constraints
           )
@@ -277,7 +277,7 @@ RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfigurat
       context "when resource restrictions contains illegal constraints" do
         context "with 1 illegal restriction" do
           subject do
-            Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration.new.call(
+            Authentication::AuthnGcp::ValidateResourceRestrictionsConfiguration.new.call(
               resource_restrictions: resource_restrictions_with_1_illegal,
               permitted_constraints: gcp_permitted_constraints
             )
@@ -290,7 +290,7 @@ RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfigurat
 
         context "with 4 valid and 1 illegal restriction" do
           subject do
-            Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration.new.call(
+            Authentication::AuthnGcp::ValidateResourceRestrictionsConfiguration.new.call(
               resource_restrictions: resource_restrictions_with_4_valid_and_1_illegal,
               permitted_constraints: gcp_permitted_constraints
             )
@@ -304,7 +304,7 @@ RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfigurat
 
       context "when resource restrictions contains empty values" do
         subject do
-          Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration.new.call(
+          Authentication::AuthnGcp::ValidateResourceRestrictionsConfiguration.new.call(
             resource_restrictions: resource_restrictions_with_empty_values,
             permitted_constraints: gcp_permitted_constraints
           )
@@ -317,7 +317,7 @@ RSpec.describe 'Authentication::AuthnGCP::ValidateResourceRestrictionsConfigurat
 
       context "when resource restrictions contains nil values" do
         subject do
-          Authentication::AuthnGCP::ValidateResourceRestrictionsConfiguration.new.call(
+          Authentication::AuthnGcp::ValidateResourceRestrictionsConfiguration.new.call(
             resource_restrictions: resource_restrictions_with_nil_values,
             permitted_constraints: gcp_permitted_constraints
           )

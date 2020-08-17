@@ -181,6 +181,12 @@ module Errors
         code: "CONJ00051E"
       )
 
+      InvalidResourceRestrictions = ::Util::TrackableErrorClass.new(
+        msg:  "Resource restriction '{0-resource-restriction-name}' does not match " \
+            "resource in JWT token",
+        code: "CONJ00049E"
+      )
+
     end
 
     module AuthnOidc
@@ -324,12 +330,6 @@ module Errors
     end
 
     module AuthnAzure
-
-      InvalidResourceRestrictions = ::Util::TrackableErrorClass.new(
-        msg:  "Resource restriction '{0-resource-restriction-name}' does not match " \
-            "resource in Azure token",
-        code: "CONJ00049E"
-      )
 
       XmsMiridParseError = ::Util::TrackableErrorClass.new(
         msg:  "Failed to parse xms_mirid {0}. Reason: {1}",
