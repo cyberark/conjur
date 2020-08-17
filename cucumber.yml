@@ -83,6 +83,7 @@ authenticators_gcp: >
   --format pretty
   -r cucumber/api/features/support/step_def_transforms.rb
   -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/support/ssh_helpers.rb
   -r cucumber/api/features/step_definitions/request_steps.rb
   -r cucumber/api/features/step_definitions/user_steps.rb
   -r cucumber/api/features/support/logs_helpers.rb
