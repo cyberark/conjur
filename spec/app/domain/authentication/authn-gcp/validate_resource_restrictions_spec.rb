@@ -22,11 +22,13 @@ RSpec.describe 'Authentication::AuthnGcp::ValidateResourceRestrictions' do
   let(:invalid_gcp_restriction_type) {'invalid-gcp-restriction-type'}
   let(:invalid_gcp_restriction_value) {'invalid-gcp-restriction-value'}
 
-  let(:mocked_resource_restrictions_return_4_valid) {double("ResourceRestrictions")}
-  let(:mocked_resource_restrictions_return_4_valid_and_1_illegal) {double("ResourceRestrictions")}
-  let(:mocked_resource_restrictions_return_4_invalid_values) {double("ResourceRestrictions")}
+  let(:mocked_decoded_token_class_return_valid_values) {double("DecodedToken")}
 
-  let(:resource_restrictions_with_4_valid) {
+  let(:mocked_resource_restrictions_return_all_valid_permitted_restrictions) {double("ResourceRestrictions")}
+  let(:mocked_resource_restrictions_return_all_valid_permitted_restrictions_and_1_illegal) {double("ResourceRestrictions")}
+  let(:mocked_resource_restrictions_return_all_permitted_restrictions_with_invalid_values) {double("ResourceRestrictions")}
+
+  let(:resource_restrictions_with_all_valid_permitted_restrictions) {
     [
       Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_instance_name_restriction_type,
@@ -47,7 +49,7 @@ RSpec.describe 'Authentication::AuthnGcp::ValidateResourceRestrictions' do
     ]
   }
 
-  let(:resource_restrictions_with_4_valid_and_1_illegal) {
+  let(:resource_restrictions_with_all_valid_permitted_restrictions_and_1_illegal) {
     [
       Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_instance_name_restriction_type,
@@ -72,7 +74,7 @@ RSpec.describe 'Authentication::AuthnGcp::ValidateResourceRestrictions' do
     ]
   }
 
-  let(:resource_restrictions_with_4_invalid_values) {
+  let(:resource_restrictions_with_all_permitted_restrictions_with_invalid_values) {
     [
       Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_instance_name_restriction_type,
@@ -93,9 +95,6 @@ RSpec.describe 'Authentication::AuthnGcp::ValidateResourceRestrictions' do
     ]
   }
 
-  let(:mocked_decoded_token_class_return_valid_values) {double("DecodedToken")}
-  let(:mocked_authenticator_input_return_valid_values) {double("AuthenticatorInput")}
-
   before(:each) do
     allow(mocked_decoded_token_class_return_valid_values).to receive(:project_id)
                                                                .and_return(gcp_project_id_restriction_valid_value)
@@ -106,19 +105,12 @@ RSpec.describe 'Authentication::AuthnGcp::ValidateResourceRestrictions' do
     allow(mocked_decoded_token_class_return_valid_values).to receive(:service_account_email)
                                                                .and_return(gcp_service_account_email_restriction_valid_value)
 
-    allow(mocked_resource_restrictions_return_4_valid).to receive(:call)
-                                                            .and_return(resource_restrictions_with_4_valid)
-    allow(mocked_resource_restrictions_return_4_valid_and_1_illegal).to receive(:call)
-                                                                          .and_return(resource_restrictions_with_4_valid_and_1_illegal)
-    allow(mocked_resource_restrictions_return_4_invalid_values).to receive(:call)
-                                                                     .and_return(resource_restrictions_with_4_invalid_values)
-
-    allow(mocked_authenticator_input_return_valid_values).to receive(:account)
-                                                               .and_return(valid_account)
-    allow(mocked_authenticator_input_return_valid_values).to receive(:username)
-                                                               .and_return(valid_host)
-    allow(mocked_authenticator_input_return_valid_values).to receive(:credentials)
-                                                               .and_return(mocked_decoded_token_class_return_valid_values)
+    allow(mocked_resource_restrictions_return_all_valid_permitted_restrictions).to receive(:call)
+                                                                                     .and_return(resource_restrictions_with_all_valid_permitted_restrictions)
+    allow(mocked_resource_restrictions_return_all_valid_permitted_restrictions_and_1_illegal).to receive(:call)
+                                                                                                   .and_return(resource_restrictions_with_all_valid_permitted_restrictions_and_1_illegal)
+    allow(mocked_resource_restrictions_return_all_permitted_restrictions_with_invalid_values).to receive(:call)
+                                                                                                   .and_return(resource_restrictions_with_all_permitted_restrictions_with_invalid_values)
 
   end
 
@@ -131,9 +123,11 @@ RSpec.describe 'Authentication::AuthnGcp::ValidateResourceRestrictions' do
     context "when all resource restrictions values exists in GCP token" do
       subject do
         ::Authentication::AuthnGcp::ValidateResourceRestrictions.new(
-          extract_resource_restrictions: mocked_resource_restrictions_return_4_valid
+          extract_resource_restrictions: mocked_resource_restrictions_return_all_valid_permitted_restrictions
         ).call(
-          authenticator_input: mocked_authenticator_input_return_valid_values
+          account:     valid_account,
+          username:    valid_host,
+          credentials: mocked_decoded_token_class_return_valid_values
         )
       end
 
@@ -147,9 +141,11 @@ RSpec.describe 'Authentication::AuthnGcp::ValidateResourceRestrictions' do
     context "when resource restrictions contains illegal constraints" do
       subject do
         ::Authentication::AuthnGcp::ValidateResourceRestrictions.new(
-          extract_resource_restrictions: mocked_resource_restrictions_return_4_valid_and_1_illegal
+          extract_resource_restrictions: mocked_resource_restrictions_return_all_valid_permitted_restrictions_and_1_illegal
         ).call(
-          authenticator_input: mocked_authenticator_input_return_valid_values
+          account:     valid_account,
+          username:    valid_host,
+          credentials: mocked_decoded_token_class_return_valid_values
         )
       end
 
@@ -161,9 +157,11 @@ RSpec.describe 'Authentication::AuthnGcp::ValidateResourceRestrictions' do
     context "when resource restrictions values do not match JWT token" do
       subject do
         ::Authentication::AuthnGcp::ValidateResourceRestrictions.new(
-          extract_resource_restrictions: mocked_resource_restrictions_return_4_invalid_values
+          extract_resource_restrictions: mocked_resource_restrictions_return_all_permitted_restrictions_with_invalid_values
         ).call(
-          authenticator_input: mocked_authenticator_input_return_valid_values
+          account:     valid_account,
+          username:    valid_host,
+          credentials: mocked_decoded_token_class_return_valid_values
         )
       end
 

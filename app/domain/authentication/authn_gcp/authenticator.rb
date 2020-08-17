@@ -11,6 +11,9 @@ module Authentication
       inputs:       [:authenticator_input]
     ) do
 
+      extend Forwardable
+      def_delegators :@authenticator_input, :account, :username, :credentials
+
       def call
         validate_resource_restrictions
       end
@@ -19,7 +22,9 @@ module Authentication
 
       def validate_resource_restrictions
         @validate_resource_restrictions.call(
-          authenticator_input: @authenticator_input
+          account:     account,
+          username:    username,
+          credentials: credentials
         )
       end
     end
