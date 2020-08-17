@@ -1,7 +1,7 @@
 require 'command_class'
 
 module Authentication
-  module AuthnGCP
+  module AuthnGcp
 
     # This class is responsible of restrictions extraction that are set on a Conjur host or user as annotations.
     ExtractResourceRestrictions = CommandClass.new(
@@ -29,7 +29,7 @@ module Authentication
       end
 
       def extract_resource_restrictions
-        @logger.debug(LogMessages::Authentication::AuthnGCP::ExtractingRestrictionsFromResource.new(@username, @extraction_prefix))
+        @logger.debug(LogMessages::Authentication::AuthnGcp::ExtractingRestrictionsFromResource.new(@username, @extraction_prefix))
         prefixed_resource_annotations.select do |a|
           annotation_name = a.values[:name]
           resource_value = annotation_value(annotation_name)
@@ -41,7 +41,7 @@ module Authentication
             )
           )
         end
-        @logger.debug(LogMessages::Authentication::AuthnGCP::ExtractedResourceRestrictions.new(resource_restrictions.length))
+        @logger.debug(LogMessages::Authentication::AuthnGcp::ExtractedResourceRestrictions.new(resource_restrictions.length))
       end
 
       def prefixed_resource_annotations

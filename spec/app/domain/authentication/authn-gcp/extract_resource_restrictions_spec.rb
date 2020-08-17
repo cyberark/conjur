@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
+RSpec.describe 'Authentication::AuthnGcp::ExtractResourceRestrictions' do
 
   include_context "security mocks"
 
@@ -75,39 +75,39 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
 
   let(:expected_resource_restrictions_list_for_empty_prefix) {
     [
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_instance_name_annotation_key,
         value: gcp_instance_name_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_project_id_annotation_key,
         value: gcp_project_id_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_service_account_id_annotation_key,
         value: gcp_service_account_id_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_service_account_email_annotation_key,
         value: gcp_service_account_email_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: description_annotation_key,
         value: description_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: upper_case_annotation_key,
         value: upper_case_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: invalid_gcp_annotation_key,
         value: invalid_gcp_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: empty_gcp_key_annotation_key,
         value: empty_gcp_key_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: empty_gcp_val_annotation_key,
         value: empty_gcp_val_annotation_value
       )
@@ -116,27 +116,27 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
 
   let(:expected_resource_restrictions_list_for_valid_prefix) {
     [
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_instance_name_annotation_key,
         value: gcp_instance_name_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_project_id_annotation_key,
         value: gcp_project_id_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_service_account_id_annotation_key,
         value: gcp_service_account_id_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_service_account_email_annotation_key,
         value: gcp_service_account_email_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: empty_gcp_key_annotation_key,
         value: empty_gcp_key_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: empty_gcp_val_annotation_key,
         value: empty_gcp_val_annotation_value
       )
@@ -145,7 +145,7 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
 
   let(:expected_resource_restrictions_list_for_case_sensitive_prefix) {
     [
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: upper_case_annotation_key,
         value: upper_case_annotation_value
       )
@@ -154,31 +154,31 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
 
   let(:expected_resource_restrictions_list_for_without_slash_prefix) {
     [
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_instance_name_annotation_key,
         value: gcp_instance_name_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_project_id_annotation_key,
         value: gcp_project_id_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_service_account_id_annotation_key,
         value: gcp_service_account_id_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_service_account_email_annotation_key,
         value: gcp_service_account_email_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: invalid_gcp_annotation_key,
         value: invalid_gcp_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: empty_gcp_key_annotation_key,
         value: empty_gcp_key_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: empty_gcp_val_annotation_key,
         value: empty_gcp_val_annotation_value
       )
@@ -187,19 +187,19 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
 
   let(:expected_resource_restrictions_list_with_duplications_for_empty_prefix) {
     [
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_instance_name_annotation_key,
         value: gcp_instance_name_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: description_annotation_key,
         value: description_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_instance_name_annotation_key,
         value: gcp_instance_name_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: description_annotation_key,
         value: description_annotation_value
       )
@@ -208,11 +208,11 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
 
   let(:expected_resource_restrictions_list_with_duplications_for_valid_prefix) {
     [
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_instance_name_annotation_key,
         value: gcp_instance_name_annotation_value
       ),
-      Authentication::AuthnGCP::ResourceRestriction.new(
+      Authentication::AuthnGcp::ResourceRestriction.new(
         type: gcp_instance_name_annotation_key,
         value: gcp_instance_name_annotation_value
       )
@@ -275,7 +275,7 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
     context "host contains multiple annotations" do
       context "when prefix is empty" do
         subject do
-          Authentication::AuthnGCP::ExtractResourceRestrictions.new(
+          Authentication::AuthnGcp::ExtractResourceRestrictions.new(
             resource_class:          mocked_resource_class_return_annotations_list,
             validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(
@@ -292,7 +292,7 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
 
       context "when prefix case-sensitive with value authn-GCP/" do
         subject do
-          Authentication::AuthnGCP::ExtractResourceRestrictions.new(
+          Authentication::AuthnGcp::ExtractResourceRestrictions.new(
             resource_class:          mocked_resource_class_return_annotations_list,
             validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(
@@ -309,7 +309,7 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
 
       context "when prefix without_slash_prefix" do
         subject do
-          Authentication::AuthnGCP::ExtractResourceRestrictions.new(
+          Authentication::AuthnGcp::ExtractResourceRestrictions.new(
             resource_class:          mocked_resource_class_return_annotations_list,
             validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(
@@ -326,7 +326,7 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
 
       context "when prefix is valid with value auth-gcp/" do
         subject do
-          Authentication::AuthnGCP::ExtractResourceRestrictions.new(
+          Authentication::AuthnGcp::ExtractResourceRestrictions.new(
             resource_class:          mocked_resource_class_return_annotations_list,
             validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(
@@ -345,7 +345,7 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
     context "host not contains annotations" do
       context "when annotations returned is nil" do
         subject do
-          Authentication::AuthnGCP::ExtractResourceRestrictions.new(
+          Authentication::AuthnGcp::ExtractResourceRestrictions.new(
             resource_class:          mocked_resource_class_return_annotations_nil,
             validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(
@@ -362,7 +362,7 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
 
       context "when annotations returned is empty list" do
         subject do
-          Authentication::AuthnGCP::ExtractResourceRestrictions.new(
+          Authentication::AuthnGcp::ExtractResourceRestrictions.new(
             resource_class:          mocked_resource_class_return_annotations_empty_list,
             validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(
@@ -381,7 +381,7 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
     context "host contains duplicate annotations" do
       context "when prefix is empty" do
         subject do
-          Authentication::AuthnGCP::ExtractResourceRestrictions.new(
+          Authentication::AuthnGcp::ExtractResourceRestrictions.new(
             resource_class:          mocked_resource_class_return_annotations_list_with_duplications,
             validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(
@@ -398,7 +398,7 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
 
       context "when prefix is valid with value auth-gcp/" do
         subject do
-          Authentication::AuthnGCP::ExtractResourceRestrictions.new(
+          Authentication::AuthnGcp::ExtractResourceRestrictions.new(
             resource_class:          mocked_resource_class_return_annotations_list_with_duplications,
             validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(
@@ -418,7 +418,7 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
   context "An invalid input parameters to extract resource restrictions" do
     context "when account does not exists" do
       subject do
-        Authentication::AuthnGCP::ExtractResourceRestrictions.new(
+        Authentication::AuthnGcp::ExtractResourceRestrictions.new(
           resource_class:          mocked_resource_class_return_nil,
           validate_account_exists: mock_validate_account_exists(validation_succeeded: false)
         ).call(
@@ -434,7 +434,7 @@ RSpec.describe 'Authentication::AuthnGCP::ExtractResourceRestrictions' do
 
       context "when host does not exists" do
         subject do
-          Authentication::AuthnGCP::ExtractResourceRestrictions.new(
+          Authentication::AuthnGcp::ExtractResourceRestrictions.new(
             resource_class:          mocked_resource_class_return_nil,
             validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(

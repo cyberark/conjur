@@ -44,6 +44,11 @@ module LogMessages
       code: "CONJ00030D"
     )
 
+    ValidatedResourceRestrictionValue = ::Util::TrackableLogMessageClass.new(
+      msg:  "Resource restriction '{0-resource-restriction-name}' value validated",
+      code: "CONJ00043D"
+    )
+
     module OAuth
 
       IdentityProviderUri = ::Util::TrackableLogMessageClass.new(
@@ -189,7 +194,7 @@ module LogMessages
 
     end
 
-    module AuthnGCP
+    module AuthnGcp
 
       ExtractingRestrictionsFromResource = ::Util::TrackableLogMessageClass.new(
           msg: "Extracting resource restrictions from role '{0-role-id}' with prefix '{1-prefix}'",
@@ -209,6 +214,16 @@ module LogMessages
       ValidatedResourceRestrictionsConfiguration = ::Util::TrackableLogMessageClass.new(
         msg: "Resource restrictions configuration is validated",
         code: "CONJ00042D"
+      )
+
+      ValidatingResourceRestrictionsValues = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating resource restrictions values against GCP token",
+        code: "CONJ00044D"
+      )
+
+      ValidatedResourceRestrictionsValues = ::Util::TrackableLogMessageClass.new(
+        msg: "Resource restrictions values are validated",
+        code: "CONJ00045D"
       )
 
     end
