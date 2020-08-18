@@ -1,5 +1,5 @@
 module Authentication
-  module AuthnGcp
+  module AuthnGce
 
     class ResourceRestriction
       attr_reader :type, :value

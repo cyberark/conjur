@@ -32,7 +32,7 @@ Rails.application.routes.draw do
 
         # authn-oidc has to be first as it can be ambgiuous with the optional :service_id & :id
         post '/authn-oidc(/:service_id)/:account/authenticate' => 'authenticate#authenticate_oidc'
-        post '/authn-gcp/:account/authenticate' => 'authenticate#authenticate_gcp'
+        post '/authn-gce/:account/authenticate' => 'authenticate#authenticate_gce'
         post '/:authenticator(/:service_id)/:account/:id/authenticate' => 'authenticate#authenticate'
 
         # Update password is only relevant when using the default authenticator

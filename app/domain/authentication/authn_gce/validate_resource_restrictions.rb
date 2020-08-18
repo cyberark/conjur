@@ -1,5 +1,5 @@
 module Authentication
-  module AuthnGcp
+  module AuthnGce
 
     # This class is responsible of validating resource restrictions which are configured on a Conjur host or user
     # against google JWT token.

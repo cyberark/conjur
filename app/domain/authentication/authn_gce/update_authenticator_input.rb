@@ -1,7 +1,7 @@
 require 'command_class'
 
 module Authentication
-  module AuthnGcp
+  module AuthnGce
 
     UpdateAuthenticatorInput = CommandClass.new(
       dependencies: {
@@ -51,7 +51,7 @@ module Authentication
         if audience_parts.length != 3 ||
           audience_parts[0] != "conjur" ||
           audience_parts[1] != account
-          raise Errors::Authentication::AuthnGcp::InvalidAudience, audience
+          raise Errors::Authentication::AuthnGce::InvalidAudience, audience
         end
       end
 

@@ -1,7 +1,7 @@
 require 'command_class'
 
 module Authentication
-  module AuthnGcp
+  module AuthnGce
 
     Authenticator = CommandClass.new(
       dependencies: {
@@ -43,7 +43,7 @@ module Authentication
       end
 
       def status(authenticator_status_input:)
-        Authentication::AuthnGcp::ValidateStatus.new.call
+        Authentication::AuthnGce::ValidateStatus.new.call
       end
     end
   end

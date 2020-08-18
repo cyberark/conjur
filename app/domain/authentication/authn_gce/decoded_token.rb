@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Authentication
-  module AuthnGcp
+  module AuthnGce
 
     class DecodedToken
 
@@ -31,7 +31,7 @@ module Authentication
         token_claim_value = @decoded_token_hash.dig *token_claim_path
 
         unless token_claim_value
-          raise Errors::Authentication::AuthnGcp::TokenClaimNotFoundOrEmpty, token_claim
+          raise Errors::Authentication::AuthnGce::TokenClaimNotFoundOrEmpty, token_claim
         end
 
         @logger.debug(
