@@ -49,6 +49,11 @@ module LogMessages
       code: "CONJ00043D"
     )
 
+    ValidatingResourceRestrictions = ::Util::TrackableLogMessageClass.new(
+      msg:  "Validating resource restriction for role '{0-role-id}'",
+      code: "CONJ00046D"
+    )
+
     module OAuth
 
       IdentityProviderUri = ::Util::TrackableLogMessageClass.new(
