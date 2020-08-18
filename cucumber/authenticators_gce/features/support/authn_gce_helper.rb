@@ -1,4 +1,4 @@
-module AuthnGcpHelper
+module AuthnGceHelper
   include AuthenticatorHelpers
 
   # @todo Remove the env variables we the the vars will be injected
@@ -8,9 +8,9 @@ module AuthnGcpHelper
   # export GCE_INSTANCE_NAME='gcp-authn'
   # export GCE_INSTANCE_USERNAME='gcp-authn'
   # export GCE_PRIVATE_KEY_PATH=./.gcp-authn
-  # export GCP_SERVICE_ACCOUNT_ID='108551114425891493254'
-  # export GCP_SERVICE_ACCOUNT_EMAIL='120811889825-compute@developer.gserviceaccount.com'
-  # export GCP_PROJECT_ID='refreshing-mark-284016'
+  # export GCE_SERVICE_ACCOUNT_ID='108551114425891493254'
+  # export GCE_SERVICE_ACCOUNT_EMAIL='120811889825-compute@developer.gserviceaccount.com'
+  # export GCE_PROJECT_ID='refreshing-mark-284016'
 
   # Obtains a GCE identity token by running a curl command inside a GCE instance using ssh.
   # The above ENV variables are assumed to be set.
@@ -45,16 +45,16 @@ module AuthnGcpHelper
     @private_key_path ||= validated_env_var('GCE_PRIVATE_KEY_PATH')
   end
 
-  def gcp_service_account_email
-    @gcp_service_account_email ||= validated_env_var('GCP_SERVICE_ACCOUNT_EMAIL')
+  def gce_service_account_email
+    @gce_service_account_email ||= validated_env_var('GCE_SERVICE_ACCOUNT_EMAIL')
   end
 
-  def gcp_project_id
-    @gcp_project_id ||= validated_env_var('GCP_PROJECT_ID')
+  def gce_project_id
+    @gce_project_id ||= validated_env_var('GCE_PROJECT_ID')
   end
 
-  def gcp_service_account_id
-    @gcp_service_account_id ||= validated_env_var('GCP_SERVICE_ACCOUNT_ID')
+  def gce_service_account_id
+    @gce_service_account_id ||= validated_env_var('GCE_SERVICE_ACCOUNT_ID')
   end
 
   def identity_token_curl_cmd(audience, token_format)
@@ -64,14 +64,14 @@ module AuthnGcpHelper
     "curl -s -H '#{header}' '#{url}?#{query_string}'"
   end
 
-  def authenticate_gcp_token(account:, gcp_token:)
-    path_uri = "#{conjur_hostname}/authn-gcp/#{account}/authenticate"
+  def authenticate_gce_token(account:, gce_token:)
+    path_uri = "#{conjur_hostname}/authn-gce/#{account}/authenticate"
 
     payload = {}
-    payload["jwt"] = gcp_token
+    payload["jwt"] = gce_token
 
     post(path_uri, payload)
   end
 end
 
-World(AuthnGcpHelper)
+World(AuthnGceHelper)

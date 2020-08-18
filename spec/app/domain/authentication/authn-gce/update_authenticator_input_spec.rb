@@ -2,10 +2,10 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
+RSpec.describe 'Authentication::AuthnGce::UpdateAuthenticatorInput' do
 
   let(:account) { "my-acct" }
-  let(:authenticator_name) { "authn-gcp" }
+  let(:authenticator_name) { "authn-gce" }
   let(:hostname) { "path/to/host" }
   let(:rooted_hostname) { "host" }
 
@@ -22,8 +22,8 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
   # request mock
   ####################################
 
-  def mock_authenticate_gcp_token_request(request_body_data:)
-    double('AuthnGcpRequest').tap do |request|
+  def mock_authenticate_gce_token_request(request_body_data:)
+    double('AuthnGceRequest').tap do |request|
       request_body = StringIO.new
       request_body.puts request_body_data
       request_body.rewind
@@ -36,8 +36,8 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
     request.body.read.chomp
   end
 
-  let(:authenticate_gcp_token_request) do
-    mock_authenticate_gcp_token_request(request_body_data: "jwt={\"jwt_claim\": \"jwt_claim_value\"}")
+  let(:authenticate_gce_token_request) do
+    mock_authenticate_gce_token_request(request_body_data: "jwt={\"jwt_claim\": \"jwt_claim_value\"}")
   end
 
   let(:valid_audience) { "conjur/#{account}/#{hostname}" }
@@ -64,7 +64,7 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
-  context "A GCP authenticator" do
+  context "A GCE authenticator" do
     context "that receives an authenticate request" do
       context "with a valid token" do
         context "non-rooted host" do
@@ -74,12 +74,12 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
               service_id:         nil,
               account:            account,
               username:           hostname,
-              credentials:        request_body(authenticate_gcp_token_request),
+              credentials:        request_body(authenticate_gce_token_request),
               client_ip:          '127.0.0.1',
-              request:            authenticate_gcp_token_request
+              request:            authenticate_gce_token_request
             )
 
-            ::Authentication::AuthnGcp::UpdateAuthenticatorInput.new(
+            ::Authentication::AuthnGce::UpdateAuthenticatorInput.new(
               verify_and_decode_token: mocked_verify_and_decode_token,
               decoded_token_class: mocked_decoded_token_class(valid_audience)
             ).call(
@@ -107,12 +107,12 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
               service_id:         nil,
               account:            account,
               username:           hostname,
-              credentials:        request_body(authenticate_gcp_token_request),
+              credentials:        request_body(authenticate_gce_token_request),
               client_ip:          '127.0.0.1',
-              request:            authenticate_gcp_token_request
+              request:            authenticate_gce_token_request
             )
 
-            ::Authentication::AuthnGcp::UpdateAuthenticatorInput.new(
+            ::Authentication::AuthnGce::UpdateAuthenticatorInput.new(
               verify_and_decode_token: mocked_verify_and_decode_token,
               decoded_token_class: mocked_decoded_token_class(valid_audience_rooted_host)
             ).call(
@@ -142,12 +142,12 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
               service_id:         nil,
               account:            account,
               username:           hostname,
-              credentials:        request_body(authenticate_gcp_token_request),
+              credentials:        request_body(authenticate_gce_token_request),
               client_ip:          '127.0.0.1',
-              request:            authenticate_gcp_token_request
+              request:            authenticate_gce_token_request
             )
 
-            ::Authentication::AuthnGcp::UpdateAuthenticatorInput.new(
+            ::Authentication::AuthnGce::UpdateAuthenticatorInput.new(
               verify_and_decode_token:        mocked_verify_and_decode_token,
               decoded_token_class: mocked_decoded_token_class(valid_audience)
             ).call(
@@ -173,12 +173,12 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
                 service_id:         nil,
                 account:            account,
                 username:           hostname,
-                credentials:        request_body(authenticate_gcp_token_request),
+                credentials:        request_body(authenticate_gce_token_request),
                 client_ip:          '127.0.0.1',
-                request:            authenticate_gcp_token_request
+                request:            authenticate_gce_token_request
               )
 
-              ::Authentication::AuthnGcp::UpdateAuthenticatorInput.new(
+              ::Authentication::AuthnGce::UpdateAuthenticatorInput.new(
                 verify_and_decode_token:        mocked_verify_and_decode_token,
                 decoded_token_class: mocked_decoded_token_class(two_parts_audience)
               ).call(
@@ -188,7 +188,7 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
 
             it 'raises an InvalidAudience error' do
               expect { subject }.to raise_error(
-                Errors::Authentication::AuthnGcp::InvalidAudience
+                Errors::Authentication::AuthnGce::InvalidAudience
               )
             end
           end
@@ -200,12 +200,12 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
                 service_id:         nil,
                 account:            account,
                 username:           hostname,
-                credentials:        request_body(authenticate_gcp_token_request),
+                credentials:        request_body(authenticate_gce_token_request),
                 client_ip:          '127.0.0.1',
-                request:            authenticate_gcp_token_request
+                request:            authenticate_gce_token_request
               )
 
-              ::Authentication::AuthnGcp::UpdateAuthenticatorInput.new(
+              ::Authentication::AuthnGce::UpdateAuthenticatorInput.new(
                 verify_and_decode_token:        mocked_verify_and_decode_token,
                 decoded_token_class: mocked_decoded_token_class(missing_conjur_prefix_audience)
               ).call(
@@ -215,7 +215,7 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
 
             it 'raises an InvalidAudience error' do
               expect { subject }.to raise_error(
-                Errors::Authentication::AuthnGcp::InvalidAudience
+                Errors::Authentication::AuthnGce::InvalidAudience
               )
             end
           end
@@ -227,12 +227,12 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
                 service_id:         nil,
                 account:            account,
                 username:           hostname,
-                credentials:        request_body(authenticate_gcp_token_request),
+                credentials:        request_body(authenticate_gce_token_request),
                 client_ip:          '127.0.0.1',
-                request:            authenticate_gcp_token_request
+                request:            authenticate_gce_token_request
               )
 
-              ::Authentication::AuthnGcp::UpdateAuthenticatorInput.new(
+              ::Authentication::AuthnGce::UpdateAuthenticatorInput.new(
                 verify_and_decode_token:        mocked_verify_and_decode_token,
                 decoded_token_class: mocked_decoded_token_class(incorrect_account_audience)
               ).call(
@@ -242,7 +242,7 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
 
             it 'raises an InvalidAudience error' do
               expect { subject }.to raise_error(
-                Errors::Authentication::AuthnGcp::InvalidAudience
+                Errors::Authentication::AuthnGce::InvalidAudience
               )
             end
           end

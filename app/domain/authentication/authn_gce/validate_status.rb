@@ -1,5 +1,5 @@
 module Authentication
-  module AuthnGcp
+  module AuthnGce
 
     ValidateStatus = CommandClass.new(
       dependencies: {

@@ -1,5 +1,5 @@
 module Authentication
-  module AuthnGcp
+  module AuthnGce
 
     # This class is responsible of validating resource restrictions configuration.
     # the allowed configuration is: Role should have at least 1 permitted constraints, and non of illegal constraints
@@ -11,18 +11,18 @@ module Authentication
     ) do
 
       def call
-        @logger.debug(LogMessages::Authentication::AuthnGcp::ValidatingResourceRestrictionsConfiguration.new)
+        @logger.debug(LogMessages::Authentication::AuthnGce::ValidatingResourceRestrictionsConfiguration.new)
         validate_restrictions_exist
         validate_constraints_are_permitted
         validate_restrictions_values_exist
-        @logger.debug(LogMessages::Authentication::AuthnGcp::ValidatedResourceRestrictionsConfiguration.new)
+        @logger.debug(LogMessages::Authentication::AuthnGce::ValidatedResourceRestrictionsConfiguration.new)
       end
 
       private
 
       def validate_restrictions_exist
         if @resource_restrictions.nil? || @resource_restrictions.empty?
-          raise Errors::Authentication::AuthnGcp::RoleMissingRequiredConstraints.new(@permitted_constraints)
+          raise Errors::Authentication::AuthnGce::RoleMissingRequiredConstraints.new(@permitted_constraints)
         end
       end
 

@@ -349,7 +349,7 @@ module Errors
       )
     end
 
-    module AuthnGcp
+    module AuthnGce
 
       InvalidAudience = ::Util::TrackableErrorClass.new(
         msg:  "'audience' token claim {0} is invalid. The format should be " \

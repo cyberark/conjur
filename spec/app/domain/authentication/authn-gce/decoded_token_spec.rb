@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
+RSpec.describe 'Authentication::AuthnGce::DecodedToken' do
 
   let(:sub_value) { "some_sub_value" }
   let(:aud_value) { "some_aud_value" }
@@ -113,7 +113,7 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
   context "A decoded token" do
     context "that has all required token claims" do
       subject(:decoded_token) do
-        ::Authentication::AuthnGcp::DecodedToken.new(
+        ::Authentication::AuthnGce::DecodedToken.new(
           decoded_token_hash: decoded_token_hash_valid,
           logger:             Rails.logger
         )
@@ -134,66 +134,66 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
     context "that is missing token claims" do
       context "missing aud claim" do
         subject(:decoded_token) do
-          ::Authentication::AuthnGcp::DecodedToken.new(
+          ::Authentication::AuthnGce::DecodedToken.new(
             decoded_token_hash: decoded_token_hash_missing_aud,
             logger:             Rails.logger
           )
         end
 
         it "raises an error" do
-          expect { decoded_token }.to raise_error(Errors::Authentication::AuthnGcp::TokenClaimNotFoundOrEmpty)
+          expect { decoded_token }.to raise_error(Errors::Authentication::AuthnGce::TokenClaimNotFoundOrEmpty)
         end
       end
 
       context "missing sub claim" do
         subject(:decoded_token) do
-          ::Authentication::AuthnGcp::DecodedToken.new(
+          ::Authentication::AuthnGce::DecodedToken.new(
             decoded_token_hash: decoded_token_hash_missing_sub,
             logger:             Rails.logger
           )
         end
 
         it "raises an error" do
-          expect { decoded_token }.to raise_error(Errors::Authentication::AuthnGcp::TokenClaimNotFoundOrEmpty)
+          expect { decoded_token }.to raise_error(Errors::Authentication::AuthnGce::TokenClaimNotFoundOrEmpty)
         end
       end
 
       context "missing email claim" do
         subject(:decoded_token) do
-          ::Authentication::AuthnGcp::DecodedToken.new(
+          ::Authentication::AuthnGce::DecodedToken.new(
             decoded_token_hash: decoded_token_hash_missing_email,
             logger:             Rails.logger
           )
         end
 
         it "raises an error" do
-          expect { decoded_token }.to raise_error(Errors::Authentication::AuthnGcp::TokenClaimNotFoundOrEmpty)
+          expect { decoded_token }.to raise_error(Errors::Authentication::AuthnGce::TokenClaimNotFoundOrEmpty)
         end
       end
 
       context "missing instance_name claim" do
         subject(:decoded_token) do
-          ::Authentication::AuthnGcp::DecodedToken.new(
+          ::Authentication::AuthnGce::DecodedToken.new(
             decoded_token_hash: decoded_token_hash_missing_instance_name,
             logger:             Rails.logger
           )
         end
 
         it "raises an error" do
-          expect { decoded_token }.to raise_error(Errors::Authentication::AuthnGcp::TokenClaimNotFoundOrEmpty)
+          expect { decoded_token }.to raise_error(Errors::Authentication::AuthnGce::TokenClaimNotFoundOrEmpty)
         end
       end
 
       context "missing project_id claim" do
         subject(:decoded_token) do
-          ::Authentication::AuthnGcp::DecodedToken.new(
+          ::Authentication::AuthnGce::DecodedToken.new(
             decoded_token_hash: decoded_token_hash_missing_project_id,
             logger:             Rails.logger
           )
         end
 
         it "raises an error" do
-          expect { decoded_token }.to raise_error(Errors::Authentication::AuthnGcp::TokenClaimNotFoundOrEmpty)
+          expect { decoded_token }.to raise_error(Errors::Authentication::AuthnGce::TokenClaimNotFoundOrEmpty)
         end
       end
     end

@@ -199,7 +199,7 @@ module LogMessages
 
     end
 
-    module AuthnGcp
+    module AuthnGce
 
       ExtractingRestrictionsFromResource = ::Util::TrackableLogMessageClass.new(
           msg: "Extracting resource restrictions from role '{0-role-id}' with prefix '{1-prefix}'",
@@ -222,7 +222,7 @@ module LogMessages
       )
 
       ValidatingResourceRestrictionsValues = ::Util::TrackableLogMessageClass.new(
-        msg: "Validating resource restrictions values against GCP token",
+        msg: "Validating resource restrictions values against Google ID token",
         code: "CONJ00044D"
       )
 

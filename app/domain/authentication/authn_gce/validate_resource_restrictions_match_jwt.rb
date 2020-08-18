@@ -1,5 +1,5 @@
 module Authentication
-  module AuthnGcp
+  module AuthnGce
 
     # This class is responsible of validating resource restrictions values against JWT token.
     # the assumption is that resource restrictions list contains only permitted types which already validated
@@ -12,9 +12,9 @@ module Authentication
     ) do
 
       def call
-        @logger.debug(LogMessages::Authentication::AuthnGcp::ValidatingResourceRestrictionsValues.new)
+        @logger.debug(LogMessages::Authentication::AuthnGce::ValidatingResourceRestrictionsValues.new)
         validate
-        @logger.debug(LogMessages::Authentication::AuthnGcp::ValidatedResourceRestrictionsValues.new)
+        @logger.debug(LogMessages::Authentication::AuthnGce::ValidatedResourceRestrictionsValues.new)
       end
 
       private
