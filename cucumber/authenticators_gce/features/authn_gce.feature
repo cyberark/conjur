@@ -1,6 +1,6 @@
 Feature: GCE Authenticator - Hosts can authenticate with GCE authenticator
 
-  In this feature we define a Google Cloud Platform authenticator in policy and perform authentication
+  In this feature we define a GCE authenticator in policy and perform authentication
   with Conjur.
   In successful scenarios we will also define a variable and permit the host to
   execute it, to verify not only that the host can authenticate with the GCE
@@ -33,12 +33,41 @@ Feature: GCE Authenticator - Hosts can authenticate with GCE authenticator
     And I set "authn-gce/service-account-email" annotation to host "test-app"
     And I set "authn-gce/project-id" annotation to host "test-app"
     And I set "authn-gce/instance-name" annotation to host "test-app"
-    And I obtain a GCE identity token in "full" format with audience claim value: "conjur/cucumber/host/test-app"
+    And I obtain a GCE identity token in full format with audience claim value: "conjur/cucumber/host/test-app"
     And I save my place in the audit log file
-    When I authenticate with authn-gce using Google identity token
+    When I authenticate with authn-gce using token and account "cucumber"
     Then host "test-app" has been authorized by Conjur
     And I can GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the audit log after my savepoint:
     """
     cucumber:host:test-app successfully authenticated with authenticator authn-gce service cucumber:webservice:conjur/authn-gce
+    """
+
+  Scenario: Missing GCE access token is a bad request
+    Given I save my place in the log file
+    When I authenticate with authn-gce using no token and account "cucumber"
+    Then it is a bad request
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::RequestBody::MissingRequestParam
+    """
+
+
+  Scenario: Empty GCE access token is a bad request
+    Given I save my place in the log file
+    When I authenticate with authn-gce using an empty token and account "cucumber"
+    Then it is a bad request
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::RequestBody::MissingRequestParam
+    """
+
+  Scenario: Non-existing account in request is denied
+    Given I obtain a GCE identity token in full format with audience claim value: "conjur/non-existing/host/test-app"
+    And I save my place in the log file
+    When I authenticate with authn-gce using token and account "non-existing"
+    Then it is unauthorized
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::Security::AccountNotDefined
     """

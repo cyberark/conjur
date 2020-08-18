@@ -8,7 +8,7 @@ module AuthnGceHelper
   # export GCE_INSTANCE_NAME='gcp-authn'
   # export GCE_INSTANCE_USERNAME='gcp-authn'
   # export GCE_PRIVATE_KEY_PATH=./.gcp-authn
-  # export GCE_SERVICE_ACCOUNT_ID='108551114425891493254'
+  # export GCE_SERVICE_ACCOUNT_ID='115072799640778267780'
   # export GCE_SERVICE_ACCOUNT_EMAIL='120811889825-compute@developer.gserviceaccount.com'
   # export GCE_PROJECT_ID='refreshing-mark-284016'
 
