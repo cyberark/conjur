@@ -2,8 +2,8 @@ source 'https://rubygems.org'
 
 git_source(:github) { |name| "https://github.com/#{name}.git" }
 
-gem 'github-pages', '~> 204'
-gem 'jekyll', '= 3.8.5'
+gem 'github-pages', '~> 207'
+gem 'jekyll', '= 3.9.0'
 gem 'jekyll-paginate'
 gem 'jekyll-redirect-from', '~> 0.15.0'
 gem 'jekyll-sitemap', '~> 1.4.0'
