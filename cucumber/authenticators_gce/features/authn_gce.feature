@@ -29,13 +29,10 @@ Feature: GCE Authenticator - Hosts can authenticate with GCE authenticator
     Given I have a "variable" resource called "test-variable"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "test-app" to "execute" it
-    And I set "authn-gce/service-account-id" annotation to host "test-app"
-    And I set "authn-gce/service-account-email" annotation to host "test-app"
-    And I set "authn-gce/project-id" annotation to host "test-app"
-    And I set "authn-gce/instance-name" annotation to host "test-app"
+    And I set all valid GCE annotations to host "test-app"
     And I obtain a GCE identity token in full format with audience claim value: "conjur/cucumber/host/test-app"
     And I save my place in the audit log file
-    When I authenticate with authn-gce using token and account "cucumber"
+    When I authenticate with authn-gce using token and existing account
     Then host "test-app" has been authorized by Conjur
     And I can GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the audit log after my savepoint:
@@ -45,7 +42,7 @@ Feature: GCE Authenticator - Hosts can authenticate with GCE authenticator
 
   Scenario: Missing GCE access token is a bad request
     Given I save my place in the log file
-    When I authenticate with authn-gce using no token and account "cucumber"
+    When I authenticate with authn-gce using no token and existing account
     Then it is a bad request
     And The following appears in the log after my savepoint:
     """
@@ -55,7 +52,7 @@ Feature: GCE Authenticator - Hosts can authenticate with GCE authenticator
 
   Scenario: Empty GCE access token is a bad request
     Given I save my place in the log file
-    When I authenticate with authn-gce using an empty token and account "cucumber"
+    When I authenticate with authn-gce using empty token and existing account
     Then it is a bad request
     And The following appears in the log after my savepoint:
     """
@@ -65,7 +62,7 @@ Feature: GCE Authenticator - Hosts can authenticate with GCE authenticator
   Scenario: Non-existing account in request is denied
     Given I obtain a GCE identity token in full format with audience claim value: "conjur/non-existing/host/test-app"
     And I save my place in the log file
-    When I authenticate with authn-gce using token and account "non-existing"
+    When I authenticate with authn-gce using token and non existing account
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """

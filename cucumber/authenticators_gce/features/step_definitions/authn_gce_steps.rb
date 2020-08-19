@@ -19,7 +19,7 @@ Given(/^I set "authn-gce\/(service-account-id|service-account-email|project-id|i
 end
 
 # Sets all GCE annotations
-Given(/^I set GCE annotations to host "([^"]*)"$/) do | hostname |
+Given(/^I set all valid GCE annotations to host "([^"]*)"$/) do | hostname |
   i_have_a_resource "host", hostname
 
   set_annotation_to_resource("authn-gce/service-account-id", gce_service_account_id)
@@ -37,7 +37,9 @@ Given(/^I obtain a GCE identity token in (full|standard) format with audience cl
 end
 
 # Authenticates with Conjur GCE authenticator
-Given(/I authenticate with authn-gce using (no |an empty |invalid )?token and account "([^"]*)"$/) do | token_state, account |
+Given(/I authenticate with authn-gce using (no |empty |invalid )?token and (non )?existing account/) do | token_state, non_existing_account |
+  account = non_existing_account ? 'non-existing' : 'cucumber'
+
   token = case token_state
           when "no "
             nil

@@ -1,6 +1,6 @@
-Feature: Azure Authenticator - Different Hosts can authenticate with Azure authenticator
+Feature: GCP Authenticator - Test hosts can authentication scenarios
 
-  In this feature we define GCE authenticator in policy, and test with different
+  In this feature we define GCE authenticator in policy, test with different
   host configurations and perform authentication with Conjur.
 
   Background:
@@ -18,12 +18,11 @@ Feature: Azure Authenticator - Different Hosts can authenticate with Azure authe
         privilege: [ read, authenticate ]
         resource: !webservice
     """
-    And I am the super-user
 
   Scenario: Non-existing host is denied
     And I obtain a GCE identity token in full format with audience claim value: "conjur/cucumber/host/test-app"
     And I save my place in the log file
-    When I authenticate with authn-gce using token and account "cucumber"
+    When I authenticate with authn-gce using token and existing account
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """

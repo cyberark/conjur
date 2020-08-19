@@ -22,6 +22,10 @@ module AuthnGceHelper
   def gce_identity_access_token(audience:, token_format: 'standard')
     audience = audience.gsub("/", "%2F")
 
+    unless File.exist?(private_key_path)
+      raise "GCE private key credentials file '#{private_key_path}' not found."
+    end
+
     @gce_identity_token = run_command_in_machine_with_private_key(
       machine_ip:        gce_instance_ip,
       machine_username:  gce_instance_user,

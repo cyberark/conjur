@@ -1,4 +1,4 @@
-Feature: GCE Authenticator - Hosts can authenticate with GCE authenticator
+Feature: GCE Authenticator - Test Malformed Configuration
 
   In this feature we define a GCE authenticator with a malformed configuration.
   Each test will verify a failure of the authentication request in such a case
@@ -16,11 +16,11 @@ Feature: GCE Authenticator - Hosts can authenticate with GCE authenticator
     """
     And I am the super-user
     And I have host "test-app"
-    And I set GCE annotations to host "test-app"
+    And I set all valid GCE annotations to host "test-app"
     And I grant group "conjur/authn-gce/apps" to host "test-app"
     And I obtain a GCE identity token in full format with audience claim value: "conjur/cucumber/host/test-app"
     And I save my place in the audit log file
-    When I authenticate with authn-gce using token and account "cucumber"
+    When I authenticate with authn-gce using token and existing account
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
@@ -44,11 +44,11 @@ Feature: GCE Authenticator - Hosts can authenticate with GCE authenticator
     """
     And I am the super-user
     And I have host "test-app"
-    And I set GCE annotations to host "test-app"
+    And I set all valid GCE annotations to host "test-app"
     And I grant group "conjur/authn-gce/apps" to host "test-app"
     And I obtain a GCE identity token in full format with audience claim value: "conjur/cucumber/host/test-app"
     And I save my place in the audit log file
-    When I authenticate with authn-gce using token and account "cucumber"
+    When I authenticate with authn-gce using token and existing account
     Then it is forbidden
     And The following appears in the log after my savepoint:
     """
