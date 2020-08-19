@@ -8,7 +8,7 @@ module AuthnGceHelper
   # export GCE_INSTANCE_NAME='gcp-authn'
   # export GCE_INSTANCE_USERNAME='gcp-authn'
   # export GCE_PRIVATE_KEY_PATH=./.gcp-authn
-  # export GCE_SERVICE_ACCOUNT_ID='108551114425891493254'
+  # export GCE_SERVICE_ACCOUNT_ID='115072799640778267780'
   # export GCE_SERVICE_ACCOUNT_EMAIL='120811889825-compute@developer.gserviceaccount.com'
   # export GCE_PROJECT_ID='refreshing-mark-284016'
 
@@ -21,6 +21,10 @@ module AuthnGceHelper
   # for more details on token format. TOKEN_FORMAT must be one of: standard, full.
   def gce_identity_access_token(audience:, token_format: 'standard')
     audience = audience.gsub("/", "%2F")
+
+    unless File.exist?(private_key_path)
+      raise "GCE private key credentials file '#{private_key_path}' not found."
+    end
 
     @gce_identity_token = run_command_in_machine_with_private_key(
       machine_ip:        gce_instance_ip,
