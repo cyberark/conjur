@@ -31,7 +31,7 @@ Feature: GCE Authenticator - Hosts can authenticate with GCE authenticator
     And I permit host "test-app" to "execute" it
     And I set all valid GCE annotations to host "test-app"
     And I obtain a GCE identity token in full format with audience claim value: "conjur/cucumber/host/test-app"
-    And I save my place in the audit log file
+    And I save my place in the log file
     When I authenticate with authn-gce using token and existing account
     Then host "test-app" has been authorized by Conjur
     And I can GET "/secrets/cucumber/variable/test-variable" with authorized user
