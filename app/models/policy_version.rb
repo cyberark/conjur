@@ -23,9 +23,9 @@
 # For example, suppose a PolicyVersion is being loaded for the policy +prod/myapp+. If policy being loaded
 # contains a statement like +!layer+, then the layer id as loaded will be +prod/myapp+.
 
-require '/src/conjur-server/app/parser/conjur/policy/yaml/loader'
-require '/src/conjur-server/app/parser/conjur/policy/yaml/handler'
-require '/src/conjur-server/app/parser/conjur/policy/resolver'
+require_relative '../parser/conjur/policy/yaml/loader'
+require_relative '../parser/conjur/policy/yaml/handler'
+require_relative '../parser/conjur/policy/resolver'
 
 class PolicyVersion < Sequel::Model(:policy_versions)
   include HasId

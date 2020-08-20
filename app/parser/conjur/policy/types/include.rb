@@ -1,4 +1,4 @@
-require '/src/conjur-server/app/parser/conjur/policy/types/base'
+require_relative 'base'
 
 module Conjur::PolicyParser::Types
   # Include another policy into the policy.

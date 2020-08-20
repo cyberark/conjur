@@ -1,7 +1,7 @@
-require '/src/conjur-server/app/parser/conjur/policy/types/grant'
-require '/src/conjur-server/app/parser/conjur/policy/types/revoke'
-require '/src/conjur-server/app/parser/conjur/policy/types/permit'
-require '/src/conjur-server/app/parser/conjur/policy/types/deny'
+require_relative 'types/grant'
+require_relative 'types/revoke'
+require_relative 'types/permit'
+require_relative 'types/deny'
 
 module Conjur
   module PolicyParser

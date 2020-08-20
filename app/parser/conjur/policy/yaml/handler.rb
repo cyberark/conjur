@@ -1,7 +1,7 @@
-require '/src/conjur-server/app/parser/conjur/policy/logger'
-require '/src/conjur-server/app/parser/conjur/policy/types/base'
-require '/src/conjur-server/app/parser/conjur/policy/types/policy'
-require '/src/conjur-server/app/parser/conjur/policy/types/records'
+require_relative '../logger'
+require_relative '../types/base'
+require_relative '../types/policy'
+require_relative '../types/records'
 
 module Conjur
   module PolicyParser
