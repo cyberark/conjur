@@ -1,5 +1,5 @@
-require 'app/parser/conjur/policy/invalid'
-require 'app/parser/conjur/policy/types/include'
+require '/src/conjur-server/app/parser/conjur/policy/invalid'
+require '/src/conjur-server/app/parser/conjur/policy/types/include'
 
 class Object
   # Dear Ruby, I wish instance variables order was stable, because if it was

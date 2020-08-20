@@ -1,4 +1,4 @@
-require 'app/parser/conjur/policy/types/base'
+require '/src/conjur-server/app/parser/conjur/policy/types/base'
 
 module Conjur::PolicyParser::Types
   class Grant < Base

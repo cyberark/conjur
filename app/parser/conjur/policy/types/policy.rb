@@ -1,4 +1,4 @@
-require 'app/parser/conjur/policy/types/records'
+require '/src/conjur-server/app/parser/conjur/policy/types/records'
 
 module Conjur
   module PolicyParser
