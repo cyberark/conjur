@@ -5,7 +5,7 @@ from a particular network, defined by a CIDR in the policy
 
   Scenario: Loading users and hosts with CIDR restrictions
 
-    Given a policy:
+    Given I load a policy:
     """
     - !user
       id: alice

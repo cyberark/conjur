@@ -8,7 +8,7 @@ Feature: YAML anchors can be used for bulk actions
     policy shorter and easier to update. If the 'rundeck' layer needs fetch
     access to another variable, it can simply be added to the variables list.
 
-    Given a policy:
+    Given I load a policy:
     """
     - &variables
       - !variable aws_access_key_id

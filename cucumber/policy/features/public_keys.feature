@@ -11,7 +11,7 @@ Feature: Public keys can be associated with user records.
     
     The comment is required, so that multiple public keys can be distinguished from each other.
 
-    Given a policy:
+    Given I load a policy:
     """
     - !user
       id: alice
@@ -36,7 +36,7 @@ Feature: Public keys can be associated with user records.
     
     In the case that a key is loaded multiple times with the same comment, the last public key loaded is the one returned by the pubkeys API.
 
-    Given a policy:
+    Given I load a policy:
     """
     - !user
       id: alice

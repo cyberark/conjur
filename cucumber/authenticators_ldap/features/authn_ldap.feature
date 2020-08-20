@@ -1,7 +1,7 @@
 Feature: Users can login with LDAP credentials from an authorized LDAP server
 
   Background:
-    Given a policy:
+    Given I load a policy:
     """
     - !user alice
     - !user bob
@@ -96,7 +96,7 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
 
     #TODO Add an "is denied" for alice added to conjur but not entitled
   Scenario: An LDAP user in Conjur but without authorization can't login
-    Given a policy:
+    Given I load a policy:
     """
     - !user alice
 

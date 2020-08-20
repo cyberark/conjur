@@ -6,7 +6,7 @@ Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
   properly
 
   Scenario: id-token-user-property variable missing in policy is denied
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-oidc/keycloak
@@ -43,7 +43,7 @@ Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
     """
 
   Scenario: provider-uri variable missing in policy is denied
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-oidc/keycloak
@@ -80,7 +80,7 @@ Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
     """
 
   Scenario: webservice missing in policy is denied
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-oidc/keycloak
@@ -112,7 +112,7 @@ Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
     """
 
   Scenario: webservice with read and no authenticate permission in policy is denied
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-oidc/keycloak

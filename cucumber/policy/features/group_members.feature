@@ -7,7 +7,7 @@ Feature: Users and groups can be added to groups
     and `operations` to the `employees` group. They are granted all privileges
     of the `employees` group.
     
-    Given a policy:
+    Given I load a policy:
     """
     # First create the groups
     - !group employees
@@ -42,7 +42,7 @@ Feature: Users and groups can be added to groups
     using the same name prepended with a `*`. Aliasing also allows you to group
     records together under a single symbolic name.
     
-    Given a policy:
+    Given I load a policy:
     """
     - !group ci
     

@@ -1,7 +1,7 @@
 Feature: OIDC Authenticator - Status Check
 
   Scenario: A properly configured OIDC authenticator returns a successful response
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-oidc/keycloak
@@ -57,7 +57,7 @@ Feature: OIDC Authenticator - Status Check
     And the authenticator status check succeeds
 
   Scenario: A non-responsive OIDC provider returns a 500 response
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-oidc/keycloak
@@ -113,7 +113,7 @@ Feature: OIDC Authenticator - Status Check
     And the authenticator status check fails with error "ProviderDiscoveryFailed: CONJ00011E"
 
   Scenario: provider-uri variable is missing and a 500 error response is returned
-    Given a policy:
+    Given I load a policy:
      """
     - !policy
       id: conjur/authn-oidc/keycloak
@@ -165,7 +165,7 @@ Feature: OIDC Authenticator - Status Check
     And the authenticator status check fails with error "RequiredResourceMissing: CONJ00036E"
 
   Scenario: id-token-user-property variable is missing and a 500 error response is returned
-    Given a policy:
+    Given I load a policy:
      """
     - !policy
       id: conjur/authn-oidc/keycloak

@@ -15,7 +15,7 @@ Feature: Authenticator status check
   not require a running OIDC Provider in order to run.
 
   Scenario: An unauthorized user is responded with 403
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-oidc/keycloak
@@ -65,7 +65,7 @@ Feature: Authenticator status check
     And the authenticator status check fails with error "RoleNotAuthorizedOnResource: CONJ00006E"
 
   Scenario: An authenticator without an implemented status check returns 501
-    Given a policy:
+    Given I load a policy:
     """
     - !user alice
     """
@@ -75,7 +75,7 @@ Feature: Authenticator status check
     And the authenticator status check fails with error "StatusNotImplemented: CONJ00056E"
 
   Scenario: A non-existing authenticator status check returns 404
-    Given a policy:
+    Given I load a policy:
     """
     - !user alice
     """
@@ -85,7 +85,7 @@ Feature: Authenticator status check
     And the authenticator status check fails with error "AuthenticatorNotFound: CONJ00001E"
 
   Scenario: A missing status webservice returns 500
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-oidc/keycloak
@@ -124,7 +124,7 @@ Feature: Authenticator status check
     And the authenticator status check fails with error "WebserviceNotFound: CONJ00005E"
 
   Scenario: A non-existing account name in the status request returns 500
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-oidc/keycloak
@@ -178,7 +178,7 @@ Feature: Authenticator status check
     And the authenticator status check fails with error "AccountNotDefined: CONJ00008E"
 
   Scenario: An authenticator webservice doesn't exist in policy
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-oidc/keycloak

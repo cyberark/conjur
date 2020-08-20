@@ -4,7 +4,7 @@ A policy can be reloaded using the --replace flag
 
   Scenario: A multifile policy with one modified file fails on reload
 
-    Given a policy:
+    Given I load a policy:
     """
     - !group
       id: security-admin
@@ -51,7 +51,7 @@ A policy can be reloaded using the --replace flag
 
   Scenario: Policy reload fails when group isn't defined in new policy
 
-    Given a policy:
+    Given I load a policy:
     """
     - !group
       id: security-admin
@@ -87,7 +87,7 @@ A policy can be reloaded using the --replace flag
 
   Scenario: A multifile policy successfully reloads when files are concatenated
 
-    Given a policy:
+    Given I load a policy:
     """
     - !group
       id: security-admin
