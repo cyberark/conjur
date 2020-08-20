@@ -12,7 +12,7 @@ The root cause of the issue that was found appears to be that K8S auth client tr
 The reason for this behaviour is that the flow returns to K8S Authn Client without waiting for cert file to be fully written, and K8S Auth client proceeds with flow to read a file - and then we get an error.
 
 # Solution
-The solution should be that K8S Authn Client should wait until and event that says that cert file is ready for use will arrive - and only then it should proceed to read it
+The solution should be that K8S Authn Client should wait until an event that says that cert file is ready for use will arrive - and only then it should proceed to read it
 
 In case that the expected event does not arrive after timeout - error must be issued and the flow will proceed without reading cert file
 
