@@ -18,7 +18,7 @@ In case that the expected event does not arrive after timeout - error must be is
 
 # Design
 
-![Conjur AWS Architecture](images/Conjur-HA.png)
+![Sequence Diagram](images/authenticators_bug_sequence_diagram.jpeg)
 
 The addition to the current design is WaitUntilWrittenOrTimeout call. It should be executed per new flag sent into the InjectClientCert command (in order to stay backward compatible)
 
