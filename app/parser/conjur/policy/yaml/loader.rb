@@ -1,3 +1,6 @@
+require 'app/parser/conjur/policy/invalid'
+require 'app/parser/conjur/policy/types/include'
+
 class Object
   # Dear Ruby, I wish instance variables order was stable, because if it was
   # then YAML would always come out the same.
@@ -17,7 +20,7 @@ module Conjur
             else
               '.'
             end
-            
+
             parser = Psych::Parser.new(handler = Handler.new)
             handler.filename = filename
             handler.parser = parser
@@ -29,18 +32,18 @@ module Conjur
               raise Invalid.new($!.message || "(no message)", filename, parser.mark)
             end
             records = handler.result || []
-            
+
             parse_includes records, dirname
-  
+
             records
           end
-          
+
           def load_file filename
             load File.read(filename), filename
           end
-          
+
           protected
-          
+
           def parse_includes records, dirname
             records.each_with_index do |record, idx|
               if record.is_a?(Array)

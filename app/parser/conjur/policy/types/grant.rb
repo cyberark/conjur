@@ -1,3 +1,5 @@
+require 'app/parser/conjur/policy/types/base'
+
 module Conjur::PolicyParser::Types
   class Grant < Base
     attribute :role, dsl_accessor: true
@@ -18,7 +20,7 @@ module Conjur::PolicyParser::Types
       end
       member_str = if member.kind_of?(Array)
         member.map(&:role).join(', ')
-      elsif member 
+      elsif member
         member.role
       end
       admin = Array(member).map do |member|

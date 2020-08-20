@@ -1,8 +1,10 @@
+require 'app/parser/conjur/policy/types/base'
+
 module Conjur::PolicyParser::Types
   # Include another policy into the policy.
   class Include < Base
     attribute :file, kind: :string, type: String, singular: true, dsl_accessor: true
-    
+
     def id= value
       self.file = value
     end

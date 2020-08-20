@@ -1,3 +1,5 @@
+require 'app/parser/conjur/policy/types/records'
+
 module Conjur
   module PolicyParser
     module Types

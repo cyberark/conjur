@@ -1,8 +1,13 @@
+require 'app/parser/conjur/policy/types/grant'
+require 'app/parser/conjur/policy/types/revoke'
+require 'app/parser/conjur/policy/types/permit'
+require 'app/parser/conjur/policy/types/deny'
+
 module Conjur
   module PolicyParser
     class Resolver
       attr_reader :account, :ownerid, :namespace
-      
+
       class << self
         # Resolve records to the specified owner id and namespace.
         def resolve records, account, ownerid
@@ -21,7 +26,7 @@ module Conjur
           records
         end
       end
-      
+
       # +account+ is required. It's the default account whenever no account is specified.
       # +ownerid+ is required. Any records without an owner will be assigned this owner. The exception
       # is records defined in a policy, which are always owned by the policy role unless an explicit owner
@@ -32,14 +37,14 @@ module Conjur
         @account = account
         @ownerid   = ownerid
         @namespace = nil
-        
+
         raise "account is required" unless account
         raise "ownerid is required" unless ownerid
         raise "ownerid must be fully qualified account, kind and identifier" unless ownerid.to_s.split(":", 3).length == 3
       end
-      
+
       protected
-      
+
       # Traverse an Array-ish of records, calling a +handler+ method for each one.
       # If a record is a Policy, then the +policy_handler+ is invoked, after the +handler+.
       def traverse records, visited, handler, policy_handler = nil
@@ -50,25 +55,25 @@ module Conjur
           policy_handler.call record, visited if policy_handler && record.is_a?(Types::Policy)
         end
       end
-      
+
       def id_of record
         record.object_id
       end
     end
-    
+
     # Updates all nil +account+ fields to the default account.
     class AccountResolver < Resolver
       def resolve records
         traverse records, Set.new, method(:resolve_account), method(:on_resolve_policy)
       end
-      
+
       def resolve_account record, visited
         if record.respond_to?(:account) && record.respond_to?(:account=) && record.account.nil?
           record.account = @account
         end
         traverse record.referenced_records, visited, method(:resolve_account), method(:on_resolve_policy)
       end
-      
+
       def on_resolve_policy policy, visited
         traverse policy.body, visited, method(:resolve_account), method(:on_resolve_policy)
       end
@@ -203,19 +208,19 @@ module Conjur
     end
 
     # Sets the owner field for any records which support it, and don't have an owner specified.
-    # Within a policy, the default owner is the policy role. For global records, the 
+    # Within a policy, the default owner is the policy role. For global records, the
     # default owner is the +ownerid+ specified in the constructor.
     class OwnerResolver < Resolver
       def resolve records
         traverse records, Set.new, method(:resolve_owner), method(:on_resolve_policy)
       end
-      
+
       def resolve_owner record, visited
         if record.respond_to?(:owner) && record.owner.nil?
           record.owner = Types::Role.new(@ownerid)
         end
       end
-      
+
       def on_resolve_policy policy, visited
         saved_ownerid = @ownerid
         @ownerid = [ policy.account, "policy", policy.id ].join(":")
@@ -224,7 +229,7 @@ module Conjur
         @ownerid = saved_ownerid
       end
     end
-    
+
     # Flattens and sorts all records into a single list, including YAML lists and policy body.
     class FlattenResolver < Resolver
       def resolve records
@@ -260,9 +265,9 @@ module Conjur
           score
         end
       end
-      
+
       protected
-      
+
       # Sort "Create" and "Record" objects to the front.
       def sort_score record
         if record.is_a?(Types::Record)
@@ -271,7 +276,7 @@ module Conjur
           0
         end
       end
-      
+
       # Add the record to the result.
       def resolve_record record, visited
         @result += Array(record)
@@ -284,7 +289,7 @@ module Conjur
         traverse body, visited, method(:resolve_record), method(:on_resolve_policy)
       end
     end
-    
+
     # Raises an exception if the same record is declared more than once.
     class DuplicateResolver < Resolver
       def resolve records
@@ -296,8 +301,8 @@ module Conjur
         end
       end
     end
-    
-    # Unsets attributes that make for more verbose YAML output. This class is used to 
+
+    # Unsets attributes that make for more verbose YAML output. This class is used to
     # compact YAML expectations in test cases. It expects pre-flattened input.
     #
     # +account+ attributes which match the provided account are set to nil.
@@ -307,7 +312,7 @@ module Conjur
         traverse records, Set.new, method(:resolve_owner)
         traverse records, Set.new, method(:resolve_account)
       end
-      
+
       def resolve_account record, visited
         if record.respond_to?(:account) && record.respond_to?(:account=) && record.account && record.account == self.account
           record.remove_instance_variable :@account

@@ -2,7 +2,7 @@
 
 # Stores a policy which has been applied to the database, along with metadata such as the role
 # which submitted the policy.
-# 
+#
 # A PolicyVersion is constructed on an existing 'policy' resource. PolicyVersion records are automatically
 # assigned an incrementing +version+ number, just like Secrets.
 #
@@ -14,16 +14,21 @@
 # * +policy_text+ the text of the policy itself.
 # * +policy_sha256+ the SHA-256 of the policy in hex digest form.
 #
-# The policy text is parsed when the PolicyVersion is validated. Parse errors are placed onto the 
+# The policy text is parsed when the PolicyVersion is validated. Parse errors are placed onto the
 # +#errors+ field, along with any other validation errors. The parsed policy is available through the
 # +#records+ field.
 #
 # Except when loading the root policy, the policy statements that are submitted by the authenticated role
-# are enclosed within a +!policy+ statement, so that all the statements in the policy are scoped by the enclosing id. 
+# are enclosed within a +!policy+ statement, so that all the statements in the policy are scoped by the enclosing id.
 # For example, suppose a PolicyVersion is being loaded for the policy +prod/myapp+. If policy being loaded
 # contains a statement like +!layer+, then the layer id as loaded will be +prod/myapp+.
+require 'app/parser/conjur/policy/yaml/loader'
+require 'app/parser/conjur/policy/yaml/handler'
+require 'app/parser/conjur/policy/resolver'
+
 class PolicyVersion < Sequel::Model(:policy_versions)
   include HasId
+  include Conjur::PolicyParser
 
   many_to_one :resource
   # The authenticated user who performs the policy load.
