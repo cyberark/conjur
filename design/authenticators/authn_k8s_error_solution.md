@@ -45,10 +45,15 @@ In case performance is an issue - flag above will be off
 Conjur, AuthnClient, Secret Provider
 
 # Test plain
-Successful K8S authn	K8S authenticator	Authenticate from secret provider	Success	No errors
-Failed K8S authn	K8S authenticator	Authenticate with wrong cert from secret provider	Failure	Error
-Failed to create cert file	K8S authenticator	Authenticate from secret provider	Timeout	Error:Timeout
+
+| **Title** | Description                                                  | Given                                                        | When                                          | Then                                                         |
+| --------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------------------------------------------- | ------------------------------------------------------------ |
+| 1         | *Vanilla flow*, Successful K8S authn      |  K8s Authenticator is defined | Secrets Provider runs              | Verify that secret provider runs successfully - no errors appear in logs |
+| 2         |   Failed K8S authn	                      |  K8s Authenticator is defined |	Authenticate with wrong cert from  | secret provider | Verify Failure Error  |
+| 3         |   Failed to create cert file              |  K8s Authenticator is defined |	Authenticate from secret provider                 | Verify Error:Timeout
 
 # Logs
 
-File not found after timeout	File not found after timeout
+| **Scenario**                                                 | **Log message**                                              | Log level |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | --------- |
+| File not found after timeout                                 | File not found after timeout                                 |
