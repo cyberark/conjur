@@ -1,3 +1,5 @@
+require 'jwt'
+
 module AuthnGceHelper
   include AuthenticatorHelpers
 
@@ -19,7 +21,7 @@ module AuthnGceHelper
   # This flag only applies to Google Compute Engine instance identity tokens.
   # See https://cloud.google.com/compute/docs/instances/verifying-instance-identity#token_format
   # for more details on token format. TOKEN_FORMAT must be one of: standard, full.
-  def gce_identity_access_token(audience:, token_format: 'standard')
+  def gce_identity_access_token(audience: nil, token_format: 'standard')
     audience = audience.gsub("/", "%2F")
 
     unless File.exist?(private_key_path)
@@ -64,7 +66,8 @@ module AuthnGceHelper
   def identity_token_curl_cmd(audience, token_format)
     header = 'Metadata-Flavor: Google'
     url = 'http://metadata/computeMetadata/v1/instance/service-accounts/default/identity'
-    query_string = "audience=#{audience}&format=#{token_format}"
+    query_string = "format=#{token_format}&audience=#{audience}"
+
     "curl -s -H '#{header}' '#{url}?#{query_string}'"
   end
 
@@ -76,6 +79,47 @@ module AuthnGceHelper
 
     post(path_uri, payload)
   end
+end
+
+# generates a self signed token
+def self_signed_token
+  # generate key to sign the token
+  jwk = JWT::JWK.new(OpenSSL::PKey::RSA.new(2048))
+
+  # define token expiration
+  exp = Time.now.to_i + 4 * 3600
+
+  # token claims
+  data = {
+    iss: 'self-signed',
+    aud: 'my_service',
+    sub: 'foo_bar',
+    exp: exp
+  }
+
+  payload, headers = { data: data }, { kid: jwk.kid }
+
+  # issue a decoded signed token
+  JWT.encode(payload, jwk.keypair, 'RS512', headers)
+end
+
+# generates a self signed token with no kid in token header
+def no_kid_self_signed_token
+  rsa_private = OpenSSL::PKey::RSA.generate 2048
+
+  # define token expiration
+  exp = Time.now.to_i + 4 * 3600
+
+  # token claims
+  exp_payload = {
+    iss: 'self-signed',
+    aud: 'my_service',
+    sub: 'foo_bar',
+    exp: exp
+  }
+
+  # issue decoded signed token
+  JWT.encode exp_payload, rsa_private, 'RS256'
 end
 
 World(AuthnGceHelper)

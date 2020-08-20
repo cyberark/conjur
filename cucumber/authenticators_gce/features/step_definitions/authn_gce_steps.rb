@@ -1,18 +1,24 @@
 # Enable selective setting of GCE annotations
-Given(/^I set "authn-gce\/(service-account-id|service-account-email|project-id|instance-name)" annotation (with incorrect value )?to host "([^"]*)"$/) do |annotation_name, incorrect_value, hostname|
+Given(/^I set (invalid )?"authn-gce\/(service-account-id|service-account-email|project-id|instance-name|invalid-key)" annotation to host "([^"]*)"$/) do |invalid, annotation_name, hostname|
   i_have_a_resource "host", hostname
 
-  case annotation_name
-  when "service-account-id"
-    annotation_value = gce_service_account_id
-  when "service-account-email"
-    annotation_value = gce_service_account_email
-  when "project-id"
-    annotation_value = gce_project_id
-  when "instance-name"
-    annotation_value = gce_instance_name
+  if invalid
+    annotation_value = 'invalid'
   else
-    raise "Incorrect annotation name: '#{annotation_name}', expected: service-account-id|service-account-email|project-id|instance-name"
+    case annotation_name
+    when "service-account-id"
+      annotation_value = gce_service_account_id
+    when "service-account-email"
+      annotation_value = gce_service_account_email
+    when "project-id"
+      annotation_value = gce_project_id
+    when "instance-name"
+      annotation_value = gce_instance_name
+    when "invalid-key"
+      annotation_value = 'invalid-annotation-key-value'
+    else
+      raise "Incorrect annotation name: '#{annotation_name}', expected: service-account-id|service-account-email|project-id|instance-name"
+    end
   end
 
   set_annotation_to_resource("authn-gce/#{annotation_name}", annotation_value)
@@ -37,16 +43,20 @@ Given(/^I obtain a GCE identity token in (full|standard) format with audience cl
 end
 
 # Authenticates with Conjur GCE authenticator
-Given(/I authenticate with authn-gce using (no |empty |invalid )?token and (non )?existing account/) do | token_state, non_existing_account |
-  account = non_existing_account ? 'non-existing' : 'cucumber'
+Given(/I authenticate with authn-gce using (valid|no|empty|invalid|self signed|no kid) token and (non-existing|existing) account/) do | token_state, account |
+  account = account == 'non-existing' ? 'non-existing' : 'cucumber'
 
   token = case token_state
-          when "no "
+          when "no"
             nil
-          when "empty "
+          when "empty"
             ""
-          when "invalid "
+          when "invalid"
             invalid_token
+          when"self signed"
+            self_signed_token
+          when"no kid"
+            no_kid_self_signed_token
           else
             @gce_identity_token
           end
