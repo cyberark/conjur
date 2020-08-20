@@ -17,7 +17,8 @@ The solution should be that K8S Authn Client should wait until and event that sa
 In case that the expected event does not arrive after timeout - error must be issued and the flow will proceed without reading cert file
 
 # Design
-https://ca-il-confluence.il.cyber-ark.com/download/attachments/327388612/Authenticator%20Bug%20Sequence%20Diagam.jpeg?version=1&modificationDate=1597664913408&api=v2
+
+
 
 The addition to the current design is WaitUntilWrittenOrTimeout call. It should be executed per new flag sent into the InjectClientCert command (in order to stay backward compatible)
 
