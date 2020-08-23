@@ -39,6 +39,16 @@ module LogMessages
       code: "CONJ00033D"
     )
 
+    ValidatedResourceRestrictionValue = ::Util::TrackableLogMessageClass.new(
+      msg:  "Resource restriction '{0-resource-restriction-name}' value validated",
+      code: "CONJ00043D"
+    )
+
+    ValidatingResourceRestrictions = ::Util::TrackableLogMessageClass.new(
+      msg:  "Validating resource restriction for role '{0-role-id}'",
+      code: "CONJ00046D"
+    )
+
     ValidatedResourceRestrictions = ::Util::TrackableLogMessageClass.new(
       msg:  "Resource restrictions validated",
       code: "CONJ00030D"
@@ -185,6 +195,40 @@ module LogMessages
       ExtractedResourceRestrictionsFromToken = ::Util::TrackableLogMessageClass.new(
         msg:  "Extracted resource restrictions from token",
         code: "CONJ00029D"
+      )
+
+    end
+
+    module AuthnGce
+
+      ExtractingRestrictionsFromResource = ::Util::TrackableLogMessageClass.new(
+          msg: "Extracting resource restrictions with prefix '{0-prefix}' from role '{1-role-id}'",
+          code: "CONJ00039D"
+      )
+
+      ExtractedResourceRestrictions = ::Util::TrackableLogMessageClass.new(
+          msg: "{0-amount} resource restrictions were extracted",
+          code: "CONJ00040D"
+      )
+
+      ValidatingResourceRestrictionsConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating resource restrictions configuration",
+        code: "CONJ00041D"
+      )
+
+      ValidatedResourceRestrictionsConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Resource restrictions configuration is validated",
+        code: "CONJ00042D"
+      )
+
+      ValidatingResourceRestrictionsValues = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating resource restrictions values against Google ID token",
+        code: "CONJ00044D"
+      )
+
+      ValidatedResourceRestrictionsValues = ::Util::TrackableLogMessageClass.new(
+        msg: "Resource restrictions values are validated",
+        code: "CONJ00045D"
       )
 
     end
