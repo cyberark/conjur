@@ -36,7 +36,7 @@ module Authentication
         resource_restrictions.resources.each do |resource_from_role|
           resource_from_request = resources_from_request.find { |resource| resource == resource_from_role }
           unless resource_from_request
-            raise Errors::Authentication::AuthnAzure::InvalidResourceRestrictions, resource_from_role.type
+            raise Errors::Authentication::Jwt::InvalidResourceRestrictions, resource_from_role.type
           end
         end
         @logger.debug(LogMessages::Authentication::ValidatedResourceRestrictions.new)
