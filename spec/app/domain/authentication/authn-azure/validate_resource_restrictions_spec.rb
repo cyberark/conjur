@@ -94,7 +94,7 @@ RSpec.describe 'Authentication::AuthnAzure::ValidateResourceRestrictions' do
 
         it "raises an error" do
           expect { subject }.to raise_error(
-            Errors::Authentication::AuthnAzure::InvalidResourceRestrictions
+            Errors::Authentication::Jwt::InvalidResourceRestrictions
           )
         end
       end
