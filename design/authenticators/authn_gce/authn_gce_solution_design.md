@@ -1,4 +1,4 @@
-# Solution Design - GCP Authenticator
+# Solution Design - GCE Authenticator
 
 ## Table of Contents
 - [Glossary](#glossary)
@@ -6,12 +6,12 @@
 - [Issue description](#issue-description)
 - [Out of scope](#out-of-scope)
 - [Solution](#solution)
-  * [GCP Resource Restrictions](#gcp-resource-restrictions)
+  * [GCE Resource Restrictions](#gce-resource-restrictions)
   * [Environment-provided service account google identity](#environment-provided-service-account-google-identity)
-  * [Access GCP authenticator](#access-gcp-authenticator)
+  * [Access GCE authenticator](#access-gce-authenticator)
   * [Design](#design)
     + [Class diagram](#class-diagram)
-    + [GCP authenticator flow](#gcp-authenticator-flow)
+    + [GCE authenticator flow](#gce-authenticator-flow)
   * [Backwards compatibility](#backwards-compatibility)
   * [Performance](#performance)
   * [Affected Components](#affected-components)
@@ -24,7 +24,7 @@
 - [Documentation](#documentation)
 - [Automation Design](#automation-design)
   * [Run Integration Tests in OSS](#run-integration-tests-in-oss)
-    + [GCP Variables in Tests](#gcp-variables-in-tests)
+    + [GCE Variables in Tests](#gce-variables-in-tests)
   * [GCE for Tests](#gce-for-tests)
   * [Run authn-gce Requests](#run-authn-gce-requests)
     + [Issue GCE Identity token](#issue-gce-identity-token)
@@ -54,7 +54,7 @@
 
 | **Term** | **Description** |
 |----------|-----------------|
-|  GCP| Google Cloud Platform                 |
+|  GCE| Google Cloud Platform                 |
 |  Google compute engine (GCE)| Virtual machine in google (similar to AWS EC2)                  |
 |  Environment-provided service account| An identity for accessing private data on behalf of a service account inside Google Cloud environments |
 |  Service account key| App can self sign a google token with the service account key in order to accessing private data on behalf of a service account outside Google Cloud environments|
@@ -63,7 +63,7 @@
 
 ## Useful links
 - [Feature doc](https://app.zenhub.com/workspaces/palmtree-5d99d900491c060001c85cba/issues/cyberark/conjur/1711)
-- [GCP authentication overview]( https://cloud.google.com/docs/authentication)
+- [GCE authentication overview]( https://cloud.google.com/docs/authentication)
 - [Google metadata server](https://cloud.google.com/compute/docs/storing-retrieving-metadata#querying)
 - [Type of service accounts](https://cloud.google.com/iam/docs/service-accounts#types)
 - [Creating short-lived service account credentials](https://cloud.google.com/iam/docs/creating-short-lived-service-account-credentials)
@@ -82,7 +82,7 @@ Other google components are not supported: App Engine, GKE, Cloud Run and Cloud
 you can find more info about different service accounts, [here](https://cloud.google.com/iam/docs/service-accounts#types)
 
 ## Solution
-A new GCP authenticator will be added to Conjur, GCE hosts will authenticate with this authenticator by presenting their 
+A new GCE authenticator will be added to Conjur, GCE hosts will authenticate with this authenticator by presenting their 
 host Conjur identity and Google identity in a signed JWT token.
 
 We will support only the following service accounts types:
@@ -90,16 +90,16 @@ We will support only the following service accounts types:
 * User-managed service accounts - created by the user
 
 
-As mentioned in the [feature doc](https://ca-il-confluence.il.cyber-ark.com/display/rndp/Conjur+GCP+Authenticator#/), 
+As mentioned in the [feature doc](https://ca-il-confluence.il.cyber-ark.com/display/rndp/Conjur+GCE+Authenticator#/), 
 before any authentication request is sent to Conjur, the admin will load the authenticator policy:
  
 The YAML snippet below depicts the Google authenticator policy in Conjur:
 
-**Note:** The `service-id` is not allowed in this authenticator since its redundant, we will have only one `authn-gcp` in Conjur.
+**Note:** The `service-id` is not allowed in this authenticator since its redundant, we will have only one `authn-gce` in Conjur.
 ```yaml
-# policy id needs to match the convention `conjur/authn-gcp`
+# policy id needs to match the convention `conjur/authn-gce`
 - !policy
-  id: conjur/authn-gcp
+  id: conjur/authn-gce
   body:
   - !webservice
       
@@ -121,8 +121,8 @@ but currently we do not have the infrastructure where and how to define system i
 * **mandatory-claims**: `iss, exp, iat` #the list of the mandatory claims to validate in the JWT token.
 * **iss**: `https://accounts.google.com` #the issuer claim we should validate in the JWT token
 
-### GCP Resource Restrictions
-To authenticate with Conjur, GCP-specific fields will need to be provided in the host annotations of the Conjur host 
+### GCE Resource Restrictions
+To authenticate with Conjur, GCE-specific fields will need to be provided in the host annotations of the Conjur host 
 identity with the following options:
 
 * **project-id** - A customizable unique identifier of the Google Cloud Platform project.
@@ -132,9 +132,9 @@ identity with the following options:
 
 At least one of the above should be provided, if more than 1 is provided, we will authenticate them with `AND` logic.
 
-A Conjur host will be defined as follows with their annotations holding GCP-specific identification attributes.
+A Conjur host will be defined as follows with their annotations holding GCE-specific identification attributes.
 
-The YAML snippet below depicts Conjur host policy that can be identified using GCP identifiers:
+The YAML snippet below depicts Conjur host policy that can be identified using GCE identifiers:
 ```yaml
 - !policy
   id: <policy-id>
@@ -145,22 +145,22 @@ The YAML snippet below depicts Conjur host policy that can be identified using G
       - !host
         id: myapp
         annotations:
-          authn-gcp/instance-name: <instance-name>
-          authn-gcp/project-id: <project-id>
-          authn-gcp/service-account-id: <service-account-id>
-          authn-gcp/service-account-email: <service-account-email>
+          authn-gce/instance-name: <instance-name>
+          authn-gce/project-id: <project-id>
+          authn-gce/service-account-id: <service-account-id>
+          authn-gce/service-account-email: <service-account-email>
            
     - !grant
       role: !group
       members: *hosts
           
 - !grant
-  role: !group /conjur/authn-gcp/apps
+  role: !group /conjur/authn-gce/apps
   member: !group <policy-id>
 ```
 
 ### Environment-provided service account google identity
-In order to authenticate with Conjur GCP authenticator, a GCE instance first needs to fetch its environment-provided 
+In order to authenticate with Conjur GCE authenticator, a GCE instance first needs to fetch its environment-provided 
 identity.
 
 **Example:** 
@@ -189,7 +189,7 @@ The JSON snippet below depicts a GCE identity JWT token issued by Google meta da
     "compute_engine": {
       "instance_creation_timestamp": 1595155766,
       "instance_id": "4340508760561261530",
-      "instance_name": "vm-for-gcp",
+      "instance_name": "vm-for-gce",
       "project_id": "eng-serenity-231813",
       "project_number": 716149158341,
       "zone": "us-central1-a"
@@ -203,17 +203,17 @@ The JSON snippet below depicts a GCE identity JWT token issued by Google meta da
 
 The following is a mapping of Host annotations with the values we will be extracting in the google JWT token:
 
-| Host annotation                                                      | GCP JWT token             | 
+| Host annotation                                                      | GCE JWT token             | 
 |----------------------------------------------------------------------|--------------------------------|
-| `authn-gcp/project_id`                                               | `google/compute_engine/project_id`     |
-| `authn-gcp/instance_name`                                            | `google/compute_engine/instance_name`  |
-| `authn-gcp/service_account_id`                                       | `sub` claim                            |
-| `authn-gcp/service_account_email`                                    | `email` field                          |
+| `authn-gce/project_id`                                               | `google/compute_engine/project_id`     |
+| `authn-gce/instance_name`                                            | `google/compute_engine/instance_name`  |
+| `authn-gce/service_account_id`                                       | `sub` claim                            |
+| `authn-gce/service_account_email`                                    | `email` field                          |
 
-### Access GCP authenticator
+### Access GCE authenticator
 Send the following POST request:
 
-`https://<DAP-server-hostname>/authn-gcp/<account>/authenticate`
+`https://<DAP-server-hostname>/authn-gce/<account>/authenticate`
 
 The URL will not include the following:
 * The host id as it is written in the token’s audience claim
@@ -223,24 +223,24 @@ The URL will not include the following:
 |  | |
 |----------|-----------------|
 | **Header**          |  Content-Type: application/x-www-form-urlencoded               |
-| **Body**         |  The body must include the GCP jwt token for GCE instance. jwt=eyJhbGciOiJSUzI1NiIs......uTonCA               |
+| **Body**         |  The body must include the GCE jwt token for GCE instance. jwt=eyJhbGciOiJSUzI1NiIs......uTonCA               |
 
 ### Design
-When we got the requirement to implement GCP authenticator the first thought was: if we had a generic JWT authenticator 
+When we got the requirement to implement GCE authenticator the first thought was: if we had a generic JWT authenticator 
 we could support it, maybe not with the best UX but surly we could present a proof of concept.
 
-So the goal of this deign is to present a GCP implementation plan with a small effort to support JWT authenticator as 
+So the goal of this deign is to present a GCE implementation plan with a small effort to support JWT authenticator as 
 well.
 While the main differences between them is UX and configuration options:
-GCP authenticator - should focus on UX in Google Cloud Platform.
+GCE authenticator - should focus on UX in Google Cloud Platform.
 JWT authenticator - should be generic as possible to support the JWT standard and any Vendor in the future. 
 
 #### Class diagram
-The following table represents all the configuration options i want to have in JWT and its comparison to GCP
+The following table represents all the configuration options i want to have in JWT and its comparison to GCE
 
-|                                                                    |     JWT                                   |     GCP                                                                             |
+|                                                                    |     JWT                                   |     GCE                                                                             |
 |--------------------------------------------------------------------|-------------------------------------------|-------------------------------------------------------------------------------------|
-|     api                                                            |     authn-jwt/                            |     authn-gcp/                                                                      |
+|     api                                                            |     authn-jwt/                            |     authn-gce/                                                                      |
 |     Mandatory base claims to validate                              |     Iss, exp, nbf (Configurable)          |     iss, exp, iat (Constants)                                                       |                                  |
 |     Optional base claims to validate (if exists in the token)      |     aud,sub,iat (Configurable)            |     -                                                                               |
 |     provider-uri                                                   |     Configurable                          |     Constant                                                                        |
@@ -248,43 +248,43 @@ The following table represents all the configuration options i want to have in J
 |     iss value                                                      |     Configurable   (list?)                |     Constant                                                                        |
 |     aud value                                                      |     Configurable   (list?)                |     Constant                                                                        |
 |     sub value                                                      |     Configurable   (list?)                |     -                                                                               |
-|     Host   annotation prefix                                       |     authn-jwt                             |     authn-gcp                                                                       |
+|     Host   annotation prefix                                       |     authn-jwt                             |     authn-gce                                                                       |
 |     Permitted annotation keys                                      |     any                                   |     instance-name OR project-id OR   service-account-id OR service-account-email    |
 |     Mapping host annotation logic                                  |     -                                     |     Map each above key   to his location in the google JWT token                    |
 
 The following diagram represents JWT authenticator with a lot of small responsibility units, according to the above 
 table and past experience, in order to have the flexibility to support future vendors that uses JWT token for their 
-authentication process, like Google, GCP.
+authentication process, like Google, GCE.
 
-**Note:** in this feature we will support only GCP
-![Authn gcp class diagram](authn-gcp-class-diagram.png)
+**Note:** in this feature we will support only GCE
+![Authn gce class diagram](authn-gce-class-diagram.png)
 
-GCP & JWT will have 3 dependencies which will change their behavior by dependency injection  
+GCE & JWT will have 3 dependencies which will change their behavior by dependency injection  
 
 1. **Fetch Authenticator configuration**
 
     1.1 **Fetch provider uri**
     
-    * GCP implementation - return an hardcoded
+    * GCE implementation - return an hardcoded
     * Authenticator policy implementation - fetch from provider uri value in the policy, this logic is relevant for: OIDC, Azure, JWT
     
     1.2 **Fetch claims**
         
       1.2.1 **Fetch mandatory claims keys to validate** - list of claims that must exist in token
         
-      * GCP implementation - return an hardcoded list (Iss, exp, iat)
+      * GCE implementation - return an hardcoded list (Iss, exp, iat)
       * OIDC needs refactor - return an hardcoded list (Iss, exp, nbf)
       * Azure needs refactor - return an hardcoded list (Iss, exp, nbf)
       * JWT design phase - return an list which defined in a variable under the authenticator policy
       
       1.2.2 **Fetch mandatory claims values** - values of claims to validate which can be reside in different location: hardcoded, policy, hostname, uri of the request
-      * GCP implementation - return an hardcoded values (Iss = "https://www.googleapis.com/oauth2/v1/certs", aud = "conjur"
+      * GCE implementation - return an hardcoded values (Iss = "https://www.googleapis.com/oauth2/v1/certs", aud = "conjur"
       * OIDC needs refactor - fetch iss value from the provider uri 
       * Azure needs refactor - fetch iss value from the provider uri 
       * JWT design phase - return the values of mandatory claims from variable in policy
       
       1.2.3 **Fetch optional claims to validate** - list of claims that we should validate only if they appears in the token 
-      * GCP - not relevant
+      * GCE - not relevant
       * OIDC - not relevant
       * Azure - not relevant
       * JWT design phase - return the values of optional claims from variable in policy
@@ -305,33 +305,33 @@ GCP & JWT will have 3 dependencies which will change their behavior by dependenc
     
     3.1 **Extract Source Restrictions** 
     
-    * Host annotations implementation  -  Fetch host annotations values, this logic is relevant to GCP, JWT, Azure, K8s
+    * Host annotations implementation  -  Fetch host annotations values, this logic is relevant to GCE, JWT, Azure, K8s
     
     3.2 **Validate Source Restrictions** - Each authenticator will have his special logic of which annotation are permitted  (In perfect world this logic should be trigger in load policy stage)
     
-    * GCP implementation - validate GCP annotations logic (instance-name OR project-id OR service-account-id OR service-account-email)
+    * GCE implementation - validate GCE annotations logic (instance-name OR project-id OR service-account-id OR service-account-email)
     * Azure needs refactor - same Azure logic
     * K8s needs refactor - same K8S logic
     * JWT design phase - any key is permitted
     
-    3.3 **Validate destination Restrictions** - In GCP,JWT,Azure we are validating against JWT token, in K8S against api 
+    3.3 **Validate destination Restrictions** - In GCE,JWT,Azure we are validating against JWT token, in K8S against api 
       
       3.3.1 **Key Adapter** - Responsible of mapping source key to its corresponding destination key value 
     
-    * GCP implementation - use a key adapter to find the corresponding key to validate
+    * GCE implementation - use a key adapter to find the corresponding key to validate
     * Azure needs refactor - same Azure xms_mirid logic
     * K8s needs refactor - same K8S logic
     * JWT design phase - straightforward validation 
 
-#### GCP authenticator flow
-![Authn gcp flow](authn-gcp-flow.png)
+#### GCE authenticator flow
+![Authn gce flow](authn-gce-flow.png)
 
 
 ### Backwards compatibility
 None because this is a new feature.
 
 ### Performance
-GCP authenticator performance should conform with our other authenticators with an average call time of 1 second.
+GCE authenticator performance should conform with our other authenticators with an average call time of 1 second.
 
 ### Affected Components
 - Conjur
@@ -350,7 +350,7 @@ and signed by google private keys which are not expose to the apps in contrast t
 but in this version we will not implement this capability  
 
 ## Test Plan
-[Link to confluence](https://ca-il-confluence.il.cyber-ark.com/display/rndp/Conjur+GCP+authenticator+-+Test+plan#/) 
+[Link to confluence](https://ca-il-confluence.il.cyber-ark.com/display/rndp/Conjur+GCE+authenticator+-+Test+plan#/) 
 
 ## Logs
 
@@ -390,28 +390,28 @@ Same logic like all other authenticators.
 ## Automation Design
 
 ### Introduction
-We would like to add automated tests for the GCP Authenticator.
+We would like to add automated tests for the GCE Authenticator.
 While Unit Tests are already automated, we will need to add some infrastructure for running integration tests.
 
 ### Scope
   - Run integration tests in OSS
   - Run a vanilla test in appliance
-  - Run automation on a DAP image that is deployed on GCP (Manual at first stage, automation on POST GA)
+  - Run automation on a DAP image that is deployed on GCE (Manual at first stage, automation on POST GA)
 
 ### Run Integration Tests in OSS
-GCP Authenticator tests will be added to the the general infrastructure of our integration test.
+GCE Authenticator tests will be added to the the general infrastructure of our integration test.
 The integration will be supported both from `ci/test` script and `dev/start` the later will require creating GCE manually.
 The integration test does not require creation of secrets.
 The tests will cover [issuing an identity token](https://cloud.google.com/compute/docs/instances/verifying-instance-identity) 
 in Google Compute Engine (GCE) and
 presenting the issued token to Conjur's `host/authenticate` end point and exchange it with a valid Conjur token.
 
-#### GCP Variables in Tests
+#### GCE Variables in Tests
 - Non-sensitive
-  - GCP project ID
+  - GCE project ID
   - GCE instance name
-  - GCP Service Account ID
-  - GCP Service Account email
+  - GCE Service Account ID
+  - GCE Service Account email
 - Sensitive
   - GCE VM IP / dns name
   - user name
@@ -435,17 +435,17 @@ stage('Run Tests') {
     stage('Authenticators') {
       steps { sh 'ci/test cucumber_authenticators' }
     }
-    stage('GCP Authenticator') {
-      steps { sh 'summon ci/test cucumber_gcp_authenticator' }
+    stage('GCE Authenticator') {
+      steps { sh 'summon ci/test cucumber_gce_authenticator' }
     }
     ...
   }
 }
 ```
-For the "dev/start" script we can verify that if the "--authn-gcp" flag was added then the required variables were 
-retrieved, and raise an "GCP tests must run with summon" message. 
+For the "dev/start" script we can verify that if the "--authn-gce" flag was added then the required variables were 
+retrieved, and raise an "GCE tests must run with summon" message. 
 
-Please note that we will need to add a new flag to the "ci/test" script - "cucumber_gcp_authenticator" as it will 
+Please note that we will need to add a new flag to the "ci/test" script - "cucumber_gce_authenticator" as it will 
 need summon.
 
 ### GCE for Tests
@@ -519,7 +519,7 @@ has the same quality of running it inside the machine.
 ### Requirements from DevOps
 - GCE VM for tests
 - Secrets in `conjurops`
-  - GCP project id
+  - GCE project id
   - GCE instance name
   - Service account id
   - Service account email
@@ -534,7 +534,7 @@ TODO: Inbal to decide which versions?
 - DAP
 
 ## Open questions
-- Authenticator name may change `authn-gcp` ? TODO: Inbal to decide 
+- Authenticator name may change `authn-gce` ? TODO: Inbal to decide 
 
 ## Implementation plan
 
@@ -616,10 +616,10 @@ Note: LLD designs need will be decided at implementation level
 
 ### Post GA EE6 + ??
 #### Testing
-1. Infrastructure to deploy DAP image on GCP
+1. Infrastructure to deploy DAP image on GCE
 
 #### Designs  
-1. LLD for K8S, Azure ang GCP to use same component of ValidateResourceRestrictions class **EE3**
+1. LLD for K8S, Azure ang GCE to use same component of ValidateResourceRestrictions class **EE3**
 
 #### Implementation
 1. Implement LLD1 **EE3**
