@@ -42,6 +42,10 @@ module Authentication
       def valid?(input)
         call(authenticator_input: input)
       end
+
+      def status(authenticator_status_input:)
+        Authentication::AuthnGce::ValidateStatus.new.call
+      end
     end
   end
 end
