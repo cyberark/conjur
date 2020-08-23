@@ -29,7 +29,12 @@ module Authentication
       end
 
       def extract_resource_restrictions
-        @logger.debug(LogMessages::Authentication::AuthnGce::ExtractingRestrictionsFromResource.new(@username, @extraction_prefix))
+        @logger.debug(
+          LogMessages::Authentication::AuthnGce::ExtractingRestrictionsFromResource.new(
+            @extraction_prefix,
+            @username
+          )
+        )
         prefixed_resource_annotations.select do |a|
           annotation_name = a.values[:name]
           resource_value = annotation_value(annotation_name)
@@ -45,37 +50,14 @@ module Authentication
       end
 
       def prefixed_resource_annotations
-        @prefixed_resource_annotations ||= resource_annotations.select do |a|
+        @prefixed_resource_annotations ||= role.annotations.select do |a|
           annotation_name = a.values[:name]
           annotation_name.start_with?(@extraction_prefix)
         end
       end
 
-      def init_resource_restrictions
-        prefixed_resource_annotations.select do |a|
-          annotation_name = a.values[:name]
-          resource_value = annotation_value(annotation_name)
-          next unless resource_value
-          resource_restrictions.push(
-            ResourceRestriction.new(
-              type: annotation_name,
-              value: resource_value
-            )
-          )
-        end
-      end
-
       def resource_restrictions
         @resource_restrictions ||= Array.new
-      end
-
-      def resource_annotations
-        return @resource_annotations if @resource_annotations
-
-        @resource_annotations ||= role.annotations
-        # This is an illegal state, because if the resource doesnt have annotations we should get an empty array
-        raise Errors::Conjur::FetchAnnotationsFailed.new(role_id) unless @resource_annotations
-        @resource_annotations
       end
 
       def annotation_value(name)

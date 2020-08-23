@@ -12,7 +12,7 @@ module Authentication
 
       def call
         @logger.debug(LogMessages::Authentication::AuthnGce::ValidatingResourceRestrictionsConfiguration.new)
-        validate_restrictions_exist
+        validate_required_restrictions_exist
         validate_constraints_are_permitted
         validate_restrictions_values_exist
         @logger.debug(LogMessages::Authentication::AuthnGce::ValidatedResourceRestrictionsConfiguration.new)
@@ -20,7 +20,7 @@ module Authentication
 
       private
 
-      def validate_restrictions_exist
+      def validate_required_restrictions_exist
         if @resource_restrictions.nil? || @resource_restrictions.empty?
           raise Errors::Authentication::AuthnGce::RoleMissingRequiredConstraints.new(@permitted_constraints)
         end

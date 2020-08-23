@@ -185,7 +185,7 @@ RSpec.describe 'Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT' 
         Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT.new.call(
           resource_restrictions: resource_restrictions_with_4_valid,
           decoded_token:         mocked_decoded_token_class_return_valid_values,
-          restriction_prefix:    gce_restriction_prefix
+          annotation_prefix:    gce_restriction_prefix
         )
       end
 
@@ -199,7 +199,7 @@ RSpec.describe 'Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT' 
         Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT.new.call(
           resource_restrictions: resource_restrictions_with_1_valid_instance_name,
           decoded_token:         mocked_decoded_token_class_return_valid_values,
-          restriction_prefix:    gce_restriction_prefix
+          annotation_prefix:    gce_restriction_prefix
         )
       end
 
@@ -213,7 +213,7 @@ RSpec.describe 'Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT' 
         Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT.new.call(
           resource_restrictions: resource_restrictions_with_1_valid_project_id,
           decoded_token:         mocked_decoded_token_class_return_valid_values,
-          restriction_prefix:    gce_restriction_prefix
+          annotation_prefix:    gce_restriction_prefix
         )
       end
 
@@ -227,7 +227,7 @@ RSpec.describe 'Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT' 
         Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT.new.call(
           resource_restrictions: resource_restrictions_with_1_valid_service_account_id,
           decoded_token:         mocked_decoded_token_class_return_valid_values,
-          restriction_prefix:    gce_restriction_prefix
+          annotation_prefix:    gce_restriction_prefix
         )
       end
 
@@ -241,7 +241,7 @@ RSpec.describe 'Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT' 
         Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT.new.call(
           resource_restrictions: resource_restrictions_with_1_valid_service_account_email,
           decoded_token:         mocked_decoded_token_class_return_valid_values,
-          restriction_prefix:    gce_restriction_prefix
+          annotation_prefix:    gce_restriction_prefix
         )
       end
 
@@ -257,7 +257,7 @@ RSpec.describe 'Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT' 
         Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT.new.call(
           resource_restrictions: resource_restrictions_with_only_instance_name_invalid,
           decoded_token:         mocked_decoded_token_class_return_valid_values,
-          restriction_prefix:    gce_restriction_prefix
+          annotation_prefix:    gce_restriction_prefix
         )
       end
 
@@ -271,7 +271,7 @@ RSpec.describe 'Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT' 
         Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT.new.call(
           resource_restrictions: resource_restrictions_with_only_project_id_invalid,
           decoded_token:         mocked_decoded_token_class_return_valid_values,
-          restriction_prefix:    gce_restriction_prefix
+          annotation_prefix:    gce_restriction_prefix
         )
       end
 
@@ -285,7 +285,7 @@ RSpec.describe 'Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT' 
         Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT.new.call(
           resource_restrictions: resource_restrictions_with_only_service_account_id_invalid,
           decoded_token:         mocked_decoded_token_class_return_valid_values,
-          restriction_prefix:    gce_restriction_prefix
+          annotation_prefix:    gce_restriction_prefix
         )
       end
 
@@ -299,7 +299,7 @@ RSpec.describe 'Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT' 
         Authentication::AuthnGce::ValidateResourceRestrictionsMatchJWT.new.call(
           resource_restrictions: resource_restrictions_with_only_service_account_email_invalid,
           decoded_token:         mocked_decoded_token_class_return_valid_values,
-          restriction_prefix:    gce_restriction_prefix
+          annotation_prefix:    gce_restriction_prefix
         )
       end
 

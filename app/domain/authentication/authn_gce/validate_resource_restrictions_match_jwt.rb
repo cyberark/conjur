@@ -8,7 +8,7 @@ module Authentication
       dependencies: {
         logger: Rails.logger
       },
-      inputs:       %i(resource_restrictions decoded_token restriction_prefix)
+      inputs:       %i(resource_restrictions decoded_token annotation_prefix)
     ) do
 
       def call
@@ -21,33 +21,33 @@ module Authentication
 
       def validate
         @resource_restrictions.each do |r|
-          restriction_type = r.type
-          restriction_value = r.value
-          restriction_value_from_token = restriction_value_from_token(restriction_type_without_prefix(restriction_type))
-          unless restriction_value == restriction_value_from_token
-            raise Errors::Authentication::Jwt::InvalidResourceRestrictions.new(restriction_type)
+          resource_type = r.type
+          resource_value = r.value
+          resource_value_from_token = resource_value_from_token(resource_type_without_prefix(resource_type))
+          unless resource_value == resource_value_from_token
+            raise Errors::Authentication::Jwt::InvalidResourceRestrictions.new(resource_type)
           end
-          @logger.debug(LogMessages::Authentication::ValidatedResourceRestrictionValue.new(restriction_type))
+          @logger.debug(LogMessages::Authentication::ValidatedResourceRestrictionValue.new(resource_type))
         end
       end
 
-      def restriction_type_without_prefix(restriction_type)
-        restriction_type.sub(@restriction_prefix, "")
+      def resource_type_without_prefix(resource_type)
+        resource_type.sub(@annotation_prefix, "")
       end
 
-      def restriction_value_from_token(restriction_type)
-        case restriction_type
+      def resource_value_from_token(resource_type)
+        case resource_type
         when PROJECT_ID_RESTRICTION_NAME
-          restriction_value_from_token = @decoded_token.project_id
+          resource_value_from_token = @decoded_token.project_id
         when INSTANCE_NAME_RESTRICTION_NAME
-          restriction_value_from_token = @decoded_token.instance_name
+          resource_value_from_token = @decoded_token.instance_name
         when SERVICE_ACCOUNT_ID_RESTRICTION_NAME
-          restriction_value_from_token = @decoded_token.service_account_id
+          resource_value_from_token = @decoded_token.service_account_id
         when SERVICE_ACCOUNT_EMAIL_RESTRICTION_NAME
-          restriction_value_from_token = @decoded_token.service_account_email
+          resource_value_from_token = @decoded_token.service_account_email
         end
 
-        restriction_value_from_token
+        resource_value_from_token
       end
     end
   end

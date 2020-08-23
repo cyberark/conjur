@@ -25,11 +25,6 @@ module Errors
       code: "CONJ00065E"
     )
 
-    FetchAnnotationsFailed = ::Util::TrackableErrorClass.new(
-      msg:  "Failed to fetch annotations for resource '{0-resource-id}'",
-      code: "CONJ00066E"
-    )
-
   end
 
   module Authentication

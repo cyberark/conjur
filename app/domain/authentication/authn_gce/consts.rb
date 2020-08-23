@@ -9,7 +9,6 @@ module Authentication
     SERVICE_ACCOUNT_ID_RESTRICTION_NAME = "service-account-id"
     SERVICE_ACCOUNT_EMAIL_RESTRICTION_NAME = "service-account-email"
     PERMITTED_CONSTRAINTS = %w(instance-name project-id service-account-id service-account-email)
-    AUTHN_PREFIX = "authn-gce/"
 
   end
 end

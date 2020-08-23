@@ -343,23 +343,6 @@ RSpec.describe 'Authentication::AuthnGce::ExtractResourceRestrictions' do
     end
 
     context "host not contains annotations" do
-      context "when annotations returned is nil" do
-        subject do
-          Authentication::AuthnGce::ExtractResourceRestrictions.new(
-            resource_class:          mocked_resource_class_return_annotations_nil,
-            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
-          ).call(
-            account:           valid_account,
-            username:          valid_host,
-            extraction_prefix: valid_prefix
-          )
-        end
-
-        it "raises an error" do
-          expect {subject}.to raise_error(Errors::Conjur::FetchAnnotationsFailed)
-        end
-      end
-
       context "when annotations returned is empty list" do
         subject do
           Authentication::AuthnGce::ExtractResourceRestrictions.new(
