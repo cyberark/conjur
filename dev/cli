@@ -35,6 +35,19 @@ EOF
 exit
 }
 
+function enable_gce() {
+  echo "Setting GCE details as env variables"
+  local gce_env_args="-e GCE_INSTANCE_IP=$GCE_INSTANCE_IP"
+  gce_env_args="$gce_env_args -e GCE_INSTANCE_NAME=$GCE_INSTANCE_NAME"
+  gce_env_args="$gce_env_args -e GCE_INSTANCE_USERNAME=$GCE_INSTANCE_USERNAME"
+  gce_env_args="$gce_env_args -e GCE_PRIVATE_KEY_PATH=$GCE_PRIVATE_KEY_PATH"
+  gce_env_args="$gce_env_args -e GCE_SERVICE_ACCOUNT_ID=$GCE_SERVICE_ACCOUNT_ID"
+  gce_env_args="$gce_env_args -e GCE_SERVICE_ACCOUNT_EMAIL=$GCE_SERVICE_ACCOUNT_EMAIL"
+  gce_env_args="$gce_env_args -e GCE_PROJECT_ID=$GCE_PROJECT_ID"
+
+  env_args="$env_args $gce_env_args"
+}
+
 function enable_oidc() {
   echo "Extracting keycloak variables & setting as env variables"
 
@@ -80,6 +93,7 @@ while true ; do
         -h | --help ) print_exec_help ; shift ;;
         --authn-oidc ) enable_oidc ; shift ;;
         --authn-azure ) enable_azure ; shift ;;
+        --authn-gce ) enable_gce ; shift ;;
         * ) if [ -z "$2" ]; then shift ; else echo "$2 is not a valid option"; exit 1; fi;;
       esac
 

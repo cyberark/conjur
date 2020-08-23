@@ -110,6 +110,8 @@ group :development, :test do
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
   gem 'table_print'
+  gem 'ed25519'
+  gem 'bcrypt_pbkdf'
 end
 
 group :development do

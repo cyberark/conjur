@@ -63,6 +63,18 @@ cucumber_authenticators_azure() {
   _run_cucumber_tests authenticators_azure "" "$(_get_azure_env_args)"
 }
 
+cucumber_authenticators_gce() {
+  : DOC - Runs Cucumber GCE Authenticator features
+
+  # TODO: get a token from GCE instance and set the following env vars:
+  # GCE_INSTANCE_NAME
+  # GCE_SERVICE_ACCOUNT_ID
+  # GCE_SERVICE_ACCOUNT_EMAIL
+  # GCE_PROJECT_ID
+
+  _run_cucumber_tests authenticators_gce "" "$(_get_gce_env_args)"
+}
+
 cucumber_authenticators_oidc() {
   : DOC - Runs Cucumber OIDC Authenticator features
 
@@ -250,6 +262,18 @@ _get_azure_env_args() {
   azure_env_args="$azure_env_args -e USER_ASSIGNED_IDENTITY_CLIENT_ID=$USER_ASSIGNED_IDENTITY_CLIENT_ID"
   azure_env_args="$azure_env_args -e SYSTEM_ASSIGNED_IDENTITY=$SYSTEM_ASSIGNED_IDENTITY"
   echo "${azure_env_args}"
+}
+
+_get_gce_env_args() {
+  local gce_env_args="-e GCE_INSTANCE_IP=$GCE_INSTANCE_IP"
+  gce_env_args="$gce_env_args -e GCE_INSTANCE_NAME=$GCE_INSTANCE_NAME"
+  gce_env_args="$gce_env_args -e GCE_INSTANCE_USERNAME=$GCE_INSTANCE_USERNAME"
+  gce_env_args="$gce_env_args -e GCE_PRIVATE_KEY_PATH=$GCE_PRIVATE_KEY_PATH"
+  gce_env_args="$gce_env_args -e GCE_SERVICE_ACCOUNT_ID=$GCE_SERVICE_ACCOUNT_ID"
+  gce_env_args="$gce_env_args -e GCE_SERVICE_ACCOUNT_EMAIL=$GCE_SERVICE_ACCOUNT_EMAIL"
+  gce_env_args="$gce_env_args -e GCE_PROJECT_ID=$GCE_PROJECT_ID"
+
+  echo "${gce_env_args}"
 }
 
 _wait_for_keycloak() {
