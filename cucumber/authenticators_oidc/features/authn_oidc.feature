@@ -6,7 +6,7 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
   Authenticator, but that it can retrieve a secret using the Conjur access token.
 
   Background:
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-oidc/keycloak

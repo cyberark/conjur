@@ -1,7 +1,7 @@
 Feature: Azure Authenticator - Status Check
 
   Scenario: A properly configured Azure authenticator returns a successful response
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-azure/prod
@@ -52,7 +52,7 @@ Feature: Azure Authenticator - Status Check
     And the authenticator status check succeeds
 
   Scenario: A non-responsive Azure AD provider returns a 500 response
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-azure/prod
@@ -102,7 +102,7 @@ Feature: Azure Authenticator - Status Check
     And the authenticator status check fails with error "ProviderDiscoveryFailed: CONJ00011E"
 
   Scenario: provider-uri variable is missing and a 500 error response is returned
-    Given a policy:
+    Given I load a policy:
      """
     - !policy
       id: conjur/authn-azure/prod

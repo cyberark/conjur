@@ -3,7 +3,7 @@ Feature: Authenticator configuration
   Background:
     Given I have user "authn-viewer"
     And I have user "authn-updater"
-    And a policy:
+    And I load a policy:
     """
     # authn-config/env is enabled in CONJUR_AUTHENTICATORS and used in tests to
     # ensure that the env value continues to be used even when DB config exists.

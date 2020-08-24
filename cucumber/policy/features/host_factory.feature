@@ -5,7 +5,7 @@ Feature: Host Factories can be managed through policies.
     The layer is added to the "layers" field.
     The "tokens" field is empty.
 
-    Given a policy:
+    Given I load a policy:
     """
     - !layer
       id: myapp
@@ -48,7 +48,7 @@ Feature: Host Factories can be managed through policies.
     Scenario: The host factory can be defined in a separate policy load event from the creation
       of the layer.
       
-      Given a policy:
+      Given I load a policy:
       """
       - !layer
         id: myapp
@@ -69,7 +69,7 @@ Feature: Host Factories can be managed through policies.
       """
 
     Scenario: Load a Host Factory with no layers
-      Given a policy:
+      Given I load a policy:
         """ 
         - !policy
           id: another-app

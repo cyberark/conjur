@@ -4,7 +4,7 @@ Feature: Azure Authenticator - Different Hosts can authenticate with Azure authe
   hosts and perform authentication with Conjur.
 
   Background:
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-azure/prod

@@ -2,7 +2,7 @@ Feature: The list of available authentication providers is discoverable
   through the API.
 
   Background:
-    Given a policy:
+    Given I load a policy:
     """
     - !user alice
     - !user bob

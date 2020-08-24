@@ -6,7 +6,7 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
   properly
 
   Scenario: provider-uri variable missing in policy is denied
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-azure/prod
@@ -36,7 +36,7 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
   # TODO: add this test when issue #1085 is done
   @skip
   Scenario: provider-uri variable without value is denied
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-azure/prod
@@ -67,7 +67,7 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
     """
 
   Scenario: webservice missing in policy is denied
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-azure/prod
@@ -93,7 +93,7 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
     """
 
   Scenario: Webservice with read and no authenticate permission in policy is denied
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-azure/prod
@@ -125,7 +125,7 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
     """
 
   Scenario: Bad Gateway is raised in case of an invalid ID Provider hostname
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-azure/prod

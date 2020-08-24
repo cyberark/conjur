@@ -17,7 +17,7 @@ Feature: Secrets can be managed through policies.
     Because the owner of a resource has all privileges on the resource, the owner of a resource
     can both add and fetch secret values.
 
-    Given a policy:
+    Given I load a policy:
     """
     - !group secrets-managers
 
@@ -44,7 +44,7 @@ Feature: Secrets can be managed through policies.
     `execute` privilege convays the right to fetch a secret. Having `update` privilege
     does not give the privilege to `execute`, the permissions are managed separately.
 
-    Given a policy:
+    Given I load a policy:
     """
     - !group secrets-fetchers
 
@@ -91,7 +91,7 @@ Feature: Secrets can be managed through policies.
     given `read` and `execute` permission on the variable, and a `secrets-managers` group is typically
     created which has all privileges on the variable.
 
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: myapp

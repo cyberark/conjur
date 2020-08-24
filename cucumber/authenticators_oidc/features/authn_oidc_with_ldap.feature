@@ -6,7 +6,7 @@ Feature: OIDC Authenticator - Users can authenticate with OIDC & LDAP authentica
 
   Background:
     # Configure OIDC authenticator
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-oidc/keycloak

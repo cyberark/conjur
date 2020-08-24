@@ -9,7 +9,7 @@ Feature: Policies can refer to each other by relative path.
     enclosing policy. So, the expression `../frontend` used in a policy `prod/database`
     is resolved to the path `prod/frontend`. 
   
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: prod
@@ -41,7 +41,7 @@ Feature: Policies can refer to each other by relative path.
     Then I can fetch a secret from variable resource "prod/database/password"
 
   Scenario: Policy references can be used across policy loader invocations.
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: prod

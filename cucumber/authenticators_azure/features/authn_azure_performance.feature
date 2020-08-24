@@ -6,7 +6,7 @@ Feature: Azure Authenticator - Performance tests
   We test both successful requests and unsuccessful requests.
 
   Background:
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-azure/prod

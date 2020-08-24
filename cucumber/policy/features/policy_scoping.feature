@@ -13,7 +13,7 @@ Feature: Policies can be used to scope records by name and ownership.
     - The full name of the created variable will be `jenkins/v1/private-key`.
     - The owner of the variable will be be the role `<account>:policy:jenkins/v1`.
       
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: jenkins/v1

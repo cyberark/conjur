@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Conjur now only trusts `127.0.0.1` to send the `X-Forwarded-For` header by
   default. Additional trusted IP addresses may be added with the `TRUSTED_PROXIES`
   environment variable. [cyberark/conjur#1725](https://github.com/cyberark/conjur/issues/1725)
+- Invalid CIDR notation in `restricted_to` now returns a policy validation
+  error, rather than an internal server error.
+  [cyberark/conjur#1763](https://github.com/cyberark/conjur/issues/1763)
 
 ### Fixed
 - The `TRUSTED_PROXIES` environment variable now works correctly again after the
