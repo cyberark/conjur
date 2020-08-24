@@ -36,3 +36,7 @@ Then(/authenticator "([^"]*)" is disabled/) do |resource_id|
   config = AuthenticatorConfig.where(resource_id: resource_id).first
   expect(config&.enabled).to be_falsey
 end
+
+Then(/The (avg|max) authentication request responds in less than (\d+\.?(\d+)?) seconds?/) do |type, threshold|
+  validate_authentication_performance(type, threshold)
+end

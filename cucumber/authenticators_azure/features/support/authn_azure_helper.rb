@@ -5,6 +5,9 @@
 module AuthnAzureHelper
   include AuthenticatorHelpers
 
+  SERVICE_ID = 'prod'
+  ACCOUNT = 'cucumber'
+
   def create_and_set_azure_provider_uri_variable(value = azure_provider_uri)
     create_and_set_azure_variable("provider-uri", value)
   end

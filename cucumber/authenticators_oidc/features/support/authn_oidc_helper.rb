@@ -5,6 +5,9 @@
 module AuthnOidcHelper
   include AuthenticatorHelpers
 
+  SERVICE_ID = 'keycloak'
+  ACCOUNT = 'cucumber'
+
   def authenticate_id_token_with_oidc(service_id:, account:, id_token: parsed_id_token)
     path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
 
