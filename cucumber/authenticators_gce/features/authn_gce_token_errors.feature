@@ -38,7 +38,7 @@ Feature: GCE Authenticator - Test Token Error Handling
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00018D Failed to decode the token with the error '#<JWT::DecodeError: No key id \(kid\) found from token headers>
+    CONJ00035E Failed to decode token \(3rdPartyError ='#<JWT::DecodeError: No key id \(kid\) found from token headers>'\)
     """
 
   Scenario: Authenticate using token with an invalid audience claim is denied
