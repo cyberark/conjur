@@ -25,52 +25,32 @@ Given(/^I successfully set id-token-user-property variable$/) do
 end
 
 When(/^I authenticate via OIDC with id token$/) do
-  authenticate_id_token_with_oidc(service_id: 'keycloak', account: 'cucumber')
+  authenticate_id_token_with_oidc(service_id: AuthnOidcHelper::SERVICE_ID, account: AuthnOidcHelper::ACCOUNT)
 end
 
 When(/^I authenticate via OIDC with id token and account "([^"]*)"$/) do |account|
-  authenticate_id_token_with_oidc(service_id: 'keycloak', account: account)
+  authenticate_id_token_with_oidc(service_id: AuthnOidcHelper::SERVICE_ID, account: account)
 end
 
 When(/^I authenticate via OIDC with no id token$/) do
-  authenticate_id_token_with_oidc(service_id: 'keycloak', account: 'cucumber', id_token: nil)
+  authenticate_id_token_with_oidc(service_id: AuthnOidcHelper::SERVICE_ID, account: AuthnOidcHelper::ACCOUNT, id_token: nil)
 end
 
 When(/^I authenticate via OIDC with empty id token$/) do
-  authenticate_id_token_with_oidc(service_id: 'keycloak', account: 'cucumber', id_token: "")
+  authenticate_id_token_with_oidc(service_id: AuthnOidcHelper::SERVICE_ID, account: AuthnOidcHelper::ACCOUNT, id_token: "")
 end
 
 When(/^I authenticate (\d+) times? in (\d+) threads? via OIDC with( invalid)? id token$/) do |num_requests, num_threads, is_invalid|
   id_token = is_invalid ? invalid_id_token : parsed_id_token
 
-  queue = (1..num_requests.to_i).inject(Queue.new, :push)
-  results = []
-
-  all_threads = Array.new(num_threads.to_i) do
-    Thread.new do
-      until queue.empty?
-        queue.shift
-        results.push(
-          Benchmark.measure do
-            authenticate_id_token_with_oidc(
-              service_id: 'keycloak',
-              account: 'cucumber',
-              id_token: id_token
-            )
-          end
-        )
-      end
-    end
-  end
-
-  all_threads.each(&:join)
-  @oidc_perf_results = results.map(&:real)
-end
-
-Then(/^The "([^"]*)" response time should be less than "([^"]*)" seconds$/) do |type, threshold|
-  type = type.downcase.to_sym
-  raise "Unexpected Type" unless %i(max avg).include?(type)
-  results = @oidc_perf_results
-  actual_time = type == :avg ? results.sum.fdiv(results.size) : results.max
-  expect(actual_time).to be < threshold.to_f
+  authenticate_with_performance(
+    num_requests,
+    num_threads,
+    authentication_func: :authenticate_id_token_with_oidc,
+    authentication_func_params: {
+      service_id: AuthnOidcHelper::SERVICE_ID,
+      account: AuthnOidcHelper::ACCOUNT,
+      id_token: id_token
+    }
+  )
 end

@@ -36,39 +36,17 @@ Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?via Azure with (no |em
   num_requests ||= 1
   num_threads  ||= 1
 
-  queue   = (1..num_requests.to_i).inject(Queue.new, :push)
-  results = []
-
-  all_threads = Array.new(num_threads.to_i) do
-    Thread.new do
-      until queue.empty?
-        queue.shift
-        results.push(
-          Benchmark.measure do
-            authenticate_azure_token(
-              service_id:  'prod',
-              account:     'cucumber',
-              username:    username,
-              azure_token: token
-            )
-          end
-        )
-      end
-    end
-  end
-
-  all_threads.each(&:join)
-  @azure_perf_results = results.map(&:real)
-end
-
-Then(
-  "The {string} Azure Authentication request responds in less than {string} second(s)"
-) do |type, threshold|
-  type = type.downcase.to_sym
-  raise "Unexpected Type" unless %i(max avg).include?(type)
-  results     = @azure_perf_results
-  actual_time = type == :avg ? results.sum.fdiv(results.size) : results.max
-  expect(actual_time).to be < threshold.to_f
+  authenticate_with_performance(
+    num_requests,
+    num_threads,
+    authentication_func: :authenticate_azure_token,
+    authentication_func_params: {
+      service_id:  AuthnAzureHelper::SERVICE_ID,
+      account:     AuthnAzureHelper::ACCOUNT,
+      username:    username,
+      azure_token: token
+    }
+  )
 end
 
 Given(/^I set Azure annotations to host "([^"]*)"$/) do |hostname|

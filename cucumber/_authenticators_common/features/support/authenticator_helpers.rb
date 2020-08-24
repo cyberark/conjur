@@ -130,6 +130,34 @@ module AuthenticatorHelpers
   def client_timeout?
     rest_client_error.class == RestClient::Exceptions::ReadTimeout
   end
+
+  def authenticate_with_performance(num_requests, num_threads, authentication_func:, authentication_func_params:)
+    queue   = (1..num_requests.to_i).inject(Queue.new, :push)
+    results = []
+
+    all_threads = Array.new(num_threads.to_i) do
+      Thread.new do
+        until queue.empty?
+          queue.shift
+          results.push(
+            Benchmark.measure do
+              method(authentication_func).call(authentication_func_params)
+            end
+          )
+        end
+      end
+    end
+
+    all_threads.each(&:join)
+    @authentication_perf_results = results.map(&:real)
+  end
+
+  def validate_authentication_performance(type, threshold)
+    type        = type.downcase.to_sym
+    results     = @authentication_perf_results
+    actual_time = type == :avg ? results.sum.fdiv(results.size) : results.max
+    expect(actual_time).to be < threshold.to_f
+  end
 end
 
 World(AuthenticatorHelpers)
