@@ -78,7 +78,6 @@ Feature: GCP Authenticator - Test hosts can authentication scenarios
   Scenario: Host with all valid annotations and an illegal annotation key is denied
     Given I set "authn-gce/invalid-key" annotation to host "test-app"
     And I set all valid GCE annotations to host "test-app"
-    And I set "authn-gce/invalid-key" annotation to host "test-app"
     And I save my place in the log file
     When I authenticate with authn-gce using valid token and existing account
     Then it is unauthorized
