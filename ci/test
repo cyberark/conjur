@@ -63,6 +63,12 @@ cucumber_authenticators_azure() {
   _run_cucumber_tests authenticators_azure "" "$(_get_azure_env_args)"
 }
 
+cucumber_authenticators_gce() {
+  : DOC - Runs Cucumber GCE Authenticator features
+
+  _run_cucumber_tests authenticators_gce "" "$(_get_gce_env_args)"
+}
+
 cucumber_authenticators_oidc() {
   : DOC - Runs Cucumber OIDC Authenticator features
 
@@ -250,6 +256,41 @@ _get_azure_env_args() {
   azure_env_args="$azure_env_args -e USER_ASSIGNED_IDENTITY_CLIENT_ID=$USER_ASSIGNED_IDENTITY_CLIENT_ID"
   azure_env_args="$azure_env_args -e SYSTEM_ASSIGNED_IDENTITY=$SYSTEM_ASSIGNED_IDENTITY"
   echo "${azure_env_args}"
+}
+
+_get_gce_env_args() {
+  gce_token_file="authn-gce/tokens/gce_token_valid"
+  if ! [ -f "$gce_token_file" ]; then
+    echo "GCE token file $gce_token_file does not exist."
+    exit 1
+  fi
+
+  decoded_gce_token_payload=$(_get_gce_token_payload "$gce_token_file")
+
+  GCE_PROJECT_ID="$(echo "$decoded_gce_token_payload" | jq -r '.google.compute_engine.project_id')"
+  GCE_INSTANCE_NAME="$(echo "$decoded_gce_token_payload" | jq -r '.google.compute_engine.instance_name')"
+  GCE_SERVICE_ACCOUNT_ID="$(echo "$decoded_gce_token_payload" | jq -r '.sub')"
+  GCE_SERVICE_ACCOUNT_EMAIL="$(echo "$decoded_gce_token_payload" | jq -r '.email')"
+
+  local gce_env_args="-e GCE_INSTANCE_NAME=$GCE_INSTANCE_NAME"
+  gce_env_args="$gce_env_args -e GCE_SERVICE_ACCOUNT_ID=$GCE_SERVICE_ACCOUNT_ID"
+  gce_env_args="$gce_env_args -e GCE_SERVICE_ACCOUNT_EMAIL=$GCE_SERVICE_ACCOUNT_EMAIL"
+  gce_env_args="$gce_env_args -e GCE_PROJECT_ID=$GCE_PROJECT_ID"
+
+  echo "${gce_env_args}"
+}
+
+_get_gce_token_payload() {
+  local gce_token_file="$1"
+
+  # read token and set env vars
+  gce_token=$(cat "$gce_token_file")
+
+  source jwt/decode_token.sh
+
+  decoded_gce_token_payload=$(decode_jwt_payload "$gce_token")
+
+  echo "$decoded_gce_token_payload"
 }
 
 _wait_for_keycloak() {
