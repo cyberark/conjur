@@ -5,6 +5,9 @@ Feature: GCE Authenticator - Test Malformed Configuration
   and log the relevant error for the user to re-configure the authenticator
   properly.
 
+  Background:
+    Given I obtain a valid GCE identity token
+
   Scenario: Webservice is missing in policy gets denied
     Given a policy:
     """
@@ -14,10 +17,9 @@ Feature: GCE Authenticator - Test Malformed Configuration
 
       - !group apps
     """
-    And I have host "missing-web-service-in-policy-test-app"
-    And I set all valid GCE annotations to host "missing-web-service-in-policy-test-app"
-    And I grant group "conjur/authn-gce/apps" to host "missing-web-service-in-policy-test-app"
-    And I obtain a GCE identity token in full format with audience claim value: "conjur/cucumber/host/missing-web-service-in-policy-test-app"
+    And I have host "test-app"
+    And I set all valid GCE annotations to host "test-app"
+    And I grant group "conjur/authn-gce/apps" to host "test-app"
     And I save my place in the log file
     When I authenticate with authn-gce using valid token and existing account
     Then it is unauthorized
@@ -41,10 +43,9 @@ Feature: GCE Authenticator - Test Malformed Configuration
         privilege: [ read ]
         resource: !webservice
     """
-    And I have host "role-not-authorized-on-resource-test-app"
-    And I set all valid GCE annotations to host "role-not-authorized-on-resource-test-app"
-    And I grant group "conjur/authn-gce/apps" to host "role-not-authorized-on-resource-test-app"
-    And I obtain a GCE identity token in full format with audience claim value: "conjur/cucumber/host/role-not-authorized-on-resource-test-app"
+    And I have host "test-app"
+    And I set all valid GCE annotations to host "test-app"
+    And I grant group "conjur/authn-gce/apps" to host "test-app"
     And I save my place in the log file
     When I authenticate with authn-gce using valid token and existing account
     Then it is forbidden
@@ -52,4 +53,3 @@ Feature: GCE Authenticator - Test Malformed Configuration
     """
     CONJ00006E .* does not have 'authenticate' privilege on .*>
     """
-

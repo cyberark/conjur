@@ -3,57 +3,10 @@ require 'jwt'
 module AuthnGceHelper
   include AuthenticatorHelpers
 
-  # @todo Remove the env variables we the the vars will be injected
-  # The ENV variables that are expected (temporary this will be injected)
-  #
-  # SSH
-  #
-  # export GCE_INSTANCE_IP='104.198.201.199'
-  # export GCE_INSTANCE_USERNAME='gcp-authn'
-  # export GCE_PRIVATE_KEY_PATH=./.gcp-authn
-  #
-  # Claims
-  #
-  # export GCE_INSTANCE_NAME='gcp-authn'
-  # export GCE_SERVICE_ACCOUNT_ID='115072799640778267780'
-  # export GCE_SERVICE_ACCOUNT_EMAIL='120811889825-compute@developer.gserviceaccount.com'
-  # export GCE_PROJECT_ID='refreshing-mark-284016'
-
-  # Obtains a GCE identity token by running a curl command inside a GCE instance using ssh.
-  # The above ENV variables are assumed to be set.
-  # token_format; default="standard"
-  # Specify whether or not the project and instance details are included in the identity token payload.
-  # This flag only applies to Google Compute Engine instance identity tokens.
-  # See https://cloud.google.com/compute/docs/instances/verifying-instance-identity#token_format
-  # for more details on token format. TOKEN_FORMAT must be one of: standard, full.
-  def gce_identity_access_token(audience: nil, token_format: 'standard')
-    audience = audience.gsub("/", "%2F")
-
-    unless File.exist?(private_key_path)
-      raise "GCE private key credentials file '#{private_key_path}' not found."
-    end
-
-    @gce_identity_token = run_command_in_machine_with_private_key(
-      machine_ip:        gce_instance_ip,
-      machine_username:  gce_instance_user,
-      private_key_path:  private_key_path,
-      command:           identity_token_curl_cmd(audience, token_format))
-  end
-
-  def gce_instance_ip
-    @gce_machine_ip ||= validated_env_var('GCE_INSTANCE_IP')
-  end
+  ACCOUNT = 'cucumber'
 
   def gce_instance_name
     @gce_machine_name ||= validated_env_var('GCE_INSTANCE_NAME')
-  end
-
-  def gce_instance_user
-    @gce_instance_user ||= validated_env_var('GCE_INSTANCE_USERNAME')
-  end
-
-  def private_key_path
-    @private_key_path ||= validated_env_var('GCE_PRIVATE_KEY_PATH')
   end
 
   def gce_service_account_email
@@ -68,13 +21,6 @@ module AuthnGceHelper
     @gce_service_account_id ||= validated_env_var('GCE_SERVICE_ACCOUNT_ID')
   end
 
-  def identity_token_curl_cmd(audience, token_format)
-    header = 'Metadata-Flavor: Google'
-    url = 'http://metadata/computeMetadata/v1/instance/service-accounts/default/identity'
-    query_string = "format=#{token_format}&audience=#{audience}"
-
-    "curl -s -H '#{header}' '#{url}?#{query_string}'"
-  end
 
   def authenticate_gce_token(account:, gce_token:)
     path_uri = "#{conjur_hostname}/authn-gce/#{account}/authenticate"
@@ -125,6 +71,75 @@ def no_kid_self_signed_token
 
   # issue decoded signed token
   JWT.encode exp_payload, rsa_private, 'RS256'
+end
+
+def gce_identity_access_token(token_type)
+  case token_type
+  when :valid
+    @gce_identity_token = gce_token_valid
+  when :standard_format
+    @gce_identity_token = gce_token_standard_format
+  when :invalid_audience
+    @gce_identity_token = gce_token_invalid_audience
+  when :non_existing_host
+    @gce_identity_token = gce_token_non_existing_host
+  when :non_rooted_host
+    @gce_identity_token = gce_token_non_rooted_host
+  when :non_existing_account
+    @gce_identity_token = gce_token_non_existing_account
+  when :user_audience
+    @gce_identity_token = gce_token_user_audience
+  end
+
+  @gce_identity_token
+end
+
+def gce_token_valid
+  @gce_token_valid ||= read_token_file("gce_token_valid")
+end
+
+def gce_token_standard_format
+  @gce_token_standard_format ||= read_token_file("gce_token_standard_format")
+end
+
+def gce_token_invalid_audience
+  @gce_token_invalid_audience ||= read_token_file("gce_token_invalid_audience")
+end
+
+def gce_token_non_existing_host
+  @gce_token_non_existing_host ||= read_token_file("gce_token_non_existing_host")
+end
+
+def gce_token_non_rooted_host
+  @gce_token_non_rooted_host ||= read_token_file("gce_token_non_rooted_host")
+end
+
+def gce_token_non_existing_account
+  @gce_token_non_existing_account ||= read_token_file("gce_token_non_existing_account")
+end
+
+def gce_token_user_audience
+  @gce_token_user_audience ||= read_token_file("gce_token_user")
+end
+
+def read_token_file(token_file_name)
+  token = nil
+  file = nil
+  path = File.join('./ci/authn-gce/tokens', token_file_name)
+
+  unless File.exist?(path)
+    raise "Token file: '#{path}' not found."
+  end
+
+  begin
+    file = File.open(path)
+    token = file.read
+  rescue => e
+    raise "Error reading token file: #{path}, error: #{e.inspect}"
+  ensure
+    file.close if file
+  end
+  token
 end
 
 World(AuthnGceHelper)

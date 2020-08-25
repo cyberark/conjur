@@ -35,25 +35,24 @@ Given(/^I set all valid GCE annotations to (user|host) "([^"]*)"$/) do | role_ty
 end
 
 # Runs a curl command in a remote machine
-Given(/^I obtain a GCE identity token in (full|standard) format with audience claim value: "([^"]*)"$/) do | format, audience |
+Given(/^I obtain an? (valid|standard_format|user_audience|invalid_audience|non_existing_host|non_rooted_host|non_existing_account) GCE identity token$/) do | token_type |
   gce_identity_access_token(
-    audience: audience,
-    token_format: format
+    token_type.to_sym
   )
 end
 
 # Authenticates with Conjur GCE authenticator
-  Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?with authn-gce using (valid|no|empty|self signed|no kid) token and (non-existing|existing) account/) do | num_requests, num_threads, token_state, account |
-  account = account == 'non-existing' ? 'non-existing' : 'cucumber'
+  Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?with authn-gce using (no|empty|self signed|no kid|obtained|valid) token and (non-existing|existing) account/) do | num_requests, num_threads, token_state, account |
+  account = account == 'non-existing' ? 'non-existing' : AuthnGceHelper::ACCOUNT
 
   token = case token_state
           when "no"
             nil
           when "empty"
             ""
-          when"self signed"
+          when "self signed"
             self_signed_token
-          when"no kid"
+          when "no kid"
             no_kid_self_signed_token
           else
             @gce_identity_token
