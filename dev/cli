@@ -53,7 +53,7 @@ function enable_gce() {
 }
 
 _get_gce_token_payload() {
-  gce_token_file="authn-gce/tokens/gce_token_valid"
+  gce_token_file="../ci/authn-gce/tokens/gce_token_valid"
   if ! [ -f "$gce_token_file" ]; then
     echo "GCE token file $gce_token_file does not exist."
     exit 1
@@ -62,7 +62,7 @@ _get_gce_token_payload() {
   # read token and set env vars
   gce_token=$(cat $gce_token_file)
 
-  . jwt/decode_token.sh
+  source ../ci/jwt/decode_token.sh
 
   decoded_gce_token_payload=$(decode_jwt_payload "$gce_token")
 
