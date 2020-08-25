@@ -119,3 +119,20 @@ Feature: GCP Authenticator - Test hosts can authentication scenarios
     """
     CONJ00050E Resource type 'authn-gce/invalid-key' is not a supported resource restriction
     """
+
+  Scenario: Users can authenticate with GCE authenticator and fetch secret
+    Given I have user "test-app"
+    And I grant group "conjur/authn-gce/apps" to user "test-app"
+    And I have a "variable" resource called "test-variable"
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I permit user "test-app" to "execute" it
+    And I set all valid GCE annotations to user "test-app"
+    And I obtain a GCE identity token in full format with audience claim value: "conjur/cucumber/test-app"
+    And I save my place in the log file
+    When I authenticate with authn-gce using valid token and existing account
+    Then user "test-app" has been authorized by Conjur
+    And I can GET "/secrets/cucumber/variable/test-variable" with authorized user
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:user:test-app successfully authenticated with authenticator authn-gce service cucumber:webservice:conjur/authn-gce
+    """
