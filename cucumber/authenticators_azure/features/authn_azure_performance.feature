@@ -34,6 +34,11 @@ Feature: Azure Authenticator - Performance tests
     When I authenticate 1000 times in 10 threads via Azure with token as host "test-app"
     Then The avg authentication request responds in less than 0.75 seconds
 
+  Scenario: successful requests with Accept-Encoding base64
+    And I fetch a non-assigned-identity Azure access token from inside machine
+    When I authenticate 1000 times in 10 threads via Azure with token as host "test-app" with Accept-Encoding header "base64"
+    Then The avg authentication request responds in less than 0.75 seconds
+
   Scenario: Unsuccessful requests with an invalid token
     And I fetch a non-assigned-identity Azure access token from inside machine
     When I authenticate 1000 times in 10 threads via Azure with invalid token as host "test-app"

@@ -103,6 +103,23 @@ When(/I can authenticate Alice with no Content-Type header/) do
   end
 end
 
+When(/^I( (?:successfully|can))? authenticate Alice (?:(\d+) times? in (\d+) threads? )?with Accept-Encoding header "([^"]*)"(?: with plain text body "([^"]*)")?$/) do |can, requests_num, threads_num, header, body|
+  body ||= ":cucumber:user:alice_api_key"
+  requests_num ||= 1
+  threads_num ||= 1
+  authenticate_with_performance(
+    requests_num,
+    threads_num,
+    authentication_func: :authn_request,
+    authentication_func_params: {
+      url: "/authn/cucumber/alice/authenticate",
+      api_key: body,
+      encoding: header,
+      can: can
+    }
+  )
+end
+
 When(/^I( (?:can|successfully))? POST "([^"]*)" with body:$/) do |can, path, body|
   try_request can do
     post_json path, body
@@ -151,11 +168,11 @@ Then(/^the result is the API key for user "([^"]*)"$/) do |login|
 end
 
 Then(/^it's confirmed$/) do
-  expect(@status).to be_blank
+  expect(@http_status).to be_blank
 end
 
 Then(/^the HTTP response status code is (\d+)$/) do |code|
-  expect(@status).to eq(code.to_i)
+  expect(@http_status).to eq(code.to_i)
 end
 
 Then(/^the HTTP response content type is "([^"]*)"$/) do |content_type|
@@ -163,9 +180,11 @@ Then(/^the HTTP response content type is "([^"]*)"$/) do |content_type|
 end
 
 Then(/^the HTTP response is base64 encoded$/) do
+  expect(@result.headers[:content_encoding]).to eq("base64")
+
   # Override encoded response with decode one to use other helpers
-  @result = @response_body = Base64.strict_decode64(@result)
-  expect(JSON.parse(@result).is_a?(Hash)).to be true
+  @response_body = Base64.strict_decode64(@result)
+  expect(JSON.parse(@response_body).is_a?(Hash)).to be true
 end
 
 Then(/^the result is true$/) do

@@ -4,8 +4,6 @@ class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
 
-  @@logger = Rails.logger
-
   def index
     authenticators = {
       # Installed authenticator plugins
@@ -74,10 +72,9 @@ class AuthenticateController < ApplicationController
     )
     content_type = :json
     if encoded_response?
-      # The response will be a base64 encoded version of the JWT.
-      @@logger.debug("Responding with base64 encoded JWT")
+      logger.debug(LogMessages::Authentication::EncodedJWTResponse.new)
       content_type = :plain
-      authn_token = ::Base64.encode64(authn_token.to_json).gsub("\n", "").strip
+      authn_token = ::Base64.strict_encode64(authn_token.to_json)
       response.set_header("Content-Encoding", "base64")
     end
     render content_type => authn_token
@@ -237,6 +234,8 @@ class AuthenticateController < ApplicationController
   end
 
   def encoded_response?
-    request.accept_encoding.include?("base64")
+    return false unless request.accept_encoding
+    encodings = request.accept_encoding.split(",")
+    encodings.any? { |encoding| encoding.squish.casecmp?("base64") }
   end
 end
