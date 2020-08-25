@@ -25,8 +25,8 @@ Given(/^I set (invalid )?"authn-gce\/(service-account-id|service-account-email|p
 end
 
 # Sets all GCE annotations
-Given(/^I set all valid GCE annotations to host "([^"]*)"$/) do | hostname |
-  i_have_a_resource "host", hostname
+Given(/^I set all valid GCE annotations to (user|host) "([^"]*)"$/) do | role_type, hostname |
+  i_have_a_resource role_type, hostname
 
   set_annotation_to_resource("authn-gce/service-account-id", gce_service_account_id)
   set_annotation_to_resource("authn-gce/service-account-email", gce_service_account_email)
