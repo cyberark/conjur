@@ -259,6 +259,22 @@ _get_azure_env_args() {
 }
 
 _get_gce_env_args() {
+  decoded_gce_token_payload=$(_get_gce_token_payload)
+
+  GCE_PROJECT_ID="$(echo "$decoded_gce_token_payload" | jq -r '.google.compute_engine.project_id')"
+  GCE_INSTANCE_NAME="$(echo "$decoded_gce_token_payload" | jq -r '.google.compute_engine.instance_name')"
+  GCE_SERVICE_ACCOUNT_ID="$(echo "$decoded_gce_token_payload" | jq -r '.sub')"
+  GCE_SERVICE_ACCOUNT_EMAIL="$(echo "$decoded_gce_token_payload" | jq -r '.email')"
+
+  local gce_env_args="-e GCE_INSTANCE_NAME=$GCE_INSTANCE_NAME"
+  gce_env_args="$gce_env_args -e GCE_SERVICE_ACCOUNT_ID=$GCE_SERVICE_ACCOUNT_ID"
+  gce_env_args="$gce_env_args -e GCE_SERVICE_ACCOUNT_EMAIL=$GCE_SERVICE_ACCOUNT_EMAIL"
+  gce_env_args="$gce_env_args -e GCE_PROJECT_ID=$GCE_PROJECT_ID"
+
+  echo "${gce_env_args}"
+}
+
+_get_gce_token_payload() {
   gce_token_file="authn-gce/tokens/gce_token_valid"
   if ! [ -f "$gce_token_file" ]; then
     echo "GCE token file $gce_token_file does not exist."
@@ -272,17 +288,7 @@ _get_gce_env_args() {
 
   decoded_gce_token_payload=$(decode_jwt_payload "$gce_token")
 
-  GCE_PROJECT_ID="$(echo "$decoded_gce_token_payload" | jq -r '.google.compute_engine.project_id')"
-  GCE_INSTANCE_NAME="$(echo "$decoded_gce_token_payload" | jq -r '.google.compute_engine.instance_name')"
-  GCE_SERVICE_ACCOUNT_ID="$(echo "$decoded_gce_token_payload" | jq -r '.sub')"
-  GCE_SERVICE_ACCOUNT_EMAIL="$(echo "$decoded_gce_token_payload" | jq -r '.email')"
-
-  local gce_env_args="-e GCE_INSTANCE_NAME=$GCE_INSTANCE_NAME"
-  gce_env_args="$gce_env_args -e GCE_SERVICE_ACCOUNT_ID=$GCE_SERVICE_ACCOUNT_ID"
-  gce_env_args="$gce_env_args -e GCE_SERVICE_ACCOUNT_EMAIL=$GCE_SERVICE_ACCOUNT_EMAIL"
-  gce_env_args="$gce_env_args -e GCE_PROJECT_ID=$GCE_PROJECT_ID"
-
-  echo "${gce_env_args}"
+  echo "$decoded_gce_token_payload"
 }
 
 _wait_for_keycloak() {
