@@ -35,6 +35,41 @@ EOF
 exit
 }
 
+function enable_gce() {
+  if ! [ -f "$gce_token_file" ]; then
+    echo "GCE token file $gce_token_file does not exist."
+    exit 1
+  fi
+
+  decoded_gce_token_payload=$(_get_gce_token_payload "$gce_token_file")
+
+  echo "Setting GCE details as env variables"
+  GCE_PROJECT_ID="$(echo "$decoded_gce_token_payload" | jq -r '.google.compute_engine.project_id')"
+  GCE_INSTANCE_NAME="$(echo "$decoded_gce_token_payload" | jq -r '.google.compute_engine.instance_name')"
+  GCE_SERVICE_ACCOUNT_ID="$(echo "$decoded_gce_token_payload" | jq -r '.sub')"
+  GCE_SERVICE_ACCOUNT_EMAIL="$(echo "$decoded_gce_token_payload" | jq -r '.email')"
+
+  local gce_env_args="-e GCE_INSTANCE_NAME=$GCE_INSTANCE_NAME"
+  gce_env_args="$gce_env_args -e GCE_SERVICE_ACCOUNT_ID=$GCE_SERVICE_ACCOUNT_ID"
+  gce_env_args="$gce_env_args -e GCE_SERVICE_ACCOUNT_EMAIL=$GCE_SERVICE_ACCOUNT_EMAIL"
+  gce_env_args="$gce_env_args -e GCE_PROJECT_ID=$GCE_PROJECT_ID"
+
+  env_args="$env_args $gce_env_args"
+}
+
+_get_gce_token_payload() {
+  local gce_token_file="$1"
+
+  # read token and set env vars
+  gce_token=$(cat "$gce_token_file")
+
+  source ../ci/jwt/decode_token.sh
+
+  decoded_gce_token_payload=$(decode_jwt_payload "$gce_token")
+
+  echo "$decoded_gce_token_payload"
+}
+
 function enable_oidc() {
   echo "Extracting keycloak variables & setting as env variables"
 
@@ -80,6 +115,7 @@ while true ; do
         -h | --help ) print_exec_help ; shift ;;
         --authn-oidc ) enable_oidc ; shift ;;
         --authn-azure ) enable_azure ; shift ;;
+        --authn-gce ) enable_gce ; shift ;;
         * ) if [ -z "$2" ]; then shift ; else echo "$2 is not a valid option"; exit 1; fi;;
       esac
 
