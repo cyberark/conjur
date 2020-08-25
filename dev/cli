@@ -36,7 +36,12 @@ exit
 }
 
 function enable_gce() {
-  decoded_gce_token_payload=$(_get_gce_token_payload)
+  if ! [ -f "$gce_token_file" ]; then
+    echo "GCE token file $gce_token_file does not exist."
+    exit 1
+  fi
+
+  decoded_gce_token_payload=$(_get_gce_token_payload "$gce_token_file")
 
   echo "Setting GCE details as env variables"
   GCE_PROJECT_ID="$(echo "$decoded_gce_token_payload" | jq -r '.google.compute_engine.project_id')"
@@ -53,14 +58,10 @@ function enable_gce() {
 }
 
 _get_gce_token_payload() {
-  gce_token_file="../ci/authn-gce/tokens/gce_token_valid"
-  if ! [ -f "$gce_token_file" ]; then
-    echo "GCE token file $gce_token_file does not exist."
-    exit 1
-  fi
+  local gce_token_file="$1"
 
   # read token and set env vars
-  gce_token=$(cat $gce_token_file)
+  gce_token=$(cat "$gce_token_file")
 
   source ../ci/jwt/decode_token.sh
 

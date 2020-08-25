@@ -259,7 +259,13 @@ _get_azure_env_args() {
 }
 
 _get_gce_env_args() {
-  decoded_gce_token_payload=$(_get_gce_token_payload)
+  gce_token_file="authn-gce/tokens/gce_token_valid"
+  if ! [ -f "$gce_token_file" ]; then
+    echo "GCE token file $gce_token_file does not exist."
+    exit 1
+  fi
+
+  decoded_gce_token_payload=$(_get_gce_token_payload "$gce_token_file")
 
   GCE_PROJECT_ID="$(echo "$decoded_gce_token_payload" | jq -r '.google.compute_engine.project_id')"
   GCE_INSTANCE_NAME="$(echo "$decoded_gce_token_payload" | jq -r '.google.compute_engine.instance_name')"
@@ -275,14 +281,10 @@ _get_gce_env_args() {
 }
 
 _get_gce_token_payload() {
-  gce_token_file="authn-gce/tokens/gce_token_valid"
-  if ! [ -f "$gce_token_file" ]; then
-    echo "GCE token file $gce_token_file does not exist."
-    exit 1
-  fi
+  local gce_token_file="$1"
 
   # read token and set env vars
-  gce_token=$(cat $gce_token_file)
+  gce_token=$(cat "$gce_token_file")
 
   . jwt/decode_token.sh
 
