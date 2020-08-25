@@ -1,7 +1,7 @@
 Feature: GCE Authenticator - Status Check
 
   Scenario: A properly configured GCE authenticator returns a successful response
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-gce

@@ -5,7 +5,7 @@ Feature: GCE Authenticator - Test Token Error Handling
   and log of the relevant error.
 
   Background:
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-gce
@@ -86,7 +86,7 @@ Feature: GCE Authenticator - Test Token Error Handling
 
   # "authn-gce/project-id" annotation is set because at least one of the annotations is expected.
   Scenario: Host not in permitted group is denied
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-gce

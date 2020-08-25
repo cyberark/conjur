@@ -9,7 +9,7 @@ Feature: GCE Authenticator - Test Malformed Configuration
     Given I obtain a valid GCE identity token
 
   Scenario: Webservice is missing in policy gets denied
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-gce
@@ -29,7 +29,7 @@ Feature: GCE Authenticator - Test Malformed Configuration
     """
 
   Scenario: Webservice with read and no authenticate permission in policy is denied
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-gce

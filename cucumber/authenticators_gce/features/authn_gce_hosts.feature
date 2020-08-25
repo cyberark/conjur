@@ -4,7 +4,7 @@ Feature: GCP Authenticator - Test hosts can authentication scenarios
   host configurations and perform authentication with Conjur.
 
   Background:
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-gce

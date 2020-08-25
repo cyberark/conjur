@@ -7,7 +7,7 @@ Feature: GCE Authenticator - Hosts can authenticate with GCE authenticator
   Authenticator, but that it can retrieve a secret using the Conjur access token.
 
   Background:
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-gce
