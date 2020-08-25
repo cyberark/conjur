@@ -97,6 +97,60 @@ pipeline {
             }
           }
         }
+        // We have 2 stages for GCE Authenticator tests. The first one runs inside
+        // a GCE instance and retrieves all the tokens that will be used in the tests.
+        // It then stashes the tokens, which are unstashed in the stage that runs the
+        // GCE Authenticator tests using the tokens.
+        // This way we can have a light-weight GCE instance that has no need for conjurops
+        // or git identities and is not open for SSH
+        stage('GCE Authenticator preparation - Allocate GCE Instance') {
+          steps {
+            script {
+              node('executor-v2-gcp-small') {
+                sh '''
+                  retrieve_token() {
+                    local token_format="$1"
+                    local audience="$2"
+
+                    curl \
+                      -s \
+                      -H 'Metadata-Flavor: Google' \
+                      "http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?format=${token_format}&audience=${audience}"
+                  }
+
+                  echo "$(retrieve_token "full" "conjur/cucumber/host/test-app")" > "gce_token_valid"
+                  echo "$(retrieve_token "full" "conjur/cucumber/host/non-existing")" > "gce_token_non_existing_host"
+                  echo "$(retrieve_token "full" "conjur/cucumber/host/non-rooted/test-app")" > "gce_token_non_rooted_host"
+                  echo "$(retrieve_token "full" "conjur/cucumber/test-app")" > "gce_token_user"
+                  echo "$(retrieve_token "full" "conjur/non-existing/host/test-app")" > "gce_token_non_existing_account"
+                  echo "$(retrieve_token "full" "invalid_audience")" > "gce_token_invalid_audience"
+                  echo "$(retrieve_token "standard" "conjur/cucumber/host/test-app")" > "gce_token_standard_format"
+                '''
+
+                stash name: 'authnGceTokens', includes: 'gce_token_valid,gce_token_invalid_audience,gce_token_standard_format,gce_token_user,gce_token_non_existing_host,gce_token_non_existing_account,gce_token_non_rooted_host', allowEmpty:false
+                env.GCE_TOKENS_FETCHED = "true"
+              }
+            }
+          }
+        }
+        stage('GCE Authenticator') {
+          steps {
+            timeout(time: 10, unit: 'MINUTES') {
+              waitUntil {
+                script {
+                  return (env.GCE_TOKENS_FETCHED == "true")
+                }
+              }
+            }
+            script {
+              dir('ci/authn-gce/tokens') {
+                unstash 'authnGceTokens'
+              }
+
+              sh 'ci/test cucumber_authenticators_gce'
+            }
+          }
+        }
         stage('Policy') {
           steps { sh 'ci/test cucumber_policy' }
         }
