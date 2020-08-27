@@ -152,8 +152,8 @@ RSpec.describe Authentication::ValidateStatus do
       )
     end
 
-    it "raises an AuthenticatorNotFound error" do
-      expect { subject }.to raise_error(Errors::Authentication::AuthenticatorNotFound)
+    it "raises an AuthenticatorNotSupported error" do
+      expect { subject }.to raise_error(Errors::Authentication::AuthenticatorNotSupported)
     end
   end
 
@@ -175,8 +175,8 @@ RSpec.describe Authentication::ValidateStatus do
         )
       end
 
-      it "raises a StatusNotImplemented error" do
-        expect { subject }.to raise_error(Errors::Authentication::StatusNotImplemented)
+      it "raises a StatusNotSupported error" do
+        expect { subject }.to raise_error(Errors::Authentication::StatusNotSupported)
       end
     end
 

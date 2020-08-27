@@ -16,7 +16,7 @@ module Authentication
       private
 
       def validate_webservice_is_configured_authenticator
-        raise Errors::Authentication::AuthenticatorNotFound, webservice_id \
+        raise Errors::Authentication::AuthenticatorNotSupported, webservice_id \
           unless @installed_authenticators_class.configured_authenticators.include?(webservice_id)
       end
 

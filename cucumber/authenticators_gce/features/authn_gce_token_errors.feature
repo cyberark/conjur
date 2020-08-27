@@ -48,7 +48,7 @@ Feature: GCE Authenticator - Test Token Error Handling
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00067E 'audience' token claim .* is invalid. The format should be 'conjur/<account_name>/<host_id>'
+    CONJ00067E 'audience' token claim .* is invalid. The format should be 'conjur/<account-name>/<host-id>'
     """
 
   Scenario: Missing GCE access token is a bad request

@@ -56,8 +56,8 @@ RSpec.describe Authentication::Security::ValidateWebserviceIsAuthenticator do
           and_return(configured_authenticators)
     end
     
-    it "raises an AuthenticatorNotFound error" do
-      expect { subject }.to raise_error(Errors::Authentication::AuthenticatorNotFound)
+    it "raises an AuthenticatorNotSupported error" do
+      expect { subject }.to raise_error(Errors::Authentication::AuthenticatorNotSupported)
     end
   end
 end

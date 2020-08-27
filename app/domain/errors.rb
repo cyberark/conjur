@@ -16,7 +16,7 @@ module Errors
     InsufficientPasswordComplexity = ::Util::TrackableErrorClass.new(
       msg:  "The password you have chosen does not meet the complexity requirements. " \
           "Choose a password that includes: 12-128 characters, 2 uppercase letters, " \
-          "2 lowercase letters, 1 digit, 1 special character",
+          "2 lowercase letters, 1 digit and 1 special character",
       code: "CONJ00046E"
     )
 
@@ -29,8 +29,8 @@ module Errors
 
   module Authentication
 
-    AuthenticatorNotFound = ::Util::TrackableErrorClass.new(
-      msg:  "Authenticator '{0-authenticator-name}' is not implemented in Conjur",
+    AuthenticatorNotSupported = ::Util::TrackableErrorClass.new(
+      msg:  "Authenticator '{0-authenticator-name}' is not supported in Conjur",
       code: "CONJ00001E"
     )
 
@@ -44,13 +44,14 @@ module Errors
       code: "CONJ00003E"
     )
 
-    StatusNotImplemented = ::Util::TrackableErrorClass.new(
-      msg:  "Status check not implemented for authenticator '{0-authenticator-name}'",
+    StatusNotSupported = ::Util::TrackableErrorClass.new(
+      msg:  "Status check not supported for authenticator '{0-authenticator-name}'",
       code: "CONJ00056E"
     )
 
     IllegalConstraintCombinations = ::Util::TrackableErrorClass.new(
-      msg:  "Resource restrictions include an illegal resource constraint combination - '{0-constraints}'",
+      msg:  "Resource restrictions include an illegal combination of resource " \
+            "constraints - '{0-constraints}'",
       code: "CONJ00055E"
     )
 
@@ -348,18 +349,18 @@ module Errors
 
       InvalidAudience = ::Util::TrackableErrorClass.new(
         msg:  "'audience' token claim {0} is invalid. The format should be " \
-              "'conjur/<account_name>/<host_id>'",
+              "'conjur/<account-name>/<host-id>'",
         code: "CONJ00067E"
       )
 
       TokenClaimNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
         msg:  "Claim '{0-claim-name}' not found or empty in token. " \
-              "Verify you request the token using 'format=full'",
+              "Verify that you requested the token using 'format=full'",
         code: "CONJ00068E"
       )
 
       RoleMissingRequiredConstraints = ::Util::TrackableErrorClass.new(
-        msg:  "Role should have at least one of the following constraints: {0-constraints}",
+        msg:  "Role must have at least one of the following constraints: {0-constraints}",
         code: "CONJ00069E"
       )
     end

@@ -222,17 +222,17 @@ module LogMessages
       )
 
       ValidatedResourceRestrictionsConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg: "Resource restrictions configuration is validated",
+        msg: "Resource restrictions configuration validated",
         code: "CONJ00042D"
       )
 
       ValidatingResourceRestrictionsValues = ::Util::TrackableLogMessageClass.new(
-        msg: "Validating resource restrictions values against Google ID token",
+        msg: "Validating resource restriction values against Google ID token",
         code: "CONJ00044D"
       )
 
       ValidatedResourceRestrictionsValues = ::Util::TrackableLogMessageClass.new(
-        msg: "Resource restrictions values are validated",
+        msg: "Resource restriction values validated",
         code: "CONJ00045D"
       )
 

@@ -72,7 +72,7 @@ Feature: Authenticator status check
     And I login as "alice"
     When I GET "/authn-ldap/test/cucumber/status"
     Then the HTTP response status code is 501
-    And the authenticator status check fails with error "StatusNotImplemented: CONJ00056E"
+    And the authenticator status check fails with error "StatusNotSupported: CONJ00056E"
 
   Scenario: A non-existing authenticator status check returns 404
     Given I load a policy:
@@ -82,7 +82,7 @@ Feature: Authenticator status check
     And I login as "alice"
     When I GET "/authn-nonexist/test/cucumber/status"
     Then the HTTP response status code is 404
-    And the authenticator status check fails with error "AuthenticatorNotFound: CONJ00001E"
+    And the authenticator status check fails with error "AuthenticatorNotSupported: CONJ00001E"
 
   Scenario: A missing status webservice returns 500
     Given I load a policy:

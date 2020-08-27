@@ -214,9 +214,9 @@ class AuthenticateController < ApplicationController
     status_code = case error
                   when Errors::Authentication::Security::RoleNotAuthorizedOnResource
                     :forbidden
-                  when Errors::Authentication::StatusNotImplemented
+                  when Errors::Authentication::StatusNotSupported
                     :not_implemented
-                  when Errors::Authentication::AuthenticatorNotFound
+                  when Errors::Authentication::AuthenticatorNotSupported
                     :not_found
                   else
                     :internal_server_error
