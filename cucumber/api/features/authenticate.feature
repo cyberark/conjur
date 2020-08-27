@@ -103,10 +103,6 @@ Feature: Exchange a role's API key for a signed authentication token
       cucumber:user:alice failed to authenticate with authenticator authn
     """
 
-  Scenario: successful encoded requests in limited time
-    When I can authenticate Alice 1000 times in 10 threads with Accept-Encoding header "base64"
-    Then The avg authentication request responds in less than 0.75 seconds
-
   Scenario: User cannot login as a same-named user in a different account
 
     User logins are scoped per account. Conjur cannot be tricked into authenticating a user
