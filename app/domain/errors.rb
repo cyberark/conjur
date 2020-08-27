@@ -70,6 +70,11 @@ module Errors
       code: "CONJ00017E"
     )
 
+    MissingResourceRestrictionsValue = ::Util::TrackableErrorClass.new(
+      msg:  "Resource restriction '{0-resource-restriction-name}' value is missing or empty",
+      code: "CONJ00070E"
+    )
+
     module AuthenticatorClass
 
       DoesntStartWithAuthn = ::Util::TrackableErrorClass.new(
@@ -336,6 +341,26 @@ module Errors
                 "xms_mirid must contain the resource provider namespace, the " \
                 "resource type, and the resource name",
         code: "CONJ00054E"
+      )
+    end
+
+    module AuthnGce
+
+      InvalidAudience = ::Util::TrackableErrorClass.new(
+        msg:  "'audience' token claim {0} is invalid. The format should be " \
+              "'conjur/<account_name>/<host_id>'",
+        code: "CONJ00067E"
+      )
+
+      TokenClaimNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
+        msg:  "Claim '{0-claim-name}' not found or empty in token. " \
+              "Verify you request the token using 'format=full'",
+        code: "CONJ00068E"
+      )
+
+      RoleMissingRequiredConstraints = ::Util::TrackableErrorClass.new(
+        msg:  "Role should have at least one of the following constraints: {0-constraints}",
+        code: "CONJ00069E"
       )
     end
   end

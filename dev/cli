@@ -31,18 +31,55 @@ GLOBAL OPTIONS
 COMMANDS
     --authn-oidc    Enables OIDC features
     --authn-azure   Enables Azure features
+    --authn-gce     Enables GCE features
 EOF
 exit
+}
+
+function enable_gce() {
+  gce_token_file="../ci/authn-gce/tokens/gce_token_valid"
+  if ! [ -f "$gce_token_file" ]; then
+    echo "GCE token file $gce_token_file does not exist."
+    exit 1
+  fi
+
+  decoded_gce_token_payload=$(_get_gce_token_payload "$gce_token_file")
+
+  echo "Setting GCE details as env variables"
+  GCE_PROJECT_ID="$(echo "$decoded_gce_token_payload" | jq -r '.google.compute_engine.project_id')"
+  GCE_INSTANCE_NAME="$(echo "$decoded_gce_token_payload" | jq -r '.google.compute_engine.instance_name')"
+  GCE_SERVICE_ACCOUNT_ID="$(echo "$decoded_gce_token_payload" | jq -r '.sub')"
+  GCE_SERVICE_ACCOUNT_EMAIL="$(echo "$decoded_gce_token_payload" | jq -r '.email')"
+
+  local gce_env_args="-e GCE_INSTANCE_NAME=$GCE_INSTANCE_NAME \
+                      -e GCE_SERVICE_ACCOUNT_ID=$GCE_SERVICE_ACCOUNT_ID \
+                      -e GCE_SERVICE_ACCOUNT_EMAIL=$GCE_SERVICE_ACCOUNT_EMAIL \
+                      -e GCE_PROJECT_ID=$GCE_PROJECT_ID"
+
+  env_args="$env_args $gce_env_args"
+}
+
+_get_gce_token_payload() {
+  local gce_token_file="$1"
+
+  # read token and set env vars
+  gce_token=$(cat "$gce_token_file")
+
+  source ../ci/jwt/decode_token.sh
+
+  decoded_gce_token_payload=$(decode_jwt_payload "$gce_token")
+
+  echo "$decoded_gce_token_payload"
 }
 
 function enable_oidc() {
   echo "Extracting keycloak variables & setting as env variables"
 
   local keycloak_env_args=''
-  keycloak_env_args="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv | grep KEYCLOAK | sed 's/.*/-e &/')"
-  keycloak_env_args="$keycloak_env_args -e PROVIDER_URI=https://keycloak:8443/auth/realms/master"
-  keycloak_env_args="$keycloak_env_args -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect"
-  keycloak_env_args="$keycloak_env_args -e ID_TOKEN_USER_PROPERTY=preferred_username"
+  keycloak_env_args="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv | grep KEYCLOAK | sed 's/.*/-e &/') \
+                     -e PROVIDER_URI=https://keycloak:8443/auth/realms/master \
+                     -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect \
+                     -e ID_TOKEN_USER_PROPERTY=preferred_username"
 
   env_args="$env_args $keycloak_env_args"
 }
@@ -53,16 +90,15 @@ function enable_azure() {
 
   echo "Setting Azure details as env variables"
 
-  local azure_env_args=''
-  azure_env_args="$azure_env_args -e AZURE_TENANT_ID=$AZURE_TENANT_ID"
-  azure_env_args="$azure_env_args -e AZURE_AUTHN_INSTANCE_IP=$AZURE_AUTHN_INSTANCE_IP"
-  azure_env_args="$azure_env_args -e AZURE_AUTHN_INSTANCE_USERNAME=$AZURE_AUTHN_INSTANCE_USERNAME"
-  azure_env_args="$azure_env_args -e AZURE_AUTHN_INSTANCE_PASSWORD=$AZURE_AUTHN_INSTANCE_PASSWORD"
-  azure_env_args="$azure_env_args -e AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID"
-  azure_env_args="$azure_env_args -e AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP"
-  azure_env_args="$azure_env_args -e USER_ASSIGNED_IDENTITY=$USER_ASSIGNED_IDENTITY"
-  azure_env_args="$azure_env_args -e USER_ASSIGNED_IDENTITY_CLIENT_ID=$USER_ASSIGNED_IDENTITY_CLIENT_ID"
-  azure_env_args="$azure_env_args -e SYSTEM_ASSIGNED_IDENTITY=$SYSTEM_ASSIGNED_IDENTITY"
+  local azure_env_args="-e AZURE_TENANT_ID=$AZURE_TENANT_ID \
+                        -e AZURE_AUTHN_INSTANCE_IP=$AZURE_AUTHN_INSTANCE_IP \
+                        -e AZURE_AUTHN_INSTANCE_USERNAME=$AZURE_AUTHN_INSTANCE_USERNAME \
+                        -e AZURE_AUTHN_INSTANCE_PASSWORD=$AZURE_AUTHN_INSTANCE_PASSWORD \
+                        -e AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID \
+                        -e AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP \
+                        -e USER_ASSIGNED_IDENTITY=$USER_ASSIGNED_IDENTITY \
+                        -e USER_ASSIGNED_IDENTITY_CLIENT_ID=$USER_ASSIGNED_IDENTITY_CLIENT_ID \
+                        -e SYSTEM_ASSIGNED_IDENTITY=$SYSTEM_ASSIGNED_IDENTITY"
 
   env_args="$env_args $azure_env_args"
 }
@@ -80,6 +116,7 @@ while true ; do
         -h | --help ) print_exec_help ; shift ;;
         --authn-oidc ) enable_oidc ; shift ;;
         --authn-azure ) enable_azure ; shift ;;
+        --authn-gce ) enable_gce ; shift ;;
         * ) if [ -z "$2" ]; then shift ; else echo "$2 is not a valid option"; exit 1; fi;;
       esac
 

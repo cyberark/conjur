@@ -44,7 +44,7 @@ services:
       RAILS_ENV:
       REQUIRE_SIMPLECOV: "true"
       CONJUR_LOG_LEVEL: debug
-      CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak,authn-config/env,authn-azure/prod
+      CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak,authn-config/env,authn-azure/prod,authn-gce
       LDAP_URI: ldap://ldap-server:389
       LDAP_BASE: dc=conjur,dc=net
       LDAP_FILTER: '(uid=%s)'
