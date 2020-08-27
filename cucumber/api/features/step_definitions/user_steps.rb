@@ -12,6 +12,20 @@ Given("I create a new user {string}") do |login|
   create_user login, @current_user || admin_user
 end
 
+# TODO: create methods
+When("I create a default admin") do
+  @role_repo.create_role(default_admin)
+end
+
+When("I allow the default admin to create accounts") do
+  # TODO: Possibly create abstraction similar to Conjur::Role for Resource
+  @role_repo.entitle(
+      role: default_admin,
+      privilege: :execute,
+      on: "!:webservice:accounts"
+  )
+end
+
 Given("I have user {string}") do |login|
   unless user_exists?(login)
     create_user login, @current_user || admin_user
