@@ -54,7 +54,7 @@ module RestHelpers
   # NOTE: The way this works is tricky.  We are relying on a behavior of
   # RestClient, which will automatically add a Basic Auth header to your
   # request, if you've set the user and password fields on its Request object:
-  # 
+  #
   # See: https://github.com/rest-client/rest-client/blob/f450a0f086f1cd1049abbef2a2c66166a1a9ba71/spec/unit/request_spec.rb#L442
   #
   # However, it will only do this IF the request does not already have its
@@ -98,7 +98,8 @@ module RestHelpers
 
   def set_result result
     @response_api_key = nil
-    @status = result.code
+    @http_status = result.code
+
     @content_type = result.headers[:content_type]
     if /^application\/json/.match?(@content_type)
       @result = JSON.parse(result)
@@ -141,6 +142,13 @@ module RestHelpers
     UNIXSocket.open socket_file do |sock|
       sock.puts command
       sock.read
+    end
+  end
+
+  def authn_request(url:, api_key:, encoding:, can:)
+    headers["Accept-Encoding"] = encoding
+    try_request can do
+      post_json(url, api_key)
     end
   end
 
@@ -277,7 +285,7 @@ module RestHelpers
   rescue RestClient::Exception
     puts $ERROR_INFO
     @exception = $ERROR_INFO
-    @status = $ERROR_INFO.http_code
+    @http_status = $ERROR_INFO.http_code
     raise if can
     set_result @exception.response  
   end

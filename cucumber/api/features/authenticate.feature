@@ -5,13 +5,66 @@ Feature: Exchange a role's API key for a signed authentication token
   The token is a signed JSON structure that contains the role id. The 
   token can be sent as the `Authorization` header to other Conjur REST
   functions as proof of authentication.
-
   Background:
     Given I create a new user "alice"
 
   Scenario: A role's API can be used to authenticate
     Then I can POST "/authn/cucumber/alice/authenticate" with plain text body ":cucumber:user:alice_api_key"
     And the HTTP response content type is "application/json"
+    And there is an audit record matching:
+    """
+      <86>1 * * conjur * authn
+      [auth@43868 authenticator="authn"]
+      [subject@43868 role="cucumber:user:alice"]
+      [action@43868 operation="authenticate" result="success"]
+      cucumber:user:alice successfully authenticated with authenticator authn
+    """
+
+  Scenario: Authenticate response should be encoded if Accept-Encoding equals base64
+    When I successfully authenticate Alice with Accept-Encoding header "base64"
+    Then the HTTP response content type is "text/plain"
+    And the HTTP response is base64 encoded
+    And user "alice" has been authorized by Conjur
+    And there is an audit record matching:
+    """
+      <86>1 * * conjur * authn
+      [auth@43868 authenticator="authn"]
+      [subject@43868 role="cucumber:user:alice"]
+      [action@43868 operation="authenticate" result="success"]
+      cucumber:user:alice successfully authenticated with authenticator authn
+    """
+
+  Scenario: Authenticate response should be encoded if Accept-Encoding includes base64
+    When I successfully authenticate Alice with Accept-Encoding header "base64,gzip,defalte,br"
+    Then the HTTP response content type is "text/plain"
+    And the HTTP response is base64 encoded
+    And user "alice" has been authorized by Conjur
+    And there is an audit record matching:
+    """
+      <86>1 * * conjur * authn
+      [auth@43868 authenticator="authn"]
+      [subject@43868 role="cucumber:user:alice"]
+      [action@43868 operation="authenticate" result="success"]
+      cucumber:user:alice successfully authenticated with authenticator authn
+    """
+
+  Scenario: Authenticate response should be encoded if Accept-Encoding includes base64 with mixed case and spaces
+    When I successfully authenticate Alice with Accept-Encoding header "gzip      ,  bASe64 ,defalte,br"
+    Then the HTTP response content type is "text/plain"
+    And the HTTP response is base64 encoded
+    And user "alice" has been authorized by Conjur
+    And there is an audit record matching:
+    """
+      <86>1 * * conjur * authn
+      [auth@43868 authenticator="authn"]
+      [subject@43868 role="cucumber:user:alice"]
+      [action@43868 operation="authenticate" result="success"]
+      cucumber:user:alice successfully authenticated with authenticator authn
+    """
+
+  Scenario: Authenticate response should be json if Accept-Encoding doesn't include base64
+    When I successfully authenticate Alice with Accept-Encoding header "gzip,defalte,br"
+    Then the HTTP response content type is "application/json"
     And there is an audit record matching:
     """
       <86>1 * * conjur * authn
@@ -28,6 +81,18 @@ Feature: Exchange a role's API key for a signed authentication token
 
   Scenario: Attempting to use an invalid API key to authenticate result in 401 error
     When I POST "/authn/cucumber/alice/authenticate" with plain text body "wrong-api-key"
+    Then the HTTP response status code is 401
+    And there is an audit record matching:
+    """
+      <84>1 * * conjur * authn
+      [auth@43868 authenticator="authn"]
+      [subject@43868 role="cucumber:user:alice"]
+      [action@43868 operation="authenticate" result="failure"]
+      cucumber:user:alice failed to authenticate with authenticator authn
+    """
+
+  Scenario: Attempting to use an invalid API key to authenticate with Accept-Encoding base64 result in 401 error
+    When I authenticate Alice with Accept-Encoding header "base64" with plain text body "wrong-api-key"
     Then the HTTP response status code is 401
     And there is an audit record matching:
     """

@@ -35,12 +35,14 @@ module AuthnAzureHelper
     raise "Failed to fetch azure token with reason: #{err}"
   end
 
-  def authenticate_azure_token(service_id:, account:, username:, azure_token:)
+  def authenticate_azure_token(service_id:, account:, username:, azure_token:, accept_encoding_header:)
     username = username.gsub("/", "%2F")
     path = "#{conjur_hostname}/authn-azure/#{service_id}/#{account}/#{username}/authenticate"
 
     payload = {}
     payload["jwt"] = azure_token
+
+    headers["Accept-Encoding"] = accept_encoding_header
 
     post(path, payload)
   end

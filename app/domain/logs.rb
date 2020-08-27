@@ -54,6 +54,11 @@ module LogMessages
       code: "CONJ00030D"
     )
 
+    EncodedJWTResponse = ::Util::TrackableLogMessageClass.new(
+      msg:  "Responding with a base64 encoded access token",
+      code: "CONJ00039D"
+    )
+
     module OAuth
 
       IdentityProviderUri = ::Util::TrackableLogMessageClass.new(

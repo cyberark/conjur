@@ -19,7 +19,7 @@ Given(/I fetch a (non|system|user)-assigned-identity Azure access token from ins
   end
 end
 
-Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?via Azure with (no |empty |invalid )?token as (user|host) "([^"]*)"/) do |num_requests, num_threads, token_state, role_type, username|
+Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?via Azure with (no |empty |invalid )?token as (user|host) "([^"]*)"(?: with Accept-Encoding header "([^"]*)")?/) do |num_requests, num_threads, token_state, role_type, username, header|
   username = role_type == "user" ? username : "host/#{username}"
 
   token = case token_state
@@ -41,10 +41,11 @@ Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?via Azure with (no |em
     num_threads,
     authentication_func: :authenticate_azure_token,
     authentication_func_params: {
-      service_id:  AuthnAzureHelper::SERVICE_ID,
-      account:     AuthnAzureHelper::ACCOUNT,
-      username:    username,
-      azure_token: token
+      service_id:             AuthnAzureHelper::SERVICE_ID,
+      account:                AuthnAzureHelper::ACCOUNT,
+      username:               username,
+      azure_token:            token,
+      accept_encoding_header: header
     }
   )
 end
