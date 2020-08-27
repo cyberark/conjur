@@ -13,6 +13,9 @@ rules:
 - apiGroups: ["apps"] # OpenShift 3.7+
   resources: [ "deployments", "statefulsets", "replicasets"]
   verbs: ["get", "list"]
+- apiGroups: ["apps.openshift.io"] # OpenShift 4.3+
+  resources: [ "deploymentconfigs"]
+  verbs: ["get", "list"]
 - apiGroups: [""]
   resources: ["pods/exec"]
   verbs: ["create", "get"]

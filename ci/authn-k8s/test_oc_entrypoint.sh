@@ -62,7 +62,9 @@ function main() {
   pushDockerImages
 
   launchConjurMaster
-#  createSSLCertConfigMap
+
+  copyNginxSSLCert
+
   copyConjurPolicies
   loadConjurPolicies
   launchInventoryServices
@@ -83,8 +85,7 @@ function renderResourceTemplates() {
 
 function createNamespace() {
   # clean ups namespaces older than minutes or seconds
-  old_namespaces=$(kubectl get namespaces | awk '$1 ~ /test-/ && $3 !~ /[m|s]/ { print $1; }')
-  [ ! -z ${old_namespaces} ] && kubectl delete --ignore-not-found=true namespaces ${old_namespaces}
+  kubectl get namespaces | awk '$1 ~ /test-/ && $3 !~ /[m|s]/ { print $1; }' | xargs --no-run-if-empty kubectl delete --ignore-not-found=true namespaces
 
   oc new-project $CONJUR_AUTHN_K8S_TEST_NAMESPACE
   oc project $CONJUR_AUTHN_K8S_TEST_NAMESPACE
@@ -110,20 +111,38 @@ function createNamespace() {
 
 function pushDockerImages() {
   # push images to openshift registry
-  docker push $CONJUR_AUTHN_K8S_TAG
-  docker push $INVENTORY_TAG
+  external_authn_k8s_tag=${CONJUR_AUTHN_K8S_TAG/image-registry.openshift-image-registry.svc:5000/$OPENSHIFT_REGISTRY_URL}
+  external_inventory_tag=${INVENTORY_TAG/image-registry.openshift-image-registry.svc:5000/$OPENSHIFT_REGISTRY_URL}
+  external_nginx_tag=${NGINX_TAG/image-registry.openshift-image-registry.svc:5000/$OPENSHIFT_REGISTRY_URL}
+  external_test_tag=${CONJUR_TEST_AUTHN_K8S_TAG/image-registry.openshift-image-registry.svc:5000/$OPENSHIFT_REGISTRY_URL}
+
+  docker tag $CONJUR_AUTHN_K8S_TAG $external_authn_k8s_tag
+  docker tag $INVENTORY_TAG $external_inventory_tag
+  docker tag $NGINX_TAG $external_nginx_tag
+  docker tag $CONJUR_TEST_AUTHN_K8S_TAG $external_test_tag
+
+  docker push $external_authn_k8s_tag
+  docker push $external_inventory_tag
+  docker push $external_nginx_tag
+  docker push $external_test_tag
+
+  docker tag $external_authn_k8s_tag $CONJUR_AUTHN_K8S_TAG
+  docker tag $external_inventory_tag $INVENTORY_TAG
+  docker tag $external_nginx_tag $NGINX_TAG
+  docker tag $external_test_tag $CONJUR_TEST_AUTHN_K8S_TAG
 }
 
 function launchConjurMaster() {
   echo 'Launching Conjur master service'
 
-  sed -e "s#{{ CONJUR_AUTHN_K8S_TAG }}#$CONJUR_AUTHN_K8S_TAG#g" dev/dev_conjur.${TEMPLATE_TAG}yaml |
+  sed -e "s#{{CONJUR_AUTHN_K8S_TAG}}#$CONJUR_AUTHN_K8S_TAG#g" dev/dev_conjur.${TEMPLATE_TAG}yaml |
+    sed -e "s#{{CONJUR_TEST_AUTHN_K8S_TAG}}#$CONJUR_TEST_AUTHN_K8S_TAG#g" |
     sed -e "s#{{ DATA_KEY }}#$(openssl rand -base64 32)#g" |
-    sed -e "s#{{ CONJUR_AUTHN_K8S_TEST_NAMESPACE }}#$CONJUR_AUTHN_K8S_TEST_NAMESPACE#g" |
+    sed -e "s#{{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}#$CONJUR_AUTHN_K8S_TEST_NAMESPACE#g" |
     oc create -f -
 
   conjur_pod=$(retrieve_pod conjur-authn-k8s)
-  
+
   wait_for_it 300 "oc describe po $conjur_pod | grep Status: | grep -q Running"
 
   # wait for the 'conjurctl server' entrypoint to finish
@@ -142,6 +161,17 @@ function createSSLCertConfigMap() {
   oc delete --ignore-not-found=true configmap conjurrc
   oc create configmap conjurrc \
     --from-literal=ssl-certificate="$ssl_certificate"
+}
+
+function copyNginxSSLCert() {
+  echo 'Transfer SSL certificate to PODs'
+  nginx_pod=$(retrieve_pod nginx-authn-k8s)
+  cucumber_pod=$(retrieve_pod cucumber-authn-k8s)
+
+  wait_for_it 300 "oc describe po $cucumber_pod | grep Status: | grep -q Running"
+
+  oc cp $nginx_pod:/etc/nginx/nginx.crt /tmp/nginx.crt
+  oc cp /tmp/nginx.crt $cucumber_pod:/opt/conjur-server/nginx.crt
 }
 
 function copyConjurPolicies() {
@@ -193,7 +223,7 @@ function runTests() {
 
   conjurcmd mkdir -p /opt/conjur-server/output
 
-  echo "./bin/cucumber K8S_VERSION=$K8S_VERSION PLATFORM=openshift --no-color --format pretty --format junit --out /opt/conjur-server/output -r ./cucumber/kubernetes/features/step_definitions/ -r ./cucumber/kubernetes/features/support/world.rb -r ./cucumber/kubernetes/features/support/hooks.rb -r ./cucumber/kubernetes/features/support/conjur_token.rb --tags ~@skip ./cucumber/kubernetes/features" | conjurcmd -i bash
+  echo "./bin/cucumber K8S_VERSION=$K8S_VERSION PLATFORM=openshift --no-color --format pretty --format junit --out /opt/conjur-server/output -r ./cucumber/kubernetes/features/step_definitions/ -r ./cucumber/kubernetes/features/support/world.rb -r ./cucumber/kubernetes/features/support/hooks.rb -r ./cucumber/kubernetes/features/support/conjur_token.rb --tags ~@skip ./cucumber/kubernetes/features" | cucumbercmd -i bash
 }
 
 retrieve_pod() {

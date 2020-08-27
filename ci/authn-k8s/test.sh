@@ -37,6 +37,9 @@ function setupTestEnvironment() {
     gke)
       export DOCKER_REGISTRY_PATH="gcr.io/$GCLOUD_PROJECT_NAME"
       ;;
+    openshift4*)
+      export DOCKER_REGISTRY_PATH="image-registry.openshift-image-registry.svc:5000/$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
+      ;;
     openshift*)
       export DOCKER_REGISTRY_PATH="$OPENSHIFT_REGISTRY_URL/$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
       ;;
@@ -118,6 +121,19 @@ function test_openshift() {
     -e OPENSHIFT_REGISTRY_URL \
     -e OPENSHIFT_USERNAME \
     -e OPENSHIFT_PASSWORD \
+    -e K8S_VERSION \
+    -e CONJUR_APPLIANCE_IMAGE \
+    -e CONJUR_NAMESPACE_NAME \
+    -e DOCKER_REGISTRY_PATH \
+    -e CONJUR_VERSION \
+    -e CONJUR_DEPLOYMENT \
+    -e CONJUR_ACCOUNT \
+    -e CONJUR_ADMIN_PASSWORD \
+    -e AUTHENTICATOR_ID \
+    -e MINI_ENV \
+    -e LOCAL_CONJUR_IMAGE \
+    -e DOCKER_EMAIL \
+    -e FOLLOWER_SEED="" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "$PWD":/src \
     $CONJUR_AUTHN_K8S_TESTER_TAG bash -c "./test_oc_entrypoint.sh"
