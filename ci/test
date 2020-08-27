@@ -237,24 +237,25 @@ _find_cucumber_network() {
 
 _get_oidc_env_args() {
   local oidc_env_args=''
-  oidc_env_args="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv | grep KEYCLOAK | sed 's/.*/-e &/')"
-  oidc_env_args="$oidc_env_args -e PROVIDER_URI=https://keycloak:8443/auth/realms/master"
-  oidc_env_args="$oidc_env_args -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect"
-  oidc_env_args="$oidc_env_args -e ID_TOKEN_USER_PROPERTY=preferred_username"
+  oidc_env_args="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv | grep KEYCLOAK | sed 's/.*/-e &/') \
+                 -e PROVIDER_URI=https://keycloak:8443/auth/realms/master \
+                 -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect \
+                 -e ID_TOKEN_USER_PROPERTY=preferred_username"
 
   echo "${oidc_env_args}"
 }
 
 _get_azure_env_args() {
-  local azure_env_args="-e AZURE_TENANT_ID=$AZURE_TENANT_ID"
-  azure_env_args="$azure_env_args -e AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID"
-  azure_env_args="$azure_env_args -e AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP"
-  azure_env_args="$azure_env_args -e AZURE_AUTHN_INSTANCE_IP=$AZURE_AUTHN_INSTANCE_IP"
-  azure_env_args="$azure_env_args -e AZURE_AUTHN_INSTANCE_USERNAME=$AZURE_AUTHN_INSTANCE_USERNAME"
-  azure_env_args="$azure_env_args -e AZURE_AUTHN_INSTANCE_PASSWORD=$AZURE_AUTHN_INSTANCE_PASSWORD"
-  azure_env_args="$azure_env_args -e USER_ASSIGNED_IDENTITY=$USER_ASSIGNED_IDENTITY"
-  azure_env_args="$azure_env_args -e USER_ASSIGNED_IDENTITY_CLIENT_ID=$USER_ASSIGNED_IDENTITY_CLIENT_ID"
-  azure_env_args="$azure_env_args -e SYSTEM_ASSIGNED_IDENTITY=$SYSTEM_ASSIGNED_IDENTITY"
+  local azure_env_args="-e AZURE_TENANT_ID=$AZURE_TENANT_ID \
+                        -e AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID \
+                        -e AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP \
+                        -e AZURE_AUTHN_INSTANCE_IP=$AZURE_AUTHN_INSTANCE_IP \
+                        -e AZURE_AUTHN_INSTANCE_USERNAME=$AZURE_AUTHN_INSTANCE_USERNAME \
+                        -e AZURE_AUTHN_INSTANCE_PASSWORD=$AZURE_AUTHN_INSTANCE_PASSWORD \
+                        -e USER_ASSIGNED_IDENTITY=$USER_ASSIGNED_IDENTITY \
+                        -e USER_ASSIGNED_IDENTITY_CLIENT_ID=$USER_ASSIGNED_IDENTITY_CLIENT_ID \
+                        -e SYSTEM_ASSIGNED_IDENTITY=$SYSTEM_ASSIGNED_IDENTITY"
+
   echo "${azure_env_args}"
 }
 
@@ -272,10 +273,10 @@ _get_gce_env_args() {
   GCE_SERVICE_ACCOUNT_ID="$(echo "$decoded_gce_token_payload" | jq -r '.sub')"
   GCE_SERVICE_ACCOUNT_EMAIL="$(echo "$decoded_gce_token_payload" | jq -r '.email')"
 
-  local gce_env_args="-e GCE_INSTANCE_NAME=$GCE_INSTANCE_NAME"
-  gce_env_args="$gce_env_args -e GCE_SERVICE_ACCOUNT_ID=$GCE_SERVICE_ACCOUNT_ID"
-  gce_env_args="$gce_env_args -e GCE_SERVICE_ACCOUNT_EMAIL=$GCE_SERVICE_ACCOUNT_EMAIL"
-  gce_env_args="$gce_env_args -e GCE_PROJECT_ID=$GCE_PROJECT_ID"
+  local gce_env_args="-e GCE_INSTANCE_NAME=$GCE_INSTANCE_NAME \
+                      -e GCE_SERVICE_ACCOUNT_ID=$GCE_SERVICE_ACCOUNT_ID \
+                      -e GCE_SERVICE_ACCOUNT_EMAIL=$GCE_SERVICE_ACCOUNT_EMAIL \
+                      -e GCE_PROJECT_ID=$GCE_PROJECT_ID"
 
   echo "${gce_env_args}"
 }
