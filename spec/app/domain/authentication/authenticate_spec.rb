@@ -87,10 +87,10 @@ RSpec.describe 'Authentication::Authenticate' do
       )
     end
 
-    it "raises AuthenticatorNotFound" do
+    it "raises AuthenticatorNotSupported" do
       expect { subject }.to(
         raise_error(
-          Errors::Authentication::AuthenticatorNotFound
+          Errors::Authentication::AuthenticatorNotSupported
         )
       )
     end

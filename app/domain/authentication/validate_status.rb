@@ -40,12 +40,12 @@ module Authentication
     private
 
     def validate_authenticator_exists
-      raise Errors::Authentication::AuthenticatorNotFound, authenticator_name unless authenticator
+      raise Errors::Authentication::AuthenticatorNotSupported, authenticator_name unless authenticator
     end
 
     def validate_authenticator_implements_status_check
       unless authenticator.class.method_defined?(:status)
-        raise Errors::Authentication::StatusNotImplemented, authenticator_name
+        raise Errors::Authentication::StatusNotSupported, authenticator_name
       end
     end
 

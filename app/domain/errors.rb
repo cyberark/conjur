@@ -29,7 +29,7 @@ module Errors
 
   module Authentication
 
-    AuthenticatorNotFound = ::Util::TrackableErrorClass.new(
+    AuthenticatorNotSupported = ::Util::TrackableErrorClass.new(
       msg:  "Authenticator '{0-authenticator-name}' is not supported in Conjur",
       code: "CONJ00001E"
     )
@@ -44,7 +44,7 @@ module Errors
       code: "CONJ00003E"
     )
 
-    StatusNotImplemented = ::Util::TrackableErrorClass.new(
+    StatusNotSupported = ::Util::TrackableErrorClass.new(
       msg:  "Status check not supported for authenticator '{0-authenticator-name}'",
       code: "CONJ00056E"
     )

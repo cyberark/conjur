@@ -124,7 +124,7 @@ An example of an error response resulting from an incorrect configuration of the
 ```json
 {
   "status": "error",
-  "error": "#<Errors::Authentication::AuthenticatorNotFound: CONJ00001E Authenticator 'Authn<Type>' is not implemented in Conjur>"
+  "error": "#<Errors::Authentication::AuthenticatorNotSupported: CONJ00001E Authenticator 'Authn<Type>' is not implemented in Conjur>"
 }
 ```
 ***NOTE:*** All new errors should be placed in the `error.rb` and be referenced in the tests as displayed above.

@@ -123,5 +123,5 @@ Feature: Authenticator configuration
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::AuthenticatorNotFound
+    Errors::Authentication::AuthenticatorNotSupported
     """

@@ -79,7 +79,7 @@ For each authenticator that will implement the status check, we will add:
  private
  
  def validate_authenticator_exists
-   raise Err::AuthenticatorNotFound unless authenticator
+   raise Err::AuthenticatorNotSupported unless authenticator
  end
      
  def validate_authenticator_implements_status_check
