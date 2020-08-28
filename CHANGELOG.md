@@ -37,7 +37,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Security
 - Replaces string comparison with Secure Compare to prevent timing attacks against
-  the API authentication endpoint. 
+  the API authentication endpoint. [Security Bulletin - not yet
+  published](https://github.com/cyberark/conjur/security/advisories/GHSA-c7x2-6g4j-327p)
+- Roles can no longer rotate their own API key using only an access token.
+  [Security Bulletin - not yet
+  published](https://github.com/cyberark/conjur/security/advisories/GHSA-qhjf-g9gm-64jq)
 
 ## [1.8.1] - 2020-07-14
 ### Fixed
