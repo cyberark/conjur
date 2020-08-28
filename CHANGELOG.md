@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   Rails 5 upgrade. This is to indicate trusted proxy IP addresses when using the
   `X-Forwarded-For` HTTP header to identity the true client IP address of a request.
   [cyberark/conjur#1689](https://github.com/cyberark/conjur/issues/1689)
+- A new database migration step updates the fingerprints in slosilo. The FIPS compliance
+  update in `v1.8.0` caused the previous fingerprints to be invalid.
+  [cyberark/conjur#1584](https://github.com/cyberark/conjur/issues/1584)
 
 ## [1.8.1] - 2020-07-14
 ### Fixed
