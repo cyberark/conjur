@@ -6,8 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- Hosts can authenticate from Google Compute Engines (GCE) using a GCE instance 
-  identity token. See [design](design/authenticators/authn_gce/authn_gce_solution_design.md) 
+- Hosts can authenticate from Google Compute Engines (GCE) using a GCE instance
+  identity token. See [design](design/authenticators/authn_gce/authn_gce_solution_design.md)
   for details ([cyberark/conjur#1711](https://github.com/cyberark/conjur/issues/1711)).
 - Add `/whoami` API endpoint for improved supportability and debugging for access
   tokens and client IP address determination. [cyberark/conjur#1697](https://github.com/cyberark/conjur/issues/1697)
@@ -34,6 +34,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - A new database migration step updates the fingerprints in slosilo. The FIPS compliance
   update in `v1.8.0` caused the previous fingerprints to be invalid.
   [cyberark/conjur#1584](https://github.com/cyberark/conjur/issues/1584)
+
+### Security
+- Replaces string comparison with Secure Compare to prevent timing attacks against
+  the API authentication endpoint. 
 
 ## [1.8.1] - 2020-07-14
 ### Fixed
