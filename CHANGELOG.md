@@ -5,15 +5,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.9.0] - 2020-08-31
 ### Added
-- Hosts can authenticate from Google Compute Engines (GCE) using a GCE instance
+- Hosts can authenticate from Google Compute Engine (GCE) using a GCE instance
   identity token. See [design](design/authenticators/authn_gce/authn_gce_solution_design.md)
-  for details ([cyberark/conjur#1711](https://github.com/cyberark/conjur/issues/1711)).
-- Add `/whoami` API endpoint for improved supportability and debugging for access
+  for details. [cyberark/conjur#1711](https://github.com/cyberark/conjur/issues/1711)
+- New `/whoami` API endpoint for improved supportability and debugging for access
   tokens and client IP address determination. [cyberark/conjur#1697](https://github.com/cyberark/conjur/issues/1697)
 - `TRUSTED_PROXIES` is validated at Conjur startup to ensure that it contains
   valid IP addresses and/or address ranges in CIDR notation.
   [cyberark/conjur#1727](https://github.com/cyberark/conjur/issues/1727)
+- `/authenticate` endpoint now returns the access token as a base64 encoded string
+  if the `Accept-Encoding` request header includes `base64`.
+  [cyberark/conjur#151](https://github.com/cyberark/conjur/issues/151)
 
 ### Changed
 - The Conjur server request logs now records the same IP address used by audit
@@ -425,7 +430,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.8.1...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/cyberark/conjur/compare/v1.8.1...v1.9.0
 [1.8.1]: https://github.com/cyberark/conjur/compare/v1.7.0...v1.8.1
 [1.8.0]: https://github.com/cyberark/conjur/compare/v1.7.4...v1.8.0
 [1.7.4]: https://github.com/cyberark/conjur/compare/v1.7.3...v1.7.4
