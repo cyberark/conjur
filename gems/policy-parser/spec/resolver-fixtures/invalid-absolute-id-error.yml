@@ -1,0 +1,9 @@
+policy: |
+  - !group root-owner
+  - !policy
+    id: myapp
+    body:
+    - !host
+      id: /the-host
+      owner: !group /root-owner
+error: "Illegal absolute id: /the-host"

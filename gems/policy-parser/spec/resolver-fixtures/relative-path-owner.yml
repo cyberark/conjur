@@ -1,0 +1,43 @@
+# Relative paths are substituted into owner values.
+policy: |
+  - !policy
+    id: people
+    body:
+    - !group operations
+
+  - !policy
+    id: prod
+    body:
+    - !policy
+      id: database
+      owner: !group ../people/operations
+    
+expectation: |
+  ---
+  - !policy
+    account: the-account
+    id: people
+    owner: !role
+      account: rspec
+      id: default-owner
+      kind: user
+  - !group
+    account: the-account
+    id: people/operations
+    owner: !role
+      account: the-account
+      id: people
+      kind: policy
+  - !policy
+    account: the-account
+    id: prod
+    owner: !role
+      account: rspec
+      id: default-owner
+      kind: user
+  - !policy
+    account: the-account
+    id: prod/database
+    owner: !group
+      account: the-account
+      id: people/operations

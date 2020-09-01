@@ -1,0 +1,6 @@
+- !group &developers developers
+
+- !user
+  id: alice
+  annotations:
+    hair-color: blonde

@@ -1,0 +1,12 @@
+- !group &developers developers
+
+- !grant
+  role: !group everyone
+  members:
+    - *developers
+    - !group
+      id: support
+    - !group marketing
+    - 
+      role: !group ops
+      admin: true

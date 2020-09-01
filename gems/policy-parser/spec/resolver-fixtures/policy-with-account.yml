@@ -1,0 +1,24 @@
+# Namespace is applied to the policy, and subsequently to the policy body.
+policy: |
+  - !policy
+    account: my-account
+    id: myapp
+    body:
+    - !host the-host
+
+expectation: |
+  ---
+  - !policy
+    account: my-account
+    id: myapp
+    owner: !role
+      account: rspec
+      id: default-owner
+      kind: user
+  - !host
+    account: the-account
+    id: myapp/the-host
+    owner: !role
+      account: my-account
+      id: myapp
+      kind: policy

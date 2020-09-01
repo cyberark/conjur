@@ -1,0 +1,50 @@
+policy: |
+  - &vars
+    - !variable var1
+    - !variable var2
+  - !deny
+    privilege: [ execute, update ]
+    resource: *vars
+    role:
+    - !group
+      id: group1
+
+expectation: |
+  ---
+  - !variable
+    account: the-account
+    id: var1
+    owner: !role
+      account: rspec
+      id: default-owner
+      kind: user
+  - !variable
+    account: the-account
+    id: var2
+    owner: !role
+      account: rspec
+      id: default-owner
+      kind: user
+  - !deny
+    privilege:
+    - execute
+    - update
+    resource:
+      - !variable
+        account: the-account
+        id: var1
+        owner: !role
+          account: rspec
+          id: default-owner
+          kind: user
+      - !variable
+        account: the-account
+        id: var2
+        owner: !role
+          account: rspec
+          id: default-owner
+          kind: user
+    role:
+    - !group
+      account: the-account
+      id: group1

@@ -1,0 +1,19 @@
+---
+- &1 !group
+  id: developers
+- !grant
+  member:
+  - !member
+    role: *1
+  - !member
+    role: !group
+      id: support
+  - !member
+    role: !group
+      id: marketing
+  - !member
+    admin: true
+    role: !group
+      id: ops
+  role: !group
+    id: everyone

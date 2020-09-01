@@ -1,0 +1,4 @@
+---
+- !delete
+  record: !user
+    id: alice

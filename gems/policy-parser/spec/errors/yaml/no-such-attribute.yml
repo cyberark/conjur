@@ -1,0 +1,5 @@
+# 5, 0
+# No such attribute 'member' on type Permit
+- !permit
+  member:
+  - !group developers

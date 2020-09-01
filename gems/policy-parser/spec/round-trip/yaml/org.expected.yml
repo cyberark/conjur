@@ -1,0 +1,78 @@
+---
+- !group
+  id: everyone
+- !group
+  annotations:
+    ldap-sync/source: ldap://util4002.ldap.internal
+  gidnumber: 10403
+  id: role_messaging
+- !group
+  annotations:
+    ldap-sync/source: ldap://util4002.ldap.internal
+  gidnumber: 10404
+  id: role_metadata
+- !group
+  annotations:
+    ldap-sync/source: ldap://util4002.ldap.internal
+  gidnumber: 10405
+  id: role_storage
+- !user
+  annotations:
+    ldap-sync/source: ldap://util4002.ldap.internal
+  id: alice
+  uidnumber: 1003
+- !user
+  annotations:
+    ldap-sync/source: ldap://util4002.ldap.internal
+  id: bob
+  uidnumber: 1004
+- !user
+  annotations:
+    ldap-sync/source: ldap://util4002.ldap.internal
+  id: charles
+  uidnumber: 1005
+- !grant
+  member:
+  - !member
+    role: !group
+      id: role_messaging
+  - !member
+    role: !group
+      id: role_metadata
+  - !member
+    role: !group
+      id: role_storage
+  - !member
+    role: !user
+      id: alice
+  - !member
+    role: !user
+      id: bob
+  - !member
+    role: !user
+      id: charles
+  role: !group
+    id: everyone
+- !grant
+  member: !member
+    role: !user
+      id: alice
+  role: !group
+    id: role_messaging
+- !grant
+  member: !member
+    role: !user
+      id: bob
+  role: !group
+    id: role_metadata
+- !permit
+  privilege: read
+  resource:
+  - !user
+    id: alice
+  - !user
+    id: bob
+  - !user
+    id: charles
+  role: !group
+    id: everyone

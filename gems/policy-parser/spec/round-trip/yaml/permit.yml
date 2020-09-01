@@ -1,0 +1,14 @@
+- !permit
+  resource: !variable foobar
+  privilege: read
+  role: !group developers
+
+- !permit
+  role: !group developers
+  resource: !variable baz
+  privilege: [ read, execute ]
+
+- !permit
+  resource: !variable db_password
+  privilege: read
+  role: !group developers

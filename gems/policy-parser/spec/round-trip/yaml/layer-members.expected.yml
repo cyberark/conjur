@@ -1,0 +1,10 @@
+---
+- !grant
+  member:
+  - !member
+    role: !group
+      id: developers
+  role: !automatic-role
+    record: !layer
+      id: dev/mysql
+    role_name: use_host
