@@ -1,0 +1,22 @@
+@startsalt
+{
+{T
+ + components
+ ++ authenticators
+ +++ authn-k8s
+ ++++ lib
+ ++++
+ ++ America
+ +++ Canada
+ +++ USA
+ ++++ New York
+ ++++ Boston
+ +++ Mexico
+ ++ Europe
+ +++ Italy
+ +++ Germany
+ ++++ Berlin
+ ++ Africa
+}
+}
+@endsalt

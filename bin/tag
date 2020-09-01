@@ -1,0 +1,12 @@
+#!/bin/bash -ex
+
+git pull --rebase origin
+
+version="v$(< VERSION)"
+
+git tag -d $version
+git tag -a $version -m "$version release"
+git push origin $version
+git fetch --all --tags
+git checkout tags/$version -b "$version-release"
+git push origin "$version-release"

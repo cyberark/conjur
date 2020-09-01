@@ -1,0 +1,23 @@
+@startuml
+hide footbox
+participant "Puppet Master" as Master
+participant "Puppet Agent" as Agent
+participant Conjur
+note left of Master
+  See Puppet Master
+  configuration below
+end note
+Master->Agent: Config (with HF token)
+Agent->Conjur: Create Host (with HF Token)
+Conjur->Agent: Host ID, API Key
+Agent->Agent: Update Config Based on Host ID/API Key
+Agent->Agent: Gather Facts
+Agent->Conjur: Authenticate HF Token
+Conjur->Agent: Auth Token
+Agent->Master: Facts (with auth token)
+Master->Conjur: Request Secrets (with Auth Token)
+Conjur->Conjur: Authorize
+Conjur->Master: Secrets
+Master->Master: Update Catalog
+Master->Agent: Send Catalog
+@enduml

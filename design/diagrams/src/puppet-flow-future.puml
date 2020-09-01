@@ -1,0 +1,25 @@
+@startuml
+
+participant Conjur as conjur
+participant Agent as agent
+participant Master as master
+participant Hiera as hiera
+
+agent --> agent : Facts collected
+agent --> master : Facts sent to
+master --> master : Catalog compiled\nbased on facts
+master --> hiera : Role API key(s) requested\nfor Agent role(s)
+hiera --> master : API key(s) returned
+master --> agent : Catalog sent to
+activate agent
+agent --> agent : Configuration updates\nstart, based on catalog
+== Conjur Lookup (start) ==
+agent --> conjur : Authenticates with Role API key
+conjur --> agent : Auth Token returned
+agent --> conjur : Variables requested
+conjur --> conjur : Validate Host has permission
+conjur --> agent : Variable values returned
+== Conjur Lookup (complete) ==
+agent --> agent : Configuration updates\ncomplete
+
+@enduml

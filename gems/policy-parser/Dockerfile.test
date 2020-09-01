@@ -1,5 +1,4 @@
-ARG RUBY_VERSION=2.5
-FROM ruby:${RUBY_VERSION}
+FROM cyberark/ubuntu-ruby-fips:20.04-latest
 
 RUN mkdir /src
 WORKDIR /src
