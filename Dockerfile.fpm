@@ -14,6 +14,7 @@ WORKDIR /src/opt/conjur/project
 
 COPY Gemfile ./
 COPY Gemfile.lock ./
+COPY gems/ gems/
 
 
 RUN bundle config --local deployment true && \

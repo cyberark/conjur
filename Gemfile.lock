@@ -7,10 +7,8 @@ GIT
       activesupport
       rest-client
 
-GIT
-  remote: https://github.com/cyberark/conjur-policy-parser.git
-  revision: 7a8ad23ef2278fb2083994c0fd92fc2973560bac
-  branch: master
+PATH
+  remote: gems/policy-parser
   specs:
     conjur-policy-parser (3.0.4)
       activesupport (>= 4.2)
@@ -453,7 +451,7 @@ DEPENDENCIES
   conjur-api!
   conjur-cli (~> 6.1)
   conjur-debify
-  conjur-policy-parser (>= 3.0.4)!
+  conjur-policy-parser!
   conjur-rack (~> 4)
   conjur-rack-heartbeat
   csr

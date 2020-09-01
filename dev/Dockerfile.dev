@@ -25,6 +25,9 @@ WORKDIR /src/conjur-server
 
 ADD Gemfile      .
 ADD Gemfile.lock .
+ADD gems/ gems/
+
+RUN ls -la
 
 RUN bundle
 
