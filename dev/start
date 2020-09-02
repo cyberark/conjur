@@ -19,7 +19,7 @@ Usage: start [options]
 
     --authn-oidc    Starts with authn-oidc/keycloak as authenticator
 
-    --authn-gce     Starts with authn-gce as authenticator
+    --authn-gcp     Starts with authn-gcp as authenticator
 
     --oidc-adfs     Adds to authn-oidc adfs static env configuration
 
@@ -79,7 +79,7 @@ ENABLE_AUTHN_LDAP=false
 ENABLE_AUTHN_IAM=false
 ENABLE_AUTHN_AZURE=false
 ENABLE_AUTHN_OIDC=false
-ENABLE_AUTHN_GCE=false
+ENABLE_AUTHN_GCP=false
 ENABLE_OIDC_ADFS=false
 ENABLE_OIDC_OKTA=false
 ENABLE_ROTATORS=false
@@ -89,7 +89,7 @@ while true ; do
     --authn-iam ) ENABLE_AUTHN_IAM=true ; shift ;;
     --authn-azure ) ENABLE_AUTHN_AZURE=true ; shift ;;
     --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
-    --authn-gce ) ENABLE_AUTHN_GCE=true ; shift ;;
+    --authn-gcp ) ENABLE_AUTHN_GCP=true ; shift ;;
     --authn-oidc ) ENABLE_AUTHN_OIDC=true ; shift ;;
     --oidc-adfs ) ENABLE_OIDC_ADFS=true ; shift ;;
     --oidc-okta ) ENABLE_OIDC_OKTA=true ; shift ;;
@@ -168,8 +168,8 @@ if [[ $ENABLE_AUTHN_AZURE = true ]]; then
   docker-compose exec client conjur policy load root /src/conjur-server/ci/authn-azure/policies/azure-operators.yml
 fi
 
-if [[ $ENABLE_AUTHN_GCE = true ]]; then
-  enabled_authenticators="$enabled_authenticators,authn-gce"
+if [[ $ENABLE_AUTHN_GCP = true ]]; then
+  enabled_authenticators="$enabled_authenticators,authn-gcp"
 fi
 
 if [[ $ENABLE_AUTHN_OIDC = false && ($ENABLE_OIDC_ADFS = true || $ENABLE_OIDC_OKTA = true) ]]; then

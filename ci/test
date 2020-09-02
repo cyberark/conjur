@@ -63,10 +63,10 @@ cucumber_authenticators_azure() {
   _run_cucumber_tests authenticators_azure "" "$(_get_azure_env_args)"
 }
 
-cucumber_authenticators_gce() {
-  : DOC - Runs Cucumber GCE Authenticator features
+cucumber_authenticators_gcp() {
+  : DOC - Runs Cucumber GCP Authenticator features
 
-  _run_cucumber_tests authenticators_gce "" "$(_get_gce_env_args)"
+  _run_cucumber_tests authenticators_gcp "" "$(_get_gcp_env_args)"
 }
 
 cucumber_authenticators_oidc() {
@@ -259,39 +259,39 @@ _get_azure_env_args() {
   echo "${azure_env_args}"
 }
 
-_get_gce_env_args() {
-  gce_token_file="authn-gce/tokens/gce_token_valid"
-  if ! [ -f "$gce_token_file" ]; then
-    echo "GCE token file $gce_token_file does not exist."
+_get_gcp_env_args() {
+  gcp_token_file="authn-gcp/tokens/gcp_token_valid"
+  if ! [ -f "$gcp_token_file" ]; then
+    echo "GCP token file $gcp_token_file does not exist."
     exit 1
   fi
 
-  decoded_gce_token_payload=$(_get_gce_token_payload "$gce_token_file")
+  decoded_gcp_token_payload=$(_get_gcp_token_payload "$gcp_token_file")
 
-  GCE_PROJECT_ID="$(echo "$decoded_gce_token_payload" | jq -r '.google.compute_engine.project_id')"
-  GCE_INSTANCE_NAME="$(echo "$decoded_gce_token_payload" | jq -r '.google.compute_engine.instance_name')"
-  GCE_SERVICE_ACCOUNT_ID="$(echo "$decoded_gce_token_payload" | jq -r '.sub')"
-  GCE_SERVICE_ACCOUNT_EMAIL="$(echo "$decoded_gce_token_payload" | jq -r '.email')"
+  GCP_PROJECT_ID="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.project_id')"
+  GCP_INSTANCE_NAME="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.instance_name')"
+  GCP_SERVICE_ACCOUNT_ID="$(echo "$decoded_gcp_token_payload" | jq -r '.sub')"
+  GCP_SERVICE_ACCOUNT_EMAIL="$(echo "$decoded_gcp_token_payload" | jq -r '.email')"
 
-  local gce_env_args="-e GCE_INSTANCE_NAME=$GCE_INSTANCE_NAME \
-                      -e GCE_SERVICE_ACCOUNT_ID=$GCE_SERVICE_ACCOUNT_ID \
-                      -e GCE_SERVICE_ACCOUNT_EMAIL=$GCE_SERVICE_ACCOUNT_EMAIL \
-                      -e GCE_PROJECT_ID=$GCE_PROJECT_ID"
+  local gcp_env_args="-e GCP_INSTANCE_NAME=$GCP_INSTANCE_NAME \
+                      -e GCP_SERVICE_ACCOUNT_ID=$GCP_SERVICE_ACCOUNT_ID \
+                      -e GCP_SERVICE_ACCOUNT_EMAIL=$GCP_SERVICE_ACCOUNT_EMAIL \
+                      -e GCP_PROJECT_ID=$GCP_PROJECT_ID"
 
-  echo "${gce_env_args}"
+  echo "${gcp_env_args}"
 }
 
-_get_gce_token_payload() {
-  local gce_token_file="$1"
+_get_gcp_token_payload() {
+  local gcp_token_file="$1"
 
   # read token and set env vars
-  gce_token=$(cat "$gce_token_file")
+  gcp_token=$(cat "$gcp_token_file")
 
   source jwt/decode_token.sh
 
-  decoded_gce_token_payload=$(decode_jwt_payload "$gce_token")
+  decoded_gcp_token_payload=$(decode_jwt_payload "$gcp_token")
 
-  echo "$decoded_gce_token_payload"
+  echo "$decoded_gcp_token_payload"
 }
 
 _wait_for_keycloak() {
