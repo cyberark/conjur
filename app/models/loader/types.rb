@@ -23,14 +23,14 @@ module Loader
       # Wraps a policy object with a corresponding +Loader::Types+ object.
       #
       # +external_handler+ should provide the methods +policy_id+, +handle_password+,
-      # +handle_public_key+. This argument is optional if the policy will not use 
+      # +handle_public_key+. This argument is optional if the policy will not use
       # that functionality.
       def wrap obj, external_handler = nil
         cls = Types.const_get obj.class.name.split("::")[-1]
         cls.new obj, external_handler
       end
     end
-    
+
     class Base
       extend Forwardable
 
@@ -77,7 +77,7 @@ module Loader
       def create_role!
         ::Role.create role_id: roleid
       end
-      
+
       def role
         ::Role[roleid]
       end
@@ -96,42 +96,57 @@ module Loader
           resource.annotations_dataset.import(%i(resource_id name value), records)
         end
       end
-      
+
       def resource
         ::Resource[resourceid]
       end
     end
-      
+
     class Record < Types::Base
       include CreateRole
       include CreateResource
-      
+
+      def verify
+        message = "Verify method for entity #{self} does not exist"
+        raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
+      end
+
+      def calculate_defaults!; end
+
       def create!
+        verify
+        calculate_defaults!
         create_role! if policy_object.respond_to?(:roleid)
         create_resource! if policy_object.respond_to?(:resourceid)
       end
     end
 
     class Role < Record
+      def verify; end
     end
 
     class Resource < Record
+      def verify; end
     end
 
     class Layer < Record
+      def verify; end
     end
 
     class Host < Record
+      def verify; end
       def_delegators :@policy_object, :restricted_to
 
       def create!
-        self.handle_restricted_to(self.roleid, restricted_to)    
-        super  
+        self.handle_restricted_to(self.roleid, restricted_to)
+        super
       end
     end
 
     class HostFactory < Record
       def_delegators :@policy_object, :layers
+
+      def verify; end
 
       def create!
         super
@@ -170,6 +185,8 @@ module Loader
     class Group < Record
       def_delegators :@policy_object, :gidnumber
 
+      def verify; end
+
       def create!
         self.annotations ||= {}
         self.annotations["conjur/gidnumber"] ||= self.gidnumber if self.gidnumber
@@ -177,9 +194,24 @@ module Loader
         super
       end
     end
-    
+
     class User < Record
       def_delegators :@policy_object, :public_keys, :account, :role_kind, :uidnumber, :restricted_to
+
+      # Below is a sample method verifying policy data validity
+      def verify
+        # if self.uidnumber == 8
+        #  message = "User '#{self.id}' has wrong params"
+        #  raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
+        # end
+      end
+
+      # Below is a sample method filling defaults for User entity in policy
+      # def calculate_defaults!
+      #  if self.uidnumber == nil
+      #    self.annotations["conjur/uidnumber"] = 10
+      #  end
+      # end
 
       def create!
         self.annotations ||= {}
@@ -190,7 +222,7 @@ module Loader
         if password = ENV["CONJUR_PASSWORD_#{id.gsub(/[^a-zA-Z0-9]/, '_').upcase}"]
           handle_password role.id, password
         end
-        
+
         Array(public_keys).each do |public_key|
           key_name = PublicKey.key_name public_key
 
@@ -200,28 +232,33 @@ module Loader
           end
         end
 
-        handle_restricted_to(self.roleid, restricted_to) 
+        handle_restricted_to(self.roleid, restricted_to)
       end
     end
-    
+
     class Variable < Record
       include CreateResource
 
       def_delegators :@policy_object, :kind, :mime_type
-      
+
+      def verify; end
+
       def create!
         self.annotations ||= {}
         self.annotations["conjur/kind"] ||= self.kind if self.kind
         self.annotations["conjur/mime_type"] ||= self.mime_type if self.mime_type
-        
+
         super
       end
     end
-    
+
     class Webservice < Record
       include CreateResource
+
+      def verify; end
+
     end
-    
+
     class Grant < Types::Base
       def_delegators :@policy_object, :roles, :members
 
@@ -254,14 +291,14 @@ module Loader
         end
       end
     end
-    
+
     class Policy < Types::Base
       def_delegators :@policy_object, :role, :resource, :body
 
       def create!
         Types.wrap(self.role, external_handler).create!
         Types.wrap(self.resource, external_handler).create!
-        
+
         Array(body).map(&:create!)
       end
     end
