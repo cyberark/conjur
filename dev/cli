@@ -29,14 +29,24 @@ SYNOPSIS
 GLOBAL OPTIONS
     --help                                    - Show this message
 COMMANDS
-    --authn-oidc    Enables OIDC features
-    --authn-azure   Enables Azure features
-    --authn-gcp     Enables GCP features
+    --authn-oidc                     Enables OIDC features
+    --authn-azure                    Enables Azure features
+    --authn-gcp [GCE_INSTANCE_NAME]  Enables GCP features
 EOF
 exit
 }
 
 function enable_gcp() {
+  local gce_instance_name="$1"
+
+  if [ -z "$gce_instance_name" ]; then
+    echo "--authn-gcp mode requires a GCE instance name argument."
+    echo "Usage ./cli exec --authn-gcp [GCE_INSTANCE_NAME]"
+    exit 1
+  fi
+
+  '../ci/authn-gcp/get_gcp_id_tokens.sh' "$gce_instance_name"
+
   gcp_token_file="../ci/authn-gcp/tokens/gcp_token_valid"
   if ! [ -f "$gcp_token_file" ]; then
     echo "GCP token file $gcp_token_file does not exist."
@@ -45,11 +55,25 @@ function enable_gcp() {
 
   decoded_gcp_token_payload=$(_get_gcp_token_payload "$gcp_token_file")
 
-  echo "Setting GCP details as env variables"
+  echo "-- Setting GCP details as env variables"
   GCP_PROJECT_ID="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.project_id')"
   GCP_INSTANCE_NAME="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.instance_name')"
   GCP_SERVICE_ACCOUNT_ID="$(echo "$decoded_gcp_token_payload" | jq -r '.sub')"
   GCP_SERVICE_ACCOUNT_EMAIL="$(echo "$decoded_gcp_token_payload" | jq -r '.email')"
+
+  if [ -z "$GCP_SERVICE_ACCOUNT_ID" ]; then
+    echo "Failed to extract 'sub' claim from token, value is empty"
+    echo "Verify that the token file: '$gcp_token_file' is a valid JWT token."
+    exit 1
+  fi
+
+  echo "-- GCP_PROJECT_ID=$GCP_PROJECT_ID"
+  echo "-- GCP_INSTANCE_NAME=$GCP_INSTANCE_NAME"
+  echo "-- GCP_SERVICE_ACCOUNT_ID=$GCP_SERVICE_ACCOUNT_ID"
+  echo "-- GCP_SERVICE_ACCOUNT_EMAIL=$GCP_SERVICE_ACCOUNT_EMAIL"
+  echo "-- GCP env variables are set"
+
+
 
   local gcp_env_args="-e GCP_INSTANCE_NAME=$GCP_INSTANCE_NAME \
                       -e GCP_SERVICE_ACCOUNT_ID=$GCP_SERVICE_ACCOUNT_ID \
@@ -116,7 +140,7 @@ while true ; do
         -h | --help ) print_exec_help ; shift ;;
         --authn-oidc ) enable_oidc ; shift ;;
         --authn-azure ) enable_azure ; shift ;;
-        --authn-gcp ) enable_gcp ; shift ;;
+        --authn-gcp ) enable_gcp "$3"; shift 2 ;;
         * ) if [ -z "$2" ]; then shift ; else echo "$2 is not a valid option"; exit 1; fi;;
       esac
 
