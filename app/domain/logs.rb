@@ -204,7 +204,7 @@ module LogMessages
 
     end
 
-    module AuthnGce
+    module AuthnGcp
 
       ExtractingRestrictionsFromResource = ::Util::TrackableLogMessageClass.new(
         msg: "Extracting resource restrictions with prefix '{0-prefix}' from role '{1-role-id}'",

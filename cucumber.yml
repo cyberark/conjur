@@ -82,7 +82,7 @@ authenticators_oidc: >
   -r cucumber/authenticators_oidc
   cucumber/authenticators_oidc
 
-authenticators_gce: >
+authenticators_gcp: >
   --format pretty
   -r cucumber/api/features/support/step_def_transforms.rb
   -r cucumber/api/features/support/rest_helpers.rb
@@ -97,8 +97,8 @@ authenticators_gce: >
   -r cucumber/policy/features/step_definitions/policy_steps.rb
   -r cucumber/_authenticators_common
   -r cucumber/authenticators_status/features/step_definitions/authn_status_steps.rb
-  -r cucumber/authenticators_gce
-  cucumber/authenticators_gce
+  -r cucumber/authenticators_gcp
+  cucumber/authenticators_gcp
 
 authenticators_azure: >
   --format pretty
