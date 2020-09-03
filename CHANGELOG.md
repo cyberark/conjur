@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - The `/authenticate` endpoint now returns a text/plain base64 encoded access token
   if the `Accept-Encoding` request header includes `base64`.
   [cyberark/conjur#151](https://github.com/cyberark/conjur/issues/151)
+- [Documentation](./UPGRADING.md) explaining how to upgrade a Conjur server deployed in a
+  Docker Compose environment. [cyberark/conjur#1528](https://github.com/cyberark/conjur/issues/1528), [cyberark/conjur#1584](https://github.com/cyberark/conjur/issues/1584)
 
 ### Changed
 - The Conjur server request logs now records the same IP address used by audit
