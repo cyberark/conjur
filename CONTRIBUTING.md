@@ -18,6 +18,7 @@ For general contribution and community guidelines, please see the [community rep
     + [View the admin user's API key](#view-the-admin-user-s-api-key)
     + [Load a policy](#load-a-policy)
 - [Testing](#testing)
+  
   * [RSpec](#rspec)
   * [Cucumber](#cucumber)
     + [Run all the cukes:](#run-all-the-cukes-)
@@ -151,6 +152,129 @@ Validate authentication using the username `alice` with the password `alice`:
 $ curl -v -k -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate
 ```
 
+
+
+#### Google Cloud Platform (GCP) Authentication
+
+To enable a host to log into Conjur using GCP identity token, run `start` with the `--authn-ldap` flag and pass a name of a running Google Compute Engine (GCE).
+
+****Prerequisites****
+
+- A Google Cloud Platform account. https://cloud.google.com/.
+- An access to a running Google Compute Engine instance. 
+
+****Obtaining the Instance Identity Token****
+
+An identity token is obtained from the Google's metadata server. [(Refer to Google Cloud documentation on obtaining the instance identity token).](https://cloud.google.com/compute/docs/instances/verifying-instance-identity#request_signature)  To access Google's metadata server you need to run a *curl* command inside a running GCE instance.
+
+The below snippet depicts a `curl` request to obtain an identity token:
+
+``` 
+curl -H "Metadata-Flavor: Google" \
+'http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?audience=[AUDIENCE]&format=[FORMAT]'
+```
+
+ Replace the following:
+
+- *AUDIENCE* - Conjur host id, in the following format: `conjur/[conjur-account-name]/host/[host-id]`. (Audience is the unique URI agreed upon by both the token sender and receiver and used for validation of the token)` `
+- *FORMAT* - Conjur expects an identity token in full format**.** Use the value: `full`. (Format is the parameter that specifies whether or not the project and instance details are included in the payload.)
+
+Your request might look similar to the following example:
+
+```
+curl -G -H "Metadata-Flavor: Google" \
+--data-urlencode "audience=conjur/myorg/host/gce-app/testapp" --data-urlencode "format=full" \ "http://metadata/computeMetadata/v1/instance/service-accounts/default/identity"
+```
+
+ 
+
+****Configure Google Cloud Authenticator****
+
+###### Before you begin
+
+Make sure you have the following information:
+
+| What you need           | Description                                                  |
+| :---------------------- | :----------------------------------------------------------- |
+| Instance name           | The name of the instance to which this token belongs. This name can be reused by several instances over time, so use the `instance_id` value to identify a unique instance ID. |
+| Project ID              | The ID for the project where you created the instance.       |
+| Service account id      | The subject of the token, which is the unique ID for the service account that you associated with your instance. |
+| Service account email   | The service account's name is a unique identifier; it will appear in the service account's email address that is provisioned during creation,for example `sa-name@project-id.iam.gserviceaccount.com`. [more info on service accounts](https://cloud.google.com/iam/docs/service-accounts). |
+
+###### Load Google Cloud Authenticator
+
+Save the following policy into `author-gce.yml` file:
+
+```yaml
+- !policy
+  id: conjur/authn-gce
+  body:
+  - !webservice
+  
+  - !group
+    id: apps
+  
+  - !permit
+    role: !group apps
+    privilege: [ read, authenticate ]
+    resource: !webservice
+```
+
+Load the policy into conjur:
+
+`conjur policy load root authn-gce.yml`
+
+###### Define a Google Cloud Resource as a Host in Conjur
+
+The information obtained from Google Cloud will be defined as annotations in the Conjur host to create the correlation required by Conjur to validate the caller (Google Cloud Identity token contains this attributes as claims).
+
+Below is a mapping between Conjur host annotations and the ID token claims:
+
+| Host Annotation       | Claim                               | Description                                                  |
+| :-------------------- | :---------------------------------- | :----------------------------------------------------------- |
+| instance-name         | google/compute_engine/instance_name | The name of the instance to which this token belongs. [More info on compute engine.](https://cloud.google.com/compute) |
+| project-id            | google/compute_engine/project_id    | The ID for the project where you created the instance.       |
+| service-account-email | email                               | The service account's name is a unique identifier; it appears in the service account's email address that is provisioned during creation, such as `sa-name@project-id.iam.gserviceaccount.com`. [More info on service accounts](https://cloud.google.com/iam/docs/service-accounts). |
+| service-account-id    | sub                                 | The subject of the token, i.e.the unique ID for the service account that you associated with your instance. [More info on service accounts](https://cloud.google.com/iam/docs/service-accounts). |
+
+*Note: all annotations must start with authn-gce/ prefix*
+
+Your policy might look similar to the following example:
+
+```yaml
+- !policy
+ id: gce-apps
+ body:
+  - !group
+ 
+  - &hosts
+   - !host
+    id: testapp
+    annotations:
+     authn-gce/instance-name: vm-for-gcp
+     authn-gce/project-id: eng-serenity-2313
+     authn-gce/service-account-id: 1234567890987654321
+     authn-gce/service-account-email: 1234567-compute@developer.gserviceaccount.com
+     
+  - !grant
+   role: !group
+   members: *hosts
+     
+  - !grant
+   role: !group /conjur/authn-gce/apps
+   member: !group gce-apps
+```
+
+###### Authenticate using Google Cloud Authenticator
+
+Send authentication request to Conjur using the account `myorg` and the host resource `gce-apps/testapp` and together with Google Identity JWT token.
+
+Your authentication request might look similar to the following example:
+
+```sh-session
+$ curl -X POST -H 'Content-Type: application/x-www-form-urlencoded' -d "jwt=eyJhbGciOiJSUzI1NiIs......uTonCA" http://localhost:3000/authn-gcp/test/myorg/gce-apps/testapp/authenticate
+```
+
 #### RubyMine IDE Debugging
 
 If you are going to be debugging Conjur using [RubyMine IDE](https://www.jetbrains.com/ruby/), follow
@@ -255,7 +379,7 @@ For most development work, the account will be `cucumber`, which is created when
 
 Conjur has `rspec` and `cucumber` tests.
 
-Note on perfomance testing: [ci/docker-compose.yml](ci/docker-compose.yml) and
+Note on performance testing: [ci/docker-compose.yml](ci/docker-compose.yml) and
 [conjur/ci/authn-k8s/dev/dev_conjur.template.yaml](conjur/ci/authn-k8s/dev/dev_conjur.template.yaml)
 set `WEB_CONCURRENCY: 0` a configuration that is useful for recording accurate
 coverage data, but isn't a realistic configuration, so shouldn't be used for
@@ -289,6 +413,8 @@ root@aa8bc35ba7f4:/src/conjur-server# conjurctl server
 Use Ctrl-C to stop
 ```
 
+
+
 Then, using the `dev/cli` script, step into the Conjur container to run the cukes:
 
 ```sh-session
@@ -296,6 +422,10 @@ $ ./cli exec
 ...
 root@9feae5e5e001:/src/conjur-server#
 ```
+
+
+
+###### Run Cukes with Open ID Connect (OIDC) Compatible Environment
 
 To run the cukes with an Open ID Connect (OIDC) compatible environment, run `cli`
 with the `--authn-oidc` flag:
@@ -305,6 +435,29 @@ $ ./cli exec --authn-oidc
 ...
 root@9feae5e5e001:/src/conjur-server#
 ```
+
+
+
+###### Run Cukes with Google Cloud Platform (GCP) Compatible Environment
+
+**Prerequisites**
+
+- A Google Cloud Platform account. https://cloud.google.com/.
+- Google Cloud SDK installed. https://cloud.google.com/sdk/docs
+- An access to a running Google Compute Engine instance. 
+
+To run the cukes with Google Cloud Platform (GCP) compatible environment, run `cli`
+with the `--authn-gcp` flag and pass a name of a running Google Compute Engine (GCE) instance:
+
+```sh-session
+$ ./cli exec --authn-gcp my-gce-instance
+...
+root@9feae5e5e001:/src/conjur-server#
+```
+
+When running with `--authn-gcp` flag, the cli script will execute another script which will do the heavy lifting of provisioning the ID tokens (required by the tests) from Google Cloud Platform.
+
+
 
 #### Run all the cukes:
 
