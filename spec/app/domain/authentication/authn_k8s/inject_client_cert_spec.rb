@@ -16,6 +16,9 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
   let(:nil_host_id_prefix) { nil }
   let(:csr) { "CSR" }
 
+  let(:default_cert_file_path) { "/etc/conjur/ssl/client.pem" }
+  let(:expected_cert_file_path) { "/etc/conjur/ssl/client.pem" }
+
   let(:host_id) { "HostId" }
   let(:host_role) { double("HostRole", id: host_id) }
 
@@ -182,6 +185,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           expect { injector.(conjur_account: account,
                             service_id: service_id,
                             csr: csr,
+                            cert_installation_path: nil,
                             host_id_prefix: host_id_prefix,
                             client_ip: client_ip) }.to raise_error(error_type, missing_spiffe_id_error)
         end
@@ -202,6 +206,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
         expect { injector.(conjur_account: account,
                           service_id: service_id,
                           csr: csr,
+                          cert_installation_path: nil,
                           host_id_prefix: host_id_prefix,
                           client_ip: client_ip) }.to raise_error(RuntimeError, pod_validation_error)
       end
@@ -225,7 +230,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
             pod_namespace: spiffe_namespace,
             pod_name: spiffe_name,
             container: 'authenticator',
-            path: "/etc/conjur/ssl/client.pem",
+            path: expected_cert_file_path,
             content: webservice_signed_cert_pem,
             mode: 0o644))
           .and_return(copy_response)
@@ -241,7 +246,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
             .with(hash_including(
               pod_namespace: spiffe_namespace,
               pod_name: spiffe_name,
-              path: "/etc/conjur/ssl/client.pem",
+              path: default_cert_file_path,
               content: webservice_signed_cert_pem,
               mode: 0o644))
             .and_raise(RuntimeError.new(expected_error_text))
@@ -249,6 +254,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           expect { injector.(conjur_account: account,
                             service_id: service_id,
                             csr: csr,
+                            cert_installation_path: nil,
                             host_id_prefix: host_id_prefix,
                             client_ip: client_ip) }.to raise_error(RuntimeError, expected_error_text)
         end
@@ -269,6 +275,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           expect { injector.(conjur_account: account,
                             service_id: service_id,
                             csr: csr,
+                            cert_installation_path: nil,
                             host_id_prefix: host_id_prefix,
                             client_ip: client_ip) }.to raise_error(error_type, expected_full_error_text)
         end
@@ -288,6 +295,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           expect { injector.(conjur_account: account,
                             service_id: service_id,
                             csr: csr,
+                            cert_installation_path: nil,
                             host_id_prefix: host_id_prefix,
                             client_ip: client_ip) }.to raise_error(error_type, expected_full_error_text)
         end
@@ -298,6 +306,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           expect { injector.(conjur_account: account,
                              service_id: service_id,
                              csr: csr,
+                             cert_installation_path: nil,
                              host_id_prefix: host_id_prefix,
                              client_ip: client_ip) }.to_not raise_error
         end
@@ -310,6 +319,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           expect { injector.(conjur_account: account,
                              service_id: service_id,
                              csr: csr,
+                             cert_installation_path: nil,
                              host_id_prefix: host_id_prefix,
                              client_ip: client_ip) }.to_not raise_error
         end
@@ -328,7 +338,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
               pod_namespace: spiffe_namespace,
               pod_name: spiffe_name,
               container: overridden_container_name,
-              path: "/etc/conjur/ssl/client.pem",
+              path: default_cert_file_path,
               content: webservice_signed_cert_pem,
               mode: 0o644))
           .and_return(copy_response)
@@ -336,6 +346,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           expect { injector.(conjur_account: account,
                              service_id: service_id,
                              csr: csr,
+                             cert_installation_path: nil,
                              host_id_prefix: host_id_prefix,
                              client_ip: client_ip) }.to_not raise_error
         end
@@ -345,6 +356,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
             injector.(conjur_account: account,
               service_id: service_id,
               csr: csr,
+              cert_installation_path: nil,
               host_id_prefix: nil_host_id_prefix,
               client_ip: client_ip)
           end
@@ -361,6 +373,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
             injector.(conjur_account: account,
               service_id: service_id,
               csr: csr,
+              cert_installation_path: nil,
               host_id_prefix: host_id_prefix,
               client_ip: client_ip)
           end
@@ -369,6 +382,60 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
             expect(smart_csr_mock).to receive(:common_name=)
                                         .with("#{host_id_prefix}.#{common_name}")
             expect{ subject }.to_not raise_error
+          end
+        end
+
+        context "when the Certificate-Install-Path parameter doesn't exist" do
+          subject do
+            injector.(conjur_account: account,
+              service_id: service_id,
+              csr: csr,
+              cert_installation_path: nil,
+              host_id_prefix: host_id_prefix,
+              client_ip: client_ip)
+          end
+
+          it "updates the cert installation path to the hard coded path and raises no error" do
+            expect{ subject }.to_not raise_error
+          end
+        end
+
+        context "when the Certificate-Install-Path parameter exists with valid path" do
+          let(:expected_cert_file_path) { "/client.pem" }
+
+          subject do
+            injector.(conjur_account: account,
+              service_id: service_id,
+              csr: csr,
+              cert_installation_path: "/client.pem",
+              host_id_prefix: host_id_prefix,
+              client_ip: client_ip)
+          end
+
+          it "updates the cert installation path to the supplied path and raises no error" do
+            expect{ subject }.to_not raise_error
+          end
+        end
+
+        context "when Certificate-Install-Path parameter exists with invalid path" do
+          let(:expected_cert_file_path) { "not_valid_path" }
+          let(:audit_success) { false }
+  
+          it "throws CertInstallationError" do
+            error_type = Errors::Authentication::AuthnK8s::CertInstallationError
+            expected_error_text = "InvalidPath"
+            expected_full_error_text = /CONJ00027E Certificate could not be copied to pod: InvalidPath/
+  
+            allow(copy_response).to receive(:[])
+              .with(:error)
+              .and_return(expected_error_text)
+  
+            expect { injector.(conjur_account: account,
+                              service_id: service_id,
+                              csr: csr,
+                              cert_installation_path: "not_valid_path",
+                              host_id_prefix: host_id_prefix,
+                              client_ip: client_ip) }.to raise_error(error_type, expected_full_error_text)
           end
         end
       end

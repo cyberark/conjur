@@ -6,6 +6,7 @@ module Authentication
   module AuthnK8s
 
     KUBERNETES_AUTHENTICATOR_NAME = 'authn-k8s'
+    DEFAULT_CERT_PATH = "/etc/conjur/ssl/client.pem"
 
     InjectClientCert ||= CommandClass.new(
       dependencies: {
@@ -17,7 +18,7 @@ module Authentication
         extract_container_name: ExtractContainerName.new,
         audit_log:              ::Audit.logger
       },
-      inputs: %i(conjur_account service_id csr host_id_prefix client_ip)
+      inputs: %i(conjur_account service_id csr host_id_prefix client_ip cert_installation_path)
     ) do
 
       # :reek:TooManyStatements
@@ -68,10 +69,14 @@ module Authentication
         @validate_pod_request.(pod_request: pod_request)
       end
 
+      def cert_installation_path
+        @cert_installation_path.nil? || @cert_installation_path.empty? ? DEFAULT_CERT_PATH : @cert_installation_path
+      end
+
       def install_signed_cert
         pod_namespace = spiffe_id.namespace
         pod_name = spiffe_id.name
-        cert_file_path = "/etc/conjur/ssl/client.pem"
+        cert_file_path = cert_installation_path
         @logger.debug(LogMessages::Authentication::AuthnK8s::CopySSLToPod.new(
           container_name,
           cert_file_path,

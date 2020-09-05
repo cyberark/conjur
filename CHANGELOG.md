@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#151](https://github.com/cyberark/conjur/issues/151)
 - [Documentation](./UPGRADING.md) explaining how to upgrade a Conjur server deployed in a
   Docker Compose environment. [cyberark/conjur#1528](https://github.com/cyberark/conjur/issues/1528), [cyberark/conjur#1584](https://github.com/cyberark/conjur/issues/1584)
+- Add ability to specify cert installation path on `/authn-k8s/:service_id/inject_client_cert`.
+  [cyberark/conjur#1802](https://github.com/cyberark/conjur/pull/1802)
 
 ### Changed
 - The Conjur server request logs now records the same IP address used by audit
