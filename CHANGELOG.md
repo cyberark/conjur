@@ -39,6 +39,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - A new database migration step updates the fingerprints in slosilo. The FIPS compliance
   update in `v1.8.0` caused the previous fingerprints to be invalid.
   [cyberark/conjur#1584](https://github.com/cyberark/conjur/issues/1584)
+- Conjur now verifies that Kubernetes Authenticator variables exist and have value before retrieving them so that a 
+  proper error will be raised if they aren't.
+  [cyberark/conjur#1315](https://github.com/cyberark/conjur/issues/1315)
 
 ## [1.8.1] - 2020-07-14
 ### Fixed
