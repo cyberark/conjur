@@ -37,6 +37,9 @@
 ### Affected Components
 [//]: # (Address the components that will be affected by your solution [Conjur, DAP, clients, integrations, etc.])
 
+### Cross-team dependencies
+[//]: # (Elaborate about your solution's requirements or needs from other teams)
+
 ## Security
 [//]: # (Are there any security issues with your solution? Even if you mentioned them somewhere in the doc it may be convenient for the security architect review to have them centralized here)
 
@@ -67,5 +70,41 @@
 ## Open questions
 [//]: # (Add any question that is still open. It makes it easier for the reader to have the open questions accumulated here istead of them being acattered along the doc)
 
-## Implementation plan
+## Delivery plan
 [//]: # (Break the solution into tasks)
+
+### Total
+[//]: # (Write the total estimation)
+
+### Parallelism
+[//]: # (Suggest how many team members can work on the solution in parallel)
+
+### Ramp up
+[//]: # (Note and estimate the tasks which are related to learning new areas [technology, language, feature, etc.])
+
+### Infrastructure and preparations
+[//]: # (Note and estimate the tasks which are related to implementing any needed infrastructure [jenkins file, scripts, Docker build, etc.])
+
+### Designs 
+[//]: # (Note and estimate the tasks which are related to designs which needed for the solution)
+
+### Spikes and researches
+[//]: # (Note and estimate the tasks which are related to spikes and researches which needed for the solution)
+
+### Implementation 
+[//]: # (Note and estimate the tasks which are related to the solution's code implementation)
+
+### Testing 
+[//]: # (Note and estimate the tasks which are related to writing/performing tests [automation, manual tests, etc.])
+
+### Security 
+[//]: # (Note and estimate the tasks which are related to security researches and implementations)
+
+### Docs 
+[//]: # (Note and estimate the tasks which are related to writing the docs)
+
+### Demo 
+[//]: # (Note and estimate the tasks which are related to creating a demo that demonstrates the solution)
+
+### Left overs and refactoring 
+[//]: # (Note and estimate the task that needs to be done as part of this effort but will not be delivered in the initial release and will be developed later)
