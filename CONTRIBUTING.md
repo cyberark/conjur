@@ -261,11 +261,10 @@ For most development work, the account will be `cucumber`, which is created when
 
 Conjur has `rspec` and `cucumber` tests.
 
-Note on performance testing: [ci/docker-compose.yml](ci/docker-compose.yml) and
-[conjur/ci/authn-k8s/dev/dev_conjur.template.yaml](conjur/ci/authn-k8s/dev/dev_conjur.template.yaml)
-set `WEB_CONCURRENCY: 0` a configuration that is useful for recording accurate
-coverage data, but isn't a realistic configuration, so shouldn't be used for
-benchmarking.
+Note on performance testing: set `WEB_CONCURRENCY: 0` - WEB_CONCURRENCY: 0 is a configuration that is useful for 
+recording accurate coverage data that can be used in the[ci/docker-compose.yml](ci/docker-compose.yml) and
+[conjur/ci/authn-k8s/dev/dev_conjur.template.yaml](conjur/ci/authn-k8s/dev/dev_conjur.template.yaml).
+This isn't a realistic configuration and should not be used for benchmarking.
 
 ### RSpec
 
@@ -303,7 +302,7 @@ $ ./cli exec
 root@9feae5e5e001:/src/conjur-server#
 ```
 
-###### Run Cukes with Open ID Connect (OIDC) Compatible Environment
+#### Spin up Open ID Connect (OIDC) Compatible Environment for testing
 
 To run the cukes with an Open ID Connect (OIDC) compatible environment, run `cli`
 with the `--authn-oidc` flag:
@@ -314,14 +313,14 @@ $ ./cli exec --authn-oidc
 root@9feae5e5e001:/src/conjur-server#
 ```
 
-###### Run Cukes with Google Cloud Platform (GCP) Compatible Environment
+#### Spin up Google Cloud Platform (GCP) Compatible Environment for testing
 
 **Prerequisites**
-- A Google Cloud Platform account. https://cloud.google.com/.
-- Google Cloud SDK installed. https://cloud.google.com/sdk/docs
+- A Google Cloud Platform account. To create an account see https://cloud.google.com/.
+- Google Cloud SDK installed. For information on how to install see https://cloud.google.com/sdk/docs
 - Access to a running Google Compute Engine instance. 
 
-To run the cukes with Google Cloud Platform (GCP) compatible environment, run `cli`
+To run the cukes with a Google Cloud Platform (GCP) compatible environment, run `cli`
 with the `--authn-gcp` flag and pass a name of a running Google Compute Engine (GCE) instance:
 
 ```sh-session
@@ -330,16 +329,31 @@ $ ./cli exec --authn-gcp my-gce-instance
 root@9feae5e5e001:/src/conjur-server#
 ```
 
-When running with `--authn-gcp` flag, the cli script executes another script which does the heavy lifting of provisioning the ID tokens (required by the tests) from Google Cloud Platform.
+When running with `--authn-gcp` flag, the cli script executes another script which does the heavy lifting of 
+provisioning the ID tokens (required by the tests) from Google Cloud Platform.
+To run the GCE authenticator test suite:
+```sh-session
+root@9feae5e5e001:/src/conjur-server# cucumber -p authenticators_gcp cucumber/authenticators_gcp/features
+```
 
 #### Run all the cukes:
-
-There are three different Cucumber suites: `api`, `policy`, and `authenticators`. Each of these can be run using a profile of the same name:
+Below is the list of the available Cucumber suites:
+  * api
+  * authenticators_azure
+  * authenticators_config
+  * authenticators_gcp
+  * authenticators_ldap
+  * authenticators_oidc
+  * authenticators_status
+  * manual-rotators
+  * policy
+  * rotators 
+  
+Each of the above suites can be executed using a profile of the same name.
+For example, to execute the `api` suite, your command might look like the following:
 
 ```sh-session
-root@9feae5e5e001:/src/conjur-server# cucumber --profile api               # runs api cukes
-root@9feae5e5e001:/src/conjur-server# cucumber --profile policy            # runs policy cukes
-root@9feae5e5e001:/src/conjur-server# cucumber --profile authenticators    # runs authenticators cukes
+root@9feae5e5e001:/src/conjur-server# cucumber --profile api  # runs api cukes
 ```
 
 
