@@ -110,6 +110,11 @@ module LogMessages
         code: "CONJ00038D"
       )
 
+      OptionalTokenClaimNotFoundOrEmpty  = ::Util::TrackableLogMessageClass.new(
+        msg:  "Optional claim '{0-claim-name}' not found or empty in token",
+        code: "CONJ00047D"
+      )
+
     end
 
     module AuthnOidc
