@@ -162,6 +162,8 @@ RSpec.describe 'Authentication::AuthnGcp::ValidateResourceRestrictionsMatchJWT' 
 
   let(:mocked_decoded_token_class_return_valid_values) { double("DecodedToken") }
 
+  let(:mocked_decoded_token_class_return_optional_resources_with_nil_values) { double("DecodedToken") }
+
   before(:each) do
     allow(mocked_decoded_token_class_return_valid_values).to receive(:project_id)
                                                                .and_return(gcp_project_id_restriction_valid_value)
@@ -171,6 +173,15 @@ RSpec.describe 'Authentication::AuthnGcp::ValidateResourceRestrictionsMatchJWT' 
                                                                .and_return(gcp_service_account_id_restriction_valid_value)
     allow(mocked_decoded_token_class_return_valid_values).to receive(:service_account_email)
                                                                .and_return(gcp_service_account_email_restriction_valid_value)
+
+    allow(mocked_decoded_token_class_return_optional_resources_with_nil_values).to receive(:project_id)
+                                                                                     .and_return(nil)
+    allow(mocked_decoded_token_class_return_optional_resources_with_nil_values).to receive(:instance_name)
+                                                                                     .and_return(nil)
+    allow(mocked_decoded_token_class_return_optional_resources_with_nil_values).to receive(:service_account_id)
+                                                                                     .and_return(gcp_service_account_id_restriction_valid_value)
+    allow(mocked_decoded_token_class_return_optional_resources_with_nil_values).to receive(:service_account_email)
+                                                                                     .and_return(gcp_service_account_email_restriction_valid_value)
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
@@ -304,6 +315,54 @@ RSpec.describe 'Authentication::AuthnGcp::ValidateResourceRestrictionsMatchJWT' 
 
       it "raises an error" do
         expect { subject }.to raise_error(Errors::Authentication::Jwt::InvalidResourceRestrictions)
+      end
+    end
+  end
+
+  context "An optional resources not exist in token" do
+    context "when optional resources restrictions has defined on host" do
+      context "and instance_name resource not exists in token" do
+        subject do
+          Authentication::AuthnGcp::ValidateResourceRestrictionsMatchJWT.new.call(
+            resource_restrictions: resource_restrictions_with_1_valid_instance_name,
+            decoded_token:         mocked_decoded_token_class_return_optional_resources_with_nil_values,
+            annotation_prefix:     gcp_restriction_prefix
+          )
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(Errors::Authentication::AuthnGcp::ResourceRestrictionNotFoundOrEmpty)
+        end
+      end
+
+      context "and project_id resource not exists in token" do
+        subject do
+          Authentication::AuthnGcp::ValidateResourceRestrictionsMatchJWT.new.call(
+            resource_restrictions: resource_restrictions_with_1_valid_project_id,
+            decoded_token:         mocked_decoded_token_class_return_optional_resources_with_nil_values,
+            annotation_prefix:     gcp_restriction_prefix
+          )
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(Errors::Authentication::AuthnGcp::ResourceRestrictionNotFoundOrEmpty)
+        end
+      end
+    end
+
+    context "when all resources restrictions has defined on host" do
+      context "and both instance_name, project_id resources not exist in token" do
+        subject do
+          Authentication::AuthnGcp::ValidateResourceRestrictionsMatchJWT.new.call(
+            resource_restrictions: resource_restrictions_with_4_valid,
+            decoded_token:         mocked_decoded_token_class_return_optional_resources_with_nil_values,
+            annotation_prefix:     gcp_restriction_prefix
+          )
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(Errors::Authentication::AuthnGcp::ResourceRestrictionNotFoundOrEmpty)
+        end
       end
     end
   end

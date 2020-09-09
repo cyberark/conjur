@@ -49,7 +49,42 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
     )
   end
 
+  let(:decoded_token_hash_empty_aud) do
+    decoded_token_hash(
+      <<~EOS
+        {
+          "aud": "", 
+          "sub": "#{sub_value}", 
+          "email": "#{email_value}", 
+          "google": {
+            "compute_engine": {
+              "instance_name": "#{instance_name_value}", 
+              "project_id": "#{project_id_value}"
+            }
+          }
+        }
+    EOS
+    )
+  end
+
   let(:decoded_token_hash_missing_sub) do
+    decoded_token_hash(
+      <<~EOS
+        {
+          "aud": "#{sub_value}", 
+          "email": "#{email_value}", 
+          "google": {
+            "compute_engine": {
+              "instance_name": "#{instance_name_value}", 
+              "project_id": "#{project_id_value}"
+            }
+          }
+        }
+    EOS
+    )
+  end
+
+  let(:decoded_token_hash_empty_sub) do
     decoded_token_hash(
       <<~EOS
         {
@@ -83,6 +118,23 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
     )
   end
 
+  let(:decoded_token_hash_empty_email) do
+    decoded_token_hash(
+      <<~EOS
+        {
+          "aud": "#{sub_value}", 
+          "sub": "#{sub_value}", 
+          "google": {
+            "compute_engine": {
+              "instance_name": "#{instance_name_value}", 
+              "project_id": "#{project_id_value}"
+            }
+          }
+        }
+    EOS
+    )
+  end
+
   let(:decoded_token_hash_missing_instance_name) do
     decoded_token_hash(
       <<~EOS
@@ -100,7 +152,41 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
     )
   end
 
+  let(:decoded_token_hash_empty_instance_name) do
+    decoded_token_hash(
+      <<~EOS
+        {
+          "aud": "#{sub_value}", 
+          "sub": "#{sub_value}", 
+          "email": "#{email_value}", 
+          "google": {
+            "compute_engine": {
+              "project_id": "#{project_id_value}"
+            }
+          }
+        }
+    EOS
+    )
+  end
+
   let(:decoded_token_hash_missing_project_id) do
+    decoded_token_hash(
+      <<~EOS
+        {
+          "aud": "#{sub_value}", 
+          "sub": "#{sub_value}", 
+          "email": "#{email_value}", 
+          "google": {
+            "compute_engine": {
+              "instance_name": "#{instance_name_value}"
+            }
+          }
+        }
+    EOS
+    )
+  end
+
+  let(:decoded_token_hash_empty_project_id) do
     decoded_token_hash(
       <<~EOS
         {
@@ -143,7 +229,7 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
       end
     end
 
-    context "that is missing token claims" do
+    context "that is missing required token claims" do
       context "missing aud claim" do
         subject(:decoded_token) do
           ::Authentication::AuthnGcp::DecodedToken.new(
@@ -153,7 +239,20 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
         end
 
         it "raises an error" do
-          expect { decoded_token }.to raise_error(Errors::Authentication::AuthnGcp::TokenClaimNotFoundOrEmpty)
+          expect { decoded_token }.to raise_error(Errors::Authentication::Jwt::TokenClaimNotFoundOrEmpty)
+        end
+      end
+
+      context "empty aud claim" do
+        subject(:decoded_token) do
+          ::Authentication::AuthnGcp::DecodedToken.new(
+            decoded_token_hash: decoded_token_hash_empty_aud,
+            logger:             Rails.logger
+          )
+        end
+
+        it "raises an error" do
+          expect { decoded_token }.to raise_error(Errors::Authentication::Jwt::TokenClaimNotFoundOrEmpty)
         end
       end
 
@@ -166,7 +265,20 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
         end
 
         it "raises an error" do
-          expect { decoded_token }.to raise_error(Errors::Authentication::AuthnGcp::TokenClaimNotFoundOrEmpty)
+          expect { decoded_token }.to raise_error(Errors::Authentication::Jwt::TokenClaimNotFoundOrEmpty)
+        end
+      end
+
+      context "empty sub claim" do
+        subject(:decoded_token) do
+          ::Authentication::AuthnGcp::DecodedToken.new(
+            decoded_token_hash: decoded_token_hash_empty_sub,
+            logger:             Rails.logger
+          )
+        end
+
+        it "raises an error" do
+          expect { decoded_token }.to raise_error(Errors::Authentication::Jwt::TokenClaimNotFoundOrEmpty)
         end
       end
 
@@ -179,10 +291,25 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
         end
 
         it "raises an error" do
-          expect { decoded_token }.to raise_error(Errors::Authentication::AuthnGcp::TokenClaimNotFoundOrEmpty)
+          expect { decoded_token }.to raise_error(Errors::Authentication::Jwt::TokenClaimNotFoundOrEmpty)
         end
       end
 
+      context "empty email claim" do
+        subject(:decoded_token) do
+          ::Authentication::AuthnGcp::DecodedToken.new(
+            decoded_token_hash: decoded_token_hash_empty_email,
+            logger:             Rails.logger
+          )
+        end
+
+        it "raises an error" do
+          expect { decoded_token }.to raise_error(Errors::Authentication::Jwt::TokenClaimNotFoundOrEmpty)
+        end
+      end
+    end
+
+    context "that is missing optional token claims" do
       context "missing instance_name claim" do
         subject(:decoded_token) do
           ::Authentication::AuthnGcp::DecodedToken.new(
@@ -191,8 +318,35 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
           )
         end
 
-        it "raises an error" do
-          expect { decoded_token }.to raise_error(Errors::Authentication::AuthnGcp::TokenClaimNotFoundOrEmpty)
+        it "does not raise an error" do
+          expect { decoded_token }.to_not raise_error
+        end
+
+        it "parses the token expectedly" do
+          expect(decoded_token.project_id).to eq(project_id_value)
+          expect(decoded_token.instance_name).to eq(nil)
+          expect(decoded_token.service_account_id).to eq(sub_value)
+          expect(decoded_token.service_account_email).to eq(email_value)
+        end
+      end
+
+      context "empty instance_name claim" do
+        subject(:decoded_token) do
+          ::Authentication::AuthnGcp::DecodedToken.new(
+            decoded_token_hash: decoded_token_hash_empty_instance_name,
+            logger:             Rails.logger
+          )
+        end
+
+        it "does not raise an error" do
+          expect { decoded_token }.to_not raise_error
+        end
+
+        it "parses the token expectedly" do
+          expect(decoded_token.project_id).to eq(project_id_value)
+          expect(decoded_token.instance_name).to eq(nil)
+          expect(decoded_token.service_account_id).to eq(sub_value)
+          expect(decoded_token.service_account_email).to eq(email_value)
         end
       end
 
@@ -204,8 +358,35 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
           )
         end
 
-        it "raises an error" do
-          expect { decoded_token }.to raise_error(Errors::Authentication::AuthnGcp::TokenClaimNotFoundOrEmpty)
+        it "does not raise an error" do
+          expect { decoded_token }.to_not raise_error
+        end
+
+        it "parses the token expectedly" do
+          expect(decoded_token.project_id).to eq(nil)
+          expect(decoded_token.instance_name).to eq(instance_name_value)
+          expect(decoded_token.service_account_id).to eq(sub_value)
+          expect(decoded_token.service_account_email).to eq(email_value)
+        end
+      end
+
+      context "empty project_id claim" do
+        subject(:decoded_token) do
+          ::Authentication::AuthnGcp::DecodedToken.new(
+            decoded_token_hash: decoded_token_hash_empty_project_id,
+            logger:             Rails.logger
+          )
+        end
+
+        it "does not raise an error" do
+          expect { decoded_token }.to_not raise_error
+        end
+
+        it "parses the token expectedly" do
+          expect(decoded_token.project_id).to eq(nil)
+          expect(decoded_token.instance_name).to eq(instance_name_value)
+          expect(decoded_token.service_account_id).to eq(sub_value)
+          expect(decoded_token.service_account_email).to eq(email_value)
         end
       end
     end
