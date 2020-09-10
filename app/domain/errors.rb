@@ -353,9 +353,11 @@ module Errors
         code: "CONJ00067E"
       )
 
-      TokenClaimNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
-        msg:  "Claim '{0-claim-name}' not found or empty in token. " \
-              "Verify that you requested the token using 'format=full'",
+      ResourceRestrictionNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
+        msg:  "Resource restriction '{0-resource-restriction-name}' does not exists " \
+            "resource in JWT token. " \
+            "Verify that you configured the host with permitted restrictions. " \
+            "In case of Compute Engine token verify that you requested the token using 'format=full' " ,
         code: "CONJ00068E"
       )
 

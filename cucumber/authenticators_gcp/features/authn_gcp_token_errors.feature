@@ -70,21 +70,6 @@ Feature: GCP Authenticator - Test Token Error Handling
     """
 
   # "authn-gcp/project-id" annotation is set because at least one of the annotations is expected.
-  # we do not test with other annotations as the test will fail on the token validation
-  Scenario: Authenticate using token in standard format is denied
-    When I have host "project-id-only-test-app"
-    And I grant group "conjur/authn-gcp/apps" to host "project-id-only-test-app"
-    And I set "authn-gcp/project-id" annotation to host "project-id-only-test-app"
-    And I save my place in the log file
-    And I obtain a standard_format GCP identity token
-    And I authenticate with authn-gcp using obtained token and existing account
-    Then it is unauthorized
-    And The following appears in the log after my savepoint:
-    """
-     CONJ00068E Claim 'google/compute_engine/project_id' not found or empty in token
-    """
-
-  # "authn-gcp/project-id" annotation is set because at least one of the annotations is expected.
   Scenario: Host not in permitted group is denied
     Given I load a policy:
     """
