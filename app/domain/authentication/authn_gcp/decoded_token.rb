@@ -26,10 +26,10 @@ module Authentication
       def initialize_required_claims
         @audience = required_token_claim_value(AUDIENCE_TOKEN_CLAIM_NAME)
         @service_account_id = required_token_claim_value(SUB_TOKEN_CLAIM_NAME)
-        @service_account_email = required_token_claim_value(EMAIL_TOKEN_CLAIM_NAME)
       end
 
       def initialize_optional_claims
+        @service_account_email = optional_token_claim_value(EMAIL_TOKEN_CLAIM_NAME)
         @project_id = optional_token_claim_value(PROJECT_ID_TOKEN_CLAIM_NAME)
         @instance_name = optional_token_claim_value(INSTANCE_NAME_TOKEN_CLAIM_NAME)
       end
@@ -50,6 +50,7 @@ module Authentication
         optional_token_claim_value = token_claim_value(optional_token_claim)
 
         if optional_token_claim_value.nil? || optional_token_claim_value.empty?
+          optional_token_claim_value = nil
           @logger.debug(LogMessages::Authentication::Jwt::OptionalTokenClaimNotFoundOrEmpty.new(optional_token_claim))
         else
           log_claim_extracted_from_token(optional_token_claim, optional_token_claim_value)
