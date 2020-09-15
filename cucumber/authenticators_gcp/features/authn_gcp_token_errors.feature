@@ -94,3 +94,42 @@ Feature: GCP Authenticator - Test Token Error Handling
     """
     CONJ00006E 'host/test-app' does not have 'authenticate' privilege on cucumber:webservice:conjur/authn-gcp
     """
+
+  Scenario: Authenticate using token in standard format and host with only service-account-email annotation set is denied
+    Given I have host "test-app"
+    And I remove all annotations from host "test-app"
+    When I set "authn-gcp/service-account-email" annotation to host "test-app"
+    And I save my place in the log file
+    And I obtain a standard_format GCP identity token
+    And I authenticate with authn-gcp using obtained token and existing account
+    Then it is unauthorized
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00068E Resource restriction 'service-account-email' does not exists resource in JWT token. Verify that you configured the host with permitted restrictions. In case of Compute Engine token verify that you requested the token using 'format=full'
+    """
+
+  Scenario: Authenticate using token in standard format and host with only project-id annotation set is denied
+    Given I have host "test-app"
+    And I remove all annotations from host "test-app"
+    When I set "authn-gcp/project-id" annotation to host "test-app"
+    And I save my place in the log file
+    And I obtain a standard_format GCP identity token
+    And I authenticate with authn-gcp using obtained token and existing account
+    Then it is unauthorized
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00068E Resource restriction 'project-id' does not exists resource in JWT token. Verify that you configured the host with permitted restrictions. In case of Compute Engine token verify that you requested the token using 'format=full'
+    """
+
+  Scenario: Authenticate using token in standard format and host with only instance-name annotation set is denied
+    Given I have host "test-app"
+    And I remove all annotations from host "test-app"
+    When I set "authn-gcp/instance-name" annotation to host "test-app"
+    And I save my place in the log file
+    And I obtain a standard_format GCP identity token
+    And I authenticate with authn-gcp using obtained token and existing account
+    Then it is unauthorized
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00068E Resource restriction 'instance-name' does not exists resource in JWT token. Verify that you configured the host with permitted restrictions. In case of Compute Engine token verify that you requested the token using 'format=full'
+    """
