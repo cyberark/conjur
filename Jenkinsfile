@@ -98,50 +98,128 @@ pipeline {
         // GCP Authenticator tests using the tokens.
         // This way we can have a light-weight GCE instance that has no need for conjurops
         // or git identities and is not open for SSH
-        stage('GCP Authenticator preparation - Allocate GCE Instance') {
+ stage('GCP - Stage A - Compute Engine') {
           steps {
+            echo '-- Allocating Google Compute Engine'
             script {
+              dir('ci/authn-gcp') {
+                stash name: 'get_gce_tokens_script', includes: 'get_gce_tokens_to_files.sh'
+              }
               node('executor-v2-gcp-small') {
+                echo '-- Google Compute Engine allocated'
+                echo '-- Get Google Cloud project name from Google metadata server'
+                env.GCP_PROJECT = sh (
+                  script: 'curl -s -H "Metadata-Flavor: Google" \
+                  "http://metadata.google.internal/computeMetadata/v1/project/project-id"',
+                  returnStdout: true
+                ).trim()
+                echo "Google Cloud project name: $GCP_PROJECT"
+                unstash 'get_gce_tokens_script'
                 sh '''
-                  retrieve_token() {
-                    local token_format="$1"
-                    local audience="$2"
-
-                    curl \
-                      -s \
-                      -H 'Metadata-Flavor: Google' \
-                      "http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?format=${token_format}&audience=${audience}"
-                  }
-
-                  echo "$(retrieve_token "full" "conjur/cucumber/host/test-app")" > "gcp_token_valid"
-                  echo "$(retrieve_token "full" "conjur/cucumber/host/non-existing")" > "gcp_token_non_existing_host"
-                  echo "$(retrieve_token "full" "conjur/cucumber/host/non-rooted/test-app")" > "gcp_token_non_rooted_host"
-                  echo "$(retrieve_token "full" "conjur/cucumber/test-app")" > "gcp_token_user"
-                  echo "$(retrieve_token "full" "conjur/non-existing/host/test-app")" > "gcp_token_non_existing_account"
-                  echo "$(retrieve_token "full" "invalid_audience")" > "gcp_token_invalid_audience"
-                  echo "$(retrieve_token "standard" "conjur/cucumber/host/test-app")" > "gcp_token_standard_format"
+                ./get_gce_tokens_to_files.sh || exit 1
                 '''
-
-                stash name: 'authnGcpTokens', includes: 'gcp_token_valid,gcp_token_invalid_audience,gcp_token_standard_format,gcp_token_user,gcp_token_non_existing_host,gcp_token_non_existing_account,gcp_token_non_rooted_host', allowEmpty:false
-                env.GCP_TOKENS_FETCHED = "true"
+                stash name: 'authnGceTokens', includes: 'gce_tokens/*', allowEmpty:false
               }
             }
           }
+          post {
+           failure {
+            script {
+              env.GCP_ENV_ERROR = "true"
+            }
+           }
+           success {
+            script {
+              env.GCE_TOKENS_FETCHED = "true"
+            }
+            echo '-- Finished fetching GCE tokens.'
+           }
+          }
         }
-        stage('GCP Authenticator') {
+        stage('GCP - Stage B - Google Function') {
+          environment {
+            GCP_FETCH_TOKEN_FUNCTION = "fetch_token_${BUILD_NUMBER}"
+            IDENTITY_TOKEN_FILE = 'identity-token'
+            GCP_OWNER_SERVICE_KEY_FILE = "sa-key-file.json"
+            GCP_ZONE="us-central1"
+          }
           steps {
+            echo "Waiting for GCP project name"
             timeout(time: 10, unit: 'MINUTES') {
               waitUntil {
                 script {
-                  return (env.GCP_TOKENS_FETCHED == "true")
+                  return (env.GCP_PROJECT != null || env.GCP_ENV_ERROR == "true")
                 }
               }
             }
             script {
-              dir('ci/authn-gcp/tokens') {
-                unstash 'authnGcpTokens'
+              if (env.GCP_ENV_ERROR == "true") {
+                error('GCP_ENV_ERROR cannot deploy function')
               }
 
+              dir('ci/authn-gcp') {
+                sh '''
+                # Deploy Google Cloud function
+                summon ./run_gcloud.sh deploy_function.sh || exit 1
+                if [ $? -ne 0 ]; then
+                    echo '-- Error deploying Google function'
+                    exit 1
+                fi
+                # Obtain tokens from Google function and write to files
+                ./get_func_tokens_to_files.sh
+                if [ $? -ne 0 ]; then
+                    echo '-- Error obtaining tokens from Google function'
+                    exit 1
+                fi
+                '''
+              }
+            }
+          }
+          post {
+            success {
+              echo "-- Google Cloud test env is ready"
+              script {
+                env.GCP_FUNC_TOKENS_FETCHED = "true"
+              }
+            }
+            failure {
+              echo "-- GCP function deployment stage failed"
+              script {
+                env.GCP_ENV_ERROR = "true"
+              }
+            }
+            always {
+              script {
+                dir('ci/authn-gcp') {
+                  sh '''
+                  # Cleanup Google function
+                  summon ./run_gcloud.sh cleanup_function.sh
+                  '''
+                }
+              }
+            }
+          }
+        }
+        stage('GCP Authenticator - Run tests') {
+          steps {
+            echo 'Waiting for GCP_TOKENS'
+            timeout(time: 10, unit: 'MINUTES') {
+              waitUntil {
+                script {
+                  return ( env.GCP_ENV_ERROR == "true"
+                    || (env.GCP_FUNC_TOKENS_FETCHED == "true" && GCE_TOKENS_FETCHED == "true"))
+                }
+              }
+            }
+            script {
+              if (env.GCP_ENV_ERROR == "true") {
+                error('GCP_ENV_ERROR cannot run tests check the logs for errors in GCP stages A and B')
+              }
+            }
+            script {
+              dir('ci/authn-gcp/tokens') {
+                unstash 'authnGceTokens'
+              }
               sh 'ci/test cucumber_authenticators_gcp'
             }
           }
