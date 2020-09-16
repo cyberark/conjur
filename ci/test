@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# TODO: This script is need of a full cleanup.  Issue captured here:
+#   https://github.com/cyberark/conjur/issues/1471
+
 # TODO: Currently adding the -u and -o pipefail options breaks
 # this script.  We should fix these errors and turn them on.
 set -e
@@ -169,9 +172,9 @@ rspec_audit() {
       -T --rm --no-deps --workdir=/src/conjur-server cucumber -ec "
         pwd
         ci/rspec-audit/migratedb
-        
+
         rm -rf \"$REPORT_ROOT/spec/reports-audit\"
-    
+
         # Run tests from audit engine directory
         pushd engines/conjur_audit
 
@@ -207,7 +210,7 @@ _build_conjur() (
   ./build.sh --jenkins >&2
 
   # Grab the build tag so we launch the correct version of Conjur
-  # shellcheck disable=SC1091  
+  # shellcheck disable=SC1091
   . version_utils.sh
   version_tag
 )
@@ -459,9 +462,9 @@ _prepare_env_auth_oidc() {
     conjur /authn-oidc/keycloak/scripts/fetchCertificate
 }
 
-# The arguments must be unexpanded variable names.  Eg: 
+# The arguments must be unexpanded variable names.  Eg:
 #
-# _create_keycloak_user '$APP_USER' '$APP_PW' '$APP_EMAIL' 
+# _create_keycloak_user '$APP_USER' '$APP_PW' '$APP_EMAIL'
 #
 # This is because those variables are not available to this script. They are
 # available to bash commands run via "docker-compose exec oidc-keycloak bash
@@ -558,7 +561,7 @@ _run_cucumber_tests() {
   fi
 
   _setup_for_cucumber "$profile" "$services"
-  
+
   # Run the tests
   _run_cucumber "$cucumber_env_args" \
      "bundle exec cucumber \
@@ -594,7 +597,7 @@ _subcommands() {
 # TODO: This had a builtin assumption about nesting. Our help was wrong
 #   and nobody noticed.  Remove this meta-programming entirely.
 _subcommands_doc() {
-  typeset -f | 
+  typeset -f |
     awk '/^ *: DOC/ {sub(/ *: DOC/, "", $0); print $0}' |
     tr -d ';'
 }

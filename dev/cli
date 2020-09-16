@@ -37,24 +37,35 @@ exit
 }
 
 function enable_gcp() {
-  gcp_token_file="../ci/authn-gcp/tokens/gcp_token_valid"
-  if ! [ -f "$gcp_token_file" ]; then
-    echo "GCP token file $gcp_token_file does not exist."
+  local gce_instance_name="$1"
+
+  if [ -z "$gce_instance_name" ]; then
+    echo "--authn-gcp mode requires a GCE instance name argument."
+    echo "Usage ./cli exec --authn-gcp [GCE_INSTANCE_NAME]"
     exit 1
   fi
 
-  decoded_gcp_token_payload=$(_get_gcp_token_payload "$gcp_token_file")
+ "../ci/authn-gcp/get_gcp_id_tokens.sh" "$gce_instance_name"
+
+  gce_token_file="../ci/authn-gcp/tokens/gce_token_valid"
+
+  if ! [ -f "$gce_token_file" ]; then
+    echo "GCP token file $gce_token_file does not exist."
+    exit 1
+  fi
+
+  decoded_gcp_token_payload=$(_get_gcp_token_payload "$gce_token_file")
 
   echo "Setting GCP details as env variables"
-  GCP_PROJECT_ID="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.project_id')"
-  GCP_INSTANCE_NAME="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.instance_name')"
-  GCP_SERVICE_ACCOUNT_ID="$(echo "$decoded_gcp_token_payload" | jq -r '.sub')"
-  GCP_SERVICE_ACCOUNT_EMAIL="$(echo "$decoded_gcp_token_payload" | jq -r '.email')"
+  local gcp_project_id="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.project_id')"
+  local gcp_instance_name="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.instance_name')"
+  local gcp_service_account_id="$(echo "$decoded_gcp_token_payload" | jq -r '.sub')"
+  local gcp_service_account_email="$(echo "$decoded_gcp_token_payload" | jq -r '.email')"
 
-  local gcp_env_args="-e GCP_INSTANCE_NAME=$GCP_INSTANCE_NAME \
-                      -e GCP_SERVICE_ACCOUNT_ID=$GCP_SERVICE_ACCOUNT_ID \
-                      -e GCP_SERVICE_ACCOUNT_EMAIL=$GCP_SERVICE_ACCOUNT_EMAIL \
-                      -e GCP_PROJECT_ID=$GCP_PROJECT_ID"
+  local gcp_env_args="-e GCP_INSTANCE_NAME=$gcp_instance_name \
+                      -e GCP_SERVICE_ACCOUNT_ID=$gcp_service_account_id \
+                      -e GCP_SERVICE_ACCOUNT_EMAIL=$gcp_service_account_email \
+                      -e GCP_PROJECT_ID=$gcp_project_id"
 
   env_args="$env_args $gcp_env_args"
 }
@@ -116,7 +127,7 @@ while true ; do
         -h | --help ) print_exec_help ; shift ;;
         --authn-oidc ) enable_oidc ; shift ;;
         --authn-azure ) enable_azure ; shift ;;
-        --authn-gcp ) enable_gcp ; shift ;;
+        --authn-gcp ) enable_gcp "$3"; shift 2;;
         * ) if [ -z "$2" ]; then shift ; else echo "$2 is not a valid option"; exit 1; fi;;
       esac
 
