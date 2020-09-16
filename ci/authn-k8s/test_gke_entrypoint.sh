@@ -98,9 +98,10 @@ function renderResourceTemplates() {
 }
 
 function createNamespace() {
-  # clean ups namespaces older than minutes or seconds
+  # Attempt to clean up old namespaces. If it wasn't created within minutes or
+  # seconds, we will attempt to delete it.
   old_namespaces=$(kubectl get namespaces | awk '$1 ~ /test-/ && $3 !~ /[m|s]/ { print $1; }')
-  [ ! -z "${old_namespaces}" ] && kubectl delete --ignore-not-found=true namespaces ${old_namespaces}
+  [ ! -z "${old_namespaces}" ] && kubectl delete --ignore-not-found=true namespaces ${old_namespaces} || true
 
   kubectl create namespace $CONJUR_AUTHN_K8S_TEST_NAMESPACE
   kubectl config set-context $(kubectl config current-context) --namespace=$CONJUR_AUTHN_K8S_TEST_NAMESPACE
