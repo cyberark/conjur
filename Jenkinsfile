@@ -82,7 +82,6 @@ pipeline {
           steps {
             script {
               node('azure-linux') {
-                // get `ci/authn-azure/get_system_assigned_identity.sh` from scm
                 checkout scm
                 env.AZURE_AUTHN_INSTANCE_IP = sh(script: 'curl icanhazip.com', returnStdout: true).trim()
                 env.SYSTEM_ASSIGNED_IDENTITY = sh(script: 'ci/authn-azure/get_system_assigned_identity.sh', returnStdout: true).trim()
@@ -92,13 +91,15 @@ pipeline {
             }
           }
         }
-        // We have 2 stages for GCP Authenticator tests. The first one runs inside
-        // a GCE instance and retrieves all the tokens that will be used in the tests.
-        // It then stashes the tokens, which are unstashed in the stage that runs the
-        // GCP Authenticator tests using the tokens.
-        // This way we can have a light-weight GCE instance that has no need for conjurops
-        // or git identities and is not open for SSH
- stage('GCP - Stage A - Compute Engine') {
+        /**
+         * We have 2 stages for GCP Authenticator tests. The first one runs inside
+         * a GCE instance and retrieves all the tokens that will be used in the tests.
+         * It then stashes the tokens, which are unstashed in the stage that runs the
+         * GCP Authenticator tests using the tokens.
+         * This way we can have a light-weight GCE instance that has no need for conjurops
+         * or git identities and is not open for SSH
+         */
+        stage('GCP - Stage A - Compute Engine') {
           steps {
             echo '-- Allocating Google Compute Engine'
             script {
@@ -118,7 +119,7 @@ pipeline {
                 sh '''
                 ./get_gce_tokens_to_files.sh || exit 1
                 '''
-                stash name: 'authnGceTokens', includes: 'gce_tokens/*', allowEmpty:false
+                stash name: 'authnGceTokens', includes: 'gcp_token_*', allowEmpty:false
               }
             }
           }
@@ -273,7 +274,6 @@ pipeline {
       }
     }
   }
-
   post {
     success {
       script {
