@@ -9,7 +9,7 @@ pipeline {
     timeout(time: 1, unit: 'HOURS')
   }
 
-  triggers {
+/*  triggers {
     cron(getDailyCronString())
   }
 
@@ -60,10 +60,10 @@ pipeline {
         }
       }
     }
-
+   */
     stage('Run Tests') {
       parallel {
-        stage('RSpec') {
+        /*stage('RSpec') {
           steps { sh 'ci/test rspec' }
         }
         stage('Authenticators Config') {
@@ -91,62 +91,140 @@ pipeline {
               }
             }
           }
-        }
-        // We have 2 stages for GCP Authenticator tests. The first one runs inside
-        // a GCE instance and retrieves all the tokens that will be used in the tests.
-        // It then stashes the tokens, which are unstashed in the stage that runs the
-        // GCP Authenticator tests using the tokens.
-        // This way we can have a light-weight GCE instance that has no need for conjurops
-        // or git identities and is not open for SSH
+        }*/
+        /**
+        * We have 3 stages for GCP Authenticator tests.
+        * In this stage, a GCE instance node is allocated, a script runs and retrieves all the tokens that will be
+        * used in authn-gcp tests.
+        * The token are stashed, and later un-stashed and used in the stage that runs the GCP Authenticator tests.
+        * This way we can have a light-weight GCE instance that has no dependency on conjurops
+        * or git identities and is not open for SSH.
+        */
         stage('GCP Authenticator preparation - Allocate GCE Instance') {
           steps {
+            echo '-- Allocating Google Compute Engine'
             script {
+              dir('ci/authn-gcp') {
+                stash name: 'get_gce_tokens_script', includes: 'get_gce_tokens_to_files.sh,get_gcp_metadata.sh'
+              }
               node('executor-v2-gcp-small') {
+                echo '-- Google Compute Engine allocated'
+                echo '-- Get compute engine instance project name and zone from Google metadata server.'
+                sh './get_gcp_metadata.sh'
+                echo "Google Cloud project name: $GCP_PROJECT"
+                echo "Google Cloud zone: $GCP_ZONE"
+                unstash 'get_gce_tokens_script'
                 sh '''
-                  retrieve_token() {
-                    local token_format="$1"
-                    local audience="$2"
-
-                    curl \
-                      -s \
-                      -H 'Metadata-Flavor: Google' \
-                      "http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?format=${token_format}&audience=${audience}"
-                  }
-
-                  echo "$(retrieve_token "full" "conjur/cucumber/host/test-app")" > "gcp_token_valid"
-                  echo "$(retrieve_token "full" "conjur/cucumber/host/non-existing")" > "gcp_token_non_existing_host"
-                  echo "$(retrieve_token "full" "conjur/cucumber/host/non-rooted/test-app")" > "gcp_token_non_rooted_host"
-                  echo "$(retrieve_token "full" "conjur/cucumber/test-app")" > "gcp_token_user"
-                  echo "$(retrieve_token "full" "conjur/non-existing/host/test-app")" > "gcp_token_non_existing_account"
-                  echo "$(retrieve_token "full" "invalid_audience")" > "gcp_token_invalid_audience"
-                  echo "$(retrieve_token "standard" "conjur/cucumber/host/test-app")" > "gcp_token_standard_format"
+                ./get_gce_tokens_to_files.sh || exit 1
                 '''
-
-                stash name: 'authnGcpTokens', includes: 'gcp_token_valid,gcp_token_invalid_audience,gcp_token_standard_format,gcp_token_user,gcp_token_non_existing_host,gcp_token_non_existing_account,gcp_token_non_rooted_host', allowEmpty:false
-                env.GCP_TOKENS_FETCHED = "true"
+                stash name: 'authnGceTokens', includes: 'gce_token_*', allowEmpty:false
               }
             }
           }
+          post {
+           failure {
+            script {
+              env.GCP_ENV_ERROR = "true"
+            }
+           }
+           success {
+            script {
+              env.GCE_TOKENS_FETCHED = "true"
+            }
+            echo '-- Finished fetching GCE tokens.'
+           }
+          }
         }
-        stage('GCP Authenticator') {
+        /**
+        * We have 3 stages for GCP Authenticator tests.
+        * In this stage, Google SDK container executes a script to deploy a function,
+        * the function accepts audience in query string and returns a token with that audience.
+        * All the tokens required for testings are obtained and written to function directory, the post stage branch
+        * deletes the function.
+        * This stage depends on stage: 'GCP Authenticator preparation - Allocate GCE Instance' to set
+        * the GCP project env var.
+        */
+        stage('GCP Authenticator preparation - Allocate Google Function') {
+          environment {
+            GCP_FETCH_TOKEN_FUNCTION = "fetch_token_${BUILD_NUMBER}"
+            IDENTITY_TOKEN_FILE = 'identity-token'
+            GCP_OWNER_SERVICE_KEY_FILE = "sa-key-file.json"
+            GCP_ZONE="us-central1"
+          }
           steps {
+            echo "Waiting for GCP project name. (Gets set by stage: 'GCP Authenticator preparation - Allocate GCE Instance')"
             timeout(time: 10, unit: 'MINUTES') {
               waitUntil {
                 script {
-                  return (env.GCP_TOKENS_FETCHED == "true")
+                  return (env.GCP_PROJECT != null || env.GCP_ENV_ERROR == "true")
                 }
               }
             }
             script {
-              dir('ci/authn-gcp/tokens') {
-                unstash 'authnGcpTokens'
+              if (env.GCP_ENV_ERROR == "true") {
+                error('GCP_ENV_ERROR cannot deploy function')
               }
 
+              dir('ci/authn-gcp') {
+                sh './deploy_function_and_get_tokens.sh'
+              }
+            }
+          }
+          post {
+            success {
+              echo "-- Google Cloud test env is ready"
+              script {
+                env.GCP_FUNC_TOKENS_FETCHED = "true"
+              }
+            }
+            failure {
+              echo "-- GCP function deployment stage failed"
+              script {
+                env.GCP_ENV_ERROR = "true"
+              }
+            }
+            always {
+              script {
+                dir('ci/authn-gcp') {
+                  sh '''
+                  # Cleanup Google function
+                  summon ./run_gcloud.sh cleanup_function.sh
+                  '''
+                }
+              }
+            }
+          }
+        }
+        /**
+        * We have two preparation stages before running the GCP Authenticator tests stage.
+        * This stage waits for GCP preparation stages to complete, un-stashes the tokens created in
+        * stage: 'GCP Authenticator preparation - Allocate GCE Instance' and runs the gcp-authn tests.
+        */
+        stage('GCP Authenticator - Run tests') {
+          steps {
+            echo 'Waiting for GCP Tokens. (Tokens are provisioned by GCP Authenticator preparation stages.)'
+            timeout(time: 10, unit: 'MINUTES') {
+              waitUntil {
+                script {
+                  return ( env.GCP_ENV_ERROR == "true"
+                    || (env.GCP_FUNC_TOKENS_FETCHED == "true" && GCE_TOKENS_FETCHED == "true"))
+                }
+              }
+            }
+            script {
+              if (env.GCP_ENV_ERROR == "true") {
+                error('GCP_ENV_ERROR: cannot run tests check the logs for errors in GCP stages A and B')
+              }
+            }
+            script {
+              dir('ci/authn-gcp/tokens') {
+                unstash 'authnGceTokens'
+              }
               sh 'ci/test cucumber_authenticators_gcp'
             }
           }
         }
-        stage('Policy') {
+      /*  stage('Policy') {
           steps { sh 'ci/test cucumber_policy' }
         }
         stage('API') {
@@ -160,11 +238,11 @@ pipeline {
         }
         stage('Audit') {
           steps { sh 'ci/test rspec_audit'}
-        }
+        }*/
       }
     }
 
-    stage('Submit Coverage Report'){
+ /*   stage('Submit Coverage Report'){
       when {
         expression {
           env.CODE_CLIMATE_PREPARED == "true"
@@ -193,31 +271,31 @@ pipeline {
       steps {
         sh './publish.sh'
       }
-    }
+    }*/
   }
 
-  post {
-    success {
-      script {
-        if (env.BRANCH_NAME == 'master') {
-          build (job:'../cyberark--secrets-provider-for-k8s/master', wait: false)
-        }
-      }
-    }
-    always {
-      archiveArtifacts artifacts: "container_logs/*/*", fingerprint: false, allowEmptyArchive: true
-      archiveArtifacts artifacts: "coverage/.resultset*.json", fingerprint: false, allowEmptyArchive: true
-      archiveArtifacts artifacts: "ci/authn-k8s/output/simplecov-resultset-authnk8s-gke.json", fingerprint: false, allowEmptyArchive: true
-      archiveArtifacts artifacts: "cucumber/*/*.*", fingerprint: false, allowEmptyArchive: true
-      publishHTML([reportDir: 'cucumber', reportFiles: 'api/cucumber_results.html, 	authenticators_config/cucumber_results.html, \
-                               authenticators_azure/cucumber_results.html, authenticators_ldap/cucumber_results.html, \
-                               authenticators_oidc/cucumber_results.html, authenticators_status/cucumber_results.html,\
-                               policy/cucumber_results.html , rotators/cucumber_results.html',\
-                               reportName: 'Integration reports', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
-      publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
-      junit 'spec/reports/*.xml,spec/reports-audit/*.xml,cucumber/*/features/reports/**/*.xml'
-      cucumber fileIncludePattern: '**/cucumber_results.json', sortingMethod: 'ALPHABETICAL'
-      cleanupAndNotify(currentBuild.currentResult, '#conjur-core', '', true)
-    }
-  }
+//  post {
+//    success {
+//      script {
+//        if (env.BRANCH_NAME == 'master') {
+//          build (job:'../cyberark--secrets-provider-for-k8s/master', wait: false)
+//        }
+//      }
+//    }
+//    always {
+//      archiveArtifacts artifacts: "container_logs/*/*", fingerprint: false, allowEmptyArchive: true
+//      archiveArtifacts artifacts: "coverage/.resultset*.json", fingerprint: false, allowEmptyArchive: true
+//      archiveArtifacts artifacts: "ci/authn-k8s/output/simplecov-resultset-authnk8s-gke.json", fingerprint: false, allowEmptyArchive: true
+//      archiveArtifacts artifacts: "cucumber/*/*.*", fingerprint: false, allowEmptyArchive: true
+//      publishHTML([reportDir: 'cucumber', reportFiles: 'api/cucumber_results.html, 	authenticators_config/cucumber_results.html, \
+//                               authenticators_azure/cucumber_results.html, authenticators_ldap/cucumber_results.html, \
+//                               authenticators_oidc/cucumber_results.html, authenticators_status/cucumber_results.html,\
+//                               policy/cucumber_results.html , rotators/cucumber_results.html',\
+//                               reportName: 'Integration reports', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
+//      publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
+//      junit 'spec/reports/*.xml,spec/reports-audit/*.xml,cucumber/*/features/reports/**/*.xml'
+//      cucumber fileIncludePattern: '**/cucumber_results.json', sortingMethod: 'ALPHABETICAL'
+//      cleanupAndNotify(currentBuild.currentResult, '#conjur-core', '', true)
+//    }
+//  }
 }

@@ -66,6 +66,13 @@ cucumber_authenticators_azure() {
 cucumber_authenticators_gcp() {
   : DOC - Runs Cucumber GCP Authenticator features
 
+  # Validate that token files are available
+    gcp_token_file="authn-gcp/tokens/gce_token_valid"
+    if ! [ -f "$gcp_token_file" ]; then
+      echo "GCP token file ''$gcp_token_file' not found."
+      exit 1
+    fi
+
   _run_cucumber_tests authenticators_gcp "" "$(_get_gcp_env_args)"
 }
 
@@ -260,12 +267,6 @@ _get_azure_env_args() {
 }
 
 _get_gcp_env_args() {
-  gcp_token_file="authn-gcp/tokens/gcp_token_valid"
-  if ! [ -f "$gcp_token_file" ]; then
-    echo "GCP token file $gcp_token_file does not exist."
-    exit 1
-  fi
-
   decoded_gcp_token_payload=$(_get_gcp_token_payload "$gcp_token_file")
 
   GCP_PROJECT_ID="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.project_id')"
