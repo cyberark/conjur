@@ -25,6 +25,7 @@ require 'logger/formatter/rfc5424_formatter'
 #
 #    Formatter docs:
 #    https://ruby-doc.org/stdlib-2.5.1/libdoc/logger/rdoc/Logger.html#class-Logger-label-Format
+
 Audit.logger = if path = Rails.application.config.try(:audit_socket)
   # TODO: Add tests for this.  Our CI isn't verifying if we've broken anything.
   Audit::Log::SyslogAdapter.new(

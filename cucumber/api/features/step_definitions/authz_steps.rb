@@ -70,6 +70,11 @@ Given(/^I set annotation "([^"]*)" to "([^"]*)"$/) do |name, value|
   set_annotation_to_resource(name, value)
 end
 
+Given(/^I remove all annotations from (user|host) "([^"]*)"$/) do |role_type, role_name|
+  i_have_a_resource role_type, role_name
+  remove_resource_all_annotations
+end
+
 Given(/^I create (\d+) secret values?$/) do |n|
   n.to_i.times do |i|
     Secret.create resource_id: @current_resource.id, value: i.to_s

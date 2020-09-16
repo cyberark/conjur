@@ -110,6 +110,11 @@ module LogMessages
         code: "CONJ00038D"
       )
 
+      OptionalTokenClaimNotFoundOrEmpty  = ::Util::TrackableLogMessageClass.new(
+        msg:  "Optional claim '{0-claim-name}' not found or empty in token",
+        code: "CONJ00047D"
+      )
+
     end
 
     module AuthnOidc
@@ -204,7 +209,7 @@ module LogMessages
 
     end
 
-    module AuthnGce
+    module AuthnGcp
 
       ExtractingRestrictionsFromResource = ::Util::TrackableLogMessageClass.new(
         msg: "Extracting resource restrictions with prefix '{0-prefix}' from role '{1-role-id}'",
