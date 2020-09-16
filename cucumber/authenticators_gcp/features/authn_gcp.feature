@@ -43,6 +43,7 @@ Feature: GCP Authenticator - Hosts can authenticate with GCP authenticator
   Scenario: Host can authenticate with only project-id annotation set
     Given I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
+    And I remove all annotations from host "test-app"
     And I set "authn-gcp/project-id" annotation to host "test-app"
     And I obtain a valid GCP identity token
     And I save my place in the log file
@@ -56,6 +57,7 @@ Feature: GCP Authenticator - Hosts can authenticate with GCP authenticator
   Scenario: Host can authenticate with only service-account-id annotation set
     Given I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
+    And I remove all annotations from host "test-app"
     And I set "authn-gcp/service-account-id" annotation to host "test-app"
     And I obtain a valid GCP identity token
     And I save my place in the log file
@@ -69,6 +71,7 @@ Feature: GCP Authenticator - Hosts can authenticate with GCP authenticator
   Scenario: Host can authenticate with only service-account-email annotation set
     Given I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
+    And I remove all annotations from host "test-app"
     And I set "authn-gcp/service-account-email" annotation to host "test-app"
     And I obtain a valid GCP identity token
     And I save my place in the log file
@@ -82,6 +85,7 @@ Feature: GCP Authenticator - Hosts can authenticate with GCP authenticator
   Scenario: Host can authenticate with only instance-name annotation set
     Given I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
+    And I remove all annotations from host "test-app"
     And I set "authn-gcp/instance-name" annotation to host "test-app"
     And I obtain a valid GCP identity token
     And I save my place in the log file
@@ -100,4 +104,18 @@ Feature: GCP Authenticator - Hosts can authenticate with GCP authenticator
     And The following appears in the log after my savepoint:
     """
     CONJ00008E Account '.*' is not defined in Conjur
+    """
+
+  Scenario: Authenticate using token in standard format and host with only service-account-id annotation set
+    Given I have host "test-app"
+    And I grant group "conjur/authn-gcp/apps" to host "test-app"
+    And I remove all annotations from host "test-app"
+    And I set "authn-gcp/service-account-id" annotation to host "test-app"
+    And I save my place in the log file
+    And I obtain a standard_format GCP identity token
+    And I authenticate with authn-gcp using obtained token and existing account
+    Then host "test-app" has been authorized by Conjur
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:host:test-app successfully authenticated with authenticator authn-gcp service cucumber:webservice:conjur/authn-gcp
     """
