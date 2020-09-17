@@ -9,11 +9,18 @@ pipeline {
     timeout(time: 1, unit: 'HOURS')
   }
 
-/*  triggers {
+  triggers {
     cron(getDailyCronString())
   }
 
   stages {
+/*    stage('Checkout SCM') {
+      steps {
+        checkout scm
+        sh 'git fetch' // to pull the tags
+      }
+    }
+
     stage('Validate') {
       parallel {
         stage('Changelog') {
@@ -26,9 +33,9 @@ pipeline {
       steps {
         sh './build.sh --jenkins'
       }
-    }
+    }*/
 
-    stage('Scan Docker Image') {
+/*    stage('Scan Docker Image') {
       parallel {
         stage("Scan Docker Image for fixable issues") {
           steps {
@@ -60,7 +67,7 @@ pipeline {
         }
       }
     }
-   */
+*/
     stage('Run Tests') {
       parallel {
         /*stage('RSpec') {
@@ -105,18 +112,18 @@ pipeline {
             echo '-- Allocating Google Compute Engine'
             script {
               dir('ci/authn-gcp') {
-                stash name: 'get_gce_tokens_script', includes: 'get_gce_tokens_to_files.sh,get_gcp_metadata.sh'
+                stash name: 'get_gce_tokens_script', includes: 'get_gce_tokens_to_files.sh'
               }
               node('executor-v2-gcp-small') {
                 echo '-- Google Compute Engine allocated'
                 echo '-- Get compute engine instance project name and zone from Google metadata server.'
-                sh './get_gcp_metadata.sh'
-                echo "Google Cloud project name: $GCP_PROJECT"
-                echo "Google Cloud zone: $GCP_ZONE"
                 unstash 'get_gce_tokens_script'
                 sh '''
+                METADATA_URL="http://metadata.google.internal/computeMetadata/v1"
+                GCP_PROJECT=$(curl -s -H 'Metadata-Flavor: Google' ${METADATA_URL}'/project/project-id')
+                GCP_ZONE=$(curl -s -H 'Metadata-Flavor: Google' $METADATA_URL'/instance/zone')
                 ./get_gce_tokens_to_files.sh || exit 1
-                '''
+                ''''
                 stash name: 'authnGceTokens', includes: 'gce_token_*', allowEmpty:false
               }
             }
@@ -144,12 +151,11 @@ pipeline {
         * This stage depends on stage: 'GCP Authenticator preparation - Allocate GCE Instance' to set
         * the GCP project env var.
         */
-        stage('GCP Authenticator preparation - Allocate Google Function') {
+        /*stage('GCP Authenticator preparation - Allocate Google Function') {
           environment {
             GCP_FETCH_TOKEN_FUNCTION = "fetch_token_${BUILD_NUMBER}"
             IDENTITY_TOKEN_FILE = 'identity-token'
             GCP_OWNER_SERVICE_KEY_FILE = "sa-key-file.json"
-            GCP_ZONE="us-central1"
           }
           steps {
             echo "Waiting for GCP project name. (Gets set by stage: 'GCP Authenticator preparation - Allocate GCE Instance')"
@@ -194,13 +200,13 @@ pipeline {
               }
             }
           }
-        }
+        }*/
         /**
         * We have two preparation stages before running the GCP Authenticator tests stage.
         * This stage waits for GCP preparation stages to complete, un-stashes the tokens created in
         * stage: 'GCP Authenticator preparation - Allocate GCE Instance' and runs the gcp-authn tests.
         */
-        stage('GCP Authenticator - Run tests') {
+      /*  stage('GCP Authenticator - Run tests') {
           steps {
             echo 'Waiting for GCP Tokens. (Tokens are provisioned by GCP Authenticator preparation stages.)'
             timeout(time: 10, unit: 'MINUTES') {
@@ -223,8 +229,8 @@ pipeline {
               sh 'ci/test cucumber_authenticators_gcp'
             }
           }
-        }
-      /*  stage('Policy') {
+        }*/
+        /*stage('Policy') {
           steps { sh 'ci/test cucumber_policy' }
         }
         stage('API') {
@@ -242,7 +248,7 @@ pipeline {
       }
     }
 
- /*   stage('Submit Coverage Report'){
+    /*stage('Submit Coverage Report'){
       when {
         expression {
           env.CODE_CLIMATE_PREPARED == "true"

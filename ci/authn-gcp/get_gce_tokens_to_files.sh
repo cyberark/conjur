@@ -6,26 +6,41 @@
 
 get_gce_token_to_files() {
   echo 'get_gce_token_to_files'
-  local token_prefix=gce
 
-  echo "$(retrieve_token "full" "conjur/cucumber/host/test-app")" > "${token_prefix}_token_valid" || exit 1
-  echo "$(retrieve_token "full" "conjur/cucumber/host/non-existing")" > "${token_prefix}_token_non_existing_host" || exit 1
-  echo "$(retrieve_token "full" "conjur/cucumber/host/non-rooted/test-app")" > "${token_prefix}_token_non_rooted_host" || exit 1
-  echo "$(retrieve_token "full" "conjur/cucumber/test-app")" > "${token_prefix}_token_user" || exit 1
-  echo "$(retrieve_token "full" "conjur/non-existing/host/test-app")" > "${token_prefix}_token_non_existing_account" || exit 1
-  echo "$(retrieve_token "full" "invalid_audience")" > "${token_prefix}_token_invalid_audience" || exit 1
-  echo "$(retrieve_token "standard" "conjur/cucumber/host/test-app")" > "${token_prefix}_token_standard_format" || exit 1
+  local tokens_info_file="tokens_info.json"
+  if [ -f "$tokens_info_file" ]; then
+    echo "$tokens_info_file file not found."
+    exit 1
+  fi
+
+  local tokens="$(cat $tokens_info_file)"
+  local token_prefix="gce_"
+
+  for row in $(echo "${tokens}" | jq -c '.[]'); do
+    _jq() {
+      echo ${row} | jq -r ${1}
+    }
+
+    name=$(_jq '.name')
+    aud=$(_jq '.audience')
+    format=$(_jq '.format')
+    [ "$format" = "null" ] && format="full"
+
+    echo "$(retrieve_token $format $aud)" > "$token_prefix$name" || exit 1
+  done
+
   echo '-> get_gce_token_to_files done'
 }
 
 retrieve_token() {
   local token_format="$1"
   local audience="$2"
+  local metadata_url="http://metadata/computeMetadata/v1/instance/service-accounts/default/identity"
 
   curl \
     -s \
     -H 'Metadata-Flavor: Google' \
-    "http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?format=${token_format}&audience=${audience}"
+    "$metadata_url?format=${token_format}&audience=${audience}"
 }
 
 get_gce_token_to_files

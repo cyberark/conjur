@@ -66,17 +66,28 @@ test_token_function() {
 # values and writes the tokens to disk.
 get_tokens_to_file() {
   echo 'get_tokens_to_file'
+  local tokens_info_file="tokens_info.json"
+  if [ -f "$tokens_info_file" ]; then
+    echo "$tokens_info_file file not found."
+    exit 1
+  fi
 
   # Tokens file path prefix
-  local token_prefix=tokens/gcf
+  local token_dir="tokens"
+  local token_prefix="gcf_"
+  local tokens="$(cat $tokens_info_file)"
 
-  echo '-- Get function tokens and write to files'
-  echo "$(retrieve_token "conjur/cucumber/host/test-app")" > "${token_prefix}_token_valid" || exit 1
-  echo "$(retrieve_token "conjur/cucumber/host/non-existing")" > "${token_prefix}_token_non_existing_host" || exit 1
-  echo "$(retrieve_token "conjur/cucumber/host/non-rooted/test-app")" > "${token_prefix}_token_non_rooted_host" || exit 1
-  echo "$(retrieve_token "conjur/cucumber/test-app")" > "${token_prefix}_token_user" || exit 1
-  echo "$(retrieve_token "conjur/non-existing/host/test-app")" > "${token_prefix}_token_non_existing_account" || exit 1
-  echo "$(retrieve_token "invalid_audience")" > "${token_prefix}_token_invalid_audience" || exit 1
+  for row in $(echo "${tokens}" | jq -c '.[]'); do
+    _jq() {
+      echo ${row} | jq -r ${1}
+    }
+
+    name=$(_jq '.name')
+    aud=$(_jq '.audience')
+
+    echo "$(retrieve_token $aud)" > "$token_dir/$token_prefix$name" || exit 1
+  done
+
   echo '-> get_tokens_to_file done'
 }
 

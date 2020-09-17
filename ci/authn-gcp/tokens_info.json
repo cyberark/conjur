@@ -1,0 +1,31 @@
+[
+  {
+  "name": "token_valid",
+  "audience": "conjur/cucumber/host/test-app"
+  },
+  {
+    "name": "token_non_existing_host",
+    "audience": "conjur/cucumber/host/non-existing"
+  },
+  {
+    "name": "token_non_rooted_host",
+    "audience": "conjur/cucumber/host/non-rooted/test-app"
+  },
+  {
+    "name": "token_user",
+    "audience": "conjur/cucumber/test-app"
+  },
+  {
+    "name": "token_non_existing_account",
+    "audience": "conjur/non-existing/host/test-app"
+  },
+  {
+    "name": "token_invalid_audience",
+    "audience": "invalid_audience"
+  },
+  {
+    "name": "token_standard_format",
+    "audience": "conjur/cucumber/host/test-app",
+    "format": "standard"
+  }
+]

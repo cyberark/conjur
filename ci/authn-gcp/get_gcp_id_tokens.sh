@@ -15,7 +15,7 @@
 PROGNAME=$(basename "$0")
 INSTANCE_ZONE=""
 TOKENS_OUT_DIR_PATH=../ci/authn-gcp/tokens
-TOKEN_FILE_NAME_PREFIX=gcp_token_
+TOKEN_FILE_NAME_PREFIX=gce_
 INSTANCE_EXISTS=0
 INSTANCE_RUNNING=0
 
@@ -112,25 +112,41 @@ print_running_gce_instances() {
 }
 
 get_tokens_into_files() {
+  echo 'get_tokens_into_files'
   if [ "${INSTANCE_EXISTS}" = "0" ] | [ "${INSTANCE_RUNNING}" = "0" ]; then
     error_exit "-- Cannot run command, GCE instance '${INSTANCE_NAME}' not in a valid state!"
   fi
 
-  get_token_into_file "full" "conjur/cucumber/host/test-app" "valid"
-  get_token_into_file "full" "conjur/cucumber/host/non-existing" "non_existing_host"
-  get_token_into_file "full" "conjur/cucumber/host/non-rooted/test-app" "non_rooted_host"
-  get_token_into_file "full" "conjur/cucumber/test-app" "user"
-  get_token_into_file "full" "conjur/non-existing/host/test-app" "non_existing_account"
-  get_token_into_file "full" "invalid_audience" "invalid_audience"
-  get_token_into_file "standard" "conjur/cucumber/host/test-app" "standard_format"
+  local tokens_info_file="tokens_info.json"
+  if [ -f "$tokens_info_file" ]; then
+    echo "$tokens_info_file file not found."
+    exit 1
+  fi
+
+  local tokens="$(cat $tokens_info_file)"
+  local token_prefix="${TOKENS_OUT_DIR_PATH}/${TOKEN_FILE_NAME_PREFIX}"
+
+  for row in $(echo "${tokens}" | jq -c '.[]'); do
+    _jq() {
+      echo ${row} | jq -r ${1}
+    }
+
+    name=$(_jq '.name')
+    aud=$(_jq '.audience')
+    format=$(_jq '.format')
+    [ "$format" = "null" ] && format="full"
+
+    get_token_into_file "$(retrieve_token $format $aud)" > "$token_prefix$name" || exit 1
+  done
+
   wait
+  echo '-> get_tokens_into_files done'
 }
 
 get_token_into_file() {
   local token_format="$1"
   local audience="$2"
-  local filename="$3"
-  local token_file="${TOKENS_OUT_DIR_PATH}/${TOKEN_FILE_NAME_PREFIX}${filename}"
+  local token_file="$3"
   local curl_cmd="curl -s -G -H 'Metadata-Flavor: Google' \
   --data-urlencode 'format=${token_format}' \
   --data-urlencode 'audience=${audience}' \
