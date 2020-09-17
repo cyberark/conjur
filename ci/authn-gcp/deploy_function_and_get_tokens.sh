@@ -10,7 +10,9 @@ main() {
       echo '-- Error deploying Google function'
       exit 1
   fi
-  # Obtain tokens from Google function and write to files
+  echo "-- Function deployed..."
+
+  echo '-- Obtain tokens from Google function and write to files...'
   ./get_func_tokens_to_files.sh
   if [ $? -ne 0 ]; then
       echo '-- Error obtaining tokens from Google function'

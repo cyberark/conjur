@@ -14,7 +14,7 @@ pipeline {
   }
 
   stages {
-/*    stage('Checkout SCM') {
+    stage('Checkout SCM') {
       steps {
         checkout scm
         sh 'git fetch' // to pull the tags
@@ -33,9 +33,9 @@ pipeline {
       steps {
         sh './build.sh --jenkins'
       }
-    }*/
+    }
 
-/*    stage('Scan Docker Image') {
+    stage('Scan Docker Image') {
       parallel {
         stage("Scan Docker Image for fixable issues") {
           steps {
@@ -67,10 +67,10 @@ pipeline {
         }
       }
     }
-*/
+
     stage('Run Tests') {
       parallel {
-        /*stage('RSpec') {
+        stage('RSpec') {
           steps { sh 'ci/test rspec' }
         }
         stage('Authenticators Config') {
@@ -98,7 +98,7 @@ pipeline {
               }
             }
           }
-        }*/
+        }
         /**
         * We have 3 stages for GCP Authenticator tests.
         * In this stage, a GCE instance node is allocated, a script runs and retrieves all the tokens that will be
@@ -112,18 +112,19 @@ pipeline {
             echo '-- Allocating Google Compute Engine'
             script {
               dir('ci/authn-gcp') {
-                stash name: 'get_gce_tokens_script', includes: 'get_gce_tokens_to_files.sh'
+                stash name: 'get_gce_tokens_script',
+                includes: 'get_gce_tokens_to_files.sh,get_tokens_to_files.sh,tokens_config.json'
               }
               node('executor-v2-gcp-small') {
                 echo '-- Google Compute Engine allocated'
-                echo '-- Get compute engine instance project name and zone from Google metadata server.'
+                echo '-- Get compute engine instance project name from Google metadata server.'
+                env.GCP_PROJECT = sh (
+                    script: 'curl -s -H "Metadata-Flavor: Google" \
+                    "http://metadata.google.internal/computeMetadata/v1/project/project-id"',
+                    returnStdout: true
+                ).trim()
                 unstash 'get_gce_tokens_script'
-                sh '''
-                METADATA_URL="http://metadata.google.internal/computeMetadata/v1"
-                GCP_PROJECT=$(curl -s -H 'Metadata-Flavor: Google' ${METADATA_URL}'/project/project-id')
-                GCP_ZONE=$(curl -s -H 'Metadata-Flavor: Google' $METADATA_URL'/instance/zone')
-                ./get_gce_tokens_to_files.sh || exit 1
-                ''''
+                sh './get_gce_tokens_to_files.sh'
                 stash name: 'authnGceTokens', includes: 'gce_token_*', allowEmpty:false
               }
             }
@@ -151,18 +152,19 @@ pipeline {
         * This stage depends on stage: 'GCP Authenticator preparation - Allocate GCE Instance' to set
         * the GCP project env var.
         */
-        /*stage('GCP Authenticator preparation - Allocate Google Function') {
+        stage('GCP Authenticator preparation - Allocate Google Function') {
           environment {
             GCP_FETCH_TOKEN_FUNCTION = "fetch_token_${BUILD_NUMBER}"
             IDENTITY_TOKEN_FILE = 'identity-token'
             GCP_OWNER_SERVICE_KEY_FILE = "sa-key-file.json"
+            GCP_ZONE="us-central1"
           }
           steps {
-            echo "Waiting for GCP project name. (Gets set by stage: 'GCP Authenticator preparation - Allocate GCE Instance')"
+            echo "Waiting for GCP project name (Set by stage: 'GCP Authenticator preparation - Allocate GCE Instance')"
             timeout(time: 10, unit: 'MINUTES') {
               waitUntil {
                 script {
-                  return (env.GCP_PROJECT != null || env.GCP_ENV_ERROR == "true")
+                  return (env.GCP_PROJECT != null  || env.GCP_ENV_ERROR == "true")
                 }
               }
             }
@@ -200,13 +202,13 @@ pipeline {
               }
             }
           }
-        }*/
+        }
         /**
         * We have two preparation stages before running the GCP Authenticator tests stage.
         * This stage waits for GCP preparation stages to complete, un-stashes the tokens created in
         * stage: 'GCP Authenticator preparation - Allocate GCE Instance' and runs the gcp-authn tests.
         */
-      /*  stage('GCP Authenticator - Run tests') {
+        stage('GCP Authenticator - Run tests') {
           steps {
             echo 'Waiting for GCP Tokens. (Tokens are provisioned by GCP Authenticator preparation stages.)'
             timeout(time: 10, unit: 'MINUTES') {
@@ -229,8 +231,8 @@ pipeline {
               sh 'ci/test cucumber_authenticators_gcp'
             }
           }
-        }*/
-        /*stage('Policy') {
+        }
+        stage('Policy') {
           steps { sh 'ci/test cucumber_policy' }
         }
         stage('API') {
@@ -244,11 +246,11 @@ pipeline {
         }
         stage('Audit') {
           steps { sh 'ci/test rspec_audit'}
-        }*/
+        }
       }
     }
 
-    /*stage('Submit Coverage Report'){
+    stage('Submit Coverage Report'){
       when {
         expression {
           env.CODE_CLIMATE_PREPARED == "true"
@@ -277,31 +279,31 @@ pipeline {
       steps {
         sh './publish.sh'
       }
-    }*/
+    }
   }
 
-//  post {
-//    success {
-//      script {
-//        if (env.BRANCH_NAME == 'master') {
-//          build (job:'../cyberark--secrets-provider-for-k8s/master', wait: false)
-//        }
-//      }
-//    }
-//    always {
-//      archiveArtifacts artifacts: "container_logs/*/*", fingerprint: false, allowEmptyArchive: true
-//      archiveArtifacts artifacts: "coverage/.resultset*.json", fingerprint: false, allowEmptyArchive: true
-//      archiveArtifacts artifacts: "ci/authn-k8s/output/simplecov-resultset-authnk8s-gke.json", fingerprint: false, allowEmptyArchive: true
-//      archiveArtifacts artifacts: "cucumber/*/*.*", fingerprint: false, allowEmptyArchive: true
-//      publishHTML([reportDir: 'cucumber', reportFiles: 'api/cucumber_results.html, 	authenticators_config/cucumber_results.html, \
-//                               authenticators_azure/cucumber_results.html, authenticators_ldap/cucumber_results.html, \
-//                               authenticators_oidc/cucumber_results.html, authenticators_status/cucumber_results.html,\
-//                               policy/cucumber_results.html , rotators/cucumber_results.html',\
-//                               reportName: 'Integration reports', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
-//      publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
-//      junit 'spec/reports/*.xml,spec/reports-audit/*.xml,cucumber/*/features/reports/**/*.xml'
-//      cucumber fileIncludePattern: '**/cucumber_results.json', sortingMethod: 'ALPHABETICAL'
-//      cleanupAndNotify(currentBuild.currentResult, '#conjur-core', '', true)
-//    }
-//  }
+  post {
+    success {
+      script {
+        if (env.BRANCH_NAME == 'master') {
+          build (job:'../cyberark--secrets-provider-for-k8s/master', wait: false)
+        }
+      }
+    }
+    always {
+      archiveArtifacts artifacts: "container_logs/*/*", fingerprint: false, allowEmptyArchive: true
+      archiveArtifacts artifacts: "coverage/.resultset*.json", fingerprint: false, allowEmptyArchive: true
+      archiveArtifacts artifacts: "ci/authn-k8s/output/simplecov-resultset-authnk8s-gke.json", fingerprint: false, allowEmptyArchive: true
+      archiveArtifacts artifacts: "cucumber/*/*.*", fingerprint: false, allowEmptyArchive: true
+      publishHTML([reportDir: 'cucumber', reportFiles: 'api/cucumber_results.html, 	authenticators_config/cucumber_results.html, \
+                               authenticators_azure/cucumber_results.html, authenticators_ldap/cucumber_results.html, \
+                               authenticators_oidc/cucumber_results.html, authenticators_status/cucumber_results.html,\
+                               policy/cucumber_results.html , rotators/cucumber_results.html',\
+                               reportName: 'Integration reports', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
+      publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
+      junit 'spec/reports/*.xml,spec/reports-audit/*.xml,cucumber/*/features/reports/**/*.xml'
+      cucumber fileIncludePattern: '**/cucumber_results.json', sortingMethod: 'ALPHABETICAL'
+      cleanupAndNotify(currentBuild.currentResult, '#conjur-core', '', true)
+    }
+  }
 }

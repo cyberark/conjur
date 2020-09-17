@@ -42,7 +42,7 @@ delete_function() {
   # and this script deletes it.
   gcloud auth activate-service-account --key-file "$GCP_OWNER_SERVICE_KEY"
 
-  # Lis the function and filter the $GCF_FUNC_NAME variable
+  # List all functions and filter the $GCF_FUNC_NAME variable
   local func_exists="gcloud functions list --format='value(name)' --filter='name ~ $GCF_FUNC_NAME'"
 
   if [ -n "$func_exists" ]; then
@@ -68,18 +68,6 @@ delete_identity_token() {
     echo "Warning: cannot delete identity token file: '$token_file', file not found."
   fi
   echo '-> delete_identity_token done'
-}
-
-# Deletes the service account key file.
-# Service account key file is used to authenticate with Google SDK CLI.
-# Google SDK CLI (gcloud) is used to deploy the Google function.
-delete_sa_key_file() {
-  echo 'delete_sa_key_file'
-  if [ -f "$GCP_OWNER_SERVICE_KEY_FILE" ]; then
-    echo "-- Delete service key file: '$GCP_OWNER_SERVICE_KEY_FILE'"
-    rm -f echo "$GCP_OWNER_SERVICE_KEY_FILE" || echo "Error cannot delete Service Account key file: '$GCP_OWNER_SERVICE_KEY_FILE'"
-  fi
-  echo '-> delete_sa_key_file done'
 }
 
 cleanup_function || exit 1

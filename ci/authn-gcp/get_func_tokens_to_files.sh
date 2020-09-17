@@ -5,15 +5,15 @@
 GCP_FUNC_URL="https://${GCP_ZONE}-${GCP_PROJECT}.cloudfunctions.net/${GCP_FETCH_TOKEN_FUNCTION}"
 
 main() {
-  echo 'get_func_tokens_to_file.sh'
+  echo 'get_func_tokens_to_file'
   validate_pre_requisites || exit 1
 
   # Read the identity token file
   IDENTITY_TOKEN=$(cat $IDENTITY_TOKEN_FILE)
 
   test_token_function "conjur/cucumber/host/test-app" || exit 1
-  get_tokens_to_file || exit 1
-  echo '-> get_func_tokens_to_file.sh done'
+  get_tokens_to_files || exit 1
+  echo '-> get_func_tokens_to_file done'
 }
 
 validate_pre_requisites() {
@@ -64,44 +64,18 @@ test_token_function() {
 
 # Invokes the function with different audience
 # values and writes the tokens to disk.
-get_tokens_to_file() {
+get_tokens_to_files() {
   echo 'get_tokens_to_file'
-  local tokens_info_file="tokens_info.json"
-  if [ -f "$tokens_info_file" ]; then
-    echo "$tokens_info_file file not found."
-    exit 1
-  fi
 
-  # Tokens file path prefix
-  local token_dir="tokens"
-  local token_prefix="gcf_"
-  local tokens="$(cat $tokens_info_file)"
+  local token_prefix="tokens/gcf_"
+  # format is not applicable in function token.
+  local add_format="false"
 
-  for row in $(echo "${tokens}" | jq -c '.[]'); do
-    _jq() {
-      echo ${row} | jq -r ${1}
-    }
-
-    name=$(_jq '.name')
-    aud=$(_jq '.audience')
-
-    echo "$(retrieve_token $aud)" > "$token_dir/$token_prefix$name" || exit 1
-  done
+  sh ./get_tokens_to_files.sh "$GCP_FUNC_URL" "$token_prefix" \
+  "$add_format" "$IDENTITY_TOKEN" || 1
 
   echo '-> get_tokens_to_file done'
 }
 
-# Invokes Google function with $audience as argument
-# and $IDENTITY_TOKEN as bearer token.
-retrieve_token() {
-  local audience="$1"
-  echo "-- Obtain token from URL: $GCP_FUNC_URL?audience=$audience"
-
-  curl \
-    -s \
-    -H 'Metadata-Flavor: Google' \
-    -H "Authorization: bearer $IDENTITY_TOKEN" \
-    "$GCP_FUNC_URL?audience=${audience}"
-}
 
 main || exit 1

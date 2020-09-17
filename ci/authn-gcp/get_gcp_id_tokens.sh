@@ -14,7 +14,7 @@
 
 PROGNAME=$(basename "$0")
 INSTANCE_ZONE=""
-TOKENS_OUT_DIR_PATH=../ci/authn-gcp/tokens
+TOKENS_OUT_DIR_PATH="../ci/authn-gcp/tokens"
 TOKEN_FILE_NAME_PREFIX=gce_
 INSTANCE_EXISTS=0
 INSTANCE_RUNNING=0
@@ -30,8 +30,13 @@ main() {
   check_instance_name_arg "$1"
   echo "-- Checking if GCE instance: '${INSTANCE_NAME}' exists..."
   ensure_instance_exists_and_running "$INSTANCE_NAME"
-  echo "-- Deleting stale token files..."
-  rm -rf ${TOKENS_OUT_DIR_PATH}/${TOKEN_FILE_NAME_PREFIX}*
+  if [ -d "$TOKENS_OUT_DIR_PATH" ]; then
+    echo "-- Deleting stale token files..."
+    rm -rf "${TOKENS_OUT_DIR_PATH}/${TOKEN_FILE_NAME_PREFIX}*"
+  else
+    echo "-- Create token files out directory: '$TOKENS_OUT_DIR_PATH'..."
+    mkdir "$TOKENS_OUT_DIR_PATH" || exit 1
+  fi
   echo "-- Generate tokens and writing to files under '${TOKENS_OUT_DIR_PATH}'..."
   get_tokens_into_files
   echo "-- Finished obtaining and writing tokens to files."
@@ -117,13 +122,13 @@ get_tokens_into_files() {
     error_exit "-- Cannot run command, GCE instance '${INSTANCE_NAME}' not in a valid state!"
   fi
 
-  local tokens_info_file="tokens_info.json"
-  if [ -f "$tokens_info_file" ]; then
-    echo "$tokens_info_file file not found."
+  local tokens_config_file="$(dirname $0)/tokens_config.json"
+  if [ ! -f "$tokens_config_file" ]; then
+    echo "$tokens_config_file file not found."
     exit 1
   fi
 
-  local tokens="$(cat $tokens_info_file)"
+  local tokens="$(cat $tokens_config_file)"
   local token_prefix="${TOKENS_OUT_DIR_PATH}/${TOKEN_FILE_NAME_PREFIX}"
 
   for row in $(echo "${tokens}" | jq -c '.[]'); do
@@ -136,7 +141,8 @@ get_tokens_into_files() {
     format=$(_jq '.format')
     [ "$format" = "null" ] && format="full"
 
-    get_token_into_file "$(retrieve_token $format $aud)" > "$token_prefix$name" || exit 1
+    echo "-- Obtain an ID token in '$format' format, audience: '$aud' and persist to: '$token_prefix$name'"
+    get_token_into_file "$format" "$aud" "$token_prefix$name"
   done
 
   wait
@@ -147,12 +153,11 @@ get_token_into_file() {
   local token_format="$1"
   local audience="$2"
   local token_file="$3"
+
   local curl_cmd="curl -s -G -H 'Metadata-Flavor: Google' \
   --data-urlencode 'format=${token_format}' \
   --data-urlencode 'audience=${audience}' \
   'http://metadata/computeMetadata/v1/instance/service-accounts/default/identity'"
-
-  echo "-- Obtain an ID token in '${token_format}' format, audience: '${audience}' and persist to: '${token_file}'"
 
   gcloud compute ssh "$INSTANCE_NAME" --zone="${INSTANCE_ZONE}" --command "${curl_cmd}" > "${token_file}" &
 }
