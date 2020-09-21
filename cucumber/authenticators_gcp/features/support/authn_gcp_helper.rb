@@ -78,19 +78,19 @@ end
 def gcp_identity_access_token(token_type)
   case token_type
   when :valid
-    @gcp_identity_token = gcp_token_valid
+    @gcp_identity_token = gce_token_valid
   when :standard_format
-    @gcp_identity_token = gcp_token_standard_format
+    @gcp_identity_token = gce_token_standard_format
   when :invalid_audience
-    @gcp_identity_token = gcp_token_invalid_audience
+    @gcp_identity_token = gce_token_invalid_audience
   when :non_existing_host
-    @gcp_identity_token = gcp_token_non_existing_host
+    @gcp_identity_token = gce_token_non_existing_host
   when :non_rooted_host
-    @gcp_identity_token = gcp_token_non_rooted_host
+    @gcp_identity_token = gce_token_non_rooted_host
   when :non_existing_account
-    @gcp_identity_token = gcp_token_non_existing_account
+    @gcp_identity_token = gce_token_non_existing_account
   when :user_audience
-    @gcp_identity_token = gcp_token_user_audience
+    @gcp_identity_token = gce_token_user_audience
   else
     raise "Invalid token type given: #{token_type}"
   end
@@ -98,32 +98,32 @@ def gcp_identity_access_token(token_type)
   @gcp_identity_token
 end
 
-def gcp_token_valid
-  @gcp_token_valid ||= read_token_file("gcp_token_valid")
+def gce_token_valid
+  @gcp_token_valid ||= read_token_file("gce_token_valid")
 end
 
-def gcp_token_standard_format
-  @gcp_token_standard_format ||= read_token_file("gcp_token_standard_format")
+def gce_token_standard_format
+  @gcp_token_standard_format ||= read_token_file("gce_token_standard_format")
 end
 
-def gcp_token_invalid_audience
-  @gcp_token_invalid_audience ||= read_token_file("gcp_token_invalid_audience")
+def gce_token_invalid_audience
+  @gcp_token_invalid_audience ||= read_token_file("gce_token_invalid_audience")
 end
 
-def gcp_token_non_existing_host
-  @gcp_token_non_existing_host ||= read_token_file("gcp_token_non_existing_host")
+def gce_token_non_existing_host
+  @gcp_token_non_existing_host ||= read_token_file("gce_token_non_existing_host")
 end
 
-def gcp_token_non_rooted_host
-  @gcp_token_non_rooted_host ||= read_token_file("gcp_token_non_rooted_host")
+def gce_token_non_rooted_host
+  @gcp_token_non_rooted_host ||= read_token_file("gce_token_non_rooted_host")
 end
 
-def gcp_token_non_existing_account
-  @gcp_token_non_existing_account ||= read_token_file("gcp_token_non_existing_account")
+def gce_token_non_existing_account
+  @gcp_token_non_existing_account ||= read_token_file("gce_token_non_existing_account")
 end
 
-def gcp_token_user_audience
-  @gcp_token_user_audience ||= read_token_file("gcp_token_user")
+def gce_token_user_audience
+  @gcp_token_user_audience ||= read_token_file("gce_token_user")
 end
 
 def read_token_file(token_file_name)
