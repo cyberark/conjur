@@ -1,5 +1,5 @@
 # Enable selective setting of GCP annotations
-Given(/^I set (invalid )?"authn-gcp\/(service-account-id|service-account-email|project-id|instance-name|invalid-key)" annotation to host "([^"]*)"$/) do |invalid, annotation_name, hostname|
+Given(/^I set (invalid )?"authn-gcp\/(service-account-id|service-account-email|project-id|instance-name|invalid-key)" GCE annotation to host "([^"]*)"$/) do |invalid, annotation_name, hostname|
   i_have_a_resource "host", hostname
 
   if invalid
@@ -7,13 +7,13 @@ Given(/^I set (invalid )?"authn-gcp\/(service-account-id|service-account-email|p
   else
     case annotation_name
     when "service-account-id"
-      annotation_value = gcp_service_account_id
+      annotation_value = gce_service_account_id
     when "service-account-email"
-      annotation_value = gcp_service_account_email
+      annotation_value = gce_service_account_email
     when "project-id"
-      annotation_value = gcp_project_id
+      annotation_value = gce_project_id
     when "instance-name"
-      annotation_value = gcp_instance_name
+      annotation_value = gce_instance_name
     when "invalid-key"
       annotation_value = 'invalid-annotation-key-value'
     else
@@ -24,25 +24,76 @@ Given(/^I set (invalid )?"authn-gcp\/(service-account-id|service-account-email|p
   set_annotation_to_resource("authn-gcp/#{annotation_name}", annotation_value)
 end
 
-# Sets all GCP annotations
-Given(/^I set all valid GCP annotations to (user|host) "([^"]*)"$/) do |role_type, hostname|
-  i_have_a_resource role_type, hostname
+Given(/^I set "authn-gcp\/(service-account-id|service-account-email|project-id|instance-name)" GCF annotation to host "([^"]*)"$/) do |annotation_name, hostname|
+  i_have_a_resource "host", hostname
 
-  set_annotation_to_resource("authn-gcp/service-account-id", gcp_service_account_id)
-  set_annotation_to_resource("authn-gcp/service-account-email", gcp_service_account_email)
-  set_annotation_to_resource("authn-gcp/project-id", gcp_project_id)
-  set_annotation_to_resource("authn-gcp/instance-name", gcp_instance_name)
+  case annotation_name
+  when "service-account-id"
+    annotation_value = gcf_service_account_id
+  when "service-account-email"
+    annotation_value = gcf_service_account_email
+  when "project-id"
+    annotation_value = "_"
+  when "instance-name"
+    annotation_value = "_"
+  else
+    raise "Incorrect annotation name: '#{annotation_name}', expected: service-account-id|service-account-email|project-id|instance-name"
+  end
+
+  set_annotation_to_resource("authn-gcp/#{annotation_name}", annotation_value)
 end
 
-# Runs a curl command in a remote machine
-Given(/^I obtain an? (valid|standard_format|user_audience|invalid_audience|non_existing_host|non_rooted_host|non_existing_account) GCP identity token$/) do |token_type|
-  gcp_identity_access_token(
+Given(/^I set "authn-gcp\/(service-account-id|service-account-email)" annotation with value: "([^"]*)" to host "([^"]*)"$/) do |annotation_name, annotation_value, hostname|
+  i_have_a_resource "host", hostname
+  set_annotation_to_resource("authn-gcp/#{annotation_name}", annotation_value)
+end
+
+Given(/^I set all valid GCE annotations to (user|host) "([^"]*)"$/) do |role_type, hostname|
+  i_have_a_resource role_type, hostname
+
+  set_annotation_to_resource("authn-gcp/service-account-id", gce_service_account_id)
+  set_annotation_to_resource("authn-gcp/service-account-email", gce_service_account_email)
+  set_annotation_to_resource("authn-gcp/project-id", gce_project_id)
+  set_annotation_to_resource("authn-gcp/instance-name", gce_instance_name)
+end
+
+Given(/^I set all valid GCF annotations to (user|host) "([^"]*)"$/) do |role_type, hostname|
+  i_have_a_resource role_type, hostname
+
+  set_annotation_to_resource("authn-gcp/service-account-id", gcf_service_account_id)
+  set_annotation_to_resource("authn-gcp/service-account-email", gcf_service_account_email)
+end
+
+Given(/^I set "authn-gcp\/(service-account-id|service-account-email)" GCF annotations to (user|host) "([^"]*)"$/) do |annotation_type, role_type, hostname|
+  i_have_a_resource role_type, hostname
+
+  if annotation_type == 'id'
+    set_annotation_to_resource("authn-gcp/service-account-id", gcf_service_account_id)
+  else
+    set_annotation_to_resource("authn-gcp/service-account-email", gcf_service_account_email)
+  end
+end
+
+Given(/^I obtain a valid GCF identity token$/) do
+  gcf_identity_access_token(
+    "valid".to_sym
+  )
+end
+
+Given(/I authenticate with authn-gcp using a valid GCF identity token/) do
+  authenticate_gcp_token(
+    account: AuthnGcpHelper::ACCOUNT,
+    gcp_token: @gcf_identity_token)
+end
+
+Given(/^I obtain an? (valid|standard_format|user_audience|invalid_audience|non_existing_host|non_rooted_host|non_existing_account) GCE identity token$/) do |token_type|
+  gce_identity_access_token(
     token_type.to_sym
   )
 end
 
 # Authenticates with Conjur GCP authenticator
-Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?with authn-gcp using (no|empty|self signed|no kid|obtained|valid) token and (non-existing|existing) account/) do |num_requests, num_threads, token_state, account|
+Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?with authn-gcp using (no|empty|self signed|no kid|obtained GCE|valid GCE) token and (non-existing|existing) account/) do |num_requests, num_threads, token_state, account|
   account = account == 'non-existing' ? 'non-existing' : AuthnGcpHelper::ACCOUNT
 
   token = case token_state
@@ -55,7 +106,7 @@ Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?with authn-gcp using (
           when "no kid"
             no_kid_self_signed_token
           else
-            @gcp_identity_token
+            @gce_identity_token
           end
 
   num_requests ||= 1

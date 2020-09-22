@@ -46,10 +46,10 @@ SYNOPSIS
 GLOBAL OPTIONS
     --help                                    - Show this message
 COMMANDS
-    -gce     Google compute engine instance name
-    -gcf     Google cloud function URL (Predefine ci/authn-gcp/function/main.py code as GCF)
+    --gce     Google compute engine instance name
+    --gcf     Google cloud function URL (Predefined ci/authn-gcp/function/main.py code as GCF)
 USAGE
-    ./cli exec --authn-gcp -gce [GCE_INSTANCE_NAME] -gcf [GCF_URL]
+    ./cli exec --authn-gcp --gce [GCE_INSTANCE_NAME] --gcf [GCF_URL]
 EOF
 exit
 }
@@ -65,7 +65,7 @@ function validate_gcp_options_and_args() {
     print_gcp_help
     exit 1
   elif [ -z "$1" ];  then
-    echo "-gce,-gcf required command options are missing"
+    echo "--gce,--gcf required command options are missing"
     print_gcp_help
     exit 1
   fi
@@ -86,7 +86,7 @@ function validate_gcp_option() {
   local option=$1
   local option_arg=$2
   case "$option" in
-    -gce | -gcf ) validate_gcp_arguments_exist $option $option_arg ;;
+    --gce | --gcf ) validate_gcp_arguments_exist $option $option_arg ;;
     * ) echo "$option is not a valid option"; print_gcp_help; exit 1;;
   esac
 }
@@ -108,8 +108,8 @@ function enable_gcp() {
     local option_arg=$2
 
     case "$option" in
-      -gce ) fetch_gce_tokens $option_arg ;;
-      -gcf ) fetch_gcf_tokens $option_arg ;;
+      --gce ) fetch_gce_tokens $option_arg ;;
+      --gcf ) fetch_gcf_tokens $option_arg ;;
     esac
 
      shift 2
@@ -121,32 +121,29 @@ function fetch_gce_tokens() {
   local gce_instance_name="$1"
 
  "../ci/authn-gcp/get_gcp_id_tokens.sh" "$gce_instance_name"
+  local decoded_gce_token_payload=$(_get_gcp_token_payload "../ci/authn-gcp/tokens/gce_token_valid")
 
-  gce_token_file="../ci/authn-gcp/tokens/gce_token_valid"
+  echo "Setting GCE details as env variables"
+  local gce_project_id="$(echo "$decoded_gce_token_payload" | jq -r '.google.compute_engine.project_id')"
+  local gce_instance_name="$(echo "$decoded_gce_token_payload" | jq -r '.google.compute_engine.instance_name')"
+  local gce_service_account_id="$(echo "$decoded_gce_token_payload" | jq -r '.sub')"
+  local gce_service_account_email="$(echo "$decoded_gce_token_payload" | jq -r '.email')"
 
-  if ! [ -f "$gce_token_file" ]; then
-    echo "GCP token file $gce_token_file does not exist."
-    exit 1
-  fi
+  local gce_env_args="-e GCE_INSTANCE_NAME=$gce_instance_name \
+                      -e GCE_SERVICE_ACCOUNT_ID=$gce_service_account_id \
+                      -e GCE_SERVICE_ACCOUNT_EMAIL=$gce_service_account_email \
+                      -e GCE_PROJECT_ID=$gce_project_id"
 
-  decoded_gcp_token_payload=$(_get_gcp_token_payload "$gce_token_file")
-
-  echo "Setting GCP details as env variables"
-  local gcp_project_id="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.project_id')"
-  local gcp_instance_name="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.instance_name')"
-  local gcp_service_account_id="$(echo "$decoded_gcp_token_payload" | jq -r '.sub')"
-  local gcp_service_account_email="$(echo "$decoded_gcp_token_payload" | jq -r '.email')"
-
-  local gcp_env_args="-e GCP_INSTANCE_NAME=$gcp_instance_name \
-                      -e GCP_SERVICE_ACCOUNT_ID=$gcp_service_account_id \
-                      -e GCP_SERVICE_ACCOUNT_EMAIL=$gcp_service_account_email \
-                      -e GCP_PROJECT_ID=$gcp_project_id"
-
-  env_args="$env_args $gcp_env_args"
+  env_args="$env_args $gce_env_args"
 }
 
 _get_gcp_token_payload() {
   local gcp_token_file="$1"
+
+  if ! [ -f "$gcp_token_file" ]; then
+    echo "GCP token file: '$gcp_token_file' not found."
+    exit 1
+  fi
 
   # read token and set env vars
   gcp_token=$(cat "$gcp_token_file")
@@ -166,11 +163,21 @@ function fetch_gcf_tokens() {
   local gcp_func_url=$1
   local token_prefix="tokens/gcf_"
 
-  validate_gcf_url_accessible "$gcp_func_url"
+  validate_gcf_url_accessible "$gcp_func_url" || exit 1
 
   cd ../ci/authn-gcp/
   sh ./get_tokens_to_files.sh "$gcp_func_url" "$token_prefix" || exit 1
   cd -
+  local decoded_gcf_token_payload=$(_get_gcp_token_payload "../ci/authn-gcp/tokens/gcf_token_valid")
+
+  echo "Setting GCF details as env variables"
+  local gcf_service_account_id="$(echo "$decoded_gcf_token_payload" | jq -r '.sub')"
+  local gcf_service_account_email="$(echo "$decoded_gcf_token_payload" | jq -r '.email')"
+
+  local gce_env_args="-e GCF_SERVICE_ACCOUNT_ID=$gcf_service_account_id \
+                      -e GCF_SERVICE_ACCOUNT_EMAIL=$gcf_service_account_email"
+
+  env_args="$env_args $gce_env_args"
 
   echo "Finished obtaining and writing tokens to file"
 }

@@ -1,4 +1,5 @@
-Feature: GCP Authenticator - Test Malformed Configuration
+@gcp
+Feature: GCP Authenticator - GCE flow, test malformed configuration
 
   In this feature we define a GCP authenticator with a malformed configuration.
   Each test will verify a failure of the authentication request in such a case
@@ -6,7 +7,7 @@ Feature: GCP Authenticator - Test Malformed Configuration
   properly.
 
   Background:
-    Given I obtain a valid GCP identity token
+    Given I obtain a valid GCE identity token
 
   Scenario: Webservice is missing in policy gets denied
     Given I load a policy:
@@ -18,10 +19,10 @@ Feature: GCP Authenticator - Test Malformed Configuration
       - !group apps
     """
     And I have host "test-app"
-    And I set all valid GCP annotations to host "test-app"
+    And I set all valid GCE annotations to host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
     And I save my place in the log file
-    When I authenticate with authn-gcp using valid token and existing account
+    When I authenticate with authn-gcp using valid GCE token and existing account
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
@@ -44,10 +45,10 @@ Feature: GCP Authenticator - Test Malformed Configuration
         resource: !webservice
     """
     And I have host "test-app"
-    And I set all valid GCP annotations to host "test-app"
+    And I set all valid GCE annotations to host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
     And I save my place in the log file
-    When I authenticate with authn-gcp using valid token and existing account
+    When I authenticate with authn-gcp using valid GCE token and existing account
     Then it is forbidden
     And The following appears in the log after my savepoint:
     """
