@@ -4,7 +4,10 @@ require 'spec_helper'
 
 RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
 
+  include_context "security mocks"
+
   let(:account) { "my-acct" }
+  let(:invalid_account) { 'invalid-account' }
   let(:authenticator_name) { "authn-gcp" }
   let(:hostname) { "path/to/host" }
   let(:rooted_hostname) { "host" }
@@ -81,6 +84,7 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
 
             ::Authentication::AuthnGcp::UpdateAuthenticatorInput.new(
               verify_and_decode_token: mocked_verify_and_decode_token,
+              validate_account_exists: mock_validate_account_exists(validation_succeeded: true),
               decoded_token_class:     mocked_decoded_token_class(valid_audience)
             ).call(
               authenticator_input: authenticator_input
@@ -114,6 +118,7 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
 
             ::Authentication::AuthnGcp::UpdateAuthenticatorInput.new(
               verify_and_decode_token: mocked_verify_and_decode_token,
+              validate_account_exists: mock_validate_account_exists(validation_succeeded: true),
               decoded_token_class:     mocked_decoded_token_class(valid_audience_rooted_host)
             ).call(
               authenticator_input: authenticator_input
@@ -149,6 +154,7 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
 
             ::Authentication::AuthnGcp::UpdateAuthenticatorInput.new(
               verify_and_decode_token: mocked_verify_and_decode_token,
+              validate_account_exists: mock_validate_account_exists(validation_succeeded: true),
               decoded_token_class:     mocked_decoded_token_class(valid_audience)
             ).call(
               authenticator_input: authenticator_input
@@ -180,6 +186,7 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
 
               ::Authentication::AuthnGcp::UpdateAuthenticatorInput.new(
                 verify_and_decode_token: mocked_verify_and_decode_token,
+                validate_account_exists: mock_validate_account_exists(validation_succeeded: true),
                 decoded_token_class:     mocked_decoded_token_class(two_parts_audience)
               ).call(
                 authenticator_input: authenticator_input
@@ -207,6 +214,7 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
 
               ::Authentication::AuthnGcp::UpdateAuthenticatorInput.new(
                 verify_and_decode_token: mocked_verify_and_decode_token,
+                validate_account_exists: mock_validate_account_exists(validation_succeeded: true),
                 decoded_token_class:     mocked_decoded_token_class(missing_conjur_prefix_audience)
               ).call(
                 authenticator_input: authenticator_input
@@ -234,6 +242,7 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
 
               ::Authentication::AuthnGcp::UpdateAuthenticatorInput.new(
                 verify_and_decode_token: mocked_verify_and_decode_token,
+                validate_account_exists: mock_validate_account_exists(validation_succeeded: true),
                 decoded_token_class:     mocked_decoded_token_class(incorrect_account_audience)
               ).call(
                 authenticator_input: authenticator_input
@@ -245,6 +254,34 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
                 Errors::Authentication::AuthnGcp::InvalidAudience
               )
             end
+          end
+        end
+      end
+
+      context "with not exist account" do
+        context "that fails to decode" do
+          subject do
+            authenticator_input = Authentication::AuthenticatorInput.new(
+              authenticator_name: authenticator_name,
+              service_id:         nil,
+              account:            invalid_account,
+              username:           hostname,
+              credentials:        request_body(authenticate_gcp_token_request),
+              client_ip:          '127.0.0.1',
+              request:            authenticate_gcp_token_request
+            )
+
+            ::Authentication::AuthnGcp::UpdateAuthenticatorInput.new(
+              verify_and_decode_token: mocked_verify_and_decode_token,
+              validate_account_exists: mock_validate_account_exists(validation_succeeded: false),
+              decoded_token_class:     mocked_decoded_token_class(valid_audience)
+            ).call(
+              authenticator_input: authenticator_input
+            )
+          end
+
+          it "raises an error" do
+            expect { subject }.to raise_error(validate_account_exists_error)
           end
         end
       end
