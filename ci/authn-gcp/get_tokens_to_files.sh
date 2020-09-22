@@ -54,7 +54,7 @@ _get_token_to_files() {
     fi
 
     # Write the token to file
-    echo "Get token from urL: '$token_url' and write to file: '$token_prefix$name'"
+    echo "-- Obtain an ID token from function url: '$token_url' and write to file: '$token_prefix$name'"
 
     local token=""
 
