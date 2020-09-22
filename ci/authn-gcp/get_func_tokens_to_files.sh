@@ -11,7 +11,7 @@ main() {
   # Read the identity token file
   IDENTITY_TOKEN=$(cat $IDENTITY_TOKEN_FILE)
 
-  test_token_function "conjur/cucumber/host/test-app" || exit 1
+  sh ./validate_gcf_url_accessible.sh "$GCP_FUNC_URL" "conjur/cucumber/host/test-app" "$IDENTITY_TOKEN" || exit 1
   get_tokens_to_files || exit 1
   echo '-> get_func_tokens_to_file done'
 }
@@ -44,22 +44,6 @@ validate_pre_requisites() {
     mkdir tokens || exit 1
   fi
   echo '-> validate_pre_requisites done'
-}
-
-# Invokes the function once to test if the function is accessible.
-test_token_function() {
-  echo 'test_token_function'
-  local audience="$1"
-  local status_code=$(curl -o /dev/null -s -w "%{http_code}\n" \
-    -H "Authorization: bearer $IDENTITY_TOKEN" \
-    -H 'Metadata-Flavor: Google' "$GCP_FUNC_URL?audience=${audience}")
-
-  if [ ! "$status_code" = "200" ]; then
-    echo "-- Function returned error, HTTP Status: '${status_code}', \
-    cannot obtain token from URL: $GCP_FUNC_URL?audience=${audience}"
-    exit 1
-  fi
-  echo '-> test_token_function done'
 }
 
 # Invokes the function with different audience

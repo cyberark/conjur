@@ -20,9 +20,9 @@ INSTANCE_EXISTS=0
 INSTANCE_RUNNING=0
 
 main() {
-  echo "-- ------------------------------------------ --"
-  echo "-- Generate Google Cloud GCP Identity tokens --"
-  echo "-- ------------------------------------------ --"
+  echo "-- ----------------------------------------------------------- --"
+  echo "-- Generate Google Cloud GCP Identity tokens from GCE instance --"
+  echo "-- ----------------------------------------------------------- --"
 
   echo "-- Verifying 'gcloud' is installed..."
   ensure_gcloud_is_installed
