@@ -46,10 +46,10 @@ SYNOPSIS
 GLOBAL OPTIONS
     --help                                    - Show this message
 COMMANDS
-    -gce     Google compute engine instance name
-    -gcf     Google cloud function url (run /dev/deploy_func script to deploy gcp required function)
+    --gce     Google compute engine instance name
+    --gcf     Google cloud function URL (Predefined ci/authn-gcp/function/main.py code as GCF)
 USAGE
-    ./cli exec --authn-gcp -gce [GCE_INSTANCE_NAME] -gcf [GCF_URL]
+    ./cli exec --authn-gcp --gce [GCE_INSTANCE_NAME] --gcf [GCF_URL]
 EOF
 exit
 }
@@ -65,7 +65,7 @@ function validate_gcp_options_and_args() {
     print_gcp_help
     exit 1
   elif [ -z "$1" ];  then
-    echo "-gce,-gcf required command options are missing"
+    echo "--gce,--gcf required command options are missing"
     print_gcp_help
     exit 1
   fi
@@ -86,8 +86,8 @@ function validate_gcp_option() {
   local option=$1
   local option_arg=$2
   case "$option" in
-    -gce | -gcf ) validate_gcp_arguments_exist $option $option_arg ;;
-    * ) print_gcp_option_error $option; exit 1;;
+    --gce | --gcf ) validate_gcp_arguments_exist $option $option_arg ;;
+    * ) echo "$option is not a valid option"; print_gcp_help; exit 1;;
   esac
 }
 
@@ -100,13 +100,6 @@ function validate_gcp_arguments_exist() {
   fi
 }
 
-function print_gcp_option_error() {
-  local option=$1
-  if [ -z "$option" ]; then echo "required command options are missing";
-  else echo "$option is not a valid option"; fi;
-  print_gcp_help;
-}
-
 function enable_gcp() {
   local params_count=$#
   while [ $params_count -gt 0 ]
@@ -115,8 +108,8 @@ function enable_gcp() {
     local option_arg=$2
 
     case "$option" in
-      -gce ) fetch_gce_tokens $option_arg ;;
-      -gcf ) fetch_gcf_tokens $option_arg ;;
+      --gce ) fetch_gce_tokens $option_arg ;;
+      --gcf ) fetch_gcf_tokens $option_arg ;;
     esac
 
      shift 2

@@ -1,5 +1,5 @@
 # Enable selective setting of GCP annotations
-Given(/^I set (invalid )?"authn-gcp\/(service-account-id|service-account-email|project-id|instance-name|invalid-key)" annotation to host "([^"]*)"$/) do |invalid, annotation_name, hostname|
+Given(/^I set (invalid )?"authn-gcp\/(service-account-id|service-account-email|project-id|instance-name|invalid-key)" GCE annotation to host "([^"]*)"$/) do |invalid, annotation_name, hostname|
   i_have_a_resource "host", hostname
 
   if invalid
@@ -24,7 +24,7 @@ Given(/^I set (invalid )?"authn-gcp\/(service-account-id|service-account-email|p
   set_annotation_to_resource("authn-gcp/#{annotation_name}", annotation_value)
 end
 
-Given(/^I set "authn-gcp\/(service-account-id|service-account-email|project-id|instance-name)" annotation to function host "([^"]*)"$/) do |annotation_name, hostname|
+Given(/^I set "authn-gcp\/(service-account-id|service-account-email|project-id|instance-name)" GCF annotation to host "([^"]*)"$/) do |annotation_name, hostname|
   i_have_a_resource "host", hostname
 
   case annotation_name
@@ -48,7 +48,7 @@ Given(/^I set "authn-gcp\/(service-account-id|service-account-email)" annotation
   set_annotation_to_resource("authn-gcp/#{annotation_name}", annotation_value)
 end
 
-Given(/^I set all valid GCP annotations to (user|host) "([^"]*)"$/) do |role_type, hostname|
+Given(/^I set all valid GCE annotations to (user|host) "([^"]*)"$/) do |role_type, hostname|
   i_have_a_resource role_type, hostname
 
   set_annotation_to_resource("authn-gcp/service-account-id", gce_service_account_id)
@@ -64,7 +64,7 @@ Given(/^I set all valid GCF annotations to (user|host) "([^"]*)"$/) do |role_typ
   set_annotation_to_resource("authn-gcp/service-account-email", gcf_service_account_email)
 end
 
-Given(/^I set (service-account-id|service-account-email) GCF annotations to (user|host) "([^"]*)"$/) do |annotation_type, role_type, hostname|
+Given(/^I set "authn-gcp\/(service-account-id|service-account-email)" GCF annotations to (user|host) "([^"]*)"$/) do |annotation_type, role_type, hostname|
   i_have_a_resource role_type, hostname
 
   if annotation_type == 'id'
@@ -74,39 +74,26 @@ Given(/^I set (service-account-id|service-account-email) GCF annotations to (use
   end
 end
 
-Given(/^I obtain an? (valid|standard_format|user_audience|invalid_audience|non_existing_host|non_rooted_host|non_existing_account) GCF identity token$/) do |token_type|
+Given(/^I obtain a valid GCF identity token$/) do
   gcf_identity_access_token(
-    token_type.to_sym
+    "valid".to_sym
   )
 end
 
-Given(/I authenticate with authn-gcp using (no|empty|self signed|no kid|obtained|valid) GCF identity token and (non-existing|existing) account/) do |token_state, account|
-  account = account == 'non-existing' ? 'non-existing' : AuthnGcpHelper::ACCOUNT
-
-  token = case token_state
-          when "no"
-            nil
-          when "empty"
-            ""
-          when "self signed"
-            self_signed_token
-          when "no kid"
-            no_kid_self_signed_token
-          else
-            @gcf_identity_token
-          end
-
-  authenticate_gcp_token(account: account, gcp_token: token)
+Given(/I authenticate with authn-gcp using a valid GCF identity token/) do
+  authenticate_gcp_token(
+    account: AuthnGcpHelper::ACCOUNT,
+    gcp_token: @gcf_identity_token)
 end
 
-Given(/^I obtain an? (valid|standard_format|user_audience|invalid_audience|non_existing_host|non_rooted_host|non_existing_account) GCP identity token$/) do |token_type|
+Given(/^I obtain an? (valid|standard_format|user_audience|invalid_audience|non_existing_host|non_rooted_host|non_existing_account) GCE identity token$/) do |token_type|
   gce_identity_access_token(
     token_type.to_sym
   )
 end
 
 # Authenticates with Conjur GCP authenticator
-Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?with authn-gcp using (no|empty|self signed|no kid|obtained|valid) token and (non-existing|existing) account/) do |num_requests, num_threads, token_state, account|
+Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?with authn-gcp using (no|empty|self signed|no kid|obtained GCE|valid GCE) token and (non-existing|existing) account/) do |num_requests, num_threads, token_state, account|
   account = account == 'non-existing' ? 'non-existing' : AuthnGcpHelper::ACCOUNT
 
   token = case token_state

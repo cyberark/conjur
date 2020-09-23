@@ -1,4 +1,5 @@
-Feature: GCP Authenticator - Test Token Error Handling
+@gcp
+Feature: GCP Authenticator - GCF flow, test token error hwahtandling
 
   In this feature we test authentication using malformed tokens.
   Will verify a failure of the authentication request in such a case
@@ -27,7 +28,7 @@ Feature: GCP Authenticator - Test Token Error Handling
     And I set "authn-gcp/service-account-id" annotation with value: "unknown-service-account-id" to host "test-app"
     And I obtain a valid GCF identity token
     And I save my place in the log file
-    When I authenticate with authn-gcp using valid GCF identity token and existing account
+    When I authenticate with authn-gcp using a valid GCF identity token
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
@@ -39,7 +40,7 @@ Feature: GCP Authenticator - Test Token Error Handling
     And I set "authn-gcp/service-account-email" annotation with value: "unknown-service-account-email" to host "test-app"
     And I obtain a valid GCF identity token
     And I save my place in the log file
-    When I authenticate with authn-gcp using valid GCF identity token and existing account
+    When I authenticate with authn-gcp using a valid GCF identity token
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
@@ -48,11 +49,11 @@ Feature: GCP Authenticator - Test Token Error Handling
 
   Scenario: Token with valid service-account-id claim and service-account-email claim that does not match annotation is denied
     Given I remove all annotations from host "test-app"
-    And I set "authn-gcp/service-account-id" annotation to function host "test-app"
+    And I set "authn-gcp/service-account-id" GCF annotation to host "test-app"
     And I set "authn-gcp/service-account-email" annotation with value: "unknown-service-account-email" to host "test-app"
     And I obtain a valid GCF identity token
     And I save my place in the log file
-    When I authenticate with authn-gcp using valid GCF identity token and existing account
+    When I authenticate with authn-gcp using a valid GCF identity token
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
@@ -60,11 +61,11 @@ Feature: GCP Authenticator - Test Token Error Handling
     """
 
   Scenario: Token with valid service-account-email claim and service-account-id claim that does not match annotation is denied
-    And I set "authn-gcp/service-account-email" annotation to function host "test-app"
+    And I set "authn-gcp/service-account-email" GCF annotation to host "test-app"
     And I set "authn-gcp/service-account-id" annotation with value: "unknown-service-account-id" to host "test-app"
     And I obtain a valid GCF identity token
     And I save my place in the log file
-    When I authenticate with authn-gcp using valid GCF identity token and existing account
+    When I authenticate with authn-gcp using a valid GCF identity token
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
@@ -73,10 +74,10 @@ Feature: GCP Authenticator - Test Token Error Handling
 
   Scenario: Token with project-id host annotation is denied
     And I set all valid GCF annotations to host "test-app"
-    And I set "authn-gcp/project-id" annotation to function host "test-app"
+    And I set "authn-gcp/project-id" GCF annotation to host "test-app"
     And I obtain a valid GCF identity token
     And I save my place in the log file
-    When I authenticate with authn-gcp using valid GCF identity token and existing account
+    When I authenticate with authn-gcp using a valid GCF identity token
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
@@ -85,10 +86,10 @@ Feature: GCP Authenticator - Test Token Error Handling
 
   Scenario: Token with instance-name host annotation is denied
     And I set all valid GCF annotations to host "test-app"
-    And I set "authn-gcp/instance-name" annotation to function host "test-app"
+    And I set "authn-gcp/instance-name" GCF annotation to host "test-app"
     And I obtain a valid GCF identity token
     And I save my place in the log file
-    When I authenticate with authn-gcp using valid GCF identity token and existing account
+    When I authenticate with authn-gcp using a valid GCF identity token
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """

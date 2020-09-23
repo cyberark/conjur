@@ -1,4 +1,5 @@
-Feature: GCP Authenticator - Hosts can authenticate with GCP authenticator
+@gcp
+Feature: GCP Authenticator - GCF flow, hosts can authenticate with GCP authenticator
 
   In this feature we define a GCP authenticator in policy and perform authentication
   with Conjur using Google tokens created in a Google function.
@@ -32,7 +33,7 @@ Feature: GCP Authenticator - Hosts can authenticate with GCP authenticator
     And I set all valid GCF annotations to host "test-app"
     And I obtain a valid GCF identity token
     And I save my place in the log file
-    When I authenticate with authn-gcp using valid GCF identity token and existing account
+    When I authenticate with authn-gcp using a valid GCF identity token
     Then host "test-app" has been authorized by Conjur
     And I can GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the audit log after my savepoint:
@@ -45,10 +46,10 @@ Feature: GCP Authenticator - Hosts can authenticate with GCP authenticator
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "test-app" to "execute" it
     And I remove all annotations from host "test-app"
-    And I set service-account-id GCF annotations to host "test-app"
+    And I set "authn-gcp/service-account-id" GCF annotations to host "test-app"
     And I obtain a valid GCF identity token
     And I save my place in the log file
-    When I authenticate with authn-gcp using valid GCF identity token and existing account
+    When I authenticate with authn-gcp using a valid GCF identity token
     Then host "test-app" has been authorized by Conjur
     And I can GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the audit log after my savepoint:
@@ -60,10 +61,11 @@ Feature: GCP Authenticator - Hosts can authenticate with GCP authenticator
     Given I have a "variable" resource called "test-variable"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "test-app" to "execute" it
-    And I set service-account-email GCF annotations to host "test-app"
+    And I remove all annotations from host "test-app"
+    And I set "authn-gcp/service-account-email" GCF annotations to host "test-app"
     And I obtain a valid GCF identity token
     And I save my place in the log file
-    When I authenticate with authn-gcp using valid GCF identity token and existing account
+    When I authenticate with authn-gcp using a valid GCF identity token
     Then host "test-app" has been authorized by Conjur
     And I can GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the audit log after my savepoint:

@@ -1,3 +1,4 @@
+@gcp
 Feature: GCP Authenticator - Status Check
 
   Scenario: A properly configured GCP authenticator returns a successful response
