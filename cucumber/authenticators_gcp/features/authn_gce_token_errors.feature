@@ -1,4 +1,5 @@
-Feature: GCP Authenticator - Test Token Error Handling
+@gcp
+Feature: GCP Authenticator - GCE flow, test token error handling
 
   In this feature we test authentication using malformed tokens.
   Will verify a failure of the authentication request in such a case
@@ -21,7 +22,7 @@ Feature: GCP Authenticator - Test Token Error Handling
     """
     And I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
-    And I set all valid GCP annotations to host "test-app"
+    And I set all valid GCE annotations to host "test-app"
 
   Scenario: Authenticate using a self signed token is denied
     When I save my place in the log file
@@ -42,9 +43,9 @@ Feature: GCP Authenticator - Test Token Error Handling
     """
 
   Scenario: Authenticate using token with an invalid audience claim is denied
-    Given I obtain an invalid_audience GCP identity token
+    Given I obtain an invalid_audience GCE identity token
     And I save my place in the log file
-    When I authenticate with authn-gcp using obtained token and existing account
+    When I authenticate with authn-gcp using obtained GCE token and existing account
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
@@ -85,10 +86,10 @@ Feature: GCP Authenticator - Test Token Error Handling
         privilege: [ read ]
         resource: !webservice
     """
-    And I set "authn-gcp/project-id" annotation to host "test-app"
+    And I set "authn-gcp/project-id" GCE annotation to host "test-app"
     And I save my place in the log file
-    And I obtain a valid GCP identity token
-    When I authenticate with authn-gcp using valid token and existing account
+    And I obtain a valid GCE identity token
+    When I authenticate with authn-gcp using valid GCE token and existing account
     Then it is forbidden
     And The following appears in the log after my savepoint:
     """
@@ -98,10 +99,10 @@ Feature: GCP Authenticator - Test Token Error Handling
   Scenario: Authenticate using token in standard format and host with only service-account-email annotation set is denied
     Given I have host "test-app"
     And I remove all annotations from host "test-app"
-    When I set "authn-gcp/service-account-email" annotation to host "test-app"
+    When I set "authn-gcp/service-account-email" GCE annotation to host "test-app"
     And I save my place in the log file
-    And I obtain a standard_format GCP identity token
-    And I authenticate with authn-gcp using obtained token and existing account
+    And I obtain a standard_format GCE identity token
+    And I authenticate with authn-gcp using obtained GCE token and existing account
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
@@ -111,10 +112,10 @@ Feature: GCP Authenticator - Test Token Error Handling
   Scenario: Authenticate using token in standard format and host with only project-id annotation set is denied
     Given I have host "test-app"
     And I remove all annotations from host "test-app"
-    When I set "authn-gcp/project-id" annotation to host "test-app"
+    When I set "authn-gcp/project-id" GCE annotation to host "test-app"
     And I save my place in the log file
-    And I obtain a standard_format GCP identity token
-    And I authenticate with authn-gcp using obtained token and existing account
+    And I obtain a standard_format GCE identity token
+    And I authenticate with authn-gcp using obtained GCE token and existing account
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
@@ -124,10 +125,10 @@ Feature: GCP Authenticator - Test Token Error Handling
   Scenario: Authenticate using token in standard format and host with only instance-name annotation set is denied
     Given I have host "test-app"
     And I remove all annotations from host "test-app"
-    When I set "authn-gcp/instance-name" annotation to host "test-app"
+    When I set "authn-gcp/instance-name" GCE annotation to host "test-app"
     And I save my place in the log file
-    And I obtain a standard_format GCP identity token
-    And I authenticate with authn-gcp using obtained token and existing account
+    And I obtain a standard_format GCE identity token
+    And I authenticate with authn-gcp using obtained GCE token and existing account
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """

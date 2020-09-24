@@ -1,4 +1,5 @@
-Feature: GCP Authenticator - Hosts can authenticate with GCP authenticator
+@gcp
+Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authenticator
 
   In this feature we define a GCP authenticator in policy and perform authentication
   with Conjur.
@@ -29,10 +30,10 @@ Feature: GCP Authenticator - Hosts can authenticate with GCP authenticator
     Given I have a "variable" resource called "test-variable"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "test-app" to "execute" it
-    And I set all valid GCP annotations to host "test-app"
-    And I obtain a valid GCP identity token
+    And I set all valid GCE annotations to host "test-app"
+    And I obtain a valid GCE identity token
     And I save my place in the log file
-    When I authenticate with authn-gcp using valid token and existing account
+    When I authenticate with authn-gcp using valid GCE token and existing account
     Then host "test-app" has been authorized by Conjur
     And I can GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the audit log after my savepoint:
@@ -44,10 +45,10 @@ Feature: GCP Authenticator - Hosts can authenticate with GCP authenticator
     Given I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
     And I remove all annotations from host "test-app"
-    And I set "authn-gcp/project-id" annotation to host "test-app"
-    And I obtain a valid GCP identity token
+    And I set "authn-gcp/project-id" GCE annotation to host "test-app"
+    And I obtain a valid GCE identity token
     And I save my place in the log file
-    When I authenticate with authn-gcp using valid token and existing account
+    When I authenticate with authn-gcp using valid GCE token and existing account
     Then host "test-app" has been authorized by Conjur
     And The following appears in the audit log after my savepoint:
     """
@@ -58,10 +59,10 @@ Feature: GCP Authenticator - Hosts can authenticate with GCP authenticator
     Given I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
     And I remove all annotations from host "test-app"
-    And I set "authn-gcp/service-account-id" annotation to host "test-app"
-    And I obtain a valid GCP identity token
+    And I set "authn-gcp/service-account-id" GCE annotation to host "test-app"
+    And I obtain a valid GCE identity token
     And I save my place in the log file
-    When I authenticate with authn-gcp using valid token and existing account
+    When I authenticate with authn-gcp using valid GCE token and existing account
     Then host "test-app" has been authorized by Conjur
     And The following appears in the audit log after my savepoint:
     """
@@ -72,10 +73,10 @@ Feature: GCP Authenticator - Hosts can authenticate with GCP authenticator
     Given I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
     And I remove all annotations from host "test-app"
-    And I set "authn-gcp/service-account-email" annotation to host "test-app"
-    And I obtain a valid GCP identity token
+    And I set "authn-gcp/service-account-email" GCE annotation to host "test-app"
+    And I obtain a valid GCE identity token
     And I save my place in the log file
-    When I authenticate with authn-gcp using valid token and existing account
+    When I authenticate with authn-gcp using valid GCE token and existing account
     Then host "test-app" has been authorized by Conjur
     And The following appears in the audit log after my savepoint:
     """
@@ -86,10 +87,10 @@ Feature: GCP Authenticator - Hosts can authenticate with GCP authenticator
     Given I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
     And I remove all annotations from host "test-app"
-    And I set "authn-gcp/instance-name" annotation to host "test-app"
-    And I obtain a valid GCP identity token
+    And I set "authn-gcp/instance-name" GCE annotation to host "test-app"
+    And I obtain a valid GCE identity token
     And I save my place in the log file
-    When I authenticate with authn-gcp using valid token and existing account
+    When I authenticate with authn-gcp using valid GCE token and existing account
     Then host "test-app" has been authorized by Conjur
     And The following appears in the audit log after my savepoint:
     """
@@ -97,9 +98,9 @@ Feature: GCP Authenticator - Hosts can authenticate with GCP authenticator
     """
 
   Scenario: Non-existing account in request is denied
-    Given I obtain a non_existing_account GCP identity token
+    Given I obtain a non_existing_account GCE identity token
     And I save my place in the log file
-    When I authenticate with authn-gcp using obtained token and non-existing account
+    When I authenticate with authn-gcp using obtained GCE token and non-existing account
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
@@ -110,10 +111,10 @@ Feature: GCP Authenticator - Hosts can authenticate with GCP authenticator
     Given I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
     And I remove all annotations from host "test-app"
-    And I set "authn-gcp/service-account-id" annotation to host "test-app"
+    And I set "authn-gcp/service-account-id" GCE annotation to host "test-app"
     And I save my place in the log file
-    And I obtain a standard_format GCP identity token
-    And I authenticate with authn-gcp using obtained token and existing account
+    And I obtain a standard_format GCE identity token
+    And I authenticate with authn-gcp using obtained GCE token and existing account
     Then host "test-app" has been authorized by Conjur
     And The following appears in the audit log after my savepoint:
     """
