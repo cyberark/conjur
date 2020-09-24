@@ -11,7 +11,7 @@ Before do
   kubectl_client.get_pods(namespace: namespace).select{|p| p.metadata.namespace == namespace}.each do |pod|
     next unless ready_status = pod.status.conditions.find{|c| c.type == "Ready"}
     next unless ready_status.status == "True"
-    next if pod.metadata.name =~ /conjur\-authn\-k8s/
+    next unless pod.metadata.name =~ /inventory\-deployment/
 
     exec = Authentication::AuthnK8s::KubectlExec.new
 
