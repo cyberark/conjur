@@ -48,6 +48,7 @@ module AuthnK8sWorld
     count = 0
     success = false
 
+    pod_metadata = @pod.metadata
     while count < retries
       puts "Waiting for client cert to be available (Attempt #{count + 1} of #{retries})"
 
@@ -70,6 +71,23 @@ module AuthnK8sWorld
     end
 
     if !success
+      puts "ERROR: Unable to retrieve client certificate for pod #{@pod.metadata.name.inspect}, " \
+           "printing logs from the container..."
+      get_cert_injection_logs_response = kubectl_exec.execute(
+        k8s_object_lookup: Authentication::AuthnK8s::K8sObjectLookup.new,
+        pod_namespace: pod_metadata.namespace,
+        pod_name: pod_metadata.name,
+        cmds: [ "cat", "/tmp/conjur_copy_file.log" ]
+      )
+
+      if !get_cert_injection_logs_response.nil? &&
+          get_cert_injection_logs_response[:error].empty? &&
+          !get_cert_injection_logs_response[:stdout].to_s.strip.empty?
+        puts get_cert_injection_logs_response[:stdout].join.to_s
+      else
+        puts "Failed to retrieve cert injection logs from container"
+      end
+
       $stderr.puts "ERROR: Unable to retrieve client certificate for pod #{@pod.metadata.name.inspect}"
     else
       response[:stdout].join
