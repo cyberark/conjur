@@ -129,7 +129,7 @@ class AuthenticateController < ApplicationController
       # and the prefix is in the header. This is done to maintain backwards-compatibility
       host_id_prefix:   request.headers["Host-Id-Prefix"]
     )
-    head :ok
+    head :accepted
   rescue => e
     handle_authentication_error(e)
   end

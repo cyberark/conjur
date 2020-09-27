@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   if the environment variable is not present, rather than attempting to use the empty string value. [cyberark/conjur#1841](https://github.com/cyberark/conjur/issues/1841)
 
 ### Changed
+- The "inject_client_cert" request now returns 202 Accepted instead of 200 OK to
+  indicate that the cert injection has started but not necessarily completed.
+  [cyberark/conjur#1848](https://github.com/cyberark/conjur/issues/1848)
 - The Conjur server request logs now records the same IP address used by audit
   logs and network authentication filters with the `restricted_to` attribute.
   [cyberark/conjur#1719](https://github.com/cyberark/conjur/issues/1719)
