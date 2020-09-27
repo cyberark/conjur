@@ -23,7 +23,7 @@ Before do
         pod_namespace: pod.metadata.namespace,
         pod_name: pod.metadata.name,
         container: container.name,
-        cmds: %w(rm -rf /etc/conjur/ssl)
+        cmds: %w(rm -rf /etc/conjur/ssl/*)
       )
     end
   end
