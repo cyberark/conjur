@@ -227,7 +227,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
             container: 'authenticator',
             path: "/etc/conjur/ssl/client.pem",
             content: webservice_signed_cert_pem,
-            mode: 0o644))
+            mode: "644"))
           .and_return(copy_response)
       end
 
@@ -243,7 +243,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
               pod_name: spiffe_name,
               path: "/etc/conjur/ssl/client.pem",
               content: webservice_signed_cert_pem,
-              mode: 0o644))
+              mode: "644"))
             .and_raise(RuntimeError.new(expected_error_text))
 
           expect { injector.(conjur_account: account,
@@ -330,7 +330,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
               container: overridden_container_name,
               path: "/etc/conjur/ssl/client.pem",
               content: webservice_signed_cert_pem,
-              mode: 0o644))
+              mode: "644"))
           .and_return(copy_response)
 
           expect { injector.(conjur_account: account,

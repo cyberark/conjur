@@ -263,7 +263,7 @@ module Errors
       )
 
       CommandTimedOut = ::Util::TrackableErrorClass.new(
-        msg:  "Command timed out in container '{0}' of pod '{1}'",
+        msg:  "Command timed out after {0} seconds in container '{1}' of pod '{2}'",
         code: "CONJ00033E"
       )
 

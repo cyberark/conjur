@@ -86,10 +86,10 @@ module Authentication
           container: container_name,
           path: cert_file_path,
           content: cert_to_install.to_pem,
-          mode: 0o644
+          mode: "644"
         )
         validate_cert_installation(resp)
-        @logger.debug(LogMessages::Authentication::AuthnK8s::CopySSLToPodSuccess.new)
+        @logger.debug(LogMessages::Authentication::AuthnK8s::InitializeCopySSLToPodSuccess.new)
       end
 
       def validate_cert_installation(resp)

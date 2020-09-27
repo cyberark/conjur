@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'command_class'
 require 'uri'
 require 'websocket'
@@ -20,12 +22,18 @@ module Authentication
                   body
                   stdin )
     ) do
+
+      extend Forwardable
+      def_delegators :@k8s_object_lookup, :kubectl_client
+
+      COPY_FILE_LOG_FILE = "/tmp/conjur_copy_file.log"
+
       def call
         @message_log = MessageLog.new
         @channel_closed = false
 
         url = server_url(@cmds, @stdin)
-        headers = kubeclient.headers.clone
+        headers = kubectl_client.headers.clone
         ws_client = WebSocket::Client::Simple.connect(url, headers: headers)
 
         add_websocket_event_handlers(ws_client, @body, @stdin)
@@ -58,6 +66,11 @@ module Authentication
           if stdin
             data = WebSocketMessage.channel_byte('stdin') + body
             ws_client.send(data)
+
+            # We close the socket and don't wait for the cert to be fully injected
+            # so that we can finish handling the request quickly and don't leave the
+            # Conjur server hanging. If an error occurred it will be written to
+            # the client container logs.
             ws_client.send(nil, type: :close)
           end
         end
@@ -109,10 +122,6 @@ module Authentication
 
       private
 
-      def kubeclient
-        @kubeclient ||= @k8s_object_lookup.kubectl_client
-      end
-
       def add_websocket_event_handlers(ws_client, body, stdin)
         kubectl = self
 
@@ -140,7 +149,7 @@ module Authentication
       end
 
       def server_url(cmds, stdin)
-        api_uri = kubeclient.api_endpoint
+        api_uri = kubectl_client.api_endpoint
         base_url = "wss://#{api_uri.host}:#{api_uri.port}"
         path = "/api/v1/namespaces/#{@pod_namespace}/pods/#{@pod_name}/exec"
         query = query_string(cmds, stdin)
@@ -181,27 +190,44 @@ module Authentication
         container: 'authenticator')
         execute(
           k8s_object_lookup: k8s_object_lookup,
-          pod_namespace: pod_namespace,
-          pod_name: pod_name,
-          container: container,
-          cmds: ['tar', 'xvf', '-', '-C', '/'],
-          body: tar_file_as_string(path, content, mode),
-          stdin: true
+          pod_namespace:     pod_namespace,
+          pod_name:          pod_name,
+          container:         container,
+          cmds:              %w(sh),
+          body:              copy_script(path, content, mode),
+          stdin:             true
         )
       end
 
       private
 
-      def tar_file_as_string(path, content, mode)
-        tarfile = StringIO.new("")
+      def copy_script(path, content, mode)
+        parts = path.split('/')
+        filename = parts.pop
+        dir = parts.join('/')
 
-        Gem::Package::TarWriter.new(tarfile) do |tar|
-          tar.add_file(path, mode) do |tf|
-            tf.write(content)
-          end
-        end
+        # We first copy the content into a temporary file and only then move it to
+        # the desired path as the client polls on its existence and we want it to
+        # exist only when the whole content is present
+        tmp_cert = "#{dir}/tmp_#{filename}"
 
-        tarfile.string
+        # We redirect the output to a log file on the authn-client container
+        # that will be written in its logs for supportability.
+        "
+#!/bin/sh
+
+copy_file() {
+  cat > #{tmp_cert} <<EOF
+#{content}
+EOF
+  chmod #{mode} #{tmp_cert}
+  mv #{tmp_cert} #{path}
+}
+
+copy_file 2>&1 | tee -a #{COPY_FILE_LOG_FILE}
+rm -rf #{tmp_cert}
+exit
+"
       end
     end
 
