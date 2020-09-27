@@ -12,8 +12,7 @@ module Authentication
   module AuthnK8s
 
     KubectlExec ||= CommandClass.new(
-      dependencies: { logger: Rails.logger,
-                      timeout: 5.seconds },
+      dependencies: { logger: Rails.logger },
       inputs: %i( k8s_object_lookup
                   pod_namespace
                   pod_name
@@ -27,6 +26,7 @@ module Authentication
       def_delegators :@k8s_object_lookup, :kubectl_client
 
       COPY_FILE_LOG_FILE = "/tmp/conjur_copy_file.log"
+      DEFAULT_KUBECTL_EXEC_COMMAND_TIMEOUT = 5
 
       def call
         @message_log = MessageLog.new
@@ -42,6 +42,7 @@ module Authentication
 
         unless @channel_closed
           raise Errors::Authentication::AuthnK8s::CommandTimedOut.new(
+            timeout,
             @container,
             @pod_name
           )
@@ -132,7 +133,7 @@ module Authentication
       end
 
       def wait_for_close_message
-        (@timeout / 0.1).to_i.times do
+        (timeout / 0.1).to_i.times do
           break if @channel_closed
           sleep 0.1
         end
@@ -154,6 +155,14 @@ module Authentication
         path = "/api/v1/namespaces/#{@pod_namespace}/pods/#{@pod_name}/exec"
         query = query_string(cmds, stdin)
         "#{base_url}#{path}?#{query}"
+      end
+
+      def timeout
+        @timeout ||= if ENV["KUBECTL_EXEC_COMMAND_TIMEOUT"].to_s.strip.empty?
+          DEFAULT_KUBECTL_EXEC_COMMAND_TIMEOUT
+        else
+          ENV["KUBECTL_EXEC_COMMAND_TIMEOUT"].to_i
+        end
       end
     end
 
