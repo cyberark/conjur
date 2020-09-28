@@ -65,10 +65,8 @@ gem 'simplecov', '0.14.1', require: false
 gem 'dry-struct', '~> 0.4.0'
 gem 'dry-types', '~> 0.12.2'
 # gem 'font-awesome-sass', '~> 4.7.0'
-gem 'mini_racer'
 gem 'net-ldap'
 # gem 'sass-rails'
-gem 'uglifier'
 
 # for AWS rotator
 gem 'aws-sdk-iam', require: false
