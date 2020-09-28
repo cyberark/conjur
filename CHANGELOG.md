@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#151](https://github.com/cyberark/conjur/issues/151)
 - [Documentation](./UPGRADING.md) explaining how to upgrade a Conjur server deployed in a
   Docker Compose environment. [cyberark/conjur#1528](https://github.com/cyberark/conjur/issues/1528), [cyberark/conjur#1584](https://github.com/cyberark/conjur/issues/1584)
+- When Conjur starts, we now convert blank environment variables to nil. This ensures we treat empty environment values as 
+  if the environment variable is not present, rather than attempting to use the empty string value. [cyberark/conjur#1841](https://github.com/cyberark/conjur/issues/1841)
 
 ### Changed
 - The Conjur server request logs now records the same IP address used by audit
