@@ -51,5 +51,11 @@ module Conjur
     # Whether to dump the schema after successful migrations.
     # Defaults to false in production and test, true otherwise.
     config.sequel.schema_dump = false
+
+    # Sets all the blank Environment Variables to nil. This ensures that nil
+    # checks are sufficient to verify the usage of an environment variable.
+    ENV.each_pair do |(k,v)|
+      ENV[k] = nil if v =~ /^\s*$/ # is all whitespace
+    end
   end
 end
