@@ -5,7 +5,11 @@ source 'https://rubygems.org'
 # make sure to use tls for github
 git_source(:github) { |name| "https://github.com/#{name}.git" }
 
-ruby '~> 2.5.1'
+# Do not use fuzzy version matching (~>) with the Ruby version. It doesn't play
+# nicely with RVM and we should be explicit since Ruby is such a fundamental
+# part of a Rails project. The Ruby version is also locked in place by the
+# Docker base image so it won't be updated with fuzzy matching.
+ruby '2.5.1'
 #ruby-gemset=conjur
 
 gem 'command_class'
