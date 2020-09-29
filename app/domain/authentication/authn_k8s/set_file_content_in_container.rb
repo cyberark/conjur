@@ -1,0 +1,70 @@
+# frozen_string_literal: true
+
+require 'command_class'
+
+module Authentication
+  module AuthnK8s
+
+    SetFileContentInContainer ||= CommandClass.new(
+      dependencies: {
+        kubectl_exec:      KubectlExec.new,
+        k8s_object_lookup: K8sObjectLookup,
+        logger:            Rails.logger
+      },
+      inputs: %i(webservice pod_namespace pod_name path content mode container)
+    ) do
+
+      LOG_FILE = "${TMPDIR:-/tmp}/conjur_set_file_content.log"
+
+      def call
+        set_file_content_in_container
+      end
+
+      private
+
+      def set_file_content_in_container
+        @kubectl_exec.call(
+          k8s_object_lookup: @k8s_object_lookup.new(@webservice),
+          pod_namespace:     @pod_namespace,
+          pod_name:          @pod_name,
+          container:         @container,
+          cmds:              %w(sh),
+          body:              set_file_content_script(@path, @content, @mode),
+          stdin:             true
+        )
+      end
+
+      # Sets the content of a file in a given path to the given content
+      # We first copy the content into a temporary file and only then move it to
+      # the desired path as the client polls on its existence and we want it to
+      # exist only when the whole content is present.
+      #
+      # We redirect the output to a log file on the authn-client container
+      # that will be written in its logs for supportability.
+      def set_file_content_script(path, content, mode)
+        tmp_cert = "#{path}.tmp"
+
+        "
+#!/bin/sh
+set -e
+
+cleanup() {
+ rm -rf \"#{tmp_cert}\"
+}
+trap cleanup EXIT
+
+set_file_content() {
+  cat > \"#{tmp_cert}\" <<EOF
+#{content}
+EOF
+
+  chmod \"#{mode}\" \"#{tmp_cert}\"
+  mv \"#{tmp_cert}\" \"#{path}\"
+}
+
+set_file_content > \"#{LOG_FILE}\" 2>&1
+"
+      end
+    end
+  end
+end

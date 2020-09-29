@@ -9,13 +9,14 @@ module Authentication
 
     InjectClientCert ||= CommandClass.new(
       dependencies: {
-        logger:                 Rails.logger,
-        resource_class:         Resource,
-        conjur_ca_repo:         Repos::ConjurCA,
-        kubectl_exec:           KubectlExec,
-        validate_pod_request:   ValidatePodRequest.new,
-        extract_container_name: ExtractContainerName.new,
-        audit_log:              ::Audit.logger
+        logger:                        Rails.logger,
+        resource_class:                Resource,
+        conjur_ca_repo:                Repos::ConjurCA,
+        kubectl_exec:                  KubectlExec,
+        set_file_content_in_container: SetFileContentInContainer.new,
+        validate_pod_request:          ValidatePodRequest.new,
+        extract_container_name:        ExtractContainerName.new,
+        audit_log:                     ::Audit.logger
       },
       inputs: %i(conjur_account service_id csr host_id_prefix client_ip)
     ) do
@@ -79,8 +80,8 @@ module Authentication
           pod_name
         ))
 
-        resp = @kubectl_exec.new.copy(
-          k8s_object_lookup: k8s_object_lookup,
+        resp = @set_file_content_in_container.call(
+          webservice: webservice,
           pod_namespace: pod_namespace,
           pod_name: pod_name,
           container: container_name,
@@ -88,6 +89,7 @@ module Authentication
           content: cert_to_install.to_pem,
           mode: "644"
         )
+
         validate_cert_installation(resp)
         @logger.debug(LogMessages::Authentication::AuthnK8s::InitializeCopySSLToPodSuccess.new)
       end
@@ -121,12 +123,6 @@ module Authentication
 
       def spiffe_id
         @spiffe_id ||= SpiffeId.new(smart_csr.spiffe_id)
-      end
-
-      def pod
-        @pod ||= k8s_object_lookup.pod_by_name(
-          spiffe_id.name, spiffe_id.namespace
-        )
       end
 
       def host
@@ -168,10 +164,6 @@ module Authentication
           smart_csr,
           subject_altnames: [spiffe_id.to_altname]
         )
-      end
-
-      def k8s_object_lookup
-        @k8s_object_lookup ||= K8sObjectLookup.new(webservice)
       end
 
       def container_name

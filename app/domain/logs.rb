@@ -149,13 +149,13 @@ module LogMessages
       )
 
       CopySSLToPod = ::Util::TrackableLogMessageClass.new(
-        msg:  "Copying SSL certificate to {0-container-name}:{1-cert-file-path} " \
+        msg:  "Copying client certificate to {0-container-name}:{1-cert-file-path} " \
             "in {2-pod-namespace}/{3-pod-name}",
         code: "CONJ00015D"
       )
 
       InitializeCopySSLToPodSuccess = ::Util::TrackableLogMessageClass.new(
-        msg:  "Initialized SSL certificate copy successfully",
+        msg:  "Started copying the client certificate successfully",
         code: "CONJ00037D"
       )
 

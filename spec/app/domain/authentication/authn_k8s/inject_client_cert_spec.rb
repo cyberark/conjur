@@ -91,11 +91,18 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
   let(:validate_pod_request) { double("ValidatePodRequest") }
 
-  let(:dependencies) { { resource_class: resource_class,
-                         conjur_ca_repo: conjur_ca_repo,
-                         kubectl_exec: kubectl_exec,
-                         validate_pod_request: validate_pod_request,
-                         audit_log: mocked_audit_logger} }
+  let(:set_file_content_in_container) { double("SetFileContentInContainer") }
+
+  let(:dependencies) {
+    {
+      resource_class: resource_class,
+      conjur_ca_repo: conjur_ca_repo,
+      kubectl_exec: kubectl_exec,
+      set_file_content_in_container: set_file_content_in_container,
+      validate_pod_request: validate_pod_request,
+      audit_log: mocked_audit_logger
+    }
+  }
 
   let(:audit_success) { true }
   let(:mocked_audit_logger) do
@@ -208,7 +215,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
     end
 
     context "when cert is being installed" do
-      let (:copy_response) { double("MockCopyrespoonse") }
+      let(:kubectl_exec_response) { double("MockKubeCtlExecResponse") }
 
       before :each do
         allow(validate_pod_request)
@@ -216,19 +223,24 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           .with(hash_including(pod_request: anything))
           .and_return(nil)
 
-        allow(copy_response).to receive(:[])
+        allow(kubectl_exec_response).to receive(:[])
           .with(:error)
           .and_return(nil)
 
-        allow(kubectl_exec_instance).to receive(:copy)
-          .with(hash_including(
-            pod_namespace: spiffe_namespace,
-            pod_name: spiffe_name,
-            container: 'authenticator',
-            path: "/etc/conjur/ssl/client.pem",
-            content: webservice_signed_cert_pem,
-            mode: "644"))
-          .and_return(copy_response)
+        allow(set_file_content_in_container)
+          .to receive(:call)
+          .with(
+            hash_including(
+              webservice: webservice,
+              pod_namespace: spiffe_namespace,
+              pod_name: spiffe_name,
+              container: "authenticator",
+              path: "/etc/conjur/ssl/client.pem",
+              content: webservice_signed_cert_pem,
+              mode: "644"
+            )
+          )
+          .and_return(kubectl_exec_response)
       end
 
       context "when copy operation raises runtime error" do
@@ -237,13 +249,17 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
         it "rethrows" do
           expected_error_text = "ExpectedCopyError"
 
-          allow(kubectl_exec_instance).to receive(:copy)
-            .with(hash_including(
-              pod_namespace: spiffe_namespace,
-              pod_name: spiffe_name,
-              path: "/etc/conjur/ssl/client.pem",
-              content: webservice_signed_cert_pem,
-              mode: "644"))
+          allow(set_file_content_in_container).to receive(:call)
+            .with(
+              hash_including(
+                webservice: webservice,
+                pod_namespace: spiffe_namespace,
+                pod_name: spiffe_name,
+                path: "/etc/conjur/ssl/client.pem",
+                content: webservice_signed_cert_pem,
+                mode: "644"
+              )
+            )
             .and_raise(RuntimeError.new(expected_error_text))
 
           expect { injector.(conjur_account: account,
@@ -262,7 +278,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           expected_error_text = "ExpectedCopyError"
           expected_full_error_text = /CONJ00027E.*ExpectedCopyError/
 
-          allow(copy_response).to receive(:[])
+          allow(kubectl_exec_response).to receive(:[])
             .with(:error)
             .and_return(expected_error_text)
 
@@ -281,7 +297,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           error_type = Errors::Authentication::AuthnK8s::CertInstallationError
           expected_full_error_text = /CONJ00027E.*The server returned a blank error message/
 
-          allow(copy_response).to receive(:[])
+          allow(kubectl_exec_response).to receive(:[])
             .with(:error)
             .and_return("\n   \n")
 
@@ -303,7 +319,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
         end
 
         it "throws no errors if copy is successful and error stream is empty string" do
-          allow(copy_response).to receive(:[])
+          allow(kubectl_exec_response).to receive(:[])
             .with(:error)
             .and_return("")
 
@@ -323,15 +339,19 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
             .with(:value)
             .and_return(overridden_container_name)
 
-          allow(kubectl_exec_instance).to receive(:copy)
-            .with(hash_including(
-              pod_namespace: spiffe_namespace,
-              pod_name: spiffe_name,
-              container: overridden_container_name,
-              path: "/etc/conjur/ssl/client.pem",
-              content: webservice_signed_cert_pem,
-              mode: "644"))
-          .and_return(copy_response)
+          allow(set_file_content_in_container).to receive(:call)
+            .with(
+              hash_including(
+                webservice: webservice,
+                pod_namespace: spiffe_namespace,
+                pod_name: spiffe_name,
+                container: overridden_container_name,
+                path: "/etc/conjur/ssl/client.pem",
+                content: webservice_signed_cert_pem,
+                mode: "644"
+              )
+            )
+            .and_return(kubectl_exec_response)
 
           expect { injector.(conjur_account: account,
                              service_id: service_id,

@@ -77,7 +77,7 @@ module AuthnK8sWorld
         k8s_object_lookup: Authentication::AuthnK8s::K8sObjectLookup.new,
         pod_namespace: pod_metadata.namespace,
         pod_name: pod_metadata.name,
-        cmds: [ "cat", "/tmp/conjur_copy_file.log" ]
+        cmds: [ "cat", "/tmp/conjur_set_file_content.log" ]
       )
 
       if !get_cert_injection_logs_response.nil? &&

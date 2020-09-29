@@ -25,7 +25,6 @@ module Authentication
       extend Forwardable
       def_delegators :@k8s_object_lookup, :kubectl_client
 
-      COPY_FILE_LOG_FILE = "/tmp/conjur_copy_file.log"
       DEFAULT_KUBECTL_EXEC_COMMAND_TIMEOUT = 5
 
       def call
@@ -188,55 +187,6 @@ module Authentication
           body: body,
           stdin: stdin
         )
-      end
-
-      def copy(k8s_object_lookup:,
-        pod_namespace:,
-        pod_name:,
-        path:,
-        content:,
-        mode:,
-        container: 'authenticator')
-        execute(
-          k8s_object_lookup: k8s_object_lookup,
-          pod_namespace:     pod_namespace,
-          pod_name:          pod_name,
-          container:         container,
-          cmds:              %w(sh),
-          body:              copy_script(path, content, mode),
-          stdin:             true
-        )
-      end
-
-      private
-
-      def copy_script(path, content, mode)
-        parts = path.split('/')
-        filename = parts.pop
-        dir = parts.join('/')
-
-        # We first copy the content into a temporary file and only then move it to
-        # the desired path as the client polls on its existence and we want it to
-        # exist only when the whole content is present
-        tmp_cert = "#{dir}/tmp_#{filename}"
-
-        # We redirect the output to a log file on the authn-client container
-        # that will be written in its logs for supportability.
-        "
-#!/bin/sh
-
-copy_file() {
-  cat > #{tmp_cert} <<EOF
-#{content}
-EOF
-  chmod #{mode} #{tmp_cert}
-  mv #{tmp_cert} #{path}
-}
-
-copy_file 2>&1 | tee -a #{COPY_FILE_LOG_FILE}
-rm -rf #{tmp_cert}
-exit
-"
       end
     end
 
