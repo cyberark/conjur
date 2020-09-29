@@ -50,6 +50,10 @@ expertly configured environment.
 [get-git]: https://git-scm.com/downloads
 [get-docker-compose]: https://docs.docker.com/compose/install
 
+### Prevent Secret Leaks
+Pushing to github is a form of publication, especially when using a public repo. It is a good idea to use a hook to check for secrets before pushing code.
+Follow this [link](https://github.com/cyberark/community/blob/master/Conjur/conventions/git-tips-and-tricks.md#preventing-leaks) to learn how to configure git checks for secrets before every push.
+
 ## Build Conjur as a Docker image
 
 It's easy to get started with Conjur and Docker:
