@@ -157,7 +157,6 @@ pipeline {
             GCP_FETCH_TOKEN_FUNCTION = "fetch_token_${BUILD_NUMBER}"
             IDENTITY_TOKEN_FILE = 'identity-token'
             GCP_OWNER_SERVICE_KEY_FILE = "sa-key-file.json"
-            GCP_ZONE="us-central1"
           }
           steps {
             echo "Waiting for GCP project name (Set by stage: 'GCP Authenticator preparation - Allocate GCE Instance')"
@@ -174,7 +173,7 @@ pipeline {
               }
 
               dir('ci/authn-gcp') {
-                sh './deploy_function_and_get_tokens.sh'
+                sh 'summon ./deploy_function_and_get_tokens.sh'
               }
             }
           }

@@ -2,8 +2,6 @@
 # Script that executes several curl requests to a Google cloud function
 # to get identity tokens with different audience values and writes them to files
 
-GCP_FUNC_URL="https://${GCP_ZONE}-${GCP_PROJECT}.cloudfunctions.net/${GCP_FETCH_TOKEN_FUNCTION}"
-
 main() {
   echo 'get_func_tokens_to_file'
   validate_pre_requisites || exit 1
@@ -33,6 +31,11 @@ validate_pre_requisites() {
   if [ -z "$GCP_ZONE" ]; then
     echo "-- Error: Google cloud zone is undefined."
     exit 1
+  else
+   echo "-- Extracting GCP region value"
+   echo "-- GCP_ZONE = [$GCP_ZONE]"
+   GCP_REGION=$(echo ${GCP_ZONE%-*})
+   echo "-- GCP_REGION = [$GCP_REGION]"
   fi
 
   if [ -z "$GCP_FETCH_TOKEN_FUNCTION" ]; then
@@ -43,6 +46,10 @@ validate_pre_requisites() {
   if [ ! -d "tokens" ]; then
     mkdir tokens || exit 1
   fi
+
+  GCP_FUNC_URL="https://${GCP_REGION}-${GCP_PROJECT}.cloudfunctions.net/${GCP_FETCH_TOKEN_FUNCTION}"
+  echo "GCP_FUNC_URL = [$GCP_FUNC_URL]"
+
   echo '-> validate_pre_requisites done'
 }
 
