@@ -23,7 +23,7 @@ module Authentication
     ) do
 
       extend Forwardable
-      def_delegators :@k8s_object_lookup, :kubectl_client
+      def_delegators :@k8s_object_lookup, :kube_client
 
       DEFAULT_KUBECTL_EXEC_COMMAND_TIMEOUT = 5
 
@@ -32,7 +32,7 @@ module Authentication
         @channel_closed = false
 
         url = server_url(@cmds, @stdin)
-        headers = kubectl_client.headers.clone
+        headers = kube_client.headers.clone
         ws_client = WebSocket::Client::Simple.connect(url, headers: headers)
 
         add_websocket_event_handlers(ws_client, @body, @stdin)
@@ -149,7 +149,7 @@ module Authentication
       end
 
       def server_url(cmds, stdin)
-        api_uri = kubectl_client.api_endpoint
+        api_uri = kube_client.api_endpoint
         base_url = "wss://#{api_uri.host}:#{api_uri.port}"
         path = "/api/v1/namespaces/#{@pod_namespace}/pods/#{@pod_name}/exec"
         query = query_string(cmds, stdin)

@@ -9,8 +9,8 @@ module AuthnK8sWorld
     @k8s_object_lookup ||= Authentication::AuthnK8s::K8sObjectLookup.new
   end
 
-  def kubectl_client
-    k8s_object_lookup.kubectl_client
+  def kube_client
+    k8s_object_lookup.kube_client
   end
 
   def authn_k8s_host
@@ -112,7 +112,7 @@ module AuthnK8sWorld
     controller = k8s_object_lookup.find_object_by_name controller_type, id, namespace
     raise "#{objectid.inspect} not found" unless controller
 
-    @pod = pod = kubectl_client.get_pods(namespace: namespace).find do |pod|
+    @pod = pod = kube_client.get_pods(namespace: namespace).find do |pod|
       resolver = Authentication::AuthnK8s::K8sResolver.for_resource(controller_type).new(controller, pod, k8s_object_lookup)
       begin
         resolver.validate_pod
