@@ -49,7 +49,7 @@ module Authentication
 set -e
 
 cleanup() {
- rm -rf \"#{tmp_cert}\"
+ rm -f \"#{tmp_cert}\"
 }
 trap cleanup EXIT
 
