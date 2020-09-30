@@ -9,14 +9,14 @@ module Authentication
 
     InjectClientCert ||= CommandClass.new(
       dependencies: {
-        logger:                        Rails.logger,
-        resource_class:                Resource,
-        conjur_ca_repo:                Repos::ConjurCA,
-        kubectl_exec:                  KubectlExec,
-        set_file_content_in_container: SetFileContentInContainer.new,
-        validate_pod_request:          ValidatePodRequest.new,
-        extract_container_name:        ExtractContainerName.new,
-        audit_log:                     ::Audit.logger
+        logger:                         Rails.logger,
+        resource_class:                 Resource,
+        conjur_ca_repo:                 Repos::ConjurCA,
+        kubectl_exec:                   KubectlExec,
+        copy_text_to_file_in_container: CopyTextToFileInContainer.new,
+        validate_pod_request:           ValidatePodRequest.new,
+        extract_container_name:         ExtractContainerName.new,
+        audit_log:                      ::Audit.logger
       },
       inputs: %i(conjur_account service_id csr host_id_prefix client_ip)
     ) do
@@ -80,7 +80,7 @@ module Authentication
           pod_name
         ))
 
-        resp = @set_file_content_in_container.call(
+        resp = @copy_text_to_file_in_container.call(
           webservice: webservice,
           pod_namespace: pod_namespace,
           pod_name: pod_name,

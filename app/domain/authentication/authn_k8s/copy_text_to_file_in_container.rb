@@ -6,7 +6,7 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
-    SetFileContentInContainer ||= CommandClass.new(
+    CopyTextToFileInContainer ||= CommandClass.new(
       dependencies: {
         kubectl_exec:      KubectlExec.new,
         k8s_object_lookup: K8sObjectLookup,
@@ -18,12 +18,12 @@ module Authentication
       LOG_FILE = "${TMPDIR:-/tmp}/conjur_set_file_content.log"
 
       def call
-        set_file_content_in_container
+        copy_text_to_file_in_container
       end
 
       private
 
-      def set_file_content_in_container
+      def copy_text_to_file_in_container
         @kubectl_exec.call(
           k8s_object_lookup: @k8s_object_lookup.new(@webservice),
           pod_namespace:     @pod_namespace,

@@ -91,16 +91,16 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
 
   let(:validate_pod_request) { double("ValidatePodRequest") }
 
-  let(:set_file_content_in_container) { double("SetFileContentInContainer") }
+  let(:copy_text_to_file_in_container) { double("SetFileContentInContainer") }
 
   let(:dependencies) {
     {
-      resource_class: resource_class,
-      conjur_ca_repo: conjur_ca_repo,
-      kubectl_exec: kubectl_exec,
-      set_file_content_in_container: set_file_content_in_container,
-      validate_pod_request: validate_pod_request,
-      audit_log: mocked_audit_logger
+      resource_class:                 resource_class,
+      conjur_ca_repo:                 conjur_ca_repo,
+      kubectl_exec:                   kubectl_exec,
+      copy_text_to_file_in_container: copy_text_to_file_in_container,
+      validate_pod_request:           validate_pod_request,
+      audit_log:                      mocked_audit_logger
     }
   }
 
@@ -227,7 +227,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           .with(:error)
           .and_return(nil)
 
-        allow(set_file_content_in_container)
+        allow(copy_text_to_file_in_container)
           .to receive(:call)
           .with(
             hash_including(
@@ -249,7 +249,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
         it "rethrows" do
           expected_error_text = "ExpectedCopyError"
 
-          allow(set_file_content_in_container).to receive(:call)
+          allow(copy_text_to_file_in_container).to receive(:call)
             .with(
               hash_including(
                 webservice: webservice,
@@ -339,7 +339,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
             .with(:value)
             .and_return(overridden_container_name)
 
-          allow(set_file_content_in_container).to receive(:call)
+          allow(copy_text_to_file_in_container).to receive(:call)
             .with(
               hash_including(
                 webservice: webservice,
