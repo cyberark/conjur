@@ -12,7 +12,10 @@ module Authentication
   module AuthnK8s
 
     KubectlExec ||= CommandClass.new(
-      dependencies: { logger: Rails.logger },
+      dependencies: {
+        env:    ENV,
+        logger: Rails.logger
+      },
       inputs: %i( k8s_object_lookup
                   pod_namespace
                   pod_name
@@ -157,11 +160,13 @@ module Authentication
       end
 
       def timeout
-        @timeout ||= if ENV["KUBECTL_EXEC_COMMAND_TIMEOUT"].to_s.strip.empty?
-          DEFAULT_KUBECTL_EXEC_COMMAND_TIMEOUT
-        else
-          ENV["KUBECTL_EXEC_COMMAND_TIMEOUT"].to_i
-        end
+        return @timeout if @timeout
+
+        kube_timeout = @env["KUBECTL_EXEC_COMMAND_TIMEOUT"]
+        not_provided = kube_timeout.to_s.strip.empty?
+        default = DEFAULT_KUBECTL_EXEC_COMMAND_TIMEOUT
+        # If the value of KUBECTL_EXEC_COMMAND_TIMEOUT is not an integer it will be zero
+        @timeout = not_provided ? default : kube_timeout.to_i
       end
     end
 

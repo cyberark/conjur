@@ -29,11 +29,6 @@ RSpec.describe 'Authentication::AuthnK8s::CopyTextToFileInContainer' do
       .to receive(:call)
   end
 
-  #  ____  _   _  ____    ____  ____  ___  ____  ___
-  # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)
-  #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
-  #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
-
   context "Calling CopyTextToFileInContainer" do
     subject do
       ::Authentication::AuthnK8s::CopyTextToFileInContainer.new(
