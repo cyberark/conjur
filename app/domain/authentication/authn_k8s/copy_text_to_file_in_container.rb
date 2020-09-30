@@ -12,7 +12,7 @@ module Authentication
         k8s_object_lookup: K8sObjectLookup,
         logger:            Rails.logger
       },
-      inputs: %i(webservice pod_namespace pod_name path content mode container)
+      inputs: %i(webservice pod_namespace pod_name container path content mode)
     ) do
 
       LOG_FILE = "${TMPDIR:-/tmp}/conjur_set_file_content.log"
