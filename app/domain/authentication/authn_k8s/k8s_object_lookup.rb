@@ -68,7 +68,7 @@ module Authentication
       end
 
       # Gets the client object to the /api v1 endpoint.
-      def kubectl_client
+      def kube_client
         KubeClientFactory.client(host_url: api_url, options: options)
       end
 
@@ -149,7 +149,7 @@ module Authentication
       # List them in the order that you want them to be searched for methods.
       def k8s_clients
         @clients ||= [
-          kubectl_client,
+          kube_client,
           KubeClientFactory.client(
             api: 'apis/apps', version: 'v1', host_url: api_url,
             options: options

@@ -9,8 +9,8 @@ module AuthnK8sWorld
     @k8s_object_lookup ||= Authentication::AuthnK8s::K8sObjectLookup.new
   end
 
-  def kubectl_client
-    k8s_object_lookup.kubectl_client
+  def kube_client
+    k8s_object_lookup.kube_client
   end
 
   def authn_k8s_host
@@ -48,6 +48,7 @@ module AuthnK8sWorld
     count = 0
     success = false
 
+    pod_metadata = @pod.metadata
     while count < retries
       puts "Waiting for client cert to be available (Attempt #{count + 1} of #{retries})"
 
@@ -70,6 +71,23 @@ module AuthnK8sWorld
     end
 
     if !success
+      puts "ERROR: Unable to retrieve client certificate for pod #{@pod.metadata.name.inspect}, " \
+           "printing logs from the container..."
+      get_cert_injection_logs_response = kubectl_exec.execute(
+        k8s_object_lookup: Authentication::AuthnK8s::K8sObjectLookup.new,
+        pod_namespace: pod_metadata.namespace,
+        pod_name: pod_metadata.name,
+        cmds: [ "cat", "/tmp/conjur_set_file_content.log" ]
+      )
+
+      if !get_cert_injection_logs_response.nil? &&
+          get_cert_injection_logs_response[:error].empty? &&
+          !get_cert_injection_logs_response[:stdout].to_s.strip.empty?
+        puts get_cert_injection_logs_response[:stdout].join.to_s
+      else
+        puts "Failed to retrieve cert injection logs from container"
+      end
+
       $stderr.puts "ERROR: Unable to retrieve client certificate for pod #{@pod.metadata.name.inspect}"
     else
       response[:stdout].join
@@ -94,7 +112,7 @@ module AuthnK8sWorld
     controller = k8s_object_lookup.find_object_by_name controller_type, id, namespace
     raise "#{objectid.inspect} not found" unless controller
 
-    @pod = pod = kubectl_client.get_pods(namespace: namespace).find do |pod|
+    @pod = pod = kube_client.get_pods(namespace: namespace).find do |pod|
       resolver = Authentication::AuthnK8s::K8sResolver.for_resource(controller_type).new(controller, pod, k8s_object_lookup)
       begin
         resolver.validate_pod

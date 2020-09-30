@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'command_class'
 require 'uri'
 require 'websocket'
@@ -10,8 +12,10 @@ module Authentication
   module AuthnK8s
 
     KubectlExec ||= CommandClass.new(
-      dependencies: { logger: Rails.logger,
-                      timeout: 5.seconds },
+      dependencies: {
+        env:    ENV,
+        logger: Rails.logger
+      },
       inputs: %i( k8s_object_lookup
                   pod_namespace
                   pod_name
@@ -20,12 +24,18 @@ module Authentication
                   body
                   stdin )
     ) do
+
+      extend Forwardable
+      def_delegators :@k8s_object_lookup, :kube_client
+
+      DEFAULT_KUBECTL_EXEC_COMMAND_TIMEOUT = 5
+
       def call
         @message_log = MessageLog.new
         @channel_closed = false
 
         url = server_url(@cmds, @stdin)
-        headers = kubeclient.headers.clone
+        headers = kube_client.headers.clone
         ws_client = WebSocket::Client::Simple.connect(url, headers: headers)
 
         add_websocket_event_handlers(ws_client, @body, @stdin)
@@ -34,6 +44,7 @@ module Authentication
 
         unless @channel_closed
           raise Errors::Authentication::AuthnK8s::CommandTimedOut.new(
+            timeout,
             @container,
             @pod_name
           )
@@ -58,6 +69,11 @@ module Authentication
           if stdin
             data = WebSocketMessage.channel_byte('stdin') + body
             ws_client.send(data)
+
+            # We close the socket and don't wait for the cert to be fully injected
+            # so that we can finish handling the request quickly and don't leave the
+            # Conjur server hanging. If an error occurred it will be written to
+            # the client container logs.
             ws_client.send(nil, type: :close)
           end
         end
@@ -109,10 +125,6 @@ module Authentication
 
       private
 
-      def kubeclient
-        @kubeclient ||= @k8s_object_lookup.kubectl_client
-      end
-
       def add_websocket_event_handlers(ws_client, body, stdin)
         kubectl = self
 
@@ -123,7 +135,7 @@ module Authentication
       end
 
       def wait_for_close_message
-        (@timeout / 0.1).to_i.times do
+        (timeout / 0.1).to_i.times do
           break if @channel_closed
           sleep 0.1
         end
@@ -140,11 +152,21 @@ module Authentication
       end
 
       def server_url(cmds, stdin)
-        api_uri = kubeclient.api_endpoint
+        api_uri = kube_client.api_endpoint
         base_url = "wss://#{api_uri.host}:#{api_uri.port}"
         path = "/api/v1/namespaces/#{@pod_namespace}/pods/#{@pod_name}/exec"
         query = query_string(cmds, stdin)
         "#{base_url}#{path}?#{query}"
+      end
+
+      def timeout
+        return @timeout if @timeout
+
+        kube_timeout = @env["KUBECTL_EXEC_COMMAND_TIMEOUT"]
+        not_provided = kube_timeout.to_s.strip.empty?
+        default = DEFAULT_KUBECTL_EXEC_COMMAND_TIMEOUT
+        # If the value of KUBECTL_EXEC_COMMAND_TIMEOUT is not an integer it will be zero
+        @timeout = not_provided ? default : kube_timeout.to_i
       end
     end
 
@@ -170,38 +192,6 @@ module Authentication
           body: body,
           stdin: stdin
         )
-      end
-
-      def copy(k8s_object_lookup:,
-        pod_namespace:,
-        pod_name:,
-        path:,
-        content:,
-        mode:,
-        container: 'authenticator')
-        execute(
-          k8s_object_lookup: k8s_object_lookup,
-          pod_namespace: pod_namespace,
-          pod_name: pod_name,
-          container: container,
-          cmds: ['tar', 'xvf', '-', '-C', '/'],
-          body: tar_file_as_string(path, content, mode),
-          stdin: true
-        )
-      end
-
-      private
-
-      def tar_file_as_string(path, content, mode)
-        tarfile = StringIO.new("")
-
-        Gem::Package::TarWriter.new(tarfile) do |tar|
-          tar.add_file(path, mode) do |tf|
-            tf.write(content)
-          end
-        end
-
-        tarfile.string
       end
     end
 

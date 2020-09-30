@@ -36,7 +36,8 @@ end
 def login_with_username request_ip, username, success, headers = {}
   begin
     @pkey = OpenSSL::PKey::RSA.new 2048
-    login(username, request_ip, authn_k8s_host, @pkey, headers)
+    response = login(username, request_ip, authn_k8s_host, @pkey, headers)
+    expect(response.code).to be(202)
   rescue
     raise if success
     @error = $!
