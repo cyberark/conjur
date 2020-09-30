@@ -2,6 +2,7 @@
 
 require 'command_class'
 
+# SetFileContentInContainer is used to set some text into a file inside a container
 module Authentication
   module AuthnK8s
 
@@ -49,7 +50,7 @@ module Authentication
 set -e
 
 cleanup() {
- rm -f \"#{tmp_cert}\"
+  rm -f \"#{tmp_cert}\"
 }
 trap cleanup EXIT
 
