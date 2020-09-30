@@ -319,19 +319,23 @@ root@9feae5e5e001:/src/conjur-server#
 - A Google Cloud Platform account. To create an account see https://cloud.google.com/.
 - Google Cloud SDK installed. For information on how to install see https://cloud.google.com/sdk/docs
 - Access to a running Google Compute Engine instance. 
+- Access to predefined Google cloud function with the following [code](ci/authn-gcp/function/main.py).
 
 To run the cukes with a Google Cloud Platform (GCP) compatible environment, run `cli`
-with the `--authn-gcp` flag and pass a name of a running Google Compute Engine (GCE) instance:
+with the `--authn-gcp` flag and pass the following:
+1. The name of a running Google Compute Engine (GCE) instance. (for example: my-gce-instance)
+
+2. The URL of the Google Cloud Function (GCF). (for example: https://us-central1-exmaple.cloudfunctions.net/idtoken?audience=conjur/cucumber/host/demo-host)
 
 ```sh-session
-$ ./cli exec --authn-gcp my-gce-instance
+$ ./cli exec --authn-gcp --gce [GCE_INSTANCE_NAME] --gcf [GCF_URL]
 ...
 root@9feae5e5e001:/src/conjur-server#
 ```
 
 When running with `--authn-gcp` flag, the cli script executes another script which does the heavy lifting of 
 provisioning the ID tokens (required by the tests) from Google Cloud Platform.
-To run the GCE authenticator test suite:
+To run the GCP authenticator test suite:
 ```sh-session
 root@9feae5e5e001:/src/conjur-server# cucumber -p authenticators_gcp cucumber/authenticators_gcp/features
 ```
