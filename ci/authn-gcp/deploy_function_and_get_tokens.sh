@@ -4,7 +4,7 @@
 
 main() {
   echo "Deploy function and get tokens"
-  summon ./run_gcloud.sh deploy_function.sh
+  ./run_gcloud.sh deploy_function.sh
 
   if [ $? -ne 0 ]; then
       echo '-- Error deploying Google function'
