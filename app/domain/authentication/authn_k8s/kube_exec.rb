@@ -11,7 +11,7 @@ require 'websocket-client-simple'
 module Authentication
   module AuthnK8s
 
-    KubectlExec ||= CommandClass.new(
+    KubeExec ||= CommandClass.new(
       dependencies: {
         env:    ENV,
         logger: Rails.logger
@@ -28,7 +28,7 @@ module Authentication
       extend Forwardable
       def_delegators :@k8s_object_lookup, :kube_client
 
-      DEFAULT_KUBECTL_EXEC_COMMAND_TIMEOUT = 5
+      DEFAULT_KUBE_EXEC_COMMAND_TIMEOUT = 5
 
       def call
         @message_log = MessageLog.new
@@ -126,12 +126,12 @@ module Authentication
       private
 
       def add_websocket_event_handlers(ws_client, body, stdin)
-        kubectl = self
+        kube = self
 
-        ws_client.on(:open) { kubectl.on_open(ws_client, body, stdin) }
-        ws_client.on(:message) { |msg| kubectl.on_message(msg, ws_client) }
-        ws_client.on(:close) { kubectl.on_close }
-        ws_client.on(:error) { |err| kubectl.on_error(err) }
+        ws_client.on(:open) { kube.on_open(ws_client, body, stdin) }
+        ws_client.on(:message) { |msg| kube.on_message(msg, ws_client) }
+        ws_client.on(:close) { kube.on_close }
+        ws_client.on(:error) { |err| kube.on_error(err) }
       end
 
       def wait_for_close_message
@@ -162,15 +162,15 @@ module Authentication
       def timeout
         return @timeout if @timeout
 
-        kube_timeout = @env["KUBECTL_EXEC_COMMAND_TIMEOUT"]
+        kube_timeout = @env["KUBE_EXEC_COMMAND_TIMEOUT"]
         not_provided = kube_timeout.to_s.strip.empty?
-        default = DEFAULT_KUBECTL_EXEC_COMMAND_TIMEOUT
-        # If the value of KUBECTL_EXEC_COMMAND_TIMEOUT is not an integer it will be zero
+        default = DEFAULT_KUBE_EXEC_COMMAND_TIMEOUT
+        # If the value of KUBE_EXEC_COMMAND_TIMEOUT is not an integer it will be zero
         @timeout = not_provided ? default : kube_timeout.to_i
       end
     end
 
-    class KubectlExec
+    class KubeExec
       # This delegates to all the work to the call method created automatically
       # by CommandClass
       #

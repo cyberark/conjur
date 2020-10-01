@@ -8,7 +8,7 @@ module Authentication
 
     CopyTextToFileInContainer ||= CommandClass.new(
       dependencies: {
-        kubectl_exec:      KubectlExec.new,
+        kube_exec:         KubeExec.new,
         k8s_object_lookup: K8sObjectLookup,
         logger:            Rails.logger
       },
@@ -24,7 +24,7 @@ module Authentication
       private
 
       def copy_text_to_file_in_container
-        @kubectl_exec.call(
+        @kube_exec.call(
           k8s_object_lookup: @k8s_object_lookup.new(@webservice),
           pod_namespace:     @pod_namespace,
           pod_name:          @pod_name,

@@ -28,8 +28,8 @@ module AuthnK8sWorld
     pattern
   end
 
-  def kubectl_exec
-    Authentication::AuthnK8s::KubectlExec.new
+  def kube_exec
+    Authentication::AuthnK8s::KubeExec.new
   end
 
   def print_result_errors response
@@ -53,7 +53,7 @@ module AuthnK8sWorld
       puts "Waiting for client cert to be available (Attempt #{count + 1} of #{retries})"
 
       pod_metadata = @pod.metadata
-      response = kubectl_exec.execute(
+      response = kube_exec.execute(
         k8s_object_lookup: Authentication::AuthnK8s::K8sObjectLookup.new,
         pod_namespace: pod_metadata.namespace,
         pod_name: pod_metadata.name,
@@ -73,7 +73,7 @@ module AuthnK8sWorld
     if !success
       puts "ERROR: Unable to retrieve client certificate for pod #{@pod.metadata.name.inspect}, " \
            "printing logs from the container..."
-      get_cert_injection_logs_response = kubectl_exec.execute(
+      get_cert_injection_logs_response = kube_exec.execute(
         k8s_object_lookup: Authentication::AuthnK8s::K8sObjectLookup.new,
         pod_namespace: pod_metadata.namespace,
         pod_name: pod_metadata.name,
