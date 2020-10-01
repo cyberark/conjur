@@ -16,13 +16,7 @@ module Authentication
         env:    ENV,
         logger: Rails.logger
       },
-      inputs: %i( k8s_object_lookup
-                  pod_namespace
-                  pod_name
-                  container
-                  cmds
-                  body
-                  stdin )
+      inputs:       %i(k8s_object_lookup pod_namespace pod_name container cmds body stdin)
     ) do
 
       extend Forwardable
@@ -126,6 +120,9 @@ module Authentication
       private
 
       def add_websocket_event_handlers(ws_client, body, stdin)
+        # We need to set this so the handlers will call this class's methods.
+        # If we use 'self' inside the curly brackets it will be try to use methods
+        # of the class WebSocket::Client::Simple::Client
         kube = self
 
         ws_client.on(:open) { kube.on_open(ws_client, body, stdin) }
