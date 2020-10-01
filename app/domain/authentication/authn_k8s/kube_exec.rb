@@ -11,31 +11,25 @@ require 'websocket-client-simple'
 module Authentication
   module AuthnK8s
 
-    KubectlExec ||= CommandClass.new(
+    KubeExec ||= CommandClass.new(
       dependencies: {
         env:    ENV,
         logger: Rails.logger
       },
-      inputs: %i( k8s_object_lookup
-                  pod_namespace
-                  pod_name
-                  container
-                  cmds
-                  body
-                  stdin )
+      inputs:       %i(k8s_object_lookup pod_namespace pod_name container cmds body stdin)
     ) do
 
       extend Forwardable
       def_delegators :@k8s_object_lookup, :kube_client
 
-      DEFAULT_KUBECTL_EXEC_COMMAND_TIMEOUT = 5
+      DEFAULT_KUBE_EXEC_COMMAND_TIMEOUT = 5
 
       def call
-        @message_log = MessageLog.new
+        @message_log    = MessageLog.new
         @channel_closed = false
 
-        url = server_url(@cmds, @stdin)
-        headers = kube_client.headers.clone
+        url       = server_url(@cmds, @stdin)
+        headers   = kube_client.headers.clone
         ws_client = WebSocket::Client::Simple.connect(url, headers: headers)
 
         add_websocket_event_handlers(ws_client, @body, @stdin)
@@ -56,7 +50,7 @@ module Authentication
       end
 
       def on_open(ws_client, body, stdin)
-        hs = ws_client.handshake
+        hs       = ws_client.handshake
         hs_error = hs.error
 
         if hs_error
@@ -126,12 +120,15 @@ module Authentication
       private
 
       def add_websocket_event_handlers(ws_client, body, stdin)
-        kubectl = self
+        # We need to set this so the handlers will call this class's methods.
+        # If we use 'self' inside the curly brackets it will be try to use methods
+        # of the class WebSocket::Client::Simple::Client
+        kube = self
 
-        ws_client.on(:open) { kubectl.on_open(ws_client, body, stdin) }
-        ws_client.on(:message) { |msg| kubectl.on_message(msg, ws_client) }
-        ws_client.on(:close) { kubectl.on_close }
-        ws_client.on(:error) { |err| kubectl.on_error(err) }
+        ws_client.on(:open) { kube.on_open(ws_client, body, stdin) }
+        ws_client.on(:message) { |msg| kube.on_message(msg, ws_client) }
+        ws_client.on(:close) { kube.on_close }
+        ws_client.on(:error) { |err| kube.on_error(err) }
       end
 
       def wait_for_close_message
@@ -143,96 +140,49 @@ module Authentication
 
       def query_string(cmds, stdin)
         stdin_part = stdin ? ['stdin=true'] : []
-        cmds_part = cmds.map { |cmd| "command=#{CGI.escape(cmd)}" }
+        cmds_part  = cmds.map { |cmd| "command=#{CGI.escape(cmd)}" }
         (base_query_string_parts + stdin_part + cmds_part).join("&")
       end
 
       def base_query_string_parts
-        ["container=#{CGI.escape(@container)}", "stderr=true", "stdout=true"]
+        %W(container=#{CGI.escape(@container)} stderr=true stdout=true)
       end
 
       def server_url(cmds, stdin)
-        api_uri = kube_client.api_endpoint
+        api_uri  = kube_client.api_endpoint
         base_url = "wss://#{api_uri.host}:#{api_uri.port}"
-        path = "/api/v1/namespaces/#{@pod_namespace}/pods/#{@pod_name}/exec"
-        query = query_string(cmds, stdin)
+        path     = "/api/v1/namespaces/#{@pod_namespace}/pods/#{@pod_name}/exec"
+        query    = query_string(cmds, stdin)
         "#{base_url}#{path}?#{query}"
       end
 
       def timeout
         return @timeout if @timeout
 
-        kube_timeout = @env["KUBECTL_EXEC_COMMAND_TIMEOUT"]
+        kube_timeout = @env["KUBE_EXEC_COMMAND_TIMEOUT"]
         not_provided = kube_timeout.to_s.strip.empty?
-        default = DEFAULT_KUBECTL_EXEC_COMMAND_TIMEOUT
-        # If the value of KUBECTL_EXEC_COMMAND_TIMEOUT is not an integer it will be zero
+        default      = DEFAULT_KUBE_EXEC_COMMAND_TIMEOUT
+        # If the value of KUBE_EXEC_COMMAND_TIMEOUT is not an integer it will be zero
         @timeout = not_provided ? default : kube_timeout.to_i
       end
     end
 
-    class KubectlExec
+    class KubeExec
       # This delegates to all the work to the call method created automatically
       # by CommandClass
       #
       # This is needed because we need these methods to exist on the class,
       # but that class contains only a metaprogramming generated `call()`.
-      def execute(k8s_object_lookup:,
-        pod_namespace:,
-        pod_name:,
-        cmds:,
-        container: 'authenticator',
-        body: "",
-        stdin: false)
+      def execute(k8s_object_lookup:, pod_namespace:, pod_name:, cmds:, container: 'authenticator', body: "", stdin: false)
         call(
           k8s_object_lookup: k8s_object_lookup,
-          pod_namespace: pod_namespace,
-          pod_name: pod_name,
-          container: container,
-          cmds: cmds,
-          body: body,
-          stdin: stdin
+          pod_namespace:     pod_namespace,
+          pod_name:          pod_name,
+          container:         container,
+          cmds:              cmds,
+          body:              body,
+          stdin:             stdin
         )
-      end
-    end
-
-    # Utility class for processing WebSocket messages.
-    class WebSocketMessage
-      class << self
-        def channel_byte(channel_name)
-          channel_number_from_name(channel_name).chr
-        end
-
-        def channel_number_from_name(channel_name)
-          channel_names.index(channel_name)
-        end
-
-        def channel_names
-          %w(stdin stdout stderr error resize)
-        end
-      end
-
-      def initialize(msg)
-        @msg = msg
-      end
-
-      def type
-        @msg.type
-      end
-
-      def data
-        @msg.data[1..-1]
-      end
-
-      def channel_name
-        self.class.channel_names[channel_number]
-      end
-
-      def channel_number
-        unless @msg.respond_to?(:data)
-          return self.class.channel_number_from_name('error')
-        end
-
-        @msg.data[0..0].bytes.first
       end
     end
   end

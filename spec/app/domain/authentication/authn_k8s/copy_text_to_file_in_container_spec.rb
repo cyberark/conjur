@@ -12,7 +12,7 @@ RSpec.describe 'Authentication::AuthnK8s::CopyTextToFileInContainer' do
   let(:content) { "Content" }
   let(:mode) { "Mode" }
 
-  let(:kubectl_exec) { double("KubectlExec") }
+  let(:kube_exec) { double("KubeExec") }
 
   let(:k8s_object_lookup_instance) { double("K8sObjectLookupInstance") }
   let(:k8s_object_lookup) { double("K8sObjectLookup") }
@@ -25,14 +25,14 @@ RSpec.describe 'Authentication::AuthnK8s::CopyTextToFileInContainer' do
   end
 
   before(:each) do
-    allow(kubectl_exec)
+    allow(kube_exec)
       .to receive(:call)
   end
 
   context "Calling CopyTextToFileInContainer" do
     subject do
       ::Authentication::AuthnK8s::CopyTextToFileInContainer.new(
-        kubectl_exec:      kubectl_exec,
+        kube_exec:         kube_exec,
         k8s_object_lookup: k8s_object_lookup
       ).call(
         webservice:    webservice,
@@ -62,8 +62,8 @@ RSpec.describe 'Authentication::AuthnK8s::CopyTextToFileInContainer' do
                     "}\n\n" \
                     "set_file_content > \"${TMPDIR:-/tmp}/conjur_set_file_content.log\" 2>&1\n"
 
-    it "calls kubectl_exec with expected parameters" do
-      expect(kubectl_exec)
+    it "calls kube_exec with expected parameters" do
+      expect(kube_exec)
         .to receive(:call)
           .with(
             hash_including(

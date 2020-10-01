@@ -64,12 +64,12 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
   let(:pod_request) { double("PodRequest", k8s_host: k8s_host,
                                            spiffe_id: spiffe_id) }
 
-  let(:kubectl_exec_instance) { double("MockKubectlExec") }
-  let(:kubectl_exec) do
-    double('kubectl_exec').tap do |kubectl_exec|
-      allow(kubectl_exec).to receive(:new)
+  let(:kube_exec_instance) { double("MockKubeExec") }
+  let(:kube_exec) do
+    double('kube_exec').tap do |kube_exec|
+      allow(kube_exec).to receive(:new)
         .with(no_args)
-        .and_return(kubectl_exec_instance)
+        .and_return(kube_exec_instance)
     end
   end
 
@@ -97,7 +97,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
     {
       resource_class:                 resource_class,
       conjur_ca_repo:                 conjur_ca_repo,
-      kubectl_exec:                   kubectl_exec,
+      kube_exec:                      kube_exec,
       copy_text_to_file_in_container: copy_text_to_file_in_container,
       validate_pod_request:           validate_pod_request,
       audit_log:                      mocked_audit_logger
@@ -215,7 +215,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
     end
 
     context "when cert is being installed" do
-      let(:kubectl_exec_response) { double("MockKubeCtlExecResponse") }
+      let(:kube_exec_response) { double("MockKubeExecResponse") }
 
       before :each do
         allow(validate_pod_request)
@@ -223,7 +223,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           .with(hash_including(pod_request: anything))
           .and_return(nil)
 
-        allow(kubectl_exec_response).to receive(:[])
+        allow(kube_exec_response).to receive(:[])
           .with(:error)
           .and_return(nil)
 
@@ -240,7 +240,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
               mode: "644"
             )
           )
-          .and_return(kubectl_exec_response)
+          .and_return(kube_exec_response)
       end
 
       context "when copy operation raises runtime error" do
@@ -278,7 +278,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           expected_error_text = "ExpectedCopyError"
           expected_full_error_text = /CONJ00027E.*ExpectedCopyError/
 
-          allow(kubectl_exec_response).to receive(:[])
+          allow(kube_exec_response).to receive(:[])
             .with(:error)
             .and_return(expected_error_text)
 
@@ -297,7 +297,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
           error_type = Errors::Authentication::AuthnK8s::CertInstallationError
           expected_full_error_text = /CONJ00027E.*The server returned a blank error message/
 
-          allow(kubectl_exec_response).to receive(:[])
+          allow(kube_exec_response).to receive(:[])
             .with(:error)
             .and_return("\n   \n")
 
@@ -319,7 +319,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
         end
 
         it "throws no errors if copy is successful and error stream is empty string" do
-          allow(kubectl_exec_response).to receive(:[])
+          allow(kube_exec_response).to receive(:[])
             .with(:error)
             .and_return("")
 
@@ -331,7 +331,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
         end
 
         it "uses policy-defined container name if set" do
-          RSpec::Mocks.space.proxy_for(kubectl_exec_instance).reset
+          RSpec::Mocks.space.proxy_for(kube_exec_instance).reset
 
           overridden_container_name = "ContainerName"
 
@@ -351,7 +351,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
                 mode: "644"
               )
             )
-            .and_return(kubectl_exec_response)
+            .and_return(kube_exec_response)
 
           expect { injector.(conjur_account: account,
                              service_id: service_id,

@@ -12,7 +12,7 @@ module Authentication
         logger:                         Rails.logger,
         resource_class:                 Resource,
         conjur_ca_repo:                 Repos::ConjurCA,
-        kubectl_exec:                   KubectlExec,
+        kube_exec:                      KubeExec,
         copy_text_to_file_in_container: CopyTextToFileInContainer.new,
         validate_pod_request:           ValidatePodRequest.new,
         extract_container_name:         ExtractContainerName.new,

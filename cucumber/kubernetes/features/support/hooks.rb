@@ -13,7 +13,7 @@ Before do
     next unless ready_status.status == "True"
     next unless pod.metadata.name =~ /inventory\-deployment/
 
-    exec = Authentication::AuthnK8s::KubectlExec.new
+    exec = Authentication::AuthnK8s::KubeExec.new
 
     pod.spec.containers.each do |container|
       next unless container.name == "authenticator"
