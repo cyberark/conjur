@@ -267,6 +267,11 @@ module Errors
         code: "CONJ00033E"
       )
 
+      UnexpectedChannel = ::Util::TrackableErrorClass.new(
+        msg:  "Unexpected channel: {0}",
+        code: "CONJ00073E"
+      )
+
       MissingServiceAccountDir = ::Util::TrackableErrorClass.new(
         msg:  "Kubernetes serviceaccount dir '{0}' does not exist",
         code: "CONJ00034E"
