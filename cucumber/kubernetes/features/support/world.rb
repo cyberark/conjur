@@ -28,8 +28,8 @@ module AuthnK8sWorld
     pattern
   end
 
-  def kube_exec
-    Authentication::AuthnK8s::KubeExec.new
+  def execute_command_in_container
+    Authentication::AuthnK8s::ExecuteCommandInContainer.new
   end
 
   def print_result_errors response
@@ -53,11 +53,14 @@ module AuthnK8sWorld
       puts "Waiting for client cert to be available (Attempt #{count + 1} of #{retries})"
 
       pod_metadata = @pod.metadata
-      response = kube_exec.execute(
+      response = execute_command_in_container.call(
         k8s_object_lookup: Authentication::AuthnK8s::K8sObjectLookup.new,
-        pod_namespace: pod_metadata.namespace,
-        pod_name: pod_metadata.name,
-        cmds: [ "cat", "/etc/conjur/ssl/client.pem" ]
+        pod_namespace:     pod_metadata.namespace,
+        pod_name:          pod_metadata.name,
+        container:         "authenticator",
+        cmds:              %w(cat /etc/conjur/ssl/client.pem),
+        body:              "",
+        stdin:             false
       )
 
       if !response.nil? && response[:error].empty? && !response[:stdout].to_s.strip.empty?
@@ -73,11 +76,14 @@ module AuthnK8sWorld
     if !success
       puts "ERROR: Unable to retrieve client certificate for pod #{@pod.metadata.name.inspect}, " \
            "printing logs from the container..."
-      get_cert_injection_logs_response = kube_exec.execute(
+      get_cert_injection_logs_response = execute_command_in_container.call(
         k8s_object_lookup: Authentication::AuthnK8s::K8sObjectLookup.new,
-        pod_namespace: pod_metadata.namespace,
-        pod_name: pod_metadata.name,
-        cmds: [ "cat", "/tmp/conjur_set_file_content.log" ]
+        pod_namespace:     pod_metadata.namespace,
+        pod_name:          pod_metadata.name,
+        container:         "authenticator",
+        cmds:              %w(cat /tmp/conjur_copy_text_output.log),
+        body:              "",
+        stdin:             false
       )
 
       if !get_cert_injection_logs_response.nil? &&

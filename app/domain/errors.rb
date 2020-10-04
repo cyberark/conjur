@@ -231,11 +231,6 @@ module Errors
         code: "CONJ00026E"
       )
 
-      CertInstallationError = ::Util::TrackableErrorClass.new(
-        msg:  "Certificate could not be copied to pod: {0}",
-        code: "CONJ00027E"
-      )
-
       ContainerNotFound = ::Util::TrackableErrorClass.new(
         msg:  "Container {0} was not found in the pod. Host id: {1}",
         code: "CONJ00028E"
@@ -262,9 +257,19 @@ module Errors
         code: "CONJ00032E"
       )
 
-      CommandTimedOut = ::Util::TrackableErrorClass.new(
-        msg:  "Command timed out after {0} seconds in container '{1}' of pod '{2}'",
+      ExecCommandTimedOut = ::Util::TrackableErrorClass.new(
+        msg:  "Exec command timed out after {0} seconds in container '{1}' of pod '{2}'",
         code: "CONJ00033E"
+      )
+
+      WebSocketHandshakeError = ::Util::TrackableErrorClass.new(
+        msg:  "WebSocket handshake failed with error {0}",
+        code: "CONJ00071E"
+      )
+
+      ExecCommandError = ::Util::TrackableErrorClass.new(
+        msg:  "Exec command failed in container '{0}' of pod '{1}' with error {2}",
+        code: "CONJ00072E"
       )
 
       UnexpectedChannel = ::Util::TrackableErrorClass.new(

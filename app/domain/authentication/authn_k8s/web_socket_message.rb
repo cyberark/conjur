@@ -18,6 +18,8 @@ module Authentication
         end
       end
 
+      # The "msg" argument comes from a websocket server and is assumed to
+      # respond to "type" and "data" methods.
       def initialize(msg)
         @msg = msg
       end

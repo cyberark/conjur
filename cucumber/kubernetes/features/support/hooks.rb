@@ -13,17 +13,17 @@ Before do
     next unless ready_status.status == "True"
     next unless pod.metadata.name =~ /inventory\-/
 
-    exec = Authentication::AuthnK8s::KubeExec.new
-
     pod.spec.containers.each do |container|
       next unless container.name == "authenticator"
 
-      exec.execute(
+      Authentication::AuthnK8s::ExecuteCommandInContainer.new.call(
         k8s_object_lookup: Authentication::AuthnK8s::K8sObjectLookup.new,
         pod_namespace: pod.metadata.namespace,
         pod_name: pod.metadata.name,
         container: container.name,
-        cmds: %w(rm -rf /etc/conjur/ssl/*)
+        cmds: %w(rm -rf /etc/conjur/ssl/*),
+        body: "",
+        stdin: false
       )
     end
   end

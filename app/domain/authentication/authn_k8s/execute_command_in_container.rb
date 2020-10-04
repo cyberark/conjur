@@ -11,10 +11,13 @@ require 'websocket-client-simple'
 module Authentication
   module AuthnK8s
 
-    KubeExec ||= CommandClass.new(
+    ExecuteCommandInContainer ||= CommandClass.new(
       dependencies: {
-        env:    ENV,
-        logger: Rails.logger
+        env:               ENV,
+        websocket_client:  WebSocket::Client::Simple,
+        message_log_class: MessageLog,
+        validate_message:  MessageLog::ValidateMessage.new,
+        logger:            Rails.logger
       },
       inputs:       %i(k8s_object_lookup pod_namespace pod_name container cmds body stdin)
     ) do
@@ -25,75 +28,68 @@ module Authentication
       DEFAULT_KUBE_EXEC_COMMAND_TIMEOUT = 5
 
       def call
-        @message_log    = MessageLog.new
-        @channel_closed = false
-
-        url       = server_url(@cmds, @stdin)
-        headers   = kube_client.headers.clone
-        ws_client = WebSocket::Client::Simple.connect(url, headers: headers)
-
-        add_websocket_event_handlers(ws_client, @body, @stdin)
-
+        init_ws_client
+        add_websocket_event_handlers
         wait_for_close_message
-
-        unless @channel_closed
-          raise Errors::Authentication::AuthnK8s::CommandTimedOut.new(
-            timeout,
-            @container,
-            @pod_name
-          )
-        end
-
-        # TODO: raise an `WebsocketServerFailure` here in the case of ws :error
-
-        @message_log.messages
+        verify_channel_is_closed
+        verify_error_stream_is_empty
+        websocket_messages
       end
 
-      def on_open(ws_client, body, stdin)
+      def on_open(ws_client, stdin, body)
         hs       = ws_client.handshake
         hs_error = hs.error
 
         if hs_error
-          ws_client.emit(:error, "Websocket handshake error: #{hs_error.inspect}")
-        else
-          @logger.debug(
-            LogMessages::Authentication::AuthnK8s::PodChannelOpen.new(@pod_name)
+          # Add the error to the stream instead of raising it so we continue to
+          # receive other messages. At the end of this class run we will verify
+          # the stream to see if any errors were written
+          ws_client.emit(
+            :error,
+            Errors::Authentication::AuthnK8s::WebSocketHandshakeError.new(
+              hs_error.inspect
+            )
           )
-
-          if stdin
-            data = WebSocketMessage.channel_byte('stdin') + body
-            ws_client.send(data)
-
-            # We close the socket and don't wait for the cert to be fully injected
-            # so that we can finish handling the request quickly and don't leave the
-            # Conjur server hanging. If an error occurred it will be written to
-            # the client container logs.
-            ws_client.send(nil, type: :close)
-          end
+          return
         end
+
+        @logger.debug(
+          LogMessages::Authentication::AuthnK8s::PodChannelOpen.new(@pod_name)
+        )
+
+        return unless stdin
+
+        # stdin was provided. We send it to the client.
+
+        data = WebSocketMessage.channel_byte('stdin') + body
+        ws_client.send(data)
+
+        # We close the socket and don't wait for the other side to close it
+        # so that we can finish handling the request quickly and don't leave the
+        # Conjur server hanging. If an error occurred it will be written to
+        # the client container logs.
+        ws_client.send(nil, type: :close)
       end
 
       def on_message(msg, ws_client)
-        wsmsg = WebSocketMessage.new(msg)
+        ws_msg = WebSocketMessage.new(msg)
 
-        msg_type = wsmsg.type
-        msg_data = wsmsg.data
+        msg_type = ws_msg.type
+        msg_data = ws_msg.data
 
-        if msg_type == :binary
+        case msg_type
+        when :binary
           @logger.debug(
             LogMessages::Authentication::AuthnK8s::PodChannelData.new(
-              @pod_name,
-              wsmsg.channel_name,
-              msg_data
+              @pod_name, ws_msg.channel_name, msg_data
             )
           )
-          @message_log.save_message(wsmsg)
-        elsif msg_type == :close
+          @validate_message.call(ws_msg)
+          @message_log.save_message(ws_msg)
+        when :close
           @logger.debug(
             LogMessages::Authentication::AuthnK8s::PodMessageData.new(
-              @pod_name,
-              "close",
-              msg_data
+              @pod_name, "close", msg_data
             )
           )
           ws_client.close
@@ -119,14 +115,30 @@ module Authentication
 
       private
 
-      def add_websocket_event_handlers(ws_client, body, stdin)
-        # We need to set this so the handlers will call this class's methods.
-        # If we use 'self' inside the curly brackets it will be try to use methods
-        # of the class WebSocket::Client::Simple::Client
-        kube = self
+      def init_ws_client
+        @channel_closed = false
+        # We need to initialize the message log here instead of in the dependencies
+        # so that each instance of ExecuteCommandInContainer will have its own log
+        @message_log = @message_log_class.new
+        ws_client
+      end
 
-        ws_client.on(:open) { kube.on_open(ws_client, body, stdin) }
-        ws_client.on(:message) { |msg| kube.on_message(msg, ws_client) }
+      def ws_client
+        @ws_client ||= @websocket_client.connect(server_url, headers: headers)
+      end
+
+      def add_websocket_event_handlers
+        # We need to set these params so the handlers will call this class's methods,
+        # using this class's members.
+        # If we use 'self' inside the curly brackets it will be try to use methods
+        # of the class WebSocket::Client::Simple::Client.
+        kube               = self
+        stdin              = @stdin
+        body               = @body
+        ws_client_instance = ws_client
+
+        ws_client.on(:open) { kube.on_open(ws_client_instance, stdin, body) }
+        ws_client.on(:message) { |msg| kube.on_message(msg, ws_client_instance) }
         ws_client.on(:close) { kube.on_close }
         ws_client.on(:error) { |err| kube.on_error(err) }
       end
@@ -138,22 +150,52 @@ module Authentication
         end
       end
 
-      def query_string(cmds, stdin)
-        stdin_part = stdin ? ['stdin=true'] : []
-        cmds_part  = cmds.map { |cmd| "command=#{CGI.escape(cmd)}" }
-        (base_query_string_parts + stdin_part + cmds_part).join("&")
+      def verify_channel_is_closed
+        unless @channel_closed
+          raise Errors::Authentication::AuthnK8s::ExecCommandTimedOut.new(
+            timeout,
+            @container,
+            @pod_name
+          )
+        end
       end
 
-      def base_query_string_parts
-        %W(container=#{CGI.escape(@container)} stderr=true stdout=true)
+      def verify_error_stream_is_empty
+        error_stream = @message_log.messages[:error]
+        return if error_stream.nil? || error_stream.empty?
+        raise Errors::Authentication::AuthnK8s::ExecCommandError.new(
+          @container,
+          @pod_name,
+          websocket_error(error_stream)
+        )
       end
 
-      def server_url(cmds, stdin)
+      def server_url
         api_uri  = kube_client.api_endpoint
         base_url = "wss://#{api_uri.host}:#{api_uri.port}"
         path     = "/api/v1/namespaces/#{@pod_namespace}/pods/#{@pod_name}/exec"
-        query    = query_string(cmds, stdin)
-        "#{base_url}#{path}?#{query}"
+
+        base_query_string_parts = %W(container=#{CGI.escape(@container)} stderr=true stdout=true)
+        stdin_part              = @stdin ? ['stdin=true'] : []
+        cmds_part               = @cmds.map { |cmd| "command=#{CGI.escape(cmd)}" }
+        query_string            = (
+        base_query_string_parts + stdin_part + cmds_part
+        ).join("&")
+
+        "#{base_url}#{path}?#{query_string}"
+      end
+
+      def headers
+        @headers ||= kube_client.headers.clone
+      end
+
+      def websocket_error(msg)
+        return 'The server returned a blank error message' if msg.blank?
+        msg.to_s
+      end
+
+      def websocket_messages
+        @message_log.messages
       end
 
       def timeout
@@ -164,25 +206,6 @@ module Authentication
         default      = DEFAULT_KUBE_EXEC_COMMAND_TIMEOUT
         # If the value of KUBE_EXEC_COMMAND_TIMEOUT is not an integer it will be zero
         @timeout = not_provided ? default : kube_timeout.to_i
-      end
-    end
-
-    class KubeExec
-      # This delegates to all the work to the call method created automatically
-      # by CommandClass
-      #
-      # This is needed because we need these methods to exist on the class,
-      # but that class contains only a metaprogramming generated `call()`.
-      def execute(k8s_object_lookup:, pod_namespace:, pod_name:, cmds:, container: 'authenticator', body: "", stdin: false)
-        call(
-          k8s_object_lookup: k8s_object_lookup,
-          pod_namespace:     pod_namespace,
-          pod_name:          pod_name,
-          container:         container,
-          cmds:              cmds,
-          body:              body,
-          stdin:             stdin
-        )
       end
     end
   end

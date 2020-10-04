@@ -8,14 +8,14 @@ module Authentication
 
     CopyTextToFileInContainer ||= CommandClass.new(
       dependencies: {
-        kube_exec:         KubeExec.new,
-        k8s_object_lookup: K8sObjectLookup,
-        logger:            Rails.logger
+        execute_command_in_container: ExecuteCommandInContainer.new,
+        k8s_object_lookup:            K8sObjectLookup,
+        logger:                       Rails.logger
       },
-      inputs: %i(webservice pod_namespace pod_name container path content mode)
+      inputs:       %i(webservice pod_namespace pod_name container path content mode)
     ) do
 
-      LOG_FILE = "${TMPDIR:-/tmp}/conjur_set_file_content.log"
+      LOG_FILE = "${TMPDIR:-/tmp}/conjur_copy_text_output.log"
 
       def call
         copy_text_to_file_in_container
@@ -24,13 +24,13 @@ module Authentication
       private
 
       def copy_text_to_file_in_container
-        @kube_exec.call(
+        @execute_command_in_container.call(
           k8s_object_lookup: @k8s_object_lookup.new(@webservice),
           pod_namespace:     @pod_namespace,
           pod_name:          @pod_name,
           container:         @container,
           cmds:              %w(sh),
-          body:              set_file_content_script(@path, @content, @mode),
+          body:              bash_script(@path, @content, @mode),
           stdin:             true
         )
       end
@@ -42,29 +42,28 @@ module Authentication
       #
       # We redirect the output to a log file on the authn-client container
       # that will be written in its logs for supportability.
-      def set_file_content_script(path, content, mode)
+      def bash_script(path, content, mode)
         tmp_cert = "#{path}.tmp"
+        <<~BASH_SCRIPT
+          #!/bin/sh
+          set -e
 
-        "
-#!/bin/sh
-set -e
+          cleanup() {
+            rm -f \"#{tmp_cert}\"
+          }
+          trap cleanup EXIT
 
-cleanup() {
-  rm -f \"#{tmp_cert}\"
-}
-trap cleanup EXIT
+          set_file_content() {
+            cat > \"#{tmp_cert}\" <<EOF
+          #{content}
+          EOF
 
-set_file_content() {
-  cat > \"#{tmp_cert}\" <<EOF
-#{content}
-EOF
+            chmod \"#{mode}\" \"#{tmp_cert}\"
+            mv \"#{tmp_cert}\" \"#{path}\"
+          }
 
-  chmod \"#{mode}\" \"#{tmp_cert}\"
-  mv \"#{tmp_cert}\" \"#{path}\"
-}
-
-set_file_content > \"#{LOG_FILE}\" 2>&1
-"
+          set_file_content > \"#{LOG_FILE}\" 2>&1
+        BASH_SCRIPT
       end
     end
   end
