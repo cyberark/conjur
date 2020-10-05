@@ -1,4 +1,4 @@
-$tag = "$(git rev-parse --short HEAD)"
+$tag = "$(git rev-parse --short=8 HEAD)"
 $run_dev = $true
 
 Write-Host "Building Conjur Docker image"

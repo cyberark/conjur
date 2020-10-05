@@ -73,7 +73,7 @@ function createNginxCert() {
 }
 
 function buildDockerImages() {
-  conjur_version=$(echo "$(< ../../VERSION)-$(git rev-parse --short HEAD)")
+  conjur_version=$(echo "$(< ../../VERSION)-$(git rev-parse --short=8 HEAD)")
 
   docker tag conjur:$conjur_version $CONJUR_AUTHN_K8S_TAG
 

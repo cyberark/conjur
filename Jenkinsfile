@@ -41,7 +41,7 @@ pipeline {
         stage("Scan Docker Image for fixable issues") {
           steps {
             script {
-              TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short HEAD)')
+              TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short=8 HEAD)')
             }
             scanAndReport("conjur:${TAG}", "HIGH", false)
           }
@@ -49,7 +49,7 @@ pipeline {
         stage("Scan Docker image for total issues") {
           steps {
             script {
-              TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short HEAD)')
+              TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short=8 HEAD)')
             }
             scanAndReport("conjur:${TAG}", "NONE", true)
           }
