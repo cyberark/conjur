@@ -74,11 +74,15 @@ function createNginxCert() {
 
 function buildDockerImages() {
   conjur_version=$(echo "$(< ../../VERSION)-$(git rev-parse --short=8 HEAD)")
+  DOCKER_REGISTRY_PATH="registry.tld/test"
 
-  docker tag conjur:$conjur_version $CONJUR_AUTHN_K8S_TAG
+  docker pull $DOCKER_REGISTRY_PATH/conjur:$conjur_version
+  docker pull $DOCKER_REGISTRY_PATH/conjur-test:$conjur_version
+
+  docker tag $DOCKER_REGISTRY_PATH/conjur:$conjur_version $CONJUR_AUTHN_K8S_TAG
 
   # cukes will be run from this image
-  docker tag conjur-test:$conjur_version $CONJUR_TEST_AUTHN_K8S_TAG
+  docker tag $DOCKER_REGISTRY_PATH/conjur-test:$conjur_version $CONJUR_TEST_AUTHN_K8S_TAG
   
   docker build -t $INVENTORY_TAG -f dev/Dockerfile.inventory dev
 
