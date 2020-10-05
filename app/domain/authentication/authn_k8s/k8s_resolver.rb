@@ -99,23 +99,23 @@ module Authentication
 
       class DeploymentConfig < Base
         def validate_pod
-          replication_resource_ref = pod_owner_refs&.find { |ref| ref.kind == "Replicationresource" }
-          unless replication_resource_ref
+          replication_controller_ref = pod_owner_refs&.find { |ref| ref.kind == "ReplicationController" }
+          unless replication_controller_ref
             raise Errors::Authentication::AuthnK8s::PodMissingRelationError.new(
               pod_name,
               'ReplicationController'
             )
           end
 
-          replication_resource = k8s_object_lookup.find_object_by_name(
-            "replication_resource",
-            replication_resource_ref.name,
+          replication_controller = k8s_object_lookup.find_object_by_name(
+            "replication_controller",
+            replication_controller_ref.name,
             namespace
           )
 
-          replication_resource_owner_refs = replication_resource.metadata.ownerReferences
+          replication_controller_owner_refs = replication_controller.metadata.ownerReferences
 
-          deployment_config_ref = replication_resource_owner_refs&.find { |ref| ref.kind == "DeploymentConfig" }
+          deployment_config_ref = replication_controller_owner_refs&.find { |ref| ref.kind == "DeploymentConfig" }
 
           unless deployment_config_ref
             raise Errors::Authentication::AuthnK8s::PodMissingRelationError.new(
