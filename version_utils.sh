@@ -3,7 +3,7 @@
 # Functions to generate version numbers for this project
 
 version_tag() {
-  echo "$(< VERSION)-$(git rev-parse --short HEAD)"
+  echo "$(< VERSION)-$(git rev-parse --short=8 HEAD)"
 }
 
 # generate less specific versions, eg. given 1.2.3 will print 1.2 and 1
