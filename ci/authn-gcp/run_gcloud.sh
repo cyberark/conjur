@@ -5,12 +5,16 @@
 # The name of the script to run in the Google SDK container.
 GCLOUD_SCRIPT=$1
 
+finish() {
+  verify_sa_key_file_deleted
+}
+trap finish EXIT
+
 main() {
   echo "run_gcloud.sh with script: $GCLOUD_SCRIPT"
-  validate_pre_requisites || exit 1
-  write_sa_key_to_file || exit 1
-  run_gcloud_container || exit 1
-  delete_sa_key_file || exit 1
+  validate_pre_requisites
+  write_sa_key_to_file
+  run_gcloud_container
   echo "-> run_gcloud.sh with script: $GCLOUD_SCRIPT done"
 }
 
@@ -82,16 +86,14 @@ run_gcloud_container() {
   echo "-> run_gcloud_container done"
 }
 
-# Deletes the service account key file.
+# Deletes the service account key file if still exists
 # Service account key file is used to authenticate with Google SDK CLI.
 # Google SDK CLI (gcloud) is used to deploy the Google function.
-delete_sa_key_file() {
-  echo 'delete_sa_key_file'
+verify_sa_key_file_deleted() {
   if [ -f "$GCP_OWNER_SERVICE_KEY_FILE" ]; then
-    rm -f echo "$GCP_OWNER_SERVICE_KEY_FILE" || echo "Error cannot delete Service Account key file: \
-    '$GCP_OWNER_SERVICE_KEY_FILE'"
+    echo "Error: Container didn't take care to delete key file after usage"
+    rm -f echo "$GCP_OWNER_SERVICE_KEY_FILE"
   fi
-  echo '-> delete_sa_key_file done'
 }
 
-main || exit 1
+main
