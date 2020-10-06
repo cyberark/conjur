@@ -16,9 +16,8 @@ metadata:
   name: inventory-deployment-cfg
 spec:
   replicas: 1
-    selector:
-      matchLabels:
-        app: inventory-deployment-cfg
+  selector:
+    app: inventory-deployment-cfg
   template:
     metadata:
       labels:

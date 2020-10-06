@@ -99,7 +99,7 @@ module Authentication
 
       class DeploymentConfig < Base
         def validate_pod
-          replication_resource_ref = pod_owner_refs&.find { |ref| ref.kind == "Replicationresource" }
+          replication_resource_ref = pod_owner_refs&.find { |ref| ref.kind == "ReplicationController" }
           unless replication_resource_ref
             raise Errors::Authentication::AuthnK8s::PodMissingRelationError.new(
               pod_name,
@@ -108,7 +108,7 @@ module Authentication
           end
 
           replication_resource = k8s_object_lookup.find_object_by_name(
-            "replication_resource",
+            "replication_controller",
             replication_resource_ref.name,
             namespace
           )
