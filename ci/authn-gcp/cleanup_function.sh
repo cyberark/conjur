@@ -8,7 +8,6 @@ cleanup_function() {
   validate_pre_requisites
   delete_function
   delete_identity_token
-  delete_sa_key_file
   echo "-- Cleanup function done"
 }
 
@@ -41,6 +40,9 @@ delete_function() {
   # NOTE! The script that runs the container with this script provisions the file
   # and this script deletes it.
   gcloud auth activate-service-account --key-file "$GCP_OWNER_SERVICE_KEY"
+
+  # delete key soon after done using - due to security concerns
+  rm -f "$GCP_OWNER_SERVICE_KEY"
 
   # List all functions and filter the $GCF_FUNC_NAME variable
   local func_exists="gcloud functions list --format='value(name)' --filter='name ~ $GCF_FUNC_NAME'"
