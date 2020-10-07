@@ -68,6 +68,11 @@ if image_needs_building "conjur-test:$TAG"; then
   docker build --build-arg "VERSION=$TAG" -t "conjur-test:$TAG" -f Dockerfile.test .
 fi
 
+if image_needs_building "conjur-ubi:$TAG"; then
+  echo "Building image conjur-ubi:$TAG container"
+  docker build --build-arg "VERSION=$TAG" -t "conjur-ubi:$TAG" -f Dockerfile.ubi .
+fi
+
 if [[ $jenkins = false ]]; then
   echo "Building image conjur-dev"
   docker build -t conjur-dev -f dev/Dockerfile.dev .
