@@ -9,7 +9,7 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 # nicely with RVM and we should be explicit since Ruby is such a fundamental
 # part of a Rails project. The Ruby version is also locked in place by the
 # Docker base image so it won't be updated with fuzzy matching.
-ruby '2.5.1'
+ruby '2.5.5'
 #ruby-gemset=conjur
 
 gem 'command_class'

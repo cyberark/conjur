@@ -1,0 +1,71 @@
+FROM registry.redhat.io/ubi8/ubi
+
+EXPOSE 8080
+
+ENV PORT=8080 \
+    LOG_DIR=/opt/conjur-server/log \
+    TMP_DIR=/opt/conjur-server/tmp \
+    SSL_CERT_DIRECTORY=/opt/conjur/etc/ssl \
+    RAILS_ENV=production
+
+ENV RUBY_MAJOR_VERSION=2 \
+    RUBY_MINOR_VERSION=5
+
+ENV RUBY_VERSION="${RUBY_MAJOR_VERSION}.${RUBY_MINOR_VERSION}" \
+    RUBY_SCL_NAME_VERSION="${RUBY_MAJOR_VERSION}${RUBY_MINOR_VERSION}" \
+    RUBY_SCL="ruby-${RUBY_SCL_NAME_VERSION}"
+
+LABEL name="conjur-ubi" \
+      vendor="CyberArk" \
+      version="$VERSION" \
+      release="$VERSION" \
+      summary="Conjur UBI based container" \
+      description="Conjur UBI based container"
+
+RUN yum -y module enable ruby:$RUBY_VERSION && \
+    INSTALL_PKGS="ruby ruby-devel rubygem-rake redhat-rpm-config libxslt-devel libxml2-devel gcc gcc-c++ glibc-devel make git openldap-clients libpq libpq-devel tzdata libzip-devel" && \
+    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+    rpm -V $INSTALL_PKGS && \
+    yum -y clean all --enablerepo='*'
+
+# Create conjur user with one that has known gid / uid.
+RUN groupadd -r conjur \
+             -g 777 && \
+    useradd -c "conjur runner account" \
+            -g conjur \
+            -d "$HOME" \
+            -r \
+            -m \
+            -s /bin/bash \
+            -u 777 conjur
+
+COPY ubi/ /usr/bin/
+
+RUN gem install --no-document bundler:2.1.4
+
+WORKDIR /opt/conjur-server
+
+# Ensure few required GID0-owned folders to run as a random UID (OpenShift requirement)
+RUN mkdir -p $TMP_DIR \
+             $LOG_DIR \
+             $SSL_CERT_DIRECTORY/ca \
+             $SSL_CERT_DIRECTORY/cert \
+             /run/authn-local && \
+    # Ensure user in container will be able to read / write these.
+    fix-permissions -u conjur "$LOG_DIR" \
+                              "$TMP_DIR" \
+                              "$SSL_CERT_DIRECTORY" \
+                              /run/authn-local       
+
+COPY Gemfile \
+     Gemfile.lock ./
+
+RUN bundle --without test development
+
+COPY . .
+
+RUN ln -sf /opt/conjur-server/bin/conjurctl /usr/local/bin/
+
+USER conjur
+
+ENTRYPOINT ["conjurctl"]

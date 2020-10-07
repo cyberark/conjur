@@ -1,0 +1,21 @@
+#!/bin/sh -e
+# Fix permissions on the given directory to allow group read/write of regular
+# files and execute of directories.
+
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 [ -u <username> ] dir-or-file [ dir-or-file... ]"
+  exit 1
+fi
+
+username="nobody"
+if [ "$1" = "-u" ]; then
+  username="$2"
+  shift 2
+fi
+
+for location in "$@"; do
+  echo "Fixing permissions ($username): $location"
+  find "$location" -exec chown $username:0 {} \; \
+       -exec chmod g+rw {} \; \
+       -type d -exec chmod g+x {} + 
+done

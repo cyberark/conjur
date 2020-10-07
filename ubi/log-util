@@ -1,0 +1,26 @@
+
+function fail() {
+  log_error "$@"
+  exit 1
+}
+
+function log_error() {
+  log "ERROR" "$@"
+}
+
+function log_warning() {
+  log "WARNING" "$@"
+}
+
+function log_info() {
+  log "INFO" "$@"
+}
+
+# log() expects the environment variable `PROGRAM_NAME` to be set.
+function log() {
+  level="$1"; shift
+  message="$@"
+
+  # log prints to stderr to avoid conflict with bash function return values
+  echo "[$PROGRAM_NAME] ${level}: ${message}" >&2
+}
