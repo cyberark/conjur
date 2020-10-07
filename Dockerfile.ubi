@@ -51,11 +51,17 @@ RUN mkdir -p $TMP_DIR \
              $SSL_CERT_DIRECTORY/ca \
              $SSL_CERT_DIRECTORY/cert \
              /run/authn-local && \
-    # Ensure user in container will be able to read / write these.
-    fix-permissions -u conjur "$LOG_DIR" \
-                              "$TMP_DIR" \
-                              "$SSL_CERT_DIRECTORY" \
-                              /run/authn-local       
+    # Use GID of 0 since that is what OpenShift will want to be able to read things
+    chown conjur:0 "$LOG_DIR" \
+                   "$TMP_DIR" \
+                   "$SSL_CERT_DIRECTORY" \
+                   /run/authn-local && \
+    # We need open group permissions in these directories since OpenShift won't
+    # match our UID when we try to write files to them
+    chmod 770 "$LOG_DIR" \
+              "$TMP_DIR" \
+              "$SSL_CERT_DIRECTORY" \
+              /run/authn-local
 
 COPY Gemfile \
      Gemfile.lock ./
