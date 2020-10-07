@@ -1,6 +1,7 @@
 FROM registry.redhat.io/ubi8/ubi
 
 EXPOSE 8080
+ARG BUNDLER_VERSION=2.1.4
 
 ENV PORT=8080 \
     LOG_DIR=/opt/conjur-server/log \
@@ -19,11 +20,26 @@ LABEL name="conjur-ubi" \
       vendor="CyberArk" \
       version="$VERSION" \
       release="$VERSION" \
-      summary="Conjur UBI based container" \
-      description="Conjur UBI based container"
+      summary="Conjur UBI-based image" \
+      description="Conjur provides secrets management and machine identity for modern infrastructure."
 
-RUN yum -y module enable ruby:$RUBY_VERSION && \
-    INSTALL_PKGS="ruby ruby-devel rubygem-rake redhat-rpm-config libxslt-devel libxml2-devel gcc gcc-c++ glibc-devel make git openldap-clients libpq libpq-devel tzdata libzip-devel" && \
+RUN yum -y module enable "ruby:$RUBY_VERSION" && \
+    INSTALL_PKGS="ruby \
+                  ruby-devel \
+                  rubygem-rake \
+                  redhat-rpm-config \
+                  libxslt-devel \
+                  libxml2-devel \
+                  gcc \
+                  gcc-c++ \
+                  glibc-devel \
+                  make \
+                  git \
+                  openldap-clients \
+                  libpq \
+                  libpq-devel \
+                  tzdata \
+                  libzip-devel" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum -y clean all --enablerepo='*'
@@ -39,17 +55,15 @@ RUN groupadd -r conjur \
             -s /bin/bash \
             -u 777 conjur
 
-COPY ubi/ /usr/bin/
-
-RUN gem install --no-document bundler:2.1.4
+RUN gem install --no-document bundler:$BUNDLER_VERSION
 
 WORKDIR /opt/conjur-server
 
 # Ensure few required GID0-owned folders to run as a random UID (OpenShift requirement)
-RUN mkdir -p $TMP_DIR \
-             $LOG_DIR \
-             $SSL_CERT_DIRECTORY/ca \
-             $SSL_CERT_DIRECTORY/cert \
+RUN mkdir -p "$TMP_DIR" \
+             "$LOG_DIR" \
+             "$SSL_CERT_DIRECTORY/ca" \
+             "$SSL_CERT_DIRECTORY/cert" \
              /run/authn-local && \
     # Use GID of 0 since that is what OpenShift will want to be able to read things
     chown conjur:0 "$LOG_DIR" \
@@ -71,6 +85,8 @@ RUN bundle --without test development
 COPY . .
 
 RUN ln -sf /opt/conjur-server/bin/conjurctl /usr/local/bin/
+
+ADD LICENSE.md /licenses/
 
 USER conjur
 
