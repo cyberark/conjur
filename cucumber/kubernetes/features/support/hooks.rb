@@ -16,12 +16,14 @@ Before do
     pod.spec.containers.each do |container|
       next unless container.name == "authenticator"
 
+      cmds = %w(rm -rf /etc/conjur/ssl/*)
+      puts "Running command '#{cmds.join(" ")}' container #{container.name} in pod #{pod.metadata.name}"
       Authentication::AuthnK8s::ExecuteCommandInContainer.new.call(
         k8s_object_lookup: Authentication::AuthnK8s::K8sObjectLookup.new,
         pod_namespace: pod.metadata.namespace,
         pod_name: pod.metadata.name,
         container: container.name,
-        cmds: %w(rm -rf /etc/conjur/ssl/*),
+        cmds: cmds,
         body: "",
         stdin: false
       )

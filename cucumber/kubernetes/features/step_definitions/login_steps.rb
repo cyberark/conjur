@@ -15,6 +15,7 @@ def login username, request_ip, authn_k8s_host, pkey, headers = {}
   @cert = pod_certificate
 
   if @cert.to_s.empty?
+    puts "WARN: Certificate is empty!"
     warn "WARN: Certificate is empty!"
   end
 
