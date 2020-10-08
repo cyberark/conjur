@@ -103,3 +103,7 @@ When(/^the certificate is valid for 3 days$/) do ||
   certificate = OpenSSL::X509::Certificate.new(@cert)
   expect(certificate.not_after - certificate.not_before).to eq(3 * 24 * 60 * 60)
 end
+
+Then(/^the cert injection logs exist in the client container$/) do
+  expect(@cert_injection_logs).to include("Directory nonexistent")
+end

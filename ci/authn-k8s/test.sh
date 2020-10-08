@@ -51,6 +51,7 @@ function setupTestEnvironment() {
   export CONJUR_TEST_AUTHN_K8S_TAG="${DOCKER_REGISTRY_PATH}/conjur-test:authn-k8s-$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
   export CONJUR_AUTHN_K8S_TESTER_TAG="${DOCKER_REGISTRY_PATH}/authn-k8s-tester:$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
 
+  export INVENTORY_BASE_TAG="${DOCKER_REGISTRY_PATH}/inventory_base:$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
   export INVENTORY_TAG="${DOCKER_REGISTRY_PATH}/inventory:$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
 
   export NGINX_TAG="${DOCKER_REGISTRY_PATH}/nginx:$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
@@ -84,7 +85,12 @@ function buildDockerImages() {
   # cukes will be run from this image
   docker tag $DOCKER_REGISTRY_PATH/conjur-test:$conjur_version $CONJUR_TEST_AUTHN_K8S_TAG
   
-  docker build -t $INVENTORY_TAG -f dev/Dockerfile.inventory dev
+  docker build -t $INVENTORY_BASE_TAG -f dev/Dockerfile.inventory_base dev
+  docker build \
+    --build-arg INVENTORY_BASE_TAG=$INVENTORY_BASE_TAG \
+    -t $INVENTORY_TAG \
+    -f dev/Dockerfile.inventory \
+    dev
 
   docker build -t $NGINX_TAG -f dev/Dockerfile.nginx dev
 
@@ -97,6 +103,7 @@ function test_gke() {
     -e CONJUR_AUTHN_K8S_TAG \
     -e CONJUR_TEST_AUTHN_K8S_TAG \
     -e INVENTORY_TAG \
+    -e INVENTORY_BASE_TAG \
     -e NGINX_TAG \
     -e CONJUR_AUTHN_K8S_TEST_NAMESPACE \
     -e GCLOUD_CLUSTER_NAME \
@@ -114,6 +121,7 @@ function test_openshift() {
     -e CONJUR_AUTHN_K8S_TAG \
     -e CONJUR_TEST_AUTHN_K8S_TAG \
     -e INVENTORY_TAG \
+    -e INVENTORY_BASE_TAG \
     -e NGINX_TAG \
     -e CONJUR_AUTHN_K8S_TEST_NAMESPACE \
     -e PLATFORM \
