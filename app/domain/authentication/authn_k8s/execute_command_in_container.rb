@@ -65,8 +65,20 @@ module Authentication
         # the curly brackets it will look for such a member in the websocket_client
         # class
         ws_client_event_handler = @ws_client_event_handler
+        main_thread_tags        = @logger.formatter.current_tags
+        logger                  = @logger
 
-        ws_client.on(:open) { ws_client_event_handler.on_open }
+        ws_client.on(:open) do
+          # Add log tags (origin, thread id, etc.) to sub-thread as they are not
+          # passed automatically. We append the sub-thread id to the main one so
+          # we can easily know the flow from the logs and connect between the threads
+          tid             = syscall(186)
+          sub_thread_tags = main_thread_tags.map do |x|
+            x.start_with?("tid=") ? "#{x}=>#{tid}" : x
+          end
+          logger.formatter.current_tags.replace sub_thread_tags
+          ws_client_event_handler.on_open
+        end
         ws_client.on(:message) { |msg| ws_client_event_handler.on_message(msg) }
         ws_client.on(:close) { ws_client_event_handler.on_close }
         ws_client.on(:error) { |err| ws_client_event_handler.on_error(err) }
