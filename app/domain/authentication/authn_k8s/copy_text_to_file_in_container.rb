@@ -49,20 +49,20 @@ module Authentication
           set -e
 
           cleanup() {
-            rm -f \"#{tmp_cert}\"
+            rm -f "#{tmp_cert}"
           }
           trap cleanup EXIT
 
           set_file_content() {
-            cat > \"#{tmp_cert}\" <<EOF
+            cat > "#{tmp_cert}" <<EOF
           #{content}
           EOF
 
-            chmod \"#{mode}\" \"#{tmp_cert}\"
-            mv \"#{tmp_cert}\" \"#{path}\"
+            chmod "#{mode}" "#{tmp_cert}"
+            mv "#{tmp_cert}" "#{path}"
           }
 
-          set_file_content > \"#{LOG_FILE}\" 2>&1
+          set_file_content > "#{LOG_FILE}" 2>&1
         BASH_SCRIPT
       end
     end

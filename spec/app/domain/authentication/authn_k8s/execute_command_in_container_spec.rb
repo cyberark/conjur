@@ -3,10 +3,14 @@ require 'spec_helper'
 RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
 
   class WsClientMock
-    attr_accessor :received_messages, :connect_args
+    attr_accessor :received_messages, :connect_args, :ready_listeners_queue
 
     def initialize(handshake_error: nil)
       @handshake_error = handshake_error
+
+      # We need to wait until all the listeners (on_xxx methods) are ready before
+      # running the UT so that we don't have a race condition.
+      @ready_listeners_queue = Queue.new
 
       # State saved to make on assertions on later
       @received_messages = []
@@ -34,17 +38,15 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
     # "on" is used by the implementation code, not the test code.
     def on(event, &blk)
       @registered_events[event] = blk
+
+      # The value itself doesn't matter, so we just use nil
+      @ready_listeners_queue << nil
     end
 
     # "send" saves received messages to assert on later.  "send" is used by
     # implementation code.  "received_messages" is used by test code.
     def send(msg, type: nil)
       @received_messages << [msg, type]
-    end
-
-    # "emit" triggers an error so that the message log includes it.
-    def emit(type, *data)
-      trigger_error(data)
     end
 
     # Methods below used only by test code
@@ -66,14 +68,6 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
 
     def trigger_error(err)
       @registered_events[:error].call(err)
-    end
-  end
-
-  let(:env) do
-    double('ENV').tap do |env|
-      allow(env).to receive(:[])
-        .with("KUBE_EXEC_COMMAND_TIMEOUT")
-        .and_return(nil)
     end
   end
 
@@ -125,29 +119,29 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
   let(:cmds) { %w(command1 command2) }
   let(:body) { "Body" }
 
-  # TODO: Currently this code is repeated too many times.  With this in place,
-  #   we can remove the code from everywhere else use this to create new
-  #   threads.
-  let(:subject_in_thread) do
+  # This is used in test code to verify that all the client listeners are ready.
+  # We wait for this timeout while verifying this
+  let(:ready_listeners_timeout) { 5 }
+
+  def subject_in_thread(ws_client:, timeout:, body:, stdin:)
     # This is ugly but needed because references to "let"-defined variables
     # inside of a closure (or at least a closure in a Thread) don't work.
     # References to ordinary local variables work fine.
     x_timeout           = timeout
     x_ws_client         = ws_client
-    x_message_log_class = Authentication::AuthnK8s::MessageLog
     x_k8s_object_lookup = k8s_object_lookup
     x_pod_namespace     = pod_namespace
     x_pod_name          = pod_name
     x_container         = container
     x_cmds              = cmds
     x_body              = body
+    x_stdin             = stdin
 
     Thread.new do
       Thread.current[:output] =
         ::Authentication::AuthnK8s::ExecuteCommandInContainer.new(
-          timeout:           x_timeout,
-          websocket_client:  x_ws_client,
-          message_log_class: x_message_log_class,
+          timeout:          x_timeout,
+          websocket_client: x_ws_client,
         ).call(
           k8s_object_lookup: x_k8s_object_lookup,
           pod_namespace:     x_pod_namespace,
@@ -155,66 +149,40 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
           container:         x_container,
           cmds:              x_cmds,
           body:              x_body,
-          stdin:             true
+          stdin:             x_stdin
         )
+    end.tap do
+      # Verify all 4 listeners are ready before resuming the UT
+      Timeout.timeout(ready_listeners_timeout) {
+        4.times do
+          ws_client.ready_listeners_queue.pop
+        end
+      }
     end
   end
 
   before(:each) do
-      # Leave the output console clean from errors that occur in the thread
-      Thread.report_on_exception = false
-    end
+    # Leave the output console clean from errors that occur in the thread
+    Thread.report_on_exception = false
+  end
 
-    context "Calling ExecuteCommandInContainer" do
-
+  context "Calling ExecuteCommandInContainer" do
     context "when the ws_client has no handshake error" do
       context "with stdin" do
         ws_client = WsClientMock.new(handshake_error: nil)
-
         subject do
-          # This is ugly but needed because rspec is poo, and references to
-          # "let"-defined variables inside of a closure (or at least a closure
-          # in a Thread) don't work.  References to ordinary local variables work
-          # fine.
-          x_env               = env
-          x_ws_client         = ws_client
-          x_message_log_class = Authentication::AuthnK8s::MessageLog
-          x_k8s_object_lookup = k8s_object_lookup
-          x_pod_namespace     = pod_namespace
-          x_pod_name          = pod_name
-          x_container         = container
-          x_cmds              = cmds
-          x_body              = body
-
-          thread = Thread.new do
-            Thread.current[:output] = ::Authentication::AuthnK8s::ExecuteCommandInContainer.new(
-              env:               x_env,
-              websocket_client:  x_ws_client,
-              message_log_class: x_message_log_class,
-            ).call(
-              k8s_object_lookup: x_k8s_object_lookup,
-              pod_namespace:     x_pod_namespace,
-              pod_name:          x_pod_name,
-              container:         x_container,
-              cmds:              x_cmds,
-              body:              x_body,
-              stdin:             true
-            )
-          end
-
-          # TODO: Janky way to make sure the thread has had time to setup its
-          #   on_XXX listeners.  Do this with a proper sync mechanism via the mock.
-          sleep 1
+          thread = subject_in_thread(
+            ws_client: ws_client,
+            timeout:   10,
+            body:      body,
+            stdin:     true
+          )
 
           ws_client.trigger_open
           ws_client.trigger_message(message)
           ws_client.trigger_close
           thread.join
           thread[:output]
-        end
-
-        it "does not raise an error" do
-          expect { subject }.to_not raise_error
         end
 
         it "returns the expected output" do
@@ -234,48 +202,17 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
       context "without stdin" do
         ws_client = WsClientMock.new(handshake_error: nil)
         subject do
-          # This is ugly but needed because rspec is poo, and references to
-          # "let"-defined variables inside of a closure (or at least a closure
-          # in a Thread) don't work.  References to ordinary local variables work
-          # fine.
-          x_env               = env
-          x_ws_client         = ws_client
-          x_message_log_class = Authentication::AuthnK8s::MessageLog
-          x_k8s_object_lookup = k8s_object_lookup
-          x_pod_namespace     = pod_namespace
-          x_pod_name          = pod_name
-          x_container         = container
-          x_cmds              = cmds
-          x_body              = nil
-
-          thread = Thread.new do
-            Thread.current[:output] = ::Authentication::AuthnK8s::ExecuteCommandInContainer.new(
-              env:               x_env,
-              websocket_client:  x_ws_client,
-              message_log_class: x_message_log_class
-            ).call(
-              k8s_object_lookup: x_k8s_object_lookup,
-              pod_namespace:     x_pod_namespace,
-              pod_name:          x_pod_name,
-              container:         x_container,
-              cmds:              x_cmds,
-              body:              x_body,
-              stdin:             false
-            )
-          end
-
-          # TODO: Janky way to make sure the thread has had time to setup its
-          #   on_XXX listeners.  Do this with a proper sync mechanism via the mock.
-          sleep 1
+          thread = subject_in_thread(
+            ws_client: ws_client,
+            timeout:   10,
+            body:      body,
+            stdin:     false
+          )
 
           ws_client.trigger_open
           ws_client.trigger_close
           thread.join
           thread[:output]
-        end
-
-        it "does not raise an error" do
-          expect { subject }.to_not raise_error
         end
 
         it "returns the expected output" do
@@ -287,43 +224,15 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
       end
 
       context "where the socket is not closed in time" do
-
         context "and KUBE_EXEC_COMMAND_TIMEOUT is not defined in the env" do
+          ws_client = WsClientMock.new(handshake_error: nil)
           subject do
-            ws_client = WsClientMock.new(handshake_error: nil)
-            # This is ugly but needed because rspec is poo, and references to
-            # "let"-defined variables inside of a closure (or at least a closure
-            # in a Thread) don't work.  References to ordinary local variables work
-            # fine.
-            x_env               = env
-            x_ws_client         = ws_client
-            x_message_log_class = Authentication::AuthnK8s::MessageLog
-            x_k8s_object_lookup = k8s_object_lookup
-            x_pod_namespace     = pod_namespace
-            x_pod_name          = pod_name
-            x_container         = container
-            x_cmds              = cmds
-            x_body              = body
-
-            thread = Thread.new do
-              Thread.current[:output] = ::Authentication::AuthnK8s::ExecuteCommandInContainer.new(
-                env:               x_env,
-                websocket_client:  x_ws_client,
-                message_log_class: x_message_log_class
-              ).call(
-                k8s_object_lookup: x_k8s_object_lookup,
-                pod_namespace:     x_pod_namespace,
-                pod_name:          x_pod_name,
-                container:         x_container,
-                cmds:              x_cmds,
-                body:              x_body,
-                stdin:             true
-              )
-            end
-
-            # TODO: Janky way to make sure the thread has had time to setup its
-            #   on_XXX listeners.  Do this with a proper sync mechanism via the mock.
-            sleep 1
+            thread = subject_in_thread(
+              ws_client: ws_client,
+              timeout:   nil,
+              body:      body,
+              stdin:     true
+            )
 
             ws_client.trigger_open
             thread.join
@@ -339,59 +248,52 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
         end
 
         context "and KUBE_EXEC_COMMAND_TIMEOUT is defined in the env" do
-          ws_client = WsClientMock.new(handshake_error: nil)
-          before(:each) do
-            allow(env).to receive(:[])
-              .with("KUBE_EXEC_COMMAND_TIMEOUT")
-              .and_return("10")
-          end
-
-          subject do
-            # This is ugly but needed because rspec is poo, and references to
-            # "let"-defined variables inside of a closure (or at least a closure
-            # in a Thread) don't work.  References to ordinary local variables work
-            # fine.
-            x_env               = env
-            x_ws_client         = ws_client
-            x_message_log_class = Authentication::AuthnK8s::MessageLog
-            x_k8s_object_lookup = k8s_object_lookup
-            x_pod_namespace     = pod_namespace
-            x_pod_name          = pod_name
-            x_container         = container
-            x_cmds              = cmds
-            x_body              = body
-
-            thread = Thread.new do
-              Thread.current[:output] = ::Authentication::AuthnK8s::ExecuteCommandInContainer.new(
-                env:               x_env,
-                websocket_client:  x_ws_client,
-                message_log_class: x_message_log_class
-              ).call(
-                k8s_object_lookup: x_k8s_object_lookup,
-                pod_namespace:     x_pod_namespace,
-                pod_name:          x_pod_name,
-                container:         x_container,
-                cmds:              x_cmds,
-                body:              x_body,
-                stdin:             true
+          context "with an integer" do
+            ws_client = WsClientMock.new(handshake_error: nil)
+            subject do
+              thread = subject_in_thread(
+                ws_client: ws_client,
+                timeout:   10,
+                body:      body,
+                stdin:     true
               )
+
+              ws_client.trigger_open
+              thread.join
+              thread[:output]
             end
 
-            # TODO: Janky way to make sure the thread has had time to setup its
-            #   on_XXX listeners.  Do this with a proper sync mechanism via the mock.
-            sleep 1
-
-            ws_client.trigger_open
-            thread.join
-            thread[:output]
+            it "raises an error after the given timeout" do
+              expect { subject }.to raise_error(
+                Errors::Authentication::AuthnK8s::ExecCommandTimedOut,
+                /10 seconds/
+              )
+            end
           end
 
-          it "raises an error after the default timeout" do
-            expect { subject }.to raise_error(
-              Errors::Authentication::AuthnK8s::ExecCommandTimedOut,
-              /10 seconds/
-            )
+          context "with a value that is not an integer" do
+            ws_client = WsClientMock.new(handshake_error: nil)
+            subject do
+              thread = subject_in_thread(
+                ws_client: ws_client,
+                timeout:   "not-an-int",
+                body:      body,
+                stdin:     true
+              )
+
+              ws_client.trigger_open
+              thread.join
+              thread[:output]
+            end
+
+            it "raises an error after the default timeout" do
+              expect { subject }.to raise_error(
+                Errors::Authentication::AuthnK8s::ExecCommandTimedOut,
+                /5 seconds/
+              )
+            end
           end
+
         end
       end
     end
@@ -399,41 +301,13 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
     context "when the ws_client has a handshake error" do
       handshake_error = "handshake error"
       ws_client       = WsClientMock.new(handshake_error: handshake_error)
-
       subject do
-        # This is ugly but needed because rspec is poo, and references to
-        # "let"-defined variables inside of a closure (or at least a closure
-        # in a Thread) don't work.  References to ordinary local variables work
-        # fine.
-        x_env               = env
-        x_ws_client         = ws_client
-        x_message_log_class = Authentication::AuthnK8s::MessageLog
-        x_k8s_object_lookup = k8s_object_lookup
-        x_pod_namespace     = pod_namespace
-        x_pod_name          = pod_name
-        x_container         = container
-        x_cmds              = cmds
-        x_body              = nil
-
-        thread = Thread.new do
-          Thread.current[:output] = ::Authentication::AuthnK8s::ExecuteCommandInContainer.new(
-            env:               x_env,
-            websocket_client:  x_ws_client,
-            message_log_class: x_message_log_class
-          ).call(
-            k8s_object_lookup: x_k8s_object_lookup,
-            pod_namespace:     x_pod_namespace,
-            pod_name:          x_pod_name,
-            container:         x_container,
-            cmds:              x_cmds,
-            body:              x_body,
-            stdin:             false
-          )
-        end
-
-        # TODO: Janky way to make sure the thread has had time to setup its
-        #   on_XXX listeners.  Do this with a proper sync mechanism via the mock.
-        sleep 1
+        thread = subject_in_thread(
+          ws_client: ws_client,
+          timeout:   10,
+          body:      nil,
+          stdin:     false
+        )
 
         ws_client.trigger_open
         ws_client.trigger_close
@@ -441,10 +315,9 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
         thread[:output]
       end
 
-      it "raises an ExecCommandError error with the WebSocketHandshakeError" do
+      it "raises a WebSocketHandshakeError error" do
         expect { subject }.to raise_error(
-          Errors::Authentication::AuthnK8s::ExecCommandError,
-          /Errors::Authentication::AuthnK8s::WebSocketHandshakeError/
+          Errors::Authentication::AuthnK8s::WebSocketHandshakeError
         )
       end
     end

@@ -7,13 +7,14 @@ require 'rubygems/package'
 
 require 'active_support/time'
 require 'websocket-client-simple'
+require 'timeout'
 
 module Authentication
   module AuthnK8s
 
     ExecuteCommandInContainer ||= CommandClass.new(
       dependencies: {
-        env:                           ENV,
+        timeout:                       ENV['KUBE_EXEC_COMMAND_TIMEOUT'],
         websocket_client:              WebSocket::Client::Simple,
         ws_client_event_handler_class: WebSocketClientEventHandler,
         message_log_class:             MessageLog,
@@ -23,16 +24,15 @@ module Authentication
       inputs:       %i(k8s_object_lookup pod_namespace pod_name container cmds body stdin)
     ) do
 
+      DEFAULT_TIMEOUT_SEC = 5
+
       extend Forwardable
       def_delegators :@k8s_object_lookup, :kube_client
-
-      DEFAULT_KUBE_EXEC_COMMAND_TIMEOUT = 5
 
       def call
         init_ws_client
         add_websocket_event_handlers
         wait_for_close_message
-        verify_channel_is_closed
         verify_error_stream_is_empty
         websocket_messages
       end
@@ -49,14 +49,16 @@ module Authentication
       end
 
       def ws_client_event_handler
+        @close_event_queue       = Queue.new
         @ws_client_event_handler ||= @ws_client_event_handler_class.new(
-          ws_client:        ws_client,
-          stdin:            @stdin,
-          body:             @body,
-          pod_name:         @pod_name,
-          validate_message: @validate_message,
-          message_log:      @message_log_class.new,
-          logger:           @logger
+          close_event_queue: @close_event_queue,
+          ws_client:         ws_client,
+          stdin:             @stdin,
+          body:              @body,
+          pod_name:          @pod_name,
+          validate_message:  @validate_message,
+          message_log:       @message_log_class.new,
+          logger:            @logger
         )
       end
 
@@ -85,15 +87,8 @@ module Authentication
       end
 
       def wait_for_close_message
-        (timeout / 0.1).to_i.times do
-          break if ws_client_event_handler.channel_closed
-          sleep 0.1
-        end
-      end
-
-      def verify_channel_is_closed
-        return if ws_client_event_handler.channel_closed
-
+        Timeout.timeout(timeout) { @close_event_queue.pop }
+      rescue Timeout::Error
         raise Errors::Authentication::AuthnK8s::ExecCommandTimedOut.new(
           timeout,
           @container,
@@ -139,14 +134,24 @@ module Authentication
         ws_client_event_handler.message_log.messages
       end
 
+      # Timeout logic is as follows:
+      # 1. Use default when no timeout is given.
+      # 2. Use given value if it can be coerced into an integer.
+      # 3. If coercion fails, warn and use default.
       def timeout
-        return @timeout if @timeout
+        return @validated_timeout if @validated_timeout
 
-        kube_timeout = @env["KUBE_EXEC_COMMAND_TIMEOUT"]
-        not_provided = kube_timeout.to_s.strip.empty?
-        default      = DEFAULT_KUBE_EXEC_COMMAND_TIMEOUT
-        # If the value of KUBE_EXEC_COMMAND_TIMEOUT is not an integer it will be zero
-        @timeout = not_provided ? default : kube_timeout.to_i
+        return @validated_timeout = DEFAULT_TIMEOUT_SEC unless @timeout
+
+        @validated_timeout = Integer(@timeout)
+      rescue ArgumentError
+        @logger.warn(
+          LogMessages::Authentication::AuthnK8s::InvalidTimeout.new(
+            @timeout,
+            DEFAULT_TIMEOUT_SEC
+          )
+        )
+        @validated_timeout = DEFAULT_TIMEOUT_SEC
       end
     end
   end

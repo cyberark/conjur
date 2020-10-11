@@ -53,20 +53,20 @@ RSpec.describe 'Authentication::AuthnK8s::CopyTextToFileInContainer' do
           set -e
 
           cleanup() {
-            rm -f \"path/to/file.tmp\"
+            rm -f "path/to/file.tmp"
           }
           trap cleanup EXIT
 
           set_file_content() {
-            cat > \"path/to/file.tmp\" <<EOF
+            cat > "path/to/file.tmp" <<EOF
           Content
           EOF
 
-            chmod \"Mode\" \"path/to/file.tmp\"
-            mv \"path/to/file.tmp\" \"path/to/file\"
+            chmod "Mode" "path/to/file.tmp"
+            mv "path/to/file.tmp" "path/to/file"
           }
 
-          set_file_content > \"${TMPDIR:-/tmp}/conjur_copy_text_output.log\" 2>&1
+          set_file_content > "${TMPDIR:-/tmp}/conjur_copy_text_output.log" 2>&1
     BODY
 
     it "calls execute_command_in_container with expected parameters" do

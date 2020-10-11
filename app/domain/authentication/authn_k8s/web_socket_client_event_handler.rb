@@ -5,9 +5,10 @@ module Authentication
 
     class WebSocketClientEventHandler
 
-      attr_reader :channel_closed, :message_log
+      attr_reader :message_log
 
       def initialize(
+        close_event_queue:,
         ws_client:,
         stdin:,
         body:,
@@ -16,6 +17,7 @@ module Authentication
         message_log:,
         logger:
       )
+        @close_event_queue = close_event_queue
         @ws_client = ws_client
         @stdin = stdin
         @body = body
@@ -23,24 +25,14 @@ module Authentication
         @validate_message = validate_message
         @message_log = message_log
         @logger = logger
-
-        @channel_closed = false
       end
 
       def on_open
         handshake_error = @ws_client.handshake.error
-
         if handshake_error
-          # Add the error to the stream instead of raising it so we continue to
-          # receive other messages. At the end of this class run we will verify
-          # the stream to see if any errors were written
-          @ws_client.emit(
-            :error,
-            Errors::Authentication::AuthnK8s::WebSocketHandshakeError.new(
-              handshake_error.inspect
-            )
+          raise Errors::Authentication::AuthnK8s::WebSocketHandshakeError.new(
+            handshake_error.inspect
           )
-          return
         end
 
         @logger.debug(
@@ -87,20 +79,23 @@ module Authentication
       end
 
       def on_close
-        @channel_closed = true
         @logger.debug(
           LogMessages::Authentication::AuthnK8s::PodChannelClosed.new(@pod_name)
         )
+
+        # The value itself doesn't matter, so we just use nil
+        @close_event_queue << nil
       end
 
       def on_error(err)
-        @channel_closed = true
-
         error_info = err.inspect
         @logger.debug(
           LogMessages::Authentication::AuthnK8s::PodError.new(@pod_name, error_info)
         )
         @message_log.save_error_string(error_info)
+
+        # The value itself doesn't matter, so we just use nil
+        @close_event_queue << nil
       end
     end
   end
