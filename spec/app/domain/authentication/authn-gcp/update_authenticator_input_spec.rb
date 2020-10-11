@@ -251,7 +251,7 @@ RSpec.describe 'Authentication::AuthnGcp::UpdateAuthenticatorInput' do
 
             it 'raises an InvalidAudience error' do
               expect { subject }.to raise_error(
-                Errors::Authentication::AuthnGcp::InvalidAudience
+                Errors::Authentication::AuthnGcp::InvalidAccountInAudienceClaim
               )
             end
           end

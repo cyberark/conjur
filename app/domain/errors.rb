@@ -375,6 +375,12 @@ module Errors
         msg:  "Role must have at least one of the following constraints: {0-constraints}",
         code: "CONJ00069E"
       )
+
+      InvalidAccountInAudienceClaim = ::Util::TrackableErrorClass.new(
+        msg:  "'audience' token claim '{0}' is invalid. " \
+              "The account in the audience '{1}' does not match the account in the URL request '{2}'",
+        code: "CONJ00071E"
+      )
     end
   end
 

@@ -63,10 +63,16 @@ module Authentication
 
       def validate_audience
         if audience_parts.length != 3 ||
-            audience_parts[0] != "conjur" ||
-            audience_parts[1] != account
+            audience_parts[0] != "conjur"
           raise Errors::Authentication::AuthnGcp::InvalidAudience, audience
+        elsif audience_parts[1] != account
+          raise Errors::Authentication::AuthnGcp::InvalidAccountInAudienceClaim.new(
+            audience,
+            audience_parts[1],
+            account
+          )
         end
+
       end
 
       def audience_parts
