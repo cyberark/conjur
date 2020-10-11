@@ -76,7 +76,6 @@ pipeline {
     }
 
     stage('Run environment tests in parallel') {
-      failFast true
       parallel {
           stage('EE FIPS agent tests') {
             agent { label 'executor-v2-rhel-ee' }
@@ -118,9 +117,9 @@ pipeline {
                       sh 'ci/test rspec_audit'
                     }
                  ])
-              } // script
+              }
               stash name: 'testResultEE', includes: "cucumber/*/*.*,container_logs/*/*,spec/reports/*.xml,spec/reports-audit/*.xml,cucumber/*/features/reports/**/*.xml"
-            } // steps
+            }
           } // EE FIPS agent tests
 
           stage('Standard agent tests') {
@@ -158,8 +157,8 @@ pipeline {
                       sh 'ci/test rspec_audit'
                     }
                  ])
-             } // script
-            } // steps
+             }
+            }
           } // Standard agent tests
 
         stage('Azure Authenticator') {
@@ -230,8 +229,8 @@ pipeline {
             }
           }
         }
-      } // Parallel
-    } // Stage - Run parallel env tests
+      }
+    }
 
     stage('Submit Coverage Report'){
       steps{
