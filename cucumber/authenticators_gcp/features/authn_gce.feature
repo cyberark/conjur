@@ -97,9 +97,18 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     cucumber:host:test-app successfully authenticated with authenticator authn-gcp service cucumber:webservice:conjur/authn-gcp
     """
 
-  Scenario: Non-existing account in request is denied
+  Scenario: Non-existing account in token audience claim is denied
     Given I obtain a non_existing_account GCE identity token
     And I save my place in the log file
+    When I authenticate with authn-gcp using obtained GCE token and existing account
+    Then it is unauthorized
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00071E 'audience' token claim .* is invalid. The account in the audience .* does not match the account in the URL request .*
+    """
+
+  Scenario: Non-existing account in URL request is denied
+    Given I save my place in the log file
     When I authenticate with authn-gcp using obtained GCE token and non-existing account
     Then it is unauthorized
     And The following appears in the log after my savepoint:
