@@ -9,9 +9,9 @@ GCF_SOURCE_FILE="$GCF_SOURCE_DIR/main.py"
 
 main() {
   echo "Deploy function: $GCF_FUNC_NAME in project: $GCP_PROJECT"
-  validate_pre_requisites || exit 1
-  deploy_function || exit 1
-  write_identity_token_to_file || exit 1
+  validate_pre_requisites
+  deploy_function
+  write_identity_token_to_file
   echo "-> Deploying done"
 }
 
@@ -59,12 +59,13 @@ deploy_function() {
   gcloud config set project "$GCP_PROJECT"
 
   # Authenticate using the service account key file
-  # NOTE! The script that runs the container with this script provisions the file
-  # and the cleanup_function.sh script deletes it.
   gcloud auth activate-service-account --key-file "$GCP_OWNER_SERVICE_KEY"
 
+  # delete key soon after done using - due to security concerns
+  rm -f "$GCP_OWNER_SERVICE_KEY"
+
   # Change dir to function source file
-  cd "$GCF_SOURCE_DIR" || exit 1
+  cd "$GCF_SOURCE_DIR"
 
   echo "-- Deploying function: $GCF_FUNC_NAME"
   gcloud functions deploy "$GCF_FUNC_NAME" --runtime python37 --trigger-http --quiet
@@ -80,9 +81,9 @@ write_identity_token_to_file() {
   echo 'write_identity_token_to_file'
   cd ..
   echo "-- Write identity-token to file:'$(pwd)/$IDENTITY_TOKEN_FILE'"
-  echo  "$(gcloud auth print-identity-token)" > "$IDENTITY_TOKEN_FILE" || exit 1
+  echo  "$(gcloud auth print-identity-token)" > "$IDENTITY_TOKEN_FILE"
   echo "Identity token written to file: '$IDENTITY_TOKEN_FILE'."
   echo '-> write_identity_token_to_file done'
 }
 
-main || exit 1
+main
