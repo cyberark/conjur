@@ -1,7 +1,7 @@
 version: "3"
 services:
   pg:
-    image: postgres:9.4
+    image: postgres:10.14
     environment:
       # To avoid the following error:
       #
@@ -15,13 +15,13 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust
 
   audit:
-    image: postgres:9.4
+    image: postgres:10.14
     environment: 
       # See description on `pg` service for use of POSTGRES_HOST_AUTH_METHOD
       POSTGRES_HOST_AUTH_METHOD: trust
 
   testdb:
-    image: postgres:9.4
+    image: postgres:10.14
     environment:
       # To avoid the following error:
       #
