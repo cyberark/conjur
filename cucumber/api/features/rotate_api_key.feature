@@ -14,6 +14,21 @@ Feature: Rotate the API key of a role
     Then the result is the API key for user "alice"
     And the HTTP response content type is "text/plain"
 
+  Scenario: API key can be used to rotate API key
+    When I can PUT "/authn/cucumber/api_key" with username "alice" and password ":cucumber:user:alice_api_key"
+    Then the result is the API key for user "alice"
+    And the HTTP response content type is "text/plain"
+
+  Scenario: Access token can not be used to rotate API key
+    Given I login as "alice"
+    When I PUT "/authn/cucumber/api_key"
+    Then the HTTP response status code is 401
+
+  Scenario: Access token can not be used to rotate API key using role parameter with self role value
+    Given I login as "alice"
+    When I PUT "/authn/cucumber/api_key?role=user:alice"
+    Then the HTTP response status code is 401
+
   @logged-in
   Scenario: The API key cannot be rotated by foreign role without 'update' privilege
     Given I create a new admin-owned user "bob"
