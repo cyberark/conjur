@@ -41,7 +41,7 @@ class Credentials < Sequel::Model
   def as_json
     { }
   end
-  
+
   def restricted_to
     self[:restricted_to].map { |cidr| Util::CIDR.new(cidr) }
   end
@@ -57,6 +57,9 @@ class Credentials < Sequel::Model
 
   def valid_password? pwd
     bc = BCrypt::Password.new self.encrypted_hash
+    # This `==` is implemented by BCrypt' Password class (link:
+    #     https://www.rubydoc.info/github/codahale/bcrypt-ruby/BCrypt/Password#==-instance_method)
+    # The comparison occurs against two BCrypt hashes, thus, is not a timing attack concern
     if bc == pwd
       self.update password: pwd if bc.cost != BCRYPT_COST
       return true
@@ -69,9 +72,9 @@ class Credentials < Sequel::Model
 
   def valid_api_key? key
     return false if expired?
-    key && (key == api_key) 
+    key && ActiveSupport::SecurityUtils.secure_compare(key, api_key)
   end
-  
+
   def validate
     super
 
@@ -79,22 +82,22 @@ class Credentials < Sequel::Model
 
     errors.add(:password, ::Errors::Conjur::InsufficientPasswordComplexity.new.to_s) if @plain_password && (@plain_password.index("\n") || @plain_password !~ VALID_PASSWORD_REGEX)
   end
-  
+
   def before_validation
     super
-    
+
     self.api_key ||= self.class.random_api_key
   end
-  
+
   def rotate_api_key
     self.api_key = self.class.random_api_key
   end
-  
+
   private
-  
+
   def expired?
     return false unless self.expiration
-    
+
     self.expiration <= Time.now
   end
 end

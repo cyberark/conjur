@@ -48,6 +48,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   proper error will be raised if they aren't.
   [cyberark/conjur#1315](https://github.com/cyberark/conjur/issues/1315)
 
+### Security
+- Replaces string comparison with Secure Compare to prevent timing attacks against
+  the API authentication endpoint. 
+
 ## [1.8.1] - 2020-07-14
 ### Fixed
 - Log the OpenSSL FIPS mode after Rails is initialized for both OSS and DAP.
