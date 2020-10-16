@@ -6,17 +6,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- Hosts can authenticate from Google Compute Engines (GCE) using a GCE instance
-  identity token. See [design](design/authenticators/authn_gcp/authn_gcp_solution_design.md)
-  for details ([cyberark/conjur#1711](https://github.com/cyberark/conjur/issues/1711)).
-- Add `/whoami` API endpoint for improved supportability and debugging for access
-  tokens and client IP address determination. [cyberark/conjur#1697](https://github.com/cyberark/conjur/issues/1697)
-- `TRUSTED_PROXIES` is validated at Conjur startup to ensure that it contains
-  valid IP addresses and/or address ranges in CIDR notation.
-  [cyberark/conjur#1727](https://github.com/cyberark/conjur/issues/1727)
-- The `/authenticate` endpoint now returns a text/plain base64 encoded access token
-  if the `Accept-Encoding` request header includes `base64`.
-  [cyberark/conjur#151](https://github.com/cyberark/conjur/issues/151)
 - [Documentation](./UPGRADING.md) explaining how to upgrade a Conjur server deployed in a
   Docker Compose environment. [cyberark/conjur#1528](https://github.com/cyberark/conjur/issues/1528), [cyberark/conjur#1584](https://github.com/cyberark/conjur/issues/1584)
 - When Conjur starts, we now convert blank environment variables to nil. This ensures we treat empty environment values as 
@@ -26,6 +15,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - The "inject_client_cert" request now returns 202 Accepted instead of 200 OK to
   indicate that the cert injection has started but not necessarily completed.
   [cyberark/conjur#1848](https://github.com/cyberark/conjur/issues/1848)
+
+### Fixed
+- Conjur now verifies that Kubernetes Authenticator variables exist and have value before retrieving them so that a 
+  proper error will be raised if they aren't.
+  [cyberark/conjur#1315](https://github.com/cyberark/conjur/issues/1315)
+
+## [1.9.0] - 2020-08-31
+### Added
+- Hosts can authenticate from Google Compute Engines (GCE) using a GCE instance
+  identity token. See [design](design/authenticators/authn_gcp/authn_gcp_solution_design.md)
+  for details ([cyberark/conjur#1711](https://github.com/cyberark/conjur/issues/1711)).
+- New `/whoami` API endpoint for improved supportability and debugging for access
+  tokens and client IP address determination. [cyberark/conjur#1697](https://github.com/cyberark/conjur/issues/1697)
+- `TRUSTED_PROXIES` is validated at Conjur startup to ensure that it contains
+  valid IP addresses and/or address ranges in CIDR notation.
+  [cyberark/conjur#1727](https://github.com/cyberark/conjur/issues/1727)
+- The `/authenticate` endpoint now returns a text/plain base64 encoded access token
+  if the `Accept-Encoding` request header includes `base64`.
+  [cyberark/conjur#151](https://github.com/cyberark/conjur/issues/151)
+
+### Changed
 - The Conjur server request logs now records the same IP address used by audit
   logs and network authentication filters with the `restricted_to` attribute.
   [cyberark/conjur#1719](https://github.com/cyberark/conjur/issues/1719)
@@ -44,17 +54,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - A new database migration step updates the fingerprints in slosilo. The FIPS compliance
   update in `v1.8.0` caused the previous fingerprints to be invalid.
   [cyberark/conjur#1584](https://github.com/cyberark/conjur/issues/1584)
-- Conjur now verifies that Kubernetes Authenticator variables exist and have value before retrieving them so that a 
-  proper error will be raised if they aren't.
-  [cyberark/conjur#1315](https://github.com/cyberark/conjur/issues/1315)
 
 ### Security
 - Replaces string comparison with Secure Compare to prevent timing attacks against
-  the API authentication endpoint. [Security Bulletin - not yet
-  published](https://github.com/cyberark/conjur/security/advisories/GHSA-c7x2-6g4j-327p)
+  the API authentication endpoint. [Security Bulletin](https://github.com/cyberark/conjur/security/advisories/GHSA-c7x2-6g4j-327p)
 - Roles can no longer rotate their own API key using only an access token.
-  [Security Bulletin - not yet
-  published](https://github.com/cyberark/conjur/security/advisories/GHSA-qhjf-g9gm-64jq)
+  [Security Bulletin](https://github.com/cyberark/conjur/security/advisories/GHSA-qhjf-g9gm-64jq)
 
 ## [1.8.1] - 2020-07-14
 ### Fixed
@@ -438,7 +443,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.8.1...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/cyberark/conjur/compare/v1.8.1...v1.9.0
 [1.8.1]: https://github.com/cyberark/conjur/compare/v1.7.0...v1.8.1
 [1.8.0]: https://github.com/cyberark/conjur/compare/v1.7.4...v1.8.0
 [1.7.4]: https://github.com/cyberark/conjur/compare/v1.7.3...v1.7.4
