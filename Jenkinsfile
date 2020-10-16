@@ -68,9 +68,12 @@ pipeline {
 
     stage('Prepare For CodeClimate Coverage Report Submission'){
       steps {
-        script {
-          ccCoverage.dockerPrep()
-          sh 'mkdir -p coverage'
+        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+          script {
+            ccCoverage.dockerPrep()
+            sh 'mkdir -p coverage'
+            env.CODE_CLIMATE_PREPARED = "true"
+          }
         }
       }
     }
@@ -233,6 +236,11 @@ pipeline {
     }
 
     stage('Submit Coverage Report'){
+      when {
+        expression {
+          env.CODE_CLIMATE_PREPARED == "true"
+        }
+      }
       steps{
         sh 'ci/submit-coverage'
       }
