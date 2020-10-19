@@ -18,6 +18,16 @@ module LogMessages
 
   module Authentication
 
+    LoginError = ::Util::TrackableErrorClass.new(
+      msg:  "Login Error: {0}",
+      code: "CONJ00047I"
+    )
+
+    AuthenticationError = ::Util::TrackableErrorClass.new(
+      msg:  "Authentication Error: {0}",
+      code: "CONJ00048I"
+    )
+
     OriginValidated = ::Util::TrackableLogMessageClass.new(
       msg:  "Origin validated",
       code: "CONJ00003D"
