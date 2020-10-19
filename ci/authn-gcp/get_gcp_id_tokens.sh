@@ -112,7 +112,7 @@ print_running_gce_instances() {
 }
 
 get_tokens_into_files() {
-  if [ "${INSTANCE_EXISTS}" = "0" ] | [ "${INSTANCE_RUNNING}" = "0" ]; then
+  if [ "${INSTANCE_EXISTS}" = "0" ] || [ "${INSTANCE_RUNNING}" = "0" ]; then
     error_exit "-- Cannot run command, GCE instance '${INSTANCE_NAME}' not in a valid state!"
   fi
 
