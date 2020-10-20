@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Conjur now raises an ExecCommandError error instead of a CertInstallationError
+  error in case it failed to install the client certificate during authn-k8s.
+  [cyberark/conjur#1860](https://github.com/cyberark/conjur/issues/1860)
 
 ## [1.10.0] - 2020-10-16
 ### Added
@@ -38,6 +42,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#151](https://github.com/cyberark/conjur/issues/151)
 
 ### Changed
+- The "inject_client_cert" request now returns 202 Accepted instead of 200 OK to
+  indicate that the cert injection has started but not necessarily completed.
+  [cyberark/conjur#1848](https://github.com/cyberark/conjur/issues/1848)
 - The Conjur server request logs now records the same IP address used by audit
   logs and network authentication filters with the `restricted_to` attribute.
   [cyberark/conjur#1719](https://github.com/cyberark/conjur/issues/1719)

@@ -28,10 +28,6 @@ module AuthnK8sWorld
     pattern
   end
 
-  def kube_exec
-    Authentication::AuthnK8s::KubeExec.new
-  end
-
   def print_result_errors response
     if response
       $stderr.puts "ERROR: STDOUT: '#{response[:stdout]}'"
@@ -53,45 +49,71 @@ module AuthnK8sWorld
       puts "Waiting for client cert to be available (Attempt #{count + 1} of #{retries})"
 
       pod_metadata = @pod.metadata
-      response = kube_exec.execute(
-        k8s_object_lookup: Authentication::AuthnK8s::K8sObjectLookup.new,
-        pod_namespace: pod_metadata.namespace,
-        pod_name: pod_metadata.name,
-        cmds: [ "cat", "/etc/conjur/ssl/client.pem" ]
-      )
+      begin
+        response = Authentication::AuthnK8s::ExecuteCommandInContainer.new.call(
+          k8s_object_lookup: Authentication::AuthnK8s::K8sObjectLookup.new,
+          pod_namespace:     pod_metadata.namespace,
+          pod_name:          pod_metadata.name,
+          container:         "authenticator",
+          cmds:              %w(cat /etc/conjur/ssl/client.pem),
+          body:              "",
+          stdin:             false
+        )
 
-      if !response.nil? && response[:error].empty? && !response[:stdout].to_s.strip.empty?
-        success = true
-        break
+        if !response.nil? && response[:error].empty? && !response[:stdout].to_s.strip.empty?
+          puts "Retrieved client cert from container"
+          success = true
+          break
+        end
+
+        print_result_errors response
+      rescue Errors::Authentication::AuthnK8s::ExecCommandError => e
+        # This error will be raised in case the file is not in the container
+        # which is ok as we have a retry mechanism for this
+        unless e.inspect.include?("Error executing in Docker Container: 1")
+          puts "Failed to retrieve client cert with error: #{e.inspect}"
+          e.backtrace.each do |line|
+            puts line
+          end
+          break
+        end
+      ensure
+        sleep 2
+        count += 1
       end
-
-      print_result_errors response
-      sleep 2
-      count += 1
     end
 
-    if !success
-      puts "ERROR: Unable to retrieve client certificate for pod #{@pod.metadata.name.inspect}, " \
+    return response[:stdout].join if success
+
+    puts "ERROR: Unable to retrieve client certificate for pod #{@pod.metadata.name.inspect}, " \
            "printing logs from the container..."
-      get_cert_injection_logs_response = kube_exec.execute(
+    begin
+      get_cert_injection_logs_response = Authentication::AuthnK8s::ExecuteCommandInContainer.new.call(
         k8s_object_lookup: Authentication::AuthnK8s::K8sObjectLookup.new,
-        pod_namespace: pod_metadata.namespace,
-        pod_name: pod_metadata.name,
-        cmds: [ "cat", "/tmp/conjur_set_file_content.log" ]
+        pod_namespace:     pod_metadata.namespace,
+        pod_name:          pod_metadata.name,
+        container:         "authenticator",
+        cmds:              %w(cat /tmp/conjur_copy_text_output.log),
+        body:              "",
+        stdin:             false
       )
 
       if !get_cert_injection_logs_response.nil? &&
-          get_cert_injection_logs_response[:error].empty? &&
-          !get_cert_injection_logs_response[:stdout].to_s.strip.empty?
-        puts get_cert_injection_logs_response[:stdout].join.to_s
+        get_cert_injection_logs_response[:error].empty? &&
+        !get_cert_injection_logs_response[:stdout].to_s.strip.empty?
+        @cert_injection_logs = get_cert_injection_logs_response[:stdout].join.to_s
+        puts "Retrieved cert injection logs from container:\n #{@cert_injection_logs}"
       else
         puts "Failed to retrieve cert injection logs from container"
       end
-
-      $stderr.puts "ERROR: Unable to retrieve client certificate for pod #{@pod.metadata.name.inspect}"
-    else
-      response[:stdout].join
+    rescue Errors::Authentication::AuthnK8s::ExecCommandError => e
+      puts "Failed to retrieve client cert with error: #{e.inspect}"
+      e.backtrace.each do |line|
+        puts line
+      end
     end
+
+    $stderr.puts "ERROR: Unable to retrieve client certificate for pod #{@pod.metadata.name.inspect}"
   end
 
   # Find pod matching label selector.

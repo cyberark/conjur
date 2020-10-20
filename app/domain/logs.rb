@@ -183,6 +183,11 @@ module LogMessages
         msg:  "Setting common name to {0-full-host-name}",
         code: "CONJ00028D"
       )
+
+      InvalidTimeout = ::Util::TrackableLogMessageClass.new(
+        msg: "'{0}' is not a valid timeout. Using default: {1}.",
+        code: "CONJ00047W"
+      )
     end
 
     module AuthnIam

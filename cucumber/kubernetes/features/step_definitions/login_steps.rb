@@ -15,6 +15,7 @@ def login username, request_ip, authn_k8s_host, pkey, headers = {}
   @cert = pod_certificate
 
   if @cert.to_s.empty?
+    puts "WARN: Certificate is empty!"
     warn "WARN: Certificate is empty!"
   end
 
@@ -101,4 +102,8 @@ end
 When(/^the certificate is valid for 3 days$/) do ||
   certificate = OpenSSL::X509::Certificate.new(@cert)
   expect(certificate.not_after - certificate.not_before).to eq(3 * 24 * 60 * 60)
+end
+
+Then(/^the cert injection logs exist in the client container$/) do
+  expect(@cert_injection_logs).to include("Directory nonexistent")
 end

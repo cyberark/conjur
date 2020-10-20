@@ -4,7 +4,7 @@ set -o pipefail
 
 # expects
 # GCLOUD_CLUSTER_NAME GCLOUD_ZONE GCLOUD_PROJECT_NAME GCLOUD_SERVICE_KEY
-# CONJUR_AUTHN_K8S_TEST_NAMESPACE CONJUR_AUTHN_K8S_TAG INVENTORY_TAG
+# CONJUR_AUTHN_K8S_TEST_NAMESPACE CONJUR_AUTHN_K8S_TAG INVENTORY_TAG INVENTORY_BASE_TAG
 # LOCAL_DEV_VOLUME
 # to exist
 
@@ -58,6 +58,7 @@ function finish {
   delete_image $CONJUR_TEST_AUTHN_K8S_TAG
   delete_image $CONJUR_AUTHN_K8S_TAG
   delete_image $INVENTORY_TAG
+  delete_image $INVENTORY_BASE_TAG
   delete_image $NGINX_TAG
 }
 trap finish EXIT
@@ -118,6 +119,7 @@ function pushDockerImages() {
   gcloud docker -- push $CONJUR_AUTHN_K8S_TAG
   gcloud docker -- push $CONJUR_TEST_AUTHN_K8S_TAG
   gcloud docker -- push $INVENTORY_TAG
+  gcloud docker -- push $INVENTORY_BASE_TAG
   gcloud docker -- push $NGINX_TAG
 }
 
@@ -178,10 +180,11 @@ function launchInventoryServices() {
 
   kubectl create -f dev/dev_inventory.${TEMPLATE_TAG}yaml
   kubectl create -f dev/dev_inventory_stateful.${TEMPLATE_TAG}yaml
-  kubectl create -f dev/dev_inventory_pod.${TEMPLATE_TAG}yaml
   kubectl create -f dev/dev_inventory_unauthorized.${TEMPLATE_TAG}yaml
+  # This yaml file has 2 pods
+  kubectl create -f dev/dev_inventory_pod.${TEMPLATE_TAG}yaml
 
-  wait_for_it 300 "kubectl describe po inventory | grep Status: | grep -c Running | grep -q 4"
+  wait_for_it 300 "kubectl describe po inventory | grep Status: | grep -c Running | grep -q 5"
 }
 
 function runTests() {
