@@ -94,181 +94,42 @@ RSpec.describe Authentication::AuthnAzure::ResourceRestrictions do
       context("with a global scoped constraint") do
         context "with user-assigned-identity" do
           let(:role_annotations) {
-            [
-              subscription_id_annotation,
-              resource_group_annotation,
-              user_assigned_identity_annotation
-            ]
+            {
+              "subscription-id" => subscription_id_annotation_value,
+              "resource-group" => resource_group_annotation_value,
+              "user-assigned-identity" => user_assigned_identity_annotation_value
+            }
           }
 
           it "does not raise an error" do
             expect { subject }.to_not raise_error
-          end
-          
-          it "has resources with its value" do
-            expect(subject.resources).to eq(
-              [
-                Authentication::AuthnAzure::AzureResource.new(
-                  type: "subscription-id",
-                  value: subscription_id_annotation_value
-                ),
-                Authentication::AuthnAzure::AzureResource.new(
-                  type: "resource-group",
-                  value: resource_group_annotation_value
-                ),
-                Authentication::AuthnAzure::AzureResource.new(
-                  type: "user-assigned-identity",
-                  value: user_assigned_identity_annotation_value
-                )
-              ]
-            )
           end
         end
 
         context "with system-assigned-identity" do
           let(:role_annotations) {
-            [
-              subscription_id_annotation,
-              resource_group_annotation,
-              system_assigned_identity_annotation
-            ]
+            {
+              "subscription-id" => subscription_id_annotation_value,
+              "resource-group" => resource_group_annotation_value,
+              "system-assigned-identity" => system_assigned_identity_annotation_value
+            }
           }
 
           it "does not raise an error" do
             expect { subject }.to_not raise_error
           end
-          
-          it "has resources with its value" do
-            expect(subject.resources).to eq(
-              [
-                Authentication::AuthnAzure::AzureResource.new(
-                  type: "subscription-id",
-                  value: subscription_id_annotation_value
-                ),
-                Authentication::AuthnAzure::AzureResource.new(
-                  type: "resource-group",
-                  value: resource_group_annotation_value
-                ),
-                Authentication::AuthnAzure::AzureResource.new(
-                  type: "system-assigned-identity",
-                  value: system_assigned_identity_annotation_value
-                )
-              ]
-            )
-          end
-        end
-      end
-
-      # it is enough to test only with subscription-id as the behavior is the same
-      context("with a service-id scoped constraint") do
-        context "with user-assigned-identity" do
-          let(:role_annotations) {
-            [
-              subscription_id_service_id_scoped_annotation,
-              resource_group_annotation,
-              user_assigned_identity_annotation
-            ]
-          }
-
-          it "does not raise an error" do
-            expect { subject }.to_not raise_error
-          end
-
-          it "has resources with its value" do
-            expect(subject.resources).to eq(
-              [
-                Authentication::AuthnAzure::AzureResource.new(
-                  type: "subscription-id",
-                  value: subscription_id_service_id_scoped_annotation_value
-                ),
-                Authentication::AuthnAzure::AzureResource.new(
-                  type: "resource-group",
-                  value: resource_group_annotation_value
-                ),
-                Authentication::AuthnAzure::AzureResource.new(
-                  type: "user-assigned-identity",
-                  value: user_assigned_identity_annotation_value
-                )
-              ]
-            )
-          end
-        end
-
-        context "with system-assigned-identity" do
-          let(:role_annotations) {
-            [
-              subscription_id_service_id_scoped_annotation,
-              resource_group_annotation,
-              system_assigned_identity_annotation
-            ]
-          }
-
-          it "does not raise an error" do
-            expect { subject }.to_not raise_error
-          end
-
-          it "has resources with its value" do
-            expect(subject.resources).to eq(
-              [
-                Authentication::AuthnAzure::AzureResource.new(
-                  type: "subscription-id",
-                  value: subscription_id_service_id_scoped_annotation_value
-                ),
-                Authentication::AuthnAzure::AzureResource.new(
-                  type: "resource-group",
-                  value: resource_group_annotation_value
-                ),
-                Authentication::AuthnAzure::AzureResource.new(
-                  type: "system-assigned-identity",
-                  value: system_assigned_identity_annotation_value
-                )
-              ]
-            )
-          end
-        end
-      end
-
-      # Here we are only testing the scope of the subscription-id resource restriction because
-      # we want to test that we grab the more granular resource restriction and the behaviour
-      # is the same regardless of the annotation name
-      context("with both global & service-id scoped constraints") do
-        let(:role_annotations) {
-          [
-            subscription_id_annotation,
-            subscription_id_service_id_scoped_annotation,
-            resource_group_annotation
-          ]
-        }
-
-        it "does not raise an error" do
-          expect { subject }.to_not raise_error
-        end
-        
-        it "has resources with its value" do
-          expect(subject.resources).to eq(
-            [
-              Authentication::AuthnAzure::AzureResource.new(
-                type: "subscription-id",
-                value: subscription_id_service_id_scoped_annotation_value
-              ),
-              Authentication::AuthnAzure::AzureResource.new(
-                type: "resource-group",
-                value: resource_group_annotation_value
-              )
-            ]
-          )
         end
       end
 
       context "with invalid configuration" do
         context "non permitted constraint" do
           let(:role_annotations) {
-            [
-              subscription_id_annotation,
-              resource_group_annotation,
-              user_assigned_identity_annotation,
-              non_azure_annotation
-            ]
+            {
+              "subscription-id" => subscription_id_annotation_value,
+              "resource-group" => resource_group_annotation_value,
+              "user-assigned-identity" => user_assigned_identity_annotation_value,
+              "non-azure-annotation" => user_assigned_identity_annotation_value
+            }
           }
 
           it "raises an error" do
@@ -281,10 +142,10 @@ RSpec.describe Authentication::AuthnAzure::ResourceRestrictions do
         context "missing required constraint" do
           context "missing subscription-id constraint" do
             let(:role_annotations) {
-              [
-                resource_group_annotation,
-                user_assigned_identity_annotation
-              ]
+              {
+                "resource-group" => resource_group_annotation_value,
+                "user-assigned-identity" => user_assigned_identity_annotation_value
+              }
             }
 
             it "raises an error" do
@@ -296,10 +157,10 @@ RSpec.describe Authentication::AuthnAzure::ResourceRestrictions do
 
           context "missing resource-group constraint" do
             let(:role_annotations) {
-              [
-                subscription_id_annotation,
-                user_assigned_identity_annotation
-              ]
+              {
+                "subscription-id" => subscription_id_annotation_value,
+                "user-assigned-identity" => user_assigned_identity_annotation_value
+              }
             }
 
             it "raises an error" do
@@ -312,12 +173,12 @@ RSpec.describe Authentication::AuthnAzure::ResourceRestrictions do
 
         context "non permitted constraint combinations" do
           let(:role_annotations) {
-            [
-              subscription_id_annotation,
-              resource_group_annotation,
-              user_assigned_identity_annotation,
-              system_assigned_identity_annotation
-            ]
+            {
+              "subscription-id" => subscription_id_annotation_value,
+              "resource-group" => resource_group_annotation_value,
+              "user-assigned-identity" => user_assigned_identity_annotation_value,
+              "system-assigned-identity" => system_assigned_identity_annotation_value
+            }
           }
 
           it "raises an error" do
