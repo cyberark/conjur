@@ -17,7 +17,16 @@ services to the API.
 Links to the current Authenticator Feature specs:
 * [Authn-LDAP](authn_ldap.md)
 * [Authn-IAM](authn_iam.md)
-* [Authn-OIDC - POC](authn_oidc.md)
+* [Authn-OIDC](authn_oidc.md)
+* [Authn-Azure](authn_azure/authn_azure_solution_design.md)
+* [Authn-GCP](authn_gcp/authn_gcp_solution_design.md)
+
+## Authenticator Status
+This feature allows the person who configures an authenticator to get immediate feedback on 
+its configuration. If there was a problem during the authenticator configuration process, 
+the reason will be returned to the user so that they can make the necessary changes.
+
+Click [here](authenticators-status/authn_status_general.md) for more details on this feature.
 
 ## Login
 

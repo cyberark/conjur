@@ -18,6 +18,16 @@ module LogMessages
 
   module Authentication
 
+    LoginError = ::Util::TrackableErrorClass.new(
+      msg:  "Login Error: {0}",
+      code: "CONJ00047I"
+    )
+
+    AuthenticationError = ::Util::TrackableErrorClass.new(
+      msg:  "Authentication Error: {0}",
+      code: "CONJ00048I"
+    )
+
     OriginValidated = ::Util::TrackableLogMessageClass.new(
       msg:  "Origin validated",
       code: "CONJ00003D"
@@ -172,6 +182,11 @@ module LogMessages
       SetCommonName = ::Util::TrackableLogMessageClass.new(
         msg:  "Setting common name to {0-full-host-name}",
         code: "CONJ00028D"
+      )
+
+      InvalidTimeout = ::Util::TrackableLogMessageClass.new(
+        msg: "'{0}' is not a valid timeout. Using default: {1}.",
+        code: "CONJ00047W"
       )
     end
 

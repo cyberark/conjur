@@ -1,15 +1,21 @@
 #!/usr/bin/env bash
 
-# TODO: This script is need of a full cleanup.  Issue captured here:
-#   https://github.com/cyberark/conjur/issues/1471
-
 # TODO: Currently adding the -u and -o pipefail options breaks
 # this script.  We should fix these errors and turn them on.
 set -e
 
+# TODO: Documentation of higher level dependencies.  Partial list:
+# 1. All the Azure env args assumed to exist.
+# 2. Same for OIDC / GCP.
+# 3. Jenkinsfile `sh` (a groovy command) respectes shebang
+#      https://www.jenkins.io/doc/pipeline/steps/workflow-durable-task-step/#sh-shell-script
+# 4. Document $KEEP_CONTAINERS
+
+
 export REPORT_ROOT=/src/conjur-server
+
 # Create default value if not set: allows compose to run in isolated namespace
-: "${COMPOSE_PROJECT_NAME:="$(openssl rand -hex 3)"}"
+: "${COMPOSE_PROJECT_NAME:=$(openssl rand -hex 3)}"
 export COMPOSE_PROJECT_NAME
 
 ### Subcommands
@@ -26,12 +32,12 @@ export COMPOSE_PROJECT_NAME
 all() {
   : DOC - Run all tests
 
-  local old_ifs="$IFS"
-  IFS=$'\012'
-  local cmds=( $(_subcommands) )
-  IFS="$old_ifs"
-  for c in ${cmds[*]}; do
-    [[ $c = 'all' ]] && continue # no need to call recursively ;)
+  local cmds
+  readarray -t cmds < <(_subcommands)
+
+  for c in "${cmds[@]}"; do
+    # Don't call recursively.
+    [[ $c = 'all' ]] && continue
     $c
   done
 }
@@ -76,7 +82,9 @@ cucumber_authenticators_oidc() {
   # Note: We can't run the above use-case in a separate Jenkins step because we'll have a port bind for keycloak
   _prepare_env_auth_ldap
   _prepare_env_auth_oidc
-  _run_cucumber_tests authenticators_oidc 'ldap-server oidc-keycloak' "$(_get_oidc_env_args)"
+  _run_cucumber_tests authenticators_oidc \
+    'ldap-server oidc-keycloak' \
+    "$(_get_oidc_env_args)"
 }
 
 cucumber_api() {
@@ -105,9 +113,11 @@ help() {
   # be one command. _subcommands_doc returns the doc for each
   # command, separated by newlines, so IFS needs to be set for it,
   # too.
-  IFS=$'\012'
-  local cmds=( $(_subcommands) )
-  local doc=( $(_subcommands_doc) )
+  local cmds
+  local doc
+
+  readarray -t cmds < <(_subcommands)
+  readarray -t doc< <(_subcommands_doc)
   
   cat << EOF
 NAME
@@ -120,8 +130,8 @@ SUBCOMMANDS
 EOF
 
   for i in $(seq 0 ${#cmds[@]}); do
-    echo -e "    ${cmds[i]}\t${doc[i]}"
-  done  | column -t -s $'\011'
+    printf "    %s\t%s\n" "${cmds[i]}" "${doc[i]}"
+  done  | column -t -s $'\t'
 }
 
 rspec() {
@@ -131,69 +141,84 @@ rspec() {
 
   _wait_for_pg pg
 
+  # Note: The nested, escaped double quotes are needed in case $REPORT_ROOT
+  # ever changes to a path containing a space.
   docker-compose run -T --rm --no-deps cucumber -ec "
     bundle exec rake db:migrate
-    rm -rf $REPORT_ROOT/spec/reports
-    bundle exec env CI_REPORTS=$REPORT_ROOT/spec/reports rspec --format progress --require ci/reporter/rspec --format CI::Reporter::RSpecFormatter
-  "
+
+    rm -rf \"$REPORT_ROOT/spec/reports\"
+
+    bundle exec env \"CI_REPORTS=$REPORT_ROOT/spec/reports\" \
+      rspec --format progress --require ci/reporter/rspec \
+      --format CI::Reporter::RSpecFormatter"
 }
 
 rspec_audit() {
-  : DOC - Runs RSpecs for the Audit engine
+  : "DOC - Runs RSpecs for the Audit engine"
   
   # Start Conjur with the audit database
   docker-compose up --no-deps -d audit pg
 
   _wait_for_pg audit
 
+  # Note: The nested double quotes are needed for the first command involving
+  # $REPORT_ROOT but not for the 2nd one where it appears in the variable
+  # assignment.
   AUDIT_DATABASE_URL=postgres://postgres@audit/postgres \
-    docker-compose run -T --rm --no-deps  -w /src/conjur-server cucumber -ec "
-      pwd
-      ci/rspec-audit/migratedb
-      
-      rm -rf $REPORT_ROOT/spec/reports-audit
-  
-      # Run tests from audit engine directory
-      pushd engines/conjur_audit
-      BUNDLE_GEMFILE=/src/conjur-server/Gemfile \
-      CI_REPORTS=$REPORT_ROOT/spec/reports-audit bundle exec rspec \
-        --format progress --require ci/reporter/rspec --format CI::Reporter::RSpecFormatter
-      popd
-    "
+    docker-compose run \
+      -T --rm --no-deps --workdir=/src/conjur-server cucumber -ec "
+        pwd
+        ci/rspec-audit/migratedb
+        
+        rm -rf \"$REPORT_ROOT/spec/reports-audit\"
+    
+        # Run tests from audit engine directory
+        pushd engines/conjur_audit
+
+        BUNDLE_GEMFILE=/src/conjur-server/Gemfile \
+        CI_REPORTS=$REPORT_ROOT/spec/reports-audit \
+          bundle exec rspec \
+            --format progress \
+            --require ci/reporter/rspec \
+            --format CI::Reporter::RSpecFormatter
+        popd
+      "
 }
 
 ### Internal functions
 #
-# Functions with names that start with a character other than [a-z]
-# are for internal use. These functions are not displayed by the help
-# subcommand.
+# Functions with names that start with a character other than [a-z] are for
+# internal use. These functions are not displayed by the help subcommand.
 #
-# They're also defined alphabetically.
-# Cleanup started containers, ok if they're already gone.
+# They're also defined alphabetically.  Cleanup started containers, ok if
+# they're already gone.
 
 
-# Build the conjur image. Note the '(' instead of '{'. Defining the
-# function this way means we'll run in a subshell. As a result, we
-# won't change the caller's working directory or scribble on the
-# environment.
+# Build the conjur image. Note the '(' instead of '{'. Defining the function
+# this way means we'll run in a subshell. As a result, we won't change the
+# caller's working directory or scribble on the environment.
 _build_conjur() (
-  local testdir="$1"; shift
+  local testdir=$1
+
   # Set release tag for building this version of Conjur
   cd "${testdir}/.."
   
   # Create Conjur Image
   ./build.sh --jenkins >&2
+
   # Grab the build tag so we launch the correct version of Conjur
+  # shellcheck disable=SC1091  
   . version_utils.sh
   version_tag
 )
 
-# TODO: Possibly move this into bash-lib: will be useful elsewhere
-
 # NOTE: See linked to issue at top of file.  This code in particular is can be
-#   simplified, and we need to figure out if we want it to run by default.
-docker_diagnostics() {
-  local testSet="${1}"
+# simplified, and we need to figure out if we want it to run by default.
+_docker_diagnostics() {
+  local test_set="${1}"
+  local cont_names
+  local cont_log_dir
+
   # Read the running containers names into an array.
   #
   # Note on bash trickiness: The backslash is required in \$NF because we want
@@ -202,185 +227,274 @@ docker_diagnostics() {
   # its _value_ in the regex.
   #
   # Docker Note: container name is always the last field.  Hence $NF gets it.
-  local cont_names
-  readarray -t cont_names < <(docker ps --all | \
+  readarray -t cont_names < <(docker ps --all |
     awk "/${COMPOSE_PROJECT_NAME}/{print \$NF}")
 
   # Store container logs for archiving
-  echo "Writing Container logs to container_logs/<testset>/container[-inspect].log"
-  container_log_dir="$(git rev-parse --show-toplevel)/container_logs/${testSet}"
-  mkdir -p "${container_log_dir}"
+  echo "Writing Container logs to" \
+    "container_logs/${test_set}/container[-inspect].log"
+
+  cont_log_dir="$(git rev-parse --show-toplevel)/container_logs/${test_set}"
+
+  mkdir -p "${cont_log_dir}"
+
   for name in "${cont_names[@]}"; do
-    docker inspect "$name" > "${container_log_dir}/${name}-inspect.log"
-    docker logs "$name" > "${container_log_dir}/${name}.log"
+    docker inspect "$name" > "${cont_log_dir}/${name}-inspect.log"
+    docker logs "$name" > "${cont_log_dir}/${name}.log"
 
     # For the conjur container, we want the development.log too
     if [[ "$name" =~ conjur ]]; then
       docker cp "$name:/opt/conjur-server/log/development.log" \
-        "${container_log_dir}/development.log"
+        "${cont_log_dir}/development.log"
     fi
   done
 }
 
 _finish() {
-  local testSet="${1}"
-  docker_diagnostics "${testSet}"
+  local test_set="${1}"
+  _docker_diagnostics "${test_set}"
+  # TODO: More reliable approach to this.
   # Give SimpleCov time to generate reports.
   sleep 15
   docker-compose down --rmi 'local' --volumes || true
 }
 
 _find_cucumber_network() {
-  local net=$(docker inspect $(docker-compose ps -q conjur) --format '{{.HostConfig.NetworkMode}}')
-  docker network inspect $net --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}'
+  local net
+
+  net=$(
+    docker inspect "$(docker-compose ps -q conjur)" \
+      --format '{{.HostConfig.NetworkMode}}'
+  )
+
+  docker network inspect "$net" \
+    --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}'
 }
 
+# Note: These are args for docker-compose run, and as such the right hand sides
+# of the = do NOT require escaped quotes.  docker-compose takes the entire arg,
+# splits on the =, and uses the rhs as the value,
 _get_oidc_env_args() {
-  local oidc_env_args=''
-  oidc_env_args="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv | grep KEYCLOAK | sed 's/.*/-e &/') \
-                 -e PROVIDER_URI=https://keycloak:8443/auth/realms/master \
-                 -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect \
-                 -e ID_TOKEN_USER_PROPERTY=preferred_username"
-
-  echo "${oidc_env_args}"
+  echo "$(
+    set -o pipefail
+    docker-compose exec -T oidc-keycloak printenv |
+    awk '/KEYCLOAK/{printf " -e %s", $0}'
+  ) \
+    -e PROVIDER_URI=https://keycloak:8443/auth/realms/master \
+    -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect \
+    -e ID_TOKEN_USER_PROPERTY=preferred_username"
 }
 
-_get_azure_env_args() {
-  local azure_env_args="-e AZURE_TENANT_ID=$AZURE_TENANT_ID \
-                        -e AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID \
-                        -e AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP \
-                        -e AZURE_AUTHN_INSTANCE_IP=$AZURE_AUTHN_INSTANCE_IP \
-                        -e AZURE_AUTHN_INSTANCE_USERNAME=$AZURE_AUTHN_INSTANCE_USERNAME \
-                        -e AZURE_AUTHN_INSTANCE_PASSWORD=$AZURE_AUTHN_INSTANCE_PASSWORD \
-                        -e USER_ASSIGNED_IDENTITY=$USER_ASSIGNED_IDENTITY \
-                        -e USER_ASSIGNED_IDENTITY_CLIENT_ID=$USER_ASSIGNED_IDENTITY_CLIENT_ID \
-                        -e SYSTEM_ASSIGNED_IDENTITY=$SYSTEM_ASSIGNED_IDENTITY"
 
-  echo "${azure_env_args}"
+# TODO: Replace this and all other env arg functions with this more robust
+# method that allows us to use arrays directly:
+# https://stackoverflow.com/a/49971213/438615
+_get_azure_env_args() {
+  echo "\
+    -e AZURE_TENANT_ID=$AZURE_TENANT_ID \
+    -e AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID \
+    -e AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP \
+    -e AZURE_AUTHN_INSTANCE_IP=$AZURE_AUTHN_INSTANCE_IP \
+    -e AZURE_AUTHN_INSTANCE_USERNAME=$AZURE_AUTHN_INSTANCE_USERNAME \
+    -e AZURE_AUTHN_INSTANCE_PASSWORD=$AZURE_AUTHN_INSTANCE_PASSWORD \
+    -e USER_ASSIGNED_IDENTITY=$USER_ASSIGNED_IDENTITY \
+    -e USER_ASSIGNED_IDENTITY_CLIENT_ID=$USER_ASSIGNED_IDENTITY_CLIENT_ID \
+    -e SYSTEM_ASSIGNED_IDENTITY=$SYSTEM_ASSIGNED_IDENTITY"
 }
 
 _get_gcp_env_args() {
+  local gcp_token_file
+  local payload
+
+  # The env variables.
+  local project_id
+  local instance_name
+  local account_id
+  local account_email
+
   gcp_token_file="authn-gcp/tokens/gcp_token_valid"
+
   if ! [ -f "$gcp_token_file" ]; then
     echo "GCP token file $gcp_token_file does not exist."
     exit 1
   fi
 
-  decoded_gcp_token_payload=$(_get_gcp_token_payload "$gcp_token_file")
+  payload=$(_get_gcp_token_payload "$gcp_token_file")
 
-  GCP_PROJECT_ID="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.project_id')"
-  GCP_INSTANCE_NAME="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.instance_name')"
-  GCP_SERVICE_ACCOUNT_ID="$(echo "$decoded_gcp_token_payload" | jq -r '.sub')"
-  GCP_SERVICE_ACCOUNT_EMAIL="$(echo "$decoded_gcp_token_payload" | jq -r '.email')"
+  project_id=$(jq -r '.google.compute_engine.project_id' <<< "$payload")
+  instance_name=$(jq -r '.google.compute_engine.instance_name' <<< "$payload")
+  account_id=$(jq -r '.sub' <<< "$payload")
+  account_email=$(jq -r '.email' <<< "$payload")
 
-  local gcp_env_args="-e GCP_INSTANCE_NAME=$GCP_INSTANCE_NAME \
-                      -e GCP_SERVICE_ACCOUNT_ID=$GCP_SERVICE_ACCOUNT_ID \
-                      -e GCP_SERVICE_ACCOUNT_EMAIL=$GCP_SERVICE_ACCOUNT_EMAIL \
-                      -e GCP_PROJECT_ID=$GCP_PROJECT_ID"
-
-  echo "${gcp_env_args}"
+  echo "\
+    -e GCP_PROJECT_ID=$project_id \
+    -e GCP_INSTANCE_NAME=$instance_name \
+    -e GCP_SERVICE_ACCOUNT_ID=$account_id \
+    -e GCP_SERVICE_ACCOUNT_EMAIL=$account_email"
 }
 
 _get_gcp_token_payload() {
+  source jwt/decode_token.sh
   local gcp_token_file="$1"
 
   # read token and set env vars
-  gcp_token=$(cat "$gcp_token_file")
+  gcp_token=$(< "$gcp_token_file")
 
-  source jwt/decode_token.sh
-
-  decoded_gcp_token_payload=$(decode_jwt_payload "$gcp_token")
-
-  echo "$decoded_gcp_token_payload"
+  decode_jwt_payload "$gcp_token"
 }
 
 _wait_for_keycloak() {
-  for i in {1..20}
-  do
-   sleep=10
-   echo "keycloak starting logs:"
-   output=$(docker-compose logs oidc-keycloak | grep "started" | wc -l)
-   if [ $output -ne 0 ]; then
-        echo "Keycloak server is up and ready"
-        return 0;
-   else
-        echo "Keycloak not ready yet sleep number $i for $sleep seconds"
-        sleep $sleep
-   fi
+  for i in {1..40}; do
+    sleep=5
+    echo "Keycloak starting logs:"
+
+    if docker-compose logs oidc-keycloak | grep "started"; then
+      echo "Keycloak server is up and ready"
+      return 0
+    fi
+
+    echo "Keycloak not ready yet sleep number $i for $sleep seconds"
+    sleep "$sleep"
   done
+
   echo "Error with keycloak server start or it is too slow"
-  return 1
+  exit 1
 }
 
+# _main is always called with at least the first arg. When the 2nd arg, the
+# test suite, is omitted, it simply prints help.
+#
+# Args:
+# - test_dir: the directory of this script.
+# - test_set: the test suite to run.
 _main() {
-  local testdir="${1}"; shift
-  local testSet="${1}"
+  local test_dir=$1
+  local test_set=$2
+  export TAG
 
-  # If there are no arguments, show help
-  if [[ "${#@}" -eq 0 || "$1" == 'help' ]]; then
+  # Print help if the test suite is omitted, or if explicitly specified.
+  if [[ -z "$test_set" || "$test_set" == 'help' ]]; then
     help
     exit 1
   fi
-  # shellcheck disable=SC2064
-  [[ -z "$KEEP_CONTAINERS" ]] && trap "_finish ${testSet}" EXIT
 
-  export TAG=$(_build_conjur "$testdir")
-  cd "${testdir}"
-  "$@"
+  if [[ -z "$KEEP_CONTAINERS" ]]; then
+    # Note: We want $test_set to expand now, not when EXIT is trapped.
+    # shellcheck disable=SC2064
+    trap "_finish $test_set" EXIT
+  fi
+
+  TAG=$(_build_conjur "$test_dir")
+  cd "${test_dir}"
+  "$test_set"
 }
 
 _prepare_env_auth_ldap() {
-  LDAP_CHECK_COMMAND='ldapsearch -x -ZZ -H ldapi:/// -b dc=conjur,dc=net -D "cn=admin,dc=conjur,dc=net" -w ldapsecret'
-  docker-compose up --no-deps -d ldap-server
+  # Command we run to determine if ldap is up.
+  local ldap_check_cmd="ldapsearch -x -ZZ -H ldapi:/// -b dc=conjur,dc=net \
+    -D \"cn=admin,dc=conjur,dc=net\" -w ldapsecret"
+  local ldap_up="false"
 
-  # LDAP is a bit slow to start up
+  # Start LDAP.
+  docker-compose up --no-deps --detach ldap-server
+
+  # Wait for up to 90 seconds, since it's slow.
   echo "Ensuring that LDAP is up..."
-  for i in {1..45}; do
-    (docker-compose exec -T ldap-server bash -c "${LDAP_CHECK_COMMAND}" | grep '^search: 3$') >/dev/null 2>&1 && break
-    echo -n '.'
+
+  for _ in {1..45}; do
+    # Note: We need the subshell to group the commands.
+    if (docker-compose exec -T ldap-server bash -c "${ldap_check_cmd}" \
+      | grep '^search: 3$') >/dev/null 2>&1; then
+
+      ldap_up="true"
+      break
+    fi
     sleep 2
   done
-  # Make sure it's really up
-  (docker-compose exec -T ldap-server bash -c "${LDAP_CHECK_COMMAND}" | grep '^search: 3$') || (echo 'LDAP server failed to start in time'; exit 1)
+
+  if [[ "$ldap_up" = false ]]; then
+    echo 'LDAP server failed to start in time'
+    exit 1
+  fi
 }
 
 _prepare_env_auth_oidc() {
   docker-compose up --no-deps -d pg conjur oidc-keycloak
-
-  # Check if keycloak is up
   _wait_for_keycloak
 
-  # Define oidc-keycloak client
   echo "Defining oidc-keycloak client"
+
   docker-compose exec -T oidc-keycloak /scripts/create_client
 
   echo "Creating user 'alice' in Keycloak"
-  docker-compose exec -T oidc-keycloak bash -c '/scripts/create_user "$KEYCLOAK_APP_USER" "$KEYCLOAK_APP_USER_PASSWORD" "$KEYCLOAK_APP_USER_EMAIL"'
+
+  # Note: We want to pass the bash command thru without expansion here.
+  # shellcheck disable=SC2016
+  _create_keycloak_user \
+    '$KEYCLOAK_APP_USER' \
+    '$KEYCLOAK_APP_USER_PASSWORD' \
+    '$KEYCLOAK_APP_USER_EMAIL'
 
   echo "Creating second user 'bob' in Keycloak"
-  docker-compose exec -T oidc-keycloak bash -c '/scripts/create_user "$KEYCLOAK_SECOND_APP_USER" "$KEYCLOAK_SECOND_APP_USER_PASSWORD" "$KEYCLOAK_SECOND_APP_USER_EMAIL"'
+
+  # Note: We want to pass the bash command thru without expansion here.
+  # shellcheck disable=SC2016
+  _create_keycloak_user \
+    '$KEYCLOAK_SECOND_APP_USER' \
+    '$KEYCLOAK_SECOND_APP_USER_PASSWORD' \
+    '$KEYCLOAK_SECOND_APP_USER_EMAIL'
 
   echo "Creating user in Keycloak that will not exist in conjur"
-  docker-compose exec -T oidc-keycloak bash -c '/scripts/create_user "$KEYCLOAK_NON_CONJUR_APP_USER" "$KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD" "$KEYCLOAK_NON_CONJUR_APP_USER_EMAIL"'
+
+  # Note: We want to pass the bash command thru without expansion here.
+  # shellcheck disable=SC2016
+  _create_keycloak_user \
+    '$KEYCLOAK_NON_CONJUR_APP_USER' \
+    '$KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD' \
+    '$KEYCLOAK_NON_CONJUR_APP_USER_EMAIL'
 
   echo "Initialize keycloak certificate in conjur server"
-  docker-compose exec -T conjur /authn-oidc/keycloak/scripts/fetchCertificate
+
+  docker-compose exec -T \
+    conjur /authn-oidc/keycloak/scripts/fetchCertificate
+}
+
+# The arguments must be unexpanded variable names.  Eg: 
+#
+# _create_keycloak_user '$APP_USER' '$APP_PW' '$APP_EMAIL' 
+#
+# This is because those variables are not available to this script. They are
+# available to bash commands run via "docker-compose exec oidc-keycloak bash
+# -c...", since they're defined in the docker-compose.yml.
+_create_keycloak_user() {
+  local user_var=$1
+  local pw_var=$2
+  local email_var=$3
+
+  docker-compose exec -T \
+    oidc-keycloak \
+    bash -c "/scripts/create_user \"$user_var\" \"$pw_var\" \"$email_var\""
 }
 
 # Setup and run Cucumber tests, first starting any other services required
 # args: <profile name> <extra services>
 # example: run_cucumber_tests 'policy'
 _setup_for_cucumber() {
-  if [[ ! -z "$1" ]]; then
-    local services="$1"; shift
+  local profile
+  local services
+
+  profile=$1
+
+  if [[ -n "$2" ]]; then
+    read -ra services <<< "$2"
   fi
-  
+
   # Create reports folders
-  mkdir -p cucumber/$profile/features/reports
-  rm -rf cucumber/$profile/features/reports/*
+  mkdir -p "cucumber/$profile/features/reports"
+  rm -rf "cucumber/$profile/features/reports/*"
 
   # Make sure all the services are up
-  docker-compose up --no-deps --no-recreate -d pg conjur $services
+  docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
 
   docker-compose exec -T conjur conjurctl wait
   docker-compose exec -T conjur conjurctl account create cucumber
@@ -391,42 +505,68 @@ _get_api_key() {
     role retrieve-key cucumber:user:admin | tr -d '\r'
 }
 
-# run cucumber, using $1 to initialize the environment. $1 can be
-# empty, but it must be present.
+# Args:
+# 1. cucumber_env_vars: A single string like "-e ENV1=val1 -e ENV2=val2".  Can
+#    be the empty string but must be present.
+# 2. cucumber_cmd: A bash command that will be executed in the cucumber
+#    container.
 _run_cucumber() {
-  local cucumber_env_args="$1"; shift
-  # If there's no tty (e.g. we're running as a Jenkins job, pass -T to
-  # docker-compose)
-  local notty=$(tty -s || echo '-T' && true)
+  local cucumber_env_vars
+  local cucumber_cmd
+  local run_cmd
 
-  docker-compose run --no-deps $notty --rm $cucumber_env_args \
-     -e CONJUR_AUTHN_API_KEY=$api_key \
-     -e CUCUMBER_NETWORK=$(_find_cucumber_network) \
-     cucumber -ec "$@"
+  # Process args.
+  read -ra cucumber_env_vars <<< "$1"
+  cucumber_cmd=$2
+
+  # Add the cucumber env vars that we always want to send.
+  # Note: These are args for docker-compose run, and as such the right hand
+  # sides of the = do NOT require escaped quotes.  docker-compose takes the
+  # entire arg, splits on the =, and uses the rhs as the value,
+  cucumber_env_vars+=(
+    -e "CONJUR_AUTHN_API_KEY=$(_get_api_key)"
+    -e "CUCUMBER_NETWORK=$(_find_cucumber_network)"
+  )
+
+  # If there's no tty (e.g. we're running as a Jenkins job), pass -T to
+  # docker-compose.
+  run_cmd=(run --no-deps --rm)
+  if ! tty -s; then
+    run_cmd+=(-T)
+  fi
+
+  # Note: Our "command + possible flag" run_cmd is an array, and we destructure
+  # it into two arguments below within shellcheck compliant double quotes.
+  # This is what [@] is for.
+  docker-compose "${run_cmd[@]}" "${cucumber_env_vars[@]}" \
+    cucumber -ec "$cucumber_cmd"
 }
 
 _run_cucumber_tests() {
-  local profile="$1"
-  if [[ ! -z "$2" ]]; then
-    local services="$2"
-  fi
-  if [[ ! -z "$3" ]]; then
-    local cucumber_env_args="$3"
+  local profile
+  local services
+  local cucumber_env_args
+
+  profile="$1"
+
+  if [[ -n "$2" ]]; then
+    services="$2"
   fi
 
-  _setup_for_cucumber "$services"
+  if [[ -n "$3" ]]; then
+    cucumber_env_args="$3"
+  fi
+
+  _setup_for_cucumber "$profile" "$services"
   
-  # Grab the admin user API key
-  local api_key=$(_get_api_key)
-
   # Run the tests
   _run_cucumber "$cucumber_env_args" \
      "bundle exec cucumber \
      --strict \
-     -p $profile \
-     --format json --out cucumber/$profile/cucumber_results.json \
-     --format html --out cucumber/$profile/cucumber_results.html \
-     --format junit --out cucumber/$profile/features/reports"
+     -p \"$profile\" \
+     --format json --out \"cucumber/$profile/cucumber_results.json\" \
+     --format html --out \"cucumber/$profile/cucumber_results.html\" \
+     --format junit --out \"cucumber/$profile/features/reports\""
 
   # Simplecov writes its report using an at_exit ruby hook. If the container
   # is killed before ruby, the report doesn't get written. So here we
@@ -435,40 +575,37 @@ _run_cucumber_tests() {
   docker-compose exec -T conjur bash -c "pkill -f 'puma 3'"
 }
 
-_run_cucumber_shell() {
-  if [[ ! -z "$1" ]]; then
-    local services="$1"; shift
-  fi
-  
-  _setup_for_cucumber "$services"
-  local api_key=$(_get_api_key)
-
-  _run_cucumber '' /bin/bash
-}
-
-
 _start_conjur() {
-  if [[ ! -z "$1" ]]; then
-    local services="$1"; shift
+  local services
+
+  if [[ -n "$1" ]]; then
+    read -ra services <<< "$1"
   fi
   
   # Start Conjur and supporting services
-  typeset -p COMPOSE_PROJECT_NAME
-  docker-compose up --no-deps --no-recreate -d pg conjur $services
+  # typeset -p COMPOSE_PROJECT_NAME
+  docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
 }
 
 _subcommands() {
   typeset -f | awk '/^[a-z]/ {print $1}'
 }
 
+# TODO: This had a builtin assumption about nesting. Our help was wrong
+#   and nobody noticed.  Remove this meta-programming entirely.
 _subcommands_doc() {
-  typeset -f | awk '/^    : DOC/ {sub(/    : DOC/, "", $0); print $0}' | tr -d ';'
+  typeset -f | 
+    awk '/^ *: DOC/ {sub(/ *: DOC/, "", $0); print $0}' |
+    tr -d ';'
 }
 
 _wait_for_pg() {
-  local svc="$1"; shift
+  local svc=$1
+  local pg_cmd=(psql -U postgres -c "select 1" -d postgres)
 
-  until docker-compose exec -T $svc psql -U postgres -c "select 1" -d postgres; do sleep 1; done
+  until docker-compose exec -T "$svc" "${pg_cmd[@]}"; do
+    sleep 1
+  done
 }
 
-_main "$(dirname $0)" "$@"
+_main "$(dirname "$0")" "$@"

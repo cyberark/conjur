@@ -4,7 +4,7 @@ set -o pipefail
 
 # expects
 # PLATFORM K8S_VERSION OPENSHIFT_USERNAME OPENSHIFT_PASSWORD
-# CONJUR_AUTHN_K8S_TEST_NAMESPACE CONJUR_AUTHN_K8S_TAG INVENTORY_TAG
+# CONJUR_AUTHN_K8S_TEST_NAMESPACE CONJUR_AUTHN_K8S_TAG INVENTORY_TAG INVENTORY_BASE_TAG
 # LOCAL_DEV_VOLUME
 # to exist
 
@@ -112,6 +112,7 @@ function pushDockerImages() {
   # push images to openshift registry
   docker push $CONJUR_AUTHN_K8S_TAG
   docker push $INVENTORY_TAG
+  docker push $INVENTORY_BASE_TAG
 }
 
 function launchConjurMaster() {
@@ -173,16 +174,17 @@ function loadConjurPolicies() {
 
 function launchInventoryServices() {
   echo 'Launching inventory services'
-  local service_count=4
+  local service_count=5
 
   oc create -f dev/dev_inventory.${TEMPLATE_TAG}yaml
   oc create -f dev/dev_inventory_deployment_config.${TEMPLATE_TAG}yaml
-  oc create -f dev/dev_inventory_pod.${TEMPLATE_TAG}yaml
   oc create -f dev/dev_inventory_unauthorized.${TEMPLATE_TAG}yaml
+  # This yaml file has 2 pods
+  oc create -f dev/dev_inventory_pod.${TEMPLATE_TAG}yaml
 
   if [[ "$K8S_VERSION" != "1.3" ]]; then  # stateful sets are k8s 1.5+ only
     oc create -f dev/dev_inventory_stateful.${TEMPLATE_TAG}yaml
-    service_count=5
+    service_count=6
   fi
 
   wait_for_it 300 "oc describe po inventory | grep Status: | grep -c Running | grep -q $service_count"
