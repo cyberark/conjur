@@ -75,7 +75,23 @@ cucumber_authenticators_azure() {
 cucumber_authenticators_gcp() {
   : DOC - Runs Cucumber GCP Authenticator features
 
-  _run_cucumber_tests authenticators_gcp "" "$(_get_gcp_env_args)"
+  local gce_token_file
+  local gcf_token_file
+
+  # Validate that token files are available
+  gce_token_file="authn-gcp/tokens/gce_token_valid"
+  if ! [ -f "$gce_token_file" ]; then
+    echo "GCE token file ''$gce_token_file' not found."
+    exit 1
+  fi
+
+  gcf_token_file="authn-gcp/tokens/gcf_token_valid"
+  if ! [ -f "$gcf_token_file" ]; then
+    echo "GCF token file ''$gcf_token_file' not found."
+    exit 1
+  fi
+
+  _run_cucumber_tests authenticators_gcp "" "$(_get_gcp_env_args $gce_token_file $gcf_token_file)"
 }
 
 cucumber_authenticators_oidc() {
@@ -306,34 +322,38 @@ _get_azure_env_args() {
 }
 
 _get_gcp_env_args() {
-  local gcp_token_file
-  local payload
+  local gce_token_file=$1
+  local gcf_token_file=$2
 
-  # The env variables.
-  local project_id
-  local instance_name
-  local account_id
-  local account_email
+  # The env variables
+  local gce_project_id
+  local gce_instance_name
+  local gce_service_account_id
+  local gce_service_account_email
+  local gcf_service_account_id
+  local gcf_service_account_email
 
-  gcp_token_file="authn-gcp/tokens/gcp_token_valid"
+  # Extract GCE env variables
+  local decoded_gcp_token_payload=$(_get_gcp_token_payload "$gce_token_file")
 
-  if ! [ -f "$gcp_token_file" ]; then
-    echo "GCP token file $gcp_token_file does not exist."
-    exit 1
-  fi
+  gce_project_id="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.project_id')"
+  gce_instance_name="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.instance_name')"
+  gce_service_account_id="$(echo "$decoded_gcp_token_payload" | jq -r '.sub')"
+  gce_service_account_email="$(echo "$decoded_gcp_token_payload" | jq -r '.email')"
 
-  payload=$(_get_gcp_token_payload "$gcp_token_file")
+  # Extract GCF env variables
+  decoded_gcp_token_payload=$(_get_gcp_token_payload "$gcf_token_file")
 
-  project_id=$(jq -r '.google.compute_engine.project_id' <<< "$payload")
-  instance_name=$(jq -r '.google.compute_engine.instance_name' <<< "$payload")
-  account_id=$(jq -r '.sub' <<< "$payload")
-  account_email=$(jq -r '.email' <<< "$payload")
+  gcf_service_account_id="$(echo "$decoded_gcp_token_payload" | jq -r '.sub')"
+  gcf_service_account_email="$(echo "$decoded_gcp_token_payload" | jq -r '.email')"
 
-  echo "\
-    -e GCP_PROJECT_ID=$project_id \
-    -e GCP_INSTANCE_NAME=$instance_name \
-    -e GCP_SERVICE_ACCOUNT_ID=$account_id \
-    -e GCP_SERVICE_ACCOUNT_EMAIL=$account_email"
+
+  echo "-e GCE_INSTANCE_NAME=$gce_instance_name \
+                              -e GCE_SERVICE_ACCOUNT_ID=$gce_service_account_id \
+                              -e GCE_SERVICE_ACCOUNT_EMAIL=$gce_service_account_email \
+                              -e GCE_PROJECT_ID=$gce_project_id \
+                              -e GCF_SERVICE_ACCOUNT_ID=$gcf_service_account_id \
+                              -e GCF_SERVICE_ACCOUNT_EMAIL=$gcf_service_account_email"
 }
 
 _get_gcp_token_payload() {
@@ -483,6 +503,7 @@ _create_keycloak_user() {
 # args: <profile name> <extra services>
 # example: run_cucumber_tests 'policy'
 _setup_for_cucumber() {
+  echo _setup_for_cucumber
   local profile
   local services
 
@@ -491,16 +512,22 @@ _setup_for_cucumber() {
   if [[ -n "$2" ]]; then
     read -ra services <<< "$2"
   fi
-
+  echo _setup_for_cucumber profile: $profile, services: $services
   # Create reports folders
   mkdir -p "cucumber/$profile/features/reports"
   rm -rf "cucumber/$profile/features/reports/*"
+  echo _setup_for_cucumber reports dir created
 
+  echo _setup_for_cucumber docker-compose up
   # Make sure all the services are up
   docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
 
+  echo _setup_for_cucumber docker-compose wait
   docker-compose exec -T conjur conjurctl wait
+  echo _setup_for_cucumber docker-compose exec crate account
   docker-compose exec -T conjur conjurctl account create cucumber
+  echo _setup_for_cucumber docker-compose logs
+  echo docker-compose logs conjur
 }
 
 _get_api_key() {
@@ -546,6 +573,8 @@ _run_cucumber() {
 }
 
 _run_cucumber_tests() {
+
+  echo _run_cucumber_tests
   local profile
   local services
   local cucumber_env_args
@@ -560,8 +589,10 @@ _run_cucumber_tests() {
     cucumber_env_args="$3"
   fi
 
+  echo _setup_for_cucumber "$profile" "$services"
   _setup_for_cucumber "$profile" "$services"
 
+  echo _run_cucumber "$cucumber_env_args"
   # Run the tests
   _run_cucumber "$cucumber_env_args" \
      "bundle exec cucumber \
@@ -570,6 +601,9 @@ _run_cucumber_tests() {
      --format json --out \"cucumber/$profile/cucumber_results.json\" \
      --format html --out \"cucumber/$profile/cucumber_results.html\" \
      --format junit --out \"cucumber/$profile/features/reports\""
+
+  echo docker-compose logs conjur
+  docker-compose logs conjur
 
   # Simplecov writes its report using an at_exit ruby hook. If the container
   # is killed before ruby, the report doesn't get written. So here we

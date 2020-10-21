@@ -7,7 +7,6 @@ module AuthnGcpHelper
 
   ACCOUNT = 'cucumber'
 
-
   def gce_instance_name
     @gce_instance_name ||= validated_env_var('GCE_INSTANCE_NAME')
   end

@@ -83,7 +83,8 @@ end
 Given(/I authenticate with authn-gcp using a valid GCF identity token/) do
   authenticate_gcp_token(
     account: AuthnGcpHelper::ACCOUNT,
-    gcp_token: @gcf_identity_token)
+    gcp_token: @gcf_identity_token
+  )
 end
 
 Given(/^I obtain an? (valid|standard_format|user_audience|invalid_audience|non_existing_host|non_rooted_host|non_existing_account) GCE identity token$/) do |token_type|

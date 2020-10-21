@@ -77,7 +77,7 @@ pipeline {
 
     stage('Run environment tests in parallel') {
       parallel {
-          stage('EE FIPS agent tests') {
+        stage('EE FIPS agent tests') {
             agent { label 'executor-v2-rhel-ee' }
             when {
                 beforeAgent true
@@ -122,44 +122,44 @@ pipeline {
             }
           } // EE FIPS agent tests
 
-          stage('Standard agent tests') {
-            steps {
-              script {
-                 parallel([
-                    "RSpec - ${env.STAGE_NAME}": {
-                      sh 'ci/test rspec'
-                    },
-                    "Authenticators Config - ${env.STAGE_NAME}": {
-                      sh 'ci/test cucumber_authenticators_config'
-                    },
-                    "Authenticators Status - ${env.STAGE_NAME}": {
-                      sh 'ci/test cucumber_authenticators_status'
-                    },
-                    "LDAP Authenticator - ${env.STAGE_NAME}": {
-                      sh 'ci/test cucumber_authenticators_ldap'
-                    },
-                    "OIDC Authenticator - ${env.STAGE_NAME}": {
-                      sh 'ci/test cucumber_authenticators_oidc'
-                    },
-                    "Policy - ${env.STAGE_NAME}": {
-                      sh 'ci/test cucumber_policy'
-                    },
-                    "API - ${env.STAGE_NAME}": {
-                      sh 'ci/test cucumber_api'
-                    },
-                    "Rotators - ${env.STAGE_NAME}": {
-                      sh 'ci/test rspec'
-                    },
-                    "Kubernetes 1.7 in GKE - ${env.STAGE_NAME}": {
-                      sh 'cd ci/authn-k8s && summon ./test.sh gke'
-                    },
-                    "Audit - ${env.STAGE_NAME}": {
-                      sh 'ci/test rspec_audit'
-                    }
-                 ])
-             }
-            }
-          } // Standard agent tests
+        stage('Standard agent tests') {
+          steps {
+            script {
+               parallel([
+                  "RSpec - ${env.STAGE_NAME}": {
+                    sh 'ci/test rspec'
+                  },
+                  "Authenticators Config - ${env.STAGE_NAME}": {
+                    sh 'ci/test cucumber_authenticators_config'
+                  },
+                  "Authenticators Status - ${env.STAGE_NAME}": {
+                    sh 'ci/test cucumber_authenticators_status'
+                  },
+                  "LDAP Authenticator - ${env.STAGE_NAME}": {
+                    sh 'ci/test cucumber_authenticators_ldap'
+                  },
+                  "OIDC Authenticator - ${env.STAGE_NAME}": {
+                    sh 'ci/test cucumber_authenticators_oidc'
+                  },
+                  "Policy - ${env.STAGE_NAME}": {
+                    sh 'ci/test cucumber_policy'
+                  },
+                  "API - ${env.STAGE_NAME}": {
+                    sh 'ci/test cucumber_api'
+                  },
+                  "Rotators - ${env.STAGE_NAME}": {
+                    sh 'ci/test rspec'
+                  },
+                  "Kubernetes 1.7 in GKE - ${env.STAGE_NAME}": {
+                    sh 'cd ci/authn-k8s && summon ./test.sh gke'
+                  },
+                  "Audit - ${env.STAGE_NAME}": {
+                    sh 'ci/test rspec_audit'
+                  }
+               ])
+           }
+          }
+        } // Standard agent tests
 
         stage('Azure Authenticator') {
           steps {

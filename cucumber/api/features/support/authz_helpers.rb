@@ -41,7 +41,7 @@ module AuthzHelpers
   end
 
   def remove_resource_all_annotations(resource = @current_resource)
-    resource.annotations.each { |a| a.delete }
+    resource.annotations.map(&:delete)
   end
 end
 

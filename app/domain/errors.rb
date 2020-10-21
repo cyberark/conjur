@@ -367,7 +367,7 @@ module Errors
         msg:  "Resource restriction '{0-resource-restriction-name}' does not exists " \
             "resource in JWT token. " \
             "Verify that you configured the host with permitted restrictions. " \
-            "In case of Compute Engine token verify that you requested the token using 'format=full'" ,
+            "In case of Compute Engine token verify that you requested the token using 'format=full'",
         code: "CONJ00068E"
       )
 
