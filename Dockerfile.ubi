@@ -24,22 +24,22 @@ LABEL name="conjur-ubi" \
       description="Conjur provides secrets management and machine identity for modern infrastructure."
 
 RUN yum -y module enable "ruby:$RUBY_VERSION" && \
-    INSTALL_PKGS="ruby \
-                  ruby-devel \
-                  rubygem-rake \
-                  redhat-rpm-config \
-                  libxslt-devel \
-                  libxml2-devel \
-                  gcc \
+    INSTALL_PKGS="gcc \
                   gcc-c++ \
-                  glibc-devel \
-                  make \
                   git \
-                  openldap-clients \
+                  glibc-devel \
                   libpq \
                   libpq-devel \
-                  tzdata \
-                  libzip-devel" && \
+                  libxml2-devel \
+                  libxslt-devel \
+                  libzip-devel \
+                  make \
+                  openldap-clients \
+                  redhat-rpm-config \
+                  ruby \
+                  ruby-devel \
+                  rubygem-rake \
+                  tzdata" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum -y clean all --enablerepo='*'
@@ -86,7 +86,7 @@ COPY . .
 
 RUN ln -sf /opt/conjur-server/bin/conjurctl /usr/local/bin/
 
-ADD LICENSE.md /licenses/
+COPY LICENSE.md /licenses/
 
 USER conjur
 
