@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Hosts can authenticate from Google Cloud Function (GCF) using a GCE instance
+  identity token. See [design](design/authenticators/authn_gcp/authn_gcp_solution_design.md)
+  for details ([cyberark/conjur#1804](https://github.com/cyberark/conjur/issues/1804)).
+
 ### Changed
 - Conjur now raises an ExecCommandError error instead of a CertInstallationError
   error in case it failed to install the client certificate during authn-k8s.
