@@ -72,7 +72,6 @@ module Authentication
             account
           )
         end
-
       end
 
       def audience_parts
