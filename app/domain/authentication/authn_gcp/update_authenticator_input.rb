@@ -12,6 +12,7 @@ module Authentication
     UpdateAuthenticatorInput = CommandClass.new(
       dependencies: {
         verify_and_decode_token: Authentication::OAuth::VerifyAndDecodeToken.new,
+        validate_account_exists: Authentication::Security::ValidateAccountExists.new,
         decoded_token_class:     DecodedToken,
         logger:                  Rails.logger
       },
@@ -22,11 +23,18 @@ module Authentication
       def_delegators :@authenticator_input, :authenticator_name, :account, :credentials, :username
 
       def call
+        validate_account_exists
         validate_token
         updated_input
       end
 
       private
+
+      def validate_account_exists
+        @validate_account_exists.(
+          account: account
+        )
+      end
 
       def validate_token
         decoded_token
@@ -55,9 +63,14 @@ module Authentication
 
       def validate_audience
         if audience_parts.length != 3 ||
-            audience_parts[0] != "conjur" ||
-            audience_parts[1] != account
+            audience_parts[0] != "conjur"
           raise Errors::Authentication::AuthnGcp::InvalidAudience, audience
+        elsif audience_parts[1] != account
+          raise Errors::Authentication::AuthnGcp::InvalidAccountInAudienceClaim.new(
+            audience,
+            audience_parts[1],
+            account
+          )
         end
       end
 

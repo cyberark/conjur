@@ -16,6 +16,7 @@
   * [Performance](#performance)
   * [Affected Components](#affected-components)
 - [Security](#security)
+- [Test Plan](#test-plan)
 - [Logs](#logs)
   * [Error Log level](#error-log-level)
   * [Debug Log level](#debug-log-level)
@@ -88,7 +89,8 @@ We will support only the following service accounts types:
 * Default service accounts - automatically granted by google
 * User-managed service accounts - created by the user
 
-As mentioned [in this issue](https://github.com/cyberark/conjur/issues/1711), 
+
+As mentioned in the [feature doc](https://ca-il-confluence.il.cyber-ark.com/display/rndp/Conjur+GCP+Authenticator#/), 
 before any authentication request is sent to Conjur, the admin will load the authenticator policy:
  
 The YAML snippet below depicts the Google authenticator policy in Conjur:
@@ -346,6 +348,9 @@ and signed by google private keys which are not expose to the apps in contrast t
 
 * **onetime** - Ori suggested to consider a mechanism to allow to each token to be used only once, 
 but in this version we will not implement this capability  
+
+## Test Plan
+[Link to confluence](https://ca-il-confluence.il.cyber-ark.com/display/rndp/Conjur+GCP+authenticator+-+Test+plan#/) 
 
 ## Logs
 

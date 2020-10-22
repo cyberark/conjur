@@ -363,15 +363,23 @@ module Errors
         code: "CONJ00067E"
       )
 
-      TokenClaimNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
-        msg:  "Claim '{0-claim-name}' not found or empty in token. " \
-              "Verify that you requested the token using 'format=full'",
+      ResourceRestrictionNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
+        msg:  "Resource restriction '{0-resource-restriction-name}' does not exists " \
+            "resource in JWT token. " \
+            "Verify that you configured the host with permitted restrictions. " \
+            "In case of Compute Engine token verify that you requested the token using 'format=full'",
         code: "CONJ00068E"
       )
 
       RoleMissingRequiredConstraints = ::Util::TrackableErrorClass.new(
         msg:  "Role must have at least one of the following constraints: {0-constraints}",
         code: "CONJ00069E"
+      )
+
+      InvalidAccountInAudienceClaim = ::Util::TrackableErrorClass.new(
+        msg:  "'audience' token claim '{0}' is invalid. " \
+              "The account in the audience '{1}' does not match the account in the URL request '{2}'",
+        code: "CONJ00071E"
       )
     end
   end

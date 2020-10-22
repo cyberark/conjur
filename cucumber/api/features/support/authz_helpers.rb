@@ -39,6 +39,10 @@ module AuthzHelpers
       resource.add_annotation name: name, value: value
     end
   end
+
+  def remove_resource_all_annotations(resource = @current_resource)
+    resource.annotations.map(&:delete)
+  end
 end
 
 World(AuthzHelpers)

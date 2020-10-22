@@ -38,14 +38,26 @@ module Authentication
       def resource_value_from_token(resource_type)
         case resource_type
         when PROJECT_ID_RESTRICTION_NAME
-          @decoded_token.project_id
+          resource_value = @decoded_token.project_id
         when INSTANCE_NAME_RESTRICTION_NAME
-          @decoded_token.instance_name
+          resource_value = @decoded_token.instance_name
         when SERVICE_ACCOUNT_ID_RESTRICTION_NAME
-          @decoded_token.service_account_id
+          resource_value = @decoded_token.service_account_id
         when SERVICE_ACCOUNT_EMAIL_RESTRICTION_NAME
-          @decoded_token.service_account_email
+          resource_value = @decoded_token.service_account_email
         end
+
+        validate_resource_exists_in_token(resource_type, resource_value)
+
+        resource_value
+      end
+
+      def validate_resource_exists_in_token(resource_type, resource_value)
+        if resource_value.nil? || resource_value.empty?
+          raise Errors::Authentication::AuthnGcp::ResourceRestrictionNotFoundOrEmpty.new(resource_type)
+        end
+
+        resource_value
       end
     end
   end

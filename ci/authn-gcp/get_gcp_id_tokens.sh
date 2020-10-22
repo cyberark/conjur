@@ -14,15 +14,15 @@
 
 PROGNAME=$(basename "$0")
 INSTANCE_ZONE=""
-TOKENS_OUT_DIR_PATH=../ci/authn-gcp/tokens
+TOKENS_OUT_DIR_PATH="../ci/authn-gcp/tokens"
 TOKEN_FILE_NAME_PREFIX=gcp_token_
 INSTANCE_EXISTS=0
 INSTANCE_RUNNING=0
 
 main() {
-  echo "-- ------------------------------------------ --"
-  echo "-- Generate Google Cloud GCP Identity tokens --"
-  echo "-- ------------------------------------------ --"
+  echo "-- ----------------------------------------------------------- --"
+  echo "-- Generate Google Cloud GCP Identity tokens from GCE instance --"
+  echo "-- ----------------------------------------------------------- --"
 
   echo "-- Verifying 'gcloud' is installed..."
   ensure_gcloud_is_installed
@@ -30,8 +30,13 @@ main() {
   check_instance_name_arg "$1"
   echo "-- Checking if GCE instance: '${INSTANCE_NAME}' exists..."
   ensure_instance_exists_and_running "$INSTANCE_NAME"
-  echo "-- Deleting stale token files..."
-  rm -rf ${TOKENS_OUT_DIR_PATH}/${TOKEN_FILE_NAME_PREFIX}*
+  if [ -d "$TOKENS_OUT_DIR_PATH" ]; then
+    echo "-- Deleting stale token files..."
+    rm -rf "${TOKENS_OUT_DIR_PATH}/${TOKEN_FILE_NAME_PREFIX}*"
+  else
+    echo "-- Create token files out directory: '$TOKENS_OUT_DIR_PATH'..."
+    mkdir "$TOKENS_OUT_DIR_PATH" || exit 1
+  fi
   echo "-- Generate tokens and writing to files under '${TOKENS_OUT_DIR_PATH}'..."
   get_tokens_into_files
   echo "-- Finished obtaining and writing tokens to files."
@@ -112,31 +117,47 @@ print_running_gce_instances() {
 }
 
 get_tokens_into_files() {
-  if [ "${INSTANCE_EXISTS}" = "0" ] || [ "${INSTANCE_RUNNING}" = "0" ]; then
+  echo 'get_tokens_into_files'
+  if [ "${INSTANCE_EXISTS}" = "0" ] | [ "${INSTANCE_RUNNING}" = "0" ]; then
     error_exit "-- Cannot run command, GCE instance '${INSTANCE_NAME}' not in a valid state!"
   fi
 
-  get_token_into_file "full" "conjur/cucumber/host/test-app" "valid"
-  get_token_into_file "full" "conjur/cucumber/host/non-existing" "non_existing_host"
-  get_token_into_file "full" "conjur/cucumber/host/non-rooted/test-app" "non_rooted_host"
-  get_token_into_file "full" "conjur/cucumber/test-app" "user"
-  get_token_into_file "full" "conjur/non-existing/host/test-app" "non_existing_account"
-  get_token_into_file "full" "invalid_audience" "invalid_audience"
-  get_token_into_file "standard" "conjur/cucumber/host/test-app" "standard_format"
+  local tokens_config_file="$(dirname $0)/tokens_config.json"
+  if [ ! -f "$tokens_config_file" ]; then
+    echo "$tokens_config_file file not found."
+    exit 1
+  fi
+
+  local tokens="$(cat $tokens_config_file)"
+  local token_prefix="${TOKENS_OUT_DIR_PATH}/${TOKEN_FILE_NAME_PREFIX}"
+
+  for row in $(echo "${tokens}" | jq -c '.[]'); do
+    _jq() {
+      echo ${row} | jq -r ${1}
+    }
+
+    name=$(_jq '.name')
+    aud=$(_jq '.audience')
+    format=$(_jq '.format')
+    [ "$format" = "null" ] && format="full"
+
+    echo "-- Obtain an ID token in '$format' format, audience: '$aud' and persist to: '$token_prefix$name'"
+    get_token_into_file "$format" "$aud" "$token_prefix$name"
+  done
+
   wait
+  echo '-> get_tokens_into_files done'
 }
 
 get_token_into_file() {
   local token_format="$1"
   local audience="$2"
-  local filename="$3"
-  local token_file="${TOKENS_OUT_DIR_PATH}/${TOKEN_FILE_NAME_PREFIX}${filename}"
+  local token_file="$3"
+
   local curl_cmd="curl -s -G -H 'Metadata-Flavor: Google' \
   --data-urlencode 'format=${token_format}' \
   --data-urlencode 'audience=${audience}' \
   'http://metadata/computeMetadata/v1/instance/service-accounts/default/identity'"
-
-  echo "-- Obtain an ID token in '${token_format}' format, audience: '${audience}' and persist to: '${token_file}'"
 
   gcloud compute ssh "$INSTANCE_NAME" --zone="${INSTANCE_ZONE}" --command "${curl_cmd}" > "${token_file}" &
 }
