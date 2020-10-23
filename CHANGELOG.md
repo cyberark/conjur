@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   error in case it failed to install the client certificate during authn-k8s.
   [cyberark/conjur#1860](https://github.com/cyberark/conjur/issues/1860)
 
+### Security
+- Bumped Ruby version from 2.5.1 to 2.5.8 to address
+  [CVE-2020-10663](https://nvd.nist.gov/vuln/detail/CVE-2020-10663).
+  [cyberark/conjur#1906](https://github.com/cyberark/conjur/pull/1906)
+
 ## [1.10.0] - 2020-10-16
 ### Added
 - [Documentation](./UPGRADING.md) explaining how to upgrade a Conjur server deployed in a
