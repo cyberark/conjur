@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Hosts can authenticate from Google Cloud Function (GCF) using a GCE instance
   identity token. See [design](design/authenticators/authn_gcp/authn_gcp_solution_design.md)
-  for details ([cyberark/conjur#1804](https://github.com/cyberark/conjur/issues/1804)).
+  for details. [cyberark/conjur#1804](https://github.com/cyberark/conjur/issues/1804)
 
 ### Changed
 - Conjur now raises an ExecCommandError error instead of a CertInstallationError
