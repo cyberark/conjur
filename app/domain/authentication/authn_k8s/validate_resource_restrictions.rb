@@ -9,7 +9,7 @@ module Authentication
         resource_class:              ::Resource,
         k8s_resolver:                K8sResolver,
         k8s_object_lookup_class:     K8sObjectLookup,
-        resource_restrictions_class: ResourceRestrictions,
+        resource_restrictions_class: Authentication::AuthnK8s::ResourceRestrictions,
         logger:                      Rails.logger
       },
       inputs:       %i(host_id host_annotations account service_id spiffe_id)
@@ -65,7 +65,7 @@ module Authentication
             )
             .validate_pod
         end
-        @logger.debug(LogMessages::Authentication::ValidatedResourceRestrictions.new)
+        @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatedResourceRestrictions.new)
       end
 
       def k8s_object_lookup

@@ -38,30 +38,10 @@ module LogMessages
       code: "CONJ00025D"
     )
 
-    RetrievedAnnotationValue = ::Util::TrackableLogMessageClass.new(
-      msg:  "Retrieved value of annotation {0-annotation-name}",
-      code: "CONJ00024D"
-    )
-
     ContainerNameAnnotationDefaultValue = ::Util::TrackableLogMessageClass.new(
       msg:  "Annotation '{0-authentication-container-annotation-name}' not found. " \
                 "Using default value '{1-default-authentication-container}'",
       code: "CONJ00033D"
-    )
-
-    ValidatedResourceRestrictionValue = ::Util::TrackableLogMessageClass.new(
-      msg:  "Resource restriction '{0-resource-restriction-name}' value validated",
-      code: "CONJ00043D"
-    )
-
-    ValidatingResourceRestrictions = ::Util::TrackableLogMessageClass.new(
-      msg:  "Validating resource restriction for role '{0-role-id}'",
-      code: "CONJ00046D"
-    )
-
-    ValidatedResourceRestrictions = ::Util::TrackableLogMessageClass.new(
-      msg:  "Resource restrictions validated",
-      code: "CONJ00030D"
     )
 
     EncodedJWTResponse = ::Util::TrackableLogMessageClass.new(
@@ -123,6 +103,55 @@ module LogMessages
       OptionalTokenClaimNotFoundOrEmpty  = ::Util::TrackableLogMessageClass.new(
         msg:  "Optional claim '{0-claim-name}' not found or empty in token",
         code: "CONJ00047D"
+      )
+
+    end
+
+    module ResourceRestrictions
+
+      RetrievedAnnotationValue = ::Util::TrackableLogMessageClass.new(
+        msg:  "Retrieved value of annotation {0-annotation-name}",
+        code: "CONJ00024D"
+      )
+
+      ValidatingResourceRestrictions = ::Util::TrackableLogMessageClass.new(
+        msg:  "Validating resource restriction for role '{0-role-id}'",
+        code: "CONJ00046D"
+      )
+
+      ValidatedResourceRestrictions = ::Util::TrackableLogMessageClass.new(
+        msg:  "Resource restrictions validated",
+        code: "CONJ00030D"
+      )
+
+      ExtractingRestrictionsFromResource = ::Util::TrackableLogMessageClass.new(
+        msg: "Extracting resource restrictions for authenticator '{0-authn-name}' from host '{1-host-name}'",
+        code: "CONJ00039D"
+      )
+
+      ExtractedResourceRestrictions = ::Util::TrackableLogMessageClass.new(
+        msg: "Resource restrictions were extracted: '{0-restrictions-names}'",
+        code: "CONJ00040D"
+      )
+
+      ValidatingResourceRestrictionsConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating resource restrictions configuration",
+        code: "CONJ00041D"
+      )
+
+      ValidatedResourceRestrictionsConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Resource restrictions configuration validated",
+        code: "CONJ00042D"
+      )
+
+      ValidatingResourceRestrictionsValues = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating resource restriction values",
+        code: "CONJ00044D"
+      )
+
+      ValidatedResourceRestrictionsValues = ::Util::TrackableLogMessageClass.new(
+        msg: "Resource restriction values validated",
+        code: "CONJ00045D"
       )
 
     end
@@ -220,40 +249,6 @@ module LogMessages
       ExtractedResourceRestrictionsFromToken = ::Util::TrackableLogMessageClass.new(
         msg:  "Extracted resource restrictions from token",
         code: "CONJ00029D"
-      )
-
-    end
-
-    module AuthnGcp
-
-      ExtractingRestrictionsFromResource = ::Util::TrackableLogMessageClass.new(
-        msg: "Extracting resource restrictions with prefix '{0-prefix}' from role '{1-role-id}'",
-        code: "CONJ00039D"
-      )
-
-      ExtractedResourceRestrictions = ::Util::TrackableLogMessageClass.new(
-        msg: "{0-amount} resource restrictions were extracted",
-        code: "CONJ00040D"
-      )
-
-      ValidatingResourceRestrictionsConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg: "Validating resource restrictions configuration",
-        code: "CONJ00041D"
-      )
-
-      ValidatedResourceRestrictionsConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg: "Resource restrictions configuration validated",
-        code: "CONJ00042D"
-      )
-
-      ValidatingResourceRestrictionsValues = ::Util::TrackableLogMessageClass.new(
-        msg: "Validating resource restriction values against Google ID token",
-        code: "CONJ00044D"
-      )
-
-      ValidatedResourceRestrictionsValues = ::Util::TrackableLogMessageClass.new(
-        msg: "Resource restriction values validated",
-        code: "CONJ00045D"
       )
 
     end

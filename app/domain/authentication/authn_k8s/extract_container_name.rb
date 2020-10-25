@@ -33,7 +33,7 @@ module Authentication
 
         # return the value of the annotation if it exists, nil otherwise
         if annotation
-          @logger.debug(LogMessages::Authentication::RetrievedAnnotationValue.new(name))
+          @logger.debug(LogMessages::Authentication::ResourceRestrictions::RetrievedAnnotationValue.new(name))
           annotation[:value]
         end
       end

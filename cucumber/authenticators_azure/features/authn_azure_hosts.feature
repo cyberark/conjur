@@ -109,7 +109,7 @@ Feature: Azure Authenticator - Different Hosts can authenticate with Azure authe
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::Jwt::InvalidResourceRestrictions
+    Errors::Authentication::ResourceRestrictions::InvalidResourceRestrictions
     """
 
   Scenario: Host with incorrect resource-group Azure annotation is denied
@@ -123,7 +123,7 @@ Feature: Azure Authenticator - Different Hosts can authenticate with Azure authe
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::Jwt::InvalidResourceRestrictions
+    Errors::Authentication::ResourceRestrictions::InvalidResourceRestrictions
     """
 
   Scenario: Host with incorrect user-assigned-identity annotation is denied
@@ -138,7 +138,7 @@ Feature: Azure Authenticator - Different Hosts can authenticate with Azure authe
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::Jwt::InvalidResourceRestrictions
+    Errors::Authentication::ResourceRestrictions::InvalidResourceRestrictions
     """
 
   Scenario: Host with incorrect system-assigned-identity annotation is denied
@@ -153,7 +153,7 @@ Feature: Azure Authenticator - Different Hosts can authenticate with Azure authe
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::Jwt::InvalidResourceRestrictions
+    Errors::Authentication::ResourceRestrictions::InvalidResourceRestrictions
     """
 
   Scenario: Non-existing host is denied

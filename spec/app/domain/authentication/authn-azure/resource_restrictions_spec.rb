@@ -273,7 +273,7 @@ RSpec.describe Authentication::AuthnAzure::ResourceRestrictions do
 
           it "raises an error" do
             expect { subject }.to raise_error(
-              Errors::Authentication::ConstraintNotSupported
+              Errors::Authentication::Constraints::ConstraintNotSupported
             )
           end
         end

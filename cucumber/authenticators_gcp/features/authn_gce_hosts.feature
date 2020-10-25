@@ -34,7 +34,7 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00049E Resource restriction 'authn-gcp/project-id' does not match resource in JWT token
+    CONJ00049E Resource restriction 'project-id' does not match with the corresponding value in the request
     """
 
   Scenario: Host with all valid annotations except for instance-name is denied
@@ -47,7 +47,7 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00049E Resource restriction 'authn-gcp/instance-name' does not match resource in JWT token
+    CONJ00049E Resource restriction 'instance-name' does not match with the corresponding value in the request
     """
 
   Scenario: Host with all valid annotations except for service-account-email is denied
@@ -60,7 +60,7 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00049E Resource restriction 'authn-gcp/service-account-email' does not match resource in JWT token
+    CONJ00049E Resource restriction 'service-account-email' does not match with the corresponding value in the request
     """
 
   Scenario: Host with all valid annotations except for service-account-id is denied
@@ -73,7 +73,7 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00049E Resource restriction 'authn-gcp/service-account-id' does not match resource in JWT token
+    CONJ00049E Resource restriction 'service-account-id' does not match with the corresponding value in the request
     """
 
   Scenario: Host with all valid annotations and an illegal annotation key is denied
@@ -84,7 +84,7 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00050E Resource type 'authn-gcp/invalid-key' is not a supported resource restriction
+    CONJ00050E Resource type 'invalid-key' is not a supported resource restriction
     """
 
   Scenario: Users can authenticate with GCP authenticator and fetch secret

@@ -63,7 +63,7 @@ module Authentication
 
         # return the value of the annotation if it exists, nil otherwise
         if annotation
-          @logger.debug(LogMessages::Authentication::RetrievedAnnotationValue.new(name))
+          @logger.debug(LogMessages::Authentication::ResourceRestrictions::RetrievedAnnotationValue.new(name))
           annotation[:value]
         end
       end
@@ -82,7 +82,7 @@ module Authentication
         prefixed_annotations(prefix).each do |annotation|
           annotation_name = annotation[:name]
           next if prefixed_resource_types(prefix).include?(annotation_name)
-          raise Errors::Authentication::ConstraintNotSupported.new(
+          raise Errors::Authentication::Constraints::ConstraintNotSupported.new(
             annotation_name.gsub(prefix, ""),
             AZURE_RESOURCE_TYPES
           )

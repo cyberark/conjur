@@ -55,12 +55,6 @@ module Errors
       code: "CONJ00055E"
     )
 
-    ConstraintNotSupported = ::Util::TrackableErrorClass.new(
-      msg:  "Resource type '{0}' is not a supported resource restriction. " \
-            "The supported resources are '{1}'",
-      code: "CONJ00050E"
-    )
-
     RoleMissingConstraint = ::Util::TrackableErrorClass.new(
       msg:  "Role does not have the required constraint: {0-constraint}",
       code: "CONJ00057E"
@@ -69,11 +63,6 @@ module Errors
     AdminAuthenticationDenied = ::Util::TrackableErrorClass.new(
       msg:  "Admin user is not allowed to authenticate with {0-authenticate-name}",
       code: "CONJ00017E"
-    )
-
-    MissingResourceRestrictionsValue = ::Util::TrackableErrorClass.new(
-      msg:  "Resource restriction '{0-resource-restriction-name}' value is missing or empty",
-      code: "CONJ00070E"
     )
 
     module AuthenticatorClass
@@ -175,12 +164,6 @@ module Errors
       TokenClaimNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
         msg:  "Claim '{0-claim-name}' not found or empty in token",
         code: "CONJ00051E"
-      )
-
-      InvalidResourceRestrictions = ::Util::TrackableErrorClass.new(
-        msg:  "Resource restriction '{0-resource-restriction-name}' does not match " \
-            "resource in JWT token",
-        code: "CONJ00049E"
       )
 
     end
@@ -363,17 +346,11 @@ module Errors
         code: "CONJ00067E"
       )
 
-      ResourceRestrictionNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
-        msg:  "Resource restriction '{0-resource-restriction-name}' does not exists " \
-            "resource in JWT token. " \
-            "Verify that you configured the host with permitted restrictions. " \
-            "In case of Compute Engine token verify that you requested the token using 'format=full'",
+      JwtTokenClaimIsMissing = ::Util::TrackableErrorClass.new(
+        msg: "Claim '{0-attribute-name}' is missing from Google's JWT token. " \
+             "Verify that you configured the host with permitted restrictions. " \
+             "In case of Compute Engine token, verify that you requested the token using 'format=full'",
         code: "CONJ00068E"
-      )
-
-      RoleMissingRequiredConstraints = ::Util::TrackableErrorClass.new(
-        msg:  "Role must have at least one of the following constraints: {0-constraints}",
-        code: "CONJ00069E"
       )
 
       InvalidAccountInAudienceClaim = ::Util::TrackableErrorClass.new(
@@ -381,6 +358,31 @@ module Errors
               "The account in the audience '{1}' does not match the account in the URL request '{2}'",
         code: "CONJ00071E"
       )
+    end
+
+    module ResourceRestrictions
+
+      InvalidResourceRestrictions = ::Util::TrackableErrorClass.new(
+        msg: "Resource restriction '{0-resource-restriction-name}' does not match " \
+           "with the corresponding value in the request",
+        code: "CONJ00049E"
+      )
+
+    end
+
+    module Constraints
+
+      ConstraintNotSupported = ::Util::TrackableErrorClass.new(
+        msg: "Resource restrictions '{0}' are not supported. " \
+             "The supported resources are '{1}'",
+        code: "CONJ00050E"
+      )
+
+      RoleMissingRequiredConstraints = ::Util::TrackableErrorClass.new(
+        msg:  "Role must have at least one of the following constraints: {0-constraints}",
+        code: "CONJ00069E"
+      )
+
     end
   end
 
