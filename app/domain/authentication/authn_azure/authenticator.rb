@@ -5,7 +5,7 @@ module Authentication
 
     Authenticator = CommandClass.new(
       dependencies: {
-        fetch_authenticator_secrets:    Authentication::Util::FetchAuthenticatorSecrets.new,
+        fetch_authenticator_secrets:    Authentication::Common::FetchAuthenticatorSecrets.new,
         verify_and_decode_token:        Authentication::OAuth::VerifyAndDecodeToken.new,
         validate_resource_restrictions: ValidateResourceRestrictions.new,
         logger:                         Rails.logger

@@ -3,7 +3,7 @@ module Authentication
 
     ValidateStatus = CommandClass.new(
       dependencies: {
-        fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
+        fetch_authenticator_secrets: Authentication::Common::FetchAuthenticatorSecrets.new,
         discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new
       },
       inputs: %i(account service_id)

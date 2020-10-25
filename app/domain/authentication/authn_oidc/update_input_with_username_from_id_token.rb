@@ -3,7 +3,7 @@ module Authentication
 
     UpdateInputWithUsernameFromIdToken ||= CommandClass.new(
       dependencies: {
-        fetch_authenticator_secrets:         Authentication::Util::FetchAuthenticatorSecrets.new,
+        fetch_authenticator_secrets:         Authentication::Common::FetchAuthenticatorSecrets.new,
         validate_account_exists:             ::Authentication::Security::ValidateAccountExists.new,
         verify_and_decode_token:             ::Authentication::OAuth::VerifyAndDecodeToken.new,
         logger:                              Rails.logger

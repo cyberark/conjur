@@ -2,7 +2,7 @@ require 'command_class'
 require 'conjur/fetch_required_secrets'
 
 module Authentication
-  module Util
+  module Common
 
     FetchAuthenticatorSecrets = CommandClass.new(
       dependencies: {
