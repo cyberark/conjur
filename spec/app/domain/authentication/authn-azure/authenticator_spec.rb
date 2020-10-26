@@ -76,7 +76,7 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
 
             ::Authentication::AuthnAzure::Authenticator.new(
               verify_and_decode_token:        mocked_verify_and_decode_token,
-              validate_resource_restrictions: mocked_validate_resource_restrictions
+              authenticate_with_resource_restrictions: mocked_validate_resource_restrictions
             ).call(
               authenticator_input: input_
             )
@@ -103,8 +103,8 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
             )
 
             ::Authentication::AuthnAzure::Authenticator.new(
-              verify_and_decode_token:        mocked_verify_and_decode_token,
-              validate_resource_restrictions: mocked_validate_resource_restrictions
+                verify_and_decode_token:        mocked_verify_and_decode_token,
+                authenticate_with_resource_restrictions: mocked_validate_resource_restrictions
             ).call(
               authenticator_input: input_
             )
@@ -135,8 +135,8 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
             )
 
             ::Authentication::AuthnAzure::Authenticator.new(
-              verify_and_decode_token:        mocked_verify_and_decode_token,
-              validate_resource_restrictions: mocked_validate_resource_restrictions
+                verify_and_decode_token:        mocked_verify_and_decode_token,
+                authenticate_with_resource_restrictions: mocked_validate_resource_restrictions
             ).call(
               authenticator_input: input_
             )

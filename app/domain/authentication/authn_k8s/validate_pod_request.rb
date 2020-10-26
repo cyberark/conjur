@@ -8,14 +8,15 @@ module Authentication
 
     ValidatePodRequest ||= CommandClass.new(
       dependencies: {
-        resource_class:                      Resource,
-        k8s_object_lookup_class:             K8sObjectLookup,
-        validate_webservice_is_whitelisted:  ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
-        validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
-        enabled_authenticators:              Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
-        validate_resource_restrictions:      ValidateResourceRestrictions.new,
-        extract_container_name: ExtractContainerName.new,
-        logger: Rails.logger
+          resource_class:                          Resource,
+          k8s_object_lookup_class:                 K8sObjectLookup,
+          validate_webservice_is_whitelisted:      ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
+          validate_role_can_access_webservice:     ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
+          enabled_authenticators:                  Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
+          validate_resource_restrictions:          ValidateResourceRestrictions.new,
+          # validate_resource_restrictions:          Authentication::Common::ValidateResourceRestrictions.new,
+          extract_container_name:                  ExtractContainerName.new,
+          logger:                                  Rails.logger
       },
       inputs:       %i(pod_request)
     ) do

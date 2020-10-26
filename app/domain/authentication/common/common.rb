@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-# Class for common parameters of authenticators
+# Common parameters of authenticators
 
 module Authentication
-  class Common
+  module Common
 
     def self.default_authenticator_name
       'authn'
