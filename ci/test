@@ -69,29 +69,15 @@ cucumber_authenticators_azure() {
 
   ./authn-azure/check_dependencies.sh
 
-  _run_cucumber_tests authenticators_azure "" "$(_get_azure_env_args)"
+  # Note: We pass the name of the function as the last arg, since we're
+  # using namerefs.
+  _run_cucumber_tests authenticators_azure "" _hydrate_azure_env_args
 }
 
 cucumber_authenticators_gcp() {
   : DOC - Runs Cucumber GCP Authenticator features
 
-  local gce_token_file
-  local gcf_token_file
-
-  # Validate that token files are available
-  gce_token_file="authn-gcp/tokens/gce_token_valid"
-  if ! [ -f "$gce_token_file" ]; then
-    echo "GCE token file ''$gce_token_file' not found."
-    exit 1
-  fi
-
-  gcf_token_file="authn-gcp/tokens/gcf_token_valid"
-  if ! [ -f "$gcf_token_file" ]; then
-    echo "GCF token file ''$gcf_token_file' not found."
-    exit 1
-  fi
-
-  _run_cucumber_tests authenticators_gcp "" "$(_get_gcp_env_args $gce_token_file $gcf_token_file)"
+  _run_cucumber_tests authenticators_gcp "" _hydrate_gcp_env_args
 }
 
 cucumber_authenticators_oidc() {
@@ -101,9 +87,9 @@ cucumber_authenticators_oidc() {
   # Note: We can't run the above use-case in a separate Jenkins step because we'll have a port bind for keycloak
   _prepare_env_auth_ldap
   _prepare_env_auth_oidc
-  _run_cucumber_tests authenticators_oidc \
-    'ldap-server oidc-keycloak' \
-    "$(_get_oidc_env_args)"
+
+  _run_cucumber_tests authenticators_oidc 'ldap-server oidc-keycloak' \
+    _hydrate_oidc_env_args
 }
 
 cucumber_api() {
@@ -290,77 +276,94 @@ _find_cucumber_network() {
     --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}'
 }
 
-# Note: These are args for docker-compose run, and as such the right hand sides
-# of the = do NOT require escaped quotes.  docker-compose takes the entire arg,
-# splits on the =, and uses the rhs as the value,
-_get_oidc_env_args() {
-  echo "$(
+# Note: the single arg is a nameref, which this function sets to an array
+# containing items of the form "KEY=VAL".
+_hydrate_oidc_env_args() {
+  local -n arr=$1
+  local keycloak_items
+
+  readarray -t keycloak_items < <(
     set -o pipefail
-    docker-compose exec -T oidc-keycloak printenv |
-    awk '/KEYCLOAK/{printf " -e %s", $0}'
-  ) \
-    -e PROVIDER_URI=https://keycloak:8443/auth/realms/master \
-    -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect \
-    -e ID_TOKEN_USER_PROPERTY=preferred_username"
+    # Note: This prints all lines that look like:
+    # KEYCLOAK_XXX=someval
+    docker-compose exec -T oidc-keycloak printenv | awk '/KEYCLOAK/'
+  )
+
+  arr=(
+    "${keycloak_items[@]}"
+    "PROVIDER_URI=https://keycloak:8443/auth/realms/master"
+    "PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect"
+    "ID_TOKEN_USER_PROPERTY=preferred_username"
+  )
 }
 
 
-# TODO: Replace this and all other env arg functions with this more robust
-# method that allows us to use arrays directly:
-# https://stackoverflow.com/a/49971213/438615
-_get_azure_env_args() {
-  echo "\
-    -e AZURE_TENANT_ID=$AZURE_TENANT_ID \
-    -e AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID \
-    -e AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP \
-    -e AZURE_AUTHN_INSTANCE_IP=$AZURE_AUTHN_INSTANCE_IP \
-    -e AZURE_AUTHN_INSTANCE_USERNAME=$AZURE_AUTHN_INSTANCE_USERNAME \
-    -e AZURE_AUTHN_INSTANCE_PASSWORD=$AZURE_AUTHN_INSTANCE_PASSWORD \
-    -e USER_ASSIGNED_IDENTITY=$USER_ASSIGNED_IDENTITY \
-    -e USER_ASSIGNED_IDENTITY_CLIENT_ID=$USER_ASSIGNED_IDENTITY_CLIENT_ID \
-    -e SYSTEM_ASSIGNED_IDENTITY=$SYSTEM_ASSIGNED_IDENTITY"
+# The single arg is a nameref, which this function sets to an array containing
+# items of the form "KEY=VAL".
+_hydrate_azure_env_args() {
+  # Note: Both shellcheck errors are just because arr is a nameref.
+  # shellcheck disable=SC2178
+  local -n arr=$1
+  # shellcheck disable=SC2034
+  arr=(
+    "AZURE_TENANT_ID=$AZURE_TENANT_ID"
+    "AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID"
+    "AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP"
+    "AZURE_AUTHN_INSTANCE_IP=$AZURE_AUTHN_INSTANCE_IP"
+    "AZURE_AUTHN_INSTANCE_USERNAME=$AZURE_AUTHN_INSTANCE_USERNAME"
+    "AZURE_AUTHN_INSTANCE_PASSWORD=$AZURE_AUTHN_INSTANCE_PASSWORD"
+    "USER_ASSIGNED_IDENTITY=$USER_ASSIGNED_IDENTITY"
+    "USER_ASSIGNED_IDENTITY_CLIENT_ID=$USER_ASSIGNED_IDENTITY_CLIENT_ID"
+    "SYSTEM_ASSIGNED_IDENTITY=$SYSTEM_ASSIGNED_IDENTITY"
+  )
 }
 
-_get_gcp_env_args() {
-  local gce_token_file=$1
-  local gcf_token_file=$2
+# The single arg is a nameref, which this function sets to an array containing
+# items of the form "KEY=VAL".
+_hydrate_gcp_env_args() {
+  local -n arg=$1
 
-  # The env variables
-  local gce_project_id
-  local gce_instance_name
-  local gce_service_account_id
-  local gce_service_account_email
-  local gcf_service_account_id
-  local gcf_service_account_email
+  local gce_token_file="authn-gcp/tokens/gce_token_valid"
+  local gcf_token_file="authn-gcp/tokens/gcf_token_valid"
 
-  # Extract GCE env variables
-  local decoded_gcp_token_payload=$(_get_gcp_token_payload "$gce_token_file")
+  local gce_vars
+  local gcf_vars
 
-  gce_project_id="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.project_id')"
-  gce_instance_name="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.instance_name')"
-  gce_service_account_id="$(echo "$decoded_gcp_token_payload" | jq -r '.sub')"
-  gce_service_account_email="$(echo "$decoded_gcp_token_payload" | jq -r '.email')"
+  readarray -t gce_vars < <(
+    _get_gcp_token_payload "$gce_token_file" | jq -r "\
+      .google.compute_engine.project_id, \
+      .google.compute_engine.instance_name, \
+      .sub, \
+      .email
+    "
+  )
 
-  # Extract GCF env variables
-  decoded_gcp_token_payload=$(_get_gcp_token_payload "$gcf_token_file")
+  readarray -t gcf_vars < <(
+    _get_gcp_token_payload "$gcf_token_file" | jq -r ".sub, .email"
+  )
 
-  gcf_service_account_id="$(echo "$decoded_gcp_token_payload" | jq -r '.sub')"
-  gcf_service_account_email="$(echo "$decoded_gcp_token_payload" | jq -r '.email')"
+  # Note: Because arg is a nameref.
+  # shellcheck disable=SC2034
+  arg=(
+    "GCE_PROJECT_ID=${gce_vars[0]}"
+    "GCE_INSTANCE_NAME=${gce_vars[1]}"
+    "GCE_SERVICE_ACCOUNT_ID=${gce_vars[2]}"
+    "GCE_SERVICE_ACCOUNT_EMAIL=${gce_vars[3]}"
 
-
-  echo "-e GCE_INSTANCE_NAME=$gce_instance_name \
-                              -e GCE_SERVICE_ACCOUNT_ID=$gce_service_account_id \
-                              -e GCE_SERVICE_ACCOUNT_EMAIL=$gce_service_account_email \
-                              -e GCE_PROJECT_ID=$gce_project_id \
-                              -e GCF_SERVICE_ACCOUNT_ID=$gcf_service_account_id \
-                              -e GCF_SERVICE_ACCOUNT_EMAIL=$gcf_service_account_email"
+    "GCF_SERVICE_ACCOUNT_ID=${gcf_vars[0]}"
+    "GCF_SERVICE_ACCOUNT_EMAIL=${gcf_vars[1]}"
+  )
 }
 
 _get_gcp_token_payload() {
   source jwt/decode_token.sh
-  local gcp_token_file="$1"
 
-  # read token and set env vars
+  local gcp_token_file=$1
+  if ! [ -f "$gcp_token_file" ]; then
+    echo "GCP token file '$gcp_token_file' not found."
+    exit 1
+  fi
+
   gcp_token=$(< "$gcp_token_file")
 
   decode_jwt_payload "$gcp_token"
@@ -503,7 +506,6 @@ _create_keycloak_user() {
 # args: <profile name> <extra services>
 # example: run_cucumber_tests 'policy'
 _setup_for_cucumber() {
-  echo _setup_for_cucumber
   local profile
   local services
 
@@ -512,22 +514,17 @@ _setup_for_cucumber() {
   if [[ -n "$2" ]]; then
     read -ra services <<< "$2"
   fi
-  echo _setup_for_cucumber profile: $profile, services: $services
-  # Create reports folders
+
+  echo "Create report folders..."
   mkdir -p "cucumber/$profile/features/reports"
   rm -rf "cucumber/$profile/features/reports/*"
-  echo _setup_for_cucumber reports dir created
 
-  echo _setup_for_cucumber docker-compose up
-  # Make sure all the services are up
+  echo "Start all services..."
   docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
-
-  echo _setup_for_cucumber docker-compose wait
   docker-compose exec -T conjur conjurctl wait
-  echo _setup_for_cucumber docker-compose exec crate account
+
+  echo "Create cucumber account..."
   docker-compose exec -T conjur conjurctl account create cucumber
-  echo _setup_for_cucumber docker-compose logs
-  echo docker-compose logs conjur
 }
 
 _get_api_key() {
@@ -536,48 +533,58 @@ _get_api_key() {
 }
 
 # Args:
-# 1. cucumber_env_vars: A single string like "-e ENV1=val1 -e ENV2=val2".  Can
-#    be the empty string but must be present.
+# 1. env_arg_fn: A function that takes a nameref and hydrates it with
+#    an array of "KEY=VAL" items.
 # 2. cucumber_cmd: A bash command that will be executed in the cucumber
 #    container.
 _run_cucumber() {
-  local cucumber_env_vars
+  # Args
+  local env_arg_fn
   local cucumber_cmd
-  local run_cmd
-
-  # Process args.
-  read -ra cucumber_env_vars <<< "$1"
+  env_arg_fn=$1
   cucumber_cmd=$2
+
+  # Local state
+  local env_vars
+  local env_var_flags
+  local run_flags
+
+  # Hydrate the env args using the env_arg_fn and a nameref.
+  env_vars=()
+  if [[ -n "$env_arg_fn" ]]; then
+    "$env_arg_fn" env_vars
+  fi
+
+  # Add the -e flags before each of the var=val items.
+  env_var_flags=()
+  for item in "${env_vars[@]}"; do
+    env_var_flags+=(-e "$item")
+  done
 
   # Add the cucumber env vars that we always want to send.
   # Note: These are args for docker-compose run, and as such the right hand
   # sides of the = do NOT require escaped quotes.  docker-compose takes the
   # entire arg, splits on the =, and uses the rhs as the value,
-  cucumber_env_vars+=(
+  env_var_flags+=(
     -e "CONJUR_AUTHN_API_KEY=$(_get_api_key)"
     -e "CUCUMBER_NETWORK=$(_find_cucumber_network)"
   )
 
   # If there's no tty (e.g. we're running as a Jenkins job), pass -T to
   # docker-compose.
-  run_cmd=(run --no-deps --rm)
+  run_flags=(--no-deps --rm)
   if ! tty -s; then
-    run_cmd+=(-T)
+    run_flags+=(-T)
   fi
 
-  # Note: Our "command + possible flag" run_cmd is an array, and we destructure
-  # it into two arguments below within shellcheck compliant double quotes.
-  # This is what [@] is for.
-  docker-compose "${run_cmd[@]}" "${cucumber_env_vars[@]}" \
+  docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     cucumber -ec "$cucumber_cmd"
 }
 
 _run_cucumber_tests() {
-
-  echo _run_cucumber_tests
   local profile
   local services
-  local cucumber_env_args
+  local env_arg_fn
 
   profile="$1"
 
@@ -586,15 +593,13 @@ _run_cucumber_tests() {
   fi
 
   if [[ -n "$3" ]]; then
-    cucumber_env_args="$3"
+    env_arg_fn="$3"
   fi
 
-  echo _setup_for_cucumber "$profile" "$services"
   _setup_for_cucumber "$profile" "$services"
 
-  echo _run_cucumber "$cucumber_env_args"
   # Run the tests
-  _run_cucumber "$cucumber_env_args" \
+  _run_cucumber "$env_arg_fn" \
      "bundle exec cucumber \
      --strict \
      -p \"$profile\" \
@@ -602,7 +607,6 @@ _run_cucumber_tests() {
      --format html --out \"cucumber/$profile/cucumber_results.html\" \
      --format junit --out \"cucumber/$profile/features/reports\""
 
-  echo docker-compose logs conjur
   docker-compose logs conjur
 
   # Simplecov writes its report using an at_exit ruby hook. If the container
