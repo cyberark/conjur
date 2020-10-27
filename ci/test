@@ -33,8 +33,6 @@ export COMPOSE_PROJECT_NAME
 #
 # They're defined below in alphabetical order.
 all() {
-  : DOC - Run all tests
-
   local cmds
   readarray -t cmds < <(_subcommands)
 
@@ -46,27 +44,19 @@ all() {
 }
 
 cucumber_authenticators_config() {
-  : DOC - Runs Cucumber Authenticator configuration features
-
   _run_cucumber_tests authenticators_config
 }
 
 cucumber_authenticators_status() {
-  : DOC - Runs Cucumber Authenticator status features
-
   _run_cucumber_tests authenticators_status
 }
 
 cucumber_authenticators_ldap() {
-  : DOC - Runs Cucumber LDAP Authenticator features
-
   _prepare_env_auth_ldap
   _run_cucumber_tests authenticators_ldap 'ldap-server'
 }
 
 cucumber_authenticators_azure() {
-  : DOC - Runs Cucumber Azure Authenticator features
-
   ./authn-azure/check_dependencies.sh
 
   # Note: We pass the name of the function as the last arg, since we're
@@ -75,14 +65,10 @@ cucumber_authenticators_azure() {
 }
 
 cucumber_authenticators_gcp() {
-  : DOC - Runs Cucumber GCP Authenticator features
-
   _run_cucumber_tests authenticators_gcp "" _hydrate_gcp_env_args
 }
 
 cucumber_authenticators_oidc() {
-  : DOC - Runs Cucumber OIDC Authenticator features
-
   # We also run an ldap-server container for testing the OIDC & LDAP combined use-case.
   # Note: We can't run the above use-case in a separate Jenkins step because we'll have a port bind for keycloak
   _prepare_env_auth_ldap
@@ -93,37 +79,18 @@ cucumber_authenticators_oidc() {
 }
 
 cucumber_api() {
-  : DOC - Runs Cucumber API features
-
   _run_cucumber_tests api
 }
 
 cucumber_policy() {
-  : DOC - Runs Cucumber Policy features
-  
   _run_cucumber_tests policy
 }
 
 cucumber_rotators() {
-  : DOC - Runs Cucumber Rotator features
-  
   _run_cucumber_tests rotators testdb
 }
 
 help() {
-  : DOC - Show this message
-  
-  # _subcommands returns the list of commands, separated by a
-  # newline. Set IFS to newline so each element in the cmds array will
-  # be one command. _subcommands_doc returns the doc for each
-  # command, separated by newlines, so IFS needs to be set for it,
-  # too.
-  local cmds
-  local doc
-
-  readarray -t cmds < <(_subcommands)
-  readarray -t doc< <(_subcommands_doc)
-  
   cat << EOF
 NAME
     test - CLI to simplify testing
@@ -132,16 +99,23 @@ SYNOPSIS
     test <subcommand>
 
 SUBCOMMANDS
+    all                              - Run all tests
+    cucumber_api                     - Runs Cucumber API features
+    cucumber_authenticators_azure    - Runs Cucumber Azure Authenticator features
+    cucumber_authenticators_config   - Runs Cucumber Authenticator configuration features
+    cucumber_authenticators_gcp      - Runs Cucumber GCP Authenticator features
+    cucumber_authenticators_ldap     - Runs Cucumber LDAP Authenticator features
+    cucumber_authenticators_oidc     - Runs Cucumber OIDC Authenticator features
+    cucumber_authenticators_status   - Runs Cucumber Authenticator status features
+    cucumber_policy                  - Runs Cucumber Policy features
+    cucumber_rotators                - Runs Cucumber Rotator features
+    help                             - Show this message
+    rspec                            - Runs RSpec specs
+    rspec_audit                      - Runs RSpecs for the Audit engine
 EOF
-
-  for i in $(seq 0 ${#cmds[@]}); do
-    printf "    %s\t%s\n" "${cmds[i]}" "${doc[i]}"
-  done  | column -t -s $'\t'
 }
 
 rspec() {
-  : DOC - Runs RSpec specs
-  
   docker-compose up --no-deps -d pg
 
   _wait_for_pg pg
@@ -159,8 +133,6 @@ rspec() {
 }
 
 rspec_audit() {
-  : "DOC - Runs RSpecs for the Audit engine"
-  
   # Start Conjur with the audit database
   docker-compose up --no-deps -d audit pg
 
@@ -626,18 +598,6 @@ _start_conjur() {
   # Start Conjur and supporting services
   # typeset -p COMPOSE_PROJECT_NAME
   docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
-}
-
-_subcommands() {
-  typeset -f | awk '/^[a-z]/ {print $1}'
-}
-
-# TODO: This had a builtin assumption about nesting. Our help was wrong
-#   and nobody noticed.  Remove this meta-programming entirely.
-_subcommands_doc() {
-  typeset -f |
-    awk '/^ *: DOC/ {sub(/ *: DOC/, "", $0); print $0}' |
-    tr -d ';'
 }
 
 _wait_for_pg() {
