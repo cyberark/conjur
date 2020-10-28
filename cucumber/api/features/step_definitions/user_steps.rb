@@ -34,7 +34,13 @@ Given('I create a new user {string} in account {string}') do |login, account|
 end
 
 Given("I login as {string}") do |login|
-  roleid = (login.include?(":") ? login : "cucumber:user:#{login}")
+  if login.match? %r{host\/[^:\/]+}
+    loginid = login.split('/')[1]
+    roleid = (login.include?(":") ? login : "cucumber:host:#{loginid}")
+  else
+    roleid = (login.include?(":") ? login : "cucumber:user:#{login}")
+  end
+
   @current_user = Role.with_pk!(roleid)
   Credentials.new(role: @current_user).save unless @current_user.credentials
 end
@@ -44,7 +50,7 @@ Given("I log out") do
   # TODO: investigate smell
   headers.delete(:authorization) if headers.key?(:authorization)
 end
-  
+
 Given("I set the password for {string} to {string}") do |login, password|
   # TODO: investigate smell
   user = lookup_user(login)

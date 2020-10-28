@@ -160,11 +160,19 @@ Then(/^the result is an API key$/) do
   expect(@result).to match(/^[a-z0-9]+$/)
 end
 
-Then(/^the result is the API key for user "([^"]*)"$/) do |login|
-  user = lookup_user(login)
-  user.reload
-  expect(user.credentials).to be
-  expect(@result).to eq(user.credentials.api_key)
+Then(/^the result is the API key for ([^"]*) "([^"]*)"$/) do |kind, login|
+  case kind
+  when "user"
+    role = lookup_user(login)
+  when "host"
+    role = lookup_host(login)
+  else
+    raise ArgumentError, "Invalid role kind. Function accepts 'host' or 'user'"
+  end
+
+  role.reload
+  expect(role.credentials).to be
+  expect(@result).to eq(role.credentials.api_key)
 end
 
 Then(/^it's confirmed$/) do
