@@ -171,6 +171,7 @@ pipeline {
                 env.SYSTEM_ASSIGNED_IDENTITY = sh(script: 'ci/authn-azure/get_system_assigned_identity.sh', returnStdout: true).trim()
 
                 sh('summon -f ci/authn-azure/secrets.yml ci/test cucumber_authenticators_azure')
+                stash name: 'testResultAzure', includes: "cucumber/*/*.*,container_logs/*/*,spec/reports/*.xml,spec/reports-audit/*.xml,cucumber/*/features/reports/**/*.xml"
               }
             }
           }
@@ -356,13 +357,14 @@ pipeline {
             archiveArtifacts artifacts: "ee-test/container_logs/*/*", fingerprint: false, allowEmptyArchive: true
 
             publishHTML([reportDir: 'ee-test/cucumber', reportFiles: 'api/cucumber_results.html, 	authenticators_config/cucumber_results.html, \
-                                     authenticators_azure/cucumber_results.html, authenticators_ldap/cucumber_results.html, \
+                                     authenticators_ldap/cucumber_results.html, \
                                      authenticators_oidc/cucumber_results.html, authenticators_status/cucumber_results.html,\
                                      policy/cucumber_results.html , rotators/cucumber_results.html',\
                                      reportName: 'EE Integration reports', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
 
           }
       }
+      unstash 'testResultAzure'
       archiveArtifacts artifacts: "container_logs/*/*", fingerprint: false, allowEmptyArchive: true
       archiveArtifacts artifacts: "coverage/.resultset*.json", fingerprint: false, allowEmptyArchive: true
       archiveArtifacts artifacts: "ci/authn-k8s/output/simplecov-resultset-authnk8s-gke.json", fingerprint: false, allowEmptyArchive: true
@@ -370,7 +372,8 @@ pipeline {
 
       publishHTML([reportDir: 'cucumber', reportFiles: 'api/cucumber_results.html, 	authenticators_config/cucumber_results.html, \
                                authenticators_azure/cucumber_results.html, authenticators_ldap/cucumber_results.html, \
-                               authenticators_oidc/cucumber_results.html, authenticators_status/cucumber_results.html,\
+                               authenticators_oidc/cucumber_results.html, authenticators_gcp/cucumber_results.html, \
+                               authenticators_status/cucumber_results.html,\
                                policy/cucumber_results.html , rotators/cucumber_results.html',\
                                reportName: 'Integration reports', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
 
