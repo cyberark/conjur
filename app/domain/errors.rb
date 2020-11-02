@@ -49,17 +49,6 @@ module Errors
       code: "CONJ00056E"
     )
 
-    IllegalConstraintCombinations = ::Util::TrackableErrorClass.new(
-      msg:  "Resource restrictions include an illegal combination of resource " \
-            "constraints - '{0-constraints}'",
-      code: "CONJ00055E"
-    )
-
-    RoleMissingConstraint = ::Util::TrackableErrorClass.new(
-      msg:  "Role does not have the required constraint: {0-constraint}",
-      code: "CONJ00057E"
-    )
-
     AdminAuthenticationDenied = ::Util::TrackableErrorClass.new(
       msg:  "Admin user is not allowed to authenticate with {0-authenticate-name}",
       code: "CONJ00017E"
@@ -376,6 +365,17 @@ module Errors
         msg: "Resource restrictions '{0}' are not supported. " \
              "The supported resources are '{1}'",
         code: "CONJ00050E"
+      )
+
+      IllegalConstraintCombinations = ::Util::TrackableErrorClass.new(
+        msg: "Resource restrictions include an illegal combination of resource " \
+             "constraints - '{0-constraints}'",
+        code: "CONJ00055E"
+      )
+
+      RoleMissingConstraints = ::Util::TrackableErrorClass.new(
+        msg:  "Role does not have the required constraints: '{0-constraints}'",
+        code: "CONJ00057E"
       )
 
       RoleMissingRequiredConstraints = ::Util::TrackableErrorClass.new(

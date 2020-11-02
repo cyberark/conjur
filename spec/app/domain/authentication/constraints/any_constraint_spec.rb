@@ -7,7 +7,7 @@ RSpec.describe Authentication::Constraints::AnyConstraint do
     let(:any_one_restriction) { ["required"] }
     let(:not_required_restriction) { "not-required" }
     let(:raised_error) { ::Errors::Authentication::Constraints::RoleMissingRequiredConstraints }
-    let(:expected_error_message) { /#{any_one_restriction}/ }
+    let(:expected_error_message) { /#{Regexp.escape(any_one_restriction.to_s)}/ }
 
     subject(:constraint) do
       Authentication::Constraints::AnyConstraint.new(any: any_one_restriction)
@@ -58,7 +58,7 @@ RSpec.describe Authentication::Constraints::AnyConstraint do
     let(:any_two_restrictions) { %w(required_first required_second) }
     let(:not_required_restriction) { "not-required" }
     let(:raised_error) { ::Errors::Authentication::Constraints::RoleMissingRequiredConstraints }
-    let(:expected_error_message) { /#{any_two_restrictions}/ }
+    let(:expected_error_message) { /#{Regexp.escape(any_two_restrictions.to_s)}/ }
 
     subject(:constraint) do
       Authentication::Constraints::AnyConstraint.new(any: any_two_restrictions)
