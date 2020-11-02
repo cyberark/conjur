@@ -85,6 +85,13 @@ $ docker-compose logs conjur_server
 
 ## Version Specific Upgrade Instructions
 
+### Version 1.9.0
+
+When upgrading to version `1.9.0` and above, please ensure that you also upgrade your
+[Ruby client library](https://github.com/cyberark/conjur-api-ruby) to at least `v5.3.4`.
+The Ruby client changed to accommodate the changes in the REST API that were made in response to
+this [security bulletin](https://github.com/cyberark/conjur/security/advisories/GHSA-qhjf-g9gm-64jq).
+
 ### Versions 1.8.0 and 1.8.1
 
 #### Affected Upgrades:
