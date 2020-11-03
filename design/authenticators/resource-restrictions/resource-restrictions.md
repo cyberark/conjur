@@ -308,7 +308,7 @@ def validate_request_match_resource_restrictions
   resource_restrictions.each do |restriction_name, restriction_value|
     request_value = @request.retrieve_attribute(restriction_name)
     if resource_value != request_value
-      raise Errors::Authentication::Jwt::InvalidResourceRestrictions, restriction_name
+      raise Errors::Authentication::InvalidResourceRestrictions, restriction_name
     end
   end
 end

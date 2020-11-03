@@ -194,7 +194,7 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
           let(:k8s_resource_name) { "non_existing_resource" }
 
           it "raises an error" do
-            expect { subject }.to raise_error(::Errors::Authentication::ConstraintNotSupported)
+            expect { subject }.to raise_error(::Errors::Authentication::Constraints::ConstraintNotSupported)
           end
         end
       end
@@ -435,7 +435,7 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
             let(:host_annotations) { [namespace_annotation, invalid_annotation] }
 
             it "raises an error" do
-              expect { subject }.to raise_error(::Errors::Authentication::ConstraintNotSupported)
+              expect { subject }.to raise_error(::Errors::Authentication::Constraints::ConstraintNotSupported)
             end
           end
 
@@ -449,7 +449,7 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
             end
 
             it "raises an error" do
-              expect { subject }.to raise_error(::Errors::Authentication::ConstraintNotSupported)
+              expect { subject }.to raise_error(::Errors::Authentication::Constraints::ConstraintNotSupported)
             end
           end
         end

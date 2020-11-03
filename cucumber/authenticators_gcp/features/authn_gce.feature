@@ -102,7 +102,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     And I save my place in the log file
     When I authenticate with authn-gcp using obtained GCE token and existing account
     Then it is unauthorized
-    And The following appears in the log after my savepoint:
+    And The following matches the log after my savepoint:
     """
     CONJ00071E 'audience' token claim .* is invalid. The account in the audience .* does not match the account in the URL request .*
     """
@@ -111,7 +111,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     Given I save my place in the log file
     When I authenticate with authn-gcp using obtained GCE token and non-existing account
     Then it is unauthorized
-    And The following appears in the log after my savepoint:
+    And The following matches the log after my savepoint:
     """
     CONJ00008E Account '.*' is not defined in Conjur
     """

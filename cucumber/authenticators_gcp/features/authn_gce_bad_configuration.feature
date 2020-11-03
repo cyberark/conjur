@@ -50,7 +50,7 @@ Feature: GCP Authenticator - GCE flow, test malformed configuration
     And I save my place in the log file
     When I authenticate with authn-gcp using valid GCE token and existing account
     Then it is forbidden
-    And The following appears in the log after my savepoint:
+    And The following matches the log after my savepoint:
     """
     CONJ00006E .* does not have 'authenticate' privilege on .*>
     """

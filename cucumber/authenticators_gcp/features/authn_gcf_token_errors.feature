@@ -32,7 +32,7 @@ Feature: GCP Authenticator - GCF flow, test token error hwahtandling
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00049E Resource restriction 'authn-gcp/service-account-id' does not match resource in JWT token
+    CONJ00049E Resource restriction 'service-account-id' does not match with the corresponding value in the request
     """
 
   Scenario: Token with service-account-email claim that does not match annotation is denied
@@ -44,7 +44,7 @@ Feature: GCP Authenticator - GCF flow, test token error hwahtandling
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00049E Resource restriction 'authn-gcp/service-account-email' does not match resource in JWT token
+    CONJ00049E Resource restriction 'service-account-email' does not match with the corresponding value in the request
     """
 
   Scenario: Token with valid service-account-id claim and service-account-email claim that does not match annotation is denied
@@ -57,7 +57,7 @@ Feature: GCP Authenticator - GCF flow, test token error hwahtandling
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00049E Resource restriction 'authn-gcp/service-account-email' does not match resource in JWT token
+    CONJ00049E Resource restriction 'service-account-email' does not match with the corresponding value in the request
     """
 
   Scenario: Token with valid service-account-email claim and service-account-id claim that does not match annotation is denied
@@ -69,7 +69,7 @@ Feature: GCP Authenticator - GCF flow, test token error hwahtandling
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00049E Resource restriction 'authn-gcp/service-account-id' does not match resource in JWT token
+    CONJ00049E Resource restriction 'service-account-id' does not match with the corresponding value in the request
     """
 
   Scenario: Token with project-id host annotation is denied
@@ -81,7 +81,7 @@ Feature: GCP Authenticator - GCF flow, test token error hwahtandling
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00068E Resource restriction 'project-id' does not exists resource in JWT token
+    CONJ00068E Claim 'project-id' is missing from Google's JWT token
     """
 
   Scenario: Token with instance-name host annotation is denied
@@ -93,5 +93,5 @@ Feature: GCP Authenticator - GCF flow, test token error hwahtandling
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00068E Resource restriction 'instance-name' does not exists resource in JWT token
+    CONJ00068E Claim 'instance-name' is missing from Google's JWT token
     """

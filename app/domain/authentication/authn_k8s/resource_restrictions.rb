@@ -69,7 +69,7 @@ module Authentication
 
         # return the value of the annotation if it exists, nil otherwise
         if annotation
-          @logger.debug(LogMessages::Authentication::RetrievedAnnotationValue.new(name))
+          @logger.debug(LogMessages::Authentication::ResourceRestrictions::RetrievedAnnotationValue.new(name))
           annotation[:value]
         end
       end
@@ -103,7 +103,7 @@ module Authentication
         prefixed_k8s_annotations(prefix).each do |annotation|
           annotation_name = annotation[:name]
           next if prefixed_permitted_annotations(prefix).include?(annotation_name)
-          raise Errors::Authentication::ConstraintNotSupported.new(annotation_name.gsub(prefix, ""), K8S_RESOURCE_TYPES)
+          raise Errors::Authentication::Constraints::ConstraintNotSupported.new(annotation_name.gsub(prefix, ""), K8S_RESOURCE_TYPES)
         end
       end
 
@@ -145,7 +145,7 @@ module Authentication
 
         resource_type       = @host_id[-2]
         unless underscored_k8s_resource_types.include?(resource_type)
-          raise Errors::Authentication::ConstraintNotSupported.new(resource_type, underscored_k8s_resource_types)
+          raise Errors::Authentication::Constraints::ConstraintNotSupported.new(resource_type, underscored_k8s_resource_types)
         end
       end
 

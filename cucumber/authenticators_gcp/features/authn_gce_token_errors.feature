@@ -28,7 +28,7 @@ Feature: GCP Authenticator - GCE flow, test token error handling
     When I save my place in the log file
     And I authenticate with authn-gcp using self signed token and existing account
     Then it is unauthorized
-    And The following appears in the log after my savepoint:
+    And The following matches the log after my savepoint:
     """
     CONJ00035E Failed to decode token \(3rdPartyError ='#<JWT::DecodeError: Could not find public key for kid .*>'
     """
@@ -39,7 +39,7 @@ Feature: GCP Authenticator - GCE flow, test token error handling
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00035E Failed to decode token \(3rdPartyError ='#<JWT::DecodeError: No key id \(kid\) found from token headers>'\)
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::DecodeError: No key id (kid) found from token headers>')
     """
 
   Scenario: Authenticate using token with an invalid audience claim is denied
@@ -47,7 +47,7 @@ Feature: GCP Authenticator - GCE flow, test token error handling
     And I save my place in the log file
     When I authenticate with authn-gcp using obtained GCE token and existing account
     Then it is unauthorized
-    And The following appears in the log after my savepoint:
+    And The following matches the log after my savepoint:
     """
     CONJ00067E 'audience' token claim .* is invalid. The format should be 'conjur/<account-name>/<host-id>'
     """
@@ -106,7 +106,7 @@ Feature: GCP Authenticator - GCE flow, test token error handling
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00068E Resource restriction 'service-account-email' does not exists resource in JWT token. Verify that you configured the host with permitted restrictions. In case of Compute Engine token verify that you requested the token using 'format=full'
+    CONJ00068E Claim 'service-account-email' is missing from Google's JWT token. Verify that you configured the host with permitted restrictions. In case of Compute Engine token, verify that you requested the token using 'format=full'
     """
 
   Scenario: Authenticate using token in standard format and host with only project-id annotation set is denied
@@ -119,7 +119,7 @@ Feature: GCP Authenticator - GCE flow, test token error handling
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00068E Resource restriction 'project-id' does not exists resource in JWT token. Verify that you configured the host with permitted restrictions. In case of Compute Engine token verify that you requested the token using 'format=full'
+    CONJ00068E Claim 'project-id' is missing from Google's JWT token. Verify that you configured the host with permitted restrictions. In case of Compute Engine token, verify that you requested the token using 'format=full'
     """
 
   Scenario: Authenticate using token in standard format and host with only instance-name annotation set is denied
@@ -132,5 +132,5 @@ Feature: GCP Authenticator - GCE flow, test token error handling
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00068E Resource restriction 'instance-name' does not exists resource in JWT token. Verify that you configured the host with permitted restrictions. In case of Compute Engine token verify that you requested the token using 'format=full'
+    CONJ00068E Claim 'instance-name' is missing from Google's JWT token. Verify that you configured the host with permitted restrictions. In case of Compute Engine token, verify that you requested the token using 'format=full'
     """

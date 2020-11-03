@@ -7,7 +7,7 @@ module Authentication
       dependencies: {
         role_class:                  ::Role,
         resource_class:              ::Resource,
-        resource_restrictions_class: ResourceRestrictions,
+        resource_restrictions_class: Authentication::AuthnAzure::ResourceRestrictions,
         logger:                      Rails.logger
       },
       inputs:       %i(account service_id username xms_mirid_token_field oid_token_field)
@@ -36,10 +36,10 @@ module Authentication
         resource_restrictions.resources.each do |resource_from_role|
           resource_from_request = resources_from_request.find { |resource| resource == resource_from_role }
           unless resource_from_request
-            raise Errors::Authentication::Jwt::InvalidResourceRestrictions, resource_from_role.type
+            raise Errors::Authentication::ResourceRestrictions::InvalidResourceRestrictions, resource_from_role.type
           end
         end
-        @logger.debug(LogMessages::Authentication::ValidatedResourceRestrictions.new)
+        @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatedResourceRestrictions.new)
       end
 
       # xms_mirid is a term in Azure to define a claim that describes the resource

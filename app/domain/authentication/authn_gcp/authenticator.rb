@@ -3,29 +3,47 @@ require 'command_class'
 module Authentication
   module AuthnGcp
 
+    # This authenticator validates that the received token matches the
+    # restrictions defined in the policy. There is another validation step
+    # where we also verify that the token is valid (JWT-wise) but this is
+    # done while it is decoded (using a third-party).
     Authenticator = CommandClass.new(
       dependencies: {
-        validate_resource_restrictions: ValidateResourceRestrictions.new,
+        validate_resource_restrictions: Authentication::ResourceRestrictions::ValidateResourceRestrictions.new,
+        authentication_request_class:   AuthenticationRequest,
         logger:                         Rails.logger
       },
       inputs:       [:authenticator_input]
     ) do
 
       extend Forwardable
-      def_delegators :@authenticator_input, :authenticator_name, :account, :username, :credentials
+      def_delegators :@authenticator_input, :authenticator_name, :service_id, :account, :username, :credentials
 
       def call
+        create_authentication_request
         validate_resource_restrictions
       end
 
       private
 
+      def create_authentication_request
+        authentication_request
+      end
+
+      def authentication_request
+        @authentication_request ||= @authentication_request_class.new(
+          decoded_token: credentials
+        )
+      end
+
       def validate_resource_restrictions
         @validate_resource_restrictions.call(
           authenticator_name: authenticator_name,
-          account:     account,
-          username:    username,
-          credentials: credentials
+          service_id: service_id,
+          account: account,
+          role_name: username,
+          constraints: Restrictions::CONSTRAINTS,
+          authentication_request: authentication_request
         )
       end
     end
@@ -41,6 +59,7 @@ module Authentication
       # `Call` objects created each time `call` is run.
       def valid?(input)
         call(authenticator_input: input)
+        true
       end
 
       def status(authenticator_status_input:)

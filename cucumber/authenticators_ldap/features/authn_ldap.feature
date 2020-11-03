@@ -124,7 +124,7 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
     Given I save my place in the audit log file
     When my LDAP password is wrong for authorized user "alice"
     Then it is unauthorized
-    And The following appears in the audit log after my savepoint:
+    And The following matches the audit log after my savepoint:
     """
     <84>1 \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z - conjur \d+ authn \[subject@43868 role="cucumber:user:alice"]\[auth@43868 authenticator="authn-ldap" service="cucumber:webservice:conjur/authn-ldap/test"]\[client@43868 ip="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"]\[action@43868 result="failure" operation="login"] cucumber:user:alice failed to login with authenticator authn-ldap service cucumber:webservice:conjur/authn-ldap/test: CONJ00002E Invalid credentials
     """
