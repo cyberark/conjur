@@ -13,6 +13,7 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
 
   let(:mocked_verify_and_decode_token) { double("VerifyAndDecodeAzureToken") }
   let(:mocked_validate_resource_restrictions) { double("ValidateResourceRestrictions") }
+  let(:mocked_authentication_request) { double("AuthenticationRequest") }
 
   let(:verify_and_decode_token_error) { "verify and decode token error" }
 
@@ -59,7 +60,7 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
-  context "An Azure authenticator" do
+  context "An Azure authenticator" do``
     context "that receives an authenticate request" do
       context "with a valid azure token" do
         context "with valid resource restrictions" do
@@ -76,7 +77,8 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
 
             ::Authentication::AuthnAzure::Authenticator.new(
               verify_and_decode_token:        mocked_verify_and_decode_token,
-              validate_resource_restrictions: mocked_validate_resource_restrictions
+              validate_resource_restrictions: mocked_validate_resource_restrictions,
+              authentication_request_class:   mocked_authentication_request
             ).call(
               authenticator_input: input_
             )

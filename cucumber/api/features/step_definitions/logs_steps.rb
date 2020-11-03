@@ -9,8 +9,13 @@ Given(/^I save my place in the (audit )?log file$/) do |_|
 end
 
 # NOTE: The source code order of this step def and the one above matters.
-And(/^The following appears in the (audit )?log after my savepoint:$/) do |_, message|
+And(/^The following matches the (audit )?log after my savepoint:$/) do |_, message|
   expect(num_matches_since_savepoint(message)).to be >= 1
+end
+
+# NOTE: The source code order of this step def and the one above matters.
+And(/^The following appears in the (audit )?log after my savepoint:$/) do |_, message|
+  expect(num_matches_since_savepoint(Regexp.escape(message))).to be >= 1
 end
 
 # NOTE: The source code order of this step def and the one above matters.

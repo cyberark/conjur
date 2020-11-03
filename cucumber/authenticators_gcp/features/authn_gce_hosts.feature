@@ -84,7 +84,7 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00050E Resource type 'invalid-key' is not a supported resource restriction
+    CONJ00050E Resource restrictions '["invalid-key"]' are not supported
     """
 
   Scenario: Users can authenticate with GCP authenticator and fetch secret

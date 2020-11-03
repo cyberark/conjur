@@ -81,7 +81,7 @@ Feature: GCP Authenticator - GCF flow, test token error hwahtandling
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00068E Attribute 'project-id' is missing from Google's JWT token
+    CONJ00068E Claim 'project-id' is missing from Google's JWT token
     """
 
   Scenario: Token with instance-name host annotation is denied
@@ -93,5 +93,5 @@ Feature: GCP Authenticator - GCF flow, test token error hwahtandling
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00068E Attribute 'instance-name' is missing from Google's JWT token
+    CONJ00068E Claim 'instance-name' is missing from Google's JWT token
     """
