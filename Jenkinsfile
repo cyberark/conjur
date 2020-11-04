@@ -162,18 +162,18 @@ pipeline {
         } // Standard agent tests
 
         stage('Azure Authenticator') {
+          agent { label 'azure-linux' }
+          environment {
+                   AZURE_AUTHN_INSTANCE_IP = sh(script: 'curl "http://checkip.amazonaws.com"', returnStdout: true).trim()
+                   SYSTEM_ASSIGNED_IDENTITY = sh(script: 'ci/authn-azure/get_system_assigned_identity.sh', returnStdout: true).trim()
+          }
           steps {
-            script {
-              node('azure-linux') {
-                // get `ci/authn-azure/get_system_assigned_identity.sh` from scm
-                checkout scm
-                env.AZURE_AUTHN_INSTANCE_IP = sh(script: 'curl "http://checkip.amazonaws.com"', returnStdout: true).trim()
-                env.SYSTEM_ASSIGNED_IDENTITY = sh(script: 'ci/authn-azure/get_system_assigned_identity.sh', returnStdout: true).trim()
-
                 sh('summon -f ci/authn-azure/secrets.yml ci/test cucumber_authenticators_azure')
-                stash name: 'testResultAzure', includes: "cucumber/*/*.*,container_logs/*/*,spec/reports/*.xml,spec/reports-audit/*.xml,cucumber/*/features/reports/**/*.xml"
-              }
-            }
+          }
+          post {
+             always {
+                 stash name: 'testResultAzure', includes: "cucumber/*azure*/*.*,container_logs/*azure*/*,cucumber_results*.json",allowEmpty:true
+             }
           }
         }
         /**
