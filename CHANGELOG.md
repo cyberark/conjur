@@ -6,8 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- Hosts can authenticate from Google Cloud Function (GCF) using a GCE instance
-  identity token. See [design](design/authenticators/authn_gcp/authn_gcp_solution_design.md)
+- GCP authenticator (`authn-gcp`) supports authenticating from Google Cloud Function (GCF)
+  using a GCE instance identity token. See [design](design/authenticators/authn_gcp/authn_gcp_solution_design.md)
   for details. [cyberark/conjur#1804](https://github.com/cyberark/conjur/issues/1804)
 
 ### Changed
@@ -39,9 +39,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.9.0] - 2020-08-31
 ### Added
-- Hosts can authenticate from Google Compute Engines (GCE) using a GCE instance
+- A new authenticator for applications running in Google Cloud Platform (`authn-gcp`),
+  which supports authenticating from Google Compute Engines (GCE) using a GCE instance
   identity token. See [design](design/authenticators/authn_gcp/authn_gcp_solution_design.md)
-  for details ([cyberark/conjur#1711](https://github.com/cyberark/conjur/issues/1711)).
+  for details. [cyberark/conjur#1711](https://github.com/cyberark/conjur/issues/1711)
 - New `/whoami` API endpoint for improved supportability and debugging for access
   tokens and client IP address determination. [cyberark/conjur#1697](https://github.com/cyberark/conjur/issues/1697)
 - `TRUSTED_PROXIES` is validated at Conjur startup to ensure that it contains
