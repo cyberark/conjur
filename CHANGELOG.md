@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- UBI-based Conjur image to support Conjur server running on OpenShift. Image
+  will be published to RedHat Container Registry.
+  [cyberark/conjur#1883](https://github.com/cyberark/conjur/issues/1883)
 - GCP authenticator (`authn-gcp`) supports authenticating from Google Cloud Function (GCF)
   using a GCE instance identity token. See [design](design/authenticators/authn_gcp/authn_gcp_solution_design.md)
   for details. [cyberark/conjur#1804](https://github.com/cyberark/conjur/issues/1804)
