@@ -89,7 +89,7 @@ Feature: Rotate the API key of a role
 
   Scenario: User without permissions CAN NOT rotate Bob's API key using an access token
     Given I login as "unprivileged_user"
-    When I PUT "/authn/cucumber/api_key?role=user:carl"
+    When I PUT "/authn/cucumber/api_key?role=user:bob"
     Then the HTTP response status code is 401
 
   # A user with update permission rotating Bob's API key
@@ -135,7 +135,7 @@ Feature: Rotate the API key of a role
     And the result is the API key for user "bob"
 
   Scenario: A Host with update privilege CAN NOT rotate Bob's API key with their own API key
-    When I PUT "/authn/cucumber/api_key?role=user:carl" with username "host/host1" and password ":cucucmber:host:host1_api_key"
+    When I PUT "/authn/cucumber/api_key?role=user:bob" with username "host/privileged_host" and password ":cucumber:host:privileged_host_api_key"
     Then the HTTP response status code is 401
 
   # A host without update permission rotating Bob's API key
@@ -147,4 +147,24 @@ Feature: Rotate the API key of a role
 
   Scenario: A Host without update privilege CAN NOT rotate a user's API key with their own API key
     When I PUT "/authn/cucumber/api_key?role=user:bob" with username "host/unprivileged_host" and password ":cucumber:host:unprivileged_host_api_key"
+    Then the HTTP response status code is 401
+
+  # Test rotation against nonexistent user
+
+  Scenario: Bob CAN NOT rotate a nonexistent user's API key using basic auth and an API key, RESULTS IN 401
+    When I PUT "/authn/cucumber/api_key?role=user:does_not_exist" with username "bob" and password ":cucumber:user:bob_api_key"
+    Then the HTTP response status code is 401
+
+  Scenario: Bob CAN NOT rotate a nonexistent user's API key using basic auth and a password, RESULTS IN 401
+    Given I set the password for "bob" to "Passw0rd-Bob"
+    When I PUT "/authn/cucumber/api_key?role=user:does_not_exist" with username "bob" and password "Passw0rd-Bob"
+    Then the HTTP response status code is 401
+
+  Scenario: Bob CAN NOT rotate a nonexistent user's API key using an access token, RESULTS IN 401
+    Given I login as "bob"
+    When I PUT "/authn/cucumber/api_key?role=user:does_not_exist"
+    Then the HTTP response status code is 401
+
+  Scenario: Bob CAN NOT rotate API key for user in nonexistent account, RESULTS IN 401
+    When I PUT "/authn/cucumber/api_key?role=nonexistent_account:user:bob" with username "bob" and password ":cucumber:user:bob_api_key"
     Then the HTTP response status code is 401
