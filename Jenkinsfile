@@ -317,7 +317,12 @@ pipeline {
       }
     }
 
-    stage('Push Docker image') {
+    stage('Publish Docker image') {
+      when {
+        // Only run this stage when it's a tag build matching vA.B.C
+        tag pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+\$", comparator: "REGEXP"
+      }
+
       steps {
         sh './push-image.sh'
       }

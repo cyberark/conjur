@@ -8,6 +8,13 @@
 # shellcheck disable=SC1091
 . version_utils.sh
 
+if [[ -z "${TAG_NAME:-}" ]]; then
+  echo "Please supply environment variable TAG_NAME."
+  echo "If you see this error in Jenkins it means the publish script was run"
+  echo "for a build that wasn't triggered by a tag - please check publish stage conditions."
+  exit 1
+fi
+
 TAG="${1:-$(version_tag)}"
 VERSION="$(< VERSION)"
 SOURCE_IMAGE="conjur:$TAG"
@@ -19,33 +26,22 @@ IMAGE_NAME=cyberark/conjur
 INTERNAL_IMAGES=`echo $CONJUR_REGISTRY/{conjur,$IMAGE_NAME}`
 
 function main() {
-  echo "TAG = $TAG"
-  echo "VERSION = $VERSION"
-
   # always push VERSION-SHA tags to our registry
   tag_and_push $TAG $INTERNAL_IMAGES
 
-  git fetch --tags || : # Jenkins brokenness workaround
-  local git_description=`git describe`
+  # this script is only auto-triggered on a tag, so it will always publish
+  # releases to DockerHub
+  tag_and_push latest $INTERNAL_IMAGES
 
-  # if on a tag matching the VERSION, assume tests have passed and push to latest and stable tags
-  # and push releases to DockerHub
-  if [[ $git_description = v$VERSION ]]; then
-    tag_and_push latest $INTERNAL_IMAGES
+  # only do 1-stable and 1.2-stable for 1.2.3-dev
+  # (1.2.3-stable doesn't make sense if there is a released version called 1.2.3)
+  for v in `gen_versions $TAG_NAME`; do
+    tag_and_push $v-stable $INTERNAL_IMAGES
+  done
 
-    # only do 1-stable and 1.2-stable for 1.2.3-dev
-    # (1.2.3-stable doesn't make sense if there is a released version called 1.2.3)
-    for v in `gen_versions $VERSION`; do
-      tag_and_push $v-stable $INTERNAL_IMAGES
-    done
-
-    echo "Revision $git_description matches version exactly, pushing releases..."
-    for v in latest $VERSION `gen_versions $VERSION`; do
-      tag_and_push $v $IMAGE_NAME
-    done
-  else
-    echo "Revision $git_description does not match version $VERSION exactly, not releasing."
-  fi
+  for v in latest $TAG_NAME `gen_versions $TAG_NAME`; do
+    tag_and_push $v $IMAGE_NAME
+  done
 }
 
 # tag_and_publish tag image1 image2 ...
