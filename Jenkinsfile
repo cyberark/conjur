@@ -63,6 +63,22 @@ pipeline {
             scanAndReport("conjur:${TAG}", "NONE", true)
           }
         }
+        stage("Scan UBI-based Docker Image for fixable issues") {
+          steps {
+            script {
+              TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short=8 HEAD)')
+            }
+            scanAndReport("conjur-ubi:${TAG}", "HIGH", false)
+          }
+        }
+        stage("Scan UBI-based Docker image for total issues") {
+          steps {
+            script {
+              TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short=8 HEAD)')
+            }
+            scanAndReport("conjur-ubi:${TAG}", "NONE", true)
+          }
+        }
       }
     }
 
