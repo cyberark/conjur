@@ -323,14 +323,15 @@ pipeline {
       }
     }
 
-    stage('Build Debian package') {
+    stage('Build Debian and RPM packages') {
       steps {
         sh './package.sh'
         archiveArtifacts artifacts: '*.deb', fingerprint: true
+        archiveArtifacts artifacts: '*.rpm', fingerprint: true
       }
     }
 
-    stage('Publish Debian package'){
+    stage('Publish Debian and RPM packages'){
       steps {
         sh './publish.sh'
       }
