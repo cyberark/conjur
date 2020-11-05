@@ -23,7 +23,6 @@ RUN INSTALL_PKGS="gcc \
                   glibc-devel \
                   libxml2-devel \
                   libxslt-devel \
-                  libzip-devel \
                   make \
                   openldap-clients \
                   redhat-rpm-config \
