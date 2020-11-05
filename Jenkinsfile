@@ -108,7 +108,7 @@ pipeline {
                       sh 'ci/test cucumber_api'
                     },
                     "Rotators - ${env.STAGE_NAME}": {
-                      sh 'ci/test rspec'
+                      sh 'ci/test cucumber_rotators'
                     },
                     "Kubernetes 1.7 in GKE - ${env.STAGE_NAME}": {
                       sh 'cd ci/authn-k8s && summon ./test.sh gke'
@@ -148,7 +148,7 @@ pipeline {
                     sh 'ci/test cucumber_api'
                   },
                   "Rotators - ${env.STAGE_NAME}": {
-                    sh 'ci/test rspec'
+                    sh 'ci/test cucumber_rotators'
                   },
                   "Kubernetes 1.7 in GKE - ${env.STAGE_NAME}": {
                     sh 'cd ci/authn-k8s && summon ./test.sh gke'
