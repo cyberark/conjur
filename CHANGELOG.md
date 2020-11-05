@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   error in case it failed to install the client certificate during authn-k8s.
   [cyberark/conjur#1860](https://github.com/cyberark/conjur/issues/1860)
 
+### Fixed
+- Conjur now raises an Unauthorized error when a user attempts to rotate the API key of a
+  nonexistent role. Previously, the operation would result in a successful rotation of the
+  existing user's API key, with no indication that the target of the operation had changed.
+  [cybeark/conjur#1914](https://github.com/cyberark/conjur/issues/1914)
+
 ### Security
 - Bumped Ruby version from 2.5.1 to 2.5.8 to address
   [CVE-2020-10663](https://nvd.nist.gov/vuln/detail/CVE-2020-10663).

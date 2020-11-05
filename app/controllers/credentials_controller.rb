@@ -77,7 +77,10 @@ class CredentialsController < ApplicationController
 
   # Accept params[:role]. Later it will be ignored if it refers to the same user as the token auth.
   def accept_id_parameter
-    authentication.selected_role = Role[Role.make_full_id(params[:role], account)] if params[:role]
+    if params[:role]
+      authentication.selected_role = Role[Role.make_full_id(params[:role], account)]
+      raise Unauthorized, "Operation attempted against invalid target" unless authentication.selected_role
+    end
     true
   end
 
