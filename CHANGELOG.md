@@ -48,6 +48,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   now returns `Error 422 Unprocessable Entity` instead of `Error 500`.
   [cyberark/conjur#2011](https://github.com/cyberark/conjur/issues/2011)
 
+### Security
+- Kubernetes authenticator certificate injection process now performs certificate
+  verification to prevent MitM attacks.
+  [Security Bulletin](https://github.com/cyberark/conjur/security/advisories/GHSA-hvhv-f953-rwmv)
+
 ## [1.11.1] - 2020-11-19
 ### Added
 - UBI-based Conjur image to support Conjur server running on OpenShift. Image

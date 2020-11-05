@@ -6,7 +6,6 @@ require 'websocket'
 require 'rubygems/package'
 
 require 'active_support/time'
-require 'websocket-client-simple'
 require 'timeout'
 
 module Authentication
@@ -15,7 +14,7 @@ module Authentication
     ExecuteCommandInContainer ||= CommandClass.new(
       dependencies: {
         timeout:                       ENV['KUBE_EXEC_COMMAND_TIMEOUT'],
-        websocket_client:              WebSocket::Client::Simple,
+        websocket_client:              WebSocketClient,
         ws_client_event_handler_class: WebSocketClientEventHandler,
         message_log_class:             MessageLog,
         validate_message:              MessageLog::ValidateMessage.new,
@@ -45,7 +44,14 @@ module Authentication
       end
 
       def ws_client
-        @ws_client ||= @websocket_client.connect(server_url, headers: headers)
+        @ws_client ||= @websocket_client.connect(
+          server_url,
+          {
+            headers: headers,
+            verify_mode: OpenSSL::SSL::VERIFY_PEER,
+            cert_store: @k8s_object_lookup.cert_store
+          }
+        )
       end
 
       def ws_client_event_handler

@@ -430,9 +430,6 @@ GEM
       activesupport
       httpclient (>= 2.4)
     websocket (1.2.8)
-    websocket-client-simple (0.3.0)
-      event_emitter
-      websocket
     websocket-driver (0.7.3)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -464,6 +461,7 @@ DEPENDENCIES
   debase
   dry-struct (~> 0.4.0)
   dry-types (~> 0.12.2)
+  event_emitter
   ffi (>= 1.9.24)
   gli
   haikunator (~> 1)
@@ -510,7 +508,7 @@ DEPENDENCIES
   spring-commands-cucumber
   spring-commands-rspec
   table_print
-  websocket-client-simple
+  websocket
 
 RUBY VERSION
    ruby 2.5.8p224

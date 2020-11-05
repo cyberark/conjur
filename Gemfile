@@ -80,7 +80,8 @@ end
 
 # authn-k8s
 gem 'kubeclient'
-gem 'websocket-client-simple'
+gem 'websocket'
+gem 'event_emitter'
 
 # authn-oidc
 gem 'jwt'
