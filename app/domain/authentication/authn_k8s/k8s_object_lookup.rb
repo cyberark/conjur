@@ -18,6 +18,8 @@ module Authentication
 
       class K8sForbiddenError < RuntimeError; end
 
+      attr_reader :cert_store
+
       def initialize(webservice = nil)
         @webservice = webservice
         @cert_store = OpenSSL::X509::Store.new

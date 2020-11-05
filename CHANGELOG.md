@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Security
+- Kubernetes authenticator certificate injection process now performs certificate
+  verification to prevent MitM attacks.
+  [Security Bulletin](https://github.com/cyberark/conjur/security/advisories/GHSA-hvhv-f953-rwmv)
+
 ## [1.11.0] - 2020-11-06
 ### Added
 - UBI-based Conjur image to support Conjur server running on OpenShift. Image

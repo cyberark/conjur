@@ -26,8 +26,8 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
       end
     end
 
-    def connect(server_url, headers:)
-      @connect_args = [server_url, headers]
+    def connect(server_url, options)
+      @connect_args = [server_url, options]
       # In the production class, "connect" is defined on Client::Simple, and
       # calling "connect" returns an instance of Client::Simple::Client. For
       # the mock, there's not reason to make that distinction, and we can
@@ -110,6 +110,8 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
     double('K8sObjectLookup').tap do |k8s_object_lookup|
       allow(k8s_object_lookup).to receive(:kube_client)
         .and_return(kube_client)
+      allow(k8s_object_lookup).to receive(:cert_store)
+        .and_return("cert_store")
     end
   end
 
