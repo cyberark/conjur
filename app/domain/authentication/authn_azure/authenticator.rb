@@ -7,7 +7,8 @@ module Authentication
       dependencies: {
         fetch_authenticator_secrets:    Authentication::Util::FetchAuthenticatorSecrets.new,
         verify_and_decode_token:        Authentication::OAuth::VerifyAndDecodeToken.new,
-        validate_resource_restrictions: ValidateResourceRestrictions.new,
+        validate_resource_restrictions: Authentication::ResourceRestrictions::ValidateResourceRestrictions.new,
+        authentication_request_class:   AuthenticationRequest,
         logger:                         Rails.logger
       },
       inputs:       [:authenticator_input]
@@ -18,6 +19,7 @@ module Authentication
 
       def call
         validate_azure_token
+        create_authentication_request
         validate_resource_restrictions
       end
 
@@ -45,20 +47,31 @@ module Authentication
         @decoded_credentials ||= Authentication::Jwt::DecodedCredentials.new(credentials)
       end
 
+      def create_authentication_request
+        authentication_request
+      end
+
+      def authentication_request
+        @authentication_request ||= @authentication_request_class.new(
+          xms_mirid_token_field: decoded_token.xms_mirid,
+          oid_token_field:       decoded_token.oid
+        )
+      end
+
       def validate_resource_restrictions
-        @validate_resource_restrictions.(
+        @validate_resource_restrictions.call(
+          authenticator_name: authenticator_name,
           service_id: service_id,
           account: account,
-          username: username,
-          xms_mirid_token_field: decoded_token.xms_mirid,
-          oid_token_field: decoded_token.oid
+          role_name: username,
+          constraints: Restrictions::CONSTRAINTS,
+          authentication_request: authentication_request
         )
       end
 
       def provider_uri
-        @provider_uri ||= azure_authenticator_secrets["provider-uri"].tap do |provider_uri_value|
-          provider_uri_value << "/" unless provider_uri_value.end_with?('/')
-        end
+        # Get the `provider-uri` secret from the authenticator, and ensure it ends with '/'
+        @provider_uri ||= azure_authenticator_secrets["provider-uri"].chomp('/') + '/'
       end
 
       def azure_authenticator_secrets

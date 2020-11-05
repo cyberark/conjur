@@ -7,7 +7,7 @@ RSpec.describe Authentication::Constraints::PermittedConstraint do
     let(:permitted_restriction) { ["permitted"] }
     let(:not_permitted_restrictions) { %w(not_permitted_first not_permitted_second) }
     let(:raised_error) { ::Errors::Authentication::Constraints::ConstraintNotSupported }
-    let(:expected_error_message) { /'#{Regexp.escape(not_permitted_restrictions.to_s)}'.*#{permitted_restriction}/ }
+    let(:expected_error_message) { /'#{Regexp.escape(not_permitted_restrictions.to_s)}'.*#{Regexp.escape(permitted_restriction.to_s)}/ }
 
     subject(:constraint) do
       Authentication::Constraints::PermittedConstraint.new(permitted: permitted_restriction)
@@ -58,7 +58,7 @@ RSpec.describe Authentication::Constraints::PermittedConstraint do
     let(:permitted_two_restrictions) { %w(permitted_first permitted_second) }
     let(:not_permitted_restrictions) { %w(not_permitted_first not_permitted_second) }
     let(:raised_error) { ::Errors::Authentication::Constraints::ConstraintNotSupported }
-    let(:expected_error_message) { /'#{Regexp.escape(not_permitted_restrictions.to_s)}'.*#{permitted_two_restrictions.to_s}/ }
+    let(:expected_error_message) { /'#{Regexp.escape(not_permitted_restrictions.to_s)}'.*#{Regexp.escape(permitted_two_restrictions.to_s)}/ }
 
     subject(:constraint) do
       Authentication::Constraints::PermittedConstraint.new(permitted: permitted_two_restrictions)

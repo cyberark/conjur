@@ -426,7 +426,7 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
           let(:host_annotations) { [service_account_annotation] }
 
           it "raises an error" do
-            expect { subject }.to raise_error(Errors::Authentication::RoleMissingConstraint)
+            expect { subject }.to raise_error(Errors::Authentication::Constraints::RoleMissingConstraints)
           end
         end
 
@@ -459,7 +459,7 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
             let(:host_annotations) { [namespace_annotation, deployment_annotation, deployment_config_annotation] }
 
             it "raises an error" do
-              expect { subject }.to raise_error(::Errors::Authentication::IllegalConstraintCombinations)
+              expect { subject }.to raise_error(::Errors::Authentication::Constraints::IllegalConstraintCombinations)
             end
           end
 
@@ -467,7 +467,7 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
             let(:host_annotations) { [namespace_annotation, deployment_annotation, stateful_set_annotation] }
 
             it "raises an error" do
-              expect { subject }.to raise_error(::Errors::Authentication::IllegalConstraintCombinations)
+              expect { subject }.to raise_error(::Errors::Authentication::Constraints::IllegalConstraintCombinations)
             end
           end
 
@@ -475,7 +475,7 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
             let(:host_annotations) { [namespace_annotation, deployment_config_annotation, stateful_set_annotation] }
 
             it "raises an error" do
-              expect { subject }.to raise_error(::Errors::Authentication::IllegalConstraintCombinations)
+              expect { subject }.to raise_error(::Errors::Authentication::Constraints::IllegalConstraintCombinations)
             end
           end
 
@@ -483,7 +483,7 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
             let(:host_annotations) { [namespace_annotation, deployment_annotation, deployment_config_annotation, stateful_set_annotation] }
 
             it "raises an error" do
-              expect { subject }.to raise_error(::Errors::Authentication::IllegalConstraintCombinations)
+              expect { subject }.to raise_error(::Errors::Authentication::Constraints::IllegalConstraintCombinations)
             end
           end
         end
@@ -499,7 +499,7 @@ RSpec.describe Authentication::AuthnK8s::ResourceRestrictions do
 
           it "ignores the annotation" do
             # the namespace annotation is not present
-            expect { subject }.to raise_error(Errors::Authentication::RoleMissingConstraint)
+            expect { subject }.to raise_error(Errors::Authentication::Constraints::RoleMissingConstraints)
           end
         end
       end

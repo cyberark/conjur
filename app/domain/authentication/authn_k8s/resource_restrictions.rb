@@ -159,7 +159,7 @@ module Authentication
 
       def validate_resource_constraint_exists resource_type
         resource = @resources.find { |a| a.type == resource_type }
-        raise Errors::Authentication::RoleMissingConstraint, resource_type unless resource
+        raise Errors::Authentication::Constraints::RoleMissingConstraints, resource_type unless resource
       end
 
       # Validates that the resource restrictions don't include logical resource constraint
@@ -169,7 +169,7 @@ module Authentication
 
         identifiers_constraints = @resources.map(&:type) & identifiers
         unless identifiers_constraints.length <= 1
-          raise Errors::Authentication::IllegalConstraintCombinations, identifiers_constraints
+          raise Errors::Authentication::Constraints::IllegalConstraintCombinations, identifiers_constraints
         end
       end
 
