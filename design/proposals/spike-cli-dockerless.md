@@ -42,7 +42,21 @@ The CLI design should answer the following requirements:
 
 *Core functionality*
 
-1. We should support `init`, `authn` (`login`, `authenticate`),  `policy (load)`, and `fetch secrets` functionalities. Open for discussion: `list`, `show, ` `rotate_api_key` (`host` / `user`).
+We should support:
+
+​	Configure connection to Conjur (know as `init`, `authn` (`login`, `authenticate`))
+
+​	Load policy (known as `policy <verb>`)
+
+​	Get/Set secret values (known as `variable values <var_id>` functionalities. 
+
+Open for discussion: 
+
+​	List all resources that I have "read" permissions on (known as `list`)
+
+​	Show resource metadata/annotations (known as `show`)
+
+​	Rotate user and host API key (known as `rotate_api_key`)
 
 *Deployment*
 
@@ -90,6 +104,10 @@ The following are examples of *just* *some* of flaws in our current Ruby/Go CLI 
 
 Our Ruby and Go CLI commands are current inconsistent in their construction. It is not consistent if the noun or the verb comes first. For example, we currently have `conjur variable` (noun) and `conjur show`  (verb)
 
+*Nested subcommands*
+
+Nested subcommands lead to a confusing UX. In Conjur, our CLI commands can reach to 2 nested subcommands which makes them hard to understand and hard to remember. For example `conjur variable value <var_id>`
+
 *Unintuitive command construction*
 
 When running `conjur variable value <variable_id>`, a secret value will be returned but when looking at just the command, it is unclear what the purpose of the command is. For a more straightforward approach, the command for displaying a secret value could be `conjur get <variable_id>` or `conjur show <variable_id>`.  
@@ -119,13 +137,6 @@ conjur-cli policy delete root ./path_to_policy.yml*
 
 
 
-To use the Python CLI, users can provide the information usually found in their `.netrc` / `.conjurrc` files as command line arguments. For example:
-
-```
-conjur-cli --insecure -l https://conjur.myorg.com ... -u sigal.sax -p 2ec....gv63 \
-  variable get foo/bar
-```
-
 |            | Deployment                                                   |
 | ---------- | ------------------------------------------------------------ |
 | Ruby CLI   | Currently, the Ruby CLI can be deployed in the following ways:<br />1. Deploy to Docker container (**not** applicable for our use-case)<br />2. Deploy with specific Ruby version (`gem install conjur-cli`)<br />Which means that the CLI is not plug-and-play and has prerequisites |
@@ -134,13 +145,30 @@ conjur-cli --insecure -l https://conjur.myorg.com ... -u sigal.sax -p 2ec....gv6
 
 #### Deployment of Ruby CLI
 
+There are two options for deploying the Ruby CLI:
+
+1. Deploy to Docker container (**not** applicable for our use-case)
+2. Running `gem install conjur-cli`
+
+Once this is done, to connect to Conjur, the user will need to run `conjur init` + `conjur authn login` which will generate `.netrc` and `.conjurrc` files which hold user-related and certificate data.
+
 To deploy the Ruby CLI, a certain Ruby version needs to be installed on the machine. Because we cannot assume machines have connection to the internet, we will need to either figure out how to either:
 
-1. Create an executable that contains all dependencies.
+1. Create an executable that contains all dependencies. See mini-spike below.
 2. Create a package that will install the CLI and all its dependencies. For REHL and Centos, we would supply users with a RPM package. For macOS, we would supply them with PKG and so on. We will need to provide different installation packages for each platform (rpm, pkg, deb, etc).
 3. Create zip that will extract all content into a target folder and load CLI and its dependencies.
 
-Ruby bumps versions often and it is likely that the newer version of platforms will come with the newer Ruby versions. The newer version of Ruby might break a dependency we relay on to run the CLI. If this is the case, the Ruby CLI will not work, making it difficult to make this Ruby CLI portable. We can request that users install a certain version but changing Ruby versions is not a non-trival undertaking.
+Ruby bumps versions often and it is likely that the newer version of platforms will come with the newer Ruby versions. The newer version of Ruby might break a dependency we relay on to run the CLI. If this is the case, the Ruby CLI will not work, making it difficult to make this Ruby CLI portable. We can request that users install a certain version but changing Ruby versions is not a non-trival undertaking. This would mean that a specific machine would be dedicated to running the CLI if the user doesn't want a system that they cannot upgrade without problems.
+
+A mini-spike was pursued to evaluate how complicated it would be to the pack the conjur-cli rails application to a create a single executable. The [ruby-packer](https://github.com/pmq20/ruby-packer) project was chosen for this mini-spike. The following conclusions have been reached:
+
+- The last stable [release](https://enclose.io/rubyc) for this packer was over 3 years ago
+- The project itself comes from a single individual and so it is unclear if security was in mind during development
+- The executable that is created is not portable. We tried to build it on different platforms (macOS, Ubuntu 20.04, 16.04, 20.10, Centos8) and the executable resulted in different errors on each one of them
+- The platform setup to pack the executable is flakey and different from platform to platform. 
+- The ruby-packer requires ruby version 2.7.1 in the environment which makes us reliant on the packer’s version of choice. This can be problematic if that version becomes outdated or if there are security issues in that version.
+
+In short, we need something to work and work well across the different platforms and this isn’t it.
 
 #### Deployment of Go CLI
 
@@ -151,6 +179,18 @@ The Go CLI is compiled down to a single executable binary. Go gives us the [abil
 The Python CLI is [single executable](https://github.com/cyberark/conjur-api-python3/releases/tag/v0.0.5), packed with the required runtime and dependencies. For this option there is no need for Python or other prerequisites to be installed on machine. Each executable will need to be bundled on each supported platform. 
 
 ***NOTE***: Many platforms (except for Linux) require signed executables so might be an extra step in the deployment process
+
+To use the Python CLI, users can either
+
+1. Install the CLI via PIP
+2. Install and run the executable
+
+Currently, there is no CLI command to generate the `.conjurrc` and  `.netrc` files (`conjur init` and `conjur authn login` respectively). Instead, they can manually create these files or provide the information usually found in their `.netrc` / `.conjurrc` files as command line arguments. For example:
+
+```
+./python-cli-executable-location --insecure -l https://conjur.myorg.com ... -u sigal.sax -p 2ec....gv63 \
+  variable get foo/bar
+```
 
 |            | Testing                                                      |
 | ---------- | ------------------------------------------------------------ |
@@ -233,25 +273,25 @@ Python has most of the basic actions needed to interface with the Conjur server.
 
 Python CLI because of its better design and it acts as a great point of entry. In terms of a model and architectural design, it is where we want to be so it is a great first step into reforming our APIs.
 
+##### *Meeting minutes*
+
+We have ***not*** reached a decision about which CLI we will pursue.
+
+- If we pursue the Python CLI, we need to figure out the extent of breaking changes that will be introduced, how they will affect our scripts/automation and what is the extent of the documentation updates that will need to take place (PM/PO)
+- We will need to evaluate how best to deliver the Ruby CLI (single binary, package, zip, etc)
+
 ## Documentation
 
 [//]: # "Add notes on what should be documented in this solution. Elaborate on where this should be documented. If the change is in open-source projects, we may need to update the docs in github too. If it's in Conjur and/or DAP mention which products are affected by it"
 
 The CLI that we choose will require documentation.
 
-Ruby CLI has documentation but we will need to update according to platforms we will support
+Ruby CLI has documentation but we will need to update according to platforms we will support.
 
-Go CLI documentation can be taken from Ruby CLI because UX is the same
+Go CLI documentation can be taken from Ruby CLI because UX is the same.
 
-Python CLI hasn't been clearly documented. Therefore we will need to add documentation
+Python CLI hasn't been clearly documented. Therefore we will need to add documentation.
 
 ## Open questions
 
 [//]: # "Add any question that is still open. It makes it easier for the reader to have the open questions accumulated here istead of them being acattered along the doc"
-
-Packaging:
-
-1. For Ruby CLI, if we want to package the CLI + dependencies + Ruby how would we provide an installation package for windows / macOS? For example, in REHL we can use RPM.
-2. For the Python CLI, would the [linux package](https://github.com/cyberark/conjur-api-python3/releases/tag/v0.0.5 ) run on all Linux distributions (Debian, REHL)?
-3. What is the effort required to bring each CLI to GA quality?
-
