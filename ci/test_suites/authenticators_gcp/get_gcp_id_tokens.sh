@@ -1,20 +1,23 @@
 #!/bin/bash
 
-#	---------------------------------------------------------------------------------------------------------------------
-# This script obtains all of the GCP identity tokens required by authn-gcp cucumber tests
+#	-----------------------------------------------------------------------------
+# This script obtains all of the GCP identity tokens required by authn-gcp
+# cucumber tests.
 # The scripts accepts the GCE instance name as an argument.
 # The script does the following:
-# 1. Validates gcloud is installed (requires a GCP account)
-#   To install gcloud goto: https://cloud.google.com/sdk/docs, download and install the SDK by running:
-#   ./google-cloud-sdk/install.sh
-#   ./google-cloud-sdk/bin/gcloud init
+# 1. Validates gcloud is installed (requires a GCP account).  To install gcloud
+#    goto: https://cloud.google.com/sdk/docs, download and install the SDK by
+#    running:
+#      ./google-cloud-sdk/install.sh
+#      ./google-cloud-sdk/bin/gcloud init
 # 2. Verifies the GCE instance exists and is running
-# 3. Executes a ssh curl command and write the output token with the appropriate token name to '../ci/authn-gcp/tokens'.
-#	---------------------------------------------------------------------------------------------------------------------
+# 3. Executes a ssh curl command and write the output token with the
+#    appropriate token name to the "tokens" subdir of this dir.
+#	----------------------------------------------------------------------------
 
 PROGNAME=$(basename "$0")
 INSTANCE_ZONE=""
-TOKENS_OUT_DIR_PATH="../ci/authn-gcp/tokens"
+TOKENS_OUT_DIR_PATH="$(dirname "$0")/tokens"
 TOKEN_FILE_NAME_PREFIX=gcp_token_
 INSTANCE_EXISTS=0
 INSTANCE_RUNNING=0
@@ -32,7 +35,7 @@ main() {
   ensure_instance_exists_and_running "$INSTANCE_NAME"
   if [ -d "$TOKENS_OUT_DIR_PATH" ]; then
     echo "-- Deleting stale token files..."
-    rm -rf "${TOKENS_OUT_DIR_PATH}/${TOKEN_FILE_NAME_PREFIX}*"
+    rm -rf "${TOKENS_OUT_DIR_PATH:?}/${TOKEN_FILE_NAME_PREFIX}*"
   else
     echo "-- Create token files out directory: '$TOKENS_OUT_DIR_PATH'..."
     mkdir "$TOKENS_OUT_DIR_PATH" || exit 1
@@ -75,7 +78,8 @@ ensure_instance_exists_and_running() {
   # Get list of GCE instances in all zones filtered by exact match regex '$instance_name'.
   # Returns 'instance-zone;STATUS'
   # if the instance exists; empty string otherwise.
-  local instance_info=$(gcloud compute instances list --filter="name ~ ^$instance_name$" --format="$format")
+  local instance_info
+  instance_info=$(gcloud compute instances list --filter="name ~ ^$instance_name$" --format="$format")
 
   if [[ "$instance_info" != "" ]]; then
     INSTANCE_EXISTS=1
@@ -87,7 +91,8 @@ ensure_instance_exists_and_running() {
     # - instance status: used to validate that the instance is running.
     #	----------------------------------------------------------------
     set_instance_zone "$instance_info"
-    local instance_status=$(echo "$instance_info" | cut -f2 -d ';')
+    local instance_status
+    instance_status=$(echo "$instance_info" | cut -f2 -d ';')
 
     if [ "$instance_status" = "RUNNING" ]; then
       echo "-- GCE instance '${instance_name}', zone: '$INSTANCE_ZONE', status: '$instance_status'."
@@ -122,18 +127,20 @@ get_tokens_into_files() {
     error_exit "-- Cannot run command, GCE instance '${INSTANCE_NAME}' not in a valid state!"
   fi
 
-  local tokens_config_file="$(dirname $0)/tokens_config.json"
+  local tokens_config_file
+  tokens_config_file="$(dirname "$0")/tokens_config.json"
   if [ ! -f "$tokens_config_file" ]; then
     echo "$tokens_config_file file not found."
     exit 1
   fi
 
-  local tokens="$(cat $tokens_config_file)"
+  local tokens
+  tokens=$(< "$tokens_config_file")
   local token_prefix="${TOKENS_OUT_DIR_PATH}/${TOKEN_FILE_NAME_PREFIX}"
 
   for row in $(echo "${tokens}" | jq -c '.[]'); do
     _jq() {
-      echo ${row} | jq -r ${1}
+      echo "$row" | jq -r "$1"
     }
 
     name=$(_jq '.name')

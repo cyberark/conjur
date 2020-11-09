@@ -106,25 +106,25 @@ pipeline {
                       sh 'ci/test rspec'
                     },
                     "Authenticators Config - ${env.STAGE_NAME}": {
-                      sh 'ci/test cucumber_authenticators_config'
+                      sh 'ci/test authenticators_config'
                     },
                     "Authenticators Status - ${env.STAGE_NAME}": {
-                      sh 'ci/test cucumber_authenticators_status'
+                      sh 'ci/test authenticators_status'
                     },
                     "LDAP Authenticator - ${env.STAGE_NAME}": {
-                      sh 'ci/test cucumber_authenticators_ldap'
+                      sh 'ci/test authenticators_ldap'
                     },
                     "OIDC Authenticator - ${env.STAGE_NAME}": {
-                      sh 'ci/test cucumber_authenticators_oidc'
+                      sh 'ci/test authenticators_oidc'
                     },
                     "Policy - ${env.STAGE_NAME}": {
-                      sh 'ci/test cucumber_policy'
+                      sh 'ci/test policy'
                     },
                     "API - ${env.STAGE_NAME}": {
-                      sh 'ci/test cucumber_api'
+                      sh 'ci/test api'
                     },
                     "Rotators - ${env.STAGE_NAME}": {
-                      sh 'ci/test cucumber_rotators'
+                      sh 'ci/test rotators'
                     },
                     "Kubernetes 1.7 in GKE - ${env.STAGE_NAME}": {
                       sh 'cd ci/authn-k8s && summon ./test.sh gke'
@@ -146,25 +146,25 @@ pipeline {
                     sh 'ci/test rspec'
                   },
                   "Authenticators Config - ${env.STAGE_NAME}": {
-                    sh 'ci/test cucumber_authenticators_config'
+                    sh 'ci/test authenticators_config'
                   },
                   "Authenticators Status - ${env.STAGE_NAME}": {
-                    sh 'ci/test cucumber_authenticators_status'
+                    sh 'ci/test authenticators_status'
                   },
                   "LDAP Authenticator - ${env.STAGE_NAME}": {
-                    sh 'ci/test cucumber_authenticators_ldap'
+                    sh 'ci/test authenticators_ldap'
                   },
                   "OIDC Authenticator - ${env.STAGE_NAME}": {
-                    sh 'ci/test cucumber_authenticators_oidc'
+                    sh 'ci/test authenticators_oidc'
                   },
                   "Policy - ${env.STAGE_NAME}": {
-                    sh 'ci/test cucumber_policy'
+                    sh 'ci/test policy'
                   },
                   "API - ${env.STAGE_NAME}": {
-                    sh 'ci/test cucumber_api'
+                    sh 'ci/test api'
                   },
                   "Rotators - ${env.STAGE_NAME}": {
-                    sh 'ci/test cucumber_rotators'
+                    sh 'ci/test rotators'
                   },
                   "Kubernetes 1.7 in GKE - ${env.STAGE_NAME}": {
                     sh 'cd ci/authn-k8s && summon ./test.sh gke'
@@ -180,11 +180,11 @@ pipeline {
         stage('Azure Authenticator') {
           agent { label 'azure-linux' }
           environment {
-                   AZURE_AUTHN_INSTANCE_IP = sh(script: 'curl "http://checkip.amazonaws.com"', returnStdout: true).trim()
-                   SYSTEM_ASSIGNED_IDENTITY = sh(script: 'ci/authn-azure/get_system_assigned_identity.sh', returnStdout: true).trim()
+            AZURE_AUTHN_INSTANCE_IP = sh(script: 'curl "http://checkip.amazonaws.com"', returnStdout: true).trim()
+            SYSTEM_ASSIGNED_IDENTITY = sh(script: 'ci/test_suites/authenticators_azure/get_system_assigned_identity.sh', returnStdout: true).trim()
           }
           steps {
-                sh('summon -f ci/authn-azure/secrets.yml ci/test cucumber_authenticators_azure')
+            sh('summon -f ci/test_suites/authenticators_azure/secrets.yml ci/test authenticators_azure')
           }
           post {
              always {
@@ -204,7 +204,7 @@ pipeline {
           steps {
             echo '-- Allocating Google Compute Engine'
             script {
-              dir('ci/authn-gcp') {
+              dir('ci/test_suites/authenticators_gcp') {
                 stash name: 'get_gce_tokens_script',
                 includes: 'get_gce_tokens_to_files.sh,get_tokens_to_files.sh,tokens_config.json'
               }
@@ -265,7 +265,7 @@ pipeline {
                 error('GCP_ENV_ERROR cannot deploy function')
               }
 
-              dir('ci/authn-gcp') {
+              dir('ci/test_suites/authenticators_gcp') {
                 sh 'summon ./deploy_function_and_get_tokens.sh'
               }
             }
@@ -285,7 +285,7 @@ pipeline {
             }
             always {
               script {
-                dir('ci/authn-gcp') {
+                dir('ci/test_suites/authenticators_gcp') {
                   sh '''
                   # Cleanup Google function
                   summon ./run_gcloud.sh cleanup_function.sh
@@ -317,10 +317,10 @@ pipeline {
               }
             }
             script {
-              dir('ci/authn-gcp/tokens') {
+              dir('ci/test_suites/authenticators_gcp/tokens') {
                 unstash 'authnGceTokens'
               }
-              sh 'ci/test cucumber_authenticators_gcp'
+              sh 'ci/test authenticators_gcp'
             }
           }
         }
@@ -378,12 +378,21 @@ pipeline {
             archiveArtifacts artifacts: "ee-test/cucumber/*/*.*", fingerprint: false, allowEmptyArchive: true
             archiveArtifacts artifacts: "ee-test/container_logs/*/*", fingerprint: false, allowEmptyArchive: true
 
-            publishHTML([reportDir: 'ee-test/cucumber', reportFiles: 'api/cucumber_results.html, 	authenticators_config/cucumber_results.html, \
-                                     authenticators_ldap/cucumber_results.html, \
-                                     authenticators_oidc/cucumber_results.html, authenticators_status/cucumber_results.html,\
-                                     policy/cucumber_results.html , rotators/cucumber_results.html',\
-                                     reportName: 'EE Integration reports', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
-
+            publishHTML([
+              reportDir: 'ee-test/cucumber', \
+              reportFiles: 'api/cucumber_results.html, \
+                            authenticators_config/cucumber_results.html, \
+                            authenticators_azure/cucumber_results.html, \
+                            authenticators_ldap/cucumber_results.html, \
+                            authenticators_oidc/cucumber_results.html, \
+                            authenticators_status/cucumber_results.html,\
+                            policy/cucumber_results.html, \
+                            rotators/cucumber_results.html', \
+              reportName: 'EE Integration reports', \
+              reportTitles: '', \
+              allowMissing: false, \
+              alwaysLinkToLastBuild: true, \
+              keepAll: true])
           }
       }
       unstash 'testResultAzure'
