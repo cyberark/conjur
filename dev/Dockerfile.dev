@@ -27,8 +27,6 @@ ADD Gemfile      .
 ADD Gemfile.lock .
 ADD gems/ gems/
 
-RUN ls -la
-
 RUN bundle
 
 RUN rm /etc/service/sshd/down
