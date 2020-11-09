@@ -7,10 +7,12 @@ services:
       - .:/src
 
   test:
-    image: policy-parser-test
+    image: policy-parser-test:${RUBY_VERSION}
     build:
       context: .
       dockerfile: Dockerfile.test
+      args:
+        RUBY_VERSION: ${RUBY_VERSION}
     command: ci/test.sh
     environment:
       - DEBUG
