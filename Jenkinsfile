@@ -131,6 +131,9 @@ pipeline {
                     },
                     "Audit - ${env.STAGE_NAME}": {
                       sh 'ci/test rspec_audit'
+                    },
+                    "Policy Parser - ${env.STAGE_NAME}": {
+                      sh 'cd gems/policy-parser && ./test.sh'
                     }
                  ])
               }
@@ -171,7 +174,10 @@ pipeline {
                   },
                   "Audit - ${env.STAGE_NAME}": {
                     sh 'ci/test rspec_audit'
-                  }
+                  },
+                    "Policy Parser - ${env.STAGE_NAME}": {
+                      sh 'cd gems/policy-parser && ./test.sh'
+                    }
                ])
            }
           }

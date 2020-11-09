@@ -12,19 +12,6 @@ Gem::Specification.new do |spec|
   spec.files          = Dir.glob("{bin,lib}/**/*") + %w(README.md)
   spec.require_paths  = ["lib"]
 
-<<<<<<< HEAD
-=======
-  spec.summary       = %q{Parse the Conjur policy YAML format.}
-  spec.homepage      = "https://github.com/conjurinc/conjur-policy-parser"
-  spec.license       = "MIT"
-
-  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
-  spec.bindir        = "exe"
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
-  spec.require_paths = ["lib"]
-
-  spec.add_dependency "safe_yaml"
->>>>>>> parent of 58dfc5d0... Run policy parser tests in Conjur pipeline
   spec.add_dependency "activesupport", ">= 4.2"
   spec.add_dependency "safe_yaml"
 
