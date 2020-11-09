@@ -3,16 +3,14 @@ services:
   dev:
     image: ruby:2.5
     working_dir: /src
-    volumes: 
+    volumes:
       - .:/src
 
   test:
-    image: policy-parser-test:${RUBY_VERSION}
+    image: policy-parser-test
     build:
       context: .
       dockerfile: Dockerfile.test
-      args:
-        RUBY_VERSION: ${RUBY_VERSION}
     command: ci/test.sh
     environment:
       - DEBUG
