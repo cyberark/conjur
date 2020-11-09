@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.11.0] - 2020-11-06
 ### Added
 - UBI-based Conjur image to support Conjur server running on OpenShift. Image
   will be published to RedHat Container Registry.
@@ -472,7 +474,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.10.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.0...HEAD
+[1.11.0]: https://github.com/cyberark/conjur/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/cyberark/conjur/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/cyberark/conjur/compare/v1.8.1...v1.9.0
 [1.8.1]: https://github.com/cyberark/conjur/compare/v1.7.0...v1.8.1
