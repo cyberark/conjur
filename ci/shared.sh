@@ -162,7 +162,7 @@ is_ldap_up() {
   ) >/dev/null 2>&1
 }
 
-_prepare_env_auth_ldap() {
+start_ldap_server() {
   # Start LDAP.
   docker-compose up --no-deps --detach ldap-server
 
