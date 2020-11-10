@@ -149,6 +149,11 @@ module LogMessages
         code: "CONJ00044D"
       )
 
+      ValidatingResourceRestrictionOnRequest = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating resource restriction on request: '{0-restriction-name}'",
+        code: "CONJ00048D"
+      )
+
       ValidatedResourceRestrictionsValues = ::Util::TrackableLogMessageClass.new(
         msg: "Resource restriction values validated",
         code: "CONJ00045D"

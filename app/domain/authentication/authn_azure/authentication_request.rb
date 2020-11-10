@@ -7,17 +7,20 @@ module Authentication
         @oid_token_field = oid_token_field
       end
 
-      def retrieve_attribute(attribute_name)
-        case attribute_name
-        when Restrictions::SUBSCRIPTION_ID
-          xms_mirid.subscriptions
-        when Restrictions::RESOURCE_GROUP
-          xms_mirid.resource_groups
-        when Restrictions::USER_ASSIGNED_IDENTITY
-          xms_mirid.providers.last if user_assigned_identity?
-        when Restrictions::SYSTEM_ASSIGNED_IDENTITY
-          @oid_token_field unless user_assigned_identity?
-        end
+      def valid_restriction?(name, value)
+        value_from_token =
+          case name
+          when Restrictions::SUBSCRIPTION_ID
+            xms_mirid.subscriptions
+          when Restrictions::RESOURCE_GROUP
+            xms_mirid.resource_groups
+          when Restrictions::USER_ASSIGNED_IDENTITY
+            xms_mirid.providers.last if user_assigned_identity?
+          when Restrictions::SYSTEM_ASSIGNED_IDENTITY
+            @oid_token_field unless user_assigned_identity?
+          end
+
+        value_from_token == value
       end
 
       private
