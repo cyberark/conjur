@@ -40,7 +40,7 @@ function main() {
   # Only do 1-stable and 1.2-stable for 1.2.3-dev.  1.2.3-stable doesn't make
   # sense if there is a released version called 1.2.3
   local prefix_versions
-  readarray -t prefix_versions <(gen_versions "$TAG_NAME")
+  readarray -t prefix_versions < <(gen_versions "$TAG_NAME")
   for v in "${prefix_versions[@]}"; do
     tag_and_push "$v-stable" "$SOURCE_IMAGE" "${INTERNAL_IMAGES[@]}"
   done
@@ -52,9 +52,7 @@ function main() {
   # Publish only the tag version to the Redhat Registries
   # Note: We want $REDHAT_API_KEY to expand inside bash -c, not here.
   # shellcheck disable=SC2016
-  if summon bash -c \
-    'docker login scan.connect.redhat.com -u unused -p "$REDHAT_API_KEY"';
-  then
+  if docker login scan.connect.redhat.com -u unused -p "$REDHAT_API_KEY"; then
     tag_and_push "$VERSION" "$RH_SOURCE_IMAGE" "$REDHAT_IMAGE"
   else
     echo 'Failed to log in to scan.connect.redhat.com'

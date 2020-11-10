@@ -340,7 +340,7 @@ pipeline {
       }
 
       steps {
-        sh './push-image.sh'
+        sh 'summon -f ./secrets.yml ./push-image.sh'
       }
     }
 
