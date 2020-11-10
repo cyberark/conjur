@@ -64,9 +64,8 @@ function main() {
 
 # tag_and_publish tag source image1 image2 ...
 function tag_and_push() {
-  local tag="$1"
-  local source="$2"
-  shift
+  local tag="$1"; shift
+  local source="$1"; shift
 
   for image in "$@"; do
     local target=$image:$tag
