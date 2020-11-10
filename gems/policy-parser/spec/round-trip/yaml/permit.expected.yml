@@ -1,0 +1,21 @@
+---
+- !permit
+  privilege: read
+  resource: !variable
+    id: foobar
+  role: !group
+    id: developers
+- !permit
+  privilege:
+  - read
+  - execute
+  resource: !variable
+    id: baz
+  role: !group
+    id: developers
+- !permit
+  privilege: read
+  resource: !variable
+    id: db_password
+  role: !group
+    id: developers

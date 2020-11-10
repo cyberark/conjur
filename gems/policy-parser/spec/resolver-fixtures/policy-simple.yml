@@ -1,0 +1,58 @@
+# Policy id prefixes body records, unless they are absolute.
+# Records without an id inherit the id of the policy.
+policy: |
+  - !group root-owner
+  - !policy
+    id: myapp
+    body:
+    - !group the-owner
+    - !host
+    - !host
+      id: the-host
+      owner: !group the-owner
+    - !host
+      id: second-host
+      owner: !group /root-owner
+
+expectation: |
+  ---
+  - !group
+    account: the-account
+    id: root-owner
+    owner: !role
+      account: rspec
+      id: default-owner
+      kind: user
+  - !policy
+    account: the-account
+    id: myapp
+    owner: !role
+      account: rspec
+      id: default-owner
+      kind: user
+  - !group
+    account: the-account
+    id: myapp/the-owner
+    owner: !role
+      account: the-account
+      id: myapp
+      kind: policy
+  - !host
+    account: the-account
+    id: myapp
+    owner: !role
+      account: the-account
+      id: myapp
+      kind: policy
+  - !host
+    account: the-account
+    id: myapp/the-host
+    owner: !group
+      account: the-account
+      id: myapp/the-owner
+  - !host
+    account: the-account
+    id: myapp/second-host
+    owner: !group
+      account: the-account
+      id: root-owner

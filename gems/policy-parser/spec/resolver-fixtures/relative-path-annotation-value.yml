@@ -1,0 +1,30 @@
+# Relative paths are substituted into annotation values.
+policy: |
+  - !policy
+    id: the-policy
+    body:
+      - !host
+        id: the-host
+        annotations:
+          the-key: ../the-value
+          boolean-key: true
+    
+expectation: |
+  ---
+  - !policy
+    account: the-account
+    id: the-policy
+    owner: !role
+      account: rspec
+      id: default-owner
+      kind: user
+  - !host
+    account: the-account
+    annotations:
+      the-key: the-policy/the-value
+      boolean-key: true
+    id: the-policy/the-host
+    owner: !role
+      account: the-account
+      id: the-policy
+      kind: policy

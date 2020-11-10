@@ -1,0 +1,4 @@
+# 4, 0
+# Expected a string for field 'id', got Group
+- !user
+  id: !group developers

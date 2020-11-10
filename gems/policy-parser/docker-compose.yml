@@ -1,0 +1,18 @@
+version: "3"
+services:
+  dev:
+    image: cyberark/ubuntu-ruby-fips:20.04-latest
+    working_dir: /src
+    volumes:
+      - .:/src
+
+  test:
+    image: policy-parser-test
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    command: ci/test.sh
+    environment:
+      - DEBUG
+    volumes:
+      - .:/src

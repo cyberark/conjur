@@ -1,0 +1,18 @@
+policy: |
+  - !host host1
+  - !host host2
+
+  - !variable secret
+  - !group secret-consumers
+
+  - !permit
+    role: !group secret-consumers
+    resource: !variable secret
+    privilege: [ read, execute ]
+
+  - !grant
+    role: !group secret-consumers
+    member: !host host1
+    member: !host host2
+
+error: "Error at line 14, column 9 in  : Duplicate attribute: member"

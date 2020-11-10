@@ -1,0 +1,11 @@
+- !host
+  id: app
+  restricted_to: 192.168.0.0
+
+- !user
+  id: alice
+  restricted_to: 192.168.0.0/16
+
+- !user
+  id: bob
+  restricted_to: [ 192.168.0.0/16, 192.169.0.0/16 ]

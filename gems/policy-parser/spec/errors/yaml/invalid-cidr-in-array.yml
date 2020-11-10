@@ -1,0 +1,5 @@
+# 4, 46
+# Invalid IP address or CIDR range 'invalid_cidr'
+- !host
+  id: a-host
+  restricted_to: [ 192.168.1.1, invalid_cidr ]

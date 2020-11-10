@@ -1,0 +1,35 @@
+- !role &team1
+  kind: jenkins-folder
+  id: Team1
+
+- !role &team2
+  kind: jenkins-folder
+  id: Team2
+
+- &shared_variables
+  - !variable &access_key_id aws/target/access_key_id
+  - !variable &secret_access_key aws/target/secret_access_key
+
+- !variable &mongo_password_1 mongo/target/team1/db/password
+- !variable &mongo_password_2 mongo/target/team2/db/password
+
+- !permit
+  role: *team1
+  privilege: execute
+  resource: *shared_variables
+
+- !permit
+  role: *team1
+  privilege: execute
+  resource: *mongo_password_1
+
+- !permit
+  role: *team2
+  privilege: execute
+  resource: *shared_variables
+
+- !permit
+  role: *team1
+  privilege: execute
+  resource: *mongo_password_2
+  

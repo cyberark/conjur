@@ -1,0 +1,25 @@
+# ownerid is applied to the policy role.
+policy: |
+  - !policy
+    id: myapp
+    body:
+    - !host the-host
+
+ownerid: the-account:group:ops
+
+expectation: |
+  ---
+  - !policy
+    account: the-account
+    id: myapp
+    owner: !role
+      account: the-account
+      id: ops
+      kind: group
+  - !host
+    account: the-account
+    id: myapp/the-host
+    owner: !role
+      account: the-account
+      id: myapp
+      kind: policy

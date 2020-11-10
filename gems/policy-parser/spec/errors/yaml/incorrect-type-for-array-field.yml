@@ -1,0 +1,7 @@
+# 7, 0
+# Expected a Role for field 'role', got Permit
+- !permit
+  role: 
+  - !group developers
+  - !permit
+    role: !group ops

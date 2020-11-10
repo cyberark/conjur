@@ -1,0 +1,8 @@
+policy: |
+  - !group root-group
+  - !policy
+    id: remove-root
+    body:
+    - !delete
+      record: !group /root-group
+error: "Illegal absolute id: /root-group"

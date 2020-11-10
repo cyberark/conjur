@@ -1,0 +1,8 @@
+policy: |
+  - !host
+    id: test-app
+    annotations:
+      description: value1
+      description: value2
+
+error: "Error at line 4, column 16 in  : Duplicate attribute: description"

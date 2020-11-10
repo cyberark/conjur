@@ -1,0 +1,4 @@
+- !revoke
+  role: !group developers
+  member: !user alice
+

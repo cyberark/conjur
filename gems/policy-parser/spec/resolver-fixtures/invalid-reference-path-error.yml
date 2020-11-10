@@ -1,0 +1,10 @@
+policy: |
+  - !policy
+    id: myapp
+    body:
+    - !layer
+    - !grant
+      role: !layer
+      member: !group ../../the-group
+
+error: "Invalid relative reference: myapp/../../the-group"

@@ -1,0 +1,4 @@
+---
+- !policy
+  body: []
+  id: the-policy

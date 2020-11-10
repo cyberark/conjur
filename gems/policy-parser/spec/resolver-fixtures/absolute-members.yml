@@ -1,0 +1,53 @@
+policy: |
+  - !user alice
+  - !policy
+    id: foo
+    body:
+      - !policy
+        id: bar
+        body:
+          - !group users
+          - !grant
+            role: !group users
+            members:
+              - !user /alice
+
+expectation: |
+  ---
+  - !user
+    account: the-account
+    id: alice
+    owner: !role
+      account: rspec
+      id: default-owner
+      kind: user
+  - !policy
+    account: the-account
+    id: foo
+    owner: !role
+      account: rspec
+      id: default-owner
+      kind: user
+  - !policy
+    account: the-account
+    id: foo/bar
+    owner: !role
+      account: the-account
+      id: foo
+      kind: policy
+  - !group
+    account: the-account
+    id: foo/bar/users
+    owner: !role
+      account: the-account
+      id: foo/bar
+      kind: policy
+  - !grant
+    member:
+    - !member
+      role: !user
+        account: the-account
+        id: alice
+    role: !group
+      account: the-account
+      id: foo/bar/users
