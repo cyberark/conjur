@@ -58,6 +58,8 @@ _hydrate_gcp_env_args() {
   )
 }
 
-# Note: We pass the name of the function as the last arg, since we're
-# using namerefs.
-_run_cucumber_tests authenticators_gcp "" _hydrate_gcp_env_args
+# Note: We pass the name of the function as the last arg, since we're using
+# namerefs.  Also, the empty 2nd argument means "no additional services are
+# needed".
+additional_services=''
+_run_cucumber_tests authenticators_gcp "$additional_services" _hydrate_gcp_env_args

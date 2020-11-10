@@ -30,4 +30,5 @@ _hydrate_azure_env_args() {
 
 # Note: We pass the name of the function as the last arg, since we're
 # using namerefs.
-_run_cucumber_tests authenticators_azure "" _hydrate_azure_env_args
+additional_services=''
+_run_cucumber_tests authenticators_azure "$additional_services" _hydrate_azure_env_args
