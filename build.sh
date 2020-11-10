@@ -1,5 +1,7 @@
-#!/bin/bash -ex
-#
+#!/usr/bin/env bash
+
+set -ex
+
 # Builds Conjur Docker images
 # Intended to be run from the project root dir
 # usage: ./build.sh
