@@ -8,6 +8,23 @@ set -e
 # shellcheck disable=SC1091
 source "./shared.sh"
 
+main() {
+  # We also run an ldap-server container for testing the OIDC & LDAP combined
+  # use-case.  We can't run this use-case in a separate Jenkins step because
+  # we'll have a port bind for keycloak.
+  start_ldap_server
+  create_keycloak_users
+
+  # TODO: there's a dep on the docker-compose.yml volumes.
+  # Fetch SSL cert to communicate with OIDC provider.
+  docker-compose exec -T \
+    conjur /authn-oidc/keycloak/scripts/fetchCertificate
+
+  additional_services='ldap-server oidc-keycloak'
+  _run_cucumber_tests authenticators_oidc "$additional_services" \
+    _hydrate_oidc_env_args
+}
+
 # Note: the single arg is a nameref, which this function sets to an array
 # containing items of the form "KEY=VAL".
 _hydrate_oidc_env_args() {
@@ -66,7 +83,7 @@ _wait_for_keycloak() {
   exit 1
 }
 
-_prepare_env_auth_oidc() {
+create_keycloak_users() {
   docker-compose up --no-deps -d pg conjur oidc-keycloak
   _wait_for_keycloak
 
@@ -102,16 +119,6 @@ _prepare_env_auth_oidc() {
     '$KEYCLOAK_NON_CONJUR_APP_USER_EMAIL'
 
   echo "Initialize keycloak certificate in conjur server"
-
-  # TODO: there's a dep on the docker-compose.yml volumes
-  docker-compose exec -T \
-    conjur /authn-oidc/keycloak/scripts/fetchCertificate
 }
 
-# We also run an ldap-server container for testing the OIDC & LDAP combined use-case.
-# Note: We can't run the above use-case in a separate Jenkins step because we'll have a port bind for keycloak
-_prepare_env_auth_ldap
-_prepare_env_auth_oidc
-
-_run_cucumber_tests authenticators_oidc 'ldap-server oidc-keycloak' \
-  _hydrate_oidc_env_args
+main
