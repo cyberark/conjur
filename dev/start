@@ -100,7 +100,7 @@ while true ; do
   esac
 done
 
-docker-compose build
+docker-compose build --pull
 
 if [ ! -f data_key ]; then
 	echo "Generating data key"

@@ -30,6 +30,8 @@ RUN mkdir -p $TMP_DIR \
 
 COPY Gemfile \
      Gemfile.lock ./
+COPY gems/ gems/
+
 
 RUN bundle --without test development
 
