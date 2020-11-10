@@ -61,3 +61,5 @@ ci/authn-k8s/dev/policies/*.yml
 # GitHub landing page
 docs/_site/
 docs/.sass-cache
+
+gems/*/Gemfile.lock
