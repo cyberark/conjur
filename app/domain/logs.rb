@@ -33,11 +33,6 @@ module LogMessages
       code: "CONJ00003D"
     )
 
-    ValidatingAnnotationsWithPrefix = ::Util::TrackableLogMessageClass.new(
-      msg:  "Validating annotations with prefix {0-prefix}",
-      code: "CONJ00025D"
-    )
-
     ContainerNameAnnotationDefaultValue = ::Util::TrackableLogMessageClass.new(
       msg:  "Annotation '{0-authentication-container-annotation-name}' not found. " \
                 "Using default value '{1-default-authentication-container}'",
@@ -145,7 +140,7 @@ module LogMessages
       )
 
       ValidatingResourceRestrictionsValues = ::Util::TrackableLogMessageClass.new(
-        msg: "Validating resource restriction values",
+        msg: "Validating resource restrictions on request",
         code: "CONJ00044D"
       )
 
@@ -155,7 +150,7 @@ module LogMessages
       )
 
       ValidatedResourceRestrictionsValues = ::Util::TrackableLogMessageClass.new(
-        msg: "Resource restriction values validated",
+        msg: "Resource restrictions matched request",
         code: "CONJ00045D"
       )
 
@@ -208,11 +203,6 @@ module LogMessages
         code: "CONJ00037D"
       )
 
-      ValidatingHostId = ::Util::TrackableLogMessageClass.new(
-        msg:  "Validating host id {0}",
-        code: "CONJ00026D"
-      )
-
       HostIdFromCommonName = ::Util::TrackableLogMessageClass.new(
         msg:  "Host id {0} extracted from CSR common name",
         code: "CONJ00027D"
@@ -226,6 +216,21 @@ module LogMessages
       InvalidTimeout = ::Util::TrackableLogMessageClass.new(
         msg: "'{0}' is not a valid timeout. Using default: {1}.",
         code: "CONJ00047W"
+      )
+
+      ExtractingRestrictionsFromHostId = ::Util::TrackableLogMessageClass.new(
+        msg: "Resource restrictions were not found in annotations, extracting from host ID '{0-host-name}'",
+        code: "CONJ00049D"
+      )
+
+      ValidatingK8sResource = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating K8s resource. Type:'{0}', Name: {1}",
+        code: "CONJ00050D"
+      )
+
+      ValidatedK8sResource = ::Util::TrackableLogMessageClass.new(
+        msg: "Validated K8s resource. Type:'{0}', Name: {1}",
+        code: "CONJ00051D"
       )
     end
 

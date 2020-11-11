@@ -204,7 +204,7 @@ module Errors
       )
 
       ContainerNotFound = ::Util::TrackableErrorClass.new(
-        msg:  "Container {0} was not found in the pod. Host id: {1}",
+        msg:  "Container '{0}' was not found in the pod. Host id: {1}",
         code: "CONJ00028E"
       )
 

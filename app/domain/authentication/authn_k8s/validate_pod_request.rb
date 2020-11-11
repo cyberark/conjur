@@ -10,18 +10,19 @@ module Authentication
       dependencies: {
         resource_class:                      Resource,
         k8s_object_lookup_class:             K8sObjectLookup,
-        validate_webservice_is_whitelisted:  ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
-        validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
-        enabled_authenticators:              Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
-        validate_resource_restrictions:      ValidateResourceRestrictions.new,
-        extract_container_name: ExtractContainerName.new,
-        logger: Rails.logger
+        validate_webservice_is_whitelisted:  Security::ValidateWebserviceIsWhitelisted.new,
+        validate_role_can_access_webservice: Security::ValidateRoleCanAccessWebservice.new,
+        enabled_authenticators:              InstalledAuthenticators.enabled_authenticators_str(ENV),
+        validate_resource_restrictions:      ResourceRestrictions::ValidateResourceRestrictions.new(
+          extract_resource_restrictions:      ExtractK8sResourceRestrictions.new
+        ),
+        authentication_request_class:        AuthenticationRequest,
+        k8s_resource_validator_class:        K8sResourceValidator,
+        extract_container_name:              ExtractContainerName.new,
+        logger:                              Rails.logger
       },
       inputs:       %i(pod_request)
     ) do
-
-      AUTHENTICATION_CONTAINER_NAME_ANNOTATION ||= "authentication-container-name"
-      DEFAULT_AUTHENTICATION_CONTAINER_NAME ||= "authenticator"
 
       extend Forwardable
       def_delegators :@pod_request, :service_id, :k8s_host, :spiffe_id
@@ -63,20 +64,36 @@ module Authentication
       end
 
       def validate_resource_restrictions
-        @validate_resource_restrictions.(
-          host_id: k8s_host.conjur_host_id,
-          host_annotations: host.annotations,
+        @validate_resource_restrictions.call(
+          authenticator_name: AUTHENTICATOR_NAME,
           service_id: service_id,
           account: k8s_host.account,
-          spiffe_id: spiffe_id
+          role_name: k8s_host.k8s_host_name,
+          constraints: Restrictions::CONSTRAINTS,
+          authentication_request: authentication_request
+        )
+      end
+
+      def authentication_request
+        @authentication_request_class.new(
+          namespace: pod_namespace,
+          k8s_resource_validator: k8s_resource_validator
+        )
+      end
+
+      def k8s_resource_validator
+        @k8s_resource_validator_class.new(
+          k8s_object_lookup: k8s_object_lookup,
+          pod: pod
         )
       end
 
       def validate_container
         unless container
-          raise Errors::Authentication::AuthnK8s::ContainerNotFound,
-                container_name,
-                k8s_host.conjur_host_id
+          raise Errors::Authentication::AuthnK8s::ContainerNotFound.new(
+            container_name,
+            k8s_host.conjur_host_id
+          )
         end
       end
 
@@ -87,7 +104,7 @@ module Authentication
 
       def container_name
         @extract_container_name.call(
-          service_id: @service_id,
+          service_id: service_id,
           host_annotations: host.annotations
         )
       end
@@ -96,7 +113,7 @@ module Authentication
       def webservice
         @webservice ||= ::Authentication::Webservice.new(
           account:            k8s_host.account,
-          authenticator_name: 'authn-k8s',
+          authenticator_name: AUTHENTICATOR_NAME,
           service_id:         service_id
         )
       end

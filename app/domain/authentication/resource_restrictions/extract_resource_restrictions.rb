@@ -5,7 +5,7 @@ module Authentication
 
     ExtractResourceRestrictions = CommandClass.new(
       dependencies: {
-        resource_restrictions_class: Authentication::ResourceRestrictions::ResourceRestrictions,
+        resource_restrictions_class: ResourceRestrictions::ResourceRestrictions,
         role_class:                  ::Role,
         resource_class:              ::Resource,
         logger:                      Rails.logger

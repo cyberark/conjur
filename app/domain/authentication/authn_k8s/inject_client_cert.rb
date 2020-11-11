@@ -5,8 +5,6 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
-    KUBERNETES_AUTHENTICATOR_NAME = 'authn-k8s'
-
     InjectClientCert ||= CommandClass.new(
       dependencies: {
         logger:                         Rails.logger,
@@ -139,7 +137,7 @@ module Authentication
       def webservice
         ::Authentication::Webservice.new(
           account:            @conjur_account,
-          authenticator_name: KUBERNETES_AUTHENTICATOR_NAME,
+          authenticator_name: AUTHENTICATOR_NAME,
           service_id:         @service_id
         )
       end
@@ -161,7 +159,7 @@ module Authentication
       def audit_success
         @audit_log.log(
           Audit::Event::Authn::InjectClientCert.new(
-            authenticator_name: KUBERNETES_AUTHENTICATOR_NAME,
+            authenticator_name: AUTHENTICATOR_NAME,
             service:            webservice,
             role_id:            host.id,
             client_ip:          @client_ip,
@@ -174,7 +172,7 @@ module Authentication
       def audit_failure(err)
         @audit_log.log(
           Audit::Event::Authn::InjectClientCert.new(
-            authenticator_name: KUBERNETES_AUTHENTICATOR_NAME,
+            authenticator_name: AUTHENTICATOR_NAME,
             service:            webservice,
             role_id:            host.id,
             client_ip:          @client_ip,

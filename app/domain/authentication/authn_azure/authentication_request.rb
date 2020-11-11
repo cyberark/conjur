@@ -7,9 +7,9 @@ module Authentication
         @oid_token_field = oid_token_field
       end
 
-      def valid_restriction?(name, value)
+      def valid_restriction?(restriction)
         value_from_token =
-          case name
+          case restriction.name
           when Restrictions::SUBSCRIPTION_ID
             xms_mirid.subscriptions
           when Restrictions::RESOURCE_GROUP
@@ -20,7 +20,7 @@ module Authentication
             @oid_token_field unless user_assigned_identity?
           end
 
-        value_from_token == value
+        value_from_token == restriction.value
       end
 
       private
