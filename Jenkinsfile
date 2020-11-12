@@ -50,7 +50,7 @@ pipeline {
         stage("Scan Docker Image for fixable issues") {
           steps {
             script {
-              TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short=8 HEAD)')
+              TAG = sh(returnStdout: true, script: 'echo $(git rev-parse --short=8 HEAD)')
             }
             scanAndReport("conjur:${TAG}", "HIGH", false)
           }
@@ -58,7 +58,7 @@ pipeline {
         stage("Scan Docker image for total issues") {
           steps {
             script {
-              TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short=8 HEAD)')
+              TAG = sh(returnStdout: true, script: 'echo $(git rev-parse --short=8 HEAD)')
             }
             scanAndReport("conjur:${TAG}", "NONE", true)
           }
@@ -66,7 +66,7 @@ pipeline {
         stage("Scan UBI-based Docker Image for fixable issues") {
           steps {
             script {
-              TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short=8 HEAD)')
+              TAG = sh(returnStdout: true, script: 'echo $(git rev-parse --short=8 HEAD)')
             }
             scanAndReport("conjur-ubi:${TAG}", "HIGH", false)
           }
@@ -74,7 +74,7 @@ pipeline {
         stage("Scan UBI-based Docker image for total issues") {
           steps {
             script {
-              TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short=8 HEAD)')
+              TAG = sh(returnStdout: true, script: 'echo $(git rev-parse --short=8 HEAD)')
             }
             scanAndReport("conjur-ubi:${TAG}", "NONE", true)
           }
