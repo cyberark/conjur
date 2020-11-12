@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -e
+
+# Note: REPORT_ROOT dependency is defined here.
+# This is executed by the main "ci/test" script after cd-ing into "ci".
+# shellcheck disable=SC1091
+source "./shared.sh"
+
+# Start Conjur with the audit database
+docker-compose up --no-deps -d audit pg
+
+_wait_for_pg audit
+
+# Note: The nested double quotes are needed for the first command involving
+# $REPORT_ROOT but not for the 2nd one where it appears in the variable
+# assignment.
+AUDIT_DATABASE_URL=postgres://postgres@audit/postgres \
+  docker-compose run \
+    -T --rm --no-deps --workdir=/src/conjur-server cucumber -ec "
+      pwd
+      ci/rspec-audit/migratedb
+
+      rm -rf \"$REPORT_ROOT/spec/reports-audit\"
+
+      # Run tests from audit engine directory
+      pushd engines/conjur_audit
+
+      BUNDLE_GEMFILE=/src/conjur-server/Gemfile \
+      CI_REPORTS=$REPORT_ROOT/spec/reports-audit \
+        bundle exec rspec \
+          --format progress \
+          --require ci/reporter/rspec \
+          --format CI::Reporter::RSpecFormatter
+      popd
+    "

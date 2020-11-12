@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -e
+
+# This is executed by the main "ci/test" script after cd-ing into "ci".
+# shellcheck disable=SC1091
+source "./shared.sh"
+
+_run_cucumber_tests authenticators_config

@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -e
+
+# This is executed by the main "ci/test" script after cd-ing into "ci".
+# shellcheck disable=SC1091
+source "./shared.sh"
+# shellcheck disable=SC1091
+source "./jwt/decode_token.sh"
+
+_get_gcp_token_payload() {
+  local gcp_token_file=$1
+  if ! [ -f "$gcp_token_file" ]; then
+    echo "GCP token file '$gcp_token_file' not found."
+    exit 1
+  fi
+
+  gcp_token=$(< "$gcp_token_file")
+
+  decode_jwt_payload "$gcp_token"
+}
+
+# The single arg is a nameref, which this function sets to an array containing
+# items of the form "KEY=VAL".
+_hydrate_gcp_env_args() {
+  local -n arg=$1
+
+  # Dir of this script, with "tokens" appended.
+  local token_dir="test_suites/authenticators_gcp/tokens"
+  local gce_token_file="$token_dir/gce_token_valid"
+  local gcf_token_file="$token_dir/gcf_token_valid"
+
+  local gce_vars
+  local gcf_vars
+
+  readarray -t gce_vars < <(
+    _get_gcp_token_payload "$gce_token_file" | jq -r "\
+      .google.compute_engine.project_id, \
+      .google.compute_engine.instance_name, \
+      .sub, \
+      .email
+    "
+  )
+
+  readarray -t gcf_vars < <(
+    _get_gcp_token_payload "$gcf_token_file" | jq -r ".sub, .email"
+  )
+
+  # Note: Because arg is a nameref.
+  # shellcheck disable=SC2034
+  arg=(
+    "GCE_PROJECT_ID=${gce_vars[0]}"
+    "GCE_INSTANCE_NAME=${gce_vars[1]}"
+    "GCE_SERVICE_ACCOUNT_ID=${gce_vars[2]}"
+    "GCE_SERVICE_ACCOUNT_EMAIL=${gce_vars[3]}"
+
+    "GCF_SERVICE_ACCOUNT_ID=${gcf_vars[0]}"
+    "GCF_SERVICE_ACCOUNT_EMAIL=${gcf_vars[1]}"
+  )
+}
+
+# Note: We pass the name of the function as the last arg, since we're using
+# namerefs.  Also, the empty 2nd argument means "no additional services are
+# needed".
+additional_services=''
+_run_cucumber_tests authenticators_gcp "$additional_services" _hydrate_gcp_env_args

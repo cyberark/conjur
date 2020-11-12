@@ -265,8 +265,9 @@ For most development work, the account will be `cucumber`, which is created when
 
 Conjur has `rspec` and `cucumber` tests.
 
-Note on performance testing: set `WEB_CONCURRENCY: 0` - WEB_CONCURRENCY: 0 is a configuration that is useful for 
-recording accurate coverage data that can be used in the[ci/docker-compose.yml](ci/docker-compose.yml) and
+Note on performance testing: set `WEB_CONCURRENCY: 0` - this configuration is
+useful for recording accurate coverage data that can be used in
+the[ci/docker-compose.yml](ci/docker-compose.yml) and
 [conjur/ci/authn-k8s/dev/dev_conjur.template.yaml](conjur/ci/authn-k8s/dev/dev_conjur.template.yaml).
 This isn't a realistic configuration and should not be used for benchmarking.
 
@@ -305,6 +306,11 @@ $ ./cli exec
 ...
 root@9feae5e5e001:/src/conjur-server#
 ```
+
+### Adding New Test Suites
+
+When adding new test suites, please follow the guidelines in the top comments
+of the file [`ci/test`](https://github.com/cyberark/conjur/blob/master/ci/test).
 
 #### Spin up Open ID Connect (OIDC) Compatible Environment for testing
 

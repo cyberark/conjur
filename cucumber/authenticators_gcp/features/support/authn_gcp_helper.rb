@@ -188,7 +188,10 @@ end
 def read_token_file(token_file_name)
   token = nil
   file = nil
-  path = File.join('./ci/authn-gcp/tokens', token_file_name)
+  path = File.join(
+    './ci/test_suites/authenticators_gcp/tokens',
+    token_file_name
+  )
 
   unless File.exist?(path)
     raise "Token file: '#{path}' not found."
