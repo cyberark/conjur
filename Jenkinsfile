@@ -566,7 +566,7 @@ pipeline {
 def tagWithSHA() {
   sh(
     returnStdout: true,
-    script: 'echo $(< VERSION)-$(git rev-parse --short=8 HEAD)'
+    script: 'echo $(git rev-parse --short=8 HEAD)'
   )
 }
 
