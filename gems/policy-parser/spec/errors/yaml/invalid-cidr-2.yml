@@ -1,0 +1,5 @@
+# 5, 0
+# Invalid IP address or CIDR range '10.0.0.1/24': Value has bits set to right of mask. Did you mean '10.0.0.0/24'?
+- !host
+  id: a-host
+  restricted_to: 10.0.0.1/24

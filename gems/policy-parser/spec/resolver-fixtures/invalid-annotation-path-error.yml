@@ -1,0 +1,7 @@
+policy: |
+  - !host 
+    id: the-host
+    annotations:
+      the-key: ../../the-value
+
+error: "Invalid relative reference: the-host/../../the-value"

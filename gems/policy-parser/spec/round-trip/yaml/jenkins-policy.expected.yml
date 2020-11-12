@@ -1,0 +1,35 @@
+---
+- &3 !role
+  id: Team1
+  kind: jenkins-folder
+- &5 !role
+  id: Team2
+  kind: jenkins-folder
+- - &1 !variable
+    id: aws/target/access_key_id
+  - &2 !variable
+    id: aws/target/secret_access_key
+- &4 !variable
+  id: mongo/target/team1/db/password
+- &6 !variable
+  id: mongo/target/team2/db/password
+- !permit
+  privilege: execute
+  resource:
+  - *1
+  - *2
+  role: *3
+- !permit
+  privilege: execute
+  resource: *4
+  role: *3
+- !permit
+  privilege: execute
+  resource:
+  - *1
+  - *2
+  role: *5
+- !permit
+  privilege: execute
+  resource: *6
+  role: *3

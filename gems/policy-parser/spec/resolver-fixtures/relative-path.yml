@@ -1,0 +1,154 @@
+# Relative paths are resolved into permit and grant statements.
+policy: |
+  # Relative paths don't get any special handling in record creation
+  - !group ../invalid-group
+
+  - !group the-group
+
+  - !policy
+    id: myapp
+    body:
+    - !group the-group
+    - !group the-second-group
+    # Relative paths don't get any special handling in record creation
+    - !group ../the-third-group
+
+    - !variable
+    
+    - !permit
+      # Permit 'role' is expanded as a relative path
+      role: ../the-group
+      privilege: [ read, execute ]
+      resource: !variable
+
+    - !deny
+      # deny 'role' is expanded as a relative path
+      role: ../the-group
+      privilege: [ read, execute ]
+      resource: !variable
+
+    - !permit
+      role: ../the-group
+      privilege: [ read, execute ]
+      # Permit 'resource' is not expanded as a relative path
+      resource: !variable ../the-variable
+
+    - !grant
+      # Grant 'role' is not expanded as a relative path
+      role: ../the-group
+      member: !group the-group
+
+    - !grant
+      role: the-group
+      # Grant 'member' is expanded as a relative path
+      member: !group ../the-group
+
+    - !revoke
+      role: the-group
+      # Revoke 'member' is expanded as a relative path
+      member: !group ../the-group
+
+expectation: |
+  ---
+  - !group
+    account: the-account
+    id: "../invalid-group"
+    owner: !role
+      account: rspec
+      id: default-owner
+      kind: user
+  - !group
+    account: the-account
+    id: the-group
+    owner: !role
+      account: rspec
+      id: default-owner
+      kind: user
+  - !policy
+    account: the-account
+    id: myapp
+    owner: !role
+      account: rspec
+      id: default-owner
+      kind: user
+  - !group
+    account: the-account
+    id: myapp/the-group
+    owner: !role
+      account: the-account
+      id: myapp
+      kind: policy
+  - !group
+    account: the-account
+    id: myapp/the-second-group
+    owner: !role
+      account: the-account
+      id: myapp
+      kind: policy
+  - !group
+    account: the-account
+    id: myapp/../the-third-group
+    owner: !role
+      account: the-account
+      id: myapp
+      kind: policy
+  - !variable
+    account: the-account
+    id: myapp
+    owner: !role
+      account: the-account
+      id: myapp
+      kind: policy
+  - !permit
+    privilege:
+    - read
+    - execute
+    resource: !variable
+      account: the-account
+      id: myapp
+    role: !role
+      account: the-account
+      id: the-group
+  - !deny
+    privilege:
+    - read
+    - execute
+    resource: !variable
+      account: the-account
+      id: myapp
+    role: !role
+      account: the-account
+      id: the-group
+  - !permit
+    privilege:
+    - read
+    - execute
+    resource: !variable
+      account: the-account
+      id: myapp/../the-variable
+    role: !role
+      account: the-account
+      id: the-group
+  - !grant
+    member: !member
+      role: !group
+        account: the-account
+        id: myapp/the-group
+    role: !role
+      account: the-account
+      id: myapp/../the-group
+  - !grant
+    member: !member
+      role: !group
+        account: the-account
+        id: the-group
+    role: !role
+      account: the-account
+      id: myapp/the-group
+  - !revoke
+    member: !member
+      account: the-account
+      id: the-group
+    role: !role
+      account: the-account
+      id: myapp/the-group

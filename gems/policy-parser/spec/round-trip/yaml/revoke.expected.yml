@@ -1,0 +1,6 @@
+---
+- !revoke
+  member: !user
+    id: alice
+  role: !group
+    id: developers

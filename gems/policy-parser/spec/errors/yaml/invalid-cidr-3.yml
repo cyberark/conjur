@@ -1,0 +1,5 @@
+# 5, 0
+# Invalid IP address or CIDR range '2001:db8::/32': Address must be IPv4
+- !host
+  id: a-host
+  restricted_to: 2001:db8::/32

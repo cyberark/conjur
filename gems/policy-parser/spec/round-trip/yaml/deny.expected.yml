@@ -1,0 +1,27 @@
+---
+- !deny
+  privilege: read
+  resource: !variable
+    id: foobar
+  role: !group
+    id: developers
+- !deny
+  privilege:
+  - read
+  - execute
+  resource: !variable
+    id: baz
+  role: !group
+    id: developers
+- !deny
+  privilege: read
+  resource: !variable
+    id: db_password
+  role: !group
+    id: developers
+- !deny
+  privilege: read
+  resource: !variable
+    id: mongo_password
+  role: !group
+    id: developers

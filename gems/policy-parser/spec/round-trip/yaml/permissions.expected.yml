@@ -1,0 +1,12 @@
+---
+- !permit
+  privilege:
+  - read
+  - execute
+  resource: !variable
+    id: foobar
+  role:
+  - !group
+    id: developers
+  - !group
+    id: support

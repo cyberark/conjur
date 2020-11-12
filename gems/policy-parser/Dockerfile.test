@@ -1,0 +1,13 @@
+FROM cyberark/ubuntu-ruby-fips:20.04-latest
+
+RUN mkdir /src
+WORKDIR /src
+
+COPY Gemfile Gemfile
+COPY conjur-policy-parser.gemspec conjur-policy-parser.gemspec
+COPY lib/conjur-policy-parser-version.rb lib/conjur-policy-parser-version.rb
+
+# Make sure the expected version of Bundler is available
+ENV BUNDLER_VERSION=1.17.3
+RUN gem install bundler -v ${BUNDLER_VERSION} && \
+    bundle install

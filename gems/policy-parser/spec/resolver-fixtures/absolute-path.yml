@@ -1,0 +1,41 @@
+# Absolute paths are substituted into owner values.
+policy: |
+  - !group operations
+  - !user bofh
+
+  - !policy
+    id: database
+    owner: !group /operations
+    body:
+    - !policy
+      id: production
+      owner: !user /bofh
+    
+expectation: |
+  ---
+  - !group
+    account: the-account
+    id: operations
+    owner: !role
+      account: rspec
+      id: default-owner
+      kind: user
+  - !user
+    account: the-account
+    id: bofh
+    owner: !role
+      account: rspec
+      id: default-owner
+      kind: user
+  - !policy
+    account: the-account
+    id: database
+    owner: !group
+      account: the-account
+      id: operations
+  - !policy
+    account: the-account
+    id: database/production
+    owner: !user
+      account: the-account
+      id: bofh

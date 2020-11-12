@@ -1,0 +1,43 @@
+- !role
+  kind: jenkins-folder
+  id: team-1
+
+- !resource
+  kind: variable
+  id: my-secret
+
+- !user
+  id: alice
+  annotations:
+    skills: [ red-tape-cutting, long-jacket-wearing ]
+
+- !user bob
+
+- !group
+  id: developers
+  
+- !group operations
+
+- !host myapp-01.example.com
+
+- !host
+  id: myapp-02.example.com
+
+- !layer myapp
+
+- !layer
+  id: yourapp
+
+- !variable db-password
+
+- !variable
+  id: bank-vault-combination
+  kind: combination
+  mime_type: text/plain
+
+- !webservice release-bot
+
+- !webservice
+  id: quake2-server
+
+  

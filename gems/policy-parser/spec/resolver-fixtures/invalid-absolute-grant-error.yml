@@ -1,0 +1,9 @@
+policy: |
+  - !group root-owner
+  - !policy
+    id: myapp
+    body:
+    - !grant
+      role: !group /root-owner
+      member: !user
+error: "Illegal absolute id: /root-owner"

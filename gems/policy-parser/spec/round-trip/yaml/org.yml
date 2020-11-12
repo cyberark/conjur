@@ -1,0 +1,79 @@
+# An example of an organization built with Conjur DSL.
+# In practice this would be loaded in multiple steps:
+#
+# Step 1 - conjur bootstrap - global data
+# Step 2 - Users and groups imported from LDAP
+# Step 3 - Load policies
+# Step 4 - Load entitlements
+# 
+# This document shows Step 1 and Step 2
+
+# Step 1 - Create the global group "everyone"
+
+# Global group fixture.
+- !group
+  id: everyone
+
+# Step 2 - Load users and groups
+  
+# Groups imported from LDAP
+- !group
+  id: role_messaging
+  gidnumber: 10403
+  annotations:
+    "ldap-sync/source": "ldap://util4002.ldap.internal"
+- !group
+  id: role_metadata
+  gidnumber: 10404
+  annotations:
+    "ldap-sync/source": "ldap://util4002.ldap.internal"
+- !group
+  id: role_storage
+  gidnumber: 10405
+  annotations:
+    "ldap-sync/source": "ldap://util4002.ldap.internal"
+
+# Users imported from LDAP
+- !user
+  id: alice
+  uidnumber: 1003
+  annotations:
+    "ldap-sync/source": "ldap://util4002.ldap.internal"
+- !user
+  id: bob
+  uidnumber: 1004
+  annotations:
+    "ldap-sync/source": "ldap://util4002.ldap.internal"
+- !user
+  id: charles
+  uidnumber: 1005
+  annotations:
+    "ldap-sync/source": "ldap://util4002.ldap.internal"
+
+# Ensure that all the LDAP users and groups are included in "everyone".
+- !grant
+  role: !group everyone
+  members:
+  - !group role_messaging
+  - !group role_metadata
+  - !group role_storage
+  - !user alice
+  - !user bob
+  - !user charles
+
+# Place the users into groups.
+- !grant
+  role: !group role_messaging
+  member: !user alice
+- !grant
+  role: !group role_metadata
+  member: !user bob
+  
+# Permit the "everyone" group to read every user
+- !permit
+  privilege: read
+  role: !group everyone
+  resources: 
+  - !user alice
+  - !user bob
+  - !user charles

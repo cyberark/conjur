@@ -23,8 +23,9 @@ ADD .pryrc /root
 
 WORKDIR /src/conjur-server
 
-ADD Gemfile      .
-ADD Gemfile.lock .
+COPY Gemfile \
+     Gemfile.lock ./
+COPY gems/ gems/
 
 RUN bundle
 
