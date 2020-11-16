@@ -42,12 +42,15 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
     :namespace                               => spiffe_namespace) }
   let(:pod_request) { double("PodRequest", :k8s_host => k8s_host,
     :spiffe_id                                       => spiffe_id) }
-  let(:pod_spec) { double("PodSpec") }
+  let(:pod_container) { double("PodContainer", :name => nil) }
+  let(:pod_spec) { double("PodSpec", :containers => [pod_container]) }
   let(:pod) { double("Pod", :spec => pod_spec) }
 
   let(:k8s_object_lookup_class) { double("K8sObjectLookup") }
 
   let(:validate_resource_restrictions) { double("ValidateResourceRestrictions") }
+
+  let(:authentication_request_class) { double("AuthenticationRequest") }
 
   before(:each) do
     allow(resource_class).to receive(:[])
@@ -63,11 +66,13 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
     allow(k8s_object_lookup_class).to receive(:new)
                                         .and_return(k8s_object_lookup_class)
 
-    allow(Authentication::AuthnK8s::ValidateResourceRestrictions)
+    allow(Authentication::ResourceRestrictions::ValidateResourceRestrictions)
       .to receive(:new)
             .and_return(validate_resource_restrictions)
     allow(validate_resource_restrictions).to receive(:call)
                                               .and_return(true)
+    allow(authentication_request_class).to receive(:new)
+                                               .and_return(authentication_request_class)
   end
 
   context "A ValidatePodRequest invocation" do
@@ -79,7 +84,8 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
           validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
           validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
           enabled_authenticators:              "#{authenticator_name}/#{service_id}",
-          validate_resource_restrictions:      validate_resource_restrictions
+          validate_resource_restrictions:      validate_resource_restrictions,
+          authentication_request_class:        authentication_request_class
         ).call(
           pod_request: pod_request
         )
@@ -144,7 +150,8 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
           validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: false),
           validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
           enabled_authenticators:              "#{authenticator_name}/#{service_id}",
-          validate_resource_restrictions:      validate_resource_restrictions
+          validate_resource_restrictions:      validate_resource_restrictions,
+          authentication_request_class:        authentication_request_class
         ).call(
           pod_request: pod_request
         )
@@ -167,7 +174,8 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
           validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
           validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: false),
           enabled_authenticators:              "#{authenticator_name}/#{service_id}",
-          validate_resource_restrictions:      validate_resource_restrictions
+          validate_resource_restrictions:      validate_resource_restrictions,
+          authentication_request_class:        authentication_request_class
         ).call(
           pod_request: pod_request
         )
@@ -190,7 +198,8 @@ RSpec.describe Authentication::AuthnK8s::ValidatePodRequest do
           validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
           validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
           enabled_authenticators:              "#{authenticator_name}/#{service_id}",
-          validate_resource_restrictions:      validate_resource_restrictions
+          validate_resource_restrictions:      validate_resource_restrictions,
+          authentication_request_class:        authentication_request_class
         ).call(
           pod_request: pod_request
         )

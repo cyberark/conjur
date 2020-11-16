@@ -30,6 +30,9 @@ Feature: A permitted Conjur host can login with a valid resource restrictions
   Scenario: Login as the namespace a pod belongs to when the constraint is on the authenticator.
     Then I can login to pod matching "app=inventory-pod" to authn-k8s as "test-app-service-id-constraint" with prefix "host/some-policy"
 
+  Scenario: Login as the namespace a pod belongs to when a constraint defined twice: on the authenticator and granular.
+    Then I can login to pod matching "app=inventory-pod" to authn-k8s as "test-app-service-id-and-general-constraint" with prefix "host/some-policy"
+
   Scenario: Login with a host defined in the root policy
     Then I can login to pod matching "app=inventory-pod" to authn-k8s as "root-based-app" with prefix "host"
 
@@ -51,3 +54,20 @@ Feature: A permitted Conjur host can login with a valid resource restrictions
 
   Scenario: Login without the "authentication-container-name" annotation defaults to "authenticator" and succeeds
     Then I can login to pod matching "app=inventory-pod" to authn-k8s as "test-app-no-container-annotation" with prefix "host/some-policy"
+
+  Scenario: Login with "kubernetes/authentication-container-name" annotation and succeeds
+    Then I can login to pod matching "app=inventory-pod" to authn-k8s as "test-app-kubernetes-container-annotation" with prefix "host/some-policy"
+
+  Scenario: It raises an error when logging in from a container which does not match the one configured in the host
+    When I login to pod matching "app=inventory-pod" to authn-k8s as "test-app-incorrect-container-annotation" with prefix "host/some-policy"
+    Then the HTTP status is "401"
+
+  Scenario: Login when the "authentication-container-name" annotation defined twice: on the authenticator and granular.
+    Then I can login to pod matching "app=inventory-pod" to authn-k8s as "test-app-service-id-and-granular-container-annotation" with prefix "host/some-policy"
+
+  Scenario: Login when the "authentication-container-name" annotation defined twice: granular and with 'kubernetes' prefix.
+    Then I can login to pod matching "app=inventory-pod" to authn-k8s as "test-app-authn-and-kubernetes-container-annotation" with prefix "host/some-policy"
+
+  Scenario: It raises an error when logging in from a container which does not match the one configured in the host for the service-id, although it is configured correctly for both granular and with 'kubernetes' prefix.
+    When I login to pod matching "app=inventory-pod" to authn-k8s as "test-app-incorrect-service-id-container-annotation" with prefix "host/some-policy"
+    Then the HTTP status is "401"

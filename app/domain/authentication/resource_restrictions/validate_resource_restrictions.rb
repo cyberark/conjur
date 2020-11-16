@@ -66,10 +66,11 @@ module Authentication
       def validate_request_matches_resource_restrictions
         @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatingResourceRestrictionsValues.new)
 
-        resource_restrictions.each do |restriction_name, restriction_value|
-          if @authentication_request.retrieve_attribute(restriction_name) != restriction_value
-            raise Errors::Authentication::ResourceRestrictions::InvalidResourceRestrictions, restriction_name
-          end
+        resource_restrictions.each do |restriction|
+          @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatingResourceRestrictionOnRequest.new(restriction.name))
+
+          next if @authentication_request.valid_restriction?(restriction)
+          raise Errors::Authentication::ResourceRestrictions::InvalidResourceRestrictions, restriction.name
         end
 
         @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatedResourceRestrictionsValues.new)

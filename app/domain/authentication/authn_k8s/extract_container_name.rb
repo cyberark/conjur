@@ -12,7 +12,6 @@ module Authentication
       inputs: %i(service_id host_annotations)
     ) do
 
-      AUTHENTICATION_CONTAINER_NAME_ANNOTATION = "authentication-container-name"
       DEFAULT_AUTHENTICATION_CONTAINER_NAME = "authenticator"
 
       def call
@@ -22,9 +21,10 @@ module Authentication
       private
 
       def container_name
-        annotation_value("authn-k8s/#{@service_id}/#{AUTHENTICATION_CONTAINER_NAME_ANNOTATION}") ||
-          annotation_value("authn-k8s/#{AUTHENTICATION_CONTAINER_NAME_ANNOTATION}") ||
-          annotation_value("kubernetes/#{AUTHENTICATION_CONTAINER_NAME_ANNOTATION}") ||
+        annotation_name = Restrictions::AUTHENTICATION_CONTAINER_NAME
+        annotation_value("authn-k8s/#{@service_id}/#{annotation_name}") ||
+          annotation_value("authn-k8s/#{annotation_name}") ||
+          annotation_value("kubernetes/#{annotation_name}") ||
           default_authentication_container_name
       end
 
@@ -41,7 +41,7 @@ module Authentication
       def default_authentication_container_name
         @logger.debug(
           LogMessages::Authentication::ContainerNameAnnotationDefaultValue.new(
-            AUTHENTICATION_CONTAINER_NAME_ANNOTATION,
+            Restrictions::AUTHENTICATION_CONTAINER_NAME,
             DEFAULT_AUTHENTICATION_CONTAINER_NAME
           )
         )

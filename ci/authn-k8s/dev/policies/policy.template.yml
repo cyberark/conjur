@@ -100,12 +100,12 @@
     - !host
       id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/*/*
       annotations:
-        kubernetes/authentication-container-name: authenticator
+        authn-k8s/authentication-container-name: authenticator
 
     - !host
       id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/pod/inventory-pod
       annotations:
-        kubernetes/authentication-container-name: authenticator
+        authn-k8s/authentication-container-name: authenticator
 
     - !host
       id: test-app-namespace
@@ -170,6 +170,13 @@
         authn-k8s/authentication-container-name: authenticator
 
     - !host
+      id: test-app-service-id-and-general-constraint
+      annotations:
+        authn-k8s/minikube/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        authn-k8s/namespace: incorrect-namespace
+        authn-k8s/authentication-container-name: authenticator
+
+    - !host
       id: test-app-incorrect-namespace
       annotations:
         authn-k8s/namespace: incorrect-namespace
@@ -193,6 +200,40 @@
       id: test-app-no-container-annotation
       annotations:
         authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+
+    - !host
+      id: test-app-kubernetes-container-annotation
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        kubernetes/authentication-container-name: authenticator
+
+    - !host
+      id: test-app-incorrect-container-annotation
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        authn-k8s/authentication-container-name: incorrect-container-name
+
+    - !host
+      id: test-app-service-id-and-granular-container-annotation
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        authn-k8s/minikube/authentication-container-name: authenticator
+        authn-k8s/authentication-container-name: incorrect-container-name
+
+    - !host
+      id: test-app-authn-and-kubernetes-container-annotation
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        authn-k8s/authentication-container-name: authenticator
+        kubernetes/authentication-container-name: incorrect-container-name
+
+    - !host
+      id: test-app-incorrect-service-id-container-annotation
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        kubernetes/authentication-container-name: authenticator
+        authn-k8s/authentication-container-name: authenticator
+        authn-k8s/minikube/authentication-container-name: incorrect-container-name
 
   - !grant
     role: !layer
