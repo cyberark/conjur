@@ -42,7 +42,7 @@ pipeline {
     stage('Build and test Conjur') {
       when {
         expression {
-         sh(returnStatus: true, script: 'git diff  origin/master --name-only | grep -v "^*.md$" > /dev/null') == 0
+         sh(returnStatus: true, script: 'git diff  origin/master --name-only | grep -v "[.]md$" > /dev/null') == 0
         }
       }
       stages {
