@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   will be published to RedHat Container Registry.
   [cyberark/conjur#1883](https://github.com/cyberark/conjur/issues/1883)
 
+### Fixed
+- Policy loading no longer fails when attempting to update the annotation
+  search index for a resource that no longer exists. [cyberark/conjur#1948](https://github.com/cyberark/conjur/issues/1948)
+
 ## [1.11.0] - 2020-11-06
 ### Added
 - GCP authenticator (`authn-gcp`) supports authenticating from Google Cloud Function (GCF)
