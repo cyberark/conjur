@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+- Policy loading no longer fails when attempting to update the annotation
+  search index for a resource that no longer exists. [cyberark/conjur#1948](https://github.com/cyberark/conjur/issues/1948
+
 ## [1.11.0+dap.1] - 2020-11-10
 ### Security
 - Kubernetes authenticator certificate injection process now performs certificate
