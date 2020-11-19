@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.11.1] - 2020-11-19
 ### Added
 - UBI-based Conjur image to support Conjur server running on OpenShift. Image
   will be published to RedHat Container Registry.
@@ -476,7 +477,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.1...HEAD
+[1.11.1]: https://github.com/cyberark/conjur/compare/v1.11.0...v1.11.1
 [1.11.0]: https://github.com/cyberark/conjur/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/cyberark/conjur/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/cyberark/conjur/compare/v1.8.1...v1.9.0
