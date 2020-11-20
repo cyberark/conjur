@@ -341,14 +341,24 @@ pipeline {
       }
     }
 
-    stage('Publish Docker image') {
-      when {
-        // Only run this stage when it's a tag build matching vA.B.C
-        tag pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+\$", comparator: "REGEXP"
-      }
+    stage('Publish Docker Image') {
+      parallel {
+        stage('External Images') {
+          when {
+            // Only run this stage when it's a tag build matching vA.B.C
+            tag pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+\$", comparator: "REGEXP"
+          }
 
-      steps {
-        sh './push-image.sh'
+          steps {
+            sh './push-image.sh external'
+          }
+        }
+
+        stage('Internal Images') {
+         steps {
+            sh './push-image.sh internal'
+          } 
+        }
       }
     }
 
