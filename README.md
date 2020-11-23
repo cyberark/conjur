@@ -200,7 +200,9 @@ community. Commercial licenses are also available
 from [CyberArk](https://www.cyberark.com).
 
 The Conjur API clients and other extensions are licensed under
-the [Apache Software License v2.0][apache]
+the [Apache Software License v2.0][apache].
+
+Copyright (c) 2020 CyberArk Software Ltd. All rights reserved.
 
 [apache]: http://www.apache.org/licenses/LICENSE-2.0
 [lgpl]: https://www.gnu.org/licenses/lgpl-3.0.en.html
