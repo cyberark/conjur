@@ -30,30 +30,30 @@ REDHAT_IMAGE="scan.connect.redhat.com/ospid-9fb7aea1-0c01-4527-8def-242f3cde7dc6
 INTERNAL_IMAGES=("$CONJUR_REGISTRY/conjur" "$CONJUR_REGISTRY/$IMAGE_NAME")
 
 function main() {
-  # always push VERSION-SHA tags to our registry
+  # Push the VERSION-SHA tag to our internal registry
   tag_and_push "$TAG" "$SOURCE_IMAGE" "${INTERNAL_IMAGES[@]}"
 
-  # this script is only auto-triggered on a tag, so it will always publish
-  # releases to DockerHub
+  # Push the latest tag to our internal registry
   tag_and_push latest "$SOURCE_IMAGE" "${INTERNAL_IMAGES[@]}"
 
-  # Only do 1-stable and 1.2-stable for 1.2.3-dev.  1.2.3-stable doesn't make
-  # sense if there is a released version called 1.2.3
+  # Push 1-stable and 1.x-stable for 1.x.y tag to our internal registry
+  # Strip the "v" prefix from the tag name before computing major / minor
+  # tag versions.
   local prefix_versions
-  readarray -t prefix_versions < <(gen_versions "$TAG_NAME")
+  readarray -t prefix_versions < <(gen_versions "${TAG_NAME//"v"}")
   for v in "${prefix_versions[@]}"; do
     tag_and_push "$v-stable" "$SOURCE_IMAGE" "${INTERNAL_IMAGES[@]}"
   done
 
-  for v in latest "$TAG_NAME" "${prefix_versions[@]}"; do
+  # Strip the "v" prefix from the tag name and push
+  # latest, 1.x.y, 1.x, and 1 to DockerHub
+  for v in latest "${TAG_NAME//"v"}" "${prefix_versions[@]}"; do
     tag_and_push "$v" "$SOURCE_IMAGE" "$IMAGE_NAME"
   done
 
-  # Publish only the tag version to the Redhat Registries
-  # Note: We want $REDHAT_API_KEY to expand inside bash -c, not here.
-  # shellcheck disable=SC2016
+  # Publish only the tag version to the Redhat container registry
   if docker login scan.connect.redhat.com -u unused -p "$REDHAT_API_KEY"; then
-    tag_and_push "$VERSION" "$RH_SOURCE_IMAGE" "$REDHAT_IMAGE"
+    tag_and_push "${TAG_NAME//"v"}" "$RH_SOURCE_IMAGE" "$REDHAT_IMAGE"
   else
     echo 'Failed to log in to scan.connect.redhat.com'
     exit 1
