@@ -80,7 +80,12 @@ see [RubyMine IDE Debugging](#rubymine-ide-debugging) or [Visual Studio Code IDE
 The `dev` directory contains a `docker-compose` file which creates a development
 environment with a database container (`pg`, short for *postgres*), and a
 `conjur` server container with source code mounted into the directory
-`/src/conjur-server`.
+`/src/conjur-server`. `conjur` listens on `127.0.0.1:3000`.
+
+Also, there's a `proxy` container that wraps the conjur server with HTTPS
+redirection using nginx. `proxy` listens on `127.0.0.1:8443`.
+It redirects any HTTPS connection, and also supports client certificate
+needed for `authn-k8s`.
 
 To use it:
 
@@ -133,6 +138,27 @@ To use it:
     $ ./stop
     ```
     Running `stop` removes the running Docker Compose containers and the data key.
+
+#### K8s Authentication
+
+To authenticate to conjur using authn-k8s, you will need to have local k8s environment with access to your machine (the host).
+The following example will use k8s from `docker-for-desktop` to authenticate using the authn-k8s in your dev conjur.
+
+```sh-session
+$ cd dev
+$ ./start --authn-k8s
+...
+root@f39015718062:/src/conjur-server#
+```
+
+This example uses the [conjur-authn-k8s-client](https://github.com/cyberark/conjur-authn-k8s-client/)
+repo and follows these docs: [Kubernetes Authenticator Client](https://docs.conjur.org/Latest/en/Content/Integrations/Kubernetes_deployAuthenticatorSidecar.htm).
+
+The `--authn-k8s` flag will:
+* Enable `authn-k8s/dev` authenticator
+* Create a host `test/authn-client-host`
+* Creates a namespace `authn-ns` where all relevant k8s resources are created
+* Create a StatefulSet named `authn-client` with conjur-authn-k8s-client that regularly authenticates using this authenticator
 
 #### LDAP Authentication
 

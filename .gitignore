@@ -63,3 +63,6 @@ docs/_site/
 docs/.sass-cache
 
 gems/*/Gemfile.lock
+
+# dev nginx certificates
+/dev/conf/tls/nginx.*

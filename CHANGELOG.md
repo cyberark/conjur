@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Dev env now includes nginx server to redirect HTTPS connection to conjur
+  and handle mTLS to allow debugging authn-k8s.
+  [cyberark/conjur#1956](https://github.com/cyberark/conjur/issues/1956)
 
 ## [1.11.1] - 2020-11-19
 ### Added

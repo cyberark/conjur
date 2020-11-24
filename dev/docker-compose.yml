@@ -80,6 +80,23 @@ services:
       - pg
       - testdb
 
+  openssl:
+    image: svagi/openssl:latest
+    entrypoint: ["openssl", "req", "-newkey", "rsa:2048", "-days", "365", "-nodes", "-x509", "-config", "tmp/conf/tls.conf", "-extensions", "v3_ca", "-keyout", "tmp/conf/nginx.key", "-out", "tmp/conf/nginx.crt"]
+    volumes:
+      - ./conf/tls/:/tmp/conf
+
+  proxy:
+    image: nginx:1.13.6-alpine
+    ports:
+      - "8443:443"
+    volumes:
+      - ./conf/:/etc/nginx/conf.d/:ro
+      - ./conf/tls/:/etc/nginx/tls/:ro
+    depends_on:
+      - conjur
+      - openssl
+
   client:
     image: cyberark/conjur-cli:5
     entrypoint: sleep

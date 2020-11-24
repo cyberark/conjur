@@ -1,0 +1,13 @@
+- !policy
+  id: test
+  body:
+    - !host
+      id: authn-k8s-host
+      annotations:
+        description: host for demo
+        authn-k8s/namespace: authn-ns
+        kubernetes/authentication-container-name: authn-k8s-client
+
+- !grant
+  member: !host test/authn-k8s-host
+  role: !group conjur/authn-k8s/dev/apps

@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: authn-client
+  labels:
+    app: test-authn-client
+spec:
+  replicas: 1
+  serviceName: authn-client-service
+  selector:
+    matchLabels:
+      app: authn-client
+  template:
+    metadata:
+      labels:
+        app: authn-client
+    spec:
+      serviceAccountName: authn-sa
+      containers:
+        - image: cyberark/conjur-authn-k8s-client
+          imagePullPolicy: IfNotPresent
+          name: authn-k8s-client
+          env:
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+
+            - name: CONJUR_APPLIANCE_URL
+              value:  "https://host.docker.internal:8443"
+
+            - name: CONJUR_AUTHN_URL
+              value:  "https://host.docker.internal:8443/authn-k8s/dev"
+
+            - name: CONJUR_ACCOUNT
+              value:  "cucumber"
+
+            - name: CONJUR_SSL_CERTIFICATE
+              valueFrom:
+                configMapKeyRef:
+                  name: "conjur-cert"
+                  key: ssl-certificate
+
+            - name: CONJUR_AUTHN_LOGIN
+              value: "host/test/authn-k8s-host"
+
+            # sidecar prevents this container from shutting down
+            - name: CONTAINER_MODE
+              value: sidecar
+
+            - name: DEBUG
+              value: "true"
