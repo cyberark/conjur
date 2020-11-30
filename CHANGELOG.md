@@ -15,7 +15,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.11.0] - 2020-11-06
 ### Added
 - GCP authenticator (`authn-gcp`) supports authenticating from Google Cloud Function (GCF)
-  using a GCE instance identity token. See [design](design/authenticators/authn_gcp/authn_gcp_solution_design.md)
+  using a GCE instance identity token.
+  See [design](https://github.com/cyberark/conjur/blob/master/design/authenticators/authn_gcp/authn_gcp_solution_design.md)
   for details. [cyberark/conjur#1804](https://github.com/cyberark/conjur/issues/1804)
 
 ### Changed
@@ -36,8 +37,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.10.0] - 2020-10-16
 ### Added
-- [Documentation](./UPGRADING.md) explaining how to upgrade a Conjur server deployed in a
-  Docker Compose environment. [cyberark/conjur#1528](https://github.com/cyberark/conjur/issues/1528), [cyberark/conjur#1584](https://github.com/cyberark/conjur/issues/1584)
+- [Documentation](https://github.com/cyberark/conjur/blob/master/UPGRADING.md)
+  explaining how to upgrade a Conjur server deployed in a Docker Compose environment.
+  [cyberark/conjur#1528](https://github.com/cyberark/conjur/issues/1528), [cyberark/conjur#1584](https://github.com/cyberark/conjur/issues/1584)
 - When Conjur starts, we now convert blank environment variables to nil. This ensures we treat empty environment values as 
   if the environment variable is not present, rather than attempting to use the empty string value. [cyberark/conjur#1841](https://github.com/cyberark/conjur/issues/1841)
 
