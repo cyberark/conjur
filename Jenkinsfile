@@ -9,6 +9,11 @@ pipeline {
     timeout(time: 1, unit: 'HOURS')
   }
 
+  // "parameterizedCron" is defined by this native Jenkins plugin:
+  //     https://plugins.jenkins.io/parameterized-scheduler/
+  // "getDailyCronString" is defined by us (URL is wrapped):
+  //     https://github.com/conjurinc/jenkins-pipeline-library/blob/master/vars/
+  //     getDailyCronString.groovy
   triggers {
     parameterizedCron(getDailyCronString("%NIGHTLY=true"))
   }
@@ -72,7 +77,8 @@ pipeline {
             )
           }
 
-          // Always run the full pipeline on the master branch (which includes nightly builds)
+          // Always run the full pipeline on the master branch (which includes
+          // nightly builds)
           branch "master"
 
           // Always run the full pipeline on tags of the form v*
@@ -122,6 +128,7 @@ pipeline {
           }
         }
 
+        // TODO: Add comments explaining which env vars are set here.
         stage('Prepare For CodeClimate Coverage Report Submission') {
           steps {
             script {
@@ -133,35 +140,37 @@ pipeline {
 
         stage('Run environment tests in parallel') {
           parallel {
+
             stage('EE FIPS agent tests') {
-                agent { label 'executor-v2-rhel-ee' }
-                when {
-                  beforeAgent true
-                  expression { params.NIGHTLY }
-                }
-                steps {
-                  runConjurTests()
-                  stash(
-                    name: 'testResultEE',
-                    includes: '''
-                      cucumber/*/*.*,
-                      container_logs/*/*,
-                      spec/reports/*.xml,
-                      spec/reports-audit/*.xml,
-                      cucumber/*/features/reports/**/*.xml
-                    '''
-                  )
-                }
-              } // EE FIPS agent tests
+              agent { label 'executor-v2-rhel-ee' }
+              when {
+                beforeAgent true
+                expression { params.NIGHTLY }
+              }
+              steps {
+                runConjurTests()
+                stash(
+                  name: 'testResultEE',
+                  includes: '''
+                    cucumber/*/*.*,
+                    container_logs/*/*,
+                    spec/reports/*.xml,
+                    spec/reports-audit/*.xml,
+                    cucumber/*/features/reports/**/*.xml
+                  '''
+                )
+              }
+            }
 
             stage('Standard agent tests') {
               steps {
                 runConjurTests()
               }
-            } // Standard agent tests
+            }
 
             stage('Azure Authenticator') {
               agent { label 'azure-linux' }
+
               environment {
                 // Why not move this into bash?
                 AZURE_AUTHN_INSTANCE_IP = sh(
@@ -175,12 +184,14 @@ pipeline {
                   returnStdout: true
                 ).trim()
               }
+
               steps {
                 sh(
                   'summon -f ci/test_suites/authenticators_azure/secrets.yml ' +
                     'ci/test authenticators_azure'
                 )
               }
+
               post {
                 always {
                     stash(
@@ -208,6 +219,7 @@ pipeline {
             stage('GCP Authenticator preparation - Allocate GCE Instance') {
               steps {
                 echo '-- Allocating Google Compute Engine'
+
                 script {
                   dir('ci/test_suites/authenticators_gcp') {
                     stash(
@@ -374,7 +386,10 @@ pipeline {
             stage('On a new tag') {
               when {
                 // Only run this stage when it's a tag build matching vA.B.C
-                tag pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+\$", comparator: "REGEXP"
+                tag(
+                  pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+\$",
+                  comparator: "REGEXP"
+                )
               }
 
               steps {
