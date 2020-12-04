@@ -168,7 +168,7 @@ Accounts can be listed, created, and deleted via the `/accounts` service.
 Permission to use this service is controlled by the built-in resource
 `!:webservice:accounts`. Note that `!` is itself an organization account, and
 therefore privileges on the `!:webservice:accounts` can be managed
-via Conjur [policies](https://developer.conjur.net/policy).
+via Conjur [policies](https://docs.conjur.org/Latest/en/Content/Operations/Policy/policy-overview.htm).
 
 ## Versioning
 
