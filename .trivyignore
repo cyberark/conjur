@@ -28,3 +28,36 @@ CVE-2019-19816
 #
 # Performed by @yahalomk approved by @shaharglazner
 CVE-2020-1967
+
+# CVE-2020-1971
+# The X.509 GeneralName type is a generic type for representing different types
+# of names. One of those name types is known as EDIPartyName. OpenSSL provides a
+# function GENERAL_NAME_cmp which compares different instances of a GENERAL_NAME
+# to see if they are equal or not. This function behaves incorrectly when both
+# GENERAL_NAMEs contain an EDIPARTYNAME. A NULL pointer dereference and a crash
+# may occur leading to a possible denial of service attack. 
+# OpenSSL itself uses the GENERAL_NAME_cmp function for two purposes:
+#
+# 1) Comparing CRL distribution point names between an available CRL and a CRL
+#    distribution point embedded in an X509 certificate.
+#
+# 2) When verifying that a timestamp response token signer matches the timestamp
+#    authority name (exposed via the API functions TS_RESP_verify_response and
+#    TS_RESP_verify_token) If an attacker can control both items being compared
+#    then that attacker could trigger a crash.
+#
+# All OpenSSL 1.1.1 and 1.0.2 versions are affected by this issue. Fixed in OpenSSL
+# 1.1.1i (Affected 1.1.1-1.1.1h). Fixed in OpenSSL 1.0.2x (Affected 1.0.2-1.0.2w).
+#
+# In order to support FIPS with OpenSSL we are required to use OpenSSL version
+# 1.0.2 until OpenSSL supports the FIPS module in newer versions. The latest
+# available version to us is 1.0.2u, which does not include this fix.
+#
+# We've determined that we are not impacted by this vulnerability because:
+# - we do not directly perform CRL checks in the Conjur or DAP software
+# - we do not enable automatic CRL checks in openssl tools
+# - we do not call any of the impacted OpenSSL APIs or any of the APIs that expose
+#   impacted behavior.
+#
+# Performed by @micahlee, approved by @andytinkham
+CVE-2020-1971
