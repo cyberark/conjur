@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- Conjur images are updated to use pinned versions of the public base images.
+  Users can now determine exactly which dependencies in the
+  [Conjur Base Image](https://github.com/cyberark/conjur-base-image) project
+  are included in their Conjur image.
+  [cyberark/conjur#1974](https://github.com/cyberark/conjur/issues/1974)
+
 ## [1.11.1] - 2020-11-19
 ### Added
 - UBI-based Conjur image to support Conjur server running on OpenShift. Image
