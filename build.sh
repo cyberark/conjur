@@ -7,11 +7,10 @@ set -ex
 # usage: ./build.sh
 
 # shellcheck disable=SC1091
-. version_utils.sh
+. build_utils.sh
 
 TAG="$(version_tag)"
 jenkins=false # Running on Jenkins (vs local dev machine)
-REGISTRY_TEST_PATH="registry.tld/test"
 
 while [[ $# -gt 0 ]]
 do
@@ -55,7 +54,7 @@ function flatten() {
 # 1. Always, when we're developing locally
 # 2. Only if it doesn't already exist, when on Jenkins
 image_needs_building() {
-  [[ $jenkins = true ]] && 
+  [[ $jenkins = true ]] &&
     # doesn't already exist
     [[ "$(docker images -q "$1" 2> /dev/null)" == "" ]]
 }
@@ -64,33 +63,16 @@ if image_needs_building "conjur:$TAG"; then
   echo "Building image conjur:$TAG"
   docker build -t "conjur:$TAG" .
   flatten "conjur:$TAG"
-  docker tag "conjur:$TAG" "$REGISTRY_TEST_PATH/conjur:$TAG"
-
-# Pushing conjur:$TAG and conjur-test:$TAG images to registry at this early stage (before tests)
-# is done to allow image reuse on all agents instead of rebuilding them
-# thus reducing time and using best practice of testing same artifact
-# since conjur-test image is not flatten and based on conjur we are also reusing layers
-# nevertheless, images has "test" prefix to allow future aggregated purging
-  echo "Pushing image $REGISTRY_TEST_PATH/conjur:$TAG"
-  docker push "$REGISTRY_TEST_PATH/conjur:$TAG"
 fi
 
 if image_needs_building "conjur-test:$TAG"; then
   echo "Building image conjur-test:$TAG container"
   docker build --build-arg "VERSION=$TAG" -t "conjur-test:$TAG" -f Dockerfile.test .
-  docker tag "conjur-test:$TAG" "$REGISTRY_TEST_PATH/conjur-test:$TAG"
-
-  echo "Pushing image $REGISTRY_TEST_PATH/conjur-test:$TAG"
-  docker push "$REGISTRY_TEST_PATH/conjur-test:$TAG"
 fi
 
 if image_needs_building "conjur-ubi:$TAG"; then
   echo "Building image conjur-ubi:$TAG container"
   docker build --build-arg "VERSION=$TAG" -t "conjur-ubi:$TAG" -f Dockerfile.ubi .
-  docker tag "conjur-ubi:$TAG" "$REGISTRY_TEST_PATH/conjur-ubi:$TAG"
-
-  echo "Pushing image $REGISTRY_TEST_PATH/conjur-ubi:$TAG"
-  docker push "$REGISTRY_TEST_PATH/conjur-ubi:$TAG"
 fi
 
 if [[ $jenkins = false ]]; then

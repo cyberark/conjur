@@ -71,10 +71,10 @@ pipeline {
               '''
             )
           }
-          
+
           // Always run the full pipeline on nightly builds
           expression { params.NIGHTLY }
-          
+
           // Always run the full pipeline on tags of the form v*
           tag "v*"
         }
@@ -86,6 +86,14 @@ pipeline {
               env.FULL_BUILD = "true"
             }
             sh './build.sh --jenkins'
+          }
+        }
+
+        stage('Push images to internal registry') {
+          steps {
+            // Push images to the internal registry so that they can be used
+            // by tests, even if the tests run on a different executor.
+            sh './push-image.sh --registry-prefix=registry.tld'
           }
         }
 
@@ -162,7 +170,7 @@ pipeline {
                 ).trim()
                 // Why not move this into bash?
                 SYSTEM_ASSIGNED_IDENTITY = sh(
-                  script: 'ci/test_suites/authenticators_azure/' + 
+                  script: 'ci/test_suites/authenticators_azure/' +
                     'get_system_assigned_identity.sh',
                   returnStdout: true
                 ).trim()
@@ -188,7 +196,7 @@ pipeline {
               }
             }
             /**
-            * GCP Authenticator -- Token Stashing -- Stage 1 of 3 
+            * GCP Authenticator -- Token Stashing -- Stage 1 of 3
             *
             * In this stage, a GCE instance node is allocated, a script runs
             * and retrieves all the tokens that will be used in authn-gcp
@@ -248,7 +256,7 @@ pipeline {
             }
 
             /**
-            * GCP Authenticator -- Allocate Function -- Stage 2 of 3 
+            * GCP Authenticator -- Allocate Function -- Stage 2 of 3
             *
             * In this stage, Google SDK container executes a script to deploy a
             * function, the function accepts audience in query string and
@@ -265,7 +273,7 @@ pipeline {
                 GCP_OWNER_SERVICE_KEY_FILE = "sa-key-file.json"
               }
               steps {
-                echo "Waiting for GCP project name (Set by stage: " + 
+                echo "Waiting for GCP project name (Set by stage: " +
                   "'GCP Authenticator preparation - Allocate GCE Instance')"
                 timeout(time: 10, unit: 'MINUTES') {
                   waitUntil {
@@ -312,7 +320,7 @@ pipeline {
               }
             }
             /**
-            * GCP Authenticator -- Run Tests -- Stage 3 of 3 
+            * GCP Authenticator -- Run Tests -- Stage 3 of 3
             *
             * We have two preparation stages before running the GCP
             * Authenticator tests stage.  This stage waits for GCP preparation
@@ -361,14 +369,26 @@ pipeline {
           }
         }
 
-        stage('Publish Docker image') {
-          when {
-            // Only run this stage when it's a tag build matching vA.B.C
-            tag pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+\$", comparator: "REGEXP"
-          }
+        stage('Publish images') {
+          parallel {
+            stage('On a new tag') {
+              when {
+                // Only run this stage when it's a tag build matching vA.B.C
+                tag pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+\$", comparator: "REGEXP"
+              }
 
-          steps {
-            sh 'summon -f ./secrets.yml ./push-image.sh'
+              steps {
+                sh 'summon -f ./secrets.yml ./push-image.sh'
+              }
+            }
+
+            stage('On a master build') {
+              when { branch "master" }
+
+              steps {
+                sh './push-image.sh --edge'
+              }
+            }
           }
         }
 
@@ -569,4 +589,3 @@ def runConjurTests() {
     ])
   }
 }
-
