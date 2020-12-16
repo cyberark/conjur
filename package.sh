@@ -11,6 +11,7 @@ chmod +x docker-debify
   possum \
   -- \
   --depends tzdata
+  --force
 
 # Creates possum rpm
 ./docker-debify package \
@@ -19,3 +20,4 @@ chmod +x docker-debify
   possum \
   -- \
   --depends tzdata
+  --force
