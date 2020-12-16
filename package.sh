@@ -11,7 +11,6 @@ chmod +x docker-debify
   possum \
   -- \
   --depends tzdata \
-  --rpm-rpmbuild-define '_build_id_links none'
 
 # Create possum rpm
 ./docker-debify package \
@@ -19,5 +18,5 @@ chmod +x docker-debify
   --output=rpm \
   possum \
   -- \
-  --depends tzdata
+  --depends tzdata \
   --rpm-rpmbuild-define '_build_id_links none'
