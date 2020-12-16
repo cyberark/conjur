@@ -7,7 +7,7 @@ chmod +x docker-debify
 # Creates possum deb
 ./docker-debify package \
   --dockerfile=Dockerfile.fpm \
-  --output=deb
+  --output=deb \
   possum \
   -- \
   --depends tzdata
@@ -16,7 +16,7 @@ chmod +x docker-debify
 # Creates possum rpm
 ./docker-debify package \
   --dockerfile=Dockerfile.fpm \
-  --output=rpm
+  --output=rpm \
   possum \
   -- \
   --depends tzdata
