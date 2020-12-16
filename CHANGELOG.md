@@ -13,10 +13,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   are included in their Conjur image.
   [cyberark/conjur#1974](https://github.com/cyberark/conjur/issues/1974)
 
-## [1.11.2] - 2020-12-17
-### Added
-- Usage of debify 2.
-
 ## [1.11.1] - 2020-11-19
 ### Added
 - UBI-based Conjur image to support Conjur server running on OpenShift. Image
