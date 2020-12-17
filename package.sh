@@ -13,7 +13,8 @@ chmod +x docker-debify
   --depends tzdata \
 
 # Create possum rpm
-# The flag to avoid packaging build files that are not needed and cause conflict with conjur-ui on install
+# The '--rpm-rpmbuild-define' flag is added to avoid packaging build
+# files that are not needed and cause conflict with conjur-ui on install
 ./docker-debify package \
   --dockerfile=Dockerfile.fpm \
   --output=rpm \
