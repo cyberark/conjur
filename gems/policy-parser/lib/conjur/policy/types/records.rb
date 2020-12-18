@@ -227,7 +227,42 @@ module Conjur
           end
         end
       end
-      
+
+      class PolicyFactory < Record
+        include ActsAsResource
+        include ActsAsRole
+
+        attribute :role,     kind: :role,   singular: true, dsl_accessor: true
+        attribute :base,     kind: :policy, singular: true, dsl_accessor: true
+
+        alias role_accessor role
+
+        def role *args
+          if args.empty?
+            role_accessor || self.owner
+          else
+            role_accessor(*args)
+          end
+        end
+
+        # Don't include template records, these are pointers to
+        # future records, not records in this policy
+        def referenced_records
+          super - Array(@template)
+        end
+
+        def template &block
+          if block_given?
+            singleton :template, lambda { Template.new }, &block
+          end
+          @template ||= []
+        end
+
+        def template= template
+          @template = template
+        end
+      end
+
       class AutomaticRole < Base
         include ActsAsRole
         
