@@ -55,7 +55,7 @@ pipeline {
       when {
         // Run tests only when ANY of the following is true:
         // 1. A non-markdown file has changed.
-        // 2. It's the nightly build.
+        // 2. It's running on the master branch (which includes nightly builds).
         // 3. It's a tag-triggered build.
         anyOf {
           // Note: You cannot use "when"'s changeset condition here because it's
@@ -72,8 +72,8 @@ pipeline {
             )
           }
 
-          // Always run the full pipeline on nightly builds
-          expression { params.NIGHTLY }
+          // Always run the full pipeline on the master branch (which includes nightly builds)
+          branch "master"
 
           // Always run the full pipeline on tags of the form v*
           tag "v*"
