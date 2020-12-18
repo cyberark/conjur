@@ -39,7 +39,7 @@ set -e
 # shellcheck disable=SC1091
 source "./ci/shared.sh"
 # shellcheck disable=SC1091
-source "version_utils.sh"
+source "build_utils.sh"
 
 # Create default value if not set: allows compose to run in isolated namespace
 : "${COMPOSE_PROJECT_NAME:=$(openssl rand -hex 3)}"

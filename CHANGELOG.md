@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- New `edge`-tagged images are published to DockerHub on every master branch
+  build.
+  [cyberark/conjur#1617](https://github.com/cyberark/conjur/issues/1617)
+
 ### Changed
 - Conjur images are updated to use pinned versions of the public base images.
   Users can now determine exactly which dependencies in the
