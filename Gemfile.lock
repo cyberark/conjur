@@ -1,3 +1,12 @@
+GIT
+  remote: https://github.com/cyberark/conjur-api-ruby.git
+  revision: 58df243255fbd1858c493165919740c4abf7e980
+  branch: policy-factory
+  specs:
+    conjur-api (5.3.3)
+      activesupport
+      rest-client
+
 PATH
   remote: gems/policy-parser
   specs:

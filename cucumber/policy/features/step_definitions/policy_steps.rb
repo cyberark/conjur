@@ -32,3 +32,18 @@ Then("the result includes an API key for {string}") do |role_id|
   policy_load_response = JSON.parse(@result)
   expect(policy_load_response.dig('created_roles', role_id, 'api_key')).to be
 end
+
+# Stores the policy document to load in a later step
+Given(/^a policy document:$/) do |policy_body|
+  @policy_body = policy_body
+end
+
+Given(/^the policy context:$/) do |policy_context|
+  @policy_context = policy_context.raw.to_h
+end
+
+When(/^I load the policy into ['"]([^'"]*)['"]$/) do |policy_id|
+  invoke do
+    load_policy policy_id, @policy_body, context: @policy_context
+  end
+end

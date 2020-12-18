@@ -34,6 +34,39 @@ module PolicyHelpers
     end
   end
 
+  def load_root_policy policy
+    conjur_api.load_policy "root", policy, method: Conjur::API::POLICY_METHOD_PUT
+  end
+
+  def update_root_policy policy
+    conjur_api.load_policy "root", policy, method: Conjur::API::POLICY_METHOD_PATCH
+  end
+
+  def extend_root_policy policy
+    conjur_api.load_policy "root", policy, method: Conjur::API::POLICY_METHOD_POST
+  end
+
+  def load_policy id, policy, context: nil
+    conjur_api.load_policy id, policy, method: Conjur::API::POLICY_METHOD_PUT, context: context
+  end
+
+  def update_policy id, policy
+    conjur_api.load_policy id, policy, method: Conjur::API::POLICY_METHOD_PATCH
+  end
+
+  def extend_policy id, policy
+    conjur_api.load_policy id, policy, method: Conjur::API::POLICY_METHOD_POST
+  end
+
+  def make_full_id *tokens
+    super tokens.join(":")
+  end
+
+  def conjur_api
+    login_as_role 'admin', admin_api_key unless @conjur_api
+    @conjur_api
+  end
+
   def json_result
     case @result
     when String

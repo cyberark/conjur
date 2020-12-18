@@ -58,6 +58,7 @@ module Loader
     include Handlers::RestrictedTo
     include Handlers::Password
     include Handlers::PublicKey
+    include Handlers::Provision
 
     attr_reader :policy_version, :create_records, :delete_records, :new_roles, :schemata
 
@@ -138,6 +139,8 @@ module Loader
       store_public_keys
 
       store_restricted_to
+
+      provision_values
     end
 
     def table_data schema = ""

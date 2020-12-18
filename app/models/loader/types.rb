@@ -34,7 +34,9 @@ module Loader
     class Base
       extend Forwardable
 
-      def_delegators :@external_handler, :policy_id, :handle_password, :handle_public_key, :handle_restricted_to
+      def_delegators :@external_handler, :policy_id, :handle_password,
+                     :handle_public_key, :handle_restricted_to,
+                     :handle_provisioning
       def_delegators :@policy_object, :owner, :id
 
       attr_reader :policy_object, :external_handler
@@ -291,6 +293,8 @@ module Loader
         self.annotations["conjur/mime_type"] ||= self.mime_type if self.mime_type
 
         super
+
+        handle_provisioning resource.id if self.annotations.key?('provision/provisioner')
       end
     end
 
