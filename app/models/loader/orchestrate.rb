@@ -74,11 +74,14 @@ module Loader
 
     def initialize(
       policy_version,
+      context: {},
+      # Injected dependencies
       extension_repository: Conjur::Extension::Repository.new,
       feature_flags: Rails.application.config.feature_flags
     )
       @policy_version = policy_version
       @schemata = Schemata.new
+      @context = context
       @feature_flags = feature_flags
 
       # Only attempt to load policy load extensions if the feature is enabled
@@ -91,6 +94,7 @@ module Loader
       @create_records = policy_version.create_records.map do |policy_object|
         Loader::Types.wrap(policy_object, self)
       end
+
       @delete_records = policy_version.delete_records.map do |policy_object|
         Loader::Types.wrap(policy_object, self)
       end

@@ -56,6 +56,9 @@ gem 'rack-rewrite'
 gem 'dry-struct'
 gem 'dry-types'
 gem 'net-ldap'
+# gem 'sass-rails'
+
+gem 'multipart-parser'
 
 # for AWS rotator
 gem 'aws-sdk-iam', require: false

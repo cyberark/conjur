@@ -7,8 +7,8 @@ module Loader
       @loader = loader
     end
 
-    def self.from_policy(policy_version)
-      ModifyPolicy.new(Loader::Orchestrate.new(policy_version))
+    def self.from_policy(policy_version, context: {})
+      ModifyPolicy.new(Loader::Orchestrate.new(policy_version, context: context))
     end
 
     def call
