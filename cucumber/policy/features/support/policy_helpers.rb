@@ -42,8 +42,8 @@ module PolicyHelpers
     conjur_api.load_policy "root", policy, method: Conjur::API::POLICY_METHOD_POST
   end
 
-  def load_policy id, policy
-    conjur_api.load_policy id, policy, method: Conjur::API::POLICY_METHOD_PUT
+  def load_policy id, policy, context: nil
+    conjur_api.load_policy id, policy, method: Conjur::API::POLICY_METHOD_PUT, context: context
   end
 
   def update_policy id, policy

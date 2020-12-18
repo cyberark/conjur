@@ -1,0 +1,13 @@
+--demo
+content-disposition: form-data; name="policy"
+
+- !variable
+  id: provisioned-var
+  annotations:
+    provision/provisioner: context
+    provision/context/parameter: value
+--demo
+content-disposition: form-data; name="value"
+
+my test value
+--demo--
