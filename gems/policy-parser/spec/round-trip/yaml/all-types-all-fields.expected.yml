@@ -35,3 +35,20 @@
   id: release-bot
 - !webservice
   id: quake2-server
+- !policy
+  id: base-policy
+  body: []
+- !policy-factory
+  id: certificates
+  base: 
+    id: base-policy
+  template: 
+    - !policy
+      id: sub-policy
+- !policy-factory
+  id: root-factory
+  owner:
+    id: bob
+  template:
+    - !policy
+      id: sub-policy

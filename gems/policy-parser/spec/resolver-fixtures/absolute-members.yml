@@ -12,6 +12,14 @@ policy: |
             members:
               - !user /alice
 
+  - !policy-factory
+    id: foo-factory
+    template:
+      - !variable
+        id: test
+        owner: !user
+          id: /test              
+
 expectation: |
   ---
   - !user
@@ -51,3 +59,15 @@ expectation: |
     role: !group
       account: the-account
       id: foo/bar/users
+  - !policy-factory
+    account: the-account
+    id: foo-factory
+    owner: !role
+      account: rspec
+      id: default-owner
+      kind: user
+    template:
+      - !variable
+        id: test
+        owner: !user
+          id: /test

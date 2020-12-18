@@ -87,6 +87,11 @@ module Conjur
         def expect_layer name, value
           expect_type name, value, "Layer", lambda{ value.is_a?(Layer) }
         end
+
+        # If it's a Policy
+        def expect_policy name, value
+          expect_type name, value, "Policy", lambda{ value.is_a?(Policy) }
+        end
         
         # If it looks like a resource.
         def expect_resource name, value

@@ -85,6 +85,11 @@ module Conjur
         include Permissions
       end
 
+      class Template < YAMLList
+        include Grants
+        include Permissions
+      end
+
       # Policy includes the functionality of Entitlements, wrapped in a
       # policy role, policy resource, policy id and policy version.
       class Policy < Record
