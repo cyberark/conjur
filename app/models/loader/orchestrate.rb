@@ -61,14 +61,16 @@ module Loader
       annotations: [ :resource_id, :name, :value ]
     }
 
-    def initialize policy_version
+    def initialize policy_version, context: {}
       @policy_version = policy_version
       @schemata = Schemata.new
+      @context = context
 
       # Transform each statement into a Loader type
       @create_records = policy_version.create_records.map do |policy_object|
         Loader::Types.wrap policy_object, self
       end
+
       @delete_records = policy_version.delete_records.map do |policy_object|
         Loader::Types.wrap policy_object, self
       end

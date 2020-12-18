@@ -70,6 +70,7 @@ gem 'dry-types', '~> 0.12.2'
 # gem 'font-awesome-sass', '~> 4.7.0'
 gem 'net-ldap'
 # gem 'sass-rails'
+gem 'multipart-parser'
 
 # for AWS rotator
 gem 'aws-sdk-iam', require: false
