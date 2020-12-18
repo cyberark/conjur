@@ -19,7 +19,12 @@ module BodyParser
       when nil, 'application/x-www-form-urlencoded'
         decode_form_body
       when 'application/json'
-        JSON.parse request.body.read
+        body = request.body.read
+        begin
+          JSON.parse body
+        rescue JSON::JSONError
+          raise ApplicationController::BadRequest, "Unable to parse request json body: #{body}"
+        end
       else
         {}
       end
