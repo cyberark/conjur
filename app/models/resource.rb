@@ -164,6 +164,11 @@ class Resource < Sequel::Model
     SQL
   end
 
+  def push_secret(value)
+    Secret.create resource_id: id, value: value
+    enforce_secrets_version_limit
+  end
+
   def last_secret
     secrets_dataset.order(Sequel.desc(:version)).first
   end
