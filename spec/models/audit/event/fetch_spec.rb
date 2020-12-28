@@ -40,7 +40,6 @@ describe Audit::Event::Fetch do
     end
 
     it 'produces the expected action_sd' do
-      puts subject.action_sd
       expect(subject.action_sd).to eq({:"action@43868"=>{:operation=>"fetch", :result=>"success"}})
     end
 
