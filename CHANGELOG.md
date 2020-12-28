@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Requests with empty body and application/json Content-Type Header will now
   return 400 error instead of 500 error.
   [cyberark/conjur#1968](https://github.com/cyberark/conjur/issues/1968)
+- Conjur now properly sets the 'operation' field of a secret update audit message. 
+  Previously the operation field was always empty.
 
 ## [1.11.1] - 2020-11-19
 ### Added
