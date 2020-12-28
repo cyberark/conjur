@@ -17,7 +17,7 @@ Feature: Adding and fetching secrets
     Given I am a user named "eve"
     Given I create a new "variable" resource called "probe"
 
-  Scenario: Fetching a resource with no secret values returna a 404 error.
+  Scenario: Fetching a resource with no secret values return a a 404 error.
 
     When I GET "/secrets/cucumber/variable/probe"
     Then the HTTP response status code is 404
@@ -25,6 +25,16 @@ Feature: Adding and fetching secrets
   Scenario: Fetching a secret for a nonexistent resource
 
     When I GET "/secrets/cucumber/variable/non-existent"
+    Then the HTTP response status code is 404
+
+  Scenario: Fetching a secret for a resource with no permissions
+
+    When I POST "/secrets/cucumber/variable/probe" with body:
+    """
+    v-1
+    """
+    And I am a user named "alice"
+    And I GET "/secrets/cucumber/variable/probe"
     Then the HTTP response status code is 404
 
   Scenario: The 'conjur/mime_type' annotation is used in the value response.
