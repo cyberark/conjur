@@ -9,12 +9,14 @@ module Audit
         client_ip:,
         resource:,
         success:,
+        operation:,
         error_message: nil
       )
         @user = user
         @client_ip = client_ip
         @resource = resource
         @success = success
+        @operation = operation
         @error_message = error_message
       end
 
@@ -72,6 +74,11 @@ module Audit
         # Note: Changed this to from LOG_AUTH to LOG_AUTHPRIV because the former
         # is deprecated.
         Syslog::LOG_AUTHPRIV
+      end
+
+      # action_sd means "action structured data"
+      def action_sd
+        attempted_action.action_sd
       end
 
       private

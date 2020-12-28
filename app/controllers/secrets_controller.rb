@@ -23,7 +23,8 @@ class SecretsController < RestController
     update_info = error_info.merge(
       resource: resource, 
       user: @current_user,
-      client_ip: request.ip
+      client_ip: request.ip,
+      operation: "update"
     )
 
     Audit.logger.log(
@@ -81,7 +82,8 @@ class SecretsController < RestController
       resource: resource,
       version: version,
       user: current_user,
-      client_ip: request.ip
+      client_ip: request.ip,
+      operation: "fetch"
     )
 
     Audit.logger.log(

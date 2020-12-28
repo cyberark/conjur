@@ -62,6 +62,7 @@ class ResourcesController < RestController
         resource: resource,
         privilege: privilege,
         role: assumed_role,
+        operation: "check",
         success: result
       )
     )

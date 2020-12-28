@@ -9,6 +9,7 @@ module Audit
         resource:,
         success:,
         version:,
+        operation:,
         error_message: nil
       )
         @user = user
@@ -17,6 +18,7 @@ module Audit
         @success = success
         @error_message = error_message
         @version = version
+        @operation = operation
       end
 
       # Note: We want this class to be responsible for providing `progname`.
@@ -26,6 +28,11 @@ module Audit
       # :reek:UtilityFunction
       def progname
         Event.progname
+      end
+
+      # action_sd means "action structured data"
+      def action_sd
+        attempted_action.action_sd
       end
 
       def severity
