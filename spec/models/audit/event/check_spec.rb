@@ -8,6 +8,7 @@ describe Audit::Event::Check do
   let(:role) { double('my-host', id: 'rspec:host:my_host') }
   let(:client_ip) { 'my-client-ip' }
   let(:success) { true }
+  let(:operation) { 'check' }
 
   subject do
     Audit::Event::Check.new(
@@ -16,6 +17,7 @@ describe Audit::Event::Check do
       privilege: privilege,
       role: role,
       client_ip: client_ip,
+      operation: operation,
       success: success
     )
   end
@@ -39,6 +41,10 @@ describe Audit::Event::Check do
       )
     end
 
+    it 'produces the expected action_sd' do
+      expect(subject.action_sd).to eq({:"action@43868"=>{:operation=>"check", :result=>"success"}})
+    end
+
     it_behaves_like 'structured data includes client IP address'
   end
 
@@ -54,6 +60,10 @@ describe Audit::Event::Check do
 
     it 'uses the WARNING log level' do
       expect(subject.severity).to eq(Syslog::LOG_WARNING)
+    end
+
+    it 'produces the expected action_sd' do
+      expect(subject.action_sd).to eq({:"action@43868"=>{:operation=>"check", :result=>"failure"}})
     end
 
     it_behaves_like 'structured data includes client IP address'

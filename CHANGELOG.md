@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [Conjur Base Image](https://github.com/cyberark/conjur-base-image) project
   are included in their Conjur image.
   [cyberark/conjur#1974](https://github.com/cyberark/conjur/issues/1974)
+- Correct unit tests and integration tests for audit, and correct a couple of issues found with them.
+  [cyberark/conjur#1987](https://github.com/cyberark/conjur/issues/1987)
 
 ### Fixed
 - Requests with empty body and application/json Content-Type Header will now

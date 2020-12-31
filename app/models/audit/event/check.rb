@@ -9,6 +9,7 @@ module Audit
         resource:,
         privilege:,
         role:,
+        operation:,
         success:
       )
         @user = user
@@ -16,6 +17,7 @@ module Audit
         @resource = resource
         @privilege = privilege
         @role = role
+        @operation = operation
         @success = success
       end
 
@@ -57,6 +59,11 @@ module Audit
         }.merge(
           attempted_action.action_sd
         )
+      end
+
+      # action_sd means "action structured data"
+      def action_sd
+        attempted_action.action_sd
       end
 
       def facility

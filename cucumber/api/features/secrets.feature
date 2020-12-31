@@ -17,7 +17,16 @@ Feature: Adding and fetching secrets
     Given I am a user named "eve"
     Given I create a new "variable" resource called "probe"
 
-  Scenario: Fetching a resource with no secret values returna a 404 error.
+  Scenario: Update a secret for a resource with no permissions
+
+    When I am a user named "alice"
+    When I POST "/secrets/cucumber/variable/probe" with body:
+    """
+    v-1
+    """
+    Then the HTTP response status code is 404
+
+  Scenario: Fetching a resource with no secret values return a 404 error.
 
     When I GET "/secrets/cucumber/variable/probe"
     Then the HTTP response status code is 404
@@ -25,6 +34,24 @@ Feature: Adding and fetching secrets
   Scenario: Fetching a secret for a nonexistent resource
 
     When I GET "/secrets/cucumber/variable/non-existent"
+    Then the HTTP response status code is 404
+
+  Scenario: Update a secret of a nonexistent resource
+
+    When I POST "/secrets/cucumber/variable/non-existent" with body:
+    """
+    v-1
+    """
+    Then the HTTP response status code is 404
+
+  Scenario: Fetching a secret for a resource with no permissions
+
+    When I POST "/secrets/cucumber/variable/probe" with body:
+    """
+    v-1
+    """
+    And I am a user named "alice"
+    And I GET "/secrets/cucumber/variable/probe"
     Then the HTTP response status code is 404
 
   Scenario: The 'conjur/mime_type' annotation is used in the value response.
@@ -123,6 +150,15 @@ Feature: Adding and fetching secrets
     """
     """
     Then the HTTP response status code is 422
+    And there is an audit record matching:
+    """
+      <37>1 * * conjur * update
+      [auth@43868 user="cucumber:user:eve"]
+      [subject@43868 resource="cucumber:variable:probe"]
+      [action@43868 operation="update" result="failure"]
+      cucumber:user:eve updated cucumber:variable:probe
+      cucumber:user:eve tried to update cucumber:variable:probe: 'value' may not be empty
+    """
 
   Scenario: Only the last 20 versions of a secret are stored.
   
