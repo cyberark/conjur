@@ -437,10 +437,8 @@ pipeline {
     }
     always {
       script {
-        env.nightly_msg = ""
         if (env.FULL_BUILD == "true") {
           if (params.NIGHTLY) {
-            env.nightly_msg = "nightly"
             dir('ee-test'){
               unstash 'testResultEE'
             }
@@ -532,10 +530,12 @@ pipeline {
         }
       }
 
+      // cleanupAndNotify args:
+      //   buildStatus, channel, additionalMessage, ticket
       cleanupAndNotify(
         currentBuild.currentResult,
         '#conjur-core',
-        "${env.nightly_msg}",
+        "${(params.NIGHTLY ? 'nightly' : '')}",
         true
       )
     }
