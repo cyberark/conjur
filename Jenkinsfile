@@ -48,11 +48,9 @@ pipeline {
       }
     }
 
-    stage('Validate') {
-      parallel {
-        stage('Changelog') {
-          steps { sh 'ci/parse-changelog' }
-        }
+    stage('Validate Changelog') {
+      steps {
+        sh 'ci/parse-changelog'
       }
     }
 
