@@ -136,14 +136,13 @@ pipeline {
 
         // Run outside parallel block to reduce main Jenkins executor load.
         stage('Nightly Only') {
+          when {
+            expression { params.NIGHTLY }
+          }
+
           stages {
             stage('EE FIPS agent tests') {
               agent { label 'executor-v2-rhel-ee' }
-
-              when {
-                beforeAgent true
-                expression { params.NIGHTLY }
-              }
 
               steps {
                 // Catch errors so remaining steps always run.
