@@ -83,12 +83,10 @@ pipeline {
           tag "v*"
         }
       }
+
       stages {
         stage('Build Docker Image') {
           steps {
-            script {
-              env.FULL_BUILD = "true"
-            }
             sh './build.sh --jenkins'
           }
         }
@@ -136,17 +134,23 @@ pipeline {
           }
         }
 
-        stage('Run environment tests in parallel') {
-          parallel {
-
+        // Run outside parallel block to reduce main Jenkins executor load.
+        stage('Nightly Only') {
+          stages {
             stage('EE FIPS agent tests') {
               agent { label 'executor-v2-rhel-ee' }
+
               when {
                 beforeAgent true
                 expression { params.NIGHTLY }
               }
+
               steps {
-                runConjurTests()
+                // Catch errors so remaining steps always run.
+                catchError {
+                  runConjurTests()
+                }
+
                 stash(
                   name: 'testResultEE',
                   includes: '''
@@ -158,8 +162,51 @@ pipeline {
                   '''
                 )
               }
-            }
 
+              post {
+                always {
+                  dir('ee-test'){
+                    unstash 'testResultEE'
+                  }
+
+                  archiveArtifacts(
+                    artifacts: "ee-test/cucumber/*/*.*",
+                    fingerprint: false,
+                    allowEmptyArchive: true
+                  )
+
+                  archiveArtifacts(
+                    artifacts: "ee-test/container_logs/*/*",
+                    fingerprint: false,
+                    allowEmptyArchive: true
+                  )
+
+                  publishHTML(
+                    reportDir: 'ee-test/cucumber',
+                    reportFiles: '''
+                      api/cucumber_results.html,
+                      authenticators_config/cucumber_results.html,
+                      authenticators_azure/cucumber_results.html,
+                      authenticators_ldap/cucumber_results.html,
+                      authenticators_oidc/cucumber_results.html,
+                      authenticators_status/cucumber_results.html
+                      policy/cucumber_results.html,
+                      rotators/cucumber_results.html
+                    ''',
+                    reportName: 'EE Integration reports',
+                    reportTitles: '',
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true
+                  )
+                }
+              }
+            }
+          }
+        }
+
+        stage('Run environment tests in parallel') {
+          parallel {
             stage('Standard agent tests') {
               steps {
                 runConjurTests()
@@ -170,12 +217,12 @@ pipeline {
               agent { label 'azure-linux' }
 
               environment {
-                // Why not move this into bash?
+                // TODO: Move this into the authenticators_azure bash script.
                 AZURE_AUTHN_INSTANCE_IP = sh(
                   script: 'curl "http://checkip.amazonaws.com"',
                   returnStdout: true
                 ).trim()
-                // Why not move this into bash?
+                // TODO: Move this into the authenticators_azure bash script.
                 SYSTEM_ASSIGNED_IDENTITY = sh(
                   script: 'ci/test_suites/authenticators_azure/' +
                     'get_system_assigned_identity.sh',
@@ -234,6 +281,7 @@ pipeline {
                     echo '-- Google Compute Engine allocated'
                     echo '-- Get compute engine instance project name from ' +
                       'Google metadata server.'
+                    // TODO: Move this into get_gce_tokens_to_files.sh
                     env.GCP_PROJECT = sh(
                       script: 'curl -s -H "Metadata-Flavor: Google" ' +
                         '"http://metadata.google.internal/computeMetadata/v1/' +
@@ -372,164 +420,132 @@ pipeline {
             }
           }
         }
-
-        stage('Submit Coverage Report'){
-          steps{
-            sh 'ci/submit-coverage'
-          }
-        }
-
-        stage('Publish images') {
-          parallel {
-            stage('On a new tag') {
-              when {
-                // Only run this stage when it's a tag build matching vA.B.C
-                tag(
-                  pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+\$",
-                  comparator: "REGEXP"
-                )
-              }
-
-              steps {
-                sh 'summon -f ./secrets.yml ./push-image.sh'
-              }
-            }
-
-            stage('On a master build') {
-              when { branch "master" }
-
-              steps {
-                sh './push-image.sh --edge'
-              }
-            }
-          }
-        }
-
-        stage('Build Debian and RPM packages') {
-          steps {
-            sh './package.sh'
-            archiveArtifacts artifacts: '*.deb', fingerprint: true
-            archiveArtifacts artifacts: '*.rpm', fingerprint: true
-          }
-        }
-
-        stage('Publish Debian and RPM packages'){
-          steps {
-            sh './publish.sh'
-          }
-        }
       }
-    }
-  }
-
-  post {
-    success {
-      script {
-        if (env.BRANCH_NAME == 'master') {
-          build(
-            job:'../cyberark--secrets-provider-for-k8s/master',
-            wait: false
-          )
-        }
-      }
-    }
-    always {
-      script {
-        if (env.FULL_BUILD == "true") {
-          if (params.NIGHTLY) {
-            dir('ee-test'){
-              unstash 'testResultEE'
+      
+      post {
+        success {
+          script {
+            if (env.BRANCH_NAME == 'master') {
+              build(
+                job:'../cyberark--secrets-provider-for-k8s/master',
+                wait: false
+              )
             }
-            archiveArtifacts(
-              artifacts: "ee-test/cucumber/*/*.*",
-              fingerprint: false,
-              allowEmptyArchive: true
-            )
-            archiveArtifacts(
-              artifacts: "ee-test/container_logs/*/*",
-              fingerprint: false,
-              allowEmptyArchive: true
-            )
+          }
+        }
 
-            publishHTML(
-              reportDir: 'ee-test/cucumber',
+        always {
+          script {
+            unstash 'testResultAzure'
+
+            // Make files available for download.
+            archiveFiles('container_logs/*/*')
+            archiveFiles('coverage/.resultset*.json')
+            archiveFiles(
+              'ci/authn-k8s/output/simplecov-resultset-authnk8s-gke.json'
+            )
+            archiveFiles('cucumber/*/*.*')
+
+            publishHTML([
+              reportName: 'Integration reports',
+              reportDir: 'cucumber',
               reportFiles: '''
                 api/cucumber_results.html,
                 authenticators_config/cucumber_results.html,
                 authenticators_azure/cucumber_results.html,
                 authenticators_ldap/cucumber_results.html,
                 authenticators_oidc/cucumber_results.html,
-                authenticators_status/cucumber_results.html
+                authenticators_gcp/cucumber_results.html,
+                authenticators_status/cucumber_results.html,
                 policy/cucumber_results.html,
                 rotators/cucumber_results.html
               ''',
-              reportName: 'EE Integration reports',
+              reportTitles: '',
+              allowMissing: false,
+              alwaysLinkToLastBuild: true,
+              keepAll: true
+            ])
+
+            publishHTML(
+              reportName: 'Coverage Report',
+              reportDir: 'coverage',
+              reportFiles: 'index.html',
               reportTitles: '',
               allowMissing: false,
               alwaysLinkToLastBuild: true,
               keepAll: true
             )
+            junit('''
+              spec/reports/*.xml,
+              spec/reports-audit/*.xml,
+              cucumber/*/features/reports/**/*.xml,
+              ee-test/spec/reports/*.xml,
+              ee-test/spec/reports-audit/*.xml,
+              ee-test/cucumber/*/features/reports/**/*.xml
+            '''
+            )
+
+            // Make cucumber reports available as html report in Jenkins UI.
+            cucumber(
+              fileIncludePattern: '**/cucumber_results.json',
+              sortingMethod: 'ALPHABETICAL'
+            )
           }
-
-          unstash 'testResultAzure'
-
-          // Make files available for download.
-          archiveFiles('container_logs/*/*')
-          archiveFiles('coverage/.resultset*.json')
-          archiveFiles(
-            'ci/authn-k8s/output/simplecov-resultset-authnk8s-gke.json'
-          )
-          archiveFiles('cucumber/*/*.*')
-
-          publishHTML([
-            reportName: 'Integration reports',
-            reportDir: 'cucumber',
-            reportFiles: '''
-              api/cucumber_results.html,
-              authenticators_config/cucumber_results.html,
-              authenticators_azure/cucumber_results.html,
-              authenticators_ldap/cucumber_results.html,
-              authenticators_oidc/cucumber_results.html,
-              authenticators_gcp/cucumber_results.html,
-              authenticators_status/cucumber_results.html,
-              policy/cucumber_results.html,
-              rotators/cucumber_results.html
-            ''',
-            reportTitles: '',
-            allowMissing: false,
-            alwaysLinkToLastBuild: true,
-            keepAll: true
-          ])
-
-          publishHTML(
-            reportName: 'Coverage Report',
-            reportDir: 'coverage',
-            reportFiles: 'index.html',
-            reportTitles: '',
-            allowMissing: false,
-            alwaysLinkToLastBuild: true,
-            keepAll: true
-          )
-          junit('''
-            spec/reports/*.xml,
-            spec/reports-audit/*.xml,
-            cucumber/*/features/reports/**/*.xml,
-            ee-test/spec/reports/*.xml,
-            ee-test/spec/reports-audit/*.xml,
-            ee-test/cucumber/*/features/reports/**/*.xml
-          '''
-          )
-
-          // Make cucumber reports available as html report in Jenkins UI.
-          cucumber(
-            fileIncludePattern: '**/cucumber_results.json',
-            sortingMethod: 'ALPHABETICAL'
-          )
         }
       }
+    } // end stage: build and test conjur
 
-      // cleanupAndNotify args:
-      //   buildStatus, channel, additionalMessage, ticket
+    stage('Submit Coverage Report') {
+      steps{
+        sh 'ci/submit-coverage'
+      }
+    }
+
+    stage('Publish images') {
+      parallel {
+        stage('On a new tag') {
+          when {
+            // Only run this stage when it's a tag build matching vA.B.C
+            tag(
+              pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+\$",
+              comparator: "REGEXP"
+            )
+          }
+
+          steps {
+            sh 'summon -f ./secrets.yml ./push-image.sh'
+          }
+        }
+
+        stage('On a master build') {
+          when { branch "master" }
+
+          steps {
+            sh './push-image.sh --edge'
+          }
+        }
+      }
+    }
+
+    stage('Build Debian and RPM packages') {
+      steps {
+        sh './package.sh'
+        archiveArtifacts artifacts: '*.deb', fingerprint: true
+        archiveArtifacts artifacts: '*.rpm', fingerprint: true
+      }
+    }
+
+    stage('Publish Debian and RPM packages'){
+      steps {
+        sh './publish.sh'
+      }
+    }
+  }
+
+  post {
+    always {
+      // Explanation of arguments:
+      // cleanupAndNotify(buildStatus, slackChannel, additionalMessage, ticket)
       cleanupAndNotify(
         currentBuild.currentResult,
         '#conjur-core',
