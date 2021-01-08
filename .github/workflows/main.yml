@@ -13,4 +13,4 @@ jobs:
       with:
         fetch-depth: 0
     - name: Is Rebased on master?
-      uses: jonahx/enforce-rebase@v1
+      uses: cyberark/enforce-rebase@v2
