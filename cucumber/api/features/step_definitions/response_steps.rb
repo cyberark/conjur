@@ -57,3 +57,8 @@ Then(/^the binary result is preserved$/) do
   expect(@result.headers[:content_type]).to eq("application/octet-stream")
   expect(@result).to eq(@value)
 end
+
+Then(/^the binary data is preserved for "([^"]*)"$/) do |resource_id|
+  data = Base64.decode64(@result[resource_id])
+  expect(data).to eq(@value)
+end

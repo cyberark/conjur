@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#1974](https://github.com/cyberark/conjur/issues/1974)
 - Correct unit tests and integration tests for audit, and correct a couple of issues found with them.
   [cyberark/conjur#1987](https://github.com/cyberark/conjur/issues/1987)
+- When batch secret requests are sent with an `Accept: base64` header, the secret values in the response will all be
+  Base64-encoded. Sending requests with this header allows users to retrieve binary secrets encoded in Base64.
+  [cyberark/conjur#1962](https://github.com/cyberark/conjur/issues/1962)
 
 ### Fixed
 - Requests with empty body and application/json Content-Type Header will now
@@ -30,6 +33,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Audit engine routing now correctly matches URLs that include a period (`.`)
   in the resource ID.
   [cyberark/conjur#2001](https://github.com/cyberark/conjur/issues/2001)
+- Attempts to retrieve binary secret data in a batch request without using the `Accept: base64` header now returns a
+  message explaining that improper secret encoding is the cause of the 500 response.
+  [cyberark/conjur#1962](https://github.com/cyberark/conjur/issues/1962)
 
 ## [1.11.1] - 2020-11-19
 ### Added
