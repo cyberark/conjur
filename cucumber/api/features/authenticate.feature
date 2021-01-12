@@ -20,6 +20,19 @@ Feature: Exchange a role's API key for a signed authentication token
       cucumber:user:alice successfully authenticated with authenticator authn
     """
 
+  Scenario: X-Request-Id is set and visible in the audit record
+    Given I set the "X-Request-Id" header to "TestMyApp"
+    Then I can POST "/authn/cucumber/alice/authenticate" with plain text body ":cucumber:user:alice_api_key"
+    And the HTTP response content type is "application/json"
+    And there is an audit record matching:
+    """
+      <86>1 * * conjur TestMyApp authn
+      [auth@43868 authenticator="authn"]
+      [subject@43868 role="cucumber:user:alice"]
+      [action@43868 operation="authenticate" result="success"]
+      cucumber:user:alice successfully authenticated with authenticator authn
+    """
+
   Scenario: Authenticate response should be encoded if Accept-Encoding equals base64
     When I successfully authenticate Alice with Accept-Encoding header "base64"
     Then the HTTP response content type is "text/plain"
