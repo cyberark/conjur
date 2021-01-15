@@ -31,6 +31,12 @@ section:
   - name: DevOps Tools
     description: Conjur OSS integrations with DevOps tools.
     repos:
+      - name: cyberark/ansible-conjur-collection
+        url: https://github.com/cyberark/ansible-conjur-collection
+        tool: Ansible
+        description: Ansible collection containing the Conjur Ansible Role to provide
+          Conjur identity to Ansible hosts, and the Conjur Lookup Plugin for fetching
+          secrets from Conjur.
       - name: cyberark/ansible-conjur-host-identity
         url: https://github.com/cyberark/ansible-conjur-host-identity
         tool: Ansible
