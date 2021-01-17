@@ -7,6 +7,7 @@ Feature: Exchange a role's API key for a signed authentication token
   functions as proof of authentication.
   Background:
     Given I create a new user "alice"
+    And I have host "app"
 
   Scenario: A role's API can be used to authenticate
     Then I can POST "/authn/cucumber/alice/authenticate" with plain text body ":cucumber:user:alice_api_key"
@@ -15,9 +16,21 @@ Feature: Exchange a role's API key for a signed authentication token
     """
       <86>1 * * conjur * authn
       [auth@43868 authenticator="authn"]
-      [subject@43868 role="cucumber:user:alice"]
+      [subject@43868 role="cucumber:user:alice" user="alice"]
       [action@43868 operation="authenticate" result="success"]
       cucumber:user:alice successfully authenticated with authenticator authn
+    """
+
+  Scenario: A host's API can be used to authenticate
+    Then I can POST "/authn/cucumber/host%2Fapp/authenticate" with plain text body ":cucumber:host:app_api_key"
+    And the HTTP response content type is "application/json"
+    And there is an audit record matching:
+    """
+      <86>1 * * conjur * authn
+      [auth@43868 authenticator="authn"]
+      [subject@43868 role="cucumber:host:app" user="host/app"]
+      [action@43868 operation="authenticate" result="success"]
+      cucumber:host:app successfully authenticated with authenticator authn
     """
 
   Scenario: X-Request-Id is set and visible in the audit record
@@ -42,7 +55,7 @@ Feature: Exchange a role's API key for a signed authentication token
     """
       <86>1 * * conjur * authn
       [auth@43868 authenticator="authn"]
-      [subject@43868 role="cucumber:user:alice"]
+      [subject@43868 role="cucumber:user:alice" user="alice"]
       [action@43868 operation="authenticate" result="success"]
       cucumber:user:alice successfully authenticated with authenticator authn
     """
@@ -56,7 +69,7 @@ Feature: Exchange a role's API key for a signed authentication token
     """
       <86>1 * * conjur * authn
       [auth@43868 authenticator="authn"]
-      [subject@43868 role="cucumber:user:alice"]
+      [subject@43868 role="cucumber:user:alice" user="alice"]
       [action@43868 operation="authenticate" result="success"]
       cucumber:user:alice successfully authenticated with authenticator authn
     """
@@ -70,7 +83,7 @@ Feature: Exchange a role's API key for a signed authentication token
     """
       <86>1 * * conjur * authn
       [auth@43868 authenticator="authn"]
-      [subject@43868 role="cucumber:user:alice"]
+      [subject@43868 role="cucumber:user:alice" user="alice"]
       [action@43868 operation="authenticate" result="success"]
       cucumber:user:alice successfully authenticated with authenticator authn
     """
@@ -82,7 +95,7 @@ Feature: Exchange a role's API key for a signed authentication token
     """
       <86>1 * * conjur * authn
       [auth@43868 authenticator="authn"]
-      [subject@43868 role="cucumber:user:alice"]
+      [subject@43868 role="cucumber:user:alice" user="alice"]
       [action@43868 operation="authenticate" result="success"]
       cucumber:user:alice successfully authenticated with authenticator authn
     """
@@ -99,9 +112,22 @@ Feature: Exchange a role's API key for a signed authentication token
     """
       <84>1 * * conjur * authn
       [auth@43868 authenticator="authn"]
-      [subject@43868 role="cucumber:user:alice"]
+      [subject@43868 role="cucumber:user:alice" user="alice"]
       [action@43868 operation="authenticate" result="failure"]
       cucumber:user:alice failed to authenticate with authenticator authn
+    """
+
+
+  Scenario: Attempting to use an invalid host API key to authenticate result in 401 error
+    When I POST "/authn/cucumber/host%2Fapp/authenticate" with plain text body "wrong-api-key"
+    Then the HTTP response status code is 401
+    And there is an audit record matching:
+    """
+      <84>1 * * conjur * authn
+      [auth@43868 authenticator="authn"]
+      [subject@43868 role="cucumber:host:app" user="host/app"]
+      [action@43868 operation="authenticate" result="failure"]
+      cucumber:host:app failed to authenticate with authenticator authn
     """
 
   Scenario: Attempting to use an invalid API key to authenticate with Accept-Encoding base64 result in 401 error
@@ -111,7 +137,7 @@ Feature: Exchange a role's API key for a signed authentication token
     """
       <84>1 * * conjur * authn
       [auth@43868 authenticator="authn"]
-      [subject@43868 role="cucumber:user:alice"]
+      [subject@43868 role="cucumber:user:alice" user="alice"]
       [action@43868 operation="authenticate" result="failure"]
       cucumber:user:alice failed to authenticate with authenticator authn
     """

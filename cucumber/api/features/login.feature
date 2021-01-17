@@ -5,12 +5,93 @@ Feature: Exchange a role's password for its API key
 
   Background:
     Given I create a new user "alice"
+    And I have host "app"
 
   Scenario: Password can be used to obtain API key
     Given I set the password for "alice" to "My-Password1"
     When I can GET "/authn/cucumber/login" with username "alice" and password "My-Password1"
     Then the HTTP response content type is "text/plain"
     And the result is the API key for user "alice"
+    And there is an audit record matching:
+    """
+      <84>1 * * conjur * authn
+      [auth@43868 authenticator="authn" service="default:webservice:conjur/authn]
+      [subject@43868 role="cucumber:user:alice" user="alice"]
+      [action@43868 operation="login" result="success"]
+      cucumber:user:alice successfully logged in with authenticator authn service default:webservice:conjur/authn
+    """
+
+
+  Scenario: Password can be used by host to obtain API key
+    Given I set the password for "host/app" to "My-Password1"
+    When I GET "/authn/cucumber/login" with username "host/app" and password "My-Password1"
+    Then the HTTP response content type is "text/plain"
+    And the result is the API key for host "app"
+    And there is an audit record matching:
+    """
+      <84>1 * * conjur * authn
+      [auth@43868 authenticator="authn" service="default:webservice:conjur/authn]
+      [subject@43868 role="cucumber:host:app" user="host/app"]
+      [action@43868 operation="login" result="success"]
+      cucumber:host:app successfully logged in with authenticator authn service default:webservice:conjur/authn
+    """
+
+  Scenario: Wrong password cannot be used to obtain API key
+    When I GET "/authn/cucumber/login" with username "alice" and password "Wrong-Password"
+    Then the HTTP response status code is 401
+    And there is an audit record matching:
+    """
+      <84>1 * * conjur * authn
+      [subject@43868 role="cucumber:user:alice" user="not-found"]
+      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn"]
+      [client@43868 ip="172.17.0.1"]
+      [action@43868 result="failure" operation="login"][meta sequenceId="1"]
+      cucumber:user:alice failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00002E Invalid credentials
+    """
+
+
+  Scenario: Wrong password cannot be used by host to obtain API key
+    When I GET "/authn/cucumber/login" with username "host/app" and password "Wrong-Password"
+    Then the HTTP response status code is 401
+    And there is an audit record matching:
+    """
+      <84>1 * * conjur * authn
+      [subject@43868 role="cucumber:host:app" user="not-found"]
+      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn"]
+      [client@43868 ip="172.17.0.1"]
+      [action@43868 result="failure" operation="login"][meta sequenceId="1"]
+      cucumber:host:app failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00002E Invalid credentials
+    """
+
+  Scenario: Wrong username cannot be used to obtain API key
+    When I set the password for "alice" to "My-Password1"
+    And I GET "/authn/cucumber/login" with username "no-user" and password "My-Password1"
+    Then the HTTP response status code is 401
+    And there is an audit record matching:
+    """
+      <84>1 * * conjur * authn
+      [subject@43868 role="cucumber:user:no-user" user="not-found"]
+      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn"]
+      [client@43868 ip="172.17.0.1"]
+      [action@43868 result="failure" operation="login"][meta sequenceId="1"]
+      cucumber:user:no-user failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00007E 'no-user' not found
+    """
+
+
+  Scenario: Wrong hostname cannot be used to obtain API key
+    Given I set the password for "host/app" to "My-Password1"
+    And I GET "/authn/cucumber/login" with username "host/no-host" and password "My-Password1"
+    Then the HTTP response status code is 401
+    And there is an audit record matching:
+    """
+      <84>1 * * conjur * authn
+      [subject@43868 role="cucumber:host:no-host" user="not-found"]
+      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn"]
+      [client@43868 ip="172.17.0.1"]
+      [action@43868 result="failure" operation="login"][meta sequenceId="1"]
+      cucumber:host:no-host failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00007E 'no-host' not found
+    """
+
 
   @logged-in
   Scenario: Bearer token cannot be used to login
@@ -20,6 +101,16 @@ Feature: Exchange a role's password for its API key
 
     When I GET "/authn/cucumber/login"
     Then the HTTP response status code is 401
+    And there is an audit record matching:
+    """
+      <84>1 * * conjur * authn
+      [subject@43868 role="cucumber:user:admin" user="not-found"]
+      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn"]
+      [client@43868 ip="172.17.0.1"]
+      [action@43868 result="failure" operation="login"][meta sequenceId="1"]
+      cucumber:user:admin failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00002E Invalid credentials
+    """
+
 
   @logged-in-admin
   Scenario: "Super" users cannot login as other users

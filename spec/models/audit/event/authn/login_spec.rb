@@ -38,6 +38,11 @@ describe Audit::Event::Authn::Login do
       )
     end
 
+    it 'contains the user field' do
+      expect(subject.structured_data).to match(hash_including({
+        Audit::SDID::SUBJECT => { role: role_id, user: "my_user"}
+      }))
+    end
     it_behaves_like 'structured data includes client IP address'
   end
 
@@ -55,7 +60,11 @@ describe Audit::Event::Authn::Login do
     it 'uses the WARNING log level' do
       expect(subject.severity).to eq(Syslog::LOG_WARNING)
     end
-
+    it 'contains the not-found user field' do
+      expect(subject.structured_data).to match(hash_including({
+          Audit::SDID::SUBJECT => { role: role_id, user: "not-found" }
+      }))
+    end
     it_behaves_like 'structured data includes client IP address'
   end
 end
