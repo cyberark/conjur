@@ -81,12 +81,11 @@ module Audit
       def auth_stuctured_data
         { authenticator: @authenticator_name }.tap do |sd|
           sd[:service] = service_id if @service
-          sd[:user] = username
         end
       end
 
       def username
-        @success ? @role_id : "not-found"
+        @success ? Role.username_from_roleid(@role_id) : "not-found"
       end
     end
   end
