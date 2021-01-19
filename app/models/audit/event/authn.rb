@@ -81,6 +81,7 @@ module Audit
       def auth_stuctured_data
         { authenticator: @authenticator_name }.tap do |sd|
           sd[:service] = service_id if @service
+          sd[:user] = username
         end
       end
 
