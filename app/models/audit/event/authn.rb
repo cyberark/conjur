@@ -86,7 +86,7 @@ module Audit
       end
 
       def username
-        @success ? Role.username_from_roleid(@role_id) : "not-found"
+        @success ? @role_id : "not-found"
       end
     end
   end
