@@ -24,6 +24,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Requests with empty body and application/json Content-Type Header will now
   return 400 error instead of 500 error.
   [cyberark/conjur#1968](https://github.com/cyberark/conjur/issues/1968)
+- Policy loading no longer fails when attempting to update the annotation
+  search index for a resource that no longer exists.
+  [cyberark/conjur#1948](https://github.com/cyberark/conjur/issues/1948)
 
 ## [1.11.1] - 2020-11-19
 ### Added
