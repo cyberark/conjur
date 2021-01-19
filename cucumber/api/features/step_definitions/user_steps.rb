@@ -33,12 +33,12 @@ Given('I create a new user {string} in account {string}') do |login, account|
   Role.create(role_id: roleid)
 end
 
-def is_host(login)
+def host?(login)
   login.match? %r{host\/[^:\/]+}
 end
 
 Given("I login as {string}") do |login|
-  if is_host(login)
+  if host?(login)
     loginid = login.split('/')[1]
     roleid = (login.include?(":") ? login : "cucumber:host:#{loginid}")
   else
@@ -57,7 +57,7 @@ end
 
 Given("I set the password for {string} to {string}") do |login, password|
   # TODO: investigate smell
-  if is_host(login)
+  if host?(login)
     login_id = login.split('/')[1]
     role = lookup_host(login_id)
   else

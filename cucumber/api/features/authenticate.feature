@@ -15,8 +15,8 @@ Feature: Exchange a role's API key for a signed authentication token
     And there is an audit record matching:
     """
       <86>1 * * conjur * authn
-      [auth@43868 authenticator="authn"]
-      [subject@43868 role="cucumber:user:alice" user="alice"]
+      [auth@43868 authenticator="authn" user="cucumber:user:alice"]
+      [subject@43868 role="cucumber:user:alice"]
       [action@43868 operation="authenticate" result="success"]
       cucumber:user:alice successfully authenticated with authenticator authn
     """
@@ -27,8 +27,8 @@ Feature: Exchange a role's API key for a signed authentication token
     And there is an audit record matching:
     """
       <86>1 * * conjur * authn
-      [auth@43868 authenticator="authn"]
-      [subject@43868 role="cucumber:host:app" user="host/app"]
+      [auth@43868 authenticator="authn" user="cucumber:host:app"]
+      [subject@43868 role="cucumber:host:app"]
       [action@43868 operation="authenticate" result="success"]
       cucumber:host:app successfully authenticated with authenticator authn
     """
@@ -54,8 +54,8 @@ Feature: Exchange a role's API key for a signed authentication token
     And there is an audit record matching:
     """
       <86>1 * * conjur * authn
-      [auth@43868 authenticator="authn"]
-      [subject@43868 role="cucumber:user:alice" user="alice"]
+      [auth@43868 authenticator="authn" user="cucumber:user:alice"]
+      [subject@43868 role="cucumber:user:alice"]
       [action@43868 operation="authenticate" result="success"]
       cucumber:user:alice successfully authenticated with authenticator authn
     """
@@ -68,8 +68,8 @@ Feature: Exchange a role's API key for a signed authentication token
     And there is an audit record matching:
     """
       <86>1 * * conjur * authn
-      [auth@43868 authenticator="authn"]
-      [subject@43868 role="cucumber:user:alice" user="alice"]
+      [auth@43868 authenticator="authn" user="cucumber:user:alice"]
+      [subject@43868 role="cucumber:user:alice"]
       [action@43868 operation="authenticate" result="success"]
       cucumber:user:alice successfully authenticated with authenticator authn
     """
@@ -82,8 +82,8 @@ Feature: Exchange a role's API key for a signed authentication token
     And there is an audit record matching:
     """
       <86>1 * * conjur * authn
-      [auth@43868 authenticator="authn"]
-      [subject@43868 role="cucumber:user:alice" user="alice"]
+      [auth@43868 authenticator="authn" user="cucumber:user:alice"]
+      [subject@43868 role="cucumber:user:alice"]
       [action@43868 operation="authenticate" result="success"]
       cucumber:user:alice successfully authenticated with authenticator authn
     """
@@ -94,8 +94,8 @@ Feature: Exchange a role's API key for a signed authentication token
     And there is an audit record matching:
     """
       <86>1 * * conjur * authn
-      [auth@43868 authenticator="authn"]
-      [subject@43868 role="cucumber:user:alice" user="alice"]
+      [auth@43868 authenticator="authn" user="cucumber:user:alice"]
+      [subject@43868 role="cucumber:user:alice"]
       [action@43868 operation="authenticate" result="success"]
       cucumber:user:alice successfully authenticated with authenticator authn
     """
@@ -111,8 +111,8 @@ Feature: Exchange a role's API key for a signed authentication token
     And there is an audit record matching:
     """
       <84>1 * * conjur * authn
-      [auth@43868 authenticator="authn"]
-      [subject@43868 role="cucumber:user:alice" user="alice"]
+      [auth@43868 authenticator="authn" user="cucumber:user:alice"]
+      [subject@43868 role="cucumber:user:alice"]
       [action@43868 operation="authenticate" result="failure"]
       cucumber:user:alice failed to authenticate with authenticator authn
     """
@@ -124,8 +124,8 @@ Feature: Exchange a role's API key for a signed authentication token
     And there is an audit record matching:
     """
       <84>1 * * conjur * authn
-      [auth@43868 authenticator="authn"]
-      [subject@43868 role="cucumber:host:app" user="host/app"]
+      [auth@43868 authenticator="authn" user="cucumber:host:app"]
+      [subject@43868 role="cucumber:host:app"]
       [action@43868 operation="authenticate" result="failure"]
       cucumber:host:app failed to authenticate with authenticator authn
     """
@@ -136,8 +136,8 @@ Feature: Exchange a role's API key for a signed authentication token
     And there is an audit record matching:
     """
       <84>1 * * conjur * authn
-      [auth@43868 authenticator="authn"]
-      [subject@43868 role="cucumber:user:alice" user="alice"]
+      [auth@43868 authenticator="authn" user="cucumber:user:alice"]
+      [subject@43868 role="cucumber:user:alice"]
       [action@43868 operation="authenticate" result="failure"]
       cucumber:user:alice failed to authenticate with authenticator authn
     """
