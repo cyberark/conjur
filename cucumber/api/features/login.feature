@@ -15,8 +15,8 @@ Feature: Exchange a role's password for its API key
     And there is an audit record matching:
     """
       <84>1 * * conjur * authn
-      [auth@43868 authenticator="authn" service="default:webservice:conjur/authn]
-      [subject@43868 role="cucumber:user:alice" user="alice"]
+      [auth@43868 authenticator="authn" service="default:webservice:conjur/authn user="cucumber:user:alice"]
+      [subject@43868 role="cucumber:user:alice"]
       [action@43868 operation="login" result="success"]
       cucumber:user:alice successfully logged in with authenticator authn service default:webservice:conjur/authn
     """
@@ -30,8 +30,8 @@ Feature: Exchange a role's password for its API key
     And there is an audit record matching:
     """
       <84>1 * * conjur * authn
-      [auth@43868 authenticator="authn" service="default:webservice:conjur/authn]
-      [subject@43868 role="cucumber:host:app" user="host/app"]
+      [auth@43868 authenticator="authn" service="default:webservice:conjur/authn user="cucumber:host:app"]
+      [subject@43868 role="cucumber:host:app"]
       [action@43868 operation="login" result="success"]
       cucumber:host:app successfully logged in with authenticator authn service default:webservice:conjur/authn
     """
@@ -42,8 +42,8 @@ Feature: Exchange a role's password for its API key
     And there is an audit record matching:
     """
       <84>1 * * conjur * authn
-      [subject@43868 role="cucumber:user:alice" user="not-found"]
-      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn"]
+      [subject@43868 role="cucumber:user:alice"]
+      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="not-found"]
       [client@43868 ip="172.17.0.1"]
       [action@43868 result="failure" operation="login"][meta sequenceId="1"]
       cucumber:user:alice failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00002E Invalid credentials
@@ -56,8 +56,8 @@ Feature: Exchange a role's password for its API key
     And there is an audit record matching:
     """
       <84>1 * * conjur * authn
-      [subject@43868 role="cucumber:host:app" user="not-found"]
-      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn"]
+      [subject@43868 role="cucumber:host:app"x]
+      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="not-found"]
       [client@43868 ip="172.17.0.1"]
       [action@43868 result="failure" operation="login"][meta sequenceId="1"]
       cucumber:host:app failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00002E Invalid credentials
@@ -70,8 +70,8 @@ Feature: Exchange a role's password for its API key
     And there is an audit record matching:
     """
       <84>1 * * conjur * authn
-      [subject@43868 role="cucumber:user:no-user" user="not-found"]
-      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn"]
+      [subject@43868 role="cucumber:user:no-user"]
+      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="not-found"]
       [client@43868 ip="172.17.0.1"]
       [action@43868 result="failure" operation="login"][meta sequenceId="1"]
       cucumber:user:no-user failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00007E 'no-user' not found
@@ -85,8 +85,8 @@ Feature: Exchange a role's password for its API key
     And there is an audit record matching:
     """
       <84>1 * * conjur * authn
-      [subject@43868 role="cucumber:host:no-host" user="not-found"]
-      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn"]
+      [subject@43868 role="cucumber:host:no-host"]
+      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="not-found"]
       [client@43868 ip="172.17.0.1"]
       [action@43868 result="failure" operation="login"][meta sequenceId="1"]
       cucumber:host:no-host failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00007E 'no-host' not found
@@ -104,8 +104,8 @@ Feature: Exchange a role's password for its API key
     And there is an audit record matching:
     """
       <84>1 * * conjur * authn
-      [subject@43868 role="cucumber:user:admin" user="not-found"]
-      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn"]
+      [subject@43868 role="cucumber:user:admin"]
+      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="not-found"]
       [client@43868 ip="172.17.0.1"]
       [action@43868 result="failure" operation="login"][meta sequenceId="1"]
       cucumber:user:admin failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00002E Invalid credentials

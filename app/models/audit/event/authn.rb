@@ -55,7 +55,7 @@ module Audit
 
       def structured_data
         {
-          SDID::SUBJECT => { role: @role_id, user: username },
+          SDID::SUBJECT => { role: @role_id },
           SDID::AUTH => auth_stuctured_data,
           SDID::CLIENT => { ip: @client_ip }
         }.merge(
@@ -81,11 +81,12 @@ module Audit
       def auth_stuctured_data
         { authenticator: @authenticator_name }.tap do |sd|
           sd[:service] = service_id if @service
+          sd[:user] = username
         end
       end
 
       def username
-        @success ? Role.username_from_roleid(@role_id) : "not-found"
+        @success ? @role_id : "not-found"
       end
     end
   end
