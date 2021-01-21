@@ -27,6 +27,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Policy loading no longer fails when attempting to update the annotation
   search index for a resource that no longer exists.
   [cyberark/conjur#1948](https://github.com/cyberark/conjur/issues/1948)
+- Audit engine routing now correctly matches URLs that include a period (`.`)
+  in the resource ID.
+  [cyberark/conjur#2001](https://github.com/cyberark/conjur/issues/2001)
 
 ## [1.11.1] - 2020-11-19
 ### Added
