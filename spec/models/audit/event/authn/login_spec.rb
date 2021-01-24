@@ -60,11 +60,13 @@ describe Audit::Event::Authn::Login do
     it 'uses the WARNING log level' do
       expect(subject.severity).to eq(Syslog::LOG_WARNING)
     end
+
     it 'contains the not-found user field' do
       expect(subject.structured_data).to match(hash_including({
-          Audit::SDID::AUTH => { authenticator: authenticator_name, service: "rspec:webservice:my-service", user: "not-found" }
+          Audit::SDID::AUTH => { authenticator: authenticator_name, service: "rspec:webservice:my-service", user: Audit::Event::NOT_FOUND }
       }))
     end
+
     it_behaves_like 'structured data includes client IP address'
   end
 end

@@ -33,10 +33,6 @@ Given('I create a new user {string} in account {string}') do |login, account|
   Role.create(role_id: roleid)
 end
 
-def host?(login)
-  login.match? %r{host\/[^:\/]+}
-end
-
 Given("I login as {string}") do |login|
   if host?(login)
     loginid = login.split('/')[1]
@@ -65,4 +61,11 @@ Given("I set the password for {string} to {string}") do |login, password|
   end
   role.password = password
   role.save
+end
+
+private
+
+# Determines if login string represents a host, namely prefixed with 'host\'
+def host?(login)
+  login.match? %r{host\/[^:\/]+}
 end

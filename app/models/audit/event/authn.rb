@@ -1,5 +1,8 @@
 module Audit
   module Event
+
+    NOT_FOUND = "not-found"
+
     # Note: Breaking this class up further would harm clarity.
     # :reek:TooManyInstanceVariables and :reek:TooManyParameters
     class Authn
@@ -85,8 +88,9 @@ module Audit
         end
       end
 
+      # In case of success returns the role performing the action, otherwise conceals it for security concerns
       def username
-        @success ? @role_id : "not-found"
+        @success ? @role_id : NOT_FOUND
       end
     end
   end
