@@ -40,7 +40,7 @@ describe Audit::Event::Authn::Login do
 
     it 'contains the user field' do
       expect(subject.structured_data).to match(hash_including({
-        Audit::SDID::AUTH => { authenticator: authenticator_name, service: "rspec:webservice:my-service", user: role_id}
+        Audit::SDID::AUTH => { authenticator: authenticator_name, service: service.resource_id, user: role_id}
       }))
     end
     it_behaves_like 'structured data includes client IP address'
@@ -63,7 +63,7 @@ describe Audit::Event::Authn::Login do
 
     it 'contains the not-found user field' do
       expect(subject.structured_data).to match(hash_including({
-          Audit::SDID::AUTH => { authenticator: authenticator_name, service: "rspec:webservice:my-service", user: Audit::Event::NOT_FOUND }
+          Audit::SDID::AUTH => { authenticator: authenticator_name, service: service.resource_id, user: Audit::Event::NOT_FOUND }
       }))
     end
 
