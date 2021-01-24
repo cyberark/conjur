@@ -65,7 +65,7 @@ end
 
 private
 
-# Determines if login string represents a host, namely prefixed with 'host\'
+# Determines if login string represents a host, namely prefixed with 'host/'
 def host?(login)
   login.match? %r{host\/[^:\/]+}
 end

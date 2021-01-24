@@ -21,7 +21,6 @@ Feature: Exchange a role's password for its API key
       cucumber:user:alice successfully logged in with authenticator authn service default:webservice:conjur/authn
     """
 
-
   Scenario: Password can be used by host to obtain API key
     Given I set the password for "host/app" to "My-Password1"
     When I GET "/authn/cucumber/login" with username "host/app" and password "My-Password1"
@@ -48,7 +47,6 @@ Feature: Exchange a role's password for its API key
       [action@43868 result="failure" operation="login"][meta sequenceId="1"]
       cucumber:user:alice failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00002E Invalid credentials
     """
-
 
   Scenario: Wrong password cannot be used by host to obtain API key
     When I GET "/authn/cucumber/login" with username "host/app" and password "Wrong-Password"
@@ -77,7 +75,6 @@ Feature: Exchange a role's password for its API key
       cucumber:user:no-user failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00007E 'no-user' not found
     """
 
-
   Scenario: Wrong hostname cannot be used to obtain API key
     Given I set the password for "host/app" to "My-Password1"
     And I GET "/authn/cucumber/login" with username "host/no-host" and password "My-Password1"
@@ -91,7 +88,6 @@ Feature: Exchange a role's password for its API key
       [action@43868 result="failure" operation="login"][meta sequenceId="1"]
       cucumber:host:no-host failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00007E 'no-host' not found
     """
-
 
   @logged-in
   Scenario: Bearer token cannot be used to login
@@ -110,7 +106,6 @@ Feature: Exchange a role's password for its API key
       [action@43868 result="failure" operation="login"][meta sequenceId="1"]
       cucumber:user:admin failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00002E Invalid credentials
     """
-
 
   @logged-in-admin
   Scenario: "Super" users cannot login as other users

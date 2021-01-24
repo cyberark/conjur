@@ -84,14 +84,10 @@ module Audit
       def auth_stuctured_data
         { authenticator: @authenticator_name }.tap do |sd|
           sd[:service] = service_id if @service
-          sd[:user] = username
+          sd[:user] = @success ? @role_id : NOT_FOUND
         end
       end
 
-      # In case of success returns the role performing the action, otherwise conceals it for security concerns
-      def username
-        @success ? @role_id : NOT_FOUND
-      end
     end
   end
 end

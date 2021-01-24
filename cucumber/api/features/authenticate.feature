@@ -117,7 +117,6 @@ Feature: Exchange a role's API key for a signed authentication token
       cucumber:user:alice failed to authenticate with authenticator authn
     """
 
-
   Scenario: Attempting to use an invalid host API key to authenticate result in 401 error
     When I POST "/authn/cucumber/host%2Fapp/authenticate" with plain text body "wrong-api-key"
     Then the HTTP response status code is 401
