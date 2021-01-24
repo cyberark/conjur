@@ -43,6 +43,7 @@ describe Audit::Event::Authn::Login do
         Audit::SDID::AUTH => { authenticator: authenticator_name, service: service.resource_id, user: role_id}
       }))
     end
+
     it_behaves_like 'structured data includes client IP address'
   end
 
