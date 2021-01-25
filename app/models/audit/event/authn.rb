@@ -84,7 +84,7 @@ module Audit
       def auth_stuctured_data
         { authenticator: @authenticator_name }.tap do |sd|
           sd[:service] = service_id if @service
-          sd[:user] = @success ? @role_id : NOT_FOUND
+          sd[:user] = @success || Role[role_id: @role_id] ? @role_id : NOT_FOUND #Masking role if it doesn't exist to avoid audit pollution
         end
       end
 
