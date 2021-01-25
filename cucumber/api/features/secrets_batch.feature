@@ -91,3 +91,26 @@ Feature: Batch retrieval of secrets
     { "cucumber:variable:secret1": "v3", "cucumber:variable:secret2": "v5", "cucumber:variable:secret3": "v6" }
     """
 
+  Scenario: Returns the correct result for binary secrets
+    Given I create a binary secret value for resource "cucumber:variable:secret3"
+    And I add the secret value "v2" to the resource "cucumber:variable:secret2"
+    And I set the "Accept" header to "base64"
+    When I GET "/secrets?variable_ids=cucumber:variable:secret3,cucumber:variable:secret2"
+    Then the binary data is preserved for "cucumber:variable:secret3"
+
+  Scenario: Returns the correct result for binary secrets
+    Given I create a binary secret value for resource "cucumber:variable:secret3"
+    And I set the "Accept" header to "Base64"
+    When I GET "/secrets?variable_ids=cucumber:variable:secret3"
+    Then the binary data is preserved for "cucumber:variable:secret3"
+
+  Scenario: Returns the correct result for binary secrets
+    Given I create a binary secret value for resource "cucumber:variable:secret3"
+    When I GET "/secrets?variable_ids=cucumber:variable:secret3"
+    Then the HTTP response status code is 500
+
+  Scenario: Raises error on binary secret with no annotation
+    Given I create a binary secret value for resource "cucumber:variable:secret3"
+    And I add the secret value "v2" to the resource "cucumber:variable:secret2"
+    When I GET "/secrets?variable_ids=cucumber:variable:secret3,cucumber:variable:secret2"
+    Then the HTTP response status code is 500

@@ -25,6 +25,12 @@ module Errors
       code: "CONJ00065E"
     )
 
+    BadSecretEncoding = ::Util::TrackableErrorClass.new(
+      msg:  "Issue encoding secret into JSON format, try including 'Accept: base64' " \
+          "header in request.",
+      code: "CONJ00074E"
+    )
+
   end
 
   module Authentication

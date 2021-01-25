@@ -57,21 +57,35 @@ class SecretsController < RestController
       raise Exceptions::RecordNotFound,
             variable_ids.find { |r| !variables.map(&:id).include?(r) }
     end
-    
+
     result = {}
 
     authorize_many variables, :execute
-    
+
     variables.each do |variable|
-      unless (secret = variable.last_secret)
-        raise Exceptions::RecordNotFound, variable.resource_id
-      end
-      
-      result[variable.resource_id] = secret.value
+      result[variable.resource_id] = get_secret_from_variable variable
+
       audit_fetch variable
     end
 
     render json: result
+  rescue Encoding::UndefinedConversionError
+    raise Errors::Conjur::BadSecretEncoding, result
+  end
+
+  def get_secret_from_variable variable
+    secret = variable.last_secret
+    unless secret
+      raise Exceptions::RecordNotFound, variable.resource_id
+    end
+
+    secret_value = secret.value
+
+    if request.headers['Accept'].casecmp?('base64')
+      Base64.encode64(secret_value)
+    else
+      secret_value
+    end
   end
 
   def audit_fetch resource, version: nil
