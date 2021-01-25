@@ -1,7 +1,7 @@
 module Audit
   module Event
 
-    NOT_FOUND = "not-found"
+    NOT_FOUND = "not-found".freeze
 
     # Note: Breaking this class up further would harm clarity.
     # :reek:TooManyInstanceVariables and :reek:TooManyParameters
@@ -84,10 +84,16 @@ module Audit
       def auth_stuctured_data
         { authenticator: @authenticator_name }.tap do |sd|
           sd[:service] = service_id if @service
-          sd[:user] = @success || Role[role_id: @role_id] ? @role_id : NOT_FOUND #Masking role if it doesn't exist to avoid audit pollution
+          sd[:user] = sanitized_role_id
         end
       end
 
+      # Masking role if it doesn't exist to avoid audit pollution
+      # Checking @success as well to save DB call on success
+      def sanitized_role_id
+        return NOT_FOUND unless (@success || Role[role_id: @role_id])
+        @role_id
+      end
     end
   end
 end
