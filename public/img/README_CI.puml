@@ -1,0 +1,71 @@
+@startuml ci_architecture
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title CI Architecture Overview
+
+' Person(personAlias, "Label", "Optional Description")
+' Boundary(bashScripts, "Bash Scripts") {
+'     Container(bashTests, "Bash CI Scripts", "Wraps Rspec/Cucumber/Etc")
+' }
+
+' TODO: Preamble stuff, scans, build, code coverage, etc
+
+Component(jenkins, "Jenkins", "CI Test Runner")
+
+Container_Boundary(bashTests, "Bash CI Scripts")
+    Container(validateChangelog, "ci/parse-changelog", "Validates Changelog")
+    Container(build, "build.sh", "Docker Build Script")
+    Container(runStandardTest, "ci/test", "Runs Named Test Suite")
+        Container(shared, "ci/shared.sh", "Shared Test Suite Functions")
+            Container(cucumber, "cucumber", "Cucumber Feature Tests")
+            Container(ldap, "LDAP", "LDAP Test Server")
+        Container(rspec, "Rspec", "Conjur Rspec Tests")
+        Container(authnK8s, "GKE Tests", "Authn K8s GKE Tests")
+            System(gke, "GKE Host", "Test Machine")
+    Container(submitCoverage, "ci/submit_coverage", "Send coverage to CodeClimate")
+        System(codeClimate, "Code Climate", "Code Quality SaaS")
+    Container(pushImage, "push-image.sh", "Push images to registry")
+        System(dockerRegistry, "Docker Regisry", "Registry hosting images")
+    Container(publishImage, "publish-image.sh", "Publish Debian/RPM packages")
+        System(packageRegistry, "Package Regisry", "Registry hosting Deb/RPM packages")
+
+Component(pipelineLib, "Pipeline Library", "Common Jenkins Functions")
+    Component(scanAndReport, "Vulnerability Scan", "Uses scanAndReport")
+Component(envVars, "Env Vars", "Set by cron/context")
+Container_Boundary(agents, "Available Agents")
+    System(baseAWS, "Base AWS", "AWS Host")
+    System(awsFips, "AWS RHEL EE FIPS", "RHEL FIPS Host")
+    System(gcp, "GCP", "GCP Host")
+    System(azure, "Azure", "Azure Host")
+
+Rel(jenkins, bashTests, "Calls")
+    Rel(bashTests, validateChangelog, "Calls")
+    Rel(bashTests, build, "Calls")
+    Rel(bashTests, runStandardTest, "Calls")
+        Rel(runStandardTest, rspec, "Runs")
+        Rel(runStandardTest, shared, "Uses")
+            Rel(shared, cucumber, "Calls")
+            Rel(shared, ldap, "Uses")
+        Rel(runStandardTest, authnK8s, "Calls")
+            Rel(authnK8s, gke, "Runs On")
+        Component(authnK8s, "GKE Tests", "Authn K8s GKE Tests")
+            System(gke, "GKE Host", "Test Machine")
+    Rel(bashTests, submitCoverage, "Calls")
+        Rel(submitCoverage, codeClimate, "Sends")
+    Rel(bashTests, pushImage, "Calls")
+        Rel(pushImage, dockerRegistry, "Sends")
+    Rel(bashTests, publishImage, "Calls")
+        Rel(publishImage, packageRegistry, "Sends")
+Rel(jenkins, pipelineLib, "Uses")
+    Rel(pipelineLib, scanAndReport, "Provides")
+Rel(jenkins, envVars, "Uses")
+Rel(jenkins, agents, "Has")
+    Rel(agents, baseAWS, "Has")
+    Rel(agents, awsFips, "Has")
+    Rel(agents, gcp, "Has")
+    Rel(agents, azure, "Has")
+
+@enduml
