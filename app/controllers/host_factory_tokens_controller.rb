@@ -21,10 +21,13 @@ class HostFactoryTokensController < RestController
     options[:cidr] = cidr if cidr
 
     tokens = []
-    count.times do
-      tokens << HostFactoryToken.create(options)
+    begin
+      count.times do
+        tokens << HostFactoryToken.create(options)
+      end
+    rescue ArgumentError => e
+      raise ApplicationController::UnprocessableEntity, e.message
     end
-
     render json: tokens
   end
 

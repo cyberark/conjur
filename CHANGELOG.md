@@ -42,6 +42,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `GET /resources` request with non-numeric delimiter (limit or offset) now
   returns `Error 422 Unprocessable Entity` instead of `Error 500`.
   [cyberark/conjur#1997](https://github.com/cyberark/conjur/issues/1997)
+- `POST /host_factory_tokens` request with invalid ip address or CIDR range of `cidr` parameter
+  now returns `Error 422 Unprocessable Entity` instead of `Error 500`.
+  [cyberark/conjur#2011](https://github.com/cyberark/conjur/issues/2011)
 
 ## [1.11.1] - 2020-11-19
 ### Added
