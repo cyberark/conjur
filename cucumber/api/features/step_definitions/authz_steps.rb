@@ -86,6 +86,11 @@ Given(/^I create a binary secret value?$/) do
   Secret.create resource_id: @current_resource.id, value: @value
 end
 
+Given(/^I create a binary secret value for resource "([^"]*)"?$/) do |resource_id|
+  @value = Random.new.bytes(16)
+  Secret.create resource_id: resource_id, value: @value
+end
+
 Given(/^I add the secret value(?: "([^"]*)")? to the resource(?: "([^"]*)")?$/) do |value, resource_id|
   Secret.create resource_id: resource_id, value: value
 end
