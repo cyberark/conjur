@@ -145,6 +145,7 @@ main() {
   fi
 
   # Create Conjur Image
+  # (On Jenkins, this will no-op because we have a build stage)
   ./build.sh --jenkins >&2
 
   TAG=$(version_tag)

@@ -52,30 +52,29 @@ function flatten() {
 
 # We want to build an image:
 # 1. Always, when we're developing locally
+if [[ $jenkins = false ]]; then
+  echo "Building image conjur-dev"
+  docker build -t conjur-dev -f dev/Dockerfile.dev .
+  exit 0
+fi
+
 # 2. Only if it doesn't already exist, when on Jenkins
-image_needs_building() {
-  [[ $jenkins = true ]] &&
-    # doesn't already exist
-    [[ "$(docker images -q "$1" 2> /dev/null)" == "" ]]
+image_doesnt_exist() {
+  [[ "$(docker images -q "$1" 2> /dev/null)" == "" ]]
 }
 
-if image_needs_building "conjur:$TAG"; then
+if image_doesnt_exist "conjur:$TAG"; then
   echo "Building image conjur:$TAG"
   docker build -t "conjur:$TAG" .
   flatten "conjur:$TAG"
 fi
 
-if image_needs_building "conjur-test:$TAG"; then
+if image_doesnt_exist "conjur-test:$TAG"; then
   echo "Building image conjur-test:$TAG container"
   docker build --build-arg "VERSION=$TAG" -t "conjur-test:$TAG" -f Dockerfile.test .
 fi
 
-if image_needs_building "conjur-ubi:$TAG"; then
+if image_doesnt_exist "conjur-ubi:$TAG"; then
   echo "Building image conjur-ubi:$TAG container"
   docker build --build-arg "VERSION=$TAG" -t "conjur-ubi:$TAG" -f Dockerfile.ubi .
-fi
-
-if [[ $jenkins = false ]]; then
-  echo "Building image conjur-dev"
-  docker build -t conjur-dev -f dev/Dockerfile.dev .
 fi
