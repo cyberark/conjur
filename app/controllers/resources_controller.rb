@@ -3,14 +3,14 @@
 class ResourcesController < RestController
   include FindResource
   include AssumedRole
-  
+
   def index
     # Rails 5 requires parameters to be explicitly permitted before converting 
     # to Hash.  See: https://stackoverflow.com/a/46029524
     allowed_params = %i(account kind limit offset search)
     options = params.permit(*allowed_params)
       .slice(*allowed_params).to_h.symbolize_keys
-    
+
     if params[:owner]
       ownerid = Role.make_full_id(params[:owner], account)
       options[:owner] = Role[ownerid] or raise Exceptions::RecordNotFound, ownerid
@@ -19,7 +19,13 @@ class ResourcesController < RestController
     # The v5 API currently sends +acting_as+ when listing resources
     # for a role other than the current user.
     query_role = params[:role].presence || params[:acting_as].presence
-    scope = Resource.visible_to(assumed_role(query_role)).search options
+    begin
+      scope = Resource.visible_to(assumed_role(query_role)).search options
+    rescue ApplicationController::Forbidden
+      raise
+    rescue ArgumentError => e
+      raise ApplicationController::UnprocessableEntity, e.message
+    end
 
     result =
       if params[:count] == 'true'
@@ -32,14 +38,14 @@ class ResourcesController < RestController
           eager(:policy_versions).
           all
       end
-  
+
     render json: result
   end
-  
+
   def show
     render json: resource
   end
-  
+
   def permitted_roles
     privilege = params[:privilege] || params[:permission]
     raise ArgumentError, "privilege" unless privilege
