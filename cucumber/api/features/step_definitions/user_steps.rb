@@ -34,7 +34,7 @@ Given('I create a new user {string} in account {string}') do |login, account|
 end
 
 Given("I login as {string}") do |login|
-  if login.match? %r{host\/[^:\/]+}
+  if host?(login)
     loginid = login.split('/')[1]
     roleid = (login.include?(":") ? login : "cucumber:host:#{loginid}")
   else
@@ -53,7 +53,19 @@ end
 
 Given("I set the password for {string} to {string}") do |login, password|
   # TODO: investigate smell
-  user = lookup_user(login)
-  user.password = password
-  user.save
+  if host?(login)
+    login_id = login.split('/')[1]
+    role = lookup_host(login_id)
+  else
+    role = lookup_user(login)
+  end
+  role.password = password
+  role.save
+end
+
+private
+
+# Determines if login string represents a host, namely prefixed with 'host/'
+def host?(login)
+  login.match? %r{host\/[^:\/]+}
 end
