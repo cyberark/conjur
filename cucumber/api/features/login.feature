@@ -54,7 +54,7 @@ Feature: Exchange a role's password for its API key
     And there is an audit record matching:
     """
       <84>1 * * conjur * authn
-      [subject@43868 role="cucumber:host:app"x]
+      [subject@43868 role="cucumber:host:app"]
       [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="cucumber:host:app"]
       [client@43868 ip="172.17.0.1"]
       [action@43868 result="failure" operation="login"][meta sequenceId="1"]
@@ -62,8 +62,7 @@ Feature: Exchange a role's password for its API key
     """
 
   Scenario: Wrong username cannot be used to obtain API key
-    When I set the password for "alice" to "My-Password1"
-    And I GET "/authn/cucumber/login" with username "non-exist" and password "My-Password1"
+    When I GET "/authn/cucumber/login" with username "non-exist" and password "My-Password1"
     Then the HTTP response status code is 401
     And there is an audit record matching:
     """
@@ -76,17 +75,16 @@ Feature: Exchange a role's password for its API key
     """
 
   Scenario: Wrong hostname cannot be used to obtain API key
-    Given I set the password for "host/app" to "My-Password1"
-    And I GET "/authn/cucumber/login" with username "host/no-host" and password "My-Password1"
+    When I GET "/authn/cucumber/login" with username "host/non-exist" and password "My-Password1"
     Then the HTTP response status code is 401
     And there is an audit record matching:
     """
       <84>1 * * conjur * authn
-      [subject@43868 role="cucumber:host:no-host"]
+      [subject@43868 role="cucumber:host:non-exist"]
       [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="not-found"]
       [client@43868 ip="172.17.0.1"]
       [action@43868 result="failure" operation="login"][meta sequenceId="1"]
-      cucumber:host:no-host failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00007E 'no-host' not found
+      cucumber:host:non-exist failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00007E 'non-exist' not found
     """
 
   @logged-in

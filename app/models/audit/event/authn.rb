@@ -91,7 +91,7 @@ module Audit
       # Masking role if it doesn't exist to avoid audit pollution
       # Checking @success as well to save DB call on success
       def sanitized_role_id
-        return NOT_FOUND unless (@success || Role[role_id: @role_id])
+        return NOT_FOUND unless @success || Role[role_id: @role_id]
         @role_id
       end
     end

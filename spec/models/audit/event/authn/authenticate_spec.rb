@@ -77,4 +77,21 @@ describe Audit::Event::Authn::Authenticate do
 
     it_behaves_like 'structured data includes client IP address'
   end
+
+  context 'when a failure occurs but user exists' do
+    let(:success) { false }
+    before do
+      expect(Role).to receive(:[]).and_return true
+    end
+
+    it 'contains the user field despite failure' do
+      expect(subject.structured_data).to match(hash_including({
+        Audit::SDID::AUTH => {
+            authenticator: authenticator_name,
+            service: service.resource_id,
+            user: role_id
+        }
+    }))
+    end
+  end
 end
