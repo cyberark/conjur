@@ -32,6 +32,12 @@ describe Audit::Event::Password do
       )
     end
 
+    it 'contains the role field' do
+      expect(subject.structured_data).to match(hash_including({
+          Audit::SDID::SUBJECT => { role: role_id }
+      }))
+    end
+
     it_behaves_like 'structured data includes client IP address'
   end
 

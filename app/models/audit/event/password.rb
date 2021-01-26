@@ -51,7 +51,7 @@ module Audit
       def structured_data
         {
           SDID::AUTH => { user: @user_id },
-          SDID::SUBJECT => { user: @user_id },
+          SDID::SUBJECT => { role: @user_id },
           SDID::CLIENT => { ip: @client_ip }
         }.merge(
           attempted_action.action_sd
