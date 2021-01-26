@@ -63,8 +63,8 @@ class HostFactoryToken < Sequel::Model
 
   def validate
     super
-
-    validates_presence [ :expiration]
+    validates_presence [:expiration]
+    validate_cidr
   end
 
   def before_create
@@ -79,5 +79,20 @@ class HostFactoryToken < Sequel::Model
     require 'digest'
     self.token = self.class.random_token
     self.token_sha256 = Digest::SHA256.hexdigest(self.token)
+  end
+
+  def validate_cidr
+    cidr = self[:cidr]
+    unless cidr.blank?
+      begin
+        Conjur::PolicyParser::Types::Base::expect_array(
+          "cidr",
+          "cidr",
+          cidr
+        )
+      rescue => e
+        raise ArgumentError, e.message
+      end
+    end
   end
 end
