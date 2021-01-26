@@ -40,6 +40,9 @@ class ApplicationController < ActionController::API
   class RecordExists < Exceptions::RecordExists
   end
 
+  class UnprocessableEntity < RuntimeError
+  end
+
   rescue_from Exceptions::RecordNotFound, with: :record_not_found
   rescue_from Exceptions::RecordExists, with: :record_exists
   rescue_from Exceptions::Forbidden, with: :forbidden
@@ -57,6 +60,7 @@ class ApplicationController < ActionController::API
   rescue_from Exceptions::InvalidPolicyObject, with: :policy_invalid
   rescue_from ArgumentError, with: :argument_error
   rescue_from ActionController::ParameterMissing, with: :argument_error
+  rescue_from UnprocessableEntity, with: :unprocessable_entity
 
   around_action :run_with_transaction
 
@@ -210,6 +214,16 @@ class ApplicationController < ActionController::API
   def bad_request e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
     head :bad_request
+  end
+
+  def unprocessable_entity e
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    render json: {
+      error: {
+        code: :unprocessable_entity,
+        message: e.message
+      }
+    }, status: :unprocessable_entity
   end
 
   def unauthorized e
