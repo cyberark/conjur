@@ -18,7 +18,7 @@ For general contribution and community guidelines, please see the [community rep
     + [View the admin user's API key](#view-the-admin-user-s-api-key)
     + [Load a policy](#load-a-policy)
 - [Testing](#testing)
-  
+  * [CI Pipeline](#ci-pipeline)
   * [RSpec](#rspec)
   * [Cucumber](#cucumber)
     + [Run all the cukes:](#run-all-the-cukes-)
@@ -263,13 +263,17 @@ For most development work, the account will be `cucumber`, which is created when
 
 ## Testing
 
-Conjur has `rspec` and `cucumber` tests.
+Conjur has `rspec` and `cucumber` tests, and an automated CI Pipeline.
 
 Note on performance testing: set `WEB_CONCURRENCY: 0` - this configuration is
 useful for recording accurate coverage data that can be used in
 the[ci/docker-compose.yml](ci/docker-compose.yml) and
 [conjur/ci/authn-k8s/dev/dev_conjur.template.yaml](conjur/ci/authn-k8s/dev/dev_conjur.template.yaml).
 This isn't a realistic configuration and should not be used for benchmarking.
+
+### CI Pipeline
+
+The CI Pipeline is defined in the `Jenkinsfile`, and documented in [CI_README.md](./CI_README.md)
 
 ### RSpec
 
