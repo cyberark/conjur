@@ -39,7 +39,7 @@ module Audit
       # :reek:NilCheck
       def message
         past_tense_verb = @operation.to_s.chomp('e') + "ed"
-        "#{@user&.id} #{past_tense_verb} #{@subject}"
+        "#{user&.id} #{past_tense_verb} #{@subject}"
       end
 
       def message_id
@@ -50,7 +50,7 @@ module Audit
       # :reek:NilCheck
       def structured_data
         {
-          SDID::AUTH => { user: @user&.id },
+          SDID::AUTH => { user: user&.id },
           SDID::SUBJECT => @subject.to_h,
           SDID::ACTION => { operation: @operation },
           SDID::CLIENT => { ip: client_ip }
@@ -75,7 +75,7 @@ module Audit
       private
 
       def user
-        @user || @policy_version.role
+        @user ||= @policy_version.role
       end
 
       def client_ip
