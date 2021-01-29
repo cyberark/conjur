@@ -19,6 +19,10 @@ When(/^I( (?:can|successfully))? GET "([^"]*)"$/) do |can, path|
   end
 end
 
+When(/^I GET "([^"]*)" with no default headers$/) do |path|
+  get_json_no_default_headers path
+end
+
 When(/^I( (?:can|successfully))? PUT "([^"]*)"$/) do |can, path|
   try_request can do
     put_json path

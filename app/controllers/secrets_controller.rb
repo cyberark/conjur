@@ -73,19 +73,13 @@ class SecretsController < RestController
     raise Errors::Conjur::BadSecretEncoding, result
   end
 
-  def get_secret_from_variable variable
+  def get_secret_from_variable(variable)
     secret = variable.last_secret
-    unless secret
-      raise Exceptions::RecordNotFound, variable.resource_id
-    end
+    raise Exceptions::RecordNotFound, variable.resource_id unless secret
 
     secret_value = secret.value
-
-    if request.headers['Accept'].casecmp?('base64')
-      Base64.encode64(secret_value)
-    else
-      secret_value
-    end
+    accepts_base64 = String(request.headers['Accept']).casecmp?('base64')
+    accepts_base64 ? Base64.encode64(secret_value) : secret_value
   end
 
   def audit_fetch resource, version: nil

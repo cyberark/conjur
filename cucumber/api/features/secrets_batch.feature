@@ -114,3 +114,11 @@ Feature: Batch retrieval of secrets
     And I add the secret value "v2" to the resource "cucumber:variable:secret2"
     When I GET "/secrets?variable_ids=cucumber:variable:secret3,cucumber:variable:secret2"
     Then the HTTP response status code is 500
+
+  Scenario: Omit the Accept header entirely from batch secrets request
+    Given I add the secret value "v2" to the resource "cucumber:variable:secret2"
+    When I GET "/secrets?variable_ids=cucumber:variable:secret2" with no default headers
+    Then the JSON should be:
+    """
+    { "cucumber:variable:secret2": "v2" }
+    """
