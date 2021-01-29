@@ -2,8 +2,6 @@ AllCops:
   TargetRubyVersion: 2.5
 
 # These non-default settings best reflect our current code style.
-Style/MethodDefParentheses:
-  EnforcedStyle: require_no_parentheses_except_multiline
 Style/PercentLiteralDelimiters:
   PreferredDelimiters:
     "%i": ()
