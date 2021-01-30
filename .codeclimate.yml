@@ -1,7 +1,7 @@
 plugins:
   rubocop:
     enabled: true
-    channel: rubocop-0-58
+    channel: rubocop-1-8-1
   reek:
     enabled: true
   bundler-audit:
