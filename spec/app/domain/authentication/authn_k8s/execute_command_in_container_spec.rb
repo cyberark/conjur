@@ -116,7 +116,7 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
   let(:pod_namespace) { "PodNamespace" }
   let(:pod_name) { "PodName" }
   let(:container) { "Container" }
-  let(:cmds) { %w(command1 command2) }
+  let(:cmds) { %w[command1 command2] }
   let(:body) { "Body" }
 
   # This is used in test code to verify that all the client listeners are ready.

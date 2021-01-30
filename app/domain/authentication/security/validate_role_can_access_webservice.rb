@@ -14,7 +14,7 @@ module Authentication
         validate_account_exists:    ::Authentication::Security::ValidateAccountExists.new,
         logger:                     Rails.logger
       },
-      inputs:       %i(webservice account user_id privilege)
+      inputs:       %i[webservice account user_id privilege]
     ) do
 
       def call

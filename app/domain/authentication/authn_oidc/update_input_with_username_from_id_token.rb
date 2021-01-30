@@ -8,7 +8,7 @@ module Authentication
         verify_and_decode_token:             ::Authentication::OAuth::VerifyAndDecodeToken.new,
         logger:                              Rails.logger
       },
-      inputs:       %i(authenticator_input)
+      inputs:       %i[authenticator_input]
     ) do
 
       extend Forwardable
@@ -64,7 +64,7 @@ module Authentication
       end
 
       def required_variable_names
-        @required_variable_names ||= %w(provider-uri id-token-user-property)
+        @required_variable_names ||= %w[provider-uri id-token-user-property]
       end
 
       def validate_conjur_username

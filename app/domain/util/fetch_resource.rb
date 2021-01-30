@@ -3,7 +3,7 @@ module Util
     dependencies: {
       resource_class: ::Resource
     },
-    inputs: %i(resource_id)
+    inputs: %i[resource_id]
   ) do
 
     def call

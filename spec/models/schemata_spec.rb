@@ -19,7 +19,7 @@ describe Schemata do
   let(:schemata) { Schemata.new }
 
   describe "with search path $user, publc" do
-    let(:search_path) { %i($user public) }
+    let(:search_path) { %i[$user public] }
     describe "search_path" do
       specify { expect(schemata.search_path).to eq(search_path) }
     end

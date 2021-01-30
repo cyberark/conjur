@@ -26,7 +26,7 @@ class Resource < Sequel::Model
   def as_json options = {}
     super(options).tap do |response|
       response["id"] = response.delete("resource_id")
-      %w(owner policy).each do |field|
+      %w[owner policy].each do |field|
         write_id_to_json response, field
       end
       response["permissions"] = permissions.as_json.map { |h| h.except 'resource' }

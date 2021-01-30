@@ -8,7 +8,7 @@ module Authentication
       dependencies: {
         role_class: ::Role
       },
-      inputs: %i(account)
+      inputs: %i[account]
     ) do
 
       def call

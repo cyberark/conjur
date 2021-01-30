@@ -84,7 +84,7 @@ module Authentication
       end
 
       def required_variable_names
-        @required_variable_names ||= %w(provider-uri)
+        @required_variable_names ||= %w[provider-uri]
       end
     end
 

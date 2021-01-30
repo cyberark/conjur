@@ -29,7 +29,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
   # The authenticated user who performs the policy load.
   many_to_one :role
 
-  one_to_many :policy_log, key: %i(policy_id version)
+  one_to_many :policy_log, key: %i[policy_id version]
 
   attr_accessor :parse_error, :policy_filename, :delete_permitted
 
@@ -47,7 +47,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
   def as_json options = {}
     super(options).tap do |response|
       response["id"] = response.delete("resource_id")
-      %w(role).each do |field|
+      %w[role].each do |field|
         write_id_to_json response, field
       end
     end

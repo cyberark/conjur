@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Authentication::Constraints::RequiredConstraint do
   context "Given RequiredConstraint initialized with 1 restriction" do
     let(:required_restriction) { ["required"] }
-    let(:not_required_restrictions) { %w(not_required_first not_required_second) }
+    let(:not_required_restrictions) { %w[not_required_first not_required_second] }
     let(:raised_error) { ::Errors::Authentication::Constraints::RoleMissingConstraints }
     let(:expected_error_message) { /#{Regexp.escape(required_restriction.to_s)}/ }
 
@@ -55,8 +55,8 @@ RSpec.describe Authentication::Constraints::RequiredConstraint do
   end
 
   context "Given RequiredConstraint initialized with 2 restrictions" do
-    let(:required_two_restrictions) { %w(required_first required_second) }
-    let(:not_required_restrictions) { %w(not_required_first not_required_second) }
+    let(:required_two_restrictions) { %w[required_first required_second] }
+    let(:not_required_restrictions) { %w[not_required_first not_required_second] }
     let(:raised_error) { ::Errors::Authentication::Constraints::RoleMissingConstraints }
 
     subject(:constraint) do

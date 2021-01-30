@@ -55,7 +55,7 @@ RSpec.describe Authentication::Constraints::AnyConstraint do
   end
 
   context "Given AnyConstraint initialized with 2 restrictions" do
-    let(:any_two_restrictions) { %w(required_first required_second) }
+    let(:any_two_restrictions) { %w[required_first required_second] }
     let(:not_required_restriction) { "not-required" }
     let(:raised_error) { ::Errors::Authentication::Constraints::RoleMissingRequiredConstraints }
     let(:expected_error_message) { /#{Regexp.escape(any_two_restrictions.to_s)}/ }

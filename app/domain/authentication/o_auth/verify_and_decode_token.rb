@@ -23,7 +23,7 @@ module Authentication
         verify_and_decode_token: ::Authentication::Jwt::VerifyAndDecodeToken.new,
         logger:                  Rails.logger
       },
-      inputs:       %i(provider_uri token_jwt claims_to_verify)
+      inputs:       %i[provider_uri token_jwt claims_to_verify]
     ) do
 
       def call

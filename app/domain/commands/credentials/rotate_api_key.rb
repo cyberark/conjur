@@ -14,7 +14,7 @@ module Commands
       dependencies: {
         audit_log: ::Audit.logger
       },
-      inputs: %i(role_to_rotate authenticated_role client_ip)
+      inputs: %i[role_to_rotate authenticated_role client_ip]
     ) do
 
       def call

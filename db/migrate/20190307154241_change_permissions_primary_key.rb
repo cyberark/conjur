@@ -9,14 +9,14 @@ Sequel.migration do
   up do
     alter_table :permissions do
       drop_constraint :permissions_pkey
-      add_primary_key %i(resource_id role_id privilege)
+      add_primary_key %i[resource_id role_id privilege]
     end
   end
 
   down do
     alter_table :permissions do
       drop_constraint :permissions_pkey
-      add_primary_key %i(privilege resource_id role_id)
+      add_primary_key %i[privilege resource_id role_id]
     end
   end
 end

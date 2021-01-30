@@ -21,7 +21,7 @@ module Authentication
         validate_message:              MessageLog::ValidateMessage.new,
         logger:                        Rails.logger
       },
-      inputs:       %i(k8s_object_lookup pod_namespace pod_name container cmds body stdin)
+      inputs:       %i[k8s_object_lookup pod_namespace pod_name container cmds body stdin]
     ) do
 
       DEFAULT_TIMEOUT_SEC = 5
@@ -111,7 +111,7 @@ module Authentication
         base_url = "wss://#{api_uri.host}:#{api_uri.port}"
         path     = "/api/v1/namespaces/#{@pod_namespace}/pods/#{@pod_name}/exec"
 
-        base_query_string_parts = %W(container=#{CGI.escape(@container)} stderr=true stdout=true)
+        base_query_string_parts = %W[container=#{CGI.escape(@container)} stderr=true stdout=true]
         stdin_part              = @stdin ? ['stdin=true'] : []
         cmds_part               = @cmds.map { |cmd| "command=#{CGI.escape(cmd)}" }
         query_string            = (

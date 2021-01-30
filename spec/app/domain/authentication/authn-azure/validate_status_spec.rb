@@ -6,7 +6,7 @@ RSpec.describe Authentication::AuthnAzure::ValidateStatus do
   let(:account) { "my-acct" }
   let(:service) { "my-service" }
 
-  include_context "fetch secrets", %w(provider-uri)
+  include_context "fetch secrets", %w[provider-uri]
 
   let(:test_azure_discovery_error) { "test-azure-discovery-error" }
 

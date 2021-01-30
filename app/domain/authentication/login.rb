@@ -13,7 +13,7 @@ module Authentication
       audit_log: ::Audit.logger,
       role_cls: ::Role
     },
-    inputs: %i(authenticator_input authenticators enabled_authenticators)
+    inputs: %i[authenticator_input authenticators enabled_authenticators]
   ) do
 
     extend Forwardable

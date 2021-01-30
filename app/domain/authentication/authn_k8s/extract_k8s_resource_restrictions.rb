@@ -9,7 +9,7 @@ module Authentication
         resource_restrictions_class:   ResourceRestrictions::ResourceRestrictions,
         logger:                        Rails.logger
       },
-      inputs:   %i(authenticator_name service_id role_name account)
+      inputs:   %i[authenticator_name service_id role_name account]
     ) do
 
       def call

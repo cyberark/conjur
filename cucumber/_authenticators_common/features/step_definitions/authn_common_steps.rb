@@ -4,7 +4,7 @@ Then(/^(user|host) "(\S+)" has been authorized by Conjur$/) do |role_type, usern
 end
 
 Then(/^login response token is valid$/) do
-  expect(token_for_keys(%w(user_name expiration_time id_token_encrypted), @response_body)).to be
+  expect(token_for_keys(%w[user_name expiration_time id_token_encrypted], @response_body)).to be
 end
 
 Then(/it is a bad request/) do

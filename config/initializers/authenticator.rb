@@ -8,7 +8,7 @@ require 'patches/core_ext'
 
 Sequel.extension :migration
 
-if %w(test development cucumber).member?(Rails.env)
+if %w[test development cucumber].member?(Rails.env)
   ENV['CONJUR_DATA_KEY'] ||= '4pSuk1rAQyuHA5uUYaj0X0BsiPCFb9Nc8J03XA6V5/Y='
 end
 

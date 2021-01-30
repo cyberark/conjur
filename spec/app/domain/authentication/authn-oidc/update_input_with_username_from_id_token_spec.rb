@@ -7,7 +7,7 @@ require 'json'
 
 RSpec.describe Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken do
 
-  include_context "fetch secrets", %w(provider-uri id-token-user-property)
+  include_context "fetch secrets", %w[provider-uri id-token-user-property]
   include_context "security mocks"
   include_context "oidc setup"
 

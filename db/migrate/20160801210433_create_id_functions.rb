@@ -32,7 +32,7 @@ Sequel.migration do
     # Index 'account' and 'kind' functions on the 'roles' and 'resources' tables 
     # Index 'account,kind' on 'roles' and 'resources'
     # Require account, kind NOT NULL
-    %w(roles resources).each do |table|
+    %w[roles resources].each do |table|
       primary_key = Sequel::Model(table.to_sym).primary_key
 
       execute <<-SQL
@@ -43,7 +43,7 @@ Sequel.migration do
       $$;
       SQL
 
-      %w(account kind).each do |func|
+      %w[account kind].each do |func|
         execute <<-SQL
         CREATE OR REPLACE FUNCTION #{func}(record #{table}) RETURNS text
         LANGUAGE sql IMMUTABLE
@@ -74,9 +74,9 @@ Sequel.migration do
   down do
     execute "DROP INDEX IF EXISTS secrets_account_kind_identifier_idx"
 
-    %w(roles resources).each do |t|
+    %w[roles resources].each do |t|
       execute "DROP FUNCTION IF EXISTS identifier(#{t})"
-      %w(account kind).each do |f|
+      %w[account kind].each do |f|
         execute "DROP FUNCTION IF EXISTS #{f}(#{t})"
         execute "DROP INDEX #{t}_#{f}_idx"
         execute "ALTER TABLE #{t} DROP CONSTRAINT has_#{f}"

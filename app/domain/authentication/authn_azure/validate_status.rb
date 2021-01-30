@@ -6,7 +6,7 @@ module Authentication
         fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
         discover_identity_provider:  Authentication::OAuth::DiscoverIdentityProvider.new
       },
-      inputs:       %i(account service_id)
+      inputs:       %i[account service_id]
     ) do
 
       def call
@@ -30,7 +30,7 @@ module Authentication
       end
 
       def required_variable_names
-        @required_variable_names ||= %w(provider-uri)
+        @required_variable_names ||= %w[provider-uri]
       end
 
       def validate_provider_is_responsive

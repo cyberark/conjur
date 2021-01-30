@@ -355,7 +355,7 @@ module Conjur
         def start_mapping *args
           log {"#{indent}start mapping #{args}"}
           anchor, tag, _ = args
-          tag = "!automatic-role" if %w(!managed-role !managed_role).include?(tag)
+          tag = "!automatic-role" if %w[!managed-role !managed_role].include?(tag)
           handler.start_mapping tag, anchor
         end
         

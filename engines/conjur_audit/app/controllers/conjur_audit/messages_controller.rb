@@ -10,9 +10,9 @@ module ConjurAudit
 
     private
 
-    DIRECT_FIELDS = %i(facility severity hostname appname procid msgid).freeze
+    DIRECT_FIELDS = %i[facility severity hostname appname procid msgid].freeze
 
-    PAGING_FIELDS = %i(limit offset).freeze
+    PAGING_FIELDS = %i[limit offset].freeze
     
     def query
       @query ||= request.query_parameters

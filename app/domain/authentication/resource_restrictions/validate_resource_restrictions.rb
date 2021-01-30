@@ -25,7 +25,7 @@ module Authentication
         extract_resource_restrictions: ExtractResourceRestrictions.new,
         logger:                        Rails.logger
       },
-      inputs:   %i(authenticator_name service_id role_name account constraints authentication_request)
+      inputs:   %i[authenticator_name service_id role_name account constraints authentication_request]
     ) do
 
       def call

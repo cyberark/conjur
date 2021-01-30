@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
 
   include_context "security mocks"
-  include_context "fetch secrets", %w(provider-uri)
+  include_context "fetch secrets", %w[provider-uri]
 
   let(:account) { "my-acct" }
   let(:authenticator_name) { "authn-azure" }
