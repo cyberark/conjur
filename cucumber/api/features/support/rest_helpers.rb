@@ -65,7 +65,7 @@ module RestHelpers
     headers.each { |key, value| request[key] = value }
 
     if options[:user] && options[:password]
-      request.basic_auth options[:user], options[:password]
+      request.basic_auth(options[:user], options[:password])
     end
 
     response = http.request(request)
@@ -281,17 +281,17 @@ module RestHelpers
 
   def current_user_credentials
     username = @current_user.login
-    token = Slosilo["authn:#{@current_user.account}"].signed_token username
-    user_credentials username, token
+    token = Slosilo["authn:#{@current_user.account}"].signed_token(username)
+    user_credentials(username, token)
   end
 
-  def user_credentials username, token
+  def user_credentials(username, token)
     token_authorization = "Token token=\"#{Base64.strict_encode64 token.to_json}\""
     headers = { authorization: token_authorization }
     { headers: headers, username: username }
   end
 
-  def current_user_basic_auth password = nil
+  def current_user_basic_auth(password = nil)
     password ||= @current_user.api_key
     { user: @current_user.login, password: password }
   end
@@ -300,8 +300,11 @@ module RestHelpers
     RestClient::Resource.new(Conjur::Authn::API.host, current_user_credentials)
   end
 
-  def basic_auth_request password = nil
-    RestClient::Resource.new(Conjur::Authn::API.host, current_user_basic_auth(password))
+  def basic_auth_request(password = nil)
+    RestClient::Resource.new(
+      Conjur::Authn::API.host,
+      current_user_basic_auth(password)
+    )
   end
 
   def full_conjur_url(path)
