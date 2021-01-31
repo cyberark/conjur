@@ -27,10 +27,11 @@ Rails.application.routes.draw do
         patch '/:authenticator/:service_id/:account' => 'authenticate#update_config'
 
         get '/:authenticator(/:service_id)/:account/login' => 'authenticate#login'
-        # authn-oidc login & authenticate are currently for future use only
-        #post '/authn-oidc(/:service_id)/:account/login' => 'authenticate#login_oidc'
 
-        # authn-oidc has to be first as it can be ambgiuous with the optional :service_id & :id
+        # authn-oidc has to be first as it can be ambiguous with the optional :service_id in
+        # the common authn request and the fact that authn-oidc doesn't have an 'id' param.
+        # i.e the request 'authn-oidc/:service_id/:account/authenticate' can be interpreted as
+        # ':authenticator/:account/:id/authenticate'
         post '/authn-oidc(/:service_id)/:account/authenticate' => 'authenticate#authenticate_oidc'
         post '/authn-gcp/:account/authenticate' => 'authenticate#authenticate_gcp'
         post '/:authenticator(/:service_id)/:account/:id/authenticate' => 'authenticate#authenticate'

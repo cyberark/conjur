@@ -182,7 +182,8 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   docker-compose up -d --no-deps $services
 
   echo "Configuring Keycloak as OpenID provider for automatic testing"
-  enabled_authenticators="$enabled_authenticators,authn-oidc/keycloak"
+  # We enable an OIDC authenticator without a service-id to test that it's invalid
+  enabled_authenticators="$enabled_authenticators,authn-oidc/keycloak,authn-oidc"
 
   # Start conjur again, since it is recreating by docker-compose because of dependency with keycloak
   echo "Starting Conjur server"

@@ -12,6 +12,11 @@ Given(/^I successfully set OIDC variables$/) do
   set_id_token_user_property_variable
 end
 
+Given(/^I successfully set OIDC variables without a service-id$/) do
+  set_provider_uri_variable_without_service_id
+  set_id_token_user_property_variable_without_service_id
+end
+
 Given(/^I successfully set provider-uri variable$/) do
   set_provider_uri_variable
 end
@@ -26,6 +31,10 @@ end
 
 When(/^I authenticate via OIDC with id token$/) do
   authenticate_id_token_with_oidc(service_id: AuthnOidcHelper::SERVICE_ID, account: AuthnOidcHelper::ACCOUNT)
+end
+
+When(/^I authenticate via OIDC with id token and without a service-id$/) do
+  authenticate_id_token_with_oidc(service_id: nil, account: AuthnOidcHelper::ACCOUNT)
 end
 
 When(/^I authenticate via OIDC with id token and account "([^"]*)"$/) do |account|

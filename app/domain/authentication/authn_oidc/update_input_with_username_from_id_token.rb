@@ -18,6 +18,7 @@ module Authentication
 
       def call
         validate_account_exists
+        validate_service_id_exists
         validate_credentials_include_id_token
         verify_and_decode_token
         validate_conjur_username
@@ -30,6 +31,10 @@ module Authentication
         @validate_account_exists.(
           account: account
         )
+      end
+
+      def validate_service_id_exists
+        raise Errors::Authentication::AuthnOidc::ServiceIdMissing unless service_id
       end
 
       def validate_credentials_include_id_token
