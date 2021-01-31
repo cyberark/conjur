@@ -158,7 +158,7 @@ if [[ $ENABLE_AUTHN_AZURE = true ]]; then
 
   ../ci/authn-azure/check_dependencies.sh
 
-  docker-compose exec client conjur policy load root /src/conjur-server/ci/authn-azure/policies/policy.yml
+  docker-compose exec client conjur policy load root /src/conjur-server/ci/test_suites/authenticators_azure/policies/policy.yml
   docker-compose exec client conjur variable values add conjur/authn-azure/prod/provider-uri "https://sts.windows.net/$AZURE_TENANT_ID/"
 
   sed "s#{{ AZURE_SUBSCRIPTION_ID }}#$AZURE_SUBSCRIPTION_ID#g" ../ci/authn-azure/policies/azure-hosts.template.yml |
@@ -193,7 +193,7 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   keycloak_isready?
 
   echo "Initialize keycloak certificate in conjur server"
-  docker-compose exec conjur /src/conjur-server/ci/authn-oidc/keycloak/fetchCertificate
+  docker-compose exec -T conjur /authn-oidc/keycloak/scripts/fetchCertificate
 
   if [[ $ENABLE_OIDC_OKTA = true ]]; then
     echo "Configuring OKTA as OpenID provider for manual testing"
@@ -209,7 +209,7 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
 
   # add variables' values for keycloak
   echo "Setting keycloak variables values in conjur"
-  docker-compose exec client conjur policy load root /src/conjur-server/ci/authn-oidc/policy.yml
+  docker-compose exec client conjur policy load root /src/conjur-server/ci/test_suites/authenticators_oidc/policy.yml
   docker-compose exec client conjur variable values add conjur/authn-oidc/keycloak/provider-uri "https://keycloak:8443/auth/realms/master"
   docker-compose exec client conjur variable values add conjur/authn-oidc/keycloak/id-token-user-property "preferred_username"
 
@@ -228,17 +228,17 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   fi
 
   echo "Creating OpenID client in keycloack OpenID provider"
-  docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_client
+  docker-compose exec oidc-keycloak /scripts/create_client
   echo "keycloak admin console url: http://0.0.0.0:7777/auth/admin"
 
   echo "Creating user 'alice' in Keycloak"
-  docker-compose exec oidc-keycloak bash -c '/authn-oidc/keycloak/scripts/create_user "$KEYCLOAK_APP_USER" "$KEYCLOAK_APP_USER_PASSWORD" "$KEYCLOAK_APP_USER_EMAIL"'
+  docker-compose exec oidc-keycloak bash -c '/scripts/create_user "$KEYCLOAK_APP_USER" "$KEYCLOAK_APP_USER_PASSWORD" "$KEYCLOAK_APP_USER_EMAIL"'
 
   echo "Creating second user 'bob' in Keycloak"
-  docker-compose exec oidc-keycloak bash -c '/authn-oidc/keycloak/scripts/create_user "$KEYCLOAK_SECOND_APP_USER" "$KEYCLOAK_SECOND_APP_USER_PASSWORD" "$KEYCLOAK_SECOND_APP_USER_EMAIL"'
+  docker-compose exec oidc-keycloak bash -c '/scripts/create_user "$KEYCLOAK_SECOND_APP_USER" "$KEYCLOAK_SECOND_APP_USER_PASSWORD" "$KEYCLOAK_SECOND_APP_USER_EMAIL"'
 
   echo "Creating user in Keycloak that will not exist in conjur"
-  docker-compose exec oidc-keycloak bash -c '/authn-oidc/keycloak/scripts/create_user "$KEYCLOAK_NON_CONJUR_APP_USER" "$KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD" "$KEYCLOAK_NON_CONJUR_APP_USER_EMAIL"'
+  docker-compose exec oidc-keycloak bash -c '/scripts/create_user "$KEYCLOAK_NON_CONJUR_APP_USER" "$KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD" "$KEYCLOAK_NON_CONJUR_APP_USER_EMAIL"'
 
   if [[ $ENABLE_AUTHN_LDAP = true && $ENABLE_OIDC_OKTA = true ]]; then
     echo "Building & configuring Okta-LDAP agent"

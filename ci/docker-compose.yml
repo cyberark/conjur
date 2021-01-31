@@ -129,7 +129,7 @@ services:
       - DB_VENDOR=H2
       - KEYCLOAK_CLIENT_ID=conjurClient
       - KEYCLOAK_REDIRECT_URI=http://locallhost.com/
-      - KEYCLOAK_CLIENT_SECRET=d7047915-9029-45b8-9bd6-7ec5c2f75e5b
+      - KEYCLOAK_CLIENT_SECRET=1234
       - KEYCLOAK_SCOPE=openid
     ports:
       - "7777:8080"
