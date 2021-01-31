@@ -69,6 +69,8 @@ module PolicyHelpers
       JSON.parse(@result)
     when Conjur::PolicyLoadResult
       JSON.parse(@result.to_json)
+    when Hash
+      @result
     end
   end
 

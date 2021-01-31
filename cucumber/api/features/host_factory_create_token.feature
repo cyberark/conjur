@@ -53,3 +53,11 @@ Feature: Create a host factory token.
       }
     ]
     """
+
+  Scenario: A host factory token cannot be created with invalid CIDR
+    Given I permit user "alice" to "execute" it
+    And I login as "alice"
+    When I POST "/host_factory_tokens?host_factory=cucumber:host_factory:the-layer-factory&expiration=2050-12-31&cidr[]=123.234.0.0/16&cidr[]=1.895.abc.0/32" with in-body params
+    Then the HTTP response status code is 422
+    And there is an error
+    And the error message is "Invalid IP address or CIDR range '1.895.abc.0/32'"

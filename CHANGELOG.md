@@ -24,6 +24,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - When batch secret requests are sent with an `Accept: base64` header, the secret values in the response will all be
   Base64-encoded. Sending requests with this header allows users to retrieve binary secrets encoded in Base64.
   [cyberark/conjur#1962](https://github.com/cyberark/conjur/issues/1962)
+- Conjur now verifies that the `offset` parameter is a valid integer value.
+  The `GET /resources` request will fail if `offset` is not an integer greater than or equal to 0.
+  [cyberark/conjur#1997](https://github.com/cyberark/conjur/issues/1997)
 
 ### Fixed
 - Requests with empty body and application/json Content-Type Header will now
@@ -38,6 +41,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Attempts to retrieve binary secret data in a batch request without using the `Accept: base64` header now returns a
   message explaining that improper secret encoding is the cause of the 500 response.
   [cyberark/conjur#1962](https://github.com/cyberark/conjur/issues/1962)
+- `GET /resources` request with non-numeric delimiter (limit or offset) now
+  returns `Error 422 Unprocessable Entity` instead of `Error 500`.
+  [cyberark/conjur#1997](https://github.com/cyberark/conjur/issues/1997)
+- `POST /host_factory_tokens` request with invalid ip address or CIDR range of `cidr` parameter
+  now returns `Error 422 Unprocessable Entity` instead of `Error 500`.
+  [cyberark/conjur#2011](https://github.com/cyberark/conjur/issues/2011)
 
 ## [1.11.1] - 2020-11-19
 ### Added

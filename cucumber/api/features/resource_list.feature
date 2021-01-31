@@ -57,9 +57,55 @@ Feature: List resources with various types of filtering
     When I successfully GET "/resources/cucumber/test-resource?limit=1"
     Then I receive 1 resources
 
+  Scenario: The resource list cannot be limited with non numeric value
+    When I GET "/resources/cucumber/test-resource?limit=abc"
+    Then the HTTP response status code is 422
+    And there is an error
+    And the error message includes "'limit' contains an invalid value. 'limit' must be a positive integer."
+
+  Scenario: The resource list cannot be limited with zero
+    When I GET "/resources/cucumber/test-resource?limit=0"
+    Then the HTTP response status code is 422
+    And there is an error
+    And the error message includes "'limit' contains an invalid value. 'limit' must be a positive integer."
+
+  Scenario: The resource list cannot be limited with negative integer
+    When I GET "/resources/cucumber/test-resource?limit=-10"
+    Then the HTTP response status code is 422
+    And there is an error
+    And the error message includes "'limit' contains an invalid value. 'limit' must be a positive integer."
+
   Scenario: The resource list is retrieved starting from a specific offset.
     When I successfully GET "/resources/cucumber/test-resource?offset=1"
     Then I receive 2 resources
+
+  Scenario: The resource list cannot be retrieved starting from a specific offset with non numeric value
+    When I GET "/resources/cucumber/test-resource?offset=abc"
+    Then the HTTP response status code is 422
+    And there is an error
+    And the error message includes "'offset' contains an invalid value. 'offset' must be an integer greater than or equal to 0."
+
+  Scenario: The resource list cannot be retrieved starting from a specific offset with negative integer
+    When I GET "/resources/cucumber/test-resource?offset=-10"
+    Then the HTTP response status code is 422
+    And there is an error
+    And the error message includes "'offset' contains an invalid value. 'offset' must be an integer greater than or equal to 0."
+
+  Scenario: The resource list is retrieved starting from a specific offset and is limited
+    When I successfully GET "/resources/cucumber/test-resource?offset=1&limit=1"
+    Then I receive 1 resources
+
+  Scenario: The resource list cannot be retrieved with non numeric limit delimiter
+    When I GET "/resources/cucumber/test-resource?offset=1&limit=abc"
+    Then the HTTP response status code is 422
+    And there is an error
+    And the error message includes "'limit' contains an invalid value. 'limit' must be a positive integer."
+
+  Scenario: The resource list cannot be retrieved with non numeric offset delimiter
+    When I GET "/resources/cucumber/test-resource?offset=abc&limit=1"
+    Then the HTTP response status code is 422
+    And there is an error
+    And the error message includes "'offset' contains an invalid value. 'offset' must be an integer greater than or equal to 0."
 
   Scenario: The resource list is counted.
     When I successfully GET "/resources/cucumber/test-resource?count=true"

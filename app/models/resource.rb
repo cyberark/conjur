@@ -2,9 +2,9 @@
 
 class Resource < Sequel::Model
   include HasId
-  
+
   unrestrict_primary_key
-  
+
   one_to_many :permissions, reciprocal: :resource
   one_to_many :annotations, reciprocal: :resource
   one_to_many :secrets, reciprocal: :resource
@@ -12,33 +12,33 @@ class Resource < Sequel::Model
   one_to_many :host_factory_tokens, reciprocal: :resource
   many_to_one :owner, class: :Role
   many_to_one :policy, class: :Resource
-  
+
   alias id resource_id
-  
+
   def kind
     id.split(":", 3)[1]
   end
-  
+
   def identifier
     id.split(":", 3)[2]
   end
-  
+
   def as_json options = {}
     super(options).tap do |response|
       response["id"] = response.delete("resource_id")
       %w(owner policy).each do |field|
         write_id_to_json response, field
       end
-      response["permissions"] = permissions.as_json.map {|h| h.except 'resource'}
-      response["annotations"] = self.annotations.as_json.map {|h| h.except 'resource'}
+      response["permissions"] = permissions.as_json.map { |h| h.except 'resource' }
+      response["annotations"] = self.annotations.as_json.map { |h| h.except 'resource' }
       case kind
       when "variable"
         response["secrets"] = secrets_dataset.order(:version).as_json
-          .map { |h| h.except 'resource' }
+                                             .map { |h| h.except 'resource' }
       when "policy"
-        response["policy_versions"] = self.policy_versions.as_json.map {|h| h.except 'resource'}
+        response["policy_versions"] = self.policy_versions.as_json.map { |h| h.except 'resource' }
       when "host_factory"
-        response["tokens"] = self.host_factory_tokens.as_json.map {|h| h.except 'resource'}
+        response["tokens"] = self.host_factory_tokens.as_json.map { |h| h.except 'resource' }
         response["layers"] = self.role.layers.map(&:role_id)
       when "user", "host"
         response["restricted_to"] = self.role.restricted_to.map(&:to_s)
@@ -47,7 +47,7 @@ class Resource < Sequel::Model
   end
 
   class << self
-    
+
     def make_full_id id, account
       Role.make_full_id id, account
     end
@@ -68,8 +68,8 @@ class Resource < Sequel::Model
         .where(resource_id: resource_id)
         .all
         .map(&:values)
-        .reduce([]) { |m,x| m << [x[:name], x[:value]] }
-        .to_h 
+        .reduce([]) { |m, x| m << [x[:name], x[:value]] }
+        .to_h
     end
   end
 
@@ -79,7 +79,7 @@ class Resource < Sequel::Model
       result << "policy_versions" if kind == "policy"
     end
   end
-  
+
   dataset_module do
     # Filter out records based on:
     # @param account [String] - chooses just resources of this account
@@ -90,11 +90,11 @@ class Resource < Sequel::Model
     # @param search [String] - a search term in the resource id
     def search account: nil, kind: nil, owner: nil, offset: nil, limit: nil, search: nil
       scope = self
-      
+
       # Filter by kind and account.
       scope = scope.where(Sequel.lit("account(resource_id) = ?", account)) if account
       scope = scope.where(Sequel.lit("kind(resource_id) = ?", kind)) if kind
-      
+
       # Filter by owner
       if owner
         owners = Resource.from(::Sequel.function(:all_roles, owner.id)).select(:role_id)
@@ -105,6 +105,14 @@ class Resource < Sequel::Model
       scope = scope.textsearch(search) if search
 
       if offset || limit
+        # 'limit' must be an integer greater than 0 if given
+        if limit && (!numeric?(limit) || limit.to_i <= 0)
+          raise ArgumentError, "'limit' contains an invalid value. 'limit' must be a positive integer."
+        end
+        # 'offset' must be an integer greater than or equal to 0 if given
+        if offset && (!numeric?(offset) || offset.to_i.negative?)
+          raise ArgumentError, "'offset' contains an invalid value. 'offset' must be an integer greater than or equal to 0."
+        end
         scope = scope.order(:resource_id).limit(
           (limit || 10).to_i,
           (offset || 0).to_i
@@ -131,6 +139,10 @@ class Resource < Sequel::Model
     def visible_to role
       from Sequel.function(:visible_resources, role.id).as(:resources)
     end
+
+    def numeric? val
+      val == val.to_i.to_s
+    end
   end
 
   def role
@@ -147,7 +159,7 @@ class Resource < Sequel::Model
     options[:role] = role
     add_permission options
   end
-  
+
   # Truncate secrets beyond the configured limit.
   def enforce_secrets_version_limit limit = secrets_version_limit
     # The Sequel-foo for this escapes me.

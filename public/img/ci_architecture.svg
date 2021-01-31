@@ -1,0 +1,846 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="746px" preserveAspectRatio="none" style="width:2095px;height:746px;" version="1.1" viewBox="0 0 2095 746" width="2095px" zoomAndPan="magnify"><defs/><g><text fill="#000000" font-family="sans-serif" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="212" x="935.25" y="17.4023">CI Architecture Overview</text><!--MD5=[9d43cf96047e378adcca12cb04008485]
+entity jenkins--><rect fill="#85BBF0" height="67.1094" style="stroke:#78A8D8;stroke-width:1.5;" width="113" x="1472" y="28.1992"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="76" x="1490.5" y="49.8008">«component»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="62" x="1497.5" y="67.8008">Jenkins</text><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="93" x="1482" y="82.7773">[CI Test Runner]</text><!--MD5=[c97ea8dc327991c414ba9912ca83c275]
+entity bashTests--><rect fill="#FEFECE" height="62.9766" style="stroke:#444444;stroke-width:1.0;stroke-dasharray:7.0,7.0;" width="141" x="666" y="173.1992"/><text fill="#000000" font-family="sans-serif" font-size="0" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="0" x="736.5" y="183.1992">«boundary»</text><text fill="#444444" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="121" x="676" y="208.668">Bash CI Scripts</text><text fill="#444444" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="63" x="705" y="223.6445">[Container]</text><!--MD5=[61de32865f24f7fd348cea7d44efb3b2]
+entity validateChangelog--><rect fill="#438DD5" height="67.1094" style="stroke:#3C7FC0;stroke-width:1.5;" width="184" x="45.5" y="323.6992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="65" x="105" y="345.3008">«container»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="164" x="55.5" y="363.3008">ci/parse-changelog</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="125" x="75" y="378.2773">[Validates Changelog]</text><!--MD5=[11fa01443fe50a6a26e5f9d4ef816fb0]
+entity build--><rect fill="#438DD5" height="67.1094" style="stroke:#3C7FC0;stroke-width:1.5;" width="137" x="265" y="323.6992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="65" x="301" y="345.3008">«container»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="67" x="300" y="363.3008">build.sh</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="117" x="275" y="378.2773">[Docker Build Script]</text><!--MD5=[e7c74734b2a7455a2fd621789d9f50e6]
+entity runStandardTest--><rect fill="#438DD5" height="67.1094" style="stroke:#3C7FC0;stroke-width:1.5;" width="162" x="437.5" y="323.6992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="65" x="486" y="345.3008">«container»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="53" x="492" y="363.3008">ci/test</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="142" x="447.5" y="378.2773">[Runs Named Test Suite]</text><!--MD5=[8b2faa79b5ce75f56ca47380ca6b1f00]
+entity shared--><rect fill="#438DD5" height="67.1094" style="stroke:#3C7FC0;stroke-width:1.5;" width="185" x="90" y="493.6992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="65" x="150" y="515.3008">«container»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="103" x="131" y="533.3008">ci/shared.sh</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="165" x="100" y="548.2773">[Shared Test Suite Functions]</text><!--MD5=[545b3534b14932bd7787130afeffc62c]
+entity cucumber--><rect fill="#438DD5" height="67.1094" style="stroke:#3C7FC0;stroke-width:1.5;" width="169" x="7" y="663.6992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="65" x="59" y="685.3008">«container»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="83" x="50" y="703.3008">cucumber</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="149" x="17" y="718.2773">[Cucumber Feature Tests]</text><!--MD5=[1be1e8e9c1fa15d6e082466842209191]
+entity ldap--><rect fill="#438DD5" height="67.1094" style="stroke:#3C7FC0;stroke-width:1.5;" width="127" x="211" y="663.6992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="65" x="242" y="685.3008">«container»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="44" x="252.5" y="703.3008">LDAP</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="107" x="221" y="718.2773">[LDAP Test Server]</text><!--MD5=[6ece6d45dfbeee5eb930c93ac8762408]
+entity rspec--><rect fill="#438DD5" height="67.1094" style="stroke:#3C7FC0;stroke-width:1.5;" width="140" x="310.5" y="493.6992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="65" x="348" y="515.3008">«container»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="49" x="356" y="533.3008">Rspec</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="120" x="320.5" y="548.2773">[Conjur Rspec Tests]</text><!--MD5=[c93164fc6e36014029e86c294a342e95]
+entity authnK8s--><rect fill="#85BBF0" height="67.1094" style="stroke:#78A8D8;stroke-width:1.5;" width="150" x="485.5" y="493.6992"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="76" x="522.5" y="515.3008">«component»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="82" x="519.5" y="533.3008">GKE Tests</text><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="130" x="495.5" y="548.2773">[Authn K8s GKE Tests]</text><!--MD5=[a4dc902f239699aed20ca9b78128f215]
+entity gke--><rect fill="#1168BD" height="85.9531" style="stroke:#3C7FC0;stroke-width:1.5;" width="114" x="503.5" y="654.1992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="52" x="534.5" y="675.8008">«system»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="75" x="523" y="693.8008">GKE Host</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="562.5" y="710.7109"/><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="90" x="517.5" y="727.1992">Test Machine</text><!--MD5=[ea2af06e4ac82fa43662f02e97aa0895]
+entity submitCoverage--><rect fill="#438DD5" height="67.1094" style="stroke:#3C7FC0;stroke-width:1.5;" width="204" x="634.5" y="323.6992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="65" x="704" y="345.3008">«container»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="162" x="655.5" y="363.3008">ci/submit_coverage</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="184" x="644.5" y="378.2773">[Send coverage to CodeClimate]</text><!--MD5=[4c8481095d9db3cbd37629dcf5a8f6f6]
+entity codeClimate--><rect fill="#1168BD" height="85.9531" style="stroke:#3C7FC0;stroke-width:1.5;" width="148" x="670.5" y="484.1992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="52" x="718.5" y="505.8008">«system»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="107" x="691" y="523.8008">Code Climate</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="746.5" y="540.7109"/><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="124" x="684.5" y="557.1992">Code Quality SaaS</text><!--MD5=[9be11a404510ec1be28691a8604aea36]
+entity pushImage--><rect fill="#438DD5" height="67.1094" style="stroke:#3C7FC0;stroke-width:1.5;" width="162" x="873.5" y="323.6992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="65" x="922" y="345.3008">«container»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="126" x="891.5" y="363.3008">push-image.sh</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="142" x="883.5" y="378.2773">[Push images to registry]</text><!--MD5=[4372378114f068b50fdde30cc6c56970]
+entity dockerRegistry--><rect fill="#1168BD" height="85.9531" style="stroke:#3C7FC0;stroke-width:1.5;" width="188" x="853.5" y="484.1992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="52" x="921.5" y="505.8008">«system»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="124" x="885.5" y="523.8008">Docker Regisry</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="949.5" y="540.7109"/><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="164" x="867.5" y="557.1992">Registry hosting images</text><!--MD5=[0ab851cb014cc5e9024389c57f240e62]
+entity publishImage--><rect fill="#438DD5" height="67.1094" style="stroke:#3C7FC0;stroke-width:1.5;" width="204" x="1070.5" y="323.6992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="65" x="1140" y="345.3008">«container»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="147" x="1099" y="363.3008">publish-image.sh</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="184" x="1080.5" y="378.2773">[Publish Debian/RPM packages]</text><!--MD5=[c640410c3bf0a6718b9f01c8e415d720]
+entity packageRegistry--><rect fill="#1168BD" height="102.4414" style="stroke:#3C7FC0;stroke-width:1.5;" width="206" x="1076.5" y="476.1992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="52" x="1153.5" y="497.8008">«system»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="133" x="1113" y="515.8008">Package Regisry</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="1181.5" y="532.7109"/><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="178" x="1090.5" y="549.1992">Registry hosting Deb/RPM</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="64" x="1147.5" y="565.6875">packages</text><!--MD5=[cb4cfaf959fcf5a0af0b2ec525e7a427]
+entity pipelineLib--><rect fill="#85BBF0" height="67.1094" style="stroke:#78A8D8;stroke-width:1.5;" width="181" x="1291" y="171.1992"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="76" x="1343.5" y="192.8008">«component»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="127" x="1318" y="210.8008">Pipeline Library</text><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="161" x="1301" y="225.7773">[Common Jenkins Functions]</text><!--MD5=[3edb47390aeff9d8baff1f3d5efb0c5a]
+entity scanAndReport--><rect fill="#85BBF0" height="67.1094" style="stroke:#78A8D8;stroke-width:1.5;" width="167" x="1310" y="323.6992"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="76" x="1355.5" y="345.3008">«component»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="147" x="1320" y="363.3008">Vulnerability Scan</text><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="127" x="1330" y="378.2773">[Uses scanAndReport]</text><!--MD5=[f28352c7e73baf804bd18b198bbf0355]
+entity envVars--><rect fill="#85BBF0" height="67.1094" style="stroke:#78A8D8;stroke-width:1.5;" width="140" x="1507.5" y="171.1992"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="76" x="1539.5" y="192.8008">«component»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="71" x="1542" y="210.8008">Env Vars</text><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="120" x="1517.5" y="225.7773">[Set by cron/context]</text><!--MD5=[a20016f42df4554ce323782f16967207]
+entity agents--><rect fill="#FEFECE" height="62.9766" style="stroke:#444444;stroke-width:1.0;stroke-dasharray:7.0,7.0;" width="157" x="1683" y="173.1992"/><text fill="#000000" font-family="sans-serif" font-size="0" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="0" x="1761.5" y="183.1992">«boundary»</text><text fill="#444444" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="137" x="1693" y="208.668">Available Agents</text><text fill="#444444" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="63" x="1730" y="223.6445">[Container]</text><!--MD5=[62e921efb4b6e839acb2ac6cc2829308]
+entity baseAWS--><rect fill="#1168BD" height="85.9531" style="stroke:#3C7FC0;stroke-width:1.5;" width="97" x="1535" y="314.1992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="52" x="1557.5" y="335.8008">«system»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="77" x="1545" y="353.8008">Base AWS</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="1585.5" y="370.7109"/><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="65" x="1553" y="387.1992">AWS Host</text><!--MD5=[70b2208e9fe725f2e4b51943f397e062]
+entity awsFips--><rect fill="#1168BD" height="85.9531" style="stroke:#3C7FC0;stroke-width:1.5;" width="165" x="1667" y="314.1992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="52" x="1723.5" y="335.8008">«system»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="145" x="1677" y="353.8008">AWS RHEL EE FIPS</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="1751.5" y="370.7109"/><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="101" x="1701" y="387.1992">RHEL FIPS Host</text><!--MD5=[11b449acefef72549ddb35f91fa33df8]
+entity gcp--><rect fill="#1168BD" height="85.9531" style="stroke:#3C7FC0;stroke-width:1.5;" width="87" x="1867" y="314.1992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="52" x="1884.5" y="335.8008">«system»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="33" x="1894" y="353.8008">GCP</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="1912.5" y="370.7109"/><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="63" x="1881" y="387.1992">GCP Host</text><!--MD5=[23049ccd8f9659a97f23dec84e09d56d]
+entity azure--><rect fill="#1168BD" height="85.9531" style="stroke:#3C7FC0;stroke-width:1.5;" width="100" x="1989.5" y="314.1992"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="52" x="2013.5" y="335.8008">«system»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="48" x="2015.5" y="353.8008">Azure</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="2041.5" y="370.7109"/><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="76" x="2003.5" y="387.1992">Azure Host</text><!--MD5=[c196badd12f8b2d82f118202c28d0483]
+link jenkins to bashTests--><path d="M1471.86,72.7792 C1332.85,97.5292 974.62,161.3092 815.12,189.6992 " fill="none" id="jenkins-to-bashTests" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="807.21,191.1092,815.6112,192.6646,814.5624,186.757,807.21,191.1092" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="31" x="1157.5" y="137.8008">Calls</text><!--MD5=[7ae2200a4d95d466e0e8b4038c35e59b]
+link bashTests to validateChangelog--><path d="M665.62,218.0492 C569.75,235.5192 393.88,270.2692 247.5,314.1992 C240.6,316.2692 233.51,318.5692 226.42,320.9892 " fill="none" id="bashTests-to-validateChangelog" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="218.74,323.6592,227.2815,323.8645,225.3104,318.1976,218.74,323.6592" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="31" x="422.5" y="280.8008">Calls</text><!--MD5=[50de3c6611e02eb1d4c9b78ccd7a3630]
+link bashTests to build--><path d="M665.69,227.1492 C600.82,247.4492 502.55,279.8592 419.5,314.1992 C414.86,316.1192 410.13,318.1592 405.37,320.2892 " fill="none" id="bashTests-to-build" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="397.91,323.6792,406.4351,323.1112,403.9596,317.6457,397.91,323.6792" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="31" x="541.5" y="280.8008">Calls</text><!--MD5=[a69f5b10a0b7d5e263d53b6f680cbfa0]
+link bashTests to runStandardTest--><path d="M692.12,236.3392 C657.55,260.2092 609.4,293.4492 572.57,318.8692 " fill="none" id="bashTests-to-runStandardTest" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="565.84,323.5192,574.1287,321.4462,570.7218,316.5072,565.84,323.5192" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="31" x="642.5" y="280.8008">Calls</text><!--MD5=[405490b42c6c4129095b76dd0dfff976]
+link runStandardTest to rspec--><path d="M491.56,390.9892 C468.96,418.5092 436.61,457.8892 412.65,487.0592 " fill="none" id="runStandardTest-to-rspec" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="407.37,493.4892,414.768,489.2149,410.1333,485.4044,407.37,493.4892" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="31" x="459.5" y="442.8008">Runs</text><!--MD5=[f309e85b26c02bffe5c6ddce4e0f9035]
+link runStandardTest to shared--><path d="M453.32,390.7892 C396.4,419.2492 313.9,460.4992 254.93,489.9792 " fill="none" id="runStandardTest-to-shared" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="247.5,493.6992,255.9963,492.798,253.3088,487.4336,247.5,493.6992" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="30" x="372.5" y="442.8008">Uses</text><!--MD5=[0f1c12d158c075609081bf3772b9c61e]
+link shared to cucumber--><path d="M164.74,560.9892 C149.96,588.2792 128.86,627.2292 113.1,656.3192 " fill="none" id="shared-to-cucumber" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="109.22,663.4892,115.6725,657.8888,110.399,655.027,109.22,663.4892" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="31" x="138.5" y="620.8008">Calls</text><!--MD5=[3cf50e28b044e55aedef67c94f92b253]
+link shared to ldap--><path d="M200.46,560.9892 C215.4,588.2792 236.73,627.2292 252.66,656.3192 " fill="none" id="shared-to-ldap" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="256.59,663.4892,255.3772,655.0317,250.1152,657.9146,256.59,663.4892" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="30" x="235.5" y="620.8008">Uses</text><!--MD5=[c9d52165006d0c101f149010e49805db]
+link runStandardTest to authnK8s--><path d="M526.7,390.9892 C533.46,418.0492 543.09,456.5692 550.34,485.5792 " fill="none" id="runStandardTest-to-authnK8s" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="552.32,493.4892,553.2865,485.0001,547.4662,486.4578,552.32,493.4892" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="31" x="540.5" y="442.8008">Calls</text><!--MD5=[316ed473522c81efdd55ffb7fddcc5dd]
+link authnK8s to gke--><path d="M560.5,560.9892 C560.5,585.0492 560.5,618.1692 560.5,645.6092 " fill="none" id="authnK8s-to-gke" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="560.5,653.9192,563.5,645.9192,557.5,645.9192,560.5,653.9192" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="53" x="561.5" y="620.8008">Runs On</text><!--MD5=[61822f41cc3c116e37c3fc420fded919]
+link bashTests to submitCoverage--><path d="M736.5,236.5192 C736.5,259.3092 736.5,290.5792 736.5,315.4392 " fill="none" id="bashTests-to-submitCoverage" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="736.5,323.5992,739.5,315.5992,733.5,315.5992,736.5,323.5992" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="31" x="737.5" y="280.8008">Calls</text><!--MD5=[16c69cc1dfda36a74f67f3f18ec7c9ad]
+link submitCoverage to codeClimate--><path d="M738.06,390.9892 C739.21,415.0492 740.78,448.1692 742.09,475.6092 " fill="none" id="submitCoverage-to-codeClimate" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="742.49,483.9192,745.1006,475.7838,739.1075,476.0733,742.49,483.9192" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="37" x="741.5" y="442.8008">Sends</text><!--MD5=[bf5a42f5b974a88fc44df684932cf2f6]
+link bashTests to pushImage--><path d="M780.88,236.3392 C815.45,260.2092 863.6,293.4492 900.43,318.8692 " fill="none" id="bashTests-to-pushImage" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="907.16,323.5192,902.2782,316.5072,898.8713,321.4462,907.16,323.5192" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="31" x="846.5" y="280.8008">Calls</text><!--MD5=[550339b552d4684635b889617ed892b4]
+link pushImage to dockerRegistry--><path d="M953.13,390.9892 C952.13,415.0492 950.75,448.1692 949.61,475.6092 " fill="none" id="pushImage-to-dockerRegistry" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="949.26,483.9192,952.6004,476.0553,946.6059,475.7979,949.26,483.9192" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="37" x="952.5" y="442.8008">Sends</text><!--MD5=[42ccdb8c7ec7d8bd5784360df75b5404]
+link bashTests to publishImage--><path d="M807.14,229.8192 C871.21,251.7292 968.24,284.9892 1052.5,314.1992 C1058.87,316.4092 1065.43,318.6892 1072.04,320.9892 " fill="none" id="bashTests-to-publishImage" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="1079.82,323.6992,1073.2496,318.2376,1071.2785,323.9045,1079.82,323.6992" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="31" x="958.5" y="280.8008">Calls</text><!--MD5=[7b6eea34ea84f5fe4b02ca4ff6ea273f]
+link publishImage to packageRegistry--><path d="M1173.87,390.9892 C1174.77,412.7892 1175.99,442.0292 1177.06,467.7392 " fill="none" id="publishImage-to-packageRegistry" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="1177.41,475.9492,1180.0641,467.8279,1174.0696,468.0853,1177.41,475.9492" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="37" x="1177.5" y="442.8008">Sends</text><!--MD5=[e1e2b8227bc2c562166200426ae19656]
+link jenkins to pipelineLib--><path d="M1494.41,95.3992 C1472.61,116.3092 1444.24,143.5192 1421.39,165.4392 " fill="none" id="jenkins-to-pipelineLib" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="1415.41,171.1692,1423.258,167.7915,1419.1019,163.464,1415.41,171.1692" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="30" x="1460.5" y="137.8008">Uses</text><!--MD5=[4c03abb650c69186b53167e5903797cb]
+link pipelineLib to scanAndReport--><path d="M1384.1,238.3592 C1385.9,260.9392 1388.31,291.1492 1390.24,315.3292 " fill="none" id="pipelineLib-to-scanAndReport" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="1390.9,323.6092,1393.2484,315.3943,1387.2677,315.8757,1390.9,323.6092" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="53" x="1388.5" y="280.8008">Provides</text><!--MD5=[c4b7ed614d6a11a413e143833a0e8cc1]
+link jenkins to envVars--><path d="M1539.86,95.3992 C1546.91,115.6892 1556.03,141.9092 1563.52,163.4592 " fill="none" id="jenkins-to-envVars" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="1566.2,171.1692,1566.4053,162.6277,1560.7383,164.5988,1566.2,171.1692" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="30" x="1555.5" y="137.8008">Uses</text><!--MD5=[5e085bfcc1b3728234dfa55dc07bde5a]
+link jenkins to agents--><path d="M1582.25,95.2292 C1618.53,117.1792 1666.4,146.1492 1703.54,168.6192 " fill="none" id="jenkins-to-agents" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="1710.82,173.0292,1705.5302,166.3197,1702.4228,171.4523,1710.82,173.0292" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="23" x="1653.5" y="137.8008">Has</text><!--MD5=[fc29a35a9b431a730a3ccfc3ab62d5cf]
+link agents to baseAWS--><path d="M1725.05,236.5192 C1700.09,257.6292 1666.53,285.9992 1638.35,309.8192 " fill="none" id="agents-to-baseAWS" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="1632.06,315.1392,1640.1055,312.2635,1636.2308,307.6824,1632.06,315.1392" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="23" x="1684.5" y="280.8008">Has</text><!--MD5=[d901b9002579a8e2979c9d1a3cbe3b2f]
+link agents to awsFips--><path d="M1759.04,236.5192 C1757.45,256.4292 1755.35,282.8092 1753.52,305.7392 " fill="none" id="agents-to-awsFips" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="1752.86,314.0092,1756.4934,306.2763,1750.5128,305.794,1752.86,314.0092" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="23" x="1757.5" y="280.8008">Has</text><!--MD5=[3b53e58d7fac567833ebe5c1693709ab]
+link agents to gcp--><path d="M1792.01,236.5192 C1812.42,257.1292 1839.69,284.6692 1862.92,308.1392 " fill="none" id="agents-to-gcp" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="1868.73,314.0092,1865.2338,306.2133,1860.9698,310.4344,1868.73,314.0092" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="23" x="1837.5" y="280.8008">Has</text><!--MD5=[8fb207b3ebadeee05f22f7d205ee52b4]
+link agents to azure--><path d="M1823.73,236.2792 C1865.87,257.3792 1922.57,286.4992 1971.5,314.1992 C1975.03,316.1992 1978.64,318.2892 1982.27,320.4292 " fill="none" id="agents-to-azure" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="1989.25,324.5692,1983.9069,317.902,1980.8405,323.0592,1989.25,324.5692" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="23" x="1916.5" y="280.8008">Has</text><!--MD5=[ac9054d4d10a054d1618566e42b7f3a6]
+@startuml ci_architecture
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title CI Architecture Overview
+
+' Person(personAlias, "Label", "Optional Description")
+' Boundary(bashScripts, "Bash Scripts") {
+'     Container(bashTests, "Bash CI Scripts", "Wraps Rspec/Cucumber/Etc")
+' }
+
+' TODO: Preamble stuff, scans, build, code coverage, etc
+
+Component(jenkins, "Jenkins", "CI Test Runner")
+
+Container_Boundary(bashTests, "Bash CI Scripts")
+    Container(validateChangelog, "ci/parse-changelog", "Validates Changelog")
+    Container(build, "build.sh", "Docker Build Script")
+    Container(runStandardTest, "ci/test", "Runs Named Test Suite")
+        Container(shared, "ci/shared.sh", "Shared Test Suite Functions")
+            Container(cucumber, "cucumber", "Cucumber Feature Tests")
+            Container(ldap, "LDAP", "LDAP Test Server")
+        Container(rspec, "Rspec", "Conjur Rspec Tests")
+        Container(authnK8s, "GKE Tests", "Authn K8s GKE Tests")
+            System(gke, "GKE Host", "Test Machine")
+    Container(submitCoverage, "ci/submit_coverage", "Send coverage to CodeClimate")
+        System(codeClimate, "Code Climate", "Code Quality SaaS")
+    Container(pushImage, "push-image.sh", "Push images to registry")
+        System(dockerRegistry, "Docker Regisry", "Registry hosting images")
+    Container(publishImage, "publish-image.sh", "Publish Debian/RPM packages")
+        System(packageRegistry, "Package Regisry", "Registry hosting Deb/RPM packages")
+
+Component(pipelineLib, "Pipeline Library", "Common Jenkins Functions")
+    Component(scanAndReport, "Vulnerability Scan", "Uses scanAndReport")
+Component(envVars, "Env Vars", "Set by cron/context")
+Container_Boundary(agents, "Available Agents")
+    System(baseAWS, "Base AWS", "AWS Host")
+    System(awsFips, "AWS RHEL EE FIPS", "RHEL FIPS Host")
+    System(gcp, "GCP", "GCP Host")
+    System(azure, "Azure", "Azure Host")
+
+Rel(jenkins, bashTests, "Calls")
+    Rel(bashTests, validateChangelog, "Calls")
+    Rel(bashTests, build, "Calls")
+    Rel(bashTests, runStandardTest, "Calls")
+        Rel(runStandardTest, rspec, "Runs")
+        Rel(runStandardTest, shared, "Uses")
+            Rel(shared, cucumber, "Calls")
+            Rel(shared, ldap, "Uses")
+        Rel(runStandardTest, authnK8s, "Calls")
+            Rel(authnK8s, gke, "Runs On")
+        Component(authnK8s, "GKE Tests", "Authn K8s GKE Tests")
+            System(gke, "GKE Host", "Test Machine")
+    Rel(bashTests, submitCoverage, "Calls")
+        Rel(submitCoverage, codeClimate, "Sends")
+    Rel(bashTests, pushImage, "Calls")
+        Rel(pushImage, dockerRegistry, "Sends")
+    Rel(bashTests, publishImage, "Calls")
+        Rel(publishImage, packageRegistry, "Sends")
+Rel(jenkins, pipelineLib, "Uses")
+    Rel(pipelineLib, scanAndReport, "Provides")
+Rel(jenkins, envVars, "Uses")
+Rel(jenkins, agents, "Has")
+    Rel(agents, baseAWS, "Has")
+    Rel(agents, awsFips, "Has")
+    Rel(agents, gcp, "Has")
+    Rel(agents, azure, "Has")
+
+@enduml
+
+@startuml ci_architecture
+
+
+
+
+
+
+skinparam defaultTextAlignment center
+
+skinparam wrapWidth 200
+skinparam maxMessageSize 150
+
+skinparam LegendBorderColor transparent
+skinparam LegendBackgroundColor transparent
+skinparam LegendFontColor #FFFFFF
+
+skinparam rectangle {
+    StereotypeFontSize 12
+    shadowing false
+}
+
+skinparam database {
+    StereotypeFontSize 12
+    shadowing false
+}
+
+skinparam queue {
+    StereotypeFontSize 12
+    shadowing false
+}
+
+skinparam Arrow {
+    Color #666666
+    FontColor #666666
+    FontSize 12
+}
+
+skinparam rectangle<<boundary>> {
+    Shadowing false
+    StereotypeFontSize 0
+    FontColor #444444
+    BorderColor #444444
+    BorderStyle dashed
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+skinparam rectangle<<person>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #08427B
+    BorderColor #073B6F
+}
+
+skinparam rectangle<<external_person>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #686868
+    BorderColor #8A8A8A
+}
+
+skinparam rectangle<<system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #1168BD
+    BorderColor #3C7FC0
+}
+
+skinparam rectangle<<external_system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #999999
+    BorderColor #8A8A8A
+}
+
+sprite $person [48x48/16] {
+000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000
+0000000000000000000049BCCA7200000000000000000000
+0000000000000000006EFFFFFFFFB3000000000000000000
+00000000000000001CFFFFFFFFFFFF700000000000000000
+0000000000000001EFFFFFFFFFFFFFF80000000000000000
+000000000000000CFFFFFFFFFFFFFFFF6000000000000000
+000000000000007FFFFFFFFFFFFFFFFFF100000000000000
+00000000000001FFFFFFFFFFFFFFFFFFF900000000000000
+00000000000006FFFFFFFFFFFFFFFFFFFF00000000000000
+0000000000000BFFFFFFFFFFFFFFFFFFFF40000000000000
+0000000000000EFFFFFFFFFFFFFFFFFFFF70000000000000
+0000000000000FFFFFFFFFFFFFFFFFFFFF80000000000000
+0000000000000FFFFFFFFFFFFFFFFFFFFF80000000000000
+0000000000000DFFFFFFFFFFFFFFFFFFFF60000000000000
+0000000000000AFFFFFFFFFFFFFFFFFFFF40000000000000
+00000000000006FFFFFFFFFFFFFFFFFFFE00000000000000
+00000000000000EFFFFFFFFFFFFFFFFFF800000000000000
+000000000000007FFFFFFFFFFFFFFFFFF100000000000000
+000000000000000BFFFFFFFFFFFFFFFF5000000000000000
+0000000000000001DFFFFFFFFFFFFFF70000000000000000
+00000000000000000BFFFFFFFFFFFF500000000000000000
+0000000000000000005DFFFFFFFFA1000000000000000000
+0000000000000000000037ABB96100000000000000000000
+000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000
+000000000000025788300000000005886410000000000000
+000000000007DFFFFFFD9643347BFFFFFFFB400000000000
+0000000004EFFFFFFFFFFFFFFFFFFFFFFFFFFB1000000000
+000000007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFD200000000
+00000006FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE10000000
+0000003FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB0000000
+000000BFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5000000
+000003FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD000000
+000009FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF200000
+00000DFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF600000
+00000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF800000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA00000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB00000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB00000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB00000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA00000
+00000EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF700000
+000006FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE100000
+0000008FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD3000000
+000000014555555555555555555555555555555300000000
+000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+skinparam defaultTextAlignment center
+
+skinparam wrapWidth 200
+skinparam maxMessageSize 150
+
+skinparam LegendBorderColor transparent
+skinparam LegendBackgroundColor transparent
+skinparam LegendFontColor #FFFFFF
+
+skinparam rectangle {
+    StereotypeFontSize 12
+    shadowing false
+}
+
+skinparam database {
+    StereotypeFontSize 12
+    shadowing false
+}
+
+skinparam queue {
+    StereotypeFontSize 12
+    shadowing false
+}
+
+skinparam Arrow {
+    Color #666666
+    FontColor #666666
+    FontSize 12
+}
+
+skinparam rectangle<<boundary>> {
+    Shadowing false
+    StereotypeFontSize 0
+    FontColor #444444
+    BorderColor #444444
+    BorderStyle dashed
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+skinparam rectangle<<person>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #08427B
+    BorderColor #073B6F
+}
+
+skinparam rectangle<<external_person>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #686868
+    BorderColor #8A8A8A
+}
+
+skinparam rectangle<<system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #1168BD
+    BorderColor #3C7FC0
+}
+
+skinparam rectangle<<external_system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #999999
+    BorderColor #8A8A8A
+}
+
+sprite $person [48x48/16] {
+000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000
+0000000000000000000049BCCA7200000000000000000000
+0000000000000000006EFFFFFFFFB3000000000000000000
+00000000000000001CFFFFFFFFFFFF700000000000000000
+0000000000000001EFFFFFFFFFFFFFF80000000000000000
+000000000000000CFFFFFFFFFFFFFFFF6000000000000000
+000000000000007FFFFFFFFFFFFFFFFFF100000000000000
+00000000000001FFFFFFFFFFFFFFFFFFF900000000000000
+00000000000006FFFFFFFFFFFFFFFFFFFF00000000000000
+0000000000000BFFFFFFFFFFFFFFFFFFFF40000000000000
+0000000000000EFFFFFFFFFFFFFFFFFFFF70000000000000
+0000000000000FFFFFFFFFFFFFFFFFFFFF80000000000000
+0000000000000FFFFFFFFFFFFFFFFFFFFF80000000000000
+0000000000000DFFFFFFFFFFFFFFFFFFFF60000000000000
+0000000000000AFFFFFFFFFFFFFFFFFFFF40000000000000
+00000000000006FFFFFFFFFFFFFFFFFFFE00000000000000
+00000000000000EFFFFFFFFFFFFFFFFFF800000000000000
+000000000000007FFFFFFFFFFFFFFFFFF100000000000000
+000000000000000BFFFFFFFFFFFFFFFF5000000000000000
+0000000000000001DFFFFFFFFFFFFFF70000000000000000
+00000000000000000BFFFFFFFFFFFF500000000000000000
+0000000000000000005DFFFFFFFFA1000000000000000000
+0000000000000000000037ABB96100000000000000000000
+000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000
+000000000000025788300000000005886410000000000000
+000000000007DFFFFFFD9643347BFFFFFFFB400000000000
+0000000004EFFFFFFFFFFFFFFFFFFFFFFFFFFB1000000000
+000000007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFD200000000
+00000006FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE10000000
+0000003FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB0000000
+000000BFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5000000
+000003FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD000000
+000009FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF200000
+00000DFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF600000
+00000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF800000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA00000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB00000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB00000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB00000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA00000
+00000EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF700000
+000006FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE100000
+0000008FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD3000000
+000000014555555555555555555555555555555300000000
+000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+skinparam rectangle<<container>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #438DD5
+    BorderColor #3C7FC0
+}
+
+skinparam database<<container>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #438DD5
+    BorderColor #3C7FC0
+}
+
+skinparam queue<<container>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #438DD5
+    BorderColor #3C7FC0
+}
+
+skinparam rectangle<<external_container>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #B3B3B3
+    BorderColor #A6A6A6
+}
+
+skinparam database<<external_container>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #B3B3B3
+    BorderColor #A6A6A6
+}
+
+skinparam queue<<external_container>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #B3B3B3
+    BorderColor #A6A6A6
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+skinparam defaultTextAlignment center
+
+skinparam wrapWidth 200
+skinparam maxMessageSize 150
+
+skinparam LegendBorderColor transparent
+skinparam LegendBackgroundColor transparent
+skinparam LegendFontColor #FFFFFF
+
+skinparam rectangle {
+    StereotypeFontSize 12
+    shadowing false
+}
+
+skinparam database {
+    StereotypeFontSize 12
+    shadowing false
+}
+
+skinparam queue {
+    StereotypeFontSize 12
+    shadowing false
+}
+
+skinparam Arrow {
+    Color #666666
+    FontColor #666666
+    FontSize 12
+}
+
+skinparam rectangle<<boundary>> {
+    Shadowing false
+    StereotypeFontSize 0
+    FontColor #444444
+    BorderColor #444444
+    BorderStyle dashed
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+skinparam rectangle<<person>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #08427B
+    BorderColor #073B6F
+}
+
+skinparam rectangle<<external_person>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #686868
+    BorderColor #8A8A8A
+}
+
+skinparam rectangle<<system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #1168BD
+    BorderColor #3C7FC0
+}
+
+skinparam rectangle<<external_system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #999999
+    BorderColor #8A8A8A
+}
+
+sprite $person [48x48/16] {
+000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000
+0000000000000000000049BCCA7200000000000000000000
+0000000000000000006EFFFFFFFFB3000000000000000000
+00000000000000001CFFFFFFFFFFFF700000000000000000
+0000000000000001EFFFFFFFFFFFFFF80000000000000000
+000000000000000CFFFFFFFFFFFFFFFF6000000000000000
+000000000000007FFFFFFFFFFFFFFFFFF100000000000000
+00000000000001FFFFFFFFFFFFFFFFFFF900000000000000
+00000000000006FFFFFFFFFFFFFFFFFFFF00000000000000
+0000000000000BFFFFFFFFFFFFFFFFFFFF40000000000000
+0000000000000EFFFFFFFFFFFFFFFFFFFF70000000000000
+0000000000000FFFFFFFFFFFFFFFFFFFFF80000000000000
+0000000000000FFFFFFFFFFFFFFFFFFFFF80000000000000
+0000000000000DFFFFFFFFFFFFFFFFFFFF60000000000000
+0000000000000AFFFFFFFFFFFFFFFFFFFF40000000000000
+00000000000006FFFFFFFFFFFFFFFFFFFE00000000000000
+00000000000000EFFFFFFFFFFFFFFFFFF800000000000000
+000000000000007FFFFFFFFFFFFFFFFFF100000000000000
+000000000000000BFFFFFFFFFFFFFFFF5000000000000000
+0000000000000001DFFFFFFFFFFFFFF70000000000000000
+00000000000000000BFFFFFFFFFFFF500000000000000000
+0000000000000000005DFFFFFFFFA1000000000000000000
+0000000000000000000037ABB96100000000000000000000
+000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000
+000000000000025788300000000005886410000000000000
+000000000007DFFFFFFD9643347BFFFFFFFB400000000000
+0000000004EFFFFFFFFFFFFFFFFFFFFFFFFFFB1000000000
+000000007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFD200000000
+00000006FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE10000000
+0000003FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB0000000
+000000BFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5000000
+000003FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD000000
+000009FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF200000
+00000DFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF600000
+00000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF800000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA00000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB00000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB00000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB00000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA00000
+00000EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF700000
+000006FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE100000
+0000008FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD3000000
+000000014555555555555555555555555555555300000000
+000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+skinparam rectangle<<container>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #438DD5
+    BorderColor #3C7FC0
+}
+
+skinparam database<<container>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #438DD5
+    BorderColor #3C7FC0
+}
+
+skinparam queue<<container>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #438DD5
+    BorderColor #3C7FC0
+}
+
+skinparam rectangle<<external_container>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #B3B3B3
+    BorderColor #A6A6A6
+}
+
+skinparam database<<external_container>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #B3B3B3
+    BorderColor #A6A6A6
+}
+
+skinparam queue<<external_container>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #B3B3B3
+    BorderColor #A6A6A6
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+skinparam rectangle<<component>> {
+    StereotypeFontColor #000000
+    FontColor #000000
+    BackgroundColor #85BBF0
+    BorderColor #78A8D8
+}
+
+skinparam database<<component>> {
+    StereotypeFontColor #000000
+    FontColor #000000
+    BackgroundColor #85BBF0
+    BorderColor #78A8D8
+}
+
+skinparam queue<<component>> {
+    StereotypeFontColor #000000
+    FontColor #000000
+    BackgroundColor #85BBF0
+    BorderColor #78A8D8
+}
+
+skinparam rectangle<<external_component>> {
+    StereotypeFontColor #000000
+    FontColor #000000
+    BackgroundColor #CCCCCC
+    BorderColor #BFBFBF
+}
+
+skinparam database<<external_component>> {
+    StereotypeFontColor #000000
+    FontColor #000000
+    BackgroundColor #CCCCCC
+    BorderColor #BFBFBF
+}
+
+skinparam queue<<external_component>> {
+    StereotypeFontColor #000000
+    FontColor #000000
+    BackgroundColor #CCCCCC
+    BorderColor #BFBFBF
+}
+
+
+
+
+
+
+
+
+
+
+
+title CI Architecture Overview
+
+
+
+rectangle "==Jenkins\n//<size:12>[CI Test Runner]</size>//" <<component>> as jenkins
+
+rectangle "==Bash CI Scripts\n<size:12>[Container]</size>" <<boundary>> as bashTests
+    rectangle "==ci/parse-changelog\n//<size:12>[Validates Changelog]</size>//" <<container>> as validateChangelog
+    rectangle "==build.sh\n//<size:12>[Docker Build Script]</size>//" <<container>> as build
+    rectangle "==ci/test\n//<size:12>[Runs Named Test Suite]</size>//" <<container>> as runStandardTest
+        rectangle "==ci/shared.sh\n//<size:12>[Shared Test Suite Functions]</size>//" <<container>> as shared
+            rectangle "==cucumber\n//<size:12>[Cucumber Feature Tests]</size>//" <<container>> as cucumber
+            rectangle "==LDAP\n//<size:12>[LDAP Test Server]</size>//" <<container>> as ldap
+        rectangle "==Rspec\n//<size:12>[Conjur Rspec Tests]</size>//" <<container>> as rspec
+        rectangle "==GKE Tests\n//<size:12>[Authn K8s GKE Tests]</size>//" <<container>> as authnK8s
+            rectangle "==GKE Host\n\n Test Machine" <<system>> as gke
+    rectangle "==ci/submit_coverage\n//<size:12>[Send coverage to CodeClimate]</size>//" <<container>> as submitCoverage
+        rectangle "==Code Climate\n\n Code Quality SaaS" <<system>> as codeClimate
+    rectangle "==push-image.sh\n//<size:12>[Push images to registry]</size>//" <<container>> as pushImage
+        rectangle "==Docker Regisry\n\n Registry hosting images" <<system>> as dockerRegistry
+    rectangle "==publish-image.sh\n//<size:12>[Publish Debian/RPM packages]</size>//" <<container>> as publishImage
+        rectangle "==Package Regisry\n\n Registry hosting Deb/RPM packages" <<system>> as packageRegistry
+
+rectangle "==Pipeline Library\n//<size:12>[Common Jenkins Functions]</size>//" <<component>> as pipelineLib
+    rectangle "==Vulnerability Scan\n//<size:12>[Uses scanAndReport]</size>//" <<component>> as scanAndReport
+rectangle "==Env Vars\n//<size:12>[Set by cron/context]</size>//" <<component>> as envVars
+rectangle "==Available Agents\n<size:12>[Container]</size>" <<boundary>> as agents
+    rectangle "==Base AWS\n\n AWS Host" <<system>> as baseAWS
+    rectangle "==AWS RHEL EE FIPS\n\n RHEL FIPS Host" <<system>> as awsFips
+    rectangle "==GCP\n\n GCP Host" <<system>> as gcp
+    rectangle "==Azure\n\n Azure Host" <<system>> as azure
+
+jenkins - ->> bashTests : **Calls**
+bashTests - ->> validateChangelog : **Calls**
+bashTests - ->> build : **Calls**
+bashTests - ->> runStandardTest : **Calls**
+runStandardTest - ->> rspec : **Runs**
+runStandardTest - ->> shared : **Uses**
+shared - ->> cucumber : **Calls**
+shared - ->> ldap : **Uses**
+runStandardTest - ->> authnK8s : **Calls**
+authnK8s - ->> gke : **Runs On**
+        rectangle "==GKE Tests\n//<size:12>[Authn K8s GKE Tests]</size>//" <<component>> as authnK8s
+            rectangle "==GKE Host\n\n Test Machine" <<system>> as gke
+bashTests - ->> submitCoverage : **Calls**
+submitCoverage - ->> codeClimate : **Sends**
+bashTests - ->> pushImage : **Calls**
+pushImage - ->> dockerRegistry : **Sends**
+bashTests - ->> publishImage : **Calls**
+publishImage - ->> packageRegistry : **Sends**
+jenkins - ->> pipelineLib : **Uses**
+pipelineLib - ->> scanAndReport : **Provides**
+jenkins - ->> envVars : **Uses**
+jenkins - ->> agents : **Has**
+agents - ->> baseAWS : **Has**
+agents - ->> awsFips : **Has**
+agents - ->> gcp : **Has**
+agents - ->> azure : **Has**
+
+@enduml
+
+PlantUML version 1.2020.22(Sun Dec 06 04:36:27 EST 2020)
+(GPL source distribution)
+Java Runtime: Java(TM) SE Runtime Environment
+JVM: Java HotSpot(TM) 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>
