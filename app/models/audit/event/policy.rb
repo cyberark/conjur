@@ -75,7 +75,7 @@ module Audit
       private
 
       def user
-        @user ||= @policy_version.role
+        @user || @policy_version.role
       end
 
       def client_ip
