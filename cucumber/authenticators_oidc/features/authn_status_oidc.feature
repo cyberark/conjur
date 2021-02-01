@@ -216,6 +216,58 @@ Feature: OIDC Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "RequiredResourceMissing: CONJ00036E"
 
+  Scenario: service-id missing and a 500 error response is returned
+    Given I load a policy:
+    """
+    - !policy
+      id: conjur/authn-oidc
+      body:
+      - !webservice
+
+      - !webservice
+        id: status
+        annotations:
+          description: Status service to verify the authenticator is configured correctly
+
+      - !variable
+        id: provider-uri
+
+      - !variable
+        id: id-token-user-property
+
+      - !group users
+
+      - !permit
+        role: !group users
+        privilege: [ read, authenticate ]
+        resource: !webservice
+
+      - !group
+        id: managers
+        annotations:
+          description: Group of users who can check the status of the authn-oidc authenticator
+
+      - !permit
+        role: !group managers
+        privilege: [ read ]
+        resource: !webservice status
+
+    - !user alice
+
+    - !grant
+      role: !group conjur/authn-oidc/users
+      member: !user alice
+
+    - !grant
+      role: !group conjur/authn-oidc/managers
+      member: !user alice
+    """
+    And I am the super-user
+    And I login as "alice"
+    When I GET "/authn-oidc/cucumber/status"
+    Then the HTTP response status code is 500
+    And the authenticator status check fails with error "Errors::Authentication::AuthnOidc::ServiceIdMissing"
+
   # TODO: add these tests when issue #1085 is done
 #  Scenario: provider-uri value has not been set and a 500 error response is returned
 #  Scenario: id-token-user-property value has not been set and a 500 error response is returned

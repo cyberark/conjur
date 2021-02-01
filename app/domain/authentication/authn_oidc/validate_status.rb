@@ -10,11 +10,16 @@ module Authentication
     ) do
 
       def call
+        validate_service_id_exists
         validate_secrets
         validate_provider_is_responsive
       end
 
       private
+
+      def validate_service_id_exists
+        raise Errors::Authentication::AuthnOidc::ServiceIdMissing unless @service_id
+      end
 
       def validate_secrets
         oidc_authenticator_secrets
