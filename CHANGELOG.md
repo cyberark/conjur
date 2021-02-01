@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#1974](https://github.com/cyberark/conjur/issues/1974)
 - Correct unit tests and integration tests for audit, and correct a couple of issues found with them.
   [cyberark/conjur#1987](https://github.com/cyberark/conjur/issues/1987)
-- Aligning field to use ‘role’ under ‘subject'
+- Messages for password change now have the field `role` instead of `user` under `subject`
   [cyberark/conjur#2014](https://github.com/cyberark/conjur/issues/2014)
 - When batch secret requests are sent with an `Accept: base64` header, the secret values in the response will all be
   Base64-encoded. Sending requests with this header allows users to retrieve binary secrets encoded in Base64.
