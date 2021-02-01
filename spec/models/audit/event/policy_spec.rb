@@ -15,13 +15,13 @@ describe Audit::Event::Policy do
       'the-policy-version',
       id: 'rspec:policy:my_policy', 
       client_ip: client_ip,
-      version: 1
+      version: 1,
+      role: user
     )
   end
 
   subject do
     Audit::Event::Policy.new(
-      user: user,
       subject: resource,
       operation: operation,
       policy_version: policy_version
@@ -45,6 +45,12 @@ describe Audit::Event::Policy do
       expect(subject.to_s).to eq(
         'rspec:user:my_user added resource rspec:variable:my_var'
       )
+    end
+
+    it 'contains the user field' do
+      expect(subject.structured_data).to match(hash_including({
+        Audit::SDID::AUTH => { user: user.id }
+      }))
     end
 
     it_behaves_like 'structured data includes client IP address'
