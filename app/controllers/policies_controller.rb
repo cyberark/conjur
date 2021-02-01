@@ -96,7 +96,7 @@ class PoliciesController < RestController
 
   def actor_roles(roles)
     roles.select do |role|
-      %w(user host).member?(role.kind)
+      %w[user host].member?(role.kind)
     end
   end
 

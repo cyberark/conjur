@@ -6,7 +6,7 @@ module Authentication
         logger:                    Rails.logger,
         open_id_discovery_service: OpenIDConnect::Discovery::Provider::Config
       },
-      inputs:       %i(provider_uri)
+      inputs:       %i[provider_uri]
     ) do
 
       def call

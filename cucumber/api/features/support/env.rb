@@ -19,4 +19,4 @@ ENV['CONJUR_APPLIANCE_URL'] ||= Utils.start_local_server
 
 Slosilo["authn:cucumber"] ||= Slosilo::Key.new
 
-JsonSpec.excluded_keys = %w(created_at updated_at)
+JsonSpec.excluded_keys = %w[created_at updated_at]

@@ -9,7 +9,7 @@ module Authentication
       dependencies: {
         logger:                 Rails.logger
       },
-      inputs: %i(service_id host_annotations)
+      inputs: %i[service_id host_annotations]
     ) do
 
       DEFAULT_AUTHENTICATION_CONTAINER_NAME = "authenticator"

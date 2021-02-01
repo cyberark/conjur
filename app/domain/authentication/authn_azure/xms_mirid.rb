@@ -3,7 +3,7 @@ module Authentication
 
     class XmsMirid
 
-      REQUIRED_KEYS = %w(subscriptions resourcegroups providers).freeze
+      REQUIRED_KEYS = %w[subscriptions resourcegroups providers].freeze
 
       def initialize(xms_mirid_token_field)
         @xms_mirid_token_field = xms_mirid_token_field

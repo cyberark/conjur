@@ -50,7 +50,7 @@ module Loader
 
     attr_reader :policy_version, :create_records, :delete_records, :new_roles, :schemata
 
-    TABLES = %i(roles role_memberships resources permissions annotations)
+    TABLES = %i[roles role_memberships resources permissions annotations]
 
     # Columns to compare across schemata to find exact duplicates.
     TABLE_EQUIVALENCE_COLUMNS = {

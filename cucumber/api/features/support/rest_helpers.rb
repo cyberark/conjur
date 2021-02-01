@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require('net/http')
+require('uri')
+
 # Utility methods for making API requests
 #
 module RestHelpers
@@ -47,6 +50,31 @@ module RestHelpers
     path = denormalize(path)
     result = rest_resource(options)[path].get
     set_result result
+  end
+
+  # Since there is no way to remove the default Accept header from RestClient
+  # we use Net:HTTP here. Otherwise we would not be able to simulate requests
+  # that omit the Accept header in our tests.
+  def get_json_no_accept_header(path, options = {})
+    uri = URI(root_url + denormalize(path))
+    headers = request_opts(options)[:headers]
+    http = Net::HTTP.new(uri.host, uri.port)
+    request = Net::HTTP::Get.new(uri.request_uri)
+
+    request.delete('Accept')
+    headers.each { |key, value| request[key] = value }
+
+    if options[:user] && options[:password]
+      request.basic_auth(options[:user], options[:password])
+    end
+
+    response = http.request(request)
+
+    if response.content_type == 'application/json'
+      @result = JSON.parse(response.body)
+    else
+      @result = response.body
+    end
   end
 
   # TODO: Add proper fix for this with real refactor of test code
@@ -253,17 +281,17 @@ module RestHelpers
 
   def current_user_credentials
     username = @current_user.login
-    token = Slosilo["authn:#{@current_user.account}"].signed_token username
-    user_credentials username, token
+    token = Slosilo["authn:#{@current_user.account}"].signed_token(username)
+    user_credentials(username, token)
   end
 
-  def user_credentials username, token
+  def user_credentials(username, token)
     token_authorization = "Token token=\"#{Base64.strict_encode64 token.to_json}\""
     headers = { authorization: token_authorization }
     { headers: headers, username: username }
   end
 
-  def current_user_basic_auth password = nil
+  def current_user_basic_auth(password = nil)
     password ||= @current_user.api_key
     { user: @current_user.login, password: password }
   end
@@ -272,8 +300,11 @@ module RestHelpers
     RestClient::Resource.new(Conjur::Authn::API.host, current_user_credentials)
   end
 
-  def basic_auth_request password = nil
-    RestClient::Resource.new(Conjur::Authn::API.host, current_user_basic_auth(password))
+  def basic_auth_request(password = nil)
+    RestClient::Resource.new(
+      Conjur::Authn::API.host,
+      current_user_basic_auth(password)
+    )
   end
 
   def full_conjur_url(path)
@@ -327,22 +358,27 @@ module RestHelpers
     str
   end
 
-  def rest_resource options
-    args = [Conjur.configuration.appliance_url]
-    if options[:token]
-      args << user_credentials(options[:token].username, options[:token].token)
-    elsif current_user?
-      args << current_user_credentials
-    end
+  def root_url
+    Conjur.configuration.appliance_url
+  end
 
-    args <<({}) if args.length == 1
-    args.last[:headers] ||= {}
-    args.last[:headers].merge(headers) if headers
-
-    RestClient::Resource.new(*args).tap do |request|
-      headers.each do |key, val|
-        request.headers[key] = val
+  def request_opts(options)
+    creds =
+      if options[:token]
+        user_credentials(options[:token].username, options[:token].token)
+      elsif current_user?
+        current_user_credentials
+      else
+        {}
       end
+
+    creds[:headers] ||= {}
+    creds[:headers].merge!(headers)
+    creds
+  end
+
+  def rest_resource(options)
+    RestClient::Resource.new(root_url, request_opts(options)).tap do |request|
       if options[:user] && options[:password]
         request.options[:user] = denormalize(options[:user])
         request.options[:password] = denormalize(options[:password])

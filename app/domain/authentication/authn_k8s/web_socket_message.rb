@@ -14,7 +14,7 @@ module Authentication
         end
 
         def channel_names
-          %w(stdin stdout stderr error resize)
+          %w[stdin stdout stderr error resize]
         end
       end
 

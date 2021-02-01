@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Authentication::Constraints::MultipleConstraint do
   context "Given MultipleConstraint initialized with 1 constraint" do
     let(:inner_constraint) { double("InnerConstraint") }
-    let(:resource_restrictions) { %w(restriction_first restriction_second) }
+    let(:resource_restrictions) { %w[restriction_first restriction_second] }
 
     subject(:constraint) do
       Authentication::Constraints::MultipleConstraint.new(inner_constraint)
@@ -22,7 +22,7 @@ RSpec.describe Authentication::Constraints::MultipleConstraint do
   context "Given MultipleConstraint initialized with 2 constraints" do
     let(:inner_constraint_first) { double("InnerConstraint") }
     let(:inner_constraint_second) { double("InnerConstraint") }
-    let(:resource_restrictions) { %w(restriction_first restriction_second) }
+    let(:resource_restrictions) { %w[restriction_first restriction_second] }
 
     subject(:constraint) do
       Authentication::Constraints::MultipleConstraint.new(inner_constraint_first, inner_constraint_second)

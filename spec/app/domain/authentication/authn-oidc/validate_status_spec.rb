@@ -6,7 +6,7 @@ RSpec.describe Authentication::AuthnOidc::ValidateStatus do
   let(:account) { "my-acct" }
   let(:service) { "my-service" }
 
-  include_context "fetch secrets", %w(provider-uri id-token-user-property)
+  include_context "fetch secrets", %w[provider-uri id-token-user-property]
 
   let(:test_oidc_discovery_error) { "test-oidc-discovery-error" }
 

@@ -55,7 +55,7 @@ module AuthnK8sWorld
           pod_namespace:     pod_metadata.namespace,
           pod_name:          pod_metadata.name,
           container:         "authenticator",
-          cmds:              %w(cat /etc/conjur/ssl/client.pem),
+          cmds:              %w[cat /etc/conjur/ssl/client.pem],
           body:              "",
           stdin:             false
         )
@@ -93,7 +93,7 @@ module AuthnK8sWorld
         pod_namespace:     pod_metadata.namespace,
         pod_name:          pod_metadata.name,
         container:         "authenticator",
-        cmds:              %w(cat /tmp/conjur_copy_text_output.log),
+        cmds:              %w[cat /tmp/conjur_copy_text_output.log],
         body:              "",
         stdin:             false
       )

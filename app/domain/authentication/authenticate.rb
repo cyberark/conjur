@@ -12,7 +12,7 @@ module Authentication
       validate_origin:                     ::Authentication::ValidateOrigin.new,
       audit_log:                           ::Audit.logger
     },
-    inputs:       %i(authenticator_input authenticators enabled_authenticators)
+    inputs:       %i[authenticator_input authenticators enabled_authenticators]
   ) do
 
     extend Forwardable

@@ -7,7 +7,7 @@ module Authentication
       role_cls: ::Role,
       logger:   Rails.logger
     },
-    inputs: %i(account username client_ip)
+    inputs: %i[account username client_ip]
   ) do
 
     def call

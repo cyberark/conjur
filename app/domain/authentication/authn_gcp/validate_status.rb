@@ -5,7 +5,7 @@ module Authentication
       dependencies: {
         discover_identity_provider:  Authentication::OAuth::DiscoverIdentityProvider.new
       },
-      inputs:       %i()
+      inputs:       %i[]
     ) do
 
       def call

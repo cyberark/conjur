@@ -15,7 +15,7 @@ module Authentication
         extract_container_name:         ExtractContainerName.new,
         audit_log:                      ::Audit.logger
       },
-      inputs:       %i(conjur_account service_id csr host_id_prefix client_ip)
+      inputs:       %i[conjur_account service_id csr host_id_prefix client_ip]
     ) do
 
       # :reek:TooManyStatements

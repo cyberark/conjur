@@ -93,7 +93,7 @@ module Loader
       def create_resource!
         ::Resource.create(resource_id: resourceid, owner_id: find_ownerid).tap do |resource|
           records = Hash(annotations).map { |name, value| [resource.id, name, value.to_s]}
-          resource.annotations_dataset.import(%i(resource_id name value), records)
+          resource.annotations_dataset.import(%i[resource_id name value], records)
         end
       end
 

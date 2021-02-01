@@ -8,7 +8,7 @@ module Authentication
       dependencies: {
         fetch_secrets: ::Conjur::FetchRequiredSecrets.new
       },
-      inputs:       %i(conjur_account authenticator_name service_id required_variable_names)
+      inputs:       %i[conjur_account authenticator_name service_id required_variable_names]
     ) do
 
       def call

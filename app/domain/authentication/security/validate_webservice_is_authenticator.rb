@@ -6,7 +6,7 @@ module Authentication
       dependencies: {
         installed_authenticators_class: Authentication::InstalledAuthenticators
       },
-      inputs: %i(webservice)
+      inputs: %i[webservice]
     ) do
       
       def call

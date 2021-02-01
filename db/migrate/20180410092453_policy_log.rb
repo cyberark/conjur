@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Sequel.migration do
-  tables = %i(roles role_memberships resources permissions annotations)
+  tables = %i[roles role_memberships resources permissions annotations]
 
   up do
     execute """
@@ -10,7 +10,7 @@ Sequel.migration do
       CREATE EXTENSION IF NOT EXISTS hstore;
     """
 
-    key = %i(policy_id version)
+    key = %i[policy_id version]
     create_table :policy_log do
       String :policy_id, null: false
       Integer :version, null: false
@@ -82,7 +82,7 @@ Sequel.migration do
 
     drop_table :policy_log
 
-    %w(op kind).each do |t|
+    %w[op kind].each do |t|
       execute "DROP TYPE policy_log_#{t}"
     end
   end

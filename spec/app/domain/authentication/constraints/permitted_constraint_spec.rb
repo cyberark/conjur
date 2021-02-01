@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Authentication::Constraints::PermittedConstraint do
   context "Given PermittedConstraint initialized with 1 restriction" do
     let(:permitted_restriction) { ["permitted"] }
-    let(:not_permitted_restrictions) { %w(not_permitted_first not_permitted_second) }
+    let(:not_permitted_restrictions) { %w[not_permitted_first not_permitted_second] }
     let(:raised_error) { ::Errors::Authentication::Constraints::ConstraintNotSupported }
     let(:expected_error_message) { /'#{Regexp.escape(not_permitted_restrictions.to_s)}'.*#{Regexp.escape(permitted_restriction.to_s)}/ }
 
@@ -55,8 +55,8 @@ RSpec.describe Authentication::Constraints::PermittedConstraint do
   end
 
   context "Given PermittedConstraint initialized with 2 restrictions" do
-    let(:permitted_two_restrictions) { %w(permitted_first permitted_second) }
-    let(:not_permitted_restrictions) { %w(not_permitted_first not_permitted_second) }
+    let(:permitted_two_restrictions) { %w[permitted_first permitted_second] }
+    let(:not_permitted_restrictions) { %w[not_permitted_first not_permitted_second] }
     let(:raised_error) { ::Errors::Authentication::Constraints::ConstraintNotSupported }
     let(:expected_error_message) { /'#{Regexp.escape(not_permitted_restrictions.to_s)}'.*#{Regexp.escape(permitted_two_restrictions.to_s)}/ }
 

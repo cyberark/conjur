@@ -78,7 +78,7 @@ RSpec.describe 'Authentication::AuthnK8s::CopyTextToFileInContainer' do
               pod_namespace:     pod_namespace,
               pod_name:          pod_name,
               container:         container,
-              cmds:              %w(sh),
+              cmds:              %w[sh],
               body:              expected_body,
               stdin:             true
             )

@@ -48,7 +48,7 @@ class Generator
       # policy messages are rare, ignore
       update: 10
 
-  COLUMNS = %i(facility timestamp msgid hostname appname severity sdata procid message).freeze
+  COLUMNS = %i[facility timestamp msgid hostname appname severity sdata procid message].freeze
 
   def each
     COUNT.times.lazy.each { yield generate.join("\t") + "\n" }

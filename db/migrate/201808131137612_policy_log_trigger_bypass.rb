@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Sequel.migration do
-  tables = %i(roles role_memberships resources permissions annotations)
+  tables = %i[roles role_memberships resources permissions annotations]
   
   up do
     # `policy_log_record` is a custom type to record the column

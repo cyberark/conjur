@@ -92,7 +92,7 @@ module Authentication
       end
 
       def connect_type_secure?
-        %i(ssl tls).include?(connect_type)
+        %i[ssl tls].include?(connect_type)
       end
 
       def uri_connect_type

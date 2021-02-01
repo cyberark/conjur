@@ -42,7 +42,7 @@ RSpec.describe 'Util::LogMessageClass' do
     end
 
     it 'works for arrays' do
-      expect(log_message_class.new(%w(aA bB)).to_s).to eq('Variable is ["aA", "bB"].')
+      expect(log_message_class.new(%w[aA bB]).to_s).to eq('Variable is ["aA", "bB"].')
     end
 
     it 'handles overflow args' do

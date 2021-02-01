@@ -104,7 +104,7 @@ class Role < Sequel::Model
   def api_key
     unless self.credentials
       _, kind, id = self.id.split(":", 3)
-      allowed_kind = %w(user host deputy).member?(kind)
+      allowed_kind = %w[user host deputy].member?(kind)
       raise "Role #{id} has no credentials" unless allowed_kind
 
       self.credentials = Credentials.create(role: self)

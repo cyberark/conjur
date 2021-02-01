@@ -13,7 +13,7 @@ module Authentication
       implemented_authenticators:          Authentication::InstalledAuthenticators.authenticators(ENV),
       audit_log:                           ::Audit.logger
     },
-    inputs:       %i(authenticator_status_input enabled_authenticators)
+    inputs:       %i[authenticator_status_input enabled_authenticators]
   ) do
 
     extend Forwardable

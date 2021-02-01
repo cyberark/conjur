@@ -8,7 +8,7 @@ module Authentication
         logger:                 Rails.logger,
         discover_identity_provider: DiscoverIdentityProvider.new
       },
-      inputs:       %i(provider_uri)
+      inputs:       %i[provider_uri]
     ) do
 
       def call

@@ -21,7 +21,7 @@ module Authentication
         extract_container_name:              ExtractContainerName.new,
         logger:                              Rails.logger
       },
-      inputs:       %i(pod_request)
+      inputs:       %i[pod_request]
     ) do
 
       extend Forwardable

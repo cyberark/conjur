@@ -14,7 +14,7 @@ module Commands
       # dependency that it will use to save the new password.
       # This should be addressed to make the database dependency explicit:
       # https://github.com/cyberark/conjur/issues/1611
-      inputs: %i(role password client_ip)
+      inputs: %i[role password client_ip]
     ) do
 
       def call

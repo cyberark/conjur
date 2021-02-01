@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Sequel.migration do
-  TABLES = %w(roles resources role_memberships permissions annotations)
+  TABLES = %w[roles resources role_memberships permissions annotations]
 
   up do
     TABLES.each do |table|

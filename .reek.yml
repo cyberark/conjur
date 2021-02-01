@@ -308,6 +308,7 @@ detectors:
     - CAHelpers::RootCA
 
   TooManyStatements:
+    max_statements: 10
     exclude:
     - initialize
     - RootLoader#load

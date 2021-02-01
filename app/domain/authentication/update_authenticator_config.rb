@@ -11,7 +11,7 @@ module Authentication
       validate_webservice_is_authenticator: ::Authentication::Security::ValidateWebserviceIsAuthenticator.new,
       validate_role_can_access_webservice:  ::Authentication::Security::ValidateRoleCanAccessWebservice.new
     },
-    inputs:       %i(account authenticator_name service_id enabled username)
+    inputs:       %i[account authenticator_name service_id enabled username]
   ) do
 
     def call

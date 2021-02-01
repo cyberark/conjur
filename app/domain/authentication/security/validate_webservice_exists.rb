@@ -10,7 +10,7 @@ module Authentication
         resource_class: ::Resource,
         validate_account_exists: ::Authentication::Security::ValidateAccountExists.new
       },
-      inputs: %i(webservice account)
+      inputs: %i[webservice account]
     ) do
 
       def call

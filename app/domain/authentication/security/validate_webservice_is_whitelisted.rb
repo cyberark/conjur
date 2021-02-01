@@ -12,7 +12,7 @@ module Authentication
         webservices_class:       ::Authentication::Webservices,
         validate_account_exists: ::Authentication::Security::ValidateAccountExists.new
       },
-      inputs:       %i(webservice account enabled_authenticators)
+      inputs:       %i[webservice account enabled_authenticators]
     ) do
 
       def call
