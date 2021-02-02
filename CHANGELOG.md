@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.11.2] - 2021-02-02
 ### Added
 - New `edge`-tagged images are published to DockerHub on every master branch
   build.
@@ -17,15 +18,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [Conjur Base Image](https://github.com/cyberark/conjur-base-image) project
   are included in their Conjur image.
   [cyberark/conjur#1974](https://github.com/cyberark/conjur/issues/1974)
-- Correct unit tests and integration tests for audit, and correct a couple of issues found with them.
-  [cyberark/conjur#1987](https://github.com/cyberark/conjur/issues/1987)
 - Messages for password change now have the field `role` instead of `user` under `subject`
   [cyberark/conjur#2014](https://github.com/cyberark/conjur/issues/2014)
-- When batch secret requests are sent with an `Accept: base64` header, the secret values in the response will all be
-  Base64-encoded. Sending requests with this header allows users to retrieve binary secrets encoded in Base64.
+- When batch secret requests are sent with an `Accept: base64` header, the secret
+  values in the response will all be Base64-encoded. Sending requests with this
+  header allows users to retrieve binary secrets encoded in Base64.
   [cyberark/conjur#1962](https://github.com/cyberark/conjur/issues/1962)
 - Conjur now verifies that the `offset` parameter is a valid integer value.
-  The `GET /resources` request will fail if `offset` is not an integer greater than or equal to 0.
+  The `GET /resources` request will fail if `offset` is not an integer greater
+  than or equal to 0.
   [cyberark/conjur#1997](https://github.com/cyberark/conjur/issues/1997)
 
 ### Fixed
@@ -38,15 +39,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Audit engine routing now correctly matches URLs that include a period (`.`)
   in the resource ID.
   [cyberark/conjur#2001](https://github.com/cyberark/conjur/issues/2001)
-- Attempts to retrieve binary secret data in a batch request without using the `Accept: base64` header now returns a
-  message explaining that improper secret encoding is the cause of the 500 response.
+- Attempts to retrieve binary secret data in a batch request without using
+  the `Accept: base64` header now returns a message explaining that improper
+  secret encoding is the cause of the 500 response.
   [cyberark/conjur#1962](https://github.com/cyberark/conjur/issues/1962)
 - `GET /resources` request with non-numeric delimiter (limit or offset) now
   returns `Error 422 Unprocessable Entity` instead of `Error 500`.
   [cyberark/conjur#1997](https://github.com/cyberark/conjur/issues/1997)
-- `POST /host_factory_tokens` request with invalid ip address or CIDR range of `cidr` parameter
-  now returns `Error 422 Unprocessable Entity` instead of `Error 500`.
+- `POST /host_factory_tokens` request with invalid ip address or CIDR range of
+  `cidr` parameter now returns `Error 422 Unprocessable Entity` instead of `Error 500`.
   [cyberark/conjur#2011](https://github.com/cyberark/conjur/issues/2011)
+
+### Security
+- Kubernetes authenticator certificate injection process now performs certificate
+  verification to prevent MitM attacks.
+  [Security Bulletin](https://github.com/cyberark/conjur/security/advisories/GHSA-hvhv-f953-rwmv)
 
 ## [1.11.1] - 2020-11-19
 ### Added
@@ -521,7 +528,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.1...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.2...HEAD
+[1.11.2]: https://github.com/cyberark/conjur/compare/v1.11.1...v1.11.2
 [1.11.1]: https://github.com/cyberark/conjur/compare/v1.11.0...v1.11.1
 [1.11.0]: https://github.com/cyberark/conjur/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/cyberark/conjur/compare/v1.9.0...v1.10.0

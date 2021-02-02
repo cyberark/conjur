@@ -74,7 +74,7 @@ function createNginxCert() {
 }
 
 function buildDockerImages() {
-  conjur_version=$(echo "$(< ../../VERSION)-$(git rev-parse --short=8 HEAD)")
+  conjur_version=$(echo "$(git rev-parse --short=8 HEAD)")
   DOCKER_REGISTRY_PATH="registry.tld"
 
   docker pull $DOCKER_REGISTRY_PATH/conjur:$conjur_version
