@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.11.0+dap.2] - 2020-11-19
+### Fixed
+- Policy loading no longer fails when attempting to update the annotation
+  search index for a resource that no longer exists. [cyberark/conjur#1948](https://github.com/cyberark/conjur/issues/1948
+
+## [1.11.0+dap.1] - 2020-11-10
+### Security
+- Kubernetes authenticator certificate injection process now performs certificate
+  verification to prevent MitM attacks.
+  [Security Bulletin](https://github.com/cyberark/conjur/security/advisories/GHSA-hvhv-f953-rwmv)
+
 ## [1.11.0] - 2020-11-06
 ### Added
 - UBI-based Conjur image to support Conjur server running on OpenShift. Image
@@ -474,7 +485,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.0+dap.2...HEAD
+[1.11.0+dap.2]: https://github.com/cyberark/conjur/compare/v1.11.0+dap.1...v1.11.0+dap.2
+[1.11.0+dap.1]: https://github.com/cyberark/conjur/compare/v1.11.0...v1.11.0+dap.1
 [1.11.0]: https://github.com/cyberark/conjur/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/cyberark/conjur/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/cyberark/conjur/compare/v1.8.1...v1.9.0

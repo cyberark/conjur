@@ -55,6 +55,8 @@ Section 4: MIT
 >>> https://rubygems.org/gems/slosilo/versions/2.2.1
 >>> https://rubygems.org/gems/uglifier/versions/4.2.0
 >>> https://rubygems.org/gems/websocket-client-simple/versions/0.3.0
+>>> https://rubygems.org/gems/event_emitter/versions/0.2.6
+>>> https://rubygems.org/gems/websocket/versions/1.2.8
 
 APPENDIX: Standard License Files and Templates
 

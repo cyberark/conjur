@@ -50,7 +50,7 @@ pipeline {
         stage("Scan Docker Image for fixable issues") {
           steps {
             script {
-              TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short=8 HEAD)')
+              TAG = sh(returnStdout: true, script: 'echo $(git rev-parse --short=8 HEAD)')
             }
             scanAndReport("conjur:${TAG}", "HIGH", false)
           }
@@ -58,7 +58,7 @@ pipeline {
         stage("Scan Docker image for total issues") {
           steps {
             script {
-              TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short=8 HEAD)')
+              TAG = sh(returnStdout: true, script: 'echo $(git rev-parse --short=8 HEAD)')
             }
             scanAndReport("conjur:${TAG}", "NONE", true)
           }
@@ -66,7 +66,7 @@ pipeline {
         stage("Scan UBI-based Docker Image for fixable issues") {
           steps {
             script {
-              TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short=8 HEAD)')
+              TAG = sh(returnStdout: true, script: 'echo $(git rev-parse --short=8 HEAD)')
             }
             scanAndReport("conjur-ubi:${TAG}", "HIGH", false)
           }
@@ -74,7 +74,7 @@ pipeline {
         stage("Scan UBI-based Docker image for total issues") {
           steps {
             script {
-              TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short=8 HEAD)')
+              TAG = sh(returnStdout: true, script: 'echo $(git rev-parse --short=8 HEAD)')
             }
             scanAndReport("conjur-ubi:${TAG}", "NONE", true)
           }
@@ -84,9 +84,12 @@ pipeline {
 
     stage('Prepare For CodeClimate Coverage Report Submission'){
       steps {
-        script {
-          ccCoverage.dockerPrep()
-          sh 'mkdir -p coverage'
+        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+          script {
+            ccCoverage.dockerPrep()
+            sh 'mkdir -p coverage'
+            env.CODE_CLIMATE_PREPARED = "true"
+          }
         }
       }
     }
@@ -328,19 +331,34 @@ pipeline {
     }
 
     stage('Submit Coverage Report'){
+      when {
+        expression {
+          env.CODE_CLIMATE_PREPARED == "true"
+        }
+      }
       steps{
         sh 'ci/submit-coverage'
       }
     }
 
-    stage('Publish Docker image') {
-      when {
-        // Only run this stage when it's a tag build matching vA.B.C
-        tag pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+\$", comparator: "REGEXP"
-      }
+    stage('Publish Docker Image') {
+      parallel {
+        stage('External Images') {
+          when {
+            // Only run this stage when it's a tag build matching vA.B.C
+            tag pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+\$", comparator: "REGEXP"
+          }
 
-      steps {
-        sh './push-image.sh'
+          steps {
+            sh './push-image.sh external'
+          }
+        }
+
+        stage('Internal Images') {
+         steps {
+            sh './push-image.sh internal'
+          } 
+        }
       }
     }
 
