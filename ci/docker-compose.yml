@@ -44,7 +44,7 @@ services:
       RAILS_ENV:
       REQUIRE_SIMPLECOV: "true"
       CONJUR_LOG_LEVEL: debug
-      CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak,authn-config/env,authn-azure/prod,authn-gcp
+      CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak,authn-oidc,authn-config/env,authn-azure/prod,authn-gcp
       LDAP_URI: ldap://ldap-server:389
       LDAP_BASE: dc=conjur,dc=net
       LDAP_FILTER: '(uid=%s)'
@@ -129,7 +129,7 @@ services:
       - DB_VENDOR=H2
       - KEYCLOAK_CLIENT_ID=conjurClient
       - KEYCLOAK_REDIRECT_URI=http://locallhost.com/
-      - KEYCLOAK_CLIENT_SECRET=d7047915-9029-45b8-9bd6-7ec5c2f75e5b
+      - KEYCLOAK_CLIENT_SECRET=1234
       - KEYCLOAK_SCOPE=openid
     ports:
       - "7777:8080"
