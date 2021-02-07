@@ -521,6 +521,14 @@ pipeline {
 
           steps {
             sh 'summon -f ./secrets.yml ./push-image.sh'
+            // Trigger Conjurops build to push new releases of conjur to ConjurOps Staging
+            build(
+              job:'../conjurinc--conjurops/master',
+              parameters:[
+                string(name: 'conjur_oss_source_image', value: "registry2.itci.conjur.net/conjur:${TAG_NAME}")
+              ],
+              wait: false
+            )
           }
         }
 

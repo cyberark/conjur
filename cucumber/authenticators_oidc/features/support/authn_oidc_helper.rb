@@ -9,7 +9,8 @@ module AuthnOidcHelper
   ACCOUNT = 'cucumber'
 
   def authenticate_id_token_with_oidc(service_id:, account:, id_token: parsed_id_token)
-    path = "#{conjur_hostname}/authn-oidc/#{service_id}/#{account}/authenticate"
+    service_id_part = service_id ? "/#{service_id}" : ""
+    path = "#{conjur_hostname}/authn-oidc#{service_id_part}/#{account}/authenticate"
 
     payload = {}
     unless id_token.nil?
@@ -19,16 +20,8 @@ module AuthnOidcHelper
     post(path, payload)
   end
 
-  def set_provider_uri_variable(value = oidc_provider_uri)
-    set_oidc_variable("provider-uri", value)
-  end
-
-  def set_id_token_user_property_variable
-    set_oidc_variable("id-token-user-property", oidc_id_token_user_property)
-  end
-
-  def set_oidc_variable(variable_name, value)
-    path = "cucumber:variable:conjur/authn-oidc/keycloak"
+  def create_oidc_secret(variable_name, value, service_id_suffix = "/keycloak")
+    path = "cucumber:variable:conjur/authn-oidc#{service_id_suffix}"
     Secret.create(resource_id: "#{path}/#{variable_name}", value: value)
   end
 

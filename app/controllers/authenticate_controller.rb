@@ -27,6 +27,7 @@ class AuthenticateController < ApplicationController
     )
     render json: { status: "ok" }
   rescue => e
+    log_backtrace(e)
     render status_failure_response(e)
   end
 
@@ -137,7 +138,9 @@ class AuthenticateController < ApplicationController
   private
 
   def handle_login_error(err)
-    log_error(err, LogMessages::Authentication::LoginError)
+    login_error = LogMessages::Authentication::LoginError.new(err.inspect)
+    logger.info(login_error)
+    log_backtrace(err)
 
     case err
     when Errors::Authentication::Security::AuthenticatorNotWhitelisted,
@@ -151,7 +154,9 @@ class AuthenticateController < ApplicationController
   end
 
   def handle_authentication_error(err)
-    log_error(err, LogMessages::Authentication::AuthenticationError)
+    authentication_error = LogMessages::Authentication::AuthenticationError.new(err.inspect)
+    logger.info(authentication_error)
+    log_backtrace(err)
 
     case err
     when Errors::Authentication::Security::AuthenticatorNotWhitelisted,
@@ -193,8 +198,7 @@ class AuthenticateController < ApplicationController
     end
   end
 
-  def log_error(err, log_message_class)
-    logger.info(log_message_class.new(err.inspect))
+  def log_backtrace(err)
     err.backtrace.each do |line|
       logger.debug(line)
     end
@@ -202,9 +206,6 @@ class AuthenticateController < ApplicationController
 
   def status_failure_response(error)
     logger.debug("Status check failed with error: #{error.inspect}")
-    error.backtrace.each do |line|
-      logger.debug(line)
-    end
 
     payload = {
       status: "error",

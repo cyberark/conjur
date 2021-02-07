@@ -67,6 +67,16 @@ if [[ "${PUBLISH_EDGE}" = true ]]; then
   # This script is running to publish the edge tagged image to DockerHub
   tag_and_push "edge" "${LOCAL_IMAGE}" "${REGISTRY_PREFIX}${IMAGE_NAME}"
 
+elif [[ ! -z "${REGISTRY_PREFIX}" ]]; then
+
+  # This is not running on a tag-triggered build, and a registry prefix has
+  # been supplied. Publish to the specified registry.
+
+  # Push the VERSION-SHA tagged images to our internal registry
+  tag_and_push "${TAG}" "${LOCAL_IMAGE}" "${REGISTRY_PREFIX}/conjur"
+  tag_and_push "${TAG}" "conjur-test:${TAG}" "${REGISTRY_PREFIX}/conjur-test"
+  tag_and_push "${TAG}" "conjur-ubi:${TAG}" "${REGISTRY_PREFIX}/conjur-ubi"
+
 elif [[ ! -z "${TAG_NAME:-}" ]]; then
 
   # This is running on a tag-triggered build, and public images should be published
@@ -85,16 +95,6 @@ elif [[ ! -z "${TAG_NAME:-}" ]]; then
     echo 'Failed to log in to scan.connect.redhat.com'
     exit 1
   fi
-
-elif [[ ! -z "${REGISTRY_PREFIX}" ]]; then
-
-  # This is not running on a tag-triggered build, and a registry prefix has
-  # been supplied. Publish to the specified registry.
-
-  # Push the VERSION-SHA tagged images to our internal registry
-  tag_and_push "${TAG}" "${LOCAL_IMAGE}" "${REGISTRY_PREFIX}/conjur"
-  tag_and_push "${TAG}" "conjur-test:${TAG}" "${REGISTRY_PREFIX}/conjur-test"
-  tag_and_push "${TAG}" "conjur-ubi:${TAG}" "${REGISTRY_PREFIX}/conjur-ubi"
 
 else
 
