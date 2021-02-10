@@ -18,10 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [Conjur Base Image](https://github.com/cyberark/conjur-base-image) project
   are included in their Conjur image.
   [cyberark/conjur#1974](https://github.com/cyberark/conjur/issues/1974)
-- When batch secret retrieval requests are sent with an `Accept: base64`
-  header, the secret values in the response will all be Base64-encoded.
-  Sending requests with this header allows users to retrieve binary secrets
-  encoded in Base64.
+- When [batch secret retrieval](https://docs.conjur.org/Latest/en/Content/Developer/Conjur_API_Batch_Retrieve.htm)
+  requests are sent with an `Accept: base64` header, the secret values in
+  the response will all be Base64-encoded. Sending requests with this header
+  allows users to retrieve binary secrets encoded in Base64.
   [cyberark/conjur#1962](https://github.com/cyberark/conjur/issues/1962)
 - Conjur now verifies that the `offset` parameter is a valid integer value.
   The `GET /resources` request will fail if `offset` is not an integer greater
@@ -43,7 +43,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   With this change, the audit endpoint is now consistent with how other Conjur
   endpoints handle unencoded periods in resource IDs.
   [cyberark/conjur#2001](https://github.com/cyberark/conjur/issues/2001)
-- Attempts to retrieve binary secret data in a batch secret retrieval request
+- Attempts to retrieve binary secret data in a
+  [batch secret retrieval request](https://docs.conjur.org/Latest/en/Content/Developer/Conjur_API_Batch_Retrieve.htm)
   without using the `Accept: base64` header now returns a message with the 500
   response to explain that improper secret encoding is the cause of the error.
   [cyberark/conjur#1962](https://github.com/cyberark/conjur/issues/1962)
