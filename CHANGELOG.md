@@ -18,9 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [Conjur Base Image](https://github.com/cyberark/conjur-base-image) project
   are included in their Conjur image.
   [cyberark/conjur#1974](https://github.com/cyberark/conjur/issues/1974)
-- When batch secret requests are sent with an `Accept: base64` header, the secret
-  values in the response will all be Base64-encoded. Sending requests with this
-  header allows users to retrieve binary secrets encoded in Base64.
+- When [batch secret retrieval](https://docs.conjur.org/Latest/en/Content/Developer/Conjur_API_Batch_Retrieve.htm)
+  requests are sent with an `Accept: base64` header, the secret values in
+  the response will all be Base64-encoded. Sending requests with this header
+  allows users to retrieve binary secrets encoded in Base64.
   [cyberark/conjur#1962](https://github.com/cyberark/conjur/issues/1962)
 - Conjur now verifies that the `offset` parameter is a valid integer value.
   The `GET /resources` request will fail if `offset` is not an integer greater
@@ -31,18 +32,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Conjur now raises a proper error if the `service-id` param is missing in an 
   authentication request for the OIDC authenticator.
   [cyberark/conjur#2004](https://github.com/cyberark/conjur/issues/2004)
-- Requests with empty body and application/json Content-Type Header will now
+- Requests with empty body and `application/json` Content-Type Header will now
   return 400 error instead of 500 error.
   [cyberark/conjur#1968](https://github.com/cyberark/conjur/issues/1968)
-- Policy loading no longer fails when attempting to update the annotation
-  search index for a resource that no longer exists.
+- Users no longer receive 500 errors when loading policy after performing
+  database backup and restore.
   [cyberark/conjur#1948](https://github.com/cyberark/conjur/issues/1948)
-- Audit engine routing now correctly matches URLs that include a period (`.`)
-  in the resource ID.
+- The audit endpoint no longer incorrectly reports a 404 Not Found response
+  when the resource ID used for retrieving audit events includes a period (.).
+  With this change, the audit endpoint is now consistent with how other Conjur
+  endpoints handle unencoded periods in resource IDs.
   [cyberark/conjur#2001](https://github.com/cyberark/conjur/issues/2001)
-- Attempts to retrieve binary secret data in a batch request without using
-  the `Accept: base64` header now returns a message explaining that improper
-  secret encoding is the cause of the 500 response.
+- Attempts to retrieve binary secret data in a
+  [batch secret retrieval request](https://docs.conjur.org/Latest/en/Content/Developer/Conjur_API_Batch_Retrieve.htm)
+  without using the `Accept: base64` header now returns a message with the 500
+  response to explain that improper secret encoding is the cause of the error.
   [cyberark/conjur#1962](https://github.com/cyberark/conjur/issues/1962)
 - `GET /resources` request with non-numeric delimiter (limit or offset) now
   returns `Error 422 Unprocessable Entity` instead of `Error 500`.
