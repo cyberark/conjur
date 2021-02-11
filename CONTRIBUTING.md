@@ -17,6 +17,7 @@ For general contribution and community guidelines, please see the [community rep
     + [Step into the running Conjur container](#step-into-the-running-conjur-container)
     + [View the admin user's API key](#view-the-admin-user-s-api-key)
     + [Load a policy](#load-a-policy)
+  * [Updating the API](#updating-the-api)
 - [Testing](#testing)
   * [CI Pipeline](#ci-pipeline)
   * [RSpec](#rspec)
@@ -260,6 +261,23 @@ $ ./cli policy load <account> <policy/path/from/project/root.yml>
 ```
 
 For most development work, the account will be `cucumber`, which is created when the development environment starts. The policy path must be inside the `cyberark/conjur` project folder, and referenced from the project root.
+
+### Updating the API
+
+Are you planning a change to the Conjur API? This could involve adding a new endpoint, extending an
+existing endpoint, or changing the response of an existing endpoint. **When you make changes to
+the Conjur API, you must also update the [Conjur OpenAPI Spec](https://github.com/cyberark/conjur-openapi-spec).**
+
+To prepare to make a change to the Conjur API, follow the process below:
+
+1. Clone the [OpenAPI spec project](https://github.com/cyberark/conjur-openapi-spec) and create a branch.
+1. Update the spec with your planned API changes and create a draft pull request; make sure it references
+   the Conjur issue you are working on. Note: it is expected that the automated tests in your spec branch
+   will fail, because they are running against the `conjur:edge` image which hasn't been updated with your API changes yet.
+1. Return to your clone of the Conjur project, and make your planned changes to the Conjur API following the standard branch / review / merge workflow.
+1. Once your Conjur changes have been merged and the new `conjur:edge` image has been published, rerun the
+   automation in your OpenAPI pull request to ensure that the spec is consistent with your API changes. Have
+   your spec PR reviewed and merged as usual.
 
 ## Testing
 
