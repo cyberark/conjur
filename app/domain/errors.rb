@@ -309,7 +309,7 @@ module Errors
 
       PodMissingRelationError = ::Util::TrackableErrorClass.new(
         msg:  "Pod: {0-pod-name} does not belong to a {1-resource-type}.",
-        code: "CONJ00062E"
+        code: "CONJ00062Ess"
       )
 
       InvalidHostId = ::Util::TrackableErrorClass.new(
