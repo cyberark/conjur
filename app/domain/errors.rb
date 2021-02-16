@@ -277,7 +277,7 @@ module Errors
 
       MissingCertificate = ::Util::TrackableErrorClass.new(
         msg:  "No Kubernetes API certificate available",
-        code: "CONJ00043E"
+        code: "CONJ00043E1"
       )
 
       NamespaceMismatch = ::Util::TrackableErrorClass.new(
