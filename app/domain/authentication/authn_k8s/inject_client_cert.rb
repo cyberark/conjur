@@ -115,7 +115,13 @@ module Authentication
       end
 
       def host
-        @host ||= @resource_class[host_id]
+        return @host if @host
+
+        @host = @resource_class[host_id]
+
+        raise Errors::Authentication::Security::RoleNotFound, host_id unless @host
+
+        @host
       end
 
       def validate_spiffe_id_exists
@@ -161,7 +167,7 @@ module Authentication
           Audit::Event::Authn::InjectClientCert.new(
             authenticator_name: AUTHENTICATOR_NAME,
             service:            webservice,
-            role_id:            host.id,
+            role_id:            sanitized_role_id,
             client_ip:          @client_ip,
             success:            true,
             error_message:      nil
@@ -174,12 +180,20 @@ module Authentication
           Audit::Event::Authn::InjectClientCert.new(
             authenticator_name: AUTHENTICATOR_NAME,
             service:            webservice,
-            role_id:            host.id,
+            role_id:            sanitized_role_id,
             client_ip:          @client_ip,
             success:            false,
             error_message:      err.message
           )
         )
+      end
+      # TODO: this logic is taken from app/models/audit/event/authn.rb.
+      # We should use that logic here.
+      # Masking role if it doesn't exist to avoid audit pollution
+      def sanitized_role_id
+        return "not-found" unless @resource_class[host_id]
+
+        host.id
       end
     end
   end

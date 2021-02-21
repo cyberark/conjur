@@ -17,6 +17,7 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
   let(:csr) { "CSR" }
 
   let(:host_id) { "HostId" }
+  let(:non_existing_host_id) { "non-exist" }
   let(:host_role) { double("HostRole", id: host_id) }
 
   let(:k8s_authn_container_name) { 'kubernetes/authentication-container-name' }
@@ -46,6 +47,14 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
       "K8sHost",
       account:        account,
       conjur_host_id: host_id
+    )
+  }
+
+  let(:non_existing_k8s_host) {
+    double(
+      "K8sHost",
+      account:        account,
+      conjur_host_id: non_existing_host_id
     )
   }
 
@@ -105,6 +114,10 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
       allow(resource_class).to receive(:[])
         .with(host_id)
         .and_return(host)
+
+      allow(resource_class).to receive(:[])
+        .with(non_existing_host_id)
+        .and_return(nil)
     end
   end
 
@@ -219,6 +232,37 @@ RSpec.describe Authentication::AuthnK8s::InjectClientCert do
             host_id_prefix: host_id_prefix,
             client_ip: client_ip) }.to raise_error(error_type, missing_spiffe_id_error)
         end
+      end
+    end
+
+    context "when host does not exist" do
+      it "throws RoleNotFound" do
+        error_type = Errors::Authentication::Security::RoleNotFound
+
+        allow(Authentication::AuthnK8s::K8sHost)
+          .to receive(:from_csr)
+            .with(hash_including(account: account,
+              service_name:               service_id,
+              csr:                        anything))
+            .and_return(non_existing_k8s_host)
+
+        allow(Authentication::AuthnK8s::PodRequest)
+          .to receive(:new)
+            .with(hash_including(service_id: service_id,
+              k8s_host:                      non_existing_k8s_host,
+              spiffe_id:                     spiffe_id))
+            .and_return(pod_request)
+
+        allow(validate_pod_request)
+          .to receive(:call)
+            .with(hash_including(pod_request: anything))
+            .and_return(nil)
+
+        expect { injector.(conjur_account: account,
+          service_id: service_id,
+          csr: csr,
+          host_id_prefix: host_id_prefix,
+          client_ip: client_ip) }.to raise_error(error_type)
       end
     end
 
