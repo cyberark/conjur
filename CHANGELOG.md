@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Conjur now raises a RoleNotFound when trying to authenticate a non-existing host in authn-k8s
+  [cyberark/conjur#2046](https://github.com/cyberark/conjur/issues/2046)
 
 ## [1.11.2] - 2021-02-02
 ### Added
