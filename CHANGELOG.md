@@ -5,8 +5,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.11.3] - 2021-02-22
+
+### Fixed
+- Conjur now raises a new `ServiceIdMissing` error if the `service-id` param is
+  missing in an authentication request for the OIDC authenticator.
+  [cyberark/conjur#2004](https://github.com/cyberark/conjur/issues/2004)
+
 ### Changed
-- Conjur now raises a RoleNotFound when trying to authenticate a non-existing host in authn-k8s
+- Conjur now raises a `RoleNotFound` error when trying to authenticate a
+  non-existing host in authn-k8s.
   [cyberark/conjur#2046](https://github.com/cyberark/conjur/issues/2046)
 
 ## [1.11.2] - 2021-02-02
@@ -32,9 +41,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#1997](https://github.com/cyberark/conjur/issues/1997)
 
 ### Fixed
-- Conjur now raises a proper error if the `service-id` param is missing in an 
-  authentication request for the OIDC authenticator.
-  [cyberark/conjur#2004](https://github.com/cyberark/conjur/issues/2004)
 - Requests with empty body and `application/json` Content-Type Header will now
   return 400 error instead of 500 error.
   [cyberark/conjur#1968](https://github.com/cyberark/conjur/issues/1968)
@@ -536,7 +542,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.2...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.3...HEAD
+[1.11.3]: https://github.com/cyberark/conjur/compare/v1.11.2...v1.11.3
 [1.11.2]: https://github.com/cyberark/conjur/compare/v1.11.1...v1.11.2
 [1.11.1]: https://github.com/cyberark/conjur/compare/v1.11.0...v1.11.1
 [1.11.0]: https://github.com/cyberark/conjur/compare/v1.10.0...v1.11.0
