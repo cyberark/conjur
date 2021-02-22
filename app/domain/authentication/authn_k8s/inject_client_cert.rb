@@ -187,6 +187,7 @@ module Authentication
           )
         )
       end
+
       # TODO: this logic is taken from app/models/audit/event/authn.rb.
       # We should use that logic here.
       # Masking role if it doesn't exist to avoid audit pollution

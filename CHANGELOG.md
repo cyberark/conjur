@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Changed
 - Conjur now raises a RoleNotFound when trying to authenticate a non-existing host in authn-k8s
-  [conjurinc/appliance#1546]https://github.com/conjurinc/appliance/issues/1546
+  [cyberark/conjur#2046](https://github.com/cyberark/conjur/issues/2046)
 
 ## [1.11.2] - 2021-02-02
 ### Added
