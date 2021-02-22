@@ -1,0 +1,28 @@
+@startuml summon-kubernetes-component-diagram
+
+title Summon Kubernetes Component Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+
+System_Ext(conjur, "Conjur", "Manages Credentials")
+System_Ext(db, "Target Service", "A remote system like an API or Database")
+
+System_Boundary(k8s, "Kubernetes") {
+  Component(app, "Summon-based Application", "Container")
+  Component(authn_client, "Conjur Authn K8s Client", "Container")
+  Component_Ext(shared_memory, "Shared Memory Volumne", "Storage")
+}
+
+Rel(authn_client, conjur, "(1) Sends CSR to")
+Rel(conjur, shared_memory, "(2) Writes signed certificate to")
+Rel(shared_memory, authn_client, "(3) Reads certificate from")
+Rel(authn_client, conjur, "(4) Authenticates", "mTLS")
+Rel(conjur, authn_client, "(5) Recieves Authentication Token", "Encrypted")
+Rel(authn_client, shared_memory, "(6) Writes Authentication Token to")
+Rel(app, shared_memory, "(7) Reads Authentication Token from")
+Rel(app, conjur, "(8) Summon retrieves credentials from")
+Rel(app, db, "(9) Connects using provided credentials")
+
+SHOW_DYNAMIC_LEGEND()
+@enduml

@@ -1,0 +1,23 @@
+@startuml summon-kubernetes-context-diagram
+
+title Summon Kubernetes Context Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_TOP_DOWN()
+
+Person(sec_eng, "Security Engineer")
+Person(developer, "Software Engineer")
+System_Ext(conjur, "Conjur", "Manages Credentials")
+System_Ext(db, "Target Service", "A remote system like an API or Database")
+
+System_Boundary(k8s, "Kubernetes") {
+  System(app, "Application")
+}
+
+Rel(sec_eng, conjur, "Enables Target Service Access in")
+Rel(developer, app, "Deploys applications to")
+Rel(app, conjur, "Retrieves credentials from")
+Rel(app, db, "Uses credentials to connect to")
+
+SHOW_DYNAMIC_LEGEND()
+@enduml

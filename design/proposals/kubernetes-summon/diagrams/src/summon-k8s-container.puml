@@ -1,0 +1,26 @@
+@startuml summon-kubernetes-container-diagram
+
+title Summon Kubernetes Container Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_TOP_DOWN()
+
+Person(sec_eng, "Security Engineer")
+Person(developer, "Software Engineer")
+System_Ext(conjur, "Conjur", "Manages Credentials")
+System_Ext(db, "Target Service", "A remote system like an API or Database")
+
+System_Boundary(k8s, "Kubernetes") {
+  System(app, "Summon-based Application")
+  System(authn_client, "Authn Client")
+}
+
+Rel(sec_eng, conjur, "Enables Target Service Access in")
+Rel(developer, app, "Deploys to")
+Rel(conjur, app, "Pulls credentials from")
+Rel(app, db, "Uses credentials to connect to")
+Rel(authn_client, conjur, "Authenticates against")
+Rel(authn_client, app, "Writes Auth Token to")
+
+SHOW_DYNAMIC_LEGEND()
+@enduml
