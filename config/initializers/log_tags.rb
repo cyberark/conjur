@@ -1,7 +1,7 @@
 Rails.application.configure do
 
   def gettid
-    syscall 186 # NOTE: Linux-specific, not portable
+	Time.now.to_i 
   end
 
   config.log_tags = [

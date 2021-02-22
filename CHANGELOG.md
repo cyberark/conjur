@@ -63,6 +63,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   verification to prevent MitM attacks.
   [Security Bulletin](https://github.com/cyberark/conjur/security/advisories/GHSA-hvhv-f953-rwmv)
 
+### Added
+- arm64 image build support
+
+### Changed
+- remove usage of syscall() to support non-amd64 systems
+
 ## [1.11.1] - 2020-11-19
 ### Added
 - UBI-based Conjur image to support Conjur server running on OpenShift. Image
