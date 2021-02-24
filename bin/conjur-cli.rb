@@ -2,6 +2,7 @@
 
 require 'gli'
 require 'net/http'
+require 'net/https'
 require 'uri'
 
 include GLI::App
@@ -245,16 +246,41 @@ command :wait do |c|
   c.default_value 90
   c.flag [ :r, :retries ], :must_match => /\d+/
 
+  c.desc 'Protocol'
+  c.arg_name :protocol
+  c.default_value ENV['PROTOCOL'] || 'http'
+  c.flag [ :protocol ], :must_match => /https?/i
+
+  c.desc 'Certificate Path'
+  c.arg_name :cert
+  c.default_value ENV['CERT'] || '/puma/cert.pem'
+  c.flag [ :cert ]
+  c.desc "Note: the certificate must be valid for hostname: localhost"
+
   c.action do |global_options,options,args|
     puts "Waiting for Conjur to be ready..."
 
     retries = options[:retries].to_i
     port = options[:port]
+    protocol = options[:protocol].downcase
+    cert = options[:cert]
+
+    use_ssl = protocol == "https"
+
+    if use_ssl && !File.exist?(cert)
+      exit_now! " Certificate file #{cert} not found"
+    end
 
     conjur_ready = lambda do
-      uri = URI.parse("http://localhost:#{port}")
+      uri = URI.parse("#{protocol}://localhost:#{port}")
       begin
-        response = Net::HTTP.get_response(uri)
+        http = Net::HTTP.new(uri.host, uri.port)
+        if use_ssl
+          http.use_ssl = true
+          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          http.ca_file = cert
+        end
+        response = http.get(uri.request_uri)
         response.code.to_i < 300
       rescue
         false
