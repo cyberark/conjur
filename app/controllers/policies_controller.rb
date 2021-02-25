@@ -19,11 +19,15 @@ class PoliciesController < RestController
     policy = save_submitted_policy(delete_permitted: true)
     replace_policy = Loader::ReplacePolicy.from_policy(policy)
     created_roles = perform(replace_policy)
+    audit_success(policy)
 
     render json: {
       created_roles: created_roles,
       version: policy.version
     }, status: :created
+  rescue => e
+    audit_failure(e, :update)
+    raise e
   end
 
   def patch
@@ -32,11 +36,15 @@ class PoliciesController < RestController
     policy = save_submitted_policy(delete_permitted: true)
     modify_policy = Loader::ModifyPolicy.from_policy(policy)
     created_roles = perform(modify_policy)
+    audit_success(policy)
 
     render json: {
       created_roles: created_roles,
       version: policy.version
     }, status: :created
+  rescue => e
+    audit_failure(e, :update)
+    raise e
   end
 
   def post
@@ -45,11 +53,15 @@ class PoliciesController < RestController
     policy = save_submitted_policy(delete_permitted: false)
     create_policy = Loader::CreatePolicy.from_policy(policy)
     created_roles = perform(create_policy)
+    audit_success(policy)
 
     render json: {
       created_roles: created_roles,
       version: policy.version
     }, status: :created
+  rescue => e
+    audit_failure(e, :create)
+    raise e
   end
 
   protected
@@ -66,6 +78,22 @@ class PoliciesController < RestController
   end
 
   private
+
+  def audit_success(policy_version)
+    policy_version.policy_log.lazy.map(&:to_audit_event).each do |event|
+      Audit.logger.log(event)
+    end
+  end
+
+  def audit_failure(err, operation)
+    Audit.logger.log(Audit::Event::Policy.new(
+      operation: operation,
+      subject: {}, # Subject is empty because no role/resource has been impacted
+      user: current_user,
+      client_ip: request.ip,
+      error_message: err.message
+    ))
+  end
 
   def concurrent_load(_exception)
     response.headers['Retry-After'] = retry_delay
