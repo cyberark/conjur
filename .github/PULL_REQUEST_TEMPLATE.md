@@ -19,3 +19,7 @@ Resolves #[relevant GitHub issues, eg 76]
 #### Documentation
 - [ ] Docs (e.g. `README`s) were updated in this PR, and/or there is a follow-on issue to update docs, or
 - [ ] This PR does not require updating any documentation
+
+#### API Changes
+- [ ] The [OpenAPI spec](https://github.com/cyberark/conjur-openapi-spec) has been updated to meet new API changes (or an issue has been opened), or
+- [ ] The changes in this PR do not affect the Conjur API
