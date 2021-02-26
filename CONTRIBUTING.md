@@ -273,8 +273,10 @@ To prepare to make a change to the Conjur API, follow the process below:
 1. Clone the [OpenAPI spec project](https://github.com/cyberark/conjur-openapi-spec) and create a branch.
 1. Update the spec with your planned API changes and create a draft pull request; make sure it references
    the Conjur issue you are working on. Note: it is expected that the automated tests in your spec branch
-   will fail, because they are running against the `conjur:edge` image which hasn't been updated with your API changes yet.
-1. Return to your clone of the Conjur project, and make your planned changes to the Conjur API following the standard branch / review / merge workflow.
+   will fail, because they are running against the `conjur:edge` image which hasn't been updated with your
+   API changes yet.
+1. Return to your clone of the Conjur project, and make your planned changes to the Conjur API following
+   the standard branch / review / merge workflow.
 1. Once your Conjur changes have been merged and the new `conjur:edge` image has been published, rerun the
    automation in your OpenAPI pull request to ensure that the spec is consistent with your API changes. Have
    your spec PR reviewed and merged as usual.
