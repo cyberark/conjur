@@ -49,8 +49,8 @@ class PoliciesController < RestController
     audit_success(policy)
 
     render json: {
-        created_roles: created_roles,
-        version: policy.version
+      created_roles: created_roles,
+      version: policy.version
     }, status: :created
   rescue => e
     audit_failure(e, privilege)

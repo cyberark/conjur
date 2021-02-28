@@ -67,7 +67,7 @@ module Audit
           SDID::CLIENT => { ip: client_ip }
         }.merge(
           attempted_action.action_sd
-          ).tap do |sd|
+        ).tap do |sd|
           if @policy_version
             sd[SDID::POLICY] = {
               id: @policy_version.id,
