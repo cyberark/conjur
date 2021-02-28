@@ -42,7 +42,7 @@ module Audit
       def message
         attempted_action.message(
           success_msg: success_message,
-          failure_msg: "Failed loading policy",
+          failure_msg: "Failed to load policy",
           error_msg: @error_message
         )
       end
