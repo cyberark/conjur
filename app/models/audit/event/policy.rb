@@ -66,8 +66,8 @@ module Audit
           SDID::SUBJECT => @subject.to_h,
           SDID::CLIENT => { ip: client_ip }
         }.merge(
-            attempted_action.action_sd
-        ).tap do |sd|
+          attempted_action.action_sd
+          ).tap do |sd|
           if @policy_version
             sd[SDID::POLICY] = {
               id: @policy_version.id,
@@ -88,7 +88,7 @@ module Audit
       private
 
       def success_message
-        past_tense_verb = @operation.to_s.chomp('e') + "ed"
+        past_tense_verb = "#{@operation.to_s.chomp('e')}ed"
         "#{user&.id} #{past_tense_verb} #{@subject}"
       end
 

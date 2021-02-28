@@ -19,6 +19,7 @@ describe Audit::Event::Policy do
       role: user
     )
   end
+
   let(:error_message) { nil }
 
   subject do
