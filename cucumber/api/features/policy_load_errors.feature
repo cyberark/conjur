@@ -35,7 +35,7 @@ Feature: Policy loading error messages
       <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:admin"][subject@43868]
       [action@43868 result="failure" operation="add"]
-      [meta sequenceId="4"] Failed loading policy: User 'bob' not found in account 'cucumber'
+      [meta sequenceId="4"] Failed to load policy: User 'bob' not found in account 'cucumber'
     """
 
   @logged-in-admin
@@ -72,7 +72,7 @@ Feature: Policy loading error messages
       <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:admin"][subject@43868]
       [action@43868 result="failure" operation="add"]
-      [meta sequenceId="4"] Failed loading policy: policy_text resource has a blank id
+      [meta sequenceId="4"] Failed to load policy: policy_text resource has a blank id
     """
 
   @logged-in-admin
@@ -100,5 +100,5 @@ Feature: Policy loading error messages
       <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:admin"][subject@43868]
       [action@43868 result="failure" operation="add"]
-      [meta sequenceId="4"] Failed loading policy: policy_text is not present
+      [meta sequenceId="4"] Failed to load policy: policy_text is not present
     """
