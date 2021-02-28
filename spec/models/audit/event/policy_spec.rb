@@ -85,6 +85,7 @@ describe Audit::Event::Policy do
 
   context "when operation fails" do
     let(:error_message) { 'Unauthorized to load policy' }
+
     it 'marks operation as failure' do
       expect(subject.structured_data).to match(hash_including({
               Audit::SDID::ACTION => { operation: operation, result: 'failure' }

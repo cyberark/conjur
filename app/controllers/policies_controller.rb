@@ -40,8 +40,8 @@ class PoliciesController < RestController
 
   private
 
-  def load_policy(privilege, loader_class, delete_permitted)
-    authorize privilege
+  def load_policy(action, loader_class, delete_permitted)
+    authorize action
 
     policy = save_submitted_policy(delete_permitted: delete_permitted)
     loaded_policy = loader_class.from_policy(policy)
@@ -53,7 +53,7 @@ class PoliciesController < RestController
       version: policy.version
     }, status: :created
   rescue => e
-    audit_failure(e, privilege)
+    audit_failure(e, action)
     raise e
   end
 
