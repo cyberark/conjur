@@ -30,7 +30,13 @@ Feature: Policy loading error messages
       }
     }
     """
-
+    And there is an audit record matching:
+    """
+      <85>1 * * conjur * policy
+      [auth@43868 user="cucumber:user:admin"][subject@43868]
+      [action@43868 result="failure" operation="add"]
+      [meta sequenceId="4"] Failed to load policy: User 'bob' not found in account 'cucumber'
+    """
 
   @logged-in-admin
   Scenario: A policy with a blank resource id reports the error.
@@ -61,6 +67,13 @@ Feature: Policy loading error messages
       }
     }
     """
+    And there is an audit record matching:
+    """
+      <85>1 * * conjur * policy
+      [auth@43868 user="cucumber:user:admin"][subject@43868]
+      [action@43868 result="failure" operation="add"]
+      [meta sequenceId="4"] Failed to load policy: policy_text resource has a blank id
+    """
 
   @logged-in-admin
   Scenario: Posting a policy without a body
@@ -81,4 +94,11 @@ Feature: Policy loading error messages
         ]
       }
     }
+    """
+    And there is an audit record matching:
+    """
+      <85>1 * * conjur * policy
+      [auth@43868 user="cucumber:user:admin"][subject@43868]
+      [action@43868 result="failure" operation="add"]
+      [meta sequenceId="4"] Failed to load policy: policy_text is not present
     """

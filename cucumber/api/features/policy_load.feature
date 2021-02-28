@@ -47,7 +47,7 @@ Feature: Updating policies
       <37>1 * * conjur * policy
       [auth@43868 user="cucumber:user:bob"]
       [policy@43868 id="cucumber:policy:dev/db" version="1"]
-      [action@43868 operation="add"]
+      [action@43868 result="success" operation="add"]
       [subject@43868 resource="cucumber:layer:dev/db"]
       cucumber:user:bob added resource cucumber:layer:dev/db
     """
@@ -56,7 +56,7 @@ Feature: Updating policies
       <37>1 * * conjur * policy
       [auth@43868 user="cucumber:user:bob"]
       [policy@43868 id="cucumber:policy:dev/db" version="1"]
-      [action@43868 operation="add"]
+      [action@43868 result="success" operation="add"]
       [subject@43868 role="cucumber:layer:dev/db"]
       cucumber:user:bob added role cucumber:layer:dev/db
     """
@@ -65,7 +65,7 @@ Feature: Updating policies
       <37>1 * * conjur * policy
       [auth@43868 user="cucumber:user:bob"]
       [policy@43868 id="cucumber:policy:dev/db" version="1"]
-      [action@43868 operation="add"]
+      [action@43868 result="success" operation="add"]
       [subject@43868 role="cucumber:layer:dev/db" owner="cucumber:policy:dev/db"]
       cucumber:user:bob added ownership of cucumber:policy:dev/db in cucumber:layer:dev/db
     """

@@ -20,11 +20,14 @@ describe Audit::Event::Policy do
     )
   end
 
+  let(:error_message) { nil }
+
   subject do
     Audit::Event::Policy.new(
       subject: resource,
       operation: operation,
-      policy_version: policy_version
+      policy_version: policy_version,
+      error_message: error_message
     )
   end
 
@@ -78,5 +81,19 @@ describe Audit::Event::Policy do
     end
 
     it_behaves_like 'structured data includes client IP address'
+  end
+
+  context "when operation fails" do
+    let(:error_message) { 'Unauthorized to load policy' }
+
+    it 'marks operation as failure' do
+      expect(subject.structured_data).to match(hash_including({
+              Audit::SDID::ACTION => { operation: operation, result: 'failure' }
+          }))
+    end
+
+    it 'produces the error message' do
+      expect(subject.message).to include(error_message)
+    end
   end
 end

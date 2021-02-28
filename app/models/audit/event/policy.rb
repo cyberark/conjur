@@ -9,13 +9,15 @@ module Audit
         subject:,
         user: nil,
         policy_version: nil,
-        client_ip: nil
+        client_ip: nil,
+        error_message: nil
       )
         @operation = operation
         @subject = subject
         @user = user
         @policy_version = policy_version
         @client_ip = client_ip
+        @error_message = error_message
       end
 
       # Note: We want this class to be responsible for providing `progname`.
@@ -38,12 +40,22 @@ module Audit
       # TODO: See issue https://github.com/cyberark/conjur/issues/1608
       # :reek:NilCheck
       def message
-        past_tense_verb = @operation.to_s.chomp('e') + "ed"
-        "#{user&.id} #{past_tense_verb} #{@subject}"
+        attempted_action.message(
+          success_msg: success_message,
+          failure_msg: "Failed to load policy",
+          error_msg: @error_message
+        )
       end
 
       def message_id
         "policy"
+      end
+
+      def attempted_action
+        @attempted_action ||= AttemptedAction.new(
+          success: success?,
+          operation: @operation
+        )
       end
 
       # TODO: See issue https://github.com/cyberark/conjur/issues/1608
@@ -52,9 +64,10 @@ module Audit
         {
           SDID::AUTH => { user: user&.id },
           SDID::SUBJECT => @subject.to_h,
-          SDID::ACTION => { operation: @operation },
           SDID::CLIENT => { ip: client_ip }
-        }.tap do |sd|
+        }.merge(
+          attempted_action.action_sd
+        ).tap do |sd|
           if @policy_version
             sd[SDID::POLICY] = {
               id: @policy_version.id,
@@ -74,12 +87,21 @@ module Audit
 
       private
 
+      def success_message
+        past_tense_verb = "#{@operation.to_s.chomp('e')}ed"
+        "#{user&.id} #{past_tense_verb} #{@subject}"
+      end
+
       def user
-        @user || @policy_version.role
+        @user || @policy_version&.role
       end
 
       def client_ip
-        @client_ip || @policy_version.client_ip
+        @client_ip || @policy_version&.client_ip
+      end
+
+      def success?
+        @error_message.nil?
       end
     end
   end

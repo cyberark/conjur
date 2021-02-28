@@ -107,14 +107,6 @@ module Loader
       store_public_keys
 
       store_restricted_to
-
-      emit_audit
-    end
-
-    def emit_audit
-      policy_version.policy_log.lazy.map(&:to_audit_event).each do |event|
-        Audit.logger.log(event)
-      end
     end
 
     def table_data schema = ""
