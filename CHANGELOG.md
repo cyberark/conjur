@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Security
+- Updated Rails to 5.2.4.5 to address CVE-2021-22880
+  [cyberark/conjur#2056](https://github.com/cyberark/conjur/issues/2056)
+
 ## [1.11.3] - 2021-02-22
 
 ### Fixed
@@ -103,7 +107,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [Documentation](https://github.com/cyberark/conjur/blob/master/UPGRADING.md)
   explaining how to upgrade a Conjur server deployed in a Docker Compose environment.
   [cyberark/conjur#1528](https://github.com/cyberark/conjur/issues/1528), [cyberark/conjur#1584](https://github.com/cyberark/conjur/issues/1584)
-- When Conjur starts, we now convert blank environment variables to nil. This ensures we treat empty environment values as 
+- When Conjur starts, we now convert blank environment variables to nil. This ensures we treat empty environment values as
   if the environment variable is not present, rather than attempting to use the empty string value. [cyberark/conjur#1841](https://github.com/cyberark/conjur/issues/1841)
 
 ### Changed
@@ -112,7 +116,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#1848](https://github.com/cyberark/conjur/issues/1848)
 
 ### Fixed
-- Conjur now verifies that Kubernetes Authenticator variables exist and have value before retrieving them so that a 
+- Conjur now verifies that Kubernetes Authenticator variables exist and have value before retrieving them so that a
   proper error will be raised if they aren't.
   [cyberark/conjur#1315](https://github.com/cyberark/conjur/issues/1315)
 
