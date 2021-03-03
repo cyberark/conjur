@@ -5,6 +5,18 @@ Feature: A permitted Conjur host can login with a valid resource restrictions
     Given I login to pod matching "app=inventory-pod" to authn-k8s as "test-app-pod" with prefix "host/some-policy"
     Then I can authenticate pod matching "pod/inventory-pod" with authn-k8s as "test-app-pod" with prefix "host/some-policy"
 
+  Scenario: Authenticate as a Pod with long host prefix.
+    Given I login to pod matching "app=inventory-pod" to authn-k8s as "test-app-pod" with prefix "host/some-policy/second-layer"
+    Then I can authenticate pod matching "pod/inventory-pod" with authn-k8s as "test-app-pod" with prefix "host/some-policy/second-layer"
+
+  Scenario: Authenticate as a Pod with medium host prefix.
+    Given I login to pod matching "app=inventory-pod" to authn-k8s as "second-layer/test-app-pod" with prefix "host/some-policy"
+    Then I can authenticate pod matching "pod/inventory-pod" with authn-k8s as "second-layer/test-app-pod" with prefix "host/some-policy"
+
+  Scenario: Authenticate as a Pod with short host prefix.
+    Given I login to pod matching "app=inventory-pod" to authn-k8s as "some-policy/second-layer/test-app-pod" with prefix "host"
+    Then I can authenticate pod matching "pod/inventory-pod" with authn-k8s as "some-policy/second-layer/test-app-pod" with prefix "host"
+
   Scenario: Authenticate as a Namespace.
     Given I can login to pod matching "app=inventory-pod" to authn-k8s as "test-app-namespace" with prefix "host/some-policy"
     Then I can authenticate pod matching "pod/inventory-pod" with authn-k8s as "test-app-namespace" with prefix "host/some-policy"
