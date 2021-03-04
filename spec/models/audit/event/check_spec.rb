@@ -68,4 +68,32 @@ describe Audit::Event::Check do
 
     it_behaves_like 'structured data includes client IP address'
   end
+
+  context 'when the resource does not exist and a failure occurs' do
+    let(:success) { false }
+    let(:resource) { 'rspec:variable:non_existing_var' }
+
+    it 'produces the expected message' do
+      expect(subject.message).to eq(
+                                   'rspec:user:my_user checked if rspec:host:my_host can execute ' \
+        'rspec:variable:non_existing_var (failure)'
+                                 )
+    end
+
+    it_behaves_like 'structured data includes client IP address'
+  end
+
+  context 'when the role does not exist and a failure occurs' do
+    let(:success) { false }
+    let(:role) { 'rspec:host:my_non_existing_host' }
+
+    it 'produces the expected message' do
+      expect(subject.message).to eq(
+                                   'rspec:user:my_user checked if rspec:host:my_non_existing_host can execute ' \
+        'rspec:variable:my_var (failure)'
+                                 )
+    end
+
+    it_behaves_like 'structured data includes client IP address'
+  end
 end

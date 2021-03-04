@@ -59,7 +59,25 @@ class ResourcesController < RestController
     privilege = params[:privilege]
     raise ArgumentError, "privilege" unless privilege
 
-    result = assumed_role.allowed_to?(privilege, resource)
+    begin
+      result = assumed_role.allowed_to?(privilege, resource)
+    rescue
+      result = false
+      resource_id = "#{params[:account]}:#{params[:kind]}:#{params[:identifier]}"
+      role_id = params[:role]
+
+      Audit.logger.log(
+        Audit::Event::Check.new(
+          user: current_user,
+          client_ip: request.ip,
+          resource: resource_id,
+          privilege: privilege,
+          role: role_id,
+          operation: "check",
+          success: result
+        )
+      )
+    end
 
     Audit.logger.log(
       Audit::Event::Check.new(

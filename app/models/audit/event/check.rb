@@ -14,11 +14,12 @@ module Audit
       )
         @user = user
         @client_ip = client_ip
-        @resource = resource
         @privilege = privilege
         @role = role
         @operation = operation
         @success = success
+        @resource_id = resource.try(:id) || resource
+        @role_id = role.try(:id) || role
       end
 
       # Note: We want this class to be responsible for providing `progname`.
@@ -40,7 +41,7 @@ module Audit
 
       def message
         "#{@user.id} checked if #{role_text} can #{@privilege} " \
-          "#{@resource.id} (#{success_text})"
+          "#{@resource_id} (#{success_text})"
       end
 
       def message_id
@@ -51,8 +52,8 @@ module Audit
         {
           SDID::AUTH => { user: @user.id },
           SDID::SUBJECT => {
-            resource: @resource.id,
-            role: @role.id,
+            resource: @resource_id,
+            role: @role_id,
             privilege: @privilege
           },
           SDID::CLIENT => { ip: @client_ip }
@@ -84,7 +85,7 @@ module Audit
       end
 
       def role_text
-        @user == @role ? 'they' : @role.id
+        @user == @role ? 'they' : @role_id
       end
 
       def success_text
