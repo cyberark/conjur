@@ -239,6 +239,20 @@
     role: !layer
     members: *some-policy-hosts
 
+  - !policy
+    id: second-layer
+    body:
+    - !host
+      id: test-app-pod
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        authn-k8s/pod: inventory-pod
+        authn-k8s/authentication-container-name: authenticator
+
+  - !grant
+    role: !layer
+    member: !host second-layer/test-app-pod
+
 # Permit the host above to authenticate with authn-k8s
 - !grant
   role: !group conjur/authn-k8s/minikube/clients
