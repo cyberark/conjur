@@ -525,7 +525,7 @@ pipeline {
             build(
               job:'../conjurinc--conjurops/master',
               parameters:[
-                string(name: 'conjur_oss_source_image', value: "registry2.itci.conjur.net/conjur:${TAG_NAME}")
+                string(name: 'conjur_oss_source_image', value: "cyberark/conjur:${TAG_NAME}")
               ],
               wait: false
             )
