@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - `/whoami` API endpoint now produces audit events.
   [cyberark/conjur#2052](https://github.com/cyberark/conjur/issues/2052)
+- When a user checks permissions of a non-existing role or a non-existing resource, Conjur now audits a failure message.
+  [cyberark/conjur#2059](https://github.com/cyberark/conjur/issues/2059)
 
 ## [1.11.4] - 2021-03-09
 

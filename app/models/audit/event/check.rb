@@ -6,20 +6,21 @@ module Audit
       def initialize(
         user:,
         client_ip:,
-        resource:,
+        resource_id:,
         privilege:,
-        role:,
+        role_id:,
         operation:,
-        success:
+        success:,
+        error_message: nil
       )
         @user = user
         @client_ip = client_ip
+        @resource_id = resource_id
         @privilege = privilege
-        @role = role
+        @role_id = role_id
         @operation = operation
         @success = success
-        @resource_id = resource.try(:id) || resource
-        @role_id = role.try(:id) || role
+        @error_message = error_message
       end
 
       # Note: We want this class to be responsible for providing `progname`.
@@ -40,8 +41,8 @@ module Audit
       end
 
       def message
-        "#{@user.id} checked if #{role_text} can #{@privilege} " \
-          "#{@resource_id} (#{success_text})"
+        "#{@user.id} #{result_text} if #{role_text} can #{@privilege} " \
+          "#{@resource_id} #{error_message_text}"
       end
 
       def message_id
@@ -85,13 +86,16 @@ module Audit
       end
 
       def role_text
-        @user == @role ? 'they' : @role_id
+        @user.id == @role_id ? 'they' : @role_id
       end
 
-      def success_text
-        attempted_action.success_text
+      def result_text
+        @success ? "successfully checked" : "failed to check"
       end
 
+      def error_message_text
+        @error_message ? ": #{@error_message}" : ""
+      end
     end
   end
 end
