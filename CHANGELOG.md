@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- `/whoami` API endpoint now produces audit events.
+  [cyberark/conjur#2052](https://github.com/cyberark/conjur/issues/2052)
+
 ## [1.11.4] - 2021-03-09
 
 ### Security
