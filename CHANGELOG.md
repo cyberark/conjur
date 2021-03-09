@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.11.4] - 2021-03-09
+
 ### Security
 - Updated Rails to 5.2.4.5 to address CVE-2021-22880
   [cyberark/conjur#2056](https://github.com/cyberark/conjur/issues/2056)
