@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.11.4] - 2021-03-09
 
 ### Security
-- Updated Rails to 5.2.4.5 to address CVE-2021-22880
+- Updated Rails to 5.2.4.5 to address CVE-2021-22880.
   [cyberark/conjur#2056](https://github.com/cyberark/conjur/issues/2056)
 
 ## [1.11.3] - 2021-02-22
@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - Conjur now raises a `RoleNotFound` error when trying to authenticate a
-  non-existing host in authn-k8s.
+  non-existent host in authn-k8s.
   [cyberark/conjur#2046](https://github.com/cyberark/conjur/issues/2046)
 
 ## [1.11.2] - 2021-02-02
@@ -554,7 +554,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.3...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.4...HEAD
+[1.11.4]: https://github.com/cyberark/conjur/compare/v1.11.3...v1.11.4
 [1.11.3]: https://github.com/cyberark/conjur/compare/v1.11.2...v1.11.3
 [1.11.2]: https://github.com/cyberark/conjur/compare/v1.11.1...v1.11.2
 [1.11.1]: https://github.com/cyberark/conjur/compare/v1.11.0...v1.11.1
