@@ -59,20 +59,47 @@ class ResourcesController < RestController
     privilege = params[:privilege]
     raise ArgumentError, "privilege" unless privilege
 
-    result = assumed_role.allowed_to?(privilege, resource)
+    begin
+      result = assumed_role.allowed_to?(privilege, resource)
+
+      audit_success(privilege, result)
+    rescue => e
+      audit_failure(privilege, e)
+
+      raise
+    end
+
+    head(result ? :no_content : :not_found)
+  end
+
+  def audit_success(privilege, result)
+    Audit.logger.log(
+      Audit::Event::Check.new(
+        user: current_user,
+        client_ip: request.ip,
+        resource_id: resource.id,
+        privilege: privilege,
+        role_id: assumed_role.id,
+        operation: "check",
+        success: result
+      )
+    )
+  end
+
+  def audit_failure(privilege, err)
+    role_id = params[:role]
 
     Audit.logger.log(
       Audit::Event::Check.new(
         user: current_user,
         client_ip: request.ip,
-        resource: resource,
+        resource_id: resource_id,
         privilege: privilege,
-        role: assumed_role,
+        role_id: role_id,
         operation: "check",
-        success: result
+        success: false,
+        error_message: err.message
       )
     )
-
-    head(result ? :no_content : :not_found)
   end
 end

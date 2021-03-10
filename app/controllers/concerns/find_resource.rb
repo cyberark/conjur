@@ -2,12 +2,12 @@
 
 module FindResource
   extend ActiveSupport::Concern
-  
-  protected
-  
+
   def resource_id
     [ params[:account], params[:kind], params[:identifier] ].join(":")
   end
+
+  protected
 
   def resource!
     @resource ||= Resource[resource_id]
