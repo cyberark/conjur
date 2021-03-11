@@ -129,6 +129,7 @@ module RestHelpers
     @http_status = result.code
 
     @content_type = result.headers[:content_type]
+    @content_encoding = result.headers[:content_encoding]
     if /^application\/json/.match?(@content_type)
       @result = JSON.parse(result)
       @response_api_key = @result['api_key'] if @result.is_a?(Hash)

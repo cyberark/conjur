@@ -78,8 +78,13 @@ class SecretsController < RestController
     raise Exceptions::RecordNotFound, variable.resource_id unless secret
 
     secret_value = secret.value
-    accepts_base64 = String(request.headers['Accept']).casecmp?('base64')
-    accepts_base64 ? Base64.encode64(secret_value) : secret_value
+    accepts_base64 = String(request.headers['Accept-Encoding']).casecmp?('base64')
+    if accepts_base64
+      response.set_header("Content-Encoding", "base64")
+      Base64.encode64(secret_value)
+    else
+      secret_value
+    end
   end
 
   def audit_fetch resource, version: nil
