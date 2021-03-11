@@ -94,13 +94,14 @@ Feature: Batch retrieval of secrets
   Scenario: Returns the correct result for binary secrets
     Given I create a binary secret value for resource "cucumber:variable:secret3"
     And I add the secret value "v2" to the resource "cucumber:variable:secret2"
-    And I set the "Accept" header to "base64"
+    And I set the "Accept-Encoding" header to "base64"
     When I GET "/secrets?variable_ids=cucumber:variable:secret3,cucumber:variable:secret2"
     Then the binary data is preserved for "cucumber:variable:secret3"
+    And the content encoding is "base64"
 
   Scenario: Returns the correct result for binary secrets
     Given I create a binary secret value for resource "cucumber:variable:secret3"
-    And I set the "Accept" header to "Base64"
+    And I set the "Accept-Encoding" header to "Base64"
     When I GET "/secrets?variable_ids=cucumber:variable:secret3"
     Then the binary data is preserved for "cucumber:variable:secret3"
 
@@ -115,7 +116,7 @@ Feature: Batch retrieval of secrets
     When I GET "/secrets?variable_ids=cucumber:variable:secret3,cucumber:variable:secret2"
     Then the HTTP response status code is 500
 
-  Scenario: Omit the Accept header entirely from batch secrets request
+  Scenario: Omit the Accept-Encoding header entirely from batch secrets request
     Given I add the secret value "v2" to the resource "cucumber:variable:secret2"
     When I GET "/secrets?variable_ids=cucumber:variable:secret2" with no default headers
     Then the JSON should be:

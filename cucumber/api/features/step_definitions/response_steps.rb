@@ -58,6 +58,10 @@ Then(/^the binary result is preserved$/) do
   expect(@result).to eq(@value)
 end
 
+Then(/^the content encoding is "([^"]*)"/) do |encoding|
+  expect(@content_encoding).to eq(encoding)
+end
+
 Then(/^the binary data is preserved for "([^"]*)"$/) do |resource_id|
   data = Base64.decode64(@result[resource_id])
   expect(data).to eq(@value)
