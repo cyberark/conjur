@@ -1,0 +1,7 @@
+require_relative 'plugin/install'
+require_relative 'plugin/install_git'
+require_relative 'plugin/uninstall'
+require_relative 'plugin/enable'
+require_relative 'plugin/disable'
+require_relative 'plugin/list'
+require_relative 'plugin/require_paths'

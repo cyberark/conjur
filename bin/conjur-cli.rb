@@ -3,6 +3,9 @@
 require 'gli'
 require 'net/http'
 require 'uri'
+require 'fileutils'
+require 'conjur/plugin'
+require 'conjur'
 
 include GLI::App
 
@@ -291,6 +294,131 @@ command :export do |c|
     connect
     exec %(rake export["#{options[:out_dir]}","#{options[:label]}"])
   end
+end
+
+# In order to use Conjur gem plugins, this capabilities must first be enabled
+# by setting the `CONJUR_FEATURE_PLUGINS_ENABLED` environment variable to the
+# value `true`
+if Conjur.feature_flag.gem_plugins?
+  # Conjur plugins are packaged and distributed as Ruby gems. This allows Conjur
+  # to leverage the existing infrastructure for package metadata and distribution.
+  #
+  # The lifecyle for a Conjur plugin is:
+  #
+  #   Installed     (`conjurctl plugin install ...`)
+  #       |
+  #    Enabled <-   (`conjurctl plugin enable ...`)
+  #       |      |
+  #   Disabled --   (`conjurctl plugin disable ...`)
+  #       |
+  #    Removed      (`conjurctl plugin uninstall ...`)
+  #
+  desc "Manage Conjur plugins"
+  command :plugin do |cgrp|
+    # Variables shared across plugin sub-commands
+    plugins_root_dir = File.expand_path('../plugins', File.dirname(__FILE__))
+    plugins_installed_dir = File.join(plugins_root_dir, 'installed')
+    plugins_enabled_dir = File.join(plugins_root_dir, 'enabled')
+
+    # Conjur plugins can be install either from a RubyGems repository or
+    # directly from a git repository. If installing from a git repository,
+    # the name and version arguments are ignored, and the information in the
+    # git repository's gemspec file will be used.
+    cgrp.desc "Install a Conjur plugin"
+    cgrp.arg :name, :optional
+    cgrp.command :install do |c|
+
+      c.desc 'Install plugin from git repository'
+      c.arg_name :git
+      c.flag [ :git ]
+
+      c.desc 'Plugin version to install'
+      c.arg_name :version
+      c.flag [ :v, :version ]
+
+      c.action do |_global_options, options, args|
+        name = args.first
+
+        if options[:git]
+          Conjur::Plugin::InstallGit.new(
+            plugin_install_dir: plugins_installed_dir
+          ).call(
+            repository: options[:git]
+          )
+        else
+          # Attempt to install from RubyGems
+          Conjur::Plugin::Install.new(
+            plugin_install_dir: plugins_installed_dir
+          ).call(
+            name: name,
+            version: options[:version]
+          )
+        end
+
+        # Other cases to consider:
+        # - volume mounted directory
+        # - alternative remote repository
+      end
+    end
+
+    cgrp.desc "Uninstall a Conjur plugin"
+    cgrp.arg :name
+    cgrp.command :uninstall do |c|
+      c.action do |_global_options, _options, args|
+        name = args.first
+        raise "No plugin name provided" unless name
+
+        Conjur::Plugin::Uninstall.new(
+          plugin_install_dir: plugins_installed_dir,
+          plugin_enable_dir: plugins_enabled_dir
+        ).call(
+          name: name
+        )
+      end
+    end
+
+    cgrp.desc "Enable a Conjur plugin"
+    cgrp.arg :name
+    cgrp.command :enable do |c|
+      c.action do |_global_options, _options, args|
+        name = args.first
+        raise "No plugin name provided" unless name
+
+        Conjur::Plugin::Enable.new(
+          plugin_install_dir: plugins_installed_dir,
+          plugin_enable_dir: plugins_enabled_dir
+        ).call(
+          name: name
+        )
+      end
+    end
+
+    cgrp.desc "Disable a Conjur plugin"
+    cgrp.arg :name
+    cgrp.command :disable do |c|
+      c.action do |_global_options, _options, args|
+        name = args.first
+        raise "No plugin name provided" unless name
+
+        Conjur::Plugin::Disable.new(
+          plugin_enable_dir: plugins_enabled_dir
+        ).call(
+          name: name
+        )
+      end
+    end
+
+    cgrp.desc "List Conjur plugins"
+    cgrp.command :list do |c|
+      c.action do |_global_options, _options, _args|
+        Conjur::Plugin::List.new(
+          plugin_install_dir: plugins_installed_dir,
+          plugin_enable_dir: plugins_enabled_dir
+        ).call
+      end
+    end
+  end
+
 end
 
 exit run(ARGV)

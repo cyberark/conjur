@@ -21,6 +21,8 @@ Bundler.require(*Rails.groups)
 $LOAD_PATH.push File.expand_path "../../engines/conjur_audit/lib", __FILE__
 require 'conjur_audit'
 
+require 'conjur'
+
 module Conjur
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
@@ -40,6 +42,28 @@ module Conjur
 
     config.autoload_paths << Rails.root.join('lib')
 
+    # Conjur gem plugins allow extending the core Conjur capabilities with 3rd
+    # party plugins. For example, this allows adding additional authenticators
+    # not included in the core Conjur repository. Plugin loading is not enabled
+    # by default, and must be enabled on the Conjur server or container by
+    # setting the `CONJUR_FEATURE_PLUGINS_ENABLED` environment variable to the
+    # value `true`.
+    if Conjur.feature_flag.gem_plugins?
+      # Conjur plugins are Ruby gems installed in the `plugins/installed`
+      # directory. Only gem specifications also symlinked in the
+      # `plugins/enabled` directory are included in Conjur's Ruby load path.
+      require_paths = Conjur::Plugin::RequirePaths.new(
+        plugin_install_dir: Rails.root.join('plugins/installed'),
+        plugin_enable_dir: Rails.root.join('plugins/enabled')
+      ).call
+
+      # Plugin load paths are added to both the autoload and eager_load paths
+      # for Rails. This allows them to be found when loaded concrete authenticator
+      # implementations, for example.
+      config.autoload_paths.unshift(*require_paths) 
+      config.eager_load_paths.unshift(*require_paths) 
+    end
+
     config.sequel.after_connect = proc do
       Sequel.extension :core_extensions, :postgres_schemata
       Sequel::Model.db.extension :pg_array, :pg_inet, :pg_hstore
@@ -54,7 +78,7 @@ module Conjur
 
     # Sets all the blank Environment Variables to nil. This ensures that nil
     # checks are sufficient to verify the usage of an environment variable.
-    ENV.each_pair do |(k,v)|
+    ENV.each_pair do |(k, v)|
       ENV[k] = nil if v =~ /^\s*$/ # is all whitespace
     end
   end
