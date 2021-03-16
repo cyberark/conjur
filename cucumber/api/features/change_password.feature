@@ -19,7 +19,7 @@ Feature: Change the password of a role
       <86>1 * * conjur * password
       [auth@43868 user="cucumber:user:alice"]
       [subject@43868 role="cucumber:user:alice"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="change"]
       cucumber:user:alice successfully changed their password
     """
@@ -46,7 +46,7 @@ Feature: Change the password of a role
       <86>1 * * conjur * password
       [auth@43868 user="cucumber:user:alice"]
       [subject@43868 role="cucumber:user:alice"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="change"]
       cucumber:user:alice failed to change their password:
       password CONJ00046E *

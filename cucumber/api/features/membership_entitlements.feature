@@ -59,7 +59,7 @@ Feature: Manage the role entitlements through the API
       <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:admin"]
       [subject@43868 role="cucumber:group:dev/developers" member="cucumber:user:bob"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="add"]
       cucumber:user:admin added membership of cucumber:user:bob in cucumber:group:dev/developers
     """
@@ -86,7 +86,7 @@ Feature: Manage the role entitlements through the API
     """
       <85>1 * * conjur * policy [auth@43868 user="cucumber:user:alice"]
       [subject@43868 role="cucumber:group:dev/developers" member="cucumber:user:alice"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="remove"]
       cucumber:user:alice removed membership of cucumber:user:alice in cucumber:group:dev/developers
     """

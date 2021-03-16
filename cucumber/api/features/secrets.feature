@@ -71,7 +71,7 @@ Feature: Adding and fetching secrets
       <86>1 * * conjur * update
       [auth@43868 user="cucumber:user:eve"]
       [subject@43868 resource="cucumber:variable:probe"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="update"]
       cucumber:user:eve updated cucumber:variable:probe
     """
@@ -110,7 +110,7 @@ Feature: Adding and fetching secrets
       <86>1 * * conjur * fetch
       [auth@43868 user="cucumber:user:eve"]
       [subject@43868 resource="cucumber:variable:probe"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="fetch"]
       cucumber:user:eve fetched cucumber:variable:probe
     """
@@ -136,7 +136,7 @@ Feature: Adding and fetching secrets
       <86>1 * * conjur * fetch
       [auth@43868 user="cucumber:user:eve"]
       [subject@43868 resource="cucumber:variable:probe" version="1"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="fetch"]
       cucumber:user:eve fetched version 1 of cucumber:variable:probe
     """
@@ -161,7 +161,7 @@ Feature: Adding and fetching secrets
       <84>1 * * conjur * update
       [auth@43868 user="cucumber:user:eve"]
       [subject@43868 resource="cucumber:variable:probe"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="update"]
       cucumber:user:eve tried to update cucumber:variable:probe: 'value' may not be empty
     """

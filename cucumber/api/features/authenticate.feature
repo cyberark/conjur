@@ -18,7 +18,7 @@ Feature: Exchange a role's API key for a signed authentication token
       <86>1 * * conjur * authn
       [subject@43868 role="cucumber:user:alice"]
       [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn"  user="cucumber:user:alice"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="authenticate"]
       cucumber:user:alice successfully authenticated with authenticator authn
     """
@@ -32,7 +32,7 @@ Feature: Exchange a role's API key for a signed authentication token
       <86>1 * * conjur * authn
       [subject@43868 role="cucumber:host:app"]
       [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="cucumber:host:app"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="authenticate"]
       cucumber:host:app successfully authenticated with authenticator authn
     """
@@ -47,7 +47,7 @@ Feature: Exchange a role's API key for a signed authentication token
       <86>1 * * conjur * authn
       [subject@43868 role="cucumber:user:alice"]
       [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="cucumber:user:alice"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="authenticate"]
       cucumber:user:alice successfully authenticated with authenticator authn
     """
@@ -63,7 +63,7 @@ Feature: Exchange a role's API key for a signed authentication token
       <86>1 * * conjur * authn
       [subject@43868 role="cucumber:user:alice"]
       [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="cucumber:user:alice"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="authenticate"]
       cucumber:user:alice successfully authenticated with authenticator authn
     """
@@ -79,7 +79,7 @@ Feature: Exchange a role's API key for a signed authentication token
       <86>1 * * conjur * authn
       [subject@43868 role="cucumber:user:alice"]
       [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="cucumber:user:alice"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="authenticate"]
       cucumber:user:alice successfully authenticated with authenticator authn
     """
@@ -95,7 +95,7 @@ Feature: Exchange a role's API key for a signed authentication token
       <86>1 * * conjur * authn
       [subject@43868 role="cucumber:user:alice"]
       [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="cucumber:user:alice"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="authenticate"]
       cucumber:user:alice successfully authenticated with authenticator authn
     """
@@ -109,7 +109,7 @@ Feature: Exchange a role's API key for a signed authentication token
       <86>1 * * conjur * authn
       [subject@43868 role="cucumber:user:alice"]
       [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="cucumber:user:alice"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="authenticate"]
       cucumber:user:alice successfully authenticated with authenticator authn
     """
@@ -128,7 +128,7 @@ Feature: Exchange a role's API key for a signed authentication token
       <84>1 * * conjur * authn
       [subject@43868 role="cucumber:user:alice"]
       [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="cucumber:user:alice"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="authenticate"]
       cucumber:user:alice failed to authenticate with authenticator authn
     """
@@ -142,7 +142,7 @@ Feature: Exchange a role's API key for a signed authentication token
       <84>1 * * conjur * authn
       [subject@43868 role="cucumber:host:app"]
       [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="cucumber:host:app"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="authenticate"]
       cucumber:host:app failed to authenticate with authenticator authn
     """
@@ -156,7 +156,7 @@ Feature: Exchange a role's API key for a signed authentication token
       <84>1 * * conjur * authn
       [subject@43868 role="cucumber:user:alice"]
       [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="cucumber:user:alice"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="authenticate"]
       cucumber:user:alice failed to authenticate with authenticator authn
     """

@@ -6,7 +6,7 @@ Then(/^there is an audit record matching:$/) do |given|
   if Utils.local_conjur_server
     expect(audit_messages).to include(matching(audit_template(given)))
   else
-    expect(num_matches_since_savepoint(given.gsub(/\*/,'.*').gsub(/\n/, '').gsub(/\s+/, '\s*').gsub(/\[/,'\['))).to be >= 1
+    expect(num_matches_since_savepoint(given.gsub(/\*/,'.*').gsub(/\n/, '').gsub(/\s+/, '\s*').gsub(/\[/,'\[').gsub(/\]/, '\]'))).to be >= 1
   end
 end
 

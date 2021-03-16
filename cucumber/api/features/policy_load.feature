@@ -48,7 +48,7 @@ Feature: Updating policies
       <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:bob"]
       [subject@43868 resource="cucumber:layer:dev/db"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="add"]
       [policy@43868 id="cucumber:policy:dev/db" version="1"]
       cucumber:user:bob added resource cucumber:layer:dev/db
@@ -58,7 +58,7 @@ Feature: Updating policies
       <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:bob"]
       [subject@43868 role="cucumber:layer:dev/db"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="add"]
       [policy@43868 id="cucumber:policy:dev/db" version="1"]
       cucumber:user:bob added role cucumber:layer:dev/db
@@ -68,7 +68,7 @@ Feature: Updating policies
       <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:bob"]
       [subject@43868 role="cucumber:layer:dev/db" owner="cucumber:policy:dev/db"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="add"]
       [policy@43868 id="cucumber:policy:dev/db" version="1"]
       cucumber:user:bob added ownership of cucumber:policy:dev/db in cucumber:layer:dev/db

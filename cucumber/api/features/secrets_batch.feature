@@ -20,7 +20,7 @@ Feature: Batch retrieval of secrets
       <86>1 * * conjur * fetch
       [auth@43868 user="cucumber:user:bob"]
       [subject@43868 resource="cucumber:variable:secret1"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="fetch"]
       cucumber:user:bob fetched cucumber:variable:secret1
     """
@@ -29,7 +29,7 @@ Feature: Batch retrieval of secrets
       <86>1 * * conjur * fetch
       [auth@43868 user="cucumber:user:bob"]
       [subject@43868 resource="cucumber:variable:secret2"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="fetch"]
       cucumber:user:bob fetched cucumber:variable:secret2
     """

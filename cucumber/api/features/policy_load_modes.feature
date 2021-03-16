@@ -50,7 +50,7 @@ Feature: Updating policies
       <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:alice"]
       [subject@43868 resource="cucumber:variable:dev/db/a"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="remove"]
       [policy@43868 id="cucumber:policy:dev/db" version="2"]
       cucumber:user:alice removed resource cucumber:variable:dev/db/a
@@ -80,7 +80,7 @@ Feature: Updating policies
       <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:alice"]
       [subject@43868 annotation="conjur/kind" resource="cucumber:variable:dev/db/b"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="change"]
       [policy@43868 id="cucumber:policy:dev/db" version="2"]
       cucumber:user:alice changed annotation conjur/kind on cucumber:variable:dev/db/b
@@ -127,7 +127,7 @@ Feature: Updating policies
       <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:alice"]
       [subject@43868 resource="cucumber:variable:dev/db/a" role="cucumber:group:everyone" privilege="read"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="add"]
       [policy@43868 id="cucumber:policy:dev/db" version="2"]
       cucumber:user:alice added permission of cucumber:group:everyone to read on cucumber:variable:dev/db/a
@@ -157,7 +157,7 @@ Feature: Updating policies
       <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:alice"]
       [subject@43868 role="cucumber:group:dev/db/secrets-users" member="cucumber:group:dev/db/secrets-managers"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="add"]
       [policy@43868 id="cucumber:policy:dev/db" version="2"]
       cucumber:user:alice added membership of cucumber:group:dev/db/secrets-managers in cucumber:group:dev/db/secrets-users

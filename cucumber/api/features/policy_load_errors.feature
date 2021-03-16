@@ -35,7 +35,7 @@ Feature: Policy loading error messages
       <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:admin"]
       [subject@43868]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="create"]
       Failed to load policy: User 'bob' not found in account 'cucumber'
     """
@@ -74,7 +74,7 @@ Feature: Policy loading error messages
       <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:admin"]
       [subject@43868]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="create"]
       Failed to load policy: policy_text resource has a blank id
     """
@@ -105,7 +105,7 @@ Feature: Policy loading error messages
       <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:admin"]
       [subject@43868]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="create"]
       Failed to load policy: policy_text is not present
     """

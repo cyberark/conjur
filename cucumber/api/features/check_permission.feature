@@ -23,7 +23,7 @@ Feature: Check whether a role has a privilege on a resource
       <86>1 * * conjur * check
       [auth@43868 user="cucumber:user:charlie"]
       [subject@43868 resource="cucumber:chunky:bacon" role="cucumber:user:charlie" privilege="fry"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="check"]
       cucumber:user:charlie successfully checked if they can fry cucumber:chunky:bacon
     """
@@ -43,7 +43,7 @@ Feature: Check whether a role has a privilege on a resource
       <86>1 * * conjur * check
       [auth@43868 user="cucumber:user:charlie"]
       [subject@43868 resource="cucumber:chunky:bacon" role="cucumber:user:bob" privilege="fry"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="check"]
       cucumber:user:charlie successfully checked if cucumber:user:bob can fry cucumber:chunky:bacon
     """
@@ -64,7 +64,7 @@ Feature: Check whether a role has a privilege on a resource
       <84>1 * * conjur * check
       [auth@43868 user="cucumber:user:charlie"]
       [subject@43868 resource="cucumber:chunky:bacon" role="cucumber:user:bob" privilege="freeze"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="check"]
       cucumber:user:charlie failed to check if cucumber:user:bob can freeze cucumber:chunky:bacon
     """

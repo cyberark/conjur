@@ -17,7 +17,7 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
       <84>1 * * conjur * fetch
       [auth@43868 user="cucumber:user:bob"]
       [subject@43868 resource="cucumber:variable:probe"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="fetch"]
       cucumber:user:bob tried to fetch cucumber:variable:probe: Forbidden
     """
@@ -36,7 +36,7 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
       <84>1 * * conjur * update
       [auth@43868 user="cucumber:user:bob"]
       [subject@43868 resource="cucumber:variable:probe"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="update"]
       cucumber:user:bob tried to update cucumber:variable:probe: Forbidden
     """
@@ -74,7 +74,7 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
       <84>1 * * conjur * fetch
       [auth@43868 user="cucumber:user:alice"]
       [subject@43868 resource="cucumber:variable:probe"]
-      [client@43868 ip="127.0.0.1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="fetch"]
       cucumber:user:alice tried to fetch cucumber:variable:probe: Forbidden
     """
