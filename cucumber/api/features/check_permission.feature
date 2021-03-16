@@ -12,7 +12,7 @@ Feature: Check whether a role has a privilege on a resource
   Scenario: I confirm that I can perform the granted action
 
     If a role is granted a privilege on a resource, then a permission check will pass.
-
+    When I save my place in the audit log file
     Then I can GET "/resources/cucumber/chunky/bacon" with parameters:
     """
     check: true
@@ -20,18 +20,18 @@ Feature: Check whether a role has a privilege on a resource
     """
     And there is an audit record matching:
     """
-      <38>1 * * conjur * check
+      <86>1 * * conjur * check
       [auth@43868 user="cucumber:user:charlie"]
-      [subject@43868 role="cucumber:user:charlie" resource="cucumber:chunky:bacon"
-        privilege="fry"]
-      [action@43868 operation="check" result="success"]
-      cucumber:user:charlie checked if cucumber:user:bob can fry cucumber:chunky:bacon (success)
+      [subject@43868 resource="cucumber:chunky:bacon" role="cucumber:user:charlie" privilege="fry"]
+      [client@43868 ip="127.0.0.1"]
+      [action@43868 result="success" operation="check"]
+      cucumber:user:charlie successfully checked if they can fry cucumber:chunky:bacon
     """
 
   Scenario: I confirm that the role can perform the granted action
 
     If a role is granted a privilege on a resource, then a permission check will pass.
-
+    When I save my place in the audit log file
     Then I can GET "/resources/cucumber/chunky/bacon" with parameters:
     """
     check: true
@@ -40,19 +40,19 @@ Feature: Check whether a role has a privilege on a resource
     """
     And there is an audit record matching:
     """
-      <38>1 * * conjur * check
+      <86>1 * * conjur * check
       [auth@43868 user="cucumber:user:charlie"]
-      [subject@43868 role="cucumber:user:bob" resource="cucumber:chunky:bacon"
-        privilege="fry"]
-      [action@43868 operation="check" result="success"]
-      cucumber:user:charlie checked if cucumber:user:bob can fry cucumber:chunky:bacon (success)
+      [subject@43868 resource="cucumber:chunky:bacon" role="cucumber:user:bob" privilege="fry"]
+      [client@43868 ip="127.0.0.1"]
+      [action@43868 result="success" operation="check"]
+      cucumber:user:charlie successfully checked if cucumber:user:bob can fry cucumber:chunky:bacon
     """
 
   Scenario: I confirm that the role cannot perform ungranted actions
 
     If a role is not granted a privilege, then a permission check will fail.
-
-    When I GET "/resources/cucumber/chunky/bacon" with parameters:
+    When I save my place in the audit log file
+    And I GET "/resources/cucumber/chunky/bacon" with parameters:
     """
     check: true
     role: cucumber:user:bob
@@ -61,12 +61,12 @@ Feature: Check whether a role has a privilege on a resource
     Then the HTTP response status code is 404
     And there is an audit record matching:
     """
-      <38>1 * * conjur * check
+      <84>1 * * conjur * check
       [auth@43868 user="cucumber:user:charlie"]
-      [subject@43868 role="cucumber:user:bob" resource="cucumber:chunky:bacon"
-        privilege="freeze"]
-      [action@43868 operation="check" result="failure"]
-      cucumber:user:charlie checked if cucumber:user:bob can fry cucumber:chunky:bacon (failure)
+      [subject@43868 resource="cucumber:chunky:bacon" role="cucumber:user:bob" privilege="freeze"]
+      [client@43868 ip="127.0.0.1"]
+      [action@43868 result="failure" operation="check"]
+      cucumber:user:charlie failed to check if cucumber:user:bob can freeze cucumber:chunky:bacon
     """
 
   Scenario: The new role can confirm that it may perform the granted action

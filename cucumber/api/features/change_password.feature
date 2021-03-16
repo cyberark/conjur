@@ -11,16 +11,16 @@ Feature: Change the password of a role
   Scenario: With basic authentication, users can update their own password using the current password.
 
     Given I set the password for "alice" to "My-Password1"
-    When I successfully PUT "/authn/cucumber/password" with username "alice" and password "My-Password1" and plain text body "New-Password1"
+    When I save my place in the audit log file
+    And I successfully PUT "/authn/cucumber/password" with username "alice" and password "My-Password1" and plain text body "New-Password1"
     Then I can GET "/authn/cucumber/login" with username "alice" and password "New-Password1"
     And there is an audit record matching:
     """
-      <84>1 * * conjur * password
+      <86>1 * * conjur * password
       [auth@43868 user="cucumber:user:alice"]
       [subject@43868 role="cucumber:user:alice"]
-      [client@43868 ip="172.17.0.1"]
+      [client@43868 ip="127.0.0.1"]
       [action@43868 result="success" operation="change"]
-      [meta sequenceId="2"]
       cucumber:user:alice successfully changed their password
     """
 
@@ -38,15 +38,16 @@ Feature: Change the password of a role
   Scenario: Fail to set password with 11 characters not applying to password complexity.
 
     Given I set the password for "alice" to "My-Password1"
-    When I PUT "/authn/cucumber/password" with username "alice" and password "My-Password1" and plain text body "My-Passwor1"
+    When I save my place in the audit log file
+    And I PUT "/authn/cucumber/password" with username "alice" and password "My-Password1" and plain text body "My-Passwor1"
     Then the HTTP response status code is 422
     And there is an audit record matching:
     """
-      <84>1 * * conjur * password
+      <86>1 * * conjur * password
       [auth@43868 user="cucumber:user:alice"]
       [subject@43868 role="cucumber:user:alice"]
-      [client@43868 ip="172.17.0.1"][action@43868 result="failure" operation="change"]
-      [meta sequenceId="2"]
+      [client@43868 ip="127.0.0.1"]
+      [action@43868 result="failure" operation="change"]
       cucumber:user:alice failed to change their password:
       password CONJ00046E *
     """

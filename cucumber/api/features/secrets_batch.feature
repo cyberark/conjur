@@ -9,25 +9,28 @@ Feature: Batch retrieval of secrets
     And I add the secret value "s3" to the resource "cucumber:variable:secret3"
 
   Scenario: Returns a JSON hash mapping resource id to value
-    When I GET "/secrets?variable_ids=cucumber:variable:secret1,cucumber:variable:secret2"
+    When I save my place in the audit log file
+    And I GET "/secrets?variable_ids=cucumber:variable:secret1,cucumber:variable:secret2"
     Then the JSON should be:
     """
     { "cucumber:variable:secret1": "s1", "cucumber:variable:secret2": "s2" }
     """
     And there is an audit record matching:
     """
-      <38>1 * * conjur * fetch
+      <86>1 * * conjur * fetch
       [auth@43868 user="cucumber:user:bob"]
       [subject@43868 resource="cucumber:variable:secret1"]
-      [action@43868 operation="fetch" result="success"]
+      [client@43868 ip="127.0.0.1"]
+      [action@43868 result="success" operation="fetch"]
       cucumber:user:bob fetched cucumber:variable:secret1
     """
     And there is an audit record matching:
     """
-      <38>1 * * conjur * fetch
+      <86>1 * * conjur * fetch
       [auth@43868 user="cucumber:user:bob"]
       [subject@43868 resource="cucumber:variable:secret2"]
-      [action@43868 operation="fetch" result="success"]
+      [client@43868 ip="127.0.0.1"]
+      [action@43868 result="success" operation="fetch"]
       cucumber:user:bob fetched cucumber:variable:secret2
     """
 
