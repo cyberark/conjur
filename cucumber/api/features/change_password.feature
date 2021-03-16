@@ -43,7 +43,7 @@ Feature: Change the password of a role
     Then the HTTP response status code is 422
     And there is an audit record matching:
     """
-      <86>1 * * conjur * password
+      <84>1 * * conjur * password
       [auth@43868 user="cucumber:user:alice"]
       [subject@43868 role="cucumber:user:alice"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
