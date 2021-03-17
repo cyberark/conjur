@@ -2,7 +2,7 @@
 
 require_relative '../support/logs_helpers'
 
-Given(/^I save my place in the audit log file for remote$/) do |_|
+Given(/^I save my place in the audit log file for remote$/) do
   save_num_log_lines unless Utils.local_conjur_server
 end
 
