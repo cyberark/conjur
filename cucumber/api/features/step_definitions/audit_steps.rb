@@ -55,11 +55,12 @@ module CucumberAuditHelper
   end
 
   def normalize_to_log(message)
-    message.gsub(/\*/, '.*')
-           .gsub(/^\s+/, '\s?')
-           .gsub(/\n/, '')
-           .gsub(/\[/, '\[')
-           .gsub(/\]/, '\]')
+    message
+      .gsub(/\*/, '.*')
+      .gsub(/^\s+/, '\s?')
+      .gsub(/\n/, '')
+      .gsub(/\[/, '\[')
+      .gsub(/\]/, '\]')
   end
 end
 
