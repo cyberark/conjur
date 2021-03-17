@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2052](https://github.com/cyberark/conjur/issues/2052)
 - When a user checks permissions of a non-existing role or a non-existing resource, Conjur now audits a failure message.
   [cyberark/conjur#2059](https://github.com/cyberark/conjur/issues/2059)
+- Print login and authentication error stack trace to the log in INFO level.
+  [cyberark/conjur#2080](https://github.com/cyberark/conjur/issues/2080)
 
 ### Changed
 - The secrets batch retrieval endpoint now refers to the `Accept-Encoding` header rather than `Accept` to determine the response encoding
