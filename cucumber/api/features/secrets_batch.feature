@@ -9,7 +9,7 @@ Feature: Batch retrieval of secrets
     And I add the secret value "s3" to the resource "cucumber:variable:secret3"
 
   Scenario: Returns a JSON hash mapping resource id to value
-    When I save my place in the audit log file
+    When I save my place in the audit log file for remote
     And I GET "/secrets?variable_ids=cucumber:variable:secret1,cucumber:variable:secret2"
     Then the JSON should be:
     """

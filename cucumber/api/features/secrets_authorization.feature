@@ -9,7 +9,7 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
   Scenario: Fetching a secret as an unauthorized user results in a 403 error.
 
     Given I login as "bob"
-    Given I save my place in the audit log file
+    Given I save my place in the audit log file for remote
     When I GET "/secrets/cucumber/:resource_kind/:resource_id"
     Then the HTTP response status code is 403
     And there is an audit record matching:
@@ -25,7 +25,7 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
   Scenario: Updating a secret as an unauthorized user results in a 403 error.
 
     Given I login as "bob"
-    Given I save my place in the audit log file
+    Given I save my place in the audit log file for remote
     When I POST "/secrets/cucumber/:resource_kind/:resource_id" with parameters:
     """
     v-1
@@ -66,7 +66,7 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
 
     Given I create a new user "alice"
     And I login as "alice"
-    Given I save my place in the audit log file
+    Given I save my place in the audit log file for remote
     When I GET "/secrets/cucumber/:resource_kind/:resource_id"
     Then the HTTP response status code is 404
     And there is an audit record matching:

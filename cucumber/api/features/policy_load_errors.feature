@@ -4,7 +4,7 @@ Feature: Policy loading error messages
   Scenario: A policy which references a non-existing resource reports the error.
 
     The error message provides the id of the record that was not found.
-    When I save my place in the audit log file
+    When I save my place in the audit log file for remote
     And I POST "/policies/cucumber/policy/root" with body:
     """
     - !variable password
@@ -42,7 +42,7 @@ Feature: Policy loading error messages
 
   @logged-in-admin
   Scenario: A policy with a blank resource id reports the error.
-    When I save my place in the audit log file
+    When I save my place in the audit log file for remote
     And I POST "/policies/cucumber/policy/root" with body:
     """
     - !user bob
@@ -81,7 +81,7 @@ Feature: Policy loading error messages
 
   @logged-in-admin
   Scenario: Posting a policy without a body
-    When I save my place in the audit log file
+    When I save my place in the audit log file for remote
     And I POST "/policies/cucumber/policy/root"
     Then the HTTP response status code is 422
     And the JSON response should be:

@@ -2,6 +2,10 @@
 
 require_relative '../support/logs_helpers'
 
+Given(/^I save my place in the audit log file for remote$/) do |_|
+  save_num_log_lines unless Utils.local_conjur_server
+end
+
 Then(/^there is an audit record matching:$/) do |given|
   if Utils.local_conjur_server
     expect(audit_messages).to include(matching(audit_template(given)))

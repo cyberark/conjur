@@ -37,7 +37,7 @@ Feature: Updating policies
 
   Scenario: A role with "update" privilege can update a policy.
     When I login as "bob"
-    And I save my place in the audit log file
+    And I save my place in the audit log file for remote
     Then I successfully PUT "/policies/cucumber/policy/dev/db" with body:
     """
     - !layer

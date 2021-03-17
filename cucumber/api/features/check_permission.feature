@@ -12,7 +12,7 @@ Feature: Check whether a role has a privilege on a resource
   Scenario: I confirm that I can perform the granted action
 
     If a role is granted a privilege on a resource, then a permission check will pass.
-    When I save my place in the audit log file
+    When I save my place in the audit log file for remote
     Then I can GET "/resources/cucumber/chunky/bacon" with parameters:
     """
     check: true
@@ -31,7 +31,7 @@ Feature: Check whether a role has a privilege on a resource
   Scenario: I confirm that the role can perform the granted action
 
     If a role is granted a privilege on a resource, then a permission check will pass.
-    When I save my place in the audit log file
+    When I save my place in the audit log file for remote
     Then I can GET "/resources/cucumber/chunky/bacon" with parameters:
     """
     check: true
@@ -51,7 +51,7 @@ Feature: Check whether a role has a privilege on a resource
   Scenario: I confirm that the role cannot perform ungranted actions
 
     If a role is not granted a privilege, then a permission check will fail.
-    When I save my place in the audit log file
+    When I save my place in the audit log file for remote
     And I GET "/resources/cucumber/chunky/bacon" with parameters:
     """
     check: true

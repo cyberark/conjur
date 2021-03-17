@@ -9,7 +9,7 @@ Feature: Exchange a role's password for its API key
 
   Scenario: Password can be used to obtain API key
     Given I set the password for "alice" to "My-Password1"
-    When I save my place in the audit log file
+    When I save my place in the audit log file for remote
     And I can GET "/authn/cucumber/login" with username "alice" and password "My-Password1"
     Then the HTTP response content type is "text/plain"
     And the result is the API key for user "alice"
@@ -25,7 +25,7 @@ Feature: Exchange a role's password for its API key
 
   Scenario: Password can be used by host to obtain API key
     Given I set the password for "host/app" to "My-Password1"
-    When I save my place in the audit log file
+    When I save my place in the audit log file for remote
     And I GET "/authn/cucumber/login" with username "host/app" and password "My-Password1"
     Then the HTTP response content type is "text/plain"
     And the result is the API key for host "app"
@@ -40,7 +40,7 @@ Feature: Exchange a role's password for its API key
     """
 
   Scenario: Wrong password cannot be used to obtain API key
-    When I save my place in the audit log file
+    When I save my place in the audit log file for remote
     And I GET "/authn/cucumber/login" with username "alice" and password "Wrong-Password"
     Then the HTTP response status code is 401
     And there is an audit record matching:
@@ -54,7 +54,7 @@ Feature: Exchange a role's password for its API key
     """
 
   Scenario: Wrong password cannot be used by host to obtain API key
-    When I save my place in the audit log file
+    When I save my place in the audit log file for remote
     And I GET "/authn/cucumber/login" with username "host/app" and password "Wrong-Password"
     Then the HTTP response status code is 401
     And there is an audit record matching:
@@ -68,7 +68,7 @@ Feature: Exchange a role's password for its API key
     """
 
   Scenario: Wrong username cannot be used to obtain API key
-    When I save my place in the audit log file
+    When I save my place in the audit log file for remote
     And I GET "/authn/cucumber/login" with username "non-exist" and password "My-Password1"
     Then the HTTP response status code is 401
     And there is an audit record matching:
@@ -82,7 +82,7 @@ Feature: Exchange a role's password for its API key
     """
 
   Scenario: Wrong hostname cannot be used to obtain API key
-    When I save my place in the audit log file
+    When I save my place in the audit log file for remote
     And I GET "/authn/cucumber/login" with username "host/non-exist" and password "My-Password1"
     Then the HTTP response status code is 401
     And there is an audit record matching:
@@ -100,7 +100,7 @@ Feature: Exchange a role's password for its API key
 
     The login method requires the password; login cannot be performed using the auth token
     as a credential.
-    When I save my place in the audit log file
+    When I save my place in the audit log file for remote
     And I GET "/authn/cucumber/login"
     Then the HTTP response status code is 401
 
