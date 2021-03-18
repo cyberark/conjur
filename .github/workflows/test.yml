@@ -1,0 +1,19 @@
+name: Test
+
+on:
+  push
+
+jobs:
+  jonah_test:
+    runs-on: ubuntu-latest
+    name: Jonah Test
+
+    steps:
+    - name: Set the value
+      id: step_one
+      run: |
+          echo "action_state=yellow" >> $GITHUB_ENV
+    - name: Use the value
+      id: step_two
+      run: |
+          echo "${{ env.action_state }}" # This will output 'yellow'
