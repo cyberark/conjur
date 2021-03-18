@@ -2,16 +2,17 @@ AllCops:
   TargetRubyVersion: 2.5
 
 # These non-default settings best reflect our current code style.
-Style/PercentLiteralDelimiters:
-  PreferredDelimiters:
-    "%i": ()
-    "%w": ()
+Layout/LineLength:
+  Max: 80
 Style/RescueStandardError:
   EnforcedStyle: implicit
 Style/AndOr:
-  EnforcedStyle: conditionals
+  EnforcedStyle: always
+Style/StderrPuts:
+  Enabled: false
 Layout/HeredocIndentation:
   Enabled: true
+  EnforcedStyle: squiggly
 Layout/MultilineMethodCallBraceLayout:
   EnforcedStyle: symmetrical
 Layout/SpaceAroundBlockParameters:
@@ -37,6 +38,16 @@ Layout/TrailingEmptyLines:
   EnforcedStyle: final_newline
 Style/BarePercentLiterals:
   EnforcedStyle: percent_q
+Style/MethodCallWithArgsParentheses:
+  Enabled: true
+  IgnoredMethods: [
+     # Ruby keywords:
+     gem, require, raise,
+     # Test keywords:
+     step, to, to_not, not_to,
+     # GLI keywords
+     desc, command, flag, arg_name, switch
+     ]
 
 # Either style of these arguably has its place depending on the context.
 Style/FormatStringToken:
