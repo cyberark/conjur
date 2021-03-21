@@ -2,6 +2,8 @@ name: remind review
 on:
   schedule:
     - cron:  '*/5 * * * *'
+  workflow_dispatch:
+
 jobs:
   send_pull_requests:
     runs-on: ubuntu-latest
