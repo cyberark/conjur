@@ -491,8 +491,7 @@ tag. In general, deleting and changing tags should be avoided.
 1. Create a new release from the tag in the GitHub UI
 1. Add the CHANGELOG for the current version to the GitHub release description
 
-### Publishing AMIs
+### Publishing images
 
-Run the [AMI builder](https://jenkins.conjur.net/job/cyberark--conjur-aws/job/master/build)
-Jenkins job with `v#.#.#` as the `CONJUR_VERSION` parameter. Find the artifacts `us-east-1.yml`
-and `copied-amis.json` to collect the AMI IDs for various regions.
+Visit the [Red Hat project page](https://connect.redhat.com/project/5899451/images) once
+the images have been pushed and manually choose to publish the latest release.
