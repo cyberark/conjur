@@ -54,6 +54,7 @@ module CucumberAuditHelper
     end
   end
 
+  # Normalize given message to single-line, regex expression
   def normalized_to_log(message)
     message
       .gsub(/\*/, '.*')
