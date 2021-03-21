@@ -10,28 +10,28 @@ Then(/^there is an audit record matching:$/) do |given|
   if Utils.local_conjur_server
     expect(audit_messages).to include(matching(audit_template(given)))
   else
-    expect(num_matches_since_savepoint(normalize_to_log(given))).to be >= 1
+    expect(num_matches_since_savepoint(normalized_to_log(given))).to be >= 1
   end
 end
 
 module CucumberAuditHelper
   def audit_messages
-    Test::AuditSink.messages.map(&method(:normalize_message))
+    Test::AuditSink.messages.map(&method(:normalized_message))
   end
 
   def last_message
-    normalize_message Test::AuditSink.messages.last
+    normalized_message Test::AuditSink.messages.last
   end
 
   def audit_template template
-    normalize_message(template).map(&method(:matcher))
+    normalized_message(template).map(&method(:matcher))
   end
   
   private
 
   # I suppose it's acceptable to :reek:UtilityFunction
   # for this test-related method
-  def normalize_message message
+  def normalized_message(message)
     raise ArgumentError, "no audit message received" unless message
     *fields, tail = message
       .gsub(/\s+/m, ' ')
@@ -54,7 +54,7 @@ module CucumberAuditHelper
     end
   end
 
-  def normalize_to_log(message)
+  def normalized_to_log(message)
     message
       .gsub(/\*/, '.*')
       .gsub(/^\s+/, '\s?')
