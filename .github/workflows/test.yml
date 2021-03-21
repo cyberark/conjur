@@ -1,19 +1,16 @@
-name: Test
-
+name: remind review
 on:
-  push
-
+  schedule:
+    - cron:  '*/5 * * * *'
 jobs:
-  jonah_test:
+  send_pull_requests:
     runs-on: ubuntu-latest
-    name: Jonah Test
-
+    name: A job to say hello
     steps:
-    - name: Set the value
-      id: step_one
-      run: |
-          echo "action_state=yellow" >> $GITHUB_ENV
-    - name: Use the value
-      id: step_two
-      run: |
-          echo "${{ env.action_state }}" # This will output 'yellow'
+      - name: listPullRequests
+        uses: buildsville/list-pull-requests@v1
+        id: list
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
+      - name: output
+        run: echo '${{ steps.list.outputs.pulls }}'
