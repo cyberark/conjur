@@ -10,7 +10,7 @@ Feature: Exchange a role's API key for a signed authentication token
     And I have host "app"
 
   Scenario: A role's API can be used to authenticate
-    When I save my place in the audit log file for remote
+    Given I save my place in the audit log file for remote
     Then I can POST "/authn/cucumber/alice/authenticate" with plain text body ":cucumber:user:alice_api_key"
     And the HTTP response content type is "application/json"
     And there is an audit record matching:
@@ -24,7 +24,7 @@ Feature: Exchange a role's API key for a signed authentication token
     """
 
   Scenario: A host's API can be used to authenticate
-    When I save my place in the audit log file for remote
+    Given I save my place in the audit log file for remote
     Then I can POST "/authn/cucumber/host%2Fapp/authenticate" with plain text body ":cucumber:host:app_api_key"
     And the HTTP response content type is "application/json"
     And there is an audit record matching:
@@ -39,7 +39,7 @@ Feature: Exchange a role's API key for a signed authentication token
 
   Scenario: X-Request-Id is set and visible in the audit record
     Given I set the "X-Request-Id" header to "TestMyApp"
-    When I save my place in the audit log file for remote
+    And I save my place in the audit log file for remote
     Then I can POST "/authn/cucumber/alice/authenticate" with plain text body ":cucumber:user:alice_api_key"
     And the HTTP response content type is "application/json"
     And there is an audit record matching:
@@ -53,8 +53,8 @@ Feature: Exchange a role's API key for a signed authentication token
     """
 
   Scenario: Authenticate response should be encoded if Accept-Encoding equals base64
-    When I save my place in the audit log file for remote
-    And I successfully authenticate Alice with Accept-Encoding header "base64"
+    Given I save my place in the audit log file for remote
+    When I successfully authenticate Alice with Accept-Encoding header "base64"
     Then the HTTP response content type is "text/plain"
     And the HTTP response is base64 encoded
     And user "alice" has been authorized by Conjur
@@ -69,8 +69,8 @@ Feature: Exchange a role's API key for a signed authentication token
     """
 
   Scenario: Authenticate response should be encoded if Accept-Encoding includes base64
-    When I save my place in the audit log file for remote
-    And I successfully authenticate Alice with Accept-Encoding header "base64,gzip,defalte,br"
+    Given I save my place in the audit log file for remote
+    When I successfully authenticate Alice with Accept-Encoding header "base64,gzip,defalte,br"
     Then the HTTP response content type is "text/plain"
     And the HTTP response is base64 encoded
     And user "alice" has been authorized by Conjur
@@ -85,8 +85,8 @@ Feature: Exchange a role's API key for a signed authentication token
     """
 
   Scenario: Authenticate response should be encoded if Accept-Encoding includes base64 with mixed case and spaces
-    When I save my place in the audit log file for remote
-    And I successfully authenticate Alice with Accept-Encoding header "gzip      ,  bASe64 ,defalte,br"
+    Given I save my place in the audit log file for remote
+    When I successfully authenticate Alice with Accept-Encoding header "gzip      ,  bASe64 ,defalte,br"
     Then the HTTP response content type is "text/plain"
     And the HTTP response is base64 encoded
     And user "alice" has been authorized by Conjur
@@ -101,8 +101,8 @@ Feature: Exchange a role's API key for a signed authentication token
     """
 
   Scenario: Authenticate response should be json if Accept-Encoding doesn't include base64
-    When I save my place in the audit log file for remote
-    And I successfully authenticate Alice with Accept-Encoding header "gzip,defalte,br"
+    Given I save my place in the audit log file for remote
+    When I successfully authenticate Alice with Accept-Encoding header "gzip,defalte,br"
     Then the HTTP response content type is "application/json"
     And there is an audit record matching:
     """
@@ -120,8 +120,8 @@ Feature: Exchange a role's API key for a signed authentication token
     Then Alice's API key does not appear in the log
 
   Scenario: Attempting to use an invalid API key to authenticate result in 401 error
-    When I save my place in the audit log file for remote
-    And I POST "/authn/cucumber/alice/authenticate" with plain text body "wrong-api-key"
+    Given I save my place in the audit log file for remote
+    When I POST "/authn/cucumber/alice/authenticate" with plain text body "wrong-api-key"
     Then the HTTP response status code is 401
     And there is an audit record matching:
     """
@@ -134,8 +134,8 @@ Feature: Exchange a role's API key for a signed authentication token
     """
 
   Scenario: Attempting to use an invalid host API key to authenticate result in 401 error
-    When I save my place in the audit log file for remote
-    And I POST "/authn/cucumber/host%2Fapp/authenticate" with plain text body "wrong-api-key"
+    Given I save my place in the audit log file for remote
+    When I POST "/authn/cucumber/host%2Fapp/authenticate" with plain text body "wrong-api-key"
     Then the HTTP response status code is 401
     And there is an audit record matching:
     """
@@ -148,8 +148,8 @@ Feature: Exchange a role's API key for a signed authentication token
     """
 
   Scenario: Attempting to use an invalid API key to authenticate with Accept-Encoding base64 result in 401 error
-    When I save my place in the audit log file for remote
-    And I authenticate Alice with Accept-Encoding header "base64" with plain text body "wrong-api-key"
+    Given I save my place in the audit log file for remote
+    When I authenticate Alice with Accept-Encoding header "base64" with plain text body "wrong-api-key"
     Then the HTTP response status code is 401
     And there is an audit record matching:
     """

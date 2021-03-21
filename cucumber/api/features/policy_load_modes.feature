@@ -37,8 +37,8 @@ Feature: Updating policies
     """
 
   Scenario: PUT replaces the policy completely.
-    When I save my place in the audit log file for remote
-    And I successfully PUT "/policies/cucumber/policy/dev/db" with body:
+    Given I save my place in the audit log file for remote
+    When I successfully PUT "/policies/cucumber/policy/dev/db" with body:
     """
     - !variable c
     """
@@ -57,8 +57,8 @@ Feature: Updating policies
     """
 
   Scenario: Modifying annotations with PATCH
-    When I save my place in the audit log file for remote
-    And I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
+    Given I save my place in the audit log file for remote
+    When I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
     """
     - !variable
       id: b
@@ -105,8 +105,8 @@ Feature: Updating policies
     Then the resource list should not contain "variable" "dev/db/a"
 
   Scenario: PATCH can perform a permission grant on existing roles and resources.
-    When I save my place in the audit log file for remote
-    And I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
+    Given I save my place in the audit log file for remote
+    When I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
     """
     - !permit
       role: !group /everyone
@@ -134,8 +134,8 @@ Feature: Updating policies
     """
 
   Scenario: PATCH can perform a role grant on existing roles.
-    When I save my place in the audit log file for remote
-    And I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
+    Given I save my place in the audit log file for remote
+    When I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
     """
     - !grant
       role: !group secrets-users

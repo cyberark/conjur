@@ -3,8 +3,8 @@ Feature: Who Am I
   Scenario: Audit entry
 
     Given I am a user named "alice"
-    When I save my place in the audit log file for remote
-    And I successfully GET "/whoami"
+    And I save my place in the audit log file for remote
+    When I successfully GET "/whoami"
     Then there is an audit record matching:
     """
       <38>1 * * conjur * identity-check

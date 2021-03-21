@@ -61,8 +61,8 @@ Feature: Adding and fetching secrets
     `Content-Type` header in the response. 
 
     Given I set annotation "conjur/mime_type" to "application/json"
-    When I save my place in the audit log file for remote
-    And I successfully POST "/secrets/cucumber/variable/probe" with body:
+    And I save my place in the audit log file for remote
+    When I successfully POST "/secrets/cucumber/variable/probe" with body:
     """
     [ "v-1" ]
     """
@@ -101,7 +101,7 @@ Feature: Adding and fetching secrets
     """
     v-2
     """
-    When I save my place in the audit log file for remote
+    Given I save my place in the audit log file for remote
     When I successfully GET "/secrets/cucumber/variable/probe"
     Then the binary result is "v-2"
     And the HTTP response content type is "application/octet-stream"
@@ -128,8 +128,8 @@ Feature: Adding and fetching secrets
     """
     v-2
     """
-    When I save my place in the audit log file for remote
-    And I successfully GET "/secrets/cucumber/variable/probe?version=1"
+    Given I save my place in the audit log file for remote
+    When I successfully GET "/secrets/cucumber/variable/probe?version=1"
     Then the binary result is "v-1"
     And there is an audit record matching:
     """
@@ -151,8 +151,8 @@ Feature: Adding and fetching secrets
     Then the HTTP response status code is 404
 
   Scenario: When creating a secret, the value parameter is required.
-    When I save my place in the audit log file for remote
-    And I POST "/secrets/cucumber/variable/probe" with body:
+    Given I save my place in the audit log file for remote
+    When I POST "/secrets/cucumber/variable/probe" with body:
     """
     """
     Then the HTTP response status code is 422

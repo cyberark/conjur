@@ -26,8 +26,8 @@ Feature: Manage the role entitlements through the API
     """
 
   Scenario: Add a group membership through the API
-    When I save my place in the audit log file for remote
-    And I successfully POST "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:bob"
+    Given I save my place in the audit log file for remote
+    When I successfully POST "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:bob"
     And I successfully GET "/roles/cucumber/group/dev%2Fdevelopers"
     Then the JSON at "members" should be:
     """
@@ -67,8 +67,8 @@ Feature: Manage the role entitlements through the API
   Scenario: Revoke a group membership through the API
     
     Given I login as "alice"
-    When I save my place in the audit log file for remote
-    And I successfully DELETE "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:alice"
+    And I save my place in the audit log file for remote
+    When I successfully DELETE "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:alice"
     And I successfully GET "/roles/cucumber/group/dev%2Fdevelopers"
     Then the JSON at "members" should be:
     """
