@@ -12,7 +12,9 @@ jobs:
     steps:
       - name: output
         run: |
-          curl -s "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pulls?state=open"
+          curl -s "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pulls?state=open" |
+          jq 'select(.title | contains("Print authentication"))'
+
 
 # jobs:
 #   send_pull_requests:
