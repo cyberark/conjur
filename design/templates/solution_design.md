@@ -1,6 +1,12 @@
 # Solution Design - Template
 [//]: # "Change the title above from 'Template' to your design's title"
 
+[//]: # "General notes:"
+[//]: # "1. Design should be graphical-based and table-based - avoid long text explanations" 
+[//]: # "2. Design documents should not be updated after implementation"
+[//]: # "3. Design decisions should be made before writing this document, and as such this document should not include options / choices"
+
+
 ## Table of Contents
 [//]: # "You can use this tool to generate a TOC - https://ecotrust-canada.github.io/markdown-toc/"
 
@@ -13,37 +19,95 @@
 |          |                 |
 |          |                 |
 
-## Useful links
+## Useful Links
 [//]: # "Add links that may be useful for the reader"
+
+|  **Name**   | **Link** |
+|-------------|----------|
+| Feature Doc |          |
+| Issue       |          |
 
 ## Background
 [//]: # "Give relevant background for the designed feature. What is the motivation for this solution?"
 
-## Issue description
+## Issue Description
 [//]: # "Elaborate on the issue you are writing a solution for"
 
 ## Solution
 [//]: # "Elaborate on the solution you are suggesting in this page. Address the functional requirements and the non functional requirements that this solution is addressing. If there are a few options considered for the solution, mention them and explain why the actual solution was chosen over them. Add an execution plan when relevant. It doesn't have to be a full breakdown of the feature, but just a recommendation to how the solution should be approached."
 
-### Design
+### User Interface
+[//]: # "Describe user interface (including command structure, inputs/outputs, etc where relevant)"
+
+Command:
+
+Input parameters:
+
+| **Name** | **Description** | **Type** | **Default** | **Required?** |
+|----------|-----------------|----------|-------------|---------------|
+|          |                 |          |             |               |
+
+Output parameters:
+
+| **Name** | **Description** | **Type** |
+|----------|-----------------|----------|
+|          |                 |          |
+
+
+## Design
 [//]: # "Add any diagrams, charts and explanations about the design aspect of the solution. Elaborate also about the expected user experience for the feature"
 
-### Backwards compatibility
-[//]: # "Address how you are going to handle backwards compatibility, if necessary"
+### Flow Diagrams
+[//]: # "Describe flow of main scenarios in the system. The description should include if / else decisions and loops"
 
-### Performance
-[//]: # "Elaborate on whether your solution will affect the product's performance, and how"
+### Class / Component Diagrams
+[//]: # "Describe classes that are going to be added /changes and their immediate environment. Non-changed classes may be colored differently"
 
-### Affected Components
-[//]: # "Address the components that will be affected by your solution [Conjur, DAP, clients, integrations, etc.]"
+#### Class / Details
+[//]: # "Describe details of each class - to emphasise its main functionality / methods and interactions"
 
-### Cross-team dependencies
-[//]: # "Elaborate about your solution's requirements or needs from other teams"
+### Sequence Diagrams
+[//]: # "Describe main flows in system influenced by this design - using sequence diagram UML"
 
-## Security
-[//]: # "Are there any security issues with your solution? Even if you mentioned them somewhere in the doc it may be convenient for the security architect review to have them centralized here"
+### External Interfaces
+[//]: # "Describe SW interfaces to the blocks / classes that are external to this part of of project"
+[//]: # "The description should contain full set of parameters per event, as well as method of interaction (sync / async / REST / GRPC / TCP /..)"
+
+## Performance
+[//]: # "Describe potential performance issues that might be raised by the system as well as their mitigations"
+[//]: # "How does this solution affect the performance of the product?"
+
+| **Subject** | **Description** | **Issue Mitigation** |
+|-------------|-----------------|----------------------|
+|             |                 |                      |
+
+## Backwards Compatibility
+[//]: # "How will the design of this solution impact backwards compatibility? Address how you are going to handle backwards compatibility, if necessary"
+
+## Affected Components
+[//]: # "List all components that will be affected by your solution [Conjur OSS, Conjur Enterprise, clients, integrations, etc.] and elaborate on the impacts"
+[//]: # "This list should include all downstream components that will need to be updated to consume new releases as these changes are implemented"
 
 ## Test Plan
+
+### Test Environments
+[//]: # "Including build number, platforms etc. Considering the OS and version of PAS (PVWA, CPM), Conjur, Synchronizer etc."
+
+| **Feature** | **OS** | **Version Number** |
+|-------------|--------|--------------------|
+|             |        |                    |
+
+### Test Assumptions
+
+### Out of Scope
+
+### Prerequisites
+[//]: # "List any expected infrastructure requirements here"
+
+### Test Cases (Including Performance)
+
+#### Functional Tests
+
 [//]: # "Fill in the table below to depict the tests that should run to validate your solution"
 [//]: # "You can use this tool to generate a table - https://www.tablesgenerator.com/markdown_tables#"
 
@@ -52,8 +116,37 @@
 |           |           |          |          |             |
 |           |           |          |          |             |
 
+#### Security Tests
+
+[//]: # "Fill in the table below to depict the tests that should run to validate your solution"
+[//]: # "You can use this tool to generate a table - https://www.tablesgenerator.com/markdown_tables#"
+
+| **Title** | **Given** | **When** | **Then** | **Comment** |
+|-----------|-----------|----------|----------|-------------|
+|           |           |          |          |             |
+|           |           |          |          |             |
+
+#### Error Handling / Recovery / Supportability tests
+
+[//]: # "Fill in the table below to depict the tests that should run to validate your solution"
+[//]: # "You can use this tool to generate a table - https://www.tablesgenerator.com/markdown_tables#"
+
+| **Title** | **Given** | **When** | **Then** | **Comment** |
+|-----------|-----------|----------|----------|-------------|
+|           |           |          |          |             |
+|           |           |          |          |             |
+
+#### Performance Tests
+
+[//]: # "Fill in the table below to depict the tests that should run to validate your solution"
+[//]: # "You can use this tool to generate a table - https://www.tablesgenerator.com/markdown_tables#"
+
+| **Scenario** | **Spec** | **Environment(s)** | **Comments** |
+|--------------|----------|--------------------|--------------|
+|              |          |                    |              |
+
 ## Logs
-[//]: # "Fill in the table below to depict the log messages that can enhance the supportability of your solution"
+[//]: # "If the logs are listed in the feature doc, add a link to that section. If not, list them here."
 [//]: # "You can use this tool to generate a table - https://www.tablesgenerator.com/markdown_tables#"
 
 | **Scenario** | **Log message** |
@@ -61,50 +154,42 @@
 |              |                 |
 |              |                 |
 
-### Audit 
-[//]: # "Does this solution require additional audit messages?"
-
 ## Documentation
-[//]: # "Add notes on what should be documented in this solution. Elaborate on where this should be documented. If the change is in open-source projects, we may need to update the docs in github too. If it's in Conjur and/or DAP mention which products are affected by it"
+[//]: # "Add notes on what should be documented in this solution. Elaborate on where this should be documented, including GitHub READMEs and/or official documentation."
 
-## Open questions
-[//]: # "Add any question that is still open. It makes it easier for the reader to have the open questions accumulated here istead of them being acattered along the doc"
+## Security
+[//]: # "Are there any security issues with your solution? Even if you mentioned them somewhere in the doc it may be convenient for the security architect review to have them centralized here"
 
-## Delivery plan
-[//]: # "Break the solution into tasks"
+| **Security Issue** | **Description** | **Resolution** |
+|--------------------|-----------------|----------------|
+|                    |                 |                |
 
-### Total
-[//]: # "Write the total estimation"
+## Audit 
+[//]: # "Does this solution require adding audit logs? Does it affect existing audit logs?"
 
-### Parallelism
-[//]: # "Suggest how many team members can work on the solution in parallel"
+| **Name (ID)** | **Description** | **Issued On** |
+|---------------|-----------------|---------------|
+|               |                 |               |
 
-### Ramp up
-[//]: # "Note and estimate the tasks which are related to learning new areas [technology, language, feature, etc.]"
+## Open Questions
+[//]: # "Add any question that is still open. It makes it easier for the reader to have the open questions accumulated here instead of them being acattered along the doc"
 
-### Infrastructure and preparations
-[//]: # "Note and estimate the tasks which are related to implementing any needed infrastructure [jenkins file, scripts, Docker build, etc.]"
+## Definition of Done
 
-### Designs 
-[//]: # "Note and estimate the tasks which are related to designs which needed for the solution"
+- Solution designed is approved 
+- Test plan is reviewed
+- Acceptance criteria have been met
+- Tests are implemented according to test plan 
+- The behaviour is documented in Conjur OSS and Enterprise
+- All relevant components are released
 
-### Spikes and researches
-[//]: # "Note and estimate the tasks which are related to spikes and researches which needed for the solution"
+## Solution Review
+[//]: # "Relevant personas can indicate their design approval by approving the pull request"
 
-### Implementation 
-[//]: # "Note and estimate the tasks which are related to the solution's code implementation"
-
-### Testing 
-[//]: # "Note and estimate the tasks which are related to writing/performing tests [automation, manual tests, etc.]"
-
-### Security 
-[//]: # "Note and estimate the tasks which are related to security researches and implementations"
-
-### Docs 
-[//]: # "Note and estimate the tasks which are related to writing the docs"
-
-### Demo 
-[//]: # "Note and estimate the tasks which are related to creating a demo that demonstrates the solution"
-
-### Left overs and refactoring 
-[//]: # "Note and estimate the task that needs to be done as part of this effort but will not be delivered in the initial release and will be developed later"
+| **Persona**        | **Name** |
+|--------------------|----------|
+| Team leader        |          |
+| Product owner      |          |
+| System architect   |          |
+| Security architect |          |
+| QA architect       |          |
