@@ -1,0 +1,4 @@
+[submodule "conjur-project-config"]
+	path = conjur-project-config
+	url = git@github.com:cyberark/conjur-project-config.git
+	branch = initial-setup
