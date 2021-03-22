@@ -2,6 +2,10 @@
 
 require_relative '../support/logs_helpers'
 
+# Audits are tested in one of 2 modes: 1. local server 2. predefined remote server
+# Mode 1 reads from audit socket. Mode 2 scans development.log
+# The mode is determined at runtime per the existence of CONJUR_APPLIANCE_URL.
+# To support both modes, test must include the following 2 steps.
 Given(/^I save my place in the audit log file for remote$/) do
   save_num_log_lines unless Utils.local_conjur_server
 end
