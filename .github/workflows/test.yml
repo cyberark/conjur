@@ -8,14 +8,22 @@ on:
 jobs:
   send_pull_requests:
     runs-on: ubuntu-latest
-    name: A job to say hello
+    name: Another test
     steps:
-      - name: listPullRequests
-        uses: buildsville/list-pull-requests@v1
-        id: list
-        with:
-          token: ${{secrets.GITHUB_TOKEN}}
-          labels:
-          skip_hour:
       - name: output
-        run: echo '${{ steps.list.outputs.pulls }}'
+        run: curl "$GITHUB_API_URL/$GITHUB_REPOSITORY/pulls?state=open"
+
+# jobs:
+#   send_pull_requests:
+#     runs-on: ubuntu-latest
+#     name: A job to say hello
+#     steps:
+#       - name: listPullRequests
+#         uses: buildsville/list-pull-requests@v1
+#         id: list
+#         with:
+#           token: ${{secrets.GITHUB_TOKEN}}
+#           labels: 
+#           skip_hour: 99999 # We want to list all of them
+#       - name: output
+#         run: echo '${{ steps.list.outputs.pulls }}'
