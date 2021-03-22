@@ -18,7 +18,7 @@ jobs:
 
       - name: Apply current settings
         run: |
-          git submodule update --init --remote
+          # git submodule update --init --remote
           conjur-project-config/update
           git status --porcelain=v1 | grep '.' &&
             echo "open_pr=true" >> $GITHUB_ENV
