@@ -15,6 +15,7 @@ jobs:
         with:
           submodules: true
 
+
       - name: Apply current settings
         run: |
           git submodule update --init --remote
