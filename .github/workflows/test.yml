@@ -13,7 +13,7 @@ jobs:
       - name: output
         run: |
           curl -s "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pulls?state=open" |
-          jq 'select(.title | contains("Print authentication"))'
+          jq 'select(.[] | .title | contains("Print authentication"))'
 
 
 # jobs:
