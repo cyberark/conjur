@@ -1,4 +1,4 @@
-name: remind review
+name: Create PR when settings are updated
 on:
   push
   # schedule:
@@ -6,15 +6,43 @@ on:
   # workflow_dispatch:
 
 jobs:
-  send_pull_requests:
+  update_check:
     runs-on: ubuntu-latest
-    name: Another test
+    name: Create PR when settings are updated
     steps:
-      - name: output
-        run: |
-          curl -s "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pulls?state=open" |
-          jq 'select(.[] | .title | contains("Print authentication"))'
+      - name: Checkout code
+        uses: actions/checkout@v2
 
+      - name: Apply current settings
+        run: |
+          git submodule update --init --remote
+          conjur-project-config/update
+          git status --porcelain=v1 | grep '.' &&
+            echo "open_pr=true" >> $GITHUB_ENV
+
+      - name: Apply current settings
+        if: ${{ env.open_pr == 'true' }}
+        run: |
+          echo "And now I open a PR"
+
+      # - name: Check if settings PR already exists
+      #   run: |
+      #     pulls_url="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pulls?state=open"
+      #     open_pr=$(
+      #       curl -s "$pulls_url" |
+      #       jq '.[] | select(.title | contains("Print authentication"))' |
+      #       grep '.' && echo "true" || echo "false"
+      #     )
+      #     # git submodule status | awk '{print $1}'
+
+      #     then
+      #       echo "open_pr=true" >> $GITHUB_ENV
+
+      # - name: Open PR for updated settings
+      #   if: ${{ env.open_pr == 'true' }}
+      #   uses: peter-evans/create-pull-request@v3
+      #   # TODO include action for open PR
+            
 
 # jobs:
 #   send_pull_requests:
@@ -30,3 +58,30 @@ jobs:
 #           skip_hour: 99999 # We want to list all of them
 #       - name: output
 #         run: echo '${{ steps.list.outputs.pulls }}'
+
+
+# name: Test
+
+# on:
+#   push
+
+# jobs:
+#   jonah_test:
+#     runs-on: ubuntu-latest
+#     name: Jonah Test
+#     steps:
+
+#       - name: Git checkout
+#         uses: actions/checkout@master
+
+#       - name: Check for settings updates
+#         run: |
+#           git submodule update --init --remote && 
+#           my_submodule/apply_settings.sh &&
+#           git status --porcelain=v1 | grep '.' &&
+#           echo "open_pr=true" >> $GITHUB_ENV
+
+#       - name: Open PR for updated settings
+#         if: ${{ env.open_pr == 'true' }}
+#         # TODO include action for open PR
+
