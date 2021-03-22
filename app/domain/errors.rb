@@ -31,6 +31,11 @@ module Errors
       code: "CONJ00074E"
     )
 
+    MissingSecretValue = ::Util::TrackableErrorClass.new(
+      msg:  "Variable {0-variable-id} is empty or not found.",
+      code: "CONJ00076E"
+    )
+
   end
 
   module Authentication

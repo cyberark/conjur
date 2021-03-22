@@ -44,6 +44,7 @@ class ApplicationController < ActionController::API
   end
 
   rescue_from Exceptions::RecordNotFound, with: :record_not_found
+  rescue_from Errors::Conjur::MissingSecretValue, with: :render_secret_not_found
   rescue_from Exceptions::RecordExists, with: :record_exists
   rescue_from Exceptions::Forbidden, with: :forbidden
   rescue_from BadRequest, with: :bad_request
@@ -273,6 +274,16 @@ class ApplicationController < ActionController::API
   # Gets the value of the :account parameter.
   def account
     @account ||= params[:account]
+  end
+
+  def render_secret_not_found e
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    render json: {
+      error: {
+        code: "not found",
+        message: e.message
+      }
+    }, status: :not_found
   end
 
   def render_record_not_found e

@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+- Secrets batch request with blank variables' names, now returns `Error 422 Unprocessable Entity`
+  [cyberark/conjur#2083](https://github.com/cyberark/conjur/issues/2083)
+
 ### Added
 - `/whoami` API endpoint now produces audit events.
   [cyberark/conjur#2052](https://github.com/cyberark/conjur/issues/2052)
@@ -17,6 +21,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - The secrets batch retrieval endpoint now refers to the `Accept-Encoding` header rather than `Accept` to determine the response encoding
   [cyberark/conjur#2065](https://github.com/cyberark/conjur/pull/2065)
+- When trying to fetch a missing or empty secret, a proper error message is now returned
+  [cyberark/conjur#2023](https://github.com/cyberark/conjur/issues/2023)
 
 ## [1.11.4] - 2021-03-09
 
