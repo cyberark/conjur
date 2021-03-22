@@ -61,16 +61,18 @@ Feature: Adding and fetching secrets
     `Content-Type` header in the response. 
 
     Given I set annotation "conjur/mime_type" to "application/json"
-    And I successfully POST "/secrets/cucumber/variable/probe" with body:
+    And I save my place in the audit log file for remote
+    When I successfully POST "/secrets/cucumber/variable/probe" with body:
     """
     [ "v-1" ]
     """
     Then there is an audit record matching:
     """
-      <37>1 * * conjur * update
+      <86>1 * * conjur * update
       [auth@43868 user="cucumber:user:eve"]
       [subject@43868 resource="cucumber:variable:probe"]
-      [action@43868 operation="update" result="success"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="update"]
       cucumber:user:eve updated cucumber:variable:probe
     """
     When I successfully GET "/secrets/cucumber/variable/probe"
@@ -99,15 +101,17 @@ Feature: Adding and fetching secrets
     """
     v-2
     """
+    Given I save my place in the audit log file for remote
     When I successfully GET "/secrets/cucumber/variable/probe"
     Then the binary result is "v-2"
     And the HTTP response content type is "application/octet-stream"
     And there is an audit record matching:
     """
-      <38>1 * * conjur * fetch
+      <86>1 * * conjur * fetch
       [auth@43868 user="cucumber:user:eve"]
       [subject@43868 resource="cucumber:variable:probe"]
-      [action@43868 operation="fetch" result="success"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="fetch"]
       cucumber:user:eve fetched cucumber:variable:probe
     """
 
@@ -124,14 +128,16 @@ Feature: Adding and fetching secrets
     """
     v-2
     """
+    Given I save my place in the audit log file for remote
     When I successfully GET "/secrets/cucumber/variable/probe?version=1"
     Then the binary result is "v-1"
     And there is an audit record matching:
     """
-      <38>1 * * conjur * fetch
+      <86>1 * * conjur * fetch
       [auth@43868 user="cucumber:user:eve"]
       [subject@43868 resource="cucumber:variable:probe" version="1"]
-      [action@43868 operation="fetch" result="success"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="fetch"]
       cucumber:user:eve fetched version 1 of cucumber:variable:probe
     """
 
@@ -145,18 +151,18 @@ Feature: Adding and fetching secrets
     Then the HTTP response status code is 404
 
   Scenario: When creating a secret, the value parameter is required.
-
+    Given I save my place in the audit log file for remote
     When I POST "/secrets/cucumber/variable/probe" with body:
     """
     """
     Then the HTTP response status code is 422
     And there is an audit record matching:
     """
-      <37>1 * * conjur * update
+      <84>1 * * conjur * update
       [auth@43868 user="cucumber:user:eve"]
       [subject@43868 resource="cucumber:variable:probe"]
-      [action@43868 operation="update" result="failure"]
-      cucumber:user:eve updated cucumber:variable:probe
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="failure" operation="update"]
       cucumber:user:eve tried to update cucumber:variable:probe: 'value' may not be empty
     """
 

@@ -3,6 +3,7 @@ Feature: Who Am I
   Scenario: Audit entry
 
     Given I am a user named "alice"
+    And I save my place in the audit log file for remote
     When I successfully GET "/whoami"
     Then there is an audit record matching:
     """

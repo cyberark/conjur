@@ -26,7 +26,7 @@ Feature: Manage the role entitlements through the API
     """
 
   Scenario: Add a group membership through the API
-
+    Given I save my place in the audit log file for remote
     When I successfully POST "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:bob"
     And I successfully GET "/roles/cucumber/group/dev%2Fdevelopers"
     Then the JSON at "members" should be:
@@ -56,15 +56,18 @@ Feature: Manage the role entitlements through the API
     """
     And there is an audit record matching:
     """
-      <37>1 * * conjur * policy [auth@43868 user="cucumber:user:admin"]
+      <85>1 * * conjur * policy
+      [auth@43868 user="cucumber:user:admin"]
       [subject@43868 role="cucumber:group:dev/developers" member="cucumber:user:bob"]
-      [action@43868 operation="add"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="add"]
       cucumber:user:admin added membership of cucumber:user:bob in cucumber:group:dev/developers
     """
 
   Scenario: Revoke a group membership through the API
     
     Given I login as "alice"
+    And I save my place in the audit log file for remote
     When I successfully DELETE "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:alice"
     And I successfully GET "/roles/cucumber/group/dev%2Fdevelopers"
     Then the JSON at "members" should be:
@@ -81,9 +84,10 @@ Feature: Manage the role entitlements through the API
     """
     And there is an audit record matching:
     """
-      <37>1 * * conjur * policy [auth@43868 user="cucumber:user:alice"]
+      <85>1 * * conjur * policy [auth@43868 user="cucumber:user:alice"]
       [subject@43868 role="cucumber:group:dev/developers" member="cucumber:user:alice"]
-      [action@43868 operation="remove"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="remove"]
       cucumber:user:alice removed membership of cucumber:user:alice in cucumber:group:dev/developers
     """
 

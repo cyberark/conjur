@@ -4,7 +4,7 @@ Feature: Policy loading error messages
   Scenario: A policy which references a non-existing resource reports the error.
 
     The error message provides the id of the record that was not found.
-
+    Given I save my place in the audit log file for remote
     When I POST "/policies/cucumber/policy/root" with body:
     """
     - !variable password
@@ -33,14 +33,16 @@ Feature: Policy loading error messages
     And there is an audit record matching:
     """
       <85>1 * * conjur * policy
-      [auth@43868 user="cucumber:user:admin"][subject@43868]
-      [action@43868 result="failure" operation="add"]
-      [meta sequenceId="4"] Failed to load policy: User 'bob' not found in account 'cucumber'
+      [auth@43868 user="cucumber:user:admin"]
+      [subject@43868]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="failure" operation="create"]
+      Failed to load policy: User 'bob' not found in account 'cucumber'
     """
 
   @logged-in-admin
   Scenario: A policy with a blank resource id reports the error.
-
+    Given I save my place in the audit log file for remote
     When I POST "/policies/cucumber/policy/root" with body:
     """
     - !user bob
@@ -70,13 +72,16 @@ Feature: Policy loading error messages
     And there is an audit record matching:
     """
       <85>1 * * conjur * policy
-      [auth@43868 user="cucumber:user:admin"][subject@43868]
-      [action@43868 result="failure" operation="add"]
-      [meta sequenceId="4"] Failed to load policy: policy_text resource has a blank id
+      [auth@43868 user="cucumber:user:admin"]
+      [subject@43868]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="failure" operation="create"]
+      Failed to load policy: policy_text resource has a blank id
     """
 
   @logged-in-admin
   Scenario: Posting a policy without a body
+    Given I save my place in the audit log file for remote
     When I POST "/policies/cucumber/policy/root"
     Then the HTTP response status code is 422
     And the JSON response should be:
@@ -98,7 +103,9 @@ Feature: Policy loading error messages
     And there is an audit record matching:
     """
       <85>1 * * conjur * policy
-      [auth@43868 user="cucumber:user:admin"][subject@43868]
-      [action@43868 result="failure" operation="add"]
-      [meta sequenceId="4"] Failed to load policy: policy_text is not present
+      [auth@43868 user="cucumber:user:admin"]
+      [subject@43868]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="failure" operation="create"]
+      Failed to load policy: policy_text is not present
     """

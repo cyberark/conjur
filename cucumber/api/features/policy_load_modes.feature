@@ -37,6 +37,7 @@ Feature: Updating policies
     """
 
   Scenario: PUT replaces the policy completely.
+    Given I save my place in the audit log file for remote
     When I successfully PUT "/policies/cucumber/policy/dev/db" with body:
     """
     - !variable c
@@ -46,15 +47,17 @@ Feature: Updating policies
     Then the resource list should contain "variable" "dev/db/c"
     And there is an audit record matching:
     """
-      <37>1 * * conjur * policy
+      <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:alice"]
-      [policy@43868 id="cucumber:policy:dev/db" version="2"]
-      [action@43868 result="success" operation="remove"]
       [subject@43868 resource="cucumber:variable:dev/db/a"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="remove"]
+      [policy@43868 id="cucumber:policy:dev/db" version="2"]
       cucumber:user:alice removed resource cucumber:variable:dev/db/a
     """
 
   Scenario: Modifying annotations with PATCH
+    Given I save my place in the audit log file for remote
     When I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
     """
     - !variable
@@ -74,11 +77,12 @@ Feature: Updating policies
     """
     And there is an audit record matching:
     """
-      <37>1 * * conjur * policy
+      <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:alice"]
-      [policy@43868 id="cucumber:policy:dev/db" version="2"]
-      [action@43868 result="success" operation="change"]
       [subject@43868 annotation="conjur/kind" resource="cucumber:variable:dev/db/b"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="change"]
+      [policy@43868 id="cucumber:policy:dev/db" version="2"]
       cucumber:user:alice changed annotation conjur/kind on cucumber:variable:dev/db/b
     """
 
@@ -101,6 +105,7 @@ Feature: Updating policies
     Then the resource list should not contain "variable" "dev/db/a"
 
   Scenario: PATCH can perform a permission grant on existing roles and resources.
+    Given I save my place in the audit log file for remote
     When I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
     """
     - !permit
@@ -119,15 +124,17 @@ Feature: Updating policies
     """
     And there is an audit record matching:
     """
-      <37>1 * * conjur * policy
+      <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:alice"]
-      [policy@43868 id="cucumber:policy:dev/db" version="2"]
+      [subject@43868 resource="cucumber:variable:dev/db/a" role="cucumber:group:everyone" privilege="read"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="add"]
-      [subject@43868 role="cucumber:group:everyone" privilege="read" resource="cucumber:variable:dev/db/a"]
+      [policy@43868 id="cucumber:policy:dev/db" version="2"]
       cucumber:user:alice added permission of cucumber:group:everyone to read on cucumber:variable:dev/db/a
     """
 
   Scenario: PATCH can perform a role grant on existing roles.
+    Given I save my place in the audit log file for remote
     When I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
     """
     - !grant
@@ -147,11 +154,12 @@ Feature: Updating policies
     """
     And there is an audit record matching:
     """
-      <37>1 * * conjur * policy
+      <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:alice"]
-      [policy@43868 id="cucumber:policy:dev/db" version="2"]
-      [action@43868 result="success" operation="add"]
       [subject@43868 role="cucumber:group:dev/db/secrets-users" member="cucumber:group:dev/db/secrets-managers"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="add"]
+      [policy@43868 id="cucumber:policy:dev/db" version="2"]
       cucumber:user:alice added membership of cucumber:group:dev/db/secrets-managers in cucumber:group:dev/db/secrets-users
     """
 
