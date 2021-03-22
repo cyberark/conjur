@@ -11,7 +11,8 @@ jobs:
     name: Another test
     steps:
       - name: output
-        run: curl "$GITHUB_API_URL/$GITHUB_REPOSITORY/pulls?state=open"
+        run: |
+          curl -s "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pulls?state=open"
 
 # jobs:
 #   send_pull_requests:
