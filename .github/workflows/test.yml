@@ -15,20 +15,27 @@ jobs:
         with:
           submodules: true
 
-
       - name: Apply current settings
         run: |
-          # git submodule update --init --remote
           conjur-project-config/update
-          git status --porcelain=v1 | grep '.' &&
-            echo "open_pr=true" >> $GITHUB_ENV
+          # git status --porcelain=v1 | grep '.' && 
+          # {
+          #   echo "settings_changed=true" >> $GITHUB_ENV
+          #   submodule_sha=$(
+          #     git submodule status | awk '{print $1}' | grep -Eo '^.{8}'
+          #   )
+          #   echo "submodule_sha=$submodule_sha" >> $GITHUB_ENV
+          # }
 
-      - name: Apply current settings
-        if: ${{ env.open_pr == 'true' }}
-        run: |
-          echo "And now I open a PR"
+      - name: Open PR for updated settings
+        uses: peter-evans/create-pull-request@v3
+        with:
+          branch: conjur-project-config/auto-pr
 
-      # - name: Check if settings PR already exists
+        # TODO include action for open PR
+
+      # - name: Check for existing PR
+      #   if: ${{ env.settings_changed == 'true' }}
       #   run: |
       #     pulls_url="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pulls?state=open"
       #     open_pr=$(
@@ -41,10 +48,6 @@ jobs:
       #     then
       #       echo "open_pr=true" >> $GITHUB_ENV
 
-      # - name: Open PR for updated settings
-      #   if: ${{ env.open_pr == 'true' }}
-      #   uses: peter-evans/create-pull-request@v3
-      #   # TODO include action for open PR
             
 
 # jobs:
