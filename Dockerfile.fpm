@@ -3,7 +3,8 @@ FROM @@image@@
 
 RUN apt-get update -y && \
     apt-get install -y zlib1g-dev \
-                       liblzma-dev
+                       liblzma-dev \
+                       shared-mime-info
 
 ENV BUNDLER_VERSION 2.1.4
 RUN gem install --no-rdoc --no-ri bundler:$BUNDLER_VERSION fpm
