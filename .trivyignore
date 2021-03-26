@@ -1,9 +1,11 @@
+# NULL pointer deref. OpenSSL 1.0.2 is not impacted
+CVE-2021-3449
+
 # Rake vulnerability for versions < 12.3.3. The version of Rake used by Conjur
 # has been updated to 13.0.1. Some of the Conjur dependencies still declare a
 # vulnerable version of Rake in their development dependencies, but do not pose 
 # a risk to Conjur.
 CVE-2020-8130
-
 
 # These vulnerabilites are present in the Ubuntu 18.04 base image and are being
 # analyzed to determined their impact on the Conjur container image.
@@ -35,7 +37,7 @@ CVE-2020-1967
 # function GENERAL_NAME_cmp which compares different instances of a GENERAL_NAME
 # to see if they are equal or not. This function behaves incorrectly when both
 # GENERAL_NAMEs contain an EDIPARTYNAME. A NULL pointer dereference and a crash
-# may occur leading to a possible denial of service attack. 
+# may occur leading to a possible denial of service attack.
 # OpenSSL itself uses the GENERAL_NAME_cmp function for two purposes:
 #
 # 1) Comparing CRL distribution point names between an available CRL and a CRL
