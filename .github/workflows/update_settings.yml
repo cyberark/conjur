@@ -1,0 +1,36 @@
+name: Keep Settings Up To Date
+on:
+  push:
+  schedule:
+    - cron:  '*/5 * * * *'
+
+jobs:
+  settings_update:
+    runs-on: ubuntu-latest
+    name: Create PR when settings are updated
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Submodule update --remote
+        run: |
+          git submodule update --init --remote
+
+      - name: Apply current settings
+        run: |
+          conjur-project-config/update-settings
+
+      - name: Open PR for updated settings
+        uses: peter-evans/create-pull-request@v3
+        with:
+          title: Automated PR to update settings 
+          branch: conjur-project-config/auto-pr
+          body: |+
+            This PR was opened because a change was automatically detected in
+            Conjur's shared settings repository: 
+
+            https://github.com/cyberark/conjur-project-config
+
+            Please verify that the changes look good and merge this PR to keep
+            its settings up to date with Conjur's current best practices.
+
