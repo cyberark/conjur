@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2065](https://github.com/cyberark/conjur/pull/2065)
 - When trying to fetch a missing or empty secret, a proper error message is now returned
   [cyberark/conjur#2023](https://github.com/cyberark/conjur/issues/2023)
+- Conjur base image updated to v1.0.1.
+  [PR cyberark/conjur#2088](https://github.com/cyberark/conjur/pull/2088)
 
 ## [1.11.4] - 2021-03-09
 
