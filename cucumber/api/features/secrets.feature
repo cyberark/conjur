@@ -26,15 +26,24 @@ Feature: Adding and fetching secrets
     """
     Then the HTTP response status code is 404
 
+  Scenario: Fetching a resource with no name provided return a 404 error.
+
+    When I GET "/secrets/cucumber/variable/"
+    Then the HTTP response status code is 404
+
   Scenario: Fetching a resource with no secret values return a 404 error.
 
     When I GET "/secrets/cucumber/variable/probe"
     Then the HTTP response status code is 404
+    And there is an error
+    And the error message is "CONJ00076E Variable cucumber:variable:probe is empty or not found."
 
   Scenario: Fetching a secret for a nonexistent resource
 
     When I GET "/secrets/cucumber/variable/non-existent"
     Then the HTTP response status code is 404
+    And there is an error
+    And the error message is "CONJ00076E Variable cucumber:variable:non-existent is empty or not found."
 
   Scenario: Update a secret of a nonexistent resource
 

@@ -53,20 +53,28 @@ Feature: Batch retrieval of secrets
 
   Scenario: Fails with 404 if variable_ids param has some blank items
     When I GET "/secrets?variable_ids=cucumber:variable:secret1,,,cucumber:variable:secret2"
-    Then the HTTP response status code is 404
+    Then the HTTP response status code is 422
+    And there is an error
+    And the error message is "variable_ids"
 
   Scenario: Fails with 404 if a variable_id param is of an incorrect format
     When I GET "/secrets?variable_ids=1,2,3"
     Then the HTTP response status code is 404
+    And there is an error
+    And the error message is "CONJ00076E Variable 1 is empty or not found."
 
   Scenario: Fails with 404 if a resource doesn't exist
     When I GET "/secrets?variable_ids=cucumber:variable:secret1,cucumber:variable:not-a-secret"
     Then the HTTP response status code is 404
+    And there is an error
+    And the error message is "CONJ00076E Variable cucumber:variable:not-a-secret is empty or not found."
 
   Scenario: Fails with 404 if a resource doesn't have a value
     Given I create a new "variable" resource called "secret-no-value"
     When I GET "/secrets?variable_ids=cucumber:variable:secret1,cucumber:variable:secret-no-value"
     Then the HTTP response status code is 404
+    And there is an error
+    And the error message is "CONJ00076E Variable cucumber:variable:secret-no-value is empty or not found."
 
   # This test explicitly tests an error case that was discovered in Conjur v4 where
   # resource IDs were matched with incorrect variable values in the JSON response.

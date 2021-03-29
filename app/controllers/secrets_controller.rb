@@ -5,12 +5,12 @@ require 'English'
 class SecretsController < RestController
   include FindResource
   include AuthorizeResource
-  
+
   before_action :current_user
-  
+
   def create
     authorize :update
-    
+
     value = request.raw_post
 
     raise ArgumentError, "'value' may not be empty" if value.blank?
@@ -21,7 +21,7 @@ class SecretsController < RestController
     head :created
   ensure
     update_info = error_info.merge(
-      resource: resource, 
+      resource: resource,
       user: @current_user,
       client_ip: request.ip,
       operation: "update"
@@ -31,7 +31,7 @@ class SecretsController < RestController
       Audit::Event::Update.new(update_info)
     )
   end
-  
+
   def show
     authorize :execute
     version = params[:version]
@@ -46,6 +46,8 @@ class SecretsController < RestController
       resource.annotation('conjur/mime_type') || 'application/octet-stream'
 
     send_data value, type: mime_type
+  rescue Exceptions::RecordNotFound
+    raise Errors::Conjur::MissingSecretValue, resource_id
   ensure
     audit_fetch resource!, version: version
   end
@@ -71,6 +73,8 @@ class SecretsController < RestController
     render json: result
   rescue Encoding::UndefinedConversionError
     raise Errors::Conjur::BadSecretEncoding, result
+  rescue Exceptions::RecordNotFound => e
+    raise Errors::Conjur::MissingSecretValue, e.id
   end
 
   def get_secret_from_variable(variable)
@@ -145,7 +149,9 @@ class SecretsController < RestController
     return @variable_ids if @variable_ids
 
     @variable_ids = (params[:variable_ids] || '').split(',').compact
-    raise ArgumentError, 'variable_ids' if @variable_ids.empty?
+    # Checks that variable_ids is not empty and doesn't contain empty variable ids
+    raise ArgumentError, 'variable_ids' if @variable_ids.empty? ||
+      @variable_ids.count != @variable_ids.reject(&:empty?).count
     @variable_ids
   end
 end
