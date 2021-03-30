@@ -17,7 +17,6 @@ RUN apt-get install -y build-essential \
                        git \
                        ldap-utils \
                        tzdata \
-                       shared-mime-info \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/conjur-server
