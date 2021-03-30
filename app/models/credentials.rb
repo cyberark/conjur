@@ -20,7 +20,7 @@ class Credentials < Sequel::Model
                              (?=.*?[a-z].*[a-z])                             # 2 lowercase letters
                              (?=.*?[0-9])                                    # 1 digit
                              (?=.*[ !"#$%&'()*+,-./:;<=>?@\[\\\]^_`{|}~]).  # 1 special character
-                             {12,128}$}x                                     # 12-128 characters
+                             {12,128}$}x.freeze                                     # 12-128 characters
 
   plugin :validation_helpers
 

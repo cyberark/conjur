@@ -35,7 +35,7 @@ module Conjur
     end
 
     def secrets
-      @secrets ||= resources.map { |id, rsc| [id, rsc.secret] }.to_h
+      @secrets ||= resources.transform_values(&:secret)
     end
   end
 end

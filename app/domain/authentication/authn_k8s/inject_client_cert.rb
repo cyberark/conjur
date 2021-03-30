@@ -47,7 +47,7 @@ module Authentication
       end
 
       def full_host_name
-        common_name_prefix + "." + smart_csr.common_name
+        "#{common_name_prefix}.#{smart_csr.common_name}"
       end
 
       def common_name_prefix

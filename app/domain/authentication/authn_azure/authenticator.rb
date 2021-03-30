@@ -70,7 +70,7 @@ module Authentication
 
       def provider_uri
         # Get the `provider-uri` secret from the authenticator, and ensure it ends with '/'
-        @provider_uri ||= azure_authenticator_secrets["provider-uri"].chomp('/') + '/'
+        @provider_uri ||= "#{azure_authenticator_secrets['provider-uri'].chomp('/')}/"
       end
 
       def azure_authenticator_secrets

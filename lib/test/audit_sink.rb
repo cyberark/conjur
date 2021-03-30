@@ -6,7 +6,7 @@ module Test
       delete_socket
 
       begin
-        STDERR.puts("Creating socket: #{socket_path}")
+        $stderr.puts("Creating socket: #{socket_path}")
         @socket = UNIXServer.new(socket_path)
       ensure
         at_exit { delete_socket }
@@ -17,7 +17,7 @@ module Test
     end
 
     def delete_socket
-      @socket.close if @socket
+      @socket&.close
       File.delete(socket_path) if File.exist?(socket_path)
     end
 

@@ -21,7 +21,7 @@ module Util
       # rubocop:enable Style/OptionalArguments
 
       def create_methods_defined_in_spec
-        @spec.keys.each { |meth| create_method(meth) }
+        @spec.each_key { |meth| create_method(meth) }
       end
 
       def create_method(meth)

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-LOG_LEVELS = %w[debug info warn error fatal unknown]
+LOG_LEVELS = %w[debug info warn error fatal unknown].freeze
 LOG_LEVEL_ERROR = "Environment variable 'CONJUR_LOG_LEVEL' must be a valid Rails log level: #{LOG_LEVELS.inspect}"
 
 def assert_valid_conjur_log_level

@@ -38,7 +38,7 @@ end
 class Generator
   include Enumerable
 
-  TIMESPAN = (Time.now - 42 * 24 * 60 * 60)..Time.now
+  TIMESPAN = ((Time.now - 42 * 24 * 60 * 60)..Time.now).freeze
 
   MESSAGE_IDS = 
     WeightedRandomizer.new(\
@@ -52,7 +52,7 @@ class Generator
   COLUMNS = %i[facility timestamp msgid hostname appname severity sdata procid message].freeze
 
   def each
-    COUNT.times.lazy.each { yield(generate.join("\t") + "\n") }
+    COUNT.times.lazy.each { yield("#{generate.join("\t")}\n") }
   end
   
   def generate

@@ -41,7 +41,7 @@ module Conjur
         end
         
         def to_s
-          "#{resource_kind.gsub('_', ' ')} '#{id}'#{account && account != Conjur.configuration.account ? ' in account \'' + account + '\'': ''}"
+          "#{resource_kind.gsub('_', ' ')} '#{id}'#{account && account != Conjur.configuration.account ? " in account '#{account}'": ''}"
         end
         
         def resourceid default_account = nil
@@ -93,7 +93,7 @@ module Conjur
           if kind_or_id && id_or_options && id_or_options.is_a?(String)
             self.kind = kind_or_id
             self.id = id_or_options
-          elsif kind_or_id && kind_or_id.index(":")
+          elsif kind_or_id&.index(":")
             id_or_options ||= {}
             account, self.kind, self.id = kind_or_id.split(':', 3)
             self.account = account if account != id_or_options[:default_account]
@@ -105,7 +105,7 @@ module Conjur
         end
 
         def to_s
-          "#{kind} #{self.class.short_name.underscore} '#{id}'#{account && account != Conjur.configuration.account ? ' in account \'' + account + '\'': ''}"
+          "#{kind} #{self.class.short_name.underscore} '#{id}'#{account && account != Conjur.configuration.account ? " in account '#{account}'": ''}"
         end
       end
       

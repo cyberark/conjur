@@ -15,6 +15,6 @@ class ConjurFormatter < Logger::Formatter
   private
 
   def pid
-    $$
+    $PROCESS_ID
   end
 end

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-TARGET_EXCEPTION = "dummy exception"
+TARGET_EXCEPTION = "dummy exception".freeze
 
 class ConcurrencyCount
 

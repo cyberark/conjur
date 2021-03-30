@@ -10,7 +10,7 @@
 
 # Ensure the rotator files have been loaded
 #
-Dir[File.join("./app/domain/rotation/rotators/*/", "*.rb")].each do |f|
+Dir[File.join("./app/domain/rotation/rotators/*/", "*.rb")].sort.each do |f|
   require f
 end
 

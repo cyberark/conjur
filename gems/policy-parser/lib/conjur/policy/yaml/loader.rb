@@ -24,9 +24,9 @@ module Conjur
             begin
               parser.parse(yaml)
             rescue
-              handler.log { $!.message }
-              handler.log { $!.backtrace.join("  \n") }
-              raise Invalid.new($!.message || "(no message)", filename, parser.mark)
+              handler.log { $ERROR_INFO.message }
+              handler.log { $ERROR_INFO.backtrace.join("  \n") }
+              raise Invalid.new($ERROR_INFO.message || "(no message)", filename, parser.mark)
             end
             records = handler.result || []
             
@@ -43,11 +43,12 @@ module Conjur
           
           def parse_includes records, dirname
             records.each_with_index do |record, idx|
-              if record.is_a?(Array)
+              case record
+              when Array
                 parse_includes(record, dirname)
-              elsif record.is_a?(Types::Policy)
+              when Types::Policy
                 parse_includes(record.body, dirname)
-              elsif record.is_a?(Types::Include)
+              when Types::Include
                 included = load(File.read(File.expand_path(record.file, dirname)), record.file)
                 records[idx..idx] = included
               end

@@ -22,12 +22,13 @@ describe Resource, :type => :model do
   #
   #
   remove_expires_at = ->(x) do
-    if x.is_a?(Hash)
+    case x
+    when Hash
       x.delete("expires_at")
       if x.key?("secrets")
         x["secrets"].map! {|y| y.delete("expires_at"); y }
       end
-    elsif x.is_a?(Array)
+    when Array
       x.map! {|y| y.delete("expires_at"); y }
     end
     x

@@ -95,7 +95,7 @@ module Authentication
           send(nil, type: :close)
         end
         @closed = true
-        @socket.close if @socket
+        @socket&.close
         @socket = nil
         emit(:__close)
         Thread.kill(@thread) if @thread

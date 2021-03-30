@@ -79,7 +79,7 @@ module Conjur
           end
           
           def type_of tag, record_type
-            if tag && tag.match(/!(.*)/)
+            if tag&.match(/!(.*)/)
               type_name = Regexp.last_match(1).underscore.camelize
               begin
                 Conjur::PolicyParser::Types.const_get(type_name)
@@ -113,9 +113,7 @@ module Conjur
           # A Sequence handler is constructed with no implicit type. This
           # sub-handler handles the message.
           def start_sequence anchor
-            Sequence.new(self, anchor, nil).tap do |h|
-              h.push_handler
-            end
+            Sequence.new(self, anchor, nil).tap(&:push_handler)
           end
           
           # Finish the sequence, and the document.
@@ -164,9 +162,7 @@ module Conjur
           # If neither of these is available, it's an error.
           def start_mapping tag, anchor
             if type = type_of(tag, record_type)
-              Mapping.new(self, anchor, type).tap do |h|
-                h.push_handler
-              end
+              Mapping.new(self, anchor, type).tap(&:push_handler)
             else
               raise "No type given or inferred for sequence entry"
             end
@@ -174,9 +170,7 @@ module Conjur
           
           # Process a sequence within a sequence.
           def start_sequence anchor
-            Sequence.new(self, anchor, record_type).tap do |h|
-              h.push_handler
-            end
+            Sequence.new(self, anchor, record_type).tap(&:push_handler)
           end
           
           # When the sequence contains a scalar, the value should be appended to the result.
@@ -221,9 +215,7 @@ module Conjur
           # Begins a mapping with the anchor value as the key.
           def alias anchor
             key = handler.anchor(anchor)
-            MapEntry.new(self, nil, @record, key).tap do |h|
-              h.push_handler
-            end
+            MapEntry.new(self, nil, @record, key).tap(&:push_handler)
           end
   
           # Begins a new map entry.
@@ -235,9 +227,7 @@ module Conjur
             end
 
             value = scalar_value(value, tag, quoted, type)
-            MapEntry.new(self, anchor, @record, value).tap do |h|
-              h.push_handler
-            end
+            MapEntry.new(self, anchor, @record, value).tap(&:push_handler)
           end
           
           def end_mapping
@@ -280,9 +270,7 @@ module Conjur
           # Start a mapping as a map value.
           def start_mapping tag, anchor
             if type = type_of(tag, yaml_field_type(key))
-              Mapping.new(self, anchor, type).tap do |h|
-                h.push_handler
-              end
+              Mapping.new(self, anchor, type).tap(&:push_handler)
             else
               # We got a mapping on a simple type
               raise "Attribute '#{key}' can't be a mapping"
@@ -291,9 +279,7 @@ module Conjur
           
           # Start a sequence as a map value.
           def start_sequence anchor
-            Sequence.new(self, anchor, yaml_field_type(key)).tap do |h|
-              h.push_handler
-            end
+            Sequence.new(self, anchor, yaml_field_type(key)).tap(&:push_handler)
           end
           
           def scalar value, tag, quoted, _anchor
@@ -379,7 +365,7 @@ module Conjur
         def scalar *args
           # value, anchor, tag, plain, quoted, style
           value, anchor, tag, _, quoted = args
-          log {"#{indent}got scalar #{tag ? tag + '=' : ''}#{value}#{anchor ? '#' + anchor : ''}"}
+          log {"#{indent}got scalar #{tag ? "#{tag}=" : ''}#{value}#{anchor ? "##{anchor}" : ''}"}
           handler.scalar(value, tag, quoted, anchor)
         end
         

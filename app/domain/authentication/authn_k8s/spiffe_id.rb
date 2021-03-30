@@ -19,7 +19,7 @@ module Authentication
       end
 
       def to_altname
-        'URI:' + @spiffe_id
+        "URI:#{@spiffe_id}"
       end
 
       private

@@ -93,7 +93,7 @@ module Conjur
       end
 
       def user_namespace
-        namespace.gsub('/', '-') if namespace
+        namespace&.gsub('/', '-')
       end
     end
 
@@ -148,7 +148,7 @@ module Conjur
       end
 
       def resolve_owner record
-        record.owner.id = absolute_path_of(record.owner.id) if record.owner && record.owner.id
+        record.owner.id = absolute_path_of(record.owner.id) if record.owner&.id
       end
 
       # Members in grant policies have an associated role, and this method
@@ -193,9 +193,9 @@ module Conjur
         return id[1..-1] if id.start_with?('/')
 
         tokens = id.split('/')
-        while true
+        loop do
           break unless idx = tokens.find_index('..')
-          raise "Invalid relative reference: #{id}" if idx == 0
+          raise "Invalid relative reference: #{id}" if idx.zero?
 
           tokens.delete_at(idx)
           tokens.delete_at(idx-1)
@@ -249,7 +249,7 @@ module Conjur
         end
         @result.flatten.sort do |a, b|
           score = sort_score(a) - sort_score(b)
-          if score == 0
+          if score.zero?
             if a.respond_to?(:roleid) && @referenced_record_index[b].member?(a.roleid) &&
                 b.respond_to?(:roleid) && @referenced_record_index[a].member?(b.roleid)
               raise "Dependency cycle encountered between #{a} and #{b}"

@@ -2,7 +2,7 @@ require 'openssl'
 
 module Conjur
   module CertUtils
-    CERT_RE ||= /-----BEGIN CERTIFICATE-----\n.*?\n-----END CERTIFICATE-----\n/m
+    CERT_RE ||= /-----BEGIN CERTIFICATE-----\n.*?\n-----END CERTIFICATE-----\n/m.freeze
 
     class << self
       # Parse X509 DER-encoded certificates from a string
