@@ -5,25 +5,25 @@ class AccountsController < ApplicationController
   include BodyParser
 
   def index
-    authorize :read
+    authorize(:read)
     
-    render json: Account.list
+    render(json: Account.list)
   end
 
   def create
-    authorize :execute
+    authorize(:execute)
 
     api_key = Account.create(account_name, current_user.role_id)
 
-    render json: { id: account_name, api_key: api_key }, status: :created
+    render(json: { id: account_name, api_key: api_key }, status: :created)
   end
 
   def destroy
-    authorize :update
+    authorize(:update)
 
     Account.new(account_name).delete
 
-    head :no_content
+    head(:no_content)
   end
 
   protected

@@ -6,8 +6,8 @@ module Test
       delete_socket
 
       begin
-        STDERR.puts "Creating socket: #{socket_path}"
-        @socket = UNIXServer.new socket_path
+        STDERR.puts("Creating socket: #{socket_path}")
+        @socket = UNIXServer.new(socket_path)
       ensure
         at_exit { delete_socket }
       end
@@ -22,8 +22,8 @@ module Test
     end
 
     def listen backlog = 1
-      socket.listen backlog
-      Thread.new { loop { handle socket.accept } }
+      socket.listen(backlog)
+      Thread.new { loop { handle(socket.accept) } }
         .abort_on_exception = true # to ease debugging
     end
 

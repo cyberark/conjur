@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 shared_context "oidc setup" do
-
   let(:authenticator_name) { "authn-oidc" }
   let(:account) { "my-acct" }
   let(:service) { "my-service" }
@@ -34,7 +33,7 @@ shared_context "oidc setup" do
 
   before(:each) do
     allow(Resource).to(
-      receive(:[]).with(/#{account}:variable:conjur\/authn-oidc/)
+      receive(:[]).with(%r{#{account}:variable:conjur/authn-oidc})
         .and_return(mocked_resource)
     )
   end

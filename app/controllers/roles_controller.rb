@@ -6,7 +6,7 @@ class RolesController < RestController
   before_action :current_user
 
   def show
-    render json: role.as_json.merge(members: role.memberships)
+    render(json: role.as_json.merge(members: role.memberships))
   end
 
   # Find all role memberships, expanded recursively. If no parameters
@@ -53,7 +53,7 @@ class RolesController < RestController
 
   # Returns a graph of the roles anchored on the current Role
   def graph
-    render json: role.graph
+    render(json: role.graph)
   end
 
   # update_member will add or modify an existing role membership
@@ -69,7 +69,7 @@ class RolesController < RestController
 
     # If membership is already granted, grant_to will return nil.
     # In this case, don't emit an audit record.
-    if (membership = role.grant_to member)
+    if (membership = role.grant_to(member))
       Audit.logger.log(
         Audit::Event::Policy.new(
           operation: :add,
@@ -80,7 +80,7 @@ class RolesController < RestController
       )
     end
 
-    head :no_content
+    head(:no_content)
   end
 
   # delete_member will delete a role membership
@@ -105,7 +105,7 @@ class RolesController < RestController
       )
     )
 
-    head :no_content
+    head(:no_content)
   end
 
   protected
@@ -121,6 +121,7 @@ class RolesController < RestController
   def role
     @role ||= Role[role_id]
     raise Exceptions::RecordNotFound, role_id unless @role
+
     return @role
   end
 
@@ -142,7 +143,7 @@ class RolesController < RestController
 
   def membership_filter        
     filter = params[:filter]
-    filter = Array(filter).map{ |id| Role.make_full_id id, account } if filter
+    filter = Array(filter).map{ |id| Role.make_full_id(id, account) } if filter
     return filter
   end
 
@@ -154,7 +155,7 @@ class RolesController < RestController
     resp = count_only?  ? count_payload(dataset) :
            block_given? ? yield(dataset)         : dataset.all
 
-    render json: resp    
+    render(json: resp)    
   end
 
   def count_only?

@@ -30,7 +30,7 @@ describe Commands::Credentials::ChangePassword do
   subject do 
     Commands::Credentials::ChangePassword.new(
       audit_log: audit_log
-      )
+    )
   end
 
   it 'updates the password for the given User' do

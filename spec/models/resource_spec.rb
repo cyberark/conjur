@@ -13,8 +13,8 @@ describe Resource, :type => :model do
 
   describe '.[]' do
     it "allows looking up by composite ids" do
-      the_resource or raise # vivify
-      expect(Resource['rspec', kind, resource_id_id]).to eq the_resource
+      the_resource || raise # vivify
+      expect(Resource['rspec', kind, resource_id_id]).to eq(the_resource)
     end
   end
 
@@ -66,29 +66,29 @@ describe Resource, :type => :model do
   
   context "with annotation" do
     before {
-      Annotation.create resource: the_resource, name: "name", value: "Kevin"
+      Annotation.create(resource: the_resource, name: "name", value: "Kevin")
     }
     let(:as_json) { 
-      base_hash.merge annotations: [ { "name" => "name", "value" => "Kevin" } ]
+      base_hash.merge(annotations: [ { "name" => "name", "value" => "Kevin" } ])
     }
     it_should_behave_like "provides expected JSON"
   end
   context "with permission" do
     before {
-      the_resource.permit "fry", the_user
+      the_resource.permit("fry", the_user)
     }
     let(:as_json) { 
-      base_hash.merge permissions: [ {"privilege"=>"fry", "role"=>the_user.id} ]
+      base_hash.merge(permissions: [ {"privilege"=>"fry", "role"=>the_user.id} ])
     }
     it_should_behave_like "provides expected JSON"
   end
   context "with secret" do
     let(:kind) { "variable" }
     before {
-      the_resource.add_secret value: "the-value"
+      the_resource.add_secret(value: "the-value")
     }
     let(:as_json) { 
-      base_hash.merge secrets: [ {"version" => 1} ]
+      base_hash.merge(secrets: [ {"version" => 1} ])
     }
     it_should_behave_like "provides expected JSON"
   end
@@ -141,17 +141,17 @@ describe Resource, :type => :model do
   describe "#enforce_secrets_version_limit" do
     let(:kind) { "variable" }
     it "deletes extra secrets" do
-      the_resource.add_secret value: "v-1"
-      the_resource.add_secret value: "v-2"
-      the_resource.add_secret value: "v-3"
+      the_resource.add_secret(value: "v-1")
+      the_resource.add_secret(value: "v-2")
+      the_resource.add_secret(value: "v-3")
       expect(remove_expires_at.(the_resource.as_json['secrets'])).to eq([ 1, 2, 3 ].map{|i| { "version" => i }})
 
-      the_resource.enforce_secrets_version_limit 2
+      the_resource.enforce_secrets_version_limit(2)
       the_resource.reload
 
       expect(remove_expires_at.(the_resource.as_json['secrets'])).to eq([ 2, 3 ].map{|i| { "version" => i }})
 
-      the_resource.enforce_secrets_version_limit 1
+      the_resource.enforce_secrets_version_limit(1)
       the_resource.reload
 
       expect(remove_expires_at.(the_resource.as_json['secrets'])).to eq([ 3 ].map{|i| { "version" => i }})

@@ -8,9 +8,9 @@ class HostFactoryTokensController < RestController
   before_action :find_token, only: [ :destroy ]
 
   def create
-    authorize :execute
+    authorize(:execute)
 
-    expiration = params.delete(:expiration) or raise ArgumentError, "expiration"
+    (expiration = params.delete(:expiration)) || raise(ArgumentError, "expiration")
     count = (params.delete(:count) || 1).to_i
     cidr = params.delete(:cidr)
 
@@ -28,15 +28,15 @@ class HostFactoryTokensController < RestController
     rescue ArgumentError => e
       raise ApplicationController::UnprocessableEntity, e.message
     end
-    render json: tokens
+    render(json: tokens)
   end
 
   def destroy
-    authorize :update
+    authorize(:update)
 
     @token.destroy
 
-    head 204
+    head(204)
   end
 
   protected
@@ -45,13 +45,13 @@ class HostFactoryTokensController < RestController
 
   def find_token
     id = params[:id]
-    @token = HostFactoryToken.from_token(id) or raise RecordNotFound, "*:host_factory_token:#{id}"
+    (@token = HostFactoryToken.from_token(id)) || raise(RecordNotFound, "*:host_factory_token:#{id}")
     @resource = @token.host_factory
     @resource_id = @resource.id
   end
 
   def resource_id
-    @resource_id ||= \
-      params[:host_factory] or raise ArgumentError, "host_factory"
+    (@resource_id ||= \
+       params[:host_factory]) || raise(ArgumentError, "host_factory")
   end
 end

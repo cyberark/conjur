@@ -2,7 +2,7 @@
 
 if ENV['REQUIRE_SIMPLECOV'] == 'true'
   require 'simplecov'
-  load File.expand_path '../.simplecov', __dir__
+  load File.expand_path('../.simplecov', __dir__)
 end
 
 Spring.after_fork do

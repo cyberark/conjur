@@ -1,4 +1,4 @@
-SimpleCov.start 'rails' do
+SimpleCov.start('rails') do
   command_name "SimpleCov #{rand(1000000)}"
   coverage_dir File.join(ENV['REPORT_ROOT'] || __dir__, 'coverage')
   merge_timeout 7200 # Set largest gap between resultsets of 30 minutes
@@ -10,6 +10,6 @@ SimpleCov.at_exit do
   SimpleCov.result.format!
   if ENV['SIMPLECOV_SLEEP']
     puts "Coverage Report Generated, sleeping forever"
-    sleep()
+    sleep
   end
 end

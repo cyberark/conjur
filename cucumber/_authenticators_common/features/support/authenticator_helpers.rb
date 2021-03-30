@@ -11,6 +11,7 @@ module AuthenticatorHelpers
   def validated_env_var(var)
     env_var_value = ENV[var]
     raise MissingEnvVariable, var if env_var_value.blank?
+
     env_var_value
   end
 
@@ -32,8 +33,9 @@ module AuthenticatorHelpers
 
   def token_for_keys(keys, token_string)
     return nil unless http_status == 200
+
     token = JSON.parse(token_string)
-    keys.all? { |k| token.key? k }
+    keys.all? { |k| token.key?(k) }
   rescue
     nil
   end
@@ -71,30 +73,30 @@ module AuthenticatorHelpers
     result             = RestClient::Request.execute(options)
     @response_body     = result.body
     @http_status       = result.code
-  rescue RestClient::Exception => err
-    @rest_client_error = err
-    @http_status       = err.http_code
-    @response_body     = err.response
+  rescue RestClient::Exception => e
+    @rest_client_error = e
+    @http_status       = e.http_code
+    @response_body     = e.response
   end
 
   def post(path, payload, options = {})
     result             = RestClient.post(path, payload, options)
     @response_body     = result.body
     @http_status       = result.code
-  rescue RestClient::Exception => err
-    @rest_client_error = err
-    @http_status       = err.http_code
-    @response_body     = err.response
+  rescue RestClient::Exception => e
+    @rest_client_error = e
+    @http_status       = e.http_code
+    @response_body     = e.response
   end
 
   def execute(method, path, payload = {}, options = {})
     result             = RestClient::Request.execute(method: method, url: path, payload: payload, **options)
     @response_body     = result.body
     @http_status       = result.code
-  rescue RestClient::Exception => err
-    @rest_client_error = err
-    @http_status       = err.http_code
-    @response_body     = err.response
+  rescue RestClient::Exception => e
+    @rest_client_error = e
+    @http_status       = e.http_code
+    @response_body     = e.response
   end
 
   def conjur_hostname
@@ -128,7 +130,7 @@ module AuthenticatorHelpers
   end
 
   def client_timeout?
-    rest_client_error.class == RestClient::Exceptions::ReadTimeout
+    rest_client_error.instance_of?(RestClient::Exceptions::ReadTimeout)
   end
 
   def authenticate_with_performance(num_requests, num_threads, authentication_func:, authentication_func_params:)

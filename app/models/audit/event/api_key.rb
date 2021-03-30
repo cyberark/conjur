@@ -1,7 +1,7 @@
 module Audit
   module Event
 
-    # Note: Breaking this class up further would harm clarity.
+    # NOTE: Breaking this class up further would harm clarity.
     # :reek:TooManyInstanceVariables and :reek:TooManyParameters
     class ApiKey
       def initialize(

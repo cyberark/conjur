@@ -11,7 +11,7 @@ module Authentication
       end
 
       def valid?(input)
-        signed_aws_headers = JSON.parse input.credentials # input.credentials is JSON holding the AWS signed headers
+        signed_aws_headers = JSON.parse(input.credentials) # input.credentials is JSON holding the AWS signed headers
 
         response_hash = identity_hash(response_from_signed_request(signed_aws_headers))
         trusted = response_hash != false
@@ -55,7 +55,7 @@ module Authentication
           )
         )
 
-        login.eql? host_to_match
+        login.eql?(host_to_match)
       end
 
       def aws_signed_url

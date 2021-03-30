@@ -101,6 +101,7 @@ Then(regex) do |policy_id|
   raise "'AWS_DEFAULT_REGION' is not defined in ENV" unless region
   raise "'AWS_ACCESS_KEY_ID' is not defined in ENV" unless id
   raise "'AWS_SECRET_ACCESS_KEY' is not defined in ENV" unless secret
+
   region_var.add_value(region)
   id_var.add_value(id)
   secret_var.add_value(secret)
@@ -110,6 +111,7 @@ Then(/^I add ENV\[(.+)\] to variable "(.+)"$/) do |env_var, conjur_varname|
   var = variable(conjur_varname)
   val = ENV[env_var]
   raise "'#{env_var}' is not defined in ENV" unless val
+
   var.add_value(val)
 end
 

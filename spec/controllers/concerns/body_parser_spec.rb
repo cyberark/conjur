@@ -14,10 +14,11 @@ describe BodyParser do
     shared_context "urlencoded form data" do
       let(:body_data) { "id=foo&test=bar%20baz&plus=one+two" }
       it "parses the body parameters" do
-        expect(controller.body_params).to eq \
+        expect(controller.body_params).to eq(\
           'id' => 'foo',
           'test' => 'bar baz',
           'plus' => 'one two'
+        )
       end
     end
 
@@ -35,19 +36,19 @@ describe BodyParser do
       let(:media_type) { 'application/json' }
       let(:body_data) { '{"foo": "bar" }' }
       it "attempts to parse as JSON" do
-        expect(controller.body_params).to eq "foo" => "bar"
+        expect(controller.body_params).to eq("foo" => "bar")
       end
     end
 
     it "returns a hash with indifferent access" do
-      expect(controller.body_params[:id]).to eq 'foo'
+      expect(controller.body_params[:id]).to eq('foo')
     end
   end
 
   describe '#params' do
     it "merges the body params with others" do
       params_hash = controller.params.permit(:get, :id).to_h
-      expect(params_hash).to include({'get' => 'params', 'id' => 'foo'})
+      expect(params_hash).to include({ 'get' => 'params', 'id' => 'foo' })
     end
   end
 
@@ -55,13 +56,13 @@ describe BodyParser do
     base = Class.new do
       # :reek:UtilityFunction
       def params
-        ActionController::Parameters.new 'get' => 'params'
+        ActionController::Parameters.new('get' => 'params')
       end
     end
     Class.new(base) { include BodyParser }.new
   end
 
-  before { allow(request).to receive(:body) { StringIO.new body_data } }
+  before { allow(request).to receive(:body) { StringIO.new(body_data) } }
   before { allow(controller).to receive(:request) { request } }
   let(:media_type) { 'application/x-www-form-urlencoded' }
   let(:body_data) { "id=foo&test=bar%20baz&plus=one+two" }

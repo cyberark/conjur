@@ -2,22 +2,22 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Util::TrackableErrorClass' do
+RSpec.describe('Util::TrackableErrorClass') do
   context 'object' do
     let(:error_code) { "ABC123" }
     let(:error_message) { "An error occured" }
 
     let(:trackable_error_message) { "#{error_code} #{error_message}" }
 
-    subject(:trackable_error_class) {
+    subject(:trackable_error_class) do
       Util::TrackableErrorClass.new(
         msg: error_message,
         code: error_code
       )
-    }
+    end
 
     it 'has the expected messaged error' do
-      expect { raise trackable_error_class.new }.to raise_error(trackable_error_message)
+      expect { raise trackable_error_class }.to raise_error(trackable_error_message)
     end
   end
 end
@@ -30,7 +30,7 @@ describe Error::ConjurCode do
   end
   let(:error_code_invalid) { Error::ConjurCode.new('invalid_file_path') }
   let(:error_code_empty) do
-   Error::ConjurCode.new('./spec/app/domain/util/errors/empty')
+    Error::ConjurCode.new('./spec/app/domain/util/errors/empty')
   end
   
   it 'raises error when file path is invalid' do

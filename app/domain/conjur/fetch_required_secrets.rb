@@ -6,7 +6,6 @@ module Conjur
     dependencies: { resource_class: ::Resource },
     inputs: [:resource_ids]
   ) do
-
     def call
       validate_resources_exist
       validate_secrets_exist

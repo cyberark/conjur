@@ -38,7 +38,7 @@ module Authentication
       # If the token is issued to a system-assigned identity then we take the
       # Object ID of the token.
       def user_assigned_identity?
-        xms_mirid.providers.include? "Microsoft.ManagedIdentity"
+        xms_mirid.providers.include?("Microsoft.ManagedIdentity")
       end
 
     end

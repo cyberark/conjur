@@ -24,7 +24,7 @@ module CucumberAuditHelper
   end
 
   def last_message
-    normalized_message Test::AuditSink.messages.last
+    normalized_message(Test::AuditSink.messages.last)
   end
 
   def audit_template template
@@ -37,12 +37,13 @@ module CucumberAuditHelper
   # for this test-related method
   def normalized_message(message)
     raise ArgumentError, "no audit message received" unless message
+
     *fields, tail = message
       .gsub(/\s+/m, ' ')
       .gsub(/\] \[/, '][')
       .split(' ', 7)
     *sdata, msg = tail.split(/(?<=\])/).map(&:strip)
-    sdata, msg = msg.split ' ', 2 if sdata.empty?
+    sdata, msg = msg.split(' ', 2) if sdata.empty?
     [*fields, sdata_split(sdata), msg]
   end
   
@@ -53,8 +54,8 @@ module CucumberAuditHelper
   def matcher val
     case val
     when '*' then be
-    when Array then match_array val.map(&method(:match_array))
-    else match val
+    when Array then match_array(val.map(&method(:match_array)))
+    else match(val)
     end
   end
 

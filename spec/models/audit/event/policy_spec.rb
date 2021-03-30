@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe Audit::Event::Policy do
-
   let(:user) { double('my-user', id: 'rspec:user:my_user') }
   let(:resource) do
     Audit::Subject::Resource.new(
@@ -88,8 +87,8 @@ describe Audit::Event::Policy do
 
     it 'marks operation as failure' do
       expect(subject.structured_data).to match(hash_including({
-              Audit::SDID::ACTION => { operation: operation, result: 'failure' }
-          }))
+        Audit::SDID::ACTION => { operation: operation, result: 'failure' }
+      }))
     end
 
     it 'produces the error message' do

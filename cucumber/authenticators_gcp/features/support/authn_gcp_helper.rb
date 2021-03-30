@@ -66,7 +66,7 @@ end
 
 # generates a self signed token with no kid in token header
 def no_kid_self_signed_token
-  rsa_private = OpenSSL::PKey::RSA.generate 2048
+  rsa_private = OpenSSL::PKey::RSA.generate(2048)
 
   # define token expiration
   exp = Time.now.to_i + 4 * 3600
@@ -80,7 +80,7 @@ def no_kid_self_signed_token
   }
 
   # issue decoded signed token
-  JWT.encode exp_payload, rsa_private, 'RS256'
+  JWT.encode(exp_payload, rsa_private, 'RS256')
 end
 
 def gce_identity_access_token(token_type)

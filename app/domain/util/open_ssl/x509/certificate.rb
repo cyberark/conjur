@@ -50,18 +50,18 @@ module Util
           key    ||= OpenSSL::PKey::RSA.new(2048)
           issuer ||= subject
 
-          cert = self.from_hash(
+          cert = from_hash(
             subject: subject,
             issuer: issuer,
             public_key: key.public_key,
             good_for: 10.years,
             extensions: [
               ['basicConstraints', 'CA:TRUE', true],
-              ['subjectKeyIdentifier', 'hash'],
+              %w[subjectKeyIdentifier hash],
               ['authorityKeyIdentifier', 'keyid:always,issuer:always']
             ] + alt_name_ext(alt_name)
           )
-          cert.sign(key, OpenSSL::Digest::SHA256.new)
+          cert.sign(key, OpenSSL::Digest.new('SHA256'))
           cert
         end
 

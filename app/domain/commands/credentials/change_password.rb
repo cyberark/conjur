@@ -16,7 +16,6 @@ module Commands
       # https://github.com/cyberark/conjur/issues/1611
       inputs: %i[role password client_ip]
     ) do
-
       def call
         change_password
         audit_success

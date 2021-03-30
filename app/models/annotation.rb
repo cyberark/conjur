@@ -11,15 +11,15 @@ class Annotation < Sequel::Model
   
   def as_json options = {}
     options[:except] ||= []
-    options[:except].push :resource_id
+    options[:except].push(:resource_id)
     super(options).tap do |response|
-      write_id_to_json response, "policy"
+      write_id_to_json(response, "policy")
     end
   end
 
   def validate
     super
     
-    validates_presence [ :name, :value ]
+    validates_presence([ :name, :value ])
   end
 end

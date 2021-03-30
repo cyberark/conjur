@@ -3,11 +3,10 @@ module Authentication
 
     ValidateStatus = CommandClass.new(
       dependencies: {
-        discover_identity_provider:  Authentication::OAuth::DiscoverIdentityProvider.new
+        discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new
       },
-      inputs:       %i[]
+      inputs: %i[]
     ) do
-
       def call
         validate_provider_is_responsive
       end

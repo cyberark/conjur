@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::Authn::Authenticator' do
+RSpec.describe('Authentication::Authn::Authenticator') do
   include_context "authn setup"
 
   context "An Authn authenticator" do
@@ -10,7 +10,7 @@ RSpec.describe 'Authentication::Authn::Authenticator' do
       context "with valid credentials" do
         subject do
           ::Authentication::Authn::Authenticator.new(
-            role_cls:        role_cls,
+            role_cls: role_cls,
             credentials_cls: valid_api_key_credentials
           ).call(
             authenticator_input: input
@@ -29,7 +29,7 @@ RSpec.describe 'Authentication::Authn::Authenticator' do
       context "with a non-existing role" do
         subject do
           ::Authentication::Authn::Authenticator.new(
-            role_cls:        role_cls,
+            role_cls: role_cls,
             credentials_cls: non_existing_role_credentials
           ).call(
             authenticator_input: input
@@ -48,7 +48,7 @@ RSpec.describe 'Authentication::Authn::Authenticator' do
       context "with an invalid api key" do
         subject do
           ::Authentication::Authn::Authenticator.new(
-            role_cls:        role_cls,
+            role_cls: role_cls,
             credentials_cls: invalid_api_key_credentials
           ).call(
             authenticator_input: input

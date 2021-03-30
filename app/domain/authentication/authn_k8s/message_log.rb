@@ -14,7 +14,7 @@ module Authentication
           return if channel_name
 
           raise Errors::Authentication::AuthnK8s::UnexpectedChannel,
-            ws_msg.channel_number
+                ws_msg.channel_number
         end
       end
 

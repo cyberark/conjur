@@ -4,10 +4,10 @@ require 'spec_helper'
 
 describe Conjur::PolicyParser::Types::ResourceOpBase do
   context "with multiple resources" do
-    let(:resource) { %w[a b].map { |id| Types::Resource.new 'crispy', id } }
+    let(:resource) { %w[a b].map { |id| Types::Resource.new('crispy', id) } }
     describe '#subject_id' do
       it "returns an array of resource ids" do
-        expect(op.subject_id).to eq %w[a b]
+        expect(op.subject_id).to eq(%w[a b])
       end
     end
   end

@@ -21,7 +21,7 @@ class RootLoader
         admin_id = "#{account}:user:admin"
         admin = ::Role[admin_id] || ::Role.create(role_id: admin_id)
         if admin_password = ENV['CONJUR_ADMIN_PASSWORD']
-          $stderr.puts "Setting 'admin' password"
+          $stderr.puts("Setting 'admin' password")
           set_admin_password(admin, admin_password)
         end
 
@@ -43,7 +43,7 @@ class RootLoader
         )
 
         end_t = Time.now
-        $stderr.puts "Loaded policy in #{end_t - start_t} seconds"
+        $stderr.puts("Loaded policy in #{end_t - start_t} seconds")
       end
     end
 
@@ -70,7 +70,7 @@ class RootLoader
     end
 
     def save_submitted_policy(role:, policy:, filename:)
-      policy_version = PolicyVersion.new role: role, policy: policy, policy_text: File.read(filename)
+      policy_version = PolicyVersion.new(role: role, policy: policy, policy_text: File.read(filename))
       policy_version.policy_filename = filename
       policy_version.delete_permitted = true
       policy_version.save

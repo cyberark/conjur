@@ -6,7 +6,7 @@ module Authentication
     attr_reader :parent_webservice
 
     def self.from_webservice(webservice)
-      self.new(webservice)
+      new(webservice)
     end
 
     def initialize(parent_webservice)

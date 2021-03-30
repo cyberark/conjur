@@ -4,7 +4,7 @@ Then(/^I can( not)? add a secret to ([\w_]+) resource "([^"]*)"$/) do |fail, kin
   @value = SecureRandom.uuid
   status = fail ? 403 : 200
   invoke status: status do
-    conjur_api.resource(make_full_id(kind, id)).add_value @value
+    conjur_api.resource(make_full_id(kind, id)).add_value(@value)
   end
 end
 

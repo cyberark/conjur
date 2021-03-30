@@ -43,8 +43,7 @@ module Rotation
 
         private 
 
-        class AwsCredentials < ::Struct.new(:facade)
-
+        AwsCredentials = ::Struct.new(:facade) do
           def access_key_id
             credentials[:access_key_id]
           end
@@ -64,6 +63,7 @@ module Rotation
           #
           def credentials
             return @credentials if @credentials
+
             keys = %i[region access_key_id secret_access_key]
             vals = facade.current_values(keys.map(&conjur_ids))
             @credentials = keys.map { |k| [ k, vals[conjur_ids[k]] ] }.to_h

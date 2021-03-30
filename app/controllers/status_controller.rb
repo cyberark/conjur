@@ -6,7 +6,7 @@ class StatusController < ApplicationController
   include TokenUser
 
   def index
-    render 'index', layout: false
+    render('index', layout: false)
   end
 
   # /whoami returns basic information about the request client and access token
@@ -17,13 +17,13 @@ class StatusController < ApplicationController
   def whoami
     audit_success
 
-    render json: {
+    render(json: {
       client_ip: request.ip,
       user_agent: request.user_agent,
       account: token_user.account,
       username: token_user.login,
       token_issued_at: Time.at(token_user.token.claims["iat"])
-    }
+    })
   end
 
   def audit_success

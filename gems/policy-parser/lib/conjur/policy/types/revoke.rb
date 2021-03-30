@@ -5,7 +5,9 @@ module Conjur
         attribute :role, dsl_accessor: true
         attribute :member, kind: :role, dsl_accessor: true
 
-        def delete_statement?; true; end
+        def delete_statement? 
+          true 
+        end
 
         def subject_id
           Array(role).map(&:id)

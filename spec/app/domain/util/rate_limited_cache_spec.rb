@@ -18,10 +18,8 @@ class TimeDouble
   attr_accessor :now
 end
 
-RSpec.describe 'Util::RateLimitedCache' do
-
+RSpec.describe('Util::RateLimitedCache') do
   context "Multiple calls within the rate limit interval" do
-
     subject(:cached_count) do
       Util::RateLimitedCache.new(
         Count.new,
@@ -51,14 +49,12 @@ RSpec.describe 'Util::RateLimitedCache' do
       expect(cached_count.call(refresh: true)).to eq(3) # call 3
       expect(cached_count.call(refresh: true)).to eq(3) # passed limit - don't refresh
     end
-
   end
 
-  #TODO another example with differet params, to test
+  # TODO: another example with differet params, to test
   #     that keys are cached independently
 
   context "Multiple calls across rate limit intervals" do
-
     def new_cached_count(time)
       Util::RateLimitedCache.new(
         Count.new,

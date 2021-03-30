@@ -12,7 +12,6 @@ module Authentication
       },
       inputs: %i[webservice account]
     ) do
-
       def call
         # No checks required for default conjur authn
         return if default_conjur_authn?

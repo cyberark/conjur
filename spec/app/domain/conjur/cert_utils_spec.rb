@@ -50,23 +50,23 @@ RjvSxre4Xg2qlI9Laybb4oZ4g6DI8hRbL0VdFAsveg6SXg2RxgJcXeJUFw==
 """
     end
 
-    let(:cert1) { OpenSSL::X509::Certificate.new cert1_raw }
-    let(:cert2) { OpenSSL::X509::Certificate.new cert2_raw }
+    let(:cert1) { OpenSSL::X509::Certificate.new(cert1_raw) }
+    let(:cert2) { OpenSSL::X509::Certificate.new(cert2_raw) }
 
     it 'parses a certificate' do
       expect(Conjur::CertUtils.parse_certs(cert1_raw).map(&:to_der))\
-          .to eq [cert1.to_der]
+        .to eq([cert1.to_der])
     end
 
     it 'parses two certificates' do
       expect(Conjur::CertUtils.parse_certs(cert1_raw + cert2_raw).map(&:to_der))\
-          .to eq [cert1.to_der, cert2.to_der]
+        .to eq([cert1.to_der, cert2.to_der])
     end
 
     it 'parses the certificate correctly even if the whitespace is wrong' do
-      bad_whitespace = cert1_raw.gsub "\n", " "
+      bad_whitespace = cert1_raw.gsub("\n", " ")
       expect(Conjur::CertUtils.parse_certs(bad_whitespace).map(&:to_der))\
-          .to eq [cert1.to_der]
+        .to eq([cert1.to_der])
     end
 
     it 'shows a bad cert in error message' do
@@ -74,14 +74,14 @@ RjvSxre4Xg2qlI9Laybb4oZ4g6DI8hRbL0VdFAsveg6SXg2RxgJcXeJUFw==
       expect do
         Conjur::CertUtils.parse_certs(bad_cert)
       end.to raise_error(OpenSSL::X509::CertificateError) do |exn|
-        expect(exn.message).to include bad_cert
+        expect(exn.message).to include(bad_cert)
       end
     end
   end
 
   describe '.add_chained_cert' do
     let(:one_certificate_chain) do
-        """-----BEGIN CERTIFICATE-----
+      """-----BEGIN CERTIFICATE-----
 MIIDPjCCAiagAwIBAgIVAKW1gdmOFrXt6xB0iQmYQ4z8Pf+kMA0GCSqGSIb3DQEB
 CwUAMD0xETAPBgNVBAoTCGN1Y3VtYmVyMRIwEAYDVQQLEwlDb25qdXIgQ0ExFDAS
 BgNVBAMTC2N1a2UtbWFzdGVyMB4XDTE1MTAwNzE2MzAwNloXDTI1MTAwNDE2MzAw
@@ -168,6 +168,5 @@ RjvSxre4Xg2qlI9Laybb4oZ4g6DI8hRbL0VdFAsveg6SXg2RxgJcXeJUFw==
         expect(subject).to be_truthy
       end
     end
-
   end
 end

@@ -11,10 +11,10 @@ module Error
     def print_next_available
       id = next_code_id
       unless id
-        $stderr.puts "The path doesn't contain any files with Conjur error codes"
+        $stderr.puts("The path doesn't contain any files with Conjur error codes")
         return
       end
-      puts format("The next available error number is %d ( CONJ%05dE )", id, id)
+      puts(format("The next available error number is %d ( CONJ%05dE )", id, id))
     end
 
     # separate data-gathering from printing
@@ -25,7 +25,7 @@ module Error
 
     def existing_codes
       codes = File.foreach(@path).map do |line|
-        match = /code: \"CONJ(?<num>[0-9]+)E\"/.match(line)
+        match = /code: "CONJ(?<num>[0-9]+)E"/.match(line)
         match ? match[:num].to_i : nil
       end
       codes.compact
@@ -33,6 +33,7 @@ module Error
 
     def validate
       return if File.file?(@path)
+
       raise format("The following path:%s was not found", @path)
     end
   end

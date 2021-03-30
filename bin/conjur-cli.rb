@@ -16,7 +16,8 @@ def connect
   require 'sequel'
 
   def test_select
-    fail "DATABASE_URL not set" unless ENV['DATABASE_URL']
+    fail("DATABASE_URL not set") unless ENV['DATABASE_URL']
+
     begin
       db = Sequel::Model.db = Sequel.connect(ENV['DATABASE_URL'])
       db['select 1'].first
@@ -27,8 +28,9 @@ def connect
 
   30.times do
     break if test_select
-    $stderr.write '.'
-    sleep 1
+
+    $stderr.write('.')
+    sleep(1)
   end
 
   raise "Database is still unavailable. Aborting!" unless test_select
@@ -58,11 +60,11 @@ command :server do |c|
 
   c.desc 'Server listen port'
   c.arg_name :port
-  c.default_value ENV['PORT'] || '80'
+  c.default_value(ENV['PORT'] || '80')
   c.flag [ :p, :port ]
 
   c.desc 'Server bind address'
-  c.default_value ENV['BIND_ADDRESS'] || '0.0.0.0'
+  c.default_value(ENV['BIND_ADDRESS'] || '0.0.0.0')
   c.arg_name :ip
   c.flag [ :b, :'bind-address' ]
 
@@ -89,7 +91,8 @@ command :server do |c|
 
     if file_name = options[:file]
       raise "account option is required with file option" unless account
-      system "rake policy:load[#{account},#{file_name}]" or exit $?.exitstatus
+
+      system("rake policy:load[#{account},#{file_name}]")) || exit(($?.exitstatus))
     end
 
     Process.fork do
@@ -130,21 +133,21 @@ end
 desc "Manage the policy"
 command :policy do |cgrp|
   cgrp.desc "Load MAML policy from file(s)"
-  cgrp.arg :account
-  cgrp.arg :filename, :multiple
+  cgrp.arg(:account)
+  cgrp.arg(:filename, :multiple)
   cgrp.command :load do |c|
     c.action do |global_options,options,args|
       account, *file_names = args
       connect
 
       fail 'policy load failed' unless file_names.map { |file_name|
-        system "rake policy:load[#{account},#{file_name}]"
+        system("rake policy:load[#{account},#{file_name}]")
       }.all?
     end
   end
 
   cgrp.desc "Watch a file and reload the policy if it's modified"
-  cgrp.long_desc <<-DESC
+  cgrp.long_desc(<<-DESC)
 To trigger a reload of the policy, replace the contents of the watched file with the path to
 the policy. Of course, the path must be visible to the container which is running "conjurctl watch".
 This can be a separate container from the application server. Both the application server and the
@@ -157,8 +160,8 @@ Example:
 $ conjurctl watch /run/conjur/policy/load)"
   DESC
 
-  cgrp.arg :account
-  cgrp.arg :filename
+  cgrp.arg(:account)
+  cgrp.arg(:filename)
   cgrp.command :watch do |c|
     c.action do |global_options,options,args|
       account, file_name = args
@@ -172,7 +175,7 @@ end
 desc "Manage the data encryption key"
 command :"data-key" do |cgrp|
   cgrp.desc "Generate a data encryption key"
-  cgrp.long_desc <<-DESC
+  cgrp.long_desc(<<-DESC)
 Use this command to generate a new Base64-encoded 256 bit data encrytion key.
 Once generated, this key should be placed into the environment of the Conjur
 server. It will be used to encrypt all sensitive data which is stored in the
@@ -237,7 +240,7 @@ $ conjurctl account create [--password-from-stdin] --name myorg
   end
 
   cgrp.desc "Delete an organization account"
-  cgrp.arg :account
+  cgrp.arg(:account)
   cgrp.command :delete do |c|
     c.action do |global_options,options,args|
       account = args.first
@@ -263,13 +266,13 @@ end
 desc "Manage roles"
 command :role do |cgrp|
   cgrp.desc "Retrieve a role's API key"
-  cgrp.arg :role_id, :multiple
+  cgrp.arg(:role_id, :multiple)
   cgrp.command :"retrieve-key" do |c|
     c.action do |global_options,options,args|
       connect
 
       fail 'key retrieval failed' unless args.map { |id|
-        system "rake role:retrieve-key[#{id}]"
+        system("rake role:retrieve-key[#{id}]")
       }.all?
     end
   end
@@ -279,12 +282,12 @@ desc "Wait for the Conjur server to be ready"
 command :wait do |c|
   c.desc 'Port'
   c.arg_name :port
-  c.default_value ENV['PORT'] || '80'
+  c.default_value(ENV['PORT'] || '80')
   c.flag [ :p, :port ], :must_match => /\d+/
 
   c.desc 'Number of retries'
   c.arg_name :retries
-  c.default_value 90
+  c.default_value(90)
   c.flag [ :r, :retries ], :must_match => /\d+/
 
   c.action do |global_options,options,args|
@@ -305,7 +308,8 @@ command :wait do |c|
 
     retries.times do
       break if conjur_ready.call
-      STDOUT.print "."
+
+      STDOUT.print(".")
       sleep 1
     end
 
@@ -321,12 +325,12 @@ desc 'Export the Conjur data for migration to Conjur Enteprise Edition'
 command :export do |c|
   c.desc 'Output directory'
   c.arg_name :out_dir
-  c.default_value Dir.pwd
+  c.default_value(Dir.pwd)
   c.flag [:o, :out_dir]
 
   c.desc 'Label to use for archive filename'
   c.arg_name :label
-  c.default_value Time.now.strftime('%Y-%m-%dT%H-%M-%SZ')
+  c.default_value(Time.now.strftime('%Y-%m-%dT%H-%M-%SZ'))
   c.flag [:l, :label]
 
   c.action do |global_options,options,args|

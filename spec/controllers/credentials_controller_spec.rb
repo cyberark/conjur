@@ -24,7 +24,6 @@ describe CredentialsController, :type => :request do
   end
   
   context "#rotate_api_key" do
-
     shared_examples_for "authentication denied" do
       it "is unauthorized" do
         put(update_api_key_url, env: request_env)

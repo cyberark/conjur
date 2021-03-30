@@ -2,23 +2,23 @@
 
 require 'spec_helper'
 
-RSpec.describe Authentication::Security::ValidateWebserviceExists do
+RSpec.describe(Authentication::Security::ValidateWebserviceExists) do
   include_context "security mocks"
 
-  let (:mock_resource) { 'some-random-resource' }
-  let (:non_existing_authenticator_name) { 'non-existing-authenticator' }
-  let (:non_existing_service_id) { 'non-existing-service' }
-  let (:non_existing_resource_id) {
+  let(:mock_resource) { 'some-random-resource' }
+  let(:non_existing_authenticator_name) { 'non-existing-authenticator' }
+  let(:non_existing_service_id) { 'non-existing-service' }
+  let(:non_existing_resource_id) do
     "#{test_account}:webservice:conjur/#{non_existing_authenticator_name}/#{non_existing_service_id}"
-  }
+  end
 
   def mock_resource_class
     double('Resource').tap do |resource_class|
       allow(resource_class).to receive(:[]).and_return(mock_resource)
 
       allow(resource_class).to receive(:[])
-                                 .with(non_existing_resource_id)
-                                 .and_return(nil)
+        .with(non_existing_resource_id)
+        .and_return(nil)
     end
   end
 

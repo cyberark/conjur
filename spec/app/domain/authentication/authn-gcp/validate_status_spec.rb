@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Authentication::AuthnGcp::ValidateStatus do
-
+RSpec.describe(Authentication::AuthnGcp::ValidateStatus) do
   let(:test_gcp_discovery_error) { "test-gcp-discovery-error" }
 
   def mock_discover_identity_provider(is_successful:)
@@ -10,7 +9,7 @@ RSpec.describe Authentication::AuthnGcp::ValidateStatus do
         allow(discover_provider).to receive(:call)
       else
         allow(discover_provider).to receive(:call)
-                                      .and_raise(test_gcp_discovery_error)
+          .and_raise(test_gcp_discovery_error)
       end
     end
   end
@@ -37,6 +36,5 @@ RSpec.describe Authentication::AuthnGcp::ValidateStatus do
     it "raises the error raised by discover_identity_provider" do
       expect { subject }.to raise_error(test_gcp_discovery_error)
     end
-
   end
 end

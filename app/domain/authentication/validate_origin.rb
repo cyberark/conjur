@@ -5,13 +5,13 @@ module Authentication
   ValidateOrigin ||= CommandClass.new(
     dependencies: {
       role_cls: ::Role,
-      logger:   Rails.logger
+      logger: Rails.logger
     },
     inputs: %i[account username client_ip]
   ) do
-
     def call
       raise Errors::Authentication::InvalidOrigin unless role.valid_origin?(@client_ip)
+
       @logger.debug(LogMessages::Authentication::OriginValidated.new.to_s)
     end
 
@@ -22,6 +22,7 @@ module Authentication
 
       @role = @role_cls.by_login(@username, account: @account)
       raise Errors::Authentication::Security::RoleNotFound, role_id unless @role
+
       @role
     end
 

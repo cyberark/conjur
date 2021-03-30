@@ -26,7 +26,7 @@ module Conjur
           
           # Push this handler onto the stack.
           def push_handler
-            handler.push_handler self
+            handler.push_handler(self)
           end
           
           # Pop this handler off the stack, indicating that it's complete.
@@ -41,13 +41,13 @@ module Conjur
           
           # Start a new mapping with the specified tag. 
           # If the handler wants to accept the message, it should return a new handler.
-          def start_mapping tag, anchor
+          def start_mapping _tag, _anchor
             raise "Unexpected mapping"
           end
           
           # Start a new sequence.
           # If the handler wants to accept the message, it should return a new handler.
-          def start_sequence anchor
+          def start_sequence _anchor
             raise "Unexpected sequence"
           end
           
@@ -62,7 +62,7 @@ module Conjur
           end
           
           # Process a scalar value. It may be a map key, a map value, or a sequence value.
-          def scalar value, tag, quoted, anchor
+          def scalar _value, _tag, _quoted, _anchor
             raise "Unexpected scalar"
           end
           
@@ -80,7 +80,7 @@ module Conjur
           
           def type_of tag, record_type
             if tag && tag.match(/!(.*)/)
-              type_name = $1.underscore.camelize
+              type_name = Regexp.last_match(1).underscore.camelize
               begin
                 Conjur::PolicyParser::Types.const_get(type_name)
               rescue NameError
@@ -94,19 +94,18 @@ module Conjur
         
         # Handles the root document, which should be a sequence.
         class Root < Base
-          attr_reader :result, :handler
+          attr_reader :result, :handler, :handler
           
           def initialize handler
-            super nil, nil
+            super(nil, nil)
             
             @handler = handler
             @result = nil
-          end
-          
-          def handler; @handler; end
+          end          
           
           def sequence seq
             raise "Already got sequence result" if @result
+
             @result = seq
           end
           
@@ -132,7 +131,7 @@ module Conjur
           attr_reader :record_type
           
           def initialize parent, anchor, record_type
-            super parent, anchor
+            super(parent, anchor)
             
             @record_type = record_type
             @list = []
@@ -141,20 +140,20 @@ module Conjur
           # Adds a mapping to the sequence.
           def mapping value
             handler.log { "#{handler.indent}Adding mapping #{value} to sequence" }
-            @list.push value
+            @list.push(value)
           end
   
           # Adds a sequence to the sequence.
           def sequence value
             handler.log { "#{handler.indent}Adding sequence #{value} to sequence" }
-            @list.push value
+            @list.push(value)
           end
           
           # When the sequence receives an alias, the alias should be mapped to the previously stored 
           # value and added to the result list.
           def alias anchor
             handler.log { "#{handler.indent}Adding alias *#{anchor} to sequence, whose value is #{handler.anchor(anchor)}" }
-            @list.push handler.anchor(anchor)
+            @list.push(handler.anchor(anchor))
           end
           
           # When the sequence contains a mapping, a new record should be created corresponding to either:
@@ -184,14 +183,14 @@ module Conjur
           def scalar value, tag, quoted, anchor
             scalar_value(value, tag, quoted, record_type).tap do |value|
               handler.log { "#{handler.indent}Adding scalar *#{value} to sequence" }
-              @list.push value
-              handler.anchor anchor, value if anchor
+              @list.push(value)
+              handler.anchor(anchor, value) if anchor
             end
           end
           
           def end_sequence
-            parent.sequence @list
-            handler.anchor anchor, @list if anchor
+            parent.sequence(@list)
+            handler.anchor(anchor, @list) if anchor
             pop_handler
           end
         end
@@ -201,8 +200,8 @@ module Conjur
           attr_reader :type
           
           def initialize parent, anchor, type
-            super parent, anchor
-            @existing_members = Set.new()
+            super(parent, anchor)
+            @existing_members = Set.new
             @record = type.new
           end
   
@@ -232,8 +231,9 @@ module Conjur
             if @existing_members.include?(value)
               raise "Duplicate attribute: #{value}"
             else
-              @existing_members.add(value);
+              @existing_members.add(value)
             end
+
             value = scalar_value(value, tag, quoted, type)
             MapEntry.new(self, anchor, @record, value).tap do |h|
               h.push_handler
@@ -241,8 +241,8 @@ module Conjur
           end
           
           def end_mapping
-            parent.mapping @record
-            handler.anchor anchor, @record if anchor
+            parent.mapping(@record)
+            handler.anchor(anchor, @record) if anchor
             pop_handler
           end
         end
@@ -252,29 +252,29 @@ module Conjur
           attr_reader :record, :key
   
           def initialize parent, anchor, record, key
-            super parent, anchor
+            super(parent, anchor)
             
             @record = record
             @key = key
           end
           
           def sequence value
-            value value
+            value(value)
           end
           
           def mapping value
-            value value
+            value(value)
           end
           
           def value value
-            parent.map_entry @key, value
-            handler.anchor anchor, value if anchor
+            parent.map_entry(@key, value)
+            handler.anchor(anchor, value) if anchor
             pop_handler
           end
           
           # Interpret the alias as the map value and populate in the parent.
           def alias anchor
-            value handler.anchor(anchor)
+            value(handler.anchor(anchor))
           end
           
           # Start a mapping as a map value.
@@ -296,8 +296,8 @@ module Conjur
             end
           end
           
-          def scalar value, tag, quoted, anchor
-            value scalar_value(value, tag, quoted, yaml_field_type(key))
+          def scalar value, tag, quoted, _anchor
+            value(scalar_value(value, tag, quoted, yaml_field_type(key)))
           end
           
           protected
@@ -308,7 +308,7 @@ module Conjur
         end
         
         def initialize
-          @root = Root.new self
+          @root = Root.new(self)
           @handlers = [ @root ]
           @anchors = {}
           @filename = "<no-filename>"
@@ -319,7 +319,7 @@ module Conjur
         end
         
         def push_handler handler
-          @handlers.push handler
+          @handlers.push(handler)
           log {"#{indent}pushed handler #{handler.class}"}
         end
           
@@ -331,38 +331,39 @@ module Conjur
         # Get or set an anchor. Invoke with just the anchor name to get the value.
         # Invoke with the anchor name and value to set the value.
         def anchor *args
-          key, value, _ = args
+          key, value, = args
           if _
             raise ArgumentError, "Expecting 1 or 2 arguments, got #{args.length}"
           elsif key && value
             raise "Duplicate anchor #{key}" if @anchors[key]
+
             @anchors[key] = value
           elsif key
             @anchors[key]
-          else
-            nil
           end
         end
         
-        def handler; @handlers.last; end
+        def handler 
+          @handlers.last 
+        end
         
         def alias key
           log {"#{indent}WARNING: anchor '#{key}' is not defined"} unless anchor(key)
           log {"#{indent}anchor '#{key}'=#{anchor(key)}"}
-          handler.alias key
+          handler.alias(key)
         end
         
         def start_mapping *args
           log {"#{indent}start mapping #{args}"}
-          anchor, tag, _ = args
+          anchor, tag, = args
           tag = "!automatic-role" if %w[!managed-role !managed_role].include?(tag)
-          handler.start_mapping tag, anchor
+          handler.start_mapping(tag, anchor)
         end
         
         def start_sequence *args
           log {"#{indent}start sequence : #{args}"}
-          anchor, _ = args
-          handler.start_sequence anchor
+          anchor, = args
+          handler.start_sequence(anchor)
         end
         
         def end_sequence
@@ -379,13 +380,11 @@ module Conjur
           # value, anchor, tag, plain, quoted, style
           value, anchor, tag, _, quoted = args
           log {"#{indent}got scalar #{tag ? tag + '=' : ''}#{value}#{anchor ? '#' + anchor : ''}"}
-          handler.scalar value, tag, quoted, anchor
+          handler.scalar(value, tag, quoted, anchor)
         end
         
-        def log &block
-          logger.debug('conjur/policy/handler') {
-            yield
-          }
+        def log(&block)
+          logger.debug('conjur/policy/handler', &block)
         end
         
         def indent

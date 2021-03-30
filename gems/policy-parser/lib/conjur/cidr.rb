@@ -3,7 +3,7 @@ require 'ipaddr'
 module Conjur
   class CIDR
     def initialize(cidr)
-      raise "CIDR argument must be a String" unless cidr.kind_of? String
+      raise "CIDR argument must be a String" unless cidr.is_a?(String)
 
       @cidr = cidr
       @ipaddr = IPAddr.new(cidr)

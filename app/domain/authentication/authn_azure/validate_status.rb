@@ -4,11 +4,10 @@ module Authentication
     ValidateStatus = CommandClass.new(
       dependencies: {
         fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
-        discover_identity_provider:  Authentication::OAuth::DiscoverIdentityProvider.new
+        discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new
       },
-      inputs:       %i[account service_id]
+      inputs: %i[account service_id]
     ) do
-
       def call
         validate_secrets
         validate_provider_is_responsive

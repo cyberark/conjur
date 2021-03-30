@@ -2,6 +2,6 @@
 
 Then(/^I list the public keys for "([^"]*)"$/) do |username|
   invoke do
-    Conjur::API.public_keys username
+    Conjur::API.public_keys(username)
   end
 end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
-require 'spec_helper'
-RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
 
+require 'spec_helper'
+RSpec.describe('Authentication::AuthnK8s::ExecuteCommandInContainer') do
   class WsClientMock
     attr_accessor :received_messages, :connect_args, :ready_listeners_queue
 
@@ -60,7 +60,7 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
       @registered_events[:close].call
     end
 
-    # Note: The test code will need to construct the messages it's sending
+    # NOTE: The test code will need to construct the messages it's sending
     # in the correct format.  See MessageLog code for help with that.
     def trigger_message(msg)
       @registered_events[:message].call(msg)
@@ -142,24 +142,24 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
     Thread.new do
       Thread.current[:output] =
         ::Authentication::AuthnK8s::ExecuteCommandInContainer.new(
-          timeout:          x_timeout,
-          websocket_client: x_ws_client,
+          timeout: x_timeout,
+          websocket_client: x_ws_client
         ).call(
           k8s_object_lookup: x_k8s_object_lookup,
-          pod_namespace:     x_pod_namespace,
-          pod_name:          x_pod_name,
-          container:         x_container,
-          cmds:              x_cmds,
-          body:              x_body,
-          stdin:             x_stdin
+          pod_namespace: x_pod_namespace,
+          pod_name: x_pod_name,
+          container: x_container,
+          cmds: x_cmds,
+          body: x_body,
+          stdin: x_stdin
         )
     end.tap do
       # Verify all 4 listeners are ready before resuming the UT
-      Timeout.timeout(ready_listeners_timeout) {
+      Timeout.timeout(ready_listeners_timeout) do
         4.times do
           ws_client.ready_listeners_queue.pop
         end
-      }
+      end
     end
   end
 
@@ -175,9 +175,9 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
         subject do
           thread = subject_in_thread(
             ws_client: ws_client,
-            timeout:   10,
-            body:      body,
-            stdin:     true
+            timeout: 10,
+            body: body,
+            stdin: true
           )
 
           ws_client.trigger_open
@@ -189,8 +189,8 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
 
         it "returns the expected output" do
           expected_output = {
-            :error => [],
-            :stdin => ["some message"]
+            error: [],
+            stdin: ["some message"]
           }
           expect(subject).to eq(expected_output)
 
@@ -206,9 +206,9 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
         subject do
           thread = subject_in_thread(
             ws_client: ws_client,
-            timeout:   10,
-            body:      body,
-            stdin:     false
+            timeout: 10,
+            body: body,
+            stdin: false
           )
 
           ws_client.trigger_open
@@ -219,7 +219,7 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
 
         it "returns the expected output" do
           expected_output = {
-            :error => []
+            error: []
           }
           expect(subject).to eq(expected_output)
         end
@@ -231,9 +231,9 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
           subject do
             thread = subject_in_thread(
               ws_client: ws_client,
-              timeout:   nil,
-              body:      body,
-              stdin:     true
+              timeout: nil,
+              body: body,
+              stdin: true
             )
 
             ws_client.trigger_open
@@ -255,9 +255,9 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
             subject do
               thread = subject_in_thread(
                 ws_client: ws_client,
-                timeout:   10,
-                body:      body,
-                stdin:     true
+                timeout: 10,
+                body: body,
+                stdin: true
               )
 
               ws_client.trigger_open
@@ -278,9 +278,9 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
             subject do
               thread = subject_in_thread(
                 ws_client: ws_client,
-                timeout:   "not-an-int",
-                body:      body,
-                stdin:     true
+                timeout: "not-an-int",
+                body: body,
+                stdin: true
               )
 
               ws_client.trigger_open
@@ -295,7 +295,6 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
               )
             end
           end
-
         end
       end
     end
@@ -306,9 +305,9 @@ RSpec.describe 'Authentication::AuthnK8s::ExecuteCommandInContainer' do
       subject do
         thread = subject_in_thread(
           ws_client: ws_client,
-          timeout:   10,
-          body:      nil,
-          stdin:     false
+          timeout: 10,
+          body: nil,
+          stdin: false
         )
 
         ws_client.trigger_open

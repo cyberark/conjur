@@ -4,7 +4,7 @@ Given(/^I have an intermediate CA "([^"]*)"(?: with password "([^"]*)")?$/) do |
 end
 
 Given(/^I add the "([^"]*)" intermediate CA private key to the resource "([^"]*)"$/) do |ca_name, resource_id|
-  Secret.create resource_id: resource_id, value: intermediate_ca[ca_name].key_pem
+  Secret.create(resource_id: resource_id, value: intermediate_ca[ca_name].key_pem)
 end
 
 Given(/^I add the "([^"]*)" intermediate CA cert chain to the resource "([^"]*)"$/) do |ca_name, resource_id|
@@ -12,7 +12,7 @@ Given(/^I add the "([^"]*)" intermediate CA cert chain to the resource "([^"]*)"
     intermediate_ca[ca_name].cert.to_pem,
     @root_ca.cert.to_pem
   ].join("\n")
-  Secret.create resource_id: resource_id, value: chain
+  Secret.create(resource_id: resource_id, value: chain)
 end
 
 When(/^I send a CSR for "([^"]*)" to the "([^"]*)" CA with a ttl of "([^"]*)" and CN of "([^"]*)"$/) do |_host_name, service_name, ttl, common_name|
@@ -33,8 +33,8 @@ Then(/^the resulting (pem|json) certificate is valid according to the "([^"]*)" 
   @certificate_response_type = type
   
   store = OpenSSL::X509::Store.new
-  store.add_cert @root_ca.cert
-  store.add_cert intermediate_ca[ca_name].cert
+  store.add_cert(@root_ca.cert)
+  store.add_cert(intermediate_ca[ca_name].cert)
 
   expect(store.verify(response_certificate)).to eq(true)
 end

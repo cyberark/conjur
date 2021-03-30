@@ -2,41 +2,40 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::AuthnAzure::XmsMirid' do
-
-  let(:xms_mirid_token_field) {
+RSpec.describe('Authentication::AuthnAzure::XmsMirid') do
+  let(:xms_mirid_token_field) do
     "/subscriptions/some-subscription-id-value/resourcegroups/" \
       "some-resource-group-value/providers/Microsoft.Compute/" \
       "virtualMachines/some-system-assigned-identity-value"
-  }
+  end
 
-  let(:xms_mirid_token_missing_subscription_id_field) {
+  let(:xms_mirid_token_missing_subscription_id_field) do
     "/resourcegroups/some-resource-group-value/providers/" \
       "Microsoft.ManagedIdentity/userAssignedIdentities/" \
       "some-system-assigned-identity-value"
-  }
+  end
 
-  let(:xms_mirid_token_missing_resource_groups_field) {
+  let(:xms_mirid_token_missing_resource_groups_field) do
     "/subscriptions/some-subscription-id-value/providers/" \
       "Microsoft.ManagedIdentity/some-user-assigned-identity-value"
-  }
+  end
 
-  let(:xms_mirid_token_missing_providers_field) {
+  let(:xms_mirid_token_missing_providers_field) do
     "/subscriptions/some-subscription-id-value/resourcegroups/" \
       "some-resource-group-value/"
-  }
+  end
 
-  let(:xms_mirid_token_missing_initial_slash) {
+  let(:xms_mirid_token_missing_initial_slash) do
     "subscriptions/some-subscription-id-value/resourcegroups/" \
       "some-resource-group-value/providers/Microsoft.ManagedIdentity/" \
       "userAssignedIdentities/some-system-assigned-identity-value"
-  }
+  end
 
-  let(:invalid_xms_mirid_token_providers_field) {
+  let(:invalid_xms_mirid_token_providers_field) do
     "/subscriptions/some-subscription-id-value/resourcegroups/" \
       "some-resource-group-value/providers/Microsoft.ManagedIdentity/" \
       "some-user-assigned-identity-value"
-  }
+  end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
   # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)
@@ -78,7 +77,6 @@ RSpec.describe 'Authentication::AuthnAzure::XmsMirid' do
           ::Errors::Authentication::AuthnAzure::MissingRequiredFieldsInXmsMirid
         )
       end
-
     end
 
     context "that is missing resource groups field in xms_mirid" do
@@ -92,7 +90,6 @@ RSpec.describe 'Authentication::AuthnAzure::XmsMirid' do
           ::Errors::Authentication::AuthnAzure::MissingRequiredFieldsInXmsMirid
         )
       end
-
     end
 
     context "that is missing providers field in xms_mirid" do
@@ -106,7 +103,6 @@ RSpec.describe 'Authentication::AuthnAzure::XmsMirid' do
           ::Errors::Authentication::AuthnAzure::MissingRequiredFieldsInXmsMirid
         )
       end
-
     end
 
     context "without the proper number of fields in the providers claim" do

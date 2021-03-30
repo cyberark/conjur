@@ -22,6 +22,6 @@ module CurrentUser
   private
   
   def find_current_user
-    Role[token_user.roleid] or raise ApplicationController::Forbidden
+    Role[token_user.roleid] || raise(ApplicationController::Forbidden)
   end
 end

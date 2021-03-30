@@ -8,8 +8,8 @@ module Conjur
       #
       # https://raw.githubusercontent.com/apotonick/uber/master/lib/uber/inheritable_attr.rb
       module InheritableAttribute
-        def inheritable_attr(name, options={})
-          instance_eval %Q{
+        def inheritable_attr(name, options = {})
+          instance_eval("
             def #{name}=(v)
               @#{name} = v
             end
@@ -18,22 +18,23 @@ module Conjur
               return @#{name} if instance_variable_defined?(:@#{name})
               @#{name} = InheritableAttribute.inherit_for(self, :#{name}, #{options})
             end
-          }
+          ", __FILE__, __LINE__ - 9)
         end
     
-        def self.inherit_for(klass, name, options={})
+        def self.inherit_for(klass, name, options = {})
           return unless klass.superclass.respond_to?(name)
     
           value = klass.superclass.send(name) # could be nil
     
           return value if options[:clone] == false
+
           Clone.(value) # this could be dynamic, allowing other inheritance strategies.
         end
     
         class Clone
           # The second argument allows injecting more types.
-          def self.call(value, uncloneable=uncloneable())
-            uncloneable.each { |klass| return value if value.kind_of?(klass) }
+          def self.call(value, uncloneable = uncloneable())
+            uncloneable.each { |klass| return value if value.is_a?(klass) }
             value.clone
           end
     
@@ -56,11 +57,11 @@ module Conjur
         def expect_type attr_name, value, type_name, test_function, converter = nil
           if test_function.is_a?(Class)
             cls = test_function
-            test_function = lambda{ value.is_a?(cls) } 
+            test_function = ->{ value.is_a?(cls) } 
           end
           if test_function.call
             value
-          elsif converter && ( v = converter.call )
+          elsif converter && (v = converter.call)
             v
           else
             name = value.class.respond_to?(:short_name) ? value.class.short_name : value.class.name
@@ -80,47 +81,47 @@ module Conjur
         
         # If it's a Record
         def expect_record name, value
-          expect_type name, value, "Record", lambda{ value.is_a?(Record) }
+          expect_type(name, value, "Record", ->{ value.is_a?(Record) })
         end
         
         # If it's a Layer
         def expect_layer name, value
-          expect_type name, value, "Layer", lambda{ value.is_a?(Layer) }
+          expect_type(name, value, "Layer", ->{ value.is_a?(Layer) })
         end
         
         # If it looks like a resource.
         def expect_resource name, value
-          expect_type name, value, "Resource", lambda{ test_resource value }
+          expect_type(name, value, "Resource", ->{ test_resource(value) })
         end
         
         # If it looks like a role.
         def expect_role name, value
-          expect_type name, value, "Role", lambda{ test_role value }
+          expect_type(name, value, "Role", ->{ test_role(value) })
         end
         
         # +value+ may be a Member; Roles can also be converted to Members.
         def expect_member name, value
-          expect_type name,
-            value, 
-            "Member", 
-            Member,
-            lambda{ Member.new(value) if test_role(value) }
+          expect_type(name,
+                      value, 
+                      "Member", 
+                      Member,
+                      ->{ Member.new(value) if test_role(value) })
         end
         
         # +value+ must be a Permission.
         def expect_permission name, value
-          expect_type name,
-            value,
-            "Permission", 
-            Permission
+          expect_type(name,
+                      value,
+                      "Permission", 
+                      Permission)
         end
                   
         # +value+ must be a String.
         def expect_string name, value
-          expect_type name,
-            value, 
-            "string",
-            String
+          expect_type(name,
+                      value, 
+                      "string",
+                      String)
         end
 
         # +value+ must be a CIDR.
@@ -134,7 +135,7 @@ module Conjur
 
             unless cidr.valid_input?
               raise "Invalid IP address or CIDR range '#{value}': Value has " \
-                "bits set to right of mask. Did you mean '#{cidr.to_s}'?"
+                "bits set to right of mask. Did you mean '#{cidr}'?"
             end
 
             true # CIDR is valid
@@ -142,51 +143,51 @@ module Conjur
             raise "Invalid IP address or CIDR range '#{value}'"
           end
 
-          expect_type name,
-            value,
-            "CIDR",
-            validate_cidr
+          expect_type(name,
+                      value,
+                      "CIDR",
+                      validate_cidr)
         end
 
         # +value+ must be a Integer.
         def expect_integer name, value
-          expect_type name,
-            value,
-            "integer",
-            Integer
+          expect_type(name,
+                      value,
+                      "integer",
+                      Integer)
         end
                 
         # +value+ can be a Hash, or an object which implements +to_h+.
         def expect_hash name, value
-          expect_type name,
-            value,
-            "hash",
-            lambda{ value.is_a?(Hash)},
-            lambda{ value.to_h.stringify_keys if value.respond_to?(:to_h) }
+          expect_type(name,
+                      value,
+                      "hash",
+                      ->{ value.is_a?(Hash)},
+                      ->{ value.to_h.stringify_keys if value.respond_to?(:to_h) })
         end
         
         # +v+ must be +true+ or +false+.
         def expect_boolean name, v
           v = true if v == "true"
           v = false if v == "false"
-          expect_type name,
-            v,
-            "boolean",
-            lambda{ [ true, false ].member?(v) }
+          expect_type(name,
+                      v,
+                      "boolean",
+                      ->{ [ true, false ].member?(v) })
         end
         
         # +values+ can be an instance of +type+ (as determined by the type-checking methods), or
         # it must be an array of them.
         def expect_array name, kind, values
           # Hash gets converted to an array of key/value pairs by Array
-          is_hash = values.kind_of?(Hash)
+          is_hash = values.is_a?(Hash)
           values = [values] if is_hash
 
           result = Array(values).map do |v|
-            send "expect_#{kind}", name, v
+            send("expect_#{kind}", name, v)
           end
 
-          (values.is_a?(Array) and not is_hash) ? result : result[0]
+          values.is_a?(Array) && !is_hash ? result : result[0]
         end
       end
       
@@ -201,31 +202,31 @@ module Conjur
         # This option is not used for simple kinds like :boolean and :string, because they are
         # not structured objects.
         def define_field attr, kind, type = nil, dsl_accessor = false
-          register_yaml_field attr.to_s, type if type
-          register_field attr.to_s, kind if kind
+          register_yaml_field(attr.to_s, type) if type
+          register_field(attr.to_s, kind) if kind
           
           if dsl_accessor
-            define_method attr do |*args|
+            define_method(attr) do |*args|
               v = args.shift
               if v
-                existing = self.instance_variable_get("@#{attr}")
+                existing = instance_variable_get("@#{attr}")
                 value = if existing
                   Array(existing) + [ v ]
                 else
                   v
                 end
-                self.instance_variable_set("@#{attr}", self.class.expect_array(attr, kind, value))
+                instance_variable_set("@#{attr}", self.class.expect_array(attr, kind, value))
               else
-                self.instance_variable_get("@#{attr}")
+                instance_variable_get("@#{attr}")
               end
             end
           else
-            define_method attr do
-              self.instance_variable_get("@#{attr}")
+            define_method(attr) do
+              instance_variable_get("@#{attr}")
             end
           end
-          define_method "#{attr}=" do |v|
-            self.instance_variable_set("@#{attr}", self.class.expect_array(attr, kind, v))
+          define_method("#{attr}=") do |v|
+            instance_variable_set("@#{attr}", self.class.expect_array(attr, kind, v))
           end
         end
         
@@ -233,15 +234,15 @@ module Conjur
         # For example, a plural field called +members+ is really just an alias to +member+. Both
         # +member+ and +members+ will accept single values or Arrays of values.
         def define_plural_field attr, kind, type = nil, dsl_accessor = false
-          define_field attr, kind.to_s, type, dsl_accessor
+          define_field(attr, kind.to_s, type, dsl_accessor)
           
-          register_yaml_field attr.to_s.pluralize, type if type
+          register_yaml_field(attr.to_s.pluralize, type) if type
           
-          define_method attr.to_s.pluralize do |*args|
-            send attr, *args
+          define_method(attr.to_s.pluralize) do |*args|
+            send(attr, *args)
           end
-          define_method "#{attr.to_s.pluralize}=" do |v|
-            send "#{attr}=", v
+          define_method("#{attr.to_s.pluralize}=") do |v|
+            send("#{attr}=", v)
           end
         end
         
@@ -269,39 +270,41 @@ module Conjur
           raise "Attribute :kind must be defined, explicitly or inferred from :type" unless kind
           
           if options[:singular]
-            define_field attr, kind, type, options[:dsl_accessor]
+            define_field(attr, kind, type, options[:dsl_accessor])
           else
-            define_plural_field attr, kind, type, options[:dsl_accessor]
+            define_plural_field(attr, kind, type, options[:dsl_accessor])
           end
         end
         
         # Ruby type for attribute name.
         def yaml_field_type name
-          self.yaml_fields[name]
+          yaml_fields[name]
         end
         
         # Is there a Ruby type for a named field?
         def yaml_field? name
-          !!self.yaml_fields[name]
+          !!yaml_fields[name]
         end
         
         # Is there a semantic kind for a named field?
         def field? name
-          !!self.fields[name]
+          !!fields[name]
         end
                   
         protected
         
         # +nodoc+
         def register_yaml_field field_name, type
-          raise "YAML field #{field_name} already defined on #{self.name} as #{self.yaml_fields[field_name]}" if self.yaml_field?(field_name)
-          self.yaml_fields[field_name] = type
+          raise "YAML field #{field_name} already defined on #{name} as #{yaml_fields[field_name]}" if yaml_field?(field_name)
+
+          yaml_fields[field_name] = type
         end
         
         # +nodoc+
         def register_field field_name, kind
-          raise "YAML field #{field_name} already defined on #{self.name} as #{self.fields[field_name]}" if self.field?(field_name)
-          self.fields[field_name] = kind
+          raise "YAML field #{field_name} already defined on #{name} as #{fields[field_name]}" if field?(field_name)
+
+          fields[field_name] = kind
         end
       end
       
@@ -337,7 +340,9 @@ module Conjur
           false
         end
         
-        def id_attribute; 'id'; end
+        def id_attribute 
+          'id' 
+        end
         
         def custom_attribute_names
           [ ]
@@ -360,9 +365,9 @@ module Conjur
         def referenced_records
           result = []
           instance_variables.map do |var|
-            value = instance_variable_get var
+            value = instance_variable_get(var)
             Array(value).each do |val|
-              result.push val if val.is_a?(Conjur::PolicyParser::Types::Base)
+              result.push(val) if val.is_a?(Conjur::PolicyParser::Types::Base)
             end
           end
           result.flatten
@@ -378,18 +383,18 @@ module Conjur
         class << self
           # Hook to register the YAML type.
           def inherited cls
-            cls.register_yaml_type cls.short_name.underscore.gsub('_', '-')
+            cls.register_yaml_type(cls.short_name.underscore.gsub('_', '-'))
           end
           
           # The last token in the ::-separated class name.
           def short_name
-            self.name.demodulize
+            name.demodulize
           end
           
           alias simple_name short_name
           
           def register_yaml_type simple_name
-            ::YAML.add_tag "!#{simple_name}", self
+            ::YAML.add_tag("!#{simple_name}", self)
           end
         end
       end
@@ -398,16 +403,16 @@ module Conjur
       module RoleMemberDSL
         def self.included(base)
           base.module_eval do
-            alias member_accessor member
+            alias_method(:member_accessor, :member)
             
             def member r = nil, admin_option = false
               if r
                 member = Member.new(r)
                 member.admin = true if admin_option == true
-                if self.member
-                  self.member = Array(self.member).push(member)
+                self.member = if self.member
+                  Array(self.member).push(member)
                 else
-                  self.member = member
+                  member
                 end
               else
                 member_accessor

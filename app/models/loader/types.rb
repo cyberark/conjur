@@ -4,7 +4,7 @@ module Loader
   module Types
     class << self
       def find_or_create_root_policy account
-        ::Resource[root_policy_id(account)] or create_root_policy account
+        ::Resource[root_policy_id(account)] || create_root_policy(account))
       end
 
       def root_policy_id account
@@ -12,12 +12,12 @@ module Loader
       end
 
       def create_root_policy account
-        role = ::Role.create role_id: root_policy_id(account)
-        ::Resource.create resource_id: root_policy_id(account), owner: admin_role(account)
+        role = ::Role.create(role_id: root_policy_id(account))
+        ::Resource.create(resource_id: root_policy_id(account), owner: admin_role(account))
       end
 
       def admin_role account
-        ::Role["#{account}:user:admin"] or raise Exceptions::RecordNotFound, "#{account}:user:admin"
+        ::Role["#{account}:user:admin"] || raise(Exceptions::RecordNotFound, "#{account}:user:admin")
       end
 
       # Wraps a policy object with a corresponding +Loader::Types+ object.
@@ -26,8 +26,8 @@ module Loader
       # +handle_public_key+. This argument is optional if the policy will not use
       # that functionality.
       def wrap obj, external_handler = nil
-        cls = Types.const_get obj.class.name.split("::")[-1]
-        cls.new obj, external_handler
+        cls = Types.const_get(obj.class.name.split("::")[-1])
+        cls.new(obj, external_handler)
       end
     end
 
@@ -45,37 +45,37 @@ module Loader
       end
 
       def find_ownerid
-        find_roleid owner.roleid
+        find_roleid(owner.roleid)
       end
 
       def find_roleid id
-        (::Role[id] || public_roles_model[id]).try(:role_id) or raise Exceptions::RecordNotFound, id
+        (::Role[id] || public_roles_model[id]).try(:role_id) || raise(Exceptions::RecordNotFound, id)
       end
 
       def find_resourceid id
-        (::Resource[id] || public_resources_model[id]).try(:resource_id) or raise Exceptions::RecordNotFound, id
+        (::Resource[id] || public_resources_model[id]).try(:resource_id) || raise(Exceptions::RecordNotFound, id)
       end
 
       protected
 
       def public_roles_model
-        external_handler.model_for_table :roles
+        external_handler.model_for_table(:roles)
       end
 
       def public_resources_model
-        external_handler.model_for_table :resources
+        external_handler.model_for_table(:resources)
       end
     end
 
     module CreateRole
       def self.included base
         base.module_eval do
-          def_delegators :@policy_object, :roleid
+          def_delegators(:@policy_object, :roleid)
         end
       end
 
       def create_role!
-        ::Role.create role_id: roleid
+        ::Role.create(role_id: roleid)
       end
 
       def role
@@ -86,7 +86,7 @@ module Loader
     module CreateResource
       def self.included base
         base.module_eval do
-          def_delegators :@policy_object, :resourceid, :annotations, :annotations=
+          def_delegators(:@policy_object, :resourceid, :annotations, :annotations=)
         end
       end
 
@@ -152,11 +152,11 @@ module Loader
         super
 
         layer_roleids.each do |layerid|
-          ::RoleMembership.create \
+          ::RoleMembership.create(\
             role_id: layerid,
             member_id: self.roleid,
             admin_option: false,
-            ownership: false
+            ownership: false)
         end
       end
 
@@ -166,7 +166,7 @@ module Loader
         verify_layers_exist!
 
         Array(self.layers).map do |layer|
-          find_roleid layer.roleid
+          find_roleid(layer.roleid)
         end
       end
 
@@ -220,15 +220,15 @@ module Loader
         super
 
         if password = ENV["CONJUR_PASSWORD_#{id.gsub(/[^a-zA-Z0-9]/, '_').upcase}"]
-          handle_password role.id, password
+          handle_password(role.id, password)
         end
 
         Array(public_keys).each do |public_key|
-          key_name = PublicKey.key_name public_key
+          key_name = PublicKey.key_name(public_key)
 
           resourceid = [ account, "public_key", "#{self.role_kind}/#{self.id}/#{key_name}" ].join(":")
           (::Resource[resourceid] || ::Resource.create(resource_id: resourceid, owner_id: find_ownerid)).tap do |resource|
-            handle_public_key resource.id, public_key
+            handle_public_key(resource.id, public_key)
           end
         end
 
@@ -265,11 +265,11 @@ module Loader
       def create!
         Array(roles).each do |r|
           Array(members).each do |m|
-            ::RoleMembership.create \
+            ::RoleMembership.create(\
               role_id: find_roleid(r.roleid),
               member_id: find_roleid(m.role.roleid),
               admin_option: m.admin,
-              ownership: false
+              ownership: false)
           end
         end
       end
@@ -282,10 +282,10 @@ module Loader
         Array(resources).each do |r|
           Array(privileges).each do |p|
             Array(roles).each do |m|
-              ::Permission.create \
+              ::Permission.create(\
                 resource_id: find_resourceid(r.resourceid),
                 privilege: p,
-                role_id: find_roleid(m.roleid)
+                role_id: find_roleid(m.roleid))
             end
           end
         end

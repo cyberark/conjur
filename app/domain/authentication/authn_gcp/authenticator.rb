@@ -10,14 +10,13 @@ module Authentication
     Authenticator = CommandClass.new(
       dependencies: {
         validate_resource_restrictions: Authentication::ResourceRestrictions::ValidateResourceRestrictions.new,
-        authentication_request_class:   AuthenticationRequest,
-        logger:                         Rails.logger
+        authentication_request_class: AuthenticationRequest,
+        logger: Rails.logger
       },
-      inputs:       [:authenticator_input]
+      inputs: [:authenticator_input]
     ) do
-
-      extend Forwardable
-      def_delegators :@authenticator_input, :authenticator_name, :service_id, :account, :username, :credentials
+      extend(Forwardable)
+      def_delegators(:@authenticator_input, :authenticator_name, :service_id, :account, :username, :credentials)
 
       def call
         create_authentication_request

@@ -34,7 +34,7 @@ describe Audit::Event::Password do
 
     it 'contains the role field' do
       expect(subject.structured_data).to match(hash_including({
-          Audit::SDID::SUBJECT => { role: role_id }
+        Audit::SDID::SUBJECT => { role: role_id }
       }))
     end
 

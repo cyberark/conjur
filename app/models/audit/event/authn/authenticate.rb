@@ -3,7 +3,7 @@ require 'forwardable'
 module Audit
   module Event
     class Authn
-      # Note: Breaking this class up further would harm clarity.
+      # NOTE: Breaking this class up further would harm clarity.
       # :reek:TooManyInstanceVariables and :reek:TooManyParameters
       class Authenticate
         extend Forwardable

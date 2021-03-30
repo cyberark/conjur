@@ -19,7 +19,7 @@ module Loader
       def store_passwords
         policy_passwords.each do |entry|
           id, password = entry
-          warn "Setting password for '#{id}'"
+          warn("Setting password for '#{id}'")
           role = ::Role[id]
           role.password = password
           role.save

@@ -16,6 +16,7 @@ module Authentication
     class K8sContextValue
       def self.get webservice, file_name, variable_id
         return File.read(file_name) if File.exist?(file_name)
+
         webservice.variable(variable_id).secret.value if webservice.present?
       rescue
         nil

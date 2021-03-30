@@ -1,5 +1,4 @@
-RSpec.shared_context "certificate testing" do
-
+RSpec.shared_context("certificate testing") do
   let(:common_name) { 'example.com' }
   let(:spiffe_id) { 'spiffe://cluster.local/example' }
   let(:alt_name) { 'URI:' + spiffe_id }

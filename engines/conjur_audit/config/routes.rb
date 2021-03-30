@@ -4,13 +4,13 @@ ConjurAudit::Engine.routes.draw do
   scope format: false do
     root 'messages#index'
     get '/resources/:resource' => 'messages#index', constraints: {
-      resource: %r{[^\/\?]+}
+      resource: %r{[^/?]+}
     }
     get '/roles/:role' => 'messages#index', constraints: {
-      role: %r{[^\/\?]+}
+      role: %r{[^/?]+}
     }
     get '/entities/:entity' => 'messages#index', constraints: {
-      entity: %r{[^\/\?]+}
+      entity: %r{[^/?]+}
     }
   end
 end

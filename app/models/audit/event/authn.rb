@@ -3,7 +3,7 @@ module Audit
 
     NOT_FOUND = "not-found".freeze
 
-    # Note: Breaking this class up further would harm clarity.
+    # NOTE: Breaking this class up further would harm clarity.
     # :reek:TooManyInstanceVariables and :reek:TooManyParameters
     class Authn
       def initialize(
@@ -22,7 +22,7 @@ module Audit
         @operation = operation
       end
 
-      # Note: We want this class to be responsible for providing `progname`.
+      # NOTE: We want this class to be responsible for providing `progname`.
       # At the same time, `progname` is currently always "conjur" and this is
       # unlikely to change.  Moving `progname` into the constructor now
       # feels like premature optimization, so we ignore reek here.
@@ -37,6 +37,7 @@ module Audit
 
       def authenticator_description
         return @authenticator_name unless service_id
+
         "#{@authenticator_name} service #{service_id}"
       end
 
@@ -92,6 +93,7 @@ module Audit
       # Checking @success as well to save DB call on success
       def sanitized_role_id
         return NOT_FOUND unless @success || Role[role_id: @role_id]
+
         @role_id
       end
     end

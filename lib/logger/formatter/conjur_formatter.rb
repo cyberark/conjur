@@ -8,8 +8,8 @@ class ConjurFormatter < Logger::Formatter
     @datetime_format = "%Y/%m/%d %H:%M:%S %z"
   end
 
-  def call(severity, time, progname, msg)
-    Format % [severity, format_datetime(time), pid, msg2str(msg)]
+  def call(severity, time, _progname, msg)
+    format(Format, severity, format_datetime(time), pid, msg2str(msg))
   end
 
   private

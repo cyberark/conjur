@@ -12,8 +12,8 @@ module Conjur
         end
 
         def to_s
-          if Array === role
-            role_string = role.map &:role
+          if role.is_a?(Array)
+            role_string = role.map(&:role))
             admin = false
           else
             role_string = role.role

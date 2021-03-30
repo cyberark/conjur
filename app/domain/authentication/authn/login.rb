@@ -6,17 +6,17 @@ module Authentication
   module Authn
     Login = CommandClass.new(
       dependencies: {
-        role_cls:        ::Role,
+        role_cls: ::Role,
         credentials_cls: ::Credentials
       },
-      inputs:       [:authenticator_input]
+      inputs: [:authenticator_input]
     ) do
-
-      extend Forwardable
-      def_delegators :@authenticator_input, :account, :credentials, :username
+      extend(Forwardable)
+      def_delegators(:@authenticator_input, :account, :credentials, :username)
 
       def call
         return nil unless role_credentials
+
         api_key
       end
 

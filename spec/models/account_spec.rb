@@ -6,7 +6,7 @@ describe Account, :type => :model do
   let(:account_name) { "account-crud-rspec" }
 
   def create_account
-    Account.create account_name
+    Account.create(account_name)
   end
 
   describe "account creation" do
@@ -24,12 +24,12 @@ describe Account, :type => :model do
     describe "when the account exists" do
       before { create_account }
       it "refuses" do
-        expect { Account.create account_name }.to raise_error(Exceptions::RecordExists)
+        expect { Account.create(account_name) }.to raise_error(Exceptions::RecordExists)
       end
       describe "and it refuses" do
         let!(:exception) do
           begin
-            Account.create account_name
+            Account.create(account_name)
           rescue
             $!
           end

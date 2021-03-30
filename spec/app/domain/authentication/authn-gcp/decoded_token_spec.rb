@@ -2,8 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
-
+RSpec.describe('Authentication::AuthnGcp::DecodedToken') do
   let(:sub_value) { "some_sub_value" }
   let(:aud_value) { "some_aud_value" }
   let(:email_value) { "some_email_value" }
@@ -217,7 +216,7 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
       subject(:decoded_token) do
         ::Authentication::AuthnGcp::DecodedToken.new(
           decoded_token_hash: decoded_token_hash_valid,
-          logger:             Rails.logger
+          logger: Rails.logger
         )
       end
 
@@ -238,7 +237,7 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
         subject(:decoded_token) do
           ::Authentication::AuthnGcp::DecodedToken.new(
             decoded_token_hash: decoded_token_hash_missing_aud,
-            logger:             Rails.logger
+            logger: Rails.logger
           )
         end
 
@@ -251,7 +250,7 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
         subject(:decoded_token) do
           ::Authentication::AuthnGcp::DecodedToken.new(
             decoded_token_hash: decoded_token_hash_empty_aud,
-            logger:             Rails.logger
+            logger: Rails.logger
           )
         end
 
@@ -264,7 +263,7 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
         subject(:decoded_token) do
           ::Authentication::AuthnGcp::DecodedToken.new(
             decoded_token_hash: decoded_token_hash_missing_sub,
-            logger:             Rails.logger
+            logger: Rails.logger
           )
         end
 
@@ -277,7 +276,7 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
         subject(:decoded_token) do
           ::Authentication::AuthnGcp::DecodedToken.new(
             decoded_token_hash: decoded_token_hash_empty_sub,
-            logger:             Rails.logger
+            logger: Rails.logger
           )
         end
 
@@ -292,7 +291,7 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
         subject(:decoded_token) do
           ::Authentication::AuthnGcp::DecodedToken.new(
             decoded_token_hash: decoded_token_hash_missing_email,
-            logger:             Rails.logger
+            logger: Rails.logger
           )
         end
 
@@ -312,7 +311,7 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
         subject(:decoded_token) do
           ::Authentication::AuthnGcp::DecodedToken.new(
             decoded_token_hash: decoded_token_hash_empty_email,
-            logger:             Rails.logger
+            logger: Rails.logger
           )
         end
 
@@ -332,7 +331,7 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
         subject(:decoded_token) do
           ::Authentication::AuthnGcp::DecodedToken.new(
             decoded_token_hash: decoded_token_hash_missing_instance_name,
-            logger:             Rails.logger
+            logger: Rails.logger
           )
         end
 
@@ -352,7 +351,7 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
         subject(:decoded_token) do
           ::Authentication::AuthnGcp::DecodedToken.new(
             decoded_token_hash: decoded_token_hash_empty_instance_name,
-            logger:             Rails.logger
+            logger: Rails.logger
           )
         end
 
@@ -372,7 +371,7 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
         subject(:decoded_token) do
           ::Authentication::AuthnGcp::DecodedToken.new(
             decoded_token_hash: decoded_token_hash_missing_project_id,
-            logger:             Rails.logger
+            logger: Rails.logger
           )
         end
 
@@ -392,7 +391,7 @@ RSpec.describe 'Authentication::AuthnGcp::DecodedToken' do
         subject(:decoded_token) do
           ::Authentication::AuthnGcp::DecodedToken.new(
             decoded_token_hash: decoded_token_hash_empty_project_id,
-            logger:             Rails.logger
+            logger: Rails.logger
           )
         end
 

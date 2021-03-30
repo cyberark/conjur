@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Authentication::Jwt::VerifyAndDecodeToken do
-
+RSpec.describe(Authentication::Jwt::VerifyAndDecodeToken) do
   let(:token_jwt) { "decoded_token" }
   let(:mock_decoded_token) { [token_jwt] }
   let(:verification_options) { {} }
@@ -10,10 +9,10 @@ RSpec.describe Authentication::Jwt::VerifyAndDecodeToken do
     double('JWT').tap do |jwt_decoder|
       if error
         allow(jwt_decoder).to receive(:decode)
-                                       .and_raise(error)
+          .and_raise(error)
       else
         allow(jwt_decoder).to receive(:decode)
-                                       .and_return(mock_decoded_token)
+          .and_return(mock_decoded_token)
       end
     end
   end
@@ -65,7 +64,6 @@ RSpec.describe Authentication::Jwt::VerifyAndDecodeToken do
         expect { subject }.to raise_error(Errors::Authentication::Jwt::TokenExpired)
       end
     end
-
   end
 
   context "JWT decoder fails to verify the token" do

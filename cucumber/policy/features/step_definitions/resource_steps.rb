@@ -10,13 +10,13 @@ end
 
 Then(/^there is a ([\w_]+) resource "([^"]*)"$/) do |kind, id|
   invoke do
-    conjur_api.resource make_full_id(kind, id)
+    conjur_api.resource(make_full_id(kind, id))
   end
 end
 
 When(/^I list the roles permitted to (\w+) ([\w_]+) "([^"]*)"$/) do |privilege, kind, id|
   invoke do
-    conjur_api.resource(make_full_id(kind, id)).permitted_roles privilege
+    conjur_api.resource(make_full_id(kind, id)).permitted_roles(privilege)
   end
 end
 
@@ -30,7 +30,7 @@ end
 
 When(/^I list ([\w_]+) resources$/) do |kind|
   invoke do
-    conjur_api.resources kind: kind
+    conjur_api.resources(kind: kind)
   end
 end
 

@@ -19,7 +19,7 @@ module Rotation
       @secret_model = secret_model
       @facade_cls = facade_cls
 
-      Sequel::Model.db.extension :pg_advisory_locking
+      Sequel::Model.db.extension(:pg_advisory_locking)
     end
 
     def rotate_every(seconds)
@@ -50,7 +50,7 @@ module Rotation
         ScheduledRotation.new(
           facade: facade,
           avail_rotators: @avail_rotators,
-          secret_model:  @secret_model
+          secret_model: @secret_model
         )
       end
     end

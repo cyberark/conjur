@@ -2,8 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::AuthnK8s::CopyTextToFileInContainer' do
-
+RSpec.describe('Authentication::AuthnK8s::CopyTextToFileInContainer') do
   let(:webservice) { double("Webservice") }
   let(:pod_namespace) { "PodNamespace" }
   let(:pod_name) { "PodName" }
@@ -32,15 +31,15 @@ RSpec.describe 'Authentication::AuthnK8s::CopyTextToFileInContainer' do
     subject do
       ::Authentication::AuthnK8s::CopyTextToFileInContainer.new(
         execute_command_in_container: execute_command_in_container,
-        k8s_object_lookup:            k8s_object_lookup
+        k8s_object_lookup: k8s_object_lookup
       ).call(
-        webservice:    webservice,
+        webservice: webservice,
         pod_namespace: pod_namespace,
-        pod_name:      pod_name,
-        container:     container,
-        path:          path,
-        content:       content,
-        mode:          mode
+        pod_name: pod_name,
+        container: container,
+        path: path,
+        content: content,
+        mode: mode
       )
     end
 
@@ -49,40 +48,40 @@ RSpec.describe 'Authentication::AuthnK8s::CopyTextToFileInContainer' do
     end
 
     expected_body = <<~BODY
-          #!/bin/sh
-          set -e
+      #!/bin/sh
+      set -e
 
-          cleanup() {
-            rm -f "path/to/file.tmp"
-          }
-          trap cleanup EXIT
+      cleanup() {
+        rm -f "path/to/file.tmp"
+      }
+      trap cleanup EXIT
 
-          set_file_content() {
-            cat > "path/to/file.tmp" <<EOF
-          Content
-          EOF
+      set_file_content() {
+        cat > "path/to/file.tmp" <<EOF
+      Content
+      EOF
 
-            chmod "Mode" "path/to/file.tmp"
-            mv "path/to/file.tmp" "path/to/file"
-          }
+        chmod "Mode" "path/to/file.tmp"
+        mv "path/to/file.tmp" "path/to/file"
+      }
 
-          set_file_content > "${TMPDIR:-/tmp}/conjur_copy_text_output.log" 2>&1
+      set_file_content > "${TMPDIR:-/tmp}/conjur_copy_text_output.log" 2>&1
     BODY
 
     it "calls execute_command_in_container with expected parameters" do
       expect(execute_command_in_container)
         .to receive(:call)
-          .with(
-            hash_including(
-              k8s_object_lookup: k8s_object_lookup_instance,
-              pod_namespace:     pod_namespace,
-              pod_name:          pod_name,
-              container:         container,
-              cmds:              %w[sh],
-              body:              expected_body,
-              stdin:             true
-            )
+        .with(
+          hash_including(
+            k8s_object_lookup: k8s_object_lookup_instance,
+            pod_namespace: pod_namespace,
+            pod_name: pod_name,
+            container: container,
+            cmds: %w[sh],
+            body: expected_body,
+            stdin: true
           )
+        )
       subject
     end
   end

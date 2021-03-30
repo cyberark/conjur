@@ -4,8 +4,8 @@ require 'app/domain/repos/conjur_ca'
 namespace :authn_k8s do
   desc "Initialize CA certificates for authn-k8s webservice"
   task :ca_init, [ "service-id" ] => :environment do |t, args|
-    service_name = args["service-id"] or raise "usage: rake authn_k8s:ca_init[<service-id>]"
-    #TODO: should be done in object
+    (service_name = args["service-id"]) || raise("usage: rake authn_k8s:ca_init[<service-id>]")
+    # TODO: should be done in object
     service_id = "#{ENV['CONJUR_ACCOUNT']}:webservice:#{service_name}"
 
     Repos::ConjurCA.create(service_id)

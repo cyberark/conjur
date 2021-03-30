@@ -16,7 +16,6 @@ module Commands
       },
       inputs: %i[role_to_rotate authenticated_role client_ip]
     ) do
-
       def call
         rotate_api_key
         audit_success

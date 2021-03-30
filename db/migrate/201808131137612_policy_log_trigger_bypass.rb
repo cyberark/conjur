@@ -43,7 +43,7 @@ Sequel.migration do
 
     tables.each do |table|
       # find the primary key of the table
-      primary_key_columns = schema(table).select{|x,s|s[:primary_key]}.map(&:first).map(&:to_s).pg_array
+      primary_key_columns = schema(table).select{|_x, s| s[:primary_key]}.map(&:first).map(&:to_s).pg_array
       execute <<-SQL
         CREATE OR REPLACE FUNCTION policy_log_#{table}() RETURNS TRIGGER AS $$
           DECLARE
@@ -76,7 +76,7 @@ Sequel.migration do
               SELECT
                 (policy_log_record(
                     '#{table}',
-                    #{literal primary_key_columns},
+                    #{literal(primary_key_columns)},
                     hstore(subject),
                     current.resource_id,
                     current.version,
@@ -96,7 +96,7 @@ Sequel.migration do
   down do
     tables.each do |table|
       # find the primary key of the table
-      primary_key_columns = schema(table).select{|x,s|s[:primary_key]}.map(&:first).map(&:to_s).pg_array
+      primary_key_columns = schema(table).select{|_x, s| s[:primary_key]}.map(&:first).map(&:to_s).pg_array
       execute <<-SQL
         CREATE OR REPLACE FUNCTION policy_log_#{table}() RETURNS TRIGGER AS $$
           DECLARE
@@ -117,7 +117,7 @@ Sequel.migration do
               SELECT
                 current.resource_id, current.version,
                 TG_OP::policy_log_op, '#{table}'::policy_log_kind,
-                slice(hstore(subject), #{literal primary_key_columns})
+                slice(hstore(subject), #{literal(primary_key_columns)})
               ;
             ELSE
               RAISE WARNING 'modifying data outside of policy load: %', subject.policy_id;

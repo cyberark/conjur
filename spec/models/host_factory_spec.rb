@@ -55,11 +55,11 @@ describe "HostFactory" do
   
   describe HostBuilder do
     let(:host_builder) { 
-      HostBuilder.new "rspec", 
-        "host-01", 
-        host_factory.role,
-        host_factory.role.layers,
-        {}
+      HostBuilder.new("rspec", 
+                      "host-01", 
+                      host_factory.role,
+                      host_factory.role.layers,
+                      {})
     }
     let(:create_host) { host_builder.create_host }
     let(:host) { create_host[0] }

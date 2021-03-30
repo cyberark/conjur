@@ -12,7 +12,7 @@ end
 
 Then (/^the accounts file contains "([^"]*)"$/) do |contents|
   key_file = '/tmp/cuke_export/key'.freeze
-  backup_file = Dir['/tmp/cuke_export/*.tar.xz.gpg'].sort().first
+  backup_file = Dir['/tmp/cuke_export/*.tar.xz.gpg'].min()
 
   Dir.mktmpdir do |temp_dir|
     plain_backup_file = temp_dir + '/backup.tar.xz'
@@ -20,7 +20,7 @@ Then (/^the accounts file contains "([^"]*)"$/) do |contents|
     # Decrypt export archive
     system %(gpg --quiet --batch --no-use-agent --passphrase-file #{key_file} -o #{plain_backup_file} #{backup_file})
 
-    Dir.chdir temp_dir do
+    Dir.chdir(temp_dir) do
       # Extract archive contents
       system %(tar -v -x -f #{plain_backup_file})
   

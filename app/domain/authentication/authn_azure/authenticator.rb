@@ -5,17 +5,16 @@ module Authentication
 
     Authenticator = CommandClass.new(
       dependencies: {
-        fetch_authenticator_secrets:    Authentication::Util::FetchAuthenticatorSecrets.new,
-        verify_and_decode_token:        Authentication::OAuth::VerifyAndDecodeToken.new,
+        fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
+        verify_and_decode_token: Authentication::OAuth::VerifyAndDecodeToken.new,
         validate_resource_restrictions: Authentication::ResourceRestrictions::ValidateResourceRestrictions.new,
-        authentication_request_class:   AuthenticationRequest,
-        logger:                         Rails.logger
+        authentication_request_class: AuthenticationRequest,
+        logger: Rails.logger
       },
-      inputs:       [:authenticator_input]
+      inputs: [:authenticator_input]
     ) do
-
-      extend Forwardable
-      def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :credentials, :username
+      extend(Forwardable)
+      def_delegators(:@authenticator_input, :service_id, :authenticator_name, :account, :credentials, :username)
 
       def call
         validate_azure_token
@@ -32,14 +31,14 @@ module Authentication
       def decoded_token
         @decoded_token ||= DecodedToken.new(
           decoded_token_hash: @verify_and_decode_token.call(
-            provider_uri:     provider_uri,
-            token_jwt:        decoded_credentials.jwt,
+            provider_uri: provider_uri,
+            token_jwt: decoded_credentials.jwt,
             claims_to_verify: {
               verify_iss: true,
-              iss:        provider_uri
+              iss: provider_uri
             }
           ),
-          logger:             @logger
+          logger: @logger
         )
       end
 
@@ -54,7 +53,7 @@ module Authentication
       def authentication_request
         @authentication_request ||= @authentication_request_class.new(
           xms_mirid_token_field: decoded_token.xms_mirid,
-          oid_token_field:       decoded_token.oid
+          oid_token_field: decoded_token.oid
         )
       end
 

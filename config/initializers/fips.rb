@@ -2,7 +2,8 @@ require "openssl"
 require "digest"
 
 # Suppress warning messages
-original_verbose, $VERBOSE = $VERBOSE, nil
+original_verbose = $VERBOSE
+$VERBOSE = nil
 
 # override the default Digest with OpenSSL::Digest
 Digest::SHA256 = OpenSSL::Digest::SHA256
@@ -21,4 +22,4 @@ OpenSSL.fips_mode = !(ENV["OPENSSL_FIPS_ENABLED"].present? && ENV["OPENSSL_FIPS_
 #  the server will crush on run time
 
 # override ActiveSupport hash_digest_class with FIPS complaint method
-ActiveSupport::Digest.hash_digest_class = OpenSSL::Digest::SHA1.new
+ActiveSupport::Digest.hash_digest_class = OpenSSL::Digest.new('SHA1')

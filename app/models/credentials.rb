@@ -15,6 +15,13 @@ class Credentials < Sequel::Model
   # Bcrypt work factor, minimum recommended work factor is 12
   BCRYPT_COST = 12
 
+  # special characters according to https://www.owasp.org/index.php/Password_special_characters
+  VALID_PASSWORD_REGEX = %r{^(?=.*?[A-Z].*[A-Z])                             # 2 uppercase letters
+                             (?=.*?[a-z].*[a-z])                             # 2 lowercase letters
+                             (?=.*?[0-9])                                    # 1 digit
+                             (?=.*[ !"#$%&'()*+,-./:;<=>?@\[\\\]^_`{|}~]).  # 1 special character
+                             {12,128}$}x                                     # 12-128 characters
+
   plugin :validation_helpers
 
   unrestrict_primary_key
@@ -50,15 +57,15 @@ class Credentials < Sequel::Model
   end
 
   def valid_password? pwd
-    bc = BCrypt::Password.new self.encrypted_hash
+    bc = BCrypt::Password.new(self.encrypted_hash)
     # This `==` is implemented by BCrypt' Password class (link:
     #     https://www.rubydoc.info/github/codahale/bcrypt-ruby/BCrypt/Password#==-instance_method)
     # The comparison occurs against two BCrypt hashes, thus, is not a timing attack concern
     if bc == pwd
-      self.update password: pwd if bc.cost != BCRYPT_COST
-      return true
+      self.update(password: pwd) if bc.cost != BCRYPT_COST
+      true
     else
-      return false
+      false
     end
   rescue BCrypt::Errors::InvalidHash
     false
@@ -66,13 +73,14 @@ class Credentials < Sequel::Model
 
   def valid_api_key? key
     return false if expired?
+
     key && ActiveSupport::SecurityUtils.secure_compare(key, api_key)
   end
 
   def validate
     super
 
-    validates_presence [ :api_key ]
+    validates_presence([ :api_key ])
 
     # We intentionally don't validate when there is no password
     # See flow in Account.create

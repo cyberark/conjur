@@ -7,11 +7,10 @@ module Authentication
 
     ExtractContainerName ||= CommandClass.new(
       dependencies: {
-        logger:                 Rails.logger
+        logger: Rails.logger
       },
       inputs: %i[service_id host_annotations]
     ) do
-
       DEFAULT_AUTHENTICATION_CONTAINER_NAME = "authenticator"
 
       def call

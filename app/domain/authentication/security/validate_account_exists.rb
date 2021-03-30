@@ -10,7 +10,6 @@ module Authentication
       },
       inputs: %i[account]
     ) do
-
       def call
         validate_account_exists
       end

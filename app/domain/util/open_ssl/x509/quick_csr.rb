@@ -55,7 +55,8 @@ module Util
 
         def add_alt_name_attrs(csr)
           return if @alt_names.empty?
-          alt_name_attrs.reduce(csr) { |m, x| m.add_attribute(x); m }
+
+          alt_name_attrs.each_with_object(csr) { |x, m| m.add_attribute(x);  }
         end
 
         def alt_name_attrs
@@ -66,7 +67,7 @@ module Util
         end
 
         def sign(csr)
-          csr.sign(@rsa_key, OpenSSL::Digest::SHA256.new)
+          csr.sign(@rsa_key, OpenSSL::Digest.new('SHA256'))
         end
 
         def subject

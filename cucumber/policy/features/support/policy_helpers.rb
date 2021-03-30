@@ -21,8 +21,9 @@ module PolicyHelpers
     begin
       @result = yield
       raise "Expected invocation to be denied" if status && status != 200
+
       @result.tap do |result|
-        puts result if @echo
+        puts(result) if @echo
       end
     rescue RestClient::Exception => e
       expect(e.http_code).to eq(status) if status
@@ -31,35 +32,35 @@ module PolicyHelpers
   end
 
   def load_root_policy policy
-    conjur_api.load_policy "root", policy, method: Conjur::API::POLICY_METHOD_PUT
+    conjur_api.load_policy("root", policy, method: Conjur::API::POLICY_METHOD_PUT)
   end
 
   def update_root_policy policy
-    conjur_api.load_policy "root", policy, method: Conjur::API::POLICY_METHOD_PATCH
+    conjur_api.load_policy("root", policy, method: Conjur::API::POLICY_METHOD_PATCH)
   end
 
   def extend_root_policy policy
-    conjur_api.load_policy "root", policy, method: Conjur::API::POLICY_METHOD_POST
+    conjur_api.load_policy("root", policy, method: Conjur::API::POLICY_METHOD_POST)
   end
 
   def load_policy id, policy
-    conjur_api.load_policy id, policy, method: Conjur::API::POLICY_METHOD_PUT
+    conjur_api.load_policy(id, policy, method: Conjur::API::POLICY_METHOD_PUT)
   end
 
   def update_policy id, policy
-    conjur_api.load_policy id, policy, method: Conjur::API::POLICY_METHOD_PATCH
+    conjur_api.load_policy(id, policy, method: Conjur::API::POLICY_METHOD_PATCH)
   end
 
   def extend_policy id, policy
-    conjur_api.load_policy id, policy, method: Conjur::API::POLICY_METHOD_POST
+    conjur_api.load_policy(id, policy, method: Conjur::API::POLICY_METHOD_POST)
   end
 
   def make_full_id *tokens
-    super tokens.join(":")
+    super(tokens.join(":"))
   end
 
   def conjur_api
-    login_as_role 'admin', admin_api_key unless @conjur_api
+    login_as_role('admin', admin_api_key) unless @conjur_api
     @conjur_api
   end
 
@@ -75,7 +76,7 @@ module PolicyHelpers
   end
 
   def admin_api_key
-    @admin_api_key ||= Conjur::API.login 'admin', admin_password
+    @admin_api_key ||= Conjur::API.login('admin', admin_password)
   end
 
   def admin_password
@@ -92,7 +93,7 @@ module PolicyHelpers
       end
       api_key = Conjur::API.new_from_key('admin', admin_api_key).role(make_full_id(role)).rotate_api_key
     end
-    @conjur_api = Conjur::API.new_from_key login, api_key
+    @conjur_api = Conjur::API.new_from_key(login, api_key)
   end
 end
 World(PolicyHelpers)

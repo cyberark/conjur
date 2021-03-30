@@ -29,7 +29,7 @@ class Role < Sequel::Model
 
     super(options).tap do |response|
       response["id"] = response.delete("role_id")
-      write_id_to_json response, "policy"
+      write_id_to_json(response, "policy")
     end
   end
 
@@ -52,14 +52,15 @@ class Role < Sequel::Model
 
     def roleid_from_username(account, login)
       tokens = login.split('/', 2)
-      tokens.unshift 'user' if tokens.length == 1
-      tokens.unshift account
+      tokens.unshift('user') if tokens.length == 1
+      tokens.unshift(account)
       tokens.join(":")
     end
 
     def username_from_roleid(roleid)
       _, kind, id = roleid.split(":", 3)
       return id if kind == 'user'
+
       [kind, id].join('/')
     end
   end
@@ -122,7 +123,7 @@ class Role < Sequel::Model
   end
 
   def resource
-    Resource[id] or raise "Resource not found for #{id}"
+    Resource[id] || raise("Resource not found for #{id}")
   end
 
   # All Roles of kind "layer" which this role is a direct member of.
@@ -148,7 +149,7 @@ class Role < Sequel::Model
     options[:admin_option] ||= false
     options[:member] = member
 
-    add_membership options
+    add_membership(options)
   rescue Sequel::UniqueConstraintViolation
     # Membership grant already exists
   end
@@ -180,7 +181,7 @@ class Role < Sequel::Model
 
   def modify_credentials
     credentials = self.credentials ||= Credentials.new(role: self)
-    yield credentials
+    yield(credentials)
     credentials.save(raise_on_save_failure: true)
   end
 end

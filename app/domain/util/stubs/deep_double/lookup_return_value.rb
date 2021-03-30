@@ -19,11 +19,13 @@ module Util
 
         def validate_method_exists
           return if @spec.key?(@meth)
+
           raise "Method '#{@meth}' not defined on this double"
         end
 
         def validate_args_are_defined
           return if args_defined?
+
           raise "Return value on '#{@meth}' undefined for args: #{args}"
         end
 

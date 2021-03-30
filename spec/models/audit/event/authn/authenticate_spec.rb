@@ -40,10 +40,11 @@ describe Audit::Event::Authn::Authenticate do
 
     it 'contains the user field' do
       expect(subject.structured_data).to match(hash_including({
-          Audit::SDID::AUTH => {
-              authenticator: authenticator_name,
-              service: service.resource_id,
-              user: role_id}
+        Audit::SDID::AUTH => {
+          authenticator: authenticator_name,
+          service: service.resource_id,
+          user: role_id 
+        }
       }))
     end
 
@@ -67,11 +68,11 @@ describe Audit::Event::Authn::Authenticate do
 
     it 'contains the not-found user field' do
       expect(subject.structured_data).to match(hash_including({
-          Audit::SDID::AUTH => {
-              authenticator: authenticator_name,
-              service: service.resource_id,
-              user: Audit::Event::NOT_FOUND
-          }
+        Audit::SDID::AUTH => {
+          authenticator: authenticator_name,
+          service: service.resource_id,
+          user: Audit::Event::NOT_FOUND
+        }
       }))
     end
 
@@ -81,17 +82,17 @@ describe Audit::Event::Authn::Authenticate do
   context 'when a failure occurs but user exists' do
     let(:success) { false }
     before do
-      expect(Role).to receive(:[]).and_return true
+      expect(Role).to receive(:[]).and_return(true)
     end
 
     it 'contains the user field despite failure' do
       expect(subject.structured_data).to match(hash_including({
         Audit::SDID::AUTH => {
-            authenticator: authenticator_name,
-            service: service.resource_id,
-            user: role_id
+          authenticator: authenticator_name,
+          service: service.resource_id,
+          user: role_id
         }
-    }))
+      }))
     end
   end
 end

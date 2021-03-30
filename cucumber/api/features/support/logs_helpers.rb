@@ -39,12 +39,14 @@ module LogsHelpers
 
   def validate_savepoint_exists
     return if @saved_num_lines
+
     raise "No savepoint exists.  'save_num_log_lines' must be called " \
       "before this method"
   end
 
   def validate_log_didnt_shrink(cur_num_lines)
     return if cur_num_lines >= @saved_num_lines
+
     raise "The log has fewer lines (#{cur_num_lines}) than it did before " \
       "(#{@saved_num_lines})"
   end

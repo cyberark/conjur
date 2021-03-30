@@ -5,9 +5,9 @@ shared_context "existing account" do
   before(:each) do
     allow(Authentication::Security::ValidateAccountExists)
       .to receive(:new)
-            .and_return(validate_account_exists)
+      .and_return(validate_account_exists)
     allow(validate_account_exists).to receive(:call)
-                                          .and_return(true)
+      .and_return(true)
   end
 end
 
@@ -26,7 +26,7 @@ shared_context "authenticate Token" do
   let(:params) { { account: account  } }
   let(:bearer_token) { Slosilo["authn:rspec"].signed_token(login) }
   let(:token_auth_header) do
-    "Token token=\"#{Base64.strict_encode64 bearer_token.to_json}\""
+    "Token token=\"#{Base64.strict_encode64(bearer_token.to_json)}\""
   end
   let(:request_env) do
     { 'HTTP_AUTHORIZATION' => token_auth_header }

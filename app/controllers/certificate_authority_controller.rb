@@ -33,14 +33,14 @@ class CertificateAuthorityController < RestController
   def render_certificate(certificate)
     respond_to do |format|
       format.json do
-        render json: {
+        render(json: {
           certificate: certificate.to_pem
         },
-               status: :created
+               status: :created)
       end
 
       format.pem do
-        render body: certificate.to_pem, content_type: 'application/x-pem-file', status: :created
+        render(body: certificate.to_pem, content_type: 'application/x-pem-file', status: :created)
       end
     end
   end
@@ -63,18 +63,18 @@ class CertificateAuthorityController < RestController
     account = Sequel.function(:account, :resource_id)
 
     @ca_resource ||= Resource
-                     .where(
-                       identifier => "conjur/#{service_id}/ca", 
-                       kind => 'webservice',
-                       account => account
-                     )
-                     .first
+      .where(
+        identifier => "conjur/#{service_id}/ca", 
+        kind => 'webservice',
+        account => account
+      )
+      .first
   end
 
   def host
     @host ||= Resource
-              .where(resource_id: current_user.id)
-              .first
+      .where(resource_id: current_user.id)
+      .first
   end
 
   def service_id

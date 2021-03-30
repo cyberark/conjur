@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Authentication::Webservice do
+RSpec.describe(Authentication::Webservice) do
   WS = Authentication::Webservice
 
   context "A Webservice created from a string" do

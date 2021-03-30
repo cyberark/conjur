@@ -13,7 +13,7 @@ describe Loader::Orchestrate do
 
   def load_base_policy(path)
     require 'root_loader'
-    RootLoader.load 'rspec', policy_path(path)
+    RootLoader.load('rspec', policy_path(path))
   end
 
   def save_policy(path)
@@ -21,7 +21,7 @@ describe Loader::Orchestrate do
       policy: resource_policy,
       role: role_user_admin,
       policy_text: File.read(policy_path(path)),
-      delete_permitted: delete_permitted,
+      delete_permitted: delete_permitted
     )
     policy_ver.validate
     expect(policy_ver.errors.to_a).to eq([])
@@ -43,7 +43,7 @@ describe Loader::Orchestrate do
 
   def verify_data(path)
     if ENV['DUMP_DATA']
-      File.write expectation_path(path), print_public
+      File.write(expectation_path(path), print_public)
     end
     expect(print_public).to eq(File.read(expectation_path(path)))
   end
@@ -57,7 +57,7 @@ describe Loader::Orchestrate do
   let(:resource_policy) { Resource['rspec:policy:the-policy'] }
   let(:role_user_admin) { Role['rspec:user:admin'] }
   let(:print_public) {
-    Loader::Orchestrate.table_data 'rspec', "#{schemata.primary_schema}__"
+    Loader::Orchestrate.table_data('rspec', "#{schemata.primary_schema}__")
   }
   let(:delete_permitted) { true }
 
@@ -103,7 +103,6 @@ describe Loader::Orchestrate do
         verify_data 'updated/simple.txt'
       end
     end
-
 
     context "and two subsequent policy updates" do
       it "removed records are deleted" do

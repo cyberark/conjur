@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::Webservices' do
-  let (:two_authenticator_env) { "authn-one, authn-two" }
+RSpec.describe('Authentication::Webservices') do
+  let(:two_authenticator_env) { "authn-one, authn-two" }
 
   context "An ENV containing CONJUR_AUTHENTICATORS" do
     it "whitelists exactly those authenticators as webservices" do
@@ -12,7 +12,7 @@ RSpec.describe 'Authentication::Webservices' do
         two_authenticator_env
       ).map(&:name)
 
-      expect(services).to eq(['authn-one', 'authn-two'])
+      expect(services).to eq(%w[authn-one authn-two])
     end
   end
 end

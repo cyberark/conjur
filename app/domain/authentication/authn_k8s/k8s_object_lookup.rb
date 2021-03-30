@@ -13,7 +13,7 @@ module Authentication
     SERVICEACCOUNT_CA_PATH ||= File.join(SERVICEACCOUNT_DIR, 'ca.crt').freeze
     SERVICEACCOUNT_TOKEN_PATH ||= File.join(SERVICEACCOUNT_DIR, 'token').freeze
 
-    #TODO: rename to K8sApiFacade
+    # TODO: rename to K8sApiFacade
     class K8sObjectLookup
 
       class K8sForbiddenError < RuntimeError; end
@@ -43,6 +43,7 @@ module Authentication
         )
 
         raise Errors::Authentication::AuthnK8s::MissingCertificate if cert.blank?
+
         cert
       end
 
@@ -114,7 +115,7 @@ module Authentication
       def find_object_by_name resource_name, name, namespace
         begin
           handle_object_not_found do
-            invoke_k8s_method "get_#{resource_name}", name, namespace
+            invoke_k8s_method("get_#{resource_name}", name, namespace)
           end
         rescue KubeException => e
           # This error message can be a bit confusing when multiple authorizers are
@@ -142,6 +143,7 @@ module Authentication
             client.respond_to?(method_name)
           rescue KubeException => e
             raise e unless e.error_code == 404
+
             false
           end
         end

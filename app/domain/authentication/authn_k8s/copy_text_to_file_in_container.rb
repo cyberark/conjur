@@ -9,12 +9,11 @@ module Authentication
     CopyTextToFileInContainer ||= CommandClass.new(
       dependencies: {
         execute_command_in_container: ExecuteCommandInContainer.new,
-        k8s_object_lookup:            K8sObjectLookup,
-        logger:                       Rails.logger
+        k8s_object_lookup: K8sObjectLookup,
+        logger: Rails.logger
       },
-      inputs:       %i[webservice pod_namespace pod_name container path content mode]
+      inputs: %i[webservice pod_namespace pod_name container path content mode]
     ) do
-
       LOG_FILE = "${TMPDIR:-/tmp}/conjur_copy_text_output.log"
 
       def call
@@ -26,12 +25,12 @@ module Authentication
       def copy_text_to_file_in_container
         @execute_command_in_container.call(
           k8s_object_lookup: @k8s_object_lookup.new(@webservice),
-          pod_namespace:     @pod_namespace,
-          pod_name:          @pod_name,
-          container:         @container,
-          cmds:              %w[sh],
-          body:              bash_script(@path, @content, @mode),
-          stdin:             true
+          pod_namespace: @pod_namespace,
+          pod_name: @pod_name,
+          container: @container,
+          cmds: %w[sh],
+          body: bash_script(@path, @content, @mode),
+          stdin: true
         )
       end
 

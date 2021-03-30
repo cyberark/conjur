@@ -23,16 +23,16 @@ shared_context "security mocks" do
   def mock_webservice(account, authenticator_name, service_id)
     double('webservice').tap do |webservice|
       allow(webservice).to receive(:authenticator_name)
-                             .and_return(authenticator_name)
+        .and_return(authenticator_name)
 
       allow(webservice).to receive(:service_id)
-                             .and_return(service_id)
+        .and_return(service_id)
 
       allow(webservice).to receive(:name)
-                             .and_return("#{authenticator_name}/#{service_id}")
+        .and_return("#{authenticator_name}/#{service_id}")
 
       allow(webservice).to receive(:resource_id)
-                             .and_return("#{account}:webservice:conjur/#{authenticator_name}/#{service_id}")
+        .and_return("#{account}:webservice:conjur/#{authenticator_name}/#{service_id}")
     end
   end
 
@@ -42,12 +42,12 @@ shared_context "security mocks" do
       allow(role_class).to receive(:username_from_roleid).and_return('some-username')
 
       allow(role_class).to receive(:[])
-                             .with(/#{test_account}:user:admin/)
-                             .and_return("admin-role")
+        .with(/#{test_account}:user:admin/)
+        .and_return("admin-role")
 
       allow(role_class).to receive(:[])
-                             .with(/#{non_existing_account}:user:admin/)
-                             .and_return(nil)
+        .with(/#{non_existing_account}:user:admin/)
+        .and_return(nil)
     end
   end
 
@@ -97,10 +97,10 @@ shared_context "security mocks" do
 
   before(:each) do
     allow(mocked_origin_validator).to receive(:call)
-                                        .and_return(true)
+      .and_return(true)
 
     allow(mocked_account_validator).to receive(:call)
-                                         .and_return(true)
+      .and_return(true)
   end
 end
 
@@ -110,7 +110,7 @@ shared_examples_for "raises an error when origin validation fails" do
 
     it "raises an error" do
       allow(mocked_origin_validator).to receive(:call)
-                                          .and_raise(validate_origin_error)
+        .and_raise(validate_origin_error)
 
       expect { subject }.to raise_error(validate_origin_error)
     end

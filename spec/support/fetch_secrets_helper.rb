@@ -15,7 +15,6 @@
 #   include_context "fetch secrets", %w(provider-uri id-token-user-property)
 #
 shared_context "fetch secrets" do |required_secrets|
-
   let(:mocked_secret) do
     double('Secret').tap do |secret|
       # unfreezing the secret for authn-azure tests
@@ -36,27 +35,26 @@ shared_context "fetch secrets" do |required_secrets|
   end
 
   before(:each) do
-    required_secrets.each { |secret_name|
+    required_secrets.each do |secret_name|
       allow(Resource).to(
         receive(:[]).with(
-          /#{account}:variable:conjur\/#{authenticator_name}\/#{service}\/#{secret_name}/
+          %r{#{account}:variable:conjur/#{authenticator_name}/#{service}/#{secret_name}}
         ).and_return(mocked_resource)
       )
-    }
+    end
   end
 end
 
 shared_examples_for(
   "it fails when variable is missing or has no value"
 ) do |variable|
-
   context 'when variable is missing' do
     let(:audit_success) { false }
 
     it "fails" do
       allow(Resource).to(
         receive(:[]).with(
-          /#{account}:variable:conjur\/#{authenticator_name}\/#{service}\/#{variable}/
+          %r{#{account}:variable:conjur/#{authenticator_name}/#{service}/#{variable}}
         ).and_return(nil)
       )
 
@@ -70,7 +68,7 @@ shared_examples_for(
     it "fails" do
       allow(Resource).to(
         receive(:[]).with(
-          /#{account}:variable:conjur\/#{authenticator_name}\/#{service}\/#{variable}/
+          %r{#{account}:variable:conjur/#{authenticator_name}/#{service}/#{variable}}
         ).and_return(resource_without_value)
       )
 

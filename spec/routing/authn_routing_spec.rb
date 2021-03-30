@@ -13,7 +13,6 @@ describe "routing for authentication", :type => :routing do
     )
   end
 
-
   it "routes PUT /authn/the-account/password to credentials#update_password" do
     expect(put: '/authn/the-account/password').to route_to(
       controller: 'credentials',

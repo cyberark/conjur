@@ -31,7 +31,7 @@ Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?via Azure with (no |em
             invalid_token
           else
             @azure_token
-          end
+  end
 
   num_requests ||= 1
   num_threads  ||= 1
@@ -41,10 +41,10 @@ Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?via Azure with (no |em
     num_threads,
     authentication_func: :authenticate_azure_token,
     authentication_func_params: {
-      service_id:             AuthnAzureHelper::SERVICE_ID,
-      account:                AuthnAzureHelper::ACCOUNT,
-      username:               username,
-      azure_token:            token,
+      service_id: AuthnAzureHelper::SERVICE_ID,
+      account: AuthnAzureHelper::ACCOUNT,
+      username: username,
+      azure_token: token,
       accept_encoding_header: header
     }
   )

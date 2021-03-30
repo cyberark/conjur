@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 def self_signed_certificate
-  key = OpenSSL::PKey::RSA.new 2048
+  key = OpenSSL::PKey::RSA.new(2048)
   ca = OpenSSL::X509::Certificate.new
-  subject = OpenSSL::X509::Name.parse "/DC=mock/CN=rspec"
+  subject = OpenSSL::X509::Name.parse("/DC=mock/CN=rspec")
 
   ca.public_key = key.public_key
   ca.subject = subject
@@ -12,7 +12,7 @@ def self_signed_certificate
   ca.serial = 1
   ca.not_before = Time.now
   ca.not_after = Time.now + 60 * 60
-  ca.sign(key, OpenSSL::Digest::SHA256.new)
+  ca.sign(key, OpenSSL::Digest.new('SHA256'))
 
   ca.to_pem
 end
@@ -26,14 +26,14 @@ shared_context "running in kubernetes" do
   before(:each) do
     allow(Authentication::AuthnK8s::K8sContextValue).to receive(:get)
       .with(anything,
-        Authentication::AuthnK8s::SERVICEACCOUNT_CA_PATH,
-        Authentication::AuthnK8s::VARIABLE_CA_CERT)
+            Authentication::AuthnK8s::SERVICEACCOUNT_CA_PATH,
+            Authentication::AuthnK8s::VARIABLE_CA_CERT)
       .and_return(kubernetes_ca_cert)
     
     allow(Authentication::AuthnK8s::K8sContextValue).to receive(:get)
       .with(anything,
-        Authentication::AuthnK8s::SERVICEACCOUNT_TOKEN_PATH,
-        Authentication::AuthnK8s::VARIABLE_BEARER_TOKEN)
+            Authentication::AuthnK8s::SERVICEACCOUNT_TOKEN_PATH,
+            Authentication::AuthnK8s::VARIABLE_BEARER_TOKEN)
       .and_return(kubernetes_service_token)
 
     allow(ENV).to receive(:[]).and_call_original
@@ -58,14 +58,14 @@ shared_context "running outside kubernetes" do
   before(:each) do
     allow(Authentication::AuthnK8s::K8sContextValue).to receive(:get)
       .with(an_instance_of(Authentication::Webservice),
-        Authentication::AuthnK8s::SERVICEACCOUNT_CA_PATH,
-        Authentication::AuthnK8s::VARIABLE_CA_CERT)
+            Authentication::AuthnK8s::SERVICEACCOUNT_CA_PATH,
+            Authentication::AuthnK8s::VARIABLE_CA_CERT)
       .and_return(kubernetes_ca_cert)
     
     allow(Authentication::AuthnK8s::K8sContextValue).to receive(:get)
       .with(an_instance_of(Authentication::Webservice),
-        Authentication::AuthnK8s::SERVICEACCOUNT_TOKEN_PATH,
-        Authentication::AuthnK8s::VARIABLE_BEARER_TOKEN)
+            Authentication::AuthnK8s::SERVICEACCOUNT_TOKEN_PATH,
+            Authentication::AuthnK8s::VARIABLE_BEARER_TOKEN)
       .and_return(kubernetes_service_token)
 
     allow_any_instance_of(Authentication::Webservice).to receive(:variable)

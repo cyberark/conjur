@@ -10,7 +10,8 @@ enable :logging
 helpers do
   def username
     raise "Expecting CONJUR_AUTHN_API_KEY to be blank" if ENV['CONJUR_AUTHN_API_KEY']
-    ENV['CONJUR_AUTHN_LOGIN'] or raise "No CONJUR_AUTHN_LOGIN"
+
+    ENV['CONJUR_AUTHN_LOGIN'] || raise("No CONJUR_AUTHN_LOGIN")
   end
   
   def conjur_api
@@ -29,8 +30,8 @@ get '/' do
     password = conjur_api.variable("inventory-db/password").value
     "inventory-db password: #{password}"
   rescue
-    $stderr.puts $!
-    $stderr.puts $!.backtrace.join("\n")
-    halt 500, "Error: #{$!}"
+    $stderr.puts($!)
+    $stderr.puts($!.backtrace.join("\n"))
+    halt(500, "Error: #{$!}")
   end
 end

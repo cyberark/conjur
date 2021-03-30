@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::Authn::Login' do
+RSpec.describe('Authentication::Authn::Login') do
   include_context "authn setup"
 
   context "An Authn authenticator" do
@@ -10,7 +10,7 @@ RSpec.describe 'Authentication::Authn::Login' do
       context "with valid credentials" do
         subject do
           ::Authentication::Authn::Login.new(
-            role_cls:        role_cls,
+            role_cls: role_cls,
             credentials_cls: credentials_cls
           ).call(
             authenticator_input: input
@@ -29,7 +29,7 @@ RSpec.describe 'Authentication::Authn::Login' do
       context "with a non-existing role" do
         subject do
           ::Authentication::Authn::Login.new(
-            role_cls:        role_cls,
+            role_cls: role_cls,
             credentials_cls: non_existing_role_credentials
           ).call(
             authenticator_input: input

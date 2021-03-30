@@ -1,6 +1,6 @@
 module Audit
   module Event
-    # Note: Breaking this class up further would harm clarity.
+    # NOTE: Breaking this class up further would harm clarity.
     # :reek:TooManyInstanceVariables and :reek:TooManyParameters
     class Policy
 
@@ -20,7 +20,7 @@ module Audit
         @error_message = error_message
       end
 
-      # Note: We want this class to be responsible for providing `progname`.
+      # NOTE: We want this class to be responsible for providing `progname`.
       # At the same time, `progname` is currently always "conjur" and this is
       # unlikely to change.  Moving `progname` into the constructor now
       # feels like premature optimization, so we ignore reek here.

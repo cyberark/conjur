@@ -88,6 +88,7 @@ module RotatorHelpers
       key = variable_meth.("#{policy_id}/secret_access_key")&.value
       return nil unless id && key
       return nil unless valid_credentials?(id, key)
+
       { access_key_id: id, secret_access_key: key}
     rescue
       nil
@@ -138,6 +139,7 @@ module RotatorHelpers
         history = updated_history(history)
         return history if stop?(history)
         raise error_msg if timer.has_exceeded?(@timeout)
+
         sleep(0.3)
       end
     end

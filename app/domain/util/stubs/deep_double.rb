@@ -12,13 +12,13 @@ module Util
     class DeepDouble
       # In this case, having an optional name first makes for a cleaner API
       #
-      # rubocop:disable OptionalArguments
+      # rubocop:disable Style/OptionalArguments
       def initialize(name = 'Double', spec)
         @name = name
         @spec = spec
         create_methods_defined_in_spec
       end
-      # rubocop:enable OptionalArguments
+      # rubocop:enable Style/OptionalArguments
 
       def create_methods_defined_in_spec
         @spec.keys.each { |meth| create_method(meth) }

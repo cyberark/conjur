@@ -1,10 +1,9 @@
 require_relative 'shared_context'
 
-RSpec.describe 'Util::OpenSsl::X509::SmartCsr' do
+RSpec.describe('Util::OpenSsl::X509::SmartCsr') do
   include_context "certificate testing"
 
   context 'creation from a string' do
-
     let(:csr_str) { csr_with_spiffe_id.to_der }
     subject(:csr) { Util::OpenSsl::X509::SmartCsr.new(csr_str) }
 
@@ -14,7 +13,6 @@ RSpec.describe 'Util::OpenSsl::X509::SmartCsr' do
   end
 
   context 'creation from an existing Request instance' do
-
     subject(:csr) { Util::OpenSsl::X509::SmartCsr.new(csr_with_spiffe_id) }
 
     it "creates the correct csr from a csr" do
@@ -23,7 +21,7 @@ RSpec.describe 'Util::OpenSsl::X509::SmartCsr' do
   end
 end
 
-RSpec.describe 'Util::OpenSsl::X509::SmartCsr#common_name' do
+RSpec.describe('Util::OpenSsl::X509::SmartCsr#common_name') do
   include_context "certificate testing"
 
   subject(:csr) { smart_csr(reconstructed_csr(csr_with_spiffe_id)) }
@@ -33,28 +31,26 @@ RSpec.describe 'Util::OpenSsl::X509::SmartCsr#common_name' do
   end
 end
 
-RSpec.describe 'Util::OpenSsl::X509::SmartCsr#spiffe_id' do
+RSpec.describe('Util::OpenSsl::X509::SmartCsr#spiffe_id') do
   include_context "certificate testing"
 
   context 'A CSR created as a ruby object' do
     subject(:csr) { smart_csr(csr_with_spiffe_id) }
 
     it 'returns the correct spiffe id' do
-      expect(csr.spiffe_id).to eq spiffe_id
+      expect(csr.spiffe_id).to eq(spiffe_id)
     end
   end
 
   context 'A CSR parsed from a string' do
-
     subject(:csr) { smart_csr(reconstructed_csr(csr_with_spiffe_id)) }
 
     it 'returns the correct spiffe id' do
-      expect(csr.spiffe_id).to eq spiffe_id
+      expect(csr.spiffe_id).to eq(spiffe_id)
     end
   end
 
   context 'A CSR parsed from a string with no alt name' do
-
     subject(:csr) { smart_csr(reconstructed_csr(csr_without_spiffe_id)) }
 
     it 'returns nil' do

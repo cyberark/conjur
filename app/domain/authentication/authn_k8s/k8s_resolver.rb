@@ -73,7 +73,7 @@ module Authentication
             )
           end
 
-          replica_set = k8s_object_lookup.find_object_by_name "replica_set", replica_set_ref.name, namespace
+          replica_set = k8s_object_lookup.find_object_by_name("replica_set", replica_set_ref.name, namespace)
           replica_set_owner_refs = replica_set.metadata.ownerReferences
 
           deployment_ref = replica_set_owner_refs&.find { |ref| ref.kind == "Deployment" }
@@ -84,7 +84,7 @@ module Authentication
             )
           end
 
-          deployment = k8s_object_lookup.find_object_by_name "deployment", deployment_ref.name, namespace
+          deployment = k8s_object_lookup.find_object_by_name("deployment", deployment_ref.name, namespace)
 
           unless self.name == deployment.metadata.name
             raise Errors::Authentication::AuthnK8s::PodRelationMismatchError.new(
@@ -124,8 +124,8 @@ module Authentication
             )
           end
 
-          deployment_config = k8s_object_lookup.find_object_by_name "deployment_config",
-            deployment_config_ref.name, namespace
+          deployment_config = k8s_object_lookup.find_object_by_name("deployment_config",
+                                                                    deployment_config_ref.name, namespace)
 
           unless self.name == deployment_config.metadata.name
             raise Errors::Authentication::AuthnK8s::PodRelationMismatchError.new(
@@ -148,7 +148,7 @@ module Authentication
             )
           end
 
-          replica_set = k8s_object_lookup.find_object_by_name "replica_set", replica_set_ref.name, namespace
+          replica_set = k8s_object_lookup.find_object_by_name("replica_set", replica_set_ref.name, namespace)
 
           unless self.name == replica_set.metadata.name
             raise Errors::Authentication::AuthnK8s::PodRelationMismatchError.new(
@@ -184,7 +184,7 @@ module Authentication
             )
           end
 
-          stateful_set = k8s_object_lookup.find_object_by_name "stateful_set", stateful_set_ref.name, namespace
+          stateful_set = k8s_object_lookup.find_object_by_name("stateful_set", stateful_set_ref.name, namespace)
 
           unless self.name == stateful_set.metadata.name
             raise Errors::Authentication::AuthnK8s::PodRelationMismatchError.new(

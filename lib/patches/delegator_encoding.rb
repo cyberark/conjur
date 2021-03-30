@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# note the resulting encoding is a bit ugly
+# NOTE: the resulting encoding is a bit ugly
 class Delegator
   def encode_with coder
     ivars = instance_variables.reject {|var| /\A@delegate_/ =~ var}
@@ -12,8 +12,8 @@ class Delegator
 
   def init_with coder
     (coder['ivars'] || {}).each do |k, v|
-      instance_variable_set :"@#{k}", v
+      instance_variable_set(:"@#{k}", v)
     end
-    __setobj__ coder['obj']
+    __setobj__(coder['obj'])
   end
 end

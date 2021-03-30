@@ -10,8 +10,8 @@ Account = Struct.new(:id) do
   
       role_id     = "!:!:root"
       resource_id = "!:webservice:accounts"
-      role = Role[role_id] or Role.create role_id: role_id
-      Resource[resource_id] or Resource.create resource_id: resource_id, owner_id: role_id
+      (role = Role[role_id]) || Role.create(role_id: role_id))
+      Resource[resource_id] || Resource.create(resource_id: resource_id, owner_id: role_id))
     end
 
     INVALID_ID_CHARS = /[ :]/.freeze
@@ -19,7 +19,7 @@ Account = Struct.new(:id) do
     def create(id, owner_id = nil)
       raise Exceptions::RecordExists.new("account", id) if Slosilo["authn:#{id}"]
 
-      if (invalid = INVALID_ID_CHARS.match id)
+      if (invalid = INVALID_ID_CHARS.match(id))
         raise ArgumentError, 'account name "%s" contains invalid characters (%s)' % [id, invalid]
       end
 
@@ -27,13 +27,13 @@ Account = Struct.new(:id) do
         Slosilo["authn:#{id}"] = Slosilo::Key.new
         
         role_id = "#{id}:user:admin"
-        admin_user = Role.create role_id: role_id
+        admin_user = Role.create(role_id: role_id)
 
         # Create an owner resource that will allow another user to rotate this
         # account's API key. This is used by the CPanel to enable the accounts
         # admin credentials to be used for API key rotation.
         unless owner_id.nil?
-          Resource.create resource_id: role_id, owner_id: owner_id
+          Resource.create(resource_id: role_id, owner_id: owner_id)
         end
         
         admin_user.api_key

@@ -9,7 +9,7 @@ class Logger
     # RFC5424-compliant log formatter. If given a message that responds to 
     # severity, facility, message_id and/or structured_data, it'll use them.
     class RFC5424Formatter
-      # Note: The _ parameter is severity, as defined by the Ruby logger.
+      # NOTE: The _ parameter is severity, as defined by the Ruby logger.
       # However, we want the Syslog severity, which is what our audit events
       # produce by default.  Hence we get "severity" from "msg.severity".
       # "msg" is our Event object.
@@ -64,7 +64,7 @@ class Logger
         end
 
         def timestamp
-          @time.utc.iso8601 3
+          @time.utc.iso8601(3)
         end
 
         def hostname

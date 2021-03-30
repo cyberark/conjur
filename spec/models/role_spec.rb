@@ -35,6 +35,6 @@ describe Role, :type => :model do
   end
 
   it "can find by login" do
-    expect(Role.by_login(login, account: 'rspec')).to eq the_user
+    expect(Role.by_login(login, account: 'rspec')).to eq(the_user)
   end
 end

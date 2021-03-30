@@ -34,10 +34,10 @@ module Authentication
         raw_mirid_parts = @xms_mirid_token_field.split('/')
 
         # accept also an xms_mirid field that doesn't start with a slash
-        if raw_mirid_parts.first == ''
-          mirid_parts = raw_mirid_parts.drop(1)
+        mirid_parts = if raw_mirid_parts.first == ''
+          raw_mirid_parts.drop(1)
         else
-          mirid_parts = raw_mirid_parts
+          raw_mirid_parts
         end
 
         # transform ["subscriptions", "a", "resourcegroups", "b", "providers", "c", "d", "e"]

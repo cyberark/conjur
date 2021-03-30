@@ -29,9 +29,9 @@ module Authentication
 
       def webservice
         @webservice ||= ::Authentication::Webservice.new(
-          account:            @input.account,
+          account: @input.account,
           authenticator_name: @input.authenticator_name,
-          service_id:         @input.service_id
+          service_id: @input.service_id
         )
       end
     end

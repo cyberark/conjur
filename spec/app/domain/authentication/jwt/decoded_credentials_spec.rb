@@ -2,8 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::Jwt::DecodedCredentials' do
-
+RSpec.describe('Authentication::Jwt::DecodedCredentials') do
   ####################################
   # request mock
   ####################################
@@ -11,7 +10,7 @@ RSpec.describe 'Authentication::Jwt::DecodedCredentials' do
   def mock_authenticate_token_request(request_body_data:)
     double('JwtRequest').tap do |request|
       request_body = StringIO.new
-      request_body.puts request_body_data
+      request_body.puts(request_body_data)
       request_body.rewind
 
       allow(request).to receive(:body).and_return(request_body)
@@ -42,7 +41,6 @@ RSpec.describe 'Authentication::Jwt::DecodedCredentials' do
   # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
-
 
   context "Credentials" do
     context "with a jwt claim" do

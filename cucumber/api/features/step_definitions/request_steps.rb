@@ -76,7 +76,7 @@ When(/^I( (?:can|successfully))? GET "([^"]*)" with username "([^"]*)" and passw
 end
 
 When(/^I( (?:can|successfully))? PUT "([^"]*)" with body from file "([^"]*)"/) do |can, path, filename|
-  absolute_path = "#{File.dirname __FILE__}/../support/#{filename}"
+  absolute_path = "#{File.dirname(__FILE__)}/../support/#{filename}"
   File.open(absolute_path) do |file|
     try_request can do
       post_json path, file.read
@@ -196,15 +196,15 @@ Then(/^the HTTP response is base64 encoded$/) do
 
   # Override encoded response with decode one to use other helpers
   @response_body = Base64.strict_decode64(@result)
-  expect(JSON.parse(@response_body).is_a?(Hash)).to be true
+  expect(JSON.parse(@response_body).is_a?(Hash)).to be(true)
 end
 
 Then(/^the result is true$/) do
-  expect(@result).to be true
+  expect(@result).to be(true)
 end
 
 Then(/^the result is false$/) do
-  expect(@result).to be false
+  expect(@result).to be(false)
 end
 
 Then(/^I (?:can )*authenticate with the admin API key for the account "(.*?)"/) do |account|

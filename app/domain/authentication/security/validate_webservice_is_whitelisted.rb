@@ -8,13 +8,12 @@ module Authentication
 
     ValidateWebserviceIsWhitelisted ||= CommandClass.new(
       dependencies: {
-        role_class:              ::Role,
-        webservices_class:       ::Authentication::Webservices,
+        role_class: ::Role,
+        webservices_class: ::Authentication::Webservices,
         validate_account_exists: ::Authentication::Security::ValidateAccountExists.new
       },
-      inputs:       %i[webservice account enabled_authenticators]
+      inputs: %i[webservice account enabled_authenticators]
     ) do
-
       def call
         # No checks required for default conjur authn
         return if default_conjur_authn?

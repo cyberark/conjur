@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Authentication::AuthnK8s::ExtractContainerName do
+RSpec.describe(Authentication::AuthnK8s::ExtractContainerName) do
   include_context "running outside kubernetes"
 
   let(:service_id) { "service-id" }
@@ -15,49 +15,49 @@ RSpec.describe Authentication::AuthnK8s::ExtractContainerName do
 
   before(:each) do
     allow(container_name_annotation).to receive(:values)
-                                          .and_return(container_name_annotation)
+      .and_return(container_name_annotation)
     allow(container_name_annotation).to receive(:[])
-                                          .with(:name)
-                                          .and_return("authn-k8s/authentication-container-name")
+      .with(:name)
+      .and_return("authn-k8s/authentication-container-name")
     allow(container_name_annotation).to receive(:[])
-                                          .with(:value)
-                                          .and_return("ContainerName")
+      .with(:value)
+      .and_return("ContainerName")
 
     allow(container_name_annotation_service_id_prefix).to receive(:values)
-                                                            .and_return(container_name_annotation_service_id_prefix)
+      .and_return(container_name_annotation_service_id_prefix)
     allow(container_name_annotation_service_id_prefix).to receive(:[])
-                                                            .with(:name)
-                                                            .and_return("authn-k8s/#{service_id}/authentication-container-name")
+      .with(:name)
+      .and_return("authn-k8s/#{service_id}/authentication-container-name")
     allow(container_name_annotation_service_id_prefix).to receive(:[])
-                                                            .with(:value)
-                                                            .and_return("ServiceIdContainerName")
+      .with(:value)
+      .and_return("ServiceIdContainerName")
 
     allow(container_name_annotation_kubernetes_prefix).to receive(:values)
-                                                            .and_return(container_name_annotation_kubernetes_prefix)
+      .and_return(container_name_annotation_kubernetes_prefix)
     allow(container_name_annotation_kubernetes_prefix).to receive(:[])
-                                                            .with(:name)
-                                                            .and_return("kubernetes/authentication-container-name")
+      .with(:name)
+      .and_return("kubernetes/authentication-container-name")
     allow(container_name_annotation_kubernetes_prefix).to receive(:[])
-                                                            .with(:value)
-                                                            .and_return("KubernetesContainerName")
+      .with(:value)
+      .and_return("KubernetesContainerName")
   end
 
   context "Host annotations for container name" do
     subject do
       Authentication::AuthnK8s::ExtractContainerName.new.call(
         host_annotations: host_annotations,
-        service_id:       service_id
+        service_id: service_id
       )
     end
 
     context "all possible options exist" do
-      let(:host_annotations) {
+      let(:host_annotations) do
         [
           container_name_annotation,
           container_name_annotation_service_id_prefix,
           container_name_annotation_kubernetes_prefix
         ]
-      }
+      end
 
       it "does not raise an error" do
         expect { subject }.not_to raise_error
@@ -69,12 +69,12 @@ RSpec.describe Authentication::AuthnK8s::ExtractContainerName do
     end
 
     context "only global and service-id exist" do
-      let(:host_annotations) {
+      let(:host_annotations) do
         [
           container_name_annotation,
           container_name_annotation_service_id_prefix
         ]
-      }
+      end
 
       it "does not raise an error" do
         expect { subject }.not_to raise_error
@@ -86,12 +86,12 @@ RSpec.describe Authentication::AuthnK8s::ExtractContainerName do
     end
 
     context "only service-id & kubernetes exist" do
-      let(:host_annotations) {
+      let(:host_annotations) do
         [
           container_name_annotation_service_id_prefix,
           container_name_annotation_kubernetes_prefix
         ]
-      }
+      end
 
       it "does not raise an error" do
         expect { subject }.not_to raise_error
@@ -103,12 +103,12 @@ RSpec.describe Authentication::AuthnK8s::ExtractContainerName do
     end
 
     context "only global & kubernetes exist" do
-      let(:host_annotations) {
+      let(:host_annotations) do
         [
           container_name_annotation,
           container_name_annotation_kubernetes_prefix
         ]
-      }
+      end
 
       it "does not raise an error" do
         expect { subject }.not_to raise_error
@@ -120,11 +120,11 @@ RSpec.describe Authentication::AuthnK8s::ExtractContainerName do
     end
 
     context "only service-id exists" do
-      let(:host_annotations) {
+      let(:host_annotations) do
         [
           container_name_annotation_service_id_prefix
         ]
-      }
+      end
 
       it "does not raise an error" do
         expect { subject }.not_to raise_error
@@ -136,11 +136,11 @@ RSpec.describe Authentication::AuthnK8s::ExtractContainerName do
     end
 
     context "only global exists" do
-      let(:host_annotations) {
+      let(:host_annotations) do
         [
           container_name_annotation
         ]
-      }
+      end
 
       it "does not raise an error" do
         expect { subject }.not_to raise_error
@@ -152,11 +152,11 @@ RSpec.describe Authentication::AuthnK8s::ExtractContainerName do
     end
 
     context "only kubernetes exists" do
-      let(:host_annotations) {
+      let(:host_annotations) do
         [
           container_name_annotation_kubernetes_prefix
         ]
-      }
+      end
 
       it "does not raise an error" do
         expect { subject }.not_to raise_error
