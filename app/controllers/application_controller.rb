@@ -280,7 +280,7 @@ class ApplicationController < ActionController::API
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
     render json: {
       error: {
-        code: "not found",
+        code: "not_found",
         message: e.message
       }
     }, status: :not_found
