@@ -7,32 +7,40 @@ its license terms. Please email a signed copy to <a href="oss@cyberark.com">oss@
 
 For general contribution and community guidelines, please see the [community repo](https://github.com/cyberark/community).
 
-- [Prerequisites](#prerequisites)
-- [Build Conjur as a Docker image](#build-conjur-as-a-docker-image)
-- [Set up a development environment](#set-up-a-development-environment)
-    + [LDAP Authentication](#ldap-authentication)
-    + [RubyMine IDE Debugging](#rubymine-ide-debugging)
-    + [Visual Studio Code IDE Debugging](#visual-studio-code-ide-debugging)
-  * [Development CLI](#development-cli)
-    + [Step into the running Conjur container](#step-into-the-running-conjur-container)
-    + [View the admin user's API key](#view-the-admin-user-s-api-key)
-    + [Load a policy](#load-a-policy)
-  * [Updating the API](#updating-the-api)
-- [Testing](#testing)
-  * [CI Pipeline](#ci-pipeline)
-  * [RSpec](#rspec)
-  * [Cucumber](#cucumber)
-    + [Run all the cukes:](#run-all-the-cukes-)
-    + [Run just one feature:](#run-just-one-feature-)
-- [Pull Request Workflow](#pull-request-workflow)
-- [Style guide](#style-guide)
-- [Changelog maintenance](#changelog-maintenance)
-- [Releasing](#releasing)
-  * [Verify and update dependencies](#verify-and-update-dependencies)
-  * [Update the version and changelog](#update-the-version-and-changelog)
-  * [Tag the version](#tag-the-version)
-  * [Add a new GitHub release](#add-a-new-github-release)
-  * [Publishing AMIs](#publishing-amis)
+- [Contributing to Conjur](#contributing-to-conjur)
+  - [Prerequisites](#prerequisites)
+    - [Prevent Secret Leaks](#prevent-secret-leaks)
+  - [Build Conjur as a Docker image](#build-conjur-as-a-docker-image)
+  - [Set up a development environment](#set-up-a-development-environment)
+      - [LDAP Authentication](#ldap-authentication)
+      - [Google Cloud Platform (GCP) Authentication](#google-cloud-platform-gcp-authentication)
+      - [RubyMine IDE Debugging](#rubymine-ide-debugging)
+      - [Visual Studio Code IDE Debugging](#visual-studio-code-ide-debugging)
+    - [Development CLI](#development-cli)
+      - [Step into the running Conjur container](#step-into-the-running-conjur-container)
+      - [View the admin user's API key](#view-the-admin-users-api-key)
+      - [Load a policy](#load-a-policy)
+    - [Updating the API](#updating-the-api)
+    - [Updating the database schema](#updating-the-database-schema)
+  - [Testing](#testing)
+    - [CI Pipeline](#ci-pipeline)
+    - [RSpec](#rspec)
+    - [Cucumber](#cucumber)
+    - [Adding New Test Suites](#adding-new-test-suites)
+      - [Spin up Open ID Connect (OIDC) Compatible Environment for testing](#spin-up-open-id-connect-oidc-compatible-environment-for-testing)
+      - [Spin up Google Cloud Platform (GCP) Compatible Environment for testing](#spin-up-google-cloud-platform-gcp-compatible-environment-for-testing)
+      - [Run all the cukes:](#run-all-the-cukes)
+      - [Run just one feature:](#run-just-one-feature)
+    - [Rake Tasks](#rake-tasks)
+  - [Pull Request Workflow](#pull-request-workflow)
+  - [Style guide](#style-guide)
+  - [Changelog maintenance](#changelog-maintenance)
+  - [Releasing](#releasing)
+    - [Verify and update dependencies](#verify-and-update-dependencies)
+    - [Update the version and changelog](#update-the-version-and-changelog)
+    - [Tag the version](#tag-the-version)
+    - [Add a new GitHub release](#add-a-new-github-release)
+    - [Publishing AMIs](#publishing-amis)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
@@ -280,6 +288,40 @@ To prepare to make a change to the Conjur API, follow the process below:
 1. Once your Conjur changes have been merged and the new `conjur:edge` image has been published, rerun the
    automation in your OpenAPI pull request to ensure that the spec is consistent with your API changes. Have
    your spec PR reviewed and merged as usual.
+
+### Updating the database schema
+
+The Conjur database schema is implemented as Sequel database migration files. To add
+a new database migration, run the command inside the Conjur development container:
+
+```sh-session
+$ rails generate migration <migration_name>
+   ...
+   create    db/migrate/20210315172159_migration_name.rb
+```
+
+This creates a new file under `db/migrate` with the migration name prefixed by a
+timestamp.
+
+The initial contents of the file are similar to:
+
+```ruby
+Sequel.migration do
+  up do
+    ...
+  end
+
+  down do
+    ...
+  end
+end
+```
+
+More documentation on how to write Sequel migrations is
+[available here](https://github.com/jeremyevans/sequel/blob/master/doc/migration.rdoc).
+
+Database migrations are applied automatically when starting Conjur with the
+`conjurctl server` command.
 
 ## Testing
 
