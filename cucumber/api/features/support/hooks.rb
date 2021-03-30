@@ -51,3 +51,7 @@ end
 Before("@logged-in-admin") do
   @current_user = admin_user
 end
+
+After('@create_account') do
+  system("conjurctl account delete demo")
+end

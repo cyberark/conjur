@@ -12,3 +12,9 @@ end
 Then(/^the stderr includes the error "([^"]*)"$/) do |error|
   expect(@conjurctl_stderr).to include(error)
 end
+
+Given(/^I create an account with the name "(.*?)" and the password "(.*?)" using conjurctl/) do |name, password|
+  command = "echo -n '#{password}' | \
+    conjurctl account create --password-from-stdin --name #{name}"
+  @conjurctl_stdout, @conjurctl_stderr, = Open3.capture3(command)
+end

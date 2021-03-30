@@ -1,3 +1,15 @@
 #!/bin/sh
 
-kill $(ps aux | grep '[r]uby /usr/local/bin/conjurctl server' | awk '{print $2}')
+# This terminates the process and all of its child processes
+kill_recurse() {
+    for child_pid in $(pgrep -P "$1");
+    do
+        kill_recurse "$child_pid"
+    done
+    kill "$1"
+}
+
+conjur_server_pid=$(pgrep -f 'ruby /usr/local/bin/conjurctl server')
+if [ -n "$conjur_server_pid" ]; then
+  kill_recurse "$conjur_server_pid"
+fi

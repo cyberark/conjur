@@ -36,11 +36,21 @@ def connect
   true
 end
 
+def stdin_input
+  raise "Please provide an input via STDIN" if $stdin.tty?
+
+  $stdin.read.force_encoding('ASCII-8BIT')
+end
+
 desc 'Run the application server'
 command :server do |c|
   c.desc 'Account to initialize'
   c.arg_name :name
   c.flag [ :a, :account ]
+
+  c.desc "Provide account password via STDIN"
+  c.arg_name "password-from-stdin"
+  c.switch("password-from-stdin", :negatable => false)
 
   c.desc 'Policy file to load into the server'
   c.arg_name :path
@@ -62,8 +72,19 @@ command :server do |c|
     connect
 
     system "rake db:migrate" or exit $?.exitstatus
+
+    if options["password-from-stdin"] && !account
+      raise "account is required with password-from-stdin flag"
+    end
+
     if account
-      system "rake account:create[#{account}]" or exit $?.exitstatus
+      if options["password-from-stdin"]
+        password = stdin_input
+        system "rake account:create_with_password[#{account},#{password}]" \
+          or exit $?.exitstatus
+      else
+        system "rake account:create[#{account}]" or exit $?.exitstatus
+      end
     end
 
     if file_name = options[:file]
@@ -174,23 +195,44 @@ desc "Manage accounts"
 command :account do |cgrp|
   cgrp.desc "Create an organization account"
   cgrp.long_desc <<-DESC
-Use this command to generate and store a new account, along with its 2048-bit RSA private key,
-used to sign auth tokens, as well as the "admin" user API key.
-The CONJUR_DATA_KEY must be available in the environment
-when this command is called, since it's used to encrypt the token-signing key
-in the database.
+Use this command to generate and store a new account, along with its 2048-bit 
+RSA private key, used to sign auth tokens. The CONJUR_DATA_KEY must be
+available in the environment when this command is called, since it's used to
+encrypt the token-signing key in the database.
+
+The optional 'password-from-stdin' flag signifies that the password should be 
+read from STDIN. If the flag is not provided, the "admin" user API key will be
+outputted to STDOUT.
+
+The 'name' flag or command argument must be present. It will specify the name of
+the account that will be created.
 
 Example:
 
-$ conjurctl account create myorg
+$ conjurctl account create [--password-from-stdin] --name myorg
   DESC
-  cgrp.arg :account
+  cgrp.arg :name, :optional
   cgrp.command :create do |c|
+    c.desc("Provide account password via STDIN")
+    c.arg_name("password-from-stdin")
+    c.switch("password-from-stdin", :negatable => false)
+
+    c.desc("Account name")
+    c.arg_name(:name)
+    c.flag(:name)
+
     c.action do |global_options,options,args|
-      account = args.first
+      account = options[:name] || args.first
+      raise "No account name was provided" unless account
+
       connect
 
-      exec "rake account:create[#{account}]"
+      if options["password-from-stdin"]
+        password = stdin_input
+        exec "rake account:create_with_password[#{account},#{password}]"
+      else
+        exec "rake account:create[#{account}]"
+      end
     end
   end
 

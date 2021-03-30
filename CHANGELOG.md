@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2083](https://github.com/cyberark/conjur/issues/2083)
 
 ### Added
+- `conjurctl server` and `conjurctl account create` allow the operator to specify
+  the admin user's password via STDIN by providing the `--password-from-stdin` switch.
+  [cyberark/conjur#2043](https://github.com/cyberark/conjur/issues/2043)
+- `conjurctl account create` now allows the operator to specify the account name via
+  the `--name` flag. We recommend using this explicit flag when using the `--password-from-stdin`
+  option so that commands are explicit and more readable.
+  [cyberark/conjur#2043](https://github.com/cyberark/conjur/issues/2043)
 - `/whoami` API endpoint now produces audit events.
   [cyberark/conjur#2052](https://github.com/cyberark/conjur/issues/2052)
 - When a user checks permissions of a non-existing role or a non-existing resource, Conjur now audits a failure message.

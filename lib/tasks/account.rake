@@ -25,6 +25,29 @@ namespace :"account" do
     end
   end
 
+  desc "Create an account with a preset password"
+  task :create_with_password, [ "account", "password" ] => [ "environment" ] do |t,args|
+    unless Conjur::Password.valid?(args[:password])
+      $stderr.puts(::Errors::Conjur::InsufficientPasswordComplexity.new.to_s)
+      exit 1
+    end
+
+    Account.find_or_create_accounts_resource
+    begin
+      Account.create(args[:account])
+      account = Account.new(args[:account])
+      $stderr.puts "Created new account '#{account.id}'"
+      puts "Token-Signing Public Key: #{account.token_key.to_s}"
+
+      role_id = "#{args[:account]}:user:admin"
+      Role[role_id].password = args[:password]
+      puts "Password is set"
+    rescue Exceptions::RecordExists
+      $stderr.puts "Account '#{args[:account]}' already exists"
+      exit 1
+    end
+  end
+
   desc "Delete an account"
   task :delete, [ "account" ] => [ "environment" ] do |t,args|
     begin
