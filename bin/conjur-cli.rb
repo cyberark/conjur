@@ -92,7 +92,7 @@ command :server do |c|
     if file_name = options[:file]
       raise "account option is required with file option" unless account
 
-      system("rake policy:load[#{account},#{file_name}]")) || exit(($?.exitstatus))
+      system("rake policy:load[#{account},#{file_name}]") || exit(($?.exitstatus))
     end
 
     Process.fork do

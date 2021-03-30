@@ -69,12 +69,14 @@ module Authentication
         pod_namespace  = spiffe_id.namespace
         pod_name       = spiffe_id.name
         cert_file_path = "/etc/conjur/ssl/client.pem"
-        @logger.debug(LogMessages::Authentication::AuthnK8s::CopySSLToPod.new(
-                        container_name,
-                        cert_file_path,
-                        pod_namespace,
-                        pod_name
-                      ))
+        @logger.debug(
+          LogMessages::Authentication::AuthnK8s::CopySSLToPod.new(
+            container_name,
+            cert_file_path,
+            pod_namespace,
+            pod_name
+          )
+        )
 
         @copy_text_to_file_in_container.call(
           webservice: webservice,

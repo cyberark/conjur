@@ -23,10 +23,10 @@ module Conjur
             handler.parser = parser
             begin
               parser.parse(yaml)
-            rescue
-              handler.log { $ERROR_INFO.message }
-              handler.log { $ERROR_INFO.backtrace.join("  \n") }
-              raise Invalid.new($ERROR_INFO.message || "(no message)", filename, parser.mark)
+            rescue => e
+              handler.log { e.message }
+              handler.log { e.backtrace.join("  \n") }
+              raise Invalid.new(e.message || "(no message)", filename, parser.mark)
             end
             records = handler.result || []
             

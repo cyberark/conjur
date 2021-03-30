@@ -18,7 +18,7 @@ module Conjur
               return @#{name} if instance_variable_defined?(:@#{name})
               @#{name} = InheritableAttribute.inherit_for(self, :#{name}, #{options})
             end
-          ", __FILE__, __LINE__ - 9)
+          ")
         end
     
         def self.inherit_for(klass, name, options = {})

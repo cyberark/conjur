@@ -94,7 +94,7 @@ module Conjur
         
         # Handles the root document, which should be a sequence.
         class Root < Base
-          attr_reader :result, :handler, :handler
+          attr_reader :result, :handler
           
           def initialize handler
             super(nil, nil)

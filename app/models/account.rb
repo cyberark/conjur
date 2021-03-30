@@ -10,8 +10,9 @@ Account = Struct.new(:id) do
   
       role_id     = "!:!:root"
       resource_id = "!:webservice:accounts"
-      (role = Role[role_id]) || Role.create(role_id: role_id))
-      Resource[resource_id] || Resource.create(resource_id: resource_id, owner_id: role_id))
+      (role = Role[role_id]) || Role.create(role_id: role_id)
+      Resource[resource_id] ||
+        Resource.create(resource_id: resource_id, owner_id: role_id)
     end
 
     INVALID_ID_CHARS = /[ :]/.freeze

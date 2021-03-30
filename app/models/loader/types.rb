@@ -3,15 +3,15 @@
 module Loader
   module Types
     class << self
-      def find_or_create_root_policy account
-        ::Resource[root_policy_id(account)] || create_root_policy(account))
+      def find_or_create_root_policy(account)
+        ::Resource[root_policy_id(account)] || create_root_policy(account)
       end
 
-      def root_policy_id account
+      def root_policy_id(account)
         "#{account}:policy:root"
       end
 
-      def create_root_policy account
+      def create_root_policy(account)
         role = ::Role.create(role_id: root_policy_id(account))
         ::Resource.create(resource_id: root_policy_id(account), owner: admin_role(account))
       end

@@ -36,7 +36,7 @@ module ConjurAudit
             { 'subject@43868': { resource: id } },
             { 'policy@43868': { policy: id } },
             { 'auth@43868': { service: id } }
-          ].map(&method(:sdata)).inject (|)
+          ].map(&method(:sdata)).inject(:|)
         end
 
         def role id
@@ -46,7 +46,7 @@ module ConjurAudit
             { 'subject@43868': { member: id } },
             { 'policy@43868': { policy: id } },
             { 'auth@43868': { user: id } }
-          ].map(&method(:sdata)).inject (|)
+          ].map(&method(:sdata)).inject(:|)
         end
       end
     end
