@@ -318,9 +318,11 @@ module Conjur
         # Invoke with the anchor name and value to set the value.
         def anchor *args
           key, value, = args
-          if _
+          unless [1, 2].include?(args.length)
             raise ArgumentError, "Expecting 1 or 2 arguments, got #{args.length}"
-          elsif key && value
+          end
+
+          if key && value
             raise "Duplicate anchor #{key}" if @anchors[key]
 
             @anchors[key] = value
