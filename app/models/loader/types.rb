@@ -152,11 +152,12 @@ module Loader
         super
 
         layer_roleids.each do |layerid|
-          ::RoleMembership.create(\
+          ::RoleMembership.create(
             role_id: layerid,
             member_id: self.roleid,
             admin_option: false,
-            ownership: false)
+            ownership: false
+          )
         end
       end
 
@@ -265,11 +266,12 @@ module Loader
       def create!
         Array(roles).each do |r|
           Array(members).each do |m|
-            ::RoleMembership.create(\
+            ::RoleMembership.create(
               role_id: find_roleid(r.roleid),
               member_id: find_roleid(m.role.roleid),
               admin_option: m.admin,
-              ownership: false)
+              ownership: false
+            )
           end
         end
       end
@@ -282,10 +284,11 @@ module Loader
         Array(resources).each do |r|
           Array(privileges).each do |p|
             Array(roles).each do |m|
-              ::Permission.create(\
+              ::Permission.create(
                 resource_id: find_resourceid(r.resourceid),
                 privilege: p,
-                role_id: find_roleid(m.roleid))
+                role_id: find_roleid(m.roleid)
+              )
             end
           end
         end

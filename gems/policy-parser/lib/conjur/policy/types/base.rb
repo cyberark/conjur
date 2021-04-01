@@ -9,16 +9,20 @@ module Conjur
       # https://raw.githubusercontent.com/apotonick/uber/master/lib/uber/inheritable_attr.rb
       module InheritableAttribute
         def inheritable_attr(name, options = {})
-          instance_eval("
-            def #{name}=(v)
-              @#{name} = v
-            end
-    
-            def #{name}
-              return @#{name} if instance_variable_defined?(:@#{name})
-              @#{name} = InheritableAttribute.inherit_for(self, :#{name}, #{options})
-            end
-          ")
+          instance_eval(
+            <<-EOS, __FILE__, __LINE__ + 1
+              def #{name}=(v)
+                @#{name} = v
+              end
+      
+              def #{name}
+                return @#{name} if instance_variable_defined?(:@#{name})
+                @#{name} = InheritableAttribute.inherit_for(
+                  self, :#{name}, #{options}
+                )
+              end
+            EOS
+          )
         end
     
         def self.inherit_for(klass, name, options = {})
