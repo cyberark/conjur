@@ -1,5 +1,6 @@
 AllCops:
   TargetRubyVersion: 2.5
+# Try one more
 
 # These non-default settings best reflect our current code style.
 Layout/LineLength:
@@ -42,7 +43,7 @@ Style/MethodCallWithArgsParentheses:
   Enabled: true
   IgnoredMethods: [
      # Ruby keywords:
-     gem, require, raise,
+     gem, require, raise, cattr_accessor
      # Test keywords:
      step, to, to_not, not_to,
      # GLI keywords
