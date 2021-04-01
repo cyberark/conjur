@@ -77,10 +77,11 @@ docker run \
 cp plugin_executable /plugins/dir/on/host/
 ```
 
-#### Enabling plugins
+#### Registering plugins
 
 ```
-conjurctl plugin enable plugin_executable
+conjurctl plugin register plugin_executable \
+ --config config.yaml
 ```
 
 This, for example, would add the signature of the executable to an
@@ -99,66 +100,138 @@ executables from being replaced with after installation.
 
 ## Technical Design
 
-### Conjur gRPC plugin registration service
+### Conjur gRPC plugin registration service (in Conjur process)
 
-- gRPC
-
-### Conur plugin service
-
-#### Authenticator (existing)
-
-- gRPC service definition
-
-#### Rotator (existing)
-
-- gRPC service definition
-
-
-#### Policy load controller (future)
-
-##### Mutation controller
-
-- gRPC service definition
-
-##### Validation controller
+### Authenticator service (in plugin process)
 
 - gRPC service definition
 
 ### Plugin lifecycle
 
-- Conjur starts the plugin executable
+```plantuml
+@startuml
 
-    - Conjur provides an access token/certificate to authenticate
-      the plugin communication to the gRPC interfaces.
+start
+:Development;
+:Publishing;
+:Installation;
+:Startup;
+:Registration;
+:Configuration;
+:Invocation;
+:Shutdown;
+:Update;
+:Deregistration;
+:Removal;
+@enduml
+```
 
-    - Conjur provides a public key to trust for communication from
-      the Conjur server.
+#### Development
 
-- The plugin sends a plugin registration to Conjur, providing
-  its port
+The API spec for plugins is available as Protocol Buffer files. These
+are used to implement a new executable application that implements an
+authenticator server and a client for the plugin registration server
 
-- Conjur registers the plugin's endpoints for authentication, rotation,
-  and policy loading.
+##### Open Questions
 
-#### Authentication
+- How to test plugins?
+- Startup interface
 
-- Authentication discovery includes authentications provided by the
-  gRPC manager.
+#### Publishing
 
-- `#authenticate` calls are sent over gRPC to the plugin to return true/false
+To publish a plugin, the executable needs to be made available
+for download.
 
-#### Secret rotation
+##### Open questions
 
-#### Plugin Load Controllers
+- How to publish plugins in a secure way (e.g. signing)?
 
-##### Mutation
+#### Installation
 
-- Modify policy before it's loaded. This allows, for instance, policy templating
+- Place the executable in a specified directory
 
-##### Validation
+- Register the plugin with Conjur (conjurctl)
+    - Create a webservice object in Conjur
+    - Create variables for the public/private keys
 
-- Reject policy that doesn't satisy custome business logic.
+##### Open questions
 
-## Open questions
+- Need to address rotating the public/private keys
 
-- How to verify plugin authenticity? For example, executable signature allow-list.
+#### Startup
+
+- Verify the executable matches the registration (by checking the hash)
+
+- Generate an access token for the webservice and add it to the process environment
+  when launching the executable.
+
+- Provide the registration API as an environment variable
+
+- Launch the plugin process
+
+##### Open questions
+
+- Can this access token have a shorter life than the default 8 minutes?
+
+#### Registration
+
+- Plugin reads its public and private keys from Conjur
+
+- Plugin authenticates with the registration API using mTLS to
+  register the plugins available.
+
+#### Configuration
+
+Authenticator instances are created in policy, using annotations
+to provide configuration values.
+
+#### Invocation
+
+When an authenticator plugin is invoked, Conjur sends the webservice
+object and the authentication request to the plugin endpoint.
+
+The plugin server determines whether the authentication is valid
+or not, and returns the result with any additional metadata to include
+in the access token for audit.
+
+##### Open Questions
+
+- Can a plugin make calls into Conjur?
+
+- Should it have a host identity?
+
+- Can the plugin webservice do things "on behalf of" the authenticator
+  webservice? Perhaps the call for `authenticate` should include an
+  access token for that webservice. This would allow it to read
+  authenticator specific variables.
+
+#### Shutdown
+
+When Conjur stops, it shuts down each of the plugin processes.
+
+#### Update
+
+- Replace the executable
+- Update the registration with the new hash and any required configuration
+- Restart the process
+
+##### Open questions
+
+- Can we do this in a "rolling" manner, to avoid downtime?
+
+#### Deregistration
+
+When a plugin is removed with `conjurctl`, it's `webservice` entry
+is removed from policy.
+
+#### Removal
+
+Plugins are removed/uninstalled by deleting the executable from the
+plugins directory.
+
+## Other considerations
+
+### Audit
+
+- Plugin lifecycle events must be audited
+
