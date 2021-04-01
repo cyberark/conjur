@@ -13,8 +13,11 @@ module Util
         # `OpenSSL::X509::Certificate`
         #
         def initialize(csr)
-          csr = csr.is_a?(String) ?
-            OpenSSL::X509::Request.new(csr) : csr
+          csr = if csr.is_a?(String)
+            OpenSSL::X509::Request.new(csr)
+          else
+            csr
+          end
           super(csr)
         end
 
@@ -22,6 +25,7 @@ module Util
         #
         def spiffe_id
           return nil unless ext_req_attr
+
           @spiffe_id ||= subject_altname.sub(/^URI:/i, '')
         end
 

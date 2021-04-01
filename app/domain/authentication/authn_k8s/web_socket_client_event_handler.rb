@@ -30,9 +30,7 @@ module Authentication
       def on_open
         handshake_error = @ws_client.handshake.error
         if handshake_error
-          raise Errors::Authentication::AuthnK8s::WebSocketHandshakeError.new(
-            handshake_error.inspect
-          )
+          raise Errors::Authentication::AuthnK8s::WebSocketHandshakeError, handshake_error.inspect
         end
 
         @logger.debug(

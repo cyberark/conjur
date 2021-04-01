@@ -34,4 +34,3 @@ describe ::Audit::Event::Authn::RoleId do
     expect(subj.to_s).to eq("my_account:user:#{placeholder}")
   end
 end
-

@@ -7,6 +7,7 @@ class PublicKey
     def key_name key
       parts = key.split(' ', 3)
       raise "Invalid public key format" unless parts.count == 3
+
       parts[2]
     end
   end

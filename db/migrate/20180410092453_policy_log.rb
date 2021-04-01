@@ -6,7 +6,7 @@ Sequel.migration do
   up do
     execute """
       CREATE TYPE policy_log_op AS ENUM ('INSERT', 'DELETE', 'UPDATE');
-      CREATE TYPE policy_log_kind AS ENUM #{literal tables.map(&:to_s)};
+      CREATE TYPE policy_log_kind AS ENUM #{literal(tables.map(&:to_s))};
       CREATE EXTENSION IF NOT EXISTS hstore;
     """
 
@@ -46,7 +46,7 @@ Sequel.migration do
               SELECT
                 current.resource_id, current.version,
                 TG_OP::policy_log_op, '#{table}'::policy_log_kind,
-                slice(hstore(subject), #{literal primary_key})
+                slice(hstore(subject), #{literal(primary_key)})
               ;
             ELSE
               RAISE WARNING 'modifying data outside of policy load: %', subject.policy_id;

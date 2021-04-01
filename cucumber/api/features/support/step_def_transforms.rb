@@ -24,12 +24,14 @@ DummyToken = Struct.new(:token, :expiration)
 def render_hf_token(tmpl)
   token = @result.dig(0, 'token')
   return tmpl unless token
+
   tmpl.gsub("@host_factory_token@", token)
 end
 
 def render_hf_token_expiration(tmpl)
   exp = @result.dig(0, 'expiration')
   return tmpl unless exp
+
   tmpl.gsub("@host_factory_token_expiration@", parse_expiration(exp))
 end
 

@@ -6,7 +6,6 @@ module Conjur
     dependencies: { resource_class: ::Resource },
     inputs: [:resource_ids]
   ) do
-
     def call
       validate_resources_exist
       validate_secrets_exist
@@ -36,7 +35,7 @@ module Conjur
     end
 
     def secrets
-      @secrets ||= resources.map { |id, rsc| [id, rsc.secret] }.to_h
+      @secrets ||= resources.transform_values(&:secret)
     end
   end
 end

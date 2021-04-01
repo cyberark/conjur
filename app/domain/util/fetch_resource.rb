@@ -5,7 +5,6 @@ module Util
     },
     inputs: %i[resource_id]
   ) do
-
     def call
       resource
     end

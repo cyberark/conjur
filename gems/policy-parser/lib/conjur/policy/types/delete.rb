@@ -4,7 +4,9 @@ module Conjur
       class Delete < Base
         attribute :record, kind: :resource
 
-        def delete_statement?; true; end
+        def delete_statement? 
+          true 
+        end
 
         def subject_id
           record.id

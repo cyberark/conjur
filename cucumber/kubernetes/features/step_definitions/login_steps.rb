@@ -15,8 +15,8 @@ def login username, request_ip, authn_k8s_host, pkey, headers = {}
   @cert = pod_certificate
 
   if @cert.to_s.empty?
-    puts "WARN: Certificate is empty!"
-    warn "WARN: Certificate is empty!"
+    puts("WARN: Certificate is empty!")
+    warn("WARN: Certificate is empty!")
   end
 
   response
@@ -36,11 +36,12 @@ end
 
 def login_with_username request_ip, username, success, headers = {}
   begin
-    @pkey = OpenSSL::PKey::RSA.new 2048
+    @pkey = OpenSSL::PKey::RSA.new(2048)
     response = login(username, request_ip, authn_k8s_host, @pkey, headers)
     expect(response.code).to be(202)
   rescue
     raise if success
+
     @error = $!
   end
 
@@ -77,7 +78,7 @@ When(/^I launch many concurrent login requests$/) do
   username = [ namespace, "*", "*" ].join('/')
 
   @request_threads = (0...50).map do |i|
-    sleep 0.05
+    sleep(0.05)
     Thread.new do
       begin
         login(username, request_ip, authn_k8s_host, OpenSSL::PKey::RSA.new(2048))

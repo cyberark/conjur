@@ -22,18 +22,18 @@ module AuthnK8sWorld
   end
 
   def substitute! pattern
-    pattern.gsub! "@pod_ip@", @pod.status.podIP if @pod
-    pattern.gsub! "@pod_ip_dashes@", @pod.status.podIP.gsub('.', '-') if @pod
-    pattern.gsub! "@namespace@", @pod.metadata.namespace if @pod
+    pattern.gsub!("@pod_ip@", @pod.status.podIP) if @pod
+    pattern.gsub!("@pod_ip_dashes@", @pod.status.podIP.gsub('.', '-')) if @pod
+    pattern.gsub!("@namespace@", @pod.metadata.namespace) if @pod
     pattern
   end
 
   def print_result_errors response
     if response
-      $stderr.puts "ERROR: STDOUT: '#{response[:stdout]}'"
-      $stderr.puts "ERROR: STDERR: '#{response[:error]}'"
+      $stderr.puts("ERROR: STDOUT: '#{response[:stdout]}'")
+      $stderr.puts("ERROR: STDERR: '#{response[:error]}'")
     else
-      $stderr.puts "ERROR: Response was nil!"
+      $stderr.puts("ERROR: Response was nil!")
     end
   end
 
@@ -46,74 +46,74 @@ module AuthnK8sWorld
 
     pod_metadata = @pod.metadata
     while count < retries
-      puts "Waiting for client cert to be available (Attempt #{count + 1} of #{retries})"
+      puts("Waiting for client cert to be available (Attempt #{count + 1} of #{retries})")
 
       pod_metadata = @pod.metadata
       begin
         response = Authentication::AuthnK8s::ExecuteCommandInContainer.new.call(
           k8s_object_lookup: Authentication::AuthnK8s::K8sObjectLookup.new,
-          pod_namespace:     pod_metadata.namespace,
-          pod_name:          pod_metadata.name,
-          container:         "authenticator",
-          cmds:              %w[cat /etc/conjur/ssl/client.pem],
-          body:              "",
-          stdin:             false
+          pod_namespace: pod_metadata.namespace,
+          pod_name: pod_metadata.name,
+          container: "authenticator",
+          cmds: %w[cat /etc/conjur/ssl/client.pem],
+          body: "",
+          stdin: false
         )
 
         if !response.nil? && response[:error].empty? && !response[:stdout].to_s.strip.empty?
-          puts "Retrieved client cert from container"
+          puts("Retrieved client cert from container")
           success = true
           break
         end
 
-        print_result_errors response
+        print_result_errors(response)
       rescue Errors::Authentication::AuthnK8s::ExecCommandError => e
         # This error will be raised in case the file is not in the container
         # which is ok as we have a retry mechanism for this
         unless e.inspect.include?("Error executing in Docker Container: 1")
-          puts "Failed to retrieve client cert with error: #{e.inspect}"
+          puts("Failed to retrieve client cert with error: #{e.inspect}")
           e.backtrace.each do |line|
-            puts line
+            puts(line)
           end
           break
         end
       ensure
-        sleep 2
+        sleep(2)
         count += 1
       end
     end
 
     return response[:stdout].join if success
 
-    puts "ERROR: Unable to retrieve client certificate for pod #{@pod.metadata.name.inspect}, " \
-           "printing logs from the container..."
+    puts("ERROR: Unable to retrieve client certificate for pod #{@pod.metadata.name.inspect}, " \
+           "printing logs from the container...")
     begin
       get_cert_injection_logs_response = Authentication::AuthnK8s::ExecuteCommandInContainer.new.call(
         k8s_object_lookup: Authentication::AuthnK8s::K8sObjectLookup.new,
-        pod_namespace:     pod_metadata.namespace,
-        pod_name:          pod_metadata.name,
-        container:         "authenticator",
-        cmds:              %w[cat /tmp/conjur_copy_text_output.log],
-        body:              "",
-        stdin:             false
+        pod_namespace: pod_metadata.namespace,
+        pod_name: pod_metadata.name,
+        container: "authenticator",
+        cmds: %w[cat /tmp/conjur_copy_text_output.log],
+        body: "",
+        stdin: false
       )
 
       if !get_cert_injection_logs_response.nil? &&
-        get_cert_injection_logs_response[:error].empty? &&
-        !get_cert_injection_logs_response[:stdout].to_s.strip.empty?
+          get_cert_injection_logs_response[:error].empty? &&
+          !get_cert_injection_logs_response[:stdout].to_s.strip.empty?
         @cert_injection_logs = get_cert_injection_logs_response[:stdout].join.to_s
-        puts "Retrieved cert injection logs from container:\n #{@cert_injection_logs}"
+        puts("Retrieved cert injection logs from container:\n #{@cert_injection_logs}")
       else
-        puts "Failed to retrieve cert injection logs from container"
+        puts("Failed to retrieve cert injection logs from container")
       end
     rescue Errors::Authentication::AuthnK8s::ExecCommandError => e
-      puts "Failed to retrieve client cert with error: #{e.inspect}"
+      puts("Failed to retrieve client cert with error: #{e.inspect}")
       e.backtrace.each do |line|
-        puts line
+        puts(line)
       end
     end
 
-    $stderr.puts "ERROR: Unable to retrieve client certificate for pod #{@pod.metadata.name.inspect}"
+    $stderr.puts("ERROR: Unable to retrieve client certificate for pod #{@pod.metadata.name.inspect}")
   end
 
   # Find pod matching label selector.
@@ -124,6 +124,7 @@ module AuthnK8sWorld
 
     err = "No pod found matching label selector: #{label_selector.inspect}"
     raise err unless @pod
+
     "found"
   end
 
@@ -131,7 +132,7 @@ module AuthnK8sWorld
   def detect_request_ip objectid
     expect(objectid).to match(/^([\w-])+\/([\w-])+$/)
     controller_type, id = objectid.split('/')
-    controller = k8s_object_lookup.find_object_by_name controller_type, id, namespace
+    controller = k8s_object_lookup.find_object_by_name(controller_type, id, namespace)
     raise "#{objectid.inspect} not found" unless controller
 
     @pod = pod = kube_client.get_pods(namespace: namespace).find do |pod|
@@ -147,10 +148,10 @@ module AuthnK8sWorld
     end
 
     if pod
-      $stderr.puts "Using Pod #{pod.metadata.name} for objectid #{objectid}"
+      $stderr.puts("Using Pod #{pod.metadata.name} for objectid #{objectid}")
       pod.status.podIP
     else
-      $stderr.puts "No pod found for objectid #{objectid}"
+      $stderr.puts("No pod found for objectid #{objectid}")
       "192.0.2.0"
     end
   end
@@ -160,7 +161,7 @@ module AuthnK8sWorld
     common_name = id.tr('/', '.')
     subject = OpenSSL::X509::Name.new(
       [
-        ['CN', common_name],
+        ['CN', common_name]
         # ['O', id],
         # ['C', id],
         # ['ST', id],
@@ -180,16 +181,16 @@ module AuthnK8sWorld
     ]
 
     # add SAN extension to the CSR
-    attribute_values = OpenSSL::ASN1::Set [OpenSSL::ASN1::Sequence(extensions)]
+    attribute_values = OpenSSL::ASN1::Set([OpenSSL::ASN1::Sequence(extensions)])
     [
       OpenSSL::X509::Attribute.new('extReq', attribute_values),
       OpenSSL::X509::Attribute.new('msExtReq', attribute_values)
     ].each do |attribute|
-      csr.add_attribute attribute
+      csr.add_attribute(attribute)
     end
 
     # sign CSR with the signing key
-    csr.sign signing_key, OpenSSL::Digest::SHA256.new
+    csr.sign(signing_key, OpenSSL::Digest.new('SHA256'))
   end
 end
 

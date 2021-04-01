@@ -1,5 +1,5 @@
 # Enable selective setting of GCP annotations
-Given(/^I set (invalid )?"authn-gcp\/(service-account-id|service-account-email|project-id|instance-name|invalid-key)" GCE annotation to host "([^"]*)"$/) do |invalid, annotation_name, hostname|
+Given(%r{^I set (invalid )?"authn-gcp/(service-account-id|service-account-email|project-id|instance-name|invalid-key)" GCE annotation to host "([^"]*)"$}) do |invalid, annotation_name, hostname|
   i_have_a_resource "host", hostname
 
   if invalid
@@ -24,7 +24,7 @@ Given(/^I set (invalid )?"authn-gcp\/(service-account-id|service-account-email|p
   set_annotation_to_resource("authn-gcp/#{annotation_name}", annotation_value)
 end
 
-Given(/^I set "authn-gcp\/(service-account-id|service-account-email|project-id|instance-name)" GCF annotation to host "([^"]*)"$/) do |annotation_name, hostname|
+Given(%r{^I set "authn-gcp/(service-account-id|service-account-email|project-id|instance-name)" GCF annotation to host "([^"]*)"$}) do |annotation_name, hostname|
   i_have_a_resource "host", hostname
 
   case annotation_name
@@ -43,7 +43,7 @@ Given(/^I set "authn-gcp\/(service-account-id|service-account-email|project-id|i
   set_annotation_to_resource("authn-gcp/#{annotation_name}", annotation_value)
 end
 
-Given(/^I set "authn-gcp\/(service-account-id|service-account-email)" annotation with value: "([^"]*)" to host "([^"]*)"$/) do |annotation_name, annotation_value, hostname|
+Given(%r{^I set "authn-gcp/(service-account-id|service-account-email)" annotation with value: "([^"]*)" to host "([^"]*)"$}) do |annotation_name, annotation_value, hostname|
   i_have_a_resource "host", hostname
   set_annotation_to_resource("authn-gcp/#{annotation_name}", annotation_value)
 end
@@ -64,7 +64,7 @@ Given(/^I set all valid GCF annotations to (user|host) "([^"]*)"$/) do |role_typ
   set_annotation_to_resource("authn-gcp/service-account-email", gcf_service_account_email)
 end
 
-Given(/^I set "authn-gcp\/(service-account-id|service-account-email)" GCF annotations to (user|host) "([^"]*)"$/) do |annotation_type, role_type, hostname|
+Given(%r{^I set "authn-gcp/(service-account-id|service-account-email)" GCF annotations to (user|host) "([^"]*)"$}) do |annotation_type, role_type, hostname|
   i_have_a_resource role_type, hostname
 
   if annotation_type == 'id'
@@ -108,7 +108,7 @@ Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?with authn-gcp using (
             no_kid_self_signed_token
           else
             @gce_identity_token
-          end
+  end
 
   num_requests ||= 1
   num_threads  ||= 1
@@ -116,9 +116,9 @@ Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?with authn-gcp using (
   authenticate_with_performance(
     num_requests,
     num_threads,
-    authentication_func:        :authenticate_gcp_token,
+    authentication_func: :authenticate_gcp_token,
     authentication_func_params: {
-      account:   account,
+      account: account,
       gcp_token: token
     }
   )

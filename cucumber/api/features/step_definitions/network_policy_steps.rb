@@ -17,7 +17,7 @@ When(/^I load a network-restricted policy$/) do
       # ENV['CUCUMBER_NETWORK'] - Allows connections in a docker/docker-compose network
       #                               the current network settings
       restricted_to: [ "127.0.0.1", "#{cuke_network}" ]
-    ).tap { |p| puts "Network-restricted policy: #{p}" }
+    ).tap { |p| puts("Network-restricted policy: #{p}") }
 
   steps %Q(
     When I successfully PUT "/policies/cucumber/policy/root" with body:

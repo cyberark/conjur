@@ -6,19 +6,18 @@ module Authentication
 
   ValidateStatus ||= CommandClass.new(
     dependencies: {
-      validate_webservice_is_whitelisted:  ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
+      validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
       validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
-      validate_webservice_exists:          ::Authentication::Security::ValidateWebserviceExists.new,
-      role_class:                          ::Role,
-      implemented_authenticators:          Authentication::InstalledAuthenticators.authenticators(ENV),
-      audit_log:                           ::Audit.logger
+      validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
+      role_class: ::Role,
+      implemented_authenticators: Authentication::InstalledAuthenticators.authenticators(ENV),
+      audit_log: ::Audit.logger
     },
-    inputs:       %i[authenticator_status_input enabled_authenticators]
+    inputs: %i[authenticator_status_input enabled_authenticators]
   ) do
-
-    extend Forwardable
-    def_delegators :@authenticator_status_input, :authenticator_name, :account,
-                   :username, :webservice, :status_webservice, :role, :client_ip
+    extend(Forwardable)
+    def_delegators(:@authenticator_status_input, :authenticator_name, :account,
+                   :username, :webservice, :status_webservice, :role, :client_ip)
 
     def call
       validate_authenticator_exists

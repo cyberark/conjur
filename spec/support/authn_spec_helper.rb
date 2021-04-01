@@ -2,12 +2,12 @@ shared_context "authn setup" do
   let(:input) do
     ::Authentication::AuthenticatorInput.new(
       authenticator_name: 'authn',
-      service_id:         'service',
-      account:            'account',
-      username:           'username',
-      credentials:        'creds',
-      client_ip:          '127.0.0.1',
-      request:            nil
+      service_id: 'service',
+      account: 'account',
+      username: 'username',
+      credentials: 'creds',
+      client_ip: '127.0.0.1',
+      request: nil
     )
   end
 
@@ -37,7 +37,6 @@ shared_context "authn setup" do
       allow(creds).to receive(:[]).and_return(nil)
     end
   end
-
 
   let(:invalid_api_key_credentials) { double("Credentials") }
   def invalid_api_key_credentials

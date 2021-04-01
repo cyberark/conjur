@@ -8,9 +8,8 @@ module Authentication
       dependencies: {
         fetch_secrets: ::Conjur::FetchRequiredSecrets.new
       },
-      inputs:       %i[conjur_account authenticator_name service_id required_variable_names]
+      inputs: %i[conjur_account authenticator_name service_id required_variable_names]
     ) do
-
       def call
         @required_variable_names.each_with_object({}) do |variable_name, secrets|
           full_variable_name     = full_variable_name(variable_name)

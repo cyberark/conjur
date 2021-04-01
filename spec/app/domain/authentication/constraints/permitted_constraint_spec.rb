@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Authentication::Constraints::PermittedConstraint do
+RSpec.describe(Authentication::Constraints::PermittedConstraint) do
   context "Given PermittedConstraint initialized with 1 restriction" do
     let(:permitted_restriction) { ["permitted"] }
     let(:not_permitted_restrictions) { %w[not_permitted_first not_permitted_second] }

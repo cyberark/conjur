@@ -5,7 +5,7 @@ module Exceptions
     attr_reader :id, :account, :kind, :identifier
 
     def initialize id, message: nil
-      super message || self.class.build_message(id)
+      super(message || self.class.build_message(id))
 
       @id = id
       @account, @kind, @identifier = self.class.parse_id(id)

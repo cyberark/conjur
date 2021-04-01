@@ -7,6 +7,6 @@ namespace :authn_local do
     queue_length = args["queue_length"] || ENV['CONJUR_AUTHN_LOCAL_QUEUE_LENGTH']
     timeout = args["timeout"] || ENV['CONJUR_AUTHN_LOCAL_TIMEOUT']
 
-    AuthnLocal.run socket: socket, queue_length: queue_length, timeout: timeout
+    AuthnLocal.run(socket: socket, queue_length: queue_length, timeout: timeout)
   end
 end

@@ -27,18 +27,18 @@ class Resource < Sequel::Model
     super(options).tap do |response|
       response["id"] = response.delete("resource_id")
       %w[owner policy].each do |field|
-        write_id_to_json response, field
+        write_id_to_json(response, field)
       end
-      response["permissions"] = permissions.as_json.map { |h| h.except 'resource' }
-      response["annotations"] = self.annotations.as_json.map { |h| h.except 'resource' }
+      response["permissions"] = permissions.as_json.map { |h| h.except('resource') }
+      response["annotations"] = self.annotations.as_json.map { |h| h.except('resource') }
       case kind
       when "variable"
         response["secrets"] = secrets_dataset.order(:version).as_json
-                                             .map { |h| h.except 'resource' }
+          .map { |h| h.except('resource') }
       when "policy"
-        response["policy_versions"] = self.policy_versions.as_json.map { |h| h.except 'resource' }
+        response["policy_versions"] = self.policy_versions.as_json.map { |h| h.except('resource') }
       when "host_factory"
-        response["tokens"] = self.host_factory_tokens.as_json.map { |h| h.except 'resource' }
+        response["tokens"] = self.host_factory_tokens.as_json.map { |h| h.except('resource') }
         response["layers"] = self.role.layers.map(&:role_id)
       when "user", "host"
         response["restricted_to"] = self.role.restricted_to.map(&:to_s)
@@ -49,18 +49,18 @@ class Resource < Sequel::Model
   class << self
 
     def make_full_id id, account
-      Role.make_full_id id, account
+      Role.make_full_id(id, account)
     end
 
     def find_if_visible role, *a
-      res = find *a
-      res if res.try :visible_to?, role
+      res = find(*a)
+      res if res.try(:visible_to?, role)
     end
 
     # Specialization to allow lookup by composite ids,
     # eg. Resource[account, kind, id]
     def [] *args
-      args.length == 3 ? super(args.join ':') : super
+      args.length == 3 ? super(args.join(':')) : super
     end
 
     def annotations(resource_id)
@@ -98,7 +98,7 @@ class Resource < Sequel::Model
       # Filter by owner
       if owner
         owners = Resource.from(::Sequel.function(:all_roles, owner.id)).select(:role_id)
-        scope = scope.where owner_id: owners
+        scope = scope.where(owner_id: owners)
       end
 
       # Filter by string search
@@ -113,6 +113,7 @@ class Resource < Sequel::Model
         if offset && (!numeric?(offset) || offset.to_i.negative?)
           raise ArgumentError, "'offset' contains an invalid value. 'offset' must be an integer greater than or equal to 0."
         end
+
         scope = scope.order(:resource_id).limit(
           (limit || 10).to_i,
           (offset || 0).to_i
@@ -137,7 +138,7 @@ class Resource < Sequel::Model
     end
 
     def visible_to role
-      from Sequel.function(:visible_resources, role.id).as(:resources)
+      from(Sequel.function(:visible_resources, role.id).as(:resources))
     end
 
     def numeric? val
@@ -146,7 +147,7 @@ class Resource < Sequel::Model
   end
 
   def role
-    Role[id] or raise "Role not found for #{id}"
+    Role[id] || raise("Role not found for #{id}")
   end
 
   def visible_to? role
@@ -157,7 +158,7 @@ class Resource < Sequel::Model
   def permit privilege, role, options = {}
     options[:privilege] = privilege
     options[:role] = role
-    add_permission options
+    add_permission(options)
   end
 
   # Truncate secrets beyond the configured limit.
@@ -182,6 +183,7 @@ class Resource < Sequel::Model
 
   def secret version: nil
     return last_secret unless version
+
     secrets_dataset.where(version: Integer(version)).first
   rescue ArgumentError
     raise ArgumentError, "invalid type for parameter 'version'"

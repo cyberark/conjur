@@ -60,9 +60,9 @@ module AuthnOidcHelper
   end
 
   def parse_oidc_id_token
-    @oidc_id_token = (JSON.parse @response_body)["id_token"]
-  rescue => err
-    raise "Failed to fetch id_token from HTTP response: #{@response_body} with Reason: #{err}"
+    @oidc_id_token = (JSON.parse(@response_body))["id_token"]
+  rescue => e
+    raise "Failed to fetch id_token from HTTP response: #{@response_body} with Reason: #{e}"
   end
 end
 

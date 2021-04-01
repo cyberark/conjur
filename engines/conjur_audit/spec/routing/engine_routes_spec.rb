@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe ConjurAudit::MessagesController, :type => :routing do
+RSpec.describe(ConjurAudit::MessagesController, type: :routing) do
   routes { ConjurAudit::Engine.routes }
 
   it "routes for role with period in its ID" do
@@ -11,7 +11,7 @@ RSpec.describe ConjurAudit::MessagesController, :type => :routing do
         controller: 'conjur_audit/messages',
         action: 'index',
         role: 'cucumber:user:my.user'
-        )
+      )
     ) 
   end
 

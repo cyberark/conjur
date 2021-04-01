@@ -27,6 +27,7 @@ module Util
             LogMessages::Util::ConcurrencyLimitedCacheReached.new(@max_concurrent_requests)
           )
           raise Errors::Util::ConcurrencyLimitReachedBeforeCacheInitialization unless @cache.key?(args)
+
           return @cache[args]
         end
 

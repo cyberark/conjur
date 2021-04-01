@@ -21,7 +21,7 @@ module Audit
       end
 
       def log(event)
-        # Note: Below we translate the Syslog "event.severity" into a Ruby
+        # NOTE: Below we translate the Syslog "event.severity" into a Ruby
         # Logger severity.  In our actual Syslog logging, this is simply thrown
         # away (see note on "call" method in "rfc5424_formatter.rb").  However,
         # _this_ adapter shouldn't have knowledge of that implementation detail,

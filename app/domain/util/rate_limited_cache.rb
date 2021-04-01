@@ -23,8 +23,7 @@ module Util
       callable,
       refreshes_per_interval:,
       rate_limit_interval:,    # in seconds
-      time: Time,
-      logger:
+      logger:, time: Time
     )
       @target = callable
       @refreshes_per_interval = refreshes_per_interval

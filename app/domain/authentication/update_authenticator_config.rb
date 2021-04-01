@@ -4,16 +4,15 @@ module Authentication
 
   UpdateAuthenticatorConfig = CommandClass.new(
     dependencies: {
-      webservice_class:                     ::Authentication::Webservice,
-      authenticator_config_class:           ::AuthenticatorConfig,
-      validate_account_exists:              ::Authentication::Security::ValidateAccountExists.new,
-      validate_webservice_exists:           ::Authentication::Security::ValidateWebserviceExists.new,
+      webservice_class: ::Authentication::Webservice,
+      authenticator_config_class: ::AuthenticatorConfig,
+      validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
+      validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
       validate_webservice_is_authenticator: ::Authentication::Security::ValidateWebserviceIsAuthenticator.new,
-      validate_role_can_access_webservice:  ::Authentication::Security::ValidateRoleCanAccessWebservice.new
+      validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new
     },
-    inputs:       %i[account authenticator_name service_id enabled username]
+    inputs: %i[account authenticator_name service_id enabled username]
   ) do
-
     def call
       validate_account_exists
       validate_webservice_exists
@@ -60,9 +59,9 @@ module Authentication
 
     def webservice
       @webservice ||= @webservice_class.new(
-        account:            @account,
+        account: @account,
         authenticator_name: @authenticator_name,
-        service_id:         @service_id
+        service_id: @service_id
       )
     end
 

@@ -15,8 +15,8 @@ module Conjur
             DuplicateResolver,
             AbsoluteChecker
           ].each do |cls|
-            resolver = cls.new account, ownerid
-            records = resolver.resolve records
+            resolver = cls.new(account, ownerid)
+            records = resolver.resolve(records)
           end
           records
         end
@@ -46,8 +46,8 @@ module Conjur
         Array(records).flatten.each do |record|
           next unless visited.add?(id_of(record))
 
-          handler.call record, visited
-          policy_handler.call record, visited if policy_handler && record.is_a?(Types::Policy)
+          handler.call(record, visited)
+          policy_handler.call(record, visited) if policy_handler && record.is_a?(Types::Policy)
         end
       end
       
@@ -59,41 +59,41 @@ module Conjur
     # Updates all nil +account+ fields to the default account.
     class AccountResolver < Resolver
       def resolve records
-        traverse records, Set.new, method(:resolve_account), method(:on_resolve_policy)
+        traverse(records, Set.new, method(:resolve_account), method(:on_resolve_policy))
       end
       
       def resolve_account record, visited
         if record.respond_to?(:account) && record.respond_to?(:account=) && record.account.nil?
           record.account = @account
         end
-        traverse record.referenced_records, visited, method(:resolve_account), method(:on_resolve_policy)
+        traverse(record.referenced_records, visited, method(:resolve_account), method(:on_resolve_policy))
       end
       
       def on_resolve_policy policy, visited
-        traverse policy.body, visited, method(:resolve_account), method(:on_resolve_policy)
+        traverse(policy.body, visited, method(:resolve_account), method(:on_resolve_policy))
       end
     end
 
     # This class traverses the policy tree, recording the hierarchical namespace as it does so.
     class PolicyTraversal < Resolver
       def resolve records
-        traverse records, Set.new, method(:resolve_record), method(:on_resolve_policy)
+        traverse(records, Set.new, method(:resolve_record), method(:on_resolve_policy))
       end
 
       def resolve_record record, visited
-        traverse record.referenced_records, visited, method(:resolve_record), method(:on_resolve_policy)
+        traverse(record.referenced_records, visited, method(:resolve_record), method(:on_resolve_policy))
       end
 
       def on_resolve_policy policy, visited
         saved_namespace = @namespace
         @namespace = policy.id
-        traverse policy.body, visited, method(:resolve_record), method(:on_resolve_policy)
+        traverse(policy.body, visited, method(:resolve_record), method(:on_resolve_policy))
       ensure
         @namespace = saved_namespace
       end
 
       def user_namespace
-        namespace.gsub('/', '-') if namespace
+        namespace&.gsub('/', '-')
       end
     end
 
@@ -101,7 +101,7 @@ module Conjur
     class PolicyNamespaceResolver < PolicyTraversal
       def resolve_record record, visited
         if record.respond_to?(:id) && record.respond_to?(:id=)
-          record.id = prepend_namespace record
+          record.id = prepend_namespace(record)
         end
 
         super
@@ -112,14 +112,15 @@ module Conjur
 
         if id.blank?
           raise "#{record.class.simple_name.underscore} has a blank id" unless namespace
+
           id = namespace
-        elsif id.start_with? '/'
+        elsif id.start_with?('/')
           # absolute id, pass
         else
-          if record.respond_to?(:resource_kind) && record.resource_kind == "user"
-            id = [ id, user_namespace ].compact.join('@')
+          id = if record.respond_to?(:resource_kind) && record.resource_kind == "user"
+            [ id, user_namespace ].compact.join('@')
           else
-            id = [ namespace, id ].compact.join('/')
+            [ namespace, id ].compact.join('/')
           end
         end
 
@@ -137,17 +138,17 @@ module Conjur
     # * Any annotation value.
     class RelativePathResolver < PolicyTraversal
       def resolve_record record, visited
-        resolve_owner record if record.respond_to?(:owner)
-        resolve_grant_member record if record.is_a?(Types::Grant)
-        resolve_revoke_member record if record.is_a?(Types::Revoke)
-        resolve_role record if resolve_role? record
-        resolve_annotations record if record.respond_to?(:annotations)
+        resolve_owner(record) if record.respond_to?(:owner)
+        resolve_grant_member(record) if record.is_a?(Types::Grant)
+        resolve_revoke_member(record) if record.is_a?(Types::Revoke)
+        resolve_role(record) if resolve_role?(record)
+        resolve_annotations(record) if record.respond_to?(:annotations)
 
         super
       end
 
       def resolve_owner record
-        record.owner.id = absolute_path_of(record.owner.id) if record.owner && record.owner.id
+        record.owner.id = absolute_path_of(record.owner.id) if record.owner&.id
       end
 
       # Members in grant policies have an associated role, and this method
@@ -174,7 +175,8 @@ module Conjur
 
       def resolve_annotations record
         return unless annotations = record.annotations
-        annotations.each do |k,v|
+
+        annotations.each do |k, v|
           if v.to_s.split('/').index('..')
             annotations[k] = absolute_path_of([record.id, v].join('/'))
           end
@@ -188,16 +190,18 @@ module Conjur
       # Resolve paths starting with '/' as an absolute path by stripping the leading character.
       # Substitute leading '..' tokens in the id with an appropriate prefix from the namespace.
       def absolute_path_of id
-        return id[1..-1] if id.start_with? '/'
+        return id[1..-1] if id.start_with?('/')
 
         tokens = id.split('/')
-        while true
+        loop do
           break unless idx = tokens.find_index('..')
-          raise "Invalid relative reference: #{id}" if idx == 0
+          raise "Invalid relative reference: #{id}" if idx.zero?
+
           tokens.delete_at(idx)
           tokens.delete_at(idx-1)
         end
         raise "Invalid relative reference: #{id}" if tokens.empty?
+
         tokens.join('/')
       end
     end
@@ -207,10 +211,10 @@ module Conjur
     # default owner is the +ownerid+ specified in the constructor.
     class OwnerResolver < Resolver
       def resolve records
-        traverse records, Set.new, method(:resolve_owner), method(:on_resolve_policy)
+        traverse(records, Set.new, method(:resolve_owner), method(:on_resolve_policy))
       end
       
-      def resolve_owner record, visited
+      def resolve_owner record, _visited
         if record.respond_to?(:owner) && record.owner.nil?
           record.owner = Types::Role.new(@ownerid)
         end
@@ -219,7 +223,7 @@ module Conjur
       def on_resolve_policy policy, visited
         saved_ownerid = @ownerid
         @ownerid = [ policy.account, "policy", policy.id ].join(":")
-        traverse policy.body, visited, method(:resolve_owner), method(:on_resolve_policy)
+        traverse(policy.body, visited, method(:resolve_owner), method(:on_resolve_policy))
       ensure
         @ownerid = saved_ownerid
       end
@@ -229,7 +233,7 @@ module Conjur
     class FlattenResolver < Resolver
       def resolve records
         @result = []
-        traverse records, Set.new, method(:resolve_record), method(:on_resolve_policy)
+        traverse(records, Set.new, method(:resolve_record), method(:on_resolve_policy))
 
         # Sort record creation before anything else.
         # Sort record creation in dependency order (if A owns B, then A will be created before B).
@@ -240,14 +244,14 @@ module Conjur
           @stable_index[obj] = idx
         end
         @referenced_record_index = {}
-        @result.each_with_index do |obj, idx|
+        @result.each_with_index do |obj, _idx|
           @referenced_record_index[obj] = obj.referenced_records.select{|r| r.respond_to?(:roleid)}.map(&:roleid)
         end
-        @result.flatten.sort do |a,b|
+        @result.flatten.sort do |a, b|
           score = sort_score(a) - sort_score(b)
-          if score == 0
+          if score.zero?
             if a.respond_to?(:roleid) && @referenced_record_index[b].member?(a.roleid) &&
-              b.respond_to?(:roleid) && @referenced_record_index[a].member?(b.roleid)
+                b.respond_to?(:roleid) && @referenced_record_index[a].member?(b.roleid)
               raise "Dependency cycle encountered between #{a} and #{b}"
             elsif a.respond_to?(:roleid) && @referenced_record_index[b].member?(a.roleid)
               score = -1
@@ -273,15 +277,15 @@ module Conjur
       end
       
       # Add the record to the result.
-      def resolve_record record, visited
+      def resolve_record record, _visited
         @result += Array(record)
       end
 
       # Recurse on the policy body records.
       def on_resolve_policy policy, visited
         body = policy.body
-        policy.remove_instance_variable "@body"
-        traverse body, visited, method(:resolve_record), method(:on_resolve_policy)
+        policy.remove_instance_variable("@body")
+        traverse(body, visited, method(:resolve_record), method(:on_resolve_policy))
       end
     end
     
@@ -304,22 +308,22 @@ module Conjur
     # +owner+ attributes which match the provided ownerid are removed.
     class CompactOutputResolver < Resolver
       def resolve records
-        traverse records, Set.new, method(:resolve_owner)
-        traverse records, Set.new, method(:resolve_account)
+        traverse(records, Set.new, method(:resolve_owner))
+        traverse(records, Set.new, method(:resolve_account))
       end
       
       def resolve_account record, visited
-        if record.respond_to?(:account) && record.respond_to?(:account=) && record.account && record.account == self.account
-          record.remove_instance_variable :@account
+        if record.respond_to?(:account) && record.respond_to?(:account=) && record.account && record.account == account
+          record.remove_instance_variable(:@account)
         end
-        traverse record.referenced_records, visited, method(:resolve_account)
+        traverse(record.referenced_records, visited, method(:resolve_account))
       end
 
       def resolve_owner record, visited
-        if record.respond_to?(:owner) && record.respond_to?(:owner=) && record.owner && record.owner.roleid == self.ownerid
-          record.remove_instance_variable :@owner
+        if record.respond_to?(:owner) && record.respond_to?(:owner=) && record.owner && record.owner.roleid == ownerid
+          record.remove_instance_variable(:@owner)
         end
-        traverse record.referenced_records, visited, method(:resolve_owner)
+        traverse(record.referenced_records, visited, method(:resolve_owner))
       end
     end
 
@@ -327,7 +331,7 @@ module Conjur
     # This 'resolver' performs this final check.
     class AbsoluteChecker < Resolver
       def resolve records
-        traverse records, Set.new, method(:resolve_record)
+        traverse(records, Set.new, method(:resolve_record))
       end
 
       def resolve_record record, _visited
@@ -335,7 +339,7 @@ module Conjur
       end
 
       def check_id id
-        raise "Illegal absolute id: #{id}" if id.start_with? '/'
+        raise "Illegal absolute id: #{id}" if id.start_with?('/')
       end
     end
   end

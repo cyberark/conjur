@@ -17,6 +17,7 @@ module Audit
       # error_msg: A ruby error occurred while processing.
       def message(success_msg:, failure_msg:, error_msg: nil)
         return success_msg if @success
+
         [failure_msg, error_msg].compact.join(': ')
       end
 

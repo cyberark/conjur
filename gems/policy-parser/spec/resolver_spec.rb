@@ -1,25 +1,26 @@
 # frozen_string_literal: true
+
 require 'spec_helper'
 
 include Conjur::PolicyParser
 
 describe Resolver do
-  let(:fixture) { YAML.load(File.read(filename), filename) }
+  let(:fixture) { YAML.safe_load(File.read(filename), filename) }
   let(:account) { fixture['account'] || "the-account" }
   let(:ownerid) { fixture['ownerid'] || "rspec:user:default-owner" }
   let(:policy) { Conjur::PolicyParser::YAML::Loader.load(fixture['policy']) }
-  let(:resolve) {
+  let(:resolve) do
     Resolver.resolve(policy, account, ownerid)
-  }
-  before {
-    allow(Conjur).to receive(:configuration).and_return double(:configuration, account: account)
-  }
+  end
+  before do
+    allow(Conjur).to receive(:configuration).and_return(double(:configuration, account: account))
+  end
   subject { resolve.to_yaml }
   
   shared_examples_for "verify resolver" do
     it "matches expected YAML" do
-      expected = sorted_yaml fixture['expectation'] 
-      actual = sorted_yaml subject
+      expected = sorted_yaml(fixture['expectation']) 
+      actual = sorted_yaml(subject)
       expect(actual).to eq(expected)
     end
   end
@@ -53,26 +54,26 @@ end
 
 describe Conjur::PolicyParser::PolicyNamespaceResolver do
   it "prepends namespace to resource ids" do
-    record = Types::Resource.new 'test-kind', 'test-id'
-    resolver.resolve_record record, nil
-    expect(record.id).to eq 'namespace/test-id'
+    record = Types::Resource.new('test-kind', 'test-id')
+    resolver.resolve_record(record, nil)
+    expect(record.id).to eq('namespace/test-id')
   end
 
   it "appends namespace to user ids" do
-    record = Types::User.new 'test-id'
-    resolver.resolve_record record, nil
-    expect(record.id).to eq 'test-id@namespace'
+    record = Types::User.new('test-id')
+    resolver.resolve_record(record, nil)
+    expect(record.id).to eq('test-id@namespace')
   end
 
   it "leaves absolute ids intact" do
-    record = Types::User.new '/test-id'
-    resolver.resolve_record record, nil
-    expect(record.id).to eq '/test-id'
+    record = Types::User.new('/test-id')
+    resolver.resolve_record(record, nil)
+    expect(record.id).to eq('/test-id')
   end
 
   subject(:resolver) do
     described_class.new('account', 'account:user:owner').tap do |r|
-      allow(r).to receive_messages namespace: 'namespace'
+      allow(r).to receive_messages(namespace: 'namespace')
     end
   end
   Types = Conjur::PolicyParser::Types

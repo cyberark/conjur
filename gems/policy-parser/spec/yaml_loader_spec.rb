@@ -5,8 +5,8 @@ describe Conjur::PolicyParser::YAML::Loader do
   shared_examples_for "round-trip dsl" do |example|
     let(:filename) { "spec/round-trip/yaml/#{example}.yml" }
     it "#{example}.yml" do
-      expected = sorted_yaml File.read("spec/round-trip/yaml/#{example}.expected.yml")
-      actual = sorted_yaml Conjur::PolicyParser::YAML::Loader.load_file(filename).to_yaml
+      expected = sorted_yaml(File.read("spec/round-trip/yaml/#{example}.expected.yml"))
+      actual = sorted_yaml(Conjur::PolicyParser::YAML::Loader.load_file(filename).to_yaml)
       expect(actual).to eq(expected)
     end
   end
@@ -22,7 +22,7 @@ describe Conjur::PolicyParser::YAML::Loader do
       begin
         Conjur::PolicyParser::YAML::Loader.load_file(filename).to_yaml
       rescue Conjur::PolicyParser::Invalid
-        expect($!.message).to eq(error_message)
+        expect($ERROR_INFO.message).to eq(error_message)
       end
     end
   end

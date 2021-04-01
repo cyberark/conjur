@@ -1,9 +1,9 @@
 # Represents the CN of a K8s Host.
 #
 
-#NOTE: these are here for when we gemify this
-#require 'app/domain/util/open_ssl/x509/smart_cert'
-#require 'app/domain/util/open_ssl/x509/smart_csr'
+# NOTE: these are here for when we gemify this
+# require 'app/domain/util/open_ssl/x509/smart_cert'
+# require 'app/domain/util/open_ssl/x509/smart_csr'
 
 module Authentication
   module AuthnK8s

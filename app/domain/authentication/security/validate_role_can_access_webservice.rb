@@ -8,15 +8,14 @@ module Authentication
 
     ValidateRoleCanAccessWebservice ||= CommandClass.new(
       dependencies: {
-        role_class:                 ::Role,
-        resource_class:             ::Resource,
+        role_class: ::Role,
+        resource_class: ::Resource,
         validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
-        validate_account_exists:    ::Authentication::Security::ValidateAccountExists.new,
-        logger:                     Rails.logger
+        validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
+        logger: Rails.logger
       },
-      inputs:       %i[webservice account user_id privilege]
+      inputs: %i[webservice account user_id privilege]
     ) do
-
       def call
         validate_account_exists
         validate_role_is_defined

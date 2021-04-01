@@ -21,7 +21,7 @@ end
 # NOTE: The source code order of this step def and the one above matters.
 And(/^The following appears ([^"]*) times? in the (audit )?log after my savepoint:$/) \
   do |occurrences, _, message|
-  expect(num_matches_since_savepoint(message)).to eq occurrences.to_i
+  expect(num_matches_since_savepoint(message)).to eq(occurrences.to_i)
 end
 
 And(/Alice's API key does not appear in the log/) do

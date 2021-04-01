@@ -5,12 +5,11 @@ module Authentication
 
     FetchProviderKeys = CommandClass.new(
       dependencies: {
-        logger:                 Rails.logger,
+        logger: Rails.logger,
         discover_identity_provider: DiscoverIdentityProvider.new
       },
-      inputs:       %i[provider_uri]
+      inputs: %i[provider_uri]
     ) do
-
       def call
         discover_provider
         fetch_provider_keys

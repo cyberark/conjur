@@ -58,7 +58,7 @@ module CA
         extension_factory.create_extension("subjectAltName", subject_alt_name(role))
       )
 
-      csr_cert.sign private_key, OpenSSL::Digest::SHA256.new
+      csr_cert.sign(private_key, OpenSSL::Digest.new('SHA256'))
       csr_cert
     end
 
@@ -71,7 +71,7 @@ module CA
         role.kind,
         role.identifier
       ].join(':')
-      OpenSSL::X509::Name.new [['CN', common_name]]
+      OpenSSL::X509::Name.new([['CN', common_name]])
     end
 
     def service_id
@@ -123,7 +123,7 @@ module CA
     def certificate
       # Parse the first certificate in the chain, which should be the
       # intermediate CA certificate
-      @certificate ||= OpenSSL::X509::Certificate.new secret(certificate_chain_var)
+      @certificate ||= OpenSSL::X509::Certificate.new(secret(certificate_chain_var))
     end
   
     def max_ttl

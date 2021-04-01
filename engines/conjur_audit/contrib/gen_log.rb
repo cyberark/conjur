@@ -20,7 +20,7 @@ require 'pg'
 
 require 'syslog'
 
-DB = Sequel.connect ENV['DATABASE_URL']
+DB = Sequel.connect(ENV['DATABASE_URL'])
 
 def tag length = TAG_LEN
   alnum = [*"a".."z", *"0".."9"].freeze
@@ -38,20 +38,21 @@ end
 class Generator
   include Enumerable
 
-  TIMESPAN = (Time.now - 42 * 24 * 60 * 60)..Time.now
+  TIMESPAN = ((Time.now - 42 * 24 * 60 * 60)..Time.now).freeze
 
   MESSAGE_IDS = 
-    WeightedRandomizer.new \
+    WeightedRandomizer.new(\
       authn: 211,
       check: 100,
       fetch: 100,
       # policy messages are rare, ignore
       update: 10
+    )
 
   COLUMNS = %i[facility timestamp msgid hostname appname severity sdata procid message].freeze
 
   def each
-    COUNT.times.lazy.each { yield generate.join("\t") + "\n" }
+    COUNT.times.lazy.each { yield("#{generate.join("\t")}\n") }
   end
   
   def generate
@@ -60,11 +61,11 @@ class Generator
   
   def random_message
     msgid = MESSAGE_IDS.sample
-    defaults(msgid: msgid).merge send msgid
+    defaults(msgid: msgid).merge(send(msgid))
   end
   
   def defaults **kargs
-    kargs.merge \
+    kargs.merge(\
       timestamp: timestamp, 
       facility: Syslog::LOG_AUTH >> 3,
       hostname: 'conjur.example',
@@ -72,11 +73,13 @@ class Generator
       severity: Syslog::LOG_INFO,
       sdata: 'null',
       procid: tag(10)
+    )
   end
   
-  SUCCESS = WeightedRandomizer.new \
+  SUCCESS = WeightedRandomizer.new(\
     true => 10,
     false => 1
+  )
 
   def authn
     success = SUCCESS.sample
@@ -139,7 +142,7 @@ class Generator
   end
 
   def timestamp
-    rand TIMESPAN
+    rand(TIMESPAN)
   end
 end
 
@@ -147,5 +150,5 @@ require 'benchmark'
 
 puts "Generating #{COUNT} log entries..."
 puts(Benchmark.measure do
-  DB.copy_into :messages, columns: Generator::COLUMNS, data: Generator.new
+  DB.copy_into(:messages, columns: Generator::COLUMNS, data: Generator.new)
 end)

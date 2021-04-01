@@ -67,10 +67,10 @@ module Loader
 
       # Transform each statement into a Loader type
       @create_records = policy_version.create_records.map do |policy_object|
-        Loader::Types.wrap policy_object, self
+        Loader::Types.wrap(policy_object, self)
       end
       @delete_records = policy_version.delete_records.map do |policy_object|
-        Loader::Types.wrap policy_object, self
+        Loader::Types.wrap(policy_object, self)
       end
     end
     
@@ -110,15 +110,15 @@ module Loader
     end
 
     def table_data schema = ""
-      self.class.table_data policy_version.policy.account, schema
+      self.class.table_data(policy_version.policy.account, schema)
     end
 
     def print_debug
-      puts "Temporary schema:"
-      puts table_data
+      puts("Temporary schema:")
+      puts(table_data)
       puts
-      puts "Master schema:"
-      puts table_data "#{primary_schema}__"
+      puts("Master schema:")
+      puts(table_data("#{primary_schema}__"))
     end
 
     class << self
@@ -126,19 +126,19 @@ module Loader
       def table_data account, schema = ""
         require 'table_print'
         io = StringIO.new
-        tp.set :io, io
-        tp.set :max_width, 100
+        tp.set(:io, io)
+        tp.set(:max_width, 100)
         begin
           TABLES.each do |table|
             model = Sequel::Model("#{schema}#{table}".to_sym)
             account_column = TABLE_EQUIVALENCE_COLUMNS[table].include?(:resource_id) ? :resource_id : :role_id
-            io.write "#{table}\n"
+            io.write("#{table}\n")
             sort_columns = TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ]
-            tp *([ model.where("account(#{account_column})".lit => account).order(sort_columns).all ] + TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ])
-            io.write "\n"
+            tp(*([ model.where("account(#{account_column})".lit => account).order(sort_columns).all ] + TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ]))
+            io.write("\n")
           end
         ensure
-          tp.clear :io
+          tp.clear(:io)
         end
         io.rewind
         io.read
@@ -161,12 +161,12 @@ module Loader
         db[<<-DELETE, policy_version.resource_id].delete
           WITH deleted_records AS (
             SELECT existing_#{table}.*
-            FROM #{qualify_table table} AS existing_#{table}
+            FROM #{qualify_table(table)} AS existing_#{table}
             LEFT OUTER JOIN #{table} AS new_#{table}
               ON #{comparisons(table, columns, 'existing_', 'new_')}
             WHERE existing_#{table}.policy_id = ? AND new_#{table}.#{columns[0]} IS NULL
           )
-          DELETE FROM #{qualify_table table}
+          DELETE FROM #{qualify_table(table)}
           USING deleted_records AS deleted_from_#{table}
           WHERE #{comparisons(table, columns, "#{primary_schema}.", 'deleted_from_')}
         DELETE
@@ -180,9 +180,9 @@ module Loader
         comparisons = pk_columns.map do |column|
           "new_#{table}.#{column} = old_#{table}.#{column}"
         end.join(' AND ')
-        db.execute <<-DELETE
+        db.execute(<<-DELETE)
           DELETE FROM #{table} new_#{table}
-          USING #{qualify_table table} old_#{table}
+          USING #{qualify_table(table)} old_#{table}
           WHERE #{comparisons} AND
             ( old_#{table}.policy_id IS NULL OR old_#{table}.policy_id != new_#{table}.policy_id )
         DELETE
@@ -192,14 +192,14 @@ module Loader
     # Delete rows from the new policy which are identical to existing rows.
     def eliminate_duplicates_exact
       TABLE_EQUIVALENCE_COLUMNS.each do |table, columns|
-        eliminate_duplicates table, columns + [ :policy_id ]
+        eliminate_duplicates(table, columns + [ :policy_id ])
       end
     end
 
     # Delete rows from the new policy which have the same primary keys as existing rows.
     def eliminate_duplicates_pk
       TABLES.each do |table|
-        eliminate_duplicates table, Array(model_for_table(table).primary_key) + [ :policy_id ]
+        eliminate_duplicates(table, Array(model_for_table(table).primary_key) + [ :policy_id ])
       end
     end
 
@@ -208,9 +208,9 @@ module Loader
       comparisons = columns.map do |column|
         "new_#{table}.#{column} = old_#{table}.#{column}"
       end.join(' AND ')
-      db.execute <<-DELETE
+      db.execute(<<-DELETE)
         DELETE FROM #{table} new_#{table}
-        USING #{qualify_table table} old_#{table}
+        USING #{qualify_table(table)} old_#{table}
         WHERE #{comparisons}
       DELETE
     end
@@ -230,7 +230,7 @@ module Loader
             "#{table}.#{c} = new_#{table}.#{c}"
           end.join(" AND ")
 
-          db.execute <<-UPDATE
+          db.execute(<<-UPDATE)
             UPDATE #{table}
             SET #{update_statements}
             FROM #{schema_name}.#{table} new_#{table}
@@ -253,7 +253,7 @@ module Loader
 
     def insert_table_records(table)
       columns = (TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ]).join(", ")          
-      db.run "INSERT INTO #{table} ( #{columns} ) SELECT #{columns} FROM #{schema_name}.#{table}"
+      db.run("INSERT INTO #{table} ( #{columns} ) SELECT #{columns} FROM #{schema_name}.#{table}")
       
       # For large policies, the policy logging triggers occupy the majority
       # of the policy load time. To make this more efficient on the initial
@@ -266,16 +266,16 @@ module Loader
       # configuration setting that the trigger function is aware of. 
       # When we set this variable to `true`, then the trigger will
       # observe the setting value and skip its own policy log.
-      db.run 'SET LOCAL conjur.skip_insert_policy_log_trigger = true'
+      db.run('SET LOCAL conjur.skip_insert_policy_log_trigger = true')
     end
 
     def enable_policy_log_trigger
-      db.run 'SET LOCAL conjur.skip_insert_policy_log_trigger = false'
+      db.run('SET LOCAL conjur.skip_insert_policy_log_trigger = false')
     end
 
     def insert_policy_log_records(table)
       primary_key_columns = Array(Sequel::Model(table).primary_key).map(&:to_s).pg_array
-      db.run <<-POLICY_LOG
+      db.run(<<-POLICY_LOG)
           INSERT INTO policy_log(
             policy_id, 
             version,
@@ -285,7 +285,7 @@ module Loader
           SELECT
           (policy_log_record(
             '#{table}',
-            #{db.literal primary_key_columns},
+            #{db.literal(primary_key_columns)},
             hstore(#{table}),
             #{db.literal(policy_id)},
             #{db.literal(policy_version.version)},
@@ -330,7 +330,7 @@ module Loader
 
       # If a SQL exception occurs above, the transaction will be aborted and all database
       # calls will fail. So this statement is not performed in an `ensure` block.
-      db.execute "SET search_path = #{schema_name}"
+      db.execute("SET search_path = #{schema_name}")
     end
 
     # Creates the new schema.
@@ -338,16 +338,16 @@ module Loader
     # Creates a set of tables in the new schema to mirror the tables in the primary schema.
     # The new tables are not created with constraints, aside from primary keys.
     def create_schema
-      db.execute "CREATE SCHEMA #{schema_name}"
+      db.execute("CREATE SCHEMA #{schema_name}")
       db.search_path = schema_name
 
       TABLES.each do |table|
-        db.execute "CREATE TABLE #{table} AS SELECT * FROM #{qualify_table table} WHERE 0 = 1"
+        db.execute("CREATE TABLE #{table} AS SELECT * FROM #{qualify_table(table)} WHERE 0 = 1")
       end
 
-      db.execute Functions.ownership_trigger_sql
+      db.execute(Functions.ownership_trigger_sql)
 
-      db.execute <<-SQL_STATEMENT
+      db.execute(<<-SQL_STATEMENT)
       CREATE OR REPLACE FUNCTION account(id text) RETURNS text
       LANGUAGE sql IMMUTABLE
       AS $$
@@ -358,16 +358,16 @@ module Loader
       $$;
       SQL_STATEMENT
 
-      db.execute "ALTER TABLE resources ADD PRIMARY KEY ( resource_id )"
-      db.execute "ALTER TABLE roles ADD PRIMARY KEY ( role_id )"
+      db.execute("ALTER TABLE resources ADD PRIMARY KEY ( resource_id )")
+      db.execute("ALTER TABLE roles ADD PRIMARY KEY ( role_id )")
 
-      db.execute "ALTER TABLE role_memberships ALTER COLUMN admin_option SET DEFAULT 'f'"
+      db.execute("ALTER TABLE role_memberships ALTER COLUMN admin_option SET DEFAULT 'f'")
     end
 
     # Drops the temporary schema and everything remaining in it. Also reset the schema search path.
     def drop_schema
       restore_search_path
-      db.execute "DROP SCHEMA #{schema_name} CASCADE"
+      db.execute("DROP SCHEMA #{schema_name} CASCADE")
     end
 
     def db

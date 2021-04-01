@@ -16,7 +16,7 @@ module Audit
         ACCOUNT_PLACEHOLDER = "ACCOUNT_MISSING"
         USERNAME_PLACEHOLDER = "USERNAME_MISSING"
 
-        # Note: "username" may refer to a user or host.
+        # NOTE: "username" may refer to a user or host.
         def initialize(role:, account:, username:)
           @role = role
           @account = account || ACCOUNT_PLACEHOLDER

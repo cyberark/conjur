@@ -65,10 +65,10 @@ describe AuthenticateController, :type => :request do
   describe "#authenticate" do
     include_context "create user"
     
-    RSpec::Matchers.define :have_valid_token_for do |login|
+    RSpec::Matchers.define(:have_valid_token_for) do |login|
       match do |response|
         expect(response).to be_ok
-        token = Slosilo::JWT.parse_json response.body
+        token = Slosilo::JWT.parse_json(response.body)
         expect(token.claims['sub']).to eq(login)
         expect(token.signature).to be
         expect(token.claims).to have_key('iat')
@@ -90,7 +90,6 @@ describe AuthenticateController, :type => :request do
         expect{ invoke }.to handle(30).requests_per_second
       end
     end
-
   end
 
   before(:all) { Slosilo["authn:rspec"] ||= Slosilo::Key.new }

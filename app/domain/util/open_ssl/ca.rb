@@ -21,7 +21,7 @@ module Util
           subject: subject,
           key: key
         )
-        self.new(cert, key)
+        new(cert, key)
       end
 
       def initialize(cert, key)
@@ -41,7 +41,7 @@ module Util
           good_for: good_for,
           extensions: extensions(subject_altnames)
         ).tap do |cert|
-          cert.sign(@key, OpenSSL::Digest::SHA256.new)
+          cert.sign(@key, OpenSSL::Digest.new('SHA256'))
         end
       end
 

@@ -11,8 +11,8 @@ Sequel.migration do
       # timestamp of when the policy has finished loading
       # if NULL, the policy load hasn't been finalized yet
       add_column :finished_at, :timestamptz,
-        index: true, # to quickly find the null
-        null: true # will be enforced by a trigger
+                 index: true, # to quickly find the null
+                 null: true # will be enforced by a trigger
       add_constraint(:created_before_finish) { created_at <= finished_at }
     end
 

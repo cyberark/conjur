@@ -46,7 +46,7 @@ When('I use curl to load a policy with special characters and no content type') 
   COMMAND
 
   IO.popen(command, "r+") do |pipe|
-    pipe.puts policy_body
+    pipe.puts(policy_body)
     pipe.close_write
   end
 

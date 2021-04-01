@@ -6,8 +6,7 @@ module Authentication
     # This class represents a set of OAuth 2.0 Identity Provider keys
     # Each object stores the retrieved JWKs and the algorithms that signed them
     class ProviderKeys
-      attr_reader :jwks
-      attr_reader :algorithms
+      attr_reader :jwks, :algorithms
 
       def initialize(jwks, algorithms)
         @jwks = jwks

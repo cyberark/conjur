@@ -6,12 +6,12 @@ module Authentication
   module AuthnK8s
 
     Authenticator ||= CommandClass.new(
-      dependencies: {validate_pod_request: ValidatePodRequest.new},
+      dependencies: { validate_pod_request: ValidatePodRequest.new },
       inputs: [:authenticator_input]
     ) do
-      extend Forwardable
+      extend(Forwardable)
 
-      def_delegators :@authenticator_input, :service_id, :authenticator_name, :account, :username, :request
+      def_delegators(:@authenticator_input, :service_id, :authenticator_name, :account, :username, :request)
 
       def call
         validate_cert_exists
@@ -42,6 +42,7 @@ module Authentication
 
       def validate_common_name_matches
         return if host_and_cert_cn_match?
+
         raise Errors::Authentication::AuthnK8s::CommonNameDoesntMatchHost.new(
           cert.common_name,
           host_common_name

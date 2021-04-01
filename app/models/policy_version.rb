@@ -48,7 +48,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     super(options).tap do |response|
       response["id"] = response.delete("resource_id")
       %w[role].each do |field|
-        write_id_to_json response, field
+        write_id_to_json(response, field)
       end
     end
   end
@@ -65,7 +65,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
   def validate
     super
 
-    validates_presence [ :policy, :current_user, :policy_text ]
+    validates_presence([ :policy, :current_user, :policy_text ])
 
     return if errors.any?
 
@@ -111,6 +111,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
   def records
     try_load_records
     raise @parse_error if @parse_error
+
     @records
   end
 
@@ -120,11 +121,11 @@ class PolicyVersion < Sequel::Model(:policy_versions)
 
     begin
       records = Conjur::PolicyParser::YAML::Loader.load(policy_text, policy_filename)
-      records = wrap_in_policy records unless root_policy?
-      @records = Conjur::PolicyParser::Resolver.resolve records, account, policy_admin.id
+      records = wrap_in_policy(records) unless root_policy?
+      @records = Conjur::PolicyParser::Resolver.resolve(records, account, policy_admin.id)
     rescue
-      $stderr.puts $!.message
-      $stderr.puts $!.backtrace.join("  \n")
+      $stderr.puts($!.message)
+      $stderr.puts($!.backtrace.join("  \n"))
       @parse_error = $!
     end
   end
@@ -132,7 +133,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
   # Wraps the input records in a policy whose id is the +policy+ id, and whose owner is the
   # +policy_admin+.
   def wrap_in_policy records
-    policy_record = Conjur::PolicyParser::Types::Policy.new policy.identifier
+    policy_record = Conjur::PolicyParser::Types::Policy.new(policy.identifier)
     policy_record.owner = Conjur::PolicyParser::Types::Role.new(policy_admin.id)
     policy_record.account = policy.account
     policy_record.body = records

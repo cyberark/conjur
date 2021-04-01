@@ -9,12 +9,13 @@ module Utils
     # Also note that since this is a ruby thread it will sleep when GIL is taken.
     # This means it might be inconvenient to use eg. when interactively debugging.
     def start_local_server addr = 'localhost'
-      port = find_ephemeral_port addr
+      port = find_ephemeral_port(addr)
       Thread.new do
-        Rack::Server.start \
+        Rack::Server.start(\
           config: File.expand_path('../../../../config.ru', __dir__),
           server: :webrick,
           Port: port
+        )
       end
       @local_conjur_server = "http://#{addr}:#{port}"
     end

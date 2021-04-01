@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::Authenticate' do
+RSpec.describe('Authentication::Authenticate') do
   include_context "security mocks"
 
   ####################################
@@ -15,7 +15,7 @@ RSpec.describe 'Authentication::Authenticate' do
     end
   end
 
-  let (:authenticators) do
+  let(:authenticators) do
     {
       'authn-always-pass' => authenticator(pass: true),
       'authn-always-fail' => authenticator(pass: false)
@@ -26,11 +26,11 @@ RSpec.describe 'Authentication::Authenticate' do
   # ENV doubles
   ####################################
 
-  let (:two_authenticator_env) do
+  let(:two_authenticator_env) do
     { 'CONJUR_AUTHENTICATORS' => 'authn-always-pass, authn-always-fail' }
   end
 
-  let (:blank_env) { Hash.new }
+  let(:blank_env) { {} }
 
   ####################################
   # TokenFactory double
@@ -38,9 +38,9 @@ RSpec.describe 'Authentication::Authenticate' do
 
   # NOTE: For _this_ class, the details of actual Conjur tokens are irrelevant
   #
-  let (:a_new_token) { 'A NICE NEW TOKEN' }
+  let(:a_new_token) { 'A NICE NEW TOKEN' }
 
-  let (:mocked_token_factory) do
+  let(:mocked_token_factory) do
     double('TokenFactory', signed_token: a_new_token)
   end
 
@@ -60,29 +60,28 @@ RSpec.describe 'Authentication::Authenticate' do
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
-
   context "An unavailable authenticator" do
     let(:audit_success) { false }
     subject do
       input_ = Authentication::AuthenticatorInput.new(
         authenticator_name: 'AUTHN-MISSING',
-        service_id:         nil,
-        account:            'my-acct',
-        username:           'my-user',
-        credentials:        'my-pw',
-        client_ip:          '127.0.0.1',
-        request:            nil
+        service_id: nil,
+        account: 'my-acct',
+        username: 'my-user',
+        credentials: 'my-pw',
+        client_ip: '127.0.0.1',
+        request: nil
       )
 
       Authentication::Authenticate.new(
         validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
-        validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
-        validate_origin:                     mocked_origin_validator,
-        token_factory:                       mocked_token_factory,
-        audit_log:                           mocked_audit_logger
+        validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true),
+        validate_origin: mocked_origin_validator,
+        token_factory: mocked_token_factory,
+        audit_log: mocked_audit_logger
       ).call(
-        authenticator_input:    input_,
-        authenticators:         authenticators,
+        authenticator_input: input_,
+        authenticators: authenticators,
         enabled_authenticators: two_authenticator_env
       )
     end
@@ -102,23 +101,23 @@ RSpec.describe 'Authentication::Authenticate' do
       subject do
         input_ = Authentication::AuthenticatorInput.new(
           authenticator_name: 'authn-always-fail',
-          service_id:         nil,
-          account:            'my-acct',
-          username:           'my-user',
-          credentials:        'my-pw',
-          client_ip:          '127.0.0.1',
-          request:            nil
+          service_id: nil,
+          account: 'my-acct',
+          username: 'my-user',
+          credentials: 'my-pw',
+          client_ip: '127.0.0.1',
+          request: nil
         )
 
         Authentication::Authenticate.new(
           validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
-          validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
-          validate_origin:                     mocked_origin_validator,
-          token_factory:                       mocked_token_factory,
-          audit_log:                           mocked_audit_logger
+          validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true),
+          validate_origin: mocked_origin_validator,
+          token_factory: mocked_token_factory,
+          audit_log: mocked_audit_logger
         ).call(
-          authenticator_input:    input_,
-          authenticators:         authenticators,
+          authenticator_input: input_,
+          authenticators: authenticators,
           enabled_authenticators: two_authenticator_env
         )
       end
@@ -139,23 +138,23 @@ RSpec.describe 'Authentication::Authenticate' do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-always-pass',
-            service_id:         nil,
-            account:            'my-acct',
-            username:           'my-user',
-            credentials:        'my-pw',
-            client_ip:          '127.0.0.1',
-            request:            nil
+            service_id: nil,
+            account: 'my-acct',
+            username: 'my-user',
+            credentials: 'my-pw',
+            client_ip: '127.0.0.1',
+            request: nil
           )
 
           Authentication::Authenticate.new(
             validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: false),
-            validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
-            validate_origin:                     mocked_origin_validator,
-            token_factory:                       mocked_token_factory,
-            audit_log:                           mocked_audit_logger
+            validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true),
+            validate_origin: mocked_origin_validator,
+            token_factory: mocked_token_factory,
+            audit_log: mocked_audit_logger
           ).call(
-            authenticator_input:    input_,
-            authenticators:         authenticators,
+            authenticator_input: input_,
+            authenticators: authenticators,
             enabled_authenticators: two_authenticator_env
           )
         end
@@ -175,23 +174,23 @@ RSpec.describe 'Authentication::Authenticate' do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-always-pass',
-            service_id:         nil,
-            account:            'my-acct',
-            username:           'my-user',
-            credentials:        'my-pw',
-            client_ip:          '127.0.0.1',
-            request:            nil
+            service_id: nil,
+            account: 'my-acct',
+            username: 'my-user',
+            credentials: 'my-pw',
+            client_ip: '127.0.0.1',
+            request: nil
           )
 
           Authentication::Authenticate.new(
             validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
-            validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: false),
-            validate_origin:                     mocked_origin_validator,
-            token_factory:                       mocked_token_factory,
-            audit_log:                           mocked_audit_logger
+            validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: false),
+            validate_origin: mocked_origin_validator,
+            token_factory: mocked_token_factory,
+            audit_log: mocked_audit_logger
           ).call(
-            authenticator_input:    input_,
-            authenticators:         authenticators,
+            authenticator_input: input_,
+            authenticators: authenticators,
             enabled_authenticators: two_authenticator_env
           )
         end
@@ -211,23 +210,23 @@ RSpec.describe 'Authentication::Authenticate' do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-always-pass',
-            service_id:         nil,
-            account:            'my-acct',
-            username:           'my-user',
-            credentials:        'my-pw',
-            client_ip:          '127.0.0.1',
-            request:            nil
+            service_id: nil,
+            account: 'my-acct',
+            username: 'my-user',
+            credentials: 'my-pw',
+            client_ip: '127.0.0.1',
+            request: nil
           )
 
           Authentication::Authenticate.new(
             validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
-            validate_webservice_is_whitelisted:  mock_validate_webservice_is_whitelisted(validation_succeeded: true),
-            validate_origin:                     mocked_origin_validator,
-            token_factory:                       mocked_token_factory,
-            audit_log:                           mocked_audit_logger
+            validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true),
+            validate_origin: mocked_origin_validator,
+            token_factory: mocked_token_factory,
+            audit_log: mocked_audit_logger
           ).call(
-            authenticator_input:    input_,
-            authenticators:         authenticators,
+            authenticator_input: input_,
+            authenticators: authenticators,
             enabled_authenticators: two_authenticator_env
           )
         end

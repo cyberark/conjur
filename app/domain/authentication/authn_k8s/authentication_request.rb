@@ -16,7 +16,7 @@ module Authentication
         case restriction.name
         when Restrictions::NAMESPACE
           if restriction.value != @namespace
-            raise Errors::Authentication::AuthnK8s::NamespaceMismatch @namespace, restriction.value
+            raise Errors::Authentication::AuthnK8s::NamespaceMismatch(@namespace, restriction.value)
           end
         else
           # Restrictions defined using '-', but the k8s client expects type with '_' instead.

@@ -21,7 +21,7 @@ module BodyParser
       when 'application/json'
         body = request.body.read
         begin
-          JSON.parse body
+          JSON.parse(body)
         rescue JSON::JSONError
           raise ApplicationController::BadRequest, "Unable to parse request json body: #{body}"
         end
@@ -32,7 +32,7 @@ module BodyParser
   end
 
   def params
-    super.merge body_params
+    super.merge(body_params)
   end
 
   private

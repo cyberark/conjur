@@ -6,7 +6,6 @@ require 'parallel'
 DatabaseCleaner.strategy = :truncation
 
 describe PoliciesController, type: :request do
-
   before(:all) do
     # there doesn't seem to be a sane way to get this
     @original_database_cleaner_strategy =
@@ -30,7 +29,7 @@ describe PoliciesController, type: :request do
     )
   end
 
-  let(:current_user) { Role.find_or_create role_id: 'rspec:user:admin' }
+  let(:current_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
 
   # :reek:UtilityFunction is okay for this test util
   def variable(name)
@@ -55,11 +54,13 @@ describe PoliciesController, type: :request do
       { 'HTTP_AUTHORIZATION' => token_auth_str }
     end
     def headers_with_auth(payload)
-      token_auth_header.merge( { 'RAW_POST_DATA' => payload } )
+      token_auth_header.merge({ 'RAW_POST_DATA' => payload })
     end
+
     def post_payload(payload)
       post(policies_url, env: headers_with_auth(payload))
     end
+
     def put_payload(payload)
       put(policies_url, env: headers_with_auth(payload))
     end
@@ -84,7 +85,7 @@ describe PoliciesController, type: :request do
       #   apply2files - audit.sock (Errno::ENOENT)
       policies = Array.new(2) { |i| "[!variable test#{i}]" }
       Sequel::Model.db.disconnect # the children have to reconnect
-      Parallel.each policies, in_processes: 2 do |policy|
+      Parallel.each(policies, in_processes: 2) do |policy|
         post_payload(policy)
         expect(response.code).to_not be >= 500
       end
@@ -109,7 +110,7 @@ describe PoliciesController, type: :request do
       vars = Array.new(2) { |i| "test#{i}" }
       policies = vars.map { |var| "[!variable #{var}]" }
       Sequel::Model.db.disconnect # the children have to reconnect
-      Parallel.each policies, in_processes: 2 do |policy|
+      Parallel.each(policies, in_processes: 2) do |policy|
         post_payload(policy)
       end
       vars.each { |var| expect(variable(var)).to exist }

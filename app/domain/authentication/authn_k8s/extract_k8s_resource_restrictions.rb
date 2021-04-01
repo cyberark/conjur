@@ -6,12 +6,11 @@ module Authentication
     ExtractK8sResourceRestrictions = CommandClass.new(
       dependencies: {
         extract_resource_restrictions: ResourceRestrictions::ExtractResourceRestrictions.new,
-        resource_restrictions_class:   ResourceRestrictions::ResourceRestrictions,
-        logger:                        Rails.logger
+        resource_restrictions_class: ResourceRestrictions::ResourceRestrictions,
+        logger: Rails.logger
       },
-      inputs:   %i[authenticator_name service_id role_name account]
+      inputs: %i[authenticator_name service_id role_name account]
     ) do
-
       def call
         extract_resource_restrictions
       end
@@ -25,9 +24,9 @@ module Authentication
       def extract_resource_restrictions
         restrictions_from_annotations = @extract_resource_restrictions.call(
           authenticator_name: @authenticator_name,
-          service_id:         @service_id,
-          role_name:          @role_name,
-          account:            @account
+          service_id: @service_id,
+          role_name: @role_name,
+          account: @account
         )
 
         # Container name annotation is not a restriction, and needs to be excluded.

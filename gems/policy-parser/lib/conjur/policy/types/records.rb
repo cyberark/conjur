@@ -1,4 +1,3 @@
-# coding: utf-8
 module Conjur
   module PolicyParser
     module Types
@@ -7,6 +6,7 @@ module Conjur
         def role?
           false
         end
+
         def resource?
           false
         end
@@ -19,14 +19,14 @@ module Conjur
       module ActsAsResource
         def self.included(base)
           base.module_eval do
-            attribute :id,   kind: :string, singular: true, dsl_accessor: true
-            attribute :account, kind: :string, singular: true
-            attribute :owner, kind: :role, singular: true, dsl_accessor: true
+            attribute(:id,   kind: :string, singular: true, dsl_accessor: true)
+            attribute(:account, kind: :string, singular: true)
+            attribute(:owner, kind: :role, singular: true, dsl_accessor: true)
             
-            attribute :annotations, kind: :hash, type: Hash, singular: true
+            attribute(:annotations, kind: :hash, type: Hash, singular: true)
             
             def description value
-              annotation 'description', value
+              annotation('description', value)
             end
             
             def annotation name, value
@@ -41,7 +41,7 @@ module Conjur
         end
         
         def to_s
-          "#{resource_kind.gsub('_', ' ')} '#{id}'#{account && account != Conjur.configuration.account ? ' in account \'' + account + '\'': ''}"
+          "#{resource_kind.gsub('_', ' ')} '#{id}'#{account && account != Conjur.configuration.account ? " in account '#{account}'": ''}"
         end
         
         def resourceid default_account = nil
@@ -93,7 +93,7 @@ module Conjur
           if kind_or_id && id_or_options && id_or_options.is_a?(String)
             self.kind = kind_or_id
             self.id = id_or_options
-          elsif kind_or_id && kind_or_id.index(":")
+          elsif kind_or_id&.index(":")
             id_or_options ||= {}
             account, self.kind, self.id = kind_or_id.split(':', 3)
             self.account = account if account != id_or_options[:default_account]
@@ -101,11 +101,11 @@ module Conjur
         end
 
         def == other
-          other.kind_of?(ActsAsCompoundId) && kind == other.kind && id == other.id && account == other.account
+          other.is_a?(ActsAsCompoundId) && kind == other.kind && id == other.id && account == other.account
         end
 
         def to_s
-          "#{kind} #{self.class.short_name.underscore} '#{id}'#{account && account != Conjur.configuration.account ? ' in account \'' + account + '\'': ''}"
+          "#{kind} #{self.class.short_name.underscore} '#{id}'#{account && account != Conjur.configuration.account ? " in account '#{account}'": ''}"
         end
       end
       
@@ -119,11 +119,17 @@ module Conjur
 
         def roleid default_account = nil
           raise "account is required" unless account || default_account
+
           [ account || default_account, kind, id ].join(":")
         end
         
-        def role_id; id; end
-        def role_kind; kind; end
+        def role_id 
+          id 
+        end
+
+        def role_kind 
+          kind 
+        end
                   
         def immutable_attribute_names
           []
@@ -149,10 +155,12 @@ module Conjur
         attribute :public_key, kind: :string, dsl_accessor: true
         attribute :restricted_to, kind: :cidr, dsl_accessor: true
 
-        def id_attribute; 'login'; end
+        def id_attribute 
+          'login' 
+        end
         
         def custom_attribute_names
-          [ :uidnumber, :public_key, :restricted_to ]
+          %i[uidnumber public_key restricted_to]
         end
       end
       
@@ -190,11 +198,11 @@ module Conjur
         attribute :mime_type, kind: :string, singular: true, dsl_accessor: true
 
         def custom_attribute_names
-          [ :kind, :mime_type ]
+          %i[kind mime_type]
         end
         
         def immutable_attribute_names
-          [ :kind, :mime_type ]
+          %i[kind mime_type]
         end
       end
       
@@ -213,7 +221,7 @@ module Conjur
         
         def role *args
           if args.empty?
-            role_accessor || self.owner
+            role_accessor || owner
           else
             role_accessor(*args)
           end
@@ -235,6 +243,7 @@ module Conjur
           def build fullid
             account, kind, id = fullid.split(':', 3)
             raise "Expecting @ for kind, got #{kind}" unless kind == "@"
+
             id_tokens = id.split('/')
             record_kind = id_tokens.shift
             role_name = id_tokens.pop
@@ -242,12 +251,12 @@ module Conjur
               record.id = id_tokens.join('/')
               record.account = account
             end
-            self.new record, role_name
+            new(record, role_name)
           end
         end
         
         def to_s
-          role_name = self.id.split('/')[-1]
+          role_name = id.split('/')[-1]
           "'#{role_name}' on #{record}"
         end
         

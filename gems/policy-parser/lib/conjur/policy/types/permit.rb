@@ -7,19 +7,21 @@ module Conjur
         attribute :privilege, kind: :string, dsl_accessor: true
         attribute :resource, dsl_accessor: true
 
-        def initialize privilege = nil
+        def initialize(privilege = nil)
           self.privilege = privilege
         end
 
         def to_s
-          if Array === role
-            role_string = role.map &:role
+          if role.is_a?(Array)
+            role_string = role.map(&:role)
             admin = false
           else
             role_string = role.role
             admin = role.admin
           end
-          "Permit #{role_string} to [#{Array(privilege).join(', ')}] on #{Array(resource).join(', ')}#{admin ? ' with grant option' : ''}"
+          "Permit #{role_string} to [#{Array(privilege).join(', ')}] " \
+          "on #{Array(resource).join(', ')}" \
+          "#{admin ? ' with grant option' : ''}"
         end
       end
     end

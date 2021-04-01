@@ -39,7 +39,7 @@ class Schemata
     end
 
     def model_for_table table
-      Sequel::Model [ primary_schema, table ].join("__").to_sym
+      Sequel::Model([ primary_schema, table ].join("__").to_sym)
     end
 
     def qualify_table table, separator: "."
@@ -51,7 +51,7 @@ class Schemata
     end
 
     def model_for_table table
-      Sequel::Model [ primary_schema, table ].join("__").to_sym
+      Sequel::Model([ primary_schema, table ].join("__").to_sym)
     end
   end
 

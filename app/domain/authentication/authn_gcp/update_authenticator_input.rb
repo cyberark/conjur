@@ -13,14 +13,13 @@ module Authentication
       dependencies: {
         verify_and_decode_token: Authentication::OAuth::VerifyAndDecodeToken.new,
         validate_account_exists: Authentication::Security::ValidateAccountExists.new,
-        decoded_token_class:     DecodedToken,
-        logger:                  Rails.logger
+        decoded_token_class: DecodedToken,
+        logger: Rails.logger
       },
-      inputs:       [:authenticator_input]
+      inputs: [:authenticator_input]
     ) do
-
-      extend Forwardable
-      def_delegators :@authenticator_input, :authenticator_name, :account, :credentials, :username
+      extend(Forwardable)
+      def_delegators(:@authenticator_input, :authenticator_name, :account, :credentials, :username)
 
       def call
         validate_account_exists
@@ -44,16 +43,16 @@ module Authentication
       def decoded_token
         @decoded_token ||= @decoded_token_class.new(
           decoded_token_hash: @verify_and_decode_token.call(
-            provider_uri:     PROVIDER_URI,
-            token_jwt:        decoded_credentials.jwt,
+            provider_uri: PROVIDER_URI,
+            token_jwt: decoded_credentials.jwt,
             claims_to_verify: {
-              verify_iss:        true,
-              iss:               PROVIDER_URI,
-              verify_iat:        true,
+              verify_iss: true,
+              iss: PROVIDER_URI,
+              verify_iat: true,
               verify_expiration: true
             }
           ),
-          logger:             @logger
+          logger: @logger
         )
       end
 

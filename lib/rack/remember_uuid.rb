@@ -9,7 +9,7 @@ module Rack
 
     def call env
       Thread.current[:request_id] = env["action_dispatch.request_id"]
-      @app.call env
+      @app.call(env)
     end
   end
 end

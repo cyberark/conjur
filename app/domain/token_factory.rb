@@ -8,7 +8,7 @@ class TokenFactory < Dry::Struct
   attribute :slosilo, ::Types::Any.default{ Slosilo }
 
   def signing_key(account)
-    slosilo["authn:#{account}".to_sym] or raise NoSigningKey, account
+    slosilo["authn:#{account}".to_sym] || raise(NoSigningKey, account)
   end
     
   def signed_token(account:, username:)

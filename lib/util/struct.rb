@@ -8,8 +8,8 @@ module Util
   class Struct < OpenStruct
     def initialize values = {}
       klass = self.class
-      klass.check_args values
-      super klass.defaults.merge values
+      klass.check_args(values)
+      super(klass.defaults.merge(values))
     end
 
     class << self
@@ -26,7 +26,7 @@ module Util
       # Example usage:
       #   fields :required, optional: "default"
       def field *reqfields, **optfields
-        defaults.merge! optfields
+        defaults.merge!(optfields)
         fields.push(*reqfields)
       end
 
@@ -59,8 +59,9 @@ module Util
       def define_abstract_field field
         define_singleton_method(field) do |value = nil, &block|
           return super() unless value || block
+
           block = -> { value } if value
-          define_method field, &block
+          define_method(field, &block)
         end
       end
     end

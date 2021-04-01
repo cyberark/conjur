@@ -25,14 +25,14 @@ module Rack
     class RegexHash
       extend Forwardable
 
-      # Note: this will work with a Hash or keyword args
+      # NOTE: this will work with a Hash or keyword args
       def initialize(**kwargs)
         @vals_by_regex = kwargs
       end
 
       def [](key)
         matching_re = @vals_by_regex.each_key.find { |re, _| re =~ key }
-        @vals_by_regex[matching_re] # Note: returns nil if no match
+        @vals_by_regex[matching_re] # NOTE: returns nil if no match
       end
 
       def_delegators :@vals_by_regex, :[]=

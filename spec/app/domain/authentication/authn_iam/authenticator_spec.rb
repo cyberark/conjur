@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Authentication::AuthnIam::Authenticator do
+RSpec.describe(Authentication::AuthnIam::Authenticator) do
   def expired_aws_headers
     "{\"host\":\"sts.amazonaws.com\",\"x-amz-date\":\"20180620T025910Z\","\
     "\"x-amz-security-token\":\"FQoDYXdzEPv//////////wEaDHwvkDqh5pHmZNe5hSK3AzevmnHjzweG6m1in"\
@@ -20,8 +20,8 @@ RSpec.describe Authentication::AuthnIam::Authenticator do
 
   def valid_response 
     double('HTTPResponse', 
-            code: 200, 
-            body: %(
+           code: 200, 
+           body: %(
                 <GetCallerIdentityResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">
                     <GetCallerIdentityResult>
                         <Arn>arn:aws:sts::011915987442:assumed-role/MyApp/i-0a5702a5a078e1a00</Arn>
@@ -38,8 +38,8 @@ RSpec.describe Authentication::AuthnIam::Authenticator do
 
   def invalid_response 
     double('HTTPResponse', 
-            code: 404,
-            body: "Error"
+           code: 404,
+           body: "Error"
     )
   end
 
@@ -59,7 +59,7 @@ RSpec.describe Authentication::AuthnIam::Authenticator do
     subject = authenticator_instance
     parameters = double('AuthenticationParameters', credentials: expired_aws_headers)
     expect{subject.valid?(parameters)}.to(
-        raise_error(Errors::Authentication::AuthnIam::InvalidAWSHeaders)
+      raise_error(Errors::Authentication::AuthnIam::InvalidAWSHeaders)
     )
   end
 
@@ -71,11 +71,11 @@ RSpec.describe Authentication::AuthnIam::Authenticator do
 
     expected = {
         "GetCallerIdentityResponse" => a_hash_including(
-                "GetCallerIdentityResult" => a_hash_including(
-                    "Arn" => "arn:aws:sts::011915987442:assumed-role/MyApp/i-0a5702a5a078e1a00",
-                    "UserId" => anything,
-                    "Account" => anything
-                )
+          "GetCallerIdentityResult" => a_hash_including(
+            "Arn" => "arn:aws:sts::011915987442:assumed-role/MyApp/i-0a5702a5a078e1a00",
+            "UserId" => anything,
+            "Account" => anything
+          )
         )
     }
 

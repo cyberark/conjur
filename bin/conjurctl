@@ -3,6 +3,6 @@
 
 require 'pathname'
 
-Dir.chdir File.expand_path('..', File.dirname(Pathname.new(__FILE__).realpath))
+Dir.chdir(File.expand_path('..', File.dirname(Pathname.new(__FILE__).realpath)))
 
 load './bin/conjur-cli.rb'

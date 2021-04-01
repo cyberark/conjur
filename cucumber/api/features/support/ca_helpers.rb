@@ -25,7 +25,7 @@ module CAHelpers
   end
 
   def response_certificate
-    @response_certificate ||= OpenSSL::X509::Certificate.new certificate_response_body
+    @response_certificate ||= OpenSSL::X509::Certificate.new(certificate_response_body)
   end
 
   def certificate_response_body
@@ -41,7 +41,7 @@ module CAHelpers
   module CertificateAuthority
 
     def sign_ca(csr, ttl)
-      raise 'CSR cannot be verified' unless csr.verify csr.public_key
+      raise 'CSR cannot be verified' unless csr.verify(csr.public_key)
 
       csr_cert = OpenSSL::X509::Certificate.new
       csr_cert.serial = 0
@@ -61,7 +61,7 @@ module CAHelpers
       csr_cert.add_extension(extension_factory.create_extension('keyUsage', 'cRLSign,keyCertSign', true))
 
       # Sign the issued CA certificate with the CA private key
-      csr_cert.sign @key, OpenSSL::Digest::SHA256.new
+      csr_cert.sign(@key, OpenSSL::Digest.new('SHA256'))
 
       csr_cert
     end
@@ -76,7 +76,7 @@ module CAHelpers
     end
 
     def key_pem
-      @password.to_s.empty? ? @key.to_pem : @key.to_pem(OpenSSL::Cipher::AES256.new(:CBC), @password)
+      @password.to_s.empty? ? @key.to_pem : @key.to_pem(OpenSSL::Cipher.new('aes-256-cbc'), @password)
     end
 
     def cert
@@ -89,12 +89,12 @@ module CAHelpers
 
     def csr
       OpenSSL::X509::Request.new
-                            .tap do |csr|
-                              csr.version = 0
-                              csr.subject = @name
-                              csr.public_key = @key.public_key
-                              csr.sign @key, OpenSSL::Digest::SHA256.new
-                            end
+        .tap do |csr|
+        csr.version = 0
+        csr.subject = @name
+        csr.public_key = @key.public_key
+        csr.sign(@key, OpenSSL::Digest.new('SHA256'))
+      end
     end
   end
 
@@ -105,8 +105,8 @@ module CAHelpers
     include CertificateHost
 
     def initialize(name, ttl, key_size: 4096)
-      @name = OpenSSL::X509::Name.parse name
-      @key = OpenSSL::PKey::RSA.new key_size
+      @name = OpenSSL::X509::Name.parse(name)
+      @key = OpenSSL::PKey::RSA.new(key_size)
       @cert = create_cert(ttl, @key)
     end
 
@@ -129,7 +129,7 @@ module CAHelpers
       cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:TRUE', true))
       cert.add_extension(extension_factory.create_extension('keyUsage', 'cRLSign,keyCertSign', true))
 
-      cert.sign(key, OpenSSL::Digest::SHA256.new)
+      cert.sign(key, OpenSSL::Digest.new('SHA256'))
 
       cert
     end
@@ -143,8 +143,8 @@ module CAHelpers
     include CertificateHost
 
     def initialize(name, password: nil, key_size: 4096)
-      @name = OpenSSL::X509::Name.parse name
-      @key = OpenSSL::PKey::RSA.new key_size
+      @name = OpenSSL::X509::Name.parse(name)
+      @key = OpenSSL::PKey::RSA.new(key_size)
       @password = password
     end
   end
@@ -155,8 +155,8 @@ module CAHelpers
     include CAHelpers::CertificateHost
 
     def initialize(name, key_size: 4096)
-      @name = OpenSSL::X509::Name.parse name
-      @key = OpenSSL::PKey::RSA.new key_size
+      @name = OpenSSL::X509::Name.parse(name)
+      @key = OpenSSL::PKey::RSA.new(key_size)
     end
   end
 end

@@ -2,8 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::AuthnAzure::DecodedToken' do
-
+RSpec.describe('Authentication::AuthnAzure::DecodedToken') do
   def decoded_token_hash(token_str)
     JSON.parse(token_str).to_hash
   end
@@ -36,7 +35,7 @@ RSpec.describe 'Authentication::AuthnAzure::DecodedToken' do
       subject(:decoded_token) do
         ::Authentication::AuthnAzure::DecodedToken.new(
           decoded_token_hash: decoded_token_hash_valid,
-          logger:             Rails.logger
+          logger: Rails.logger
         )
       end
 
@@ -54,7 +53,7 @@ RSpec.describe 'Authentication::AuthnAzure::DecodedToken' do
       subject do
         ::Authentication::AuthnAzure::DecodedToken.new(
           decoded_token_hash: decoded_token_hash_missing_xms_mirid,
-          logger:             Rails.logger
+          logger: Rails.logger
         )
       end
 
@@ -69,7 +68,7 @@ RSpec.describe 'Authentication::AuthnAzure::DecodedToken' do
       subject do
         ::Authentication::AuthnAzure::DecodedToken.new(
           decoded_token_hash: decoded_token_hash_missing_oid,
-          logger:             Rails.logger
+          logger: Rails.logger
         )
       end
 

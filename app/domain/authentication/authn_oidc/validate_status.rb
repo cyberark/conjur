@@ -8,7 +8,6 @@ module Authentication
       },
       inputs: %i[account service_id]
     ) do
-
       def call
         validate_service_id_exists
         validate_secrets

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Authentication::Constraints::RequiredConstraint do
+RSpec.describe(Authentication::Constraints::RequiredConstraint) do
   context "Given RequiredConstraint initialized with 1 restriction" do
     let(:required_restriction) { ["required"] }
     let(:not_required_restrictions) { %w[not_required_first not_required_second] }

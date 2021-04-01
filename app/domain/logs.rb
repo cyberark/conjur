@@ -5,12 +5,12 @@ module LogMessages
   module Conjur
 
     PrimarySchema = ::Util::TrackableLogMessageClass.new(
-      msg:  "Primary schema is {0-primary-schema}",
+      msg: "Primary schema is {0-primary-schema}",
       code: "CONJ00034I"
     )
 
     FipsModeStatus = ::Util::TrackableLogMessageClass.new(
-      msg:  "OpenSSL FIPS mode set to {0}",
+      msg: "OpenSSL FIPS mode set to {0}",
       code: "CONJ00038I"
     )
 
@@ -19,55 +19,55 @@ module LogMessages
   module Authentication
 
     LoginError = ::Util::TrackableErrorClass.new(
-      msg:  "Login Error: {0}",
+      msg: "Login Error: {0}",
       code: "CONJ00047I"
     )
 
     AuthenticationError = ::Util::TrackableErrorClass.new(
-      msg:  "Authentication Error: {0}",
+      msg: "Authentication Error: {0}",
       code: "CONJ00048I"
     )
 
     OriginValidated = ::Util::TrackableLogMessageClass.new(
-      msg:  "Origin validated",
+      msg: "Origin validated",
       code: "CONJ00003D"
     )
 
     ContainerNameAnnotationDefaultValue = ::Util::TrackableLogMessageClass.new(
-      msg:  "Annotation '{0-authentication-container-annotation-name}' not found. " \
+      msg: "Annotation '{0-authentication-container-annotation-name}' not found. " \
                 "Using default value '{1-default-authentication-container}'",
       code: "CONJ00033D"
     )
 
     EncodedJWTResponse = ::Util::TrackableLogMessageClass.new(
-      msg:  "Responding with a base64 encoded access token",
+      msg: "Responding with a base64 encoded access token",
       code: "CONJ00039D"
     )
 
     module OAuth
 
       IdentityProviderUri = ::Util::TrackableLogMessageClass.new(
-        msg:  "Working with Identity Provider {0-provider-uri}",
+        msg: "Working with Identity Provider {0-provider-uri}",
         code: "CONJ00007D"
       )
 
       IdentityProviderDiscoverySuccess = ::Util::TrackableLogMessageClass.new(
-        msg:  "Identity Provider discovery succeeded",
+        msg: "Identity Provider discovery succeeded",
         code: "CONJ00008D"
       )
 
       FetchProviderKeysSuccess = ::Util::TrackableLogMessageClass.new(
-        msg:  "Fetched Identity Provider keys from provider successfully",
+        msg: "Fetched Identity Provider keys from provider successfully",
         code: "CONJ00009D"
       )
 
       IdentityProviderKeysFetchedFromCache = ::Util::TrackableLogMessageClass.new(
-        msg:  "Fetched Identity Provider keys from cache successfully",
+        msg: "Fetched Identity Provider keys from cache successfully",
         code: "CONJ00017D"
       )
 
       ValidateProviderKeysAreUpdated = ::Util::TrackableLogMessageClass.new(
-        msg:  "Validating that Identity Provider keys are up to date",
+        msg: "Validating that Identity Provider keys are up to date",
         code: "CONJ00019D"
       )
 
@@ -76,27 +76,27 @@ module LogMessages
     module Jwt
 
       TokenDecodeSuccess = ::Util::TrackableLogMessageClass.new(
-        msg:  "Token decoded successfully",
+        msg: "Token decoded successfully",
         code: "CONJ00005D"
       )
 
       TokenDecodeFailed = ::Util::TrackableLogMessageClass.new(
-        msg:  "Failed to decode the token with the error '{0-exception}'",
+        msg: "Failed to decode the token with the error '{0-exception}'",
         code: "CONJ00018D"
       )
 
       ExtractedClaimFromToken = ::Util::TrackableLogMessageClass.new(
-        msg:  "Extracted claim '{0-claim-name}' with value {1-claim-value} from token",
+        msg: "Extracted claim '{0-claim-name}' with value {1-claim-value} from token",
         code: "CONJ00031D"
       )
 
       ExtractedUsernameFromToken = ::Util::TrackableLogMessageClass.new(
-        msg:  "Extracted username '{0}' from token",
+        msg: "Extracted username '{0}' from token",
         code: "CONJ00038D"
       )
 
       OptionalTokenClaimNotFoundOrEmpty  = ::Util::TrackableLogMessageClass.new(
-        msg:  "Optional claim '{0-claim-name}' not found or empty in token",
+        msg: "Optional claim '{0-claim-name}' not found or empty in token",
         code: "CONJ00047D"
       )
 
@@ -105,17 +105,17 @@ module LogMessages
     module ResourceRestrictions
 
       RetrievedAnnotationValue = ::Util::TrackableLogMessageClass.new(
-        msg:  "Retrieved value of annotation {0-annotation-name}",
+        msg: "Retrieved value of annotation {0-annotation-name}",
         code: "CONJ00024D"
       )
 
       ValidatingResourceRestrictions = ::Util::TrackableLogMessageClass.new(
-        msg:  "Validating resource restriction for role '{0-role-id}'",
+        msg: "Validating resource restriction for role '{0-role-id}'",
         code: "CONJ00046D"
       )
 
       ValidatedResourceRestrictions = ::Util::TrackableLogMessageClass.new(
-        msg:  "Resource restrictions validated",
+        msg: "Resource restrictions validated",
         code: "CONJ00030D"
       )
 
@@ -159,7 +159,7 @@ module LogMessages
     module AuthnOidc
 
       ExtractedUsernameFromIDToken = ::Util::TrackableLogMessageClass.new(
-        msg:  "Extracted username '{0}' from ID token claim '{1-id-token-username-claim}'",
+        msg: "Extracted username '{0}' from ID token claim '{1-id-token-username-claim}'",
         code: "CONJ00004D"
       )
 
@@ -168,48 +168,48 @@ module LogMessages
     module AuthnK8s
 
       PodChannelOpen = ::Util::TrackableLogMessageClass.new(
-        msg:  "Pod '{0-pod-name}' : channel open",
+        msg: "Pod '{0-pod-name}' : channel open",
         code: "CONJ00010D"
       )
 
       PodChannelClosed = ::Util::TrackableLogMessageClass.new(
-        msg:  "Pod '{0-pod-name}' : channel closed",
+        msg: "Pod '{0-pod-name}' : channel closed",
         code: "CONJ00011D"
       )
 
       PodChannelData = ::Util::TrackableLogMessageClass.new(
-        msg:  "Pod '{0-pod-name}', channel '{1-cahnnel-name}': {2-message-data}",
+        msg: "Pod '{0-pod-name}', channel '{1-cahnnel-name}': {2-message-data}",
         code: "CONJ00012D"
       )
 
       PodMessageData = ::Util::TrackableLogMessageClass.new(
-        msg:  "Pod '{0-pod-name}': message: '{1-message-type}', data: '{2-message-data}'",
+        msg: "Pod '{0-pod-name}': message: '{1-message-type}', data: '{2-message-data}'",
         code: "CONJ00013D"
       )
 
       PodError = ::Util::TrackableLogMessageClass.new(
-        msg:  "Pod '{0-pod-name}' error : '{1}'",
+        msg: "Pod '{0-pod-name}' error : '{1}'",
         code: "CONJ00014D"
       )
 
       CopySSLToPod = ::Util::TrackableLogMessageClass.new(
-        msg:  "Copying client certificate to {0-container-name}:{1-cert-file-path} " \
+        msg: "Copying client certificate to {0-container-name}:{1-cert-file-path} " \
             "in {2-pod-namespace}/{3-pod-name}",
         code: "CONJ00015D"
       )
 
       InitializeCopySSLToPodSuccess = ::Util::TrackableLogMessageClass.new(
-        msg:  "Started copying the client certificate successfully",
+        msg: "Started copying the client certificate successfully",
         code: "CONJ00037D"
       )
 
       HostIdFromCommonName = ::Util::TrackableLogMessageClass.new(
-        msg:  "Host id {0} extracted from CSR common name",
+        msg: "Host id {0} extracted from CSR common name",
         code: "CONJ00027D"
       )
 
       SetCommonName = ::Util::TrackableLogMessageClass.new(
-        msg:  "Setting common name to {0-full-host-name}",
+        msg: "Setting common name to {0-full-host-name}",
         code: "CONJ00028D"
       )
 
@@ -237,18 +237,18 @@ module LogMessages
     module AuthnIam
 
       GetCallerIdentityBody = ::Util::TrackableLogMessageClass.new(
-        msg:  "AWS IAM get_caller_identity body:\n {0-response-body}",
+        msg: "AWS IAM get_caller_identity body:\n {0-response-body}",
         code: "CONJ00034D"
       )
 
       AttemptToMatchHost = ::Util::TrackableLogMessageClass.new(
-        msg:  "IAM Role authentication attempt by AWS user {0-aws-user-id} " \
+        msg: "IAM Role authentication attempt by AWS user {0-aws-user-id} " \
                   "with host to match = {1-host-to-match}",
         code: "CONJ00035D"
       )
 
       RetrieveIamIdentity = ::Util::TrackableLogMessageClass.new(
-        msg:  "Retrieving IAM identity",
+        msg: "Retrieving IAM identity",
         code: "CONJ00036D"
       )
 
@@ -257,7 +257,7 @@ module LogMessages
     module AuthnAzure
 
       ExtractedResourceRestrictionsFromToken = ::Util::TrackableLogMessageClass.new(
-        msg:  "Extracted resource restrictions from token",
+        msg: "Extracted resource restrictions from token",
         code: "CONJ00029D"
       )
 
@@ -267,28 +267,28 @@ module LogMessages
   module Util
 
     RateLimitedCacheUpdated = ::Util::TrackableLogMessageClass.new(
-      msg:  "Rate limited cache updated successfully",
+      msg: "Rate limited cache updated successfully",
       code: "CONJ00016D"
     )
 
     RateLimitedCacheLimitReached = ::Util::TrackableLogMessageClass.new(
-      msg:  "Rate limited cache reached the '{0-limit}' limit and will not " \
+      msg: "Rate limited cache reached the '{0-limit}' limit and will not " \
               "call target for the next '{1-seconds}' seconds",
       code: "CONJ00020D"
     )
 
     ConcurrencyLimitedCacheUpdated = ::Util::TrackableLogMessageClass.new(
-      msg:  "Concurrency limited cache updated successfully",
+      msg: "Concurrency limited cache updated successfully",
       code: "CONJ00021D"
     )
 
     ConcurrencyLimitedCacheReached = ::Util::TrackableLogMessageClass.new(
-      msg:  "Concurrency limited cache reached the '{0-limit}' limit and will not call target",
+      msg: "Concurrency limited cache reached the '{0-limit}' limit and will not call target",
       code: "CONJ00022D"
     )
 
     ConcurrencyLimitedCacheConcurrentRequestsUpdated = ::Util::TrackableLogMessageClass.new(
-      msg:  "Concurrency limited cache concurrent requests updated to '{0-concurrent-requests}'",
+      msg: "Concurrency limited cache concurrent requests updated to '{0-concurrent-requests}'",
       code: "CONJ00023D"
     )
 

@@ -6,13 +6,12 @@ module Authentication
     ExtractResourceRestrictions = CommandClass.new(
       dependencies: {
         resource_restrictions_class: ResourceRestrictions::ResourceRestrictions,
-        role_class:                  ::Role,
-        resource_class:              ::Resource,
-        logger:                      Rails.logger
+        role_class: ::Role,
+        resource_class: ::Resource,
+        logger: Rails.logger
       },
-      inputs:   %i[authenticator_name service_id role_name account]
+      inputs: %i[authenticator_name service_id role_name account]
     ) do
-
       def call
         @logger.debug(
           LogMessages::Authentication::ResourceRestrictions::ExtractingRestrictionsFromResource.new(
@@ -42,6 +41,7 @@ module Authentication
             annotation_values = annotation.values
             value = annotation_values[:value]
             next if value.blank?
+
             result[annotation_values[:name]] = value
           end
       end

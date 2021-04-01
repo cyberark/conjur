@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Authentication::AuthnLdap::Authenticator do
+RSpec.describe(Authentication::AuthnLdap::Authenticator) do
   let(:authenticator_instance) do
     Authentication::AuthnLdap::Authenticator.new(env: {})
   end
@@ -10,12 +10,12 @@ RSpec.describe Authentication::AuthnLdap::Authenticator do
   let(:input) do
     ::Authentication::AuthenticatorInput.new(
       authenticator_name: 'ldap',
-      service_id:         'test',
-      account:            'test',
-      username:           username,
-      credentials:        password,
-      client_ip:          '127.0.0.1',
-      request:            nil
+      service_id: 'test',
+      account: 'test',
+      username: username,
+      credentials: password,
+      client_ip: '127.0.0.1',
+      request: nil
     )
   end
 
@@ -28,7 +28,7 @@ RSpec.describe Authentication::AuthnLdap::Authenticator do
     # Assume credentials will exist
     allow(::Credentials)
       .to receive(:[])
-      .and_return(Credentials.new.tap { | cred | cred.rotate_api_key })
+      .and_return(Credentials.new.tap(&:rotate_api_key))
   end
 
   context "as user alice" do

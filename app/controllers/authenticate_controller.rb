@@ -17,7 +17,7 @@ class AuthenticateController < ApplicationController
       enabled: enabled_authenticators.sort
     }
 
-    render json: authenticators
+    render(json: authenticators)
   end
 
   def status
@@ -25,10 +25,10 @@ class AuthenticateController < ApplicationController
       authenticator_status_input: status_input,
       enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV)
     )
-    render json: { status: "ok" }
+    render(json: { status: "ok" })
   rescue => e
     log_backtrace(e)
-    render status_failure_response(e)
+    render(status_failure_response(e))
   end
 
   def update_config
@@ -42,7 +42,7 @@ class AuthenticateController < ApplicationController
       enabled: body_params['enabled'] || false
     )
 
-    head :no_content
+    head(:no_content)
   rescue => e
     handle_authentication_error(e)
   end
@@ -60,7 +60,8 @@ class AuthenticateController < ApplicationController
   def login
     result = perform_basic_authn
     raise Unauthorized, "Client not authenticated" unless authentication.authenticated?
-    render plain: result.authentication_key
+
+    render(plain: result.authentication_key)
   rescue => e
     handle_login_error(e)
   end
@@ -78,7 +79,7 @@ class AuthenticateController < ApplicationController
       authn_token = ::Base64.strict_encode64(authn_token.to_json)
       response.set_header("Content-Encoding", "base64")
     end
-    render content_type => authn_token
+    render(content_type => authn_token)
   rescue => e
     handle_authentication_error(e)
   end
@@ -109,28 +110,28 @@ class AuthenticateController < ApplicationController
   def authenticator_input
     Authentication::AuthenticatorInput.new(
       authenticator_name: params[:authenticator],
-      service_id:         params[:service_id],
-      account:            params[:account],
-      username:           params[:id],
-      credentials:        request.body.read,
-      client_ip:          request.ip,
-      request:            request
+      service_id: params[:service_id],
+      account: params[:account],
+      username: params[:id],
+      credentials: request.body.read,
+      client_ip: request.ip,
+      request: request
     )
   end
 
   def k8s_inject_client_cert
     # TODO: add this to initializer
     Authentication::AuthnK8s::InjectClientCert.new.(
-      conjur_account:   ENV['CONJUR_ACCOUNT'],
-      service_id:       params[:service_id],
-      client_ip:        request.ip,
-      csr:              request.body.read,
+      conjur_account: ENV['CONJUR_ACCOUNT'],
+      service_id: params[:service_id],
+      client_ip: request.ip,
+      csr: request.body.read,
 
       # The host-id is split in the client where the suffix is in the CSR
       # and the prefix is in the header. This is done to maintain backwards-compatibility
-      host_id_prefix:   request.headers["Host-Id-Prefix"]
+      host_id_prefix: request.headers["Host-Id-Prefix"]
     )
-    head :accepted
+    head(:accepted)
   rescue => e
     handle_authentication_error(e)
   end
@@ -226,9 +227,9 @@ class AuthenticateController < ApplicationController
                     :not_found
                   else
                     :internal_server_error
-                  end
+    end
 
-    { :json => payload, :status => status_code }
+    { json: payload, status: status_code }
   end
 
   def installed_authenticators
@@ -241,6 +242,7 @@ class AuthenticateController < ApplicationController
 
   def encoded_response?
     return false unless request.accept_encoding
+
     encodings = request.accept_encoding.split(",")
     encodings.any? { |encoding| encoding.squish.casecmp?("base64") }
   end

@@ -28,7 +28,7 @@ module Authentication
           .where(identifier.like("#{AUTHN_RESOURCE_PREFIX}%"))
           .where(kind => "webservice")
           .select_map(identifier)
-          .map { |id| id[%r{^conjur\/(authn(?:-[^\/]+)?(?:\/[^\/]+)?)$}, 1] } # filter out nested status webservice
+          .map { |id| id[%r{^conjur/(authn(?:-[^/]+)?(?:/[^/]+)?)$}, 1] } # filter out nested status webservice
           .compact
           .push(::Authentication::Common.default_authenticator_name)
       end

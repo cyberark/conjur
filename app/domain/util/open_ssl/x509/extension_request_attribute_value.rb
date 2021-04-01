@@ -18,7 +18,7 @@ module Util
       class ExtensionRequestAttributeValue
 
         def self.from_extensions(extensions)
-          new( OpenSSL::ASN1::Set([ OpenSSL::ASN1::Sequence(extensions) ]) )
+          new(OpenSSL::ASN1::Set([ OpenSSL::ASN1::Sequence(extensions) ]))
         end
 
         def initialize(asn1_set)

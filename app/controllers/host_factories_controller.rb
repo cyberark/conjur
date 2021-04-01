@@ -14,7 +14,7 @@ class HostFactoriesController < ApplicationController
     response = host.as_json
     response['api_key'] = api_key
 
-    render json: response, status: :created
+    render(json: response, status: :created)
   end
 
   protected
@@ -42,11 +42,11 @@ class HostFactoriesController < ApplicationController
   end
 
   def hf_token
-    @hf_token ||= HostFactoryToken.from_token(auth_token) or raise Unauthorized
+    (@hf_token ||= HostFactoryToken.from_token(auth_token)) || raise(Unauthorized)
   end
 
   def auth_token
     request.headers['Authorization'].to_s[/^Token token="(.*)"/, 1] \
-      or raise Unauthorized
+      || raise(Unauthorized)
   end
 end

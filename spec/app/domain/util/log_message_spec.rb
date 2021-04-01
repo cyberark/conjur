@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Util::LogMessageClass' do
+RSpec.describe('Util::LogMessageClass') do
   context 'pre-determined, static log message' do
     let(:log_message) { 'some log message' }
     subject(:log_message_class) { Util::LogMessageClass.new(log_message) }

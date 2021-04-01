@@ -12,5 +12,5 @@ Conjur.configuration.account = ENV['CONJUR_ACCOUNT'] || 'cucumber'
 ENV.delete('CONJUR_ADMIN_PASSWORD')
 
 # so that we can require relative to the project root
-$LOAD_PATH.unshift File.expand_path '../../../..', __dir__
+$LOAD_PATH.unshift(File.expand_path('../../../..', __dir__))
 require 'config/environment'

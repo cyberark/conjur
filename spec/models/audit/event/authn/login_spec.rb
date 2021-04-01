@@ -41,9 +41,9 @@ describe Audit::Event::Authn::Login do
     it 'contains the user field' do
       expect(subject.structured_data).to match(hash_including({
         Audit::SDID::AUTH => {
-            authenticator: authenticator_name,
-            service: service.resource_id,
-            user: role_id
+          authenticator: authenticator_name,
+          service: service.resource_id,
+          user: role_id
         }
       }))
     end
@@ -68,11 +68,11 @@ describe Audit::Event::Authn::Login do
 
     it 'contains the not-found user field' do
       expect(subject.structured_data).to match(hash_including({
-          Audit::SDID::AUTH => {
-              authenticator: authenticator_name,
-              service: service.resource_id,
-              user: Audit::Event::NOT_FOUND
-          }
+        Audit::SDID::AUTH => {
+          authenticator: authenticator_name,
+          service: service.resource_id,
+          user: Audit::Event::NOT_FOUND
+        }
       }))
     end
 

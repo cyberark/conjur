@@ -2,8 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
-
+RSpec.describe('Authentication::AuthnAzure::Authenticator') do
   include_context "security mocks"
   include_context "fetch secrets", %w[provider-uri]
 
@@ -34,7 +33,7 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
   def mock_authenticate_azure_token_request(request_body_data:)
     double('AuthnAzureRequest').tap do |request|
       request_body = StringIO.new
-      request_body.puts request_body_data
+      request_body.puts(request_body_data)
       request_body.rewind
 
       allow(request).to receive(:body).and_return(request_body)
@@ -62,25 +61,26 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
-  context "An Azure authenticator" do``
+  context "An Azure authenticator" do 
+    ``
     context "that receives an authenticate request" do
       context "with a valid azure token" do
         context "with valid resource restrictions" do
           subject do
             input_ = Authentication::AuthenticatorInput.new(
               authenticator_name: authenticator_name,
-              service_id:         service,
-              account:            account,
-              username:           'my-user',
-              credentials:        request_body(authenticate_azure_token_request),
-              client_ip:          '127.0.0.1',
-              request:            authenticate_azure_token_request
+              service_id: service,
+              account: account,
+              username: 'my-user',
+              credentials: request_body(authenticate_azure_token_request),
+              client_ip: '127.0.0.1',
+              request: authenticate_azure_token_request
             )
 
             ::Authentication::AuthnAzure::Authenticator.new(
-              verify_and_decode_token:        mocked_verify_and_decode_token,
+              verify_and_decode_token: mocked_verify_and_decode_token,
               validate_resource_restrictions: mocked_validate_resource_restrictions,
-              authentication_request_class:   mocked_authentication_request_class
+              authentication_request_class: mocked_authentication_request_class
             ).call(
               authenticator_input: input_
             )
@@ -98,16 +98,16 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
           subject do
             input_ = Authentication::AuthenticatorInput.new(
               authenticator_name: 'authn-azure',
-              service_id:         'my-service',
-              account:            'my-acct',
-              username:           nil,
-              credentials:        request_body(authenticate_azure_token_request),
-              client_ip:          '127.0.0.1',
-              request:            authenticate_azure_token_request
+              service_id: 'my-service',
+              account: 'my-acct',
+              username: nil,
+              credentials: request_body(authenticate_azure_token_request),
+              client_ip: '127.0.0.1',
+              request: authenticate_azure_token_request
             )
 
             ::Authentication::AuthnAzure::Authenticator.new(
-              verify_and_decode_token:        mocked_verify_and_decode_token,
+              verify_and_decode_token: mocked_verify_and_decode_token,
               validate_resource_restrictions: mocked_validate_resource_restrictions
             ).call(
               authenticator_input: input_
@@ -116,7 +116,7 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
 
           it 'raises the error raised by mocked_validate_resource_restrictions' do
             allow(mocked_validate_resource_restrictions).to receive(:call)
-                                                             .and_raise('FAKE_VALIDATE_RESOURCE_RESTRICTIONS_ERROR')
+              .and_raise('FAKE_VALIDATE_RESOURCE_RESTRICTIONS_ERROR')
 
             expect { subject }.to raise_error(
               /FAKE_VALIDATE_RESOURCE_RESTRICTIONS_ERROR/
@@ -130,16 +130,16 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
           subject do
             input_ = Authentication::AuthenticatorInput.new(
               authenticator_name: 'authn-azure',
-              service_id:         'my-service',
-              account:            'my-acct',
-              username:           nil,
-              credentials:        request_body(authenticate_azure_token_request),
-              client_ip:          '127.0.0.1',
-              request:            authenticate_azure_token_request
+              service_id: 'my-service',
+              account: 'my-acct',
+              username: nil,
+              credentials: request_body(authenticate_azure_token_request),
+              client_ip: '127.0.0.1',
+              request: authenticate_azure_token_request
             )
 
             ::Authentication::AuthnAzure::Authenticator.new(
-              verify_and_decode_token:        mocked_verify_and_decode_token,
+              verify_and_decode_token: mocked_verify_and_decode_token,
               validate_resource_restrictions: mocked_validate_resource_restrictions
             ).call(
               authenticator_input: input_
@@ -148,7 +148,7 @@ RSpec.describe 'Authentication::AuthnAzure::Authenticator' do
 
           it 'raises the error raised by mocked_verify_and_decode_token' do
             allow(mocked_verify_and_decode_token).to receive(:call)
-                                                       .and_raise(verify_and_decode_token_error)
+              .and_raise(verify_and_decode_token_error)
 
             expect { subject }.to raise_error(
               verify_and_decode_token_error

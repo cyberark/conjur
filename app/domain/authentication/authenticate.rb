@@ -6,16 +6,15 @@ module Authentication
 
   Authenticate ||= CommandClass.new(
     dependencies: {
-      token_factory:                       TokenFactory.new,
-      validate_webservice_is_whitelisted:  ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
+      token_factory: TokenFactory.new,
+      validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
       validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
-      validate_origin:                     ::Authentication::ValidateOrigin.new,
-      audit_log:                           ::Audit.logger
+      validate_origin: ::Authentication::ValidateOrigin.new,
+      audit_log: ::Audit.logger
     },
-    inputs:       %i[authenticator_input authenticators enabled_authenticators]
+    inputs: %i[authenticator_input authenticators enabled_authenticators]
   ) do
-
-    extend Forwardable
+    extend(Forwardable)
     def_delegators(
       :@authenticator_input, :authenticator_name, :account, :username,
       :webservice, :client_ip, :role
@@ -107,10 +106,9 @@ module Authentication
 
     def new_token
       @token_factory.signed_token(
-        account:  account,
+        account: account,
         username: username
       )
     end
-
   end
 end

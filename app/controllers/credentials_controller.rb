@@ -44,7 +44,7 @@ class CredentialsController < ApplicationController
       client_ip: request.ip
     )
 
-    head 204
+    head(204)
   end
 
   # Rotate a user API key.
@@ -56,7 +56,7 @@ class CredentialsController < ApplicationController
       authenticated_role: authentication.authenticated_role,
       client_ip: request.ip
     )
-    render plain: @role.credentials.api_key
+    render(plain: @role.credentials.api_key)
   end
 
   protected
@@ -65,13 +65,13 @@ class CredentialsController < ApplicationController
     authentication.authenticated_role = Role[token_user.roleid] if token_user?
     perform_basic_authn
     raise Unauthorized, "Client not authenticated" unless authentication.authenticated?
-  rescue => err
-    case err
+  rescue => e
+    case e
     when Errors::Authentication::Security::AccountNotDefined,
       Errors::Authentication::Security::RoleNotFound
       raise Unauthorized, "Client not authenticated"
     else
-      raise err
+      raise e
     end
   end
 
@@ -114,7 +114,7 @@ class CredentialsController < ApplicationController
     raise Unauthorized, "Operation attempted against foreign user" unless token_user?
     raise Unauthorized, "Insufficient privilege" unless authentication.authenticated_role
     raise Unauthorized, "Insufficient privilege" unless resource = @role.resource
-    raise Unauthorized, "Insufficient privilege" unless authentication.authenticated_role.allowed_to? "update", resource
+    raise Unauthorized, "Insufficient privilege" unless authentication.authenticated_role.allowed_to?("update", resource)
   end
 
   # Read privilege is always granted.

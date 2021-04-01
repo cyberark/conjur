@@ -2,7 +2,7 @@
 
 require 'socket'
 
-Given(/^I request from authn\-local:$/) do |claims|
+Given(/^I request from authn-local:$/) do |claims|
   set_token_result authn_local_request(claims)
 end
 

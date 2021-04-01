@@ -14,6 +14,6 @@ module CallSql
   end
   
   def self.insert
-    ::Sequel::Model.send :extend, Sequel::Model
+    ::Sequel::Model.extend(Sequel::Model)
   end
 end

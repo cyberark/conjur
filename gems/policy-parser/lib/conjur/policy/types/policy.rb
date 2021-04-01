@@ -7,22 +7,24 @@ module Conjur
         end
 
         def encode_with coder
-          coder.represent_seq tag, self
+          coder.represent_seq(tag, self)
         end
       end
 
       module Tagless
-        def tag; nil; end
+        def tag 
+          nil 
+        end
       end
 
       module CustomStatement
-        def custom_statement handler, &block
+        def custom_statement handler
           record = yield
           class << record
             include RecordReferenceFactory
           end
-          push record
-          do_scope record, &handler
+          push(record)
+          do_scope(record, &handler)
         end
       end
 
@@ -71,12 +73,12 @@ module Conjur
         include Grants
         include Permissions
 
-        def policy id=nil, &block
+        def policy id = nil, &block
           policy = Policy.new
           policy.id(id) unless id.nil?
-          push policy
+          push(policy)
 
-          do_scope policy, &block
+          do_scope(policy, &block)
         end
       end
 
@@ -93,11 +95,13 @@ module Conjur
 
         def role
           raise "account is nil" unless account
+
           @role ||= Role.new("#{account}:policy:#{id}")
         end
 
         def resource
           raise "account is nil" unless account
+
           @resource ||= Resource.new("#{account}:policy:#{id}").tap do |resource|
             resource.owner = Role.new(owner.roleid)
             resource.annotations = annotations
@@ -111,14 +115,12 @@ module Conjur
 
         def body &block
           if block_given?
-            singleton :body, lambda { Body.new }, &block
+            singleton(:body, -> { Body.new }, &block)
           end
           @body ||= []
         end
 
-        def body= body
-          @body = body
-        end
+        attr_writer :body
 
         protected
 
@@ -131,7 +133,7 @@ module Conjur
             end
             instance_variable_set("@#{id}", object)
           end
-          do_scope object, &block
+          do_scope(object, &block)
         end
       end
     end

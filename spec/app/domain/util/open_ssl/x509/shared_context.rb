@@ -1,8 +1,7 @@
-RSpec.shared_context "certificate testing" do
-
+RSpec.shared_context("certificate testing") do
   let(:common_name) { 'example.com' }
   let(:spiffe_id) { 'spiffe://cluster.local/example' }
-  let(:alt_name) { 'URI:' + spiffe_id }
+  let(:alt_name) { "URI:#{spiffe_id}" }
   let(:cert_subject) { "/CN=#{common_name}/OU=Conjur Kubernetes CA/O=conjur" }
 
   let(:csr_with_spiffe_id) do

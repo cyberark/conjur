@@ -2,8 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Authentication::AuthnK8s::K8sContextValue do
-
+RSpec.describe(Authentication::AuthnK8s::K8sContextValue) do
   let(:file_contents) { "MockFileContents" }
   let(:good_file) { double("MockExistentFile") }
   let(:bad_file) { double("MockNonexistentFile") }

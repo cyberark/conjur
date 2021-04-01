@@ -13,20 +13,19 @@ module Authentication
 
     ExecuteCommandInContainer ||= CommandClass.new(
       dependencies: {
-        timeout:                       ENV['KUBE_EXEC_COMMAND_TIMEOUT'],
-        websocket_client:              WebSocketClient,
+        timeout: ENV['KUBE_EXEC_COMMAND_TIMEOUT'],
+        websocket_client: WebSocketClient,
         ws_client_event_handler_class: WebSocketClientEventHandler,
-        message_log_class:             MessageLog,
-        validate_message:              MessageLog::ValidateMessage.new,
-        logger:                        Rails.logger
+        message_log_class: MessageLog,
+        validate_message: MessageLog::ValidateMessage.new,
+        logger: Rails.logger
       },
-      inputs:       %i[k8s_object_lookup pod_namespace pod_name container cmds body stdin]
+      inputs: %i[k8s_object_lookup pod_namespace pod_name container cmds body stdin]
     ) do
-
       DEFAULT_TIMEOUT_SEC = 5
 
-      extend Forwardable
-      def_delegators :@k8s_object_lookup, :kube_client
+      extend(Forwardable)
+      def_delegators(:@k8s_object_lookup, :kube_client)
 
       def call
         init_ws_client
@@ -58,13 +57,13 @@ module Authentication
         @close_event_queue       = Queue.new
         @ws_client_event_handler ||= @ws_client_event_handler_class.new(
           close_event_queue: @close_event_queue,
-          ws_client:         ws_client,
-          stdin:             @stdin,
-          body:              @body,
-          pod_name:          @pod_name,
-          validate_message:  @validate_message,
-          message_log:       @message_log_class.new,
-          logger:            @logger
+          ws_client: ws_client,
+          stdin: @stdin,
+          body: @body,
+          pod_name: @pod_name,
+          validate_message: @validate_message,
+          message_log: @message_log_class.new,
+          logger: @logger
         )
       end
 
@@ -84,7 +83,7 @@ module Authentication
           sub_thread_tags = main_thread_tags.map do |x|
             x.start_with?("tid=") ? "#{x}=>#{tid}" : x
           end
-          logger.formatter.current_tags.replace sub_thread_tags
+          logger.formatter.current_tags.replace(sub_thread_tags)
           ws_client_event_handler.on_open
         end
         ws_client.on(:message) { |msg| ws_client_event_handler.on_message(msg) }
@@ -105,6 +104,7 @@ module Authentication
       def verify_error_stream_is_empty
         error_stream = ws_client_event_handler.message_log.messages[:error]
         return if error_stream.nil? || error_stream.empty?
+
         raise Errors::Authentication::AuthnK8s::ExecCommandError.new(
           @container,
           @pod_name,
@@ -122,7 +122,7 @@ module Authentication
         cmds_part               = @cmds.map { |cmd| "command=#{CGI.escape(cmd)}" }
         query_string            = (
         base_query_string_parts + stdin_part + cmds_part
-        ).join("&")
+      ).join("&")
 
         "#{base_url}#{path}?#{query_string}"
       end
@@ -133,6 +133,7 @@ module Authentication
 
       def websocket_error(msg)
         return 'The server returned a blank error message' if msg.blank?
+
         msg.to_s
       end
 

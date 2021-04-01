@@ -5,13 +5,12 @@ require 'support/security_specs_helper'
 require 'support/fetch_secrets_helper'
 require 'json'
 
-RSpec.describe Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken do
-
+RSpec.describe(Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken) do
   include_context "fetch secrets", %w[provider-uri id-token-user-property]
   include_context "security mocks"
   include_context "oidc setup"
 
-  let (:mocked_decode_and_verify_id_token) do
+  let(:mocked_decode_and_verify_id_token) do
     double("MockIdTokenDecodeAndVerify")
   end
 
@@ -31,7 +30,7 @@ RSpec.describe Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken do
   def mock_authenticate_oidc_request(request_body_data:)
     double('AuthnOidcRequest').tap do |request|
       request_body = StringIO.new
-      request_body.puts request_body_data
+      request_body.puts(request_body_data)
       request_body.rewind
 
       allow(request).to receive(:body).and_return(request_body)
@@ -72,7 +71,7 @@ RSpec.describe Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken do
       before(:each) do
         allow(Resource).to(
           receive(:[]).with(
-            /#{account}:variable:conjur\/authn-oidc\/#{service}\/id-token-user-property/
+            %r{#{account}:variable:conjur/authn-oidc/#{service}/id-token-user-property}
           ).and_return(mocked_id_token_resource)
         )
       end
@@ -81,12 +80,12 @@ RSpec.describe Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc',
-            service_id:         'my-service',
-            account:            'my-acct',
-            username:           nil,
-            credentials:        request_body(authenticate_id_token_request),
-            client_ip:          '127.0.0.1',
-            request:            authenticate_id_token_request
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            credentials: request_body(authenticate_id_token_request),
+            client_ip: '127.0.0.1',
+            request: authenticate_id_token_request
           )
 
           ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
@@ -114,12 +113,12 @@ RSpec.describe Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken do
           subject do
             input_ = Authentication::AuthenticatorInput.new(
               authenticator_name: 'authn-oidc',
-              service_id:         'my-service',
-              account:            'my-acct',
-              username:           nil,
-              credentials:        request_body(authenticate_id_token_request),
-              client_ip:          '127.0.0.1',
-              request:            authenticate_id_token_request
+              service_id: 'my-service',
+              account: 'my-acct',
+              username: nil,
+              credentials: request_body(authenticate_id_token_request),
+              client_ip: '127.0.0.1',
+              request: authenticate_id_token_request
             )
 
             ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
@@ -141,12 +140,12 @@ RSpec.describe Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc',
-            service_id:         'my-service',
-            account:            'my-acct',
-            username:           nil,
-            credentials:        request_body(authenticate_id_token_request_missing_id_token_username_field),
-            client_ip:          '127.0.0.1',
-            request:            authenticate_id_token_request_missing_id_token_username_field
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            credentials: request_body(authenticate_id_token_request_missing_id_token_username_field),
+            client_ip: '127.0.0.1',
+            request: authenticate_id_token_request_missing_id_token_username_field
           )
 
           ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
@@ -171,12 +170,12 @@ RSpec.describe Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc',
-            service_id:         'my-service',
-            account:            'my-acct',
-            username:           nil,
-            credentials:        request_body(authenticate_id_token_request_empty_id_token_username_field),
-            client_ip:          '127.0.0.1',
-            request:            authenticate_id_token_request_empty_id_token_username_field
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            credentials: request_body(authenticate_id_token_request_empty_id_token_username_field),
+            client_ip: '127.0.0.1',
+            request: authenticate_id_token_request_empty_id_token_username_field
           )
 
           ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
@@ -202,18 +201,17 @@ RSpec.describe Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc',
-            service_id:         'my-service',
-            account:            'my-acct',
-            username:           nil,
-            credentials:        request_body(authenticate_id_token_request_missing_id_token_field),
-            client_ip:          '127.0.0.1',
-            request:            authenticate_id_token_request_missing_id_token_field
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            credentials: request_body(authenticate_id_token_request_missing_id_token_field),
+            client_ip: '127.0.0.1',
+            request: authenticate_id_token_request_missing_id_token_field
           )
 
           ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
             verify_and_decode_token: mocked_decode_and_verify_id_token,
-          validate_account_exists:   mock_validate_account_exists(validation_succeeded: true)
-
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
           ).call(
             authenticator_input: input_
           )
@@ -229,12 +227,12 @@ RSpec.describe Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken do
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-oidc',
-            service_id:         'my-service',
-            account:            'my-acct',
-            username:           nil,
-            credentials:        request_body(authenticate_id_token_request_empty_id_token_field),
-            client_ip:          '127.0.0.1',
-            request:            authenticate_id_token_request_empty_id_token_field
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            credentials: request_body(authenticate_id_token_request_empty_id_token_field),
+            client_ip: '127.0.0.1',
+            request: authenticate_id_token_request_empty_id_token_field
           )
 
           ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(

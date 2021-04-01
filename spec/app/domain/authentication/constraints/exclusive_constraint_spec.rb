@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Authentication::Constraints::ExclusiveConstraint do
+RSpec.describe(Authentication::Constraints::ExclusiveConstraint) do
   context "Given ExclusiveConstraint initialized with 3 restriction" do
     let(:exclusive_three_restriction) { %w[exclusive_one exclusive_two exclusive_three] }
     let(:additional_restriction) { "additional-required" }

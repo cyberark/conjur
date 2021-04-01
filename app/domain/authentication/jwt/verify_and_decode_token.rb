@@ -19,11 +19,10 @@ module Authentication
     VerifyAndDecodeToken = CommandClass.new(
       dependencies: {
         jwt_decoder: JWT,
-        logger:      Rails.logger
+        logger: Rails.logger
       },
-      inputs:       %i[token_jwt verification_options]
+      inputs: %i[token_jwt verification_options]
     ) do
-
       def call
         verified_and_decoded_token
       end

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Authentication::OAuth::DiscoverIdentityProvider do
-
+RSpec.describe(Authentication::OAuth::DiscoverIdentityProvider) do
   let(:test_provider_uri) { "test-provider-uri" }
   let(:test_error) { "test-error" }
   let(:mock_provider) { "test-provider" }
@@ -10,10 +9,10 @@ RSpec.describe Authentication::OAuth::DiscoverIdentityProvider do
     double('discovery_provider').tap do |discovery_provider|
       if error
         allow(discovery_provider).to receive(:discover!)
-                                       .and_raise(error)
+          .and_raise(error)
       else
         allow(discovery_provider).to receive(:discover!)
-                                       .and_return(mock_provider)
+          .and_return(mock_provider)
       end
     end
   end

@@ -5,14 +5,14 @@ describe FindResource do
     let(:resource) { nil }
     describe '#resource' do
       it "raises an error" do
-        expect { controller.send :resource }
-          .to raise_error Exceptions::RecordNotFound
+        expect { controller.send(:resource) }
+          .to raise_error(Exceptions::RecordNotFound)
       end
     end
   end
 
   before do
-    allow(Resource).to receive(:[]).with(resource_id).and_return resource
+    allow(Resource).to receive(:[]).with(resource_id).and_return(resource)
     allow(controller).to receive(:resource_id) { resource_id }
   end
 

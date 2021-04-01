@@ -50,7 +50,6 @@ describe Audit::Event::ApiKey do
     end
   end
 
-
   context 'when a failure occurs' do
     let(:success) { false }
     let(:error_message) { 'failed rotation' }

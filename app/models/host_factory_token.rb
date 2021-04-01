@@ -43,7 +43,8 @@ class HostFactoryToken < Sequel::Model
   def valid? origin: nil
     return false if expired?
     return true unless origin
-    valid_origin? origin
+
+    valid_origin?(origin)
   end
 
   def cidr
@@ -63,7 +64,7 @@ class HostFactoryToken < Sequel::Model
 
   def validate
     super
-    validates_presence [:expiration]
+    validates_presence([:expiration])
     validate_cidr
   end
 

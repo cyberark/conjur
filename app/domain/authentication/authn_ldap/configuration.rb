@@ -169,8 +169,8 @@ module Authentication
           cert_store.set_default_paths
           cert_store.add_file(self.class.create_cert_file(@ca_cert).path) if @ca_cert
         end
-      rescue OpenSSL::X509::StoreError => ex
-        raise ArgumentError, "Invalid CA certificate in LDAP configuration: #{ex.message}"
+      rescue OpenSSL::X509::StoreError => e
+        raise ArgumentError, "Invalid CA certificate in LDAP configuration: #{e.message}"
       end
     end
   end

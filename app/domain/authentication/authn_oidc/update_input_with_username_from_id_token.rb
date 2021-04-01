@@ -3,18 +3,17 @@ module Authentication
 
     UpdateInputWithUsernameFromIdToken ||= CommandClass.new(
       dependencies: {
-        fetch_authenticator_secrets:         Authentication::Util::FetchAuthenticatorSecrets.new,
-        validate_account_exists:             ::Authentication::Security::ValidateAccountExists.new,
-        verify_and_decode_token:             ::Authentication::OAuth::VerifyAndDecodeToken.new,
-        logger:                              Rails.logger
+        fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
+        validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
+        verify_and_decode_token: ::Authentication::OAuth::VerifyAndDecodeToken.new,
+        logger: Rails.logger
       },
-      inputs:       %i[authenticator_input]
+      inputs: %i[authenticator_input]
     ) do
-
-      extend Forwardable
-      def_delegators :@authenticator_input, :service_id, :authenticator_name,
+      extend(Forwardable)
+      def_delegators(:@authenticator_input, :service_id, :authenticator_name,
                      :account, :username, :webservice, :credentials, :client_ip,
-                     :role
+                     :role)
 
       def call
         validate_account_exists

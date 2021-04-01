@@ -1,11 +1,10 @@
 require 'spec_helper'
 
-TARGET_EXCEPTION = "dummy exception"
+TARGET_EXCEPTION = "dummy exception".freeze
 
 class ConcurrencyCount
 
-  attr_accessor :threads_blocked
-  attr_accessor :threads_failed
+  attr_accessor :threads_blocked, :threads_failed
 
   def initialize(threads_blocked, threads_failed)
     @thread_blocked = threads_blocked
@@ -13,10 +12,11 @@ class ConcurrencyCount
     @count = 0
   end
 
-  def call(**args)
+  def call(**_args)
     @count += 1
     # Simulate thread failure
     raise TARGET_EXCEPTION if @threads_failed
+
     # Simulate threads work
     while @threads_blocked
     end
@@ -24,18 +24,17 @@ class ConcurrencyCount
   end
 end
 
-RSpec.describe 'Util::ConcurrencyLimitedCache' do
+RSpec.describe('Util::ConcurrencyLimitedCache') do
   let(:threads_blocked) { false }
   let(:threads_failed) { false }
-  let(:current_concurrency_count) {
+  let(:current_concurrency_count) do
     ConcurrencyCount.new(
       threads_blocked,
       threads_failed
     )
-  }
+  end
 
   context "Multiple calls within concurrency limit" do
-
     subject(:cached_count_unlimited) do
       Util::ConcurrencyLimitedCache.new(
         current_concurrency_count,
@@ -65,7 +64,7 @@ RSpec.describe 'Util::ConcurrencyLimitedCache' do
       queue = (1..10).inject(Queue.new, :push)
       all_threads = Array.new(10) do
         Thread.new do
-          until queue.empty? do
+          until queue.empty?
             queue.shift
             cached_count_unlimited.call
           end
@@ -78,11 +77,9 @@ RSpec.describe 'Util::ConcurrencyLimitedCache' do
       # The above threads died before updating the cache value
       expect(cached_count_unlimited.call).to eq(11)
     end
-
   end
 
   context "Multiple calls across concurrency limit" do
-
     subject(:cached_count) do
       Util::ConcurrencyLimitedCache.new(
         current_concurrency_count,
@@ -97,7 +94,7 @@ RSpec.describe 'Util::ConcurrencyLimitedCache' do
       current_concurrency_count.threads_blocked = true
       all_threads = Array.new(4) do
         Thread.new do
-          until queue.empty? do
+          until queue.empty?
             queue.shift
             cached_count.call
           end
@@ -122,7 +119,7 @@ RSpec.describe 'Util::ConcurrencyLimitedCache' do
       current_concurrency_count.threads_blocked = true
       all_threads = Array.new(4) do
         Thread.new do
-          until queue.empty? do
+          until queue.empty?
             queue.shift
             cached_count.call
           end
@@ -136,6 +133,5 @@ RSpec.describe 'Util::ConcurrencyLimitedCache' do
       # The above threads died before updating the cache value
       expect(cached_count.call).to eq(1)
     end
-
   end
 end

@@ -3,6 +3,6 @@ require 'deepsort'
 
 module SortedYAML
   def sorted_yaml yaml
-    YAML.load(yaml).deep_sort_by {|obj| obj.to_s}
+    YAML.safe_load(yaml).deep_sort_by(&:to_s)
   end
 end

@@ -8,24 +8,23 @@ module Authentication
 
     ValidatePodRequest ||= CommandClass.new(
       dependencies: {
-        resource_class:                      Resource,
-        k8s_object_lookup_class:             K8sObjectLookup,
-        validate_webservice_is_whitelisted:  Security::ValidateWebserviceIsWhitelisted.new,
+        resource_class: Resource,
+        k8s_object_lookup_class: K8sObjectLookup,
+        validate_webservice_is_whitelisted: Security::ValidateWebserviceIsWhitelisted.new,
         validate_role_can_access_webservice: Security::ValidateRoleCanAccessWebservice.new,
-        enabled_authenticators:              InstalledAuthenticators.enabled_authenticators_str(ENV),
-        validate_resource_restrictions:      ResourceRestrictions::ValidateResourceRestrictions.new(
+        enabled_authenticators: InstalledAuthenticators.enabled_authenticators_str(ENV),
+        validate_resource_restrictions: ResourceRestrictions::ValidateResourceRestrictions.new(
           extract_resource_restrictions:      ExtractK8sResourceRestrictions.new
         ),
-        authentication_request_class:        AuthenticationRequest,
-        k8s_resource_validator_class:        K8sResourceValidator,
-        extract_container_name:              ExtractContainerName.new,
-        logger:                              Rails.logger
+        authentication_request_class: AuthenticationRequest,
+        k8s_resource_validator_class: K8sResourceValidator,
+        extract_container_name: ExtractContainerName.new,
+        logger: Rails.logger
       },
-      inputs:       %i[pod_request]
+      inputs: %i[pod_request]
     ) do
-
-      extend Forwardable
-      def_delegators :@pod_request, :service_id, :k8s_host, :spiffe_id
+      extend(Forwardable)
+      def_delegators(:@pod_request, :service_id, :k8s_host, :spiffe_id)
 
       def call
         validate_webservice_is_whitelisted
@@ -112,9 +111,9 @@ module Authentication
       # @return The Conjur resource for the webservice
       def webservice
         @webservice ||= ::Authentication::Webservice.new(
-          account:            k8s_host.account,
+          account: k8s_host.account,
           authenticator_name: AUTHENTICATOR_NAME,
-          service_id:         service_id
+          service_id: service_id
         )
       end
 
@@ -127,10 +126,9 @@ module Authentication
 
         @host = @resource_class[k8s_host.conjur_host_id]
         unless @host
-          raise Errors::Authentication::Security::RoleNotFound.new(
-            k8s_host.conjur_host_id
-          )
+          raise Errors::Authentication::Security::RoleNotFound, k8s_host.conjur_host_id
         end
+
         @host
       end
 

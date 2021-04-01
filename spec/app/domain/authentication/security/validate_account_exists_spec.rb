@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Authentication::Security::ValidateAccountExists do
+RSpec.describe(Authentication::Security::ValidateAccountExists) do
   include_context "security mocks"
 
   context "An existing account" do

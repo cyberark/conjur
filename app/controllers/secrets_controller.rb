@@ -9,16 +9,16 @@ class SecretsController < RestController
   before_action :current_user
 
   def create
-    authorize :update
+    authorize(:update)
 
     value = request.raw_post
 
     raise ArgumentError, "'value' may not be empty" if value.blank?
 
-    Secret.create resource_id: resource.id, value: value
+    Secret.create(resource_id: resource.id, value: value)
     resource.enforce_secrets_version_limit
 
-    head :created
+    head(:created)
   ensure
     update_info = error_info.merge(
       resource: resource,
@@ -33,23 +33,24 @@ class SecretsController < RestController
   end
 
   def show
-    authorize :execute
+    authorize(:execute)
     version = params[:version]
 
-    unless (secret = resource.secret version: version)
-      raise Exceptions::RecordNotFound.new \
+    unless (secret = resource.secret(version: version))
+      raise Exceptions::RecordNotFound.new(\
         resource.id, message: "Requested version does not exist"
+      )
     end
     value = secret.value
 
     mime_type = \
       resource.annotation('conjur/mime_type') || 'application/octet-stream'
 
-    send_data value, type: mime_type
+    send_data(value, type: mime_type)
   rescue Exceptions::RecordNotFound
     raise Errors::Conjur::MissingSecretValue, resource_id
   ensure
-    audit_fetch resource!, version: version
+    audit_fetch(resource!, version: version)
   end
 
   def batch
@@ -62,15 +63,15 @@ class SecretsController < RestController
 
     result = {}
 
-    authorize_many variables, :execute
+    authorize_many(variables, :execute)
 
     variables.each do |variable|
-      result[variable.resource_id] = get_secret_from_variable variable
+      result[variable.resource_id] = get_secret_from_variable(variable)
 
-      audit_fetch variable
+      audit_fetch(variable)
     end
 
-    render json: result
+    render(json: result)
   rescue Encoding::UndefinedConversionError
     raise Errors::Conjur::BadSecretEncoding, result
   rescue Exceptions::RecordNotFound => e
@@ -138,9 +139,9 @@ class SecretsController < RestController
   #       correctness in this case.
   #
   def expire
-    authorize :update
+    authorize(:update)
     Secret.update_expiration(resource.id, nil)
-    head :created
+    head(:created)
   end
 
   private
@@ -152,6 +153,7 @@ class SecretsController < RestController
     # Checks that variable_ids is not empty and doesn't contain empty variable ids
     raise ArgumentError, 'variable_ids' if @variable_ids.empty? ||
       @variable_ids.count != @variable_ids.reject(&:empty?).count
+
     @variable_ids
   end
 end

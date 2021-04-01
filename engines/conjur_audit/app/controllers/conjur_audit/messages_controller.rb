@@ -5,7 +5,7 @@ require_dependency "conjur_audit/application_controller"
 module ConjurAudit
   class MessagesController < ApplicationController
     def index
-      render json: messages_json, status: messages.any? ? :ok : :not_found
+      render(json: messages_json, status: messages.any? ? :ok : :not_found)
     end
 
     private
@@ -31,7 +31,7 @@ module ConjurAudit
     def data_filter
       sdata_query.each_with_object({}) do |kv, filter|
         key, value = kv
-        id, param = key.to_s.split '/'
+        id, param = key.to_s.split('/')
         (filter[id] ||= {})[param] = value
       end
     end
@@ -39,13 +39,13 @@ module ConjurAudit
     def messages_with_entity_filter
       msgs = Message
       if (id = params[:entity])
-        msgs = msgs.matching_entity id
+        msgs = msgs.matching_entity(id)
       end
       if (res = params[:resource])
-        msgs = msgs.matching_resource res
+        msgs = msgs.matching_resource(res)
       end
       if (rol = params[:role])
-        msgs = msgs.matching_role rol
+        msgs = msgs.matching_role(rol)
       end
       msgs
     end
@@ -76,7 +76,7 @@ module ConjurAudit
     # which does a lot of things we don't need and is an order of
     # magnitude slower.
     def messages_json
-      JSON.dump messages.map(&:to_hash)
+      JSON.dump(messages.map(&:to_hash))
     end
   end
 end

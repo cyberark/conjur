@@ -31,8 +31,8 @@ module AuthnAzureHelper
 
   def retrieve_azure_access_token retrieve_access_token_command
     @azure_token = run_command_in_machine(azure_machine_ip, azure_machine_username, azure_machine_password, retrieve_access_token_command)
-  rescue => err
-    raise "Failed to fetch azure token with reason: #{err}"
+  rescue => e
+    raise "Failed to fetch azure token with reason: #{e}"
   end
 
   def authenticate_azure_token(service_id:, account:, username:, azure_token:, accept_encoding_header:)

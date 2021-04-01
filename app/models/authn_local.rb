@@ -11,8 +11,8 @@ AuthnLocal = Struct.new(:socket, :queue_length, :timeout) do
       socket_dir = File.dirname(socket)
 
       unless File.directory?(socket_dir)
-        $stderr.puts "authn-local requires directory #{socket_dir.inspect} to exist and be a directory"
-        $stderr.puts "authn-local will not be enabled"
+        $stderr.puts("authn-local requires directory #{socket_dir.inspect} to exist and be a directory")
+        $stderr.puts("authn-local will not be enabled")
         return
       end
 
@@ -27,37 +27,37 @@ AuthnLocal = Struct.new(:socket, :queue_length, :timeout) do
   end
 
   def run
-    FileUtils.rm_rf socket
+    FileUtils.rm_rf(socket)
 
-    server = UNIXServer.new socket
+    server = UNIXServer.new(socket)
 
     trap(0) do
       # remove the socket on exit
       # alternatively it can be removed on startup
       # (or both)
-      $stderr.puts "Removing socket #{socket}"
-      File.unlink socket
+      $stderr.puts("Removing socket #{socket}")
+      File.unlink(socket)
     end
 
-    server.listen queue_length
+    server.listen(queue_length)
 
-    puts "authn-local is listening at #{socket}"
+    puts("authn-local is listening at #{socket}")
 
     while conn = server.accept
       begin
-        Timeout.timeout timeout do
+        Timeout.timeout(timeout) do
           claims = conn.gets.strip
           begin
-            conn.puts issue_token(claims)
+            conn.puts(issue_token(claims))
           rescue
-            $stderr.puts "Error in authn-local: #{$!.to_s}"
+            $stderr.puts("Error in authn-local: #{$!.to_s}")
             conn.puts
           ensure
             conn.close
           end
         end
       rescue Timeout::Error
-        $stderr.puts "Timeout::Error in authn-local"
+        $stderr.puts("Timeout::Error in authn-local")
       end
     end
   end
@@ -65,8 +65,9 @@ AuthnLocal = Struct.new(:socket, :queue_length, :timeout) do
   def issue_token claims
     claims = JSON.parse(claims)
     claims = claims.slice("account", "sub", "exp", "cidr")
-    account = claims.delete("account") or raise "'account' is required"
+    (account = claims.delete("account")) || raise("'account' is required")
     raise "'sub' is required" unless claims['sub']
+
     key = Slosilo["authn:#{account}"]
     if key 
       key.issue_jwt(claims).to_json

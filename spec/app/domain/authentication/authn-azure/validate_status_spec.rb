@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Authentication::AuthnAzure::ValidateStatus do
-
+RSpec.describe(Authentication::AuthnAzure::ValidateStatus) do
   let(:authenticator_name) { "authn-azure" }
   let(:account) { "my-acct" }
   let(:service) { "my-service" }
@@ -16,7 +15,7 @@ RSpec.describe Authentication::AuthnAzure::ValidateStatus do
         allow(discover_provider).to receive(:call)
       else
         allow(discover_provider).to receive(:call)
-                                      .and_raise(test_azure_discovery_error)
+          .and_raise(test_azure_discovery_error)
       end
     end
   end
@@ -27,7 +26,7 @@ RSpec.describe Authentication::AuthnAzure::ValidateStatus do
         Authentication::AuthnAzure::ValidateStatus.new(
           discover_identity_provider: mock_discover_identity_provider(is_successful: true)
         ).call(
-          account:    account,
+          account: account,
           service_id: service
         )
       end
@@ -44,7 +43,7 @@ RSpec.describe Authentication::AuthnAzure::ValidateStatus do
         Authentication::AuthnAzure::ValidateStatus.new(
           discover_identity_provider: mock_discover_identity_provider(is_successful: false)
         ).call(
-          account:    account,
+          account: account,
           service_id: service
         )
       end
@@ -52,7 +51,6 @@ RSpec.describe Authentication::AuthnAzure::ValidateStatus do
       it "raises the error raised by discover_identity_provider" do
         expect { subject }.to raise_error(test_azure_discovery_error)
       end
-
     end
   end
 end

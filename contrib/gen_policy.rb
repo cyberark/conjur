@@ -24,7 +24,7 @@ end
 
 module PolEncoder
   def encode_with c
-    c.tag = self.class.name.downcase.prepend ?!
+    c.tag = self.class.name.downcase.prepend(?!)
     c.map = self.to_h.stringify_keys
   end
 end
@@ -32,12 +32,12 @@ end
 class Entity < OpenStruct
   include PolEncoder
   def initialize id = tag, **ka
-    super id: id, **ka
+    super(id: id, **ka)
   end
 end
 
-Group = Class.new Entity
-Variable = Class.new Entity
+Group = Class.new(Entity)
+Variable = Class.new(Entity)
 
 class Policy < Entity
   def initialize *a
@@ -48,15 +48,15 @@ end
 
 Allgroups = []
 
-Permit = Struct.new :role, :privilege, :resource
-Grant = Struct.new :role, :member
-[Permit, Grant].each { |x| x.include PolEncoder }
+Permit = Struct.new(:role, :privilege, :resource)
+Grant = Struct.new(:role, :member)
+[Permit, Grant].each { |x| x.include(PolEncoder) }
 
 def app_policy nvars = NUM_VARS
   Policy.new do
     vars = nvars.times.map { Variable.new }
-    updaters = Group.new 'updaters'
-    fetchers = Group.new 'fetchers'
+    updaters = Group.new('updaters')
+    fetchers = Group.new('fetchers')
     Allgroups << updaters << fetchers
     permits = [
       Permit.new(updaters, 'update', vars),
@@ -74,7 +74,7 @@ end
 
 toplevels = NUM_TOPLEVEL.times.map{toplevel}
 
-User = Class.new Entity
+User = Class.new(Entity)
 users = NUM_USERS.times.map { User.new }
 groups = NUM_GROUPS.times.map { Group.new }
 
@@ -86,13 +86,13 @@ end
 # grant user to some groups
 group_grants = users.map do |u|
   groups.shuffle.take(pick).map do |g|
-    Grant.new g, u
+    Grant.new(g, u)
   end
 end.flatten
 
 entitlements = groups.map do |g|
   Allgroups.shuffle.take(pick).map do |e|
-    Grant.new e, g
+    Grant.new(e, g)
   end
 end.flatten
 
