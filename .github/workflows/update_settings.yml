@@ -1,6 +1,5 @@
 name: Keep Settings Up To Date
 on:
-  push:
   schedule:
     - cron:  '*/5 * * * *'
 
@@ -33,4 +32,3 @@ jobs:
 
             Please verify that the changes look good and merge this PR to keep
             its settings up to date with Conjur's current best practices.
-
