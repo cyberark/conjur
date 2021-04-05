@@ -6,8 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.11.5] - 2021-04-05
+
 ### Fixed
-- Secrets batch request with blank variables' names, now returns `Error 422 Unprocessable Entity`
+- Secrets batch request with blank variable names, now returns `Error 422
+  Unprocessable Entity`.
   [cyberark/conjur#2083](https://github.com/cyberark/conjur/issues/2083)
 
 ### Added
@@ -20,16 +23,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2043](https://github.com/cyberark/conjur/issues/2043)
 - `/whoami` API endpoint now produces audit events.
   [cyberark/conjur#2052](https://github.com/cyberark/conjur/issues/2052)
-- When a user checks permissions of a non-existing role or a non-existing resource, Conjur now audits a failure message.
+- When a user checks permissions of a non-existing role or a non-existing resource,
+  Conjur now audits a failure message.
   [cyberark/conjur#2059](https://github.com/cyberark/conjur/issues/2059)
-- Print login and authentication error stack trace to the log in INFO level.
-  [cyberark/conjur#2080](https://github.com/cyberark/conjur/issues/2080)
 
 ### Changed
-- The secrets batch retrieval endpoint now refers to the `Accept-Encoding` header rather than `Accept` to determine the response encoding
+- The secrets batch retrieval endpoint now refers to the `Accept-Encoding`
+  header rather than `Accept` to determine the response encoding.
   [cyberark/conjur#2065](https://github.com/cyberark/conjur/pull/2065)
-- When trying to fetch a missing or empty secret, a proper error message is now returned
+- When trying to fetch a missing or empty secret, a proper error message is now
+  returned.
   [cyberark/conjur#2023](https://github.com/cyberark/conjur/issues/2023)
+- Login and authentication error stack traces are printed to the log at the
+  default INFO level. Previously, users had to restart their servers with
+  `CONJUR_LOG_LEVEL=debug` to get meaningful log messages that diagnosed
+  configuration or enablement errors; with this change, server logs will be
+  clearer about login or authentication errors and will include minimal stack
+  traces.
+  [cyberark/conjur#2080](https://github.com/cyberark/conjur/issues/2080)
 - Conjur base image updated to v1.0.1.
   [PR cyberark/conjur#2088](https://github.com/cyberark/conjur/pull/2088)
 
@@ -575,7 +586,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.4...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.5...HEAD
+[1.11.5]: https://github.com/cyberark/conjur/compare/v1.11.4...v1.11.5
 [1.11.4]: https://github.com/cyberark/conjur/compare/v1.11.3...v1.11.4
 [1.11.3]: https://github.com/cyberark/conjur/compare/v1.11.2...v1.11.3
 [1.11.2]: https://github.com/cyberark/conjur/compare/v1.11.1...v1.11.2
