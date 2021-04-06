@@ -180,7 +180,7 @@ Output parameters:
 - Test plan is reviewed
 - Acceptance criteria have been met
 - Tests are implemented according to test plan 
-- The behaviour is documented in Conjur OSS and Enterprise
+- The behaviour is documented in Conjur Open Source and Enterprise
 - All relevant components are released
 
 ## Solution Review

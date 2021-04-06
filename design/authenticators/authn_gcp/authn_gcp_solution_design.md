@@ -581,15 +581,15 @@ Note: LLD designs need will be decided at implementation level
 #### Testing EE19
 1. Automation infrastructure 
 
-    1.1. OSS - Create GCE instance **EE1**
+    1.1. Conjur Open Source - Create GCE instance **EE1**
     
-    1.2. OSS - Issue an identity token **EE1**
+    1.2. Conjur Open Source - Issue an identity token **EE1**
     
     1.3. Conjur Enterprise - Create GCE instance **EE1**
     
     1.4. Conjur Enterprise - Issue an identity token **EE1**
         
-2. OSS - Implement integration tests **EE5**
+2. Conjur Open Source - Implement integration tests **EE5**
 3. Conjur Enterprise - Implement integration tests for **EE3**
 4. Manual tests according to docs (customer env) **EE1**
 5. Performance tests **EE3**

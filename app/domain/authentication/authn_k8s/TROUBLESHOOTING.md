@@ -28,7 +28,7 @@ This section presents some tips and guidelines for troubleshooting
 [Conjur Kubernetes authentication (`authn-k8s`)](https://docs.conjur.org/Latest/en/Content/Operations/Services/k8s_auth.htm)
 specifically on a [Conjur OSS](https://docs.conjur.org/) cluster that has
 been deployed via the
-[Conjur OSS Helm Chart](https://github.com/cyberark/conjur-oss-helm-chart/conjur-oss).
+[Conjur Open_Source Helm Chart](https://github.com/cyberark/conjur-oss-helm-chart/conjur-oss).
 
 The intended audience for this section of the guide is anyone who encounters
 issues when deploying Kubernetes applications that make use of Conjur
@@ -109,7 +109,7 @@ In some cases, it may be helpful to create a Conjur CLI pod in your
 Kubernetes cluster, and create a `conjur` command alias that executes
 commands via that Conjur CLI pod.
 
-For example, you may be exploring Conjur OSS and Kubernetes authentication
+For example, you may be exploring Conjur Open Source and Kubernetes authentication
 on a [Kubernetes-in-Docker (KinD)](https://kind.sigs.k8s.io/) or
 or [MiniKube](https://minikube.sigs.k8s.io/docs/) cluster, and you prefer
 not to install a software load balancer such as
@@ -123,7 +123,7 @@ not to install a software load balancer such as
   HELM_RELEASE=conjur-oss
   CONJUR_NAMESPACE=conjur-oss
 
-  # Create a Conjur CLI pod in the Conjur OSS namespace
+  # Create a Conjur CLI pod in the Conjur Open Source namespace
   CLI_IMAGE=cyberark/conjur-cli:5-latest
   echo "
   ---
@@ -186,7 +186,7 @@ the Kubernetes cluster.
   # Set environment. Modify as necessary to match your setup.
   CONJUR_NAMESPACE=conjur-oss
 
-  # Create a 'pod-curl' pod in the Conjur OSS namespace
+  # Create a 'pod-curl' pod in the Conjur Open Source namespace
   echo "
   ---
   apiVersion: v1
@@ -346,7 +346,7 @@ of your Conjur authentication configuration.
    - Check the [Postgres pod logs](#collecting-conjur-postgres-pod-logs)
      for warnings or errors.
    - [Enable Conjur debug logging](#enabling-debug-logs-for-the-conjur-server),
-     and then delete the Conjur OSS server pod to force a pod recreate, and
+     and then delete the Conjur Open Source server pod to force a pod recreate, and
      check the [Conjur server logs](#collecting-conjur-server-logs) again
      for warnings or errors.
 

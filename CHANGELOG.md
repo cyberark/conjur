@@ -209,7 +209,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.8.1] - 2020-07-14
 ### Fixed
-- Log the OpenSSL FIPS mode after Rails is initialized for both OSS and DAP.
+- Log the OpenSSL FIPS mode after Rails is initialized for both Conjur Open Source and Conjur Enterprise.
   [cyberark/conjur#1684](https://github.com/cyberark/conjur/pull/1684)
 - Bump `conjur-policy-parser` so `revoke (member)` and `deny (role)`
   can correctly utilize relative paths. [cyberark/conjur-policy-parser#23](https://github.com/cyberark/conjur-policy-parser/pull/23)
@@ -382,12 +382,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.4.3] - 2019-11-26
 
 ### Added
-- Flattening of OSS container layers.
+- Flattening of Conjur Open Source container layers.
 
 ### Changed
 - Upgraded Nokogiri to 1.10.5.
-- Upgrade base image of OSS to `ubuntu:20.20`.
-- Enablement work to get OSS container to work on OpenShift as-is.
+- Upgrade base image of Conjur Open Source to `ubuntu:20.20`.
+- Enablement work to get Conjur Open Source container to work on OpenShift as-is.
 
 ## [1.4.2] - 2019-09-13
 

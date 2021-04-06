@@ -1,13 +1,13 @@
-# Conjur OSS Suite Release
+# Conjur Open Source Suite Release
 
 ## Motivation
-In this effort, we intend to build a formal release process for the _Conjur OSS Suite_,
+In this effort, we intend to build a formal release process for the _Conjur Open Source Suite_,
 which we define as the set of components including the Conjur server, deployment utilities,
 command line interface (CLI), client libraries, and integrations with platforms and DevOps tools.
 
 At current, we have no formal process for releasing the full suite of tools in
-the Conjur OSS ecosystem so that:
-- It is clear to end users which version of Conjur OSS they should use, and what
+the Conjur Open Source ecosystem so that:
+- It is clear to end users which version of Conjur Open Source they should use, and what
   integrations and tooling are compatible with that version.
 - Key use cases that involve more than two components working together are automatically
   tested to ensure that the end-to-end experience in those use cases works as expected.
@@ -20,21 +20,21 @@ the Conjur OSS ecosystem so that:
   features will help us to do a better job of comprehensively testing and releasing
   completed features.
 
-In this effort, we will build a formal Conjur OSS Suite Release process to begin
+In this effort, we will build a formal Conjur Open Source Suite Release process to begin
 addressing these concerns.
 
 ## Desired Outcome
-There is an initial Conjur OSS Suite Release that validates compatibility of the
+There is an initial Conjur Open Source Suite Release that validates compatibility of the
 included components. In addition, the infrastructure and tooling exists for creating
-future OSS Suite Releases that may include additional automated tests and components.
+future Conjur Open Source Suite Releases that may include additional automated tests and components.
 
 ## Acceptance Criteria
-- All key components of the Conjur OSS Suite will be grouped into a single
-  Conjur OSS Suite Release.
+- All key components of the Conjur Open Source Suite will be grouped into a single
+  Conjur Open Source Suite Release.
 - There is a special [release repository](https://github.com/cyberark/conjur-oss-suite-release)
   that is used to:
   - Pin the versions of the components included in the suite release.
-  - Add test case for end-to-end flows involving components of the OSS suite.
+  - Add test case for end-to-end flows involving components of the Conjur Open Source suite.
   - Automatically run test suite each day against component versions pinned in
     the suite release.
   - When the pinned component versions are changed and the suite version is
@@ -43,21 +43,21 @@ future OSS Suite Releases that may include additional automated tests and compon
       to artifacts.
     - Automatically generate a documentation-friendly release page that includes
       a table of contents, release notes for each component, and links to artifacts.
-  - Document how end users should utilize the Conjur OSS Suite Release.
+  - Document how end users should utilize the Conjur Open Source Suite Release.
 
 In addition, as part of building this release, we'll also be creating:
 - A [GitHub landing page](https://cyberark.github.io/conjur) that links to the
-  repos included in the Conjur OSS Suite and describes what each one does.
-- A template to be added to the READMEs of repos in the Conjur OSS Suite to clarify
+  repos included in the Conjur Open Source Suite and describes what each one does.
+- A template to be added to the READMEs of repos in the Conjur Open Source Suite to clarify
   about the state of the code on master ("edge") and to encourage end users to
-  visit the Conjur OSS Suite Release to determine which versions of each product
+  visit the Conjur Open Source Suite Release to determine which versions of each product
   to use.
 - A tool for identifying the unreleased changes in the components of the Conjur OSS
-  Suite Release, to help us in understanding whether a new OSS Suite Release is
+  Suite Release, to help us in understanding whether a new Conjur Open Source Suite Release is
   needed.
 
-## Repositories Included in the Conjur OSS Suite Release
-- Conjur OSS Core
+## Repositories Included in the Conjur Open Source Suite Release
+- Conjur Open Source Core
   - [Conjur Core](https://github.com/cyberark/conjur)
   - [Conjur CLI](https://github.com/cyberark/conjur-cli)
   - Client Libraries
@@ -88,25 +88,24 @@ In addition, as part of building this release, we'll also be creating:
 
 ## Considerations
 
-### How CyberArk Dynamic Access Provider (DAP) Will Use the OSS Release
+### How CyberArk Dynamic Access Provider (DAP) Will Use the Conjur Open Source Release
 At current, when a new Conjur Enterprise is built it is based on a manually pinned
 version of Conjur OSS. We propose implementing automation as part of this release
-to auto-update the pinned version of Conjur OSS used in Conjur Enterprise with each new OSS
+to auto-update the pinned version of Conjur Open Source used in Conjur Enterprise with each new OSS
 Suite Release, so that Conjur Enterprise stays consistent with the latest stable release of
 Conjur OSS.
 
 
 ### Out of Scope
 - Including any other public repositories beyond those listed above in the initial
-  Conjur OSS Suite Release or on the GitHub landing page.
-- Creating a landing page with any functionality beyond a curated list of Conjur
-  OSS Suite repositories, with descriptions and links.
+  Conjur Open Source Suite Release or on the GitHub landing page.
+- Creating a landing page with any functionality beyond a curated list of Conjur Open Source Suite repositories, with descriptions and links.
 - Implementing more than the framework for end-to-end tests and a very basic
-  initial end-to-end test for the Conjur OSS Suite. For more comprehensive test
+  initial end-to-end test for the Conjur Open Source Suite. For more comprehensive test
   coverage, we will continue to rely on the integration tests written in the
   individual components, and in future efforts we will review their
   comprehensiveness and determine potential improvements / ways to leverage the
-  central Conjur OSS Suite Release repo.
+  central CConjur Open Source Suite Release repo.
 - Automatically including deprecated versions of components during temporary
   deprecation windows.
 - Plans for addressing security vulnerabilities in collaboration with downstream
@@ -116,14 +115,14 @@ Conjur OSS.
 - Augmenting landing page to have an easy way to submit a GitHub issue and be
   directed to the right repo's backlog.
 - Creating a template for the user-facing READMEs of the component repos beyond
-  just directing them to the OSS suite (eg what basic info should always be included
+  just directing them to the Conjur Open Source suite (eg what basic info should always be included
   in the GitHub READMEs, which by custom in open source contains basic usage info).
 - Published contributor guidelines are available in a central place in GitHub.
 - Enable running the integration test suites in the individual components using
-  versions explicitly from the OSS suite release.
+  versions explicitly from the Conjur Open Source suite release.
 - Adding use case flows to the conjur.org documentation and to the automated
   end-to-end tests in the open source release.
-- Deeply evaluate the automated unit and integration test coverage in the OSS suite
+- Deeply evaluate the automated unit and integration test coverage in the Conjur Open Source suite
   components.
 - Add support for deprecating components, and potentially supporting multiple
   versions during the deprecation period.
@@ -141,30 +140,30 @@ Conjur OSS.
 |||
 |---|---|
 |_As a_|Conjur Open Source user|
-|_I want_|to know what versions of Conjur OSS components to use|
+|_I want_|to know what versions of Conjur Open Source components to use|
 |_so that_|I am using reliable, well-tested software that works together as expected when used within my systems.|
 
-### OSS Suite Component Maintainers
+### Conjur Open Source Suite Component Maintainers
 
 |||
 |---|---|
-|_As a_|maintainer of a Conjur OSS suite component|
-|_I want_|to know how to ensure new versions of my component get into the OSS suite release|
+|_As a_|maintainer of a Conjur Open Source suite component|
+|_I want_|to know how to ensure new versions of my component get into the Conjur Open Source suite release|
 |_so that_|OSS users can benefit from new features my team is adding to our component.|
 
 |||
 |---|---|
-|_As a_|maintainer of a Conjur OSS suite component|
-|_I want_|to know what I'm responsible for testing and what will be tested in the OSS suite|
-|_so that_|it's clear what tests I need to include and maintain in my component repository, and which tests belong in the central OSS suite release repo.|
+|_As a_|maintainer of a Conjur Open Source suite component|
+|_I want_|to know what I'm responsible for testing and what will be tested in the Conjur Open Source suite|
+|_so that_|it's clear what tests I need to include and maintain in my component repository, and which tests belong in the central Conjur Open Source suite release repo.|
 
 |||
 |---|---|
-|_As a_|maintainer of a Conjur OSS suite component|
+|_As a_|maintainer of a Conjur Open Source suite component|
 |_I want_|to know what standards I need to maintain in my repository|
-|_so that_|my CHANGELOG entries, releases, READMEs, etc are compatible with the OSS suite release.|
+|_so that_|my CHANGELOG entries, releases, READMEs, etc are compatible with the Conjur Open Source suite release.|
 
-### Conjur OSS Contributors
+### Conjur Open Source Contributors
 
 |||
 |---|---|
@@ -175,10 +174,10 @@ Conjur OSS.
 |||
 |---|---|
 |_As a_|Conjur Open Source contributor|
-|_I want_|to know what is included in the Conjur OSS suite|
+|_I want_|to know what is included in the Conjur Open Source suite|
 |_so that_|if there are tools or platforms that are not supported, I can make a difference by building something to fill the gap.|
 
-### Conjur OSS Suite Release Managers
+### Conjur Open Source Suite Release Managers
 
 |||
 |---|---|
@@ -203,24 +202,24 @@ Conjur OSS.
 |||
 |---|---|
 |_As a_|developer on a downstream project that uses Conjur as its core|
-|_I want_|to know when there are new Conjur OSS suite releases|
-|_so that_|I can review the changes and update my project to use the latest OSS suite release version of Conjur.|
+|_I want_|to know when there are new Conjur Open Source suite releases|
+|_so that_|I can review the changes and update my project to use the latest Conjur Open Source suite release version of Conjur.|
 
 |||
 |---|---|
 |_As a_|developer on a downstream project that uses Conjur as its core|
-|_I want_|a machine readable summary of what is included in each OSS suite release|
-|_so that_|I can build automation around the OSS suite releases as needed.|
+|_I want_|a machine readable summary of what is included in each Conjur Open Source suite release|
+|_so that_|I can build automation around the Conjur Open Source suite releases as needed.|
 
 ## High-Level Technical Design
 
 The [OSS Suite Release Repo](https://github.com/cyberark/conjur-oss-suite-release)
 will include:
-- A user-facing README with a high level overview of how Conjur OSS end users
+- A user-facing README with a high level overview of how Conjur Open Source end users
   should leverage the repo, with links to appropriate pages in the official documentation
-- A VERSION file that includes the current version of the OSS suite release
+- A VERSION file that includes the current version of the Conjur Open Source suite release
 - A machine-readable file with the pinned versions included in the current release
-- Version tags for each OSS suite release version that correspond to GitHub releases
+- Version tags for each Conjur Open Source suite release version that correspond to GitHub releases
   that are comprised of auto-generated release notes with links to relevant artifacts
 - Scripts for manually or automatically generating releases, which include:
   - GitHub release notes, including change log release notes and links to artifacts
@@ -230,16 +229,16 @@ will include:
   - Note: when possible, links to artifacts should link directly to the canonical
     source, rather than linking to the component README (eg link directly to Dockerhub, etc)
   - Bumping the version of Conjur pinned in the [Conjur helm chart](https://github.com/cyberark/conjur-oss-helm-chart)
-  - (optional) Build and publish the [Conjur OSS AMI](https://github.com/cyberark/conjur-aws)
+  - (optional) Build and publish the [Conjur_Open_Source_AMI](https://github.com/cyberark/conjur-aws)
 - A test suite that can be run manually or automatically to test the pinned versions
   included in the release
   - It will be designed so that new test cases can be added as needed going forward
-  - The initial test case will test deploying Conjur OSS to GKE using the Helm Chart
+  - The initial test case will test deploying Conjur Open Source to GKE using the Helm Chart
     and enabling a sample app to connect to its database via Secretless using credentials
     pulled from Conjur
 - (optional) A test suite that can be run manually or automatically, and that runs daily against
-  the latest versions of all OSS suite components
-- A CONTRIBUTING.md guide for contributors to OSS suite releases (including release
+  the latest versions of all Conjur Open Source suite components
+- A CONTRIBUTING.md guide for contributors to Conjur Open Source suite releases (including release
   managers, component contributors, and component maintainers) that includes:
   - Guidelines for building new releases, including any manual steps
   - Guidelines for component repositories to ensure there is a consistent pattern
@@ -247,18 +246,18 @@ will include:
     unless the build is green
 
 The GitHub landing page will include:
-- An organized view of the GitHub repositories that are part of the Conjur OSS Suite Release
+- An organized view of the GitHub repositories that are part of the Conjur Open Source Suite Release
 
-The Conjur OSS documentation will include:
-- A page for Conjur OSS Suite releases
-- Updates to the "Get Started" flow and/or to OSS suite component pages directing
+The Conjur Open Source documentation will include:
+- A page for Conjur Open Source Suite releases
+- Updates to the "Get Started" flow and/or to Conjur Open Source suite component pages directing
   end users to use
 
-The GitHub repositories for OSS Suite components will include:
+The GitHub repositories for Conjur Open Source Suite components will include:
 - Updated READMEs that include a snippet on using the versions available in the latest
-  Conjur OSS Suite Release when using the given component
+  Conjur Conjur Open Source Suite Release when using the given component
 - Updated standards for creating component releases to ensure they are compatible with
-  the OSS suite release
+  the Conjur Open Source suite release
   - We will draft standards on GitHub tagging, creating GitHub releases, using
     releases vs prereleases, CHANGELOG structure, GitHub release notes, etc.
   - For example:
@@ -272,16 +271,16 @@ The GitHub repositories for OSS Suite components will include:
 
 The Dynamic Access Provider project will include:
 - An automatic process for proposing a version bump in the Conjur core version when a
-  new Conjur OSS suite release is published
+  new Conjur Open Source suite release is published
 
 ## User Experience - Highlighting the Open Source User
 
 ### Landing in GitHub
 As a Conjur open source user, if I find Conjur on GitHub:
-- I am referred in each Conjur OSS Suite component repository to the suite release
+- I am referred in each Conjur Open Source Suite component repository to the suite release
   repo to determine which component version to use
 - On the suite release repo page, the README:
-  - Describes what comprises an OSS suite release
+  - Describes what comprises an Conjur Open Source suite release
   - Explains the purpose of the suite release repository, and how to use the suite release
   - Refers to the suite repo's GitHub releases to see the latest suite release,
     and also refers to the latest release page in the documentation
@@ -343,27 +342,27 @@ Sample release notes section for Secretless:
 ### Questions and Answers
 
 #### Documentation
-- How do we ensure new documented features available in the Conjur OSS Suite Release
+- How do we ensure new documented features available in the Conjur Open Source Suite Release
   are appropriately propagated to the Conjur Enterprise documentation?
   - We propose this is out of scope for this effort, and should be decided in a
     follow-on effort by the Conjur Enterprise team together with the technical writers.
   - Based on the way documentation currently works, it is likely that new features
-    in the Conjur OSS suite will require additional testing and documentation to
+    in the Conjur Open Source suite will require additional testing and documentation to
     certify the new features for Conjur Enterprise in follow-on efforts.
 
 #### Enterprise Products Built on the Core
 - How will Conjur Enterprise (built on the open Conjur core) run tests against the non-server
-  components of the Conjur OSS suite to ensure the enterprise product remains
-  compatible with the OSS components that are certified for DAP?
+  components of the Conjur Open Source suite to ensure the enterprise product remains
+  compatible with the Conjur Open Source components that are certified for DAP?
   - We propose this is out of scope for this effort, and should be decided in a
     follow-on effort by the Conjur Enterprise team (similarly to how the documentation changes
     will work above).
 
-#### Automated Test Suite for the OSS Suite Release
-- What should the initial scope of the automated tests for the Conjur OSS suite
+#### Automated Test Suite for the Conjur Open Source Suite Release
+- What should the initial scope of the automated tests for the Conjur Open Source suite
   release be?
-  - The OSS release suite should include an end-to-end test for a single
-    use case: Deploy Conjur OSS with Helm Chart to GKE and enable an app to connect
+  - The Conjur Open Source release suite should include an end-to-end test for a single
+    use case: Deploy Conjur Open Source with Helm Chart to GKE and enable an app to connect
     to its database via Secretless using credentials pulled from Conjur.
   - Individual repos are responsible for running their own integration tests against
     Conjur. The suite release test suite will enable integration testing multiple
@@ -383,17 +382,17 @@ Sample release notes section for Secretless:
   a way to visualize the status of this set of builds?
   - This does not yet exist, and can be included in scope for this release - but
     it is not straightforward. Designing a system like this may make it easier
-    for the enterprise products built on the core to test against the OSS suite
+    for the enterprise products built on the core to test against the Conjur Open Source suite
     components, if we design it correctly.
 
     But the scope of this effort is large enough that we may want to make this its
     own effort.
 
-#### OSS Suite Versioning
+#### Conjur Open Source Suite Versioning
 - What versions of each component will be included in the first release?
   - This will be determined in the course of the release, as it may change while
     this project is being implemented.
-- Assuming we follow semantic versioning as usual for the OSS suite release, what does
+- Assuming we follow semantic versioning as usual for the Conjur Open Source suite release, what does
   a major version bump mean?
   - Since the core of this suite is the Conjur server, we would not bump
     the major version of the suite unless the major version of Conjur changes.
@@ -406,7 +405,7 @@ Sample release notes section for Secretless:
     We will not add support for this out of the box in this effort - enabling support
     for this will happen in a future effort as needed, the first time we need to
     deprecate.
-- Is there a consistent way to label / tag components in the OSS suite release so
+- Is there a consistent way to label / tag components in the Conjur Open Source suite release so
   that end users can pull them by the suite release version instead of the included
   component version? For example, if the suite release v1.2.3 includes Secretless
   v1.5.0, can end users update their manifests to refer to the Secretless `suite-1.2.3`
@@ -415,16 +414,16 @@ Sample release notes section for Secretless:
     instructions, for example
 
 #### Miscellaneous
-- What certification level will each component in the Conjur OSS Suite Release have?
+- What certification level will each component in the Conjur Open Source Suite Release have?
   Should this be evaluated as part of this effort?
   - This will be evaluated as part of this effort. More info on the certification
     level definitions will be shared when it's available.
 
-- Are all of the Summon providers part of the Conjur OSS Suite Release, or just the
+- Are all of the Summon providers part of the Conjur Open Source Suite Release, or just the
   Summon Conjur Provider? If not, should we have a separate Summon Suite release?
   Should we consider moving to Summon2 (the version of Summon built into Secretless,
   that includes all providers)?
   - Migrating to Summon2 is out of scope for this effort. As Conjur developers
     ourselves, we frequently use Summon with other providers in addition to using
     Summon with our internal Conjur instance. At current, we plan to include all
-    Summon providers in the OSS suite release.
+    Summon providers in the Conjur Open Source suite release.
