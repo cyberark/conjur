@@ -70,7 +70,7 @@ For each authenticator that will implement the status check, we will add:
   validate_authenticator_implements_status_check
   .
   .
-  # perform general validations (whitelisted in env, etc.)
+  # perform general validations (allowlisted in env, etc.)
   .
   .
   validate_authenticator_requirements
@@ -141,7 +141,7 @@ will be `Webservice '{webservice-name}' wasn't found` (which is its built-in mes
  | A missing status webservice in the policy                             | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response with an error body with the relevant error message                          | - [ ]        |
  | A non-existing account name in the request                            | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response with an error body with the relevant error message | - [ ]        |
  | Authenticator webservice doesn't exist (wasn't loaded in the policy)  | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response with an error body with the relevant error message | - [ ]        |
- | The authenticator isn't whitelisted in the ENV                        | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response with an error body with the relevant error message | - [ ]        |
+ | The authenticator isn't allowlisted in the ENV                        | I send a request with a valid access token                                                     | I get a 500 Internal Server Error response with an error body with the relevant error message | - [ ]        |
  
 ### Enterprise
 

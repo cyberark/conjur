@@ -83,21 +83,21 @@ The request parameters are the same as login with the addition of:
 
 ## Security requirements
 
-### Must whitelist before using
+### Must allow_list before using
 
 With the exception of the default Conjur authenticator named `authn`, all
-authenticators must be explicitly whitelisted via the environment variable
+authenticators must be explicitly allow listed via the environment variable
 `CONJUR_AUTHENTICATORS`.
 
 1. If the environment variable `CONJUR_AUTHENTICATORS` is *not* set, the
-   default Conjur authenticator will be automatically whitelisted and ready for
+   default Conjur authenticator will be automatically allowlisted and ready for
    use.  No other authenticators will be available in this case.
 2. If the environment variable `CONJUR_AUTHENTICATORS` *is* set, then only the
-   authenticators listed will be whitelisted.  This means that if
+   authenticators listed will be allowlisted.  This means that if
    `CONJUR_AUTHENTICATORS` is set and `authn` is not in the list, default
    Conjur authentication will not be available.
 
-Here is an example `CONJUR_AUTHENTICATORS` which whitelists an LDAP
+Here is an example `CONJUR_AUTHENTICATORS` which allowlisted an LDAP
 authenticator as well as the default Conjur authenticator:
 ```
 CONJUR_AUTHENTICATORS=authn-ldap/sysadmins,authn

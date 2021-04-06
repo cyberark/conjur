@@ -352,7 +352,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - Added API endpoint to enable and disable authenticators. See
-  [design/authenticator_whitelist_api.md](design/authenticators/authenticator_whitelist_api.md)
+  [design/authenticator_allowlist_api.md](design/authenticators/authenticator_allowlist_api.md)
   for details.
 
 ### Changed

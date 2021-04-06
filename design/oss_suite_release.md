@@ -89,10 +89,10 @@ In addition, as part of building this release, we'll also be creating:
 ## Considerations
 
 ### How CyberArk Dynamic Access Provider (DAP) Will Use the OSS Release
-At current, when a new DAP appliance is built it is based on a manually pinned
+At current, when a new Conjur Enterprise is built it is based on a manually pinned
 version of Conjur OSS. We propose implementing automation as part of this release
-to auto-update the pinned version of Conjur OSS used in DAP with each new OSS
-Suite Release, so that DAP stays consistent with the latest stable release of
+to auto-update the pinned version of Conjur OSS used in Conjur Enterprise with each new OSS
+Suite Release, so that Conjur Enterprise stays consistent with the latest stable release of
 Conjur OSS.
 
 
@@ -344,19 +344,19 @@ Sample release notes section for Secretless:
 
 #### Documentation
 - How do we ensure new documented features available in the Conjur OSS Suite Release
-  are appropriately propagated to the DAP documentation?
+  are appropriately propagated to the Conjur Enterprise documentation?
   - We propose this is out of scope for this effort, and should be decided in a
-    follow-on effort by the DAP team together with the technical writers.
+    follow-on effort by the Conjur Enterprise team together with the technical writers.
   - Based on the way documentation currently works, it is likely that new features
     in the Conjur OSS suite will require additional testing and documentation to
-    certify the new features for DAP in follow-on efforts.
+    certify the new features for Conjur Enterprise in follow-on efforts.
 
 #### Enterprise Products Built on the Core
-- How will DAP (built on the open Conjur core) run tests against the non-server
+- How will Conjur Enterprise (built on the open Conjur core) run tests against the non-server
   components of the Conjur OSS suite to ensure the enterprise product remains
   compatible with the OSS components that are certified for DAP?
   - We propose this is out of scope for this effort, and should be decided in a
-    follow-on effort by the DAP team (similarly to how the documentation changes
+    follow-on effort by the Conjur Enterprise team (similarly to how the documentation changes
     will work above).
 
 #### Automated Test Suite for the OSS Suite Release

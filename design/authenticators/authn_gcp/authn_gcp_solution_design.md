@@ -95,7 +95,7 @@ before any authentication request is sent to Conjur, the admin will load the aut
  
 The YAML snippet below depicts the Google authenticator policy in Conjur:
 
-**Note:** The `service-id` is not allowed in this authenticator since its redundant, we will have only one `authn-gcp` in Conjur.
+**Note:** The `service-id` is not allow in this authenticator since its redundant, we will have only one `authn-gcp` in Conjur.
 ```yaml
 # policy id needs to match the convention `conjur/authn-gcp`
 - !policy
@@ -396,7 +396,7 @@ While Unit Tests are already automated, we will need to add some infrastructure 
 ### Scope
   - Run integration tests in OSS
   - Run a vanilla test in appliance
-  - Run automation on a DAP image that is deployed on GCP (Manual at first stage, automation on POST GA)
+  - Run automation on a Conjur Enterprise image that is deployed on GCP (Manual at first stage, automation on POST GA)
 
 ### Run Integration Tests in OSS
 GCP Authenticator tests will be added to the the general infrastructure of our integration test.
@@ -574,8 +574,8 @@ Note: LLD designs need will be decided at implementation level
 4. Release from side branch **E1**
 
     4.1 Merge stable released Conjur to our side branch
-    4.2 Update Conjur and DAP versions 
-    4.3 Release DAP as CA from side branch 
+    4.2 Update Conjur and Conjur Enterprise versions 
+    4.3 Release Conjur Enterprise as CA from side branch 
 5. Implement user extraction for aud claim indie the token **E1**
 
 #### Testing EE19
@@ -585,12 +585,12 @@ Note: LLD designs need will be decided at implementation level
     
     1.2. OSS - Issue an identity token **EE1**
     
-    1.3. DAP - Create GCE instance **EE1**
+    1.3. Conjur Enterprise - Create GCE instance **EE1**
     
-    1.4. DAP - Issue an identity token **EE1**
+    1.4. Conjur Enterprise - Issue an identity token **EE1**
         
 2. OSS - Implement integration tests **EE5**
-3. DAP - Implement integration tests for **EE3**
+3. Conjur Enterprise - Implement integration tests for **EE3**
 4. Manual tests according to docs (customer env) **EE1**
 5. Performance tests **EE3**
 6. Setting customer env **EE2**
@@ -616,7 +616,7 @@ Note: LLD designs need will be decided at implementation level
 
 ### Post GA EE6 + ??
 #### Testing
-1. Infrastructure to deploy DAP image on GCP
+1. Infrastructure to deploy Conjur Enterprise image on GCP
 
 #### Designs  
 1. LLD for K8S, Azure ang GCP to use same component of ValidateResourceRestrictions class **EE3**
