@@ -48,7 +48,7 @@ annotations. A minimal CA policy might look like:
      > Conjur.
 - **ca/certificate-chain** (required): Name of conjur variable that
   contains the PEM encoded certificate chain for the issuer.
-- **ca/max_ttl** (required): Value of max allow TTL in
+- **ca/max_ttl** (required): Value of max allowed TTL in
   [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) format.
 
 A complete CA policy would also include a group or layer for permitting

@@ -1,6 +1,6 @@
 # Rotators - Overview
 
-A rotator changes the value of a secret or group of related secrets at fixed time intervals -- every 10 minutes, every day, every 2 weeks, etc.  This fixed time interval is called the time-to-live, or ttl.  It specifies how long a secret is allow to "be alive."  When its ttl is up, it "dies" and is rotated to a new secret.
+A rotator changes the value of a secret or group of related secrets at fixed time intervals -- every 10 minutes, every day, every 2 weeks, etc.  This fixed time interval is called the time-to-live, or ttl.  It specifies how long a secret is allowed to "be alive."  When its ttl is up, it "dies" and is rotated to a new secret.
 
 Conjur rotators update these secrets in two places: within the secure Conjur database, and on the "target" machine -- the machine in the real world that is protected by the secret.  This could be a postgres database, an Amazon AWS account, or anything anything else with protected access.  Thus Conjur rotators ensure two things:
 

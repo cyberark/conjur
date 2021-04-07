@@ -28,7 +28,7 @@ This section presents some tips and guidelines for troubleshooting
 [Conjur Kubernetes authentication (`authn-k8s`)](https://docs.conjur.org/Latest/en/Content/Operations/Services/k8s_auth.htm)
 specifically on a [Conjur OSS](https://docs.conjur.org/) cluster that has
 been deployed via the
-[Conjur Open_Source Helm Chart](https://github.com/cyberark/conjur-oss-helm-chart/conjur-oss).
+[Conjur Open Source Helm Chart](https://github.com/cyberark/conjur-oss-helm-chart/conjur-oss).
 
 The intended audience for this section of the guide is anyone who encounters
 issues when deploying Kubernetes applications that make use of Conjur

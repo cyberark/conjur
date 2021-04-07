@@ -83,10 +83,10 @@ The request parameters are the same as login with the addition of:
 
 ## Security requirements
 
-### Must allow_list before using
+### Must allowlist before using
 
 With the exception of the default Conjur authenticator named `authn`, all
-authenticators must be explicitly allow listed via the environment variable
+authenticators must be explicitly allowlisted via the environment variable
 `CONJUR_AUTHENTICATORS`.
 
 1. If the environment variable `CONJUR_AUTHENTICATORS` is *not* set, the
@@ -97,7 +97,7 @@ authenticators must be explicitly allow listed via the environment variable
    `CONJUR_AUTHENTICATORS` is set and `authn` is not in the list, default
    Conjur authentication will not be available.
 
-Here is an example `CONJUR_AUTHENTICATORS` which allowlisted an LDAP
+Here is an example `CONJUR_AUTHENTICATORS` which allowlists an LDAP
 authenticator as well as the default Conjur authenticator:
 ```
 CONJUR_AUTHENTICATORS=authn-ldap/sysadmins,authn

@@ -409,9 +409,8 @@ Azure authenticator performance should conform with our other authenticators wit
 
 ### Affected Components
 
-- Conjur
-
-- DAP
+- Conjur Open Source
+- Conjur Enterprise
 
 ## Security
 
@@ -533,9 +532,8 @@ The default TTL of an Azure access token is one hour, but it can reduced to a sh
 
 ## Version update
 
-- Conjur
-
-- DAP
+- Conjur Open Source
+- Conjur Enterprise
 
 ## DoD
 
@@ -556,8 +554,8 @@ The default TTL of an Azure access token is one hour, but it can reduced to a sh
 - [ ] A demo was created for the new authenticator
 - [ ] Engineer(s) that were not involved in the project use documentation to authenticate with Conjur using Azure
 - [ ] Versions are bumped in all relevant projects
-   - [ ] Conjur
-   - [ ] DAP
+   - [ ] Conjur Open Source
+   - [ ] Conjur Enterprise
  
 ## Open questions
 

@@ -56,7 +56,7 @@ Please refer to our [Quick Start Guide](https://www.conjur.org/get-started/quick
 
 ### Compatibility 
 
-We **strongly** recommend choosing the version of this project to use from the latest [Conjur Open_Source 
+We **strongly** recommend choosing the version of this project to use from the latest [Conjur Open Source 
 suite release](https://docs.conjur.org/Latest/en/Content/Overview/Conjur-OSS-Suite-Overview.html). 
 Conjur maintainers perform additional testing on the suite release versions to ensure 
 compatibility. When possible, upgrade your Conjur version to match the 

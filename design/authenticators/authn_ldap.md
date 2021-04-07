@@ -5,7 +5,7 @@
 LDAP authentication allows a user to authenticate with Conjur using credentials stored in a remote LDAP source rather than their Conjur credentials. LDAP authentication works exactly as regular authentication, returning a JSON hash if the user authenticates successfully.
 
 # Workflow
-To enable the authenticator, the `CONJUR_AUTHENTICATORS` environment variable must be set on any Conjur node that may be servicing the authentication request, and it must include the string `authn-ldap/<authenticator-name>` in its comma-separated list of allow authenticators (for example, `CONJUR_AUTHENTICATORS=authn-iam/aws,authn-ldap/o365`).
+To enable the authenticator, the `CONJUR_AUTHENTICATORS` environment variable must be set on any Conjur node that may be servicing the authentication request, and it must include the string `authn-ldap/<authenticator-name>` in its comma-separated list of allowed authenticators (for example, `CONJUR_AUTHENTICATORS=authn-iam/aws,authn-ldap/o365`).
 
 The authenticator webservice must be declared in Conjur policy:
 ```yml

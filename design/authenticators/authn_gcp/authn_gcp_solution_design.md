@@ -95,7 +95,7 @@ before any authentication request is sent to Conjur, the admin will load the aut
  
 The YAML snippet below depicts the Google authenticator policy in Conjur:
 
-**Note:** The `service-id` is not allow in this authenticator since its redundant, we will have only one `authn-gcp` in Conjur.
+**Note:** The `service-id` is not allowed in this authenticator since its redundant, we will have only one `authn-gcp` in Conjur.
 ```yaml
 # policy id needs to match the convention `conjur/authn-gcp`
 - !policy
@@ -334,9 +334,8 @@ None because this is a new feature.
 GCP authenticator performance should conform with our other authenticators with an average call time of 1 second.
 
 ### Affected Components
-- Conjur
-
-- DAP
+- Conjur Open Source
+- Conjur Enterprise
 
 ## Security
 * **Future support in Service account key needs to be done very carefully** since there is a concern of impersonate other Conjur hosts, 
@@ -529,9 +528,8 @@ has the same quality of running it inside the machine.
 ### Version update
 TODO: Inbal to decide which versions?
 
-- Conjur
-
-- DAP
+- Conjur Open Source
+- Conjur Enterprise
 
 ## Open questions
 - Authenticator name may change `authn-gcp` ? TODO: Inbal to decide 

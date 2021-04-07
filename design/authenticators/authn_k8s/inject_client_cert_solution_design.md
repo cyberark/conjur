@@ -186,9 +186,9 @@ The performance of the "inject-client-cert" request will not be affected as the 
 
 ## Affected Components
 
-[//]: # "Address the components that will be affected by your solution [Conjur, DAP, clients, integrations, etc.]"
-- Conjur
-- DAP
+[//]: # "Address the components that will be affected by your solution [Conjur Open Source, Conjur Enterprise, clients, integrations, etc.]"
+- Conjur Open Source
+- Conjur Enterprise
 - conjur-authn-k8s-client
 - seed-fetcher
 - secrets-provider-for-k8s

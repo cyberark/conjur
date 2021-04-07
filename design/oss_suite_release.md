@@ -229,7 +229,7 @@ will include:
   - Note: when possible, links to artifacts should link directly to the canonical
     source, rather than linking to the component README (eg link directly to Dockerhub, etc)
   - Bumping the version of Conjur pinned in the [Conjur helm chart](https://github.com/cyberark/conjur-oss-helm-chart)
-  - (optional) Build and publish the [Conjur_Open_Source_AMI](https://github.com/cyberark/conjur-aws)
+  - (optional) Build and publish the [Conjur Open Source AMI](https://github.com/cyberark/conjur-aws)
 - A test suite that can be run manually or automatically to test the pinned versions
   included in the release
   - It will be designed so that new test cases can be added as needed going forward
@@ -353,7 +353,7 @@ Sample release notes section for Secretless:
 #### Enterprise Products Built on the Core
 - How will Conjur Enterprise (built on the open Conjur core) run tests against the non-server
   components of the Conjur Open Source suite to ensure the enterprise product remains
-  compatible with the Conjur Open Source components that are certified for DAP?
+  compatible with the Conjur Open Source components that are certified for Conjur Enterprise?
   - We propose this is out of scope for this effort, and should be decided in a
     follow-on effort by the Conjur Enterprise team (similarly to how the documentation changes
     will work above).

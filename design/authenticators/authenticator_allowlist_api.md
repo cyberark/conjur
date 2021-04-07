@@ -1,23 +1,23 @@
-# Authenticator allowList API
+# Authenticator Allowlist API
 
 ## Introduction
 
 Enabling and disabling authenticators is a common workflow when setting up Conjur
 or when adding new integrations. Authenticators are defined and configured using
 Conjur policy at runtime, but to enable and use an authenticator it has to first 
-be allow.
+be allowlisted.
 
-The authenticator allow_list was previously managed with the `CONJUR_AUTHENTICATORS`
+The authenticator allowlist was previously managed with the `CONJUR_AUTHENTICATORS`
 environment variable. This, however, also requires the Conjur process to be restarted,
 and often requires updates to configuration management for the Conjur container
 as well.
 
-By storing the authenticator allow_list in the Conjur database, and adding an HTTP
+By storing the authenticator allowlist in the Conjur database, and adding an HTTP
 API endpoint to manage the allowlist, we both allow the authenticator workflow to
 become more streamlined, as well as enable additional usability (e.g. enabling
 or disabling authenticators using the `conjur` CLI).
 
-## API Endpoint for Authenticator allowList
+## API Endpoint for Authenticator AllowList
 
 These endpoints require authentication and permission to read and update the
 given authenticator's `!webservice` resource.
@@ -45,8 +45,8 @@ given authenticator's `!webservice` resource.
 * **Body:**
 
     The Authenticator patch endpoint takes a single parameter, `enabled`, which
-    may be set to either `true` to enable the authenticator (add it to the allow list)
-    or `false` to disable the authenticator (remove it from the allow list).
+    may be set to either `true` to enable the authenticator (add it to the allowlist)
+    or `false` to disable the authenticator (remove it from the allowlist).
 
     *Example:*
 

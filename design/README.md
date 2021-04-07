@@ -16,7 +16,7 @@ Writing a new design document for this project? Use our template [here](template
 |- [OIDC authenticator](authenticators/authn_oidc.md)|January 27, 2019|
 |- [Azure authenticator](authenticators/authn_azure/authn_azure_solution_design.md)|January 30, 2020|
 |- [Authenticator Status Check](authenticators/authenticators-status)|June 26, 2019|
-|- [Authenticator allowList API](authenticators/authenticator_allowlist_api.md)|January 07, 2020|
+|- [Authenticator Allowlist API](authenticators/authenticator_allowlist_api.md)|January 07, 2020|
 |[Rotators design](./ROTATORS.md)|July 12, 2018|
 |[Enterprise migration design](./MIGRATION.md)|July 30, 2018|
 |[Certificate signing design](./CERTIFICATE_SIGNING.md)|August 31,2018|

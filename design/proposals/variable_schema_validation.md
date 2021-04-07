@@ -194,7 +194,7 @@ If a variable was annotated with a schema reference (schema-reference: schema-va
 For the example above, Conjur will use the JSON schema specified in `conjur/schemas/mysql-schema` to verify the content of `mysql-db-creds`. This verification includes:
 
 - `username` and `password` are mandatory properties.
-- `address` and `port` are allow properties.
+- `address` and `port` are allowed properties.
 - `port` must contain a valid port number.
 - `password` must align to a sufficient complexity.
 
@@ -281,7 +281,7 @@ As a first step, updating a variable value means that the entire JSON structure 
 
 - We leverage a standard way to enforce the content of the variable, with a well known JSON schema.
 - Tightly coupled values, such as username and password, are updated together in a single transaction. This will prevent momentary inconsistency in which each value was updated independently, one after the other.
-- The user will not have to look in the documentation or to understand the required variables, their structure or allow input. Conjur will provide this feedback when an update attempt is made.
+- The user will not have to look in the documentation or to understand the required variables, their structure or allowed input. Conjur will provide this feedback when an update attempt is made.
 - The feature does not require changes in the database schma, only in new built-in content.
 - The returned variable is in a JSON structure, same as the rest of our APIs responses.
 
