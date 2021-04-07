@@ -534,9 +534,17 @@ pipeline {
 
         stage('On a master build') {
           when { branch "master" }
-
           steps {
-            sh './push-image.sh --edge'
+            script {
+              def tasks = [:]
+              tasks["Publish edge to local registry"] = {
+                sh './push-image.sh --edge --registry-prefix=registry.tld'
+              }
+              tasks["Publish edge to DockerHub"] = {
+                sh './push-image.sh --edge'
+              }
+              parallel tasks
+            }
           }
         }
       }
