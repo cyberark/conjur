@@ -51,12 +51,12 @@ generated with markdown-toc</a></i></small>
 
 ## Getting Started 
 
-Please refer to our [Quick Start Guide](https://www.conjur.org/get-started/quick-start/oss-environment/) for detailed information on using Conjur OSS for the first time, or, refer to the 
+Please refer to our [Quick Start Guide](https://www.conjur.org/get-started/quick-start/oss-environment/) for detailed information on using Conjur Open Source for the first time, or, refer to the 
 [Conjur docs](https://docs.conjur.org/Latest/en/Content/Resources/_TopNav/cc_Home.htm) for specific guides relating to setup, integrations, administration, and more.
 
 ### Compatibility 
 
-We **strongly** recommend choosing the version of this project to use from the latest [Conjur OSS 
+We **strongly** recommend choosing the version of this project to use from the latest [Conjur Open_Source 
 suite release](https://docs.conjur.org/Latest/en/Content/Overview/Conjur-OSS-Suite-Overview.html). 
 Conjur maintainers perform additional testing on the suite release versions to ensure 
 compatibility. When possible, upgrade your Conjur version to match the 
