@@ -40,7 +40,6 @@ For general contribution and community guidelines, please see the [community rep
     - [Update the version and changelog](#update-the-version-and-changelog)
     - [Tag the version](#tag-the-version)
     - [Add a new GitHub release](#add-a-new-github-release)
-    - [Publishing AMIs](#publishing-amis)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
