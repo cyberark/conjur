@@ -1,0 +1,18 @@
+#! /usr/bin/env bash
+
+# Base directory for codeclimate templates
+cc_dir=./conjur-project-config/files/codeclimate
+
+include() {
+  tmpl=$1
+  cat "$cc_dir/$tmpl"
+}
+
+# Default CodeClimate plugins valid for all projects.
+include base.yml
+
+# uncomment for vanilla ruby projects
+include ruby.yml
+
+# uncomment for rails projects
+include rails.yml
