@@ -10,7 +10,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Upgrade github-pages in docs/Gemfile to resolve CVE-2021-28834 in kramdown dependency [cyberark/conjur#2099](https://github.com/cyberark/conjur/issues/2099)
 
 ### Added
-- Rake task for password strength validation. Can be called with `rake password:validate_strength[password]`
+- Rake task for password strength validation. This rake task can be run on the server to verify that a password is
+  strong enough by Conjur standards before creating an account.
+  Can be called with `rake password:validate_strength[password]`
   [cyberark/conjur#2109](https://github.com/cyberark/conjur/issues/2109)
 
 ## [1.11.5] - 2021-04-05
