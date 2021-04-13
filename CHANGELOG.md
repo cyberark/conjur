@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Security
 - Upgrade github-pages in docs/Gemfile to resolve CVE-2021-28834 in kramdown dependency [cyberark/conjur#2099](https://github.com/cyberark/conjur/issues/2099)
 
+### Added
+- Rake task for password strength validation. Can be called with `rake password:validate_strength[password]`
+  [cyberark/conjur#2109](https://github.com/cyberark/conjur/issues/2109)
+
 ## [1.11.5] - 2021-04-05
 
 ### Fixed
