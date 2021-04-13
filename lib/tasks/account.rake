@@ -27,11 +27,7 @@ namespace :"account" do
 
   desc "Create an account with a preset password"
   task :create_with_password, [ "account", "password" ] => [ "environment" ] do |t,args|
-    unless Conjur::Password.valid?(args[:password])
-      $stderr.puts(::Errors::Conjur::InsufficientPasswordComplexity.new.to_s)
-      exit 1
-    end
-
+    Rake::Task["password:validate_strength"].invoke(args[:password])
     Account.find_or_create_accounts_resource
     begin
       Account.create(args[:account])
