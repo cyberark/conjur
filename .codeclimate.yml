@@ -1,10 +1,122 @@
+# This is our default .CodeClimate.yml, broken out by language.
+
+version: "2"
+
 plugins:
+
+# ---------------
+# Cross-language plugins. Should always be on.
+
+  duplication: # Looks for similar and identical code blocks
+    enabled: true
+    config:
+      languages:
+        go:
+        java:
+        javascript:
+        php:
+        python:
+          python_version: 3
+        ruby:
+        swift:
+        typescript:
+
+  fixme: # Flags any FIXME, TODO, BUG, XXX, HACK comments so they can be fixed
+    enabled: true
+    issue_override:
+      severity: info # Don't fail PRs for FIXME tags, but still flag them
+    config:
+      strings:
+      - FIXME
+      - TODO
+      - HACK
+      - XXX
+      - BUG
+
+# ---------------
+# Commonly-used languages - run time is minimal and all of these will work
+# whether files of that language are found or not. In general, leave uncommented
+
+  # Markdown
+  markdownlint:
+    enabled: true
+    issue_override:
+      severity: info # Should be redundant as CC says markdownlint defaults to
+                     # info already, but including it here to remind us it's so
+
+  # Go
+  gofmt:
+    enabled: true
+  golint:
+    enabled: true
+  govet:
+    enabled: true
+
+  # Ruby
+  flog:
+    enabled: true
+  reek:
+    enabled: true
   rubocop:
     enabled: true
     channel: rubocop-1-8-1
-  reek:
+  # Shell scripts
+  shellcheck:
+   enabled: true
+
+# ---------------
+# Other languages - will work with or without language files present. Again,
+# runtime is minimal, so OK to leave uncommented.
+
+  # CoffeeScript
+  coffeelint:
     enabled: true
-  bundler-audit:
+
+  # CSS
+  csslint:
     enabled: true
-  brakeman:
+
+  # Groovy
+  codenarc:
+    enabled: true
+
+  # Java
+  pmd:
+    enabled: true
+  sonar-java:
+    enabled: true
+    config:
+      sonar.java.source: "7"
+
+  # Node.js
+  nodesecurity:
+    enabled: true
+
+  # PHP
+  phan:
+    enabled: true
+    config:
+      file_extensions: "php"
+  phpcodesniffer:
+    enabled: true
+    config:
+      file_extensions: "php,inc,lib"
+      # Using Wordpress standards as our one PHP repo is a Wordpress theme
+      standards: "PSR1,PSR2,WordPress,WordPress-Core,WordPress-Extra"
+  phpmd:
+    enabled: true
+    config:
+      file_extensions: "php,inc,lib"
+      rulesets: "cleancode,codesize,controversial,naming,unusedcode"
+  sonar-php:
+    enabled: true
+
+  # Python
+  bandit:
+    enabled: true
+  pep8:
+    enabled: true
+  radon:
+    enabled: true
+  sonar-python:
     enabled: true

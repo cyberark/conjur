@@ -42,7 +42,7 @@ Style/MethodCallWithArgsParentheses:
   Enabled: true
   IgnoredMethods: [
      # Ruby keywords:
-     gem, require, raise,
+     gem, require, raise, cattr_accessor,
      # Test keywords:
      step, to, to_not, not_to,
      # GLI keywords
