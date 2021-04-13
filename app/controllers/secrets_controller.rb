@@ -50,7 +50,7 @@ class SecretsController < RestController
   rescue Exceptions::RecordNotFound
     raise Errors::Conjur::MissingSecretValue, resource_id
   ensure
-    audit_fetch(resource!, version: version)
+    audit_fetch(version: version)
   end
 
   def batch
@@ -92,12 +92,9 @@ class SecretsController < RestController
     end
   end
 
-  def audit_fetch resource, version: nil
-    # don't audit the fetch if the resource doesn't exist
-    return unless resource
-
+  def audit_fetch(version: nil)
     fetch_info = error_info.merge(
-      resource: resource,
+      resource_id: resource_id,
       version: version,
       user: current_user,
       client_ip: request.ip,
@@ -112,12 +109,12 @@ class SecretsController < RestController
   def error_info
     return { success: true } unless $ERROR_INFO
 
-    # If resource is not visible, the error info will say it cannot be found.
+    # If resource exists and is not visible, the error info will say it cannot be found.
     # That is still what we want to report to the client, but in the log we
-    # want more accurate 'Forbidden'.
+    # want the more accurate message 'Forbidden'.
     {
       success: false,
-      error_message: (resource_visible? ? $ERROR_INFO.message : 'Forbidden')
+      error_message: (resource_exists? && !resource_visible? ? 'Forbidden' : $ERROR_INFO.message)
     }
   end
 
