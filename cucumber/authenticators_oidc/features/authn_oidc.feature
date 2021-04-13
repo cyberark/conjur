@@ -157,7 +157,7 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     Errors::Authentication::AdminAuthenticationDenied
     """
 
-  Scenario: provider-uri dynamic change
+  Scenario: provider-uri dynamic change
     And I fetch an ID Token for username "alice" and password "alice"
     And I authenticate via OIDC with id token
     And user "alice" has been authorized by Conjur
