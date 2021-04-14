@@ -50,7 +50,7 @@ class SecretsController < RestController
   rescue Exceptions::RecordNotFound
     raise Errors::Conjur::MissingSecretValue, resource_id
   ensure
-    audit_fetch(version: version)
+    audit_fetch(resource_id: resource_id, version: version)
   end
 
   def batch
@@ -68,7 +68,7 @@ class SecretsController < RestController
     variables.each do |variable|
       result[variable.resource_id] = get_secret_from_variable(variable)
 
-      audit_fetch(variable)
+      audit_fetch(variable.resource_id)
     end
 
     render(json: result)
@@ -92,7 +92,7 @@ class SecretsController < RestController
     end
   end
 
-  def audit_fetch(version: nil)
+  def audit_fetch(resource_id, version: nil)
     fetch_info = error_info.merge(
       resource_id: resource_id,
       version: version,
