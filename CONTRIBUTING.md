@@ -288,6 +288,8 @@ To prepare to make a change to the Conjur API, follow the process below:
    automation in your OpenAPI pull request to ensure that the spec is consistent with your API changes. Have
    your spec PR reviewed and merged as usual.
 
+Note: Conjur's current API version is in the `API_VERSION` file and should correspond to the OpenAPI version.
+
 ### Updating the database schema
 
 The Conjur database schema is implemented as Sequel database migration files. To add
@@ -510,6 +512,9 @@ version.
 1. Add a new, empty _Unreleased_ section to the changelog.
    - Remember to update the references at the bottom of the document.
 1. Change VERSION file to reflect the change. This file is used by some scripts.
+1. Change the API_VERSION file to reflect the correct
+   [OpenAPI spec release](https://github.com/cyberark/conjur-openapi-spec/releases)
+   if there has been an update to the API.
 1. Commit these changes (including the changes to NOTICES.txt, if there are any).
    `Bump version to x.y.z` is an acceptable commit message.
 1. Push your changes to a branch, and get the PR reviewed and merged.
