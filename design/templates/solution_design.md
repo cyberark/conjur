@@ -2,7 +2,7 @@
 [//]: # "Change the title above from 'Template' to your design's title"
 
 [//]: # "General notes:"
-[//]: # "1. Design should be graphical-based and table-based - avoid long text explanations" 
+[//]: # "1. Design should be graphical-based and table-based - avoid long text explanations"
 [//]: # "2. Design documents should not be updated after implementation"
 [//]: # "3. Design decisions should be made before writing this document, and as such this document should not include options / choices"
 
@@ -164,7 +164,12 @@ Output parameters:
 |--------------------|-----------------|----------------|
 |                    |                 |                |
 
-## Audit 
+## Infrastructure
+
+[//]: # "Does your solution require assistence from the Infrastructure team? Take a moment to elaborate in this section on the types of items that you require and create issues in the ops project: https://github.com/conjurinc/ops/issues. It is best to make these requests as soon as possible as it may require some time to deliver."
+
+## Audit
+
 [//]: # "Does this solution require adding audit logs? Does it affect existing audit logs?"
 
 | **Name (ID)** | **Description** | **Issued On** |
