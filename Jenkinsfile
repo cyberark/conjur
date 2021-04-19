@@ -99,28 +99,79 @@ pipeline {
           }
         }
 
-        stage('Scan Docker Image') {
+        stage('Scan Docker Images') {
           parallel {
-            stage("Scan Docker Image for fixable issues") {
+            stage('Scan Docker image for High/Critical fixable issues (master/release build)') {
+              when {
+                anyOf {
+                  // If we're running a master or a release tag, fail the build on
+                  // High or Critical severity fixable trivy issues 
+                  branch "master"
+                  tag "v*"
+                }
+              }
               steps {
                 scanAndReport("conjur:${tagWithSHA()}", "HIGH", false)
               }
             }
+
+            stage('Scan Docker image for Critical fixable issues (branch build)') {
+              when {
+                not {
+                  anyOf {
+                    // If we're running on a branch build, fail only for Critical issues
+                    branch "master"
+                    tag "v*"
+                  }
+                }
+              }
+              steps {
+                scanAndReport("conjur:${tagWithSHA()}", "CRITICAL", false)
+              }
+            }
+
             stage("Scan Docker image for total issues") {
               steps {
                 scanAndReport("conjur:${tagWithSHA()}", "NONE", true)
               }
             }
-            stage("Scan UBI-based Docker Image for fixable issues") {
+
+            stage('Scan UBI-based Docker Image for High/Critical fixable issues (master/release build)') {
+              when {
+                anyOf {
+                  // If we're running a master or a release tag, fail the build on
+                  // High or Critical severity fixable trivy issues 
+                  branch "master"
+                  tag "v*"
+                }
+              }
               steps {
                 scanAndReport("conjur-ubi:${tagWithSHA()}", "HIGH", false)
               }
             }
+
+            stage('Scan UBI-based Docker Image for Critical fixable issues (branch build)') {
+              when {
+                not {
+                  anyOf {
+                    // If we're running a master or a release tag, fail the build on
+                    // High or Critical severity fixable trivy issues 
+                    branch "master"
+                    tag "v*"
+                  }
+                }
+              }
+              steps {
+                scanAndReport("conjur-ubi:${tagWithSHA()}", "CRITICAL", false)
+              }
+            }
+
             stage("Scan UBI-based Docker image for total issues") {
               steps {
                 scanAndReport("conjur-ubi:${tagWithSHA()}", "NONE", true)
               }
             }
+
           }
         }
 
