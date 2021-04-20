@@ -14,6 +14,11 @@ services:
       #   PostgreSQL documentation about "trust"
       POSTGRES_HOST_AUTH_METHOD: trust
 
+  pg-prometheus-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter
+    environment: 
+      DATA_SOURCE_NAME: postgres://postgres@pg/postgres?sslmode=disable
+
   audit:
     image: postgres:10.16
     environment:
