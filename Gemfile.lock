@@ -270,6 +270,7 @@ GEM
       ast (~> 2.4.0)
     pg (1.2.3)
     powerpack (0.1.2)
+    prometheus-client (2.1.0)
     pry (0.13.0)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -482,6 +483,7 @@ DEPENDENCIES
   openid_connect
   parallel
   pg
+  prometheus-client (~> 2.1)
   pry-byebug
   pry-rails
   puma (~> 4.3.8)

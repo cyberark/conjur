@@ -130,3 +130,5 @@ end
 group :test do
   gem 'haikunator', '~> 1' # for generating random names in tests
 end
+
+gem "prometheus-client", "~> 2.1"
