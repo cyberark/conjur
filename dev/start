@@ -29,6 +29,8 @@ Usage: start [options]
 
     --audit         Starts with the audit engine and database enabled
 
+    --metrics       Starts a Prometheus container to scrape the /metrics endpoint
+
     -h, --help      Shows this help message.
 EOF
   exit
@@ -99,6 +101,7 @@ while true ; do
     --oidc-okta ) ENABLE_OIDC_OKTA=true ; shift ;;
     --rotators ) ENABLE_ROTATORS=true ; shift ;;
     --audit ) ENABLE_AUDIT=true ; shift ;;
+    --metrics ) ENABLE_METRICS=true ; shift ;;
     -h | --help ) print_help ; shift ;;
      * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
   esac
@@ -118,6 +121,10 @@ services="pg conjur client"
 if [[ $ENABLE_AUDIT = true ]]; then
   services="$services audit"
   export AUDIT_DATABASE_URL=postgres://postgres@audit
+fi
+
+if [[ $ENABLE_METRICS = true ]]; then
+  services="$services prometheus"
 fi
 
 docker-compose up -d --no-deps $services
