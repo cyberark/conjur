@@ -154,6 +154,13 @@ services:
     volumes:
       - jwks-volume:/usr/share/nginx/html
 
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./files/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+
 volumes:
   authn-local:
   jwks-volume:
