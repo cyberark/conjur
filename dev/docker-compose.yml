@@ -182,6 +182,11 @@ services:
       - ./files/grafana/provisioning:/etc/grafana/provisioning
       - ./files/grafana/dashboards:/etc/grafana/dashboards
 
+  # Node exporter provides CPU and Memory metrics to Prometheus for the Docker
+  # host machine.
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:latest
+
 volumes:
   authn-local:
   jwks-volume:

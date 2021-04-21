@@ -12,3 +12,4 @@ scrape_configs:
       - targets:
         - "conjur:3000"
         - "pg-prometheus-exporter:9187"
+        - "node-exporter:9100"
