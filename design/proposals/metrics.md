@@ -144,7 +144,7 @@ Effective Conjur Secrets Manager monitoring include the following reports:
     Example Prometheus query:
 
     ```
-    TODO
+    (sum(rate(conjur_http_server_request_duration_seconds_sum{path=~"^/secrets.*$"}[5m])) / sum(rate(conjur_http_server_request_duration_seconds_count{path=~"^/secrets.*$"}[5m]))) * 1000
     ```
 
 - HTTP Status code counts for Authentications (TODO: Metric name from Conjur)
@@ -163,28 +163,28 @@ Effective Conjur Secrets Manager monitoring include the following reports:
     TODO
     ```
 
-- Number of active Secrets (TODO: Metric name from Conjur)
+- Number of active Conjur resources (e.g. Users, Secrets)
 
     Example Prometheus query:
 
     ```
-    TODO
+    conjur_resource_count
     ```
 
-- CPU Usage (TODO: Metric name from node exporter)
+- CPU Usage (Percent) (using `node_exporter` metrics)
 
     Example Prometheus query:
 
     ```
-    TODO
+    100 - (avg by (instance) (rate(node_cpu_seconds_total{job="conjur",mode="idle"}[1m])) * 100)
     ```
 
-- Memory Usage (TODO: Metric name from node exporter)
+- Memory Usage (Percent) (using `node_exporter` metrics)
 
     Example Prometheus query:
 
     ```
-    TODO
+    100 * (1 - ((avg_over_time(node_memory_MemFree_bytes[24h]) + avg_over_time(node_memory_Cached_bytes[24h]) + avg_over_time(node_memory_Buffers_bytes[24h])) / avg_over_time(node_memory_MemTotal_bytes[24h])))
     ```
 
 ## Open questions
