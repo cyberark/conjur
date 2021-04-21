@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Security
 - Upgrade github-pages in docs/Gemfile to resolve CVE-2021-28834 in kramdown dependency [cyberark/conjur#2099](https://github.com/cyberark/conjur/issues/2099)
+- Bump `cyberark/ubi-ruby-fips` from 1.0.1 to 1.0.2 to address CVE-2021-20305.
+  [cyberark/conjur#2120](https://github.com/cyberark/conjur/issues/2120)
 
 ### Added
 - Rake task for password strength validation. This rake task can be run on the server to verify that a password is
