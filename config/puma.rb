@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'monitoring/prometheus'
+
 workers Integer(ENV['WEB_CONCURRENCY'] || 2)
 threads_count = Integer(ENV['RAILS_MAX_THREADS'] || 5)
 threads threads_count, threads_count
@@ -34,6 +36,11 @@ environment ENV['RACK_ENV'] || 'development'
 # fail when started as a `puma` command, rather than using `rails server`.
 before_fork do
   Rails.logger.info(LogMessages::Conjur::FipsModeStatus.new(OpenSSL.fips_mode))
+
+  # Initialize metrics and clean existing data before forking the worker processes
+  Monitoring::Prometheus.configure_data_store
+  Monitoring::Prometheus.clear_data_store
+  Monitoring::Prometheus.define_metrics
 end
 
 on_worker_boot do
@@ -49,5 +56,6 @@ on_worker_boot do
   conjur_config.attribute_sources.each do |k,v|
     puts "- #{k} from #{v}"
   end
-end
 
+  Monitoring::Prometheus.init_metrics
+end
