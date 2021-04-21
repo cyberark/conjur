@@ -124,7 +124,7 @@ if [[ $ENABLE_AUDIT = true ]]; then
 fi
 
 if [[ $ENABLE_METRICS = true ]]; then
-  services="$services prometheus pg-prometheus-exporter"
+  services="$services prometheus pg-prometheus-exporter grafana"
 fi
 
 docker-compose up -d --no-deps $services
