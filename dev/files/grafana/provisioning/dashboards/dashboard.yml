@@ -2,9 +2,9 @@
 apiVersion: 1
 providers:
 # <string> an unique provider name
-- name: My Dashboard
+- name: My Dashboards
   # <int> org id. will default to orgId 1 if not specified
-  org_id: 1
+  #org_id: 1
   # <string, required> name of the dashboard folder. Required
   folder: ''
   # <string, required> provider type. Required
