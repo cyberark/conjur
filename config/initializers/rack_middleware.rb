@@ -18,6 +18,7 @@ Rails.application.configure do
                           %r{^/host_factories/hosts$},
                           %r{^/assets/.*},
                           %r{^/authenticators$},
+                          %r{^/metrics$},
                           %r{^/$}
                         ])
 
