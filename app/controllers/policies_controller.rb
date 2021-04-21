@@ -48,6 +48,8 @@ class PoliciesController < RestController
     created_roles = perform(loaded_policy)
     audit_success(policy)
 
+    ActiveSupport::Notifications.instrument("policy_loaded.conjur", this: policy)
+
     render(json: {
       created_roles: created_roles,
       version: policy.version
