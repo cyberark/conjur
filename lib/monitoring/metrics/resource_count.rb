@@ -29,7 +29,7 @@ module Monitoring
         ::Prometheus::Client::Gauge.new(
           :conjur_resource_count,
           docstring: 'Number of resources in Conjur database',
-          labels: [:kind],
+          labels: [:kind, :component],
           preset_labels: { component: "conjur" },
           store_settings: {
             aggregation: :most_recent
