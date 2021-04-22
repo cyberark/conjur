@@ -1,15 +1,26 @@
 global:
   scrape_interval: "15s"
 
+rule_files:
+  - alert.yml
+
 scrape_configs:
   - job_name: "prometheus"
     static_configs:
       - targets:
-        - "localhost:9090"
+          - "localhost:9090"
+
+  - job_name: "node-exporter"
+    static_configs:
+      - targets:
+          - "node-exporter:9100"
+
+  - job_name: "conjur_db"
+    static_configs:
+      - targets:
+          - "pg-prometheus-exporter:9187"
 
   - job_name: "conjur"
     static_configs:
       - targets:
-        - "conjur:3000"
-        - "pg-prometheus-exporter:9187"
-        - "node-exporter:9100"
+          - "conjur:3000"

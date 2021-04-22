@@ -163,9 +163,10 @@ services:
   prometheus:
     image: prom/prometheus
     volumes:
-      - ./files/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./files/prometheus:/etc/prometheus
     ports:
       - 9090:9090
+    command: --web.enable-lifecycle --config.file=/etc/prometheus/prometheus.yml
 
   grafana:
     image: grafana/grafana
@@ -177,7 +178,6 @@ services:
     volumes:
       - ./files/grafana/storage:/var/lib/grafana
       - ./files/grafana/grafana.ini:/etc/grafana/grafana.ini
-      - ./files/grafana/conf:/etc/grafana
       - ./files/grafana/provisioning:/etc/grafana/provisioning
       - ./files/grafana/dashboards:/etc/grafana/dashboards
 
