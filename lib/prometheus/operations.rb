@@ -4,17 +4,17 @@ module Prometheus
       # AccountsApi (undocumented)
       {
         method: "POST",
-        pattern: /^(\/accounts$)/,
+        pattern: /^(\/accounts)$/,
         operation: "createAccount"
       },
       {
         method: "GET",
-        pattern: /^(\/accounts$)/,
+        pattern: /^(\/accounts)$/,
         operation: "getAccounts"
       },
       {
         method: "DELETE",
-        pattern: /^(\/accounts$)/,
+        pattern: /^(\/accounts)(\/[^\/]+)$/,
         operation: "deleteAccount"
       },
 
@@ -112,24 +112,24 @@ module Prometheus
       # MetricsApi
       {
         method: "GET",
-        pattern: /^(\/metrics$)/,
+        pattern: /^(\/metrics)$/,
         operation: "getMetrics"
       },
 
       # PoliciesApi
       {
         method: "POST",
-        pattern: /^(\/policies)(\/[^\/]+){3}$/,
+        pattern: /^(\/policies)(\/[^\/]+){3}(\/.*)$/,
         operation: "loadPolicy"
       },
       {
         method: "PUT",
-        pattern: /^(\/policies)(\/[^\/]+){3}$/,
+        pattern: /^(\/policies)(\/[^\/]+){3}(\/.*)$/,
         operation: "replacePolicy"
       },
       {
         method: "PATCH",
-        pattern: /^(\/policies)(\/[^\/]+){3}$/,
+        pattern: /^(\/policies)(\/[^\/]+){3}(\/.*)$/,
         operation: "updatePolicy"
       },
 
@@ -143,7 +143,7 @@ module Prometheus
       # ResourcesApi
       {
         method: "GET",
-        pattern: /^(\/resources)(\/[^\/]+){3}$/,
+        pattern: /^(\/resources)(\/[^\/]+){3}(\/.*)$/,
         operation: "showResource"
       },
       {
@@ -182,7 +182,7 @@ module Prometheus
       # SecretsApi
       {
         method: "POST",
-        pattern: /^(\/secrets$)/,
+        pattern: /^(\/secrets)(\/[^\/]+){2}(\/.*)$/,
         operation: "createSecret"
       },
       {
@@ -192,14 +192,14 @@ module Prometheus
       },
       {
         method: "GET",
-        pattern: /^(\/secrets$)/,
+        pattern: /^(\/secrets)$/,
         operation: "getSecrets"
       },
 
       # StatusApi
       {
         method: "GET",
-        pattern: /^(\/authenticators$)/,
+        pattern: /^(\/authenticators)$/,
         operation: "getAuthenticators"
       },
       {
@@ -214,7 +214,7 @@ module Prometheus
       },
       {
         method: "GET",
-        pattern: /^(\/whoami$)/,
+        pattern: /^(\/whoami)$/,
         operation: "whoAmI"
       },
     ]
