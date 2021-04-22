@@ -50,7 +50,7 @@ class SecretsController < RestController
   rescue Exceptions::RecordNotFound
     raise Errors::Conjur::MissingSecretValue, resource_id
   ensure
-    audit_fetch(resource_id: resource_id, version: version)
+    audit_fetch(resource_id, version: version)
   end
 
   def batch
