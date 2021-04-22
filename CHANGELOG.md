@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+- Fix bug where running `conjurctl server` or `conjurctl account create` with
+  non-alpha-numeric passwords sent via stdin raised an error.
+  [cyberark/conjur#2083](https://github.com/cyberark/conjur/issues/2083)
+
 ### Security
 - Upgrade github-pages in docs/Gemfile to resolve CVE-2021-28834 in kramdown dependency [cyberark/conjur#2099](https://github.com/cyberark/conjur/issues/2099)
 - Bump `cyberark/ubi-ruby-fips` from 1.0.1 to 1.0.2 to address CVE-2021-20305.

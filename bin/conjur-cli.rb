@@ -82,24 +82,24 @@ command :server do |c|
     if account
       if options["password-from-stdin"]
         password = stdin_input
-        system "rake account:create_with_password[#{account},#{password}]" \
+        system "rake 'account:create_with_password[#{account},#{password}]'" \
           or exit $?.exitstatus
       else
-        system "rake account:create[#{account}]" or exit $?.exitstatus
+        system "rake 'account:create[#{account}]'" or exit $?.exitstatus
       end
     end
 
     if file_name = options[:file]
       raise "account option is required with file option" unless account
 
-      system("rake policy:load[#{account},#{file_name}]") || exit(($?.exitstatus))
+      system("rake 'policy:load[#{account},#{file_name}]'") || exit(($?.exitstatus))
     end
 
     Process.fork do
       conjur_version = File.read(File.expand_path("../VERSION", File.dirname(__FILE__))).strip
       puts "Conjur v#{conjur_version} starting up..."
 
-      exec "rails server -p #{options[:port]} -b #{options[:'bind-address']}"
+      exec "rails server -p '#{options[:port]}' -b '#{options[:'bind-address']}'"
     end
     Process.fork do
       exec "rake authn_local:run"
@@ -141,7 +141,7 @@ command :policy do |cgrp|
       connect
 
       fail 'policy load failed' unless file_names.map { |file_name|
-        system("rake policy:load[#{account},#{file_name}]")
+        system("rake 'policy:load[#{account},#{file_name}]'")
       }.all?
     end
   end
@@ -167,7 +167,7 @@ $ conjurctl watch /run/conjur/policy/load)"
       account, file_name = args
       connect
 
-      exec "rake policy:watch[#{account},#{file_name}]"
+      exec "rake 'policy:watch[#{account},#{file_name}]'"
     end
   end
 end
@@ -232,9 +232,9 @@ $ conjurctl account create [--password-from-stdin] --name myorg
 
       if options["password-from-stdin"]
         password = stdin_input
-        exec "rake account:create_with_password[#{account},#{password}]"
+        exec "rake 'account:create_with_password[#{account},#{password}]'"
       else
-        exec "rake account:create[#{account}]"
+        exec "rake 'account:create[#{account}]'"
       end
     end
   end
@@ -246,7 +246,7 @@ $ conjurctl account create [--password-from-stdin] --name myorg
       account = args.first
       connect
 
-      exec "rake account:delete[#{account}]"
+      exec "rake 'account:delete[#{account}]'"
     end
   end
 end
@@ -272,7 +272,7 @@ command :role do |cgrp|
       connect
 
       fail 'key retrieval failed' unless args.map { |id|
-        system("rake role:retrieve-key[#{id}]")
+        system("rake 'role:retrieve-key[#{id}]'")
       }.all?
     end
   end
