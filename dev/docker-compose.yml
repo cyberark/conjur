@@ -18,7 +18,6 @@ services:
     image: quay.io/prometheuscommunity/postgres-exporter
     environment: 
       DATA_SOURCE_NAME: postgres://postgres@pg/postgres?sslmode=disable
-      PG_EXPORTER_METRIC_PREFIX: conjur_pg
       PG_EXPORTER_CONSTANT_LABELS: component=pg
 
   audit:
