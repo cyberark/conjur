@@ -147,6 +147,8 @@ http://localhost:2345/.  The username and password are both `admin`.  You'll be
 asked to change it upon first login; feel free to use whatever you want. To see
 the Conjur dashboard, go to "Dashboards" > "Manage" > "Conjur Dashboard".
 
+![GitHub Logo](./metrics/dashboard.png)
+
 ## Future Work
 
 ### User Value, Architecture and Design
