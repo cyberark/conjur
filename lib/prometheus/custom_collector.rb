@@ -73,7 +73,7 @@ module Prometheus
           end
         end
 
-        return "unknown"
+        return "unknown (#{method} #{path})"
       end
 
       def record(env, code, duration)
