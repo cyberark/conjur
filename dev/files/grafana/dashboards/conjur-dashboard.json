@@ -122,8 +122,8 @@
       "yaxes": [
         {
           "$$hashKey": "object:330",
-          "format": "short",
-          "label": "Duration (Milliseconds)",
+          "format": "dtdurationms",
+          "label": "Request duration",
           "logBase": 1,
           "max": null,
           "min": null,
@@ -234,8 +234,8 @@
       "yaxes": [
         {
           "$$hashKey": "object:578",
-          "format": "short",
-          "label": null,
+          "format": "reqps",
+          "label": "Requests per second",
           "logBase": 1,
           "max": null,
           "min": null,
@@ -375,6 +375,120 @@
       "type": "bargauge"
     },
     {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      },
+      "id": 24,
+      "panels": [],
+      "title": "Database",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 18
+      },
+      "hiddenSeries": false,
+      "id": 22,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.4",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": true,
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "pg_stat_activity_count{datname=\"postgres\"}",
+          "instant": false,
+          "interval": "1",
+          "legendFormat": "{{state}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Connection Activity",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:996",
+          "decimals": 0,
+          "format": "short",
+          "label": "Count",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:997",
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
       "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
@@ -397,8 +511,8 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 6,
-        "y": 17
+        "x": 12,
+        "y": 18
       },
       "id": 14,
       "options": {
@@ -435,7 +549,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 26
       },
       "id": 10,
       "panels": [],
@@ -462,7 +576,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 26
+        "y": 27
       },
       "hiddenSeries": false,
       "id": 2,
@@ -562,7 +676,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 26
+        "y": 27
       },
       "hiddenSeries": false,
       "id": 4,
@@ -658,5 +772,5 @@
   "timezone": "",
   "title": "Conjur Dashboard",
   "uid": "1Kfd8CXMk",
-  "version": 9
+  "version": 14
 }
