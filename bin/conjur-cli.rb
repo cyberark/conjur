@@ -73,7 +73,7 @@ command :server do |c|
 
     connect
 
-    system "rake db:migrate" or exit $?.exitstatus
+    system("rake db:migrate") or exit $?.exitstatus
 
     if options["password-from-stdin"] && !account
       raise "account is required with password-from-stdin flag"
@@ -82,10 +82,10 @@ command :server do |c|
     if account
       if options["password-from-stdin"]
         password = stdin_input
-        system "rake 'account:create_with_password[#{account},#{password}]'" \
+        system("rake 'account:create_with_password[#{account},#{password}]'")\
           or exit $?.exitstatus
       else
-        system "rake 'account:create[#{account}]'" or exit $?.exitstatus
+        system("rake 'account:create[#{account}]'") or exit $?.exitstatus
       end
     end
 
@@ -97,12 +97,14 @@ command :server do |c|
 
     Process.fork do
       conjur_version = File.read(File.expand_path("../VERSION", File.dirname(__FILE__))).strip
-      puts "Conjur v#{conjur_version} starting up..."
+      puts("Conjur v#{conjur_version} starting up...")
 
-      exec "rails server -p '#{options[:port]}' -b '#{options[:'bind-address']}'"
+      exec("
+        rails server -p '#{options[:port]}' -b '#{options[:'bind-address']}'
+      ")
     end
     Process.fork do
-      exec "rake authn_local:run"
+      exec("rake authn_local:run")
     end
 
     # Start the rotation watcher on master
@@ -110,7 +112,7 @@ command :server do |c|
     is_master = !Sequel::Model.db['SELECT pg_is_in_recovery()'].first.values[0]
     if is_master
       Process.fork do
-        exec "rake expiration:watch"
+        exec("rake expiration:watch")
       end
     end
 
@@ -167,7 +169,7 @@ $ conjurctl watch /run/conjur/policy/load)"
       account, file_name = args
       connect
 
-      exec "rake 'policy:watch[#{account},#{file_name}]'"
+      exec("rake 'policy:watch[#{account},#{file_name}]'")
     end
   end
 end
@@ -189,7 +191,7 @@ $ export CONJUR_DATA_KEY="$(conjurctl data-key generate)"
   DESC
   cgrp.command :generate do |c|
     c.action do |global_options,options,args|
-      exec "rake data-key:generate"
+      exec("rake data-key:generate")
     end
   end
 end
@@ -232,9 +234,9 @@ $ conjurctl account create [--password-from-stdin] --name myorg
 
       if options["password-from-stdin"]
         password = stdin_input
-        exec "rake 'account:create_with_password[#{account},#{password}]'"
+        exec("rake 'account:create_with_password[#{account},#{password}]'")
       else
-        exec "rake 'account:create[#{account}]'"
+        exec("rake 'account:create[#{account}]'")
       end
     end
   end
@@ -246,7 +248,7 @@ $ conjurctl account create [--password-from-stdin] --name myorg
       account = args.first
       connect
 
-      exec "rake 'account:delete[#{account}]'"
+      exec("rake 'account:delete[#{account}]'")
     end
   end
 end
@@ -258,7 +260,7 @@ command :db do |cgrp|
     c.action do |global_options,options,args|
       connect
 
-      exec "rake db:migrate"
+      exec("rake db:migrate")
     end
   end
 end
@@ -335,7 +337,7 @@ command :export do |c|
 
   c.action do |global_options,options,args|
     connect
-    exec %(rake export["#{options[:out_dir]}","#{options[:label]}"])
+    exec(%(rake export["#{options[:out_dir]}","#{options[:label]}"]))
   end
 end
 
