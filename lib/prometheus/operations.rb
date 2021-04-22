@@ -1,6 +1,23 @@
 module Prometheus
   module Middleware
     OPERATIONS = [
+      # AccountsApi (undocumented)
+      {
+        method: "POST",
+        pattern: /^(\/accounts$)/,
+        operation: "createAccount"
+      },
+      {
+        method: "GET",
+        pattern: /^(\/accounts$)/,
+        operation: "getAccounts"
+      },
+      {
+        method: "DELETE",
+        pattern: /^(\/accounts$)/,
+        operation: "deleteAccount"
+      },
+
       # AuthenticationApi
       {
         method: "PUT",
