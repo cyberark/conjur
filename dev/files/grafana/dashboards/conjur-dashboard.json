@@ -124,7 +124,7 @@
           "$$hashKey": "object:330",
           "format": "dtdurationms",
           "label": "Request duration",
-          "logBase": 1,
+          "logBase": 10,
           "max": null,
           "min": null,
           "show": true
@@ -559,6 +559,10 @@
     {
       "aliasColors": {
         "% CPU Utilized": "yellow",
+        "% Disk Utilized": "purple",
+        "CPU": "semi-dark-green",
+        "Disk": "yellow",
+        "Memory": "dark-blue",
         "{instance=\"node-exporter:9100\"}": "yellow"
       },
       "bars": false,
@@ -574,7 +578,7 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 9,
-        "w": 12,
+        "w": 24,
         "x": 0,
         "y": 27
       },
@@ -607,17 +611,33 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{job=\"conjur\",mode=\"idle\"}[1m])) * 100)",
+          "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{job=\"node-exporter\",mode=\"idle\"}[1m])) * 100)",
           "interval": "",
-          "legendFormat": "% CPU Utilized",
-          "refId": "A"
+          "legendFormat": "CPU",
+          "refId": "CPU"
+        },
+        {
+          "exemplar": true,
+          "expr": "max(100 * (1 - (node_filesystem_avail_bytes) / avg_over_time(node_filesystem_size_bytes[24h])))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Disk",
+          "refId": "Disk"
+        },
+        {
+          "exemplar": true,
+          "expr": "100 * (1 - ((avg_over_time(node_memory_MemFree_bytes[24h]) + avg_over_time(node_memory_Cached_bytes[24h]) + avg_over_time(node_memory_Buffers_bytes[24h])) / avg_over_time(node_memory_MemTotal_bytes[24h])))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Memory",
+          "refId": "Memory"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "CPU",
+      "title": "Resource Utilization",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -635,7 +655,7 @@
         {
           "$$hashKey": "object:100",
           "decimals": null,
-          "format": "short",
+          "format": "percent",
           "label": "% Utilization",
           "logBase": 1,
           "max": "100",
@@ -644,105 +664,6 @@
         },
         {
           "$$hashKey": "object:101",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {
-        "% Memory Utilized": "yellow",
-        "{instance=\"node-exporter:9100\", job=\"conjur\"}": "yellow"
-      },
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Prometheus",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 27
-      },
-      "hiddenSeries": false,
-      "id": 4,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "7.5.4",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "100 * (1 - ((avg_over_time(node_memory_MemFree_bytes[24h]) + avg_over_time(node_memory_Cached_bytes[24h]) + avg_over_time(node_memory_Buffers_bytes[24h])) / avg_over_time(node_memory_MemTotal_bytes[24h])))",
-          "interval": "",
-          "legendFormat": "% Memory Utilized",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Memory",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:184",
-          "format": "short",
-          "label": "% Utilization",
-          "logBase": 1,
-          "max": "100",
-          "min": "0",
-          "show": true
-        },
-        {
-          "$$hashKey": "object:185",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -772,5 +693,5 @@
   "timezone": "",
   "title": "Conjur Dashboard",
   "uid": "1Kfd8CXMk",
-  "version": 14
+  "version": 19
 }
