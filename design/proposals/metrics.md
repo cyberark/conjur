@@ -214,74 +214,95 @@ Moreover, Conjur Enterprise has additional systems that can be easily instrument
 
 ## Examples of Metrics Monitoring
 
-Effective Conjur Secrets Manager monitoring include the following reports:
+### Conjur Measures
 
-- HTTP Status code counts for Secret retrievals (TODO: Metric name from Conjur)
-  
-    Example Prometheus query:
+#### API Response Time (5 min average)
 
-    ```
-    TODO
-    ```
+Secrets Retrieval
 
-- Successful/Failed secret retrievals over time (TODO: Metric name from Conjur)
-  
-    Example Prometheus query:
+```prom
+(rate(conjur_http_server_request_duration_seconds_sum{operation="getSecret"}[5m]) / rate(conjur_http_server_request_duration_seconds_count{operation="getSecret"}[5m])) * 1000
+```
 
-    ```
-    TODO
-    ```
+Policy Loading
 
-- Avg secret retrieval duration over time (TODO: Metric name from Conjur)
-  
-    Example Prometheus query:
+```
+(sum(rate(conjur_http_server_request_duration_seconds_sum{operation=~"^.*Policy$"}[5m])) / sum(rate(conjur_http_server_request_duration_seconds_count{operation=~"^.*Policy$"}[5m]))) * 1000
+```
 
-    ```
-    (
-      sum(
-        rate(
-          conjur_http_server_request_duration_seconds_sum{path=~"^/secrets.*$"}[5m])) / sum(rate(conjur_http_server_request_duration_seconds_count{path=~"^/secrets.*$"}[5m]))) * 1000
-    ```
+Authentication
 
-- HTTP Status code counts for Authentications (TODO: Metric name from Conjur)
+```
+(sum(rate(conjur_http_server_request_duration_seconds_sum{operation=~"^getAccessToken.*$"}[5m])) / sum(rate(conjur_http_server_request_duration_seconds_count{operation=~"^getAccessToken.*$"}[5m]))) * 1000
+```
 
-    Example Prometheus query:
+#### API Request Rate (5 min average)
 
-    ```
-    TODO
-    ```
+Secrets Retrieval
 
-- Successful/Failed authentications over time (TODO: Metric name from Conjur)
-  
-    Example Prometheus query:
+```
+sum(rate(conjur_http_server_requests_total{operation=~"^getSecret.?$"}[5m]))
+```
 
-    ```
-    TODO
-    ```
+Policy Loading
 
-- Number of active Conjur resources (e.g. Users, Secrets)
+```
+sum(rate(conjur_http_server_requests_total{operation=~"^.*Policy$"}[5m]))
+```
 
-    Example Prometheus query:
+Authentication
 
-    ```
-    conjur_resource_count
-    ```
+```
+sum(rate(conjur_http_server_requests_total{operation=~"^getAccessToken.*$"}[5m]))
+```
 
-- CPU Usage (Percent) (using `node_exporter` metrics)
+#### Most used Conjur APIs (Last Hour)
 
-    Example Prometheus query:
+```
+topk(10, sort_desc( sum by (operation) (rate(conjur_http_server_requests_total{operation!~'^(unknown.*)|(getMetrics)$'}[60m]))))
+```
 
-    ```
-    100 - (avg by (instance) (rate(node_cpu_seconds_total{job="conjur",mode="idle"}[1m])) * 100)
-    ```
+#### All Conjur API Response Codes (Last Hour)
 
-- Memory Usage (Percent) (using `node_exporter` metrics)
+```
+sort_desc(count by (code) (rate(conjur_http_server_requests_total[1h])))
+```
 
-    Example Prometheus query:
+#### Total Conjur Resource Counts
 
-    ```
-    100 * (1 - ((avg_over_time(node_memory_MemFree_bytes[24h]) + avg_over_time(node_memory_Cached_bytes[24h]) + avg_over_time(node_memory_Buffers_bytes[24h])) / avg_over_time(node_memory_MemTotal_bytes[24h])))
-    ```
+```
+sort_desc(conjur_resource_count)
+```
+
+### Conjur Postgres Database Measures (using postgres-exporter)
+
+#### Database Connection Activity
+
+```
+pg_stat_activity_count{datname="postgres"}
+```
+
+### Conjur Container Host Node Measures (using node-exporter)
+
+#### Resource Utilization
+
+CPU
+
+```
+100 - (avg by (instance) (rate(node_cpu_seconds_total{job="node-exporter",mode="idle"}[1m])) * 100)
+```
+
+Memory
+
+```
+100 * (1 - ((avg_over_time(node_memory_MemFree_bytes[24h]) + avg_over_time(node_memory_Cached_bytes[24h]) + avg_over_time(node_memory_Buffers_bytes[24h])) / avg_over_time(node_memory_MemTotal_bytes[24h])))
+```
+
+Disk
+
+```
+max(100 * (1 - (node_filesystem_avail_bytes) / avg_over_time(node_filesystem_size_bytes[24h])))
+```
 
 ## Open questions
 
