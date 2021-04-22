@@ -79,17 +79,33 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "(sum(rate(conjur_http_server_request_duration_seconds_sum{path=~\"^/secrets.*$\"}[5m])) / sum(rate(conjur_http_server_request_duration_seconds_count{path=~\"^/secrets.*$\"}[5m]))) * 1000",
+          "expr": "(rate(conjur_http_server_request_duration_seconds_sum{operation=\"getSecret\"}[5m]) / rate(conjur_http_server_request_duration_seconds_count{operation=\"getSecret\"}[5m])) * 1000",
           "interval": "",
-          "legendFormat": "",
-          "refId": "A"
+          "legendFormat": "Secrets retrieval response time",
+          "refId": "Secrets"
+        },
+        {
+          "exemplar": true,
+          "expr": "(sum(rate(conjur_http_server_request_duration_seconds_sum{operation=~\"^.*Policy$\"}[5m])) / sum(rate(conjur_http_server_request_duration_seconds_count{operation=~\"^.*Policy$\"}[5m]))) * 1000",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Policy load response time",
+          "refId": "Policy"
+        },
+        {
+          "exemplar": true,
+          "expr": "(sum(rate(conjur_http_server_request_duration_seconds_sum{operation=~\"^getAccessToken.*$\"}[5m])) / sum(rate(conjur_http_server_request_duration_seconds_count{operation=~\"^getAccessToken.*$\"}[5m]))) * 1000",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Authentication response time",
+          "refId": "Authentication"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Get Secret Response Time (5 min avg)",
+      "title": "API Response Time (5 min avg)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -115,6 +131,118 @@
         },
         {
           "$$hashKey": "object:331",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
+      "hiddenSeries": false,
+      "id": 18,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.4",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(rate(conjur_http_server_requests_total{operation=~\"^getSecret.?$\"}[5m]))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Secret retrieval request rate",
+          "refId": "Secrets"
+        },
+        {
+          "exemplar": true,
+          "expr": "sum(rate(conjur_http_server_requests_total{operation=~\"^.*Policy$\"}[5m]))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Policy load request rate",
+          "refId": "Policy"
+        },
+        {
+          "exemplar": true,
+          "expr": "sum(rate(conjur_http_server_requests_total{operation=~\"^getAccessToken.*$\"}[5m]))",
+          "interval": "",
+          "legendFormat": "Authentication request rate",
+          "refId": "Authentication"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "API Request Rate (5 min average)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:578",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:579",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -155,10 +283,10 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 12,
-        "y": 1
+        "x": 0,
+        "y": 9
       },
-      "id": 6,
+      "id": 16,
       "options": {
         "displayMode": "gradient",
         "orientation": "horizontal",
@@ -176,15 +304,15 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "count by (code) (conjur_http_server_requests_total)",
+          "expr": "topk(10, sort_desc( sum by (operation) (rate(conjur_http_server_requests_total{operation!~'^(unknown.*)|(getMetrics)$'}[60m]))))",
           "format": "time_series",
           "instant": true,
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "{{operation}}",
           "refId": "A"
         }
       ],
-      "title": "All Conjur Response Codes",
+      "title": "Operation Request Rates (Last Hour)",
       "type": "bargauge"
     },
     {
@@ -214,8 +342,63 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 6,
+        "x": 12,
         "y": 9
+      },
+      "id": 6,
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "text": {}
+      },
+      "pluginVersion": "7.5.4",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sort_desc(count by (code) (rate(conjur_http_server_requests_total[1h])))",
+          "format": "time_series",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "{{code}}",
+          "refId": "A"
+        }
+      ],
+      "title": "All Conjur Response Codes (Last Hour)",
+      "type": "bargauge"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 6,
+        "y": 17
       },
       "id": 14,
       "options": {
@@ -235,7 +418,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "conjur_resource_count",
+          "expr": "sort_desc(conjur_resource_count)",
           "instant": true,
           "interval": "",
           "legendFormat": "{{kind}}",
@@ -252,7 +435,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 17
+        "y": 25
       },
       "id": 10,
       "panels": [],
@@ -260,7 +443,10 @@
       "type": "row"
     },
     {
-      "aliasColors": {},
+      "aliasColors": {
+        "% CPU Utilized": "yellow",
+        "{instance=\"node-exporter:9100\"}": "yellow"
+      },
       "bars": false,
       "dashLength": 10,
       "dashes": false,
@@ -276,7 +462,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 18
+        "y": 26
       },
       "hiddenSeries": false,
       "id": 2,
@@ -309,7 +495,7 @@
           "exemplar": true,
           "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{job=\"conjur\",mode=\"idle\"}[1m])) * 100)",
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "% CPU Utilized",
           "refId": "A"
         }
       ],
@@ -358,7 +544,10 @@
       }
     },
     {
-      "aliasColors": {},
+      "aliasColors": {
+        "% Memory Utilized": "yellow",
+        "{instance=\"node-exporter:9100\", job=\"conjur\"}": "yellow"
+      },
       "bars": false,
       "dashLength": 10,
       "dashes": false,
@@ -373,7 +562,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 18
+        "y": 26
       },
       "hiddenSeries": false,
       "id": 4,
@@ -406,7 +595,7 @@
           "exemplar": true,
           "expr": "100 * (1 - ((avg_over_time(node_memory_MemFree_bytes[24h]) + avg_over_time(node_memory_Cached_bytes[24h]) + avg_over_time(node_memory_Buffers_bytes[24h])) / avg_over_time(node_memory_MemTotal_bytes[24h])))",
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "% Memory Utilized",
           "refId": "A"
         }
       ],
@@ -469,5 +658,5 @@
   "timezone": "",
   "title": "Conjur Dashboard",
   "uid": "1Kfd8CXMk",
-  "version": 3
+  "version": 9
 }
