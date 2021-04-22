@@ -6,7 +6,7 @@ module Audit
       def initialize(
         user:,
         client_ip:,
-        resource:,
+        resource_id:,
         success:,
         version:,
         operation:,
@@ -14,7 +14,7 @@ module Audit
       )
         @user = user
         @client_ip = client_ip
-        @resource = resource
+        @resource_id = resource_id
         @success = success
         @error_message = error_message
         @version = version
@@ -77,13 +77,18 @@ module Audit
       private
 
       def resource_description
-        resource_id = @resource.id
-        @version ? "version #{@version} of #{resource_id}" : resource_id
+        @version ? versioned_resource_description : @resource_id
+      end
+
+      def versioned_resource_description
+        "version #{@version} of #{@resource_id}"
       end
 
       def subject_sd_value
-        { resource: @resource.id }.tap do |sd|
-          sd[:version] = @version if @version
+        { resource: @resource_id }.tap do |sd|
+          if @version
+            sd[:version] = @version
+          end
         end
       end
 

@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Audit::Event::Fetch do
   let(:user) { double('my-user', id: 'rspec:user:my_user') }
-  let(:resource) { double('my-resource', id: 'rspec:variable:my_var') }
+  let(:resource_id) { 'rspec:variable:my_var' }
   let(:client_ip) { 'my-client-ip' }
   let(:success) { true }
   let(:version) { 1 }
@@ -12,7 +12,7 @@ describe Audit::Event::Fetch do
   subject do
     Audit::Event::Fetch.new(
       user: user,
-      resource: resource,
+      resource_id: resource_id,
       version: version,
       client_ip: client_ip,
       success: success,
