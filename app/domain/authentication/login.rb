@@ -40,7 +40,7 @@ module Authentication
     end
 
     def key
-      @key = authenticator.login(@authenticator_input)
+      @key ||= authenticator.login(@authenticator_input)
     end
 
     def validate_authenticator_exists
