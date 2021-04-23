@@ -18,7 +18,7 @@ describe "account" do
       delete_account("demo")
     end
     
-    let(:password) { "MySecretP@SS1" }
+    let(:password) { "MySecretP@SS1()!" }
     let(:create_account_with_password_and_name_flag) do
       "conjurctl account create --name demo --password-from-stdin"
     end
@@ -41,7 +41,7 @@ describe "account" do
       expect(Role["demo:user:admin"]).to be
     end
 
-    it "with predefined password MySecretP@SS1 and account name flag" do
+    it "with predefined password and account name flag" do
       stdout_str, = Open3.capture3(
         create_account_with_password_and_name_flag, stdin_data: password
       )
@@ -50,7 +50,7 @@ describe "account" do
       expect(Role["demo:user:admin"]).to be
     end
 
-    it "with predefined password MySecretP@SS1" do
+    it "with predefined password" do
       stdout_str, = Open3.capture3(
         create_account_with_password_flag, stdin_data: password
       )
