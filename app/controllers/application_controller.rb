@@ -62,6 +62,7 @@ class ApplicationController < ActionController::API
   rescue_from ArgumentError, with: :argument_error
   rescue_from ActionController::ParameterMissing, with: :argument_error
   rescue_from UnprocessableEntity, with: :unprocessable_entity
+  rescue_from Errors::Conjur::BadSecretEncoding, with: :bad_secret_encoding
 
   around_action :run_with_transaction
 
@@ -159,10 +160,7 @@ class ApplicationController < ActionController::API
   def policy_invalid e
     logger.debug("#{e}\n#{e.backtrace.join("\n")}")
 
-    error = {
-      code: "policy_invalid",
-      message: e.message
-    }
+    error = { code: "policy_invalid", message: e.message }
 
     if e.instance_of?(Conjur::PolicyParser::Invalid)
       error[:innererror] = {
@@ -173,9 +171,7 @@ class ApplicationController < ActionController::API
       }
     end
 
-    render(json: {
-      error: error
-    }, status: :unprocessable_entity)
+    render(json: { error: error }, status: :unprocessable_entity)
   end
 
   def argument_error e
@@ -223,6 +219,16 @@ class ApplicationController < ActionController::API
         message: e.message
       }
     }, status: :unprocessable_entity)
+  end
+
+  def bad_secret_encoding e
+    logger.debug("#{e}\n#{e.backtrace.join("\n")}")
+    render(json: {
+      error: {
+        code: :not_acceptable,
+        message: e.message
+      }
+    }, status: :not_acceptable)
   end
 
   def unauthorized e

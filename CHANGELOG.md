@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   non-alpha-numeric passwords sent via stdin raised an error.
   [cyberark/conjur#2083](https://github.com/cyberark/conjur/issues/2083)
 
+### Changed
+- The batch secret retrieval endpoint now returns a 406 Not Acceptable instead
+  of a 500 error when a secret with incompatible encoding is requested.
+  [cyberark/conjur#2124](https://github.com/cyberark/conjur/pull/2124)
+
 ### Security
 - Upgrade github-pages in docs/Gemfile to resolve CVE-2021-28834 in kramdown dependency [cyberark/conjur#2099](https://github.com/cyberark/conjur/issues/2099)
 - Bump `cyberark/ubi-ruby-fips` from 1.0.1 to 1.0.2 to address CVE-2021-20305.
