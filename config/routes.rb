@@ -32,6 +32,7 @@ Rails.application.routes.draw do
         # the common authn request and the fact that authn-oidc doesn't have an 'id' param.
         # i.e the request 'authn-oidc/:service_id/:account/authenticate' can be interpreted as
         # ':authenticator/:account/:id/authenticate'
+        post '/authn-jwt(/:service_id)/:account/(/:identity)/authenticate' => 'authenticate#authenticate_jwt'
         post '/authn-oidc(/:service_id)/:account/authenticate' => 'authenticate#authenticate_oidc'
         post '/authn-gcp/:account/authenticate' => 'authenticate#authenticate_gcp'
         post '/:authenticator(/:service_id)/:account/:id/authenticate' => 'authenticate#authenticate'

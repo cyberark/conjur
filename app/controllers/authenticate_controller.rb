@@ -84,9 +84,21 @@ class AuthenticateController < ApplicationController
     handle_authentication_error(e)
   end
 
+  def authenticate_jwt
+    params[:authenticator] = "authn-jwt"
+  rescue => e
+    handle_authentication_error(e)
+  else
+    dummyResult = JWTOrchestrator::AuthnJwt::Authenticate.new.(
+      authenticator_input: authenticator_input
+    )
+    render status: 200, json: dummyResult
+  end
+
   # Update the input to have the username from the token and authenticate
   def authenticate_oidc
     params[:authenticator] = "authn-oidc"
+
     input = Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new.(
       authenticator_input: authenticator_input
     )
