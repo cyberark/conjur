@@ -365,6 +365,26 @@ module Errors
       )
     end
 
+    module AuthnJwt
+
+      InvalidIssuerConfiguration = ::Util::TrackableErrorClass.new(
+        msg: "Issuer authenticator configuration is invalid. You should configured as authenticator variables: " \
+              "'{0-resource-name}' or one of the following: '{1-resource-name}','{2-resource-name}'",
+        code: "CONJ00070E"
+      )
+
+      FailedToParseHostnameFromUri = ::Util::TrackableErrorClass.new(
+        msg: "Failed to extract hostname from URI '{0}'",
+        code: "CONJ00071E"
+      )
+
+      InvalidUriFormat = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse URI '{0}'. Reason: '{1}'",
+        code: "CONJ00072E"
+      )
+
+    end
+
     module ResourceRestrictions
 
       InvalidResourceRestrictions = ::Util::TrackableErrorClass.new(
