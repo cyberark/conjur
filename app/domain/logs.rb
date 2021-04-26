@@ -262,6 +262,35 @@ module LogMessages
       )
 
     end
+
+    module AuthnJwt
+
+      FetchingIssuerConfigurationValue = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetching issuer authenticator configuration value",
+        code: "CONJ00052D"
+      )
+
+      FetchedIssuerValueFromConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetched issuer value from authenticator configuration",
+        code: "CONJ00053D"
+      )
+
+      IssuerResourceNameConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Issuer value will be taken from '{0-resource-id}'",
+        code: "CONJ00054D"
+      )
+
+      RetrievedIssuerValue = ::Util::TrackableLogMessageClass.new(
+        msg: "Retrieved issuer with value '{0}'",
+        code: "CONJ00055D"
+      )
+
+      ParsingIssuerFromUri = ::Util::TrackableLogMessageClass.new(
+        msg: "Parsing issuer value from URI '{0}'",
+        code: "CONJ00056D"
+      )
+
+    end
   end
 
   module Util
