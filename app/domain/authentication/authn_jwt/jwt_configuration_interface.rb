@@ -1,5 +1,5 @@
 module Authentication
-  module AuthnJWT
+  module AuthnJwt
     # Interface containing JWT configuration functions to be implemented in JWTConfiguration class for a vendor
     class JWTConfigurationInterface
       def get_identity; end;
