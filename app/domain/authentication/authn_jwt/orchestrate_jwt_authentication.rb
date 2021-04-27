@@ -6,7 +6,7 @@ module Authentication
 
     OrchestrateJwtAuthentication ||= CommandClass.new(
       dependencies: {
-        token_factory: TokenFactory.new
+        jwt_configuration_factory: JwtConfigurationFactory.new
       },
       inputs: %i[authenticator_input]
     ) do
@@ -16,13 +16,18 @@ module Authentication
       )
 
       def call
-        authenticate
+        authenticate_jwt
       end
 
       private
 
-      def authenticate
-        @token_factory.signed_token(
+      def get_vendor
+        "dummy"
+      end
+
+      def authenticate_jwt
+        JwtAuthenticate.new.(
+          jwt_configuration: @jwt_configuration_factory.get_jwt_configuration(get_vendor),
           account: account,
           username: username
         )
