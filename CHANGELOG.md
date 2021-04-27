@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - File `API_VERSION` containing the current Conjur API Version, which corresponds to a
   release of the [Conjur OpenAPI Spec](https://github.com/cyberark/conjur-openapi-spec).
-  [cyberark/conjur#2107](https://github.com/cyberark/conjur/pull/2107)
+  [cyberark/conjur#2086](https://github.com/cyberark/conjur/pull/2086)
 
 ## [1.11.5] - 2021-04-05
 
