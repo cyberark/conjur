@@ -4,7 +4,7 @@ require 'command_class'
 module Authentication
   module AuthnJwt
 
-    OrchestrateJwtVendorConfiguration ||= CommandClass.new(
+    OrchestrateJwtAuthentication ||= CommandClass.new(
     dependencies: {token_factory: TokenFactory.new},
     inputs: %i[authenticator_input]
   ) do
