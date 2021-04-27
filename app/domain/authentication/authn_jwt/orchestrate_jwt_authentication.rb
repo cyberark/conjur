@@ -5,13 +5,16 @@ module Authentication
   module AuthnJwt
 
     OrchestrateJwtAuthentication ||= CommandClass.new(
-    dependencies: {token_factory: TokenFactory.new},
-    inputs: %i[authenticator_input]
-  ) do
-    extend(Forwardable)
-    def_delegators(
-      :@authenticator_input, :account, :username
-    )
+      dependencies: {
+        token_factory: TokenFactory.new
+      },
+      inputs: %i[authenticator_input]
+    ) do
+      extend(Forwardable)
+      def_delegators(
+        :@authenticator_input, :account, :username
+      )
+
       def call
         authenticate
       end

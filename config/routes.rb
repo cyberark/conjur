@@ -33,7 +33,7 @@ Rails.application.routes.draw do
         # i.e the request 'authn-oidc/:service_id/:account/authenticate' can be interpreted as
         # ':authenticator/:account/:id/authenticate'
         post '/authn-oidc(/:service_id)/:account/authenticate' => 'authenticate#authenticate_oidc'
-        post '/authn-jwt(/:service_id)/:account(/:identity)/authenticate' => 'authenticate#authenticate_jwt'
+        post '/authn-jwt(/:service_id)/:account(/:id)/authenticate' => 'authenticate#authenticate_jwt'
         post '/authn-gcp/:account/authenticate' => 'authenticate#authenticate_gcp'
         post '/:authenticator(/:service_id)/:account/:id/authenticate' => 'authenticate#authenticate'
 
