@@ -72,14 +72,17 @@ class AuthenticateController < ApplicationController
       authenticators: installed_authenticators,
       enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV)
     )
-    content_type = :json
-    if encoded_response?
-      logger.debug(LogMessages::Authentication::EncodedJWTResponse.new)
-      content_type = :plain
-      authn_token = ::Base64.strict_encode64(authn_token.to_json)
-      response.set_header("Content-Encoding", "base64")
-    end
-    render(content_type => authn_token)
+    render_authn_token(authn_token)
+  rescue => e
+    handle_authentication_error(e)
+  end
+
+  def authenticate_jwt
+    params[:authenticator] = "authn-jwt"
+    authn_token = Authentication::AuthnJwt::OrchestrateJwtAuthentication.new.(
+      authenticator_input: authenticator_input
+    )
+    render_authn_token(authn_token)
   rescue => e
     handle_authentication_error(e)
   end
@@ -117,6 +120,17 @@ class AuthenticateController < ApplicationController
       client_ip: request.ip,
       request: request
     )
+  end
+
+  def render_authn_token(authn_token)
+    content_type = :json
+    if encoded_response?
+      logger.debug(LogMessages::Authentication::EncodedJWTResponse.new)
+      content_type = :plain
+      authn_token = ::Base64.strict_encode64(authn_token.to_json)
+      response.set_header("Content-Encoding", "base64")
+    end
+    render(content_type => authn_token)
   end
 
   def k8s_inject_client_cert
