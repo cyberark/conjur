@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.11.6] - 2021-04-28
+
 ### Fixed
 - Fix bug where running `conjurctl server` or `conjurctl account create` with
   non-alpha-numeric passwords sent via stdin raised an error.
@@ -608,7 +610,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.5...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.6...HEAD
+[1.11.6]: https://github.com/cyberark/conjur/compare/v1.11.5...v1.11.6
 [1.11.5]: https://github.com/cyberark/conjur/compare/v1.11.4...v1.11.5
 [1.11.4]: https://github.com/cyberark/conjur/compare/v1.11.3...v1.11.4
 [1.11.3]: https://github.com/cyberark/conjur/compare/v1.11.2...v1.11.3
