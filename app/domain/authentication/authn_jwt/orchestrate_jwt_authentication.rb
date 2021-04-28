@@ -6,26 +6,28 @@ module Authentication
 
     OrchestrateJwtAuthentication ||= CommandClass.new(
       dependencies: {
-        token_factory: TokenFactory.new
+        jwt_configuration_factory: JwtConfigurationFactory.new,
+        jwt_authenticator: Authentication::AuthnJwt::Authenticate.new
       },
       inputs: %i[authenticator_input]
     ) do
-      extend(Forwardable)
-      def_delegators(
-        :@authenticator_input, :account, :username
-      )
 
       def call
-        authenticate
+        authenticate_jwt
       end
 
       private
 
-      def authenticate
-        @token_factory.signed_token(
-          account: account,
-          username: username
+      def authenticate_jwt
+        jwt_vendor_configuration = @jwt_configuration_factory.create_jwt_configuration(vendor)
+        @jwt_authenticator.call(
+          jwt_configuration: jwt_vendor_configuration,
+          authenticator_input: @authenticator_input
         )
+      end
+
+      def vendor
+        @authenticator_input.service_id
       end
     end
   end
