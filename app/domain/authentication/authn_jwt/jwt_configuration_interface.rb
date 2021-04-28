@@ -2,9 +2,9 @@ module Authentication
   module AuthnJwt
     # Interface containing JWT configuration functions to be implemented in JWTConfiguration class for a vendor
     class JWTConfigurationInterface
-      def get_identity; end;
-      def validate_restrictions; end;
-      def validate_and_decode; end;
+      def self.conjur_id; end
+      def self.validate_restrictions; end
+      def self.validate_and_decode_token(jwt_token); end
     end
   end
 end
