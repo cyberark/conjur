@@ -16,6 +16,90 @@ Feature: Deleting objects and relationships.
     """
     Then group "developers" does not exist
 
+  Scenario: Deleting variable value is unrecoverable.
+    Given I load a policy:
+    """
+    - !policy
+      id: test
+      body:
+      - !variable db-password
+    """
+    And variable "test/db-password" exists
+    # Variable loaded twice so we verify we delete all of its versions
+    And I can add a secret to variable resource "test/db-password"
+    And I can add a secret to variable resource "test/db-password"
+    And I can fetch a secret from variable resource "test/db-password"
+    When I update the policy with:
+    """
+    - !policy
+      id: test
+      body:
+      - !delete
+        record: !variable db-password
+    """
+    And I extend the policy with:
+    """
+    - !policy
+      id: test
+      body:
+      - !variable db-password
+    """
+    Then variable "test/db-password" exists
+    And variable resource "test/db-password" does not have a secret value
+
+  Scenario: Deleting variable value is unrecoverable even if we add same variable with the delete policy
+    Given I load a policy:
+    """
+    - !policy
+      id: test
+      body:
+      - !variable db-password
+    """
+    And variable "test/db-password" exists
+    # Variable loaded twice so we verify we delete all of its versions
+    And I can add a secret to variable resource "test/db-password"
+    And I can add a secret to variable resource "test/db-password"
+    And I can fetch a secret from variable resource "test/db-password"
+    When I update the policy with:
+    """
+    - !policy
+      id: test
+      body:
+      - !delete
+        record: !variable db-password
+      - !variable db-password
+    """
+    Then variable "test/db-password" exists
+    And variable resource "test/db-password" does not have a secret value
+
+  Scenario: Deleting variable value is unrecoverable when we delete the policy itself and then add it again
+    Given I load a policy:
+    """
+    - !policy
+      id: test
+      body:
+      - !variable db-password
+    """
+    And variable "test/db-password" exists
+    # Variable loaded twice so we verify we delete all of its versions
+    And I can add a secret to variable resource "test/db-password"
+    And I can add a secret to variable resource "test/db-password"
+    And I can fetch a secret from variable resource "test/db-password"
+    When I update the policy with:
+    """
+    - !delete
+      record: !policy test
+    """
+    And I extend the policy with:
+    """
+    - !policy
+      id: test
+      body:
+      - !variable db-password
+    """
+    Then variable "test/db-password" exists
+    And variable resource "test/db-password" does not have a secret value
+
   Scenario: The !revoke statement can be used to revoke a role grant.
     Given I load a policy:
     """
