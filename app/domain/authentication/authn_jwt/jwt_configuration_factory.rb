@@ -1,16 +1,13 @@
 module Authentication
   module AuthnJwt
-    # Factory that receives vendor name and returns appropriate JWT vendor configuration class
+    # Factory that receives a vendor name and returns the appropriate JWT vendor configuration class
     class JwtConfigurationFactory
       VENDORS = {
         "dummy" => JWTConfigurationDummyVendor
       }
 
-      def get_jwt_configuration(vendor)
-        unless VENDORS.key?(vendor)
-          raise "Vendor #{vendor} not implemented yet."
-        end
-        (VENDORS[vendor]).new
+      def create_jwt_configuration(vendor)
+        VENDORS[vendor] || raise("Vendor #{vendor} not implemented yet.")
       end
     end
   end
