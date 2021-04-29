@@ -4,9 +4,9 @@ require 'command_class'
 module Authentication
   module AuthnJwt
 
-    OrchestrateJwtAuthentication ||= CommandClass.new(
+    OrchestrateAuthentication ||= CommandClass.new(
       dependencies: {
-        jwt_configuration_factory: JwtConfigurationFactory.new,
+        jwt_configuration_factory: ConfigurationFactory.new,
         jwt_authenticator: Authentication::AuthnJwt::Authenticate.new
       },
       inputs: %i[authenticator_input]

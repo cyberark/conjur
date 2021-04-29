@@ -13,7 +13,7 @@ module Authentication
 
       def call
         validate_and_decode_token
-        conjur_id
+        jwt_id
         validate_restrictions
         new_token
       end
@@ -21,15 +21,13 @@ module Authentication
       private
 
       def validate_and_decode_token
-        #TODO : Need to decide how the token is going to be given and parsed and change this line according to this
-        unless @jwt_configuration.validate_and_decode_token(jwt_token: @authenticator_input.credentials)
-          raise "validate and decode failed"
-        end
+        decoded_token = @jwt_configuration.validate_and_decode_token(jwt_token: @authenticator_input.credentials)
+        @authentication_parameters = Authentication::AuthnJwt::AuthenticationParameters.new(@authenticator_input, decoded_token)
       end
 
-      def conjur_id
+      def jwt_id
         # Will be changed when real get identity implemented
-        @jwt_configuration.conjur_id
+        @authentication_parameters.jwt_identity =  @jwt_configuration.jwt_id(@authentication_parameters)
       end
 
       def validate_restrictions

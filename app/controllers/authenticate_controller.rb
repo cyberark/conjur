@@ -79,7 +79,7 @@ class AuthenticateController < ApplicationController
 
   def authenticate_jwt
     params[:authenticator] = "authn-jwt"
-    authn_token = Authentication::AuthnJwt::OrchestrateJwtAuthentication.new.(
+    authn_token = Authentication::AuthnJwt::OrchestrateAuthentication.new.(
       authenticator_input: authenticator_input
     )
     render_authn_token(authn_token)
