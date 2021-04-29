@@ -83,6 +83,11 @@ pipeline {
           tag "v*"
         }
       }
+    stage('Snyk') {
+      steps {
+        snykSecurity severity: 'high', snykInstallation: 'Snyk', snykTokenId: 'snyk-poc-token', organisation: 'Conjur Team'
+      }
+    }
 
       stages {
         stage('Build Docker Image') {
@@ -561,12 +566,6 @@ pipeline {
     stage('Publish Debian and RPM packages'){
       steps {
         sh './publish.sh'
-      }
-    }
-
-    stage('Snyk') {
-      steps {
-        snykSecurity severity: 'high', snykInstallation: 'Snyk', snykTokenId: 'snyk-poc-token', organisation: 'Conjur Team'
       }
     }
   }
