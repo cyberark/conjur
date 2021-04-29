@@ -563,6 +563,12 @@ pipeline {
         sh './publish.sh'
       }
     }
+
+    stage('Snyk') {
+      steps {
+        snykSecurity severity: 'high', snykInstallation: 'Snyk', snykTokenId: 'snyk-poc-token', organisation: 'Conjur Team'
+      }
+    }
   }
 
   post {
