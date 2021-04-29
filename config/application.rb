@@ -21,6 +21,9 @@ Bundler.require(*Rails.groups)
 $LOAD_PATH.push(File.expand_path("../../engines/conjur_audit/lib", __FILE__))
 require 'conjur_audit'
 
+# Must require because lib folder hasn't been loaded yet
+require './lib/conjur/conjur_config'
+
 module Conjur
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
@@ -57,5 +60,18 @@ module Conjur
     ENV.each_pair do |(k, v)|
       ENV[k] = nil if v =~ /^\s*$/ # is all whitespace
     end
+
+    # Allows us to use a config file that doesn't group settings by Rails env.
+    config.anyway_config.future.unwrap_known_environments = true
+
+    config.anyway_config.default_config_path = "/etc/conjur"
+
+    # Create a single instance of the ConjurConfig object for this process that
+    # loads configuration on server startup. This prevents config values from
+    # being reloaded every time a ConjurConfig object is instantiated, which
+    # could lead to unexpected behavior.
+    #
+    # We create this in application.rb so that it's available in initializers
+    config.conjur_config = Conjur::ConjurConfig.new
   end
 end

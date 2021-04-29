@@ -29,13 +29,13 @@ module Conjur
       trusted_proxies
     end
 
-    def trusted_proxies    
+    def trusted_proxies
       return @cached_trusted_proxies if @cached_trusted_proxies
 
       # The trusted proxy IPs are `127.0.0.1` plus those defined in the
       # `TRUSTED_PROXIES` environment variable.
       proxy_ips = [IPAddr.new('127.0.0.1')] + env_trusted_proxies
-      
+
       # If not disabled, cache the IP address list
       @cached_trusted_proxies = proxy_ips unless @options[:disable_cache]
 
