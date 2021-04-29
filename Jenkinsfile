@@ -54,6 +54,12 @@ pipeline {
       }
     }
 
+    stage('Snyk') {
+      steps {
+        snykSecurity severity: 'high', snykInstallation: 'Snyk', snykTokenId: 'snyk-poc-token', organisation: 'Conjur Team'
+      }
+    }
+
     stage('Build and test Conjur') {
       when {
         // Run tests only when ANY of the following is true:
@@ -83,11 +89,6 @@ pipeline {
           tag "v*"
         }
       }
-    stage('Snyk') {
-      steps {
-        snykSecurity severity: 'high', snykInstallation: 'Snyk', snykTokenId: 'snyk-poc-token', organisation: 'Conjur Team'
-      }
-    }
 
       stages {
         stage('Build Docker Image') {
