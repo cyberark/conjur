@@ -66,6 +66,7 @@ pipeline {
         organisation: 'Conjur Team',
         faileOnIssue: 'true'
         targetFile: 'Gemfile'
+        )
       }
     }
 
