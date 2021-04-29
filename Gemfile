@@ -87,6 +87,8 @@ gem 'websocket'
 gem 'jwt'
 gem 'openid_connect'
 
+gem "anyway_config", "~> 2.0"
+
 group :development, :test do
   gem 'aruba'
   gem 'ci_reporter_rspec'
