@@ -55,8 +55,17 @@ pipeline {
     }
 
     stage('Snyk') {
+      tools {
+        snyk 'snyk-latest'
+      }
       steps {
-        snykSecurity severity: 'high', snykInstallation: 'Snyk', snykTokenId: 'snyk-poc-token', organisation: 'Conjur Team'
+        snykSecurity(
+        severity: 'high', 
+        snykInstallation: 'Snyk', 
+        snykTokenId: 'snyk-poc-token', 
+        organisation: 'Conjur Team',
+        faileOnIssue: 'true'
+        targetFile: 'Gemfile'
       }
     }
 
