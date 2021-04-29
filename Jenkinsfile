@@ -64,7 +64,7 @@ pipeline {
         snykInstallation: 'Snyk', 
         snykTokenId: 'snyk-poc-token', 
         organisation: 'Conjur Team',
-        faileOnIssue: 'true'
+        faileOnIssue: 'true',
         targetFile: 'Gemfile'
         )
       }
