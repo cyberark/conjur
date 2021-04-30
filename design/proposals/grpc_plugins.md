@@ -16,7 +16,113 @@ Conjur currently provides some points for extensibility for authentication
 and secrets rotation. However these require the extensions to be implemented
 in the Conjur repository and may not be loaded at runtime.
 
+There are additional opportunities for extension in policy validation and
+automation that will also benefit from extension through third-party plugins as
+we seek to enhance our customers' operational efficiencies.
+
+## Architectural Drivers
+
+There are some key architectural considerations for how a plugin extension
+capability should operate in Conjur.
+
+### Security
+
+Plugins should not compromise the confidentiality, availability, or integrity
+of Conjur secrets management.
+
+- **Confidentiality:**
+
+    While a plugin may interact with secret values as part of its functionality,
+    these interactions must be least privilege and fully audited.
+
+    For example:
+
+    - Conjur plugins must retrieve secret values through the Conjur API using an
+      authenticated session.
+    - Connections between Conjur and Plugins must be encrypted.
+    - Conjur plugins and the Conjur core must not share memory.
+    - Conjur plugins must not have privilege to access the Conjur database.
+
+- **Availability:**
+
+    A defective plugin must not negatively impact the overall performance or
+    availability of Conjur secrets manager services.
+
+    For example:
+
+    - A plugin that crashes must not crash Conjur or cause Conjur
+      services to fail.
+
+- **Integrity:**
+
+    Conjur secrets management is a trusted security platform. As such, the same
+    level of trust and verification must be applied to plugins.
+
+    For example:
+
+    - Conjur plugins must be signed.
+    - The plugin signature and hash must be verified before loading the plugin.
+    - Conjur plugin interactions with Conjur must identifiable and traceable to
+      the plugin.
+    - Conjur plugin lifecyle (install/uninstall) must be audited.
+
+## Availability
+
+In addition to the security concerns for availability addressed in the **Security**
+section, there are further availability drivers for a plugin implementation:
+
+- Plugins should be installed/removed without requiring a system restart.
+
+## Interoperability
+
+- The system should consider that plugins may be developed for different versions
+  of the plugin and Conjur API.
+
+- Plugins may be implemented in programming languages other than Ruby.
+
+## Performance
+
+- Building on the **Security** concerns for availability, the impact of Conjur
+  plugins should be minimized and observable. For example, it should be possible
+  to view a report of how long an API requests spends in each installed plugin.
+
+## Testability
+
+There are testability drivers for both plugin developers and end-users.
+
+- How does a plugin developer test their plugin?
+
+- How does a Conjur secrets manager operator evaluate a plugin for use?
+
 ## Technical Design
+
+### Process Isolation
+
+An important conclusion for the architecture drivers is that plugins must run
+in a separate process space from the Conjur API server. This protects secrets
+stored in memory or the Conjur database. It also protects the Conjur server
+process from software faults in a plugin that could lead to a crash.
+
+### RPC Interface
+
+Process isolation between the Conjur API process and the plugin process dictate
+that a non-memory based communication protocol is required for interaction between
+Conjur and the plugin.
+
+This proposal suggests using a [gRPC-based](https://grpc.io/) framework for
+communication to leverage the benefits of a network based protocol with the
+additional value from strongly typed and versioned interface specifications.
+
+- A network protocol provides excellent support for security considerations (e.g. TLS).
+
+- A strongly spec-ed interface reduces the uncertainty and risk in developing
+a plugin.
+
+- A versioned spec promotes greater interoperability between plugin and Conjur
+  server versions.
+
+- gRPC offers greater specificity and tooling for interface development than
+  HTTP alone.
 
 ### Plugin lifecycle
 
