@@ -48,22 +48,22 @@ pipeline {
       }
     }
 
-    stage('Validate Changelog') {
-      steps {
-        sh 'ci/parse-changelog'
-      }
-    }
-
     stage('Snyk') {
       steps {
         snykSecurity(
         severity: 'high', 
         snykInstallation: 'Snyk', 
         snykTokenId: 'snyk-poc-token', 
-        organisation: 'Conjur Team',
+//        organisation: 'Conjur Team',
         failOnIssues: 'true',
         targetFile: 'Gemfile'
         )
+      }
+    }
+
+    stage('Validate Changelog') {
+      steps {
+        sh 'ci/parse-changelog'
       }
     }
 
