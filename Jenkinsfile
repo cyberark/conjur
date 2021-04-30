@@ -55,14 +55,14 @@ pipeline {
         snykInstallation: 'Snyk', 
         snykTokenId: 'snyk-poc-token', 
         failOnIssues: 'true',
-        targetFile: 'Gemfile'
+        targetFile: 'docs/Gemfile'
         )
         snykSecurity(
         severity: 'high', 
         snykInstallation: 'Snyk', 
         snykTokenId: 'snyk-poc-token', 
         failOnIssues: 'true',
-        targetFile: 'docs/Gemfile'
+        targetFile: 'Gemfile'
         )
       }
     }
