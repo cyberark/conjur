@@ -62,6 +62,7 @@ pipeline {
         snykInstallation: 'Snyk', 
         snykTokenId: 'snyk-poc-token', 
         failOnIssues: 'true'//,
+        
         // targetFile: 'Gemfile'
         )
       }
