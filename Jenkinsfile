@@ -50,13 +50,13 @@ pipeline {
 
     stage('Snyk') {
       steps {
-        snykSecurity(
-        severity: 'low', 
-        snykInstallation: 'Snyk', 
-        snykTokenId: 'snyk-poc-token', 
-        failOnIssues: 'true',
-        targetFile: 'docs/Gemfile'
-        )
+        // snykSecurity(
+        // severity: 'low', 
+        // snykInstallation: 'Snyk', 
+        // snykTokenId: 'snyk-poc-token', 
+        // failOnIssues: 'true',
+        // targetFile: 'docs/Gemfile'
+        // )
         snykSecurity(
         severity: 'low', 
         snykInstallation: 'Snyk', 
