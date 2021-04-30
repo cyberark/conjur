@@ -56,7 +56,7 @@ pipeline {
 
     stage('Snyk') {
       tools {
-        Snyk 'snyk-latest'
+        Snyk
       }
       steps {
         snykSecurity(
@@ -64,7 +64,7 @@ pipeline {
         snykInstallation: 'Snyk', 
         snykTokenId: 'snyk-poc-token', 
         organisation: 'Conjur Team',
-        faileOnIssues: 'true',
+        faileOnIssue: 'true',
         targetFile: 'Gemfile'
         )
       }
