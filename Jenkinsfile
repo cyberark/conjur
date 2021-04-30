@@ -61,8 +61,8 @@ pipeline {
         severity: 'low', 
         snykInstallation: 'Snyk', 
         snykTokenId: 'snyk-poc-token', 
-        failOnIssues: 'true',
-        targetFile: 'Gemfile'
+        failOnIssues: 'true'//,
+        // targetFile: 'Gemfile'
         )
       }
     }
