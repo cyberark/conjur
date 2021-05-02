@@ -327,4 +327,3 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
     end
   end
 end
-
