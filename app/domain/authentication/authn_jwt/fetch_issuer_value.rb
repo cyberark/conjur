@@ -27,18 +27,27 @@ module Authentication
 
       private
 
+      # fetch_issuer_value function is responsible to fetch the issuer secret value,
+      # according to the following logic:
+      # Fetch from `issuer` authenticator resource,
+      # In case `issuer` authenticator resource not configured, then only 1 resource, `provider-uri` or `jwks-uri`,
+      # should be configured.
+      # So the priority is:
+      # 1. issuer
+      # 2. provider-uri or jwks-uri
+      # In case the resource is configured but the not initialized with secret, throw an error
       def fetch_issuer_value
         if issuer_resource_exists?
           @logger.debug(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(resource_id(ISSUER_RESOURCE_NAME)))
 
-          @issuer_value=issuer_secret
+          @issuer_value=issuer_secret_value
         else
           validate_issuer_configuration
 
           if provider_uri_resource_exists?
             @logger.debug(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(resource_id(PROVIDER_URI_RESOURCE_NAME)))
 
-            @issuer_value=provider_uri_secret
+            @issuer_value=provider_uri_secret_value
           elsif jwks_uri_resource_exists?
             @logger.debug(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(resource_id(JWKS_URI_RESOURCE_NAME)))
 
@@ -47,7 +56,6 @@ module Authentication
         end
 
         @logger.debug(LogMessages::Authentication::AuthnJwt::RetrievedIssuerValue.new(@issuer_value))
-        @issuer_value
       end
 
       def issuer_resource_exists?
@@ -66,9 +74,12 @@ module Authentication
         "#{account}:variable:conjur/#{authenticator_name}/#{service_id}/#{resource_name}"
       end
 
+      def issuer_secret_value
+        @issuer_secret_value ||= issuer_secret[resource_id(ISSUER_RESOURCE_NAME)]
+      end
+
       def issuer_secret
         @issuer_secret ||= @fetch_secrets.(resource_ids: [resource_id(ISSUER_RESOURCE_NAME)])
-        @issuer_secret_value ||= @issuer_secret[resource_id(ISSUER_RESOURCE_NAME)]
       end
 
       def validate_issuer_configuration
@@ -98,33 +109,39 @@ module Authentication
         @jwks_uri_resource ||= resource(JWKS_URI_RESOURCE_NAME)
       end
 
+      def provider_uri_secret_value
+        @provider_uri_secret_value ||= provider_uri_secret[resource_id(PROVIDER_URI_RESOURCE_NAME)]
+      end
+
       def provider_uri_secret
         @provider_uri_secret ||= @fetch_secrets.(resource_ids: [resource_id(PROVIDER_URI_RESOURCE_NAME)])
-        @provider_uri_secret_value ||= @provider_uri_secret[resource_id(PROVIDER_URI_RESOURCE_NAME)]
       end
 
       def fetch_issuer_from_jwks_uri_secret
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ParsingIssuerFromUri.new(jwks_uri_secret))
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ParsingIssuerFromUri.new(jwks_uri_secret_value))
 
         begin
-          @issuer_from_jwks_uri_secret ||= URI.parse(jwks_uri_secret).hostname
+          @issuer_from_jwks_uri_secret ||= URI.parse(jwks_uri_secret_value).hostname
         rescue => e
           raise Errors::Authentication::AuthnJwt::InvalidUriFormat.new(
-            jwks_uri_secret,
+            jwks_uri_secret_value,
             e.inspect
           )
         end
 
         if @issuer_from_jwks_uri_secret.blank?
-          raise Errors::Authentication::AuthnJwt::FailedToParseHostnameFromUri, jwks_uri_secret
+          raise Errors::Authentication::AuthnJwt::FailedToParseHostnameFromUri, jwks_uri_secret_value
         end
 
         @issuer_from_jwks_uri_secret
       end
 
+      def jwks_uri_secret_value
+        @jwks_uri_secret_value ||=jwks_uri_secret[resource_id(JWKS_URI_RESOURCE_NAME)]
+      end
+
       def jwks_uri_secret
         @jwks_uri_secret ||= @fetch_secrets.(resource_ids: [resource_id(JWKS_URI_RESOURCE_NAME)])
-        @jwks_uri_secret_value ||=@jwks_uri_secret[resource_id(JWKS_URI_RESOURCE_NAME)]
       end
     end
   end
