@@ -383,6 +383,17 @@ module Errors
         code: "CONJ00072E"
       )
 
+      NoSuchFieldInToken = ::Util::TrackableErrorClass.new(
+        msg: "No such field '{0}' in the token",
+        code: "CONJ00073E"
+      )
+
+      NoRelevantIdentityProvider = ::Util::TrackableErrorClass.new(
+        msg: "No relevant identity provider found." \
+              "Please add `token-app-property` variable and populate it" \
+              "with field in the decoded token that contains the identity",
+        code: "CONJ00074E"
+      )
     end
 
     module ResourceRestrictions

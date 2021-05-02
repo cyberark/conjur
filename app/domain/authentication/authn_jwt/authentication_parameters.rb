@@ -1,5 +1,6 @@
 module Authentication
   module AuthnJwt
+    # Data class to store data regarding jwt token that is needed during the jwt authentication process
     class AuthenticationParameters
       attr_writer :jwt_identity
       attr_reader :authentication_input, :decoded_token

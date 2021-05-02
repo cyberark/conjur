@@ -1,5 +1,6 @@
 module Authentication
   module AuthnJwt
+    # Class for providing jwt identity from the decoded token from the field specified in a secret
     class ConjurIdFromDecodedTokenProvider < IdProviderInterface
 
       attr_accessor :secret_fetcher
@@ -15,7 +16,9 @@ module Authentication
         if @decoded_token.include?(token_field_name)
           @decoded_token[token_field_name]
         else
-          raise "No such field #{token_field_name} in the token"
+          raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken.new(
+            token_field_name
+          )
         end
       end
 
@@ -46,7 +49,7 @@ module Authentication
             return secret.to_sym
           end
         rescue Errors::Conjur::RequiredSecretMissing
-          raise "Variable #{JWT_ID_FIELD_NAME_VARIABLE} is configured but not populated with relevant secret"
+          raise Errors::Conjur::MissingSecretValue, JWT_ID_FIELD_NAME_VARIABLE
         end
       end
     end
