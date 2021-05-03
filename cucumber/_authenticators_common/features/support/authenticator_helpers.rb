@@ -50,6 +50,10 @@ module AuthenticatorHelpers
     http_status == 403
   end
 
+  def not_found?
+    http_status == 404
+  end
+
   def bad_gateway?
     http_status == 502
   end

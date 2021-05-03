@@ -8,9 +8,13 @@ module AuthnOidcHelper
   SERVICE_ID = 'keycloak'
   ACCOUNT = 'cucumber'
 
-  def authenticate_id_token_with_oidc(service_id:, account:, id_token: parsed_id_token)
+  # The OIDC authentication request should not have the host id in its URL.
+  # We add this option here as users can make such a mistake and we want to verify
+  # that we raise a proper error in such a case
+  def authenticate_id_token_with_oidc(service_id:, account:, id_token: parsed_id_token, user_id: "")
     service_id_part = service_id ? "/#{service_id}" : ""
-    path = "#{conjur_hostname}/authn-oidc#{service_id_part}/#{account}/authenticate"
+    user_id_part = user_id ? "/#{user_id}" : ""
+    path = "#{conjur_hostname}/authn-oidc#{service_id_part}/#{account}#{user_id_part}/authenticate"
 
     payload = {}
     unless id_token.nil?

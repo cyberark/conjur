@@ -201,3 +201,21 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     """
     cucumber:user:bob failed to authenticate with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak
     """
+
+  Scenario: Request with an existing user ID in URL is responded with not found
+    Given I save my place in the log file
+    When I authenticate via OIDC with no id token and user id "alice" in the request
+    Then it is not found
+    And The following appears in the log after my savepoint:
+    """
+    ActionController::RoutingError (No route matches [POST] "/authn-oidc/keycloak/cucumber/alice/authenticate")
+    """
+
+  Scenario: Request with a non-existing user ID in URL is responded with not found
+    Given I save my place in the log file
+    When I authenticate via OIDC with no id token and user id "non-exist" in the request
+    Then it is not found
+    And The following appears in the log after my savepoint:
+    """
+    ActionController::RoutingError (No route matches [POST] "/authn-oidc/keycloak/cucumber/non-exist/authenticate")
+    """
