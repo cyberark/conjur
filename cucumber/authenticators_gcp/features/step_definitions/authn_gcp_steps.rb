@@ -87,6 +87,14 @@ Given(/I authenticate with authn-gcp using a valid GCF identity token/) do
   )
 end
 
+Given(/I authenticate with authn-gcp using no token( and user id "([^"]*)" in the request)?$/) do |user_id|
+  authenticate_gcp_token(
+    account: AuthnGcpHelper::ACCOUNT,
+    gcp_token: nil,
+    user_id: user_id
+  )
+end
+
 Given(/^I obtain an? (valid|standard_format|user_audience|invalid_audience|non_existing_host|non_rooted_host|non_existing_account) GCE identity token$/) do |token_type|
   gce_identity_access_token(
     token_type.to_sym

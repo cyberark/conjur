@@ -129,3 +129,21 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     """
     cucumber:host:test-app successfully authenticated with authenticator authn-gcp service cucumber:webservice:conjur/authn-gcp
     """
+
+  Scenario: Requests with an existing user ID in URL is responded with not found
+    Given I save my place in the log file
+    When I authenticate with authn-gcp using no token and user id "host%2Ftest-app" in the request
+    Then it is not found
+    And The following appears in the log after my savepoint:
+    """
+    ActionController::RoutingError (No route matches [POST] "/authn-gcp/cucumber/host%2Ftest-app/authenticate")
+    """
+
+  Scenario: Requests with a non-existing user ID in URL is responded with not found
+    Given I save my place in the log file
+    When I authenticate with authn-gcp using no token and user id "host%2Fnon-existing" in the request
+    Then it is not found
+    And The following appears in the log after my savepoint:
+    """
+    ActionController::RoutingError (No route matches [POST] "/authn-gcp/cucumber/host%2Fnon-existing/authenticate")
+    """
