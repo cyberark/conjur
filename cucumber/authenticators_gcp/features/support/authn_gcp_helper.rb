@@ -31,8 +31,9 @@ module AuthnGcpHelper
     @gcf_service_account_id ||= validated_env_var('GCF_SERVICE_ACCOUNT_ID')
   end
 
-  def authenticate_gcp_token(account:, gcp_token:)
-    path_uri = "#{conjur_hostname}/authn-gcp/#{account}/authenticate"
+  def authenticate_gcp_token(account:, gcp_token:, user_id: "")
+    user_id_part = user_id ? "/#{user_id}" : ""
+    path_uri = "#{conjur_hostname}/authn-gcp/#{account}#{user_id_part}/authenticate"
 
     payload = {}
     payload["jwt"] = gcp_token
