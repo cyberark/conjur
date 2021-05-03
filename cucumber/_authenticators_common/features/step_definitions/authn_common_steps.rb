@@ -19,6 +19,10 @@ Then(/it is forbidden/) do
   expect(forbidden?).to be(true), "http status is #{http_status}"
 end
 
+Then(/it is not found/) do
+  expect(not_found?).to be(true), "http status is #{http_status}"
+end
+
 Then(/it is gateway timeout/) do
   expect(gateway_timeout?).to be(true), "http status is #{http_status} & rest client error is #{rest_client_error.class}"
 end

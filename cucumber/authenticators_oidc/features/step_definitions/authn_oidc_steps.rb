@@ -50,11 +50,12 @@ When(/^I authenticate via OIDC with id token and account "([^"]*)"$/) do |accoun
   )
 end
 
-When(/^I authenticate via OIDC with no id token$/) do
+When(/^I authenticate via OIDC with no id token( and user id "([^"]*)" in the request)?$/) do |user_id|
   authenticate_id_token_with_oidc(
     service_id: AuthnOidcHelper::SERVICE_ID,
     account: AuthnOidcHelper::ACCOUNT,
-    id_token: nil
+    id_token: nil,
+    user_id: user_id
   )
 end
 
