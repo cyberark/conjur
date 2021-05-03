@@ -1,17 +1,17 @@
 module Authentication
   module AuthnJwt
     # Mock JWTConfiguration class to use it to develop other part in the jwt authenticator
-    class ConfigurationDummyVendor < ConfigurationInterface
-      def self.jwt_id(authentication_parameters)
-        id_provider = Authentication::AuthnJwt::IdProviderFactory.relevant_id_provider(authentication_parameters)
-        id_provider.provide_jwt_id
+    class ConfigurationJWTGenericVendor < ConfigurationInterface
+      def self.jwt_identity(authentication_parameters)
+        id_provider = Authentication::AuthnJwt::IdentityProviderFactory.new(authentication_parameters).relevant_id_provider
+        id_provider.provide_jwt_identity
       end
 
-      def self.validate_restrictions
+      def self.validate_restrictions(authentication_parameters)
         true
       end
 
-      def self.validate_and_decode_token(jwt_token)
+      def self.validate_and_decode_token(authentication_parameters)
         # Dummy decoded jwt token. Will be replaced on implementation
         {
           "namespace_id": "1",

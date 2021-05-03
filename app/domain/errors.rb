@@ -388,11 +388,18 @@ module Errors
         code: "CONJ00073E"
       )
 
-      NoRelevantIdentityProvider = ::Util::TrackableErrorClass.new(
-        msg: "No relevant identity provider found." \
-              "Please add `token-app-property` variable and populate it" \
-              "with field in the decoded token that contains the identity",
+      NoUsernameInTheURL = ::Util::TrackableErrorClass.new(
+        msg: "No username in the URL",
         code: "CONJ00074E"
+      )
+
+      NoRelevantIdentityProvider = ::Util::TrackableErrorClass.new(
+        msg: "Failed to fetch the application identity." \
+              "Please do one of the following options:" \
+              "1. Send the identity in the URL" \
+              "2. Please add `token-app-property` variable and populate it" \
+              "   with field in the decoded token that contains the identity",
+        code: "CONJ00075E"
       )
     end
 

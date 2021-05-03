@@ -3,7 +3,7 @@ module Authentication
     # Factory that receives a vendor name and returns the appropriate JWT vendor configuration class
     class ConfigurationFactory
       VENDORS = {
-        "dummy" => ConfigurationDummyVendor
+        "dummy" => ConfigurationJWTGenericVendor
       }
 
       def create_jwt_configuration(vendor)

@@ -16,7 +16,7 @@ RSpec.describe('Authentication::AuthnJwt::IdFromUrlProvider') do
       credentials: "dummy",
       client_ip: "dummy",
       request: "dummy"
-    ), {})
+    ))
   }
 
   let(:authentication_parameters_no_url_identity) {
@@ -28,7 +28,7 @@ RSpec.describe('Authentication::AuthnJwt::IdFromUrlProvider') do
       credentials: "dummy",
       client_ip: "dummy",
       request: "dummy"
-    ), {})
+    ))
   }
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
@@ -39,29 +39,29 @@ RSpec.describe('Authentication::AuthnJwt::IdFromUrlProvider') do
   context "IdFromUrlProvider" do
     context "There is identity in the url" do
       subject do
-        ::Authentication::AuthnJwt::IdFromUrlProvider.new(authentication_parameters_url_identity)
+        ::Authentication::AuthnJwt::IdentityFromUrlProvider.new(authentication_parameters_url_identity)
       end
 
       it "id_available? return true" do
-        expect(subject.id_available?).to eql(true)
+        expect(subject.identity_available?).to eql(true)
       end
 
       it "provide_jwt_id to provide identity from url successfully" do
-        expect(subject.provide_jwt_id).to eql("dummy_identity")
+        expect(subject.provide_jwt_identity).to eql("dummy_identity")
       end
     end
 
     context "There is no identity in the url" do
       subject do
-        ::Authentication::AuthnJwt::IdFromUrlProvider.new(authentication_parameters_no_url_identity)
+        ::Authentication::AuthnJwt::IdentityFromUrlProvider.new(authentication_parameters_no_url_identity)
       end
 
       it "id_available? return false" do
-        expect(subject.id_available?).to eql(false)
+        expect(subject.identity_available?).to eql(false)
       end
 
-      it "provide_jwt_id to reurn nil" do
-        expect(subject.provide_jwt_id).to eql(nil)
+      it "provide_jwt_id to raise NoUsernameInTheURL" do
+        expect { subject.provide_jwt_identity }.to raise_error(Errors::Authentication::AuthnJwt::NoRelevantIdentityProvider)
       end
     end
   end

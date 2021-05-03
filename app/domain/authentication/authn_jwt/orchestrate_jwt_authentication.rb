@@ -7,7 +7,8 @@ module Authentication
     OrchestrateAuthentication ||= CommandClass.new(
       dependencies: {
         jwt_configuration_factory: ConfigurationFactory.new,
-        jwt_authenticator: Authentication::AuthnJwt::Authenticate.new
+        jwt_authenticator: Authentication::AuthnJwt::Authenticate.new,
+        logger: Rails.logger
       },
       inputs: %i[authenticator_input]
     ) do
@@ -19,7 +20,10 @@ module Authentication
       private
 
       def authenticate_jwt
-        jwt_vendor_configuration = @jwt_configuration_factory.create_jwt_configuration(vendor)
+        relevant_vendor = vendor
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ParsingIssuerFromUri.new(relevant_vendor))
+
+        jwt_vendor_configuration = @jwt_configuration_factory.create_jwt_configuration(relevant_vendor)
         @jwt_authenticator.call(
           jwt_configuration: jwt_vendor_configuration,
           authenticator_input: @authenticator_input
