@@ -57,7 +57,7 @@ spec:
         app: postgres
     spec:
       containers:
-      - image: postgres:10.14
+      - image: postgres:10.16
         imagePullPolicy: Always
         name: postgres
         env:
