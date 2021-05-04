@@ -28,9 +28,10 @@ module Conjur
         @logger.debug("Conjur::FeatureFlags::Features#enabled? - feature flag name: '#{feature_name.inspect}'")
         raise InvalidArguement unless feature_name.is_a?(Symbol)
 
-        symbolized_feature_name = feature_name.downcase
-        result = @enabled_features.key?(symbolized_feature_name) &&
-          @enabled_features[symbolized_feature_name]
+        result =
+          @enabled_features.key?(feature_name) &&
+          @enabled_features[feature_name]
+
         @logger.debug("Conjur::FeatureFlags::Features#enabled? result: '#{result}'")
         result
       end
