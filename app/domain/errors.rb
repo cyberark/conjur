@@ -393,6 +393,16 @@ module Errors
         code: "CONJ00174E"
       )
 
+      InvalidUriConfiguration = ::Util::TrackableErrorClass.new(
+        msg: "Uri authenticator configuration is invalid. It should configured as authenticator variables: " \
+              "one of the following: '{0-resource-name}','{1-resource-name}'",
+        code: "CONJ00070E"
+      )
+
+      FetchJwksKeysFailed = ::Util::TrackableErrorClass.new(
+        msg: "Failed to fetch keys from Jwks Uri (JWKS URI: '{0}'). Reason: '{1}'",
+        code: "CONJ00012E"
+      )
       NoRelevantIdentityProvider = ::Util::TrackableErrorClass.new(
         msg: "Failed to fetch the application identity." \
               "Please do one of the following options:" \
@@ -458,11 +468,6 @@ module Errors
       RoleMissingRequiredConstraints = ::Util::TrackableErrorClass.new(
         msg: "Role must have at least one of the following constraints: {0-constraints}",
         code: "CONJ00069E"
-      )
-
-      RoleMissingAnyConstraints =  ::Util::TrackableErrorClass.new(
-        msg: "Role must have at least one constraint",
-        code: "CONJ00070E"
       )
 
     end
