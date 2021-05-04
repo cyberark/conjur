@@ -424,6 +424,16 @@ module Errors
         msg: "Failed to fetch keys from Jwks Uri (JWKS URI: '{0}'). Reason: '{1}'",
         code: "CONJ00012E"
       )
+      InvalidUriConfiguration = ::Util::TrackableErrorClass.new(
+        msg: "Uri authenticator configuration is invalid. It should configured as authenticator variables: " \
+              "one of the following: '{0-resource-name}','{1-resource-name}'",
+        code: "CONJ00070E"
+      )
+
+      FetchJwksKeysFailed = ::Util::TrackableErrorClass.new(
+        msg: "Failed to fetch keys from Jwks Uri (JWKS URI: '{0}'). Reason: '{1}'",
+        code: "CONJ00012E"
+      )
     end
 
     module ResourceRestrictions
