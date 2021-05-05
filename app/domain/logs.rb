@@ -290,6 +290,55 @@ module LogMessages
         code: "CONJ00056D"
       )
 
+      JWTAuthenticatorEntryPoint = ::Util::TrackableLogMessageClass.new(
+        msg: "Entered jwt authentication flow for vendor '{0}'",
+        code: "CONJ00057D"
+      )
+
+      URL_IDENTITY_PROVIDER_SELECTED = ::Util::TrackableLogMessageClass.new(
+        msg: "JWT Identity in url is available and will be retrieved from it",
+        code: "CONJ00058D"
+      )
+
+      DECODED_TOKEN_IDENTITY_PROVIDER_SELECTED = ::Util::TrackableLogMessageClass.new(
+        msg: "JWT Identity in decoded token is available and will be retrieved from it",
+        code: "CONJ00059D"
+      )
+
+      LOOKING_FOR_IDENTITY_FIELD_NAME = ::Util::TrackableLogMessageClass.new(
+        msg: "Looking for variable field name in '{0}'",
+        code: "CONJ00060D"
+      )
+
+      CHECKING_IDENTITY_FIELD_EXISTS = ::Util::TrackableLogMessageClass.new(
+        msg: "Checking if the field exists",
+        code: "CONJ00061D"
+      )
+
+      CREATING_AUTHENTICATION_PARAMETERS_OBJECT = ::Util::TrackableLogMessageClass.new(
+        msg: "Creating authentication parameters objects",
+        code: "CONJ00062D"
+      )
+
+      VALIDATE_AND_DECODE_TOKEN = ::Util::TrackableLogMessageClass.new(
+        msg: "Validate and decode token",
+        code: "CONJ00063D"
+      )
+
+      GET_JWT_IDENTITY = ::Util::TrackableLogMessageClass.new(
+        msg: "Getting JWT Identity",
+        code: "CONJ00064D"
+      )
+
+      CHECKING_IDENTITY_FIELD_EXISTS = ::Util::TrackableLogMessageClass.new(
+        msg: "Checking if the field exists",
+        code: "CONJ00065D"
+      )
+
+      JWT_AUTHENTICATION_PASSED = ::Util::TrackableLogMessageClass.new(
+        msg: "JWT authentication passed successfully",
+        code: "CONJ00066D"
+      )
     end
   end
 
