@@ -351,7 +351,7 @@ module LogMessages
       )
 
       AddingJwtClaimToValidate = ::Util::TrackableLogMessageClass.new(
-        msg: "Adding JWT claim '{0-claim-name}' to validate",
+        msg: "Adding JWT claim '{0-claim-name}' to list of mandatory claims to be validated",
         code: "CONJ00069D"
       )
 
