@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnJwt::FetchMandatoryClaimsToValidate') do
+RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
 
   RSpec::Matchers.define :eql_claims_list do |expected|
     match do |actual|
@@ -23,13 +23,13 @@ RSpec.describe('Authentication::AuthnJwt::FetchMandatoryClaimsToValidate') do
   let(:iss_claim_valid_value) { "iss claim valid value" }
   let(:token_claim_value) { "value" }
 
-  def mandatory_claims_to_validate_list_with_values(optional_claims)
-    mandatory_claims_to_validate_list = []
+  def jwt_claims_to_validate_list_with_values(optional_claims)
+    jwt_claims_to_validate_list = []
     optional_claims.each do |optional_claim|
-      mandatory_claims_to_validate_list.push(::Authentication::AuthnJwt::JwtMandatoryClaim.new(name: optional_claim, value: claim_value(optional_claim)))
+      jwt_claims_to_validate_list.push(::Authentication::AuthnJwt::JwtClaim.new(name: optional_claim, value: claim_value(optional_claim)))
     end
 
-    mandatory_claims_to_validate_list
+    jwt_claims_to_validate_list
   end
 
   def claim_value(optional_claim)
@@ -129,15 +129,15 @@ RSpec.describe('Authentication::AuthnJwt::FetchMandatoryClaimsToValidate') do
     context "with all supported optional claims: (iss, exp, nbf, iat)" do
       context "with valid issuer variable configuration in authenticator policy" do
         subject do
-          ::Authentication::AuthnJwt::FetchMandatoryClaimsToValidate.new(
+          ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
             fetch_issuer_value: mocked_fetch_issuer_value_valid
           ).call(
             authentication_parameters: mocked_authentication_parameters_with_all_supported_optional_claims_token
           )
         end
 
-        it "returns mandatory claims to validate list" do
-          expect(subject).to eql_claims_list(mandatory_claims_to_validate_list_with_values(all_supported_optional_claims))
+        it "returns jwt claims to validate list" do
+          expect(subject).to eql_claims_list(jwt_claims_to_validate_list_with_values(all_supported_optional_claims))
         end
       end
     end
@@ -145,21 +145,21 @@ RSpec.describe('Authentication::AuthnJwt::FetchMandatoryClaimsToValidate') do
     context "with just iss claim" do
       context "with valid issuer variable configuration in authenticator policy" do
         subject do
-          ::Authentication::AuthnJwt::FetchMandatoryClaimsToValidate.new(
+          ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
             fetch_issuer_value: mocked_fetch_issuer_value_valid
           ).call(
             authentication_parameters: mocked_authentication_parameters_with_just_iss_claim_token
           )
         end
 
-        it "returns mandatory claims to validate list" do
-          expect(subject).to eql_claims_list(mandatory_claims_to_validate_list_with_values(%w[iss].freeze))
+        it "returns jwt claims to validate list" do
+          expect(subject).to eql_claims_list(jwt_claims_to_validate_list_with_values(%w[iss].freeze))
         end
       end
 
       context "with invalid issuer variable configuration" do
         subject do
-          ::Authentication::AuthnJwt::FetchMandatoryClaimsToValidate.new(
+          ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
             fetch_issuer_value: mocked_fetch_issuer_value_invalid_configuration
           ).call(
             authentication_parameters: mocked_authentication_parameters_with_just_iss_claim_token
@@ -175,15 +175,15 @@ RSpec.describe('Authentication::AuthnJwt::FetchMandatoryClaimsToValidate') do
     context "with just exp claim" do
       context "with valid issuer variable configuration in authenticator policy" do
         subject do
-          ::Authentication::AuthnJwt::FetchMandatoryClaimsToValidate.new(
+          ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
             fetch_issuer_value: mocked_fetch_issuer_value_valid
           ).call(
             authentication_parameters: mocked_authentication_parameters_with_just_exp_claim_token
           )
         end
 
-        it "returns mandatory claims to validate list" do
-          expect(subject).to eql_claims_list(mandatory_claims_to_validate_list_with_values(%w[exp].freeze))
+        it "returns jwt claims to validate list" do
+          expect(subject).to eql_claims_list(jwt_claims_to_validate_list_with_values(%w[exp].freeze))
         end
       end
     end
@@ -191,15 +191,15 @@ RSpec.describe('Authentication::AuthnJwt::FetchMandatoryClaimsToValidate') do
     context "with just nbf claim" do
       context "with valid issuer variable configuration in authenticator policy" do
         subject do
-          ::Authentication::AuthnJwt::FetchMandatoryClaimsToValidate.new(
+          ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
             fetch_issuer_value: mocked_fetch_issuer_value_valid
           ).call(
             authentication_parameters: mocked_authentication_parameters_with_just_nbf_claim_token
           )
         end
 
-        it "returns mandatory claims to validate list" do
-          expect(subject).to eql_claims_list(mandatory_claims_to_validate_list_with_values(%w[nbf].freeze))
+        it "returns jwt claims to validate list" do
+          expect(subject).to eql_claims_list(jwt_claims_to_validate_list_with_values(%w[nbf].freeze))
         end
       end
     end
@@ -207,29 +207,29 @@ RSpec.describe('Authentication::AuthnJwt::FetchMandatoryClaimsToValidate') do
     context "with just iat claim" do
       context "with valid issuer variable configuration in authenticator policy" do
         subject do
-          ::Authentication::AuthnJwt::FetchMandatoryClaimsToValidate.new(
+          ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
             fetch_issuer_value: mocked_fetch_issuer_value_valid
           ).call(
             authentication_parameters: mocked_authentication_parameters_with_just_iat_claim_token
           )
         end
 
-        it "returns mandatory claims to validate list" do
-          expect(subject).to eql_claims_list(mandatory_claims_to_validate_list_with_values(%w[iat].freeze))
+        it "returns jwt claims to validate list" do
+          expect(subject).to eql_claims_list(jwt_claims_to_validate_list_with_values(%w[iat].freeze))
         end
       end
     end
 
     context "with empty token (should not happened)" do
       subject do
-        ::Authentication::AuthnJwt::FetchMandatoryClaimsToValidate.new(
+        ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
           fetch_issuer_value: mocked_fetch_issuer_value_valid
         ).call(
           authentication_parameters: mocked_authentication_parameters_with_empty_token
         )
       end
 
-      it "returns mandatory claims to validate list" do
+      it "returns jwt claims to validate list" do
         expect(subject).to eql([])
       end
     end
@@ -237,28 +237,28 @@ RSpec.describe('Authentication::AuthnJwt::FetchMandatoryClaimsToValidate') do
     context "with none of supported optional claims" do
       context "with valid issuer variable configuration in authenticator policy" do
         subject do
-          ::Authentication::AuthnJwt::FetchMandatoryClaimsToValidate.new(
+          ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
             fetch_issuer_value: mocked_fetch_issuer_value_valid
           ).call(
             authentication_parameters: mocked_authentication_parameters_with_no_optional_claims_token
           )
         end
 
-        it "returns mandatory claims to validate list" do
+        it "returns jwt claims to validate list" do
           expect(subject).to eql([])
         end
       end
 
       context "with invalid issuer variable configuration" do
         subject do
-          ::Authentication::AuthnJwt::FetchMandatoryClaimsToValidate.new(
+          ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
             fetch_issuer_value: mocked_fetch_issuer_value_invalid_configuration
           ).call(
             authentication_parameters: mocked_authentication_parameters_with_no_optional_claims_token
           )
         end
 
-        it "returns mandatory claims to validate list" do
+        it "returns jwt claims to validate list" do
           expect(subject).to eql([])
         end
       end
@@ -267,29 +267,29 @@ RSpec.describe('Authentication::AuthnJwt::FetchMandatoryClaimsToValidate') do
     context "with all except iss: (exp, nbf, iat)" do
       context "with valid issuer variable configuration in authenticator policy" do
         subject do
-          ::Authentication::AuthnJwt::FetchMandatoryClaimsToValidate.new(
+          ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
             fetch_issuer_value: mocked_fetch_issuer_value_valid
           ).call(
             authentication_parameters: mocked_authentication_parameters_with_all_except_iss_claim_token
           )
         end
 
-        it "returns mandatory claims to validate list" do
-          expect(subject).to eql_claims_list(mandatory_claims_to_validate_list_with_values(%w[exp nbf iat].freeze))
+        it "returns jwt claims to validate list" do
+          expect(subject).to eql_claims_list(jwt_claims_to_validate_list_with_values(%w[exp nbf iat].freeze))
         end
       end
 
       context "with invalid issuer variable configuration" do
         subject do
-          ::Authentication::AuthnJwt::FetchMandatoryClaimsToValidate.new(
+          ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
             fetch_issuer_value: mocked_fetch_issuer_value_invalid_configuration
           ).call(
             authentication_parameters: mocked_authentication_parameters_with_all_except_iss_claim_token
           )
         end
 
-        it "returns mandatory claims to validate list" do
-          expect(subject).to eql_claims_list(mandatory_claims_to_validate_list_with_values(%w[exp nbf iat].freeze))
+        it "returns jwt claims to validate list" do
+          expect(subject).to eql_claims_list(jwt_claims_to_validate_list_with_values(%w[exp nbf iat].freeze))
         end
       end
     end
@@ -297,15 +297,15 @@ RSpec.describe('Authentication::AuthnJwt::FetchMandatoryClaimsToValidate') do
     context "with all except exp: (iss, nbf, iat)" do
       context "with valid issuer variable configuration in authenticator policy" do
         subject do
-          ::Authentication::AuthnJwt::FetchMandatoryClaimsToValidate.new(
+          ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
             fetch_issuer_value: mocked_fetch_issuer_value_valid
           ).call(
             authentication_parameters: mocked_authentication_parameters_with_all_except_exp_claim_token
           )
         end
 
-        it "returns mandatory claims to validate list" do
-          expect(subject).to eql_claims_list(mandatory_claims_to_validate_list_with_values(%w[iss nbf iat].freeze))
+        it "returns jwt claims to validate list" do
+          expect(subject).to eql_claims_list(jwt_claims_to_validate_list_with_values(%w[iss nbf iat].freeze))
         end
       end
     end
@@ -313,15 +313,15 @@ RSpec.describe('Authentication::AuthnJwt::FetchMandatoryClaimsToValidate') do
     context "with all except nbf: (iss, exp, iat)" do
       context "with valid issuer variable configuration in authenticator policy" do
         subject do
-          ::Authentication::AuthnJwt::FetchMandatoryClaimsToValidate.new(
+          ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
             fetch_issuer_value: mocked_fetch_issuer_value_valid
           ).call(
             authentication_parameters: mocked_authentication_parameters_with_all_except_nbf_claim_token
           )
         end
 
-        it "returns mandatory claims to validate list" do
-          expect(subject).to eql_claims_list(mandatory_claims_to_validate_list_with_values(%w[iss exp iat].freeze))
+        it "returns jwt claims to validate list" do
+          expect(subject).to eql_claims_list(jwt_claims_to_validate_list_with_values(%w[iss exp iat].freeze))
         end
       end
     end
@@ -329,15 +329,15 @@ RSpec.describe('Authentication::AuthnJwt::FetchMandatoryClaimsToValidate') do
     context "with all except iat: (iss, exp, nbf)" do
       context "with valid issuer variable configuration in authenticator policy" do
         subject do
-          ::Authentication::AuthnJwt::FetchMandatoryClaimsToValidate.new(
+          ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
             fetch_issuer_value: mocked_fetch_issuer_value_valid
           ).call(
             authentication_parameters: mocked_authentication_parameters_with_all_except_iat_claim_token
           )
         end
 
-        it "returns mandatory claims to validate list" do
-          expect(subject).to eql_claims_list(mandatory_claims_to_validate_list_with_values(%w[iss exp nbf].freeze))
+        it "returns jwt claims to validate list" do
+          expect(subject).to eql_claims_list(jwt_claims_to_validate_list_with_values(%w[iss exp nbf].freeze))
         end
       end
     end
