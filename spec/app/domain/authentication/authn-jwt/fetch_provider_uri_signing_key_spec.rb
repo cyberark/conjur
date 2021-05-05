@@ -22,6 +22,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
   let(:mocked_provider_uri) { double("Mocked provider uri")  }
 
   let(:mocked_valid_discover_identity_result) { "some jwks" }
+  let(:valid_jwks_result) { {:keys=> mocked_valid_discover_identity_result} }
 
   before(:each) do
     allow(mocked_logger).to(
@@ -116,7 +117,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error
+          expect { subject }.to raise_error(required_discover_identity_error)
         end
       end
 
@@ -130,7 +131,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
         end
 
         it "does not raise error" do
-          expect(subject).to eql(mocked_valid_discover_identity_result)
+          expect(subject).to eql(valid_jwks_result)
         end
       end
     end

@@ -112,7 +112,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateSigningKeyInterface') do
       end
 
       it "raises an error" do
-        expect { subject }.to_not raise_error(Errors::Authentication::AuthnJwt::InvalidUriConfiguration)
+        expect { subject }.to_not raise_error
       end
     end
 
@@ -129,7 +129,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateSigningKeyInterface') do
       end
 
       it "raises an error" do
-        expect { subject }.to_not raise_error(Errors::Authentication::AuthnJwt::InvalidUriConfiguration)
+        expect { subject }.to_not raise_error
       end
     end
 

@@ -64,7 +64,7 @@ module Authentication
 
       def fetch_provider_keys
         @logger.debug(LogMessages::Authentication::OAuth::FetchProviderKeysSuccess.new)
-        @discovered_provider.jwks
+        { keys: @discovered_provider.jwks }
       rescue => e
         raise Errors::Authentication::OAuth::FetchProviderKeysFailed.new(
           @provider_uri,

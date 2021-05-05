@@ -22,7 +22,11 @@ module Authentication
         @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwtClaimsToValidate.new)
         validate_decoded_token_exists
         fetch_jwt_claims_to_validate
-        @logger.debug(LogMessages::Authentication::AuthnJwt::FetchedJwtClaimsToValidate.new)
+        @logger.debug(
+          LogMessages::Authentication::AuthnJwt::FetchedJwtClaimsToValidate.new(
+            jwt_claims_names_to_validate
+          )
+        )
 
         jwt_claims_to_validate
       end
@@ -43,7 +47,6 @@ module Authentication
 
       def add_mandatory_claims_to_jwt_claims_list
         MANDATORY_CLAIMS.each do |mandatory_claim|
-          @logger.debug(LogMessages::Authentication::AuthnJwt::AddingJwtClaimToValidate.new(mandatory_claim))
           add_to_jwt_claims_list(mandatory_claim)
         end
       end
@@ -52,9 +55,7 @@ module Authentication
         OPTIONAL_CLAIMS.each do |optional_claim|
           @logger.debug(LogMessages::Authentication::AuthnJwt::CheckingJwtClaimToValidate.new(optional_claim))
 
-          if decoded_token[optional_claim]
-            add_to_jwt_claims_list(optional_claim)
-          end
+          add_to_jwt_claims_list(optional_claim) if decoded_token[optional_claim]
         end
       end
 
@@ -76,12 +77,18 @@ module Authentication
       def claim_value(claim)
         case claim
         when ISS_CLAIM_NAME
-          return @fetch_issuer_value.(@authentication_parameters)
+          return @fetch_issuer_value.call(
+            authentication_parameters: @authentication_parameters
+          )
         else
           # Claims that do not need an additional value to be validated will be set with nil value
           # For example: exp, nbf, iat
           nil
         end
+      end
+
+      def jwt_claims_names_to_validate
+        @jwt_claims_names_to_validate ||= (jwt_claims_to_validate.map {|claim| claim.name }).to_s
       end
     end
   end
