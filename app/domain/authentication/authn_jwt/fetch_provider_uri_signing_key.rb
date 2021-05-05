@@ -3,21 +3,23 @@ module Authentication
     # This class is responsible for fetching JWK Set from provider-uri
     class FetchProviderUriSigningKey < FetchSigningKeyInterface
 
-      def initialize(authenticator_input)
-        @logger = Rails.logger
-        @discover_identity_provider = OAuth::DiscoverIdentityProvider.new
-        @fetch_required_secrets = Conjur::FetchRequiredSecrets.new
-        @resource_class = ::Resource
-        @authenticator_input = authenticator_input
+      def initialize(authenticator_parameters,
+                     logger,
+                     fetch_required_secrets,
+                     resource_class)
+        @logger = logger
+        @resource_id = authenticator_parameters.authenticator_resource_id
+        @fetch_required_secrets = fetch_required_secrets
+        @resource_class = resource_class
+        @fetch_provider_key = Authentication::OAuth::FetchProviderKeys.new
       end
 
-      def has_valid_configuration
+      def has_valid_configuration?
         @provier_uri_resource_exists ||= provider_uri_resource_exists?
       end
 
       def fetch_signing_key
-        discover_provider
-        fetch_provider_keys
+        @fetch_provider_key.call(provider_uri)
       end
 
       private
@@ -34,16 +36,6 @@ module Authentication
         @resource_class[resource_id(resource_name)]
       end
 
-      def discover_provider
-        discovered_provider
-      end
-
-      def discovered_provider
-        @discovered_provider ||= @discover_identity_provider.(
-          provider_uri: provider_uri
-        )
-      end
-
       def provider_uri
         @logger.debug(LogMessages::Authentication::AuthnJwt::ProviderUriResourceNameConfiguration.new(provider_uri_resource_id))
         @provider_uri ||= provider_uri_secret[provider_uri_resource_id]
@@ -54,21 +46,7 @@ module Authentication
       end
 
       def provider_uri_resource_id
-        "#{@authenticator_input.account}:variable:conjur/#{@authenticator_input.authenticator_name}/#{@authenticator_input.service_id}/#{PROVIDER_URI_RESOURCE_NAME}"
-      end
-
-      def fetch_provider_keys
-        jwks = {
-          keys: discovered_provider.jwks
-        }
-        algs = discovered_provider.id_token_signing_alg_values_supported
-        @logger.debug(LogMessages::Authentication::OAuth::FetchProviderUriKeysSuccess.new)
-        OAuth::ProviderKeys.new(jwks, algs)
-      rescue => e
-        raise Errors::Authentication::OAuth::FetchProviderKeysFailed.new(
-          @provider_uri,
-          e.inspect
-        )
+        "#{@resource_id}/#{PROVIDER_URI_RESOURCE_NAME}"
       end
     end
   end

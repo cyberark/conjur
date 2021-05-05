@@ -6,5 +6,6 @@ module Authentication
     JWKS_URI_RESOURCE_NAME = "jwks-uri"
     ISSUER_RESOURCE_NAME = "issuer"
     IDENTITY_FIELD_VARIABLE = "token-app-property"
+    JWKS_ALGORITHM = "RS256"
   end
 end
