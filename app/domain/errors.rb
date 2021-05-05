@@ -425,20 +425,55 @@ module Errors
         code: "CONJ00178E"
       )
 
-      InvalidUriConfiguration = ::Util::TrackableErrorClass.new(
-        msg: "Signing key uri authenticator configuration is invalid. It should configured as authenticator variables: " \
-              "one of the following: '{0-resource-name}','{1-resource-name}'",
+      FetchJwksKeysFailed = ::Util::TrackableErrorClass.new(
+        msg: "Failed to fetch JWKS from '{0-uri}'. Reason: '{1}'",
         code: "CONJ00179E"
       )
 
-      FetchJwksKeysFailed = ::Util::TrackableErrorClass.new(
-        msg: "Failed to fetch jwks from '{0-uri}'. Reason: '{1}'",
+      FetchJwksUriKeysNotFound = ::Util::TrackableErrorClass.new(
+        msg: "Fetched JWKS not found in response: '{0-base64-response}'",
         code: "CONJ00180E"
       )
 
-      FetchJwksUriKeysNotFound = ::Util::TrackableErrorClass.new(
-        msg: "Fetched jwks not found in response: {0}",
+
+      UnsupportedClaim = ::Util::TrackableErrorClass.new(
+        msg: "Claim '{0-claim}' does not support fetching the application identity",
         code: "CONJ00181E"
+      )
+
+      MissingClaimValue = ::Util::TrackableErrorClass.new(
+        msg: "Claim '{0-claim}' value is empty or not found.",
+        code: "CONJ00182E"
+      )
+
+      MissingMandatoryClaim = ::Util::TrackableErrorClass.new(
+        msg: "Failed to validate token, mandatory claim '{0-claim}' is missing.",
+        code: "CONJ00183E"
+      )
+
+      UnsupportedAuthenticator = ::Util::TrackableErrorClass.new(
+        msg: "Authenticator '{0-authenticator-name}' is unsupported.",
+        code: "CONJ00184E"
+      )
+
+      FailedToConvertResponseToJwks = ::Util::TrackableErrorClass.new(
+        msg: "Failed to convert http response '{0-base64-response}' to JWKS type. Reason: '{1}'",
+        code: "CONJ00185E"
+      )
+
+      MissingHttpResponse = ::Util::TrackableErrorClass.new(
+        msg: "Http response is empty or not found.",
+        code: "CONJ00186E"
+      )
+
+      MissingClaim = ::Util::TrackableErrorClass.new(
+        msg: "Claim is empty or not found.",
+        code: "CONJ00187E"
+      )
+
+      InvalidHttpResponseFormat = ::Util::TrackableErrorClass.new(
+        msg: "Http response is of invalid format.",
+        code: "CONJ00188E"
       )
 
     end

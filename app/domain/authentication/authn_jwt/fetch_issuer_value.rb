@@ -11,10 +11,10 @@ module Authentication
         fetch_secrets: ::Conjur::FetchRequiredSecrets.new,
         logger: Rails.logger
       },
-      inputs: %i[authenticator_input]
+      inputs: %i[authentication_parameters]
     ) do
       extend(Forwardable)
-      def_delegators(:@authenticator_input, :service_id, :authenticator_name,
+      def_delegators(:@authentication_parameters, :service_id, :authenticator_name,
                      :account)
 
       def call
