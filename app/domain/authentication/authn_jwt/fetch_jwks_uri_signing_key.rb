@@ -11,12 +11,14 @@ module Authentication
                      logger:,
                      fetch_required_secrets:,
                      resource_class:,
-                     http:)
+                     http_lib:,
+                     create_jwks_from_http_response:)
         @logger = logger
         @resource_id = authentication_parameters.authenticator_resource_id
         @fetch_required_secrets = fetch_required_secrets
         @resource_class = resource_class
-        @http = http
+        @http_lib = http_lib
+        @create_jwks_from_http_response = create_jwks_from_http_response
       end
 
       def has_valid_configuration?
@@ -63,9 +65,8 @@ module Authentication
         begin
           uri = URI(jwks_uri)
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(jwks_uri))
-          response = @http.get_response(uri)
+          response = @http_lib.get_response(uri)
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchJwtUriKeysSuccess.new)
-          parsed_response = JSON.parse(response.body)
         rescue => e
           raise Errors::Authentication::AuthnJwt::FetchJwksKeysFailed.new(
             jwks_uri,
@@ -73,13 +74,7 @@ module Authentication
           )
         end
 
-        if parsed_response['keys'].blank?
-          raise Errors::Authentication::AuthnJwt::FetchJwksUriKeysNotFound.new(
-            Base64.encode64(response.body)
-          )
-        end
-
-        parsed_response['keys']
+        @create_jwks_from_http_response.call(http_response: response)
       end
     end
   end
