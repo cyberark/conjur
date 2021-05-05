@@ -3,7 +3,7 @@ module Authentication
 
     # This class instance holds a JWT standard claim which is
     # mandatory to validate.
-    class JwtMandatoryClaim
+    class JwtClaim
       attr_reader :name, :value
 
       def initialize(name:, value:)
