@@ -339,6 +339,27 @@ module LogMessages
         msg: "JWT authentication passed successfully",
         code: "CONJ00066D"
       )
+
+      FetchingJwtClaimsToValidate = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetching JWT claims to validate",
+        code: "CONJ00067D"
+      )
+
+      FetchedJwtClaimsToValidate = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetched JWT claims to validate",
+        code: "CONJ00068D"
+      )
+
+      AddingJwtClaimToValidate = ::Util::TrackableLogMessageClass.new(
+        msg: "Adding JWT claim '{0-claim-name}' to list of mandatory claims to be validated",
+        code: "CONJ00069D"
+      )
+
+      CheckingJwtClaimToValidate = ::Util::TrackableLogMessageClass.new(
+        msg: "Checking if JWT claim '{0-claim-name}' is mandatory to validate",
+        code: "CONJ00070D"
+      )
+
     end
   end
 
