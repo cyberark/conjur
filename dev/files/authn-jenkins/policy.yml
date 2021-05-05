@@ -1,0 +1,16 @@
+- !policy
+  id: conjur/authn-jenkins/prod
+  body:
+  - !webservice
+  - !group clients
+  # these will be used to connect to the jenkins server and see if a specific job is running
+  - !variable jenkinsURL
+  - !variable jenkinsUsername
+  - !variable jenkinsPassword
+  - !variable jenkinsCertificate
+
+
+  - !permit
+    role: !group clients
+    privilege: [ read, authenticate ]
+    resource: !webservice

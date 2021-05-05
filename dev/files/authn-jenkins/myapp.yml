@@ -1,0 +1,32 @@
+- !policy
+  id: myapp
+  body:
+  - &variables
+    - !variable database/username
+    - !variable database/password
+
+  # Create a group that will have permission to retrieve variables
+  - !group secrets-users
+
+  # Give the `secrets-users` group permission to retrieve variables
+  - !permit
+    role: !group secrets-users
+    privilege: [ read, execute ]
+    resource: *variables
+
+  # Create a layer to hold this application's hosts
+  - !layer
+
+  # The host ID matches the job name in jenkins
+  - !host jenkins/testJob
+
+  # Add our host into our layer
+  - !grant
+    role: !layer
+    members: 
+    - !host jenkins/testJob
+
+  # Give the host in our layer permission to retrieve variables
+  - !grant
+    member: !layer
+    role: !group secrets-users

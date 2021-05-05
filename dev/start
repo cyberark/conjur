@@ -20,6 +20,8 @@ Usage: start [options]
     --oidc-adfs     Adds to authn-oidc adfs static env configuration
 
     --oidc-okta     Adds to authn-oidc okta static env configuration
+    
+    --authn-jenkins Starts with authn-jenkins/prod as authenticator
 
     -h, --help      Shows this help message.
 EOF
@@ -72,6 +74,7 @@ unset COMPOSE_PROJECT_NAME
 ENABLE_AUTHN_LDAP=false
 ENABLE_AUTHN_IAM=false
 ENABLE_AUTHN_OIDC=false
+ENABLE_AUTHN_JENKINS=false
 ENABLE_OIDC_ADFS=false
 ENABLE_OIDC_OKTA=false
 ENABLE_ROTATORS=false
@@ -80,6 +83,7 @@ while true ; do
     --authn-iam ) ENABLE_AUTHN_IAM=true ; shift ;;
     --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
     --authn-oidc ) ENABLE_AUTHN_OIDC=true ; shift ;;
+    --authn-jenkins ) ENABLE_AUTHN_JENKINS=true ; shift ;;
     --oidc-adfs ) ENABLE_OIDC_ADFS=true ; shift ;;
     --oidc-okta ) ENABLE_OIDC_OKTA=true ; shift ;;
     --rotators ) ENABLE_ROTATORS=true ; shift ;;
@@ -211,6 +215,12 @@ if [[ $ENABLE_AUTHN_IAM = true ]]; then
   enabled_authenticators="$enabled_authenticators,authn-iam/prod"
 
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-iam/policy.yml
+fi
+
+if [[ $ENABLE_AUTHN_JENKINS = true ]]; then
+  enabled_authenticators="$enabled_authenticators,authn-jenkins/prod"
+  
+  docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-jenkins/policy.yml
 fi
 
 echo "Setting CONJUR_AUTHENTICATORS to: $enabled_authenticators"
