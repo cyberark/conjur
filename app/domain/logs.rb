@@ -330,8 +330,8 @@ module LogMessages
         code: "CONJ00064D"
       )
 
-      CHECKING_IDENTITY_FIELD_EXISTS = ::Util::TrackableLogMessageClass.new(
-        msg: "Checking if the field exists",
+      CALLING_VALIDATE_RESTRICTIONS = ::Util::TrackableLogMessageClass.new(
+        msg: "Calling JWT validate restrictions",
         code: "CONJ00065D"
       )
 
