@@ -1,8 +1,7 @@
 module Authentication
   module AuthnJwt
 
-    # This class instance holds a JWT standard claim which is
-    # mandatory to validate.
+    # This class instance holds a JWT standard claim
     class JwtClaim
       attr_reader :name, :value
 
