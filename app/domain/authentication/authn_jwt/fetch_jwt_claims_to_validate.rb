@@ -42,7 +42,7 @@ module Authentication
         @logger.debug(LogMessages::Authentication::AuthnJwt::AddingJwtClaimToValidate.new(claim))
 
         jwt_claims_to_validate.push(
-        @jwt_claim_class.new(
+          @jwt_claim_class.new(
             name: claim,
             value: claim_value(claim)
           )
