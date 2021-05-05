@@ -6,12 +6,16 @@ module Authentication
     # This class is responsible for fetching JWK Set from JWKS-uri
     class FetchJwksUriSigningKey < FetchSigningKeyInterface
 
-      def initialize(authenticator_input)
-        @logger = Rails.logger
-        @discover_identity_provider = OAuth::DiscoverIdentityProvider.new
-        @fetch_required_secrets = Conjur::FetchRequiredSecrets.new
-        @resource_class = ::Resource
-        @authenticator_input = authenticator_input
+      def initialize(authenticator_parameters,
+                     logger,
+                     discover_identity_provider,
+                     fetch_required_secrets,
+                     resource_class)
+        @logger = logger
+        @resource_id = authenticator_parameters.authenticator_resource_id
+        @discover_identity_provider = discover_identity_provider
+        @fetch_required_secrets = fetch_required_secrets
+        @resource_class = resource_class
       end
 
       def has_valid_configuration?
@@ -51,7 +55,7 @@ module Authentication
       end
 
       def jwks_uri_resource_id
-        "#{@authenticator_input.account}:variable:conjur/#{@authenticator_input.authenticator_name}/#{@authenticator_input.service_id}/#{JWKS_URI_RESOURCE_NAME}"
+        "#{@resource_id}/#{JWKS_URI_RESOURCE_NAME}"
       end
 
       def fetch_jwks_keys
@@ -62,7 +66,7 @@ module Authentication
           keys: JSON.parse(response.body)['keys']
         }
         # TODO: algs should be set on ValidateAndDecode by the algorithm of the JWT itself
-        algs = ["RS256"]
+        algs = JWKS_ALGORITHM
         @logger.debug(LogMessages::Authentication::AuthnJwt::FetchJwksUriKeysSuccess.new)
         OAuth::ProviderKeys.new(jwks, algs)
       rescue => e
