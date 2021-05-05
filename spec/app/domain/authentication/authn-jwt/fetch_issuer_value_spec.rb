@@ -20,6 +20,12 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
     )
   }
 
+  let(:authentication_parameters) {
+    Authentication::AuthnJwt::AuthenticationParameters.new(
+      authenticator_input
+    )
+  }
+
   let(:issuer_resource_name) {'issuer'}
   let(:provider_uri_resource_name) {'provider-uri'}
   let(:jwks_uri_resource_name) {'jwks-uri'}
@@ -178,7 +184,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
           resource_class: mocked_resource_exists_values,
           fetch_secrets: mocked_fetch_secrets_empty_values
         ).call(
-          authenticator_input: authenticator_input
+          authentication_parameters: authentication_parameters
         )
       end
 
@@ -193,7 +199,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
           resource_class: mocked_resource_exists_values,
           fetch_secrets: mocked_fetch_secrets_exist_values
         ).call(
-          authenticator_input: authenticator_input
+          authentication_parameters: authentication_parameters
         )
       end
 
@@ -209,7 +215,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
         ::Authentication::AuthnJwt::FetchIssuerValue.new(
           resource_class: mocked_resource_not_exists_values,
         ).call(
-          authenticator_input: authenticator_input
+          authentication_parameters: authentication_parameters
         )
       end
 
@@ -223,7 +229,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
         ::Authentication::AuthnJwt::FetchIssuerValue.new(
           resource_class: mocked_resource_both_provider_and_jwks_exist_values,
           ).call(
-          authenticator_input: authenticator_input
+          authentication_parameters: authentication_parameters
         )
       end
 
@@ -239,7 +245,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
             resource_class: mocked_resource_just_provider_uri_exists_values,
             fetch_secrets: mocked_fetch_secrets_empty_values
           ).call(
-            authenticator_input: authenticator_input
+            authentication_parameters: authentication_parameters
           )
         end
 
@@ -254,7 +260,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
             resource_class: mocked_resource_just_provider_uri_exists_values,
             fetch_secrets: mocked_fetch_secrets_exist_values
           ).call(
-            authenticator_input: authenticator_input
+            authentication_parameters: authentication_parameters
           )
         end
 
@@ -271,7 +277,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
             resource_class: mocked_resource_just_jwks_uri_exists_values,
             fetch_secrets: mocked_fetch_secrets_empty_values
           ).call(
-            authenticator_input: authenticator_input
+            authentication_parameters: authentication_parameters
           )
         end
 
@@ -286,7 +292,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
             resource_class: mocked_resource_just_jwks_uri_exists_values,
             fetch_secrets: mocked_fetch_secrets_jwks_uri_with_bad_uri_format_value
           ).call(
-            authenticator_input: authenticator_input
+            authentication_parameters: authentication_parameters
           )
         end
 
@@ -301,7 +307,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
             resource_class: mocked_resource_just_jwks_uri_exists_values,
             fetch_secrets: mocked_fetch_secrets_jwks_uri_with_bad_uri_hostname_value
           ).call(
-            authenticator_input: authenticator_input
+            authentication_parameters: authentication_parameters
           )
         end
 
@@ -316,7 +322,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
             resource_class: mocked_resource_just_jwks_uri_exists_values,
             fetch_secrets: mocked_fetch_secrets_jwks_uri_with_valid_uri_hostname_value
           ).call(
-            authenticator_input: authenticator_input
+            authentication_parameters: authentication_parameters
           )
         end
 
