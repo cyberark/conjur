@@ -6,11 +6,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-### Added
-- Feature Flags allow experimental or in-progress features to be enabled via
-  environment variable. Read the [Feature Flag docs](design/feature_flags.md)
-  for more details.
-
 ## [1.11.6] - 2021-04-28
 
 ### Fixed
