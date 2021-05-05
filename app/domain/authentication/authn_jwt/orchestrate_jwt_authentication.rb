@@ -22,18 +22,18 @@ module Authentication
       private
 
       def authenticate_jwt
-        relevant_vendor = vendor
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ParsingIssuerFromUri.new(relevant_vendor))
+        relevant_authenticator = authenticator_name
+        @logger.debug(LogMessages::Authentication::AuthnJwt::JWTAuthenticatorEntryPoint.new(relevant_authenticator))
 
-        jwt_vendor_configuration = @jwt_configuration_factory.create_jwt_configuration(relevant_vendor)
+        jwt_authenticator_configuration = @jwt_configuration_factory.create_jwt_configuration(relevant_authenticator)
         @jwt_authenticator.call(
-          jwt_configuration: jwt_vendor_configuration,
+          jwt_configuration: jwt_authenticator_configuration,
           authenticator_input: @authenticator_input
         )
       end
 
-      def vendor
-        @authenticator_input.service_id
+      def authenticator_name
+        @authenticator_input.authenticator_name
       end
 
       def validate_uri_based_parameters
