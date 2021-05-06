@@ -8,7 +8,9 @@ module Authentication
       end
 
       def self.validate_restrictions(authentication_parameters)
-        true
+        Authentication::AuthnJwt::ValidateResourceRestrictions.new.call(
+          authentication_parameters: authentication_parameters
+        )
       end
 
       def self.validate_and_decode_token(authentication_parameters)
