@@ -406,6 +406,11 @@ module Errors
               "   with field in the decoded token that contains the identity",
         code: "CONJ00075E"
       )
+
+      MissingToken = ::Util::TrackableErrorClass.new(
+        msg: "Token is empty or not found.",
+        code: "CONJ00077E"
+      )
     end
 
     module ResourceRestrictions

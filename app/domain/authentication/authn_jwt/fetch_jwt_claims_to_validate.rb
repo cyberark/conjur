@@ -15,9 +15,12 @@ module Authentication
       },
       inputs: %i[authentication_parameters]
     ) do
+      extend(Forwardable)
+      def_delegators(:@authentication_parameters, :decoded_token)
 
       def call
         @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwtClaimsToValidate.new)
+        validate_decoded_token_exists
         fetch_jwt_claims_to_validate
         @logger.debug(LogMessages::Authentication::AuthnJwt::FetchedJwtClaimsToValidate.new)
 
@@ -26,13 +29,32 @@ module Authentication
 
       private
 
-      OPTIONAL_CLAIMS = [ISS_CLAIM_NAME, EXP_CLAIM_NAME, NBF_CLAIM_NAME, IAT_CLAIM_NAME].freeze
+      MANDATORY_CLAIMS = [EXP_CLAIM_NAME].freeze
+      OPTIONAL_CLAIMS = [ISS_CLAIM_NAME, NBF_CLAIM_NAME, IAT_CLAIM_NAME].freeze
+
+      def validate_decoded_token_exists
+        if decoded_token.blank?
+          raise Errors::Authentication::AuthnJwt::MissingToken.new
+        end
+      end
 
       def fetch_jwt_claims_to_validate
+        add_mandatory_claims_to_jwt_claims_list
+        add_optional_claims_to_jwt_claims_list
+      end
+
+      def add_mandatory_claims_to_jwt_claims_list
+        MANDATORY_CLAIMS.each do |mandatory_claim|
+          @logger.debug(LogMessages::Authentication::AuthnJwt::AddingJwtClaimToValidate.new(mandatory_claim))
+          add_to_jwt_claims_list(mandatory_claim)
+        end
+      end
+
+      def add_optional_claims_to_jwt_claims_list
         OPTIONAL_CLAIMS.each do |optional_claim|
           @logger.debug(LogMessages::Authentication::AuthnJwt::CheckingJwtClaimToValidate.new(optional_claim))
 
-          if @authentication_parameters.decoded_token[optional_claim]
+          if decoded_token[optional_claim]
             add_to_jwt_claims_list(optional_claim)
           end
         end
