@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Security
+- Upgrade Rails to 5.2.5 to resolve CVE-2021-22885 
+  [cyberark/conjur#2149](https://github.com/cyberark/conjur/issues/2149)
 
 ## [1.11.4] - 2021-03-09
 
