@@ -5,7 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.11.4+dap.1] - 2021-05-07
+
 ### Security
+- Previously, OIDC authentication requests that included a user ID in the URL
+  path would return a Conjur access token without requiring a valid OIDC token
+  in the request. OIDC authentication requests that attempt to include a user ID
+  in the URL path now return a `404 Not Found` response.
+  [Security Bulletin](TBD)
 - Upgrade Rails to 5.2.5 to resolve CVE-2021-22885 
   [cyberark/conjur#2149](https://github.com/cyberark/conjur/issues/2149)
 
@@ -551,7 +559,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.3...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.4+dap.1...HEAD
+[1.11.4+dap.1]: https://github.com/cyberark/conjur/compare/v1.11.4...v1.11.4+dap.1
+[1.11.4]: https://github.com/cyberark/conjur/compare/v1.11.3...v1.11.4
 [1.11.3]: https://github.com/cyberark/conjur/compare/v1.11.2...v1.11.3
 [1.11.2]: https://github.com/cyberark/conjur/compare/v1.11.1...v1.11.2
 [1.11.1]: https://github.com/cyberark/conjur/compare/v1.11.0...v1.11.1
