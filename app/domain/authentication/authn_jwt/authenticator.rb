@@ -39,10 +39,8 @@ module Authentication
       end
 
       def validate_restrictions
-        @logger.debug(LogMessages::Authentication::AuthnJwt::CHECKING_IDENTITY_FIELD_EXISTS.new)
-        unless @jwt_configuration.validate_restrictions(@authentication_parameters)
-          raise "not matching policy annotations"
-        end
+        @logger.debug(LogMessages::Authentication::AuthnJwt::CALLING_VALIDATE_RESTRICTIONS.new)
+        @jwt_configuration.validate_restrictions(@authentication_parameters)
       end
 
       def new_token
