@@ -5,7 +5,7 @@ module Authentication
     ValidateResourceRestrictions = CommandClass.new(
       dependencies: {
         logger: Rails.logger,
-        # TODO: Dependency for extract_resource_restrictions should be added here
+        extract_resource_restrictions: Authentication::ResourceRestrictions::ExtractResourceRestrictions.new,
         # TODO: Dependency for validate_resource_restrictions_configuration should be added here
         # TODO: Dependency for validate_request_matches_resource_restrictions should be added here
       },
@@ -24,8 +24,12 @@ module Authentication
       private
 
       def extract_resource_restrictions_configuration
-        # TODO: Code of extraction fo resource restrictions should be inserted here
-        true
+        @resource_restrictions ||= @extract_resource_restrictions.call(
+          authenticator_name: @authentication_parameters.authenticator_name,
+          service_id: @authentication_parameters.service_id,
+          role_name: @authentication_parameters.jwt_identity,
+          account: @authentication_parameters.account
+        )
       end
 
       def validate_resource_restrictions_configuration
