@@ -2,6 +2,7 @@ module Authentication
   module AuthnJwt
     # Mock JWTConfiguration class to use it to develop other part in the jwt authenticator
     class ConfigurationJWTGenericVendor < ConfigurationInterface
+
       def initialize
         @restriction_validator = Authentication::AuthnJwt::ValidateRestrictionsOneToOne
         @identity_provider_factory = Authentication::AuthnJwt::CreateIdentityProvider
@@ -11,6 +12,12 @@ module Authentication
         )
         @constraints = Authentication::Constraints::MultipleConstraint.new(
           Authentication::Constraints::NotEmptyConstraint.new
+        )
+        end
+
+      def validate_input(authentication_parameters)
+        Authentication::AuthnJwt::JWTInitialInputValidation.new.call(
+          authentication_parameters: authentication_parameters
         )
       end
 
