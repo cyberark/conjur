@@ -6,12 +6,13 @@ module Authentication
       def initialize(authenticator_parameters,
                      logger,
                      fetch_required_secrets,
-                     resource_class)
+                     resource_class,
+                     discover_identity_provider)
         @logger = logger
         @resource_id = authenticator_parameters.authenticator_resource_id
         @fetch_required_secrets = fetch_required_secrets
         @resource_class = resource_class
-        @fetch_provider_key = Authentication::OAuth::FetchProviderKeys.new
+        @discover_identity_provider = discover_identity_provider
       end
 
       def has_valid_configuration?
@@ -19,7 +20,8 @@ module Authentication
       end
 
       def fetch_signing_key
-        @fetch_provider_key.call(provider_uri)
+        discover_provider
+        fetch_provider_keys
       end
 
       private
@@ -29,11 +31,11 @@ module Authentication
       end
 
       def provider_uri_resource
-        @provider_uri_resource ||= resource(PROVIDER_URI_RESOURCE_NAME)
+        @provider_uri_resource ||= resource
       end
 
-      def resource(resource_name)
-        @resource_class[resource_id(resource_name)]
+      def resource
+        @resource_class[provider_uri_resource_id]
       end
 
       def provider_uri
@@ -47,6 +49,26 @@ module Authentication
 
       def provider_uri_resource_id
         "#{@resource_id}/#{PROVIDER_URI_RESOURCE_NAME}"
+      end
+
+      def discover_provider
+        discovered_provider
+      end
+
+      def discovered_provider
+        @discovered_provider ||= @discover_identity_provider.(
+          provider_uri: provider_uri
+        )
+      end
+
+      def fetch_provider_keys
+        @logger.debug(LogMessages::Authentication::OAuth::FetchProviderKeysSuccess.new)
+        @discovered_provider.jwks
+      rescue => e
+        raise Errors::Authentication::OAuth::FetchProviderKeysFailed.new(
+          @provider_uri,
+          e.inspect
+        )
       end
     end
   end

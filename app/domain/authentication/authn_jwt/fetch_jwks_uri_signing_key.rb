@@ -8,18 +8,18 @@ module Authentication
 
       def initialize(authenticator_parameters,
                      logger,
-                     discover_identity_provider,
                      fetch_required_secrets,
-                     resource_class)
+                     resource_class,
+                     http)
         @logger = logger
         @resource_id = authenticator_parameters.authenticator_resource_id
-        @discover_identity_provider = discover_identity_provider
         @fetch_required_secrets = fetch_required_secrets
         @resource_class = resource_class
+        @http = http
       end
 
       def has_valid_configuration?
-        @jwks_resource_exists ||= jwks_uri_resource_exists?
+        @jwks_uri_resource_exists ||= jwks_uri_resource_exists?
       end
 
       def fetch_signing_key
@@ -34,11 +34,11 @@ module Authentication
       end
 
       def jwks_uri_resource
-        @jwks_uri_resource ||= resource(JWKS_URI_RESOURCE_NAME)
+        @jwks_uri_resource ||= resource
       end
 
-      def resource(resource_name)
-        @resource_class[resource_id(resource_name)]
+      def resource
+        @resource_class[jwks_uri_resource_id]
       end
 
       def fetch_jwks_uri
@@ -61,14 +61,9 @@ module Authentication
       def fetch_jwks_keys
         uri = URI(jwks_uri)
         @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwksFromJwksUri.new)
-        response = Net::HTTP.get_response(uri)
-        jwks = {
-          keys: JSON.parse(response.body)['keys']
-        }
-        # TODO: algs should be set on ValidateAndDecode by the algorithm of the JWT itself
-        algs = JWKS_ALGORITHM
+        response = @http.get_response(uri)
         @logger.debug(LogMessages::Authentication::AuthnJwt::FetchJwksUriKeysSuccess.new)
-        OAuth::ProviderKeys.new(jwks, algs)
+        JSON.parse(response.body)['keys']
       rescue => e
         raise Errors::Authentication::AuthnJwt::FetchJwksKeysFailed.new(
           jwks_uri,
