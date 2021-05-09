@@ -10,8 +10,18 @@ module Authentication
       end
 
       def self.validate_restrictions(authentication_parameters)
-        Authentication::AuthnJwt::ValidateResourceRestrictions.new.call(
-          authentication_parameters: authentication_parameters
+        validate_resource_restrictions ||= Authentication::ResourceRestrictions::ValidateResourceRestrictions.new(
+          extract_resource_restrictions: Authentication::ResourceRestrictions::ExtractResourceRestrictions.new
+        )
+        validate_resource_restrictions.call(
+          authenticator_name: authentication_parameters.authenticator_name,
+          service_id: authentication_parameters.service_id,
+          account: authentication_parameters.account,
+          role_name: authentication_parameters.jwt_identity,
+          constraints: Authentication::AuthnJwt::GENERIC_JWT_CONSTRAINTS,
+          authentication_request: Authentication::AuthnJwt::ValidateRestrictionsOneToOne.new(
+            decoded_token: authentication_parameters.decoded_token
+          )
         )
       end
 

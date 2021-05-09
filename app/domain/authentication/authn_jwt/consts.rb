@@ -2,6 +2,9 @@
 
 module Authentication
   module AuthnJwt
+    GENERIC_JWT_CONSTRAINTS = Authentication::Constraints::MultipleConstraint.new(
+      Authentication::Constraints::NotEmptyConstraint.new
+    )
     PROVIDER_URI_RESOURCE_NAME = "provider-uri"
     JWKS_URI_RESOURCE_NAME = "jwks-uri"
     ISSUER_RESOURCE_NAME = "issuer"
