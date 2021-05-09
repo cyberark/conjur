@@ -6,16 +6,20 @@ module Authentication
     # This class is responsible for fetching JWK Set from JWKS-uri
     class FetchJwksUriSigningKey < FetchSigningKeyInterface
 
-      def initialize(authenticator_parameters)
-        @logger = Rails.logger
-        @discover_identity_provider = OAuth::DiscoverIdentityProvider.new
-        @fetch_required_secrets = Conjur::FetchRequiredSecrets.new
-        @resource_class = ::Resource
-        @authenticator_parameters = authenticator_parameters
+      def initialize(authenticator_parameters,
+                     logger,
+                     fetch_required_secrets,
+                     resource_class,
+                     http)
+        @logger = logger
+        @resource_id = authenticator_parameters.authenticator_resource_id
+        @fetch_required_secrets = fetch_required_secrets
+        @resource_class = resource_class
+        @http = http
       end
 
       def has_valid_configuration?
-        @jwks_resource_exists ||= jwks_uri_resource_exists?
+        @jwks_uri_resource_exists ||= jwks_uri_resource_exists?
       end
 
       def fetch_signing_key
@@ -30,11 +34,11 @@ module Authentication
       end
 
       def jwks_uri_resource
-        @jwks_uri_resource ||= resource(JWKS_URI_RESOURCE_NAME)
+        @jwks_uri_resource ||= resource
       end
 
-      def resource(resource_name)
-        @resource_class[resource_id(resource_name)]
+      def resource
+        @resource_class[jwks_uri_resource_id]
       end
 
       def fetch_jwks_uri
@@ -51,20 +55,15 @@ module Authentication
       end
 
       def jwks_uri_resource_id
-        "#{@authenticator_parameters.account}:variable:conjur/#{@authenticator_parameters.authenticator_name}/#{@authenticator_parameters.service_id}/#{JWKS_URI_RESOURCE_NAME}"
+        "#{@resource_id}/#{JWKS_URI_RESOURCE_NAME}"
       end
 
       def fetch_jwks_keys
         uri = URI(jwks_uri)
         @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwksFromJwksUri.new)
-        response = Net::HTTP.get_response(uri)
-        jwks = {
-          keys: JSON.parse(response.body)['keys']
-        }
-        # TODO: algs should be set on ValidateAndDecode by the algorithm of the JWT itself
-        algs = ["RS256"]
+        response = @http.get_response(uri)
         @logger.debug(LogMessages::Authentication::AuthnJwt::FetchJwksUriKeysSuccess.new)
-        OAuth::ProviderKeys.new(jwks, algs)
+        JSON.parse(response.body)['keys']
       rescue => e
         raise Errors::Authentication::AuthnJwt::FetchJwksKeysFailed.new(
           jwks_uri,
