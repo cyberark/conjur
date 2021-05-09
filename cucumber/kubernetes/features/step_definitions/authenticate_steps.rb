@@ -5,6 +5,16 @@ end
 def gen_cert(host_id)
   username = [namespace, host_id].join('/')
   webservice_resource_id = "#{ENV['CONJUR_ACCOUNT']}:webservice:#{username}"
+  role_id = "#{ENV['CONJUR_ACCOUNT']}:policy:#{username}"
+  Role.create(role_id: role_id)
+  Resource.create(
+    resource_id: "#{ENV['CONJUR_ACCOUNT']}:variable:#{username}/ca/cert",
+    owner_id: role_id
+  )
+  Resource.create(
+    resource_id: "#{ENV['CONJUR_ACCOUNT']}:variable:#{username}/ca/key",
+    owner_id: role_id
+  )
   ::Repos::ConjurCA.create(webservice_resource_id)
 end
 

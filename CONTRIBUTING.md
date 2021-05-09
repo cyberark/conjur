@@ -514,7 +514,9 @@ version.
 1. Change VERSION file to reflect the change. This file is used by some scripts.
 1. Change the API_VERSION file to reflect the correct
    [OpenAPI spec release](https://github.com/cyberark/conjur-openapi-spec/releases)
-   if there has been an update to the API.
+   if there has been an update to the API. **If the OpenAPI spec is out of date
+   with the current API,** it will need to be updated and released before you
+   can release this project.
 1. Commit these changes (including the changes to NOTICES.txt, if there are any).
    `Bump version to x.y.z` is an acceptable commit message.
 1. Push your changes to a branch, and get the PR reviewed and merged.
