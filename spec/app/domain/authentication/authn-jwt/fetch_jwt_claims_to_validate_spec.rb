@@ -81,7 +81,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
-  context "JWT decided token input" do
+  context "JWT decoded token input" do
     context "with mandatory claims (exp)" do
       context "and with all supported optional claims: (iss, nbf, iat)" do
         context "with valid issuer variable configuration in authenticator policy" do
