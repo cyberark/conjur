@@ -454,6 +454,11 @@ module Errors
         code: "CONJ00069E"
       )
 
+      RoleMissingAnyConstraints =  ::Util::TrackableErrorClass.new(
+        msg: "Role must have at least one constraint",
+        code: "CONJ00070E"
+      )
+
     end
   end
 
