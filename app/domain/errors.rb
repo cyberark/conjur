@@ -375,27 +375,27 @@ module Errors
       InvalidIssuerConfiguration = ::Util::TrackableErrorClass.new(
         msg: "Issuer authenticator configuration is invalid. You should configured as authenticator variables: " \
               "'{0-resource-name}' or one of the following: '{1-resource-name}','{2-resource-name}'",
-        code: "CONJ00070E"
+        code: "CONJ00170E"
       )
 
       FailedToParseHostnameFromUri = ::Util::TrackableErrorClass.new(
         msg: "Failed to extract hostname from URI '{0}'",
-        code: "CONJ00071E"
+        code: "CONJ00171E"
       )
 
       InvalidUriFormat = ::Util::TrackableErrorClass.new(
         msg: "Failed to parse URI '{0}'. Reason: '{1}'",
-        code: "CONJ00072E"
+        code: "CONJ00172E"
       )
 
       NoSuchFieldInToken = ::Util::TrackableErrorClass.new(
         msg: "No such field '{0}' in the token",
-        code: "CONJ00073E"
+        code: "CONJ00173E"
       )
 
       NoUsernameInTheURL = ::Util::TrackableErrorClass.new(
         msg: "No username in the URL",
-        code: "CONJ00074E"
+        code: "CONJ00174E"
       )
 
       NoRelevantIdentityProvider = ::Util::TrackableErrorClass.new(
@@ -404,7 +404,14 @@ module Errors
               "1. Send the identity in the URL" \
               "2. Please add `token-app-property` variable and populate it" \
               "   with field in the decoded token that contains the identity",
-        code: "CONJ00075E"
+        code: "CONJ00175E"
+      )
+
+      JwtTokenClaimIsMissing = ::Util::TrackableErrorClass.new(
+        msg: "Claim '{0-attribute-name}' is missing from JWT token. " \
+             "Verify that you configured the host with permitted restrictions. " \
+             "In case of Compute Engine token, verify that you requested the token using 'format=full'",
+        code: "CONJ00176E"
       )
 
       MissingToken = ::Util::TrackableErrorClass.new(
