@@ -7,7 +7,7 @@ module Authentication
       }
 
       def create_jwt_configuration(vendor)
-        VENDORS[vendor] || raise("Vendor #{vendor} not implemented yet.")
+        VENDORS[vendor].new || raise("Vendor #{vendor} not implemented yet.")
       end
     end
   end
