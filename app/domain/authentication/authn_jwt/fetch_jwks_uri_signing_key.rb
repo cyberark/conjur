@@ -7,13 +7,13 @@ module Authentication
     # This class is responsible for fetching JWK Set from JWKS-uri
     class FetchJwksUriSigningKey < FetchSigningKeyInterface
 
-      def initialize(authenticator_parameters:,
+      def initialize(authentication_parameters:,
                      logger:,
                      fetch_required_secrets:,
                      resource_class:,
                      http:)
         @logger = logger
-        @resource_id = authenticator_parameters.authenticator_resource_id
+        @resource_id = authentication_parameters.authenticator_resource_id
         @fetch_required_secrets = fetch_required_secrets
         @resource_class = resource_class
         @http = http
@@ -60,24 +60,26 @@ module Authentication
       end
 
       def fetch_jwks_keys
-        uri = URI(jwks_uri)
-        @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(jwks_uri))
-        response = @http.get_response(uri)
-        @logger.debug(LogMessages::Authentication::AuthnJwt::FetchJwtUriKeysSuccess.new)
-        parsed_response = JSON.parse(response.body)
+        begin
+          uri = URI(jwks_uri)
+          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(jwks_uri))
+          response = @http.get_response(uri)
+          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchJwtUriKeysSuccess.new)
+          parsed_response = JSON.parse(response.body)
+        rescue => e
+          raise Errors::Authentication::AuthnJwt::FetchJwksKeysFailed.new(
+            jwks_uri,
+            e.inspect
+          )
+        end
 
         if parsed_response['keys'].blank?
           raise Errors::Authentication::AuthnJwt::FetchJwksUriKeysNotFound.new(
-            Base64.encode64(parsed_response)
+            Base64.encode64(response.body)
           )
         end
 
         parsed_response['keys']
-      rescue => e
-        raise Errors::Authentication::AuthnJwt::FetchJwksKeysFailed.new(
-          jwks_uri,
-          e.inspect
-        )
       end
     end
   end

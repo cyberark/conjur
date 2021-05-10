@@ -73,7 +73,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateSigningKeyInterface') do
           fetch_jwks_uri: mocked_fetch_exists_jwks_uri,
           logger: mocked_logger
         ).call(
-          authenticator_parameters: authentication_parameters
+          authentication_parameters: authentication_parameters
         )
       end
 
@@ -90,7 +90,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateSigningKeyInterface') do
           fetch_jwks_uri: mocked_fetch_non_exists_jwks_uri,
           logger: mocked_logger
         ).call(
-          authenticator_parameters: authentication_parameters
+          authentication_parameters: authentication_parameters
         )
       end
 
@@ -107,7 +107,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateSigningKeyInterface') do
           fetch_jwks_uri: mocked_fetch_exists_jwks_uri,
           logger: mocked_logger
         ).call(
-          authenticator_parameters: authentication_parameters
+          authentication_parameters: authentication_parameters
         )
       end
 
@@ -124,7 +124,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateSigningKeyInterface') do
           fetch_jwks_uri: mocked_fetch_non_exists_jwks_uri,
           logger: mocked_logger
         ).call(
-          authenticator_parameters: authentication_parameters
+          authentication_parameters: authentication_parameters
         )
       end
 

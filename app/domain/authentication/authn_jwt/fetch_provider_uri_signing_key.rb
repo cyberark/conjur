@@ -3,13 +3,13 @@ module Authentication
     # This class is responsible for fetching JWK Set from provider-uri
     class FetchProviderUriSigningKey < FetchSigningKeyInterface
 
-      def initialize(authenticator_parameters:,
+      def initialize(authentication_parameters:,
                      logger:,
                      fetch_required_secrets:,
                      resource_class:,
                      discover_identity_provider:)
         @logger = logger
-        @resource_id = authenticator_parameters.authenticator_resource_id
+        @resource_id = authentication_parameters.authenticator_resource_id
         @fetch_required_secrets = fetch_required_secrets
         @resource_class = resource_class
         @discover_identity_provider = discover_identity_provider

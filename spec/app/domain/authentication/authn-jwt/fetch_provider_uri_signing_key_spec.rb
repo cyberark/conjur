@@ -12,7 +12,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
   let(:required_discover_identity_error) { "Provider uri identity error" }
 
   let(:mocked_logger) { double("Mocked Logger")  }
-  let(:mocked_authenticator_params) { double("mocked authenticator params")  }
+  let(:mocked_authentication_parameters) { double("mocked authenticator params")  }
   let(:mocked_fetch_required_existing_secret) { double("mocked fetch required existing secret")  }
   let(:mocked_fetch_required_empty_secret) { double("mocked fetch required empty secret")  }
   let(:mocked_resource_value_not_exists) { double("Mocked resource value not exists")  }
@@ -32,7 +32,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
       receive(:debug).and_return(true)
     )
 
-    allow(mocked_authenticator_params).to(
+    allow(mocked_authentication_parameters).to(
       receive(:authenticator_resource_id).and_return('resource_id')
     )
 
@@ -77,7 +77,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
   context "FetchProviderUriSigningKey has_valid_configuration " do
     context "'provider-uri' variable is not configured in authenticator policy" do
       subject do
-        ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(authenticator_parameters: mocked_authenticator_params,
+        ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
                                                                    logger: mocked_logger,
                                                                    fetch_required_secrets: mocked_fetch_required_existing_secret,
                                                                    resource_class: mocked_resource_value_not_exists,
@@ -91,7 +91,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
 
     context "'provider-uri' value is valid" do
       subject do
-        ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(authenticator_parameters: mocked_authenticator_params,
+        ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
                                                                    logger: mocked_logger,
                                                                    fetch_required_secrets: mocked_fetch_required_existing_secret,
                                                                    resource_class: mocked_resource_value_exists,
@@ -108,7 +108,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
     context "'provider-uri' variable is configured in authenticator policy" do
       context "'provider-uri' value is invalid" do
         subject do
-          ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(authenticator_parameters: mocked_authenticator_params,
+          ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
                                                                      logger: mocked_logger,
                                                                      fetch_required_secrets: mocked_fetch_required_existing_secret,
                                                                      resource_class: mocked_resource_value_exists,
@@ -122,7 +122,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
 
       context "'provider-uri' value is valid" do
         subject do
-          ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(authenticator_parameters: mocked_authenticator_params,
+          ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
                                                                      logger: mocked_logger,
                                                                      fetch_required_secrets: mocked_fetch_required_existing_secret,
                                                                      resource_class: mocked_resource_value_exists,

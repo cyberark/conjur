@@ -7,7 +7,7 @@ module Authentication
         fetch_jwks_uri: Authentication::AuthnJwt::FetchJwksUriSigningKey,
         logger: Rails.logger
       },
-      inputs: %i[authenticator_parameters]
+      inputs: %i[authentication_parameters]
     ) do
 
       def call
@@ -48,7 +48,7 @@ module Authentication
       end
 
       def fetch_provider_uri_signing_key
-        @fetch_provider_uri_signing_key ||= @fetch_provider_uri.new(authenticator_parameters: @authenticator_parameters,
+        @fetch_provider_uri_signing_key ||= @fetch_provider_uri.new(authentication_parameters: @authentication_parameters,
                                                                     logger: Rails.logger,
                                                                     fetch_required_secrets: Conjur::FetchRequiredSecrets.new,
                                                                     resource_class: ::Resource,
@@ -56,7 +56,7 @@ module Authentication
       end
 
       def fetch_jwks_uri_signing_key
-        @fetch_jwks_uri_signing_key ||= @fetch_jwks_uri.new(authenticator_parameters: @authenticator_parameters,
+        @fetch_jwks_uri_signing_key ||= @fetch_jwks_uri.new(authentication_parameters: @authentication_parameters,
                                                             logger: Rails.logger,
                                                             fetch_required_secrets: Conjur::FetchRequiredSecrets.new,
                                                             resource_class: ::Resource,
