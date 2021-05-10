@@ -3,8 +3,10 @@ module Authentication
     # Mock JWTConfiguration class to use it to develop other part in the jwt authenticator
     class ConfigurationJWTGenericVendor < ConfigurationInterface
       def self.jwt_identity(authentication_parameters)
-        id_provider = Authentication::AuthnJwt::IdentityProviderFactory.new(authentication_parameters).relevant_id_provider
-        id_provider.provide_jwt_identity
+        identity_provider = Authentication::AuthnJwt::CreateIdentityProvider.new.call(
+          authentication_parameters: authentication_parameters
+        )
+        identity_provider.provide_jwt_identity
       end
 
       def self.validate_restrictions(authentication_parameters)
