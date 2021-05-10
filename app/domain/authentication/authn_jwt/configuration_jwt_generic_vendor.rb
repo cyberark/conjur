@@ -2,30 +2,39 @@ module Authentication
   module AuthnJwt
     # Mock JWTConfiguration class to use it to develop other part in the jwt authenticator
     class ConfigurationJWTGenericVendor < ConfigurationInterface
-      def self.jwt_identity(authentication_parameters)
+      def initialize
+        @restriction_validator = Authentication::AuthnJwt::ValidateRestrictionsOneToOne
+        @identity_provider_factory = Authentication::AuthnJwt::CreateIdentityProvider
+        @extract_resource_restrictions = Authentication::ResourceRestrictions::ExtractResourceRestrictions.new
+        @validate_resource_restrictions = Authentication::ResourceRestrictions::ValidateResourceRestrictions.new(
+          extract_resource_restrictions: @extract_resource_restrictions
+        )
+        @constraints = Authentication::Constraints::MultipleConstraint.new(
+          Authentication::Constraints::NotEmptyConstraint.new
+        )
+      end
+
+      def jwt_identity(authentication_parameters)
         identity_provider = Authentication::AuthnJwt::CreateIdentityProvider.new.call(
           authentication_parameters: authentication_parameters
         )
         identity_provider.provide_jwt_identity
       end
 
-      def self.validate_restrictions(authentication_parameters)
-        validate_resource_restrictions ||= Authentication::ResourceRestrictions::ValidateResourceRestrictions.new(
-          extract_resource_restrictions: Authentication::ResourceRestrictions::ExtractResourceRestrictions.new
-        )
-        validate_resource_restrictions.call(
+      def validate_restrictions(authentication_parameters)
+        @validate_resource_restrictions.call(
           authenticator_name: authentication_parameters.authenticator_name,
           service_id: authentication_parameters.service_id,
           account: authentication_parameters.account,
           role_name: authentication_parameters.jwt_identity,
-          constraints: Authentication::AuthnJwt::GENERIC_JWT_CONSTRAINTS,
-          authentication_request: Authentication::AuthnJwt::ValidateRestrictionsOneToOne.new(
+          constraints: @constraints,
+          authentication_request: @restriction_validator.new(
             decoded_token: authentication_parameters.decoded_token
           )
         )
       end
 
-      def self.validate_and_decode_token(authentication_parameters)
+      def validate_and_decode_token(authentication_parameters)
         # Dummy decoded jwt token. Will be replaced on implementation
         {
           "namespace_id": "1",
