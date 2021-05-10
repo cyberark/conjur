@@ -28,7 +28,6 @@ module Authentication
       end
 
       def validate_and_decode_token
-        Authentication::AuthnJwt::CreateSigningKeyInterface.new.(authentication_parameters: @authentication_parameters).fetch_signing_key
         @logger.debug(LogMessages::Authentication::AuthnJwt::VALIDATE_AND_DECODE_TOKEN.new)
         @authentication_parameters.decoded_token = @jwt_configuration.validate_and_decode_token(@authentication_parameters)
       end
