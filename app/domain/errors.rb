@@ -390,7 +390,7 @@ module Errors
 
       NoUsernameInTheURL = ::Util::TrackableErrorClass.new(
         msg: "No username in the URL",
-        code: "CONJ00074E"
+        code: "CONJ00174E"
       )
 
       NoRelevantIdentityProvider = ::Util::TrackableErrorClass.new(
@@ -411,24 +411,24 @@ module Errors
 
       MissingToken = ::Util::TrackableErrorClass.new(
         msg: "Token is empty or not found.",
-        code: "CONJ00077E"
+        code: "CONJ00177E"
       )
 
       InvalidUriConfiguration = ::Util::TrackableErrorClass.new(
         msg: "Uri authenticator configuration is invalid. It should configured as authenticator variables: " \
               "one of the following: '{0-resource-name}','{1-resource-name}'",
-        code: "CONJ00070E"
+        code: "CONJ00178E"
       )
 
       InvalidUriConfiguration = ::Util::TrackableErrorClass.new(
         msg: "Uri authenticator configuration is invalid. It should configured as authenticator variables: " \
               "one of the following: '{0-resource-name}','{1-resource-name}'",
-        code: "CONJ00070E"
+        code: "CONJ00179E"
       )
 
       FetchJwksKeysFailed = ::Util::TrackableErrorClass.new(
         msg: "Failed to fetch keys from Jwks Uri (JWKS URI: '{0}'). Reason: '{1}'",
-        code: "CONJ00012E"
+        code: "CONJ00180E"
       )
 
     end

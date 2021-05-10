@@ -362,91 +362,47 @@ module LogMessages
 
       FetchingJwksUriConfigurationValue = ::Util::TrackableLogMessageClass.new(
         msg: "Fetching jwks-uri authenticator configuration value",
-        code: "CONJ00052D"
+        code: "CONJ00071D"
       )
 
       FetchedJwksUriValueFromConfiguration = ::Util::TrackableLogMessageClass.new(
         msg: "Fetched jwks-uri value from authenticator configuration",
-        code: "CONJ00053D"
+        code: "CONJ00072D"
       )
 
       FetchingProviderUriConfigurationValue = ::Util::TrackableLogMessageClass.new(
         msg: "Fetching provider-uri authenticator configuration value",
-        code: "CONJ00052D"
+        code: "CONJ00073D"
       )
 
       FetchedProviderUriValueFromConfiguration = ::Util::TrackableLogMessageClass.new(
         msg: "Fetched provider-uri value from authenticator configuration",
-        code: "CONJ00053D"
+        code: "CONJ00074D"
       )
 
       JwksUriResourceNameConfiguration = ::Util::TrackableLogMessageClass.new(
         msg: "Jwks-uri value will be taken from '{0-resource-id}'",
-        code: "CONJ00054D"
+        code: "CONJ00075D"
       )
 
       ProviderUriResourceNameConfiguration = ::Util::TrackableLogMessageClass.new(
         msg: "Provider-uri value will be taken from '{0-resource-id}'",
-        code: "CONJ00054D"
+        code: "CONJ00076D"
       )
 
       FetchProviderUriKeysSuccess = ::Util::TrackableLogMessageClass.new(
         msg: "Fetched Identity Provider keys from provider successfully'",
-        code: "CONJ00054D"
+        code: "CONJ00077D"
       )
 
       FetchingJwksFromJwksUri = ::Util::TrackableLogMessageClass.new(
         msg: "Fetching jwks from jwks-uri",
-        code: "CONJ00052D"
+        code: "CONJ00078D"
       )
 
       FetchJwksUriKeysSuccess = ::Util::TrackableLogMessageClass.new(
         msg: "Fetched jwks keys from jwks-uri successfully'",
-        code: "CONJ00054D"
-      )
-      FetchingJwksUriConfigurationValue = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetching jwks-uri authenticator configuration value",
-        code: "CONJ00052D"
-      )
-
-      FetchedJwksUriValueFromConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetched jwks-uri value from authenticator configuration",
-        code: "CONJ00053D"
-      )
-
-      FetchingProviderUriConfigurationValue = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetching provider-uri authenticator configuration value",
-        code: "CONJ00052D"
-      )
-
-      FetchedProviderUriValueFromConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetched provider-uri value from authenticator configuration",
-        code: "CONJ00053D"
-      )
-
-      JwksUriResourceNameConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg: "Jwks-uri value will be taken from '{0-resource-id}'",
-        code: "CONJ00054D"
-      )
-
-      ProviderUriResourceNameConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg: "Provider-uri value will be taken from '{0-resource-id}'",
-        code: "CONJ00054D"
-      )
-
-      FetchProviderUriKeysSuccess = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetched Identity Provider keys from provider successfully'",
-        code: "CONJ00054D"
-      )
-
-      FetchingJwksFromJwksUri = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetching jwks from jwks-uri",
-        code: "CONJ00052D"
-      )
-
-      FetchJwksUriKeysSuccess = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetched jwks keys from jwks-uri successfully'",
-        code: "CONJ00054D"
+        code: "CONJ00079D"
       )
     end
   end
