@@ -81,7 +81,10 @@ command :server do |c|
 
     if account
       if options["password-from-stdin"]
-        password = stdin_input
+        # Rake is interpreting raw commas in the password as
+        # delimiting addtional arguments to rake itself. 
+        # Reference: https://github.com/ruby/rake/blob/a842fb2c30cc3ca80803fba903006b1324a62e9a/lib/rake/application.rb#L163
+        password = stdin_input.gsub(',', '\,')
         system("rake 'account:create_with_password[#{account},#{password}]'")\
           or exit $?.exitstatus
       else
@@ -233,7 +236,10 @@ $ conjurctl account create [--password-from-stdin] --name myorg
       connect
 
       if options["password-from-stdin"]
-        password = stdin_input
+        # Rake is interpreting raw commas in the password as
+        # delimiting addtional arguments to rake itself. 
+        # Reference: https://github.com/ruby/rake/blob/a842fb2c30cc3ca80803fba903006b1324a62e9a/lib/rake/application.rb#L163
+        password = stdin_input.gsub(',', '\,')
         exec("rake 'account:create_with_password[#{account},#{password}]'")
       else
         exec("rake 'account:create[#{account}]'")

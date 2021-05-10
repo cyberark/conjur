@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Fix bug where running `conjurctl server` or `conjurctl account create` with
+  passwords that contain `,`s sent via stdin raised an error.
+  [cyberark/conjur#2159](https://github.com/cyberark/conjur/issues/2159)
+
 ### Security
 - Upgrade Rails to 5.2.5 to resolve CVE-2021-22885 
   [cyberark/conjur#2149](https://github.com/cyberark/conjur/issues/2149)
@@ -14,7 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Fix bug where running `conjurctl server` or `conjurctl account create` with
   non-alpha-numeric passwords sent via stdin raised an error.
-  [cyberark/conjur#2083](https://github.com/cyberark/conjur/issues/2083)
+  [cyberark/conjur#2114](https://github.com/cyberark/conjur/issues/2114)
 
 ### Changed
 - The batch secret retrieval endpoint now returns a 406 Not Acceptable instead
