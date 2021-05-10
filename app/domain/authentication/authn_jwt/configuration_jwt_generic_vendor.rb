@@ -16,7 +16,7 @@ module Authentication
         end
 
       def validate_input(authentication_parameters)
-        Authentication::AuthnJwt::JWTInitialValidateInput.new.call(
+        Authentication::AuthnJwt::ValidateInput.new.call(
           authentication_parameters: authentication_parameters
         )
       end

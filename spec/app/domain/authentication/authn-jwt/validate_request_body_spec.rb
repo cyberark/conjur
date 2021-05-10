@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnJwt::JWTValidateRequestBody') do
+RSpec.describe('Authentication::AuthnJwt::ValidateRequestBody') do
 
   let(:empty) { '' }
   let(:empty_spaces) { '    ' } # what are we living for
@@ -23,10 +23,10 @@ RSpec.describe('Authentication::AuthnJwt::JWTValidateRequestBody') do
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
-  context "JWTValidateRequestBody" do
+  context "ValidateRequestBody" do
     context "Validate request body when" do
       subject do
-        Authentication::AuthnJwt::JWTValidateRequestBody.new()
+        Authentication::AuthnJwt::ValidateRequestBody.new()
       end
 
       it "the body is empty" do

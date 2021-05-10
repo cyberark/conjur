@@ -4,7 +4,7 @@ require 'command_class'
 module Authentication
   module AuthnJwt
 
-    JWTValidateRequestBody ||= CommandClass.new(
+    ValidateRequestBody ||= CommandClass.new(
       dependencies: {
       },
       inputs: %i[body_string]
@@ -17,7 +17,11 @@ module Authentication
       private
 
       def validate_body
-        raise Errors::Authentication::Jwt::RequestBodyIsNotJWTToken unless @body_string =~ jwt_regex
+        raise Errors::Authentication::Jwt::RequestBodyIsNotJWTToken unless jwt_body?
+      end
+
+      def jwt_body?
+        @body_string =~ jwt_regex
       end
 
       def jwt_regex
