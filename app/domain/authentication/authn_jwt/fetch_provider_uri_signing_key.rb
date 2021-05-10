@@ -3,11 +3,11 @@ module Authentication
     # This class is responsible for fetching JWK Set from provider-uri
     class FetchProviderUriSigningKey < FetchSigningKeyInterface
 
-      def initialize(authenticator_parameters,
-                     logger,
-                     fetch_required_secrets,
-                     resource_class,
-                     discover_identity_provider)
+      def initialize(authenticator_parameters:,
+                     logger:,
+                     fetch_required_secrets:,
+                     resource_class:,
+                     discover_identity_provider:)
         @logger = logger
         @resource_id = authenticator_parameters.authenticator_resource_id
         @fetch_required_secrets = fetch_required_secrets
@@ -35,11 +35,11 @@ module Authentication
       end
 
       def resource
+        @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwtConfigurationValue.new(provider_uri_resource_id))
         @resource_class[provider_uri_resource_id]
       end
 
       def provider_uri
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ProviderUriResourceNameConfiguration.new(provider_uri_resource_id))
         @provider_uri ||= provider_uri_secret[provider_uri_resource_id]
       end
 
@@ -56,6 +56,7 @@ module Authentication
       end
 
       def discovered_provider
+        @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(provider_uri))
         @discovered_provider ||= @discover_identity_provider.(
           provider_uri: provider_uri
         )

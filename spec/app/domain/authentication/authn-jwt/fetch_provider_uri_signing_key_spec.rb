@@ -9,6 +9,8 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
   let(:account) { 'my-account' }
 
   let(:required_provider_uri_configuration_error) { "required provider_uri configuration missing error" }
+  let(:required_discover_identity_error) { "Provider uri identity error" }
+
   let(:mocked_logger) { double("Mocked Logger")  }
   let(:mocked_authenticator_params) { double("mocked authenticator params")  }
   let(:mocked_fetch_required_existing_secret) { double("mocked fetch required existing secret")  }
@@ -16,7 +18,10 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
   let(:mocked_resource_value_not_exists) { double("Mocked resource value not exists")  }
   let(:mocked_resource_value_exists) { double("Mocked resource value exists")  }
   let(:mocked_discover_identity_provider) { double("Mocked discover identity provider")  }
+  let(:mocked_invalid_uri_discover_identity_provider) { double("Mocked invalid uri discover identity provider")  }
   let(:mocked_provider_uri) { double("Mocked provider uri")  }
+
+  let(:mocked_valid_discover_identity_result) { "some jwks" }
 
   before(:each) do
     allow(mocked_logger).to(
@@ -56,7 +61,11 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
     )
 
     allow(mocked_provider_uri).to(
-      receive(:jwks).and_return("Some Jwks")
+      receive(:jwks).and_return(mocked_valid_discover_identity_result)
+    )
+
+    allow(mocked_invalid_uri_discover_identity_provider).to(
+      receive(:call).and_raise(required_discover_identity_error)
     )
   end
 
@@ -65,14 +74,14 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
-  context "FetchproviderUriSigningKey has_valid_configuration " do
+  context "FetchProviderUriSigningKey has_valid_configuration " do
     context "'provider-uri' variable is not configured in authenticator policy" do
       subject do
-        ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(mocked_authenticator_params,
-                                                                   mocked_logger,
-                                                                   mocked_fetch_required_existing_secret,
-                                                                   mocked_resource_value_not_exists,
-                                                                   mocked_discover_identity_provider).has_valid_configuration?
+        ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(authenticator_parameters: mocked_authenticator_params,
+                                                                   logger: mocked_logger,
+                                                                   fetch_required_secrets: mocked_fetch_required_existing_secret,
+                                                                   resource_class: mocked_resource_value_not_exists,
+                                                                   discover_identity_provider: mocked_discover_identity_provider).has_valid_configuration?
       end
 
       it "raises an error" do
@@ -80,17 +89,49 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
       end
     end
 
-    context "'provider-uri' variable is configured in authenticator policy" do
+    context "'provider-uri' value is valid" do
       subject do
-        ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(mocked_authenticator_params,
-                                                                   mocked_logger,
-                                                                   mocked_fetch_required_existing_secret,
-                                                                   mocked_resource_value_exists,
-                                                                   mocked_discover_identity_provider).has_valid_configuration?
+        ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(authenticator_parameters: mocked_authenticator_params,
+                                                                   logger: mocked_logger,
+                                                                   fetch_required_secrets: mocked_fetch_required_existing_secret,
+                                                                   resource_class: mocked_resource_value_exists,
+                                                                   discover_identity_provider: mocked_discover_identity_provider).has_valid_configuration?
       end
 
       it "does not raise error" do
-        expect { subject }.to_not raise_error
+        expect(subject).to eql(true)
+      end
+    end
+  end
+
+  context "FetchProviderUriSigningKey fetch_signing_key " do
+    context "'provider-uri' variable is configured in authenticator policy" do
+      context "'provider-uri' value is invalid" do
+        subject do
+          ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(authenticator_parameters: mocked_authenticator_params,
+                                                                     logger: mocked_logger,
+                                                                     fetch_required_secrets: mocked_fetch_required_existing_secret,
+                                                                     resource_class: mocked_resource_value_exists,
+                                                                     discover_identity_provider: mocked_invalid_uri_discover_identity_provider).fetch_signing_key
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error
+        end
+      end
+
+      context "'provider-uri' value is valid" do
+        subject do
+          ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(authenticator_parameters: mocked_authenticator_params,
+                                                                     logger: mocked_logger,
+                                                                     fetch_required_secrets: mocked_fetch_required_existing_secret,
+                                                                     resource_class: mocked_resource_value_exists,
+                                                                     discover_identity_provider: mocked_discover_identity_provider).fetch_signing_key
+        end
+
+        it "does not raise error" do
+          expect(subject).to eql(mocked_valid_discover_identity_result)
+        end
       end
     end
   end

@@ -1,16 +1,17 @@
 require 'uri'
 require 'net/http'
+require 'base64'
 
 module Authentication
   module AuthnJwt
     # This class is responsible for fetching JWK Set from JWKS-uri
     class FetchJwksUriSigningKey < FetchSigningKeyInterface
 
-      def initialize(authenticator_parameters,
-                     logger,
-                     fetch_required_secrets,
-                     resource_class,
-                     http)
+      def initialize(authenticator_parameters:,
+                     logger:,
+                     fetch_required_secrets:,
+                     resource_class:,
+                     http:)
         @logger = logger
         @resource_id = authenticator_parameters.authenticator_resource_id
         @fetch_required_secrets = fetch_required_secrets
@@ -38,11 +39,11 @@ module Authentication
       end
 
       def resource
+        @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwtConfigurationValue.new(jwks_uri_resource_id))
         @resource_class[jwks_uri_resource_id]
       end
 
       def fetch_jwks_uri
-        @logger.debug(LogMessages::Authentication::AuthnJwt::JwksUriResourceNameConfiguration.new(jwks_uri_resource_id))
         jwks_uri
       end
 
@@ -60,10 +61,18 @@ module Authentication
 
       def fetch_jwks_keys
         uri = URI(jwks_uri)
-        @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwksFromJwksUri.new)
+        @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(jwks_uri))
         response = @http.get_response(uri)
-        @logger.debug(LogMessages::Authentication::AuthnJwt::FetchJwksUriKeysSuccess.new)
-        JSON.parse(response.body)['keys']
+        @logger.debug(LogMessages::Authentication::AuthnJwt::FetchJwtUriKeysSuccess.new)
+        parsed_response = JSON.parse(response.body)
+
+        if parsed_response['keys'].blank?
+          raise Errors::Authentication::AuthnJwt::FetchJwksUriKeysNotFound.new(
+            Base64.encode64(parsed_response)
+          )
+        end
+
+        parsed_response['keys']
       rescue => e
         raise Errors::Authentication::AuthnJwt::FetchJwksKeysFailed.new(
           jwks_uri,

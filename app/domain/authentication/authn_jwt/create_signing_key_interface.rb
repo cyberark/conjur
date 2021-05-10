@@ -4,7 +4,8 @@ module Authentication
     CreateSigningKeyInterface ||= CommandClass.new(
       dependencies: {
         fetch_provider_uri: Authentication::AuthnJwt::FetchProviderUriSigningKey,
-        fetch_jwks_uri: Authentication::AuthnJwt::FetchJwksUriSigningKey
+        fetch_jwks_uri: Authentication::AuthnJwt::FetchJwksUriSigningKey,
+        logger: Rails.logger
       },
       inputs: %i[authenticator_parameters]
     ) do
@@ -16,11 +17,14 @@ module Authentication
       private
 
       def create
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingJwtSigningKeyConfiguration.new)
         validate_key_configuration
 
         if provider_uri_has_valid_configuration?
+          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingProviderUriSigningKey.new)
           fetch_provider_uri_signing_key
         elsif jwks_uri_has_valid_configuration?
+          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwksUriSigningKey.new)
           fetch_jwks_uri_signing_key
         end
       end
@@ -44,19 +48,19 @@ module Authentication
       end
 
       def fetch_provider_uri_signing_key
-        @fetch_provider_uri_signing_key ||= @fetch_provider_uri.new(@authenticator_parameters,
-                                                                    Rails.logger,
-                                                                    Conjur::FetchRequiredSecrets.new,
-                                                                    ::Resource,
-                                                                    Authentication::OAuth::DiscoverIdentityProvider.new)
+        @fetch_provider_uri_signing_key ||= @fetch_provider_uri.new(authenticator_parameters: @authenticator_parameters,
+                                                                    logger: Rails.logger,
+                                                                    fetch_required_secrets: Conjur::FetchRequiredSecrets.new,
+                                                                    resource_class: ::Resource,
+                                                                    discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new)
       end
 
       def fetch_jwks_uri_signing_key
-        @fetch_jwks_uri_signing_key ||= @fetch_jwks_uri.new(@authenticator_parameters,
-                                                            Rails.logger,
-                                                            Conjur::FetchRequiredSecrets.new,
-                                                            ::Resource,
-                                                            Net::HTTP)
+        @fetch_jwks_uri_signing_key ||= @fetch_jwks_uri.new(authenticator_parameters: @authenticator_parameters,
+                                                            logger: Rails.logger,
+                                                            fetch_required_secrets: Conjur::FetchRequiredSecrets.new,
+                                                            resource_class: ::Resource,
+                                                            http: Net::HTTP)
       end
     end
   end

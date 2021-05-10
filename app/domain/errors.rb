@@ -415,20 +415,25 @@ module Errors
       )
 
       InvalidUriConfiguration = ::Util::TrackableErrorClass.new(
-        msg: "Uri authenticator configuration is invalid. It should configured as authenticator variables: " \
+        msg: "Signing key uri authenticator configuration is invalid. It should configured as authenticator variables: " \
               "one of the following: '{0-resource-name}','{1-resource-name}'",
         code: "CONJ00178E"
       )
 
       InvalidUriConfiguration = ::Util::TrackableErrorClass.new(
-        msg: "Uri authenticator configuration is invalid. It should configured as authenticator variables: " \
+        msg: "Signing key uri authenticator configuration is invalid. It should configured as authenticator variables: " \
               "one of the following: '{0-resource-name}','{1-resource-name}'",
         code: "CONJ00179E"
       )
 
       FetchJwksKeysFailed = ::Util::TrackableErrorClass.new(
-        msg: "Failed to fetch keys from Jwks Uri (JWKS URI: '{0}'). Reason: '{1}'",
+        msg: "Failed to fetch jwks from '{0-uri}'. Reason: '{1}'",
         code: "CONJ00180E"
+      )
+
+      FetchJwksUriKeysNotFound = ::Util::TrackableErrorClass.new(
+        msg: "Fetched jwks not found in response: {0}",
+        code: "CONJ00181E"
       )
 
     end
@@ -467,6 +472,10 @@ module Errors
         code: "CONJ00069E"
       )
 
+      RoleMissingAnyConstraints =  ::Util::TrackableErrorClass.new(
+        msg: "Role must have at least one constraint",
+        code: "CONJ00070E"
+      )
     end
   end
 
