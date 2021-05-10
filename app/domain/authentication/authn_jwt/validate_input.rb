@@ -5,7 +5,7 @@ module Authentication
 
     ValidateInput ||= CommandClass.new(
       dependencies: {
-        jwt_validate_body: Authentication::AuthnJwt::ValidateRequestBody.new
+        validate_request_body: Authentication::AuthnJwt::ValidateRequestBody.new
       },
       inputs: %i[authentication_parameters]
     ) do
