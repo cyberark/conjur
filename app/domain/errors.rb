@@ -416,8 +416,31 @@ module Errors
 
       MissingToken = ::Util::TrackableErrorClass.new(
         msg: "Token is empty or not found.",
-        code: "CONJ00077E"
+        code: "CONJ00177E"
       )
+
+      InvalidUriConfiguration = ::Util::TrackableErrorClass.new(
+        msg: "Signing key uri authenticator configuration is invalid. It should configured as authenticator variables: " \
+              "one of the following: '{0-resource-name}','{1-resource-name}'",
+        code: "CONJ00178E"
+      )
+
+      InvalidUriConfiguration = ::Util::TrackableErrorClass.new(
+        msg: "Signing key uri authenticator configuration is invalid. It should configured as authenticator variables: " \
+              "one of the following: '{0-resource-name}','{1-resource-name}'",
+        code: "CONJ00179E"
+      )
+
+      FetchJwksKeysFailed = ::Util::TrackableErrorClass.new(
+        msg: "Failed to fetch jwks from '{0-uri}'. Reason: '{1}'",
+        code: "CONJ00180E"
+      )
+
+      FetchJwksUriKeysNotFound = ::Util::TrackableErrorClass.new(
+        msg: "Fetched jwks not found in response: {0}",
+        code: "CONJ00181E"
+      )
+
     end
 
     module ResourceRestrictions
@@ -458,7 +481,6 @@ module Errors
         msg: "Role must have at least one constraint",
         code: "CONJ00070E"
       )
-
     end
   end
 
