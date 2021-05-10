@@ -29,6 +29,10 @@ RSpec.describe('Authentication::AuthnJwt::ValidateRequestBody') do
         Authentication::AuthnJwt::ValidateRequestBody.new()
       end
 
+      it "the body is nil" do
+        expect { subject.call(body_string: nil) }.to raise_error(Errors::Authentication::Jwt::RequestBodyIsNotJWTToken)
+      end
+
       it "the body is empty" do
         expect { subject.call(body_string: empty) }.to raise_error(Errors::Authentication::Jwt::RequestBodyIsNotJWTToken)
       end
