@@ -360,6 +360,35 @@ module LogMessages
         code: "CONJ00070D"
       )
 
+      FetchingJwtConfigurationValue = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetching jwt signing key uri from '{0-resource-id}'",
+        code: "CONJ00071D"
+      )
+
+      FetchingJwksFromProvider = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetching jwks from '{0-uri}'",
+        code: "CONJ00072D"
+      )
+
+      FetchJwtUriKeysSuccess = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetched jwks successfully",
+        code: "CONJ00073D"
+      )
+
+      ValidatingJwtSigningKeyConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating Jwt signing key uri configuration",
+        code: "CONJ00074D"
+      )
+
+      FetchingProviderUriSigningKey = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetching provider-uri signing key",
+        code: "CONJ00075D"
+      )
+
+      FetchingJwksUriSigningKey = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetching jwks-uri signing key",
+        code: "CONJ00076D"
+      )
     end
   end
 
