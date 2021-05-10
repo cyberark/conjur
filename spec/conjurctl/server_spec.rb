@@ -40,7 +40,7 @@ describe "conjurctl server" do
     it "with both account and password-from-stdin flags" do
       # Run in background to easily kill process later
       system("
-        echo -n 'MySecretP@SS1()!' | 
+        echo -n 'MySecretP,@SS1()!' | 
         conjurctl server --account demo --password-from-stdin &
       ")
       wait_for_conjur
