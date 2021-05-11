@@ -3,38 +3,60 @@
 require 'spec_helper'
 
 RSpec.describe('Authentication::Jwt::DecodedCredentials') do
-  ####################################
-  # request mock
-  ####################################
 
-  def mock_authenticate_token_request(request_body_data:)
-    double('JwtRequest').tap do |request|
-      request_body = StringIO.new
-      request_body.puts(request_body_data)
-      request_body.rewind
-
-      allow(request).to receive(:body).and_return(request_body)
-    end
+  let(:prefix) do
+    'jwt='
   end
 
-  def request_body(request)
-    request.body.read.chomp
+  let(:header) do
+    'eyJhbGciOiJQUzI1NiIsInR5cCI6IkpXVCJ9'
   end
 
-  let(:valid_jwt_claim_value) do
-    "{\"jwt_claim\": \"jwt_claim_value\"}"
+  let(:body) do
+    'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0'
+  end
+
+  let(:signature) do
+    'hZnl5amPk_I3tb4O-Otci_5XZdVWhPlFyVRvcqSwnDo_srcysDvhhKOD01DigPK1lJvTSTolyUgKGtpLqMfRDXQlekRsF4XhA'\
+'jYZTmcynf-C-6wO5EI4wYewLNKFGGJzHAknMgotJFjDi_NCVSjHsW3a10nTao1lB82FRS305T226Q0VqNVJVWhE4G0JQvi2TssRtCxYTqzXVt22iDKkXe'\
+'ZJARZ1paXHGV5Kd1CljcZtkNZYIGcwnj65gvuCwohbkIxAnhZMJXCLaVvHqv9l-AAUV7esZvkQR1IpwBAiDQJh4qxPjFGylyXrHMqh5NlT_pWL2ZoULWT'\
+'g_TJjMO9TuQ'
+  end
+
+  let(:header_body) do
+    "#{prefix}#{header}.#{body}"
+  end
+
+  let(:header_body_period) do
+    "#{prefix}#{header}.#{body}."
+  end
+
+  let(:header_signature) do
+    "#{prefix}#{header}..#{signature}"
+  end
+
+  let(:valid_token) do
+    "#{header}.#{body}.#{signature}"
   end
 
   let(:authenticate_token_request) do
-    mock_authenticate_token_request(request_body_data: "jwt=#{valid_jwt_claim_value}")
+    "#{prefix}#{valid_token}"
   end
 
-  let(:authenticate_token_request_missing_jwt_claim) do
-    mock_authenticate_token_request(request_body_data: "some_key=some_value")
+  let(:control_character_token_request) do
+    "#{prefix}#{header}.#{body}\b.#{signature}"
   end
 
-  let(:authenticate_token_request_empty_jwt_claim) do
-    mock_authenticate_token_request(request_body_data: "jwt=")
+  let(:authenticate_token_request_missing_jwt_parameter) do
+    "some_key=some_value"
+  end
+
+  let(:empty_authenticate_token_request) do
+    ""
+  end
+
+  let(:multiple_parameters_request) do
+    "#{authenticate_token_request_missing_jwt_parameter}&#{authenticate_token_request}"
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
@@ -43,11 +65,9 @@ RSpec.describe('Authentication::Jwt::DecodedCredentials') do
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
   context "Credentials" do
-    context "with a jwt claim" do
+    context "with a jwt token as a single parameter" do
       subject(:decoded_credentials) do
-        ::Authentication::Jwt::DecodedCredentials.new(
-          request_body(authenticate_token_request)
-        )
+        ::Authentication::Jwt::DecodedCredentials.new(authenticate_token_request)
       end
 
       it "does not raise an error" do
@@ -55,15 +75,27 @@ RSpec.describe('Authentication::Jwt::DecodedCredentials') do
       end
 
       it "parses the jwt claim expectedly" do
-        expect(decoded_credentials.jwt).to eq(valid_jwt_claim_value)
+        expect(decoded_credentials.jwt).to eq(valid_token)
       end
     end
 
-    context "with no jwt claim in the request" do
+    context "with a jwt token and additional parameters" do
+      subject(:decoded_credentials) do
+        ::Authentication::Jwt::DecodedCredentials.new(authenticate_token_request)
+      end
+
+      it "does not raise an error" do
+        expect { decoded_credentials }.to_not raise_error
+      end
+
+      it "parses the jwt claim expectedly" do
+        expect(decoded_credentials.jwt).to eq(valid_token)
+      end
+    end
+
+    context "with empty request body" do
       subject do
-        ::Authentication::Jwt::DecodedCredentials.new(
-          request_body(authenticate_token_request_missing_jwt_claim)
-        )
+        ::Authentication::Jwt::DecodedCredentials.new(empty_authenticate_token_request)
       end
 
       it "raises a MissingRequestParam error" do
@@ -71,16 +103,65 @@ RSpec.describe('Authentication::Jwt::DecodedCredentials') do
       end
     end
 
-    context "with an empty jwt claim in the request" do
+    context "with no jwt parameter in the request" do
       subject do
-        ::Authentication::Jwt::DecodedCredentials.new(
-          request_body(authenticate_token_request_empty_jwt_claim)
-        )
+        ::Authentication::Jwt::DecodedCredentials.new(authenticate_token_request_missing_jwt_parameter)
       end
 
       it "raises a MissingRequestParam error" do
         expect { subject }.to raise_error(::Errors::Authentication::RequestBody::MissingRequestParam)
       end
     end
+
+    context "with an empty jwt token in the request" do
+      subject do
+        ::Authentication::Jwt::DecodedCredentials.new(prefix)
+      end
+
+      it "raises a MissingRequestParam error" do
+        expect { subject }.to raise_error(::Errors::Authentication::RequestBody::MissingRequestParam)
+      end
+    end
+
+    context "with invalid JWT token #1" do
+      subject do
+        ::Authentication::Jwt::DecodedCredentials.new(header_body)
+      end
+
+      it "raises a RequestBodyIsNotJWTToken error" do
+        expect { subject }.to raise_error(::Errors::Authentication::Jwt::RequestBodyIsNotJWTToken)
+      end
+    end
+
+    context "with invalid JWT token #2" do
+      subject do
+        ::Authentication::Jwt::DecodedCredentials.new(header_body_period)
+      end
+
+      it "raises a RequestBodyIsNotJWTToken error" do
+        expect { subject }.to raise_error(::Errors::Authentication::Jwt::RequestBodyIsNotJWTToken)
+      end
+    end
+
+    context "with invalid JWT token #3" do
+      subject do
+        ::Authentication::Jwt::DecodedCredentials.new(header_signature)
+      end
+
+      it "raises a RequestBodyIsNotJWTToken error" do
+        expect { subject }.to raise_error(::Errors::Authentication::Jwt::RequestBodyIsNotJWTToken)
+      end
+    end
+
+    context "with JWT token contains a control character" do
+      subject do
+        ::Authentication::Jwt::DecodedCredentials.new(control_character_token_request)
+      end
+
+      it "raises a RequestBodyIsNotJWTToken error" do
+        expect { subject }.to raise_error(::Errors::Authentication::Jwt::RequestBodyIsNotJWTToken)
+      end
+    end
+
   end
 end

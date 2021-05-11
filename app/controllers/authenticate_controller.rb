@@ -80,7 +80,7 @@ class AuthenticateController < ApplicationController
   def authenticate_jwt
     params[:authenticator] = "authn-jwt"
     authn_token = Authentication::AuthnJwt::OrchestrateAuthentication.new.call(
-      authenticator_input: authenticator_input
+      authenticator_input: tiny_authenticator_input
     )
     render_authn_token(authn_token)
   rescue => e
@@ -117,6 +117,19 @@ class AuthenticateController < ApplicationController
       account: params[:account],
       username: params[:id],
       credentials: request.body.read,
+      client_ip: request.ip,
+      request: request
+    )
+  end
+
+  # the purpose of the ....
+  def tiny_authenticator_input
+    Authentication::AuthenticatorInput.new(
+      authenticator_name: params[:authenticator],
+      service_id: params[:service_id],
+      account: params[:account],
+      username: params[:id],
+      credentials: nil,
       client_ip: request.ip,
       request: request
     )
