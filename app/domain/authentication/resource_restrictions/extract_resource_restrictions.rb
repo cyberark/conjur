@@ -5,7 +5,8 @@ module Authentication
 
     ExtractResourceRestrictions = CommandClass.new(
       dependencies: {
-        resource_restrictions_class: ResourceRestrictions::ResourceRestrictions,
+        resource_restrictions_class: Authentication::ResourceRestrictions::ResourceRestrictions,
+        get_restrictions_class: Authentication::ResourceRestrictions::GetRestrictionsFromAnnotation,
         role_class: ::Role,
         resource_class: ::Resource,
         logger: Rails.logger
@@ -68,7 +69,11 @@ module Authentication
       end
 
       def add_restriction_to_hash(annotation_name, annotation_value, resource_restrictions_hash)
-        restriction_name, is_general_restriction = get_restriction_from_annotation(annotation_name)
+        restriction_name, is_general_restriction = @get_restrictions_class.new.call(
+          annotation_name: annotation_name,
+          authenticator_name: @authenticator_name,
+          service_id: @service_id
+        )
 
         return unless restriction_name
 
