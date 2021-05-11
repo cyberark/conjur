@@ -7,15 +7,7 @@ module Authentication
         @validate_and_decode_token_class = Authentication::AuthnJwt::ValidateAndDecodeToken
 
         @extract_token_from_credentials = Authentication::AuthnJwt::ExtractTokenFromCredentials.new
-        @restriction_validator = Authentication::AuthnJwt::ValidateRestrictionsOneToOne
         @identity_provider_factory = Authentication::AuthnJwt::CreateIdentityProvider
-        @extract_resource_restrictions = Authentication::ResourceRestrictions::ExtractResourceRestrictions.new
-        @validate_resource_restrictions = Authentication::ResourceRestrictions::ValidateResourceRestrictions.new(
-          extract_resource_restrictions: @extract_resource_restrictions
-        )
-        @constraints = Authentication::Constraints::MultipleConstraint.new(
-          Authentication::Constraints::NotEmptyConstraint.new
-        )
       end
 
       def extract_token_from_credentials(credentials)
@@ -30,6 +22,7 @@ module Authentication
       end
 
       def validate_restrictions(authentication_parameters)
+        initialize_validate_restrictions
         @validate_resource_restrictions.call(
           authenticator_name: authentication_parameters.authenticator_name,
           service_id: authentication_parameters.service_id,
@@ -100,6 +93,18 @@ module Authentication
 
       def fetch_jwt_claims_to_validate
         @fetch_jwt_claims_to_validate ||= ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new
+      end
+
+      private
+
+      def initialize_validate_restrictions
+        @restriction_validator = Authentication::AuthnJwt::ValidateRestrictionsOneToOne
+        @restrictions_from_annotations_class = Authentication::ResourceRestrictions::GetServiceSpecificRestrictionsFromAnnotation
+        @extract_resource_restrictions = Authentication::ResourceRestrictions::ExtractResourceRestrictions.new(get_restriction_from_annotation: @restrictions_from_annotations_class)
+        @validate_resource_restrictions = Authentication::ResourceRestrictions::ValidateResourceRestrictions.new(extract_resource_restrictions: @extract_resource_restrictions)
+        @constraints = Authentication::Constraints::MultipleConstraint.new(
+          Authentication::Constraints::NotEmptyConstraint.new
+        )
       end
     end
   end
