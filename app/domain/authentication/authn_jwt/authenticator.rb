@@ -14,6 +14,7 @@ module Authentication
 
       def call
         create_authentication_parameters
+        fetch_token
         validate_and_decode_token
         get_jwt_identity
         validate_restrictions
@@ -25,6 +26,11 @@ module Authentication
       def create_authentication_parameters
         @logger.debug(LogMessages::Authentication::AuthnJwt::CREATING_AUTHENTICATION_PARAMETERS_OBJECT.new)
         @authentication_parameters = Authentication::AuthnJwt::AuthenticationParameters.new(@authenticator_input)
+      end
+
+      def fetch_token
+        @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingTokenString.new)
+        @authentication_parameters.jwt_token = @jwt_configuration.fetch_token(@authentication_parameters)
       end
 
       def validate_and_decode_token
