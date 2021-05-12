@@ -7,6 +7,7 @@ Rails.application.configure do
     config.conjur_disable_trusted_proxies_cache
 
   Rack::Request.ip_filter = Conjur::TrustedProxyFilter.new(
+    config: Rails.application.config.conjur_config,
     options: {
       disable_cache: disable_cache
     }

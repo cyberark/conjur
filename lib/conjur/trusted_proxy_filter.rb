@@ -10,8 +10,8 @@ module Conjur
   #
   # Example: TRUSTED_PROXIES=4.4.4.4,192.168.100.0/24
   class TrustedProxyFilter
-    def initialize(env: ENV, options: { disable_cache: true })
-      @env = env
+    def initialize(config: Conjur::ConjurConfig.new, options: { disable_cache: true })
+      @config = config
       @options = options
       @cached_trusted_proxies = nil
 
@@ -34,7 +34,7 @@ module Conjur
 
       # The trusted proxy IPs are `127.0.0.1` plus those defined in the
       # `TRUSTED_PROXIES` environment variable.
-      proxy_ips = [IPAddr.new('127.0.0.1')] + env_trusted_proxies
+      proxy_ips = [IPAddr.new('127.0.0.1')] + configured_trusted_proxies
 
       # If not disabled, cache the IP address list
       @cached_trusted_proxies = proxy_ips unless @options[:disable_cache]
@@ -42,12 +42,10 @@ module Conjur
       proxy_ips
     end
 
-    # Reek flags @env['TRUSTED_PROXIES'] as :reek:DuplicateMethodCall. Refactoring
-    # this would not enhance the readability or performance.
-    def env_trusted_proxies
-      return [] unless @env['TRUSTED_PROXIES']
+    def configured_trusted_proxies
+      return [] unless @config.trusted_proxies
 
-      Set.new(@env['TRUSTED_PROXIES'].split(','))
+      Set.new(@config.trusted_proxies.split(','))
         .collect { |cidr| parse_trusted_proxy(cidr.strip) }
     end
 
