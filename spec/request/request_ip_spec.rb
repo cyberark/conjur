@@ -30,13 +30,13 @@ RSpec.describe("request IP address determination", type: :request) do
   end
 
   def request_ip(remote_addr:, x_forwarded_for: nil, trusted_proxies: nil)
-    ENV['TRUSTED_PROXIES'] = trusted_proxies
+    Rails.application.config.conjur_config.trusted_proxies = trusted_proxies
 
     headers = {}
     headers['X-Forwarded-For'] = x_forwarded_for if x_forwarded_for
-  
+
     get('/whoami', env: request_env(remote_addr), headers: headers)
-  
+
     JSON.parse(response.body)['client_ip']
   end
 

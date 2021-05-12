@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Trusted Proxies can now be configured with a configuration file or by setting
+  the CONJUR_TRUSTED_PROXIES environment variable.
+  [cyberark/conjur#2168](https://github.com/cyberark/conjur/issues/2168)
+
 ### Fixed
 - Fix bug where running `conjurctl server` or `conjurctl account create` with
   passwords that contain `,`s sent via stdin raised an error.
