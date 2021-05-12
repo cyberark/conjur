@@ -16,7 +16,7 @@ module Authentication
         )
       end
 
-      def fetch_token(authentication_parameters)
+      def create_authentication_parameters(authentication_parameters)
         @token_fetcher.fetch(authentication_parameters)
       end
 
