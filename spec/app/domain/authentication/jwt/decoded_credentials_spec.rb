@@ -47,6 +47,10 @@ RSpec.describe('Authentication::Jwt::DecodedCredentials') do
     "#{prefix}#{header}.#{body}\b.#{signature}"
   end
 
+  let(:new_line_token_request) do
+    "#{prefix}#{header}.#{body}.#{signature}\n"
+  end
+
   let(:authenticate_token_request_missing_jwt_parameter) do
     "some_key=some_value"
   end
@@ -160,6 +164,20 @@ RSpec.describe('Authentication::Jwt::DecodedCredentials') do
 
       it "raises a RequestBodyIsNotJWTToken error" do
         expect { subject }.to raise_error(::Errors::Authentication::Jwt::RequestBodyIsNotJWTToken)
+      end
+    end
+
+    context "with JWT token ends by new line" do
+      subject(:decoded_credentials) do
+        ::Authentication::Jwt::DecodedCredentials.new(new_line_token_request)
+      end
+
+      it "does not raise an error" do
+        expect { decoded_credentials }.to_not raise_error
+      end
+
+      it "parses the jwt claim expectedly" do
+        expect(decoded_credentials.jwt).to eq(valid_token)
       end
     end
 

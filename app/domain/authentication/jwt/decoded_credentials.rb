@@ -13,7 +13,7 @@ module Authentication
       end
 
       def jwt
-        @decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME]
+        @jwt_token
       end
 
       private
@@ -22,6 +22,7 @@ module Authentication
         if @decoded_credentials.fetch(JWT_REQUEST_BODY_FIELD_NAME, "") == ""
           raise Errors::Authentication::RequestBody::MissingRequestParam, JWT_REQUEST_BODY_FIELD_NAME
         end
+        @jwt_token = @decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME].strip
       end
 
       def validate_body_contains_jwt
@@ -29,11 +30,7 @@ module Authentication
       end
 
       def is_jwt?
-        # TODO: Troubleshooting remove before merge
-        @logger.debug("JWTVER#{@decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME]}")
-        @logger.debug("JWTVER#{@decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME].length}")
-        @logger.debug("JWTVER#{@decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME][@decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME].length - 1].ord}")
-        @decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME] =~ jwt_regex
+        @jwt_token =~ jwt_regex
       end
 
       def jwt_regex
