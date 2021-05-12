@@ -6,6 +6,7 @@ module Authentication
       JWT_REQUEST_BODY_FIELD_NAME = "jwt".freeze
 
       def initialize(credentials)
+        @logger = Rails.logger
         @decoded_credentials = Hash[URI.decode_www_form(credentials)]
         validate_jwt_request_field_is_present
         validate_body_contains_jwt
@@ -28,6 +29,10 @@ module Authentication
       end
 
       def is_jwt?
+        # TODO: Troubleshooting remove before merge
+        @logger.debug("JWTVER#{@decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME]}")
+        @logger.debug("JWTVER#{@decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME].length}")
+        @logger.debug("JWTVER#{@decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME][@decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME].length - 1].ord}")
         @decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME] =~ jwt_regex
       end
 
