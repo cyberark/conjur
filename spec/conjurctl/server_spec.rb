@@ -7,9 +7,9 @@ describe "conjurctl server" do
   end
 
   # Wait for conjur server to be up. 
-  # Exit if it takes longer than 35 seconds
+  # Exit if it takes longer than 60 seconds
   def wait_for_conjur
-    system("conjurctl wait --retries 35")
+    system("conjurctl wait --retries 60")
   end
 
   context "start server" do
