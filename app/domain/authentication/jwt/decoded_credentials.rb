@@ -34,7 +34,7 @@ module Authentication
       end
 
       def extract_token
-        @jwt = @decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME].strip
+        @jwt ||= @decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME].strip
       end
 
       def validate_jwt_format
