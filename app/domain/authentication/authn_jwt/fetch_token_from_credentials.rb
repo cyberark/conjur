@@ -3,7 +3,7 @@ module Authentication
 
     FetchTokenFromCredentials ||= CommandClass.new(
       dependencies: {
-        decoded_credentials: Authentication::Jwt::DecodedCredentials
+        decoded_credentials_class: Authentication::Jwt::DecodedCredentials
       },
       inputs: %i[authentication_parameters]
     ) do
@@ -15,7 +15,7 @@ module Authentication
       private
 
       def decoded_credentials(authentication_parameters)
-        @decoded_credentials.new(authentication_parameters.credentials)
+        @decoded_credentials_class.new(authentication_parameters.credentials)
       end
     end
   end
