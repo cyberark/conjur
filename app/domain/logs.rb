@@ -390,7 +390,7 @@ module LogMessages
         code: "CONJ00076D"
       )
 
-      FetchingTokenString = ::Util::TrackableLogMessageClass.new(
+      ExtractTokenString = ::Util::TrackableLogMessageClass.new(
         msg: "Extract JWT token from request",
         code: "CONJ00077D"
       )
