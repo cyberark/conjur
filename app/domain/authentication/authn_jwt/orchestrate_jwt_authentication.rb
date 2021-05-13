@@ -7,7 +7,7 @@ module Authentication
     OrchestrateAuthentication ||= CommandClass.new(
       dependencies: {
         jwt_configuration_factory: ConfigurationFactory.new,
-        jwt_authenticator: Authentication::AuthnJwt::Authenticate.new,
+        jwt_authenticator: Authentication::AuthnJwt::Authenticator.new,
         logger: Rails.logger
       },
       inputs: %i[authenticator_input]

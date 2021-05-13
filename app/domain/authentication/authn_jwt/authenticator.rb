@@ -4,7 +4,7 @@ module Authentication
   module AuthnJwt
     # Generic JWT authenticator that receive JWT vendor configuration and uses to validate that the authentication
     # request is valid, and return conjur authn token accordingly
-    Authenticate = CommandClass.new(
+    Authenticator = CommandClass.new(
       dependencies: {
         token_factory: TokenFactory.new,
         logger: Rails.logger
@@ -48,6 +48,27 @@ module Authentication
         @token_factory.signed_token(
           account: @authenticator_input.account,
           username: @authenticator_input.username
+        )
+      end
+    end
+
+    class Authenticator
+      # This delegates to all the work to the call method created automatically
+      # by CommandClass
+      #
+      # This is needed because we need `valid?` to exist on the Authenticator
+      # class, but that class contains only a metaprogramming generated
+      # `call(authenticator_input:)` method.  The methods we define in the
+      # block passed to `CommandClass` exist only on the private internal
+      # `Call` objects created each time `call` is run.
+      def valid?(input)
+        call(jwt_configuration:input[jwt_configuration] ,authenticator_input: input[autheticator_input])
+      end
+
+      def status(authenticator_status_input:)
+        Authentication::AuthnJwt::ValidateStatus.new.(
+          account: authenticator_status_input.account,
+            service_id: authenticator_status_input.service_id
         )
       end
     end
