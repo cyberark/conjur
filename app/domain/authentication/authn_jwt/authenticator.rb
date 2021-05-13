@@ -26,7 +26,8 @@ module Authentication
         @logger.debug(LogMessages::Authentication::AuthnJwt::CREATING_AUTHENTICATION_PARAMETERS_OBJECT.new)
         @authentication_parameters = Authentication::AuthnJwt::AuthenticationParameters.new(@authenticator_input)
         @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingTokenString.new)
-        @authentication_parameters.jwt_token = @jwt_configuration.create_authentication_parameters(@authentication_parameters)
+        @authentication_parameters.jwt_token = @jwt_configuration
+                                                 .extract_token_from_credentials(@authentication_parameters.credentials)
       end
 
       def validate_and_decode_token

@@ -15,10 +15,10 @@ module Authentication
       JWT_REGEX = /\A#{BASE_64_URL_REGEX}\.#{BASE_64_URL_REGEX}\.#{BASE_64_URL_REGEX}\z/.freeze
 
       def initialize(credentials)
-        @logger = Rails.logger
         @decoded_credentials = Hash[URI.decode_www_form(credentials)]
         validate_jwt_request_field_is_present
-        validate_body_contains_jwt
+        extract_token
+        validate_jwt_format
       end
 
       def jwt
@@ -31,10 +31,13 @@ module Authentication
         if @decoded_credentials.fetch(JWT_REQUEST_BODY_FIELD_NAME, "") == ""
           raise Errors::Authentication::RequestBody::MissingRequestParam, JWT_REQUEST_BODY_FIELD_NAME
         end
+      end
+
+      def extract_token
         @jwt = @decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME].strip
       end
 
-      def validate_body_contains_jwt
+      def validate_jwt_format
         raise Errors::Authentication::Jwt::RequestBodyIsNotJWTToken unless is_jwt?
       end
 

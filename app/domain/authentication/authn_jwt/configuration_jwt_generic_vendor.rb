@@ -4,7 +4,7 @@ module Authentication
     class ConfigurationJWTGenericVendor < ConfigurationInterface
 
       def initialize
-        @fetch_token_from_credentials = Authentication::AuthnJwt::FetchTokenFromCredentials.new
+        @extract_token_from_credentials = Authentication::AuthnJwt::ExtractTokenFromCredentials.new
         @restriction_validator = Authentication::AuthnJwt::ValidateRestrictionsOneToOne
         @identity_provider_factory = Authentication::AuthnJwt::CreateIdentityProvider
         @extract_resource_restrictions = Authentication::ResourceRestrictions::ExtractResourceRestrictions.new
@@ -16,8 +16,8 @@ module Authentication
         )
       end
 
-      def create_authentication_parameters(authentication_parameters)
-        @fetch_token_from_credentials.call(authentication_parameters)
+      def extract_token_from_credentials(credentials)
+        @extract_token_from_credentials.call(credentials)
       end
 
       def jwt_identity(authentication_parameters)
