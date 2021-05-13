@@ -5,6 +5,11 @@ describe Conjur::ConjurConfig do
     expect(Conjur::ConjurConfig.new.trusted_proxies).to eq("")
   end
 
+  it "reports the attribute source as :defaults" do
+    expect(Conjur::ConjurConfig.new.attribute_sources[:trusted_proxies]).
+      to eq(:defaults)
+  end
+
   context "with config file" do
     let(:config_folder) { "/etc/conjur/config" }
     let(:config_file) { "#{config_folder}/config.yml" }
@@ -25,12 +30,17 @@ describe Conjur::ConjurConfig do
       expect(Conjur::ConjurConfig.new.trusted_proxies).to eq("1.2.3.4")
     end
 
+    it "reports the attribute source as :yml" do
+      expect(Conjur::ConjurConfig.new.attribute_sources[:trusted_proxies]).
+        to eq(:yml)
+    end
+
     context "with prefixed env var" do
       before do
         ENV['CONJUR_TRUSTED_PROXIES'] = "5.6.7.8"
 
         # Anyway Config caches prefixed env vars at the class level so we must
-        # clear the cache to have it pick up the new one with a reload.
+        # clear the cache to have it pick up the new var with a reload.
         Anyway.env.clear
       end
 
@@ -40,6 +50,11 @@ describe Conjur::ConjurConfig do
 
       it "overrides the config file value" do
         expect(Conjur::ConjurConfig.new.trusted_proxies).to eq("5.6.7.8")
+      end
+
+      it "reports the attribute source as :env" do
+        expect(Conjur::ConjurConfig.new.attribute_sources[:trusted_proxies]).
+          to eq(:env)
       end
     end
   end
