@@ -1,16 +1,21 @@
 module Authentication
   module AuthnJwt
 
-    class FetchTokenFromCredentials
+    FetchTokenFromCredentials ||= CommandClass.new(
+      dependencies: {
+        decoded_credentials: Authentication::Jwt::DecodedCredentials
+      },
+      inputs: %i[authentication_parameters]
+    ) do
 
-      def fetch(authentication_parameters:)
-        decoded_credentials(authentication_parameters).jwt
+      def call
+        decoded_credentials(@authentication_parameters).jwt
       end
 
       private
 
       def decoded_credentials(authentication_parameters)
-        Authentication::Jwt::DecodedCredentials.new(authentication_parameters.credentials)
+        @decoded_credentials.new(authentication_parameters.credentials)
       end
     end
   end

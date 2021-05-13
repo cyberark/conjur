@@ -43,7 +43,7 @@ RSpec.describe(Authentication::AuthnJwt::FetchTokenFromCredentials) do
   context "Request body" do
     context "that contains a valid jwt token parameter" do
       subject do
-        Authentication::AuthnJwt::FetchTokenFromCredentials.new().fetch(
+        Authentication::AuthnJwt::FetchTokenFromCredentials.new().call(
           authentication_parameters: authentication_parameters
         )
       end

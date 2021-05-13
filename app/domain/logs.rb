@@ -391,7 +391,7 @@ module LogMessages
       )
 
       FetchingTokenString = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetching jwt value from request",
+        msg: "Fetching JWT token from request",
         code: "CONJ00077D"
       )
     end

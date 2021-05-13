@@ -167,7 +167,7 @@ module Errors
       )
 
       RequestBodyIsNotJWTToken = ::Util::TrackableErrorClass.new(
-        msg: "The request body is not a JWT token",
+        msg: "The request body does not contain JWT token",
         code: "CONJ00077E"
       )
 

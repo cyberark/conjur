@@ -17,7 +17,7 @@ module Authentication
       end
 
       def create_authentication_parameters(authentication_parameters)
-        @token_fetcher.fetch(authentication_parameters)
+        @token_fetcher.call(authentication_parameters)
       end
 
       def jwt_identity(authentication_parameters)
