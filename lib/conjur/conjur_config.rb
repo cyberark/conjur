@@ -3,13 +3,15 @@
 # from the Conjur application code.
 
 class Conjur::ConjurConfig < Anyway::Config
-  config_name :conjur
+  config_name :config
 
-  # Env vars prefixed w/ CONJUR_ overwrite values loaded from file
+  # Env vars prefixed w/ CONJUR_ overwrite values loaded from file. Note that
+  # Anyway Config caches these values at the class level and they will not be
+  # picked up by a call to `reload` unless you first run `Anyway.env.clear`.
   env_prefix :conjur
 
   attr_config(
     # Read TRUSTED_PROXIES before default to maintain backwards compatibility
-    trusted_proxies: (ENV['TRUSTED_PROXIES'] || "")
+    trusted_proxies: (ENV['TRUSTED_PROXIES'] || ""),
   )
 end
