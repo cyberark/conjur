@@ -14,4 +14,14 @@ class Conjur::ConjurConfig < Anyway::Config
     # Read TRUSTED_PROXIES before default to maintain backwards compatibility
     trusted_proxies: (ENV['TRUSTED_PROXIES'] || ""),
   )
+
+  def attribute_sources
+    sources = {}
+
+    self.to_source_trace.each do |k,v|
+      sources[k.to_sym] = v[:source][:type]
+    end
+
+    sources
+  end
 end
