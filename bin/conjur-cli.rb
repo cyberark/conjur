@@ -3,6 +3,7 @@
 require 'gli'
 require 'net/http'
 require 'uri'
+require 'open3'
 
 include GLI::App
 
@@ -280,7 +281,16 @@ command :role do |cgrp|
       connect
 
       fail 'key retrieval failed' unless args.map { |id|
-        system("rake 'role:retrieve-key[#{id}]'")
+        stdout, stderr, = Open3.capture3("rake 'role:retrieve-key[#{id}]'")
+
+        if stderr.empty?
+          # Only print last line of stdout to omit server config logging
+          puts(stdout.split("\n").last)
+          true
+        else
+          $stderr.puts(stderr)
+          false
+        end
       }.all?
     end
   end
