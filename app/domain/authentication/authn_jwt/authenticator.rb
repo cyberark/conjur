@@ -72,8 +72,7 @@ module Authentication
 
       def status(authenticator_status_input:)
         Authentication::AuthnJwt::ValidateStatus.new.(
-          account: authenticator_status_input.account,
-            service_id: authenticator_status_input.service_id
+          authenticator_status_input: authenticator_status_input
         )
       end
     end
