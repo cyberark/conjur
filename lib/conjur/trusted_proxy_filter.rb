@@ -48,13 +48,7 @@ module Conjur
       return [] unless trusted_proxies
 
       Set.new(trusted_proxies.split(',')).
-        map { |cidr| parse_trusted_proxy(cidr.strip) }
-    end
-
-    def parse_trusted_proxy(cidr)
-      IPAddr.new(cidr)
-    rescue IPAddr::Error
-      raise Errors::Conjur::InvalidTrustedProxies, cidr
+        map { |cidr| IPAddr.new(cidr.strip) }
     end
   end
 end
