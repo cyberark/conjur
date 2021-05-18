@@ -12,7 +12,7 @@ describe Conjur::ConjurConfig do
 
   context "with config file" do
     let(:config_folder) { "/etc/conjur/config" }
-    let(:config_file) { "#{config_folder}/config.yml" }
+    let(:config_file) { "#{config_folder}/conjur.yml" }
 
     before do
       FileUtils.mkdir_p(config_folder)
