@@ -166,6 +166,11 @@ module Errors
         code: "CONJ00051E"
       )
 
+      RequestBodyMissingJWTToken = ::Util::TrackableErrorClass.new(
+        msg: "The request body does not contain JWT token",
+        code: "CONJ00077E"
+      )
+
     end
 
     module AuthnOidc
