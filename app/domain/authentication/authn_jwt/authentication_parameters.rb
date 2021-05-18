@@ -2,8 +2,8 @@ module Authentication
   module AuthnJwt
     # Data class to store data regarding jwt token that is needed during the jwt authentication process
     class AuthenticationParameters
-      attr_accessor :jwt_identity, :decoded_token
-      attr_reader :decoded_token, :authenticator_name, :service_id, :account, :username, :credentials, :client_ip, :request
+      attr_accessor :jwt_identity, :decoded_token, :jwt_token
+      attr_reader :authenticator_name, :service_id, :account, :username, :credentials, :client_ip, :request
 
       def initialize(authentication_input)
         @authenticator_name = authentication_input.authenticator_name
