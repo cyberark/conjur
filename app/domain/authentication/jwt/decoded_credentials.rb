@@ -17,12 +17,11 @@ module Authentication
       def initialize(credentials)
         @decoded_credentials = Hash[URI.decode_www_form(credentials)]
         validate_jwt_request_field_is_present
-        extract_token
         validate_jwt_format
       end
 
       def jwt
-        @jwt
+        @jwt ||= @decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME].strip
       end
 
       private
@@ -33,16 +32,12 @@ module Authentication
         end
       end
 
-      def extract_token
-        @jwt ||= @decoded_credentials[JWT_REQUEST_BODY_FIELD_NAME].strip
-      end
-
       def validate_jwt_format
         raise Errors::Authentication::Jwt::RequestBodyIsNotJWTToken unless is_jwt?
       end
 
       def is_jwt?
-        @jwt =~ JWT_REGEX
+        jwt =~ JWT_REGEX
       end
 
     end
