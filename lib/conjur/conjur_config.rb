@@ -15,8 +15,32 @@ module Conjur
       trusted_proxies: (ENV['TRUSTED_PROXIES'] || "")
     )
 
+    # Perform validations and collect errors then report results as exception
+    on_load do
+      invalid = []
+
+      invalid << "trusted_proxies" unless trusted_proxies_valid?
+
+      unless invalid.empty?
+        raise Errors::Conjur::InvalidConfigValues, invalid.join(', ')
+      end
+    end
+
+    # Get attribute sources without including attribute values
     def attribute_sources
       to_source_trace.map { |k,v| [ k.to_sym, v[:source][:type] ] }.to_h
+    end
+
+    private
+
+    def trusted_proxies_valid?
+      trusted_proxies.split(',').each do |cidr|
+        IPAddr.new(cidr)
+      end
+
+      true
+    rescue
+      false
     end
   end
 end
