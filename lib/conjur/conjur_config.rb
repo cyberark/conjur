@@ -3,7 +3,7 @@ module Conjur
   # prefixed with CONJUR_ then serves as a single point to access configuration
   # from the Conjur application code.
   class ConjurConfig < Anyway::Config
-    config_name :config
+    config_name :conjur
 
     # Env vars prefixed w/ CONJUR_ overwrite values loaded from file. Note that
     # Anyway Config caches these values at the class level and they will not be
