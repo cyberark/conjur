@@ -266,37 +266,37 @@ module LogMessages
     module AuthnJwt
 
       FetchingIssuerConfigurationValue = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetching issuer authenticator configuration value",
+        msg: "Fetching \"issuer\" value from authenticator configuration...",
         code: "CONJ00052D"
       )
 
       FetchedIssuerValueFromConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetched issuer value from authenticator configuration",
+        msg: "Fetched \"issuer\" value from authenticator configuration",
         code: "CONJ00053D"
       )
 
       IssuerResourceNameConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg: "Issuer value will be taken from '{0-resource-id}'",
+        msg: "\"issuer\" value will be taken from '{0-resource-id}'",
         code: "CONJ00054D"
       )
 
       RetrievedIssuerValue = ::Util::TrackableLogMessageClass.new(
-        msg: "Retrieved issuer with value '{0}'",
+        msg: "Retrieved \"issuer\" with value '{0}'",
         code: "CONJ00055D"
       )
 
       ParsingIssuerFromUri = ::Util::TrackableLogMessageClass.new(
-        msg: "Parsing issuer value from URI '{0}'",
+        msg: "Parsing \"issuer\" value from '{0}'...",
         code: "CONJ00056D"
       )
 
       JWTAuthenticatorEntryPoint = ::Util::TrackableLogMessageClass.new(
-        msg: "Entered jwt authentication flow for authenticator '{0}'",
+        msg: "Started JWT authentication flow for vendor '{0}'",
         code: "CONJ00057D"
       )
 
       URL_IDENTITY_PROVIDER_SELECTED = ::Util::TrackableLogMessageClass.new(
-        msg: "JWT Identity in url is available and will be retrieved from it",
+        msg: "The JWT ID is included in and will be retrieved from the URL",
         code: "CONJ00058D"
       )
 
@@ -306,17 +306,17 @@ module LogMessages
       )
 
       LOOKING_FOR_IDENTITY_FIELD_NAME = ::Util::TrackableLogMessageClass.new(
-        msg: "Looking for variable field name in '{0}'",
+        msg: "Looking for variable field name in '{0}'...",
         code: "CONJ00060D"
       )
 
       CHECKING_IDENTITY_FIELD_EXISTS = ::Util::TrackableLogMessageClass.new(
-        msg: "Checking if the field exists",
+        msg: "Checking if field '{0}' in the token...",
         code: "CONJ00061D"
       )
 
       CREATING_AUTHENTICATION_PARAMETERS_OBJECT = ::Util::TrackableLogMessageClass.new(
-        msg: "Creating authentication parameters objects",
+        msg: "Creating authentication parameters objects...",
         code: "CONJ00062D"
       )
 
@@ -336,7 +336,7 @@ module LogMessages
       )
 
       JWT_AUTHENTICATION_PASSED = ::Util::TrackableLogMessageClass.new(
-        msg: "JWT authentication passed successfully",
+        msg: "Successfully passed JWT authentication",
         code: "CONJ00066D"
       )
 
@@ -351,42 +351,42 @@ module LogMessages
       )
 
       AddingJwtClaimToValidate = ::Util::TrackableLogMessageClass.new(
-        msg: "Adding JWT claim '{0-claim-name}' to list of mandatory claims to be validated",
+        msg: "Adding JWT claim, '{0-claim-name}', to list of mandatory claims to be validated...",
         code: "CONJ00069D"
       )
 
       CheckingJwtClaimToValidate = ::Util::TrackableLogMessageClass.new(
-        msg: "Checking if JWT claim '{0-claim-name}' is mandatory to validate",
+        msg: "Checking if JWT claim '{0-claim-name}' is mandatory to validate...",
         code: "CONJ00070D"
       )
 
       FetchingJwtConfigurationValue = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetching jwt signing key uri from '{0-resource-id}'",
+        msg: "Fetching '{0-resource-id}' variable value from configuration...",
         code: "CONJ00071D"
       )
 
       FetchingJwksFromProvider = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetching JWKS from '{0-uri}'",
+        msg: "Fetching JWKS from '{0-uri}'...",
         code: "CONJ00072D"
       )
 
       FetchJwtUriKeysSuccess = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetched JWKS successfully",
+        msg: "Successfully fetched JWKS",
         code: "CONJ00073D"
       )
 
       ValidatingJwtSigningKeyConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg: "Validating Jwt signing key uri configuration",
+        msg: "Validating JWT signing key URI configuration...",
         code: "CONJ00074D"
       )
 
       FetchingProviderUriSigningKey = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetching provider-uri signing key",
+        msg: "Validating signing key URI configuration...",
         code: "CONJ00075D"
       )
 
       FetchingJwksUriSigningKey = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetching jwks-uri signing key",
+        msg: "Fetching jwks-uri signing key...",
         code: "CONJ00076D"
       )
       ConvertingJwtClaimToVerificationOption = ::Util::TrackableLogMessageClass.new(
@@ -405,7 +405,7 @@ module LogMessages
       )
 
       SigningKeysFetchedFromCache = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetched signing keys from cache successfully",
+        msg: "Successfully fetched signing keys from cache",
         code: "CONJ00080D"
       )
 
@@ -415,7 +415,7 @@ module LogMessages
       )
 
       ValidatedToken = ::Util::TrackableLogMessageClass.new(
-        msg: "Validated token successfully",
+        msg: "Successfully validated token",
         code: "CONJ00082D"
       )
 
@@ -487,6 +487,16 @@ module LogMessages
       ValidatedIssuerConfiguration = ::Util::TrackableLogMessageClass.new(
         msg: "Successfully validated issuer configuration",
         code: "CONJ00096D"
+      )
+
+      FOUND_JWT_FIELD_IN_TOKEN = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully found field '{0}' in token and its value is '{1}'",
+        code: "CONJ00097D"
+      )
+
+      FOUND_JWT_IDENTITY= ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully found jwt identity '{0}'",
+        code: "CONJ00098D"
       )
 
     end

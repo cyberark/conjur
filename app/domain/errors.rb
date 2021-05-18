@@ -394,7 +394,7 @@ module Errors
       )
 
       NoSuchFieldInToken = ::Util::TrackableErrorClass.new(
-        msg: "No such field '{0}' in the token",
+        msg: "'{0}' field not found in the token",
         code: "CONJ00173E"
       )
 
@@ -404,11 +404,7 @@ module Errors
       )
 
       NoRelevantIdentityProvider = ::Util::TrackableErrorClass.new(
-        msg: "Failed to fetch the application identity." \
-              "Please do one of the following options:" \
-              "1. Send the identity in the URL" \
-              "2. Please add `token-app-property` variable and populate it" \
-              "   with field in the decoded token that contains the identity",
+        msg: "Failed to fetch the application identity",
         code: "CONJ00175E"
       )
 
@@ -425,8 +421,7 @@ module Errors
       )
 
       InvalidUriConfiguration = ::Util::TrackableErrorClass.new(
-        msg: "Signing key uri authenticator configuration is invalid. It should configured as authenticator variables: " \
-              "one of the following: '{0-resource-name}','{1-resource-name}'",
+        msg: "Signing key URI configuration is invalid",
         code: "CONJ00178E"
       )
 
@@ -436,7 +431,7 @@ module Errors
       )
 
       FetchJwksUriKeysNotFound = ::Util::TrackableErrorClass.new(
-        msg: "Fetched JWKS not found in response: '{0-base64-response}'",
+        msg: "JWKS not found in response: '{0-base64-response}'",
         code: "CONJ00180E"
       )
 
@@ -447,7 +442,7 @@ module Errors
       )
 
       MissingClaimValue = ::Util::TrackableErrorClass.new(
-        msg: "Claim '{0-claim}' value is empty or not found.",
+        msg: "Claim '{0-claim}' value is empty, or was not found in token.",
         code: "CONJ00182E"
       )
 
@@ -462,12 +457,12 @@ module Errors
       )
 
       FailedToConvertResponseToJwks = ::Util::TrackableErrorClass.new(
-        msg: "Failed to convert http response '{0-base64-response}' to JWKS type. Reason: '{1}'",
+        msg: "Failed to convert HTTP response '{0-base64-response}' to JWKS type. Reason: '{1}'",
         code: "CONJ00185E"
       )
 
       MissingHttpResponse = ::Util::TrackableErrorClass.new(
-        msg: "Http response is empty or not found.",
+        msg: "HTTP response is empty or not found.",
         code: "CONJ00186E"
       )
 
@@ -477,7 +472,7 @@ module Errors
       )
 
       InvalidHttpResponseFormat = ::Util::TrackableErrorClass.new(
-        msg: "Http response is of invalid format.",
+        msg: "HTTP response format is invalid",
         code: "CONJ00188E"
       )
 
@@ -522,8 +517,8 @@ module Errors
         code: "CONJ00069E"
       )
 
-      RoleMissingAnyConstraints =  ::Util::TrackableErrorClass.new(
-        msg: "Role must have at least one constraint",
+      RoleMissingAnyRestrictions =  ::Util::TrackableErrorClass.new(
+        msg: "Role must have at least one relevant annotation",
         code: "CONJ00070E"
       )
     end

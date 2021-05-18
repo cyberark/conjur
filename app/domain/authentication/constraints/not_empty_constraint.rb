@@ -5,7 +5,7 @@ module Authentication
     # EmptyAnnotationsListConfigured exception
     class NotEmptyConstraint
       def validate(resource_restrictions:)
-        raise Errors::Authentication::Constraints::RoleMissingAnyConstraints if resource_restrictions.empty?
+        raise Errors::Authentication::Constraints::RoleMissingAnyRestrictions if resource_restrictions.empty?
       end
     end
   end

@@ -52,6 +52,7 @@ module Authentication
         # Will be changed when real get identity implemented
         @logger.debug(LogMessages::Authentication::AuthnJwt::GET_JWT_IDENTITY.new)
         @authentication_parameters.jwt_identity =  @jwt_configuration.jwt_identity(@authentication_parameters)
+        @logger.debug(LogMessages::Authentication::AuthnJwt::FOUND_JWT_IDENTITY.new(@authentication_parameters.jwt_identity))
       end
 
       def validate_user_has_access_to_webservice
