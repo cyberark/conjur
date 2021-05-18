@@ -133,7 +133,7 @@ RSpec.describe('Authentication::Jwt::DecodedCredentials') do
       end
 
       it "raises a RequestBodyIsNotJWTToken error" do
-        expect { subject }.to raise_error(::Errors::Authentication::Jwt::RequestBodyIsNotJWTToken)
+        expect { subject }.to raise_error(::Errors::Authentication::Jwt::RequestBodyMissingJWTToken)
       end
     end
 
@@ -143,7 +143,7 @@ RSpec.describe('Authentication::Jwt::DecodedCredentials') do
       end
 
       it "raises a RequestBodyIsNotJWTToken error" do
-        expect { subject }.to raise_error(::Errors::Authentication::Jwt::RequestBodyIsNotJWTToken)
+        expect { subject }.to raise_error(::Errors::Authentication::Jwt::RequestBodyMissingJWTToken)
       end
     end
 
@@ -153,7 +153,7 @@ RSpec.describe('Authentication::Jwt::DecodedCredentials') do
       end
 
       it "raises a RequestBodyIsNotJWTToken error" do
-        expect { subject }.to raise_error(::Errors::Authentication::Jwt::RequestBodyIsNotJWTToken)
+        expect { subject }.to raise_error(::Errors::Authentication::Jwt::RequestBodyMissingJWTToken)
       end
     end
 
@@ -163,7 +163,7 @@ RSpec.describe('Authentication::Jwt::DecodedCredentials') do
       end
 
       it "raises a RequestBodyIsNotJWTToken error" do
-        expect { subject }.to raise_error(::Errors::Authentication::Jwt::RequestBodyIsNotJWTToken)
+        expect { subject }.to raise_error(::Errors::Authentication::Jwt::RequestBodyMissingJWTToken)
       end
     end
 

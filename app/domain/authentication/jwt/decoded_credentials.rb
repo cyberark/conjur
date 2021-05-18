@@ -33,7 +33,7 @@ module Authentication
       end
 
       def validate_jwt_format
-        raise Errors::Authentication::Jwt::RequestBodyIsNotJWTToken unless is_jwt?
+        raise Errors::Authentication::Jwt::RequestBodyMissingJWTToken unless is_jwt?
       end
 
       def is_jwt?
