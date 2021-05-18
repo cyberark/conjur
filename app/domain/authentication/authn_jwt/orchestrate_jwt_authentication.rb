@@ -6,7 +6,7 @@ module Authentication
 
     OrchestrateAuthentication ||= CommandClass.new(
       dependencies: {
-        uri_based_parameters_validator: Authentication::AuthnJwt::ValidateUriBasedParameters.new,
+        validate_uri_based_parameters: Authentication::AuthnJwt::ValidateUriBasedParameters.new,
         jwt_configuration_factory: ConfigurationFactory.new,
         jwt_authenticator: Authentication::AuthnJwt::Authenticate.new,
         logger: Rails.logger
@@ -37,7 +37,7 @@ module Authentication
       end
 
       def validate_uri_based_parameters
-        @uri_based_parameters_validator.call(
+        @validate_uri_based_parameters.call(
           authenticator_input: @authenticator_input,
           enabled_authenticators: @enabled_authenticators
         )

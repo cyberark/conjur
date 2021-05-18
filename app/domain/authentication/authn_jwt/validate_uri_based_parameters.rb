@@ -4,7 +4,7 @@ module Authentication
     ValidateUriBasedParameters ||= CommandClass.new(
       dependencies: {
         # ValidateWebserviceIsWhitelisted calls ValidateAccountExists
-        # we call there ValidateAccountExists for better readability an safety
+        # we call ValidateAccountExists for better readability and safety
         validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
         validate_webservice_is_whitelisted: Security::ValidateWebserviceIsWhitelisted.new
       },
