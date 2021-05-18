@@ -80,7 +80,7 @@ class AuthenticateController < ApplicationController
   def authenticate_jwt
     params[:authenticator] = "authn-jwt"
     authn_token = Authentication::AuthnJwt::OrchestrateAuthentication.new.call(
-      authenticator_input: tiny_authenticator_input,
+      authenticator_input: authenticator_input,
       enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV)
     )
     render_authn_token(authn_token)
@@ -118,21 +118,6 @@ class AuthenticateController < ApplicationController
       account: params[:account],
       username: params[:id],
       credentials: request.body.read,
-      client_ip: request.ip,
-      request: request
-    )
-  end
-
-  def tiny_authenticator_input
-    Authentication::AuthenticatorInput.new(
-      authenticator_name: params[:authenticator],
-      service_id: params[:service_id],
-      account: params[:account],
-      username: params[:id],
-      # reading body is a heavy operation
-      # body size is up to 10M (limited in nginx)
-      # will read body after validating URI based parameters
-      credentials: nil,
       client_ip: request.ip,
       request: request
     )
