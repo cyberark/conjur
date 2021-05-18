@@ -59,7 +59,28 @@ describe Conjur::ConjurConfig do
     end
   end
 
-  context "trusted proxies backwards compatibility" do
+  describe "validation" do
+    let(:invalid_config) {
+      Conjur::ConjurConfig.new(trusted_proxies: "boop")
+    }
+
+    it "raises error when validation fails" do
+      expect { invalid_config }.
+        to raise_error(Errors::Conjur::InvalidConfigValues)
+    end
+
+    it "includes the attribute that failed validation" do
+      expect { invalid_config }.
+        to raise_error(/trusted_proxies/)
+    end
+
+    it "does not include the value that failed validation" do
+      expect { invalid_config }.
+        to_not raise_error(/boop/)
+    end
+  end
+
+  describe "trusted proxies backwards compatibility" do
     before do
       ENV['TRUSTED_PROXIES'] = "5.6.7.8"
 
