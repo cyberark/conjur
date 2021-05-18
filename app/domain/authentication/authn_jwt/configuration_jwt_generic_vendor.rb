@@ -2,7 +2,9 @@ module Authentication
   module AuthnJwt
     # Mock JWTConfiguration class to use it to develop other part in the jwt authenticator
     class ConfigurationJWTGenericVendor < ConfigurationInterface
+
       def initialize
+        @extract_token_from_credentials = Authentication::AuthnJwt::ExtractTokenFromCredentials.new
         @restriction_validator = Authentication::AuthnJwt::ValidateRestrictionsOneToOne
         @identity_provider_factory = Authentication::AuthnJwt::CreateIdentityProvider
         @extract_resource_restrictions = Authentication::ResourceRestrictions::ExtractResourceRestrictions.new
@@ -12,6 +14,10 @@ module Authentication
         @constraints = Authentication::Constraints::MultipleConstraint.new(
           Authentication::Constraints::NotEmptyConstraint.new
         )
+      end
+
+      def extract_token_from_credentials(credentials)
+        @extract_token_from_credentials.call(credentials)
       end
 
       def jwt_identity(authentication_parameters)

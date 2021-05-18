@@ -25,6 +25,11 @@ module Authentication
       def create_authentication_parameters
         @logger.debug(LogMessages::Authentication::AuthnJwt::CREATING_AUTHENTICATION_PARAMETERS_OBJECT.new)
         @authentication_parameters = Authentication::AuthnJwt::AuthenticationParameters.new(@authenticator_input)
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ExtractTokenString.new)
+        @authentication_parameters.jwt_token = @jwt_configuration
+                                                 .extract_token_from_credentials(
+                                                   @authentication_parameters.credentials
+                                                 )
       end
 
       def validate_and_decode_token

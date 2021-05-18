@@ -389,6 +389,11 @@ module LogMessages
         msg: "Fetching jwks-uri signing key",
         code: "CONJ00076D"
       )
+
+      ExtractTokenString = ::Util::TrackableLogMessageClass.new(
+        msg: "Extract JWT token from request",
+        code: "CONJ00077D"
+      )
     end
   end
 

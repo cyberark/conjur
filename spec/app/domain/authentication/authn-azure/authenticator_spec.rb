@@ -3,6 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe('Authentication::AuthnAzure::Authenticator') do
+  include_context "base64url"
   include_context "security mocks"
   include_context "fetch secrets", %w[provider-uri]
 
@@ -19,7 +20,7 @@ RSpec.describe('Authentication::AuthnAzure::Authenticator') do
 
   before(:each) do
     allow(mocked_verify_and_decode_token).to receive(:call) { |*args|
-      JSON.parse(args[0][:token_jwt]).to_hash
+      JSON.parse(base64_url_decode(args[0][:token_jwt].split('.')[1])).to_hash
     }
 
     allow(mocked_validate_resource_restrictions).to receive(:call).and_return(true)
@@ -45,15 +46,21 @@ RSpec.describe('Authentication::AuthnAzure::Authenticator') do
   end
 
   let(:authenticate_azure_token_request) do
-    mock_authenticate_azure_token_request(request_body_data: "jwt={\"xms_mirid\": \"some_xms_mirid_value\", \"oid\": \"some_oid_value\"}")
+    mock_authenticate_azure_token_request(
+      request_body_data:
+        "jwt=aa.#{base64_url_encode("{\"xms_mirid\": \"some_xms_mirid_value\", \"oid\": \"some_oid_value\"}")}.cc")
   end
 
   let(:authenticate_azure_token_request_missing_xms_mirid_field) do
-    mock_authenticate_azure_token_request(request_body_data: "jwt={\"oid\": \"some_oid_value\"}")
+    mock_authenticate_azure_token_request(
+      request_body_data:
+        "jwt=aa.#{base64_url_encode("{\"oid\": \"some_oid_value\"}")}.cc")
   end
 
   let(:authenticate_azure_token_request_missing_oid_field) do
-    mock_authenticate_azure_token_request(request_body_data: "jwt={\"xms_mirid\": \"some_xms_mirid_value\"}")
+    mock_authenticate_azure_token_request(
+      request_body_data:
+        "jwt=aa.#{base64_url_encode("{\"xms_mirid\": \"some_xms_mirid_value\"}")}.cc")
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
