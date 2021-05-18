@@ -27,6 +27,10 @@ module Authentication
         identity_field_variable.present?
       end
 
+      def identity_configured_properly?
+        fetch_token_field_name if identity_available?
+      end
+
       private
 
       def identity_field_variable
