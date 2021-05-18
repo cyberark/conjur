@@ -3,6 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe('Authentication::AuthnGcp::UpdateAuthenticatorInput') do
+  include_context "base64url"
   include_context "security mocks"
 
   let(:account) { "my-acct" }
@@ -16,7 +17,7 @@ RSpec.describe('Authentication::AuthnGcp::UpdateAuthenticatorInput') do
 
   before(:each) do
     allow(mocked_verify_and_decode_token).to receive(:call) { |*args|
-      JSON.parse(args[0][:token_jwt]).to_hash
+      JSON.parse(base64_url_decode(args[0][:token_jwt].split('.')[1])).to_hash
     }
   end
 
@@ -39,7 +40,9 @@ RSpec.describe('Authentication::AuthnGcp::UpdateAuthenticatorInput') do
   end
 
   let(:authenticate_gcp_token_request) do
-    mock_authenticate_gcp_token_request(request_body_data: "jwt={\"jwt_claim\": \"jwt_claim_value\"}")
+    mock_authenticate_gcp_token_request(
+      request_body_data:
+        "jwt=aa.#{base64_url_encode("{\"jwt_claim\": \"jwt_claim_value\"}")}.cc")
   end
 
   let(:valid_audience) { "conjur/#{account}/#{hostname}" }
