@@ -86,26 +86,25 @@ command :policy do |cgrp|
   cgrp.command :load do |c|
     c.action do |global_options,options,args|
       account, *file_names = args
-      connect
-
-      fail 'policy load failed' unless file_names.map { |file_name|
-        system("rake 'policy:load[#{account},#{file_name}]'")
-      }.all?
+      
+      Commands::Policy::Load.new.call(
+        account: account,
+        file_names: file_names
+      )
     end
   end
 
   cgrp.desc "Watch a file and reload the policy if it's modified"
-  cgrp.long_desc(<<-DESC)
-To trigger a reload of the policy, replace the contents of the watched file with the path to
-the policy. Of course, the path must be visible to the container which is running "conjurctl watch".
-This can be a separate container from the application server. Both the application server and the
-policy watcher should share the same backing database.
+  cgrp.long_desc(<<~DESC)
+    To trigger a reload of the policy, replace the contents of the watched file
+    with the path to the policy. Of course, the path must be visible to the
+    container which is running "conjurctl watch". This can be a separate
+    container from the application server. Both the application server and the
+    policy watcher should share the same backing database.
 
+    Example:
 
-Example:
-
-
-$ conjurctl watch /run/conjur/policy/load)"
+    $ conjurctl watch /run/conjur/policy/load)"
   DESC
 
   cgrp.arg(:account)
@@ -113,9 +112,11 @@ $ conjurctl watch /run/conjur/policy/load)"
   cgrp.command :watch do |c|
     c.action do |global_options,options,args|
       account, file_name = args
-      connect
 
-      exec("rake 'policy:watch[#{account},#{file_name}]'")
+      Commands::Policy::Watch.new.call(
+        account: account,
+        file_name: file_name
+      )
     end
   end
 end
