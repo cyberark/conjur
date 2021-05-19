@@ -5,6 +5,8 @@ require 'net/http'
 require 'uri'
 require 'open3'
 
+require_relative './conjur-cli/commands'
+
 include GLI::App
 
 program_desc "Command and control application for Conjur"
@@ -39,12 +41,6 @@ def connect
   true
 end
 
-def stdin_input
-  raise "Please provide an input via STDIN" if $stdin.tty?
-
-  $stdin.read.force_encoding('ASCII-8BIT')
-end
-
 desc 'Run the application server'
 command :server do |c|
   c.desc 'Account to initialize'
@@ -70,69 +66,15 @@ command :server do |c|
   c.flag [ :b, :'bind-address' ]
 
   c.action do |global_options,options,args|
-    account = options[:account]
-
-    connect
-
-    system("rake db:migrate") || exit(($?.exitstatus))
-
-    if options["password-from-stdin"] && !account
-      raise "account is required with password-from-stdin flag"
-    end
-
-    if account
-      if options["password-from-stdin"]
-        # Rake is interpreting raw commas in the password as
-        # delimiting addtional arguments to rake itself. 
-        # Reference: https://github.com/ruby/rake/blob/a842fb2c30cc3ca80803fba903006b1324a62e9a/lib/rake/application.rb#L163
-        password = stdin_input.gsub(',', '\,')
-        system("rake 'account:create_with_password[#{account},#{password}]'")\
-          || exit(($?.exitstatus))
-      else
-        system("rake 'account:create[#{account}]'") || exit(($?.exitstatus))
-      end
-    end
-
-    if file_name = options[:file]
-      raise "account option is required with file option" unless account
-
-      system("rake 'policy:load[#{account},#{file_name}]'") || exit(($?.exitstatus))
-    end
-
-    Process.fork do
-      conjur_version = File.read(File.expand_path("../VERSION", File.dirname(__FILE__))).strip
-      puts("Conjur v#{conjur_version} starting up...")
-
-      exec("
-        rails server -p '#{options[:port]}' -b '#{options[:'bind-address']}'
-      ")
-    end
-    Process.fork do
-      exec("rake authn_local:run")
-    end
-
-    # Start the rotation watcher on master
-    #
-    is_master = !Sequel::Model.db['SELECT pg_is_in_recovery()'].first.values[0]
-    if is_master
-      Process.fork do
-        exec("rake expiration:watch")
-      end
-    end
-
-    Process.waitall
-
-    # # Start the rotation "watcher" in a separate thread
-    # rotations_thread = Thread.new do
-    #   # exec "rake expiration:watch[#{account}]"
-    #   # exec "rake expiration:watch"
-    #   Rotation::MasterRotator.new(
-    #     avail_rotators: Rotation::InstalledRotators.new
-    #   ).rotate_every(1)
-    #   end
-    # # Kill all of Conjur if rotations stop working
-    # rotations_thread.abort_on_exception = true
-    # rotations_thread.join
+    # This call will block the process until the Conjur server process is
+    # stopped (e.g. with ctrl+c)
+    Commands::Server.new.call(
+      account: options[:account],
+      password_from_stdin: options["password-from-stdin"],
+      file_name: options[:file],
+      bind_address: options[:'bind-address'],
+      port: options[:port]
+    )
   end
 end
 
