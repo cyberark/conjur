@@ -74,7 +74,7 @@ command :server do |c|
 
     connect
 
-    system("rake db:migrate") or exit $?.exitstatus
+    system("rake db:migrate") || exit(($?.exitstatus))
 
     if options["password-from-stdin"] && !account
       raise "account is required with password-from-stdin flag"
@@ -87,9 +87,9 @@ command :server do |c|
         # Reference: https://github.com/ruby/rake/blob/a842fb2c30cc3ca80803fba903006b1324a62e9a/lib/rake/application.rb#L163
         password = stdin_input.gsub(',', '\,')
         system("rake 'account:create_with_password[#{account},#{password}]'")\
-          or exit $?.exitstatus
+          || exit(($?.exitstatus))
       else
-        system("rake 'account:create[#{account}]'") or exit $?.exitstatus
+        system("rake 'account:create[#{account}]'") || exit(($?.exitstatus))
       end
     end
 
@@ -203,7 +203,7 @@ end
 desc "Manage accounts"
 command :account do |cgrp|
   cgrp.desc "Create an organization account"
-  cgrp.long_desc <<-DESC
+  cgrp.long_desc(<<-DESC)
 Use this command to generate and store a new account, along with its 2048-bit 
 RSA private key, used to sign auth tokens. The CONJUR_DATA_KEY must be
 available in the environment when this command is called, since it's used to
@@ -220,7 +220,7 @@ Example:
 
 $ conjurctl account create [--password-from-stdin] --name myorg
   DESC
-  cgrp.arg :name, :optional
+  cgrp.arg(:name, :optional)
   cgrp.command :create do |c|
     c.desc("Provide account password via STDIN")
     c.arg_name("password-from-stdin")
