@@ -14,33 +14,6 @@ version File.read(File.expand_path("../VERSION", File.dirname(__FILE__)))
 arguments :strict
 subcommand_option_handling :normal
 
-# Attempt to connect to the database.
-def connect
-  require 'sequel'
-
-  def test_select
-    fail("DATABASE_URL not set") unless ENV['DATABASE_URL']
-
-    begin
-      db = Sequel::Model.db = Sequel.connect(ENV['DATABASE_URL'])
-      db['select 1'].first
-    rescue
-      false
-    end
-  end
-
-  30.times do
-    break if test_select
-
-    $stderr.write('.')
-    sleep(1)
-  end
-
-  raise "Database is still unavailable. Aborting!" unless test_select
-
-  true
-end
-
 desc 'Run the application server'
 command :server do |c|
   c.desc 'Account to initialize'
@@ -248,8 +221,10 @@ command :export do |c|
   c.flag [:l, :label]
 
   c.action do |global_options,options,args|
-    connect
-    exec(%(rake export["#{options[:out_dir]}","#{options[:label]}"]))
+    Commands::Export.new.call(
+      out_dir: options[:out_dir],
+      label: options[:label]
+    )
   end
 end
 
