@@ -5,9 +5,9 @@ module Authentication
 
       def initialize
         @validate_and_decode_token_class = Authentication::AuthnJwt::ValidateAndDecodeToken
-
         @extract_token_from_credentials = Authentication::AuthnJwt::ExtractTokenFromCredentials.new
         @identity_provider_factory = Authentication::AuthnJwt::CreateIdentityProvider
+        @validate_resource_restrictions_class = Authentication::ResourceRestrictions::ValidateResourceRestrictions
       end
 
       def extract_token_from_credentials(credentials)
@@ -101,7 +101,7 @@ module Authentication
         @restriction_validator = Authentication::AuthnJwt::ValidateRestrictionsOneToOne
         @restrictions_from_annotations_class = Authentication::ResourceRestrictions::GetServiceSpecificRestrictionsFromAnnotation
         @extract_resource_restrictions = Authentication::ResourceRestrictions::ExtractResourceRestrictions.new(get_restriction_from_annotation: @restrictions_from_annotations_class)
-        @validate_resource_restrictions = Authentication::ResourceRestrictions::ValidateResourceRestrictions.new(extract_resource_restrictions: @extract_resource_restrictions)
+        @validate_resource_restrictions = @validate_resource_restrictions_class.new(extract_resource_restrictions: @extract_resource_restrictions)
         @constraints = Authentication::Constraints::MultipleConstraint.new(
           Authentication::Constraints::NotEmptyConstraint.new
         )
