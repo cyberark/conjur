@@ -93,6 +93,9 @@ command :server do |c|
       end
     end
 
+    puts "Validating Conjur data key..."
+    system "rake data-key:validate" or exit $?.exitstatus
+
     if file_name = options[:file]
       raise "account option is required with file option" unless account
 
