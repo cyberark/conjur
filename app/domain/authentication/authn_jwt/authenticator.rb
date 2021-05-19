@@ -71,7 +71,7 @@ module Authentication
       end
 
       def status(authenticator_status_input:)
-        Authentication::AuthnJwt::ValidateStatus.new.(
+        Authentication::AuthnJwt::ValidateStatus.new.call(
           authenticator_status_input: authenticator_status_input
         )
       end

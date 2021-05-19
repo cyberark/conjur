@@ -7,13 +7,16 @@ module Authentication
         discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new,
         create_signing_key: Authentication::AuthnJwt::CreateSigningKeyInterface.new,
         fetch_issuer_value: Authentication::AuthnJwt::FetchIssuerValue.new,
+        validate_uri_parameters: Authentication::AuthnJwt::ValidateUriBasedParameters.new,
         fetch_identity_from_token: Authentication::AuthnJwt::IdentityFromDecodedTokenProvider
       },
       inputs: %i[authenticator_status_input]
     ) do
+
       def call
         create_authentication_parameters
         validate_service_id_exists
+        validate_uri_based_parameters
         validate_secrets
       end
 
@@ -21,6 +24,12 @@ module Authentication
 
       def validate_service_id_exists
         raise Errors::Authentication::AuthnJwt::ServiceIdMissing unless @authenticator_status_input.service_id
+      end
+
+      def validate_uri_based_parameters
+        @validate_uri_parameters.call(authenticator_input: @authenticator_status_input,
+                                          enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV)
+        )
       end
 
       def validate_secrets
@@ -34,7 +43,7 @@ module Authentication
       end
 
       def validate_issuer
-        @fetch_issuer_value.call(authenticator_input: @authenticator_status_input)
+        @fetch_issuer_value.call(authentication_parameters: @authentication_parameters)
       end
 
       def validate_identity_secrets
