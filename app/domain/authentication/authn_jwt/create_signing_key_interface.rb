@@ -60,7 +60,8 @@ module Authentication
                                                             logger: Rails.logger,
                                                             fetch_required_secrets: Conjur::FetchRequiredSecrets.new,
                                                             resource_class: ::Resource,
-                                                            http: Net::HTTP)
+                                                            http_lib: Net::HTTP,
+                                                            create_jwks_from_http_response: CreateJwksFromHttpResponse.new)
       end
     end
   end

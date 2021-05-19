@@ -291,7 +291,7 @@ module LogMessages
       )
 
       JWTAuthenticatorEntryPoint = ::Util::TrackableLogMessageClass.new(
-        msg: "Entered jwt authentication flow for vendor '{0}'",
+        msg: "Entered jwt authentication flow for authenticator '{0}'",
         code: "CONJ00057D"
       )
 
@@ -346,7 +346,7 @@ module LogMessages
       )
 
       FetchedJwtClaimsToValidate = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetched JWT claims to validate",
+        msg: "Fetched JWT claims '{0-claims-list}' to validate",
         code: "CONJ00068D"
       )
 
@@ -366,12 +366,12 @@ module LogMessages
       )
 
       FetchingJwksFromProvider = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetching jwks from '{0-uri}'",
+        msg: "Fetching JWKS from '{0-uri}'",
         code: "CONJ00072D"
       )
 
       FetchJwtUriKeysSuccess = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetched jwks successfully",
+        msg: "Fetched JWKS successfully",
         code: "CONJ00073D"
       )
 
@@ -389,10 +389,71 @@ module LogMessages
         msg: "Fetching jwks-uri signing key",
         code: "CONJ00076D"
       )
+      ConvertingJwtClaimToVerificationOption = ::Util::TrackableLogMessageClass.new(
+        msg: "Converting JWT claim '{0-claim-name}' to verification option",
+        code: "CONJ00077D"
+      )
+
+      ConvertedJwtClaimToVerificationOption = ::Util::TrackableLogMessageClass.new(
+        msg: "Converted JWT claim '{0-claim-name}' to verification option '{1-verification-option}'",
+        code: "CONJ00078D"
+      )
+
+      ValidateSigningKeysAreUpdated = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating that signing keys are up to date",
+        code: "CONJ00079D"
+      )
+
+      SigningKeysFetchedFromCache = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetched signing keys from cache successfully",
+        code: "CONJ00080D"
+      )
+
+      ValidatingToken = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating token",
+        code: "CONJ00081D"
+      )
+
+      ValidatedToken = ::Util::TrackableLogMessageClass.new(
+        msg: "Validated token successfully",
+        code: "CONJ00082D"
+      )
+
+      ValidatingTokenSignature = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating token signature",
+        code: "CONJ00083D"
+      )
+
+      ValidatedTokenSignature = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated token signature",
+        code: "CONJ00084D"
+      )
+
+      ValidatingTokenClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating token claims...",
+        code: "CONJ00085D"
+      )
+
+      ValidatedTokenClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated token claims",
+        code: "CONJ00086D"
+      )
+
+      CreatingJwksFromHttpResponse = ::Util::TrackableLogMessageClass.new(
+        msg: "Creating JWKS from HTTP response...",
+        code: "CONJ00087D"
+      )
+
+      CreatedJwks = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully created JWKS",
+        code: "CONJ00088D"
+      )
+
+
 
       ExtractTokenString = ::Util::TrackableLogMessageClass.new(
         msg: "Extract JWT token from request",
-        code: "CONJ00077D"
+        code: "CONJ00089D"
       )
     end
   end
