@@ -28,7 +28,7 @@ module Authentication
       end
 
       def identity_configured_properly?
-        fetch_token_field_name if identity_available?
+        fetch_token_field_name
       end
 
       private
