@@ -105,6 +105,14 @@ module PolicyHelpers
     'SEcret12!!!!'
   end
 
+  def appliance_url
+    Conjur.configuration.appliance_url
+  end
+
+  def account
+    Conjur.configuration.account
+  end
+
   def login_as_role login, api_key = nil
     api_key = admin_api_key if login == "admin"
     unless api_key
