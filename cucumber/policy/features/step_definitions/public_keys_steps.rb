@@ -2,6 +2,6 @@
 
 Then(/^I list the public keys for "([^"]*)"$/) do |username|
   invoke do
-    Conjur::API.public_keys(username)
+    RestClient.get('http://localhost:3000/public_keys/cucumber/user/' + username)
   end
 end
