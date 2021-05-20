@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Trusted Proxies can now be configured with a configuration file or by setting
   the CONJUR_TRUSTED_PROXIES environment variable.
   [cyberark/conjur#2168](https://github.com/cyberark/conjur/issues/2168)
+- Added `conjurctl configuration show` command to print the Conjur configuration
+  values and the sources they are loaded from.
+  [cyberark/conjur#2169](https://github.com/cyberark/conjur/issues/2169)
 
 ### Fixed
 - Fix bug where running `conjurctl server` or `conjurctl account create` with

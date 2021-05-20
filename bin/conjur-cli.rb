@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Add Conjur application source files are in the load path
+$LOAD_PATH.push(File.expand_path("../../lib", __FILE__))
+
 require 'gli'
 require 'net/http'
 require 'uri'
@@ -223,6 +226,30 @@ command :export do |c|
       out_dir: options[:out_dir],
       label: options[:label]
     )
+  end
+end
+
+desc 'Manage Conjur configuration'
+command :configuration do |cgrp|
+  cgrp.desc 'Show Conjur configuration attributes and their sources'
+  cgrp.long_desc(<<~DESC)
+    Show Conjur configuration attributes and their sources.
+
+    The values displayed by this command reflect the current state of the
+    configuration sources. For the example, the environment variables and
+    config file. These may not reflect the current values used by the running
+    Conjur server.
+  DESC
+  cgrp.command :show do |c|
+    c.desc 'Output format'
+    c.default_value('text')
+    c.flag [:o, :output]
+
+    c.action do |_global_options, options, _args|
+      Commands::Configuration::Show.new.call(
+        output_format: options[:output].strip.downcase
+      )
+    end
   end
 end
 
