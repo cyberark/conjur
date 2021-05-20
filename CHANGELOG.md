@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Security
 - Upgrade Rails to 5.2.5 to resolve CVE-2021-22885 
   [cyberark/conjur#2149](https://github.com/cyberark/conjur/issues/2149)
+- Upgrade Nokogiri to 1.11.5 to resolve
+  [GHSA-7rrm-v45f-jp64](https://github.com/advisories/GHSA-7rrm-v45f-jp64).
 
 ## [1.11.6] - 2021-04-28
 
