@@ -197,9 +197,7 @@ command :db do |cgrp|
   cgrp.desc "Create and/or upgrade the database schema"
   cgrp.command :migrate do |c|
     c.action do |global_options,options,args|
-      connect
-
-      exec("rake db:migrate")
+      Commands::DB::Migrate.new.call
     end
   end
 end

@@ -5,12 +5,12 @@ require 'command_class'
 # Required to use $CHILD_STATUS
 require 'English'
 
-require_relative './connect_database'
+require_relative 'db/migrate'
 
 module Commands
   Server ||= CommandClass.new(
     dependencies: {
-      connect_database: ConnectDatabase.new
+      migrate_database: DB::Migrate.new
     },
 
     inputs: %i[
@@ -24,8 +24,7 @@ module Commands
     def call
       # Ensure the database is available
       # and the schema is up-to-date
-      @connect_database.call
-      migrate_database
+      @migrate_database.call
 
       # Create and bootstrap the initial
       # Conjur account and policy
