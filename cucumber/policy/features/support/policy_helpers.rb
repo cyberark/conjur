@@ -106,11 +106,11 @@ module PolicyHelpers
   end
 
   def appliance_url
-    Conjur.configuration.appliance_url
+    ENV['CONJUR_APPLIANCE_URL'] || 'http://conjur'
   end
 
   def account
-    Conjur.configuration.account
+    ENV['CONJUR_APPLIANCE_URL'] || 'http://conjur'
   end
 
   def login_as_role login, api_key = nil
