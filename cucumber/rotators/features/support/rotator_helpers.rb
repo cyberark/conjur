@@ -16,7 +16,7 @@ module RotatorHelpers
   end
 
   def variable(var_name)
-    conjur_api.resource("cucumber:variable:#{var_name}")
+    get_resource("variable",var_name)
   end
 
   # This wires up and kicks off of the postgres polling process, and then
