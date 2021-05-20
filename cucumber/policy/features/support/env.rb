@@ -3,6 +3,9 @@
 require 'aruba'
 require 'aruba/cucumber'
 
+Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || 'http://conjur'
+Conjur.configuration.account = ENV['CONJUR_ACCOUNT'] || 'cucumber'
+
 def appliance_url
   ENV['CONJUR_APPLIANCE_URL'] || 'http://conjur'
 end
