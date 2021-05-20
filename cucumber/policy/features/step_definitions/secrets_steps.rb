@@ -13,7 +13,6 @@ Then(/^I can( not)? fetch a secret from ([\w_]+) resource "([^"]*)"$/) do |fail,
   try_get_secret_value(id, kind, expected_status)
 end
 
-
 Then(/^variable resource "([^"]*)" does not have a secret value$/) do |id|
   expected_status = 404
   try_get_secret_value(id, expected_status)

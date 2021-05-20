@@ -56,12 +56,8 @@ module PolicyHelpers
   end
 
   def resource id
-    RestClient::Resource.new('http://localhost:3000/policies/cucumber/policy/' + id)
+    RestClient::Resource.new(appliance_url() + '/policies/' + account() + '/policy/' + id)
   end
-
-  # resource = resource('root')
-  # res = resource.put(policy)
-  # return res
 
   def make_full_id *tokens
     super(tokens.join(":"))
@@ -77,17 +73,17 @@ module PolicyHelpers
   end
 
   def admin_api_key
-    resource = RestClient::Resource.new 'http://localhost:3000/authn/cucumber/login' ,'admin', admin_password
+    resource = RestClient::Resource.new appliance_url() +'/authn/' + account() + '/login' ,'admin', admin_password
     resource.get
   end
 
   def get_login_token login, key
-    RestClient.post('http://localhost:3000/authn/cucumber/' + CGI.escape(login) + '/authenticate', key, 'Accept-Encoding': 'Base64')
+    RestClient.post(appliance_url() + '/authn/' + account() + '/' + CGI.escape(login) + '/authenticate', key, 'Accept-Encoding': 'Base64')
   end
 
   def get_admin_token()
     admin_api_key = admin_api_key()
-    RestClient.post('http://localhost:3000/authn/cucumber/admin/authenticate', admin_api_key, 'Accept-Encoding': 'Base64')
+    RestClient.post(appliance_url() + '/authn/' + account() + '/admin/authenticate', admin_api_key, 'Accept-Encoding': 'Base64')
   end
 
   def create_token_header token=nil
@@ -102,7 +98,7 @@ module PolicyHelpers
   end
 
   def login_resource
-      RestClient::Resource.new 'http://localhost:3000/authn/cucumber/api_key','admin', admin_password
+      RestClient::Resource.new appliance_url() + '/authn/' + account() + '/api_key','admin', admin_password
   end
 
   def admin_password
