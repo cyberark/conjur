@@ -8,12 +8,14 @@ module Authentication
         create_signing_key: Authentication::AuthnJwt::CreateSigningKeyInterface.new,
         fetch_issuer_value: Authentication::AuthnJwt::FetchIssuerValue.new,
         validate_uri_parameters: Authentication::AuthnJwt::ValidateUriBasedParameters.new,
+        validate_generic_status_validations: Authentication::AuthnJwt::ValidateGenericStatusValidations.new,
         fetch_identity_from_token: Authentication::AuthnJwt::IdentityFromDecodedTokenProvider
       },
       inputs: %i[authenticator_status_input]
     ) do
 
       def call
+        validate_generic_status_validations
         create_authentication_parameters
         validate_service_id_exists
         validate_uri_based_parameters
@@ -21,6 +23,12 @@ module Authentication
       end
 
       private
+
+      def validate_generic_status_validations
+        @validate_generic_status_validations.call(
+          authenticator_status_input: @authenticator_status_input
+        )
+      end
 
       def validate_service_id_exists
         raise Errors::Authentication::AuthnJwt::ServiceIdMissing unless @authenticator_status_input.service_id
