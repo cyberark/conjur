@@ -5,11 +5,26 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Trusted Proxies can now be configured with a configuration file or by setting
+  the CONJUR_TRUSTED_PROXIES environment variable.
+  [cyberark/conjur#2168](https://github.com/cyberark/conjur/issues/2168)
+
+### Fixed
+- Fix bug where running `conjurctl server` or `conjurctl account create` with
+  passwords that contain `,`s sent via stdin raised an error.
+  [cyberark/conjur#2159](https://github.com/cyberark/conjur/issues/2159)
+
+### Security
+- Upgrade Rails to 5.2.5 to resolve CVE-2021-22885 
+  [cyberark/conjur#2149](https://github.com/cyberark/conjur/issues/2149)
+
+## [1.11.6] - 2021-04-28
 
 ### Fixed
 - Fix bug where running `conjurctl server` or `conjurctl account create` with
   non-alpha-numeric passwords sent via stdin raised an error.
-  [cyberark/conjur#2083](https://github.com/cyberark/conjur/issues/2083)
+  [cyberark/conjur#2114](https://github.com/cyberark/conjur/issues/2114)
 
 ### Changed
 - The batch secret retrieval endpoint now returns a 406 Not Acceptable instead
@@ -25,6 +40,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - File `API_VERSION` containing the current Conjur API Version, which corresponds to a
   release of the [Conjur OpenAPI Spec](https://github.com/cyberark/conjur-openapi-spec).
   [cyberark/conjur#2086](https://github.com/cyberark/conjur/pull/2086)
+- Status page details section now displays the Conjur API version.
+  [cyberark/conjur#2130](https://github.com/cyberark/conjur/issues/2130)
 
 ## [1.11.5] - 2021-04-05
 
@@ -606,7 +623,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.5...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.6...HEAD
+[1.11.6]: https://github.com/cyberark/conjur/compare/v1.11.5...v1.11.6
 [1.11.5]: https://github.com/cyberark/conjur/compare/v1.11.4...v1.11.5
 [1.11.4]: https://github.com/cyberark/conjur/compare/v1.11.3...v1.11.4
 [1.11.3]: https://github.com/cyberark/conjur/compare/v1.11.2...v1.11.3

@@ -133,5 +133,5 @@ Feature: Create a new account
 
   @create_account
   Scenario: Creating account with predefined password and login with it
-    Given I create an account with the name "demo" and the password "MySecretP@SS1()!" using conjurctl
-    Then I can GET "/authn/demo/login" with username "admin" and password "MySecretP@SS1()!"
+    Given I create an account with the name "demo" and the password "MySecretP,@SS1()!" using conjurctl
+    Then I can GET "/authn/demo/login" with username "admin" and password "MySecretP,@SS1()!"
