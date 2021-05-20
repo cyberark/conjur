@@ -25,6 +25,10 @@ ENV.delete('CONJUR_ADMIN_PASSWORD')
 
 $LOAD_PATH << '../app/domain'
 
+# Add conjur-cli load path to the specs, since these source files are
+# not under the default load paths.
+$LOAD_PATH << './bin/conjur-cli'
+
 RSpec.configure do |config|
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction

@@ -1,9 +1,14 @@
 # frozen_string_literal: true
 
+# Add Conjur application source files are in the load path
+$LOAD_PATH.push(File.expand_path("../../lib", __FILE__))
+
 require 'gli'
 require 'net/http'
 require 'uri'
 require 'open3'
+
+require_relative './conjur-cli/commands'
 
 include GLI::App
 
@@ -11,39 +16,6 @@ program_desc "Command and control application for Conjur"
 version File.read(File.expand_path("../VERSION", File.dirname(__FILE__)))
 arguments :strict
 subcommand_option_handling :normal
-
-# Attempt to connect to the database.
-def connect
-  require 'sequel'
-
-  def test_select
-    fail("DATABASE_URL not set") unless ENV['DATABASE_URL']
-
-    begin
-      db = Sequel::Model.db = Sequel.connect(ENV['DATABASE_URL'])
-      db['select 1'].first
-    rescue
-      false
-    end
-  end
-
-  30.times do
-    break if test_select
-
-    $stderr.write('.')
-    sleep(1)
-  end
-
-  raise "Database is still unavailable. Aborting!" unless test_select
-
-  true
-end
-
-def stdin_input
-  raise "Please provide an input via STDIN" if $stdin.tty?
-
-  $stdin.read.force_encoding('ASCII-8BIT')
-end
 
 desc 'Run the application server'
 command :server do |c|
@@ -70,69 +42,15 @@ command :server do |c|
   c.flag [ :b, :'bind-address' ]
 
   c.action do |global_options,options,args|
-    account = options[:account]
-
-    connect
-
-    system("rake db:migrate") or exit $?.exitstatus
-
-    if options["password-from-stdin"] && !account
-      raise "account is required with password-from-stdin flag"
-    end
-
-    if account
-      if options["password-from-stdin"]
-        # Rake is interpreting raw commas in the password as
-        # delimiting addtional arguments to rake itself. 
-        # Reference: https://github.com/ruby/rake/blob/a842fb2c30cc3ca80803fba903006b1324a62e9a/lib/rake/application.rb#L163
-        password = stdin_input.gsub(',', '\,')
-        system("rake 'account:create_with_password[#{account},#{password}]'")\
-          or exit $?.exitstatus
-      else
-        system("rake 'account:create[#{account}]'") or exit $?.exitstatus
-      end
-    end
-
-    if file_name = options[:file]
-      raise "account option is required with file option" unless account
-
-      system("rake 'policy:load[#{account},#{file_name}]'") || exit(($?.exitstatus))
-    end
-
-    Process.fork do
-      conjur_version = File.read(File.expand_path("../VERSION", File.dirname(__FILE__))).strip
-      puts("Conjur v#{conjur_version} starting up...")
-
-      exec("
-        rails server -p '#{options[:port]}' -b '#{options[:'bind-address']}'
-      ")
-    end
-    Process.fork do
-      exec("rake authn_local:run")
-    end
-
-    # Start the rotation watcher on master
-    #
-    is_master = !Sequel::Model.db['SELECT pg_is_in_recovery()'].first.values[0]
-    if is_master
-      Process.fork do
-        exec("rake expiration:watch")
-      end
-    end
-
-    Process.waitall
-
-    # # Start the rotation "watcher" in a separate thread
-    # rotations_thread = Thread.new do
-    #   # exec "rake expiration:watch[#{account}]"
-    #   # exec "rake expiration:watch"
-    #   Rotation::MasterRotator.new(
-    #     avail_rotators: Rotation::InstalledRotators.new
-    #   ).rotate_every(1)
-    #   end
-    # # Kill all of Conjur if rotations stop working
-    # rotations_thread.abort_on_exception = true
-    # rotations_thread.join
+    # This call will block the process until the Conjur server process is
+    # stopped (e.g. with ctrl+c)
+    Commands::Server.new.call(
+      account: options[:account],
+      password_from_stdin: options["password-from-stdin"],
+      file_name: options[:file],
+      bind_address: options[:'bind-address'],
+      port: options[:port]
+    )
   end
 end
 
@@ -144,26 +62,25 @@ command :policy do |cgrp|
   cgrp.command :load do |c|
     c.action do |global_options,options,args|
       account, *file_names = args
-      connect
-
-      fail 'policy load failed' unless file_names.map { |file_name|
-        system("rake 'policy:load[#{account},#{file_name}]'")
-      }.all?
+      
+      Commands::Policy::Load.new.call(
+        account: account,
+        file_names: file_names
+      )
     end
   end
 
   cgrp.desc "Watch a file and reload the policy if it's modified"
-  cgrp.long_desc(<<-DESC)
-To trigger a reload of the policy, replace the contents of the watched file with the path to
-the policy. Of course, the path must be visible to the container which is running "conjurctl watch".
-This can be a separate container from the application server. Both the application server and the
-policy watcher should share the same backing database.
+  cgrp.long_desc(<<~DESC)
+    To trigger a reload of the policy, replace the contents of the watched file
+    with the path to the policy. Of course, the path must be visible to the
+    container which is running "conjurctl watch". This can be a separate
+    container from the application server. Both the application server and the
+    policy watcher should share the same backing database.
 
+    Example:
 
-Example:
-
-
-$ conjurctl watch /run/conjur/policy/load)"
+    $ conjurctl watch /run/conjur/policy/load)"
   DESC
 
   cgrp.arg(:account)
@@ -171,9 +88,11 @@ $ conjurctl watch /run/conjur/policy/load)"
   cgrp.command :watch do |c|
     c.action do |global_options,options,args|
       account, file_name = args
-      connect
 
-      exec("rake 'policy:watch[#{account},#{file_name}]'")
+      Commands::Policy::Watch.new.call(
+        account: account,
+        file_name: file_name
+      )
     end
   end
 end
@@ -181,17 +100,15 @@ end
 desc "Manage the data encryption key"
 command :"data-key" do |cgrp|
   cgrp.desc "Generate a data encryption key"
-  cgrp.long_desc(<<-DESC)
-Use this command to generate a new Base64-encoded 256 bit data encrytion key.
-Once generated, this key should be placed into the environment of the Conjur
-server. It will be used to encrypt all sensitive data which is stored in the
-database, including the token-signing private key.
+  cgrp.long_desc(<<~DESC)
+    Use this command to generate a new Base64-encoded 256 bit data encrytion
+    key. Once generated, this key should be placed into the environment of the
+    Conjur server. It will be used to encrypt all sensitive data which is stored
+    in the database, including the token-signing private key.
 
+    Example:
 
-Example:
-
-
-$ export CONJUR_DATA_KEY="$(conjurctl data-key generate)"
+    $ export CONJUR_DATA_KEY="$(conjurctl data-key generate)"
   DESC
   cgrp.command :generate do |c|
     c.action do |global_options,options,args|
@@ -203,24 +120,24 @@ end
 desc "Manage accounts"
 command :account do |cgrp|
   cgrp.desc "Create an organization account"
-  cgrp.long_desc <<-DESC
-Use this command to generate and store a new account, along with its 2048-bit 
-RSA private key, used to sign auth tokens. The CONJUR_DATA_KEY must be
-available in the environment when this command is called, since it's used to
-encrypt the token-signing key in the database.
+  cgrp.long_desc(<<~DESC)
+    Use this command to generate and store a new account, along with its
+    2048-bit RSA private key, used to sign auth tokens. The CONJUR_DATA_KEY must
+    be available in the environment when this command is called, since it's used
+    to encrypt the token-signing key in the database.
 
-The optional 'password-from-stdin' flag signifies that the password should be 
-read from STDIN. If the flag is not provided, the "admin" user API key will be
-outputted to STDOUT.
+    The optional 'password-from-stdin' flag signifies that the password should
+    be read from STDIN. If the flag is not provided, the "admin" user API key
+    will be outputted to STDOUT.
 
-The 'name' flag or command argument must be present. It will specify the name of
-the account that will be created.
+    The 'name' flag or command argument must be present. It will specify the 
+    name of the account that will be created.
 
-Example:
+    Example:
 
-$ conjurctl account create [--password-from-stdin] --name myorg
+    $ conjurctl account create [--password-from-stdin] --name myorg
   DESC
-  cgrp.arg :name, :optional
+  cgrp.arg(:name, :optional)
   cgrp.command :create do |c|
     c.desc("Provide account password via STDIN")
     c.arg_name("password-from-stdin")
@@ -231,20 +148,10 @@ $ conjurctl account create [--password-from-stdin] --name myorg
     c.flag(:name)
 
     c.action do |global_options,options,args|
-      account = options[:name] || args.first
-      raise "No account name was provided" unless account
-
-      connect
-
-      if options["password-from-stdin"]
-        # Rake is interpreting raw commas in the password as
-        # delimiting addtional arguments to rake itself. 
-        # Reference: https://github.com/ruby/rake/blob/a842fb2c30cc3ca80803fba903006b1324a62e9a/lib/rake/application.rb#L163
-        password = stdin_input.gsub(',', '\,')
-        exec("rake 'account:create_with_password[#{account},#{password}]'")
-      else
-        exec("rake 'account:create[#{account}]'")
-      end
+      Commands::Account::Create.new.call(
+        account: options[:name] || args.first,
+        password_from_stdin: options["password-from-stdin"]
+      )
     end
   end
 
@@ -252,10 +159,9 @@ $ conjurctl account create [--password-from-stdin] --name myorg
   cgrp.arg(:account)
   cgrp.command :delete do |c|
     c.action do |global_options,options,args|
-      account = args.first
-      connect
-
-      exec("rake 'account:delete[#{account}]'")
+      Commands::Account::Delete.new.call(
+        account: args.first
+      )
     end
   end
 end
@@ -265,9 +171,7 @@ command :db do |cgrp|
   cgrp.desc "Create and/or upgrade the database schema"
   cgrp.command :migrate do |c|
     c.action do |global_options,options,args|
-      connect
-
-      exec("rake db:migrate")
+      Commands::DB::Migrate.new.call
     end
   end
 end
@@ -278,20 +182,9 @@ command :role do |cgrp|
   cgrp.arg(:role_id, :multiple)
   cgrp.command :"retrieve-key" do |c|
     c.action do |global_options,options,args|
-      connect
-
-      fail 'key retrieval failed' unless args.map { |id|
-        stdout, stderr, = Open3.capture3("rake 'role:retrieve-key[#{id}]'")
-
-        if stderr.empty?
-          # Only print last line of stdout to omit server config logging
-          puts(stdout.split("\n").last)
-          true
-        else
-          $stderr.puts(stderr)
-          false
-        end
-      }.all?
+      Commands::Role::RetrieveKey.new.call(
+        role_ids: args
+      )
     end
   end
 end
@@ -309,33 +202,10 @@ command :wait do |c|
   c.flag [ :r, :retries ], :must_match => /\d+/
 
   c.action do |global_options,options,args|
-    puts "Waiting for Conjur to be ready..."
-
-    retries = options[:retries].to_i
-    port = options[:port]
-
-    conjur_ready = lambda do
-      uri = URI.parse("http://localhost:#{port}")
-      begin
-        response = Net::HTTP.get_response(uri)
-        response.code.to_i < 300
-      rescue
-        false
-      end
-    end
-
-    retries.times do
-      break if conjur_ready.call
-
-      STDOUT.print(".")
-      sleep 1
-    end
-
-    if conjur_ready.call
-      puts " Conjur is ready!"
-    else
-      exit_now! " Conjur is not ready after #{retries} seconds" 
-    end
+    Commands::Wait.new.call(
+      retries: options[:retries].to_i,
+      port: options[:port].to_i
+    )
   end
 end
 
@@ -352,8 +222,34 @@ command :export do |c|
   c.flag [:l, :label]
 
   c.action do |global_options,options,args|
-    connect
-    exec(%(rake export["#{options[:out_dir]}","#{options[:label]}"]))
+    Commands::Export.new.call(
+      out_dir: options[:out_dir],
+      label: options[:label]
+    )
+  end
+end
+
+desc 'Manage Conjur configuration'
+command :configuration do |cgrp|
+  cgrp.desc 'Show Conjur configuration attributes and their sources'
+  cgrp.long_desc(<<~DESC)
+    Show Conjur configuration attributes and their sources.
+
+    The values displayed by this command reflect the current state of the
+    configuration sources. For the example, the environment variables and
+    config file. These may not reflect the current values used by the running
+    Conjur server.
+  DESC
+  cgrp.command :show do |c|
+    c.desc 'Output format'
+    c.default_value('text')
+    c.flag [:o, :output]
+
+    c.action do |_global_options, options, _args|
+      Commands::Configuration::Show.new.call(
+        output_format: options[:output].strip.downcase
+      )
+    end
   end
 end
 

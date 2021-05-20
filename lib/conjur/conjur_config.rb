@@ -1,3 +1,7 @@
+# Conjur::ConjurConfig is also used in the conjurctl executable, so we cannot
+# rely on Rails autoloading to make the `Anyway::Config` constant available.
+require 'anyway_config'
+
 module Conjur
   # Reads application config from a YAML file on disk, as well as env vars
   # prefixed with CONJUR_ then serves as a single point to access configuration
