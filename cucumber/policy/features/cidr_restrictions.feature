@@ -47,7 +47,7 @@ from a particular network, defined by a CIDR in the policy
       restricted_to: an_invalid_cidr_string
     """
     Then there is an error
-    And the error code is "policy_invalid"
+    And the error code is "validation_failed"
     And the error message includes "Invalid IP address or CIDR range 'an_invalid_cidr_string'"
 
 
@@ -60,7 +60,7 @@ from a particular network, defined by a CIDR in the policy
       restricted_to: dap.my-company.net
     """
     Then there is an error
-    And the error code is "policy_invalid"
+    And the error code is "validation_failed"
     And the error message includes "Invalid IP address or CIDR range 'dap.my-company.net'"
 
   Scenario: Load policy with invalid CIDR (Bits to the right of the mask)
@@ -73,7 +73,7 @@ from a particular network, defined by a CIDR in the policy
       restricted_to: 10.0.0.1/24
     """
     Then there is an error
-    And the error code is "policy_invalid"
+    And the error code is "validation_failed"
     And the error message includes "Invalid IP address or CIDR range '10.0.0.1/24': Value has bits set to right of mask. Did you mean '10.0.0.0/24'"
 
   Scenario: Change CIDR restriction value
