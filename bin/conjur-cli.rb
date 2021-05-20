@@ -146,22 +146,22 @@ end
 desc "Manage accounts"
 command :account do |cgrp|
   cgrp.desc "Create an organization account"
-  cgrp.long_desc(<<-DESC)
-Use this command to generate and store a new account, along with its 2048-bit 
-RSA private key, used to sign auth tokens. The CONJUR_DATA_KEY must be
-available in the environment when this command is called, since it's used to
-encrypt the token-signing key in the database.
+  cgrp.long_desc(<<~DESC)
+    Use this command to generate and store a new account, along with its
+    2048-bit RSA private key, used to sign auth tokens. The CONJUR_DATA_KEY must
+    be available in the environment when this command is called, since it's used
+    to encrypt the token-signing key in the database.
 
-The optional 'password-from-stdin' flag signifies that the password should be 
-read from STDIN. If the flag is not provided, the "admin" user API key will be
-outputted to STDOUT.
+    The optional 'password-from-stdin' flag signifies that the password should
+    be read from STDIN. If the flag is not provided, the "admin" user API key
+    will be outputted to STDOUT.
 
-The 'name' flag or command argument must be present. It will specify the name of
-the account that will be created.
+    The 'name' flag or command argument must be present. It will specify the 
+    name of the account that will be created.
 
-Example:
+    Example:
 
-$ conjurctl account create [--password-from-stdin] --name myorg
+    $ conjurctl account create [--password-from-stdin] --name myorg
   DESC
   cgrp.arg(:name, :optional)
   cgrp.command :create do |c|
@@ -174,20 +174,10 @@ $ conjurctl account create [--password-from-stdin] --name myorg
     c.flag(:name)
 
     c.action do |global_options,options,args|
-      account = options[:name] || args.first
-      raise "No account name was provided" unless account
-
-      connect
-
-      if options["password-from-stdin"]
-        # Rake is interpreting raw commas in the password as
-        # delimiting addtional arguments to rake itself. 
-        # Reference: https://github.com/ruby/rake/blob/a842fb2c30cc3ca80803fba903006b1324a62e9a/lib/rake/application.rb#L163
-        password = stdin_input.gsub(',', '\,')
-        exec("rake 'account:create_with_password[#{account},#{password}]'")
-      else
-        exec("rake 'account:create[#{account}]'")
-      end
+      Commands::Account::Create.new.call(
+        account: options[:name] || args.first,
+        password_from_stdin: options["password-from-stdin"]
+      )
     end
   end
 
@@ -195,10 +185,9 @@ $ conjurctl account create [--password-from-stdin] --name myorg
   cgrp.arg(:account)
   cgrp.command :delete do |c|
     c.action do |global_options,options,args|
-      account = args.first
-      connect
-
-      exec("rake 'account:delete[#{account}]'")
+      Commands::Account::Delete.new.call(
+        account: args.first
+      )
     end
   end
 end
