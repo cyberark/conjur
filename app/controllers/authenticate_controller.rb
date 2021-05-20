@@ -80,7 +80,7 @@ class AuthenticateController < ApplicationController
   def authenticate_jwt
     params[:authenticator] = "authn-jwt"
     authn_token = Authentication::AuthnJwt::OrchestrateAuthentication.new.call(
-      authenticator_input: authenticator_input,
+      authenticator_input: authenticator_input_without_credentials,
       enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV)
     )
     render_authn_token(authn_token)
@@ -118,6 +118,21 @@ class AuthenticateController < ApplicationController
       account: params[:account],
       username: params[:id],
       credentials: request.body.read,
+      client_ip: request.ip,
+      request: request
+    )
+  end
+
+  # create authenticator input without reading the request body
+  # request body can be relatively large
+  # authenticator will read it after basic validation check
+  def authenticator_input_without_credentials
+    Authentication::AuthenticatorInput.new(
+      authenticator_name: params[:authenticator],
+      service_id: params[:service_id],
+      account: params[:account],
+      username: params[:id],
+      credentials: nil,
       client_ip: request.ip,
       request: request
     )
