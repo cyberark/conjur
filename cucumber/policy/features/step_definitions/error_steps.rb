@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 Then(/^the error code is "([^"]*)"$/) do |code|
+puts @error
   expect(@error['code']).to eq(code)
 end
 
