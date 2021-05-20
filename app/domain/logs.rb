@@ -448,13 +448,6 @@ module LogMessages
         msg: "Successfully created JWKS",
         code: "CONJ00088D"
       )
-
-
-
-      ExtractTokenString = ::Util::TrackableLogMessageClass.new(
-        msg: "Extract JWT token from request",
-        code: "CONJ00089D"
-      )
     end
   end
 
