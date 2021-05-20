@@ -280,7 +280,8 @@ GEM
       pry (>= 0.10.4)
     psych (3.1.0)
     public_suffix (4.0.4)
-    puma (3.12.6)
+    puma (4.3.8)
+      nio4r (~> 2.0)
     racc (1.5.2)
     rack (2.2.3)
     rack-oauth2 (1.11.0)
@@ -483,7 +484,7 @@ DEPENDENCIES
   pg
   pry-byebug
   pry-rails
-  puma (~> 3.12.5)
+  puma (~> 4.3.8)
   rack (~> 2.2.3)
   rack-rewrite
   rails (~> 5.2)

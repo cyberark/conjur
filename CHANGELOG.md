@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2149](https://github.com/cyberark/conjur/issues/2149)
 - Upgrade Nokogiri to 1.11.5 to resolve
   [GHSA-7rrm-v45f-jp64](https://github.com/advisories/GHSA-7rrm-v45f-jp64).
+- Upgrade Puma to 4.3.8 to resolve
+  [CVE-2021-29509](https://nvd.nist.gov/vuln/detail/CVE-2021-29509).
 
 ## [1.11.6] - 2021-04-28
 
