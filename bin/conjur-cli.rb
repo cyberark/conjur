@@ -228,33 +228,10 @@ command :wait do |c|
   c.flag [ :r, :retries ], :must_match => /\d+/
 
   c.action do |global_options,options,args|
-    puts "Waiting for Conjur to be ready..."
-
-    retries = options[:retries].to_i
-    port = options[:port]
-
-    conjur_ready = lambda do
-      uri = URI.parse("http://localhost:#{port}")
-      begin
-        response = Net::HTTP.get_response(uri)
-        response.code.to_i < 300
-      rescue
-        false
-      end
-    end
-
-    retries.times do
-      break if conjur_ready.call
-
-      STDOUT.print(".")
-      sleep 1
-    end
-
-    if conjur_ready.call
-      puts " Conjur is ready!"
-    else
-      exit_now! " Conjur is not ready after #{retries} seconds" 
-    end
+    Commands::Wait.new.call(
+      retries: options[:retries].to_i,
+      port: options[:port].to_i
+    )
   end
 end
 
