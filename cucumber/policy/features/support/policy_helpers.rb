@@ -110,7 +110,7 @@ module PolicyHelpers
   end
 
   def account
-    ENV['CONJUR_APPLIANCE_URL'] || 'http://conjur'
+    ENV['CONJUR_ACCOUNT'] || 'cucumber'
   end
 
   def login_as_role login, api_key = nil
