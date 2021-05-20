@@ -208,20 +208,9 @@ command :role do |cgrp|
   cgrp.arg(:role_id, :multiple)
   cgrp.command :"retrieve-key" do |c|
     c.action do |global_options,options,args|
-      connect
-
-      fail 'key retrieval failed' unless args.map { |id|
-        stdout, stderr, = Open3.capture3("rake 'role:retrieve-key[#{id}]'")
-
-        if stderr.empty?
-          # Only print last line of stdout to omit server config logging
-          puts(stdout.split("\n").last)
-          true
-        else
-          $stderr.puts(stderr)
-          false
-        end
-      }.all?
+      Commands::Role::RetrieveKey.new.call(
+        role_ids: args
+      )
     end
   end
 end
