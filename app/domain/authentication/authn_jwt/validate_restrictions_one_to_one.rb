@@ -9,10 +9,10 @@ module Authentication
       end
 
       def valid_restriction?(restriction)
-        unless @decoded_token.key?(restriction.name.to_sym)
+        unless @decoded_token.key?(restriction.name)
           raise Errors::Authentication::AuthnJwt::JwtTokenClaimIsMissing.new(restriction.name)
         end
-        @decoded_token[restriction.name.to_sym] == restriction.value
+        @decoded_token.fetch(restriction.name) == restriction.value
       end
     end
   end
