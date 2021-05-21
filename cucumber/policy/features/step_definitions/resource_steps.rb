@@ -32,7 +32,7 @@ end
 
 When(/^I list ([\w_]+) resources$/) do |kind|
   invoke do
-    get_resource(kind).body
+    get_resource(kind, '').body
   end
 end
 
