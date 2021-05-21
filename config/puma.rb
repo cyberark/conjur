@@ -39,5 +39,12 @@ end
 on_worker_boot do
   # https://groups.google.com/forum/#!topic/sequel-talk/LBAtdstVhWQ
   Sequel::Model.db.disconnect
+
+  conjur_config = Rails.application.config.conjur_config
+
+  puts "Loaded configuration:"
+  conjur_config.attribute_sources.each do |k,v|
+    puts "- #{k} from #{v}"
+  end
 end
 
