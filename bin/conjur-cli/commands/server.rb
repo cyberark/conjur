@@ -56,7 +56,7 @@ module Commands
 
       if @password_from_stdin
         # Rake is interpreting raw commas in the password as
-        # delimiting addtional arguments to rake itself. 
+        # delimiting addtional arguments to rake itself.
         # Reference: https://github.com/ruby/rake/blob/a842fb2c30cc3ca80803fba903006b1324a62e9a/lib/rake/application.rb#L163
         password = stdin_input.gsub(',', '\,')
         system(
@@ -71,7 +71,7 @@ module Commands
 
     def stdin_input
       raise "Please provide an input via STDIN" if $stdin.tty?
-    
+
       $stdin.read.force_encoding('ASCII-8BIT')
     end
 

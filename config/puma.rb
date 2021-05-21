@@ -40,7 +40,10 @@ on_worker_boot do
   # https://groups.google.com/forum/#!topic/sequel-talk/LBAtdstVhWQ
   Sequel::Model.db.disconnect
 
+  # Reload app configuration. Note that this will not pick up changes to env
+  # vars since the main puma process environment is static once it starts.
   conjur_config = Rails.application.config.conjur_config
+  conjur_config.reload
 
   puts "Loaded configuration:"
   conjur_config.attribute_sources.each do |k,v|
