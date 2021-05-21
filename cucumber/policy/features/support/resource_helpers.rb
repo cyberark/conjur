@@ -24,21 +24,15 @@ module ResourceHelpers
   end
 
   def secrets_client kind, id
-    RestClient::Resource.new(appliance_url() + '/secrets/' + account() + '/' + kind +'/'+ id , 'Content-Type' => 'application/json')
+    RestClient::Resource.new(uri('secrets', kind, id) , 'Content-Type' => 'application/json')
   end
 
   def role_client kind, id
-    RestClient::Resource.new(appliance_url() + '/roles/' + account() + '/' + kind + '/'+ id, 'Content-Type' => 'application/json')
+    RestClient::Resource.new(uri('roles', kind, id), 'Content-Type' => 'application/json')
   end
 
   def resource_client kind, id=nil
-    uri = ""
-    if id==nil
-      uri = appliance_url() + '/resources/' + account() + '/' + kind
-    else
-      uri =appliance_url() + '/resources/' + account() + '/' +kind +'/'+ id
-    end
-    RestClient::Resource.new(uri, 'Content-Type' => 'application/json')
+    RestClient::Resource.new(uri('resources', kind, id), 'Content-Type' => 'application/json')
   end
 
 end

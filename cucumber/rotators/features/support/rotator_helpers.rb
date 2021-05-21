@@ -2,21 +2,40 @@
 
 # TODO: Explanation of design and how to add a new rotator
 #
-
+require('net/http')
+require('uri')
 require 'aws-sdk-iam'
-
+require 'rest-client'
 # Utility methods for rotation tests
 #
 module RotatorHelpers
-
   # Utility for the postgres rotator
   #
   def run_sql_in_testdb(sql, user='postgres', pw='postgres_secret')
     system("PGPASSWORD=#{pw} psql -h testdb -U #{user} -c \"#{sql}\"")
   end
 
-  def variable(var_name)
-    get_resource("variable",var_name)
+  def variable id
+    get_secret('variable', id)
+  end
+
+  def add_secret kind, id, value
+    secrets_client(kind, id).post(value, :Authorization => create_token_header())
+  end
+
+  def get_secret kind, id
+    secrets_client(kind,id).get(:Authorization => create_token_header())
+  end
+
+  def secrets_client kind, id
+    RestClient::Resource.new(uri('secrets',kind,id), 'Content-Type' => 'application/json')
+  end
+
+  def uri root, kind, id=nil
+    uri = appliance_url() + '/' + root + '/' + account() + '/' + kind
+    if id!=nil
+      uri += '/' + CGI.escape(id)
+    end
   end
 
   # This wires up and kicks off of the postgres polling process, and then
@@ -52,7 +71,7 @@ module RotatorHelpers
   # This represents a rotating postgres password across time -- a changing
   # entity with a current_value.
   # 
-  # The "value" of this entity only exists when the actual db password matches
+  # The "value" of this entity only exiss when the actual db password matches
   # the password in Conjur.  During the ephemeral moments when they're out of
   # sync, or when either one of the passwords is not available, the
   # `PgRotatingPassword` is considered to be `nil`.

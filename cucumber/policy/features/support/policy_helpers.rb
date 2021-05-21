@@ -55,8 +55,32 @@ module PolicyHelpers
     resource(id).post(policy, :Authorization => create_token_header())
   end
 
+  def create_api_key role
+    login_resource().put("", :Authorization => create_token_header(), params: {role: role})
+  end
+
+  def admin_api_key
+    admin_resource().get
+  end
+
+  def get_login_token login, key
+    RestClient.post(uri('authn', CGI.escape(login), 'authenticate'), key, 'Accept-Encoding': 'Base64')
+  end
+
+  def get_admin_token()
+    RestClient.post(uri('authn','admin', 'authenticate'), admin_api_key(), 'Accept-Encoding': 'Base64')
+  end
+
+  def admin_resource
+    RestClient::Resource.new uri('authn', 'login', '') ,'admin', admin_password
+  end
+
   def resource id
-    RestClient::Resource.new(appliance_url() + '/policies/' + account() + '/policy/' + id)
+    RestClient::Resource.new(uri('policies', 'policy', id))
+  end
+
+  def login_resource
+    RestClient::Resource.new( uri('authn', 'api_key', ''), { :user => 'admin', :password => admin_password})
   end
 
   def make_full_id *tokens
@@ -72,20 +96,6 @@ module PolicyHelpers
     end
   end
 
-  def admin_api_key
-    resource = RestClient::Resource.new appliance_url() +'/authn/' + account() + '/login' ,'admin', admin_password
-    resource.get
-  end
-
-  def get_login_token login, key
-    RestClient.post(appliance_url() + '/authn/' + account() + '/' + CGI.escape(login) + '/authenticate', key, 'Accept-Encoding': 'Base64')
-  end
-
-  def get_admin_token()
-    admin_api_key = admin_api_key()
-    RestClient.post(appliance_url() + '/authn/' + account() + '/admin/authenticate', admin_api_key, 'Accept-Encoding': 'Base64')
-  end
-
   def create_token_header token=nil
     if token == nil
       token = get_admin_token()
@@ -93,12 +103,11 @@ module PolicyHelpers
     token_header = 'Token token="' + token + '"'
   end
 
-  def create_api_key role
-    login_resource().put("", :Authorization => create_token_header(), params: {role: role})
-  end
-
-  def login_resource
-      RestClient::Resource.new appliance_url() + '/authn/' + account() + '/api_key','admin', admin_password
+  def uri root, kind, id=nil
+    uri = appliance_url() + '/' + root + '/' + account() + '/' + kind
+    if id!=nil
+      uri += '/' + CGI.escape(id)
+    end
   end
 
   def admin_password

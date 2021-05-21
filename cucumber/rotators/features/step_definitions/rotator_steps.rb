@@ -68,8 +68,7 @@ Given(/^I reset my root policy$/) do
 end
 
 Given(/^I add the value "(.*)" to variable "(.+)"$/) do |val, var_name|
-  var = variable(var_name)
-  var.add_value(val)
+  add_secret('variable',var_name,val)
 end
 
 # There are two cases we have to handle during manual testing:
