@@ -192,6 +192,7 @@ GEM
       activesupport (>= 4.2.0)
     haikunator (1.1.0)
     highline (1.7.10)
+    hiredis (0.6.3)
     http (4.2.0)
       addressable (~> 2.3)
       http-cookie (~> 1.0)
@@ -334,6 +335,7 @@ GEM
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     recursive-open-struct (1.1.1)
+    redis (4.2.5)
     reek (6.0.0)
       kwalify (~> 0.7.0)
       parser (>= 2.5.0.0, < 2.8, != 2.5.1.1)
@@ -468,6 +470,7 @@ DEPENDENCIES
   ffi (>= 1.9.24)
   gli
   haikunator (~> 1)
+  hiredis
   http (~> 4.2.0)
   iso8601
   jbuilder (~> 2.7.0)
@@ -493,6 +496,7 @@ DEPENDENCIES
   rails_layout
   rake
   rake_shared_context
+  redis (~> 4.0)
   reek
   rspec
   rspec-core (~> 3.0)

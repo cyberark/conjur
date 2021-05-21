@@ -14,6 +14,9 @@ services:
       #   PostgreSQL documentation about "trust"
       POSTGRES_HOST_AUTH_METHOD: trust
 
+  redis:
+    image: redis
+
   audit:
     image: postgres:10.16
     environment:

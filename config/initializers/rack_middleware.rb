@@ -3,6 +3,8 @@ require 'rack/default_content_type'
 # This is where we introduce custom middleware that interacts with Rack
 # and Rails to change how requests are handled.
 Rails.application.configure do
+  config.middleware.use(::Rack::CacheResponse)
+
   # This configures which paths do and do not require token authentication.
   # Token authentication is optional for authn routes, and it's not applied at
   # all to authentication, host factories, or static assets (e.g. images, CSS)
@@ -26,6 +28,8 @@ Rails.application.configure do
   # attempts are handled correctly. So we add this middleware
   # to the start of the Rack middleware chain.
   config.middleware.insert_before(0, ::Rack::DefaultContentType)
+
+  #config.middleware.insert_before(1, ::Rack::RequestCache)
 
   # Deleting the RemoteIp middleware means that `request.remote_ip` will
   # always be the same as `request.ip`. This ensure that the Conjur request log

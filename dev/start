@@ -109,7 +109,7 @@ fi
 
 export CONJUR_DATA_KEY="$(cat data_key)"
 
-services="pg conjur client"
+services="pg conjur client redis"
 
 if [[ $ENABLE_AUDIT = true ]]; then
   services="$services audit"

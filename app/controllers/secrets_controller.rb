@@ -41,7 +41,22 @@ class SecretsController < RestController
         resource.id, message: "Requested version does not exist"
       )
     end
-    value = secret.value
+    
+    redis_value = Rails.cache.fetch({
+      :resource_id => resource_id,
+      :version => version
+    }.inspect)
+
+    value = if redis_value.nil?
+      value = secret.value
+      Rails.cache.write({
+        :resource_id => secret.resource_id,
+        :version => version
+      }.inspect, Slosilo::EncryptedAttributes.encrypt(value, aad: version), expires_in: 30)
+      value
+    else
+      Slosilo::EncryptedAttributes.decrypt(redis_value, aad: version)
+    end
 
     mime_type = \
       resource.annotation('conjur/mime_type') || 'application/octet-stream'

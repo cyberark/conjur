@@ -12,6 +12,8 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 ruby '2.5.8'
 #ruby-gemset=conjur
 
+gem "redis", "~> 4.0"
+gem "hiredis"
 gem 'base58'
 gem 'command_class'
 gem 'http', '~> 4.2.0'

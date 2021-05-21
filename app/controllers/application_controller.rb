@@ -64,7 +64,7 @@ class ApplicationController < ActionController::API
   rescue_from UnprocessableEntity, with: :unprocessable_entity
   rescue_from Errors::Conjur::BadSecretEncoding, with: :bad_secret_encoding
 
-  around_action :run_with_transaction
+  # around_action :run_with_transaction
 
   # sets the default content type header on incoming requests that match the
   # path_match regex
