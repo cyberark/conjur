@@ -11,6 +11,7 @@ module Authentication
         validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
         validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
         enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
+        validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
         logger: Rails.logger
       },
       inputs: %i[authenticator_status_input]
@@ -22,7 +23,6 @@ module Authentication
       def call
         validate_generic_status_validations
         create_authentication_parameters
-        validate_uri_based_parameters
         validate_secrets
       end
 
@@ -30,6 +30,7 @@ module Authentication
 
       def validate_generic_status_validations
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingJwtStatusConfiguration.new)
+        validate_account_exists
         validate_user_has_access_to_status_webservice
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedUserHasAccessToStatusWebservice.new)
         validate_authenticator_webservice_exists
@@ -68,9 +69,9 @@ module Authentication
         raise Errors::Authentication::AuthnJwt::ServiceIdMissing unless @authenticator_status_input.service_id
       end
 
-      def validate_uri_based_parameters
-        @validate_uri_parameters.call(authenticator_input: @authenticator_status_input,
-                                          enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV)
+      def validate_account_exists
+        @validate_account_exists.(
+          account: @authenticator_status_input.account
         )
       end
 
@@ -95,20 +96,16 @@ module Authentication
         @fetch_identity_from_token.new(@authentication_parameters).identity_configured_properly?
       end
 
-      def required_variable_names
-        @required_variable_names ||= %w[provider-uri]
-      end
-
       def create_authentication_parameters
-        @authentication_parameters ||= Authentication::AuthnJwt::AuthenticationParameters.new(Authentication::AuthenticatorInput.new(
-                                                                                              authenticator_name: @authenticator_status_input.authenticator_name,
-                                                                                              service_id: @authenticator_status_input.service_id,
-                                                                                              account: @authenticator_status_input.account,
-                                                                                              username: @authenticator_status_input.username,
-                                                                                              client_ip: @authenticator_status_input.client_ip,
-                                                                                              credentials: nil,
-                                                                                              request: nil
-                                                                                            )
+        @authentication_parameters ||= Authentication::AuthnJwt::AuthenticationParameters.new(
+          Authentication::AuthenticatorInput.new(authenticator_name: @authenticator_status_input.authenticator_name,
+                                                 service_id: @authenticator_status_input.service_id,
+                                                 account: @authenticator_status_input.account,
+                                                 username: @authenticator_status_input.username,
+                                                 client_ip: @authenticator_status_input.client_ip,
+                                                 credentials: nil,
+                                                 request: nil
+                                                )
         )
       end
     end
