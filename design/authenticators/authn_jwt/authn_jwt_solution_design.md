@@ -194,8 +194,9 @@ The `FactoryFetchSignigKey` class will be responsible on the following logic:
 
 ###### Fetch JWT standard claims to validate
 For 1st milestone we will validate the following:
-1. exp nbf iat - will be validated if exists in token, (not extra value is  needed from customer)
-2. Iss - will be validated if exists in token
+1. nbf iat - will be validated if exists in token, (not extra value is  needed from customer)
+2. exp - it is mandatory, if not exists in the token we will throw an error
+3. Iss - will be validated if exists in token
 The value to validate will be fetched by the following logic:
    
 * throw ERROR if `issuer` variable configured but empty

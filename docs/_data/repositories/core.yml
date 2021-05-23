@@ -10,6 +10,9 @@ section:
           for Kubernetes, OpenShift, AWS IAM, OIDC, and more.
         thumb: CyberArk_Conjur_logo.svg
         #image-alt:
+      - name: cyberark/conjur-openapi-spec
+        url: https://github.com/cyberark/conjur-openapi-spec
+        description: Conjur OpenAPI v3 specification
       - name: cyberark/conjur-oss-helm-chart
         url: https://github.com/cyberark/conjur-oss-helm-chart
         description: Helm chart for deploying the Conjur server.
