@@ -476,6 +476,11 @@ module Errors
         code: "CONJ00188E"
       )
 
+      IdentitySecretIsEmpty = ::Util::TrackableErrorClass.new(
+        msg: "Identity secret value is empty",
+        code: "CONJ00189E"
+      )
+
     end
 
     module ResourceRestrictions

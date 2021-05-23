@@ -28,7 +28,7 @@ module Authentication
       end
 
       def identity_configured_properly?
-        fetch_token_field_name
+        raise Errors::Authentication::AuthnJwt::IdentitySecretIsEmpty.new if fetch_token_field_name.blank?
       end
 
       private

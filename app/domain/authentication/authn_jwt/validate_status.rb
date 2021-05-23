@@ -18,7 +18,7 @@ module Authentication
     ) do
       extend(Forwardable)
       def_delegators(:@authenticator_status_input, :authenticator_name, :account,
-                     :username, :webservice, :status_webservice)
+                     :username, :status_webservice)
 
       def call
         validate_generic_status_validations
@@ -98,14 +98,23 @@ module Authentication
 
       def create_authentication_parameters
         @authentication_parameters ||= Authentication::AuthnJwt::AuthenticationParameters.new(
-          Authentication::AuthenticatorInput.new(authenticator_name: @authenticator_status_input.authenticator_name,
-                                                 service_id: @authenticator_status_input.service_id,
-                                                 account: @authenticator_status_input.account,
-                                                 username: @authenticator_status_input.username,
-                                                 client_ip: @authenticator_status_input.client_ip,
-                                                 credentials: nil,
-                                                 request: nil
+          Authentication::AuthenticatorInput.new(
+                                                  authenticator_name: @authenticator_status_input.authenticator_name,
+                                                  service_id: @authenticator_status_input.service_id,
+                                                  account: @authenticator_status_input.account,
+                                                  username: @authenticator_status_input.username,
+                                                  client_ip: @authenticator_status_input.client_ip,
+                                                  credentials: nil,
+                                                  request: nil
                                                 )
+        )
+      end
+
+      def webservice
+        @webservice ||= ::Authentication::Webservice.new(
+          account: @authenticator_status_input.account,
+          authenticator_name: @authenticator_status_input.authenticator_name,
+          service_id: @authenticator_status_input.service_id
         )
       end
     end
