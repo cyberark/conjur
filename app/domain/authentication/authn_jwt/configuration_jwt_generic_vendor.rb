@@ -12,10 +12,11 @@ module Authentication
       end
 
       def create_authentication_parameters(authenticator_input)
-        @authentication_parameters = @authentication_parameters_class.new(authenticator_input)
-        @authentication_parameters.jwt_token = @extract_token_from_credentials.call(
-          credentials: authenticator_input.request.read
+        authentication_parameters = @authentication_parameters_class.new(authenticator_input)
+        authentication_parameters.jwt_token = @extract_token_from_credentials.call(
+          credentials: authenticator_input.request.body.read
         )
+        authentication_parameters
       end
 
       def jwt_identity(authentication_parameters)
