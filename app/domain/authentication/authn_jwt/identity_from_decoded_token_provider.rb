@@ -27,6 +27,8 @@ module Authentication
         identity_field_variable.present?
       end
 
+      # This method is for the authenticator status check, unlike 'identity_available?' it checks if the
+      # secret value is not empty too
       def identity_configured_properly?
         raise Errors::Authentication::AuthnJwt::IdentitySecretIsEmpty.new if fetch_token_field_name.blank?
       end

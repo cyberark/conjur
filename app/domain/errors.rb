@@ -481,6 +481,11 @@ module Errors
         code: "CONJ00189E"
       )
 
+      ServiceIdMissing = ::Util::TrackableErrorClass.new(
+        msg: "Service id is required when authenticating with authn-jwt",
+        code: "CONJ00190E"
+      )
+
     end
 
     module ResourceRestrictions
