@@ -18,7 +18,7 @@ describe "account" do
       delete_account("demo")
     end
     
-    let(:password) { "MySecretP@SS1()!" }
+    let(:password) { "MySecretP,@SS1()!" }
     let(:create_account_with_password_and_name_flag) do
       "conjurctl account create --name demo --password-from-stdin"
     end

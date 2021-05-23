@@ -5,16 +5,33 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Trusted Proxies can now be configured with a configuration file or by setting
+  the CONJUR_TRUSTED_PROXIES environment variable.
+  [cyberark/conjur#2168](https://github.com/cyberark/conjur/issues/2168)
+- Added `conjurctl configuration show` command to print the Conjur configuration
+  values and the sources they are loaded from.
+  [cyberark/conjur#2169](https://github.com/cyberark/conjur/issues/2169)
+
+### Fixed
+- Fix bug where running `conjurctl server` or `conjurctl account create` with
+  passwords that contain `,`s sent via stdin raised an error.
+  [cyberark/conjur#2159](https://github.com/cyberark/conjur/issues/2159)
+
 ### Security
 - Upgrade Rails to 5.2.5 to resolve CVE-2021-22885 
   [cyberark/conjur#2149](https://github.com/cyberark/conjur/issues/2149)
+- Upgrade Nokogiri to 1.11.5 to resolve
+  [GHSA-7rrm-v45f-jp64](https://github.com/advisories/GHSA-7rrm-v45f-jp64).
+- Upgrade Puma to 4.3.8 to resolve
+  [CVE-2021-29509](https://nvd.nist.gov/vuln/detail/CVE-2021-29509).
 
 ## [1.11.6] - 2021-04-28
 
 ### Fixed
 - Fix bug where running `conjurctl server` or `conjurctl account create` with
   non-alpha-numeric passwords sent via stdin raised an error.
-  [cyberark/conjur#2083](https://github.com/cyberark/conjur/issues/2083)
+  [cyberark/conjur#2114](https://github.com/cyberark/conjur/issues/2114)
 
 ### Changed
 - The batch secret retrieval endpoint now returns a 406 Not Acceptable instead
