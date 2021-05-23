@@ -10,7 +10,8 @@ module Authentication
         validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
         validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
         validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
-        enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV)
+        enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
+        logger: Rails.logger
       },
       inputs: %i[authenticator_status_input]
     ) do
@@ -21,7 +22,6 @@ module Authentication
       def call
         validate_generic_status_validations
         create_authentication_parameters
-        validate_service_id_exists
         validate_uri_based_parameters
         validate_secrets
       end
@@ -29,10 +29,15 @@ module Authentication
       private
 
       def validate_generic_status_validations
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingJwtStatusConfiguration.new)
         validate_user_has_access_to_status_webservice
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedUserHasAccessToStatusWebservice.new)
         validate_authenticator_webservice_exists
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedAuthenticatorWebServiceExists.new)
         validate_webservice_is_whitelisted
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedStatusWebserviceIsWhitelisted.new)
         validate_service_id_exists
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedStatusServiceIdExists.new)
       end
 
       def validate_user_has_access_to_status_webservice
@@ -71,8 +76,11 @@ module Authentication
 
       def validate_secrets
         validate_signing_key_secrets
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedSigningKeyConfiguration.new)
         validate_issuer
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedIssuerConfiguration.new)
         validate_identity_secrets
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedIdentityConfiguration.new)
       end
 
       def validate_signing_key_secrets
