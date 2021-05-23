@@ -49,9 +49,10 @@ module Authentication
 
       def resource
         # Validate role exists, otherwise getting role annotations return empty hash.
-        role_id = @role_class.roleid_from_username(@account, @role_name)
-        resource = @resource_class[role_id]
-
+        role_id_from_username = @role_class.roleid_from_username(@account, @role_name)
+        role_id_from_host = @role_class.roleid_from_host(@account, @role_name)
+        resource = @resource_class[role_id_from_host]
+        resource = @resource_class[role_id_from_username] unless resource
         raise Errors::Authentication::Security::RoleNotFound, role_id unless resource
 
         resource
