@@ -95,20 +95,16 @@ module Authentication
         @fetch_identity_from_token.new(@authentication_parameters).identity_configured_properly?
       end
 
-      def required_variable_names
-        @required_variable_names ||= %w[provider-uri]
-      end
-
       def create_authentication_parameters
-        @authentication_parameters ||= Authentication::AuthnJwt::AuthenticationParameters.new(Authentication::AuthenticatorInput.new(
-                                                                                              authenticator_name: @authenticator_status_input.authenticator_name,
-                                                                                              service_id: @authenticator_status_input.service_id,
-                                                                                              account: @authenticator_status_input.account,
-                                                                                              username: @authenticator_status_input.username,
-                                                                                              client_ip: @authenticator_status_input.client_ip,
-                                                                                              credentials: nil,
-                                                                                              request: nil
-                                                                                            )
+        @authentication_parameters ||= Authentication::AuthnJwt::AuthenticationParameters.new(
+          Authentication::AuthenticatorInput.new(authenticator_name: @authenticator_status_input.authenticator_name,
+                                                 service_id: @authenticator_status_input.service_id,
+                                                 account: @authenticator_status_input.account,
+                                                 username: @authenticator_status_input.username,
+                                                 client_ip: @authenticator_status_input.client_ip,
+                                                 credentials: nil,
+                                                 request: nil
+                                                )
         )
       end
     end
