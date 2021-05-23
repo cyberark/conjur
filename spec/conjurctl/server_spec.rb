@@ -7,9 +7,9 @@ describe "conjurctl server" do
   end
 
   # Wait for conjur server to be up. 
-  # Exit if it takes longer than 35 seconds
+  # Exit if it takes longer than 60 seconds
   def wait_for_conjur
-    system("conjurctl wait --retries 35")
+    system("conjurctl wait --retries 60")
   end
 
   context "start server" do
@@ -40,7 +40,7 @@ describe "conjurctl server" do
     it "with both account and password-from-stdin flags" do
       # Run in background to easily kill process later
       system("
-        echo -n 'MySecretP@SS1()!' | 
+        echo -n 'MySecretP,@SS1()!' | 
         conjurctl server --account demo --password-from-stdin &
       ")
       wait_for_conjur
