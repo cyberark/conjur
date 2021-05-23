@@ -17,6 +17,7 @@ module Authentication
       def call
         validate_generic_status_validations
         create_authentication_parameters
+        validate_service_id_exists
         validate_uri_based_parameters
         validate_secrets
       end
