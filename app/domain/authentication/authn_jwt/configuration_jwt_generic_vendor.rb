@@ -9,14 +9,18 @@ module Authentication
         @validate_and_decode_token_class = Authentication::AuthnJwt::ValidateAndDecodeToken
         @identity_provider_factory = Authentication::AuthnJwt::CreateIdentityProvider
         @validate_resource_restrictions_class = Authentication::ResourceRestrictions::ValidateResourceRestrictions
+        @logger = Rails.logger
       end
 
       def authentication_parameters(authenticator_input)
-        authentication_parameters = @authentication_parameters_class.new(authenticator_input)
-        authentication_parameters.jwt_token = @extract_token_from_credentials.call(
+        @logger.debug(LogMessages::Authentication::AuthnJwt::CREATING_AUTHENTICATION_PARAMETERS_OBJECT.new)
+        jwt_token = @extract_token_from_credentials.call(
           credentials: authenticator_input.request.body.read
         )
-        authentication_parameters
+        @authentication_parameters_class.new(
+          authentication_input: authenticator_input,
+          jwt_token: jwt_token
+        )
       end
 
       def jwt_identity(authentication_parameters)

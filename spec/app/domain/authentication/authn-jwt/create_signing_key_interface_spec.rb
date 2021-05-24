@@ -9,15 +9,18 @@ RSpec.describe('Authentication::AuthnJwt::CreateSigningKeyInterface') do
   let(:account) { 'my-account' }
 
   let(:authentication_parameters) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(Authentication::AuthenticatorInput.new(
-      authenticator_name: authenticator_name,
-      service_id: service_id,
-      account: account,
-      username: "dummy_identity",
-      credentials: "dummy",
-      client_ip: "dummy",
-      request: "dummy"
-    ))
+    Authentication::AuthnJwt::AuthenticationParameters.new(
+      authentication_input: Authentication::AuthenticatorInput.new(
+        authenticator_name: authenticator_name,
+        service_id: service_id,
+        account: account,
+        username: "dummy_identity",
+        credentials: "dummy",
+        client_ip: "dummy",
+        request: "dummy"
+      ),
+      jwt_token: nil
+    )
   }
 
   let(:mocked_fetch_exists_provider_uri) { double("Mocked fetch with existing provider-uri")  }

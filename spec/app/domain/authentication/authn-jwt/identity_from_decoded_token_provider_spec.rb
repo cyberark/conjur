@@ -30,15 +30,18 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
   }
 
   let(:authentication_parameters) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(Authentication::AuthenticatorInput.new(
-      authenticator_name: authenticator_name,
-      service_id: service_id,
-      account: account,
-      username: "dummy_identity",
-      credentials: "dummy",
-      client_ip: "dummy",
-      request: "dummy"
-    ))
+    Authentication::AuthnJwt::AuthenticationParameters.new(
+      authentication_input: Authentication::AuthenticatorInput.new(
+        authenticator_name: authenticator_name,
+        service_id: service_id,
+        account: account,
+        username: "dummy_identity",
+        credentials: "dummy",
+        client_ip: "dummy",
+        request: "dummy"
+      ),
+      jwt_token: nil
+    )
   }
 
   let(:non_existing_field_name) { "non existing field name" }

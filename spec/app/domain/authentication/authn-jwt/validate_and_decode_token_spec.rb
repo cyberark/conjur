@@ -19,26 +19,30 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecodeToken') do
 
   let(:authentication_parameters) {
     Authentication::AuthnJwt::AuthenticationParameters.new(
-      authenticator_input
+      authentication_input: authenticator_input,
+      jwt_token: nil
     )
   }
 
   let(:authentication_parameters_with_valid_token) {
-    _authentication_parameters = authentication_parameters
-    _authentication_parameters.jwt_token = jwt_token_valid
-    _authentication_parameters
+    Authentication::AuthnJwt::AuthenticationParameters.new(
+      authentication_input: authenticator_input,
+      jwt_token: jwt_token_valid
+    )
   }
 
   let(:authentication_parameters_with_nil_token) {
-    _authentication_parameters = authentication_parameters
-    _authentication_parameters.jwt_token = nil
-    _authentication_parameters
+    Authentication::AuthnJwt::AuthenticationParameters.new(
+      authentication_input: authenticator_input,
+      jwt_token: nil
+    )
   }
 
   let(:authentication_parameters_with_empty_token) {
-    _authentication_parameters = authentication_parameters
-    _authentication_parameters.jwt_token = ""
-    _authentication_parameters
+    Authentication::AuthnJwt::AuthenticationParameters.new(
+      authentication_input: authenticator_input,
+      jwt_token: ""
+    )
   }
 
   let(:mocked_fetch_signing_key_failed_on_1st_time) { double("MockedFetchSigningKeyInvalid") }
