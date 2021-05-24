@@ -31,6 +31,16 @@ class AuthenticateController < ApplicationController
     render(status_failure_response(e))
   end
 
+  def authn_jwt_status
+    Authentication::AuthnJwt::ValidateStatus.new.call(
+      authenticator_status_input: status_input("authn-jwt")
+    )
+    render(json: { status: "ok" })
+  rescue => e
+    log_backtrace(e)
+    render(status_failure_response(e))
+  end
+
   def update_config
     body_params = Rack::Utils.parse_nested_query(request.body.read)
 
@@ -47,9 +57,9 @@ class AuthenticateController < ApplicationController
     handle_authentication_error(e)
   end
 
-  def status_input
+  def status_input(authenticator_name = params[:authenticator])
     Authentication::AuthenticatorStatusInput.new(
-      authenticator_name: params[:authenticator],
+      authenticator_name: authenticator_name,
       service_id: params[:service_id],
       account: params[:account],
       username: ::Role.username_from_roleid(current_user.role_id),
