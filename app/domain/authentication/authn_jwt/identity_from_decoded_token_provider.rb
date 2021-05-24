@@ -27,8 +27,6 @@ module Authentication
         identity_field_variable.present?
       end
 
-      private
-
       # This method is for the authenticator status check, unlike 'identity_available?' it checks if the
       # secret value is not empty too
       def identity_configured_properly?
