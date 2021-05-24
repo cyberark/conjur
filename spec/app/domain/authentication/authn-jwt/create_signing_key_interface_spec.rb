@@ -111,7 +111,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateSigningKeyInterface') do
         )
       end
 
-      it "raises an error" do
+      it "does not raise an error" do
         expect { subject }.to_not raise_error
       end
     end
@@ -128,7 +128,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateSigningKeyInterface') do
         )
       end
 
-      it "raises an error" do
+      it "does not raise an error" do
         expect { subject }.to_not raise_error
       end
     end
