@@ -4,7 +4,7 @@ module Authentication
   module AuthnJwt
     # Generic JWT authenticator that receive JWT vendor configuration and uses to validate that the authentication
     # request is valid, and return conjur authn token accordingly
-    Authenticate = CommandClass.new(
+    Authenticator = CommandClass.new(
       dependencies: {
         token_factory: TokenFactory.new,
         logger: Rails.logger

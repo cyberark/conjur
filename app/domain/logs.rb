@@ -448,6 +448,47 @@ module LogMessages
         msg: "Successfully created JWKS",
         code: "CONJ00088D"
       )
+
+      ValidatedIdentityConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated identity configuration",
+        code: "CONJ00089D"
+      )
+
+      ValidatingJwtStatusConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating JWT status configuration...",
+        code: "CONJ00090D"
+      )
+
+      ValidatedUserHasAccessToStatusWebservice = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated user has access to status webservice",
+        code: "CONJ00091D"
+      )
+
+      ValidatedAuthenticatorWebServiceExists = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated status webservice exists",
+        code: "CONJ00092D"
+      )
+
+      ValidatedStatusWebserviceIsWhitelisted = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully status webservice is whitelisted",
+        code: "CONJ00093D"
+      )
+
+      ValidatedStatusServiceIdExists = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated status service-ID exists",
+        code: "CONJ00094D"
+      )
+
+      ValidatedSigningKeyConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated Signing key configuration",
+        code: "CONJ00095D"
+      )
+
+      ValidatedIssuerConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated issuer configuration",
+        code: "CONJ00096D"
+      )
+
     end
   end
 

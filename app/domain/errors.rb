@@ -481,6 +481,16 @@ module Errors
         code: "CONJ00188E"
       )
 
+      IdentitySecretIsEmpty = ::Util::TrackableErrorClass.new(
+        msg: "Identity secret value is empty",
+        code: "CONJ00189E"
+      )
+
+      ServiceIdMissing = ::Util::TrackableErrorClass.new(
+        msg: "Service id is required when authenticating with authn-jwt",
+        code: "CONJ00190E"
+      )
+
     end
 
     module ResourceRestrictions

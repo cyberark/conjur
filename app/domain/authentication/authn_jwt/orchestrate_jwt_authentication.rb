@@ -8,7 +8,7 @@ module Authentication
       dependencies: {
         validate_uri_based_parameters: Authentication::AuthnJwt::ValidateUriBasedParameters.new,
         jwt_configuration_factory: ConfigurationFactory.new,
-        jwt_authenticator: Authentication::AuthnJwt::Authenticate.new,
+        jwt_authenticator: Authentication::AuthnJwt::Authenticator.new,
         logger: Rails.logger
       },
       inputs: %i[authenticator_input enabled_authenticators]
