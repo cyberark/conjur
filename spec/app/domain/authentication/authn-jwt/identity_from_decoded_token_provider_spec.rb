@@ -71,6 +71,10 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
       it "get identity from decoded token successfully" do
         expect(subject.provide_jwt_identity).to eql("admin@example.com")
       end
+
+      it "identity_configured_properly? does not raise an error" do
+        expect { subject.identity_configured_properly? }.to_not raise_error
+      end
     end
 
     context "Variable is configured and populated but decoded token not containing it" do
@@ -88,6 +92,10 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
 
       it "NoSuchFieldInToken error is raised" do
         expect { subject.provide_jwt_identity }.to raise_error(Errors::Authentication::AuthnJwt::NoSuchFieldInToken)
+      end
+
+      it "identity_configured_properly? does not raise an error" do
+        expect{ subject.identity_configured_properly? }.to_not raise_error
       end
     end
 
@@ -107,6 +115,10 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
       it "RequiredSecretMissing error is raised" do
         expect { subject.provide_jwt_identity }.to raise_error(Errors::Conjur::RequiredSecretMissing)
       end
+
+      it "identity_configured_properly? raises error" do
+        expect{ subject.identity_configured_properly? }.to raise_error(Errors::Conjur::RequiredSecretMissing)
+      end
     end
 
     context "Variable is not configured" do
@@ -118,6 +130,10 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
 
       it "identity_available? returns false" do
         expect(subject.identity_available?).to eql(false)
+      end
+
+      it "identity_configured_properly? does not raise an error" do
+        expect{ subject.identity_configured_properly? }.to_not raise_error
       end
     end
   end
