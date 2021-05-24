@@ -28,6 +28,6 @@ Feature: Postgres password rotation
   #       3 seconds of time.
   #
   Scenario: Values are rotated according to the policy
-    Given I moniter "db-reports/password" and db user "test" for 3 values in 20 seconds
+    Given I moniter "db-reports/password" and db user "test" for 3 values in 60 seconds
     Then we find at least 3 distinct matching passwords
     And the generated passwords have length 32

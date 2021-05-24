@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Then(/^I create a db user "(.*?)" with password "(.*?)"$/) do |user, pw|
-  # drop them first, in case we're re-running during dev
+  # drop them first, in case we're re-running during dev\
   run_sql_in_testdb("DROP DATABASE #{user};")
   run_sql_in_testdb("DROP USER #{user};")
   run_sql_in_testdb("CREATE USER #{user} WITH PASSWORD '#{pw}';")
@@ -88,6 +88,7 @@ Then(regex) do |policy_id|
   region_var = variable("#{policy_id}/region")
   id_var     = variable("#{policy_id}/access_key_id")
   secret_var = variable("#{policy_id}/secret_access_key")
+  puts secret_var
   creds_in_conjur = secret_var.version_count > 0 # only need to test 1 of them
   next if creds_in_conjur
 
@@ -101,9 +102,10 @@ Then(regex) do |policy_id|
   raise "'AWS_ACCESS_KEY_ID' is not defined in ENV" unless id
   raise "'AWS_SECRET_ACCESS_KEY' is not defined in ENV" unless secret
 
-  region_var.add_value(region)
-  id_var.add_value(id)
-  secret_var.add_value(secret)
+  add_secret('variable',"#{policy_id}/region",val)
+  add_secret('variable',"#{policy_id}/access_key_id",val)
+  add_secret('variable',"#{policy_id}/secret_access_key",val)
+
 end
 
 Then(/^I add ENV\[(.+)\] to variable "(.+)"$/) do |env_var, conjur_varname|

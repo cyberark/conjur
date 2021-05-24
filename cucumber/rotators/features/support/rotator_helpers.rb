@@ -11,6 +11,20 @@ require 'rest-client'
 module RotatorHelpers
   # Utility for the postgres rotator
   #
+  def invoke status: nil, &block
+    begin
+      @result = yield
+      # raise "Expected invocation to be denied" if status && status != 200
+
+      @result.tap do |result|
+        puts(result) if @echo
+      end
+    rescue RestClient::Exception => e
+      expect(e.http_code).to eq(status) if status
+      @result = e.response.body
+    end
+  end
+
   def run_sql_in_testdb(sql, user='postgres', pw='postgres_secret')
     system("PGPASSWORD=#{pw} psql -h testdb -U #{user} -c \"#{sql}\"")
   end
@@ -19,8 +33,16 @@ module RotatorHelpers
     get_secret('variable', id)
   end
 
+  def resource id
+    RestClient::Resource.new(uri('policies', 'policy', id))
+  end
+
   def add_secret kind, id, value
     secrets_client(kind, id).post(value, :Authorization => create_token_header())
+  end
+
+  def load_root_policy policy
+    resource('root').put(policy, :Authorization => create_token_header())
   end
 
   def get_secret kind, id
@@ -38,6 +60,36 @@ module RotatorHelpers
     end
   end
 
+  def create_token_header token=nil
+    if token == nil
+      token = get_admin_token()
+    end
+    token_header = 'Token token="' + token + '"'
+  end
+
+  def admin_api_key
+    admin_resource().get
+  end
+
+  def get_admin_token()
+    RestClient.post(uri('authn','admin', 'authenticate'), admin_api_key(), 'Accept-Encoding': 'Base64')
+  end
+
+  def admin_resource
+    RestClient::Resource.new uri('authn', 'login', '') ,'admin', admin_password
+  end
+
+  def admin_password
+    'SEcret12!!!!'
+  end
+
+  def appliance_url
+    ENV['CONJUR_APPLIANCE_URL'] || 'http://conjur'
+  end
+
+  def account
+    ENV['CONJUR_ACCOUNT'] || 'cucumber'
+  end
   # This wires up and kicks off of the postgres polling process, and then
   # returns the results of that process: a history of distinct passwords seen
   # by the polling.
@@ -165,7 +217,7 @@ module RotatorHelpers
 
     def stop?(history)
       has_enough_values = history.size >= @values_needed
-      should_stop_early = @stop_early&.call(history) 
+      should_stop_early = @stop_early&.call(history)
       has_enough_values || should_stop_early
     end
 
