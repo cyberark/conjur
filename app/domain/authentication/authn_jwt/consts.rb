@@ -6,6 +6,7 @@ module Authentication
     JWKS_URI_RESOURCE_NAME = "jwks-uri".freeze
     ISSUER_RESOURCE_NAME = "issuer".freeze
     IDENTITY_FIELD_VARIABLE = "token-app-property".freeze
+    IDENTITY_NOT_RETRIEVED_YET = "Identity not retrieved yet".freeze
     ISS_CLAIM_NAME = "iss".freeze
     EXP_CLAIM_NAME = "exp".freeze
     NBF_CLAIM_NAME = "nbf".freeze
