@@ -470,7 +470,7 @@ module LogMessages
       )
 
       ValidatedStatusWebserviceIsWhitelisted = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully status webservice is whitelisted",
+        msg: "Successfully validated status webservice is whitelisted",
         code: "CONJ00093D"
       )
 

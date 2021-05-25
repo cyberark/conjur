@@ -35,6 +35,17 @@ module Authentication
         validate_webservice_is_whitelisted
       end
 
+      def validate_account_exists
+        @validate_account_exists.(
+          account: account
+        )
+      end
+
+      def validate_service_id_exists
+        raise Errors::Authentication::AuthnJwt::ServiceIdMissing.new unless service_id
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedStatusServiceIdExists.new)
+      end
+
       def validate_user_has_access_to_status_webservice
         @validate_role_can_access_webservice.(
           webservice: status_webservice,
@@ -43,6 +54,15 @@ module Authentication
             privilege: 'read'
         )
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedUserHasAccessToStatusWebservice.new)
+      end
+
+
+      def validate_authenticator_webservice_exists
+        @validate_webservice_exists.(
+          webservice: webservice,
+            account: account
+        )
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedAuthenticatorWebServiceExists.new)
       end
 
       def validate_webservice_is_whitelisted
@@ -54,44 +74,25 @@ module Authentication
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedStatusWebserviceIsWhitelisted.new)
       end
 
-      def validate_authenticator_webservice_exists
-        @validate_webservice_exists.(
-          webservice: webservice,
-            account: account
-        )
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedAuthenticatorWebServiceExists.new)
-      end
-
-      def validate_service_id_exists
-        raise Errors::Authentication::AuthnJwt::ServiceIdMissing.new unless service_id
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedStatusServiceIdExists.new)
-      end
-
-      def validate_account_exists
-        @validate_account_exists.(
-          account: account
-        )
-      end
-
       def validate_secrets
         validate_signing_key_secrets
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedSigningKeyConfiguration.new)
         validate_issuer
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedIssuerConfiguration.new)
         validate_identity_secrets
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedIdentityConfiguration.new)
       end
 
       def validate_signing_key_secrets
         @create_signing_key.call(authentication_parameters: authentication_parameters)
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedSigningKeyConfiguration.new)
       end
 
       def validate_issuer
         @fetch_issuer_value.call(authentication_parameters: authentication_parameters)
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedIssuerConfiguration.new)
       end
 
       def validate_identity_secrets
         @fetch_identity_from_token.new(authentication_parameters).identity_configured_properly?
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedIdentityConfiguration.new)
       end
 
       def authentication_parameters
