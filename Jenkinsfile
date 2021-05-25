@@ -558,12 +558,6 @@ pipeline {
         archiveArtifacts artifacts: '*.rpm', fingerprint: true
       }
     }
-
-    stage('Publish Debian and RPM packages'){
-      steps {
-        sh './publish.sh'
-      }
-    }
   }
 
   post {

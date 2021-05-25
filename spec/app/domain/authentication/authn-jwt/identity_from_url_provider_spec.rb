@@ -8,27 +8,32 @@ RSpec.describe('Authentication::AuthnJwt::IdFromUrlProvider') do
   let(:account) { 'my-account' }
 
   let(:authentication_parameters_url_identity) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(Authentication::AuthenticatorInput.new(
-      authenticator_name: authenticator_name,
-      service_id: service_id,
-      account: account,
-      username: "dummy_identity",
-      credentials: "dummy",
-      client_ip: "dummy",
-      request: "dummy"
-    ))
+    Authentication::AuthnJwt::AuthenticationParameters.new(
+      authentication_input: Authentication::AuthenticatorInput.new(
+        authenticator_name: authenticator_name,
+        service_id: service_id,
+        account: account,
+        username: "dummy_identity",
+        credentials: "dummy",
+        client_ip: "dummy",
+        request: "dummy"
+      ),
+      jwt_token: nil
+    )
   }
 
   let(:authentication_parameters_no_url_identity) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(Authentication::AuthenticatorInput.new(
-      authenticator_name: authenticator_name,
-      service_id: service_id,
-      account: account,
-      username: nil,
-      credentials: "dummy",
-      client_ip: "dummy",
-      request: "dummy"
-    ))
+    Authentication::AuthnJwt::AuthenticationParameters.new(
+      authentication_input: Authentication::AuthenticatorInput.new(
+        authenticator_name: authenticator_name,
+        service_id: service_id,
+        account: account,
+        username: nil,
+        credentials: "dummy",
+        client_ip: "dummy",
+        request: "dummy"
+      ),
+      jwt_token: nil)
   }
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
