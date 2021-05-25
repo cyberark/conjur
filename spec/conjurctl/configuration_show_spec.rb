@@ -9,7 +9,7 @@ describe "conjurctl configuration show" do
 
     expect(stdout).to be_json_eql(<<~JSON).at_path('trusted_proxies')
       {
-        "value": "",
+        "value": [],
         "source": "defaults"
       }
     JSON
@@ -23,7 +23,7 @@ describe "conjurctl configuration show" do
     expect(stdout).to include(<<~YAML)
       ---
       trusted_proxies:
-        value: ''
+        value: []
         source: defaults
     YAML
   end
