@@ -96,7 +96,7 @@ module Authentication
 
       def authentication_parameters
         @authentication_parameters ||= Authentication::AuthnJwt::AuthenticationParameters.new(
-          Authentication::AuthenticatorInput.new(
+          authentication_input: Authentication::AuthenticatorInput.new(
             authenticator_name: authenticator_name,
             service_id: service_id,
             account: account,
@@ -104,7 +104,8 @@ module Authentication
             client_ip: client_ip,
             credentials: nil,
             request: nil
-          )
+          ),
+          jwt_token: nil
         )
       end
 

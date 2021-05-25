@@ -22,7 +22,8 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
 
   let(:authentication_parameters) {
     Authentication::AuthnJwt::AuthenticationParameters.new(
-      authenticator_input
+      authentication_input: authenticator_input,
+      jwt_token: nil
     )
   }
 
