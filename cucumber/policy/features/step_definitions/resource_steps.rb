@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
 Then(/^([\w_]+) "([^"]*)" exists$/) do |kind, id|
-  expect(JSON.parse(get_resource(kind,id))["id"]).to be_truthy
+  expect { get_resource(kind,id) }.to_not raise_error
 end
 
 Then(/^([\w_]+) "([^"]*)" does not exist$/) do |kind, id|
-  invoke status: 404 do
-    expect(get_resource(kind,id)).to raise_error
-  end
+  expect { get_resource(kind,id) }.to raise_error
 end
 
 Then(/^there is a ([\w_]+) resource "([^"]*)"$/) do |kind, id|

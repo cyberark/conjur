@@ -96,18 +96,15 @@ module PolicyHelpers
     end
   end
 
-  def create_token_header token=nil
-    if token == nil
-      token = get_admin_token()
-    end
-    token_header = 'Token token="' + token + '"'
+  def create_token_header(token=get_admin_token)
+    %Q[Token token="#{token}"]
   end
 
-  def uri root, kind, id=nil
-    uri = appliance_url() + '/' + root + '/' + account() + '/' + kind
-    if id!=nil
-      uri += '/' + CGI.escape(id)
-    end
+  def uri(root, kind, id=nil)
+    uri = "#{appliance_url}/#{root}/#{account}/#{kind}"
+    return uri if id.nil?
+
+    "#{uri}/#{CGI.escape(id)}"
   end
 
   def admin_password
