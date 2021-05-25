@@ -49,11 +49,11 @@ module Conjur
     #   https://github.com/palkan/anyway_config/issues/82
 
     def trusted_proxies=(val)
-      super(str_to_list(val).uniq)
+      super(str_to_list(val)&.uniq)
     end
 
     def authenticators=(val)
-      super(str_to_list(val).uniq)
+      super(str_to_list(val)&.uniq)
     end
 
     private
