@@ -47,7 +47,7 @@ module Conjur
 
       return [] unless trusted_proxies
 
-      Set.new(trusted_proxies.split(',')).
+      Set.new(trusted_proxies).
         map { |cidr| IPAddr.new(cidr.strip) }
     end
   end
