@@ -33,21 +33,18 @@ module Authentication
           .push(::Authentication::Common.default_authenticator_name)
       end
 
-      def enabled_authenticators(env)
+      def enabled_authenticators
         # Enabling via environment overrides enabling via CLI
-        env_enabled_authenticators(env) || db_enabled_authenticators
+        authenticators = 
+          Rails.application.config.conjur_config.authenticators
+        authenticators.empty? ? db_enabled_authenticators : authenticators
       end
 
-      def enabled_authenticators_str(env)
-        enabled_authenticators(env).join(',')
+      def enabled_authenticators_str
+        enabled_authenticators.join(',')
       end
 
       private
-
-      def env_enabled_authenticators(env)
-        authenticators = env["CONJUR_AUTHENTICATORS"]
-        authenticators.present? ? authenticators.split(',') : nil
-      end
       
       def db_enabled_authenticators
         # Always include 'authn' when enabling authenticators via CLI so that it

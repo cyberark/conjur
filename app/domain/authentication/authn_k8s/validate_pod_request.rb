@@ -12,7 +12,7 @@ module Authentication
         k8s_object_lookup_class: K8sObjectLookup,
         validate_webservice_is_whitelisted: Security::ValidateWebserviceIsWhitelisted.new,
         validate_role_can_access_webservice: Security::ValidateRoleCanAccessWebservice.new,
-        enabled_authenticators: InstalledAuthenticators.enabled_authenticators_str(ENV),
+        enabled_authenticators: InstalledAuthenticators.enabled_authenticators_str,
         validate_resource_restrictions: ResourceRestrictions::ValidateResourceRestrictions.new(
           extract_resource_restrictions:      ExtractK8sResourceRestrictions.new
         ),

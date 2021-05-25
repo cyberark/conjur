@@ -23,7 +23,7 @@ class AuthenticateController < ApplicationController
   def status
     Authentication::ValidateStatus.new.(
       authenticator_status_input: status_input,
-      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV)
+      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
     )
     render(json: { status: "ok" })
   rescue => e
@@ -70,7 +70,7 @@ class AuthenticateController < ApplicationController
     authn_token = Authentication::Authenticate.new.(
       authenticator_input: input,
       authenticators: installed_authenticators,
-      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV)
+      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
     )
     content_type = :json
     if encoded_response?
@@ -237,7 +237,7 @@ class AuthenticateController < ApplicationController
   end
 
   def enabled_authenticators
-    Authentication::InstalledAuthenticators.enabled_authenticators(ENV)
+    Authentication::InstalledAuthenticators.enabled_authenticators
   end
 
   def encoded_response?

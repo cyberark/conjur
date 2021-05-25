@@ -30,7 +30,7 @@ module BasicAuthenticator
     ::Authentication::Login.new.(
       authenticator_input: login_input(username, password),
       authenticators: installed_login_authenticators,
-      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV)
+      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
     )
   end
 
