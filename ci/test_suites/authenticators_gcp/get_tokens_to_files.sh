@@ -59,7 +59,7 @@ _get_token_to_files() {
     local token=""
 
     if [ -z "$auth_token" ]; then
-      token="$(curl --location --silent -H "Metadata-Flavor: Google" $token_url)" || exit 1
+      token="$(curl --location --silent -H 'Metadata-Flavor: Google' $token_url)" || exit 1
     else
       token=$(curl --location --silent \
       -H "Authorization: bearer $auth_token" \
