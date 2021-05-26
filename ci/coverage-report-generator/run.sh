@@ -7,6 +7,7 @@
 set -xeu
 
 IMAGE="ruby:2.6.5-stretch"
+BUNDLER_VERSION="2.2.18"
 
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
@@ -19,7 +20,7 @@ docker run \
     --workdir "${REPO_ROOT}/ci/coverage-report-generator" \
     "${IMAGE}" \
     bash -cex "
-      gem install bundler -v 2.1.4 
+      gem install bundler -v $BUNDLER_VERSION
       bundle config set path 'gems'
       bundle install
       bundle exec ./generate_report.rb '${REPO_ROOT}' '${REPORT_FILE}'"

@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [GHSA-7rrm-v45f-jp64](https://github.com/advisories/GHSA-7rrm-v45f-jp64).
 - Upgrade Puma to 4.3.8 to resolve
   [CVE-2021-29509](https://nvd.nist.gov/vuln/detail/CVE-2021-29509).
+- Upgrade Bundler to 2.2.18 to resolve
+  [CVE-2020-36327](https://nvd.nist.gov/vuln/detail/CVE-2020-36327).
 
 ## [1.11.6] - 2021-04-28
 
