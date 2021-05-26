@@ -59,7 +59,7 @@ module Authentication
           webservice: webservice,
             account: account,
             user_id: @authentication_parameters.jwt_identity,
-            privilege: 'authenticate'
+            privilege: PRIVILEGE_AUTHENTICATE
         )
       end
 
@@ -110,7 +110,7 @@ module Authentication
           )
         end
         @role_class.by_login(
-          IDENTITY_NOT_RETRIEVED_YET,
+          "",
           account: account
         )
       end
