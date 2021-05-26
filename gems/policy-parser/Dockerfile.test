@@ -8,6 +8,6 @@ COPY conjur-policy-parser.gemspec conjur-policy-parser.gemspec
 COPY lib/conjur-policy-parser-version.rb lib/conjur-policy-parser-version.rb
 
 # Make sure the expected version of Bundler is available
-ENV BUNDLER_VERSION=1.17.3
+ENV BUNDLER_VERSION=2.2.18
 RUN gem install bundler -v ${BUNDLER_VERSION} && \
     bundle install
