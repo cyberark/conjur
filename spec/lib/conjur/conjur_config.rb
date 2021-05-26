@@ -47,6 +47,9 @@ describe Conjur::ConjurConfig do
 
       after do
         ENV.delete('CONJUR_TRUSTED_PROXIES')
+
+        # Clear again to make sure we don't affect future tests.
+        Anyway.env.clear
       end
 
       it "overrides the config file value" do
@@ -70,6 +73,9 @@ describe Conjur::ConjurConfig do
 
       after do
         ENV.delete('CONJUR_TRUSTED_PROXIES')
+
+        # Clear again to make sure we don't affect future tests.
+        Anyway.env.clear
       end
 
       it "overrides the config file value" do
@@ -112,6 +118,10 @@ describe Conjur::ConjurConfig do
 
     after do
       ENV.delete('TRUSTED_PROXIES')
+
+      # Anyway Config caches prefixed env vars at the class level so we must
+      # clear the cache to have it pick up the new var with a reload.
+      Anyway.env.clear
     end
 
     it "reads value from TRUSTED_PROXIES env var" do
