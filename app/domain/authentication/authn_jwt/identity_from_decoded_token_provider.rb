@@ -13,7 +13,7 @@ module Authentication
       def provide_jwt_identity
         token_field_name = fetch_token_field_name
         @logger.debug(LogMessages::Authentication::AuthnJwt::LOOKING_FOR_IDENTITY_FIELD_NAME.new)
-        jwt_identity = @decoded_token[token_field_name.to_sym]
+        jwt_identity = @decoded_token[token_field_name]
         if jwt_identity.blank?
           raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken.new(
             token_field_name
