@@ -11,6 +11,15 @@ threads threads_count, threads_count
 # cause and implement a permanent solution.
 worker_timeout 600
 
+# If the load balancer/proxy/server in front of Conjur has
+# a longer timeout than Conjur, there will be 502s as Conjur will
+# close the connection even if there are pending requests. This
+# can lead to it being marked unavailable, errors returned to the
+# client and performance issues as nginx/load balancer in front of it.
+# Puma defaults to 20 seconds which is substantially lower than
+# other service defaults
+persistent_timeout 80
+
 preload_app!
 
 rackup      DefaultRackup

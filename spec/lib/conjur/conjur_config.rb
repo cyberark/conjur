@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Conjur::ConjurConfig do
   it "uses default value if not set by environment variable or config file" do
-    expect(Conjur::ConjurConfig.new.trusted_proxies).to eq("")
+    expect(Conjur::ConjurConfig.new.trusted_proxies).to eq([])
   end
 
   it "reports the attribute source as :defaults" do
@@ -18,7 +18,8 @@ describe Conjur::ConjurConfig do
       FileUtils.mkdir_p(config_folder)
 
       File.open(config_file, 'w') do |f|
-        f.write("trusted_proxies: 1.2.3.4")
+        f.puts("trusted_proxies:")
+        f.puts("  - 1.2.3.4")
       end
     end
 
@@ -27,7 +28,7 @@ describe Conjur::ConjurConfig do
     end
 
     it "reads config value from file" do
-      expect(Conjur::ConjurConfig.new.trusted_proxies).to eq("1.2.3.4")
+      expect(Conjur::ConjurConfig.new.trusted_proxies).to eq(["1.2.3.4"])
     end
 
     it "reports the attribute source as :yml" do
@@ -49,12 +50,31 @@ describe Conjur::ConjurConfig do
       end
 
       it "overrides the config file value" do
-        expect(Conjur::ConjurConfig.new.trusted_proxies).to eq("5.6.7.8")
+        expect(Conjur::ConjurConfig.new.trusted_proxies).to eq(["5.6.7.8"])
       end
 
       it "reports the attribute source as :env" do
         expect(Conjur::ConjurConfig.new.attribute_sources[:trusted_proxies]).
           to eq(:env)
+      end
+    end
+
+    context "with multiple values" do
+      before do
+        ENV['CONJUR_TRUSTED_PROXIES'] = "5.6.7.8,9.10.11.12"
+
+        # Anyway Config caches prefixed env vars at the class level so we must
+        # clear the cache to have it pick up the new var with a reload.
+        Anyway.env.clear
+      end
+
+      after do
+        ENV.delete('CONJUR_TRUSTED_PROXIES')
+      end
+
+      it "overrides the config file value" do
+        expect(Conjur::ConjurConfig.new.trusted_proxies).
+          to eq(["5.6.7.8", "9.10.11.12"])
       end
     end
   end
@@ -95,7 +115,7 @@ describe Conjur::ConjurConfig do
     end
 
     it "reads value from TRUSTED_PROXIES env var" do
-      expect(Conjur::ConjurConfig.new.trusted_proxies).to eq("5.6.7.8")
+      expect(Conjur::ConjurConfig.new.trusted_proxies).to eq(["5.6.7.8"])
     end
   end
 end

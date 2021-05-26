@@ -552,6 +552,7 @@ pipeline {
 
     stage('Build Debian and RPM packages') {
       steps {
+        sh 'echo "CONJUR_VERSION=5" >> debify.env'
         sh './package.sh'
         archiveArtifacts artifacts: '*.deb', fingerprint: true
         archiveArtifacts artifacts: '*.rpm', fingerprint: true
