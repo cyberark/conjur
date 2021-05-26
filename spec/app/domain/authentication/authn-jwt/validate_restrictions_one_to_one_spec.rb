@@ -5,6 +5,8 @@ require 'spec_helper'
 RSpec.describe('Authentication::AuthnJwt::ValidateRestrictionsOneToOne') do
   let(:right_email) { "admin@example.com" }
   let(:wrong_email) { "wrong@example.com" }
+  let(:empty_email) { "" }
+  let(:spaced_email) { "  " }
 
   let(:decoded_token) {
     {
@@ -45,6 +47,14 @@ RSpec.describe('Authentication::AuthnJwt::ValidateRestrictionsOneToOne') do
     Authentication::ResourceRestrictions::ResourceRestriction.new(name: "not_existing", value: wrong_email)
   }
 
+  let(:empty_annotation_restriction) {
+    Authentication::ResourceRestrictions::ResourceRestriction.new(name: "not_existing", value: "")
+  }
+
+  let(:spaced_annotation_restriction) {
+    Authentication::ResourceRestrictions::ResourceRestriction.new(name: "not_existing", value: "    ")
+  }
+
   #  ____  _   _  ____    ____  ____  ___  ____  ___
   # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
@@ -67,6 +77,14 @@ RSpec.describe('Authentication::AuthnJwt::ValidateRestrictionsOneToOne') do
       it "raises JwtTokenClaimIsMissing when restriction is not in the decoded token" do
         expect { subject.valid_restriction?(non_existing_restriction) }.to raise_error(Errors::Authentication::AuthnJwt::JwtTokenClaimIsMissing)
       end
+
+      it "raises EmptyAnnotationGiven when annotation is empty" do
+        expect { subject.valid_restriction?(empty_annotation_restriction) }.to raise_error(Errors::Authentication::ResourceRestrictions::EmptyAnnotationGiven)
+      end
+
+      it "raises EmptyAnnotationGiven when annotation is just spaces" do
+        expect { subject.valid_restriction?(spaced_annotation_restriction) }.to raise_error(Errors::Authentication::ResourceRestrictions::EmptyAnnotationGiven)
+      end
     end
 
     context "Decoded token is empty" do
@@ -76,6 +94,14 @@ RSpec.describe('Authentication::AuthnJwt::ValidateRestrictionsOneToOne') do
 
       it "raises JwtTokenClaimIsMissing" do
         expect { subject.valid_restriction?(non_existing_restriction) }.to raise_error(Errors::Authentication::AuthnJwt::JwtTokenClaimIsMissing)
+      end
+
+      it "raises EmptyAnnotationGiven when annotation is empty" do
+        expect { subject.valid_restriction?(empty_annotation_restriction) }.to raise_error(Errors::Authentication::ResourceRestrictions::EmptyAnnotationGiven)
+      end
+
+      it "raises EmptyAnnotationGiven when annotation is just spaces" do
+        expect { subject.valid_restriction?(spaced_annotation_restriction) }.to raise_error(Errors::Authentication::ResourceRestrictions::EmptyAnnotationGiven)
       end
     end
   end

@@ -9,6 +9,9 @@ module Authentication
       end
 
       def valid_restriction?(restriction)
+        if restriction.value.blank?
+          raise Errors::Authentication::ResourceRestrictions::EmptyAnnotationGiven, restriction.name
+        end
         unless @decoded_token.key?(restriction.name)
           raise Errors::Authentication::AuthnJwt::JwtTokenClaimIsMissing.new(restriction.name)
         end

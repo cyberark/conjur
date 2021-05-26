@@ -7,10 +7,11 @@ module Authentication
       dependencies: {
         resource_restrictions_class: Authentication::ResourceRestrictions::ResourceRestrictions,
         get_restriction_from_annotation: Authentication::ResourceRestrictions::GetRestrictionFromAnnotation,
-        fetch_resource_annotations: Authentication::ResourceRestrictions::FetchResourceAnnotations,
+        fetch_resource_annotations_class: Authentication::ResourceRestrictions::FetchResourceAnnotations,
         role_class: ::Role,
         resource_class: ::Resource,
-        logger: Rails.logger
+        logger: Rails.logger,
+        ignore_empty_annotations: true
       },
       inputs: %i[authenticator_name service_id role_name account]
     ) do
@@ -34,9 +35,14 @@ module Authentication
       private
 
       def fetch_resource_annotations
-        @resource_annotations = @fetch_resource_annotations.new.call(
+        resource_annotations
+      end
+
+      def resource_annotations
+        @resource_annotations ||= @fetch_resource_annotations_class.new.call(
           account: @account,
-          role_name: @role_name
+          role_name: @role_name,
+          ignore_empty_annotations: @ignore_empty_annotations
         )
       end
 
@@ -46,7 +52,7 @@ module Authentication
 
       def resource_restrictions_hash
         @resource_restrictions_hash ||=
-          @resource_annotations.each_with_object({}) do |(annotation_name, annotation_value), resource_restrictions_hash|
+          resource_annotations.each_with_object({}) do |(annotation_name, annotation_value), resource_restrictions_hash|
             add_restriction_to_hash(annotation_name, annotation_value, resource_restrictions_hash)
           end
       end

@@ -6,9 +6,9 @@ module Authentication
     FetchResourceAnnotations = CommandClass.new(
       dependencies: {
         role_class: ::Role,
-        resource_class: ::Resource,
+        resource_class: ::Resource
       },
-      inputs: %i[account role_name]
+      inputs: %i[account role_name ignore_empty_annotations]
     ) do
 
       def call
@@ -25,20 +25,22 @@ module Authentication
         resource.annotations.each_with_object({}) do |annotation, result|
           annotation_values = annotation.values
           value = annotation_values[:value]
-          next if value.blank?
+          next if value.blank? and @ignore_empty_annotations
 
           result[annotation_values[:name]] = value
         end
       end
 
       def resource
-        # Validate role exists, otherwise getting role annotations return empty hash.
-        role_id = @role_class.roleid_from_username(@account, @role_name)
-        resource = @resource_class[role_id]
+        return @resource if @resource
 
-        raise Errors::Authentication::Security::RoleNotFound, role_id unless resource
+        @resource = @resource_class[role_id]
+        raise Errors::Authentication::Security::RoleNotFound, role_id unless @resource
+        @resource
+      end
 
-        resource
+      def role_id
+        @role_id ||= @role_class.roleid_from_username(@account, @role_name)
       end
 
     end
