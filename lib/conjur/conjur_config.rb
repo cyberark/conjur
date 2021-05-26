@@ -16,7 +16,7 @@ module Conjur
 
     attr_config(
       # Read TRUSTED_PROXIES before default to maintain backwards compatibility
-      trusted_proxies: (ENV['TRUSTED_PROXIES'] || "")
+      trusted_proxies: (ENV['TRUSTED_PROXIES'] || [])
     )
 
     # Perform validations and collect errors then report results as exception
@@ -35,10 +35,27 @@ module Conjur
       to_source_trace.map { |k,v| [ k.to_sym, v[:source][:type] ] }.to_h
     end
 
+    # The Anyway config gem automatically converts a comma-separated env var to
+    # a Ruby list, but converts single or zero element values to a string, i.e:
+    #
+    #   MY_LIST=one is parsed as a string
+    #   MY_LIST=one,two,three is parsed as a list
+    #
+    # To address this inconsistent behavior, we use custom setters to ensure
+    # list attributes are always converted to a a list type.
+
+    def trusted_proxies=(val)
+      super(str_to_list(val))
+    end
+
     private
 
+    def str_to_list(val)
+      val.is_a?(String) ? val.split(',') : val
+    end
+
     def trusted_proxies_valid?
-      trusted_proxies.split(',').each do |cidr|
+      trusted_proxies.each do |cidr|
         IPAddr.new(cidr)
       end
 

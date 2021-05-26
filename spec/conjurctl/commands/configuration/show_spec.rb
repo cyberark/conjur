@@ -27,7 +27,7 @@ describe Commands::Configuration::Show do
       )
     ).to be_json_eql(<<~JSON).at_path('trusted_proxies')
       {
-        "value": "",
+        "value": [],
         "source": "defaults"
       }
     JSON
@@ -41,7 +41,7 @@ describe Commands::Configuration::Show do
       )
     ).to include(<<~TEXT)
       trusted_proxies:
-        value: ''
+        value: []
         source: defaults
     TEXT
   end
@@ -54,7 +54,7 @@ describe Commands::Configuration::Show do
       )
     ).to include(<<~YAML)
       trusted_proxies:
-        value: ''
+        value: []
         source: defaults
     YAML
   end
