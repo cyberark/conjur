@@ -86,23 +86,45 @@ describe Conjur::ConjurConfig do
   end
 
   describe "validation" do
-    let(:invalid_config) {
+    let(:invalid_trusted_proxies_config) {
       Conjur::ConjurConfig.new(trusted_proxies: "boop")
     }
 
+    let(:invalid_authenticators_config) {
+      Conjur::ConjurConfig.new(authenticators: "invalid-authn")
+    }
+
+    let(:invalid_config) {
+      Conjur::ConjurConfig.new(
+        authenticators: "invalid-authn", trusted_proxies: "boop"
+      )
+    }
+
     it "raises error when validation fails" do
+      expect { invalid_trusted_proxies_config }.
+        to raise_error(Errors::Conjur::InvalidConfigValues)
+      expect { invalid_authenticators_config }.
+        to raise_error(Errors::Conjur::InvalidConfigValues)
       expect { invalid_config }.
         to raise_error(Errors::Conjur::InvalidConfigValues)
     end
 
     it "includes the attribute that failed validation" do
-      expect { invalid_config }.
+      expect { invalid_trusted_proxies_config }.
         to raise_error(/trusted_proxies/)
+      expect { invalid_authenticators_config }.
+        to raise_error(/authenticators/)
+      expect { invalid_config }.
+        to raise_error(/trusted_proxies, authenticators/)
     end
 
     it "does not include the value that failed validation" do
-      expect { invalid_config }.
+      expect { invalid_trusted_proxies_config }.
         to_not raise_error(/boop/)
+      expect { invalid_authenticators_config }.
+        to_not raise_error(/invalid-authn/)
+      expect { invalid_config }.
+        to_not raise_error(/boop.*invalid-authn/)
     end
   end
 

@@ -87,7 +87,10 @@ gem 'websocket'
 gem 'jwt'
 gem 'openid_connect'
 
-gem "anyway_config", "~> 2.0"
+# Unpin version once this Github issue,
+# https://github.com/palkan/anyway_config/issues/82
+# is resolved
+gem "anyway_config", "2.1.0"
 
 group :development, :test do
   gem 'aruba'

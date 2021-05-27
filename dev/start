@@ -136,7 +136,7 @@ docker-compose exec -d conjur conjurctl server
 echo 'Checking if Conjur server is ready'
 conjur_isready?
 
-default_authenticators="authn,authn-config/env"
+default_authenticators="authn,authn-k8s/test"
 enabled_authenticators="$default_authenticators"
 
 env_args=

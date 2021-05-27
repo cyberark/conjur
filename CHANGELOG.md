@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Enabled authenticators can now be configured via a configuration file, or the
+  CONJUR_AUTHENTICATORS environment variable.
+  [cyberark/conjur##2173](https://github.com/cyberark/conjur/issues/#2173)
 - Trusted Proxies can now be configured with a configuration file or by setting
   the CONJUR_TRUSTED_PROXIES environment variable.
   [cyberark/conjur#2168](https://github.com/cyberark/conjur/issues/2168)

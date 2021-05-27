@@ -16,7 +16,8 @@ module Conjur
 
     attr_config(
       # Read TRUSTED_PROXIES before default to maintain backwards compatibility
-      trusted_proxies: (ENV['TRUSTED_PROXIES'] || [])
+      trusted_proxies: (ENV['TRUSTED_PROXIES'] || []),
+      authenticators: []
     )
 
     # Perform validations and collect errors then report results as exception
@@ -24,6 +25,7 @@ module Conjur
       invalid = []
 
       invalid << "trusted_proxies" unless trusted_proxies_valid?
+      invalid << "authenticators" unless authenticators_valid?
 
       unless invalid.empty?
         raise Errors::Conjur::InvalidConfigValues, invalid.join(', ')
@@ -32,7 +34,7 @@ module Conjur
 
     # Get attribute sources without including attribute values
     def attribute_sources
-      to_source_trace.map { |k,v| [ k.to_sym, v[:source][:type] ] }.to_h
+      to_source_trace.map { |k, v| [ k.to_sym, v[:source][:type] ] }.to_h
     end
 
     # The Anyway config gem automatically converts a comma-separated env var to
@@ -43,9 +45,15 @@ module Conjur
     #
     # To address this inconsistent behavior, we use custom setters to ensure
     # list attributes are always converted to a a list type.
+    # We filed an issue regarding this behavior:
+    #   https://github.com/palkan/anyway_config/issues/82
 
     def trusted_proxies=(val)
-      super(str_to_list(val))
+      super(str_to_list(val)&.uniq)
+    end
+
+    def authenticators=(val)
+      super(str_to_list(val)&.uniq)
     end
 
     private
@@ -60,6 +68,19 @@ module Conjur
       end
 
       true
+    rescue
+      false
+    end
+
+    def authenticators_valid?
+      # TODO: Ideally we would check against the enabled authenticators
+      # in the DB. However, we need to figure out how to use code from the
+      # application without introducing warnings.
+      authenticators_regex = 
+        %r{^(authn|authn-(k8s|oidc|iam|ldap|gcp|azure)(/.+)?)$}
+      authenticators.all? do |authenticator|
+        authenticators_regex.match?(authenticator.strip)
+      end
     rescue
       false
     end

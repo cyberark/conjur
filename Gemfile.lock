@@ -444,7 +444,7 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport
-  anyway_config (~> 2.0)
+  anyway_config (= 2.1.0)
   aruba
   aws-sdk-iam
   base32-crockford
