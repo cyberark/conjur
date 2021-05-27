@@ -3,9 +3,9 @@ module Authentication
 
     ValidateStatus = CommandClass.new(
       dependencies: {
-        create_signing_key: Authentication::AuthnJwt::CreateSigningKeyInterface.new,
-        fetch_issuer_value: Authentication::AuthnJwt::FetchIssuerValue.new,
-        fetch_identity_from_token: Authentication::AuthnJwt::IdentityFromDecodedTokenProvider,
+        create_signing_key: Authentication::AuthnJwt::SigningKey::CreateSigningKeyInterface.new,
+        fetch_issuer_value: Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new,
+        fetch_identity_from_token: Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider,
         validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
         validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
         validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
