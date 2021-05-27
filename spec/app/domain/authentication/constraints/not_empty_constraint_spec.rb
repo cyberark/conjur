@@ -35,7 +35,7 @@ RSpec.describe(Authentication::Constraints::NotEmptyConstraint) do
     end
 
     it "validate raises EmptyAnnotationsListConfigured when there are not annotations" do
-      expect { subject.validate(resource_restrictions: no_restrictinos) }.to raise_error(Errors::Authentication::Constraints::RoleMissingAnyConstraints)
+      expect { subject.validate(resource_restrictions: no_restrictinos) }.to raise_error(Errors::Authentication::Constraints::RoleMissingAnyRestrictions)
     end
   end
 end
