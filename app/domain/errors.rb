@@ -496,6 +496,11 @@ module Errors
         code: "CONJ00049E"
       )
 
+      EmptyAnnotationGiven = ::Util::TrackableErrorClass.new(
+        msg: "Annotation, '{0-annotation-name}', is empty",
+        code: "CONJ00150E"
+      )
+
     end
 
     module Constraints

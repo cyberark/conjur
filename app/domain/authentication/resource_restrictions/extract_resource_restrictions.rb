@@ -7,9 +7,11 @@ module Authentication
       dependencies: {
         resource_restrictions_class: Authentication::ResourceRestrictions::ResourceRestrictions,
         get_restriction_from_annotation: Authentication::ResourceRestrictions::GetRestrictionFromAnnotation,
+        fetch_resource_annotations_class: Authentication::ResourceRestrictions::FetchResourceAnnotations,
         role_class: ::Role,
         resource_class: ::Resource,
-        logger: Rails.logger
+        logger: Rails.logger,
+        ignore_empty_annotations: true
       },
       inputs: %i[authenticator_name service_id role_name account]
     ) do
@@ -37,24 +39,11 @@ module Authentication
       end
 
       def resource_annotations
-        @resource_annotations ||=
-          resource.annotations.each_with_object({}) do |annotation, result|
-            annotation_values = annotation.values
-            value = annotation_values[:value]
-            next if value.blank?
-
-            result[annotation_values[:name]] = value
-          end
-      end
-
-      def resource
-        # Validate role exists, otherwise getting role annotations return empty hash.
-        role_id = @role_class.roleid_from_username(@account, @role_name)
-        resource = @resource_class[role_id]
-
-        raise Errors::Authentication::Security::RoleNotFound, role_id unless resource
-
-        resource
+        @resource_annotations ||= @fetch_resource_annotations_class.new.call(
+          account: @account,
+          role_name: @role_name,
+          ignore_empty_annotations: @ignore_empty_annotations
+        )
       end
 
       def extract_resource_restrictions_from_annotations
