@@ -35,12 +35,6 @@ module Errors
       msg: "Variable {0-variable-id} is empty or not found.",
       code: "CONJ00076E"
     )
-
-    InvalidConfigValues = ::Util::TrackableErrorClass.new(
-      msg: "Invalid values for configured attributes: {0-attribute-keys}",
-      code: "CONJ00078E"
-    )
-
   end
 
   module Authentication

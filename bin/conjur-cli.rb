@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# Add Conjur application source files are in the load path
-$LOAD_PATH.push(File.expand_path("../../app", __FILE__))
 $LOAD_PATH.push(File.expand_path("../../lib", __FILE__))
 
 require 'gli'

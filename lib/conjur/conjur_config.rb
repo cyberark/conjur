@@ -3,6 +3,12 @@
 require 'anyway_config'
 
 module Conjur
+  # We are temporarily avoiding hooking into the application error system
+  # because using it means you have to require about five classes when loading
+  # config in conjurctl, which operates outside of the Rails environment and
+  # does not have application code auto-loaded.
+  class ConfigValidationError < StandardError; end
+
   # Reads application config from a YAML file on disk, as well as env vars
   # prefixed with CONJUR_ then serves as a single point to access configuration
   # from the Conjur application code.
@@ -28,7 +34,8 @@ module Conjur
       invalid << "authenticators" unless authenticators_valid?
 
       unless invalid.empty?
-        raise Errors::Conjur::InvalidConfigValues, invalid.join(', ')
+        msg = "Invalid values for configured attributes: #{invalid.join(',')}"
+        raise ConfigValidationError, msg
       end
     end
 
@@ -76,7 +83,7 @@ module Conjur
       # TODO: Ideally we would check against the enabled authenticators
       # in the DB. However, we need to figure out how to use code from the
       # application without introducing warnings.
-      authenticators_regex = 
+      authenticators_regex =
         %r{^(authn|authn-(k8s|oidc|iam|ldap|gcp|azure)(/.+)?)$}
       authenticators.all? do |authenticator|
         authenticators_regex.match?(authenticator.strip)

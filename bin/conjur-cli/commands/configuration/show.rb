@@ -4,16 +4,6 @@ require 'command_class'
 require 'conjur/conjur_config'
 require 'json'
 
-# These are required to pull in the error class used in Conjur::ConjurConfig
-# because the error class is not auto-loaded when running conjurctl commands
-# since it's run outside of a full Rails environment. The fact that we have to
-# do this indicates a scoping problem.
-require 'domain/util/log_message_class'
-require 'domain/util/trackable_log_message_class'
-require 'domain/util/error_class'
-require 'domain/util/trackable_error_class'
-require 'domain/errors'
-
 module Commands
   module Configuration
     Show ||= CommandClass.new(
