@@ -60,7 +60,7 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
   context "ConjurIdFromDecodedTokenProvider" do
     context "Variable is configured and populated and decoded token containing it" do
       subject do
-        id_from_decoded_token_provider = ::Authentication::AuthnJwt::IdentityFromDecodedTokenProvider.new(authentication_parameters)
+        id_from_decoded_token_provider = ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(authentication_parameters)
         allow(id_from_decoded_token_provider).to receive(:token_id_field_resource_id).and_return("dummy_secret_id")
         allow(id_from_decoded_token_provider).to receive(:fetch_secret).and_return("user_email")
         allow(id_from_decoded_token_provider).to receive(:identity_field_variable).and_return("token-app-property")
@@ -82,7 +82,7 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
 
     context "Variable is configured and populated but decoded token not containing it" do
       subject do
-        id_from_decoded_token_provider = ::Authentication::AuthnJwt::IdentityFromDecodedTokenProvider.new(authentication_parameters)
+        id_from_decoded_token_provider = ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(authentication_parameters)
         allow(id_from_decoded_token_provider).to receive(:token_id_field_resource_id).and_return("dummy_secret_id")
         allow(id_from_decoded_token_provider).to receive(:fetch_secret).and_return(non_existing_field_name)
         allow(id_from_decoded_token_provider).to receive(:identity_field_variable).and_return("token-app-property")
@@ -104,7 +104,7 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
 
     context "Variable is configured but not populated" do
       subject do
-        id_from_decoded_token_provider = ::Authentication::AuthnJwt::IdentityFromDecodedTokenProvider.new(authentication_parameters)
+        id_from_decoded_token_provider = ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(authentication_parameters)
         allow(id_from_decoded_token_provider).to receive(:token_id_field_resource_id).and_return("dummy_secret_id")
         allow(id_from_decoded_token_provider).to receive(:fetch_secret).and_raise(Errors::Conjur::RequiredSecretMissing)
         allow(id_from_decoded_token_provider).to receive(:identity_field_variable).and_return("token-app-property")
@@ -126,7 +126,7 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
 
     context "Variable is not configured" do
       subject do
-        id_from_decoded_token_provider = ::Authentication::AuthnJwt::IdentityFromDecodedTokenProvider.new(authentication_parameters)
+        id_from_decoded_token_provider = ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(authentication_parameters)
         allow(id_from_decoded_token_provider).to receive(:identity_field_variable).and_return(nil)
         id_from_decoded_token_provider
       end

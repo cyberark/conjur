@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
+RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') do
 
   let(:authenticator_name) { 'authn-jwt' }
   let(:service_id) { "my-service" }
@@ -181,7 +181,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
   context "'issuer' variable is configured in authenticator policy" do
     context "with empty variable value" do
       subject do
-        ::Authentication::AuthnJwt::FetchIssuerValue.new(
+        ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
           resource_class: mocked_resource_exists_values,
           fetch_secrets: mocked_fetch_secrets_empty_values
         ).call(
@@ -196,7 +196,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
 
     context "with valid variable value" do
       subject do
-        ::Authentication::AuthnJwt::FetchIssuerValue.new(
+        ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
           resource_class: mocked_resource_exists_values,
           fetch_secrets: mocked_fetch_secrets_exist_values
         ).call(
@@ -213,7 +213,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
   context "'issuer' variable is not configured in authenticator policy" do
     context "And both provider-uri and jwks-uri not configured in authenticator policy" do
       subject do
-        ::Authentication::AuthnJwt::FetchIssuerValue.new(
+        ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
           resource_class: mocked_resource_not_exists_values,
         ).call(
           authentication_parameters: authentication_parameters
@@ -227,7 +227,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
 
     context "And both provider-uri and jwks-uri configured in authenticator policy" do
       subject do
-        ::Authentication::AuthnJwt::FetchIssuerValue.new(
+        ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
           resource_class: mocked_resource_both_provider_and_jwks_exist_values,
           ).call(
           authentication_parameters: authentication_parameters
@@ -242,7 +242,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
     context "And just provider-uri configured in authenticator policy" do
       context "with empty variable value" do
         subject do
-          ::Authentication::AuthnJwt::FetchIssuerValue.new(
+          ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
             resource_class: mocked_resource_just_provider_uri_exists_values,
             fetch_secrets: mocked_fetch_secrets_empty_values
           ).call(
@@ -257,7 +257,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
 
       context "with valid variable value" do
         subject do
-          ::Authentication::AuthnJwt::FetchIssuerValue.new(
+          ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
             resource_class: mocked_resource_just_provider_uri_exists_values,
             fetch_secrets: mocked_fetch_secrets_exist_values
           ).call(
@@ -274,7 +274,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
     context "And just jwks-uri configured in authenticator policy" do
       context "with empty variable value" do
         subject do
-          ::Authentication::AuthnJwt::FetchIssuerValue.new(
+          ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
             resource_class: mocked_resource_just_jwks_uri_exists_values,
             fetch_secrets: mocked_fetch_secrets_empty_values
           ).call(
@@ -289,7 +289,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
 
       context "with bad URI format as variable value" do
         subject do
-          ::Authentication::AuthnJwt::FetchIssuerValue.new(
+          ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
             resource_class: mocked_resource_just_jwks_uri_exists_values,
             fetch_secrets: mocked_fetch_secrets_jwks_uri_with_bad_uri_format_value
           ).call(
@@ -304,7 +304,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
 
       context "with bad URI hostname as variable value" do
         subject do
-          ::Authentication::AuthnJwt::FetchIssuerValue.new(
+          ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
             resource_class: mocked_resource_just_jwks_uri_exists_values,
             fetch_secrets: mocked_fetch_secrets_jwks_uri_with_bad_uri_hostname_value
           ).call(
@@ -319,7 +319,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchIssuerValue') do
 
       context "with valid URI hostname as variable value" do
         subject do
-          ::Authentication::AuthnJwt::FetchIssuerValue.new(
+          ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
             resource_class: mocked_resource_just_jwks_uri_exists_values,
             fetch_secrets: mocked_fetch_secrets_jwks_uri_with_valid_uri_hostname_value
           ).call(

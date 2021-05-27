@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
+RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate') do
 
   RSpec::Matchers.define :eql_claims_list do |expected|
     match do |actual|
@@ -25,7 +25,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
   def jwt_claims_to_validate_list_with_values(claims)
     jwt_claims_to_validate_list = []
     claims.each do |claim|
-      jwt_claims_to_validate_list.push(::Authentication::AuthnJwt::JwtClaim.new(name: claim, value: claim_value(claim)))
+      jwt_claims_to_validate_list.push(::Authentication::AuthnJwt::ValidateAndDecode::JwtClaim.new(name: claim, value: claim_value(claim)))
     end
 
     jwt_claims_to_validate_list
@@ -91,7 +91,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
           subject do
             authentication_parameters.decoded_token = token(%w[iss exp nbf iat].freeze)
 
-            ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
               authentication_parameters: authentication_parameters
@@ -109,7 +109,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
           subject do
             authentication_parameters.decoded_token = token(%w[exp iss].freeze)
 
-            ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
               authentication_parameters: authentication_parameters
@@ -125,7 +125,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
           subject do
             authentication_parameters.decoded_token = token(%w[exp iss].freeze)
 
-            ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_invalid_configuration
             ).call(
               authentication_parameters: authentication_parameters
@@ -143,7 +143,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
           subject do
             authentication_parameters.decoded_token = token(%w[exp nbf].freeze)
 
-            ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
               authentication_parameters: authentication_parameters
@@ -161,7 +161,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
           subject do
             authentication_parameters.decoded_token = token(%w[exp iat].freeze)
 
-            ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
               authentication_parameters: authentication_parameters
@@ -179,7 +179,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
           subject do
             authentication_parameters.decoded_token = token(%w[exp].freeze)
 
-            ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
               authentication_parameters: authentication_parameters
@@ -195,7 +195,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
           subject do
             authentication_parameters.decoded_token = token(%w[exp].freeze)
 
-            ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_invalid_configuration
             ).call(
               authentication_parameters: authentication_parameters
@@ -213,7 +213,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
           subject do
             authentication_parameters.decoded_token = token(%w[exp nbf iat].freeze)
 
-            ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
               authentication_parameters: authentication_parameters
@@ -229,7 +229,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
           subject do
             authentication_parameters.decoded_token = token(%w[exp nbf iat].freeze)
 
-            ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_invalid_configuration
             ).call(
               authentication_parameters: authentication_parameters
@@ -247,7 +247,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
           subject do
             authentication_parameters.decoded_token = token(%w[exp iss iat].freeze)
 
-            ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
               authentication_parameters: authentication_parameters
@@ -265,7 +265,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
           subject do
             authentication_parameters.decoded_token = token(%w[exp iss nbf].freeze)
 
-            ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
               authentication_parameters: authentication_parameters
@@ -285,7 +285,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
           subject do
             authentication_parameters.decoded_token = token(%w[iss nbf iat].freeze)
 
-            ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
               authentication_parameters: authentication_parameters
@@ -301,7 +301,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
           subject do
             authentication_parameters.decoded_token = token(%w[iss nbf iat].freeze)
 
-            ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
               authentication_parameters: authentication_parameters
@@ -318,7 +318,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
           subject do
             authentication_parameters.decoded_token = token(%w[iss].freeze)
 
-            ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
               authentication_parameters: authentication_parameters
@@ -334,7 +334,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
           subject do
             authentication_parameters.decoded_token = token(%w[iss].freeze)
 
-            ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_invalid_configuration
             ).call(
               authentication_parameters: authentication_parameters
@@ -352,7 +352,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
           subject do
             authentication_parameters.decoded_token = token(%w[nbf].freeze)
 
-            ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
               authentication_parameters: authentication_parameters
@@ -370,7 +370,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
           subject do
             authentication_parameters.decoded_token = token(%w[iat].freeze)
 
-            ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
               authentication_parameters: authentication_parameters
@@ -388,7 +388,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
       subject do
         authentication_parameters.decoded_token = token(%w[].freeze)
 
-        ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+        ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
           fetch_issuer_value: mocked_fetch_issuer_value_valid
         ).call(
           authentication_parameters: authentication_parameters
@@ -404,7 +404,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwtClaimsToValidate') do
       subject do
         authentication_parameters.decoded_token = nil
 
-        ::Authentication::AuthnJwt::FetchJwtClaimsToValidate.new(
+        ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
           fetch_issuer_value: mocked_fetch_issuer_value_valid
         ).call(
           authentication_parameters: authentication_parameters

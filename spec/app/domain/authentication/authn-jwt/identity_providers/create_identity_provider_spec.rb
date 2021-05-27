@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnJwt::IdentityProviderFactory') do
+RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFactory') do
   class FalseIdentityProvider
     def initialize(authentication_parameters); end
 
@@ -52,7 +52,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviderFactory') do
   context "IdentityProviderFactory" do
     context "Decoded token identity available and url identity available" do
       subject do
-        ::Authentication::AuthnJwt::CreateIdentityProvider.new(
+        ::Authentication::AuthnJwt::IdentityProviders::CreateIdentityProvider.new(
           identity_from_url_provider_class: MockedURLIdentityProvider,
           identity_from_decoded_token_class: MockedDecodedTokenIdentityProvider
         )
@@ -67,7 +67,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviderFactory') do
 
     context "Decoded token identity available and url identity is not available" do
       subject do
-        ::Authentication::AuthnJwt::CreateIdentityProvider.new(
+        ::Authentication::AuthnJwt::IdentityProviders::CreateIdentityProvider.new(
           identity_from_url_provider_class: FalseIdentityProvider,
           identity_from_decoded_token_class: MockedDecodedTokenIdentityProvider
         )
@@ -82,7 +82,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviderFactory') do
 
     context "Decoded token identity is not available and url identity is available" do
       subject do
-        ::Authentication::AuthnJwt::CreateIdentityProvider.new(
+        ::Authentication::AuthnJwt::IdentityProviders::CreateIdentityProvider.new(
           identity_from_url_provider_class: MockedURLIdentityProvider,
           identity_from_decoded_token_class: FalseIdentityProvider
         )
@@ -97,7 +97,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviderFactory') do
 
     context "Decoded token is not identity available and url identity is not available" do
       subject do
-        ::Authentication::AuthnJwt::CreateIdentityProvider.new(
+        ::Authentication::AuthnJwt::IdentityProviders::CreateIdentityProvider.new(
           identity_from_url_provider_class: FalseIdentityProvider,
           identity_from_decoded_token_class: FalseIdentityProvider
         )

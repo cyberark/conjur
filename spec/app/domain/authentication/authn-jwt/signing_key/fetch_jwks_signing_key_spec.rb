@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'json'
 
-RSpec.describe('Authentication::AuthnJwt::FetchJwksUriSigningKey') do
+RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') do
 
   let(:authenticator_name) { "authn-jwt" }
   let(:service_id) { "my-service" }
@@ -85,7 +85,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwksUriSigningKey') do
   context "FetchJwksUriSigningKey has_valid_configuration " do
     context "'jwks-uri' variable is not configured in authenticator policy" do
       subject do
-        ::Authentication::AuthnJwt::FetchJwksUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
+        ::Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
                                                                logger: mocked_logger,
                                                                fetch_required_secrets: mocked_fetch_required_existing_secret,
                                                                resource_class: mocked_resource_value_not_exists,
@@ -101,7 +101,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwksUriSigningKey') do
 
     context "'jwks-uri' variable is configured in authenticator policy" do
       subject do
-        ::Authentication::AuthnJwt::FetchJwksUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
+        ::Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
                                                                logger: mocked_logger,
                                                                fetch_required_secrets: mocked_fetch_required_existing_secret,
                                                                resource_class: mocked_resource_value_exists,
@@ -119,7 +119,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwksUriSigningKey') do
   context "FetchJwksUriSigningKey fetch_signing_key " do
     context "'jwks-uri' secret is not valid" do
       subject do
-        ::Authentication::AuthnJwt::FetchJwksUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
+        ::Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
                                                                logger: mocked_logger,
                                                                fetch_required_secrets: mocked_fetch_required_existing_secret,
                                                                resource_class: mocked_resource_value_exists,
@@ -136,7 +136,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwksUriSigningKey') do
     context "'jwks-uri' secret is valid" do
       context "provider return valid http response" do
         subject do
-          ::Authentication::AuthnJwt::FetchJwksUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
+          ::Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
                                                                  logger: mocked_logger,
                                                                  fetch_required_secrets: mocked_fetch_required_existing_secret,
                                                                  resource_class: mocked_resource_value_exists,
@@ -152,7 +152,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchJwksUriSigningKey') do
 
       context "provider return bad http response" do
         subject do
-          ::Authentication::AuthnJwt::FetchJwksUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
+          ::Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
                                                                  logger: mocked_logger,
                                                                  fetch_required_secrets: mocked_fetch_required_existing_secret,
                                                                  resource_class: mocked_resource_value_exists,

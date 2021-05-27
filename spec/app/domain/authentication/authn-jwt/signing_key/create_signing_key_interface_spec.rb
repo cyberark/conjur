@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnJwt::CreateSigningKeyInterface') do
+RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyInterface') do
 
   let(:authenticator_name) { 'authn-jwt' }
   let(:service_id) { "my-service" }
@@ -71,7 +71,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateSigningKeyInterface') do
     context "'jwks-uri' and 'provider-uri' exist" do
 
       subject do
-        ::Authentication::AuthnJwt::CreateSigningKeyInterface.new(
+        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyInterface.new(
           fetch_provider_uri: mocked_fetch_exists_provider_uri,
           fetch_jwks_uri: mocked_fetch_exists_jwks_uri,
           logger: mocked_logger
@@ -88,7 +88,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateSigningKeyInterface') do
     context "'jwks-uri' and 'provider-uri' does not exist" do
 
       subject do
-        ::Authentication::AuthnJwt::CreateSigningKeyInterface.new(
+        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyInterface.new(
           fetch_provider_uri: mocked_fetch_non_exists_provider_uri,
           fetch_jwks_uri: mocked_fetch_non_exists_jwks_uri,
           logger: mocked_logger
@@ -105,7 +105,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateSigningKeyInterface') do
     context "'jwks-uri' does not exits and 'provider-uri' exists" do
 
       subject do
-        ::Authentication::AuthnJwt::CreateSigningKeyInterface.new(
+        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyInterface.new(
           fetch_provider_uri: mocked_fetch_non_exists_provider_uri,
           fetch_jwks_uri: mocked_fetch_exists_jwks_uri,
           logger: mocked_logger
@@ -122,7 +122,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateSigningKeyInterface') do
     context "'jwks-uri' exists and 'provider-uri' does not exist" do
 
       subject do
-        ::Authentication::AuthnJwt::CreateSigningKeyInterface.new(
+        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyInterface.new(
           fetch_provider_uri: mocked_fetch_exists_provider_uri,
           fetch_jwks_uri: mocked_fetch_non_exists_jwks_uri,
           logger: mocked_logger

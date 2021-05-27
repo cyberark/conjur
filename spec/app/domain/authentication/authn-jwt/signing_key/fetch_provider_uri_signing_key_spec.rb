@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
+RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey') do
 
   let(:authenticator_name) { 'authn-jwt' }
   let(:service_id) { "my-service" }
@@ -78,7 +78,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
   context "FetchProviderUriSigningKey has_valid_configuration " do
     context "'provider-uri' variable is not configured in authenticator policy" do
       subject do
-        ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
+        ::Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
                                                                    logger: mocked_logger,
                                                                    fetch_required_secrets: mocked_fetch_required_existing_secret,
                                                                    resource_class: mocked_resource_value_not_exists,
@@ -92,7 +92,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
 
     context "'provider-uri' value is valid" do
       subject do
-        ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
+        ::Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
                                                                    logger: mocked_logger,
                                                                    fetch_required_secrets: mocked_fetch_required_existing_secret,
                                                                    resource_class: mocked_resource_value_exists,
@@ -109,7 +109,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
     context "'provider-uri' variable is configured in authenticator policy" do
       context "'provider-uri' value is invalid" do
         subject do
-          ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
+          ::Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
                                                                      logger: mocked_logger,
                                                                      fetch_required_secrets: mocked_fetch_required_existing_secret,
                                                                      resource_class: mocked_resource_value_exists,
@@ -123,7 +123,7 @@ RSpec.describe('Authentication::AuthnJwt::FetchProviderUriSigningKey') do
 
       context "'provider-uri' value is valid" do
         subject do
-          ::Authentication::AuthnJwt::FetchProviderUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
+          ::Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey.new(authentication_parameters: mocked_authentication_parameters,
                                                                      logger: mocked_logger,
                                                                      fetch_required_secrets: mocked_fetch_required_existing_secret,
                                                                      resource_class: mocked_resource_value_exists,

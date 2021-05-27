@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnJwt::GetVerificationOptionByJwtClaim') do
+RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim') do
 
   let(:iss_claim_valid_value) { "iss claim valid value" }
   let(:unsupported_claim_name) { "unsupported-claim-name" }
@@ -11,10 +11,10 @@ RSpec.describe('Authentication::AuthnJwt::GetVerificationOptionByJwtClaim') do
   let(:valid_iat_verification_option) { {:verify_iat => true} }
   let(:valid_iss_verification_option) { {:iss => iss_claim_valid_value, :verify_iss => true} }
   let(:iss_claim_empty_value) {
-    ::Authentication::AuthnJwt::JwtClaim.new(name: "iss", value: "")
+    ::Authentication::AuthnJwt::ValidateAndDecode::JwtClaim.new(name: "iss", value: "")
   }
   let(:iss_claim_nil_value) {
-    ::Authentication::AuthnJwt::JwtClaim.new(name: "iss", value: "")
+    ::Authentication::AuthnJwt::ValidateAndDecode::JwtClaim.new(name: "iss", value: "")
   }
 
   def claim_value(claim_name)
@@ -26,11 +26,11 @@ RSpec.describe('Authentication::AuthnJwt::GetVerificationOptionByJwtClaim') do
   end
 
   def claim(claim_name)
-    ::Authentication::AuthnJwt::JwtClaim.new(name: claim_name, value: claim_value(claim_name))
+    ::Authentication::AuthnJwt::ValidateAndDecode::JwtClaim.new(name: claim_name, value: claim_value(claim_name))
   end
 
   let(:empty_claim) {
-    ::Authentication::AuthnJwt::JwtClaim.new(name: "", value: "")
+    ::Authentication::AuthnJwt::ValidateAndDecode::JwtClaim.new(name: "", value: "")
   }
 
   before(:each) do
@@ -45,7 +45,7 @@ RSpec.describe('Authentication::AuthnJwt::GetVerificationOptionByJwtClaim') do
   context "'jwt_claim' input" do
     context "with nil value" do
       subject do
-        ::Authentication::AuthnJwt::GetVerificationOptionByJwtClaim.new().call(
+        ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new().call(
           jwt_claim: nil
         )
       end
@@ -57,7 +57,7 @@ RSpec.describe('Authentication::AuthnJwt::GetVerificationOptionByJwtClaim') do
 
     context "with empty name value" do
       subject do
-        ::Authentication::AuthnJwt::GetVerificationOptionByJwtClaim.new().call(
+        ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new().call(
           jwt_claim: empty_claim
         )
       end
@@ -69,7 +69,7 @@ RSpec.describe('Authentication::AuthnJwt::GetVerificationOptionByJwtClaim') do
 
     context "with unsupported name value" do
       subject do
-        ::Authentication::AuthnJwt::GetVerificationOptionByJwtClaim.new().call(
+        ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new().call(
           jwt_claim: claim(unsupported_claim_name)
         )
       end
@@ -82,7 +82,7 @@ RSpec.describe('Authentication::AuthnJwt::GetVerificationOptionByJwtClaim') do
     context "with supported name value" do
       context "with 'exp' name value" do
         subject do
-          ::Authentication::AuthnJwt::GetVerificationOptionByJwtClaim.new().call(
+          ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new().call(
             jwt_claim: claim("exp")
           )
         end
@@ -94,7 +94,7 @@ RSpec.describe('Authentication::AuthnJwt::GetVerificationOptionByJwtClaim') do
 
       context "with 'nbf' name value" do
         subject do
-          ::Authentication::AuthnJwt::GetVerificationOptionByJwtClaim.new().call(
+          ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new().call(
             jwt_claim: claim("nbf")
           )
         end
@@ -106,7 +106,7 @@ RSpec.describe('Authentication::AuthnJwt::GetVerificationOptionByJwtClaim') do
 
       context "with 'iat' name value" do
         subject do
-          ::Authentication::AuthnJwt::GetVerificationOptionByJwtClaim.new().call(
+          ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new().call(
             jwt_claim: claim("iat")
           )
         end
@@ -119,7 +119,7 @@ RSpec.describe('Authentication::AuthnJwt::GetVerificationOptionByJwtClaim') do
       context "with 'iss' name value" do
         context "with empty claim value" do
           subject do
-            ::Authentication::AuthnJwt::GetVerificationOptionByJwtClaim.new().call(
+            ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new().call(
               jwt_claim: iss_claim_empty_value
             )
           end
@@ -131,7 +131,7 @@ RSpec.describe('Authentication::AuthnJwt::GetVerificationOptionByJwtClaim') do
 
         context "with nil claim value" do
           subject do
-            ::Authentication::AuthnJwt::GetVerificationOptionByJwtClaim.new().call(
+            ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new().call(
               jwt_claim: iss_claim_nil_value
             )
           end
@@ -143,7 +143,7 @@ RSpec.describe('Authentication::AuthnJwt::GetVerificationOptionByJwtClaim') do
 
         context "with claim value" do
           subject do
-            ::Authentication::AuthnJwt::GetVerificationOptionByJwtClaim.new().call(
+            ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new().call(
               jwt_claim: claim("iss")
             )
           end

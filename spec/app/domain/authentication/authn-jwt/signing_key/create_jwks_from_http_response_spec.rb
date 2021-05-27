@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnJwt::CreateJwksFromHttpResponse') do
+RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateJwksFromHttpResponse') do
 
   let(:mocked_http_response_without_body) { double("MockedHttpResponse") }
   let(:mocked_http_response_with_invalid_json_structure) { double("MockedHttpResponse") }
@@ -74,7 +74,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateJwksFromHttpResponse') do
   context "'http_response' input" do
     context "with nil value" do
       subject do
-        ::Authentication::AuthnJwt::CreateJwksFromHttpResponse.new().call(
+        ::Authentication::AuthnJwt::SigningKey::CreateJwksFromHttpResponse.new().call(
           http_response: nil
         )
       end
@@ -86,7 +86,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateJwksFromHttpResponse') do
 
     context "with empty value" do
       subject do
-        ::Authentication::AuthnJwt::CreateJwksFromHttpResponse.new().call(
+        ::Authentication::AuthnJwt::SigningKey::CreateJwksFromHttpResponse.new().call(
           http_response: ""
         )
       end
@@ -98,7 +98,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateJwksFromHttpResponse') do
 
     context "without body" do
       subject do
-        ::Authentication::AuthnJwt::CreateJwksFromHttpResponse.new().call(
+        ::Authentication::AuthnJwt::SigningKey::CreateJwksFromHttpResponse.new().call(
           http_response: mocked_http_response_without_body
         )
       end
@@ -110,7 +110,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateJwksFromHttpResponse') do
 
     context "with invalid json structure" do
       subject do
-        ::Authentication::AuthnJwt::CreateJwksFromHttpResponse.new().call(
+        ::Authentication::AuthnJwt::SigningKey::CreateJwksFromHttpResponse.new().call(
           http_response: mocked_http_response_with_invalid_json_structure
         )
       end
@@ -123,7 +123,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateJwksFromHttpResponse') do
     context "with valid json structure" do
       context "when 'keys' are missing" do
         subject do
-          ::Authentication::AuthnJwt::CreateJwksFromHttpResponse.new().call(
+          ::Authentication::AuthnJwt::SigningKey::CreateJwksFromHttpResponse.new().call(
             http_response: mocked_http_response_without_keys
           )
         end
@@ -135,7 +135,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateJwksFromHttpResponse') do
 
       context "with empty 'keys' value" do
         subject do
-          ::Authentication::AuthnJwt::CreateJwksFromHttpResponse.new().call(
+          ::Authentication::AuthnJwt::SigningKey::CreateJwksFromHttpResponse.new().call(
             http_response: mocked_http_response_with_empty_keys
           )
         end
@@ -147,7 +147,7 @@ RSpec.describe('Authentication::AuthnJwt::CreateJwksFromHttpResponse') do
 
       context "with valid 'keys' value" do
         subject do
-          ::Authentication::AuthnJwt::CreateJwksFromHttpResponse.new().call(
+          ::Authentication::AuthnJwt::SigningKey::CreateJwksFromHttpResponse.new().call(
             http_response: mocked_http_response_with_valid_keys
           )
         end

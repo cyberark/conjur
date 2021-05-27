@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe(Authentication::AuthnJwt::ExtractTokenFromCredentials) do
+RSpec.describe(Authentication::AuthnJwt::InputValidation::ExtractTokenFromCredentials) do
 
   let(:header) do
     'eyJhbGciOiJQUzI1NiIsInR5cCI6IkpXVCJ9'
@@ -30,7 +30,7 @@ RSpec.describe(Authentication::AuthnJwt::ExtractTokenFromCredentials) do
   context "Request body" do
     context "that contains a valid jwt token parameter" do
       subject do
-        Authentication::AuthnJwt::ExtractTokenFromCredentials.new().call(
+        Authentication::AuthnJwt::InputValidation::ExtractTokenFromCredentials.new().call(
           credentials: credentials
         )
       end

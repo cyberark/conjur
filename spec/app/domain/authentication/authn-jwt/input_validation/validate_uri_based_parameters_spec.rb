@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe(Authentication::AuthnJwt::ValidateUriBasedParameters) do
+RSpec.describe(Authentication::AuthnJwt::InputValidation::ValidateUriBasedParameters) do
   include_context "security mocks"
 
   let(:authenticator_input) {
@@ -22,7 +22,7 @@ RSpec.describe(Authentication::AuthnJwt::ValidateUriBasedParameters) do
   context "A ValidateUriBasedParameters invocation" do
     context "that passes all validations" do
       subject do
-        Authentication::AuthnJwt::ValidateUriBasedParameters.new(
+        Authentication::AuthnJwt::InputValidation::ValidateUriBasedParameters.new(
           validate_account_exists: mock_validate_account_exists(validation_succeeded: true),
           validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true)
         ).call(
@@ -38,7 +38,7 @@ RSpec.describe(Authentication::AuthnJwt::ValidateUriBasedParameters) do
 
     context "that does not pass account validation" do
       subject do
-        Authentication::AuthnJwt::ValidateUriBasedParameters.new(
+        Authentication::AuthnJwt::InputValidation::ValidateUriBasedParameters.new(
           validate_account_exists: mock_validate_account_exists(validation_succeeded: false),
           validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true)
         ).call(
@@ -58,7 +58,7 @@ RSpec.describe(Authentication::AuthnJwt::ValidateUriBasedParameters) do
 
     context "that does not pass webservice validation" do
       subject do
-        Authentication::AuthnJwt::ValidateUriBasedParameters.new(
+        Authentication::AuthnJwt::InputValidation::ValidateUriBasedParameters.new(
           validate_account_exists: mock_validate_account_exists(validation_succeeded: true),
           validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: false)
         ).call(
