@@ -470,17 +470,17 @@ module LogMessages
       )
 
       ValidatedStatusWebserviceIsWhitelisted = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully validated status webservice is whitelisted",
+        msg: "Successfully validated status webservice is allowlisted",
         code: "CONJ00093D"
       )
 
       ValidatedStatusServiceIdExists = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully validated status service-ID exists",
+        msg: "Successfully validated that service ID exists",
         code: "CONJ00094D"
       )
 
       ValidatedSigningKeyConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully validated Signing key configuration",
+        msg: "Successfully validated signing key configuration",
         code: "CONJ00095D"
       )
 
