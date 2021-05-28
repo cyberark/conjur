@@ -14,44 +14,44 @@ class CachedEndpoint
       cache: Rails.cache,
       encryption_algorithm: Slosilo::EncryptedAttributes,
       http_method: 'GET'
-  },
-    inputs: %i[env, auth_secret]
+    },
+    inputs: %i[env auth_secret]
   ) do
 
     def call
       # Do nothing, if path doesn't match.
-      return nil unless @path =~ @req_path && http_method == @req_method
+      return nil unless @path =~ @env['PATH_INFO'] && @http_method == @env['REQUEST_METHOD']
 
       # Return cached value, if found.
       cached_resp = cached_response
       return cached_resp if cached_resp
 
-      status, header, rackBody = @app.call(env)
-      return [status, header, [rackBody.body]] if status >= 300
+      status, header, rackBody = @app.call(@env)
+      response = [status, header, [rackBody.body]]
+      return response if status >= 300
 
-      # Cache for next time.
-      redis_key = JSON.dump(store_key)
       @cache.write(
-        redis_key,
+        store_key,
         @encryption_algorithm.encrypt(
           JSON.dump({
             auth_secret: @auth_secret,
             http_status: status,
             http_header: header,
-            http_body: [rackBody],
+            http_body: [rackBody.body]
           }),
           aad: @req_path
         ),
         expires_in: 60
       )
+      response
     end
 
     def store_key
       # TODO: confirm REMOTE_IP is what we need, and what we need for req path
       # @store_key ||= JSON.dump([@env['REQUEST_PATH'], @env['REMOTE_IP'], "login"])
       # TODO: remove this dep
-      req = ActionDispatch::Request.new(env)
-      @store_key ||= JSON.dump([req.path, req.ip, "login"])
+      req = ActionDispatch::Request.new(@env)
+      @store_key ||= JSON.dump([req.path, req.ip, @request_name])
     end
 
     def cached_response
@@ -65,12 +65,11 @@ class CachedEndpoint
         aad: @req_path
       )
       cached_resp = JSON.parse(decrypted_cached_value)
-      return nil unless @auth_secret == cached_resp[:auth_secret]
-
+      return nil unless @auth_secret == cached_resp["auth_secret"]
       [
-        cached_resp[:http_status].to_i,
-        cached_resp[:http_header],
-        cached_resp[:http_body]
+        cached_resp["http_status"],
+        cached_resp["http_header"],
+        cached_resp["http_body"]
       ]
     end
   end
