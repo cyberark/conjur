@@ -3,6 +3,7 @@
 require 'aruba'
 require 'aruba/cucumber'
 require 'conjur-api'
+require 'rest-client'
 
 Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || 'http://conjur'
 Conjur.configuration.account = ENV['CONJUR_ACCOUNT'] || 'cucumber'

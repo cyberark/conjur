@@ -1,22 +1,22 @@
 # frozen_string_literal: true
 
 Then(/^([\w_]+) "([^"]*)" exists$/) do |kind, id|
-  expect(conjur_api.resource(make_full_id(kind, id))).to exist
+  expect { get_resource(kind, id) }.to_not raise_error
 end
 
 Then(/^([\w_]+) "([^"]*)" does not exist$/) do |kind, id|
-  expect(conjur_api.resource(make_full_id(kind, id))).to_not exist
+  expect { get_resource(kind, id) }.to raise_error
 end
 
 Then(/^there is a ([\w_]+) resource "([^"]*)"$/) do |kind, id|
   invoke do
-    conjur_api.resource(make_full_id(kind, id))
+    get_resource(kind, id)
   end
 end
 
 When(/^I list the roles permitted to (\w+) ([\w_]+) "([^"]*)"$/) do |privilege, kind, id|
   invoke do
-    conjur_api.resource(make_full_id(kind, id)).permitted_roles(privilege)
+    get_privilaged_roles(kind, id, privilege)
   end
 end
 
@@ -30,14 +30,14 @@ end
 
 When(/^I list ([\w_]+) resources$/) do |kind|
   invoke do
-    conjur_api.resources(kind: kind)
+    get_resource(kind, '').body
   end
 end
 
 Then(/^the resource list includes ([\w_]+) "([^"]*)"$/) do |kind, id|
-  expect(result.map(&:id)).to include(make_full_id(kind, id))
+  expect(JSON.parse(result).map{|x| x["id"]}).to include(make_full_id(kind, id))
 end
 
 Then(/^the owner of ([\w_]+) "([^"]*)" is ([\w_]+) "([^"]*)"$/) do |object_kind, object_id, owner_kind, owner_id|
-  expect(conjur_api.resource(make_full_id(object_kind, object_id)).owner.id).to eq(make_full_id(owner_kind, owner_id))
+  expect(JSON.parse(get_resource(object_kind, object_id))["owner"]).to eq(make_full_id(owner_kind, owner_id))
 end
