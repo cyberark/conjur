@@ -20,7 +20,10 @@ worker_timeout 600
 # other service defaults
 persistent_timeout 80
 
-preload_app!
+# Preloading is supposed to reduce memory usage. However, memory usage appears
+# to be consistent with or without preload, so I'm disabling it to allow us to
+# perform a "phased restart", which does not work when preloading.
+#preload_app!
 
 rackup      DefaultRackup
 port        ENV['PORT']     || 3000
@@ -36,5 +39,15 @@ end
 on_worker_boot do
   # https://groups.google.com/forum/#!topic/sequel-talk/LBAtdstVhWQ
   Sequel::Model.db.disconnect
+
+  # Reload app configuration. Note that this will not pick up changes to env
+  # vars since the main puma process environment is static once it starts.
+  conjur_config = Rails.application.config.conjur_config
+  conjur_config.reload
+
+  puts "Loaded configuration:"
+  conjur_config.attribute_sources.each do |k,v|
+    puts "- #{k} from #{v}"
+  end
 end
 

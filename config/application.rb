@@ -74,10 +74,5 @@ module Conjur
     # We create this in application.rb instead of an initializer so that it's
     # guaranteed to be available for other initializers to use.
     config.conjur_config = Conjur::ConjurConfig.new
-
-    puts "Loaded configuration:"
-    config.conjur_config.attribute_sources.each do |k,v|
-      puts "- #{k} from #{v}"
-    end
   end
 end

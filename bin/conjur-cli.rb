@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# Add Conjur application source files are in the load path
 $LOAD_PATH.push(File.expand_path("../../lib", __FILE__))
 
 require 'gli'
@@ -62,7 +61,7 @@ command :policy do |cgrp|
   cgrp.command :load do |c|
     c.action do |global_options,options,args|
       account, *file_names = args
-      
+
       Commands::Policy::Load.new.call(
         account: account,
         file_names: file_names
@@ -249,6 +248,19 @@ command :configuration do |cgrp|
       Commands::Configuration::Show.new.call(
         output_format: options[:output].strip.downcase
       )
+    end
+  end
+
+  cgrp.desc 'Restart the Conjur server to apply new configuration'
+  cgrp.long_desc(<<~DESC)
+    Performs a phased restart of the puma process, which restarts the worker
+    threads and allows them to pick up any changes to configuration files. Note
+    that this does NOT pick up any changes to environment variables due to Linux
+    process environments being static once a process has started.
+  DESC
+  cgrp.command :apply do |c|
+    c.action do |_global_options, options, _args|
+      Commands::Configuration::Apply.new.call
     end
   end
 end
