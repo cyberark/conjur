@@ -64,6 +64,7 @@ class CachedEndpoint
         encrypted_cached_value,
         aad: @req_path
       )
+      # Can't symbolize because it errors out on the http_header value
       cached_resp = JSON.parse(decrypted_cached_value)
       return nil unless @auth_secret == cached_resp["auth_secret"]
       [
