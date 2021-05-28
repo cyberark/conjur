@@ -429,7 +429,7 @@ pipeline {
           script {
             if (env.BRANCH_NAME == 'master') {
               build(
-                job:'../cyberark--secrets-provider-for-k8s/master',
+                job:'../cyberark--secrets-provider-for-k8s/main',
                 wait: false
               )
             }
