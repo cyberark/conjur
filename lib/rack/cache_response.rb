@@ -3,133 +3,123 @@
 require 'pp'
 require 'json'
 
+class CachedEndpoint
+  extend CommandClass::Include
+
+  command_class(
+    dependencies: {
+      app: nil,
+      path: nil,
+      request_name: nil,
+      cache: Rails.cache,
+      encryption_algorithm: Slosilo::EncryptedAttributes,
+      http_method: 'GET'
+  },
+    inputs: %i[env, auth_secret]
+  ) do
+
+    def call
+      # Do nothing, if path doesn't match.
+      return nil unless @path =~ @req_path && http_method == @req_method
+
+      # Return cached value, if found.
+      cached_resp = cached_response
+      return cached_resp if cached_resp
+
+      status, header, rackBody = @app.call(env)
+      return [status, header, [rackBody.body]] if status >= 300
+
+      # Cache for next time.
+      redis_key = JSON.dump(store_key)
+      @cache.write(
+        redis_key,
+        @encryption_algorithm.encrypt(
+          JSON.dump({
+            auth_secret: @auth_secret,
+            http_status: status,
+            http_header: header,
+            http_body: [rackBody],
+          }),
+          aad: @req_path
+        ),
+        expires_in: 60
+      )
+    end
+
+    def store_key
+      # TODO: confirm REMOTE_IP is what we need, and what we need for req path
+      # @store_key ||= JSON.dump([@env['REQUEST_PATH'], @env['REMOTE_IP'], "login"])
+      # TODO: remove this dep
+      req = ActionDispatch::Request.new(env)
+      @store_key ||= JSON.dump([req.path, req.ip, "login"])
+    end
+
+    def cached_response
+      encrypted_cached_value = @cache.fetch(store_key)
+      return nil unless encrypted_cached_value
+
+      # Use request path as salt.  This should be safe, since salts are not
+      # sensitive.
+      decrypted_cached_value = @encryption_algorithm.decrypt(
+        encrypted_cached_value,
+        aad: @req_path
+      )
+      cached_resp = JSON.parse(decrypted_cached_value)
+      return nil unless @auth_secret == cached_resp[:auth_secret]
+
+      [
+        cached_resp[:http_status].to_i,
+        cached_resp[:http_header],
+        cached_resp[:http_body]
+      ]
+    end
+  end
+end
+
 module Rack
   class CacheResponse
     def initialize(app)
       @app = app
+      @login_cache = CachedEndpoint.new(
+        request_name: 'login',
+        app: @app,
+        path: %r{^/authn/.*/login$}
+      )
+      @secret_cache = CachedEndpoint.new(
+        request_name: 'secrets',
+        app: @app,
+        path: %r{^/secrets/.*$}
+      )
+      @authenticate_cache = CachedEndpoint.new(
+        request_name: 'authenticate',
+        app: @app,
+        path: %r{^/authn/.*/authenticate$},
+        http_method: 'POST'
+      )
     end
 
-    def call(env)
-      start_time = Time.now
 
+    def call(env)
+      # TODO: remove dep on Rails::Dispatch
+      # env['rack.input'].gets
+      # msg = JSON.parse env['rack.input'].read
+      # https://stackoverflow.com/questions/9707034/how-to-receive-a-json-object-with-rack
+      # Then we can pass our object nothing but env as input.
       req = ActionDispatch::Request.new(env)
       req_body = req.body.read
-      # Bring it back to original state
       req.body.rewind
-      req_path = req.path
 
-      if req_path.match?(%r{^/authn/.*/login$}) && env['REQUEST_METHOD'] == "GET"
-        redis_key = JSON.dump(
-          [req_path, req.ip, "login"]
-        )
-        redis_value = Rails.cache.fetch(redis_key)
-        ### Check if salt is secure enough
-        if redis_value
-          marshaled_string = Slosilo::EncryptedAttributes.decrypt(
-            redis_value, aad: req_path
-          )
-          value = JSON.parse(marshaled_string)
-          if env['HTTP_AUTHORIZATION'] == value[0]
-            puts("Hit login cache")
-            end_time = Time.now
-            puts("TOTAL TIME: #{end_time - start_time}")
-            return [value[1].to_i, value[2], value[3]]
-          end
-        end
-      elsif req_path.match?(%r{^/authn/.*/authenticate$}) && env['REQUEST_METHOD'] == "POST"
-        redis_key = JSON.dump(
-          [req_path, req.ip, "authenticate"]
-        )
-        redis_value = Rails.cache.fetch(redis_key)
-        ### Check if salt is secure enough
-        if redis_value
-          marshaled_string = Slosilo::EncryptedAttributes.decrypt(
-            redis_value, aad: req_path
-          )
-          value = JSON.parse(marshaled_string)
-          if req_body == value[0]
-            puts("Hit authenticate cache")
-            end_time = Time.now
-            puts("TOTAL TIME: #{end_time - start_time}")
-            return [value[1].to_i, value[2], value[3]]
-          end
-        end
-      elsif req_path.match?(%r{^/secrets/.*$}) && env['REQUEST_METHOD'] == "GET"
-        redis_key = JSON.dump(
-          [req_path, req.ip, "secret_retrieval"]
-        )
-        redis_value = Rails.cache.fetch(redis_key)
-        ### Check if salt is secure enough
-        if redis_value
-          marshaled_string = Slosilo::EncryptedAttributes.decrypt(
-            redis_value, aad: req_path
-          )
-          value = JSON.parse(marshaled_string)
-          print(req_body)
-          print(value[0])
-          if req_body == value[0]
-            puts("Hit secrets cache")
-            end_time = Time.now
-            puts("TOTAL TIME: #{end_time - start_time}")
-            return [value[1].to_i, value[2], value[3]]
-          end
-        end
-      end
-      
+      result = @secret_cache.call(env: env, auth_secret: req_body)
+      return result if result
+      result = @authenticate_cache.call(env: env, auth_secret: req_body)
+      return result if result
+      result = @login_cache.call(env: env, auth_secret: env['HTTP_AUTHORIZATION'])
+      return result if result
+
       status, header, rackBody = @app.call(env)
-      if status < 300
-        if req_path.match?(%r{^/authn/.*/login$})
-          redis_key = JSON.dump(
-            [req_path, req.ip, "login"]
-          )
-          Rails.cache.write(
-            redis_key,
-            Slosilo::EncryptedAttributes.encrypt(
-              JSON.dump(
-                [env['HTTP_AUTHORIZATION'], status, header, [rackBody.body]]
-              ), aad: req_path
-            ), expires_in: 60
-          )
-          end_time = Time.now
-          puts("TOTAL TIME: #{end_time - start_time}")
-          print("Cached login response")
-        elsif req_path.match?(%r{^/authn/.*/authenticate$})
-          redis_key = JSON.dump(
-            [req_path, req.ip, "authenticate"]
-          )
-          Rails.cache.write(
-            redis_key,
-            Slosilo::EncryptedAttributes.encrypt(
-              JSON.dump(
-                [req_body, status, header, [rackBody.body]]
-              ), aad: req_path
-            ), expires_in: 60
-          )
-          end_time = Time.now
-          puts("TOTAL TIME: #{end_time - start_time}")
-          print("Cached authenticate response")
-        elsif req_path.match?(%r{^/secrets/.*$})
-          if env['REQUEST_METHOD'] == "GET"
-            redis_key = JSON.dump(
-              [req_path, req.ip, "secret_retrieval"]
-            )
-            Rails.cache.write(
-              redis_key,
-              Slosilo::EncryptedAttributes.encrypt(
-                JSON.dump(
-                  [req_body, status, header, [rackBody.body]]
-                ), aad: req_path
-              ), expires_in: 60
-            )
-          elsif env['REQUEST_METHOD'] != "GET"
-            # Secret updated
-            print("Cleared the cache")
-            Rails.cache.clear
-          end
-          end_time = Time.now
-          puts("TOTAL TIME: #{end_time - start_time}")
-          print("Cached secret response")
-        end 
+      if status < 300 && env['REQUEST_METHOD'] != "GET"
+        print("Cleared the cache")
+        Rails.cache.clear
       end
       [status, header, [rackBody.body]]
     end
