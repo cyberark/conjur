@@ -20,19 +20,27 @@ module AuthorizeResource
   private
 
   def cache(user, privilege, resource)
-    Rails.cache.write({
-      :user => user,
-      :privilege => privilege,
-      :resource => resource
-    }.inspect, true, expires_in: 300)
+    Rails.cache.write(
+      JSON.dump(
+        {
+          :user => user.role_id,
+          :privilege => privilege,
+          :resource => resource.resource_id
+        }
+      ), true, expires_in: 300
+    )
   end
 
   def cached?(user, privilege, resource)
-    Rails.cache.fetch({
-      :user => user,
-      :privilege => privilege,
-      :resource => resource
-    }.inspect)
+    Rails.cache.fetch(
+      JSON.dump(
+        {
+          :user => user.role_id,
+          :privilege => privilege,
+          :resource => resource.resource_id
+        }
+      )
+    )
   end
 
   def auth(user, privilege, resource)

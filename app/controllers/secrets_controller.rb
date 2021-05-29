@@ -42,26 +42,34 @@ class SecretsController < RestController
       )
     end
     
-    redis_value = Rails.cache.fetch({
-      :resource_id => resource_id,
-      :version => version
-    }.inspect)
+    cache_value = Rails.cache.fetch(
+      JSON.dump(
+        {
+          :resource_id => resource.id,
+          :version => version
+        }
+      )
+    )
 
-    value = if redis_value.nil?
+    devrypted_value = if cache_value.nil?
       value = secret.value
-      Rails.cache.write({
-        :resource_id => secret.resource_id,
-        :version => version
-      }.inspect, Slosilo::EncryptedAttributes.encrypt(value, aad: version), expires_in: 30)
+      Rails.cache.write(
+        JSON.dump(
+          {
+            :resource_id => secret.resource_id,
+            :version => version
+          }
+        ), Slosilo::EncryptedAttributes.encrypt(value, aad: version), expires_in: 240
+      )
       value
     else
-      Slosilo::EncryptedAttributes.decrypt(redis_value, aad: version)
+      Slosilo::EncryptedAttributes.decrypt(cache_value, aad: version)
     end
 
     mime_type = \
       resource.annotation('conjur/mime_type') || 'application/octet-stream'
 
-    send_data(value, type: mime_type)
+    send_data(devrypted_value, type: mime_type)
   rescue Exceptions::RecordNotFound
     raise Errors::Conjur::MissingSecretValue, resource_id
   ensure
