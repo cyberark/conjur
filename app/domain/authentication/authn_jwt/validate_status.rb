@@ -9,7 +9,7 @@ module Authentication
         validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
         validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
         validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
-        enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV),
+        enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str,
         validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
         logger: Rails.logger
       },
