@@ -31,6 +31,16 @@ class AuthenticateController < ApplicationController
     render(status_failure_response(e))
   end
 
+  def authn_jwt_status
+    Authentication::AuthnJwt::ValidateStatus.new.call(
+      authenticator_status_input: status_input("authn-jwt")
+    )
+    render(json: { status: "ok" })
+  rescue => e
+    log_backtrace(e)
+    render(status_failure_response(e))
+  end
+
   def update_config
     body_params = Rack::Utils.parse_nested_query(request.body.read)
 
@@ -47,9 +57,9 @@ class AuthenticateController < ApplicationController
     handle_authentication_error(e)
   end
 
-  def status_input
+  def status_input(authenticator_name = params[:authenticator])
     Authentication::AuthenticatorStatusInput.new(
-      authenticator_name: params[:authenticator],
+      authenticator_name: authenticator_name,
       service_id: params[:service_id],
       account: params[:account],
       username: ::Role.username_from_roleid(current_user.role_id),
@@ -72,14 +82,18 @@ class AuthenticateController < ApplicationController
       authenticators: installed_authenticators,
       enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
     )
-    content_type = :json
-    if encoded_response?
-      logger.debug(LogMessages::Authentication::EncodedJWTResponse.new)
-      content_type = :plain
-      authn_token = ::Base64.strict_encode64(authn_token.to_json)
-      response.set_header("Content-Encoding", "base64")
-    end
-    render(content_type => authn_token)
+    render_authn_token(authn_token)
+  rescue => e
+    handle_authentication_error(e)
+  end
+
+  def authenticate_jwt
+    params[:authenticator] = "authn-jwt"
+    authn_token = Authentication::AuthnJwt::OrchestrateAuthentication.new.call(
+      authenticator_input: authenticator_input_without_credentials,
+      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV)
+    )
+    render_authn_token(authn_token)
   rescue => e
     handle_authentication_error(e)
   end
@@ -117,6 +131,32 @@ class AuthenticateController < ApplicationController
       client_ip: request.ip,
       request: request
     )
+  end
+
+  # create authenticator input without reading the request body
+  # request body can be relatively large
+  # authenticator will read it after basic validation check
+  def authenticator_input_without_credentials
+    Authentication::AuthenticatorInput.new(
+      authenticator_name: params[:authenticator],
+      service_id: params[:service_id],
+      account: params[:account],
+      username: params[:id],
+      credentials: nil,
+      client_ip: request.ip,
+      request: request
+    )
+  end
+
+  def render_authn_token(authn_token)
+    content_type = :json
+    if encoded_response?
+      logger.debug(LogMessages::Authentication::EncodedJWTResponse.new)
+      content_type = :plain
+      authn_token = ::Base64.strict_encode64(authn_token.to_json)
+      response.set_header("Content-Encoding", "base64")
+    end
+    render(content_type => authn_token)
   end
 
   def k8s_inject_client_cert
