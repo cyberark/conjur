@@ -109,7 +109,7 @@ module Conjur
       # in the DB. However, we need to figure out how to use code from the
       # application without introducing warnings.
       authenticators_regex =
-        %r{^(authn|authn-(k8s|oidc|iam|ldap|gcp|azure)(/.+)?)$}
+        %r{^(authn|authn-(k8s|oidc|iam|ldap|gcp|jwt|azure)(/.+)?)$}
       authenticators.all? do |authenticator|
         authenticators_regex.match?(authenticator.strip)
       end

@@ -9,7 +9,9 @@ kill_recurse() {
     kill "$1"
 }
 
-conjur_server_pid=$(pgrep -f 'ruby /usr/local/bin/conjurctl server')
-if [ -n "$conjur_server_pid" ]; then
-  kill_recurse "$conjur_server_pid"
-fi
+conjur_server_pids=$(pgrep -f 'ruby /usr/local/bin/conjurctl server')
+# Iterate over conjur server process
+for pid in $conjur_server_pids;
+do
+  kill_recurse $pid
+done
