@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnJwt::ValidateRestrictionsOneToOne') do
+RSpec.describe('Authentication::AuthnJwt::RestrictionValidators::ValidateRestrictionsOneToOne') do
   let(:right_email) { "admin@example.com" }
   let(:wrong_email) { "wrong@example.com" }
   let(:empty_email) { "" }
@@ -63,7 +63,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateRestrictionsOneToOne') do
   context "ValidateRestrictionsOneToOne" do
     context "Decoded token is not empty" do
       subject do
-        ::Authentication::AuthnJwt::ValidateRestrictionsOneToOne.new(decoded_token: decoded_token)
+        ::Authentication::AuthnJwt::RestrictionValidators::ValidateRestrictionsOneToOne.new(decoded_token: decoded_token)
       end
 
       it "returns true when the restriction is for existing for existing field and its value equals the token" do
@@ -89,7 +89,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateRestrictionsOneToOne') do
 
     context "Decoded token is empty" do
       subject do
-        ::Authentication::AuthnJwt::ValidateRestrictionsOneToOne.new(decoded_token: empty_decoded_token)
+        ::Authentication::AuthnJwt::RestrictionValidators::ValidateRestrictionsOneToOne.new(decoded_token: empty_decoded_token)
       end
 
       it "raises JwtTokenClaimIsMissing" do

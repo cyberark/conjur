@@ -107,7 +107,7 @@ module Authentication
         end
 
         def initialize_validate_restrictions
-          @restriction_validator = Authentication::AuthnJwt::ValidateRestrictionsOneToOne
+          @restriction_validator = Authentication::AuthnJwt::RestrictionValidators::ValidateRestrictionsOneToOne
           @restrictions_from_annotations_class = Authentication::ResourceRestrictions::GetServiceSpecificRestrictionsFromAnnotation
           @extract_resource_restrictions = Authentication::ResourceRestrictions::ExtractResourceRestrictions.new(
             get_restriction_from_annotation: @restrictions_from_annotations_class,
