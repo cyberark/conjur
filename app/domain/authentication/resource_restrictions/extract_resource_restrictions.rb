@@ -6,8 +6,8 @@ module Authentication
     ExtractResourceRestrictions = CommandClass.new(
       dependencies: {
         resource_restrictions_class: Authentication::ResourceRestrictions::ResourceRestrictions,
-        get_restriction_from_annotation: Authentication::ResourceRestrictions::GetRestrictionFromAnnotation,
-        fetch_resource_annotations_class: Authentication::ResourceRestrictions::FetchResourceAnnotations,
+        get_restriction_from_annotation: Authentication::ResourceRestrictions::GetRestrictionFromAnnotation.new,
+        fetch_resource_annotations_instance: Authentication::ResourceRestrictions::FetchResourceAnnotations.new,
         role_class: ::Role,
         resource_class: ::Resource,
         logger: Rails.logger,
@@ -16,7 +16,7 @@ module Authentication
       inputs: %i[authenticator_name service_id role_name account]
     ) do
       def call
-        @logger.debug(
+        @logger.info(
           LogMessages::Authentication::ResourceRestrictions::ExtractingRestrictionsFromResource.new(
             @authenticator_name,
             @role_name
@@ -39,7 +39,7 @@ module Authentication
       end
 
       def resource_annotations
-        @resource_annotations ||= @fetch_resource_annotations_class.new.call(
+        @resource_annotations ||= @fetch_resource_annotations_instance.call(
           account: @account,
           role_name: @role_name,
           ignore_empty_annotations: @ignore_empty_annotations
@@ -58,7 +58,7 @@ module Authentication
       end
 
       def add_restriction_to_hash(annotation_name, annotation_value, resource_restrictions_hash)
-        restriction_name, is_general_restriction = @get_restriction_from_annotation.new.call(
+        restriction_name, is_general_restriction = @get_restriction_from_annotation.call(
           annotation_name: annotation_name,
           authenticator_name: @authenticator_name,
           service_id: @service_id
@@ -69,7 +69,7 @@ module Authentication
         # General restriction should not override existing restriction
         return if is_general_restriction && resource_restrictions_hash.include?(restriction_name)
 
-        @logger.debug(LogMessages::Authentication::ResourceRestrictions::RetrievedAnnotationValue.new(annotation_name))
+        @logger.info(LogMessages::Authentication::ResourceRestrictions::RetrievedAnnotationValue.new(annotation_name))
 
         resource_restrictions_hash[restriction_name] = annotation_value
       end

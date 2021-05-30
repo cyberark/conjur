@@ -10,7 +10,6 @@ module Authentication
       },
       inputs: %i[account role_name ignore_empty_annotations]
     ) do
-
       def call
         fetch_resource_annotations
       end
@@ -25,7 +24,7 @@ module Authentication
         resource.annotations.each_with_object({}) do |annotation, result|
           annotation_values = annotation.values
           value = annotation_values[:value]
-          next if value.blank? and @ignore_empty_annotations
+          next if value.blank? && @ignore_empty_annotations
 
           result[annotation_values[:name]] = value
         end
@@ -36,13 +35,13 @@ module Authentication
 
         @resource = @resource_class[role_id]
         raise Errors::Authentication::Security::RoleNotFound, role_id unless @resource
+
         @resource
       end
 
       def role_id
         @role_id ||= @role_class.roleid_from_username(@account, @role_name)
       end
-
     end
   end
 end

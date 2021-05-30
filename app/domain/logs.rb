@@ -105,8 +105,8 @@ module LogMessages
     module ResourceRestrictions
 
       RetrievedAnnotationValue = ::Util::TrackableLogMessageClass.new(
-        msg: "Retrieved value of annotation {0-annotation-name}",
-        code: "CONJ00024D"
+        msg: "Retrieved value of annotation '{0-annotation-name}'",
+        code: "CONJ00024I"
       )
 
       ValidatingResourceRestrictions = ::Util::TrackableLogMessageClass.new(
@@ -121,7 +121,7 @@ module LogMessages
 
       ExtractingRestrictionsFromResource = ::Util::TrackableLogMessageClass.new(
         msg: "Extracting resource restrictions for authenticator '{0-authn-name}' from host '{1-host-name}'",
-        code: "CONJ00032D"
+        code: "CONJ00032I"
       )
 
       ExtractedResourceRestrictions = ::Util::TrackableLogMessageClass.new(
@@ -259,6 +259,300 @@ module LogMessages
       ExtractedResourceRestrictionsFromToken = ::Util::TrackableLogMessageClass.new(
         msg: "Extracted resource restrictions from token",
         code: "CONJ00029D"
+      )
+
+    end
+
+    module AuthnJwt
+
+      FetchingIssuerConfigurationValue = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetching \"issuer\" value from authenticator configuration...",
+        code: "CONJ00052D"
+      )
+
+      FetchedIssuerValueFromConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetched \"issuer\" value from authenticator configuration",
+        code: "CONJ00053D"
+      )
+
+      IssuerResourceNameConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "\"issuer\" value will be taken from '{0-resource-id}'",
+        code: "CONJ00054I"
+      )
+
+      RetrievedIssuerValue = ::Util::TrackableLogMessageClass.new(
+        msg: "Retrieved \"issuer\" with value '{0}'",
+        code: "CONJ00055I"
+      )
+
+      ParsingIssuerFromUri = ::Util::TrackableLogMessageClass.new(
+        msg: "Parsing \"issuer\" value from '{0}'...",
+        code: "CONJ00056D"
+      )
+
+      JwtAuthenticatorEntryPoint = ::Util::TrackableLogMessageClass.new(
+        msg: "Started authentication flow for authenticator '{0-authenticator-name}'",
+        code: "CONJ00057I"
+      )
+
+      SelectingIdentityProviderInterface = ::Util::TrackableLogMessageClass.new(
+        msg: "Selecting identity provider interface...",
+        code: "CONJ00058D"
+      )
+
+      SelectedIdentityProviderInterface = ::Util::TrackableLogMessageClass.new(
+        msg: "Selected identity provider interface: '{0-identity-provider-interface-name}'",
+        code: "CONJ00059I"
+      )
+
+      RetrievedResourceValue = ::Util::TrackableLogMessageClass.new(
+        msg: "Retrieved value '{0-resource-value}' of resource name '{1-resource-name}'",
+        code: "CONJ00060I"
+      )
+
+      CheckingIdentityFieldExists = ::Util::TrackableLogMessageClass.new(
+        msg: "Checking if field '{0}' is in the token...",
+        code: "CONJ00061D"
+      )
+
+      CreatingAuthenticationParametersObject = ::Util::TrackableLogMessageClass.new(
+        msg: "Creating authentication parameter objects...",
+        code: "CONJ00062D"
+      )
+
+      CallingValidateAndDecodeToken = ::Util::TrackableLogMessageClass.new(
+        msg: "Calling 'validate_and_decode_token'...",
+        code: "CONJ00063D"
+      )
+
+      CallingGetJwtIdentity = ::Util::TrackableLogMessageClass.new(
+        msg: "Calling 'get_jwt_identity'...",
+        code: "CONJ00064D"
+      )
+
+      CallingValidateRestrictions = ::Util::TrackableLogMessageClass.new(
+        msg: "Calling 'validate_restrictions'...",
+        code: "CONJ00065D"
+      )
+
+      JwtAuthenticationPassed = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully authenticated JWT",
+        code: "CONJ00066D"
+      )
+
+      FetchingJwtClaimsToValidate = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetching JWT claims to validate",
+        code: "CONJ00067D"
+      )
+
+      FetchedJwtClaimsToValidate = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetched JWT claims '{0-claims-list}' to validate",
+        code: "CONJ00068I"
+      )
+
+      AddingJwtClaimToValidate = ::Util::TrackableLogMessageClass.new(
+        msg: "Adding JWT claim, '{0-claim-name}', to list of mandatory claims to be validated...",
+        code: "CONJ00069D"
+      )
+
+      CheckingJwtClaimToValidate = ::Util::TrackableLogMessageClass.new(
+        msg: "Checking if JWT claim '{0-claim-name}' is mandatory to validate...",
+        code: "CONJ00070D"
+      )
+
+      FetchingJwtConfigurationValue = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetching '{0-resource-id}' resource definition from configuration...",
+        code: "CONJ00071D"
+      )
+
+      FetchingJwksFromProvider = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetching JWKS from '{0-uri}'...",
+        code: "CONJ00072I"
+      )
+
+      FetchJwtUriKeysSuccess = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully fetched JWKS",
+        code: "CONJ00073D"
+      )
+
+      ValidatingJwtSigningKeyConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating signing key URI configuration...",
+        code: "CONJ00074D"
+      )
+
+      SelectingSigningKeyInterface = ::Util::TrackableLogMessageClass.new(
+        msg: "Selecting signing key interface...",
+        code: "CONJ00075D"
+      )
+
+      SelectedSigningKeyInterface = ::Util::TrackableLogMessageClass.new(
+        msg: "Selected signing key interface: '{0-signing-key-interface-name}'",
+        code: "CONJ00076I"
+      )
+
+      ConvertingJwtClaimToVerificationOption = ::Util::TrackableLogMessageClass.new(
+        msg: "Converting JWT claim '{0-claim-name}' to verification option",
+        code: "CONJ00077D"
+      )
+
+      ConvertedJwtClaimToVerificationOption = ::Util::TrackableLogMessageClass.new(
+        msg: "Converted JWT claim '{0-claim-name}' to verification option '{1-verification-option}'",
+        code: "CONJ00078D"
+      )
+
+      ValidateSigningKeysAreUpdated = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating that signing keys are up to date",
+        code: "CONJ00079D"
+      )
+
+      SigningKeysFetchedFromCache = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully fetched signing keys from cache",
+        code: "CONJ00080D"
+      )
+
+      ValidatingToken = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating token",
+        code: "CONJ00081D"
+      )
+
+      ValidatedToken = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated token",
+        code: "CONJ00082D"
+      )
+
+      ValidatingTokenSignature = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating token signature",
+        code: "CONJ00083D"
+      )
+
+      ValidatedTokenSignature = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated token signature",
+        code: "CONJ00084D"
+      )
+
+      ValidatingTokenClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating token claims...",
+        code: "CONJ00085D"
+      )
+
+      ValidatedTokenClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated token claims",
+        code: "CONJ00086D"
+      )
+
+      CreatingJwksFromHttpResponse = ::Util::TrackableLogMessageClass.new(
+        msg: "Creating JWKS from HTTP response...",
+        code: "CONJ00087D"
+      )
+
+      CreatedJwks = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully created JWKS",
+        code: "CONJ00088D"
+      )
+
+      ValidatedIdentityConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated identity configuration",
+        code: "CONJ00089D"
+      )
+
+      ValidatingJwtStatusConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating JWT status configuration...",
+        code: "CONJ00090I"
+      )
+
+      ValidatedUserHasAccessToStatusWebservice = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated user has access to status webservice",
+        code: "CONJ00091D"
+      )
+
+      ValidatedAuthenticatorWebServiceExists = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated status webservice exists",
+        code: "CONJ00092D"
+      )
+
+      ValidatedStatusWebserviceIsWhitelisted = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated status webservice is allowlisted",
+        code: "CONJ00093D"
+      )
+
+      ValidatedServiceIdExists = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated that service ID exists",
+        code: "CONJ00094D"
+      )
+
+      ValidatedSigningKeyConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated signing key configuration",
+        code: "CONJ00095D"
+      )
+
+      ValidatedIssuerConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated issuer configuration",
+        code: "CONJ00096D"
+      )
+
+      FoundJwtFieldInToken = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully found field '{0}' in token and its value is '{1}'",
+        code: "CONJ00097D"
+      )
+
+      FoundJwtIdentity= ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully found JWT identity '{0}'",
+        code: "CONJ00098I"
+      )
+
+      ValidatedJwtStatusConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated JWT status configuration",
+        code: "CONJ00099I"
+      )
+
+      ValidatedAccountExists = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated that account exists",
+        code: "CONJ00100D"
+      )
+
+      ValidateAndDecodeTokenPassed = ::Util::TrackableLogMessageClass.new(
+        msg: "'validate_and_decode_token' passed successfully",
+        code: "CONJ00101D"
+      )
+
+      GetJwtIdentityPassed = ::Util::TrackableLogMessageClass.new(
+        msg: "'get_jwt_identity' passed successfully",
+        code: "CONJ00102D"
+      )
+
+      ValidateRestrictionsPassed = ::Util::TrackableLogMessageClass.new(
+        msg: "'validate_restrictions' passed successfully",
+        code: "CONJ00103D"
+      )
+
+      CreateValidateAndDecodeTokenInstance = ::Util::TrackableLogMessageClass.new(
+        msg: "Creating token validator (validate_and_decode_token) instance...",
+        code: "CONJ00104D"
+      )
+
+      CreatedValidateAndDecodeTokenInstance = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully created token validator (validate_and_decode_token) instance",
+        code: "CONJ00105D"
+      )
+
+      CreateJwtIdentityProviderInstance = ::Util::TrackableLogMessageClass.new(
+        msg: "Creating JWT identity provider (get_jwt_identity) instance...",
+        code: "CONJ00106D"
+      )
+
+      CreatedJwtIdentityProviderInstance = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully created JWT identity provider (get_jwt_identity) instance",
+        code: "CONJ00107D"
+      )
+
+      CreateJwtRestrictionsValidatorInstance = ::Util::TrackableLogMessageClass.new(
+        msg: "Creating JWT restrictions validator (validate_restrictions) instance...",
+        code: "CONJ00108D"
+      )
+
+      CreatedJwtRestrictionsValidatorInstance = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully created JWT restrictions validator (validate_restrictions) instance",
+        code: "CONJ00109D"
       )
 
     end

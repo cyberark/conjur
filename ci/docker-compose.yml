@@ -44,7 +44,7 @@ services:
       RAILS_ENV:
       REQUIRE_SIMPLECOV: "true"
       CONJUR_LOG_LEVEL: debug
-      CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak,authn-oidc,authn-k8s/test,authn-azure/prod,authn-gcp
+      CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak,authn-oidc,authn-k8s/test,authn-azure/prod,authn-gcp,authn-jwt/raw
       LDAP_URI: ldap://ldap-server:389
       LDAP_BASE: dc=conjur,dc=net
       LDAP_FILTER: '(uid=%s)'
@@ -89,6 +89,7 @@ services:
       - authn-local:/run/authn-local
       - ./ldap-certs:/ldap-certs:ro
       - log-volume:/src/conjur-server/log
+      - jwks-volume:/var/jwks
     links:
       - conjur
       - pg
@@ -138,7 +139,12 @@ services:
       - ./test_suites/authenticators_oidc/keycloak:/scripts
       - ./test_suites/authenticators_oidc/keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
 
+  jwks:
+    image: nginx
+    volumes:
+      - jwks-volume:/usr/share/nginx/html
 
 volumes:
   authn-local:
   log-volume:
+  jwks-volume:
