@@ -5,10 +5,13 @@ module Authentication
 
     ExtractResourceRestrictions = CommandClass.new(
       dependencies: {
-        resource_restrictions_class: ResourceRestrictions::ResourceRestrictions,
+        resource_restrictions_class: Authentication::ResourceRestrictions::ResourceRestrictions,
+        get_restriction_from_annotation: Authentication::ResourceRestrictions::GetRestrictionFromAnnotation,
+        fetch_resource_annotations_class: Authentication::ResourceRestrictions::FetchResourceAnnotations,
         role_class: ::Role,
         resource_class: ::Resource,
-        logger: Rails.logger
+        logger: Rails.logger,
+        ignore_empty_annotations: true
       },
       inputs: %i[authenticator_name service_id role_name account]
     ) do
@@ -36,24 +39,11 @@ module Authentication
       end
 
       def resource_annotations
-        @resource_annotations ||=
-          resource.annotations.each_with_object({}) do |annotation, result|
-            annotation_values = annotation.values
-            value = annotation_values[:value]
-            next if value.blank?
-
-            result[annotation_values[:name]] = value
-          end
-      end
-
-      def resource
-        # Validate role exists, otherwise getting role annotations return empty hash.
-        role_id = @role_class.roleid_from_username(@account, @role_name)
-        resource = @resource_class[role_id]
-
-        raise Errors::Authentication::Security::RoleNotFound, role_id unless resource
-
-        resource
+        @resource_annotations ||= @fetch_resource_annotations_class.new.call(
+          account: @account,
+          role_name: @role_name,
+          ignore_empty_annotations: @ignore_empty_annotations
+        )
       end
 
       def extract_resource_restrictions_from_annotations
@@ -68,7 +58,11 @@ module Authentication
       end
 
       def add_restriction_to_hash(annotation_name, annotation_value, resource_restrictions_hash)
-        restriction_name, is_general_restriction = get_restriction_from_annotation(annotation_name)
+        restriction_name, is_general_restriction = @get_restriction_from_annotation.new.call(
+          annotation_name: annotation_name,
+          authenticator_name: @authenticator_name,
+          service_id: @service_id
+        )
 
         return unless restriction_name
 
@@ -78,34 +72,6 @@ module Authentication
         @logger.debug(LogMessages::Authentication::ResourceRestrictions::RetrievedAnnotationValue.new(annotation_name))
 
         resource_restrictions_hash[restriction_name] = annotation_value
-      end
-
-      # Parses the given annotation name and tries to extract a restriction from it.
-      # A restriction can have 2 formats:
-      # 1. "<Authenticator name>/<Restriction name>"
-      # 2. "<Authenticator name>/<Service ID>/<Restriction name>"
-      #
-      # The first format is a general restriction.
-      # This means it is relevant to all services of this authenticator.
-      #
-      # The second format is specific to the specified service ID.
-      # This means all other services will ignore it.
-      # Moreover, if both formats are found for the same restriction, the specific one will be used.
-      #
-      # This function returns the restriction name, if found (nil otherwise) and a
-      # boolean indicating if it is a general restriction or not.
-      def get_restriction_from_annotation(annotation_name)
-        annotation_name.match(authenticator_prefix_regex) do |prefix_match|
-          # Take the restriction name from the corresponding capture group in the match
-          restriction_name = prefix_match[:restriction_name]
-          is_general_restriction = prefix_match[:service_id].blank?
-          return restriction_name, is_general_restriction
-        end
-      end
-
-      def authenticator_prefix_regex
-        # The regex capture group <restriction_name> has the annotation name without the prefix
-        @authenticator_prefix_regex ||= Regexp.new("^#{@authenticator_name}/(?<service_id>#{@service_id}/)?(?<restriction_name>[^/]+)$")
       end
 
       def create_resource_restrictions_object
