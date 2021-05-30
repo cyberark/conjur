@@ -9,9 +9,10 @@ module Authentication
         validate_uri_based_parameters: Authentication::AuthnJwt::InputValidation::ValidateUriBasedParameters.new,
         jwt_configuration_factory: Authentication::AuthnJwt::VendorConfigurations::ConfigurationFactory.new,
         jwt_authenticator: Authentication::AuthnJwt::Authenticator.new,
-        logger: Rails.logger
+        logger: Rails.logger,
+        enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str,
       },
-      inputs: %i[authenticator_input enabled_authenticators]
+      inputs: %i[authenticator_input]
     ) do
       def call
         validate_uri_based_parameters
