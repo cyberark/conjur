@@ -12,7 +12,7 @@ module Authentication
         validate_origin: ::Authentication::ValidateOrigin.new,
         role_class: ::Role,
         webservice_class: ::Authentication::Webservice,
-        validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
+        validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new
       },
       inputs: %i[jwt_configuration authenticator_input]
     ) do
@@ -58,9 +58,9 @@ module Authentication
       def validate_user_has_access_to_webservice
         @validate_role_can_access_webservice.(
           webservice: webservice,
-            account: account,
-            user_id: @authentication_parameters.jwt_identity,
-            privilege: PRIVILEGE_AUTHENTICATE
+          account: account,
+          user_id: @authentication_parameters.jwt_identity,
+          privilege: PRIVILEGE_AUTHENTICATE
         )
       end
 
@@ -104,7 +104,7 @@ module Authentication
       end
 
       def role
-        if @authentication_parameters and @authentication_parameters.jwt_identity
+        if @authentication_parameters && @authentication_parameters.jwt_identity
           return @role_class.by_login(
             @authentication_parameters.jwt_identity,
             account: account
