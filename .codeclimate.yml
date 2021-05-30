@@ -2,6 +2,7 @@
 
 version: "2"
 
+
 plugins:
 
 # ---------------
@@ -43,6 +44,8 @@ plugins:
     issue_override:
       severity: info # Should be redundant as CC says markdownlint defaults to
                      # info already, but including it here to remind us it's so
+    exclude_patterns:
+      - "design/"
 
   # Go
   gofmt:
