@@ -17,7 +17,6 @@ module Authentication
         },
         inputs: [:jwt_claim]
       ) do
-
         def call
           validate_claim_exists
           get_verification_option_by_jwt_claim
@@ -26,7 +25,7 @@ module Authentication
         private
 
         def validate_claim_exists
-          raise Errors::Authentication::AuthnJwt::MissingClaim.new if @jwt_claim.blank?
+          raise Errors::Authentication::AuthnJwt::MissingClaim if @jwt_claim.blank?
         end
 
         def get_verification_option_by_jwt_claim
@@ -36,12 +35,13 @@ module Authentication
           when EXP_CLAIM_NAME, NBF_CLAIM_NAME
             @verification_option = {}
           when ISS_CLAIM_NAME
-            raise Errors::Authentication::AuthnJwt::MissingClaimValue.new(@jwt_claim.name) if @jwt_claim.value.blank?
-            @verification_option = {:iss => @jwt_claim.value, :verify_iss => true}
+            raise Errors::Authentication::AuthnJwt::MissingClaimValue, @jwt_claim.name if @jwt_claim.value.blank?
+
+            @verification_option = { iss: @jwt_claim.value, verify_iss: true }
           when IAT_CLAIM_NAME
-            @verification_option = {:verify_iat => true}
+            @verification_option = { verify_iat: true }
           else
-            raise Errors::Authentication::AuthnJwt::UnsupportedClaim.new(@jwt_claim.name)
+            raise Errors::Authentication::AuthnJwt::UnsupportedClaim, @jwt_claim.name
           end
 
           @logger.debug(

@@ -16,10 +16,9 @@ module Authentication
           @logger.debug(LogMessages::Authentication::AuthnJwt::CHECKING_IDENTITY_FIELD_EXISTS.new(token_field_name))
           jwt_identity = @decoded_token[token_field_name]
           if jwt_identity.blank?
-            raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken.new(
-              token_field_name
-            )
+            raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken, token_field_name
           end
+
           @logger.debug(LogMessages::Authentication::AuthnJwt::FOUND_JWT_FIELD_IN_TOKEN.new(token_field_name, jwt_identity))
           jwt_identity
         end
@@ -58,4 +57,3 @@ module Authentication
     end
   end
 end
-

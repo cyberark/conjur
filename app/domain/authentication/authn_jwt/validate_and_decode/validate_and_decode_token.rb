@@ -45,7 +45,7 @@ module Authentication
         private
 
         def validate_token_exists
-          raise Errors::Authentication::AuthnJwt::MissingToken.new if jwt_token.blank?
+          raise Errors::Authentication::AuthnJwt::MissingToken if jwt_token.blank?
         end
 
         def fetch_signing_key(force_read: false)
@@ -137,7 +137,6 @@ module Authentication
         def decoded_token_after_claims_validation
           @decoded_token_after_claims_validation ||= decoded_token(verification_options_with_claims)
         end
-
       end
     end
   end

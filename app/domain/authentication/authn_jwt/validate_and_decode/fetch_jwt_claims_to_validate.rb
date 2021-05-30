@@ -37,7 +37,7 @@ module Authentication
         OPTIONAL_CLAIMS = [ISS_CLAIM_NAME, NBF_CLAIM_NAME, IAT_CLAIM_NAME].freeze
 
         def validate_decoded_token_exists
-          raise Errors::Authentication::AuthnJwt::MissingToken.new if decoded_token.blank?
+          raise Errors::Authentication::AuthnJwt::MissingToken if decoded_token.blank?
         end
 
         def fetch_jwt_claims_to_validate
@@ -77,7 +77,7 @@ module Authentication
         def claim_value(claim)
           case claim
           when ISS_CLAIM_NAME
-            return @fetch_issuer_value.call(
+            @fetch_issuer_value.call(
               authentication_parameters: @authentication_parameters
             )
           else

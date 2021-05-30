@@ -8,7 +8,8 @@ module Authentication
         end
 
         def provide_jwt_identity
-          raise Errors::Authentication::AuthnJwt::NoRelevantIdentityProvider.new unless self.identity_available?
+          raise Errors::Authentication::AuthnJwt::NoRelevantIdentityProvider unless identity_available?
+
           @authentication_parameters.username
         end
 

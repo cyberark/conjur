@@ -42,25 +42,25 @@ module Authentication
       end
 
       def validate_service_id_exists
-        raise Errors::Authentication::AuthnJwt::ServiceIdMissing.new unless service_id
+        raise Errors::Authentication::AuthnJwt::ServiceIdMissing unless service_id
+
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedStatusServiceIdExists.new)
       end
 
       def validate_user_has_access_to_status_webservice
         @validate_role_can_access_webservice.(
           webservice: status_webservice,
-            account: account,
-            user_id: username,
-            privilege: 'read'
+          account: account,
+          user_id: username,
+          privilege: 'read'
         )
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedUserHasAccessToStatusWebservice.new)
       end
 
-
       def validate_authenticator_webservice_exists
         @validate_webservice_exists.(
           webservice: webservice,
-            account: account
+          account: account
         )
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedAuthenticatorWebServiceExists.new)
       end
@@ -68,8 +68,8 @@ module Authentication
       def validate_webservice_is_whitelisted
         @validate_webservice_is_whitelisted.(
           webservice: webservice,
-            account: account,
-            enabled_authenticators: @enabled_authenticators
+          account: account,
+          enabled_authenticators: @enabled_authenticators
         )
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedStatusWebserviceIsWhitelisted.new)
       end

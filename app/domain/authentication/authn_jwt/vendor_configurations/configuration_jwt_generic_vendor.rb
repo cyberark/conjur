@@ -106,8 +106,6 @@ module Authentication
           @fetch_jwt_claims_to_validate ||= ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new
         end
 
-        private
-
         def initialize_validate_restrictions
           @restriction_validator = Authentication::AuthnJwt::ValidateRestrictionsOneToOne
           @restrictions_from_annotations_class = Authentication::ResourceRestrictions::GetServiceSpecificRestrictionsFromAnnotation

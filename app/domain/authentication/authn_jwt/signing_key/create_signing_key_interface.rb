@@ -10,7 +10,6 @@ module Authentication
         },
         inputs: %i[authentication_parameters]
       ) do
-
         def call
           create
         end
@@ -31,8 +30,8 @@ module Authentication
         end
 
         def validate_key_configuration
-          if (provider_uri_has_valid_configuration? and jwks_uri_has_valid_configuration?) or
-            (!provider_uri_has_valid_configuration? and !jwks_uri_has_valid_configuration?)
+          if (provider_uri_has_valid_configuration? && jwks_uri_has_valid_configuration?) ||
+              (!provider_uri_has_valid_configuration? && !jwks_uri_has_valid_configuration?)
             raise Errors::Authentication::AuthnJwt::InvalidUriConfiguration.new(
               PROVIDER_URI_RESOURCE_NAME,
               JWKS_URI_RESOURCE_NAME

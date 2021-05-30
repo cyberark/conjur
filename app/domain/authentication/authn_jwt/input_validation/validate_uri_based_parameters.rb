@@ -10,7 +10,6 @@ module Authentication
         },
         inputs: %i[authenticator_input enabled_authenticators]
       ) do
-
         # authenticator_input attributes
         #  :account - from uri - has explicit validation
         #  :authenticator_name - from uri - has implicit validation with service_id
@@ -38,8 +37,8 @@ module Authentication
         def validate_webservice_is_whitelisted
           @validate_webservice_is_whitelisted.(
             webservice: webservice,
-              account: @authenticator_input.account,
-              enabled_authenticators: @enabled_authenticators
+            account: @authenticator_input.account,
+            enabled_authenticators: @enabled_authenticators
           )
         end
 

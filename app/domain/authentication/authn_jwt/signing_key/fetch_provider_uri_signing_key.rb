@@ -5,10 +5,10 @@ module Authentication
       class FetchProviderUriSigningKey < FetchSigningKeyInterface
 
         def initialize(authentication_parameters:,
-                       logger:,
-                       fetch_required_secrets:,
-                       resource_class:,
-                       discover_identity_provider:)
+          logger:,
+          fetch_required_secrets:,
+          resource_class:,
+          discover_identity_provider:)
           @logger = logger
           @resource_id = authentication_parameters.authenticator_resource_id
           @fetch_required_secrets = fetch_required_secrets

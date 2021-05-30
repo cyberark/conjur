@@ -13,7 +13,6 @@ module Authentication
       },
       inputs: %i[authenticator_input enabled_authenticators]
     ) do
-
       def call
         validate_uri_based_parameters
         authenticate_jwt

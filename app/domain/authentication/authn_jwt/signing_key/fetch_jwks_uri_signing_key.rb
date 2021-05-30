@@ -9,11 +9,11 @@ module Authentication
       class FetchJwksUriSigningKey < FetchSigningKeyInterface
 
         def initialize(authentication_parameters:,
-                       logger:,
-                       fetch_required_secrets:,
-                       resource_class:,
-                       http_lib:,
-                       create_jwks_from_http_response:)
+          logger:,
+          fetch_required_secrets:,
+          resource_class:,
+          http_lib:,
+          create_jwks_from_http_response:)
           @logger = logger
           @resource_id = authentication_parameters.authenticator_resource_id
           @fetch_required_secrets = fetch_required_secrets

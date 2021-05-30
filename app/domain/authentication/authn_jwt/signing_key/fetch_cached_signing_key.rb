@@ -10,7 +10,6 @@ module Authentication
         },
         inputs: %i[]
       ) do
-
         def call
           fetch_signing_key
         end

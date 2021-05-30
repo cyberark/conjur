@@ -3,6 +3,7 @@ module Authentication
     module SigningKey
       class FetchSigningKeyInterface
         def create; end
+
         def has_valid_configuration?; end
       end
     end

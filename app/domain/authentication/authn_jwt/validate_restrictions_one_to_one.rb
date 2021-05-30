@@ -13,8 +13,9 @@ module Authentication
           raise Errors::Authentication::ResourceRestrictions::EmptyAnnotationGiven, restriction.name
         end
         unless @decoded_token.key?(restriction.name)
-          raise Errors::Authentication::AuthnJwt::JwtTokenClaimIsMissing.new(restriction.name)
+          raise Errors::Authentication::AuthnJwt::JwtTokenClaimIsMissing, restriction.name
         end
+
         @decoded_token.fetch(restriction.name) == restriction.value
       end
     end
