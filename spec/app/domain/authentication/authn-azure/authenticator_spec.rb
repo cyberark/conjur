@@ -48,19 +48,22 @@ RSpec.describe('Authentication::AuthnAzure::Authenticator') do
   let(:authenticate_azure_token_request) do
     mock_authenticate_azure_token_request(
       request_body_data:
-        "jwt=aa.#{base64_url_encode("{\"xms_mirid\": \"some_xms_mirid_value\", \"oid\": \"some_oid_value\"}")}.cc")
+        "jwt=aa.#{base64_url_encode('{"xms_mirid": "some_xms_mirid_value", "oid": "some_oid_value"}')}.cc"
+    )
   end
 
   let(:authenticate_azure_token_request_missing_xms_mirid_field) do
     mock_authenticate_azure_token_request(
       request_body_data:
-        "jwt=aa.#{base64_url_encode("{\"oid\": \"some_oid_value\"}")}.cc")
+        "jwt=aa.#{base64_url_encode('{"oid": "some_oid_value"}')}.cc"
+    )
   end
 
   let(:authenticate_azure_token_request_missing_oid_field) do
     mock_authenticate_azure_token_request(
       request_body_data:
-        "jwt=aa.#{base64_url_encode("{\"xms_mirid\": \"some_xms_mirid_value\"}")}.cc")
+        "jwt=aa.#{base64_url_encode('{"xms_mirid": "some_xms_mirid_value"}')}.cc"
+    )
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___

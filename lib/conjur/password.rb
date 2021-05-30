@@ -5,7 +5,7 @@ module Conjur
     VALID_PASSWORD_REGEX = %r{^(?=.*?[A-Z].*[A-Z]) # 2 uppercase letters
       (?=.*?[a-z].*[a-z])                                 # 2 lowercase letters
       (?=.*?[0-9])                                        # 1 digit
-      (?=.*[ !"#$%&'()*+,-.\/:;<=>?@\[\\\]^_`{|}~]).      # 1 special character
+      (?=.*[ !"#$%&'()*+,-./:;<=>?@\[\\\]^_`{|}~]).      # 1 special character
       {12,128}$}x.freeze                                  # 12-128 characters
 
     def self.valid?(pwd)

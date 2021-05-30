@@ -3,7 +3,7 @@ require 'open3'
 
 describe "conjurctl configuration show" do
   it "prints the configuration in JSON format" do
-    stdout, _stderr , _status = Open3.capture3(
+    stdout, _stderr, _status = Open3.capture3(
       "conjurctl configuration show --output json"
     )
 
@@ -16,7 +16,7 @@ describe "conjurctl configuration show" do
   end
 
   it "prints the configuration in YAML format by default" do
-    stdout, _stderr , _status = Open3.capture3(
+    stdout, _stderr, _status = Open3.capture3(
       "conjurctl configuration show"
     )
 

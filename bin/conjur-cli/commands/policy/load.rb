@@ -20,7 +20,7 @@ module Commands
         # Ensure the database is available
         @connect_database.call
 
-        fail 'policy load failed' unless load_policy_files
+        raise('policy load failed') unless load_policy_files
       end
 
       private

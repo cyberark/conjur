@@ -12,7 +12,7 @@ module Commands
     inputs: %i[]
   ) do
     def call
-      fail("DATABASE_URL not set") unless @database_url
+      raise("DATABASE_URL not set") unless @database_url
 
       30.times do
         break if test_select

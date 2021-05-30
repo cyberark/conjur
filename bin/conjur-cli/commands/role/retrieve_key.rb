@@ -19,7 +19,7 @@ module Commands
         # Ensure the database is available
         @connect_database.call
 
-        fail('key retrieval failed') unless @role_ids.map do |id|
+        raise('key retrieval failed') unless @role_ids.map do |id|
           stdout, stderr, = Open3.capture3("rake 'role:retrieve-key[#{id}]'")
 
           if stderr.empty?

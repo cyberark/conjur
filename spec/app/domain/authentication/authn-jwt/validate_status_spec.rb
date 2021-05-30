@@ -3,12 +3,11 @@
 require 'spec_helper'
 
 RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
-
   let(:authenticator_name) { 'authn-jwt' }
   let(:service_id) { "my-service" }
   let(:account) { 'my-account' }
 
-  let(:authenticator_status_input) {
+  let(:authenticator_status_input) do
     Authentication::AuthenticatorStatusInput.new(
       authenticator_name: authenticator_name,
       service_id: service_id,
@@ -18,7 +17,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       credentials: nil,
       request: nil
     )
-  }
+  end
 
   let(:mocked_logger) { double("Mocked logger")  }
   let(:mocked_valid_create_signing_key_interface) { double("Mocked valid create signing key interface")  }
@@ -89,7 +88,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
     )
 
     allow(mocked_valid_validate_can_access_webservice).to(
-      receive(:call).with(anything()).and_return(nil)
+      receive(:call).with(anything).and_return(nil)
     )
 
     allow(mocked_invalid_validate_can_access_webservice).to(
@@ -119,7 +118,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
     allow(mocked_logger).to(
       receive(:debug).and_return(nil)
     )
-
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
@@ -129,7 +127,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
   context "ValidateStatus" do
     context "generic and authenticator validations succeed" do
-
       subject do
         ::Authentication::AuthnJwt::ValidateStatus.new(
           create_signing_key: mocked_valid_create_signing_key_interface,
@@ -153,7 +150,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
     context "generic validation fails" do
       context "account doesnt exist" do
-
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
             create_signing_key: mocked_valid_create_signing_key_interface,
@@ -176,7 +172,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       end
 
       context "user can't access webservice" do
-
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
             create_signing_key: mocked_valid_create_signing_key_interface,
@@ -199,7 +194,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       end
 
       context "authenticator webservice does not exist" do
-
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
             create_signing_key: mocked_valid_create_signing_key_interface,
@@ -222,7 +216,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       end
 
       context "webservice is not whitelisted" do
-
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
             create_signing_key: mocked_valid_create_signing_key_interface,
@@ -245,8 +238,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       end
 
       context "service id does not exist" do
-
-        let(:authenticator_status_input_without_service_id) {
+        let(:authenticator_status_input_without_service_id) do
           Authentication::AuthenticatorStatusInput.new(
             authenticator_name: authenticator_name,
             service_id: nil,
@@ -256,7 +248,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
             credentials: nil,
             request: nil
           )
-        }
+        end
 
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(

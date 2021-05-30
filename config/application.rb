@@ -76,7 +76,7 @@ module Conjur
     config.conjur_config = Conjur::ConjurConfig.new
 
     puts "Loaded configuration:"
-    config.conjur_config.attribute_sources.each do |k,v|
+    config.conjur_config.attribute_sources.each do |k, v|
       puts "- #{k} from #{v}"
     end
   end

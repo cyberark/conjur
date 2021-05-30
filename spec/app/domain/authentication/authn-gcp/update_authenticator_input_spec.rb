@@ -42,7 +42,8 @@ RSpec.describe('Authentication::AuthnGcp::UpdateAuthenticatorInput') do
   let(:authenticate_gcp_token_request) do
     mock_authenticate_gcp_token_request(
       request_body_data:
-        "jwt=aa.#{base64_url_encode("{\"jwt_claim\": \"jwt_claim_value\"}")}.cc")
+        "jwt=aa.#{base64_url_encode('{"jwt_claim": "jwt_claim_value"}')}.cc"
+    )
   end
 
   let(:valid_audience) { "conjur/#{account}/#{hostname}" }

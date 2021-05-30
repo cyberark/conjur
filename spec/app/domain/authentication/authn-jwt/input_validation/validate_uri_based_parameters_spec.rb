@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe(Authentication::AuthnJwt::InputValidation::ValidateUriBasedParameters) do
   include_context "security mocks"
 
-  let(:authenticator_input) {
+  let(:authenticator_input) do
     Authentication::AuthenticatorInput.new(
       authenticator_name: 'authn-dummy',
       service_id: 'my-service-id',
@@ -13,9 +13,9 @@ RSpec.describe(Authentication::AuthnJwt::InputValidation::ValidateUriBasedParame
       username: nil,
       credentials: nil,
       client_ip: '127.0.0.1',
-      request: { }
+      request: {}
     )
-  }
+  end
 
   let(:enabled_authenticators) { 'csv,example' }
 

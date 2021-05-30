@@ -67,7 +67,7 @@ Rails.application.routes.draw do
       # NOTE: the order of these routes matters: we need the expire
       #       route to come first.
       post    "/secrets/:account/:kind/*identifier" => "secrets#expire",
-        :constraints => QueryParameterActionRecognizer.new("expirations")
+              :constraints => QueryParameterActionRecognizer.new("expirations")
       get     "/secrets/:account/:kind/*identifier" => 'secrets#show'
       post    "/secrets/:account/:kind/*identifier" => 'secrets#create'
       get     "/secrets"                            => 'secrets#batch'

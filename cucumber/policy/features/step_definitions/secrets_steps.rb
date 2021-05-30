@@ -19,7 +19,7 @@ Then(/^variable resource "([^"]*)" does not have a secret value$/) do |id|
 end
 
 def try_get_secret_value(id, kind = "variable", expected_status)
-  invoke status: expected_status do
+  invoke(status: expected_status) do
     conjur_api.resource(make_full_id(kind, id)).value
   end
 end

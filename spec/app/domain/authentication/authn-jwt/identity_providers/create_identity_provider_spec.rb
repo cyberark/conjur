@@ -13,6 +13,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
 
   class MockedURLIdentityProvider
     def initialize(authentication_parameters); end
+
     def identity_available?
       true
     end
@@ -20,6 +21,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
 
   class MockedDecodedTokenIdentityProvider
     def initialize(authentication_parameters); end
+
     def identity_available?
       true
     end
@@ -29,7 +31,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
   let(:service_id) { "my-service" }
   let(:account) { 'my-account' }
 
-  let(:authentication_parameters_url_identity) {
+  let(:authentication_parameters_url_identity) do
     Authentication::AuthnJwt::AuthenticationParameters.new(
       authentication_input: Authentication::AuthenticatorInput.new(
         authenticator_name: authenticator_name,
@@ -42,7 +44,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
       ),
       jwt_token: nil
     )
-  }
+  end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
   # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)
@@ -60,8 +62,8 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
 
       it "factory to return IdentityFromDecodedTokenProvider" do
         expect(subject.call(
-          authentication_parameters: authentication_parameters_url_identity
-        )).to be_a(MockedDecodedTokenIdentityProvider)
+                 authentication_parameters: authentication_parameters_url_identity
+               )).to be_a(MockedDecodedTokenIdentityProvider)
       end
     end
 
@@ -75,8 +77,8 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
 
       it "factory to return IdentityFromDecodedTokenProvider" do
         expect(subject.call(
-          authentication_parameters: authentication_parameters_url_identity
-        )).to be_a(MockedDecodedTokenIdentityProvider)
+                 authentication_parameters: authentication_parameters_url_identity
+               )).to be_a(MockedDecodedTokenIdentityProvider)
       end
     end
 
@@ -90,8 +92,8 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
 
       it "factory to return IdentityFromUrlProvider" do
         expect(subject.call(
-          authentication_parameters: authentication_parameters_url_identity
-        )).to be_a(MockedURLIdentityProvider)
+                 authentication_parameters: authentication_parameters_url_identity
+               )).to be_a(MockedURLIdentityProvider)
       end
     end
 
@@ -104,9 +106,11 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
       end
 
       it "factory raises NoRelevantIdentityProvider" do
-        expect { subject.call(
-          authentication_parameters: authentication_parameters_url_identity
-        ) }.to raise_error(Errors::Authentication::AuthnJwt::NoRelevantIdentityProvider)
+        expect do 
+          subject.call(
+            authentication_parameters: authentication_parameters_url_identity
+          )
+        end.to raise_error(Errors::Authentication::AuthnJwt::NoRelevantIdentityProvider)
       end
     end
   end

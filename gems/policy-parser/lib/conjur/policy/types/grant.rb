@@ -11,12 +11,12 @@ module Conjur::PolicyParser::Types
     end
 
     def to_s
-      role_str   = if role.kind_of?(Array)
+      role_str   = if role.is_a?(Array)
         role.join(', ')
       else
         role
       end
-      member_str = if member.kind_of?(Array)
+      member_str = if member.is_a?(Array)
         member.map(&:role).join(', ')
       elsif member 
         member.role
@@ -29,7 +29,7 @@ module Conjur::PolicyParser::Types
       elsif admin.any?
         " with admin options: #{admin.join(', ')}"
       end
-      %Q(Grant #{role_str} to #{member_str}#{admin_str})
+      "Grant #{role_str} to #{member_str}#{admin_str}"
     end
   end
 end

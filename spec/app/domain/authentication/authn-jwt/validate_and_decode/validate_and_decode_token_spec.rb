@@ -3,9 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken') do
-
   let(:jwt_token_valid) { "valid token" }
-  let(:authenticator_input) {
+  let(:authenticator_input) do
     Authentication::AuthenticatorInput.new(
       authenticator_name: "dummy",
       service_id: "dummy",
@@ -15,35 +14,35 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
       client_ip: "dummy",
       request: "dummy"
     )
-  }
+  end
 
-  let(:authentication_parameters) {
+  let(:authentication_parameters) do
     Authentication::AuthnJwt::AuthenticationParameters.new(
       authentication_input: authenticator_input,
       jwt_token: nil
     )
-  }
+  end
 
-  let(:authentication_parameters_with_valid_token) {
+  let(:authentication_parameters_with_valid_token) do
     Authentication::AuthnJwt::AuthenticationParameters.new(
       authentication_input: authenticator_input,
       jwt_token: jwt_token_valid
     )
-  }
+  end
 
-  let(:authentication_parameters_with_nil_token) {
+  let(:authentication_parameters_with_nil_token) do
     Authentication::AuthnJwt::AuthenticationParameters.new(
       authentication_input: authenticator_input,
       jwt_token: nil
     )
-  }
+  end
 
-  let(:authentication_parameters_with_empty_token) {
+  let(:authentication_parameters_with_empty_token) do
     Authentication::AuthnJwt::AuthenticationParameters.new(
       authentication_input: authenticator_input,
       jwt_token: ""
     )
-  }
+  end
 
   let(:mocked_fetch_signing_key_failed_on_1st_time) { double("MockedFetchSigningKeyInvalid") }
   let(:mocked_fetch_signing_key_failed_on_2nd_time) { double("MockedFetchSigningKeyInvalid") }
@@ -69,43 +68,43 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
 
   let(:jwks_from_1st_call) { " jwks from 1st call "}
   let(:jwks_from_2nd_call) { " jwks from 2nd call "}
-  let(:verification_options_for_signature_only_1st_call) {
+  let(:verification_options_for_signature_only_1st_call) do
     {
       algorithms: Authentication::AuthnJwt::SUPPORTED_ALGORITHMS,
       jwks: jwks_from_1st_call
     }
-  }
+  end
 
-  let(:verification_options_for_signature_only_2nd_call) {
+  let(:verification_options_for_signature_only_2nd_call) do
     {
       algorithms: Authentication::AuthnJwt::SUPPORTED_ALGORITHMS,
       jwks: jwks_from_2nd_call
     }
-  }
+  end
 
   let(:mocked_fetch_jwt_claims_to_validate_valid) { double("MockedFetchJwtClaimsToValidateValid") }
 
   let(:valid_claim_name) { "valid-claim-name"}
   let(:valid_claim_name_not_exists_in_token) { "valid-claim-name-not-exists"}
   let(:valid_claim_value) { "valid claim value"}
-  let(:valid_claim) {
+  let(:valid_claim) do
     ::Authentication::AuthnJwt::ValidateAndDecode::JwtClaim.new(
       name: valid_claim_name,
       value: valid_claim_value
     )
-  }
-  let(:claim_not_exists_in_token) {
+  end
+  let(:claim_not_exists_in_token) do
     ::Authentication::AuthnJwt::ValidateAndDecode::JwtClaim.new(
       name: valid_claim_name_not_exists_in_token,
       value: valid_claim_value
     )
-  }
+  end
   let(:claims_to_validate_valid)  { [valid_claim] }
   let(:claims_to_validate_not_exist_in_token)  { [claim_not_exists_in_token] }
 
   let(:mocked_get_verification_option_by_jwt_claim_valid) { double("MockedGetVerificationOptionByJwtClaimValid") }
 
-  let(:verification_options_valid) { {opt: "valid"} }
+  let(:verification_options_valid) { { opt: "valid" } }
 
   let(:valid_decoded_token_after_claims_validation) { "valid token after claims validation" }
 
@@ -254,7 +253,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
         verification_options: verification_options_for_signature_only_2nd_call.merge(verification_options_valid)
       ).and_return(valid_decoded_token_after_claims_validation)
     )
-
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
@@ -265,7 +263,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
   context "'jwt_token' invalid input" do
     context "with nil value" do
       subject do
-        ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new().call(
+        ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new.call(
           authentication_parameters: authentication_parameters_with_nil_token
         )
       end
@@ -277,7 +275,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
 
     context "with empty value" do
       subject do
-        ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new().call(
+        ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new.call(
           authentication_parameters: authentication_parameters_with_empty_token
         )
       end
@@ -342,7 +340,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
             fetch_signing_key: mocked_fetch_signing_key_always_succeed,
             verify_and_decode_token: mocked_verify_and_decode_token_succeed_on_2nd_time,
             fetch_jwt_claims_to_validate: mocked_fetch_jwt_claims_to_validate_valid,
-            get_verification_option_by_jwt_claim: mocked_get_verification_option_by_jwt_claim_valid,
+            get_verification_option_by_jwt_claim: mocked_get_verification_option_by_jwt_claim_valid
           ).call(
             authentication_parameters: authentication_parameters_with_valid_token
           )
@@ -360,7 +358,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
             verify_and_decode_token: mocked_verify_and_decode_token_succeed_on_1st_time,
             fetch_jwt_claims_to_validate: mocked_fetch_jwt_claims_to_validate_valid,
             get_verification_option_by_jwt_claim: mocked_get_verification_option_by_jwt_claim_valid
-            ).call(
+          ).call(
             authentication_parameters: authentication_parameters_with_valid_token
           )
         end
@@ -380,7 +378,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
             fetch_signing_key: mocked_fetch_signing_key_always_succeed,
             verify_and_decode_token: mocked_verify_and_decode_token_succeed_on_1st_time,
             fetch_jwt_claims_to_validate: mocked_fetch_jwt_claims_to_validate_invalid
-            ).call(
+          ).call(
             authentication_parameters: authentication_parameters_with_valid_token
           )
         end

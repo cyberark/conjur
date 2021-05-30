@@ -8,7 +8,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidators::ValidateRestric
   let(:empty_email) { "" }
   let(:spaced_email) { "  " }
 
-  let(:decoded_token) {
+  let(:decoded_token) do
     {
       "namespace_id" => "1",
       "namespace_path" => "root",
@@ -24,36 +24,36 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidators::ValidateRestric
       "ref_protected" => "true",
       "jti" => "90c4414b-f7cf-4b98-9a4f-2c29f360e6d0",
       "iss" => "ec2-18-157-123-113.eu-central-1.compute.amazonaws.com",
-      "iat" => 1619352275,
-      "nbf" => 1619352270,
-      "exp" => 1619355875,
+      "iat" => 1_619_352_275,
+      "nbf" => 1_619_352_270,
+      "exp" => 1_619_355_875,
       "sub" => "job_4"
     }
-  }
+  end
 
-  let(:empty_decoded_token) {
+  let(:empty_decoded_token) do
     {}
-  }
+  end
 
-  let(:existing_right_restriction) {
+  let(:existing_right_restriction) do
     Authentication::ResourceRestrictions::ResourceRestriction.new(name: "user_email", value: right_email)
-  }
+  end
 
-  let(:existing_wrong_restriction) {
+  let(:existing_wrong_restriction) do
     Authentication::ResourceRestrictions::ResourceRestriction.new(name: "user_email", value: wrong_email)
-  }
+  end
 
-  let(:non_existing_restriction) {
+  let(:non_existing_restriction) do
     Authentication::ResourceRestrictions::ResourceRestriction.new(name: "not_existing", value: wrong_email)
-  }
+  end
 
-  let(:empty_annotation_restriction) {
+  let(:empty_annotation_restriction) do
     Authentication::ResourceRestrictions::ResourceRestriction.new(name: "not_existing", value: "")
-  }
+  end
 
-  let(:spaced_annotation_restriction) {
+  let(:spaced_annotation_restriction) do
     Authentication::ResourceRestrictions::ResourceRestriction.new(name: "not_existing", value: "    ")
-  }
+  end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
   # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)

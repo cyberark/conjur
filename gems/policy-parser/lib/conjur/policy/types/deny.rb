@@ -5,7 +5,9 @@ module Conjur::PolicyParser::Types
     attribute :privilege, kind: :string, dsl_accessor: true
     attribute :resource, dsl_accessor: true
 
-    def delete_statement?; true; end
+    def delete_statement? 
+      true 
+    end
 
     def to_s
       "Deny #{role} to '#{privilege}' #{resource}"

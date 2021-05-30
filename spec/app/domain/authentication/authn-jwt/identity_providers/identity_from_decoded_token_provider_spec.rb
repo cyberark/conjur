@@ -6,7 +6,7 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
   let(:authenticator_name) { 'authn-jwt' }
   let(:service_id) { "my-service" }
   let(:account) { 'my-account' }
-  let(:decoded_token) {
+  let(:decoded_token) do
     {
       "namespace_id" => "1",
       "namespace_path" => "root",
@@ -22,14 +22,14 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
       "ref_protected" => "true",
       "jti" => "90c4414b-f7cf-4b98-9a4f-2c29f360e6d0",
       "iss" => "ec2-18-157-123-113.eu-central-1.compute.amazonaws.com",
-      "iat" => 1619352275,
-      "nbf" => 1619352270,
-      "exp" => 1619355875,
+      "iat" => 1_619_352_275,
+      "nbf" => 1_619_352_270,
+      "exp" => 1_619_355_875,
       "sub" => "job_4"
     }
-  }
+  end
 
-  let(:authentication_parameters) {
+  let(:authentication_parameters) do
     Authentication::AuthnJwt::AuthenticationParameters.new(
       authentication_input: Authentication::AuthenticatorInput.new(
         authenticator_name: authenticator_name,
@@ -42,7 +42,7 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
       ),
       jwt_token: nil
     )
-  }
+  end
 
   let(:non_existing_field_name) { "non existing field name" }
 

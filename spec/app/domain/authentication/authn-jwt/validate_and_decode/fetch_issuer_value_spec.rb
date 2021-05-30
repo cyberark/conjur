@@ -3,12 +3,11 @@
 require 'spec_helper'
 
 RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') do
-
   let(:authenticator_name) { 'authn-jwt' }
   let(:service_id) { "my-service" }
   let(:account) { 'my-account' }
 
-  let(:authenticator_input) {
+  let(:authenticator_input) do
     Authentication::AuthenticatorInput.new(
       authenticator_name: authenticator_name,
       service_id: service_id,
@@ -18,14 +17,14 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
       client_ip: "dummy",
       request: "dummy"
     )
-  }
+  end
 
-  let(:authentication_parameters) {
+  let(:authentication_parameters) do
     Authentication::AuthnJwt::AuthenticationParameters.new(
       authentication_input: authenticator_input,
       jwt_token: nil
     )
-  }
+  end
 
   let(:issuer_resource_name) {'issuer'}
   let(:provider_uri_resource_name) {'provider-uri'}
@@ -112,65 +111,64 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
     )
 
     allow(mocked_fetch_secrets_exist_values).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: issuer_resource_name)]).
-        and_return(mocked_valid_secrets)
+      receive(:call).with(resource_ids: [mock_resource_id(resource_name: issuer_resource_name)])
+        .and_return(mocked_valid_secrets)
     )
 
     allow(mocked_valid_secrets).to(
-      receive(:[]).with(mock_resource_id(resource_name: issuer_resource_name)).
-        and_return(issuer_secret_value)
+      receive(:[]).with(mock_resource_id(resource_name: issuer_resource_name))
+        .and_return(issuer_secret_value)
     )
 
     allow(mocked_fetch_secrets_exist_values).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: provider_uri_resource_name)]).
-        and_return(mocked_valid_secrets)
+      receive(:call).with(resource_ids: [mock_resource_id(resource_name: provider_uri_resource_name)])
+        .and_return(mocked_valid_secrets)
     )
 
     allow(mocked_valid_secrets).to(
-      receive(:[]).with(mock_resource_id(resource_name: provider_uri_resource_name)).
-        and_return(provider_uri_secret_value)
+      receive(:[]).with(mock_resource_id(resource_name: provider_uri_resource_name))
+        .and_return(provider_uri_secret_value)
     )
 
     allow(mocked_fetch_secrets_exist_values).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: jwks_uri_resource_name)]).
-        and_return(jwks_uri_resource_name)
+      receive(:call).with(resource_ids: [mock_resource_id(resource_name: jwks_uri_resource_name)])
+        .and_return(jwks_uri_resource_name)
     )
 
     allow(mocked_valid_secrets).to(
-      receive(:[]).with(mock_resource_id(resource_name: jwks_uri_resource_name)).
-        and_return(jwks_uri_secret_value)
+      receive(:[]).with(mock_resource_id(resource_name: jwks_uri_resource_name))
+        .and_return(jwks_uri_secret_value)
     )
 
     allow(mocked_fetch_secrets_jwks_uri_with_bad_uri_format_value).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: jwks_uri_resource_name)]).
-        and_return(mocked_jwks_uri_with_bad_uri_format_secret)
+      receive(:call).with(resource_ids: [mock_resource_id(resource_name: jwks_uri_resource_name)])
+        .and_return(mocked_jwks_uri_with_bad_uri_format_secret)
     )
 
     allow(mocked_jwks_uri_with_bad_uri_format_secret).to(
-      receive(:[]).with(mock_resource_id(resource_name: jwks_uri_resource_name)).
-        and_return(jwks_uri_with_bad_uri_format_value)
+      receive(:[]).with(mock_resource_id(resource_name: jwks_uri_resource_name))
+        .and_return(jwks_uri_with_bad_uri_format_value)
     )
 
     allow(mocked_fetch_secrets_jwks_uri_with_bad_uri_hostname_value).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: jwks_uri_resource_name)]).
-        and_return(mocked_jwks_uri_with_bad_uri_hostname_secret)
+      receive(:call).with(resource_ids: [mock_resource_id(resource_name: jwks_uri_resource_name)])
+        .and_return(mocked_jwks_uri_with_bad_uri_hostname_secret)
     )
 
     allow(mocked_jwks_uri_with_bad_uri_hostname_secret).to(
-      receive(:[]).with(mock_resource_id(resource_name: jwks_uri_resource_name)).
-        and_return(jwks_uri_with_bad_uri_hostname_value)
+      receive(:[]).with(mock_resource_id(resource_name: jwks_uri_resource_name))
+        .and_return(jwks_uri_with_bad_uri_hostname_value)
     )
 
     allow(mocked_fetch_secrets_jwks_uri_with_valid_uri_hostname_value).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: jwks_uri_resource_name)]).
-        and_return(mocked_jwks_uri_with_valid_uri_hostname_secret)
+      receive(:call).with(resource_ids: [mock_resource_id(resource_name: jwks_uri_resource_name)])
+        .and_return(mocked_jwks_uri_with_valid_uri_hostname_secret)
     )
 
     allow(mocked_jwks_uri_with_valid_uri_hostname_secret).to(
-      receive(:[]).with(mock_resource_id(resource_name: jwks_uri_resource_name)).
-        and_return(jwks_uri_with_valid_hostname_value)
+      receive(:[]).with(mock_resource_id(resource_name: jwks_uri_resource_name))
+        .and_return(jwks_uri_with_valid_hostname_value)
     )
-
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
@@ -214,7 +212,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
     context "And both provider-uri and jwks-uri not configured in authenticator policy" do
       subject do
         ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
-          resource_class: mocked_resource_not_exists_values,
+          resource_class: mocked_resource_not_exists_values
         ).call(
           authentication_parameters: authentication_parameters
         )
@@ -228,8 +226,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
     context "And both provider-uri and jwks-uri configured in authenticator policy" do
       subject do
         ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
-          resource_class: mocked_resource_both_provider_and_jwks_exist_values,
-          ).call(
+          resource_class: mocked_resource_both_provider_and_jwks_exist_values
+        ).call(
           authentication_parameters: authentication_parameters
         )
       end

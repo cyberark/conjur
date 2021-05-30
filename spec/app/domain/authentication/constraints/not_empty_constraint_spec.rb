@@ -8,18 +8,18 @@ RSpec.describe(Authentication::Constraints::NotEmptyConstraint) do
 
   let(:no_restrictinos){ [] }
 
-  let(:one_restriction) {
+  let(:one_restriction) do
     [
       Authentication::ResourceRestrictions::ResourceRestriction.new(name: "user_email", value: right_email)
     ]
-  }
+  end
 
-  let(:two_restrictions) {
+  let(:two_restrictions) do
     [
       Authentication::ResourceRestrictions::ResourceRestriction.new(name: "user_email", value: right_email),
       Authentication::ResourceRestrictions::ResourceRestriction.new(name: "username", value: username)
     ]
-  }
+  end
 
   context "NotEmptyConstraint" do
     subject do

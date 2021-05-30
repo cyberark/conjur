@@ -32,7 +32,7 @@ module Conjur
 
     # Get attribute sources without including attribute values
     def attribute_sources
-      to_source_trace.map { |k,v| [ k.to_sym, v[:source][:type] ] }.to_h
+      to_source_trace.map { |k, v| [ k.to_sym, v[:source][:type] ] }.to_h
     end
 
     # The Anyway config gem automatically converts a comma-separated env var to

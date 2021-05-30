@@ -7,7 +7,7 @@ RSpec.describe('Authentication::AuthnJwt::IdFromUrlProvider') do
   let(:service_id) { "my-service" }
   let(:account) { 'my-account' }
 
-  let(:authentication_parameters_url_identity) {
+  let(:authentication_parameters_url_identity) do
     Authentication::AuthnJwt::AuthenticationParameters.new(
       authentication_input: Authentication::AuthenticatorInput.new(
         authenticator_name: authenticator_name,
@@ -20,9 +20,9 @@ RSpec.describe('Authentication::AuthnJwt::IdFromUrlProvider') do
       ),
       jwt_token: nil
     )
-  }
+  end
 
-  let(:authentication_parameters_no_url_identity) {
+  let(:authentication_parameters_no_url_identity) do
     Authentication::AuthnJwt::AuthenticationParameters.new(
       authentication_input: Authentication::AuthenticatorInput.new(
         authenticator_name: authenticator_name,
@@ -33,8 +33,9 @@ RSpec.describe('Authentication::AuthnJwt::IdFromUrlProvider') do
         client_ip: "dummy",
         request: "dummy"
       ),
-      jwt_token: nil)
-  }
+      jwt_token: nil
+    )
+  end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
   # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)

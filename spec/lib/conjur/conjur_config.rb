@@ -6,8 +6,8 @@ describe Conjur::ConjurConfig do
   end
 
   it "reports the attribute source as :defaults" do
-    expect(Conjur::ConjurConfig.new.attribute_sources[:trusted_proxies]).
-      to eq(:defaults)
+    expect(Conjur::ConjurConfig.new.attribute_sources[:trusted_proxies])
+      .to eq(:defaults)
   end
 
   context "with config file" do
@@ -32,8 +32,8 @@ describe Conjur::ConjurConfig do
     end
 
     it "reports the attribute source as :yml" do
-      expect(Conjur::ConjurConfig.new.attribute_sources[:trusted_proxies]).
-        to eq(:yml)
+      expect(Conjur::ConjurConfig.new.attribute_sources[:trusted_proxies])
+        .to eq(:yml)
     end
 
     context "with prefixed env var" do
@@ -54,8 +54,8 @@ describe Conjur::ConjurConfig do
       end
 
       it "reports the attribute source as :env" do
-        expect(Conjur::ConjurConfig.new.attribute_sources[:trusted_proxies]).
-          to eq(:env)
+        expect(Conjur::ConjurConfig.new.attribute_sources[:trusted_proxies])
+          .to eq(:env)
       end
     end
 
@@ -73,30 +73,30 @@ describe Conjur::ConjurConfig do
       end
 
       it "overrides the config file value" do
-        expect(Conjur::ConjurConfig.new.trusted_proxies).
-          to eq(["5.6.7.8", "9.10.11.12"])
+        expect(Conjur::ConjurConfig.new.trusted_proxies)
+          .to eq(["5.6.7.8", "9.10.11.12"])
       end
     end
   end
 
   describe "validation" do
-    let(:invalid_config) {
+    let(:invalid_config) do
       Conjur::ConjurConfig.new(trusted_proxies: "boop")
-    }
+    end
 
     it "raises error when validation fails" do
-      expect { invalid_config }.
-        to raise_error(Errors::Conjur::InvalidConfigValues)
+      expect { invalid_config }
+        .to raise_error(Errors::Conjur::InvalidConfigValues)
     end
 
     it "includes the attribute that failed validation" do
-      expect { invalid_config }.
-        to raise_error(/trusted_proxies/)
+      expect { invalid_config }
+        .to raise_error(/trusted_proxies/)
     end
 
     it "does not include the value that failed validation" do
-      expect { invalid_config }.
-        to_not raise_error(/boop/)
+      expect { invalid_config }
+        .to_not raise_error(/boop/)
     end
   end
 

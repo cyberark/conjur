@@ -3,7 +3,6 @@
 require 'spec_helper'
 
 RSpec.describe('Authentication::Jwt::DecodedCredentials') do
-
   let(:prefix) do
     'jwt='
   end
@@ -180,6 +179,5 @@ RSpec.describe('Authentication::Jwt::DecodedCredentials') do
         expect(decoded_credentials.jwt).to eq(valid_token)
       end
     end
-
   end
 end

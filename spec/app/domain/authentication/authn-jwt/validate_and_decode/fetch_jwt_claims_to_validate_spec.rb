@@ -3,10 +3,10 @@
 require 'spec_helper'
 
 RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate') do
-
-  RSpec::Matchers.define :eql_claims_list do |expected|
+  RSpec::Matchers.define(:eql_claims_list) do |expected|
     match do |actual|
       return false unless actual.length == expected.length
+
       actual_sorted = actual.sort_by {|obj| obj.name}
       expected_sorted = expected.sort_by {|obj| obj.name}
 
@@ -48,7 +48,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
     token_dictionary
   end
 
-  let(:authentication_parameters) {
+  let(:authentication_parameters) do
     Authentication::AuthnJwt::AuthenticationParameters.new(
       authentication_input: Authentication::AuthenticatorInput.new(
         authenticator_name: "dummy",
@@ -61,7 +61,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
       ),
       jwt_token: nil
     )
-  }
+  end
 
   let(:mocked_fetch_issuer_value_valid) { double("MockedFetchIssuerValueValid") }
 
@@ -76,7 +76,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
     allow(mocked_fetch_issuer_value_invalid_configuration).to(
       receive(:call).and_raise(invalid_issuer_configuration_error)
     )
-
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
@@ -297,21 +296,21 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
           end
         end
       end
-        context "with invalid issuer variable configuration" do
-          subject do
-            authentication_parameters.decoded_token = token(%w[iss nbf iat].freeze)
+      context "with invalid issuer variable configuration" do
+        subject do
+          authentication_parameters.decoded_token = token(%w[iss nbf iat].freeze)
 
-            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
-              fetch_issuer_value: mocked_fetch_issuer_value_valid
-            ).call(
-              authentication_parameters: authentication_parameters
-            )
-          end
-
-          it "returns jwt claims to validate list" do
-            expect(subject).to eql_claims_list(jwt_claims_to_validate_list_with_values(%w[exp iss nbf iat].freeze))
-          end
+          ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
+            fetch_issuer_value: mocked_fetch_issuer_value_valid
+          ).call(
+            authentication_parameters: authentication_parameters
+          )
         end
+
+        it "returns jwt claims to validate list" do
+          expect(subject).to eql_claims_list(jwt_claims_to_validate_list_with_values(%w[exp iss nbf iat].freeze))
+        end
+      end
 
       context "and with iss claim" do
         context "with valid issuer variable configuration in authenticator policy" do
@@ -382,7 +381,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
           end
         end
       end
-      end
+    end
 
     context "with empty token (should not happened)" do
       subject do

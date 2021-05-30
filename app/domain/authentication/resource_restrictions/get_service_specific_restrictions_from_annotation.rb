@@ -37,7 +37,6 @@ module Authentication
         # The regex capture group <restriction_name> has the annotation name without the prefix
         @authenticator_prefix_regex ||= Regexp.new("^#{@authenticator_name}/(?<service_id>#{@service_id}/)?(?<restriction_name>[^/]+)$")
       end
-
     end
 
   end

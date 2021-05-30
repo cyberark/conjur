@@ -6,7 +6,7 @@ module Conjur::PolicyParser::Logger
       
       require 'logger'
       self.logger = Logger.new(STDERR)
-      self.logger.level = (ENV['DEBUG'] == "true" ? Logger::DEBUG : Logger::INFO)
+      logger.level = (ENV['DEBUG'] == "true" ? Logger::DEBUG : Logger::INFO)
     end
   end
 end
