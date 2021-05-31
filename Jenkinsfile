@@ -191,6 +191,7 @@ pipeline {
                       authenticators_azure/cucumber_results.html,
                       authenticators_ldap/cucumber_results.html,
                       authenticators_oidc/cucumber_results.html,
+                      authenticators_jwt/cucumber_results.html,
                       authenticators_status/cucumber_results.html
                       policy/cucumber_results.html,
                       rotators/cucumber_results.html
@@ -457,6 +458,7 @@ pipeline {
                 authenticators_azure/cucumber_results.html,
                 authenticators_ldap/cucumber_results.html,
                 authenticators_oidc/cucumber_results.html,
+                authenticators_jwt/cucumber_results.html,
                 authenticators_gcp/cucumber_results.html,
                 authenticators_status/cucumber_results.html,
                 policy/cucumber_results.html,
@@ -620,6 +622,9 @@ def runConjurTests() {
       },
       "OIDC Authenticator - ${env.STAGE_NAME}": {
         sh 'ci/test authenticators_oidc'
+      },
+      "JWT Authenticator - ${env.STAGE_NAME}": {
+        sh 'ci/test authenticators_jwt'
       },
       "Policy - ${env.STAGE_NAME}": {
         sh 'ci/test policy'
