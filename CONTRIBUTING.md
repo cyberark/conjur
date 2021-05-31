@@ -423,6 +423,7 @@ Below is the list of the available Cucumber suites:
   * authenticators_azure
   * authenticators_config
   * authenticators_gcp
+  * authenticators_jwt
   * authenticators_ldap
   * authenticators_oidc
   * authenticators_status

@@ -60,6 +60,7 @@ SUBCOMMANDS
     authenticators_gcp     - Runs Cucumber GCP Authenticator features
     authenticators_ldap    - Runs Cucumber LDAP Authenticator features
     authenticators_oidc    - Runs Cucumber OIDC Authenticator features
+    authenticators_jwt     - Runs Cucumber JWT Authenticator features
     authenticators_status  - Runs Cucumber Authenticator status features
     policy                 - Runs Cucumber Policy features
     rotators               - Runs Cucumber Rotator features
