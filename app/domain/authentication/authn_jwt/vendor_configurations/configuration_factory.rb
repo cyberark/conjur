@@ -7,12 +7,13 @@ module Authentication
           "authn-jwt" => ConfigurationJWTGenericVendor
         }
 
-        def create_jwt_configuration(authenticator_name)
+        def create_jwt_configuration(authenticator_input)
+          authenticator_name = authenticator_input.authenticator_name
           unless AUTHENTICATORS[authenticator_name]
             raise Errors::Authentication::AuthnJwt::UnsupportedAuthenticator, authenticator_name
           end
 
-          AUTHENTICATORS[authenticator_name].new
+          AUTHENTICATORS[authenticator_name].new(authenticator_input)
         end
       end
     end

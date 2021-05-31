@@ -5,11 +5,11 @@ module Authentication
       class ConfigurationInterface
         def authentication_parameters(authenticator_input); end
 
-        def jwt_identity(authentication_parameters); end
+        def jwt_identity; end
 
-        def validate_restrictions(authentication_parameters); end
+        def validate_restrictions; end
 
-        def validate_and_decode_token(authentication_parameters); end
+        def validate_and_decode_token; end
       end
     end
   end
