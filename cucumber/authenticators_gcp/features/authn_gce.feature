@@ -104,7 +104,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     Then it is unauthorized
     And The following matches the log after my savepoint:
     """
-    CONJ00071E 'audience' token claim .* is invalid. The account in the audience .* does not match the account in the URL request .*
+    CONJ00070E 'audience' token claim .* is invalid. The account in the audience .* does not match the account in the URL request .*
     """
 
   Scenario: Non-existing account in URL request is denied
