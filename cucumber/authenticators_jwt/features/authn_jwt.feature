@@ -60,3 +60,34 @@ Feature: JWT Authenticator - JWKs Basic sanity
     """
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
+
+  Scenario: Update jwks-uri dynamically
+    Given I successfully set authn-jwt jwks-uri variable with value of "NotFound.json" endpoint
+    And I issue a JWT token using key "first.json"::
+    """
+    {
+      "user":"host/myapp",
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the audit log file
+    When I authenticate via authn-jwt with the JWT token issued by "first.json" key
+    Then it is unauthorized
+    And The following appears in the audit log after my savepoint:
+    """
+    CONJ00185E
+    """
+
+    Given I initialize JWKs endpoint with file "second.json"
+    And I successfully set authn-jwt jwks-uri variable with value of "second.json" endpoint
+    And I save my place in the audit log file
+    When I authenticate via authn-jwt with the JWT token issued by "first.json" key
+    Then it is unauthorized
+    And The following appears in the audit log after my savepoint:
+    """
+    CONJ00035E
+    """
+
+    Given I successfully set authn-jwt jwks-uri variable with value of "first.json" endpoint
+    When I authenticate via authn-jwt with the JWT token issued by "first.json" key
+    Then host "myapp" has been authorized by Conjur
