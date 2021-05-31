@@ -20,7 +20,6 @@ module Authentication
       def_delegators(:@authenticator_input, :account, :username, :client_ip, :authenticator_name, :service_id)
 
       def call
-        create_authentication_parameters
         validate_and_decode_token
         get_jwt_identity
         validate_user_has_access_to_webservice
@@ -35,31 +34,27 @@ module Authentication
 
       private
 
-      def create_authentication_parameters
-        authentication_parameters
-      end
-
-      def authentication_parameters
-        @authentication_parameters ||= @jwt_configuration.authentication_parameters(@authenticator_input)
-      end
-
       def validate_and_decode_token
         @logger.debug(LogMessages::Authentication::AuthnJwt::VALIDATE_AND_DECODE_TOKEN.new)
-        @authentication_parameters.decoded_token = @jwt_configuration.validate_and_decode_token(@authentication_parameters)
+        @jwt_configuration.validate_and_decode_token
       end
 
       def get_jwt_identity
         # Will be changed when real get identity implemented
         @logger.debug(LogMessages::Authentication::AuthnJwt::GET_JWT_IDENTITY.new)
-        @authentication_parameters.jwt_identity =  @jwt_configuration.jwt_identity(@authentication_parameters)
-        @logger.debug(LogMessages::Authentication::AuthnJwt::FOUND_JWT_IDENTITY.new(@authentication_parameters.jwt_identity))
+        jwt_identity
+        @logger.debug(LogMessages::Authentication::AuthnJwt::FOUND_JWT_IDENTITY.new(jwt_identity))
+      end
+
+      def jwt_identity
+        @jwt_identity ||= @jwt_configuration.jwt_identity
       end
 
       def validate_user_has_access_to_webservice
         @validate_role_can_access_webservice.(
           webservice: webservice,
           account: account,
-          user_id: @authentication_parameters.jwt_identity,
+          user_id: jwt_identity,
           privilege: PRIVILEGE_AUTHENTICATE
         )
       end
@@ -67,14 +62,14 @@ module Authentication
       def validate_origin
         @validate_origin.(
           account: account,
-          username: @authentication_parameters.jwt_identity,
+          username: jwt_identity,
           client_ip: client_ip
         )
       end
 
       def validate_restrictions
         @logger.debug(LogMessages::Authentication::AuthnJwt::CALLING_VALIDATE_RESTRICTIONS.new)
-        @jwt_configuration.validate_restrictions(@authentication_parameters)
+        @jwt_configuration.validate_restrictions
       end
 
       def audit_success
@@ -104,9 +99,9 @@ module Authentication
       end
 
       def role
-        if @authentication_parameters && @authentication_parameters.jwt_identity
+        if jwt_identity
           return @role_class.by_login(
-            @authentication_parameters.jwt_identity,
+            jwt_identity,
             account: account
           )
         end
@@ -120,7 +115,7 @@ module Authentication
         ::Audit::Event::Authn::RoleId.new(
           role: role,
           account: account,
-          username: @authentication_parameters.jwt_identity
+          username: jwt_identity
         ).to_s
       end
 
@@ -136,7 +131,7 @@ module Authentication
         @logger.debug(LogMessages::Authentication::AuthnJwt::JWT_AUTHENTICATION_PASSED.new)
         @token_factory.signed_token(
           account: account,
-          username: @authentication_parameters.jwt_identity
+          username: jwt_identity
         )
       end
     end

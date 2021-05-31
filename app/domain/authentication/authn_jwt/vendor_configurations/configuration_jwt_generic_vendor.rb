@@ -4,7 +4,7 @@ module Authentication
       # Mock JWTConfiguration class to use it to develop other part in the jwt authenticator
       class ConfigurationJWTGenericVendor < ConfigurationInterface
 
-        def initialize
+        def initialize(authenticator_input)
           @authentication_parameters_class = Authentication::AuthnJwt::AuthenticationParameters
           @extract_token_from_credentials = Authentication::AuthnJwt::InputValidation::ExtractTokenFromCredentials.new
           @validate_and_decode_token_class = Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken
@@ -12,65 +12,61 @@ module Authentication
           @validate_resource_restrictions_class = Authentication::ResourceRestrictions::ValidateResourceRestrictions
           @create_identity_provider_class = Authentication::AuthnJwt::IdentityProviders::CreateIdentityProvider
           @logger = Rails.logger
+          init_authentication_parameters(authenticator_input)
         end
 
-        def authentication_parameters(authenticator_input)
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CREATING_AUTHENTICATION_PARAMETERS_OBJECT.new)
-          jwt_token = @extract_token_from_credentials.call(
-            credentials: authenticator_input.request.body.read
-          )
-          @authentication_parameters_class.new(
-            authentication_input: authenticator_input,
-            jwt_token: jwt_token
-          )
+        def jwt_identity
+          @jwt_identity ||= jwt_identity_from_request
         end
 
-        def jwt_identity(authentication_parameters)
-          identity_provider = @create_identity_provider_class.new.call(
-            authentication_parameters: authentication_parameters
-          )
-          identity_provider.provide_jwt_identity
-        end
-
-        def validate_restrictions(authentication_parameters)
+        def validate_restrictions
           initialize_validate_restrictions
           @validate_resource_restrictions.call(
-            authenticator_name: authentication_parameters.authenticator_name,
-            service_id: authentication_parameters.service_id,
-            account: authentication_parameters.account,
-            role_name: authentication_parameters.jwt_identity,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            account: @authentication_parameters.account,
+            role_name: jwt_identity,
             constraints: @constraints,
             authentication_request: @restriction_validator.new(
-              decoded_token: authentication_parameters.decoded_token
+              decoded_token: @authentication_parameters.decoded_token
             )
           )
         end
 
-        def validate_and_decode_token(authentication_parameters)
-          set_authentication_parameters(authentication_parameters)
-          initialize_validate_and_decode_token
-          @validate_and_decode_token.call(
-            authentication_parameters: authentication_parameters
+        def validate_and_decode_token
+          @authentication_parameters.decoded_token = validate_and_decode_token_instance.call(
+            authentication_parameters: @authentication_parameters
           )
         end
 
         private
 
-        def set_authentication_parameters(authentication_parameters)
-          @authentication_parameters = authentication_parameters
-        end
-
-        def initialize_validate_and_decode_token
-          initialize_validate_and_decode_token_dependencies
-          @validate_and_decode_token ||= @validate_and_decode_token_class.new(
-            fetch_signing_key: fetch_signing_key,
-            fetch_jwt_claims_to_validate: fetch_jwt_claims_to_validate
+        def init_authentication_parameters(authenticator_input)
+          @logger.debug(LogMessages::Authentication::AuthnJwt::CREATING_AUTHENTICATION_PARAMETERS_OBJECT.new)
+          jwt_token = @extract_token_from_credentials.call(
+            credentials: authenticator_input.request.body.read
+          )
+          @authentication_parameters = @authentication_parameters_class.new(
+            authentication_input: authenticator_input,
+            jwt_token: jwt_token
           )
         end
 
-        def initialize_validate_and_decode_token_dependencies
-          fetch_signing_key
-          fetch_jwt_claims_to_validate
+        def jwt_identity_from_request
+          @jwt_identity_from_request ||= identity_provider.provide_jwt_identity
+        end
+
+        def identity_provider
+          @identity_provider ||= @create_identity_provider_class.new.call(
+            authentication_parameters: @authentication_parameters
+          )
+        end
+
+        def validate_and_decode_token_instance
+          @validate_and_decode_token_instance ||= @validate_and_decode_token_class.new(
+            fetch_signing_key: fetch_signing_key,
+            fetch_jwt_claims_to_validate: fetch_jwt_claims_to_validate
+          )
         end
 
         def fetch_signing_key
