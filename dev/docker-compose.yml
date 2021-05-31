@@ -56,6 +56,7 @@ services:
     - ../ci/ldap-certs:/ldap-certs:ro
     # TODO: authenticators_oidc/test has a dep on this
     - ../ci/test_suites/authenticators_oidc/keycloak:/authn-oidc/keycloak/scripts
+    - jwks-volume:/var/jwks
     links:
     - pg:pg
     - ldap-server
@@ -77,6 +78,7 @@ services:
       - ..:/src/conjur-server
       - authn-local:/run/authn-local
       - ../ci/ldap-certs:/ldap-certs:ro
+      - jwks-volume:/var/jwks
     links:
       - conjur
       - pg
@@ -145,5 +147,13 @@ services:
     entrypoint: sleep
     command: infinity
 
+  jwks:
+    image: nginx
+    ports:
+      - 8880:80
+    volumes:
+      - jwks-volume:/usr/share/nginx/html
+
 volumes:
   authn-local:
+  jwks-volume:
