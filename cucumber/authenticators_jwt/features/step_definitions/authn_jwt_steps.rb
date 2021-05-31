@@ -6,6 +6,6 @@ Given(/I successfully set authn-jwt token-app-property variable to value "([^"]*
   create_jwt_secret("token-app-property", value)
 end
 
-When(/I authenticate via authn-jwt with the JWT token/) do
-  authenticate_jwt_token(jwt_token)
+When(/I authenticate via authn-jwt with the JWT token issued by "([^"]*)" key/) do |key_name|
+  authenticate_jwt_token(jwt_token(key_name))
 end

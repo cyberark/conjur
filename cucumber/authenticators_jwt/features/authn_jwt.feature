@@ -5,7 +5,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
   execute it.
 
   Background:
-    Given I initialize JWKs endpoint with file "myJWKs.json"
+    Given I initialize JWKs endpoint with file "first.json"
     And I load a policy:
     """
     - !policy
@@ -38,14 +38,14 @@ Feature: JWT Authenticator - JWKs Basic sanity
       member: !host myapp
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt jwks-uri variable with value of "first.json" endpoint
     And I successfully set authn-jwt token-app-property variable to value "user"
 
   Scenario: A valid JWT token with identity in the token
     Given I have a "variable" resource called "test-variable"
     And I permit host "myapp" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
-    And I issue a JWT token:
+    And I issue a JWT token using key "first.json"::
     """
     {
       "user":"host/myapp",
@@ -53,7 +53,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     }
     """
     And I save my place in the audit log file
-    When I authenticate via authn-jwt with the JWT token
+    When I authenticate via authn-jwt with the JWT token issued by "first.json" key
     Then host "myapp" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the audit log after my savepoint:
