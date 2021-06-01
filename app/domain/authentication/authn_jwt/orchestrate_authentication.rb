@@ -7,7 +7,7 @@ module Authentication
     OrchestrateAuthentication ||= CommandClass.new(
       dependencies: {
         validate_uri_based_parameters: Authentication::AuthnJwt::InputValidation::ValidateUriBasedParameters.new,
-        jwt_configuration_factory: Authentication::AuthnJwt::VendorConfigurations::ConfigurationFactory.new,
+        configuration_factory: Authentication::AuthnJwt::VendorConfigurations::ConfigurationFactory.new,
         jwt_authenticator: Authentication::AuthnJwt::Authenticator.new,
         logger: Rails.logger,
         enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str,
@@ -25,7 +25,7 @@ module Authentication
         relevant_authenticator = authenticator_name
         @logger.debug(LogMessages::Authentication::AuthnJwt::JWTAuthenticatorEntryPoint.new(relevant_authenticator))
 
-        jwt_authenticator_configuration = @jwt_configuration_factory.create_jwt_configuration(@authenticator_input)
+        jwt_authenticator_configuration = @configuration_factory.create_jwt_configuration(@authenticator_input)
         @jwt_authenticator.call(
           jwt_configuration: jwt_authenticator_configuration,
           authenticator_input: @authenticator_input
