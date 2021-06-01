@@ -11,7 +11,6 @@ module Authentication
         @account = authentication_input.account
         @username = authentication_input.username
         @client_ip = authentication_input.client_ip
-        @request = authentication_input.request
         @jwt_token = jwt_token
       end
 

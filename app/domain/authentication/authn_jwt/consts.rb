@@ -8,7 +8,6 @@ module Authentication
     IDENTITY_FIELD_VARIABLE = "token-app-property"
     IDENTITY_NOT_RETRIEVED_YET = "Identity not retrieved yet"
     PRIVILEGE_AUTHENTICATE="authenticate"
-    NOT_INITIALIZED_IDENTITY="not initialized user"
     ISS_CLAIM_NAME = "iss"
     EXP_CLAIM_NAME = "exp"
     NBF_CLAIM_NAME = "nbf"

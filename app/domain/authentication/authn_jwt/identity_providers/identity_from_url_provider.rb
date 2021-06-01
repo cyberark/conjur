@@ -4,7 +4,6 @@ module Authentication
       # Provides jwt identity from information in the URL
       class IdentityFromUrlProvider < IdentityProviderInterface
         def initialize(authentication_parameters)
-          super
           @authentication_parameters = authentication_parameters
         end
 

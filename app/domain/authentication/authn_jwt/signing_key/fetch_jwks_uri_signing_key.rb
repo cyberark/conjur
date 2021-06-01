@@ -14,19 +14,17 @@ module Authentication
           resource_class:,
           http_lib:,
           create_jwks_from_http_response:)
-          super
-
           @logger = logger
-          
-          @resource_id = authentication_parameters.authenticator_resource_id
+
           @fetch_required_secrets = fetch_required_secrets
           @resource_class = resource_class
+          @resource_id = authentication_parameters.authenticator_resource_id
           @http_lib = http_lib
           @create_jwks_from_http_response = create_jwks_from_http_response
         end
 
         def jwks_uri_resource_exists
-          @jwks_uri_resource_exists = jwks_uri_resource_exists?
+          @jwks_uri_resource_exists ||= jwks_uri_resource_exists?
         end
 
         def fetch_signing_key

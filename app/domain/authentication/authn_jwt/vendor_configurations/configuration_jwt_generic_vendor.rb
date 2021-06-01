@@ -72,14 +72,14 @@ module Authentication
           @fetch_cached_signing_key ||= ::Util::ConcurrencyLimitedCache.new(
             ::Util::RateLimitedCache.new(
               fetch_cached_signing_key_class.new(
-                fetch_singing_key_interface: fetch_singing_key_interface
+                fetch_signing_key_interface: fetch_signing_key_interface
               ),
               refreshes_per_interval: CACHE_REFRESHES_PER_INTERVAL,
               rate_limit_interval: CACHE_RATE_LIMIT_INTERVAL,
-              logger: Rails.logger
+              logger: @logger
             ),
             max_concurrent_requests: CACHE_MAX_CONCURRENT_REQUESTS,
-            logger: Rails.logger
+            logger: @logger
           )
         end
 
@@ -103,8 +103,8 @@ module Authentication
           @create_identity_provider ||= Authentication::AuthnJwt::IdentityProviders::CreateIdentityProvider.new
         end
 
-        def fetch_singing_key_interface
-          @fetch_singing_key_interface ||= create_signing_key_interface.call(
+        def fetch_signing_key_interface
+          @fetch_signing_key_interface ||= create_signing_key_interface.call(
             authentication_parameters: @authentication_parameters
           )
         end

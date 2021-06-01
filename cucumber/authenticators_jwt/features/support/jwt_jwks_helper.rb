@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
-# Utility methods for JWT and JWKs manipulation
-
 require 'openssl'
 require 'jwt'
 
+# Utility methods for JWT and JWKs manipulation
 module JwtJwksHelper
 
   module Algorithms
@@ -19,7 +18,7 @@ module JwtJwksHelper
   def init_jwks_file(file_name)
     jwks = { keys: [jwk.export] }
     File.write(
-      "#{JWKS_ROOT_PATH}/#{file_name}", 
+      "#{JWKS_ROOT_PATH}/#{file_name}",
       JSON.pretty_generate(jwks)
     )
   end
