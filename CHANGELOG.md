@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fix bug where running `conjurctl server` or `conjurctl account create` with
   passwords that contain `,`s sent via stdin raised an error.
   [cyberark/conjur#2159](https://github.com/cyberark/conjur/issues/2159)
-- Specify keepalive timeout for puma to be longer than proxy and load balancers
+- Specify keepalive timeout for puma to be longer than proxy and load balancers [cyberark/conjur#2191](https://github.com/cyberark/conjur/pull/2191)
 
 ### Security
 - Upgrade Rails to 5.2.5 to resolve CVE-2021-22885
