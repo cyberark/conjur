@@ -121,7 +121,7 @@ module LogMessages
 
       ExtractingRestrictionsFromResource = ::Util::TrackableLogMessageClass.new(
         msg: "Extracting resource restrictions for authenticator '{0-authn-name}' from host '{1-host-name}'",
-        code: "CONJ00039D"
+        code: "CONJ00032D"
       )
 
       ExtractedResourceRestrictions = ::Util::TrackableLogMessageClass.new(
