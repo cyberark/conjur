@@ -11,16 +11,18 @@ module Authentication
           @logger = Rails.logger
         end
 
-        def provide_jwt_identity
+        def jwt_identity
+          return @jwt_identity if @jwt_identity
+
           token_field_name = fetch_token_field_name
           @logger.debug(LogMessages::Authentication::AuthnJwt::CHECKING_IDENTITY_FIELD_EXISTS.new(token_field_name))
-          jwt_identity = @decoded_token[token_field_name]
-          if jwt_identity.blank?
+          @jwt_identity ||= @decoded_token[token_field_name]
+          if @jwt_identity.blank?
             raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken, token_field_name
           end
 
           @logger.debug(LogMessages::Authentication::AuthnJwt::FOUND_JWT_FIELD_IN_TOKEN.new(token_field_name, jwt_identity))
-          jwt_identity
+          @jwt_identity
         end
 
         # Checks if variable that defined from which field in decoded token to get the id is configured
