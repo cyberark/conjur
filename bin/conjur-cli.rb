@@ -25,7 +25,7 @@ command :server do |c|
 
   c.desc "Provide account password via STDIN"
   c.arg_name "password-from-stdin"
-  c.switch("password-from-stdin", :negatable => false)
+  c.switch("password-from-stdin", negatable: false)
 
   c.desc 'Policy file to load into the server'
   c.arg_name :path
@@ -141,7 +141,7 @@ command :account do |cgrp|
   cgrp.command :create do |c|
     c.desc("Provide account password via STDIN")
     c.arg_name("password-from-stdin")
-    c.switch("password-from-stdin", :negatable => false)
+    c.switch("password-from-stdin", negatable: false)
 
     c.desc("Account name")
     c.arg_name(:name)
@@ -194,12 +194,12 @@ command :wait do |c|
   c.desc 'Port'
   c.arg_name :port
   c.default_value(ENV['PORT'] || '80')
-  c.flag [ :p, :port ], :must_match => /\d+/
+  c.flag [ :p, :port ], must_match: /\d+/
 
   c.desc 'Number of retries'
   c.arg_name :retries
   c.default_value(90)
-  c.flag [ :r, :retries ], :must_match => /\d+/
+  c.flag [ :r, :retries ], must_match: /\d+/
 
   c.action do |global_options,options,args|
     Commands::Wait.new.call(
@@ -273,8 +273,13 @@ command :configuration do |cgrp|
     Linux process environments being static once a process has started.
   DESC
   cgrp.command :apply do |c|
+    c.desc 'Validate configuration without restarting'
+    c.switch("test", negatable: false)
+
     c.action do |_global_options, options, _args|
-      Commands::Configuration::Apply.new.call
+      Commands::Configuration::Apply.new.call(
+        test_mode: options["test"]
+      )
     end
   end
 end

@@ -12,9 +12,18 @@ module Commands
         output_stream: $stdout
       },
 
-      inputs: %i[]
+      inputs: %i[
+        test_mode
+      ]
     ) do
       def call
+        if @test_mode
+          @output_stream.puts(
+            "Configuration is valid. Server will not be restarted in test mode."
+          )
+          return
+        end
+
         pid = server_pid
 
         if pid.zero?
