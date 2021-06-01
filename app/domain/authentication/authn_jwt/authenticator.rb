@@ -40,10 +40,10 @@ module Authentication
       end
 
       def get_jwt_identity
-        # Will be changed when real get identity implemented
         @logger.debug(LogMessages::Authentication::AuthnJwt::GET_JWT_IDENTITY.new)
         jwt_identity
         @logger.debug(LogMessages::Authentication::AuthnJwt::FOUND_JWT_IDENTITY.new(jwt_identity))
+        @jwt_identity_initialized = true
       end
 
       def jwt_identity
@@ -99,14 +99,8 @@ module Authentication
       end
 
       def role
-        if jwt_identity
-          return @role_class.by_login(
-            jwt_identity,
-            account: account
-          )
-        end
         @role_class.by_login(
-          "",
+          audited_username,
           account: account
         )
       end
@@ -115,8 +109,15 @@ module Authentication
         ::Audit::Event::Authn::RoleId.new(
           role: role,
           account: account,
-          username: jwt_identity
+          username: audited_username
         ).to_s
+      end
+
+      def audited_username
+        if @jwt_identity_initialized
+          return jwt_identity
+        end
+        NOT_INITIALIZED_IDENTITY
       end
 
       def webservice

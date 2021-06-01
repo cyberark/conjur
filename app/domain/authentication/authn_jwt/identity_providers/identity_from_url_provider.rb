@@ -7,7 +7,7 @@ module Authentication
           @authentication_parameters = authentication_parameters
         end
 
-        def provide_jwt_identity
+        def jwt_identity
           raise Errors::Authentication::AuthnJwt::NoRelevantIdentityProvider unless identity_available?
 
           @authentication_parameters.username
