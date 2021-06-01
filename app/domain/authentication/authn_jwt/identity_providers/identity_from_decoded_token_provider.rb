@@ -11,7 +11,7 @@ module Authentication
           @logger = Rails.logger
         end
 
-        def provide_jwt_identity
+        def jwt_identity
           token_field_name = fetch_token_field_name
           @logger.debug(LogMessages::Authentication::AuthnJwt::CHECKING_IDENTITY_FIELD_EXISTS.new(token_field_name))
           jwt_identity = @decoded_token[token_field_name]

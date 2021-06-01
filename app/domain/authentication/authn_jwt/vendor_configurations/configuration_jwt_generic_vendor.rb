@@ -53,7 +53,7 @@ module Authentication
         end
 
         def jwt_identity_from_request
-          @jwt_identity_from_request ||= identity_provider.provide_jwt_identity
+          @jwt_identity_from_request ||= identity_provider.jwt_identity
         end
 
         def identity_provider
