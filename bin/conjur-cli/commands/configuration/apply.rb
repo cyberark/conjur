@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
 require 'command_class'
-require 'conjur/conjur_config'
 require 'open3'
 
 module Commands
   module Configuration
     Apply ||= CommandClass.new(
       dependencies: {
-        conjur_config: Conjur::ConjurConfig.new,
         command_runner: Open3,
         process_manager: Process,
         output_stream: $stdout

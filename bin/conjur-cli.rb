@@ -6,6 +6,7 @@ require 'gli'
 require 'net/http'
 require 'uri'
 require 'open3'
+require 'conjur/conjur_config'
 
 require_relative './conjur-cli/commands'
 
@@ -230,14 +231,24 @@ end
 
 desc 'Manage Conjur configuration'
 command :configuration do |cgrp|
+  Anyway::Settings.default_config_path = "/etc/conjur/config"
+
+  begin
+    conjur_config = Conjur::ConjurConfig.new
+  rescue Conjur::ConfigValidationError => e
+    $stderr.puts e
+    exit 1
+  end
+
   cgrp.desc 'Show Conjur configuration attributes and their sources'
   cgrp.long_desc(<<~DESC)
-    Show Conjur configuration attributes and their sources.
+    Validate Conjur configuration then show configuration attributes and their
+    sources.
 
     The values displayed by this command reflect the current state of the
-    configuration sources. For the example, the environment variables and
-    config file. These may not reflect the current values used by the running
-    Conjur server.
+    configuration sources. For example, the environment variables and config
+    file. These may not reflect the current values used by the running Conjur
+    server.
   DESC
   cgrp.command :show do |c|
     c.desc 'Output format'
@@ -246,6 +257,7 @@ command :configuration do |cgrp|
 
     c.action do |_global_options, options, _args|
       Commands::Configuration::Show.new.call(
+        conjur_config: conjur_config,
         output_format: options[:output].strip.downcase
       )
     end
@@ -253,10 +265,12 @@ command :configuration do |cgrp|
 
   cgrp.desc 'Restart the Conjur server to apply new configuration'
   cgrp.long_desc(<<~DESC)
-    Performs a phased restart of the puma process, which restarts the worker
-    threads and allows them to pick up any changes to configuration files. Note
-    that this does NOT pick up any changes to environment variables due to Linux
-    process environments being static once a process has started.
+    Validate configuration then perform a phased restart of the puma process,
+    which restarts the worker threads and allows them to pick up any changes to
+    configuration files.
+
+    Note that this does NOT pick up any changes to environment variables due to
+    Linux process environments being static once a process has started.
   DESC
   cgrp.command :apply do |c|
     c.action do |_global_options, options, _args|

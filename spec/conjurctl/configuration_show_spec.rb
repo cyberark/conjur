@@ -37,4 +37,16 @@ describe "conjurctl configuration show" do
       "error: Unknown configuration output format 'invalid'\n"
     )
   end
+
+  it "outputs an error when configuration is invalid" do
+    _stdout, stderr, status = Open3.capture3(
+      "CONJUR_TRUSTED_PROXIES=boop conjurctl configuration show"
+    )
+
+    expect(stderr).to eq(
+      "Invalid values for configured attributes: trusted_proxies\n"
+    )
+
+    expect(status.exitstatus).to eq(1)
+  end
 end

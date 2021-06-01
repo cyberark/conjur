@@ -1,19 +1,17 @@
 # frozen_string_literal: true
 
 require 'command_class'
-require 'conjur/conjur_config'
 require 'json'
 
 module Commands
   module Configuration
     Show ||= CommandClass.new(
       dependencies: {
-        conjur_config: Conjur::ConjurConfig.new,
         output_stream: $stdout
       },
 
       inputs: %i[
-        output_format
+        conjur_config output_format
       ]
     ) do
       def call

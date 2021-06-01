@@ -10,7 +10,7 @@ module Conjur
   #
   # Example: TRUSTED_PROXIES=4.4.4.4,192.168.100.0/24
   class TrustedProxyFilter
-    def initialize(config: Conjur::ConjurConfig.new, disable_cache: true)
+    def initialize(config:, disable_cache: true)
       @config = config
       @disable_cache = disable_cache
       @cached_trusted_proxies = nil
