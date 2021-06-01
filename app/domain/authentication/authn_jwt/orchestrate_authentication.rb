@@ -10,7 +10,7 @@ module Authentication
         configuration_factory: Authentication::AuthnJwt::VendorConfigurations::ConfigurationFactory.new,
         jwt_authenticator: Authentication::AuthnJwt::Authenticator.new,
         logger: Rails.logger,
-        enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str,
+        enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
       },
       inputs: %i[authenticator_input]
     ) do

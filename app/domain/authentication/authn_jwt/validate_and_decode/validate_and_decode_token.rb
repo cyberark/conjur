@@ -94,14 +94,14 @@ module Authentication
 
         def fetch_jwt_claims_to_validate
           update_authentication_parameters_with_decoded_token
-          jwt_claims_to_validate
+          claims_to_validate
         end
 
         def update_authentication_parameters_with_decoded_token
           @authentication_parameters.decoded_token = decoded_token_after_signature_only_validation
         end
 
-        def jwt_claims_to_validate
+        def claims_to_validate
           @claims_to_validate ||= @fetch_jwt_claims_to_validate.call(
             authentication_parameters: @authentication_parameters
           )
@@ -109,7 +109,7 @@ module Authentication
 
         def validate_claims
           @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingTokenClaims.new)
-          jwt_claims_to_validate.each do |jwt_claim|
+          claims_to_validate.each do |jwt_claim|
             if @decoded_token[jwt_claim.name].blank?
               raise Errors::Authentication::AuthnJwt::MissingMandatoryClaim, jwt_claim.name
             end

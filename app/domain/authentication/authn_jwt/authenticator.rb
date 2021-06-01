@@ -117,6 +117,7 @@ module Authentication
         if @jwt_identity_initialized
           return jwt_identity
         end
+
         NOT_INITIALIZED_IDENTITY
       end
 

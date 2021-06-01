@@ -9,14 +9,17 @@ module Authentication
           fetch_required_secrets:,
           resource_class:,
           discover_identity_provider:)
+          super
+
           @logger = logger
+
           @resource_id = authentication_parameters.authenticator_resource_id
           @fetch_required_secrets = fetch_required_secrets
           @resource_class = resource_class
           @discover_identity_provider = discover_identity_provider
         end
 
-        def has_valid_configuration?
+        def provier_uri_resource_exists
           @provier_uri_resource_exists ||= provider_uri_resource_exists?
         end
 

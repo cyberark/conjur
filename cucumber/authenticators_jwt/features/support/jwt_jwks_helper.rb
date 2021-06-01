@@ -8,11 +8,11 @@ require 'jwt'
 module JwtJwksHelper
 
   module Algorithms
-    RS256 = "RS256".freeze
+    RS256 = "RS256"
   end
 
-  JWKS_ROOT_PATH = "/var/jwks".freeze
-  JWKS_BASE_URI = "http://jwks".freeze
+  JWKS_ROOT_PATH = "/var/jwks"
+  JWKS_BASE_URI = "http://jwks"
   BITS_2048 = 2048
   HOUR_IN_SECONDS = 3600
 

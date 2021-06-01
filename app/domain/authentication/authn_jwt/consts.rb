@@ -2,22 +2,24 @@
 
 module Authentication
   module AuthnJwt
-    PROVIDER_URI_RESOURCE_NAME = "provider-uri".freeze
-    JWKS_URI_RESOURCE_NAME = "jwks-uri".freeze
-    ISSUER_RESOURCE_NAME = "issuer".freeze
-    IDENTITY_FIELD_VARIABLE = "token-app-property".freeze
-    IDENTITY_NOT_RETRIEVED_YET = "Identity not retrieved yet".freeze
-    PRIVILEGE_AUTHENTICATE="authenticate".freeze
-    NOT_INITIALIZED_IDENTITY="".freeze
-    ISS_CLAIM_NAME = "iss".freeze
-    EXP_CLAIM_NAME = "exp".freeze
-    NBF_CLAIM_NAME = "nbf".freeze
-    IAT_CLAIM_NAME = "iat".freeze
+    PROVIDER_URI_RESOURCE_NAME = "provider-uri"
+    JWKS_URI_RESOURCE_NAME = "jwks-uri"
+    ISSUER_RESOURCE_NAME = "issuer"
+    IDENTITY_FIELD_VARIABLE = "token-app-property"
+    IDENTITY_NOT_RETRIEVED_YET = "Identity not retrieved yet"
+    PRIVILEGE_AUTHENTICATE="authenticate"
+    NOT_INITIALIZED_IDENTITY="not initialized user"
+    ISS_CLAIM_NAME = "iss"
+    EXP_CLAIM_NAME = "exp"
+    NBF_CLAIM_NAME = "nbf"
+    IAT_CLAIM_NAME = "iat"
     RSA_ALGORITHMS = %w[RS256 RS384 RS512].freeze
     ECDSA_ALGORITHMS = %w[ES256 ES384 ES512].freeze
-    SUPPORTED_ALGORITHMS = (RSA_ALGORITHMS + ECDSA_ALGORITHMS).freeze
-    CACHE_REFRESHES_PER_INTERVAL = 10.freeze
-    CACHE_RATE_LIMIT_INTERVAL = 300.freeze # 300 seconds (every 5 mins)
-    CACHE_MAX_CONCURRENT_REQUESTS = 3.freeze
+    SUPPORTED_ALGORITHMS = (RSA_ALGORITHMS + ECDSA_ALGORITHMS)
+    CACHE_REFRESHES_PER_INTERVAL = 10
+    CACHE_RATE_LIMIT_INTERVAL = 300
+    CACHE_MAX_CONCURRENT_REQUESTS = 3
+    MANDATORY_CLAIMS = [EXP_CLAIM_NAME].freeze
+    OPTIONAL_CLAIMS = [ISS_CLAIM_NAME, NBF_CLAIM_NAME, IAT_CLAIM_NAME].freeze
   end
 end

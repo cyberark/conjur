@@ -5,7 +5,7 @@ module Authentication
       class ConfigurationFactory
         AUTHENTICATORS = {
           "authn-jwt" => ConfigurationJWTGenericVendor
-        }
+        }.freeze
 
         def create_jwt_configuration(authenticator_input)
           authenticator_name = authenticator_input.authenticator_name
