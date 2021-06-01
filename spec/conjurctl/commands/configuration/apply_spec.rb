@@ -24,7 +24,7 @@ describe Commands::Configuration::Apply do
       allow(output_stream).to receive(:puts)
 
       expect(process_manager).to receive(:kill).with('USR1', 123)
-      apply_cmd.call
+      apply_cmd.call(test_mode: false)
     end
 
     it "prints success message" do
@@ -33,7 +33,7 @@ describe Commands::Configuration::Apply do
       expect(output_stream).to receive(:puts).with(
         "Conjur server reboot initiated. New configuration will be applied."
       )
-      apply_cmd.call
+      apply_cmd.call(test_mode: false)
     end
   end
 
@@ -43,10 +43,27 @@ describe Commands::Configuration::Apply do
     end
 
     it "outputs an error" do
-      expect { apply_cmd.call }.to raise_error(
+      expect { apply_cmd.call(test_mode: false) }.to raise_error(
         RuntimeError,
         "Conjur is not currently running, please start it with conjurctl server."
       )
+    end
+  end
+
+  describe "Running in test mode" do
+    before do
+      allow(command_runner).to receive(:capture2).and_return("123")
+    end
+
+    it "outputs the correct message" do
+      expect(output_stream).to receive(:puts).with(
+        "Configuration is valid. Server will not be restarted in test mode."
+      )
+      apply_cmd.call(test_mode: true)
+    end
+
+    it "does not restart the Conjur process" do
+      expect(process_manager).to_not receive(:kill)
     end
   end
 end
