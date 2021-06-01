@@ -8,16 +8,31 @@ describe Commands::Configuration::Show do
     output_stream = StringIO.new
 
     Commands::Configuration::Show.new(
-      conjur_config: config,
       output_stream: output_stream
     ).call(
+      conjur_config: config,
       output_format: format
     )
 
     output_stream.string
   end
 
-  let(:conjur_config) { Conjur::ConjurConfig.new }
+  let(:conjur_config) { double(Conjur::ConjurConfig) }
+
+  let(:source_trace) {
+    {
+      trusted_proxies: {
+        source: { type: :defaults },
+        value: []
+      }
+    }
+  }
+
+  before do
+    allow(conjur_config).
+      to receive(:to_source_trace).
+      and_return(source_trace)
+  end
 
   it 'outputs in JSON format' do
     expect(
