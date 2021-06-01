@@ -72,7 +72,7 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
       end
 
       it "get identity from decoded token successfully" do
-        expect(subject.provide_jwt_identity).to eql("admin@example.com")
+        expect(subject.jwt_identity).to eql("admin@example.com")
       end
 
       it "identity_configured_properly? does not raise an error" do
@@ -94,7 +94,7 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
       end
 
       it "NoSuchFieldInToken error is raised" do
-        expect { subject.provide_jwt_identity }.to raise_error(Errors::Authentication::AuthnJwt::NoSuchFieldInToken)
+        expect { subject.jwt_identity }.to raise_error(Errors::Authentication::AuthnJwt::NoSuchFieldInToken)
       end
 
       it "identity_configured_properly? does not raise an error" do
@@ -116,7 +116,7 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
       end
 
       it "RequiredSecretMissing error is raised" do
-        expect { subject.provide_jwt_identity }.to raise_error(Errors::Conjur::RequiredSecretMissing)
+        expect { subject.jwt_identity }.to raise_error(Errors::Conjur::RequiredSecretMissing)
       end
 
       it "identity_configured_properly? raises error" do
