@@ -5,11 +5,9 @@ module Authentication
       class IdentityFromDecodedTokenProvider < IdentityProviderInterface
         def initialize(authentication_parameters)
           super
-          @resource_id = authentication_parameters.authenticator_resource_id
-          @decoded_token = authentication_parameters.decoded_token
-          @secret_fetcher = Conjur::FetchRequiredSecrets.new
-          @resource_class = ::Resource
-          @logger = Rails.logger
+
+          @resource_id = @authentication_parameters.authenticator_resource_id
+          @decoded_token = @authentication_parameters.decoded_token
         end
 
         def jwt_identity

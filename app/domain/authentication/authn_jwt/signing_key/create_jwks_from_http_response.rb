@@ -24,19 +24,21 @@ module Authentication
 
           raise Errors::Authentication::AuthnJwt::InvalidHttpResponseFormat unless @http_response.respond_to?(:body)
 
+          response_body = @http_response.body
+          encoded_body = Base64.encode64(response_body)
           begin
-            parsed_response = JSON.parse(@http_response.body)
+            parsed_response = JSON.parse(response_body)
             keys = parsed_response['keys']
             jwks = { keys: JSON::JWK::Set.new(keys) }
           rescue => e
             raise Errors::Authentication::AuthnJwt::FailedToConvertResponseToJwks.new(
-              Base64.encode64(@http_response.body),
+              encoded_body,
               e.inspect
             )
           end
 
           if keys.blank?
-            raise Errors::Authentication::AuthnJwt::FetchJwksUriKeysNotFound, Base64.encode64(@http_response.body)
+            raise Errors::Authentication::AuthnJwt::FetchJwksUriKeysNotFound, encoded_body
           end
 
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedJwks.new)

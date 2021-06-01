@@ -5,7 +5,6 @@ module Authentication
       class IdentityFromUrlProvider < IdentityProviderInterface
         def initialize(authentication_parameters)
           super
-          @authentication_parameters = authentication_parameters
         end
 
         def jwt_identity

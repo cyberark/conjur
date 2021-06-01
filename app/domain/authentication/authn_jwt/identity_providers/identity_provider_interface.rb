@@ -1,8 +1,15 @@
 module Authentication
   module AuthnJwt
     module IdentityProviders
+      # Interface for identity providers to implement in a way they work well with create_identity_provider factory
       class IdentityProviderInterface
-        def initialize(authentication_parameters); end
+        def initialize(authentication_parameters)
+          @secret_fetcher = Conjur::FetchRequiredSecrets.new
+          @resource_class = ::Resource
+          @logger = Rails.logger
+
+          @authentication_parameters = authentication_parameters
+        end
 
         def jwt_identity; end
 
