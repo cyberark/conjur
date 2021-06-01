@@ -9,13 +9,11 @@ module Authentication
           fetch_required_secrets:,
           resource_class:,
           discover_identity_provider:)
-          super
-
           @logger = logger
 
-          @resource_id = authentication_parameters.authenticator_resource_id
           @fetch_required_secrets = fetch_required_secrets
           @resource_class = resource_class
+          @resource_id = authentication_parameters.authenticator_resource_id
           @discover_identity_provider = discover_identity_provider
         end
 

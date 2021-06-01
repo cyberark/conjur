@@ -85,7 +85,7 @@ module Authentication
         end
 
         def jwt_claims_names_to_validate
-          @jwt_claims_names_to_validate ||= (jwt_claims_to_validate.map {|claim| claim.name }).to_s
+          @jwt_claims_names_to_validate ||= jwt_claims_to_validate.map(&:name).to_s
         end
       end
     end
