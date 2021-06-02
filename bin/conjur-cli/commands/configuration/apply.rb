@@ -30,6 +30,8 @@ module Commands
           raise 'Conjur is not currently running, please start it with conjurctl server.'
         end
 
+        # This will attempt to do a phased restart but will fall back to a
+        # normal restart if phased is not available due to preloading.
         @process_manager.kill('USR1', pid)
 
         @output_stream.puts(

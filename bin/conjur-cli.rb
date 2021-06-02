@@ -265,12 +265,12 @@ command :configuration do |cgrp|
 
   cgrp.desc 'Restart the Conjur server to apply new configuration'
   cgrp.long_desc(<<~DESC)
-    Validate configuration then perform a phased restart of the puma process,
-    which restarts the worker threads and allows them to pick up any changes to
-    configuration files.
+    Validate the current state of the configuration file and then restart the
+    Conjur server to pick up any changes. Requests that come in while the server
+    is restarting will be queued and may experience latency.
 
-    Note that this does NOT pick up any changes to environment variables due to
-    Linux process environments being static once a process has started.
+    Note that this will NOT incorporate changes to environment variables because
+    Linux process environments are static once a process has started.
   DESC
   cgrp.command :apply do |c|
     c.desc 'Validate configuration without restarting'
