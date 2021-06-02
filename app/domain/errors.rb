@@ -425,7 +425,7 @@ module Errors
       )
 
       FetchJwksUriKeysNotFound = ::Util::TrackableErrorClass.new(
-        msg: "JWKS not found in response: '{0-base64-response}'",
+        msg: "JWKS not found in response: '{0-encoded-response}'",
         code: "CONJ00180E"
       )
 
@@ -446,12 +446,12 @@ module Errors
       )
 
       UnsupportedAuthenticator = ::Util::TrackableErrorClass.new(
-        msg: "Authenticator '{0-authenticator-name}' is unsupported.",
+        msg: "Authenticator '{0}' is unsupported.",
         code: "CONJ00184E"
       )
 
       FailedToConvertResponseToJwks = ::Util::TrackableErrorClass.new(
-        msg: "Failed to convert HTTP response '{0-base64-response}' to JWKS type. Reason: '{1}'",
+        msg: "Failed to convert HTTP response '{0-encoded-response}' to JWKS type. Reason: '{1}'",
         code: "CONJ00185E"
       )
 
