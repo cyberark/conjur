@@ -23,7 +23,7 @@ persistent_timeout 80
 # Preloading is supposed to reduce memory usage. However, memory usage appears
 # to be consistent with or without preload, so I'm disabling it to allow us to
 # perform a "phased restart", which does not work when preloading.
-#preload_app!
+preload_app!
 
 rackup      DefaultRackup
 port        ENV['PORT']     || 3000
