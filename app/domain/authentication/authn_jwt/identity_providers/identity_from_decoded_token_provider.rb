@@ -9,7 +9,7 @@ module Authentication
           @secret_fetcher = Conjur::FetchRequiredSecrets.new
           @resource_class = ::Resource
           @authentication_parameters = authentication_parameters
-          @resource_id = @authentication_parameters.authenticator_resource_id
+          @resource_id = @authentication_parameters.authn_jwt_variable_id
           @decoded_token = @authentication_parameters.decoded_token
         end
 

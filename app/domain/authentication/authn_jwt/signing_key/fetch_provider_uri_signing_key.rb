@@ -13,7 +13,7 @@ module Authentication
 
           @fetch_required_secrets = fetch_required_secrets
           @resource_class = resource_class
-          @resource_id = authentication_parameters.authenticator_resource_id
+          @resource_id = authentication_parameters.authn_jwt_variable_id
           @discover_identity_provider = discover_identity_provider
         end
 

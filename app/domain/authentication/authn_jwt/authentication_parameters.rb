@@ -14,7 +14,7 @@ module Authentication
         @jwt_token = jwt_token
       end
 
-      def authenticator_resource_id
+      def authn_jwt_variable_id
         "#{@account}:variable:conjur/#{@authenticator_name}/#{@service_id}"
       end
     end
