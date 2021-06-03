@@ -446,7 +446,7 @@ module Errors
       )
 
       UnsupportedAuthenticator = ::Util::TrackableErrorClass.new(
-        msg: "Authenticator '{0}' is unsupported.",
+        msg: "Authenticator '{0-authenticator-name}' is unsupported.",
         code: "CONJ00184E"
       )
 
