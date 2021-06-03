@@ -43,7 +43,7 @@ module Commands
 
       def server_pid
         cmd = "ps -ef | grep puma | grep -v grep | grep -v cluster | " \
-              "awk '{print $2}' | tr -d '\n'"
+              "grep conjur | awk '{print $2}' | tr -d '\n'"
         stdout, _ = @command_runner.capture2(cmd)
         stdout.to_i
       end
