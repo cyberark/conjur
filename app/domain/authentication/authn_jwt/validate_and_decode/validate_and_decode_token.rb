@@ -10,7 +10,7 @@ module Authentication
           fetch_signing_key: ::Util::ConcurrencyLimitedCache.new(
             ::Util::RateLimitedCache.new(
               ::Authentication::AuthnJwt::SigningKey::FetchCachedSigningKey.new(
-                singing_key_interface: ::Authentication::AuthnJwt::SigningKey::FetchSigningKeyInterface
+                signing_key_interface: ::Authentication::AuthnJwt::SigningKey::FetchSigningKeyInterface
               ),
               refreshes_per_interval: CACHE_REFRESHES_PER_INTERVAL,
               rate_limit_interval: CACHE_RATE_LIMIT_INTERVAL,
@@ -94,14 +94,14 @@ module Authentication
 
         def fetch_jwt_claims_to_validate
           update_authentication_parameters_with_decoded_token
-          jwt_claims_to_validate
+          claims_to_validate
         end
 
         def update_authentication_parameters_with_decoded_token
           @authentication_parameters.decoded_token = decoded_token_after_signature_only_validation
         end
 
-        def jwt_claims_to_validate
+        def claims_to_validate
           @claims_to_validate ||= @fetch_jwt_claims_to_validate.call(
             authentication_parameters: @authentication_parameters
           )
@@ -109,9 +109,11 @@ module Authentication
 
         def validate_claims
           @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingTokenClaims.new)
-          jwt_claims_to_validate.each do |jwt_claim|
-            if @decoded_token[jwt_claim.name].blank?
-              raise Errors::Authentication::AuthnJwt::MissingMandatoryClaim, jwt_claim.name
+
+          claims_to_validate.each do |jwt_claim|
+            claim_name = jwt_claim.name
+            if @decoded_token[claim_name].blank?
+              raise Errors::Authentication::AuthnJwt::MissingMandatoryClaim, claim_name
             end
 
             verification_option = @get_verification_option_by_jwt_claim.call(jwt_claim: jwt_claim)

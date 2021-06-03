@@ -33,9 +33,6 @@ module Authentication
 
         private
 
-        MANDATORY_CLAIMS = [EXP_CLAIM_NAME].freeze
-        OPTIONAL_CLAIMS = [ISS_CLAIM_NAME, NBF_CLAIM_NAME, IAT_CLAIM_NAME].freeze
-
         def validate_decoded_token_exists
           raise Errors::Authentication::AuthnJwt::MissingToken if decoded_token.blank?
         end
@@ -88,7 +85,7 @@ module Authentication
         end
 
         def jwt_claims_names_to_validate
-          @jwt_claims_names_to_validate ||= (jwt_claims_to_validate.map {|claim| claim.name }).to_s
+          @jwt_claims_names_to_validate ||= jwt_claims_to_validate.map(&:name).to_s
         end
       end
     end

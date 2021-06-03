@@ -11,11 +11,10 @@ module Authentication
         @account = authentication_input.account
         @username = authentication_input.username
         @client_ip = authentication_input.client_ip
-        @request = authentication_input.request
         @jwt_token = jwt_token
       end
 
-      def authenticator_resource_id
+      def authn_jwt_variable_id
         "#{@account}:variable:conjur/#{@authenticator_name}/#{@service_id}"
       end
     end

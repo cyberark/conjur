@@ -5,7 +5,6 @@ require 'spec_helper'
 RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFactory') do
   class FalseIdentityProvider
     def initialize(authentication_parameters); end
-
     def identity_available?
       false
     end

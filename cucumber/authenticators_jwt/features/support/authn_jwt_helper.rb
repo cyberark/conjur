@@ -5,8 +5,8 @@
 module AuthnJwtHelper
   include AuthenticatorHelpers
 
-  ACCOUNT = 'cucumber'.freeze
-  SERVICE_ID = 'raw'.freeze
+  ACCOUNT = 'cucumber'
+  SERVICE_ID = 'raw'
 
   def authenticate_jwt_token(jwt_token)
     path = "#{conjur_hostname}/authn-jwt/#{SERVICE_ID}/#{ACCOUNT}/authenticate"
