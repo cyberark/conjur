@@ -11,6 +11,7 @@ end
 # Utility methods for loading, replacing, etc of policies
 #
 module PolicyHelpers
+  require 'cucumber/policy/features/support/client'
   include FullId
 
   attr_reader :result
@@ -32,74 +33,31 @@ module PolicyHelpers
   end
 
   def load_root_policy(policy)
-    resource('root').put(policy, header)
+    policy_helper('root').load_policy(policy)
   end
 
   def update_root_policy(policy)
-    resource('root').patch(policy, header)
+    policy_helper('root').update_policy(policy)
   end
 
   def extend_root_policy(policy)
-    resource('root').post(policy, header)
+    policy_helper('root').extend_policy(policy)
   end
 
   def load_policy(id, policy)
-    resource(id).put(policy, header)
+    policy_helper(id).load_policy(policy)
   end
 
   def update_policy(id, policy)
-    resource(id).patch(policy, header)
+    policy_helper(id).update_policy(policy)
   end
 
   def extend_policy(id, policy)
-    resource(id).post(policy, header)
+    policy_helper(id).extend_policy(policy)
   end
 
-  def create_api_key(role)
-    login_resource.put(
-      "", header.merge(params: { role: role })
-    )
-  end
-
-  def admin_api_key
-    admin_resource.get
-  end
-
-  def get_login_token(login, key)
-    RestClient.post(
-      uri('authn', login, 'authenticate'),
-      key, 'Accept-Encoding': 'Base64'
-    )
-  end
-
-  def admin_token
-    RestClient.post(
-      uri('authn', 'admin', 'authenticate'),
-      admin_api_key,
-      'Accept-Encoding': 'Base64'
-    )
-  end
-
-  def admin_resource
-    RestClient::Resource.new(
-      uri('authn', 'login', ''), 'admin', admin_password
-    )
-  end
-
-  def resource(id)
-    RestClient::Resource.new(
-      uri('policies', 'policy', id)
-    )
-  end
-
-  def login_resource
-    RestClient::Resource.new(
-      uri('authn', 'api_key', ''), 'admin', admin_password
-    )
-  end
-
-  def make_full_id *tokens
-    super(tokens.join(":"))
+  def policy_helper(id)
+    ClientHelpers::Policyhelpers::PolicyClient.new(id)
   end
 
   def json_result
@@ -111,43 +69,30 @@ module PolicyHelpers
     end
   end
 
-  def header(token = nil)
-    if token.nil?
-      token = admin_token
-    end
-    { Authorization:  %Q(Token token="#{token}") }
+  def make_full_id(*tokens)
+    super(tokens.join(":"))
   end
 
-  def uri(root, kind, id = nil)
-    uri = "#{appliance_url}/#{root}/#{account}/#{CGI.escape(kind)}"
-    return uri if id.nil?
-
-    "#{uri}/#{CGI.escape(id)}"
-  end
-
-  def admin_password
-    'SEcret12!!!!'
-  end
-
-  def appliance_url
-    ENV['CONJUR_APPLIANCE_URL'] || 'http://conjur'
-  end
-
-  def account
-    ENV['CONJUR_ACCOUNT'] || 'cucumber'
+  def rest_client(root, kind, id)
+    ClientHelpers::Client.new(root, kind, id)
   end
 
   def login_as_role(login, api_key = nil)
-    api_key = admin_api_key if login == "admin"
+    client = rest_client("authn","login","any")
+    api_key = client.admin_api_key if login == "admin"
     unless api_key
       role = if login.index('/')
         login.split('/', 2).join(":")
       else
         [ "user", login ].join(":")
       end
-      api_key = create_api_key(role)
+      api_key = client.create_api_key(role)
     end
-    @token = get_login_token(login, api_key)
+    if login == "admin"
+      @token = client.admin_token
+    else
+      @token = client.get_token(login, api_key)
+    end
   end
 end
 

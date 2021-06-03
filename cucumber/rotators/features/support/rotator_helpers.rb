@@ -2,43 +2,42 @@
 
 # TODO: Explanation of design and how to add a new rotator
 #
-require('net/http')
-require('uri')
 require 'aws-sdk-iam'
-require 'rest-client'
-require 'cucumber/policy/features/support/policy_helpers'
+require 'cucumber/policy/features/support/client'
 # Utility methods for rotation tests
 #
 module RotatorHelpers
   include PolicyHelpers
+  
   # Utility for the postgres rotator
 
   def run_sql_in_testdb(sql, user='postgres', pw='postgres_secret')
     system("PGPASSWORD=#{pw} psql -h testdb -U #{user} -c \"#{sql}\"")
   end
 
-  def variable id
+  def variable(id)
     get_secret('variable', id)
   end
 
-  def load_root_policy policy
-    resource(uri('policies', 'policy', 'root')).put(policy, header)
+  def load_root_policy(policy)
+    policy_helper('root').load_policy(policy)
+    # resource('root').put(policy, header)
   end
 
-  def add_secret kind, id, value
-    secrets_client(uri('secrets', kind, id)).post(value, header)
+  def add_secret(kind, id, value, token=nil)
+    resource_helpers('secrets', kind, id).add_secret(value, token)
   end
 
-  def get_secret kind, id
-    secrets_client(uri('secrets', kind, id)).get(header)
+  def get_secret(kind, id, token=nil)
+    resource_helpers('secrets', kind, id).fetch_secret(token)
   end
 
-  def secrets_client url
-    RestClient::Resource.new(url, 'Content-Type' => 'application/json')
+  def policy_helper(id)
+    ClientHelpers::Policyhelpers::PolicyClient.new(id)
   end
 
-  def resource url
-    RestClient::Resource.new(url)
+  def resource_helpers(root, kind, id)
+    ClientHelpers::ResourceHelper::ResourceClient.new(root, kind, id)
   end
 
   # # This wires up and kicks off of the postgres polling process, and then

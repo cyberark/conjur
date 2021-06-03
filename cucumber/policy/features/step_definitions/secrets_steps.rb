@@ -4,7 +4,7 @@ Then(/^I can( not)? add a secret to ([\w_]+) resource "([^"]*)"$/) do |fail, kin
   @value = SecureRandom.uuid
   status = fail ? 403 : 200
   invoke status: status do
-    add_secret(@token, kind, id, @value)
+    add_secret( kind, id, @value, @token)
   end
 end
 
@@ -20,6 +20,6 @@ end
 
 def try_get_secret_value(id, kind = "variable", expected_status)
   invoke status: expected_status do
-    get_secret(@token, kind, id)
+    get_secret(kind, id, @token)
   end
 end

@@ -2,6 +2,6 @@
 
 Then(/^I list the public keys for "([^"]*)"$/) do |username|
   invoke do
-    RestClient.get(uri('public_keys', 'user', username))
+    get_public_keys( username)
   end
 end
