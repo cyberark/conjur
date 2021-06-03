@@ -262,6 +262,26 @@ command :configuration do |cgrp|
       )
     end
   end
+
+  cgrp.desc 'Restart the Conjur server to apply new configuration'
+  cgrp.long_desc(<<~DESC)
+    Validate the current state of the configuration file and then restart the
+    Conjur server to pick up any changes. Requests that come in while the server
+    is restarting will be queued and may experience latency.
+
+    Note that this will NOT incorporate changes to environment variables because
+    Linux process environments are static once a process has started.
+  DESC
+  cgrp.command :apply do |c|
+    c.desc 'Validate configuration without restarting'
+    c.switch("test", negatable: false)
+
+    c.action do |_global_options, options, _args|
+      Commands::Configuration::Apply.new.call(
+        test_mode: options["test"]
+      )
+    end
+  end
 end
 
 exit run(ARGV)

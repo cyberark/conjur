@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added `conjurctl configuration show` command to print the Conjur configuration
   values and the sources they are loaded from.
   [cyberark/conjur#2169](https://github.com/cyberark/conjur/issues/2169)
+- Added `conjurctl configuration apply` command restart the Conjur process and
+  pick up changes to the configuration file.
+  [cyberark/conjur#2171](https://github.com/cyberark/conjur/issues/2171)
 
 ### Fixed
 - Fix bug where running `conjurctl server` or `conjurctl account create` with
