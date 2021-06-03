@@ -21,7 +21,7 @@ from a particular network, defined by a CIDR in the policy
     """
 
     When I show the user "alice"
-    Then the "restricted_to" should be: 
+    Then the "restricted_to" should be:
     """
       ["192.168.101.1/32"]
     """
@@ -30,7 +30,7 @@ from a particular network, defined by a CIDR in the policy
     Then the "restricted_to" should be:
     """
       ["192.168.0.0/16"]
-    """ 
+    """
 
     When I show the host "serviceA"
     Then the "restricted_to" should be:
@@ -49,7 +49,7 @@ from a particular network, defined by a CIDR in the policy
     Then there is an error
     And the error code is "validation_failed"
     And the error message includes "Invalid IP address or CIDR range 'an_invalid_cidr_string'"
-    
+
 
   Scenario: Domain name as CIDR restriction string
 
@@ -87,7 +87,7 @@ from a particular network, defined by a CIDR in the policy
         restricted_to: 1.2.3.7
     """
     When I show the host "servers/server-a"
-    Then the "restricted_to" should be: 
+    Then the "restricted_to" should be:
     """
       ["1.2.3.7/32"]
     """
@@ -102,7 +102,7 @@ from a particular network, defined by a CIDR in the policy
         restricted_to: 1.2.3.8
     """
     And I show the host "servers/server-a"
-    Then the "restricted_to" should be: 
+    Then the "restricted_to" should be:
     """
       ["1.2.3.8/32"]
     """

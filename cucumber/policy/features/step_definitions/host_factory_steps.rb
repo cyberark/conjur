@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
 Then(/^the "([^"]*)" should be:$/) do |field, json|
-  expect(@result[field]).to eq(JSON.parse(json))
+  _, kind, id = @result['id'].split(':')
+  actual = JSON.parse(get_resource(kind, id))[field]
+  expected = JSON.parse(json)
+  expect(actual).to eq(expected)
 end
