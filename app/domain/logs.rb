@@ -290,19 +290,19 @@ module LogMessages
         code: "CONJ00056D"
       )
 
-      JWTAuthenticatorEntryPoint = ::Util::TrackableLogMessageClass.new(
+      JwtAuthenticatorEntryPoint = ::Util::TrackableLogMessageClass.new(
         msg: "Started JWT authentication flow for vendor '{0}'",
         code: "CONJ00057D"
       )
 
-      URL_IDENTITY_PROVIDER_SELECTED = ::Util::TrackableLogMessageClass.new(
-        msg: "The JWT ID is included in and will be retrieved from the URL",
+      SelectingIdentityProviderInterface = ::Util::TrackableLogMessageClass.new(
+        msg: "Selecting identity provider interface...",
         code: "CONJ00058D"
       )
 
-      DECODED_TOKEN_IDENTITY_PROVIDER_SELECTED = ::Util::TrackableLogMessageClass.new(
-        msg: "JWT Identity in decoded token is available and will be retrieved from it",
-        code: "CONJ00059D"
+      SelectedIdentityProviderInterface = ::Util::TrackableLogMessageClass.new(
+        msg: "Selected identity provider interface is: '{0-identity-provider-interface-name}'",
+        code: "CONJ00059I"
       )
 
       LOOKING_FOR_IDENTITY_FIELD_NAME = ::Util::TrackableLogMessageClass.new(
@@ -361,7 +361,7 @@ module LogMessages
       )
 
       FetchingJwtConfigurationValue = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetching '{0-resource-id}' variable value from configuration...",
+        msg: "Fetching '{0-resource-id}' resource definition from configuration...",
         code: "CONJ00071D"
       )
 
@@ -376,19 +376,20 @@ module LogMessages
       )
 
       ValidatingJwtSigningKeyConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg: "Validating JWT signing key URI configuration...",
+        msg: "Validating signing key URI configuration...",
         code: "CONJ00074D"
       )
 
-      FetchingProviderUriSigningKey = ::Util::TrackableLogMessageClass.new(
-        msg: "Validating signing key URI configuration...",
+      SelectingSigningKeyInterface = ::Util::TrackableLogMessageClass.new(
+        msg: "Selecting signing key interface...",
         code: "CONJ00075D"
       )
 
-      FetchingJwksUriSigningKey = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetching jwks-uri signing key...",
-        code: "CONJ00076D"
+      SelectedSigningKeyInterface = ::Util::TrackableLogMessageClass.new(
+        msg: "Selected signing key interface is: '{0-signing-key-interface-name}'",
+        code: "CONJ00076I"
       )
+
       ConvertingJwtClaimToVerificationOption = ::Util::TrackableLogMessageClass.new(
         msg: "Converting JWT claim '{0-claim-name}' to verification option",
         code: "CONJ00077D"
@@ -456,7 +457,7 @@ module LogMessages
 
       ValidatingJwtStatusConfiguration = ::Util::TrackableLogMessageClass.new(
         msg: "Validating JWT status configuration...",
-        code: "CONJ00090D"
+        code: "CONJ00090I"
       )
 
       ValidatedUserHasAccessToStatusWebservice = ::Util::TrackableLogMessageClass.new(
@@ -474,7 +475,7 @@ module LogMessages
         code: "CONJ00093D"
       )
 
-      ValidatedStatusServiceIdExists = ::Util::TrackableLogMessageClass.new(
+      ValidatedServiceIdExists = ::Util::TrackableLogMessageClass.new(
         msg: "Successfully validated that service ID exists",
         code: "CONJ00094D"
       )
@@ -497,6 +498,16 @@ module LogMessages
       FOUND_JWT_IDENTITY= ::Util::TrackableLogMessageClass.new(
         msg: "Successfully found jwt identity '{0}'",
         code: "CONJ00098D"
+      )
+
+      ValidatedJwtStatusConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated JWT status configuration",
+        code: "CONJ00099I"
+      )
+
+      ValidatedAccountExists = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated that account exists",
+        code: "CONJ00100D"
       )
 
     end
