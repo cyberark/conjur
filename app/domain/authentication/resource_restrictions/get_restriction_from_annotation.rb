@@ -20,7 +20,6 @@ module Authentication
       dependencies: {},
       inputs: %i[annotation_name authenticator_name service_id]
     ) do
-
       def call
         get_restriction_from_annotation
       end

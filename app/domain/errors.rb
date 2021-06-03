@@ -429,7 +429,6 @@ module Errors
         code: "CONJ00088E"
       )
 
-
       UnsupportedClaim = ::Util::TrackableErrorClass.new(
         msg: "Claim '{0-claim}' does not support fetching the application identity",
         code: "CONJ00089E"
