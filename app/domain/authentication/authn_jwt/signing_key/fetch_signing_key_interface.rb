@@ -4,7 +4,7 @@ module Authentication
       class FetchSigningKeyInterface
         def create; end
 
-        def has_valid_configuration?; end
+        def jwks_uri_resource_exists; end
       end
     end
   end

@@ -12,7 +12,8 @@ module Authentication
         validate_origin: ::Authentication::ValidateOrigin.new,
         role_class: ::Role,
         webservice_class: ::Authentication::Webservice,
-        validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new
+        validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
+        role_id_class: Audit::Event::Authn::RoleId
       },
       inputs: %i[jwt_configuration authenticator_input]
     ) do
@@ -98,26 +99,22 @@ module Authentication
         )
       end
 
-      def role
+      def identity_role
         @role_class.by_login(
-          audited_username,
+          jwt_identity,
           account: account
         )
       end
 
+      # If there is no jwt identity so role and username are nil
       def audit_role_id
-        ::Audit::Event::Authn::RoleId.new(
+        role = identity_role if @jwt_identity_initialized
+        username = jwt_identity if @jwt_identity_initialized
+        @role_id_class.new(
           role: role,
           account: account,
-          username: audited_username
-        ).to_s
-      end
-
-      def audited_username
-        if @jwt_identity_initialized
-          return jwt_identity
-        end
-        NOT_INITIALIZED_IDENTITY
+          username: username
+          ).to_s
       end
 
       def webservice
