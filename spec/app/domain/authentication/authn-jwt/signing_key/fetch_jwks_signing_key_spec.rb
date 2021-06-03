@@ -37,7 +37,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
     )
 
     allow(mocked_authentication_parameters).to(
-      receive(:authenticator_resource_id).and_return('resource_id')
+      receive(:authn_jwt_variable_id).and_return('resource_id')
     )
 
     allow(mocked_fetch_required_existing_secret).to(
@@ -91,7 +91,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
                                                                resource_class: mocked_resource_value_not_exists,
                                                                http_lib: mocked_good_http_response,
                                                                create_jwks_from_http_response: mocked_create_jwks_from_http_response
-        ).has_valid_configuration?
+        ).jwks_uri_resource_exists
       end
 
       it "raises an error" do
@@ -107,7 +107,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
                                                                resource_class: mocked_resource_value_exists,
                                                                http_lib: mocked_good_http_response,
                                                                create_jwks_from_http_response: mocked_create_jwks_from_http_response
-        ).has_valid_configuration?
+        ).jwks_uri_resource_exists
       end
 
       it "does not raise error" do

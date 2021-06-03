@@ -3,7 +3,7 @@ module Authentication
     module VendorConfigurations
       # Interface containing JWT configuration functions to be implemented in JWTConfiguration class for a vendor
       class ConfigurationInterface
-        def authentication_parameters(authenticator_input); end
+        def initialize(authenticator_input); end
 
         def jwt_identity; end
 

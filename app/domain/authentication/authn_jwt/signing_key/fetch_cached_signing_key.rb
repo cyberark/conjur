@@ -5,7 +5,7 @@ module Authentication
       # in order to be able to store the signing key in our cache mechanism
       FetchCachedSigningKey ||= CommandClass.new(
         dependencies: {
-          fetch_singing_key_interface: ::Authentication::AuthnJwt::SigningKey::FetchSigningKeyInterface,
+          fetch_signing_key_interface: ::Authentication::AuthnJwt::SigningKey::FetchSigningKeyInterface,
           logger: Rails.logger
         },
         inputs: %i[]
@@ -17,7 +17,7 @@ module Authentication
         private
 
         def fetch_signing_key
-          @fetch_singing_key_interface.fetch_signing_key
+          @fetch_signing_key_interface.fetch_signing_key
         end
       end
     end

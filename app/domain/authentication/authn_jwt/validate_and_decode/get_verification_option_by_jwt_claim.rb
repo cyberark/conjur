@@ -29,24 +29,26 @@ module Authentication
         end
 
         def get_verification_option_by_jwt_claim
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ConvertingJwtClaimToVerificationOption.new(@jwt_claim.name))
+          claim_value = @jwt_claim.value
+          claim_name = @jwt_claim.name
+          @logger.debug(LogMessages::Authentication::AuthnJwt::ConvertingJwtClaimToVerificationOption.new(claim_name))
 
-          case @jwt_claim.name
+          case claim_name
           when EXP_CLAIM_NAME, NBF_CLAIM_NAME
             @verification_option = {}
           when ISS_CLAIM_NAME
-            raise Errors::Authentication::AuthnJwt::MissingClaimValue, @jwt_claim.name if @jwt_claim.value.blank?
+            raise Errors::Authentication::AuthnJwt::MissingClaimValue, claim_name if claim_value.blank?
 
-            @verification_option = { iss: @jwt_claim.value, verify_iss: true }
+            @verification_option = { iss: claim_value, verify_iss: true }
           when IAT_CLAIM_NAME
             @verification_option = { verify_iat: true }
           else
-            raise Errors::Authentication::AuthnJwt::UnsupportedClaim, @jwt_claim.name
+            raise Errors::Authentication::AuthnJwt::UnsupportedClaim, claim_name
           end
 
           @logger.debug(
             LogMessages::Authentication::AuthnJwt::ConvertedJwtClaimToVerificationOption.new(
-              @jwt_claim.name,
+              claim_name,
               @verification_option.to_s
             )
           )

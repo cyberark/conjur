@@ -1,25 +1,24 @@
 # frozen_string_literal: true
 
-# Utility methods for JWT and JWKs manipulation
-
 require 'openssl'
 require 'jwt'
 
+# Utility methods for JWT and JWKs manipulation
 module JwtJwksHelper
 
   module Algorithms
-    RS256 = "RS256".freeze
+    RS256 = "RS256"
   end
 
-  JWKS_ROOT_PATH = "/var/jwks".freeze
-  JWKS_BASE_URI = "http://jwks".freeze
+  JWKS_ROOT_PATH = "/var/jwks"
+  JWKS_BASE_URI = "http://jwks"
   BITS_2048 = 2048
   HOUR_IN_SECONDS = 3600
 
   def init_jwks_file(file_name)
     jwks = { keys: [jwk.export] }
     File.write(
-      "#{JWKS_ROOT_PATH}/#{file_name}", 
+      "#{JWKS_ROOT_PATH}/#{file_name}",
       JSON.pretty_generate(jwks)
     )
   end
