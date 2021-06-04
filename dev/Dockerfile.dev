@@ -1,7 +1,6 @@
 FROM cyberark/phusion-ruby-fips:latest
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get update -y
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     build-essential \
     ldap-utils \
     git \
