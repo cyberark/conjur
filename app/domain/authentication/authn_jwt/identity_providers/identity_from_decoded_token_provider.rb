@@ -54,8 +54,9 @@ module Authentication
 
         def fetch_token_field_name
           resource_id = token_id_field_resource_id
-          @logger.debug(LogMessages::Authentication::AuthnJwt::LookingForIdentityFieldName.new(resource_id))
-          fetch_secret(resource_id)
+          secret = fetch_secret(resource_id)
+          @logger.info(LogMessages::Authentication::AuthnJwt::RetrievedResourceValue.new(secret, resource_id))
+          secret
         end
       end
     end
