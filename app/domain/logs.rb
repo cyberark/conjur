@@ -386,7 +386,7 @@ module LogMessages
       )
 
       SelectedSigningKeyInterface = ::Util::TrackableLogMessageClass.new(
-        msg: "Selected signing key interface is: '{0-signing-key-interface-name}'",
+        msg: "Selected signing key interface: '{0-signing-key-interface-name}'",
         code: "CONJ00076I"
       )
 
