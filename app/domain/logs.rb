@@ -291,7 +291,7 @@ module LogMessages
       )
 
       JwtAuthenticatorEntryPoint = ::Util::TrackableLogMessageClass.new(
-        msg: "Started JWT authentication flow for authenticator '{0-authenticator-name}'",
+        msg: "Started JWT authentication flow for '{0-authenticator-name}' Authenticator",
         code: "CONJ00057I"
       )
 
@@ -305,9 +305,9 @@ module LogMessages
         code: "CONJ00059I"
       )
 
-      LookingForIdentityFieldName = ::Util::TrackableLogMessageClass.new(
-        msg: "Looking for variable field name in '{0}'...",
-        code: "CONJ00060D"
+      RetrievedResourceValue = ::Util::TrackableLogMessageClass.new(
+        msg: "Retrieved value '{0-resource-value}' of resource name '{1-resource-name}'",
+        code: "CONJ00060I"
       )
 
       CheckingIdentityFieldExists = ::Util::TrackableLogMessageClass.new(
@@ -496,7 +496,7 @@ module LogMessages
       )
 
       FoundJwtIdentity= ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully found jwt identity '{0}'",
+        msg: "Successfully found JWT identity '{0}'",
         code: "CONJ00098I"
       )
 
@@ -516,7 +516,7 @@ module LogMessages
       )
 
       GetJwtIdentityPassed = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully passed get JWT Identity",
+        msg: "Successfully passed get JWT identity",
         code: "CONJ00102D"
       )
 
@@ -526,7 +526,7 @@ module LogMessages
       )
 
       CreateValidateAndDecodeTokenInstance = ::Util::TrackableLogMessageClass.new(
-        msg: "Creating token validator instance",
+        msg: "Creating token validator instance...",
         code: "CONJ00104D"
       )
 
