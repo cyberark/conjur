@@ -17,8 +17,8 @@ module Authentication
           @discover_identity_provider = discover_identity_provider
         end
 
-        def provier_uri_resource_exists
-          @provier_uri_resource_exists ||= provider_uri_resource_exists?
+        def valid_configuration?
+          @valid_configuration ||= provider_uri_resource_exists?
         end
 
         def fetch_signing_key
