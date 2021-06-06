@@ -49,11 +49,11 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyInterface'
     )
 
     allow(mocked_exists_has_valid_configuration).to(
-      receive(:jwks_uri_resource_exists).and_return(true)
+      receive(:valid_configuration?).and_return(true)
     )
 
     allow(mocked_non_exists_has_valid_configuration).to(
-      receive(:jwks_uri_resource_exists).and_return(false)
+      receive(:valid_configuration?).and_return(false)
     )
 
     allow(mocked_logger).to(
