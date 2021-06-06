@@ -82,7 +82,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey
                                                                    logger: mocked_logger,
                                                                    fetch_required_secrets: mocked_fetch_required_existing_secret,
                                                                    resource_class: mocked_resource_value_not_exists,
-                                                                   discover_identity_provider: mocked_discover_identity_provider).provier_uri_resource_exists
+                                                                   discover_identity_provider: mocked_discover_identity_provider).valid_configuration?
       end
 
       it "raises an error" do
@@ -96,7 +96,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey
                                                                    logger: mocked_logger,
                                                                    fetch_required_secrets: mocked_fetch_required_existing_secret,
                                                                    resource_class: mocked_resource_value_exists,
-                                                                   discover_identity_provider: mocked_discover_identity_provider).provier_uri_resource_exists
+                                                                   discover_identity_provider: mocked_discover_identity_provider).valid_configuration?
       end
 
       it "does not raise error" do
