@@ -43,7 +43,7 @@ module Authentication
       def get_jwt_identity
         @logger.debug(LogMessages::Authentication::AuthnJwt::GET_JWT_IDENTITY.new)
         jwt_identity
-        @logger.debug(LogMessages::Authentication::AuthnJwt::FOUND_JWT_IDENTITY.new(jwt_identity))
+        @logger.info(LogMessages::Authentication::AuthnJwt::FoundJwtIdentity.new(jwt_identity))
         @jwt_identity_initialized = true
       end
 

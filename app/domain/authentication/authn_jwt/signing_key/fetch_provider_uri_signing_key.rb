@@ -58,7 +58,7 @@ module Authentication
         end
 
         def discovered_provider
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(provider_uri))
+          @logger.info(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(provider_uri))
           @discovered_provider ||= @discover_identity_provider.(
             provider_uri: provider_uri
           )

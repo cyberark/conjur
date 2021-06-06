@@ -23,7 +23,7 @@ module Authentication
             raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken, token_field_name
           end
 
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FOUND_JWT_FIELD_IN_TOKEN.new(token_field_name, jwt_identity))
+          @logger.debug(LogMessages::Authentication::AuthnJwt::FoundJwtFieldInToken.new(token_field_name, jwt_identity))
           @jwt_identity
         end
 

@@ -106,7 +106,7 @@ module LogMessages
 
       RetrievedAnnotationValue = ::Util::TrackableLogMessageClass.new(
         msg: "Retrieved value of annotation {0-annotation-name}",
-        code: "CONJ00024D"
+        code: "CONJ00024I"
       )
 
       ValidatingResourceRestrictions = ::Util::TrackableLogMessageClass.new(
@@ -121,7 +121,7 @@ module LogMessages
 
       ExtractingRestrictionsFromResource = ::Util::TrackableLogMessageClass.new(
         msg: "Extracting resource restrictions for authenticator '{0-authn-name}' from host '{1-host-name}'",
-        code: "CONJ00039D"
+        code: "CONJ00039I"
       )
 
       ExtractedResourceRestrictions = ::Util::TrackableLogMessageClass.new(
@@ -277,12 +277,12 @@ module LogMessages
 
       IssuerResourceNameConfiguration = ::Util::TrackableLogMessageClass.new(
         msg: "\"issuer\" value will be taken from '{0-resource-id}'",
-        code: "CONJ00054D"
+        code: "CONJ00054I"
       )
 
       RetrievedIssuerValue = ::Util::TrackableLogMessageClass.new(
         msg: "Retrieved \"issuer\" with value '{0}'",
-        code: "CONJ00055D"
+        code: "CONJ00055I"
       )
 
       ParsingIssuerFromUri = ::Util::TrackableLogMessageClass.new(
@@ -292,7 +292,7 @@ module LogMessages
 
       JwtAuthenticatorEntryPoint = ::Util::TrackableLogMessageClass.new(
         msg: "Started JWT authentication flow for authenticator '{0-authenticator-name}'",
-        code: "CONJ00057D"
+        code: "CONJ00057I"
       )
 
       SelectingIdentityProviderInterface = ::Util::TrackableLogMessageClass.new(
@@ -347,7 +347,7 @@ module LogMessages
 
       FetchedJwtClaimsToValidate = ::Util::TrackableLogMessageClass.new(
         msg: "Fetched JWT claims '{0-claims-list}' to validate",
-        code: "CONJ00068D"
+        code: "CONJ00068I"
       )
 
       AddingJwtClaimToValidate = ::Util::TrackableLogMessageClass.new(
@@ -367,7 +367,7 @@ module LogMessages
 
       FetchingJwksFromProvider = ::Util::TrackableLogMessageClass.new(
         msg: "Fetching JWKS from '{0-uri}'...",
-        code: "CONJ00072D"
+        code: "CONJ00072I"
       )
 
       FetchJwtUriKeysSuccess = ::Util::TrackableLogMessageClass.new(
@@ -490,14 +490,14 @@ module LogMessages
         code: "CONJ00096D"
       )
 
-      FOUND_JWT_FIELD_IN_TOKEN = ::Util::TrackableLogMessageClass.new(
+      FoundJwtFieldInToken = ::Util::TrackableLogMessageClass.new(
         msg: "Successfully found field '{0}' in token and its value is '{1}'",
         code: "CONJ00097D"
       )
 
-      FOUND_JWT_IDENTITY= ::Util::TrackableLogMessageClass.new(
+      FoundJwtIdentity= ::Util::TrackableLogMessageClass.new(
         msg: "Successfully found jwt identity '{0}'",
-        code: "CONJ00098D"
+        code: "CONJ00098I"
       )
 
       ValidatedJwtStatusConfiguration = ::Util::TrackableLogMessageClass.new(
