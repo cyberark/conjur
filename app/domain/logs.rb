@@ -301,7 +301,7 @@ module LogMessages
       )
 
       SelectedIdentityProviderInterface = ::Util::TrackableLogMessageClass.new(
-        msg: "Selected identity provider interface is: '{0-identity-provider-interface-name}'",
+        msg: "Selected identity provider interface: '{0-identity-provider-interface-name}'",
         code: "CONJ00059I"
       )
 
