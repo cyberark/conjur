@@ -316,7 +316,7 @@ module LogMessages
       )
 
       CreatingAuthenticationParametersObject = ::Util::TrackableLogMessageClass.new(
-        msg: "Creating authentication parameters objects...",
+        msg: "Creating authentication parameter objects...",
         code: "CONJ00062D"
       )
 
