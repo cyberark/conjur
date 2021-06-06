@@ -291,7 +291,7 @@ module LogMessages
       )
 
       JwtAuthenticatorEntryPoint = ::Util::TrackableLogMessageClass.new(
-        msg: "Started JWT authentication flow for vendor '{0}'",
+        msg: "Started JWT authentication flow for authenticator '{0-authenticator-name}'",
         code: "CONJ00057D"
       )
 
