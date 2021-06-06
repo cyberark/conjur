@@ -23,8 +23,8 @@ module Authentication
           @create_jwks_from_http_response = create_jwks_from_http_response
         end
 
-        def jwks_uri_resource_exists
-          @jwks_uri_resource_exists ||= jwks_uri_resource_exists?
+        def valid_configuration?
+          @valid_configuration ||= jwks_uri_resource_exists?
         end
 
         def fetch_signing_key

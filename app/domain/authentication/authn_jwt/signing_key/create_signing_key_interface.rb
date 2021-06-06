@@ -40,11 +40,11 @@ module Authentication
         end
 
         def provider_uri_has_valid_configuration?
-          @provider_uri_has_valid_configuration ||= fetch_provider_uri_signing_key.jwks_uri_resource_exists
+          @provider_uri_has_valid_configuration ||= fetch_provider_uri_signing_key.valid_configuration?
         end
 
         def jwks_uri_has_valid_configuration?
-          @jwks_uri_has_valid_configuration ||= fetch_jwks_uri_signing_key.jwks_uri_resource_exists
+          @jwks_uri_has_valid_configuration ||= fetch_jwks_uri_signing_key.valid_configuration?
         end
 
         def fetch_provider_uri_signing_key
