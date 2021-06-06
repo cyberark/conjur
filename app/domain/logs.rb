@@ -536,7 +536,7 @@ module LogMessages
       )
 
       CreateJwtIdentityProviderInstance = ::Util::TrackableLogMessageClass.new(
-        msg: "Creating JWT identity provider instance",
+        msg: "Creating JWT identity provider instance...",
         code: "CONJ00106D"
       )
 
