@@ -9,7 +9,7 @@ module Authentication
 
           @logger = Rails.logger
 
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CREATING_AUTHENTICATION_PARAMETERS_OBJECT.new)
+          @logger.debug(LogMessages::Authentication::AuthnJwt::CreatingAuthenticationParametersObject.new)
           @authentication_parameters = authentication_parameters_class.new(
             authentication_input: authenticator_input,
             jwt_token: jwt_token(authenticator_input)
@@ -58,10 +58,13 @@ module Authentication
         end
 
         def validate_and_decode_token_instance
+          @logger.debug(LogMessages::Authentication::AuthnJwt::CreateValidateAndDecodeTokenInstance.new)
           @validate_and_decode_token_instance ||= validate_and_decode_token_class.new(
             fetch_signing_key: fetch_signing_key,
             fetch_jwt_claims_to_validate: fetch_jwt_claims_to_validate
           )
+          @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedValidateAndDecodeTokenInstance.new)
+          @validate_and_decode_token_instance
         end
 
         def fetch_signing_key
@@ -100,7 +103,10 @@ module Authentication
         end
 
         def create_identity_provider
+          @logger.debug(LogMessages::Authentication::AuthnJwt::CreateJwtIdentityProviderInstance.new)
           @create_identity_provider ||= Authentication::AuthnJwt::IdentityProviders::CreateIdentityProvider.new
+          @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedJwtIdentityProviderInstance.new)
+          @create_identity_provider
         end
 
         def fetch_signing_key_interface
@@ -143,7 +149,10 @@ module Authentication
         end
 
         def validate_resource_restrictions
+          @logger.debug(LogMessages::Authentication::AuthnJwt::CreateJwtRestrictionsValidatorInstance.new)
           @validate_resource_restrictions ||= validate_resource_restrictions_class.new(extract_resource_restrictions: extract_resource_restrictions)
+          @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedJwtRestrictionsValidatorInstance.new)
+          @validate_resource_restrictions
         end
       end
     end

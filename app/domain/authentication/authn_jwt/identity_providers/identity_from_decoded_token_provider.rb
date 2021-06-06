@@ -17,7 +17,7 @@ module Authentication
           return @jwt_identity if @jwt_identity
 
           token_field_name = fetch_token_field_name
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CHECKING_IDENTITY_FIELD_EXISTS.new(token_field_name))
+          @logger.debug(LogMessages::Authentication::AuthnJwt::CheckingIdentityFieldExists.new(token_field_name))
           @jwt_identity ||= @decoded_token[token_field_name]
           if @jwt_identity.blank?
             raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken, token_field_name
@@ -54,7 +54,7 @@ module Authentication
 
         def fetch_token_field_name
           resource_id = token_id_field_resource_id
-          @logger.debug(LogMessages::Authentication::AuthnJwt::LOOKING_FOR_IDENTITY_FIELD_NAME.new(resource_id))
+          @logger.debug(LogMessages::Authentication::AuthnJwt::LookingForIdentityFieldName.new(resource_id))
           fetch_secret(resource_id)
         end
       end
