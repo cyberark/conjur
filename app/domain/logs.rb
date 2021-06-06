@@ -311,7 +311,7 @@ module LogMessages
       )
 
       CheckingIdentityFieldExists = ::Util::TrackableLogMessageClass.new(
-        msg: "Checking if field '{0}' in the token...",
+        msg: "Checking if field '{0}' is in the token...",
         code: "CONJ00061D"
       )
 
