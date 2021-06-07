@@ -22,15 +22,24 @@ module Authentication
         private
 
         def create_identity_provider
+          @logger.debug(LogMessages::Authentication::AuthnJwt::SelectingIdentityProviderInterface.new)
           identity_provider = @identity_from_decoded_token_class.new(@authentication_parameters)
           if identity_provider.identity_available?
-            @logger.debug(LogMessages::Authentication::AuthnJwt::DECODED_TOKEN_IDENTITY_PROVIDER_SELECTED.new)
+            @logger.info(
+              LogMessages::Authentication::AuthnJwt::SelectedIdentityProviderInterface.new(
+                TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME
+              )
+            )
             return identity_provider
           end
 
           identity_provider = @identity_from_url_provider_class.new(@authentication_parameters)
           if identity_provider.identity_available?
-            @logger.debug(LogMessages::Authentication::AuthnJwt::URL_IDENTITY_PROVIDER_SELECTED.new)
+            @logger.info(
+              LogMessages::Authentication::AuthnJwt::SelectedIdentityProviderInterface.new(
+                URL_IDENTITY_PROVIDER_INTERFACE_NAME
+              )
+            )
             return identity_provider
           end
           raise Errors::Authentication::AuthnJwt::NoRelevantIdentityProvider

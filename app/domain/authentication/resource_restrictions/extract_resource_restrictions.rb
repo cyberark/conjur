@@ -16,7 +16,7 @@ module Authentication
       inputs: %i[authenticator_name service_id role_name account]
     ) do
       def call
-        @logger.debug(
+        @logger.info(
           LogMessages::Authentication::ResourceRestrictions::ExtractingRestrictionsFromResource.new(
             @authenticator_name,
             @role_name
@@ -69,7 +69,7 @@ module Authentication
         # General restriction should not override existing restriction
         return if is_general_restriction && resource_restrictions_hash.include?(restriction_name)
 
-        @logger.debug(LogMessages::Authentication::ResourceRestrictions::RetrievedAnnotationValue.new(annotation_name))
+        @logger.info(LogMessages::Authentication::ResourceRestrictions::RetrievedAnnotationValue.new(annotation_name))
 
         resource_restrictions_hash[restriction_name] = annotation_value
       end

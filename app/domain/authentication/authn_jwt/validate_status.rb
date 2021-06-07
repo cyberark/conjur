@@ -20,14 +20,15 @@ module Authentication
                      :username, :status_webservice, :service_id, :client_ip)
 
       def call
+        @logger.info(LogMessages::Authentication::AuthnJwt::ValidatingJwtStatusConfiguration.new)
         validate_generic_status_validations
         validate_secrets
+        @logger.info(LogMessages::Authentication::AuthnJwt::ValidatedJwtStatusConfiguration.new)
       end
 
       private
 
       def validate_generic_status_validations
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingJwtStatusConfiguration.new)
         validate_account_exists
         validate_service_id_exists
         validate_user_has_access_to_status_webservice
@@ -39,12 +40,13 @@ module Authentication
         @validate_account_exists.(
           account: account
         )
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedAccountExists.new)
       end
 
       def validate_service_id_exists
         raise Errors::Authentication::AuthnJwt::ServiceIdMissing unless service_id
 
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedStatusServiceIdExists.new)
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedServiceIdExists.new)
       end
 
       def validate_user_has_access_to_status_webservice
@@ -82,7 +84,6 @@ module Authentication
 
       def validate_signing_key_secrets
         @create_signing_key.call(authentication_parameters: authentication_parameters)
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedSigningKeyConfiguration.new)
       end
 
       def validate_issuer
