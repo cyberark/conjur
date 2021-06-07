@@ -21,28 +21,40 @@ module Authentication
 
         private
 
+        def identity_from_decoded_token_provider
+          @identity_from_decoded_token_provider ||= @identity_from_decoded_token_class.new(@authentication_parameters)
+        end
+
+        def identity_from_url_provider
+          @identity_from_url_provider ||= @identity_from_url_provider_class.new(@authentication_parameters)
+        end
+
         def create_identity_provider
           @logger.debug(LogMessages::Authentication::AuthnJwt::SelectingIdentityProviderInterface.new)
-          identity_provider = @identity_from_decoded_token_class.new(@authentication_parameters)
-          if identity_provider.identity_available?
+
+          check_identity_configuration
+          if identity_from_decoded_token_provider.identity_available
             @logger.info(
               LogMessages::Authentication::AuthnJwt::SelectedIdentityProviderInterface.new(
                 TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME
               )
             )
-            return identity_provider
-          end
-
-          identity_provider = @identity_from_url_provider_class.new(@authentication_parameters)
-          if identity_provider.identity_available?
+            return identity_from_decoded_token_provider
+          elsif identity_from_url_provider.identity_available
             @logger.info(
               LogMessages::Authentication::AuthnJwt::SelectedIdentityProviderInterface.new(
                 URL_IDENTITY_PROVIDER_INTERFACE_NAME
               )
             )
-            return identity_provider
+            return identity_from_url_provider
           end
-          raise Errors::Authentication::AuthnJwt::NoRelevantIdentityProvider
+        end
+
+        def check_identity_configuration
+          if (identity_from_decoded_token_provider.identity_available and identity_from_url_provider.identity_available) ||
+            (!identity_from_decoded_token_provider.identity_available and !identity_from_url_provider.identity_available)
+            raise Errors::Authentication::AuthnJwt::IdentityMisconfigured
+          end
         end
       end
     end
