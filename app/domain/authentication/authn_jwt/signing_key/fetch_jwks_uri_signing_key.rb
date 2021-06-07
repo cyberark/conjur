@@ -66,7 +66,7 @@ module Authentication
         def fetch_jwks_keys
           begin
             uri = URI(jwks_uri)
-            @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(jwks_uri))
+            @logger.info(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(jwks_uri))
             response = @http_lib.get_response(uri)
             @logger.debug(LogMessages::Authentication::AuthnJwt::FetchJwtUriKeysSuccess.new)
           rescue => e
