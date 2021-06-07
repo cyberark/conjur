@@ -120,6 +120,10 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       receive(:debug).and_return(nil)
     )
 
+    allow(mocked_logger).to(
+      receive(:info).and_return(nil)
+    )
+
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___

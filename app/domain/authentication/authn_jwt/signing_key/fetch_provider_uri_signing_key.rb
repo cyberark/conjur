@@ -18,6 +18,7 @@ module Authentication
         end
 
         def valid_configuration?
+          return @valid_configuration unless @valid_configuration.nil?
           @valid_configuration ||= provider_uri_resource_exists?
         end
 
@@ -58,7 +59,7 @@ module Authentication
         end
 
         def discovered_provider
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(provider_uri))
+          @logger.info(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(provider_uri))
           @discovered_provider ||= @discover_identity_provider.(
             provider_uri: provider_uri
           )
