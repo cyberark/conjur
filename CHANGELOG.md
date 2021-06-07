@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.11.7] - 2021-06-08
+
 ### Added
 - Enabled authenticators can now be configured via a configuration file, or the
   CONJUR_AUTHENTICATORS environment variable.
@@ -643,7 +646,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.6...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.7...HEAD
+[1.11.7]: https://github.com/cyberark/conjur/compare/v1.11.6...v1.11.7
 [1.11.6]: https://github.com/cyberark/conjur/compare/v1.11.5...v1.11.6
 [1.11.5]: https://github.com/cyberark/conjur/compare/v1.11.4...v1.11.5
 [1.11.4]: https://github.com/cyberark/conjur/compare/v1.11.3...v1.11.4
