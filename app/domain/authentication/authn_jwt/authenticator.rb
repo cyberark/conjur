@@ -36,14 +36,16 @@ module Authentication
       private
 
       def validate_and_decode_token
-        @logger.debug(LogMessages::Authentication::AuthnJwt::VALIDATE_AND_DECODE_TOKEN.new)
+        @logger.debug(LogMessages::Authentication::AuthnJwt::CallingValidateAndDecodeToken.new)
         @jwt_configuration.validate_and_decode_token
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidateAndDecodeTokenPassed.new)
       end
 
       def get_jwt_identity
-        @logger.debug(LogMessages::Authentication::AuthnJwt::GET_JWT_IDENTITY.new)
+        @logger.debug(LogMessages::Authentication::AuthnJwt::CallingGetJwtIdentity.new)
         jwt_identity
-        @logger.debug(LogMessages::Authentication::AuthnJwt::FOUND_JWT_IDENTITY.new(jwt_identity))
+        @logger.debug(LogMessages::Authentication::AuthnJwt::GetJwtIdentityPassed.new)
+        @logger.info(LogMessages::Authentication::AuthnJwt::FoundJwtIdentity.new(jwt_identity))
         @jwt_identity_initialized = true
       end
 
@@ -69,8 +71,9 @@ module Authentication
       end
 
       def validate_restrictions
-        @logger.debug(LogMessages::Authentication::AuthnJwt::CALLING_VALIDATE_RESTRICTIONS.new)
+        @logger.debug(LogMessages::Authentication::AuthnJwt::CallingValidateRestrictions.new)
         @jwt_configuration.validate_restrictions
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidateRestrictionsPassed.new)
       end
 
       def audit_success
@@ -126,7 +129,7 @@ module Authentication
       end
 
       def new_token
-        @logger.debug(LogMessages::Authentication::AuthnJwt::JWT_AUTHENTICATION_PASSED.new)
+        @logger.debug(LogMessages::Authentication::AuthnJwt::JwtAuthenticationPassed.new)
         @token_factory.signed_token(
           account: account,
           username: jwt_identity
