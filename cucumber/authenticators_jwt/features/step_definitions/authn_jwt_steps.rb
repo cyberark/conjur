@@ -9,3 +9,7 @@ end
 When(/I authenticate via authn-jwt with the JWT token/) do
   authenticate_jwt_token(jwt_token)
 end
+
+When(/I authenticate via authn-jwt with ([^"]*) service ID/) do |service_id|
+  authenticate_jwt_token(jwt_token, service_id)
+end

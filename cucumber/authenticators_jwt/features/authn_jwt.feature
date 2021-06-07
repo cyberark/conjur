@@ -61,6 +61,25 @@ Feature: JWT Authenticator - JWKs Basic sanity
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
+  Scenario: A valid JWT token with identity in the token
+    Given I have a "variable" resource called "test-variable"
+    And I permit host "myapp" to "execute" it
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I issue a JWT token:
+    """
+    {
+      "user":"host/myapp",
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the audit log file
+    When I authenticate via authn-jwe with non-existing service ID
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00004E 'authn-jwt/non-existing' is not enabled
+    """
+
   Scenario: Empty Token Given
     Given I have a "variable" resource called "test-variable"
     And I permit host "myapp" to "execute" it
