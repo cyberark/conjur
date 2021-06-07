@@ -52,11 +52,36 @@ Feature: JWT Authenticator - JWKs Basic sanity
       "project-id": "myproject"
     }
     """
-    And I save my place in the audit log file
+    And I save my place in the log file
     When I authenticate via authn-jwt with the JWT token
     Then host "myapp" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
-    And The following appears in the audit log after my savepoint:
+    And The following appears in the log after my savepoint:
     """
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    """
+
+  Scenario: Empty Token Given
+    Given I have a "variable" resource called "test-variable"
+    And I permit host "myapp" to "execute" it
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I save my place in the log file
+    And I issue empty JWT token
+    When I authenticate via authn-jwt with the JWT token
+    Then it is unauthorized
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00085E Token is empty or not found.
+    """
+
+  Scenario: No Token Given
+    Given I have a "variable" resource called "test-variable"
+    And I permit host "myapp" to "execute" it
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then it is a bad request
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00009E Field 'jwt' is missing or empty in request body
     """
