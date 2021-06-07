@@ -44,10 +44,12 @@ module Authentication
         end
 
         def provider_uri_has_valid_configuration?
+          return @provider_uri_has_valid_configuration unless @provider_uri_has_valid_configuration.nil?
           @provider_uri_has_valid_configuration ||= fetch_provider_uri_signing_key.valid_configuration?
         end
 
         def jwks_uri_has_valid_configuration?
+          return @jwks_uri_has_valid_configuration unless @jwks_uri_has_valid_configuration.nil?
           @jwks_uri_has_valid_configuration ||= fetch_jwks_uri_signing_key.valid_configuration?
         end
 

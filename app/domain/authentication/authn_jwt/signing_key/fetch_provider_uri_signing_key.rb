@@ -18,6 +18,7 @@ module Authentication
         end
 
         def valid_configuration?
+          return @valid_configuration unless @valid_configuration.nil?
           @valid_configuration ||= provider_uri_resource_exists?
         end
 
