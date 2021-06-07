@@ -73,7 +73,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     }
     """
     And I save my place in the audit log file
-    When I authenticate via authn-jwe with non-existing service ID
+    When I authenticate via authn-jwt with non-existing service ID
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
