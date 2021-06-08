@@ -5,8 +5,6 @@ module Authentication
       class ConfigurationJWTGenericVendor < ConfigurationInterface
 
         def initialize(authenticator_input)
-          super
-
           @logger = Rails.logger
 
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreatingAuthenticationParametersObject.new)

@@ -30,6 +30,7 @@ module Authentication
         # Checks if variable that defined from which field in decoded token to get the id is configured
         def identity_available
           return @identity_available unless @identity_available.nil?
+
           @identity_available ||= identity_field_variable.present?
         end
 

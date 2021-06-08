@@ -15,6 +15,7 @@ module Authentication
 
         def identity_available
           return @identity_available unless @identity_available.nil?
+
           @identity_available ||= username_exists?
         end
 
