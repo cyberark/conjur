@@ -105,7 +105,7 @@ module LogMessages
     module ResourceRestrictions
 
       RetrievedAnnotationValue = ::Util::TrackableLogMessageClass.new(
-        msg: "Retrieved value of annotation {0-annotation-name}",
+        msg: "Retrieved value of annotation '{0-annotation-name}'",
         code: "CONJ00024I"
       )
 
