@@ -397,11 +397,6 @@ module Errors
         code: "CONJ00082E"
       )
 
-      NoRelevantIdentityProvider = ::Util::TrackableErrorClass.new(
-        msg: "Failed to fetch the application identity",
-        code: "CONJ00083E"
-      )
-
       JwtTokenClaimIsMissing = ::Util::TrackableErrorClass.new(
         msg: "Claim '{0-attribute-name}' is missing from JWT token. " \
              "Verify that you configured the host with permitted restrictions. " \
@@ -472,6 +467,11 @@ module Errors
       ServiceIdMissing = ::Util::TrackableErrorClass.new(
         msg: "Service ID is required when authenticating with authn-jwt",
         code: "CONJ00097E"
+      )
+
+      IdentityMisconfigured = ::Util::TrackableErrorClass.new(
+        msg: "JWT identity configuration is invalid",
+        code: "CONJ00098E"
       )
 
     end
