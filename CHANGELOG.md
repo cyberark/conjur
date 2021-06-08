@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [PR cyberark/conjur#2191](https://github.com/cyberark/conjur/pull/2191)
 
 ### Security
+- Upgrade bindata to 2.4.10 to resolve Unspecified Issue reported by JFrog Xray
+  [cyberark/conjur#2257](https://github.com/cyberark/conjur/issues/2257)
 - Upgrade Rails to 5.2.5 to resolve CVE-2021-22885
   [cyberark/conjur#2149](https://github.com/cyberark/conjur/issues/2149)
 - Upgrade Nokogiri to 1.11.5 to resolve

@@ -89,7 +89,7 @@ GEM
     base32-crockford (0.1.0)
     base58 (0.2.3)
     bcrypt (3.1.13)
-    bindata (2.4.7)
+    bindata (2.4.10)
     builder (3.2.4)
     byebug (11.1.1)
     childprocess (3.0.0)
