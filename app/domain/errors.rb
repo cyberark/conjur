@@ -486,7 +486,7 @@ module Errors
 
       EmptyAnnotationGiven = ::Util::TrackableErrorClass.new(
         msg: "Annotation, '{0-annotation-name}', is empty",
-        code: "CONJ00150E"
+        code: "CONJ00100E"
       )
 
     end
@@ -517,7 +517,7 @@ module Errors
 
       RoleMissingAnyRestrictions =  ::Util::TrackableErrorClass.new(
         msg: "Role must have at least one relevant annotation",
-        code: "CONJ00072E"
+        code: "CONJ00099E"
       )
     end
   end
