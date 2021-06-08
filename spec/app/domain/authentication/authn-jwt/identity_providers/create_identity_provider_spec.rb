@@ -5,21 +5,21 @@ require 'spec_helper'
 RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFactory') do
   class FalseIdentityProvider
     def initialize(authentication_parameters); end
-    def identity_available?
+    def identity_available
       false
     end
   end
 
   class MockedURLIdentityProvider
     def initialize(authentication_parameters); end
-    def identity_available?
+    def identity_available
       true
     end
   end
 
   class MockedDecodedTokenIdentityProvider
     def initialize(authentication_parameters); end
-    def identity_available?
+    def identity_available
       true
     end
   end
@@ -57,10 +57,10 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
         )
       end
 
-      it "factory to return IdentityFromDecodedTokenProvider" do
-        expect(subject.call(
+      it "factory raises IdentityMisconfigured" do
+        expect { subject.call(
           authentication_parameters: authentication_parameters_url_identity
-        )).to be_a(MockedDecodedTokenIdentityProvider)
+        ) }.to raise_error(Errors::Authentication::AuthnJwt::IdentityMisconfigured)
       end
     end
 
@@ -105,7 +105,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
       it "factory raises NoRelevantIdentityProvider" do
         expect { subject.call(
           authentication_parameters: authentication_parameters_url_identity
-        ) }.to raise_error(Errors::Authentication::AuthnJwt::NoRelevantIdentityProvider)
+        ) }.to raise_error(Errors::Authentication::AuthnJwt::IdentityMisconfigured)
       end
     end
   end

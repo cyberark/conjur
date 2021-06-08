@@ -28,14 +28,15 @@ module Authentication
         end
 
         # Checks if variable that defined from which field in decoded token to get the id is configured
-        def identity_available?
-          identity_field_variable.present?
+        def identity_available
+          return @identity_available unless @identity_available.nil?
+          @identity_available ||= identity_field_variable.present?
         end
 
         # This method is for the authenticator status check, unlike 'identity_available?' it checks if the
         # secret value is not empty too
         def identity_configured_properly?
-          fetch_token_field_name.blank? if identity_available?
+          fetch_token_field_name.blank? if identity_available
         end
 
         private
