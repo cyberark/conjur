@@ -61,7 +61,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  Scenario: A valid JWT token with identity in the token
+  Scenario: Authenticator is not enabled
     Given I have a "variable" resource called "test-variable"
     And I permit host "myapp" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
@@ -103,4 +103,30 @@ Feature: JWT Authenticator - JWKs Basic sanity
     And The following appears in the log after my savepoint:
     """
     CONJ00009E Field 'jwt' is missing or empty in request body
+    """
+
+  Scenario: Annotation with empty value
+    Given I have a "variable" resource called "test-variable"
+    Given I extend the policy with:
+    """
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/custom-claim:
+    """
+    And I permit host "myapp" to "execute" it
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I issue a JWT token:
+    """
+    {
+      "user":"host/myapp",
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00100E Annotation, 'custom-claim', is empty
     """
