@@ -10,8 +10,8 @@ module Authentication
         )
           @logger = Rails.logger
 
-          @fetch_required_secrets= fetch_required_secrets
-          @resource_class= resource_class
+          @fetch_required_secrets = fetch_required_secrets
+          @resource_class = resource_class
           @authentication_parameters = authentication_parameters
         end
 
@@ -20,7 +20,7 @@ module Authentication
 
           token_field_name = fetch_token_field_name
           @logger.debug(LogMessages::Authentication::AuthnJwt::CheckingIdentityFieldExists.new(token_field_name))
-          @jwt_identity ||= decoded_token[token_field_name]
+          @jwt_identity = decoded_token[token_field_name]
           if @jwt_identity.blank?
             raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken, token_field_name
           end
@@ -53,7 +53,7 @@ module Authentication
         end
 
         def identity_field_variable
-          @resource_class[token_id_field_variable_id]
+          @identity_field_variable ||= @resource_class[token_id_field_variable_id]
         end
 
         def fetch_token_field_name

@@ -32,7 +32,7 @@ module Authentication
         def create_identity_provider
           @logger.debug(LogMessages::Authentication::AuthnJwt::SelectingIdentityProviderInterface.new)
 
-          check_identity_configuration
+          validate_identity_configuration
           if identity_from_decoded_token_provider.identity_available?
             @logger.info(
               LogMessages::Authentication::AuthnJwt::SelectedIdentityProviderInterface.new(
@@ -50,7 +50,7 @@ module Authentication
           end
         end
 
-        def check_identity_configuration
+        def validate_identity_configuration
           if (identity_from_decoded_token_provider.identity_available? && identity_from_url_provider.identity_available?) ||
               (!identity_from_decoded_token_provider.identity_available? && !identity_from_url_provider.identity_available?)
             raise Errors::Authentication::AuthnJwt::IdentityMisconfigured

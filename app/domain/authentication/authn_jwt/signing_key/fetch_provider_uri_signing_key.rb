@@ -13,6 +13,7 @@ module Authentication
           )
           @logger = logger
 
+          @authentication_parameters = authentication_parameters
           @fetch_required_secrets = fetch_required_secrets
           @resource_class = resource_class
           @discover_identity_provider = discover_identity_provider
@@ -30,8 +31,9 @@ module Authentication
         end
 
         private
+
         def variable_id
-          @variable_id ||= authentication_parameters.authn_jwt_variable_id
+          @variable_id ||= @authentication_parameters.authn_jwt_variable_id
         end
 
         def provider_uri_resource_exists?
@@ -39,8 +41,9 @@ module Authentication
         end
 
         def provider_uri_resource
+          return @provider_uri_resource if @provider_uri_resource
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwtConfigurationValue.new(provider_uri_variable_id))
-          @provider_uri_resource ||= @resource_class[provider_uri_variable_id]
+          @provider_uri_resource = @resource_class[provider_uri_variable_id]
         end
 
         def provider_uri
@@ -52,7 +55,7 @@ module Authentication
         end
 
         def provider_uri_variable_id
-          "#{@variable_id}/#{PROVIDER_URI_RESOURCE_NAME}"
+          @provider_uri_variable_id ||= "#{@variable_id}/#{PROVIDER_URI_RESOURCE_NAME}"
         end
 
         def discover_provider

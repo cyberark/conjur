@@ -62,14 +62,14 @@ module Authentication
 
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreateValidateAndDecodeTokenInstance.new)
           @validate_and_decode_token_instance = validate_and_decode_token_class.new(
-            fetch_signing_key: fetch_cached_signing_key,
+            fetch_signing_key: fetch_signing_key,
             fetch_jwt_claims_to_validate: fetch_jwt_claims_to_validate
           )
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedValidateAndDecodeTokenInstance.new)
           @validate_and_decode_token_instance
         end
 
-        def fetch_cached_signing_key
+        def fetch_signing_key
           @fetch_cached_signing_key ||= ::Util::ConcurrencyLimitedCache.new(
             ::Util::RateLimitedCache.new(
               fetch_signing_key_interface,

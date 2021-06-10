@@ -63,7 +63,7 @@ module Authentication
         end
 
         def jwks_uri_variable_id
-          "#{@resource_id}/#{JWKS_URI_RESOURCE_NAME}"
+          @jwks_uri_variable_id ||= "#{@resource_id}/#{JWKS_URI_RESOURCE_NAME}"
         end
 
         def fetch_jwks_keys
