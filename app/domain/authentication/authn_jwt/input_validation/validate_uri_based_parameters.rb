@@ -10,17 +10,6 @@ module Authentication
         },
         inputs: %i[authenticator_input enabled_authenticators]
       ) do
-        # authenticator_input attributes
-        #  :account - from uri - has explicit validation
-        #  :authenticator_name - from uri - has implicit validation with service_id
-        #  :service_id - from uri - has implicit validation with authenticator_name
-        #  :username - can be from uri
-        #    - validation is specific for authenticator
-        #    - in jwt case undefined until token signature validation
-        #  :credentials - the web request body - validation is specific for authenticator
-        #  :client_ip - from metadata or request - depends username
-        #  :request - the web request object
-
         def call
           validate_account_exists
           validate_webservice_is_whitelisted

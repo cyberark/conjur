@@ -117,7 +117,7 @@ module Authentication
           role: role,
           account: account,
           username: username
-          ).to_s
+        ).to_s
       end
 
       def webservice

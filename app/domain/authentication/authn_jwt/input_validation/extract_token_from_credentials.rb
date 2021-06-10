@@ -23,7 +23,11 @@ module Authentication
         end
 
         def extract_token_from_credentials
-          decoded_credentials.jwt
+          token_from_credentials
+        end
+
+        def token_from_credentials
+          @token_from_credentials ||= decoded_credentials.jwt
         end
       end
     end

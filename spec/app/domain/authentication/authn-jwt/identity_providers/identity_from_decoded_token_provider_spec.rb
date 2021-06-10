@@ -62,13 +62,13 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
       subject do
         id_from_decoded_token_provider = ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(authentication_parameters)
         allow(id_from_decoded_token_provider).to receive(:token_id_field_resource_id).and_return("dummy_secret_id")
-        allow(id_from_decoded_token_provider).to receive(:fetch_secret).and_return("user_email")
+        allow(id_from_decoded_token_provider).to receive(:conjur_secret).and_return("user_email")
         allow(id_from_decoded_token_provider).to receive(:identity_field_variable).and_return("token-app-property")
         id_from_decoded_token_provider
       end
 
       it "identity_available? returns true" do
-        expect(subject.identity_available).to eql(true)
+        expect(subject.identity_available?).to eql(true)
       end
 
       it "get identity from decoded token successfully" do
@@ -84,13 +84,13 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
       subject do
         id_from_decoded_token_provider = ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(authentication_parameters)
         allow(id_from_decoded_token_provider).to receive(:token_id_field_resource_id).and_return("dummy_secret_id")
-        allow(id_from_decoded_token_provider).to receive(:fetch_secret).and_return(non_existing_field_name)
+        allow(id_from_decoded_token_provider).to receive(:conjur_secret).and_return(non_existing_field_name)
         allow(id_from_decoded_token_provider).to receive(:identity_field_variable).and_return("token-app-property")
         id_from_decoded_token_provider
       end
 
       it "identity_available? returns true" do
-        expect(subject.identity_available).to eql(true)
+        expect(subject.identity_available?).to eql(true)
       end
 
       it "NoSuchFieldInToken error is raised" do
@@ -106,13 +106,13 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
       subject do
         id_from_decoded_token_provider = ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(authentication_parameters)
         allow(id_from_decoded_token_provider).to receive(:token_id_field_resource_id).and_return("dummy_secret_id")
-        allow(id_from_decoded_token_provider).to receive(:fetch_secret).and_raise(Errors::Conjur::RequiredSecretMissing)
+        allow(id_from_decoded_token_provider).to receive(:conjur_secret).and_raise(Errors::Conjur::RequiredSecretMissing)
         allow(id_from_decoded_token_provider).to receive(:identity_field_variable).and_return("token-app-property")
         id_from_decoded_token_provider
       end
 
       it "identity_available? returns true" do
-        expect(subject.identity_available).to eql(true)
+        expect(subject.identity_available?).to eql(true)
       end
 
       it "RequiredSecretMissing error is raised" do
@@ -132,7 +132,7 @@ RSpec.describe('Authentication::AuthnJwt::ConjurIdFromDecodedTokenProvider') do
       end
 
       it "identity_available? returns false" do
-        expect(subject.identity_available).to eql(false)
+        expect(subject.identity_available?).to eql(false)
       end
 
       it "identity_configured_properly? does not raise an error" do

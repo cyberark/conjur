@@ -4,9 +4,10 @@ module Authentication
       # CreateJwksFromHttpResponse command class is responsible to create jwks object from http response
       CreateJwksFromHttpResponse ||= CommandClass.new(
         dependencies: {
-          logger: Rails.logger
+          logger: Rails.logger,
+          jwk_set_class: JSON::JWK::Set
         },
-        inputs: [:http_response]
+        inputs: %i[http_response]
       ) do
         def call
           validate_response_exists
@@ -39,7 +40,7 @@ module Authentication
         def parse_jwks_response(response_body, encoded_body)
           parsed_response = JSON.parse(response_body)
           keys = parsed_response['keys']
-          [{ keys: JSON::JWK::Set.new(keys) }, keys]
+          [{ keys: @jwk_set_class.new(keys) }, keys]
         rescue => e
           raise Errors::Authentication::AuthnJwt::FailedToConvertResponseToJwks.new(
             encoded_body,

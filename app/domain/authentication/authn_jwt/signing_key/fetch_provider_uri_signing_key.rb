@@ -4,54 +4,58 @@ module Authentication
       # This class is responsible for fetching JWK Set from provider-uri
       class FetchProviderUriSigningKey < FetchSigningKeyInterface
 
-        def initialize(authentication_parameters:,
-          logger:,
-          fetch_required_secrets:,
-          resource_class:,
-          discover_identity_provider:)
+        def initialize(
+            authentication_parameters:,
+            fetch_required_secrets: Conjur::FetchRequiredSecrets.new,
+            resource_class: ::Resource,
+            discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new,
+            logger: Rails.logger
+          )
           @logger = logger
 
+          @authentication_parameters = authentication_parameters
           @fetch_required_secrets = fetch_required_secrets
           @resource_class = resource_class
-          @resource_id = authentication_parameters.authn_jwt_variable_id
           @discover_identity_provider = discover_identity_provider
         end
 
         def valid_configuration?
-          return @valid_configuration unless @valid_configuration.nil?
-          @valid_configuration ||= provider_uri_resource_exists?
+          return @valid_configuration if defined?(@valid_configuration)
+
+          @valid_configuration = provider_uri_resource_exists?
         end
 
-        def fetch_signing_key
+        def call
           discover_provider
           fetch_provider_keys
         end
 
         private
 
+        def variable_id
+          @variable_id ||= @authentication_parameters.authn_jwt_variable_id
+        end
+
         def provider_uri_resource_exists?
           !provider_uri_resource.nil?
         end
 
         def provider_uri_resource
-          @provider_uri_resource ||= resource
-        end
-
-        def resource
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwtConfigurationValue.new(provider_uri_resource_id))
-          @resource_class[provider_uri_resource_id]
+          return @provider_uri_resource if @provider_uri_resource
+          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwtConfigurationValue.new(provider_uri_variable_id))
+          @provider_uri_resource = @resource_class[provider_uri_variable_id]
         end
 
         def provider_uri
-          @provider_uri ||= provider_uri_secret[provider_uri_resource_id]
+          @provider_uri ||= provider_uri_secret[provider_uri_variable_id]
         end
 
         def provider_uri_secret
-          @provider_uri_secret ||= @fetch_required_secrets.(resource_ids: [provider_uri_resource_id])
+          @provider_uri_secret ||= @fetch_required_secrets.(resource_ids: [provider_uri_variable_id])
         end
 
-        def provider_uri_resource_id
-          "#{@resource_id}/#{PROVIDER_URI_RESOURCE_NAME}"
+        def provider_uri_variable_id
+          @provider_uri_variable_id ||= "#{@variable_id}/#{PROVIDER_URI_RESOURCE_NAME}"
         end
 
         def discover_provider

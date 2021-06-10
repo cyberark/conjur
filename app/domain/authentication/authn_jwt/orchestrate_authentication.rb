@@ -21,6 +21,13 @@ module Authentication
 
       private
 
+      def validate_uri_based_parameters
+        @validate_uri_based_parameters.call(
+          authenticator_input: @authenticator_input,
+          enabled_authenticators: @enabled_authenticators
+        )
+      end
+
       def authenticate_jwt
         relevant_authenticator = authenticator_name
         @logger.info(LogMessages::Authentication::AuthnJwt::JwtAuthenticatorEntryPoint.new(relevant_authenticator))
@@ -34,13 +41,6 @@ module Authentication
 
       def authenticator_name
         @authenticator_input.authenticator_name
-      end
-
-      def validate_uri_based_parameters
-        @validate_uri_based_parameters.call(
-          authenticator_input: @authenticator_input,
-          enabled_authenticators: @enabled_authenticators
-        )
       end
     end
   end
