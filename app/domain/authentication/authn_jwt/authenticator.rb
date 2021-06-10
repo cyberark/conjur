@@ -22,11 +22,12 @@ module Authentication
 
       def call
         validate_and_decode_token
-        get_jwt_identity
+        get_jwt_identity_from_request
         validate_user_has_access_to_webservice
         validate_origin
         validate_restrictions
         audit_success
+        @logger.debug(LogMessages::Authentication::AuthnJwt::JwtAuthenticationPassed.new)
         new_token
       rescue => e
         audit_failure(e)
@@ -41,12 +42,10 @@ module Authentication
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidateAndDecodeTokenPassed.new)
       end
 
-      def get_jwt_identity
+      def get_jwt_identity_from_request
         @logger.debug(LogMessages::Authentication::AuthnJwt::CallingGetJwtIdentity.new)
         jwt_identity
-        @logger.debug(LogMessages::Authentication::AuthnJwt::GetJwtIdentityPassed.new)
         @logger.info(LogMessages::Authentication::AuthnJwt::FoundJwtIdentity.new(jwt_identity))
-        @jwt_identity_initialized = true
       end
 
       def jwt_identity
@@ -103,7 +102,7 @@ module Authentication
       end
 
       def identity_role
-        @role_class.by_login(
+        @identity_role ||= @role_class.by_login(
           jwt_identity,
           account: account
         )
@@ -111,9 +110,12 @@ module Authentication
 
       # If there is no jwt identity so role and username are nil
       def audit_role_id
-        role = identity_role if @jwt_identity_initialized
-        username = jwt_identity if @jwt_identity_initialized
-        @role_id_class.new(
+        return @audit_role_id if @audit_role_id
+        if @jwt_identity
+          role = identity_role
+          username = jwt_identity
+        end
+        @audit_role_id ||= @role_id_class.new(
           role: role,
           account: account,
           username: username
@@ -129,7 +131,6 @@ module Authentication
       end
 
       def new_token
-        @logger.debug(LogMessages::Authentication::AuthnJwt::JwtAuthenticationPassed.new)
         @token_factory.signed_token(
           account: account,
           username: jwt_identity

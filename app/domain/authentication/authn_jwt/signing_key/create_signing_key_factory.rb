@@ -2,7 +2,7 @@ module Authentication
   module AuthnJwt
     module SigningKey
       # Factory that returns the interface implementation of FetchSigningKey
-      CreateSigningKeyInterface ||= CommandClass.new(
+      CreateSigningKeyFactory ||= CommandClass.new(
         dependencies: {
           fetch_provider_uri: Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey,
           fetch_jwks_uri: Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey,
