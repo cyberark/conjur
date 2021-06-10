@@ -14,12 +14,18 @@ describe Conjur::ConjurConfig do
     let(:config_folder) { "/etc/conjur/config" }
     let(:config_file) { "#{config_folder}/conjur.yml" }
 
+    let(:config_file_contents) do
+      <<~YAML
+        trusted_proxies:
+          - 1.2.3.4
+      YAML
+    end
+
     before do
       FileUtils.mkdir_p(config_folder)
 
       File.open(config_file, 'w') do |f|
-        f.puts("trusted_proxies:")
-        f.puts("  - 1.2.3.4")
+        f.puts(config_file_contents)
       end
     end
 
@@ -34,6 +40,59 @@ describe Conjur::ConjurConfig do
     it "reports the attribute source as :yml" do
       expect(Conjur::ConjurConfig.new.attribute_sources[:trusted_proxies]).
         to eq(:yml)
+    end
+
+    context "with a config file that is a string value" do
+      let(:config_file_contents) do
+        <<~YAML
+          trusted_proxies
+        YAML
+      end
+
+      it "fails validation" do
+        expect { Conjur::ConjurConfig.new }.
+          to raise_error(Conjur::ConfigValidationError)
+      end
+    end
+
+    context "with a config file that is an array value" do
+      let(:config_file_contents) do
+        <<~YAML
+          - trusted_proxies
+          - authenticators
+        YAML
+      end
+
+      it "fails validation" do
+        expect { Conjur::ConjurConfig.new }.
+          to raise_error(Conjur::ConfigValidationError)
+      end
+    end
+
+    context "with a config file that is a numeric value" do
+      let(:config_file_contents) do
+        <<~YAML
+          10
+        YAML
+      end
+
+      it "fails validation" do
+        expect { Conjur::ConjurConfig.new }.
+          to raise_error(Conjur::ConfigValidationError)
+      end
+    end
+
+    context "with a config file that is invalid YAML" do
+      let(:config_file_contents) do
+        <<~YAML
+          [
+        YAML
+      end
+
+      it "fails validation" do
+        expect { Conjur::ConjurConfig.new }.
+          to raise_error(Conjur::ConfigValidationError, /syntax error/)
+      end
     end
 
     context "with prefixed env var" do
