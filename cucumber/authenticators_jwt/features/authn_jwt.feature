@@ -61,7 +61,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  Scenario: A valid JWT token with identity in the token
+  Scenario: Authenticator is not enabled
     Given I have a "variable" resource called "test-variable"
     And I permit host "myapp" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
@@ -103,4 +103,85 @@ Feature: JWT Authenticator - JWKs Basic sanity
     And The following appears in the log after my savepoint:
     """
     CONJ00009E Field 'jwt' is missing or empty in request body
+    """
+
+  Scenario: Annotation with empty value
+    Given I have a "variable" resource called "test-variable"
+    Given I extend the policy with:
+    """
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/custom-claim:
+    """
+    And I permit host "myapp" to "execute" it
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I issue a JWT token:
+    """
+    {
+      "user":"host/myapp",
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00100E Annotation, 'custom-claim', is empty
+    """
+
+  Scenario: Ignore invalid annotations
+    Given I have a "variable" resource called "test-variable"
+    Given I extend the policy with:
+    """
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw: invalid
+        authn-jwt: invalid
+        authn-jwt/raw/sub/sub: invalid
+        authn-jwt/raw2/sub: invalid
+        authn-jwt/raw/sub: valid
+        authn-jwt/raw/namespace-id: valid
+        authn-jwt/raw/project-path: valid
+    """
+    And I permit host "myapp" to "execute" it
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I issue a JWT token:
+    """
+    {
+      "user":"host/myapp",
+      "project-id": "myproject",
+      "sub": "valid",
+      "namespace-id": "valid",
+      "project-path": "valid"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 200
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00048D Validating resource restriction on request: 'sub'
+    """
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00048D Validating resource restriction on request: 'namespace-id'
+    """
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00048D Validating resource restriction on request: 'project-path'
+    """
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00045D Resource restrictions matched request
+    """
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00030D Resource restrictions validated
+    """
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00103D 'validate_restrictions' passed successfully
     """
