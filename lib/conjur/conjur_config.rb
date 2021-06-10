@@ -26,6 +26,31 @@ module Conjur
       authenticators: []
     )
 
+    def initialize(*args)
+      super(*args)
+
+    # If the config file is not a valid YAML document, we want
+    # to raise a user-friendly ConfigValidationError rather than
+    # a Psych library exception.
+    rescue Psych::SyntaxError => e
+      raise(
+        ConfigValidationError,
+        "Config file contains a YAML syntax error: #{e.message}"
+      )
+
+    # If the config file is valid YAML, but the root object is
+    # not a YAML dictionary, this raises one of a number of
+    # NoMethodError exceptions because AnywayConfig assumes parsing
+    # the config file will result in a Ruby Hash. We capture
+    # this and raise a more user-friendly error message.
+    rescue NoMethodError
+      raise(
+        ConfigValidationError,
+        "Unable to parse config file. " \
+        "Please ensure that it is a valid YAML dictionary."
+      )
+    end
+
     # Perform validations and collect errors then report results as exception
     on_load do
       invalid = []
