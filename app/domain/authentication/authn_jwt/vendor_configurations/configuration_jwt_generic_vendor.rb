@@ -35,7 +35,8 @@ module Authentication
 
         def validate_and_decode_token
           @authentication_parameters.decoded_token = validate_and_decode_token_instance.call(
-            authentication_parameters: @authentication_parameters
+            authentication_parameters: @authentication_parameters,
+            fetch_signing_key: fetch_signing_key
           )
         end
 
@@ -62,7 +63,6 @@ module Authentication
 
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreateValidateAndDecodeTokenInstance.new)
           @validate_and_decode_token_instance = validate_and_decode_token_class.new(
-            fetch_signing_key: fetch_signing_key,
             fetch_jwt_claims_to_validate: fetch_jwt_claims_to_validate
           )
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedValidateAndDecodeTokenInstance.new)

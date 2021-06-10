@@ -7,13 +7,12 @@ module Authentication
       # for the 2nd validation
       ValidateAndDecodeToken ||= CommandClass.new(
         dependencies: {
-          fetch_signing_key: ::Authentication::AuthnJwt::SigningKey::FetchSigningKeyInterface,
           verify_and_decode_token: ::Authentication::Jwt::VerifyAndDecodeToken.new,
           fetch_jwt_claims_to_validate: ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new,
           get_verification_option_by_jwt_claim: ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new,
           logger: Rails.logger
         },
-        inputs: %i[authentication_parameters]
+        inputs: %i[authentication_parameters fetch_signing_key]
       ) do
         extend(Forwardable)
         def_delegators(:@authentication_parameters, :jwt_token)
