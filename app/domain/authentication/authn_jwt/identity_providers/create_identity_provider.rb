@@ -33,26 +33,26 @@ module Authentication
           @logger.debug(LogMessages::Authentication::AuthnJwt::SelectingIdentityProviderInterface.new)
 
           check_identity_configuration
-          if identity_from_decoded_token_provider.identity_available
+          if identity_from_decoded_token_provider.identity_available?
             @logger.info(
               LogMessages::Authentication::AuthnJwt::SelectedIdentityProviderInterface.new(
                 TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME
               )
             )
-            return identity_from_decoded_token_provider
-          elsif identity_from_url_provider.identity_available
+            identity_from_decoded_token_provider
+          elsif identity_from_url_provider.identity_available?
             @logger.info(
               LogMessages::Authentication::AuthnJwt::SelectedIdentityProviderInterface.new(
                 URL_IDENTITY_PROVIDER_INTERFACE_NAME
               )
             )
-            return identity_from_url_provider
+            identity_from_url_provider
           end
         end
 
         def check_identity_configuration
-          if (identity_from_decoded_token_provider.identity_available and identity_from_url_provider.identity_available) ||
-            (!identity_from_decoded_token_provider.identity_available and !identity_from_url_provider.identity_available)
+          if (identity_from_decoded_token_provider.identity_available? && identity_from_url_provider.identity_available?) ||
+              (!identity_from_decoded_token_provider.identity_available? && !identity_from_url_provider.identity_available?)
             raise Errors::Authentication::AuthnJwt::IdentityMisconfigured
           end
         end

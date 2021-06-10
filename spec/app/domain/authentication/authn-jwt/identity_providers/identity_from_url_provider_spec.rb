@@ -48,7 +48,7 @@ RSpec.describe('Authentication::AuthnJwt::IdFromUrlProvider') do
       end
 
       it "id_available? return true" do
-        expect(subject.identity_available).to eql(true)
+        expect(subject.identity_available?).to eql(true)
       end
 
       it "provide_jwt_id to provide identity from url successfully" do
@@ -62,7 +62,7 @@ RSpec.describe('Authentication::AuthnJwt::IdFromUrlProvider') do
       end
 
       it "id_available? return false" do
-        expect(subject.identity_available).to eql(false)
+        expect(subject.identity_available?).to eql(false)
       end
 
       it "provide_jwt_id to raise NoUsernameInTheURL" do

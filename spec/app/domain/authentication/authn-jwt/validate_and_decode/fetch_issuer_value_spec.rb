@@ -183,7 +183,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
       subject do
         ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
           resource_class: mocked_resource_exists_values,
-          fetch_secrets: mocked_fetch_secrets_empty_values
+          fetch_required_secrets: mocked_fetch_secrets_empty_values
         ).call(
           authentication_parameters: authentication_parameters
         )
@@ -198,7 +198,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
       subject do
         ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
           resource_class: mocked_resource_exists_values,
-          fetch_secrets: mocked_fetch_secrets_exist_values
+          fetch_required_secrets: mocked_fetch_secrets_exist_values
         ).call(
           authentication_parameters: authentication_parameters
         )
@@ -244,7 +244,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
             resource_class: mocked_resource_just_provider_uri_exists_values,
-            fetch_secrets: mocked_fetch_secrets_empty_values
+            fetch_required_secrets: mocked_fetch_secrets_empty_values
           ).call(
             authentication_parameters: authentication_parameters
           )
@@ -259,7 +259,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
             resource_class: mocked_resource_just_provider_uri_exists_values,
-            fetch_secrets: mocked_fetch_secrets_exist_values
+            fetch_required_secrets: mocked_fetch_secrets_exist_values
           ).call(
             authentication_parameters: authentication_parameters
           )
@@ -276,7 +276,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
             resource_class: mocked_resource_just_jwks_uri_exists_values,
-            fetch_secrets: mocked_fetch_secrets_empty_values
+            fetch_required_secrets: mocked_fetch_secrets_empty_values
           ).call(
             authentication_parameters: authentication_parameters
           )
@@ -291,7 +291,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
             resource_class: mocked_resource_just_jwks_uri_exists_values,
-            fetch_secrets: mocked_fetch_secrets_jwks_uri_with_bad_uri_format_value
+            fetch_required_secrets: mocked_fetch_secrets_jwks_uri_with_bad_uri_format_value
           ).call(
             authentication_parameters: authentication_parameters
           )
@@ -306,7 +306,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
             resource_class: mocked_resource_just_jwks_uri_exists_values,
-            fetch_secrets: mocked_fetch_secrets_jwks_uri_with_bad_uri_hostname_value
+            fetch_required_secrets: mocked_fetch_secrets_jwks_uri_with_bad_uri_hostname_value
           ).call(
             authentication_parameters: authentication_parameters
           )
@@ -321,7 +321,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
             resource_class: mocked_resource_just_jwks_uri_exists_values,
-            fetch_secrets: mocked_fetch_secrets_jwks_uri_with_valid_uri_hostname_value
+            fetch_required_secrets: mocked_fetch_secrets_jwks_uri_with_valid_uri_hostname_value
           ).call(
             authentication_parameters: authentication_parameters
           )

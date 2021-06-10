@@ -58,17 +58,15 @@ module Authentication
         end
 
         def validate_and_decode_token_instance
+          return @validate_and_decode_token_instance if @validate_and_decode_token_instance
+
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreateValidateAndDecodeTokenInstance.new)
-          @validate_and_decode_token_instance ||= validate_and_decode_token_class.new(
-            fetch_signing_key: fetch_signing_key,
+          @validate_and_decode_token_instance = validate_and_decode_token_class.new(
+            fetch_signing_key: fetch_cached_signing_key,
             fetch_jwt_claims_to_validate: fetch_jwt_claims_to_validate
           )
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedValidateAndDecodeTokenInstance.new)
           @validate_and_decode_token_instance
-        end
-
-        def fetch_signing_key
-          @fetch_signing_key ||= fetch_cached_signing_key
         end
 
         def fetch_cached_signing_key

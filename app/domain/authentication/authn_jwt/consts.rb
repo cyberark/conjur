@@ -7,7 +7,7 @@ module Authentication
     PROVIDER_URI_INTERFACE_NAME = PROVIDER_URI_RESOURCE_NAME.freeze
     JWKS_URI_INTERFACE_NAME = JWKS_URI_RESOURCE_NAME.freeze
     ISSUER_RESOURCE_NAME = "issuer"
-    IDENTITY_FIELD_VARIABLE = "token-app-property"
+    TOKEN_APP_PROPERTY_VARIABLE = "token-app-property"
     IDENTITY_NOT_RETRIEVED_YET = "Identity not retrieved yet"
     URL_IDENTITY_PROVIDER_INTERFACE_NAME = "url-identity-provider"
     TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME = "token-identity-provider"
