@@ -55,7 +55,7 @@ module Authentication
         end
 
         def provider_uri_variable_id
-          @provider_uri_variable_id ||= "#{@variable_id}/#{PROVIDER_URI_RESOURCE_NAME}"
+          @provider_uri_variable_id ||= "#{variable_id}/#{PROVIDER_URI_RESOURCE_NAME}"
         end
 
         def discover_provider

@@ -555,6 +555,51 @@ module LogMessages
         code: "CONJ00109D"
       )
 
+      FetchingIdentityPath = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetching identity path...",
+        code: "CONJ00110D"
+      )
+
+      FetchedIdentityPath = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully fetched identity path '{0-identity-path}'",
+        code: "CONJ00111I"
+      )
+
+      ValidatingIdentityPathConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating identity path configuration...",
+        code: "CONJ00112D"
+      )
+
+      ValidatedIdentityPathConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Identity path configuration validated",
+        code: "CONJ00113D"
+      )
+
+      FetchingIdentityByInterface = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetching identity by interface: '{0-interface-name}'",
+        code: "CONJ00114D"
+      )
+
+      FetchedIdentityByInterface = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully fetched identity '{0-identity}' by interface: '{1-interface-name}'",
+        code: "CONJ00115I"
+      )
+
+      AddingIdentityPrefixToIdentity = ::Util::TrackableLogMessageClass.new(
+        msg: "Adding identity prefix '{0-identity-prefix}' to identity '{1-identity}'...",
+        code: "CONJ00116D"
+      )
+
+      AddedIdentityPrefixToIdentity = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully added identity prefix, calculated identity is: '{0-identity}'",
+        code: "CONJ00117D"
+      )
+
+      IdentityPathNotConfigured = ::Util::TrackableLogMessageClass.new(
+        msg: "Identity path '{0-resource-name}' is not configured, the identity will be taken from root policy",
+        code: "CONJ00118D"
+      )
+
     end
   end
 
