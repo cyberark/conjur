@@ -31,7 +31,7 @@ module Authentication
           @valid_configuration = jwks_uri_resource_exists?
         end
 
-        def fetch_signing_key
+        def call
           fetch_jwks_uri
           fetch_jwks_keys
         end

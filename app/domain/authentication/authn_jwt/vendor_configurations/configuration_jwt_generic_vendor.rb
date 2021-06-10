@@ -72,9 +72,7 @@ module Authentication
         def fetch_cached_signing_key
           @fetch_cached_signing_key ||= ::Util::ConcurrencyLimitedCache.new(
             ::Util::RateLimitedCache.new(
-              fetch_cached_signing_key_class.new(
-                fetch_signing_key_interface: fetch_signing_key_interface
-              ),
+              fetch_signing_key_interface,
               refreshes_per_interval: CACHE_REFRESHES_PER_INTERVAL,
               rate_limit_interval: CACHE_RATE_LIMIT_INTERVAL,
               logger: @logger
@@ -111,10 +109,6 @@ module Authentication
           @fetch_signing_key_interface ||= create_signing_key_interface.call(
             authentication_parameters: @authentication_parameters
           )
-        end
-
-        def fetch_cached_signing_key_class
-          @fetch_cached_signing_key_class ||= Authentication::AuthnJwt::SigningKey::FetchCachedSigningKey
         end
 
         def create_signing_key_interface

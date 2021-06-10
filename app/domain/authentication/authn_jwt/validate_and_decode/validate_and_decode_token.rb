@@ -7,18 +7,7 @@ module Authentication
       # for the 2nd validation
       ValidateAndDecodeToken ||= CommandClass.new(
         dependencies: {
-          fetch_signing_key: ::Util::ConcurrencyLimitedCache.new(
-            ::Util::RateLimitedCache.new(
-              ::Authentication::AuthnJwt::SigningKey::FetchCachedSigningKey.new(
-                signing_key_interface: ::Authentication::AuthnJwt::SigningKey::FetchSigningKeyInterface
-              ),
-              refreshes_per_interval: CACHE_REFRESHES_PER_INTERVAL,
-              rate_limit_interval: CACHE_RATE_LIMIT_INTERVAL,
-              logger: Rails.logger
-            ),
-            max_concurrent_requests: CACHE_MAX_CONCURRENT_REQUESTS,
-            logger: Rails.logger
-          ),
+          fetch_signing_key: ::Authentication::AuthnJwt::SigningKey::FetchSigningKeyInterface,
           verify_and_decode_token: ::Authentication::Jwt::VerifyAndDecodeToken.new,
           fetch_jwt_claims_to_validate: ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new,
           get_verification_option_by_jwt_claim: ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new,
