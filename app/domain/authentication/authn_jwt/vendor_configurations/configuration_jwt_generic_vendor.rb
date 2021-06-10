@@ -35,7 +35,8 @@ module Authentication
 
         def validate_and_decode_token
           @authentication_parameters.decoded_token = validate_and_decode_token_instance.call(
-            authentication_parameters: @authentication_parameters
+            authentication_parameters: @authentication_parameters,
+            fetch_signing_key: fetch_signing_key
           )
         end
 
@@ -58,9 +59,10 @@ module Authentication
         end
 
         def validate_and_decode_token_instance
+          return @validate_and_decode_token_instance if @validate_and_decode_token_instance
+
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreateValidateAndDecodeTokenInstance.new)
-          @validate_and_decode_token_instance ||= validate_and_decode_token_class.new(
-            fetch_signing_key: fetch_signing_key,
+          @validate_and_decode_token_instance = validate_and_decode_token_class.new(
             fetch_jwt_claims_to_validate: fetch_jwt_claims_to_validate
           )
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedValidateAndDecodeTokenInstance.new)
@@ -68,15 +70,9 @@ module Authentication
         end
 
         def fetch_signing_key
-          @fetch_signing_key ||= fetch_cached_signing_key
-        end
-
-        def fetch_cached_signing_key
           @fetch_cached_signing_key ||= ::Util::ConcurrencyLimitedCache.new(
             ::Util::RateLimitedCache.new(
-              fetch_cached_signing_key_class.new(
-                fetch_signing_key_interface: fetch_signing_key_interface
-              ),
+              fetch_signing_key_interface,
               refreshes_per_interval: CACHE_REFRESHES_PER_INTERVAL,
               rate_limit_interval: CACHE_RATE_LIMIT_INTERVAL,
               logger: @logger
@@ -113,10 +109,6 @@ module Authentication
           @fetch_signing_key_interface ||= create_signing_key_interface.call(
             authentication_parameters: @authentication_parameters
           )
-        end
-
-        def fetch_cached_signing_key_class
-          @fetch_cached_signing_key_class ||= Authentication::AuthnJwt::SigningKey::FetchCachedSigningKey
         end
 
         def create_signing_key_interface

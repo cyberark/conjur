@@ -266,7 +266,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
     context "with nil value" do
       subject do
         ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new().call(
-          authentication_parameters: authentication_parameters_with_nil_token
+          authentication_parameters: authentication_parameters_with_nil_token,
+          fetch_signing_key: ::Authentication::AuthnJwt::SigningKey::FetchSigningKeyInterface
         )
       end
 
@@ -278,7 +279,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
     context "with empty value" do
       subject do
         ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new().call(
-          authentication_parameters: authentication_parameters_with_empty_token
+          authentication_parameters: authentication_parameters_with_empty_token,
+          fetch_signing_key: ::Authentication::AuthnJwt::SigningKey::FetchSigningKeyInterface
         )
       end
 
@@ -290,10 +292,9 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
 
   context "Failed to fetch keys" do
     subject do
-      ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new(
+      ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new().call(
+        authentication_parameters: authentication_parameters_with_valid_token,
         fetch_signing_key: mocked_fetch_signing_key_failed_on_1st_time
-      ).call(
-        authentication_parameters: authentication_parameters_with_valid_token
       )
     end
 
@@ -307,10 +308,10 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
       context "and failed to fetch keys from provider" do
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new(
-            fetch_signing_key: mocked_fetch_signing_key_failed_on_2nd_time,
             verify_and_decode_token: mocked_verify_and_decode_token_invalid
           ).call(
-            authentication_parameters: authentication_parameters_with_valid_token
+            authentication_parameters: authentication_parameters_with_valid_token,
+            fetch_signing_key: mocked_fetch_signing_key_failed_on_2nd_time
           )
         end
 
@@ -322,10 +323,10 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
       context "and succeed to fetch keys from provider" do
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new(
-            fetch_signing_key: mocked_fetch_signing_key_always_succeed,
             verify_and_decode_token: mocked_verify_and_decode_token_invalid
           ).call(
-            authentication_parameters: authentication_parameters_with_valid_token
+            authentication_parameters: authentication_parameters_with_valid_token,
+            fetch_signing_key: mocked_fetch_signing_key_always_succeed
           )
         end
 
@@ -339,12 +340,12 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
       context "and keys are not updated" do
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new(
-            fetch_signing_key: mocked_fetch_signing_key_always_succeed,
             verify_and_decode_token: mocked_verify_and_decode_token_succeed_on_2nd_time,
             fetch_jwt_claims_to_validate: mocked_fetch_jwt_claims_to_validate_valid,
             get_verification_option_by_jwt_claim: mocked_get_verification_option_by_jwt_claim_valid,
           ).call(
-            authentication_parameters: authentication_parameters_with_valid_token
+            authentication_parameters: authentication_parameters_with_valid_token,
+            fetch_signing_key: mocked_fetch_signing_key_always_succeed
           )
         end
 
@@ -356,12 +357,12 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
       context "and keys are updated" do
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new(
-            fetch_signing_key: mocked_fetch_signing_key_always_succeed,
             verify_and_decode_token: mocked_verify_and_decode_token_succeed_on_1st_time,
             fetch_jwt_claims_to_validate: mocked_fetch_jwt_claims_to_validate_valid,
             get_verification_option_by_jwt_claim: mocked_get_verification_option_by_jwt_claim_valid
             ).call(
-            authentication_parameters: authentication_parameters_with_valid_token
+            authentication_parameters: authentication_parameters_with_valid_token,
+            fetch_signing_key: mocked_fetch_signing_key_always_succeed
           )
         end
 
@@ -377,11 +378,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
       context "and failed to fetch mandatory claims" do
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new(
-            fetch_signing_key: mocked_fetch_signing_key_always_succeed,
             verify_and_decode_token: mocked_verify_and_decode_token_succeed_on_1st_time,
             fetch_jwt_claims_to_validate: mocked_fetch_jwt_claims_to_validate_invalid
             ).call(
-            authentication_parameters: authentication_parameters_with_valid_token
+            authentication_parameters: authentication_parameters_with_valid_token,
+            fetch_signing_key: mocked_fetch_signing_key_always_succeed
           )
         end
 
@@ -394,11 +395,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
         context "with empty claims list to validate" do
           subject do
             ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new(
-              fetch_signing_key: mocked_fetch_signing_key_always_succeed,
               verify_and_decode_token: mocked_verify_and_decode_token_succeed_on_1st_time,
               fetch_jwt_claims_to_validate: mocked_fetch_jwt_claims_to_validate_with_empty_claims
             ).call(
-              authentication_parameters: authentication_parameters_with_valid_token
+              authentication_parameters: authentication_parameters_with_valid_token,
+              fetch_signing_key: mocked_fetch_signing_key_always_succeed,
             )
           end
 
@@ -410,11 +411,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
         context "with mandatory claims which not exist in token" do
           subject do
             ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new(
-              fetch_signing_key: mocked_fetch_signing_key_always_succeed,
               verify_and_decode_token: mocked_verify_and_decode_token_succeed_on_1st_time,
               fetch_jwt_claims_to_validate: mocked_fetch_jwt_claims_to_validate_with_not_exist_claims_in_token
             ).call(
-              authentication_parameters: authentication_parameters_with_valid_token
+              authentication_parameters: authentication_parameters_with_valid_token,
+              fetch_signing_key: mocked_fetch_signing_key_always_succeed
             )
           end
 
@@ -426,12 +427,12 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
         context "and failed to get verification options" do
           subject do
             ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new(
-              fetch_signing_key: mocked_fetch_signing_key_always_succeed,
               verify_and_decode_token: mocked_verify_and_decode_token_succeed_on_1st_time,
               fetch_jwt_claims_to_validate: mocked_fetch_jwt_claims_to_validate_valid,
               get_verification_option_by_jwt_claim: mocked_get_verification_option_by_jwt_claim_invalid
             ).call(
-              authentication_parameters: authentication_parameters_with_valid_token
+              authentication_parameters: authentication_parameters_with_valid_token,
+              fetch_signing_key: mocked_fetch_signing_key_always_succeed
             )
           end
 
@@ -450,12 +451,12 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
           context "and failed to validate claims" do
             subject do
               ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new(
-                fetch_signing_key: mocked_fetch_signing_key_always_succeed,
                 verify_and_decode_token: mocked_verify_and_decode_token_failed_to_validate_claims,
                 fetch_jwt_claims_to_validate: mocked_fetch_jwt_claims_to_validate_valid,
                 get_verification_option_by_jwt_claim: mocked_get_verification_option_by_jwt_claim_valid
               ).call(
-                authentication_parameters: authentication_parameters_with_valid_token
+                authentication_parameters: authentication_parameters_with_valid_token,
+                fetch_signing_key: mocked_fetch_signing_key_always_succeed
               )
             end
 
@@ -468,12 +469,12 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
             context "and keys are not updated" do
               subject do
                 ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new(
-                  fetch_signing_key: mocked_fetch_signing_key_always_succeed,
                   verify_and_decode_token: mocked_verify_and_decode_token_succeed_to_validate_claims_when_keys_not_updated,
                   fetch_jwt_claims_to_validate: mocked_fetch_jwt_claims_to_validate_valid,
                   get_verification_option_by_jwt_claim: mocked_get_verification_option_by_jwt_claim_valid
                 ).call(
-                  authentication_parameters: authentication_parameters_with_valid_token
+                  authentication_parameters: authentication_parameters_with_valid_token,
+                  fetch_signing_key: mocked_fetch_signing_key_always_succeed
                 )
               end
 
@@ -485,12 +486,12 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
             context "and keys are updated" do
               subject do
                 ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new(
-                  fetch_signing_key: mocked_fetch_signing_key_always_succeed,
                   verify_and_decode_token: mocked_verify_and_decode_token_succeed_to_validate_claims_when_keys_updated,
                   fetch_jwt_claims_to_validate: mocked_fetch_jwt_claims_to_validate_valid,
                   get_verification_option_by_jwt_claim: mocked_get_verification_option_by_jwt_claim_valid
                 ).call(
-                  authentication_parameters: authentication_parameters_with_valid_token
+                  authentication_parameters: authentication_parameters_with_valid_token,
+                  fetch_signing_key: mocked_fetch_signing_key_always_succeed
                 )
               end
 

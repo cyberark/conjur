@@ -8,7 +8,7 @@ module Authentication
       FetchIssuerValue ||= CommandClass.new(
         dependencies: {
           resource_class: ::Resource,
-          fetch_secrets: ::Conjur::FetchRequiredSecrets.new,
+          fetch_required_secrets: ::Conjur::FetchRequiredSecrets.new,
           logger: Rails.logger
         },
         inputs: %i[authentication_parameters]
@@ -40,18 +40,18 @@ module Authentication
           if issuer_resource_exists?
             @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(resource_id(ISSUER_RESOURCE_NAME)))
 
-            @issuer_value=issuer_secret_value
+            @issuer_value = issuer_secret_value
           else
             validate_issuer_configuration
 
             if provider_uri_resource_exists?
               @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(resource_id(PROVIDER_URI_RESOURCE_NAME)))
 
-              @issuer_value=provider_uri_secret_value
+              @issuer_value = provider_uri_secret_value
             elsif jwks_uri_resource_exists?
               @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(resource_id(JWKS_URI_RESOURCE_NAME)))
 
-              @issuer_value=fetch_issuer_from_jwks_uri_secret
+              @issuer_value = fetch_issuer_from_jwks_uri_secret
             end
           end
 
@@ -79,12 +79,12 @@ module Authentication
         end
 
         def issuer_secret
-          @issuer_secret ||= @fetch_secrets.(resource_ids: [resource_id(ISSUER_RESOURCE_NAME)])
+          @issuer_secret ||= @fetch_required_secrets.(resource_ids: [resource_id(ISSUER_RESOURCE_NAME)])
         end
 
         def validate_issuer_configuration
           if (provider_uri_resource_exists? && jwks_uri_resource_exists?) ||
-              (!provider_uri_resource_exists? && !jwks_uri_resource_exists?)
+            (!provider_uri_resource_exists? && !jwks_uri_resource_exists?)
             raise Errors::Authentication::AuthnJwt::InvalidIssuerConfiguration.new(
               ISSUER_RESOURCE_NAME,
               PROVIDER_URI_RESOURCE_NAME,
@@ -114,7 +114,7 @@ module Authentication
         end
 
         def provider_uri_secret
-          @provider_uri_secret ||= @fetch_secrets.(resource_ids: [resource_id(PROVIDER_URI_RESOURCE_NAME)])
+          @provider_uri_secret ||= @fetch_required_secrets.(resource_ids: [resource_id(PROVIDER_URI_RESOURCE_NAME)])
         end
 
         def fetch_issuer_from_jwks_uri_secret
@@ -137,11 +137,11 @@ module Authentication
         end
 
         def jwks_uri_secret_value
-          @jwks_uri_secret_value ||=jwks_uri_secret[resource_id(JWKS_URI_RESOURCE_NAME)]
+          @jwks_uri_secret_value ||= jwks_uri_secret[resource_id(JWKS_URI_RESOURCE_NAME)]
         end
 
         def jwks_uri_secret
-          @jwks_uri_secret ||= @fetch_secrets.(resource_ids: [resource_id(JWKS_URI_RESOURCE_NAME)])
+          @jwks_uri_secret ||= @fetch_required_secrets.(resource_ids: [resource_id(JWKS_URI_RESOURCE_NAME)])
         end
       end
     end

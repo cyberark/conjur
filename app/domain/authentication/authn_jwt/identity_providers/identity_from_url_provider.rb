@@ -8,14 +8,15 @@ module Authentication
         end
 
         def jwt_identity
-          raise Errors::Authentication::AuthnJwt::IdentityMisconfigured unless identity_available
+          raise Errors::Authentication::AuthnJwt::IdentityMisconfigured unless identity_available?
 
           @authentication_parameters.username
         end
 
-        def identity_available
-          return @identity_available unless @identity_available.nil?
-          @identity_available ||= username_exists?
+        def identity_available?
+          return @identity_available if defined?(@identity_available)
+
+          @identity_available = username_exists?
         end
 
         def username_exists?
