@@ -1,0 +1,32 @@
+- !policy
+  id: conjur/authn-k8s/dev
+  annotations:
+    description: Namespace defs for the Conjur cluster in dev
+  body:
+    - !webservice
+      annotations:
+        description: authn service for cluster
+
+    - !variable kubernetes/service-account-token
+    - !variable kubernetes/ca-cert
+    - !variable kubernetes/api-url
+
+    - !group apps
+
+    # CA cert and key for creating client certificates
+    - !policy
+      id: ca
+      body:
+        - !variable
+          id: cert
+          annotations:
+            description: CA cert for Kubernetes Pods.
+        - !variable
+          id: key
+          annotations:
+            description: CA key for Kubernetes Pods.
+
+    - !permit
+      role: !group apps
+      privilege: [ read, authenticate]
+      resource: !webservice

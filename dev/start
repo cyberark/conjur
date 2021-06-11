@@ -21,6 +21,8 @@ Usage: start [options]
 
     --authn-gcp     Starts with authn-gcp as authenticator
 
+    --authn-k8s     Starts with authn-k8s/dev as authenticator, and conjur-authn-k8s-client as client
+
     --oidc-adfs     Adds to authn-oidc adfs static env configuration
 
     --oidc-okta     Adds to authn-oidc okta static env configuration
@@ -80,6 +82,7 @@ ENABLE_AUTHN_IAM=false
 ENABLE_AUTHN_AZURE=false
 ENABLE_AUTHN_OIDC=false
 ENABLE_AUTHN_GCP=false
+ENABLE_AUTHN_K8S=false
 ENABLE_OIDC_ADFS=false
 ENABLE_OIDC_OKTA=false
 ENABLE_ROTATORS=false
@@ -90,6 +93,7 @@ while true ; do
     --authn-azure ) ENABLE_AUTHN_AZURE=true ; shift ;;
     --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
     --authn-gcp ) ENABLE_AUTHN_GCP=true ; shift ;;
+    --authn-k8s ) ENABLE_AUTHN_K8S=true ; shift ;;
     --authn-oidc ) ENABLE_AUTHN_OIDC=true ; shift ;;
     --oidc-adfs ) ENABLE_OIDC_ADFS=true ; shift ;;
     --oidc-okta ) ENABLE_OIDC_OKTA=true ; shift ;;
@@ -109,7 +113,7 @@ fi
 
 export CONJUR_DATA_KEY="$(cat data_key)"
 
-services="pg conjur client"
+services="pg conjur client openssl proxy"
 
 if [[ $ENABLE_AUDIT = true ]]; then
   services="$services audit"
@@ -170,6 +174,23 @@ fi
 
 if [[ $ENABLE_AUTHN_GCP = true ]]; then
   enabled_authenticators="$enabled_authenticators,authn-gcp"
+fi
+
+if [[ $ENABLE_AUTHN_K8S = true ]]; then
+  enabled_authenticators="$enabled_authenticators,authn-k8s/dev"
+  kubectl apply -f ./files/authn-k8s/k8s-resources.yml
+  docker-compose exec client conjur policy load root /src/conjur-server/dev/files/authn-k8s/policy-authn-k8s.yml
+  docker-compose exec client conjur policy load root /src/conjur-server/dev/files/authn-k8s/policy-k8s-host.yml
+  docker-compose exec client bash /src/conjur-server/dev/files/authn-k8s/init-authn-k8s-ca.sh
+  token_secret_name="$(kubectl get secrets | grep 'authn-ns.*service-account-token' | head -n1 | awk '{print $1}')"
+  k8s_ca_cert="$(kubectl get secret -n authn-ns $token_secret_name -o json | jq -r '.data["ca.crt"]' | base64 --decode)"
+  k8s_sa_token="$(kubectl get secret -n authn-ns $token_secret_name -o json | jq -r .data.token | base64 --decode)"
+  k8s_api_url="$(kubectl config view --minify -o json | jq -r '.clusters[0].cluster.server')"
+  docker-compose exec client conjur variable values add conjur/authn-k8s/dev/kubernetes/ca-cert $k8s_ca_cert
+  docker-compose exec client conjur variable values add conjur/authn-k8s/dev/kubernetes/service-account-token $k8s_sa_token
+  docker-compose exec client conjur variable values add conjur/authn-k8s/dev/kubernetes/api-url $k8s_api_url
+  kubectl create configmap conjur-cert --from-file=ssl-certificate=./conf/tls/nginx.crt --dry-run -o yaml | kubectl apply -f -
+  kubectl apply -f ./files/authn-k8s/k8s-authn-client-statefulset.yml
 fi
 
 if [[ $ENABLE_AUTHN_OIDC = false && ($ENABLE_OIDC_ADFS = true || $ENABLE_OIDC_OKTA = true) ]]; then
