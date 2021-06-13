@@ -7,13 +7,14 @@ module Authentication
     OrchestrateAuthentication ||= CommandClass.new(
       dependencies: {
         validate_uri_based_parameters: Authentication::AuthnJwt::InputValidation::ValidateUriBasedParameters.new,
-        configuration_factory: Authentication::AuthnJwt::VendorConfigurations::ConfigurationFactory.new,
+        configuration_factory: Authentication::AuthnJwt::VendorConfigurations::CreateVendorConfiguration.new,
         jwt_authenticator: Authentication::AuthnJwt::Authenticator.new,
         logger: Rails.logger,
-        enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
+        installed_authenticators_class: Authentication::InstalledAuthenticators
       },
       inputs: %i[authenticator_input]
     ) do
+
       def call
         validate_uri_based_parameters
         authenticate_jwt
@@ -24,23 +25,24 @@ module Authentication
       def validate_uri_based_parameters
         @validate_uri_based_parameters.call(
           authenticator_input: @authenticator_input,
-          enabled_authenticators: @enabled_authenticators
+          enabled_authenticators: @installed_authenticators_class.enabled_authenticators_str
         )
       end
 
       def authenticate_jwt
-        relevant_authenticator = authenticator_name
         @logger.info(LogMessages::Authentication::AuthnJwt::JwtAuthenticatorEntryPoint.new(relevant_authenticator))
 
-        jwt_authenticator_configuration = @configuration_factory.create_jwt_configuration(@authenticator_input)
+        jwt_authenticator_configuration = @configuration_factory.call(
+          authenticator_input: @authenticator_input
+        )
         @jwt_authenticator.call(
           jwt_configuration: jwt_authenticator_configuration,
           authenticator_input: @authenticator_input
         )
       end
 
-      def authenticator_name
-        @authenticator_input.authenticator_name
+      def relevant_authenticator
+        @relevant_authenticator ||= @authenticator_input.authenticator_name
       end
     end
   end

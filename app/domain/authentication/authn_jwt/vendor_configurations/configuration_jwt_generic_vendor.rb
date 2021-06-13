@@ -5,8 +5,6 @@ module Authentication
       class ConfigurationJWTGenericVendor < ConfigurationInterface
 
         def initialize(authenticator_input)
-          super
-
           @logger = Rails.logger
 
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreatingAuthenticationParametersObject.new)
@@ -112,7 +110,7 @@ module Authentication
         end
 
         def create_signing_key_interface
-          @create_signing_key_interface ||= Authentication::AuthnJwt::SigningKey::CreateSigningKeyInterface.new
+          @create_signing_key_interface ||= Authentication::AuthnJwt::SigningKey::CreateSigningKeyFactory.new
         end
 
         def fetch_jwt_claims_to_validate

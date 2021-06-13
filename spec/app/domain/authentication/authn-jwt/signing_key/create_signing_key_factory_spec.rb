@@ -74,7 +74,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyInterface'
     context "'jwks-uri' and 'provider-uri' exist" do
 
       subject do
-        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyInterface.new(
+        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyFactory.new(
           fetch_provider_uri: mocked_fetch_exists_provider_uri,
           fetch_jwks_uri: mocked_fetch_exists_jwks_uri,
           logger: mocked_logger
@@ -91,7 +91,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyInterface'
     context "'jwks-uri' and 'provider-uri' does not exist" do
 
       subject do
-        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyInterface.new(
+        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyFactory.new(
           fetch_provider_uri: mocked_fetch_non_exists_provider_uri,
           fetch_jwks_uri: mocked_fetch_non_exists_jwks_uri,
           logger: mocked_logger
@@ -108,7 +108,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyInterface'
     context "'jwks-uri' does not exits and 'provider-uri' exists" do
 
       subject do
-        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyInterface.new(
+        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyFactory.new(
           fetch_provider_uri: mocked_fetch_non_exists_provider_uri,
           fetch_jwks_uri: mocked_fetch_exists_jwks_uri,
           logger: mocked_logger
@@ -125,7 +125,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyInterface'
     context "'jwks-uri' exists and 'provider-uri' does not exist" do
 
       subject do
-        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyInterface.new(
+        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyFactory.new(
           fetch_provider_uri: mocked_fetch_exists_provider_uri,
           fetch_jwks_uri: mocked_fetch_non_exists_jwks_uri,
           logger: mocked_logger
