@@ -131,23 +131,23 @@ Feature: JWT Authenticator - JWKs Basic sanity
     CONJ00100E Annotation, 'custom-claim', is empty
     """
 
-  Scenario: Ignore invalid annotations
+  Scenario: Ignore invalid annotations from failing the test
     Given I have a "variable" resource called "test-variable"
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     Given I extend the policy with:
     """
     - !host
       id: myapp
       annotations:
         authn-jwt/raw: invalid
-        authn-jwt: invalid
-        authn-jwt/raw/sub/sub: invalid
-        authn-jwt/raw2/sub: invalid
         authn-jwt/raw/sub: valid
+        authn-jwt: invalid
         authn-jwt/raw/namespace-id: valid
+        authn-jwt/raw/sub/sub: invalid
         authn-jwt/raw/project-path: valid
+        authn-jwt/raw2/sub: invalid
     """
     And I permit host "myapp" to "execute" it
-    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I issue a JWT token:
     """
     {
@@ -160,28 +160,14 @@ Feature: JWT Authenticator - JWKs Basic sanity
     """
     And I save my place in the log file
     When I authenticate via authn-jwt with the JWT token
-    Then the HTTP response status code is 200
-    And The following appears in the log after my savepoint:
-    """
-    CONJ00048D Validating resource restriction on request: 'sub'
-    """
-    And The following appears in the log after my savepoint:
-    """
-    CONJ00048D Validating resource restriction on request: 'namespace-id'
-    """
-    And The following appears in the log after my savepoint:
-    """
-    CONJ00048D Validating resource restriction on request: 'project-path'
-    """
-    And The following appears in the log after my savepoint:
-    """
-    CONJ00045D Resource restrictions matched request
-    """
-    And The following appears in the log after my savepoint:
-    """
-    CONJ00030D Resource restrictions validated
-    """
-    And The following appears in the log after my savepoint:
-    """
-    CONJ00103D 'validate_restrictions' passed successfully
-    """
+    Then host "myapp" has been authorized by Conjur
+    And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
+    And the HTTP response status code is 200
+    And The following lines appear in the log after my savepoint:
+    |                                                                     |
+    |CONJ00048D Validating resource restriction on request: 'sub'         |
+    |CONJ00048D Validating resource restriction on request: 'namespace-id'|
+    |CONJ00048D Validating resource restriction on request: 'project-path'|
+    |CONJ00045D Resource restrictions matched request                     |
+    |CONJ00030D Resource restrictions validated                           |
+    |CONJ00103D 'validate_restrictions' passed successfully               |
