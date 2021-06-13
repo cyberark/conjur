@@ -15,7 +15,9 @@ module Authentication
         },
         inputs: %i[authentication_parameters]
       ) do
+
         def call
+          validate_identity_configuration
           create_identity_provider
         end
 
@@ -24,7 +26,6 @@ module Authentication
         def create_identity_provider
           @logger.debug(LogMessages::Authentication::AuthnJwt::SelectingIdentityProviderInterface.new)
 
-          validate_identity_configuration
           if identity_from_decoded_token_provider.identity_available?
             @logger.info(
               LogMessages::Authentication::AuthnJwt::SelectedIdentityProviderInterface.new(

@@ -12,10 +12,6 @@ module Authentication
         extend(Forwardable)
         def_delegators(:@authenticator_input, :authenticator_name)
 
-        AUTHENTICATORS = {
-          "authn-jwt" => @configuration_jwt_generic_vendor_class
-        }.freeze
-
         def call
           create_jwt_configuration
         end

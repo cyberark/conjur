@@ -20,7 +20,7 @@ module Authentication
 
           @fetch_required_secrets = fetch_required_secrets
           @resource_class = resource_class
-          @resource_id = authentication_parameters.authn_jwt_variable_id
+          @resource_id = authentication_parameters.authn_jwt_variable_id_prefix
           @http_lib = http_lib
           @create_jwks_from_http_response = create_jwks_from_http_response
         end
