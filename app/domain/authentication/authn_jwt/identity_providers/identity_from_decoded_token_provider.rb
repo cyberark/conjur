@@ -10,7 +10,6 @@ module Authentication
           logger: Rails.logger
         )
           @logger = logger
-
           @fetch_required_secrets = fetch_required_secrets
           @resource_class = resource_class
           @authentication_parameters = authentication_parameters
