@@ -7,12 +7,11 @@ module Authentication
     OrchestrateAuthentication ||= CommandClass.new(
       dependencies: {
         validate_uri_based_parameters: Authentication::AuthnJwt::InputValidation::ValidateUriBasedParameters.new,
-        configuration_factory: Authentication::AuthnJwt::VendorConfigurations::CreateVendorConfiguration.new,
+        create_vendor_configuration: Authentication::AuthnJwt::VendorConfigurations::CreateVendorConfiguration.new,
         jwt_authenticator: Authentication::AuthnJwt::Authenticator.new,
-        logger: Rails.logger,
-        installed_authenticators_class: Authentication::InstalledAuthenticators
+        logger: Rails.logger
       },
-      inputs: %i[authenticator_input]
+      inputs: %i[authenticator_input enabled_authenticators]
     ) do
 
       def call
@@ -25,24 +24,20 @@ module Authentication
       def validate_uri_based_parameters
         @validate_uri_based_parameters.call(
           authenticator_input: @authenticator_input,
-          enabled_authenticators: @installed_authenticators_class.enabled_authenticators_str
+          enabled_authenticators: @enabled_authenticators
         )
       end
 
       def authenticate_jwt
-        @logger.info(LogMessages::Authentication::AuthnJwt::JwtAuthenticatorEntryPoint.new(relevant_authenticator))
+        @logger.info(LogMessages::Authentication::AuthnJwt::JwtAuthenticatorEntryPoint.new(@authenticator_input.authenticator_name))
 
-        jwt_authenticator_configuration = @configuration_factory.call(
+        jwt_authenticator_configuration = @create_vendor_configuration.call(
           authenticator_input: @authenticator_input
         )
         @jwt_authenticator.call(
           jwt_configuration: jwt_authenticator_configuration,
           authenticator_input: @authenticator_input
         )
-      end
-
-      def relevant_authenticator
-        @relevant_authenticator ||= @authenticator_input.authenticator_name
       end
     end
   end

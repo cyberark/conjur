@@ -91,7 +91,8 @@ class AuthenticateController < ApplicationController
   def authenticate_jwt
     params[:authenticator] = "authn-jwt"
     authn_token = Authentication::AuthnJwt::OrchestrateAuthentication.new.call(
-      authenticator_input: authenticator_input_without_credentials
+      authenticator_input: authenticator_input_without_credentials,
+      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
     )
     render_authn_token(authn_token)
   rescue => e
