@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added `conjurctl configuration apply` command restart the Conjur process and
   pick up changes to the configuration file.
   [cyberark/conjur#2171](https://github.com/cyberark/conjur/issues/2171)
-- JWT authenticator (`authn-jwt`) supports authenticating third-party vendors which utilize JWT.
+- The JWT Authenticator (`authn-jwt`) supports authenticating third-party vendors that utilize JWT.
   See [design](https://github.com/cyberark/conjur/blob/master/design/authenticators/authn_jwt/authn_jwt_solution_design.md)
 
 ### Fixed
