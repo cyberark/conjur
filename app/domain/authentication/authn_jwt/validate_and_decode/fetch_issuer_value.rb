@@ -71,7 +71,7 @@ module Authentication
         end
 
         def resource_id(resource_name)
-          "#{@authentication_parameters.authn_jwt_variable_id}/#{resource_name}"
+          "#{@authentication_parameters.authn_jwt_variable_id_prefix}/#{resource_name}"
         end
 
         def issuer_secret_value

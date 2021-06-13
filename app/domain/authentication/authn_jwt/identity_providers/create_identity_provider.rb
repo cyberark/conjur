@@ -15,7 +15,9 @@ module Authentication
         },
         inputs: %i[authentication_parameters]
       ) do
+
         def call
+          validate_identity_configuration
           create_identity_provider
         end
 
@@ -24,7 +26,6 @@ module Authentication
         def create_identity_provider
           @logger.debug(LogMessages::Authentication::AuthnJwt::SelectingIdentityProviderInterface.new)
 
-          validate_identity_configuration
           if identity_from_decoded_token_provider.identity_available?
             @logger.info(
               LogMessages::Authentication::AuthnJwt::SelectedIdentityProviderInterface.new(
@@ -51,10 +52,17 @@ module Authentication
         end
 
         def validate_identity_configuration
-          if (identity_from_decoded_token_provider.identity_available? && identity_from_url_provider.identity_available?) ||
-              (!identity_from_decoded_token_provider.identity_available? && !identity_from_url_provider.identity_available?)
+          if multiple_identities_configured || no_identities_configured
             raise Errors::Authentication::AuthnJwt::IdentityMisconfigured
           end
+        end
+
+        def multiple_identities_configured
+          identity_from_decoded_token_provider.identity_available? && identity_from_url_provider.identity_available?
+        end
+
+        def no_identities_configured
+          !identity_from_decoded_token_provider.identity_available? && !identity_from_url_provider.identity_available?
         end
       end
     end

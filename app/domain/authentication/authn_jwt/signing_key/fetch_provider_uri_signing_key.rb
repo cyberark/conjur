@@ -33,7 +33,7 @@ module Authentication
         private
 
         def variable_id
-          @variable_id ||= @authentication_parameters.authn_jwt_variable_id
+          @variable_id ||= @authentication_parameters.authn_jwt_variable_id_prefix
         end
 
         def provider_uri_resource_exists?

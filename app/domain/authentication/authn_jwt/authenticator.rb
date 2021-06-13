@@ -23,7 +23,7 @@ module Authentication
       def call
         validate_and_decode_token
         get_jwt_identity_from_request
-        validate_user_has_access_to_webservice
+        validate_host_has_access_to_webservice
         validate_origin
         validate_restrictions
         audit_success
@@ -52,7 +52,7 @@ module Authentication
         @jwt_identity ||= @jwt_configuration.jwt_identity
       end
 
-      def validate_user_has_access_to_webservice
+      def validate_host_has_access_to_webservice
         @validate_role_can_access_webservice.(
           webservice: webservice,
           account: account,
@@ -111,11 +111,13 @@ module Authentication
       # If there is no jwt identity so role and username are nil
       def audit_role_id
         return @audit_role_id if @audit_role_id
+        # Dont change to jwt_identity so function won't be called if validate_and_decode failed. Because we
+        # won't have jwt token where we can fetch the identity from
         if @jwt_identity
           role = identity_role
           username = jwt_identity
         end
-        @audit_role_id ||= @role_id_class.new(
+        @audit_role_id = @role_id_class.new(
           role: role,
           account: account,
           username: username

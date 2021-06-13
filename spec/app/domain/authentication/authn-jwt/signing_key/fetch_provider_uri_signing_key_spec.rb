@@ -38,7 +38,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey
     )
 
     allow(mocked_authentication_parameters).to(
-      receive(:authn_jwt_variable_id).and_return('resource_id')
+      receive(:authn_jwt_variable_id_prefix).and_return('resource_id')
     )
 
     allow(mocked_fetch_required_existing_secret).to(

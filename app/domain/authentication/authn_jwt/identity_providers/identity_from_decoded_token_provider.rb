@@ -18,7 +18,6 @@ module Authentication
         def jwt_identity
           return @jwt_identity if @jwt_identity
 
-          token_field_name = fetch_token_field_name
           @logger.debug(LogMessages::Authentication::AuthnJwt::CheckingIdentityFieldExists.new(token_field_name))
           @jwt_identity = decoded_token[token_field_name]
           if @jwt_identity.blank?
@@ -39,13 +38,13 @@ module Authentication
         # This method is for the authenticator status check, unlike 'identity_available?' it checks if the
         # secret value is not empty too
         def identity_configured_properly?
-          identity_available? && fetch_token_field_name.blank?
+          identity_available? && token_field_name.blank?
         end
 
         private
 
         def variable_id
-          @authentication_parameters.authn_jwt_variable_id
+          @authentication_parameters.authn_jwt_variable_id_prefix
         end
 
         def decoded_token
@@ -56,7 +55,7 @@ module Authentication
           @identity_field_variable ||= @resource_class[token_id_field_variable_id]
         end
 
-        def fetch_token_field_name
+        def token_field_name
           token_id_field_secret
         end
 
