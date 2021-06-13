@@ -7,6 +7,7 @@ module Authentication
         },
         inputs: %i[credentials]
       ) do
+
         def call
           decode_credentials
           extract_token_from_credentials

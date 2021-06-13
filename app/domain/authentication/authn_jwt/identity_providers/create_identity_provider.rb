@@ -21,14 +21,6 @@ module Authentication
 
         private
 
-        def identity_from_decoded_token_provider
-          @identity_from_decoded_token_provider ||= @identity_from_decoded_token_class.new(@authentication_parameters)
-        end
-
-        def identity_from_url_provider
-          @identity_from_url_provider ||= @identity_from_url_provider_class.new(@authentication_parameters)
-        end
-
         def create_identity_provider
           @logger.debug(LogMessages::Authentication::AuthnJwt::SelectingIdentityProviderInterface.new)
 
@@ -48,6 +40,14 @@ module Authentication
             )
             identity_from_url_provider
           end
+        end
+
+        def identity_from_decoded_token_provider
+          @identity_from_decoded_token_provider ||= @identity_from_decoded_token_class.new(@authentication_parameters)
+        end
+
+        def identity_from_url_provider
+          @identity_from_url_provider ||= @identity_from_url_provider_class.new(@authentication_parameters)
         end
 
         def validate_identity_configuration

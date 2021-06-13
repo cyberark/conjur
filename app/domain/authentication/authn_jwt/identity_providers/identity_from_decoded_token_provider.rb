@@ -6,9 +6,10 @@ module Authentication
         def initialize(
           authentication_parameters,
           fetch_required_secrets: Conjur::FetchRequiredSecrets.new,
-          resource_class: ::Resource
+          resource_class: ::Resource,
+          logger: Rails.logger
         )
-          @logger = Rails.logger
+          @logger = logger
 
           @fetch_required_secrets = fetch_required_secrets
           @resource_class = resource_class
@@ -25,7 +26,7 @@ module Authentication
             raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken, token_field_name
           end
 
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FoundJwtFieldInToken.new(token_field_name, jwt_identity))
+          @logger.debug(LogMessages::Authentication::AuthnJwt::FoundJwtFieldInToken.new(token_field_name, @jwt_identity))
           @jwt_identity
         end
 
