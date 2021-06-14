@@ -165,6 +165,11 @@ module Errors
         code: "CONJ00051E"
       )
 
+      RequestBodyMissingJWTToken = ::Util::TrackableErrorClass.new(
+        msg: "The request body does not contain JWT token",
+        code: "CONJ00077E"
+      )
+
     end
 
     module AuthnOidc
@@ -364,12 +369,124 @@ module Errors
       )
     end
 
+    module AuthnJwt
+
+      InvalidIssuerConfiguration = ::Util::TrackableErrorClass.new(
+        msg: "Issuer authenticator configuration is invalid. You should configured as authenticator variables: " \
+              "'{0-resource-name}' or one of the following: '{1-resource-name}','{2-resource-name}'",
+        code: "CONJ00078E"
+      )
+
+      FailedToParseHostnameFromUri = ::Util::TrackableErrorClass.new(
+        msg: "Failed to extract hostname from URI '{0}'",
+        code: "CONJ00079E"
+      )
+
+      InvalidUriFormat = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse URI '{0}'. Reason: '{1}'",
+        code: "CONJ00080E"
+      )
+
+      NoSuchFieldInToken = ::Util::TrackableErrorClass.new(
+        msg: "'{0}' field not found in the token",
+        code: "CONJ00081E"
+      )
+
+      NoUsernameInTheURL = ::Util::TrackableErrorClass.new(
+        msg: "No username in the URL",
+        code: "CONJ00082E"
+      )
+
+      JwtTokenClaimIsMissing = ::Util::TrackableErrorClass.new(
+        msg: "Claim '{0-attribute-name}' is missing from JWT token. " \
+             "Verify that you configured the host with permitted restrictions. " \
+             "In case of Compute Engine token, verify that you requested the token using 'format=full'",
+        code: "CONJ00084E"
+      )
+
+      MissingToken = ::Util::TrackableErrorClass.new(
+        msg: "Token is empty or not found.",
+        code: "CONJ00085E"
+      )
+
+      InvalidUriConfiguration = ::Util::TrackableErrorClass.new(
+        msg: "Signing key URI configuration is invalid",
+        code: "CONJ00086E"
+      )
+
+      FetchJwksKeysFailed = ::Util::TrackableErrorClass.new(
+        msg: "Failed to fetch JWKS from '{0-uri}'. Reason: '{1}'",
+        code: "CONJ00087E"
+      )
+
+      FetchJwksUriKeysNotFound = ::Util::TrackableErrorClass.new(
+        msg: "JWKS not found in response: '{0-encoded-response}'",
+        code: "CONJ00088E"
+      )
+
+      UnsupportedClaim = ::Util::TrackableErrorClass.new(
+        msg: "Claim '{0-claim}' does not support fetching the application identity",
+        code: "CONJ00089E"
+      )
+
+      MissingClaimValue = ::Util::TrackableErrorClass.new(
+        msg: "Claim '{0-claim}' value is empty, or was not found in token.",
+        code: "CONJ00090E"
+      )
+
+      MissingMandatoryClaim = ::Util::TrackableErrorClass.new(
+        msg: "Failed to validate token, mandatory claim '{0-claim}' is missing.",
+        code: "CONJ00091E"
+      )
+
+      UnsupportedAuthenticator = ::Util::TrackableErrorClass.new(
+        msg: "Authenticator '{0-authenticator-name}' is unsupported.",
+        code: "CONJ00092E"
+      )
+
+      FailedToConvertResponseToJwks = ::Util::TrackableErrorClass.new(
+        msg: "Failed to convert HTTP response '{0-encoded-response}' to JWKS type. Reason: '{1}'",
+        code: "CONJ00093E"
+      )
+
+      MissingHttpResponse = ::Util::TrackableErrorClass.new(
+        msg: "HTTP response is empty or not found.",
+        code: "CONJ00094E"
+      )
+
+      MissingClaim = ::Util::TrackableErrorClass.new(
+        msg: "Claim is empty or not found.",
+        code: "CONJ00095E"
+      )
+
+      InvalidHttpResponseFormat = ::Util::TrackableErrorClass.new(
+        msg: "HTTP response format is invalid",
+        code: "CONJ00096E"
+      )
+
+      ServiceIdMissing = ::Util::TrackableErrorClass.new(
+        msg: "Service ID is required when authenticating with authn-jwt",
+        code: "CONJ00097E"
+      )
+
+      IdentityMisconfigured = ::Util::TrackableErrorClass.new(
+        msg: "JWT identity configuration is invalid",
+        code: "CONJ00098E"
+      )
+
+    end
+
     module ResourceRestrictions
 
       InvalidResourceRestrictions = ::Util::TrackableErrorClass.new(
         msg: "Resource restriction '{0-resource-restriction-name}' does not match " \
            "with the corresponding value in the request",
         code: "CONJ00049E"
+      )
+
+      EmptyAnnotationGiven = ::Util::TrackableErrorClass.new(
+        msg: "Annotation, '{0-annotation-name}', is empty",
+        code: "CONJ00100E"
       )
 
     end
@@ -398,6 +515,10 @@ module Errors
         code: "CONJ00069E"
       )
 
+      RoleMissingAnyRestrictions =  ::Util::TrackableErrorClass.new(
+        msg: "Role must have at least one relevant annotation",
+        code: "CONJ00099E"
+      )
     end
   end
 

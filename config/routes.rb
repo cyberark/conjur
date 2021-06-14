@@ -22,6 +22,7 @@ Rails.application.routes.draw do
 
     constraints account: /[^\/?]+/ do
       constraints authenticator: /authn-?[^\/]*/, id: /[^\/?]+/ do
+        get '/authn-jwt/:service_id/:account/status' => 'authenticate#authn_jwt_status'
         get '/:authenticator(/:service_id)/:account/status' => 'authenticate#status'
         
         patch '/:authenticator/:service_id/:account' => 'authenticate#update_config'
@@ -33,6 +34,7 @@ Rails.application.routes.draw do
         # i.e the request 'authn-oidc/:service_id/:account/authenticate' can be interpreted as
         # ':authenticator/:account/:id/authenticate'
         post '/authn-oidc(/:service_id)/:account/authenticate' => 'authenticate#authenticate_oidc'
+        post '/authn-jwt/:service_id/:account(/:id)/authenticate' => 'authenticate#authenticate_jwt'
         post '/authn-gcp/:account/authenticate' => 'authenticate#authenticate_gcp'
         post '/:authenticator(/:service_id)/:account/:id/authenticate' => 'authenticate#authenticate'
 
