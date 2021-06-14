@@ -142,11 +142,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
           validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
           validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
           validate_webservice_exists: mocked_valid_validate_webservice_exists,
-          enabled_authenticators: mocked_enabled_authenticators,
           validate_account_exists: mocked_valid_validate_account_exists,
           logger: mocked_logger
         ).call(
-          authenticator_status_input: authenticator_status_input
+          authenticator_status_input: authenticator_status_input,
+          enabled_authenticators: mocked_enabled_authenticators
         )
       end
 
@@ -166,11 +166,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
             validate_webservice_exists: mocked_valid_validate_webservice_exists,
-            enabled_authenticators: mocked_enabled_authenticators,
             validate_account_exists: mocked_invalid_validate_account_exists,
             logger: mocked_logger
           ).call(
-            authenticator_status_input: authenticator_status_input
+            authenticator_status_input: authenticator_status_input,
+            enabled_authenticators: mocked_enabled_authenticators
           )
         end
 
@@ -189,11 +189,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_invalid_validate_can_access_webservice,
             validate_webservice_exists: mocked_valid_validate_webservice_exists,
-            enabled_authenticators: mocked_enabled_authenticators,
             validate_account_exists: mocked_valid_validate_account_exists,
             logger: mocked_logger
           ).call(
-            authenticator_status_input: authenticator_status_input
+            authenticator_status_input: authenticator_status_input,
+            enabled_authenticators: mocked_enabled_authenticators
           )
         end
 
@@ -212,11 +212,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
             validate_webservice_exists: mocked_invalid_validate_webservice_exists,
-            enabled_authenticators: mocked_enabled_authenticators,
             validate_account_exists: mocked_valid_validate_account_exists,
             logger: mocked_logger
           ).call(
-            authenticator_status_input: authenticator_status_input
+            authenticator_status_input: authenticator_status_input,
+            enabled_authenticators: mocked_enabled_authenticators
           )
         end
 
@@ -235,11 +235,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
             validate_webservice_is_whitelisted: mocked_invalid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
             validate_webservice_exists: mocked_valid_validate_webservice_exists,
-            enabled_authenticators: mocked_enabled_authenticators,
             validate_account_exists: mocked_valid_validate_account_exists,
             logger: mocked_logger
           ).call(
-            authenticator_status_input: authenticator_status_input
+            authenticator_status_input: authenticator_status_input,
+            enabled_authenticators: mocked_enabled_authenticators
           )
         end
 
@@ -270,11 +270,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
             validate_webservice_exists: mocked_valid_validate_webservice_exists,
-            enabled_authenticators: mocked_enabled_authenticators,
             validate_account_exists: mocked_valid_validate_account_exists,
             logger: mocked_logger
           ).call(
-            authenticator_status_input: authenticator_status_input_without_service_id
+            authenticator_status_input: authenticator_status_input_without_service_id,
+            enabled_authenticators: mocked_enabled_authenticators
           )
         end
 
@@ -294,11 +294,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
             validate_webservice_exists: mocked_valid_validate_webservice_exists,
-            enabled_authenticators: mocked_enabled_authenticators,
             validate_account_exists: mocked_valid_validate_account_exists,
             logger: mocked_logger
           ).call(
-            authenticator_status_input: authenticator_status_input
+            authenticator_status_input: authenticator_status_input,
+            enabled_authenticators: mocked_enabled_authenticators
           )
         end
 
@@ -316,11 +316,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
             validate_webservice_exists: mocked_valid_validate_webservice_exists,
-            enabled_authenticators: mocked_enabled_authenticators,
             validate_account_exists: mocked_valid_validate_account_exists,
             logger: mocked_logger
           ).call(
-            authenticator_status_input: authenticator_status_input
+            authenticator_status_input: authenticator_status_input,
+            enabled_authenticators: mocked_enabled_authenticators
           )
         end
 
@@ -338,11 +338,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
             validate_webservice_exists: mocked_valid_validate_webservice_exists,
-            enabled_authenticators: mocked_enabled_authenticators,
             validate_account_exists: mocked_valid_validate_account_exists,
             logger: mocked_logger
           ).call(
-            authenticator_status_input: authenticator_status_input
+            authenticator_status_input: authenticator_status_input,
+            enabled_authenticators: mocked_enabled_authenticators
           )
         end
 
