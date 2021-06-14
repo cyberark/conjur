@@ -44,7 +44,9 @@ RSpec.describe('Authentication::AuthnJwt::IdFromUrlProvider') do
   context "IdFromUrlProvider" do
     context "There is identity in the url" do
       subject do
-        ::Authentication::AuthnJwt::IdentityProviders::IdentityFromUrlProvider.new(authentication_parameters_url_identity)
+        ::Authentication::AuthnJwt::IdentityProviders::IdentityFromUrlProvider.new(
+          authentication_parameters: authentication_parameters_url_identity
+        )
       end
 
       it "id_available? return true" do
@@ -58,7 +60,9 @@ RSpec.describe('Authentication::AuthnJwt::IdFromUrlProvider') do
 
     context "There is no identity in the url" do
       subject do
-        ::Authentication::AuthnJwt::IdentityProviders::IdentityFromUrlProvider.new(authentication_parameters_no_url_identity)
+        ::Authentication::AuthnJwt::IdentityProviders::IdentityFromUrlProvider.new(
+          authentication_parameters: authentication_parameters_no_url_identity
+        )
       end
 
       it "id_available? return false" do

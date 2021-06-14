@@ -55,16 +55,18 @@ module Authentication
         end
 
         def discover_provider
-          return @discovered_provider if @discovered_provider
-
           @logger.info(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(provider_uri))
-          @discover_provider ||= @discover_identity_provider.(
+          discovered_provider
+        end
+
+        def discovered_provider
+          @discovered_provider ||= @discover_identity_provider.call(
             provider_uri: provider_uri
           )
         end
 
         def fetch_provider_keys
-          keys = { keys: discover_provider.jwks }
+          keys = { keys: discovered_provider.jwks }
           @logger.debug(LogMessages::Authentication::OAuth::FetchProviderKeysSuccess.new)
           keys
         rescue => e

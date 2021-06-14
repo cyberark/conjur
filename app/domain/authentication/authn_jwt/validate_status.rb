@@ -5,7 +5,7 @@ module Authentication
       dependencies: {
         create_signing_key: Authentication::AuthnJwt::SigningKey::CreateSigningKeyFactory.new,
         fetch_issuer_value: Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new,
-        fetch_identity_from_token: Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider,
+        identity_from_decoded_token_provider_class: Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider,
         validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
         validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
         validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
@@ -92,7 +92,9 @@ module Authentication
       end
 
       def validate_identity_secrets
-        @fetch_identity_from_token.new(authentication_parameters).identity_configured_properly?
+        @identity_from_decoded_token_provider_class.new(
+          authentication_parameters: authentication_parameters
+        ).identity_configured_properly?
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedIdentityConfiguration.new)
       end
 

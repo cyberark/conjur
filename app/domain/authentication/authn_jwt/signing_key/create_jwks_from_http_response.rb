@@ -30,7 +30,7 @@ module Authentication
 
           response_body = @http_response.body
           encoded_body = Base64.encode64(response_body)
-          jwks, keys = parse_jwks_response(response_body, encoded_body)
+          jwks = parse_jwks_response(response_body, encoded_body)
 
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedJwks.new)
           jwks
@@ -48,7 +48,7 @@ module Authentication
           end
 
           validate_keys_not_empty(keys, encoded_body)
-          return [{ keys: @jwk_set_class.new(keys) }, keys]
+          return { keys: @jwk_set_class.new(keys) }
         end
 
         def validate_keys_not_empty(keys, encoded_body)

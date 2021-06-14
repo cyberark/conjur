@@ -24,10 +24,9 @@ module Authentication
           validate_signature
           fetch_jwt_claims_to_validate
           validate_claims
-          decoded_token_after_claims_validation
           @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedToken.new)
 
-          @decoded_token_after_claims_validation
+          decoded_and_validated_token_with_claims
         end
 
         private
@@ -117,11 +116,11 @@ module Authentication
         end
 
         def validate_token_with_claims
-          decoded_token_after_claims_validation
+          decoded_and_validated_token_with_claims
         end
 
-        def decoded_token_after_claims_validation
-          @decoded_token_after_claims_validation ||= decoded_token(verification_options_with_claims)
+        def decoded_and_validated_token_with_claims
+          @decoded_and_validated_token_with_claims ||= decoded_token(verification_options_with_claims)
         end
       end
     end
