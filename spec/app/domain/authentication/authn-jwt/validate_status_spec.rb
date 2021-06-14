@@ -138,7 +138,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
         ::Authentication::AuthnJwt::ValidateStatus.new(
           create_signing_key: mocked_valid_create_signing_key_interface,
           fetch_issuer_value: mocked_valid_fetch_issuer_value,
-          fetch_identity_from_token: mocked_valid_identity_from_decoded_token_provider,
+          identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
           validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
           validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
           validate_webservice_exists: mocked_valid_validate_webservice_exists,
@@ -162,7 +162,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
           ::Authentication::AuthnJwt::ValidateStatus.new(
             create_signing_key: mocked_valid_create_signing_key_interface,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
-            fetch_identity_from_token: mocked_valid_identity_from_decoded_token_provider,
+            identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
             validate_webservice_exists: mocked_valid_validate_webservice_exists,
@@ -185,7 +185,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
           ::Authentication::AuthnJwt::ValidateStatus.new(
             create_signing_key: mocked_valid_create_signing_key_interface,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
-            fetch_identity_from_token: mocked_valid_identity_from_decoded_token_provider,
+            identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_invalid_validate_can_access_webservice,
             validate_webservice_exists: mocked_valid_validate_webservice_exists,
@@ -208,7 +208,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
           ::Authentication::AuthnJwt::ValidateStatus.new(
             create_signing_key: mocked_valid_create_signing_key_interface,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
-            fetch_identity_from_token: mocked_valid_identity_from_decoded_token_provider,
+            identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
             validate_webservice_exists: mocked_invalid_validate_webservice_exists,
@@ -231,7 +231,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
           ::Authentication::AuthnJwt::ValidateStatus.new(
             create_signing_key: mocked_valid_create_signing_key_interface,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
-            fetch_identity_from_token: mocked_valid_identity_from_decoded_token_provider,
+            identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
             validate_webservice_is_whitelisted: mocked_invalid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
             validate_webservice_exists: mocked_valid_validate_webservice_exists,
@@ -266,7 +266,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
           ::Authentication::AuthnJwt::ValidateStatus.new(
             create_signing_key: mocked_valid_create_signing_key_interface,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
-            fetch_identity_from_token: mocked_valid_identity_from_decoded_token_provider,
+            identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
             validate_webservice_exists: mocked_valid_validate_webservice_exists,
@@ -290,7 +290,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
           ::Authentication::AuthnJwt::ValidateStatus.new(
             create_signing_key: mocked_invalid_create_signing_key_interface,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
-            fetch_identity_from_token: mocked_valid_identity_from_decoded_token_provider,
+            identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
             validate_webservice_exists: mocked_valid_validate_webservice_exists,
@@ -312,7 +312,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
           ::Authentication::AuthnJwt::ValidateStatus.new(
             create_signing_key: mocked_valid_create_signing_key_interface,
             fetch_issuer_value: mocked_invalid_fetch_issuer_value,
-            fetch_identity_from_token: mocked_valid_identity_from_decoded_token_provider,
+            identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
             validate_webservice_exists: mocked_valid_validate_webservice_exists,
@@ -334,7 +334,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
           ::Authentication::AuthnJwt::ValidateStatus.new(
             create_signing_key: mocked_valid_create_signing_key_interface,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
-            fetch_identity_from_token: mocked_invalid_identity_from_decoded_token_provider,
+            identity_from_decoded_token_provider_class: mocked_invalid_identity_from_decoded_token_provider,
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
             validate_webservice_exists: mocked_valid_validate_webservice_exists,

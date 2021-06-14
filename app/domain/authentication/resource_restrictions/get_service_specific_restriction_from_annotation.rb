@@ -15,7 +15,9 @@ module Authentication
     # This function returns the restriction name if there is service id and false, if there is no service id it returns
     # nil and true
     GetServiceSpecificRestrictionFromAnnotation = CommandClass.new(
-      dependencies: {},
+      dependencies: {
+        regexp_class: Regexp
+      },
       inputs: %i[annotation_name authenticator_name service_id]
     ) do
       def call
@@ -35,9 +37,8 @@ module Authentication
 
       def authenticator_prefix_regex
         # The regex capture group <restriction_name> has the annotation name without the prefix
-        @authenticator_prefix_regex ||= Regexp.new("^#{@authenticator_name}/(?<service_id>#{@service_id}/)?(?<restriction_name>[^/]+)$")
+        @authenticator_prefix_regex ||= @regexp_class.new("^#{@authenticator_name}/(?<service_id>#{@service_id}/)?(?<restriction_name>[^/]+)$")
       end
     end
-
   end
 end

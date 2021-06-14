@@ -44,11 +44,15 @@ module Authentication
         end
 
         def identity_from_decoded_token_provider
-          @identity_from_decoded_token_provider ||= @identity_from_decoded_token_class.new(@authentication_parameters)
+          @identity_from_decoded_token_provider ||= @identity_from_decoded_token_class.new(
+            authentication_parameters: @authentication_parameters
+          )
         end
 
         def identity_from_url_provider
-          @identity_from_url_provider ||= @identity_from_url_provider_class.new(@authentication_parameters)
+          @identity_from_url_provider ||= @identity_from_url_provider_class.new(
+            authentication_parameters: @authentication_parameters
+          )
         end
 
         def validate_identity_configuration
