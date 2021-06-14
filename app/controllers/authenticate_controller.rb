@@ -34,7 +34,8 @@ class AuthenticateController < ApplicationController
   def authn_jwt_status
     params[:authenticator] = "authn-jwt"
     Authentication::AuthnJwt::ValidateStatus.new.call(
-      authenticator_status_input: status_input
+      authenticator_status_input: status_input,
+      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
     )
     render(json: { status: "ok" })
   rescue => e

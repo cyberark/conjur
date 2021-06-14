@@ -9,11 +9,10 @@ module Authentication
         validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
         validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
         validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
-        enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str,
         validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
         logger: Rails.logger
       },
-      inputs: %i[authenticator_status_input]
+      inputs: %i[authenticator_status_input enabled_authenticators]
     ) do
       extend(Forwardable)
       def_delegators(:@authenticator_status_input, :authenticator_name, :account,
