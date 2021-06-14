@@ -39,7 +39,7 @@ module Authentication
         # This method is for the authenticator status check, unlike 'identity_available?' it checks if the
         # secret value is not empty too
         def identity_configured_properly?
-          identity_available? && !token_id_field_secret.blank?
+          identity_available? && token_id_field_secret_has_value?
         end
 
         private
@@ -66,6 +66,10 @@ module Authentication
 
         def conjur_secret(secret_id)
           @fetch_required_secrets.call(resource_ids: [secret_id])[secret_id]
+        end
+
+        def token_id_field_secret_has_value?
+          @token_id_field_secret_has_value ||= !token_id_field_secret.blank?
         end
       end
     end
