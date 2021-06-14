@@ -9,13 +9,13 @@ module Authentication
         dependencies: {
           resource_class: ::Resource,
           fetch_required_secrets: ::Conjur::FetchRequiredSecrets.new,
-          logger: Rails.logger
+          logger: Rails.logger,
+          uri_class: URI
         },
         inputs: %i[authentication_parameters]
       ) do
         extend(Forwardable)
-        def_delegators(:@authentication_parameters, :service_id, :authenticator_name,
-                       :account)
+        def_delegators(:@authentication_parameters, :service_id, :authenticator_name, :account)
 
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingIssuerConfigurationValue.new)
@@ -121,7 +121,7 @@ module Authentication
           @logger.debug(LogMessages::Authentication::AuthnJwt::ParsingIssuerFromUri.new(jwks_uri_secret_value))
 
           begin
-            @issuer_from_jwks_uri_secret = URI.parse(jwks_uri_secret_value).hostname
+            @issuer_from_jwks_uri_secret = @uri_class.parse(jwks_uri_secret_value).hostname
           rescue => e
             raise Errors::Authentication::AuthnJwt::InvalidUriFormat.new(
               jwks_uri_secret_value,

@@ -6,17 +6,22 @@ module Authentication
 
         def initialize(
           authenticator_input:,
+          logger: Rails.logger,
           authentication_parameters_class: Authentication::AuthnJwt::AuthenticationParameters,
           restriction_validator_class: Authentication::AuthnJwt::RestrictionValidators::ValidateRestrictionsOneToOne,
           validate_and_decode_token_class:  Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken,
-          validate_resource_restrictions_class: Authentication::ResourceRestrictions::ValidateResourceRestrictions
+          validate_resource_restrictions_class: Authentication::ResourceRestrictions::ValidateResourceRestrictions,
+          extract_token_from_credentials: Authentication::AuthnJwt::InputValidation::ExtractTokenFromCredentials.new,
+          create_identity_provider: Authentication::AuthnJwt::IdentityProviders::CreateIdentityProvider.new
 
         )
-          @logger = Rails.logger
+          @logger = logger
           @authentication_parameters_class = authentication_parameters_class
           @restriction_validator_class = restriction_validator_class
           @validate_and_decode_token_class = validate_and_decode_token_class
           @validate_resource_restrictions_class = validate_resource_restrictions_class
+          @extract_token_from_credentials = extract_token_from_credentials
+          @create_identity_provider = create_identity_provider
 
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreatingAuthenticationParametersObject.new)
           @authentication_parameters = @authentication_parameters_class.new(
@@ -52,7 +57,7 @@ module Authentication
         private
 
         def jwt_token(authenticator_input)
-          extract_token_from_credentials.call(
+          @extract_token_from_credentials.call(
             credentials: authenticator_input.request.body.read
           )
         end
@@ -91,13 +96,9 @@ module Authentication
           )
         end
 
-        def extract_token_from_credentials
-          @extract_token_from_credentials ||= Authentication::AuthnJwt::InputValidation::ExtractTokenFromCredentials.new
-        end
-
         def create_identity_provider
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreateJwtIdentityProviderInstance.new)
-          @create_identity_provider ||= Authentication::AuthnJwt::IdentityProviders::CreateIdentityProvider.new
+          @create_identity_provider ||= @create_identity_provider
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedJwtIdentityProviderInstance.new)
           @create_identity_provider
         end

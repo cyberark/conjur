@@ -23,7 +23,7 @@ module Authentication
           )
         )
 
-        call_fetch_resource_annotations
+        fetch_resource_annotations
         extract_resource_restrictions_from_annotations
         create_resource_restrictions_object
 
@@ -34,7 +34,7 @@ module Authentication
 
       private
 
-      def call_fetch_resource_annotations
+      def fetch_resource_annotations
         resource_annotations
       end
 

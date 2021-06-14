@@ -54,6 +54,7 @@ module Authentication
 
           @verification_option
         end
+
         def claim_value
           @claim_value ||= @jwt_claim.value
         end

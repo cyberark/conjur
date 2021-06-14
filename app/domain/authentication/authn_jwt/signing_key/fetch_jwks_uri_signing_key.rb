@@ -22,7 +22,7 @@ module Authentication
           @fetch_required_secrets = fetch_required_secrets
           @resource_class = resource_class
 
-          @variable_id = authentication_parameters.authn_jwt_variable_id_prefix
+          @authentication_parameters=authentication_parameters
         end
 
         def valid_configuration?
@@ -63,7 +63,7 @@ module Authentication
         end
 
         def jwks_uri_variable_id
-          @jwks_uri_variable_id ||= "#{@variable_id}/#{JWKS_URI_RESOURCE_NAME}"
+          @jwks_uri_variable_id ||= "#{@authentication_parameters.authn_jwt_variable_id_prefix}/#{JWKS_URI_RESOURCE_NAME}"
         end
 
         def fetch_jwks_keys
