@@ -6,10 +6,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- The JWT Authenticator (`authn-jwt`) supports authenticating third-party vendors that utilize JWT.
+  See [design](https://github.com/cyberark/conjur/blob/master/design/authenticators/authn_jwt/authn_jwt_solution_design.md)
+
 ### Changed
 - Parsing a Conjur config with invalid YAML content now outputs a more user
   friendly error message without a stack trace.
   [cyberark/conjur#2256](https://github.com/cyberark/conjur/issues/2256)
+
+### Security
+- Upgrade bindata to 2.4.10 to resolve Unspecified Issue reported by JFrog Xray
+  [cyberark/conjur#2257](https://github.com/cyberark/conjur/issues/2257)
+- Previously, OIDC authentication requests that included a user ID in the URL
+  path would return a Conjur access token without requiring a valid OIDC token
+  in the request. OIDC authentication requests that attempt to include a user ID
+  in the URL path now return a `404 Not Found` response.
+  [Security Bulletin](TBD)
 
 ## [1.11.7] - 2021-06-08
 
@@ -26,8 +39,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added `conjurctl configuration apply` command restart the Conjur process and
   pick up changes to the configuration file.
   [cyberark/conjur#2171](https://github.com/cyberark/conjur/issues/2171)
-- The JWT Authenticator (`authn-jwt`) supports authenticating third-party vendors that utilize JWT.
-  See [design](https://github.com/cyberark/conjur/blob/master/design/authenticators/authn_jwt/authn_jwt_solution_design.md)
 
 ### Fixed
 - Fix bug where running `conjurctl server` or `conjurctl account create` with
@@ -40,8 +51,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [PR cyberark/conjur#2191](https://github.com/cyberark/conjur/pull/2191)
 
 ### Security
-- Upgrade bindata to 2.4.10 to resolve Unspecified Issue reported by JFrog Xray
-  [cyberark/conjur#2257](https://github.com/cyberark/conjur/issues/2257)
 - Upgrade Rails to 5.2.5 to resolve CVE-2021-22885
   [cyberark/conjur#2149](https://github.com/cyberark/conjur/issues/2149)
 - Upgrade Nokogiri to 1.11.5 to resolve
