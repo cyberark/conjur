@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.11.7+enterprise.1] - 2021-06-14
+
 ### Added
 - The JWT Authenticator (`authn-jwt`) supports authenticating third-party vendors that utilize JWT.
   See [design](https://github.com/cyberark/conjur/blob/master/design/authenticators/authn_jwt/authn_jwt_solution_design.md)
@@ -664,7 +666,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.7...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.7+enterprise.1...HEAD
+[1.11.7+enterprise.1]: https://github.com/cyberark/conjur/compare/v1.11.7...v1.11.7+enterprise.1
 [1.11.7]: https://github.com/cyberark/conjur/compare/v1.11.6...v1.11.7
 [1.11.6]: https://github.com/cyberark/conjur/compare/v1.11.5...v1.11.6
 [1.11.5]: https://github.com/cyberark/conjur/compare/v1.11.4...v1.11.5
