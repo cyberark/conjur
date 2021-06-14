@@ -17,12 +17,12 @@ module Authentication
           logger: Rails.logger
         )
           @logger = logger
-
-          @fetch_required_secrets = fetch_required_secrets
-          @resource_class = resource_class
-          @resource_id = authentication_parameters.authn_jwt_variable_id_prefix
           @http_lib = http_lib
           @create_jwks_from_http_response = create_jwks_from_http_response
+          @fetch_required_secrets = fetch_required_secrets
+          @resource_class = resource_class
+
+          @variable_id = authentication_parameters.authn_jwt_variable_id_prefix
         end
 
         def valid_configuration?
@@ -63,7 +63,7 @@ module Authentication
         end
 
         def jwks_uri_variable_id
-          @jwks_uri_variable_id ||= "#{@resource_id}/#{JWKS_URI_RESOURCE_NAME}"
+          @jwks_uri_variable_id ||= "#{@variable_id}/#{JWKS_URI_RESOURCE_NAME}"
         end
 
         def fetch_jwks_keys
