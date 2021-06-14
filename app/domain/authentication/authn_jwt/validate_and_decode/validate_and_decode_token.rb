@@ -64,13 +64,9 @@ module Authentication
 
         def verification_options_for_signature_only
           @verification_options_for_signature_only = {
-            algorithms: algorithms,
+            algorithms: SUPPORTED_ALGORITHMS,
             jwks: @jwks
           }
-        end
-
-        def algorithms
-          @algorithms ||= SUPPORTED_ALGORITHMS
         end
 
         def decoded_token(verification_options)

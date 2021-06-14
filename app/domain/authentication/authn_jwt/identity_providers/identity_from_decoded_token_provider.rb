@@ -12,19 +12,20 @@ module Authentication
           @logger = logger
           @fetch_required_secrets = fetch_required_secrets
           @resource_class = resource_class
+
           @authentication_parameters = authentication_parameters
         end
 
         def jwt_identity
           return @jwt_identity if @jwt_identity
 
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CheckingIdentityFieldExists.new(token_field_name))
-          @jwt_identity = decoded_token[token_field_name]
+          @logger.debug(LogMessages::Authentication::AuthnJwt::CheckingIdentityFieldExists.new(token_id_field_secret))
+          @jwt_identity = decoded_token[token_id_field_secret]
           if @jwt_identity.blank?
-            raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken, token_field_name
+            raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken, token_id_field_secret
           end
 
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FoundJwtFieldInToken.new(token_field_name, @jwt_identity))
+          @logger.debug(LogMessages::Authentication::AuthnJwt::FoundJwtFieldInToken.new(token_id_field_secret, @jwt_identity))
           @jwt_identity
         end
 
@@ -38,14 +39,10 @@ module Authentication
         # This method is for the authenticator status check, unlike 'identity_available?' it checks if the
         # secret value is not empty too
         def identity_configured_properly?
-          identity_available? && token_field_name.blank?
+          identity_available? && !token_id_field_secret.blank?
         end
 
         private
-
-        def variable_id
-          @authentication_parameters.authn_jwt_variable_id_prefix
-        end
 
         def decoded_token
           @authentication_parameters.decoded_token
@@ -53,10 +50,6 @@ module Authentication
 
         def identity_field_variable
           @identity_field_variable ||= @resource_class[token_id_field_variable_id]
-        end
-
-        def token_field_name
-          token_id_field_secret
         end
 
         def token_id_field_secret
@@ -68,7 +61,7 @@ module Authentication
         end
 
         def token_id_field_variable_id
-          @token_id_field_variable_id ||= "#{variable_id}/#{TOKEN_APP_PROPERTY_VARIABLE}"
+          @token_id_field_variable_id ||= "#{@authentication_parameters.authn_jwt_variable_id_prefix}/#{TOKEN_APP_PROPERTY_VARIABLE}"
         end
 
         def conjur_secret(secret_id)

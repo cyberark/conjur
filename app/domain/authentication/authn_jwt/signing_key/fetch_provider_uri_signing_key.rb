@@ -12,11 +12,11 @@ module Authentication
             logger: Rails.logger
           )
           @logger = logger
-
-          @authentication_parameters = authentication_parameters
           @fetch_required_secrets = fetch_required_secrets
           @resource_class = resource_class
           @discover_identity_provider = discover_identity_provider
+
+          @authentication_parameters = authentication_parameters
         end
 
         def valid_configuration?
@@ -31,10 +31,6 @@ module Authentication
         end
 
         private
-
-        def variable_id
-          @variable_id ||= @authentication_parameters.authn_jwt_variable_id_prefix
-        end
 
         def provider_uri_resource_exists?
           !provider_uri_resource.nil?
@@ -55,23 +51,22 @@ module Authentication
         end
 
         def provider_uri_variable_id
-          @provider_uri_variable_id ||= "#{@variable_id}/#{PROVIDER_URI_RESOURCE_NAME}"
+          @provider_uri_variable_id ||= "#{@authentication_parameters.authn_jwt_variable_id_prefix}/#{PROVIDER_URI_RESOURCE_NAME}"
         end
 
         def discover_provider
-          discovered_provider
-        end
+          return @discovered_provider if @discovered_provider
 
-        def discovered_provider
           @logger.info(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(provider_uri))
-          @discovered_provider ||= @discover_identity_provider.(
+          @discover_provider ||= @discover_identity_provider.(
             provider_uri: provider_uri
           )
         end
 
         def fetch_provider_keys
+          keys = { keys: discover_provider.jwks }
           @logger.debug(LogMessages::Authentication::OAuth::FetchProviderKeysSuccess.new)
-          { keys: @discovered_provider.jwks }
+          keys
         rescue => e
           raise Errors::Authentication::OAuth::FetchProviderKeysFailed.new(
             @provider_uri,

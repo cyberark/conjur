@@ -17,6 +17,7 @@ module Authentication
         },
         inputs: [:jwt_claim]
       ) do
+
         def call
           validate_claim_exists
           get_verification_option_by_jwt_claim
@@ -29,8 +30,6 @@ module Authentication
         end
 
         def get_verification_option_by_jwt_claim
-          claim_value = @jwt_claim.value
-          claim_name = @jwt_claim.name
           @logger.debug(LogMessages::Authentication::AuthnJwt::ConvertingJwtClaimToVerificationOption.new(claim_name))
 
           case claim_name
@@ -54,6 +53,13 @@ module Authentication
           )
 
           @verification_option
+        end
+        def claim_value
+          @claim_value ||= @jwt_claim.value
+        end
+
+        def claim_name
+          @claim_name ||= @jwt_claim.name
         end
       end
     end

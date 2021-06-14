@@ -121,7 +121,7 @@ module Authentication
           @logger.debug(LogMessages::Authentication::AuthnJwt::ParsingIssuerFromUri.new(jwks_uri_secret_value))
 
           begin
-            @issuer_from_jwks_uri_secret ||= URI.parse(jwks_uri_secret_value).hostname
+            @issuer_from_jwks_uri_secret = URI.parse(jwks_uri_secret_value).hostname
           rescue => e
             raise Errors::Authentication::AuthnJwt::InvalidUriFormat.new(
               jwks_uri_secret_value,
