@@ -19,7 +19,7 @@ module Authentication
         def create_jwt_configuration
           case authenticator_name
           when "authn-jwt"
-            return @configuration_jwt_generic_vendor_class.new(authenticator_input: @authenticator_input)
+            @configuration_jwt_generic_vendor_class.new(authenticator_input: @authenticator_input)
           else
             raise Errors::Authentication::AuthnJwt::UnsupportedAuthenticator, @authenticator_name
           end

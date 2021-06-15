@@ -15,7 +15,6 @@ module Authentication
         },
         inputs: %i[authentication_parameters]
       ) do
-
         def call
           validate_identity_configuration
           create_identity_provider

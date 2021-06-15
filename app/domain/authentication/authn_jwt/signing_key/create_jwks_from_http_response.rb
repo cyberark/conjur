@@ -48,7 +48,7 @@ module Authentication
           end
 
           validate_keys_not_empty(keys, encoded_body)
-          return { keys: @jwk_set_class.new(keys) }
+          { keys: @jwk_set_class.new(keys) }
         end
 
         def validate_keys_not_empty(keys, encoded_body)

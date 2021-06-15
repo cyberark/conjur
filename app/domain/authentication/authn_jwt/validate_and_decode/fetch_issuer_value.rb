@@ -84,7 +84,7 @@ module Authentication
 
         def validate_issuer_configuration
           if (provider_uri_resource_exists? && jwks_uri_resource_exists?) ||
-            (!provider_uri_resource_exists? && !jwks_uri_resource_exists?)
+              (!provider_uri_resource_exists? && !jwks_uri_resource_exists?)
             raise Errors::Authentication::AuthnJwt::InvalidIssuerConfiguration.new(
               ISSUER_RESOURCE_NAME,
               PROVIDER_URI_RESOURCE_NAME,
