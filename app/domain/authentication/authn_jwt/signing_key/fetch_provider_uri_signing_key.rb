@@ -5,12 +5,12 @@ module Authentication
       class FetchProviderUriSigningKey < FetchSigningKeyInterface
 
         def initialize(
-            authentication_parameters:,
-            fetch_required_secrets: Conjur::FetchRequiredSecrets.new,
-            resource_class: ::Resource,
-            discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new,
-            logger: Rails.logger
-          )
+          authentication_parameters:,
+          fetch_required_secrets: Conjur::FetchRequiredSecrets.new,
+          resource_class: ::Resource,
+          discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new,
+          logger: Rails.logger
+        )
           @logger = logger
           @fetch_required_secrets = fetch_required_secrets
           @resource_class = resource_class
@@ -38,6 +38,7 @@ module Authentication
 
         def provider_uri_resource
           return @provider_uri_resource if @provider_uri_resource
+
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwtConfigurationValue.new(provider_uri_variable_id))
           @provider_uri_resource = @resource_class[provider_uri_variable_id]
         end

@@ -10,7 +10,6 @@ module Authentication
         },
         inputs: %i[authentication_parameters]
       ) do
-
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::SelectingSigningKeyInterface.new)
           validate_key_configuration
@@ -35,8 +34,7 @@ module Authentication
 
         def validate_key_configuration
           @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingJwtSigningKeyConfiguration.new)
-          if (provider_uri_has_valid_configuration? && jwks_uri_has_valid_configuration?) ||
-            (!provider_uri_has_valid_configuration? && !jwks_uri_has_valid_configuration?)
+          if both_sigining_keys_providers_configured || neither_sigining_keys_providers_configured
             raise Errors::Authentication::AuthnJwt::InvalidUriConfiguration.new(
               PROVIDER_URI_RESOURCE_NAME,
               JWKS_URI_RESOURCE_NAME
