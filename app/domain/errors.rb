@@ -474,6 +474,16 @@ module Errors
         code: "CONJ00098E"
       )
 
+      MissingIdentity = ::Util::TrackableErrorClass.new(
+        msg: "Identity is empty or not found.",
+        code: "CONJ00101E"
+      )
+
+      MissingIdentityPrefix = ::Util::TrackableErrorClass.new(
+        msg: "Identity prefix is empty or not found.",
+        code: "CONJ00102E"
+      )
+
     end
 
     module ResourceRestrictions
