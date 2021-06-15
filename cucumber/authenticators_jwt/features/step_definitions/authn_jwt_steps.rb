@@ -2,8 +2,8 @@ Given(/I successfully set authn-jwt jwks-uri variable with value of "([^"]*)" en
   create_jwt_secret("jwks-uri", "#{JwtJwksHelper::JWKS_BASE_URI}/#{filename}")
 end
 
-Given(/I successfully set authn-jwt token-app-property variable to value "([^"]*)"/) do |value|
-  create_jwt_secret("token-app-property", value)
+Given(/I successfully set authn-jwt "([^"]*)" variable to value "([^"]*)"/) do |variable, value|
+  create_jwt_secret(variable, value)
 end
 
 When(/I authenticate via authn-jwt with the JWT token/) do
