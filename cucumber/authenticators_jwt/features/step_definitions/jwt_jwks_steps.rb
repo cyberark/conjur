@@ -1,4 +1,4 @@
-Given(/I initialize JWKs endpoint with file "([^"]*)"/) do |filename|
+Given(/I initialize JWKS endpoint with file "([^"]*)"/) do |filename|
   init_jwks_file(filename)
 end
 

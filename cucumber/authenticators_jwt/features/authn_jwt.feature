@@ -5,7 +5,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
   execute it.
 
   Background:
-    Given I initialize JWKs endpoint with file "myJWKs.json"
+    Given I initialize JWKS endpoint with file "myJWKs.json"
     And I load a policy:
     """
     - !policy
@@ -39,7 +39,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     """
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I successfully set authn-jwt token-app-property variable to value "user"
+    And I successfully set authn-jwt "token-app-property" variable to value "user"
 
   Scenario: A valid JWT token with identity in the token
     Given I have a "variable" resource called "test-variable"
@@ -129,6 +129,32 @@ Feature: JWT Authenticator - JWKs Basic sanity
     And The following appears in the log after my savepoint:
     """
     CONJ00100E Annotation, 'custom-claim', is empty
+    """
+
+  Scenario: Host not in authenticator permitted group is denied
+    Given I have a "variable" resource called "test-variable"
+    Given I extend the policy with:
+    """
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/custom-claim:
+    """
+    And I permit host "myapp" to "execute" it
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I issue a JWT token:
+    """
+    {
+      "user":"host/not_premmited",
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::Security::RoleNotFound
     """
 
   Scenario: Ignore invalid annotations from failing the test
