@@ -111,6 +111,7 @@ module Authentication
       # If there is no jwt identity so role and username are nil
       def audit_role_id
         return @audit_role_id if @audit_role_id
+
         # We use '@jwt_identity' and not 'jwt_identity' so that we don't call the function in case 'validate_and_decode'
         # failed. In such a case, we want to still be able to log an audit message without the role and username.
         if @jwt_identity
