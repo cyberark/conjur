@@ -47,7 +47,7 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I successfully set authn-jwt token-app-property variable to value "user"
+    And I successfully set authn-jwt "token-app-property" variable to value "user"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -98,7 +98,7 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt token-app-property variable to value "user"
+    And I successfully set authn-jwt "token-app-property" variable to value "user"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -155,8 +155,8 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I successfully set authn-jwt provider-uri variable with value of "someProvider" endpoint
-    And I successfully set authn-jwt token-app-property variable to value "user"
+    And I successfully set authn-jwt "provider-uri" variable to value "someProvider"
+    And I successfully set authn-jwt "token-app-property" variable to value "user"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -205,7 +205,7 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I successfully set authn-jwt token-app-property variable to value "user"
+    And I successfully set authn-jwt "token-app-property" variable to value "user"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
