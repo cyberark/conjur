@@ -31,7 +31,7 @@ Feature: JWT Authenticator - Configuration Check
     And I issue a JWT token:
     """
     {
-      "user":"host/myapp",
+      "user":"myapp",
       "project-id": "myproject"
     }
     """
@@ -75,7 +75,7 @@ Feature: JWT Authenticator - Configuration Check
     And I issue a JWT token:
     """
     {
-      "user":"host/myapp",
+      "user":"myapp",
       "project-id": "myproject"
     }
     """
@@ -127,7 +127,7 @@ Feature: JWT Authenticator - Configuration Check
     And I issue a JWT token:
     """
     {
-      "user":"host/myapp",
+      "user":"myapp",
       "project-id": "myproject"
     }
     """
@@ -179,7 +179,7 @@ Feature: JWT Authenticator - Configuration Check
     And I issue a JWT token:
     """
     {
-      "user":"host/myapp",
+      "user":"myapp",
       "project-id": "myproject"
     }
     """
@@ -226,7 +226,7 @@ Feature: JWT Authenticator - Configuration Check
     And I issue a JWT token:
     """
     {
-      "user":"host/myapp",
+      "user":"myapp",
       "project-id": "myproject"
     }
     """
@@ -273,7 +273,7 @@ Feature: JWT Authenticator - Configuration Check
     And I issue a JWT token:
     """
     {
-      "user":"host/myapp",
+      "user":"myapp",
       "project-id": "myproject"
     }
     """
@@ -317,7 +317,7 @@ Feature: JWT Authenticator - Configuration Check
     And I issue a JWT token:
     """
     {
-      "user":"host/myapp",
+      "user":"myapp",
       "project-id": "myproject"
     }
     """
@@ -369,7 +369,7 @@ Feature: JWT Authenticator - Configuration Check
     And I issue a JWT token:
     """
     {
-      "user":"host/myapp",
+      "user":"myapp",
       "project-id": "myproject"
     }
     """

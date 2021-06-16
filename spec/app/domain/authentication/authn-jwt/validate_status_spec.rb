@@ -69,7 +69,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
     )
 
     allow(mocked_valid_identity_configured_properly).to(
-      receive(:identity_configured_properly?).and_return(nil)
+      receive(:validate_identity_configured_properly).and_return(nil)
     )
 
     allow(mocked_invalid_identity_from_decoded_token_provider).to(
@@ -77,7 +77,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
     )
 
     allow(mocked_invalid_identity_configured_properly).to(
-      receive(:identity_configured_properly?).and_raise(identity_configuration_is_invalid_error)
+      receive(:validate_identity_configured_properly).and_raise(identity_configuration_is_invalid_error)
     )
 
     allow(mocked_valid_validate_webservice_is_whitelisted).to(

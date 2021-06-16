@@ -93,7 +93,7 @@ module Authentication
       def validate_identity_secrets
         @identity_from_decoded_token_provider_class.new(
           authentication_parameters: authentication_parameters
-        ).identity_configured_properly?
+        ).validate_identity_configured_properly
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedIdentityConfiguration.new)
       end
 
