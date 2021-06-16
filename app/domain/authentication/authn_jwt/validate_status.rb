@@ -3,7 +3,7 @@ module Authentication
 
     ValidateStatus = CommandClass.new(
       dependencies: {
-        create_signing_key: Authentication::AuthnJwt::SigningKey::CreateSigningKeyFactory.new,
+        create_signing_key_interface: Authentication::AuthnJwt::SigningKey::CreateSigningKeyFactory.new,
         fetch_issuer_value: Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new,
         identity_from_decoded_token_provider_class: Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider,
         validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
@@ -21,7 +21,9 @@ module Authentication
       def call
         @logger.info(LogMessages::Authentication::AuthnJwt::ValidatingJwtStatusConfiguration.new)
         validate_generic_status_validations
-        validate_secrets
+        validate_issuer
+        validate_identity_secrets
+        validate_signing_key
         @logger.info(LogMessages::Authentication::AuthnJwt::ValidatedJwtStatusConfiguration.new)
       end
 
@@ -75,16 +77,6 @@ module Authentication
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedStatusWebserviceIsWhitelisted.new)
       end
 
-      def validate_secrets
-        validate_signing_key_secrets
-        validate_issuer
-        validate_identity_secrets
-      end
-
-      def validate_signing_key_secrets
-        @create_signing_key.call(authentication_parameters: authentication_parameters)
-      end
-
       def validate_issuer
         @fetch_issuer_value.call(authentication_parameters: authentication_parameters)
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedIssuerConfiguration.new)
@@ -117,6 +109,30 @@ module Authentication
           account: account,
           authenticator_name: authenticator_name,
           service_id: service_id
+        )
+      end
+
+      def validate_signing_key
+        fetch_signing_key.call
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedSigningKeyConfiguration.new)
+      end
+
+      def fetch_signing_key
+        @fetch_signing_key ||= ::Util::ConcurrencyLimitedCache.new(
+          ::Util::RateLimitedCache.new(
+            fetch_signing_key_interface,
+            refreshes_per_interval: ::Authentication::AuthnJwt::CACHE_REFRESHES_PER_INTERVAL,
+            rate_limit_interval: ::Authentication::AuthnJwt::CACHE_RATE_LIMIT_INTERVAL,
+            logger: @logger
+          ),
+          max_concurrent_requests: ::Authentication::AuthnJwt::CACHE_MAX_CONCURRENT_REQUESTS,
+          logger: @logger
+        )
+      end
+
+      def fetch_signing_key_interface
+        @fetch_signing_key_interface ||= @create_signing_key_interface.call(
+          authentication_parameters: authentication_parameters
         )
       end
     end
