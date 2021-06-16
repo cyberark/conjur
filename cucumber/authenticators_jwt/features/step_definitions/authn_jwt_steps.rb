@@ -6,6 +6,14 @@ Given(/I successfully set authn-jwt "([^"]*)" variable to value "([^"]*)"/) do |
   create_jwt_secret(variable, value)
 end
 
+Given(/I successfully set authn-jwt provider-uri variable with value of "([^"]*)" endpoint/) do |provider_uri|
+  create_jwt_secret("jwks-uri", "provider_uri")
+end
+
+Given(/I successfully set authn-jwt token-app-property variable to value "([^"]*)"/) do |value|
+  create_jwt_secret("token-app-property", value)
+end
+
 When(/I authenticate via authn-jwt with the JWT token/) do
   authenticate_jwt_token(jwt_token)
 end
