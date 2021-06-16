@@ -474,6 +474,16 @@ module Errors
         code: "CONJ00098E"
       )
 
+      MissingIdentity = ::Util::TrackableErrorClass.new(
+        msg: "JWT identity is empty or was not found.",
+        code: "CONJ00101E"
+      )
+
+      MissingIdentityPrefix = ::Util::TrackableErrorClass.new(
+        msg: "JWT identity prefix is empty or was not found.",
+        code: "CONJ00102E"
+      )
+
     end
 
     module ResourceRestrictions
