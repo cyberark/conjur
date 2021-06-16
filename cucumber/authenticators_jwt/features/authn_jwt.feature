@@ -63,8 +63,6 @@ Feature: JWT Authenticator - JWKs Basic sanity
 
   Scenario: Authenticator is not enabled
     Given I have a "variable" resource called "test-variable"
-    And I permit host "myapp" to "execute" it
-    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I issue a JWT token:
     """
     {
@@ -82,8 +80,6 @@ Feature: JWT Authenticator - JWKs Basic sanity
 
   Scenario: Empty Token Given
     Given I have a "variable" resource called "test-variable"
-    And I permit host "myapp" to "execute" it
-    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I save my place in the log file
     And I issue empty JWT token
     When I authenticate via authn-jwt with the JWT token
@@ -95,8 +91,6 @@ Feature: JWT Authenticator - JWKs Basic sanity
 
   Scenario: No Token Given
     Given I have a "variable" resource called "test-variable"
-    And I permit host "myapp" to "execute" it
-    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I save my place in the log file
     When I authenticate via authn-jwt with the JWT token
     Then it is a bad request
@@ -114,8 +108,6 @@ Feature: JWT Authenticator - JWKs Basic sanity
       annotations:
         authn-jwt/raw/custom-claim:
     """
-    And I permit host "myapp" to "execute" it
-    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I issue a JWT token:
     """
     {
@@ -140,8 +132,6 @@ Feature: JWT Authenticator - JWKs Basic sanity
       annotations:
         authn-jwt/raw/custom-claim:
     """
-    And I permit host "myapp" to "execute" it
-    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I issue a JWT token:
     """
     {
