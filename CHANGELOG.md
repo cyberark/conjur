@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.11.7+enterprise.2] - 2021-06-15
+
 ## [1.11.7+enterprise.1] - 2021-06-14
 
 ### Added
@@ -666,7 +668,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.7+enterprise.1...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.11.7+enterprise.2...HEAD
+[1.11.7+enterprise.2]: https://github.com/cyberark/conjur/compare/v1.11.7+enterprise.1...v1.11.7+enterprise.2
 [1.11.7+enterprise.1]: https://github.com/cyberark/conjur/compare/v1.11.7...v1.11.7+enterprise.1
 [1.11.7]: https://github.com/cyberark/conjur/compare/v1.11.6...v1.11.7
 [1.11.6]: https://github.com/cyberark/conjur/compare/v1.11.5...v1.11.6
