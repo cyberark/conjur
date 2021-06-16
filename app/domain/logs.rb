@@ -561,12 +561,12 @@ module LogMessages
       )
 
       FetchedIdentityPath = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully fetched identity path '{0-identity-path}'",
+        msg: "Successfully fetched JWT identity path '{0-identity-path}'",
         code: "CONJ00111I"
       )
 
       FetchingIdentityByInterface = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetching identity by interface: '{0-interface-name}'",
+        msg: "Fetching JWT identity by interface: '{0-interface-name}'...",
         code: "CONJ00112D"
       )
 
@@ -581,12 +581,12 @@ module LogMessages
       )
 
       AddedIdentityPrefixToIdentity = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully added identity prefix, calculated identity is: '{0-identity}'",
+        msg: "Successfully added JWT identity prefix. Calculated identity is: '{0-identity}'",
         code: "CONJ00115D"
       )
 
       IdentityPathNotConfigured = ::Util::TrackableLogMessageClass.new(
-        msg: "Identity path '{0-resource-name}' is not configured, the identity will be taken from root policy",
+        msg: "JWT identity path '{0-resource-name}' not configured. JWT identity will be taken from root policy",
         code: "CONJ00116D"
       )
 

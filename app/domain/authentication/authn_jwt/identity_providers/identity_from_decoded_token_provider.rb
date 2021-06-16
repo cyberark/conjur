@@ -118,19 +118,15 @@ module Authentication
         end
 
         def add_prefix_path_to_identity_name
-          return @identity_name_with_prefix_path if @identity_name_with_prefix_path
-
-          if identity_path.blank?
-            @identity_name_with_prefix_path ||= identity_name_from_token
-          else
-            @identity_name_with_prefix_path ||=
+          @add_prefix_path_to_identity_name ||=
+            if identity_path.blank?
+              identity_name_from_token
+            else
               @add_prefix_to_identity.call(
                 identity_prefix: identity_path,
                 identity: identity_name_from_token
               )
-          end
-
-          @identity_name_with_prefix_path
+            end
         end
 
         def identity_name_with_prefix_path

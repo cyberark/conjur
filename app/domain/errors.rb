@@ -475,12 +475,12 @@ module Errors
       )
 
       MissingIdentity = ::Util::TrackableErrorClass.new(
-        msg: "Identity is empty or not found.",
+        msg: "JWT identity is empty or was not found.",
         code: "CONJ00101E"
       )
 
       MissingIdentityPrefix = ::Util::TrackableErrorClass.new(
-        msg: "Identity prefix is empty or not found.",
+        msg: "JWT identity prefix is empty or was not found.",
         code: "CONJ00102E"
       )
 

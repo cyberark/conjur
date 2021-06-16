@@ -60,15 +60,12 @@ module Authentication
         end
 
         def identity_prefix_with_delimiter_suffix
-          return @identity_prefix_with_character_suffix if @identity_prefix_with_character_suffix
-
-          if identity_prefix_last_character != IDENTITY_PATH_CHARACTER_DELIMITER
-            @identity_prefix_with_character_suffix = @identity_prefix + IDENTITY_PATH_CHARACTER_DELIMITER
-          else
-            @identity_prefix_with_character_suffix = @identity_prefix
-          end
-
-          @identity_prefix_with_character_suffix
+          @identity_prefix_with_delimiter_suffix ||=
+            if identity_prefix_last_character != IDENTITY_PATH_CHARACTER_DELIMITER
+              @identity_prefix + IDENTITY_PATH_CHARACTER_DELIMITER
+            else
+              @identity_prefix
+            end
         end
 
         def identity_prefix_last_character
@@ -76,15 +73,12 @@ module Authentication
         end
 
         def identity_without_delimiter_prefix
-          return @identity_without_delimiter_prefix if @identity_without_delimiter_prefix
-
-          if identity_first_character == IDENTITY_PATH_CHARACTER_DELIMITER
-            @identity_without_delimiter_prefix = identity_without_first_character
-          else
-            @identity_without_delimiter_prefix = @identity
-          end
-
-          @identity_without_delimiter_prefix
+          @identity_without_delimiter_prefix ||=
+            if identity_first_character == IDENTITY_PATH_CHARACTER_DELIMITER
+              identity_without_first_character
+            else
+              @identity
+            end
         end
 
         def identity_first_character
