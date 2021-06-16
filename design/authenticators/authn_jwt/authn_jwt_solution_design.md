@@ -395,7 +395,7 @@ JWT authenticator performance should conform with our other authenticators with 
 ### Affected Components
 - Conjur
 
-- DAP
+- Conjur Enterprise
 
 ## Open questions
 1. Do we want to support static keys in 1st phase?
