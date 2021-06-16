@@ -4,7 +4,7 @@ Feature: JWT Authenticator - Configuration Check
     And I have a "variable" resource called "test-variable"
 
   Scenario: Webservice is missing in Authenticator policy
-    And I load a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-jwt/raw
@@ -27,11 +27,11 @@ Feature: JWT Authenticator - Configuration Check
     """
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "token-app-property" variable to value "host"
     And I issue a JWT token:
     """
     {
-      "user":"myapp",
+      "host":"myapp",
       "project-id": "myproject"
     }
     """
@@ -44,7 +44,7 @@ Feature: JWT Authenticator - Configuration Check
     """
 
   Scenario: Webservice with read and no authenticate permission in authenticator policy
-    And I load a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-jwt/raw
@@ -71,11 +71,11 @@ Feature: JWT Authenticator - Configuration Check
     """
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "token-app-property" variable to value "host"
     And I issue a JWT token:
     """
     {
-      "user":"myapp",
+      "host":"myapp",
       "project-id": "myproject"
     }
     """
@@ -88,7 +88,7 @@ Feature: JWT Authenticator - Configuration Check
     """
 
   Scenario: Both provider-uri and jwks-uri are configured
-    And I load a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-jwt/raw
@@ -127,7 +127,7 @@ Feature: JWT Authenticator - Configuration Check
     And I issue a JWT token:
     """
     {
-      "user":"myapp",
+      "host":"myapp",
       "project-id": "myproject"
     }
     """
@@ -140,7 +140,7 @@ Feature: JWT Authenticator - Configuration Check
     """
 
   Scenario: provider-uri configured with correct value, jwks-uri configured with empty value, error
-    And I load a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-jwt/raw
@@ -179,7 +179,7 @@ Feature: JWT Authenticator - Configuration Check
     And I issue a JWT token:
     """
     {
-      "user":"myapp",
+      "host":"myapp",
       "project-id": "myproject"
     }
     """
@@ -192,7 +192,7 @@ Feature: JWT Authenticator - Configuration Check
     """
 
   Scenario: jwks-uri configured but variable not set
-    And I load a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-jwt/raw
@@ -226,7 +226,7 @@ Feature: JWT Authenticator - Configuration Check
     And I issue a JWT token:
     """
     {
-      "user":"myapp",
+      "host":"myapp",
       "project-id": "myproject"
     }
     """
@@ -239,7 +239,7 @@ Feature: JWT Authenticator - Configuration Check
     """
 
   Scenario: provider-uri configured but variable not set
-    And I load a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-jwt/raw
@@ -273,7 +273,7 @@ Feature: JWT Authenticator - Configuration Check
     And I issue a JWT token:
     """
     {
-      "user":"myapp",
+      "host":"myapp",
       "project-id": "myproject"
     }
     """
@@ -286,7 +286,7 @@ Feature: JWT Authenticator - Configuration Check
     """
 
   Scenario: None of provider-uri or jwks-uri are configured
-    And I load a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-jwt/raw
@@ -317,7 +317,7 @@ Feature: JWT Authenticator - Configuration Check
     And I issue a JWT token:
     """
     {
-      "user":"myapp",
+      "host":"myapp",
       "project-id": "myproject"
     }
     """
@@ -330,7 +330,7 @@ Feature: JWT Authenticator - Configuration Check
     """
 
   Scenario: provider-uri configured with empty value, jwks-uri configured with correct value
-    And I load a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-jwt/raw
@@ -369,7 +369,7 @@ Feature: JWT Authenticator - Configuration Check
     And I issue a JWT token:
     """
     {
-      "user":"myapp",
+      "host":"myapp",
       "project-id": "myproject"
     }
     """
@@ -379,4 +379,96 @@ Feature: JWT Authenticator - Configuration Check
     And The following appears in the log after my savepoint:
     """
     CONJ00086E Signing key URI configuration is invalid
+    """
+
+  Scenario: Both Token identity and host send in URL, error
+    Given I load a policy:
+    """
+    - !policy
+      id: conjur/authn-jwt/raw
+      body:
+      - !webservice
+        annotations:
+          description: Authentication service for JWT tokens, based on raw JWKs.
+
+      - !variable
+        id: jwks-uri
+
+      - !variable
+        id: token-app-property
+
+      - !group users
+
+      - !permit
+        role: !group users
+        privilege: [ read, authenticate ]
+        resource: !webservice
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/project-id: myproject
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/users
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I issue a JWT token:
+    """
+    {
+      "host":"myapp",
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with myapp account in url
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::AuthnJwt::IdentityMisconfigured: CONJ00098E JWT identity configuration is invalid
+    """
+
+  Scenario: Host in token not defined , and no host in URL, error
+    Given I load a policy:
+    """
+    - !policy
+      id: conjur/authn-jwt/raw
+      body:
+      - !webservice
+        annotations:
+          description: Authentication service for JWT tokens, based on raw JWKs.
+
+      - !variable
+        id: jwks-uri
+
+      - !group users
+
+      - !permit
+        role: !group users
+        privilege: [ read, authenticate ]
+        resource: !webservice
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/project-id: myproject
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/users
+      member: !host myapp
+    """
+    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I issue a JWT token:
+    """
+    {
+      "host":"myapp",
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::AuthnJwt::IdentityMisconfigured: CONJ00098E JWT identity configuration is invalid
     """

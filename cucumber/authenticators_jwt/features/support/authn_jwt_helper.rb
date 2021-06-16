@@ -10,10 +10,17 @@ module AuthnJwtHelper
 
   def authenticate_jwt_token(jwt_token, service_id = SERVICE_ID)
     path = "#{conjur_hostname}/authn-jwt/#{service_id}/#{ACCOUNT}/authenticate"
+    payload = {
+      "jwt" => jwt_token
+    }
+    post(path, payload)
+  end
 
-    payload = {}
-    payload["jwt"] = jwt_token
-
+  def authenticate_jwt_with_url_identity(jwt_token, account_name, service_id = SERVICE_ID)
+    path = "#{conjur_hostname}/authn-jwt/#{service_id}/#{ACCOUNT}/#{account_name}/authenticate"
+    payload = {
+      "jwt" => jwt_token
+    }
     post(path, payload)
   end
 
