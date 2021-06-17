@@ -39,27 +39,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     """
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
-
-  Scenario: A valid JWT token with identity in the token
-    Given I have a "variable" resource called "test-variable"
-    And I permit host "myapp" to "execute" it
-    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
-    And I issue a JWT token:
-    """
-    {
-      "user":"myapp",
-      "project-id": "myproject"
-    }
-    """
-    And I save my place in the log file
-    When I authenticate via authn-jwt with the JWT token
-    Then host "myapp" has been authorized by Conjur
-    And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
-    And The following appears in the log after my savepoint:
-    """
-    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
-    """
+    And I successfully set authn-jwt "token-app-property" variable to value "host"
 
   Scenario: Authenticator is not enabled
     Given I have a "variable" resource called "test-variable"
@@ -111,7 +91,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     And I issue a JWT token:
     """
     {
-      "user":"myapp",
+      "host":"myapp",
       "project-id": "myproject"
     }
     """
@@ -135,7 +115,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     And I issue a JWT token:
     """
     {
-      "user":"host/not_premmited",
+      "host":"not_premmited",
       "project-id": "myproject"
     }
     """
@@ -167,7 +147,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     And I issue a JWT token:
     """
     {
-      "user":"myapp",
+      "host":"myapp",
       "project-id": "myproject",
       "sub": "valid",
       "namespace-id": "valid",
