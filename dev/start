@@ -55,25 +55,6 @@ function conjur_isready?() {
   return 1
 }
 
-function keycloak_isready?() {
-  for i in {1..20}
-  do
-   sleep=10
-   echo "keycloak starting logs:"
-   echo "$(docker-compose logs oidc-keycloak)"
-   output=$(docker-compose logs oidc-keycloak | grep "started" | wc -l)
-   if [ $output -ne 0 ]; then
-        echo "Keycloak server is up and ready"
-        return 0;
-   else
-        echo "Keycloak not ready yet sleep number $i for $sleep seconds"
-        sleep $sleep
-   fi
-  done
-  echo "Error with keycloak server start or it is too slow"
-  return 1
-}
-
 unset COMPOSE_PROJECT_NAME
 
 # Determine which extra services should be loaded when working with authenticators
@@ -200,10 +181,10 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   conjur_isready?
 
   # Check if keycloak is up
-  keycloak_isready?
+  docker-compose exec -T oidc-keycloak /scripts/wait_for_server
 
   echo "Initialize keycloak certificate in conjur server"
-  docker-compose exec -T conjur /authn-oidc/keycloak/scripts/fetchCertificate
+  docker-compose exec -T conjur /authn-oidc/keycloak/scripts/fetch_certificate
 
   if [[ $ENABLE_OIDC_OKTA = true ]]; then
     echo "Configuring OKTA as OpenID provider for manual testing"

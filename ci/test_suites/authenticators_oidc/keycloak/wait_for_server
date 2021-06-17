@@ -1,0 +1,48 @@
+#!/bin/sh
+
+SERVER_LOG_PATH=$(find /opt/jboss/keycloak/standalone/log -name 'server.log.*' | head -n 1)
+
+function print_help() {
+  cat << EOF
+Wait for keycloak server to start, the script should run from inside keycloak container
+Example:
+./wait_for_server <service-name>
+EOF
+}
+
+function input_validation() {
+  local args_number="$#"
+  if [[ ${args_number} -ne 0 ]] ; then
+    echo "Error: invalid arguments"
+    print_help
+    exit 1
+  fi
+}
+
+function wait_for_keycloak() {
+  local service_name="$1"
+  for i in {1..40}; do
+    sleep=5
+    echo "Keycloak starting logs:"
+
+    if tail ${SERVER_LOG_PATH} | grep "started"; then
+      echo "Keycloak server is up and ready"
+      return 0
+    fi
+
+    echo "Keycloak not ready yet sleep number $i for $sleep seconds"
+    sleep "$sleep"
+  done
+
+  echo "Error with keycloak server start or it is too slow"
+  exit 1
+}
+
+function main() {
+  echo "=====>Starting script: ${SCRIPT_PATH}..."
+  input_validation "$@"
+  wait_for_keycloak
+  echo "=====>Script ${SCRIPT_PATH} finish successfully"
+}
+
+main "$@"

@@ -7,6 +7,8 @@ set -e
 # This is executed by the main "ci/test" script after cd-ing into "ci".
 # shellcheck disable=SC1091
 source "./shared.sh"
+SCRIPT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+KEYCLOAK_SERVICE_NAME="oidc-keycloak"
 
 main() {
   # We also run an ldap-server container for testing the OIDC & LDAP combined
@@ -64,32 +66,13 @@ _create_keycloak_user() {
     bash -c "/scripts/create_user \"$user_var\" \"$pw_var\" \"$email_var\""
 }
 
-# TODO: use wait_for_cmd
-_wait_for_keycloak() {
-  for i in {1..40}; do
-    sleep=5
-    echo "Keycloak starting logs:"
-
-    if docker-compose logs oidc-keycloak | grep "started"; then
-      echo "Keycloak server is up and ready"
-      return 0
-    fi
-
-    echo "Keycloak not ready yet sleep number $i for $sleep seconds"
-    sleep "$sleep"
-  done
-
-  echo "Error with keycloak server start or it is too slow"
-  exit 1
-}
-
 create_keycloak_users() {
-  docker-compose up --no-deps -d pg conjur oidc-keycloak
-  _wait_for_keycloak
+  docker-compose up --no-deps -d pg conjur ${KEYCLOAK_SERVICE_NAME}
+  bash -c "${SCRIPT_PATH}/keycloak/wait_for_server \"${KEYCLOAK_SERVICE_NAME}\""
 
   echo "Defining oidc-keycloak client"
 
-  docker-compose exec -T oidc-keycloak /scripts/create_client
+  docker-compose exec -T ${KEYCLOAK_SERVICE_NAME} /scripts/create_client
 
   echo "Creating user 'alice' in Keycloak"
 
