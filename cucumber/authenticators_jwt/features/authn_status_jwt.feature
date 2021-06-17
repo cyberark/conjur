@@ -68,6 +68,9 @@ Feature: JWT Authenticator - Status Check
       - !variable
         id: token-app-property
 
+      - !variable
+        id: issuer
+
       - !group users
 
       - !permit
@@ -99,6 +102,7 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "issuer" variable to value "someIssuer"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -123,6 +127,9 @@ Feature: JWT Authenticator - Status Check
 
       - !variable
         id: token-app-property
+
+      - !variable
+        id: issuer
 
       - !group users
 
@@ -157,6 +164,7 @@ Feature: JWT Authenticator - Status Check
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
     And I successfully set authn-jwt "provider-uri" variable to value "someProvider"
     And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "issuer" variable to value "someIssuer"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
