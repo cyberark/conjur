@@ -63,3 +63,6 @@ docs/_site/
 docs/.sass-cache
 
 gems/*/Gemfile.lock
+
+# Container commit marker
+conjur_git_commit

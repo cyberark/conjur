@@ -50,6 +50,11 @@ function flatten() {
   docker rm "$container"
 }
 
+# Store the current git commit sha in a file so that it can be added to the container.
+# This will enable users of the container to determine which revision of conjur
+# the container was built from.
+git rev-parse HEAD > conjur_git_commit
+
 # We want to build an image:
 # 1. Always, when we're developing locally
 if [[ $jenkins = false ]]; then
