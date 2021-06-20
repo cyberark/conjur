@@ -124,7 +124,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::Security::RoleNotFound
+    CONJ00007E 'host/not_premmited' not found
     """
 
   Scenario: Ignore invalid annotations from failing the test

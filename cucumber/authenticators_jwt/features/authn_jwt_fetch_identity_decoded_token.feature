@@ -97,8 +97,12 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     And I save my place in the log file
     When I authenticate via authn-jwt with the JWT token
     Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00007E 'host/myapp2' not found
+    """
 
-  Scenario: Token identity configuration no matching any claim, error
+  Scenario: Token identity configuration nots matching any claim, error
     Given I issue a JWT token:
     """
     {
@@ -111,7 +115,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::AuthnJwt::NoSuchFieldInToken: CONJ00081E
+    CONJ00081E 'host_cliam' field not found in the token
     """
 
   Scenario: Token identity configuration with empty secret, no identity in URL, error
@@ -126,10 +130,10 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    Errors::Conjur::RequiredSecretMissing: CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/token-app-property
+    CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/token-app-property
     """
 
-  Scenario: Host with slash as Token identity, identity-path configured, 200 ok
+  Scenario: Host with delimiter as Token identity, identity-path configured, 200 ok
     Given I have a "variable" resource called "test-variable"
     And I successfully set authn-jwt "token-app-property" variable to value "host_claim"
     And I extend the policy with:
@@ -159,7 +163,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     cucumber:host:some_policy/sub_policy/host_test_from_token successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  Scenario: Host without slash as Token identity, identity-path configured, 200 ok
+  Scenario: Host without delimiter as Token identity, identity-path configured, 200 ok
     Given I have a "variable" resource called "test-variable"
     And I successfully set authn-jwt "token-app-property" variable to value "host_claim"
     And I extend the policy with:

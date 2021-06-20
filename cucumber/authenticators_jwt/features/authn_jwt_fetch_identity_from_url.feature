@@ -78,25 +78,6 @@ Feature: JWT Authenticator - Fetch identity from URL
     cucumber:user:user_test_from_url@some_policy successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  Scenario: Host send in URL, host not in root, 200 ok
-    Given I have a "variable" resource called "test-variable"
-    And I permit host "some_policy/host_test_from_url" to "execute" it
-    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
-    And I issue a JWT token:
-    """
-    {
-      "project-id": "myproject"
-    }
-    """
-    And I save my place in the log file
-    When I authenticate via authn-jwt with host%2Fsome_policy%2Fhost_test_from_url account in url
-    Then host "some_policy/host_test_from_url" has been authorized by Conjur
-    And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
-    And The following appears in the log after my savepoint:
-    """
-    cucumber:host:some_policy/host_test_from_url successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
-    """
-
   Scenario: User send in URL, user in root, 200 ok
     Given I have a "variable" resource called "test-variable"
     And I permit user "user_test_from_url" to "execute" it
@@ -114,6 +95,25 @@ Feature: JWT Authenticator - Fetch identity from URL
     And The following appears in the log after my savepoint:
     """
     cucumber:user:user_test_from_url successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    """
+
+  Scenario: Host send in URL, host not in root, 200 ok
+    Given I have a "variable" resource called "test-variable"
+    And I permit host "some_policy/host_test_from_url" to "execute" it
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I issue a JWT token:
+    """
+    {
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with host%2Fsome_policy%2Fhost_test_from_url account in url
+    Then host "some_policy/host_test_from_url" has been authorized by Conjur
+    And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
+    And The following appears in the log after my savepoint:
+    """
+    cucumber:host:some_policy/host_test_from_url successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
   Scenario: Host send in URL, host in root, 200 ok
@@ -147,10 +147,10 @@ Feature: JWT Authenticator - Fetch identity from URL
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::Security::RoleNotFound: CONJ00007E
+    CONJ00007E 'invalid_host' not found
     """
 
-  Scenario: Host send in URL, host not in root, Identify-path with empty value ignore, 200 ok
+  Scenario: Host send in URL, host not in root, Identify-path with empty value is ignored, 200 ok
     Given I have a "variable" resource called "test-variable"
     And I permit host "some_policy/host_test_from_url" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"

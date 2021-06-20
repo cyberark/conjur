@@ -84,7 +84,7 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 403
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::Security::RoleNotAuthorizedOnResource: CONJ00006E
+    CONJ00006E 'host/myapp' does not have 'authenticate' privilege on cucumber:webservice:conjur/authn-jwt/raw
     """
 
   Scenario: Both provider-uri and jwks-uri are configured
@@ -235,7 +235,7 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    Errors::Conjur::RequiredSecretMissing: CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/jwks-uri
+    CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/jwks-uri
     """
 
   Scenario: provider-uri configured but variable not set
@@ -282,7 +282,7 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    Errors::Conjur::RequiredSecretMissing: CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/provider-uri
+    CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/provider-uri
     """
 
   Scenario: None of provider-uri or jwks-uri are configured
@@ -470,5 +470,5 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::AuthnJwt::IdentityMisconfigured: CONJ00098E JWT identity configuration is invalid
+    CONJ00098E JWT identity configuration is invalid
     """
