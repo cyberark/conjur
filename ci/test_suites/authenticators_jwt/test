@@ -4,16 +4,16 @@ set -e
 # This is executed by the main "ci/test" script after cd-ing into "ci".
 # shellcheck disable=SC1091
 source "./shared.sh"
-source "./keycloak/keycloak_functions.sh"
+source "./oauth/keycloak/keycloak_functions.sh"
 
 function main() {
-  docker-compose up --no-deps -d pg conjur oidc-keycloak
+  docker-compose up --no-deps -d pg conjur keycloak
 
   wait_for_keycloak_server
   create_keycloak_users
   fetch_keycloak_certificate
 
-  additional_services='jwks oidc-keycloak'
+  additional_services='jwks keycloak'
   _run_cucumber_tests authenticators_jwt "$additional_services" \
     _hydrate_keycloak_env_args
 }

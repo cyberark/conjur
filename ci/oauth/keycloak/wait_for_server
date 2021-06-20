@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-SERVER_LOG_PATH=$(find /opt/jboss/keycloak/standalone/log -name 'server.log.*' | head -n 1)
+SERVER_HEALTH_CHECK_URL="http://localhost:8080/"
+SERVER_IS_READY="N0"
 
 function print_help() {
   cat << EOF
@@ -20,12 +21,11 @@ function input_validation() {
 }
 
 function wait_for_keycloak() {
-  local service_name="$1"
   for i in {1..40}; do
     sleep=5
-    echo "Keycloak starting logs:"
+    set_server_readiness
 
-    if tail ${SERVER_LOG_PATH} | grep "started"; then
+    if [[ "${SERVER_IS_READY}" == "YES" ]] ; then
       echo "Keycloak server is up and ready"
       return 0
     fi
@@ -36,6 +36,16 @@ function wait_for_keycloak() {
 
   echo "Error with keycloak server start or it is too slow"
   exit 1
+}
+
+function set_server_readiness()
+{
+  curl --silent --output /dev/null "${SERVER_HEALTH_CHECK_URL}"
+  local ret_code=$?
+  echo "Return code of accessing ${SERVER_HEALTH_CHECK_URL} is: ${ret_code}"
+  if [[ "${ret_code}" -eq 0 ]] ; then
+    SERVER_IS_READY="YES"
+  fi
 }
 
 function main() {

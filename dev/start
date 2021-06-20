@@ -1,8 +1,8 @@
 #!/bin/bash -ex
 
-SCRIPT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-KEYCLOAK_FUNCTIONS_PATH="${SCRIPT_PATH}/../ci/keycloak/keycloak_functions.sh"
-source "${KEYCLOAK_FUNCTIONS_PATH}"
+SCRIPT_PATH="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+KEYCLOAK_FUNCTIONS_DIR_PATH="${SCRIPT_PATH}/../ci/oauth/keycloak"
+source "${KEYCLOAK_FUNCTIONS_DIR_PATH}/keycloak_functions.sh"
 
 function print_help() {
   cat << EOF
@@ -39,19 +39,17 @@ EOF
 }
 
 function configure_oidc_providers() {
-  enable_oidc_authenticators
-
   # Start conjur again, since it is recreating by docker-compose because of dependency with keycloak
   start_conjur
 
-  # Check if keycloak is up
   wait_for_keycloak_server
 
   fetch_oidc_certificates
 
-  define_oidc_variables_in_conjur
+  configure_oidc_authenticators
 
-  echo "Creating OpenID client and users in keycloack OpenID provider"
+  enable_oidc_authenticators
+
   create_keycloak_users
   echo "keycloak admin console url: http://0.0.0.0:7777/auth/admin"
 }
@@ -85,7 +83,7 @@ function conjur_isready?() {
   return 1
 }
 
-function define_oidc_variables_in_conjur() {
+function configure_oidc_authenticators() {
   # add variables' values for keycloak
   echo "Setting keycloak variables values in conjur"
   docker-compose exec client conjur policy load root /src/conjur-server/ci/test_suites/authenticators_oidc/policy.yml
@@ -131,7 +129,6 @@ function enable_oidc_authenticators() {
     enabled_authenticators="$enabled_authenticators,authn-oidc/adfs"
   fi
 }
-
 
 unset COMPOSE_PROJECT_NAME
 
@@ -246,7 +243,7 @@ if [[ $ENABLE_AUTHN_OIDC = false && ($ENABLE_OIDC_ADFS = true || $ENABLE_OIDC_OK
 fi
 
 if [[ $ENABLE_AUTHN_OIDC = true ]]; then
-  services="$services oidc-keycloak"
+  services="$services keycloak"
   docker-compose up -d --no-deps $services
 
   configure_oidc_providers

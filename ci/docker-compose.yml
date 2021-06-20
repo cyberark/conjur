@@ -56,7 +56,7 @@ services:
     volumes:
       - authn-local:/run/authn-local
       # TODO: authenticators_oidc/test has a dep on this
-      - ./keycloak:/authn-oidc/keycloak/scripts
+      - ./oauth/keycloak:/oauth/keycloak/scripts
       - ./ldap-certs:/ldap-certs:ro
       - log-volume:/opt/conjur-server/log
       - ../coverage:/opt/conjur-server/coverage
@@ -65,7 +65,7 @@ services:
     links:
       - pg
       - ldap-server
-      - oidc-keycloak:keycloak
+      - keycloak
 
   cucumber:
     image: conjur-test:$TAG
@@ -94,7 +94,7 @@ services:
       - conjur
       - pg
       - testdb
-      - oidc-keycloak:keycloak
+      - keycloak
 
   ldap-server:
     image: osixia/openldap
@@ -113,7 +113,7 @@ services:
       - ./test_suites/authenticators_ldap/ldap-data:/container/service/slapd/assets/config/bootstrap/ldif/custom
       - ./ldap-certs:/container/service/slapd/assets/certs:ro
 
-  oidc-keycloak:
+  keycloak:
     image: jboss/keycloak:4.3.0.Final
     environment:
       - KEYCLOAK_USER=admin
@@ -132,12 +132,10 @@ services:
       - KEYCLOAK_REDIRECT_URI=http://locallhost.com/
       - KEYCLOAK_CLIENT_SECRET=1234
       - KEYCLOAK_SCOPE=openid
-    ports:
-      - "7777:8080"
     volumes:
       # TODO: authenticators_oidc/test has a dep on this
-      - ./keycloak:/scripts
-      - ./keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
+      - ./oauth/keycloak:/scripts
+      - ./oauth/keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
 
   jwks:
     image: nginx

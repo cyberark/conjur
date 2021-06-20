@@ -192,14 +192,14 @@ function validate_gcf_url_accessible() {
 }
 
 function enable_oidc() {
-  enable_keycloak
+  add_keycloak_env_vars_to_env_args
 }
 
-function enable_keycloak() {
+function add_keycloak_env_vars_to_env_args() {
   echo "Extracting keycloak variables & setting as env variables"
 
   local keycloak_env_args=''
-  keycloak_env_args="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv | grep KEYCLOAK | sed 's/.*/-e &/') \
+  keycloak_env_args="$(set -o pipefail; docker-compose exec -T keycloak printenv | grep KEYCLOAK | sed 's/.*/-e &/') \
                      -e PROVIDER_URI=https://keycloak:8443/auth/realms/master \
                      -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect \
                      -e ID_TOKEN_USER_PROPERTY=preferred_username"
@@ -208,7 +208,7 @@ function enable_keycloak() {
 }
 
 function enable_jwt() {
-  enable_keycloak
+  add_keycloak_env_vars_to_env_args
 }
 
 function enable_azure() {

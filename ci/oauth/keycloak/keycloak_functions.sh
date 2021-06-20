@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-KEYCLOAK_SERVICE_NAME="oidc-keycloak"
+KEYCLOAK_SERVICE_NAME="keycloak"
 
 # Note: the single arg is a nameref, which this function sets to an array
 # containing items of the form "KEY=VAL".
@@ -29,7 +29,7 @@ function _hydrate_keycloak_env_args() {
 # _create_keycloak_user '$APP_USER' '$APP_PW' '$APP_EMAIL'
 #
 # This is because those variables are not available to this script. They are
-# available to bash commands run via "docker-compose exec oidc-keycloak bash
+# available to bash commands run via "docker-compose exec keycloak bash
 # -c...", since they're defined in the docker-compose.yml.
 function _create_keycloak_user() {
   local user_var=$1
@@ -37,12 +37,12 @@ function _create_keycloak_user() {
   local email_var=$3
 
   docker-compose exec -T \
-    oidc-keycloak \
+    ${KEYCLOAK_SERVICE_NAME} \
     bash -c "/scripts/create_user \"$user_var\" \"$pw_var\" \"$email_var\""
 }
 
 function create_keycloak_users() {
-  echo "Defining oidc-keycloak client"
+  echo "Defining keycloak client"
 
   docker-compose exec -T ${KEYCLOAK_SERVICE_NAME} /scripts/create_client
 
@@ -72,18 +72,17 @@ function create_keycloak_users() {
     '$KEYCLOAK_NON_CONJUR_APP_USER' \
     '$KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD' \
     '$KEYCLOAK_NON_CONJUR_APP_USER_EMAIL'
-
-  echo "Initialize keycloak certificate in conjur server"
 }
 
 function wait_for_keycloak_server() {
   docker-compose exec -T \
-    oidc-keycloak /scripts/wait_for_server
+    ${KEYCLOAK_SERVICE_NAME} /scripts/wait_for_server
 }
 
 function fetch_keycloak_certificate() {
-  # TODO: there's a dep on the docker-compose.yml volumes.
-  # Fetch SSL cert to communicate with OIDC provider.
+  # there's a dep on the docker-compose.yml volumes.
+  # Fetch SSL cert to communicate with keycloak (OIDC provider).
+  echo "Initialize keycloak certificate in conjur server"
   docker-compose exec -T \
-    conjur /authn-oidc/keycloak/scripts/fetch_certificate
+    conjur /oauth/keycloak/scripts/fetch_certificate
 }

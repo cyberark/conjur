@@ -2,15 +2,15 @@
 set -e
 
 # This file has an implicit dependency on the environment variables defined in
-# "ci/docker-compose.yml" oidc-keycloak section.
+# "ci/docker-compose.yml" keycloak section.
 
 # This is executed by the main "ci/test" script after cd-ing into "ci".
 # shellcheck disable=SC1091
 source "./shared.sh"
-source "./keycloak/keycloak_functions.sh"
+source "./oauth/keycloak/keycloak_functions.sh"
 
 function main() {
-  docker-compose up --no-deps -d pg conjur oidc-keycloak
+  docker-compose up --no-deps -d pg conjur keycloak
 
   # We also run an ldap-server container for testing the OIDC & LDAP combined
   # use-case.  We can't run this use-case in a separate Jenkins step because
@@ -21,7 +21,7 @@ function main() {
   create_keycloak_users
   fetch_keycloak_certificate
 
-  additional_services='ldap-server oidc-keycloak'
+  additional_services='ldap-server keycloak'
   _run_cucumber_tests authenticators_oidc "$additional_services" \
     _hydrate_keycloak_env_args
 }
