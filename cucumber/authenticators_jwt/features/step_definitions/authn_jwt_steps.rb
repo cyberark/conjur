@@ -13,3 +13,7 @@ end
 When(/I authenticate via authn-jwt with ([^"]*) service ID/) do |service_id|
   authenticate_jwt_token(jwt_token, service_id)
 end
+
+When(/I authenticate via authn-jwt with ([^"]*) account in url/) do |account|
+  authenticate_jwt_with_url_identity(jwt_token, account)
+end
