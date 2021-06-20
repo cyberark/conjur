@@ -56,7 +56,7 @@ services:
     volumes:
       - authn-local:/run/authn-local
       # TODO: authenticators_oidc/test has a dep on this
-      - ./test_suites/authenticators_oidc/keycloak:/authn-oidc/keycloak/scripts
+      - ./keycloak:/authn-oidc/keycloak/scripts
       - ./ldap-certs:/ldap-certs:ro
       - log-volume:/opt/conjur-server/log
       - ../coverage:/opt/conjur-server/coverage
@@ -136,8 +136,8 @@ services:
       - "7777:8080"
     volumes:
       # TODO: authenticators_oidc/test has a dep on this
-      - ./test_suites/authenticators_oidc/keycloak:/scripts
-      - ./test_suites/authenticators_oidc/keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
+      - ./keycloak:/scripts
+      - ./keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
 
   jwks:
     image: nginx

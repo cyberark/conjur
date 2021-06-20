@@ -39,10 +39,8 @@ function wait_for_keycloak() {
 }
 
 function main() {
-  echo "=====>Starting script: ${SCRIPT_PATH}..."
   input_validation "$@"
   wait_for_keycloak
-  echo "=====>Script ${SCRIPT_PATH} finish successfully"
 }
 
 main "$@"

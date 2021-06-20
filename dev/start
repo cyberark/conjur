@@ -1,5 +1,9 @@
 #!/bin/bash -ex
 
+SCRIPT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+KEYCLOAK_FUNCTIONS_PATH="${SCRIPT_PATH}/../ci/keycloak/keycloak_functions.sh"
+source "${KEYCLOAK_FUNCTIONS_PATH}"
+
 function print_help() {
   cat << EOF
 Starts Conjur for development. Once setup is complete, the user is dropped into the Conjur container.
@@ -181,10 +185,10 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   conjur_isready?
 
   # Check if keycloak is up
-  docker-compose exec -T oidc-keycloak /scripts/wait_for_server
+  wait_for_keycloak_server
 
   echo "Initialize keycloak certificate in conjur server"
-  docker-compose exec -T conjur /authn-oidc/keycloak/scripts/fetch_certificate
+  fetch_keycloak_certificate
 
   if [[ $ENABLE_OIDC_OKTA = true ]]; then
     echo "Configuring OKTA as OpenID provider for manual testing"
@@ -218,18 +222,9 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
     docker-compose exec client conjur variable values add conjur/authn-oidc/adfs/id-token-user-property "unique_name"
   fi
 
-  echo "Creating OpenID client in keycloack OpenID provider"
-  docker-compose exec oidc-keycloak /scripts/create_client
+  echo "Creating OpenID client and users in keycloack OpenID provider"
+  create_keycloak_users
   echo "keycloak admin console url: http://0.0.0.0:7777/auth/admin"
-
-  echo "Creating user 'alice' in Keycloak"
-  docker-compose exec oidc-keycloak bash -c '/scripts/create_user "$KEYCLOAK_APP_USER" "$KEYCLOAK_APP_USER_PASSWORD" "$KEYCLOAK_APP_USER_EMAIL"'
-
-  echo "Creating second user 'bob' in Keycloak"
-  docker-compose exec oidc-keycloak bash -c '/scripts/create_user "$KEYCLOAK_SECOND_APP_USER" "$KEYCLOAK_SECOND_APP_USER_PASSWORD" "$KEYCLOAK_SECOND_APP_USER_EMAIL"'
-
-  echo "Creating user in Keycloak that will not exist in conjur"
-  docker-compose exec oidc-keycloak bash -c '/scripts/create_user "$KEYCLOAK_NON_CONJUR_APP_USER" "$KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD" "$KEYCLOAK_NON_CONJUR_APP_USER_EMAIL"'
 
   if [[ $ENABLE_AUTHN_LDAP = true && $ENABLE_OIDC_OKTA = true ]]; then
     echo "Building & configuring Okta-LDAP agent"

@@ -55,7 +55,7 @@ services:
     - authn-local:/run/authn-local
     - ../ci/ldap-certs:/ldap-certs:ro
     # TODO: authenticators_oidc/test has a dep on this
-    - ../ci/test_suites/authenticators_oidc/keycloak:/authn-oidc/keycloak/scripts
+    - ../ci/keycloak:/authn-oidc/keycloak/scripts
     - jwks-volume:/var/jwks
     links:
     - pg:pg
@@ -137,8 +137,8 @@ services:
       - "7777:8080"
     volumes:
       # TODO: authenticators_oidc/test has a dep on this
-      - ../ci/test_suites/authenticators_oidc/keycloak:/scripts
-      - ../ci/test_suites/authenticators_oidc/keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
+      - ../ci/keycloak:/scripts
+      - ../ci/keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
 
   okta-ldap-agent:
     image: weareenvoy/okta-ldap-agent
