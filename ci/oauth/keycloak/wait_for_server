@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+SERVER_HEALTH_CHECK_URL="http://localhost:8080/"
+SERVER_IS_READY="N0"
+
+function print_help() {
+  cat << EOF
+Wait for keycloak server to start, the script should run from inside keycloak container
+Example:
+./wait_for_server <service-name>
+EOF
+}
+
+function input_validation() {
+  local args_number="$#"
+  if [[ ${args_number} -ne 0 ]] ; then
+    echo "Error: invalid arguments"
+    print_help
+    exit 1
+  fi
+}
+
+function wait_for_keycloak() {
+  for i in {1..40}; do
+    sleep=5
+    set_server_readiness
+
+    if [[ "${SERVER_IS_READY}" == "YES" ]] ; then
+      echo "Keycloak server is up and ready"
+      return 0
+    fi
+
+    echo "Keycloak not ready yet sleep number $i for $sleep seconds"
+    sleep "$sleep"
+  done
+
+  echo "Error with keycloak server start or it is too slow"
+  exit 1
+}
+
+function set_server_readiness()
+{
+  curl --silent --output /dev/null "${SERVER_HEALTH_CHECK_URL}"
+  local ret_code=$?
+  echo "Return code of accessing ${SERVER_HEALTH_CHECK_URL} is: ${ret_code}"
+  if [[ "${ret_code}" -eq 0 ]] ; then
+    SERVER_IS_READY="YES"
+  fi
+}
+
+function main() {
+  input_validation "$@"
+  wait_for_keycloak
+}
+
+main "$@"

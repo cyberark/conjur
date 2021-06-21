@@ -32,6 +32,7 @@ COMMANDS
     --authn-oidc    Enables OIDC features
     --authn-azure   Enables Azure features
     --authn-gcp     Enables GCP features
+    --authn-jwt     Enables JWT features
 EOF
 exit
 }
@@ -191,15 +192,23 @@ function validate_gcf_url_accessible() {
 }
 
 function enable_oidc() {
+  add_keycloak_env_vars_to_env_args
+}
+
+function add_keycloak_env_vars_to_env_args() {
   echo "Extracting keycloak variables & setting as env variables"
 
   local keycloak_env_args=''
-  keycloak_env_args="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv | grep KEYCLOAK | sed 's/.*/-e &/') \
+  keycloak_env_args="$(set -o pipefail; docker-compose exec -T keycloak printenv | grep KEYCLOAK | sed 's/.*/-e &/') \
                      -e PROVIDER_URI=https://keycloak:8443/auth/realms/master \
                      -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect \
                      -e ID_TOKEN_USER_PROPERTY=preferred_username"
 
   env_args="$env_args $keycloak_env_args"
+}
+
+function enable_jwt() {
+  add_keycloak_env_vars_to_env_args
 }
 
 function enable_azure() {
@@ -235,6 +244,7 @@ while true ; do
         --authn-oidc ) enable_oidc ; shift ;;
         --authn-azure ) enable_azure ; shift ;;
         --authn-gcp ) handle_gcp "${@:3:4}"; shift 5;;
+        --authn-jwt ) enable_jwt ; shift ;;
         * ) if [ -z "$2" ]; then shift ; else echo "$2 is not a valid option"; exit 1; fi;;
       esac
 
