@@ -1,7 +1,12 @@
+# frozen_string_literal: true
+
 # Client is a rest client for the Conjur API designed for Cucumber tests.
 # Instances for specific users are created with `Client.for`, which instantiates
 # `Client` with an authentication token.  Tests can then call API endpoints
 # methods without worrying about authentication.
+#
+# All these methods should be together.
+# :reek:TooManyMethods
 class Client
   ADMIN_PASSWORD = 'SEcret12!!!!'
   ACCOUNT = ENV['CONJUR_ACCOUNT'] || 'cucumber'
@@ -84,14 +89,19 @@ class Client
 
   # Policy methods
   #
+
+  # Introducing a value object doesn't make sense yet.
+  # :reek:DataClump
   def load_policy(id:, policy:)
     resource(uri("policies", "policy", id)).put(policy, auth_header)
   end
 
+  # :reek:DataClump
   def update_policy(id:, policy:)
     resource(uri("policies", "policy", id)).patch(policy, auth_header)
   end
 
+  # :reek:DataClump
   def replace_policy(id:, policy:)
     resource(uri("policies", "policy", id)).post(policy, auth_header)
   end
@@ -132,6 +142,8 @@ class Client
     @auth_header ||= self.class.auth_header(@token)
   end
 
+  # A value object or injecting APPLIANCE_URL/ACCOUNT would be overkill.
+  # :reek:UtilityFunction
   def uri(root, kind, id = nil)
     uri = "#{APPLIANCE_URL}/#{root}/#{ACCOUNT}/#{kind}"
     return uri unless id
@@ -139,6 +151,8 @@ class Client
     "#{uri}/#{CGI.escape(id)}"
   end
 
+  # A URI value object would be overkill.
+  # :reek:UtilityFunction
   def resource(uri_)
     RestClient::Resource.new(uri_, 'Content-Type' => 'application/json')
   end

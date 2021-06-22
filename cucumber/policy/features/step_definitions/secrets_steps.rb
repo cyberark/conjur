@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # TODO: kind is now superfluous.  It is never used, since it's always "variable"
-Then(/^I can( not)? add a secret to ([\w_]+) resource "([^"]*)"$/) do |fail, kind, id|
+Then(/^I can( not)? add a secret to ([\w_]+) resource "([^"]*)"$/) do |fail, _kind, id|
   @random_secret = SecureRandom.uuid
   expected_status = fail ? 403 : 201
   resp = api_response { @client.add_secret(id: id, value: @random_secret) }
@@ -9,7 +9,7 @@ Then(/^I can( not)? add a secret to ([\w_]+) resource "([^"]*)"$/) do |fail, kin
 end
 
 # TODO: kind is now superfluous.  It is never used, since it's always "variable"
-Then(/^I can( not)? fetch a secret from ([\w_]+) resource "([^"]*)"$/) do |fail, kind, id|
+Then(/^I can( not)? fetch a secret from ([\w_]+) resource "([^"]*)"$/) do |fail, _kind, id|
   expected_status = fail ? 403 : 200
   resp = api_response { @client.fetch_secret(id: id) }
   expect(resp.code).to eq(expected_status)
