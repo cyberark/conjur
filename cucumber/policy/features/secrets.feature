@@ -34,8 +34,7 @@ Feature: Secrets can be managed through policies.
     And I log in as user "alice"
     Then there is a variable resource "db-password"
     And I can add a secret to variable resource "db-password"
-    And I can fetch a secret from variable resource "db-password"
-
+    And I can retrieve the same secret value from "db-password"
 
   Scenario: Privilege grants can be used to delegate secrets permissions.
 
