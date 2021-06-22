@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'delegate'
+
 module FullId
   def make_full_id(id, account: "cucumber")
     tokens  = id.split(":", 3)
@@ -40,32 +42,33 @@ module PolicyHelpers
     policy_helper('root').update_policy(policy)
   end
 
-  def extend_root_policy(policy)
-    policy_helper('root').extend_policy(policy)
+  # Executes a RestClient network call.  Rescues any error and and returns an
+  # object with the same interface as a successful response. This uniform
+  # interface makes it easier to write expectations.
+  def api_response
+    rest_client_resp = yield
+    SimpleDelegator.new(rest_client_resp).tap do |resp|
+      def resp.body
+        # If it can't be parsed as JSON, return it unchanged.  The :content_type
+        # header is not reliable.
+        JSON.parse(super)
+      rescue
+        super
+  end
+  end
+  rescue RestClient::Exception => e
+    Object.new.tap do |obj|
+      obj.instance_eval do
+        @err = e
+
+        def code
+          @err.http_code
   end
 
-  def load_policy(id, policy)
-    policy_helper(id).load_policy(policy)
+        def body
+          JSON.parse(@err.response.body)
   end
-
-  def update_policy(id, policy)
-    policy_helper(id).update_policy(policy)
   end
-
-  def extend_policy(id, policy)
-    policy_helper(id).extend_policy(policy)
-  end
-
-  def policy_helper(id)
-    ClientHelpers::Policyhelpers::PolicyClient.new(id)
-  end
-
-  def json_result
-    case @result
-    when String
-      JSON.parse(@result)
-    when Hash
-      @result
     end
   end
 
