@@ -16,28 +16,7 @@ module RotatorHelpers
   end
 
   def variable(id)
-    get_secret('variable', id)
-  end
-
-  def load_root_policy(policy)
-    policy_helper('root').load_policy(policy)
-    # resource('root').put(policy, header)
-  end
-
-  def add_secret(kind, id, value, token=nil)
-    resource_helpers('secrets', kind, id).add_secret(value, token)
-  end
-
-  def get_secret(kind, id, token=nil)
-    resource_helpers('secrets', kind, id).fetch_secret(token)
-  end
-
-  def policy_helper(id)
-    ClientHelpers::Policyhelpers::PolicyClient.new(id)
-  end
-
-  def resource_helpers(root, kind, id)
-    ClientHelpers::ResourceHelper::ResourceClient.new(root, kind, id)
+    @client.fetch_secret(id: id)
   end
 
   # # This wires up and kicks off of the postgres polling process, and then

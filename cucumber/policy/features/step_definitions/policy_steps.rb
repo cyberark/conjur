@@ -1,31 +1,27 @@
 # frozen_string_literal: true
 
 Given(/^I load a policy:$/) do |policy|
-  invoke do
-    load_root_policy policy
-  end
+  @client ||= Client.for("user", "admin")
+  @result = api_response { @client.load_policy(id: 'root', policy: policy) }
 end
 
 Given(/^I replace the "([^"]*)" policy with:$/) do |policy_id, policy|
-  invoke do
-    load_policy policy_id, policy
-  end
+  @client ||= Client.for("user", "admin")
+  @result = api_response { @client.load_policy(id: policy_id, policy: policy) }
 end
 
 Given(/^I extend the policy with:$/) do |policy|
-  invoke do
-    extend_root_policy policy
-  end
+  @client ||= Client.for("user", "admin")
+  @result = api_response { @client.replace_policy(id: 'root', policy: policy) }
 end
 
 Given(/^I update the policy with:$/) do |policy|
-  invoke do
-    update_root_policy policy
-  end
+  @client ||= Client.for("user", "admin")
+  @result = api_response { @client.update_policy(id: 'root', policy: policy) }
 end
 
 Given(/^I try to load a policy with an unresolvable reference:$/) do |policy|
-  invoke status: 404 do
-    load_root_policy policy
-  end
+  @client = Client.for("user", "admin")
+  @result = api_response { @client.load_policy(id: 'root', policy: policy) }
+  expect(@result.code).to eq(404)
 end

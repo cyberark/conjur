@@ -34,12 +34,13 @@ module PolicyHelpers
     end
   end
 
-  def load_root_policy(policy)
-    policy_helper('root').load_policy(policy)
-  end
-
-  def update_root_policy(policy)
-    policy_helper('root').update_policy(policy)
+  def json_result
+    case @result
+    when String
+      JSON.parse(@result)
+    when Hash
+      @result
+    end
   end
 
   # Executes a RestClient network call.  Rescues any error and and returns an
@@ -54,8 +55,8 @@ module PolicyHelpers
         JSON.parse(super)
       rescue
         super
-  end
-  end
+      end
+    end
   rescue RestClient::Exception => e
     Object.new.tap do |obj|
       obj.instance_eval do
@@ -63,12 +64,12 @@ module PolicyHelpers
 
         def code
           @err.http_code
-  end
+        end
 
         def body
           JSON.parse(@err.response.body)
-  end
-  end
+        end
+      end
     end
   end
 
@@ -76,27 +77,6 @@ module PolicyHelpers
     super(tokens.join(":"))
   end
 
-  def rest_client(root, kind, id)
-    ClientHelpers::Client.new(root, kind, id)
-  end
-
-  def login_as_role(login, api_key = nil)
-    client = rest_client("authn","login","any")
-    api_key = client.admin_api_key if login == "admin"
-    unless api_key
-      role = if login.index('/')
-        login.split('/', 2).join(":")
-      else
-        [ "user", login ].join(":")
-      end
-      api_key = client.create_api_key(role)
-    end
-    if login == "admin"
-      @token = client.admin_token
-    else
-      @token = client.get_token(login, api_key)
-    end
-  end
 end
 
 World(PolicyHelpers)

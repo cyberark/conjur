@@ -1,25 +1,27 @@
 # frozen_string_literal: true
 
+# TODO: kind is now superfluous.  It is never used, since it's always "variable"
 Then(/^I can( not)? add a secret to ([\w_]+) resource "([^"]*)"$/) do |fail, kind, id|
-  @value = SecureRandom.uuid
-  status = fail ? 403 : 200
-  invoke status: status do
-    add_secret( kind, id, @value, @token)
-  end
+  @random_secret = SecureRandom.uuid
+  expected_status = fail ? 403 : 201
+  resp = api_response { @client.add_secret(id: id, value: @random_secret) }
+  expect(resp.code).to eq(expected_status)
 end
 
+# TODO: kind is now superfluous.  It is never used, since it's always "variable"
 Then(/^I can( not)? fetch a secret from ([\w_]+) resource "([^"]*)"$/) do |fail, kind, id|
   expected_status = fail ? 403 : 200
-  try_get_secret_value(id, kind, expected_status)
+  resp = api_response { @client.fetch_secret(id: id) }
+  expect(resp.code).to eq(expected_status)
+end
+
+Then("I can retrieve the same secret value from {string}") do |id|
+  resp = api_response { @client.fetch_secret(id: id) }
+  expect(resp.code).to eq(200)
+  expect(resp.body).to eq(@random_secret)
 end
 
 Then(/^variable resource "([^"]*)" does not have a secret value$/) do |id|
-  expected_status = 404
-  try_get_secret_value(id, expected_status)
-end
-
-def try_get_secret_value(id, kind = "variable", expected_status)
-  invoke status: expected_status do
-    get_secret(kind, id, @token)
-  end
+  resp = api_response { @client.fetch_secret(id: id) }
+  expect(resp.code).to eq(404)
 end

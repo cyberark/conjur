@@ -1,43 +1,53 @@
 # frozen_string_literal: true
 
 Then(/^([\w_]+) "([^"]*)" exists$/) do |kind, id|
-  expect { get_resource(kind, id) }.to_not raise_error
+  @client = Client.for("user", "admin")
+  expect { @client.fetch_resource(kind: kind, id: id) }.to_not raise_error
 end
 
 Then(/^([\w_]+) "([^"]*)" does not exist$/) do |kind, id|
-  expect { get_resource(kind, id) }.to raise_error
+  expect { @client.fetch_resource(kind: kind, id: id) }.to raise_error
 end
 
 Then(/^there is a ([\w_]+) resource "([^"]*)"$/) do |kind, id|
-  invoke do
-    get_resource(kind, id)
-  end
+  @result = @client.fetch_resource(kind: kind, id: id)
 end
 
 When(/^I list the roles permitted to (\w+) ([\w_]+) "([^"]*)"$/) do |privilege, kind, id|
-  invoke do
-    get_privilaged_roles(kind, id, privilege)
+  @client = Client.for("user", "admin")
+  @result = api_response do
+    @client.fetch_roles_with_privilege(kind: kind, id: id, privilege: privilege)
   end
+
+  # Save this state because future steps need it.
+  @privilege = privilege
 end
 
 Then(/^the role list includes ([\w_]+) "([^"]*)"$/) do |kind, id|
-  expect(result).to include(make_full_id(kind, id))
+  expect(@result.body).to include(make_full_id(kind, id))
 end
 
 Then(/^the role list does not include ([\w_]+) "([^"]*)"$/) do |kind, id|
-  expect(result).to_not include(make_full_id(kind, id))
+  expect(@result.body).to_not include(make_full_id(kind, id))
 end
 
 When(/^I list ([\w_]+) resources$/) do |kind|
-  invoke do
-    get_resource(kind, '').body
-  end
+  @client ||= Client.for("user", "admin")
+  @result = api_response { @client.fetch_resource(kind: kind, id: nil) }
 end
 
 Then(/^the resource list includes ([\w_]+) "([^"]*)"$/) do |kind, id|
-  expect(JSON.parse(result).map{|x| x["id"]}).to include(make_full_id(kind, id))
+  expect(
+    @result.body.map { |x| x["id"] }
+  ).to include(make_full_id(kind, id))
 end
 
 Then(/^the owner of ([\w_]+) "([^"]*)" is ([\w_]+) "([^"]*)"$/) do |object_kind, object_id, owner_kind, owner_id|
-  expect(JSON.parse(get_resource(object_kind, object_id))["owner"]).to eq(make_full_id(owner_kind, owner_id))
+  @client ||= Client.for("user", "admin")
+  @result = api_response do
+    @client.fetch_resource(kind: object_kind, id: object_id)
+  end
+  expect(@result.body["owner"]).to eq(
+    make_full_id(owner_kind, owner_id)
+  )
 end
