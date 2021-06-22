@@ -20,6 +20,7 @@ function _hydrate_keycloak_env_args() {
     "${keycloak_items[@]}"
     "PROVIDER_URI=https://keycloak:8443/auth/realms/master"
     "PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect"
+    "PROVIDER_ISSUER=http://keycloak:8080/auth/realms/master"
     "ID_TOKEN_USER_PROPERTY=preferred_username"
   )
 }

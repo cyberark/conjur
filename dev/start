@@ -229,8 +229,8 @@ if [[ $ENABLE_AUTHN_GCP = true ]]; then
 fi
 
 if [[ $ENABLE_AUTHN_JWT = true ]]; then
-  enabled_authenticators="$enabled_authenticators,authn-jwt/raw"
-  services="$services jwks"
+  enabled_authenticators="$enabled_authenticators,authn-jwt/raw,authn-jwt/keycloak"
+  services="$services jwks keycloak"
   docker-compose up -d --no-deps $services
 
   # OIDC is a special case on JWT, JWT automation tests contain scenarios with OIDC providers

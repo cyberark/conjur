@@ -1,9 +1,13 @@
 Given(/I successfully set authn-jwt jwks-uri variable with value of "([^"]*)" endpoint/) do |filename|
-  create_jwt_secret("jwks-uri", "#{JwtJwksHelper::JWKS_BASE_URI}/#{filename}")
+  create_jwt_secret(variable_name: "jwks-uri", value: "#{JwtJwksHelper::JWKS_BASE_URI}/#{filename}")
 end
 
 Given(/I successfully set authn-jwt "([^"]*)" variable to value "([^"]*)"/) do |variable, value|
-  create_jwt_secret(variable, value)
+  create_jwt_secret(variable_name: variable, value: value)
+end
+
+Given(/I successfully set authn-jwt "([^"]*)" variable with OIDC value from env var "([^"]*)"/) do |variable, env_var|
+  create_jwt_secret_with_oidc_as_provider_uri(variable_name: variable, value: validated_env_var(env_var))
 end
 
 When(/I authenticate via authn-jwt with the JWT token/) do
@@ -16,4 +20,8 @@ end
 
 When(/I authenticate via authn-jwt with ([^"]*) account in url/) do |account|
   authenticate_jwt_with_url_identity(jwt_token, account)
+end
+
+When(/I authenticate via authn-jwt with the ID token/) do
+  authenticate_jwt_with_oidc_as_provider_uri
 end
