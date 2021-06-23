@@ -136,6 +136,7 @@ authenticators_jwt: >
   -r cucumber/_authenticators_common
   -r cucumber/authenticators_status/features/step_definitions/authn_status_steps.rb
   -r cucumber/authenticators_jwt
+  -r cucumber/authenticators_oidc
   cucumber/authenticators_jwt
 
 # NOTE: We have to require the needed files from "api" individually, because
