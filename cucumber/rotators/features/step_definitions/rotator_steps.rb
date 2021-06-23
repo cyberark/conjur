@@ -53,21 +53,19 @@ end
 
 Given(/^I have the root policy:$/) do |policy|
   @client = Client.for("user", "admin")
-  @result = api_response { @client.load_policy(id: 'root', policy: policy) }
+  @result = @client.load_policy(id: 'root', policy: policy)
 end
 
 Given(/^I reset my root policy$/) do
   @client = Client.for("user", "admin")
-  @result = api_response do
-    @client.load_policy(
-      id: 'root',
-      policy: <<~POLICY
-        - !policy
-           id: db-reports
-           body:
-      POLICY
-    )
-  end
+  @result = @client.load_policy(
+    id: 'root',
+    policy: <<~POLICY
+      - !policy
+         id: db-reports
+         body:
+    POLICY
+  )
 end
 
 Given(/^I add the value "(.*)" to variable "(.+)"$/) do |val, id|
