@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Parsing a Conjur config with invalid YAML content now outputs a more user
   friendly error message without a stack trace.
   [cyberark/conjur#2256](https://github.com/cyberark/conjur/issues/2256)
+- Set the Puma process explicitly to reliably restart the correct process
+  when the Conjur configuration is reloaded.
+  [cyberark/conjur#2291](https://github.com/cyberark/conjur/pull/2291)
 
 ### Security
 - Upgrade bindata to 2.4.10 to resolve Unspecified Issue reported by JFrog Xray

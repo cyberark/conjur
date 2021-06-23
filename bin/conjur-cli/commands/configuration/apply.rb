@@ -42,9 +42,24 @@ module Commands
       private
 
       def server_pid
-        cmd = "ps -ef | grep puma | grep -v grep | grep -v cluster | " \
-              "grep conjur | awk '{print $2}' | tr -d '\n'"
-        stdout, _ = @command_runner.capture2(cmd)
+        # We use string concatenation here to allow for comments on each
+        # part of the command.
+        # rubocop:disable Style/StringConcatenation
+        cmd = "ps -ef | " +
+          # Filter to only puma processes
+          "grep puma | " +
+          # Filter to only puma process for the Conjur API Server. This tag
+          # is defined in the `config/puma.rb`.
+          "grep '\\[Conjur API Server\\]' | " +
+          # Filter out the grep processes
+          "grep --invert-match grep | " +
+          # Filter out the cluster worker processes
+          "grep --invert-match cluster | " +
+          # Extract the process ID
+          "awk '{print $2}' | tr --delete '\n'"
+        # rubocop:enable Style/StringConcatenation
+
+        stdout, = @command_runner.capture2(cmd)
         stdout.to_i
       end
     end
