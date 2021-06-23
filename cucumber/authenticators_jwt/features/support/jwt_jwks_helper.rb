@@ -45,7 +45,9 @@ module JwtJwksHelper
   end
 
   def token_body_with_valid_expiration(token_body)
-    token_body["exp"] = Time.now.to_i + HOUR_IN_SECONDS
+    if token_body["exp"].nil?
+      token_body["exp"] = Time.now.to_i + HOUR_IN_SECONDS
+    end
     token_body
   end
 
