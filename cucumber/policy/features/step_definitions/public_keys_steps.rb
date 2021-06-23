@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 Then(/^I list the public keys for "([^"]*)"$/) do |username|
-  invoke do
-    RestClient.get(uri('public_keys', 'user', username))
-  end
+  @client ||= Client.for("user", "admin")
+  @result = api_response { @client.fetch_public_keys(username: username) }
 end

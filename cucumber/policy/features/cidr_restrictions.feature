@@ -46,7 +46,7 @@ from a particular network, defined by a CIDR in the policy
       id: serviceA
       restricted_to: an_invalid_cidr_string
     """
-    Then there is an error
+    Then there's an error
     And the error code is "validation_failed"
     And the error message includes "Invalid IP address or CIDR range 'an_invalid_cidr_string'"
 
@@ -59,7 +59,7 @@ from a particular network, defined by a CIDR in the policy
       id: serviceA
       restricted_to: dap.my-company.net
     """
-    Then there is an error
+    Then there's an error
     And the error code is "validation_failed"
     And the error message includes "Invalid IP address or CIDR range 'dap.my-company.net'"
 
@@ -72,7 +72,7 @@ from a particular network, defined by a CIDR in the policy
       id: serviceA
       restricted_to: 10.0.0.1/24
     """
-    Then there is an error
+    Then there's an error
     And the error code is "validation_failed"
     And the error message includes "Invalid IP address or CIDR range '10.0.0.1/24': Value has bits set to right of mask. Did you mean '10.0.0.0/24'"
 
