@@ -9,8 +9,9 @@ class Client
   # check for an error using `code`, which returns the http status code.  You
   # can use `body` to get body of a failed request.
   #
-  # False positive. @err is guaranteed to be set.
-  # :reek:InstanceVariableAssumption
+  # InstanceVariableAssumption is a false positive. @err is always set.
+  # DataClump isn't relevant because we're mirroring the RestClient signature.
+  # :reek:InstanceVariableAssumption and :reek:DataClump
   class RestClientWrapper
     def initialize(rest_client)
       @rest_client = rest_client
@@ -20,18 +21,14 @@ class Client
       result { @rest_client.get(headers, &block) }
     end
 
-    # We're just matching the API of RestClient.
-    # :reek:DataClump
     def post(payload, headers = {}, &block)
       result { @rest_client.post(payload, headers, &block) }
     end
 
-    # :reek:DataClump
     def put(payload, headers = {}, &block)
       result { @rest_client.put(payload, headers, &block) }
     end
 
-    # :reek:DataClump
     def patch(payload, headers = {}, &block)
       result { @rest_client.patch(payload, headers, &block) }
     end
