@@ -10,6 +10,10 @@ Given(/I successfully set authn-jwt "([^"]*)" variable with OIDC value from env 
   create_jwt_secret_with_oidc_as_provider_uri(variable_name: variable, value: validated_env_var(env_var))
 end
 
+Given(/I successfully set authn-jwt "([^"]*)" variable in keycloack service to "([^"]*)"/) do |variable, value|
+  create_jwt_secret_with_oidc_as_provider_uri(variable_name: variable, value: value)
+end
+
 When(/I authenticate via authn-jwt with the JWT token/) do
   authenticate_jwt_token(jwt_token)
 end

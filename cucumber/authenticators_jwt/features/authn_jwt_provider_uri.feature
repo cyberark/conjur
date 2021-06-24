@@ -23,10 +23,10 @@ Feature: JWT Authenticator - JWKs fetched from Keycloak as OIDC provider
       - !variable
         id: issuer
 
-      - !group users
+      - !group hosts
 
       - !permit
-        role: !group users
+        role: !group hosts
         privilege: [ read, authenticate ]
         resource: !webservice
 
@@ -36,7 +36,7 @@ Feature: JWT Authenticator - JWKs fetched from Keycloak as OIDC provider
         authn-jwt/keycloak/email: alice@conjur.net
 
     - !grant
-      role: !group conjur/authn-jwt/keycloak/users
+      role: !group conjur/authn-jwt/keycloak/hosts
       member: !host alice
     """
 

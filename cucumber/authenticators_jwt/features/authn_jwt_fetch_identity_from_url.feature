@@ -13,10 +13,10 @@ Feature: JWT Authenticator - Fetch identity from URL
       - !variable
         id: jwks-uri
 
-      - !group users
+      - !group hosts
 
       - !permit
-        role: !group users
+        role: !group hosts
         privilege: [ read, authenticate ]
         resource: !webservice
 
@@ -26,7 +26,7 @@ Feature: JWT Authenticator - Fetch identity from URL
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
 
     - !host
@@ -35,7 +35,7 @@ Feature: JWT Authenticator - Fetch identity from URL
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host some_policy/host_test_from_url
 
     - !user
@@ -44,7 +44,7 @@ Feature: JWT Authenticator - Fetch identity from URL
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !user user_test_from_url@some_policy
 
     - !user
@@ -53,7 +53,7 @@ Feature: JWT Authenticator - Fetch identity from URL
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !user user_test_from_url
     """
     And I am the super-user

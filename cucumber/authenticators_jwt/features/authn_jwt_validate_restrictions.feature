@@ -16,10 +16,10 @@ Feature: JWT Authenticator - Validate restrictions
       - !variable
         id: token-app-property
 
-      - !group users
+      - !group hosts
 
       - !permit
-        role: !group users
+        role: !group hosts
         privilege: [ read, authenticate ]
         resource: !webservice
     """
@@ -39,7 +39,7 @@ Feature: JWT Authenticator - Validate restrictions
         authn-jwt/invalid-service/aud: myaud
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I successfully set authn-jwt "token-app-property" variable to value "host"
@@ -73,7 +73,7 @@ Feature: JWT Authenticator - Validate restrictions
         authn-jwt/aud: myaud
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I issue a JWT token:
@@ -105,7 +105,7 @@ Feature: JWT Authenticator - Validate restrictions
         authn-jwt/raw/aud: wrong-aud
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I issue a JWT token:
@@ -132,7 +132,7 @@ Feature: JWT Authenticator - Validate restrictions
       id: myapp
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I issue a JWT token:
@@ -164,7 +164,7 @@ Feature: JWT Authenticator - Validate restrictions
         authn-jwt/raw/aud: invalid
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I issue a JWT token:
@@ -197,7 +197,7 @@ Feature: JWT Authenticator - Validate restrictions
         authn-jwt/raw/aud: invalid
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I issue a JWT token:
@@ -227,7 +227,7 @@ Feature: JWT Authenticator - Validate restrictions
         authn-jwt/raw/non-existing-field: invalid
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I issue a JWT token:

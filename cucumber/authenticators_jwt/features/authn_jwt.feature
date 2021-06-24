@@ -21,10 +21,10 @@ Feature: JWT Authenticator - JWKs Basic sanity
       - !variable
         id: token-app-property
 
-      - !group users
+      - !group hosts
 
       - !permit
-        role: !group users
+        role: !group hosts
         privilege: [ read, authenticate ]
         resource: !webservice
 
@@ -34,7 +34,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I am the super-user
