@@ -70,8 +70,7 @@ Feature: JWT Authenticator - Check standard claim
     And I permit host "alice" to "execute" it
 
   Scenario: Issuer configured with incorrect value, iss claim not exists in token, 200 ok
-    Given I have a "variable" resource called "test-variable"
-    And I extend the policy with:
+    Given I extend the policy with:
     """
     - !policy
       id: conjur/authn-jwt/raw
@@ -262,8 +261,7 @@ Feature: JWT Authenticator - Check standard claim
     """
 
   Scenario: jwks-uri configured with correct value, issuer configured with correct value, iss claim with correct value, 200 OK
-    Given I have a "variable" resource called "test-variable"
-    And I extend the policy with:
+    Given I extend the policy with:
     """
     - !policy
       id: conjur/authn-jwt/raw
