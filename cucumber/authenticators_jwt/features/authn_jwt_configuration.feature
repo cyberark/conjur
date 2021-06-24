@@ -15,14 +15,14 @@ Feature: JWT Authenticator - Configuration Check
       - !variable
         id: token-app-property
 
-      - !group users
+      - !group hosts
     - !host
       id: myapp
       annotations:
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I am the super-user
@@ -59,14 +59,14 @@ Feature: JWT Authenticator - Configuration Check
       - !variable
         id: token-app-property
 
-      - !group users
+      - !group hosts
     - !host
       id: myapp
       annotations:
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I am the super-user
@@ -106,10 +106,10 @@ Feature: JWT Authenticator - Configuration Check
       - !variable
         id: token-app-property
 
-      - !group users
+      - !group hosts
 
       - !permit
-        role: !group users
+        role: !group hosts
         privilege: [ read, authenticate ]
         resource: !webservice
     - !host
@@ -118,7 +118,7 @@ Feature: JWT Authenticator - Configuration Check
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I am the super-user
@@ -158,10 +158,10 @@ Feature: JWT Authenticator - Configuration Check
       - !variable
         id: token-app-property
 
-      - !group users
+      - !group hosts
 
       - !permit
-        role: !group users
+        role: !group hosts
         privilege: [ read, authenticate ]
         resource: !webservice
     - !host
@@ -170,7 +170,7 @@ Feature: JWT Authenticator - Configuration Check
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I am the super-user
@@ -207,10 +207,10 @@ Feature: JWT Authenticator - Configuration Check
       - !variable
         id: token-app-property
 
-      - !group users
+      - !group hosts
 
       - !permit
-        role: !group users
+        role: !group hosts
         privilege: [ read, authenticate ]
         resource: !webservice
     - !host
@@ -219,7 +219,7 @@ Feature: JWT Authenticator - Configuration Check
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I am the super-user
@@ -254,10 +254,10 @@ Feature: JWT Authenticator - Configuration Check
       - !variable
         id: token-app-property
 
-      - !group users
+      - !group hosts
 
       - !permit
-        role: !group users
+        role: !group hosts
         privilege: [ read, authenticate ]
         resource: !webservice
     - !host
@@ -266,7 +266,7 @@ Feature: JWT Authenticator - Configuration Check
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I am the super-user
@@ -298,10 +298,10 @@ Feature: JWT Authenticator - Configuration Check
       - !variable
         id: token-app-property
 
-      - !group users
+      - !group hosts
 
       - !permit
-        role: !group users
+        role: !group hosts
         privilege: [ read, authenticate ]
         resource: !webservice
     - !host
@@ -310,7 +310,7 @@ Feature: JWT Authenticator - Configuration Check
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I am the super-user
@@ -348,10 +348,10 @@ Feature: JWT Authenticator - Configuration Check
       - !variable
         id: token-app-property
 
-      - !group users
+      - !group hosts
 
       - !permit
-        role: !group users
+        role: !group hosts
         privilege: [ read, authenticate ]
         resource: !webservice
     - !host
@@ -360,7 +360,7 @@ Feature: JWT Authenticator - Configuration Check
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I am the super-user
@@ -397,10 +397,10 @@ Feature: JWT Authenticator - Configuration Check
       - !variable
         id: token-app-property
 
-      - !group users
+      - !group hosts
 
       - !permit
-        role: !group users
+        role: !group hosts
         privilege: [ read, authenticate ]
         resource: !webservice
     - !host
@@ -409,7 +409,7 @@ Feature: JWT Authenticator - Configuration Check
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I successfully set authn-jwt "token-app-property" variable to value "host"
@@ -442,10 +442,10 @@ Feature: JWT Authenticator - Configuration Check
       - !variable
         id: jwks-uri
 
-      - !group users
+      - !group hosts
 
       - !permit
-        role: !group users
+        role: !group hosts
         privilege: [ read, authenticate ]
         resource: !webservice
     - !host
@@ -454,7 +454,7 @@ Feature: JWT Authenticator - Configuration Check
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint

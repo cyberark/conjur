@@ -14,10 +14,10 @@ Feature: JWT Authenticator - Check standard claim
       - !variable
         id: token-app-property
 
-      - !group users
+      - !group hosts
 
       - !permit
-        role: !group users
+        role: !group hosts
         privilege: [ read, authenticate ]
         resource: !webservice
 
@@ -37,10 +37,10 @@ Feature: JWT Authenticator - Check standard claim
       - !variable
         id: issuer
 
-      - !group users
+      - !group hosts
 
       - !permit
-        role: !group users
+        role: !group hosts
         privilege: [ read, authenticate ]
         resource: !webservice
 
@@ -50,7 +50,7 @@ Feature: JWT Authenticator - Check standard claim
         authn-jwt/keycloak/email: alice@conjur.net
 
     - !grant
-      role: !group conjur/authn-jwt/keycloak/users
+      role: !group conjur/authn-jwt/keycloak/hosts
       member: !host alice
 
     - !host
@@ -59,7 +59,7 @@ Feature: JWT Authenticator - Check standard claim
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
     And I am the super-user

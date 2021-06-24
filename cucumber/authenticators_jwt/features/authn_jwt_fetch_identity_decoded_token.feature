@@ -16,10 +16,10 @@ Feature: JWT Authenticator - Fetch identity from decoded token
       - !variable
         id: token-app-property
 
-      - !group users
+      - !group hosts
 
       - !permit
-        role: !group users
+        role: !group hosts
         privilege: [ read, authenticate ]
         resource: !webservice
 
@@ -29,7 +29,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
 
     - !host
@@ -38,7 +38,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host some_policy/sub_policy/host_test_from_token
 
     - !host
@@ -47,7 +47,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
         authn-jwt/raw/project-id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !host some_policy/host_test_from_token
     """
     And I am the super-user
@@ -84,7 +84,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
         authn-jwt/raw/custom-claim:
 
     - !grant
-      role: !group conjur/authn-jwt/raw/users
+      role: !group conjur/authn-jwt/raw/hosts
       member: !user myuser
     """
     And I issue a JWT token:
