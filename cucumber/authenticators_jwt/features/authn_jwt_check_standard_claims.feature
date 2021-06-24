@@ -174,7 +174,7 @@ Feature: JWT Authenticator - Check standard claim
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIatError: Invalid iat
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIatError: Invalid iat>')>
     """
 
   Scenario: JWT token with future nbf claim, 401 Error
@@ -200,7 +200,7 @@ Feature: JWT Authenticator - Check standard claim
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    Signature nbf has not been reached
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::ImmatureSignature: Signature nbf has not been reached>')>
     """
 
   Scenario: issuer configured but not set, iss claim exists in token, 401 Error
@@ -320,10 +320,10 @@ Feature: JWT Authenticator - Check standard claim
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    Invalid issuer. Expected incorrect.com, received http://jwks
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIssuerError: Invalid issuer. Expected incorrect.com, received http://jwks>')>
     """
 
-  Scenario: jwks-uri configured with wrong value, issuer configured with correct value, iss claim with correct value, 401 Error
+  Scenario: jwks-uri configured with wrong value, issuer configured with wrong value, iss claim with correct value, 401 Error
     Given I extend the policy with:
     """
     - !policy
@@ -353,7 +353,7 @@ Feature: JWT Authenticator - Check standard claim
     CONJ00087E Failed to fetch JWKS from 'incorrect.com'
     """
 
-  Scenario: provider-uri configured with wrong value, issuer configured with wrong value, iss claim with correct value, 401 Error
+  Scenario: provider-uri configured with wrong value, issuer configured with wrong value, iss claim with correct value, 502 Error
     Given I successfully set authn-jwt "provider-uri" variable in keycloack service to "incorrect.com"
     And I successfully set authn-jwt "token-app-property" variable with OIDC value from env var "ID_TOKEN_USER_PROPERTY"
     And I successfully set authn-jwt "issuer" variable with OIDC value from env var "PROVIDER_ISSUER"
@@ -363,5 +363,5 @@ Feature: JWT Authenticator - Check standard claim
     Then the HTTP response status code is 502
     And The following appears in the log after my savepoint:
     """
-    Reason: '#<AttrRequired::AttrMissing: 'host' required.
+    CONJ00011E Failed to discover Identity Provider (Provider URI: 'incorrect.com'). Reason: '#<AttrRequired::AttrMissing: 'host' required.>'
     """
