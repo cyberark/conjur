@@ -394,9 +394,10 @@ We would like to add automated tests for the GCP Authenticator.
 While Unit Tests are already automated, we will need to add some infrastructure for running integration tests.
 
 ### Scope
-  - Run integration tests in OSS
-  - Run a vanilla test in appliance
-  - Run automation on a Conjur Enterprise image that is deployed on GCP (Manual at first stage, automation on POST GA)
+- Run integration tests in OSS
+- Run a vanilla test in appliance
+- Run automation on a Conjur Enterprise image that is deployed on GCP
+  (Manual at first stage, automation on POST GA)
 
 ### Run Integration Tests in OSS
 GCP Authenticator tests will be added to the the general infrastructure of our integration test.
@@ -574,8 +575,8 @@ Note: LLD designs need will be decided at implementation level
 4. Release from side branch **E1**
 
     4.1 Merge stable released Conjur to our side branch
-    4.2 Update Conjur and Conjur Enterprise versions 
-    4.3 Release Conjur Enterprise as CA from side branch 
+    4.2 Update Conjur and Conjur Enterprise versions
+    4.3 Release Conjur Enterprise as CA from side branch
 5. Implement user extraction for aud claim indie the token **E1**
 
 #### Testing EE19

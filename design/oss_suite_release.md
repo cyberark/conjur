@@ -7,8 +7,9 @@ command line interface (CLI), client libraries, and integrations with platforms 
 
 At current, we have no formal process for releasing the full suite of tools in
 the Conjur Open Source ecosystem so that:
-- It is clear to end users which version of Conjur Open Source they should use, and what
-  integrations and tooling are compatible with that version.
+
+- It is clear to end users which version of Conjur Open Source they should use,
+  and what integrations and tooling are compatible with that version.
 - Key use cases that involve more than two components working together are automatically
   tested to ensure that the end-to-end experience in those use cases works as expected.
 - Development can continue on the master branch of individual components while
@@ -57,6 +58,7 @@ In addition, as part of building this release, we'll also be creating:
   needed.
 
 ## Repositories Included in the Conjur OSS Suite Release
+
 - Conjur Open Source Core
   - [Conjur Core](https://github.com/cyberark/conjur)
   - [Conjur CLI](https://github.com/cyberark/conjur-cli)
@@ -89,11 +91,13 @@ In addition, as part of building this release, we'll also be creating:
 ## Considerations
 
 ### How CyberArk Conjur Enterprise Will Use the OSS Release
-At current, when a new Conjur Enterprise appliance is built it is based on a manually pinned
-version of Conjur Open Source. We propose implementing automation as part of this release
-to auto-update the pinned version of Conjur Open Source used in Conjur Enterprise with each new OSS
-Suite Release, so that Conjur Enterprise stays consistent with the latest stable release of
-Conjur Open Source.
+
+At current, when a new Conjur Enterprise appliance is built it is based on a manually
+pinned version of Conjur Open Source. We propose implementing automation as
+part of this release to auto-update the pinned version of Conjur Open Source
+used in Conjur Enterprise with each new OSS Suite Release, so that
+Conjur Enterprise stays consistent with the latest stable release of Conjur
+Open Source.
 
 
 ### Out of Scope
@@ -216,6 +220,7 @@ Conjur Open Source.
 
 The [OSS Suite Release Repo](https://github.com/cyberark/conjur-oss-suite-release)
 will include:
+
 - A user-facing README with a high level overview of how Conjur Open Source end users
   should leverage the repo, with links to appropriate pages in the official documentation
 - A VERSION file that includes the current version of the OSS suite release
@@ -234,9 +239,9 @@ will include:
 - A test suite that can be run manually or automatically to test the pinned versions
   included in the release
   - It will be designed so that new test cases can be added as needed going forward
-  - The initial test case will test deploying Conjur Open Source to GKE using the Helm Chart
-    and enabling a sample app to connect to its database via Secretless using credentials
-    pulled from Conjur
+  - The initial test case will test deploying Conjur Open Source to GKE using
+    the Helm Chart and enabling a sample app to connect to its database via
+    Secretless using credentials pulled from Conjur
 - (optional) A test suite that can be run manually or automatically, and that runs daily against
   the latest versions of all OSS suite components
 - A CONTRIBUTING.md guide for contributors to OSS suite releases (including release
@@ -352,19 +357,22 @@ Sample release notes section for Secretless:
     certify the new features for Conjur Enterprise in follow-on efforts.
 
 #### Enterprise Products Built on the Core
-- How will Conjur Enterprise (built on the open Conjur core) run tests against the non-server
-  components of the Conjur OSS suite to ensure the enterprise product remains
-  compatible with the OSS components that are certified for Conjur Enterprise?
+
+- How will Conjur Enterprise (built on the open Conjur core) run tests against the
+  non-server components of the Conjur OSS suite to ensure the enterprise product
+  remains compatible with the OSS components that are certified for
+  Conjur Enterprise?
   - We propose this is out of scope for this effort, and should be decided in a
-    follow-on effort by the Conjur Enterprise team (similarly to how the documentation changes
-    will work above).
+    follow-on effort by the Conjur Enterprise team (similarly to how the
+    documentation changes will work above).
 
 #### Automated Test Suite for the OSS Suite Release
 - What should the initial scope of the automated tests for the Conjur OSS suite
   release be?
   - The OSS release suite should include an end-to-end test for a single
-    use case: Deploy Conjur Open Source with Helm Chart to GKE and enable an app to connect
-    to its database via Secretless using credentials pulled from Conjur.
+    use case: Deploy Conjur Open Source with Helm Chart to GKE and enable
+    an app to connect to its database via Secretless using credentials pulled
+    from Conjur.
   - Individual repos are responsible for running their own integration tests against
     Conjur. The suite release test suite will enable integration testing multiple
     components together (not just Component X + Conjur), and as part of the initial

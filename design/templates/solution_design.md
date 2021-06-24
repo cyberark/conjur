@@ -85,8 +85,11 @@ Output parameters:
 [//]: # "How will the design of this solution impact backwards compatibility? Address how you are going to handle backwards compatibility, if necessary"
 
 ## Affected Components
-[//]: # "List all components that will be affected by your solution [Conjur Open Source, Conjur Enterprise, clients, integrations, etc.] and elaborate on the impacts"
-[//]: # "This list should include all downstream components that will need to be updated to consume new releases as these changes are implemented"
+[//]: # "List all components that will be affected by your solution"
+[//]: # "[Conjur Open Source/Enterprise, clients, integrations, etc.]"
+[//]: # "and elaborate on the impacts. This list should include all"
+[//]: # "downstream components that will need to be updated to consume"
+[//]: # "new releases as these changes are implemented"
 
 ## Test Plan
 

@@ -552,12 +552,13 @@ The default TTL of an Azure access token is one hour, but it can reduced to a sh
 - [ ] Security action items were taken care of
 - [ ] Performance tests were done and align with SLA
 - [ ] Logs were reviewed by TW and PO
-- [ ] Documentation has been written and reviewed by PO and TW for both Conjur Enterprise and Conjur
+- [ ] Documentation has been written and reviewed by PO and TW for both
+      Conjur Enterprise and Open Source
 - [ ] A demo was created for the new authenticator
 - [ ] Engineer(s) that were not involved in the project use documentation to authenticate with Conjur using Azure
 - [ ] Versions are bumped in all relevant projects
-   - [ ] Conjur
-   - [ ] Conjur Enterprise
+    - [ ] Conjur
+    - [ ] Conjur Enterprise
  
 ## Open questions
 

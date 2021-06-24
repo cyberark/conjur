@@ -4,16 +4,16 @@
 
 - [Overview](#overview)
 - [Troubleshooting Kubernetes Authentication on Conjur Open Source](#troubleshooting-kubernetes-authentication-on-conjur-open-source)
-  * [Prerequisites for Troubleshooting on Conjur Open Source](#prerequisites-for-troubleshooting-on-conjur-open-source)
-  * [Before We Begin Troubleshooting: Some Handy Tools and How-Tos](#before-we-begin-troubleshooting-some-handy-tools-and-how-tos)
-  * [Step-by-Step: Verifying Your Conjur Authentication Configuration](#step-by-step-verifying-your-conjur-authentication-configuration)
-  * [Some Useful Conjur Commands](#some-useful-conjur-commands)
-  * [Failure Conditions and How to Troubleshoot](#failure-conditions-and-how-to-troubleshoot)
-    + [Conjur server cannot access application Kubernetes Resources](#conjur-server-cannot-access-application-kubernetes-resources)
-    + [Conjur Kubernetes Authenticator is not enabled](#conjur-kubernetes-authenticator-is-not-enabled)
-    + [Conjur appliance URL is set incorrectly](#conjur-appliance-url-is-set-incorrectly)
-    + [Certificate not valid for domain name in Conjur appliance URL](#certificate-not-valid-for-domain-name-in-conjur-appliance-url)
-    + [Invalid Response to Certificate Signing Request](#invalid-response-to-certificate-signing-request)
+  - [Prerequisites for Troubleshooting on Conjur Open Source](#prerequisites-for-troubleshooting-on-conjur-open-source)
+  - [Before We Begin Troubleshooting: Some Handy Tools and How-Tos](#before-we-begin-troubleshooting-some-handy-tools-and-how-tos)
+  - [Step-by-Step: Verifying Your Conjur Authentication Configuration](#step-by-step-verifying-your-conjur-authentication-configuration)
+  - [Some Useful Conjur Commands](#some-useful-conjur-commands)
+  - [Failure Conditions and How to Troubleshoot](#failure-conditions-and-how-to-troubleshoot)
+    - [Conjur server cannot access application Kubernetes Resources](#conjur-server-cannot-access-application-kubernetes-resources)
+    - [Conjur Kubernetes Authenticator is not enabled](#conjur-kubernetes-authenticator-is-not-enabled)
+    - [Conjur appliance URL is set incorrectly](#conjur-appliance-url-is-set-incorrectly)
+    - [Certificate not valid for domain name in Conjur appliance URL](#certificate-not-valid-for-domain-name-in-conjur-appliance-url)
+    - [Invalid Response to Certificate Signing Request](#invalid-response-to-certificate-signing-request)
 
 ## Overview
 
