@@ -43,36 +43,6 @@ module PolicyHelpers
     end
   end
 
-  # Executes a RestClient network call.  Rescues any error and and returns an
-  # object with the same interface as a successful response. This uniform
-  # interface makes it easier to write expectations.
-  def api_response
-    rest_client_resp = yield
-    SimpleDelegator.new(rest_client_resp).tap do |resp|
-      def resp.body
-        # If it can't be parsed as JSON, return it unchanged.  The :content_type
-        # header is not reliable.
-        JSON.parse(super)
-      rescue
-        super
-      end
-    end
-  rescue RestClient::Exception => e
-    Object.new.tap do |obj|
-      obj.instance_eval do
-        @err = e
-
-        def code
-          @err.http_code
-        end
-
-        def body
-          JSON.parse(@err.response.body)
-        end
-      end
-    end
-  end
-
   def make_full_id(*tokens)
     super(tokens.join(":"))
   end

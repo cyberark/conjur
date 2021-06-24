@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'delegate'
+require_relative 'rest_client_wrapper'
+
 # Client is a rest client for the Conjur API designed for Cucumber tests.
 # Instances for specific users are created with `Client.for`, which instantiates
 # `Client` with an authentication token.  Tests can then call API endpoints
@@ -154,6 +157,10 @@ class Client
   # A URI value object would be overkill.
   # :reek:UtilityFunction
   def resource(uri_)
-    RestClient::Resource.new(uri_, 'Content-Type' => 'application/json')
+    RestClientWrapper.new(
+      RestClient::Resource.new(
+        uri_, 'Content-Type' => 'application/json'
+      )
+    )
   end
 end
