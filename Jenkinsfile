@@ -148,21 +148,23 @@ pipeline {
               agent { label 'executor-v2-rhel-ee' }
 
               steps {
-                // Catch errors so remaining steps always run.
-                catchError {
-                  runConjurTests()
-                }
+                script {
+                  // Catch errors so remaining steps always run.
+                  catchError {
+                    runConjurTests()
+                  }
 
-                stash(
-                  name: 'testResultEE',
-                  includes: '''
-                    cucumber/*/*.*,
-                    container_logs/*/*,
-                    spec/reports/*.xml,
-                    spec/reports-audit/*.xml,
-                    cucumber/*/features/reports/**/*.xml
-                  '''
-                )
+                  stash(
+                    name: 'testResultEE',
+                    includes: '''
+                      cucumber/*/*.*,
+                      container_logs/*/*,
+                      spec/reports/*.xml,
+                      spec/reports-audit/*.xml,
+                      cucumber/*/features/reports/**/*.xml
+                    '''
+                  )
+                }
               }
 
               post {
@@ -212,7 +214,9 @@ pipeline {
           parallel {
             stage('Standard agent tests') {
               steps {
-                runConjurTests()
+                script {
+                  runConjurTests()
+                }
               }
             }
 
