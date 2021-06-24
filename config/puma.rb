@@ -4,6 +4,15 @@ workers Integer(ENV['WEB_CONCURRENCY'] || 2)
 threads_count = Integer(ENV['RAILS_MAX_THREADS'] || 5)
 threads threads_count, threads_count
 
+# The tag is displayed in the Puma process description, for example:
+# ```
+# puma 4.3.8 (tcp://localhost:5000) [Conjur API Server]
+# ```
+# We use this to identify the puma process that should restarted
+# when the Conjur configuration is updated using
+# `conjurctl configuration apply`.
+tag "Conjur API Server"
+
 # [Added Aug 8, 2018]
 # With large policy files, the request can exceed the 1
 # minute default worker timeout. We've increased it to
