@@ -41,6 +41,35 @@ Feature: JWT Authenticator - JWKs Basic sanity
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
     And I successfully set authn-jwt "token-app-property" variable to value "host"
 
+  Scenario: jwks-uri dynamically changed, 401 ERROR resolves 200 OK
+    Given I have a "variable" resource called "test-variable"
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I permit host "myapp" to "execute" it
+    And I successfully set authn-jwt "jwks-uri" variable to value "incorrect.com"
+    And I issue a JWT token:
+    """
+    {
+      "host":"myapp",
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the audit log file
+    And I authenticate via authn-jwt with raw service ID
+    And the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00087E Failed to fetch JWKS from 'incorrect.com'
+    """
+    When I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I save my place in the audit log file
+    And I authenticate via authn-jwt with raw service ID
+    Then host "myapp" has been authorized by Conjur
+    And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
+    And The following appears in the log after my savepoint:
+    """
+    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    """
+
   Scenario: Authenticator is not enabled
     Given I have a "variable" resource called "test-variable"
     And I issue a JWT token:
