@@ -518,9 +518,10 @@ version.
    if there has been an update to the API. **If the OpenAPI spec is out of date
    with the current API,** it will need to be updated and released before you
    can release this project.
-1. Commit these changes (including the changes to NOTICES.txt, if there are any).
-   `Bump version to x.y.z` is an acceptable commit message.
-1. Push your changes to a branch, and get the PR reviewed and merged.
+1. Create a branch and commit these changes (including the changes to
+   NOTICES.txt, if there are any). `Bump version to x.y.z` is an acceptable
+   commit message.
+1. Push your changes and get the PR reviewed and merged.
 
 ### Tag the version
 1. Tag the version on the master branch using eg. `git tag -s v1.2.3`. Note this
