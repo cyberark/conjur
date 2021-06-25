@@ -94,7 +94,7 @@ _run_cucumber_tests() {
   # killed before ruby, the report doesn't get written. So here we kill the
   # process to write the report. The container is kept alive using an infinite
   # sleep in the at_exit hook (see .simplecov).
-  docker-compose exec -T conjur bash -c "pkill -f 'puma 4'"
+  docker-compose exec -T conjur bash -c "pkill -f 'puma 5'" || true
 }
 
 _get_api_key() {

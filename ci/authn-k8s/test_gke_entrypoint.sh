@@ -41,7 +41,7 @@ function finish {
       echo "Killing conjur so that coverage report is written"
       # The container is kept alive using an infinite sleep in the at_exit hook
       # (see .simplecov) so that the kubectl cp below works.
-      kubectl exec $pod_name -- bash -c "pkill -f 'puma 4'"
+      kubectl exec "${pod_name}" -- bash -c "pkill -f 'puma 5'"
 
       echo "Retrieving coverage report"
       kubectl cp $pod_name:/opt/conjur-server/coverage/.resultset.json output/simplecov-resultset-authnk8s-gke.json
