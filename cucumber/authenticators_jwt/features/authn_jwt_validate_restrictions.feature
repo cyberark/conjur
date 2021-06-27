@@ -243,3 +243,77 @@ Feature: JWT Authenticator - Validate restrictions
     """
     CONJ00084E Claim 'non-existing-field' is missing from JWT token.
     """
+
+  Scenario: Annotation with empty value
+    Given I extend the policy with:
+    """
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/custom-claim:
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I issue a JWT token:
+    """
+    {
+      "host":"myapp",
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00100E Annotation, 'custom-claim', is empty
+    """
+
+  Scenario: Ignore invalid annotations
+    Given I extend the policy with:
+    """
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw: invalid
+        authn-jwt/raw/sub: valid
+        authn-jwt: invalid
+        authn-jwt/raw/namespace-id: valid
+        authn-jwt/raw/sub/sub: invalid
+        authn-jwt/raw/project-path: valid
+        authn-jwt/raw2/sub: invalid
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I issue a JWT token:
+    """
+    {
+      "host":"myapp",
+      "project-id": "myproject",
+      "sub": "valid",
+      "namespace-id": "valid",
+      "project-path": "valid"
+    }
+    """
+    And I have a "variable" resource called "test-variable"
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I permit host "myapp" to "execute" it
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then host "myapp" has been authorized by Conjur
+    And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
+    And the HTTP response status code is 200
+    And The following lines appear in the log after my savepoint:
+      |                                                                     |
+      |CONJ00048D Validating resource restriction on request: 'sub'         |
+      |CONJ00048D Validating resource restriction on request: 'namespace-id'|
+      |CONJ00048D Validating resource restriction on request: 'project-path'|
+      |CONJ00045D Resource restrictions matched request                     |
+      |CONJ00030D Resource restrictions validated                           |
+      |CONJ00103D 'validate_restrictions' passed successfully               |
