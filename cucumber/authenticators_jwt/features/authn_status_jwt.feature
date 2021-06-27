@@ -640,3 +640,127 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00079E Failed to extract hostname from URI 'unknow-host.com'"
 
+  Scenario: Identify-path is configured but empty
+    Given I load a policy:
+    """
+    - !policy
+      id: conjur/authn-jwt/raw
+      body:
+      - !webservice
+        annotations:
+          description: Authentication service for JWT tokens, based on raw JWKs.
+
+      - !variable
+        id: jwks-uri
+
+      - !variable
+        id: token-app-property
+
+      - !variable
+        id: identity-path
+
+      - !group users
+
+      - !permit
+        role: !group users
+        privilege: [ read, authenticate ]
+        resource: !webservice
+
+      - !webservice
+        id: status
+        annotations:
+          description: Status service to check that the authenticator is configured correctly
+
+      - !group
+          id: operators
+          annotations:
+            description: Group of users who can check the status of the authenticator
+
+      - !permit
+        role: !group operators
+        privilege: [ read ]
+        resource: !webservice status
+
+    - !user alice
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/operators
+      member:
+      - !user alice
+    """
+    And I am the super-user
+    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I login as "alice"
+    And I save my place in the log file
+    When I GET "/authn-jwt/raw/cucumber/status"
+    Then the HTTP response status code is 500
+    And the authenticator status check fails with error "CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/identity-path>"
+
+  Scenario: Valid status check, identify-path is configured with value
+    Given I load a policy:
+    """
+    - !policy
+      id: apps
+      body:
+      - !host myuser
+
+    - !policy
+      id: conjur/authn-jwt/raw
+      body:
+      - !webservice
+        annotations:
+          description: Authentication service for JWT tokens, based on raw JWKs.
+
+      - !variable
+        id: jwks-uri
+
+      - !variable
+        id: token-app-property
+
+      - !variable
+        id: identity-path
+
+      - !variable
+        id: issuer
+
+      - !group users
+
+      - !permit
+        role: !group users
+        privilege: [ read, authenticate ]
+        resource: !webservice
+
+      - !webservice
+        id: status
+        annotations:
+          description: Status service to check that the authenticator is configured correctly
+
+      - !group
+          id: operators
+          annotations:
+            description: Group of users who can check the status of the authenticator
+
+      - !permit
+        role: !group operators
+        privilege: [ read ]
+        resource: !webservice status
+
+    - !user alice
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/operators
+      member:
+      - !user alice
+    """
+    And I am the super-user
+    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "identity-path" variable to value "apps"
+    And I successfully set authn-jwt "issuer" variable to value "gitlab"
+    And I login as "alice"
+    And I save my place in the log file
+    When I GET "/authn-jwt/raw/cucumber/status"
+    Then the HTTP response status code is 200
+    And the HTTP response content type is "application/json"
+    And the authenticator status check succeeds
