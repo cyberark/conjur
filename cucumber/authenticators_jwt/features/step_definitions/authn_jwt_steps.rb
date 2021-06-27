@@ -22,10 +22,22 @@ When(/I authenticate via authn-jwt with ([^"]*) service ID/) do |service_id|
   authenticate_jwt_token(jwt_token, service_id)
 end
 
+When(/I authenticate via authn-jwt using given ([^"]*) service ID and with ([^"]*) account in url/) do |service_id, account|
+  authenticate_jwt_with_url_identity(jwt_token, account, service_id)
+end
+
+When(/I authenticate via authn-jwt without service id but with ([^"]*) account in url/) do |account|
+  authenticate_jwt_token(jwt_token, account)
+end
+
 When(/I authenticate via authn-jwt with ([^"]*) account in url/) do |account|
   authenticate_jwt_with_url_identity(jwt_token, account)
 end
 
 When(/I authenticate via authn-jwt with the ID token/) do
   authenticate_jwt_with_oidc_as_provider_uri
+end
+
+When (/I authenticate with string that is not token ([^"]*)/) do |text|
+  authenticate_jwt_token(text)
 end
