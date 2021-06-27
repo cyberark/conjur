@@ -32,6 +32,24 @@ module JwtJwksHelper
     )
   end
 
+  def issue_jwt_token_unkown_kid(token_body, algorithm = Algorithms::RS256)
+    @jwt_token = JWT.encode(
+      token_body,
+      rsa_key,
+      algorithm,
+      { kid: "unknown_kid" }
+    )
+  end
+
+  def issue_jwt_token_not_memoized_key(token_body, algorithm = Algorithms::RS256)
+    @jwt_token = JWT.encode(
+      token_body,
+      non_memoized_rsa_key,
+      algorithm,
+      { kid: jwk.kid }
+    )
+  end
+
   def jwt_token
     @jwt_token
   end
@@ -42,6 +60,10 @@ module JwtJwksHelper
 
   def rsa_key
     @rsa_key ||= OpenSSL::PKey::RSA.new(BITS_2048)
+  end
+
+  def non_memoized_rsa_key
+    OpenSSL::PKey::RSA.new(BITS_2048)
   end
 
   def token_body_with_valid_expiration(token_body)
