@@ -112,7 +112,7 @@ docker_diagnostics() {
 finish() {
   local test_suite=$1
 
-  docker_diagnostics "${test_suite}"
+  docker_diagnostics "${test_suite}" || true
 
   # TODO: More reliable approach to this.
   # Give SimpleCov time to generate reports.
