@@ -569,3 +569,149 @@ Feature: JWT Authenticator - Fetch signing key
     """
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
+
+  Scenario: jku is unfollowed - security check
+    Given I initialize JWKS endpoint with file "myFirstJWKs.json"
+    And I initialize JWKS endpoint "mySecondJWKs.json" with the same kid as "myFirstJWKs.json"
+    And I load a policy:
+    """
+    - !policy
+      id: conjur/authn-jwt/raw
+      body:
+      - !webservice
+        annotations:
+          description: Authentication service for JWT tokens, based on raw JWKs.
+
+      - !variable
+        id: jwks-uri
+
+      - !variable
+        id: token-app-property
+
+      - !group hosts
+
+      - !permit
+        role: !group hosts
+        privilege: [ read, authenticate ]
+        resource: !webservice
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/project-id: myproject
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+
+    - !host
+      id: some_policy/sub_policy/host_test_from_token
+      annotations:
+        authn-jwt/raw/project-id: myproject
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host some_policy/sub_policy/host_test_from_token
+
+    - !host
+      id: some_policy/host_test_from_token
+      annotations:
+        authn-jwt/raw/project-id: myproject
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host some_policy/host_test_from_token
+    """
+    And I am the super-user
+    And I successfully set authn-jwt jwks-uri variable with value of "myFirstJWKs.json" endpoint
+    And I have a "variable" resource called "test-variable"
+    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I permit host "myapp" to "execute" it
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I issue a JWT token signed with jku with jwks file_name "mySecondJWKs.json":
+    """
+    {
+      "host":"myapp",
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::VerificationError: Signature verification raised>')
+    """
+
+  Scenario: jwk is unfollowed - security check
+    Given I initialize JWKS endpoint with file "myFirstJWKs.json"
+    And I initialize JWKS endpoint "localRsaKey.json" with the same kid as "myFirstJWKs.json"
+    And I load a policy:
+    """
+    - !policy
+      id: conjur/authn-jwt/raw
+      body:
+      - !webservice
+        annotations:
+          description: Authentication service for JWT tokens, based on raw JWKs.
+
+      - !variable
+        id: jwks-uri
+
+      - !variable
+        id: token-app-property
+
+      - !group hosts
+
+      - !permit
+        role: !group hosts
+        privilege: [ read, authenticate ]
+        resource: !webservice
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/project-id: myproject
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+
+    - !host
+      id: some_policy/sub_policy/host_test_from_token
+      annotations:
+        authn-jwt/raw/project-id: myproject
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host some_policy/sub_policy/host_test_from_token
+
+    - !host
+      id: some_policy/host_test_from_token
+      annotations:
+        authn-jwt/raw/project-id: myproject
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host some_policy/host_test_from_token
+    """
+    And I am the super-user
+    And I successfully set authn-jwt jwks-uri variable with value of "myFirstJWKs.json" endpoint
+    And I have a "variable" resource called "test-variable"
+    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I permit host "myapp" to "execute" it
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I issue a JWT token signed with jwk with jwks file_name "localRsaKey.json":
+    """
+    {
+      "host":"myapp",
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::VerificationError: Signature verification raised>')
+    """
