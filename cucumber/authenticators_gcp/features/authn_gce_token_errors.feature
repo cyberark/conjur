@@ -30,7 +30,7 @@ Feature: GCP Authenticator - GCE flow, test token error handling
     Then it is unauthorized
     And The following matches the log after my savepoint:
     """
-    CONJ00035E Failed to decode token \(3rdPartyError ='#<JWT::DecodeError: Could not find public key for kid .*>'
+    CONJ00018D Failed to decode the token with the error '#<JWT::DecodeError: No key id (kid) found from token headers>'
     """
 
   Scenario: Authenticate using a self signed token missing 'kid' header claim is denied
