@@ -26,10 +26,6 @@ When(/I authenticate via authn-jwt using given ([^"]*) service ID and without ac
   authenticate_jwt_token(jwt_token, service_id)
 end
 
-Given(/I successfully set authn-jwt "([^"]*)" variable in service "([^"]*)" with untrusted TLS server/) do |variable, service_id|
-  create_jwt_secret(variable_name: variable, value: JwtJwksHelper::JWKS_UNTRUSTED_TLS_URI, service_id: service_id)
-end
-
 When(/I authenticate via authn-jwt with the JWT token/) do
   authenticate_jwt_token(jwt_token)
 end

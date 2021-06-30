@@ -10,12 +10,12 @@ source "./oauth/keycloak/keycloak_functions.sh"
 function main() {
   docker-compose up --no-deps -d pg conjur jwks keycloak
 
-  echo "Configure jwks provider"
-  docker-compose exec jwks "${JWKS_CREATE_CERTIFICATE_SCRIPT_PATH}"
-
   wait_for_keycloak_server
   create_keycloak_users
   fetch_keycloak_certificate
+
+  echo "Configure jwks provider"
+  docker-compose exec -T jwks "${JWKS_CREATE_CERTIFICATE_SCRIPT_PATH}"
 
   additional_services='jwks keycloak'
   _run_cucumber_tests authenticators_jwt "$additional_services" \

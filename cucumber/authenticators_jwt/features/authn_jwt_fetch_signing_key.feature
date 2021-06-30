@@ -677,7 +677,8 @@ Feature: JWT Authenticator - Fetch signing key
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::VerificationError: Signature verification raised>')
     """
 
-  Scenario: provider-uri TLS certificate validation
+  # BUG: ONYX-10132 , expected error code should be 401
+  Scenario: ONYX-8914: provider-uri with untrusted self sign certificate
     Given I load a policy:
     """
     - !policy
@@ -689,7 +690,7 @@ Feature: JWT Authenticator - Fetch signing key
         id: provider-uri
     """
     And I am the super-user
-    And I successfully set authn-jwt "provider-uri" variable in service "keycloak" with untrusted TLS server
+    And I successfully set authn-jwt "provider-uri" variable value to "https://jwks" in service "keycloak"
     And I fetch an ID Token for username "alice" and password "alice"
     And I save my place in the log file
     When I authenticate via authn-jwt with the ID token
@@ -699,7 +700,7 @@ Feature: JWT Authenticator - Fetch signing key
     CONJ00011E Failed to discover Identity Provider (Provider URI: 'https://jwks'). Reason: '#<OpenIDConnect::Discovery::DiscoveryFailed: SSL_connect returned=1 errno=0 state=error: certificate verify failed (self signed certificate)>
     """
 
-  Scenario: jwks-uri TLS certificate validation
+  Scenario: ONYX-8913: jwks-uri with untrusted self sign certificate
     Given I load a policy:
     """
     - !policy
@@ -711,7 +712,8 @@ Feature: JWT Authenticator - Fetch signing key
         id: jwks-uri
     """
     And I am the super-user
-    And I successfully set authn-jwt "jwks-uri" variable in service "raw" with untrusted TLS server
+    And I initialize JWKS endpoint with file "JWKs.json"
+    And I successfully set authn-jwt "jwks-uri" variable value to "https://jwks" in service "raw"
     And I issue a JWT token:
     """
     {
