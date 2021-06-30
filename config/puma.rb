@@ -29,6 +29,20 @@ worker_timeout 600
 # other service defaults
 persistent_timeout 80
 
+# Leave this as the default if deploying Conjur behind a load balancer
+# or reverse proxy (eg ELB or Nginx).
+#
+# Puma's max_fast_inline parameter determines the number of requests that can be
+# sent through a single connection, after this number of requests the connection
+# is closed. This is a DoS mitigation tactic, but leads to a ~10% failure rate
+# for clients sending high volumes of requests and re-using connections. If puma
+# is directly publicly exposed, then setting this value low to prevent DoS by
+# greedy connections could make sense.
+# * Issue comment where the puma maintainer agrees that using
+#   infinity is reasonable behind a proxy: https://github.com/puma/puma/issues/2361#issuecomment-690332926))
+# * DoS CVE: https://nvd.nist.gov/vuln/detail/CVE-2021-29509
+max_fast_inline Float(ENV['MAX_REQUESTS_PER_CONNECTION'] || Float::INFINITY)
+
 # Preloading prevents us from performing a phased restart on the puma process
 # but it is currently required to make classes from the Rails application
 # available in this config file.
