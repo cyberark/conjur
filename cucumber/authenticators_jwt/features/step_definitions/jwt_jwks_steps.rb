@@ -6,7 +6,6 @@ Given(/I initialize JWKS endpoint "([^"]*)" with the same kid as "([^"]*)"/) do 
   init_second_jwks_file_with_same_kid(first_file_name, second_file_name)
 end
 
-
 Given(/I issue a JWT token:/) do |token_body_string|
   # token body has to be an object (not a string) for correct token creation
   issue_jwt_token(
@@ -16,24 +15,22 @@ Given(/I issue a JWT token:/) do |token_body_string|
   )
 end
 
-Given(/I issue a JWT token signed with jku with jwks file_name "([^"]*)":/) do |file_name,token_body_string|
+Given(/I issue a JWT token signed with jku with jwks file_name "([^"]*)":/) do |file_name, token_body_string|
   # token body has to be an object (not a string) for correct token creation
   issue_jwt_token_with_jku(
     token_body_with_valid_expiration(
       JSON.parse(token_body_string)
     ),
-    "RS256",
     file_name
   )
 end
 
-Given(/I issue a JWT token signed with jwk with jwks file_name "([^"]*)":/) do |file_name,token_body_string|
+Given(/I issue a JWT token signed with jwk with jwks file_name "([^"]*)":/) do |file_name, token_body_string|
   # token body has to be an object (not a string) for correct token creation
   issue_jwt_token_with_jwk(
     token_body_with_valid_expiration(
       JSON.parse(token_body_string)
     ),
-    "RS256",
     file_name
   )
 end

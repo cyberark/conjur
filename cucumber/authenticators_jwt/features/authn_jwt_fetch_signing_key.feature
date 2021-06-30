@@ -1,5 +1,8 @@
 Feature: JWT Authenticator - Fetch signing key
 
+  In this feature we define a JWT authenticator with various signing key
+  configurations.
+
   Scenario: provider-uri is configured with valid value
     Given I load a policy:
     """
@@ -570,7 +573,7 @@ Feature: JWT Authenticator - Fetch signing key
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  Scenario: jku is unfollowed - security check
+  Scenario: ONYX-8853: jku is unfollowed - security check
     Given I initialize JWKS endpoint with file "myFirstJWKs.json"
     And I initialize JWKS endpoint "mySecondJWKs.json" with the same kid as "myFirstJWKs.json"
     And I load a policy:
@@ -603,31 +606,10 @@ Feature: JWT Authenticator - Fetch signing key
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
-
-    - !host
-      id: some_policy/sub_policy/host_test_from_token
-      annotations:
-        authn-jwt/raw/project-id: myproject
-
-    - !grant
-      role: !group conjur/authn-jwt/raw/hosts
-      member: !host some_policy/sub_policy/host_test_from_token
-
-    - !host
-      id: some_policy/host_test_from_token
-      annotations:
-        authn-jwt/raw/project-id: myproject
-
-    - !grant
-      role: !group conjur/authn-jwt/raw/hosts
-      member: !host some_policy/host_test_from_token
     """
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myFirstJWKs.json" endpoint
-    And I have a "variable" resource called "test-variable"
     And I successfully set authn-jwt "token-app-property" variable to value "host"
-    And I permit host "myapp" to "execute" it
-    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I issue a JWT token signed with jku with jwks file_name "mySecondJWKs.json":
     """
     {
@@ -643,7 +625,7 @@ Feature: JWT Authenticator - Fetch signing key
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::VerificationError: Signature verification raised>')
     """
 
-  Scenario: jwk is unfollowed - security check
+  Scenario: ONYX-8854: jwk is unfollowed - security check
     Given I initialize JWKS endpoint with file "myFirstJWKs.json"
     And I initialize JWKS endpoint "localRsaKey.json" with the same kid as "myFirstJWKs.json"
     And I load a policy:
@@ -676,31 +658,10 @@ Feature: JWT Authenticator - Fetch signing key
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
-
-    - !host
-      id: some_policy/sub_policy/host_test_from_token
-      annotations:
-        authn-jwt/raw/project-id: myproject
-
-    - !grant
-      role: !group conjur/authn-jwt/raw/hosts
-      member: !host some_policy/sub_policy/host_test_from_token
-
-    - !host
-      id: some_policy/host_test_from_token
-      annotations:
-        authn-jwt/raw/project-id: myproject
-
-    - !grant
-      role: !group conjur/authn-jwt/raw/hosts
-      member: !host some_policy/host_test_from_token
     """
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myFirstJWKs.json" endpoint
-    And I have a "variable" resource called "test-variable"
     And I successfully set authn-jwt "token-app-property" variable to value "host"
-    And I permit host "myapp" to "execute" it
-    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I issue a JWT token signed with jwk with jwks file_name "localRsaKey.json":
     """
     {

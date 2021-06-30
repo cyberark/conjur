@@ -16,6 +16,7 @@ module JwtJwksHelper
   HOUR_IN_SECONDS = 3600
 
   def init_jwks_file(file_name)
+    @default_file_name ||= file_name
     add_new_file(file_name)
     jwks = { keys: [jwk_set[file_name].export] }
     File.write(
@@ -24,10 +25,10 @@ module JwtJwksHelper
     )
   end
 
-  def init_second_jwks_file_with_same_kid(first_file_name,second_file_name)
+  def init_second_jwks_file_with_same_kid(first_file_name, second_file_name)
     add_new_file(second_file_name)
     jwk = jwk_set[second_file_name].export
-    jwk["kid".to_sym] = jwk_set[first_file_name].export["kid".to_sym]
+    jwk[:kid] = jwk_set[first_file_name].export[:kid]
     jwks = { keys: [jwk] }
 
     File.write(
@@ -39,47 +40,54 @@ module JwtJwksHelper
   def issue_jwt_token(token_body, algorithm = Algorithms::RS256)
     @jwt_token = JWT.encode(
       token_body,
-      rsa_keys.values[0],
+      rsa_keys[@default_file_name],
       algorithm,
-      { kid: jwk_set.values[0].kid }
+      { kid: jwk_set[@default_file_name].kid }
     )
   end
 
-  def issue_jwt_token_with_jku(token_body, algorithm = Algorithms::RS256, file_name)
+  def issue_jwt_token_with_jku(token_body, file_name, algorithm = Algorithms::RS256)
     @jwt_token = JWT.encode(
       token_body,
       rsa_keys[file_name],
       algorithm,
-      { kid: jwk_set.values[0].kid,
-        jku: JWKS_ROOT_PATH + '/' +  file_name }
+      {
+        kid: jwk_set[@default_file_name].kid,
+        jku: "#{JWKS_ROOT_PATH}/#{file_name}"
+      }
     )
   end
 
-  def issue_jwt_token_with_jwk(token_body, algorithm = Algorithms::RS256, file_name)
+  def issue_jwt_token_with_jwk(token_body, file_name, algorithm = Algorithms::RS256)
+    jwk = jwk_set[file_name].export
+    jwk[:kid] = jwk_set[@default_file_name].kid
+
     @jwt_token = JWT.encode(
       token_body,
       rsa_keys[file_name],
       algorithm,
-      { kid: jwk_set.values[0].kid,
-        jwk: rsa_keys[file_name] }
+      {
+        kid: jwk_set[@default_file_name].kid,
+        jwk: jwk
+      }
     )
   end
 
   def issue_jwt_token_unkown_kid(token_body, algorithm = Algorithms::RS256)
     @jwt_token = JWT.encode(
       token_body,
-      rsa_keys.values[0],
+      rsa_keys[@default_file_name],
       algorithm,
-      { kid: "unknown_kid"}
+      { kid: "unknown_kid" }
     )
   end
 
   def issue_jwt_token_not_memoized_key(token_body, algorithm = Algorithms::RS256)
     @jwt_token = JWT.encode(
       token_body,
-      generate_rsa_key,
+      new_rsa_key,
       algorithm,
-      { kid: jwk_set.values[0].kid }
+      { kid: jwk_set[@default_file_name].kid }
     )
   end
 
@@ -101,14 +109,14 @@ module JwtJwksHelper
   end
 
   def add_rsa_key_to_set(file_name)
-    rsa_keys[file_name] = generate_rsa_key
+    rsa_keys[file_name] = new_rsa_key
   end
 
   def rsa_keys
     @rsa_keys ||= {}
   end
 
-  def generate_rsa_key
+  def new_rsa_key
     OpenSSL::PKey::RSA.new(BITS_2048)
   end
 
