@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The JWT Authenticator (`authn-jwt`) supports authenticating third-party vendors that utilize JWT.
   See [design](https://github.com/cyberark/conjur/blob/master/design/authenticators/authn_jwt/authn_jwt_solution_design.md)
+- Set MAX_REQUESTS_PER_CONNECTION to infinity and introduced an
+  environment variable to allow users to set their own value,
+  see PR for further information:
+  [cyberark/conjur#2282](https://github.com/cyberark/conjur/issues/2282)
 
 ### Changed
 - Parsing a Conjur config with invalid YAML content now outputs a more user
