@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 set -e
 
+JWKS_CREATE_CERTIFICATE_SCRIPT_PATH="/tmp/create_nginx_certificate.sh"
 # This is executed by the main "ci/test" script after cd-ing into "ci".
 # shellcheck disable=SC1091
 source "./shared.sh"
 source "./oauth/keycloak/keycloak_functions.sh"
 
 function main() {
-  docker-compose up --no-deps -d pg conjur keycloak
+  docker-compose up --no-deps -d pg conjur jwks keycloak
+
+  echo "Configure jwks provider"
+  docker-compose exec jwks "${JWKS_CREATE_CERTIFICATE_SCRIPT_PATH}"
 
   wait_for_keycloak_server
   create_keycloak_users

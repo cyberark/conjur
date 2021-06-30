@@ -153,6 +153,10 @@ services:
       - 8880:80
     volumes:
       - jwks-volume:/usr/share/nginx/html
+      - ../ci/oauth/jwks/nginx.conf:/etc/nginx/conf.d/defualt.conf
+      - ../ci/oauth/jwks:/tmp
+    entrypoint: sleep
+    command: infinity
 
 volumes:
   authn-local:

@@ -141,6 +141,8 @@ services:
     image: nginx
     volumes:
       - jwks-volume:/usr/share/nginx/html
+      - ./oauth/jwks/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./oauth/jwks:/tmp/conf
 
 volumes:
   authn-local:

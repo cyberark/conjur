@@ -1,6 +1,7 @@
 #!/bin/bash -ex
 
 SCRIPT_PATH="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+JWKS_CREATE_CERTIFICATE_SCRIPT_PATH="/tmp/create_nginx_certificate.sh"
 KEYCLOAK_FUNCTIONS_DIR_PATH="${SCRIPT_PATH}/../ci/oauth/keycloak"
 source "${KEYCLOAK_FUNCTIONS_DIR_PATH}/keycloak_functions.sh"
 
@@ -235,6 +236,9 @@ if [[ $ENABLE_AUTHN_JWT = true ]]; then
 
   # OIDC is a special case on JWT, JWT automation tests contain scenarios with OIDC providers
   configure_oidc_providers
+
+  echo "Configure jwks provider"
+  docker-compose exec jwks "${JWKS_CREATE_CERTIFICATE_SCRIPT_PATH}"
 fi
 
 if [[ $ENABLE_AUTHN_OIDC = false && ($ENABLE_OIDC_ADFS = true || $ENABLE_OIDC_OKTA = true) ]]; then
