@@ -12,6 +12,7 @@ module JwtJwksHelper
 
   JWKS_ROOT_PATH = "/var/jwks"
   JWKS_BASE_URI = "http://jwks"
+  JWKS_UNTRUSTED_TLS_URI = "https://jwks"
   BITS_2048 = 2048
   HOUR_IN_SECONDS = 3600
 
