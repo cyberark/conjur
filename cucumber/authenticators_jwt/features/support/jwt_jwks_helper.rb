@@ -103,9 +103,9 @@ module JwtJwksHelper
       token_body,
       nil,
       'none',
-       {
-         kid: jwk_set[@default_file_name].kid
-       }
+      {
+        kid: jwk_set[@default_file_name].kid
+      }
     )
     @jwt_token = "#{token_header_and_payload}invalid_singature"
   end
@@ -150,11 +150,11 @@ module JwtJwksHelper
   def issue_rsa_jwt_token_with_alg_header(token_body, alg_header, algorithm = Algorithms::RS256)
     encoded_token = JWT.encode(
       token_body,
-      rsa_key,
+      rsa_keys[@default_file_name],
       algorithm
     )
     token_parts = encoded_token.split(".")
-    headers = "{\"typ\":\"JWT\",\"alg\":\"#{alg_header}\",\"kid\":\"#{jwk.kid.to_s}\"}"
+    headers = "{\"typ\":\"JWT\",\"alg\":\"#{alg_header}\",\"kid\":\"#{jwk_set[@default_file_name].kid}\"}"
     token_parts[0] = Base64.urlsafe_encode64(headers).strip
     @jwt_token = token_parts.join(".")
   end
@@ -162,20 +162,16 @@ module JwtJwksHelper
   def issue_jwt_hmac_token_token_with_rsa_key(token_body)
     @jwt_token = JWT.encode(
       token_body,
-      rsa_key.to_s,
+      rsa_keys[@default_file_name].to_s,
       Algorithms::HS256,
       {
-        kid: jwk.kid
+        kid: jwk_set[@default_file_name].kid
       }
     )
   end
 
   def jwt_token
     @jwt_token
-  end
-
-  def jwk
-    @jwk ||= JWT::JWK::RSA.new(rsa_key)
   end
 
   def jwk_ecdsa

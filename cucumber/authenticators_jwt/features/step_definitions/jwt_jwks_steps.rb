@@ -35,7 +35,7 @@ end
 Given(/I issue an "([^"]*)" alg header RS256 JWT token:/) do |alg_header, token_body_string|
   # token body has to be an object (not a string) for correct token creation
   issue_rsa_jwt_token_with_alg_header(
-    token_body = token_body_with_valid_expiration(
+    token_body_with_valid_expiration(
       JSON.parse(token_body_string)
     ),
     alg_header
@@ -45,7 +45,7 @@ end
 Given(/I issue an "([^"]*)" algorithm RSA JWT token:/) do |algorithm, token_body_string|
   # token body has to be an object (not a string) for correct token creation
   issue_jwt_token(
-    token_body = token_body_with_valid_expiration(
+    token_body_with_valid_expiration(
       JSON.parse(token_body_string)
     ),
     algorithm
