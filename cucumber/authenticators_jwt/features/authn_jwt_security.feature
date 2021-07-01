@@ -1,6 +1,7 @@
 Feature: JWT Authenticator - Security
+
   Tests checking that JWT authenticator stands against different attacks and security risks.
-  Checking different the authenticators with different algorithems siging the jwt token.
+  Checking different authenticators with different algorithms signing the jwt token.
 
   Background:
     Given I load a policy:
@@ -40,24 +41,6 @@ Feature: JWT Authenticator - Security
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "myapp" to "execute" it
 
-  Scenario: ONYX-8859: Incorrect alg in JWT, 401 ERROR
-    Given I initialize JWKS endpoint with file "myJWKs.json"
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I issue an "RS512" alg header RS256 JWT token:
-    """
-    {
-      "host":"myapp",
-      "project-id": "myproject"
-    }
-    """
-    And I save my place in the log file
-    When I authenticate via authn-jwt with the JWT token
-    Then the HTTP response status code is 401
-    And The following appears in the log after my savepoint:
-    """
-    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::VerificationError: Signature verification raised>')>
-    """
-
   Scenario: ONYX-8851: None algorithm is unacceptable, 401 ERROR
     Given I initialize JWKS endpoint with file "myJWKs.json"
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
@@ -73,7 +56,7 @@ Feature: JWT Authenticator - Security
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::IncorrectAlgorithm: Expected a different algorithm>')>
+    CONJ00048I Authentication Error: #<Errors::Authentication::Jwt::RequestBodyMissingJWTToken: CONJ00077E The request body does not contain JWT token>
     """
 
   Scenario: ONYX-8852: Test algorithm substitution attack, 401 ERROR

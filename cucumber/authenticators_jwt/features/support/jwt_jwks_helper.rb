@@ -17,7 +17,6 @@ module JwtJwksHelper
   JWKS_BASE_URI = "http://jwks"
   BITS_2048 = 2048
   HOUR_IN_SECONDS = 3600
-  HMAC_SECRET = 'my$ecretK3y'
 
   def init_jwks_file(file_name)
     @default_file_name ||= file_name
@@ -37,25 +36,6 @@ module JwtJwksHelper
 
     File.write(
       "#{JWKS_ROOT_PATH}/#{second_file_name}",
-      JSON.pretty_generate(jwks)
-    )
-  end
-
-  def init_ecdsa_jwks_file(file_name, key_type)
-    @default_file_name ||= file_name
-    @key_type = key_type
-    jwks = { keys: [jwk_ecdsa.export] }
-    File.write(
-      "#{JWKS_ROOT_PATH}/#{file_name}",
-      JSON.pretty_generate(jwks)
-    )
-  end
-
-  def init_hmac_jwks_file(file_name)
-    @default_file_name ||= file_name
-    jwks = { keys: [jwk_hmac.export] }
-    File.write(
-      "#{JWKS_ROOT_PATH}/#{file_name}",
       JSON.pretty_generate(jwks)
     )
   end
@@ -99,15 +79,11 @@ module JwtJwksHelper
   end
 
   def issue_none_alg_jwt_token(token_body)
-    token_header_and_payload = JWT.encode(
+    @jwt_token = JWT.encode(
       token_body,
       nil,
-      'none',
-      {
-        kid: jwk_set[@default_file_name].kid
-      }
+      'none'
     )
-    @jwt_token = "#{token_header_and_payload}invalid_singature"
   end
 
   def issue_jwt_token_unkown_kid(token_body, algorithm = Algorithms::RS256)
@@ -128,41 +104,10 @@ module JwtJwksHelper
     )
   end
 
-  def issue_jwt_ecdsa_token(token_body, algorithm = Algorithms::ES256)
+  def issue_jwt_hmac_token_with_rsa_key(token_body)
     @jwt_token = JWT.encode(
       token_body,
-      ecdsa_private_key,
-      algorithm,
-      {
-        kid: jwk_ecdsa.kid
-      }
-    )
-  end
-
-  def issue_jwt_hmac_token(token_body, algorithm = Algorithms::HS256)
-    @jwt_token = JWT.encode(
-      token_body,
-      HMAC_SECRET,
-      algorithm
-    )
-  end
-
-  def issue_rsa_jwt_token_with_alg_header(token_body, alg_header, algorithm = Algorithms::RS256)
-    encoded_token = JWT.encode(
-      token_body,
-      rsa_keys[@default_file_name],
-      algorithm
-    )
-    token_parts = encoded_token.split(".")
-    headers = "{\"typ\":\"JWT\",\"alg\":\"#{alg_header}\",\"kid\":\"#{jwk_set[@default_file_name].kid}\"}"
-    token_parts[0] = Base64.urlsafe_encode64(headers).strip
-    @jwt_token = token_parts.join(".")
-  end
-
-  def issue_jwt_hmac_token_token_with_rsa_key(token_body)
-    @jwt_token = JWT.encode(
-      token_body,
-      rsa_keys[@default_file_name].to_s,
+      rsa_keys[@default_file_name].public_key.to_s,
       Algorithms::HS256,
       {
         kid: jwk_set[@default_file_name].kid
@@ -172,14 +117,6 @@ module JwtJwksHelper
 
   def jwt_token
     @jwt_token
-  end
-
-  def jwk_ecdsa
-    @jwk_ecdsa ||= JWT::JWK::EC.new(ecdsa_public_key)
-  end
-
-  def jwk_hmac
-    @jwk_hmac ||= JWT::JWK::HMAC.new(HMAC_SECRET)
   end
 
   def add_new_file(file_name)
@@ -205,26 +142,6 @@ module JwtJwksHelper
 
   def new_rsa_key
     OpenSSL::PKey::RSA.new(BITS_2048)
-  end
-
-  def ecdsa_private_key
-    @ecdsa_private_key ||= create_ecdsa_key
-  end
-
-  def ecdsa_public_key
-    @ecdsa_public_key ||= create_ecdsa_public
-  end
-
-  def create_ecdsa_key
-    ecdsa_key = OpenSSL::PKey::EC.new(@key_type)
-    ecdsa_key.generate_key
-    ecdsa_key
-  end
-
-  def create_ecdsa_public
-    ecdsa_public = OpenSSL::PKey::EC.new(ecdsa_private_key)
-    ecdsa_public.private_key = nil
-    ecdsa_public
   end
 
   def token_body_with_valid_expiration(token_body)
