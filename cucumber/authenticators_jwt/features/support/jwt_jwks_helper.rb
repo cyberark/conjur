@@ -2,12 +2,15 @@
 
 require 'openssl'
 require 'jwt'
+require "base64"
 
 # Utility methods for JWT and JWKs manipulation
 module JwtJwksHelper
 
   module Algorithms
-    RS256 = "RS256"
+    RS256 = 'RS256'
+    HS256 = 'HS256'
+    ES256 = 'ES256'
   end
 
   JWKS_ROOT_PATH = "/var/jwks"
@@ -42,7 +45,9 @@ module JwtJwksHelper
       token_body,
       rsa_keys[@default_file_name],
       algorithm,
-      { kid: jwk_set[@default_file_name].kid }
+      {
+        kid: jwk_set[@default_file_name].kid
+      }
     )
   end
 
@@ -73,6 +78,14 @@ module JwtJwksHelper
     )
   end
 
+  def issue_none_alg_jwt_token(token_body)
+    @jwt_token = JWT.encode(
+      token_body,
+      nil,
+      'none'
+    )
+  end
+
   def issue_jwt_token_unkown_kid(token_body, algorithm = Algorithms::RS256)
     @jwt_token = JWT.encode(
       token_body,
@@ -88,6 +101,17 @@ module JwtJwksHelper
       new_rsa_key,
       algorithm,
       { kid: jwk_set[@default_file_name].kid }
+    )
+  end
+
+  def issue_jwt_hmac_token_with_rsa_key(token_body)
+    @jwt_token = JWT.encode(
+      token_body,
+      rsa_keys[@default_file_name].public_key.to_s,
+      Algorithms::HS256,
+      {
+        kid: jwk_set[@default_file_name].kid
+      }
     )
   end
 

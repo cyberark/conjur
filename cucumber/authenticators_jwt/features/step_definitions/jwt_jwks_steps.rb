@@ -15,6 +15,16 @@ Given(/I issue a JWT token:/) do |token_body_string|
   )
 end
 
+Given(/I issue an "([^"]*)" algorithm RSA JWT token:/) do |algorithm, token_body_string|
+  # token body has to be an object (not a string) for correct token creation
+  issue_jwt_token(
+    token_body_with_valid_expiration(
+      JSON.parse(token_body_string)
+    ),
+    algorithm
+  )
+end
+
 Given(/I issue a JWT token signed with jku with jwks file_name "([^"]*)":/) do |file_name, token_body_string|
   # token body has to be an object (not a string) for correct token creation
   issue_jwt_token_with_jku(
@@ -38,6 +48,24 @@ end
 Given(/I issue unknown kid JWT token:/) do |token_body_string|
   # token body has to be an object (not a string) for correct token creation
   issue_jwt_token_unkown_kid(
+    token_body_with_valid_expiration(
+      JSON.parse(token_body_string)
+    )
+  )
+end
+
+Given(/I issue HMAC JWT token:/) do |token_body_string|
+  # token body has to be an object (not a string) for correct token creation
+  issue_jwt_hmac_token_with_rsa_key(
+    token_body_with_valid_expiration(
+      JSON.parse(token_body_string)
+    )
+  )
+end
+
+Given(/I issue none alg JWT token:/) do |token_body_string|
+  # token body has to be an object (not a string) for correct token creation
+  issue_none_alg_jwt_token(
     token_body_with_valid_expiration(
       JSON.parse(token_body_string)
     )
