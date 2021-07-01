@@ -676,3 +676,55 @@ Feature: JWT Authenticator - Fetch signing key
     """
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::VerificationError: Signature verification raised>')
     """
+
+  # BUG: ONYX-10132 , expected error code should be 401
+  Scenario: ONYX-8914: provider-uri with untrusted self sign certificate
+    Given I load a policy:
+    """
+    - !policy
+      id: conjur/authn-jwt/keycloak
+      body:
+      - !webservice
+
+      - !variable
+        id: provider-uri
+    """
+    And I am the super-user
+    And I successfully set authn-jwt "provider-uri" variable value to "https://jwks" in service "keycloak"
+    And I fetch an ID Token for username "alice" and password "alice"
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the ID token
+    Then the HTTP response status code is 502
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00011E Failed to discover Identity Provider (Provider URI: 'https://jwks'). Reason: '#<OpenIDConnect::Discovery::DiscoveryFailed: SSL_connect returned=1 errno=0 state=error: certificate verify failed (self signed certificate)>
+    """
+
+  Scenario: ONYX-8913: jwks-uri with untrusted self sign certificate
+    Given I load a policy:
+    """
+    - !policy
+      id: conjur/authn-jwt/raw
+      body:
+      - !webservice
+
+      - !variable
+        id: jwks-uri
+    """
+    And I am the super-user
+    And I initialize JWKS endpoint with file "JWKs.json"
+    And I successfully set authn-jwt "jwks-uri" variable value to "https://jwks" in service "raw"
+    And I issue a JWT token:
+    """
+    {
+      "host":"myapp",
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with raw service ID
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00087E Failed to fetch JWKS from 'https://jwks'. Reason: '#<OpenSSL::SSL::SSLError: SSL_connect returned=1 errno=0 state=error: certificate verify failed (self signed certificate)>'>
+    """
