@@ -1,5 +1,6 @@
 Feature: JWT Authenticator - Security
-  Tests checking that JWT authenticator stands against different attacks and security risks
+  Tests checking that JWT authenticator stands against different attacks and security risks.
+  Checking different the authenticators with different algorithems siging the jwt token.
 
   Background:
     Given I load a policy:
