@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'rubygems'
 require 'openssl'
 require 'jwt'
 require "base64"
@@ -78,6 +79,21 @@ module JwtJwksHelper
     )
   end
 
+  def issue_jwt_token_with_x5c(token_body, algorithm = Algorithms::RS256)
+    cert = self_signed_certificate(rsa_keys[@default_file_name])
+
+    @jwt_token = JWT.encode(
+      token_body,
+      rsa_keys[@default_file_name],
+      algorithm,
+      {
+        kid:  base64_x5t_from_certificate(cert),
+        x5c:  cert.to_pem.gsub("\n", ""),
+        x5t:  base64_x5t_from_certificate(cert)
+      }
+    )
+  end
+
   def issue_none_alg_jwt_token(token_body)
     @jwt_token = JWT.encode(
       token_body,
@@ -149,6 +165,26 @@ module JwtJwksHelper
       token_body["exp"] = Time.now.to_i + HOUR_IN_SECONDS
     end
     token_body
+  end
+
+  def base64_x5t_from_certificate(cert)
+    cert_thumbprint = OpenSSL::Digest::SHA1.hexdigest(cert.to_der)
+    Base64.encode64(cert_thumbprint).gsub("==\n","")
+  end
+
+  def self_signed_certificate(rsa_key)
+    subject = "/C=BE/O=Test/OU=Test/CN=Test"
+
+    cert = OpenSSL::X509::Certificate.new
+    cert.subject = cert.issuer = OpenSSL::X509::Name.parse(subject)
+    cert.not_before = Time.now
+    cert.not_after = Time.now + 365 * 24 * 60 * 60
+    cert.public_key = rsa_key.public_key
+    cert.serial = 0x0
+    cert.version = 2
+    cert.sign rsa_key, OpenSSL::Digest::SHA1.new
+
+    cert
   end
 end
 
