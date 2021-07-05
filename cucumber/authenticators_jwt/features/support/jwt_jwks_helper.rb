@@ -80,16 +80,35 @@ module JwtJwksHelper
   end
 
   def issue_jwt_token_with_x5c(token_body, algorithm = Algorithms::RS256)
-    cert = self_signed_certificate(rsa_keys[@default_file_name])
+    x5c_file_name = "x5c.pem"
+    add_new_file(x5c_file_name)
+    cert = self_signed_certificate(rsa_keys[x5c_file_name])
 
     @jwt_token = JWT.encode(
       token_body,
-      rsa_keys[@default_file_name],
+      rsa_keys[x5c_file_name],
       algorithm,
       {
-        kid:  base64_x5t_from_certificate(cert),
-        x5c:  cert.to_pem.gsub("\n", ""),
+        x5c:  [Base64.strict_encode64(cert.to_der)],
         x5t:  base64_x5t_from_certificate(cert)
+      }
+    )
+  end
+
+  def issue_jwt_token_with_x5u(token_body, file_name, algorithm = Algorithms::RS256)
+    add_new_file(file_name)
+    cert = self_signed_certificate(rsa_keys[file_name])
+    File.write(
+      "#{JWKS_ROOT_PATH}/#{file_name}",
+      JSON.pretty_generate(cert.to_pem.gsub("\n", ""))
+    )
+
+    @jwt_token = JWT.encode(
+      token_body,
+      rsa_keys[file_name],
+      algorithm,
+      {
+        x5u: "#{JWKS_ROOT_PATH}/#{file_name}",
       }
     )
   end
@@ -169,7 +188,7 @@ module JwtJwksHelper
 
   def base64_x5t_from_certificate(cert)
     cert_thumbprint = OpenSSL::Digest::SHA1.hexdigest(cert.to_der)
-    Base64.encode64(cert_thumbprint).gsub("==\n","")
+    Base64.urlsafe_encode64(cert_thumbprint, padding: false)
   end
 
   def self_signed_certificate(rsa_key)
