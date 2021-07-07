@@ -31,7 +31,7 @@ _run_cucumber_tests() {
   echo "Start all services..."
 
   docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
-  docker-compose exec -T conjur conjurctl wait
+  docker-compose exec -T conjur conjurctl wait --retries 180
 
   echo "Create cucumber account..."
 
