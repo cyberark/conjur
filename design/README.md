@@ -1,6 +1,6 @@
 # Conjur Design Documentation
 
-This folder contains design documents for some Conjur OSS components.
+This folder contains design documents for some Conjur Open Source components.
 
 The linked documents below represent the original feature designs; to learn
 more about the current state of the features, please see the official

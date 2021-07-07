@@ -186,9 +186,10 @@ The performance of the "inject-client-cert" request will not be affected as the 
 
 ## Affected Components
 
-[//]: # "Address the components that will be affected by your solution [Conjur, DAP, clients, integrations, etc.]"
+[//]: # "Address the components that will be affected by your solution
+         [Conjur, Conjur Enterprise, clients, integrations, etc.]"
 - Conjur
-- DAP
+- Conjur Enterprise
 - conjur-authn-k8s-client
 - seed-fetcher
 - secrets-provider-for-k8s
@@ -228,7 +229,11 @@ Additionally, we should address [this issue](https://github.com/cyberark/conjur/
 There are no new audit messages in this fix. We already write the inject-client-cert request to the audit log.
 
 ## Documentation
-[//]: # "Add notes on what should be documented in this solution. Elaborate on where this should be documented. If the change is in open-source projects, we may need to update the docs in github too. If it's in Conjur and/or DAP mention which products are affected by it"
+[//]: # "Add notes on what should be documented in this solution."
+[//]: # "Elaborate on where this should be documented. If the change is in"
+[//]: # "open-source projects, we may need to update the docs in github too."
+[//]: # "If it's in Conjur and/or Conjur Enterprise mention which"
+[//]: # "products are affected by it"
 This is an internal process so it doesn't require any new documentation. A CHANGELOG entry will be added about the response code change in "inject-client-cert"
 
 ## Delivery plan

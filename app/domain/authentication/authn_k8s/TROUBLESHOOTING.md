@@ -3,17 +3,17 @@
 ## Table of Contents
 
 - [Overview](#overview)
-- [Troubleshooting Kubernetes Authentication on Conjur OSS](#troubleshooting-kubernetes-authentication-on-conjur-oss)
-  * [Prerequisites for Troubleshooting on Conjur OSS](#prerequisites-for-troubleshooting-on-conjur-oss)
-  * [Before We Begin Troubleshooting: Some Handy Tools and How-Tos](#before-we-begin-troubleshooting-some-handy-tools-and-how-tos)
-  * [Step-by-Step: Verifying Your Conjur Authentication Configuration](#step-by-step-verifying-your-conjur-authentication-configuration)
-  * [Some Useful Conjur Commands](#some-useful-conjur-commands)
-  * [Failure Conditions and How to Troubleshoot](#failure-conditions-and-how-to-troubleshoot)
-    + [Conjur server cannot access application Kubernetes Resources](#conjur-server-cannot-access-application-kubernetes-resources)
-    + [Conjur Kubernetes Authenticator is not enabled](#conjur-kubernetes-authenticator-is-not-enabled)
-    + [Conjur appliance URL is set incorrectly](#conjur-appliance-url-is-set-incorrectly)
-    + [Certificate not valid for domain name in Conjur appliance URL](#certificate-not-valid-for-domain-name-in-conjur-appliance-url)
-    + [Invalid Response to Certificate Signing Request](#invalid-response-to-certificate-signing-request)
+- [Troubleshooting Kubernetes Authentication on Conjur Open Source](#troubleshooting-kubernetes-authentication-on-conjur-open-source)
+  - [Prerequisites for Troubleshooting on Conjur Open Source](#prerequisites-for-troubleshooting-on-conjur-open-source)
+  - [Before We Begin Troubleshooting: Some Handy Tools and How-Tos](#before-we-begin-troubleshooting-some-handy-tools-and-how-tos)
+  - [Step-by-Step: Verifying Your Conjur Authentication Configuration](#step-by-step-verifying-your-conjur-authentication-configuration)
+  - [Some Useful Conjur Commands](#some-useful-conjur-commands)
+  - [Failure Conditions and How to Troubleshoot](#failure-conditions-and-how-to-troubleshoot)
+    - [Conjur server cannot access application Kubernetes Resources](#conjur-server-cannot-access-application-kubernetes-resources)
+    - [Conjur Kubernetes Authenticator is not enabled](#conjur-kubernetes-authenticator-is-not-enabled)
+    - [Conjur appliance URL is set incorrectly](#conjur-appliance-url-is-set-incorrectly)
+    - [Certificate not valid for domain name in Conjur appliance URL](#certificate-not-valid-for-domain-name-in-conjur-appliance-url)
+    - [Invalid Response to Certificate Signing Request](#invalid-response-to-certificate-signing-request)
 
 ## Overview
 
@@ -22,13 +22,13 @@ functionality of
 [Conjur Kubernetes authentication (`authn-k8s`)](https://docs.conjur.org/Latest/en/Content/Operations/Services/k8s_auth.htm)
 on a [Conjur](https://docs.conjur.org/) cluster.
 
-## Troubleshooting Kubernetes Authentication on Conjur OSS
+## Troubleshooting Kubernetes Authentication on Conjur Open Source
 
 This section presents some tips and guidelines for troubleshooting
 [Conjur Kubernetes authentication (`authn-k8s`)](https://docs.conjur.org/Latest/en/Content/Operations/Services/k8s_auth.htm)
-specifically on a [Conjur OSS](https://docs.conjur.org/) cluster that has
+specifically on a [Conjur Open Source](https://docs.conjur.org/) cluster that has
 been deployed via the
-[Conjur OSS Helm Chart](https://github.com/cyberark/conjur-oss-helm-chart/conjur-oss).
+[Conjur Open Source Helm Chart](https://github.com/cyberark/conjur-oss-helm-chart/conjur-oss).
 
 The intended audience for this section of the guide is anyone who encounters
 issues when deploying Kubernetes applications that make use of Conjur
@@ -40,7 +40,7 @@ authenticate with Conjur:
 - [Conjur Kubernetes Authenticator Client](https://github.com/cyberark/conjur-authn-k8s-client)
   as either a sidecar or init container
 
-### Prerequisites for Troubleshooting on Conjur OSS
+### Prerequisites for Troubleshooting on Conjur Open Source
 
 This section of the guide assumes that you have:
 
@@ -92,7 +92,7 @@ This section of the guide assumes that you have:
   </details>
 
 - [`conjur` CLI](https://github.com/cyberark/conjur-cli) access to your
-  [Conjur OSS](https://docs.conjur.org/) server.
+  [Conjur Open Source](https://docs.conjur.org/) server.
 
   If you don't have this set up already, see the
   [Creating a Conjur CLI Pod](#creating-a-conjur-cli-pod) section below.
@@ -109,7 +109,7 @@ In some cases, it may be helpful to create a Conjur CLI pod in your
 Kubernetes cluster, and create a `conjur` command alias that executes
 commands via that Conjur CLI pod.
 
-For example, you may be exploring Conjur OSS and Kubernetes authentication
+For example, you may be exploring Conjur Open Source and Kubernetes authentication
 on a [Kubernetes-in-Docker (KinD)](https://kind.sigs.k8s.io/) or
 or [MiniKube](https://minikube.sigs.k8s.io/docs/) cluster, and you prefer
 not to install a software load balancer such as
@@ -123,7 +123,7 @@ not to install a software load balancer such as
   HELM_RELEASE=conjur-oss
   CONJUR_NAMESPACE=conjur-oss
 
-  # Create a Conjur CLI pod in the Conjur OSS namespace
+  # Create a Conjur CLI pod in the Conjur Open Source namespace
   CLI_IMAGE=cyberark/conjur-cli:5-latest
   echo "
   ---
@@ -186,7 +186,7 @@ the Kubernetes cluster.
   # Set environment. Modify as necessary to match your setup.
   CONJUR_NAMESPACE=conjur-oss
 
-  # Create a 'pod-curl' pod in the Conjur OSS namespace
+  # Create a 'pod-curl' pod in the Conjur Open Source namespace
   echo "
   ---
   apiVersion: v1
@@ -346,7 +346,7 @@ of your Conjur authentication configuration.
    - Check the [Postgres pod logs](#collecting-conjur-postgres-pod-logs)
      for warnings or errors.
    - [Enable Conjur debug logging](#enabling-debug-logs-for-the-conjur-server),
-     and then delete the Conjur OSS server pod to force a pod recreate, and
+     and then delete the Conjur Open Source server pod to force a pod recreate, and
      check the [Conjur server logs](#collecting-conjur-server-logs) again
      for warnings or errors.
 

@@ -156,7 +156,7 @@ TBD
 
 ## Test Plan
 
-1. Tests should be on DAP and Conjur (HTTPS vs HTTP).
+1. Tests should be on Conjur Enterprise and Open Source (HTTPS vs HTTP).
 2. All previous tests of `authenticate` method should passed.
 3. Perform performance test (Check for possible degradation) 
 
