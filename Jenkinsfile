@@ -535,7 +535,7 @@ pipeline {
         }
 
         stage('On a master build') {
-          when { branch "master" }
+          when { environment name: 'JOB_NAME', value: 'cyberark--conjur/master' }
           steps {
             script {
               def tasks = [:]
