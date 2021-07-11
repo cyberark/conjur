@@ -45,6 +45,25 @@ Given(/I issue a JWT token signed with jwk with jwks file_name "([^"]*)":/) do |
   )
 end
 
+Given(/I issue a JWT token signed with self-signed certificate with x5c:/) do |token_body_string|
+  # token body has to be an object (not a string) for correct token creation
+  issue_jwt_token_with_x5c(
+    token_body_with_valid_expiration(
+      JSON.parse(token_body_string)
+    )
+  )
+end
+
+Given(/I issue a JWT token signed with self-signed certificate with x5u with file name "([^"]*)":/) do |file_name, token_body_string|
+  # token body has to be an object (not a string) for correct token creation
+  issue_jwt_token_with_x5u(
+    token_body_with_valid_expiration(
+      JSON.parse(token_body_string)
+    ),
+    file_name
+  )
+end
+
 Given(/I issue unknown kid JWT token:/) do |token_body_string|
   # token body has to be an object (not a string) for correct token creation
   issue_jwt_token_unkown_kid(

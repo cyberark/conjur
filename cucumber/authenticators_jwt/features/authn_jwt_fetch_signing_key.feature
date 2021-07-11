@@ -728,3 +728,61 @@ Feature: JWT Authenticator - Fetch signing key
     """
     CONJ00087E Failed to fetch JWKS from 'https://jwks'. Reason: '#<OpenSSL::SSL::SSLError: SSL_connect returned=1 errno=0 state=error: certificate verify failed (self signed certificate)>'>
     """
+
+  Scenario: ONYX-8856: x5c header claim is ignored
+    Given I load a policy:
+    """
+    - !policy
+      id: conjur/authn-jwt/raw
+      body:
+      - !webservice
+
+      - !variable
+        id: jwks-uri
+    """
+    And I am the super-user
+    And I initialize JWKS endpoint with file "JWKS.json"
+    And I successfully set authn-jwt jwks-uri variable with value of "JWKS.json" endpoint
+    And I issue a JWT token signed with self-signed certificate with x5c:
+    """
+    {
+      "host":"myapp",
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with raw service ID
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::DecodeError: No key id (kid) found from token headers>')
+    """
+
+  Scenario: ONYX-8855: x5u header claim is ignored
+    Given I load a policy:
+    """
+    - !policy
+      id: conjur/authn-jwt/raw
+      body:
+      - !webservice
+
+      - !variable
+        id: jwks-uri
+    """
+    And I am the super-user
+    And I initialize JWKS endpoint with file "JWKS.json"
+    And I successfully set authn-jwt jwks-uri variable with value of "JWKS.json" endpoint
+    And I issue a JWT token signed with self-signed certificate with x5u with file name "x5u.pem":
+    """
+    {
+      "host":"myapp",
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with raw service ID
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::DecodeError: No key id (kid) found from token headers>')
+    """
