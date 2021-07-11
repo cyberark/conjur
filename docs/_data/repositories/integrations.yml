@@ -1,5 +1,5 @@
 section:
-  description: Conjur OSS integrations with platforms and DevOps tools.
+  description: Conjur Open Source integrations with platforms and DevOps tools.
   categories:
   - name: Platform Integrations
     description: Tools for Conjur integrations with platforms and cloud providers.
@@ -29,7 +29,7 @@ section:
           at runtime.
 
   - name: DevOps Tools
-    description: Conjur OSS integrations with DevOps tools.
+    description: Conjur Open Source integrations with DevOps tools.
     repos:
       - name: cyberark/ansible-conjur-collection
         url: https://github.com/cyberark/ansible-conjur-collection

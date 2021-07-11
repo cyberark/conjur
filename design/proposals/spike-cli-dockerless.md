@@ -282,7 +282,11 @@ We have ***not*** reached a decision about which CLI we will pursue.
 
 ## Documentation
 
-[//]: # "Add notes on what should be documented in this solution. Elaborate on where this should be documented. If the change is in open-source projects, we may need to update the docs in github too. If it's in Conjur and/or DAP mention which products are affected by it"
+[//]: # "Add notes on what should be documented in this solution."
+[//]: # "Elaborate on where this should be documented. If the change is in"
+[//]: # "open-source projects, we may need to update the docs in github too."
+[//]: # "If it's in Conjur and/or Conjur Enterprise mention which"
+[//]: # "products are affected by it"
 
 The CLI that we choose will require documentation.
 
