@@ -1,4 +1,4 @@
-# Solution Design - Authn JWT Token Schema
+# Solution Design - Authn JWT Mandatory Claims And Mapping
 
 [//]: # "1. Design should be graphical-based and table-based - avoid long text explanations"
 [//]: # "2. Design documents should not be updated after implementation"
@@ -8,25 +8,28 @@
 ## Table of Contents
 [//]: # "You can use this tool to generate a TOC - https://ecotrust-canada.github.io/markdown-toc/"
 
-- [Solution Design - Authn JWT Token Schema](#solution-design---authn-jwt-token-schema)
-  * [Table of Contents](#table-of-contents)
-  * [Glossary](#glossary)
-  * [Useful Links](#useful-links)
-  * [Requirements](#requirements)
-  * [Solution](#solution)
-    + [User Interface](#user-interface)
-      - [Authenticator Policy](#authenticator-policy)
-      - [Variable Values Example](#variable-values-example)
-  * [Design](#design)
-    + [Class Diagrams](#class-diagrams)
-    + [Flow Explanation](#flow-explanation)
-  * [Backwards Compatibility](#backwards-compatibility)
-  * [Affected Components](#affected-components)
-  * [Delivery Plan](#delivery-plan)
-  * [Delivery Plan](#delivery-plan-1)
-  * [Open Questions](#open-questions)
-  * [Definition of Done](#definition-of-done)
-  * [Solution Review](#solution-review)
+- * [Solution Design - Authn JWT Mandatory Claims And Mapping](#solution-design---authn-jwt-mandatory-claims-and-mapping)
+    * [Table of Contents](#table-of-contents)
+    * [Glossary](#glossary)
+    * [Useful Links](#useful-links)
+    * [Requirements](#requirements)
+    * [Solution](#solution)
+      + [User Interface](#user-interface)
+        - [Authenticator Policy](#authenticator-policy)
+        - [Variable Values Example](#variable-values-example)
+    * [Design](#design)
+      + [Flow Chart](#flow-chart)
+      + [Flow Explanation](#flow-explanation)
+      + [Class Diagrams](#class-diagrams)
+    * [Backwards Compatibility](#backwards-compatibility)
+    * [Affected Components](#affected-components)
+    * [Delivery Plan](#delivery-plan)
+    * [Security](#security)
+    * [Test Plan](#test-plan)
+    * [Open Questions](#open-questions)
+    * [Documentation](#documentation)
+    * [Definition of Done](#definition-of-done)
+    * [Solution Review](#solution-review)
 
 ## Glossary
 
@@ -57,7 +60,7 @@
    1. The user should have the ability to map a given "technical" claim name to a more familiar / business one - i.e, in git-lab. Instead of mentioning in the policy "sub" claim, the user will have the ability to mention "job"
 
 ## Solution
-User will define the token schema variables in the authenticator policy. The variables will be checked in the JWT authentication request.
+User will define the mandatory claims and claims mapping variables in the authenticator policy. The variables will be checked in the JWT authentication request.
 
 * The usage of this variables is optional and non mandatory. User can authenticate to JWT in the same way he authenticated in stage 1. Using the feature adds more security checks to the authentication.
 
@@ -67,8 +70,8 @@ User will define the token schema variables in the authenticator policy. The var
 
 Two new variables will be added to the authenticator policy:
 
-* mandatory_claims
-* claims_mapping
+* host_mandatory_claims
+* mapping_claims
 
 ```yaml
     - !policy
@@ -80,18 +83,23 @@ Two new variables will be added to the authenticator policy:
       id: mandatory_claims
       
     - !variable
-      id: claims_mapping
+      id: mapping_claims
 ```
 
 #### Variable Values Example
 
-| Name             | Value                   | Description                                      |
-| ---------------- | ----------------------- | ------------------------------------------------ |
-| mandatory_claims | branch, job, aud        | List of claims as they appear in host annotation |
-| claims_mapping   | {ref: branch, sub: job} | Mapping between host annotation to JWT claim     |
+| Name             | Value                 | Description                                      |
+| ---------------- | --------------------- | ------------------------------------------------ |
+| mandatory_claims | ref, sub              | List of claims as they appear in host annotation |
+| mapping_claims   | branch: ref, job: ref | Mapping between host annotation to JWT claim     |
 
 * For any claim mapped, we will add the host annotation to the `mandatory_claims` variable and not the JWT claim name.
 * The values above are examples and they can be any claims.
+* If one of the values of this variables contain these words from deny list authentication request will be denied:
+  * iss
+  * exp
+  * iat
+  * nbf
 
 
 ## Design
@@ -99,28 +107,47 @@ Two new variables will be added to the authenticator policy:
 
 The following class diagram, represent the flow of checking the mandatory claims and the claim mapping.
 
-### Class Diagrams
 
 
-![image-20210711171238701](token-schema-class-diagram.png)
+
+### Flow Chart
+
+![image-20210713194641586](token-schema-sequence-diagram.png)
 
 ### Flow Explanation
 
 When validate_restrictions is called in JWTVendorConfiguration class the following will happen as a result:
 
-1. The `valitate_restrictions` function will call `CreateConstraintsFromPolicy` that create constraints object checking the hosts annotations.
-   1. It will create instance of `NonEmptyConstraint` to check we have at least one host annotation.
-   2. It will call `LoadMAndatoryClaims` command class to load the list of mandatory claims for the `mandatory_claims` variable
-   3. It will create `RequiredContraint` object from it
+1. The `validate_restrictions` function will call `CreateConstraintsFromPolicy` that create constraints object checking the hosts annotations.
+   1. It create instance of `NonEmptyConstraint` to check we have at least one host annotation.
+   2. Will call `LoadMandatoryClaims` command class to load the list of mandatory claims for the `mandatory_claims` variable. This class will create and return `RequiredConstraint` object.
+      1. If variable configured but not populated error be thrown
+      2. If variiable with invalid value error be thrown
+      3. If variable not configured empty list will be returned
+   3. Will call LoadClaimsMapping to load mapping and convert relevant mandatory claims from mapping
+   4. It create `RequiredConstraint` object from it
+   5. Will create `NonPremmitedConstraint` from deneid claims const ("iat","exp"...)
+   6. With Create `MultipleConstraints` object with all the constraint objects above and return it
 2. The `validate_restrictions` functon will call `CreateValidatorFromPolicy` to create validator with the claims mapping loaded
-   1. It will call the `LoadClaimsMapping` command class to get dictionary between claim to annotation.
-   2. It will create *ValidateRestrictionOneToOne* object and will return it
-3. `ValidateResourceRestrictions` will be called with the contraints and the validator from the previous steps. This run will check the claims in the token and annotations. If anything wrong like a missing claim in the host annotation or claim with invalid value and error with be thrown and the authentication request will be denied.
+   1. Will call the `LoadClaimsMapping` command class to get dictionary between claim to annotation.
+      1. If variable configured but not populated error be thrown
+      2. If variiable with invalid value error be thrown
+      3. If variable not configured empty hash will be returned
+   2. It create *ValidateRestrictionOneToOne* object and will return it
+      1. The logic of ValidateRestrictionOneToOne will check restriction by this order:
+         1. If there is mapping for it will use mapping. If the mapped claim not in token we raise error
+         2. If there is no mapping we will check token has claim from annotation. If its not there we throw error
+3. `ValidateResourceRestrictions` will be called with the constraints and the validator from the previous steps. This run will check the claims in the token and annotations. If anything wrong like a missing claim in the host annotation or a claim has an invalid value, an error with be thrown and the authentication request will be denied.
+
+### Class Diagrams
+
+
+![](token-schema-class-diagram.png)
 
 ## Backwards Compatibility
 [//]: # "How will the design of this solution impact backwards compatibility? Address how you are going to handle backwards compatibility, if necessary"
 
-Token schema is not mandatory therfore the JWT authentication will remain backwards compatible.
+Mandatory claims and mapping are not mandatory therefore the JWT authentication will remain backwards compatible.
 
 ## Affected Components
 
@@ -132,30 +159,40 @@ Token schema is not mandatory therfore the JWT authentication will remain backwa
 
 * JWT Authenticator
 
-
-
 ## Delivery Plan
 
-| Mission                                          | Estimation |
-| ------------------------------------------------ | ---------- |
-| Support mandatory claims                         | 5 SP       |
-| Support claims mapping                           | 5 SP       |
-| Add status checks for token schema configuration | 2 SP       |
-| Add Cucumber tests for token schema              | 5 SP       |
+| Mission                                                      | Estimation |
+| ------------------------------------------------------------ | ---------- |
+| Add LoadMandatoryClaims                                      | 1 SP       |
+| Add NonPremmitedConstraint                                   | 1 SP       |
+| Add LoadClaimsMapping                                        | 1 SP       |
+| Change ValidateRestrictionOneToOne to work with mapping      | 2 SP       |
+| Add CreateConstraintsFromPolicy Command Class and use it     | 2 SP       |
+| Add CreateValidatorFromPolicy and use it                     | 2 SP       |
+| Add status checks for mandatory claims and claims mapping configuration | 3 SP       |
+| Add Cucumber tests for mandatory claims and mapping          | 5 SP       |
+| Check "aud" annotation with list                             | 3 SP       |
+| Documentation                                                |            |
+
+## Security
+
+* If mandatory claims or clamins mapping has invalid value we should fail the authentication.
+
+## Test Plan
+
+https://ca-il-confluence.il.cyber-ark.com/x/9AIiFQ
 
 ## Open Questions
+
 [//]: # "Add any question that is still open. It makes it easier for the reader to have the open questions accumulated here instead of them being acattered along the doc"
 
-* How the `claims_mapping` should look like
-  * Option 1: A dictionary
-    `{ref: branch, sub: job}`
-  * Option 2: Just the paris
-    `ref:branch, sub:job`
-* What is the expected behaviour if we recive on of this standard claims in the `mandatory_claims` or `claims_mapping`
-  * iss
-  * iat
-  * exp
-  * nbf
+* What happens if host already exists and than we configure mandatory claims that he doesn't check - Documentation
+* What about claims that are dictioneires - Out Of Scope.
+
+## Documentation
+
+* When mandatory claims or mapping is changed all relevant hosts need to be updated. 
+* When mapping of mandatory claim is changed or added mandatory claims need to be added.
 
 ## Definition of Done
 
@@ -169,10 +206,11 @@ Token schema is not mandatory therfore the JWT authentication will remain backwa
 ## Solution Review
 [//]: # "Relevant personas can indicate their design approval by approving the pull request"
 
-| **Persona**        | **Name** |
-|--------------------|----------|
-| Team leader        |          |
-| Product owner      |          |
-| System architect   |          |
-| Security architect |          |
-| QA architect       |          |
+| **Persona**        | **Name**     |
+| ------------------ | ------------ |
+| Team leader        | @benoaviram  |
+| Product owner      | @hilagross   |
+| System architect   | @tzheleznyak |
+| Security architect | @sashacher   |
+| QA architect       | @eladkug     |
+
