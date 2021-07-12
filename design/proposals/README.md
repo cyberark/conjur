@@ -8,3 +8,4 @@ The linked documents below represent feature proposals; once a feature is decide
 --- | ---
 |[Authenticator Management Improvement](authenticator_management_improvement.md)|May 14, 2020|
 |[Variable Schema Validation](variable_schema_validation.md)|August 26, 2020|
+|[Simplified Kubernetes Application Credentials with Summon](kubernetes-summon/Readme.md)|February 22, 2021|
