@@ -48,6 +48,25 @@ pipeline {
       }
     }
 
+    stage('Snyk') {
+      steps {
+        snykSecurity(
+        severity: 'high', 
+        snykInstallation: 'Snyk', 
+        snykTokenId: 'snyk-poc-token', 
+        failOnIssues: 'true',
+        targetFile: 'Gemfile'
+        )
+        snykSecurity(
+        severity: 'high', 
+        snykInstallation: 'Snyk', 
+        snykTokenId: 'snyk-poc-token', 
+        failOnIssues: 'true',
+        targetFile: 'docs/Gemfile'
+        )
+      }
+    }
+
     stage('Validate Changelog') {
       steps {
         sh 'ci/parse-changelog'
