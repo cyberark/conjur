@@ -19,17 +19,30 @@ class Schemata
   def initialize
     @search_path = Sequel::Model.db.search_path
 
-    # Verify that all schemata in the search path actually exist, except the automatic entry "$user"
+    # Verify that all schemata in the search path actually exist, except the
+    # automatic entry "$user"
     @search_path.each do |schema|
       next if schema == :"$user"
-      raise "Schema #{schema.inspect} from the search path is not listed current_schemas(false)" unless Sequel::Model.db.current_schemata.member?(schema)
+      unless Sequel::Model.db.current_schemata.member?(schema)
+        raise "Schema #{schema.inspect} from the search path is not listed " \
+          "current_schemas(false)"
+      end
     end
 
     # Verify that there is a primary schema in the DB
-    primary_schema = db.select(Sequel::function(:current_schema)).single_value
-    raise "No primary schema is available from search path #{search_path.inspect}" if primary_schema.nil?
+    primary_schema = db.select(
+      Sequel::function(:current_schema)
+    ).single_value
 
-    Rails.logger.info(LogMessages::Conjur::PrimarySchema.new(primary_schema.inspect))
+    if primary_schema.nil?
+      raise "No primary schema is available from search path "\
+        "#{search_path.inspect}"
+    end
+
+    Rails.logger.info(
+      LogMessages::Conjur::PrimarySchema.new(primary_schema.inspect)
+    )
+
     @primary_schema = primary_schema.to_sym
   end
 
