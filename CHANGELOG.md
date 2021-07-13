@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Security
+- Upgraded addressable in ./Gemfile.lock and ./docs/Gemfile.lock to 2.8.0 to resolve
+  GHSA-jxhc-q857-3j6g [cyberark/conjur#2311](https://github.com/cyberark/conjur/pull/2311)
+
 ## [1.12.0] - 2021-06-25
 
 ### Added
