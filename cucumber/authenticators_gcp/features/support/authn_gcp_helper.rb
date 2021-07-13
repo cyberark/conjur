@@ -61,7 +61,7 @@ def self_signed_token
   headers = { kid: jwk.kid }
 
   # issue a decoded signed token
-  JWT.encode(payload, jwk.keypair, 'RS512', headers)
+  JWT.encode(payload, jwk.keypair, 'RS256', headers)
 end
 
 # generates a self signed token with no kid in token header
