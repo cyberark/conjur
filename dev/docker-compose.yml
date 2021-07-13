@@ -158,6 +158,20 @@ services:
     entrypoint: sleep
     command: infinity
 
+  jwks_py:
+    image: python:3
+    ports:
+      - 8090:8090
+    entrypoint:
+      - bash
+      - -c
+    command:
+      - |
+        pip install -r /usr/src/jwks/requirements.txt
+        python /usr/src/jwks/jwks_server.py -p 8090
+    volumes:
+      - ../ci/jwt/:/usr/src/jwks/
+
 volumes:
   authn-local:
   jwks-volume:
