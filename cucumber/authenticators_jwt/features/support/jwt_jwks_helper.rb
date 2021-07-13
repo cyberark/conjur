@@ -16,6 +16,7 @@ module JwtJwksHelper
 
   JWKS_ROOT_PATH = "/var/jwks"
   JWKS_BASE_URI = "http://jwks"
+  JWKS_REMOTE_BASE_URI = "http://jwks_py:8090"
   BITS_2048 = 2048
   HOUR_IN_SECONDS = 3600
 
@@ -27,6 +28,11 @@ module JwtJwksHelper
       "#{JWKS_ROOT_PATH}/#{file_name}",
       JSON.pretty_generate(jwks)
     )
+  end
+
+  def init_jwks_remote_file(file_name, alg)
+    path = "#{JWKS_REMOTE_BASE_URI}/#{file_name}/#{alg}"
+    get(path)
   end
 
   def init_second_jwks_file_with_same_kid(first_file_name, second_file_name)
@@ -50,6 +56,18 @@ module JwtJwksHelper
         kid: jwk_set[@default_file_name].kid
       }
     )
+  end
+
+  def issue_jwt_token_remotely(file_name, alg, token_body)
+    # the remote server receives well built token and (re)signs it
+    token = JWT.encode(
+      token_body,
+      nil,
+      'none'
+    )
+    path = "#{JWKS_REMOTE_BASE_URI}/#{file_name}/#{alg}"
+    post(path, token)
+    @jwt_token = @response_body
   end
 
   def issue_jwt_token_with_jku(token_body, file_name, algorithm = Algorithms::RS256)

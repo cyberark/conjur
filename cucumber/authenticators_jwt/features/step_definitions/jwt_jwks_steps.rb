@@ -111,3 +111,18 @@ Given(/I issue empty JWT token/) do
   # token body has to be an object (not a string) for correct token creation
   issue_jwt_token(JSON.parse("{}"))
 end
+
+Given(/I initialize remote JWKS endpoint with file "([^"]*)" and alg "([^"]*)"/) do |file_name, alg|
+  init_jwks_remote_file(file_name, alg)
+end
+
+Given(/^I am using file "([^"]*)" and alg "([^"]*)" for remotely issue token:$/) do |file_name, alg, token_body_string|
+  # token body has to be an object (not a string) for correct token creation
+  issue_jwt_token_remotely(
+    file_name,
+    alg,
+    token_body_with_valid_expiration(
+      JSON.parse(token_body_string)
+    )
+  )
+end
