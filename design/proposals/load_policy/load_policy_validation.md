@@ -96,7 +96,7 @@ In our use case, Host with JWT authenticator annotations validation:
 #### Sequence Diagrams - additional info
 1. Policy validation entry point:
 As described in the diagram the validation will be triggered as the final new stage of the current logic (read below),
-   which will call to a new command class `ValidatePolicyConstraints` with tne input of the policy entities 
+   which will call to a new command class `ValidatePolicyConstraints` with the input of the policy entities 
    records (see example in the end the of the diagram) from the user body request.
    
 Load policy current logic - 
