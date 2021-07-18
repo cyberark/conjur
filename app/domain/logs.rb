@@ -590,6 +590,16 @@ module LogMessages
         code: "CONJ00116D"
       )
 
+      ParsingMandatoryClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Parsing mandatory claims value '{0-mandatory-claims}'",
+        code: "CONJ00120D"
+      )
+
+      ParsedMandatoryClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully parsed mandatory claims '{0-mandatory-claims-list}'",
+        code: "CONJ00121D"
+      )
+
     end
   end
 

@@ -484,6 +484,22 @@ module Errors
         code: "CONJ00102E"
       )
 
+      FailedToParseMandatoryClaimsMissingInput = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse mandatory claims, mandatory claims value is empty, or was not found.",
+        code: "CONJ00106E"
+      )
+
+      InvalidMandatoryClaimsFormat = ::Util::TrackableErrorClass.new(
+        msg: "mandatory claims value '{0-mandatory-claims-value}' is in invalid format. " \
+             "The format should be claim names separated with comma.",
+        code: "CONJ00107E"
+      )
+
+      InvalidMandatoryClaimsFormatContainsDuplication = ::Util::TrackableErrorClass.new(
+        msg: "mandatory claims value '{0-mandatory-claims-value}' is in invalid format. " \
+             "The format should be claim names separated with comma.",
+        code: "CONJ00107E"
+      )
     end
 
     module ResourceRestrictions
