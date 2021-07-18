@@ -83,8 +83,9 @@ gem 'event_emitter'
 gem 'kubeclient'
 gem 'websocket'
 
+# authn-oidc, gcp, azure, jwt
+gem 'jwt', '2.2.2' # version frozen due to authn-jwt requirements
 # authn-oidc
-gem 'jwt'
 gem 'openid_connect'
 
 # Unpin version once this Github issue,
