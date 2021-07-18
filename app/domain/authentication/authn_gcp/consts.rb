@@ -12,10 +12,12 @@ module Authentication
       SERVICE_ACCOUNT_ID = "service-account-id"
       SERVICE_ACCOUNT_EMAIL = "service-account-email"
 
-      PERMITTED = [PROJECT_ID, INSTANCE_NAME, SERVICE_ACCOUNT_ID, SERVICE_ACCOUNT_EMAIL].freeze
+      ANY = [PROJECT_ID, SERVICE_ACCOUNT_ID, SERVICE_ACCOUNT_EMAIL].freeze
+      OPTIONAL = [INSTANCE_NAME].freeze
+      PERMITTED = ANY + OPTIONAL
 
       CONSTRAINTS = Constraints::MultipleConstraint.new(
-        Constraints::AnyConstraint.new(any: PERMITTED),
+        Constraints::AnyConstraint.new(any: ANY),
         Constraints::PermittedConstraint.new(permitted: PERMITTED)
       )
 
