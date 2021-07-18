@@ -540,6 +540,11 @@ module Errors
         code: "CONJ00069E"
       )
 
+      NonPermittedRestrictionGiven = ::Util::TrackableErrorClass.new(
+        msg: "Role can't have one of these none permitted restrictions {0-restrictions}",
+        code: "CONJ00069E"
+      )
+
       RoleMissingAnyRestrictions =  ::Util::TrackableErrorClass.new(
         msg: "Role must have at least one relevant annotation",
         code: "CONJ00099E"
