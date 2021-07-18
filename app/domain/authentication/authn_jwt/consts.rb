@@ -15,6 +15,7 @@ module Authentication
     IDENTITY_PATH_DEFAULT_VALUE = ""
     IDENTITY_PATH_CHARACTER_DELIMITER = "/"
     IDENTITY_TYPE_HOST = "host"
+    MANDATORY_CLAIMS_RESOURCE_NAME = "mandatory-claims"
     PRIVILEGE_AUTHENTICATE="authenticate"
     ISS_CLAIM_NAME = "iss"
     EXP_CLAIM_NAME = "exp"
