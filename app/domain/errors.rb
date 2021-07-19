@@ -490,14 +490,13 @@ module Errors
       )
 
       FailedToValidateClaimForbiddenClaimName = ::Util::TrackableErrorClass.new(
-        msg: "Failed to validate claim, claim name '{0-claim-name}' is forbidden, " \
-             " please validate all claims defined in '{1-mandatory-claims-variable-name}' " \
-             "are matching '{2-regex}' regular expression.",
+        msg: "Failed to validate claim, claim name '{0-claim-name}' is not " \
+             "matching '{2-regex}' regular expression.",
         code: "CONJ00104E"
       )
 
       FailedToValidateClaimClaimNameInDenyList  = ::Util::TrackableErrorClass.new(
-        msg: "Failed to validate claim, claim name '{0-claim-name}' is in deny list '{1-deny-list}'",
+        msg: "Failed to validate claim, claim name '{0-claim-name}' is in denylist '{1-deny-list}'",
         code: "CONJ00105E"
       )
     end

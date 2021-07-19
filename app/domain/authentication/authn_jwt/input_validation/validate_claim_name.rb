@@ -25,21 +25,20 @@ module Authentication
         end
 
         def validate_claim_name_value
-          return if claim_name_regex.match?(@claim_name)
+          return if valid_claim_name_regex.match?(@claim_name)
 
           raise Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName.new(
             @claim_name,
-            MANDATORY_CLAIMS_RESOURCE_NAME,
-            claim_name_regex
+            valid_claim_name_regex
           )
         end
         
-        def claim_name_regex
-          @claim_name_regex ||= Regexp.new(VALID_CLAIM_NAME_REGEX)
+        def valid_claim_name_regex
+          @valid_claim_name_regex ||= Regexp.new(VALID_CLAIM_NAME_REGEX)
         end
         
         def validate_claim_is_allowed
-          @logger.debug(LogMessages::Authentication::AuthnJwt::MandatoryClaimsDenyListValue.new(@deny_claims_list_value))
+          @logger.debug(LogMessages::Authentication::AuthnJwt::ClaimsDenyListValue.new(@deny_claims_list_value))
           return if @deny_claims_list_value.blank?
 
           if @deny_claims_list_value.include?(@claim_name)

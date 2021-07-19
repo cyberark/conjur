@@ -160,7 +160,7 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
     context "When claim name contains digits in the middle" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
-          claim_name: "$"
+          claim_name: "$2w"
         )
       end
 
@@ -172,7 +172,7 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
     context "When claim name ends with digits" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
-          claim_name: "$2w"
+          claim_name: "$2w9"
         )
       end
 
@@ -197,12 +197,68 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
       end
     end
 
+    context "When claim name value is 'iat'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
+          deny_claims_list_value: ::Authentication::AuthnJwt::MANDATORY_CLAIMS_DENY_LIST
+        ).call(
+          claim_name: "iat"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimClaimNameInDenyList)
+      end
+    end
+
+    context "When claim name value is 'nbf'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
+          deny_claims_list_value: ::Authentication::AuthnJwt::MANDATORY_CLAIMS_DENY_LIST
+        ).call(
+          claim_name: "nbf"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimClaimNameInDenyList)
+      end
+    end
+
+    context "When claim name value is 'jti'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
+          deny_claims_list_value: ::Authentication::AuthnJwt::MANDATORY_CLAIMS_DENY_LIST
+        ).call(
+          claim_name: "jti"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimClaimNameInDenyList)
+      end
+    end
+
     context "When claim name value is 'aud'" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
           deny_claims_list_value: ::Authentication::AuthnJwt::MANDATORY_CLAIMS_DENY_LIST
         ).call(
           claim_name: "aud"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimClaimNameInDenyList)
+      end
+    end
+
+    context "When claim name value is 'iss'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
+          deny_claims_list_value: ::Authentication::AuthnJwt::MANDATORY_CLAIMS_DENY_LIST
+        ).call(
+          claim_name: "iss"
         )
       end
 
@@ -219,6 +275,34 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
           deny_claims_list_value: ::Authentication::AuthnJwt::MANDATORY_CLAIMS_DENY_LIST
         ).call(
           claim_name: "sub"
+        )
+      end
+
+      it 'does not raise error' do
+        expect { subject }.not_to raise_error
+      end
+    end
+
+    context "When claim name value is substring of forbidden claim 'exp1'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
+          deny_claims_list_value: ::Authentication::AuthnJwt::MANDATORY_CLAIMS_DENY_LIST
+        ).call(
+          claim_name: "exp1"
+        )
+      end
+
+      it 'does not raise error' do
+        expect { subject }.not_to raise_error
+      end
+    end
+
+    context "When claim name value is substring of forbidden claim '$exp'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
+          deny_claims_list_value: ::Authentication::AuthnJwt::MANDATORY_CLAIMS_DENY_LIST
+        ).call(
+          claim_name: "$exp"
         )
       end
 

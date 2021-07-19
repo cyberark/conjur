@@ -29,7 +29,6 @@ module Authentication
     MANDATORY_CLAIMS = [EXP_CLAIM_NAME].freeze
     OPTIONAL_CLAIMS = [ISS_CLAIM_NAME, NBF_CLAIM_NAME, IAT_CLAIM_NAME].freeze
     VALID_CLAIM_NAME_REGEX = /^[a-zA-Z|$|_][a-zA-Z|$|_|0-9]*$/.freeze # starts with letter $ or _ can contains digits
-    MANDATORY_CLAIMS_RESOURCE_NAME = "mandatory-claims"
     MANDATORY_CLAIMS_DENY_LIST = [ISS_CLAIM_NAME, EXP_CLAIM_NAME, NBF_CLAIM_NAME, IAT_CLAIM_NAME, JTI_CLAIM_NAME, AUD_CLAIM_NAME].freeze
   end
 end

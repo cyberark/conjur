@@ -590,8 +590,8 @@ module LogMessages
         code: "CONJ00116D"
       )
 
-      MandatoryClaimsDenyListValue = ::Util::TrackableLogMessageClass.new(
-        msg: "Mandatory claims deny list value is '{0-deny-claims-list}'",
+      ClaimsDenyListValue = ::Util::TrackableLogMessageClass.new(
+        msg: "Claims denylist value is '{0-deny-claims-list}'",
         code: "CONJ00117D"
       )
 
