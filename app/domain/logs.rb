@@ -590,6 +590,20 @@ module LogMessages
         code: "CONJ00116D"
       )
 
+      ClaimsDenyListValue = ::Util::TrackableLogMessageClass.new(
+        msg: "Claims denylist value is '{0-deny-claims-list}'",
+        code: "CONJ00117D"
+      )
+
+      ValidatingClaimName = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating claim name '{0-claim-name}'",
+        code: "CONJ00118D"
+      )
+
+      ValidatedClaimName = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated claim name '{0-claim-name}'",
+        code: "CONJ00119D"
+      )
     end
   end
 

@@ -484,6 +484,21 @@ module Errors
         code: "CONJ00102E"
       )
 
+      FailedToValidateClaimMissingClaimName = ::Util::TrackableErrorClass.new(
+        msg: "Failed to validate claim, claim name is empty, or was not found.",
+        code: "CONJ00103E"
+      )
+
+      FailedToValidateClaimForbiddenClaimName = ::Util::TrackableErrorClass.new(
+        msg: "Failed to validate claim, claim name '{0-claim-name}' is not " \
+             "matching '{2-regex}' regular expression.",
+        code: "CONJ00104E"
+      )
+
+      FailedToValidateClaimClaimNameInDenyList  = ::Util::TrackableErrorClass.new(
+        msg: "Failed to validate claim, claim name '{0-claim-name}' is in denylist '{1-deny-list}'",
+        code: "CONJ00105E"
+      )
     end
 
     module ResourceRestrictions
