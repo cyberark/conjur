@@ -30,6 +30,16 @@ RSpec.describe(Authentication::Constraints::NonPermittedConstraint) do
     end
   end
 
+  context "when validating one restriction that contains a non permitted substring" do
+    subject do
+      constraint.validate(resource_restrictions: ["iatnbfexpiss"])
+    end
+
+    it "not raises an error" do
+      expect { subject }.to_not raise_error
+    end
+  end
+
   context "when validating two allowed restriction" do
     subject do
       constraint.validate(resource_restrictions: ["ref", "sub"])

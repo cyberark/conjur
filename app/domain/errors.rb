@@ -541,7 +541,7 @@ module Errors
       )
 
       NonPermittedRestrictionGiven = ::Util::TrackableErrorClass.new(
-        msg: "Role can't have one of these none permitted restrictions {0-restrictions}",
+        msg: "Role can't have one of these none permitted restrictions '{0-restrictions}'",
         code: "CONJ00069E"
       )
 
