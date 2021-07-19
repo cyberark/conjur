@@ -46,11 +46,11 @@ plugins:
 
   # Go
   gofmt:
-    enabled: true
+    enabled: false
   golint:
-    enabled: true
+    enabled: false
   govet:
-    enabled: true
+    enabled: false
 
   # Ruby
   flog:
