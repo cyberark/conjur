@@ -11,6 +11,19 @@ include() {
 # Default CodeClimate plugins valid for all projects.
 include base.yml
 
+cat <<EOCUSTOM
+
+# Remove go tools because this repo doesn't use go and at the time of writing
+# the govet engine is causing buidls to fail 2021-07-19 19:09:36
+  gofmt:
+    enabled: false
+  golint:
+    enabled: false
+  govet:
+    enabled: false
+
+EOCUSTOM
+
 # uncomment for vanilla ruby projects
 include ruby.yml
 

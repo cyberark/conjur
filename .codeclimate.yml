@@ -120,6 +120,16 @@ plugins:
     enabled: true
   sonar-python:
     enabled: true
+
+# Remove go tools because this repo doesn't use go and at the time of writing
+# the govet engine is causing buidls to fail 2021-07-19 19:09:36
+  gofmt:
+    enabled: false
+  golint:
+    enabled: false
+  govet:
+    enabled: false
+
   # Ruby - requires presence of Gemfile and Gemfile.lock
   bundler-audit:
     enabled: true
