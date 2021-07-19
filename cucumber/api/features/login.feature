@@ -81,6 +81,10 @@ Feature: Exchange a role's password for its API key
       cucumber:user:non-exist failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00007E 'non-exist' not found
     """
 
+  Scenario: Empty username results in 401 response
+    When I GET "/authn/cucumber/login" with username "" and password "My-Password1"
+    Then the HTTP response status code is 401
+
   Scenario: Wrong hostname cannot be used to obtain API key
     Given I save my place in the audit log file for remote
     When I GET "/authn/cucumber/login" with username "host/non-exist" and password "My-Password1"
