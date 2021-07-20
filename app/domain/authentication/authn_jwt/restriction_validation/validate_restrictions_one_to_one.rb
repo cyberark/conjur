@@ -1,6 +1,6 @@
 module Authentication
   module AuthnJwt
-    module RestrictionValidators
+    module RestrictionValidation
       # This class is responsible for retrieving the correct value from the JWT token
       # of the requested attribute.
       class ValidateRestrictionsOneToOne

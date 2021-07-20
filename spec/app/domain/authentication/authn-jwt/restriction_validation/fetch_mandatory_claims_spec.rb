@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnJwt::RestrictionValidators::FetchMandatoryClaims') do
+RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryClaims') do
 
   let(:authenticator_name) { 'authn-jwt' }
   let(:service_id) { "my-service" }
@@ -93,7 +93,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidators::FetchMandatoryC
   context "'mandatory-claims' variable is configured in authenticator policy" do
     context "with empty variable value" do
       subject do
-        ::Authentication::AuthnJwt::RestrictionValidators::FetchMandatoryClaims.new(
+        ::Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryClaims.new(
           resource_class: mocked_resource_exists_values,
           fetch_required_secrets: mocked_fetch_secrets_empty_values
         ).call(
@@ -108,7 +108,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidators::FetchMandatoryC
 
     context "with invalid variable value" do
       subject do
-        ::Authentication::AuthnJwt::RestrictionValidators::FetchMandatoryClaims.new(
+        ::Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryClaims.new(
           resource_class: mocked_resource_exists_values,
           fetch_required_secrets: mocked_fetch_secrets_invalid_values
         ).call(
@@ -123,7 +123,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidators::FetchMandatoryC
     
     context "with valid variable value" do
       subject do
-        ::Authentication::AuthnJwt::RestrictionValidators::FetchMandatoryClaims.new(
+        ::Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryClaims.new(
           resource_class: mocked_resource_exists_values,
           fetch_required_secrets: mocked_fetch_secrets_exist_values
         ).call(
@@ -139,7 +139,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidators::FetchMandatoryC
 
   context "'mandatory-claims' variable is not configured in authenticator policy" do
     subject do
-      ::Authentication::AuthnJwt::RestrictionValidators::FetchMandatoryClaims.new(
+      ::Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryClaims.new(
         resource_class: mocked_resource_not_exists_values
       ).call(
         authentication_parameters: authentication_parameters
