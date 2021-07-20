@@ -516,7 +516,7 @@ module Errors
       )
 
       MappingClaimsMissingInput = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapping claims, mapping claims value is empty, or was not found.",
+        msg: "Failed to parse mapping claims, the mapping claims value is empty, or was not found.",
         code: "CONJ00109E"
       )
 
@@ -527,7 +527,7 @@ module Errors
       )
 
       MappingClaimInvalidFormat = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapping claims, mapping claim value '{0-mapping-claim-value}' is in invalid format."\
+        msg: "Failed to parse mapping claims, the mapping claim value '{0-mapping-claim-value}' is in invalid format."\
              "The format should be 'annotation_name:claim_name'",
         code: "CONJ00111E"
       )
