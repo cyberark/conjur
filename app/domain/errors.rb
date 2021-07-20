@@ -515,31 +515,31 @@ module Errors
         code: "CONJ00108E"
       )
 
-      MappedClaimsMissingInput = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapped claims, mapped claims value is empty, or was not found.",
+      MappingClaimsMissingInput = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse mapping claims, mapping claims value is empty, or was not found.",
         code: "CONJ00109E"
       )
 
-      MappedClaimsBlankOrEmpty = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapped claims, one ore more mapping statements is blank or empty " \
-             "'{0-mapped-claims-value}'.",
+      MappingClaimsBlankOrEmpty = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse mapping claims, one ore more mapping statements is blank or empty " \
+             "'{0-mapping-claims-value}'.",
         code: "CONJ00110E"
       )
 
-      MappedClaimInvalidFormat = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapped claims, mapped claim value '{0-mapped-claim-value}' is in invalid format."\
+      MappingClaimInvalidFormat = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse mapping claims, mapping claim value '{0-mapping-claim-value}' is in invalid format."\
              "The format should be 'annotation_name:claim_name'",
         code: "CONJ00111E"
       )
 
-      MappedClaimInvalidClaimFormat = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapped claims, one of the claims in mapped claim value '{0-mapped-claim-value}' " \
+      MappingClaimInvalidClaimFormat = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse mapping claims, one of the claims in mapping claim value '{0-mapping-claim-value}' " \
              "is in invalid format : {1-claim-verification-error}.",
         code: "CONJ00112E"
       )
 
-      MappedClaimDuplicationError = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapped claims, {0-purpose} value '{1-claim-value}' appears twice or more",
+      MappingClaimDuplicationError = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse mapping claims, {0-purpose} value '{1-claim-value}' appears twice or more",
         code: "CONJ00113E"
       )
     end

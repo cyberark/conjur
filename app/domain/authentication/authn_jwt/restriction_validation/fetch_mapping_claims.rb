@@ -9,7 +9,7 @@ module Authentication
         dependencies: {
           resource_class: ::Resource,
           fetch_required_secrets: ::Conjur::FetchRequiredSecrets.new,
-          parse_mapped_claims: ::Authentication::AuthnJwt::InputValidation::ParseMappedClaims.new,
+          parse_mapping_claims: ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new,
           logger: Rails.logger
         },
         inputs: %i[authentication_parameters]
@@ -63,7 +63,7 @@ module Authentication
         def mapping_claims
           return @mapping_claims if @mapping_claims
 
-          @mapping_claims ||= @parse_mapped_claims.call(mapped_claims: mapping_claims_secret_value)
+          @mapping_claims ||= @parse_mapping_claims.call(mapping_claims: mapping_claims_secret_value)
           @logger.info(LogMessages::Authentication::AuthnJwt::FetchedMappingClaims.new(@mapping_claims))
 
           @mapping_claims
