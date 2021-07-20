@@ -614,6 +614,21 @@ module LogMessages
         code: "CONJ00121D"
       )
 
+      FetchingMandatoryClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetching mandatory claims...",
+        code: "CONJ00122D"
+      )
+
+      NotConfiguredMandatoryClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Mandatory claims is not configured",
+        code: "CONJ00123D"
+      )
+
+      FetchedMandatoryClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully fetched mandatory claims '{0-mandatory-claims}'",
+        code: "CONJ00124I"
+      )
+
     end
   end
 
