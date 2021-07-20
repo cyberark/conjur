@@ -106,6 +106,42 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
         expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
       end
     end
+
+    context "When claim name starts with spaces" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "   claim"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When claim name ends with spaces" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "claim   "
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When claim name contains spaces" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "claim  name"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
   end
 
   context "Valid claim name value" do
