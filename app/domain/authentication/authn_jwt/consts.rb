@@ -32,5 +32,6 @@ module Authentication
     VALID_CLAIM_NAME_REGEX = /^[a-zA-Z|$|_][a-zA-Z|$|_|0-9]*$/.freeze # starts with letter $ or _ can contains digits
     MANDATORY_CLAIMS_DENY_LIST = [ISS_CLAIM_NAME, EXP_CLAIM_NAME, NBF_CLAIM_NAME, IAT_CLAIM_NAME, JTI_CLAIM_NAME, AUD_CLAIM_NAME].freeze
     CLAIMS_CHARACTER_DELIMITER = ","
+    TUPLE_CHARACTER_DELIMITER = ":"
   end
 end

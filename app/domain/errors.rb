@@ -491,7 +491,7 @@ module Errors
 
       FailedToValidateClaimForbiddenClaimName = ::Util::TrackableErrorClass.new(
         msg: "Failed to validate claim, claim name '{0-claim-name}' is not " \
-             "matching '{2-regex}' regular expression.",
+             "matching '{1-regex}' regular expression.",
         code: "CONJ00104E"
       )
 
@@ -513,6 +513,34 @@ module Errors
       InvalidMandatoryClaimsFormatContainsDuplication = ::Util::TrackableErrorClass.new(
         msg: "mandatory claims value '{0-mandatory-claims-value}' should not contains duplications.",
         code: "CONJ00108E"
+      )
+
+      MappedClaimsMissingInput = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse mapped claims, mapped claims value is empty, or was not found.",
+        code: "CONJ00109E"
+      )
+
+      MappedClaimsBlankOrEmpty = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse mapped claims, one ore more mapping statements is blank or empty " \
+             "'{0-mapped-claims-value}'.",
+        code: "CONJ00110E"
+      )
+
+      MappedClaimInvalidFormat = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse mapped claims, mapped claim value '{0-mapped-claim-value}' is in invalid format."\
+             "The format should be 'annotation_name:claim_name'",
+        code: "CONJ00111E"
+      )
+
+      MappedClaimInvalidClaimFormat = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse mapped claims, one of the claims in mapped claim value '{0-mapped-claim-value}' " \
+             "is in invalid format : {1-claim-verification-error}.",
+        code: "CONJ00112E"
+      )
+
+      MappedClaimDuplicationError = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse mapped claims, {0-purpose} value '{1-claim-value}' appears twice or more",
+        code: "CONJ00113E"
       )
     end
 
