@@ -2,7 +2,7 @@ require 'command_class'
 
 module Authentication
   module AuthnJwt
-    module RestrictionValidators
+    module RestrictionValidation
       # Fetch the mandatory claims from the JWT authenticator policy which enforce 
       # definition of annotations keys on JWT hosts 
       FetchMandatoryClaims = CommandClass.new(

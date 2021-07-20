@@ -643,6 +643,21 @@ module LogMessages
         msg: "Mapping annotation name '{0-annotation-value}' to the claim name '{1-claim-name}'",
         code: "CONJ00127D"
       )
+
+      FetchingMappingClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetching mapping claims...",
+        code: "CONJ00128D"
+      )
+
+      NotConfiguredMappingClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Mapping claims are not configured",
+        code: "CONJ00129D"
+      )
+
+      FetchedMappingClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully fetched mapping claims '{0-mapping-claims}'",
+        code: "CONJ00130I"
+      )
     end
   end
 

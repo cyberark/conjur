@@ -8,7 +8,7 @@ module Authentication
           authenticator_input:,
           logger: Rails.logger,
           authentication_parameters_class: Authentication::AuthnJwt::AuthenticationParameters,
-          restriction_validator_class: Authentication::AuthnJwt::RestrictionValidators::ValidateRestrictionsOneToOne,
+          restriction_validator_class: Authentication::AuthnJwt::RestrictionValidation::ValidateRestrictionsOneToOne,
           validate_and_decode_token_class:  Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken,
           validate_resource_restrictions_class: Authentication::ResourceRestrictions::ValidateResourceRestrictions,
           extract_token_from_credentials: Authentication::AuthnJwt::InputValidation::ExtractTokenFromCredentials.new,
