@@ -10,7 +10,7 @@ module Authentication
     attribute :authenticator_name, ::Types::NonEmptyString
     attribute :service_id, ::Types::NonEmptyString.optional
     attribute :account, ::Types::NonEmptyString
-    attribute :username, ::Types::NonEmptyString.optional
+    attribute :username, ::Types::Any.optional
     attribute :credentials, ::Types::Any.optional
     attribute :client_ip, ::Types::NonEmptyString
     attribute :request, ::Types::Any
