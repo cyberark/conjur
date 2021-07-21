@@ -658,6 +658,16 @@ module LogMessages
         msg: "Successfully fetched mapping claims '{0-mapping-claims}'",
         code: "CONJ00130I"
       )
+
+      ValidatedMandatoryClaimsConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated mandatory claims configuration",
+        code: "CONJ00131D"
+      )
+
+      ValidatedMappingClaimsConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated mapping claims configuration",
+        code: "CONJ00132D"
+      )
     end
   end
 
