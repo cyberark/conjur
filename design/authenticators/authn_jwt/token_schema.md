@@ -70,8 +70,8 @@ User will define the mandatory claims and claims mapping variables in the authen
 
 Two new variables will be added to the authenticator policy:
 
-* host_mandatory_claims
-* mapping_claims
+* mandatory-claims
+* mapping-claims
 
 ```yaml
     - !policy
@@ -80,20 +80,20 @@ Two new variables will be added to the authenticator policy:
     - !webservice
     
     - !variable
-      id: mandatory_claims
+      id: mandatory-claims
       
     - !variable
-      id: mapping_claims
+      id: mapping-claims
 ```
 
 #### Variable Values Example
 
 | Name             | Value                 | Description                                      |
 | ---------------- | --------------------- | ------------------------------------------------ |
-| mandatory_claims | ref, sub              | List of claims as they appear in host annotation |
-| mapping_claims   | branch: ref, job: ref | Mapping between host annotation to JWT claim     |
+| mandatory-claims | ref, sub              | List of claims as they appear in host annotation |
+| mapping-claims   | branch: ref, job: sub | Mapping between host annotation to JWT claim     |
 
-* For any claim mapped, we will add the host annotation to the `mandatory_claims` variable and not the JWT claim name.
+* For any claim mapped, we will add the host annotation to the `mandatory-claims` variable and not the JWT claim name.
 * The values above are examples and they can be any claims.
 * If one of the values of this variables contain these words from deny list authentication request will be denied:
   * iss
@@ -120,7 +120,7 @@ When validate_restrictions is called in JWTVendorConfiguration class the followi
 
 1. The `validate_restrictions` function will call `CreateConstraintsFromPolicy` that create constraints object checking the hosts annotations.
    1. It create instance of `NonEmptyConstraint` to check we have at least one host annotation.
-   2. Will call `LoadMandatoryClaims` command class to load the list of mandatory claims for the `mandatory_claims` variable. This class will create and return `RequiredConstraint` object.
+   2. Will call `LoadMandatoryClaims` command class to load the list of mandatory claims for the `mandatory-claims` variable. This class will create and return `RequiredConstraint` object.
       1. If variable configured but not populated error be thrown
       2. If variiable with invalid value error be thrown
       3. If variable not configured empty list will be returned

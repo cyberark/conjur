@@ -629,13 +629,13 @@ module LogMessages
         code: "CONJ00124I"
       )
 
-      ParsingMappedClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Parsing mapped claims value '{0-mapped-claims}'",
+      ParsingMappingClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Parsing mapping claims value '{0-mapping-claims}'",
         code: "CONJ00125D"
       )
 
-      ParsedMappedClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully parsed mapped claims '{0-mapped-claims-table}'",
+      ParsedMappingClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully parsed mapping claims '{0-mapping-claims-table}'",
         code: "CONJ00126D"
       )
 

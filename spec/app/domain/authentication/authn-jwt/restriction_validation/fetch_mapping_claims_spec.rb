@@ -117,7 +117,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
       end
 
       it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MappedClaimsBlankOrEmpty)
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MappingClaimsBlankOrEmpty)
       end
     end
     
