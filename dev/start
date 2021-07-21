@@ -65,25 +65,35 @@ start_conjur() {
   docker-compose exec -d conjur conjurctl server
 
   echo 'Checking if Conjur server is ready'
-  conjur_isready?
+  wait_for_conjur
 }
 
-function conjur_isready?() {
-  api_key=$(docker-compose exec -T conjur conjurctl \
-  role retrieve-key cucumber:user:admin | tr -d '\r')
+wait_for_conjur() {
+  api_key=$(
+    docker-compose exec -T conjur \
+      conjurctl role retrieve-key cucumber:user:admin | tr -d '\r'
+  )
 
-  for i in {1..5}
-  do
-   sleep=10
-   echo "try login to conjur server:"
-   output=$(docker-compose exec client conjur authn login -u admin -p $api_key | grep "Failed to open TCP connection" | wc -l)
-   if [ $output -eq 0 ]; then
-        echo "conjur server is up and ready"
-        return 0;
-   else
-        echo "conjur not ready yet sleep number $i for $sleep seconds"
-        sleep $sleep
-   fi
+  for i in {1..5}; do
+    sleep=10
+    echo "Try to login to conjur server:"
+
+    if ( 
+      # Use subshell to disable pipefail, since we expect grep failures here.
+      set +o pipefail
+      # We need 2>&1 because some versions docker-compose before 2 output to
+      # stdout, while 2 outputs to stderr.
+      docker-compose exec client \
+        conjur authn login -u admin -p "$api_key" 2>&1 | 
+        grep "Failed to open TCP connection"
+    )
+    then
+      echo "Conjur not ready yet. Sleep number $i for $sleep seconds."
+      sleep $sleep
+    else
+      echo "Conjur is up and ready."
+      return 0;
+    fi
   done
 
   echo "Conjur server failed to come up in time."
