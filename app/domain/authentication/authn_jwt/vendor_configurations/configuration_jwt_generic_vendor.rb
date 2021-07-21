@@ -42,7 +42,8 @@ module Authentication
             role_name: jwt_identity,
             constraints: constraints,
             authentication_request: @restriction_validator_class.new(
-              decoded_token: @authentication_parameters.decoded_token
+              decoded_token: @authentication_parameters.decoded_token,
+              mapped_claims: {}
             )
           )
         end
