@@ -80,8 +80,8 @@ Feature: JWT Authenticator - Token Schema
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/ref: valid
-        authn-jwt/raw/sub: valid
+        authn-jwt/raw/ref: valid-ref
+        authn-jwt/raw/sub: valid-sub
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -93,8 +93,8 @@ Feature: JWT Authenticator - Token Schema
     And I issue a JWT token:
     """
     {
-      "ref":"valid",
-      "sub":"valid",
+      "ref":"valid-ref",
+      "sub":"valid-sub",
       "host":"myapp"
     }
     """
@@ -280,7 +280,7 @@ Feature: JWT Authenticator - Token Schema
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/sub: valid
+        authn-jwt/raw/sub: valid-sub
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -291,8 +291,8 @@ Feature: JWT Authenticator - Token Schema
     And I issue a JWT token:
     """
     {
-      "sub":"valid",
-      "ref":"valid",
+      "sub":"valid-sub",
+      "ref":"valid-ref",
       "host":"myapp"
     }
     """
