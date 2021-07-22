@@ -547,12 +547,12 @@ module LogMessages
 
       CreateJwtRestrictionsValidatorInstance = ::Util::TrackableLogMessageClass.new(
         msg: "Creating JWT restrictions validator (validate_restrictions) instance...",
-        code: "CONJ00108D"
+        code: "CONJ00108I"
       )
 
       CreatedJwtRestrictionsValidatorInstance = ::Util::TrackableLogMessageClass.new(
         msg: "Successfully created JWT restrictions validator (validate_restrictions) instance",
-        code: "CONJ00109D"
+        code: "CONJ00109I"
       )
 
       FetchingIdentityPath = ::Util::TrackableLogMessageClass.new(
@@ -659,14 +659,34 @@ module LogMessages
         code: "CONJ00130I"
       )
 
+      CreateContraintsFromPolicy = ::Util::TrackableLogMessageClass.new(
+        msg: "Creating constraints from policy...",
+        code: "CONJ00131I"
+      )
+
+      CreatedConstraintsFromPolicy = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully created constraints from policy",
+        code: "CONJ00132I"
+      )
+
+      ConvertingClaimAccordingToMapping = ::Util::TrackableLogMessageClass.new(
+        msg: "Converting claim '{0-claim-name}' to '{1-annotation-name}'...",
+        code: "CONJ00133D"
+      )
+
+      MandatoryClaimsToBeChecked = ::Util::TrackableLogMessageClass.new(
+        msg: "Mandatory claims to be checking in host are '{0-mandatory-claims}'",
+        code: "CONJ00134I"
+      )
+
       ValidatedMandatoryClaimsConfiguration = ::Util::TrackableLogMessageClass.new(
         msg: "Successfully validated mandatory claims configuration",
-        code: "CONJ00131D"
+        code: "CONJ00135D"
       )
 
       ValidatedMappingClaimsConfiguration = ::Util::TrackableLogMessageClass.new(
         msg: "Successfully validated mapping claims configuration",
-        code: "CONJ00132D"
+        code: "CONJ00136D"
       )
 
       ClaimMapUsage = ::Util::TrackableLogMessageClass.new(

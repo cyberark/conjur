@@ -6,8 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-### Changed
-- Conjur now returns 401 (instead of 500) for authentication requests with an empty username. [cyberark/conjur#2381](https://github.com/cyberark/conjur/issues/2318)
+### Added
+- Add mandatory claims support to JWT generic vendor configuration. ONYX-10520
 
 ### Security
 - Upgraded addressable in ./Gemfile.lock and ./docs/Gemfile.lock to 2.8.0 to resolve

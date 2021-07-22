@@ -2,8 +2,9 @@ module Authentication
   module AuthnJwt
     module VendorConfigurations
       # Mock JWTConfiguration class to use it to develop other part in the jwt authenticator
-      class ConfigurationJWTGenericVendor < ConfigurationInterface
-
+      class ConfigurationJWTGenericVendor
+        # These are dependencies in class integrating different parts of the jwt authentication
+        # :reek:CountKeywordArgs
         def initialize(
           authenticator_input:,
           logger: Rails.logger,
@@ -12,8 +13,8 @@ module Authentication
           validate_and_decode_token_class:  Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken,
           validate_resource_restrictions_class: Authentication::ResourceRestrictions::ValidateResourceRestrictions,
           extract_token_from_credentials: Authentication::AuthnJwt::InputValidation::ExtractTokenFromCredentials.new,
-          create_identity_provider: Authentication::AuthnJwt::IdentityProviders::CreateIdentityProvider.new
-
+          create_identity_provider: Authentication::AuthnJwt::IdentityProviders::CreateIdentityProvider.new,
+          create_constraints: Authentication::AuthnJwt::RestrictionValidation::CreateConstrains.new
         )
           @logger = logger
           @authentication_parameters_class = authentication_parameters_class
@@ -22,6 +23,7 @@ module Authentication
           @validate_resource_restrictions_class = validate_resource_restrictions_class
           @extract_token_from_credentials = extract_token_from_credentials
           @create_identity_provider = create_identity_provider
+          @create_constraints = create_constraints
 
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreatingAuthenticationParametersObject.new)
           @authentication_parameters = @authentication_parameters_class.new(
@@ -130,8 +132,8 @@ module Authentication
         end
 
         def constraints
-          @constraints ||= Authentication::Constraints::MultipleConstraint.new(
-            Authentication::Constraints::NotEmptyConstraint.new
+          @constraints ||= @create_constraints.call(
+            authentication_parameters: @authentication_parameters
           )
         end
 
