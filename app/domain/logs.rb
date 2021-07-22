@@ -668,6 +668,11 @@ module LogMessages
         msg: "Successfully validated mapping claims configuration",
         code: "CONJ00132D"
       )
+
+      ClaimMapUsage = ::Util::TrackableLogMessageClass.new(
+        msg: "Checking restriction '{0-annotation-value}', fetching value from '{1-claim-name}' claim...",
+        code: "CONJ00133D"
+      )
     end
   end
 
