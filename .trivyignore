@@ -1,3 +1,6 @@
+# Temporarily ignored while CVE is analyzed and score determined. Andy to revisit.
+CVE-2021-33910
+
 # NULL pointer deref. OpenSSL 1.0.2 is not impacted
 CVE-2021-3449
 
