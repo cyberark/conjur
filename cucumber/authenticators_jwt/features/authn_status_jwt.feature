@@ -1,6 +1,6 @@
 Feature: JWT Authenticator - Status Check
 
-  Scenario: A valid JWT status request
+  Scenario: A "valid JWT status request
     Given I load a policy:
     """
     - !policy

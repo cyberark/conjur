@@ -1,4 +1,4 @@
-Feature: JWT Authenticator - Input Validation
+Feature: JWT Authenticator - Input "Validation
 
   Background:
     Given I initialize JWKS endpoint with file "myJWKs.json"
