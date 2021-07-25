@@ -1,5 +1,7 @@
 Feature: JWT Authenticator - Validate And Decode
 
+  Tests checking tokens signed with wrong keys.
+
   Background:
     Given I load a policy:
     """
@@ -36,7 +38,7 @@ Feature: JWT Authenticator - Validate And Decode
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     And I initialize JWKS endpoint with file "myJWKs.json"
 
-  Scenario: Signature error, kid not found
+  Scenario: ONYX-8732: Signature error, kid not found
     Given I issue unknown kid JWT token:
     """
     {
@@ -53,7 +55,7 @@ Feature: JWT Authenticator - Validate And Decode
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::DecodeError: Could not find public key for kid unknown_kid>')>
     """
 
-  Scenario: Signature error ,sign on a valid token header and content with your own key
+  Scenario: ONYX-8733: Signature error ,sign on a valid token header and content with your own key
     Given I issue another key JWT token:
     """
     {
