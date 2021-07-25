@@ -99,10 +99,10 @@ Feature: JWT Authenticator - Validate restrictions
     - !host
       id: myapp
       annotations:
-        authn-jwt/project-id: myproject
-        authn-jwt/aud: myaud
-        authn-jwt/raw/project-id: myproject
-        authn-jwt/raw/aud: wrong-aud
+        authn-jwt/project-id: right-project-id
+        authn-jwt/ref: right-ref
+        authn-jwt/raw/project-id: right-project-id
+        authn-jwt/raw/ref: wrong-ref
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -112,8 +112,8 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
-      "project-id": "myproject",
-      "aud": "myaud"
+      "project-id": "right-project-id",
+      "ref": "right-ref"
     }
     """
     And I save my place in the log file
@@ -121,7 +121,7 @@ Feature: JWT Authenticator - Validate restrictions
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00049E Resource restriction 'aud' does not match with the corresponding value in the request
+    CONJ00049E Resource restriction 'ref' does not match with the corresponding value in the request
     """
 
   Scenario: Host without annotations, 401 Error
@@ -139,8 +139,8 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
-      "project-id": "myproject",
-      "aud": "myaud"
+      "project-id": "valid-project-id",
+      "ref": "valid-ref"
     }
     """
     And I save my place in the log file
@@ -158,10 +158,10 @@ Feature: JWT Authenticator - Validate restrictions
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/sub: invalid
-        authn-jwt/raw/project-path: invalid
-        authn-jwt/raw/project-id: myproject
-        authn-jwt/raw/aud: invalid
+        authn-jwt/raw/sub: invalid-sub
+        authn-jwt/raw/project-path: invalid-project-path
+        authn-jwt/raw/project-id: valid-project-id
+        authn-jwt/raw/ref: invalid-ref
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -171,10 +171,10 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
-      "sub": "sub",
-      "project-path":"path",
-      "project-id": "myproject",
-      "aud": "myaud"
+      "sub": "valid-sub",
+      "project-path":"valid-project-path",
+      "project-id": "valid-project-id",
+      "ref": "valid-ref"
     }
     """
     And I save my place in the log file
@@ -192,9 +192,9 @@ Feature: JWT Authenticator - Validate restrictions
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/sub: invalid
-        authn-jwt/raw/project-path: invalid
-        authn-jwt/raw/aud: invalid
+        authn-jwt/raw/sub: invalid-sub
+        authn-jwt/raw/project-path: invalid-project-path
+        authn-jwt/raw/ref: invalid-ref
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -204,9 +204,9 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
-      "sub": "sub",
-      "project-path":"path",
-      "aud": "myaud"
+      "sub": "valid-sub",
+      "project-path":"valid-project-path",
+      "ref": "valid-ref"
     }
     """
     And I save my place in the log file
@@ -279,12 +279,12 @@ Feature: JWT Authenticator - Validate restrictions
       id: myapp
       annotations:
         authn-jwt/raw: invalid
-        authn-jwt/raw/sub: valid
+        authn-jwt/raw/sub: valid-sub
         authn-jwt: invalid
-        authn-jwt/raw/namespace-id: valid
-        authn-jwt/raw/sub/sub: invalid
-        authn-jwt/raw/project-path: valid
-        authn-jwt/raw2/sub: invalid
+        authn-jwt/raw/namespace-id: valid-namespace-id
+        authn-jwt/raw/sub/sub: invalid-sub
+        authn-jwt/raw/project-path: valid-project-path
+        authn-jwt/raw2/sub: invalid-sub
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -295,10 +295,10 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
-      "project-id": "myproject",
-      "sub": "valid",
-      "namespace-id": "valid",
-      "project-path": "valid"
+      "project-id": "valid-project-id",
+      "sub": "valid-sub",
+      "namespace-id": "valid-namespace-id",
+      "project-path": "valid-project-path"
     }
     """
     And I have a "variable" resource called "test-variable"
