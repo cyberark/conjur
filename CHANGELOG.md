@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - Add mandatory claims support to JWT generic vendor configuration. ONYX-10520
+- Add claims mapping support to JWT generic vendor configuration. ONYX-10850
 
 ### Security
 - Bump `cyberark/ubi-ruby-fips` from 1.0.3 to 1.0.4 to address CVE-2021-33910.
