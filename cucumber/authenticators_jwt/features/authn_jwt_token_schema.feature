@@ -35,11 +35,7 @@ Feature: JWT Authenticator - Token Schema
   Scenario: ONYX-10471 - Mandatory Claims Without Claims Mapping. Single mandatory claim - 200 OK
     Given I extend the policy with:
     """
-    - !policy
-      id: conjur/authn-jwt/raw
-      body:
-      - !variable
-        id: mandatory-claims
+    - !variable conjur/authn-jwt/raw/mandatory-claims
 
     - !host
       id: myapp
@@ -72,11 +68,7 @@ Feature: JWT Authenticator - Token Schema
   Scenario: ONYX-10471 - Mandatory Claims Without Claims Mapping. Two mandatory claims - 200 OK
     Given I extend the policy with:
     """
-    - !policy
-      id: conjur/authn-jwt/raw
-      body:
-      - !variable
-        id: mandatory-claims
+    - !variable conjur/authn-jwt/raw/mandatory-claims
 
     - !host
       id: myapp
@@ -111,11 +103,7 @@ Feature: JWT Authenticator - Token Schema
   Scenario: ONYX-10759 - Mandatory Claims Without Claims Mapping. Single mandatory claim and wrong annotation - 401 Error
     Given I extend the policy with:
     """
-    - !policy
-      id: conjur/authn-jwt/raw
-      body:
-      - !variable
-        id: mandatory-claims
+    - !variable conjur/authn-jwt/raw/mandatory-claims
 
     - !host
       id: myapp
@@ -145,11 +133,7 @@ Feature: JWT Authenticator - Token Schema
   Scenario: ONYX-10760 - Mandatory Claims Without Claims Mapping. Single mandatory claim but not in token - 401 Error
     Given I extend the policy with:
     """
-    - !policy
-      id: conjur/authn-jwt/raw
-      body:
-      - !variable
-        id: mandatory-claims
+    - !variable conjur/authn-jwt/raw/mandatory-claims
 
     - !host
       id: myapp
@@ -178,11 +162,7 @@ Feature: JWT Authenticator - Token Schema
   Scenario Outline: ONYX-10470 - Standard claim in mandatory claims - 401 Error
     Given I extend the policy with:
     """
-    - !policy
-      id: conjur/authn-jwt/raw
-      body:
-      - !variable
-        id: mandatory-claims
+    - !variable conjur/authn-jwt/raw/mandatory-claims
 
     - !host
       id: myapp
@@ -245,11 +225,7 @@ Feature: JWT Authenticator - Token Schema
   Scenario: ONYX-10860 - Mandatory claims configured but not populated - 401 Error
     Given I extend the policy with:
     """
-    - !policy
-      id: conjur/authn-jwt/raw
-      body:
-      - !variable
-        id: mandatory-claims
+    - !variable conjur/authn-jwt/raw/mandatory-claims
 
     - !host
       id: myapp
@@ -308,11 +284,7 @@ Feature: JWT Authenticator - Token Schema
     """
     When I extend the policy with:
     """
-    - !policy
-      id: conjur/authn-jwt/raw
-      body:
-      - !variable
-        id: mandatory-claims
+    - !variable conjur/authn-jwt/raw/mandatory-claims
     """
     And I successfully set authn-jwt "mandatory-claims" variable to value "ref"
     When I authenticate via authn-jwt with the JWT token
@@ -323,11 +295,7 @@ Feature: JWT Authenticator - Token Schema
     """
     When I replace the "root" policy with:
     """
-    - !policy
-      id: conjur/authn-jwt/raw
-      body:
-      - !variable
-        id: mandatory-claims
+    - !variable conjur/authn-jwt/raw/mandatory-claims
 
     - !host
       id: myapp
@@ -408,3 +376,95 @@ Feature: JWT Authenticator - Token Schema
     """
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
+
+  @skip
+  Scenario: ONYX-10889 Complex Case - Adding Mapping after host configuration
+    Given I extend the policy with:
+    """
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/ref: valid-branch
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I issue a JWT token:
+    """
+    {
+      "host":"myapp",
+      "ref": "valid-branch"
+    }
+    """
+    And I save my place in the audit log file
+    When I authenticate via authn-jwt with the JWT token
+    Then host "myapp" has been authorized by Conjur
+    And The following appears in the log after my savepoint:
+    """
+    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    """
+    When I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/mapping-claims
+    """
+    And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00057E Role does not have the required constraints: '["ref"]'>
+    """
+    When I replace the "root" policy with:
+    """
+    - !variable conjur/authn-jwt/raw/mapping-claims
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/branch: valid-branch
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    When I authenticate via authn-jwt with the JWT token
+    Then host "myapp" has been authorized by Conjur
+    And The following appears in the log after my savepoint:
+    """
+    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    """
+
+  @sanity
+  Scenario: ONYX-10705: Mandatory Claims and Mappings exist and host annotation are correct
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/mapping-claims
+    - !variable conjur/authn-jwt/raw/mandatory-claims
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/branch: valid-branch
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
+    And I successfully set authn-jwt "mandatory-claims" variable to value "ref"
+    And I issue a JWT token:
+    """
+    {
+      "host":"myapp",
+      "ref": "valid-branch"
+    }
+    """
+    And I save my place in the audit log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 200
+    And The following appears in the log after my savepoint:
+    """
+    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    """
+
+
