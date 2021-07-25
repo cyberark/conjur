@@ -31,6 +31,7 @@ Feature: JWT Authenticator - Token Schema
     And I have a "variable" resource called "test-variable"
     And I successfully set authn-jwt "token-app-property" variable to value "host"
 
+  @sanity
   Scenario: ONYX-10471 - Mandatory Claims Without Claims Mapping. Single mandatory claim - 200 OK
     Given I extend the policy with:
     """
@@ -274,6 +275,7 @@ Feature: JWT Authenticator - Token Schema
      CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/mandatory-claims
     """
 
+  @sanity
   Scenario: ONYX-10891 - Complex Case - Adding Mandatory Claim after host configuration
     Given I extend the policy with:
     """
@@ -341,6 +343,7 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
+  @sanity
   Scenario: ONYX-10472 Unrelated mapping
     Given I extend the policy with:
     """
@@ -373,6 +376,7 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
+  @sanity
   Scenario: ONYX-10473 Mapping claims with subsequent annotation
     Given I extend the policy with:
     """

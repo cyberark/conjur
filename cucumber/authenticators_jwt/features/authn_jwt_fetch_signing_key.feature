@@ -3,7 +3,7 @@ Feature: JWT Authenticator - Fetch signing key
   In this feature we define a JWT authenticator with various signing key
   configurations.
 
-  Scenario: provider-uri is configured with valid value
+  Scenario: ONYX-8702: provider-uri is configured with valid value
     Given I load a policy:
     """
     - !policy
@@ -47,7 +47,7 @@ Feature: JWT Authenticator - Fetch signing key
     When I authenticate via authn-jwt with the ID token
     Then host "alice" has been authorized by Conjur
 
-  Scenario: provider uri configured with bad value
+  Scenario: ONYX-8704: provider uri configured with bad value
     Given I initialize JWKS endpoint with file "myJWKs.json"
     And I load a policy:
     """
@@ -119,7 +119,7 @@ Feature: JWT Authenticator - Fetch signing key
     CONJ00011E Failed to discover Identity Provider
     """
 
-  Scenario: jwks uri configured with valid value
+  Scenario: ONYX-8703: jwks uri configured with correct value
     Given I initialize JWKS endpoint with file "myJWKs.json"
     And I load a policy:
     """
@@ -192,7 +192,7 @@ Feature: JWT Authenticator - Fetch signing key
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  Scenario: jwks uri configured with bad value
+  Scenario: ONYX-8705: jwks uri configured with bad value
     Given I initialize JWKS endpoint with file "myJWKs.json"
     And I load a policy:
     """
@@ -264,7 +264,7 @@ Feature: JWT Authenticator - Fetch signing key
     CONJ00087E Failed to fetch JWKS from 'unknown-host.com'
     """
 
-  Scenario: provider uri configured dynamically changed to jwks uri
+  Scenario: ONYX-8708: provider uri configured dynamically changed to jwks uri
     Given I initialize JWKS endpoint with file "myJWKs.json"
     And I load a policy:
     """
@@ -446,7 +446,8 @@ Feature: JWT Authenticator - Fetch signing key
     And I authenticate via authn-jwt with the ID token
     Then host "alice" has been authorized by Conjur
 
-  Scenario: provider-uri dynamically changed, 502 ERROR resolves to 200 OK
+  @sanity
+  Scenario: ONYX-8709: provider-uri dynamically changed, 502 ERROR resolves to 200 OK
     Given I initialize JWKS endpoint with file "myJWKs.json"
     And I load a policy:
     """
@@ -509,7 +510,8 @@ Feature: JWT Authenticator - Fetch signing key
     When I authenticate via authn-jwt with the ID token
     Then host "alice" has been authorized by Conjur
 
-  Scenario: jwks-uri dynamically changed, 401 ERROR resolves 200 OK
+  @sanity
+  Scenario: ONYX-8710: jwks-uri dynamically changed, 401 ERROR resolves 200 OK
     Given I initialize JWKS endpoint with file "myJWKs.json"
     And I load a policy:
     """

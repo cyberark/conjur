@@ -1,4 +1,7 @@
 Feature: JWT Authenticator - Validate restrictions
+
+  Tests to check that host annotations are validated correctly in jwt authenticator. Focusing on checking that only the vendor related annotations are being checked.
+
   Background:
     Given I initialize JWKS endpoint with file "myJWKs.json"
     And I load a policy:
@@ -26,7 +29,7 @@ Feature: JWT Authenticator - Validate restrictions
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
 
-  Scenario: Generals annotations with valid values, one annotation with valid service and valid value, one annotation with invalid service and valid value, 200 OK
+  Scenario: ONYX-9069: Generals annotations with valid values, one annotation with valid service and valid value, one annotation with invalid service and valid value, 200 OK
     Given I have a "variable" resource called "test-variable"
     And I extend the policy with:
     """
@@ -62,7 +65,7 @@ Feature: JWT Authenticator - Validate restrictions
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  Scenario: General annotation and without service specific annotations, 401 Error
+  Scenario: ONYX-9112: General annotation and without service specific annotations, 401 Error
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     Given I extend the policy with:
     """
@@ -92,7 +95,7 @@ Feature: JWT Authenticator - Validate restrictions
     CONJ00099E Role must have at least one relevant annotation
     """
 
-  Scenario: General annotations with valid values, annotation with correct service and valid value and annotation with correct service and wrong value, 401 Error
+  Scenario: ONYX-9070: General annotations with valid values, annotation with correct service and valid value and annotation with correct service and wrong value, 401 Error
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     Given I extend the policy with:
     """
@@ -124,7 +127,7 @@ Feature: JWT Authenticator - Validate restrictions
     CONJ00049E Resource restriction 'ref' does not match with the corresponding value in the request
     """
 
-  Scenario: Host without annotations, 401 Error
+  Scenario: ONYX-9068: Host without annotations, 401 Error
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     Given I extend the policy with:
     """
@@ -151,7 +154,7 @@ Feature: JWT Authenticator - Validate restrictions
     CONJ00099E Role must have at least one relevant annotation
     """
 
-  Scenario: Validate multiple annotations with incorrect values but one, 401 Error
+  Scenario: ONYX-8737: Validate multiple annotations with incorrect values but one, 401 Error
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     Given I extend the policy with:
     """
@@ -185,7 +188,7 @@ Feature: JWT Authenticator - Validate restrictions
     CONJ00049E Resource restriction
     """
 
-  Scenario: Validate multiple annotations with incorrect, 401 Error
+  Scenario: ONYX-8736: Validate multiple annotations with incorrect, 401 Error
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     Given I extend the policy with:
     """
@@ -217,7 +220,7 @@ Feature: JWT Authenticator - Validate restrictions
     CONJ00049E Resource restriction
     """
 
-  Scenario: Non existing field annotation, 401 Error
+  Scenario: ONYX-9113: Non existing field annotation, 401 Error
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     Given I extend the policy with:
     """
@@ -244,7 +247,8 @@ Feature: JWT Authenticator - Validate restrictions
     CONJ00084E Claim 'non-existing-field' is missing from JWT token.
     """
 
-  Scenario: Annotation with empty value
+  @sanity
+  Scenario: ONYX-8734: Annotation with empty value
     Given I extend the policy with:
     """
     - !host
@@ -272,7 +276,8 @@ Feature: JWT Authenticator - Validate restrictions
     CONJ00100E Annotation, 'custom-claim', is empty
     """
 
-  Scenario: Ignore invalid annotations
+  @sanity
+  Scenario: ONYX-8735: Ignore invalid annotations
     Given I extend the policy with:
     """
     - !host

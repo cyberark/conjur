@@ -1,4 +1,9 @@
 Feature: JWT Authenticator - Fetch identity from decoded token
+
+  Tests checking the fetch of identity from JWT token using these configurations from policy:
+  * 'token-app-property' - define claim in JWT token that holds the identity
+  * 'identity-path' - prefix of the host connecting with JWT authenticator
+
   Background:
     Given I initialize JWKS endpoint with file "myJWKs.json"
     And I load a policy:
@@ -53,7 +58,8 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
 
-  Scenario: A valid JWT token with identity in the token
+  @sanity
+  Scenario: ONYX-8820: A valid JWT token with identity in the token
     Given I have a "variable" resource called "test-variable"
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     And I permit host "myapp" to "execute" it
@@ -74,7 +80,8 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  Scenario: User as Token identity is not supported, error
+  @sanity
+  Scenario: ONYX-9522: User as Token identity is not supported, error
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     Given I extend the policy with:
     """
@@ -102,23 +109,23 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     CONJ00007E 'host/myapp2' not found
     """
 
-  Scenario: Token identity configuration nots matching any claim, error
+  Scenario: ONYX-8825: Token identity configuration not matching any claim, error
     Given I issue a JWT token:
     """
     {
       "project-id": "myproject"
     }
     """
-    And I successfully set authn-jwt "token-app-property" variable to value "host_cliam"
+    And I successfully set authn-jwt "token-app-property" variable to value "host_claim"
     And I save my place in the log file
     When I authenticate via authn-jwt with the JWT token
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00081E 'host_cliam' field not found in the token
+    CONJ00081E 'host_claim' field not found in the token
     """
 
-  Scenario: Token identity configuration with empty secret, no identity in URL, error
+  Scenario: ONYX-8824: Token identity configuration with empty secret, no identity in URL, error
     Given I issue a JWT token:
     """
     {
@@ -133,7 +140,8 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/token-app-property
     """
 
-  Scenario: Host with delimiter as Token identity, identity-path configured, 200 ok
+  @sanity
+  Scenario: ONYX-9524: Host with delimiter as Token identity, identity-path configured, 200 ok
     Given I have a "variable" resource called "test-variable"
     And I successfully set authn-jwt "token-app-property" variable to value "host_claim"
     And I extend the policy with:
@@ -163,7 +171,8 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     cucumber:host:some_policy/sub_policy/host_test_from_token successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  Scenario: Host without delimiter as Token identity, identity-path configured, 200 ok
+  @sanity
+  Scenario: ONYX-9523: Host without delimiter as Token identity, identity-path configured, 200 ok
     Given I have a "variable" resource called "test-variable"
     And I successfully set authn-jwt "token-app-property" variable to value "host_claim"
     And I extend the policy with:
@@ -192,4 +201,3 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     """
     cucumber:host:some_policy/host_test_from_token successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
-
