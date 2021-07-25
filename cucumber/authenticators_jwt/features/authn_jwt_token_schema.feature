@@ -340,3 +340,67 @@ Feature: JWT Authenticator - Token Schema
     """
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
+
+  Scenario: ONYX-10472 Unrelated mapping
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/mapping-claims
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/project-id: valid-project
+        authn-jwt/raw/namespace-id: valid-namespace
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
+    And I issue a JWT token:
+    """
+    {
+      "host":"myapp",
+      "project-id": "valid-project",
+      "namespace-id": "valid-namespace"
+    }
+    """
+    And I save my place in the audit log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 200
+    And The following appears in the log after my savepoint:
+    """
+    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    """
+
+  Scenario: ONYX-10473 Mapping claims with subsequent annotation
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/mapping-claims
+    
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/project-id: valid-project
+        authn-jwt/raw/branch: valid-branch
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
+    And I issue a JWT token:
+    """
+    {
+      "host":"myapp",
+      "project-id": "valid-project",
+      "ref": "valid-branch"
+    }
+    """
+    And I save my place in the audit log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 200
+    And The following appears in the log after my savepoint:
+    """
+    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    """

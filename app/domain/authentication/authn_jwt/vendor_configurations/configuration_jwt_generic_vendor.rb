@@ -14,7 +14,8 @@ module Authentication
           validate_resource_restrictions_class: Authentication::ResourceRestrictions::ValidateResourceRestrictions,
           extract_token_from_credentials: Authentication::AuthnJwt::InputValidation::ExtractTokenFromCredentials.new,
           create_identity_provider: Authentication::AuthnJwt::IdentityProviders::CreateIdentityProvider.new,
-          create_constraints: Authentication::AuthnJwt::RestrictionValidation::CreateConstrains.new
+          create_constraints: Authentication::AuthnJwt::RestrictionValidation::CreateConstrains.new,
+          fetch_mapping_claims: Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new
         )
           @logger = logger
           @authentication_parameters_class = authentication_parameters_class
@@ -24,6 +25,7 @@ module Authentication
           @extract_token_from_credentials = extract_token_from_credentials
           @create_identity_provider = create_identity_provider
           @create_constraints = create_constraints
+          @fetch_mapping_claims = fetch_mapping_claims
 
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreatingAuthenticationParametersObject.new)
           @authentication_parameters = @authentication_parameters_class.new(
@@ -45,7 +47,7 @@ module Authentication
             constraints: constraints,
             authentication_request: @restriction_validator_class.new(
               decoded_token: @authentication_parameters.decoded_token,
-              mapped_claims: {}
+              mapped_claims: mapped_claims
             )
           )
         end
@@ -63,6 +65,10 @@ module Authentication
           @extract_token_from_credentials.call(
             credentials: authenticator_input.request.body.read
           )
+        end
+
+        def mapped_claims
+          @mapped_claims ||= @fetch_mapping_claims.call(authentication_parameters: @authentication_parameters)
         end
 
         def jwt_identity_from_request
