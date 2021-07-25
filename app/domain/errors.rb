@@ -434,8 +434,8 @@ module Errors
         code: "CONJ00090E"
       )
 
-      MissingMandatoryClaim = ::Util::TrackableErrorClass.new(
-        msg: "Failed to validate token, mandatory claim '{0-claim}' is missing.",
+      MissingEnforcedClaim = ::Util::TrackableErrorClass.new(
+        msg: "Failed to validate token, enforced claim '{0-claim}' is missing.",
         code: "CONJ00091E"
       )
 
@@ -499,19 +499,19 @@ module Errors
         msg: "Failed to validate claim, claim name '{0-claim-name}' is in denylist '{1-deny-list}'",
         code: "CONJ00105E"
       )
-      FailedToParseMandatoryClaimsMissingInput = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mandatory claims, mandatory claims value is empty, or was not found.",
+      FailedToParseEnforcedClaimsMissingInput = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse enforced claims, enforced claims value is empty, or was not found.",
         code: "CONJ00106E"
       )
 
-      InvalidMandatoryClaimsFormat = ::Util::TrackableErrorClass.new(
-        msg: "mandatory claims value '{0-mandatory-claims-value}' is in invalid format. " \
+      InvalidEnforcedClaimsFormat = ::Util::TrackableErrorClass.new(
+        msg: "enforced claims value '{0-enforced-claims-value}' is in invalid format. " \
              "The format should be claim names separated with comma.",
         code: "CONJ00107E"
       )
 
-      InvalidMandatoryClaimsFormatContainsDuplication = ::Util::TrackableErrorClass.new(
-        msg: "mandatory claims value '{0-mandatory-claims-value}' should not contains duplications.",
+      InvalidEnforcedClaimsFormatContainsDuplication = ::Util::TrackableErrorClass.new(
+        msg: "enforced claims value '{0-enforced-claims-value}' should not contains duplications.",
         code: "CONJ00108E"
       )
 

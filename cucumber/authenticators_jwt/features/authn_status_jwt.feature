@@ -770,7 +770,7 @@ Feature: JWT Authenticator - Status Check
     And the HTTP response content type is "application/json"
     And the authenticator status check succeeds
 
-  Scenario: ONYX-10875: Status works fine with mandatory claims and mapping
+  Scenario: ONYX-10875: Status works fine with enforced claims and mapping
     Given I load a policy:
     """
     - !policy
@@ -792,7 +792,7 @@ Feature: JWT Authenticator - Status Check
         id: token-app-property
 
       - !variable
-        id: mandatory-claims
+        id: enforced-claims
 
       - !variable
         id: mapping-claims
@@ -830,7 +830,7 @@ Feature: JWT Authenticator - Status Check
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
     And I successfully set authn-jwt "token-app-property" variable to value "user"
     And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
-    And I successfully set authn-jwt "mandatory-claims" variable to value "ref"
+    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"

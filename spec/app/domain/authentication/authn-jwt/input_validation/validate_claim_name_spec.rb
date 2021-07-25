@@ -222,7 +222,7 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
     context "When claim name value is 'exp'" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
-          deny_claims_list_value: ::Authentication::AuthnJwt::MANDATORY_CLAIMS_DENY_LIST
+          deny_claims_list_value: ::Authentication::AuthnJwt::CLAIMS_DENY_LIST
         ).call(
           claim_name: "exp"
         )
@@ -236,7 +236,7 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
     context "When claim name value is 'iat'" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
-          deny_claims_list_value: ::Authentication::AuthnJwt::MANDATORY_CLAIMS_DENY_LIST
+          deny_claims_list_value: ::Authentication::AuthnJwt::CLAIMS_DENY_LIST
         ).call(
           claim_name: "iat"
         )
@@ -250,7 +250,7 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
     context "When claim name value is 'nbf'" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
-          deny_claims_list_value: ::Authentication::AuthnJwt::MANDATORY_CLAIMS_DENY_LIST
+          deny_claims_list_value: ::Authentication::AuthnJwt::CLAIMS_DENY_LIST
         ).call(
           claim_name: "nbf"
         )
@@ -264,7 +264,7 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
     context "When claim name value is 'jti'" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
-          deny_claims_list_value: ::Authentication::AuthnJwt::MANDATORY_CLAIMS_DENY_LIST
+          deny_claims_list_value: ::Authentication::AuthnJwt::CLAIMS_DENY_LIST
         ).call(
           claim_name: "jti"
         )
@@ -278,7 +278,7 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
     context "When claim name value is 'aud'" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
-          deny_claims_list_value: ::Authentication::AuthnJwt::MANDATORY_CLAIMS_DENY_LIST
+          deny_claims_list_value: ::Authentication::AuthnJwt::CLAIMS_DENY_LIST
         ).call(
           claim_name: "aud"
         )
@@ -292,7 +292,7 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
     context "When claim name value is 'iss'" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
-          deny_claims_list_value: ::Authentication::AuthnJwt::MANDATORY_CLAIMS_DENY_LIST
+          deny_claims_list_value: ::Authentication::AuthnJwt::CLAIMS_DENY_LIST
         ).call(
           claim_name: "iss"
         )
@@ -308,7 +308,7 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
     context "When claim name value is 'sub'" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
-          deny_claims_list_value: ::Authentication::AuthnJwt::MANDATORY_CLAIMS_DENY_LIST
+          deny_claims_list_value: ::Authentication::AuthnJwt::CLAIMS_DENY_LIST
         ).call(
           claim_name: "sub"
         )
@@ -322,7 +322,7 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
     context "When claim name value is substring of forbidden claim 'exp1'" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
-          deny_claims_list_value: ::Authentication::AuthnJwt::MANDATORY_CLAIMS_DENY_LIST
+          deny_claims_list_value: ::Authentication::AuthnJwt::CLAIMS_DENY_LIST
         ).call(
           claim_name: "exp1"
         )
@@ -336,7 +336,7 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
     context "When claim name value is substring of forbidden claim '$exp'" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
-          deny_claims_list_value: ::Authentication::AuthnJwt::MANDATORY_CLAIMS_DENY_LIST
+          deny_claims_list_value: ::Authentication::AuthnJwt::CLAIMS_DENY_LIST
         ).call(
           claim_name: "$exp"
         )

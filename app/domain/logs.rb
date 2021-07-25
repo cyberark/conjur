@@ -351,12 +351,12 @@ module LogMessages
       )
 
       AddingJwtClaimToValidate = ::Util::TrackableLogMessageClass.new(
-        msg: "Adding JWT claim, '{0-claim-name}', to list of mandatory claims to be validated...",
+        msg: "Adding JWT claim, '{0-claim-name}', to list of enforced claims to be validated...",
         code: "CONJ00069D"
       )
 
       CheckingJwtClaimToValidate = ::Util::TrackableLogMessageClass.new(
-        msg: "Checking if JWT claim '{0-claim-name}' is mandatory to validate...",
+        msg: "Checking if JWT claim '{0-claim-name}' is enforced to validate...",
         code: "CONJ00070D"
       )
 
@@ -604,28 +604,28 @@ module LogMessages
         msg: "Successfully validated claim name '{0-claim-name}'",
         code: "CONJ00119D"
       )
-      ParsingMandatoryClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Parsing mandatory claims value '{0-mandatory-claims}'",
+      ParsingEnforcedClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Parsing enforced claims value '{0-enforced-claims}'",
         code: "CONJ00120D"
       )
 
-      ParsedMandatoryClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully parsed mandatory claims '{0-mandatory-claims-list}'",
+      ParsedEnforcedClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully parsed enforced claims '{0-enforced-claims-list}'",
         code: "CONJ00121D"
       )
 
-      FetchingMandatoryClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetching mandatory claims...",
+      FetchingEnforcedClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetching enforced claims...",
         code: "CONJ00122D"
       )
 
-      NotConfiguredMandatoryClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Mandatory claims is not configured",
+      NotConfiguredEnforcedClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Enforced claims is not configured",
         code: "CONJ00123D"
       )
 
-      FetchedMandatoryClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully fetched mandatory claims '{0-mandatory-claims}'",
+      FetchedEnforcedClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully fetched enforced claims '{0-enforced-claims}'",
         code: "CONJ00124I"
       )
 
@@ -674,13 +674,13 @@ module LogMessages
         code: "CONJ00133D"
       )
 
-      MandatoryClaimsToBeChecked = ::Util::TrackableLogMessageClass.new(
-        msg: "Mandatory claims to be checking in host are '{0-mandatory-claims}'",
+      EnforcedClaimsToBeChecked = ::Util::TrackableLogMessageClass.new(
+        msg: "Enforced claims to be checking in host are '{0-enforced-claims}'",
         code: "CONJ00134I"
       )
 
-      ValidatedMandatoryClaimsConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully validated mandatory claims configuration",
+      ValidatedEnforcedClaimsConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated enforced claims configuration",
         code: "CONJ00135D"
       )
 

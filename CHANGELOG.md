@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Added
-- Add mandatory claims support to JWT generic vendor configuration. ONYX-10520
+- Add enforced claims support to JWT generic vendor configuration. ONYX-10520
 - Add claims mapping support to JWT generic vendor configuration. ONYX-10850
 
 ### Security
