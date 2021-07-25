@@ -10,9 +10,7 @@ module Authentication
       #   * NonPermittedConstraint - Checks there are no standard claims [exp,iat,nbf,iss] in the host annotations
       CreateConstrains = CommandClass.new(
         dependencies: {
-          non_permitted_constraint: Authentication::Constraints::NonPermittedConstraint.new(
-            non_permitted: CLAIMS_DENY_LIST
-          ),
+          non_permitted_constraint_class: Authentication::Constraints::NonPermittedConstraint,
           required_constraint_class: Authentication::Constraints::RequiredConstraint,
           multiple_constraint_class: Authentication::Constraints::MultipleConstraint,
           not_empty_constraint: Authentication::Constraints::NotEmptyConstraint.new,
@@ -20,7 +18,7 @@ module Authentication
           fetch_mapping_claims_class: Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims,
           logger: Rails.logger
         },
-        inputs: %i[authentication_parameters]
+        inputs: %i[authentication_parameters base_non_permitted_annotations]
       ) do
         # These is command class so only call is called from outside. Other functions are needed here.
         # :reek:TooManyMethods
@@ -79,8 +77,14 @@ module Authentication
           @constraints.append(required_constraint)
         end
 
+        def non_permitted_constraint
+          @non_permitted_constraint ||= @non_permitted_constraint_class.new(
+            non_permitted: @base_non_permitted_annotations + mapping_claims.keys
+          )
+        end
+
         def add_non_permitted_constraint
-          @constraints.append(@non_permitted_constraint)
+          @constraints.append(non_permitted_constraint)
         end
 
         def create_multiple_constraint

@@ -542,6 +542,11 @@ module Errors
         msg: "Failed to parse mapping claims, {0-purpose} value '{1-claim-value}' appears twice or more",
         code: "CONJ00113E"
       )
+
+      RoleWithStandardOrMappedClaimError = ::Util::TrackableErrorClass.new(
+        msg: "Role can't have standard claim or a mapped claim. Error : '{0-error}'",
+        code: "CONJ00069E"
+      )
     end
 
     module ResourceRestrictions
