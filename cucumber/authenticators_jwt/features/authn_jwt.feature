@@ -41,7 +41,8 @@ Feature: JWT Authenticator - JWKs Basic sanity
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
     And I successfully set authn-jwt "token-app-property" variable to value "host"
 
-  Scenario: Authenticator is not enabled
+  @sanity
+  Scenario: ONYX-8598: Authenticator is not enabled
     Given I have a "variable" resource called "test-variable"
     And I issue a JWT token:
     """

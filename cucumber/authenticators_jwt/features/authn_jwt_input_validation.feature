@@ -35,6 +35,7 @@ Feature: JWT Authenticator - Input Validation
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
 
+  @sanity
   Scenario: ONYX-8594: Empty Token Given, 401 Error
     Given I save my place in the log file
     And I issue empty JWT token
@@ -45,6 +46,7 @@ Feature: JWT Authenticator - Input Validation
     CONJ00085E Token is empty or not found.
     """
 
+  @sanity
   Scenario: ONYX-8594: Invalid Token Given, 401 Error
     Given I save my place in the log file
     When I authenticate with string that is not token not-token-string-this-is-ivalid-token
@@ -54,6 +56,7 @@ Feature: JWT Authenticator - Input Validation
     CONJ00077E The request body does not contain JWT token
     """
 
+  @sanity
   Scenario: ONYX-8594: No Token Given, 400 Error
     Given I save my place in the log file
     When I authenticate via authn-jwt with the JWT token

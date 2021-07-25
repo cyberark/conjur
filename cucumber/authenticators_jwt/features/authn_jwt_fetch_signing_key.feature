@@ -446,6 +446,7 @@ Feature: JWT Authenticator - Fetch signing key
     And I authenticate via authn-jwt with the ID token
     Then host "alice" has been authorized by Conjur
 
+  @sanity
   Scenario: ONYX-8709: provider-uri dynamically changed, 502 ERROR resolves to 200 OK
     Given I initialize JWKS endpoint with file "myJWKs.json"
     And I load a policy:
@@ -509,6 +510,7 @@ Feature: JWT Authenticator - Fetch signing key
     When I authenticate via authn-jwt with the ID token
     Then host "alice" has been authorized by Conjur
 
+  @sanity
   Scenario: ONYX-8710: jwks-uri dynamically changed, 401 ERROR resolves 200 OK
     Given I initialize JWKS endpoint with file "myJWKs.json"
     And I load a policy:

@@ -55,6 +55,8 @@ Feature: JWT Authenticator - Validate And Decode
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::DecodeError: Could not find public key for kid unknown_kid>')>
     """
 
+
+  @sanity
   Scenario: ONYX-8733: Signature error ,sign on a valid token header and content with your own key
     Given I issue another key JWT token:
     """

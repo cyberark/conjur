@@ -1,7 +1,7 @@
 Feature: JWT Authenticator - Status Check
 
-  Checks status API of JWT authenticator. Status API should return error on each case of misconfiguration of the
-  policy that can be found before the authentication.
+  Checks status API of JWT authenticator. Status API should return error on each case of misconfiguration in
+  authenticator or policy that can be found before authentication request.
 
   Scenario: A valid JWT status request
     Given I load a policy:
@@ -643,6 +643,7 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00079E Failed to extract hostname from URI 'unknow-host.com'"
 
+  @sanity
   Scenario: ONYX-9516: Identify-path is configured but empty
     Given I load a policy:
     """
@@ -700,6 +701,7 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/identity-path>"
 
+  @sanity
   Scenario: ONYX-9515: Valid status check, identify-path is configured with value
     Given I load a policy:
     """

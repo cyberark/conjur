@@ -1,7 +1,6 @@
 Feature: JWT Authenticator - Validate restrictions
 
-  Tests to check that host annotations are validated correctly in jwt authenticator. Focusing on checking that
-  the annotations that are relevant to the vendor are the only being checked.
+  Tests to check that host annotations are validated correctly in jwt authenticator. Focusing on checking that only the vendor related annotations are being checked.
 
   Background:
     Given I initialize JWKS endpoint with file "myJWKs.json"
@@ -248,6 +247,7 @@ Feature: JWT Authenticator - Validate restrictions
     CONJ00084E Claim 'non-existing-field' is missing from JWT token.
     """
 
+  @sanity
   Scenario: ONYX-8734: Annotation with empty value
     Given I extend the policy with:
     """
@@ -276,6 +276,7 @@ Feature: JWT Authenticator - Validate restrictions
     CONJ00100E Annotation, 'custom-claim', is empty
     """
 
+  @sanity
   Scenario: ONYX-8735: Ignore invalid annotations
     Given I extend the policy with:
     """

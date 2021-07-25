@@ -58,6 +58,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
 
+  @sanity
   Scenario: ONYX-8820: A valid JWT token with identity in the token
     Given I have a "variable" resource called "test-variable"
     And I successfully set authn-jwt "token-app-property" variable to value "host"
@@ -79,6 +80,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
+  @sanity
   Scenario: ONYX-9522: User as Token identity is not supported, error
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     Given I extend the policy with:
@@ -138,6 +140,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/token-app-property
     """
 
+  @sanity
   Scenario: ONYX-9524: Host with delimiter as Token identity, identity-path configured, 200 ok
     Given I have a "variable" resource called "test-variable"
     And I successfully set authn-jwt "token-app-property" variable to value "host_claim"
@@ -168,6 +171,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     cucumber:host:some_policy/sub_policy/host_test_from_token successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
+  @sanity
   Scenario: ONYX-9523: Host without delimiter as Token identity, identity-path configured, 200 ok
     Given I have a "variable" resource called "test-variable"
     And I successfully set authn-jwt "token-app-property" variable to value "host_claim"
@@ -197,4 +201,3 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     """
     cucumber:host:some_policy/host_test_from_token successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
-
