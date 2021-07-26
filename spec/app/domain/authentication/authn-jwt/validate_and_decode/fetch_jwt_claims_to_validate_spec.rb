@@ -297,21 +297,21 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
           end
         end
       end
-        context "with invalid issuer variable configuration" do
-          subject do
-            authentication_parameters.decoded_token = token(%w[iss nbf iat].freeze)
+      context "with invalid issuer variable configuration" do
+        subject do
+          authentication_parameters.decoded_token = token(%w[iss nbf iat].freeze)
 
-            ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
-              fetch_issuer_value: mocked_fetch_issuer_value_valid
-            ).call(
-              authentication_parameters: authentication_parameters
-            )
-          end
-
-          it "returns jwt claims to validate list" do
-            expect(subject).to eql_claims_list(jwt_claims_to_validate_list_with_values(%w[exp iss nbf iat].freeze))
-          end
+          ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
+            fetch_issuer_value: mocked_fetch_issuer_value_valid
+          ).call(
+            authentication_parameters: authentication_parameters
+          )
         end
+
+        it "returns jwt claims to validate list" do
+          expect(subject).to eql_claims_list(jwt_claims_to_validate_list_with_values(%w[exp iss nbf iat].freeze))
+        end
+      end
 
       context "and with iss claim" do
         context "with valid issuer variable configuration in authenticator policy" do
@@ -382,7 +382,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
           end
         end
       end
-      end
+    end
 
     context "with empty token (should not happened)" do
       subject do

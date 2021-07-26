@@ -1,6 +1,6 @@
 Feature: JWT Authenticator - Token Schema
 
-  Tests checking mandatory claims and claims mapping
+  Tests checking enforced claims and claims mapping
 
   Background:
     Given I initialize JWKS endpoint with file "myJWKs.json"
@@ -32,10 +32,10 @@ Feature: JWT Authenticator - Token Schema
     And I successfully set authn-jwt "token-app-property" variable to value "host"
 
   @sanity
-  Scenario: ONYX-10471 - Mandatory Claims Without Claims Mapping. Single mandatory claim - 200 OK
+  Scenario: ONYX-10471 - enforced Claims Without Claims Mapping. Single enforced claim - 200 OK
     Given I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mandatory-claims
+    - !variable conjur/authn-jwt/raw/enforced-claims
 
     - !host
       id: myapp
@@ -46,7 +46,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "mandatory-claims" variable to value "ref"
+    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "myapp" to "execute" it
     And I issue a JWT token:
@@ -65,10 +65,10 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  Scenario: ONYX-10471 - Mandatory Claims Without Claims Mapping. Two mandatory claims - 200 OK
+  Scenario: ONYX-10471 - enforced Claims Without Claims Mapping. Two enforced claims - 200 OK
     Given I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mandatory-claims
+    - !variable conjur/authn-jwt/raw/enforced-claims
 
     - !host
       id: myapp
@@ -80,7 +80,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "mandatory-claims" variable to value "ref,sub"
+    And I successfully set authn-jwt "enforced-claims" variable to value "ref,sub"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "myapp" to "execute" it
     And I issue a JWT token:
@@ -100,10 +100,10 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  Scenario: ONYX-10759 - Mandatory Claims Without Claims Mapping. Single mandatory claim and wrong annotation - 401 Error
+  Scenario: ONYX-10759 - enforced Claims Without Claims Mapping. Single enforced claim and wrong annotation - 401 Error
     Given I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mandatory-claims
+    - !variable conjur/authn-jwt/raw/enforced-claims
 
     - !host
       id: myapp
@@ -114,7 +114,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "mandatory-claims" variable to value "ref"
+    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
     And I issue a JWT token:
     """
     {
@@ -130,10 +130,10 @@ Feature: JWT Authenticator - Token Schema
     CONJ00057E Role does not have the required constraints: '["ref"]'>
     """
 
-  Scenario: ONYX-10760 - Mandatory Claims Without Claims Mapping. Single mandatory claim but not in token - 401 Error
+  Scenario: ONYX-10760 - enforced Claims Without Claims Mapping. Single enforced claim but not in token - 401 Error
     Given I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mandatory-claims
+    - !variable conjur/authn-jwt/raw/enforced-claims
 
     - !host
       id: myapp
@@ -144,7 +144,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "mandatory-claims" variable to value "ref"
+    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
     And I issue a JWT token:
     """
     {
@@ -159,10 +159,10 @@ Feature: JWT Authenticator - Token Schema
     CONJ00084E Claim 'ref' is missing from JWT token.
     """
 
-  Scenario Outline: ONYX-10470 - Standard claim in mandatory claims - 401 Error
+  Scenario Outline: ONYX-10470 - Standard claim in enforced claims - 401 Error
     Given I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mandatory-claims
+    - !variable conjur/authn-jwt/raw/enforced-claims
 
     - !host
       id: myapp
@@ -173,7 +173,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "mandatory-claims" variable to value "<claims>"
+    And I successfully set authn-jwt "enforced-claims" variable to value "<claims>"
     And I issue a JWT token:
     """
     {
@@ -222,10 +222,10 @@ Feature: JWT Authenticator - Token Schema
     | claim   |
     |   iat   |
 
-  Scenario: ONYX-10860 - Mandatory claims configured but not populated - 401 Error
+  Scenario: ONYX-10860 - Enforced claims configured but not populated - 401 Error
     Given I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mandatory-claims
+    - !variable conjur/authn-jwt/raw/enforced-claims
 
     - !host
       id: myapp
@@ -248,11 +248,11 @@ Feature: JWT Authenticator - Token Schema
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/mandatory-claims
+     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/enforced-claims
     """
 
   @sanity
-  Scenario: ONYX-10891 - Complex Case - Adding Mandatory Claim after host configuration
+  Scenario: ONYX-10891 - Complex Case - Adding Enforced Claim after host configuration
     Given I extend the policy with:
     """
     - !host
@@ -284,9 +284,9 @@ Feature: JWT Authenticator - Token Schema
     """
     When I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mandatory-claims
+    - !variable conjur/authn-jwt/raw/enforced-claims
     """
-    And I successfully set authn-jwt "mandatory-claims" variable to value "ref"
+    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
     When I authenticate via authn-jwt with the JWT token
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
@@ -295,7 +295,7 @@ Feature: JWT Authenticator - Token Schema
     """
     When I replace the "root" policy with:
     """
-    - !variable conjur/authn-jwt/raw/mandatory-claims
+    - !variable conjur/authn-jwt/raw/enforced-claims
 
     - !host
       id: myapp
@@ -435,11 +435,11 @@ Feature: JWT Authenticator - Token Schema
     """
 
   @sanity
-  Scenario: ONYX-10705: Mandatory Claims and Mappings exist and host annotation are correct
+  Scenario: ONYX-10705: enforced Claims and Mappings exist and host annotation are correct
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/mapping-claims
-    - !variable conjur/authn-jwt/raw/mandatory-claims
+    - !variable conjur/authn-jwt/raw/enforced-claims
 
     - !host
       id: myapp
@@ -451,7 +451,7 @@ Feature: JWT Authenticator - Token Schema
       member: !host myapp
     """
     And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
-    And I successfully set authn-jwt "mandatory-claims" variable to value "ref"
+    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
     And I issue a JWT token:
     """
     {

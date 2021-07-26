@@ -5,7 +5,7 @@ module Authentication
       ParseMappingClaims ||= CommandClass.new(
         dependencies: {
           validate_claim_name: ValidateClaimName.new(
-            deny_claims_list_value: MANDATORY_CLAIMS_DENY_LIST
+            deny_claims_list_value: CLAIMS_DENY_LIST
           ),
           logger: Rails.logger
         },

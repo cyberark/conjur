@@ -373,9 +373,9 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
     end
   end
 
-  context "Fetch mandatory claims" do
+  context "Fetch enforced claims" do
     context "when token signature is valid" do
-      context "and failed to fetch mandatory claims" do
+      context "and failed to fetch enforced claims" do
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new(
             verify_and_decode_token: mocked_verify_and_decode_token_succeed_on_1st_time,
@@ -391,7 +391,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
         end
       end
 
-      context "and succeed to fetch mandatory claims" do
+      context "and succeed to fetch enforced claims" do
         context "with empty claims list to validate" do
           subject do
             ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new(
@@ -408,7 +408,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
           end
         end
 
-        context "with mandatory claims which not exist in token" do
+        context "with enforced claims which not exist in token" do
           subject do
             ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new(
               verify_and_decode_token: mocked_verify_and_decode_token_succeed_on_1st_time,
@@ -420,7 +420,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
           end
 
           it "raises an error" do
-            expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MissingMandatoryClaim)
+            expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MissingEnforcedClaim)
           end
         end
 
@@ -446,7 +446,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
 
   context "Validate token claims" do
     context "when token signature is valid" do
-      context "when fetch mandatory claims successfully" do
+      context "when fetch enforced claims successfully" do
         context "when get verification options successfully" do
           context "and failed to validate claims" do
             subject do

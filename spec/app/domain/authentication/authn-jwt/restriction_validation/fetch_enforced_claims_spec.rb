@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryClaims') do
+RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchEnforcedClaims') do
 
   let(:authenticator_name) { 'authn-jwt' }
   let(:service_id) { "my-service" }
@@ -27,11 +27,11 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryC
     )
   }
 
-  let(:mandatory_claims_resource_name) {Authentication::AuthnJwt::MANDATORY_CLAIMS_RESOURCE_NAME}
-  let(:mandatory_claims_valid_secret_value) {'claim1 , claim2'}
-  let(:mandatory_claims_valid_parsed_secret_value) {%w[claim1 claim2]}
+  let(:enforced_claims_resource_name) {Authentication::AuthnJwt::ENFORCED_CLAIMS_RESOURCE_NAME}
+  let(:enforced_claims_valid_secret_value) {'claim1 , claim2'}
+  let(:enforced_claims_valid_parsed_secret_value) {%w[claim1 claim2]}
 
-  let(:mandatory_claims_invalid_secret_value) {'claim1 ,, claim2'}
+  let(:enforced_claims_invalid_secret_value) {'claim1 ,, claim2'}
 
   def mock_resource_id(resource_name:)
     %r{#{account}:variable:conjur/#{authenticator_name}/#{service_id}/#{resource_name}}
@@ -52,7 +52,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryC
 
   before(:each) do
     allow(mocked_resource_exists_values).to(
-      receive(:[]).with(mock_resource_id(resource_name: mandatory_claims_resource_name)).and_return(mocked_resource)
+      receive(:[]).with(mock_resource_id(resource_name: enforced_claims_resource_name)).and_return(mocked_resource)
     )
 
     allow(mocked_resource_not_exists_values).to(
@@ -64,23 +64,23 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryC
     )
 
     allow(mocked_fetch_secrets_exist_values).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: mandatory_claims_resource_name)]).
+      receive(:call).with(resource_ids: [mock_resource_id(resource_name: enforced_claims_resource_name)]).
         and_return(mocked_valid_secrets)
     )
 
     allow(mocked_valid_secrets).to(
-      receive(:[]).with(mock_resource_id(resource_name: mandatory_claims_resource_name)).
-        and_return(mandatory_claims_valid_secret_value)
+      receive(:[]).with(mock_resource_id(resource_name: enforced_claims_resource_name)).
+        and_return(enforced_claims_valid_secret_value)
     )
 
     allow(mocked_fetch_secrets_invalid_values).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: mandatory_claims_resource_name)]).
+      receive(:call).with(resource_ids: [mock_resource_id(resource_name: enforced_claims_resource_name)]).
         and_return(mocked_invalid_secrets)
     )
 
     allow(mocked_invalid_secrets).to(
-      receive(:[]).with(mock_resource_id(resource_name: mandatory_claims_resource_name)).
-        and_return(mandatory_claims_invalid_secret_value)
+      receive(:[]).with(mock_resource_id(resource_name: enforced_claims_resource_name)).
+        and_return(enforced_claims_invalid_secret_value)
     )
 
   end
@@ -90,10 +90,10 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryC
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
-  context "'mandatory-claims' variable is configured in authenticator policy" do
+  context "'enforced_claims' variable is configured in authenticator policy" do
     context "with empty variable value" do
       subject do
-        ::Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryClaims.new(
+        ::Authentication::AuthnJwt::RestrictionValidation::FetchEnforcedClaims.new(
           resource_class: mocked_resource_exists_values,
           fetch_required_secrets: mocked_fetch_secrets_empty_values
         ).call(
@@ -108,7 +108,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryC
 
     context "with invalid variable value" do
       subject do
-        ::Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryClaims.new(
+        ::Authentication::AuthnJwt::RestrictionValidation::FetchEnforcedClaims.new(
           resource_class: mocked_resource_exists_values,
           fetch_required_secrets: mocked_fetch_secrets_invalid_values
         ).call(
@@ -117,13 +117,13 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryC
       end
 
       it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidMandatoryClaimsFormat)
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidEnforcedClaimsFormat)
       end
     end
     
     context "with valid variable value" do
       subject do
-        ::Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryClaims.new(
+        ::Authentication::AuthnJwt::RestrictionValidation::FetchEnforcedClaims.new(
           resource_class: mocked_resource_exists_values,
           fetch_required_secrets: mocked_fetch_secrets_exist_values
         ).call(
@@ -131,22 +131,22 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryC
         )
       end
 
-      it "returns parsed mandatory claims list" do
-        expect(subject).to eql(mandatory_claims_valid_parsed_secret_value)
+      it "returns parsed enforced claims list" do
+        expect(subject).to eql(enforced_claims_valid_parsed_secret_value)
       end
     end
   end
 
-  context "'mandatory-claims' variable is not configured in authenticator policy" do
+  context "'enforced_claims' variable is not configured in authenticator policy" do
     subject do
-      ::Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryClaims.new(
+      ::Authentication::AuthnJwt::RestrictionValidation::FetchEnforcedClaims.new(
         resource_class: mocked_resource_not_exists_values
       ).call(
         authentication_parameters: authentication_parameters
       )
     end
 
-    it "returns an empty mandatory claims list" do
+    it "returns an empty enforced claims list" do
       expect(subject).to eql([])
     end
   end

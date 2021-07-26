@@ -25,7 +25,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
   let(:mocked_invalid_create_signing_key_interface) { double("Mocked invalid create signing key interface")  }
   let(:mocked_valid_fetch_issuer_value) { double("Mocked valid fetch issuer value")  }
   let(:mocked_invalid_fetch_issuer_value) { double("Mocked invalid fetch issuer value")  }
-  let(:mocked_invalid_fetch_mandatory_claims) { double("Mocked invalid fetch mandatory claims value")  }
+  let(:mocked_invalid_fetch_enforced_claims) { double("Mocked invalid fetch enforced claims value")  }
   let(:mocked_invalid_fetch_mapping_claims) { double("Mocked invalid fetch mapping claims value")  }
   let(:mocked_valid_identity_from_decoded_token_provider) { double("Mocked valid identity from decoded token provider")  }
   let(:mocked_valid_identity_configured_properly) { double("Mocked valid identity configured properly")  }
@@ -43,7 +43,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
   let(:create_signing_key_configuration_is_invalid_error) { "Create signing key configuration is invalid" }
   let(:fetch_issuer_configuration_is_invalid_error) { "Fetch issuer configuration is invalid" }
-  let(:fetch_mandatory_claims_configuration_is_invalid_error) { "Fetch mandatory claims configuration is invalid" }
+  let(:fetch_enforced_claims_configuration_is_invalid_error) { "Fetch enforced claims configuration is invalid" }
   let(:fetch_mapping_claims_configuration_is_invalid_error) { "Fetch mapping claims configuration is invalid" }
   let(:identity_configuration_is_invalid_error) { "Identity configuration is invalid" }
   let(:webservice_is_not_whitelisted_error) { "Webservice is not whitelisted" }
@@ -73,8 +73,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       receive(:call).and_raise(fetch_issuer_configuration_is_invalid_error)
     )
 
-    allow(mocked_invalid_fetch_mandatory_claims).to(
-      receive(:call).and_raise(fetch_mandatory_claims_configuration_is_invalid_error)
+    allow(mocked_invalid_fetch_enforced_claims).to(
+      receive(:call).and_raise(fetch_enforced_claims_configuration_is_invalid_error)
     )
     allow(mocked_invalid_fetch_mapping_claims).to(
       receive(:call).and_raise(fetch_mapping_claims_configuration_is_invalid_error)
@@ -345,12 +345,12 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
         end
       end
 
-      context "mandatory claims is not configured properly" do
+      context "enforced claims is not configured properly" do
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
             create_signing_key_interface: mocked_valid_create_signing_key_interface,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
-            fetch_mandatory_claims: mocked_invalid_fetch_mandatory_claims,
+            fetch_enforced_claims: mocked_invalid_fetch_enforced_claims,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
@@ -364,7 +364,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(fetch_mandatory_claims_configuration_is_invalid_error)
+          expect { subject }.to raise_error(fetch_enforced_claims_configuration_is_invalid_error)
         end
       end
 

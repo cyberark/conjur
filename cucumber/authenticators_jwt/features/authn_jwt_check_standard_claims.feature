@@ -153,7 +153,7 @@ Feature: JWT Authenticator - Check standard claim
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00091E Failed to validate token, mandatory claim 'exp' is missing.
+    CONJ00091E Failed to validate token, enforced claim 'exp' is missing.
     """
 
   Scenario: ONYX-8715: JWT token with future iat claim, 401 Error

@@ -5,7 +5,7 @@ module Authentication
       dependencies: {
         create_signing_key_interface: Authentication::AuthnJwt::SigningKey::CreateSigningKeyFactory.new,
         fetch_issuer_value: Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new,
-        fetch_mandatory_claims: Authentication::AuthnJwt::RestrictionValidation::FetchMandatoryClaims.new,
+        fetch_enforced_claims: Authentication::AuthnJwt::RestrictionValidation::FetchEnforcedClaims.new,
         fetch_mapping_claims: Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new,
         identity_from_decoded_token_provider_class: Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider,
         validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
@@ -24,7 +24,7 @@ module Authentication
         @logger.info(LogMessages::Authentication::AuthnJwt::ValidatingJwtStatusConfiguration.new)
         validate_generic_status_validations
         validate_issuer
-        validate_mandatory_claims
+        validate_enforced_claims
         validate_mapping_claims
         validate_identity_secrets
         validate_signing_key
@@ -86,9 +86,9 @@ module Authentication
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedIssuerConfiguration.new)
       end
 
-      def validate_mandatory_claims
-        @fetch_mandatory_claims.call(authentication_parameters: authentication_parameters)
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedMandatoryClaimsConfiguration.new)
+      def validate_enforced_claims
+        @fetch_enforced_claims.call(authentication_parameters: authentication_parameters)
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedEnforcedClaimsConfiguration.new)
       end
 
       def validate_mapping_claims

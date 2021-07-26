@@ -11,25 +11,25 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims'
   context "Input validation" do
     context "with empty claim name value value" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-          mandatory_claims: ""
+        ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+          enforced_claims: ""
         )
       end
 
       it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToParseMandatoryClaimsMissingInput)
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToParseEnforcedClaimsMissingInput)
       end
     end
 
     context "with nil claim name value" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-          mandatory_claims: nil
+        ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+          enforced_claims: nil
         )
       end
 
       it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToParseMandatoryClaimsMissingInput)
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToParseEnforcedClaimsMissingInput)
       end
     end
   end
@@ -38,49 +38,49 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims'
     context "with invalid commas format" do
       context "when input with 1 comma value" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-            mandatory_claims: ","
+          ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+            enforced_claims: ","
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidMandatoryClaimsFormat)
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidEnforcedClaimsFormat)
         end
       end
 
       context "when input with multiple commas value" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-            mandatory_claims: ",,,,,"
+          ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+            enforced_claims: ",,,,,"
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidMandatoryClaimsFormat)
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidEnforcedClaimsFormat)
         end
       end
 
       context "when input with commas at start value" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-            mandatory_claims: ",claim1, claim2"
+          ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+            enforced_claims: ",claim1, claim2"
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidMandatoryClaimsFormat)
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidEnforcedClaimsFormat)
         end
       end
 
       context "when input with commas at end value" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-            mandatory_claims: "claim1, claim2,"
+          ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+            enforced_claims: "claim1, claim2,"
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidMandatoryClaimsFormat)
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidEnforcedClaimsFormat)
         end
       end
     end
@@ -88,25 +88,25 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims'
     context "with connected commas" do
       context "when input with multiple connected commas value" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-            mandatory_claims: "claim1,, claim2"
+          ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+            enforced_claims: "claim1,, claim2"
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidMandatoryClaimsFormat)
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidEnforcedClaimsFormat)
         end
       end
 
       context "when input with multiple connected commas with spaces value" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-            mandatory_claims: "claim1,   , claim2"
+          ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+            enforced_claims: "claim1,   , claim2"
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidMandatoryClaimsFormat)
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidEnforcedClaimsFormat)
         end
       end
     end
@@ -114,25 +114,25 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims'
     context "with claims duplications values" do
       context "when input with connected duplicate claims value" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-            mandatory_claims: "claim1, claim2,claim2, claim3"
+          ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+            enforced_claims: "claim1, claim2,claim2, claim3"
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidMandatoryClaimsFormatContainsDuplication)
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidEnforcedClaimsFormatContainsDuplication)
         end
       end
 
       context "when input with duplicate claims value at the start and at the end" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-            mandatory_claims: "claim1, claim2,claim3, claim1"
+          ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+            enforced_claims: "claim1, claim2,claim3, claim1"
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidMandatoryClaimsFormatContainsDuplication)
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidEnforcedClaimsFormatContainsDuplication)
         end
       end
     end
@@ -140,8 +140,8 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims'
     context "with claim names with spaces" do
       context "when input with 1 claim name" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-            mandatory_claims: "claim      1"
+          ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+            enforced_claims: "claim      1"
           )
         end
 
@@ -152,8 +152,8 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims'
 
       context "when input with multiple claims " do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-            mandatory_claims: "valid, valid2   ,   claim1    rr, claim      1"
+          ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+            enforced_claims: "valid, valid2   ,   claim1    rr, claim      1"
           )
         end
 
@@ -167,8 +167,8 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims'
   context "Valid format" do
     context "when input with 1 claim name" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-          mandatory_claims: "claim1"
+        ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+          enforced_claims: "claim1"
         )
       end
 
@@ -179,8 +179,8 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims'
 
     context "when input with multiple valid claims values no spaces" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-          mandatory_claims: "claim1,claim2,claim3"
+        ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+          enforced_claims: "claim1,claim2,claim3"
         )
       end
 
@@ -191,8 +191,8 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims'
 
     context "when input with multiple valid claims values and spaces at start" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-          mandatory_claims: "       claim1,claim2,claim3"
+        ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+          enforced_claims: "       claim1,claim2,claim3"
         )
       end
 
@@ -203,8 +203,8 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims'
 
     context "when input with multiple valid claims values and spaces at end" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-          mandatory_claims: "claim1,claim2,claim3     "
+        ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+          enforced_claims: "claim1,claim2,claim3     "
         )
       end
 
@@ -215,8 +215,8 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims'
 
     context "when input with multiple valid claims values and spaces in the middle" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-          mandatory_claims: "claim1,          claim2, claim3"
+        ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+          enforced_claims: "claim1,          claim2, claim3"
         )
       end
 
@@ -229,8 +229,8 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims'
   context "Valid claim name" do
     context "when input with 1 invalid claim name" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-          mandatory_claims: "1claim"
+        ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+          enforced_claims: "1claim"
         )
       end
 
@@ -241,8 +241,8 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims'
 
     context "when input with multiple invalid claims" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-          mandatory_claims: "1claim, 2claim, 3claim"
+        ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+          enforced_claims: "1claim, 2claim, 3claim"
         )
       end
 
@@ -253,8 +253,8 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims'
 
     context "when input with 1 invalid claim and multiple valid claims" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseMandatoryClaims.new().call(
-          mandatory_claims: "1claim, claim2, claim3"
+        ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new().call(
+          enforced_claims: "1claim, claim2, claim3"
         )
       end
 
