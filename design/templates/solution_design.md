@@ -91,6 +91,10 @@ Output parameters:
 [//]: # "downstream components that will need to be updated to consume"
 [//]: # "new releases as these changes are implemented"
 
+## Work in Parallel
+[//]: # "How can we work in parallel for this task? How this can be done effectively without hindering the work of others who are working on different areas of the task."
+[//]: # "For example, can we introduce minimal automation to run basic sanity tests to protect the work of others?"
+
 ## Test Plan
 
 ### Test Environments
