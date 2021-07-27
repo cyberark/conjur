@@ -693,6 +693,11 @@ module LogMessages
         msg: "Checking restriction '{0-annotation-value}', fetching value from '{1-claim-name}' claim...",
         code: "CONJ00137D"
       )
+
+      FetchingAudienceValue = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetching audience value...",
+        code: "CONJ00138D"
+      )
     end
   end
 
