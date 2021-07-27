@@ -1,6 +1,3 @@
-# Temporarily ignored while CVE is analyzed and score determined. Andy to revisit.
-CVE-2021-33910
-
 # NULL pointer deref. OpenSSL 1.0.2 is not impacted
 CVE-2021-3449
 
@@ -9,14 +6,6 @@ CVE-2021-3449
 # vulnerable version of Rake in their development dependencies, but do not pose 
 # a risk to Conjur.
 CVE-2020-8130
-
-# These vulnerabilites are present in the Ubuntu 18.04 base image and are being
-# analyzed to determined their impact on the Conjur container image.
-# Follow up issue: https://github.com/cyberark/conjur/issues/1461
-CVE-2019-10220
-CVE-2019-19813
-CVE-2019-19814
-CVE-2019-19816
 
 # Applications that call the SSL_check_chain() function during or after a TLS 1.3 handshake
 # may crash due to a NULL pointer dereference as a result of incorrect handling of the "signature_algorithms_cert"
