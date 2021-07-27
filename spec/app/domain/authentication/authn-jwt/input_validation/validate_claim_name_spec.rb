@@ -71,6 +71,18 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
       end
     end
 
+    context "When claim name starts with forbidden character '.'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: ".invalid"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
     context "When claim name contains forbidden character in the middle '!'" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
@@ -83,7 +95,7 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
       end
     end
 
-    context "When claim name contains 1 forbidden character '.'" do
+    context "When claim name is 1 dot character '.'" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
           claim_name: "."
@@ -197,6 +209,30 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
           claim_name: "$2w"
+        )
+      end
+
+      it 'does not raise error' do
+        expect { subject }.not_to raise_error
+      end
+    end
+
+    context "When claim name contains dots in the middle" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "$...4.w"
+        )
+      end
+
+      it 'does not raise error' do
+        expect { subject }.not_to raise_error
+      end
+    end
+    
+    context "When claim name ends with dots" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "$w..."
         )
       end
 
