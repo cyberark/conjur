@@ -591,12 +591,12 @@ module LogMessages
       )
 
       ClaimsDenyListValue = ::Util::TrackableLogMessageClass.new(
-        msg: "Claims denylist value is '{0-deny-claims-list}'",
+        msg:  "Claims denylist value is '{0-deny-claims-list}'",
         code: "CONJ00117D"
       )
 
       ValidatingClaimName = ::Util::TrackableLogMessageClass.new(
-        msg: "Validating claim name '{0-claim-name}'",
+        msg: "Validating claim name '{0-claim-name}'...",
         code: "CONJ00118D"
       )
 
@@ -604,8 +604,9 @@ module LogMessages
         msg: "Successfully validated claim name '{0-claim-name}'",
         code: "CONJ00119D"
       )
+
       ParsingEnforcedClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Parsing enforced claims value '{0-enforced-claims}'",
+        msg: "Parsing enforced claims '{0-enforced-claims}'...",
         code: "CONJ00120D"
       )
 
@@ -620,7 +621,7 @@ module LogMessages
       )
 
       NotConfiguredEnforcedClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Enforced claims is not configured",
+        msg:  "Enforced claims is not configured",
         code: "CONJ00123D"
       )
 
@@ -630,7 +631,7 @@ module LogMessages
       )
 
       ParsingMappingClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Parsing mapping claims value '{0-mapping-claims}'",
+        msg: "Parsing mapping claims '{0-mapping-claims}'...",
         code: "CONJ00125D"
       )
 
@@ -640,7 +641,7 @@ module LogMessages
       )
 
       ClaimMapDefinition = ::Util::TrackableLogMessageClass.new(
-        msg: "Mapping annotation name '{0-annotation-value}' to the claim name '{1-claim-name}'",
+        msg: "Mapping annotation '{0-annotation-value}' to claim '{1-claim-name}'...",
         code: "CONJ00127D"
       )
 
@@ -650,7 +651,7 @@ module LogMessages
       )
 
       NotConfiguredMappingClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Mapping claims are not configured",
+        msg: "No mapping claims configured",
         code: "CONJ00129D"
       )
 
@@ -670,27 +671,27 @@ module LogMessages
       )
 
       ConvertingClaimAccordingToMapping = ::Util::TrackableLogMessageClass.new(
-        msg: "Converting claim '{0-claim-name}' to '{1-annotation-name}'...",
+        msg: "Converting claim '{0-claim-name}' to annotation '{1-annotation-name}'...",
         code: "CONJ00133D"
       )
 
       EnforcedClaimsToBeChecked = ::Util::TrackableLogMessageClass.new(
-        msg: "Enforced claims to be checking in host are '{0-enforced-claims}'",
+        msg:  "Enforced claims to be checking in host are '{0-enforced-claims}'",
         code: "CONJ00134I"
       )
 
       ValidatedEnforcedClaimsConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully validated enforced claims configuration",
+        msg:  "Successfully validated enforced claims configuration",
         code: "CONJ00135D"
       )
 
       ValidatedMappingClaimsConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully validated mapping claims configuration",
+        msg:  "Successfully validated mapping claims configuration",
         code: "CONJ00136D"
       )
 
       ClaimMapUsage = ::Util::TrackableLogMessageClass.new(
-        msg: "Checking restriction '{0-annotation-value}', fetching value from '{1-claim-name}' claim...",
+        msg:  "Checking restriction '{0-annotation-value}', fetching value from '{1-claim-name}' claim...",
         code: "CONJ00137D"
       )
 
