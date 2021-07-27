@@ -434,8 +434,8 @@ module Errors
         code: "CONJ00090E"
       )
 
-      MissingEnforcedClaim = ::Util::TrackableErrorClass.new(
-        msg: "Failed to validate token, enforced claim '{0-claim}' is missing.",
+      MissingMandatoryClaim = ::Util::TrackableErrorClass.new(
+        msg: "Failed to validate token, mandatory claim '{0-claim}' is missing.",
         code: "CONJ00091E"
       )
 
