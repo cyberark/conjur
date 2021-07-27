@@ -35,11 +35,15 @@ module Authentication
           when EXP_CLAIM_NAME, NBF_CLAIM_NAME
             @verification_option = {}
           when ISS_CLAIM_NAME
-            raise Errors::Authentication::AuthnJwt::MissingClaimValue, claim_name if claim_value.blank?
+            validate_claim_has_value
 
             @verification_option = { iss: claim_value, verify_iss: true }
           when IAT_CLAIM_NAME
             @verification_option = { verify_iat: true }
+          when AUD_CLAIM_NAME
+            validate_claim_has_value
+
+            @verification_option = { aud: claim_value, verify_aud: true }
           else
             raise Errors::Authentication::AuthnJwt::UnsupportedClaim, claim_name
           end
@@ -60,6 +64,10 @@ module Authentication
 
         def claim_name
           @claim_name ||= @jwt_claim.name
+        end
+
+        def validate_claim_has_value
+          raise Errors::Authentication::AuthnJwt::MissingClaimValue, claim_name if claim_value.blank?
         end
       end
     end

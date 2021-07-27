@@ -5,6 +5,7 @@ require 'spec_helper'
 RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim') do
 
   let(:iss_claim_valid_value) { "iss claim valid value" }
+  let(:aud_claim_valid_value) { "aud claim valid value" }
   let(:unsupported_claim_name) { "unsupported-claim-name" }
   let(:valid_exp_verification_option) { {} }
   let(:valid_nbf_verification_option) { {} }
@@ -16,10 +17,19 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOpti
   let(:iss_claim_nil_value) {
     ::Authentication::AuthnJwt::ValidateAndDecode::JwtClaim.new(name: "iss", value: "")
   }
+  let(:valid_aud_verification_option) { {:aud => aud_claim_valid_value, :verify_aud => true} }
+  let(:aud_claim_empty_value) {
+    ::Authentication::AuthnJwt::ValidateAndDecode::JwtClaim.new(name: "aud", value: "")
+  }
+  let(:aud_claim_nil_value) {
+    ::Authentication::AuthnJwt::ValidateAndDecode::JwtClaim.new(name: "aud", value: "")
+  }
 
   def claim_value(claim_name)
     if claim_name == "iss"
       return iss_claim_valid_value
+    elsif claim_name == "aud"
+      return aud_claim_valid_value
     end
 
     nil
@@ -150,6 +160,44 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOpti
 
           it "returns verification option value" do
             expect(subject).to eq(valid_iss_verification_option)
+          end
+        end
+      end
+
+      context "with 'aud' name value" do
+        context "with empty claim value" do
+          subject do
+            ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new().call(
+              jwt_claim: aud_claim_empty_value
+            )
+          end
+
+          it "raises an error" do
+            expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MissingClaimValue)
+          end
+        end
+
+        context "with nil claim value" do
+          subject do
+            ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new().call(
+              jwt_claim: aud_claim_nil_value
+            )
+          end
+
+          it "raises an error" do
+            expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MissingClaimValue)
+          end
+        end
+
+        context "with claim value" do
+          subject do
+            ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new().call(
+              jwt_claim: claim("aud")
+            )
+          end
+
+          it "returns verification option value" do
+            expect(subject).to eq(valid_aud_verification_option)
           end
         end
       end
