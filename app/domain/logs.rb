@@ -351,12 +351,12 @@ module LogMessages
       )
 
       AddingJwtClaimToValidate = ::Util::TrackableLogMessageClass.new(
-        msg: "Adding JWT claim, '{0-claim-name}', to list of enforced claims to be validated...",
+        msg: "Adding JWT claim, '{0-claim-name}', to list of mandatory claims to be validated...",
         code: "CONJ00069D"
       )
 
       CheckingJwtClaimToValidate = ::Util::TrackableLogMessageClass.new(
-        msg: "Checking if JWT claim '{0-claim-name}' is enforced to validate...",
+        msg: "Checking if JWT claim '{0-claim-name}' is mandatory to validate...",
         code: "CONJ00070D"
       )
 
