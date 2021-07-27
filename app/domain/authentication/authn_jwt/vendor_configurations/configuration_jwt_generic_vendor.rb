@@ -10,7 +10,7 @@ module Authentication
           logger: Rails.logger,
           authentication_parameters_class: Authentication::AuthnJwt::AuthenticationParameters,
           restriction_validator_class: Authentication::AuthnJwt::RestrictionValidation::ValidateRestrictionsOneToOne,
-          validate_and_decode_token_class:  Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken,
+          validate_and_decode_token_class: Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken,
           validate_resource_restrictions_class: Authentication::ResourceRestrictions::ValidateResourceRestrictions,
           extract_token_from_credentials: Authentication::AuthnJwt::InputValidation::ExtractTokenFromCredentials.new,
           create_identity_provider: Authentication::AuthnJwt::IdentityProviders::CreateIdentityProvider.new,
@@ -50,6 +50,8 @@ module Authentication
               mapped_claims: mapped_claims
             )
           )
+        rescue Errors::Authentication::Constraints::NonPermittedRestrictionGiven => e
+          raise Errors::Authentication::AuthnJwt::RoleWithStandardOrMappedClaimError, e.inspect
         end
 
         def validate_and_decode_token
@@ -139,7 +141,8 @@ module Authentication
 
         def constraints
           @constraints ||= @create_constraints.call(
-            authentication_parameters: @authentication_parameters
+            authentication_parameters: @authentication_parameters,
+            base_non_permitted_annotations: CLAIMS_DENY_LIST
           )
         end
 

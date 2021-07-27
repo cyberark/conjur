@@ -216,7 +216,7 @@ Feature: JWT Authenticator - Token Schema
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00069E Role can't have one of these none permitted restrictions '["<claim>"]'>
+    CONJ00069E Role can't have standard claim or a mapped claim
     """
     Examples:
     | claim   |
@@ -377,7 +377,6 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  @skip
   Scenario: ONYX-10889 Complex Case - Adding Mapping after host configuration
     Given I extend the policy with:
     """
@@ -409,29 +408,11 @@ Feature: JWT Authenticator - Token Schema
     - !variable conjur/authn-jwt/raw/mapping-claims
     """
     And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
+    And I authenticate via authn-jwt with the JWT token
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00057E Role does not have the required constraints: '["ref"]'>
-    """
-    When I replace the "root" policy with:
-    """
-    - !variable conjur/authn-jwt/raw/mapping-claims
-
-    - !host
-      id: myapp
-      annotations:
-        authn-jwt/raw/branch: valid-branch
-
-    - !grant
-      role: !group conjur/authn-jwt/raw/hosts
-      member: !host myapp
-    """
-    When I authenticate via authn-jwt with the JWT token
-    Then host "myapp" has been authorized by Conjur
-    And The following appears in the log after my savepoint:
-    """
-    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    Role can't have standard claim or a mapped claim
     """
 
   @sanity
