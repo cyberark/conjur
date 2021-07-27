@@ -51,7 +51,7 @@ module Authentication
             )
           )
         rescue Errors::Authentication::Constraints::NonPermittedRestrictionGiven => e
-          raise Errors::Authentication::AuthnJwt::RoleWithStandardOrMappedClaimError, e.inspect
+          raise Errors::Authentication::AuthnJwt::RoleWithRegisteredOrMappedClaimError, e.inspect
         end
 
         def validate_and_decode_token

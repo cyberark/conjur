@@ -485,66 +485,67 @@ module Errors
       )
 
       FailedToValidateClaimMissingClaimName = ::Util::TrackableErrorClass.new(
-        msg: "Failed to validate claim, claim name is empty, or was not found.",
+        msg: "Failed to validate claim: claim name is empty or was not found.",
         code: "CONJ00103E"
       )
 
       FailedToValidateClaimForbiddenClaimName = ::Util::TrackableErrorClass.new(
-        msg: "Failed to validate claim, claim name '{0-claim-name}' is not " \
-             "matching '{1-regex}' regular expression.",
+        msg: "Failed to validate claim: claim name '{0-claim-name}' does not " \
+             "match regular expression: '{1-regex}'.",
         code: "CONJ00104E"
       )
 
       FailedToValidateClaimClaimNameInDenyList  = ::Util::TrackableErrorClass.new(
-        msg: "Failed to validate claim, claim name '{0-claim-name}' is in denylist '{1-deny-list}'",
+        msg: "Failed to validate claim: claim name '{0-claim-name}' is in denylist '{1-deny-list}'",
         code: "CONJ00105E"
       )
+
       FailedToParseEnforcedClaimsMissingInput = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse enforced claims, enforced claims value is empty, or was not found.",
+        msg: "Failed to parse enforced claims: enforced claim value is empty or was not found.",
         code: "CONJ00106E"
       )
 
       InvalidEnforcedClaimsFormat = ::Util::TrackableErrorClass.new(
-        msg: "enforced claims value '{0-enforced-claims-value}' is in invalid format. " \
-             "The format should be claim names separated with comma.",
+        msg: "List of enforced claims '{0-enforced-claims-value}' is in invalid format. " \
+             "Separate claim names with comas.",
         code: "CONJ00107E"
       )
 
       InvalidEnforcedClaimsFormatContainsDuplication = ::Util::TrackableErrorClass.new(
-        msg: "enforced claims value '{0-enforced-claims-value}' should not contains duplications.",
+        msg: "List of enforced claims '{0-enforced-claims-value}' must not contain duplications.",
         code: "CONJ00108E"
       )
 
       MappingClaimsMissingInput = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapping claims, the mapping claims value is empty, or was not found.",
+        msg: "Failed to parse mapping claims: the mapping claims value is empty or was not found.",
         code: "CONJ00109E"
       )
 
       MappingClaimsBlankOrEmpty = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapping claims, one ore more mapping statements is blank or empty " \
+        msg: "Failed to parse mapping claims: one ore more mapping statements is blank or empty " \
              "'{0-mapping-claims-value}'.",
         code: "CONJ00110E"
       )
 
       MappingClaimInvalidFormat = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapping claims, the mapping claim value '{0-mapping-claim-value}' is in invalid format."\
-             "The format should be 'annotation_name:claim_name'",
+        msg: "Failed to parse mapping claims: the mapping claim value '{0-mapping-claim-value}' is in invalid format."\
+             "The correct format is: 'annotation_name:claim_name'",
         code: "CONJ00111E"
       )
 
       MappingClaimInvalidClaimFormat = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapping claims, one of the claims in mapping claim value '{0-mapping-claim-value}' " \
-             "is in invalid format : {1-claim-verification-error}.",
+        msg: "Failed to parse mapping claims: one of the claims in the mapping claim value '{0-mapping-claim-value}' " \
+             "is in an invalid format : {1-claim-verification-error}.",
         code: "CONJ00112E"
       )
 
       MappingClaimDuplicationError = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapping claims, {0-purpose} value '{1-claim-value}' appears twice or more",
+        msg: "Failed to parse mapping claims: {0-purpose} value '{1-claim-value}' appears more than once",
         code: "CONJ00113E"
       )
 
-      RoleWithStandardOrMappedClaimError = ::Util::TrackableErrorClass.new(
-        msg: "Role can't have standard claim or a mapped claim. Error : '{0-error}'",
+      RoleWithRegisteredOrMappedClaimError = ::Util::TrackableErrorClass.new(
+        msg:  "Role can't have registered claim or a mapped claim. Error: '{0-error}'",
         code: "CONJ00069E"
       )
 

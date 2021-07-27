@@ -412,7 +412,7 @@ Feature: JWT Authenticator - Token Schema
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    Role can't have standard claim or a mapped claim
+    Role can't have registered claim or a mapped claim
     """
 
   @sanity
