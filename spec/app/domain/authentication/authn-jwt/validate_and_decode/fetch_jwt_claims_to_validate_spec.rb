@@ -20,6 +20,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
   end
 
   let(:iss_claim_valid_value) { "iss claim valid value" }
+  let(:aud_claim_valid_value) { "aud claim valid value" }
   let(:token_claim_value) { "value" }
 
   def jwt_claims_to_validate_list_with_values(claims)
@@ -32,11 +33,14 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
   end
 
   def claim_value(claim)
-    if claim == 'iss'
+    case claim
+    when 'iss'
       return iss_claim_valid_value
+    when 'aud'
+      return aud_claim_valid_value
+    else
+      nil
     end
-
-    nil
   end
 
   def token(claims)
@@ -64,9 +68,15 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
   }
 
   let(:mocked_fetch_issuer_value_valid) { double("MockedFetchIssuerValueValid") }
-
   let(:invalid_issuer_configuration_error) { "invalid issuer configuration error" }
   let(:mocked_fetch_issuer_value_invalid_configuration) { double("MockedFetchIssuerValueInvalid") }
+
+  let(:mocked_fetch_audience_value_valid) { double("MockedFetchAudienceValueValid") }
+  let(:mocked_fetch_audience_value_empty) { double("MockedFetchAudienceValueEmpty") }
+  let(:invalid_audit_configuration_error) { "invalid audit configuration error" }
+  let(:mocked_fetch_audit_value_invalid_configuration) { double("MockedFetchAudienceValueInvalid") }
+
+
 
   before(:each) do
     allow(mocked_fetch_issuer_value_valid).to(
@@ -77,6 +87,17 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
       receive(:call).and_raise(invalid_issuer_configuration_error)
     )
 
+    allow(mocked_fetch_audience_value_valid).to(
+      receive(:call).and_return(aud_claim_valid_value)
+    )
+
+    allow(mocked_fetch_audience_value_empty).to(
+      receive(:call).and_return('')
+    )
+
+    allow(mocked_fetch_audit_value_invalid_configuration).to(
+      receive(:call).and_raise(invalid_audit_configuration_error)
+    )
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
@@ -413,6 +434,72 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
 
       it "raises an error" do
         expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MissingToken)
+      end
+    end
+
+    context "with different `aud` permutations" do
+      context "with valid audit variable configuration and aud claim" do
+        subject do
+          authentication_parameters.decoded_token = token(%w[aud].freeze)
+
+          ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
+            fetch_audience_value: mocked_fetch_audience_value_valid
+          ).call(
+            authentication_parameters: authentication_parameters
+          )
+        end
+
+        it "returns jwt claims to validate list" do
+          expect(subject).to eql_claims_list(jwt_claims_to_validate_list_with_values(%w[exp aud].freeze))
+        end
+      end
+
+      context "with valid audit variable configuration and without aud claim" do
+        subject do
+          authentication_parameters.decoded_token = token(%w[claim_name].freeze)
+
+          ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
+            fetch_audience_value: mocked_fetch_audience_value_valid
+          ).call(
+            authentication_parameters: authentication_parameters
+          )
+        end
+
+        it "returns jwt claims to validate list" do
+          expect(subject).to eql_claims_list(jwt_claims_to_validate_list_with_values(%w[exp aud].freeze))
+        end
+      end
+
+      context "with empty audit variable configuration and aud claim" do
+        subject do
+          authentication_parameters.decoded_token = token(%w[aud].freeze)
+
+          ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
+            fetch_audience_value: mocked_fetch_audience_value_empty
+          ).call(
+            authentication_parameters: authentication_parameters
+          )
+        end
+
+        it "returns jwt claims to validate list" do
+          expect(subject).to eql_claims_list(jwt_claims_to_validate_list_with_values(%w[exp].freeze))
+        end
+      end
+
+      context "with invalid audit variable configuration" do
+        subject do
+          authentication_parameters.decoded_token = token(%w[exp aud].freeze)
+
+          ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
+            fetch_audience_value: mocked_fetch_audit_value_invalid_configuration
+          ).call(
+            authentication_parameters: authentication_parameters
+          )
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(invalid_audit_configuration_error)
+        end
       end
     end
   end
