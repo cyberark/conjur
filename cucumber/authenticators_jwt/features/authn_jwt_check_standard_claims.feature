@@ -1,10 +1,11 @@
-Feature: JWT Authenticator - Check standard claim
+Feature: JWT Authenticator - Check registered claim
 
-  Verify the authenticator works correctly with the standard claims:
+  Verify the authenticator works correctly with the registered claims:
    - iat
    - exp
    - nbf
    - iss
+   - aud
 
   Background:
     Given I initialize JWKS endpoint with file "myJWKs.json"
@@ -369,3 +370,42 @@ Feature: JWT Authenticator - Check standard claim
     """
     CONJ00011E Failed to discover Identity Provider (Provider URI: 'incorrect.com'). Reason: '#<AttrRequired::AttrMissing: 'host' required.>'
     """
+
+  @sanity
+  Scenario Outline: Audience tests
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/jwks-uri
+    - !variable conjur/authn-jwt/raw/audience
+
+    - !host
+      id: aud-test-app
+      annotations:
+        authn-jwt/raw/project-id: valid-project-id
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host aud-test-app
+    """
+    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "audience" variable to value "<audience>"
+    And I issue a JWT token:
+    """
+    {
+      "project-id":"valid-project-id",
+      "host":"aud-test-app",
+      <aud>
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is <http_code>
+    And The following appears in the log after my savepoint:
+    """
+    <log>
+    """
+    Examples:
+      | Test       | audience        | aud                                         | http_code | log                                                                                                                                       |
+      | ONYX-11154 | valid-audience  | "other":"claim"                             | 401       | CONJ00091E Failed to validate token, enforced claim 'aud' is missing.                                                                     |
+      | ONYX-11156 | valid-audience  | "aud":"invalid"                             | 401       | CONJ00018D Failed to decode the token with the error '#<JWT::InvalidAudError: Invalid audience. Expected valid-audience, received invalid |
+      | ONYX-11158 | valid-audience  | "aud": ["value1","valid-audience","value2"] | 200       | cucumber:host:aud-test-app successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw              |
