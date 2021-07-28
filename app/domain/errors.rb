@@ -547,6 +547,11 @@ module Errors
         msg: "Role can't have standard claim or a mapped claim. Error : '{0-error}'",
         code: "CONJ00069E"
       )
+
+      AudienceValueIsEmpty = ::Util::TrackableErrorClass.new(
+        msg: "Failed to fetch audience value: audience value is empty",
+        code: "CONJ00115E"
+      )
     end
 
     module ResourceRestrictions

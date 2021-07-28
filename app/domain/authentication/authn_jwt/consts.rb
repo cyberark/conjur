@@ -17,6 +17,7 @@ module Authentication
     IDENTITY_TYPE_HOST = "host"
     ENFORCED_CLAIMS_RESOURCE_NAME = "enforced-claims"
     MAPPING_CLAIMS_RESOURCE_NAME = "mapping-claims"
+    AUDIENCE_RESOURCE_NAME = "audience"
     PRIVILEGE_AUTHENTICATE="authenticate"
     ISS_CLAIM_NAME = "iss"
     EXP_CLAIM_NAME = "exp"
