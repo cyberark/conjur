@@ -3,7 +3,8 @@ Feature: JWT Authenticator - Status Check
   Checks status API of JWT authenticator. Status API should return error on each case of misconfiguration in
   authenticator or policy that can be found before authentication request.
 
-  Scenario: A valid JWT status request
+  @sanity
+  Scenario: ONYX-9122: A valid JWT status request
     Given I load a policy:
     """
     - !policy
@@ -21,6 +22,9 @@ Feature: JWT Authenticator - Status Check
 
       - !variable
         id: issuer
+
+      - !variable
+        id: audience
 
       - !group users
 
@@ -55,6 +59,7 @@ Feature: JWT Authenticator - Status Check
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
     And I successfully set authn-jwt "token-app-property" variable to value "user"
     And I successfully set authn-jwt "issuer" variable to value "gitlab"
+    And I successfully set authn-jwt "audience" variable to value "conjur"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -837,3 +842,60 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/json"
     And the authenticator status check succeeds
+
+  Scenario: ONYX-11162: Audience is configured but empty
+    Given I load a policy:
+    """
+    - !policy
+      id: conjur/authn-jwt/raw
+      body:
+      - !webservice
+        annotations:
+          description: Authentication service for JWT tokens, based on raw JWKs.
+
+      - !variable
+        id: jwks-uri
+
+      - !variable
+        id: token-app-property
+
+      - !variable
+        id: audience
+
+      - !group users
+
+      - !permit
+        role: !group users
+        privilege: [ read, authenticate ]
+        resource: !webservice
+
+      - !webservice
+        id: status
+        annotations:
+          description: Status service to check that the authenticator is configured correctly
+
+      - !group
+          id: operators
+          annotations:
+            description: Group of users who can check the status of the authenticator
+
+      - !permit
+        role: !group operators
+        privilege: [ read ]
+        resource: !webservice status
+
+    - !user alice
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/operators
+      member:
+      - !user alice
+    """
+    And I am the super-user
+    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I login as "alice"
+    And I save my place in the log file
+    When I GET "/authn-jwt/raw/cucumber/status"
+    Then the HTTP response status code is 500
+    And the authenticator status check fails with error "CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/audience>"
