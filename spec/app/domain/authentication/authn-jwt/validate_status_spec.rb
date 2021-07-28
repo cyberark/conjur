@@ -25,6 +25,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
   let(:mocked_invalid_create_signing_key_interface) { double("Mocked invalid create signing key interface")  }
   let(:mocked_valid_fetch_issuer_value) { double("Mocked valid fetch issuer value")  }
   let(:mocked_invalid_fetch_issuer_value) { double("Mocked invalid fetch issuer value")  }
+  let(:mocked_invalid_fetch_audience_value) { double("Mocked invalid audience issuer value")  }
   let(:mocked_invalid_fetch_enforced_claims) { double("Mocked invalid fetch enforced claims value")  }
   let(:mocked_invalid_fetch_mapping_claims) { double("Mocked invalid fetch mapping claims value")  }
   let(:mocked_valid_identity_from_decoded_token_provider) { double("Mocked valid identity from decoded token provider")  }
@@ -43,6 +44,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
   let(:create_signing_key_configuration_is_invalid_error) { "Create signing key configuration is invalid" }
   let(:fetch_issuer_configuration_is_invalid_error) { "Fetch issuer configuration is invalid" }
+  let(:fetch_audience_configuration_is_invalid_error) { "Fetch audience configuration is invalid" }
   let(:fetch_enforced_claims_configuration_is_invalid_error) { "Fetch enforced claims configuration is invalid" }
   let(:fetch_mapping_claims_configuration_is_invalid_error) { "Fetch mapping claims configuration is invalid" }
   let(:identity_configuration_is_invalid_error) { "Identity configuration is invalid" }
@@ -71,6 +73,10 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
     allow(mocked_invalid_fetch_issuer_value).to(
       receive(:call).and_raise(fetch_issuer_configuration_is_invalid_error)
+    )
+
+    allow(mocked_invalid_fetch_audience_value).to(
+      receive(:call).and_raise(fetch_audience_configuration_is_invalid_error)
     )
 
     allow(mocked_invalid_fetch_enforced_claims).to(
@@ -342,6 +348,29 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
         it "raises an error" do
           expect { subject }.to raise_error(fetch_issuer_configuration_is_invalid_error)
+        end
+      end
+
+      context "audience secret is not configured properly" do
+        subject do
+          ::Authentication::AuthnJwt::ValidateStatus.new(
+            create_signing_key_interface: mocked_valid_create_signing_key_interface,
+            fetch_issuer_value: mocked_valid_fetch_issuer_value,
+            fetch_audience_value: mocked_invalid_fetch_audience_value,
+            identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
+            validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
+            validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
+            validate_webservice_exists: mocked_valid_validate_webservice_exists,
+            validate_account_exists: mocked_valid_validate_account_exists,
+            logger: mocked_logger
+          ).call(
+            authenticator_status_input: authenticator_status_input,
+            enabled_authenticators: mocked_enabled_authenticators
+          )
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(fetch_audience_configuration_is_invalid_error)
         end
       end
 

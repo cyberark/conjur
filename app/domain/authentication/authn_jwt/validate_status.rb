@@ -5,6 +5,7 @@ module Authentication
       dependencies: {
         create_signing_key_interface: Authentication::AuthnJwt::SigningKey::CreateSigningKeyFactory.new,
         fetch_issuer_value: Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new,
+        fetch_audience_value: Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue.new,
         fetch_enforced_claims: Authentication::AuthnJwt::RestrictionValidation::FetchEnforcedClaims.new,
         fetch_mapping_claims: Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new,
         identity_from_decoded_token_provider_class: Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider,
@@ -24,6 +25,7 @@ module Authentication
         @logger.info(LogMessages::Authentication::AuthnJwt::ValidatingJwtStatusConfiguration.new)
         validate_generic_status_validations
         validate_issuer
+        validate_audience
         validate_enforced_claims
         validate_mapping_claims
         validate_identity_secrets
@@ -84,6 +86,11 @@ module Authentication
       def validate_issuer
         @fetch_issuer_value.call(authentication_parameters: authentication_parameters)
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedIssuerConfiguration.new)
+      end
+      
+      def validate_audience
+        @fetch_audience_value.call(authentication_parameters: authentication_parameters)
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedAudienceConfiguration.new)
       end
 
       def validate_enforced_claims

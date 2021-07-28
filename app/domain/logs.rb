@@ -703,6 +703,11 @@ module LogMessages
         msg: "Successfully fetched audience value '{0-value}'",
         code: "CONJ00139I"
       )
+
+      ValidatedAudienceConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated audience configuration",
+        code: "CONJ00140D"
+      )
     end
   end
 
