@@ -28,9 +28,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue'
   }
 
   let(:audience_resource_name) {Authentication::AuthnJwt::AUDIENCE_RESOURCE_NAME}
-  let(:audience_valid_secret_value_string) {'valid-string-value'}
-  let(:audience_valid_secret_value_uri) {'https://host.com/path'}
-  let(:audience_invalid_secret_value_uri) {':scheme::something::else'}
+  let(:audience_valid_secret_value) {'valid-string-value'}
 
   def mock_resource_id(resource_name:)
     %r{#{account}:variable:conjur/#{authenticator_name}/#{service_id}/#{resource_name}}
@@ -41,13 +39,9 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue'
   let(:mocked_resource_not_exists_values) { double("MockedResource") }
 
   let(:mocked_fetch_secrets_empty_values) {  double("MockedFetchSecrets") }
-  let(:mocked_fetch_secrets_exist_values_string) {  double("MockedFetchSecrets") }
-  let(:mocked_fetch_secrets_exist_values_uri) {  double("MockedFetchSecrets") }
-  let(:mocked_fetch_secrets_invalid_values) {  double("MockedFetchInvalidSecrets") }
-  
-  let(:mocked_valid_secrets_string) {  double("MockedValidSecrets") }
-  let(:mocked_valid_secrets_uri) {  double("MockedValidSecrets") }
-  let(:mocked_invalid_secrets) {  double("MockedInvalidSecrets") }
+  let(:mocked_fetch_secrets_exist_values) {  double("MockedFetchSecrets") }
+
+  let(:mocked_valid_secrets) {  double("MockedValidSecrets") }
 
   let(:required_secret_missing_error) { "required secret missing error" }
 
@@ -64,36 +58,15 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue'
       receive(:call).and_raise(required_secret_missing_error)
     )
 
-    allow(mocked_fetch_secrets_exist_values_string).to(
+    allow(mocked_fetch_secrets_exist_values).to(
       receive(:call).with(resource_ids: [mock_resource_id(resource_name: audience_resource_name)]).
-        and_return(mocked_valid_secrets_string)
+        and_return(mocked_valid_secrets)
     )
 
-    allow(mocked_valid_secrets_string).to(
+    allow(mocked_valid_secrets).to(
       receive(:[]).with(mock_resource_id(resource_name: audience_resource_name)).
-        and_return(audience_valid_secret_value_string)
+        and_return(audience_valid_secret_value)
     )
-
-    allow(mocked_fetch_secrets_exist_values_uri).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: audience_resource_name)]).
-        and_return(mocked_valid_secrets_uri)
-    )
-
-    allow(mocked_valid_secrets_uri).to(
-      receive(:[]).with(mock_resource_id(resource_name: audience_resource_name)).
-        and_return(audience_valid_secret_value_uri)
-    )
-
-    allow(mocked_fetch_secrets_invalid_values).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: audience_resource_name)]).
-        and_return(mocked_invalid_secrets)
-    )
-
-    allow(mocked_invalid_secrets).to(
-      receive(:[]).with(mock_resource_id(resource_name: audience_resource_name)).
-        and_return(audience_invalid_secret_value_uri)
-    )
-
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
@@ -117,51 +90,18 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue'
       end
     end
 
-    context "with invalid variable value" do
-      subject do
-        ::Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue.new(
-          resource_class: mocked_resource_exists_values,
-          fetch_required_secrets: mocked_fetch_secrets_invalid_values
-        ).call(
-          authentication_parameters: authentication_parameters
-        )
-      end
-
-      it "raises an error" do
-        expect { subject }.to raise_error(
-                                Errors::Authentication::AuthnJwt::AudienceValueIsNotURI,
-                                /.*CONJ00116E.*URI::InvalidURIError.*/
-                              )
-      end
-    end
-    
     context "with valid variable value string" do
       subject do
         ::Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue.new(
           resource_class: mocked_resource_exists_values,
-          fetch_required_secrets: mocked_fetch_secrets_exist_values_string
+          fetch_required_secrets: mocked_fetch_secrets_exist_values
         ).call(
           authentication_parameters: authentication_parameters
         )
       end
 
       it "returns the value" do
-        expect(subject).to eql(audience_valid_secret_value_string)
-      end
-    end
-
-    context "with valid variable value uri" do
-      subject do
-        ::Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue.new(
-          resource_class: mocked_resource_exists_values,
-          fetch_required_secrets: mocked_fetch_secrets_exist_values_uri
-        ).call(
-          authentication_parameters: authentication_parameters
-        )
-      end
-
-      it "returns the value" do
-        expect(subject).to eql(audience_valid_secret_value_uri)
+        expect(subject).to eql(audience_valid_secret_value)
       end
     end
   end

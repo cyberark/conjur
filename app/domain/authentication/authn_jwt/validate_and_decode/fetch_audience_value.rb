@@ -18,7 +18,7 @@ module Authentication
           return empty_audience_value unless audience_resource_exists?
 
           fetch_audience_secret_value
-          validate_audience_secret_value
+          validate_audience_secret_has_value
 
           @logger.info(LogMessages::Authentication::AuthnJwt::FetchedAudienceValue.new(audience_secret_value))
 
@@ -43,7 +43,7 @@ module Authentication
         
         def empty_audience_value
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingAudienceValue.new)
-          String.new
+          ''
         end
         
         def fetch_audience_secret_value
@@ -58,21 +58,8 @@ module Authentication
           @audience_required_secret ||= @fetch_required_secrets.call(resource_ids: [audience_resource_id])
         end
 
-        def validate_audience_secret_value
-          validate_audience_secret_has_value
-          audience_secret_value_is_stringoruri
-        end
-
         def validate_audience_secret_has_value
           raise Errors::Authentication::AuthnJwt::AudienceValueIsEmpty if audience_secret_value.blank?
-        end
-
-        # https://datatracker.ietf.org/doc/html/rfc7519#section-2 => StringOrURI
-        # any value containing a ":" character MUST be a URI [RFC3986]
-        def audience_secret_value_is_stringoruri
-          URI::RFC3986_PARSER.parse(audience_secret_value) if audience_secret_value.include?(":")
-        rescue => e
-          raise Errors::Authentication::AuthnJwt::AudienceValueIsNotURI.new(e.inspect)
         end
       end
     end
