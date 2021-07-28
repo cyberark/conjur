@@ -10,6 +10,7 @@ module Authentication
       FetchJwtClaimsToValidate ||= CommandClass.new(
         dependencies: {
           fetch_issuer_value: ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new,
+          fetch_audience_value: ::Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue.new,
           jwt_claim_class: ::Authentication::AuthnJwt::ValidateAndDecode::JwtClaim,
           logger: Rails.logger
         },
@@ -46,6 +47,13 @@ module Authentication
           MANDATORY_CLAIMS.each do |mandatory_claim|
             add_to_jwt_claims_list(mandatory_claim)
           end
+          add_to_jwt_claims_list(AUD_CLAIM_NAME) unless audience_value.blank?
+        end
+
+        def audience_value
+          @audience_value ||= @fetch_audience_value.call(
+            authentication_parameters: @authentication_parameters
+          )
         end
 
         def add_optional_claims_to_jwt_claims_list
@@ -77,6 +85,8 @@ module Authentication
             @fetch_issuer_value.call(
               authentication_parameters: @authentication_parameters
             )
+          when AUD_CLAIM_NAME
+            audience_value
           else
             # Claims that do not need an additional value to be validated will be set with nil value
             # For example: exp, nbf, iat
