@@ -550,7 +550,7 @@ module Errors
       )
 
       AudienceValueIsEmpty = ::Util::TrackableErrorClass.new(
-        msg: "Failed to fetch audience value: audience value is empty",
+        msg:  "Failed to fetch audience value: audience value is empty",
         code: "CONJ00115E"
       )
     end
