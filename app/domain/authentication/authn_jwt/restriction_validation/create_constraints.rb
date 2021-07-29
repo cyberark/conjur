@@ -104,7 +104,7 @@ module Authentication
         end
 
         def required_constraint
-          @logger.info(LogMessages::Authentication::AuthnJwt::EnforcedClaimsToBeChecked.new(mapped_enforced_claims))
+          @logger.debug(LogMessages::Authentication::AuthnJwt::ConstraintsFromEnforcedClaims.new(mapped_enforced_claims))
           @required_constraint ||= @required_constraint_class.new(
             required: mapped_enforced_claims
           )

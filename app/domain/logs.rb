@@ -591,7 +591,7 @@ module LogMessages
       )
 
       ClaimsDenyListValue = ::Util::TrackableLogMessageClass.new(
-        msg: "The following claims are in denylist: '{0-deny-claims-list}'",
+        msg: "The following claims are in the denylist: '{0-deny-claims-list}'",
         code: "CONJ00117D"
       )
 
@@ -675,9 +675,9 @@ module LogMessages
         code: "CONJ00133D"
       )
 
-      EnforcedClaimsToBeChecked = ::Util::TrackableLogMessageClass.new(
-        msg:  "Enforced claims to be checking in host are '{0-enforced-claims}'",
-        code: "CONJ00134I"
+      ConstraintsFromEnforcedClaims = ::Util::TrackableLogMessageClass.new(
+        msg: "Creating constraints from enforced claims: '{0-enforced-claims}'...",
+        code: "CONJ00134D"
       )
 
       ValidatedEnforcedClaimsConfiguration = ::Util::TrackableLogMessageClass.new(
@@ -696,17 +696,17 @@ module LogMessages
       )
 
       FetchingAudienceValue = ::Util::TrackableLogMessageClass.new(
-        msg:  "Fetching audience value...",
+        msg: "Fetching audience value...",
         code: "CONJ00138D"
       )
 
       FetchedAudienceValue = ::Util::TrackableLogMessageClass.new(
-        msg:  "Successfully fetched audience value '{0-value}'",
+        msg: "Successfully fetched audience value '{0-value}'",
         code: "CONJ00139I"
       )
 
       ValidatedAudienceConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg:  "Successfully validated audience configuration",
+        msg: "Successfully validated audience configuration",
         code: "CONJ00140D"
       )
     end
