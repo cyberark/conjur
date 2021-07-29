@@ -435,7 +435,7 @@ module Errors
       )
 
       MissingMandatoryClaim = ::Util::TrackableErrorClass.new(
-        msg: "Failed to validate token, mandatory claim '{0-claim}' is missing.",
+        msg: "Failed to validate token: mandatory claim '{0-claim}' is missing.",
         code: "CONJ00091E"
       )
 
@@ -507,7 +507,7 @@ module Errors
 
       InvalidEnforcedClaimsFormat = ::Util::TrackableErrorClass.new(
         msg: "List of enforced claims '{0-enforced-claims-value}' is in invalid format. " \
-             "Separate claim names with comas.",
+             "Separate claim names with commas.",
         code: "CONJ00107E"
       )
 
@@ -522,7 +522,7 @@ module Errors
       )
 
       MappingClaimsBlankOrEmpty = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapping claims: one ore more mapping statements is blank or empty " \
+        msg: "Failed to parse mapping claims: one or more mapping statements are blank or empty " \
              "'{0-mapping-claims-value}'.",
         code: "CONJ00110E"
       )
@@ -545,7 +545,7 @@ module Errors
       )
 
       RoleWithRegisteredOrMappedClaimError = ::Util::TrackableErrorClass.new(
-        msg:  "Role can't have registered claim or a mapped claim. Error: '{0-error}'",
+        msg: "Role can't have registered or mapped claim. Error: '{0-error}'",
         code: "CONJ00069E"
       )
 

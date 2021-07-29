@@ -351,12 +351,12 @@ module LogMessages
       )
 
       AddingJwtClaimToValidate = ::Util::TrackableLogMessageClass.new(
-        msg: "Adding JWT claim, '{0-claim-name}', to list of mandatory claims to be validated...",
+        msg: "Adding JWT claim '{0-claim-name}' to list of mandatory claims to be validated...",
         code: "CONJ00069D"
       )
 
       CheckingJwtClaimToValidate = ::Util::TrackableLogMessageClass.new(
-        msg: "Checking if JWT claim '{0-claim-name}' is mandatory to validate...",
+        msg: "Checking if JWT claim '{0-claim-name}' must be validated...",
         code: "CONJ00070D"
       )
 
@@ -591,7 +591,7 @@ module LogMessages
       )
 
       ClaimsDenyListValue = ::Util::TrackableLogMessageClass.new(
-        msg:  "Claims denylist value is '{0-deny-claims-list}'",
+        msg: "The following claims are in denylist: '{0-deny-claims-list}'",
         code: "CONJ00117D"
       )
 
@@ -621,7 +621,7 @@ module LogMessages
       )
 
       NotConfiguredEnforcedClaims = ::Util::TrackableLogMessageClass.new(
-        msg:  "Enforced claims is not configured",
+        msg: "No enforced claims configured",
         code: "CONJ00123D"
       )
 
@@ -681,17 +681,17 @@ module LogMessages
       )
 
       ValidatedEnforcedClaimsConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg:  "Successfully validated enforced claims configuration",
+        msg: "Successfully validated the configured enforced claims",
         code: "CONJ00135D"
       )
 
       ValidatedMappingClaimsConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg:  "Successfully validated mapping claims configuration",
+        msg: "Successfully validated the configured mapping claims",
         code: "CONJ00136D"
       )
 
       ClaimMapUsage = ::Util::TrackableLogMessageClass.new(
-        msg:  "Checking restriction '{0-annotation-value}', fetching value from '{1-claim-name}' claim...",
+        msg: "Checking restriction '{0-annotation-value}', fetching value from '{1-claim-name}' claim...",
         code: "CONJ00137D"
       )
 
