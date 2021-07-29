@@ -399,8 +399,7 @@ module Errors
 
       JwtTokenClaimIsMissing = ::Util::TrackableErrorClass.new(
         msg: "Claim '{0-attribute-name}' is missing from JWT token. " \
-             "Verify that you configured the host with permitted restrictions. " \
-             "In case of Compute Engine token, verify that you requested the token using 'format=full'",
+             "Verify that you configured the host with permitted restrictions.",
         code: "CONJ00084E"
       )
 
