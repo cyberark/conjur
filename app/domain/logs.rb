@@ -591,7 +591,7 @@ module LogMessages
       )
 
       ClaimsDenyListValue = ::Util::TrackableLogMessageClass.new(
-        msg: "The following claims are in the denylist: '{0-deny-claims-list}'",
+        msg: "The following claims are in denylist '{0-deny-claims-list}'",
         code: "CONJ00117D"
       )
 
