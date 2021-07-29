@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2333](https://github.com/cyberark/conjur/issues/2333)
 - Upgraded addressable in ./Gemfile.lock and ./docs/Gemfile.lock to 2.8.0 to resolve
   GHSA-jxhc-q857-3j6g [cyberark/conjur#2311](https://github.com/cyberark/conjur/pull/2311)
+- Previously, OIDC authentication requests that included a user ID in the URL
+  path would return a Conjur access token without requiring a valid OIDC token
+  in the request. OIDC authentication requests that attempt to include a user ID
+  in the URL path now return a `404 Not Found` response.
+  [Security Bulletin](https://github.com/cyberark/conjur/security/advisories/GHSA-6xj8-59gr-4jp3)
 
 ## [1.12.0] - 2021-06-25
 
@@ -66,7 +71,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [PR cyberark/conjur#2191](https://github.com/cyberark/conjur/pull/2191)
 
 ### Security
-- Upgrade Rails to 5.2.5 to resolve CVE-2021-22885
+- Upgrade Rails to 5.2.6 to resolve CVE-2021-22885
   [cyberark/conjur#2149](https://github.com/cyberark/conjur/issues/2149)
 - Upgrade Nokogiri to 1.11.5 to resolve
   [GHSA-7rrm-v45f-jp64](https://github.com/advisories/GHSA-7rrm-v45f-jp64).

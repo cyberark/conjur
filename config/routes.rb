@@ -24,19 +24,18 @@ Rails.application.routes.draw do
       constraints authenticator: /authn-?[^\/]*/, id: /[^\/?]+/ do
         get '/authn-jwt/:service_id/:account/status' => 'authenticate#authn_jwt_status'
         get '/:authenticator(/:service_id)/:account/status' => 'authenticate#status'
-        
+
         patch '/:authenticator/:service_id/:account' => 'authenticate#update_config'
 
         get '/:authenticator(/:service_id)/:account/login' => 'authenticate#login'
 
-        # authn-oidc has to be first as it can be ambiguous with the optional :service_id in
-        # the common authn request and the fact that authn-oidc doesn't have an 'id' param.
-        # i.e the request 'authn-oidc/:service_id/:account/authenticate' can be interpreted as
-        # ':authenticator/:account/:id/authenticate'
+        constraints authenticator: /authn|authn-azure|authn-iam|authn-k8s|authn-ldap/ do
+          post '/:authenticator(/:service_id)/:account/:id/authenticate' => 'authenticate#authenticate'
+        end
+
+        post '/authn-gcp/:account/authenticate' => 'authenticate#authenticate_gcp'
         post '/authn-oidc(/:service_id)/:account/authenticate' => 'authenticate#authenticate_oidc'
         post '/authn-jwt/:service_id/:account(/:id)/authenticate' => 'authenticate#authenticate_jwt'
-        post '/authn-gcp/:account/authenticate' => 'authenticate#authenticate_gcp'
-        post '/:authenticator(/:service_id)/:account/:id/authenticate' => 'authenticate#authenticate'
 
         # Update password is only relevant when using the default authenticator
         put  '/authn/:account/password' => 'credentials#update_password', defaults: { authenticator: 'authn' }
