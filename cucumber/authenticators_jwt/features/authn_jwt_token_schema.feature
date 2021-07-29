@@ -159,7 +159,7 @@ Feature: JWT Authenticator - Token Schema
     CONJ00084E Claim 'ref' is missing from JWT token.
     """
 
-  Scenario Outline: ONYX-10470 - Standard claim in enforced claims - 401 Error
+  Scenario Outline: ONYX-10470 - Standard claim in mandatory claims - 401 Error
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/enforced-claims
@@ -185,7 +185,7 @@ Feature: JWT Authenticator - Token Schema
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00105E Failed to validate claim, claim name '<err>' is in denylist '["iss", "exp", "nbf", "iat", "jti", "aud"]'
+    CONJ00105E Failed to validate claim: claim name '<err>' is in denylist '["iss", "exp", "nbf", "iat", "jti", "aud"]'
     """
     Examples:
     | claims        | err |
@@ -216,7 +216,7 @@ Feature: JWT Authenticator - Token Schema
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00069E Role can't have standard claim or a mapped claim
+    CONJ00069E Role can't have registered or mapped claim
     """
     Examples:
     | claim   |
@@ -412,7 +412,7 @@ Feature: JWT Authenticator - Token Schema
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    Role can't have standard claim or a mapped claim
+    CONJ00069E Role can't have registered or mapped claim
     """
 
   @sanity

@@ -154,7 +154,7 @@ Feature: JWT Authenticator - Check registered claim
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00091E Failed to validate token, enforced claim 'exp' is missing.
+    CONJ00091E Failed to validate token: mandatory claim 'exp' is missing.
     """
 
   Scenario: ONYX-8715: JWT token with future iat claim, 401 Error
@@ -406,6 +406,6 @@ Feature: JWT Authenticator - Check registered claim
     """
     Examples:
       | Test       | audience        | aud                                         | http_code | log                                                                                                                                       |
-      | ONYX-11154 | valid-audience  | "other":"claim"                             | 401       | CONJ00091E Failed to validate token, enforced claim 'aud' is missing.                                                                     |
+      | ONYX-11154 | valid-audience  | "other":"claim"                             | 401       | CONJ00091E Failed to validate token: mandatory claim 'aud' is missing.                                                                    |
       | ONYX-11156 | valid-audience  | "aud":"invalid"                             | 401       | CONJ00018D Failed to decode the token with the error '#<JWT::InvalidAudError: Invalid audience. Expected valid-audience, received invalid |
-      | ONYX-11158 | valid-audience  | "aud": ["value1","valid-audience","value2"] | 200       | cucumber:host:aud-test-app successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw              |
+      | ONYX-11158 | valid-audience  | "aud": ["value1","valid-audience","value2"] | 200       | cucumber:host:aud-test-app successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw       |

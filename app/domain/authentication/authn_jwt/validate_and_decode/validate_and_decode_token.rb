@@ -96,7 +96,7 @@ module Authentication
           claims_to_validate.each do |jwt_claim|
             claim_name = jwt_claim.name
             if @decoded_token[claim_name].blank?
-              raise Errors::Authentication::AuthnJwt::MissingEnforcedClaim, claim_name
+              raise Errors::Authentication::AuthnJwt::MissingMandatoryClaim, claim_name
             end
 
             verification_option = @get_verification_option_by_jwt_claim.call(jwt_claim: jwt_claim)

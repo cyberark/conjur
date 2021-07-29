@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Added
-- Add enforced claims support to JWT generic vendor configuration. ONYX-10520
-- Add claims mapping support to JWT generic vendor configuration. ONYX-10850
+- Added enforced claims support to JWT generic vendor configuration. [ONYX-10520](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-10520)
+- Added claims mapping support to JWT generic vendor configuration. [ONYX-10850](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-10850)
 - Added audience check to JWT generic vendor configuration. [ONYX-10512](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-10512)
 
 ### Security

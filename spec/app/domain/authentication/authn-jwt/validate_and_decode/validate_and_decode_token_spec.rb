@@ -408,7 +408,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
           end
         end
 
-        context "with enforced claims which not exist in token" do
+        context "with mandatory claims which do not exist in token" do
           subject do
             ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new(
               verify_and_decode_token: mocked_verify_and_decode_token_succeed_on_1st_time,
@@ -420,7 +420,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
           end
 
           it "raises an error" do
-            expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MissingEnforcedClaim)
+            expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MissingMandatoryClaim)
           end
         end
 
