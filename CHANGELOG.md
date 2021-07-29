@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.13.0] - 2021-07-29
+
 ### Added
 - Added enforced claims support to JWT generic vendor configuration. [ONYX-10520](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-10520)
 - Added claims mapping support to JWT generic vendor configuration. [ONYX-10850](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-10850)
@@ -684,7 +686,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.12.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.13.0...HEAD
+[1.13.0]: https://github.com/cyberark/conjur/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/cyberark/conjur/compare/v1.11.7...v1.12.0
 [1.11.7]: https://github.com/cyberark/conjur/compare/v1.11.6...v1.11.7
 [1.11.6]: https://github.com/cyberark/conjur/compare/v1.11.5...v1.11.6
