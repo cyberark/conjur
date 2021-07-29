@@ -32,7 +32,7 @@ Feature: JWT Authenticator - Token Schema
     And I successfully set authn-jwt "token-app-property" variable to value "host"
 
   @sanity
-  Scenario: ONYX-10471 - enforced Claims Without Claims Mapping. Single enforced claim - 200 OK
+  Scenario: ONYX-10471 - Enforced Claims Without Claims Mapping. Single enforced claim - 200 OK
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/enforced-claims
@@ -226,6 +226,7 @@ Feature: JWT Authenticator - Token Schema
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/enforced-claims
+    - !variable conjur/authn-jwt/raw/mapping-claims
 
     - !host
       id: myapp
@@ -236,6 +237,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
+    And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
     And I issue a JWT token:
     """
     {
@@ -448,4 +450,266 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
+  Scenario: ONYX-10816 - Enforced Claims with Claims Mapping. Single enforced claim but not in token - 401 Error
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/enforced-claims
+    - !variable conjur/authn-jwt/raw/mapping-claims
 
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/branch: valid
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
+    And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
+    And I issue a JWT token:
+    """
+    {
+      "host":"myapp"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00084E Claim 'ref (annotation: branch)' is missing from JWT token. Verify that you configured the host with permitted restrictions
+    """
+
+  Scenario: ONYX-10874 - Claim being mapped to another claim - 401 Error
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/mapping-claims
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/sub: mysub
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "mapping-claims" variable to value "sub:ref"
+    And I issue a JWT token:
+    """
+    {
+      "host":"myapp",
+      "sub":"mysub",
+      "ref":"mybranch"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00049E Resource restriction 'sub' does not match with the corresponding value in the request
+    """
+
+  Scenario: ONYX-10860 - Mapping claims configured but not populated - 401 Error
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/mapping-claims
+    - !variable conjur/authn-jwt/raw/enforced-claims
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/sub: valid
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I issue a JWT token:
+    """
+    {
+      "ref":"valid",
+      "host":"myapp"
+    }
+    """
+    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/mapping-claims
+    """
+
+  @sanity
+  Scenario: ONYX-11117: Enforced Claims and Mappings with special allowed characters. Annotations are correct. 200 OK
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/mapping-claims
+    - !variable conjur/authn-jwt/raw/enforced-claims
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/claim.name: claim.name.value  # Only Enforce
+        authn-jwt/raw/claim_ant: claim.ant...value # Map And Enforce
+        authn-jwt/raw/_: claim_name_value # Only Map
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "mapping-claims" variable to value "claim_ant:claim.ant..., _:claim_name"
+    And I successfully set authn-jwt "enforced-claims" variable to value "claim.name, claim.ant..."
+    And I issue a JWT token:
+    """
+    {
+      "host":"myapp",
+      "claim.name": "claim.name.value",
+      "claim.ant...": "claim.ant...value",
+      "claim_name": "claim_name_value"
+    }
+    """
+    And I save my place in the audit log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 200
+    And The following appears in the log after my savepoint:
+    """
+    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    """
+
+  Scenario Outline: ONYX-10873 - Broken claims mapping - 401 Error
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/mapping-claims
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/sub: mysub
+        authn-jwt/raw/ref: myref
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "mapping-claims" variable to value "<mapping>"
+    And I issue a JWT token:
+    """
+    {
+      "host":"myapp",
+      "sub":"mysub",
+      "ref":"mybranch"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    <err>
+    """
+    Examples:
+      | mapping                     | err                                                                             |
+      |   branch: ref, branch:sub   | CONJ00113E Failed to parse mapping claims: annotation name value 'branch' appears more than once |
+      |   branch: sub, job: sub     | CONJ00113E Failed to parse mapping claims: claim name value 'sub' appears more than once   |
+
+  Scenario Outline: ONYX-10858 - Standard claim in mapping - 401 Error
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/mapping-claims
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/sub: mysub
+        authn-jwt/raw/ref: myref
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "mapping-claims" variable to value "<mapping>"
+    And I issue a JWT token:
+    """
+    {
+      "host":"myapp",
+      "sub":"mysub",
+      "ref":"mybranch"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00105E Failed to validate claim: claim name 'exp' is in denylist '["iss", "exp", "nbf", "iat", "jti", "aud"]
+    """
+    Examples:
+      | mapping        |
+      |   branch: exp  |
+      |   exp: sub     |
+
+  Scenario: ONYX-10862 - Enforced claim invalid variable - 401 Error
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/enforced-claims
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/ref: valid
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "enforced-claims" variable to value "%@^#[{]}$~=-+_?.><&^@*@#*sdhj812ehd"
+    And I permit host "myapp" to "execute" it
+    And I issue a JWT token:
+    """
+    {
+      "ref":"valid",
+      "host":"myapp"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00104E Failed to validate claim: claim name '%@^#[{]}$~=-+_?.><&^@*@#*sdhj812ehd' does not match regular expression: '(?-mix:^[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*$)'.>
+    """
+
+  Scenario: ONYX-10863 - Mapping claims invalid variable - 401 Error
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/mapping-claims
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/ref: valid
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "mapping-claims" variable to value "aaa: %@^#&^[{]}$~=-+_?.><812ehd"
+    And I permit host "myapp" to "execute" it
+    And I issue a JWT token:
+    """
+    {
+      "ref":"valid",
+      "host":"myapp"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00104E Failed to validate claim: claim name '%@^#&^[{]}$~=-+_?.><812ehd' does not match regular expression: '(?-mix:^[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*$)'.
+    """
