@@ -713,3 +713,133 @@ Feature: JWT Authenticator - Token Schema
     """
     CONJ00104E Failed to validate claim: claim name '%@^#&^[{]}$~=-+_?.><812ehd' does not match regular expression: '(?-mix:^[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*$)'.
     """
+
+  Scenario: ONYX-10941:  Complex Case - Add mapping of mandatory claims after host configuration
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/enforced-claims
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/ref: valid-ref
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
+    And I issue a JWT token:
+    """
+    {
+      "host":"myapp",
+      "ref": "valid-ref"
+    }
+    """
+    And I authenticate via authn-jwt with the JWT token
+    And the HTTP response status code is 200
+    And I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/mapping-claims
+    """
+    And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
+    And I save my place in the audit log file
+    And I authenticate via authn-jwt with the JWT token
+    And the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00057E Role does not have the required constraints: '["branch"]'
+    """
+    And I update the policy with:
+    """
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/branch: valid-ref
+    """
+    And I save my place in the audit log file
+    And I authenticate via authn-jwt with the JWT token
+    And the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00069E Role can't have one of these none permitted restrictions '["ref"]'
+    """
+    When I update the policy with:
+    """
+    - !delete
+      record: !host myapp
+    """
+    And I extend the policy with:
+    """
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/branch: valid-ref
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I save my place in the audit log file
+    And I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 200
+    And The following appears in the log after my savepoint:
+    """
+    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    """
+
+  Scenario: ONYX-10896:  Authn JWT - Complex Case - Changing Mapping after host configuration
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/mapping-claims
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/branch: valid-ref
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
+    And I issue a JWT token:
+    """
+    {
+      "host":"myapp",
+      "ref": "valid-ref"
+    }
+    """
+    And I authenticate via authn-jwt with the JWT token
+    And the HTTP response status code is 200
+    When I successfully set authn-jwt "mapping-claims" variable to value "job:ref"
+    And I save my place in the audit log file
+    And I authenticate via authn-jwt with the JWT token
+    And the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00084E Claim 'branch' is missing from JWT token. Verify that you configured the host with permitted restrictions.
+    """
+    When I update the policy with:
+    """
+    - !delete
+      record: !host myapp
+    """
+    And I extend the policy with:
+    """
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/job: valid-ref
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I save my place in the audit log file
+    And I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 200
+    And The following appears in the log after my savepoint:
+    """
+    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    """
