@@ -3,15 +3,12 @@ Feature: JWT Authenticator - Fetch identity from URL
   Tests for fetching identity from URL of the JWT authentication request.
 
   Background:
-    Given I initialize JWKS endpoint with file "myJWKs.json"
-    And I load a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-jwt/raw
       body:
       - !webservice
-        annotations:
-          description: Authentication service for JWT tokens, based on raw JWKs.
 
       - !variable
         id: jwks-uri
@@ -60,13 +57,14 @@ Feature: JWT Authenticator - Fetch identity from URL
       member: !user user_test_from_url
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I initialize remote JWKS endpoint with file "identity-from-url" and alg "RS256"
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/identity-from-url/RS256" in service "raw"
 
   Scenario: ONYX-9520: User send in URL, user not in root, 200 ok
     Given I have a "variable" resource called "test-variable"
     And I permit user "user_test_from_url@some_policy" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
-    And I issue a JWT token:
+    And I am using file "identity-from-url" and alg "RS256" for remotely issue token:
     """
     {
       "project-id": "myproject"
@@ -85,7 +83,7 @@ Feature: JWT Authenticator - Fetch identity from URL
     Given I have a "variable" resource called "test-variable"
     And I permit user "user_test_from_url" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
-    And I issue a JWT token:
+    And I am using file "identity-from-url" and alg "RS256" for remotely issue token:
     """
     {
       "project-id": "myproject"
@@ -104,7 +102,7 @@ Feature: JWT Authenticator - Fetch identity from URL
     Given I have a "variable" resource called "test-variable"
     And I permit host "some_policy/host_test_from_url" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
-    And I issue a JWT token:
+    And I am using file "identity-from-url" and alg "RS256" for remotely issue token:
     """
     {
       "project-id": "myproject"
@@ -123,7 +121,7 @@ Feature: JWT Authenticator - Fetch identity from URL
     Given I have a "variable" resource called "test-variable"
     And I permit host "myapp" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
-    And I issue a JWT token:
+    And I am using file "identity-from-url" and alg "RS256" for remotely issue token:
     """
     {
       "project-id": "myproject"
@@ -139,7 +137,7 @@ Feature: JWT Authenticator - Fetch identity from URL
     """
 
   Scenario: ONYX-8821: Host taken from URL but not defined in conjur, error
-    Given I issue a JWT token:
+    Given I am using file "identity-from-url" and alg "RS256" for remotely issue token:
     """
     {
       "project-id": "myproject"
@@ -165,7 +163,7 @@ Feature: JWT Authenticator - Fetch identity from URL
       - !variable
         id: identity-path
     """
-    And I issue a JWT token:
+    And I am using file "identity-from-url" and alg "RS256" for remotely issue token:
     """
     {
       "project-id": "myproject"

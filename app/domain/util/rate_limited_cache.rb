@@ -43,17 +43,18 @@ module Util
       args.delete(:refresh)
 
       @semaphore.synchronize do
-        first_calculation = !@cache.key?(args)
-        recalculate(args) if refresh_requested || first_calculation
+        cache_key = cached_key(args)
+        first_calculation = !@cache.key?(cache_key)
+        recalculate(args, cache_key) if refresh_requested || first_calculation
 
-        @cache[args]
+        @cache[cache_key]
       end
     end
 
     private
 
-    def recalculate(args)
-      if too_many_requests?(args)
+    def recalculate(args, cache_key)
+      if too_many_requests?(cache_key)
         @logger.debug(
           LogMessages::Util::RateLimitedCacheLimitReached.new(
             @refreshes_per_interval,
@@ -62,9 +63,24 @@ module Util
         )
         return
       end
-      @cache[args] = @target.call(**args)
+      @cache[cache_key] = @target.call(**args)
       @logger.debug(LogMessages::Util::RateLimitedCacheUpdated.new)
-      @refresh_history[args].push(@time.now)
+      @refresh_history[cache_key].push(@time.now)
+    end
+
+    def cached_key(args)
+      if args.key?(:cache_key)
+        cache_key = args.fetch(:cache_key)
+        args.delete(:cache_key)
+        cache_key
+      end
+      cache_key = args
+      @logger.debug(
+        LogMessages::Util::RateLimitedCacheKeyRetrieved.new(
+          cache_key
+        )
+      )
+      cache_key
     end
 
     def too_many_requests?(args)

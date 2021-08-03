@@ -9,8 +9,6 @@ Feature: JWT Authenticator - Validate And Decode
       id: conjur/authn-jwt/raw
       body:
       - !webservice
-        annotations:
-          description: Authentication service for JWT tokens, based on raw JWKs.
 
       - !variable
         id: jwks-uri

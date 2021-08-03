@@ -126,3 +126,12 @@ Given(/^I am using file "([^"]*)" and alg "([^"]*)" for remotely issue token:$/)
     )
   )
 end
+
+Given(/^I am using file "([^"]*)" and alg "([^"]*)" for remotely issue non exp token:$/) do |file_name, alg, token_body_string|
+  # token body has to be an object (not a string) for correct token creation
+  issue_jwt_token_remotely(
+    file_name,
+    alg,
+    JSON.parse(token_body_string)
+  )
+end

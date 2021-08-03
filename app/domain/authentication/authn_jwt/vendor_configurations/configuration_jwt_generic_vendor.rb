@@ -10,22 +10,22 @@ module Authentication
           logger: Rails.logger,
           authentication_parameters_class: Authentication::AuthnJwt::AuthenticationParameters,
           restriction_validator_class: Authentication::AuthnJwt::RestrictionValidation::ValidateRestrictionsOneToOne,
-          validate_and_decode_token_class: Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken,
           validate_resource_restrictions_class: Authentication::ResourceRestrictions::ValidateResourceRestrictions,
           extract_token_from_credentials: Authentication::AuthnJwt::InputValidation::ExtractTokenFromCredentials.new,
           create_identity_provider: Authentication::AuthnJwt::IdentityProviders::CreateIdentityProvider.new,
           create_constraints: Authentication::AuthnJwt::RestrictionValidation::CreateConstrains.new,
-          fetch_mapping_claims: Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new
+          fetch_mapping_claims: Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new,
+          validate_and_decode_token: Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new
         )
           @logger = logger
           @authentication_parameters_class = authentication_parameters_class
           @restriction_validator_class = restriction_validator_class
-          @validate_and_decode_token_class = validate_and_decode_token_class
           @validate_resource_restrictions_class = validate_resource_restrictions_class
           @extract_token_from_credentials = extract_token_from_credentials
           @create_identity_provider = create_identity_provider
           @create_constraints = create_constraints
           @fetch_mapping_claims = fetch_mapping_claims
+          @validate_and_decode_token = validate_and_decode_token
 
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreatingAuthenticationParametersObject.new)
           @authentication_parameters = @authentication_parameters_class.new(
@@ -55,9 +55,8 @@ module Authentication
         end
 
         def validate_and_decode_token
-          @authentication_parameters.decoded_token = validate_and_decode_token_instance.call(
-            authentication_parameters: @authentication_parameters,
-            fetch_signing_key: fetch_signing_key
+          @authentication_parameters.decoded_token = @validate_and_decode_token.call(
+            authentication_parameters: @authentication_parameters
           )
         end
 
@@ -83,27 +82,9 @@ module Authentication
           )
         end
 
-        def validate_and_decode_token_instance
-          return @validate_and_decode_token_instance if @validate_and_decode_token_instance
-
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CreateValidateAndDecodeTokenInstance.new)
-          @validate_and_decode_token_instance = @validate_and_decode_token_class.new(
-            fetch_jwt_claims_to_validate: fetch_jwt_claims_to_validate
-          )
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedValidateAndDecodeTokenInstance.new)
-          @validate_and_decode_token_instance
-        end
-
-        def fetch_signing_key
-          @fetch_signing_key ||= ::Util::ConcurrencyLimitedCache.new(
-            ::Util::RateLimitedCache.new(
-              fetch_signing_key_interface,
-              refreshes_per_interval: CACHE_REFRESHES_PER_INTERVAL,
-              rate_limit_interval: CACHE_RATE_LIMIT_INTERVAL,
-              logger: @logger
-            ),
-            max_concurrent_requests: CACHE_MAX_CONCURRENT_REQUESTS,
-            logger: @logger
+        def fetch_singing_key_interface
+          @fetch_singing_key_interface ||= create_signing_key_interface.call(
+            authentication_parameters: @authentication_parameters
           )
         end
 
@@ -122,10 +103,6 @@ module Authentication
 
         def create_signing_key_interface
           @create_signing_key_interface ||= Authentication::AuthnJwt::SigningKey::CreateSigningKeyFactory.new
-        end
-
-        def fetch_jwt_claims_to_validate
-          @fetch_jwt_claims_to_validate ||= ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new
         end
 
         def restrictions_from_annotations
