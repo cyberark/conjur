@@ -38,13 +38,14 @@ Feature: JWT Authenticator - JWKs Basic sanity
       member: !host myapp
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I initialize remote JWKS endpoint with file "authn-jwt-general" and alg "RS256"
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-general/RS256" in service "raw"
     And I successfully set authn-jwt "token-app-property" variable to value "host"
 
   @sanity
   Scenario: ONYX-8598: Authenticator is not enabled
     Given I have a "variable" resource called "test-variable"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-general" and alg "RS256" for remotely issue token:
     """
     {
       "user":"myapp",
@@ -68,7 +69,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
       annotations:
         authn-jwt/raw/custom-claim:
     """
-    And I issue a JWT token:
+    And I am using file "authn-jwt-general" and alg "RS256" for remotely issue token:
     """
     {
       "host":"not_premmited",

@@ -21,14 +21,15 @@ module Util
     # callable object, but you can optionally include the `refresh: true` to
     # force recalculation.
     def call(**args)
+      cache_key = cached_key(args)
       @concurrency_mutex.synchronize do
         if @concurrent_requests >= @max_concurrent_requests
           @logger.debug(
             LogMessages::Util::ConcurrencyLimitedCacheReached.new(@max_concurrent_requests)
           )
-          raise Errors::Util::ConcurrencyLimitReachedBeforeCacheInitialization unless @cache.key?(args)
+          raise Errors::Util::ConcurrencyLimitReachedBeforeCacheInitialization unless @cache.key?(cache_key)
 
-          return @cache[args]
+          return @cache[cache_key]
         end
 
         @concurrent_requests += 1
@@ -41,14 +42,15 @@ module Util
 
       @semaphore.synchronize do
         recalculate(args)
-        @cache[args]
+        @cache[cache_key]
       end
     end
 
     private
 
     def recalculate(args)
-      @cache[args] = @target.call(**args)
+      cache_key = cached_key(args)
+      @cache[cache_key] = @target.call(**args)
       @logger.debug(LogMessages::Util::ConcurrencyLimitedCacheUpdated.new)
       decrease_concurrent_requests
     rescue => e
@@ -65,6 +67,14 @@ module Util
           )
         )
       end
+    end
+
+    def cached_key(args)
+      if args.has_key?(:cache_key)
+        cache_key = args.fetch(:cache_key)
+        return cache_key
+      end
+      args
     end
   end
 end

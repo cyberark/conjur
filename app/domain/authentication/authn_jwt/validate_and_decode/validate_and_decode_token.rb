@@ -7,12 +7,23 @@ module Authentication
       # for the 2nd validation
       ValidateAndDecodeToken ||= CommandClass.new(
         dependencies: {
+          fetch_signing_key: ::Util::ConcurrencyLimitedCache.new(
+            ::Util::RateLimitedCache.new(
+              ::Authentication::AuthnJwt::SigningKey::FetchCachedSigningKey.new,
+              refreshes_per_interval: CACHE_REFRESHES_PER_INTERVAL,
+              rate_limit_interval: CACHE_RATE_LIMIT_INTERVAL,
+              logger: Rails.logger
+            ),
+            max_concurrent_requests: CACHE_MAX_CONCURRENT_REQUESTS,
+            logger: Rails.logger
+          ),
           verify_and_decode_token: ::Authentication::Jwt::VerifyAndDecodeToken.new,
           fetch_jwt_claims_to_validate: ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new,
           get_verification_option_by_jwt_claim: ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new,
+          signing_key_interface_factory: ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyFactory.new,
           logger: Rails.logger
         },
-        inputs: %i[authentication_parameters fetch_signing_key]
+        inputs: %i[authentication_parameters]
       ) do
         extend(Forwardable)
         def_delegators(:@authentication_parameters, :jwt_token)
@@ -20,6 +31,7 @@ module Authentication
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingToken.new)
           validate_token_exists
+          fetch_signing_key_interface
           fetch_signing_key
           validate_signature
           fetch_jwt_claims_to_validate
@@ -31,12 +43,26 @@ module Authentication
 
         private
 
+        def fetch_signing_key_interface
+          signing_key_interface
+        end
+
+        def signing_key_interface
+          @signing_key_interface ||= @signing_key_interface_factory.call(
+            authentication_parameters: @authentication_parameters
+          )
+        end
+
         def validate_token_exists
           raise Errors::Authentication::AuthnJwt::MissingToken if jwt_token.blank?
         end
 
         def fetch_signing_key(force_read: false)
-          @jwks = @fetch_signing_key.call(refresh: force_read)
+          @jwks = @fetch_signing_key.call(
+            refresh: force_read,
+            cache_key: signing_key_interface.signing_key_uri,
+            signing_key_interface: signing_key_interface
+          )
           @logger.debug(LogMessages::Authentication::AuthnJwt::SigningKeysFetchedFromCache.new)
         end
 

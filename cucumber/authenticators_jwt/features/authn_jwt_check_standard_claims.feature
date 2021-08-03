@@ -8,7 +8,7 @@ Feature: JWT Authenticator - Check registered claim
    - aud
 
   Background:
-    Given I initialize JWKS endpoint with file "myJWKs.json"
+    Given I initialize remote JWKS endpoint with file "authn-jwt-check-standard-claims" and alg "RS256"
     And I load a policy:
     """
     - !policy
@@ -88,9 +88,9 @@ Feature: JWT Authenticator - Check registered claim
       - !variable
         id: issuer
     """
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-check-standard-claims/RS256" in service "raw"
     And I successfully set authn-jwt "issuer" variable to value "incorrect-value"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -115,8 +115,8 @@ Feature: JWT Authenticator - Check registered claim
       - !variable
         id: jwks-uri
     """
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I issue a JWT token:
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-check-standard-claims/RS256" in service "raw"
+    And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -141,8 +141,8 @@ Feature: JWT Authenticator - Check registered claim
       - !variable
         id: jwks-uri
     """
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I issue a JWT token without exp:
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-check-standard-claims/RS256" in service "raw"
+    And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue non exp token:
     """
     {
       "host":"myapp",
@@ -166,8 +166,8 @@ Feature: JWT Authenticator - Check registered claim
       - !variable
         id: jwks-uri
     """
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I issue a JWT token:
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-check-standard-claims/RS256" in service "raw"
+    And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -192,8 +192,8 @@ Feature: JWT Authenticator - Check registered claim
       - !variable
         id: jwks-uri
     """
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I issue a JWT token:
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-check-standard-claims/RS256" in service "raw"
+    And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -221,8 +221,8 @@ Feature: JWT Authenticator - Check registered claim
       - !variable
         id: issuer
     """
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I issue a JWT token:
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-check-standard-claims/RS256" in service "raw"
+    And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -250,8 +250,8 @@ Feature: JWT Authenticator - Check registered claim
       - !variable
         id: issuer
     """
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I issue a JWT token:
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-check-standard-claims/RS256" in service "raw"
+    And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -279,9 +279,9 @@ Feature: JWT Authenticator - Check registered claim
       - !variable
         id: issuer
     """
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-check-standard-claims/RS256" in service "raw"
     And I successfully set authn-jwt "issuer" variable to value "http://jwks"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -310,9 +310,9 @@ Feature: JWT Authenticator - Check registered claim
       - !variable
         id: issuer
     """
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
     And I successfully set authn-jwt "issuer" variable to value "incorrect.com"
-    And I issue a JWT token:
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-check-standard-claims/RS256" in service "raw"
+    And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -342,12 +342,12 @@ Feature: JWT Authenticator - Check registered claim
     """
     And I successfully set authn-jwt "jwks-uri" variable to value "incorrect.com"
     And I successfully set authn-jwt "issuer" variable to value "incorrect.com"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
       "project-id": "myproject",
-      "iss": "http://jwks"
+      "iss": "http://jwks_py:8090/authn-jwt-check-standard-claims/RS256"
     }
     """
     And I save my place in the audit log file
@@ -387,9 +387,9 @@ Feature: JWT Authenticator - Check registered claim
       role: !group conjur/authn-jwt/raw/hosts
       member: !host aud-test-app
     """
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-check-standard-claims/RS256" in service "raw"
     And I successfully set authn-jwt "audience" variable to value "<audience>"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
     {
       "project-id":"valid-project-id",

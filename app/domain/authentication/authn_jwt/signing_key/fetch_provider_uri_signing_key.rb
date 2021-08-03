@@ -25,9 +25,13 @@ module Authentication
           @valid_configuration = provider_uri_resource_exists?
         end
 
-        def call
+        def fetch_signing_key
           discover_provider
           fetch_provider_keys
+        end
+
+        def signing_key_uri
+          provider_uri
         end
 
         private

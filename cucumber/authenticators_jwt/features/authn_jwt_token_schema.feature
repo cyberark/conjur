@@ -512,7 +512,7 @@ Feature: JWT Authenticator - Token Schema
     CONJ00049E Resource restriction 'sub' does not match with the corresponding value in the request
     """
 
-  Scenario: ONYX-10860 - Mapping claims configured but not populated - 401 Error
+  Scenario: ONYX-10861 - Mapping claims configured but not populated - 401 Error
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/mapping-claims

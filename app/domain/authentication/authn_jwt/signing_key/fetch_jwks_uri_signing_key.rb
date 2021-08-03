@@ -31,9 +31,13 @@ module Authentication
           @valid_configuration = jwks_uri_resource_exists?
         end
 
-        def call
+        def fetch_signing_key
           fetch_jwks_uri
           fetch_jwks_keys
+        end
+
+        def signing_key_uri
+          jwks_uri
         end
 
         private
