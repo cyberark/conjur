@@ -17,6 +17,10 @@ module Authentication
       def authn_jwt_variable_id_prefix
         "#{@account}:variable:conjur/#{@authenticator_name}/#{@service_id}"
       end
+
+      def hash
+        "#{@service_id}-#{@authenticator_name}-#{@account}"
+      end
     end
   end
 end
