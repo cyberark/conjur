@@ -124,6 +124,48 @@ pipeline {
           }
         }
 
+    stage('Publish images') {
+      parallel {
+        stage('On a new tag') {
+          when {
+            // Only run this stage when it's a tag build matching vA.B.C
+            tag(
+              pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+\$",
+              comparator: "REGEXP"
+            )
+          }
+
+          steps {
+            sh 'summon -f ./secrets.yml ./push-image.sh'
+            // Trigger Conjurops build to push new releases of conjur to ConjurOps Staging
+            build(
+              job:'../conjurinc--conjurops/master',
+              parameters:[
+                string(name: 'conjur_oss_source_image', value: "cyberark/conjur:${TAG_NAME}")
+              ],
+              wait: false
+            )
+          }
+        }
+
+        stage('On a master build') {
+          when { environment name: 'JOB_NAME', value: 'cyberark--conjur/master' }
+          steps {
+            script {
+              def tasks = [:]
+              tasks["Publish edge to local registry"] = {
+                sh './push-image.sh --edge --registry-prefix=registry.tld'
+              }
+              tasks["Publish edge to DockerHub"] = {
+                sh './push-image.sh --edge'
+              }
+              parallel tasks
+            }
+          }
+        }
+      }
+    }
+
         // TODO: Add comments explaining which env vars are set here.
         stage('Prepare For CodeClimate Coverage Report Submission') {
           steps {
@@ -424,7 +466,7 @@ pipeline {
           }
         }
       }
-      
+
       post {
         success {
           script {
@@ -510,47 +552,6 @@ pipeline {
       }
     }
 
-    stage('Publish images') {
-      parallel {
-        stage('On a new tag') {
-          when {
-            // Only run this stage when it's a tag build matching vA.B.C
-            tag(
-              pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+\$",
-              comparator: "REGEXP"
-            )
-          }
-
-          steps {
-            sh 'summon -f ./secrets.yml ./push-image.sh'
-            // Trigger Conjurops build to push new releases of conjur to ConjurOps Staging
-            build(
-              job:'../conjurinc--conjurops/master',
-              parameters:[
-                string(name: 'conjur_oss_source_image', value: "cyberark/conjur:${TAG_NAME}")
-              ],
-              wait: false
-            )
-          }
-        }
-
-        stage('On a master build') {
-          when { environment name: 'JOB_NAME', value: 'cyberark--conjur/master' }
-          steps {
-            script {
-              def tasks = [:]
-              tasks["Publish edge to local registry"] = {
-                sh './push-image.sh --edge --registry-prefix=registry.tld'
-              }
-              tasks["Publish edge to DockerHub"] = {
-                sh './push-image.sh --edge'
-              }
-              parallel tasks
-            }
-          }
-        }
-      }
-    }
 
     stage('Build Debian and RPM packages') {
       steps {
