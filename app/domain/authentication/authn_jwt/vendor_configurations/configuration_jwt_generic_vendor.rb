@@ -105,10 +105,6 @@ module Authentication
           @create_signing_key_interface ||= Authentication::AuthnJwt::SigningKey::CreateSigningKeyFactory.new
         end
 
-        def fetch_jwt_claims_to_validate
-          @fetch_jwt_claims_to_validate ||= ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new
-        end
-
         def restrictions_from_annotations
           @restrictions_from_annotations ||= Authentication::ResourceRestrictions::GetServiceSpecificRestrictionFromAnnotation.new
         end

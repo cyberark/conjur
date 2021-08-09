@@ -3,7 +3,7 @@ module Authentication
 
     ValidateStatus = CommandClass.new(
       dependencies: {
-        fetch_signing_key: ::Util::ConcurrencyLimitedCache.new(
+        fetch_signing_key_from_cache: ::Util::ConcurrencyLimitedCache.new(
           ::Util::RateLimitedCache.new(
             ::Authentication::AuthnJwt::SigningKey::FetchCachedSigningKey.new,
             refreshes_per_interval: CACHE_REFRESHES_PER_INTERVAL,
@@ -144,7 +144,7 @@ module Authentication
       end
 
       def validate_signing_key
-        @fetch_signing_key.call(
+        @fetch_signing_key_from_cache.call(
           cache_key: signing_key_interface.signing_key_uri,
           signing_key_interface: signing_key_interface
         )
