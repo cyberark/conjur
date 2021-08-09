@@ -7,7 +7,7 @@ module Authentication
       # for the 2nd validation
       ValidateAndDecodeToken ||= CommandClass.new(
         dependencies: {
-          fetch_signing_key_from_cache: ::Util::ConcurrencyLimitedCache.new(
+          fetch_signing_key: ::Util::ConcurrencyLimitedCache.new(
             ::Util::RateLimitedCache.new(
               ::Authentication::AuthnJwt::SigningKey::FetchCachedSigningKey.new,
               refreshes_per_interval: CACHE_REFRESHES_PER_INTERVAL,
@@ -20,7 +20,7 @@ module Authentication
           verify_and_decode_token: ::Authentication::Jwt::VerifyAndDecodeToken.new,
           fetch_jwt_claims_to_validate: ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new,
           get_verification_option_by_jwt_claim: ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new,
-          signing_key_interface_factory: ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyFactory.new,
+          create_signing_key_provider: ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider.new,
           logger: Rails.logger
         },
         inputs: %i[authentication_parameters]
@@ -31,7 +31,6 @@ module Authentication
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingToken.new)
           validate_token_exists
-          fetch_signing_key_interface
           fetch_signing_key
           validate_signature
           fetch_jwt_claims_to_validate
@@ -43,9 +42,8 @@ module Authentication
 
         private
 
-        # Don't do memoization here because otherwise interface won't change between different requests
-        def fetch_signing_key_interface
-          @signing_key_interface = @signing_key_interface_factory.call(
+        def signing_key_provider
+          @signing_key_provider ||= @create_signing_key_provider.call(
             authentication_parameters: @authentication_parameters
           )
         end
@@ -55,10 +53,10 @@ module Authentication
         end
 
         def fetch_signing_key(force_read: false)
-          @jwks = @fetch_signing_key_from_cache.call(
+          @jwks = @fetch_signing_key.call(
             refresh: force_read,
-            cache_key: @signing_key_interface.signing_key_uri,
-            signing_key_interface: @signing_key_interface
+            cache_key: signing_key_provider.signing_key_uri,
+            signing_key_provider: signing_key_provider
           )
           @logger.debug(LogMessages::Authentication::AuthnJwt::SigningKeysFetchedFromCache.new)
         end

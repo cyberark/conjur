@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+- Fix bug of cache not working in authn jwt. [ONYX-11330](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-11330)
+
 ## [1.13.0] - 2021-07-29
 
 ### Added

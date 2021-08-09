@@ -3,6 +3,7 @@ Feature: JWT Authenticator - Fetch signing key
   In this feature we define a JWT authenticator with various signing key
   configurations.
 
+  @sanity
   Scenario: ONYX-8702: provider-uri is configured with valid value
     Given I load a policy:
     """
@@ -86,59 +87,6 @@ Feature: JWT Authenticator - Fetch signing key
     And The following appears in the log after my savepoint:
     """
     CONJ00011E Failed to discover Identity Provider (Provider URI: 'unknown-host.com')
-    """
-
-  Scenario: ONYX-8703: jwks uri configured with correct value
-    Given I load a policy:
-    """
-    - !policy
-      id: conjur/authn-jwt/raw
-      body:
-      - !webservice
-
-      - !variable
-        id: jwks-uri
-
-      - !variable
-        id: token-app-property
-
-      - !group hosts
-
-      - !permit
-        role: !group hosts
-        privilege: [ read, authenticate ]
-        resource: !webservice
-
-    - !host
-      id: myapp
-      annotations:
-        authn-jwt/raw/project-id: myproject
-
-    - !grant
-      role: !group conjur/authn-jwt/raw/hosts
-      member: !host myapp
-    """
-    And I am the super-user
-    And I initialize remote JWKS endpoint with file "authn-jwt-fetch-signing-key" and alg "RS256"
-    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-fetch-signing-key/RS256" in service "raw"
-    And I have a "variable" resource called "test-variable"
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
-    And I permit host "myapp" to "execute" it
-    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
-    And I am using file "authn-jwt-fetch-signing-key" and alg "RS256" for remotely issue token:
-    """
-    {
-      "host":"myapp",
-      "project-id": "myproject"
-    }
-    """
-    And I save my place in the log file
-    When I authenticate via authn-jwt with the JWT token
-    Then host "myapp" has been authorized by Conjur
-    And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
-    And The following appears in the log after my savepoint:
-    """
-    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
   Scenario: ONYX-8705: jwks uri configured with bad value

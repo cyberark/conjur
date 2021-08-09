@@ -25,7 +25,7 @@ module Util
     # not in case before the flow runs and it can cause unexpected behaviour so reek will ignore this.
     # reek:DuplicateMethodCall
     def call(**args)
-      cache_key = cached_key(args)
+      cache_key = cache_key(args)
       @concurrency_mutex.synchronize do
         if @concurrent_requests >= @max_concurrent_requests
           @logger.debug(
@@ -72,13 +72,18 @@ module Util
       end
     end
 
-    def cached_key(args)
-      cache_key = args.key?(:cache_key) ? args.fetch(:cache_key) : args
-      @logger.debug(
-        LogMessages::Util::ConcurrencyLimitedCacheKeyRetrieved.new(
-          cache_key
+    # Function returning cache key to store/retrieve in the cache
+    def cache_key(args)
+      if args.key?(:cache_key)
+        cache_key = args.fetch(:cache_key)
+        @logger.debug(
+          LogMessages::Util::ConcurrencyLimitedCacheKeyRetrieved.new(
+            cache_key
+          )
         )
-      )
+      else
+        cache_key = args
+      end
       cache_key
     end
   end

@@ -82,27 +82,11 @@ module Authentication
           )
         end
 
-        def fetch_singing_key_interface
-          @fetch_singing_key_interface ||= create_signing_key_interface.call(
-            authentication_parameters: @authentication_parameters
-          )
-        end
-
         def create_identity_provider
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreateJwtIdentityProviderInstance.new)
           @create_identity_provider ||= @create_identity_provider
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedJwtIdentityProviderInstance.new)
           @create_identity_provider
-        end
-
-        def fetch_signing_key_interface
-          @fetch_signing_key_interface ||= create_signing_key_interface.call(
-            authentication_parameters: @authentication_parameters
-          )
-        end
-
-        def create_signing_key_interface
-          @create_signing_key_interface ||= Authentication::AuthnJwt::SigningKey::CreateSigningKeyFactory.new
         end
 
         def restrictions_from_annotations

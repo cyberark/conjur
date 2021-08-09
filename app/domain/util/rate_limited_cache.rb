@@ -72,14 +72,14 @@ module Util
       if args.key?(:cache_key)
         cache_key = args.fetch(:cache_key)
         args.delete(:cache_key)
-        cache_key
-      end
-      cache_key = args
-      @logger.debug(
-        LogMessages::Util::RateLimitedCacheKeyRetrieved.new(
-          cache_key
+        @logger.debug(
+          LogMessages::Util::RateLimitedCacheKeyRetrieved.new(
+            cache_key
+          )
         )
-      )
+      else
+        cache_key = args
+      end
       cache_key
     end
 
