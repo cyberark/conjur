@@ -5,7 +5,8 @@ Feature: JWT Authenticator - Status Check
 
   @sanity
   Scenario: ONYX-9122: A valid JWT status request, 200 OK
-    Given I load a policy:
+    Given I initialize JWKS endpoint with file "myJWKs.json"
+    And I load a policy:
     """
     - !policy
       id: conjur/authn-jwt/raw
@@ -233,7 +234,8 @@ Feature: JWT Authenticator - Status Check
     And the authenticator status check fails with error "CONJ00006E 'alice' does not have 'read' privilege on cucumber:webservice:conjur/authn-jwt/raw/status"
 
   Scenario: ONYX-9139: Non existing issuer, and existing Signing key, 200 OK
-    Given I load a policy:
+    Given I initialize JWKS endpoint with file "myJWKs.json"
+    And I load a policy:
     """
     - !policy
       id: conjur/authn-jwt/raw
@@ -708,7 +710,8 @@ Feature: JWT Authenticator - Status Check
 
   @sanity
   Scenario: ONYX-9515: Valid status check, identify-path is configured with value, 200 OK
-    Given I load a policy:
+    Given I initialize JWKS endpoint with file "myJWKs.json"
+    And I load a policy:
     """
     - !policy
       id: apps
@@ -776,7 +779,8 @@ Feature: JWT Authenticator - Status Check
     And the authenticator status check succeeds
 
   Scenario: ONYX-10875: Status works fine with enforced claims and mapping, 200 OK
-    Given I load a policy:
+    Given I initialize JWKS endpoint with file "myJWKs.json"
+    And I load a policy:
     """
     - !policy
       id: apps
