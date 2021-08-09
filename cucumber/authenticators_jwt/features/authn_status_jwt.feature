@@ -3,6 +3,9 @@ Feature: JWT Authenticator - Status Check
   Checks status API of JWT authenticator. Status API should return error on each case of misconfiguration in
   authenticator or policy that can be found before authentication request.
 
+  Background:
+    Given I initialize remote JWKS endpoint with file "authn-jwt-configuration" and alg "RS256"
+
   @sanity
   Scenario: ONYX-9122: A valid JWT status request, 200 OK
     Given I load a policy:
@@ -56,7 +59,7 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
     And I successfully set authn-jwt "token-app-property" variable to value "user"
     And I successfully set authn-jwt "issuer" variable to value "gitlab"
     And I successfully set authn-jwt "audience" variable to value "conjur"
@@ -278,7 +281,7 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
     And I successfully set authn-jwt "token-app-property" variable to value "user"
     And I login as "alice"
     And I save my place in the log file
@@ -764,7 +767,7 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
     And I successfully set authn-jwt "token-app-property" variable to value "user"
     And I successfully set authn-jwt "identity-path" variable to value "apps"
     And I successfully set authn-jwt "issuer" variable to value "gitlab"
@@ -832,7 +835,7 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
     And I successfully set authn-jwt "token-app-property" variable to value "user"
     And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
     And I successfully set authn-jwt "enforced-claims" variable to value "ref"
