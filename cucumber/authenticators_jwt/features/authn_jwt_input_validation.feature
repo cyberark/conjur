@@ -3,15 +3,12 @@ Feature: JWT Authenticator - Input Validation
   Check scenarios with authentication request
 
   Background:
-    Given I initialize JWKS endpoint with file "myJWKs.json"
-    And I load a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-jwt/raw
       body:
       - !webservice
-        annotations:
-          description: Authentication service for JWT tokens, based on raw JWKs.
 
       - !variable
         id: jwks-uri
@@ -33,12 +30,16 @@ Feature: JWT Authenticator - Input Validation
       member: !user myuser
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I initialize remote JWKS endpoint with file "authn-jwt-input-validation" and alg "RS256"
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-input-validation/RS256" in service "raw"
 
   @sanity
   Scenario: ONYX-8594: Empty Token Given, 401 Error
     Given I save my place in the log file
-    And I issue empty JWT token
+    And I am using file "authn-jwt-input-validation" and alg "RS256" for remotely issue non exp token:
+    """
+    {}
+    """
     When I authenticate via authn-jwt with the JWT token
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
@@ -68,7 +69,7 @@ Feature: JWT Authenticator - Input Validation
 
   Scenario: ONYX-8579: URL not includes service-id, includes correct account
     Given I save my place in the log file
-    And I issue a JWT token:
+    And I am using file "authn-jwt-input-validation" and alg "RS256" for remotely issue non exp token:
     """
     {
       "project-id": "myproject"
@@ -83,7 +84,7 @@ Feature: JWT Authenticator - Input Validation
 
   Scenario: ONYX-8579: URL includes valid service id, wrong account name
     Given I save my place in the log file
-    And I issue a JWT token:
+    And I am using file "authn-jwt-input-validation" and alg "RS256" for remotely issue token:
     """
     {
       "project-id": "myproject"
@@ -98,7 +99,7 @@ Feature: JWT Authenticator - Input Validation
 
   Scenario: ONYX-8579: URL includes wrong service id, correct account name
     Given I save my place in the log file
-    And I issue a JWT token:
+    And I am using file "authn-jwt-input-validation" and alg "RS256" for remotely issue non exp token:
     """
     {
       "project-id": "myproject"
@@ -110,4 +111,3 @@ Feature: JWT Authenticator - Input Validation
     """
     CONJ00004E 'authn-jwt/wrong-id' is not enabled>
     """
-

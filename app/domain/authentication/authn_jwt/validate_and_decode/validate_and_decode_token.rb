@@ -7,12 +7,23 @@ module Authentication
       # for the 2nd validation
       ValidateAndDecodeToken ||= CommandClass.new(
         dependencies: {
+          fetch_signing_key: ::Util::ConcurrencyLimitedCache.new(
+            ::Util::RateLimitedCache.new(
+              ::Authentication::AuthnJwt::SigningKey::FetchCachedSigningKey.new,
+              refreshes_per_interval: CACHE_REFRESHES_PER_INTERVAL,
+              rate_limit_interval: CACHE_RATE_LIMIT_INTERVAL,
+              logger: Rails.logger
+            ),
+            max_concurrent_requests: CACHE_MAX_CONCURRENT_REQUESTS,
+            logger: Rails.logger
+          ),
           verify_and_decode_token: ::Authentication::Jwt::VerifyAndDecodeToken.new,
           fetch_jwt_claims_to_validate: ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new,
           get_verification_option_by_jwt_claim: ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new,
+          create_signing_key_provider: ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider.new,
           logger: Rails.logger
         },
-        inputs: %i[authentication_parameters fetch_signing_key]
+        inputs: %i[authentication_parameters]
       ) do
         extend(Forwardable)
         def_delegators(:@authentication_parameters, :jwt_token)
@@ -31,12 +42,22 @@ module Authentication
 
         private
 
+        def signing_key_provider
+          @signing_key_provider ||= @create_signing_key_provider.call(
+            authentication_parameters: @authentication_parameters
+          )
+        end
+
         def validate_token_exists
           raise Errors::Authentication::AuthnJwt::MissingToken if jwt_token.blank?
         end
 
         def fetch_signing_key(force_read: false)
-          @jwks = @fetch_signing_key.call(refresh: force_read)
+          @jwks = @fetch_signing_key.call(
+            refresh: force_read,
+            cache_key: signing_key_provider.signing_key_uri,
+            signing_key_provider: signing_key_provider
+          )
           @logger.debug(LogMessages::Authentication::AuthnJwt::SigningKeysFetchedFromCache.new)
         end
 

@@ -712,6 +712,8 @@ module LogMessages
     end
   end
 
+  # This are log messages so its okay there are many
+  # :reek:TooManyConstants
   module Util
 
     RateLimitedCacheUpdated = ::Util::TrackableLogMessageClass.new(
@@ -738,6 +740,16 @@ module LogMessages
     ConcurrencyLimitedCacheConcurrentRequestsUpdated = ::Util::TrackableLogMessageClass.new(
       msg: "Concurrency limited cache concurrent requests updated to '{0-concurrent-requests}'",
       code: "CONJ00023D"
+    )
+
+    ConcurrencyLimitedCacheKeyRetrieved = ::Util::TrackableLogMessageClass.new(
+      msg: "ConcurrencyLimitedCache retrieved cache key : '{0-cache-key}'",
+      code: "CONJ00024D"
+    )
+
+    RateLimitedCacheKeyRetrieved = ::Util::TrackableLogMessageClass.new(
+      msg: "RateLimitedCache Retrieved cache key : '{0-cache-key}'",
+      code: "CONJ00025D"
     )
 
   end

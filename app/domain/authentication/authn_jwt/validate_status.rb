@@ -3,7 +3,17 @@ module Authentication
 
     ValidateStatus = CommandClass.new(
       dependencies: {
-        create_signing_key_interface: Authentication::AuthnJwt::SigningKey::CreateSigningKeyFactory.new,
+        fetch_signing_key: ::Util::ConcurrencyLimitedCache.new(
+          ::Util::RateLimitedCache.new(
+            ::Authentication::AuthnJwt::SigningKey::FetchCachedSigningKey.new,
+            refreshes_per_interval: CACHE_REFRESHES_PER_INTERVAL,
+            rate_limit_interval: CACHE_RATE_LIMIT_INTERVAL,
+            logger: Rails.logger
+          ),
+          max_concurrent_requests: CACHE_MAX_CONCURRENT_REQUESTS,
+          logger: Rails.logger
+        ),
+        create_signing_key_provider: Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider.new,
         fetch_issuer_value: Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new,
         fetch_audience_value: Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue.new,
         fetch_enforced_claims: Authentication::AuthnJwt::RestrictionValidation::FetchEnforcedClaims.new,
@@ -134,25 +144,15 @@ module Authentication
       end
 
       def validate_signing_key
-        fetch_signing_key.call
+        @fetch_signing_key.call(
+          cache_key: signing_key_provider.signing_key_uri,
+          signing_key_provider: signing_key_provider
+        )
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedSigningKeyConfiguration.new)
       end
-
-      def fetch_signing_key
-        @fetch_signing_key ||= ::Util::ConcurrencyLimitedCache.new(
-          ::Util::RateLimitedCache.new(
-            fetch_signing_key_interface,
-            refreshes_per_interval: ::Authentication::AuthnJwt::CACHE_REFRESHES_PER_INTERVAL,
-            rate_limit_interval: ::Authentication::AuthnJwt::CACHE_RATE_LIMIT_INTERVAL,
-            logger: @logger
-          ),
-          max_concurrent_requests: ::Authentication::AuthnJwt::CACHE_MAX_CONCURRENT_REQUESTS,
-          logger: @logger
-        )
-      end
-
-      def fetch_signing_key_interface
-        @fetch_signing_key_interface ||= @create_signing_key_interface.call(
+      
+      def signing_key_provider
+        @signing_key_provider ||= @create_signing_key_provider.call(
           authentication_parameters: authentication_parameters
         )
       end

@@ -2,7 +2,7 @@ module Authentication
   module AuthnJwt
     module SigningKey
       # Factory that returns the interface implementation of FetchSigningKey
-      CreateSigningKeyFactory ||= CommandClass.new(
+      CreateSigningKeyProvider ||= CommandClass.new(
         dependencies: {
           fetch_provider_uri_signing_key_class: Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey,
           fetch_jwks_uri_signing_key_class: Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey,
@@ -13,12 +13,12 @@ module Authentication
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::SelectingSigningKeyInterface.new)
           validate_key_configuration
-          create_signing_key
+          create_signing_key_provider
         end
 
         private
 
-        def create_signing_key
+        def create_signing_key_provider
           if provider_uri_has_valid_configuration?
             @logger.info(
               LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(PROVIDER_URI_INTERFACE_NAME)

@@ -3,7 +3,7 @@ Feature: JWT Authenticator - Configuration Check
   Tests to check failures because of misconfiguration of the JWT during runtime.
 
   Background:
-    Given I initialize JWKS endpoint with file "myJWKs.json"
+    Given I initialize remote JWKS endpoint with file "authn-jwt-configuration" and alg "RS256"
     And I have a "variable" resource called "test-variable"
 
   Scenario: ONYX-8600: Webservice is missing in Authenticator policy
@@ -29,9 +29,9 @@ Feature: JWT Authenticator - Configuration Check
       member: !host myapp
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
     And I successfully set authn-jwt "token-app-property" variable to value "host"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -53,8 +53,6 @@ Feature: JWT Authenticator - Configuration Check
       id: conjur/authn-jwt/raw
       body:
       - !webservice
-        annotations:
-          description: Authentication service for JWT tokens, based on raw JWKs.
 
       - !variable
         id: jwks-uri
@@ -73,9 +71,9 @@ Feature: JWT Authenticator - Configuration Check
       member: !host myapp
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
     And I successfully set authn-jwt "token-app-property" variable to value "host"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -97,8 +95,6 @@ Feature: JWT Authenticator - Configuration Check
       id: conjur/authn-jwt/raw
       body:
       - !webservice
-        annotations:
-          description: Authentication service for JWT tokens, based on raw JWKs.
 
       - !variable
         id: jwks-uri
@@ -127,7 +123,7 @@ Feature: JWT Authenticator - Configuration Check
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable to value "jwks uri placehodlder"
     And I successfully set authn-jwt "provider-uri" variable to value "provider uri placeholder"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -149,8 +145,6 @@ Feature: JWT Authenticator - Configuration Check
       id: conjur/authn-jwt/raw
       body:
       - !webservice
-        annotations:
-          description: Authentication service for JWT tokens, based on raw JWKs.
 
       - !variable
         id: jwks-uri
@@ -179,7 +173,7 @@ Feature: JWT Authenticator - Configuration Check
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable to value " "
     And I successfully set authn-jwt "provider-uri" variable to value "provider uri placeholder"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -201,8 +195,6 @@ Feature: JWT Authenticator - Configuration Check
       id: conjur/authn-jwt/raw
       body:
       - !webservice
-        annotations:
-          description: Authentication service for JWT tokens, based on raw JWKs.
 
       - !variable
         id: jwks-uri
@@ -226,7 +218,7 @@ Feature: JWT Authenticator - Configuration Check
       member: !host myapp
     """
     And I am the super-user
-    And I issue a JWT token:
+    And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -248,8 +240,6 @@ Feature: JWT Authenticator - Configuration Check
       id: conjur/authn-jwt/raw
       body:
       - !webservice
-        annotations:
-          description: Authentication service for JWT tokens, based on raw JWKs.
 
       - !variable
         id: provider-uri
@@ -273,7 +263,7 @@ Feature: JWT Authenticator - Configuration Check
       member: !host myapp
     """
     And I am the super-user
-    And I issue a JWT token:
+    And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -295,8 +285,6 @@ Feature: JWT Authenticator - Configuration Check
       id: conjur/authn-jwt/raw
       body:
       - !webservice
-        annotations:
-          description: Authentication service for JWT tokens, based on raw JWKs.
 
       - !variable
         id: token-app-property
@@ -317,7 +305,7 @@ Feature: JWT Authenticator - Configuration Check
       member: !host myapp
     """
     And I am the super-user
-    And I issue a JWT token:
+    And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -339,8 +327,6 @@ Feature: JWT Authenticator - Configuration Check
       id: conjur/authn-jwt/raw
       body:
       - !webservice
-        annotations:
-          description: Authentication service for JWT tokens, based on raw JWKs.
 
       - !variable
         id: jwks-uri
@@ -367,9 +353,9 @@ Feature: JWT Authenticator - Configuration Check
       member: !host myapp
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
     And I successfully set authn-jwt "provider-uri" variable to value " "
-    And I issue a JWT token:
+    And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -391,8 +377,6 @@ Feature: JWT Authenticator - Configuration Check
       id: conjur/authn-jwt/raw
       body:
       - !webservice
-        annotations:
-          description: Authentication service for JWT tokens, based on raw JWKs.
 
       - !variable
         id: jwks-uri
@@ -416,8 +400,8 @@ Feature: JWT Authenticator - Configuration Check
       member: !host myapp
     """
     And I successfully set authn-jwt "token-app-property" variable to value "host"
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I issue a JWT token:
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
+    And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -439,8 +423,6 @@ Feature: JWT Authenticator - Configuration Check
       id: conjur/authn-jwt/raw
       body:
       - !webservice
-        annotations:
-          description: Authentication service for JWT tokens, based on raw JWKs.
 
       - !variable
         id: jwks-uri
@@ -460,8 +442,8 @@ Feature: JWT Authenticator - Configuration Check
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I issue a JWT token:
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
+    And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",

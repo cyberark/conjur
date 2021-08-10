@@ -3,15 +3,12 @@ Feature: JWT Authenticator - Validate restrictions
   Tests to check that host annotations are validated correctly in jwt authenticator. Focusing on checking that only the vendor related annotations are being checked.
 
   Background:
-    Given I initialize JWKS endpoint with file "myJWKs.json"
-    And I load a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-jwt/raw
       body:
       - !webservice
-        annotations:
-          description: Authentication service for JWT tokens, based on raw JWKs.
 
       - !variable
         id: jwks-uri
@@ -27,7 +24,8 @@ Feature: JWT Authenticator - Validate restrictions
         resource: !webservice
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I initialize remote JWKS endpoint with file "authn-jwt-validate-restrictions" and alg "RS256"
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-validate-restrictions/RS256" in service "raw"
 
   Scenario: ONYX-9069: Generals annotations with valid values, one annotation with valid service and valid value, one annotation with invalid service and valid value, 200 OK
     Given I have a "variable" resource called "test-variable"
@@ -48,7 +46,7 @@ Feature: JWT Authenticator - Validate restrictions
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "myapp" to "execute" it
-    And I issue a JWT token:
+    And I am using file "authn-jwt-validate-restrictions" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -79,7 +77,7 @@ Feature: JWT Authenticator - Validate restrictions
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I issue a JWT token:
+    And I am using file "authn-jwt-validate-restrictions" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -111,7 +109,7 @@ Feature: JWT Authenticator - Validate restrictions
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I issue a JWT token:
+    And I am using file "authn-jwt-validate-restrictions" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -138,7 +136,7 @@ Feature: JWT Authenticator - Validate restrictions
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I issue a JWT token:
+    And I am using file "authn-jwt-validate-restrictions" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -170,7 +168,7 @@ Feature: JWT Authenticator - Validate restrictions
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I issue a JWT token:
+    And I am using file "authn-jwt-validate-restrictions" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -203,7 +201,7 @@ Feature: JWT Authenticator - Validate restrictions
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I issue a JWT token:
+    And I am using file "authn-jwt-validate-restrictions" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -233,7 +231,7 @@ Feature: JWT Authenticator - Validate restrictions
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I issue a JWT token:
+    And I am using file "authn-jwt-validate-restrictions" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp"
@@ -261,7 +259,7 @@ Feature: JWT Authenticator - Validate restrictions
       member: !host myapp
     """
     And I successfully set authn-jwt "token-app-property" variable to value "host"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-validate-restrictions" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -296,7 +294,7 @@ Feature: JWT Authenticator - Validate restrictions
       member: !host myapp
     """
     And I successfully set authn-jwt "token-app-property" variable to value "host"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-validate-restrictions" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",

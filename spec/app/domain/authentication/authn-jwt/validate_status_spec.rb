@@ -7,6 +7,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
   let(:authenticator_name) { 'authn-jwt' }
   let(:service_id) { "my-service" }
   let(:account) { 'my-account' }
+  let(:valid_signing_key_uri) { 'valid-signing-key-uri' }
+  let(:valid_signing_key) { 'valid-signing-key' }
 
   let(:authenticator_status_input) {
     Authentication::AuthenticatorStatusInput.new(
@@ -21,8 +23,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
   }
 
   let(:mocked_logger) { double("Mocked logger")  }
-  let(:mocked_valid_create_signing_key_interface) { double("Mocked valid create signing key interface")  }
-  let(:mocked_invalid_create_signing_key_interface) { double("Mocked invalid create signing key interface")  }
+  let(:mocked_valid_create_signing_key_provider) { double("Mocked valid create signing key interface")  }
+  let(:mocked_invalid_create_signing_key_provider) { double("Mocked invalid create signing key interface")  }
   let(:mocked_valid_fetch_issuer_value) { double("Mocked valid fetch issuer value")  }
   let(:mocked_invalid_fetch_issuer_value) { double("Mocked invalid fetch issuer value")  }
   let(:mocked_invalid_fetch_audience_value) { double("Mocked invalid audience issuer value")  }
@@ -52,18 +54,24 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
   let(:user_cant_access_webservice_error) { "User cant access webservice" }
   let(:webservice_does_not_exist_error) { "Webservice does not exist" }
   let(:account_does_not_exist_error) { "Account does not exist" }
-  let(:mocked_valid_fetch_signing_key_interface) { double("Mocked valid fetch signing key interface")  }
+  let(:mocked_valid_signing_key_provider) { double("Mocked valid signing key interface")  }
+  let(:mocked_valid_fetch_signing_key) { double("Mocked valid fetch signing key interface")  }
+
 
   before(:each) do
-    allow(mocked_valid_create_signing_key_interface).to(
-      receive(:call).and_return(mocked_valid_fetch_signing_key_interface)
+    allow(mocked_valid_create_signing_key_provider).to(
+      receive(:call).and_return(mocked_valid_signing_key_provider)
     )
 
-    allow(mocked_valid_fetch_signing_key_interface).to(
-      receive(:call).and_return(nil)
+    allow(mocked_valid_signing_key_provider).to(
+      receive(:signing_key_uri).and_return(valid_signing_key_uri)
+    )
+
+    allow(mocked_valid_fetch_signing_key).to(
+      receive(:call).and_return(valid_signing_key)
     )
     
-    allow(mocked_invalid_create_signing_key_interface).to(
+    allow(mocked_invalid_create_signing_key_provider).to(
       receive(:call).and_raise(create_signing_key_configuration_is_invalid_error)
     )
 
@@ -158,7 +166,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
       subject do
         ::Authentication::AuthnJwt::ValidateStatus.new(
-          create_signing_key_interface: mocked_valid_create_signing_key_interface,
+          fetch_signing_key: mocked_valid_fetch_signing_key,
+          create_signing_key_provider: mocked_valid_create_signing_key_provider,
           fetch_issuer_value: mocked_valid_fetch_issuer_value,
           identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
           validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
@@ -182,7 +191,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            create_signing_key_interface: mocked_valid_create_signing_key_interface,
+            fetch_signing_key: mocked_valid_fetch_signing_key,
+            create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
@@ -205,7 +215,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            create_signing_key_interface: mocked_valid_create_signing_key_interface,
+            fetch_signing_key: mocked_valid_fetch_signing_key,
+            create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
@@ -228,7 +239,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            create_signing_key_interface: mocked_valid_create_signing_key_interface,
+            fetch_signing_key: mocked_valid_fetch_signing_key,
+            create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
@@ -251,7 +263,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            create_signing_key_interface: mocked_valid_create_signing_key_interface,
+            fetch_signing_key: mocked_valid_fetch_signing_key,
+            create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
             validate_webservice_is_whitelisted: mocked_invalid_validate_webservice_is_whitelisted,
@@ -286,7 +299,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            create_signing_key_interface: mocked_valid_create_signing_key_interface,
+            fetch_signing_key: mocked_valid_fetch_signing_key,
+            create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
@@ -310,7 +324,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       context "signing key secrets are not configured properly" do
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            create_signing_key_interface: mocked_invalid_create_signing_key_interface,
+            fetch_signing_key: mocked_valid_fetch_signing_key,
+            create_signing_key_provider: mocked_invalid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
@@ -332,7 +347,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       context "issuer secrets are not configured properly" do
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            create_signing_key_interface: mocked_valid_create_signing_key_interface,
+            fetch_signing_key: mocked_valid_fetch_signing_key,
+            create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_invalid_fetch_issuer_value,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
@@ -354,7 +370,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       context "audience secret is not configured properly" do
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            create_signing_key_interface: mocked_valid_create_signing_key_interface,
+            fetch_signing_key: mocked_valid_fetch_signing_key,
+            create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             fetch_audience_value: mocked_invalid_fetch_audience_value,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
@@ -377,7 +394,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       context "enforced claims is not configured properly" do
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            create_signing_key_interface: mocked_valid_create_signing_key_interface,
+            fetch_signing_key: mocked_valid_fetch_signing_key,
+            create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             fetch_enforced_claims: mocked_invalid_fetch_enforced_claims,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
@@ -400,7 +418,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       context "mapping claims is not configured properly" do
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            create_signing_key_interface: mocked_valid_create_signing_key_interface,
+            fetch_signing_key: mocked_valid_fetch_signing_key,
+            create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             fetch_mapping_claims: mocked_invalid_fetch_mapping_claims,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
@@ -423,7 +442,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       context "identity secrets are not configured properly" do
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            create_signing_key_interface: mocked_valid_create_signing_key_interface,
+            fetch_signing_key: mocked_valid_fetch_signing_key,
+            create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             identity_from_decoded_token_provider_class: mocked_invalid_identity_from_decoded_token_provider,
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,

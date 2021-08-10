@@ -129,7 +129,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
                                                                resource_class: mocked_resource_value_exists,
                                                                http_lib: mocked_bad_http_response,
                                                                create_jwks_from_http_response: mocked_create_jwks_from_http_response
-        ).call
+        ).fetch_signing_key
       end
 
       it "raises an error" do
@@ -146,7 +146,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
                                                                  resource_class: mocked_resource_value_exists,
                                                                  http_lib: mocked_good_http_response,
                                                                  create_jwks_from_http_response: mocked_create_jwks_from_http_response
-          ).call
+          ).fetch_signing_key
         end
 
         it "returns jwks value" do
@@ -162,7 +162,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
                                                                  resource_class: mocked_resource_value_exists,
                                                                  http_lib: mocked_bad_http_response,
                                                                  create_jwks_from_http_response: mocked_create_jwks_from_http_response
-          ).call
+          ).fetch_signing_key
         end
 
         it "raises an error" do

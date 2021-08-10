@@ -3,15 +3,12 @@ Feature: JWT Authenticator - Token Schema
   Tests checking enforced claims and claims mapping
 
   Background:
-    Given I initialize JWKS endpoint with file "myJWKs.json"
-    And I load a policy:
+    Given I load a policy:
     """
     - !policy
       id: conjur/authn-jwt/raw
       body:
       - !webservice
-        annotations:
-          description: Authentication service for JWT tokens, based on raw JWKs.
 
       - !variable
         id: jwks-uri
@@ -27,7 +24,8 @@ Feature: JWT Authenticator - Token Schema
         resource: !webservice
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I initialize remote JWKS endpoint with file "authn-jwt-token-schema" and alg "RS256"
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-token-schema/RS256" in service "raw"
     And I have a "variable" resource called "test-variable"
     And I successfully set authn-jwt "token-app-property" variable to value "host"
 
@@ -49,7 +47,7 @@ Feature: JWT Authenticator - Token Schema
     And I successfully set authn-jwt "enforced-claims" variable to value "ref"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "myapp" to "execute" it
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "ref":"valid",
@@ -83,7 +81,7 @@ Feature: JWT Authenticator - Token Schema
     And I successfully set authn-jwt "enforced-claims" variable to value "ref,sub"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "myapp" to "execute" it
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "ref":"valid-ref",
@@ -115,7 +113,7 @@ Feature: JWT Authenticator - Token Schema
       member: !host myapp
     """
     And I successfully set authn-jwt "enforced-claims" variable to value "ref"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "ref":"valid",
@@ -145,7 +143,7 @@ Feature: JWT Authenticator - Token Schema
       member: !host myapp
     """
     And I successfully set authn-jwt "enforced-claims" variable to value "ref"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp"
@@ -174,7 +172,7 @@ Feature: JWT Authenticator - Token Schema
       member: !host myapp
     """
     And I successfully set authn-jwt "enforced-claims" variable to value "<claims>"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp"
@@ -205,7 +203,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp"
@@ -238,7 +236,7 @@ Feature: JWT Authenticator - Token Schema
       member: !host myapp
     """
     And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "ref":"valid",
@@ -268,7 +266,7 @@ Feature: JWT Authenticator - Token Schema
     """
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "myapp" to "execute" it
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "sub":"valid-sub",
@@ -330,7 +328,7 @@ Feature: JWT Authenticator - Token Schema
       member: !host myapp
     """
     And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -363,7 +361,7 @@ Feature: JWT Authenticator - Token Schema
       member: !host myapp
     """
     And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -391,7 +389,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -435,7 +433,7 @@ Feature: JWT Authenticator - Token Schema
     """
     And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
     And I successfully set authn-jwt "enforced-claims" variable to value "ref"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -467,7 +465,7 @@ Feature: JWT Authenticator - Token Schema
     """
     And I successfully set authn-jwt "enforced-claims" variable to value "ref"
     And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp"
@@ -496,7 +494,7 @@ Feature: JWT Authenticator - Token Schema
       member: !host myapp
     """
     And I successfully set authn-jwt "mapping-claims" variable to value "sub:ref"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -512,7 +510,7 @@ Feature: JWT Authenticator - Token Schema
     CONJ00049E Resource restriction 'sub' does not match with the corresponding value in the request
     """
 
-  Scenario: ONYX-10860 - Mapping claims configured but not populated - 401 Error
+  Scenario: ONYX-10861 - Mapping claims configured but not populated - 401 Error
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/mapping-claims
@@ -527,7 +525,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "ref":"valid",
@@ -563,7 +561,7 @@ Feature: JWT Authenticator - Token Schema
     """
     And I successfully set authn-jwt "mapping-claims" variable to value "claim_ant:claim.ant..., _:claim_name"
     And I successfully set authn-jwt "enforced-claims" variable to value "claim.name, claim.ant..."
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -596,7 +594,7 @@ Feature: JWT Authenticator - Token Schema
       member: !host myapp
     """
     And I successfully set authn-jwt "mapping-claims" variable to value "<mapping>"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -632,7 +630,7 @@ Feature: JWT Authenticator - Token Schema
       member: !host myapp
     """
     And I successfully set authn-jwt "mapping-claims" variable to value "<mapping>"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -668,7 +666,7 @@ Feature: JWT Authenticator - Token Schema
     """
     And I successfully set authn-jwt "enforced-claims" variable to value "%@^#[{]}$~=-+_?.><&^@*@#*sdhj812ehd"
     And I permit host "myapp" to "execute" it
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "ref":"valid",
@@ -699,7 +697,7 @@ Feature: JWT Authenticator - Token Schema
     """
     And I successfully set authn-jwt "mapping-claims" variable to value "aaa: %@^#&^[{]}$~=-+_?.><812ehd"
     And I permit host "myapp" to "execute" it
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "ref":"valid",
@@ -729,7 +727,7 @@ Feature: JWT Authenticator - Token Schema
       member: !host myapp
     """
     And I successfully set authn-jwt "enforced-claims" variable to value "ref"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
@@ -803,7 +801,7 @@ Feature: JWT Authenticator - Token Schema
       member: !host myapp
     """
     And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
-    And I issue a JWT token:
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "host":"myapp",
