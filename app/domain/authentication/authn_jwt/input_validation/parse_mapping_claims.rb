@@ -11,6 +11,7 @@ module Authentication
         },
         inputs: %i[mapping_claims]
       ) do
+
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::ParsingMappingClaims.new(@mapping_claims))
           validate_mapping_claims_secret_value_exists

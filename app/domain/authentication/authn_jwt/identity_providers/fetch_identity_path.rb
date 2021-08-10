@@ -12,6 +12,7 @@ module Authentication
         },
         inputs: %i[authentication_parameters]
       ) do
+
         def call
           fetch_identity_path
         end

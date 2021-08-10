@@ -10,6 +10,7 @@ module Authentication
         dependencies: {},
         inputs: %i[signing_key_provider]
       ) do
+
         def call
           fetch_signing_key
         end

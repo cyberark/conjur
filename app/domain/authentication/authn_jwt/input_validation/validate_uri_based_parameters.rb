@@ -10,6 +10,7 @@ module Authentication
         },
         inputs: %i[authenticator_input enabled_authenticators]
       ) do
+
         def call
           validate_account_exists
           validate_webservice_is_whitelisted

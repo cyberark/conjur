@@ -6,7 +6,7 @@ module Authentication
   module AuthnJwt
     module SigningKey
       # This class is responsible for fetching JWK Set from JWKS-uri
-      class FetchJwksUriSigningKey < FetchSigningKeyInterface
+      class FetchJwksUriSigningKey
 
         def initialize(
           authentication_parameters:,

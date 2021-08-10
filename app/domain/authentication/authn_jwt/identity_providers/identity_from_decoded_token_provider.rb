@@ -2,7 +2,7 @@ module Authentication
   module AuthnJwt
     module IdentityProviders
       # Class for providing jwt identity from the decoded token from the field specified in a secret
-      class IdentityFromDecodedTokenProvider < IdentityProviderInterface
+      class IdentityFromDecodedTokenProvider
         def initialize(
           authentication_parameters:,
           fetch_required_secrets: Conjur::FetchRequiredSecrets.new,

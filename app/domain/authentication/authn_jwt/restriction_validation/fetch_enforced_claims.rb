@@ -14,6 +14,7 @@ module Authentication
         },
         inputs: %i[authentication_parameters]
       ) do
+
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingEnforcedClaims.new)
           

@@ -10,6 +10,7 @@ module Authentication
         },
         inputs: %i[authentication_parameters]
       ) do
+
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::SelectingSigningKeyInterface.new)
           validate_key_configuration
@@ -17,20 +18,6 @@ module Authentication
         end
 
         private
-
-        def create_signing_key_provider
-          if provider_uri_has_valid_configuration?
-            @logger.info(
-              LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(PROVIDER_URI_INTERFACE_NAME)
-            )
-            fetch_provider_uri_signing_key
-          elsif jwks_uri_has_valid_configuration?
-            @logger.info(
-              LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(JWKS_URI_INTERFACE_NAME)
-            )
-            fetch_jwks_uri_signing_key
-          end
-        end
 
         def validate_key_configuration
           @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingJwtSigningKeyConfiguration.new)
@@ -73,6 +60,20 @@ module Authentication
           @fetch_jwks_uri_signing_key ||= @fetch_jwks_uri_signing_key_class.new(
             authentication_parameters: @authentication_parameters
           )
+        end
+
+        def create_signing_key_provider
+          if provider_uri_has_valid_configuration?
+            @logger.info(
+              LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(PROVIDER_URI_INTERFACE_NAME)
+            )
+            fetch_provider_uri_signing_key
+          elsif jwks_uri_has_valid_configuration?
+            @logger.info(
+              LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(JWKS_URI_INTERFACE_NAME)
+            )
+            fetch_jwks_uri_signing_key
+          end
         end
       end
     end

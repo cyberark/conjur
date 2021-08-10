@@ -18,6 +18,7 @@ module Authentication
         },
         inputs: %i[identity_prefix identity]
       ) do
+
         def call
           validate_input
           add_prefix_to_identity

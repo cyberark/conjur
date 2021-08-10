@@ -20,6 +20,7 @@ module Authentication
         },
         inputs: %i[authentication_parameters base_non_permitted_annotations]
       ) do
+
         # These is command class so only call is called from outside. Other functions are needed here.
         # :reek:TooManyMethods
         def call

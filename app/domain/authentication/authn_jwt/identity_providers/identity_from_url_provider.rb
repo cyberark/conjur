@@ -2,7 +2,7 @@ module Authentication
   module AuthnJwt
     module IdentityProviders
       # Provides jwt identity from information in the URL
-      class IdentityFromUrlProvider < IdentityProviderInterface
+      class IdentityFromUrlProvider
         def initialize(
           authentication_parameters:,
           logger: Rails.logger
@@ -35,6 +35,8 @@ module Authentication
 
           @identity_available = username_exists?
         end
+
+        private
 
         def username_exists?
           !@authentication_parameters.username.blank?

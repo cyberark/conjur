@@ -20,7 +20,6 @@ module Authentication
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingIssuerConfigurationValue.new)
           fetch_issuer_value
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchedIssuerValueFromConfiguration.new)
 
           @issuer_value
         end
@@ -120,20 +119,20 @@ module Authentication
         def fetch_issuer_from_jwks_uri_secret
           @logger.debug(LogMessages::Authentication::AuthnJwt::ParsingIssuerFromUri.new(jwks_uri_secret_value))
 
-          begin
-            @issuer_from_jwks_uri_secret = @uri_class.parse(jwks_uri_secret_value).hostname
-          rescue => e
-            raise Errors::Authentication::AuthnJwt::InvalidUriFormat.new(
-              jwks_uri_secret_value,
-              e.inspect
-            )
-          end
-
-          if @issuer_from_jwks_uri_secret.blank?
+          if issuer_from_jwks_uri_secret.blank?
             raise Errors::Authentication::AuthnJwt::FailedToParseHostnameFromUri, jwks_uri_secret_value
           end
 
-          @issuer_from_jwks_uri_secret
+          issuer_from_jwks_uri_secret
+        end
+
+        def issuer_from_jwks_uri_secret
+          @issuer_from_jwks_uri_secret ||= @uri_class.parse(jwks_uri_secret_value).hostname
+        rescue => e
+          raise Errors::Authentication::AuthnJwt::InvalidUriFormat.new(
+            jwks_uri_secret_value,
+            e.inspect
+          )
         end
 
         def jwks_uri_secret_value

@@ -15,7 +15,7 @@ module Authentication
         validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
         role_id_class: Audit::Event::Authn::RoleId
       },
-      inputs: %i[jwt_configuration authenticator_input]
+      inputs: %i[vendor_configuration authenticator_input]
     ) do
       extend(Forwardable)
       def_delegators(:@authenticator_input, :account, :username, :client_ip, :authenticator_name, :service_id)
@@ -38,7 +38,7 @@ module Authentication
 
       def validate_and_decode_token
         @logger.debug(LogMessages::Authentication::AuthnJwt::CallingValidateAndDecodeToken.new)
-        @jwt_configuration.validate_and_decode_token
+        @vendor_configuration.validate_and_decode_token
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidateAndDecodeTokenPassed.new)
       end
 
@@ -49,7 +49,7 @@ module Authentication
       end
 
       def jwt_identity
-        @jwt_identity ||= @jwt_configuration.jwt_identity
+        @jwt_identity ||= @vendor_configuration.jwt_identity
       end
 
       def validate_host_has_access_to_webservice
@@ -71,7 +71,7 @@ module Authentication
 
       def validate_restrictions
         @logger.debug(LogMessages::Authentication::AuthnJwt::CallingValidateRestrictions.new)
-        @jwt_configuration.validate_restrictions
+        @vendor_configuration.validate_restrictions
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidateRestrictionsPassed.new)
       end
 
