@@ -5,18 +5,17 @@ module Authentication
       class IdentityFromDecodedTokenProvider
         def initialize(
           authentication_parameters:,
-          fetch_required_secrets: Conjur::FetchRequiredSecrets.new,
-          resource_class: ::Resource,
           fetch_identity_path: Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath.new,
           add_prefix_to_identity: Authentication::AuthnJwt::IdentityProviders::AddPrefixToIdentity.new,
+          fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
+          check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
           logger: Rails.logger
         )
           @logger = logger
-          @fetch_required_secrets = fetch_required_secrets
-          @resource_class = resource_class
           @fetch_identity_path = fetch_identity_path
           @add_prefix_to_identity = add_prefix_to_identity
-
+          @check_authenticator_secret_exists = check_authenticator_secret_exists
+          @fetch_authenticator_secrets = fetch_authenticator_secrets
           @authentication_parameters = authentication_parameters
         end
 
@@ -40,13 +39,6 @@ module Authentication
           host_identity_with_prefix
         end
 
-        # Checks if variable that defined from which field in decoded token to get the id is configured
-        def identity_available?
-          return @identity_available if defined?(@identity_available)
-
-          @identity_available = token_id_field_variable.present?
-        end
-
         # This method is for the authenticator status check, unlike 'identity_available?' it checks also:
         # 1. token-app-property secret value is not empty
         # 2. identity-path secret value is not empty (resource not exists is ok)
@@ -58,6 +50,18 @@ module Authentication
         end
 
         private
+
+        # Checks if variable that defined from which field in decoded token to get the id is configured
+        def identity_available?
+          return @identity_available if defined?(@identity_available)
+
+          @identity_available = @check_authenticator_secret_exists.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            var_name: TOKEN_APP_PROPERTY_VARIABLE
+          )
+        end
 
         def fetch_identity_name_from_token
           return @identity_name_from_token if @identity_name_from_token
@@ -80,16 +84,13 @@ module Authentication
         def token_id_field_secret
           return @token_id_field_secret if @token_id_field_secret
 
-          @token_id_field_secret = @fetch_required_secrets.call(
-            resource_ids: [token_id_field_variable_id]
-          )[token_id_field_variable_id]
+          @token_id_field_secret = @fetch_authenticator_secrets.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            required_variable_names: [TOKEN_APP_PROPERTY_VARIABLE]
+          )[TOKEN_APP_PROPERTY_VARIABLE]
 
-          @logger.info(
-            LogMessages::Authentication::AuthnJwt::RetrievedResourceValue.new(
-              @token_id_field_secret,
-              token_id_field_variable_id
-            )
-          )
           @token_id_field_secret
         end
 
@@ -99,10 +100,6 @@ module Authentication
 
         def decoded_token
           @authentication_parameters.decoded_token
-        end
-
-        def token_id_field_variable
-          @token_id_field_variable ||= @resource_class[token_id_field_variable_id]
         end
 
         def fetch_identity_path
@@ -146,7 +143,7 @@ module Authentication
         end
 
         def validate_token_id_field_has_value
-          @fetch_required_secrets.call(resource_ids: [token_id_field_variable_id])[token_id_field_variable_id]
+          token_id_field_secret
         end
 
         def validate_identity_path_configured_properly

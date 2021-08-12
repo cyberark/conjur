@@ -10,8 +10,7 @@ module Authentication
 
         def initialize(
           authentication_parameters:,
-          fetch_required_secrets: Conjur::FetchRequiredSecrets.new,
-          resource_class: ::Resource,
+          fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
           http_lib: Net::HTTP,
           create_jwks_from_http_response: CreateJwksFromHttpResponse.new,
           logger: Rails.logger
@@ -19,16 +18,9 @@ module Authentication
           @logger = logger
           @http_lib = http_lib
           @create_jwks_from_http_response = create_jwks_from_http_response
-          @fetch_required_secrets = fetch_required_secrets
-          @resource_class = resource_class
+          @fetch_authenticator_secrets = fetch_authenticator_secrets
 
-          @authentication_parameters=authentication_parameters
-        end
-
-        def valid_configuration?
-          return @valid_configuration if defined?(@valid_configuration)
-
-          @valid_configuration = jwks_uri_resource_exists?
+          @authentication_parameters = authentication_parameters
         end
 
         def fetch_signing_key
@@ -42,32 +34,21 @@ module Authentication
 
         private
 
-        def jwks_uri_resource_exists?
-          !jwks_uri_resource.nil?
-        end
-
-        def jwks_uri_resource
-          return @jwks_uri_resource if @jwks_uri_resource
-
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwtConfigurationValue.new(jwks_uri_variable_id))
-
-          @jwks_uri_resource = @resource_class[jwks_uri_variable_id]
-        end
-
         def fetch_jwks_uri
           jwks_uri
         end
 
         def jwks_uri
-          @jwks_uri ||= jwks_uri_secret[jwks_uri_variable_id]
+          @jwks_uri ||= jwks_uri_secret
         end
 
         def jwks_uri_secret
-          @jwks_uri_secret ||= @fetch_required_secrets.(resource_ids: [jwks_uri_variable_id])
-        end
-
-        def jwks_uri_variable_id
-          @jwks_uri_variable_id ||= "#{@authentication_parameters.authn_jwt_variable_id_prefix}/#{JWKS_URI_RESOURCE_NAME}"
+          @jwks_uri_secret ||= @fetch_authenticator_secrets.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            required_variable_names: [JWKS_URI_RESOURCE_NAME]
+          )[JWKS_URI_RESOURCE_NAME]
         end
 
         def fetch_jwks_keys

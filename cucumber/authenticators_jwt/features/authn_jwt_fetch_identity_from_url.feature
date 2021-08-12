@@ -98,6 +98,7 @@ Feature: JWT Authenticator - Fetch identity from URL
     cucumber:user:user_test_from_url successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
+  @sanity
   Scenario: ONYX-9521: Host send in URL, host not in root, 200 ok
     Given I have a "variable" resource called "test-variable"
     And I permit host "some_policy/host_test_from_url" to "execute" it

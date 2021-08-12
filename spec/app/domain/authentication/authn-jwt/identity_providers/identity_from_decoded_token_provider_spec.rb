@@ -7,6 +7,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
   let(:service_id) { "my-service" }
   let(:account) { 'my-account' }
   let(:token_identity) { 'token-identity' }
+  let(:token_app_property_secret_value) { 'sub' }
   let(:decoded_token) {
     {
       "namespace_id" => "1",
@@ -45,25 +46,32 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
     )
   }
 
-  def mock_resource_id(resource_name:)
-    %r{#{account}:variable:conjur/#{authenticator_name}/#{service_id}/#{resource_name}}
-  end
+  let(:mocked_valid_secrets) {
+    {
+      "token-app-property" => token_app_property_secret_value
+    }
+  }
+
+  let(:mocked_valid_secrets_which_missing_in_token) {
+    {
+      "token-app-property" => "missing"
+    }
+  }
 
   let(:token_app_property_resource_name) { ::Authentication::AuthnJwt::TOKEN_APP_PROPERTY_VARIABLE }
   let(:identity_path_resource_name) { ::Authentication::AuthnJwt::IDENTITY_PATH_RESOURCE_NAME }
-  let(:mocked_resource_not_exists_values) { double("Mocked resource value not exists")  }
-  let(:mocked_resource_exists_values) { double("MockedResource") }
+  let(:mocked_authenticator_secret_not_exists) { double("Mocked authenticator secret not exists")  }
+  let(:mocked_authenticator_secret_exists) { double("Mocked authenticator secret exists") }
   let(:mocked_resource) { double("MockedResource") }
   let(:non_existing_field_name) { "non existing field name" }
-  let(:mocked_valid_secrets) { double("MockedValidSecrets") }
-  let(:mocked_valid_secrets_which_missing_in_token) { double("MockedValidSecretsMissingInToken") }
-  let(:mocked_fetch_required_secrets_empty_values) {  double("MockedFetchRequiredSecrets") }
-  let(:mocked_fetch_required_secrets_exist_values) {  double("MockedFetchRequiredSecrets") }
-  let(:mocked_fetch_required_secrets_exist_value_which_missing_in_token) {  double("MockedFetchRequiredSecrets") }
+
+  let(:mocked_fetch_authenticator_secrets_exist_values)  {  double("MochedFetchAuthenticatorSecrets") }
+  let(:mocked_fetch_authenticator_secrets_valid_values)  {  double("MochedFetchAuthenticatorSecrets") }
+  let(:mocked_fetch_authenticator_secrets_which_missing_in_token) {  double("MochedFetchAuthenticatorSecrets") }
+  let(:mocked_fetch_authenticator_secrets_empty_values)  {  double("MochedFetchAuthenticatorSecrets") }
   let(:required_secret_missing_error) { "required secret missing error" }
   let(:required_identity_path_secret_missing_error) { "required secret missing error" }
   let(:mocked_fetch_required_secrets_token_app_with_value_identity_path_empty) {  double("MockedFetchRequiredSecrets") }
-  let(:token_app_property_secret_value) { "sub" }
   let(:missing_claim_secret_value) { "not found claim" }
   let(:mocked_fetch_identity_path_failed) { double("MockedFetchIdentityPathFailed") }
   let(:fetch_identity_path_missing_error) { "fetch identity fetch missing error" }
@@ -89,37 +97,27 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
       receive(:decoded_token).and_return(decoded_token)
     )
 
-    allow(mocked_resource_not_exists_values).to(
-      receive(:[]).and_return(nil)
+    allow(mocked_authenticator_secret_exists).to(
+      receive(:call).and_return(true)
     )
 
-    allow(mocked_resource_exists_values).to(
-      receive(:[]).with(mock_resource_id(resource_name: token_app_property_resource_name)).and_return(mocked_resource)
+    allow(mocked_authenticator_secret_not_exists).to(
+      receive(:call).and_return(false)
     )
 
-    allow(mocked_fetch_required_secrets_exist_values).to(
-      receive(:call).with(
-        resource_ids: [mock_resource_id(resource_name: token_app_property_resource_name)]).
-        and_return(mocked_valid_secrets)
+    allow(mocked_fetch_authenticator_secrets_exist_values).to(
+      receive(:call).and_return(mocked_valid_secrets)
     )
 
-    allow(mocked_valid_secrets).to(
-      receive(:[]).with(mock_resource_id(resource_name: token_app_property_resource_name)).
-        and_return(token_app_property_secret_value)
+    allow(mocked_fetch_authenticator_secrets_valid_values).to(
+      receive(:call).and_return(token_app_property_secret_value)
     )
 
-    allow(mocked_fetch_required_secrets_exist_value_which_missing_in_token).to(
-      receive(:call).with(
-        resource_ids: [mock_resource_id(resource_name: token_app_property_resource_name)]).
-        and_return(mocked_valid_secrets_which_missing_in_token)
+    allow(mocked_fetch_authenticator_secrets_which_missing_in_token).to(
+      receive(:call).and_return(mocked_valid_secrets_which_missing_in_token)
     )
 
-    allow(mocked_valid_secrets_which_missing_in_token).to(
-      receive(:[]).with(mock_resource_id(resource_name: token_app_property_resource_name)).
-        and_return(missing_claim_secret_value)
-    )
-
-    allow(mocked_fetch_required_secrets_empty_values).to(
+    allow(mocked_fetch_authenticator_secrets_empty_values).to(
       receive(:call).and_raise(required_secret_missing_error)
     )
 
@@ -147,16 +145,12 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
       subject do
         ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
           authentication_parameters: authentication_parameters,
-          resource_class: mocked_resource_not_exists_values
+          check_authenticator_secret_exists: mocked_authenticator_secret_not_exists
         )
       end
 
       it "jwt_identity raise an error" do
         expect { subject.jwt_identity }.to raise_error(Errors::Conjur::RequiredResourceMissing)
-      end
-
-      it "identity_available? returns value" do
-        expect(subject.identity_available?).to eql(false)
       end
 
       it "validate_identity_configured_properly does not raise an error" do
@@ -169,17 +163,13 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
         subject do
           ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
             authentication_parameters: authentication_parameters,
-            resource_class: mocked_resource_exists_values,
-            fetch_required_secrets: mocked_fetch_required_secrets_empty_values
+            check_authenticator_secret_exists: mocked_authenticator_secret_exists,
+            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_empty_values
           )
         end
 
         it "jwt_identity raise an error" do
           expect { subject.jwt_identity }.to raise_error(required_secret_missing_error)
-        end
-
-        it "identity_available? returns value" do
-          expect(subject.identity_available?).to eql(true)
         end
 
         it "validate_identity_configured_properly raise an error" do
@@ -191,18 +181,14 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
         subject do
           ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
             authentication_parameters: authentication_parameters,
-            resource_class: mocked_resource_exists_values,
-            fetch_required_secrets: mocked_fetch_required_secrets_exist_values,
+            check_authenticator_secret_exists: mocked_authenticator_secret_exists,
+            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
             fetch_identity_path: mocked_fetch_identity_path_failed
           )
         end
 
         it "jwt_identity raise an error" do
           expect { subject.jwt_identity }.to raise_error(fetch_identity_path_missing_error)
-        end
-
-        it "identity_available? returns value" do
-          expect(subject.identity_available?).to eql(true)
         end
 
         it "validate_identity_configured_properly raise an error" do
@@ -214,17 +200,13 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
         subject do
           ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
             authentication_parameters: authentication_parameters,
-            resource_class: mocked_resource_exists_values,
-            fetch_required_secrets: mocked_fetch_required_secrets_exist_value_which_missing_in_token
+            check_authenticator_secret_exists: mocked_authenticator_secret_exists,
+            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_which_missing_in_token
           )
         end
 
         it "jwt_identity raise an error" do
           expect { subject.jwt_identity }.to raise_error(Errors::Authentication::AuthnJwt::NoSuchFieldInToken)
-        end
-
-        it "identity_available? returns value" do
-          expect(subject.identity_available?).to eql(true)
         end
 
         it "validate_identity_configured_properly does not raise an error" do
@@ -240,18 +222,14 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
         subject do
           ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
             authentication_parameters: authentication_parameters,
-            resource_class: mocked_resource_exists_values,
-            fetch_required_secrets: mocked_fetch_required_secrets_exist_values,
+            check_authenticator_secret_exists: mocked_authenticator_secret_exists,
+            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
             fetch_identity_path: mocked_fetch_identity_path_valid_empty_path
           )
         end
 
         it "jwt_identity returns host identity" do
           expect(subject.jwt_identity).to eql(valid_jwt_identity_without_path)
-        end
-
-        it "identity_available? returns value" do
-          expect(subject.identity_available?).to eql(true)
         end
 
         it "validate_identity_configured_properly does not raise an error" do
@@ -263,18 +241,14 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
         subject do
           ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
             authentication_parameters: authentication_parameters,
-            resource_class: mocked_resource_exists_values,
-            fetch_required_secrets: mocked_fetch_required_secrets_exist_values,
+            check_authenticator_secret_exists: mocked_authenticator_secret_exists,
+            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
             fetch_identity_path: mocked_fetch_identity_path_valid_value
           )
         end
 
         it "jwt_identity returns host identity" do
           expect(subject.jwt_identity).to eql(valid_jwt_identity_with_path)
-        end
-
-        it "identity_available? returns value" do
-          expect(subject.identity_available?).to eql(true)
         end
 
         it "validate_identity_configured_properly does not raise an error" do

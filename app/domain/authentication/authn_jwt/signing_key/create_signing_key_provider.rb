@@ -6,6 +6,7 @@ module Authentication
         dependencies: {
           fetch_provider_uri_signing_key_class: Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey,
           fetch_jwks_uri_signing_key_class: Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey,
+          check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
           logger: Rails.logger
         },
         inputs: %i[authentication_parameters]
@@ -41,13 +42,23 @@ module Authentication
         def provider_uri_has_valid_configuration?
           return @provider_uri_has_valid_configuration if defined?(@provider_uri_has_valid_configuration)
 
-          @provider_uri_has_valid_configuration = fetch_provider_uri_signing_key.valid_configuration?
+          @provider_uri_has_valid_configuration = @check_authenticator_secret_exists.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            var_name: PROVIDER_URI_RESOURCE_NAME
+          )
         end
 
         def jwks_uri_has_valid_configuration?
           return @jwks_uri_has_valid_configuration if defined?(@jwks_uri_has_valid_configuration)
 
-          @jwks_uri_has_valid_configuration ||= fetch_jwks_uri_signing_key.valid_configuration?
+          @jwks_uri_has_valid_configuration ||= @check_authenticator_secret_exists.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            var_name: JWKS_URI_RESOURCE_NAME
+          )
         end
 
         def fetch_provider_uri_signing_key

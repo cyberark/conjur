@@ -6,23 +6,15 @@ module Authentication
 
         def initialize(
           authentication_parameters:,
-          fetch_required_secrets: Conjur::FetchRequiredSecrets.new,
-          resource_class: ::Resource,
+          fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
           discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new,
           logger: Rails.logger
         )
           @logger = logger
-          @fetch_required_secrets = fetch_required_secrets
-          @resource_class = resource_class
+          @fetch_authenticator_secrets = fetch_authenticator_secrets
           @discover_identity_provider = discover_identity_provider
 
           @authentication_parameters = authentication_parameters
-        end
-
-        def valid_configuration?
-          return @valid_configuration if defined?(@valid_configuration)
-
-          @valid_configuration = provider_uri_resource_exists?
         end
 
         def fetch_signing_key
@@ -41,17 +33,6 @@ module Authentication
           discovered_provider
         end
 
-        def provider_uri_resource_exists?
-          !provider_uri_resource.nil?
-        end
-
-        def provider_uri_resource
-          return @provider_uri_resource if @provider_uri_resource
-
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwtConfigurationValue.new(provider_uri_variable_id))
-          @provider_uri_resource = @resource_class[provider_uri_variable_id]
-        end
-
         def discovered_provider
           @discovered_provider ||= @discover_identity_provider.call(
             provider_uri: provider_uri
@@ -63,11 +44,12 @@ module Authentication
         end
 
         def provider_uri_secret
-          @provider_uri_secret ||= @fetch_required_secrets.(resource_ids: [provider_uri_variable_id])[provider_uri_variable_id]
-        end
-
-        def provider_uri_variable_id
-          @provider_uri_variable_id ||= "#{@authentication_parameters.authn_jwt_variable_id_prefix}/#{PROVIDER_URI_RESOURCE_NAME}"
+          @provider_uri_secret ||= @fetch_authenticator_secrets.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            required_variable_names: [PROVIDER_URI_RESOURCE_NAME]
+          )[PROVIDER_URI_RESOURCE_NAME]
         end
 
         def fetch_provider_keys

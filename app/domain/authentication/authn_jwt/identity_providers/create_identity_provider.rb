@@ -11,6 +11,7 @@ module Authentication
         dependencies: {
           identity_from_url_provider_class: Authentication::AuthnJwt::IdentityProviders::IdentityFromUrlProvider,
           identity_from_decoded_token_class: Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider,
+          check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
           logger: Rails.logger
         },
         inputs: %i[authentication_parameters]
@@ -26,14 +27,14 @@ module Authentication
         def create_identity_provider
           @logger.debug(LogMessages::Authentication::AuthnJwt::SelectingIdentityProviderInterface.new)
 
-          if identity_from_decoded_token_provider.identity_available?
+          if identity_from_decoded_token_available?
             @logger.info(
               LogMessages::Authentication::AuthnJwt::SelectedIdentityProviderInterface.new(
                 TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME
               )
             )
             identity_from_decoded_token_provider
-          elsif identity_from_url_provider.identity_available?
+          elsif identity_from_url_available?
             @logger.info(
               LogMessages::Authentication::AuthnJwt::SelectedIdentityProviderInterface.new(
                 URL_IDENTITY_PROVIDER_INTERFACE_NAME
@@ -62,11 +63,24 @@ module Authentication
         end
 
         def multiple_identities_configured
-          identity_from_decoded_token_provider.identity_available? && identity_from_url_provider.identity_available?
+          identity_from_decoded_token_available? && identity_from_url_available?
         end
 
         def no_identities_configured
-          !identity_from_decoded_token_provider.identity_available? && !identity_from_url_provider.identity_available?
+          !identity_from_decoded_token_available? && !identity_from_url_available?
+        end
+
+        def identity_from_decoded_token_available?
+          @identity_from_decoded_token_available ||= @check_authenticator_secret_exists.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            var_name: TOKEN_APP_PROPERTY_VARIABLE
+          )
+        end
+
+        def identity_from_url_available?
+          !@authentication_parameters.username.blank?
         end
       end
     end

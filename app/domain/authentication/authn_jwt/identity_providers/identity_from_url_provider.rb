@@ -30,13 +30,13 @@ module Authentication
           @authentication_parameters.username
         end
 
+        private
+
         def identity_available?
           return @identity_available if defined?(@identity_available)
 
           @identity_available = username_exists?
         end
-
-        private
 
         def username_exists?
           !@authentication_parameters.username.blank?
