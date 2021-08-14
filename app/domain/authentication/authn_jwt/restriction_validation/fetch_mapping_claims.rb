@@ -7,8 +7,8 @@ module Authentication
       # definition of annotations keys on JWT hosts 
       FetchMappingClaims = CommandClass.new(
         dependencies: {
-          resource_class: ::Resource,
-          fetch_required_secrets: ::Conjur::FetchRequiredSecrets.new,
+          check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
+          fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
           parse_mapping_claims: ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new,
           logger: Rails.logger
         },
@@ -34,15 +34,12 @@ module Authentication
         def mapping_claims_resource_exists?
           return @mapping_claims_resource_exists unless @mapping_claims_resource_exists.nil?
 
-          @mapping_claims_resource_exists ||= !mapping_claims_resource.nil?
-        end
-
-        def mapping_claims_resource
-          @mapping_claims_resource ||= @resource_class[mapping_claims_resource_id]
-        end
-
-        def mapping_claims_resource_id
-          @mapping_claims_resource_id ||= "#{@authentication_parameters.authn_jwt_variable_id_prefix}/#{MAPPING_CLAIMS_RESOURCE_NAME}"
+          @mapping_claims_resource_exists ||= @check_authenticator_secret_exists.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            var_name: MAPPING_CLAIMS_RESOURCE_NAME
+          )
         end
 
         def fetch_mapping_claims_secret_value
@@ -50,11 +47,12 @@ module Authentication
         end
 
         def mapping_claims_secret_value
-          @mapping_claims_secret_value ||= mapping_claims_required_secret[mapping_claims_resource_id]
-        end
-        
-        def mapping_claims_required_secret
-          @mapping_claims_required_secret ||= @fetch_required_secrets.call(resource_ids: [mapping_claims_resource_id])
+          @mapping_claims_secret_value ||= @fetch_authenticator_secrets.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            required_variable_names: [MAPPING_CLAIMS_RESOURCE_NAME]
+          )[MAPPING_CLAIMS_RESOURCE_NAME]
         end
         
         def parse_mapping_claims_secret_value

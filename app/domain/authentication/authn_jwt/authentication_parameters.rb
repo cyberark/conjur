@@ -13,10 +13,6 @@ module Authentication
         @client_ip = authentication_input.client_ip
         @jwt_token = jwt_token
       end
-
-      def authn_jwt_variable_id_prefix
-        "#{@account}:variable:conjur/#{@authenticator_name}/#{@service_id}"
-      end
     end
   end
 end

@@ -38,139 +38,148 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
   let(:jwks_uri_with_valid_hostname_value) {'https://jwt-provider.com/jwks'}
   let(:valid_hostname_value) {'jwt-provider.com'}
 
-  def mock_resource_id(resource_name:)
-    %r{#{account}:variable:conjur/#{authenticator_name}/#{service_id}/#{resource_name}}
-  end
+  let(:check_authenticator_secret_exists_issuer_input) {
+    {
+      :authenticator_name => authenticator_name,
+      :conjur_account => account,
+      :service_id => service_id,
+      :var_name => issuer_resource_name
+    }
+  }
 
-  let(:mocked_resource) { double("MockedResource") }
-  let(:mocked_resource_exists_values) { double("MockedResource") }
-  let(:mocked_resource_not_exists_values) { double("MockedResource") }
-  let(:mocked_resource_both_provider_and_jwks_exist_values) { double("MockedResource") }
-  let(:mocked_resource_just_provider_uri_exists_values) { double("MockedResource") }
-  let(:mocked_resource_just_jwks_uri_exists_values) { double("MockedResource") }
+  let(:check_authenticator_secret_exists_jwks_uri_input) {
+    {
+      :authenticator_name => authenticator_name,
+      :conjur_account => account,
+      :service_id => service_id,
+      :var_name => jwks_uri_resource_name
+    }
+  }
 
-  let(:mocked_fetch_secrets_empty_values) {  double("MockedFetchSecrets") }
-  let(:mocked_fetch_secrets_exist_values) {  double("MockedFetchSecrets") }
-  let(:mocked_valid_secrets) {  double("MockedValidSecrets") }
-  let(:mocked_fetch_secrets_jwks_uri_with_bad_uri_format_value) {  double("MockedInvalidSecrets") }
-  let(:mocked_fetch_secrets_jwks_uri_with_bad_uri_hostname_value) {  double("MockedInvalidSecrets") }
-  let(:mocked_fetch_secrets_jwks_uri_with_valid_uri_hostname_value) {  double("MockedValidSecrets") }
-  let(:mocked_jwks_uri_with_bad_uri_format_secret) {  double("MockedInvalidSecrets") }
-  let(:mocked_jwks_uri_with_bad_uri_hostname_secret) {  double("MockedInvalidSecrets") }
-  let(:mocked_jwks_uri_with_valid_uri_hostname_secret) {  double("MockedValidSecrets") }
+  let(:check_authenticator_secret_exists_provider_uri_input) {
+    {
+      :authenticator_name => authenticator_name,
+      :conjur_account => account,
+      :service_id => service_id,
+      :var_name => provider_uri_resource_name
+    }
+  }
+
+
+  let(:mocked_authenticator_secret_issuer_exist) { double("MockedCheckAuthenticatorSecretExists") }
+  let(:mocked_authenticator_secret_nothing_exist) { double("MockedCheckAuthenticatorSecretExists") }
+  let(:mocked_authenticator_secret_both_jwks_and_provider_uri) { double("MockedCheckAuthenticatorSecretExists") }
+  let(:mocked_authenticator_secret_just_jwks_uri) { double("MockedCheckAuthenticatorSecretExists") }
+  let(:mocked_authenticator_secret_just_provider_uri) { double("MockedCheckAuthenticatorSecretExists") }
+
+  let(:fetch_authenticator_secret_issuer_input) {
+    {
+      :authenticator_name => authenticator_name,
+      :conjur_account => account,
+      :service_id => service_id,
+      :required_variable_names => [issuer_resource_name]
+    }
+  }
+
+  let(:fetch_authenticator_secret_jwks_uri_input) {
+    {
+      :authenticator_name => authenticator_name,
+      :conjur_account => account,
+      :service_id => service_id,
+      :required_variable_names => [jwks_uri_resource_name]
+    }
+  }
+
+  let(:fetch_authenticator_secret_provider_uri_input) {
+    {
+      :authenticator_name => authenticator_name,
+      :conjur_account => account,
+      :service_id => service_id,
+      :required_variable_names => [provider_uri_resource_name]
+    }
+  }
+
+  let(:mocked_fetch_authenticator_secret_empty_values) { double("FetchAuthenticatorSecrets") }
+  let(:mocked_fetch_authenticator_secrets_exist_values) { double("FetchAuthenticatorSecrets") }
+  let(:mocked_fetch_authenticator_secrets_jwks_uri_with_bad_uri_format_value) {  double("FetchAuthenticatorSecrets") }
+  let(:mocked_fetch_authenticator_secrets_jwks_uri_with_bad_uri_hostname_value) {  double("FetchAuthenticatorSecrets") }
+  let(:mocked_fetch_authenticator_secrets_jwks_uri_with_valid_uri_hostname_value) {  double("FetchAuthenticatorSecrets") }
 
   let(:required_secret_missing_error) { "required secret missing error" }
   let(:invalid_issuer_configuration_error) { "invalid issuer configuration error" }
 
   before(:each) do
-    allow(mocked_resource_exists_values).to(
-      receive(:[]).with(mock_resource_id(resource_name: issuer_resource_name)).and_return(mocked_resource)
+    allow(mocked_authenticator_secret_issuer_exist).to(
+      receive(:call).with(check_authenticator_secret_exists_issuer_input).and_return(true)
     )
 
-    allow(mocked_resource_not_exists_values).to(
-      receive(:[]).and_return(nil)
+    allow(mocked_authenticator_secret_nothing_exist).to(
+      receive(:call).and_return(false)
     )
 
-    allow(mocked_resource_both_provider_and_jwks_exist_values).to(
-      receive(:[]).with(mock_resource_id(resource_name: issuer_resource_name)).and_return(nil)
+    allow(mocked_authenticator_secret_both_jwks_and_provider_uri).to(
+      receive(:call).with(check_authenticator_secret_exists_issuer_input).and_return(false)
     )
 
-    allow(mocked_resource_both_provider_and_jwks_exist_values).to(
-      receive(:[]).with(mock_resource_id(resource_name: provider_uri_resource_name)).and_return(mocked_resource)
+    allow(mocked_authenticator_secret_both_jwks_and_provider_uri).to(
+      receive(:call).with(check_authenticator_secret_exists_jwks_uri_input).and_return(true)
     )
 
-    allow(mocked_resource_both_provider_and_jwks_exist_values).to(
-      receive(:[]).with(mock_resource_id(resource_name: jwks_uri_resource_name)).and_return(mocked_resource)
+    allow(mocked_authenticator_secret_both_jwks_and_provider_uri).to(
+      receive(:call).with(check_authenticator_secret_exists_provider_uri_input).and_return(true)
     )
 
-    allow(mocked_resource_just_provider_uri_exists_values).to(
-      receive(:[]).with(mock_resource_id(resource_name: issuer_resource_name)).and_return(nil)
+    allow(mocked_authenticator_secret_just_jwks_uri).to(
+      receive(:call).with(check_authenticator_secret_exists_issuer_input).and_return(false)
     )
 
-    allow(mocked_resource_just_provider_uri_exists_values).to(
-      receive(:[]).with(mock_resource_id(resource_name: provider_uri_resource_name)).and_return(mocked_resource)
+    allow(mocked_authenticator_secret_just_jwks_uri).to(
+      receive(:call).with(check_authenticator_secret_exists_jwks_uri_input).and_return(true)
     )
 
-    allow(mocked_resource_just_provider_uri_exists_values).to(
-      receive(:[]).with(mock_resource_id(resource_name: jwks_uri_resource_name)).and_return(nil)
+    allow(mocked_authenticator_secret_just_jwks_uri).to(
+      receive(:call).with(check_authenticator_secret_exists_provider_uri_input).and_return(false)
     )
 
-    allow(mocked_resource_just_jwks_uri_exists_values).to(
-      receive(:[]).with(mock_resource_id(resource_name: issuer_resource_name)).and_return(nil)
+    allow(mocked_authenticator_secret_just_provider_uri).to(
+      receive(:call).with(check_authenticator_secret_exists_issuer_input).and_return(false)
     )
 
-    allow(mocked_resource_just_jwks_uri_exists_values).to(
-      receive(:[]).with(mock_resource_id(resource_name: provider_uri_resource_name)).and_return(nil)
+    allow(mocked_authenticator_secret_just_provider_uri).to(
+      receive(:call).with(check_authenticator_secret_exists_jwks_uri_input).and_return(false)
     )
 
-    allow(mocked_resource_just_jwks_uri_exists_values).to(
-      receive(:[]).with(mock_resource_id(resource_name: jwks_uri_resource_name)).and_return(mocked_resource)
+    allow(mocked_authenticator_secret_just_provider_uri).to(
+      receive(:call).with(check_authenticator_secret_exists_provider_uri_input).and_return(true)
     )
 
-    allow(mocked_fetch_secrets_empty_values).to(
+    allow(mocked_fetch_authenticator_secrets_exist_values).to(
+      receive(:call).with(fetch_authenticator_secret_issuer_input).and_return(issuer_resource_name => issuer_secret_value)
+    )
+
+    allow(mocked_fetch_authenticator_secrets_exist_values).to(
+      receive(:call).with(fetch_authenticator_secret_jwks_uri_input).and_return(jwks_uri_resource_name => jwks_uri_secret_value)
+    )
+
+    allow(mocked_fetch_authenticator_secrets_exist_values).to(
+      receive(:call).with(fetch_authenticator_secret_provider_uri_input).and_return(provider_uri_resource_name => provider_uri_secret_value)
+    )
+
+    allow(mocked_fetch_authenticator_secrets_jwks_uri_with_bad_uri_format_value).to(
+      receive(:call).with(fetch_authenticator_secret_jwks_uri_input).and_return(jwks_uri_resource_name => jwks_uri_with_bad_uri_format_value)
+    )
+
+    allow(mocked_fetch_authenticator_secrets_jwks_uri_with_bad_uri_hostname_value).to(
+      receive(:call).with(fetch_authenticator_secret_jwks_uri_input).and_return(jwks_uri_resource_name => jwks_uri_with_bad_uri_hostname_value)
+    )
+
+    allow(mocked_fetch_authenticator_secrets_jwks_uri_with_valid_uri_hostname_value).to(
+      receive(:call).with(fetch_authenticator_secret_jwks_uri_input).and_return(jwks_uri_resource_name => jwks_uri_with_valid_hostname_value)
+    )
+
+    allow(mocked_fetch_authenticator_secret_empty_values).to(
       receive(:call).and_raise(required_secret_missing_error)
     )
-
-    allow(mocked_fetch_secrets_exist_values).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: issuer_resource_name)]).
-        and_return(mocked_valid_secrets)
-    )
-
-    allow(mocked_valid_secrets).to(
-      receive(:[]).with(mock_resource_id(resource_name: issuer_resource_name)).
-        and_return(issuer_secret_value)
-    )
-
-    allow(mocked_fetch_secrets_exist_values).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: provider_uri_resource_name)]).
-        and_return(mocked_valid_secrets)
-    )
-
-    allow(mocked_valid_secrets).to(
-      receive(:[]).with(mock_resource_id(resource_name: provider_uri_resource_name)).
-        and_return(provider_uri_secret_value)
-    )
-
-    allow(mocked_fetch_secrets_exist_values).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: jwks_uri_resource_name)]).
-        and_return(jwks_uri_resource_name)
-    )
-
-    allow(mocked_valid_secrets).to(
-      receive(:[]).with(mock_resource_id(resource_name: jwks_uri_resource_name)).
-        and_return(jwks_uri_secret_value)
-    )
-
-    allow(mocked_fetch_secrets_jwks_uri_with_bad_uri_format_value).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: jwks_uri_resource_name)]).
-        and_return(mocked_jwks_uri_with_bad_uri_format_secret)
-    )
-
-    allow(mocked_jwks_uri_with_bad_uri_format_secret).to(
-      receive(:[]).with(mock_resource_id(resource_name: jwks_uri_resource_name)).
-        and_return(jwks_uri_with_bad_uri_format_value)
-    )
-
-    allow(mocked_fetch_secrets_jwks_uri_with_bad_uri_hostname_value).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: jwks_uri_resource_name)]).
-        and_return(mocked_jwks_uri_with_bad_uri_hostname_secret)
-    )
-
-    allow(mocked_jwks_uri_with_bad_uri_hostname_secret).to(
-      receive(:[]).with(mock_resource_id(resource_name: jwks_uri_resource_name)).
-        and_return(jwks_uri_with_bad_uri_hostname_value)
-    )
-
-    allow(mocked_fetch_secrets_jwks_uri_with_valid_uri_hostname_value).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: jwks_uri_resource_name)]).
-        and_return(mocked_jwks_uri_with_valid_uri_hostname_secret)
-    )
-
-    allow(mocked_jwks_uri_with_valid_uri_hostname_secret).to(
-      receive(:[]).with(mock_resource_id(resource_name: jwks_uri_resource_name)).
-        and_return(jwks_uri_with_valid_hostname_value)
-    )
-
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
@@ -182,8 +191,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
     context "with empty variable value" do
       subject do
         ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
-          resource_class: mocked_resource_exists_values,
-          fetch_required_secrets: mocked_fetch_secrets_empty_values
+          check_authenticator_secret_exists: mocked_authenticator_secret_issuer_exist,
+          fetch_authenticator_secrets: mocked_fetch_authenticator_secret_empty_values
         ).call(
           authentication_parameters: authentication_parameters
         )
@@ -197,8 +206,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
     context "with valid variable value" do
       subject do
         ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
-          resource_class: mocked_resource_exists_values,
-          fetch_required_secrets: mocked_fetch_secrets_exist_values
+          check_authenticator_secret_exists: mocked_authenticator_secret_issuer_exist,
+          fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values
         ).call(
           authentication_parameters: authentication_parameters
         )
@@ -214,7 +223,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
     context "And both provider-uri and jwks-uri not configured in authenticator policy" do
       subject do
         ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
-          resource_class: mocked_resource_not_exists_values,
+          check_authenticator_secret_exists: mocked_authenticator_secret_nothing_exist,
         ).call(
           authentication_parameters: authentication_parameters
         )
@@ -228,7 +237,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
     context "And both provider-uri and jwks-uri configured in authenticator policy" do
       subject do
         ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
-          resource_class: mocked_resource_both_provider_and_jwks_exist_values,
+          check_authenticator_secret_exists: mocked_authenticator_secret_both_jwks_and_provider_uri,
           ).call(
           authentication_parameters: authentication_parameters
         )
@@ -243,8 +252,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
       context "with empty variable value" do
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
-            resource_class: mocked_resource_just_provider_uri_exists_values,
-            fetch_required_secrets: mocked_fetch_secrets_empty_values
+            check_authenticator_secret_exists: mocked_authenticator_secret_just_provider_uri,
+            fetch_authenticator_secrets: mocked_fetch_authenticator_secret_empty_values
           ).call(
             authentication_parameters: authentication_parameters
           )
@@ -258,8 +267,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
       context "with valid variable value" do
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
-            resource_class: mocked_resource_just_provider_uri_exists_values,
-            fetch_required_secrets: mocked_fetch_secrets_exist_values
+            check_authenticator_secret_exists: mocked_authenticator_secret_just_provider_uri,
+            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values
           ).call(
             authentication_parameters: authentication_parameters
           )
@@ -275,8 +284,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
       context "with empty variable value" do
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
-            resource_class: mocked_resource_just_jwks_uri_exists_values,
-            fetch_required_secrets: mocked_fetch_secrets_empty_values
+            check_authenticator_secret_exists: mocked_authenticator_secret_just_jwks_uri,
+            fetch_authenticator_secrets: mocked_fetch_authenticator_secret_empty_values
           ).call(
             authentication_parameters: authentication_parameters
           )
@@ -290,8 +299,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
       context "with bad URI format as variable value" do
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
-            resource_class: mocked_resource_just_jwks_uri_exists_values,
-            fetch_required_secrets: mocked_fetch_secrets_jwks_uri_with_bad_uri_format_value
+            check_authenticator_secret_exists: mocked_authenticator_secret_just_jwks_uri,
+            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_jwks_uri_with_bad_uri_format_value
           ).call(
             authentication_parameters: authentication_parameters
           )
@@ -305,8 +314,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
       context "with bad URI hostname as variable value" do
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
-            resource_class: mocked_resource_just_jwks_uri_exists_values,
-            fetch_required_secrets: mocked_fetch_secrets_jwks_uri_with_bad_uri_hostname_value
+            check_authenticator_secret_exists: mocked_authenticator_secret_just_jwks_uri,
+            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_jwks_uri_with_bad_uri_hostname_value
           ).call(
             authentication_parameters: authentication_parameters
           )
@@ -320,8 +329,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
       context "with valid URI hostname as variable value" do
         subject do
           ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
-            resource_class: mocked_resource_just_jwks_uri_exists_values,
-            fetch_required_secrets: mocked_fetch_secrets_jwks_uri_with_valid_uri_hostname_value
+            check_authenticator_secret_exists: mocked_authenticator_secret_just_jwks_uri,
+            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_jwks_uri_with_valid_uri_hostname_value
           ).call(
             authentication_parameters: authentication_parameters
           )

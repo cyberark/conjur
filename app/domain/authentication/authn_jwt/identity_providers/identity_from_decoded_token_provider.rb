@@ -94,10 +94,6 @@ module Authentication
           @token_id_field_secret
         end
 
-        def token_id_field_variable_id
-          @token_id_field_variable_id ||= "#{@authentication_parameters.authn_jwt_variable_id_prefix}/#{TOKEN_APP_PROPERTY_VARIABLE}"
-        end
-
         def decoded_token
           @authentication_parameters.decoded_token
         end

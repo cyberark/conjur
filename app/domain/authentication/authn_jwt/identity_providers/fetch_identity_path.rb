@@ -6,8 +6,8 @@ module Authentication
       # Fetch the identity path from the JWT authenticator policy of the host identity
       FetchIdentityPath = CommandClass.new(
         dependencies: {
-          resource_class: ::Resource,
-          fetch_required_secrets: ::Conjur::FetchRequiredSecrets.new,
+          check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
+          fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
           logger: Rails.logger
         },
         inputs: %i[authentication_parameters]
@@ -22,8 +22,8 @@ module Authentication
         def fetch_identity_path
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingIdentityPath.new)
           set_identity_path_value
-          @logger.info(LogMessages::Authentication::AuthnJwt::FetchedIdentityPath.new(identity_path))
-          identity_path
+          @logger.info(LogMessages::Authentication::AuthnJwt::FetchedIdentityPath.new(@identity_path))
+          @identity_path
         end
 
         def set_identity_path_value
@@ -32,14 +32,14 @@ module Authentication
             @logger.info(
               LogMessages::Authentication::AuthnJwt::RetrievedResourceValue.new(
                 identity_path_required_secret_value,
-                identity_path_resource_id
+                IDENTITY_PATH_RESOURCE_NAME
               )
             )
           else
             set_identity_path_default_value
             @logger.debug(
               LogMessages::Authentication::AuthnJwt::IdentityPathNotConfigured.new(
-                identity_path_resource_id
+                IDENTITY_PATH_RESOURCE_NAME
               )
             )
           end
@@ -48,15 +48,12 @@ module Authentication
         def identity_path_resource_exists?
           return @identity_path_resource_exists unless @identity_path_resource_exists.nil?
 
-          @identity_path_resource_exists ||= !identity_path_resource.nil?
-        end
-
-        def identity_path_resource
-          @identity_path_resource ||= @resource_class[identity_path_resource_id]
-        end
-
-        def identity_path_resource_id
-          @identity_path_resource_id ||= "#{@authentication_parameters.authn_jwt_variable_id_prefix}/#{IDENTITY_PATH_RESOURCE_NAME}"
+          @identity_path_resource_exists ||= @check_authenticator_secret_exists.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            var_name: IDENTITY_PATH_RESOURCE_NAME
+          )
         end
 
         def set_identity_path_from_policy
@@ -64,19 +61,16 @@ module Authentication
         end
 
         def identity_path_required_secret_value
-          @identity_path_required_secret_value ||= identity_path_required_secret[identity_path_resource_id]
-        end
-
-        def identity_path_required_secret
-          @identity_path_required_secret ||= @fetch_required_secrets.call(resource_ids: [identity_path_resource_id])
+          @identity_path_required_secret_value ||= @fetch_authenticator_secrets.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            required_variable_names: [IDENTITY_PATH_RESOURCE_NAME]
+          )[IDENTITY_PATH_RESOURCE_NAME]
         end
 
         def set_identity_path_default_value
           @identity_path = IDENTITY_PATH_DEFAULT_VALUE
-        end
-
-        def identity_path
-          @identity_path
         end
       end
     end

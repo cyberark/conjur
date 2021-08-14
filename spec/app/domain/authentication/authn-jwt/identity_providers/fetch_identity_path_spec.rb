@@ -27,41 +27,35 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath')
     )
   }
 
-  def mock_resource_id(resource_name:)
-    %r{#{account}:variable:conjur/#{authenticator_name}/#{service_id}/#{resource_name}}
-  end
-
-  let(:identity_path_resource_name) { ::Authentication::AuthnJwt::IDENTITY_PATH_RESOURCE_NAME }
-  let(:identity_path_secret_value) { "apps/sub-apps" }
-  let(:mocked_resource_not_exists_values) { double("MockedResource") }
-  let(:mocked_resource_exists_values) { double("MockedResource") }
-  let(:mocked_resource) { double("MockedResource") }
-  let(:mocked_fetch_required_secrets_exist_values) {  double("MockedFetchRequiredSecrets") }
-  let(:mocked_valid_secrets) { double("MockedValidSecrets") }
-  let(:mocked_fetch_required_secrets_empty_values) {  double("MockedFetchRequiredSecrets") }
+  let(:identity_path_secret_value) {
+    {
+      "identity-path" => "apps/sub-apps"
+    }
+  }
+  let(:mocked_authenticator_secret_not_exists) { double("Mocked authenticator secret not exists")  }
+  let(:mocked_authenticator_secret_exists) { double("Mocked authenticator secret exists") }
+  let(:mocked_fetch_authenticator_secrets_exist_values)  {  double("MockedFetchAuthenticatorSecrets") }
+  let(:mocked_fetch_authenticator_secrets_empty_values)  {  double("MockedFetchAuthenticatorSecrets") }
   let(:required_secret_missing_error) { "required secret missing error" }
 
   before(:each) do
-    allow(mocked_resource_not_exists_values).to(
-      receive(:[]).and_return(nil)
+    allow(mocked_authenticator_secret_exists).to(
+      receive(:call).and_return(true)
     )
 
-    allow(mocked_resource_exists_values).to(
-      receive(:[]).with(mock_resource_id(resource_name: identity_path_resource_name)).and_return(mocked_resource)
+    allow(mocked_authenticator_secret_not_exists).to(
+      receive(:call).and_return(false)
     )
 
-    allow(mocked_fetch_required_secrets_exist_values).to(
-      receive(:call).with(
-        resource_ids: [mock_resource_id(resource_name: identity_path_resource_name)]).
-        and_return(mocked_valid_secrets)
+    allow(mocked_fetch_authenticator_secrets_exist_values).to(
+      receive(:call).and_return(
+        {
+          "identity-path" => identity_path_secret_value
+        }
+      )
     )
 
-    allow(mocked_valid_secrets).to(
-      receive(:[]).with(mock_resource_id(resource_name: identity_path_resource_name)).
-        and_return(identity_path_secret_value)
-    )
-
-    allow(mocked_fetch_required_secrets_empty_values).to(
+    allow(mocked_fetch_authenticator_secrets_empty_values).to(
       receive(:call).and_raise(required_secret_missing_error)
     )
 
@@ -75,7 +69,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath')
   context "'identity-path' variable is not configured in authenticator policy" do
     subject do
       ::Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath.new(
-        resource_class: mocked_resource_not_exists_values
+        check_authenticator_secret_exists: mocked_authenticator_secret_not_exists
       ).call(
         authentication_parameters: authentication_parameters
       )
@@ -90,8 +84,8 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath')
     context "with valid value" do
       subject do
         ::Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath.new(
-          resource_class: mocked_resource_exists_values,
-          fetch_required_secrets: mocked_fetch_required_secrets_exist_values
+          check_authenticator_secret_exists: mocked_authenticator_secret_exists,
+          fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values
         ).call(
           authentication_parameters: authentication_parameters
         )
@@ -105,8 +99,8 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath')
     context "with empty value" do
       subject do
         ::Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath.new(
-          resource_class: mocked_resource_exists_values,
-          fetch_required_secrets: mocked_fetch_required_secrets_empty_values
+          check_authenticator_secret_exists: mocked_authenticator_secret_exists,
+          fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_empty_values
         ).call(
           authentication_parameters: authentication_parameters
         )

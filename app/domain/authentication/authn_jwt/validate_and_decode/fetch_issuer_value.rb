@@ -7,8 +7,8 @@ module Authentication
       # in order to validate it later against the JWT token claim
       FetchIssuerValue ||= CommandClass.new(
         dependencies: {
-          resource_class: ::Resource,
-          fetch_required_secrets: ::Conjur::FetchRequiredSecrets.new,
+          fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
+          check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
           logger: Rails.logger,
           uri_class: URI
         },
@@ -37,18 +37,18 @@ module Authentication
         # In case the resource is configured but the not initialized with secret, throw an error
         def fetch_issuer_value
           if issuer_resource_exists?
-            @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(resource_id(ISSUER_RESOURCE_NAME)))
+            @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(ISSUER_RESOURCE_NAME))
 
             @issuer_value = issuer_secret_value
           else
             validate_issuer_configuration
 
             if provider_uri_resource_exists?
-              @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(resource_id(PROVIDER_URI_RESOURCE_NAME)))
+              @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(PROVIDER_URI_RESOURCE_NAME))
 
               @issuer_value = provider_uri_secret_value
             elsif jwks_uri_resource_exists?
-              @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(resource_id(JWKS_URI_RESOURCE_NAME)))
+              @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(JWKS_URI_RESOURCE_NAME))
 
               @issuer_value = fetch_issuer_from_jwks_uri_secret
             end
@@ -58,27 +58,25 @@ module Authentication
         end
 
         def issuer_resource_exists?
-          !issuer_resource.nil?
-        end
-
-        def issuer_resource
-          @issuer_resource ||= resource(ISSUER_RESOURCE_NAME)
-        end
-
-        def resource(resource_name)
-          @resource_class[resource_id(resource_name)]
-        end
-
-        def resource_id(resource_name)
-          "#{@authentication_parameters.authn_jwt_variable_id_prefix}/#{resource_name}"
+          @check_authenticator_secret_exists.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            var_name: ISSUER_RESOURCE_NAME
+          )
         end
 
         def issuer_secret_value
-          @issuer_secret_value ||= issuer_secret[resource_id(ISSUER_RESOURCE_NAME)]
+          @issuer_secret_value ||= issuer_secret
         end
 
         def issuer_secret
-          @issuer_secret ||= @fetch_required_secrets.(resource_ids: [resource_id(ISSUER_RESOURCE_NAME)])
+          @issuer_secret ||= @fetch_authenticator_secrets.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            required_variable_names: [ISSUER_RESOURCE_NAME]
+          )[ISSUER_RESOURCE_NAME]
         end
 
         def validate_issuer_configuration
@@ -93,11 +91,21 @@ module Authentication
         end
 
         def provider_uri_resource_exists?
-          !provider_uri_resource.nil?
+          @check_authenticator_secret_exists.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            var_name: PROVIDER_URI_RESOURCE_NAME
+          )
         end
 
         def jwks_uri_resource_exists?
-          !jwks_uri_resource.nil?
+          @check_authenticator_secret_exists.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            var_name: JWKS_URI_RESOURCE_NAME
+          )
         end
 
         def provider_uri_resource
@@ -109,11 +117,16 @@ module Authentication
         end
 
         def provider_uri_secret_value
-          @provider_uri_secret_value ||= provider_uri_secret[resource_id(PROVIDER_URI_RESOURCE_NAME)]
+          @provider_uri_secret_value ||= provider_uri_secret
         end
 
         def provider_uri_secret
-          @provider_uri_secret ||= @fetch_required_secrets.(resource_ids: [resource_id(PROVIDER_URI_RESOURCE_NAME)])
+          @provider_uri_secret ||= @fetch_authenticator_secrets.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            required_variable_names: [PROVIDER_URI_RESOURCE_NAME]
+          )[PROVIDER_URI_RESOURCE_NAME]
         end
 
         def fetch_issuer_from_jwks_uri_secret
@@ -136,11 +149,16 @@ module Authentication
         end
 
         def jwks_uri_secret_value
-          @jwks_uri_secret_value ||= jwks_uri_secret[resource_id(JWKS_URI_RESOURCE_NAME)]
+          @jwks_uri_secret_value ||= jwks_uri_secret
         end
 
         def jwks_uri_secret
-          @jwks_uri_secret ||= @fetch_required_secrets.(resource_ids: [resource_id(JWKS_URI_RESOURCE_NAME)])
+          @jwks_uri_secret ||= @fetch_authenticator_secrets.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            required_variable_names: [JWKS_URI_RESOURCE_NAME]
+          )[JWKS_URI_RESOURCE_NAME]
         end
       end
     end

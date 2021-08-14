@@ -49,10 +49,6 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey
       receive(:info).and_return(true)
     )
 
-    allow(mocked_authentication_parameters).to(
-      receive(:authn_jwt_variable_id_prefix).and_return('resource_id')
-    )
-
     allow(mocked_fetch_authenticator_secrets_exist_values).to(
       receive(:call).and_return('provider-uri' => 'https://provider-uri.com/provider')
     )
