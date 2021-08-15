@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider') do
+RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityConfiguredProperly') do
   let(:authenticator_name) { 'authn-jwt' }
   let(:service_id) { "my-service" }
   let(:account) { 'my-account' }
@@ -143,30 +143,30 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
   context "Identity from token with invalid configuration" do
     context "And 'token-app-property' resource not exists " do
       subject do
-        ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
+        ::Authentication::AuthnJwt::IdentityProviders::ValidateIdentityConfiguredProperly.new(
           check_authenticator_secret_exists: mocked_authenticator_secret_not_exists
         )
       end
 
-      it "jwt_identity raise an error" do
+      it "validate_identity_configured_properly does not raise an error" do
         expect {
           subject.call(
             authentication_parameters: authentication_parameters
           )
-        }.to raise_error(Errors::Conjur::RequiredResourceMissing)
+        }.to_not raise_error
       end
     end
 
     context "'token-app-property' resource exists" do
       context "with empty value" do
         subject do
-          ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
+          ::Authentication::AuthnJwt::IdentityProviders::ValidateIdentityConfiguredProperly.new(
             check_authenticator_secret_exists: mocked_authenticator_secret_exists,
             fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_empty_values
           )
         end
 
-        it "jwt_identity raise an error" do
+        it "validate_identity_configured_properly raise an error" do
           expect {
             subject.call(
               authentication_parameters: authentication_parameters
@@ -177,14 +177,14 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
 
       context "And 'identity-path' resource exists with empty value" do
         subject do
-          ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
+          ::Authentication::AuthnJwt::IdentityProviders::ValidateIdentityConfiguredProperly.new(
             check_authenticator_secret_exists: mocked_authenticator_secret_exists,
             fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
             fetch_identity_path: mocked_fetch_identity_path_failed
           )
         end
 
-        it "jwt_identity raise an error" do
+        it "validate_identity_configured_properly raise an error" do
           expect {
             subject.call(
               authentication_parameters: authentication_parameters
@@ -195,18 +195,19 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
 
       context "And identity token claim not exists in decode token " do
         subject do
-          ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
+          ::Authentication::AuthnJwt::IdentityProviders::ValidateIdentityConfiguredProperly.new(
+            authentication_parameters: authentication_parameters,
             check_authenticator_secret_exists: mocked_authenticator_secret_exists,
             fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_which_missing_in_token
           )
         end
 
-        it "jwt_identity raise an error" do
+        it "validate_identity_configured_properly does not raise an error" do
           expect {
             subject.call(
               authentication_parameters: authentication_parameters
             )
-          }.to raise_error(Errors::Authentication::AuthnJwt::NoSuchFieldInToken)
+          }.to_not raise_error
         end
       end
     end
@@ -216,33 +217,37 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
     context "And 'token-app-property' resource exists with value" do
       context "And 'identity-path' resource not exists (valid configuration, empty path will be returned)" do
         subject do
-          ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
+          ::Authentication::AuthnJwt::IdentityProviders::ValidateIdentityConfiguredProperly.new(
             check_authenticator_secret_exists: mocked_authenticator_secret_exists,
             fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
             fetch_identity_path: mocked_fetch_identity_path_valid_empty_path
-          ).call(
-            authentication_parameters: authentication_parameters
           )
         end
 
-        it "jwt_identity returns host identity" do
-          expect(subject).to eql(valid_jwt_identity_without_path)
+        it "validate_identity_configured_properly does not raise an error" do
+          expect {
+            subject.call(
+              authentication_parameters: authentication_parameters
+            )
+          }.to_not raise_error
         end
       end
 
       context "And 'identity-path' resource exists with value" do
         subject do
-          ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
+          ::Authentication::AuthnJwt::IdentityProviders::ValidateIdentityConfiguredProperly.new(
             check_authenticator_secret_exists: mocked_authenticator_secret_exists,
             fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
             fetch_identity_path: mocked_fetch_identity_path_valid_value
-          ).call(
-            authentication_parameters: authentication_parameters
           )
         end
 
-        it "jwt_identity returns host identity" do
-          expect(subject).to eql(valid_jwt_identity_with_path)
+        it "validate_identity_configured_properly does not raise an error" do
+          expect {
+            subject.call(
+              authentication_parameters: authentication_parameters
+            )
+          }.to_not raise_error
         end
       end
     end

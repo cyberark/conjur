@@ -10,7 +10,6 @@ module Authentication
         },
         inputs: %i[claim_name]
       ) do
-
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingClaimName.new(@claim_name))
           validate_claim_name_exists

@@ -2,8 +2,12 @@ module Authentication
   module AuthnJwt
     module VendorConfigurations
       # Mock JWTConfiguration class to use it to develop other part in the jwt authenticator
+      #
+      # validate_resource_restrictions is a dependency and there is no reason for variable assumption warning about it.
+      # :reek:InstanceVariableAssumption
       class ConfigurationJWTGenericVendor
         # These are dependencies in class integrating different parts of the jwt authentication
+        # rubocop:disable Metrics/ParameterLists
         # :reek:CountKeywordArgs
         def initialize(
           authenticator_input:,
@@ -37,6 +41,7 @@ module Authentication
             jwt_token: jwt_token(authenticator_input)
           )
         end
+        # rubocop:enable Metrics/ParameterLists
 
         def jwt_identity
           @jwt_identity ||= jwt_identity_from_request
@@ -73,11 +78,15 @@ module Authentication
         end
 
         def mapped_claims
-          @mapped_claims ||= @fetch_mapping_claims.call(authentication_parameters: @authentication_parameters)
+          @mapped_claims ||= @fetch_mapping_claims.call(
+            authentication_parameters: @authentication_parameters
+          )
         end
 
         def jwt_identity_from_request
-          @jwt_identity_from_request ||= identity_provider.jwt_identity
+          @jwt_identity_from_request ||= identity_provider.call(
+            authentication_parameters: @authentication_parameters
+          )
         end
 
         def identity_provider

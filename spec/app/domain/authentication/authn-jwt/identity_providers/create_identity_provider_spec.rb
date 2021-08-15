@@ -3,21 +3,29 @@
 require 'spec_helper'
 
 RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFactory') do
+  # Mock to inject to test in order check returning type
   class MockedURLIdentityProvider
     def initialize(authentication_parameters); end
   end
 
+  # Mock to inject to test in order check returning type
   class MockedDecodedTokenIdentityProvider
     def initialize(authentication_parameters); end
   end
 
+  # Mock to CheckAuthenticatorSecretExists that returns always false
   class MockedCheckAuthenticatorSecretExistsFalse
+    # this what the object gets and its a mock
+    # :reek:LongParameterList :reek:UnusedParameters - this what the object gets and its a mock
     def call(conjur_account:, authenticator_name:, service_id:, var_name:)
       false
     end
   end
 
+  # Mock to CheckAuthenticatorSecretExists that returns always true
   class MockedCheckAuthenticatorSecretExistsTrue
+    # this what the object gets and its a mock
+    # :reek:LongParameterList and :reek:UnusedParameters
     def call(conjur_account:, authenticator_name:, service_id:, var_name:)
       true
     end

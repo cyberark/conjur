@@ -3,25 +3,37 @@
 require 'spec_helper'
 
 RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider') do
+  # Mock to CheckAuthenticatorSecretExists that returns true if var_name is jwks_uri
   class MockedCheckAuthenticatorSecretExistsJWKS
+    # this what the object gets and its a mock
+    # :reek:LongParameterList :reek:UnusedParameters - this what the object gets and its a mock
     def call(conjur_account:, authenticator_name:, service_id:, var_name:)
       var_name == "jwks-uri"
     end
   end
 
+  # Mock to CheckAuthenticatorSecretExists that returns true if var_name is provider_uri
   class MockedCheckAuthenticatorSecretExistsProviderUri
+    # this what the object gets and its a mock
+    # :reek:LongParameterList :reek:UnusedParameters - this what the object gets and its a mock
     def call(conjur_account:, authenticator_name:, service_id:, var_name:)
       var_name == "provider-uri"
     end
   end
 
+  # Mock to CheckAuthenticatorSecretExists that returns always false
   class MockedCheckAuthenticatorSecretExistsFalse
+    # this what the object gets and its a mock
+    # :reek:LongParameterList :reek:UnusedParameters - this what the object gets and its a mock
     def call(conjur_account:, authenticator_name:, service_id:, var_name:)
       false
     end
   end
 
+  # Mock to CheckAuthenticatorSecretExists that returns always true
   class MockedCheckAuthenticatorSecretExistsTrue
+    # this what the object gets and its a mock
+    # :reek:LongParameterList :reek:UnusedParameters - this what the object gets and its a mock
     def call(conjur_account:, authenticator_name:, service_id:, var_name:)
       true
     end

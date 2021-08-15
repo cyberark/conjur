@@ -14,7 +14,6 @@ module Authentication
         },
         inputs: %i[authentication_parameters]
       ) do
-
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingEnforcedClaims.new)
           
@@ -27,7 +26,7 @@ module Authentication
         private
         
         def enforced_claims_resource_exists?
-          return @enforced_claims_resource_exists unless @enforced_claims_resource_exists.nil?
+          return @enforced_claims_resource_exists if defined?(@enforced_claims_resource_exists)
 
           @enforced_claims_resource_exists ||= @check_authenticator_secret_exists.call(
             conjur_account: @authentication_parameters.account,

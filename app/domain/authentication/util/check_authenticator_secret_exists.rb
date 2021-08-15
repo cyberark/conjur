@@ -12,7 +12,6 @@ module Authentication
       },
       inputs: %i[conjur_account authenticator_name service_id var_name]
     ) do
-
       def call
         check_authenticator_secret_exists
       end
@@ -20,15 +19,11 @@ module Authentication
       private
 
       def check_authenticator_secret_exists
-        authenticator_secret_exists
-      end
-
-      def authenticator_secret_exists
-        !resource.nil?
+        @logger.debug(LogMessages::Util::CheckingResourceExists.new(resource_id))
+        resource ? true : false
       end
 
       def resource
-        @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwtConfigurationValue.new(resource_id))
         @resource_class[resource_id]
       end
 

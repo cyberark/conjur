@@ -5,6 +5,7 @@ module Authentication
     module ValidateAndDecode
       # FetchIssuerValue command class is responsible to fetch the issuer secret value,
       # in order to validate it later against the JWT token claim
+      # rubocop:disable Metrics/BlockLength
       FetchIssuerValue ||= CommandClass.new(
         dependencies: {
           fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
@@ -161,6 +162,7 @@ module Authentication
           )[JWKS_URI_RESOURCE_NAME]
         end
       end
+      # rubocop:enable Metrics/BlockLength
     end
   end
 end

@@ -14,7 +14,6 @@ module Authentication
         },
         inputs: %i[authentication_parameters]
       ) do
-
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingMappingClaims.new)
           
@@ -28,11 +27,11 @@ module Authentication
 
         def empty_mapping_claims
           @logger.debug(LogMessages::Authentication::AuthnJwt::NotConfiguredMappingClaims.new)
-          @empty_mapping_claims ||= Hash.new
+          @empty_mapping_claims ||= {}
         end
 
         def mapping_claims_resource_exists?
-          return @mapping_claims_resource_exists unless @mapping_claims_resource_exists.nil?
+          return @mapping_claims_resource_exists if defined?(@mapping_claims_resource_exists)
 
           @mapping_claims_resource_exists ||= @check_authenticator_secret_exists.call(
             conjur_account: @authentication_parameters.account,

@@ -12,7 +12,6 @@ module Authentication
         },
         inputs: %i[authentication_parameters]
       ) do
-
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingAudienceValue.new)
           
@@ -29,7 +28,7 @@ module Authentication
         private
         
         def audience_resource_exists?
-          return @audience_resource_exists unless @audience_resource_exists.nil?
+          return @audience_resource_exists if defined?(@audience_resource_exists)
 
           @audience_resource_exists ||= @check_authenticator_secret_exists.call(
             conjur_account: @authentication_parameters.account,

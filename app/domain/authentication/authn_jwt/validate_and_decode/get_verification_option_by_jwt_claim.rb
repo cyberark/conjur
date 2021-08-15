@@ -17,7 +17,6 @@ module Authentication
         },
         inputs: [:jwt_claim]
       ) do
-
         def call
           validate_claim_exists
           get_verification_option_by_jwt_claim

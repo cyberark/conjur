@@ -9,7 +9,6 @@ module Authentication
         },
         inputs: %i[http_response]
       ) do
-
         def call
           validate_response_exists
           validate_response_has_a_body
@@ -28,7 +27,7 @@ module Authentication
 
         def create_jwks_from_http_response
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreatingJwksFromHttpResponse.new)
-          parse_jwks_response(response_body, encoded_body)
+          parse_jwks_response
         end
 
         def encoded_body
@@ -39,7 +38,7 @@ module Authentication
           @response_body ||= @http_response.body
         end
 
-        def parse_jwks_response(response_body, encoded_body)
+        def parse_jwks_response
           begin
             parsed_response = JSON.parse(response_body)
             keys = parsed_response['keys']

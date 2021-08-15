@@ -11,7 +11,6 @@ module Authentication
         },
         inputs: %i[enforced_claims]
       ) do
-
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::ParsingEnforcedClaims.new(@enforced_claims))
           validate_enforced_claims_exists
