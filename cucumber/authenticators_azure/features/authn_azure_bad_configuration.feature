@@ -124,7 +124,7 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
     Errors::Authentication::Security::RoleNotAuthorizedOnResource
     """
 
-  Scenario: Bad Gateway is raised in case of an invalid ID Provider hostname
+  Scenario: Unauthorized is raised in case of an invalid ID Provider hostname
     Given I load a policy:
     """
     - !policy
@@ -150,7 +150,7 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
     And I fetch a non-assigned-identity Azure access token from inside machine
     And I save my place in the log file
     When I authenticate via Azure with token as host "test-app"
-    Then it is bad gateway
+    Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
     Errors::Authentication::OAuth::ProviderDiscoveryFailed

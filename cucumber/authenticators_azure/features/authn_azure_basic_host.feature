@@ -54,7 +54,7 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     Then host "test-app" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
 
-  Scenario: Changing provider-uri dynamically reflects on the ID Provider endpoint
+  Scenario: Changing provider-uri dynamically reflects on the ID Provider endpoint
     Given I fetch a non-assigned-identity Azure access token from inside machine
     And I authenticate via Azure with token as host "test-app"
     And host "test-app" has been authorized by Conjur
@@ -63,7 +63,7 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     And I fetch a non-assigned-identity Azure access token from inside machine
     And I save my place in the log file
     And I authenticate via Azure with token as host "test-app"
-    Then it is bad gateway
+    Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
     CONJ00007D Working with Identity Provider https://different-provider:8443

@@ -164,14 +164,14 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     # Update provider uri to a different hostname and verify `provider-uri` has changed
     When I add the secret value "https://different-provider:8443" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
     And I authenticate via OIDC with id token
-    Then it is bad gateway
+    Then it is unauthorized
     # Check recovery to a valid provider uri
     When I successfully set OIDC variables
     And I fetch an ID Token for username "alice" and password "alice"
     And I authenticate via OIDC with id token
     Then user "alice" has been authorized by Conjur
 
-  Scenario: Bad Gateway is raised in case of an invalid OIDC Provider hostname
+  Scenario: Unauthenticated is raised in case of an invalid OIDC Provider hostname
     Given I fetch an ID Token for username "alice" and password "alice"
     And I authenticate via OIDC with id token
     And user "alice" has been authorized by Conjur
@@ -179,7 +179,7 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     When I add the secret value "http://127.0.0.1.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
     And I save my place in the log file
     And I authenticate via OIDC with id token
-    Then it is bad gateway
+    Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
     Errors::Authentication::OAuth::ProviderDiscoveryFailed

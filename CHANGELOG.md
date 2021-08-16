@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Fix bug of cache not working in authn jwt. [cyberark/conjur#2353](https://github.com/cyberark/conjur/pull/2353)
 
+### Changed
+- OIDC based authenticators no longer return Bad Gateway and Gateway Timeout http error codes.
+  Unauthorised is returned instead.
+  [cyberark/conjur#2360](https://github.com/cyberark/conjur/pull/2360)
+
 ## [1.13.0] - 2021-07-29
 
 ### Added

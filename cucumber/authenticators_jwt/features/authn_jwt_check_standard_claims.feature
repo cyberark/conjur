@@ -363,7 +363,7 @@ Feature: JWT Authenticator - Check registered claim
     And I fetch an ID Token for username "alice" and password "alice"
     And I save my place in the audit log file
     When I authenticate via authn-jwt with the ID token
-    Then the HTTP response status code is 502
+    Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
     CONJ00011E Failed to discover Identity Provider (Provider URI: 'incorrect.com'). Reason: '#<AttrRequired::AttrMissing: 'host' required.>'
