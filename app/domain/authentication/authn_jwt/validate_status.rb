@@ -18,7 +18,7 @@ module Authentication
         fetch_audience_value: Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue.new,
         fetch_enforced_claims: Authentication::AuthnJwt::RestrictionValidation::FetchEnforcedClaims.new,
         fetch_mapping_claims: Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new,
-        identity_from_decoded_token_provider_class: Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider,
+        validate_identity_configured_properly: Authentication::AuthnJwt::IdentityProviders::ValidateIdentityConfiguredProperly.new,
         validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
         validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
         validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
@@ -97,7 +97,7 @@ module Authentication
         @fetch_issuer_value.call(authentication_parameters: authentication_parameters)
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedIssuerConfiguration.new)
       end
-      
+
       def validate_audience
         @fetch_audience_value.call(authentication_parameters: authentication_parameters)
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedAudienceConfiguration.new)
@@ -114,9 +114,9 @@ module Authentication
       end
 
       def validate_identity_secrets
-        @identity_from_decoded_token_provider_class.new(
+        @validate_identity_configured_properly.call(
           authentication_parameters: authentication_parameters
-        ).validate_identity_configured_properly
+        )
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedIdentityConfiguration.new)
       end
 
@@ -150,7 +150,7 @@ module Authentication
         )
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedSigningKeyConfiguration.new)
       end
-      
+
       def signing_key_provider
         @signing_key_provider ||= @create_signing_key_provider.call(
           authentication_parameters: authentication_parameters

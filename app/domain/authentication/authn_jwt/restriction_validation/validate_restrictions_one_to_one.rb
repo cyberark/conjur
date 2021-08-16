@@ -7,7 +7,8 @@ module Authentication
         def initialize(
           decoded_token:,
           mapped_claims:,
-          logger: Rails.logger)
+          logger: Rails.logger
+        )
           @decoded_token = decoded_token
           @mapped_claims = mapped_claims
           @logger = logger

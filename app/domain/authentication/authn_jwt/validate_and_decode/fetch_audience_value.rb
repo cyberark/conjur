@@ -6,8 +6,8 @@ module Authentication
       # Fetch and validate the audience from the JWT authenticator policy
       FetchAudienceValue = CommandClass.new(
         dependencies: {
-          resource_class: ::Resource,
-          fetch_required_secrets: ::Conjur::FetchRequiredSecrets.new,
+          check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
+          fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
           logger: Rails.logger
         },
         inputs: %i[authentication_parameters]
@@ -28,17 +28,14 @@ module Authentication
         private
         
         def audience_resource_exists?
-          return @audience_resource_exists unless @audience_resource_exists.nil?
+          return @audience_resource_exists if defined?(@audience_resource_exists)
 
-          @audience_resource_exists ||= !audience_resource.nil?
-        end
-
-        def audience_resource
-          @audience_resource ||= @resource_class[audience_resource_id]
-        end
-
-        def audience_resource_id
-          @audience_resource_id ||= "#{@authentication_parameters.authn_jwt_variable_id_prefix}/#{AUDIENCE_RESOURCE_NAME}"
+          @audience_resource_exists ||= @check_authenticator_secret_exists.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            var_name: AUDIENCE_RESOURCE_NAME
+          )
         end
         
         def empty_audience_value
@@ -51,11 +48,12 @@ module Authentication
         end
 
         def audience_secret_value
-          @audience_secret_value ||= audience_required_secret[audience_resource_id]
-        end
-        
-        def audience_required_secret
-          @audience_required_secret ||= @fetch_required_secrets.call(resource_ids: [audience_resource_id])
+          @audience_secret_value ||= @fetch_authenticator_secrets.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            required_variable_names: [AUDIENCE_RESOURCE_NAME]
+          )[AUDIENCE_RESOURCE_NAME]
         end
 
         def validate_audience_secret_has_value

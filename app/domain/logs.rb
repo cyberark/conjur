@@ -752,5 +752,10 @@ module LogMessages
       code: "CONJ00025D"
     )
 
+    CheckingResourceExists = ::Util::TrackableLogMessageClass.new(
+      msg: "Checking resource '{0-resource-id}' exists...",
+      code: "CONJ00026D"
+    )
+
   end
 end

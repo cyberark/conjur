@@ -44,33 +44,27 @@ RSpec.describe('Authentication::AuthnJwt::IdFromUrlProvider') do
   context "IdFromUrlProvider" do
     context "There is identity in the url" do
       subject do
-        ::Authentication::AuthnJwt::IdentityProviders::IdentityFromUrlProvider.new(
+        ::Authentication::AuthnJwt::IdentityProviders::IdentityFromUrlProvider.new.call(
           authentication_parameters: authentication_parameters_url_identity
         )
       end
 
-      it "id_available? return true" do
-        expect(subject.identity_available?).to eql(true)
-      end
-
       it "provide_jwt_id to provide identity from url successfully" do
-        expect(subject.jwt_identity).to eql("dummy_identity")
+        expect(subject).to eql("dummy_identity")
       end
     end
 
     context "There is no identity in the url" do
       subject do
-        ::Authentication::AuthnJwt::IdentityProviders::IdentityFromUrlProvider.new(
-          authentication_parameters: authentication_parameters_no_url_identity
-        )
-      end
-
-      it "id_available? return false" do
-        expect(subject.identity_available?).to eql(false)
+        ::Authentication::AuthnJwt::IdentityProviders::IdentityFromUrlProvider.new
       end
 
       it "provide_jwt_id to raise NoUsernameInTheURL" do
-        expect { subject.jwt_identity }.to raise_error(Errors::Authentication::AuthnJwt::IdentityMisconfigured)
+        expect {
+          subject.call(
+            authentication_parameters: authentication_parameters_no_url_identity
+          )
+        }.to raise_error(Errors::Authentication::AuthnJwt::IdentityMisconfigured)
       end
     end
   end

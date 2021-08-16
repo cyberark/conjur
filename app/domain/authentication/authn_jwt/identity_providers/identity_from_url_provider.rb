@@ -1,43 +1,45 @@
+require 'command_class'
+
 module Authentication
   module AuthnJwt
     module IdentityProviders
       # Provides jwt identity from information in the URL
-      class IdentityFromUrlProvider < IdentityProviderInterface
-        def initialize(
-          authentication_parameters:,
+      IdentityFromUrlProvider = CommandClass.new(
+        dependencies: {
+          fetch_identity_path: Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath.new,
+          fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
+          check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
+          add_prefix_to_identity: Authentication::AuthnJwt::IdentityProviders::AddPrefixToIdentity.new,
           logger: Rails.logger
-        )
-          @logger = logger
-
-          @authentication_parameters = authentication_parameters
-        end
-
-        def jwt_identity
+        },
+        inputs: %i[authentication_parameters]
+      ) do
+        def call
           @logger.debug(
             LogMessages::Authentication::AuthnJwt::FetchingIdentityByInterface.new(
               URL_IDENTITY_PROVIDER_INTERFACE_NAME
             )
           )
-          raise Errors::Authentication::AuthnJwt::IdentityMisconfigured unless identity_available?
+          raise Errors::Authentication::AuthnJwt::IdentityMisconfigured unless username_exists?
 
           @logger.info(
             LogMessages::Authentication::AuthnJwt::FetchedIdentityByInterface.new(
-              @authentication_parameters.username,
+              username,
               URL_IDENTITY_PROVIDER_INTERFACE_NAME
             )
           )
 
-          @authentication_parameters.username
+          username
         end
 
-        def identity_available?
-          return @identity_available if defined?(@identity_available)
-
-          @identity_available = username_exists?
-        end
+        private
 
         def username_exists?
-          !@authentication_parameters.username.blank?
+          username.present?
+        end
+
+        def username
+          @authentication_parameters.username
         end
       end
     end

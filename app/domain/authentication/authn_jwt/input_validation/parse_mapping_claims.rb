@@ -50,14 +50,15 @@ module Authentication
 
         def mapping_tuples_list
           @mapping_tuples ||= @mapping_claims
-                                .split(CLAIMS_CHARACTER_DELIMITER)
-                                .map { |value| value.strip }
+            .split(CLAIMS_CHARACTER_DELIMITER)
+            .map { |value| value.strip }
         end
 
         def validate_mapping_claims_list_values
           mapping_tuples_list.each do |tuple|
             raise Errors::Authentication::AuthnJwt::MappingClaimsBlankOrEmpty, @mapping_claims if
               tuple.blank?
+
             annotation_name, claim_name = mapping_tuple_values(tuple)
             add_to_mapping_hash(annotation_name, claim_name)
           end
@@ -65,15 +66,17 @@ module Authentication
 
         def mapping_tuple_values(tuple)
           values = tuple
-                     .split(TUPLE_CHARACTER_DELIMITER)
-                     .map { |value| value.strip }
+            .split(TUPLE_CHARACTER_DELIMITER)
+            .map { |value| value.strip }
           raise Errors::Authentication::AuthnJwt::MappingClaimInvalidFormat, tuple unless values.length == 2
-          return valid_claim_value(values[0], tuple),
-            valid_claim_value(values[1], tuple)
+
+          [valid_claim_value(values[0], tuple),
+           valid_claim_value(values[1], tuple)]
         end
 
         def valid_claim_value(value, tuple)
           raise Errors::Authentication::AuthnJwt::MappingClaimInvalidFormat, tuple if value.blank?
+
           begin
             @validate_claim_name.call(
               claim_name: value
@@ -89,6 +92,7 @@ module Authentication
             key_set.add?(annotation_name)
           raise Errors::Authentication::AuthnJwt::MappingClaimDuplicationError.new('claim name', claim_name) unless
             value_set.add?(claim_name)
+
           @logger.debug(LogMessages::Authentication::AuthnJwt::ClaimMapDefinition.new(annotation_name, claim_name))
           mapping_hash[annotation_name] = claim_name
         end
@@ -102,7 +106,7 @@ module Authentication
         end
 
         def mapping_hash
-          @mapping_hash ||= Hash.new
+          @mapping_hash ||= {}
         end
       end
     end

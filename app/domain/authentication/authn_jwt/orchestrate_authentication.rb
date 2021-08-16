@@ -31,13 +31,13 @@ module Authentication
         @logger.info(LogMessages::Authentication::AuthnJwt::JwtAuthenticatorEntryPoint.new(@authenticator_input.authenticator_name))
 
         @jwt_authenticator.call(
-          jwt_configuration: jwt_authenticator_configuration,
+          vendor_configuration: vendor_configuration,
           authenticator_input: @authenticator_input
         )
       end
 
-      def jwt_authenticator_configuration
-        @jwt_authenticator_configuration ||= @create_vendor_configuration.call(
+      def vendor_configuration
+        @vendor_configuration ||= @create_vendor_configuration.call(
           authenticator_input: @authenticator_input
         )
       end

@@ -2,8 +2,12 @@ module Authentication
   module AuthnJwt
     module VendorConfigurations
       # Mock JWTConfiguration class to use it to develop other part in the jwt authenticator
+      #
+      # validate_resource_restrictions is a dependency and there is no reason for variable assumption warning about it.
+      # :reek:InstanceVariableAssumption
       class ConfigurationJWTGenericVendor
         # These are dependencies in class integrating different parts of the jwt authentication
+        # rubocop:disable Metrics/ParameterLists
         # :reek:CountKeywordArgs
         def initialize(
           authenticator_input:,
@@ -11,21 +15,25 @@ module Authentication
           authentication_parameters_class: Authentication::AuthnJwt::AuthenticationParameters,
           restriction_validator_class: Authentication::AuthnJwt::RestrictionValidation::ValidateRestrictionsOneToOne,
           validate_resource_restrictions_class: Authentication::ResourceRestrictions::ValidateResourceRestrictions,
+          extract_resource_restrictions_class: Authentication::ResourceRestrictions::ExtractResourceRestrictions,
           extract_token_from_credentials: Authentication::AuthnJwt::InputValidation::ExtractTokenFromCredentials.new,
           create_identity_provider: Authentication::AuthnJwt::IdentityProviders::CreateIdentityProvider.new,
           create_constraints: Authentication::AuthnJwt::RestrictionValidation::CreateConstrains.new,
           fetch_mapping_claims: Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new,
-          validate_and_decode_token: Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new
+          validate_and_decode_token: Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new,
+          restrictions_from_annotations: Authentication::ResourceRestrictions::GetServiceSpecificRestrictionFromAnnotation.new
         )
           @logger = logger
           @authentication_parameters_class = authentication_parameters_class
           @restriction_validator_class = restriction_validator_class
           @validate_resource_restrictions_class = validate_resource_restrictions_class
+          @extract_resource_restrictions_class = extract_resource_restrictions_class
           @extract_token_from_credentials = extract_token_from_credentials
           @create_identity_provider = create_identity_provider
           @create_constraints = create_constraints
           @fetch_mapping_claims = fetch_mapping_claims
           @validate_and_decode_token = validate_and_decode_token
+          @restrictions_from_annotations = restrictions_from_annotations
 
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreatingAuthenticationParametersObject.new)
           @authentication_parameters = @authentication_parameters_class.new(
@@ -33,6 +41,7 @@ module Authentication
             jwt_token: jwt_token(authenticator_input)
           )
         end
+        # rubocop:enable Metrics/ParameterLists
 
         def jwt_identity
           @jwt_identity ||= jwt_identity_from_request
@@ -69,11 +78,15 @@ module Authentication
         end
 
         def mapped_claims
-          @mapped_claims ||= @fetch_mapping_claims.call(authentication_parameters: @authentication_parameters)
+          @mapped_claims ||= @fetch_mapping_claims.call(
+            authentication_parameters: @authentication_parameters
+          )
         end
 
         def jwt_identity_from_request
-          @jwt_identity_from_request ||= identity_provider.jwt_identity
+          @jwt_identity_from_request ||= identity_provider.call(
+            authentication_parameters: @authentication_parameters
+          )
         end
 
         def identity_provider
@@ -89,13 +102,9 @@ module Authentication
           @create_identity_provider
         end
 
-        def restrictions_from_annotations
-          @restrictions_from_annotations ||= Authentication::ResourceRestrictions::GetServiceSpecificRestrictionFromAnnotation.new
-        end
-
         def extract_resource_restrictions
-          @extract_resource_restrictions ||= Authentication::ResourceRestrictions::ExtractResourceRestrictions.new(
-            get_restriction_from_annotation: restrictions_from_annotations,
+          @extract_resource_restrictions ||= @extract_resource_restrictions_class.new(
+            get_restriction_from_annotation: @restrictions_from_annotations,
             ignore_empty_annotations: false
           )
         end

@@ -32,7 +32,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
   let(:mocked_invalid_fetch_mapping_claims) { double("Mocked invalid fetch mapping claims value")  }
   let(:mocked_valid_identity_from_decoded_token_provider) { double("Mocked valid identity from decoded token provider")  }
   let(:mocked_valid_identity_configured_properly) { double("Mocked valid identity configured properly")  }
-  let(:mocked_invalid_identity_from_decoded_token_provider) { double("Mocked invalid identity from decoded token provider")  }
   let(:mocked_invalid_identity_configured_properly) { double("Mocked invalid identity configured properly")  }
   let(:mocked_valid_validate_webservice_is_whitelisted) { double("Mocked valid validate webservice is whitelisted")  }
   let(:mocked_invalid_validate_webservice_is_whitelisted) { double("Mocked invalid validate webservice is whitelisted")  }
@@ -43,17 +42,18 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
   let(:mocked_valid_validate_account_exists) { double("Mocked valid validate account exists")  }
   let(:mocked_invalid_validate_account_exists) { double("Mocked invalid validate account exists")  }
   let(:mocked_enabled_authenticators) { double("Mocked logger")  }
+  let(:mocked_validate_identity_not_configured_properly) { double("MockedValidateIdentityConfiguredProperly") }
 
   let(:create_signing_key_configuration_is_invalid_error) { "Create signing key configuration is invalid" }
   let(:fetch_issuer_configuration_is_invalid_error) { "Fetch issuer configuration is invalid" }
   let(:fetch_audience_configuration_is_invalid_error) { "Fetch audience configuration is invalid" }
   let(:fetch_enforced_claims_configuration_is_invalid_error) { "Fetch enforced claims configuration is invalid" }
   let(:fetch_mapping_claims_configuration_is_invalid_error) { "Fetch mapping claims configuration is invalid" }
-  let(:identity_configuration_is_invalid_error) { "Identity configuration is invalid" }
   let(:webservice_is_not_whitelisted_error) { "Webservice is not whitelisted" }
   let(:user_cant_access_webservice_error) { "User cant access webservice" }
   let(:webservice_does_not_exist_error) { "Webservice does not exist" }
   let(:account_does_not_exist_error) { "Account does not exist" }
+  let(:identity_not_configured_properly) { "Identity not configured properly" }
   let(:mocked_valid_signing_key_provider) { double("Mocked valid signing key interface")  }
   let(:mocked_valid_fetch_signing_key) { double("Mocked valid fetch signing key interface")  }
 
@@ -102,12 +102,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       receive(:validate_identity_configured_properly).and_return(nil)
     )
 
-    allow(mocked_invalid_identity_from_decoded_token_provider).to(
-      receive(:new).and_return(mocked_invalid_identity_configured_properly)
-    )
-
-    allow(mocked_invalid_identity_configured_properly).to(
-      receive(:validate_identity_configured_properly).and_raise(identity_configuration_is_invalid_error)
+    allow(mocked_validate_identity_not_configured_properly).to(
+      receive(:call).and_raise(identity_not_configured_properly)
     )
 
     allow(mocked_valid_validate_webservice_is_whitelisted).to(
@@ -445,7 +441,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
             fetch_signing_key: mocked_valid_fetch_signing_key,
             create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
-            identity_from_decoded_token_provider_class: mocked_invalid_identity_from_decoded_token_provider,
+            validate_identity_configured_properly: mocked_validate_identity_not_configured_properly,
             validate_webservice_is_whitelisted: mocked_valid_validate_webservice_is_whitelisted,
             validate_role_can_access_webservice: mocked_valid_validate_can_access_webservice,
             validate_webservice_exists: mocked_valid_validate_webservice_exists,
@@ -458,7 +454,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(identity_configuration_is_invalid_error)
+          expect { subject }.to raise_error(identity_not_configured_properly)
         end
       end
     end

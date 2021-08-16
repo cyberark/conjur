@@ -33,56 +33,48 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
 
   let(:mapping_claims_invalid_secret_value) {'name1:name2 ,, name3:name1'}
 
-  def mock_resource_id(resource_name:)
-    %r{#{account}:variable:conjur/#{authenticator_name}/#{service_id}/#{resource_name}}
-  end
-
   let(:mocked_resource) { double("MockedResource") }
-  let(:mocked_resource_exists_values) { double("MockedResource") }
-  let(:mocked_resource_not_exists_values) { double("MockedResource") }
+  let(:mocked_authenticator_secret_not_exists) { double("Mocked authenticator secret not exists")  }
+  let(:mocked_authenticator_secret_exists) { double("Mocked authenticator secret exists") }
 
-  let(:mocked_fetch_secrets_empty_values) {  double("MockedFetchSecrets") }
-  let(:mocked_fetch_secrets_exist_values) {  double("MockedFetchSecrets") }
-  let(:mocked_fetch_secrets_invalid_values) {  double("MockedFetchInvalidSecrets") }
-  
-  let(:mocked_valid_secrets) {  double("MockedValidSecrets") }
-  let(:mocked_invalid_secrets) {  double("MockedInvalidSecrets") }
+  let(:mocked_fetch_authenticator_secrets_valid_values)  {  double("MochedFetchAuthenticatorSecrets") }
+  let(:mocked_fetch_authenticator_secrets_invalid_values)  {  double("MochedFetchAuthenticatorSecrets") }
+  let(:mocked_fetch_authenticator_secrets_empty_values)  {  double("MochedFetchAuthenticatorSecrets") }
+
+  let(:mocked_valid_secrets) {
+    {
+      mapping_claims_resource_name => mapping_claims_valid_secret_value
+    }
+  }
+
+  let(:mocked_invalid_secrets) {
+    {
+      mapping_claims_resource_name => mapping_claims_invalid_secret_value
+    }
+  }
 
   let(:required_secret_missing_error) { "required secret missing error" }
 
   before(:each) do
-    allow(mocked_resource_exists_values).to(
-      receive(:[]).with(mock_resource_id(resource_name: mapping_claims_resource_name)).and_return(mocked_resource)
+    allow(mocked_authenticator_secret_exists).to(
+      receive(:call).and_return(true)
     )
 
-    allow(mocked_resource_not_exists_values).to(
-      receive(:[]).and_return(nil)
+    allow(mocked_authenticator_secret_not_exists).to(
+      receive(:call).and_return(false)
     )
-    
-    allow(mocked_fetch_secrets_empty_values).to(
+
+    allow(mocked_fetch_authenticator_secrets_valid_values).to(
+      receive(:call).and_return(mocked_valid_secrets)
+    )
+
+    allow(mocked_fetch_authenticator_secrets_invalid_values).to(
+      receive(:call).and_return(mocked_invalid_secrets)
+    )
+
+    allow(mocked_fetch_authenticator_secrets_empty_values).to(
       receive(:call).and_raise(required_secret_missing_error)
     )
-
-    allow(mocked_fetch_secrets_exist_values).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: mapping_claims_resource_name)]).
-        and_return(mocked_valid_secrets)
-    )
-
-    allow(mocked_valid_secrets).to(
-      receive(:[]).with(mock_resource_id(resource_name: mapping_claims_resource_name)).
-        and_return(mapping_claims_valid_secret_value)
-    )
-
-    allow(mocked_fetch_secrets_invalid_values).to(
-      receive(:call).with(resource_ids: [mock_resource_id(resource_name: mapping_claims_resource_name)]).
-        and_return(mocked_invalid_secrets)
-    )
-
-    allow(mocked_invalid_secrets).to(
-      receive(:[]).with(mock_resource_id(resource_name: mapping_claims_resource_name)).
-        and_return(mapping_claims_invalid_secret_value)
-    )
-
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
@@ -94,8 +86,8 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
     context "with empty variable value" do
       subject do
         ::Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new(
-          resource_class: mocked_resource_exists_values,
-          fetch_required_secrets: mocked_fetch_secrets_empty_values
+          check_authenticator_secret_exists: mocked_authenticator_secret_exists,
+          fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_empty_values
         ).call(
           authentication_parameters: authentication_parameters
         )
@@ -109,8 +101,8 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
     context "with invalid variable value" do
       subject do
         ::Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new(
-          resource_class: mocked_resource_exists_values,
-          fetch_required_secrets: mocked_fetch_secrets_invalid_values
+          check_authenticator_secret_exists: mocked_authenticator_secret_exists,
+          fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_invalid_values
         ).call(
           authentication_parameters: authentication_parameters
         )
@@ -124,8 +116,8 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
     context "with valid variable value" do
       subject do
         ::Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new(
-          resource_class: mocked_resource_exists_values,
-          fetch_required_secrets: mocked_fetch_secrets_exist_values
+          check_authenticator_secret_exists: mocked_authenticator_secret_exists,
+          fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_valid_values
         ).call(
           authentication_parameters: authentication_parameters
         )
@@ -140,7 +132,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
   context "'mapping-claims' variable is not configured in authenticator policy" do
     subject do
       ::Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new(
-        resource_class: mocked_resource_not_exists_values
+        check_authenticator_secret_exists: mocked_authenticator_secret_not_exists
       ).call(
         authentication_parameters: authentication_parameters
       )

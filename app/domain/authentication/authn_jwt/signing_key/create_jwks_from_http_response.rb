@@ -12,7 +12,7 @@ module Authentication
         def call
           validate_response_exists
           validate_response_has_a_body
-          create_jwks_from_http_respnse
+          create_jwks_from_http_response
         end
 
         private
@@ -25,18 +25,20 @@ module Authentication
           raise Errors::Authentication::AuthnJwt::InvalidHttpResponseFormat unless @http_response.respond_to?(:body)
         end
 
-        def create_jwks_from_http_respnse
+        def create_jwks_from_http_response
           @logger.debug(LogMessages::Authentication::AuthnJwt::CreatingJwksFromHttpResponse.new)
-
-          response_body = @http_response.body
-          encoded_body = Base64.encode64(response_body)
-          jwks = parse_jwks_response(response_body, encoded_body)
-
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedJwks.new)
-          jwks
+          parse_jwks_response
         end
 
-        def parse_jwks_response(response_body, encoded_body)
+        def encoded_body
+          @encoded_body ||= Base64.encode64(response_body)
+        end
+
+        def response_body
+          @response_body ||= @http_response.body
+        end
+
+        def parse_jwks_response
           begin
             parsed_response = JSON.parse(response_body)
             keys = parsed_response['keys']
@@ -48,6 +50,7 @@ module Authentication
           end
 
           validate_keys_not_empty(keys, encoded_body)
+          @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedJwks.new)
           { keys: @jwk_set_class.new(keys) }
         end
 

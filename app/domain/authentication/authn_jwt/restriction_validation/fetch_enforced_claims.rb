@@ -7,8 +7,8 @@ module Authentication
       # definition of annotations keys on JWT hosts 
       FetchEnforcedClaims = CommandClass.new(
         dependencies: {
-          resource_class: ::Resource,
-          fetch_required_secrets: ::Conjur::FetchRequiredSecrets.new,
+          fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
+          check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
           parse_enforced_claims: ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new,
           logger: Rails.logger
         },
@@ -26,17 +26,14 @@ module Authentication
         private
         
         def enforced_claims_resource_exists?
-          return @enforced_claims_resource_exists unless @enforced_claims_resource_exists.nil?
+          return @enforced_claims_resource_exists if defined?(@enforced_claims_resource_exists)
 
-          @enforced_claims_resource_exists ||= !enforced_claims_resource.nil?
-        end
-
-        def enforced_claims_resource
-          @enforced_claims_resource ||= @resource_class[enforced_claims_resource_id]
-        end
-
-        def enforced_claims_resource_id
-          @enforced_claims_resource_id ||= "#{@authentication_parameters.authn_jwt_variable_id_prefix}/#{ENFORCED_CLAIMS_RESOURCE_NAME}"
+          @enforced_claims_resource_exists ||= @check_authenticator_secret_exists.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            var_name: ENFORCED_CLAIMS_RESOURCE_NAME
+          )
         end
         
         def empty_enforced_claims
@@ -49,11 +46,12 @@ module Authentication
         end
 
         def enforced_claims_secret_value
-          @enforced_claims_secret_value ||= enforced_claims_required_secret[enforced_claims_resource_id]
-        end
-        
-        def enforced_claims_required_secret
-          @enforced_claims_required_secret ||= @fetch_required_secrets.call(resource_ids: [enforced_claims_resource_id])
+          @enforced_claims_secret_value ||= @fetch_authenticator_secrets.call(
+            conjur_account: @authentication_parameters.account,
+            authenticator_name: @authentication_parameters.authenticator_name,
+            service_id: @authentication_parameters.service_id,
+            required_variable_names: [ENFORCED_CLAIMS_RESOURCE_NAME]
+          )[ENFORCED_CLAIMS_RESOURCE_NAME]
         end
         
         def parse_enforced_claims_secret_value
