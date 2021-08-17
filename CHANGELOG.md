@@ -7,14 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Fixed
-- Fix bug of cache not working in authn jwt. [ONYX-11330](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-11330)
+- Fix bug of cache not working in authn jwt. [cyberark/conjur#2353](https://github.com/cyberark/conjur/pull/2353)
 
 ## [1.13.0] - 2021-07-29
 
 ### Added
-- Added enforced claims support to JWT generic vendor configuration. [ONYX-10520](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-10520)
-- Added claims mapping support to JWT generic vendor configuration. [ONYX-10850](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-10850)
-- Added audience check to JWT generic vendor configuration. [ONYX-10512](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-10512)
+- Added enforced claims support to JWT generic vendor configuration. [cyberark/conjur#2325](https://github.com/cyberark/conjur/pull/2325)
+- Added claims mapping support to JWT generic vendor configuration. [cyberark/conjur#2330](https://github.com/cyberark/conjur/pull/2330)
+- Added audience check to JWT generic vendor configuration. [cyberark/conjur#2345](https://github.com/cyberark/conjur/pull/2345)
 
 ### Security
 - Bump `cyberark/ubi-ruby-fips` from 1.0.3 to 1.0.4 to address CVE-2021-33910.
