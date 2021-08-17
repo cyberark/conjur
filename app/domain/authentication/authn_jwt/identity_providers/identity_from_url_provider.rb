@@ -12,7 +12,7 @@ module Authentication
           add_prefix_to_identity: Authentication::AuthnJwt::IdentityProviders::AddPrefixToIdentity.new,
           logger: Rails.logger
         },
-        inputs: %i[jwt_authentication_input]
+        inputs: %i[jwt_authenticator_input]
       ) do
         extend(Forwardable)
         def_delegators(:@jwt_authenticator_input, :username)

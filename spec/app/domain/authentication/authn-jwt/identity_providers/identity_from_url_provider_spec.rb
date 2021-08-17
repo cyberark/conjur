@@ -7,9 +7,9 @@ RSpec.describe('Authentication::AuthnJwt::IdFromUrlProvider') do
   let(:service_id) { "my-service" }
   let(:account) { 'my-account' }
 
-  let(:authentication_parameters_url_identity) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(
-      authentication_input: Authentication::AuthenticatorInput.new(
+  let(:mocked_jwt_authenticator_input_with_url_identity) {
+    Authentication::AuthnJwt::JWTAuthenticatorInput.new(
+      authenticator_input: Authentication::AuthenticatorInput.new(
         authenticator_name: authenticator_name,
         service_id: service_id,
         account: account,
@@ -18,13 +18,13 @@ RSpec.describe('Authentication::AuthnJwt::IdFromUrlProvider') do
         client_ip: "dummy",
         request: "dummy"
       ),
-      jwt_token: nil
+      decoded_token: nil
     )
   }
 
-  let(:authentication_parameters_no_url_identity) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(
-      authentication_input: Authentication::AuthenticatorInput.new(
+  let(:mocked_jwt_authenticator_input_without_url_identity) {
+    Authentication::AuthnJwt::JWTAuthenticatorInput.new(
+      authenticator_input: Authentication::AuthenticatorInput.new(
         authenticator_name: authenticator_name,
         service_id: service_id,
         account: account,
@@ -33,7 +33,8 @@ RSpec.describe('Authentication::AuthnJwt::IdFromUrlProvider') do
         client_ip: "dummy",
         request: "dummy"
       ),
-      jwt_token: nil)
+      decoded_token: nil
+    )
   }
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
@@ -45,7 +46,7 @@ RSpec.describe('Authentication::AuthnJwt::IdFromUrlProvider') do
     context "There is identity in the url" do
       subject do
         ::Authentication::AuthnJwt::IdentityProviders::IdentityFromUrlProvider.new.call(
-          authentication_parameters: authentication_parameters_url_identity
+          jwt_authenticator_input: mocked_jwt_authenticator_input_with_url_identity
         )
       end
 
@@ -62,7 +63,7 @@ RSpec.describe('Authentication::AuthnJwt::IdFromUrlProvider') do
       it "provide_jwt_id to raise NoUsernameInTheURL" do
         expect {
           subject.call(
-            authentication_parameters: authentication_parameters_no_url_identity
+            jwt_authenticator_input: mocked_jwt_authenticator_input_without_url_identity
           )
         }.to raise_error(Errors::Authentication::AuthnJwt::IdentityMisconfigured)
       end

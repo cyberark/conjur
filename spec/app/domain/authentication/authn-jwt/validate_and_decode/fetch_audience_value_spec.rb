@@ -20,13 +20,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue'
     )
   }
 
-  let(:authentication_parameters) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(
-      authentication_input: authenticator_input,
-      jwt_token: nil
-    )
-  }
-
   let(:audience_resource_name) {Authentication::AuthnJwt::AUDIENCE_RESOURCE_NAME}
   let(:audience_valid_secret_value) {'valid-string-value'}
 
@@ -75,7 +68,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue'
           check_authenticator_secret_exists: mocked_authenticator_secret_exists,
           fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_empty_values
         ).call(
-          authentication_parameters: authentication_parameters
+          authenticator_input: authenticator_input
         )
       end
 
@@ -90,7 +83,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue'
           check_authenticator_secret_exists: mocked_authenticator_secret_exists,
           fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_valid_values
         ).call(
-          authentication_parameters: authentication_parameters
+          authenticator_input: authenticator_input
         )
       end
 
@@ -105,7 +98,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue'
       ::Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue.new(
         check_authenticator_secret_exists: mocked_authenticator_secret_not_exists
       ).call(
-        authentication_parameters: authentication_parameters
+        authenticator_input: authenticator_input
       )
     end
 

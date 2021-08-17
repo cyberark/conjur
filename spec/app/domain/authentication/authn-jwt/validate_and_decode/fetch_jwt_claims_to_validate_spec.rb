@@ -52,18 +52,15 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
     token_dictionary
   end
 
-  let(:authentication_parameters) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(
-      authentication_input: Authentication::AuthenticatorInput.new(
-        authenticator_name: "dummy",
-        service_id: "dummy",
-        account: "dummy",
-        username: "dummy",
-        credentials: "dummy",
-        client_ip: "dummy",
-        request: "dummy"
-      ),
-      jwt_token: nil
+  let(:authenticator_input) {
+    Authentication::AuthenticatorInput.new(
+      authenticator_name: "dummy",
+      service_id: "dummy",
+      account: "dummy",
+      username: "dummy",
+      credentials: "dummy",
+      client_ip: "dummy",
+      request: "dummy"
     )
   }
 
@@ -110,12 +107,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
       context "and with all supported optional claims: (iss, nbf, iat)" do
         context "with valid issuer variable configuration in authenticator policy" do
           subject do
-            authentication_parameters.decoded_token = token(%w[iss exp nbf iat].freeze)
-
             ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
-              authentication_parameters: authentication_parameters
+              authenticator_input: authenticator_input,
+              decoded_token: token(%w[iss exp nbf iat].freeze)
             )
           end
 
@@ -128,12 +124,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
       context "and with iss claim" do
         context "with valid issuer variable configuration in authenticator policy" do
           subject do
-            authentication_parameters.decoded_token = token(%w[exp iss].freeze)
-
             ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
-              authentication_parameters: authentication_parameters
+              authenticator_input: authenticator_input,
+              decoded_token: token(%w[exp iss].freeze)
             )
           end
 
@@ -144,12 +139,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
 
         context "with invalid issuer variable configuration" do
           subject do
-            authentication_parameters.decoded_token = token(%w[exp iss].freeze)
-
             ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_invalid_configuration
             ).call(
-              authentication_parameters: authentication_parameters
+              authenticator_input: authenticator_input,
+            decoded_token: token(%w[exp iss].freeze)
             )
           end
 
@@ -162,12 +156,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
       context "and with nbf claim" do
         context "with valid issuer variable configuration in authenticator policy" do
           subject do
-            authentication_parameters.decoded_token = token(%w[exp nbf].freeze)
-
             ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
-              authentication_parameters: authentication_parameters
+              authenticator_input: authenticator_input,
+              decoded_token: token(%w[exp nbf].freeze)
             )
           end
 
@@ -180,12 +173,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
       context "and with iat claim" do
         context "with valid issuer variable configuration in authenticator policy" do
           subject do
-            authentication_parameters.decoded_token = token(%w[exp iat].freeze)
-
             ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
-              authentication_parameters: authentication_parameters
+              authenticator_input: authenticator_input,
+              decoded_token: token(%w[exp iat].freeze)
             )
           end
 
@@ -198,12 +190,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
       context "with none of supported optional claims" do
         context "with valid issuer variable configuration in authenticator policy" do
           subject do
-            authentication_parameters.decoded_token = token(%w[exp].freeze)
-
             ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
-              authentication_parameters: authentication_parameters
+              authenticator_input: authenticator_input,
+              decoded_token: token(%w[exp].freeze)
             )
           end
 
@@ -214,12 +205,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
 
         context "with invalid issuer variable configuration" do
           subject do
-            authentication_parameters.decoded_token = token(%w[exp].freeze)
-
             ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_invalid_configuration
             ).call(
-              authentication_parameters: authentication_parameters
+              authenticator_input: authenticator_input,
+              decoded_token: token(%w[exp].freeze)
             )
           end
 
@@ -232,12 +222,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
       context "with all except iss: (exp, nbf, iat)" do
         context "with valid issuer variable configuration in authenticator policy" do
           subject do
-            authentication_parameters.decoded_token = token(%w[exp nbf iat].freeze)
-
             ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
-              authentication_parameters: authentication_parameters
+              authenticator_input: authenticator_input,
+              decoded_token: token(%w[exp nbf iat].freeze)
             )
           end
 
@@ -248,12 +237,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
 
         context "with invalid issuer variable configuration" do
           subject do
-            authentication_parameters.decoded_token = token(%w[exp nbf iat].freeze)
-
             ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_invalid_configuration
             ).call(
-              authentication_parameters: authentication_parameters
+              authenticator_input: authenticator_input,
+              decoded_token: token(%w[exp nbf iat].freeze)
             )
           end
 
@@ -266,12 +254,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
       context "with all except nbf: (exp, iss, iat)" do
         context "with valid issuer variable configuration in authenticator policy" do
           subject do
-            authentication_parameters.decoded_token = token(%w[exp iss iat].freeze)
-
             ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
-              authentication_parameters: authentication_parameters
+              authenticator_input: authenticator_input,
+              decoded_token: token(%w[exp iss iat].freeze)
             )
           end
 
@@ -284,12 +271,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
       context "with all except iat: (exp ,iss, nbf)" do
         context "with valid issuer variable configuration in authenticator policy" do
           subject do
-            authentication_parameters.decoded_token = token(%w[exp iss nbf].freeze)
-
             ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
-              authentication_parameters: authentication_parameters
+              authenticator_input: authenticator_input,
+              decoded_token: token(%w[exp iss nbf].freeze)
             )
           end
 
@@ -304,12 +290,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
       context "and with all supported optional claims: (iss, nbf, iat)" do
         context "with valid issuer variable configuration in authenticator policy" do
           subject do
-            authentication_parameters.decoded_token = token(%w[iss nbf iat].freeze)
-
             ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
-              authentication_parameters: authentication_parameters
+              authenticator_input: authenticator_input,
+              decoded_token: token(%w[iss nbf iat].freeze)
             )
           end
 
@@ -320,12 +305,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
       end
       context "with invalid issuer variable configuration" do
         subject do
-          authentication_parameters.decoded_token = token(%w[iss nbf iat].freeze)
-
           ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
             fetch_issuer_value: mocked_fetch_issuer_value_valid
           ).call(
-            authentication_parameters: authentication_parameters
+            authenticator_input: authenticator_input,
+            decoded_token: token(%w[iss nbf iat].freeze)
           )
         end
 
@@ -337,12 +321,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
       context "and with iss claim" do
         context "with valid issuer variable configuration in authenticator policy" do
           subject do
-            authentication_parameters.decoded_token = token(%w[iss].freeze)
-
             ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
-              authentication_parameters: authentication_parameters
+              authenticator_input: authenticator_input,
+              decoded_token: token(%w[iss].freeze)
             )
           end
 
@@ -353,12 +336,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
 
         context "with invalid issuer variable configuration" do
           subject do
-            authentication_parameters.decoded_token = token(%w[iss].freeze)
-
             ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_invalid_configuration
             ).call(
-              authentication_parameters: authentication_parameters
+              authenticator_input: authenticator_input,
+              decoded_token: token(%w[iss].freeze)
             )
           end
 
@@ -371,12 +353,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
       context "and with nbf claim" do
         context "with valid issuer variable configuration in authenticator policy" do
           subject do
-            authentication_parameters.decoded_token = token(%w[nbf].freeze)
-
             ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
-              authentication_parameters: authentication_parameters
+              authenticator_input: authenticator_input,
+              decoded_token: token(%w[nbf].freeze)
             )
           end
 
@@ -389,12 +370,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
       context "and with iat claim" do
         context "with valid issuer variable configuration in authenticator policy" do
           subject do
-            authentication_parameters.decoded_token = token(%w[iat].freeze)
-
             ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
               fetch_issuer_value: mocked_fetch_issuer_value_valid
             ).call(
-              authentication_parameters: authentication_parameters
+              authenticator_input: authenticator_input,
+              decoded_token: token(%w[iat].freeze)
             )
           end
 
@@ -407,12 +387,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
 
     context "with empty token (should not happened)" do
       subject do
-        authentication_parameters.decoded_token = token(%w[].freeze)
-
         ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
           fetch_issuer_value: mocked_fetch_issuer_value_valid
         ).call(
-          authentication_parameters: authentication_parameters
+          authenticator_input: authenticator_input,
+          decoded_token: token(%w[].freeze)
         )
       end
 
@@ -423,12 +402,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
 
     context "with nil token (should not happened)" do
       subject do
-        authentication_parameters.decoded_token = nil
-
         ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
           fetch_issuer_value: mocked_fetch_issuer_value_valid
         ).call(
-          authentication_parameters: authentication_parameters
+          authenticator_input: authenticator_input,
+          decoded_token: nil
         )
       end
 
@@ -440,12 +418,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
     context "with different `aud` permutations" do
       context "with valid audit variable configuration and aud claim" do
         subject do
-          authentication_parameters.decoded_token = token(%w[aud].freeze)
-
           ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
             fetch_audience_value: mocked_fetch_audience_value_valid
           ).call(
-            authentication_parameters: authentication_parameters
+            authenticator_input: authenticator_input,
+            decoded_token: token(%w[aud].freeze)
           )
         end
 
@@ -456,12 +433,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
 
       context "with valid audit variable configuration and without aud claim" do
         subject do
-          authentication_parameters.decoded_token = token(%w[claim_name].freeze)
-
           ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
             fetch_audience_value: mocked_fetch_audience_value_valid
           ).call(
-            authentication_parameters: authentication_parameters
+            authenticator_input: authenticator_input,
+            decoded_token: token(%w[claim_name].freeze)
           )
         end
 
@@ -472,12 +448,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
 
       context "with empty audit variable configuration and aud claim" do
         subject do
-          authentication_parameters.decoded_token = token(%w[aud].freeze)
-
           ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
             fetch_audience_value: mocked_fetch_audience_value_empty
           ).call(
-            authentication_parameters: authentication_parameters
+            authenticator_input: authenticator_input,
+            decoded_token: token(%w[aud].freeze)
           )
         end
 
@@ -488,12 +463,11 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToVal
 
       context "with invalid audit variable configuration" do
         subject do
-          authentication_parameters.decoded_token = token(%w[exp aud].freeze)
-
           ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new(
             fetch_audience_value: mocked_fetch_audit_value_invalid_configuration
           ).call(
-            authentication_parameters: authentication_parameters
+            authenticator_input: authenticator_input,
+            decoded_token: token(%w[exp aud].freeze)
           )
         end
 

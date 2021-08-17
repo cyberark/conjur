@@ -17,34 +17,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
     )
   }
 
-  let(:authentication_parameters) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(
-      authentication_input: authenticator_input,
-      jwt_token: nil
-    )
-  }
-
-  let(:authentication_parameters_with_valid_token) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(
-      authentication_input: authenticator_input,
-      jwt_token: jwt_token_valid
-    )
-  }
-
-  let(:authentication_parameters_with_nil_token) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(
-      authentication_input: authenticator_input,
-      jwt_token: nil
-    )
-  }
-
-  let(:authentication_parameters_with_empty_token) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(
-      authentication_input: authenticator_input,
-      jwt_token: ""
-    )
-  }
-
   let(:mocked_create_signing_key_provider_valid) { double("MockedSigningKeyInterfaceFactoryValid") }
   let(:mocked_create_signing_key_provider_invalid) { double("MockedSigningKeyInterfaceFactoryInvalid") }
   let(:mocked_create_signing_key_provider_failed) { double("MockedSigningKeyInterfaceFactoryFailed") }
@@ -319,7 +291,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
     context "with nil value" do
       subject do
         ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new().call(
-          authentication_parameters: authentication_parameters_with_nil_token
+          authenticator_input: authenticator_input,
+          jwt_token: nil
         )
       end
 
@@ -331,7 +304,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
     context "with empty value" do
       subject do
         ::Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new().call(
-          authentication_parameters: authentication_parameters_with_empty_token
+          authenticator_input: authenticator_input,
+          jwt_token: ""
         )
       end
 
@@ -348,7 +322,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
           fetch_signing_key: mocked_fetch_signing_key_failed_on_1st_time,
           create_signing_key_provider: mocked_create_signing_key_provider_failed
         ).call(
-          authentication_parameters: authentication_parameters_with_valid_token
+          authenticator_input: authenticator_input,
+          jwt_token: jwt_token_valid
         )
       end
 
@@ -363,7 +338,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
           fetch_signing_key: mocked_fetch_signing_key_failed_on_1st_time,
           create_signing_key_provider: mocked_create_signing_key_provider_invalid
         ).call(
-          authentication_parameters: authentication_parameters_with_valid_token
+          authenticator_input: authenticator_input,
+          jwt_token: jwt_token_valid
         )
       end
 
@@ -378,7 +354,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
           fetch_signing_key: mocked_fetch_signing_key_failed_on_1st_time,
           create_signing_key_provider: mocked_create_signing_key_provider_valid
         ).call(
-          authentication_parameters: authentication_parameters_with_valid_token
+          authenticator_input: authenticator_input,
+          jwt_token: jwt_token_valid
         )
       end
 
@@ -397,7 +374,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
             verify_and_decode_token: mocked_verify_and_decode_token_invalid,
             create_signing_key_provider: mocked_create_signing_key_provider_valid
           ).call(
-            authentication_parameters: authentication_parameters_with_valid_token
+            authenticator_input: authenticator_input,
+            jwt_token: jwt_token_valid
           )
         end
 
@@ -413,7 +391,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
             verify_and_decode_token: mocked_verify_and_decode_token_invalid,
             create_signing_key_provider: mocked_create_signing_key_provider_valid
           ).call(
-            authentication_parameters: authentication_parameters_with_valid_token
+            authenticator_input: authenticator_input,
+            jwt_token: jwt_token_valid
           )
         end
 
@@ -433,7 +412,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
             get_verification_option_by_jwt_claim: mocked_get_verification_option_by_jwt_claim_valid,
             create_signing_key_provider: mocked_create_signing_key_provider_valid
           ).call(
-            authentication_parameters: authentication_parameters_with_valid_token
+            authenticator_input: authenticator_input,
+            jwt_token: jwt_token_valid
           )
         end
 
@@ -451,7 +431,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
             get_verification_option_by_jwt_claim: mocked_get_verification_option_by_jwt_claim_valid,
             create_signing_key_provider: mocked_create_signing_key_provider_valid
           ).call(
-            authentication_parameters: authentication_parameters_with_valid_token
+            authenticator_input: authenticator_input,
+            jwt_token: jwt_token_valid
           )
         end
 
@@ -472,7 +453,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
             fetch_jwt_claims_to_validate: mocked_fetch_jwt_claims_to_validate_invalid,
             create_signing_key_provider: mocked_create_signing_key_provider_valid
           ).call(
-            authentication_parameters: authentication_parameters_with_valid_token
+            authenticator_input: authenticator_input,
+            jwt_token: jwt_token_valid
           )
         end
 
@@ -490,7 +472,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
               fetch_jwt_claims_to_validate: mocked_fetch_jwt_claims_to_validate_with_empty_claims,
               create_signing_key_provider: mocked_create_signing_key_provider_valid
             ).call(
-              authentication_parameters: authentication_parameters_with_valid_token
+              authenticator_input: authenticator_input,
+              jwt_token: jwt_token_valid
             )
           end
 
@@ -507,7 +490,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
               fetch_jwt_claims_to_validate: mocked_fetch_jwt_claims_to_validate_with_not_exist_claims_in_token,
               create_signing_key_provider: mocked_create_signing_key_provider_valid
             ).call(
-              authentication_parameters: authentication_parameters_with_valid_token
+              authenticator_input: authenticator_input,
+              jwt_token: jwt_token_valid
             )
           end
 
@@ -525,7 +509,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
               get_verification_option_by_jwt_claim: mocked_get_verification_option_by_jwt_claim_invalid,
               create_signing_key_provider: mocked_create_signing_key_provider_valid
             ).call(
-              authentication_parameters: authentication_parameters_with_valid_token
+              authenticator_input: authenticator_input,
+              jwt_token: jwt_token_valid
             )
           end
 
@@ -550,7 +535,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
                 get_verification_option_by_jwt_claim: mocked_get_verification_option_by_jwt_claim_valid,
                 create_signing_key_provider: mocked_create_signing_key_provider_valid
               ).call(
-                authentication_parameters: authentication_parameters_with_valid_token
+                authenticator_input: authenticator_input,
+                jwt_token: jwt_token_valid
               )
             end
 
@@ -569,7 +555,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
                   get_verification_option_by_jwt_claim: mocked_get_verification_option_by_jwt_claim_valid,
                   create_signing_key_provider: mocked_create_signing_key_provider_valid
                 ).call(
-                  authentication_parameters: authentication_parameters_with_valid_token
+                  authenticator_input: authenticator_input,
+                  jwt_token: jwt_token_valid
                 )
               end
 
@@ -587,7 +574,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
                   get_verification_option_by_jwt_claim: mocked_get_verification_option_by_jwt_claim_valid,
                   create_signing_key_provider: mocked_create_signing_key_provider_valid
                 ).call(
-                  authentication_parameters: authentication_parameters_with_valid_token
+                  authenticator_input: authenticator_input,
+                  jwt_token: jwt_token_valid
                 )
               end
 

@@ -31,9 +31,9 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityCon
     }
   }
 
-  let(:authentication_parameters) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(
-      authentication_input: Authentication::AuthenticatorInput.new(
+  let(:jwt_authenticator_input) {
+    Authentication::AuthnJwt::JWTAuthenticatorInput.new(
+      authenticator_input: Authentication::AuthenticatorInput.new(
         authenticator_name: authenticator_name,
         service_id: service_id,
         account: account,
@@ -42,7 +42,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityCon
         client_ip: "dummy",
         request: "dummy"
       ),
-      jwt_token: nil
+      decoded_token: nil
     )
   }
 
@@ -93,7 +93,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityCon
   }
 
   before(:each) do
-    allow(authentication_parameters).to(
+    allow(jwt_authenticator_input).to(
       receive(:decoded_token).and_return(decoded_token)
     )
 
@@ -151,7 +151,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityCon
       it "validate_identity_configured_properly does not raise an error" do
         expect {
           subject.call(
-            authentication_parameters: authentication_parameters
+            jwt_authenticator_input: jwt_authenticator_input
           )
         }.to_not raise_error
       end
@@ -169,7 +169,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityCon
         it "validate_identity_configured_properly raise an error" do
           expect {
             subject.call(
-              authentication_parameters: authentication_parameters
+              jwt_authenticator_input: jwt_authenticator_input
             )
           }.to raise_error(required_secret_missing_error)
         end
@@ -187,7 +187,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityCon
         it "validate_identity_configured_properly raise an error" do
           expect {
             subject.call(
-              authentication_parameters: authentication_parameters
+              jwt_authenticator_input: jwt_authenticator_input
             )
           }.to raise_error(fetch_identity_path_missing_error)
         end
@@ -196,7 +196,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityCon
       context "And identity token claim not exists in decode token " do
         subject do
           ::Authentication::AuthnJwt::IdentityProviders::ValidateIdentityConfiguredProperly.new(
-            authentication_parameters: authentication_parameters,
+            jwt_authenticator_input: jwt_authenticator_input,
             check_authenticator_secret_exists: mocked_authenticator_secret_exists,
             fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_which_missing_in_token
           )
@@ -205,7 +205,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityCon
         it "validate_identity_configured_properly does not raise an error" do
           expect {
             subject.call(
-              authentication_parameters: authentication_parameters
+              jwt_authenticator_input: jwt_authenticator_input
             )
           }.to_not raise_error
         end
@@ -227,7 +227,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityCon
         it "validate_identity_configured_properly does not raise an error" do
           expect {
             subject.call(
-              authentication_parameters: authentication_parameters
+              jwt_authenticator_input: jwt_authenticator_input
             )
           }.to_not raise_error
         end
@@ -245,7 +245,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityCon
         it "validate_identity_configured_properly does not raise an error" do
           expect {
             subject.call(
-              authentication_parameters: authentication_parameters
+              jwt_authenticator_input: jwt_authenticator_input
             )
           }.to_not raise_error
         end

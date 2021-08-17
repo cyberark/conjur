@@ -65,7 +65,7 @@ module Authentication
           @identity_path_secret_value ||= @fetch_authenticator_secrets.call(
             conjur_account: account,
             authenticator_name: authenticator_name,
-            service_id: ervice_id,
+            service_id: service_id,
             required_variable_names: [IDENTITY_PATH_RESOURCE_NAME]
           )[IDENTITY_PATH_RESOURCE_NAME]
         end

@@ -31,9 +31,9 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
     }
   }
 
-  let(:authentication_parameters) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(
-      authentication_input: Authentication::AuthenticatorInput.new(
+  let(:jwt_authenticator_input) {
+    Authentication::AuthnJwt::JWTAuthenticatorInput.new(
+      authenticator_input: Authentication::AuthenticatorInput.new(
         authenticator_name: authenticator_name,
         service_id: service_id,
         account: account,
@@ -42,7 +42,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
         client_ip: "dummy",
         request: "dummy"
       ),
-      jwt_token: nil
+      decoded_token: nil
     )
   }
 
@@ -93,7 +93,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
   }
 
   before(:each) do
-    allow(authentication_parameters).to(
+    allow(jwt_authenticator_input).to(
       receive(:decoded_token).and_return(decoded_token)
     )
 
@@ -151,7 +151,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
       it "jwt_identity raise an error" do
         expect {
           subject.call(
-            authentication_parameters: authentication_parameters
+            jwt_authenticator_input: jwt_authenticator_input
           )
         }.to raise_error(Errors::Conjur::RequiredResourceMissing)
       end
@@ -169,7 +169,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
         it "jwt_identity raise an error" do
           expect {
             subject.call(
-              authentication_parameters: authentication_parameters
+              jwt_authenticator_input: jwt_authenticator_input
             )
           }.to raise_error(required_secret_missing_error)
         end
@@ -187,7 +187,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
         it "jwt_identity raise an error" do
           expect {
             subject.call(
-              authentication_parameters: authentication_parameters
+              jwt_authenticator_input: jwt_authenticator_input
             )
           }.to raise_error(fetch_identity_path_missing_error)
         end
@@ -204,7 +204,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
         it "jwt_identity raise an error" do
           expect {
             subject.call(
-              authentication_parameters: authentication_parameters
+              jwt_authenticator_input: jwt_authenticator_input
             )
           }.to raise_error(Errors::Authentication::AuthnJwt::NoSuchFieldInToken)
         end
@@ -221,7 +221,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
             fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
             fetch_identity_path: mocked_fetch_identity_path_valid_empty_path
           ).call(
-            authentication_parameters: authentication_parameters
+            jwt_authenticator_input: jwt_authenticator_input
           )
         end
 
@@ -237,7 +237,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
             fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
             fetch_identity_path: mocked_fetch_identity_path_valid_value
           ).call(
-            authentication_parameters: authentication_parameters
+            jwt_authenticator_input: jwt_authenticator_input
           )
         end
 
