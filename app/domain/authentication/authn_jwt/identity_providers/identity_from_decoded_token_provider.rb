@@ -12,8 +12,11 @@ module Authentication
           add_prefix_to_identity: Authentication::AuthnJwt::IdentityProviders::AddPrefixToIdentity.new,
           logger: Rails.logger
         },
-        inputs: %i[authentication_parameters]
+        inputs: %i[jwt_authenticator_input]
       ) do
+        extend(Forwardable)
+        def_delegators(:@jwt_authenticator_input, :service_id, :authenticator_name, :account)
+
         def call
           @logger.debug(
             LogMessages::Authentication::AuthnJwt::FetchingIdentityByInterface.new(
@@ -58,15 +61,15 @@ module Authentication
           return @token_id_field_secret if @token_id_field_secret
 
           @token_id_field_secret = @fetch_authenticator_secrets.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: account,
+            authenticator_name: authenticator_name,
+            service_id: service_id,
             required_variable_names: [TOKEN_APP_PROPERTY_VARIABLE]
           )[TOKEN_APP_PROPERTY_VARIABLE]
         end
 
         def decoded_token
-          @authentication_parameters.decoded_token
+          @jwt_authenticator_input.decoded_token
         end
 
         def fetch_identity_path
@@ -74,7 +77,7 @@ module Authentication
         end
 
         def identity_path
-          @identity_path ||= @fetch_identity_path.call(authentication_parameters: @authentication_parameters)
+          @identity_path ||= @fetch_identity_path.call(jwt_authenticator_input: @jwt_authenticator_input)
         end
 
         def identity_name_from_token

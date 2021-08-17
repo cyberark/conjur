@@ -12,8 +12,11 @@ module Authentication
           parse_enforced_claims: ::Authentication::AuthnJwt::InputValidation::ParseEnforcedClaims.new,
           logger: Rails.logger
         },
-        inputs: %i[authentication_parameters]
+        inputs: %i[jwt_authenticator_input]
       ) do
+        extend(Forwardable)
+        def_delegators(:@jwt_authenticator_input, :service_id, :authenticator_name, :account)
+
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingEnforcedClaims.new)
           
@@ -29,9 +32,9 @@ module Authentication
           return @enforced_claims_resource_exists if defined?(@enforced_claims_resource_exists)
 
           @enforced_claims_resource_exists ||= @check_authenticator_secret_exists.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: account,
+            authenticator_name: authenticator_name,
+            service_id: service_id,
             var_name: ENFORCED_CLAIMS_RESOURCE_NAME
           )
         end
@@ -47,9 +50,9 @@ module Authentication
 
         def enforced_claims_secret_value
           @enforced_claims_secret_value ||= @fetch_authenticator_secrets.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: account,
+            authenticator_name: authenticator_name,
+            service_id: service_id,
             required_variable_names: [ENFORCED_CLAIMS_RESOURCE_NAME]
           )[ENFORCED_CLAIMS_RESOURCE_NAME]
         end

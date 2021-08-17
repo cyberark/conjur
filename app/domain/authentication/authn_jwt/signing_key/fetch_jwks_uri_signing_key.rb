@@ -9,7 +9,7 @@ module Authentication
       class FetchJwksUriSigningKey
 
         def initialize(
-          authentication_parameters:,
+          authenticator_input:,
           fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
           http_lib: Net::HTTP,
           create_jwks_from_http_response: CreateJwksFromHttpResponse.new,
@@ -20,7 +20,7 @@ module Authentication
           @create_jwks_from_http_response = create_jwks_from_http_response
           @fetch_authenticator_secrets = fetch_authenticator_secrets
 
-          @authentication_parameters = authentication_parameters
+          @authenticator_input = authenticator_input
         end
 
         def fetch_signing_key
@@ -44,9 +44,9 @@ module Authentication
 
         def jwks_uri_secret
           @jwks_uri_secret ||= @fetch_authenticator_secrets.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: @authenticator_input.account,
+            authenticator_name: @authenticator_input.authenticator_name,
+            service_id: @authenticator_input.service_id,
             required_variable_names: [JWKS_URI_RESOURCE_NAME]
           )[JWKS_URI_RESOURCE_NAME]
         end

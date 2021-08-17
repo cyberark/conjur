@@ -12,8 +12,11 @@ module Authentication
           add_prefix_to_identity: Authentication::AuthnJwt::IdentityProviders::AddPrefixToIdentity.new,
           logger: Rails.logger
         },
-        inputs: %i[authentication_parameters]
+        inputs: %i[jwt_authentication_input]
       ) do
+        extend(Forwardable)
+        def_delegators(:@jwt_authenticator_input, :username)
+
         def call
           @logger.debug(
             LogMessages::Authentication::AuthnJwt::FetchingIdentityByInterface.new(
@@ -36,10 +39,6 @@ module Authentication
 
         def username_exists?
           username.present?
-        end
-
-        def username
-          @authentication_parameters.username
         end
       end
     end

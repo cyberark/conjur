@@ -23,10 +23,9 @@ module Authentication
           create_signing_key_provider: ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider.new,
           logger: Rails.logger
         },
-        inputs: %i[authentication_parameters]
+        inputs: %i[authenticator_input jwt_token]
       ) do
         extend(Forwardable)
-        def_delegators(:@authentication_parameters, :jwt_token)
 
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingToken.new)
@@ -44,12 +43,12 @@ module Authentication
 
         def signing_key_provider
           @signing_key_provider ||= @create_signing_key_provider.call(
-            authentication_parameters: @authentication_parameters
+            authenticator_input: @authenticator_input
           )
         end
 
         def validate_token_exists
-          raise Errors::Authentication::AuthnJwt::MissingToken if jwt_token.blank?
+          raise Errors::Authentication::AuthnJwt::MissingToken if @jwt_token.blank?
         end
 
         def fetch_signing_key(force_read: false)
@@ -64,12 +63,12 @@ module Authentication
         def validate_signature
           @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingTokenSignature.new)
           ensure_keys_are_fresh
-          decoded_token_after_signature_only_validation
+          fetch_decoded_token
           @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedTokenSignature.new)
         end
 
         def ensure_keys_are_fresh
-          decoded_token_after_signature_only_validation
+          fetch_decoded_token
         rescue
           @logger.debug(
             LogMessages::Authentication::AuthnJwt::ValidateSigningKeysAreUpdated.new
@@ -78,7 +77,7 @@ module Authentication
           fetch_signing_key(force_read: true)
         end
 
-        def decoded_token_after_signature_only_validation
+        def fetch_decoded_token
           @decoded_token_after_signature_only_validation ||= decoded_token(verification_options_for_signature_only)
         end
 
@@ -91,23 +90,19 @@ module Authentication
 
         def decoded_token(verification_options)
           @decoded_token = @verify_and_decode_token.call(
-            token_jwt: jwt_token,
+            token_jwt: @jwt_token,
             verification_options: verification_options
           )
         end
 
         def fetch_jwt_claims_to_validate
-          update_authentication_parameters_with_decoded_token
           claims_to_validate
-        end
-
-        def update_authentication_parameters_with_decoded_token
-          @authentication_parameters.decoded_token = decoded_token_after_signature_only_validation
         end
 
         def claims_to_validate
           @claims_to_validate ||= @fetch_jwt_claims_to_validate.call(
-            authentication_parameters: @authentication_parameters
+            authenticator_input: @authenticator_input,
+            decoded_token: fetch_decoded_token
           )
         end
 

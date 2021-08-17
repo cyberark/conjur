@@ -12,8 +12,11 @@ module Authentication
           parse_mapping_claims: ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new,
           logger: Rails.logger
         },
-        inputs: %i[authentication_parameters]
+        inputs: %i[jwt_authenticator_input]
       ) do
+        extend(Forwardable)
+        def_delegators(:@jwt_authenticator_input, :service_id, :authenticator_name, :account)
+
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingMappingClaims.new)
           
@@ -34,9 +37,9 @@ module Authentication
           return @mapping_claims_resource_exists if defined?(@mapping_claims_resource_exists)
 
           @mapping_claims_resource_exists ||= @check_authenticator_secret_exists.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: account,
+            authenticator_name: authenticator_name,
+            service_id: service_id,
             var_name: MAPPING_CLAIMS_RESOURCE_NAME
           )
         end
@@ -47,9 +50,9 @@ module Authentication
 
         def mapping_claims_secret_value
           @mapping_claims_secret_value ||= @fetch_authenticator_secrets.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: account,
+            authenticator_name: authenticator_name,
+            service_id: service_id,
             required_variable_names: [MAPPING_CLAIMS_RESOURCE_NAME]
           )[MAPPING_CLAIMS_RESOURCE_NAME]
         end

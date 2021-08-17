@@ -13,10 +13,10 @@ module Authentication
           logger: Rails.logger,
           uri_class: URI
         },
-        inputs: %i[authentication_parameters]
+        inputs: %i[authenticator_input]
       ) do
         extend(Forwardable)
-        def_delegators(:@authentication_parameters, :service_id, :authenticator_name, :account)
+        def_delegators(:@authenticator_input, :service_id, :authenticator_name, :account)
 
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingIssuerConfigurationValue.new)
@@ -60,9 +60,9 @@ module Authentication
 
         def issuer_resource_exists?
           @check_authenticator_secret_exists.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: account,
+            authenticator_name: authenticator_name,
+            service_id: service_id,
             var_name: ISSUER_RESOURCE_NAME
           )
         end
@@ -73,9 +73,9 @@ module Authentication
 
         def issuer_secret
           @issuer_secret ||= @fetch_authenticator_secrets.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: account,
+            authenticator_name: authenticator_name,
+            service_id: service_id,
             required_variable_names: [ISSUER_RESOURCE_NAME]
           )[ISSUER_RESOURCE_NAME]
         end
@@ -93,18 +93,18 @@ module Authentication
 
         def provider_uri_resource_exists?
           @check_authenticator_secret_exists.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: account,
+            authenticator_name: authenticator_name,
+            service_id: service_id,
             var_name: PROVIDER_URI_RESOURCE_NAME
           )
         end
 
         def jwks_uri_resource_exists?
           @check_authenticator_secret_exists.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: account,
+            authenticator_name: authenticator_name,
+            service_id: service_id,
             var_name: JWKS_URI_RESOURCE_NAME
           )
         end
@@ -123,9 +123,9 @@ module Authentication
 
         def provider_uri_secret
           @provider_uri_secret ||= @fetch_authenticator_secrets.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: account,
+            authenticator_name: authenticator_name,
+            service_id: service_id,
             required_variable_names: [PROVIDER_URI_RESOURCE_NAME]
           )[PROVIDER_URI_RESOURCE_NAME]
         end
@@ -155,9 +155,9 @@ module Authentication
 
         def jwks_uri_secret
           @jwks_uri_secret ||= @fetch_authenticator_secrets.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: account,
+            authenticator_name: authenticator_name,
+            service_id: service_id,
             required_variable_names: [JWKS_URI_RESOURCE_NAME]
           )[JWKS_URI_RESOURCE_NAME]
         end

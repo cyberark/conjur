@@ -12,7 +12,7 @@ module Authentication
         def initialize(
           authenticator_input:,
           logger: Rails.logger,
-          authentication_parameters_class: Authentication::AuthnJwt::AuthenticationParameters,
+          jwt_authenticator_input_class: Authentication::AuthnJwt::JWTAuthenticatorInput,
           restriction_validator_class: Authentication::AuthnJwt::RestrictionValidation::ValidateRestrictionsOneToOne,
           validate_resource_restrictions_class: Authentication::ResourceRestrictions::ValidateResourceRestrictions,
           extract_resource_restrictions_class: Authentication::ResourceRestrictions::ExtractResourceRestrictions,
@@ -24,7 +24,7 @@ module Authentication
           restrictions_from_annotations: Authentication::ResourceRestrictions::GetServiceSpecificRestrictionFromAnnotation.new
         )
           @logger = logger
-          @authentication_parameters_class = authentication_parameters_class
+          @jwt_authenticator_input_class = jwt_authenticator_input_class
           @restriction_validator_class = restriction_validator_class
           @validate_resource_restrictions_class = validate_resource_restrictions_class
           @extract_resource_restrictions_class = extract_resource_restrictions_class
@@ -34,12 +34,8 @@ module Authentication
           @fetch_mapping_claims = fetch_mapping_claims
           @validate_and_decode_token = validate_and_decode_token
           @restrictions_from_annotations = restrictions_from_annotations
-
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CreatingAuthenticationParametersObject.new)
-          @authentication_parameters = @authentication_parameters_class.new(
-            authentication_input: authenticator_input,
-            jwt_token: jwt_token(authenticator_input)
-          )
+          @authenticator_input = authenticator_input
+          @jwt_token = jwt_token
         end
         # rubocop:enable Metrics/ParameterLists
 
@@ -49,13 +45,13 @@ module Authentication
 
         def validate_restrictions
           validate_resource_restrictions.call(
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
-            account: @authentication_parameters.account,
+            authenticator_name: @jwt_authenticator_input.authenticator_name,
+            service_id: @jwt_authenticator_input.service_id,
+            account: @jwt_authenticator_input.account,
             role_name: jwt_identity,
             constraints: constraints,
             authentication_request: @restriction_validator_class.new(
-              decoded_token: @authentication_parameters.decoded_token,
+              decoded_token: @jwt_authenticator_input.decoded_token,
               mapped_claims: mapped_claims
             )
           )
@@ -64,34 +60,40 @@ module Authentication
         end
 
         def validate_and_decode_token
-          @authentication_parameters.decoded_token = @validate_and_decode_token.call(
-            authentication_parameters: @authentication_parameters
+          decoded_token = @validate_and_decode_token.call(
+            authenticator_input: @authenticator_input,
+            jwt_token: jwt_token
+          )
+          @logger.debug(LogMessages::Authentication::AuthnJwt::CreatingJWTAuthenticationInputObject.new)
+          @jwt_authenticator_input = @jwt_authenticator_input_class.new(
+            authenticator_input: @authenticator_input,
+            decoded_token: decoded_token
           )
         end
 
         private
 
-        def jwt_token(authenticator_input)
-          @extract_token_from_credentials.call(
-            credentials: authenticator_input.request.body.read
+        def jwt_token
+          @jwt_token ||= @extract_token_from_credentials.call(
+            credentials: @authenticator_input.request.body.read
           )
         end
 
         def mapped_claims
           @mapped_claims ||= @fetch_mapping_claims.call(
-            authentication_parameters: @authentication_parameters
+            jwt_authenticator_input: @jwt_authenticator_input
           )
         end
 
         def jwt_identity_from_request
           @jwt_identity_from_request ||= identity_provider.call(
-            authentication_parameters: @authentication_parameters
+            jwt_authenticator_input: @jwt_authenticator_input
           )
         end
 
         def identity_provider
           @identity_provider ||= create_identity_provider.call(
-            authentication_parameters: @authentication_parameters
+            jwt_authenticator_input: @jwt_authenticator_input
           )
         end
 
@@ -111,7 +113,7 @@ module Authentication
 
         def constraints
           @constraints ||= @create_constraints.call(
-            authentication_parameters: @authentication_parameters,
+            jwt_authenticator_input: @jwt_authenticator_input,
             base_non_permitted_annotations: CLAIMS_DENY_LIST
           )
         end

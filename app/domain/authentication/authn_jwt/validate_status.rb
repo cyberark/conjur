@@ -94,45 +94,50 @@ module Authentication
       end
 
       def validate_issuer
-        @fetch_issuer_value.call(authentication_parameters: authentication_parameters)
+        @fetch_issuer_value.call(authenticator_input: authenticator_input)
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedIssuerConfiguration.new)
       end
 
       def validate_audience
-        @fetch_audience_value.call(authentication_parameters: authentication_parameters)
+        @fetch_audience_value.call(authenticator_input: authenticator_input)
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedAudienceConfiguration.new)
       end
 
       def validate_enforced_claims
-        @fetch_enforced_claims.call(authentication_parameters: authentication_parameters)
+        @fetch_enforced_claims.call(jwt_authenticator_input: jwt_authenticator_input)
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedEnforcedClaimsConfiguration.new)
       end
 
       def validate_mapping_claims
-        @fetch_mapping_claims.call(authentication_parameters: authentication_parameters)
+        @fetch_mapping_claims.call(jwt_authenticator_input: jwt_authenticator_input)
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedMappingClaimsConfiguration.new)
       end
 
       def validate_identity_secrets
         @validate_identity_configured_properly.call(
-          authentication_parameters: authentication_parameters
+          jwt_authenticator_input: jwt_authenticator_input
         )
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedIdentityConfiguration.new)
       end
 
-      def authentication_parameters
-        @authentication_parameters ||= Authentication::AuthnJwt::AuthenticationParameters.new(
-          authentication_input: Authentication::AuthenticatorInput.new(
-            authenticator_name: authenticator_name,
-            service_id: service_id,
-            account: account,
-            username: username,
-            client_ip: client_ip,
-            credentials: nil,
-            request: nil
-          ),
-          jwt_token: nil
+      def jwt_authenticator_input
+        @jwt_authenticator_input ||= Authentication::AuthnJwt::JWTAuthenticatorInput.new(
+          authenticator_input: authenticator_input,
+          decoded_token: nil
         )
+      end
+
+      def authenticator_input
+        @jwt_authenticator ||= Authentication::AuthenticatorInput.new(
+          authenticator_name: authenticator_name,
+          service_id: service_id,
+          account: account,
+          username: username,
+          client_ip: client_ip,
+          credentials: nil,
+          request: nil
+        )
+
       end
 
       def webservice
@@ -153,7 +158,7 @@ module Authentication
 
       def signing_key_provider
         @signing_key_provider ||= @create_signing_key_provider.call(
-          authentication_parameters: authentication_parameters
+          authenticator_input: authenticator_input
         )
       end
     end

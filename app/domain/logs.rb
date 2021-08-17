@@ -315,8 +315,8 @@ module LogMessages
         code: "CONJ00061D"
       )
 
-      CreatingAuthenticationParametersObject = ::Util::TrackableLogMessageClass.new(
-        msg: "Creating authentication parameter objects...",
+      CreatingJWTAuthenticationInputObject = ::Util::TrackableLogMessageClass.new(
+        msg: "Creating JWT authenticator input object...",
         code: "CONJ00062D"
       )
 

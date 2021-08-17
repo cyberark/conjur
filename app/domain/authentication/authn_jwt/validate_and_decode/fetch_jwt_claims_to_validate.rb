@@ -14,11 +14,8 @@ module Authentication
           jwt_claim_class: ::Authentication::AuthnJwt::ValidateAndDecode::JwtClaim,
           logger: Rails.logger
         },
-        inputs: %i[authentication_parameters]
+        inputs: %i[authenticator_input decoded_token]
       ) do
-        extend(Forwardable)
-        def_delegators(:@authentication_parameters, :decoded_token)
-
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwtClaimsToValidate.new)
           validate_decoded_token_exists
@@ -35,7 +32,7 @@ module Authentication
         private
 
         def validate_decoded_token_exists
-          raise Errors::Authentication::AuthnJwt::MissingToken if decoded_token.blank?
+          raise Errors::Authentication::AuthnJwt::MissingToken if @decoded_token.blank?
         end
 
         def fetch_jwt_claims_to_validate
@@ -52,7 +49,7 @@ module Authentication
 
         def audience_value
           @audience_value ||= @fetch_audience_value.call(
-            authentication_parameters: @authentication_parameters
+            authenticator_input: @authenticator_input
           )
         end
 
@@ -60,7 +57,7 @@ module Authentication
           OPTIONAL_CLAIMS.each do |optional_claim|
             @logger.debug(LogMessages::Authentication::AuthnJwt::CheckingJwtClaimToValidate.new(optional_claim))
 
-            add_to_jwt_claims_list(optional_claim) if decoded_token[optional_claim]
+            add_to_jwt_claims_list(optional_claim) if @decoded_token[optional_claim]
           end
         end
 
@@ -83,7 +80,7 @@ module Authentication
           case claim
           when ISS_CLAIM_NAME
             @fetch_issuer_value.call(
-              authentication_parameters: @authentication_parameters
+              authenticator_input: @authenticator_input
             )
           when AUD_CLAIM_NAME
             audience_value

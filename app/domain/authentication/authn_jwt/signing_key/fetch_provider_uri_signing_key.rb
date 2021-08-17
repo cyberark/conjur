@@ -5,7 +5,7 @@ module Authentication
       class FetchProviderUriSigningKey
 
         def initialize(
-          authentication_parameters:,
+          authenticator_input:,
           fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
           discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new,
           logger: Rails.logger
@@ -14,7 +14,7 @@ module Authentication
           @fetch_authenticator_secrets = fetch_authenticator_secrets
           @discover_identity_provider = discover_identity_provider
 
-          @authentication_parameters = authentication_parameters
+          @authenticator_input = authenticator_input
         end
 
         def fetch_signing_key
@@ -45,9 +45,9 @@ module Authentication
 
         def provider_uri_secret
           @provider_uri_secret ||= @fetch_authenticator_secrets.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: @authenticator_input.account,
+            authenticator_name: @authenticator_input.authenticator_name,
+            service_id: @authenticator_input.service_id,
             required_variable_names: [PROVIDER_URI_RESOURCE_NAME]
           )[PROVIDER_URI_RESOURCE_NAME]
         end
