@@ -1,6 +1,7 @@
 module Authentication
   module AuthnJwt
     # Data class to store data regarding jwt token that is needed during the jwt authentication process
+    # :reek:TooManyInstanceVariables and :reek:TooManyParameters
     class JWTAuthenticatorInput
       attr_reader :authenticator_name, :service_id, :account, :username, :client_ip, :request, :decoded_token
 

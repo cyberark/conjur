@@ -63,12 +63,12 @@ module Authentication
         def validate_signature
           @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingTokenSignature.new)
           ensure_keys_are_fresh
-          fetch_decoded_token
+          fetch_decoded_token_for_signature_only
           @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedTokenSignature.new)
         end
 
         def ensure_keys_are_fresh
-          fetch_decoded_token
+          fetch_decoded_token_for_signature_only
         rescue
           @logger.debug(
             LogMessages::Authentication::AuthnJwt::ValidateSigningKeysAreUpdated.new
@@ -77,8 +77,12 @@ module Authentication
           fetch_signing_key(force_read: true)
         end
 
-        def fetch_decoded_token
-          @decoded_token_after_signature_only_validation ||= decoded_token(verification_options_for_signature_only)
+        def fetch_decoded_token_for_signature_only
+          decoded_token_for_signature_only
+        end
+
+        def decoded_token_for_signature_only
+          @decoded_token_for_signature_only ||= decoded_token(verification_options_for_signature_only)
         end
 
         def verification_options_for_signature_only
@@ -102,7 +106,7 @@ module Authentication
         def claims_to_validate
           @claims_to_validate ||= @fetch_jwt_claims_to_validate.call(
             authenticator_input: @authenticator_input,
-            decoded_token: fetch_decoded_token
+            decoded_token: fetch_decoded_token_for_signature_only
           )
         end
 

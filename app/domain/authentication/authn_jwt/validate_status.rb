@@ -23,6 +23,8 @@ module Authentication
         validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
         validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
         validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
+        authenticator_input_class: Authentication::AuthenticatorInput,
+        jwt_authenticator_input_class: Authentication::AuthnJwt::JWTAuthenticatorInput,
         logger: Rails.logger
       },
       inputs: %i[authenticator_status_input enabled_authenticators]
@@ -121,14 +123,14 @@ module Authentication
       end
 
       def jwt_authenticator_input
-        @jwt_authenticator_input ||= Authentication::AuthnJwt::JWTAuthenticatorInput.new(
+        @jwt_authenticator_input ||= @jwt_authenticator_input_class.new(
           authenticator_input: authenticator_input,
           decoded_token: nil
         )
       end
 
       def authenticator_input
-        @jwt_authenticator ||= Authentication::AuthenticatorInput.new(
+        @authenticator_input ||= @authenticator_input_class.new(
           authenticator_name: authenticator_name,
           service_id: service_id,
           account: account,
@@ -137,7 +139,6 @@ module Authentication
           credentials: nil,
           request: nil
         )
-
       end
 
       def webservice
