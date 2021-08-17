@@ -20,13 +20,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
     )
   }
 
-  let(:authentication_parameters) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(
-      authentication_input: authenticator_input,
-      jwt_token: nil
-    )
-  }
-
   let(:issuer_resource_name) {'issuer'}
   let(:provider_uri_resource_name) {'provider-uri'}
   let(:jwks_uri_resource_name) {'jwks-uri'}
@@ -194,7 +187,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
           check_authenticator_secret_exists: mocked_authenticator_secret_issuer_exist,
           fetch_authenticator_secrets: mocked_fetch_authenticator_secret_empty_values
         ).call(
-          authentication_parameters: authentication_parameters
+          authenticator_input: authenticator_input
         )
       end
 
@@ -209,7 +202,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
           check_authenticator_secret_exists: mocked_authenticator_secret_issuer_exist,
           fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values
         ).call(
-          authentication_parameters: authentication_parameters
+          authenticator_input: authenticator_input
         )
       end
 
@@ -225,7 +218,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
         ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
           check_authenticator_secret_exists: mocked_authenticator_secret_nothing_exist,
         ).call(
-          authentication_parameters: authentication_parameters
+          authenticator_input: authenticator_input
         )
       end
 
@@ -239,7 +232,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
         ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new(
           check_authenticator_secret_exists: mocked_authenticator_secret_both_jwks_and_provider_uri,
           ).call(
-          authentication_parameters: authentication_parameters
+          authenticator_input: authenticator_input
         )
       end
 
@@ -255,7 +248,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
             check_authenticator_secret_exists: mocked_authenticator_secret_just_provider_uri,
             fetch_authenticator_secrets: mocked_fetch_authenticator_secret_empty_values
           ).call(
-            authentication_parameters: authentication_parameters
+            authenticator_input: authenticator_input
           )
         end
 
@@ -270,7 +263,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
             check_authenticator_secret_exists: mocked_authenticator_secret_just_provider_uri,
             fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values
           ).call(
-            authentication_parameters: authentication_parameters
+            authenticator_input: authenticator_input
           )
         end
 
@@ -287,7 +280,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
             check_authenticator_secret_exists: mocked_authenticator_secret_just_jwks_uri,
             fetch_authenticator_secrets: mocked_fetch_authenticator_secret_empty_values
           ).call(
-            authentication_parameters: authentication_parameters
+            authenticator_input: authenticator_input
           )
         end
 
@@ -302,7 +295,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
             check_authenticator_secret_exists: mocked_authenticator_secret_just_jwks_uri,
             fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_jwks_uri_with_bad_uri_format_value
           ).call(
-            authentication_parameters: authentication_parameters
+            authenticator_input: authenticator_input
           )
         end
 
@@ -317,7 +310,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
             check_authenticator_secret_exists: mocked_authenticator_secret_just_jwks_uri,
             fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_jwks_uri_with_bad_uri_hostname_value
           ).call(
-            authentication_parameters: authentication_parameters
+            authenticator_input: authenticator_input
           )
         end
 
@@ -332,7 +325,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue') 
             check_authenticator_secret_exists: mocked_authenticator_secret_just_jwks_uri,
             fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_jwks_uri_with_valid_uri_hostname_value
           ).call(
-            authentication_parameters: authentication_parameters
+            authenticator_input: authenticator_input
           )
         end
 

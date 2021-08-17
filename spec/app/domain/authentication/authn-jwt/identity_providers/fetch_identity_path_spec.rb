@@ -20,10 +20,10 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath')
     )
   }
 
-  let(:authentication_parameters) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(
-      authentication_input: authenticator_input,
-      jwt_token: nil
+  let(:jwt_authenticator_input) {
+    Authentication::AuthnJwt::JWTAuthenticatorInput.new(
+      authenticator_input: authenticator_input,
+      decoded_token: nil
     )
   }
 
@@ -71,7 +71,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath')
       ::Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath.new(
         check_authenticator_secret_exists: mocked_authenticator_secret_not_exists
       ).call(
-        authentication_parameters: authentication_parameters
+        jwt_authenticator_input: jwt_authenticator_input
       )
     end
 
@@ -87,7 +87,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath')
           check_authenticator_secret_exists: mocked_authenticator_secret_exists,
           fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values
         ).call(
-          authentication_parameters: authentication_parameters
+          jwt_authenticator_input: jwt_authenticator_input
         )
       end
 
@@ -102,7 +102,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath')
           check_authenticator_secret_exists: mocked_authenticator_secret_exists,
           fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_empty_values
         ).call(
-          authentication_parameters: authentication_parameters
+          jwt_authenticator_input: jwt_authenticator_input
         )
       end
 

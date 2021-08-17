@@ -18,7 +18,7 @@ module Authentication
           fetch_mapping_claims_class: Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims,
           logger: Rails.logger
         },
-        inputs: %i[authentication_parameters base_non_permitted_annotations]
+        inputs: %i[jwt_authenticator_input base_non_permitted_annotations]
       ) do
         # These is command class so only call is called from outside. Other functions are needed here.
         # :reek:TooManyMethods
@@ -93,13 +93,13 @@ module Authentication
 
         def enforced_claims
           @enforced_claims ||= @fetch_enforced_claims.call(
-            authentication_parameters: @authentication_parameters
+            jwt_authenticator_input: @jwt_authenticator_input
           )
         end
 
         def mapping_claims
           @mapping_claims ||= @fetch_mapping_claims_class.new.call(
-            authentication_parameters: @authentication_parameters
+            jwt_authenticator_input: @jwt_authenticator_input
           ).invert
         end
 

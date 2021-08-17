@@ -10,8 +10,11 @@ module Authentication
           fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
           logger: Rails.logger
         },
-        inputs: %i[authentication_parameters]
+        inputs: %i[jwt_authenticator_input]
       ) do
+        extend(Forwardable)
+        def_delegators(:@jwt_authenticator_input, :service_id, :authenticator_name, :account)
+
         def call
           fetch_identity_path
         end
@@ -51,18 +54,18 @@ module Authentication
           return @identity_path_resource_exists if defined?(@identity_path_resource_exists)
 
           @identity_path_resource_exists ||= @check_authenticator_secret_exists.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: account,
+            authenticator_name: authenticator_name,
+            service_id: service_id,
             var_name: IDENTITY_PATH_RESOURCE_NAME
           )
         end
 
         def identity_path_secret_value
           @identity_path_secret_value ||= @fetch_authenticator_secrets.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: account,
+            authenticator_name: authenticator_name,
+            service_id: service_id,
             required_variable_names: [IDENTITY_PATH_RESOURCE_NAME]
           )[IDENTITY_PATH_RESOURCE_NAME]
         end

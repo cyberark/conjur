@@ -20,10 +20,10 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
     )
   }
 
-  let(:authentication_parameters) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(
-      authentication_input: authenticator_input,
-      jwt_token: nil
+  let(:jwt_authenticator_input) {
+    Authentication::AuthnJwt::JWTAuthenticatorInput.new(
+      authenticator_input: authenticator_input,
+      decoded_token: nil
     )
   }
 
@@ -89,7 +89,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
           check_authenticator_secret_exists: mocked_authenticator_secret_exists,
           fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_empty_values
         ).call(
-          authentication_parameters: authentication_parameters
+          jwt_authenticator_input: jwt_authenticator_input
         )
       end
 
@@ -104,7 +104,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
           check_authenticator_secret_exists: mocked_authenticator_secret_exists,
           fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_invalid_values
         ).call(
-          authentication_parameters: authentication_parameters
+          jwt_authenticator_input: jwt_authenticator_input
         )
       end
 
@@ -119,7 +119,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
           check_authenticator_secret_exists: mocked_authenticator_secret_exists,
           fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_valid_values
         ).call(
-          authentication_parameters: authentication_parameters
+          jwt_authenticator_input: jwt_authenticator_input
         )
       end
 
@@ -134,7 +134,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
       ::Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new(
         check_authenticator_secret_exists: mocked_authenticator_secret_not_exists
       ).call(
-        authentication_parameters: authentication_parameters
+        jwt_authenticator_input: jwt_authenticator_input
       )
     end
 

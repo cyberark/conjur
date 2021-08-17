@@ -9,7 +9,7 @@ module Authentication
           check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
           logger: Rails.logger
         },
-        inputs: %i[authentication_parameters]
+        inputs: %i[authenticator_input]
       ) do
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::SelectingSigningKeyInterface.new)
@@ -36,9 +36,9 @@ module Authentication
           return @provider_uri_resource_exists if defined?(@provider_uri_resource_exists)
 
           @provider_uri_resource_exists = @check_authenticator_secret_exists.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: @authenticator_input.account,
+            authenticator_name: @authenticator_input.authenticator_name,
+            service_id: @authenticator_input.service_id,
             var_name: PROVIDER_URI_RESOURCE_NAME
           )
         end
@@ -48,7 +48,7 @@ module Authentication
             LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(PROVIDER_URI_INTERFACE_NAME)
           )
           @fetch_provider_uri_signing_key ||= @fetch_provider_uri_signing_key_class.new(
-            authentication_parameters: @authentication_parameters
+            authenticator_input: @authenticator_input
           )
         end
 
@@ -57,9 +57,9 @@ module Authentication
           return @jwks_uri_has_resource_exists if defined?(@jwks_uri_has_resource_exists)
 
           @jwks_uri_has_resource_exists = @check_authenticator_secret_exists.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: @authenticator_input.account,
+            authenticator_name: @authenticator_input.authenticator_name,
+            service_id: @authenticator_input.service_id,
             var_name: JWKS_URI_RESOURCE_NAME
           )
         end
@@ -69,7 +69,7 @@ module Authentication
             LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(JWKS_URI_INTERFACE_NAME)
           )
           @fetch_jwks_uri_signing_key ||= @fetch_jwks_uri_signing_key_class.new(
-            authentication_parameters: @authentication_parameters
+            authenticator_input: @authenticator_input
           )
         end
       end

@@ -43,18 +43,15 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider')
   let(:service_id) { "my-service" }
   let(:account) { 'my-account' }
 
-  let(:authentication_parameters) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(
-      authentication_input: Authentication::AuthenticatorInput.new(
-        authenticator_name: authenticator_name,
-        service_id: service_id,
-        account: account,
-        username: "dummy_identity",
-        credentials: "dummy",
-        client_ip: "dummy",
-        request: "dummy"
-      ),
-      jwt_token: nil
+  let(:authenticator_input) {
+    Authentication::AuthenticatorInput.new(
+      authenticator_name: authenticator_name,
+      service_id: service_id,
+      account: account,
+      username: "dummy_identity",
+      credentials: "dummy",
+      client_ip: "dummy",
+      request: "dummy"
     )
   }
 
@@ -90,7 +87,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider')
           check_authenticator_secret_exists: MockedCheckAuthenticatorSecretExistsTrue.new,
           logger: mocked_logger
         ).call(
-          authentication_parameters: authentication_parameters
+          authenticator_input: authenticator_input
         )
       end
 
@@ -106,7 +103,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider')
           check_authenticator_secret_exists: MockedCheckAuthenticatorSecretExistsFalse.new,
           logger: mocked_logger
         ).call(
-          authentication_parameters: authentication_parameters
+          authenticator_input: authenticator_input
         )
       end
 
@@ -122,7 +119,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider')
           check_authenticator_secret_exists: MockedCheckAuthenticatorSecretExistsJWKS.new,
           logger: mocked_logger
         ).call(
-          authentication_parameters: authentication_parameters
+          authenticator_input: authenticator_input
         )
       end
 
@@ -138,7 +135,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider')
           check_authenticator_secret_exists: MockedCheckAuthenticatorSecretExistsProviderUri.new,
           logger: mocked_logger
         ).call(
-          authentication_parameters: authentication_parameters
+          authenticator_input: authenticator_input
         )
       end
 

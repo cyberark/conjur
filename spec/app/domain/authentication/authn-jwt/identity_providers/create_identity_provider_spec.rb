@@ -5,12 +5,12 @@ require 'spec_helper'
 RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFactory') do
   # Mock to inject to test in order check returning type
   class MockedURLIdentityProvider
-    def initialize(authentication_parameters); end
+    def initialize(jwt_authenticator_input); end
   end
 
   # Mock to inject to test in order check returning type
   class MockedDecodedTokenIdentityProvider
-    def initialize(authentication_parameters); end
+    def initialize(jwt_authenticator_input); end
   end
 
   # Mock to CheckAuthenticatorSecretExists that returns always false
@@ -35,9 +35,9 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
   let(:service_id) { "my-service" }
   let(:account) { 'my-account' }
 
-  let(:authentication_parameters_url_identity) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(
-      authentication_input: Authentication::AuthenticatorInput.new(
+  let(:jwt_authenticator_input_url_identity) {
+    Authentication::AuthnJwt::JWTAuthenticatorInput.new(
+      authenticator_input: Authentication::AuthenticatorInput.new(
         authenticator_name: authenticator_name,
         service_id: service_id,
         account: account,
@@ -46,13 +46,13 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
         client_ip: "dummy",
         request: "dummy"
       ),
-      jwt_token: nil
+      decoded_token: nil
     )
   }
 
-  let(:authentication_parameters_no_url_identity) {
-    Authentication::AuthnJwt::AuthenticationParameters.new(
-      authentication_input: Authentication::AuthenticatorInput.new(
+  let(:jwt_authenticator_input_no_url_identity) {
+    Authentication::AuthnJwt::JWTAuthenticatorInput.new(
+      authenticator_input: Authentication::AuthenticatorInput.new(
         authenticator_name: authenticator_name,
         service_id: service_id,
         account: account,
@@ -61,7 +61,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
         client_ip: "dummy",
         request: "dummy"
       ),
-      jwt_token: nil
+      decoded_token: nil
     )
   }
 
@@ -82,7 +82,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
 
       it "factory raises IdentityMisconfigured" do
         expect { subject.call(
-          authentication_parameters: authentication_parameters_url_identity
+          jwt_authenticator_input: jwt_authenticator_input_url_identity
         ) }.to raise_error(Errors::Authentication::AuthnJwt::IdentityMisconfigured)
       end
     end
@@ -98,7 +98,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
 
       it "factory to return IdentityFromDecodedTokenProvider" do
         expect(subject.call(
-          authentication_parameters: authentication_parameters_no_url_identity
+          jwt_authenticator_input: jwt_authenticator_input_no_url_identity
         )).to be_a(MockedDecodedTokenIdentityProvider)
       end
     end
@@ -114,7 +114,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
 
       it "factory to return IdentityFromUrlProvider" do
         expect(subject.call(
-          authentication_parameters: authentication_parameters_url_identity
+          jwt_authenticator_input: jwt_authenticator_input_url_identity
         )).to be_a(MockedURLIdentityProvider)
       end
     end
@@ -128,7 +128,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
 
       it "factory raises NoRelevantIdentityProvider" do
         expect { subject.call(
-          authentication_parameters: authentication_parameters_no_url_identity
+          jwt_authenticator_input: jwt_authenticator_input_no_url_identity
         ) }.to raise_error(Errors::Authentication::AuthnJwt::IdentityMisconfigured)
       end
     end

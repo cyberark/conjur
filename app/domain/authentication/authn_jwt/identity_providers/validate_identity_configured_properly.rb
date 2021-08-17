@@ -13,8 +13,11 @@ module Authentication
           check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
           logger: Rails.logger
         },
-        inputs: %i[authentication_parameters]
+        inputs: %i[jwt_authenticator_input]
       ) do
+        extend(Forwardable)
+        def_delegators(:@jwt_authenticator_input, :service_id, :authenticator_name, :account)
+
         def call
           validate_identity_configured_properly
         end
@@ -33,9 +36,9 @@ module Authentication
           return @identity_available if defined?(@identity_available)
 
           @identity_available = @check_authenticator_secret_exists.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: account,
+            authenticator_name: authenticator_name,
+            service_id: service_id,
             var_name: TOKEN_APP_PROPERTY_VARIABLE
           )
         end
@@ -44,15 +47,15 @@ module Authentication
           return @token_id_field_secret if @token_id_field_secret
 
           @token_id_field_secret = @fetch_authenticator_secrets.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: account,
+            authenticator_name: authenticator_name,
+            service_id: service_id,
             required_variable_names: [TOKEN_APP_PROPERTY_VARIABLE]
           )[TOKEN_APP_PROPERTY_VARIABLE]
         end
 
         def validate_identity_path_configured_properly
-          @fetch_identity_path.call(authentication_parameters: @authentication_parameters)
+          @fetch_identity_path.call(jwt_authenticator_input: @jwt_authenticator_input)
         end
       end
     end

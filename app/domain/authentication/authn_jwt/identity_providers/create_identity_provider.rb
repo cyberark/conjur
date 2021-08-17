@@ -10,8 +10,11 @@ module Authentication
           check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
           logger: Rails.logger
         },
-        inputs: %i[authentication_parameters]
+        inputs: %i[jwt_authenticator_input]
       ) do
+        extend(Forwardable)
+        def_delegators(:@jwt_authenticator_input, :service_id, :authenticator_name, :account)
+
         # Factory returning jwt identity provider relevant for the authentication request.
         def call
           create_identity_provider
@@ -36,9 +39,9 @@ module Authentication
           return @identity_should_be_in_token if defined?(@identity_should_be_in_token)
 
           @identity_should_be_in_token = @check_authenticator_secret_exists.call(
-            conjur_account: @authentication_parameters.account,
-            authenticator_name: @authentication_parameters.authenticator_name,
-            service_id: @authentication_parameters.service_id,
+            conjur_account: account,
+            authenticator_name: authenticator_name,
+            service_id: service_id,
             var_name: TOKEN_APP_PROPERTY_VARIABLE
           )
         end
@@ -51,12 +54,12 @@ module Authentication
           )
 
           @identity_from_decoded_token_class.new(
-            authentication_parameters: @authentication_parameters
+            jwt_authenticator_input: @jwt_authenticator_input
           )
         end
 
         def identity_should_be_in_url?
-          @authentication_parameters.username.present?
+          @jwt_authenticator_input.username.present?
         end
 
         def identity_from_url_provider
@@ -67,7 +70,7 @@ module Authentication
           )
 
           @identity_from_url_provider_class.new(
-            authentication_parameters: @authentication_parameters
+            jwt_authenticator_input: @jwt_authenticator_input
           )
         end
       end
