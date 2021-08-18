@@ -1,9 +1,13 @@
 # NULL pointer deref. OpenSSL 1.0.2 is not impacted
 CVE-2021-3449
 
+# We already use a later version than the ones listed as impacted by this
+# CVE, so we believe this is just a scanner issue.
+CVE-2014-7819
+
 # Rake vulnerability for versions < 12.3.3. The version of Rake used by Conjur
 # has been updated to 13.0.1. Some of the Conjur dependencies still declare a
-# vulnerable version of Rake in their development dependencies, but do not pose 
+# vulnerable version of Rake in their development dependencies, but do not pose
 # a risk to Conjur.
 CVE-2020-8130
 
