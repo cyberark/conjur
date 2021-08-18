@@ -10,9 +10,9 @@ module Authentication
         logger: Rails.logger,
         audit_log: ::Audit.logger,
         validate_origin: ::Authentication::ValidateOrigin.new,
+        validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
         role_class: ::Role,
         webservice_class: ::Authentication::Webservice,
-        validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
         role_id_class: Audit::Event::Authn::RoleId
       },
       inputs: %i[vendor_configuration authenticator_input]

@@ -132,7 +132,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
       receive(:call).with(
         refresh: false,
         cache_key: anything(),
-        signing_key_provider: anything()
+        signing_key_provider: anything(),
+        authenticator_input: authenticator_input
       ).and_raise(fetch_signing_key_1st_time_error)
     )
 
@@ -140,7 +141,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
       receive(:call).with(
         refresh: false,
         cache_key: anything(),
-        signing_key_provider: anything()
+        signing_key_provider: anything(),
+        authenticator_input: authenticator_input
       ).and_return(jwks_from_2nd_call)
     )
 
@@ -148,7 +150,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
       receive(:call).with(
         refresh: true,
         cache_key: anything(),
-        signing_key_provider: anything()
+        signing_key_provider: anything(),
+        authenticator_input: authenticator_input
       ).and_raise(fetch_signing_key_2nd_time_error)
     )
 
@@ -160,7 +163,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
       receive(:call).with(
         refresh: false,
         cache_key: anything(),
-        signing_key_provider: anything()
+        signing_key_provider: anything(),
+        authenticator_input: authenticator_input
       ).and_return(jwks_from_1st_call)
     )
 
@@ -168,7 +172,8 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
       receive(:call).with(
         refresh: true,
         cache_key: anything(),
-        signing_key_provider: anything()
+        signing_key_provider: anything(),
+        authenticator_input: authenticator_input
       ).and_return(jwks_from_2nd_call)
     )
 

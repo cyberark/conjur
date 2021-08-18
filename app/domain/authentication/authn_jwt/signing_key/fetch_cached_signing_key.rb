@@ -8,7 +8,7 @@ module Authentication
       # :reek:InstanceVariableAssumption
       FetchCachedSigningKey = CommandClass.new(
         dependencies: {},
-        inputs: %i[signing_key_provider]
+        inputs: %i[signing_key_provider authenticator_input]
       ) do
         def call
           fetch_signing_key
@@ -17,7 +17,9 @@ module Authentication
         private
 
         def fetch_signing_key
-          @signing_key_provider.fetch_signing_key
+          @signing_key_provider.fetch_signing_key(
+            authenticator_input: @authenticator_input
+          )
         end
       end
     end

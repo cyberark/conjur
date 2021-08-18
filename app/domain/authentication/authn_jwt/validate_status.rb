@@ -13,7 +13,7 @@ module Authentication
           max_concurrent_requests: CACHE_MAX_CONCURRENT_REQUESTS,
           logger: Rails.logger
         ),
-        create_signing_key_provider: Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider.new,
+        create_signing_key_provider: Authentication::AuthnJwt::SigningKey::CreateSigningKeyFetcher.new,
         fetch_issuer_value: Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new,
         fetch_audience_value: Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue.new,
         fetch_enforced_claims: Authentication::AuthnJwt::RestrictionValidation::FetchEnforcedClaims.new,
@@ -151,8 +151,9 @@ module Authentication
 
       def validate_signing_key
         @fetch_signing_key.call(
-          cache_key: signing_key_provider.signing_key_uri,
-          signing_key_provider: signing_key_provider
+          cache_key: signing_key_provider.signing_key_uri(authenticator_input: authenticator_input),
+          signing_key_provider: signing_key_provider,
+          authenticator_input: authenticator_input
         )
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedSigningKeyConfiguration.new)
       end

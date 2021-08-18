@@ -5,7 +5,6 @@ module Authentication
       class FetchProviderUriSigningKey
 
         def initialize(
-          authenticator_input:,
           fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
           discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new,
           logger: Rails.logger
@@ -13,38 +12,34 @@ module Authentication
           @logger = logger
           @fetch_authenticator_secrets = fetch_authenticator_secrets
           @discover_identity_provider = discover_identity_provider
-
-          @authenticator_input = authenticator_input
         end
 
-        def fetch_signing_key
+        def fetch_signing_key(authenticator_input:)
+          @authenticator_input = authenticator_input
           discover_provider
           fetch_provider_keys
         end
 
-        def signing_key_uri
-          provider_uri
+        def signing_key_uri(authenticator_input:)
+          @authenticator_input = authenticator_input
+          provider_uri_secret
         end
 
         private
 
         def discover_provider
-          @logger.info(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(provider_uri))
+          @logger.info(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(provider_uri_secret))
           discovered_provider
         end
 
         def discovered_provider
-          @discovered_provider ||= @discover_identity_provider.call(
-            provider_uri: provider_uri
+          @discovered_provider = @discover_identity_provider.call(
+            provider_uri: provider_uri_secret
           )
         end
 
-        def provider_uri
-          @provider_uri ||= provider_uri_secret
-        end
-
         def provider_uri_secret
-          @provider_uri_secret ||= @fetch_authenticator_secrets.call(
+          @provider_uri_secret = @fetch_authenticator_secrets.call(
             conjur_account: @authenticator_input.account,
             authenticator_name: @authenticator_input.authenticator_name,
             service_id: @authenticator_input.service_id,
@@ -58,7 +53,7 @@ module Authentication
           keys
         rescue => e
           raise Errors::Authentication::OAuth::FetchProviderKeysFailed.new(
-            provider_uri,
+            provider_uri_secret,
             e.inspect
           )
         end

@@ -5,8 +5,8 @@ module Authentication
     module IdentityProviders
       CreateIdentityProvider = CommandClass.new(
         dependencies: {
-          identity_from_url_provider_class: Authentication::AuthnJwt::IdentityProviders::IdentityFromUrlProvider,
-          identity_from_decoded_token_class: Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider,
+          identity_from_url_provider: Authentication::AuthnJwt::IdentityProviders::IdentityFromUrlProvider.new,
+          identity_from_decoded_token: Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new,
           check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
           logger: Rails.logger
         },
@@ -53,9 +53,7 @@ module Authentication
             )
           )
 
-          @identity_from_decoded_token_class.new(
-            jwt_authenticator_input: @jwt_authenticator_input
-          )
+          @identity_from_decoded_token
         end
 
         def identity_should_be_in_url?
@@ -69,9 +67,7 @@ module Authentication
             )
           )
 
-          @identity_from_url_provider_class.new(
-            jwt_authenticator_input: @jwt_authenticator_input
-          )
+          @identity_from_url_provider
         end
       end
     end

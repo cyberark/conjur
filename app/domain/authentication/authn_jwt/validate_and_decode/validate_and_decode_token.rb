@@ -20,7 +20,7 @@ module Authentication
           verify_and_decode_token: ::Authentication::Jwt::VerifyAndDecodeToken.new,
           fetch_jwt_claims_to_validate: ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new,
           get_verification_option_by_jwt_claim: ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new,
-          create_signing_key_provider: ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider.new,
+          create_signing_key_provider: ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyFetcher.new,
           logger: Rails.logger
         },
         inputs: %i[authenticator_input jwt_token]
@@ -54,8 +54,9 @@ module Authentication
         def fetch_signing_key(force_read: false)
           @jwks = @fetch_signing_key.call(
             refresh: force_read,
-            cache_key: signing_key_provider.signing_key_uri,
-            signing_key_provider: signing_key_provider
+            cache_key: signing_key_provider.signing_key_uri(authenticator_input: @authenticator_input),
+            signing_key_provider: signing_key_provider,
+            authenticator_input: @authenticator_input
           )
           @logger.debug(LogMessages::Authentication::AuthnJwt::SigningKeysFetchedFromCache.new)
         end

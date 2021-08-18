@@ -2,10 +2,10 @@ module Authentication
   module AuthnJwt
     module SigningKey
       # Factory that returns the interface implementation of FetchSigningKey
-      CreateSigningKeyProvider ||= CommandClass.new(
+      CreateSigningKeyFetcher ||= CommandClass.new(
         dependencies: {
-          fetch_provider_uri_signing_key_class: Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey,
-          fetch_jwks_uri_signing_key_class: Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey,
+          fetch_provider_uri_signing_key: Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey.new,
+          fetch_jwks_uri_signing_key: Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey.new,
           check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
           logger: Rails.logger
         },
@@ -20,9 +20,9 @@ module Authentication
 
         def create_signing_key_provider
           if provider_uri_resource_exists? and !jwks_uri_has_resource_exists?
-            fetch_provider_uri_signing_key
+            provider_uri_signing_key_provide_fetcher
           elsif jwks_uri_has_resource_exists? and !provider_uri_resource_exists?
-            fetch_jwks_uri_signing_key
+            jwks_uri_signing_key_fetcher
           else
             raise Errors::Authentication::AuthnJwt::InvalidUriConfiguration.new(
               PROVIDER_URI_RESOURCE_NAME,
@@ -43,13 +43,11 @@ module Authentication
           )
         end
 
-        def fetch_provider_uri_signing_key
+        def provider_uri_signing_key_provide_fetcher
           @logger.info(
             LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(PROVIDER_URI_INTERFACE_NAME)
           )
-          @fetch_provider_uri_signing_key ||= @fetch_provider_uri_signing_key_class.new(
-            authenticator_input: @authenticator_input
-          )
+          @fetch_provider_uri_signing_key
         end
 
         def jwks_uri_has_resource_exists?
@@ -64,13 +62,11 @@ module Authentication
           )
         end
 
-        def fetch_jwks_uri_signing_key
+        def jwks_uri_signing_key_fetcher
           @logger.info(
             LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(JWKS_URI_INTERFACE_NAME)
           )
-          @fetch_jwks_uri_signing_key ||= @fetch_jwks_uri_signing_key_class.new(
-            authenticator_input: @authenticator_input
-          )
+          @fetch_jwks_uri_signing_key
         end
       end
     end
