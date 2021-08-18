@@ -1,7 +1,20 @@
 Feature: The list of available authentication providers is discoverable
   through the API.
 
-  Background:
+  @sanity
+  Scenario: ONYX-12104 - Verify installed authenticators
+    When I retrieve the list of authenticators
+    Then there are exactly 8 installed authenticators
+    And the installed authenticators contains "authn"
+    And the installed authenticators contains "authn-azure"
+    And the installed authenticators contains "authn-gcp"
+    And the installed authenticators contains "authn-iam"
+    And the installed authenticators contains "authn-jwt"
+    And the installed authenticators contains "authn-k8s"
+    And the installed authenticators contains "authn-ldap"
+    And the installed authenticators contains "authn-oidc"
+
+  Scenario: List authenticators
     Given I load a policy:
     """
     - !user alice
@@ -23,10 +36,7 @@ Feature: The list of available authentication providers is discoverable
       role: !group conjur/authn-ldap/test/clients
       member: !user alice
     """
-
-  Scenario: List authenticators
-  
-  When I retrieve the list of authenticators
-  Then the installed authenticators contains "authn-ldap"
-  And the configured authenticators contains "authn-ldap/test"
-  And the enabled authenticators contains "authn-ldap/test"
+    When I retrieve the list of authenticators
+    Then the installed authenticators contains "authn-ldap"
+    And the configured authenticators contains "authn-ldap/test"
+    And the enabled authenticators contains "authn-ldap/test"
