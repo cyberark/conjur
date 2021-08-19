@@ -202,17 +202,6 @@ class AuthenticateController < ApplicationController
     log_backtrace(err)
 
     case err
-    when Errors::Authentication::Security::AuthenticatorNotWhitelisted,
-      Errors::Authentication::Security::WebserviceNotFound,
-      Errors::Authentication::Security::RoleNotFound,
-      Errors::Authentication::Security::AccountNotDefined,
-      Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty,
-      Errors::Authentication::Jwt::TokenVerificationFailed,
-      Errors::Authentication::Jwt::TokenDecodeFailed,
-      Errors::Conjur::RequiredSecretMissing,
-      Errors::Conjur::RequiredResourceMissing
-      raise Unauthorized
-
     when Errors::Authentication::Security::RoleNotAuthorizedOnResource
       raise Forbidden
 
@@ -222,15 +211,8 @@ class AuthenticateController < ApplicationController
     when Errors::Authentication::Jwt::TokenExpired
       raise Unauthorized.new(err.message, true)
 
-    when Errors::Authentication::OAuth::ProviderDiscoveryTimeout
-      raise GatewayTimeout
-
     when Errors::Util::ConcurrencyLimitReachedBeforeCacheInitialization
       raise ServiceUnavailable
-
-    when Errors::Authentication::OAuth::ProviderDiscoveryFailed,
-      Errors::Authentication::OAuth::FetchProviderKeysFailed
-      raise BadGateway
 
     when Errors::Authentication::AuthnK8s::CSRMissingCNEntry,
       Errors::Authentication::AuthnK8s::CertMissingCNEntry

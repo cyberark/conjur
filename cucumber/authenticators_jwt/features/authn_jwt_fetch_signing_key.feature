@@ -46,7 +46,6 @@ Feature: JWT Authenticator - Fetch signing key
     When I authenticate via authn-jwt with the ID token
     Then host "alice" has been authorized by Conjur
 
-  # BUG: ONYX-10132 , expected error code should be 401
   Scenario: ONYX-8704: provider uri configured with bad value
     Given I load a policy:
     """
@@ -83,7 +82,7 @@ Feature: JWT Authenticator - Fetch signing key
     And I save my place in the log file
     And I fetch an ID Token for username "alice" and password "alice"
     When I authenticate via authn-jwt with the ID token
-    Then the HTTP response status code is 502
+    Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
     CONJ00011E Failed to discover Identity Provider (Provider URI: 'unknown-host.com')
@@ -376,7 +375,7 @@ Feature: JWT Authenticator - Fetch signing key
     And I fetch an ID Token for username "alice" and password "alice"
     And I save my place in the log file
     And I authenticate via authn-jwt with the ID token
-    And the HTTP response status code is 502
+    And the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
     CONJ00011E Failed to discover Identity Provider (Provider URI: 'incorrect.com'). Reason: '#<AttrRequired::AttrMissing: 'host' required.>'
@@ -551,7 +550,6 @@ Feature: JWT Authenticator - Fetch signing key
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::VerificationError: Signature verification raised>')
     """
 
-  # BUG: ONYX-10132 , expected error code should be 401
   Scenario: ONYX-8914: provider-uri with untrusted self sign certificate
     Given I load a policy:
     """
@@ -568,7 +566,7 @@ Feature: JWT Authenticator - Fetch signing key
     And I fetch an ID Token for username "alice" and password "alice"
     And I save my place in the log file
     When I authenticate via authn-jwt with the ID token
-    Then the HTTP response status code is 502
+    Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
     CONJ00011E Failed to discover Identity Provider (Provider URI: 'https://jwks'). Reason: '#<OpenIDConnect::Discovery::DiscoveryFailed: SSL_connect returned=1 errno=0 state=error: certificate verify failed (self signed certificate)>
