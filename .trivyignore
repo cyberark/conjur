@@ -59,3 +59,8 @@ CVE-2020-1967
 #
 # Performed by @micahlee, approved by @andytinkham
 CVE-2020-1971
+
+# CVE-2021-3711
+# The vulnerability is not affected Conjur's version of OpenSSL 1.0.2u (https://www.openssl.org/news/secadv/20210824.txt)
+# Conjur does not use SM2 algorithm (https://www.openssl.org/docs/manmaster/man7/SM2.html)
+CVE-2021-3711
