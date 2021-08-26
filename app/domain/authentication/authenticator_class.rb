@@ -13,7 +13,7 @@ module Authentication
       end
 
       def valid?
-        valid_name? && valid_parent_name? && valid_interface?
+        valid_name? && valid_parent_name?
       end
 
       def provides_login?
@@ -23,7 +23,6 @@ module Authentication
       def validate!
         raise Errors::Authentication::AuthenticatorClass::DoesntStartWithAuthn, own_name unless valid_name?
         raise Errors::Authentication::AuthenticatorClass::NotNamedAuthenticator, parent_name unless valid_parent_name?
-        raise Errors::Authentication::AuthenticatorClass::MissingValidMethod, own_name unless valid_interface?
       end
 
       private
@@ -34,10 +33,6 @@ module Authentication
 
       def valid_parent_name?
         parent_name =~ /^Authn/
-      end
-
-      def valid_interface?
-        @cls.method_defined?(:valid?)
       end
 
       def own_name

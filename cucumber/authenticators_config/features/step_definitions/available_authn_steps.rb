@@ -7,3 +7,7 @@ end
 Then(/^the (\S+) authenticators contains "([^"]*)"$/) do |category, value|
   step "the JSON at \"#{category}\" should include \"#{value}\""
 end
+
+Then(/^there are exactly (\d+) (\S+) authenticators$/) do |count, category|
+  expect(@result[category].length).to be == count
+end
