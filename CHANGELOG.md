@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.13.1] - 2021-09-13
+
 ### Fixed
 - Fix bug of cache not working in authn jwt. [cyberark/conjur#2353](https://github.com/cyberark/conjur/pull/2353)
 - Fix bug `authn-jwt` now appears in `installed` authenticators list of `authenticators` endpoint output. [cyberark/conjur#2365](https://github.com/cyberark/conjur/pull/2365)
@@ -695,7 +697,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.13.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.13.1...HEAD
+[1.13.1]: https://github.com/cyberark/conjur/compare/v1.13.0...v1.13.1
 [1.13.0]: https://github.com/cyberark/conjur/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/cyberark/conjur/compare/v1.11.7...v1.12.0
 [1.11.7]: https://github.com/cyberark/conjur/compare/v1.11.6...v1.11.7
