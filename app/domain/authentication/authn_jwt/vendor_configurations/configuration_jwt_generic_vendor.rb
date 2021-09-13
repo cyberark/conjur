@@ -92,16 +92,9 @@ module Authentication
         end
 
         def identity_provider
-          @identity_provider ||= create_identity_provider.call(
+          @identity_provider ||= @create_identity_provider.call(
             jwt_authenticator_input: @jwt_authenticator_input
           )
-        end
-
-        def create_identity_provider
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CreateJwtIdentityProviderInstance.new)
-          @create_identity_provider ||= @create_identity_provider
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedJwtIdentityProviderInstance.new)
-          @create_identity_provider
         end
 
         def extract_resource_restrictions

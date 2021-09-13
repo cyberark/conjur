@@ -535,16 +535,6 @@ module LogMessages
         code: "CONJ00105D"
       )
 
-      CreateJwtIdentityProviderInstance = ::Util::TrackableLogMessageClass.new(
-        msg: "Creating JWT identity provider (get_jwt_identity) instance...",
-        code: "CONJ00106D"
-      )
-
-      CreatedJwtIdentityProviderInstance = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully created JWT identity provider (get_jwt_identity) instance",
-        code: "CONJ00107D"
-      )
-
       CreateJwtRestrictionsValidatorInstance = ::Util::TrackableLogMessageClass.new(
         msg: "Creating JWT restrictions validator (validate_restrictions) instance...",
         code: "CONJ00108I"
