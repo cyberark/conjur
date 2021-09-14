@@ -6,10 +6,6 @@ module Authentication
       # Provides jwt identity from information in the URL
       IdentityFromUrlProvider = CommandClass.new(
         dependencies: {
-          fetch_identity_path: Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath.new,
-          fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
-          check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
-          add_prefix_to_identity: Authentication::AuthnJwt::IdentityProviders::AddPrefixToIdentity.new,
           logger: Rails.logger
         },
         inputs: %i[jwt_authenticator_input]
