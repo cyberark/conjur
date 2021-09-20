@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+set -e
+. k8s/utils
+
+announce "Deploying Test App Into $TEST_APP_NAMESPACE Namespace"
+
+set_namespace $TEST_APP_NAMESPACE
+
+test_app_image="${DOCKER_REG_URL}/test-app:$CONJUR_NAMESPACE"
+urlencoded_authn_id=$(urlencode $AUTHENTICATOR_ID)
+authenticator_client_image="cyberark/conjur-authn-k8s-client"
+conjur_appliance_url="https://conjur-oss.$CONJUR_NAMESPACE.svc.cluster.local"
+conjur_authenticator_url="$conjur_appliance_url/authn-k8s/$urlencoded_authn_id"
+conjur_auth_login_prefix=host/conjur/authn-k8s/$AUTHENTICATOR_ID/apps
+IMAGE_PULL_POLICY='Always'
+
+kubectl delete --ignore-not-found \
+    deployment/test-app \
+    service/test-app \
+    serviceaccount/test-app
+
+sleep 5
+
+conjur_pod="$(kubectl get pods --selector "app=conjur-oss" --no-headers -n $CONJUR_NAMESPACE | awk '{ print $1 }')"
+conjur_ip="$(kubectl describe pod -n $CONJUR_NAMESPACE $conjur_pod | grep "IP:" | awk '{ print $2 }' | head -1)"
+
+sed "s#{{ TEST_APP_DOCKER_IMAGE }}#$test_app_image#g" ./k8s/kubernetes/test-app.yml |
+    sed "s#{{ AUTHENTICATOR_CLIENT_IMAGE }}#$authenticator_client_image#g" |
+    sed "s#{{ IMAGE_PULL_POLICY }}#$IMAGE_PULL_POLICY#g" |
+    sed "s#{{ CONJUR_ACCOUNT }}#$CONJUR_ACCOUNT#g" |
+    sed "s#{{ CONJUR_IP }}#$conjur_ip#g" |
+    sed "s#{{ CONJUR_AUTHN_API_KEY }}#$CONJUR_ADMIN_API_KEY#g" |
+    sed "s#{{ CONJUR_AUTHN_LOGIN_PREFIX }}#$conjur_auth_login_prefix#g" |
+    sed "s#{{ CONJUR_APPLIANCE_URL }}#$conjur_appliance_url#g" |
+    sed "s#{{ CONJUR_AUTHN_URL }}#$conjur_authenticator_url#g" |
+    sed "s#{{ TEST_APP_NAMESPACE_NAME }}#$TEST_APP_NAMESPACE#g" |
+    sed "s#{{ AUTHENTICATOR_ID }}#$AUTHENTICATOR_ID#g" |
+    sed "s#{{ CONFIG_MAP_NAME }}#$TEST_APP_NAMESPACE#g" |
+    sed "s#{{ SERVICE_TYPE }}#NodePort#g" |
+    kubectl create -f -
+
+echo "Test app deployed."
+
+echo "Waiting for test-app pod to be ready"
+while [[ "$(kubectl get pods -n $TEST_APP_NAMESPACE -o jsonpath={.items[*].status.containerStatuses[0].ready})" != "true" ]]; do
+    echo "."
+    sleep 2
+done
+echo "Pod ready"
+
+pod_name="$(kubectl get pods | grep 'test-app' | grep -v 'deploy' | awk '{ print $1 }')"
+bash_cmd="printf \"$conjur_ip conjur-oss\n\" >> /etc/hosts"
+kubectl exec $pod_name -c test-app \
+    -- bash -c "$bash_cmd"

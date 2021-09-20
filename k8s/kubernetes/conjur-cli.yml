@@ -1,0 +1,27 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conjur-cli
+  labels:
+    app: conjur-cli
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: conjur-cli
+  template:
+    metadata:
+      name: conjur-cli
+      labels:
+        app: conjur-cli
+    spec:
+      serviceAccountName: {{ CONJUR_SERVICE_ACCOUNT }}
+      containers:
+      - name: conjur-cli
+        image: {{ DOCKER_IMAGE }}
+        imagePullPolicy: {{ IMAGE_PULL_POLICY }}
+        command: ["sleep"]
+        args: ["infinity"]
+      imagePullSecrets:
+        - name: dockerpullsecret

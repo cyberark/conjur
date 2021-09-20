@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+set -e
+. k8s/utils
+
+# Create test namespace
+announce "Creating Test App Namespace"
+
+set_namespace default
+
+if has_namespace "$TEST_APP_NAMESPACE"; then
+    echo "Namespace '$TEST_APP_NAMESPACE' exists, not going to create it."
+else
+    echo "Creating '$TEST_APP_NAMESPACE' namespace."
+    kubectl create namespace $TEST_APP_NAMESPACE
+fi
+set_namespace $TEST_APP_NAMESPACE
+
+# create rolebinding
+kubectl delete --ignore-not-found rolebinding test-app-conjur-authenticator-role-binding-$CONJUR_NAMESPACE
+conjur_authn_cluster_role="$HELM_RELEASE-conjur-authenticator"
+
+echo $SERVICE_ACCOUNT
+
+sed "s#{{ TEST_APP_NAMESPACE_NAME }}#$TEST_APP_NAMESPACE#g" ./k8s/kubernetes/test-app-conjur-authenticator-role-binding.yml |
+    sed "s#{{ CONJUR_NAMESPACE_NAME }}#$CONJUR_NAMESPACE#g" |
+    sed "s#{{ CONJUR_AUTHN_CLUSTER_ROLE }}#$conjur_authn_cluster_role#g" |
+    sed "s#{{ CONJUR_SERVICE_ACCOUNT }}#$SERVICE_ACCOUNT#g" |
+    kubectl create -f -
+
+# Store Conjur certificate in test namespace
+announce "Storing Conjur cert for test app configuration."
+
+set_namespace $CONJUR_NAMESPACE
+
+echo "Retrieving Conjur certificate."
+master_pod_name="$(kubectl get pods --selector "app=conjur-oss" --no-headers | awk '{ print $1 }')"
+ssl_cert=$(kubectl exec -c "conjur-oss-nginx" $master_pod_name -- cat /opt/conjur/etc/ssl/cert/tls.crt)
+
+set_namespace $TEST_APP_NAMESPACE
+
+echo "Storing non-secret Conjur cert as test app configuration data"
+kubectl delete --ignore-not-found=true configmap $TEST_APP_NAMESPACE
+kubectl create configmap $TEST_APP_NAMESPACE --from-file=ssl-certificate=<(echo "$ssl_cert")
+
+echo "Conjur certificate stored."
+
+# Build and push test containers
+announce "Building and pushing test app images"
+
+echo "Building test app image"
+docker build \
+    --build-arg namespace=$TEST_APP_NAMESPACE \
+    --tag test-app:$CONJUR_NAMESPACE \
+    --file k8s/Dockerfile .
+
+test_app_image="${DOCKER_REG_URL}/test-app:$CONJUR_NAMESPACE"
+docker tag test-app:$CONJUR_NAMESPACE $test_app_image
+docker push $test_app_image

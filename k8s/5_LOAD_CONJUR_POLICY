@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -e
+. k8s/utils
+
+# load Conjur policies generated from templates
+announce "Loading Conjur Policy"
+
+conjur_cli_pod=$(get_conjur_cli_pod_name)
+
+kubectl exec $conjur_cli_pod -- rm -rf /policy
+kubectl cp ./k8s/policy $conjur_cli_pod:/policy
+
+kubectl exec $conjur_cli_pod -- \
+    bash -c "
+    conjur_appliance_url=https://conjur-oss.$CONJUR_NAMESPACE.svc.cluster.local}
+        CONJUR_ACCOUNT=${CONJUR_ACCOUNT} \
+        CONJUR_ADMIN_PASSWORD=${CONJUR_ADMIN_API_KEY} \
+        TEST_APP_NAMESPACE_NAME=${TEST_APP_NAMESPACE} \
+        /policy/load_policies.sh
+    "
+
+kubectl exec $conjur_cli_pod -- rm -rf ./policy
+
+echo "Conjur Policy Loaded"

@@ -1,0 +1,43 @@
+---
+# This policy defines a layer of whitelisted identities permitted to authenticate to the authn-k8s endpoint.
+- !policy
+  id: conjur/authn-k8s/{{ AUTHENTICATOR_ID }}/apps
+  annotations:
+    description: Identities permitted to authenticate
+  body:
+  - !layer
+    annotations:
+      description: Layer of authenticator identities permitted to call authn svc
+  - &hosts
+    # Annotation-based authentication (host ID is an application name, and
+    # permitted application identities are listed as annotations)
+    - !host
+      id: test-app
+      annotations:
+        authn-k8s/namespace: {{ TEST_APP_NAMESPACE_NAME }}
+        authn-k8s/service-account: test-app
+        authn-k8s/deployment: test-app
+        authn-k8s/authentication-container-name: authenticator
+        kubernetes: "true"
+
+    # Host-ID based authentication (application identity in the host itself)
+    - !host
+      id: {{ TEST_APP_NAMESPACE_NAME }}/*/*
+      annotations:
+        kubernetes/authentication-container-name: authenticator
+        openshift: "false"
+
+    - !host
+      id: {{ TEST_APP_NAMESPACE_NAME }}/service_account/test-app
+      annotations:
+        kubernetes/authentication-container-name: authenticator
+        kubernetes: "true"
+    - !host
+      id: {{ TEST_APP_NAMESPACE_NAME }}/deployment/test-app
+      annotations:
+        kubernetes/authentication-container-name: authenticator
+        kubernetes: "true"
+
+  - !grant
+    role: !layer
+    members: *hosts

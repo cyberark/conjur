@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+conjur_master_pod="$(kubectl get pods \
+    -n "$CONJUR_NAMESPACE" \
+    -l "app=conjur-oss,release=$HELM_RELEASE" \
+    -o jsonpath="{.items[0].metadata.name}")"
+
+kubectl exec \
+    -n "$CONJUR_NAMESPACE" \
+    "$conjur_master_pod" \
+    --container=conjur-oss \
+    -- conjurctl role retrieve-key "$CONJUR_ACCOUNT":user:admin | tail -1

@@ -1,0 +1,110 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-app
+  labels:
+    app: test-app
+spec:
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: test-app
+  type: {{ SERVICE_TYPE }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: test-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: test-app
+  name: test-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-app
+  template:
+    metadata:
+      labels:
+        app: test-app
+    spec:
+      serviceAccountName: test-app
+      containers:
+      - image: {{ TEST_APP_DOCKER_IMAGE }}
+        imagePullPolicy: {{ IMAGE_PULL_POLICY }}
+        name: test-app
+        ports:
+        - name: http
+          containerPort: 8080
+        env:
+          - name: CONJUR_APPLIANCE_URL
+            value: "{{ CONJUR_APPLIANCE_URL }}"
+          - name: CONJUR_ACCOUNT
+            value: {{ CONJUR_ACCOUNT }}
+          - name: CONJUR_AUTHN_API_KEY
+            value: {{ CONJUR_AUTHN_API_KEY }}
+          - name: CONJUR_IP
+            value: {{ CONJUR_IP }}
+          - name: CONJUR_AUTHN_TOKEN_FILE
+            value: /run/conjur/access-token
+          - name: CONJUR_SSL_CERTIFICATE
+            valueFrom:
+              configMapKeyRef:
+                name: {{ CONFIG_MAP_NAME }}
+                key: ssl-certificate
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: TEST_APP_NAMESPACE
+            value: {{ TEST_APP_NAMESPACE_NAME }}
+        volumeMounts:
+          - mountPath: /run/conjur
+            name: conjur-access-token
+            readOnly: true
+      - image: {{ AUTHENTICATOR_CLIENT_IMAGE }}
+        imagePullPolicy: Always
+        name: authenticator
+        env:
+          - name: CONTAINER_MODE
+            value: sidecar
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: MY_POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: CONJUR_AUTHN_URL
+            value: "{{ CONJUR_AUTHN_URL }}"
+          - name: CONJUR_ACCOUNT
+            value: {{ CONJUR_ACCOUNT }}
+          - name: CONJUR_AUTHN_LOGIN
+            value: "{{ CONJUR_AUTHN_LOGIN_PREFIX }}/test-app"
+          - name: CONJUR_AUTHN_API_KEY
+            value: {{ CONJUR_AUTHN_API_KEY }}
+          - name: CONJUR_SSL_CERTIFICATE
+            valueFrom:
+              configMapKeyRef:
+                name: {{ CONFIG_MAP_NAME }}
+                key: ssl-certificate
+        volumeMounts:
+          - mountPath: /run/conjur
+            name: conjur-access-token
+      imagePullSecrets:
+        - name: dockerpullsecret
+      volumes:
+        - name: conjur-access-token
+          emptyDir:
+            medium: Memory

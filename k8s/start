@@ -1,0 +1,128 @@
+#!/usr/bin/env bash
+
+set -e
+. k8s/utils
+trap 'cleanup' ERR
+
+cleanup() {
+    echo "Cleaning up..."
+    kubectl delete namespace $CONJUR_NAMESPACE $TEST_APP_NAMESPACE
+}
+
+print_help(){
+  echo -e "Usage: ./test/python/k8s/start[--no-regen-client]"
+  echo
+  echo -e "\tThis script tests the functionality of Conjur's API endpoint to inject"
+  echo -e "\ta client certificate into a specified Kubernetes pod using Python client"
+  echo -e "\tgenerated from the OpenAPI spec. The script sets up a Conjur K8s deployment"
+  echo -e "\tand a test app."
+  echo
+  echo -e "\tThe --no-regen-client flag will prevent the client from re-generating before tests run"
+}
+
+no_regen_client=0
+
+while test $# -gt 0
+do
+  param=$1
+  shift
+  case "$param" in
+    -h|--help)
+      print_help
+      exit 0
+      ;;
+    --no-regen-client)
+      no_regen_client=1
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+# Set environment variables
+export KIND_CLUSTER_NAME="kind"
+export HELM_RELEASE="conjur-oss"
+export CONJUR_NAMESPACE="conjur-oss"
+export CONJUR_ACCOUNT="dev"
+export CONJUR_LOG_LEVEL="info"
+export CONJUR_VERSION="1.11.0"
+export VERSION="2.0.3"
+
+export TEST_APP_NAMESPACE="app-test"
+export ANNOTATION_BASE_AUTHN="true"
+export AUTHENTICATOR_ID="my-authenticator-id"
+export SERVICE_ACCOUNT='conjur-oss'
+
+export DOCKER_REG_NAME="kind-registry"
+export DOCKER_REG_PORT="5000"
+export DOCKER_REG_URL="localhost:$DOCKER_REG_PORT"
+
+# check for required tools
+if ! command -v kind &> /dev/null; then
+    echo "kind binary not found. See https://kind.sigs.k8s.io/docs/quick-start/"
+    echo "for installation instructions."
+    exit 1
+fi
+
+min_kind_version="0.7.0"
+kind_version="$(kind version -q)"
+if ! meets_min_version $kind_version $min_kind_version; then
+    echo "kind version $kind_version is invalid. Version must be $min_kind_version or newer"
+    exit 1
+fi
+
+if ! command -v helm &> /dev/null; then
+    echo "helm binary not found. See https://helm.sh/docs/intro/install/"
+    echo "for installation instructions."
+    exit 1
+fi
+
+min_helm_version="3.1"
+helm_version="$(helm version --template {{.Version}} | sed 's/^v//')"
+if ! meets_min_version $helm_version $min_helm_version; then
+    echo "helm version $helm_version is invalid. Version must be $min_helm_version or newer"
+    exit 1
+fi
+
+./k8s/0_CREATE_KIND_CLUSTER
+
+# Create Conjur Namespace
+if has_namespace "$CONJUR_NAMESPACE"; then
+    echo "Namespace '$CONJUR_NAMESPACE' exists, not going to create it."
+else
+    kubectl create ns "$CONJUR_NAMESPACE"
+fi
+
+# Building dev image
+conjur_dev_image="${DOCKER_REG_URL}/conjur:dev"
+docker build -t conjur:dev -f Dockerfile --no-cache .
+docker tag conjur:dev "${conjur_dev_image}"
+echo pushing dev image
+docker push "${conjur_dev_image}"
+
+./k8s/1_HELM_INSTALL_CONJUR
+
+wait_for_conjur_ready
+export CONJUR_ADMIN_API_KEY="$(./k8s/2_RETRIEVE_CONJUR_ADMIN_API_KEY)"
+
+./k8s/3_GENERATE_CONJUR_POLICY
+./k8s/4_INITIALIZE_CONJUR_CLI_POD
+./k8s/5_LOAD_CONJUR_POLICY
+./k8s/6_CONFIGURE_CONJUR_CERT_AUTHORITY
+./k8s/7_SETUP_TEST_APP_NAMESPACE
+./k8s/8_DEPLOY_TEST_APP
+
+# run endpoint tests
+pod_name="$(kubectl get pods | grep 'test-app' | grep -v 'deploy' | awk '{ print $1 }')"
+
+while [[ -z "$(kubectl exec $pod_name -c test-app -- cat /run/conjur/access-token 2>/dev/null)" ]]; do
+    echo "Waiting for Conjur access token in shared volume..."
+    sleep 2
+done
+
+RETRIEVED_API_TOKEN="$(kubectl exec $pod_name -c test-app -- cat /run/conjur/access-token 2>/dev/null)"
+echo "KEY: '${RETRIEVED_API_TOKEN}'"
+# remove test app deployments and namespaces
+announce "Destroying environment"
+cleanup

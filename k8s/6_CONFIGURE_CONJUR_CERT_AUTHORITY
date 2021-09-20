@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -e
+. k8s/utils
+
+
+announce "Initializing Conjur certificate authority"
+
+set_namespace $CONJUR_NAMESPACE
+
+conjur_master="$(kubectl get pods --selector "app=conjur-oss" --no-headers | awk '{ print $1 }')"
+kubectl exec $conjur_master -c conjur-oss -- bash -c "
+    CONJUR_ACCOUNT=$CONJUR_ACCOUNT
+    rake authn_k8s:ca_init['conjur/authn-k8s/$AUTHENTICATOR_ID']
+"
+
+echo "Certificate authority initialized"

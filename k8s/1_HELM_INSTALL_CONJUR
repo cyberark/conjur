@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+if [ "$(helm list -q -n $CONJUR_NAMESPACE | grep "^$HELM_RELEASE$")" = "$HELM_RELEASE" ]; then
+    echo "Helm upgrading existing Conjur cluster. Waiting for upgrade to complete."
+    helm upgrade \
+        -n "$CONJUR_NAMESPACE" \
+        --set account.name="$CONJUR_ACCOUNT" \
+        --set account.create="true" \
+        --set authenticators="authn\,authn-k8s/$AUTHENTICATOR_ID" \
+        --set logLevel="$CONJUR_LOG_LEVEL" \
+        --set service.external.enabled="false" \
+        --set image.tag="dev" \
+        --set image.repository="localhost:5000/conjur" \
+        --reuse-values \
+        --wait \
+        --timeout 300s \
+        "$HELM_RELEASE" \
+        "https://github.com/cyberark/conjur-oss-helm-chart/releases/download/v$VERSION/conjur-oss-$VERSION.tgz"
+else
+    echo "Helm install a Conjur cluster. Waiting for install to complete."
+    data_key="$(docker run --rm cyberark/conjur data-key generate)"
+    helm install \
+        -n "$CONJUR_NAMESPACE" \
+        --set dataKey="$data_key" \
+        --set account.name="$CONJUR_ACCOUNT" \
+        --set account.create="true" \
+        --set authenticators="authn\,authn-k8s/$AUTHENTICATOR_ID" \
+        --set logLevel="$CONJUR_LOG_LEVEL" \
+        --set service.external.enabled="false" \
+        --set image.tag="dev" \
+        --set image.repository="localhost:5000/conjur" \
+        --wait \
+        --timeout 300s \
+        "$HELM_RELEASE" \
+        "https://github.com/cyberark/conjur-oss-helm-chart/releases/download/v$VERSION/conjur-oss-$VERSION.tgz"
+fi

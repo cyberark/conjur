@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+set -e
+. k8s/utils
+
+# intialize Conjur CLI pod
+# pull image, push to local registry, and build CLI pod
+set_namespace $CONJUR_NAMESPACE
+conjur_cli_pod=$(get_conjur_cli_pod_name)
+if [ -z "$conjur_cli_pod" ]; then
+
+    announce "Pulling and Pushing Conjur CLI Image"
+
+    cli_app_image="${DOCKER_REG_URL}/conjur-cli:$CONJUR_NAMESPACE"
+    docker pull cyberark/conjur-cli:5
+    docker tag cyberark/conjur-cli:5 $cli_app_image
+    docker push $cli_app_image
+
+    announce "Deploying Conjur CLI Pod"
+
+    IMAGE_PULL_POLICY='Always'
+
+    sed -e "s#{{ CONJUR_SERVICE_ACCOUNT }}#$SERVICE_ACCOUNT#g" ./k8s/kubernetes/conjur-cli.yml |
+        sed -e "s#{{ DOCKER_IMAGE }}#$cli_app_image#g" |
+        sed -e "s#{{ IMAGE_PULL_POLICY }}#$IMAGE_PULL_POLICY#g" |
+        kubectl create -f -
+
+    conjur_cli_pod=$(get_conjur_cli_pod_name)
+    wait_for_it 300 "kubectl get pod $conjur_cli_pod -o jsonpath='{.status.phase}'| grep -q Running"
+fi
+
+announce "Ensure that Conjur CLI pod is initialized"
+
+conjur_url="https://conjur-oss.$CONJUR_NAMESPACE.svc.cluster.local"
+kubectl exec $conjur_cli_pod -- bash -c "yes yes | conjur init -a $CONJUR_ACCOUNT -u $conjur_url"
+kubectl exec $conjur_cli_pod -- conjur authn login -u admin -p $CONJUR_ADMIN_API_KEY
+

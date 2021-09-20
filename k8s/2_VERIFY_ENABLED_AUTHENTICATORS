@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+set -e
+. k8s/utils
+
+announce "Setting up test environment"
+
+# Ensure authn-k8s enabled
+authenticators="$(kubectl get secret \
+                  -n $CONJUR_NAMESPACE \
+                  $HELM_RELEASE-conjur-authenticators \
+                  --template={{.data.key}} | base64 -d)"
+if grep -q "$authenticators" <<< "$AUTHENTICATOR_ID"; then
+  echo "Enabling authenticator ID $AUTHENTICATOR_ID for authn-k8s"
+  helm upgrade \
+       -n "$CONJUR_NAMESPACE" \
+       --reuse-values \
+       --set authenticators="authn\,authn-k8s/$AUTHENTICATOR_ID" \
+       --set logLevel="$CONJUR_LOG_LEVEL" \
+       --wait \
+       --timeout 300s \
+       "$HELM_RELEASE" \
+       "https://github.com/cyberark/conjur-oss-helm-chart/releases/download/v$VERSION/conjur-oss-$VERSION.tgz"
+
+else
+  echo "Authenticator ID $AUTHENTICATOR_ID is already enabled for authn-k8s"
+fi
+
+wait_for_conjur_ready

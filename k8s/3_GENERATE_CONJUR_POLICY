@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# generate Conjur policies from templates
+# defines authn-k8s endpoint and identies that can authenticate to it
+announce "Generating Policy"
+pushd k8s/policy
+    mkdir -p ./generated
+
+    sed "s#{{ AUTHENTICATOR_ID }}#$AUTHENTICATOR_ID#g" ./templates/cluster-authn-svc-def.template.yml > ./generated/$TEST_APP_NAMESPACE.cluster-authn-svc.yml
+
+    sed "s#{{ AUTHENTICATOR_ID }}#$AUTHENTICATOR_ID#g" ./templates/project-authn-def.template.yml |
+        sed "s#{{ TEST_APP_NAMESPACE_NAME }}#$TEST_APP_NAMESPACE#g" > ./generated/$TEST_APP_NAMESPACE.project-authn.yml
+
+    sed "s#{{ AUTHENTICATOR_ID }}#$AUTHENTICATOR_ID#g" ./templates/app-identity-def.template.yml |
+        sed "s#{{ TEST_APP_NAMESPACE_NAME }}#$TEST_APP_NAMESPACE#g" > ./generated/$TEST_APP_NAMESPACE.app-identity.yml
+popd

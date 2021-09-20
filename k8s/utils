@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+
+announce() {
+  echo "++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo ""
+  echo "$@"
+  echo ""
+  echo "++++++++++++++++++++++++++++++++++++++++++++++++++++"
+}
+
+oldest_version() {
+  v1=$1
+  v2=$2
+
+  echo "$(printf '%s\n' "$v1" "$v2" | sort -V | head -n1)"
+}
+
+meets_min_version() {
+  actual_version=$1
+  min_version=$2
+
+  oldest="$(oldest_version $actual_version $min_version)"
+  if [ "$oldest" = "$min_version" ]; then
+    true
+  else
+    false
+  fi
+}
+
+has_namespace() {
+  if kubectl get namespace  "$1" > /dev/null; then
+    true
+  else
+    false
+  fi
+}
+
+set_namespace() {
+  if [[ $# != 1 ]]; then
+    printf "Error in %s/%s - expecting 1 arg.\n" $(pwd) $0
+    exit -1
+  fi
+
+  kubectl config set-context $(kubectl config current-context) --namespace="$1" > /dev/null
+}
+
+pods_ready() {
+  app_label=$1
+  $cli describe pod --selector "app=$app_label" | awk '/Ready/{if ($2 != "True") exit 1}'
+}
+
+external_ip() {
+  service=$1
+  echo "$(kubectl get svc $service -o jsonpath='{.status.loadBalancer.ingress[0].ip}')"
+}
+
+registry_container_is_running() {
+    docker inspect -f '{{.State.Running}}' $DOCKER_REG_NAME 2>/dev/null
+}
+
+wait_for_conjur_ready() {
+  echo "Waiting for Conjur pod to be ready"
+  kubectl wait --for=condition=ready pod \
+                     -n $CONJUR_NAMESPACE \
+                     -l "app=conjur-oss,release=$HELM_RELEASE" \
+                     --timeout 300s
+  echo "Waiting for Postgres pod to be ready"
+  kubectl wait --for=condition=ready pod \
+                     -n $CONJUR_NAMESPACE \
+                     -l "app=conjur-oss,release=$HELM_RELEASE" \
+                     --timeout 300s
+}
+
+get_conjur_cli_pod_name() {
+  pod_list=$(kubectl get pods -n "$CONJUR_NAMESPACE" --selector app=conjur-cli --no-headers | awk '{ print $1 }')
+  echo $pod_list | awk '{print $1}'
+}
+
+wait_for_it() {
+  local timeout=$1
+  local spacer=2
+  shift
+
+  if ! [ $timeout = '-1' ]; then
+    local times_to_run=$((timeout / spacer))
+
+    echo "Waiting for '$@' up to $timeout s"
+    for i in $(seq $times_to_run); do
+      eval $@ > /dev/null && echo 'Success!' && return 0
+      echo -n .
+      sleep $spacer
+    done
+
+    # Last run evaluated. If this fails we return an error exit code to caller
+    eval $@
+  else
+    echo "Waiting for '$@' forever"
+
+    while ! eval $@ > /dev/null; do
+      echo -n .
+      sleep $spacer
+    done
+    echo 'Success!'
+  fi
+}
+
+urlencode() {
+  # urlencode <string>
+
+  # Run as a subshell so that we can indiscriminately set LC_COLLATE
+  (
+    LC_COLLATE=C
+
+    local length="${#1}"
+    for (( i = 0; i < length; i++ )); do
+      local c="${1:i:1}"
+      case $c in
+        [a-zA-Z0-9.~_-]) printf "$c" ;;
+        *) printf '%%%02X' "'$c" ;;
+      esac
+    done
+  )
+}
