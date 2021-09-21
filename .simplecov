@@ -8,6 +8,7 @@ SimpleCov.start('rails') do
 end
 
 SimpleCov.at_exit do
+  sleep 300 # Temp Fix to Resolve Cucumber Test that Fails - Feature: Retrieving an API key with conjurctl
   puts "Formatting SimpleCov coverage report"
   SimpleCov.result.format!
   if ENV['SIMPLECOV_SLEEP']
