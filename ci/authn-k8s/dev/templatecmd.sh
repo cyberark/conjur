@@ -2,17 +2,17 @@
 
 : <<end_long_comment
 compiletemplatescmd <(cat << ENDOFVARIABLES
-DOCKER_REGISTRY_PATH=gcr.io/conjur-gke-dev/
+DOCKER_REGISTRY_PATH=gcr.io/refreshing-mark-284016/
 ENDOFVARIABLES
 )
 
 or
 
-DOCKER_REGISTRY_PATH=gcr.io/conjur-gke-dev/ compiletemplatescmd <(echo '')
+DOCKER_REGISTRY_PATH=gcr.io/refreshing-mark-284016/ compiletemplatescmd <(echo '')
 
 or
 
-export DOCKER_REGISTRY_PATH=gcr.io/conjur-gke-dev/
+export DOCKER_REGISTRY_PATH=gcr.io/refreshing-mark-284016/
 compiletemplatescmd <(echo '')
 )
 end_long_comment
