@@ -27,7 +27,7 @@ module Authentication
         def validate_identity_configured_properly
           return unless identity_available?
 
-          token_id_field_secret
+          id_claim_key
           validate_identity_path_configured_properly
         end
 
@@ -43,10 +43,10 @@ module Authentication
           )
         end
 
-        def token_id_field_secret
-          return @token_id_field_secret if @token_id_field_secret
+        def id_claim_key
+          return @id_claim_key if @id_claim_key
 
-          @token_id_field_secret = @fetch_authenticator_secrets.call(
+          @id_claim_key = @fetch_authenticator_secrets.call(
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,

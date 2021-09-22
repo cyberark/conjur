@@ -5,9 +5,12 @@ module Authentication
     module IdentityProviders
       CreateIdentityProvider = CommandClass.new(
         dependencies: {
-          identity_from_url_provider_class: Authentication::AuthnJwt::IdentityProviders::IdentityFromUrlProvider,
-          identity_from_decoded_token_class: Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider,
-          check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
+          identity_from_url_provider_class:
+            Authentication::AuthnJwt::IdentityProviders::IdentityFromUrlProvider,
+          identity_from_decoded_token_class:
+            Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider,
+          check_authenticator_secret_exists:
+            Authentication::Util::CheckAuthenticatorSecretExists.new,
           logger: Rails.logger
         },
         inputs: %i[jwt_authenticator_input]

@@ -9,107 +9,81 @@ module Authentication
           fetch_identity_path: Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath.new,
           fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
           check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
-          add_prefix_to_identity: Authentication::AuthnJwt::IdentityProviders::AddPrefixToIdentity.new,
           logger: Rails.logger
         },
         inputs: %i[jwt_authenticator_input]
       ) do
-        extend(Forwardable)
-        def_delegators(:@jwt_authenticator_input, :service_id, :authenticator_name, :account)
-
         def call
           @logger.debug(
             LogMessages::Authentication::AuthnJwt::FetchingIdentityByInterface.new(
               TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME
             )
           )
-          fetch_identity_name_from_token
-          fetch_identity_path
-          add_prefix_path_to_identity_name
-          add_host_to_identity_with_prefix
+
+          # Ensures token has id claim, and stores its value in @id_from_token.
+          fetch_id_from_token
+
+          # Get value of "identity-path", which is stored as a Conjur secret.
+          id_path = @fetch_identity_path.call(
+            jwt_authenticator_input: @jwt_authenticator_input
+          )
+
+          # Create final id by joining "host", <path>, and <id>.
+          host_prefix = IDENTITY_TYPE_HOST
+
+          # File.join handles duplicate `/` for us.  Eg:
+          #     File.join('/a/b/', '/c/d/', '/e') => "/a/b/c/d/e"
+          full_host_id = File.join(host_prefix, id_path, @id_from_token)
+
           @logger.info(
             LogMessages::Authentication::AuthnJwt::FetchedIdentityByInterface.new(
-              host_identity_with_prefix,
+              full_host_id,
               TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME
             )
           )
 
-          host_identity_with_prefix
+          full_host_id
         end
 
         private
 
-        def fetch_identity_name_from_token
-          return @identity_name_from_token if @identity_name_from_token
+        def fetch_id_from_token
+          return @id_from_token if @id_from_token
 
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CheckingIdentityFieldExists.new(token_id_field_secret))
-          @identity_name_from_token = decoded_token[token_id_field_secret]
-          if @identity_name_from_token.blank?
-            raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken, token_id_field_secret
+          @logger.debug(
+            LogMessages::Authentication::AuthnJwt::CheckingIdentityFieldExists.new(id_claim_key)
+          )
+
+          raw_token = @jwt_authenticator_input.decoded_token[id_claim_key]
+
+          # Converts nil to empty string.
+          @id_from_token = String(raw_token).strip
+
+          if @id_from_token.empty?
+            raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken, id_claim_key
           end
 
           @logger.debug(
             LogMessages::Authentication::AuthnJwt::FoundJwtFieldInToken.new(
-              token_id_field_secret,
-              @identity_name_from_token
+              id_claim_key,
+              @id_from_token
             )
           )
-          @identity_name_from_token
+
+          @id_from_token
         end
 
-        def token_id_field_secret
-          return @token_id_field_secret if @token_id_field_secret
+        # The identity claim has a key and a value.  The key's name is stored
+        # as a Conjur secret called 'token-app-property'.
+        def id_claim_key
+          return @id_claim_key if @id_claim_key
 
-          @token_id_field_secret = @fetch_authenticator_secrets.call(
-            conjur_account: account,
-            authenticator_name: authenticator_name,
-            service_id: service_id,
+          @id_claim_key = @fetch_authenticator_secrets.call(
+            conjur_account: @jwt_authenticator_input.account,
+            authenticator_name: @jwt_authenticator_input.authenticator_name,
+            service_id: @jwt_authenticator_input.service_id,
             required_variable_names: [TOKEN_APP_PROPERTY_VARIABLE]
           )[TOKEN_APP_PROPERTY_VARIABLE]
-        end
-
-        def decoded_token
-          @jwt_authenticator_input.decoded_token
-        end
-
-        def fetch_identity_path
-          identity_path
-        end
-
-        def identity_path
-          @identity_path ||= @fetch_identity_path.call(jwt_authenticator_input: @jwt_authenticator_input)
-        end
-
-        def identity_name_from_token
-          @identity_name_from_token || fetch_identity_name_from_token
-        end
-
-        def add_prefix_path_to_identity_name
-          @add_prefix_path_to_identity_name ||=
-            if identity_path.blank?
-              identity_name_from_token
-            else
-              @add_prefix_to_identity.call(
-                identity_prefix: identity_path,
-                identity: identity_name_from_token
-              )
-            end
-        end
-
-        def identity_name_with_prefix_path
-          @identity_name_with_prefix_path ||= add_prefix_path_to_identity_name
-        end
-
-        def add_host_to_identity_with_prefix
-          host_identity_with_prefix
-        end
-
-        def host_identity_with_prefix
-          @host_identity_with_prefix ||=
-            @add_prefix_to_identity.call(
-              identity_prefix: IDENTITY_TYPE_HOST,
-              identity: identity_name_with_prefix_path
-            )
         end
       end
     end
