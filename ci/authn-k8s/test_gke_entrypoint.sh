@@ -132,7 +132,32 @@ function launchConjurMaster() {
     sed -e "s#{{ CONJUR_AUTHN_K8S_TEST_NAMESPACE }}#$CONJUR_AUTHN_K8S_TEST_NAMESPACE#g" |
     kubectl create -f -
 
-  conjur_pod=$(retrieve_pod conjur-authn-k8s)
+  # Turn off -e since we expect failures when retrieving pod before it's ready.
+  set +e
+
+  local num_tries=0
+  local max_tries=20
+  local pod_retrieved=false
+
+  while [[ $num_tries -lt $max_tries ]]; do
+    echo "Try $num_tries of $max_tries to retrieve pod conjur-authn-k8s..."
+
+    if conjur_pod=$(retrieve_pod conjur-authn-k8s); then
+      echo "Success!"
+      pod_retrieved=true
+      break
+    fi
+
+    sleep 5
+    (( num_tries++ ))
+  done
+
+  if [[ $pod_retrieved != true ]]; then
+    echo "Unable to retrieve pod.  Exiting..."
+    exit 1
+  fi
+
+  set -e
 
   kubectl wait --for=condition=Ready pod/$conjur_pod --timeout=5m
 
