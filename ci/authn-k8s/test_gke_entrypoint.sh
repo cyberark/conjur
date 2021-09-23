@@ -51,15 +51,19 @@ function finish {
     touch output/gke-authn-k8s-logs.txt  # so Jenkins artifact collection doesn't fail
   }
 
-  echo 'Removing namespace $CONJUR_AUTHN_K8S_TEST_NAMESPACE'
+  echo "Removing namespace $CONJUR_AUTHN_K8S_TEST_NAMESPACE"
   echo '-----'
-  kubectl --ignore-not-found=true delete namespace $CONJUR_AUTHN_K8S_TEST_NAMESPACE
+  kubectl --ignore-not-found=true \
+    delete namespace "$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
 
-  delete_image $CONJUR_TEST_AUTHN_K8S_TAG
-  delete_image $CONJUR_AUTHN_K8S_TAG
-  delete_image $INVENTORY_TAG
-  delete_image $INVENTORY_BASE_TAG
-  delete_image $NGINX_TAG
+  # We don't want errors when trying to delete something that's non-existent.
+  set +e
+  delete_image "$CONJUR_TEST_AUTHN_K8S_TAG"
+  delete_image "$CONJUR_AUTHN_K8S_TAG"
+  delete_image "$INVENTORY_TAG"
+  delete_image "$INVENTORY_BASE_TAG"
+  delete_image "$NGINX_TAG"
+  set -e
 }
 trap finish EXIT
 
