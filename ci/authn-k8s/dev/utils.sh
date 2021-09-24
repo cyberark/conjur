@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# IMPORTANT: Do note add `set -e` to this file.
+
 wait_for_it() {
     local timeout=$1
     local spacer=2

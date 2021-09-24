@@ -68,14 +68,19 @@ module AuthnK8sWorld
 
         print_result_errors(response)
       rescue Errors::Authentication::AuthnK8s::ExecCommandError => e
-        # This error will be raised in case the file is not in the container
-        # which is ok as we have a retry mechanism for this
-        unless e.inspect.include?("Error executing in Docker Container: 1")
+        # There are two expected errors, which we avoid printing so as not to
+        # pollute the logs:
+        #   1. Container not up yet (error contains
+        #      'cat /etc/conjur/ssl/client.pem')
+        #   2. File not in container yet (contains 'Error executing in Docker
+        #      Container: 1')
+        # But we still always retry, so that this code won't be fragile.
+        is_expected_err =
+          e.inspect.include?("cat /etc/conjur/ssl/client.pem") ||
+          e.inspect.include?("Error executing in Docker Container: 1")
+        unless is_expected_err
           puts("Failed to retrieve client cert with error: #{e.inspect}")
-          e.backtrace.each do |line|
-            puts(line)
-          end
-          break
+          e.backtrace.each { |line| puts(line) }
         end
       ensure
         sleep(2)
