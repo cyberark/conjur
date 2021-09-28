@@ -11,7 +11,7 @@ SimpleCov.merge_timeout(7200)
 SimpleCov.start do
   enable_coverage :branch
   primary_coverage :branch
-  print_error_status false
+  print_error_status=false
 end
 
 # This file is copied to spec/ when you run 'rails generate rspec:install'

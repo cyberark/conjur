@@ -5,7 +5,7 @@ SimpleCov.start('rails') do
   # any custom configs like groups and filters can be here at a central place
   enable_coverage :branch
   primary_coverage :branch
-  print_error_status false
+  print_error_status=false
 end
 
 SimpleCov.at_exit do
