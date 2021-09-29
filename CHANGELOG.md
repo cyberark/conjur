@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Security
+- Updated nokogiri to 1.12.5 in both Gemfile.lock and docs/Gemfile.lock to resolve 
+  [CVE-2021-41098](https://github.com/advisories/GHSA-2rr5-8q37-2w7h)
+  [cyberark/conjur#2376](https://github.com/cyberark/conjur/pull/2376)
+  [cyberark/conjur#2377](https://github.com/cyberark/conjur/pull/2377)
+
 ## [1.13.1] - 2021-09-13
 
 ### Fixed
