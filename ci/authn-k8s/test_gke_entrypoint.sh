@@ -163,7 +163,7 @@ function launchConjurMaster() {
 
   set -e
 
-  kubectl wait --for=condition=Ready pod/$conjur_pod --timeout=5m
+  kubectl wait --for=condition=Ready "pod/$conjur_pod" --timeout=5m
 
   # wait for the 'conjurctl server' entrypoint to finish
   local wait_command="while ! curl --silent --head --fail localhost:80 > /dev/null; do sleep 1; done"
@@ -175,8 +175,8 @@ function launchConjurMaster() {
 function copyNginxSSLCert() {
   nginx_pod=$(retrieve_pod nginx-authn-k8s)
   cucumber_pod=$(retrieve_pod cucumber-authn-k8s)
-
-  kubectl wait --for=condition=Ready pod/$cucumber_pod --timeout=5m
+  kubectl wait --for=condition=Ready "pod/$nginx_pod" --timeout=5m
+  kubectl wait --for=condition=Ready "pod/$cucumber_pod" --timeout=5m
 
   kubectl cp $nginx_pod:/etc/nginx/nginx.crt ./nginx.crt
   kubectl cp ./nginx.crt $cucumber_pod:/opt/conjur-server/nginx.crt
@@ -184,13 +184,15 @@ function copyNginxSSLCert() {
 
 function copyConjurPolicies() {
   cli_pod=$(retrieve_pod conjur-cli)
+  kubectl wait --for=condition=Ready "pod/$cli_pod" --timeout=5m
 
-  kubectl cp ./dev/policies $cli_pod:/policies
+  kubectl cp ./dev/policies "$cli_pod:/policies"
 }
 
 function loadConjurPolicies() {
   echo 'Loading the policies and data'
 
+  # kubectl wait not needed -- already done in copyConjurPolicies.
   cli_pod=$(retrieve_pod conjur-cli)
   
   kubectl exec $cli_pod -- conjur init -u conjur -a cucumber
@@ -201,7 +203,8 @@ function loadConjurPolicies() {
   wait_for_it 300 "kubectl exec $cli_pod -- conjur policy load root /policies/policy.${TEMPLATE_TAG}yml"
 
   # init ca certs
-  kubectl exec $(retrieve_pod conjur-authn-k8s) -- rake authn_k8s:ca_init["conjur/authn-k8s/minikube"]
+  # kubectl wait not needed -- already done in launchConjurMaster.
+  kubectl exec "$(retrieve_pod conjur-authn-k8s)" -- rake authn_k8s:ca_init["conjur/authn-k8s/minikube"]
 }
 
 function launchInventoryServices() {
@@ -225,7 +228,7 @@ function runTests() {
 }
 
 retrieve_pod() {
-  kubectl get pods -l app=$1 -o=jsonpath='{.items[].metadata.name}'
+  kubectl get pods -l "app=$1" -o=jsonpath='{.items[].metadata.name}'
 }
 
 main
