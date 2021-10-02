@@ -607,7 +607,7 @@ def archiveFiles(filePattern) {
 
 def runConjurTests() {
   script {
-    parallel([
+    //parallel([
       "RSpec - ${env.STAGE_NAME}": {
         sh 'ci/test rspec'
       },
@@ -644,6 +644,6 @@ def runConjurTests() {
       "Policy Parser - ${env.STAGE_NAME}": {
         sh 'cd gems/policy-parser && ./test.sh'
       }
-    ])
+    //])
   }
 }
