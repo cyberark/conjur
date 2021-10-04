@@ -607,7 +607,7 @@ def archiveFiles(filePattern) {
 
 def runConjurTests() {
   script {
-    //parallel([
+    parallel([
       "RSpec - ${env.STAGE_NAME}": {
         sh 'ci/test rspec'
       },
@@ -635,15 +635,18 @@ def runConjurTests() {
       "Rotators - ${env.STAGE_NAME}": {
         sh 'ci/test rotators'
       },
-      "Kubernetes 1.7 in GKE - ${env.STAGE_NAME}": {
-        sh 'cd ci/authn-k8s && summon ./test.sh gke'
-      },
+      //"Kubernetes 1.7 in GKE - ${env.STAGE_NAME}": {
+      //  sh 'cd ci/authn-k8s && summon ./test.sh gke'
+      //},
       "Audit - ${env.STAGE_NAME}": {
         sh 'ci/test rspec_audit'
       },
       "Policy Parser - ${env.STAGE_NAME}": {
         sh 'cd gems/policy-parser && ./test.sh'
       }
-    //])
+    ])
+      "Kubernetes 1.7 in GKE - ${env.STAGE_NAME}": {
+      sh 'cd ci/authn-k8s && summon ./test.sh gke'
+    }
   }
 }
