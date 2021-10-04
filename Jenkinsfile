@@ -644,7 +644,7 @@ def runConjurTests() {
       "Policy Parser - ${env.STAGE_NAME}": {
         sh 'cd gems/policy-parser && ./test.sh'
       }
-    ])
+    ]),
       "Kubernetes 1.7 in GKE - ${env.STAGE_NAME}": {
       sh 'cd ci/authn-k8s && summon ./test.sh gke'
     }
