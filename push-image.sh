@@ -73,6 +73,12 @@ elif [[ ! -z "${REGISTRY_PREFIX}" ]]; then
   # been supplied. Publish to the specified registry.
 
   # Push the VERSION-SHA tagged images to our internal registry
+  v="$(< VERSION)"
+  tag_and_push "${v}-${TAG}" "${LOCAL_IMAGE}" "${REGISTRY_PREFIX}/conjur"
+  tag_and_push "${v}-${TAG}" "conjur-test:${TAG}" "${REGISTRY_PREFIX}/conjur-test"
+  tag_and_push "${v}-${TAG}" "conjur-ubi:${TAG}" "${REGISTRY_PREFIX}/conjur-ubi"
+
+  # Push SHA only tagged images to our internal registry
   tag_and_push "${TAG}" "${LOCAL_IMAGE}" "${REGISTRY_PREFIX}/conjur"
   tag_and_push "${TAG}" "conjur-test:${TAG}" "${REGISTRY_PREFIX}/conjur-test"
   tag_and_push "${TAG}" "conjur-ubi:${TAG}" "${REGISTRY_PREFIX}/conjur-ubi"
@@ -82,10 +88,14 @@ elif [[ ! -z "${TAG_NAME:-}" ]]; then
   # This is running on a tag-triggered build, and public images should be published
   TAG="${TAG_NAME//"v"}"
 
-  # Push latest, 1.x.y, 1.x, and 1 to DockerHub
+  # Push latest, 1.x.y, 1.x, and 1 to DockerHub and internal registry
   readarray -t prefix_versions < <(gen_versions "${TAG}")
   for v in latest "${TAG}" "${prefix_versions[@]}"; do
+    # Push to Dockerhub
     tag_and_push "${v}" "${LOCAL_IMAGE}" "${IMAGE_NAME}"
+    # Push to Internal Registry - this is so the current release tags
+    # are also present in the internal registry.
+    tag_and_push "${v}" "${LOCAL_IMAGE}" "registry.tld/conjur"
   done
 
   # Publish only the tag version to the Redhat container registry
