@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMappingClaims') do
+RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseClaimAliases') do
   #  ____  _   _  ____    ____  ____  ___  ____  ___
   # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
@@ -11,37 +11,37 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMappingClaims') 
   context "Input validation" do
     context "with empty claim name value value" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-          mapping_claims: ""
+        ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+          claim_aliases: ""
         )
       end
 
       it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MappingClaimsMissingInput)
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasesMissingInput)
       end
     end
 
     context "with nil claim name value" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-          mapping_claims: nil
+        ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+          claim_aliases: nil
         )
       end
 
       it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MappingClaimsMissingInput)
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasesMissingInput)
       end
     end
 
     context "when input is whitespaces" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-          mapping_claims: "  \t \n  "
+        ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+          claim_aliases: "  \t \n  "
         )
       end
 
       it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MappingClaimsMissingInput)
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasesMissingInput)
       end
     end
   end
@@ -50,100 +50,100 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMappingClaims') 
     context "with invalid list format" do
       context "when input is 1 coma" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-            mapping_claims: ","
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: ","
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MappingClaimsBlankOrEmpty)
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasesBlankOrEmpty)
         end
       end
 
       context "when input is only comas" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-            mapping_claims: ",,,,,"
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: ",,,,,"
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MappingClaimsBlankOrEmpty)
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasesBlankOrEmpty)
         end
       end
 
 
-      context "when input contains blank mapping value" do
+      context "when input contains blank alias value" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-            mapping_claims: "a:b,   , b:c"
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "a:b,   , b:c"
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MappingClaimsBlankOrEmpty)
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasesBlankOrEmpty)
         end
       end
     end
 
-    context "with invalid mapping tuple format" do
-      context "when mapping tuple only contains delimiter" do
+    context "with invalid alias tuple format" do
+      context "when alias tuple only contains delimiter" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-            mapping_claims: "a:b,  :  ,b:c"
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "a:b,  :  ,b:c"
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MappingClaimInvalidFormat)
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasInvalidFormat)
         end
       end
 
-      context "when mapping tuple has no delimiter" do
+      context "when alias tuple has no delimiter" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-            mapping_claims: "a:b,value,b:c"
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "a:b,value,b:c"
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MappingClaimInvalidFormat)
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasInvalidFormat)
         end
       end
 
-      context "when mapping tuple has more than one delimiter" do
+      context "when alias tuple has more than one delimiter" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-            mapping_claims: "a:b,x:y:z,b:c"
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "a:b,x:y:z,b:c"
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MappingClaimInvalidFormat)
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasInvalidFormat)
         end
       end
 
-      context "when mapping tuple left side is empty" do
+      context "when alias tuple left side is empty" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-            mapping_claims: "a:b,:R,b:c"
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "a:b,:R,b:c"
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MappingClaimInvalidFormat)
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasInvalidFormat)
         end
       end
 
-      context "when mapping tuple right side is empty" do
+      context "when alias tuple right side is empty" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-            mapping_claims: "a:b,L:,b:c"
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "a:b,L:,b:c"
           )
         end
 
         it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MappingClaimInvalidFormat)
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasInvalidFormat)
         end
       end
     end
@@ -151,14 +151,14 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMappingClaims') 
     context "with invalid claim format" do
       context "when annotation name contains illegal character" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-            mapping_claims: "a:b,annota tion:claim,b:c"
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "a:b,annota tion:claim,b:c"
           )
         end
 
         it "raises an error" do
           expect { subject }.to raise_error(
-                                  Errors::Authentication::AuthnJwt::MappingClaimInvalidClaimFormat,
+                                  Errors::Authentication::AuthnJwt::ClaimAliasInvalidClaimFormat,
                                   /.*FailedToValidateClaimForbiddenClaimName: CONJ00104E.*/
                                 )
         end
@@ -166,14 +166,14 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMappingClaims') 
 
       context "when claim name contains illegal character" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-            mapping_claims: "a:b,annotation:cla#im,b:c"
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "a:b,annotation:cla#im,b:c"
           )
         end
 
         it "raises an error" do
           expect { subject }.to raise_error(
-                                  Errors::Authentication::AuthnJwt::MappingClaimInvalidClaimFormat,
+                                  Errors::Authentication::AuthnJwt::ClaimAliasInvalidClaimFormat,
                                   /.*FailedToValidateClaimForbiddenClaimName: CONJ00104E.*/
                                 )
         end
@@ -183,14 +183,14 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMappingClaims') 
     context "with denied claims" do
       context "when annotation name is in deny list" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-            mapping_claims: "a:b,iss:claim"
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "a:b,iss:claim"
           )
         end
 
         it "raises an error" do
           expect { subject }.to raise_error(
-                                  Errors::Authentication::AuthnJwt::MappingClaimInvalidClaimFormat,
+                                  Errors::Authentication::AuthnJwt::ClaimAliasInvalidClaimFormat,
                                   /.*FailedToValidateClaimClaimNameInDenyList: CONJ00105E.*/
                                 )
         end
@@ -198,14 +198,14 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMappingClaims') 
 
       context "when claim name is in deny list" do
         subject do
-          ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-            mapping_claims: "annotation:jti,b:c"
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "annotation:jti,b:c"
           )
         end
 
         it "raises an error" do
           expect { subject }.to raise_error(
-                                  Errors::Authentication::AuthnJwt::MappingClaimInvalidClaimFormat,
+                                  Errors::Authentication::AuthnJwt::ClaimAliasInvalidClaimFormat,
                                   /.*FailedToValidateClaimClaimNameInDenyList: CONJ00105E.*/
                                 )
         end
@@ -216,14 +216,14 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMappingClaims') 
   context "Duplication" do
     context "with duplication in annotation names" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-          mapping_claims: "a:b,a:c"
+        ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+          claim_aliases: "a:b,a:c"
         )
       end
 
       it "raises an error" do
         expect { subject }.to raise_error(
-                                Errors::Authentication::AuthnJwt::MappingClaimDuplicationError,
+                                Errors::Authentication::AuthnJwt::ClaimAliasDuplicationError,
                                 /.*annotation name.*'a'.*/
                               )
       end
@@ -231,14 +231,14 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMappingClaims') 
 
     context "with duplication in claim names" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-          mapping_claims: "x:z,y:z"
+        ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+          claim_aliases: "x:z,y:z"
         )
       end
 
       it "raises an error" do
         expect { subject }.to raise_error(
-                                Errors::Authentication::AuthnJwt::MappingClaimDuplicationError,
+                                Errors::Authentication::AuthnJwt::ClaimAliasDuplicationError,
                                 /.*claim name.*'z'.*/
                               )
       end
@@ -246,26 +246,26 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseMappingClaims') 
   end
 
   context "Valid format" do
-    context "when input with 1 mapping statement" do
+    context "when input with 1 alias statement" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-          mapping_claims: "annotation:claim"
+        ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+          claim_aliases: "annotation:claim"
         )
       end
 
-      it "returns a valid mapping hash" do
+      it "returns a valid alias hash" do
         expect(subject).to eql({"annotation" => "claim"})
       end
     end
 
-    context "when input with multiple mapping statements" do
+    context "when input with multiple alias statements" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseMappingClaims.new().call(
-          mapping_claims: "name1:\tname2,\nname2:\tname3,\nname3:name1"
+        ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+          claim_aliases: "name1:\tname2,\nname2:\tname3,\nname3:name1"
         )
       end
 
-      it "returns a valid mapping hash" do
+      it "returns a valid alias hash" do
         expect(subject).to eql({
                                  "name1" => "name2",
                                  "name2" => "name3",

@@ -17,7 +17,7 @@ module Authentication
         fetch_issuer_value: Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new,
         fetch_audience_value: Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue.new,
         fetch_enforced_claims: Authentication::AuthnJwt::RestrictionValidation::FetchEnforcedClaims.new,
-        fetch_mapping_claims: Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new,
+        fetch_claim_aliases: Authentication::AuthnJwt::RestrictionValidation::FetchClaimAliases.new,
         validate_identity_configured_properly: Authentication::AuthnJwt::IdentityProviders::ValidateIdentityConfiguredProperly.new,
         validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
         validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
@@ -39,7 +39,7 @@ module Authentication
         validate_issuer
         validate_audience
         validate_enforced_claims
-        validate_mapping_claims
+        validate_claim_aliases
         validate_identity_secrets
         validate_signing_key
         @logger.info(LogMessages::Authentication::AuthnJwt::ValidatedJwtStatusConfiguration.new)
@@ -110,9 +110,9 @@ module Authentication
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedEnforcedClaimsConfiguration.new)
       end
 
-      def validate_mapping_claims
-        @fetch_mapping_claims.call(jwt_authenticator_input: jwt_authenticator_input)
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedMappingClaimsConfiguration.new)
+      def validate_claim_aliases
+        @fetch_claim_aliases.call(jwt_authenticator_input: jwt_authenticator_input)
+        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedClaimAliasesConfiguration.new)
       end
 
       def validate_identity_secrets

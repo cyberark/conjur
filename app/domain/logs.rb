@@ -620,13 +620,12 @@ module LogMessages
         code: "CONJ00124I"
       )
 
-      ParsingMappingClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Parsing mapping claims '{0-mapping-claims}'...",
+      ParsingClaimAliases = ::Util::TrackableLogMessageClass.new(
+        msg: "Parsing claim aliases '{0-claim-aliases}'...",
         code: "CONJ00125D"
       )
-
-      ParsedMappingClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully parsed mapping claims '{0-mapping-claims-table}'",
+      ParsedClaimAliases = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully parsed claim aliases '{0-claim-aliases-table}'",
         code: "CONJ00126D"
       )
 
@@ -635,18 +634,18 @@ module LogMessages
         code: "CONJ00127D"
       )
 
-      FetchingMappingClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetching mapping claims...",
+      FetchingClaimAliases = ::Util::TrackableLogMessageClass.new(
+        msg: "Fetching claim aliases...",
         code: "CONJ00128D"
       )
 
-      NotConfiguredMappingClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "No mapping claims configured",
+      NotConfiguredClaimAliases = ::Util::TrackableLogMessageClass.new(
+        msg: "No claim aliases configured",
         code: "CONJ00129D"
       )
 
-      FetchedMappingClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully fetched mapping claims '{0-mapping-claims}'",
+      FetchedClaimAliases = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully fetched claim aliases '{0-claim-aliases}'",
         code: "CONJ00130I"
       )
 
@@ -660,7 +659,7 @@ module LogMessages
         code: "CONJ00132I"
       )
 
-      ConvertingClaimAccordingToMapping = ::Util::TrackableLogMessageClass.new(
+      ConvertingClaimAccordingToAlias = ::Util::TrackableLogMessageClass.new(
         msg: "Converting claim '{0-claim-name}' to annotation '{1-annotation-name}'...",
         code: "CONJ00133D"
       )
@@ -675,8 +674,8 @@ module LogMessages
         code: "CONJ00135D"
       )
 
-      ValidatedMappingClaimsConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully validated the configured mapping claims",
+      ValidatedClaimAliasesConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully validated the configured claim aliases",
         code: "CONJ00136D"
       )
 

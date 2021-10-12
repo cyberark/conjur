@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims') do
+RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchClaimAliases') do
 
   let(:authenticator_name) { 'authn-jwt' }
   let(:service_id) { "my-service" }
@@ -27,11 +27,11 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
     )
   }
 
-  let(:mapping_claims_resource_name) {Authentication::AuthnJwt::MAPPING_CLAIMS_RESOURCE_NAME}
-  let(:mapping_claims_valid_secret_value) {'name1:name2,name2:name3,name3:name1'}
-  let(:mapping_claims_valid_parsed_secret_value) {{"name1"=>"name2", "name2"=>"name3", "name3"=>"name1"}}
+  let(:claim_aliases_resource_name) {Authentication::AuthnJwt::CLAIM_ALIASES_RESOURCE_NAME}
+  let(:claim_aliases_valid_secret_value) {'name1:name2,name2:name3,name3:name1'}
+  let(:claim_aliases_valid_parsed_secret_value) {{"name1"=>"name2", "name2"=>"name3", "name3"=>"name1"}}
 
-  let(:mapping_claims_invalid_secret_value) {'name1:name2 ,, name3:name1'}
+  let(:claim_aliases_invalid_secret_value) {'name1:name2 ,, name3:name1'}
 
   let(:mocked_resource) { double("MockedResource") }
   let(:mocked_authenticator_secret_not_exists) { double("Mocked authenticator secret not exists")  }
@@ -43,13 +43,13 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
 
   let(:mocked_valid_secrets) {
     {
-      mapping_claims_resource_name => mapping_claims_valid_secret_value
+      claim_aliases_resource_name => claim_aliases_valid_secret_value
     }
   }
 
   let(:mocked_invalid_secrets) {
     {
-      mapping_claims_resource_name => mapping_claims_invalid_secret_value
+      claim_aliases_resource_name => claim_aliases_invalid_secret_value
     }
   }
 
@@ -82,10 +82,10 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
-  context "'mapping-claims' variable is configured in authenticator policy" do
+  context "'claim-aliases' variable is configured in authenticator policy" do
     context "with empty variable value" do
       subject do
-        ::Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new(
+        ::Authentication::AuthnJwt::RestrictionValidation::FetchClaimAliases.new(
           check_authenticator_secret_exists: mocked_authenticator_secret_exists,
           fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_empty_values
         ).call(
@@ -100,7 +100,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
 
     context "with invalid variable value" do
       subject do
-        ::Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new(
+        ::Authentication::AuthnJwt::RestrictionValidation::FetchClaimAliases.new(
           check_authenticator_secret_exists: mocked_authenticator_secret_exists,
           fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_invalid_values
         ).call(
@@ -109,13 +109,13 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
       end
 
       it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::MappingClaimsBlankOrEmpty)
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasesBlankOrEmpty)
       end
     end
     
     context "with valid variable value" do
       subject do
-        ::Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new(
+        ::Authentication::AuthnJwt::RestrictionValidation::FetchClaimAliases.new(
           check_authenticator_secret_exists: mocked_authenticator_secret_exists,
           fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_valid_values
         ).call(
@@ -123,22 +123,22 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
         )
       end
 
-      it "returns parsed mapping claims hashtable" do
-        expect(subject).to eql(mapping_claims_valid_parsed_secret_value)
+      it "returns parsed claim aliases hashtable" do
+        expect(subject).to eql(claim_aliases_valid_parsed_secret_value)
       end
     end
   end
 
-  context "'mapping-claims' variable is not configured in authenticator policy" do
+  context "'claim-aliases' variable is not configured in authenticator policy" do
     subject do
-      ::Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new(
+      ::Authentication::AuthnJwt::RestrictionValidation::FetchClaimAliases.new(
         check_authenticator_secret_exists: mocked_authenticator_secret_not_exists
       ).call(
         jwt_authenticator_input: jwt_authenticator_input
       )
     end
 
-    it "returns an empty mapping claims hashtable" do
+    it "returns an empty claim aliases hashtable" do
       expect(subject).to eql({})
     end
   end

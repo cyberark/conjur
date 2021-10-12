@@ -1,5 +1,51 @@
 #!/usr/bin/env groovy
 
+/*
+NOTE TO DEVELOPERS:
+
+When developing, you'll often need to use the CI to test to verify work, but
+only care about the result of a single test, or a few tests.  In this case, you
+can dramatically cut down your cycle time (to about 10 minutes) by running only
+the relevant tests.
+
+There are two ways to do this:
+
+1. (most common) Temporarily edit the Jenkinsfile.  You'll need to undo your
+   change when your PR is ready for review.  Simply edit the default value of
+   the 'RUN_ONLY' parameter (defined in the parameters block below) to a 
+   space-separated list consisting of test names from the list below.
+
+2. Re-run the same code (perhaps because of a flaky test) directly in Jenkins.
+   In this case, go to your branch in Jenkins (not Blue Ocean). For example:
+
+   https://jenkins.conjur.net/job/cyberark--conjur/job/<MY-NICE_BRANCH>
+
+   And click on "Build with Parameters" in the left nav.  In the RUN_ONLY text
+   input, enter a list of space-separated test names that you want to run, from
+   the list below:
+
+LIST OF ALL TEST NAMES
+
+These are defined in runConjurTests, and also include the one-offs
+"azure_authenticator" and "gcp_authenticator":
+
+    rspec
+    authenticators_config
+    authenticators_status
+    authenticators_ldap
+    authenticators_oidc
+    authenticators_jwt
+    policy
+    api
+    rotators
+    kubernetes
+    rspec_audit
+    policy_parser
+    azure_authenticator
+    gcp_authenticator
+*/
+
+
 pipeline {
   agent { label 'executor-v2' }
 
@@ -23,6 +69,15 @@ pipeline {
       name: 'NIGHTLY',
       defaultValue: false,
       description: 'Run tests on all agents and environment including: FIPS'
+    )
+    string(
+      name: 'RUN_ONLY',
+      description:
+        'Run only one (or a few) test for development. Space-separated list, ' +
+        'empty to run all tests. See Jenkinsfile for details.',
+      // See note at top of file for temporarily changing this value during
+      // development.
+      defaultValue: ''
     )
   }
 
@@ -49,6 +104,9 @@ pipeline {
     }
 
     stage('Validate Changelog') {
+      when {
+        expression { params.RUN_ONLY == '' }
+      }
       steps {
         sh 'ci/parse-changelog'
       }
@@ -100,6 +158,9 @@ pipeline {
         }
 
         stage('Scan Docker Image') {
+          when {
+            expression { params.RUN_ONLY == '' }
+          }
           parallel {
             stage("Scan Docker Image for fixable issues") {
               steps {
@@ -126,6 +187,9 @@ pipeline {
 
         // TODO: Add comments explaining which env vars are set here.
         stage('Prepare For CodeClimate Coverage Report Submission') {
+          when {
+            expression { params.RUN_ONLY == '' }
+          }
           steps {
             catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               script {
@@ -150,7 +214,7 @@ pipeline {
               steps {
                 // Catch errors so remaining steps always run.
                 catchError {
-                  runConjurTests()
+                  runConjurTests(params.RUN_ONLY)
                 }
 
                 stash(
@@ -212,11 +276,17 @@ pipeline {
           parallel {
             stage('Standard agent tests') {
               steps {
-                runConjurTests()
+                runConjurTests(params.RUN_ONLY)
               }
             }
 
             stage('Azure Authenticator') {
+              when {
+                expression {
+                  testShouldRun(params.RUN_ONLY, "azure_authenticator")
+                }
+              }
+
               agent { label 'azure-linux' }
 
               environment {
@@ -265,6 +335,11 @@ pipeline {
             * conjurops or git identities and is not open for SSH.
             */
             stage('GCP Authenticator preparation - Allocate GCE Instance') {
+              when {
+                expression {
+                  testShouldRun(params.RUN_ONLY, "gcp_authenticator")
+                }
+              }
               steps {
                 echo '-- Allocating Google Compute Engine'
 
@@ -328,6 +403,11 @@ pipeline {
             * the GCP project env var.
             */
             stage('GCP Authenticator preparation - Allocate Google Function') {
+              when {
+                expression {
+                  testShouldRun(params.RUN_ONLY, "gcp_authenticator")
+                }
+              }
               environment {
                 GCP_FETCH_TOKEN_FUNCTION = "fetch_token_${BUILD_NUMBER}"
                 IDENTITY_TOKEN_FILE = 'identity-token'
@@ -390,6 +470,11 @@ pipeline {
             * gcp-authn tests.
             */
             stage('GCP Authenticator - Run Tests') {
+              when {
+                expression {
+                  testShouldRun(params.RUN_ONLY, "gcp_authenticator")
+                }
+              }
               steps {
                 echo('Waiting for GCP Tokens provisioned by prep stages.')
 
@@ -439,7 +524,11 @@ pipeline {
 
         always {
           script {
-            unstash 'testResultAzure'
+
+            // Only unstash azure if it ran.
+            if (testShouldRun(params.RUN_ONLY, "azure_authenticator")) {
+              unstash 'testResultAzure'
+            }
 
             // Make files available for download.
             archiveFiles('container_logs/*/*')
@@ -553,6 +642,9 @@ pipeline {
     }
 
     stage('Build Debian and RPM packages') {
+      when {
+        expression { params.RUN_ONLY == '' }
+      }
       steps {
         sh 'echo "CONJUR_VERSION=5" >> debify.env'
         sh './package.sh'
@@ -562,6 +654,9 @@ pipeline {
     }
 
     stage('Publish Debian and RPM packages'){
+      when {
+        expression { params.RUN_ONLY == '' }
+      }
       steps {
         sh './publish.sh'
       }
@@ -605,45 +700,91 @@ def archiveFiles(filePattern) {
   )
 }
 
-def runConjurTests() {
-  script {
-    parallel([
-      "RSpec - ${env.STAGE_NAME}": {
-        sh 'ci/test rspec'
-      },
+def testShouldRun(run_only_str, test) {
+  return run_only_str == '' || run_only_str.split().contains(test)
+}
+
+// "run_only_str" is a space-separated string specifying the subset of tests to
+// run.  If it's empty, all tests are run.
+def runConjurTests(run_only_str) {
+
+  all_tests = [
+    "rspec": [
+      "RSpec - ${env.STAGE_NAME}": { sh 'ci/test rspec' }
+    ],
+    "authenticators_config": [
       "Authenticators Config - ${env.STAGE_NAME}": {
         sh 'ci/test authenticators_config'
-      },
+      }
+    ],
+    "authenticators_status": [
       "Authenticators Status - ${env.STAGE_NAME}": {
         sh 'ci/test authenticators_status'
-      },
+      }
+    ],
+    "authenticators_ldap": [
       "LDAP Authenticator - ${env.STAGE_NAME}": {
         sh 'ci/test authenticators_ldap'
-      },
+      }
+    ],
+    "authenticators_oidc": [
       "OIDC Authenticator - ${env.STAGE_NAME}": {
         sh 'ci/test authenticators_oidc'
-      },
+      }
+    ],
+    "authenticators_jwt": [
       "JWT Authenticator - ${env.STAGE_NAME}": {
         sh 'ci/test authenticators_jwt'
-      },
+      }
+    ],
+    "policy": [
       "Policy - ${env.STAGE_NAME}": {
         sh 'ci/test policy'
-      },
+      }
+    ],
+    "api": [
       "API - ${env.STAGE_NAME}": {
         sh 'ci/test api'
-      },
+      }
+    ],
+    "rotators": [
       "Rotators - ${env.STAGE_NAME}": {
         sh 'ci/test rotators'
-      },
+      }
+    ],
+    "kubernetes": [
       "Kubernetes 1.7 in GKE - ${env.STAGE_NAME}": {
         sh 'cd ci/authn-k8s && summon ./test.sh gke'
-      },
+      }
+    ],
+    "rspec_audit": [
       "Audit - ${env.STAGE_NAME}": {
         sh 'ci/test rspec_audit'
-      },
+      }
+    ],
+    "policy_parser": [
       "Policy Parser - ${env.STAGE_NAME}": {
         sh 'cd gems/policy-parser && ./test.sh'
       }
-    ])
+    ]
+  ]
+
+  // Filter for the tests we want run, if requested.
+  parallel_tests = all_tests
+  tests = run_only_str.split()
+
+  if (tests.size() > 0) {
+    parallel_tests = all_tests.subMap(tests)
+  }
+
+  // Create the parallel pipeline.
+  //
+  // Since + merges two maps together, sum() combines the individual values of
+  // parallel_tests into one giant map whose keys are the stage names and
+  // whose values are the blocks to be run.
+  script {
+    parallel(
+      parallel_tests.values().sum()
+    )
   }
 }
