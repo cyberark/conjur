@@ -82,7 +82,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
-  context "'mapping-claims' variable is configured in authenticator policy" do
+  context "'claim-aliases' variable is configured in authenticator policy" do
     context "with empty variable value" do
       subject do
         ::Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new(
@@ -123,13 +123,13 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
         )
       end
 
-      it "returns parsed mapping claims hashtable" do
+      it "returns parsed claim aliases hashtable" do
         expect(subject).to eql(mapping_claims_valid_parsed_secret_value)
       end
     end
   end
 
-  context "'mapping-claims' variable is not configured in authenticator policy" do
+  context "'claim-aliases' variable is not configured in authenticator policy" do
     subject do
       ::Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new(
         check_authenticator_secret_exists: mocked_authenticator_secret_not_exists
@@ -138,7 +138,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchMappingCla
       )
     end
 
-    it "returns an empty mapping claims hashtable" do
+    it "returns an empty claim aliases hashtable" do
       expect(subject).to eql({})
     end
   end

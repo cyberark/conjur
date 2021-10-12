@@ -621,12 +621,12 @@ module LogMessages
       )
 
       ParsingMappingClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Parsing mapping claims '{0-mapping-claims}'...",
+        msg: "Parsing claim aliases '{0-claim-aliases}'...",
         code: "CONJ00125D"
       )
 
       ParsedMappingClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully parsed mapping claims '{0-mapping-claims-table}'",
+        msg: "Successfully parsed claim aliases '{0-claim-aliases-table}'",
         code: "CONJ00126D"
       )
 
@@ -636,17 +636,17 @@ module LogMessages
       )
 
       FetchingMappingClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Fetching mapping claims...",
+        msg: "Fetching claim aliases...",
         code: "CONJ00128D"
       )
 
       NotConfiguredMappingClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "No mapping claims configured",
+        msg: "No claim aliases configured",
         code: "CONJ00129D"
       )
 
       FetchedMappingClaims = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully fetched mapping claims '{0-mapping-claims}'",
+        msg: "Successfully fetched claim aliases '{0-claim-aliases}'",
         code: "CONJ00130I"
       )
 
@@ -676,7 +676,7 @@ module LogMessages
       )
 
       ValidatedMappingClaimsConfiguration = ::Util::TrackableLogMessageClass.new(
-        msg: "Successfully validated the configured mapping claims",
+        msg: "Successfully validated the configured claim aliases",
         code: "CONJ00136D"
       )
 
