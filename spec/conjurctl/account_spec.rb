@@ -6,11 +6,14 @@ describe "account" do
     system("conjurctl account delete #{name}")
   end
 
-  it "no account name provided" do
-    _, stderr_str, = Open3.capture3(
+  it "creates default account when no name provided" do
+    stdout_str, = Open3.capture3(
       "conjurctl account create"
     )
-    expect(stderr_str).to include("No account name was provided")
+    expect(stdout_str).to include("API key for admin")
+    expect(Slosilo["authn:default"]).to be
+    expect(Role["default:user:admin"]).to be
+    delete_account("default")
   end
 
   context "create with name demo" do

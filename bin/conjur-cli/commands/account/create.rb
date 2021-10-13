@@ -17,7 +17,8 @@ module Commands
       ]
     ) do
       def call
-        raise "No account name was provided" unless @account
+        # Create a new account named 'default' if no name is provided
+        @account ||= 'default'
 
         # Ensure the database is available
         @connect_database.call

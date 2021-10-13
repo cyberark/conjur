@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- Create default account when no account is specified in `conjurctl account create`.
+  [cyberark/conjur#2388](https://github.com/cyberark/conjur/pull/2388)
+
 ### Security
 - GCP Authenticator: When defining the host using the instance-name annotation,
   you now need to define at least one additional annotation.
