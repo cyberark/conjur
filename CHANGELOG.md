@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.13.2] - 2021-10-13
+
 ### Security
 - GCP Authenticator: When defining the host using the instance-name annotation,
   you now need to define at least one additional annotation.
@@ -706,7 +708,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.13.1...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.13.2...HEAD
+[1.13.2]: https://github.com/cyberark/conjur/compare/v1.13.1...v1.13.2
 [1.13.1]: https://github.com/cyberark/conjur/compare/v1.13.0...v1.13.1
 [1.13.0]: https://github.com/cyberark/conjur/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/cyberark/conjur/compare/v1.11.7...v1.12.0
