@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Security
+- GCP Authenticator: When defining the host using the instance-name annotation,
+  you now need to define at least one additional annotation.
+  [cyberark/ONYX-9442](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-9442)
 - Updated nokogiri to 1.12.5 in both Gemfile.lock and docs/Gemfile.lock to resolve 
   [CVE-2021-41098](https://github.com/advisories/GHSA-2rr5-8q37-2w7h)
   [cyberark/conjur#2376](https://github.com/cyberark/conjur/pull/2376)

@@ -83,7 +83,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     cucumber:host:test-app successfully authenticated with authenticator authn-gcp service cucumber:webservice:conjur/authn-gcp
     """
 
-  Scenario: Host can authenticate with only instance-name annotation set
+  Scenario: Host can not authenticate with only instance-name annotation set
     Given I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
     And I remove all annotations from host "test-app"
@@ -91,10 +91,10 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     And I obtain a valid GCE identity token
     And I save my place in the log file
     When I authenticate with authn-gcp using valid GCE token and existing account
-    Then host "test-app" has been authorized by Conjur
-    And The following appears in the audit log after my savepoint:
+    Then it is unauthorized
+    And The following appears in the log after my savepoint:
     """
-    cucumber:host:test-app successfully authenticated with authenticator authn-gcp service cucumber:webservice:conjur/authn-gcp
+    CONJ00069E Role must have at least one of the following constraints: ["project-id", "service-account-id", "service-account-email"]
     """
 
   Scenario: Non-existing account in token audience claim is denied
