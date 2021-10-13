@@ -516,30 +516,30 @@ module Errors
       )
 
       MappingClaimsMissingInput = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapping claims: the mapping claims value is empty or was not found.",
+        msg: "Failed to parse claim aliases: the claim aliases value is empty or was not found.",
         code: "CONJ00109E"
       )
 
       MappingClaimsBlankOrEmpty = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapping claims: one or more mapping statements are blank or empty " \
-             "'{0-mapping-claims-value}'.",
+        msg: "Failed to parse claim aliases: one or more mapping statements are blank or empty " \
+             "'{0-claim-aliases-value}'.",
         code: "CONJ00110E"
       )
 
       MappingClaimInvalidFormat = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapping claims: the mapping claim value '{0-mapping-claim-value}' is in invalid format."\
+        msg: "Failed to parse claim aliases: the claim alias value '{0-claim-alias-value}' is in invalid format."\
              "The correct format is: 'annotation_name:claim_name'",
         code: "CONJ00111E"
       )
 
       MappingClaimInvalidClaimFormat = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapping claims: one of the claims in the mapping claim value '{0-mapping-claim-value}' " \
+        msg: "Failed to parse claim aliases: one of the claims in the claim alias value '{0-claim-alias-value}' " \
              "is in an invalid format : {1-claim-verification-error}.",
         code: "CONJ00112E"
       )
 
       MappingClaimDuplicationError = ::Util::TrackableErrorClass.new(
-        msg: "Failed to parse mapping claims: {0-purpose} value '{1-claim-value}' appears more than once",
+        msg: "Failed to parse claim aliases: {0-purpose} value '{1-claim-value}' appears more than once",
         code: "CONJ00113E"
       )
 

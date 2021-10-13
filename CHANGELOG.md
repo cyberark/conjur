@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2376](https://github.com/cyberark/conjur/pull/2376)
   [cyberark/conjur#2377](https://github.com/cyberark/conjur/pull/2377)
 
+### Changed
+- Changed claims mapping variable name ('mapping-claims' => 'claim-aliases').
+  [cyberark/conjur#2382](https://github.com/cyberark/conjur/pull/2382)
+
 ## [1.13.1] - 2021-09-13
 
 ### Fixed

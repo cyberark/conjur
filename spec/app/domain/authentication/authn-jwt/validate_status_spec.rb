@@ -29,7 +29,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
   let(:mocked_invalid_fetch_issuer_value) { double("Mocked invalid fetch issuer value")  }
   let(:mocked_invalid_fetch_audience_value) { double("Mocked invalid audience issuer value")  }
   let(:mocked_invalid_fetch_enforced_claims) { double("Mocked invalid fetch enforced claims value")  }
-  let(:mocked_invalid_fetch_mapping_claims) { double("Mocked invalid fetch mapping claims value")  }
+  let(:mocked_invalid_fetch_mapping_claims) { double("Mocked invalid fetch claim aliases value")  }
   let(:mocked_valid_identity_from_decoded_token_provider) { double("Mocked valid identity from decoded token provider")  }
   let(:mocked_valid_identity_configured_properly) { double("Mocked valid identity configured properly")  }
   let(:mocked_invalid_identity_configured_properly) { double("Mocked invalid identity configured properly")  }
@@ -48,7 +48,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
   let(:fetch_issuer_configuration_is_invalid_error) { "Fetch issuer configuration is invalid" }
   let(:fetch_audience_configuration_is_invalid_error) { "Fetch audience configuration is invalid" }
   let(:fetch_enforced_claims_configuration_is_invalid_error) { "Fetch enforced claims configuration is invalid" }
-  let(:fetch_mapping_claims_configuration_is_invalid_error) { "Fetch mapping claims configuration is invalid" }
+  let(:fetch_mapping_claims_configuration_is_invalid_error) { "Fetch claim aliases configuration is invalid" }
   let(:webservice_is_not_whitelisted_error) { "Webservice is not whitelisted" }
   let(:user_cant_access_webservice_error) { "User cant access webservice" }
   let(:webservice_does_not_exist_error) { "Webservice does not exist" }
@@ -411,7 +411,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
         end
       end
 
-      context "mapping claims is not configured properly" do
+      context "claim aliases is not configured properly" do
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
             fetch_signing_key: mocked_valid_fetch_signing_key,

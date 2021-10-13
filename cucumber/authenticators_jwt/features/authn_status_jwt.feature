@@ -803,7 +803,7 @@ Feature: JWT Authenticator - Status Check
         id: enforced-claims
 
       - !variable
-        id: mapping-claims
+        id: claim-aliases
 
       - !group users
 
@@ -837,7 +837,7 @@ Feature: JWT Authenticator - Status Check
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
     And I successfully set authn-jwt "token-app-property" variable to value "user"
-    And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
+    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
     And I successfully set authn-jwt "enforced-claims" variable to value "ref"
     And I login as "alice"
     And I save my place in the log file
@@ -903,7 +903,7 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/audience>"
 
-  Scenario: ONYX-10875: mapping-claims configured but secret not populated, 500 Error
+  Scenario: ONYX-10875: claim-aliases configured but secret not populated, 500 Error
     Given I load a policy:
     """
     - !policy
@@ -925,7 +925,7 @@ Feature: JWT Authenticator - Status Check
         id: token-app-property
 
       - !variable
-        id: mapping-claims
+        id: claim-aliases
 
       - !group users
 
@@ -963,7 +963,7 @@ Feature: JWT Authenticator - Status Check
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
     Then the HTTP response status code is 500
-    And the authenticator status check fails with error "CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/mapping-claims>"
+    And the authenticator status check fails with error "CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/claim-aliases>"
 
   Scenario: ONYX-10876: enforced-claims configured but secret not populated, 500 Error
     Given I load a policy:
@@ -1090,7 +1090,7 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "does not match regular expression: '(?-mix:^[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*$)"
 
-  Scenario: ONYX-10958: mapping-claims configured with invalid value, 500 Error
+  Scenario: ONYX-10958: claim-aliases configured with invalid value, 500 Error
     Given I load a policy:
     """
     - !policy
@@ -1112,7 +1112,7 @@ Feature: JWT Authenticator - Status Check
         id: token-app-property
 
       - !variable
-        id: mapping-claims
+        id: claim-aliases
 
       - !group users
 
@@ -1146,7 +1146,7 @@ Feature: JWT Authenticator - Status Check
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
     And I successfully set authn-jwt "token-app-property" variable to value "user"
-    And I successfully set authn-jwt "mapping-claims" variable to value "SDsas213sda!!A!!$$@#$# :$@$@#sdasdasdq23asd32rdf"
+    And I successfully set authn-jwt "claim-aliases" variable to value "SDsas213sda!!A!!$$@#$# :$@$@#sdasdasdq23asd32rdf"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"

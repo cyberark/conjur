@@ -3,7 +3,7 @@ require 'command_class'
 module Authentication
   module AuthnJwt
     module RestrictionValidation
-      # Fetch the mapping claims from the JWT authenticator policy which enforce
+      # Fetch the claim aliases from the JWT authenticator policy which enforce
       # definition of annotations keys on JWT hosts 
       FetchMappingClaims = CommandClass.new(
         dependencies: {

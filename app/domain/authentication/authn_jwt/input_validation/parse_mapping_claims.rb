@@ -1,7 +1,7 @@
 module Authentication
   module AuthnJwt
     module InputValidation
-      # Parse mapping-claims secret value and return a validated mapping hashtable
+      # Parse claim-aliases secret value and return a validated mapping hashtable
       ParseMappingClaims ||= CommandClass.new(
         dependencies: {
           validate_claim_name: ValidateClaimName.new(

@@ -224,7 +224,7 @@ Feature: JWT Authenticator - Token Schema
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/enforced-claims
-    - !variable conjur/authn-jwt/raw/mapping-claims
+    - !variable conjur/authn-jwt/raw/claim-aliases
 
     - !host
       id: myapp
@@ -235,7 +235,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
+    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -315,7 +315,7 @@ Feature: JWT Authenticator - Token Schema
   Scenario: ONYX-10472 Unrelated mapping
     Given I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mapping-claims
+    - !variable conjur/authn-jwt/raw/claim-aliases
 
     - !host
       id: myapp
@@ -327,7 +327,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
+    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -345,10 +345,10 @@ Feature: JWT Authenticator - Token Schema
     """
 
   @sanity
-  Scenario: ONYX-10473 Mapping claims with subsequent annotation
+  Scenario: ONYX-10473 Claim aliases with subsequent annotation
     Given I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mapping-claims
+    - !variable conjur/authn-jwt/raw/claim-aliases
     
     - !host
       id: myapp
@@ -360,7 +360,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
+    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -405,9 +405,9 @@ Feature: JWT Authenticator - Token Schema
     """
     When I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mapping-claims
+    - !variable conjur/authn-jwt/raw/claim-aliases
     """
-    And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
+    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
     And I authenticate via authn-jwt with the JWT token
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
@@ -419,7 +419,7 @@ Feature: JWT Authenticator - Token Schema
   Scenario: ONYX-10705: enforced Claims and Mappings exist and host annotation are correct
     Given I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mapping-claims
+    - !variable conjur/authn-jwt/raw/claim-aliases
     - !variable conjur/authn-jwt/raw/enforced-claims
 
     - !host
@@ -431,7 +431,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
+    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
     And I successfully set authn-jwt "enforced-claims" variable to value "ref"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
@@ -452,7 +452,7 @@ Feature: JWT Authenticator - Token Schema
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/enforced-claims
-    - !variable conjur/authn-jwt/raw/mapping-claims
+    - !variable conjur/authn-jwt/raw/claim-aliases
 
     - !host
       id: myapp
@@ -464,7 +464,7 @@ Feature: JWT Authenticator - Token Schema
       member: !host myapp
     """
     And I successfully set authn-jwt "enforced-claims" variable to value "ref"
-    And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
+    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -482,7 +482,7 @@ Feature: JWT Authenticator - Token Schema
   Scenario: ONYX-10874 - Claim being mapped to another claim - 401 Error
     Given I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mapping-claims
+    - !variable conjur/authn-jwt/raw/claim-aliases
 
     - !host
       id: myapp
@@ -493,7 +493,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "mapping-claims" variable to value "sub:ref"
+    And I successfully set authn-jwt "claim-aliases" variable to value "sub:ref"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -510,10 +510,10 @@ Feature: JWT Authenticator - Token Schema
     CONJ00049E Resource restriction 'sub' does not match with the corresponding value in the request
     """
 
-  Scenario: ONYX-10861 - Mapping claims configured but not populated - 401 Error
+  Scenario: ONYX-10861 - Claim aliases configured but not populated - 401 Error
     Given I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mapping-claims
+    - !variable conjur/authn-jwt/raw/claim-aliases
     - !variable conjur/authn-jwt/raw/enforced-claims
 
     - !host
@@ -538,14 +538,14 @@ Feature: JWT Authenticator - Token Schema
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/mapping-claims
+     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/claim-aliases
     """
 
   @sanity
   Scenario: ONYX-11117: Enforced Claims and Mappings with special allowed characters. Annotations are correct. 200 OK
     Given I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mapping-claims
+    - !variable conjur/authn-jwt/raw/claim-aliases
     - !variable conjur/authn-jwt/raw/enforced-claims
 
     - !host
@@ -559,7 +559,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "mapping-claims" variable to value "claim_ant:claim.ant..., _:claim_name"
+    And I successfully set authn-jwt "claim-aliases" variable to value "claim_ant:claim.ant..., _:claim_name"
     And I successfully set authn-jwt "enforced-claims" variable to value "claim.name, claim.ant..."
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
@@ -581,7 +581,7 @@ Feature: JWT Authenticator - Token Schema
   Scenario Outline: ONYX-10873 - Broken claims mapping - 401 Error
     Given I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mapping-claims
+    - !variable conjur/authn-jwt/raw/claim-aliases
 
     - !host
       id: myapp
@@ -593,7 +593,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "mapping-claims" variable to value "<mapping>"
+    And I successfully set authn-jwt "claim-aliases" variable to value "<aliases>"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -610,14 +610,14 @@ Feature: JWT Authenticator - Token Schema
     <err>
     """
     Examples:
-      | mapping                     | err                                                                             |
-      |   branch: ref, branch:sub   | CONJ00113E Failed to parse mapping claims: annotation name value 'branch' appears more than once |
-      |   branch: sub, job: sub     | CONJ00113E Failed to parse mapping claims: claim name value 'sub' appears more than once   |
+      | aliases                     | err                                                                             |
+      |   branch: ref, branch:sub   | CONJ00113E Failed to parse claim aliases: annotation name value 'branch' appears more than once |
+      |   branch: sub, job: sub     | CONJ00113E Failed to parse claim aliases: claim name value 'sub' appears more than once   |
 
   Scenario Outline: ONYX-10858 - Standard claim in mapping - 401 Error
     Given I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mapping-claims
+    - !variable conjur/authn-jwt/raw/claim-aliases
 
     - !host
       id: myapp
@@ -629,7 +629,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "mapping-claims" variable to value "<mapping>"
+    And I successfully set authn-jwt "claim-aliases" variable to value "<mapping>"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -681,10 +681,10 @@ Feature: JWT Authenticator - Token Schema
     CONJ00104E Failed to validate claim: claim name '%@^#[{]}$~=-+_?.><&^@*@#*sdhj812ehd' does not match regular expression: '(?-mix:^[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*$)'.>
     """
 
-  Scenario: ONYX-10863 - Mapping claims invalid variable - 401 Error
+  Scenario: ONYX-10863 - Claim aliases invalid variable - 401 Error
     Given I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mapping-claims
+    - !variable conjur/authn-jwt/raw/claim-aliases
 
     - !host
       id: myapp
@@ -695,7 +695,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "mapping-claims" variable to value "aaa: %@^#&^[{]}$~=-+_?.><812ehd"
+    And I successfully set authn-jwt "claim-aliases" variable to value "aaa: %@^#&^[{]}$~=-+_?.><812ehd"
     And I permit host "myapp" to "execute" it
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
@@ -738,9 +738,9 @@ Feature: JWT Authenticator - Token Schema
     And the HTTP response status code is 200
     And I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mapping-claims
+    - !variable conjur/authn-jwt/raw/claim-aliases
     """
-    And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
+    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
     And I save my place in the audit log file
     And I authenticate via authn-jwt with the JWT token
     And the HTTP response status code is 401
@@ -789,7 +789,7 @@ Feature: JWT Authenticator - Token Schema
   Scenario: ONYX-10896:  Authn JWT - Complex Case - Changing Mapping after host configuration
     Given I extend the policy with:
     """
-    - !variable conjur/authn-jwt/raw/mapping-claims
+    - !variable conjur/authn-jwt/raw/claim-aliases
 
     - !host
       id: myapp
@@ -800,7 +800,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "mapping-claims" variable to value "branch:ref"
+    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -810,7 +810,7 @@ Feature: JWT Authenticator - Token Schema
     """
     And I authenticate via authn-jwt with the JWT token
     And the HTTP response status code is 200
-    When I successfully set authn-jwt "mapping-claims" variable to value "job:ref"
+    When I successfully set authn-jwt "claim-aliases" variable to value "job:ref"
     And I save my place in the audit log file
     And I authenticate via authn-jwt with the JWT token
     And the HTTP response status code is 401
