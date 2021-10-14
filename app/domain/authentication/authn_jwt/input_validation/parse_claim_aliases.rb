@@ -1,5 +1,6 @@
 module Authentication
   module AuthnJwt
+    # Validate claim-aliases input
     module InputValidation
       # Parse claim-aliases secret value and return a validated alias hashtable
       ParseClaimAliases ||= CommandClass.new(
@@ -49,9 +50,9 @@ module Authentication
         end
 
         def alias_tuples_list
-          @alias_tuples ||= @claim_aliases
+          @alias_tuples_list ||= @claim_aliases
             .split(CLAIMS_CHARACTER_DELIMITER)
-            .map { |value| value.strip }
+            .map(&:strip)
         end
 
         def validate_claim_aliases_list_values
@@ -67,7 +68,7 @@ module Authentication
         def alias_tuple_values(tuple)
           values = tuple
             .split(TUPLE_CHARACTER_DELIMITER)
-            .map { |value| value.strip }
+            .map(&:strip)
           raise Errors::Authentication::AuthnJwt::ClaimAliasInvalidFormat, tuple unless values.length == 2
 
           [valid_claim_value(values[0], tuple),
