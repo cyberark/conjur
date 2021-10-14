@@ -1,6 +1,6 @@
 Feature: JWT Authenticator - Token Schema
 
-  Tests checking enforced claims and claims mapping
+  Tests checking Enforced Claims and Claim Aliases
 
   Background:
     Given I load a policy:
@@ -30,7 +30,7 @@ Feature: JWT Authenticator - Token Schema
     And I successfully set authn-jwt "token-app-property" variable to value "host"
 
   @sanity
-  Scenario: ONYX-10471 - Enforced Claims Without Claims Mapping. Single enforced claim - 200 OK
+  Scenario: ONYX-10471 - Enforced Claims Without Claim Aliases. Single enforced claim - 200 OK
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/enforced-claims
@@ -63,7 +63,7 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  Scenario: ONYX-10471 - enforced Claims Without Claims Mapping. Two enforced claims - 200 OK
+  Scenario: ONYX-10471 - Enforced Claims Without Claim Aliases. Two enforced claims - 200 OK
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/enforced-claims
@@ -98,7 +98,7 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  Scenario: ONYX-10759 - enforced Claims Without Claims Mapping. Single enforced claim and wrong annotation - 401 Error
+  Scenario: ONYX-10759 - Enforced Claims Without Claim Aliases. Single enforced claim and wrong annotation - 401 Error
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/enforced-claims
@@ -128,7 +128,7 @@ Feature: JWT Authenticator - Token Schema
     CONJ00057E Role does not have the required constraints: '["ref"]'>
     """
 
-  Scenario: ONYX-10760 - enforced Claims Without Claims Mapping. Single enforced claim but not in token - 401 Error
+  Scenario: ONYX-10760 - Enforced Claims Without Claim Aliases. Single enforced claim but not in token - 401 Error
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/enforced-claims
@@ -214,7 +214,7 @@ Feature: JWT Authenticator - Token Schema
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00069E Role can't have registered or mapped claim
+    CONJ00069E Role can't have registered or aliased claim
     """
     Examples:
     | claim   |
@@ -312,7 +312,7 @@ Feature: JWT Authenticator - Token Schema
     """
 
   @sanity
-  Scenario: ONYX-10472 Unrelated mapping
+  Scenario: ONYX-10472 Unrelated alias
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/claim-aliases
@@ -377,7 +377,7 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  Scenario: ONYX-10889 Complex Case - Adding Mapping after host configuration
+  Scenario: ONYX-10889 Complex Case - Adding Alias after host configuration
     Given I extend the policy with:
     """
     - !host
@@ -412,11 +412,11 @@ Feature: JWT Authenticator - Token Schema
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00069E Role can't have registered or mapped claim
+    CONJ00069E Role can't have registered or aliased claim
     """
 
   @sanity
-  Scenario: ONYX-10705: enforced Claims and Mappings exist and host annotation are correct
+  Scenario: ONYX-10705: Enforced Claims and Claim Aliases exist and host annotation are correct
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/claim-aliases
@@ -448,7 +448,7 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  Scenario: ONYX-10816 - Enforced Claims with Claims Mapping. Single enforced claim but not in token - 401 Error
+  Scenario: ONYX-10816 - Enforced Claims with Claim Aliases. Single enforced claim but not in token - 401 Error
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/enforced-claims
@@ -542,7 +542,7 @@ Feature: JWT Authenticator - Token Schema
     """
 
   @sanity
-  Scenario: ONYX-11117: Enforced Claims and Mappings with special allowed characters. Annotations are correct. 200 OK
+  Scenario: ONYX-11117: Enforced Claims and Aliases with special allowed characters. Annotations are correct. 200 OK
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/claim-aliases
@@ -578,7 +578,7 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  Scenario Outline: ONYX-10873 - Broken claims mapping - 401 Error
+  Scenario Outline: ONYX-10873 - Broken claim aliases - 401 Error
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/claim-aliases
@@ -614,7 +614,7 @@ Feature: JWT Authenticator - Token Schema
       |   branch: ref, branch:sub   | CONJ00113E Failed to parse claim aliases: annotation name value 'branch' appears more than once |
       |   branch: sub, job: sub     | CONJ00113E Failed to parse claim aliases: claim name value 'sub' appears more than once   |
 
-  Scenario Outline: ONYX-10858 - Standard claim in mapping - 401 Error
+  Scenario Outline: ONYX-10858 - Standard claim alias - 401 Error
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/claim-aliases
@@ -629,8 +629,10 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "claim-aliases" variable to value "<mapping>"
+
+    And I successfully set authn-jwt "claim-aliases" variable to value "<alias>"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
+    
     """
     {
       "host":"myapp",
@@ -646,7 +648,7 @@ Feature: JWT Authenticator - Token Schema
     CONJ00105E Failed to validate claim: claim name 'exp' is in denylist '["iss", "exp", "nbf", "iat", "jti", "aud"]
     """
     Examples:
-      | mapping        |
+      | alias        |
       |   branch: exp  |
       |   exp: sub     |
 
@@ -786,7 +788,7 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  Scenario: ONYX-10896:  Authn JWT - Complex Case - Changing Mapping after host configuration
+  Scenario: ONYX-10896:  Authn JWT - Complex Case - Changing Aliases after host configuration
     Given I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/claim-aliases

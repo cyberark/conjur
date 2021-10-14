@@ -6,11 +6,11 @@ module Authentication
       class ValidateRestrictionsOneToOne
         def initialize(
           decoded_token:,
-          mapped_claims:,
+          aliased_claims:,
           logger: Rails.logger
         )
           @decoded_token = decoded_token
-          @mapped_claims = mapped_claims
+          @aliased_claims = aliased_claims
           @logger = logger
         end
 
@@ -34,7 +34,7 @@ module Authentication
         private
 
         def claim_name(annotation_name)
-          claim_name = @mapped_claims.fetch(annotation_name, annotation_name)
+          claim_name = @aliased_claims.fetch(annotation_name, annotation_name)
           @logger.debug(LogMessages::Authentication::AuthnJwt::ClaimMapUsage.new(annotation_name, claim_name)) unless
             annotation_name == claim_name
           claim_name

@@ -778,7 +778,7 @@ Feature: JWT Authenticator - Status Check
     And the HTTP response content type is "application/json"
     And the authenticator status check succeeds
 
-  Scenario: ONYX-10875: Status works fine with enforced claims and mapping, 200 OK
+  Scenario: ONYX-10875: Status works fine with Enforced Claims and Aliases, 200 OK
     Given I load a policy:
     """
     - !policy

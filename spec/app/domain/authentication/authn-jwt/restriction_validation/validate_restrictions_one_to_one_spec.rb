@@ -33,14 +33,14 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::ValidateRestric
     }
   }
 
-  let(:mapped_claims) {
+  let(:aliased_claims) {
     {
       "identity" => "user_login",
       "machine_name" => "not_existing"
     }
   }
 
-  let(:empty_mapped_claims) {
+  let(:empty_aliased_claims) {
     {}
   }
 
@@ -85,7 +85,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::ValidateRestric
       subject do
         ::Authentication::AuthnJwt::RestrictionValidation::ValidateRestrictionsOneToOne.new(
           decoded_token: decoded_token,
-          mapped_claims: empty_mapped_claims
+          aliased_claims: empty_aliased_claims
         )
       end
 
@@ -117,7 +117,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::ValidateRestric
       subject do
         ::Authentication::AuthnJwt::RestrictionValidation::ValidateRestrictionsOneToOne.new(
           decoded_token: decoded_token,
-          mapped_claims: mapped_claims
+          aliased_claims: aliased_claims
         )
       end
 
