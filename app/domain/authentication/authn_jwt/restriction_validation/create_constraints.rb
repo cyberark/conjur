@@ -6,7 +6,7 @@ module Authentication
       # Creating the needed constraints to check the host annotations:
       #   * NonEmptyConstraint - Checks at least one constraint is there
       #   * RequiredConstraint - Checks all the claims in "enforced_claims" variable are in host annotations. If there
-      #     is mapping for this claim it will convert it to relevant name
+      #     is alias for this claim it will convert it to relevant name
       #   * NonPermittedConstraint - Checks there are no standard claims [exp,iat,nbf,iss] in the host annotations
       CreateConstrains = CommandClass.new(
         dependencies: {
@@ -15,7 +15,7 @@ module Authentication
           multiple_constraint_class: Authentication::Constraints::MultipleConstraint,
           not_empty_constraint: Authentication::Constraints::NotEmptyConstraint.new,
           fetch_enforced_claims: Authentication::AuthnJwt::RestrictionValidation::FetchEnforcedClaims.new,
-          fetch_mapping_claims_class: Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims,
+          fetch_claim_aliases_class: Authentication::AuthnJwt::RestrictionValidation::FetchClaimAliases,
           logger: Rails.logger
         },
         inputs: %i[jwt_authenticator_input base_non_permitted_annotations]
@@ -25,7 +25,7 @@ module Authentication
         def call
           @logger.info(LogMessages::Authentication::AuthnJwt::CreateContraintsFromPolicy.new)
           fetch_enforced_claims
-          fetch_mapping_claims
+          fetch_claim_aliases
           map_enforced_claims
           init_constraints_list
           add_non_empty_constraint
@@ -61,16 +61,16 @@ module Authentication
         end
 
         def convert_claim(claim)
-          if mapping_claims.include?(claim)
-            claim_reference = mapping_claims[claim]
-            @logger.debug(LogMessages::Authentication::AuthnJwt::ConvertingClaimAccordingToMapping.new(claim, claim_reference))
+          if claim_aliases.include?(claim)
+            claim_reference = claim_aliases[claim]
+            @logger.debug(LogMessages::Authentication::AuthnJwt::ConvertingClaimAccordingToAlias.new(claim, claim_reference))
             return claim_reference
           end
           claim
         end
 
-        def fetch_mapping_claims
-          mapping_claims
+        def fetch_claim_aliases
+          claim_aliases
         end
 
         def add_required_constraint
@@ -79,7 +79,7 @@ module Authentication
 
         def non_permitted_constraint
           @non_permitted_constraint ||= @non_permitted_constraint_class.new(
-            non_permitted: @base_non_permitted_annotations + mapping_claims.keys
+            non_permitted: @base_non_permitted_annotations + claim_aliases.keys
           )
         end
 
@@ -97,8 +97,8 @@ module Authentication
           )
         end
 
-        def mapping_claims
-          @mapping_claims ||= @fetch_mapping_claims_class.new.call(
+        def claim_aliases
+          @claim_aliases ||= @fetch_claim_aliases_class.new.call(
             jwt_authenticator_input: @jwt_authenticator_input
           ).invert
         end

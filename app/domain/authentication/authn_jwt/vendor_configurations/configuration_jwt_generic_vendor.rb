@@ -19,7 +19,7 @@ module Authentication
           extract_token_from_credentials: Authentication::AuthnJwt::InputValidation::ExtractTokenFromCredentials.new,
           create_identity_provider: Authentication::AuthnJwt::IdentityProviders::CreateIdentityProvider.new,
           create_constraints: Authentication::AuthnJwt::RestrictionValidation::CreateConstrains.new,
-          fetch_mapping_claims: Authentication::AuthnJwt::RestrictionValidation::FetchMappingClaims.new,
+          fetch_claim_aliases: Authentication::AuthnJwt::RestrictionValidation::FetchClaimAliases.new,
           validate_and_decode_token: Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new,
           restrictions_from_annotations: Authentication::ResourceRestrictions::GetServiceSpecificRestrictionFromAnnotation.new
         )
@@ -31,7 +31,7 @@ module Authentication
           @extract_token_from_credentials = extract_token_from_credentials
           @create_identity_provider = create_identity_provider
           @create_constraints = create_constraints
-          @fetch_mapping_claims = fetch_mapping_claims
+          @fetch_claim_aliases = fetch_claim_aliases
           @validate_and_decode_token = validate_and_decode_token
           @restrictions_from_annotations = restrictions_from_annotations
           @authenticator_input = authenticator_input
@@ -52,11 +52,11 @@ module Authentication
             constraints: constraints,
             authentication_request: @restriction_validator_class.new(
               decoded_token: @jwt_authenticator_input.decoded_token,
-              mapped_claims: mapped_claims
+              aliased_claims: aliased_claims
             )
           )
         rescue Errors::Authentication::Constraints::NonPermittedRestrictionGiven => e
-          raise Errors::Authentication::AuthnJwt::RoleWithRegisteredOrMappedClaimError, e.inspect
+          raise Errors::Authentication::AuthnJwt::RoleWithRegisteredOrClaimAliasError, e.inspect
         end
 
         def validate_and_decode_token
@@ -79,8 +79,8 @@ module Authentication
           )
         end
 
-        def mapped_claims
-          @mapped_claims ||= @fetch_mapping_claims.call(
+        def aliased_claims
+          @aliased_claims ||= @fetch_claim_aliases.call(
             jwt_authenticator_input: @jwt_authenticator_input
           )
         end
