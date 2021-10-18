@@ -1,16 +1,8 @@
 require 'open3'
 
 When(/^I retrieve an API key for user "([^"]*)" using conjurctl$/) do |user_id|
-  command = "conjurctl role retrieve-key #{user_id} 2> error.txt 1> apikey.txt"
+command = "(conjurctl role retrieve-key #{user_id})"  
   @conjurctl_stdout, @conjurctl_stderr, = Open3.capture3(command)
-  err = File.open("error.txt")
-  out = File.open("apikey.txt")
-  stderr = err.read.chomp
-  apikey = out.read.chomp
-  @conjurctl_stderr = stderr
-  @conjurctl_stdout = apikey
-  err.close
-  out.close
 end
 
 Then(/^the API key is correct$/) do
