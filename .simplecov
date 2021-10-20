@@ -6,6 +6,8 @@ SimpleCov.start('rails') do
   enable_coverage :branch
   primary_coverage :branch
   print_error_status=false
+  #SimpleCov.formatter SimpleCov::Formatter::SimpleFormatter
+  SimpleCov.formatter SimpleCov::Formatter::HTMLFormatter
 end
 
 SimpleCov.at_exit do
