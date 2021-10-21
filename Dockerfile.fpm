@@ -17,6 +17,10 @@ COPY Gemfile \
 COPY gems/ gems/
 
 COPY . .
+
+# removing CA bundle of httpclient gem
+RUN find / -name httpclient -type d -exec find {} -name *.pem -type f -delete \;
+
 ADD debify.sh /
 
 WORKDIR /src
