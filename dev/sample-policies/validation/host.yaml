@@ -1,0 +1,7 @@
+- !layer
+- !host
+  id: my-host
+  annotations:
+    type: authn-k8s
+    authn-k8s/namespace: test-app-namespace
+    authn-k8s/service-account: test-app-sa

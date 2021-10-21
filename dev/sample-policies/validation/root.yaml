@@ -1,0 +1,5 @@
+- !policy
+  id: testing
+  body:
+    - !policy foo
+    - !policy bar

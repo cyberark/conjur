@@ -134,7 +134,39 @@ module Loader
     end
 
     class Host < Record
-      def verify; end
+      def verify
+        if annotations.key?('type')
+          begin
+            errors = []
+            type_annotations = {}.tap do |host_annotations|
+              self.annotations
+                .select { |a| a.match(%r{\A#{self.annotations['type']}\/}) }
+                .each do |k, v|
+                  host_annotations[k.split('/').drop(1).join('/')] = v
+                end
+            end
+            Kernel.const_get(
+              [
+                'Authentication',
+                annotations['type'].to_s.gsub(/-/, '_').camelize,
+                'Validations'
+              ].join('::')
+            ).new.validate_host(
+              annotations: type_annotations,
+              errors: errors
+            )
+            if errors.present? && errors.length.positive?
+              raise Exceptions::InvalidPolicyObject.new(
+                self.id,
+                message: errors.join(', ')
+              )
+            end
+          rescue NameError
+            Rails.logger.info("No HostValidation class found for: #{annotations['type']}")
+          end
+        end
+      end
+
       def_delegators :@policy_object, :restricted_to
 
       def create!
