@@ -134,44 +134,48 @@ module Loader
     end
 
     class Host < Record
-      def verify
-        if annotations.key?('type')
-          begin
-            errors = []
-            type_annotations = {}.tap do |host_annotations|
-              self.annotations
-                .select { |a| a.match(%r{\A#{self.annotations['type']}\/}) }
-                .each do |k, v|
-                  host_annotations[k.split('/').drop(1).join('/')] = v
-                end
-            end
-            Kernel.const_get(
-              [
-                'Authentication',
-                annotations['type'].to_s.gsub(/-/, '_').camelize,
-                'Validations'
-              ].join('::')
-            ).new.validate_host(
-              annotations: type_annotations,
-              errors: errors
-            )
-            if errors.present? && errors.length.positive?
-              raise Exceptions::InvalidPolicyObject.new(
-                self.id,
-                message: errors.join(', ')
-              )
-            end
-          rescue NameError
-            Rails.logger.info("No HostValidation class found for: #{annotations['type']}")
-          end
-        end
-      end
-
       def_delegators :@policy_object, :restricted_to
+
+      def verify
+        authn_annotation_key = 'authn-type'
+        return unless annotations.key?(authn_annotation_key)
+
+        auth_type = annotations[authn_annotation_key]
+
+        auth_annotations = annotations
+          .select { |a| a.match(%r{\A#{auth_type}/}) }
+          .transform_keys { |k| k.gsub(%r{^.+?/}, '') }
+
+        errors = Array(
+          validate_annotations(
+            authenticator_type: auth_type,
+            annotations: auth_annotations
+          )
+        )
+        return if errors.empty?
+
+        raise Exceptions::InvalidPolicyObject.new(
+          self.id,
+          message: errors.join(', ')
+        )
+      end
 
       def create!
         self.handle_restricted_to(self.roleid, restricted_to)
         super
+      end
+
+      def validate_annotations(authenticator_type:, annotations:)
+        Kernel.const_get(
+          [
+            'Authentication',
+            authenticator_type.to_s.gsub(/-/, '_').camelize,
+            'Validations'
+          ].join('::')
+        ).new.validate_host(annotations)
+      rescue NameError
+        Rails.logger.info("No HostValidation class found for: '#{authenticator_type}'")
+        []
       end
     end
 
