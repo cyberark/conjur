@@ -9,17 +9,17 @@ require 'simplecov'
 SimpleCov.command_name("SimpleCov #{rand(1000000)}")
 SimpleCov.merge_timeout(7200)
 SimpleCov.start do
-  original_stderr = $stderr
-  original_stdout = $stdout
-  $stderr = File.open(File:NULL, "w")
-  $stdout = File.open(File:NULL, "w")
+  #original_stderr = $stderr
+  #original_stdout = $stdout
+  #$stderr = File.open(File:NULL, "w")
+  #$stdout = File.open(File:NULL, "w")
   enable_coverage :branch
   primary_coverage :branch
   print_error_status=false
   #SimpleCov.formatter SimpleCov::Formatter::SimpleFormatter
   #SimpleCov.formatter SimpleCov::Formatter::HTMLFormatter
-  $stderr = original_stderr
-  $stdout = original_stdout
+  #$stderr = original_stderr
+  #$stdout = original_stdout
 end
 
 # This file is copied to spec/ when you run 'rails generate rspec:install'
