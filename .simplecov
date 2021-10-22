@@ -1,8 +1,8 @@
 SimpleCov.start('rails') do
-  original_stderr = $stderr
-  original_stdout = $stdout
-  $stderr = File.open(File:NULL, "w")
-  $stdout = File.open(File:NULL, "w")
+  #original_stderr = $stderr
+  #original_stdout = $stdout
+  #$stderr = File.open(File:NULL, "w")
+  #$stdout = File.open(File:NULL, "w")
   command_name "SimpleCov #{rand(1000000)}"
   coverage_dir File.join(ENV['REPORT_ROOT'] || __dir__, 'coverage')
   merge_timeout 7200 # Set largest gap between resultsets of 30 minutes
@@ -12,8 +12,8 @@ SimpleCov.start('rails') do
   print_error_status=false
   #SimpleCov.formatter SimpleCov::Formatter::SimpleFormatter
   #SimpleCov.formatter SimpleCov::Formatter::HTMLFormatter
-  $stderr = original_stderr
-  $stdout = original_stdout
+  #$stderr = original_stderr
+  #$stdout = original_stdout
 end
 
 SimpleCov.at_exit do
