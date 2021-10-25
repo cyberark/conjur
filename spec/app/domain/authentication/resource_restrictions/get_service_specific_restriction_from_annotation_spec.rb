@@ -45,12 +45,44 @@ RSpec.describe(Authentication::ResourceRestrictions::GetServiceSpecificRestricti
         expect(returned_restriction_name).to eql(restriction_name)
         expect(returned_is_general_restriction).to eql(false)
       end
+
+      context "More than three part annotation" do
+        subject do
+          Authentication::ResourceRestrictions::GetServiceSpecificRestrictionFromAnnotation.new.call(
+            annotation_name: "#{authenticator_name}/#{service_name}/a/b",
+            authenticator_name: authenticator_name,
+            service_id: service_name
+          )
+        end
+
+        it "returns restriction name and false" do
+          returned_restriction_name, returned_is_general_restriction = subject
+          expect(returned_restriction_name).to eql("a/b")
+          expect(returned_is_general_restriction).to eql(false)
+        end
+      end
+
+      context "Complex annotation" do
+        subject do
+          Authentication::ResourceRestrictions::GetServiceSpecificRestrictionFromAnnotation.new.call(
+            annotation_name: "#{authenticator_name}/#{service_name}/first[1]/second[22][33]/third[444][555][666]",
+            authenticator_name: authenticator_name,
+            service_id: service_name
+          )
+        end
+
+        it "returns restriction name and false" do
+          returned_restriction_name, returned_is_general_restriction = subject
+          expect(returned_restriction_name).to eql("first[1]/second[22][33]/third[444][555][666]")
+          expect(returned_is_general_restriction).to eql(false)
+        end
+      end
     end
 
     context "Annotation is invalid" do
       context "Annotation built from one part" do
         subject do
-          Authentication::ResourceRestrictions::GetRestrictionFromAnnotation.new.call(
+          Authentication::ResourceRestrictions::GetServiceSpecificRestrictionFromAnnotation.new.call(
             annotation_name: "aaa",
             authenticator_name: authenticator_name,
             service_id: service_name
@@ -66,7 +98,7 @@ RSpec.describe(Authentication::ResourceRestrictions::GetServiceSpecificRestricti
 
       context "Annotation with wrong authenticator name and no service id" do
         subject do
-          Authentication::ResourceRestrictions::GetRestrictionFromAnnotation.new.call(
+          Authentication::ResourceRestrictions::GetServiceSpecificRestrictionFromAnnotation.new.call(
             annotation_name: "authn-wrong/bla",
             authenticator_name: authenticator_name,
             service_id: service_name
@@ -82,7 +114,7 @@ RSpec.describe(Authentication::ResourceRestrictions::GetServiceSpecificRestricti
 
       context "Annotation with wrong authenticator name with service id" do
         subject do
-          Authentication::ResourceRestrictions::GetRestrictionFromAnnotation.new.call(
+          Authentication::ResourceRestrictions::GetServiceSpecificRestrictionFromAnnotation.new.call(
             annotation_name: "authn-wrong/bla/ya",
             authenticator_name: authenticator_name,
             service_id: service_name
@@ -98,24 +130,8 @@ RSpec.describe(Authentication::ResourceRestrictions::GetServiceSpecificRestricti
 
       context "Annotation with service id and then authenticator name" do
         subject do
-          Authentication::ResourceRestrictions::GetRestrictionFromAnnotation.new.call(
+          Authentication::ResourceRestrictions::GetServiceSpecificRestrictionFromAnnotation.new.call(
             annotation_name: "#{service_name}/#{authenticator_name}",
-            authenticator_name: authenticator_name,
-            service_id: service_name
-          )
-        end
-
-        it "returns nil,nil" do
-          returned_restriction_name, returned_is_general_restriction = subject
-          expect(returned_restriction_name).to eql(nil)
-          expect(returned_is_general_restriction).to eql(nil)
-        end
-      end
-
-      context "More than three part annotation" do
-        subject do
-          Authentication::ResourceRestrictions::GetRestrictionFromAnnotation.new.call(
-            annotation_name: "#{authenticator_name}/#{service_name}/a/b",
             authenticator_name: authenticator_name,
             service_id: service_name
           )
