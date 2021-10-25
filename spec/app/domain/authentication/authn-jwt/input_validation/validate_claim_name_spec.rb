@@ -154,6 +154,42 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
         expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
       end
     end
+
+    context "When nested claim contains forbidden character *" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "this/is/a/nested*claim"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When claim contains literal array index" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "this[that]"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When claim with index has no left bracket" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "this[that"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
   end
 
   context "Valid claim name value" do
@@ -245,6 +281,54 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
           claim_name: "$2w9"
+        )
+      end
+
+      it 'does not raise error' do
+        expect { subject }.not_to raise_error
+      end
+    end
+
+    context "When claim name contains slashes" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "f/W/_/$"
+        )
+      end
+
+      it 'does not raise error' do
+        expect { subject }.not_to raise_error
+      end
+    end
+
+    context "When claim name contains array index" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "name[498]"
+        )
+      end
+
+      it 'does not raise error' do
+        expect { subject }.not_to raise_error
+      end
+    end
+
+    context "When claim name contains multiple array indexes" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "name[498][3][68]"
+        )
+      end
+
+      it 'does not raise error' do
+        expect { subject }.not_to raise_error
+      end
+    end
+
+    context "When claim name contains multiple levels with multiple array indexes" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "first[498]/second[3][68]/third[4][56][7008]"
         )
       end
 
