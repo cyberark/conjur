@@ -9,6 +9,7 @@ module Authentication
           fetch_identity_path: Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath.new,
           fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
           check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
+          extract_nested_value: Authentication::AuthnJwt::ExtractNestedValue.new,
           logger: Rails.logger
         },
         inputs: %i[jwt_authenticator_input]
@@ -54,7 +55,10 @@ module Authentication
             LogMessages::Authentication::AuthnJwt::CheckingIdentityFieldExists.new(id_claim_key)
           )
 
-          raw_token = @jwt_authenticator_input.decoded_token[id_claim_key]
+          raw_token = @extract_nested_value.(
+            hash_map: @jwt_authenticator_input.decoded_token,
+            path: id_claim_key
+          )
 
           # Converts nil to empty string.
           @id_from_token = String(raw_token).strip

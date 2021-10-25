@@ -7,10 +7,12 @@ module Authentication
         def initialize(
           decoded_token:,
           aliased_claims:,
+          extract_nested_value: Authentication::AuthnJwt::ExtractNestedValue.new,
           logger: Rails.logger
         )
           @decoded_token = decoded_token
           @aliased_claims = aliased_claims
+          @extract_nested_value = extract_nested_value
           @logger = logger
         end
 
@@ -23,15 +25,22 @@ module Authentication
             raise Errors::Authentication::ResourceRestrictions::EmptyAnnotationGiven, annotation_name
           end
 
-          unless @decoded_token.key?(claim_name)
+          token_value = token_value(claim_name)
+          if token_value.nil?
             raise Errors::Authentication::AuthnJwt::JwtTokenClaimIsMissing,
                   claim_name_for_error(annotation_name, claim_name)
           end
-
-          @decoded_token.fetch(claim_name) == restriction_value
+          token_value == restriction_value
         end
 
         private
+
+        def token_value(claim_name)
+          @extract_nested_value.(
+            hash_map: @decoded_token,
+            path: claim_name
+          )
+        end
 
         def claim_name(annotation_name)
           claim_name = @aliased_claims.fetch(annotation_name, annotation_name)
