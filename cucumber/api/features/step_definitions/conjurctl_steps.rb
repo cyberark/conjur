@@ -8,7 +8,8 @@ When(/^I retrieve an API key for user "([^"]*)" using conjurctl$/) do |user_id|
   @conjurctl_stdout = File.read("/tmp/admin-key.txt")
   @conjurctl_stderr = File.read("/tmp/admin-err.txt")
   @adam_stdout = File.read("/tmp/admin-key.txt")
-  puts "SIMPLECOV_DEBUG1-@conjurctl_stdout: #{@conjurctl_stdout}"
+  puts "SIMPLECOV_DEBUG0-command: #{command}"
+  puts "SIMPLECOV_DEBUG1-@conjurctl_stderr: #{@conjurctl_stderr}"
   puts "SIMPLECOV_DEBUG2-@adam_stdout: #{@adam_stdout}"
 end
 
