@@ -33,7 +33,7 @@ module Authentication
     OPTIONAL_CLAIMS = [ISS_CLAIM_NAME, NBF_CLAIM_NAME, IAT_CLAIM_NAME].freeze
     VALID_CLAIM_NAME_REGEX = /^[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*$/.freeze # starts with letter $ or _ can contains digits and dot
     SINGLE_CLAIM_NAME_REGEX = /[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*(\[\d+\])*/.freeze
-    NESTED_CLAIM_NAME_REGEX = /^#{SINGLE_CLAIM_NAME_REGEX.source}(\/#{SINGLE_CLAIM_NAME_REGEX.source})*$/.freeze
+    NESTED_CLAIM_NAME_REGEX = %r{^#{SINGLE_CLAIM_NAME_REGEX.source}(/#{SINGLE_CLAIM_NAME_REGEX.source})*$}.freeze
     CLAIMS_DENY_LIST = [ISS_CLAIM_NAME, EXP_CLAIM_NAME, NBF_CLAIM_NAME, IAT_CLAIM_NAME, JTI_CLAIM_NAME, AUD_CLAIM_NAME].freeze
     CLAIMS_CHARACTER_DELIMITER = ","
     TUPLE_CHARACTER_DELIMITER = ":"

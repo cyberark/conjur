@@ -1,4 +1,3 @@
-
 module Authentication
   module AuthnJwt
 
@@ -7,8 +6,7 @@ module Authentication
     # to array where claim names are strings and indexes are ints
     class ParseClaimPath
       def call(claim:, parts_separator: '/')
-
-        raise Errors::Authentication::AuthnJwt::InvalidClaimPath.new(claim) unless
+        raise Errors::Authentication::AuthnJwt::InvalidClaimPath, claim unless
           claim.match?(NESTED_CLAIM_NAME_REGEX)
 
         parts = []
@@ -17,7 +15,7 @@ module Authentication
           .gsub(/[\[\]]/, parts_separator)
           .split(parts_separator)
           .delete_if(&:empty?)
-          .each do | part |
+          .each do |part|
           if part.match(/^\d+$/)
             parts.append(part.to_i)
           else
