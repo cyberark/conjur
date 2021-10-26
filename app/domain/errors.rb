@@ -552,6 +552,11 @@ module Errors
         msg: "Failed to fetch audience value: audience value is empty",
         code: "CONJ00115E"
       )
+
+      InvalidClaimPath = ::Util::TrackableErrorClass.new(
+        msg: "Invalid claim path: {0-claim-path}",
+        code: "CONJ00116E"
+      )
     end
 
     module ResourceRestrictions
