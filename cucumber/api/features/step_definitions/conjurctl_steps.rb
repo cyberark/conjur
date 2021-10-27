@@ -1,21 +1,13 @@
 require 'open3'
 
-When(/^I retrieve an API key for user "([^"]*)" using conjurctl$/) do |user_id|
-  command = "conjurctl role retrieve-key '#{user_id}' 2> /tmp/admin-err.txt 1> /tmp/admin-key.txt"    
-  #command = "conjurctl role retrieve-key #{user_id}"  
-  #@conjurctl_stdout, @conjurctl_stderr, = Open3.capture3(command)
-  `#{command}`
-  @conjurctl_stdout = File.read("/tmp/admin-key.txt")
-  @conjurctl_stderr = File.read("/tmp/admin-err.txt")
-  @adam_stdout = File.read("/tmp/admin-key.txt")
-  puts "SIMPLECOV_DEBUG0-command: #{command}"
-  puts "SIMPLECOV_DEBUG1-@conjurctl_stderr: #{@conjurctl_stderr}"
-  puts "SIMPLECOV_DEBUG2-@adam_stdout: #{@adam_stdout}"
+When(/^I retrieve an API key for user "([^"]*)" using conjurctl$/) do |user_id|  
+  command = "conjurctl role retrieve-key #{user_id}"  
+  @conjurctl_stdout, @conjurctl_stderr, = Open3.capture3(command)
 end
 
 Then(/^the API key is correct$/) do
-  puts "SIMPLECOV_DEBUG3-@adam_stdout: #{@adam_stdout}"
-  expect(@adam_stdout).to eq("#{Credentials['cucumber:user:admin'].api_key}\n")
+  puts "SIMPLECOV_DEBUG3-@adam_stdout: #{@conjurctl_stdout}"
+  expect(@conjurctl_stdout).to eq("#{Credentials['cucumber:user:admin'].api_key}\n")
 end
 
 Then(/^the stderr includes the error "([^"]*)"$/) do |error|
