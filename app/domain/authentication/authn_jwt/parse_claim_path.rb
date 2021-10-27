@@ -5,7 +5,7 @@ module Authentication
     # like claim1/claim2[3]/claim3[4][67]/claim6
     # to array where claim names are strings and indexes are ints
     class ParseClaimPath
-      DEFAULT_PATH_SEPARATOR = "/"
+      DEFAULT_PATH_SEPARATOR = "/".freeze
       SINGLE_CLAIM_NAME_REGEX = /[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*(\[\d+\])*/.freeze
       NESTED_CLAIM_NAME_REGEX = %r{^#{SINGLE_CLAIM_NAME_REGEX.source}(#{DEFAULT_PATH_SEPARATOR}#{SINGLE_CLAIM_NAME_REGEX.source})*$}.freeze
 
