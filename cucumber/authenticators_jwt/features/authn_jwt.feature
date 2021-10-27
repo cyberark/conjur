@@ -58,7 +58,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     CONJ00004E 'authn-jwt/non-existing' is not enabled
     """
 
-  Scenario: Host that doesn't exist is denied
+  Scenario: ONYX-8821: Host that doesn't exist is denied
     Given I am using file "authn-jwt-general" and alg "RS256" for remotely issue token:
     """
     {
@@ -72,4 +72,8 @@ Feature: JWT Authenticator - JWKs Basic sanity
     And The following appears in the log after my savepoint:
     """
     CONJ00007E 'host/non_existing' not found
+    """
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:host:non_existing failed to authenticate with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
