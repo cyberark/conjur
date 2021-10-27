@@ -8,6 +8,8 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
   let(:account) { 'my-account' }
   let(:token_identity) { 'token-identity' }
   let(:token_app_property_secret_value) { 'sub' }
+  let(:token_app_property_nested_from_hash_value) { 'nested/single' }
+  let(:token_app_property_nested_from_array_value) { 'nested/array[0]' }
   let(:decoded_token) {
     {
       "namespace_id" => "1",
@@ -27,7 +29,11 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
       "iat" => 1619352275,
       "nbf" => 1619352270,
       "exp" => 1619355875,
-      "sub" => token_identity
+      "sub" => token_identity,
+      "nested" => {
+        "single" => "n_value",
+        "array" => %w[a_value_1 a_value_2 a_value_3]
+      }
     }
   }
 
@@ -52,6 +58,18 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
     }
   }
 
+  let(:mocked_valid_secret_hash) {
+    {
+      "token-app-property" => token_app_property_nested_from_hash_value
+    }
+  }
+
+  let(:mocked_valid_secret_array) {
+    {
+      "token-app-property" => token_app_property_nested_from_array_value
+    }
+  }
+
   let(:mocked_valid_secrets_which_missing_in_token) {
     {
       "token-app-property" => "missing"
@@ -66,7 +84,8 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
   let(:non_existing_field_name) { "non existing field name" }
 
   let(:mocked_fetch_authenticator_secrets_exist_values)  {  double("MochedFetchAuthenticatorSecrets") }
-  let(:mocked_fetch_authenticator_secrets_valid_values)  {  double("MochedFetchAuthenticatorSecrets") }
+  let(:mocked_fetch_authenticator_secrets_value_hash) { double("MochedFetchAuthenticatorSecretsHash") }
+  let(:mocked_fetch_authenticator_secrets_value_array) { double("MochedFetchAuthenticatorSecretsArray") }
   let(:mocked_fetch_authenticator_secrets_which_missing_in_token) {  double("MochedFetchAuthenticatorSecrets") }
   let(:mocked_fetch_authenticator_secrets_empty_values)  {  double("MochedFetchAuthenticatorSecrets") }
   let(:required_secret_missing_error) { "required secret missing error" }
@@ -83,6 +102,16 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
     ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
       ::Authentication::AuthnJwt::IDENTITY_PATH_CHARACTER_DELIMITER +
       token_identity
+  }
+  let(:valid_jwt_identity_from_hash) {
+    ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
+      ::Authentication::AuthnJwt::IDENTITY_PATH_CHARACTER_DELIMITER +
+      "n_value"
+  }
+  let(:valid_jwt_identity_from_array) {
+    ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
+      ::Authentication::AuthnJwt::IDENTITY_PATH_CHARACTER_DELIMITER +
+      "a_value_1"
   }
   let(:valid_jwt_identity_with_path) {
     ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
@@ -109,8 +138,12 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
       receive(:call).and_return(mocked_valid_secrets)
     )
 
-    allow(mocked_fetch_authenticator_secrets_valid_values).to(
-      receive(:call).and_return(token_app_property_secret_value)
+    allow(mocked_fetch_authenticator_secrets_value_hash).to(
+      receive(:call).and_return(mocked_valid_secret_hash)
+    )
+
+    allow(mocked_fetch_authenticator_secrets_value_array).to(
+      receive(:call).and_return(mocked_valid_secret_array)
     )
 
     allow(mocked_fetch_authenticator_secrets_which_missing_in_token).to(
@@ -227,6 +260,38 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
 
         it "jwt_identity returns host identity" do
           expect(subject).to eql(valid_jwt_identity_without_path)
+        end
+      end
+
+      context "And 'identity-path' resource not exists, token-app-property from nested hash" do
+        subject do
+          ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
+            check_authenticator_secret_exists: mocked_authenticator_secret_exists,
+            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_value_hash,
+            fetch_identity_path: mocked_fetch_identity_path_valid_empty_path
+          ).call(
+            jwt_authenticator_input: jwt_authenticator_input
+          )
+        end
+
+        it "jwt_identity returns host identity" do
+          expect(subject).to eql(valid_jwt_identity_from_hash)
+        end
+      end
+
+      context "And 'identity-path' resource not exists, token-app-property from nested array" do
+        subject do
+          ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
+            check_authenticator_secret_exists: mocked_authenticator_secret_exists,
+            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_value_array,
+            fetch_identity_path: mocked_fetch_identity_path_valid_empty_path
+          ).call(
+            jwt_authenticator_input: jwt_authenticator_input
+          )
+        end
+
+        it "jwt_identity returns host identity" do
+          expect(subject).to eql(valid_jwt_identity_from_array)
         end
       end
 
