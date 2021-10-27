@@ -554,7 +554,8 @@ module Errors
       )
 
       InvalidClaimPath = ::Util::TrackableErrorClass.new(
-        msg: "Invalid claim path: {0-claim-path}",
+        msg: "Failed to parse claim path: '{0-claim-path}'. The claim path is in an invalid format. " \
+             "The valid format should meet the following regex: '{1-claim-path-format}'",
         code: "CONJ00116E"
       )
     end

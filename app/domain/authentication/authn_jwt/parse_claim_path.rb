@@ -10,7 +10,7 @@ module Authentication
       NESTED_CLAIM_NAME_REGEX = %r{^#{SINGLE_CLAIM_NAME_REGEX.source}(#{DEFAULT_PATH_SEPARATOR}#{SINGLE_CLAIM_NAME_REGEX.source})*$}.freeze
 
       def call(claim:, parts_separator: DEFAULT_PATH_SEPARATOR)
-        raise Errors::Authentication::AuthnJwt::InvalidClaimPath, claim unless
+        raise Errors::Authentication::AuthnJwt::InvalidClaimPath.new(claim, NESTED_CLAIM_NAME_REGEX) unless
           claim.match?(NESTED_CLAIM_NAME_REGEX)
 
         claim
