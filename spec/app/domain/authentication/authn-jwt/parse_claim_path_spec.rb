@@ -46,7 +46,7 @@ RSpec.describe(Authentication::AuthnJwt::ParseClaimPath) do
     invalid_examples.each do |description, (input)|
       context "#{description}" do
         it "raises an error" do
-          expect { ::Authentication::AuthnJwt::ParseClaimPath.new.call(claim: input) }
+          expect { ::Authentication::AuthnJwt::ParseClaimPath.new.(claim: input) }
             .to raise_error(Errors::Authentication::AuthnJwt::InvalidClaimPath)
         end
       end
@@ -57,7 +57,7 @@ RSpec.describe(Authentication::AuthnJwt::ParseClaimPath) do
     valid_examples.each do |description, (input, output)|
       context "#{description}" do
         it "works" do
-          expect(Authentication::AuthnJwt::ParseClaimPath.new.call(claim: input))
+          expect(Authentication::AuthnJwt::ParseClaimPath.new.(claim: input))
             .to eql(output)
         end
       end

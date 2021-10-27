@@ -1,7 +1,7 @@
 module Authentication
   module AuthnJwt
 
-    # This  class parses complex claim path string
+    # This class parses complex claim path string
     # like claim1/claim2[3]/claim3[4][67]/claim6
     # to array where claim names are strings and indexes are ints
     class ParseClaimPath
