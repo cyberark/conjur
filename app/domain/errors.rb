@@ -552,6 +552,12 @@ module Errors
         msg: "Failed to fetch audience value: audience value is empty",
         code: "CONJ00115E"
       )
+
+      InvalidClaimPath = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse claim path: '{0-claim-path}'. The claim path is in an invalid format. " \
+             "The valid format should meet the following regex: '{1-claim-path-format}'",
+        code: "CONJ00116E"
+      )
     end
 
     module ResourceRestrictions
