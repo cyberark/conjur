@@ -1,21 +1,20 @@
 require 'simplecov'
 
-SimpleCov.command_name "SimpleCov #{rand(1000000)}"
-SimpleCov.coverage_dir File.join(ENV['REPORT_ROOT'] || __dir__, 'coverage')
-SimpleCov.merge_timeout 7200 
+# SimpleCov.command_name "SimpleCov #{rand(1000000)}"
+# SimpleCov.coverage_dir File.join(ENV['REPORT_ROOT'] || __dir__, 'coverage')
+# SimpleCov.merge_timeout 7200 
 # Set largest gap between resultsets of 30 minutes
 # any custom configs like groups and filters can be here at a central place
-SimpleCov.enable_coverage :branch
-SimpleCov.primary_coverage :branch
+
 
 fork do
   SimpleCov.start('rails') do
-    # SimpleCov.command_name "SimpleCov #{rand(1000000)}"
-    # SimpleCov.coverage_dir File.join(ENV['REPORT_ROOT'] || __dir__, 'coverage')
-    # SimpleCov.merge_timeout 7200 # Set largest gap between resultsets of 30 minutes
+    command_name "SimpleCov #{rand(1000000)}"
+    coverage_dir File.join(ENV['REPORT_ROOT'] || __dir__, 'coverage')
+    merge_timeout 7200 # Set largest gap between resultsets of 30 minutes
     # # any custom configs like groups and filters can be here at a central place
-    # SimpleCov.enable_coverage :branch
-    # SimpleCov.primary_coverage :branch
+    enable_coverage :branch
+    primary_coverage :branch
     print_error_status=true
   end
 end
