@@ -6,7 +6,6 @@ When(/^I retrieve an API key for user "([^"]*)" using conjurctl$/) do |user_id|
 end
 
 Then(/^the API key is correct$/) do
-  puts "SIMPLECOV_DEBUG3-@adam_stdout: #{@conjurctl_stdout}"
   expect(@conjurctl_stdout).to eq("#{Credentials['cucumber:user:admin'].api_key}\n")
 end
 
