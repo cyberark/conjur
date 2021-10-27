@@ -4,170 +4,51 @@ require 'spec_helper'
 
 RSpec.describe(Authentication::AuthnJwt::ParseClaimPath) do
 
+  invalid_examples = {
+    "When one of claim names Starts with digit":                      ["kuku/9agfdsg"],
+    "When claim name starts with forbidden character '['":            ["kuku[12]/[23$agfdsg[33]"],
+    "When claim name ends with forbidden character '#'":              ["$agfdsg#[66]"],
+    "When claim name contains forbidden character in the middle '!'": ["claim[4][56]/a!c/wd"],
+    "When claim name starts from '/'":                                ["/claim[4][56]"],
+    "When claim name ends with '/'":                                  ["dflk[34]/claim[4][56]/"],
+    "When claim name contains only index part":                       ["claim/[4]/kuku"],
+    "When index part contains letters":                               ["claim/kuku[kl]"],
+    "When index part is empty":                                       ["claim/kuku[]/claim1"]
+  }
+
+  valid_examples = {
+    "Single claim name":
+      ["claim",
+       ["claim"]],
+    "Single claim name with index":
+      ["claim[1]",
+       ["claim", 1]],
+    "Single claim name with indexes":
+      ["claim2[1][23][456]",
+       ["claim2", 1, 23, 456]],
+    "Multiple claims with indexes":
+      ["claim1[1]/claim2/claim3[23][456]/claim4",
+       ["claim1", 1, "claim2", "claim3", 23, 456, "claim4"]]
+  }
+
   context "Invalid claim path" do
-    context "When one of claim names Starts with digit" do
-      subject do
-        ::Authentication::AuthnJwt::ParseClaimPath.new.call(
-          claim: "kuku/9agfdsg"
-        )
-      end
-
-      it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidClaimPath)
-      end
-    end
-
-    context "When claim name starts with forbidden character '['" do
-      subject do
-        ::Authentication::AuthnJwt::ParseClaimPath.new.call(
-          claim: "kuku[12]/[23$agfdsg[33]"
-        )
-      end
-
-      it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidClaimPath)
-      end
-    end
-
-    context "When claim name ends with forbidden character '#'" do
-      subject do
-        ::Authentication::AuthnJwt::ParseClaimPath.new.call(
-          claim: "$agfdsg#[66]"
-        )
-      end
-
-      it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidClaimPath)
-      end
-    end
-
-    context "When claim name contains forbidden character in the middle '!'" do
-      subject do
-        ::Authentication::AuthnJwt::ParseClaimPath.new.call(
-          claim: "claim[4][56]/a!c/wd"
-        )
-      end
-
-      it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidClaimPath)
-      end
-    end
-
-    context "When claim name starts from '/'" do
-      subject do
-        ::Authentication::AuthnJwt::ParseClaimPath.new.call(
-          claim: "/claim[4][56]"
-        )
-      end
-
-      it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidClaimPath)
-      end
-    end
-
-    context "When claim name ends with '/'" do
-      subject do
-        ::Authentication::AuthnJwt::ParseClaimPath.new.call(
-          claim: "dflk[34]/claim[4][56]/"
-        )
-      end
-
-      it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidClaimPath)
-      end
-    end
-
-    context "When claim name contains only index part" do
-      subject do
-        ::Authentication::AuthnJwt::ParseClaimPath.new.call(
-          claim: "claim/[4]/kuku"
-        )
-      end
-
-      it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidClaimPath)
-      end
-    end
-
-    context "When index part contains letters" do
-      subject do
-        ::Authentication::AuthnJwt::ParseClaimPath.new.call(
-          claim: "claim/kuku[kl]"
-        )
-      end
-
-      it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidClaimPath)
-      end
-    end
-
-    context "When index part is empty" do
-      subject do
-        ::Authentication::AuthnJwt::ParseClaimPath.new.call(
-          claim: "claim/kuku[]/claim1"
-        )
-      end
-
-      it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidClaimPath)
+    invalid_examples.each do |description, (input)|
+      context "#{description}" do
+        it "raises an error" do
+          expect { ::Authentication::AuthnJwt::ParseClaimPath.new.call(claim: input) }
+            .to raise_error(Errors::Authentication::AuthnJwt::InvalidClaimPath)
+        end
       end
     end
   end
 
   context "Valid claim path" do
-    context "Single claim name" do
-      subject do
-        ::Authentication::AuthnJwt::ParseClaimPath.new.call(
-          claim: "claim"
-        )
-      end
-
-      it "returns a valid array" do
-        expect(subject).to eql(["claim"])
-      end
-    end
-
-    context "Single claim name with index" do
-      subject do
-        ::Authentication::AuthnJwt::ParseClaimPath.new.call(
-          claim: "claim[1]"
-        )
-      end
-
-      it "returns a valid array" do
-        expect(subject).to eql(["claim", 1])
-      end
-    end
-
-    context "Single claim name with indexes" do
-      subject do
-        ::Authentication::AuthnJwt::ParseClaimPath.new.call(
-          claim: "claim2[1][23][456]"
-        )
-      end
-
-      it "returns a valid array" do
-        expect(subject).to eql(["claim2", 1, 23, 456])
-      end
-    end
-
-    context "Multiple claims with indexes" do
-      subject do
-        ::Authentication::AuthnJwt::ParseClaimPath.new.call(
-          claim: "claim1[1]/claim2/claim3[23][456]/claim4"
-        )
-      end
-
-      it "returns a valid array" do
-        expect(subject).to eql([
-                                 "claim1",
-                                 1,
-                                 "claim2",
-                                 "claim3",
-                                 23,
-                                 456,
-                                 "claim4"
-                               ])
+    valid_examples.each do |description, (input, output)|
+      context "#{description}" do
+        it "works" do
+          expect(Authentication::AuthnJwt::ParseClaimPath.new.call(claim: input))
+            .to eql(output)
+        end
       end
     end
   end

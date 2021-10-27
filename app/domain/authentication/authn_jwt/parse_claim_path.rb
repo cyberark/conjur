@@ -5,25 +5,19 @@ module Authentication
     # like claim1/claim2[3]/claim3[4][67]/claim6
     # to array where claim names are strings and indexes are ints
     class ParseClaimPath
-      def call(claim:, parts_separator: '/')
+      DEFAULT_PATH_SEPARATOR = "/"
+      SINGLE_CLAIM_NAME_REGEX = /[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*(\[\d+\])*/.freeze
+      NESTED_CLAIM_NAME_REGEX = %r{^#{SINGLE_CLAIM_NAME_REGEX.source}(#{DEFAULT_PATH_SEPARATOR}#{SINGLE_CLAIM_NAME_REGEX.source})*$}.freeze
+
+      def call(claim:, parts_separator: DEFAULT_PATH_SEPARATOR)
         raise Errors::Authentication::AuthnJwt::InvalidClaimPath, claim unless
           claim.match?(NESTED_CLAIM_NAME_REGEX)
-
-        parts = []
 
         claim
           .gsub(/[\[\]]/, parts_separator)
           .split(parts_separator)
           .delete_if(&:empty?)
-          .each do |part|
-          if part.match(/^\d+$/)
-            parts.append(part.to_i)
-          else
-            parts.append(part)
-          end
-        end
-
-        parts
+          .map{ |part| part =~ /^\d+$/ ? part.to_i : part }
       end
     end
   end
