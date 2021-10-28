@@ -130,12 +130,13 @@ command :account do |cgrp|
     be read from STDIN. If the flag is not provided, the "admin" user API key
     will be outputted to STDOUT.
 
-    The 'name' flag or command argument must be present. It will specify the 
-    name of the account that will be created.
+    The 'name' flag or command argument will specify the name of the account
+    that will be created. If it is not provided, the account name will be
+    'default'.
 
     Example:
 
-    $ conjurctl account create [--password-from-stdin] --name myorg
+    $ conjurctl account create [--password-from-stdin] [--name myorg]
   DESC
   cgrp.arg(:name, :optional)
   cgrp.command :create do |c|

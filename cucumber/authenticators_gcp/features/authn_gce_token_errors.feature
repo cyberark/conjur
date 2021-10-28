@@ -132,5 +132,5 @@ Feature: GCP Authenticator - GCE flow, test token error handling
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    CONJ00068E Claim 'instance-name' is missing from Google's JWT token. Verify that you configured the host with permitted restrictions. In case of Compute Engine token, verify that you requested the token using 'format=full'
+    CONJ00069E Role must have at least one of the following constraints: ["project-id", "service-account-id", "service-account-email"]
     """

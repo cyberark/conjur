@@ -16,7 +16,7 @@ module Authentication
     IDENTITY_PATH_CHARACTER_DELIMITER = "/"
     IDENTITY_TYPE_HOST = "host"
     ENFORCED_CLAIMS_RESOURCE_NAME = "enforced-claims"
-    MAPPING_CLAIMS_RESOURCE_NAME = "mapping-claims"
+    CLAIM_ALIASES_RESOURCE_NAME = "claim-aliases"
     AUDIENCE_RESOURCE_NAME = "audience"
     PRIVILEGE_AUTHENTICATE="authenticate"
     ISS_CLAIM_NAME = "iss"
