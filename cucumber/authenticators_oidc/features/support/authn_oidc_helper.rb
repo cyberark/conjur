@@ -13,7 +13,7 @@ module AuthnOidcHelper
   # that we raise a proper error in such a case
   def authenticate_id_token_with_oidc(service_id:, account:, id_token: parsed_id_token, user_id: "")
     service_id_part = service_id ? "/#{service_id}" : ""
-    user_id_part = user_id ? "/#{user_id}" : ""
+    user_id_part = "/#{user_id}" unless user_id.nil? || user_id.empty?
     path = "#{conjur_hostname}/authn-oidc#{service_id_part}/#{account}#{user_id_part}/authenticate"
 
     payload = {}
