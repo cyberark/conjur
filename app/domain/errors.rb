@@ -567,7 +567,7 @@ module Errors
       )
 
       TokenAppPropertyValueIsNotString = ::Util::TrackableErrorClass.new(
-        msg: "{0-claim-path} value in token is an {1-type}. Only string value can be an identity.",
+        msg: "{0-claim-path} value in token is a {1-type}. Only string value can be an identity.",
         code: "CONJ00118E"
       )
     end

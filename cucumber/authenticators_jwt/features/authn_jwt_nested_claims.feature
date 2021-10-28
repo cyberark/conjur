@@ -61,3 +61,28 @@ Feature: JWT Authenticator - nested claims support
     """
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
+
+  Scenario: ONYX-13713: Token-app-property does not accept array reference
+    Given I successfully set authn-jwt "token-app-property" variable to value "account[0]/project/id"
+    And I am using file "authn-jwt-general" and alg "RS256" for remotely issue token:
+    """
+    {
+      "account":
+      [
+        {
+          "project":
+          {
+            "id": "myapp"
+          }
+        }
+      ],
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the audit log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00117E Failed to parse `token-app-property` claim path: 'account[0]/project/id'. The claim path is in an invalid format.
+    """
