@@ -566,8 +566,8 @@ module Errors
         code: "CONJ00117E"
       )
 
-      TokenAppPropertyValueIsArray = ::Util::TrackableErrorClass.new(
-        msg: "{0-claim-path} value in token is an array. Array cannot be used as identity.",
+      TokenAppPropertyValueIsNotString = ::Util::TrackableErrorClass.new(
+        msg: "{0-claim-path} value in token is an {1-type}. Only string value can be an identity.",
         code: "CONJ00118E"
       )
     end

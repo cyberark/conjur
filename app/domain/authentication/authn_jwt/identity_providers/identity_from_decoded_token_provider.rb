@@ -101,7 +101,7 @@ module Authentication
             raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken, id_claim_key
           end
 
-          raise Errors::Authentication::AuthnJwt::TokenAppPropertyValueIsArray, id_claim_key unless
+          raise Errors::Authentication::AuthnJwt::TokenAppPropertyValueIsNotString.new(id_claim_key, id_claim_value.class) unless
             id_claim_value.is_a?(String)
         end
       end
