@@ -4,7 +4,7 @@
 # cryptic names like `$CHILD_STATUS`
 require 'English'
 
-# require 'simplecov'
+require 'simplecov'
 
 # SimpleCov.command_name("SimpleCov #{rand(1000000)}")
 # SimpleCov.merge_timeout(7200)
