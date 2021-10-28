@@ -4,7 +4,7 @@ Feature: Retrieving an API key with conjurctl
     # We need to be in production environment to test this to demonstrate a real use-case
     Given I set environment variable "RAILS_ENV" to "production"
     And I set environment variable "CONJUR_LOG_LEVEL" to "info"
-
+  
   Scenario: Retrieve an API key
     When I retrieve an API key for user "cucumber:user:admin" using conjurctl
     Then the API key is correct

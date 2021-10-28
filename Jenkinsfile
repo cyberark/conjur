@@ -750,6 +750,9 @@ def runConjurTests(run_only_str) {
     "rotators": [
       "Rotators - ${env.STAGE_NAME}": {
         sh 'ci/test rotators'
+<<<<<<< HEAD
+      },
+=======
       }
     ],
     "kubernetes": [
@@ -758,6 +761,7 @@ def runConjurTests(run_only_str) {
       }
     ],
     "rspec_audit": [
+>>>>>>> origin/master
       "Audit - ${env.STAGE_NAME}": {
         sh 'ci/test rspec_audit'
       }
@@ -765,6 +769,9 @@ def runConjurTests(run_only_str) {
     "policy_parser": [
       "Policy Parser - ${env.STAGE_NAME}": {
         sh 'cd gems/policy-parser && ./test.sh'
+      },
+      "Kubernetes 1.7 in GKE - ${env.STAGE_NAME}": {
+        sh 'cd ci/authn-k8s && summon ./test.sh gke'
       }
     ]
   ]

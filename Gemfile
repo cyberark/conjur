@@ -61,7 +61,8 @@ gem 'rack-rewrite'
 
 # This old version is required to work with CC
 # See: https://github.com/codeclimate/test-reporter/issues/418
-gem 'simplecov', '0.14.1', require: false
+# gem 'simplecov', '0.14.1', require: false
+gem 'simplecov', '0.21.2'
 
 # gem 'autoprefixer-rails'
 # gem 'bootstrap-sass', '~> 3.4.0'
