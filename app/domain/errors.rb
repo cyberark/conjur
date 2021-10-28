@@ -573,6 +573,11 @@ module Errors
         code: "CONJ00100E"
       )
 
+      InconsistentHostAnnotationType = ::Util::TrackableErrorClass.new(
+        msg: "Annotation, '{0-annotation-name}', value type is different from value in token",
+        code: "CONJ00117E"
+      )
+
     end
 
     module Constraints
