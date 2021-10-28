@@ -113,6 +113,10 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
     """
     CONJ00007E 'host/non-existing' not found
     """
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:host:non-existing failed to authenticate with authenticator authn-gcp
+    """
 
   Scenario: Hosts defined outside of root can authenticate with GCP authenticator and fetch secret
     Given I have host "non-rooted/test-app"

@@ -195,3 +195,7 @@ Feature: Exchange a role's API key for a signed authentication token
     """
     Errors::Authentication::Security::RoleNotFound
     """
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:user:non-existing failed to authenticate with authenticator authn
+    """

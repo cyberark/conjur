@@ -165,6 +165,10 @@ Feature: Azure Authenticator - Different Hosts can authenticate with Azure authe
     """
     Errors::Authentication::Security::RoleNotFound
     """
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:host:non-existing-app failed to authenticate with authenticator authn-azure service cucumber:webservice:conjur/authn-azure/prod
+    """
 
   Scenario: Host that is not in the permitted group is denied
     And I have host "non-permitted-app"

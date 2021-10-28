@@ -94,6 +94,10 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     """
     Errors::Authentication::Security::RoleNotFound
     """
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:user:not_in_conjur failed to authenticate with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak
+    """
 
   Scenario: User that is not permitted to webservice in ID token is denied
     Given I extend the policy with:
