@@ -39,7 +39,7 @@ Feature: JWT Authenticator - nested claims support
     And I successfully set authn-jwt "token-app-property" variable to value "host"
 
   @sanity
-  Scenario: ONYX-????: Token-app-property from nested claim
+  Scenario: ONYX-13707: Token-app-property from nested claim
     Given I successfully set authn-jwt "token-app-property" variable to value "account/project/id"
     And I am using file "authn-jwt-general" and alg "RS256" for remotely issue token:
     """

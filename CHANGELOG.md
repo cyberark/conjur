@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Create default account when no account is specified in `conjurctl account create`.
   [cyberark/conjur#2388](https://github.com/cyberark/conjur/pull/2388)
-- JWT authenticator `token-app-property` value supports nested claims. 
+- JWT authenticator `token-app-property` value supports nested claims.
   [cyberark/conjur#2397](https://github.com/cyberark/conjur/pull/2397)
 
 ### Changed
