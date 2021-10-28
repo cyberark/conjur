@@ -22,6 +22,7 @@ module Authentication
           )
 
           # Ensures token has id claim, and stores its value in @id_from_token.
+          validate_id_claim_key
           fetch_id_from_token
 
           # Get value of "identity-path", which is stored as a Conjur secret.
@@ -70,6 +71,12 @@ module Authentication
           )
 
           @id_from_token
+        end
+
+        # id claim key cannot be taken from array
+        def validate_id_claim_key
+          raise Errors::Authentication::AuthnJwt::InvalidTokenAppPropertyClaimPath.new(id_claim_key, PURE_NESTED_CLAIM_NAME_REGEX) unless
+            id_claim_key.match?(PURE_NESTED_CLAIM_NAME_REGEX)
         end
 
         # The identity claim has a key and a value.  The key's name is stored

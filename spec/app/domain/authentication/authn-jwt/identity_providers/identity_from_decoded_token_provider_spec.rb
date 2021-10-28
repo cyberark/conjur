@@ -100,24 +100,24 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
   let(:identity_path_valid_value) { "apps/sub-apps" }
   let(:valid_jwt_identity_without_path) {
     ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
-      ::Authentication::AuthnJwt::IDENTITY_PATH_CHARACTER_DELIMITER +
+      ::Authentication::AuthnJwt::PATH_DELIMITER +
       token_identity
   }
   let(:valid_jwt_identity_from_hash) {
     ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
-      ::Authentication::AuthnJwt::IDENTITY_PATH_CHARACTER_DELIMITER +
+      ::Authentication::AuthnJwt::PATH_DELIMITER +
       "n_value"
   }
   let(:valid_jwt_identity_from_array) {
     ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
-      ::Authentication::AuthnJwt::IDENTITY_PATH_CHARACTER_DELIMITER +
+      ::Authentication::AuthnJwt::PATH_DELIMITER +
       "a_value_1"
   }
   let(:valid_jwt_identity_with_path) {
     ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
-      ::Authentication::AuthnJwt::IDENTITY_PATH_CHARACTER_DELIMITER +
+      ::Authentication::AuthnJwt::PATH_DELIMITER +
       identity_path_valid_value +
-      ::Authentication::AuthnJwt::IDENTITY_PATH_CHARACTER_DELIMITER +
+      ::Authentication::AuthnJwt::PATH_DELIMITER +
       token_identity
   }
 
@@ -208,6 +208,24 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
         end
       end
 
+      context "With value points to array" do
+        subject do
+          ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
+            check_authenticator_secret_exists: mocked_authenticator_secret_exists,
+            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_value_array,
+            fetch_identity_path: mocked_fetch_identity_path_valid_empty_path
+          )
+        end
+
+        it "jwt_identity raises an error" do
+          expect {
+            subject.call(
+              jwt_authenticator_input: jwt_authenticator_input
+            )
+          }.to raise_error(Errors::Authentication::AuthnJwt::InvalidTokenAppPropertyClaimPath)
+        end
+      end
+
       context "And 'identity-path' resource exists with empty value" do
         subject do
           ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
@@ -276,22 +294,6 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
 
         it "jwt_identity returns host identity" do
           expect(subject).to eql(valid_jwt_identity_from_hash)
-        end
-      end
-
-      context "And 'identity-path' resource not exists, token-app-property from nested array" do
-        subject do
-          ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
-            check_authenticator_secret_exists: mocked_authenticator_secret_exists,
-            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_value_array,
-            fetch_identity_path: mocked_fetch_identity_path_valid_empty_path
-          ).call(
-            jwt_authenticator_input: jwt_authenticator_input
-          )
-        end
-
-        it "jwt_identity returns host identity" do
-          expect(subject).to eql(valid_jwt_identity_from_array)
         end
       end
 
