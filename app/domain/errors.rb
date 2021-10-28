@@ -565,6 +565,11 @@ module Errors
              "The valid format should meet the following regex: '{1-claim-path-format}'",
         code: "CONJ00117E"
       )
+
+      TokenAppPropertyValueIsArray = ::Util::TrackableErrorClass.new(
+        msg: "{0-claim-path} value in token is an array. Array cannot be used as identity.",
+        code: "CONJ00118E"
+      )
     end
 
     module ResourceRestrictions

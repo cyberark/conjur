@@ -56,12 +56,8 @@ module Authentication
             LogMessages::Authentication::AuthnJwt::CheckingIdentityFieldExists.new(id_claim_key)
           )
 
-          # Converts nil to empty string.
-          @id_from_token = String(id_claim_value).strip
-
-          if @id_from_token.empty?
-            raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken, id_claim_key
-          end
+          @id_from_token = id_claim_value
+          validate_id_claim_value
 
           @logger.debug(
             LogMessages::Authentication::AuthnJwt::FoundJwtFieldInToken.new(
@@ -98,6 +94,15 @@ module Authentication
           @id_claim_value = @jwt_authenticator_input.decoded_token.dig(
             *@parse_claim_path.(claim: id_claim_key)
           )
+        end
+
+        def validate_id_claim_value
+          if id_claim_value.nil? || id_claim_value.empty?
+            raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken, id_claim_key
+          end
+
+          raise Errors::Authentication::AuthnJwt::TokenAppPropertyValueIsArray, id_claim_key unless
+            id_claim_value.is_a?(String)
         end
       end
     end

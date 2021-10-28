@@ -8,6 +8,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
   let(:account) { 'my-account' }
   let(:token_identity) { 'token-identity' }
   let(:token_app_property_secret_value) { 'sub' }
+  let(:token_app_property_secret_value_is_array) { 'actions' }
   let(:token_app_property_nested_from_hash_value) { 'nested/single' }
   let(:token_app_property_nested_from_array_value) { 'nested/array[0]' }
   let(:decoded_token) {
@@ -30,6 +31,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
       "nbf" => 1619352270,
       "exp" => 1619355875,
       "sub" => token_identity,
+      "actions" => %w[HEAD GET POST PUT DELETE],
       "nested" => {
         "single" => "n_value",
         "array" => %w[a_value_1 a_value_2 a_value_3]
@@ -55,6 +57,12 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
   let(:mocked_valid_secrets) {
     {
       "token-app-property" => token_app_property_secret_value
+    }
+  }
+
+  let(:mocked_valid_secret_value_points_to_array) {
+    {
+      "token-app-property" => token_app_property_secret_value_is_array
     }
   }
 
@@ -84,6 +92,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
   let(:non_existing_field_name) { "non existing field name" }
 
   let(:mocked_fetch_authenticator_secrets_exist_values)  {  double("MochedFetchAuthenticatorSecrets") }
+  let(:mocked_fetch_authenticator_secrets_value_points_to_array)  {  double("MochedFetchAuthenticatorSecretsPointsToArray") }
   let(:mocked_fetch_authenticator_secrets_value_hash) { double("MochedFetchAuthenticatorSecretsHash") }
   let(:mocked_fetch_authenticator_secrets_value_array) { double("MochedFetchAuthenticatorSecretsArray") }
   let(:mocked_fetch_authenticator_secrets_which_missing_in_token) {  double("MochedFetchAuthenticatorSecrets") }
@@ -136,6 +145,10 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
 
     allow(mocked_fetch_authenticator_secrets_exist_values).to(
       receive(:call).and_return(mocked_valid_secrets)
+    )
+
+    allow(mocked_fetch_authenticator_secrets_value_points_to_array).to(
+      receive(:call).and_return(mocked_valid_secret_value_points_to_array)
     )
 
     allow(mocked_fetch_authenticator_secrets_value_hash).to(
@@ -208,7 +221,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
         end
       end
 
-      context "With value points to array" do
+      context "With value path contains an array indexes" do
         subject do
           ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
             check_authenticator_secret_exists: mocked_authenticator_secret_exists,
@@ -223,6 +236,24 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
               jwt_authenticator_input: jwt_authenticator_input
             )
           }.to raise_error(Errors::Authentication::AuthnJwt::InvalidTokenAppPropertyClaimPath)
+        end
+      end
+
+      context "With value points to array in token" do
+        subject do
+          ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
+            check_authenticator_secret_exists: mocked_authenticator_secret_exists,
+            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_value_points_to_array,
+            fetch_identity_path: mocked_fetch_identity_path_valid_empty_path
+          )
+        end
+
+        it "jwt_identity raises an error" do
+          expect {
+            subject.call(
+              jwt_authenticator_input: jwt_authenticator_input
+            )
+          }.to raise_error(Errors::Authentication::AuthnJwt::TokenAppPropertyValueIsArray)
         end
       end
 
