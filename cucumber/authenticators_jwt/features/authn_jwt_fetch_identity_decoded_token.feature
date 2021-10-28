@@ -111,7 +111,11 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     Given I am using file "identity-from-decoded-token" and alg "RS256" for remotely issue token:
     """
     {
-      "project-id": "myproject"
+      "project-id": "myproject",
+      "more-claims":
+      {
+        "host_claim":"myapp"
+      }
     }
     """
     And I successfully set authn-jwt "token-app-property" variable to value "host_claim"
