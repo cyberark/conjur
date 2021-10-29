@@ -6,9 +6,9 @@ require 'English'
 
 require 'simplecov'
 
-SimpleCov.command_name("SimpleCov #{rand(1000000)}")
-SimpleCov.merge_timeout(7200)
-SimpleCov.start
+# SimpleCov.command_name("SimpleCov #{rand(1000000)}")
+# SimpleCov.merge_timeout(7200)
+# SimpleCov.start
 
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 ENV["RAILS_ENV"] ||= 'test'
