@@ -17,10 +17,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.13.2] - 2021-10-13
 
 ### Security
+- Updated puma to 5.5.1 to close 
+  [GHSA-48w2-rm65-62xx](https://github.com/puma/puma/security/advisories/GHSA-48w2-rm65-62xx).
+  We were not vulnerable to this issue. [cyberark/conjur#2385](https://github.com/cyberark/conjur/pull/2385)
 - GCP Authenticator: When defining the host using the instance-name annotation,
   you now need to define at least one additional annotation.
   [cyberark/ONYX-9442](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-9442)
-- Updated nokogiri to 1.12.5 in both Gemfile.lock and docs/Gemfile.lock to resolve 
+- Updated nokogiri to 1.12.5 in both Gemfile.lock and docs/Gemfile.lock to resolve
   [CVE-2021-41098](https://github.com/advisories/GHSA-2rr5-8q37-2w7h)
   [cyberark/conjur#2376](https://github.com/cyberark/conjur/pull/2376)
   [cyberark/conjur#2377](https://github.com/cyberark/conjur/pull/2377)
