@@ -37,8 +37,6 @@ module Authentication
     TUPLE_CHARACTER_DELIMITER = ":"
 
     PURE_CLAIM_NAME_REGEX = /[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*/.freeze
-    INDEXED_CLAIM_NAME_REGEX = /#{PURE_CLAIM_NAME_REGEX.source}(\[\d+\])*/.freeze
     PURE_NESTED_CLAIM_NAME_REGEX = /^#{PURE_CLAIM_NAME_REGEX.source}(#{PATH_DELIMITER}#{PURE_CLAIM_NAME_REGEX.source})*$/.freeze
-    INDEXED_NESTED_CLAIM_NAME_REGEX = /^#{INDEXED_CLAIM_NAME_REGEX.source}(#{PATH_DELIMITER}#{INDEXED_CLAIM_NAME_REGEX.source})*$/.freeze
   end
 end
