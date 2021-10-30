@@ -93,9 +93,9 @@ module Authentication
         end
 
         def id_claim_value_not_empty
-          if id_claim_value.nil? || id_claim_value.empty?
-            raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken, id_claim_key
-          end
+          return unless id_claim_value.nil? || id_claim_value.empty?
+
+          raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken, id_claim_key
         end
 
         def id_claim_value_is_string
