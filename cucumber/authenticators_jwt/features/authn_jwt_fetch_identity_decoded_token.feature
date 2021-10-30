@@ -203,3 +203,76 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     """
     cucumber:host:some_policy/host_test_from_token successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
+
+  @sanity
+  Scenario: ONYX-13707: Token-app-property from nested claim
+    Given I successfully set authn-jwt "token-app-property" variable to value "account/project/id"
+    And I am using file "identity-from-decoded-token" and alg "RS256" for remotely issue token:
+    """
+    {
+      "account":
+      {
+        "project":
+        {
+          "id": "myapp"
+        }
+      },
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the audit log file
+    When I authenticate via authn-jwt with the JWT token
+    Then host "myapp" has been authorized by Conjur
+    And The following appears in the log after my savepoint:
+    """
+    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    """
+
+  Scenario: ONYX-13711: Token-app-property does not accept array reference
+    Given I successfully set authn-jwt "token-app-property" variable to value "account[0]/project/id"
+    And I am using file "identity-from-decoded-token" and alg "RS256" for remotely issue token:
+    """
+    {
+      "account":
+      [
+        {
+          "project":
+          {
+            "id": "myapp"
+          }
+        }
+      ],
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the audit log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00117E Failed to parse 'token-app-property' value. Error: '#<Errors::Authentication::AuthnJwt::InvalidClaimPath: CONJ00116E
+    """
+
+  Scenario: ONYX-13713: Token-app-property does not accept array reference
+    Given I successfully set authn-jwt "token-app-property" variable to value "account/projects"
+    And I am using file "identity-from-decoded-token" and alg "RS256" for remotely issue token:
+    """
+    {
+      "account":
+      {
+        "projects":
+        [
+          "project_1",
+          "project_2"
+        ]
+      },
+      "project-id": "myproject"
+    }
+    """
+    And I save my place in the audit log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00118E 'account/projects' value in token has type 'Array'. An identity must be a String.
+    """

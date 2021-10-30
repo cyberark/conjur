@@ -247,7 +247,9 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
             subject.call(
               jwt_authenticator_input: jwt_authenticator_input
             )
-          }.to raise_error(Errors::Authentication::AuthnJwt::InvalidTokenAppPropertyClaimPath)
+          }.to raise_error(
+                 Errors::Authentication::AuthnJwt::InvalidTokenAppPropertyValue,
+                 /.*CONJ00117E.*CONJ00116E.*/)
         end
       end
 
