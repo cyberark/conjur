@@ -81,14 +81,14 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityCon
   let(:identity_path_valid_value) { "apps/sub-apps" }
   let(:valid_jwt_identity_without_path) {
     ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
-      ::Authentication::AuthnJwt::IDENTITY_PATH_CHARACTER_DELIMITER +
+      ::Authentication::AuthnJwt::PATH_DELIMITER +
       token_identity
   }
   let(:valid_jwt_identity_with_path) {
     ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
-      ::Authentication::AuthnJwt::IDENTITY_PATH_CHARACTER_DELIMITER +
+      ::Authentication::AuthnJwt::PATH_DELIMITER +
       identity_path_valid_value +
-      ::Authentication::AuthnJwt::IDENTITY_PATH_CHARACTER_DELIMITER +
+      ::Authentication::AuthnJwt::PATH_DELIMITER +
       token_identity
   }
 

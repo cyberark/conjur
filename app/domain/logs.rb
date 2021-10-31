@@ -698,6 +698,16 @@ module LogMessages
         msg: "Successfully validated audience configuration",
         code: "CONJ00140D"
       )
+
+      ClaimPathParsingStart = ::Util::TrackableLogMessageClass.new(
+        msg: "Parsing claim path: '{0-claim-path}'",
+        code: "CONJ00141D"
+      )
+
+      ClaimPathParsingEnd = ::Util::TrackableLogMessageClass.new(
+        msg: "Claim path has been parsed: '{0-claim-path-array}'",
+        code: "CONJ00142D"
+      )
     end
   end
 
