@@ -86,7 +86,7 @@ module Authentication
           return @id_claim_value if @id_claim_value
 
           @id_claim_value = @jwt_authenticator_input.decoded_token.dig(
-            *@parse_claim_path.(claim: id_claim_key)
+            *@parse_claim_path.call(claim: id_claim_key)
           )
         rescue Errors::Authentication::AuthnJwt::InvalidClaimPath => e
           raise Errors::Authentication::AuthnJwt::InvalidTokenAppPropertyValue, e.inspect
