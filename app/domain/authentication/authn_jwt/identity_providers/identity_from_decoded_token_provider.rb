@@ -9,6 +9,7 @@ module Authentication
           fetch_identity_path: Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath.new,
           fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
           check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
+          parse_claim_path: Authentication::AuthnJwt::ParseClaimPath.new,
           logger: Rails.logger
         },
         inputs: %i[jwt_authenticator_input]
@@ -54,14 +55,9 @@ module Authentication
             LogMessages::Authentication::AuthnJwt::CheckingIdentityFieldExists.new(id_claim_key)
           )
 
-          raw_token = @jwt_authenticator_input.decoded_token[id_claim_key]
-
-          # Converts nil to empty string.
-          @id_from_token = String(raw_token).strip
-
-          if @id_from_token.empty?
-            raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken, id_claim_key
-          end
+          @id_from_token = id_claim_value
+          id_claim_value_not_empty
+          id_claim_value_is_string
 
           @logger.debug(
             LogMessages::Authentication::AuthnJwt::FoundJwtFieldInToken.new(
@@ -84,6 +80,31 @@ module Authentication
             service_id: @jwt_authenticator_input.service_id,
             required_variable_names: [TOKEN_APP_PROPERTY_VARIABLE]
           )[TOKEN_APP_PROPERTY_VARIABLE]
+        end
+
+        def id_claim_value
+          return @id_claim_value if @id_claim_value
+
+          @id_claim_value = @jwt_authenticator_input.decoded_token.dig(
+            *parsed_claim_path
+          )
+        end
+
+        def parsed_claim_path
+          @parse_claim_path.call(claim: id_claim_key)
+        rescue Errors::Authentication::AuthnJwt::InvalidClaimPath => e
+          raise Errors::Authentication::AuthnJwt::InvalidTokenAppPropertyValue, e.inspect
+        end
+
+        def id_claim_value_not_empty
+          return unless id_claim_value.nil? || id_claim_value.empty?
+
+          raise Errors::Authentication::AuthnJwt::NoSuchFieldInToken, id_claim_key
+        end
+
+        def id_claim_value_is_string
+          raise Errors::Authentication::AuthnJwt::TokenAppPropertyValueIsNotString.new(id_claim_key, id_claim_value.class) unless
+            id_claim_value.is_a?(String)
         end
       end
     end

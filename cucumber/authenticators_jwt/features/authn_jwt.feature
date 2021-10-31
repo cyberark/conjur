@@ -58,19 +58,11 @@ Feature: JWT Authenticator - JWKs Basic sanity
     CONJ00004E 'authn-jwt/non-existing' is not enabled
     """
 
-  Scenario: Host not in authenticator permitted group is denied
-    Given I have a "variable" resource called "test-variable"
-    Given I extend the policy with:
-    """
-    - !host
-      id: myapp
-      annotations:
-        authn-jwt/raw/custom-claim:
-    """
-    And I am using file "authn-jwt-general" and alg "RS256" for remotely issue token:
+  Scenario: ONYX-8821: Host that doesn't exist is denied
+    Given I am using file "authn-jwt-general" and alg "RS256" for remotely issue token:
     """
     {
-      "host":"not_premmited",
+      "host":"non_existing",
       "project-id": "myproject"
     }
     """
@@ -79,5 +71,9 @@ Feature: JWT Authenticator - JWKs Basic sanity
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00007E 'host/not_premmited' not found
+    CONJ00007E 'host/non_existing' not found
+    """
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:host:non_existing failed to authenticate with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """

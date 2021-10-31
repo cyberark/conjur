@@ -552,6 +552,22 @@ module Errors
         msg: "Failed to fetch audience value: audience value is empty",
         code: "CONJ00115E"
       )
+
+      InvalidClaimPath = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse claim path: '{0-claim-path}'. The claim path is in an invalid format. " \
+             "The valid format should meet the following regex: '{1-claim-path-format}'",
+        code: "CONJ00116E"
+      )
+
+      InvalidTokenAppPropertyValue = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse 'token-app-property' value. Error: '{0-error}'",
+        code: "CONJ00117E"
+      )
+
+      TokenAppPropertyValueIsNotString = ::Util::TrackableErrorClass.new(
+        msg: "'{0-claim-path}' value in token has type '{1-type}'. An identity must be a String.",
+        code: "CONJ00118E"
+      )
     end
 
     module ResourceRestrictions
