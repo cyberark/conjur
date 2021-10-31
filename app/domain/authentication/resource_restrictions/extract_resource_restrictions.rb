@@ -8,6 +8,7 @@ module Authentication
         resource_restrictions_class: Authentication::ResourceRestrictions::ResourceRestrictions,
         get_restriction_from_annotation: Authentication::ResourceRestrictions::GetRestrictionFromAnnotation.new,
         fetch_resource_annotations_instance: Authentication::ResourceRestrictions::FetchResourceAnnotations.new,
+        restriction_configuration_validator: nil,
         role_class: ::Role,
         resource_class: ::Resource,
         logger: Rails.logger,
@@ -26,6 +27,7 @@ module Authentication
         fetch_resource_annotations
         extract_resource_restrictions_from_annotations
         create_resource_restrictions_object
+        validate_restriction_configuration
 
         @logger.debug(LogMessages::Authentication::ResourceRestrictions::ExtractedResourceRestrictions.new(resource_restrictions.names))
 
@@ -82,6 +84,20 @@ module Authentication
         @resource_restrictions ||= @resource_restrictions_class.new(
           resource_restrictions_hash: @resource_restrictions_hash
         )
+      end
+
+      def validate_restriction_configuration
+        return unless @restriction_configuration_validator
+
+        @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatingRestrictionConfiguration.new)
+
+        resource_restrictions.each do |restriction|
+          @restriction_configuration_validator.call(
+            restriction: restriction
+          )
+        end
+
+        @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatedRestrictionConfigurationSuccessfully.new)
       end
     end
   end

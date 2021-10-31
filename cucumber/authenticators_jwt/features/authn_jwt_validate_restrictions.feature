@@ -225,7 +225,7 @@ Feature: JWT Authenticator - Validate restrictions
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/non-existing-field: invalid
+        authn-jwt/raw/non_existing_field: invalid
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -242,7 +242,7 @@ Feature: JWT Authenticator - Validate restrictions
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00084E Claim 'non-existing-field' is missing from JWT token.
+    CONJ00084E Claim 'non_existing_field' is missing from JWT token.
     """
 
   @sanity
@@ -252,7 +252,7 @@ Feature: JWT Authenticator - Validate restrictions
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/custom-claim:
+        authn-jwt/raw/custom_claim:
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -271,7 +271,7 @@ Feature: JWT Authenticator - Validate restrictions
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00100E Annotation, 'custom-claim', is empty
+    CONJ00100E Annotation, 'custom_claim', is empty
     """
 
   @sanity
@@ -285,7 +285,6 @@ Feature: JWT Authenticator - Validate restrictions
         authn-jwt/raw/sub: valid-sub
         authn-jwt: invalid
         authn-jwt/raw/namespace_id: valid-namespace-id
-        authn-jwt/raw/sub/sub: invalid-sub
         authn-jwt/raw/project_path: valid-project-path
         authn-jwt/raw2/sub: invalid-sub
 
