@@ -72,6 +72,29 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseClaimAliases') d
         end
       end
 
+      context "when input has illegal characters [ ]" do
+        subject do
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "a[1]:my-claim"
+          )
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasInvalidClaimFormat)
+        end
+      end
+
+      context "when input has illegal character /" do
+        subject do
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "a:my/claim"
+          )
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasInvalidClaimFormat)
+        end
+      end
 
       context "when input contains blank alias value" do
         subject do
