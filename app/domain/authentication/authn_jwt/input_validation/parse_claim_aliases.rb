@@ -71,8 +71,14 @@ module Authentication
             .map(&:strip)
           raise Errors::Authentication::AuthnJwt::ClaimAliasInvalidFormat, tuple unless values.length == 2
 
-          [valid_claim_value(values[0], tuple),
+          [valid_claim_name(values[0], tuple),
            valid_claim_value(values[1], tuple)]
+        end
+
+        def valid_claim_name(value, tuple)
+          raise Errors::Authentication::AuthnJwt::ClaimAliasInvalidFormat, tuple if value.blank?
+          raise Errors::Authentication::AuthnJwt::ClaimAliasNameInvalidCharacter, value if value.include?(PATH_DELIMITER)
+          valid_claim_value(value, tuple)
         end
 
         def valid_claim_value(value, tuple)

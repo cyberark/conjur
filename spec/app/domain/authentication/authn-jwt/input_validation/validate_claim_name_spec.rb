@@ -193,6 +193,30 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
       end
     end
 
+    context "When claim name contains value with allowed char '/'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a/a"
+        )
+      end
+
+      it 'does not raise error' do
+        expect { subject }.not_to raise_error
+      end
+    end
+
+    context "When claim name contains value with multiple allowed chars '/'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a/a/a/a"
+        )
+      end
+
+      it 'does not raise error' do
+        expect { subject }.not_to raise_error
+      end
+    end
+
     context "When claim name contains 1 allowed char '$'" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(

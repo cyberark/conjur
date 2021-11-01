@@ -543,6 +543,11 @@ module Errors
         code: "CONJ00113E"
       )
 
+      ClaimAliasNameInvalidCharacter = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse claim aliases: the claim alias name '{0-claim-alias-name}' contains '/'.",
+        code: "CONJ00114E"
+      )
+
       RoleWithRegisteredOrClaimAliasError = ::Util::TrackableErrorClass.new(
         msg: "Role can't have registered or aliased claim. Error: '{0-error}'",
         code: "CONJ00069E"
@@ -567,11 +572,6 @@ module Errors
       TokenAppPropertyValueIsNotString = ::Util::TrackableErrorClass.new(
         msg: "'{0-claim-path}' value in token has type '{1-type}'. An identity must be a String.",
         code: "CONJ00118E"
-      )
-
-      InvalidRestrictionName = ::Util::TrackableErrorClass.new(
-        msg: "Restriction '{0-restriction-name}' is invalid and not representing claim path in the token",
-        code: "CONJ00119E"
       )
     end
 
