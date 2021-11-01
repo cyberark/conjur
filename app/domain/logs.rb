@@ -154,6 +154,16 @@ module LogMessages
         code: "CONJ00045D"
       )
 
+      ValidatingRestrictionConfiguration = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating restriction configuration...",
+        code: "CONJ00143D"
+      )
+
+      ValidatedRestrictionConfigurationSuccessfully = ::Util::TrackableLogMessageClass.new(
+        msg: "Restriction configuration validated successfully",
+        code: "CONJ00144D"
+      )
+
     end
 
     module AuthnOidc

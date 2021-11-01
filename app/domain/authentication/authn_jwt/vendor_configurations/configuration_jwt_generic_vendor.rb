@@ -21,7 +21,8 @@ module Authentication
           create_constraints: Authentication::AuthnJwt::RestrictionValidation::CreateConstrains.new,
           fetch_claim_aliases: Authentication::AuthnJwt::RestrictionValidation::FetchClaimAliases.new,
           validate_and_decode_token: Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new,
-          restrictions_from_annotations: Authentication::ResourceRestrictions::GetServiceSpecificRestrictionFromAnnotation.new
+          restrictions_from_annotations: Authentication::ResourceRestrictions::GetServiceSpecificRestrictionFromAnnotation.new,
+          validate_restriction_name: Authentication::AuthnJwt::RestrictionValidation::ValidateRestrictionName.new
         )
           @logger = logger
           @jwt_authenticator_input_class = jwt_authenticator_input_class
@@ -34,9 +35,11 @@ module Authentication
           @fetch_claim_aliases = fetch_claim_aliases
           @validate_and_decode_token = validate_and_decode_token
           @restrictions_from_annotations = restrictions_from_annotations
+          @validate_restriction_name = validate_restriction_name
           @authenticator_input = authenticator_input
           @jwt_token = jwt_token
         end
+
         # rubocop:enable Metrics/ParameterLists
 
         def jwt_identity
@@ -100,7 +103,8 @@ module Authentication
         def extract_resource_restrictions
           @extract_resource_restrictions ||= @extract_resource_restrictions_class.new(
             get_restriction_from_annotation: @restrictions_from_annotations,
-            ignore_empty_annotations: false
+            ignore_empty_annotations: false,
+            restriction_configuration_validator: @validate_restriction_name
           )
         end
 
