@@ -573,6 +573,11 @@ module Errors
         msg: "'{0-claim-path}' value in token has type '{1-type}'. An identity must be a String.",
         code: "CONJ00118E"
       )
+      
+      InvalidRestrictionName = ::Util::TrackableErrorClass.new(
+        msg: "Restriction '{0-restriction-name}' is invalid and not representing claim path in the token",
+        code: "CONJ00119E"
+      )
     end
 
     module ResourceRestrictions
