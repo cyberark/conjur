@@ -29,7 +29,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/project-id: myproject
+        authn-jwt/raw/project_id: myproject
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -47,7 +47,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     """
     {
       "user":"myapp",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the audit log file
@@ -63,7 +63,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     """
     {
       "host":"non_existing",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the log file

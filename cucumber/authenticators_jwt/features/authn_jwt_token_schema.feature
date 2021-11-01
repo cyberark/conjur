@@ -320,8 +320,8 @@ Feature: JWT Authenticator - Token Schema
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/project-id: valid-project
-        authn-jwt/raw/namespace-id: valid-namespace
+        authn-jwt/raw/project_id: valid-project
+        authn-jwt/raw/namespace_id: valid-namespace
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -332,8 +332,8 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "host":"myapp",
-      "project-id": "valid-project",
-      "namespace-id": "valid-namespace"
+      "project_id": "valid-project",
+      "namespace_id": "valid-namespace"
     }
     """
     And I save my place in the audit log file
@@ -353,7 +353,7 @@ Feature: JWT Authenticator - Token Schema
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/project-id: valid-project
+        authn-jwt/raw/project_id: valid-project
         authn-jwt/raw/branch: valid-branch
 
     - !grant
@@ -365,7 +365,7 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "host":"myapp",
-      "project-id": "valid-project",
+      "project_id": "valid-project",
       "ref": "valid-branch"
     }
     """

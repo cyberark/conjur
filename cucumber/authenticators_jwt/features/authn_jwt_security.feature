@@ -27,7 +27,7 @@ Feature: JWT Authenticator - Security
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/project-id: myproject
+        authn-jwt/raw/project_id: myproject
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -82,7 +82,7 @@ Feature: JWT Authenticator - Security
     """
     {
       "host":"myapp",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the log file

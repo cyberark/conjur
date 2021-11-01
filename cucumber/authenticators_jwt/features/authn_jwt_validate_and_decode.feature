@@ -26,7 +26,7 @@ Feature: JWT Authenticator - Validate And Decode
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/project-id: myproject
+        authn-jwt/raw/project_id: myproject
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -41,7 +41,7 @@ Feature: JWT Authenticator - Validate And Decode
     """
     {
       "host":"myapp",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
@@ -60,7 +60,7 @@ Feature: JWT Authenticator - Validate And Decode
     """
     {
       "host":"myapp",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint

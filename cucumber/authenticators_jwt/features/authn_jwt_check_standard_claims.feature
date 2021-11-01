@@ -61,7 +61,7 @@ Feature: JWT Authenticator - Check registered claim
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/project-id: myproject
+        authn-jwt/raw/project_id: myproject
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -92,7 +92,7 @@ Feature: JWT Authenticator - Check registered claim
     """
     {
       "host":"myapp",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the audit log file
@@ -118,7 +118,7 @@ Feature: JWT Authenticator - Check registered claim
     """
     {
       "host":"myapp",
-      "project-id": "myproject",
+      "project_id": "myproject",
       "exp": 0
     }
     """
@@ -144,7 +144,7 @@ Feature: JWT Authenticator - Check registered claim
     """
     {
       "host":"myapp",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the audit log file
@@ -169,7 +169,7 @@ Feature: JWT Authenticator - Check registered claim
     """
     {
       "host":"myapp",
-      "project-id": "myproject",
+      "project_id": "myproject",
       "iat": 7624377528
     }
     """
@@ -195,7 +195,7 @@ Feature: JWT Authenticator - Check registered claim
     """
     {
       "host":"myapp",
-      "project-id": "myproject",
+      "project_id": "myproject",
       "nbf": 7624377528
     }
     """
@@ -224,7 +224,7 @@ Feature: JWT Authenticator - Check registered claim
     """
     {
       "host":"myapp",
-      "project-id": "myproject",
+      "project_id": "myproject",
       "iss": "issuer"
     }
     """
@@ -253,7 +253,7 @@ Feature: JWT Authenticator - Check registered claim
     """
     {
       "host":"myapp",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the audit log file
@@ -283,7 +283,7 @@ Feature: JWT Authenticator - Check registered claim
     """
     {
       "host":"myapp",
-      "project-id": "myproject",
+      "project_id": "myproject",
       "iss": "http://jwks"
     }
     """
@@ -314,7 +314,7 @@ Feature: JWT Authenticator - Check registered claim
     """
     {
       "host":"myapp",
-      "project-id": "myproject",
+      "project_id": "myproject",
       "iss": "http://jwks"
     }
     """
@@ -344,7 +344,7 @@ Feature: JWT Authenticator - Check registered claim
     """
     {
       "host":"myapp",
-      "project-id": "myproject",
+      "project_id": "myproject",
       "iss": "http://jwks_py:8090/authn-jwt-check-standard-claims/RS256"
     }
     """
@@ -379,7 +379,7 @@ Feature: JWT Authenticator - Check registered claim
     - !host
       id: aud-test-app
       annotations:
-        authn-jwt/raw/project-id: valid-project-id
+        authn-jwt/raw/project_id: valid-project-id
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -390,7 +390,7 @@ Feature: JWT Authenticator - Check registered claim
     And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
     {
-      "project-id":"valid-project-id",
+      "project_id":"valid-project-id",
       "host":"aud-test-app",
       <aud>
     }
