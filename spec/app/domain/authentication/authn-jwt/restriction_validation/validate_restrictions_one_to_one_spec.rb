@@ -5,6 +5,8 @@ require 'spec_helper'
 RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::ValidateRestrictionsOneToOne') do
   let(:right_email) { "admin@example.com" }
   let(:wrong_email) { "wrong@example.com" }
+  let(:right_group) { "mygroup" }
+  let(:wrong_group) { "othergroup" }
   let(:empty_email) { "" }
   let(:spaced_email) { "  " }
   let(:right_login) { "cucumber" }
@@ -26,6 +28,13 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::ValidateRestric
       "ref_protected" => "true",
       "jti" => "90c4414b-f7cf-4b98-9a4f-2c29f360e6d0",
       "iss" => "ec2-18-157-123-113.eu-central-1.compute.amazonaws.com",
+      "additional_data" =>
+      {
+        "group_name" => "mygroup",
+        "group_id" => "group21",
+        "team_name" => "myteam",
+        "team_id" => "team76"
+      },
       "iat" => 1619352275,
       "nbf" => 1619352270,
       "exp" => 1619355875,
@@ -54,6 +63,18 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::ValidateRestric
 
   let(:non_existing_restriction) {
     Authentication::ResourceRestrictions::ResourceRestriction.new(name: "not_existing", value: wrong_email)
+  }
+
+  let(:existing_right_nested_restriction) {
+    Authentication::ResourceRestrictions::ResourceRestriction.new(name: "additional_data/group_name", value: right_group)
+  }
+
+  let(:existing_wrong_nested_restriction) {
+    Authentication::ResourceRestrictions::ResourceRestriction.new(name: "additional_data/group_name", value: wrong_group)
+  }
+
+  let(:non_existing_nested_restriction) {
+    Authentication::ResourceRestrictions::ResourceRestriction.new(name: "additional_data/namespace", value: wrong_email)
   }
 
   let(:empty_annotation_restriction) {
@@ -101,6 +122,21 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::ValidateRestric
         expect { subject.valid_restriction?(non_existing_restriction) }.to raise_error(
                                                                              Errors::Authentication::AuthnJwt::JwtTokenClaimIsMissing,
                                                                              /.*'not_existing'.*/
+                                                                           )
+      end
+
+      it "returns true when the restriction is for existing nested field and its value equals the token" do
+        expect(subject.valid_restriction?(existing_right_nested_restriction)).to eql(true)
+      end
+
+      it "return false when the restriction is for existing nested field but the value is different then the token" do
+        expect(subject.valid_restriction?(existing_wrong_nested_restriction)).to eql(false)
+      end
+
+      it "raises JwtTokenClaimIsMissing when nested restriction is not in the decoded token" do
+        expect { subject.valid_restriction?(non_existing_nested_restriction) }.to raise_error(
+                                                                             Errors::Authentication::AuthnJwt::JwtTokenClaimIsMissing,
+                                                                             /.*'additional_data\/namespace'.*/
                                                                            )
       end
 
