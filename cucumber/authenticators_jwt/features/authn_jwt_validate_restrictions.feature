@@ -34,9 +34,9 @@ Feature: JWT Authenticator - Validate restrictions
     - !host
       id: myapp
       annotations:
-        authn-jwt/project-id: myproject
+        authn-jwt/project_id: myproject
         authn-jwt/aud: myaud
-        authn-jwt/raw/project-id: myproject
+        authn-jwt/raw/project_id: myproject
         authn-jwt/invalid-service/aud: myaud
 
     - !grant
@@ -50,7 +50,7 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
-      "project-id": "myproject",
+      "project_id": "myproject",
       "aud": "myaud"
     }
     """
@@ -70,7 +70,7 @@ Feature: JWT Authenticator - Validate restrictions
     - !host
       id: myapp
       annotations:
-        authn-jwt/project-id: myproject
+        authn-jwt/project_id: myproject
         authn-jwt/aud: myaud
 
     - !grant
@@ -81,7 +81,7 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
-      "project-id": "myproject",
+      "project_id": "myproject",
       "aud": "myaud"
     }
     """
@@ -100,9 +100,9 @@ Feature: JWT Authenticator - Validate restrictions
     - !host
       id: myapp
       annotations:
-        authn-jwt/project-id: right-project-id
+        authn-jwt/project_id: right-project-id
         authn-jwt/ref: right-ref
-        authn-jwt/raw/project-id: right-project-id
+        authn-jwt/raw/project_id: right-project-id
         authn-jwt/raw/ref: wrong-ref
 
     - !grant
@@ -113,7 +113,7 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
-      "project-id": "right-project-id",
+      "project_id": "right-project-id",
       "ref": "right-ref"
     }
     """
@@ -140,7 +140,7 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
-      "project-id": "valid-project-id",
+      "project_id": "valid-project-id",
       "ref": "valid-ref"
     }
     """
@@ -160,8 +160,8 @@ Feature: JWT Authenticator - Validate restrictions
       id: myapp
       annotations:
         authn-jwt/raw/sub: invalid-sub
-        authn-jwt/raw/project-path: invalid-project-path
-        authn-jwt/raw/project-id: valid-project-id
+        authn-jwt/raw/project_path: invalid-project-path
+        authn-jwt/raw/project_id: valid-project-id
         authn-jwt/raw/ref: invalid-ref
 
     - !grant
@@ -173,8 +173,8 @@ Feature: JWT Authenticator - Validate restrictions
     {
       "host":"myapp",
       "sub": "valid-sub",
-      "project-path":"valid-project-path",
-      "project-id": "valid-project-id",
+      "project_path":"valid-project-path",
+      "project_id": "valid-project-id",
       "ref": "valid-ref"
     }
     """
@@ -194,7 +194,7 @@ Feature: JWT Authenticator - Validate restrictions
       id: myapp
       annotations:
         authn-jwt/raw/sub: invalid-sub
-        authn-jwt/raw/project-path: invalid-project-path
+        authn-jwt/raw/project_path: invalid-project-path
         authn-jwt/raw/ref: invalid-ref
 
     - !grant
@@ -206,7 +206,7 @@ Feature: JWT Authenticator - Validate restrictions
     {
       "host":"myapp",
       "sub": "valid-sub",
-      "project-path":"valid-project-path",
+      "project_path":"valid-project-path",
       "ref": "valid-ref"
     }
     """
@@ -263,7 +263,7 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the log file
@@ -284,9 +284,9 @@ Feature: JWT Authenticator - Validate restrictions
         authn-jwt/raw: invalid
         authn-jwt/raw/sub: valid-sub
         authn-jwt: invalid
-        authn-jwt/raw/namespace-id: valid-namespace-id
+        authn-jwt/raw/namespace_id: valid-namespace-id
         authn-jwt/raw/sub/sub: invalid-sub
-        authn-jwt/raw/project-path: valid-project-path
+        authn-jwt/raw/project_path: valid-project-path
         authn-jwt/raw2/sub: invalid-sub
 
     - !grant
@@ -298,10 +298,10 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
-      "project-id": "valid-project-id",
+      "project_id": "valid-project-id",
       "sub": "valid-sub",
-      "namespace-id": "valid-namespace-id",
-      "project-path": "valid-project-path"
+      "namespace_id": "valid-namespace-id",
+      "project_path": "valid-project-path"
     }
     """
     And I have a "variable" resource called "test-variable"
@@ -315,8 +315,8 @@ Feature: JWT Authenticator - Validate restrictions
     And The following lines appear in the log after my savepoint:
       |                                                                     |
       |CONJ00048D Validating resource restriction on request: 'sub'         |
-      |CONJ00048D Validating resource restriction on request: 'namespace-id'|
-      |CONJ00048D Validating resource restriction on request: 'project-path'|
+      |CONJ00048D Validating resource restriction on request: 'namespace_id'|
+      |CONJ00048D Validating resource restriction on request: 'project_path'|
       |CONJ00045D Resource restrictions matched request                     |
       |CONJ00030D Resource restrictions validated                           |
       |CONJ00103D 'validate_restrictions' passed successfully               |

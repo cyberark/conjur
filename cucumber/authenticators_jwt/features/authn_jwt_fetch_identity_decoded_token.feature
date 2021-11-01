@@ -28,7 +28,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/project-id: myproject
+        authn-jwt/raw/project_id: myproject
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -37,7 +37,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     - !host
       id: some_policy/sub_policy/host_test_from_token
       annotations:
-        authn-jwt/raw/project-id: myproject
+        authn-jwt/raw/project_id: myproject
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -46,7 +46,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     - !host
       id: some_policy/host_test_from_token
       annotations:
-        authn-jwt/raw/project-id: myproject
+        authn-jwt/raw/project_id: myproject
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -66,7 +66,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     """
     {
       "host":"myapp",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the log file
@@ -96,7 +96,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     """
     {
       "host":"myapp2",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the log file
@@ -111,7 +111,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     Given I am using file "identity-from-decoded-token" and alg "RS256" for remotely issue token:
     """
     {
-      "project-id": "myproject",
+      "project_id": "myproject",
       "more-claims":
       {
         "host_claim":"myapp"
@@ -131,7 +131,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     Given I am using file "identity-from-decoded-token" and alg "RS256" for remotely issue token:
     """
     {
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the log file
@@ -161,7 +161,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     """
     {
       "host_claim":"sub_policy/host_test_from_token",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the log file
@@ -192,7 +192,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     """
     {
       "host_claim":"host_test_from_token",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the log file
@@ -217,7 +217,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
           "id": "myapp"
         }
       },
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the audit log file
@@ -242,7 +242,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
           }
         }
       ],
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the audit log file
@@ -266,7 +266,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
           "project_2"
         ]
       },
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the audit log file

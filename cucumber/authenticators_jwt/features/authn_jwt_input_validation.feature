@@ -23,7 +23,7 @@ Feature: JWT Authenticator - Input Validation
     - !user
       id: myuser
       annotations:
-        authn-jwt/raw/project-id: myproject
+        authn-jwt/raw/project_id: myproject
 
     - !grant
       role: !group conjur/authn-jwt/raw/users
@@ -72,7 +72,7 @@ Feature: JWT Authenticator - Input Validation
     And I am using file "authn-jwt-input-validation" and alg "RS256" for remotely issue non exp token:
     """
     {
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     When I authenticate via authn-jwt without service id but with myuser account in url
@@ -87,7 +87,7 @@ Feature: JWT Authenticator - Input Validation
     And I am using file "authn-jwt-input-validation" and alg "RS256" for remotely issue token:
     """
     {
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     When I authenticate via authn-jwt with wrong-account account in url
@@ -102,7 +102,7 @@ Feature: JWT Authenticator - Input Validation
     And I am using file "authn-jwt-input-validation" and alg "RS256" for remotely issue non exp token:
     """
     {
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     When I authenticate via authn-jwt using given wrong-id service ID and with myuser account in url

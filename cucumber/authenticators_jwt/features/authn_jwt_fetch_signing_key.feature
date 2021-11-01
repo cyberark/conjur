@@ -112,7 +112,7 @@ Feature: JWT Authenticator - Fetch signing key
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/project-id: myproject
+        authn-jwt/raw/project_id: myproject
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -126,7 +126,7 @@ Feature: JWT Authenticator - Fetch signing key
     """
     {
       "host":"myapp",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the log file
@@ -218,7 +218,7 @@ Feature: JWT Authenticator - Fetch signing key
     """
     {
       "host":"alice",
-      "project-id": "myproject",
+      "project_id": "myproject",
       "email": "alice@conjur.net"
     }
     """
@@ -272,7 +272,7 @@ Feature: JWT Authenticator - Fetch signing key
     """
     {
       "host":"alice",
-      "project-id": "myproject",
+      "project_id": "myproject",
       "email": "alice@conjur.net"
     }
     """
@@ -412,7 +412,7 @@ Feature: JWT Authenticator - Fetch signing key
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/project-id: myproject
+        authn-jwt/raw/project_id: myproject
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -428,7 +428,7 @@ Feature: JWT Authenticator - Fetch signing key
     """
     {
       "host":"myapp",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the audit log file
@@ -474,7 +474,7 @@ Feature: JWT Authenticator - Fetch signing key
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/project-id: myproject
+        authn-jwt/raw/project_id: myproject
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -487,7 +487,7 @@ Feature: JWT Authenticator - Fetch signing key
     """
     {
       "host":"myapp",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the log file
@@ -526,7 +526,7 @@ Feature: JWT Authenticator - Fetch signing key
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/project-id: myproject
+        authn-jwt/raw/project_id: myproject
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
@@ -539,7 +539,7 @@ Feature: JWT Authenticator - Fetch signing key
     """
     {
       "host":"myapp",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the log file
@@ -590,7 +590,7 @@ Feature: JWT Authenticator - Fetch signing key
     """
     {
       "host":"myapp",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the log file
@@ -619,7 +619,7 @@ Feature: JWT Authenticator - Fetch signing key
     """
     {
       "host":"myapp",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the log file
@@ -648,7 +648,7 @@ Feature: JWT Authenticator - Fetch signing key
     """
     {
       "host":"myapp",
-      "project-id": "myproject"
+      "project_id": "myproject"
     }
     """
     And I save my place in the log file
