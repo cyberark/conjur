@@ -34,7 +34,7 @@ module Authentication
         end
         
         def valid_claim_name_regex
-          @valid_claim_name_regex ||= Regexp.new(VALID_CLAIM_NAME_REGEX)
+          @valid_claim_name_regex ||= Regexp.new(PURE_NESTED_CLAIM_NAME_REGEX)
         end
         
         def validate_claim_is_allowed

@@ -72,6 +72,89 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseClaimAliases') d
         end
       end
 
+      context "when input has illegal [ ] characters in claim name" do
+        subject do
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "a[1]:my_claim"
+          )
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasInvalidClaimFormat)
+        end
+      end
+
+      context "when input has illegal [ ] characters in claim value" do
+        subject do
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "a1:my[1]claim"
+          )
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasInvalidClaimFormat)
+        end
+      end
+
+      context "when input has illegal / character in claim name" do
+        subject do
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "a/a:my_claim"
+          )
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasNameInvalidCharacter)
+        end
+      end
+
+      context "When input has illegal / character in claim name" do
+        subject do
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "a/a/a:my_claim"
+          )
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasNameInvalidCharacter)
+        end
+      end
+
+      context "When input has illegal - character in claim name" do
+        subject do
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "my-claim:a"
+          )
+        end
+
+        it "raises an error" do
+          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasInvalidClaimFormat)
+        end
+      end
+
+      context "When input has legal / character in claim value" do
+        subject do
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "a:my/claim"
+          )
+        end
+
+        it 'does not raise error' do
+          expect { subject }.not_to raise_error
+        end
+      end
+
+      context "When input has legal / character in more than one claim value" do
+        subject do
+          ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
+            claim_aliases: "a:first/claim,b:second/claim"
+          )
+        end
+
+        it 'does not raise error' do
+          expect { subject }.not_to raise_error
+        end
+      end
 
       context "when input contains blank alias value" do
         subject do

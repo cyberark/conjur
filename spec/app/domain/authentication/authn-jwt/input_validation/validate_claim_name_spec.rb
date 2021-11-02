@@ -154,6 +154,54 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
         expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
       end
     end
+
+    context "when input has illegal [ character in claim name" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "my[claim"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "when input has illegal [ ] characters in claim name" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "my[1]claim"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When input has illegal - character in claim name" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "my-claim"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When input has illegal : character in claim name" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a:"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
   end
 
   context "Valid claim name value" do
@@ -185,6 +233,30 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
           claim_name: "_"
+        )
+      end
+
+      it 'does not raise error' do
+        expect { subject }.not_to raise_error
+      end
+    end
+
+    context "When claim name contains value with allowed char '/'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a/a"
+        )
+      end
+
+      it 'does not raise error' do
+        expect { subject }.not_to raise_error
+      end
+    end
+
+    context "When claim name contains value with multiple allowed chars '/'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a/a/a/a"
         )
       end
 

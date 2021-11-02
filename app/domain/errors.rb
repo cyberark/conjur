@@ -543,6 +543,11 @@ module Errors
         code: "CONJ00113E"
       )
 
+      ClaimAliasNameInvalidCharacter = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse claim aliases: the claim alias name '{0-claim-alias-name}' contains '/'.",
+        code: "CONJ00114E"
+      )
+
       RoleWithRegisteredOrClaimAliasError = ::Util::TrackableErrorClass.new(
         msg: "Role can't have registered or aliased claim. Error: '{0-error}'",
         code: "CONJ00069E"

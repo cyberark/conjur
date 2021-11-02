@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2397](https://github.com/cyberark/conjur/pull/2397)
 - JWT authenticator host annotations support nested claims.
   [cyberark/conjur#2404](https://github.com/cyberark/conjur/pull/2404)
+- JWT authenticator - nested claims are supported in claim aliases and enforced claims.
+  [cyberark/conjur#2403](https://github.com/cyberark/conjur/pull/2403)
 
 ### Changed
 - Changed claims mapping variable name ('mapping-claims' => 'claim-aliases').
