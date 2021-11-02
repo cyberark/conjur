@@ -204,7 +204,7 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
     end
   end
 
-  context "Valid claim name value" doב
+  context "Valid claim name value" do
     context "When claim name contains 1 allowed char 'F'" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
