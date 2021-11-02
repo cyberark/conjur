@@ -7,10 +7,12 @@ module Authentication
         def initialize(
           decoded_token:,
           aliased_claims:,
+          parse_claim_path: Authentication::AuthnJwt::ParseClaimPath.new,
           logger: Rails.logger
         )
           @decoded_token = decoded_token
           @aliased_claims = aliased_claims
+          @parse_claim_path = parse_claim_path
           @logger = logger
         end
 
@@ -23,12 +25,13 @@ module Authentication
             raise Errors::Authentication::ResourceRestrictions::EmptyAnnotationGiven, annotation_name
           end
 
-          unless @decoded_token.key?(claim_name)
+          claim_value = @decoded_token.dig(*parsed_claim_path(claim_name))
+          if claim_value.nil?
             raise Errors::Authentication::AuthnJwt::JwtTokenClaimIsMissing,
                   claim_name_for_error(annotation_name, claim_name)
           end
 
-          @decoded_token.fetch(claim_name) == restriction_value
+          restriction_value == claim_value
         end
 
         private
@@ -44,6 +47,10 @@ module Authentication
           return annotation_name if annotation_name == claim_name
 
           "#{claim_name} (annotation: #{annotation_name})"
+        end
+
+        def parsed_claim_path(claim_path)
+          @parse_claim_path.call(claim: claim_path)
         end
       end
     end

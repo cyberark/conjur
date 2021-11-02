@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2388](https://github.com/cyberark/conjur/pull/2388)
 - JWT authenticator `token-app-property` value supports nested claims.
   [cyberark/conjur#2397](https://github.com/cyberark/conjur/pull/2397)
+- JWT authenticator host annotations support nested claims.
+  [cyberark/conjur#2404](https://github.com/cyberark/conjur/pull/2404)
 
 ### Changed
 - Changed claims mapping variable name ('mapping-claims' => 'claim-aliases').
