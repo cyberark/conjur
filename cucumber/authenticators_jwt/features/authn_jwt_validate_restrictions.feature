@@ -37,6 +37,7 @@ Feature: JWT Authenticator - Validate restrictions
         authn-jwt/project_id: myproject
         authn-jwt/aud: myaud
         authn-jwt/raw/project_id: myproject
+        authn-jwt/raw/additional_data/group_name: mygroup
         authn-jwt/invalid-service/aud: myaud
 
     - !grant
@@ -51,6 +52,13 @@ Feature: JWT Authenticator - Validate restrictions
     {
       "host":"myapp",
       "project_id": "myproject",
+      "additional_data":
+      {
+        "group_name": "mygroup",
+        "group_id": "group21",
+        "team_name": "myteam",
+        "team_id": "team76"
+      },
       "aud": "myaud"
     }
     """
@@ -319,3 +327,33 @@ Feature: JWT Authenticator - Validate restrictions
       |CONJ00045D Resource restrictions matched request                     |
       |CONJ00030D Resource restrictions validated                           |
       |CONJ00103D 'validate_restrictions' passed successfully               |
+
+  Scenario: ONYX-13722: Annotation with invalid claim path format, 401 Error
+    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    Given I extend the policy with:
+    """
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/sub: valid-sub
+        authn-jwt/raw/actions[0]: GET
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I am using file "authn-jwt-validate-restrictions" and alg "RS256" for remotely issue token:
+    """
+    {
+      "host":"myapp",
+      "sub": "valid-sub",
+      "actions": ["GET", "POST"]
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00119E Restriction 'actions[0]' is invalid and not representing claim path in the token
+    """
