@@ -26,8 +26,10 @@ module Authentication
           end
 
           claim_value = @decoded_token.dig(*parsed_claim_path(claim_name))
-          raise Errors::Authentication::AuthnJwt::JwtTokenClaimIsMissing,
-                claim_name_for_error(annotation_name, claim_name) if claim_value.nil?
+          if claim_value.nil?
+            raise Errors::Authentication::AuthnJwt::JwtTokenClaimIsMissing,
+                  claim_name_for_error(annotation_name, claim_name)
+          end
 
           restriction_value == claim_value
         end
