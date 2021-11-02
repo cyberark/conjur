@@ -680,7 +680,7 @@ Feature: JWT Authenticator - Token Schema
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00104E Failed to validate claim: claim name '%@^#[{]}$~=-+_?.><&^@*@#*sdhj812ehd' does not match regular expression: '(?-mix:^[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*$)'.>
+    CONJ00104E Failed to validate claim: claim name '%@^#[{]}$~=-+_?.><&^@*@#*sdhj812ehd' does not match regular expression: '(?-mix:^[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*(\/[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*)*$)'.>
     """
 
   Scenario: ONYX-10863 - Claim aliases invalid variable - 401 Error
@@ -711,7 +711,7 @@ Feature: JWT Authenticator - Token Schema
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00104E Failed to validate claim: claim name '%@^#&^[{]}$~=-+_?.><812ehd' does not match regular expression: '(?-mix:^[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*$)'.
+    CONJ00104E Failed to validate claim: claim name '%@^#&^[{]}$~=-+_?.><812ehd' does not match regular expression: '(?-mix:^[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*(\/[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*)*$)'.
     """
 
   Scenario: ONYX-10941:  Complex Case - Add mapping of mandatory claims after host configuration
