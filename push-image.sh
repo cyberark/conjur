@@ -67,6 +67,12 @@ if [[ "${PUBLISH_EDGE}" = true ]]; then
   # This script is running to publish the edge tagged image to DockerHub
   tag_and_push "edge" "${LOCAL_IMAGE}" "${REGISTRY_PREFIX}${IMAGE_NAME}"
 
+  # Push the edge build into the internal registry
+  tag_and_push "edge" "${LOCAL_IMAGE}" "registry.tld/conjur"
+
+  # Push the UBI edge build into the internal registry
+  tag_and_push "edge" "conjur-ubi:${TAG}" "registry.tld/conjur-ubi"
+
 elif [[ ! -z "${REGISTRY_PREFIX}" ]]; then
 
   # This is not running on a tag-triggered build, and a registry prefix has
@@ -96,6 +102,7 @@ elif [[ ! -z "${TAG_NAME:-}" ]]; then
     # Push to Internal Registry - this is so the current release tags
     # are also present in the internal registry.
     tag_and_push "${v}" "${LOCAL_IMAGE}" "registry.tld/conjur"
+    tag_and_push "${v}" "conjur-ubi:${TAG}" "registry.tld/conjur-ubi"
   done
 
   # Publish only the tag version to the Redhat container registry
