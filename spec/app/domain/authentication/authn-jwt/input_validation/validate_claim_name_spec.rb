@@ -155,44 +155,56 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
       end
     end
 
-    context "when input has illegal [ ] characters in claim name" do
+    context "when input has illegal [ character in claim name" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
-          claim_aliases: "a[1]:my_claim"
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "my[claim"
         )
       end
 
       it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasInvalidClaimFormat)
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
       end
     end
 
-    context "when input has illegal [ ] characters in claim value" do
+    context "when input has illegal [ ] characters in claim name" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
-          claim_aliases: "a1:my[1]claim"
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "my[1]claim"
         )
       end
 
       it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasInvalidClaimFormat)
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
       end
     end
 
     context "When input has illegal - character in claim name" do
       subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
-          claim_aliases: "my-claim:a"
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "my-claim"
         )
       end
 
       it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasInvalidClaimFormat)
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When input has illegal : character in claim name" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a:"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
       end
     end
   end
 
-  context "Valid claim name value" do
+  context "Valid claim name value" doב
     context "When claim name contains 1 allowed char 'F'" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
@@ -305,30 +317,6 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
           claim_name: "$2w9"
-        )
-      end
-
-      it 'does not raise error' do
-        expect { subject }.not_to raise_error
-      end
-    end
-
-    context "When input has legal / character in claim value" do
-      subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
-          claim_aliases: "a:my/claim"
-        )
-      end
-
-      it 'does not raise error' do
-        expect { subject }.not_to raise_error
-      end
-    end
-
-    context "When input has legal / character in more than one claim value" do
-      subject do
-        ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
-          claim_aliases: "a:first/claim,b:second/claim"
         )
       end
 
