@@ -48,12 +48,6 @@ pipeline {
       }
     }
 
-    stage('Validate Changelog') {
-      steps {
-        sh 'ci/parse-changelog'
-      }
-    }
-
     stage('Build and test Conjur') {
       when {
         // Run tests only when ANY of the following is true:
@@ -99,113 +93,7 @@ pipeline {
           }
         }
 
-        stage('Scan Docker Image') {
-          parallel {
-            stage("Scan Docker Image for fixable issues") {
-              steps {
-                scanAndReport("conjur:${tagWithSHA()}", "HIGH", false)
-              }
-            }
-            stage("Scan Docker image for total issues") {
-              steps {
-                scanAndReport("conjur:${tagWithSHA()}", "NONE", true)
-              }
-            }
-            stage("Scan UBI-based Docker Image for fixable issues") {
-              steps {
-                scanAndReport("conjur-ubi:${tagWithSHA()}", "HIGH", false)
-              }
-            }
-            stage("Scan UBI-based Docker image for total issues") {
-              steps {
-                scanAndReport("conjur-ubi:${tagWithSHA()}", "NONE", true)
-              }
-            }
-          }
-        }
 
-        // TODO: Add comments explaining which env vars are set here.
-        stage('Prepare For CodeClimate Coverage Report Submission') {
-          steps {
-            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-              script {
-                ccCoverage.dockerPrep()
-                sh 'mkdir -p coverage'
-                env.CODE_CLIMATE_PREPARED = "true"
-              }
-            }
-          }
-        }
-
-        // Run outside parallel block to reduce main Jenkins executor load.
-        stage('Nightly Only') {
-          when {
-            expression { params.NIGHTLY }
-          }
-
-          stages {
-            stage('EE FIPS agent tests') {
-              agent { label 'executor-v2-rhel-ee' }
-
-              steps {
-                // Catch errors so remaining steps always run.
-                catchError {
-                  runConjurTests()
-                }
-
-                stash(
-                  name: 'testResultEE',
-                  includes: '''
-                    cucumber/*/*.*,
-                    container_logs/*/*,
-                    spec/reports/*.xml,
-                    spec/reports-audit/*.xml,
-                    cucumber/*/features/reports/**/*.xml
-                  '''
-                )
-              }
-
-              post {
-                always {
-                  dir('ee-test'){
-                    unstash 'testResultEE'
-                  }
-
-                  archiveArtifacts(
-                    artifacts: "ee-test/cucumber/*/*.*",
-                    fingerprint: false,
-                    allowEmptyArchive: true
-                  )
-
-                  archiveArtifacts(
-                    artifacts: "ee-test/container_logs/*/*",
-                    fingerprint: false,
-                    allowEmptyArchive: true
-                  )
-
-                  publishHTML(
-                    reportDir: 'ee-test/cucumber',
-                    reportFiles: '''
-                      api/cucumber_results.html,
-                      authenticators_config/cucumber_results.html,
-                      authenticators_azure/cucumber_results.html,
-                      authenticators_ldap/cucumber_results.html,
-                      authenticators_oidc/cucumber_results.html,
-                      authenticators_status/cucumber_results.html
-                      policy/cucumber_results.html,
-                      rotators/cucumber_results.html
-                    ''',
-                    reportName: 'EE Integration reports',
-                    reportTitles: '',
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true
-                  )
-                }
-              }
-            }
-          }
-        }
 
         stage('Run environment tests in parallel') {
           parallel {
@@ -423,18 +311,8 @@ pipeline {
           }
         }
       }
-      
+
       post {
-        success {
-          script {
-            if (env.BRANCH_NAME == 'master') {
-              build(
-                job:'../cyberark--secrets-provider-for-k8s/main',
-                wait: false
-              )
-            }
-          }
-        }
 
         always {
           script {
@@ -620,24 +498,6 @@ def runConjurTests() {
       },
       "OIDC Authenticator - ${env.STAGE_NAME}": {
         sh 'ci/test authenticators_oidc'
-      },
-      "Policy - ${env.STAGE_NAME}": {
-        sh 'ci/test policy'
-      },
-      "API - ${env.STAGE_NAME}": {
-        sh 'ci/test api'
-      },
-      "Rotators - ${env.STAGE_NAME}": {
-        sh 'ci/test rotators'
-      },
-      "Kubernetes 1.7 in GKE - ${env.STAGE_NAME}": {
-        sh 'cd ci/authn-k8s && summon ./test.sh gke'
-      },
-      "Audit - ${env.STAGE_NAME}": {
-        sh 'ci/test rspec_audit'
-      },
-      "Policy Parser - ${env.STAGE_NAME}": {
-        sh 'cd gems/policy-parser && ./test.sh'
       }
     ])
   }
