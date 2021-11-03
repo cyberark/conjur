@@ -99,43 +99,7 @@ pipeline {
           }
         }
 
-        stage('Scan Docker Image') {
-          parallel {
-            stage("Scan Docker Image for fixable issues") {
-              steps {
-                scanAndReport("conjur:${tagWithSHA()}", "HIGH", false)
-              }
-            }
-            stage("Scan Docker image for total issues") {
-              steps {
-                scanAndReport("conjur:${tagWithSHA()}", "NONE", true)
-              }
-            }
-            stage("Scan UBI-based Docker Image for fixable issues") {
-              steps {
-                scanAndReport("conjur-ubi:${tagWithSHA()}", "HIGH", false)
-              }
-            }
-            stage("Scan UBI-based Docker image for total issues") {
-              steps {
-                scanAndReport("conjur-ubi:${tagWithSHA()}", "NONE", true)
-              }
-            }
-          }
-        }
 
-        // TODO: Add comments explaining which env vars are set here.
-        stage('Prepare For CodeClimate Coverage Report Submission') {
-          steps {
-            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-              script {
-                ccCoverage.dockerPrep()
-                sh 'mkdir -p coverage'
-                env.CODE_CLIMATE_PREPARED = "true"
-              }
-            }
-          }
-        }
 
         // Run outside parallel block to reduce main Jenkins executor load.
         stage('Nightly Only') {
