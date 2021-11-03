@@ -21,6 +21,7 @@ RUN INSTALL_PKGS="gcc \
                   gcc-c++ \
                   git \
                   glibc-devel \
+                  jq \
                   libxml2-devel \
                   libxslt-devel \
                   make \
