@@ -843,3 +843,137 @@ Feature: JWT Authenticator - Token Schema
     """
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
+
+  @sanity
+  Scenario: ONYX-13716 Claim Alias nested annotation - 200 OK
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/claim-aliases
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/claim: valid
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "claim-aliases" variable to value "claim:google/claim"
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
+    """
+    {
+      "google":{
+        "claim":"valid"
+      },
+      "host":"myapp"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 200
+    And The following appears in the log after my savepoint:
+    """
+    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    """
+
+  @sanity
+  Scenario: ONYX-13716 Claim Alias nested annotation - 401 Error Wrong Claim value
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/claim-aliases
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/claim: valid
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "claim-aliases" variable to value "claim:google/claim"
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
+    """
+    {
+      "google":{
+        "claim":"not_valid"
+      },
+      "host":"myapp"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00049E Resource restriction 'claim' does not match with the corresponding value in the request
+    """
+
+  @sanity
+  Scenario: ONYX-13717 Claim Alias and Enforced Claim nested annotation - 200 OK
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/enforced-claims
+    - !variable conjur/authn-jwt/raw/claim-aliases
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/claim: valid_claim
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "enforced-claims" variable to value "google/claim"
+    And I successfully set authn-jwt "claim-aliases" variable to value "claim:google/claim"
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
+    """
+    {
+      "google":{
+        "claim":"valid_claim"
+      },
+      "host":"myapp"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 200
+    And The following appears in the log after my savepoint:
+    """
+    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    """
+
+  @sanity
+  Scenario: ONYX-13718 Claim Alias with invalid characters - 401 Error
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/claim-aliases
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/claim: valid
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "claim-aliases" variable to value "claim/claim:valid"
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
+    """
+    {
+      "google":{
+        "claim":"valid"
+      },
+      "host":"myapp"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00114E Failed to parse claim aliases: the claim alias name 'claim/claim' contains '/'
+    """
