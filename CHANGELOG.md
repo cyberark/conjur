@@ -9,12 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Create default account when no account is specified in `conjurctl account create`.
   [cyberark/conjur#2388](https://github.com/cyberark/conjur/pull/2388)
-- JWT authenticator `token-app-property` value supports nested claims.
-  [cyberark/conjur#2397](https://github.com/cyberark/conjur/pull/2397)
-- JWT authenticator host annotations support nested claims.
-  [cyberark/conjur#2404](https://github.com/cyberark/conjur/pull/2404)
-- JWT authenticator - nested claims are supported in claim aliases and enforced claims.
-  [cyberark/conjur#2403](https://github.com/cyberark/conjur/pull/2403)
+- JWT authenticator supports nested claims in `token-app-property`, `enforced-claims`,
+  `claim-aliases` and role annotations. ([ONYX-11204](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-11204):
+  [#2397](https://github.com/cyberark/conjur/pull/2397),
+  [#2404](https://github.com/cyberark/conjur/pull/2404),
+  [#2403](https://github.com/cyberark/conjur/pull/2403))
 
 ### Changed
 - Changed claims mapping variable name ('mapping-claims' => 'claim-aliases').
