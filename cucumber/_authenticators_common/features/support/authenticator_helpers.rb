@@ -157,7 +157,9 @@ module AuthenticatorHelpers
   def validate_authentication_performance(type, threshold)
     type        = type.downcase.to_sym
     results     = @authentication_perf_results
+    puts("Nessi debug all results:"  + results.to_s)
     actual_time = type == :avg ? results.sum.fdiv(results.size) : results.max
+    puts("Nessi debug avg:"  + actual_time.to_s)
     expect(actual_time).to be < threshold.to_f
   end
 end
