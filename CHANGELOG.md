@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Bump cyberark base images from 1.0.4 to 1.0.5
   [#2418](https://github.com/cyberark/conjur/pull/2418)
 
+### Fixed
+- Return 401 instead of 500 for invalid basic auth header. [cyberark/conjur#1990](https://github.com/cyberark/conjur/pull/1990)
+
 ## [1.14.1] - 2021-11-05
 
 ### Fixed
