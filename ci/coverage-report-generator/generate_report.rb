@@ -10,6 +10,9 @@
 require 'json'
 require 'simplecov'
 
+### Added for Branch Coverage and Debugging ######################
+SimpleCov.print_error_status = true
+
 # Override at_exit callback as we don't want this program to hang forever
 # (.simplecov adds infinite sleep to keep containers alive after writing the
 # coverage report)
@@ -17,38 +20,53 @@ require 'simplecov'
 SimpleCov.at_exit do
 end
 
-if ARGV.size != 2
-  puts "Usage: generate_report.rb <project root dir> <report json file>"
-  exit!
-end
-
-# Simplecov filters exclude all files outside the current project root.
-# The project root defaults to the working directory, so we have to move
-# the root up a couple of levels so all the source files can be included.
-# Use the first argument so the user can specify the approprite dir
-SimpleCov.root(ARGV[0])
-
 # Set the merge timeout so that older reports in the same file don't get
 # dropped when merging.
-SimpleCov.merge_timeout(1800)
+SimpleCov.merge_timeout(3600)
 
-# Read the result file, path passed in as second arg.
-jsonraw = File.open(ARGV[1]).read
+SimpleCov.collate Dir["/var/lib/jenkins/workspace/conjur_simplecov_branch_coverage/coverage/.resultset.json"] 
 
-# Parse JSON to create ruby object
-jsonobj = JSON.parse(jsonraw)
+### END OF CHANGES #############################
 
-# Create result object for each subresult
-resultobjs = jsonobj.keys.map do |key|
-  SimpleCov::Result.from_hash(key => jsonobj[key])
-end
+# # Override at_exit callback as we don't want this program to hang forever
+# # (.simplecov adds infinite sleep to keep containers alive after writing the
+# # coverage report)
+# # We also don't actually want a coverage report for this script ;-)
+# SimpleCov.at_exit do
+# end
 
-# Merge the sub-results.
-# This is actually the second merge (ci/submit-coverage uses jq to merge
-# multiple result files together, this merges separate sub reports within the
-# one json structure.)
-mergedresult = SimpleCov::ResultMerger.merge_results(*resultobjs)
+# if ARGV.size != 2
+#   puts "Usage: generate_report.rb <project root dir> <report json file>"
+#   exit!
+# end
 
-# Format the result using the html formatter
-formatter = SimpleCov::Formatter::HTMLFormatter.new
-formatter.format(mergedresult)
+# # Simplecov filters exclude all files outside the current project root.
+# # The project root defaults to the working directory, so we have to move
+# # the root up a couple of levels so all the source files can be included.
+# # Use the first argument so the user can specify the approprite dir
+# SimpleCov.root(ARGV[0])
+
+# # Set the merge timeout so that older reports in the same file don't get
+# # dropped when merging.
+# SimpleCov.merge_timeout(1800)
+
+# # Read the result file, path passed in as second arg.
+# jsonraw = File.open(ARGV[1]).read
+
+# # Parse JSON to create ruby object
+# jsonobj = JSON.parse(jsonraw)
+
+# # Create result object for each subresult
+# resultobjs = jsonobj.keys.map do |key|
+#   SimpleCov::Result.from_hash(key => jsonobj[key])
+# end
+
+# # Merge the sub-results.
+# # This is actually the second merge (ci/submit-coverage uses jq to merge
+# # multiple result files together, this merges separate sub reports within the
+# # one json structure.)
+# mergedresult = SimpleCov::ResultMerger.merge_results(*resultobjs)
+
+# # Format the result using the html formatter
+# formatter = SimpleCov::Formatter::HTMLFormatter.new
+# formatter.format(mergedresult)
