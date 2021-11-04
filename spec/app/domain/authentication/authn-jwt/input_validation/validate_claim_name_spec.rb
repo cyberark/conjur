@@ -107,10 +107,154 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
       end
     end
 
-    context "When claim name contains 1 forbidden character '*'" do
+    context "When claim name is just 1 forbidden character '*'" do
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
           claim_name: "*"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When claim name contains 1 forbidden character '*'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a*b"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When claim name contains 1 forbidden character '-'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a-b"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When claim name contains 1 forbidden character '%'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a%b"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When claim name contains 1 forbidden character '!'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a!b"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When claim name contains 1 forbidden character '('" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a(b"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When claim name contains 1 forbidden character '&'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a&b"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When claim name contains 1 forbidden character '@'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a@b"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When claim name contains 1 forbidden character '^'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a^b"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When claim name contains 1 forbidden character '~'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a~b"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When claim name contains 1 forbidden character '\\'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a\\b"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When claim name contains 1 forbidden character '+'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a+b"
+        )
+      end
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName)
+      end
+    end
+
+    context "When claim name contains 1 forbidden character '='" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a=b"
         )
       end
 
@@ -317,6 +461,18 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
       subject do
         ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
           claim_name: "$2w9"
+        )
+      end
+
+      it 'does not raise error' do
+        expect { subject }.not_to raise_error
+      end
+    end
+
+    context "When claim name contains allowed character '|'" do
+      subject do
+        ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new().call(
+          claim_name: "a|b"
         )
       end
 
