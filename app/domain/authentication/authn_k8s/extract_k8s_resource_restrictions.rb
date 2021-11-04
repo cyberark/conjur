@@ -5,8 +5,8 @@ module Authentication
 
     ExtractK8sResourceRestrictions = CommandClass.new(
       dependencies: {
-        extract_resource_restrictions: ResourceRestrictions::ExtractResourceRestrictions.new,
-        resource_restrictions_class: ResourceRestrictions::ResourceRestrictions,
+        extract_resource_restrictions: nil,
+        resource_restrictions_class: nil,
         logger: Rails.logger
       },
       inputs: %i[authenticator_name service_id role_name account]

@@ -7,7 +7,7 @@ module Authentication
       dependencies: {
         fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
         verify_and_decode_token: Authentication::OAuth::VerifyAndDecodeToken.new,
-        validate_resource_restrictions: Authentication::ResourceRestrictions::ValidateResourceRestrictions.new,
+        validate_resource_restrictions: nil,
         authentication_request_class: AuthenticationRequest,
         logger: Rails.logger
       },

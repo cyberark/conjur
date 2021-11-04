@@ -9,7 +9,7 @@ module Authentication
     # done while it is decoded (using a third-party).
     Authenticator = CommandClass.new(
       dependencies: {
-        validate_resource_restrictions: Authentication::ResourceRestrictions::ValidateResourceRestrictions.new,
+        validate_resource_restrictions: nil,
         authentication_request_class: AuthenticationRequest,
         logger: Rails.logger
       },

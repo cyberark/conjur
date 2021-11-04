@@ -13,9 +13,7 @@ module Authentication
         validate_webservice_is_whitelisted: Security::ValidateWebserviceIsWhitelisted.new,
         validate_role_can_access_webservice: Security::ValidateRoleCanAccessWebservice.new,
         enabled_authenticators: InstalledAuthenticators.enabled_authenticators_str,
-        validate_resource_restrictions: ResourceRestrictions::ValidateResourceRestrictions.new(
-          extract_resource_restrictions:      ExtractK8sResourceRestrictions.new
-        ),
+        validate_resource_restrictions: nil,
         authentication_request_class: AuthenticationRequest,
         k8s_resource_validator_class: K8sResourceValidator,
         extract_container_name: ExtractContainerName.new,
