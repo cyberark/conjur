@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.14.1] - 2021-11-05
+
+### Fixed
+- Version bump to resolve build error on tagged master. [#2416](https://github.com/cyberark/conjur/pull/2416)
+
 ## [1.14.0] - 2021-11-03
 
 ### Added
@@ -726,7 +731,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.14.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.14.1...HEAD
+[1.14.1]: https://github.com/cyberark/conjur/compare/v1.14.0...v1.14.1
 [1.14.0]: https://github.com/cyberark/conjur/compare/v1.13.2...v1.14.0
 [1.13.2]: https://github.com/cyberark/conjur/compare/v1.13.1...v1.13.2
 [1.13.1]: https://github.com/cyberark/conjur/compare/v1.13.0...v1.13.1
