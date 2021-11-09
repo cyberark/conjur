@@ -79,7 +79,7 @@ elif [[ ! -z "${REGISTRY_PREFIX}" ]]; then
   # been supplied. Publish to the specified registry.
 
   # Push the VERSION-SHA tagged images to our internal registry
-  v="$(< VERSION)"
+  v="$(tr "+" "_" < VERSION)"
   tag_and_push "${v}-${TAG}" "${LOCAL_IMAGE}" "${REGISTRY_PREFIX}/conjur"
   tag_and_push "${v}-${TAG}" "conjur-test:${TAG}" "${REGISTRY_PREFIX}/conjur-test"
   tag_and_push "${v}-${TAG}" "conjur-ubi:${TAG}" "${REGISTRY_PREFIX}/conjur-ubi"
