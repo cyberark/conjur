@@ -11,6 +11,7 @@ module Authentication
           fetch_identity_path: Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath.new,
           fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
           check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
+          parse_claim_path: Authentication::AuthnJwt::ParseClaimPath.new,
           logger: Rails.logger
         },
         inputs: %i[jwt_authenticator_input]
@@ -27,7 +28,7 @@ module Authentication
         def validate_identity_configured_properly
           return unless identity_available?
 
-          id_claim_key
+          validate_token_app_property_configured_properly
           validate_identity_path_configured_properly
         end
 
@@ -52,6 +53,12 @@ module Authentication
             service_id: service_id,
             required_variable_names: [TOKEN_APP_PROPERTY_VARIABLE]
           )[TOKEN_APP_PROPERTY_VARIABLE]
+        end
+
+        def validate_token_app_property_configured_properly
+          @parse_claim_path.call(claim: id_claim_key)
+        rescue Errors::Authentication::AuthnJwt::InvalidClaimPath => e
+          raise Errors::Authentication::AuthnJwt::InvalidTokenAppPropertyValue, e.inspect
         end
 
         def validate_identity_path_configured_properly
