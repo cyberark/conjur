@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- Bump cyberark base images from 1.0.4 to 1.0.5
+  [#2418](https://github.com/cyberark/conjur/pull/2418)
+
 ## [1.14.1] - 2021-11-05
 
 ### Fixed
