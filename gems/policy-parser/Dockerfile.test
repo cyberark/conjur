@@ -1,4 +1,4 @@
-FROM cyberark/ubuntu-ruby-fips:1.0.5
+FROM cyberark/ubuntu-ruby-fips:1.0.6
 
 RUN mkdir /src
 WORKDIR /src
