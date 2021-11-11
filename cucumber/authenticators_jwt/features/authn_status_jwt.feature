@@ -60,7 +60,7 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "token-app-property" variable to value "kubernetes.io/user"
     And I successfully set authn-jwt "issuer" variable to value "gitlab"
     And I successfully set authn-jwt "audience" variable to value "conjur"
     And I login as "alice"
@@ -1083,14 +1083,14 @@ Feature: JWT Authenticator - Status Check
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
     And I successfully set authn-jwt "token-app-property" variable to value "user"
-    And I successfully set authn-jwt "enforced-claims" variable to value "$@$@#sdasdasdq23asd32rdf"
+    And I successfully set authn-jwt "enforced-claims" variable to value "$@$@#sda//sdasdq23asd32rdf"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "does not match regular expression: '(?-mix:^[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*(\/[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*)*$)"
 
-  Scenario: ONYX-10958: claim-aliases configured with invalid value, 500 Error
+  Scenario Outline: ONYX-10958: claim-aliases configured with invalid value, 500 Error
     Given I load a policy:
     """
     - !policy
@@ -1146,9 +1146,75 @@ Feature: JWT Authenticator - Status Check
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
     And I successfully set authn-jwt "token-app-property" variable to value "user"
-    And I successfully set authn-jwt "claim-aliases" variable to value "SDsas213sda!!A!!$$@#$# :$@$@#sdasdasdq23asd32rdf"
+    And I successfully set authn-jwt "claim-aliases" variable to value "<claim-aliases-value>"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
     Then the HTTP response status code is 500
-    And the authenticator status check fails with error "does not match regular expression: '(?-mix:^[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*(\/[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*)*$)"
+    And the authenticator status check fails with error "<log>"
+    Examples:
+      | claim-aliases-value                              | log                                                                     |
+      | SDsas213sda!!A!!$$@#$#:$@$@#sdasdasdq23asd32rdf  | does not match regular expression:                                      |
+      | a/b:bbb                                          | Failed to parse claim aliases: the claim alias name 'a/b' contains '/'. |
+
+  Scenario: ONYX-13997:  Identity is configured not according format, 500 Error
+    Given I load a policy:
+    """
+    - !policy
+      id: conjur/authn-jwt/raw
+      body:
+      - !webservice
+        annotations:
+          description: Authentication service for JWT tokens, based on raw JWKs.
+
+      - !variable
+        id: jwks-uri
+
+      - !variable
+        id: token-app-property
+
+      - !variable
+        id: issuer
+
+      - !variable
+        id: audience
+
+      - !group users
+
+      - !permit
+        role: !group users
+        privilege: [ read, authenticate ]
+        resource: !webservice
+
+      - !webservice
+        id: status
+        annotations:
+          description: Status service to check that the authenticator is configured correctly
+
+      - !group
+          id: operators
+          annotations:
+            description: Group of users who can check the status of the authenticator
+
+      - !permit
+        role: !group operators
+        privilege: [ read ]
+        resource: !webservice status
+
+    - !user alice
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/operators
+      member:
+      - !user alice
+    """
+    And I am the super-user
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
+    And I successfully set authn-jwt "token-app-property" variable to value "a//b"
+    And I successfully set authn-jwt "issuer" variable to value "gitlab"
+    And I successfully set authn-jwt "audience" variable to value "conjur"
+    And I login as "alice"
+    And I save my place in the log file
+    When I GET "/authn-jwt/raw/cucumber/status"
+    Then the HTTP response status code is 500
+    And the authenticator status check fails with error "Failed to parse 'token-app-property' value. Error:"
