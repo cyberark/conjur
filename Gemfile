@@ -84,7 +84,7 @@ gem 'kubeclient'
 gem 'websocket'
 
 # authn-oidc, gcp, azure, jwt
-gem 'jwt', '2.2.2' # version frozen due to authn-jwt requirements
+gem 'jwt', '2.3.0'
 # authn-oidc
 gem 'openid_connect'
 
