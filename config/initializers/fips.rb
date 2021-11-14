@@ -12,9 +12,9 @@ Digest::SHA1 = OpenSSL::Digest::SHA1
 # Activate warning messages again
 $VERBOSE = original_verbose
 
-# by default FIPS mode is enabled
-# disable FIPS mode only if OPENSSL_FIPS_ENABLED environment variable is present and has false value
-OpenSSL.fips_mode = !(ENV["OPENSSL_FIPS_ENABLED"].present? && ENV["OPENSSL_FIPS_ENABLED"] == 'false')
+# by default FIPS mode is disabled
+# enable FIPS mode only if OPENSSL_FIPS_ENABLED environment variable is present and has true value
+OpenSSL.fips_mode = (ENV["OPENSSL_FIPS_ENABLED"].present? && ENV["OPENSSL_FIPS_ENABLED"] == 'true')
 
 # each of the following 3rd party overridden is required since a non FIPS complaint encryption method is used
 # if a non-complaint FIPS method like MD5 is used or a direct use of Digest::encryption-method
