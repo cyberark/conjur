@@ -1,4 +1,4 @@
-FROM cyberark/ubuntu-ruby-fips:1.0.6
+FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PORT=80 \
@@ -10,14 +10,23 @@ EXPOSE 80
 
 RUN apt-get update -y && \
     apt-get -y dist-upgrade && \
-    apt-get install -y libz-dev
+    apt-get -y install software-properties-common && \
+    apt-add-repository ppa:brightbox/ruby-ng
 
-RUN apt-get install -y build-essential \
+RUN apt-get update -y && \
+    apt-get install -y build-essential \
                        curl \
                        git \
+                       libpq-dev \
                        ldap-utils \
+                       postgresql-client \
+                       ruby2.5 ruby2.5-dev \
                        tzdata \
+                       # needed to build some gem native extensions: \
+                       libz-dev \
     && rm -rf /var/lib/apt/lists/*
+
+RUN gem install --no-document --version 2.1.4 bundler
 
 WORKDIR /opt/conjur-server
 
