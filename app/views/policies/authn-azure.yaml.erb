@@ -1,0 +1,13 @@
+- !policy
+  id: conjur/authn-azure/<%= params[:service_id] %>
+  body:
+  - !webservice
+
+  - !variable provider-uri
+
+  - !layer users
+
+  - !permit
+    resource: !webservice
+    privilege: [ read, authenticate ]
+    role: !layer users

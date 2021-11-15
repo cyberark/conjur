@@ -1,0 +1,17 @@
+- !policy
+  id: conjur/authn-k8s/<%= params[:service_id] %>
+  body:
+  - !webservice
+  - !policy
+    id: ca
+    body:
+    - !variable
+      id: cert
+    - !variable
+      id: key
+  - !layer users
+
+  - !permit
+    resource: !webservice
+    privilege: [ read, authenticate ]
+    role: !layer users
