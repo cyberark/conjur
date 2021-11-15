@@ -25,6 +25,15 @@ class PoliciesController < RestController
     load_policy(:create, Loader::CreatePolicy, false)
   end
 
+  def initialize_k8s_auth
+    initialize_auth_policy(template: "authn-azure")
+
+    Repos::ConjurCA.create("%s:webservice:conjur/authn-k8s/%s" % [ params[:account], params[:service_id] ] )
+  rescue => e
+    audit_failure(e, :update)
+    raise e
+  end
+
   protected
 
   # Returns newly created roles
@@ -39,6 +48,15 @@ class PoliciesController < RestController
   end
 
   private
+
+  def initialize_auth_policy(template:)
+    @auth_policy = render_to_string(template)
+    # TODO: Find a better way to include these variables
+    params[:kind] = "policy"
+    params[:identifier] = "root"
+
+    load_policy(:update, Loader::ModifyPolicy, false)
+  end
 
   def load_policy(action, loader_class, delete_permitted)
     authorize(action)
@@ -95,11 +113,19 @@ class PoliciesController < RestController
     policy_version = PolicyVersion.new(
       role: current_user,
       policy: resource,
-      policy_text: request.raw_post,
+      policy_text: policy_text,
       client_ip: request.ip
     )
     policy_version.delete_permitted = delete_permitted
     policy_version.save
+  end
+
+  def policy_text
+    unless @auth_policy
+      request.raw_post
+    else
+      @auth_policy
+    end
   end
 
   def actor_roles(roles)
