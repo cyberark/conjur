@@ -48,6 +48,7 @@ Rails.application.routes.draw do
         post '/authn-k8s/:service_id/inject_client_cert' => 'authenticate#k8s_inject_client_cert'
 
         post '/authn-k8s/:service_id/:account' => 'policies#initialize_k8s_auth'
+        post '/authn-azure/:service_id/:account' => 'policies#initialize_azure_auth'
       end
 
       get     "/roles/:account/:kind/*identifier" => "roles#graph", :constraints => QueryParameterActionRecognizer.new("graph")

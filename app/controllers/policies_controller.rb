@@ -34,6 +34,17 @@ class PoliciesController < RestController
     raise e
   end
 
+  def initialize_azure_auth
+    initialize_auth_policy(template: "authn-azure")
+
+    policy_branch = "conjur/authn-azure/%s" % [ params[:service_id] ]
+    provider_uri = JSON.parse(request.raw_post)["provider-uri"]
+    Secret.create(resource_id: "%s:variable:%s/provider-uri" % [ params[:account], policy_branch ], value: provider_uri)
+  rescue => e
+    audit_failure(e, :update)
+    raise e
+  end
+
   protected
 
   # Returns newly created roles
