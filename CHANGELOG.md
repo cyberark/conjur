@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Changed
+- Failed Login now writes the error code in the log
+  [#2424](https://github.com/cyberark/conjur/pull/2424)
 - Bump cyberark base images from 1.0.5 to 1.0.6
   [#2420](https://github.com/cyberark/conjur/pull/2420)
 - Bump cyberark base images from 1.0.4 to 1.0.5
