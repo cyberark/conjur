@@ -45,6 +45,20 @@ class PoliciesController < RestController
     raise e
   end
 
+  def initialize_oidc_auth
+    initialize_auth_policy(template: "authn-oidc")
+
+    policy_branch = "conjur/authn-oidc/%s" % [ params[:service_id] ]
+    provider_uri = JSON.parse(request.raw_post)["provider-uri"]
+    id_token_user_property = JSON.parse(request.raw_post)["id-token-user-property"]
+
+    Secret.create(resource_id: "%s:variable:%s/provider-uri" % [ params[:account], policy_branch ], value: provider_uri)
+    Secret.create(resource_id: "%s:variable:%s/id-token-user-property" % [ params[:account], policy_branch ], value: id_token_user_property)
+  rescue => e
+    audit_failure(e, :update)
+    raise e
+  end
+
   protected
 
   # Returns newly created roles

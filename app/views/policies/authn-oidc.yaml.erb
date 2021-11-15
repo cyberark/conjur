@@ -1,0 +1,14 @@
+- !policy
+  id: conjur/authn-oidc/<%= params[:service_id] %>
+  body:
+  - !webservice
+
+  - !variable provider-uri
+  - !variable id-token-user-property
+
+  - !layer users
+
+  - !permit
+    resource: !webservice
+    privilege: [ read, authenticate ]
+    role: !layer users
