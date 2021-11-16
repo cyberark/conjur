@@ -81,14 +81,19 @@ class AuthenticateController < ApplicationController
   def authenticate(input = authenticator_input)
     authn_token = Authentication::Authenticate.new.(
       authenticator_input: input,
-      authenticators: installed_authenticators,
-      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
+        authenticators: installed_authenticators,
+        enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
     )
+    log_audit_success(::Audit::Event::Authn::Authenticate)
     render_authn_token(authn_token)
   rescue => e
+    log_audit_failure(
+      audit_event_class: ::Audit::Event::Authn::Authenticate,
+      error: e
+    )
     handle_authentication_error(e)
   end
-
+  
   def authenticate_jwt
     params[:authenticator] = "authn-jwt"
     authn_token = Authentication::AuthnJwt::OrchestrateAuthentication.new.call(
@@ -106,7 +111,12 @@ class AuthenticateController < ApplicationController
     input = Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new.(
       authenticator_input: authenticator_input
     )
+    # We don't audit success here as the authentication process is not done
   rescue => e
+    log_audit_failure(
+      audit_event_class: ::Audit::Event::Authn::Authenticate,
+      error: e
+    )
     handle_authentication_error(e)
   else
     authenticate(input)
@@ -117,7 +127,12 @@ class AuthenticateController < ApplicationController
     input = Authentication::AuthnGcp::UpdateAuthenticatorInput.new.(
       authenticator_input: authenticator_input
     )
+    # We don't audit success here as the authentication process is not done
   rescue => e
+    log_audit_failure(
+      audit_event_class: ::Audit::Event::Authn::Authenticate,
+      error: e
+    )
     handle_authentication_error(e)
   else
     authenticate(input)
@@ -179,6 +194,22 @@ class AuthenticateController < ApplicationController
   end
 
   private
+
+  def log_audit_success(audit_event_class)
+    ::Authentication::LogAuditEvent.new.call(
+      audit_event_class: audit_event_class,
+      authenticator_input: @authenticator_input,
+      error: nil
+    )
+  end
+
+  def log_audit_failure(audit_event_class:, error:)
+    ::Authentication::LogAuditEvent.new.call(
+      audit_event_class: audit_event_class,
+      authenticator_input: @authenticator_input,
+      error: error
+    )
+  end
 
   def handle_login_error(err)
     login_error = LogMessages::Authentication::LoginError.new(err.inspect)
@@ -242,16 +273,17 @@ class AuthenticateController < ApplicationController
       error: error.inspect
     }
 
-    status_code = case error
-                  when Errors::Authentication::Security::RoleNotAuthorizedOnResource
-                    :forbidden
-                  when Errors::Authentication::StatusNotSupported
-                    :not_implemented
-                  when Errors::Authentication::AuthenticatorNotSupported
-                    :not_found
-                  else
-                    :internal_server_error
-    end
+    status_code =
+      case error
+      when Errors::Authentication::Security::RoleNotAuthorizedOnResource
+        :forbidden
+      when Errors::Authentication::StatusNotSupported
+        :not_implemented
+      when Errors::Authentication::AuthenticatorNotSupported
+        :not_found
+      else
+        :internal_server_error
+      end
 
     { json: payload, status: status_code }
   end
