@@ -53,9 +53,13 @@ class AuthenticateController < ApplicationController
       username: ::Role.username_from_roleid(current_user.role_id),
       enabled: body_params['enabled'] || false
     )
-
+    log_audit_success(::Audit::Event::Authn::UpdateAuthenticatorConfig)
     head(:no_content)
   rescue => e
+    log_audit_failure(
+      audit_event_class: ::Audit::Event::Authn::UpdateAuthenticatorConfig,
+      error: e
+    )
     handle_authentication_error(e)
   end
 
@@ -93,7 +97,7 @@ class AuthenticateController < ApplicationController
     )
     handle_authentication_error(e)
   end
-  
+
   def authenticate_jwt
     params[:authenticator] = "authn-jwt"
     authn_token = Authentication::AuthnJwt::OrchestrateAuthentication.new.call(
