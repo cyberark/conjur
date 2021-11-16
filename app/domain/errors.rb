@@ -50,7 +50,7 @@ module Errors
     )
 
     InvalidOrigin = ::Util::TrackableErrorClass.new(
-      msg: "Invalid origin",
+      msg: "User is not authorized to login from the current origin",
       code: "CONJ00003E"
     )
 
