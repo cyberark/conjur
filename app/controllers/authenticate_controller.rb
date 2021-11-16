@@ -124,7 +124,7 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticator_input
-    Authentication::AuthenticatorInput.new(
+    @authenticator_input ||= Authentication::AuthenticatorInput.new(
       authenticator_name: params[:authenticator],
       service_id: params[:service_id],
       account: params[:account],
