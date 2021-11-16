@@ -11,7 +11,6 @@ module Authentication
       validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
       role_class: ::Role,
       implemented_authenticators: Authentication::InstalledAuthenticators.authenticators(ENV),
-      audit_log: ::Audit.logger
     },
     inputs: %i[authenticator_status_input enabled_authenticators]
   ) do
@@ -29,10 +28,7 @@ module Authentication
       validate_webservice_is_whitelisted
 
       validate_authenticator_requirements
-
-      audit_success
     rescue => e
-      audit_failure(e)
       raise e
     end
 
@@ -76,40 +72,6 @@ module Authentication
         webservice: webservice,
         account: account
       )
-    end
-
-    def audit_success
-      @audit_log.log(
-        ::Audit::Event::Authn::ValidateStatus.new(
-          authenticator_name: authenticator_name,
-          service: webservice,
-          role_id: audit_role_id,
-          client_ip: client_ip,
-          success: true,
-          error_message: nil
-        )
-      )
-    end
-
-    def audit_failure(err)
-      @audit_log.log(
-        ::Audit::Event::Authn::ValidateStatus.new(
-          authenticator_name: authenticator_name,
-          service: webservice,
-          role_id: audit_role_id,
-          client_ip: client_ip,
-          success: false,
-          error_message: err.message
-        )
-      )
-    end
-
-    def audit_role_id
-      ::Audit::Event::Authn::RoleId.new(
-        role: role,
-        account: @authenticator_status_input.account,
-        username: @authenticator_status_input.username
-      ).to_s
     end
 
     def authenticator

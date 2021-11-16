@@ -25,8 +25,13 @@ class AuthenticateController < ApplicationController
       authenticator_status_input: status_input,
       enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
     )
+    log_audit_success(::Audit::Event::Authn::ValidateStatus)
     render(json: { status: "ok" })
   rescue => e
+    log_audit_failure(
+      audit_event_class: ::Audit::Event::Authn::ValidateStatus,
+      error: e
+    )
     log_backtrace(e)
     render(status_failure_response(e))
   end
