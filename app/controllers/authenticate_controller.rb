@@ -125,7 +125,7 @@ class AuthenticateController < ApplicationController
     # We don't audit success here as the authentication process is not done
   rescue => e
     log_audit_failure(
-      authn_params: authenticator_input,
+      authn_params: input,
       audit_event_class: Audit::Event::Authn::Authenticate,
       error: e
     )
@@ -158,13 +158,13 @@ class AuthenticateController < ApplicationController
         enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
     )
     log_audit_success(
-      authn_params: authenticator_input,
+      authn_params: input,
       audit_event_class: Audit::Event::Authn::Authenticate
     )
     render_authn_token(authn_token)
   rescue => e
     log_audit_failure(
-      authn_params: authenticator_input,
+      authn_params: input,
       audit_event_class: Audit::Event::Authn::Authenticate,
       error: e
     )
