@@ -1,4 +1,4 @@
-FROM cyberark/phusion-ruby-fips:1.0.6
+FROM registry2.itci.conjur.net/cyberark/phusion-ruby-fips:0.11-9c1da20
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     build-essential \

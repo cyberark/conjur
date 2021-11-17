@@ -9,7 +9,7 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 # nicely with RVM and we should be explicit since Ruby is such a fundamental
 # part of a Rails project. The Ruby version is also locked in place by the
 # Docker base image so it won't be updated with fuzzy matching.
-ruby '2.5.8'
+ruby '3.0.2'
 #ruby-gemset=conjur
 
 gem 'base58'
@@ -25,10 +25,7 @@ gem 'rake'
 # gem 'sprockets', '~> 3.7.0', '>= 3.7.2'
 
 gem 'pg'
-# TODO: When updating to 5, sequel-rails was throwing errors that
-# I wasn't able to resolve.  The quick fix was to pin sequel here
-# for now.  We can tackle the upgrade later.
-gem 'sequel', '4.49.0'
+gem 'sequel'
 gem 'sequel-pg_advisory_locking'
 gem 'sequel-postgres-schemata', require: false
 gem 'sequel-rails'
@@ -43,10 +40,6 @@ gem 'slosilo', '~> 2.2'
 # Explicitly required as there are vulnerabilities in older versions
 gem "ffi", ">= 1.9.24"
 gem "loofah", ">= 2.2.3"
-
-# Installing ruby_dep 1.4.0
-# Gem::InstallError: ruby_dep requires Ruby version >= 2.2.5, ~> 2.2.
-gem 'ruby_dep', '= 1.3.1'
 
 # Pinned to update for role member search, using ref so merging and removing
 # the branch doesn't immediately break this link

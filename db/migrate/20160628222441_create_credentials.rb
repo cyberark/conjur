@@ -4,7 +4,7 @@ Sequel.migration do
   change do
     create_table :credentials do
       # Not an FK, because credentials won't be dropped when the RBAC is rebuilt
-      primary_key :role_id, type: String, null: false
+      String :role_id, primary_key: true
 
       foreign_key :client_id, :roles, type: String, null: true, on_delete: :cascade
 
