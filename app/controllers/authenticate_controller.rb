@@ -125,7 +125,7 @@ class AuthenticateController < ApplicationController
     # We don't audit success here as the authentication process is not done
   rescue => e
     log_audit_failure(
-      authn_params: input,
+      authn_params: input.nil? ? authenticator_input : input,
       audit_event_class: Audit::Event::Authn::Authenticate,
       error: e
     )
