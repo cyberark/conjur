@@ -27,13 +27,13 @@ class AuthenticateController < ApplicationController
     )
     log_audit_success(
       authn_params: status_input,
-      audit_event_class: :Audit::Event::Authn::ValidateStatus
+      audit_event_class: Audit::Event::Authn::ValidateStatus
     )
     render(json: { status: "ok" })
   rescue => e
     log_audit_failure(
       authn_params: status_input,
-      audit_event_class: ::Audit::Event::Authn::ValidateStatus,
+      audit_event_class: Audit::Event::Authn::ValidateStatus,
       error: e
     )
     log_backtrace(e)
@@ -73,13 +73,13 @@ class AuthenticateController < ApplicationController
     )
     log_audit_success(
       authn_params: update_config_input,
-      audit_event_class: ::Audit::Event::Authn::UpdateAuthenticatorConfig
+      audit_event_class: Audit::Event::Authn::UpdateAuthenticatorConfig
     )
     head(:no_content)
   rescue => e
     log_audit_failure(
       authn_params: update_config_input,
-      audit_event_class: ::Audit::Event::Authn::UpdateAuthenticatorConfig,
+      audit_event_class: Audit::Event::Authn::UpdateAuthenticatorConfig,
       error: e
     )
     handle_authentication_error(e)
@@ -126,7 +126,7 @@ class AuthenticateController < ApplicationController
   rescue => e
     log_audit_failure(
       authn_params: authenticator_input,
-      audit_event_class: ::Audit::Event::Authn::Authenticate,
+      audit_event_class: Audit::Event::Authn::Authenticate,
       error: e
     )
     handle_authentication_error(e)
@@ -143,7 +143,7 @@ class AuthenticateController < ApplicationController
   rescue => e
     log_audit_failure(
       authn_params: authenticator_input,
-      audit_event_class: ::Audit::Event::Authn::Authenticate,
+      audit_event_class: Audit::Event::Authn::Authenticate,
       error: e
     )
     handle_authentication_error(e)
@@ -159,13 +159,13 @@ class AuthenticateController < ApplicationController
     )
     log_audit_success(
       authn_params: authenticator_input,
-      audit_event_class: ::Audit::Event::Authn::Authenticate
+      audit_event_class: Audit::Event::Authn::Authenticate
     )
     render_authn_token(authn_token)
   rescue => e
     log_audit_failure(
       authn_params: authenticator_input,
-      audit_event_class: ::Audit::Event::Authn::Authenticate,
+      audit_event_class: Audit::Event::Authn::Authenticate,
       error: e
     )
     handle_authentication_error(e)
