@@ -12,7 +12,7 @@ module Authentication
     inputs: %i[authentication_params audit_event_class error]
   ) do
     extend(Forwardable)
-    def_delegators(:@update_config_input, :account, :authenticator_name, :webservice,
+    def_delegators(:@authentication_params, :account, :authenticator_name, :webservice,
                    :client_ip, :role, :username)
     def call
       log_audit_event
