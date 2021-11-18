@@ -10,7 +10,7 @@ module Authentication
       validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
       validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
       role_class: ::Role,
-      implemented_authenticators: Authentication::InstalledAuthenticators.authenticators(ENV),
+      implemented_authenticators: Authentication::InstalledAuthenticators.authenticators(ENV)
     },
     inputs: %i[authenticator_status_input enabled_authenticators]
   ) do
