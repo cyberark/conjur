@@ -13,7 +13,7 @@ module Authentication
   ) do
     extend(Forwardable)
     def_delegators(:@update_config_input, :account, :authenticator_name, :webservice,
-                   :client_ip, :role, :account, :username)
+                   :client_ip, :role, :username)
     def call
       log_audit_event
     end
@@ -23,10 +23,10 @@ module Authentication
     def log_audit_event
       @audit_logger.log(
         @audit_event_class.new(
-          authenticator_name: @authenticator_name,
-          service: @webservice,
+          authenticator_name: authenticator_name,
+          service: webservice,
           role_id: audit_role_id,
-          client_ip: @client_ip,
+          client_ip: client_ip,
           success: successful_event?,
           error_message: @error
         )
@@ -35,9 +35,9 @@ module Authentication
 
     def audit_role_id
       @audit_role_id_class.new(
-        role: @role,
-        account: @account,
-        username: @username
+        role: role,
+        account: account,
+        username: username
       ).to_s
     end
 
