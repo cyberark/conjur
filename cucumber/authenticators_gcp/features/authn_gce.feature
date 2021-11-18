@@ -121,7 +121,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     """
     And The following appears in the audit log after my savepoint:
     """
-    non_existing:user:USERNAME_MISSING failed to authenticate with authenticator authn-gcp service
+    non-existing:user:USERNAME_MISSING failed to authenticate with authenticator authn-gcp service
     """
 
   Scenario: Authenticate using token in standard format and host with only service-account-id annotation set
