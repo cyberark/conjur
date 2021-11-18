@@ -40,7 +40,6 @@ class AuthenticateController < ApplicationController
     render(status_failure_response(e))
   end
 
-
   def status_input
     @status_input ||= Authentication::AuthenticatorStatusInput.new(
       authenticator_name: params[:authenticator],
@@ -65,11 +64,7 @@ class AuthenticateController < ApplicationController
 
   def update_config
     Authentication::UpdateAuthenticatorConfig.new.(
-      account: update_config_input.account,
-      authenticator_name: update_config_input.authenticator_name,
-      service_id: update_config_input.service_id,
-      username: update_config_input.username,
-      enabled: update_config_input.enabled
+      update_config_input: update_config_input
     )
     log_audit_success(
       authn_params: update_config_input,
@@ -235,12 +230,7 @@ class AuthenticateController < ApplicationController
     audit_event_class:
   )
     ::Authentication::LogAuditEvent.new.call(
-      authenticator_name: authn_params.authenticator_name,
-      webservice: authn_params.webservice,
-      client_ip: authn_params.client_ip,
-      role: authn_params.role,
-      account: authn_params.account,
-      username: authn_params.username,
+      authentication_params: authn_params,
       audit_event_class: audit_event_class,
       error: nil
     )
@@ -252,12 +242,7 @@ class AuthenticateController < ApplicationController
     error:
   )
     ::Authentication::LogAuditEvent.new.call(
-      authenticator_name: authn_params.authenticator_name,
-      webservice: authn_params.webservice,
-      client_ip: authn_params.client_ip,
-      role: authn_params.role,
-      account: authn_params.account,
-      username: authn_params.username,
+      authentication_params: authn_params,
       audit_event_class: audit_event_class,
       error: error
     )

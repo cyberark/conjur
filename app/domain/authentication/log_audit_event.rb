@@ -9,9 +9,11 @@ module Authentication
       audit_logger: Audit.logger,
       audit_role_id_class: ::Audit::Event::Authn::RoleId
     },
-    inputs: %i[authenticator_name webservice client_ip role account username audit_event_class error]
+    inputs: %i[authentication_params audit_event_class error]
   ) do
-
+    extend(Forwardable)
+    def_delegators(:@update_config_input, :account, :authenticator_name, :webservice,
+                   :client_ip, :role, :account, :username)
     def call
       log_audit_event
     end
