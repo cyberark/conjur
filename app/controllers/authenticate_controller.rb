@@ -124,8 +124,9 @@ class AuthenticateController < ApplicationController
     )
     # We don't audit success here as the authentication process is not done
   rescue => e
+    # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
     log_audit_failure(
-      authn_params: input.nil? ? authenticator_input : input,
+      authn_params: authenticator_input,
       audit_event_class: Audit::Event::Authn::Authenticate,
       error: e
     )
@@ -141,6 +142,7 @@ class AuthenticateController < ApplicationController
     )
     # We don't audit success here as the authentication process is not done
   rescue => e
+    # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
     log_audit_failure(
       authn_params: authenticator_input,
       audit_event_class: Audit::Event::Authn::Authenticate,
