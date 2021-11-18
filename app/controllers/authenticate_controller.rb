@@ -151,8 +151,8 @@ class AuthenticateController < ApplicationController
   def authenticate(input = authenticator_input)
     authn_token = Authentication::Authenticate.new.(
       authenticator_input: input,
-        authenticators: installed_authenticators,
-        enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
+      authenticators: installed_authenticators,
+      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
     )
     log_audit_success(
       authn_params: input,

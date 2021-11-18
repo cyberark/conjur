@@ -9,7 +9,7 @@ module Authentication
       token_factory: TokenFactory.new,
       validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
       validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
-      validate_origin: ::Authentication::ValidateOrigin.new,
+      validate_origin: ::Authentication::ValidateOrigin.new
     },
     inputs: %i[authenticator_input authenticators enabled_authenticators]
   ) do

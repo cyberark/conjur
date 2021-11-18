@@ -236,7 +236,7 @@ RSpec.describe(Authentication::ValidateStatus) do
                   validate_webservice_is_whitelisted: mock_validate_webservice_exists(validation_succeeded: true),
                   validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
                   validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
-                  implemented_authenticators: mock_implemented_authenticators,
+                  implemented_authenticators: mock_implemented_authenticators
                 ).call(
                   authenticator_status_input: mock_status_input("authn-status-fail"),
                   enabled_authenticators: mock_enabled_authenticators

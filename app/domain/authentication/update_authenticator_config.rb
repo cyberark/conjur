@@ -14,8 +14,12 @@ module Authentication
     inputs: %i[update_config_input]
   ) do
     extend(Forwardable)
-    def_delegators(:@update_config_input, :account, :authenticator_name, :service_id,
-                   :enabled, :username)
+    def_delegators(:@update_config_input,
+                   :account,
+                   :authenticator_name,
+                   :service_id,
+                   :enabled,
+                   :username)
     def call
       validate_account_exists
       validate_webservice_exists
