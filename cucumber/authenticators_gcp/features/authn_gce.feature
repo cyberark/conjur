@@ -106,6 +106,10 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     """
     CONJ00070E 'audience' token claim .* is invalid. The account in the audience .* does not match the account in the URL request .*
     """
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:user:USERNAME_MISSING failed to authenticate with authenticator authn-gcp service
+    """
 
   Scenario: Non-existing account in URL request is denied
     Given I save my place in the log file
@@ -114,6 +118,10 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     And The following matches the log after my savepoint:
     """
     CONJ00008E Account '.*' is not defined in Conjur
+    """
+    And The following appears in the audit log after my savepoint:
+    """
+    non-existing:user:USERNAME_MISSING failed to authenticate with authenticator authn-gcp service
     """
 
   Scenario: Authenticate using token in standard format and host with only service-account-id annotation set

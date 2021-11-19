@@ -8,20 +8,29 @@ RSpec.describe(Authentication::UpdateAuthenticatorConfig) do
 
   let(:mock_model) { double(::AuthenticatorConfig) }
 
-  let(:call_params) do
-    {
-      account: test_account,
-      authenticator_name: authenticator_name,
-      service_id: service_id,
-      enabled: true,
-      username: test_user_id
-    }
-  end
-
   before do
     allow(mock_model)
       .to receive_message_chain(:find_or_create, :update)
       .and_return(1)
+  end
+
+  def mock_update_config_input
+    double('update_config_input').tap do |update_config_input|
+      allow(update_config_input).to receive(:authenticator_name)
+                               .and_return(authenticator_name)
+
+      allow(update_config_input).to receive(:account)
+                               .and_return(test_account)
+
+      allow(update_config_input).to receive(:service_id)
+                               .and_return(service_id)
+
+      allow(update_config_input).to receive(:username)
+                               .and_return(test_user_id)
+
+      allow(update_config_input).to receive(:enabled)
+                               .and_return(true)
+    end
   end
 
   context "webservice resource exists and the current user has correct permissions" do
@@ -32,7 +41,7 @@ RSpec.describe(Authentication::UpdateAuthenticatorConfig) do
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
         validate_webservice_is_authenticator: mock_validate_webservice_is_authenticator(validation_succeeded: true),
         validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true)
-      ).call(call_params)
+      ).call(update_config_input: mock_update_config_input)
     end
 
     it "updates the config record of an authenticator" do
@@ -48,7 +57,7 @@ RSpec.describe(Authentication::UpdateAuthenticatorConfig) do
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
         validate_webservice_is_authenticator: mock_validate_webservice_is_authenticator(validation_succeeded: true),
         validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true)
-      ).call(call_params)
+      ).call(update_config_input: mock_update_config_input)
     end
 
     it "raises the error raised by validate_account_exists" do
@@ -64,7 +73,7 @@ RSpec.describe(Authentication::UpdateAuthenticatorConfig) do
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: false),
         validate_webservice_is_authenticator: mock_validate_webservice_is_authenticator(validation_succeeded: true),
         validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true)
-      ).call(call_params)
+      ).call(update_config_input: mock_update_config_input)
     end
 
     it "raises the error raised by validate_webservice_exists" do
@@ -80,7 +89,7 @@ RSpec.describe(Authentication::UpdateAuthenticatorConfig) do
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
         validate_webservice_is_authenticator: mock_validate_webservice_is_authenticator(validation_succeeded: true),
         validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: false)
-      ).call(call_params)
+      ).call(update_config_input: mock_update_config_input)
     end
 
     it "raises the error raised by validate_role_can_access_webservice" do
@@ -96,7 +105,7 @@ RSpec.describe(Authentication::UpdateAuthenticatorConfig) do
         validate_webservice_exists: mock_validate_webservice_exists(validation_succeeded: true),
         validate_webservice_is_authenticator: mock_validate_webservice_is_authenticator(validation_succeeded: false),
         validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true)
-      ).call(call_params)
+      ).call(update_config_input: mock_update_config_input)
     end
 
     it "raises the error raised by validate_webservice_is_authenticator" do
