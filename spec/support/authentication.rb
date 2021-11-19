@@ -46,12 +46,18 @@ end
 
 shared_context "create user" do
   def create_user(login)
-    Role.create(role_id: "rspec:user:#{login}").tap do |role|
+    id = "rspec:user:#{login}"
+    user_role = Role.create(role_id: id).tap do |role|
       options = { role: role }
       options[:password] = password if defined?(password) && password
       Credentials.create(options)
       role.reload
     end
+    Resource.create(resource_id: id, owner_id: id).tap do |resource|
+      resource.reload
+    end
+
+    return user_role
   end
 
   let(:login) { "default-login" }
@@ -60,4 +66,35 @@ shared_context "create user" do
     create_user(login)
   }
   let(:api_key) { the_user.credentials.api_key }
+end
+
+shared_context "create host" do
+  def create_host(host_login)
+    id = "rspec:host:#{host_login}"
+    host_role = Role.create(role_id: id).tap do |role|
+      options = { role: role }
+      Credentials.create(options)
+      role.reload
+    end
+    Resource.create(resource_id: id, owner_id: id).tap do |resource|
+      resource.reload
+      host_role.reload
+    end
+
+    return host_role
+  end
+
+  let(:host_login) { "default-host-login" }
+  let(:host_api_key) { the_host.credentials.api_key }
+end
+
+shared_context "host authenticate Basic" do
+  let(:params) { { account: host_account, authenticator: authenticator } }
+  let(:basic_auth_header) {
+    basic = Base64.strict_encode64(['host/' + host_login, basic_password].join(':'))
+    "Basic #{basic}"
+  }
+  let(:request_env) do
+    { 'HTTP_AUTHORIZATION' => basic_auth_header }
+  end
 end

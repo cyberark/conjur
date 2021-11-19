@@ -15,7 +15,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [#2418](https://github.com/cyberark/conjur/pull/2418)
 
 ### Fixed
-- Return 401 instead of 500 for invalid basic auth header. [cyberark/conjur#1990](https://github.com/cyberark/conjur/pull/1990)
+- Return 401 instead of 500 for invalid basic auth header. 
+  [#1990](https://github.com/cyberark/conjur/issues/1990)
+- Added check to stop hosts from setting passwords 
+  [#1920](https://github/cyberark/conjur/issues/1920)
 
 ## [1.14.1] - 2021-11-05
 
