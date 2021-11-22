@@ -31,3 +31,12 @@ jobs:
       uses: cyberark/enforce-commit-style@v1
       with:
         subject-length: 72
+
+  connection_to_jira:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR is connected to a JIRA issue
+        uses: JJ/github-pr-contains-action@releases/v0
+        with:
+          github-token: ${{github.token}}
+          bodyContains: 'ONYX'
