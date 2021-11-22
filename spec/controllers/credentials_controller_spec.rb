@@ -8,6 +8,7 @@ describe CredentialsController, :type => :request do
   before(:all) { Slosilo["authn:rspec"] ||= Slosilo::Key.new }
 
   let(:login) { "u-#{random_hex}" }
+  let(:host_login) { "h-#{random_hex}" }
   let(:account) { "rspec" }
   let(:authenticator) { "authn" }
   let(:authenticate_url) do
@@ -22,7 +23,7 @@ describe CredentialsController, :type => :request do
   let(:update_api_key_url) do
     "/#{authenticator}/#{account}/api_key"
   end
-  
+
   context "#rotate_api_key" do
     shared_examples_for "authentication denied" do
       it "is unauthorized" do
@@ -147,6 +148,28 @@ describe CredentialsController, :type => :request do
             expect(response.code).to eq("422")
             expect(response.body).to eq(errors.to_json)
             can_auth = the_user.credentials.authenticate(new_password)
+            expect(can_auth).to be(false)
+          end
+        end
+      end
+    end
+
+    context "with host basic auth" do
+      let(:basic_password) { host_api_key }
+      include_context "create host"
+      include_context "host authenticate Basic"
+      let(:the_host) { create_host(host_login) }
+
+      context "with post body" do
+        let(:full_env) { pw_payload.merge(request_env) }
+
+        context "and valid password" do
+          let(:pw_payload) { { 'RAW_POST_DATA' => new_password } }
+
+          it "reports the error" do
+            put(update_password_url, env: full_env)
+            expect(response.code).to eq("403")
+            can_auth = the_host.credentials.authenticate(new_password)
             expect(can_auth).to be(false)
           end
         end

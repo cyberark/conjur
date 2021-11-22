@@ -45,7 +45,7 @@ module Conjur
 
     config.sequel.after_connect = proc do
       Sequel.extension(:core_extensions, :postgres_schemata)
-      Sequel::Model.db.extension(:pg_array, :pg_inet, :pg_hstore)
+      Sequel::Model.db.extension(:pg_array, :pg_inet)
     end
 
     config.encoding = "utf-8"
