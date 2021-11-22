@@ -92,5 +92,14 @@ describe AuthenticateController, :type => :request do
     end
   end
 
+  context "invalid basic authorization header passed" do
+    include_context "invalid authenticate Basic"
+
+    it "is unauthorized" do
+      post(authenticate_url, env: request_env)
+      expect(response.code).to eq("401")
+    end
+  end
+
   before(:all) { Slosilo["authn:rspec"] ||= Slosilo::Key.new }
 end

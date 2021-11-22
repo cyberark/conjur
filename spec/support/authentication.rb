@@ -22,6 +22,17 @@ shared_context "authenticate Basic" do
   end
 end
 
+shared_context "invalid authenticate Basic" do
+  let(:params) { { account: account, authenticator: authenticator } }
+  let(:basic_auth_header) {
+    basic = "0g=="
+    "Basic #{basic}"
+  }
+  let(:request_env) do
+    { 'HTTP_AUTHORIZATION' => basic_auth_header }
+  end
+end
+
 shared_context "authenticate Token" do
   let(:params) { { account: account  } }
   let(:bearer_token) { Slosilo["authn:rspec"].signed_token(login) }
