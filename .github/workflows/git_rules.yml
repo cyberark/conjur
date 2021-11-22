@@ -39,4 +39,4 @@ jobs:
         uses: JJ/github-pr-contains-action@releases/v0
         with:
           github-token: ${{github.token}}
-          bodyContains: 'ONYX'
+          bodyContains: 'ONYX|CONJSE'
