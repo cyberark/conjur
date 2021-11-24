@@ -29,8 +29,9 @@ class StatusController < ApplicationController
   def tracelevel
     logger.warn("+++++++ Hello Ofira Set TraceLevel 1");
     level = request.parameters['level']
-    logger.warn("+++++++ Hello Ofira Set TraceLevel:  #{level}")
-    Rails.logger.level =2 #WARN
+    logger.warn("+++++++ Hello Ofira Set TraceLevel 2:  #{level}")
+    Rails.logger.level = level.to_i
+    logger.warn("+++++++ Hello Ofira Set TraceLevel 3");
     render(json: {
       client_ip: request.ip,
       user_agent: request.user_agent,
