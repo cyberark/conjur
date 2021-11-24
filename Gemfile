@@ -20,7 +20,7 @@ gem 'jbuilder', '~> 2.7.0'
 gem 'nokogiri', '>= 1.8.2'
 gem 'puma', '~> 5.5.1'
 gem 'rack', '~> 2.2.3'
-gem 'rails', '~> 5.2'
+gem 'rails', '~> 6.1.4'
 gem 'rake'
 # gem 'sprockets', '~> 3.7.0', '>= 3.7.2'
 
@@ -43,7 +43,7 @@ gem "loofah", ">= 2.2.3"
 
 # Pinned to update for role member search, using ref so merging and removing
 # the branch doesn't immediately break this link
-gem 'conjur-api', github: 'cyberark/conjur-api-ruby', branch: 'master'
+gem 'conjur-api', github: 'cyberark/conjur-api-ruby', branch: 'main'
 gem 'conjur-policy-parser', path: 'gems/policy-parser'
 gem 'conjur-rack', '~> 4'
 gem 'conjur-rack-heartbeat'
@@ -89,12 +89,12 @@ gem "anyway_config", "2.1.0"
 group :development, :test do
   gem 'aruba'
   gem 'ci_reporter_rspec'
-  gem 'conjur-cli', '~> 6.1'
-  gem 'conjur-debify', require: false
+  gem 'conjur-cli', github: 'cyberark/conjur-cli', branch: 'main'
+  gem 'conjur-debify'
   gem 'csr'
   gem 'cucumber'
   gem 'database_cleaner'
-  gem 'debase'
+  gem 'debase', '~> 0.2.5.beta2'
   gem 'json_spec'
   gem 'net-ssh'
   gem 'parallel'
