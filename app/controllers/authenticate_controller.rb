@@ -70,6 +70,7 @@ class AuthenticateController < ApplicationController
   end
 
   def login
+    logger.debug("+++++++ Hello Ofira Login Debug")
     result = perform_basic_authn
     raise Unauthorized, "Client not authenticated" unless authentication.authenticated?
 
@@ -79,6 +80,17 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticate(input = authenticator_input)
+    #Rails.logger.level = 2 #WARN
+    logger.debug("+++++++ Hello Ofira Authenticate Debug")
+    logger.info("+++++++ Hello Ofira Authenticate Info")
+    logger.warn("+++++++ Hello Ofira Authenticate Warn")
+    logger.error("+++++++ Hello Ofira Authenticate Error")
+
+    Rails.logger.level = 1 #INFO
+    Rails.logger.debug("+++++++ Hello Rails Ofira Authenticate Debug")
+    Rails.logger.info("+++++++ Hello Rails Ofira Authenticate info")
+    Rails.logger.warn("+++++++ Hello Rails Ofira Authenticate warn")
+    Rails.logger.error("+++++++ Hello Rails Ofira Authenticate error")
     authn_token = Authentication::Authenticate.new.(
       authenticator_input: input,
       authenticators: installed_authenticators,

@@ -26,6 +26,20 @@ class StatusController < ApplicationController
     })
   end
 
+  def tracelevel
+    logger.warn("+++++++ Hello Ofira Set TraceLevel 1");
+    level = request.parameters['level']
+    logger.warn("+++++++ Hello Ofira Set TraceLevel:  #{level}")
+    Rails.logger.level =2 #WARN
+    render(json: {
+      client_ip: request.ip,
+      user_agent: request.user_agent,
+      account: token_user.account,
+      username: token_user.login,
+      token_issued_at: Time.at(token_user.token.claims["iat"])
+    })
+  end
+
   def audit_success
     Audit.logger.log(
       Audit::Event::Whoami.new(
