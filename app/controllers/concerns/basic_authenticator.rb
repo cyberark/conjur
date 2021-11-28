@@ -27,6 +27,8 @@ module BasicAuthenticator
   private
 
   def authenticator_login(username, password)
+    raise Errors::Authentication::InvalidCredentials unless username && password
+
     ::Authentication::Login.new.(
       authenticator_input: login_input(username, password),
       authenticators: installed_login_authenticators,
