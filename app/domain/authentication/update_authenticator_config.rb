@@ -11,8 +11,15 @@ module Authentication
       validate_webservice_is_authenticator: ::Authentication::Security::ValidateWebserviceIsAuthenticator.new,
       validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new
     },
-    inputs: %i[account authenticator_name service_id enabled username]
+    inputs: %i[update_config_input]
   ) do
+    extend(Forwardable)
+    def_delegators(:@update_config_input,
+                   :account,
+                   :authenticator_name,
+                   :service_id,
+                   :enabled,
+                   :username)
     def call
       validate_account_exists
       validate_webservice_exists
@@ -25,14 +32,14 @@ module Authentication
 
     def validate_account_exists
       @validate_account_exists.(
-        account: @account
+        account: account
       )
     end
 
     def validate_webservice_exists
       @validate_webservice_exists.(
         webservice: webservice,
-        account: @account
+        account: account
       )
     end
 
@@ -45,8 +52,8 @@ module Authentication
     def validate_user_can_update_webservice
       @validate_role_can_access_webservice.(
         webservice: webservice,
-        account: @account,
-        user_id: @username,
+        account: account,
+        user_id: username,
         privilege: 'update'
       )
     end
@@ -54,14 +61,14 @@ module Authentication
     def update_authenticator_config
       @authenticator_config_class
         .find_or_create(resource_id: resource_id)
-        .update(enabled: @enabled)
+        .update(enabled: enabled)
     end
 
     def webservice
       @webservice ||= @webservice_class.new(
-        account: @account,
-        authenticator_name: @authenticator_name,
-        service_id: @service_id
+        account: account,
+        authenticator_name: authenticator_name,
+        service_id: service_id
       )
     end
 

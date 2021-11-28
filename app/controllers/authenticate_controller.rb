@@ -25,10 +25,29 @@ class AuthenticateController < ApplicationController
       authenticator_status_input: status_input,
       enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
     )
+    log_audit_success(
+      authn_params: status_input,
+      audit_event_class: Audit::Event::Authn::ValidateStatus
+    )
     render(json: { status: "ok" })
   rescue => e
+    log_audit_failure(
+      authn_params: status_input,
+      audit_event_class: Audit::Event::Authn::ValidateStatus,
+      error: e
+    )
     log_backtrace(e)
     render(status_failure_response(e))
+  end
+
+  def status_input
+    @status_input ||= Authentication::AuthenticatorStatusInput.new(
+      authenticator_name: params[:authenticator],
+      service_id: params[:service_id],
+      account: params[:account],
+      username: ::Role.username_from_roleid(current_user.role_id),
+      client_ip: request.ip
+    )
   end
 
   def authn_jwt_status
@@ -44,27 +63,30 @@ class AuthenticateController < ApplicationController
   end
 
   def update_config
-    body_params = Rack::Utils.parse_nested_query(request.body.read)
-
     Authentication::UpdateAuthenticatorConfig.new.(
-      account: params[:account],
-      authenticator_name: params[:authenticator],
-      service_id: params[:service_id],
-      username: ::Role.username_from_roleid(current_user.role_id),
-      enabled: body_params['enabled'] || false
+      update_config_input: update_config_input
     )
-
+    log_audit_success(
+      authn_params: update_config_input,
+      audit_event_class: Audit::Event::Authn::UpdateAuthenticatorConfig
+    )
     head(:no_content)
   rescue => e
+    log_audit_failure(
+      authn_params: update_config_input,
+      audit_event_class: Audit::Event::Authn::UpdateAuthenticatorConfig,
+      error: e
+    )
     handle_authentication_error(e)
   end
 
-  def status_input
-    Authentication::AuthenticatorStatusInput.new(
+  def update_config_input
+    @update_config_input ||= Authentication::UpdateAuthenticatorConfigInput.new(
+      account: params[:account],
       authenticator_name: params[:authenticator],
       service_id: params[:service_id],
-      account: params[:account],
       username: ::Role.username_from_roleid(current_user.role_id),
+      enabled: Rack::Utils.parse_nested_query(request.body.read)['enabled'] || false,
       client_ip: request.ip
     )
   end
@@ -76,17 +98,6 @@ class AuthenticateController < ApplicationController
     render(plain: result.authentication_key)
   rescue => e
     handle_login_error(e)
-  end
-
-  def authenticate(input = authenticator_input)
-    authn_token = Authentication::Authenticate.new.(
-      authenticator_input: input,
-      authenticators: installed_authenticators,
-      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
-    )
-    render_authn_token(authn_token)
-  rescue => e
-    handle_authentication_error(e)
   end
 
   def authenticate_jwt
@@ -106,7 +117,14 @@ class AuthenticateController < ApplicationController
     input = Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new.(
       authenticator_input: authenticator_input
     )
+    # We don't audit success here as the authentication process is not done
   rescue => e
+    # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
+    log_audit_failure(
+      authn_params: authenticator_input,
+      audit_event_class: Audit::Event::Authn::Authenticate,
+      error: e
+    )
     handle_authentication_error(e)
   else
     authenticate(input)
@@ -117,14 +135,41 @@ class AuthenticateController < ApplicationController
     input = Authentication::AuthnGcp::UpdateAuthenticatorInput.new.(
       authenticator_input: authenticator_input
     )
+    # We don't audit success here as the authentication process is not done
   rescue => e
+    # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
+    log_audit_failure(
+      authn_params: authenticator_input,
+      audit_event_class: Audit::Event::Authn::Authenticate,
+      error: e
+    )
     handle_authentication_error(e)
   else
     authenticate(input)
   end
 
+  def authenticate(input = authenticator_input)
+    authn_token = Authentication::Authenticate.new.(
+      authenticator_input: input,
+      authenticators: installed_authenticators,
+      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
+    )
+    log_audit_success(
+      authn_params: input,
+      audit_event_class: Audit::Event::Authn::Authenticate
+    )
+    render_authn_token(authn_token)
+  rescue => e
+    log_audit_failure(
+      authn_params: input,
+      audit_event_class: Audit::Event::Authn::Authenticate,
+      error: e
+    )
+    handle_authentication_error(e)
+  end
+
   def authenticator_input
-    Authentication::AuthenticatorInput.new(
+    @authenticator_input ||= Authentication::AuthenticatorInput.new(
       authenticator_name: params[:authenticator],
       service_id: params[:service_id],
       account: params[:account],
@@ -150,17 +195,6 @@ class AuthenticateController < ApplicationController
     )
   end
 
-  def render_authn_token(authn_token)
-    content_type = :json
-    if encoded_response?
-      logger.debug(LogMessages::Authentication::EncodedJWTResponse.new)
-      content_type = :plain
-      authn_token = ::Base64.strict_encode64(authn_token.to_json)
-      response.set_header("Content-Encoding", "base64")
-    end
-    render(content_type => authn_token)
-  end
-
   def k8s_inject_client_cert
     # TODO: add this to initializer
     Authentication::AuthnK8s::InjectClientCert.new.(
@@ -179,6 +213,40 @@ class AuthenticateController < ApplicationController
   end
 
   private
+
+  def render_authn_token(authn_token)
+    content_type = :json
+    if encoded_response?
+      logger.debug(LogMessages::Authentication::EncodedJWTResponse.new)
+      content_type = :plain
+      authn_token = ::Base64.strict_encode64(authn_token.to_json)
+      response.set_header("Content-Encoding", "base64")
+    end
+    render(content_type => authn_token)
+  end
+
+  def log_audit_success(
+    authn_params:,
+    audit_event_class:
+  )
+    ::Authentication::LogAuditEvent.new.call(
+      authentication_params: authn_params,
+      audit_event_class: audit_event_class,
+      error: nil
+    )
+  end
+
+  def log_audit_failure(
+    authn_params:,
+    audit_event_class:,
+    error:
+  )
+    ::Authentication::LogAuditEvent.new.call(
+      authentication_params: authn_params,
+      audit_event_class: audit_event_class,
+      error: error
+    )
+  end
 
   def handle_login_error(err)
     login_error = LogMessages::Authentication::LoginError.new(err.inspect)
@@ -242,16 +310,17 @@ class AuthenticateController < ApplicationController
       error: error.inspect
     }
 
-    status_code = case error
-                  when Errors::Authentication::Security::RoleNotAuthorizedOnResource
-                    :forbidden
-                  when Errors::Authentication::StatusNotSupported
-                    :not_implemented
-                  when Errors::Authentication::AuthenticatorNotSupported
-                    :not_found
-                  else
-                    :internal_server_error
-    end
+    status_code =
+      case error
+      when Errors::Authentication::Security::RoleNotAuthorizedOnResource
+        :forbidden
+      when Errors::Authentication::StatusNotSupported
+        :not_implemented
+      when Errors::Authentication::AuthenticatorNotSupported
+        :not_found
+      else
+        :internal_server_error
+      end
 
     { json: payload, status: status_code }
   end
