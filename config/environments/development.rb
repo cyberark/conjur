@@ -10,6 +10,11 @@ Rails.application.configure do
   # since you don't have to restart the web server when you make code changes.
   config.cache_classes = true
 
+  # Whitelist one hostname
+  puts "Adding conjur machine to whitelist"
+  config.hosts << "conjur"
+  #config.hosts << "NG-SEMYON-E"
+
   # eager_load needed to make authentication work without the hacky
   # loading code...
   #
