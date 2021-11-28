@@ -20,9 +20,8 @@ gem 'jbuilder', '~> 2.7.0'
 gem 'nokogiri', '>= 1.8.2'
 gem 'puma', '~> 5.5.1'
 gem 'rack', '~> 2.2.3'
-gem 'rails', '~> 6.1.4'
+gem 'rails'
 gem 'rake'
-# gem 'sprockets', '~> 3.7.0', '>= 3.7.2'
 
 gem 'pg'
 gem 'sequel'
@@ -32,10 +31,10 @@ gem 'sequel-rails'
 
 gem 'activesupport'
 gem 'base32-crockford'
-gem 'bcrypt', '~> 3.1.2'
+gem 'bcrypt'
 gem 'gli', require: false
 gem 'listen'
-gem 'slosilo', '~> 2.2'
+gem 'slosilo', github: 'cyberark/slosilo', branch: 'adjust-to-ruby-3'
 
 # Explicitly required as there are vulnerabilities in older versions
 gem "ffi", ">= 1.9.24"
@@ -56,13 +55,9 @@ gem 'rack-rewrite'
 # See: https://github.com/codeclimate/test-reporter/issues/418
 gem 'simplecov', '0.14.1', require: false
 
-# gem 'autoprefixer-rails'
-# gem 'bootstrap-sass', '~> 3.4.0'
-gem 'dry-struct', '~> 0.4.0'
-gem 'dry-types', '~> 0.12.2'
-# gem 'font-awesome-sass', '~> 4.7.0'
+gem 'dry-struct'
+gem 'dry-types'
 gem 'net-ldap'
-# gem 'sass-rails'
 
 # for AWS rotator
 gem 'aws-sdk-iam', require: false
