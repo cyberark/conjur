@@ -13,7 +13,6 @@ Rails.application.configure do
   # Whitelist one hostname
   puts "Adding conjur machine to whitelist"
   config.hosts << "conjur"
-  #config.hosts << "NG-SEMYON-E"
 
   # eager_load needed to make authentication work without the hacky
   # loading code...
