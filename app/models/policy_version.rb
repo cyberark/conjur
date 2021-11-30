@@ -12,6 +12,7 @@
 # * +created_at+ a timestamp.
 # * +client_ip+ the IP address of the client that loaded the policy.
 # * +policy_text+ the text of the policy itself.
+# * +version+ the policy version
 # * +policy_sha256+ the SHA-256 of the policy in hex digest form.
 #
 # The policy text is parsed when the PolicyVersion is validated. Parse errors are placed onto the 
