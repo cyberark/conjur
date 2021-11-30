@@ -3,7 +3,8 @@
 # This script retrieves a certificate from the keycloak OIDC provider.
 # It is needed to communicate with the provider via SSL for validating ID tokens
 
-httpclient_pem_location="/var/lib/ruby/lib/ruby/gems/2.5.0/gems/httpclient-2.8.3/lib/httpclient"
+RUBY_MAJOR_VER=$(ruby --version | head -c 8 | tail -c 3)
+httpclient_pem_location="/var/lib/ruby/lib/ruby/gems/$RUBY_MAJOR_VER.0/gems/httpclient-2.8.3/lib/httpclient"
 
 {
   echo "keycloak cert"
