@@ -107,12 +107,12 @@ class SecretsController < RestController
     )
 
     Audit.logger.log(
-      Audit::Event::Fetch.new(user: fetch_info[:user],
-                              client_ip: fetch_info[:client_ip],
-                              resource_id: fetch_info[:resource_id],
-                              success: fetch_info[:success],
-                              version: fetch_info[:version],
-                              operation: fetch_info[:operation]
+      Audit::Event::Fetch.new(user:         fetch_info[:user],
+                              client_ip:    fetch_info[:client_ip],
+                              resource_id:  fetch_info[:resource_id],
+                              success:      fetch_info[:success],
+                              version:      fetch_info[:version],
+                              operation:    fetch_info[:operation]
       )
     )
   end
