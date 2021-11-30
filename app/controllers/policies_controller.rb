@@ -50,7 +50,7 @@ class PoliciesController < RestController
 
     render(json: {
       created_roles: created_roles,
-      version: policy.version
+      version: policy[:version]
     }, status: :created)
   rescue => e
     audit_failure(e, action)
@@ -58,8 +58,11 @@ class PoliciesController < RestController
   end
 
   def audit_success(policy)
-    policy.policy_log.lazy.map(&:to_audit_event).each do |event|
-      Audit.logger.log(event)
+    #TODO: Cucumber for scenario when (policy[:policy_log].nil == true)
+    unless policy[:policy_log].nil?
+       policy[:policy_log].lazy.map(&:to_audit_event).each do |event|
+         Audit.logger.log(event)
+       end
     end
   end
 
