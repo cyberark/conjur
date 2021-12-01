@@ -184,7 +184,7 @@ GEM
       cucumber-core (~> 10.1, >= 10.1.0)
       cucumber-cucumber-expressions (~> 14.0, >= 14.0.0)
       cucumber-messages (~> 17.1, >= 17.1.1)
-    database_cleaner (1.8.4)
+    database_cleaner (1.8.5)
     debase (0.2.5.beta2)
       debase-ruby_core_source (>= 0.10.12)
     debase-ruby_core_source (0.10.13)
@@ -291,8 +291,6 @@ GEM
     nio4r (2.5.8)
     nokogiri (1.12.5-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.12.5-x86_64-linux)
-      racc (~> 1.4)
     openid_connect (1.3.0)
       activemodel
       attr_required (>= 1.0.0)
@@ -382,6 +380,7 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
+    rexml (3.2.5)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
       rspec-expectations (~> 3.10.0)
@@ -478,7 +477,6 @@ GEM
 
 PLATFORMS
   x86_64-darwin-20
-  x86_64-linux
 
 DEPENDENCIES
   activesupport
@@ -532,6 +530,7 @@ DEPENDENCIES
   rake
   rake_shared_context
   reek
+  rexml (~> 3.2.5)
   rspec
   rspec-core
   rspec-rails (~> 5.0.2)

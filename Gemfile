@@ -106,6 +106,7 @@ group :development, :test do
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
   gem 'table_print'
+  gem 'rexml', '~> 3.2.5'
 end
 
 group :development do
