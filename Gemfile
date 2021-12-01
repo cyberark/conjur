@@ -88,7 +88,7 @@ group :development, :test do
   gem 'conjur-debify'
   gem 'csr'
   gem 'cucumber'
-  gem 'database_cleaner'
+  gem 'database_cleaner', '~> 1.8.4'
   gem 'debase', '~> 0.2.5.beta2'
   gem 'json_spec'
   gem 'net-ssh'
