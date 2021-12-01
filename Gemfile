@@ -43,7 +43,7 @@ gem "loofah", ">= 2.2.3"
 
 # Pinned to update for role member search, using ref so merging and removing
 # the branch doesn't immediately break this link
-gem 'conjur-api', github: 'cyberark/conjur-api-ruby', branch: 'master'
+gem 'conjur-api', github: 'cyberark/conjur-api-ruby', branch: 'main'
 gem 'conjur-policy-parser', path: 'gems/policy-parser'
 gem 'conjur-rack', '~> 4'
 gem 'conjur-rack-heartbeat'
@@ -104,7 +104,7 @@ group :development, :test do
   gem 'rails_layout'
   gem 'rake_shared_context'
   gem 'rspec'
-  gem 'rspec-core', '~> 3.0'
+  gem 'rspec-core'
   gem 'rspec-rails'
   gem 'ruby-debug-ide'
   gem 'spring'
