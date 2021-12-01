@@ -498,7 +498,7 @@ DEPENDENCIES
   conjur-rack-heartbeat
   csr
   cucumber
-  database_cleaner
+  database_cleaner (~> 1.8.4)
   debase (~> 0.2.5.beta2)
   dry-struct
   dry-types
