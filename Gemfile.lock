@@ -537,8 +537,8 @@ DEPENDENCIES
   rake
   rake_shared_context
   reek
-  rspec (~> 3.10.0)
-  rspec-core (~> 3.10.1)
+  rspec
+  rspec-core
   rspec-rails (~> 5.0.2)
   rubocop (~> 0.58.0)
   rubocop-checkstyle_formatter
