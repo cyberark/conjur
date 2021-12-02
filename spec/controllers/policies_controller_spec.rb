@@ -9,7 +9,7 @@ describe PoliciesController, type: :request do
   before(:all) do
     # there doesn't seem to be a sane way to get this
     @original_database_cleaner_strategy =
-      DatabaseCleaner.cleaners.first.strategy
+      DatabaseCleaner.connections.first.strategy
         .class.name.downcase[/[^:]+$/].intern
 
     # we need truncation here because the tests span many transactions
