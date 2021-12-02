@@ -11,7 +11,7 @@ module RestHelpers
     @headers ||= {}
   end
 
-  def post_json path, body, options = {}
+  def post_json(path, body, options = {})
     path = denormalize(path)
     body = denormalize(body)
     result = rest_resource(options)[path].post(body)
@@ -26,20 +26,20 @@ module RestHelpers
     set_result(result)
   end
 
-  def put_json path, body = nil, options = {}
+  def put_json(path, body = nil, options = {})
     path = denormalize(path)
     body = denormalize(body)
     result = rest_resource(options)[path].put(body)
     set_result(result)
   end
 
-  def delete_json path, options = {}
+  def delete_json(path, options = {})
     path = denormalize(path)
     result = rest_resource(options)[path].delete
     set_result(result)
   end
 
-  def patch_json path, body = nil, options = {}
+  def patch_json(path, body = nil, options = {})
     path = denormalize(path)
     body = denormalize(body)
     result = rest_resource(options)[path].patch(body)
@@ -48,7 +48,7 @@ module RestHelpers
 
   def get_json(path, options = {})
     path = denormalize(path)
-    result = rest_resource(options)[path].get
+    result = rest_resource(options)[path].get()
     set_result(result)
   end
 
@@ -124,7 +124,7 @@ module RestHelpers
     [new_path, remapped_params]
   end
 
-  def set_result result
+  def set_result(result)
     @response_api_key = nil
     @http_status = result.code
 
@@ -141,7 +141,7 @@ module RestHelpers
     end
   end
 
-  def set_token_result result
+  def set_token_result(result)
     @result = if result.blank?
       result
     else
@@ -166,7 +166,7 @@ module RestHelpers
   end
 
   # Write a command to the authn-local Unix socket.
-  def authn_local_request command
+  def authn_local_request(command)
     require 'socket'
     socket_file = '/run/authn-local/.socket'
     raise "Socket #{socket_file} does not exist" unless File.exist?(socket_file)
@@ -202,22 +202,22 @@ module RestHelpers
     @roles ||= {}
   end
 
-  def lookup_host login, account = 'cucumber'
+  def lookup_host(login, account = 'cucumber')
     roleid = "#{account}:host:#{login}"
     lookup_role(roleid)
   end
 
-  def lookup_user login, account = 'cucumber'
+  def lookup_user(login, account = 'cucumber')
     roleid = "#{account}:user:#{login}"
     lookup_role(roleid)
   end
 
-  def lookup_group login, account = 'cucumber'
+  def lookup_group(login, account = 'cucumber')
     roleid = "#{account}:group:#{login}"
     lookup_role(roleid)
   end
 
-  def lookup_role roleid
+  def lookup_role(roleid)
     existing = begin
       Role[roleid]
     rescue
@@ -234,7 +234,7 @@ module RestHelpers
     end
   end
 
-  def foreign_admin_user account
+  def foreign_admin_user(account)
     role_id = "#{account}:user:admin"
     Role[role_id] || Role.create(role_id: role_id)
   end
@@ -244,18 +244,18 @@ module RestHelpers
   end
 
   # Create a regular user, owned by the admin user
-  def create_user login, owner
+  def create_user(login, owner)
     roleid = "cucumber:user:#{login}"
     create_role(roleid, owner)
   end
 
   # Create a regular host, owned by the admin user
-  def create_host login, owner
+  def create_host(login, owner)
     roleid = "cucumber:host:#{login}"
     create_role(roleid, owner)
   end
 
-  def create_role roleid, owner
+  def create_role(roleid, owner)
     return if roles[roleid]
 
     Role.create(role_id: roleid).tap do |role|
@@ -268,12 +268,12 @@ module RestHelpers
   # TODO: This isn't a RestHelper
   #   We probably want an object encapsulating DB interactions like a
   #   UserRepo or db.User... TBD
-  def user_exists? login
+  def user_exists?(login)
     roleid = "cucumber:user:#{login}"
     Role[role_id: roleid]
   end
 
-  def host_exists? login
+  def host_exists?(login)
     roleid = "cucumber:host:#{login}"
     Role[role_id: roleid]
   end
@@ -321,7 +321,7 @@ module RestHelpers
     URI.parse(Conjur.configuration.appliance_url + path)
   end
 
-  def try_request can
+  def try_request(can)
     yield
   rescue RestClient::Exception
     puts($ERROR_INFO)
@@ -336,7 +336,7 @@ module RestHelpers
     'cucumber'
   end
 
-  def random_hex nbytes = 12
+  def random_hex(nbytes = 12)
     @random ||= Random.new
     @random.bytes(nbytes).unpack1('h*')
   end
@@ -347,7 +347,7 @@ module RestHelpers
     roles[role_id].credentials.api_key
   end
 
-  def denormalize str
+  def denormalize(str)
     return unless str
     return if str.is_a?(Hash)
 
