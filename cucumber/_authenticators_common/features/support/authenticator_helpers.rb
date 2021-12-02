@@ -147,7 +147,10 @@ module AuthenticatorHelpers
           queue.shift
           results.push(
             Benchmark.measure do
-              method(authentication_func).call(authentication_func_params)
+              method(authentication_func).call(url: authentication_func_params[:url],
+                                               api_key: authentication_func_params[:api_key],
+                                               encoding: authentication_func_params[:encoding],
+                                               can: authentication_func_params[:can])
             end
           )
         end
