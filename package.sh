@@ -1,5 +1,5 @@
 #!/bin/bash -ex
-export DEBIFY_IMAGE='registry.tld/conjurinc/debify:2.0.0'
+export DEBIFY_IMAGE='registry.tld/conjurinc/debify:one-step-to-ruby3'
 
 docker run --rm $DEBIFY_IMAGE config script > docker-debify
 chmod +x docker-debify
