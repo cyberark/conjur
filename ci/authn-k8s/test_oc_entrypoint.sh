@@ -17,6 +17,38 @@ function finish {
   echo 'Finishing'
   echo '-----'
 
+  echo "Removing namespace $CONJUR_AUTHN_K8S_TEST_NAMESPACE"
+  echo '-----'
+
+  sleep 5
+
+  oc adm policy remove-scc-from-user anyuid -z default
+  oc --ignore-not-found=true delete project $CONJUR_AUTHN_K8S_TEST_NAMESPACE
+}
+
+export TEMPLATE_TAG="$PLATFORM."
+export API_VERSION=v1
+
+function main() {
+  sourceFunctions
+  renderResourceTemplates
+
+  initialize_oc
+  createNamespace
+
+  pushDockerImages
+
+  launchConjurMaster
+  copyNginxSSLCert
+  copyConjurPolicies
+  loadConjurPolicies
+  launchInventoryServices
+
+  runTests
+  finish
+}
+
+function printLogs() {
   {
     pod_name=$(retrieve_pod conjur-authn-k8s)
     if [[ "$pod_name" != "" ]]; then
@@ -40,34 +72,16 @@ function finish {
     echo "Logs could not be extracted from $pod_name"
     touch "output/$PLATFORM-authn-k8s-logs.txt"  # so Jenkins artifact collection doesn't fail
   }
-
-  echo 'Removing namespace $CONJUR_AUTHN_K8S_TEST_NAMESPACE'
-  echo '-----'
-
-  oc adm policy remove-scc-from-user anyuid -z default
-  oc --ignore-not-found=true delete project $CONJUR_AUTHN_K8S_TEST_NAMESPACE
 }
-trap finish EXIT
 
-export TEMPLATE_TAG="$PLATFORM."
-export API_VERSION=v1
+function copyNginxSSLCert() {
+  nginx_pod=$(retrieve_pod nginx-authn-k8s)
+  cucumber_pod=$(retrieve_pod cucumber-authn-k8s)
+  kubectl wait --for=condition=Ready "pod/$nginx_pod" --timeout=5m
+  kubectl wait --for=condition=Ready "pod/$cucumber_pod" --timeout=5m
 
-function main() {
-  sourceFunctions
-  renderResourceTemplates
-
-  initialize_oc
-  createNamespace
-
-  pushDockerImages
-
-  launchConjurMaster
-#  createSSLCertConfigMap
-  copyConjurPolicies
-  loadConjurPolicies
-  launchInventoryServices
-
-  runTests
+  kubectl cp "$nginx_pod:/etc/nginx/nginx.crt" ./nginx.crt
+  kubectl cp ./nginx.crt "$cucumber_pod:/opt/conjur-server/nginx.crt"
 }
 
 function sourceFunctions() {
@@ -110,28 +124,22 @@ function createNamespace() {
 
 function pushDockerImages() {
   # push images to openshift registry
-  docker push $CONJUR_AUTHN_K8S_TAG
-  docker push $INVENTORY_TAG
-  docker push $INVENTORY_BASE_TAG
+  docker push "$INVENTORY_BASE_TAG"
+  docker push "$CONJUR_AUTHN_K8S_TAG"
+  docker push "$CONJUR_TEST_AUTHN_K8S_TAG"
+  docker push "$INVENTORY_TAG"
+  docker push "$NGINX_TAG"
 }
 
 function launchConjurMaster() {
   echo 'Launching Conjur master service'
 
-  sed -e "s#{{ CONJUR_AUTHN_K8S_TAG }}#$CONJUR_AUTHN_K8S_TAG#g" dev/dev_conjur.${TEMPLATE_TAG}yaml |
-    sed -e "s#{{ DATA_KEY }}#$(openssl rand -base64 32)#g" |
-    sed -e "s#{{ CONJUR_AUTHN_K8S_TEST_NAMESPACE }}#$CONJUR_AUTHN_K8S_TEST_NAMESPACE#g" |
-    oc create -f -
-
-  conjur_pod=$(retrieve_pod conjur-authn-k8s)
-
-  wait_for_it 300 "oc describe po $conjur_pod | grep Status: | grep -q Running"
-
-  # wait for the 'conjurctl server' entrypoint to finish
-  local wait_command="while ! curl -sI localhost:80 > /dev/null; do sleep 1; done"
-  oc exec $conjur_pod -- bash -c "$wait_command"
+  DATA_KEY=$(openssl rand -base64 32)
+  export DATA_KEY="$DATA_KEY"
+  run_conjur_master "dev_conjur"
 
   export API_KEY=$(oc exec $conjur_pod -- conjurctl account create cucumber | tail -n 1 | awk '{ print $NF }')
+  echo "$API_KEY"
 }
 
 function createSSLCertConfigMap() {
@@ -176,48 +184,107 @@ function launchInventoryServices() {
   echo 'Launching inventory services'
   local service_count=5
 
-  oc create -f dev/dev_inventory.${TEMPLATE_TAG}yaml
-  oc create -f dev/dev_inventory_deployment_config.${TEMPLATE_TAG}yaml
-  oc create -f dev/dev_inventory_unauthorized.${TEMPLATE_TAG}yaml
+  applyInventoryFile "inventory"
+  applyInventoryFile "inventory_deployment_config"
+  applyInventoryFile "inventory_unauthorized"
   # This yaml file has 2 pods
-  oc create -f dev/dev_inventory_pod.${TEMPLATE_TAG}yaml
+  applyInventoryFile "inventory_pod"
 
   if [[ "$K8S_VERSION" != "1.3" ]]; then  # stateful sets are k8s 1.5+ only
-    oc create -f dev/dev_inventory_stateful.${TEMPLATE_TAG}yaml
+    applyInventoryFile "inventory_stateful"
     service_count=6
   fi
 
-  wait_for_it 300 "oc describe po inventory | grep Status: | grep -c Running | grep -q $service_count"
+  #oc describe po inventory | grep Status: | grep -vc Running | greq -q 0
+  sleep 10
+  oc delete pod inventory-no-ssl-dir
+  applyInventoryFile "inventory_pod"
+
+  wait_for_it 420 "oc describe po inventory | grep Status: | grep -c Running | grep -q $service_count"
 }
+
+function applyInventoryFile() {
+  filename=$1
+
+  INVENTORY_TAG=$(echo $INVENTORY_TAG | sed "s/$OPENSHIFT_REGISTRY_URL/$OPENSHIFT_INTERNAL_REGISTRY_URL/")
+  CONJUR_AUTHN_K8S_TEST_NAMESPACE=$(echo $CONJUR_AUTHN_K8S_TEST_NAMESPACE | sed "s/$OPENSHIFT_REGISTRY_URL/$OPENSHIFT_INTERNAL_REGISTRY_URL/")
+  INVENTORY_BASE_TAG=$(echo $INVENTORY_BASE_TAG | sed "s/$OPENSHIFT_REGISTRY_URL/$OPENSHIFT_INTERNAL_REGISTRY_URL/")
+
+  sed -e "s#{{ INVENTORY_TAG }}#$INVENTORY_TAG#g" "dev/dev_$filename.${TEMPLATE_TAG}yaml" |
+  sed -e "s#{{ CONJUR_AUTHN_K8S_TEST_NAMESPACE }}#$CONJUR_AUTHN_K8S_TEST_NAMESPACE#g" |
+  sed -e "s#{{ INVENTORY_BASE_TAG }}#$INVENTORY_BASE_TAG#g" |
+  oc apply -f -
+}
+
 
 function runTests() {
   echo 'Running tests'
 
   conjurcmd mkdir -p /opt/conjur-server/output
 
-  # THE CUCUMBER_FILTER_TAGS environment variable is not natively
-  # implemented in cucumber-ruby, so we pass it as a CLI argument
-  # if the variable is set.
-  local cucumber_tags_arg="--tags \"not @skip\""
-  if [[ -n "$CUCUMBER_FILTER_TAGS" ]]; then
-    cucumber_tags_arg="--tags \"not @skip and $CUCUMBER_FILTER_TAGS\""
-  fi
+  run_cucumber "~@skip --tags ~@k8s_skip --tags ~@sni_fails --tags ~@sni_success"
 
+  printLogs
+
+  conjur_pod=$(retrieve_pod conjur-authn-k8s)
+  api_server_ip=$(kubectl exec "$conjur_pod" -- sh -c 'echo $KUBERNETES_SERVICE_HOST')
+
+  run_conjur_master "dev_conjur_sni" "$api_server_ip" "api-other.test.com"
+
+  run_cucumber "@sni_fails"
+
+  printLogs
+
+  run_conjur_master "dev_conjur_sni" "$api_server_ip" "$SNI_FQDN"
+
+  run_cucumber "@sni_success"
+
+  printLogs
+}
+
+function retrieve_pod() {
+  oc get pods -l app=$1 -o=jsonpath='{.items[].metadata.name}'
+}
+
+function run_conjur_master() {
+  filename=$1
+  api_server_ip=$2
+  api_fqdn=$3
+
+  CONJUR_AUTHN_K8S_TAG=$(echo $CONJUR_AUTHN_K8S_TAG | sed "s/$OPENSHIFT_REGISTRY_URL/$OPENSHIFT_INTERNAL_REGISTRY_URL/")
+  CONJUR_TEST_AUTHN_K8S_TAG=$(echo $CONJUR_TEST_AUTHN_K8S_TAG | sed "s/$OPENSHIFT_REGISTRY_URL/$OPENSHIFT_INTERNAL_REGISTRY_URL/")
+  NGINX_TAG=$(echo $NGINX_TAG | sed "s/$OPENSHIFT_REGISTRY_URL/$OPENSHIFT_INTERNAL_REGISTRY_URL/")
+
+  sed -e "s#{{ CONJUR_AUTHN_K8S_TAG }}#$CONJUR_AUTHN_K8S_TAG#g" "dev/$filename.${TEMPLATE_TAG}yaml" |
+    sed -e "s#{{ CONJUR_TEST_AUTHN_K8S_TAG }}#$CONJUR_TEST_AUTHN_K8S_TAG#g" |
+    sed -e "s#{{ NGINX_TAG }}#$NGINX_TAG#g" |
+    sed -e "s#{{ DATA_KEY }}#$DATA_KEY#g" |
+    sed -e "s#{{ CONJUR_AUTHN_K8S_TEST_NAMESPACE }}#$CONJUR_AUTHN_K8S_TEST_NAMESPACE#g" |
+    sed -e "s#{{ KUBERNETES_SERVICE_HOST }}#$api_server_ip#g" |
+    sed -e "s#{{ KUBERNETES_API_FQDN }}#$api_fqdn#g" |
+    oc apply -f -
+
+  conjur_pod=$(retrieve_pod conjur-authn-k8s)
+
+  wait_for_it 300 "oc describe po $conjur_pod | grep Status: | grep -q Running"
+
+  # wait for the 'conjurctl server' entrypoint to finish
+  local wait_command="while ! curl -sI localhost:80 > /dev/null; do sleep 1; done"
+  oc exec $conjur_pod -- bash -c "$wait_command"
+}
+
+function run_cucumber() {
+  tags=$1
   echo "./bin/cucumber \
     K8S_VERSION=$K8S_VERSION \
     PLATFORM=openshift \
-    --no-color --format pretty \
-    --format junit --out /opt/conjur-server/output \
+    --no-color --format pretty --format junit \
+    --out /opt/conjur-server/output \
     -r ./cucumber/kubernetes/features/step_definitions/ \
     -r ./cucumber/kubernetes/features/support/world.rb \
     -r ./cucumber/kubernetes/features/support/hooks.rb \
     -r ./cucumber/kubernetes/features/support/conjur_token.rb \
-    $cucumber_tags_arg \
-    ./cucumber/kubernetes/features" | conjurcmd -i bash
-}
-
-retrieve_pod() {
-  oc get pods -l app=$1 -o=jsonpath='{.items[].metadata.name}'
+    --tags $tags ./cucumber/kubernetes/features" | cucumbercmd -i bash || true
 }
 
 main

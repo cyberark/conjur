@@ -13,6 +13,8 @@ function main() {
 
   createNginxCert
 
+  fetchSNICertificate
+
   buildDockerImages
 
   case "$PLATFORM" in
@@ -73,29 +75,66 @@ function createNginxCert() {
          -out nginx.crt
 }
 
+function fetchSNICertificate() {
+  if [[ ! -z $SNI_FQDN ]]
+  then
+    docker run --rm -i \
+           -w /home -v $PWD:/home \
+           svagi/openssl s_client \
+           -connect "$SNI_FQDN:$SNI_PORT" \
+           -servername "$SNI_FQDN" > sni.out < /dev/null
+
+    docker run --rm -i \
+           -w /home -v $PWD:/home \
+           svagi/openssl x509 \
+           -in /home/sni.out \
+           -out /home/sni.crt
+  fi
+}
+
 function buildDockerImages() {
   conjur_version=$(echo "$(git rev-parse --short=8 HEAD)")
   DOCKER_REGISTRY_PATH="registry.tld"
 
-  docker pull $DOCKER_REGISTRY_PATH/conjur:$conjur_version
-  docker pull $DOCKER_REGISTRY_PATH/conjur-test:$conjur_version
+  if ! docker image inspect "$DOCKER_REGISTRY_PATH/conjur:$conjur_version" > /dev/null 2>&1; then
+    docker pull "$DOCKER_REGISTRY_PATH/conjur:$conjur_version"
+  fi
+  if ! docker image inspect "$DOCKER_REGISTRY_PATH/conjur-test:$conjur_version" > /dev/null 2>&1; then
+    docker pull "$DOCKER_REGISTRY_PATH/conjur-test:$conjur_version"
+  fi
 
-  docker tag $DOCKER_REGISTRY_PATH/conjur:$conjur_version $CONJUR_AUTHN_K8S_TAG
+  add_sni_cert_to_image "$DOCKER_REGISTRY_PATH/conjur:$conjur_version"
+  add_sni_cert_to_image "$DOCKER_REGISTRY_PATH/conjur-test:$conjur_version"
+
+  docker tag "$DOCKER_REGISTRY_PATH/conjur:$conjur_version" "$CONJUR_AUTHN_K8S_TAG"
 
   # cukes will be run from this image
-  docker tag $DOCKER_REGISTRY_PATH/conjur-test:$conjur_version $CONJUR_TEST_AUTHN_K8S_TAG
-
-  docker build -t $INVENTORY_BASE_TAG -f dev/Dockerfile.inventory_base dev
+  docker tag "$DOCKER_REGISTRY_PATH/conjur-test:$conjur_version" "$CONJUR_TEST_AUTHN_K8S_TAG"
+  
+  docker build -t "$INVENTORY_BASE_TAG" -f dev/Dockerfile.inventory_base dev
   docker build \
-    --build-arg INVENTORY_BASE_TAG=$INVENTORY_BASE_TAG \
-    -t $INVENTORY_TAG \
+    --build-arg INVENTORY_BASE_TAG="$INVENTORY_BASE_TAG" \
+    -t "$INVENTORY_TAG" \
     -f dev/Dockerfile.inventory \
     dev
 
-  docker build -t $NGINX_TAG -f dev/Dockerfile.nginx dev
+  docker build -t "$NGINX_TAG" -f dev/Dockerfile.nginx dev
 
-  docker build --build-arg OPENSHIFT_CLI_URL=$OPENSHIFT_CLI_URL \
-    -t $CONJUR_AUTHN_K8S_TESTER_TAG -f dev/Dockerfile.test dev
+  docker build --build-arg OPENSHIFT_CLI_URL="$OPENSHIFT_CLI_URL" \
+    -t "$CONJUR_AUTHN_K8S_TESTER_TAG" -f dev/Dockerfile.test dev
+}
+
+function add_sni_cert_to_image() {
+  image=$1
+
+  if [ -f "sni.crt" ]
+  then
+    docker rm temp_container || true
+    docker create --name temp_container "$image"
+    docker cp sni.crt "temp_container:/opt/conjur/etc/ssl/ca/${sni_cert##*/}"
+    docker commit temp_container "$image"
+    docker rm temp_container
+  fi
 }
 
 function test_gke() {
@@ -131,8 +170,11 @@ function test_openshift() {
     -e K8S_VERSION \
     -e OPENSHIFT_URL \
     -e OPENSHIFT_REGISTRY_URL \
+    -e OPENSHIFT_INTERNAL_REGISTRY_URL \
     -e OPENSHIFT_USERNAME \
     -e OPENSHIFT_PASSWORD \
+    -e OPENSHIFT_TOKEN \
+    -e SNI_FQDN \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "$PWD":/src \
     $CONJUR_AUTHN_K8S_TESTER_TAG bash -c "./test_oc_entrypoint.sh"

@@ -26,7 +26,8 @@ module Authentication
                                 uri.port || (uri.scheme == 'wss' ? 443 : 80))
         if %w[https wss].include?(uri.scheme)
           ctx = OpenSSL::SSL::SSLContext.new
-          ctx.ssl_version = options[:ssl_version] || 'SSLv23'
+          ssl_version = options[:ssl_version] || 'SSLv23'
+          ctx.ssl_version = ssl_version
           ctx.verify_mode = options[:verify_mode] || OpenSSL::SSL::VERIFY_NONE # use VERIFY_PEER for verification
           cert_store = options[:cert_store]
           unless cert_store
@@ -34,8 +35,13 @@ module Authentication
             cert_store.set_default_paths
           end
           ctx.cert_store = cert_store
+
           @socket = ::OpenSSL::SSL::SSLSocket.new(@socket, ctx)
+          if ssl_version != 'SSLv23'
+            @socket.hostname = options[:hostname] || uri.host
+          end
           @socket.connect
+          @socket.post_connection_check(@socket.hostname) if @socket.hostname
         end
         @handshake = ::WebSocket::Handshake::Client.new(url: url, headers: options[:headers])
         @handshaked = false

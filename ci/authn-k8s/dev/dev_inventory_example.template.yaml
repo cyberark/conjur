@@ -5,7 +5,7 @@ metadata:
   name: inventory-pod-in-namespace
 spec:
   containers:
-  - image: {{INVENTORY_TAG}}
+  - image: {{ INVENTORY_TAG }}
     imagePullPolicy: IfNotPresent
     name: inventory
     env:
@@ -22,7 +22,7 @@ spec:
       - mountPath: /run/conjur
         name: conjur-access-token
         readOnly: true
-  - image: {{AUTHENTICATOR_TAG}}
+  - image: {{ AUTHENTICATOR_TAG }}
     imagePullPolicy: IfNotPresent
     name: authenticator
     env:
@@ -45,7 +45,7 @@ spec:
       - name: CONJUR_ACCOUNT
         value: cucumber
       - name: CONJUR_AUTHN_LOGIN
-        value: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/*/*
+        value: {{ CONJUR_AUTHN_K8S_TEST_NAMESPACE }}/*/*
       - name: CONJUR_SSL_CERTIFICATE
         valueFrom:
           configMapKeyRef:

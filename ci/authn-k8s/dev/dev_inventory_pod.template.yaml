@@ -19,11 +19,11 @@ metadata:
 spec:
   serviceAccountName: inventory-pod-only
   containers:
-  - image: {{INVENTORY_TAG}}
+  - image: {{ INVENTORY_TAG }}
     imagePullPolicy: IfNotPresent
     name: inventory
     command: ["sleep", "infinity"]
-  - image: {{INVENTORY_TAG}}
+  - image: {{ INVENTORY_TAG }}
     imagePullPolicy: IfNotPresent
     name: authenticator
     command: ["sleep", "infinity"]
@@ -40,11 +40,11 @@ metadata:
 spec:
   serviceAccountName: inventory-pod-only
   containers:
-  - image: {{INVENTORY_BASE_TAG}}
+  - image: {{ INVENTORY_BASE_TAG }}
     imagePullPolicy: IfNotPresent
     name: inventory
     command: ["sleep", "infinity"]
-  - image: {{INVENTORY_BASE_TAG}}
+  - image: {{ INVENTORY_BASE_TAG }}
     imagePullPolicy: IfNotPresent
     name: authenticator
     command: ["sleep", "infinity"]
