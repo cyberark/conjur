@@ -1,0 +1,18 @@
+- !policy
+  id: authn-ldap/<%= service_id %>
+  body:
+  - !webservice
+    annotations:
+    <% auth_data.annotations.each do |annotation, value| -%>
+      <%= annotation %>: <%= value %>
+    <% end -%>
+
+  - !variable bind-password
+  - !variable tls-ca-cert
+
+  - !group consumers
+
+  - !permit
+    resource: !webservice
+    privilege: [ authenticate ]
+    role: !group consumers

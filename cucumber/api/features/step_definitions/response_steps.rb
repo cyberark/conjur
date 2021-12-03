@@ -50,6 +50,12 @@ Then(/^the text result is:$/) do |value|
   expect(@result).to eq(value)
 end
 
+Then(/^the YAML result is:$/) do |value|
+  expect(@result).to be
+  expect(@result.headers[:content_type]).to include("text/yaml")
+  expect(@result.to_s).to eq(value)
+end
+
 Then(/^the binary result is "([^"]*)"$/) do |value|
   expect(@result).to be
   expect(@result.headers[:content_type]).to eq("application/octet-stream")

@@ -1,10 +1,7 @@
 - !policy
-  id: authn-oidc/<%= service_id %>
+  id: authn-gcp/<%= service_id %>
   body:
   - !webservice
-
-  - !variable provider-uri
-  - !variable id-token-user-property
 
   - !group consumers
 
