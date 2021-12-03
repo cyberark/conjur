@@ -5,10 +5,16 @@
   - !policy
     id: ca
     body:
-    - !variable
-      id: cert
-    - !variable
-      id: key
+    - !variable cert
+    - !variable key
+
+  - !policy
+    id: kubernetes
+    body:
+    - !variable service-account-token
+    - !variable ca-cert
+    - !variable api-url
+
   - !layer users
 
   - !permit
