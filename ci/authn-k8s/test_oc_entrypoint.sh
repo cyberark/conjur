@@ -22,8 +22,8 @@ function finish {
 
   sleep 5
 
-  oc adm policy remove-scc-from-user anyuid -z default
-  oc --ignore-not-found=true delete project $CONJUR_AUTHN_K8S_TEST_NAMESPACE
+  #oc adm policy remove-scc-from-user anyuid -z default
+  #oc --ignore-not-found=true delete project $CONJUR_AUTHN_K8S_TEST_NAMESPACE
 }
 
 export TEMPLATE_TAG="$PLATFORM."
@@ -44,8 +44,13 @@ function main() {
   loadConjurPolicies
   launchInventoryServices
 
+  resetLogFile
   runTests
   finish
+}
+
+function resetLogFile() {
+  cat /dev/null > "output/$PLATFORM-authn-k8s-logs.txt"
 }
 
 function printLogs() {
@@ -58,14 +63,14 @@ function printLogs() {
       kubectl cp $pod_name:/src/authn-k8s/output output
 
       echo "Logs from Conjur Pod $pod_name:"
-      oc logs $pod_name > "output/$PLATFORM-authn-k8s-logs.txt"
+      oc logs $pod_name >> "output/$PLATFORM-authn-k8s-logs.txt"
 
       # Rails.logger writes the logs to the environment log file
       oc exec $pod_name -- bash -c "cat /opt/conjur-server/log/test.log" >> "output/$PLATFORM-authn-k8s-logs.txt"
 
       echo "Printing Logs from Conjur to the console"
       echo "==========================="
-      cat "output/$PLATFORM-authn-k8s-logs.txt"
+      #cat "output/$PLATFORM-authn-k8s-logs.txt"
       echo "==========================="
     fi
   } || {
@@ -129,6 +134,7 @@ function pushDockerImages() {
   docker push "$CONJUR_TEST_AUTHN_K8S_TAG"
   docker push "$INVENTORY_TAG"
   docker push "$NGINX_TAG"
+  docker push "$TINYPROXY_TAG"
 }
 
 function launchConjurMaster() {
@@ -176,8 +182,8 @@ function loadConjurPolicies() {
   oc exec $conjur_pod -- rake authn_k8s:ca_init["conjur/authn-k8s/minikube"]
 
   # set test password value
-#  password=$(openssl rand -hex 12)
-#  conjurcmd conjur variable values add inventory-db/password $password
+  #password=$(openssl rand -hex 12)
+  #conjurcmd conjur variable values add inventory-db/password $password
 }
 
 function launchInventoryServices() {
@@ -222,7 +228,7 @@ function runTests() {
 
   conjurcmd mkdir -p /opt/conjur-server/output
 
-  run_cucumber "~@skip --tags ~@k8s_skip --tags ~@sni_fails --tags ~@sni_success"
+  run_cucumber "~@skip --tags ~@k8s_skip --tags ~@sni_fails --tags ~@sni_success --tags ~@http_proxy"
 
   printLogs
 
@@ -238,6 +244,12 @@ function runTests() {
   run_conjur_master "dev_conjur_sni" "$api_server_ip" "$SNI_FQDN"
 
   run_cucumber "@sni_success"
+
+  printLogs
+
+  run_conjur_master "dev_conjur_http_proxy"
+
+  run_cucumber "@http_proxy"
 
   printLogs
 }
@@ -263,6 +275,8 @@ function run_conjur_master() {
     sed -e "s#{{ KUBERNETES_SERVICE_HOST }}#$api_server_ip#g" |
     sed -e "s#{{ KUBERNETES_API_FQDN }}#$api_fqdn#g" |
     oc apply -f -
+
+  sleep 5
 
   conjur_pod=$(retrieve_pod conjur-authn-k8s)
 

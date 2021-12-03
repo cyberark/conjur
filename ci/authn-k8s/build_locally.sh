@@ -2,6 +2,11 @@
 
 sni_cert=$1
 
+# Set up VERSION file for local development
+if [ ! -f "../../VERSION" ]; then
+  echo -n "0.0.dev" > ../../VERSION
+fi
+
 if [[ ! -z "$sni_cert" ]]; then
   sni_cert="$(realpath $1)"
 fi

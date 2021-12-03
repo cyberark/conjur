@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added support for SNI certificates when talking to the Kubernetes API 
   server through the web socket client.
   [ONYX-14386](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-14386)
+- Added support for http(s)_proxy for Kubernetes client in Kubernetes 
+  authentiator
+  [ONYX-16433](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-16433)
 
 ## [1.17.0] - 2022-02-09
 

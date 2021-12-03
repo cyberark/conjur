@@ -4,3 +4,5 @@ dev/tls/*.crt
 nginx.crt
 /output/
 dev/**/*.openshift.yml
+sni.crt
+sni.out
