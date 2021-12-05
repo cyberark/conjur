@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # Utility methods for Azure authenticator
+require 'cucumber/_authenticators_common/features/support/authenticator_helpers'
 
 module AuthnAzureHelper
   include AuthenticatorHelpers
