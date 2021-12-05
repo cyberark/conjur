@@ -6,7 +6,8 @@
 module MembershipSearch 
 
   # @param search [String] - a search term in the resource id
-  def search(search: nil, kind: nil)
+  def search(search = nil, kind: nil)
+    search = (!search.empty? ? search : nil) #temporary
     filter_kind(kind).textsearch(search)
   end
 
@@ -35,8 +36,9 @@ module MembershipSearch
 
   # result_set renders a dataset to a result set using the
   # provided order and paging parameters
-  def result_set(order_by: nil, offset: nil, limit: nil)
+  def result_set(order_by = nil, offset: nil, limit: nil)
     scope = self
+    order_by = (!order_by.empty? ? order_by : nil) #temporary
 
     order_by ||= search_key
     scope = scope.order(order_by)
