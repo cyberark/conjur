@@ -4,6 +4,7 @@
 #
 require 'aws-sdk-iam'
 require 'cucumber/policy/features/support/client'
+require 'cucumber/policy/features/support/policy_helpers
 # Utility methods for rotation tests
 #
 module RotatorHelpers
