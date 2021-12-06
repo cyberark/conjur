@@ -24,7 +24,7 @@ module Authentication
       end
 
       def auth_name
-        @auth_initializer.AUTHENTICATOR_NAME
+        @auth_initializer.auth_name
       end
 
       private

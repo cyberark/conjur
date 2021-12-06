@@ -3,41 +3,37 @@
 require 'command_class'
 
 module Authentication
-  module AuthnK8s
+  module AuthnOidc
 
-    class K8sAuthenticatorData
-      attr_reader :service_account_token, :ca_certificate, :k8s_api_url, :json_data
+    class OidcAuthenticatorData
+      attr_reader :provider_uri, :id_token_user, :json_data
 
       def initialize(raw_post)
         @json_data = JSON.parse(raw_post)
 
-        @service_account_token = @json_data['service-account-token']
-        @ca_certificate = @json_data['ca-cert']
-        @k8s_api_url = @json_data['api-url']
+        @provider_uri = @json_data['provider_uri']
+        @id_token_user = @json_data['id-token-user-property']
       end
 
       # TODO Validation: Need to validate json_data contents and each individual variable
     end
 
-    class InitializeK8sAuth
+    class InitializeOidcAuth
       extend CommandClass::Include
       
       def auth_name
-        "authn-k8s"
+        "authn-oidc"
       end
 
       command_class(
         dependencies: {
-          conjur_ca_repo: Repos::ConjurCA,
           secret: Secret
         },
         inputs: %i[conjur_account service_id auth_data]
       ) do
         def call
-          Repos::ConjurCA.create("%s:webservice:conjur/%s/%s" % [ @conjur_account, auth_name, @service_id ] )
-
           unless @auth_data.nil?
-            @auth_data.json_data.each {|key, value| @secret.create(resource_id: variable_id("kubernetes/%s" % key), value: value) }
+            @auth_data.json_data.each {|key, value| @secret.create(resource_id: variable_id(key), value: value) }
           end
         rescue => e
           raise e
