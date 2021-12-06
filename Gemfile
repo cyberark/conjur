@@ -93,7 +93,7 @@ gem "anyway_config", "2.1.0"
 group :development, :test do
   gem 'aruba'
   gem 'ci_reporter_rspec'
-  gem 'conjur-cli', '~> 6.1'
+  gem 'conjur-cli', github: 'cyberark/conjur-cli', branch: 'bump-version-6.2.6'
   gem 'conjur-debify', require: false
   gem 'csr'
   gem 'cucumber'
