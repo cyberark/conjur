@@ -61,7 +61,9 @@ class PoliciesController < RestController
 
   def initialize_k8s_auth
     auth_data = Authentication::AuthnK8s::K8sAuthenticatorData.new(request.raw_post)
-    Authentication::InitializeAuth.new.(
+    Authentication::InitializeAuth.new(
+      auth_initializer: Authentication::AuthnK8s::InitializeK8sAuth.new
+    ).(
       conjur_account: params[:account],
       service_id: params[:service_id],
       resource: find_or_create_root_policy,
@@ -73,9 +75,7 @@ class PoliciesController < RestController
 
   def initialize_azure_auth
     auth_data = Authentication::AuthnAzure::AzureAuthenticatorData.new(request.raw_post)
-    Authentication::InitializeAuth.new(
-      auth_initializer: Authentication::AuthnAzure::InitializeAzureAuth.new
-    ).(
+    Authentication::InitializeAuth.new.(
       conjur_account: params[:account],
       service_id: params[:service_id],
       resource: find_or_create_root_policy,
@@ -87,9 +87,7 @@ class PoliciesController < RestController
 
   def initialize_oidc_auth
     auth_data = Authentication::AuthnOidc::OidcAuthenticatorData.new(request.raw_post)
-    Authentication::InitializeAuth.new(
-      auth_initializer: Authentication::AuthnOidc::InitializeOidcAuth.new
-    ).(
+    Authentication::InitializeAuth.new.(
       conjur_account: params[:account],
       service_id: params[:service_id],
       resource: find_or_create_root_policy,

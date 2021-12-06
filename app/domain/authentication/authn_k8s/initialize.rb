@@ -16,16 +16,16 @@ module Authentication
         @k8s_api_url = @json_data['api-url']
       end
 
+      def auth_name
+        "authn-k8s"
+      end
+
       # TODO Validation: Need to validate json_data contents and each individual variable
     end
 
     class InitializeK8sAuth
       extend CommandClass::Include
       
-      def auth_name
-        "authn-k8s"
-      end
-
       command_class(
         dependencies: {
           conjur_ca_repo: Repos::ConjurCA,
@@ -34,7 +34,7 @@ module Authentication
         inputs: %i[conjur_account service_id auth_data]
       ) do
         def call
-          Repos::ConjurCA.create("%s:webservice:conjur/%s/%s" % [ @conjur_account, auth_name, @service_id ] )
+          @conjur_ca_repo.create("%s:webservice:conjur/%s/%s" % [ @conjur_account, @auth_data.auth_name, @service_id ] )
 
           unless @auth_data.nil?
             @auth_data.json_data.each {|key, value| @secret.create(resource_id: variable_id("kubernetes/%s" % key), value: value) }
@@ -47,7 +47,7 @@ module Authentication
 
         # TODO Should this go in its own module so each auth initializer can share it?
         def variable_id(variable_name)
-          policy_branch = "conjur/%s/%s" % [ auth_name, @service_id ]
+          policy_branch = "conjur/%s/%s" % [ @auth_data.auth_name, @service_id ]
           "%s:variable:%s/%s" % [ @conjur_account, policy_branch, variable_name ] 
         end
       end
