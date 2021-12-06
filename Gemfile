@@ -47,7 +47,7 @@ gem 'ruby_dep', '= 1.3.1'
 
 # Pinned to update for role member search, using ref so merging and removing
 # the branch doesn't immediately break this link
-gem 'conjur-api', github: 'cyberark/conjur-api-ruby', branch: 'master'
+gem 'conjur-api', github: 'cyberark/conjur-api-ruby', branch: 'main'
 gem 'conjur-policy-parser', path: 'gems/policy-parser'
 gem 'conjur-rack', '~> 4'
 gem 'conjur-rack-heartbeat'
@@ -94,7 +94,7 @@ group :development, :test do
   gem 'aruba'
   gem 'ci_reporter_rspec'
   gem 'conjur-cli', github: 'cyberark/conjur-cli', branch: 'bump-version-6.2.6'
-  gem 'conjur-debify', require: false
+  gem 'conjur-debify'
   gem 'csr'
   gem 'cucumber'
   gem 'database_cleaner'
