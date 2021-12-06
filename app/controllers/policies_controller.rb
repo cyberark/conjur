@@ -27,16 +27,8 @@ class PoliciesController < RestController
   end
 
   def initialize_auth
-    case params[:authenticator]
-    when "authn-k8s"
-      initialize_k8s_auth
-    when "authn-azure"
-      initialize_azure_auth
-    when "authn-oidc"
-      initialize_oidc_auth
-    else
-      raise ArgumentError, "Not implemented for authenticator %s" % params[:authenticator]
-    end
+    loaded_policy = _initialize_auth
+    render(body: loaded_policy, content_type: "text/yaml", status: :created)
   end
 
   protected
@@ -53,6 +45,19 @@ class PoliciesController < RestController
   end
 
   private
+
+  def _initialize_auth
+    case params[:authenticator]
+    when "authn-k8s"
+      initialize_k8s_auth
+    when "authn-azure"
+      initialize_azure_auth
+    when "authn-oidc"
+      initialize_oidc_auth
+    else
+      raise ArgumentError, "Not implemented for authenticator %s" % params[:authenticator]
+    end
+  end
 
   def initialize_k8s_auth
     auth_data = Authentication::AuthnK8s::K8sAuthenticatorData.new(request.raw_post)

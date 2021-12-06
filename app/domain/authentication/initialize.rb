@@ -17,8 +17,8 @@ module Authentication
       def call
         policy_details = initialize_auth_policy
 
-        #return false unless initializer.validate?
         @auth_initializer.(conjur_account: @conjur_account, service_id: @service_id, auth_data: @auth_data)
+        auth_policy
       rescue => e
         raise e
       end
@@ -37,7 +37,6 @@ module Authentication
       end
 
       def initialize_auth_policy
-        puts auth_policy
         Policy::LoadPolicy.new.(
           delete_permitted: false,
           action: :update,
