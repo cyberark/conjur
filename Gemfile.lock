@@ -7,21 +7,6 @@ GIT
       activesupport
       rest-client
 
-GIT
-  remote: https://github.com/cyberark/conjur-cli.git
-  revision: 6764002d073acfc54e4337ce4618b3f1957c2ab9
-  branch: bump-version-6.2.6
-  specs:
-    conjur-cli (6.2.6)
-      activesupport (>= 4.2)
-      conjur-api (~> 5.3)
-      deep_merge (~> 1.0)
-      gli (>= 2.8.0)
-      highline (~> 2.0)
-      netrc (~> 0.10)
-      table_print (~> 1.5)
-      xdg (= 2.2.3)
-
 PATH
   remote: gems/policy-parser
   specs:
@@ -116,6 +101,15 @@ GEM
     coderay (1.1.2)
     command_class (0.0.2)
     concurrent-ruby (1.1.8)
+    conjur-cli (6.2.5)
+      activesupport (>= 4.2, < 6)
+      conjur-api (~> 5.3)
+      deep_merge (~> 1.0)
+      gli (>= 2.8.0)
+      highline (~> 2.0)
+      netrc (~> 0.10)
+      table_print (~> 1.5)
+      xdg (= 2.2.3)
     conjur-debify (1.11.4)
       conjur-api (~> 5)
       conjur-cli (~> 6)
@@ -459,7 +453,7 @@ DEPENDENCIES
   ci_reporter_rspec
   command_class
   conjur-api!
-  conjur-cli!
+  conjur-cli (~> 6.2.5)
   conjur-debify
   conjur-policy-parser!
   conjur-rack (~> 4)
