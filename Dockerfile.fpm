@@ -16,13 +16,6 @@ COPY Gemfile \
      Gemfile.lock ./
 COPY gems/ gems/
 
-
-RUN bundle config --local deployment true && \
-    bundle config --local path vendor/bundle && \
-    bundle
-RUN mkdir -p .bundle
-RUN cp /usr/local/bundle/config .bundle/config
-
 COPY . .
 ADD debify.sh /
 
