@@ -2,6 +2,7 @@
 
 # Utility methods for LDAP authenticator
 #
+require 'cucumber/_authenticators_common/features/support/authenticator_helpers'
 module AuthnLdapHelper
   include AuthenticatorHelpers
 
