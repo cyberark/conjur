@@ -63,6 +63,10 @@ class ApplicationController < ActionController::API
   rescue_from ActionController::ParameterMissing, with: :argument_error
   rescue_from UnprocessableEntity, with: :unprocessable_entity
   rescue_from Errors::Conjur::BadSecretEncoding, with: :bad_secret_encoding
+  rescue_from Errors::Authentication::RoleNotApplicableForKeyRotation, with: :method_not_allowed
+  rescue_from Errors::Authorization::AccessToResourceIsForbiddenForRole, with: :forbidden
+  rescue_from Errors::Conjur::RequestedResourceNotFound, with: :resource_not_found
+  rescue_from Errors::Authorization::InsufficientResourcePrivileges, with: :forbidden
 
   around_action :run_with_transaction
 
@@ -77,6 +81,21 @@ class ApplicationController < ActionController::API
   # Wrap the request in a transaction.
   def run_with_transaction(&block)
     Sequel::Model.db.transaction(&block)
+  end
+
+  def resource_not_found e
+    logger.debug("#{e}\n#{e.backtrace.join("\n")}")
+    render_resource_not_not_found(e)
+  end
+
+  def render_resource_not_not_found e
+    logger.debug("#{e}\n#{e.backtrace.join("\n")}")
+    render(json: {
+      error: {
+        code: "not_found",
+        message: e.message
+      }
+    }, status: :not_found)
   end
 
   def record_not_found e
@@ -204,6 +223,26 @@ class ApplicationController < ActionController::API
   def forbidden e
     logger.debug("#{e}\n#{e.backtrace.join("\n")}")
     head(:forbidden)
+  end
+
+  def method_not_allowed e
+    logger.debug("#{e}\n#{e.backtrace.join("\n")}")
+    render(json: {
+      error: {
+        code: :method_not_allowed,
+        message: e.message
+      }
+    }, status: :method_not_allowed)
+  end
+
+  def conflict e
+    logger.debug("#{e}\n#{e.backtrace.join("\n")}")
+    render(json: {
+      error: {
+        code: :conflict,
+        message: e.message
+      }
+    }, status: :conflict)
   end
 
   def bad_request e
