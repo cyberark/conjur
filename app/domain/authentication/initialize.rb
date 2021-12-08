@@ -48,7 +48,9 @@ module Authentication
       def call
         policy_details = initialize_auth_policy
 
+        raise ArgumentError, @auth_data.errors.full_messages unless @auth_data.valid?
         @auth_initializer.(conjur_account: @conjur_account, service_id: @service_id, auth_data: @auth_data)
+
         auth_policy
       rescue => e
         raise e
@@ -79,4 +81,5 @@ module Authentication
       end
     end
   end
+
 end

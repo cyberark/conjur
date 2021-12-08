@@ -6,21 +6,60 @@ module Authentication
   module AuthnK8s
 
     class K8sAuthenticatorData
+      include ActiveModel::Validations
       attr_reader :service_account_token, :ca_certificate, :k8s_api_url, :json_data
 
       def initialize(raw_post)
-        @json_data = JSON.parse(raw_post)
+        unless raw_post.empty?
+          @json_data = JSON.parse(raw_post)
 
-        @service_account_token = @json_data['service-account-token']
-        @ca_certificate = @json_data['ca-cert']
-        @k8s_api_url = @json_data['api-url']
+          @service_account_token = @json_data['service-account-token']
+          @ca_certificate = @json_data['ca-cert']
+          @k8s_api_url = @json_data['api-url']
+        end
       end
 
       def auth_name
         "authn-k8s"
       end
 
-      # TODO Validation: Need to validate json_data contents and each individual variable
+      def json_parameters
+        [ 'service-account-token', 'ca-cert', 'api-url' ]
+      end
+
+      def json_present?
+        @json_data.present?
+      end
+
+      validates(
+        :json_data,
+        json: true,
+        if: :json_present?
+      )
+
+      validates(
+        :service_account_token,
+        presence: true,
+        if: :json_present?
+      )
+
+      # TODO Look into how this cert is processed and determine what cert formats are possible
+      validates(
+        :ca_certificate,
+        format: {
+          with: /(-+BEGIN CERTIFICATE-+)(.+)(-+END CERTIFICATE-+)/,
+          message: "Certificate must be in PEM format"
+        },
+        presence: true,
+        if: :json_present?
+      )
+
+      validates(
+        :k8s_api_url,
+        url: true,
+        presence: true,
+        if: :json_present?
+      )
     end
 
     class InitializeK8sAuth
@@ -36,7 +75,7 @@ module Authentication
         def call
           @conjur_ca_repo.create("%s:webservice:conjur/%s/%s" % [ @conjur_account, @auth_data.auth_name, @service_id ] )
 
-          unless @auth_data.nil?
+          unless @auth_data.json_data.nil?
             @auth_data.json_data.each {|key, value| @secret.create(resource_id: variable_id("kubernetes/%s" % key), value: value) }
           end
         rescue => e

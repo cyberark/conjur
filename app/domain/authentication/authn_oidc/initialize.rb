@@ -5,7 +5,9 @@ require 'command_class'
 module Authentication
   module AuthnOidc
 
+    # Secrets used when persisting a OIDC authenticator
     class OidcAuthenticatorData
+      include ActiveModel::Validations
       attr_reader :provider_uri, :id_token_user, :json_data
 
       def initialize(raw_post)
@@ -19,7 +21,26 @@ module Authentication
         "authn-oidc"
       end
 
-      # TODO Validation: Need to validate json_data contents and each individual variable
+      def json_parameters
+        [ 'provider-uri', 'id-token-user-property' ]
+      end
+
+      validates(
+        :json_data,
+        presence: true,
+        json: true
+      )
+
+      validates(
+        :provider_uri,
+        presence: true,
+        url: true
+      )
+
+      validates(
+        :id_token_user,
+        presence: true
+      )
     end
 
   end
