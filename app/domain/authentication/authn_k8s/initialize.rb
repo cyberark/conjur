@@ -43,11 +43,13 @@ module Authentication
         if: :json_present?
       )
 
-      # TODO Look into how this cert is processed and determine what cert formats are possible
+      # Regex below is based off of the RFC which formally defines PEM format, we only accept PEM
+      # not DER because binary data is difficult to handle well in JSON.
+      # https://www.rfc-editor.org/rfc/rfc7468
       validates(
         :ca_certificate,
         format: {
-          with: /(-+BEGIN CERTIFICATE-+)(.+)(-+END CERTIFICATE-+)/,
+          with: /(((-+)BEGIN [A-Z ]+(-+)\n)(?:[A-Za-z\d+\/]{4})*\n((-+)END [A-Z ]+(-+))\n?)/,
           message: "Certificate must be in PEM format"
         },
         presence: true,
