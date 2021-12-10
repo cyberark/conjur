@@ -71,9 +71,10 @@ gem 'net-ldap'
 # for AWS rotator
 gem 'aws-sdk-iam', require: false
 
-group :production do
-  gem 'rails_12factor'
-end
+# Not needed w/ Rails 5
+# group :production do
+#   gem 'rails_12factor'
+# end
 
 # authn-k8s
 gem 'event_emitter'
@@ -89,6 +90,10 @@ gem 'openid_connect'
 # https://github.com/palkan/anyway_config/issues/82
 # is resolved
 gem "anyway_config", "2.1.0"
+
+# Logging/metrics
+gem 'amazing_print'
+gem 'rails_semantic_logger'
 
 group :development, :test do
   gem 'aruba'

@@ -34,12 +34,16 @@ module Conjur
           modification: @modification
         )
         policy_loader = @loader.new(policy_version_object)
-        user_host_id_and_keys = apply_policy(
-          modification: @modification,
-          policy_loader: policy_loader
-        )
+        user_host_id_and_keys = @logger.measure(:debug, "Policy applied with '#{@modification}'") do
+          apply_policy(
+            modification: @modification,
+            policy_loader: policy_loader
+          )
+        end
 
-        write_to_audit(policy_version_object: policy_version_object)
+        @logger.measure(:debug, "Audit events written") do
+          write_to_audit(policy_version_object: policy_version_object)
+        end
 
         {
           created_roles: user_host_id_and_keys,
