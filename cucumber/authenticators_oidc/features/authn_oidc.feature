@@ -132,6 +132,10 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     """
     Errors::Authentication::RequestBody::MissingRequestParam
     """
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:user:USERNAME_MISSING failed to authenticate with authenticator authn-oidc service
+    """
 
   Scenario: Empty id token is a bad request
     Given I save my place in the log file
@@ -140,6 +144,10 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     And The following appears in the log after my savepoint:
     """
     Errors::Authentication::RequestBody::MissingRequestParam
+    """
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:user:USERNAME_MISSING failed to authenticate with authenticator authn-oidc service
     """
 
   Scenario: non-existing account in request is denied
@@ -150,6 +158,10 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     """
     Errors::Authentication::Security::AccountNotDefined
     """
+    And The following appears in the audit log after my savepoint:
+    """
+    non-existing:user:USERNAME_MISSING failed to authenticate with authenticator authn-oidc service
+    """
 
   Scenario: admin user is denied
     And I fetch an ID Token for username "admin" and password "admin"
@@ -159,6 +171,10 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     And The following appears in the log after my savepoint:
     """
     Errors::Authentication::AdminAuthenticationDenied
+    """
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:user:USERNAME_MISSING failed to authenticate with authenticator authn-oidc service
     """
 
   Scenario: provider-uri dynamic change

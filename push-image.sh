@@ -79,7 +79,7 @@ elif [[ ! -z "${REGISTRY_PREFIX}" ]]; then
   # been supplied. Publish to the specified registry.
 
   # Push the VERSION-SHA tagged images to our internal registry
-  v="$(< VERSION)"
+  v="$(tr "+" "_" < VERSION)"
   tag_and_push "${v}-${TAG}" "${LOCAL_IMAGE}" "${REGISTRY_PREFIX}/conjur"
   tag_and_push "${v}-${TAG}" "conjur-test:${TAG}" "${REGISTRY_PREFIX}/conjur-test"
   tag_and_push "${v}-${TAG}" "conjur-ubi:${TAG}" "${REGISTRY_PREFIX}/conjur-ubi"
@@ -102,7 +102,7 @@ elif [[ ! -z "${TAG_NAME:-}" ]]; then
     # Push to Internal Registry - this is so the current release tags
     # are also present in the internal registry.
     tag_and_push "${v}" "${LOCAL_IMAGE}" "registry.tld/conjur"
-    tag_and_push "${v}" "conjur-ubi:${TAG}" "registry.tld/conjur-ubi"
+    tag_and_push "${v}" "${RH_LOCAL_IMAGE}" "registry.tld/conjur-ubi"
   done
 
   # Publish only the tag version to the Redhat container registry

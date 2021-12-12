@@ -58,6 +58,12 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityCon
     }
   }
 
+  let(:mocked_invalid_token_app_property){
+    {
+      "token-app-property" => "a//b"
+    }
+  }
+
   let(:token_app_property_resource_name) { ::Authentication::AuthnJwt::TOKEN_APP_PROPERTY_VARIABLE }
   let(:identity_path_resource_name) { ::Authentication::AuthnJwt::IDENTITY_PATH_RESOURCE_NAME }
   let(:mocked_authenticator_secret_not_exists) { double("Mocked authenticator secret not exists")  }
@@ -68,6 +74,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityCon
   let(:mocked_fetch_authenticator_secrets_exist_values)  {  double("MochedFetchAuthenticatorSecrets") }
   let(:mocked_fetch_authenticator_secrets_valid_values)  {  double("MochedFetchAuthenticatorSecrets") }
   let(:mocked_fetch_authenticator_secrets_which_missing_in_token) {  double("MochedFetchAuthenticatorSecrets") }
+  let(:mocked_fetch_authenticator_secrets_invalid) {  double("MochedFetchAuthenticatorSecrets") }
   let(:mocked_fetch_authenticator_secrets_empty_values)  {  double("MochedFetchAuthenticatorSecrets") }
   let(:required_secret_missing_error) { "required secret missing error" }
   let(:required_identity_path_secret_missing_error) { "required secret missing error" }
@@ -115,6 +122,10 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityCon
 
     allow(mocked_fetch_authenticator_secrets_which_missing_in_token).to(
       receive(:call).and_return(mocked_valid_secrets_which_missing_in_token)
+    )
+
+    allow(mocked_fetch_authenticator_secrets_invalid).to(
+      receive(:call).and_return(mocked_invalid_token_app_property)
     )
 
     allow(mocked_fetch_authenticator_secrets_empty_values).to(
@@ -208,6 +219,24 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityCon
               jwt_authenticator_input: jwt_authenticator_input
             )
           }.to_not raise_error
+        end
+      end
+
+      context "And toke-app-property not according nested format" do
+        subject do
+          ::Authentication::AuthnJwt::IdentityProviders::ValidateIdentityConfiguredProperly.new(
+            jwt_authenticator_input: jwt_authenticator_input,
+            check_authenticator_secret_exists: mocked_authenticator_secret_exists,
+            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_invalid
+          )
+        end
+
+        it "validate_identity_configured_properly does not raise an error" do
+          expect {
+            subject.call(
+              jwt_authenticator_input: jwt_authenticator_input
+            )
+          }.to raise_error(Errors::Authentication::AuthnJwt::InvalidTokenAppPropertyValue)
         end
       end
     end

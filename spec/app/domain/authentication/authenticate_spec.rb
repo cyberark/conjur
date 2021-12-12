@@ -44,24 +44,12 @@ RSpec.describe('Authentication::Authenticate') do
     double('TokenFactory', signed_token: a_new_token)
   end
 
-  ####################################
-  # AuditEvent double
-  ####################################
-
-  let(:audit_success) { true }
-  let(:mocked_audit_logger) do
-    double('audit_logger').tap do |logger|
-      expect(logger).to receive(:log)
-    end
-  end
-
   #  ____  _   _  ____    ____  ____  ___  ____  ___
   # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
   context "An unavailable authenticator" do
-    let(:audit_success) { false }
     subject do
       input_ = Authentication::AuthenticatorInput.new(
         authenticator_name: 'AUTHN-MISSING',
@@ -77,8 +65,7 @@ RSpec.describe('Authentication::Authenticate') do
         validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
         validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true),
         validate_origin: mocked_origin_validator,
-        token_factory: mocked_token_factory,
-        audit_log: mocked_audit_logger
+        token_factory: mocked_token_factory
       ).call(
         authenticator_input: input_,
         authenticators: authenticators,
@@ -97,7 +84,6 @@ RSpec.describe('Authentication::Authenticate') do
 
   context "An available authenticator" do
     context "that receives invalid credentials" do
-      let(:audit_success) { false }
       subject do
         input_ = Authentication::AuthenticatorInput.new(
           authenticator_name: 'authn-always-fail',
@@ -114,7 +100,6 @@ RSpec.describe('Authentication::Authenticate') do
           validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true),
           validate_origin: mocked_origin_validator,
           token_factory: mocked_token_factory,
-          audit_log: mocked_audit_logger
         ).call(
           authenticator_input: input_,
           authenticators: authenticators,
@@ -133,8 +118,6 @@ RSpec.describe('Authentication::Authenticate') do
 
     context "that receives valid credentials" do
       context "with an inaccessible webservice" do
-        let(:audit_success) { true }
-
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-always-pass',
@@ -150,8 +133,7 @@ RSpec.describe('Authentication::Authenticate') do
             validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: false),
             validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true),
             validate_origin: mocked_origin_validator,
-            token_factory: mocked_token_factory,
-            audit_log: mocked_audit_logger
+            token_factory: mocked_token_factory
           ).call(
             authenticator_input: input_,
             authenticators: authenticators,
@@ -169,8 +151,6 @@ RSpec.describe('Authentication::Authenticate') do
       end
 
       context "with a non-whitelisted webservice" do
-        let(:audit_success) { true }
-
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-always-pass',
@@ -186,8 +166,7 @@ RSpec.describe('Authentication::Authenticate') do
             validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
             validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: false),
             validate_origin: mocked_origin_validator,
-            token_factory: mocked_token_factory,
-            audit_log: mocked_audit_logger
+            token_factory: mocked_token_factory
           ).call(
             authenticator_input: input_,
             authenticators: authenticators,
@@ -205,8 +184,6 @@ RSpec.describe('Authentication::Authenticate') do
       end
 
       context "when webservice validations succeed" do
-        let(:audit_success) { true }
-
         subject do
           input_ = Authentication::AuthenticatorInput.new(
             authenticator_name: 'authn-always-pass',
@@ -222,8 +199,7 @@ RSpec.describe('Authentication::Authenticate') do
             validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
             validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true),
             validate_origin: mocked_origin_validator,
-            token_factory: mocked_token_factory,
-            audit_log: mocked_audit_logger
+            token_factory: mocked_token_factory
           ).call(
             authenticator_input: input_,
             authenticators: authenticators,
