@@ -42,7 +42,7 @@ gem "loofah", ">= 2.2.3"
 
 # Pinned to update for role member search, using ref so merging and removing
 # the branch doesn't immediately break this link
-gem 'conjur-api', '~> 5.3.5'
+gem 'conjur-api', '~> 5.3.6'
 gem 'conjur-policy-parser', path: 'gems/policy-parser'
 gem 'conjur-rack', '~> 4'
 gem 'conjur-rack-heartbeat'
@@ -84,7 +84,7 @@ gem "anyway_config", "2.1.0"
 group :development, :test do
   gem 'aruba'
   gem 'ci_reporter_rspec'
-  gem 'conjur-cli', github: 'cyberark/conjur-cli', branch: 'main'
+  gem 'conjur-cli', git: 'https://github.com/cyberark/conjur-cli.git', branch: 'bump-version-6.2.6'
   gem 'conjur-debify'
   gem 'csr'
   gem 'cucumber'
