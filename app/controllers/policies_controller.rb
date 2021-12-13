@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'command_class'
 
 class PoliciesController < RestController
   include FindResource
@@ -26,104 +25,13 @@ class PoliciesController < RestController
     load_policy(:create, Loader::CreatePolicy, false)
   end
 
-  def initialize_auth
-    loaded_policy = _initialize_auth
-    render(body: loaded_policy, content_type: "text/yaml", status: :created)
-  end
-
-  def initialize_auth_host
-    loaded_policy = _initialize_auth_host
-    render(body: loaded_policy, content_type: "text/yaml", status: :created)
-  end
-
   protected
-
-  # Returns newly created roles
-  def perform(policy_action)
-    policy_action.call
-    new_actor_roles = actor_roles(policy_action.new_roles)
-    create_roles(new_actor_roles)
-  end
 
   def find_or_create_root_policy
     Loader::Types.find_or_create_root_policy(account)
   end
 
   private
-
-  def _initialize_auth
-    case params[:authenticator]
-    when "authn-k8s"
-      initialize_k8s_auth
-    when "authn-azure"
-      initialize_azure_auth
-    when "authn-oidc"
-      initialize_oidc_auth
-    else
-      raise ArgumentError, "Not implemented for authenticator %s" % params[:authenticator]
-    end
-  end
-
-  def _initialize_auth_host
-    case params[:authenticator]
-    when "authn-k8s"
-      initialize_k8s_auth_host
-    else
-      raise ArgumentError, "Not implemented for authenticator %s" % params[:authenticator]
-    end
-  end
-
-  def initialize_k8s_auth_host
-    request_data = JSON.parse(request.raw_post)
-    Authentication::InitializeAuthHost.new.(
-      conjur_account: params[:account],
-      service_id: params[:service_id],
-      authenticator: params[:authenticator],
-      resource: find_or_create_root_policy,
-      current_user: current_user,
-      client_ip: request.ip,
-      host_id: request_data['id'],
-      annotations: request_data.include?('annotations') ? request_data['annotations'] : {}
-    )
-  end
-
-  def initialize_k8s_auth
-    auth_data = Authentication::AuthnK8s::K8sAuthenticatorData.new(request.raw_post)
-    Authentication::InitializeAuth.new(
-      auth_initializer: Authentication::AuthnK8s::InitializeK8sAuth.new
-    ).(
-      conjur_account: params[:account],
-      service_id: params[:service_id],
-      resource: find_or_create_root_policy,
-      current_user: current_user,
-      client_ip: request.ip,
-      auth_data: auth_data
-    )
-  end
-
-  def initialize_azure_auth
-    auth_data = Authentication::AuthnAzure::AzureAuthenticatorData.new(request.raw_post)
-    Authentication::InitializeAuth.new.(
-      conjur_account: params[:account],
-      service_id: params[:service_id],
-      resource: find_or_create_root_policy,
-      current_user: current_user,
-      client_ip: request.ip,
-      auth_data: auth_data
-    )
-  end
-
-  def initialize_oidc_auth
-    auth_data = Authentication::AuthnOidc::OidcAuthenticatorData.new(request.raw_post)
-    Authentication::InitializeAuth.new.(
-      conjur_account: params[:account],
-      service_id: params[:service_id],
-      resource: find_or_create_root_policy,
-      current_user: current_user,
-      client_ip: request.ip,
-      auth_data: auth_data
-    )
-  end
 
   def load_policy(action, loader_class, delete_permitted)
     details = Policy::LoadPolicy.new(loader_class: loader_class).(

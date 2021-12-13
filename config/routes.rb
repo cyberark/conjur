@@ -47,8 +47,8 @@ Rails.application.routes.draw do
 
         post '/authn-k8s/:service_id/inject_client_cert' => 'authenticate#k8s_inject_client_cert'
 
-        post '/:authenticator/:service_id/:account' => 'policies#initialize_auth'
-        post '/:authenticator/:service_id/:account/host' => 'policies#initialize_auth_host'
+        post '/:authenticator/:service_id/:account' => 'authenticators#persist_auth'
+        post '/:authenticator/:service_id/:account/host' => 'authenticators#persist_auth_host'
       end
 
       get     "/roles/:account/:kind/*identifier" => "roles#graph", :constraints => QueryParameterActionRecognizer.new("graph")
