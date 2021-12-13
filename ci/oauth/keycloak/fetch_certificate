@@ -1,18 +1,18 @@
 #!/bin/sh
 
-# This script retrieves a certificate from the keycloak OIDC provider.
+# This script retrieves a certificate from the keycloak OIDC provider
+# and puts it to a trusted operating system store.
 # It is needed to communicate with the provider via SSL for validating ID tokens
 
-httpclient_pem_location="/var/lib/ruby/lib/ruby/gems/2.5.0/gems/httpclient-2.8.3/lib/httpclient"
+openssl s_client \
+  -showcerts \
+  -connect keycloak:8443 \
+  -servername keycloak \
+  </dev/null | \
+  openssl x509 \
+    -outform PEM \
+    >/etc/ssl/certs/keycloak.pem
 
-{
-  echo "keycloak cert"
-  echo ===============
-  echo | openssl s_client -showcerts -connect keycloak:8443 -servername keycloak 2>/dev/null | openssl x509 -outform PEM
-} >>  "$httpclient_pem_location/cacert.pem"
+hash=$(openssl x509 -hash -in /etc/ssl/certs/keycloak.pem -out /dev/null)
 
-{
-  echo "keycloak cert"
-  echo ===============
-  echo | openssl s_client -showcerts -connect keycloak:8443 -servername keycloak 2>/dev/null | openssl x509 -outform PEM
-} >>   "$httpclient_pem_location/cacert1024.pem"
+ln -s /etc/ssl/certs/keycloak.pem "/etc/ssl/certs/${hash}.0"
