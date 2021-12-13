@@ -1,0 +1,20 @@
+- !policy
+  id: conjur/<%= authenticator %>/<%=service_id%>/apps
+  body:
+  <% hosts.each do |host| %>
+  - !host
+    id: <%= host[:id] %>
+    <% unless not host.include?(:annotations) and host[:annotations].empty? %>
+    annotations:
+      <% host[:annotations].each do |annotation, value| -%>
+        <%= annotation %>: <%= value %>
+      <% end -%>
+    <% end -%>
+  <% end -%>
+
+<% hosts.each do |host| -%>
+- !grant
+ role: !layer conjur/<%= authenticator %>/<%= service_id %>/users
+ members:
+   - !host conjur/<%= authenticator %>/<%= service_id %>/apps/<%= host[:id] %>
+<% end %>
