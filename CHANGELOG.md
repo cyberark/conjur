@@ -21,8 +21,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [#1920](https://github/cyberark/conjur/issues/1920)
 
 ### Security
-- Bump gems related to openid_connect stack for improving the certificate validation procedure during
-  the OIDC keys discovery process [cyberark/ONYX-13304](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-13304)
+- Bump gems related to openid_connect stack for improving the certificate
+  validation procedure during the OIDC keys discovery process
+  [cyberark/ONYX-13304](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-13304)
 
 ## [1.14.1] - 2021-11-05
 
