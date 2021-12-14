@@ -46,7 +46,9 @@ module Rotation
 
     def scheduled_rotations
       @rotation_model.scheduled_rotations.map do |rotation|
-        rotated_var = ::Rotation::RotatedVariable.new(rotation)
+        rotated_var = ::Rotation::RotatedVariable.new(resource_id:  rotation[:resource_id],
+                                                      ttl:          rotation[:ttl],
+                                                      rotator_name: rotation[:rotator_name])
         facade = @facade_cls.new(rotated_variable: rotated_var)
 
         ScheduledRotation.new(
