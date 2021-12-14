@@ -12,7 +12,7 @@ module RotatorHelpers
   
   # Utility for the postgres rotator
 
-  def run_sql_in_testdb(sql, user='postgres', pw='postgres_secret')
+  def run_sql_in_testdb(sql, user="postgres", pw="postgres_secret")
     system("PGPASSWORD=#{pw} psql -h testdb -U #{user} -c \"#{sql}\"")
   end
 
