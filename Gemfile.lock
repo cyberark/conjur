@@ -428,7 +428,7 @@ GEM
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.2)
-    spring (4.0.0)
+    spring (2.1.0)
     spring-commands-cucumber (1.0.1)
       spring (>= 0.9.1)
     spring-commands-rspec (1.0.4)
