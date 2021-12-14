@@ -30,11 +30,11 @@ class AuthenticatorsController < RestController
   def _initialize_auth
     case params[:authenticator]
     when "authn-k8s"
-      initialize_k8s_auth
+      initialize_specific_auth(Authentication::AuthnK8s::K8sAuthenticatorData, Authentication::AuthnK8s::InitializeK8sAuth)
     when "authn-azure"
-      initialize_azure_auth
+      initialize_specific_auth(Authentication::AuthnAzure::AzureAuthenticatorData)
     when "authn-oidc"
-      initialize_oidc_auth
+      initialize_specific_auth(Authentication::AuthnOidc::OidcAuthenticatorData)
     else
       raise ArgumentError, "Not implemented for authenticator %s" % params[:authenticator]
     end
@@ -63,35 +63,11 @@ class AuthenticatorsController < RestController
     )
   end
 
-  def initialize_k8s_auth
-    auth_data = Authentication::AuthnK8s::K8sAuthenticatorData.new(request.raw_post)
+  def initialize_specific_auth(auth_dataclass, auth_initializer=Authentication::Default::InitializeDefaultAuth)
+    auth_data = auth_dataclass.new(request.raw_post)
     Authentication::InitializeAuth.new(
-      auth_initializer: Authentication::AuthnK8s::InitializeK8sAuth.new
+      auth_initializer: auth_initializer.new
     ).(
-      conjur_account: params[:account],
-      service_id: params[:service_id],
-      resource: find_or_create_root_policy,
-      current_user: current_user,
-      client_ip: request.ip,
-      auth_data: auth_data
-    )
-  end
-
-  def initialize_azure_auth
-    auth_data = Authentication::AuthnAzure::AzureAuthenticatorData.new(request.raw_post)
-    Authentication::InitializeAuth.new.(
-      conjur_account: params[:account],
-      service_id: params[:service_id],
-      resource: find_or_create_root_policy,
-      current_user: current_user,
-      client_ip: request.ip,
-      auth_data: auth_data
-    )
-  end
-
-  def initialize_oidc_auth
-    auth_data = Authentication::AuthnOidc::OidcAuthenticatorData.new(request.raw_post)
-    Authentication::InitializeAuth.new.(
       conjur_account: params[:account],
       service_id: params[:service_id],
       resource: find_or_create_root_policy,
