@@ -17,7 +17,7 @@ module Authentication
         full_url = "#{host_url}/#{api}"
         validate_host_url!(full_url)
 
-        Kubeclient::Client.new(full_url, version, options)
+        Kubeclient::Client.new(full_url, version, **options)
       end
 
       class << self
