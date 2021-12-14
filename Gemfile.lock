@@ -285,7 +285,6 @@ GEM
     nio4r (2.5.8)
     nokogiri (1.12.5-x86_64-darwin)
       racc (~> 1.4)
-
     nokogiri (1.12.5-x86_64-linux)
       racc (~> 1.4)
     openid_connect (1.2.0)
