@@ -2,9 +2,9 @@
 
 # TODO: Explanation of design and how to add a new rotator
 #
-require 'aws-sdk-iam'
-require 'cucumber/policy/features/support/client'
-require 'cucumber/policy/features/support/policy_helpers
+require "aws-sdk-iam"
+require "cucumber/policy/features/support/client"
+require "cucumber/policy/features/support/policy_helpers"
 # Utility methods for rotation tests
 #
 module RotatorHelpers
@@ -53,13 +53,13 @@ module RotatorHelpers
   # This represents a rotating postgres password across time -- a changing
   # entity with a current_value.
   # 
-  # The "value" of this entity only exiss when the actual db password matches
+  # The "value" of this entity only exists when the actual db password matches
   # the password in Conjur.  During the ephemeral moments when they're out of
   # sync, or when either one of the passwords is not available, the
   # `PgRotatingPassword` is considered to be `nil`.
   #
   # This avoids possible race conditions with the actual rotation thread --
-  # it's possible we could "reading" here at the same time the rotation process
+  # its possible we could "reading" here at the same time the rotation process
   # has only "written" one of the two passwords that need to be kept in sync.
   #
   PgRotatingPassword ||= Struct.new(:var_name, :db_user, :variable_meth) do
@@ -98,7 +98,7 @@ module RotatorHelpers
     private
 
     def valid_credentials?(id, key)
-      options = { region: 'us-east-1', access_key_id: id, secret_access_key: key }
+      options = { region: "us-east-1", access_key_id: id, secret_access_key: key }
       Aws::EC2::Client.new(options).describe_regions
       true
     rescue
@@ -108,7 +108,7 @@ module RotatorHelpers
 
   # TODO remove duplication with above
   def valid_aws_credentials?(credentials)
-    options = credentials.merge({ region: 'us-east-1'})
+    options = credentials.merge({ region: "us-east-1"})
     Aws::EC2::Client.new(options).describe_regions
     true
   rescue
