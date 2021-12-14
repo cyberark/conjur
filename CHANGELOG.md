@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.14.2] - 2021-12-13
+
 ### Changed
 - Failed Login now writes the error code in the log
   [#2424](https://github.com/cyberark/conjur/pull/2424)
@@ -19,6 +21,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [#1990](https://github.com/cyberark/conjur/issues/1990)
 - Added check to stop hosts from setting passwords 
   [#1920](https://github/cyberark/conjur/issues/1920)
+
+### Security
+- Bump gems related to openid_connect stack for improving the certificate
+  validation procedure during the OIDC keys discovery process
+  [cyberark/ONYX-13304](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-13304)
 
 ## [1.14.1] - 2021-11-05
 
@@ -745,7 +752,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.14.1...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.14.2...HEAD
+[1.14.2]: https://github.com/cyberark/conjur/compare/v1.14.1...v1.14.2
 [1.14.1]: https://github.com/cyberark/conjur/compare/v1.14.0...v1.14.1
 [1.14.0]: https://github.com/cyberark/conjur/compare/v1.13.2...v1.14.0
 [1.13.2]: https://github.com/cyberark/conjur/compare/v1.13.1...v1.13.2
