@@ -146,7 +146,7 @@ authenticators_jwt: >
 #       
 rotators: >
   --format pretty
-  --tags not @manual
+  -t 'not @manual'
   -r cucumber/authenticators/features/support/hooks.rb
   -r cucumber/api/features/support/step_def_transforms.rb
   -r cucumber/api/features/support/rest_helpers.rb

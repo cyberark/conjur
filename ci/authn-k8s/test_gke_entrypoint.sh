@@ -263,7 +263,7 @@ function runTests() {
     -r ./cucumber/kubernetes/features/support/world.rb \
     -r ./cucumber/kubernetes/features/support/hooks.rb \
     -r ./cucumber/kubernetes/features/support/conjur_token.rb \
-    --tags not @skip ./cucumber/kubernetes/features" | cucumbercmd -i bash
+    -t 'not @skip' ./cucumber/kubernetes/features" | cucumbercmd -i bash
 }
 
 retrieve_pod() {
