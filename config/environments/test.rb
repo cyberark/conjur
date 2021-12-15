@@ -12,6 +12,10 @@ Rails.application.configure do
   # and recreated between test runs. Don't rely on the data there!
   config.cache_classes = true
 
+  # Whitelist one hostname
+  puts "Adding conjur machine to whitelist"
+  config.hosts << "conjur"
+
   # We're setting this to true so that test environment matches the prod environment.
   # Since we've had bugs related to rails loading.
   #

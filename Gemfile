@@ -20,7 +20,7 @@ gem 'jbuilder', '~> 2.7.0'
 gem 'nokogiri', '>= 1.8.2'
 gem 'puma', '~> 5.5.1'
 gem 'rack', '~> 2.2.3'
-gem 'rails'
+gem 'rails', '~> 6.1.4.1'
 gem 'rake'
 
 gem 'pg'
@@ -29,7 +29,7 @@ gem 'sequel-pg_advisory_locking'
 gem 'sequel-postgres-schemata', require: false
 gem 'sequel-rails'
 
-gem 'activesupport'
+gem 'activesupport', '~> 6.1.4.1'
 gem 'base32-crockford'
 gem 'bcrypt'
 gem 'gli', require: false
@@ -103,7 +103,7 @@ group :development, :test do
   gem 'rspec-core'
   gem 'rspec-rails', '~> 5.0.2'
   gem 'ruby-debug-ide'
-  gem 'spring'
+  gem 'spring', '~> 2.1.0'
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
   gem 'table_print'
