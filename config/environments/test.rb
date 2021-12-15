@@ -15,6 +15,8 @@ Rails.application.configure do
   # Whitelist one hostname
   puts "Adding conjur machine to whitelist"
   config.hosts << "conjur"
+  puts "Adding example.com machine to whitelist"
+  config.hosts << "www.example.com"
 
   # We're setting this to true so that test environment matches the prod environment.
   # Since we've had bugs related to rails loading.

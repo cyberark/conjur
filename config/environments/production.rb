@@ -11,6 +11,8 @@ Rails.application.configure do
   # Whitelist one hostname
   puts "Adding conjur machine to whitelist"
   config.hosts << "conjur"
+  puts "Adding example.com machine to whitelist"
+  config.hosts << "www.example.com"
 
   # Eager load code on boot. This eager loads most of Rails and
   # your application in memory, allowing both threaded web servers
