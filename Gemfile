@@ -35,7 +35,7 @@ gem 'bcrypt'
 gem 'gli', require: false
 gem 'listen'
 gem 'slosilo', github: 'cyberark/slosilo', branch: 'adjust-to-ruby-3'
-gem 'httpclient' #, github: 'nahi/httpclient', branch: 'master'
+gem 'httpclient', github: 'nahi/httpclient', branch: 'master'
 
 # Explicitly required as there are vulnerabilities in older versions
 gem "ffi", ">= 1.9.24"
@@ -86,7 +86,7 @@ group :development, :test do
   gem 'aruba'
   gem 'ci_reporter_rspec'
   gem 'conjur-cli', git: 'https://github.com/cyberark/conjur-cli.git', branch: 'bump-version-6.2.6'
-  gem 'conjur-debify' #, github: 'conjurinc/debify', branch: 'ruby-3.0.2-upgrade'
+  gem 'conjur-debify', github: 'conjurinc/debify', branch: 'ruby-3.0.2-upgrade'
   gem 'csr'
   gem 'cucumber'
   gem 'database_cleaner', '~> 1.8.4'
