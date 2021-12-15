@@ -35,7 +35,7 @@ gem 'bcrypt'
 gem 'gli', require: false
 gem 'listen'
 gem 'slosilo', github: 'cyberark/slosilo', branch: 'adjust-to-ruby-3'
-gem 'httpclient', github: 'nahi/httpclient', branch: 'master'
+gem 'httpclient' #, github: 'nahi/httpclient', branch: 'master'
 
 # Explicitly required as there are vulnerabilities in older versions
 gem "ffi", ">= 1.9.24"

@@ -30,13 +30,6 @@ GIT
   specs:
     slosilo (2.2.2)
 
-GIT
-  remote: https://github.com/nahi/httpclient.git
-  revision: 4658227a46f7caa633ef8036f073bbd1f0a955a2
-  branch: master
-  specs:
-    httpclient (2.8.3)
-
 PATH
   remote: gems/policy-parser
   specs:
@@ -248,6 +241,7 @@ GEM
     http-form_data (2.3.0)
     http-parser (1.2.3)
       ffi-compiler (>= 1.0, < 2.0)
+    httpclient (2.8.3)
     i18n (1.8.11)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
@@ -514,7 +508,7 @@ DEPENDENCIES
   gli
   haikunator (~> 1)
   http (~> 4.2.0)
-  httpclient!
+  httpclient
   iso8601
   jbuilder (~> 2.7.0)
   json_spec
