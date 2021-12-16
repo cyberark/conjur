@@ -32,7 +32,7 @@ COPY Gemfile \
      Gemfile.lock ./
 COPY gems/ gems/
 
-
+RUN gem install -N debase-ruby_core_source --version 0.10.13
 RUN bundle --without test development
 
 COPY . .
