@@ -28,12 +28,7 @@ class SecretsController < RestController
     )
 
     Audit.logger.log(
-      Audit::Event::Update.new(user:      update_info[:user],
-                               client_ip: update_info[:client_ip],
-                               resource:  update_info[:resource],
-                               success:   update_info[:success],
-                               operation: update_info[:operation]
-      )
+      Audit::Event::Update.new(**update_info)
     )
   end
 
@@ -107,13 +102,7 @@ class SecretsController < RestController
     )
 
     Audit.logger.log(
-      Audit::Event::Fetch.new(user:         fetch_info[:user],
-                              client_ip:    fetch_info[:client_ip],
-                              resource_id:  fetch_info[:resource_id],
-                              success:      fetch_info[:success],
-                              version:      fetch_info[:version],
-                              operation:    fetch_info[:operation]
-      )
+      Audit::Event::Fetch.new(**fetch_info)
     )
   end
 
