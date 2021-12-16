@@ -103,7 +103,7 @@ group :development, :test do
   gem 'rspec-core'
   gem 'rspec-rails', '~> 5.0.2'
   gem 'ruby-debug-ide'
-  gem 'spring', '~> 2.1.0'
+  gem 'spring'
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
   gem 'table_print'

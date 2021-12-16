@@ -553,7 +553,7 @@ DEPENDENCIES
   sequel-rails
   simplecov (= 0.14.1)
   slosilo!
-  spring (~> 2.1.0)
+  spring
   spring-commands-cucumber
   spring-commands-rspec
   table_print
