@@ -12,6 +12,9 @@ Rails.application.configure do
   # and recreated between test runs. Don't rely on the data there!
   config.cache_classes = true
 
+  puts "Adding example.com machine to whitelist"
+  config.hosts << "www.example.com"
+
   # We're setting this to true so that test environment matches the prod environment.
   # Since we've had bugs related to rails loading.
   #
