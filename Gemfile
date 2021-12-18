@@ -92,6 +92,9 @@ gem 'openid_connect'
 # is resolved
 gem "anyway_config", "2.1.0"
 
+# Logging and metrics support
+gem 'rails_semantic_logger'
+
 group :development, :test do
   gem 'aruba'
   gem 'ci_reporter_rspec'

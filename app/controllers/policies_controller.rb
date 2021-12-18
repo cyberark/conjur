@@ -3,7 +3,7 @@
 class PoliciesController < RestController
   include FindResource
   include AuthorizeResource
-  
+
   before_action :current_user
   before_action :find_or_create_root_policy
 
@@ -41,22 +41,25 @@ class PoliciesController < RestController
   private
 
   def load_policy(action, loader_class, delete_permitted)
-    authorize(action)
+    #
+    logger.measure_info('Load a Policy', metric: 'Policy/load_policy') do
+      authorize(action)
 
-    policy = save_submitted_policy(delete_permitted: delete_permitted)
-    loaded_policy = loader_class.from_policy(policy)
-    created_roles = perform(loaded_policy)
-    audit_success(policy)
+      policy = save_submitted_policy(delete_permitted: delete_permitted)
+      loaded_policy = loader_class.from_policy(policy)
+      created_roles = perform(loaded_policy)
+      audit_success(policy)
 
-    ActiveSupport::Notifications.instrument("policy_loaded.conjur", this: policy)
+      ActiveSupport::Notifications.instrument("policy_loaded.conjur", this: policy)
 
-    render(json: {
-      created_roles: created_roles,
-      version: policy.version
-    }, status: :created)
-  rescue => e
-    audit_failure(e, action)
-    raise e
+      render(json: {
+        created_roles: created_roles,
+        version: policy.version
+      }, status: :created)
+    rescue => e
+      audit_failure(e, action)
+      raise e
+    end
   end
 
   def audit_success(policy)
