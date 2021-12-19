@@ -7,16 +7,6 @@ module Authentication
       # for the 2nd validation
       ValidateAndDecodeToken ||= CommandClass.new(
         dependencies: {
-          fetch_signing_key: ::Util::ConcurrencyLimitedCache.new(
-            ::Util::RateLimitedCache.new(
-              ::Authentication::AuthnJwt::SigningKey::FetchCachedSigningKey.new,
-              refreshes_per_interval: CACHE_REFRESHES_PER_INTERVAL,
-              rate_limit_interval: CACHE_RATE_LIMIT_INTERVAL,
-              logger: Rails.logger
-            ),
-            max_concurrent_requests: CACHE_MAX_CONCURRENT_REQUESTS,
-            logger: Rails.logger
-          ),
           verify_and_decode_token: ::Authentication::Jwt::VerifyAndDecodeToken.new,
           fetch_jwt_claims_to_validate: ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new,
           get_verification_option_by_jwt_claim: ::Authentication::AuthnJwt::ValidateAndDecode::GetVerificationOptionByJwtClaim.new,
@@ -52,10 +42,8 @@ module Authentication
         end
 
         def fetch_signing_key(force_read: false)
-          @jwks = @fetch_signing_key.call(
-            refresh: force_read,
-            cache_key: signing_key_provider.signing_key_uri,
-            signing_key_provider: signing_key_provider
+          @jwks = signing_key_provider.call(
+            force_read: force_read
           )
           @logger.debug(LogMessages::Authentication::AuthnJwt::SigningKeysFetchedFromCache.new)
         end

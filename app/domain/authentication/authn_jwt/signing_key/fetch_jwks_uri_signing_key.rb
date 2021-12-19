@@ -10,6 +10,7 @@ module Authentication
 
         def initialize(
           authenticator_input:,
+          fetch_signing_key:,
           fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
           http_lib: Net::HTTP,
           create_jwks_from_http_response: CreateJwksFromHttpResponse.new,
@@ -21,15 +22,20 @@ module Authentication
           @fetch_authenticator_secrets = fetch_authenticator_secrets
 
           @authenticator_input = authenticator_input
+          @fetch_signing_key = fetch_signing_key
+        end
+
+        def call(force_read:)
+          @fetch_signing_key.call(
+            refresh: force_read,
+            cache_key: jwks_uri,
+            signing_key_provider: self
+          )
         end
 
         def fetch_signing_key
           fetch_jwks_uri
           fetch_jwks_keys
-        end
-
-        def signing_key_uri
-          jwks_uri
         end
 
         private

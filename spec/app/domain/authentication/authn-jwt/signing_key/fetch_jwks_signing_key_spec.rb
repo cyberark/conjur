@@ -24,6 +24,8 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
   let(:bad_response_error) { "bad response error" }
   let(:required_secret_missing_error) { "required secret missing error" }
   let(:mocked_logger) { double("Mocked Logger")  }
+  let(:mocked_fetch_signing_key) { double("MockedFetchSigningKey") }
+  let(:mocked_fetch_signing_key_refresh_value) { double("MockedFetchSigningKeyRefreshValue") }
   let(:mocked_fetch_authenticator_secrets_exist_values)  {  double("MockedFetchAuthenticatorSecrets") }
   let(:mocked_fetch_authenticator_secrets_empty_values)  {  double("MockedFetchAuthenticatorSecrets") }
   let(:mocked_bad_http_response) { double("Mocked bad http response")  }
@@ -48,6 +50,9 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
     allow(mocked_logger).to(
       receive(:info).and_return(true)
     )
+
+    allow(mocked_fetch_signing_key).to receive(:call) { |params| params[:signing_key_provider].fetch_signing_key }
+    allow(mocked_fetch_signing_key_refresh_value).to receive(:call) { |params| params[:refresh] }
 
     allow(mocked_fetch_authenticator_secrets_exist_values).to(
       receive(:call).and_return('jwks-uri' => 'https://jwks-uri.com/jwks')
@@ -79,17 +84,48 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
-
-
-  context "FetchJwksUriSigningKey fetch_signing_key " do
-    context "'jwks-uri' secret is not valid" do
+  context "FetchJwksUriSigningKey call " do
+    context "propagates false refresh value" do
       subject do
         ::Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey.new(authenticator_input: mocked_authenticator_input,
+                                                                           fetch_signing_key: mocked_fetch_signing_key_refresh_value,
                                                                            logger: mocked_logger,
                                                                            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
                                                                            http_lib: mocked_bad_http_response,
                                                                            create_jwks_from_http_response: mocked_create_jwks_from_http_response
-        ).fetch_signing_key
+        ).call(force_read: false)
+      end
+
+      it "returns false" do
+        expect(subject).to eql(false)
+      end
+    end
+
+    context "propagates true refresh value" do
+      subject do
+        ::Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey.new(authenticator_input: mocked_authenticator_input,
+                                                                           fetch_signing_key: mocked_fetch_signing_key_refresh_value,
+                                                                           logger: mocked_logger,
+                                                                           fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
+                                                                           http_lib: mocked_bad_http_response,
+                                                                           create_jwks_from_http_response: mocked_create_jwks_from_http_response
+        ).call(force_read: true)
+      end
+
+      it "returns true" do
+        expect(subject).to eql(true)
+      end
+    end
+
+    context "'jwks-uri' secret is not valid" do
+      subject do
+        ::Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey.new(authenticator_input: mocked_authenticator_input,
+                                                                           fetch_signing_key: mocked_fetch_signing_key,
+                                                                           logger: mocked_logger,
+                                                                           fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
+                                                                           http_lib: mocked_bad_http_response,
+                                                                           create_jwks_from_http_response: mocked_create_jwks_from_http_response
+        ).call(force_read: false)
       end
 
       it "raises an error" do
@@ -101,11 +137,12 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
       context "provider return valid http response" do
         subject do
           ::Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey.new(authenticator_input: mocked_authenticator_input,
+                                                                             fetch_signing_key: mocked_fetch_signing_key,
                                                                              logger: mocked_logger,
                                                                              fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
                                                                              http_lib: mocked_good_http_response,
                                                                              create_jwks_from_http_response: mocked_create_jwks_from_http_response
-          ).fetch_signing_key
+          ).call(force_read: false)
         end
 
         it "returns jwks value" do
@@ -116,11 +153,12 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
       context "provider return bad http response" do
         subject do
           ::Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey.new(authenticator_input: mocked_authenticator_input,
+                                                                             fetch_signing_key: mocked_fetch_signing_key,
                                                                              logger: mocked_logger,
                                                                              fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
                                                                              http_lib: mocked_bad_http_response,
                                                                              create_jwks_from_http_response: mocked_create_jwks_from_http_response
-          ).fetch_signing_key
+          ).call(force_read: false)
         end
 
         it "raises an error" do
