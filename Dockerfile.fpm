@@ -6,7 +6,7 @@ RUN apt-get update -y && \
                        liblzma-dev
 
 ENV BUNDLER_VERSION 2.2.30
-RUN gem install --no-rdoc --no-ri bundler:$BUNDLER_VERSION fpm
+RUN gem install --no-document bundler:$BUNDLER_VERSION fpm
 
 RUN mkdir -p /src/opt/conjur/project
 
