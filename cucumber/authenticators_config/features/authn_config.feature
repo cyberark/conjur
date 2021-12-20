@@ -181,7 +181,7 @@ Feature: Authenticator configuration
     """
     And authenticator "cucumber:webservice:conjur/authn-gcp" is disabled
 
-  Scenario: Authenticated user can not update authenticator without service-id
+  Scenario: Unauthorized user can not update authenticator without service-id
     When I am the super-user
     And I load a policy:
     """

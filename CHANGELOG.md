@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Check to stop hosts from setting passwords fixed for admin user
   [#2440](https://github.com/cyberark/conjur/pull/2440)
 
+### Added
+- Added API endpoint to enable and disable GCP authenticator
+  [#2448](https://github.com/cyberark/conjur/pull/2448)
+
 ## [1.14.2] - 2021-12-13
 
 ### Changed
