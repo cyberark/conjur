@@ -3,12 +3,12 @@
   body:
   <% hosts.each do |host| %>
   - !host
-    id: <%= host[:id] %>
-    <% unless not host.include?(:annotations) and host[:annotations].empty? %>
+    id: <%= host.id %>
+    <% unless host.annotations.nil? -%>
     annotations:
-      <% host[:annotations].each do |annotation, value| -%>
-        <%= annotation %>: <%= value %>
-      <% end -%>
+    <% host.annotations.each do |annotation, value| -%>
+      <%= annotation %>: <%= value %>
+    <% end -%>
     <% end -%>
   <% end -%>
 
@@ -16,5 +16,5 @@
 - !grant
  role: !layer conjur/<%= authenticator %>/<%= service_id %>/users
  members:
-   - !host conjur/<%= authenticator %>/<%= service_id %>/apps/<%= host[:id] %>
+   - !host conjur/<%= authenticator %>/<%= service_id %>/apps/<%= host.id %>
 <% end %>

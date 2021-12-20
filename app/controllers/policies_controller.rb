@@ -49,6 +49,10 @@ class PoliciesController < RestController
     }, status: :created)
   end
 
+  def retry_delay
+    rand(1..8)
+  end
+
   def concurrent_load(_exception)
     response.headers['Retry-After'] = retry_delay
     render(json: {

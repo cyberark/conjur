@@ -50,7 +50,8 @@ class AuthenticatorsController < RestController
   end
 
   def initialize_k8s_auth_host
-    request_data = JSON.parse(request.raw_post)
+    host_data = Authentication::AuthHostDetails.new(request.raw_post)
+
     Authentication::InitializeAuthHost.new.(
       conjur_account: params[:account],
       service_id: params[:service_id],
@@ -58,8 +59,7 @@ class AuthenticatorsController < RestController
       resource: find_or_create_root_policy,
       current_user: current_user,
       client_ip: request.ip,
-      host_id: request_data['id'],
-      annotations: request_data.include?('annotations') ? request_data['annotations'] : {}
+      host_data: host_data
     )
   end
 
@@ -75,6 +75,10 @@ class AuthenticatorsController < RestController
       client_ip: request.ip,
       auth_data: auth_data
     )
+  end
+
+  def retry_delay
+    rand(1..8)
   end
 
   # TODO: This method is duplicated in the policies controller
