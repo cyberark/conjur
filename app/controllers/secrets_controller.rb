@@ -66,7 +66,7 @@ class SecretsController < RestController
     authorize_many(variables, :execute)
 
     variables.each do |variable|
-      result[variable.resource_id] = get_secret_from_variable(variable)
+      result[variable.resource_id] = get_secret_from_variable(variable).encode("UTF-8", invalid: :replace) 
 
       audit_fetch(variable.resource_id)
     end
