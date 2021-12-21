@@ -6,13 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-### Fixed
-- Check to stop hosts from setting passwords fixed for admin user
-  [#2440](https://github.com/cyberark/conjur/pull/2440)
+## [1.15.0] - 2021-12-21
 
 ### Added
 - Added API endpoint to enable and disable GCP authenticator
   [#2448](https://github.com/cyberark/conjur/pull/2448)
+
+### Fixed
+- Check to stop hosts from setting passwords fixed for admin user
+  [#2440](https://github.com/cyberark/conjur/pull/2440)
 
 ## [1.14.2] - 2021-12-13
 
@@ -760,7 +762,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.14.2...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.15.0...HEAD
+[1.15.0]: https://github.com/cyberark/conjur/compare/v1.14.2...v1.15.0
 [1.14.2]: https://github.com/cyberark/conjur/compare/v1.14.1...v1.14.2
 [1.14.1]: https://github.com/cyberark/conjur/compare/v1.14.0...v1.14.1
 [1.14.0]: https://github.com/cyberark/conjur/compare/v1.13.2...v1.14.0
