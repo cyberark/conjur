@@ -125,3 +125,106 @@ Feature: Authenticator configuration
     """
     Errors::Authentication::AuthenticatorNotSupported
     """
+
+  Scenario: Authenticator without service-id is successfully configured
+    When I am the super-user
+    And I load a policy:
+    """
+    - !policy
+      id: conjur/authn-gcp
+      body:
+      - !webservice
+    """
+    And I save my place in the log file
+    And I PATCH "/authn-gcp/cucumber" with body:
+    """
+    enabled=true
+    """
+    Then the HTTP response status code is 204
+    And authenticator "cucumber:webservice:conjur/authn-gcp" is enabled
+
+    When I successfully PATCH "/authn-gcp/cucumber" with body:
+    """
+    enabled=false
+    """
+    Then the HTTP response status code is 204
+    And authenticator "cucumber:webservice:conjur/authn-gcp" is disabled
+
+  Scenario: Authenticator without service-id and webservice does not exist
+    When I am the super-user
+    And I save my place in the log file
+    And I PATCH "/authn-gcp/cucumber" with body:
+    """
+    enabled=true
+    """
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::Security::WebserviceNotFound
+    """
+    And authenticator "cucumber:webservice:conjur/authn-gcp" is disabled
+
+    When I load a policy:
+    """
+    - !policy
+      id: conjur/authn-gcp
+    """
+    And I save my place in the log file
+    And I PATCH "/authn-gcp/cucumber" with body:
+    """
+    enabled=true
+    """
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::Security::WebserviceNotFound
+    """
+    And authenticator "cucumber:webservice:conjur/authn-gcp" is disabled
+
+  Scenario: Unauthorized user can not update authenticator without service-id
+    When I am the super-user
+    And I load a policy:
+    """
+    - !policy
+      id: conjur/authn-gcp
+      body:
+      - !webservice
+    """
+    When I login as "authn-viewer"
+    And I save my place in the log file
+    And I PATCH "/authn-gcp/cucumber" with body:
+    """
+    enabled=true
+    """
+    Then the HTTP response status code is 403
+    And authenticator "cucumber:webservice:conjur/authn-gcp" is disabled
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::Security::RoleNotAuthorizedOnResource
+    """
+
+  Scenario: Nested webservice can not be configured for authenticator without service-id
+    When I am the super-user
+    And I load a policy:
+    """
+    - !policy
+      id: conjur/authn-gcp
+      body:
+      - !webservice
+    """
+    And I save my place in the log file
+    And I PATCH "/authn-gcp/myservice/cucumber" with body:
+    """
+    enabled=true
+    """
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::Security::WebserviceNotFound
+    """
+    And I save my place in the log file
+    And I PATCH "/authn-gcp/cucumber" with body:
+    """
+    enabled=true
+    """
+    Then the HTTP response status code is 204

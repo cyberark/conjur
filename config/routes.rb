@@ -25,7 +25,7 @@ Rails.application.routes.draw do
         get '/authn-jwt/:service_id/:account/status' => 'authenticate#authn_jwt_status'
         get '/:authenticator(/:service_id)/:account/status' => 'authenticate#status'
 
-        patch '/:authenticator/:service_id/:account' => 'authenticate#update_config'
+        patch '/:authenticator(/:service_id)/:account' => 'authenticate#update_config'
 
         get '/:authenticator(/:service_id)/:account/login' => 'authenticate#login'
 

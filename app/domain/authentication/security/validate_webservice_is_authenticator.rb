@@ -21,7 +21,7 @@ module Authentication
       end
 
       def webservice_id
-        "#{@webservice.authenticator_name}/#{@webservice.service_id}"
+        @webservice.service_id.blank? ? @webservice.authenticator_name : "#{@webservice.authenticator_name}/#{@webservice.service_id}"
       end
     end
   end
