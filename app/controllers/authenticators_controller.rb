@@ -43,14 +43,19 @@ class AuthenticatorsController < RestController
   def _initialize_auth_host
     case params[:authenticator]
     when "authn-k8s"
-      initialize_k8s_auth_host
+      initialize_specific_auth_host(constraints: Authentication::AuthnK8s::Restrictions::CONSTRAINTS)
+    when "authn-oidc"
+      initialize_specific_auth_host
+    when "authn-azure"
+      initialize_specific_auth_host(constraints: Authentication::AuthnAzure::Restrictions::CONSTRAINTS)
     else
       raise ArgumentError, "Not implemented for authenticator %s" % params[:authenticator]
     end
+
   end
 
-  def initialize_k8s_auth_host
-    host_data = Authentication::AuthHostDetails.new(request.raw_post)
+  def initialize_specific_auth_host(constraints: nil)
+    host_data = Authentication::AuthHostDetails.new(request.raw_post, constraints: constraints)
 
     Authentication::InitializeAuthHost.new.(
       conjur_account: params[:account],

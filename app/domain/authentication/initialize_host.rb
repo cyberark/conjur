@@ -8,16 +8,30 @@ module Authentication
     include ActiveModel::Validations
     attr_reader :id, :annotations
 
-    def initialize(raw_post)
+    def initialize(raw_post, constraints: nil)
       @json_data = JSON.parse(raw_post)
+      @constraints = constraints
 
-      # TODO: Could use metaprogramming here to simplify?
       @id = @json_data['id'] if @json_data.include?('id')
       @annotations = @json_data['annotations'] if @json_data.include?('annotations')
     end
 
-    def json_parameters
-      [ 'id', 'annotations' ]
+    def annotation_pattern
+      /authn-[a-z8]+\//
+    end
+
+    # Get annotations defining authenticator variables (formatted as authn-<authenticator>/<annotation name>)
+    # We have to do this in order to allow users to define custom annotations
+    def auth_annotations
+      @annotations.keys.keep_if { |annotation| annotation.start_with?(annotation_pattern) } unless @annotations.nil?
+    end
+
+    def validate_annotations
+      unless @constraints.nil? or auth_annotations.nil?
+        # remove the authn-<authenticator>/ prefix from each authenticator
+        pruned_annotations = auth_annotations.map {|annot| annot.sub(annotation_pattern, '')}
+        @constraints.validate(resource_restrictions: pruned_annotations)
+      end
     end
 
     validates(
@@ -25,17 +39,7 @@ module Authentication
       presence: true
     )
 
-    validates_each :annotations do |record, attr, value|
-      # NOTE: We allow nil as a possible value for the annotations attribute
-      unless value.nil?
-        # If annotations is present it must be a populated hash map
-        record.errors.add(attr, message: "must be an object") unless value.is_a?(Hash)
-        record.errors.add(attr, message: "must not be empty") if value.empty?
-
-        # We already know each key is a string because it is the definition of JSON
-        value.each_pair { |key, value| record.errors.add(attr, "object values must be strings") unless value.is_a?(String) }
-      end
-    end
+    validate :validate_annotations
   end
 
   class InitializeAuthHost
