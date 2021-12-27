@@ -25,9 +25,9 @@ module Authentication
           @fetch_signing_key = fetch_signing_key
         end
 
-        def call(force_read:)
+        def call(force_fetch:)
           @fetch_signing_key.call(
-            refresh: force_read,
+            refresh: force_fetch,
             cache_key: jwks_uri,
             signing_key_provider: self
           )

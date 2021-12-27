@@ -86,7 +86,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey
                                                                                  logger: mocked_logger,
                                                                                  fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
                                                                                  discover_identity_provider: mocked_discover_identity_provider
-          ).call(force_read: false)
+          ).call(force_fetch: false)
         end
 
         it "returns false" do
@@ -101,7 +101,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey
                                                                                  logger: mocked_logger,
                                                                                  fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
                                                                                  discover_identity_provider: mocked_discover_identity_provider
-          ).call(force_read: true)
+          ).call(force_fetch: true)
         end
 
         it "returns true" do
@@ -118,7 +118,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey
                                                                                  logger: mocked_logger,
                                                                                  fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
                                                                                  discover_identity_provider: mocked_invalid_uri_discover_identity_provider
-          ).call(force_read: false)
+          ).call(force_fetch: false)
         end
 
         it "raises an error" do
@@ -133,7 +133,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey
                                                                                  logger: mocked_logger,
                                                                                  fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
                                                                                  discover_identity_provider: mocked_discover_identity_provider
-          ).call(force_read: false)
+          ).call(force_fetch: false)
         end
 
         it "does not raise error" do

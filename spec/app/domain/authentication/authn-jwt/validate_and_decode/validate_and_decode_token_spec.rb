@@ -122,31 +122,31 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
 
     allow(mocked_fetch_signing_key_provider_always_succeed).to(
       receive(:call).with(
-        force_read: false
+        force_fetch: false
       ).and_return(jwks_from_1st_call)
     )
 
     allow(mocked_fetch_signing_key_provider_always_succeed).to(
       receive(:call).with(
-        force_read: true
+        force_fetch: true
       ).and_return(jwks_from_2nd_call)
     )
 
     allow(mocked_fetch_signing_key_provider_failed_on_1st_time).to(
       receive(:call).with(
-        force_read: false
+        force_fetch: false
       ).and_raise(fetch_signing_key_1st_time_error)
     )
 
     allow(mocked_fetch_signing_key_provider_failed_on_2nd_time).to(
       receive(:call).with(
-        force_read: false
+        force_fetch: false
       ).and_return(jwks_from_2nd_call)
     )
 
     allow(mocked_fetch_signing_key_provider_failed_on_2nd_time).to(
       receive(:call).with(
-        force_read: true
+        force_fetch: true
       ).and_raise(fetch_signing_key_2nd_time_error)
     )
 

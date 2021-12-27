@@ -141,7 +141,7 @@ module Authentication
 
       def validate_signing_key
         signing_key_provider.call(
-          force_read: false
+          force_fetch: false
         )
         @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedSigningKeyConfiguration.new)
       end

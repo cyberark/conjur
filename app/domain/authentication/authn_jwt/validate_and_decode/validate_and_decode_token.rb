@@ -41,9 +41,9 @@ module Authentication
           raise Errors::Authentication::AuthnJwt::MissingToken if @jwt_token.blank?
         end
 
-        def fetch_signing_key(force_read: false)
+        def fetch_signing_key(force_fetch: false)
           @jwks = signing_key_provider.call(
-            force_read: force_read
+            force_fetch: force_fetch
           )
           @logger.debug(LogMessages::Authentication::AuthnJwt::SigningKeysFetchedFromCache.new)
         end
@@ -62,7 +62,7 @@ module Authentication
             LogMessages::Authentication::AuthnJwt::ValidateSigningKeysAreUpdated.new
           )
           # maybe failed due to keys rotation. Force cache to read it again
-          fetch_signing_key(force_read: true)
+          fetch_signing_key(force_fetch: true)
         end
 
         def fetch_decoded_token_for_signature_only

@@ -93,7 +93,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
                                                                            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
                                                                            http_lib: mocked_bad_http_response,
                                                                            create_jwks_from_http_response: mocked_create_jwks_from_http_response
-        ).call(force_read: false)
+        ).call(force_fetch: false)
       end
 
       it "returns false" do
@@ -109,7 +109,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
                                                                            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
                                                                            http_lib: mocked_bad_http_response,
                                                                            create_jwks_from_http_response: mocked_create_jwks_from_http_response
-        ).call(force_read: true)
+        ).call(force_fetch: true)
       end
 
       it "returns true" do
@@ -125,7 +125,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
                                                                            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
                                                                            http_lib: mocked_bad_http_response,
                                                                            create_jwks_from_http_response: mocked_create_jwks_from_http_response
-        ).call(force_read: false)
+        ).call(force_fetch: false)
       end
 
       it "raises an error" do
@@ -142,7 +142,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
                                                                              fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
                                                                              http_lib: mocked_good_http_response,
                                                                              create_jwks_from_http_response: mocked_create_jwks_from_http_response
-          ).call(force_read: false)
+          ).call(force_fetch: false)
         end
 
         it "returns jwks value" do
@@ -158,7 +158,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
                                                                              fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
                                                                              http_lib: mocked_bad_http_response,
                                                                              create_jwks_from_http_response: mocked_create_jwks_from_http_response
-          ).call(force_read: false)
+          ).call(force_fetch: false)
         end
 
         it "raises an error" do
