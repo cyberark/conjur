@@ -13,7 +13,7 @@ module Authentication
       @constraints = constraints
 
       @id = @json_data['id'] if @json_data.include?('id')
-      @annotations = @json_data['annotations'] if @json_data.include?('annotations')
+      @annotations = @json_data.include?('annotations') ? @json_data['annotations'] : {}
     end
 
     def annotation_pattern
@@ -23,14 +23,18 @@ module Authentication
     # Get annotations defining authenticator variables (formatted as authn-<authenticator>/<annotation name>)
     # We have to do this in order to allow users to define custom annotations
     def auth_annotations
-      @annotations.keys.keep_if { |annotation| annotation.start_with?(annotation_pattern) } unless @annotations.nil?
+      @annotations.keys.keep_if { |annotation| annotation.start_with?(annotation_pattern) }
     end
 
     def validate_annotations
-      unless @constraints.nil? or auth_annotations.nil?
-        # remove the authn-<authenticator>/ prefix from each authenticator
-        pruned_annotations = auth_annotations.map {|annot| annot.sub(annotation_pattern, '')}
+      return if @constraints.nil?
+
+      # remove the authn-<authenticator>/ prefix from each authenticator
+      pruned_annotations = auth_annotations.map {|annot| annot.sub(annotation_pattern, '')}
+      begin
         @constraints.validate(resource_restrictions: pruned_annotations)
+      rescue => e
+        errors.add(:annotation, e.message)
       end
     end
 
@@ -48,16 +52,14 @@ module Authentication
     command_class(
       dependencies: {
         logger: Rails.logger,
-        auth_initializer: Authentication::Default::InitializeDefaultAuth.new,
+        policy_loader: Policy::LoadPolicy.new
       },
       inputs: %i[conjur_account authenticator service_id resource current_user client_ip host_data]
     ) do
       def call
-        policy_details = initialize_host_policy
-
         raise ArgumentError, @host_data.errors.full_messages unless @host_data.valid?
 
-        host_policy
+        initialize_host_policy[:policy].values[:policy_text]
       rescue => e
         raise e
       end
@@ -76,7 +78,7 @@ module Authentication
       end
 
       def initialize_host_policy
-        Policy::LoadPolicy.new.(
+        @policy_loader.(
           delete_permitted: false,
           action: :update,
           resource: @resource,
