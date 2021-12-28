@@ -40,18 +40,18 @@ module Authentication
     command_class(
       dependencies: {
         logger: Rails.logger,
-        secrets: Secret,
         auth_initializer: Authentication::Default::InitializeDefaultAuth.new,
+        policy_loader: Policy::LoadPolicy.new,
       },
       inputs: %i[conjur_account service_id resource current_user client_ip auth_data]
     ) do
       def call
+        raise ArgumentError, @auth_data.errors.full_messages unless @auth_data.valid?
         policy_details = initialize_auth_policy
 
-        raise ArgumentError, @auth_data.errors.full_messages unless @auth_data.valid?
         @auth_initializer.(conjur_account: @conjur_account, service_id: @service_id, auth_data: @auth_data)
 
-        auth_policy
+        policy_details[:policy].values[:policy_text]
       rescue => e
         raise e
       end
@@ -70,7 +70,7 @@ module Authentication
       end
 
       def initialize_auth_policy
-        Policy::LoadPolicy.new.(
+        @policy_loader.(
           delete_permitted: false,
           action: :update,
           resource: @resource,
