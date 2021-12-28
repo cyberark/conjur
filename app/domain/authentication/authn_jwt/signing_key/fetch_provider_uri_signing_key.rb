@@ -6,6 +6,7 @@ module Authentication
 
         def initialize(
           authenticator_input:,
+          fetch_signing_key:,
           fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
           discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new,
           logger: Rails.logger
@@ -15,15 +16,20 @@ module Authentication
           @discover_identity_provider = discover_identity_provider
 
           @authenticator_input = authenticator_input
+          @fetch_signing_key = fetch_signing_key
+        end
+
+        def call(force_fetch:)
+          @fetch_signing_key.call(
+            refresh: force_fetch,
+            cache_key: provider_uri,
+            signing_key_provider: self
+          )
         end
 
         def fetch_signing_key
           discover_provider
           fetch_provider_keys
-        end
-
-        def signing_key_uri
-          provider_uri
         end
 
         private

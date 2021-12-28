@@ -55,8 +55,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
   let(:account_does_not_exist_error) { "Account does not exist" }
   let(:identity_not_configured_properly) { "Identity not configured properly" }
   let(:mocked_valid_signing_key_provider) { double("Mocked valid signing key interface")  }
-  let(:mocked_valid_fetch_signing_key) { double("Mocked valid fetch signing key interface")  }
-
 
   before(:each) do
     allow(mocked_valid_create_signing_key_provider).to(
@@ -64,13 +62,9 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
     )
 
     allow(mocked_valid_signing_key_provider).to(
-      receive(:signing_key_uri).and_return(valid_signing_key_uri)
-    )
-
-    allow(mocked_valid_fetch_signing_key).to(
       receive(:call).and_return(valid_signing_key)
     )
-    
+
     allow(mocked_invalid_create_signing_key_provider).to(
       receive(:call).and_raise(create_signing_key_configuration_is_invalid_error)
     )
@@ -93,7 +87,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
     allow(mocked_invalid_fetch_claim_aliases).to(
       receive(:call).and_raise(fetch_claim_aliases_configuration_is_invalid_error)
     )
-    
+
     allow(mocked_valid_identity_from_decoded_token_provider).to(
       receive(:new).and_return(mocked_valid_identity_configured_properly)
     )
@@ -162,7 +156,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
       subject do
         ::Authentication::AuthnJwt::ValidateStatus.new(
-          fetch_signing_key: mocked_valid_fetch_signing_key,
           create_signing_key_provider: mocked_valid_create_signing_key_provider,
           fetch_issuer_value: mocked_valid_fetch_issuer_value,
           identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
@@ -187,7 +180,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            fetch_signing_key: mocked_valid_fetch_signing_key,
             create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
@@ -211,7 +203,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            fetch_signing_key: mocked_valid_fetch_signing_key,
             create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
@@ -235,7 +226,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            fetch_signing_key: mocked_valid_fetch_signing_key,
             create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
@@ -259,7 +249,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            fetch_signing_key: mocked_valid_fetch_signing_key,
             create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
@@ -295,7 +284,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
 
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            fetch_signing_key: mocked_valid_fetch_signing_key,
             create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
@@ -320,7 +308,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       context "signing key secrets are not configured properly" do
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            fetch_signing_key: mocked_valid_fetch_signing_key,
             create_signing_key_provider: mocked_invalid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
@@ -343,7 +330,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       context "issuer secrets are not configured properly" do
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            fetch_signing_key: mocked_valid_fetch_signing_key,
             create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_invalid_fetch_issuer_value,
             identity_from_decoded_token_provider_class: mocked_valid_identity_from_decoded_token_provider,
@@ -366,7 +352,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       context "audience secret is not configured properly" do
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            fetch_signing_key: mocked_valid_fetch_signing_key,
             create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             fetch_audience_value: mocked_invalid_fetch_audience_value,
@@ -390,7 +375,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       context "enforced claims is not configured properly" do
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            fetch_signing_key: mocked_valid_fetch_signing_key,
             create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             fetch_enforced_claims: mocked_invalid_fetch_enforced_claims,
@@ -414,7 +398,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       context "claim aliases is not configured properly" do
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            fetch_signing_key: mocked_valid_fetch_signing_key,
             create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             fetch_claim_aliases: mocked_invalid_fetch_claim_aliases,
@@ -438,7 +421,6 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       context "identity secrets are not configured properly" do
         subject do
           ::Authentication::AuthnJwt::ValidateStatus.new(
-            fetch_signing_key: mocked_valid_fetch_signing_key,
             create_signing_key_provider: mocked_valid_create_signing_key_provider,
             fetch_issuer_value: mocked_valid_fetch_issuer_value,
             validate_identity_configured_properly: mocked_validate_identity_not_configured_properly,
