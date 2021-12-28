@@ -84,6 +84,58 @@ class PolicyVersion < Sequel::Model(:policy_versions)
   def before_save
     require 'digest'
     self.policy_sha256 = Digest::SHA256.hexdigest(policy_text)
+    delete_stale_versions
+  end
+
+  def delete_stale_versions
+    log_policy_version_candidates_for_deletion
+    delete_stale_versions
+  end
+
+  def delete_stale_versions(limit = policies_version_limit)
+    Sequel::Model.db[<<-SQL, resource_id, limit, resource_id].delete
+    WITH
+      "ordered_versions" AS
+        (SELECT * FROM "policy_versions" WHERE ("resource_id" = ?) ORDER BY "version" DESC LIMIT ?),
+      "delete_versions" AS
+        (SELECT * FROM "policy_versions" LEFT JOIN "ordered_versions" USING ("resource_id", "version") 
+       WHERE (("ordered_versions"."resource_id" IS NULL) AND ("resource_id" = ?)))
+    DELETE FROM "policy_versions"
+    USING  "delete_versions" 
+    WHERE "policy_versions"."resource_id" = "delete_versions"."resource_id" AND
+      "policy_versions"."version" = "delete_versions"."version"
+    SQL
+  end
+
+  def log_policy_version_candidates_for_deletion
+    stale_policy_versions.all.each do | policy_version |
+      Rails.logger.info( "Policy version: #{policy_version} will be deleted" )
+    end
+  end
+
+  def stale_policy_versions(limit = policies_version_limit)
+    Sequel::Model.db[<<-SQL, resource_id, limit, resource_id]
+    WITH
+      "ordered_versions" AS
+        (SELECT * FROM "policy_versions" WHERE ("resource_id" = ?) ORDER BY "version" DESC LIMIT ?),
+      "delete_versions" AS
+        (SELECT * FROM "policy_versions" LEFT JOIN "ordered_versions" 
+       USING (
+         "resource_id", 
+         "version", 
+         "created_at", 
+         "finished_at", 
+         "client_ip", 
+         "role_id", 
+         "policy_text", 
+         "policy_sha256"
+       ) 
+       WHERE (("ordered_versions"."resource_id" IS NULL) AND ("resource_id" = ?)))
+    SELECT * FROM "policy_versions"
+    JOIN  "delete_versions" USING ("resource_id", "version") 
+    WHERE "policy_versions"."resource_id" = "delete_versions"."resource_id" AND
+      "policy_versions"."version" = "delete_versions"."version"
+    SQL
   end
 
   def before_update
