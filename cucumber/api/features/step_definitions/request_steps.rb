@@ -124,9 +124,13 @@ When(/^I( (?:successfully|can))? authenticate Alice (?:(\d+) times? in (\d+) thr
   )
 end
 
-When(/^I( (?:can|successfully))? POST "([^"]*)" with body:$/) do |can, path, body|
-  try_request can do
-    post_json path, body
+When(/^I( (?:can|successfully))? POST(( \d+) times)? "([^"]*)" with body:$/) do |can, requests_num, path, body|
+  requests_num ||= 1
+
+  (1..requests_num.to_i).each do |i|
+    try_request can do
+      post_json path, body
+    end
   end
 end
 
