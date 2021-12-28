@@ -127,7 +127,7 @@ end
 When(/^I( (?:can|successfully))? POST(( \d+) times)? "([^"]*)" with body:$/) do |can, requests_num, path, body|
   requests_num ||= 1
 
-  (1..requests_num.to_i).each do |i|
+  (1..requests_num.to_i).each do
     try_request can do
       post_json path, body
     end

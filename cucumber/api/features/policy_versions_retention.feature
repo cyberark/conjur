@@ -9,6 +9,7 @@ Feature: Limit the number of policy versions
     """
       - !policy policy_test_version
     """
+
   Scenario: I update a policy multiple times so it exceeds the default policy versions limit and get the default
             limited number of versions in response when I retrieve the policy resource
     Given I save my place in the log file
@@ -16,14 +17,10 @@ Feature: Limit the number of policy versions
     """
       - !user bob
     """
-    Then the HTTP response status code is 201
+    And the HTTP response status code is 201
     And I successfully GET "/resources/cucumber/policy/policy_test_version"
-    Then there are 20 "policy_versions" in response
+    Then there are 20 "policy_versions" in the response
     And The following appears in the log after my savepoint:
     """
     Deleting policy version: {:version=>1, :resource_id=>"cucumber:policy:policy_test_version",
     """
-
-
-
-

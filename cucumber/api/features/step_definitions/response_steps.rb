@@ -12,7 +12,7 @@ Then(/^the resource list should include the newest resources$/) do
   expect(@result.map{|r| r['id']}).to include(*@resources.values.map{|r| r.id})
 end
 
-Then(/^there are (\d+) "([^"]*)" in response$/) do |occurrences, key|
+Then(/^there are (\d+) "([^"]*)" in the response$/) do |occurrences, key|
   expect(@result[key].count).to eq(occurrences)
 end
 

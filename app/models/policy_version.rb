@@ -87,14 +87,14 @@ class PolicyVersion < Sequel::Model(:policy_versions)
   end
 
   def after_save
-    log_versions_off_limit
-    delete_versions_off_limit
+    log_versions_to_expire
+    remove_expired_versions
   rescue => e
-    Rails.logger.error("Error while ensuring policy '#{id}' versions retention limit: #{e.inspect}")
+    Rails.logger.error("Error while enforcing version retention limit for policy: '#{id}, #{e.inspect}'")
   end
 
-  def log_versions_off_limit
-    versions_off_limit.all.each do |policy_version|
+  def log_versions_to_expire
+    expired_versions.all.each do |policy_version|
       Rails.logger.debug(
         "Deleting policy version: #{policy_version.slice(
           :version,
@@ -107,10 +107,12 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     end
   end
 
-  def versions_off_limit
-    Sequel::Model.db[<<-SQL, resource_id, 20, resource_id]
-       WITH
-      "ordered_versions" AS (SELECT * FROM "policy_versions" WHERE ("resource_id" = ?) ORDER BY "version" DESC LIMIT ?)
+  def expired_versions
+    Sequel::Model.db[<<-SQL, resource_id, policies_version_limit, resource_id]
+      WITH
+      "ordered_versions" AS (
+        SELECT * FROM "policy_versions" WHERE ("resource_id" = ?) ORDER BY "version" DESC LIMIT ?
+      )
       SELECT * FROM "policy_versions" LEFT JOIN "ordered_versions" 
       USING (
         "resource_id", 
@@ -123,18 +125,20 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     SQL
   end
 
-  def delete_versions_off_limit
+  def remove_expired_versions
     Sequel::Model.db[<<-SQL, resource_id, policies_version_limit, resource_id].delete
-    WITH
-      "ordered_versions" AS
-        (SELECT * FROM "policy_versions" WHERE ("resource_id" = ?) ORDER BY "version" DESC LIMIT ?),
-      "delete_versions" AS
-        (SELECT * FROM "policy_versions" LEFT JOIN "ordered_versions" USING ("resource_id", "version") 
-         WHERE (("ordered_versions"."resource_id" IS NULL) AND ("resource_id" = ?)))
-    DELETE FROM "policy_versions"
-    USING  "delete_versions" 
-    WHERE "policy_versions"."resource_id" = "delete_versions"."resource_id" AND
-      "policy_versions"."version" = "delete_versions"."version"
+      WITH
+        "ordered_versions" AS (
+          SELECT * FROM "policy_versions" WHERE ("resource_id" = ?) ORDER BY "version" DESC LIMIT ?
+        ),
+        "delete_versions" AS (
+          SELECT * FROM "policy_versions" LEFT JOIN "ordered_versions" USING ("resource_id", "version") 
+          WHERE (("ordered_versions"."resource_id" IS NULL) AND ("resource_id" = ?))
+        )
+      DELETE FROM "policy_versions"
+      USING "delete_versions" 
+      WHERE "policy_versions"."resource_id" = "delete_versions"."resource_id" AND
+            "policy_versions"."version" = "delete_versions"."version"
     SQL
   end
 
