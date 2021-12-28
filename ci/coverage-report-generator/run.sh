@@ -6,7 +6,7 @@
 
 set -xeu
 
-IMAGE="ruby:2.6.5-stretch"
+IMAGE="ruby:3.0.2"
 BUNDLER_VERSION="2.2.30"
 
 REPO_ROOT=$(git rev-parse --show-toplevel)

@@ -504,7 +504,7 @@ DEPENDENCIES
   conjur-rack (~> 4)
   conjur-rack-heartbeat
   csr
-  cucumber
+  cucumber (~> 7.1.0)
   database_cleaner (~> 1.8.4)
   debase (~> 0.2.5.beta2)
   dry-struct
@@ -517,7 +517,7 @@ DEPENDENCIES
   httpclient!
   iso8601
   jbuilder (~> 2.7.0)
-  json_spec
+  json_spec (~> 1.1.5)
   jwt (= 2.2.2)
   kubeclient
   listen
@@ -528,7 +528,7 @@ DEPENDENCIES
   openid_connect
   parallel
   pg
-  pry-byebug
+  pry-byebug (~> 3.9.0)
   pry-rails
   puma (~> 5.5.1)
   rack (~> 2.2.3)
