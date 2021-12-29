@@ -5,18 +5,19 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
+    # Secrets used when persisting a K8s authenticator
     class K8sAuthenticatorData
       include ActiveModel::Validations
       attr_reader :service_account_token, :ca_certificate, :k8s_api_url, :json_data
 
       def initialize(raw_post)
-        unless raw_post.empty?
-          @json_data = JSON.parse(raw_post)
+        return if raw_post.empty?
 
-          @service_account_token = @json_data['service-account-token']
-          @ca_certificate = @json_data['ca-cert']
-          @k8s_api_url = @json_data['api-url']
-        end
+        @json_data = JSON.parse(raw_post)
+
+        @service_account_token = @json_data['service-account-token']
+        @ca_certificate = @json_data['ca-cert']
+        @k8s_api_url = @json_data['api-url']
       end
 
       def auth_name
@@ -49,7 +50,7 @@ module Authentication
       validates(
         :ca_certificate,
         format: {
-          with: /(((-+)BEGIN [A-Z ]+(-+)\n)(?:[A-Za-z\d+\/]{4})*\n((-+)END [A-Z ]+(-+))\n?)/,
+          with: %r{(((-+)BEGIN [A-Z ]+(-+)\n)(?:[A-Za-z\d+/]{4})*\n((-+)END [A-Z ]+(-+))\n?)},
           message: "Certificate must be in PEM format"
         },
         presence: true,
@@ -64,6 +65,7 @@ module Authentication
       )
     end
 
+    # Performs setup for newly persisted k8s authenticators
     class InitializeK8sAuth
       extend CommandClass::Include
       
@@ -75,21 +77,14 @@ module Authentication
         inputs: %i[conjur_account service_id auth_data]
       ) do
         def call
-          @conjur_ca_repo.create("%s:webservice:conjur/%s/%s" % [ @conjur_account, @auth_data.auth_name, @service_id ] )
+          @conjur_ca_repo.create(format("%s:webservice:conjur/%s/%s", @conjur_account, @auth_data.auth_name, @service_id))
 
-          unless @auth_data.json_data.nil?
-            @auth_data.json_data.each {|key, value| @secret.create(resource_id: variable_id("kubernetes/%s" % key), value: value) }
+          @auth_data.json_data&.each do |key, value|
+            policy_branch = format("conjur/%s/%s", @auth_data.auth_name, @service_id)
+            variable_id = format("%s:variable:%s/kubernetes/%s", @conjur_account, policy_branch, key)
+
+            @secret.create(resource_id: variable_id, value: value)
           end
-        rescue => e
-          raise e
-        end
-
-        private
-
-        # TODO Should this go in its own module so each auth initializer can share it?
-        def variable_id(variable_name)
-          policy_branch = "conjur/%s/%s" % [ @auth_data.auth_name, @service_id ]
-          "%s:variable:%s/%s" % [ @conjur_account, policy_branch, variable_name ] 
         end
       end
     end

@@ -15,6 +15,7 @@ module Authentication
         inputs: %i[conjur_account service_id auth_data]
       ) do
         def call
+          raise ArgumentError, "auth_data cannot be nil" if @auth_data.nil?
           unless @auth_data.nil? or @auth_data.json_data.nil?
             @auth_data.json_data.each {|key, value| @secret.create(resource_id: variable_id(key), value: value) }
           end
