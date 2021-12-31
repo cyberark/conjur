@@ -4,6 +4,9 @@ class ApplicationController < ActionController::API
   include Authenticates
   include ::ActionView::Layouts
 
+  # Add tracing to all controller actions
+  include Tracing
+
   class Unauthorized < RuntimeError
     attr_reader :return_message_in_response
 
