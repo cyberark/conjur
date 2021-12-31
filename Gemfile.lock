@@ -503,6 +503,10 @@ DEPENDENCIES
   net-ssh
   nokogiri (>= 1.8.2)
   openid_connect
+  opentelemetry-exporter-otlp
+  opentelemetry-instrumentation-http
+  opentelemetry-instrumentation-sinatra
+  opentelemetry-sdk
   parallel
   pg
   pry-byebug

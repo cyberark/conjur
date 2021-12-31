@@ -4,6 +4,15 @@ class ApplicationController < ActionController::API
   include Authenticates
   include ::ActionView::Layouts
 
+  #Add tracing to all controller actions
+  around_action :trace
+  def trace
+    tracer = Rails.application.config.tracer
+    tracer.in_span(params[:action]) do |span|
+      yield
+    end
+  end
+
   class Unauthorized < RuntimeError
     attr_reader :return_message_in_response
 

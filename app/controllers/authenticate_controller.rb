@@ -1,4 +1,7 @@
 # frozen_string_literal: true
+require 'opentelemetry/sdk'
+require 'opentelemetry/exporter/jaeger'
+require_relative '../../lib/rack/extract_tracing_context.rb'
 
 class AuthenticateController < ApplicationController
   include BasicAuthenticator
@@ -196,7 +199,6 @@ class AuthenticateController < ApplicationController
   end
 
   def k8s_inject_client_cert
-    # TODO: add this to initializer
     Authentication::AuthnK8s::InjectClientCert.new.(
       conjur_account: ENV['CONJUR_ACCOUNT'],
       service_id: params[:service_id],

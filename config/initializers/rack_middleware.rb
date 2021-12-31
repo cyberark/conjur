@@ -1,4 +1,5 @@
 require 'rack/default_content_type'
+require 'rack/extract_tracing_context'
 
 # This is where we introduce custom middleware that interacts with Rack
 # and Rails to change how requests are handled.
@@ -21,6 +22,11 @@ Rails.application.configure do
                           %r{^/$}
                         ])
 
+
+  # We want to check whether any incoming requests have any context
+  # propagation headers so that we can extend tracing into conjur.
+  config.middleware.insert_before(0, ::Rack::ExtractTracingContext)
+
   # We want to ensure requests have an expected content type
   # before other middleware runs to make sure any body parsing
   # attempts are handled correctly. So we add this middleware
@@ -32,4 +38,5 @@ Rails.application.configure do
   # (using `remote_ip`) and the audit log (using `ip`) will have the same value
   # for each request.
   config.middleware.delete(ActionDispatch::RemoteIp)
+  
 end

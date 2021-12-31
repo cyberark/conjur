@@ -2,6 +2,8 @@
 
 require 'forwardable'
 require 'command_class'
+require 'opentelemetry/sdk'
+require 'opentelemetry/exporter/jaeger'
 
 module Authentication
   module AuthnK8s
@@ -27,11 +29,21 @@ module Authentication
       def_delegators(:@pod_request, :service_id, :k8s_host, :spiffe_id)
 
       def call
-        validate_webservice_is_whitelisted
-        validate_user_has_access_to_webservice
-        validate_pod_exists
-        validate_resource_restrictions
-        validate_container
+        tracer = Rails.application.config.tracer
+        tracer.in_span("validate pod request") do |span|
+
+          tracer.in_span("validate webservice") do |span|
+            validate_webservice_is_whitelisted
+          end
+
+          tracer.in_span("validate user access") do |span|
+            validate_user_has_access_to_webservice
+          end
+
+          validate_pod_exists
+          validate_resource_restrictions
+          validate_container
+        end
       end
 
       private

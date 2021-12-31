@@ -22,7 +22,10 @@ module Authentication
       private
 
       def validate_the_request
-        @validate_pod_request.(pod_request: pod_request)
+        tracer = Rails.application.config.tracer 
+        tracer.in_span("Validate request") do |span|
+          @validate_pod_request.(pod_request: pod_request)
+        end
       end
 
       def validate_header_cert

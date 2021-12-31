@@ -81,6 +81,12 @@ gem 'openid_connect'
 gem "anyway_config"
 gem 'i18n', '~> 1.8.11'
 
+# Opentelemetry tracing
+gem 'opentelemetry-common'
+gem 'opentelemetry-sdk'
+gem 'opentelemetry-exporter-jaeger'
+gem 'opentelemetry-propagator-jaeger'
+
 group :development, :test do
   gem 'aruba'
   gem 'ci_reporter_rspec'

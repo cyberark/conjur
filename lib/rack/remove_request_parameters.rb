@@ -19,7 +19,7 @@ module Rack
       @app = app
     end
 
-    def call(env)
+    def call(env)      
       req = ActionDispatch::Request.new(env)
       req.set_header("action_dispatch.request.request_parameters", {})
 

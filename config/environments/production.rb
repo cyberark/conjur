@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'logger/formatter/conjur_formatter'
+require 'opentelemetry/sdk'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -65,4 +66,7 @@ Rails.application.configure do
   #Add support for asset compression in production
   # config.assets.css_compressor = :sass
   # config.assets.js_compressor = :uglifier
+
+  #Use for Opentelemtry tracing
+  config.tracer = OpenTelemetry.tracer_provider.tracer('my-tracer')
 end
