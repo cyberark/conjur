@@ -23,7 +23,8 @@ module Conjur
     attr_config(
       # Read TRUSTED_PROXIES before default to maintain backwards compatibility
       trusted_proxies: (ENV['TRUSTED_PROXIES'] || []),
-      authenticators: []
+      authenticators: [],
+      tracing_enabled: false,
     )
 
     def initialize(*args)

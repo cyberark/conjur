@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'opentelemetry/sdk'
+require 'opentelemetry/exporter/jaeger'
 
 class AuthenticateController < ApplicationController
   include BasicAuthenticator
