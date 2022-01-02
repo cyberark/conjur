@@ -139,6 +139,10 @@ services:
 
   jwks:
     image: nginx
+    networks:
+      default:
+        aliases:
+          - chained.mycompany.local
     volumes:
       - jwks-volume:/usr/share/nginx/html
       - ./oauth/jwks/nginx.conf:/etc/nginx/conf.d/default.conf
