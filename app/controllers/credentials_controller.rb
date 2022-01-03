@@ -37,7 +37,7 @@ class CredentialsController < ApplicationController
   # This method requires a PUT request. The new password is in the request body.
   def update_password
     password = request.body.read
-    raise Exceptions::Forbidden if @role.resource.kind == "host"
+    raise Exceptions::Forbidden if @role.login.start_with?("host/")
 
     Commands::Credentials::ChangePassword.new.call(
       role: @role,

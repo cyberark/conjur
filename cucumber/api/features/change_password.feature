@@ -24,6 +24,22 @@ Feature: Change the password of a role
       cucumber:user:alice successfully changed their password
     """
 
+  Scenario: With basic authentication, user admin update their own password using the current password.
+
+    Given I set the password for "admin" to "My-Password1"
+    And I save my place in the audit log file for remote
+    When I successfully PUT "/authn/cucumber/password" with username "admin" and password "My-Password1" and plain text body "New-Password1"
+    Then I can GET "/authn/cucumber/login" with username "admin" and password "New-Password1"
+    And there is an audit record matching:
+    """
+      <86>1 * * conjur * password
+      [auth@43868 user="cucumber:user:admin"]
+      [subject@43868 role="cucumber:user:admin"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="change"]
+      cucumber:user:admin successfully changed their password
+    """
+
   Scenario: With basic authentication, users can update their own password using the current API key.
 
     When I successfully PUT "/authn/cucumber/password" with username "alice" and password ":cucumber:user:alice_api_key" and plain text body "New-Password1"
