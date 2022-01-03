@@ -578,6 +578,11 @@ module Errors
         msg: "Restriction '{0-restriction-name}' is invalid and not representing claim path in the token",
         code: "CONJ00119E"
       )
+
+      InvalidPublicKeys = ::Util::TrackableErrorClass.new(
+        msg: "Failed to parse 'public-keys': {0-parse-error}",
+        code: "CONJ00120E"
+      )
     end
 
     module ResourceRestrictions
