@@ -718,6 +718,16 @@ module LogMessages
         msg: "Claim path has been parsed: '{0-claim-path-array}'",
         code: "CONJ00142D"
       )
+
+      ParsingStaticSigningKeys = ::Util::TrackableLogMessageClass.new(
+        msg: "Parsing JWKS from public-keys value",
+        code: "CONJ00143I"
+      )
+
+      ParsedStaticSigningKeys = ::Util::TrackableLogMessageClass.new(
+        msg: "Successfully parsed public-keys value",
+        code: "CONJ00144D"
+      )
     end
   end
 
