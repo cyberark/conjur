@@ -16,6 +16,8 @@ module Authentication
       @annotations = @json_data.include?('annotations') ? @json_data['annotations'] : {}
     end
 
+    private
+
     def annotation_pattern
       /authn-[a-z8]+\//
     end
@@ -34,7 +36,7 @@ module Authentication
       begin
         @constraints.validate(resource_restrictions: pruned_annotations)
       rescue => e
-        errors.add(:annotation, e.message)
+        errors.add(:annotations, e.message)
       end
     end
 
