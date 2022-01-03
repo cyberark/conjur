@@ -36,24 +36,24 @@ Section 4: MIT
 >>> https://rubygems.org/gems/http/versions/4.2.0
 >>> https://rubygems.org/gems/iso8601/versions/0.12.1
 >>> https://rubygems.org/gems/jbuilder/versions/2.7.0
->>> https://rubygems.org/gems/jwt/versions/2.2.1
+>>> https://rubygems.org/gems/jwt/versions/2.2.2
 >>> https://rubygems.org/gems/kubeclient/versions/4.6.0
 >>> https://rubygems.org/gems/listen/versions/3.2.1
->>> https://rubygems.org/gems/loofah/versions/2.5.0
+>>> https://rubygems.org/gems/loofah/versions/2.9.1
 >>> https://rubygems.org/gems/mini_racer/versions/0.2.9
 >>> https://rubygems.org/gems/net-ldap/versions/0.16.2
 >>> https://rubygems.org/gems/nokogiri/versions/1.12.5
 >>> https://rubygems.org/gems/openid_connect/versions/1.3.0
 >>> https://rubygems.org/gems/rack-rewrite/versions/1.5.1
 >>> https://rubygems.org/gems/rails/versions/5.2.6
->>> https://rubygems.org/gems/rake/versions/13.0.1
+>>> https://rubygems.org/gems/rake/versions/13.0.3
 >>> https://rubygems.org/gems/ruby_dep/versions/1.3.1
 >>> https://rubygems.org/gems/sequel/versions/5.50.0
 >>> https://rubygems.org/gems/sequel-pg_advisory_locking/versions/1.0.1
 >>> https://rubygems.org/gems/sequel-postgres-schemata/versions/0.1.3
 >>> https://rubygems.org/gems/sequel-rails/versions/1.1.0
 >>> https://rubygems.org/gems/simplecov/versions/0.14.1
->>> https://rubygems.org/gems/slosilo/versions/2.2.1
+>>> https://rubygems.org/gems/slosilo/versions/2.2.2
 >>> https://rubygems.org/gems/uglifier/versions/4.2.0
 >>> https://rubygems.org/gems/websocket-client-simple/versions/0.3.0
 >>> https://rubygems.org/gems/event_emitter/versions/0.2.6
@@ -525,7 +525,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
->>> https://rubygems.org/gems/jwt/versions/2.2.1
+>>> https://rubygems.org/gems/jwt/versions/2.2.2
 
 Copyright (c) 2011 Jeff Lindsay
 
@@ -593,7 +593,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
->>> https://rubygems.org/gems/loofah/versions/2.5.0
+>>> https://rubygems.org/gems/loofah/versions/2.9.1
 
 Copyright (c) 2009 -- 2018 by Mike Dalessio, Bryan Helmkamp
 
@@ -749,7 +749,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
->>> https://rubygems.org/gems/rake/versions/13.0.1
+>>> https://rubygems.org/gems/rake/versions/13.0.3
 
 Copyright (c) Jim Weirich
 
@@ -903,7 +903,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
->>> https://rubygems.org/gems/slosilo/versions/2.2.1
+>>> https://rubygems.org/gems/slosilo/versions/2.2.2
 
 Copyright (c) 2020 CyberArk Software Ltd. All rights reserved.
 
