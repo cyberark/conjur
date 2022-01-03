@@ -658,3 +658,72 @@ Feature: JWT Authenticator - Fetch signing key
     """
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::DecodeError: No key id (kid) found from token headers>')
     """
+
+  @skip
+  @sanity
+  Scenario: ONYX-15322: public-keys happy path
+    Given I load a policy:
+    """
+    - !policy
+      id: conjur/authn-jwt/raw
+      body:
+      - !webservice
+      - !variable public-keys
+      - !variable issuer
+      - !variable token-app-property
+
+      - !group hosts
+
+      - !permit
+        role: !group hosts
+        privilege: [ read, authenticate ]
+        resource: !webservice
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/project_id: myproject
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I am the super-user
+    And I initialize remote JWKS endpoint with file "public-key-1" and alg "RS256"
+    And I successfully set authn-jwt public-keys variable to value from remote JWKS endpoint "public-key-1" and alg "RS256"
+    And I successfully set authn-jwt "issuer" variable to value "valid-issuer"
+    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I am using file "public-key-1" and alg "RS256" for remotely issue token:
+    """
+    {
+      "host":"myapp",
+      "project_id": "myproject",
+      "iss": "valid-issuer"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then host "myapp" has been authorized by Conjur
+    And The following appears in the log after my savepoint:
+    """
+    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    """
+
+  @skip
+  Scenario: ONYX-15325: public-keys value is in invalid format
+    Given I load a policy:
+     """
+     - !policy
+       id: conjur/authn-jwt/raw
+       body:
+       - !webservice
+       - !variable public-keys
+       - !variable issuer
+       - !webservice status
+     """
+    And I am the super-user
+    And I successfully set authn-jwt "public-keys" variable to value "{ }"
+    And I successfully set authn-jwt "issuer" variable to value "valid-issuer"
+    When I GET "/authn-jwt/raw/cucumber/status"
+    Then the HTTP response status code is 500
+    And the authenticator status check fails with error "CONJ00120E Failed to parse 'public-keys': Type can't be blank, Type '' is not a valid public-keys type, and Value can't be blank"

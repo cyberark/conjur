@@ -369,6 +369,31 @@ Feature: JWT Authenticator - Check registered claim
     CONJ00011E Failed to discover Identity Provider (Provider URI: 'incorrect.com'). Reason: '#<AttrRequired::AttrMissing: 'host' required.>'
     """
 
+  @skip
+  Scenario: ONYX-15323: public-keys with invalid issuer variable
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/public-keys
+    - !variable conjur/authn-jwt/raw/issuer
+    """
+    And I successfully set authn-jwt public-keys variable to value from remote JWKS endpoint "authn-jwt-check-standard-claims" and alg "RS256"
+    And I successfully set authn-jwt "issuer" variable to value "invalid-issuer"
+    And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
+    """
+    {
+      "host":"myapp",
+      "project_id": "myproject",
+      "iss": "valid-issuer"
+    }
+    """
+    And I save my place in the audit log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIssuerError: Invalid issuer. Expected invalid-issuer, received valid-issuer>')>
+    """
+
   @sanity
   Scenario Outline: Audience tests
     Given I extend the policy with:

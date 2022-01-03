@@ -22,6 +22,16 @@ Given(/I successfully set authn-jwt "([^"]*)" variable in keycloack service to "
   create_jwt_secret_with_oidc_as_provider_uri(variable_name: variable, value: value)
 end
 
+Given(/I successfully set authn-jwt public-keys variable with value from "([^"]*)" endpoint/) do |filename|
+  get("#{JwtJwksHelper::JWKS_BASE_URI}/#{filename}")
+  create_public_keys_from_response_body
+end
+
+Given(/^I successfully set authn-jwt public-keys variable to value from remote JWKS endpoint "([^"]*)" and alg "([^"]*)"$/) do |file_name, alg|
+  init_jwks_remote_file(file_name, alg)
+  create_public_keys_from_response_body
+end
+
 When(/I authenticate via authn-jwt using given ([^"]*) service ID and without account in url/) do |service_id|
   authenticate_jwt_token(jwt_token, service_id)
 end
