@@ -171,22 +171,35 @@ intentional design choice, given our extensive use of path parameters with
 sensitive values.
 
   
-##### Conjur Resources
+##### Conjur Policy Resources
 
 Resources managed by Conjur (i.e. roles, resources, hosts, etc).
 
 - Metrics
-  - `conjur_server_policy_*`: Total count of particular types of resources stored by Conjur, such as hosts, variables and users.
+  - `conjur_server_policy_(roles|resources)`: Total count of particular types of resources stored by Conjur, such as hosts, variables and users.
 - Labels
   - `kind`: Resource type.
-  - 
 
-**TODO:** We need to dive in and understand the feasibility of counting Conjur resources in a granular way that allows each data point to contain the kind label. The count for any given resource type can change only as a result of policy loading. This means that the count must be determined and stored on every policy load. There are some questions around this
-  1. Does the operation of policy loading alone give us the information about the counts ?
-  2. If not (1), then do we need to query the database separately to determine the counts ? If so, how costly is this, how bad can this get, and can it be justified ?
-  3. Is the approach resilient to parallel policy loads ?
-  
-  
+These resources are potentially modified any time that [policy is loaded](https://github.com/cyberark/conjur/blob/master/app/controllers/policies_controller.rb#L43). For each policy load the counts needs to be determined using the query shown below.
+```
+kind = ::Sequel.function(:kind, :resource_id)
+Resource.group_and_count(kind).each do |record|
+  # ...
+end
+```
+
+NOTE: It might be possible to keep the counts in the database. This would mitigate any concerns about the performance of the group and count query.
+
+##### Conjur Authenticators
+
+- Metrics
+  - `conjur_server_authenticators`: Gauge of current total count of configured authenticators within Conjur.
+- Labels
+  - `type`: The authenticator type: `k8s`, `jwt`, `azure`, etc.
+  - `status`: Current status of the authenticator: `configured`, `enabled`.
+
+The configured authenticators are potentially modified whenever the [update action](https://github.com/cyberark/conjur/blob/master/app/domain/authentication/update_authenticator_config.rb) is invoked, it is then that the counts must be [determined](https://github.com/cyberark/conjur/blob/master/app/domain/authentication/installed_authenticators.rb#L23).
+
 ### User Interface
 [//]: # "Describe user interface (including command structure, inputs/outputs, etc where relevant)"
 
@@ -206,14 +219,77 @@ This section details the architecture and implementation details.
 ### Gathering metrics and exposing the `/metrics` endpoint
 
 [Prometheus client ruby](https://github.com/prometheus/client_ruby) provides a nice and standard API for collecting and exposing metrics (`Prometheus::Client::Formats::Text.marshal(registry)`) in the desired format. It also provide examples of Rack middleware for tracing all HTTP requests ([collector](https://github.com/prometheus/client_ruby/blob/master/lib/prometheus/middleware/collector.rb)) and exposing a metrics HTTP endpoint to be scraped by a Prometheus server ([exporter](https://github.com/prometheus/client_ruby/blob/master/lib/prometheus/middleware/exporter.rb))
- 
-#### Gathering metrics
 
-The goal here is to have a flexible and extensible mechanism for gathering metrics. At present there are 2 types of metrics that we are currently interested in: HTTP requests and Conjur resource counts. The points where the information for these metrics becomes available can be different, for example HTTP requests can be instrumented through Rack middleware while resource counts must be dynamically determine after policy is run. To avoid coupling the implementation with the points where the metric information is available we must make use of patterns like
- 1. Dependency injection, so that the Prometheus registry used for recording metrics can be passed in where it is needed. This also allows for easier testing
- 2. Pub/sub, so that the places where the information becomes available for metrics contains no implementation-specific code and we instead publish the metric information and delegate the collection to some subscriber that contains the implementation-specific code.
-    
-    NOTE: The hackathon project makes use of `ActiveSupport::Notifications`, which provides a pub/sub pattern that is native to Rails. **TODO:** confirm if this is [blocking](https://stackoverflow.com/questions/16651321/activesupportnotifications-should-be-async) or is async. 
+### Code design for instrumentation
+
+There are 2 categories of metrics that we are interested in collecting. 
+1. At the level of entire requests, and generally concerned with the request URL
+2. More granular, and concerned with actions taking place deep with any given request cycle
+
+One of the design goals is to decouple the normal operation of Conjur, the collection of metrics and the publishing of metrics. 
+
+**The pub/sub pattern** is one way in which this goal can be achieved, we can use pub/sub to bridge the gap between where the metrics are collected and where the metrics are published. A viable option that is native to Rails is `ActiveSupport::Notifications.instrument` , which is synchronous in calling its subscribes when an event is published and would rely on the guarantee that any given subscriber has negligible overhead.
+
+A different implementation of pub/sub has been suggested over at  https://github.com/cyberark/conjur/pull/2446/, using the Gem `rails_semantic_logger`. This has similar benefits to using `ActiveSupport::Notifications` but specifically comes baked in with logs and metrics considerations.  For the goals of this project we do not have sufficient justification to assume this dependency, especially since we don't currently have use for the logs and metrics capabilities.
+
+**The decorator pattern** can be used to separated the normal operation of Conjur from the collection of metrics. This allows us to wrap the normal operation of Conjur and extend it in such a way that the the code for the normal operation lives in a separate place to the code making measurements and publishing to our pub/sub implementation.
+
+
+#### Request instrumentation
+
+Conjur is a Rails server. Rails has a native way to get visibility into all incoming requests,   Rack middleware. It's essentially the decorator pattern in action. We can define our own Rack midldeware that can wrap around all incoming requests and collect metrics at the granulariy of endpoints.
+
+The Rack middleware currently implemented in the hackathon branch is tied to writing metrics into the Prometheus store. To provide a more flexible option, this middleware could gather request metrics and publish them using `ActiveSupport::Notifications.instrument`.
+
+#### Intra-requirest instrumentation
+
+Below is an example of using the decorate pattern and the pub sub.
+
+Decorate the controller by extending instance methods, so that when policy loads the extension logic will publish onto the pub/sub.
+```
+module InstrumentPoliciesController
+	private
+
+	def on_load_policy(policy)
+		# Call the original method (which is likely a no-op)
+		super
+
+		# TODO: make this logic conditional on configuration, otherwise no-op
+		ActiveSupport::Notifications.instrument("policy_loaded.conjur", this: policy)
+
+	end
+end
+
+class PoliciesController < RestController
+	# Decorate the policy controller
+	prepend InstrumentPoliciesController
+
+	private
+
+	def on_load_policy(policy)
+	end
+
+	def load_policy(action, loader_class, delete_permitted)
+
+		# ...
+
+		on_load_policy(policy)
+
+	    # ...
+	end
+end
+```
+
+In a separate file, subscribe to the policy loaded event and update metrics accordingly.
+```
+# Subscribe to Conjur ActiveSupport events for metric updates
+
+ActiveSupport::Notifications.subscribe("policy_loaded.conjur") do
+	# Update the resource counts after policy loads
+	update_resource_count_metric(registry)
+end
+```
+
  
 ### Flow Diagrams
 [//]: # "Describe flow of main scenarios in the system. The description should include if / else decisions and loops"
@@ -259,7 +335,6 @@ This feature affects the **Conjur Open Source** component, which propagates to t
 
 ## Test Plan
   
-**TODO:** Elaborate on the test plan. Some thoughts on testing metrics telemetry
   1. The functionality of metrics telemetry can be unit-tested. In unit tests we can compare, for any given action, the value registered by prometheus against the base truth. This validates how we are measuring.
 
 
@@ -314,8 +389,16 @@ This feature affects the **Conjur Open Source** component, which propagates to t
 [//]: # "Fill in the table below to depict the tests that should run to validate your solution"
 [//]: # "You can use this tool to generate a table - https://www.tablesgenerator.com/markdown_tables#"
 
-**TODO:** Elaborate on the performance test. Some thoughts
-1. Performance testing can be carried out by introducing a particular load to Conjur with and without telemetry, and comparing the statistics.
+Some performance testing tools
+1. Artillery https://www.artillery.io/
+2. ab
+3. vegeta https://github.com/tsenart/vegeta
+
+The overhead for writing metrics into the Prometheus registry is neglible, because everything is taking place in-memory.
+Maintain resource counts raises concerns about performance. However, if any group and count query can be guaranteed to be low-to-sub millisecond then this can be ignored. 
+
+1. TODO: Compare metrics from one of the tools above and metrics collected internally
+1. TODO: For a fully loaded DB, how costly is a count query ? If expensive are there small changes that could make this cheaper, for example keeping a count on the database (perhaps via some stored procedure) ?
 
 | **Scenario** | **Spec** | **Environment(s)** | **Comments** |
 |--------------|----------|--------------------|--------------|
@@ -376,7 +459,11 @@ N/A
 - Does the current implementation ensure that Conjur subprocesses (forks) provide a unified view of the metrics ?
 - How do we effeciently determine resource count (granular to the resource type)?
 - Distributed counts, how are counts aggregated between different nodes ? This should be straightforward when querying from prometheus I think
- 
+- **TODO:** We need to dive in and understand the feasibility of counting Conjur resources in a granular way that allows each data point to contain the kind label. The count for any given resource type can change only as a result of policy loading. This means that the count must be determined and stored on every policy load. There are some questions around this
+  1. Does the operation of policy loading alone give us the information about the counts ?
+  2. If not (1), then do we need to query the database separately to determine the counts ? If so, how costly is this, how bad can this get, and can it be justified ?
+  3. Is the approach resilient to parallel policy loads ?
+
 ## Definition of Done
 
 - Solution designed is approved 
