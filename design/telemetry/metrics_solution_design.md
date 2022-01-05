@@ -23,10 +23,14 @@
       - [Conventions](#conventions)
       - [Metrics](#metrics)
         * [Conjur HTTP Requests](#conjur-http-requests)
-        * [Conjur Resources](#conjur-resources)
+        * [Conjur Policy Resources](#conjur-policy-resources)
+        * [Conjur Authenticators](#conjur-authenticators)
     + [User Interface](#user-interface)
   * [Design](#design)
-    + [Implementation Details](#implementation-details)
+    + [Gathering metrics and exposing the `/metrics` endpoint](#gathering-metrics-and-exposing-the---metrics--endpoint)
+    + [Code design for instrumentation](#code-design-for-instrumentation)
+      - [Request instrumentation](#request-instrumentation)
+      - [Intra-request instrumentation](#intra-request-instrumentation)
     + [Flow Diagrams](#flow-diagrams)
     + [Class / Component Diagrams](#class---component-diagrams)
       - [Class / Details](#class---details)
@@ -241,42 +245,37 @@ Conjur is a Rails server. Rails has a native way to get visibility into all inco
 
 The Rack middleware currently implemented in the hackathon branch is tied to writing metrics into the Prometheus store. To provide a more flexible option, this middleware could gather request metrics and publish them using `ActiveSupport::Notifications.instrument`.
 
-#### Intra-requirest instrumentation
+#### Intra-request instrumentation
 
 Below is an example of using the decorate pattern and the pub sub.
 
 Decorate the controller by extending instance methods, so that when policy loads the extension logic will publish onto the pub/sub.
 ```
 module InstrumentPoliciesController
-	private
+  private
 
-	def on_load_policy(policy)
-		# Call the original method (which is likely a no-op)
-		super
+  def load_policy(action, loader_class, delete_permitted)
+    res = nil
 
-		# TODO: make this logic conditional on configuration, otherwise no-op
-		ActiveSupport::Notifications.instrument("policy_loaded.conjur", this: policy)
+    duration = Benchmark.realtime { res = super }
 
-	end
+    # TODO: we could also make this logic conditional on configuration, otherwise no-op. However
+    # it is unnecessary here because the no-op will be done on the subscription side.
+    ActiveSupport::Notifications.instrument("policy_loaded.conjur", duration: duration)
+
+    res
+  end
 end
 
 class PoliciesController < RestController
-	# Decorate the policy controller
-	prepend InstrumentPoliciesController
+  # Decorate the policy controller
+  prepend InstrumentPoliciesController
 
-	private
+  private
 
-	def on_load_policy(policy)
-	end
-
-	def load_policy(action, loader_class, delete_permitted)
-
-		# ...
-
-		on_load_policy(policy)
-
-	    # ...
-	end
+  def load_policy(action, loader_class, delete_permitted)
+    # ...
+  end
 end
 ```
 
@@ -285,8 +284,8 @@ In a separate file, subscribe to the policy loaded event and update metrics acco
 # Subscribe to Conjur ActiveSupport events for metric updates
 
 ActiveSupport::Notifications.subscribe("policy_loaded.conjur") do
-	# Update the resource counts after policy loads
-	update_resource_count_metric(registry)
+  # Update the resource counts after policy loads
+  update_resource_count_metric(registry)
 end
 ```
 
@@ -479,7 +478,7 @@ N/A
 | **Persona**        | **Name** |
 |--------------------|----------|
 | Team leader        |     Kumbirai Tanekha     |
-| Product owner      |    	Alex Kalish      |
+| Product owner      |      Alex Kalish      |
 | System architect   |          |
 | Security architect |          |
 | QA architect       |          |
