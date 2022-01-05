@@ -5,6 +5,6 @@
 require ::File.expand_path('../config/environment', __FILE__)
 
 require ::File.expand_path('../lib/prometheus/custom_collector.rb', __FILE__)
-use Prometheus::Middleware::CustomCollector, metrics_prefix: 'conjur_http_server'
+use Prometheus::Middleware::CustomCollector
 
 run Rails.application

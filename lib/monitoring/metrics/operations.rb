@@ -1,5 +1,5 @@
-module Prometheus
-  module Middleware
+module Monitoring
+  module Metrics
     OPERATIONS = [
       # AccountsApi (undocumented)
       {

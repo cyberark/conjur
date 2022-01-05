@@ -14,7 +14,8 @@ module Monitoring
 
       def metrics
         @metrics ||= [
-          Metrics::ResourceCount.new
+          Metrics::ResourceCount.new,
+          Metrics::Endpoints.new(metrics_prefix: 'conjur_http_server')
         ]
       end
 

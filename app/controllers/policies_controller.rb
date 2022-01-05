@@ -1,9 +1,29 @@
 # frozen_string_literal: true
 
+# NOTE: This is just a demonstration of the decorator pattern. A more appropriate place to use this is when you want to instrument load_policy.
+# The instrumented version would look something like this:
+# def load_policy
+#  res = nil
+#  duration = Benchmark.realtime { res = super }
+#  ActiveSupport::Notifications.instrument("policy_loaded.conjur", this: policy, duration: duration)
+#  res
+# end
+#
+module InstrumentPoliciesController
+  private
+
+  def on_load_policy(policy)
+    super
+
+    ActiveSupport::Notifications.instrument("policy_loaded.conjur", this: policy)
+  end
+end
+
 class PoliciesController < RestController
   include FindResource
   include AuthorizeResource
-  
+  prepend InstrumentPoliciesController
+
   before_action :current_user
   before_action :find_or_create_root_policy
 
@@ -40,6 +60,9 @@ class PoliciesController < RestController
 
   private
 
+  def on_load_policy(policy)
+  end
+
   def load_policy(action, loader_class, delete_permitted)
     authorize(action)
 
@@ -48,7 +71,7 @@ class PoliciesController < RestController
     created_roles = perform(loaded_policy)
     audit_success(policy)
 
-    ActiveSupport::Notifications.instrument("policy_loaded.conjur", this: policy)
+    on_load_policy(policy)
 
     render(json: {
       created_roles: created_roles,
