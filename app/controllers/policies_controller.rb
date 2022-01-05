@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'method_source'
 
 class PoliciesController < RestController
   include FindResource
@@ -58,11 +59,8 @@ class PoliciesController < RestController
   end
 
   def audit_success(policy)
-    #TODO: Cucumber for scenario when (policy[:policy_log].nil == true)
-    unless policy[:policy_log].nil?
-       policy[:policy_log].lazy.map(&:to_audit_event).each do |event|
-         Audit.logger.log(event)
-       end
+    policy.policy_log.lazy.map(&:to_audit_event).each do |event|
+      Audit.logger.log(event)
     end
   end
 
