@@ -220,9 +220,13 @@ Metrics telemetry is off by default. It can be enabled in the following ways:
 
 This section details the architecture and implementation details.
 
-### Gathering metrics and exposing the `/metrics` endpoint
+### Gathering metrics and exposing the `GET /metrics` endpoint
+
+- `GET /metrics`, the scraping target must be defined on the Conjur HTTP server. Prometheus will periodically consume this endpoint to gather metrics.
 
 [Prometheus client ruby](https://github.com/prometheus/client_ruby) provides a nice and standard API for collecting and exposing metrics (`Prometheus::Client::Formats::Text.marshal(registry)`) in the desired format. It also provide examples of Rack middleware for tracing all HTTP requests ([collector](https://github.com/prometheus/client_ruby/blob/master/lib/prometheus/middleware/collector.rb)) and exposing a metrics HTTP endpoint to be scraped by a Prometheus server ([exporter](https://github.com/prometheus/client_ruby/blob/master/lib/prometheus/middleware/exporter.rb))
+
+For security purposes, Prometheus supports [basic auth](https://prometheus.io/docs/guides/basic-auth/), from Prometheus to the scraping target. We could add support for this within our implementation for convinience, however any production deployment of Conjur will likely use a load balancer which can easily be configured to require basic auth on this endpoint. NOTE that by implementing this internally we can do things like dynamically retrieve the basic auth credentials from Conjur.
 
 ### Code design for instrumentation
 
@@ -312,7 +316,7 @@ end
 
 | **Subject** | **Description** | **Issue Mitigation** |
 |-------------|-----------------|----------------------|
-|             |                 |                      |
+|      Latency on Requests       |      Metrics are collected in and around the request lifecycle. The act of measuring has the potential to increase the latency of the requests, both at the individual level and over time           |         Performance testing to ensure that the overhead due to metrics remains within reasonable bounds even when load is applied for a reasonably long time like a few minutes.             |
 
 ## Backwards Compatibility
 [//]: # "How will the design of this solution impact backwards compatibility? Address how you are going to handle backwards compatibility, if necessary"
@@ -334,7 +338,7 @@ This feature affects the **Conjur Open Source** component, which propagates to t
 
 ## Test Plan
   
-  1. The functionality of metrics telemetry can be unit-tested. In unit tests we can compare, for any given action, the value registered by prometheus against the base truth. This validates how we are measuring.
+This feature can be unitThe components that constitute the implementation of metrics telemetry can be unit-tested. In unit tests we can compare, for any given action, the value registered by prometheus against the base truth. This validates how we are measuring.
 
 
 ### Test Environments
@@ -342,7 +346,9 @@ This feature affects the **Conjur Open Source** component, which propagates to t
 
 | **Feature** | **OS** | **Version Number** |
 |-------------|--------|--------------------|
-|             |        |                    |
+|      Conjur       |     Linux   |                    |
+
+This feature has no special requirements in terms of environment, there the test environment can be limited to Linux running on Docker. 
 
 ### Test Assumptions
 
@@ -360,8 +366,11 @@ This feature affects the **Conjur Open Source** component, which propagates to t
 
 | **Title** | **Given** | **When** | **Then** | **Comment** |
 |-----------|-----------|----------|----------|-------------|
-|           |           |          |          |             |
-|           |           |          |          |             |
+|    Register change in policy resources count       |    An API request is made that modifies policy resource count     |    Metrics are enabled      |   The current policy resource count should be reflected within the Prometheus store        |             |
+|    Register change in authenticator configuration        |    An API request is made that modifies authenticator configuration     |    Metrics are enabled      |   The authenticators count grouped by labels should be reflected within the Prometheus store        |             |
+|    Register metrics around HTTP requests        |    An API request is made    |    Metrics are enabled      |   The difference in the HTTP metrics stored in the Prometheus store before and after the request should reflect the API request     |    
+|    Ignore metrics when not enabled      |    Any API request that modifies values that are typically captured by metrics (policy resouce count, HTTP request metrics etc.)     |    Metrics are not enabled      |   The Prometheus store remains unchanged      |             |
+
 
 #### Security Tests
 
@@ -393,15 +402,14 @@ Some performance testing tools
 2. ab
 3. vegeta https://github.com/tsenart/vegeta
 
-The overhead for writing metrics into the Prometheus registry is neglible, because everything is taking place in-memory.
-Maintain resource counts raises concerns about performance. However, if any group and count query can be guaranteed to be low-to-sub millisecond then this can be ignored. 
-
-1. TODO: Compare metrics from one of the tools above and metrics collected internally
-1. TODO: For a fully loaded DB, how costly is a count query ? If expensive are there small changes that could make this cheaper, for example keeping a count on the database (perhaps via some stored procedure) ?
+The overhead for writing metrics into the Prometheus registry is expected to be neglible, since everything is taking place in-memory.
+Maintaining resource counts raises concerns about performance. However, if any group and count query can be guaranteed to be low-to-sub millisecond then this can be ignored. 
 
 | **Scenario** | **Spec** | **Environment(s)** | **Comments** |
 |--------------|----------|--------------------|--------------|
-|              |          |                    |              |
+|     Typical load (frequent authentication and secret retrieval, interspersed with load loading)        |     Compare metrics from one of the tools above and metrics collected internally       |                    |       This test is to ensure that under typical load the cost of collecting metrics is within reasonable bounds      |
+|     Typical load on populated database        |    Compare metrics from one of the tools above and metrics collected internally        |                    |    This test is to ensure that when the database has a lot of policy resources the cost of collecting metrics remains within reasonable bounds        |
+
 
 ## Logs
 [//]: # "If the logs are listed in the feature doc, add a link to that section. If not, list them here."
@@ -420,20 +428,17 @@ Conjur metrics telemetry will produce a limited number of logs to support it's f
 Documentation for Conjur Metrics Telemetry will include:
 
 1. No official, public, documentation. This particular effort is internal facing 
-2. Documentation for configuring Conjur metrics telemetry
-3. Documentation for integrating Conjur metrics telemetry [with AWS CloudWatch](https://aws.amazon.com/blogs/containers/amazon-cloudwatch-prometheus-metrics-ga/)
+2. Internal documentation for configuring Conjur metrics telemetry
+3. Internal documentation for integrating Conjur metrics telemetry [with AWS CloudWatch](https://aws.amazon.com/blogs/containers/amazon-cloudwatch-prometheus-metrics-ga/)
 4. Source code documentation for adding new metrics (and extending functionality)
 5. Short, simple instructions and scripts for running Prometheus with Conjur OSS
-Update the Secrets Provider application container configuration documentation.
-Add new documentation to describe the push-to-file annotation configuration
-Add documentation for the process to upgrade from the Secrets Provider legacy (environment variable based) configuration to the annotation-based configuration.
 
 ## Security
 [//]: # "Are there any security issues with your solution? Even if you mentioned them somewhere in the doc it may be convenient for the security architect review to have them centralized here"
 
 | **Security Issue** | **Description** | **Resolution** |
 |--------------------|-----------------|----------------|
-|                    |                 |                |
+|       Abuse of the scraping target `GET /metrics`            |       If left public the scraping target could be the subject of abuse.          |      Prometheus supports [basic auth](https://prometheus.io/docs/guides/basic-auth/), from Prometheus to the scraping target. We could add support for this within our implementation for convinience, however any production deployment of Conjur will likely use a load balancer which can easily be configured to require basic auth on this endpoint.          |
 
 ## Infrastructure
 
@@ -448,20 +453,19 @@ Add documentation for the process to upgrade from the Secrets Provider legacy (e
 |               |                 |               |
  -->
 
-N/A
+It is not intended to modify audit logs in any way.
 
 ## Open Questions
 [//]: # "Add any question that is still open. It makes it easier for the reader to have the open questions accumulated here instead of them being acattered along the doc"
 
-- How to authenticate and authorize the metrics endpoint?
-- Enabling/disabling telemetry is intended to not incur any downtime. Are environment variables and file config able to accomodate this, while requiring restarts ?
-- Does the current implementation ensure that Conjur subprocesses (forks) provide a unified view of the metrics ?
-- How do we effeciently determine resource count (granular to the resource type)?
-- Distributed counts, how are counts aggregated between different nodes ? This should be straightforward when querying from prometheus I think
-- **TODO:** We need to dive in and understand the feasibility of counting Conjur resources in a granular way that allows each data point to contain the kind label. The count for any given resource type can change only as a result of policy loading. This means that the count must be determined and stored on every policy load. There are some questions around this
+- Enabling/disabling telemetry is intended to not incur any downtime. Environment variables and file config able to accomodate this, while requiring restarts ?
+<!-- - Does the current implementation ensure that Conjur subprocesses (forks) provide a unified view of the metrics ? -->
+- re: Distributed counts. How are counts aggregated between different nodes ? This should be straightforward when querying from prometheus I think
+- re: Maintaining policy resource counts. We need to dive in and understand the feasibility of counting Conjur resources in a granular way that allows each data point to contain the kind label. The count for any given resource type can change only as a result of policy loading. This means that the count must be determined and stored on every policy load. There are some questions around this
   1. Does the operation of policy loading alone give us the information about the counts ?
   2. If not (1), then do we need to query the database separately to determine the counts ? If so, how costly is this, how bad can this get, and can it be justified ?
   3. Is the approach resilient to parallel policy loads ?
+- re: Performance testing. For a fully loaded DB, how costly is a count query ? If expensive are there small changes that could make this cheaper, for example keeping a count on the database (perhaps via some stored procedure) ?
 
 ## Definition of Done
 
