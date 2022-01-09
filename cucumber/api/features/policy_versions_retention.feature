@@ -24,3 +24,14 @@ Feature: Limit the number of policy versions
     """
     Deleting policy version: {:version=>1, :resource_id=>"cucumber:policy:policy_test_version",
     """
+
+  Scenario: DB migration removes policy versions that exceed to limit
+    Given I save my place in the log file
+    And I successfully POST 21 times "/policies/cucumber/policy/policy_test_version" with body:
+    """
+      - !user bob
+    """    
+    And the HTTP response status code is 201
+    When I migrate the db
+    And I successfully GET "/resources/cucumber/policy/policy_test_version"
+    Then there are 20 "policy_versions" in the response
