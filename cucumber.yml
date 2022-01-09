@@ -122,6 +122,7 @@ authenticators_azure: >
 
 authenticators_jwt: >
   --format pretty
+  --tags "not @skip"
   -r cucumber/api/features/step_definitions/user_steps.rb
   -r cucumber/api/features/step_definitions/request_steps.rb
   -r cucumber/api/features/support/step_def_transforms.rb

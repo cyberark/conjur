@@ -4,3 +4,8 @@
 def secrets_version_limit
   ( ENV['SECRETS_VERSION_LIMIT'] || 20 ).to_i
 end
+
+def policies_version_limit
+  ( ENV['POLICIES_VERSION_LIMIT'] || 20 ).to_i
+end
+

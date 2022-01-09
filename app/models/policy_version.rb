@@ -87,6 +87,62 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     self.policy_sha256 = Digest::SHA256.hexdigest(policy_text)
   end
 
+  def after_save
+    log_versions_to_expire
+    remove_expired_versions
+  rescue => e
+    Rails.logger.error("Error while enforcing version retention limit for policy: '#{id}, #{e.inspect}'")
+  end
+
+  def log_versions_to_expire
+    expired_versions.all.each do |policy_version|
+      Rails.logger.debug(
+        "Deleting policy version: #{policy_version.slice(
+          :version,
+          :resource_id,
+          :role_id,
+          :created_at,
+          :client_ip
+        )}]"
+      )
+    end
+  end
+
+  def expired_versions
+    Sequel::Model.db[<<-SQL, resource_id, policies_version_limit, resource_id]
+      WITH
+      "ordered_versions" AS (
+        SELECT * FROM "policy_versions" WHERE ("resource_id" = ?) ORDER BY "version" DESC LIMIT ?
+      )
+      SELECT * FROM "policy_versions" LEFT JOIN "ordered_versions" 
+      USING (
+        "resource_id", 
+        "version",
+        "role_id",
+        "created_at",
+        "client_ip"
+      )
+      WHERE (("ordered_versions"."resource_id" IS NULL) AND ("resource_id" = ?))
+    SQL
+  end
+
+  def remove_expired_versions
+    Sequel::Model.db[<<-SQL, resource_id, policies_version_limit, resource_id].delete
+      WITH
+        "ordered_versions" AS (
+          SELECT * FROM "policy_versions" WHERE ("resource_id" = ?) ORDER BY "version" DESC LIMIT ?
+        ),
+        "delete_versions" AS (
+          SELECT * FROM "policy_versions" LEFT JOIN "ordered_versions" USING ("resource_id", "version") 
+          WHERE (("ordered_versions"."resource_id" IS NULL) AND ("resource_id" = ?))
+        )
+      DELETE FROM "policy_versions"
+      USING "delete_versions" 
+      WHERE "policy_versions"."resource_id" = "delete_versions"."resource_id" AND
+            "policy_versions"."version" = "delete_versions"."version"
+    SQL
+  end
+
   def before_update
     raise Sequel::ValidationFailed, "Policy version cannot be updated once created"
   end
