@@ -10,54 +10,54 @@
 [//]: # "You can use this tool to generate a TOC - https://ecotrust-canada.github.io/markdown-toc/"
 
 - [Solution Design - Conjur Metrics Telemetry](#solution-design---conjur-metrics-telemetry)
-  * [Table of Contents](#table-of-contents)
-  * [Glossary](#glossary)
-  * [Useful Links](#useful-links)
-  * [Background](#background)
-    + [Conjur Metrics Telemetry](#conjur-metrics-telemetry)
-  * [Issue Description](#issue-description)
-  * [Solution](#solution)
-    + [Solution overview](#solution-overview)
-    + [Rationale](#rationale)
-    + [Instrumented Metrics](#instrumented-metrics)
+  - [Table of Contents](#table-of-contents)
+  - [Glossary](#glossary)
+  - [Useful Links](#useful-links)
+  - [Background](#background)
+    - [Conjur Metrics Telemetry](#conjur-metrics-telemetry)
+  - [Issue Description](#issue-description)
+  - [Solution](#solution)
+    - [Solution overview](#solution-overview)
+    - [Rationale](#rationale)
+    - [Instrumented Metrics](#instrumented-metrics)
       - [Conventions](#conventions)
       - [Metrics](#metrics)
-        * [Conjur HTTP Requests](#conjur-http-requests)
-        * [Conjur Policy Resources](#conjur-policy-resources)
-        * [Conjur Authenticators](#conjur-authenticators)
-    + [User Interface](#user-interface)
-  * [Design](#design)
-    + [Gathering metrics and exposing the `/metrics` endpoint](#gathering-metrics-and-exposing-the---metrics--endpoint)
-    + [Code design for instrumentation](#code-design-for-instrumentation)
+        - [Conjur HTTP Requests](#conjur-http-requests)
+        - [Conjur Policy Resources](#conjur-policy-resources)
+        - [Conjur Authenticators](#conjur-authenticators)
+    - [User Interface](#user-interface)
+  - [Design](#design)
+    - [Gathering metrics and exposing the `/metrics` endpoint](#gathering-metrics-and-exposing-the---metrics--endpoint)
+    - [Code design for instrumentation](#code-design-for-instrumentation)
       - [Request instrumentation](#request-instrumentation)
       - [Intra-request instrumentation](#intra-request-instrumentation)
-    + [Flow Diagrams](#flow-diagrams)
-    + [Class / Component Diagrams](#class---component-diagrams)
+    - [Flow Diagrams](#flow-diagrams)
+    - [Class / Component Diagrams](#class---component-diagrams)
       - [Class / Details](#class---details)
-    + [Sequence Diagrams](#sequence-diagrams)
-    + [External Interfaces](#external-interfaces)
-  * [Performance](#performance)
-  * [Backwards Compatibility](#backwards-compatibility)
-  * [Affected Components](#affected-components)
-  * [Work in Parallel](#work-in-parallel)
-  * [Test Plan](#test-plan)
-    + [Test Environments](#test-environments)
-    + [Test Assumptions](#test-assumptions)
-    + [Out of Scope](#out-of-scope)
-    + [Prerequisites](#prerequisites)
-    + [Test Cases (Including Performance)](#test-cases--including-performance-)
+    - [Sequence Diagrams](#sequence-diagrams)
+    - [External Interfaces](#external-interfaces)
+  - [Performance](#performance)
+  - [Backwards Compatibility](#backwards-compatibility)
+  - [Affected Components](#affected-components)
+  - [Work in Parallel](#work-in-parallel)
+  - [Test Plan](#test-plan)
+    - [Test Environments](#test-environments)
+    - [Test Assumptions](#test-assumptions)
+    - [Out of Scope](#out-of-scope)
+    - [Prerequisites](#prerequisites)
+    - [Test Cases (Including Performance)](#test-cases--including-performance-)
       - [Functional Tests](#functional-tests)
       - [Security Tests](#security-tests)
       - [Error Handling / Recovery / Supportability tests](#error-handling---recovery---supportability-tests)
       - [Performance Tests](#performance-tests)
-  * [Logs](#logs)
-  * [Documentation](#documentation)
-  * [Security](#security)
-  * [Infrastructure](#infrastructure)
-  * [Audit](#audit)
-  * [Open Questions](#open-questions)
-  * [Definition of Done](#definition-of-done)
-  * [Solution Review](#solution-review)
+  - [Logs](#logs)
+  - [Documentation](#documentation)
+  - [Security](#security)
+  - [Infrastructure](#infrastructure)
+  - [Audit](#audit)
+  - [Open Questions](#open-questions)
+  - [Definition of Done](#definition-of-done)
+  - [Solution Review](#solution-review)
 
 ## Glossary
 [//]: # "Describe terms that will be used throughout the design"
@@ -102,8 +102,9 @@ It is already possible to monitor a Conjur system through external measures, for
 ### Solution overview
 
 - Gather Conjur-specific metrics in the OSS server application. These include:
-  - API call response codes and durations. API calls identified by their Open API Spec `operationId`.
+  - API call response codes and durations (measured to only take into account the impact of all the Rack middleware components, including Rails). API calls identified by their [Open API Spec `operationId`]](https://github.com/cyberark/conjur-openapi-spec/blob/main/spec/authentication.yml#L158).
   - Current count of policy resources (e.g. hosts, secrets)
+  - Current count of configured authenticators
 - Conjur service instance exposes metrics in the [Prometheus metric export
   format](https://github.com/prometheus/docs/blob/master/content/docs/instrumenting/exposition_formats.md)
   at the `/metrics` API endpoint. This allows time-series collection via a pull model over HTTP.
@@ -165,10 +166,10 @@ HTTP requests into Conjur.
   - `conjur_http_server_requests_total`: Total number of HTTP requests as
     count. 
   - `conjur_http_server_request_duration_seconds`: Duration of HTTP requests as
-    gauge in seconds.
+    gauge in seconds. Measured to only take into account the impact of all the Rack middleware components, including Rails.
 - Labels
   - `code`: HTTP status code, such as `200` or `301`.
-  - `operation`: The Open API Spec `operationId` for each requested endpoint.
+  - `operation`: The [Open API Spec `operationId`](https://github.com/cyberark/conjur-openapi-spec/blob/main/spec/authentication.yml#L158) for each requested endpoint.
 
 *Note*: Some may noticed the absence of `path` in the labels above. This is an
 intentional design choice, given our extensive use of path parameters with
@@ -236,7 +237,8 @@ There are 2 categories of metrics that we are interested in collecting.
 
 One of the design goals is to decouple the normal operation of Conjur, the collection of metrics and the publishing of metrics. 
 
-**The pub/sub pattern** is one way in which this goal can be achieved, we can use pub/sub to bridge the gap between where the metrics are collected and where the metrics are published. A viable option that is native to Rails is `ActiveSupport::Notifications.instrument` , which is synchronous in calling its subscribes when an event is published and would rely on the guarantee that any given subscriber has negligible overhead.
+**The pub/sub pattern** is one way in which this goal can be achieved, we can use pub/sub to bridge the gap between where the metrics are collected and where the metrics are published. A viable option that is native to Rails is `ActiveSupport::Notifications.instrument` , which is synchronous in calling its subscribes when an event is published and would rely on the guarantee that any given subscriber has negligible overhead. It's reassuring that this pub/sub pattern is recommended for decoupling when integrating with this [Rails monitoring solution](https://blog.appoptics.com/monitoring-rails-get-hidden-metrics-rails-app/) out in the wild.
+
 
 A different implementation of pub/sub has been suggested over at  https://github.com/cyberark/conjur/pull/2446/, using the Gem `rails_semantic_logger`. This has similar benefits to using `ActiveSupport::Notifications` but specifically comes baked in with logs and metrics considerations.  For the goals of this project we do not have sufficient justification to assume this dependency, especially since we don't currently have use for the logs and metrics capabilities.
 
@@ -407,8 +409,8 @@ Maintaining resource counts raises concerns about performance. However, if any g
 
 | **Scenario** | **Spec** | **Environment(s)** | **Comments** |
 |--------------|----------|--------------------|--------------|
-|     Typical load (frequent authentication and secret retrieval, interspersed with load loading)        |     Compare metrics from one of the tools above and metrics collected internally       |                    |       This test is to ensure that under typical load the cost of collecting metrics is within reasonable bounds      |
-|     Typical load on populated database        |    Compare metrics from one of the tools above and metrics collected internally        |                    |    This test is to ensure that when the database has a lot of policy resources the cost of collecting metrics remains within reasonable bounds        |
+|     Typical load (frequent authentication and secret retrieval, interspersed with load loading)        |     Compare the statistics of the scenario between Conjur with and without metrics collection       |                    |       This test is to ensure that under typical load the cost of collecting metrics is within reasonable bounds      |
+|     Typical load on populated database        |    Compare the statistics of the scenario between Conjur with and without metrics collection        |                    |    This test is to ensure that when the database has a lot of policy resources the cost of collecting metrics remains within reasonable bounds        |
 
 
 ## Logs
