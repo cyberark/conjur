@@ -24,7 +24,7 @@ gem 'rails'
 gem 'rake'
 
 gem 'pg'
-gem 'sequel'
+gem 'sequel', '~> 5.51.0'
 gem 'sequel-pg_advisory_locking'
 gem 'sequel-postgres-schemata', require: false
 gem 'sequel-rails'
