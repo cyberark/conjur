@@ -33,7 +33,7 @@ module Authentication
     end
   end
 
-  class InitializeAuth
+  class PersistAuth
     extend CommandClass::Include
 
     command_class(

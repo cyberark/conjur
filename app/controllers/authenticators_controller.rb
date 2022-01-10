@@ -70,7 +70,7 @@ class AuthenticatorsController < RestController
 
   def initialize_specific_auth(auth_dataclass, auth_initializer=Authentication::Default::InitializeDefaultAuth)
     auth_data = auth_dataclass.new(request.raw_post)
-    Authentication::InitializeAuth.new(
+    Authentication::PersistAuth.new(
       auth_initializer: auth_initializer.new
     ).(
       conjur_account: params[:account],

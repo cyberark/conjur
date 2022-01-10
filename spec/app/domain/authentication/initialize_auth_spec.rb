@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe(Authentication::InitializeAuth) do
+RSpec.describe(Authentication::PersistAuth) do
 
   def create_auth_data(valid:, auth_name:)
     double("AuthData").tap do |data|
@@ -32,7 +32,7 @@ RSpec.describe(Authentication::InitializeAuth) do
     }
 
     subject(:initialize_auth) {
-      Authentication::InitializeAuth.new(
+      Authentication::PersistAuth.new(
         logger: Rails.logger,
         auth_initializer: auth_initializer,
         policy_loader: policy_loader
