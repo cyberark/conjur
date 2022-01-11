@@ -171,8 +171,14 @@ desc "Manage the database"
 command :db do |cgrp|
   cgrp.desc "Create and/or upgrade the database schema"
   cgrp.command :migrate do |c|
+    c.desc "Provide a preview report of what will be deleted during the db migration"
+    c.arg_name("preview")
+    c.switch("preview", negatable: false)
+
     c.action do |global_options,options,args|
-      Commands::DB::Migrate.new.call
+      Commands::DB::Migrate.new.call(
+        preview: options[:preview]
+      )
     end
   end
 end

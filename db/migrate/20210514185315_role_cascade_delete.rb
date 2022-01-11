@@ -21,20 +21,16 @@
 #       handled by improvements to the policy load orchestration to ensure role
 #       records are removed when the resource record is removed.
 
+Dir[File.dirname(__FILE__) + '/../../app/db/preview/*.rb'].each do |file|
+  require file
+end
+
 Sequel.migration do
   up do
     def delete_latent_credentials
       # Query for all credentials that have no corresponding role
-      latent_credentials = Sequel::Model.db[
-        <<~SQL
-          SELECT * FROM credentials
-          WHERE NOT EXISTS (
-            SELECT 1 FROM roles
-            WHERE credentials.role_id = role_id
-          )
-        SQL
-        ]
-  
+      latent_credentials = ::DB::Preview::CredentialsWithoutRoles.new.gather_data
+
       # Don't do anything if there are no latent credentials
       return if latent_credentials.count.zero?
   
@@ -45,20 +41,13 @@ Sequel.migration do
       )
   
       # Print the role ID for deleted credentials
-      latent_credentials.map(:role_id).each do |role_id|
-        $stderr.puts("\t#{role_id}")
+      latent_credentials.each do |credential|
+        $stderr.puts("\t#{credential.role_id}")
+
+        credential.delete
       end
-  
-      # Delete the latent credentials
-      execute(<<-SQL)
-        DELETE FROM credentials
-        WHERE NOT EXISTS (
-          SELECT 1 FROM roles
-          WHERE credentials.role_id = role_id
-        )
-      SQL
     end
-  
+
     def add_credentials_cascade_delete
       # Create cascade delete relationship between role and credentials so when
       # a role is deleted its credentials are deleted too
@@ -70,16 +59,7 @@ Sequel.migration do
     def delete_latent_roles
       # Query for all roles that were created by policy but have no
       # corresponding resource now.
-      latent_roles = Sequel::Model.db[
-        <<~SQL
-          SELECT * FROM roles
-          WHERE NOT EXISTS (
-            SELECT 1 FROM resources
-            WHERE roles.role_id = resource_id
-          )
-          AND policy_id IS NOT NULL
-        SQL
-        ]
+      latent_roles = ::DB::Preview::RolesWithoutResources.new.gather_data
   
       # Don't do anything if there are no latent roles
       return if latent_roles.count.zero?
@@ -91,19 +71,11 @@ Sequel.migration do
       )
   
       # Print the ID for deleted roles
-      latent_roles.map(:role_id).each do |role_id|
-        $stderr.puts("\t#{role_id}")
+      latent_roles.each do |role|
+        $stderr.puts("\t#{role.role_id}")
+
+        role.delete
       end
-  
-      # Delete the latent roles
-      execute(<<~SQL)
-        DELETE FROM roles
-        WHERE NOT EXISTS (
-          SELECT 1 FROM resources
-          WHERE roles.role_id = resource_id
-        )
-        AND policy_id IS NOT NULL
-      SQL
     end
 
     delete_latent_credentials
