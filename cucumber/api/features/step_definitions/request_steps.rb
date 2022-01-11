@@ -95,17 +95,6 @@ When(/^I( (?:can|successfully))? POST "([^"]*)"(?: with plain text body "([^"]*)
     post_json path, body
   end
 end
-# "/authn/cucumber/alice/authenticate" with no Content-Type and body ":cucumber:user:alice_api_key"
-# And
-When(/I can authenticate Alice with no Content-Type header/) do
-  headers['Content-Type'] = nil
-  try_request true do
-    post_json(
-      "/authn/cucumber/alice/authenticate",
-      ":cucumber:user:alice_api_key"
-    )
-  end
-end
 
 When(/^I( (?:successfully|can))? authenticate Alice (?:(\d+) times? in (\d+) threads? )?with Accept-Encoding header "([^"]*)"(?: with plain text body "([^"]*)")?$/) do |can, requests_num, threads_num, header, body|
   body ||= ":cucumber:user:alice_api_key"
