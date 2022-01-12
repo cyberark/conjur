@@ -4,30 +4,20 @@ require 'spec_helper'
 
 RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey') do
 
-  let(:authenticator_name) { 'authn-jwt' }
-  let(:service_id) { "my-service" }
-  let(:account) { 'my-account' }
-  let(:mocked_authenticator_input) {
-    Authentication::AuthenticatorInput.new(
-      authenticator_name: authenticator_name,
-      service_id: service_id,
-      account: account,
-      username: "dummy_identity",
-      credentials: "dummy",
-      client_ip: "dummy",
-      request: "dummy"
-    )
+  let(:log_output) { StringIO.new }
+  let(:logger) {
+    Logger.new(
+      log_output,
+      formatter: proc do | severity, time, progname, msg |
+        "#{severity},#{msg}\n"
+      end)
   }
 
-  let(:required_provider_uri_configuration_error) { "required provider_uri configuration missing error" }
+  let(:provider_uri) { "https://provider-uri.com/provider" }
   let(:required_discover_identity_error) { "Provider uri identity error" }
-  let(:required_secret_missing_error) { "required secret missing error" }
-
   let(:mocked_logger) { double("Mocked Logger")  }
   let(:mocked_fetch_signing_key) { double("MockedFetchSigningKey") }
   let(:mocked_fetch_signing_key_refresh_value) { double("MockedFetchSigningKeyRefreshValue") }
-  let(:mocked_fetch_authenticator_secrets_exist_values)  {  double("MockedFetchAuthenticatorSecrets") }
-  let(:mocked_fetch_authenticator_secrets_empty_values)  {  double("MockedFetchAuthenticatorSecrets") }
   let(:mocked_discover_identity_provider) { double("Mocked discover identity provider")  }
   let(:mocked_invalid_uri_discover_identity_provider) { double("Mocked invalid uri discover identity provider")  }
   let(:mocked_provider_uri) { double("Mocked provider uri")  }
@@ -51,14 +41,6 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey
     allow(mocked_fetch_signing_key).to receive(:call) { |params| params[:signing_key_provider].fetch_signing_key }
     allow(mocked_fetch_signing_key_refresh_value).to receive(:call) { |params| params[:refresh] }
 
-    allow(mocked_fetch_authenticator_secrets_exist_values).to(
-      receive(:call).and_return('provider-uri' => 'https://provider-uri.com/provider')
-    )
-
-    allow(mocked_fetch_authenticator_secrets_empty_values).to(
-      receive(:call).and_raise(required_secret_missing_error)
-    )
-
     allow(mocked_discover_identity_provider).to(
       receive(:call).and_return(mocked_provider_uri)
     )
@@ -81,10 +63,9 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey
     context "propagates refresh value" do
       context "false" do
         subject do
-          ::Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey.new(authenticator_input: mocked_authenticator_input,
+          ::Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey.new(provider_uri: provider_uri,
                                                                                  fetch_signing_key: mocked_fetch_signing_key_refresh_value,
                                                                                  logger: mocked_logger,
-                                                                                 fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
                                                                                  discover_identity_provider: mocked_discover_identity_provider
           ).call(force_fetch: false)
         end
@@ -96,10 +77,9 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey
 
       context "true" do
         subject do
-          ::Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey.new(authenticator_input: mocked_authenticator_input,
+          ::Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey.new(provider_uri: provider_uri,
                                                                                  fetch_signing_key: mocked_fetch_signing_key_refresh_value,
                                                                                  logger: mocked_logger,
-                                                                                 fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
                                                                                  discover_identity_provider: mocked_discover_identity_provider
           ).call(force_fetch: true)
         end
@@ -110,13 +90,12 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey
       end
     end
 
-    context "'provider-uri' variable is configured in authenticator policy" do
-      context "'provider-uri' value is invalid" do
+    context "'provider-uri' value is" do
+      context "invalid" do
         subject do
-          ::Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey.new(authenticator_input: mocked_authenticator_input,
+          ::Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey.new(provider_uri: provider_uri,
                                                                                  fetch_signing_key: mocked_fetch_signing_key,
                                                                                  logger: mocked_logger,
-                                                                                 fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
                                                                                  discover_identity_provider: mocked_invalid_uri_discover_identity_provider
           ).call(force_fetch: false)
         end
@@ -126,18 +105,21 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey
         end
       end
 
-      context "'provider-uri' value is valid" do
+      context "valid" do
         subject do
-          ::Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey.new(authenticator_input: mocked_authenticator_input,
+          ::Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey.new(provider_uri: provider_uri,
                                                                                  fetch_signing_key: mocked_fetch_signing_key,
-                                                                                 logger: mocked_logger,
-                                                                                 fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_exist_values,
+                                                                                 logger: logger,
                                                                                  discover_identity_provider: mocked_discover_identity_provider
           ).call(force_fetch: false)
         end
 
-        it "does not raise error" do
+        it "does not raise error and write appropriate logs" do
           expect(subject).to eql(valid_jwks_result)
+          expect(log_output.string.split("\n")).to eq([
+                                                        "INFO,CONJ00072I Fetching JWKS from 'https://provider-uri.com/provider'...",
+                                                        "DEBUG,CONJ00009D Fetched Identity Provider keys from provider successfully"
+                                                      ])
         end
       end
     end
