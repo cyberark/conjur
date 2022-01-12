@@ -1,4 +1,4 @@
-FROM cyberark/ubuntu-ruby-fips:1.0.6
+FROM cyberark/ubuntu-ruby-fips:latest
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PORT=80 \
