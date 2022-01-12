@@ -3,6 +3,7 @@
 module Policy
   class LoadPolicy
     include AuthorizeResource
+    attr_reader :logger
 
     def initialize(loader_class: Loader::ModifyPolicy, audit_logger: ::Audit.logger, logger: Rails.logger)
       @loader_class = loader_class
@@ -24,19 +25,11 @@ module Policy
       created_roles = perform(loaded_policy)
       audit_success(policy)
 
-      return {created_roles: created_roles, policy: policy}
+      { created_roles: created_roles, policy: policy }
     rescue => e
       audit_failure(e, action, current_user, client_ip)
       raise e
     end
-
-    protected
-
-    def logger
-      @logger
-    end
-
-    private
 
     def audit_success(policy)
       policy.policy_log.lazy.map(&:to_audit_event).each do |event|
@@ -92,7 +85,5 @@ module Policy
         memo[role_id] = { id: role_id, api_key: credentials.api_key }
       end
     end
-
   end
 end
-
