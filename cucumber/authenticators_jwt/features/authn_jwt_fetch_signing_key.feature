@@ -727,3 +727,69 @@ Feature: JWT Authenticator - Fetch signing key
     When I GET "/authn-jwt/raw/cucumber/status"
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00120E Failed to parse 'public-keys': Type can't be blank, Type '' is not a valid public-keys type, and Value can't be blank"
+
+  Scenario: JWKS URI with bad value and no issuer - Status And Authentication return same error
+    Given I load a policy:
+    """
+    - !policy
+      id: conjur/authn-jwt/raw
+      body:
+      - !webservice
+
+      - !variable
+        id: jwks-uri
+
+      - !variable
+        id: token-app-property
+
+      - !group hosts
+
+      - !permit
+        role: !group hosts
+        privilege: [ read, authenticate ]
+        resource: !webservice
+
+      - !webservice
+        id: status
+        annotations:
+          description: Status service to check that the authenticator is configured correctly
+
+      - !group
+          id: operators
+          annotations:
+            description: Group of users who can check the status of the authenticator
+
+      - !permit
+        role: !group operators
+        privilege: [ read ]
+        resource: !webservice status
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/project_id: myproject
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I am the super-user
+    And I successfully set authn-jwt "jwks-uri" variable to value "unknown-host.com"
+    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I am using file "authn-jwt-fetch-signing-key" and alg "RS256" for remotely issue token:
+    """
+    {
+      "host":"myapp",
+      "project_id": "myproject"
+    }
+    """
+    And I save my place in the log file
+    When I GET "/authn-jwt/raw/cucumber/status"
+    Then the HTTP response status code is 500
+    And the authenticator status check fails with error "CONJ00087E Failed to fetch JWKS from 'unknown-host.com'"
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+    CONJ00087E Failed to fetch JWKS from 'unknown-host.com'
+    """
