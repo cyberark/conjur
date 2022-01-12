@@ -338,7 +338,7 @@ Feature: JWT Authenticator - Status Check
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
     Then the HTTP response status code is 500
-    And the authenticator status check fails with error "CONJ00078E Issuer authenticator configuration is invalid"
+    And the authenticator status check fails with error "CONJ00086E Signing key URI configuration is invalid"
 
   Scenario: ONYX-9141: Identity is configured but empty, 500 Error
     Given I load a policy:
@@ -649,7 +649,7 @@ Feature: JWT Authenticator - Status Check
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
     Then the HTTP response status code is 500
-    And the authenticator status check fails with error "CONJ00079E Failed to extract hostname from URI 'unknow-host.com'"
+    And the authenticator status check fails with error "CONJ00087E Failed to fetch JWKS from 'unknow-host.com'"
 
   @sanity
   Scenario: ONYX-9516: Identify-path is configured but empty, 500 Error
