@@ -588,6 +588,11 @@ module Errors
         msg: "Signing key type '{0-type}' is invalid",
         code: "CONJ00121E"
       )
+
+      InvalidSigningKeySettings = ::Util::TrackableErrorClass.new(
+        msg: "Invalid signing key settings: {0-validation-error}",
+        code: "CONJ00122E"
+      )
     end
 
     module ResourceRestrictions

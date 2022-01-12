@@ -4,8 +4,11 @@ module Authentication
   module AuthnJwt
     PROVIDER_URI_RESOURCE_NAME = "provider-uri"
     JWKS_URI_RESOURCE_NAME = "jwks-uri"
+    PUBLIC_KEYS_RESOURCE_NAME = "public-keys"
+    CA_CERT_RESOURCE_NAME = "ca-cert"
     PROVIDER_URI_INTERFACE_NAME = PROVIDER_URI_RESOURCE_NAME.freeze
     JWKS_URI_INTERFACE_NAME = JWKS_URI_RESOURCE_NAME.freeze
+    PUBLIC_KEYS_INTERFACE_NAME = PUBLIC_KEYS_RESOURCE_NAME.freeze
     ISSUER_RESOURCE_NAME = "issuer"
     TOKEN_APP_PROPERTY_VARIABLE = "token-app-property"
     IDENTITY_NOT_RETRIEVED_YET = "Identity not retrieved yet"
