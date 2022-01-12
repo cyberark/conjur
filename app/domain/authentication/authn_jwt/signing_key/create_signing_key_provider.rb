@@ -14,43 +14,42 @@ module Authentication
             max_concurrent_requests: CACHE_MAX_CONCURRENT_REQUESTS,
             logger: Rails.logger
           ),
+          fetch_signing_key_settings: Authentication::AuthnJwt::SigningKey::FetchSigningKeySettingsFromVariables.new,
           fetch_provider_uri_signing_key_class: Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey,
           fetch_jwks_uri_signing_key_class: Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey,
-          check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
           logger: Rails.logger
         },
         inputs: %i[authenticator_input]
       ) do
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::SelectingSigningKeyInterface.new)
+          fetch_signing_key_settings
           create_signing_key_provider
         end
 
         private
 
-        def create_signing_key_provider
-          if provider_uri_resource_exists? and !jwks_uri_has_resource_exists?
-            fetch_provider_uri_signing_key
-          elsif jwks_uri_has_resource_exists? and !provider_uri_resource_exists?
-            fetch_jwks_uri_signing_key
-          else
-            raise Errors::Authentication::AuthnJwt::InvalidUriConfiguration.new(
-              PROVIDER_URI_RESOURCE_NAME,
-              JWKS_URI_RESOURCE_NAME
-            )
-          end
+        def fetch_signing_key_settings
+          @signing_key_settings ||= @fetch_signing_key_settings.call(
+            authenticator_input: @authenticator_input
+          )
         end
 
-        def provider_uri_resource_exists?
-          # defined? is needed for memoization of boolean value
-          return @provider_uri_resource_exists if defined?(@provider_uri_resource_exists)
+        def signing_key_settings
+          fetch_signing_key_settings
+        end
 
-          @provider_uri_resource_exists = @check_authenticator_secret_exists.call(
-            conjur_account: @authenticator_input.account,
-            authenticator_name: @authenticator_input.authenticator_name,
-            service_id: @authenticator_input.service_id,
-            var_name: PROVIDER_URI_RESOURCE_NAME
-          )
+        def create_signing_key_provider
+          case signing_key_settings.type
+          when JWKS_URI_INTERFACE_NAME
+            fetch_jwks_uri_signing_key
+          when PROVIDER_URI_INTERFACE_NAME
+            fetch_provider_uri_signing_key
+          else
+            raise Errors::Authentication::AuthnJwt::InvalidSigningKeyType.new(
+              signing_key_settings.type
+            )
+          end
         end
 
         def fetch_provider_uri_signing_key
@@ -58,20 +57,8 @@ module Authentication
             LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(PROVIDER_URI_INTERFACE_NAME)
           )
           @fetch_provider_uri_signing_key ||= @fetch_provider_uri_signing_key_class.new(
-            authenticator_input: @authenticator_input,
+            provider_uri: signing_key_settings.uri,
             fetch_signing_key: @fetch_signing_key
-          )
-        end
-
-        def jwks_uri_has_resource_exists?
-          # defined? is needed for memoization of boolean value
-          return @jwks_uri_has_resource_exists if defined?(@jwks_uri_has_resource_exists)
-
-          @jwks_uri_has_resource_exists = @check_authenticator_secret_exists.call(
-            conjur_account: @authenticator_input.account,
-            authenticator_name: @authenticator_input.authenticator_name,
-            service_id: @authenticator_input.service_id,
-            var_name: JWKS_URI_RESOURCE_NAME
           )
         end
 
@@ -80,7 +67,7 @@ module Authentication
             LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(JWKS_URI_INTERFACE_NAME)
           )
           @fetch_jwks_uri_signing_key ||= @fetch_jwks_uri_signing_key_class.new(
-            authenticator_input: @authenticator_input,
+            jwks_uri: signing_key_settings.uri,
             fetch_signing_key: @fetch_signing_key
           )
         end

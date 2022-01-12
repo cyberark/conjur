@@ -583,6 +583,11 @@ module Errors
         msg: "Failed to parse 'public-keys': {0-parse-error}",
         code: "CONJ00120E"
       )
+
+      InvalidSigningKeyType = ::Util::TrackableErrorClass.new(
+        msg: "Signing key type '{0-type}' is invalid",
+        code: "CONJ00121E"
+      )
     end
 
     module ResourceRestrictions

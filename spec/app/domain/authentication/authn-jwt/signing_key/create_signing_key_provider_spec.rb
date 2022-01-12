@@ -3,51 +3,21 @@
 require 'spec_helper'
 
 RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider') do
-  # Mock to CheckAuthenticatorSecretExists that returns true if var_name is jwks_uri
-  class MockedCheckAuthenticatorSecretExistsJWKS
-    # this what the object gets and its a mock
-    # :reek:LongParameterList :reek:UnusedParameters - this what the object gets and its a mock
-    def call(conjur_account:, authenticator_name:, service_id:, var_name:)
-      var_name == "jwks-uri"
-    end
-  end
 
-  # Mock to CheckAuthenticatorSecretExists that returns true if var_name is provider_uri
-  class MockedCheckAuthenticatorSecretExistsProviderUri
-    # this what the object gets and its a mock
-    # :reek:LongParameterList :reek:UnusedParameters - this what the object gets and its a mock
-    def call(conjur_account:, authenticator_name:, service_id:, var_name:)
-      var_name == "provider-uri"
-    end
-  end
-
-  # Mock to CheckAuthenticatorSecretExists that returns always false
-  class MockedCheckAuthenticatorSecretExistsFalse
-    # this what the object gets and its a mock
-    # :reek:LongParameterList :reek:UnusedParameters - this what the object gets and its a mock
-    def call(conjur_account:, authenticator_name:, service_id:, var_name:)
-      false
-    end
-  end
-
-  # Mock to CheckAuthenticatorSecretExists that returns always true
-  class MockedCheckAuthenticatorSecretExistsTrue
-    # this what the object gets and its a mock
-    # :reek:LongParameterList :reek:UnusedParameters - this what the object gets and its a mock
-    def call(conjur_account:, authenticator_name:, service_id:, var_name:)
-      true
-    end
-  end
-
-  let(:authenticator_name) { 'authn-jwt' }
-  let(:service_id) { "my-service" }
-  let(:account) { 'my-account' }
+  let(:log_output) { StringIO.new }
+  let(:logger) {
+    Logger.new(
+      log_output,
+      formatter: proc do | severity, time, progname, msg |
+        "#{severity},#{msg}\n"
+      end)
+  }
 
   let(:authenticator_input) {
     Authentication::AuthenticatorInput.new(
-      authenticator_name: authenticator_name,
-      service_id: service_id,
-      account: account,
+      authenticator_name: "authn-jwt",
+      service_id: "my-service",
+      account: "my-account",
       username: "dummy_identity",
       credentials: "dummy",
       client_ip: "dummy",
@@ -55,13 +25,29 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider')
     )
   }
 
-  let(:mocked_fetch_exists_provider_uri) { double("Mocked fetch with existing provider-uri")  }
-  let(:mocked_fetch_non_exists_provider_uri) { double("Mocked fetch with non-existing provider-uri")  }
-  let(:mocked_fetch_exists_jwks_uri) { double("Mocked fetch with existing jwks-uri")  }
-  let(:mocked_check_authenticator_secret_exists_jwks) { double("CheckAuthenticatorSecretExists") }
-  let(:mocked_check_authenticator_secret_exists_provider_uri) { double("CheckAuthenticatorSecretExists") }
-  let(:mocked_check_authenticator_secret_exits_jwks_and_provider_uri) { double("CheckAuthenticatorSecretNotExists") }
-  let(:mocked_check_authenticator_secret_not_exists) { double("CheckAuthenticatorSecretNotExists") }
+  let(:mocked_signing_key_settings_type_is_wrong) {
+    Authentication::AuthnJwt::SigningKey::SigningKeySettings.new(
+      uri: "uri",
+      type: "type"
+    )
+  }
+  let(:mocked_signing_key_settings_type_jwks_uri) {
+    Authentication::AuthnJwt::SigningKey::SigningKeySettings.new(
+      uri: "uri",
+      type: "jwks-uri"
+    )
+  }
+  let(:mocked_signing_key_settings_type_provider_uri) {
+    Authentication::AuthnJwt::SigningKey::SigningKeySettings.new(
+      uri: "uri",
+      type: "provider-uri"
+    )
+  }
+
+  let(:mocked_fetch_signing_key_settings_type_is_wrong) { double("MockedFetchSigningKeySettingsTypeIsWrong") }
+  let(:mocked_fetch_signing_key_settings_type_jwks_uri) { double("MockedFetchSigningKeySettingsTypeJwksUri") }
+  let(:mocked_fetch_signing_key_settings_type_provider_uri) { double("MockedFetchSigningKeySettingsTypeProviderUri") }
+
   let(:mocked_logger) { double("Mocked logger")  }
 
   before(:each) do
@@ -72,6 +58,18 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider')
     allow(mocked_logger).to(
       receive(:info).and_return(nil)
     )
+
+    allow(mocked_fetch_signing_key_settings_type_is_wrong).to(
+      receive(:call).and_return(mocked_signing_key_settings_type_is_wrong)
+    )
+
+    allow(mocked_fetch_signing_key_settings_type_jwks_uri).to(
+      receive(:call).and_return(mocked_signing_key_settings_type_jwks_uri)
+    )
+
+    allow(mocked_fetch_signing_key_settings_type_provider_uri).to(
+      receive(:call).and_return(mocked_signing_key_settings_type_provider_uri)
+    )
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
@@ -80,69 +78,60 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider')
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
   context "CreateSigningKeyProvider " do
-    context "'jwks-uri' and 'provider-uri' exist" do
-
+    context "Signing key settings type is jwks-uri" do
       subject do
         ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider.new(
-          check_authenticator_secret_exists: MockedCheckAuthenticatorSecretExistsTrue.new,
+          fetch_signing_key_settings: mocked_fetch_signing_key_settings_type_jwks_uri,
+          logger: logger
+        ).call(
+          authenticator_input: authenticator_input
+        )
+      end
+
+      it "returns FetchJwksUriSigningKey instance and writes appropriate logs" do
+        expect(subject).to be_a(Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey)
+        expect(log_output.string.split("\n")).to eq([
+                                                      "DEBUG,CONJ00075D Selecting signing key interface...",
+                                                      "INFO,CONJ00076I Selected signing key interface: 'jwks-uri'"
+                                                    ])
+      end
+    end
+
+    context "Signing key settings type is provider-uri" do
+      subject do
+        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider.new(
+          fetch_signing_key_settings: mocked_fetch_signing_key_settings_type_provider_uri,
+          logger: logger
+        ).call(
+          authenticator_input: authenticator_input
+        )
+      end
+
+      it "returns FetchProviderUriSigningKey instance and writes appropriate logs" do
+        expect(subject).to be_a(Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey)
+        expect(log_output.string.split("\n")).to eq([
+                                                      "DEBUG,CONJ00075D Selecting signing key interface...",
+                                                      "INFO,CONJ00076I Selected signing key interface: 'provider-uri'"
+                                                    ])
+      end
+    end
+
+    context "Signing key settings type is wrong" do
+      subject do
+        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider.new(
+          fetch_signing_key_settings: mocked_fetch_signing_key_settings_type_is_wrong,
           logger: mocked_logger
         ).call(
           authenticator_input: authenticator_input
         )
       end
 
-      it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidUriConfiguration)
+      it "returns FetchProviderUriSigningKey instance" do
+        expect { subject }.to raise_error(
+                                Errors::Authentication::AuthnJwt::InvalidSigningKeyType,
+                                "CONJ00121E Signing key type 'type' is invalid"
+                              )
       end
     end
-
-    context "'jwks-uri' and 'provider-uri' does not exist" do
-
-      subject do
-        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider.new(
-          check_authenticator_secret_exists: MockedCheckAuthenticatorSecretExistsFalse.new,
-          logger: mocked_logger
-        ).call(
-          authenticator_input: authenticator_input
-        )
-      end
-
-      it "raises an error" do
-        expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidUriConfiguration)
-      end
-    end
-
-    context "'jwks-uri' exits and 'provider-uri' does not exists" do
-
-      subject do
-        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider.new(
-          check_authenticator_secret_exists: MockedCheckAuthenticatorSecretExistsJWKS.new,
-          logger: mocked_logger
-        ).call(
-          authenticator_input: authenticator_input
-        )
-      end
-
-      it "does not raise an error" do
-        expect { subject }.to_not raise_error
-      end
-    end
-
-    context "'jwks-uri' does not exists and 'provider-uri' exist" do
-
-      subject do
-        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider.new(
-          check_authenticator_secret_exists: MockedCheckAuthenticatorSecretExistsProviderUri.new,
-          logger: mocked_logger
-        ).call(
-          authenticator_input: authenticator_input
-        )
-      end
-
-      it "does not raise an error" do
-        expect { subject }.to_not raise_error
-      end
-    end
-
   end
 end
