@@ -40,5 +40,13 @@ module Authentication
 
     PURE_CLAIM_NAME_REGEX = /[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*/.freeze
     PURE_NESTED_CLAIM_NAME_REGEX = /^#{PURE_CLAIM_NAME_REGEX.source}(#{PATH_DELIMITER}#{PURE_CLAIM_NAME_REGEX.source})*$/.freeze
+
+    SIGNING_KEY_RESOURCES_NAMES = [
+      JWKS_URI_RESOURCE_NAME,
+      PUBLIC_KEYS_RESOURCE_NAME,
+      PROVIDER_URI_RESOURCE_NAME,
+      CA_CERT_RESOURCE_NAME,
+      ISSUER_RESOURCE_NAME
+    ].freeze
   end
 end

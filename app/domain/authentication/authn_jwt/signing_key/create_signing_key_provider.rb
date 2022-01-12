@@ -14,7 +14,8 @@ module Authentication
             max_concurrent_requests: CACHE_MAX_CONCURRENT_REQUESTS,
             logger: Rails.logger
           ),
-          fetch_signing_key_settings: Authentication::AuthnJwt::SigningKey::FetchSigningKeySettingsFromVariables.new,
+          fetch_signing_key_parameters: Authentication::AuthnJwt::SigningKey::FetchSigningKeyParametersFromVariables.new,
+          build_signing_key_settings: Authentication::AuthnJwt::SigningKey::SigningKeySettingsBuilder.new,
           fetch_provider_uri_signing_key_class: Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey,
           fetch_jwks_uri_signing_key_class: Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey,
           logger: Rails.logger
@@ -23,20 +24,26 @@ module Authentication
       ) do
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::SelectingSigningKeyInterface.new)
-          fetch_signing_key_settings
+          build_signing_key_settings
           create_signing_key_provider
         end
 
         private
 
-        def fetch_signing_key_settings
-          @signing_key_settings ||= @fetch_signing_key_settings.call(
-            authenticator_input: @authenticator_input
-          )
+        def build_signing_key_settings
+          signing_key_settings
         end
 
         def signing_key_settings
-          fetch_signing_key_settings
+          @signing_key_settings ||= @build_signing_key_settings.call(
+            signing_key_parameters: signing_key_parameters
+          )
+        end
+
+        def signing_key_parameters
+          @signing_key_parameters ||= @fetch_signing_key_parameters.call(
+            authenticator_input: @authenticator_input
+          )
         end
 
         def create_signing_key_provider
@@ -46,9 +53,7 @@ module Authentication
           when PROVIDER_URI_INTERFACE_NAME
             fetch_provider_uri_signing_key
           else
-            raise Errors::Authentication::AuthnJwt::InvalidSigningKeyType.new(
-              signing_key_settings.type
-            )
+            raise Errors::Authentication::AuthnJwt::InvalidSigningKeyType, signing_key_settings.type
           end
         end
 

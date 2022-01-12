@@ -408,11 +408,6 @@ module Errors
         code: "CONJ00085E"
       )
 
-      InvalidUriConfiguration = ::Util::TrackableErrorClass.new(
-        msg: "Signing key URI configuration is invalid",
-        code: "CONJ00086E"
-      )
-
       FetchJwksKeysFailed = ::Util::TrackableErrorClass.new(
         msg: "Failed to fetch JWKS from '{0-uri}'. Reason: '{1}'",
         code: "CONJ00087E"
