@@ -11,7 +11,7 @@ module Authentication
         def initialize(
           jwks_uri:,
           fetch_signing_key:,
-          ca_cert: nil,
+          cert_store: nil,
           http_lib: Net::HTTP,
           create_jwks_from_http_response: CreateJwksFromHttpResponse.new,
           logger: Rails.logger
@@ -22,7 +22,7 @@ module Authentication
 
           @jwks_uri = jwks_uri
           @fetch_signing_key = fetch_signing_key
-          @ca_cert = ca_cert
+          @cert_store = cert_store
         end
 
         def call(force_fetch:)
@@ -63,14 +63,14 @@ module Authentication
         end
 
         def net_http_start(host, port, use_ssl, &block)
-          if @ca_cert && !use_ssl
+          if @cert_store && !use_ssl
             raise Errors::Authentication::AuthnJwt::FetchJwksKeysFailed.new(
               @jwks_uri,
               "TLS misconfiguration - ca-cert is provided but jwks-uri URI scheme is http"
             )
           end
 
-          if @ca_cert
+          if @cert_store
             net_http_start_with_ca_cert(host, port, use_ssl, &block)
           else
             net_http_start_without_ca_cert(host, port, use_ssl, &block)
@@ -82,7 +82,7 @@ module Authentication
             host,
             port,
             use_ssl: use_ssl,
-            cert_store: @ca_cert,
+            cert_store: @cert_store,
             &block
           )
         end

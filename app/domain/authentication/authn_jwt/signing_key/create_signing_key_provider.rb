@@ -76,6 +76,7 @@ module Authentication
           )
           @fetch_jwks_uri_signing_key ||= @fetch_jwks_uri_signing_key_class.new(
             jwks_uri: signing_key_settings.uri,
+            cert_store: signing_key_settings.cert_store,
             fetch_signing_key: @fetch_signing_key
           )
         end
