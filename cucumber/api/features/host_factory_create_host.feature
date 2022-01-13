@@ -1,9 +1,11 @@
+@api
 Feature: Create a host using the host factory.
 
   Background:
     Given I create a host factory for layer "the-layer"
     And I create a host factory token
-    
+
+  @smoke
   Scenario: The host factory token authenticates and authorizes a request
     to create a new host.
 
@@ -21,6 +23,7 @@ Feature: Create a host using the host factory.
     }
     """
 
+  @acceptance
   Scenario: Creating a host with parameters in POST body
     Given I authorize the request with the host factory token
     When I successfully POST "/host_factories/hosts" with body:
@@ -39,6 +42,7 @@ Feature: Create a host using the host factory.
     }
     """
 
+  @negative @acceptance
   @logged-in-admin
   Scenario: Invalid tokens are rejected.
 
@@ -48,6 +52,7 @@ Feature: Create a host using the host factory.
     When I POST "/host_factories/hosts?id=host-01"
     Then the HTTP response status code is 401
 
+  @negative @acceptance
   Scenario: Attempting to create a host without id argument
     Given I authorize the request with the host factory token
     When I POST "/host_factories/hosts"

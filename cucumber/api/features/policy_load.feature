@@ -1,3 +1,4 @@
+@api
 Feature: Updating policies
 
   The initial policy is loaded using the `conjurctl` command line tool,
@@ -35,6 +36,7 @@ Feature: Updating policies
       role: !user eve
     """
 
+  @smoke
   Scenario: A role with "update" privilege can update a policy.
     When I login as "bob"
     And I save my place in the audit log file for remote
@@ -74,6 +76,7 @@ Feature: Updating policies
       cucumber:user:bob added ownership of cucumber:policy:dev/db in cucumber:layer:dev/db
     """
 
+  @negative @acceptance
   Scenario: A role without any privilege cannot update a policy.
     When I login as "eve"
     When I PUT "/policies/cucumber/policy/dev/db" with body:
@@ -82,10 +85,12 @@ Feature: Updating policies
     """
     Then the HTTP response status code is 403
 
+  @acceptance
   Scenario: A policy with special characters and no content type header
     When I use curl to load a policy with special characters and no content type
     Then the command is successful
 
+  @acceptance
   Scenario: A large policy with no content type header
     When I clear the "Content-Type" header
     And I load a large policy with POST

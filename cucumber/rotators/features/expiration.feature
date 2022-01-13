@@ -1,3 +1,4 @@
+@rotators
 Feature: Manually expiring a rotating variable
 
   This feature is an API endpoint allowing a rotating variable to be expired
@@ -25,6 +26,7 @@ Feature: Manually expiring a rotating variable
     And I add the value "secret" to variable "db-reports/password"
     And I create a db user "test" with password "secret"
 
+  @smoke
   Scenario: Expiring causes the secret to change
 
     # The initial password is rotated right away, and the subsequent rotation

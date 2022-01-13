@@ -1,4 +1,4 @@
-@gcp
+@authenticators_gcp
 Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
 
   In this feature we define GCP authenticator in policy, test with different
@@ -23,7 +23,7 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
     And I obtain a valid GCE identity token
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
 
-
+  @negative @acceptance
   Scenario: Host with all valid annotations except for project-id is denied
     Given I set invalid "authn-gcp/project-id" GCE annotation to host "test-app"
     And I set "authn-gcp/service-account-id" GCE annotation to host "test-app"
@@ -37,6 +37,7 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
     CONJ00049E Resource restriction 'project-id' does not match with the corresponding value in the request
     """
 
+  @negative @acceptance
   Scenario: Host with all valid annotations except for instance-name is denied
     Given I set invalid "authn-gcp/instance-name" GCE annotation to host "test-app"
     And I set "authn-gcp/project-id" GCE annotation to host "test-app"
@@ -50,6 +51,7 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
     CONJ00049E Resource restriction 'instance-name' does not match with the corresponding value in the request
     """
 
+  @negative @acceptance
   Scenario: Host with all valid annotations except for service-account-email is denied
     Given I set invalid "authn-gcp/service-account-email" GCE annotation to host "test-app"
     And I set "authn-gcp/project-id" GCE annotation to host "test-app"
@@ -63,6 +65,7 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
     CONJ00049E Resource restriction 'service-account-email' does not match with the corresponding value in the request
     """
 
+  @negative @acceptance
   Scenario: Host with all valid annotations except for service-account-id is denied
     Given I set invalid "authn-gcp/service-account-id" GCE annotation to host "test-app"
     And I set "authn-gcp/project-id" GCE annotation to host "test-app"
@@ -76,6 +79,7 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
     CONJ00049E Resource restriction 'service-account-id' does not match with the corresponding value in the request
     """
 
+  @negative @acceptance
   Scenario: Host with all valid annotations and an illegal annotation key is denied
     Given I set "authn-gcp/invalid-key" GCE annotation to host "test-app"
     And I set all valid GCE annotations to host "test-app"
@@ -87,6 +91,7 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
     CONJ00050E Resource restrictions '["invalid-key"]' are not supported
     """
 
+  @smoke
   Scenario: Users can authenticate with GCP authenticator and fetch secret
     Given I have user "test-app"
     And I grant group "conjur/authn-gcp/apps" to user "test-app"
@@ -104,6 +109,7 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
     cucumber:user:test-app successfully authenticated with authenticator authn-gcp service cucumber:webservice:conjur/authn-gcp
     """
 
+  @negative @acceptance
   Scenario: Non-existing host is denied
     Given I obtain a non_existing_host GCE identity token
     And I save my place in the log file
@@ -118,6 +124,7 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
     cucumber:host:non-existing failed to authenticate with authenticator authn-gcp
     """
 
+  @smoke
   Scenario: Hosts defined outside of root can authenticate with GCP authenticator and fetch secret
     Given I have host "non-rooted/test-app"
     And I set all valid GCE annotations to host "non-rooted/test-app"

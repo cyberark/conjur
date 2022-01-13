@@ -1,3 +1,4 @@
+@authenticators_status
 Feature: Authenticator status check
 
   Conjur supports a Status check where users can get immediate feedback
@@ -14,6 +15,7 @@ Feature: Authenticator status check
   implements the Status check but all these test are not OIDC-specific and do
   not require a running OIDC Provider in order to run.
 
+  @negative @acceptance
   Scenario: An unauthorized user is responded with 403
     Given I load a policy:
     """
@@ -64,6 +66,7 @@ Feature: Authenticator status check
     Then the HTTP response status code is 403
     And the authenticator status check fails with error "RoleNotAuthorizedOnResource: CONJ00006E"
 
+  @negative @acceptance
   Scenario: An authenticator without an implemented status check returns 501
     Given I load a policy:
     """
@@ -74,6 +77,7 @@ Feature: Authenticator status check
     Then the HTTP response status code is 501
     And the authenticator status check fails with error "StatusNotSupported: CONJ00056E"
 
+  @negative @acceptance
   Scenario: A non-existing authenticator status check returns 404
     Given I load a policy:
     """
@@ -84,6 +88,7 @@ Feature: Authenticator status check
     Then the HTTP response status code is 404
     And the authenticator status check fails with error "AuthenticatorNotSupported: CONJ00001E"
 
+  @negative @acceptance
   Scenario: A missing status webservice returns 500
     Given I load a policy:
     """
@@ -123,6 +128,7 @@ Feature: Authenticator status check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "WebserviceNotFound: CONJ00005E"
 
+  @negative @acceptance
   Scenario: A non-existing account name in the status request returns 500
     Given I load a policy:
     """
@@ -177,6 +183,7 @@ Feature: Authenticator status check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "AccountNotDefined: CONJ00008E"
 
+  @negative @acceptance
   Scenario: An authenticator webservice doesn't exist in policy
     Given I load a policy:
     """

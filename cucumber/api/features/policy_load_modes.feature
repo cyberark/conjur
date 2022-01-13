@@ -1,10 +1,11 @@
+@api
 Feature: Updating policies
 
   Policy updates can be performed in any of three modes: PUT, PATCH, and POST.
 
-  * **PUT** The policy is completely replaced. Records which exist in the database but not in 
+  * **PUT** The policy is completely replaced. Records which exist in the database but not in
   the submitted policy are deleted.
-  * **PATCH** The policy is appended and updated. Records which exist in the database but not in 
+  * **PATCH** The policy is appended and updated. Records which exist in the database but not in
   the submitted policy are not deleted. Policy statements `!delete`, `!deny`, and `!revoke` can be
   used to perform destructive actions.
   * **POST** The policy is appended. No deletion is allowed.
@@ -36,6 +37,7 @@ Feature: Updating policies
       kind: password
     """
 
+  @smoke
   Scenario: PUT replaces the policy completely.
     Given I save my place in the audit log file for remote
     When I successfully PUT "/policies/cucumber/policy/dev/db" with body:
@@ -56,6 +58,7 @@ Feature: Updating policies
       cucumber:user:alice removed resource cucumber:variable:dev/db/a
     """
 
+  @acceptance
   Scenario: Modifying annotations with PATCH
     Given I save my place in the audit log file for remote
     When I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
@@ -86,6 +89,7 @@ Feature: Updating policies
       cucumber:user:alice changed annotation conjur/kind on cucumber:variable:dev/db/b
     """
 
+  @acceptance
   Scenario: PATCH does not remove existing records
     When I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
     """
@@ -95,6 +99,7 @@ Feature: Updating policies
     Then the resource list should contain "variable" "dev/db/a"
     Then the resource list should contain "variable" "dev/db/c"
 
+  @acceptance
   Scenario: PATCH can explicitly delete records
     When I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
     """
@@ -104,6 +109,7 @@ Feature: Updating policies
     And I successfully GET "/resources/cucumber/variable"
     Then the resource list should not contain "variable" "dev/db/a"
 
+  @acceptance
   Scenario: PATCH can perform a permission grant on existing roles and resources.
     Given I save my place in the audit log file for remote
     When I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
@@ -133,6 +139,7 @@ Feature: Updating policies
       cucumber:user:alice added permission of cucumber:group:everyone to read on cucumber:variable:dev/db/a
     """
 
+  @acceptance
   Scenario: PATCH can perform a role grant on existing roles.
     Given I save my place in the audit log file for remote
     When I successfully PATCH "/policies/cucumber/policy/dev/db" with body:
@@ -163,6 +170,7 @@ Feature: Updating policies
       cucumber:user:alice added membership of cucumber:group:dev/db/secrets-managers in cucumber:group:dev/db/secrets-users
     """
 
+  @acceptance
   Scenario: POST cannot update existing policy records
     When I successfully POST "/policies/cucumber/policy/dev/db" with body:
     """
@@ -182,6 +190,7 @@ Feature: Updating policies
     ]
     """
 
+  @negative @acceptance
   Scenario: POST cannot remove existing records
     When I POST "/policies/cucumber/policy/dev/db" with body:
     """

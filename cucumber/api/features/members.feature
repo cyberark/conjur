@@ -1,3 +1,4 @@
+@api
 Feature: List direct members of a role
 
   If a role A is granted to a role B, then role A is said to have role B as a 
@@ -9,6 +10,7 @@ Feature: List direct members of a role
     Given I create a new user "bob"
     And I am a user named "alice"
 
+  @smoke
   Scenario: Initial roles members is just the initial role admin.
 
     At the time a new role ("alice") is created, the role is granted
@@ -28,6 +30,7 @@ Feature: List direct members of a role
     ]
     """
 
+  @smoke
   Scenario: New member roles appear in the role list.
 
     Granting a role ("alice") to a new role ("bob") results in 

@@ -1,3 +1,4 @@
+@policy
 Feature: Custom ownership can be assigned to a policy object.
 
   By default, each object in a policy is owned by the policy.
@@ -7,6 +8,7 @@ Feature: Custom ownership can be assigned to a policy object.
   However, ownership of each object can be assigned to a role other than the
   policy.
 
+  @smoke
   Scenario: The default owner of a policy-scoped object is the policy.
     Given I load a policy:
     """
@@ -20,6 +22,7 @@ Feature: Custom ownership can be assigned to a policy object.
     Then the owner of user "bob" is user "admin"
     And  the owner of variable "db/password" is policy "db"
 
+  @smoke
   Scenario: The owner of a policy-scoped object can be changed.
     Given I load a policy:
     """

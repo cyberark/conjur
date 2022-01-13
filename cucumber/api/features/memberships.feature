@@ -1,3 +1,4 @@
+@api
 Feature: Obtain the memberships of a role
 
   If a role A is granted to a role B, then role B is said to "have" role A.
@@ -19,6 +20,7 @@ Feature: Obtain the memberships of a role
     Given I am the super-user
     And I create a new user "alice"
 
+  @smoke
   Scenario: The initial memberships of a role is just the role itself.
     When I successfully GET "/roles/cucumber/user/alice?all"
     Then the JSON should be:
@@ -28,6 +30,7 @@ Feature: Obtain the memberships of a role
     ]
     """
 
+  @smoke
   Scenario: A newly granted role is listed in the grantee's memberships.
     Given I create a new user "bob"
     And I grant user "bob" to user "alice"
@@ -40,6 +43,7 @@ Feature: Obtain the memberships of a role
     ]
     """
 
+  @smoke
   Scenario: Memberships can be counted
     Given I create a new user "bob"
     And I grant user "bob" to user "alice"
@@ -51,6 +55,7 @@ Feature: Obtain the memberships of a role
     }
     """
 
+  @smoke
   Scenario: Direct memberships can be listed
     Given I create a new user "bob"
     And I create a new user "carol"
@@ -69,6 +74,7 @@ Feature: Obtain the memberships of a role
     ]
     """
 
+  @smoke
   Scenario: Direct memberships can be counted
     Given I create a new user "bob"
     And I create a new user "carol"
@@ -82,6 +88,7 @@ Feature: Obtain the memberships of a role
     }
     """
 
+  @smoke
   Scenario: Direct memberships can be searched
     Given I create a new user "bob"
     And I create a new user "carol"
@@ -100,6 +107,7 @@ Feature: Obtain the memberships of a role
     ]
     """
 
+  @smoke
   Scenario: The role memberships list can be filtered.
 
     The `filter` parameter can be used to select just a subset of the

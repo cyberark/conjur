@@ -1,5 +1,7 @@
+@authenticators_azure
 Feature: Azure Authenticator - Status Check
 
+  @smoke
   Scenario: A properly configured Azure authenticator returns a successful response
     Given I load a policy:
     """
@@ -51,6 +53,7 @@ Feature: Azure Authenticator - Status Check
     And the HTTP response content type is "application/json"
     And the authenticator status check succeeds
 
+  @negative @acceptance
   Scenario: A non-responsive Azure AD provider returns a 500 response
     Given I load a policy:
     """
@@ -101,6 +104,7 @@ Feature: Azure Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "ProviderDiscoveryFailed: CONJ00011E"
 
+  @negative @acceptance
   Scenario: provider-uri variable is missing and a 500 error response is returned
     Given I load a policy:
      """

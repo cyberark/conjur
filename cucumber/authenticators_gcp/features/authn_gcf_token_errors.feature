@@ -1,4 +1,4 @@
-@gcp
+@authenticators_gcp
 Feature: GCP Authenticator - GCF flow, test token error hwahtandling
 
   In this feature we test authentication using malformed tokens.
@@ -23,6 +23,7 @@ Feature: GCP Authenticator - GCF flow, test token error hwahtandling
     And I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
 
+  @negative @acceptance
   Scenario: Token with service-account-id claim that does not match annotation is denied
     Given I remove all annotations from host "test-app"
     And I set "authn-gcp/service-account-id" annotation with value: "unknown-service-account-id" to host "test-app"
@@ -35,6 +36,7 @@ Feature: GCP Authenticator - GCF flow, test token error hwahtandling
     CONJ00049E Resource restriction 'service-account-id' does not match with the corresponding value in the request
     """
 
+  @negative @acceptance
   Scenario: Token with service-account-email claim that does not match annotation is denied
     Given I remove all annotations from host "test-app"
     And I set "authn-gcp/service-account-email" annotation with value: "unknown-service-account-email" to host "test-app"
@@ -47,6 +49,7 @@ Feature: GCP Authenticator - GCF flow, test token error hwahtandling
     CONJ00049E Resource restriction 'service-account-email' does not match with the corresponding value in the request
     """
 
+  @negative @acceptance
   Scenario: Token with valid service-account-id claim and service-account-email claim that does not match annotation is denied
     Given I remove all annotations from host "test-app"
     And I set "authn-gcp/service-account-id" GCF annotation to host "test-app"
@@ -60,6 +63,7 @@ Feature: GCP Authenticator - GCF flow, test token error hwahtandling
     CONJ00049E Resource restriction 'service-account-email' does not match with the corresponding value in the request
     """
 
+  @negative @acceptance
   Scenario: Token with valid service-account-email claim and service-account-id claim that does not match annotation is denied
     And I set "authn-gcp/service-account-email" GCF annotation to host "test-app"
     And I set "authn-gcp/service-account-id" annotation with value: "unknown-service-account-id" to host "test-app"
@@ -72,6 +76,7 @@ Feature: GCP Authenticator - GCF flow, test token error hwahtandling
     CONJ00049E Resource restriction 'service-account-id' does not match with the corresponding value in the request
     """
 
+  @negative @acceptance
   Scenario: Token with project-id host annotation is denied
     And I set all valid GCF annotations to host "test-app"
     And I set "authn-gcp/project-id" GCF annotation to host "test-app"
@@ -84,6 +89,7 @@ Feature: GCP Authenticator - GCF flow, test token error hwahtandling
     CONJ00068E Claim 'project-id' is missing from Google's JWT token
     """
 
+  @negative @acceptance
   Scenario: Token with instance-name host annotation is denied
     And I set all valid GCF annotations to host "test-app"
     And I set "authn-gcp/instance-name" GCF annotation to host "test-app"
