@@ -368,7 +368,6 @@ Feature: JWT Authenticator - Check registered claim
     CONJ00011E Failed to discover Identity Provider (Provider URI: 'incorrect.com'). Reason: '#<AttrRequired::AttrMissing: 'host' required.>'
     """
 
-  @skip
   Scenario: ONYX-15323: public-keys with invalid issuer variable
     Given I extend the policy with:
     """

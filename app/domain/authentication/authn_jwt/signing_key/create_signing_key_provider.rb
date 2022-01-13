@@ -18,6 +18,7 @@ module Authentication
           build_signing_key_settings: Authentication::AuthnJwt::SigningKey::SigningKeySettingsBuilder.new,
           fetch_provider_uri_signing_key_class: Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey,
           fetch_jwks_uri_signing_key_class: Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey,
+          fetch_public_keys_signing_key_class: Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey,
           logger: Rails.logger
         },
         inputs: %i[authenticator_input]
@@ -52,6 +53,8 @@ module Authentication
             fetch_jwks_uri_signing_key
           when PROVIDER_URI_INTERFACE_NAME
             fetch_provider_uri_signing_key
+          when PUBLIC_KEYS_INTERFACE_NAME
+            fetch_public_keys_signing_key
           else
             raise Errors::Authentication::AuthnJwt::InvalidSigningKeyType, signing_key_settings.type
           end
@@ -74,6 +77,15 @@ module Authentication
           @fetch_jwks_uri_signing_key ||= @fetch_jwks_uri_signing_key_class.new(
             jwks_uri: signing_key_settings.uri,
             fetch_signing_key: @fetch_signing_key
+          )
+        end
+
+        def fetch_public_keys_signing_key
+          @logger.info(
+            LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(PUBLIC_KEYS_INTERFACE_NAME)
+          )
+          @fetch_public_keys_signing_key ||= @fetch_public_keys_signing_key_class.new(
+            signing_keys: signing_key_settings.signing_keys
           )
         end
       end

@@ -659,7 +659,6 @@ Feature: JWT Authenticator - Fetch signing key
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::DecodeError: No key id (kid) found from token headers>')
     """
 
-  @skip
   @sanity
   Scenario: ONYX-15322: public-keys happy path
     Given I load a policy:
@@ -709,7 +708,6 @@ Feature: JWT Authenticator - Fetch signing key
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  @skip
   Scenario: ONYX-15325: public-keys value is in invalid format
     Given I load a policy:
      """
