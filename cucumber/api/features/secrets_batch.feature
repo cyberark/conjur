@@ -102,7 +102,7 @@ Feature: Batch retrieval of secrets
     { "cucumber:variable:secret1": "v3", "cucumber:variable:secret2": "v5", "cucumber:variable:secret3": "v6" }
     """
 
-  Scenario: Returns the correct result for binary secrets
+  Scenario: Returns Base64 encoded secrets with Accept-Encoding header base64
     Given I create a binary secret value for resource "cucumber:variable:secret3"
     And I add the secret value "v2" to the resource "cucumber:variable:secret2"
     And I set the "Accept-Encoding" header to "base64"
@@ -110,20 +110,22 @@ Feature: Batch retrieval of secrets
     Then the binary data is preserved for "cucumber:variable:secret3"
     And the content encoding is "base64"
 
-  Scenario: Returns the correct result for binary secrets
+  Scenario: Returns Base64 encoded secrets with alternate heading capitalization
     Given I create a binary secret value for resource "cucumber:variable:secret3"
     And I set the "Accept-Encoding" header to "Base64"
     When I GET "/secrets?variable_ids=cucumber:variable:secret3"
     Then the binary data is preserved for "cucumber:variable:secret3"
 
-  Scenario: Returns the correct result for binary secrets
+  Scenario: Fails with 406 on retrieval of single binary secret with improper header
     Given I create a binary secret value for resource "cucumber:variable:secret3"
+    And I set the "Accept-Encoding" header to "*"
     When I GET "/secrets?variable_ids=cucumber:variable:secret3"
     Then the HTTP response status code is 406
 
-  Scenario: Raises error on binary secret with no annotation
+  Scenario: Fails with 406 on retrieval of multiple secrets with improper header
     Given I create a binary secret value for resource "cucumber:variable:secret3"
     And I add the secret value "v2" to the resource "cucumber:variable:secret2"
+    And I set the "Accept-Encoding" header to "*"
     When I GET "/secrets?variable_ids=cucumber:variable:secret3,cucumber:variable:secret2"
     Then the HTTP response status code is 406
 
