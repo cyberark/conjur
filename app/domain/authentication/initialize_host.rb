@@ -1,9 +1,10 @@
-#frozen_string_literal: true
+# frozen_string_literal: true
 
 require 'command_class'
 
 module Authentication
 
+  # Policy details about a host user
   class AuthHostDetails
     include ActiveModel::Validations
     attr_reader :id, :annotations
@@ -19,7 +20,7 @@ module Authentication
     private
 
     def annotation_pattern
-      /authn-[a-z8]+\//
+      %r{authn-[a-z8]+/}
     end
 
     # Get annotations defining authenticator variables (formatted as authn-<authenticator>/<annotation name>)
@@ -29,12 +30,10 @@ module Authentication
     end
 
     def validate_annotations
-      return if @constraints.nil?
-
       # remove the authn-<authenticator>/ prefix from each authenticator
       pruned_annotations = auth_annotations.map {|annot| annot.sub(annotation_pattern, '')}
       begin
-        @constraints.validate(resource_restrictions: pruned_annotations)
+        @constraints&.validate(resource_restrictions: pruned_annotations)
       rescue => e
         errors.add(:annotations, e.message)
       end
@@ -48,7 +47,8 @@ module Authentication
     validate :validate_annotations
   end
 
-  class InitializeAuthHost
+  # Creates a new host user which uses the given authenticator
+  class PersistAuthHost
     extend CommandClass::Include
 
     command_class(
@@ -61,32 +61,40 @@ module Authentication
       def call
         raise ArgumentError, @host_data.errors.full_messages unless @host_data.valid?
 
-        initialize_host_policy[:policy].values[:policy_text]
-      rescue => e
-        raise e
+        host_policy = initialize_host_policy(
+          policy_loader: @policy_loader,
+          resource: @resource,
+          current_user: @current_user,
+          client_ip: @client_ip,
+          service_id: @service_id,
+          authenticator: @authenticator,
+          host_data: @host_data
+        )
+
+        host_policy[:policy].values[:policy_text]
       end
 
       private
 
-      def host_policy
+      def host_policy(service_id:, authenticator:, host_data:)
         @host_policy ||= ApplicationController.renderer.render(
           template: "policies/authn-k8s-host",
           locals: {
-            service_id: @service_id,
-            authenticator: @authenticator,
-            hosts: [ @host_data ]
+            service_id: service_id,
+            authenticator: authenticator,
+            hosts: [ host_data ]
           }
         )
       end
 
-      def initialize_host_policy
-        @policy_loader.(
+      def initialize_host_policy(policy_loader:, resource:, service_id:, authenticator:, host_data:, current_user:, client_ip:)
+        policy_loader.(
           delete_permitted: false,
           action: :update,
-          resource: @resource,
-          policy_text: host_policy,
-          current_user: @current_user,
-          client_ip: @client_ip
+          resource: resource,
+          policy_text: host_policy(service_id: service_id, authenticator: authenticator, host_data: host_data),
+          current_user: current_user,
+          client_ip: client_ip
         )
       end
     end

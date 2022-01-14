@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe(Authentication::InitializeAuthHost) do
+RSpec.describe(Authentication::PersistAuthHost) do
 
   def host_data(valid:)
     double('HostDetails').tap do |details|
@@ -31,7 +31,7 @@ RSpec.describe(Authentication::InitializeAuthHost) do
 
   context "Given I initialize a k8s host" do
     let(:authenticator) { "authn-k8s" }
-    subject(:host_initializer){ Authentication::InitializeAuthHost.new(
+    subject(:host_initializer){ Authentication::PersistAuthHost.new(
       logger: Rails.logger, policy_loader: policy_loader
     ).call(
         conjur_account: conjur_account,
@@ -67,7 +67,7 @@ RSpec.describe(Authentication::InitializeAuthHost) do
           }
         )
 
-        expect( host_initializer ).to eq(policy_text)
+        expect( host_initializer ).to eq( loaded_policy_result )
       end
     end
 
