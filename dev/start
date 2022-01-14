@@ -10,6 +10,11 @@ source "../ci/oauth/keycloak/keycloak_functions.sh"
 
 # SCRIPT GLOBAL STATE
 
+# Set up VERSION file for local development
+if [ ! -f "../VERSION" ]; then
+  echo -n "0.0.dev" > ../VERSION
+fi
+
 # Minimal set of services.  We add to this list based on cmd line flags.
 services=(pg conjur client)
 

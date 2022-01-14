@@ -45,9 +45,7 @@ gem "loofah", ">= 2.2.3"
 # Gem::InstallError: ruby_dep requires Ruby version >= 2.2.5, ~> 2.2.
 gem 'ruby_dep', '= 1.3.1'
 
-# Pinned to update for role member search, using ref so merging and removing
-# the branch doesn't immediately break this link
-gem 'conjur-api', github: 'cyberark/conjur-api-ruby', branch: 'master'
+gem 'conjur-api', '~> 5.pre'
 gem 'conjur-policy-parser', path: 'gems/policy-parser'
 gem 'conjur-rack', '~> 4'
 gem 'conjur-rack-heartbeat'
