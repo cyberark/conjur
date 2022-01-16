@@ -126,7 +126,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
       context "when it present" do
         subject do
           ::Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey.new(jwks_uri: jwks_uri_https,
-                                                                             ca_cert: cert_store_present,
+                                                                             cert_store: cert_store_present,
                                                                              fetch_signing_key: mocked_fetch_signing_key,
                                                                              logger: mocked_logger,
                                                                              http_lib: mocked_http_response_ca_cert_present,
@@ -142,7 +142,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
       context "when it present but uri is http" do
         subject do
           ::Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey.new(jwks_uri: jwks_uri_http,
-                                                                             ca_cert: cert_store_present,
+                                                                             cert_store: cert_store_present,
                                                                              fetch_signing_key: mocked_fetch_signing_key,
                                                                              logger: mocked_logger,
                                                                              http_lib: mocked_http_response_ca_cert_present,
