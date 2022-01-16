@@ -408,11 +408,6 @@ module Errors
         code: "CONJ00085E"
       )
 
-      InvalidUriConfiguration = ::Util::TrackableErrorClass.new(
-        msg: "Signing key URI configuration is invalid",
-        code: "CONJ00086E"
-      )
-
       FetchJwksKeysFailed = ::Util::TrackableErrorClass.new(
         msg: "Failed to fetch JWKS from '{0-uri}'. Reason: '{1}'",
         code: "CONJ00087E"
@@ -587,6 +582,11 @@ module Errors
       InvalidSigningKeyType = ::Util::TrackableErrorClass.new(
         msg: "Signing key type '{0-type}' is invalid",
         code: "CONJ00121E"
+      )
+
+      InvalidSigningKeySettings = ::Util::TrackableErrorClass.new(
+        msg: "Invalid signing key settings: {0-validation-error}",
+        code: "CONJ00122E"
       )
     end
 
