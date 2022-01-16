@@ -34,11 +34,18 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider')
       type: "provider-uri"
     )
   }
+  let(:mocked_signing_key_settings_type_public_keys) {
+    Authentication::AuthnJwt::SigningKey::SigningKeySettings.new(
+      signing_keys: "public_keys",
+      type: "public-keys"
+    )
+  }
 
   let(:mocked_fetch_signing_key_parameters) { double("MockedFetchSigningKeyParameters") }
   let(:mocked_build_signing_key_settings_type_is_wrong) { double("MockedBuildSigningKeySettingsTypeIsWrong") }
   let(:mocked_build_signing_key_settings_type_jwks_uri) { double("MockedBuildSigningKeySettingsTypeJwksUri") }
   let(:mocked_build_signing_key_settings_type_provider_uri) { double("MockedBuildSigningKeySettingsTypeProviderUri") }
+  let(:mocked_build_signing_key_settings_type_public_keys) { double("MockedBuildSigningKeySettingsTypePublicKeys") }
 
   let(:mocked_logger) { double("Mocked logger")  }
 
@@ -73,6 +80,12 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider')
       receive(:call)
         .with(signing_key_parameters: mocked_signing_key_parameters)
         .and_return(mocked_signing_key_settings_type_provider_uri)
+    )
+
+    allow(mocked_build_signing_key_settings_type_public_keys).to(
+      receive(:call)
+        .with(signing_key_parameters: mocked_signing_key_parameters)
+        .and_return(mocked_signing_key_settings_type_public_keys)
     )
   end
 
@@ -118,6 +131,26 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider')
         expect(log_output.string.split("\n")).to eq([
                                                       "DEBUG,CONJ00075D Selecting signing key interface...",
                                                       "INFO,CONJ00076I Selected signing key interface: 'provider-uri'"
+                                                    ])
+      end
+    end
+
+    context "Signing key settings type is public-keys" do
+      subject do
+        ::Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider.new(
+          fetch_signing_key_parameters: mocked_fetch_signing_key_parameters,
+          build_signing_key_settings: mocked_build_signing_key_settings_type_public_keys,
+          logger: logger
+        ).call(
+          authenticator_input: mocked_authenticator_input
+        )
+      end
+
+      it "returns FetchProviderUriSigningKey instance and writes appropriate logs" do
+        expect(subject).to be_a(Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey)
+        expect(log_output.string.split("\n")).to eq([
+                                                      "DEBUG,CONJ00075D Selecting signing key interface...",
+                                                      "INFO,CONJ00076I Selected signing key interface: 'public-keys'"
                                                     ])
       end
     end

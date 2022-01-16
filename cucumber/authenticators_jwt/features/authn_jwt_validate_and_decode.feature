@@ -77,7 +77,6 @@ Feature: JWT Authenticator - Validate And Decode
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::VerificationError: Signature verification raised>')>
     """
 
-  @skip
   Scenario: ONYX-15324: public-keys with valid issuer, token is signed by other key
     Given I extend the policy with:
     """
