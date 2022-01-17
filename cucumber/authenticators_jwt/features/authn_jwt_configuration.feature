@@ -135,7 +135,7 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be define simultaneously
+    CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
     """
 
   Scenario: ONYX-8826: provider-uri configured with correct value, jwks-uri configured with empty value, error
@@ -185,7 +185,7 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be define simultaneously
+    CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
     """
 
   Scenario: ONYX-8698: jwks-uri configured but variable not set
@@ -317,7 +317,7 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00122E Invalid signing key settings: One of jwks-uri, public-keys, and provider-uri have to be defined
+    CONJ00122E Invalid signing key settings: One of the following must be defined: jwks-uri, public-keys, or provider-uri
     """
 
   Scenario: ONYX-8695: provider-uri configured with empty value, jwks-uri configured with correct value
@@ -367,7 +367,7 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be define simultaneously
+    CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
     """
 
   Scenario: ONYX-8694: Both Token identity and host send in URL, error
