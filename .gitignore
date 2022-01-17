@@ -66,3 +66,5 @@ gems/*/Gemfile.lock
 
 # Container commit marker
 conjur_git_commit
+
+VERSION

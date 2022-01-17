@@ -53,6 +53,10 @@ When('I use curl to load a policy with special characters and no content type') 
   @command_result = $CHILD_STATUS.success?
 end
 
+When(/^I migrate the db/) do
+  system("rake db:migrate")
+end
+
 Then('the command is successful') do
   expect(@command_result).to be(true)
 end

@@ -258,11 +258,10 @@ Feature: JWT Authenticator - Check registered claim
     """
     And I save my place in the audit log file
     When I authenticate via authn-jwt with the JWT token
-    Then host "myapp" has been authorized by Conjur
-    And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
+    Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/issuer
     """
 
   Scenario: ONYX-8728: jwks-uri configured with correct value, issuer configured with correct value, iss claim with correct value, 200 OK
@@ -369,7 +368,6 @@ Feature: JWT Authenticator - Check registered claim
     CONJ00011E Failed to discover Identity Provider (Provider URI: 'incorrect.com'). Reason: '#<AttrRequired::AttrMissing: 'host' required.>'
     """
 
-  @skip
   Scenario: ONYX-15323: public-keys with invalid issuer variable
     Given I extend the policy with:
     """

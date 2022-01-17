@@ -45,6 +45,34 @@ These are defined in runConjurTests, and also include the one-offs
     gcp_authenticator
 */
 
+// Automated release, promotion and dependencies
+properties([
+  // Include the automated release parameters for the build
+  release.addParams(),
+  // Dependencies of the project that should trigger builds
+  dependencies(['cyberark/conjur-base-image',
+                'cyberark/conjur-api-ruby',
+                'conjurinc/debify'])
+])
+
+// Performs release promotion.  No other stages will be run
+if (params.MODE == "PROMOTE") {
+  release.promote(params.VERSION_TO_PROMOTE) { sourceVersion, targetVersion, assetDirectory ->
+    sh "docker pull registry.tld/conjur:${sourceVersion}"
+    sh "docker pull registry.tld/conjur-ubi:${sourceVersion}"
+    sh "summon -f ./secrets.yml ./publish-images.sh --promote --redhat --base-version=${sourceVersion} --version=${targetVersion}"
+
+    // Trigger Conjurops build to push newly promoted releases of conjur to ConjurOps Staging
+    build(
+      job:'../conjurinc--conjurops/master',
+      parameters:[
+        string(name: 'conjur_oss_source_image', value: "cyberark/conjur:${targetVersion}")
+      ],
+      wait: false
+    )
+  }
+  return
+}
 
 pipeline {
   agent { label 'executor-v2' }
@@ -81,7 +109,34 @@ pipeline {
     )
   }
 
+  environment {
+    // Sets the MODE to the specified or autocalculated value as appropriate
+    MODE = release.canonicalizeMode()
+  }
+
   stages {
+    // Aborts any builds triggered by another project that wouldn't include any changes
+    stage ("Skip build if triggering job didn't create a release") {
+      when {
+        expression {
+          MODE == "SKIP"
+        }
+      }
+      steps {
+        script {
+          currentBuild.result = 'ABORTED'
+          error("Aborting build because this build was triggered from upstream, but no release was built")
+        }
+      }
+    }
+    // Generates a VERSION file based on the current build number and latest version in CHANGELOG.md
+    stage('Validate Changelog and set version') {
+      steps {
+        updateVersion("CHANGELOG.md", "${BUILD_NUMBER}")
+        stash name: 'version_info', includes: 'VERSION'
+      }
+    }
+
     stage('Fetch tags') {
       steps {
         withCredentials(
@@ -153,7 +208,7 @@ pipeline {
           steps {
             // Push images to the internal registry so that they can be used
             // by tests, even if the tests run on a different executor.
-            sh './push-image.sh --registry-prefix=registry.tld'
+            sh './publish-images.sh --internal'
           }
         }
 
@@ -212,6 +267,7 @@ pipeline {
               agent { label 'executor-v2-rhel-ee' }
 
               steps {
+                unstash 'version_info'
                 // Catch errors so remaining steps always run.
                 catchError {
                   runConjurTests(params.RUN_ONLY)
@@ -304,6 +360,7 @@ pipeline {
               }
 
               steps {
+                unstash 'version_info'
                 sh(
                   'summon -f ci/test_suites/authenticators_azure/secrets.yml ' +
                     'ci/test authenticators_azure'
@@ -599,66 +656,33 @@ pipeline {
       }
     }
 
-    stage('Publish images') {
-      parallel {
-        stage('On a new tag') {
-          when {
-            // Only run this stage when it's a tag build matching vA.B.C
-            tag(
-              pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+\$",
-              comparator: "REGEXP"
-            )
-          }
-
+    stage("Release Conjur") {
+      when {
+        expression {
+          MODE == "RELEASE"
+        }
+      }
+      stages {
+        stage('Publish release images') {
           steps {
-            sh 'summon -f ./secrets.yml ./push-image.sh'
-            // Trigger Conjurops build to push new releases of conjur to ConjurOps Staging
-            build(
-              job:'../conjurinc--conjurops/master',
-              parameters:[
-                string(name: 'conjur_oss_source_image', value: "cyberark/conjur:${TAG_NAME}")
-              ],
-              wait: false
-            )
+            sh './publish-images.sh --edge --dockerhub'
           }
         }
 
-        stage('On a master build') {
-          when { environment name: 'JOB_NAME', value: 'cyberark--conjur/master' }
+        stage('Build Debian and RPM packages') {
           steps {
-            script {
-              def tasks = [:]
-              tasks["Publish edge to local registry"] = {
-                sh './push-image.sh --edge --registry-prefix=registry.tld'
-              }
-              tasks["Publish edge to DockerHub"] = {
-                sh './push-image.sh --edge'
-              }
-              parallel tasks
-            }
+            sh 'echo "CONJUR_VERSION=5" >> debify.env'
+            sh './package.sh'
+            archiveArtifacts artifacts: '*.deb', fingerprint: true
+            archiveArtifacts artifacts: '*.rpm', fingerprint: true
           }
         }
-      }
-    }
 
-    stage('Build Debian and RPM packages') {
-      when {
-        expression { params.RUN_ONLY == '' }
-      }
-      steps {
-        sh 'echo "CONJUR_VERSION=5" >> debify.env'
-        sh './package.sh'
-        archiveArtifacts artifacts: '*.deb', fingerprint: true
-        archiveArtifacts artifacts: '*.rpm', fingerprint: true
-      }
-    }
-
-    stage('Publish Debian and RPM packages'){
-      when {
-        expression { params.RUN_ONLY == '' }
-      }
-      steps {
-        sh './publish.sh'
+        stage('Publish Debian and RPM packages'){
+          steps {
+            sh './publish.sh'
+          }
+        }
       }
     }
   }

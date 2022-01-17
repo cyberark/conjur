@@ -6,6 +6,32 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- Added an ability to fetch signing keys from JWKS endpoints are using self-signed
+  certificate or certificate signed by 3rd party CA to JWT generic vendor configuration
+  ([#2462](https://github.com/cyberark/conjur/pull/2462)
+  [#2461](https://github.com/cyberark/conjur/pull/2461)
+  [#2456](https://github.com/cyberark/conjur/pull/2456)
+  [#2455](https://github.com/cyberark/conjur/pull/2455)
+  [#2457](https://github.com/cyberark/conjur/pull/2457)
+  [#2452](https://github.com/cyberark/conjur/pull/2452)
+  [#2437](https://github.com/cyberark/conjur/pull/2437))
+- Added an ability to JWT generic vendor configuration to receive signing keys for
+  JWT token verification from a variable. Variable name is `public-keys`
+  ([#2463](https://github.com/cyberark/conjur/pull/2463)
+  [#2461](https://github.com/cyberark/conjur/pull/2461)
+  [#2456](https://github.com/cyberark/conjur/pull/2456)
+  [#2455](https://github.com/cyberark/conjur/pull/2455)
+  [#2454](https://github.com/cyberark/conjur/pull/2454)
+  [#2450](https://github.com/cyberark/conjur/pull/2450)
+  [#2447](https://github.com/cyberark/conjur/pull/2447)
+  [#2437](https://github.com/cyberark/conjur/pull/2437))
+
+## [1.15.1] - 2022-01-12
+
+### Changed
+- Update to automated release process
+
 ## [1.15.0] - 2021-12-21
 
 ### Added

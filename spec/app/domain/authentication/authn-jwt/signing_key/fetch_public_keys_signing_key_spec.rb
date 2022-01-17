@@ -33,7 +33,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey'
     context "fails when the value is not a JSON" do
       subject do
         ::Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey.new(
-          public_keys: string_value
+          signing_keys: string_value
         ).call(force_fetch: false)
       end
 
@@ -46,7 +46,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey'
     context "fails when the value is not valid" do
       subject do
         ::Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey.new(
-          public_keys: invalid_public_keys_value
+          signing_keys: invalid_public_keys_value
         ).call(force_fetch: false)
       end
 
@@ -59,7 +59,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey'
     context "returns a JWKS object" do
       subject do
         ::Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey.new(
-          public_keys: valid_public_keys_value
+          signing_keys: valid_public_keys_value
         ).call(force_fetch: false)
       end
 
@@ -79,7 +79,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey'
     context "writes logs" do
       subject do
         ::Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey.new(
-          public_keys: valid_public_keys_value,
+          signing_keys: valid_public_keys_value,
           logger: logger
         ).call(force_fetch: false)
         log_output.string.split("\n")

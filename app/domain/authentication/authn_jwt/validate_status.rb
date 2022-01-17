@@ -26,12 +26,12 @@ module Authentication
       def call
         @logger.info(LogMessages::Authentication::AuthnJwt::ValidatingJwtStatusConfiguration.new)
         validate_generic_status_validations
+        validate_signing_key
         validate_issuer
         validate_audience
         validate_enforced_claims
         validate_claim_aliases
         validate_identity_secrets
-        validate_signing_key
         @logger.info(LogMessages::Authentication::AuthnJwt::ValidatedJwtStatusConfiguration.new)
       end
 
