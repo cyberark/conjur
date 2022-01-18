@@ -4,6 +4,7 @@ require 'rubygems'
 require 'openssl'
 require 'jwt'
 require "base64"
+require 'fileutils'
 
 # Utility methods for JWT and JWKs manipulation
 module JwtJwksHelper
@@ -222,6 +223,16 @@ module JwtJwksHelper
     cert.sign rsa_key, OpenSSL::Digest::SHA1.new
 
     cert
+  end
+
+  def clean_local_state
+    jwk_set.each_key do |key|
+      FileUtils.rm("#{JWKS_ROOT_PATH}/#{key}")
+    end
+  end
+
+  def clean_remote_state
+    execute(:delete, JWKS_REMOTE_BASE_URI)
   end
 end
 
