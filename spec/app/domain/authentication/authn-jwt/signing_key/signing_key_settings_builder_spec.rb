@@ -11,31 +11,31 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::SigningKeySettingsBuilder'
   invalid_cases = {
     "When no signing key properties is set and hash is empty":
       [ {  },
-       "One of jwks-uri, public-keys, and provider-uri have to be defined" ],
+       "One of the following must be defined: jwks-uri, public-keys, or provider-uri" ],
     "When no signing key properties is set and there are fields in hash":
       [ { "field-1" => "value-1", "field-2" => "value-2", "ca-cert" => "some value"  },
-        "One of jwks-uri, public-keys, and provider-uri have to be defined" ],
+        "One of the following must be defined: jwks-uri, public-keys, or provider-uri" ],
     "When all signing key properties are define":
       [ { "jwks-uri" => jwks_uri, "provider-uri" => provider_uri, "public-keys" => public_keys },
-        "jwks-uri, public-keys, and provider-uri cannot be define simultaneously" ],
+        "jwks-uri, public-keys, and provider-uri cannot be defined simultaneously" ],
     "When jwks-uri and provider-uri signing key properties are define":
       [ { "jwks-uri" => jwks_uri, "provider-uri" => provider_uri },
-        "jwks-uri and provider-uri cannot be define simultaneously" ],
+        "jwks-uri and provider-uri cannot be defined simultaneously" ],
     "When jwks-uri and public-keys signing key properties are define":
       [ { "jwks-uri" => jwks_uri, "public-keys" => public_keys },
-        "jwks-uri and public-keys cannot be define simultaneously" ],
+        "jwks-uri and public-keys cannot be defined simultaneously" ],
     "When public-keys and provider-uri signing key properties are define":
       [ { "provider-uri" => provider_uri, "public-keys" => public_keys },
-        "public-keys and provider-uri cannot be define simultaneously" ],
+        "public-keys and provider-uri cannot be defined simultaneously" ],
     "When ca-cert is defined with provider-uri":
       [ { "provider-uri" => provider_uri, "ca-cert" => "some value" },
-        "ca-cert can be define only with jwks-uri" ],
+        "ca-cert can only be defined together with jwks-uri" ],
     "When ca-cert is defined with public-keys":
       [ { "public-keys" => public_keys, "ca-cert" => "some value" },
-        "ca-cert can be define only with jwks-uri" ],
+        "ca-cert can only be defined together with jwks-uri" ],
     "When issuer is not set with public-keys":
       [ { "public-keys" => public_keys },
-        "issuer is mandatory when public-keys is set" ]
+        "issuer is mandatory when public-keys is defined" ]
   }
 
   valid_cases = {
