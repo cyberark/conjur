@@ -87,7 +87,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey'
 
       it "as expected" do
         expect(subject).to eql([
-                                 "INFO,CONJ00143I Parsing JWKS from public-keys value",
+                                 "INFO,CONJ00143I Parsing JWKS from public-keys value...",
                                  "DEBUG,CONJ00144D Successfully parsed public-keys value"
                                ])
       end

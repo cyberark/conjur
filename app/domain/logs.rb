@@ -720,7 +720,7 @@ module LogMessages
       )
 
       ParsingStaticSigningKeys = ::Util::TrackableLogMessageClass.new(
-        msg: "Parsing JWKS from public-keys value",
+        msg: "Parsing JWKS from public-keys value...",
         code: "CONJ00143I"
       )
 
