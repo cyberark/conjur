@@ -7,22 +7,22 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::PublicSigningKeys') do
   invalid_cases = {
     "When public-keys value is a string":
       ["blah",
-       "the value is not in valid JSON format"],
+       "Value not in valid JSON format"],
     "When public-keys value is an array":
       [%w[a b],
-       "the value is not in valid JSON format"],
+       "Value not in valid JSON format"],
     "When public-keys value is an empty object":
       [{},
-       "Type can't be blank, Type '' is not a valid public-keys type, and Value can't be blank"],
+       "Type can't be blank, Type '' is not a valid public-keys type. Valid types are: jwks, and Value can't be blank"],
     "When public-keys does not contain needed fields":
       [{:key => "value", :key2 => { :key3 => "valve" }},
-       "Type can't be blank, Type '' is not a valid public-keys type, and Value can't be blank"],
+       "Type can't be blank, Type '' is not a valid public-keys type. Valid types are: jwks, and Value can't be blank"],
     "When public-keys type is empty and value is absent":
       [{:type => ""},
-       "Type can't be blank, Type '' is not a valid public-keys type, and Value can't be blank"],
+       "Type can't be blank, Type '' is not a valid public-keys type. Valid types are: jwks, and Value can't be blank"],
     "When public-keys type has wrong value and value is absent":
       [{:type => "yes"},
-       "Value can't be blank and Type 'yes' is not a valid public-keys type"],
+       "Value can't be blank and Type 'yes' is not a valid public-keys type. Valid types are: jwks"],
     "When public-keys type is valid and value is a string":
       [{:type => "jwks", :value => "string"},
        "Value is not a valid JWKS (RFC7517)"],
@@ -40,7 +40,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::PublicSigningKeys') do
        "Value is not a valid JWKS (RFC7517)"],
     "When public-keys type is invalid and value is an object with `keys` key and none empty array keys value":
       [{:type => "invalid", :value => { :keys => [ "some_value" ] } },
-       "Type 'invalid' is not a valid public-keys type"]
+       "Type 'invalid' is not a valid public-keys type. Valid types are: jwks"]
   }
 
   let(:valid_jwks) {

@@ -2,13 +2,13 @@ module Authentication
   module AuthnJwt
     module SigningKey
 
-      NO_SIGNING_KEYS_SOURCE = "One of #{JWKS_URI_RESOURCE_NAME}, #{PUBLIC_KEYS_RESOURCE_NAME}, and #{PROVIDER_URI_RESOURCE_NAME} have to be defined".freeze
-      ALL_SIGNING_KEYS_SOURCES = "#{JWKS_URI_RESOURCE_NAME}, #{PUBLIC_KEYS_RESOURCE_NAME}, and #{PROVIDER_URI_RESOURCE_NAME} cannot be define simultaneously".freeze
-      JWKS_PROVIDER_URI_SIGNING_PAIR = "#{JWKS_URI_RESOURCE_NAME} and #{PROVIDER_URI_RESOURCE_NAME} cannot be define simultaneously".freeze
-      JWKS_URI_PUBLIC_KEYS_PAIR = "#{JWKS_URI_RESOURCE_NAME} and #{PUBLIC_KEYS_RESOURCE_NAME} cannot be define simultaneously".freeze
-      PUBLIC_KEYS_PROVIDER_URI_PAIR = "#{PUBLIC_KEYS_RESOURCE_NAME} and #{PROVIDER_URI_RESOURCE_NAME} cannot be define simultaneously".freeze
-      CERT_STORE_ONLY_WITH_JWKS_URI = "#{CA_CERT_RESOURCE_NAME} can be define only with #{JWKS_URI_RESOURCE_NAME}".freeze
-      PUBLIC_KEYS_HAVE_ISSUER = "#{ISSUER_RESOURCE_NAME} is mandatory when #{PUBLIC_KEYS_RESOURCE_NAME} is set".freeze
+      NO_SIGNING_KEYS_SOURCE = "One of the following must be defined: #{JWKS_URI_RESOURCE_NAME}, #{PUBLIC_KEYS_RESOURCE_NAME}, or #{PROVIDER_URI_RESOURCE_NAME}".freeze
+      ALL_SIGNING_KEYS_SOURCES = "#{JWKS_URI_RESOURCE_NAME}, #{PUBLIC_KEYS_RESOURCE_NAME}, and #{PROVIDER_URI_RESOURCE_NAME} cannot be defined simultaneously".freeze
+      JWKS_PROVIDER_URI_SIGNING_PAIR = "#{JWKS_URI_RESOURCE_NAME} and #{PROVIDER_URI_RESOURCE_NAME} cannot be defined simultaneously".freeze
+      JWKS_URI_PUBLIC_KEYS_PAIR = "#{JWKS_URI_RESOURCE_NAME} and #{PUBLIC_KEYS_RESOURCE_NAME} cannot be defined simultaneously".freeze
+      PUBLIC_KEYS_PROVIDER_URI_PAIR = "#{PUBLIC_KEYS_RESOURCE_NAME} and #{PROVIDER_URI_RESOURCE_NAME} cannot be defined simultaneously".freeze
+      CERT_STORE_ONLY_WITH_JWKS_URI = "#{CA_CERT_RESOURCE_NAME} can only be defined together with #{JWKS_URI_RESOURCE_NAME}".freeze
+      PUBLIC_KEYS_HAVE_ISSUER = "#{ISSUER_RESOURCE_NAME} is mandatory when #{PUBLIC_KEYS_RESOURCE_NAME} is defined".freeze
 
       # fetches signing key settings, validates and builds SigningKeysSettings object
       SigningKeySettingsBuilder = CommandClass.new(
