@@ -607,6 +607,7 @@ pipeline {
                 authenticators_jwt/cucumber_results.html,
                 authenticators_gcp/cucumber_results.html,
                 authenticators_status/cucumber_results.html,
+                kubernetes/cucumber_results.html,
                 policy/cucumber_results.html,
                 rotators/cucumber_results.html
               ''',

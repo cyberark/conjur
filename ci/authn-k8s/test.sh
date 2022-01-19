@@ -12,7 +12,7 @@ function main() {
   setupTestEnvironment $PLATFORM
 
   createNginxCert
-    
+
   buildDockerImages
 
   case "$PLATFORM" in
@@ -84,7 +84,7 @@ function buildDockerImages() {
 
   # cukes will be run from this image
   docker tag $DOCKER_REGISTRY_PATH/conjur-test:$conjur_version $CONJUR_TEST_AUTHN_K8S_TAG
-  
+
   docker build -t $INVENTORY_BASE_TAG -f dev/Dockerfile.inventory_base dev
   docker build \
     --build-arg INVENTORY_BASE_TAG=$INVENTORY_BASE_TAG \
@@ -113,6 +113,7 @@ function test_gke() {
     -v $GCLOUD_SERVICE_KEY:/tmp$GCLOUD_SERVICE_KEY \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "$PWD":/src \
+    -v "$PWD/../../cucumber/kubernetes:/cucumber/kubernetes" \
     $CONJUR_AUTHN_K8S_TESTER_TAG bash -c "./test_gke_entrypoint.sh"
 }
 
