@@ -656,32 +656,27 @@ pipeline {
       }
     }
 
-    stage("Release Conjur") {
+    stage("Release Conjur images and packages") {
       when {
         expression {
           MODE == "RELEASE"
         }
       }
-      stages {
-        stage('Publish release images') {
-          steps {
-            sh './publish-images.sh --edge --dockerhub'
-          }
-        }
+      steps {
+        release { billOfMaterialsDirectory, assetDirectory ->
+          // Publish docker images
+          sh './publish-images.sh --edge --dockerhub'
 
-        stage('Build Debian and RPM packages') {
-          steps {
-            sh 'echo "CONJUR_VERSION=5" >> debify.env'
-            sh './package.sh'
-            archiveArtifacts artifacts: '*.deb', fingerprint: true
-            archiveArtifacts artifacts: '*.rpm', fingerprint: true
-          }
-        }
+          // Create deb and rpm packages
+          sh 'echo "CONJUR_VERSION=5" >> debify.env'
+          sh './package.sh'
+          archiveArtifacts artifacts: '*.deb', fingerprint: true
+          archiveArtifacts artifacts: '*.rpm', fingerprint: true
+          sh "cp *.rpm ${assetDirectory}/."
+          sh "cp *.deb ${assetDirectory}/."
 
-        stage('Publish Debian and RPM packages'){
-          steps {
-            sh './publish.sh'
-          }
+          // Publish deb and rpm packages
+          sh './publish.sh'
         }
       }
     }
