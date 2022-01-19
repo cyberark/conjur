@@ -657,18 +657,7 @@ pipeline {
     }
 
     stage("Release Conjur") {
-      when {
-        expression {
-          MODE == "RELEASE"
-        }
-      }
       stages {
-        stage('Publish release images') {
-          steps {
-            sh './publish-images.sh --edge --dockerhub'
-          }
-        }
-
         stage('Build Debian and RPM packages') {
           steps {
             sh 'echo "CONJUR_VERSION=5" >> debify.env'
