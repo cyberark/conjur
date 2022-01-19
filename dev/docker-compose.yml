@@ -44,6 +44,8 @@ services:
       # See https://github.com/DatabaseCleaner/database_cleaner#safeguards
       DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL: "true"
       BUNDLE_GEMFILE: /src/conjur-server/Gemfile
+    cap_add:
+      - SYSLOG
     ports:
       - "3000:3000"
       - "1234:1234"
