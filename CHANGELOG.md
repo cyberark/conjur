@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.16.0] - 2022-01-19
 
 ### Added
+- Added a policy version limit to 20 versions 
+  [#2451](https://github.com/cyberark/conjur/pull/2451)
+- Added db migration step to clear all versions older then the last 20
+  [#2458](https://github.com/cyberark/conjur/pull/2458)
 - Added the ability to fetch signing keys from JWKS endpoints that use a self-signed
   certificate or a certificate signed by a third-party CA for JWT generic vendor
   configuration
