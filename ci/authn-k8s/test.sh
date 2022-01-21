@@ -100,6 +100,7 @@ function buildDockerImages() {
 
 function test_gke() {
   docker run --rm \
+    -e CUCUMBER_FILTER_TAGS \
     -e CONJUR_AUTHN_K8S_TAG \
     -e CONJUR_TEST_AUTHN_K8S_TAG \
     -e INVENTORY_TAG \
@@ -119,6 +120,7 @@ function test_gke() {
 
 function test_openshift() {
   docker run --rm \
+    -e CUCUMBER_FILTER_TAGS \
     -e CONJUR_AUTHN_K8S_TAG \
     -e CONJUR_TEST_AUTHN_K8S_TAG \
     -e INVENTORY_TAG \

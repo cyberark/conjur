@@ -12,7 +12,7 @@ There are two ways to do this:
 
 1. (most common) Temporarily edit the Jenkinsfile.  You'll need to undo your
    change when your PR is ready for review.  Simply edit the default value of
-   the 'RUN_ONLY' parameter (defined in the parameters block below) to a 
+   the 'RUN_ONLY' parameter (defined in the parameters block below) to a
    space-separated list consisting of test names from the list below.
 
 2. Re-run the same code (perhaps because of a flaky test) directly in Jenkins.
@@ -107,6 +107,12 @@ pipeline {
       // development.
       defaultValue: ''
     )
+    string(
+      name: 'CUCUMBER_FILTER_TAGS',
+      description: 'Filter which cucumber tags will run (e.g. "not @performance")',
+      defaultValue: defaultCucumberFilterTags(env)
+    )
+
   }
 
   environment {
@@ -262,6 +268,10 @@ pipeline {
             expression { params.NIGHTLY }
           }
 
+          environment {
+            CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+          }
+
           stages {
             stage('EE FIPS agent tests') {
               agent { label 'executor-v2-rhel-ee' }
@@ -331,6 +341,10 @@ pipeline {
         stage('Run environment tests in parallel') {
           parallel {
             stage('Standard agent tests') {
+              environment {
+                CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+              }
+
               steps {
                 runConjurTests(params.RUN_ONLY)
               }
@@ -566,7 +580,7 @@ pipeline {
           }
         }
       }
-      
+
       post {
         success {
           script {
@@ -807,4 +821,15 @@ def runConjurTests(run_only_str) {
       parallel_tests.values().sum()
     )
   }
+}
+
+def defaultCucumberFilterTags(env) {
+  if(env.BRANCH_NAME == 'master' || env.TAG_NAME?.trim()) {
+    // If this is a master or tag build, we want to run all of the tests. So
+    // we use an empty filter string.
+    return ''
+  }
+
+  // For all other branch builds, only run the @smoke tests by default
+  return '@smoke'
 }

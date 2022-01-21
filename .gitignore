@@ -33,6 +33,8 @@ demo/run/load
 coverage
 .DS_Store
 demo/run/*.yml
+container_logs
+cucumber/*/*_results.*
 
 apidocs/node_modules
 *.config

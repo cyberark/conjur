@@ -274,6 +274,14 @@ function runTests() {
 
   conjurcmd mkdir -p /opt/conjur-server/output
 
+  # THE CUCUMBER_FILTER_TAGS environment variable is not natively
+  # implemented in cucumber-ruby, so we pass it as a CLI argument
+  # if the variable is set.
+  local cucumber_tags_arg="--tags \"not @skip\""
+  if [[ -n "$CUCUMBER_FILTER_TAGS" ]]; then
+    cucumber_tags_arg="--tags \"not @skip and $CUCUMBER_FILTER_TAGS\""
+  fi
+
   echo "./bin/cucumber \
     K8S_VERSION=1.7 \
     PLATFORM=kubernetes \
@@ -285,7 +293,8 @@ function runTests() {
     -r ./cucumber/kubernetes/features/support/world.rb \
     -r ./cucumber/kubernetes/features/support/hooks.rb \
     -r ./cucumber/kubernetes/features/support/conjur_token.rb \
-    --tags ~@skip ./cucumber/kubernetes/features" | cucumbercmd -i bash
+    $cucumber_tags_arg \
+    ./cucumber/kubernetes/features" | cucumbercmd -i bash
 }
 
 retrieve_pod() {

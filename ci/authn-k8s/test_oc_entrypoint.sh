@@ -55,7 +55,7 @@ export API_VERSION=v1
 function main() {
   sourceFunctions
   renderResourceTemplates
-  
+
   initialize_oc
   createNamespace
 
@@ -124,7 +124,7 @@ function launchConjurMaster() {
     oc create -f -
 
   conjur_pod=$(retrieve_pod conjur-authn-k8s)
-  
+
   wait_for_it 300 "oc describe po $conjur_pod | grep Status: | grep -q Running"
 
   # wait for the 'conjurctl server' entrypoint to finish
@@ -156,7 +156,7 @@ function loadConjurPolicies() {
   echo 'Loading the policies and data'
 
   cli_pod=$(retrieve_pod conjur-cli)
-  
+
   oc exec $cli_pod -- conjur init -u conjur -a cucumber
   sleep 5
   oc exec $cli_pod -- conjur authn login -u admin -p $API_KEY
@@ -195,7 +195,25 @@ function runTests() {
 
   conjurcmd mkdir -p /opt/conjur-server/output
 
-  echo "./bin/cucumber K8S_VERSION=$K8S_VERSION PLATFORM=openshift --no-color --format pretty --format junit --out /opt/conjur-server/output -r ./cucumber/kubernetes/features/step_definitions/ -r ./cucumber/kubernetes/features/support/world.rb -r ./cucumber/kubernetes/features/support/hooks.rb -r ./cucumber/kubernetes/features/support/conjur_token.rb --tags ~@skip ./cucumber/kubernetes/features" | conjurcmd -i bash
+  # THE CUCUMBER_FILTER_TAGS environment variable is not natively
+  # implemented in cucumber-ruby, so we pass it as a CLI argument
+  # if the variable is set.
+  local cucumber_tags_arg="--tags \"not @skip\""
+  if [[ -n "$CUCUMBER_FILTER_TAGS" ]]; then
+    cucumber_tags_arg="--tags \"not @skip and $CUCUMBER_FILTER_TAGS\""
+  fi
+
+  echo "./bin/cucumber \
+    K8S_VERSION=$K8S_VERSION \
+    PLATFORM=openshift \
+    --no-color --format pretty \
+    --format junit --out /opt/conjur-server/output \
+    -r ./cucumber/kubernetes/features/step_definitions/ \
+    -r ./cucumber/kubernetes/features/support/world.rb \
+    -r ./cucumber/kubernetes/features/support/hooks.rb \
+    -r ./cucumber/kubernetes/features/support/conjur_token.rb \
+    $cucumber_tags_arg \
+    ./cucumber/kubernetes/features" | conjurcmd -i bash
 }
 
 retrieve_pod() {
