@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require 'command_class'
+require 'opentelemetry/sdk'
+require 'opentelemetry/exporter/jaeger'
 
 module Authentication
   module AuthnK8s
-
     InjectClientCert ||= CommandClass.new(
       dependencies: {
         logger: Rails.logger,
@@ -19,10 +20,14 @@ module Authentication
     ) do
       # :reek:TooManyStatements
       def call
-        update_csr_common_name
-        validate
-        install_signed_cert
-        audit_success
+        tracer = Rails.application.config.tracer
+        #tracer = OpenTelemetry.tracer_provider.tracer('my-tracer2')
+        tracer.in_span("inject client cert", attributes: {"service id"=>@service_id, "client_ip"=>@client_ip, "host id"=>@host_id_prefix}) do |span|
+          update_csr_common_name
+          validate
+          install_signed_cert
+          audit_success
+        end
       rescue => e
         audit_failure(e)
         raise e

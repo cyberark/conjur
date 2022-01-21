@@ -92,17 +92,7 @@ gem "anyway_config", "2.1.0"
 
 # Opentelemetry tracing
 gem 'opentelemetry-api'
-gem 'opentelemetry-common'
 gem 'opentelemetry-exporter-jaeger'
-gem 'opentelemetry-exporter-otlp'
-gem 'opentelemetry-instrumentation-base'
-gem 'opentelemetry-instrumentation-http'
-gem 'opentelemetry-instrumentation-http_client'
-gem 'opentelemetry-instrumentation-pg'
-gem 'opentelemetry-instrumentation-rack'
-gem 'opentelemetry-instrumentation-rails'
-gem 'opentelemetry-instrumentation-rspec'
-gem 'opentelemetry-instrumentation-sinatra'
 gem 'opentelemetry-propagator-jaeger'
 gem 'opentelemetry-sdk'
 

@@ -79,7 +79,6 @@ Rails.application.routes.draw do
 
       post     "/ca/:account/:service_id/sign" => 'certificate_authority#sign'
     end
-
     post "/host_factories/hosts" => 'host_factories#create_host'
     post "/host_factory_tokens" => 'host_factory_tokens#create'
     delete "/host_factory_tokens/:id" => 'host_factory_tokens#destroy'

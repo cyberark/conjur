@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'logger/formatter/conjur_formatter'
+require 'opentelemetry/sdk'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -34,4 +35,7 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  #Use for Opentelemtry tracing
+  config.tracer = OpenTelemetry.tracer_provider.tracer('my-tracer')
 end
