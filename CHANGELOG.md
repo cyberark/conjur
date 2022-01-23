@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Nothing should go in this section, please add to the latest unreleased version
+  (and update the corresponding date), or add a new version.
+
+## [1.16.0] - 2022-01-19
 
 ### Added
 - Added the ability to fetch signing keys from JWKS endpoints that use a self-signed
@@ -789,7 +794,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.15.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.16.0...HEAD
+[1.16.0]: https://github.com/cyberark/conjur/compare/v1.15.0...v1.16.0
 [1.15.0]: https://github.com/cyberark/conjur/compare/v1.14.2...v1.15.0
 [1.14.2]: https://github.com/cyberark/conjur/compare/v1.14.1...v1.14.2
 [1.14.1]: https://github.com/cyberark/conjur/compare/v1.14.0...v1.14.1
