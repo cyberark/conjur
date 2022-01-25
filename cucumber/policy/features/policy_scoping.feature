@@ -1,5 +1,7 @@
+@policy
 Feature: Policies can be used to scope records by name and ownership.
 
+  @acceptance
   Scenario: Declare a scoped policy
   
     This example shows how to use a scoped policy to represent who can access credentials for a Jenkins master. 

@@ -1,3 +1,4 @@
+@authenticators_jwt
 Feature: JWT Authenticator - JWKs Basic sanity
 
   In this feature we define a JWT authenticator in policy and perform authentication
@@ -41,6 +42,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     And I successfully set authn-jwt "token-app-property" variable to value "host"
 
   @sanity
+  @negative @acceptance
   Scenario: ONYX-8598: Authenticator is not enabled
     Given I have a "variable" resource called "test-variable"
     And I am using file "authn-jwt-general" and alg "RS256" for remotely issue token:
@@ -58,6 +60,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     CONJ00004E 'authn-jwt/non-existing' is not enabled
     """
 
+  @negative @acceptance
   Scenario: ONYX-8821: Host that doesn't exist is denied
     Given I am using file "authn-jwt-general" and alg "RS256" for remotely issue token:
     """

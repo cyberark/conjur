@@ -27,18 +27,18 @@ function finish {
   echo '-----'
 
   {
-    pod_name=$(retrieve_pod conjur-authn-k8s)
-    if [[ "$pod_name" != "" ]]; then
-      echo "Grabbing output from $pod_name"
+    conjur_pod_name=$(retrieve_pod conjur-authn-k8s)
+    if [[ "$conjur_pod_name" != "" ]]; then
+      echo "Grabbing output from $conjur_pod_name"
       echo '-----'
       mkdir -p output
-      kubectl cp "$pod_name:/opt/conjur-server/output" output
+      kubectl cp "$conjur_pod_name:/opt/conjur-server/output" output
 
-      echo "Logs from Conjur Pod $pod_name:"
-      kubectl logs "$pod_name" > output/gke-authn-k8s-logs.txt
+      echo "Logs from Conjur Pod $conjur_pod_name:"
+      kubectl logs "$conjur_pod_name" > output/gke-authn-k8s-logs.txt
 
       # Rails.logger writes the logs to the environment log file
-      kubectl exec "$pod_name" -- \
+      kubectl exec "$conjur_pod_name" -- \
         bash -c "cat /opt/conjur-server/log/test.log" >> \
         output/gke-authn-k8s-logs.txt
 
@@ -50,17 +50,37 @@ function finish {
       echo "Killing conjur so that coverage report is written"
       # The container is kept alive using an infinite sleep in the at_exit hook
       # (see .simplecov) so that the kubectl cp below works.
-      kubectl exec "${pod_name}" -- bash -c "pkill -f 'puma 5'"
+      kubectl exec "${conjur_pod_name}" -- bash -c "pkill -f 'puma 5'"
 
       echo "Retrieving coverage report"
       kubectl cp \
-        "$pod_name:/opt/conjur-server/coverage/.resultset.json" \
+        "$conjur_pod_name:/opt/conjur-server/coverage/.resultset.json" \
         output/simplecov-resultset-authnk8s-gke.json
     fi
   } || {
-    echo "Logs could not be extracted from $pod_name"
+    echo "Logs could not be extracted from $conjur_pod_name"
     # So Jenkins artifact collection doesn't fail.
     touch output/gke-authn-k8s-logs.txt
+  }
+
+  {
+    cucumber_pod_name=$(retrieve_pod cucumber-authn-k8s)
+    if [[ "$conjur_pod_name" != "" ]]; then
+      echo "Retrieving cucumber reports"
+      kubectl cp \
+        "$cucumber_pod_name:/opt/conjur-server/cucumber/kubernetes/cucumber_results.json" \
+        "/cucumber/kubernetes/cucumber_results.json"
+
+      kubectl cp \
+        "$cucumber_pod_name:/opt/conjur-server/cucumber/kubernetes/cucumber_results.html" \
+        "/cucumber/kubernetes/cucumber_results.html"
+
+      kubectl cp \
+        "$cucumber_pod_name:/opt/conjur-server/cucumber/kubernetes/features/reports" \
+        "/cucumber/kubernetes/features/reports"
+    fi
+  } || {
+    echo "Results could not be extracted from $cucumber_pod_name"
   }
 
   echo "Removing namespace $CONJUR_AUTHN_K8S_TEST_NAMESPACE"
@@ -85,19 +105,19 @@ export API_VERSION=rbac.authorization.k8s.io/v1
 function main() {
   sourceFunctions
   renderResourceTemplates
-  
+
   initialize_gke
   createNamespace
 
   pushDockerImages
 
   launchConjurMaster
-  
+
   copyNginxSSLCert
-  
+
   copyConjurPolicies
   loadConjurPolicies
-  
+
   launchInventoryServices
 
   runTests
@@ -191,7 +211,7 @@ function launchConjurMaster() {
   local wait_command="while ! curl --silent --head --fail \
     localhost:80 > /dev/null; do sleep 1; done"
   kubectl exec "$conjur_pod" -- bash -c "$wait_command"
-  
+
   API_KEY=$(
     kubectl exec "$conjur_pod" -- \
       conjurctl account create cucumber | tail -n 1 | awk '{ print $NF }'
@@ -221,7 +241,7 @@ function loadConjurPolicies() {
 
   # kubectl wait not needed -- already done in copyConjurPolicies.
   cli_pod=$(retrieve_pod conjur-cli)
-  
+
   kubectl exec "$cli_pod" -- conjur init -u conjur -a cucumber
   sleep 5
   kubectl exec "$cli_pod" -- conjur authn login -u admin -p "$API_KEY"
@@ -254,16 +274,27 @@ function runTests() {
 
   conjurcmd mkdir -p /opt/conjur-server/output
 
+  # THE CUCUMBER_FILTER_TAGS environment variable is not natively
+  # implemented in cucumber-ruby, so we pass it as a CLI argument
+  # if the variable is set.
+  local cucumber_tags_arg="--tags \"not @skip\""
+  if [[ -n "$CUCUMBER_FILTER_TAGS" ]]; then
+    cucumber_tags_arg="--tags \"not @skip and $CUCUMBER_FILTER_TAGS\""
+  fi
+
   echo "./bin/cucumber \
     K8S_VERSION=1.7 \
     PLATFORM=kubernetes \
-    --no-color --format pretty --format junit \
-    --out /opt/conjur-server/output \
+    --no-color --format pretty --strict \
+    --format json --out \"./cucumber/kubernetes/cucumber_results.json\" \
+    --format html --out \"./cucumber/kubernetes/cucumber_results.html\" \
+    --format junit --out \"./cucumber/kubernetes/features/reports\" \
     -r ./cucumber/kubernetes/features/step_definitions/ \
     -r ./cucumber/kubernetes/features/support/world.rb \
     -r ./cucumber/kubernetes/features/support/hooks.rb \
     -r ./cucumber/kubernetes/features/support/conjur_token.rb \
-    --tags ~@skip ./cucumber/kubernetes/features" | cucumbercmd -i bash
+    $cucumber_tags_arg \
+    ./cucumber/kubernetes/features" | cucumbercmd -i bash
 }
 
 retrieve_pod() {

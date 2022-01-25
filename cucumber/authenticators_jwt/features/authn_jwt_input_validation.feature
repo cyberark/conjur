@@ -1,3 +1,4 @@
+@authenticators_jwt
 Feature: JWT Authenticator - Input Validation
 
   Check scenarios with authentication request
@@ -34,6 +35,7 @@ Feature: JWT Authenticator - Input Validation
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-input-validation/RS256" in service "raw"
 
   @sanity
+  @negative @acceptance
   Scenario: ONYX-8594: Empty Token Given, 401 Error
     Given I save my place in the log file
     And I am using file "authn-jwt-input-validation" and alg "RS256" for remotely issue non exp token:
@@ -48,6 +50,7 @@ Feature: JWT Authenticator - Input Validation
     """
 
   @sanity
+  @negative @acceptance
   Scenario: ONYX-8594: Invalid Token Given, 401 Error
     Given I save my place in the log file
     When I authenticate with string that is not token not-token-string-this-is-ivalid-token
@@ -58,6 +61,7 @@ Feature: JWT Authenticator - Input Validation
     """
 
   @sanity
+  @negative @acceptance
   Scenario: ONYX-8594: No Token Given, 400 Error
     Given I save my place in the log file
     When I authenticate via authn-jwt with the JWT token
@@ -67,6 +71,7 @@ Feature: JWT Authenticator - Input Validation
     CONJ00009E Field 'jwt' is missing or empty in request body
     """
 
+  @negative @acceptance
   Scenario: ONYX-8579: URL not includes service-id, includes correct account
     Given I save my place in the log file
     And I am using file "authn-jwt-input-validation" and alg "RS256" for remotely issue non exp token:
@@ -82,6 +87,7 @@ Feature: JWT Authenticator - Input Validation
     CONJ00004E 'authn-jwt/myuser' is not enabled
     """
 
+  @negative @acceptance
   Scenario: ONYX-8579: URL includes valid service id, wrong account name
     Given I save my place in the log file
     And I am using file "authn-jwt-input-validation" and alg "RS256" for remotely issue token:
@@ -97,6 +103,7 @@ Feature: JWT Authenticator - Input Validation
     CONJ00007E 'wrong-account' not found
     """
 
+  @negative @acceptance
   Scenario: ONYX-8579: URL includes wrong service id, correct account name
     Given I save my place in the log file
     And I am using file "authn-jwt-input-validation" and alg "RS256" for remotely issue non exp token:

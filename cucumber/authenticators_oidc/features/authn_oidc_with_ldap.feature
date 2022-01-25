@@ -1,3 +1,4 @@
+@authenticators_oidc
 Feature: OIDC Authenticator - Users can authenticate with OIDC & LDAP authenticators
 
   In this feature we define an OIDC authenticator and LDAP authenticator
@@ -56,6 +57,7 @@ Feature: OIDC Authenticator - Users can authenticate with OIDC & LDAP authentica
       member: !user alice
     """
 
+  @acceptance
   Scenario: Users can authenticate with 2 authenticators
     # We want to verify the returned access token is valid for retrieving a secret
     Given I have a "variable" resource called "test-variable"

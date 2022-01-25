@@ -1,3 +1,4 @@
+@api
 Feature: Adding and fetching secrets
 
   Each resource in Conjur has an associated list of "secrets", each of which is
@@ -17,6 +18,7 @@ Feature: Adding and fetching secrets
     Given I am a user named "eve"
     Given I create a new "variable" resource called "probe"
 
+  @negative @acceptance
   Scenario: Update a secret for a resource with no permissions
 
     When I am a user named "alice"
@@ -26,11 +28,13 @@ Feature: Adding and fetching secrets
     """
     Then the HTTP response status code is 404
 
+  @negative @acceptance
   Scenario: Fetching a resource with no name provided return a 404 error.
 
     When I GET "/secrets/cucumber/variable/"
     Then the HTTP response status code is 404
 
+  @negative @acceptance
   Scenario: Fetching a resource with no secret values return a 404 error.
 
     When I GET "/secrets/cucumber/variable/probe"
@@ -38,6 +42,7 @@ Feature: Adding and fetching secrets
     And there is an error
     And the error message is "CONJ00076E Variable cucumber:variable:probe is empty or not found."
 
+  @negative @acceptance
   Scenario: Fetching a secret for a nonexistent resource
 
     When I GET "/secrets/cucumber/variable/non-existent"
@@ -45,6 +50,7 @@ Feature: Adding and fetching secrets
     And there is an error
     And the error message is "CONJ00076E Variable cucumber:variable:non-existent is empty or not found."
 
+  @negative @acceptance
   Scenario: Update a secret of a nonexistent resource
 
     When I POST "/secrets/cucumber/variable/non-existent" with body:
@@ -53,6 +59,7 @@ Feature: Adding and fetching secrets
     """
     Then the HTTP response status code is 404
 
+  @negative @acceptance
   Scenario: Fetching a secret for a resource with no permissions
 
     When I POST "/secrets/cucumber/variable/probe" with body:
@@ -63,11 +70,12 @@ Feature: Adding and fetching secrets
     And I GET "/secrets/cucumber/variable/probe"
     Then the HTTP response status code is 404
 
+  @acceptance
   Scenario: The 'conjur/mime_type' annotation is used in the value response.
 
     If the annotation `conjur/mime_type` exists on a resource, then when a
     secret value is fetched from the resource, that mime type is used as the
-    `Content-Type` header in the response. 
+    `Content-Type` header in the response.
 
     Given I set annotation "conjur/mime_type" to "application/json"
     And I save my place in the audit log file for remote
@@ -91,12 +99,14 @@ Feature: Adding and fetching secrets
     """
     And the HTTP response content type is "application/json"
 
+  @acceptance
   Scenario: Secrets can contain any binary data.
 
     Given I create a binary secret value
     When I successfully GET "/secrets/cucumber/variable/probe"
     Then the binary result is preserved
 
+  @smoke
   Scenario: The last secret is the default one returned.
 
     Adding a new secret appends to a list of values on the resource. When
@@ -124,6 +134,7 @@ Feature: Adding and fetching secrets
       cucumber:user:eve fetched cucumber:variable:probe
     """
 
+  @acceptance
   Scenario: When fetching a secret, a specific secret index can be specified.
 
     The `version` parameter can be used to select a specific secret value from
@@ -150,6 +161,7 @@ Feature: Adding and fetching secrets
       cucumber:user:eve fetched version 1 of cucumber:variable:probe
     """
 
+  @negative @acceptance
   Scenario: Fetching with a non-existant secret version returns a 404 error.
 
     Given I successfully POST "/secrets/cucumber/variable/probe" with body:
@@ -159,6 +171,7 @@ Feature: Adding and fetching secrets
     When I GET "/secrets/cucumber/variable/probe?version=2"
     Then the HTTP response status code is 404
 
+  @negative @acceptance
   Scenario: When creating a secret, the value parameter is required.
     Given I save my place in the audit log file for remote
     When I POST "/secrets/cucumber/variable/probe" with body:
@@ -175,8 +188,9 @@ Feature: Adding and fetching secrets
       cucumber:user:eve tried to update cucumber:variable:probe: 'value' may not be empty
     """
 
+  @negative @acceptance
   Scenario: Only the last 20 versions of a secret are stored.
-  
+
     Given I create 20 secret values
     And I successfully POST "/secrets/cucumber/variable/probe" with body:
     """

@@ -1,4 +1,4 @@
-@gcp
+@authenticators_gcp
 Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authenticator
 
   In this feature we define a GCP authenticator in policy and perform authentication
@@ -26,6 +26,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     And I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
 
+  @smoke
   Scenario: Hosts can authenticate with GCP authenticator and fetch secret
     Given I have a "variable" resource called "test-variable"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
@@ -41,6 +42,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     cucumber:host:test-app successfully authenticated with authenticator authn-gcp service cucumber:webservice:conjur/authn-gcp
     """
 
+  @acceptance
   Scenario: Host can authenticate with only project-id annotation set
     Given I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
@@ -55,6 +57,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     cucumber:host:test-app successfully authenticated with authenticator authn-gcp service cucumber:webservice:conjur/authn-gcp
     """
 
+  @acceptance
   Scenario: Host can authenticate with only service-account-id annotation set
     Given I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
@@ -69,6 +72,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     cucumber:host:test-app successfully authenticated with authenticator authn-gcp service cucumber:webservice:conjur/authn-gcp
     """
 
+  @acceptance
   Scenario: Host can authenticate with only service-account-email annotation set
     Given I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
@@ -83,6 +87,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     cucumber:host:test-app successfully authenticated with authenticator authn-gcp service cucumber:webservice:conjur/authn-gcp
     """
 
+  @acceptance
   Scenario: Host can not authenticate with only instance-name annotation set
     Given I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
@@ -97,6 +102,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     CONJ00069E Role must have at least one of the following constraints: ["project-id", "service-account-id", "service-account-email"]
     """
 
+  @negative @acceptance
   Scenario: Non-existing account in token audience claim is denied
     Given I obtain a non_existing_account GCE identity token
     And I save my place in the log file
@@ -111,6 +117,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     cucumber:user:USERNAME_MISSING failed to authenticate with authenticator authn-gcp service
     """
 
+  @negative @acceptance
   Scenario: Non-existing account in URL request is denied
     Given I save my place in the log file
     When I authenticate with authn-gcp using obtained GCE token and non-existing account
@@ -124,6 +131,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     non-existing:user:USERNAME_MISSING failed to authenticate with authenticator authn-gcp service
     """
 
+  @acceptance
   Scenario: Authenticate using token in standard format and host with only service-account-id annotation set
     Given I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
@@ -138,6 +146,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     cucumber:host:test-app successfully authenticated with authenticator authn-gcp service cucumber:webservice:conjur/authn-gcp
     """
 
+  @negative @acceptance
   Scenario: Requests with an existing user ID in URL is responded with not found
     Given I save my place in the log file
     When I authenticate with authn-gcp using no token and user id "host%2Ftest-app" in the request
@@ -147,6 +156,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
     ActionController::RoutingError (No route matches [POST] "/authn-gcp/cucumber/host%2Ftest-app/authenticate")
     """
 
+  @negative @acceptance
   Scenario: Requests with a non-existing user ID in URL is responded with not found
     Given I save my place in the log file
     When I authenticate with authn-gcp using no token and user id "host%2Fnon-existing" in the request

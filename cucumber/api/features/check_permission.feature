@@ -1,3 +1,4 @@
+@api
 Feature: Check whether a role has a privilege on a resource
 
   An RBAC transaction involves a role, a privilege, and a resource. A permission
@@ -9,6 +10,7 @@ Feature: Check whether a role has a privilege on a resource
     And I create a new user "bob"
     And I permit user "bob" to "fry" it
 
+  @smoke
   Scenario: I confirm that I can perform the granted action
     If a role is granted a privilege on a resource, then a permission check will pass.
 
@@ -28,6 +30,7 @@ Feature: Check whether a role has a privilege on a resource
       cucumber:user:charlie successfully checked if they can fry cucumber:chunky:bacon
     """
 
+  @smoke
   Scenario: I confirm that the role can perform the granted action
     If a role is granted a privilege on a resource, then a permission check will pass.
 
@@ -48,6 +51,7 @@ Feature: Check whether a role has a privilege on a resource
       cucumber:user:charlie successfully checked if cucumber:user:bob can fry cucumber:chunky:bacon
     """
 
+  @smoke
   Scenario: I confirm that the role cannot perform ungranted actions
     If a role is not granted a privilege, then a permission check will fail.
 
@@ -69,6 +73,7 @@ Feature: Check whether a role has a privilege on a resource
       cucumber:user:charlie failed to check if cucumber:user:bob can freeze cucumber:chunky:bacon
     """
 
+  @smoke
   Scenario: The new role can confirm that it may perform the granted action
 
     A role which is authenticated can use `check` parameter to determine whether it
@@ -81,6 +86,7 @@ Feature: Check whether a role has a privilege on a resource
     privilege: fry
     """
 
+  @negative @acceptance
   Scenario: I confirm that the non-existing role permission check will fail
     If a role is not existing, then a permission check will fail.
 
@@ -92,6 +98,7 @@ Feature: Check whether a role has a privilege on a resource
     """
     Then the HTTP response status code is 403
 
+  @acceptance
   Scenario: I confirm that the role cannot perform actions on nonexistent resources
 
     If permission check is for not existing variable it will fail.
@@ -104,6 +111,7 @@ Feature: Check whether a role has a privilege on a resource
     """
     Then the HTTP response status code is 404
 
+  @negative @acceptance
   Scenario: I confirm that the role cannot perform actions on resources it doesn't have permission
 
   If a role is not granted a permission, then a permission check will fail.

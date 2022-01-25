@@ -1,5 +1,7 @@
+@policies
 Feature: Policies can refer to each other by relative path.
 
+  @smoke
   Scenario: Two sibling policies can refer to each other by relative path.
 
     A policy can grant its own roles and permissions to roles in other policies.
@@ -40,6 +42,7 @@ Feature: Policies can refer to each other by relative path.
     When I log in as host "host-01"
     Then I can fetch a secret from variable resource "prod/database/password"
 
+  @acceptance
   Scenario: Policy references can be used across policy loader invocations.
     Given I load a policy:
     """

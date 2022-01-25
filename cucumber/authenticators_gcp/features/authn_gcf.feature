@@ -1,4 +1,4 @@
-@gcp
+@authenticators_gcp
 Feature: GCP Authenticator - GCF flow, hosts can authenticate with GCP authenticator
 
   In this feature we define a GCP authenticator in policy and perform authentication
@@ -25,6 +25,7 @@ Feature: GCP Authenticator - GCF flow, hosts can authenticate with GCP authentic
     And I have host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
 
+  @smoke
   Scenario: Hosts can authenticate with GCP authenticator and fetch secret
     Given I have a "variable" resource called "test-variable"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
@@ -41,6 +42,7 @@ Feature: GCP Authenticator - GCF flow, hosts can authenticate with GCP authentic
     cucumber:host:test-app successfully authenticated with authenticator authn-gcp service cucumber:webservice:conjur/authn-gcp
     """
 
+  @acceptance
   Scenario: Hosts can authenticate with GCP authenticator using service-account-id annotation only and fetch secret
     Given I have a "variable" resource called "test-variable"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
@@ -57,6 +59,7 @@ Feature: GCP Authenticator - GCF flow, hosts can authenticate with GCP authentic
     cucumber:host:test-app successfully authenticated with authenticator authn-gcp service cucumber:webservice:conjur/authn-gcp
     """
 
+  @acceptance
   Scenario: Hosts can authenticate with GCP authenticator using service-account-email annotation only and fetch secret
     Given I have a "variable" resource called "test-variable"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"

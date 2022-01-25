@@ -1,5 +1,7 @@
+@api
 Feature: Policy loading error messages
 
+  @negative @acceptance
   @logged-in-admin
   Scenario: A policy which references a non-existing resource reports the error.
 
@@ -40,6 +42,7 @@ Feature: Policy loading error messages
       Failed to load policy: User 'bob' not found in account 'cucumber'
     """
 
+  @negative @acceptance
   @logged-in-admin
   Scenario: A policy with a blank resource id reports the error.
     Given I save my place in the audit log file for remote
@@ -79,6 +82,7 @@ Feature: Policy loading error messages
       Failed to load policy: policy_text resource has a blank id
     """
 
+  @negative @acceptance
   @logged-in-admin
   Scenario: Posting a policy without a body
     Given I save my place in the audit log file for remote

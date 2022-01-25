@@ -1,3 +1,4 @@
+@api
 Feature: Updating policies
 
   Policy updates can be performed in any of three modes: PUT, PATCH, and POST.
@@ -30,6 +31,7 @@ Feature: Updating policies
       role: !user carol
     """
 
+  @acceptance
   Scenario: a policy is invisible without some permission on it
     When I login as "sam"
     And I POST "/policies/cucumber/policy/dev/db" with body:
@@ -38,6 +40,7 @@ Feature: Updating policies
     """
     Then the HTTP response status code is 404
 
+  @acceptance
   Scenario: `create` privilege is sufficient to add records to a policy via POST.
     When I login as "alice"
     Then I successfully POST "/policies/cucumber/policy/dev/db" with body:

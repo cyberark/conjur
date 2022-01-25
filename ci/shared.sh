@@ -63,6 +63,7 @@ _run_cucumber_tests() {
   env_var_flags+=(
     -e "CONJUR_AUTHN_API_KEY=$(_get_api_key)"
     -e "CUCUMBER_NETWORK=$(_find_cucumber_network)"
+    -e "CUCUMBER_FILTER_TAGS=$CUCUMBER_FILTER_TAGS"
   )
 
   # If there's no tty (e.g. we're running as a Jenkins job), pass -T to
@@ -72,6 +73,14 @@ _run_cucumber_tests() {
     run_flags+=(-T)
   fi
 
+  # THE CUCUMBER_FILTER_TAGS environment variable is not natively
+  # implemented in cucumber-ruby, so we pass it as a CLI argument
+  # if the variable is set.
+  local cucumber_tags_arg
+  if [[ -n "$CUCUMBER_FILTER_TAGS" ]]; then
+    cucumber_tags_arg="--tags \"$CUCUMBER_FILTER_TAGS\""
+  fi
+
   # Stage 3: Run Cucumber
   # -----------------------------------------------------------
 
@@ -79,6 +88,7 @@ _run_cucumber_tests() {
     cucumber -ec "\
       bundle exec cucumber \
        --strict \
+       ${cucumber_tags_arg} \
        -p \"$profile\" \
        --format json --out \"cucumber/$profile/cucumber_results.json\" \
        --format html --out \"cucumber/$profile/cucumber_results.html\" \
@@ -121,7 +131,7 @@ _find_cucumber_network() {
 wait_for_cmd() {
   : "${timeout_secs:=120}"
   local cmd=("$@")
-  
+
   for _ in $(seq "$timeout_secs"); do
     if "${cmd[@]}"; then
       return 0
@@ -136,7 +146,7 @@ _wait_for_pg() {
   local svc=$1
   local pg_cmd=(psql -U postgres -c "select 1" -d postgres)
   local dc_cmd=(docker-compose exec -T "$svc" "${pg_cmd[@]}")
-  
+
   echo "Waiting for pg to come up..."
 
   if ! timeout_secs=120 wait_for_cmd "${dc_cmd[@]}"; then

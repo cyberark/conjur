@@ -1,3 +1,4 @@
+@api
 Feature: RBAC privileges control whether a role can update and/or fetch a secret.
 
   Background:
@@ -6,6 +7,7 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
     And I permit user "bob" to "read" it
     And I create 1 secret values
 
+  @negative @acceptance
   Scenario: Fetching a secret as an unauthorized user results in a 403 error.
 
     Given I login as "bob"
@@ -22,6 +24,7 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
       cucumber:user:bob tried to fetch cucumber:variable:probe: Forbidden
     """
 
+  @negative @acceptance
   Scenario: Updating a secret as an unauthorized user results in a 403 error.
 
     Given I login as "bob"
@@ -41,6 +44,7 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
       cucumber:user:bob tried to update cucumber:variable:probe: Forbidden
     """
 
+  @acceptance
   Scenario: A foreign role can be granted permission to fetch a secret.
 
     The `execute` privilege can be granted to any role to allow it to fetch a secret.
@@ -49,10 +53,11 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
     And I login as "bob"
     Then I can GET "/secrets/cucumber/:resource_kind/:resource_id"
 
+  @acceptance
   Scenario: A foreign role can be granted permission to update a secret.
 
     The `update` privilege can be granted to any role to allow it to update a secret.
- 
+
     Given I permit user "bob" to "update" it
     When I login as "bob"
     Then I can POST "/secrets/cucumber/:resource_kind/:resource_id" with parameters:
@@ -60,6 +65,7 @@ Feature: RBAC privileges control whether a role can update and/or fetch a secret
     v-1
     """
 
+  @negative @acceptance
   Scenario: Fetching a secret without any permission on it
     If the user doesn't have any permission or ownership of a secret, fetching
     it should return 404 (not 403) even if it exists.

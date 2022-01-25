@@ -1,5 +1,7 @@
+@api
 Feature: Policy load response
 
+  @smoke
   @logged-in-admin
   Scenario: API keys of users and hosts created by a new policy are returned in the JSON response.
     When I successfully POST "/policies/cucumber/policy/root" with body:

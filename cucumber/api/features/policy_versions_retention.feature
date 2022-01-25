@@ -1,3 +1,4 @@
+@api
 Feature: Limit the number of policy versions
 
   Each update of a policy creates a policy version record and policy log records. This feature limits
@@ -10,6 +11,7 @@ Feature: Limit the number of policy versions
       - !policy policy_test_version
     """
 
+  @acceptance
   Scenario: I update a policy multiple times so it exceeds the default policy versions limit and get the default
             limited number of versions in response when I retrieve the policy resource
     Given I save my place in the log file
@@ -25,6 +27,7 @@ Feature: Limit the number of policy versions
     Deleting policy version: {:version=>1, :resource_id=>"cucumber:policy:policy_test_version",
     """
 
+  @acceptance
   Scenario: DB migration removes policy versions that exceed to limit
     Given I save my place in the log file
     And I successfully POST 21 times "/policies/cucumber/policy/policy_test_version" with body:

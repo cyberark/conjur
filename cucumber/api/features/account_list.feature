@@ -1,3 +1,4 @@
+@api
 Feature: List accounts
 
   The list of accounts, excluding the "!" special account, is available through the
@@ -12,6 +13,7 @@ Feature: List accounts
     id=new-account
     """
 
+  @smoke
   Scenario: GET /accounts to list accounts.
 
     "read" privilege on "!:webservice:accounts" is required.
@@ -24,6 +26,7 @@ Feature: List accounts
     And the JSON should include "new-account"
     And the JSON should not include "!"
 
+  @acceptance 
   @logged-in-admin
   Scenario: GET /accounts requires "read" privilege.
 

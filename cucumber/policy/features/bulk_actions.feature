@@ -1,5 +1,7 @@
+@policy
 Feature: YAML anchors can be used for bulk actions
 
+  @smoke
   Scenario: Group records for bulk actions
     Sometimes you will want to grant privileges or perform actions on a group
     of roles or resources.  In this policy, two AWS-related variables (secrets)

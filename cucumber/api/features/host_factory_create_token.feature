@@ -1,3 +1,4 @@
+@api
 @logged-in
 Feature: Create a host factory token.
 
@@ -5,19 +6,21 @@ Feature: Create a host factory token.
     Given I create a new user "alice"
     And I create a host factory for layer "the-layer"
 
-
+  @negative @acceptance
   Scenario: A host factory is invisible without some permission on it
     Given I login as "alice"
 
     When I POST "/host_factory_tokens?host_factory=cucumber:host_factory:the-layer-factory&expiration=2050-12-31" with in-body params
     Then the HTTP response status code is 404
 
+  @negative @acceptance
   Scenario: Unauthorized users cannot create host factory tokens.
     Given I permit user "alice" to "read" it
     And I login as "alice"
     When I POST "/host_factory_tokens?host_factory=cucumber:host_factory:the-layer-factory&expiration=2050-12-31"
     Then the HTTP response status code is 403
 
+  @smoke
   Scenario: A host factory token can be created by specifying an expiration time.
     Given I permit user "alice" to "execute" it
     And I login as "alice"
@@ -36,6 +39,7 @@ Feature: Create a host factory token.
     ]
     """
 
+  @acceptance
   Scenario: A host factory token can be created by specifying an expiration time and CIDR.
     Given I permit user "alice" to "execute" it
     And I login as "alice"
@@ -54,6 +58,7 @@ Feature: Create a host factory token.
     ]
     """
 
+  @negative @acceptance
   Scenario: A host factory token cannot be created with invalid CIDR
     Given I permit user "alice" to "execute" it
     And I login as "alice"

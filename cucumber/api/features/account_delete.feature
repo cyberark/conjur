@@ -1,3 +1,4 @@
+@api
 Feature: Delete an account
 
   Accounts can be deleted through the API.
@@ -18,6 +19,7 @@ Feature: Delete an account
     id=new.account
     """
 
+  @smoke
   Scenario: DELETE /accounts/:id to delete an account.
 
     "update" privilege on "!:webservice:accounts" is required.
@@ -27,6 +29,7 @@ Feature: Delete an account
     And I successfully GET "/accounts"
     And the JSON should not include "new.account"
 
+  @acceptance
   Scenario: DELETE /accounts requires "update" privilege.
 
     Without "update" privilege the request is forbidden.
@@ -36,6 +39,7 @@ Feature: Delete an account
     Then the HTTP response status code is 403
     And the result is empty
 
+  @acceptance
   Scenario: Root policy can be reloaded after DELETE
 
     Given I login as "new.account:user:admin"

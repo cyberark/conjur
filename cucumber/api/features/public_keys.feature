@@ -1,3 +1,4 @@
+@api
 @logged-in
 Feature: List a role's public keys
 
@@ -6,6 +7,7 @@ Feature: List a role's public keys
     And I create a new "public_key" resource called "user/alice/workstation"
     And I create a new "public_key" resource called "user/alice/laptop"
 
+  @smoke
   Scenario: Public keys can be added and queried through the REST API.
 
     Adding a public key for a role requires `update` privilege on the `public_key` resource.

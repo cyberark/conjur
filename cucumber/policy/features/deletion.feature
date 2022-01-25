@@ -1,8 +1,10 @@
+@policy
 Feature: Deleting objects and relationships.
 
   Objects and relationships can be explicitly deleted using the !delete,
   !revoke, and !deny statements.
 
+  @smoke
   Scenario: The !delete statement can be used to delete an object.
     Given I load a policy:
     """
@@ -16,6 +18,7 @@ Feature: Deleting objects and relationships.
     """
     Then group "developers" does not exist
 
+  @acceptance
   Scenario: Deleting variable value is unrecoverable.
     Given I load a policy:
     """
@@ -47,6 +50,7 @@ Feature: Deleting objects and relationships.
     Then variable "test/db-password" exists
     And variable resource "test/db-password" does not have a secret value
 
+  @acceptance
   Scenario: Deleting variable value is unrecoverable even if we add same variable with the delete policy
     Given I load a policy:
     """
@@ -72,6 +76,7 @@ Feature: Deleting objects and relationships.
     Then variable "test/db-password" exists
     And variable resource "test/db-password" does not have a secret value
 
+  @acceptance
   Scenario: Deleting variable value is unrecoverable when we delete the policy itself and then add it again
     Given I load a policy:
     """
@@ -100,6 +105,7 @@ Feature: Deleting objects and relationships.
     Then variable "test/db-password" exists
     And variable resource "test/db-password" does not have a secret value
 
+  @smoke
   Scenario: The !revoke statement can be used to revoke a role grant.
     Given I load a policy:
     """
@@ -120,7 +126,7 @@ Feature: Deleting objects and relationships.
     And I show the group "employees"
     Then group "developers" is not a role member
 
-
+  @smoke
   Scenario: The !deny statement can be used to revoke a permission.
     Given I load a policy:
     """

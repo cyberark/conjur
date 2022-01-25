@@ -1,3 +1,4 @@
+@authenticators_jwt
 Feature: JWT Authenticator - Check registered claim
 
   Verify the authenticator works correctly with the registered claims:
@@ -74,6 +75,7 @@ Feature: JWT Authenticator - Check registered claim
     And I permit host "myapp" to "execute" it
     And I permit host "alice" to "execute" it
 
+  @acceptance
   Scenario: ONYX-8727: Issuer configured with incorrect value, iss claim not exists in token, 200 ok
     Given I extend the policy with:
     """
@@ -104,6 +106,7 @@ Feature: JWT Authenticator - Check registered claim
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
+  @negative @acceptance
   Scenario: ONYX-8714: JWT token with past exp claim value, 401 Error
     Given I extend the policy with:
     """
@@ -130,6 +133,7 @@ Feature: JWT Authenticator - Check registered claim
     CONJ00016E Token expired
     """
 
+  @negative @acceptance
   Scenario: ONYX-8711: Valid JWT token with no exp claim, 401 Error
     Given I extend the policy with:
     """
@@ -155,6 +159,7 @@ Feature: JWT Authenticator - Check registered claim
     CONJ00091E Failed to validate token: mandatory claim 'exp' is missing.
     """
 
+  @negative @acceptance
   Scenario: ONYX-8715: JWT token with future iat claim, 401 Error
     Given I extend the policy with:
     """
@@ -181,6 +186,7 @@ Feature: JWT Authenticator - Check registered claim
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIatError: Invalid iat>')>
     """
 
+  @negative @acceptance
   Scenario: ONYX-8716: JWT token with future nbf claim, 401 Error
     Given I extend the policy with:
     """
@@ -207,6 +213,7 @@ Feature: JWT Authenticator - Check registered claim
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::ImmatureSignature: Signature nbf has not been reached>')>
     """
 
+  @negative @acceptance
   Scenario: ONYX-8718: issuer configured but not set, iss claim exists in token, 401 Error
     Given I extend the policy with:
     """
@@ -236,6 +243,7 @@ Feature: JWT Authenticator - Check registered claim
     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/issuer
     """
 
+  @acceptance
   Scenario: ONYX-8719: issuer configured but not set, iss claim not exists in token, 200 ok
     Given I extend the policy with:
     """
@@ -264,6 +272,7 @@ Feature: JWT Authenticator - Check registered claim
     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/issuer
     """
 
+  @acceptance
   Scenario: ONYX-8728: jwks-uri configured with correct value, issuer configured with correct value, iss claim with correct value, 200 OK
     Given I extend the policy with:
     """
@@ -295,6 +304,7 @@ Feature: JWT Authenticator - Check registered claim
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
+  @negative @acceptance
   Scenario: ONYX-8728: jwks-uri configured with correct value, issuer configured with wrong value, iss claim with correct value, 401 Error
     Given I extend the policy with:
     """
@@ -325,6 +335,7 @@ Feature: JWT Authenticator - Check registered claim
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIssuerError: Invalid issuer. Expected incorrect.com, received http://jwks>')>
     """
 
+  @negative @acceptance
   Scenario: ONYX-8728: jwks-uri configured with wrong value, issuer configured with wrong value, iss claim with correct value, 401 Error
     Given I extend the policy with:
     """
@@ -355,6 +366,7 @@ Feature: JWT Authenticator - Check registered claim
     CONJ00087E Failed to fetch JWKS from 'incorrect.com'
     """
 
+  @negative @acceptance
   Scenario: ONYX-8728: provider-uri configured with wrong value, issuer configured with wrong value, iss claim with correct value, 502 Error
     Given I successfully set authn-jwt "provider-uri" variable in keycloack service to "incorrect.com"
     And I successfully set authn-jwt "token-app-property" variable with OIDC value from env var "ID_TOKEN_USER_PROPERTY"
@@ -368,6 +380,7 @@ Feature: JWT Authenticator - Check registered claim
     CONJ00011E Failed to discover Identity Provider (Provider URI: 'incorrect.com'). Reason: '#<AttrRequired::AttrMissing: 'host' required.>'
     """
 
+  @negative @acceptance
   Scenario: ONYX-15323: public-keys with invalid issuer variable
     Given I extend the policy with:
     """
@@ -393,6 +406,7 @@ Feature: JWT Authenticator - Check registered claim
     """
 
   @sanity
+  @acceptance
   Scenario Outline: Audience tests
     Given I extend the policy with:
     """

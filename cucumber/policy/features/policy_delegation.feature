@@ -1,5 +1,7 @@
+@policy
 Feature: Policies can be organized into hierarchies with specific update permissions.
 
+  @acceptance
   Scenario: Define a root policy with sub-policies
   
     Given I load a policy:
